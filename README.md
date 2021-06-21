@@ -97,7 +97,7 @@ it is an amalgamation of several existing language ideas and scripting/shell con
 It is designed to be **compiled** and have the light feeling of being **interpreted** for details.
 
 ## License and Trademark
-It is licensed under the MIT license; see [License](https://www.ek9lang.org/LICENSE.txt) and
+It is licensed under the MIT license; see [License](LICENSE) and
 [Trademark](https://www.ek9lang.org/tradeMarkPolicy.html).
 
 ## Contributing
