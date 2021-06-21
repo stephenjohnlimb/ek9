@@ -80,7 +80,7 @@ There is quite an involved explanation of the code in the example, but the examp
 
 There is another [example](https://www.ek9lang.org/composition.html/composition_example) that is based on promoting a
 **compositional** design. Originally the external site example was in C++ and then adapted to
-[Python](https://realpython.com/inheritance-composition-python/). If you compare the EK9 and Python code you'll see if is very
+[Python](https://realpython.com/inheritance-composition-python/). If you compare the EK9 and Python code you'll see it is very
 similar. So you can just code EK9 in a sort of Python style if you wish - then slowly start to incorporate the new features of EK9 in as and when you feel the need.
 
 So as EK9 has been inspired by a range of different languages, you have the opportunity to use many of the same ideas from those
