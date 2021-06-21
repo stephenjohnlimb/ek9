@@ -1,0 +1,59 @@
+# Contributing to EK9
+
+We welcome any sort of positive contribution, whether is is improvements to documentation, testing, **coding** and
+especially 'fuzzing' as this is a major knowledge gap at present.
+
+## Code of Conduct
+See [contribution code of conduct](CODE_OF_CONDUCT.md) for details of what conduct is acceptable.
+
+## What to contribute
+The development of reference implementation of the compiler is under way and is open for contributions.
+
+The initial implementation will be written in Java, all code must have unit tests.
+
+Corrections and improvements to the EK9 documentation web site are welcome as are reviews and ideas surrounding the grammar.
+But at this point in time we're really focused on getting the existing grammar robust and resilient - rather than adding more features or capabilities in.
+
+Having written all the examples and actually used the EK9 language to accomplish a few things (even with just the basic prototype). I now feel ready to built the reference implementation.
+
+Ideally I'd like a hand doing this, as it's a very big job. But more importantly I'd like to share the experience with like minded people (from wherever they are are in the world and whatever background they come from).
+
+I've found using the EK9 language has enabled me to review how I code and produce structures and mechanisms that I would not
+normally have employed. I've found this a breath of fresh air. I'd like as many people as possible to at least try EK9 out as an
+alternative to other main stream languages.
+
+I've spent about ten years on and off getting this far - most of that time has been spent throwing away code! But I can now see
+a linear (but hard) path to building the reference implementation of the compiler.
+
+I'm expecting this next phase to take about another ten years - maybe with some help we could get that time down!
+
+
+### Phase of development
+
+#### Phase 1
+Currently the first grammar is being finalised and all the EK9 source code examples, together with a Lexer/Parser in Java
+will be contributed.
+
+'Fuzzer' contributions required to automatically generate code that won't quite 'parse'. Ensure parsing and lexing gives suitable and accurate locations of where the errors are.
+
+#### Phase 2
+Symbol table creation, phased parsing to populate symbol tables
+
+#### Phase 3
+Revisit phased parsing add in error chaeck that can be completed early in compilation phase
+More 'Fuzzer' contributions required, for code the will Lex and Parse but should not compile (i.e missing declarations, etc).
+
+#### Phase 4
+Expand parsing phases to deal with Templates/Generics
+
+#### Phase 5
+Create an Intermediate Representation that is sufficiently detailed that any number and range or target output languages can be
+generated. 
+
+#### Phase 6
+Code generation, initially produce Java source code an an output from the Intermediate Representation.
+If there is sufficient interest in generating different output formats, for example LLVM or MSIL or even Java Byte code then
+those projects can be run in parallel to the main focus of generating Java source code for the compiler.
+
+#### Phase 7
+Wrap the resulting compiler (java jar) in native executables/packages for Linux, Windows and MacOS
