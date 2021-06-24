@@ -12,7 +12,7 @@ The development of reference implementation of the compiler is under way and is 
 The initial implementation will be written in Java, all code must have unit tests.
 
 Corrections and improvements to the EK9 documentation web site are welcome as are reviews and ideas surrounding the grammar.
-But at this point in time we're really focused on getting the existing grammar robust and resilient -
+But at this point in time focus is on getting the existing grammar robust and resilient -
 rather than adding more features or capabilities in.
 
 Having written all the examples and actually used the EK9 language to accomplish a few things
