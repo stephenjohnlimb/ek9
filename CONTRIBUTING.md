@@ -6,8 +6,10 @@ especially 'fuzzing' as this is a major knowledge gap at present.
 ## Code of Conduct
 See contribution [ code of conduct](CODE_OF_CONDUCT.md) for details of what conduct is acceptable.
 
-## What to contribute?
+## What/How to contribute?
 The development of reference implementation of the compiler is under way and is open for contributions.
+See the [WIKI](https://github.com/stephenjohnlimb/ek9/wiki/EK9-Development) to see how the project is structured and
+how you can run and debug the grammar with some EK9 source code.
 
 The initial implementation will be written in Java, all code must have unit tests.
 

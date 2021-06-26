@@ -1,5 +1,9 @@
 # The EK9 Programming Language
 
+![GitHub](https://img.shields.io/github/license/stephenjohnlimb/ek9)
+![GitHub Workflow Status (event)](https://img.shields.io/github/workflow/status/stephenjohnlimb/ek9/Java%20CI?event=push)
+![Twitter Follow](https://img.shields.io/twitter/follow/stephenjohnlimb?label=Follow%20EK9&style=social)
+
 ## Overview
 Focused on the development a new programming language (yes another one).
 Much as been done already in terms of research/development and the definition of the language grammar (ANTLR4).
@@ -25,6 +29,10 @@ This also includes the **Pascal** type approach of creating sections for **const
 EK9 source files can contain any number of **constructs** and files must have a name ending in **.ek9**.
 External build/make/poms are redundant by including a [package construct](https://www.ek9lang.org/packaging.html)
 into the language itself.
+
+## Contributing
+
+See [Contributing](CONTRIBUTING.md) for details on how to contribute.
 
 ## Why create another programming language?
 Frustration with other languages, like C, C++, Pascal, Java and so some extent Python. I love them all in
@@ -126,6 +134,3 @@ EK9 is **compiled** but has the light feeling of being **interpreted**.
 It is licensed under the MIT license; see [License](LICENSE) and
 [Trademark](https://www.ek9lang.org/tradeMarkPolicy.html).
 
-## Contributing
-
-See [Contributing](CONTRIBUTING.md) for details on how to contribute.
