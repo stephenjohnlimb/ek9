@@ -1,0 +1,80 @@
+#!ek9
+defines module net.customer.inferred
+
+  defines function
+
+    compareFunction() of type T
+      ->
+        item1 as T
+        item2 as T
+      <-
+        rtn as Integer := item1 <=> item2
+  
+  defines program
+
+    Comparator()
+      stdout <- Stdout()
+      intComparator <- () is compareFunction of Integer as function
+      
+      stringComparator <- () extends compareFunction of String as function
+      
+      intResult <- intComparator(2, 8)
+      stdout.println(`Result of int comparison is ${intResult}`)
+      
+      stringResult <- stringComparator("two", "eight")
+      stdout.println(`Result of string comparison is ${stringResult}`)
+               
+  //Now a few classes including the definition of a Generic type called SomeTestList.
+  //List has now been defined in java as a generic class an reverse engineered 
+  defines class
+
+    //Generic SomeTestList and lets allow it to be extended - see at end of file.
+    SomeTestList of type T as open
+      
+      //This is where we store the T's for our list
+      actualSomeTestList as RawList := RawList()
+      
+      aTest as T: T()
+              
+      //Constructor
+      SomeTestList()
+        -> item as T
+        var <- item
+
+      get()
+        -> index as Integer
+        <- rtn as T: T()
+          
+      //Add a T to the list.
+      operator +
+        -> item as T
+        <- rtn as SomeTestList of T := SomeTestList()
+        //Need to be able to say := this - but not quite right yet as types aren't the same!
+        //TODO fix up
+
+        if item?
+          other as T := T()
+        else
+          check as T := T()
+
+      something()
+        <- rtn as SomeTestList of T := SomeTestList()
+             
+    //Lets see how we can use those generic types.    
+    Class1
+
+      //So a simple testing method                
+      method1()
+        
+        aSomeTestList as SomeTestList of String: SomeTestList()
+
+        bSomeTestList <- SomeTestList("Steve")
+
+    //end of Class1
+
+    MyList is SomeTestList of String
+      var String: String()
+      MyList()
+        var: "Steve"
+              
+//EOF

@@ -1,0 +1,7 @@
+#!ek9
+defines module introduction
+  defines program
+    HelloWorld()
+      stdout <- Stdout()
+      stdout.println("Hello, World")
+//EOF

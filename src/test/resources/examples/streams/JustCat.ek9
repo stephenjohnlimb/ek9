@@ -1,0 +1,85 @@
+#!ek9
+defines module com.customer.justcat
+
+  defines type
+    List of String
+
+  defines function
+    someNames()
+      <- rtn as List of String: ["Some", "Words", "From", "Function"]
+
+    outputFormatSeparated()
+      ->
+        firstPart String
+        secondPart String
+      <-
+        rtn as String: firstPart? and secondPart? <- firstPart + ", " + secondPart : String()
+
+  //Some examples of the new parser grammar to enable return values from stream pipelines over multiple lines.
+  defines class
+    NameProvider
+      someNames()
+        <- rtn as List of String: ["Some", "Words", "From", "Class", "Method"]
+
+      cattyCat1()
+        <- rtn as String: cat ["Some", "Words", "From", "Class", "Method"] | join with outputFormatSeparated | collect as String
+        
+      cattyCat2()
+        <- rtn as String: cat someNames() | join with outputFormatSeparated | collect as String
+      
+      cattyCat3()
+        <- rtn as String: cat ["Some", "Words", "From", "Class", "Method"]
+          | join with outputFormatSeparated
+          | collect as String
+        
+      cattyCat4()
+        <- rtn as String: cat someNames()
+          | join with outputFormatSeparated
+          | collect as String    
+        
+  defines program
+    ANewTest()
+      stdout <- Stdout()
+      
+      cat someFunctionReturningStuff() > stdout
+      
+      cat someFunctionReturningStuff() | filter by something > stdout
+      
+      cat this.someFunctionReturningStuff() | filter by someHigherFunction() > someMethod()
+      
+      cat super.someFunctionReturningStuff() | filter by super.someHigherFunction() > object.thatHasMethod()
+      
+      cat obj1.obj2.someFunctionReturningStuff() | filter by this.someHigherFunction() > some.bucket().WithNetworkingStuff()
+      
+      cat obj1.method1().obj2.someFunctionReturningStuff() | filter by this.someHigherFunction().otherChainedFunction() > stdout
+      
+      //So there's your one line lambda - if you really must.
+      cat someFunctionReturningStuff() | filter by () is someAbstractImpl as pure (rtn: 22) > stdout
+      
+    CatList()
+      stdout <- Stdout()
+
+      cat "Steve" > stdout
+
+      cat 0b01100011100 > stdout
+
+      //Just using the list
+      theList <- ["Some", "Words", "For", "Listing"]
+      cat theList > stdout
+
+      //Using an iterator variable from the list
+      iterator <- theList.iterator()
+      cat iterator > stdout
+
+      //But now it also possible to do this
+      cat ["Some", "Words", "For", "Listing"] > stdout
+
+      //Fails in two ways type of _vFirst_1 and ._init(...not fully qualified function call)
+      cat someNames() > stdout
+
+      //This fails at generation - source symbol null
+      cat NameProvider().someNames() > stdout
+
+      //This fails at generation - source symbol null
+      cat theList.iterator() > stdout
+//EOF

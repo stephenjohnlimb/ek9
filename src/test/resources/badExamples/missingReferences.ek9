@@ -1,0 +1,6 @@
+#!ek9
+defines module some.invalid
+
+  references
+  
+//EOF

@@ -1,0 +1,82 @@
+#!ek9
+defines module com.customer.justcharacter
+
+  defines function
+    
+    showComparison()
+      ->
+        c1 as Character
+        c2 as Character      
+      
+      stdout <- Stdout()  
+      if c1 < c2
+        stdout.println($c1 + " < " + $c2)
+      if c1 <= c2
+        stdout.println($c1 + " <= " + $c2)
+      if c1 > c2
+        stdout.println($c1 + " > " + $c2)
+      if c1 >= c2
+        stdout.println($c1 + " >= " + $c2)
+        
+      if c1 == c2
+        stdout.println($c1 + " == " + $c2)  
+      
+      if c1 != c2
+        stdout.println($c1 + " != " + $c2)
+          
+  defines program
+  
+    ShowCharacterType()
+      stdout <- Stdout()
+      
+      c1 <- Character()
+      c2 <- 's'
+      c3 as Character := '\u00E9'
+      
+      stdout.println("Length of " + $c1 + " is " + $ length c1 + " valid is " + $c1?)
+      stdout.println("Length of " + $c2 + " is " + $ length c2 + " valid is " + $c3?)
+      stdout.println("Length of " + $c3 + " is " + $ length c3 + " valid is " + $c3?)
+      
+      //As c1 is not set this will not display anything.
+      showComparison(c1, c2)             
+      //copy
+      c1 :=: 'a'
+      
+      showComparison(c1, c2)   
+      showComparison(c2, c1)
+      
+      c1 :=: 's'
+      showComparison(c1, c2)
+      
+      showComparison(c1, c3)
+      
+      stdout.println("Length of " + $c1 + " is " + $ length c1)
+      stdout.println("Length of " + $c2 + " is " + $ length c2)
+      stdout.println("Length of " + $c3 + " is " + $ length c3)
+      
+      stdout.println("Length of " + $c3 + " is " + $ c3.length())
+      
+      //You can choose either of these for the hashcode.
+      stdout.println("Hashcode of " + $c1 + " is " + $c1.#?())
+      stdout.println("Hashcode of " + $c2 + " is " + $ #? c2)
+      stdout.println("Hashcode of " + $c3 + " is " + $#?c3)
+      
+      s1 <- #^ c1
+      stdout.println("As a String " + s1)
+      
+      s2 <- c1.#^()
+      stdout.println("As a String " + s2)
+      
+      s3 as String := #^c1
+      
+      asUpperCase <- c1.upperCase()
+      stdout.println("C1 upper case is " + $asUpperCase)
+      
+      asLowerCase <- asUpperCase.lowerCase()
+      stdout.println("asUpperCase lower case is " + $asLowerCase)
+      
+      
+      asLowerCase := c1.upperCase().lowerCase()
+      stdout.println("'T' lower case is " + $asLowerCase)
+       
+//EOF
