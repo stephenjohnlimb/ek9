@@ -1,7 +1,14 @@
 # Contributing to EK9
 
 Any sort of positive contribution is welcome. Whether it is improvements to documentation, testing, **coding** and
-especially 'fuzzing' as this is a major knowledge gap at present.
+especially:
+  - 'fuzzing' as this is a major knowledge gap at present.
+  - 'ANTL4 grammar' this is an arrea where many eyes make a big difference
+
+On the documentation side, any improvements to the website or these "*.md" documents in terms of:
+  - typo corrections
+  - better more succinct grammar
+  - clearer wording and explanations
 
 ## Code of Conduct
 See contribution [ code of conduct](CODE_OF_CONDUCT.md) for details of what conduct is acceptable.
@@ -11,10 +18,9 @@ The development of reference implementation of the compiler is under way and is 
 See the [WIKI](https://github.com/stephenjohnlimb/ek9/wiki/EK9-Development) to see how the project is structured and
 how you can run and debug the grammar with some EK9 source code.
 
-The initial implementation will be written in Java, all code must have unit tests.
+The initial implementation will be written in Java (15), all code must have unit tests and code coverage analysis is employed.
 
-Corrections and improvements to the EK9 documentation web site are welcome as are reviews and ideas surrounding the grammar.
-But at this point in time focus is on getting the existing grammar robust and resilient -
+At this point in time focus is on getting the existing grammar robust and resilient -
 rather than adding more features or capabilities in.
 
 Having written all the examples and actually used the EK9 language to accomplish a few things
