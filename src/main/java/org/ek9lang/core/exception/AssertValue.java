@@ -58,7 +58,12 @@ public class AssertValue
 		if(!file.isDirectory() || !file.canRead())
 			throw new IllegalArgumentException(messageIfNoRead + "[" + filename + "]");
 	}
-	
+
+	public static void checkDirectoryWritable(String messageIfNoWrite, String dirName)
+	{
+		checkDirectoryWritable(messageIfNoWrite, new File(dirName));
+	}
+
 	public static void checkDirectoryWritable(String messageIfNoWrite, File dir)
 	{
 		AssertValue.checkNotNull(messageIfNoWrite, dir);
