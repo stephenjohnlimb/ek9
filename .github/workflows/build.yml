@@ -33,7 +33,7 @@ jobs:
         run: mvn --batch-mode --update-snapshots verify
       - name: Coverage with Maven
         run: mvn test jacoco:report
-          - name: Upload to Codecov
-            env:
-              CODECOV_TOKEN: $
-            run: bash <(curl -s https://codecov.io/bash)
+      - name: Upload to Codecov
+        env:
+          CODECOV_TOKEN: $
+        run: bash <(curl -s https://codecov.io/bash)
