@@ -32,7 +32,7 @@ into the language itself.
 
 ## Contributing
 
-See [Contributing](CONTRIBUTING.md) for details on how to contribute.
+See [Contributing](CONTRIBUTING.md) and the [WIKI](https://github.com/stephenjohnlimb/ek9/wiki/EK9-Development) for details.
 
 ## Why create another programming language?
 Frustration with other languages, like C, C++, Pascal, Java and so some extent Python. I love them all in
