@@ -3,6 +3,7 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/stephenjohnlimb/ek9)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/stephenjohnlimb/ek9)
 ![GitHub Workflow Status (event)](https://img.shields.io/github/workflow/status/stephenjohnlimb/ek9/Java%20CI?event=push)
+[![codecov](https://codecov.io/gh/stephenjohnlimb/ek9/branch/main/graph/badge.svg?token=F8MMCBREMB)](https://codecov.io/gh/stephenjohnlimb/ek9)
 ![GitHub](https://img.shields.io/github/license/stephenjohnlimb/ek9)
 ![Twitter Follow](https://img.shields.io/twitter/follow/stephenjohnlimb?label=Follow%20EK9&style=social)
 
