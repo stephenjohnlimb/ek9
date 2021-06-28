@@ -127,12 +127,6 @@ EK9 adds additional structure and type safety to Python (as well as being compil
 **functions** and **operators** to languages like Java. More over it adds a standard **fluent** type **functional**
 processing pipeline flow that is not available in most languages.
 
-## Features
-If you've read the sections above and followed any of the links to the [EK9 web site](https://www.ek9lang.org);
-you'll see that EK9 is an amalgamation of several existing language ideas and scripting/shell concepts.
-
-EK9 is **compiled** but has the light feeling of being **interpreted**.
-
 ## License and Trademark
 It is licensed under the MIT license; see [License](LICENSE) and
 [Trademark](https://www.ek9lang.org/tradeMarkPolicy.html).
