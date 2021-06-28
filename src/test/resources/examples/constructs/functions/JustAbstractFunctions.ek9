@@ -1,0 +1,77 @@
+#!ek9
+defines module com.customer.just.functions
+  defines type
+    List of mathOperation
+
+  defines function
+
+    mathOperation() as pure abstract
+      ->
+        x as Float
+        y as Float
+      <-
+        result as Float
+
+    add() is mathOperation as pure
+      ->
+        x as Float
+        y as Float
+      <-
+        result as Float: x + y
+
+    subtract() is mathOperation as pure
+      ->
+        x as Float
+        y as Float
+      <-
+        result as Float: x - y
+
+    divide() is mathOperation as pure
+      ->
+        x as Float
+        y as Float
+      <-
+        result as Float: x / y
+
+    multiply() is mathOperation as pure
+      ->
+        x as Float
+        y as Float
+      <-
+        result as Float: x * y
+
+  defines program
+
+    MathExample()
+      stdout <- Stdout()
+      stdout.println("Math Operation Example")
+      ops <- [add, subtract, divide, multiply]
+
+      for op in ops
+        stdout.println("Result: " + $op(21, 7))
+        
+    DynamicMathExample()
+      stdout <- Stdout()
+      stdout.println("Math Dynamic Operation Example")
+      fixedValue <- 9.8
+      
+      addFunction <- () is mathOperation as pure function
+        result: x+y
+
+      subtractFunction <- () extends mathOperation as pure
+        result: x-y
+        
+      divideFunction <- () is mathOperation pure
+        result: x/y
+
+      multiplyFunction <- () is mathOperation pure
+        result: x*y
+      
+      specialFunction <- (fixedValue) is mathOperation pure
+        result: (x+fixedValue) * y^fixedValue
+          
+      ops <- [addFunction, subtractFunction, divideFunction, multiplyFunction, specialFunction]
+
+      for op in ops
+        stdout.println("Result: " + $op(21, 7))
+//EOF

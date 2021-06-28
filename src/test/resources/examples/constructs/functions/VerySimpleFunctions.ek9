@@ -1,0 +1,53 @@
+#!ek9
+defines module net.customer
+
+  //Just a test file some very simple functions
+  //But we can infer parameters when implementing abstract function traits.
+  //Note the () on function names are optional
+  defines function
+
+    abstractFunction() as abstract
+      <- rtn as String
+        
+    //See how we can use 'rtn' from the declaration in the abstract function
+    functionA() extends abstractFunction  
+      rtn: "Infer Please"
+      
+    functionB() extends abstractFunction  
+      rtn: "Infer as well"
+      
+    //But we can also define fully if we wish
+    function1() extends abstractFunction
+      <- rtn as String: "Default Value"        
+      rtn: "Steve"
+        
+    function2()
+      <- rtn as String: "Default Value"
+      
+      //Good This should break because you cannot use abstractFunction as a value only as a type
+      //some as abstractFunction := abstractFunction
+      
+      //Lets see if we can make a call to a function and get the result
+      valA <- function1()
+      
+      //Now lets use function1 as a type and a variable
+      //In Microsoft terms this is a 'delegate'
+      //But note we can hold this via its base function type abstractFunction
+      //This means we can pass a function around like a variable and it will be
+      //a base hence the receiving method/function will not need to know its actual type!
+      //callback heaven.
+      
+      //But note to hold it via its base we have to fully declare it.
+      //So I'm not calling function1 here I am addressing it as a variable.
+      funB as abstractFunction: function1
+
+      //now lets call function1 but via the variable valB
+      result <- funB()
+       
+      //Just check direct calls to functions with no assignment of result.
+      funB()
+      function1()
+
+      rtn += " " + result
+        
+//EOF

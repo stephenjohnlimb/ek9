@@ -1,0 +1,47 @@
+#!ek9
+defines module test.functions
+
+  defines program
+    ATest
+      stdout <- Stdout()
+           
+      values <- [1,2,5,6,8,9,11]      
+      
+      indexOfSearch <- getIndexBinarySearch(values, 6)
+      if indexOfSearch?
+        stdout.println("Index is " + $indexOfSearch)
+      else
+        stdout.println("Index not found for value 6")
+        
+  defines function
+    
+    <?-
+      Function to find the index of a value in a sorted list.
+      The return index will be unset (but not null) if it not found.
+    -?>
+    getIndexBinarySearch()
+      ->
+        array as List of Integer
+        value as Integer
+      <-
+        index as Integer: Integer()
+      
+      low <- 0
+      high <- length array - 1
+      
+      while low <= high and ~index? 
+        
+        mid <- (low + high) / 2
+        optionalValue <- array.get(mid)
+        assert optionalValue?
+        checkValue <- optionalValue.get()
+        
+        if checkValue < value
+          low: mid + 1
+        else if checkValue > value
+          high: mid - 1
+        else if checkValue == value
+          index: mid
+          
+    //END
+//EOF

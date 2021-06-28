@@ -1,0 +1,30 @@
+#!ek9
+defines module com.customer.just
+
+  defines function
+  
+    mathOperation() as pure abstract
+      -> value as Float
+      <- result as Float
+      
+    multiply() is mathOperation as pure
+      -> value as Float
+      <- result as Float: value * 5.6
+
+    heavyMultiply() is mathOperation as pure
+      -> value as Float
+      <- result as Float: value * 7.99    
+      
+    suitableMathOperation()
+      -> value as Float
+      <- op as mathOperation: value < 21 <- heavyMultiply else multiply
+        
+  defines program
+    SimpleFunction()
+      stdout <- Stdout()
+      
+      value <- 9
+      mathOp <- suitableMathOperation(value)
+      calculatedResult <- mathOp(value)
+      stdout.println("The result is " + $ calculatedResult)
+//EOF
