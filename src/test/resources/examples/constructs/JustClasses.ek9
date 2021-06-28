@@ -1,0 +1,140 @@
+#!ek9
+defines module com.customer.just
+
+  defines type
+    List of Shape
+  
+  defines function    
+          
+    doDrawing() as abstract
+      -> message as String
+    
+    doSimpleDrawing() is doDrawing
+      -> message as String
+      Stdout().println(message.lowerCase())
+
+    doFancyDrawing() extends doDrawing
+      -> message as String
+      Stdout().println(message.upperCase())
+      
+    drawShape()
+      -> shape as Shape
+      <- drawn as Bits: Bits(shape.draw())
+              
+  defines class
+
+    Coordinate
+      x Float: 0.0
+      y Float: 0.0
+              
+      Coordinate()
+        x: 0.0
+        y: 0.0
+      
+      //Constructor  
+      Coordinate()
+        ->
+          initialX as Float
+          initialY as Float
+          
+        x :=: initialX
+        y :=: initialY
+      
+      x()
+        <- rtn as Float: x
+      
+      y()
+        <- rtn as Float: y
+          
+      operator +
+        -> coord as Coordinate
+        <- rtn as Coordinate: Coordinate(this.x() + coord.x(), this.y() + coord.y())
+      
+      operator +=
+        -> coord as Coordinate
+        this.x += coord.x()
+        this.y += coord.y()
+
+      operator -
+        -> coord as Coordinate
+        <- rtn as Coordinate: Coordinate(this.x() - coord.x(), this.y() - coord.y())
+      
+      operator -=
+        -> coord as Coordinate
+        this.x -= coord.x()
+        this.y -= coord.y()
+            
+    Shape as abstract      
+      draw() as abstract
+        <- drawn as Boolean
+        
+    Ellipse extends Shape as open
+      override draw()
+        <- drawn as Boolean: true
+        doDraw("Draw Ellipse")        
+    
+      protected doDraw()
+        -> message as String
+        Stdout().println(message)
+        
+    Circle is Ellipse
+      override draw()
+        <- drawn as Boolean: true
+        doDraw("Draw Circle")
+        
+    Rectangle is Shape
+      shouldDraw as Boolean: true
+      
+      Rectangle()
+        -> doDraw as Boolean
+        shouldDraw: doDraw
+      
+      override draw()
+        <- drawn as Boolean: shouldDraw
+        if shouldDraw
+          Stdout().println("Draw Rectangle")
+        
+    Triangle is Shape
+      override draw()
+        <- drawn as Boolean: true
+        Stdout().println("Draw Triangle")
+    
+    Square is Shape
+      drawingFunction as doDrawing?
+      message as String: "Draw Square"
+      
+      Square()
+        -> functionToDraw as doDrawing
+        this.drawingFunction = functionToDraw
+        
+      override draw()
+        <- drawn as Boolean: true
+        if drawingFunction?
+          drawingFunction(message)
+        else
+          Stdout().println(message)
+         
+  defines program
+    DrawShapes()
+      stdout <- Stdout()
+      stdout.println("Will draw shapes")    
+     
+      shapes <- [
+        Circle(),
+        Square(),
+        Ellipse(),
+        Rectangle(),
+        Triangle(),
+        Square(doSimpleDrawing),
+        Square(doFancyDrawing),
+        Rectangle(false)
+        ]
+      
+      //Procedural      
+      for shape in shapes
+        shape.draw()
+      
+      //Functional
+      drawnShapes <- cat shapes | map with drawShape | collect as Bits  
+      stdout.println("Shapes drawn is: " + $drawnShapes) 
+//EOF
