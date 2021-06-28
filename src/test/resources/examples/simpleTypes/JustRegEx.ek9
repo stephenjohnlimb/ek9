@@ -1,0 +1,105 @@
+#!ek9
+defines module com.customer.just
+
+  <!-
+    Short comment
+  -!>
+
+  defines program
+    ShowRegExType()
+      stdout <- Stdout()
+
+      //This is a comment
+
+      Steve <- "Steve"
+      steve <- "steve"
+      
+      Stephen <- "Stephen"
+      stephen <- "stephen"
+      
+      Steven <- "Steven"
+      steven <- "Steven"
+      
+      Stephene <- "Stephene"
+      stephene <- "stephene"
+
+      sixEx <- /[a-zA-Z0-9]{6}/
+      assert sixEx matches "arun32"
+      assert sixEx not matches "kkvarun32"
+      assert sixEx matches "JA2Uk2"
+      assert sixEx not matches "arun$2"      
+      
+      regEx <- /[S|s]te(?:ven?|phen)/ 
+      
+      stdout.println("[" + $regEx + "]")
+      
+      assert Steve matches regEx and steve matches regEx
+      assert Stephen matches regEx and stephen matches regEx
+      assert Steven matches regEx and steven matches regEx
+      
+      assert Stephene not matches regEx
+      assert stephene not matches regEx
+      
+      //Or the other way around
+      assert regEx matches Stephen
+
+      stockExample <- "This order was placed for QT3000! OK?"
+      groupEx <- /(.*?)(\d+)(.*)/
+      assert groupEx matches stockExample
+
+      fractionExample <- "3/4"
+      fractionEx <- /.*\/.*/
+      assert fractionEx matches fractionExample
+
+      slashEx1 <- /^Some\\Thing$/
+      assert slashEx1 matches "Some\Thing"
+
+      slashEx2 <- /^Some\/Thing$/
+      assert slashEx2 matches "Some/Thing"
+
+      colonDelimited <- "one:two:three:four:five"      
+      colonRegEx <- /:/
+      
+      whenSplit <- colonDelimited.split(colonRegEx)
+      alsoSplit <- colonRegEx.split(colonDelimited)
+
+      stdout.println("Split is [" + $whenSplit + "] and also [" + $alsoSplit + "]")
+      assert $whenSplit == "one,two,three,four,five"
+      assert $alsoSplit == "one,two,three,four,five"
+      assert whenSplit == alsoSplit
+
+      //Check on finding groups
+      extractionCheck <- "This is a sample Text 1234 with numbers in between."
+      extractNumbersEx <- /\{(.*?)(\d+)(.*)/
+      matchedGroups <- extractionCheck.group(extractNumbersEx)
+
+      stdout.println("Groups is [" + $matchedGroups + "]")
+      assert $matchedGroups == "This is a sample Text ,1234, with numbers in between."      
+      assert length matchedGroups == 3
+      
+      //direct access to first and last
+      assert matchedGroups.first() == "This is a sample Text "
+      assert matchedGroups.last() == " with numbers in between."
+      
+      justTheNumber <- cat matchedGroups | skip 1 | head 1 | collect as String
+      //Convert to an Integer - if possible
+      asAnInteger <- Integer(justTheNumber)
+      stdout.println("Just the Number is [" + $justTheNumber + "] [" + $asAnInteger + "]")            
+      assert $justTheNumber == "1234"
+      assert asAnInteger == 1234
+      
+      //Check just the last two
+      lastTwo <- cat matchedGroups | tail 2 | collect as Strings      
+      stdout.println("LastTwo is [" + $lastTwo + "]")
+      assert length lastTwo == 2      
+      
+      nonExtractionCheck <- "Another sample but with no numbers in it."
+      matchedGroups := nonExtractionCheck.group(extractNumbersEx)
+      assert not matchedGroups?
+      
+      justNotTheNumber <- cat matchedGroups | skip 1 | head 1 | collect as String
+      stdout.println("Just the Number is [" + $justNotTheNumber + "] is set is [" + $justNotTheNumber? + "]")
+      assert not justNotTheNumber?      
+            
+      stdout.println("Done")
+//EOF

@@ -1,0 +1,80 @@
+#!ek9
+defines module com.customer.just
+
+  defines program
+  
+    ShowFloatLocale()
+      stdout <- Stdout()
+      
+      i1 <- -4.9E-22
+      i2 <- -1.797693134862395E12
+      
+      enGB <- Locale("en_GB")
+      enUS <- Locale("en-US")
+      deutsch <- Locale("de_DE")
+      skSK <- Locale("sk", "SK")
+      
+      stdout.println("Float format")
+      
+      presentation <- enGB.format(i1)
+      stdout.println("GB ["+ presentation + "]")
+      presentation := enGB.format(i2)
+      stdout.println("GB ["+ presentation + "]")
+      
+      presentation := enGB.format(i1, 22)
+      stdout.println("GB ["+ presentation + "]")
+      presentation := enGB.format(i2, 1)
+      stdout.println("GB ["+ presentation + "]")
+      
+      
+      presentation := enUS.format(i1)
+      stdout.println("US ["+ presentation + "]")
+      presentation := enUS.format(i2)
+      stdout.println("US ["+ presentation + "]")
+      
+      presentation := deutsch.format(i1)
+      stdout.println("DE ["+ presentation + "]")
+      presentation := deutsch.format(i2)
+      stdout.println("DE ["+ presentation + "]")
+      
+      presentation := skSK.format(i1)
+      stdout.println("SK ["+ presentation + "]")
+      presentation := skSK.format(i2)
+      stdout.println("SK ["+ presentation + "]")
+      
+    ShowFloatType()
+      stdout <- Stdout()
+      
+      i1 <- -4.9E-324
+      
+      i2 <- -1.797693134862315E308
+     
+      i3 <- Float()
+       
+      i4 <- 4.9E-324
+      
+      i5 <- 1.797693134862315E308
+      
+      stdout.println("Value [" + $i1 + "]")
+      stdout.println("Value [" + $i2 + "]")
+      stdout.println("Value [" + $i4 + "]")
+      stdout.println("Value [" + $i5 + "]")
+      
+      check <- i3 <? i2
+      stdout.println("Value [" + $check + "] is set is [" + $check? + "]")
+      
+      hashCode <- #? i1
+      stdout.println("Hashcode [" + $hashCode + "]")      
+      
+      i3 := 0
+      
+      nonResult <- i3 / 90.0
+      stdout.println("nonResult [" + $nonResult + "] is set is [" + $nonResult? + "]")
+      
+      nonResult := 90.0 / i3
+      stdout.println("nonResult [" + $nonResult + "] is set is [" + $nonResult? + "]")
+      
+      nonResult := 0.0 / i3
+      stdout.println("nonResult [" + $nonResult + "] is set is [" + $nonResult? + "]")      
+      
+//EOF      

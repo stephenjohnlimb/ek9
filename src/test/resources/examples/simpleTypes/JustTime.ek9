@@ -1,0 +1,260 @@
+#!ek9
+defines module com.customer.just
+
+        
+  defines program
+  
+    ShowTimeLocale()
+      stdout <- Stdout()
+            
+      time1 <- 12:00:01
+      
+      enGB <- Locale("en_GB")
+      enUS <- Locale("en-US")
+      
+      deutsch <- Locale("de_DE")
+      
+      stdout.println("Short format")
+      presentation <- enGB.shortFormat(time1)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := enUS.shortFormat(time1)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := deutsch.shortFormat(time1)
+      stdout.println("["+ presentation + "]")
+
+      stdout.println("Medium format")
+      presentation := enGB.mediumFormat(time1)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := enUS.mediumFormat(time1)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := deutsch.mediumFormat(time1)
+      stdout.println("["+ presentation + "]")
+      
+      stdout.println("Long format")
+      presentation := enGB.longFormat(time1)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := enUS.longFormat(time1)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := deutsch.longFormat(time1)
+      stdout.println("["+ presentation + "]")
+      
+      stdout.println("Full format")
+      presentation := enGB.fullFormat(time1)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := enUS.fullFormat(time1)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := deutsch.fullFormat(time1)
+      stdout.println("["+ presentation + "]")
+
+    ShowTimeWithMillis()
+      stdout <- Stdout()
+
+      shortTimeout <- 100ms
+
+      slightlyLongerTimeout <-  shortTimeout + 50ms
+
+      muchLongerTimeout <- slightlyLongerTimeout * 3.5
+      stdout.println("Timeouts are [" + $shortTimeout + " " + $slightlyLongerTimeout + " " + $muchLongerTimeout + "]")
+
+      veryLongTime <- muchLongerTimeout * 1489
+
+      asDuration <- veryLongTime.duration()
+
+      stdout.println("VeryLong timeout [" + $veryLongTime + " " + $asDuration + "]")
+
+      nearlyASecond <- 501ms
+      nearlyMinus1Second <- ~nearlyASecond
+      stdout.println("More timeouts [" + $nearlyASecond.duration() + " " + $nearlyMinus1Second.duration() + "]")
+
+      //Lets say I already have a duration and want to add some milliseconds to it.
+      justOverFiveSeconds <- 5400ms
+
+      asDuration += justOverFiveSeconds
+
+      stdout.println("Durations [" + $veryLongTime.duration() + " + " + $justOverFiveSeconds + " is "+ $asDuration + "]")
+
+      veryLongTime := Millisecond(P2W)
+      stdout.println("VeryLong timeout [" + $veryLongTime + "]")
+
+      starting <- SystemClock().millisecond()
+      stdout.println("Do some long activity")
+      ending <- SystemClock().millisecond()
+      stdout.println("Activity took [" + $(ending-starting) + "]")
+      
+    <?-
+    Examples of Time usage.
+    -?>
+    ShowTimeType()
+      stdout <- Stdout()
+      t1 <- 12:00
+      t2 <- 12:00:01
+      t3 <- 12:00:01
+      t4 <- Time()
+      t5 <- Time(12, 00)
+      t6 <- Time(12, 00, 01)
+            
+      assert t1 <> t2
+      assert t2 == t3
+
+      assert t2 <> t1
+      assert t3 == t2
+
+      assert t1 < t2
+      assert t1 <= t2
+      assert t2 <= t3
+      
+      assert t2 > t1
+      assert t2 >= t1
+      assert t3 >= t2
+          
+      assert t1 == t5
+      
+      assert t2 == t6
+      
+      assert ~t4?
+      
+      stdout.println("T1 [" + $t1 + "] is set [" + $t1? + "]")
+      stdout.println("T2 [" + $t2 + "] is set [" + $t2? + "]")
+      stdout.println("T3 [" + $t3 + "] is set [" + $t3? + "]")
+      stdout.println("T4 [" + $t4 + "] is set [" + $t4? + "]")
+      stdout.println("T5 [" + $t5 + "] is set [" + $t5? + "]")
+      stdout.println("T6 [" + $t6 + "] is set [" + $t6? + "]")
+      
+      t4aa <- SystemClock().time()
+      
+      t4a <- SystemClock().time()
+      assert t4a?
+      stdout.println("Now T4a [" + $t4a + "] is set [" + $t4a? + "]")
+      
+      t4b <- t4.startOfDay()
+      assert t4b?
+      stdout.println("Now T4b [" + $t4b + "] is set [" + $t4b? + "]")
+      
+      t4c <- t4.endOfDay()
+      assert t4c?
+      stdout.println("Now T4c [" + $t4c + "] is set [" + $t4c? + "]")
+      
+      //Update to now
+      t4.set(SystemClock().time())
+      assert t4?
+      stdout.println("Now T4 [" + $t4 + "] is set [" + $t4? + "]")
+      
+      
+      t4.setStartOfDay()
+      assert t4?
+      stdout.println("Start of Day T4 [" + $t4 + "] is set [" + $t4? + "]")
+      
+      t4.setEndOfDay()
+      assert t4?
+      stdout.println("End of Day T4 [" + $t4 + "] is set [" + $t4? + "]")      
+      
+      t4 :=: t5
+      assert t4?
+      stdout.println("T4 [" + $t4 + "] is set [" + $t4? + "]")
+      
+      d1 <- PT1H2M3S
+      
+      t4 := t5 + d1
+      assert t4 == 13:02:03
+      stdout.println("T4 [" + $t4 + "] is set [" + $t4? + "]")
+      
+      d2 <- P3DT2H59M18S
+      t4 += d2
+      assert t4 == 16:01:21
+      stdout.println("T4 [" + $t4 + "] is set [" + $t4? + "]")
+      
+      t4 := t5 - d1
+      assert t4 == 10:57:57
+      stdout.println("T4 [" + $t4 + "] is set [" + $t4? + "]")      
+      
+      t4 -= d2
+      assert t4 == 07:58:39
+      stdout.println("T4 [" + $t4 + "] is set [" + $t4? + "]")
+      
+      durations as List of Duration := [d1, d2]
+      
+      t7 <- cat durations | collect as Time
+      
+      assert t7 == 04:01:21
+      stdout.println("T7 [" + $t7 + "] is set [" + $t7? + "]")
+      
+      second <- t7.second()
+      minute <- t7.minute()
+      hour <- t7.hour()
+      
+      assert 4 == hour
+      assert 1 == minute
+      assert 21 == second
+      stdout.println("T7 details [" + $hour + ", " + $minute + ", " + $second + "]")
+      
+      //now reset the time and add on the durations
+      t4 :=: t5
+      cat durations >> t4
+      assert t4 == 16:01:21
+      stdout.println("T4 [" + $t4 + "] is set [" + $t4? + "]")
+      
+      d3 <- 12:04:09 - 06:15:12
+      assert d3 == PT5H48M57S
+      stdout.println("D3 [" + $d3 + "] is set [" + $d3? + "]")
+      
+      d4 <- 06:15:12 - 12:04:09
+      stdout.println("D4 [" + $d4 + "] is set [" + $d4? + "]")
+      assert d4 == PT-6H11M3S
+      assert d4 == PT-5H-48M-57S
+      
+      d5 <- t1 - t2
+      stdout.println("D5 [" + $d5 + "] is set [" + $d5? + "]")
+      assert d5 == PT0H0M-1S
+      
+      d5 := P2W
+      stdout.println("D5 [" + $d5 + "] is set [" + $d5? + "]")
+      assert d5 == P14D
+      
+      d6 <- t2 - t1
+      stdout.println("D6 [" + $d6 + "] is set [" + $d6? + "]")
+      assert d6 == PT0H0M1S
+      
+      d6 := PT1H2M1S
+      stdout.println("D6 [" + $d6 + "] is set [" + $d6? + "]")
+      
+      d6a <- d6 * 2
+      stdout.println("D6a [" + $d6a + "] is set [" + $d6a? + "]")
+      
+      d6b <- d6 * 8.25
+      stdout.println("D6b [" + $d6b + "] is set [" + $d6b? + "]")
+      
+      d6c <- d6b / 3
+      stdout.println("D6c [" + $d6c + "] is set [" + $d6c? + "]")
+      
+      d6d <- d6 + PT20M
+      stdout.println("D6d [" + $d6d + "] is set [" + $d6d? + "]")
+      assert d6d == PT1H22M1S
+            
+      d6e <- d6 - PT2M6S
+      stdout.println("D6e [" + $d6e + "] is set [" + $d6e? + "]")
+      assert d6e == PT59M55S
+      
+      d6e += PT2H5S
+      stdout.println("D6e [" + $d6e + "] is set [" + $d6e? + "]")
+      assert d6e == PT3H
+            
+      d7 <- P2Y6W3DT8H5M8S
+      stdout.println("D7 [" + $d7 + "] is set [" + $d7? + "]")      
+      
+      d8 <- P2Y2M1W3DT8H5M8S
+      stdout.println("D8 [" + $d8 + "] is set [" + $d8? + "]")
+      
+      //Make a duration from a String representation.
+      d9 <- Duration($d8)
+      stdout.println("D9 [" + $d9 + "] is set [" + $d9? + "]")
+      assert d9 == P2Y2M10DT8H5M8S          
+      
+//EOF

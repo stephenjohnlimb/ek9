@@ -1,0 +1,170 @@
+#!ek9
+defines module com.customer.just
+
+  defines type
+    List of String
+  
+  defines function
+  
+    justStringValue()
+      -> s1 as String
+      <- rtn as String: s1
+      
+    stringComparator()
+      ->
+        s1 as String
+        s2 as String
+      <-
+        comparison as Integer: s1 <=> s2
+        
+    charToLowerCaseString()
+      -> c as Character
+      <- s as String: c? <- $c.lowerCase() else String()
+
+    isO()
+      -> c as Character
+      <- o as Integer: c == 'o' or c == 'O' <- 1 else Integer()    
+            
+  defines program
+
+    ShowStringInterpolationEscapes()
+      stdout <- Stdout()
+            
+      tab3 <- `With a tab and slash and another tab\t\\\tcharacter`
+      stdout.println("[" + tab3 + "]")
+
+      tab4 <- `With a tab \t character and space`
+      stdout.println("[" + tab4 + "]")
+      
+      dollar <- `With just a dollar \$ OK`
+      stdout.println("[" + dollar + "]")
+
+    ShowStringEscapes()
+      stdout <- Stdout()
+      //to get the second tab we have to escape the \
+      tab3 <- "With a tab and slash and another tab\t\\\tcharacter"
+      stdout.println("[" + tab3 + "]")
+
+      tab4 <- "With a tab \t character and space"
+      stdout.println("[" + tab4 + "]")
+
+      tab1 <- "With a tab\tcharacter"
+      stdout.println("[" + tab1 + "]")
+      tab2 <- "With a tab\t\tcharacter twice"
+      stdout.println("[" + tab2 + "]")
+
+
+      nl1 <- "With a new line \n"
+      stdout.println("[" + nl1 + "]")
+      nl2 <- "With two\nnew line\n"
+      stdout.println("[" + nl2 + "]")
+      nl3 <- "With slash and two\\\nnew line\n"
+      stdout.println("[" + nl3 + "]")
+
+      //If \ followed by a space then we understand just a slash
+      //But you can also use the \\ which means a single slash
+      s2 <- "With just a slash \ character"
+      stdout.println("[" + s2 + "]")
+      s2a <- "With just a slash \\ character"
+      stdout.println("[" + s2a + "]")
+      s2b <- "With just two slashes \\\\ character"
+      stdout.println("[" + s2b + "]")
+
+      s3 <- "With just the other slash / character"
+      stdout.println("[" + s3 + "]")
+
+      s4 <- "With just a quoted slash \' character"
+      stdout.println("[" + s4 + "]")
+
+      s5 <- "With just a quoted slash \" character \""
+      stdout.println("[" + s5 + "]")
+
+      //A bit of Danish
+      // The danish letters Æ Ø Å
+      danish <- "\u00C6\u00D8\u00C5"
+      stdout.println("[" + danish + "]")
+
+    ShowStringMethods()
+      stdout <- Stdout()
+      
+      s1 <- "The Quick Brown Fox"
+      s2 <- "Jumps Over The Lazy Dog"
+      
+      stdout.println("[" + s1.upperCase() + "]")
+      stdout.println("[" + s1.lowerCase() + "]")
+      stdout.println("[" + s1.rightPadded(30) + "]")
+      stdout.println("[" + s1.leftPadded(30) + "]")
+      
+      addedSpaces1 <- s1.rightPadded(length s1 + 2)
+      addedSpaces1 := addedSpaces1.leftPadded(40)
+      stdout.println("[" + addedSpaces1 + "]")
+
+      addedSpaces2 <- s2.rightPadded(length s2 + 2)
+      addedSpaces2 := addedSpaces2.rightPadded(40)
+      stdout.println("[" + addedSpaces2 + "]")
+
+      stdout.println("[" + addedSpaces1.trim() + " " + addedSpaces2.trim() + "]")
+      
+    ShowStringsType()
+      stdout <- Stdout()
+      s1 <- "First"
+      s2 <- "Second"
+      space <- " "
+
+      asListOfStrings <- [s1, space, s2]
+      stdout.println($asListOfStrings)
+
+      asStrings <- cat asListOfStrings | collect as Strings
+      stdout.println($asStrings)
+
+      backToListOfStrings <- cat asStrings | collect as List of String
+      stdout.println($backToListOfStrings)
+
+    ShowStringType()
+      stdout <- Stdout()
+      
+      i1 <- "The Quick Brown Fox"
+      
+      i2 <- "Jumps Over The Lazy Dog"
+     
+      space <- " "
+      
+      i3 <- String()
+       
+      stdout.println("Value [" + i1 + "]")
+      stdout.println("Value [" + i2 + "]")
+      
+      check <- i3 <? i2
+      stdout.println("Value [" + $check + "] is set is [" + $check? + "]")
+      
+      hashCode <- #? i1
+      stdout.println("Hashcode [" + $hashCode + "]")      
+      
+      sentence1 <- i1 + " " + i2
+      
+      stdout.println("Sentence1 [" + sentence1 + "]")
+      stdout.println("Length is ["+ $ length sentence1 + "][" + $sentence1.length() + "]")
+      stdout.println("Count of 'o' is [" + $sentence1.count('o') + "]")      
+      
+      numO <- cat sentence1 | map with isO | collect as Integer //Lets see what happens here
+      stdout.println("Count of 'o'/'O' is [" + $numO + "]") 
+      
+      parts <- [i1, space, i2]
+      sentence2 <- cat parts | collect as String      
+      stdout.println("Sentence2 [" + sentence2 + "]")
+
+      jumpingBrownFox <- cat sentence2 | skip 10 | head 15 | collect as String
+      stdout.println("snip [" + $jumpingBrownFox + "] is set [" + $jumpingBrownFox? + "]")
+      
+      //Note that there is no issue with extending beyond the length of the sentence
+      dog <-  cat sentence2 | skip 40 | head 15 | collect as String
+      stdout.println("snip [" + $dog + "] is set [" + $dog? + "]")
+            
+      nonSuch <-  cat sentence2 | skip 50 | head 5 | collect as String
+      stdout.println("snip [" + $nonSuch + "] is set [" + $ nonSuch? + "]")
+      
+      //Check English alphabet used in sentence
+      charsUsed <- cat sentence2 | map with charToLowerCaseString | sort with stringComparator | uniq by justStringValue | collect as String
+      stdout.println("charsUsed [" + $charsUsed + "] length is [" + $ length charsUsed + "] is set [" + $ charsUsed? + "]")
+      
+//EOF      

@@ -1,0 +1,208 @@
+#!ek9
+defines module com.customer.just
+
+  defines program
+  
+    ShowLocale()
+      stdout <- Stdout()
+      
+      //Create some locales - you can use '-' or '_' to separate language and country
+      enGB <- Locale("en_GB")
+      enUS <- Locale("en-US")
+      deutsch <- Locale("de_DE")
+      skSK <- Locale("sk", "SK")
+      
+      //A couple of integer values to be displayed
+      i1 <- -92208
+      i2 <- 675807
+      
+      stdout.println("Integer format")
+      
+      presentation <- enGB.format(i1)
+      stdout.println("GB ["+ presentation + "]")
+      assert presentation == "-92,208"
+      presentation := enGB.format(i2)
+      stdout.println("GB ["+ presentation + "]")
+      assert presentation == "675,807"
+      
+      presentation := deutsch.format(i1)
+      stdout.println("DE ["+ presentation + "]")
+      assert presentation == "-92.208"
+      presentation := deutsch.format(i2)
+      stdout.println("DE ["+ presentation + "]")
+      assert presentation == "675.807"
+      
+      presentation := skSK.format(i1)
+      stdout.println("SK ["+ presentation + "]")
+      assert presentation == "-92 208"
+      presentation := skSK.format(i2)
+      stdout.println("SK ["+ presentation + "]")
+      assert presentation == "675 807"
+      
+      //Floating point 
+      f1 <- -4.9E-22
+      f2 <- -1.797693134862395E12
+      
+      presentation := enGB.format(f1)
+      stdout.println("GB ["+ presentation + "]")
+      assert presentation == "-0.00000000000000000000049"
+      presentation := enGB.format(f2)
+      stdout.println("GB ["+ presentation + "]")
+      assert presentation == "-1,797,693,134,862.395"
+      
+      //With control over number of decimal places displayed
+      presentation := enGB.format(f1, 22)
+      stdout.println("GB ["+ presentation + "]")
+      assert presentation == "-0.0000000000000000000005"
+      presentation := enGB.format(f2, 1)
+      stdout.println("GB ["+ presentation + "]")
+      assert presentation == "-1,797,693,134,862.4"
+      
+      presentation := deutsch.format(f1)
+      stdout.println("DE ["+ presentation + "]")
+      assert presentation == "-0,00000000000000000000049"
+      
+      presentation := deutsch.format(f2)
+      stdout.println("DE ["+ presentation + "]")
+      assert presentation == "-1.797.693.134.862,395"
+      
+      presentation := skSK.format(f1)
+      stdout.println("SK ["+ presentation + "]")
+      assert presentation == "-0,00000000000000000000049"
+      
+      presentation := skSK.format(f2)
+      stdout.println("SK ["+ presentation + "]")
+      assert presentation == "-1 797 693 134 862,395"
+      
+      //Time
+      time1 <- 12:00:01
+      
+      presentation := enGB.shortFormat(time1)
+      stdout.println("GB Short format ["+ presentation + "]")
+      assert presentation == "12:00"
+      
+      presentation := deutsch.mediumFormat(time1)
+      stdout.println("DE medium format ["+ presentation + "]")
+      assert presentation == "12:00:01"
+      
+      //Date
+      date1 <- 2020-10-03
+      
+      presentation := enGB.shortFormat(date1)
+      stdout.println("GB Short format ["+ presentation + "]")
+      assert presentation == "03/10/2020"
+      
+      presentation := enUS.mediumFormat(date1)
+      stdout.println("US Medium format ["+ presentation + "]")
+      assert presentation == "Oct 3, 2020"
+      
+      
+      presentation := skSK.longFormat(date1)
+      stdout.println("SK Long format ["+ presentation + "]")
+      assert presentation == "3. októbra 2020"
+      
+      presentation := deutsch.fullFormat(date1)
+      stdout.println("DE Full format ["+ presentation + "]")
+      assert presentation == "Samstag, 3. Oktober 2020"
+      
+      //DateTime
+      dateTime1 <- 2020-10-03T12:00:00Z
+      
+      presentation := enUS.shortFormat(dateTime1)
+      stdout.println("US Short format ["+ presentation + "]")
+      assert presentation == "10/3/20, 12:00 PM"
+      
+      presentation := enGB.mediumFormat(dateTime1)
+      stdout.println("GB Medium format ["+ presentation + "]")
+      assert presentation == "3 Oct 2020, 12:00:00"
+      
+      presentation := deutsch.longFormat(dateTime1)
+      stdout.println("DE Long format ["+ presentation + "]")
+      assert presentation == "3. Oktober 2020 um 12:00:00 Z"
+      
+      
+      presentation := skSK.fullFormat(dateTime1)
+      stdout.println("SK ["+ presentation + "]")
+      assert presentation == "sobota 3. októbra 2020, 12:00:00 Z"
+      
+      //Money
+      thousandsOfChileanCurrency <- 6798.9288#CLF
+      tenPounds <- 10#GBP
+      thirtyDollarsEightyNineCents <- 30.89#USD
+      
+      //Default format
+      presentation := enGB.format(tenPounds)
+      stdout.println("GB ["+ presentation + "]")
+      assert presentation == "£10.00"
+      
+      presentation := enGB.format(thirtyDollarsEightyNineCents)
+      stdout.println("GB ["+ presentation + "]")
+      assert presentation == "US$30.89"
+      
+      presentation := enGB.format(thousandsOfChileanCurrency)
+      stdout.println("GB ["+ presentation + "]")
+      assert presentation == "CLF6,798.9288"
+      
+      presentation := deutsch.format(tenPounds)
+      stdout.println("DE ["+ presentation + "]")
+      assert presentation == "10,00 £"
+      
+      presentation := deutsch.format(thirtyDollarsEightyNineCents)
+      stdout.println("DE ["+ presentation + "]")
+      assert presentation == "30,89 $"
+      
+      presentation := deutsch.format(thousandsOfChileanCurrency)
+      stdout.println("DE ["+ presentation + "]")
+      assert presentation == "6.798,9288 CLF"
+      
+      presentation := deutsch.longFormat(tenPounds)
+      stdout.println("DE ["+ presentation + "]")
+      assert presentation == "10,00"
+      
+      presentation := deutsch.longFormat(thirtyDollarsEightyNineCents)
+      stdout.println("DE ["+ presentation + "]")
+      assert presentation == "30,89"
+      
+      presentation := deutsch.longFormat(thousandsOfChileanCurrency)
+      stdout.println("DE ["+ presentation + "]")
+      assert presentation == "6.798,9288"
+      
+      presentation := skSK.format(tenPounds)
+      stdout.println("SK ["+ presentation + "]")
+      assert presentation == "10,00 GBP"
+      
+      presentation := skSK.format(thirtyDollarsEightyNineCents)
+      stdout.println("SK ["+ presentation + "]")
+      assert presentation == "30,89 USD"
+      
+      presentation := skSK.format(thousandsOfChileanCurrency)
+      stdout.println("SK ["+ presentation + "]")
+      assert presentation == "6 798,9288 CLF"
+      
+      //Sample of other formats in enGB
+      stdout.println("Money format without fractional part")
+      presentation := enGB.mediumFormat(tenPounds)
+      stdout.println("GB Medium format ["+ presentation + "]")
+      assert presentation == "£10"
+      
+      presentation := enGB.mediumFormat(thirtyDollarsEightyNineCents)
+      stdout.println("GB Medium format ["+ presentation + "]")
+      assert presentation == "US$31"
+      
+      presentation := enGB.format(thousandsOfChileanCurrency, true, false)
+      stdout.println("GB Medium format["+ presentation + "]")
+      assert presentation == "CLF6,799"
+      
+      stdout.println("Money format without symbol or fractional part")
+      presentation := enGB.shortFormat(tenPounds)
+      stdout.println("GB Short format ["+ presentation + "]")
+      assert presentation == "10"
+      
+      presentation := enGB.shortFormat(thirtyDollarsEightyNineCents)
+      stdout.println("GB Short format ["+ presentation + "]")
+      assert presentation == "31"
+      presentation := enGB.format(thousandsOfChileanCurrency, false, false)
+      stdout.println("GB Short format ["+ presentation + "]")
+      assert presentation == "6,799"
+      
+//EOF      

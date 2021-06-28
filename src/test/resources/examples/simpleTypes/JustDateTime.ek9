@@ -1,0 +1,171 @@
+#!ek9
+defines module com.customer.just
+
+        
+  defines program
+  
+    ShowDateTimeLocale()
+      stdout <- Stdout()
+            
+      //3rd of october 2020 @ 12:00 UTC
+      dateTime1 <- 2020-10-03T12:00:00Z
+      
+      enGB <- Locale("en_GB")
+      enUS <- Locale("en-US")
+      
+      deutsch <- Locale("de_DE")
+      
+      stdout.println("Short format")
+      presentation <- enGB.shortFormat(dateTime1)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := enUS.shortFormat(dateTime1)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := deutsch.shortFormat(dateTime1)
+      stdout.println("["+ presentation + "]")
+
+      stdout.println("Medium format")
+      presentation := enGB.mediumFormat(dateTime1)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := enUS.mediumFormat(dateTime1)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := deutsch.mediumFormat(dateTime1)
+      stdout.println("["+ presentation + "]")
+      
+      stdout.println("Long format")
+      presentation := enGB.longFormat(dateTime1)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := enUS.longFormat(dateTime1)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := deutsch.longFormat(dateTime1)
+      stdout.println("["+ presentation + "]")
+      
+      stdout.println("Full format")
+      presentation := enGB.fullFormat(dateTime1)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := enUS.fullFormat(dateTime1)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := deutsch.fullFormat(dateTime1)
+      stdout.println("["+ presentation + "]")
+      
+    <?-
+    Examples of DateTime usage.
+    -?>
+    ShowDateTimeType()
+      stdout <- Stdout()
+            
+      //3rd of october 2020 @ 12:00 UTC
+      dateTime1 <- 2020-10-03T12:00:00Z
+      dateTime2 <- 2020-10-04T12:15:00-05:00
+      dateTime3 <- 2020-10-04T12:15:00-05:00
+      dateTime4 <- DateTime()
+      dateTime5 <- DateTime(2020, 10, 03, 12)      
+      dateTime6 <- DateTime(2020, 10, 04, 12, 15)
+      
+      stdout.println("Date1 [" + $dateTime1 + "] is set [" + $dateTime1? + "]")
+      stdout.println("Date2 [" + $dateTime2 + "] is set [" + $dateTime2? + "]")
+      stdout.println("Date3 [" + $dateTime3 + "] is set [" + $dateTime3? + "]")
+      stdout.println("Date4 [" + $dateTime4 + "] is set [" + $dateTime4? + "]")
+      stdout.println("Date5 [" + $dateTime5 + "] is set [" + $dateTime5? + "]")
+      stdout.println("Date6 [" + $dateTime6 + "] is set [" + $dateTime6? + "]")
+           
+      assert dateTime1 <> dateTime2
+      assert dateTime2 == dateTime3
+
+      assert dateTime2 <> dateTime1
+      assert dateTime3 == dateTime2
+
+      assert dateTime1 < dateTime2
+      assert dateTime1 <= dateTime2
+      assert dateTime2 <= dateTime3
+      
+      assert dateTime2 > dateTime1
+      assert dateTime2 >= dateTime1
+      assert dateTime3 >= dateTime2
+      
+      assert ~dateTime4?
+          
+      assert dateTime1 == dateTime5         
+      
+      dateTime4a <- DateTime().today()
+      assert dateTime4a?
+      stdout.println("Now Date4a [" + $dateTime4a + "] is set [" + $dateTime4a? + "]")
+      
+      dateTime4.setToday() //Now set to the current dateTime
+      stdout.println("Date4 [" + $dateTime4 + "] is set [" + $dateTime4? + "]")
+      
+      //Durations
+      d1 <- P1Y1M4D //one year, one month and 4 days
+      d2 <- P4W1DT2H59M18S //twenty nine days, two hours, fifty nine minutes and eighteen seconds
+      
+      dateTime4 := dateTime5 + d1
+      stdout.println("Date4 [" + $dateTime4 + "] is set [" + $dateTime4? + "]")
+      assert dateTime4 == 2021-11-07T12:00:00Z
+      
+      dateTime4 += d2
+      stdout.println("D2 [" + $d2 + "]")
+      stdout.println("Date4 [" + $dateTime4 + "] is set [" + $dateTime4? + "]")
+      assert dateTime4 == 2021-12-06T14:59:18Z
+      
+      d3 <- dateTime4 - dateTime5
+      stdout.println("D3 [" + $d3 + "] is set [" + $d3? + "]")
+      assert d3 == P1Y2M9DT2H59M18S
+      
+      d4 <- dateTime2 - dateTime3
+      stdout.println("D4 [" + $d4 + "] is set [" + $d4? + "]")
+      assert d4 == PT0S
+      
+      d5 <- dateTime3 - dateTime6
+      stdout.println("D5 [" + $d5 + "] is set [" + $d5? + "]")
+      
+      d6 <- dateTime3.offSetFromUTC()
+      stdout.println("D6 [" + $d6 + "] is set [" + $d6? + "]")
+      assert d6 == PT-5H
+      
+      durations as List of Duration := [d1, d2]
+      dateTime7 <- cat durations | collect as DateTime
+      stdout.println("Date7 [" + $dateTime7 + "] is set [" + $dateTime7? + "]")
+      //Because the epoch is 1970-01-01
+      assert dateTime7 == 1971-03-06T02:59:18Z
+      
+      dateTime8 <- 0000-01-01T00:00:00Z
+      stdout.println("Date8 [" + $dateTime8 + "] is set [" + $dateTime8? + "]")
+      cat durations >> dateTime8
+      stdout.println("Date8 [" + $dateTime8 + "] is set [" + $dateTime8? + "]")
+      assert dateTime8 == 0001-03-06T02:59:18Z
+      
+      dayOfMonth <- dateTime8.day()
+      monthOfYear <- dateTime8.month()
+      year <- dateTime8.year()      
+      dayOfTheWeek <- dateTime8.dayOfWeek()      
+      hourOfTheDay <- dateTime8.hour()
+      minuteOfTheHour <- dateTime8.minute()
+      secondOfTheMinute <- dateTime8.second()
+      timeZone <- dateTime8.zone()
+      
+      offset <- dateTime8.offSetFromUTC()
+      
+      stdout.println("Date8 [" + $dayOfMonth + "] [" + $monthOfYear + "] [" + $year + "] [" + $dayOfTheWeek + "]")
+      stdout.println("Date8 [" + $hourOfTheDay + "] [" + $minuteOfTheHour + "] [" + $secondOfTheMinute + "] [" + $timeZone + "]")
+      stdout.println("Offset from UTC [" + $offset + "]")
+      
+      assert dayOfMonth == 6
+      assert monthOfYear == 3
+      assert year == 1
+      assert dayOfTheWeek == 2
+      assert hourOfTheDay == 2
+      assert minuteOfTheHour == 59
+      assert secondOfTheMinute == 18
+      assert timeZone == "Z"
+      assert offset == PT0S
+            
+//EOF
+      
+      

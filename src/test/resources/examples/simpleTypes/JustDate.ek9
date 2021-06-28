@@ -1,0 +1,149 @@
+#!ek9
+defines module com.customer.just
+
+        
+  defines program
+  
+    ShowDateLocale()
+      stdout <- Stdout()
+            
+      //3rd of october 2020
+      date1 <- 2020-10-03
+      
+      enGB <- Locale(`en_GB`)
+      enUS <- Locale(`en-US`)
+      deutsch <- Locale(`de_DE`)
+      
+      stdout.println(`Short format`)
+      presentation <- enGB.shortFormat(date1)
+      stdout.println(`[${presentation}]`)
+      
+      presentation := enUS.shortFormat(date1)
+      stdout.println(`[${presentation}]`)
+      
+      presentation := deutsch.shortFormat(date1)
+      stdout.println(`[${presentation}]`)
+
+      stdout.println(`Medium format`)
+      presentation := enGB.mediumFormat(date1)
+      stdout.println(`[${presentation}]`)
+      
+      presentation := enUS.mediumFormat(date1)
+      stdout.println(`[${presentation}]`)
+      
+      presentation := deutsch.mediumFormat(date1)
+      stdout.println(`[${presentation}]`)
+      
+      stdout.println(`Long format`)
+      presentation := enGB.longFormat(date1)
+      stdout.println(`[${presentation}]`)
+      
+      presentation := enUS.longFormat(date1)
+      stdout.println(`[${presentation}]`)
+      
+      presentation := deutsch.longFormat(date1)
+      stdout.println(`[${presentation}]`)
+      
+      stdout.println(`Full format`)
+      presentation := enGB.fullFormat(date1)
+      stdout.println(`[${presentation}]`)
+      
+      presentation := enUS.fullFormat(date1)
+      stdout.println(`[${presentation}]`)
+      
+      presentation := deutsch.fullFormat(date1)
+      stdout.println(`[${presentation}]`)
+      
+      
+    <?-
+    Examples of Date usage.
+    -?>
+    ShowDateType()
+      stdout <- Stdout()
+            
+      //3rd of october 2020
+      date1 <- 2020-10-03
+      date2 <- 2020-10-04
+      date3 <- 2020-10-04
+      date4 <- Date()
+      date5 <- Date(2020, 10, 03)      
+      date6 <- Date(2020, 10, 04)
+           
+      assert date1 <> date2
+      assert date2 == date3
+
+      assert date2 <> date1
+      assert date3 == date2
+
+      assert date1 < date2
+      assert date1 <= date2
+      assert date2 <= date3
+      
+      assert date2 > date1
+      assert date2 >= date1
+      assert date3 >= date2
+      
+      assert ~date4?
+          
+      assert date1 == date5      
+      assert date2 == date6
+            
+      stdout.println(`T1 [${date1}] is set [${date1?}]`)
+      stdout.println(`T2 [${date2}] is set [${date2?}]`)
+      stdout.println(`T3 [${date3}] is set [${date3?}]`)
+      stdout.println(`T4 [${date4}] is set [${date4?}]`)
+      stdout.println(`T5 [${date5}] is set [${date5?}]`)
+      stdout.println(`T6 [${date6}] is set [${date6?}]`)
+      
+      date4a <- Date().today()
+      assert date4a?
+      stdout.println(`Now T4a [${date4a}] is set [${date4a?}]`)
+      
+      date4.setToday() //Now set to the current date
+      stdout.println(`T4 [${date4}] is set [${date4?}]`)
+      
+      //Durations
+      d1 <- P1Y1M4D //one year, one month and 4 days
+      d2 <- P4W1DT2H59M18S //twenty nine days, two hours, fifty nine minutes and eighteen seconds
+      
+      //Note how only the days part of 'd2' is used
+      date4 := date5 + d1
+      stdout.println(`T4 [${date4}] is set [${date4?}]`)
+      assert date4 == 2021-11-07
+      
+      date4 += d2
+      stdout.println(`D2 [${d2}]`)
+      stdout.println(`T4 [${date4}] is set [${date4?}]`)
+      assert date4 == 2021-12-06
+      
+      d3 <- date4 - date5
+      stdout.println(`D3 [${d3}] is set [${d3?}]`)
+      assert d3 == P1Y2M3D
+      
+      durations as List of Duration := [d1, d2]
+      date7 <- cat durations | collect as Date
+      stdout.println(`D7 [${date7}] is set [${date7?}]`)
+      //Because the epoch is 1970-01-01
+      assert date7 == 1971-03-06
+      
+      date8 <- 0000-01-01
+      stdout.println(`D8 [${date8}] is set [${date8?}]`)
+      cat durations >> date8
+      stdout.println(`D8 [${date8}] is set [${date8?}]`)
+      assert date8 == 0001-03-06
+      
+      dayOfMonth <- date8.day()
+      monthOfYear <- date8.month()
+      year <- date8.year()      
+      dayOfTheWeek <- date8.dayOfWeek()      
+      
+      stdout.println(`D8 [${dayOfMonth}] [${monthOfYear}] [${year}] [${dayOfTheWeek}]`)
+      
+      assert dayOfMonth == 6
+      assert monthOfYear == 3
+      assert year == 1
+      assert dayOfTheWeek == 2
+            
+//EOF
+      
+      

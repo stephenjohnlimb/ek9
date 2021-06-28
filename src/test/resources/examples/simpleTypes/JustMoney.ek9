@@ -1,0 +1,171 @@
+#!ek9
+defines module com.customer.just
+
+        
+  defines program
+  
+    ShowMoneyLocale()
+      stdout <- Stdout()
+      
+      thousandsOfChileanCurrency <- 6798.9288#CLF
+      
+      tenPounds <- 10#GBP
+      thirtyDollarsTwentyCents <- 30.89#USD
+      
+      enGB <- Locale("en_GB")
+      enUS <- Locale("en-US")
+      deutsch <- Locale("de_DE")
+      skSK <- Locale("sk", "SK")
+      
+      stdout.println("Money format")
+      
+      presentation <- enGB.format(tenPounds)
+      stdout.println("["+ presentation + "]")
+      presentation := enGB.format(thirtyDollarsTwentyCents)
+      stdout.println("["+ presentation + "]")
+      presentation := enGB.format(thousandsOfChileanCurrency)
+      stdout.println("["+ presentation + "]")
+      
+      stdout.println("Money format without symbol")
+      presentation := enGB.longFormat(tenPounds)
+      
+      stdout.println("["+ presentation + "]")
+      presentation := enGB.longFormat(thirtyDollarsTwentyCents)
+      stdout.println("["+ presentation + "]")
+      presentation := enGB.format(thousandsOfChileanCurrency, false, true)
+      stdout.println("["+ presentation + "]")
+      
+      
+      stdout.println("Money format without fractional part")
+      presentation := enGB.mediumFormat(tenPounds)
+      stdout.println("["+ presentation + "]")
+      presentation := enGB.mediumFormat(thirtyDollarsTwentyCents)
+      stdout.println("["+ presentation + "]")
+      presentation := enGB.format(thousandsOfChileanCurrency, true, false)
+      stdout.println("["+ presentation + "]")
+      
+      stdout.println("Money format without symbol or fractional part")
+      presentation := enGB.shortFormat(tenPounds)
+      stdout.println("["+ presentation + "]")
+      presentation := enGB.shortFormat(thirtyDollarsTwentyCents)
+      stdout.println("["+ presentation + "]")
+      presentation := enGB.format(thousandsOfChileanCurrency, false, false)
+      stdout.println("["+ presentation + "]")
+      
+      stdout.println("Money format US Locale")
+      
+      presentation := enUS.format(tenPounds)
+      stdout.println("["+ presentation + "]")
+      presentation := enUS.format(thirtyDollarsTwentyCents)
+      stdout.println("["+ presentation + "]")
+      presentation := enUS.format(thousandsOfChileanCurrency)
+      stdout.println("["+ presentation + "]")
+
+      stdout.println("Money format Deutsch Locale")
+      
+      presentation := deutsch.format(tenPounds)
+      stdout.println("["+ presentation + "]")
+      presentation := deutsch.format(thirtyDollarsTwentyCents)
+      stdout.println("["+ presentation + "]")
+      presentation := deutsch.format(thousandsOfChileanCurrency)
+      stdout.println("["+ presentation + "]")
+      
+      stdout.println("Money format skSK Locale")
+
+      presentation := skSK.format(tenPounds)
+      stdout.println("["+ presentation + "]")
+      presentation := skSK.format(thirtyDollarsTwentyCents)
+      stdout.println("["+ presentation + "]")
+      presentation := skSK.format(thousandsOfChileanCurrency)
+      stdout.println("["+ presentation + "]")
+      
+      
+    ShowMoneyType()
+      stdout <- Stdout()
+      
+      tenPounds <- 10#GBP
+      assert tenPounds == 10.00#GBP
+      
+      thirtyDollarsTwentyCents <- 30.2#USD
+      assert thirtyDollarsTwentyCents == 30.20#USD
+            
+      //Mathematical operators
+      nintyNinePoundsFiftyOnePence <- tenPounds + 89.51#GBP
+      assert nintyNinePoundsFiftyOnePence == 99.51#GBP
+      
+      assert tenPounds < nintyNinePoundsFiftyOnePence
+      assert nintyNinePoundsFiftyOnePence > tenPounds
+      assert tenPounds <> nintyNinePoundsFiftyOnePence
+      assert tenPounds <= 10.00#GBP
+      assert tenPounds >= 10.00#GBP
+      
+      assert ~(tenPounds != thirtyDollarsTwentyCents)?
+      assert ~(tenPounds == thirtyDollarsTwentyCents)?
+      
+      //rounding up for money values 49.755 is 49.76
+      fourtyEightPoundsSeventySixPence <- nintyNinePoundsFiftyOnePence/2
+      assert fourtyEightPoundsSeventySixPence == 49.76#GBP
+      
+      minusFourHundredAndThirtyFivePoundsSixtyPence <- fourtyEightPoundsSeventySixPence * -8.754
+      assert minusFourHundredAndThirtyFivePoundsSixtyPence == -435.60#GBP
+      
+      nineHundredAndThirtyFivePoundsSixtyPence <- 500#GBP - minusFourHundredAndThirtyFivePoundsSixtyPence
+      assert nineHundredAndThirtyFivePoundsSixtyPence == 935.60#GBP
+      
+      variableAmount <- (nineHundredAndThirtyFivePoundsSixtyPence * 3) / 18
+      assert variableAmount == 155.93#GBP
+      
+      multiplier <- nineHundredAndThirtyFivePoundsSixtyPence / variableAmount
+      stdout.println("Multiplier [" + $multiplier + "]")
+      assert multiplier == 6.0001
+      
+      variableAmount += 4.07#GBP
+      assert variableAmount == 160.00#GBP
+      
+      variableAmount *= 0.666
+      assert variableAmount == 106.56#GBP
+      
+      variableAmount -= 0.56#GBP
+      assert variableAmount == 106.00#GBP
+      
+      variableAmount /= 4
+      assert variableAmount == 26.50#GBP
+      
+      variableAmount := -variableAmount
+      assert variableAmount == -26.50#GBP
+      
+      variableAmount := abs variableAmount
+      assert variableAmount == 26.50#GBP
+      
+      variableAmount := sqrt variableAmount
+      assert variableAmount == 5.15#GBP
+      
+      variableAmount := variableAmount ^ 6
+      assert variableAmount == 18657.07#GBP
+      
+      variableAmount := variableAmount/0
+      assert ~variableAmount?
+      
+      variableAmount := tenPounds + thirtyDollarsTwentyCents
+      assert ~variableAmount?
+      
+      amounts as List of Money := [tenPounds, nintyNinePoundsFiftyOnePence, fourtyEightPoundsSeventySixPence]
+      total1 <- cat amounts | collect as Money
+      assert total1 == 159.27#GBP
+      
+      total2 <- cat tenPounds, nintyNinePoundsFiftyOnePence, fourtyEightPoundsSeventySixPence | collect as Money
+      assert total2 == 159.27#GBP
+      
+      stdout.println("Total [" + $total1 + "] and  [" + $total2 + "]")
+      
+      //Provide the exchange rate and convert to USD
+      totalInUSD <- total1.convert(1.32845, "USD")
+      assert totalInUSD == 211.58#USD
+      stdout.println("USD [" + $totalInUSD + "] is set [" + $totalInUSD? + "]")
+
+      //Also possible to convert like this
+      totalInUSD := total1.convert(1.32845#USD)
+      assert totalInUSD == 211.58#USD
+      stdout.println("USD [" + $totalInUSD + "] is set [" + $totalInUSD? + "]")
+
+//EOF

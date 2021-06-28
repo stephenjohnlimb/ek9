@@ -1,0 +1,82 @@
+#!ek9
+defines module com.customer.just
+
+  defines program
+  
+    ShowIntegerLocale()
+      stdout <- Stdout()
+      
+      i1 <- -9223372036854775808
+      i2 <- 9223372036854775807
+      
+      enGB <- Locale("en_GB")
+      enUS <- Locale("en-US")
+      deutsch <- Locale("de_DE")
+      skSK <- Locale("sk", "SK")
+      
+      stdout.println("Integer format")
+      
+      presentation <- enGB.format(i1)
+      stdout.println("["+ presentation + "]")
+      presentation := enGB.format(i2)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := enUS.format(i1)
+      stdout.println("["+ presentation + "]")
+      presentation := enUS.format(i2)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := deutsch.format(i1)
+      stdout.println("["+ presentation + "]")
+      presentation := deutsch.format(i2)
+      stdout.println("["+ presentation + "]")
+      
+      presentation := skSK.format(i1)
+      stdout.println("["+ presentation + "]")
+      presentation := skSK.format(i2)
+      stdout.println("["+ presentation + "]")
+      
+    ShowIntegerType()
+      stdout <- Stdout()
+      
+      i1 <- -9223372036854775808
+      
+      i2 <- 9223372036854775807
+     
+      i3 <- Integer()
+       
+      stdout.println("Value [" + $i1 + "]")
+      stdout.println("Value [" + $i2 + "]")
+      
+      check <- i3 <? i2
+      stdout.println("Value [" + $check + "] is set is [" + $check? + "]")
+      
+      hashCode <- #? i1
+      stdout.println("Hashcode [" + $hashCode + "]")
+      
+      asAFloat <- #^ i1
+      stdout.println("asAFloat [" + $asAFloat + "]")
+      
+      i3 := 0
+      
+      nonResult <- i3 / 90
+      stdout.println("nonResult [" + $nonResult + "] is set is [" + $nonResult? + "]")
+      
+      nonResult := 90 / i3
+      stdout.println("nonResult [" + $nonResult + "] is set is [" + $nonResult? + "]")
+      
+      nonResult := 0 / i3
+      stdout.println("nonResult [" + $nonResult + "] is set is [" + $nonResult? + "]")
+      
+      theValues as List of Integer: List()
+      
+      intSum <- for i in 1 ... 11 by 2 | tee in theValues | collect as Integer
+      
+      stdout.println($theValues + " intSum [" + $intSum + "] is set is [" + $intSum? + "]")
+
+      asString <- for j in 1 ... 12 by 3 | collect as String
+      stdout.println("As String is [" + asString + "]")
+
+      asFloat <- for k in 1 ... 12 by 3 | collect as Float
+      stdout.println("As Float is [" + $asFloat + "]")
+//EOF      
