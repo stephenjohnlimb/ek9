@@ -1,0 +1,143 @@
+#!ek9
+defines module com.customer.enumerations
+
+  defines type
+    
+    CardRank
+      Two
+      Three
+      Four
+      Five
+      Six
+      Seven
+      Eight
+      Nine
+      Ten
+      Jack
+      Queen
+      King
+      Ace
+      
+    CardSuit
+      Hearts
+      Diamonds
+      Clubs
+      Spades
+    
+  defines record
+    
+    Card
+      rank as CardRank: CardRank()
+      suit as CardSuit: CardSuit()
+      
+      operator ?
+        <- rtn as Boolean: rank? and suit?
+      
+      operator $
+        <- rtn as String: $rank + " of " + $suit
+        
+      operator #^
+        <- rtn as String: $this
+                  
+  defines function
+  
+    cardCreator() as abstract
+      -> rank as CardRank
+      <- rtn as Card
+    
+    fullRankCreator()
+      -> suit as CardSuit
+      <- rtn as List of Card: List()
+      
+      deckPopulator <- (suit) is cardCreator as function
+        rtn: Card(rank, suit)        
+      cat CardRank | map with deckPopulator > rtn          
+        
+    CardSuitToString()
+      -> suit as CardSuit
+      <- rtn as String: $suit
+      
+    CardRankToString()
+      -> rank as CardRank
+      <- rtn as String: $rank  
+
+  defines program
+  
+    ShowOperators()
+      stdout <- Stdout()
+      
+      hearts <- CardSuit.Hearts
+      clubs <- CardSuit.Clubs
+      
+      assert hearts != clubs
+      
+      assert hearts == #< clubs
+      
+      assert CardSuit.Spades == #> clubs
+      
+      unknownSuit <- CardSuit()
+      
+      assert ~unknownSuit?
+      
+      asString <- $hearts
+      
+      assert asString == "Hearts"
+      
+      assert hearts < clubs
+      
+      assert clubs <=> hearts > 0
+      
+      invalidSuit <- CardSuit("NonSuch")
+      assert ~invalidSuit?
+
+      validSuit <- CardSuit("Clubs")
+      assert validSuit?
+
+      validRank <- CardRank("Ace")
+      assert validRank?
+
+      for rank in CardRank
+        message <- switch rank
+          <- rtn as String: String()
+          case CardRank.Ace
+            rtn: "Wow very lucky " + $rank
+          case > CardRank.Ten
+            rtn: "Not too bad " + $rank
+          case > CardRank.Five
+            rtn: "Oh dear me " + $rank
+          default
+            rtn: "Not so lucky " + $rank
+        stdout.println(message)
+
+    DeckOfPlayingCards()
+      stdout <- Stdout()
+
+      //List the four suits
+      stdout.println("Cat Suits")
+      cat CardSuit | map CardSuitToString > stdout
+
+      //List each of the Ranks
+      stdout.println("Cat Ranks")
+      cat CardRank | map CardRankToString > stdout
+
+      <!-
+        It would be nice to do this
+      -!>
+      stdout.println("With just a for loop")
+      for suit in CardSuit
+        stdout.println($suit)
+
+      //If you wanted a list of suits
+      suits <- cat CardSuit | collect as List of CardSuit
+
+      stdout.println("Procedural Deck creation")
+      for suit in CardSuit
+        for rank in CardRank
+          stdout.println(Card(rank, suit))
+
+      //Now make a full deck of cards.
+      stdout.println("Functional Deck creation")
+
+      cat CardSuit | map with fullRankCreator | flatten > stdout
+      
+//EOF

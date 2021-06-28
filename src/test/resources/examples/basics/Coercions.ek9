@@ -1,0 +1,17 @@
+#!ek9
+defines module net.customer.coercions
+
+  defines class
+  
+    SimpleTest
+      
+      checkBuiltinCoercions()
+        
+        //So start off with an int an use as a float without explicit conversion
+        testInteger <- 1
+        testFloat as Float := testInteger
+        
+        //Now a character we promote to a String.
+        testCharacter <- 's'
+        testString as String := testCharacter
+//EOF   

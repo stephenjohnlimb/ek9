@@ -1,0 +1,19 @@
+#!ek9
+defines module net.customer
+    
+  defines constant
+
+    <!- Some single line content -!>
+        
+    <!- Some single line content -!>
+    
+    //More comments
+    
+    <?-
+      A doc comments
+    -?>
+    
+    limitNumberOfRetries <- true
+
+    another <- false
+//EOF

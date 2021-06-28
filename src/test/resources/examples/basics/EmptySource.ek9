@@ -1,0 +1,5 @@
+#!ek9
+defines module example.placeholder
+//So you can now define an empty file - sometimes
+//useful for placeholders
+//EOF

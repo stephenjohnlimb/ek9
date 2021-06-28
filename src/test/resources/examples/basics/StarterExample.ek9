@@ -1,0 +1,166 @@
+#!ek9
+<?-
+  This is intended to be a non-frightening (until the end) introduction to EK9.
+  If you have not looked at any programming language before - then you'll need the programming concepts introduction.
+  
+  So the #!ek9 above is just the standard way to identify this program and in effect tells any sort of computer
+  what sort of file this is and what command to run to execute it.
+  
+  Everything in ek9 sits in a module - you can think of this as a name space or a package if you like.
+  Below defines module "com.customer.starter.example" a bit like a Java package if you are familiar with Java.
+  
+  Now there are a number of constructs that can go in this module - and no there are no global variables - none.
+  Below is a simple example, see other examples for different built in types, operations that can be used and other constructs like
+  program, class, function, component, record and trait - there are others but these are the main constructs.
+  
+  Code is indent specific a bit like python - but only uses spaces - 2 or 4 recommended pick one and stick with it (IMO).
+-?>
+defines module com.customer.starter.example
+
+  <?-
+    If you want a constant - put them all in under a 'defines constant" block
+  -?>
+  defines constant
+  
+    <?-
+      Ek9 uses 'some' type inference so 3.142 is a Float so the compiler knows that so you don't need to say what type it is.
+    -?>
+    Pi <- 3.142
+    EarthsRadius <- 6375km
+
+  <?-
+    An example of how to write some functions.
+    -> means incoming parameters
+    <- is outgoing return value (if there is to be one)
+    Then just add the body of the function (note there is no keyword 'return').
+  -?>
+  defines function
+  
+    <?-
+      For this example it just calculates volume of a sphere
+      It's all done in the return on a single line.
+      But note for parameters EK9 does need the type to be specified in the declaration.
+    -?>
+    volumeOfSphere()
+      -> radius as Dimension
+      <- volume as Float: 4 * Pi/3 * Float(radius)^3
+        
+    <?-
+      Another example of a function but this time has a function body.
+      Plus you can see two incoming parameters.
+      You can omit the 'as' if you wish when declaring variables.
+    -?>
+    getMessage()
+      ->
+        firstPart String
+        secondPart String
+      <-
+        welcome as String := firstPart
+      welcome += " " + secondPart + ", volume of earth is "
+      welcome += $volumeOfSphere(EarthsRadius)
+
+  <?-
+    Example of a Class, this just uses the functions above
+    Those functions could have just been methods on the class
+    But the volume of a sphere should really be a reusable calculation in some way outside of this class.
+  -?>
+  defines class
+  
+    <?-
+      A simple class to deal with introductions to EK9
+    -?>
+    Introduction
+      <?-  Declare a field/property on this class - always private so no need to specify -?>
+      welcome String: "Hello "
+      
+      <?- Another field/property but this one is not set to anything meaningful. -?>
+      to String: String()
+      
+      <?-
+        The constructor.
+      -?>
+      Introduction()
+        -> message as String
+        //This is where the 'to' field gets set.
+        to := message
+        
+      <?-
+      You can overload operators - here is an example of the 'to string' operator.
+      For simple one liners on methods/functions you can put the <- and assignment on one line, if you want to.
+      -?>
+      operator $
+        <- rtn as String := getMessage(welcome, to)
+             
+  <?-
+    Just defines a program block, create a name for the program and start writing the code - indent to give structure.
+  -?>
+  defines program
+  
+    <?-
+      First ek9 program - just produces "Hello, World, volume of earth is 1.0853891718749999E12" which is the volume of the earth(ish)
+    -?>
+    helloWorld()
+      //ready to write to the console (stdout)
+      stdout <- Stdout()
+      
+      //Make an Introduction object.
+      intro <- Introduction("World")
+      
+      //Now trigger it to get the hello world and do the calculation.
+      outputMessage <- $intro
+      
+      //Now write the output to the console // object type resolution is not working correctly.
+      stdout.println(outputMessage)
+      
+      //So that's it end of hello world program - you didn't really need the classes/functions/constants
+      //it could all be done inline if you wanted to. But this is an example and intro.
+      
+      <!-
+        So there were a few things going on here.
+        
+        1. name space modules
+        2. constants/variables
+        3. Some simple type inference
+        4. Basic expressions
+        5. Introduction to functions/classes with a bit of operator overloading ($ - but other operators can be overloaded)
+        6. The idea of operators like '$'
+        7. Importantly EK9 treats functions and classes as being on a par with each other for development.
+        8. But this sample did not discuss Generics/Templates - EK9 does have them see other examples for this.
+        
+        EK9 is not just OOP and not just functional - combine the power of both in a way that suits you for what you want to accomplish.
+        There is power in both concepts and even more power when combined.
+      -!>
+      
+      <!-
+        You're probably thinking 'this is light weight' stuff - go on frighten me a bit - encourage me to explore because I can do the above in any language.
+        OK then, here's the scenario - you have a known name 'stockName' and a number of candidates one of which could be empty/null and you want to find the
+        best match to your known name.
+      -!>
+      stockName <- "Stephen" //So this is what we want to find the best match to
+      candidate1 <- "Steve" //Well this would be an ok match
+      candidate2 <- "Steven" //Well this is a better match
+      //So this below could be the best closes match ever might even be "Stephen" but also might be null or just empty and not set
+      maybeEmpty <- String()
+      
+      //So get the best match
+      
+      bestMatch <- stockName <~> maybeEmpty ?: candidate1 < stockName <~> candidate2 <- maybeEmpty ?: candidate1 : candidate2
+      
+      stdout.println("Best Match is: " + bestMatch)
+      
+      // If you look at the above and think - what the hell is this long flat squiggly gibberish - this is not for me - then thanks for your time reading this
+      
+      // But if you can see and feel that ':=' is blunt and blocky but '<-' is smooth but pointy and '<~>' is just nice to look at
+      // then we're on the same wavelength, in general in EK9 punctuation characters are operators/assignments and not block delimiters.
+      
+      // <~> is a fuzzy match (we also have <=> compare BTW)
+      // ?: is the Elvis coalescing operator - but has higher precedence than <~>
+      // < is just plain old less than
+      // The <- and : combination is a ternary operator
+      
+      //So now with that short explanation you should be able to read the expression.
+      //The brackets should now help.
+      checkMatch <- (stockName <~> (maybeEmpty ?: candidate1) < stockName <~> candidate2) <- maybeEmpty ?: candidate1 : candidate2
+
+
+//EOF
