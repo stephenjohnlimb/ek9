@@ -3,7 +3,7 @@
 Any sort of positive contribution is welcome. Whether it is improvements to documentation, testing, **coding** and
 especially:
   - 'fuzzing' as this is a major knowledge gap at present.
-  - 'ANTL4 grammar' this is an arrea where many eyes make a big difference
+  - 'ANTL4 grammar' this is an area where many eyes make a big difference
 
 On the documentation side, any improvements to the website or these "*.md" documents in terms of:
   - typo corrections
@@ -24,7 +24,7 @@ At this point in time focus is on getting the existing grammar robust and resili
 rather than adding more features or capabilities in.
 
 Having written all the examples and actually used the EK9 language to accomplish a few things
-(even with just the basic prototype). The reference implementation can now be built.
+(even with just the basic prototype); the reference implementation can now be built.
 
 Ideally I'd like a hand doing this, as it's a very big job. More importantly I'd like to share the experience with
 like-minded people (from wherever they are in the world and whatever background they come from).
