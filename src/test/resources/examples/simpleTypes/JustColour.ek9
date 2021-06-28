@@ -1,0 +1,230 @@
+#!ek9
+defines module com.customer.just
+  defines program
+    
+    <?-
+      A simple example of colour See: https://www.ek9lang.org/builtInTypes.html#colour
+    -?>
+    ShowSimpleColour()
+      stdout <- Stdout()
+      
+      //Colour can hold RGB or ARGB (i.e with alpha channel)
+      //Here shown with alpha channel fully opaque
+      testColour <- #FF186276
+      testColourAsBits <- testColour.bits()      
+      stdout.println(`testColour [${testColour}][${testColourAsBits}]`)
+      assert testColourAsBits == 0b11111111000110000110001001110110
+      
+      modifiedBits <- testColourAsBits and 0b10110111000100000110001010110110
+      modifiedColour <- Colour(modifiedBits)
+      stdout.println(`modifiedColour [${modifiedColour}][${modifiedBits}]`)
+      assert modifiedColour == #B7106236
+      assert modifiedBits == 0b10110111000100000110001000110110
+      
+      assert modifiedColour.hue() == 148
+      assert modifiedColour.saturation() == 71.9298245614035
+      assert modifiedColour.lightness() == 22.35294117647059
+      
+      //Note it is also possible to access the HSL values of the colour      
+      stdout.println(`[${modifiedColour}] H [${modifiedColour.hue()}] S [${modifiedColour.saturation()}] L [${modifiedColour.lightness()}]`)      
+      
+      //Also alter the alpha channel to control transparent/opaque
+      moreOpaqueColour <- modifiedColour.withOpaque(80)
+      stdout.println(`lessOpaqueColour [${moreOpaqueColour}] H [${moreOpaqueColour.hue()}] S [${moreOpaqueColour.saturation()}] L [${moreOpaqueColour.lightness()}]`)      
+      assert moreOpaqueColour == #CC106236
+      
+      //It can be made lighter - much lighter in this case
+      lighterColour <- moreOpaqueColour.withLightness(80)
+      stdout.println(`lighterColour [${lighterColour}] H [${lighterColour.hue()}] S [${lighterColour.saturation()}] L [${lighterColour.lightness()}]`)      
+      assert lighterColour == #CCA7F1CA
+      
+      //Then we can saturate it more
+      moreSaturatedColour <- lighterColour.withSaturation(90)
+      stdout.println(`moreSaturatedColour [${moreSaturatedColour}] H [${moreSaturatedColour.hue()}] S [${moreSaturatedColour.saturation()}] L [${moreSaturatedColour.lightness()}]`)      
+      assert moreSaturatedColour == #CC9EFAC9
+      
+      //Remove the Red from this colour
+      lessRedColour <- moreSaturatedColour - #9A0000
+      stdout.println(`lessRedColour [${lessRedColour}] H [${lessRedColour.hue()}] S [${lessRedColour.saturation()}] L [${lessRedColour.lightness()}]`)      
+      assert lessRedColour == #CC04FAC9
+      
+      moreBlueColour <- lessRedColour + #00001D
+      stdout.println(`moreBlueColour [${moreBlueColour}] H [${moreBlueColour.hue()}] S [${moreBlueColour.saturation()}] L [${moreBlueColour.lightness()}]`)      
+      assert moreBlueColour == #CC04FADD
+      
+      //Available in different formats
+      stdout.println(`RGB [${moreBlueColour.RGB()}] RGBA [${moreBlueColour.RGBA()}] ARGB [${moreBlueColour.ARGB()}]`)
+      assert moreBlueColour.RGB() == $#04FADD
+      assert moreBlueColour.RGBA() == $#04FADDCC
+      assert moreBlueColour.ARGB() == $#CC04FADD
+      
+    <?-
+    Examples of Colour and interaction with Bits.
+    -?>
+    ShowColourAndBitsType()
+      stdout <- Stdout()
+      
+      //Alpha, Red, Green, Blue
+      redBitsNoAlpha      <- 0b111111110000000000000000
+      redBitsWithAlpha    <- 0b11111111111111110000000000000000
+      redBitsWithAlpha1   <- 0b01010101111111110000000000000000
+      
+      greenBitsNoAlpha    <- 0b000000001111111100000000
+      greenBitsWithAlpha  <- 0b11111111000000001111111100000000
+      greenBitsWithAlpha1 <- 0b01010101000000001111111100000000
+      
+      blueBitsNoAlpha     <- 0b000000000000000011111111
+      blueBitsWithAlpha   <- 0b11111111000000000000000011111111
+      blueBitsWithAlpha1  <- 0b01010101000000000000000011111111
+      
+      //Make colours from the bits
+      
+      redColourNoAlpha           <- Colour(redBitsNoAlpha)
+      redColourWithAlpha         <- Colour(redBitsWithAlpha)
+      redColourWithAlpha1        <- Colour(redBitsWithAlpha1)
+      
+      redRGB                   <- redColourNoAlpha.RGB()
+      redRGBA                  <- redColourNoAlpha.RGBA()
+      redARGB                  <- redColourNoAlpha.ARGB()
+      
+      red80PercentOpaque         <- redColourNoAlpha.withOpaque(80)
+      red60PercentOpaque         <- redColourWithAlpha.withOpaque(60)
+      red40PercentOpaque         <- redColourWithAlpha1.withOpaque(40)
+      
+      stdout.println(`Red varied [${red80PercentOpaque}][${red60PercentOpaque}][${red40PercentOpaque}]`)
+      
+      stdout.println(`Order [RGB] [RGBA] [ARGB] [Original]`)
+      
+      stdout.println(`Red from none Alpha [${redRGB}][${redRGBA}][${redARGB}] from [${redColourNoAlpha}]`)
+      
+      redRGB                   := redColourWithAlpha.RGB()
+      redRGBA                  := redColourWithAlpha.RGBA()
+      redARGB                  := redColourWithAlpha.ARGB()
+      
+      stdout.println(`Red from with Alpha [${redRGB}][${redRGBA}][${redARGB}] from [${redColourWithAlpha}]`)
+      
+      redRGB                   := redColourWithAlpha1.RGB()
+      redRGBA                  := redColourWithAlpha1.RGBA()
+      redARGB                  := redColourWithAlpha1.ARGB()
+      
+      stdout.println(`Red from part Alpha [${redRGB}][${redRGBA}][${redARGB}] from [${redColourWithAlpha1}]`)
+      
+      redBitsNoAlphaBack         <- Bits(redColourNoAlpha)
+      redBitsWithAlphaBack       <- Bits(redColourWithAlpha)
+      redBitsWithAlpha1Back      <- Bits(redColourWithAlpha1)
+      
+      greenColourNoAlpha         <- Colour(greenBitsNoAlpha)
+      greenColourWithAlpha       <- Colour(greenBitsWithAlpha)
+      greenColourWithAlpha1      <- Colour(greenBitsWithAlpha1)      
+      
+      greenRGB                   <- greenColourNoAlpha.RGB()
+      greenRGBA                  <- greenColourNoAlpha.RGBA()
+      greenARGB                  <- greenColourNoAlpha.ARGB()
+      
+      stdout.println(`Green from none Alpha [${greenRGB}][${greenRGBA}][${greenARGB}] from [${greenColourNoAlpha}]`)
+      
+      greenRGB                   := greenColourWithAlpha.RGB()
+      greenRGBA                  := greenColourWithAlpha.RGBA()
+      greenARGB                  := greenColourWithAlpha.ARGB()
+      
+      stdout.println(`Green from with Alpha [${greenRGB}][${greenRGBA}][${greenARGB}] from [${greenColourWithAlpha}]`)
+      
+      greenRGB                   := greenColourWithAlpha1.RGB()
+      greenRGBA                  := greenColourWithAlpha1.RGBA()
+      greenARGB                  := greenColourWithAlpha1.ARGB()
+      
+      stdout.println(`Green from part Alpha [${greenRGB}][${greenRGBA}][${greenARGB}] from [${greenColourWithAlpha1}]`)
+      
+      greenBitsNoAlphaBack       <- Bits(greenColourNoAlpha)
+      greenBitsWithAlphaBack     <- Bits(greenColourWithAlpha)
+      greenBitsWithAlpha1Back    <- Bits(greenColourWithAlpha1)
+      
+      blueColourNoAlpha          <- Colour(blueBitsNoAlpha)
+      blueColourWithAlpha        <- Colour(blueBitsWithAlpha)
+      blueColourWithAlpha1       <- Colour(blueBitsWithAlpha1)
+      
+      blueBitsNoAlphaBack        <- Bits(blueColourNoAlpha)
+      blueBitsWithAlphaBack      <- Bits(blueColourWithAlpha)
+      blueBitsWithAlpha1Back     <- Bits(blueColourWithAlpha1)      
+      
+      stdout.println(`[${redColourNoAlpha}] from [${redBitsNoAlpha}] back [${redBitsNoAlphaBack}]`)
+      stdout.println(`[${redColourWithAlpha}] from [${redBitsWithAlpha}] back [${redBitsWithAlphaBack}]`)
+      stdout.println(`[${redColourWithAlpha1}] from [${redBitsWithAlpha1}] back [${redBitsWithAlpha1Back}]`)
+      
+      stdout.println(`[${greenColourNoAlpha}] from [${greenBitsNoAlpha}] back [${greenBitsNoAlphaBack}]`)
+      stdout.println(`[${greenColourWithAlpha}] from [${greenBitsWithAlpha}] back [${greenBitsWithAlphaBack}]`)
+      stdout.println(`[${greenColourWithAlpha1}] from [${greenBitsWithAlpha1}] back [${greenBitsWithAlpha1Back}]`)
+      
+      stdout.println(`[${blueColourNoAlpha}] from [${blueBitsNoAlpha}] back [${blueBitsNoAlphaBack}]`)
+      stdout.println(`[${blueColourWithAlpha}] from [${blueBitsWithAlpha}] back [${blueBitsWithAlphaBack}]`)
+      stdout.println(`[${blueColourWithAlpha1}] from [${blueBitsWithAlpha1}] back [${blueBitsWithAlpha1Back}]`)
+      
+      purpleColourNoAlpha <- redColourNoAlpha + blueColourNoAlpha
+      purpleBitsNoAlpha <- Bits(purpleColourNoAlpha)      
+      stdout.println(`Purple [${purpleColourNoAlpha}] from [${purpleBitsNoAlpha}]`)      
+      
+      yellowColourNoAlpha <- redColourNoAlpha + greenColourNoAlpha
+      yellowBitsNoAlpha <- Bits(yellowColourNoAlpha)            
+      stdout.println(`Yellow [${yellowColourNoAlpha}] from [${yellowBitsNoAlpha}]`)
+      
+      cyanColourNoAlpha <- greenColourNoAlpha + blueColourNoAlpha
+      cyanBitsNoAlpha <- Bits(yellowColourNoAlpha)      
+      stdout.println(`Cyan [${cyanColourNoAlpha}] from [${cyanBitsNoAlpha}]`)
+      
+      backToRedNoAlpha <- purpleColourNoAlpha - blueColourNoAlpha
+      stdout.println(`Red [${backToRedNoAlpha}]`)
+      
+      backToGreenNoAlpha <- yellowColourNoAlpha - redColourNoAlpha
+      stdout.println(`Green [${backToGreenNoAlpha}]`)      
+      
+      backToBlueNoAlpha <- cyanColourNoAlpha - greenColourNoAlpha
+      stdout.println(`Blue [${backToBlueNoAlpha}]`)
+      
+      //Now a mix of alpha and non alpha
+      purpleColourWithAlpha <- redColourWithAlpha + blueColourNoAlpha
+      purpleBitsWithAlpha <- Bits(purpleColourWithAlpha)      
+      stdout.println(`Purple [${purpleColourWithAlpha}] from [${purpleBitsWithAlpha}]`)
+      
+      yellowColourWithAlpha <- redColourWithAlpha + greenColourWithAlpha
+      yellowBitsWithAlpha <- Bits(yellowColourWithAlpha)            
+      stdout.println(`Yellow [${yellowColourWithAlpha}] from [${yellowBitsWithAlpha}]`)
+      
+      backToRedWithAlpha <- purpleColourWithAlpha - blueColourNoAlpha
+      stdout.println(`Red [${backToRedWithAlpha}]`)
+      
+      backToRedWithAlpha := purpleColourWithAlpha - blueColourWithAlpha
+      stdout.println(`Red [${backToRedWithAlpha}] note all the alpha has been subtracted as well`)
+      
+      backToRedWithAlpha := purpleColourWithAlpha - blueColourWithAlpha1
+      stdout.println(`Red [${backToRedWithAlpha}] note flipping of alpha is partial`)
+      
+      backToGreenWithAlpha <- yellowColourWithAlpha - redColourNoAlpha
+      stdout.println(`Green [${backToGreenWithAlpha}]`)
+      
+      backToGreenWithAlpha := yellowColourWithAlpha - redColourWithAlpha
+      stdout.println(`Green [${backToGreenWithAlpha}] note all the alpha has been subtracted as well`)
+      
+      backToGreenWithAlpha := yellowColourWithAlpha - redColourWithAlpha1
+      stdout.println(`Green [${backToGreenWithAlpha}] note flipping of alpha is partial`)
+      
+      testValue <- #FF186276
+      stdout.println(`Test value is [${testValue}] H [${testValue.hue()}] S [${testValue.saturation()}] L [${testValue.lightness()}]`)
+      
+      sameValue <- testValue.withLightness(27.84313725490196) //same value
+      stdout.println(`Same value is [${sameValue}] H [${sameValue.hue()}] S [${sameValue.saturation()}] L [${sameValue.lightness()}]`)
+      
+      lighterValue <- testValue.withLightness(50) //50% lightness so that's up from 27.8%
+      stdout.println(`Lighter value is [${lighterValue}] H [${lighterValue.hue()}] S [${lighterValue.saturation()}] L [${lighterValue.lightness()}]`)
+            
+      lessSaturatedValue <- testValue.withSaturation(10)
+      stdout.println(`Less Saturated value is [${lessSaturatedValue}] H [${lessSaturatedValue.hue()}] S [${lessSaturatedValue.saturation()}] L [${lessSaturatedValue.lightness()}]`)
+      
+      //Now lets do programmatically i.e % lighter
+      proposedLightness <- testValue.lightness() * 1.9
+      newLightness <- proposedLightness <? 100 
+      
+      percentLighterValue <- testValue.withLightness(newLightness)
+      
+      stdout.println(`% Lighter value is [${percentLighterValue}] H [${percentLighterValue.hue()}] S [${percentLighterValue.saturation()}] L [${percentLighterValue.lightness()}]`)      
+      
+//EOF
