@@ -1,0 +1,73 @@
+#!ek9
+defines module com.customer.just
+
+  defines function
+    currentTemperature() as pure
+      -> country as String
+      <- temp as Integer: Integer()
+      
+      if country == "GB"
+        temp: 20
+      else if country == "DE"
+        temp = 41
+        
+  defines program
+    simpleSwitch()
+      stdout <- Stdout()
+      multiplier <- 5
+      //This is what we will use to 'switch on'
+      conditionVariable <- 21
+      //This is what we will vary based on the condition variable
+      resultText <- String()
+
+      switch conditionVariable
+        case < 12
+          resultText: "Moderate"
+        case > 10*multiplier
+          resultText: "Very High"
+        case 25, 26, 27
+          resultText: "Slightly High"
+        case currentTemperature("GB"), 21, 22, 23, 24
+          resultText: "Perfect"
+        default
+          resultText: "Not Suitable"
+
+      stdout.println(resultText)
+
+      //The same switch could have been written using given and when
+      given conditionVariable
+        when < 12
+          resultText: "Moderate"
+        when > 10*multiplier
+          resultText: "Very High"
+        when 25, 26, 27
+          resultText: "Slightly High"
+        when currentTemperature("GB"), 21, 22, 23, 24
+          resultText: "Perfect"
+        default
+          resultText: "Not Suitable"
+
+      stdout.println(resultText)
+
+    returningSwitch()
+      stdout <- Stdout()
+      //This is what we will use to 'switch on'
+      conditionVariable <- "Name"
+      //This is what we will vary based on the condition variable
+
+      resultText <- switch conditionVariable
+        <- result String: String()
+        case 'D'
+          result: "Inappropriate"
+        case matches /[nN]ame/
+          result: "Perfect"
+        case > "Gandalf"
+          result: "Moderate"
+        case < "Charlie"
+          result: "Very High"
+        default
+          result: "Suitable"
+
+      stdout.println(resultText)
+
+//EOF

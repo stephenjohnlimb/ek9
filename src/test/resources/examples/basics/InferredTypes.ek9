@@ -1,0 +1,87 @@
+#!ek9
+defines module net.customer.inferred
+
+  defines class
+        
+    //Class the check a few things around type inference.
+    //So in general method and function declarations need to have types defined
+    //This is to make it easy to bootstrap the type resolution and makes it very obvious when you are looking at calling methods and what you will get back
+    //This is by design - I'm not trying to get rid of types all together - just reduce when writing main bodies and the types can be obvious.
+    //But when defining interfaces in and out of classes and components I want the developer to think.
+    
+    //But inside bodies of functions and methods you get the benefit of type inference.
+    //My idea here is that senior developers can do the interfaces/traits (which require type declarations) and junior developers can use those and are helped
+    //to get started, but both senior and junior developers benefit from limited need to declare variables of type in the bulk of the code they write.
+    //The more senior developer would also do the template/generic classes/functions and junior just use them ore provide overridden functionality.  
+    Class1
+
+      <?-
+        Note for returns you must define the type! Else very hard to resolve methods in phases
+        But this makes it very clear to junior developers what is being passed back. So unlike other languages
+        where you either have to run the system to see the type or chase method after method to work it out, here it is quick to see what type is being used.
+        It also means there is only one place for the 'return' no multiple exits for methods/functions.
+      -?>
+      methodA()
+        <- rtn as String := "Default Value"
+        
+        v1 as Float := 56 + 34.0
+        
+        //You can also do this - NICE! all result in correct output of Integer limbLength1 = String._of("Limb")._len();
+        //infer type for variables
+        //just look at all that sugar! too much? all do the same thing but get more terse!
+        //Yes it was too much; so got rid of verbiage of initial value. Moving away from wordy back into coding in succinct manner.
+        //It's all the same output - but as developers in EK9 you can decide on the level of verbosity!
+        
+        limbLength1 as Integer := length of "Limb"
+        limbLength3 as Integer := length "Limb"
+        limbLength4 Integer := length "Limb"
+        limbLength5 Integer: length "Limb"
+        limbLength6 Integer = length "Limb"
+        limbLength7 <- length "Limb"
+        
+        //Shortest possible way of defining a variable and infer the type.
+        justLimb <- "Limb"
+        justLength <- length justLimb
+        
+        check <- rtn?
+        //So what type is check? Yes a boolean! we're just checking if rtn is not null and is set.
+        
+        //Whats the hashcode of "Limb" - but you can implement that operator on any class/record!
+        //# hash and ? 'what is'
+        hashcode <- #?"Limb"
+        
+        //Now lets say I want a String version of the length
+        strLen1 <- $justLength
+        
+        //Or like this - yes $ is an operator and it works with operator precedence so I can use a space!
+        strLen2 <- $ length "Limb"
+        
+        //So what do I mean here convert the length of the string strLen1 to a string and add "Limb"
+        strLen3 <- $ length strLen1 + "Limb"
+ 
+        //So what do I mean here convert the length of the strLen1 when "Limb" is added to a string
+        strLen4 <- $ length (strLen1 + "Limb")
+ 
+        //You get my drift in terms of operations. No need for the space - but this looks like you are asking for a string version of length!
+        strLen5 <- $ length ("Limb" + $length strLen1)
+        
+        //So maybe this would be nicer with write and read
+        strLen6 <- $ length ("Limb" + $(length strLen1))
+        
+        rtn := "Steve"
+        
+        stockName <- "Stephen"
+        check1 <- "Steve"
+        check2 <- "Steven"
+        
+        bestOne <- String()
+               
+        weight1 <- stockName <~> check1
+        weight2 <- stockName <~> check2
+        if weight1 < weight2
+          bestOne := check1
+        else
+          bestOne := check2
+      
+    //end of class
+//EOF

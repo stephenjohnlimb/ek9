@@ -1,0 +1,107 @@
+#!ek9
+<!-
+  Finally worked out that tuples can just be done by using dynamic classes.
+  Now that new classes are not forced to have traits but they are forced to have an actual unique (to module) name.
+  I did consider using dynamic records, but these are too constraining, with dynamic classes you can still use
+  traits and also add new methods. Much more powerful and capable of keeping data hidden.
+
+  We can define them dynamically like in the program below - but they are elevated out to be defined at module level
+  as a class. So they are NOT inner classes, strange this gives the language a much more dynamic feel, but with
+  type safety. So if you refactor your code and accidentally remove the bit that defines 'ATuple' you get a compile error!
+  Or if you alter the structure of the dynamic class - with classes all properties are 'private' so the fact you now
+  alter it in someway is confined within that class.
+
+  Notice how print1 and printer2 can just use and resolve 'ATuple' even though it is defined inside a program.
+  They can also resolve the methods and types of values returned.
+-!>
+defines module com.customer.just.tuples
+
+  defines type
+    List of ATuple
+
+  defines function
+    printer2()
+      -> data as ATuple
+      //Just to demonstrate the new string interpolation.
+      //Note the used of back ticks ` ` - this is the marker for interpolated strings
+      //variables must be in ${...} always in {} never just $var
+      Stdout().println(`${ data } but I can access ${data.name()} directly if I wish`)
+      //Alternative is
+      //Stdout().println(data + " but I can access " + data.name() +" directly if I wish")
+
+    //Note how we can just use 'ATuple' in a normal way by creating an instance of it.
+    getATuple()
+      <- rtn as ATuple: ATuple("John", 1994-01-01, "English")
+
+  defines program
+    ShowTupleClass()
+
+      stdout <- Stdout()
+
+      name <- "Steve"
+      dateOfBirth <- 1970-01-01
+      language <- "English"
+
+      //Just access a function that returns 'ATuple' - even though 'ATuple' is not defined yet!
+      tuple1 <- getATuple()
+
+      //Lets have an inferred List of 'ATuple' and put the first entry in.
+      tuples <- [tuple1]
+
+      //This is both a declaration of a new type 'ATuple' and the creation of an object of type 'ATuple'
+      //AND also indented is the implementation of 'ATuple'.
+      //Plus we can put this in a loop if we need to 'ATuple' is only defined once!
+      for i in 1 ... 10
+
+        //Make the data up from base information and dynamic content.
+        firstName <- name + "-" + $i
+        dob <- dateOfBirth + Duration("P"+$i+"M")
+
+        //define, populate and get an object of that type
+        tuple <- ATuple(firstName, dob, language) as class
+
+          //We can also create new properties in the class directly if necessary
+          //Rather than just capture.
+          message as String: "Dynamic: "
+
+          //You can even define a range of different constructors if you wish.
+          //These are not automatically created, developer needs to define the 'interface'
+          //That way if the names of variables captured are refactored/renamed, the rest of the code
+          //using ATuple can stay the same.
+          ATuple()
+            ->
+              name as String
+              dob as Date
+              language as String
+
+            this.firstName = name
+            this.dob = dob
+            this.language = language
+
+          //Add in methods, hiding internal structure of object or meeting a trait type interface.
+          name()
+            <- rtn as String: firstName
+
+          operator $
+            <- rtn as String: message + firstName + " " + $dob + " " + language
+          operator #^
+            <- rtn as String: $this
+
+        //OK now just add that new tuple into the List of ATuple
+        tuples += tuple
+
+      //Display all those tuples.
+      cat tuples > stdout
+
+      //just to demonstrate calling a function that has 'ATuple' as a parameter.
+      printer1(tuple1)
+      printer2(tuple1)
+      printer2(getATuple())
+
+  defines function
+    printer1()
+      -> data as ATuple
+      stdout <- Stdout()
+      stdout.println("[" + data + "] but I can access [" + data.name() +"] directly if I wish")
+
+//EOF

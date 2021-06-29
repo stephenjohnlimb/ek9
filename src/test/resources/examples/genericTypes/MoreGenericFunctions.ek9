@@ -1,0 +1,42 @@
+#!ek9
+defines module net.customer.generic.functions
+
+  //Not compiling yet just trying to get a parse - I need to make the generics more capable of accepting
+  //generics of generics with more and varied parameters.
+  defines function
+        
+    mapFunction() of type S, T
+      -> item as S
+      <- rtn as T := T()
+      assert item?
+    
+    sumFunction() of type S
+      -> item as List of S
+      <- rtn as S := S()
+      assert item?
+      iter <- item.iterator()
+      while iter.hasNext()
+        rtn += iter.next()
+    
+  defines class
+    
+    Test
+      testMethod()
+      
+        integerToString <- () is mapFunction of (Integer, String)
+          rtn: "[" + $item + "]"  
+        
+        stringVal <- integerToString(1)
+        
+        //Now introduced the '(' ')' so that you can group the types correctly.
+        //This has to be done else it it is not possible to work out which Generic the ',' belongs to.
+        //Are we saying "List of Integer,String" or "List of Integer", "String"
+        integerListToString <- () is mapFunction of (List of Integer, String) as function
+          rtn: $item
+        
+        l1 as List of Integer := [1, 4, 9]
+         
+        summaryFunction <- () is sumFunction of Integer as function
+        
+        total <- summaryFunction(l1)          
+//EOF

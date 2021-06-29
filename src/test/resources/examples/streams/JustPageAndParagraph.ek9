@@ -1,0 +1,52 @@
+#!ek9
+defines module com.customer.just
+
+  defines type
+    List of Paragraph
+    
+  defines class
+  
+    Paragraph
+      name as String: String()
+      
+      Paragraph()
+        -> title as String
+        name :=: title
+        
+      name()
+        <- rtn as String: name
+      
+      operator ?
+        <- rtn as Boolean: name?
+      
+      //Add this in to collect via piping  
+      operator |
+        -> p as Paragraph
+        if p?
+          name :=: p.name()
+          
+      operator $
+        <- rtn as String: name
+          
+    Page
+      introduction as Paragraph: Paragraph("Intro")
+      mainBody as Paragraph: Paragraph("Body")
+      conclusion as Paragraph: Paragraph("Conclusion")
+      
+      //Add this in to make the page 'catable' so we can get the paragraphs.
+      iterator()
+        <- rtn as Iterator of Paragraph: Iterator()
+        
+        paragraphs <- [introduction, mainBody, conclusion]
+        rtn := paragraphs.iterator()
+            
+  defines program
+    JustPageAndParagraph()
+      stdout <- Stdout()
+      
+      page <- Page()
+      expectMainBody <- cat page | skip 1 | head 1 | collect as Paragraph
+      
+      stdout.println("Expecting Body got [" + $expectMainBody + "]")
+       
+//EOF

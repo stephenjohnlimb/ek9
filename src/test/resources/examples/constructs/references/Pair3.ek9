@@ -1,0 +1,25 @@
+#!ek9
+defines module net.customer.some
+   
+  //Just checking function and class naming with Pair2
+  //Now altered to be unique in this module
+  defines function
+    
+    SlightlySpecial2()
+      <- rtn as String: "SlightlySpecial2"
+
+  defines class    
+    
+    Simple
+      aMethod()
+        //So how can I just use special function?
+        //See Pair1.ek9 it references it from Pair2.ek9 net.customer.pair scope
+        //so than means we can use it because its been referenced in our scope - note scope not file!
+        s1 <- SpecialFunction
+        
+        s1Result <- s1("So")
+        
+        s1Result2 <- SpecialFunction("Now Working")
+        
+        s1Results3 <- SpecialFunction("WORKING")
+//EOF

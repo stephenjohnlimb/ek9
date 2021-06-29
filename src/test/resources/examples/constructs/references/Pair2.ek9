@@ -1,0 +1,54 @@
+#!ek9
+defines module net.customer.pair
+  
+  //So Pair1, Pair2, Pair3 are my first attempt a compiling multiple files
+  //Yes there are three files in a pair! But only two modules.
+  //We use a pair of modules, but several source files.
+  //These are in the same module and so we should be able to detect duplicate names
+  //Then once altered we should be able to reference methods from one file in another because they are in the sma e module
+  //even though they are in different files.
+   
+  defines constant
+    PI <- 3.142
+    e <- 2.786
+    
+  defines function
+  
+    SpecialFunction()
+      -> param1 as String
+      <- rtn as String: "Special " + param1
+     
+    FirstFunction()
+      ->param1 as String
+      <- rtn as String: "Hello " + param1
+    
+    //Hey whats this $ stuff?
+    //That is an explicit conversion to a String
+    //Also you don't need the () for functions if you don;t want to use them. Just looks nicer to me.    
+    secondFunction
+      <- rtn as String: "World " + $e
+    
+    //But you can even use $ on expressions!    
+    c2
+      <- ret as String: "hi " + $(PI/2) 
+   
+  defines class
+  
+    SpecialClass
+      mySpecial Integer: 10
+      
+    SlightlySpecial
+      myVar Integer: 9
+      
+      aMethod()
+        s1 <- SpecialFunction
+        s1Result <- s1("So")
+        
+        s2 <- net.customer.pair::SpecialFunction
+            
+        s2Result <- s2("So")
+        
+        someVar <- "Steve"
+        directResult <- SpecialFunction("Very")
+
+//EOF

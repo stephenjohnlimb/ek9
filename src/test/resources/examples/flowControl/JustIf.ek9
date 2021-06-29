@@ -1,0 +1,83 @@
+#!ek9
+defines module com.customer.just
+
+  defines function
+    currentTemperature()
+      -> country as String
+      <- temp as Integer: Integer()
+      
+      if country == "GB"
+        temp: 20
+      else if country == "DE"
+        temp = 41
+        
+  defines program
+    simpleIf()
+      stdout <- Stdout()
+      
+      suitableValue <- String()
+      valueToTest <- 9
+      
+      if valueToTest < 10
+        stdout.println("Value " + $valueToTest + " is less than 10")
+
+      secondValue <- 21
+      specialCondition <- true
+
+      if valueToTest < 10 and secondValue > 19 or specialCondition
+        stdout.println("Test OK")
+
+      if valueToTest < 10 and
+      secondValue > 19 or
+      specialCondition
+        stdout.println("Test OK")
+
+      //Rather than use the keyword 'if' you can use 'when'
+      when valueToTest < 10
+        stdout.println("Value " + $valueToTest + " is less than 10")
+        
+      //as you would expect      
+      if valueToTest > 9
+        suitableValue: "Too High"
+      else if valueToTest < 9
+        suitableValue: "Too Low"
+      else
+        suitableValue: "Just Right"
+      
+      stdout.println(suitableValue)      
+        
+    assignmentInIf()
+      stdout <- Stdout()
+              
+      selectedTemperature <- Integer()       
+       
+      //See if we can find some hot temperator somewhere so in the US we have no idea! because value is unset
+      when selectedTemperature := currentTemperature("US") with selectedTemperature > 50
+        stdout.println("Temp of " + $selectedTemperature + " a little warm in the US")
+      else when selectedTemperature := currentTemperature("US") with selectedTemperature < 50
+        stdout.println("Temp of " + $selectedTemperature + " not too bad in the US")  
+      else when selectedTemperature := currentTemperature("GB") with selectedTemperature > 40
+        stdout.println("Temp of " + $selectedTemperature + " a little warm in the UK")
+      else when selectedTemperature := currentTemperature("DE") with selectedTemperature > 40
+        stdout.println("Temp of " + $selectedTemperature + " a little warm in the DE")
+      else
+        stdout.println("Not sure where it might be warm")
+        
+    guardedAssignmentInIf()
+      stdout <- Stdout()
+              
+      selectedTemperature <- Integer()       
+      
+      //Here we use a guarded assignment checks for null and unset and only then does the conditional check
+      //Also note we can still use 'if' and rather than 'with' use 'then'
+      when selectedTemperature ?= currentTemperature("US") with selectedTemperature > 50
+        stdout.println("Temp of " + $selectedTemperature + " a little warm in the US")
+      else when selectedTemperature ?= currentTemperature("US") with selectedTemperature < 50
+        stdout.println("Temp of " + $selectedTemperature + " not too bad in the US")  
+      else if selectedTemperature ?= currentTemperature("GB") with selectedTemperature > 40
+        stdout.println("Temp of " + $selectedTemperature + " a little warm in the UK")
+      else when selectedTemperature ?= currentTemperature("DE") then selectedTemperature > 40
+        stdout.println("Temp of " + $selectedTemperature + " a little warm in the DE")
+      else
+        stdout.println("Not sure where it might be warm")    
+//EOF

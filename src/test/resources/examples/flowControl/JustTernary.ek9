@@ -1,0 +1,136 @@
+#!ek9
+defines module com.customer.just
+  defines program
+    ShowTernaryOperators()
+    
+      stdout <- Stdout()
+      
+      stdout.println("Bird1 not set at all")
+      
+      bird1 as String?
+      bird2 <- "Duck"
+      birdA <- bird1? <- bird1 : bird2
+      stdout.println("birdA [" + birdA + "]")
+      assert birdA == "Duck"
+      
+      birdA := bird1 ?? bird2
+      stdout.println("birdA ?? [" + birdA + "]")
+      assert birdA == "Duck"
+      
+      birdA := bird1 ?: bird2
+      stdout.println("birdA ?: [" + birdA + "] thank you very much")
+      assert birdA == "Duck"
+      
+      birdA := bird1 <? bird2
+      stdout.println("birdA <? [" + birdA + "]")
+      assert birdA == "Duck"
+      
+      birdA := bird1 <=? bird2
+      stdout.println("birdA <=? [" + birdA + "]")
+      assert birdA == "Duck"
+      
+      birdA := bird1 >? bird2
+      stdout.println("birdA >? [" + birdA + "]")
+      assert birdA == "Duck"
+      
+      birdA := bird1 >=? bird2
+      stdout.println("birdA >=? [" + birdA + "]")
+      assert birdA == "Duck"
+      
+      stdout.println("Flipping bird1 and bird2")      
+      
+      birdA := bird2 <? bird1
+      stdout.println("birdA <? [" + birdA + "]")
+      assert birdA == "Duck"
+      
+      birdA := bird2 <=? bird1
+      stdout.println("birdA <=? [" + birdA + "]")
+      assert birdA == "Duck"
+      
+      birdA := bird2 >? bird1
+      stdout.println("birdA >? [" + birdA + "]")
+      assert birdA == "Duck"
+      
+      birdA := bird2 >=? bird1
+      stdout.println("birdA >=? [" + birdA + "]")
+      assert birdA == "Duck"
+      
+      stdout.println("Bird1 as unset String")
+      
+      bird1: String()
+      birdA := bird1? <- bird1 : bird2
+      stdout.println("birdA [" + birdA + "]")
+      
+      birdA := bird1 ?? bird2
+      stdout.println("birdA ??[" + birdA + "]")
+      
+      birdA := bird1 ?: bird2
+      stdout.println("birdA ?: [" + birdA + "] thank you very much")
+      assert birdA == "Duck"
+      
+      birdA := bird1 <? bird2
+      stdout.println("birdA <? [" + birdA + "]")
+      assert birdA == "Duck"
+      
+      birdA := bird1 <=? bird2
+      stdout.println("birdA <=? [" + birdA + "]")
+      assert birdA == "Duck"
+      
+      birdA := bird1 >? bird2
+      stdout.println("birdA >? [" + birdA + "]")
+      assert birdA == "Duck"
+      
+      birdA := bird1 >=? bird2
+      stdout.println("birdA >=? [" + birdA + "]")
+      assert birdA == "Duck"
+      
+      stdout.println("Flipping bird1 and bird2 again")      
+      
+      birdA := bird2 <? bird1
+      stdout.println("birdA <? [" + birdA + "]")
+      assert birdA == "Duck"
+      
+      birdA := bird2 <=? bird1
+      stdout.println("birdA <=? [" + birdA + "]")
+      assert birdA == "Duck"
+      
+      birdA := bird2 >? bird1
+      stdout.println("birdA >? [" + birdA + "]")
+      assert birdA == "Duck"
+      birdA := bird2 >=? bird1
+      stdout.println("birdA >=? [" + birdA + "]")
+      assert birdA == "Duck"
+      
+      //Note escaping " does not work.
+      stdout.println("Bird1 as 'Goose'")
+      
+      bird1 := "Goose"
+      birdB <- bird1? <- bird1 : bird2
+      stdout.println("birdB [" + birdB + "]")
+      assert birdB == "Goose"
+      
+      birdB := bird1 ?? bird2
+      stdout.println("birdB ?? [" + birdB + "]")
+      assert birdB == "Goose"
+      
+      //Or elvis so not just null check but also is set
+      birdB := bird1 ?: bird2
+      stdout.println("birdB ?: [" + birdB + "] thank you very much")
+      assert birdB == "Goose"
+      
+      birdB := bird1 <? bird2
+      stdout.println("birdB <? [" + birdB + "]")
+      assert birdB == "Duck"
+      
+      birdB := bird1 <=? bird2
+      stdout.println("birdB <=? [" + birdB + "]")
+      assert birdB == "Duck"
+      
+      birdB := bird1 >? bird2
+      stdout.println("birdB >? [" + birdB + "]")
+      assert birdB == "Goose"
+      
+      birdB := bird1 >=? bird2
+      stdout.println("birdB >=? [" + birdB + "]")
+      assert birdB == "Goose"
+//EOF

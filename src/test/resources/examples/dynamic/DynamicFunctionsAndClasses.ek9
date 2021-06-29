@@ -1,0 +1,155 @@
+#!ek9
+
+<?-
+  Samples of the use of both dynamic functions and dynamic classes.
+  In java terms these are sort of 'anonymous' i.e sort of inline definition and 'new' in one go.
+  See other example files for more detailed uses with functions and generic functions for example.
+  The main focus has been on enabling design with both inheritance but more importantly making
+  design with composition much, much easier so that it can be adopted in preference. It's not like
+  inheritance is harder, it's just composition has been made just as easy and feels more natural.
+  More of a hey I've got one of these already so use it for those methods type approach.
+  
+  The dynamic functions is more like an extends model, i.e you have a function already (or an abstract function) and now want
+  to do a specific implementation of just that function to vary it but follow the same signature.
+  
+  Now this really promotes the use of traits with well defined methods and then composition in varied
+  ways with the most re-use and very minimal coding of boiler plate. So this makes proxying/mocks very very easy.
+  For example you can compose classes together with part real functionality and part mock/test functionality
+  very useful for testing and configuration via components with DI.
+  
+  I was in two minds about the dynamic function/class idea but for being able to wrap 'stuff up' and capture
+  variables and then pass functions with stuff wrapped in them and later use them with streaming and calls/async
+  the combinatorial power of wrapping all those things together means the dynamic (anonymous) concept for functions
+  and classes is essential and really, really powerful. By enforcing them to extend a trait/ abstract function means
+  they have a 'type' and because they have a type they can be passed as parameters in a safe way.
+  
+  For some people it will appear overly formal to make them have a type - but for me it means you have effectively
+  documented something (without comments) the type information (like LenValidator below) means there is no need for a comment
+  You know what it is and what it does. Add in the ability to delegate and types are clearly essential.
+-?>
+defines module com.customer.dynamic
+
+  defines trait
+  
+    LenValidator
+      validateLength() abstract
+        -> p as String
+        <- r as Boolean      
+    
+    CharValidator
+      validateCharacters() abstract
+        -> p as String
+        <- r as Boolean
+        
+    Validator with trait of LenValidator, CharValidator
+      validate()
+        -> p as String
+        <- r as Boolean: validateLength(p) and validateCharacters(p)
+
+  defines class
+  
+    NoDollarValidator trait of CharValidator
+      override validateCharacters()
+        -> p as String
+        <- r as Boolean: p? and not p.contains("$")
+
+  defines function
+  
+    discriminator as abstract
+      -> s as String
+      <- rtn as Boolean
+  
+  defines program
+  
+    Example
+
+      min <- 9
+      max <- 40
+      prohibited <- "@"
+      
+      gt <- (min) is discriminator as function
+        rtn: length s > min
+
+      lt <- (max) is discriminator
+        rtn: length s < max
+
+      val1 <- "Some Value"
+      assert gt(val1) and lt(val1)
+      val2 <- "Short"
+      assert not gt(val2) and lt(val2)
+      val3 <- "1234567890123456789012345678901234567890Long"
+      assert gt(val3) and not lt(val3)
+
+      lenValidator <- CheckLength(gt, max) of LenValidator as class
+        override validateLength()
+          -> p as String
+          <- r as Boolean: false
+          if p?
+            r := gt(p) and length p < max //So I can just use gt and lt or mix and match        
+
+      assert lenValidator.validateLength(val1)
+      assert not lenValidator.validateLength(val2)
+      assert not lenValidator.validateLength(val3)
+
+      checkContent <- CheckCharacter(prohibited) of CharValidator
+        override validateCharacters()
+          -> p as String
+          <- r as Boolean: true
+          if p?
+            r: ~p.contains(this.prohibited)
+
+      val4 <- "1234567890@not allowed"
+
+      assert checkContent.validateCharacters(val1)
+      assert checkContent.validateCharacters(val2)
+      assert checkContent.validateCharacters(val3)
+      assert not checkContent.validateCharacters(val4)
+
+      validate1 <- (lenValidator, checkContent) of LenValidator by lenValidator, CharValidator by checkContent
+
+      assert validate1.validateCharacters(val1) and validate1.validateLength(val1)
+      assert validate1.validateCharacters(val2) and not validate1.validateLength(val2)
+      assert validate1.validateCharacters(val3) and not validate1.validateLength(val3)
+      assert not validate1.validateCharacters(val4) and validate1.validateLength(val4)
+
+      validate2 <- (validate1, checkContent) of Validator, LenValidator by validate1, CharValidator by checkContent
+
+      assert validate2.validate(val1)
+      assert not validate2.validate(val2)
+      assert not validate2.validate(val3)
+      assert not validate2.validate(val4)
+
+      val5 <- "steve"
+      
+      validator3 <- (lenValidator) of Validator, LenValidator by lenValidator, CharValidator by charValidator
+        charValidator as CharValidator: NoDollarValidator()
+        override validate()
+          -> p as String
+          <- r as Boolean: true
+          if p not matches /[S|s]te(?:ven?|phen)/
+            r: validateLength(p) and validateCharacters(p)
+      
+      assert validator3.validate(val1)
+      assert not validator3.validate(val2)
+      assert not validator3.validate(val3)
+      assert validator3.validate(val4)
+      assert validator3.validate(val5)
+            
+      val6 <- "steve#host"
+            
+      validator4 <- (lenValidator) of Validator, LenValidator by lenValidator, CharValidator
+        notAllowed String: "#"
+
+        override validateCharacters()
+          -> p as String
+          <- r as Boolean: false
+          if p?
+            r:= p not contains notAllowed
+      
+      assert validator4.validate(val1)
+      assert not validator4.validate(val2)
+      assert not validator4.validate(val3)
+      assert validator4.validate(val4)
+      assert not validator4.validate(val5)
+      assert not validator4.validate(val6)
+//EOF

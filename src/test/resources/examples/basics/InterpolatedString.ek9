@@ -1,0 +1,39 @@
+#!ek9
+defines module com.customer.interpolated
+
+  defines record
+    Person
+      firstName String: String()
+      lastName String: String()
+      
+      Person()
+        ->
+          firstName String
+          lastName String
+        assert firstName? and lastName?
+        
+        this.firstName :=: firstName
+        this.lastName :=: lastName
+      
+      operator $
+        <- rtn String: `${firstName} ${lastName}`
+  
+  defines function
+    getAuthor()
+      <- rtn Person: Person("Steve", "Limb")
+                      
+  defines program
+
+    ShowStringInterpolation()
+      stdout <- Stdout()
+            
+      normal <- "With normal double quote \" text"
+      stdout.println("[" + normal + "]")
+
+      var <- 90.9
+      interpolated <- `A tab\t ${var} a " but a back tick \` the dollar have to be escaped \$\nOK?`
+      stdout.println("[" + interpolated + "]")            
+
+      me <- Person("Steve", "Limb")
+      stdout.println(`Author: ${me} or via function: ${getAuthor()}, direct access "${me.firstName}"`)
+//EOF      

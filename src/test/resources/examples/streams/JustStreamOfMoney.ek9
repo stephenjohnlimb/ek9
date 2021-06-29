@@ -1,0 +1,27 @@
+#!ek9
+defines module com.customer.just
+
+  
+  defines program
+    JustStreamOfMoney()
+      stdout <- Stdout()
+      
+      tenPounds <- 10#GBP
+      threePoundsSixty <- 3.60#GBP
+      nintyFourPounds <- 94#GBP
+      
+      stdout.println("Amounts are " + $tenPounds + ", " + $threePoundsSixty + " and " + $nintyFourPounds)
+      
+      //as each item in turn
+      total1 <- cat tenPounds, threePoundsSixty, nintyFourPounds | collect as Money
+      stdout.println("Total1 is [" + $total1 + "]")
+      
+      total1A <- cat tenPounds | collect as Money
+      stdout.println("Total1A is [" + $total1A + "]")
+      
+      //now as a List of Money
+      monies as List of Money := [tenPounds, threePoundsSixty, nintyFourPounds]
+      total2 <- cat monies | collect as Money
+      
+      stdout.println("Total2 is [" + $total2 + "]") 
+//EOF

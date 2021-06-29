@@ -1,0 +1,56 @@
+#!ek9
+defines module com.customer.just
+
+  defines program
+
+    ShowOptionalType()
+      stdout <- Stdout()
+
+      maybeInteger as Optional of Integer: Optional()
+
+      stdout.println("Nothing to follow")
+      //Nothing will be output
+      cat maybeInteger > stdout
+      stdout.println("Just 5 to follow")
+
+      //Now you will see '5'
+      item1 <- Optional(5)
+      cat item1 > stdout
+
+      //long hand
+      assert item1 is not empty
+      //or super terse
+      assert item1?
+
+      stdout.println("Try lists")
+
+      //fully qualified declaration
+      emptyOptionals as List of Optional of Integer: List()
+
+      //type inference mechanism
+      aListOfOptionals <- List(maybeInteger)
+      aListOfOptionals += item1
+      aListOfOptionals += Optional(14)
+
+      //But could have been defined like this
+      someOptionals <- [maybeInteger, item1, Optional(14)]
+
+      cat aListOfOptionals | flatten > stdout
+
+      stdout.println("Try sum")
+      sum <- cat aListOfOptionals | flatten | collect as Integer
+      assert sum == 19
+
+      //But you could have also done this
+      sum: cat [maybeInteger, item1, Optional(14)] | flatten | collect as Integer
+      
+      iter <- item1.iterator()
+      while iter is not empty //could have been just iter?
+        stdout.println("Value [" + $iter.next() + "]")
+
+      item1.clear()
+      //Note you can now also use ! to clear
+      item1!
+      assert item1 is empty
+      assert not item1?
+//EOF

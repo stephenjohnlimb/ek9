@@ -1,0 +1,15 @@
+#!ek9
+defines module ekopen.io.file.examples
+
+  defines program
+
+    passThrough()
+      stdin <- Stdin()
+      stdout <- Stdout()
+      stderr <- Stderr()
+
+      stderr.println("Error Channel")
+      stdout.println("Output Channel")
+      cat stdin | tee stderr > stdout
+
+//EOF

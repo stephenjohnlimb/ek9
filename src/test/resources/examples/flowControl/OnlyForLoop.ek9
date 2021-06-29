@@ -1,0 +1,124 @@
+#!ek9
+defines module com.customer.loop
+
+  defines function
+    nameProvider as abstract
+      <- rtn as List of String
+
+    names() is nameProvider
+      <- rtn as List of String: ["Alpha", "Beta", "Charlie"]
+
+    startValue()
+      <- rtn as Integer: 3
+      
+    endValue()
+      <- rtn as Integer: 9
+        
+  defines class
+
+    OtherHolder
+      moreNames()
+        <- rtn as NameHolder: NameHolder()
+        
+      startValue()
+        <- rtn as Integer: 4
+        
+      endValue()
+        <- rtn as Integer: 12
+      
+    NameHolder
+      someNames()
+        <- rtn as List of String: ["Alpha", "Beta", "Charlie"]
+
+  defines program
+    TestRangeLoopByLiteral()
+      stdout <- Stdout()
+      
+      for i in 1 ... 9
+        stdout.println("Value [" + $i + "]")
+
+      stdout.println("Descending")
+
+      for i in 9 ... 3 by -3
+        stdout.println("Value [" + $i + "]")
+        
+    TestRangeLoopByIdentifierReference()
+      stdout <- Stdout()
+      
+      start <- 1
+      end <- 9
+      for i in start ... end
+        stdout.println("Value [" + $i + "]")
+
+      stdout.println("Descending")
+
+      for i in end ... start by -2
+        stdout.println("Value [" + $i + "]")
+        
+    TestRangeLoopByFunctionCall()
+      stdout <- Stdout()
+      
+      for i in startValue() ... endValue()
+        stdout.println("Value [" + $i + "]")
+
+      stdout.println("Descending")
+
+      for i in endValue() ... startValue() by -1
+        stdout.println("Value [" + $i + "]")
+
+    TestRangeLoopByClassMethodCall()
+      stdout <- Stdout()
+      
+      holder <- OtherHolder()
+      
+      for i in holder.startValue() ... holder.endValue() by 2
+        stdout.println("Value [" + $i + "]")
+
+      stdout.println("Descending")
+
+      for i in OtherHolder().endValue() ... OtherHolder().startValue() by -4
+        stdout.println("Value [" + $i + "]")
+                
+    TestForLoopByIdentifierReference()
+      stdout <- Stdout()
+
+      stdout.println("Just For loop 3 items")
+      items as List of String: ["Alpha", "Beta", "Charlie"]
+
+      for item in items
+        stdout.println(item)
+
+    TestForLoopByFunctionCall()
+      stdout <- Stdout()
+
+      stdout.println("Just For loop return from function 3 items")
+
+      for item in names()
+        stdout.println(item)
+
+    TestForLoopByClassMethodCall()
+      stdout <- Stdout()
+
+      stdout.println("Just For loop from new class instance method 3 items")
+
+      for item in NameHolder().someNames()
+        stdout.println(item)
+
+      stdout.println("Just For loop from class method 3 items")
+
+      holder <- NameHolder()
+      for item in holder.someNames()
+        stdout.println(item)
+
+      stdout.println("Just For loop from chained class method 3 items")
+
+      for item in OtherHolder().moreNames().someNames()
+        stdout.println(item)
+
+    TestForLoopByLiteral()
+      stdout <- Stdout()
+      
+      for item in "Steve"
+        stdout.println(item)      
+
+//EOF

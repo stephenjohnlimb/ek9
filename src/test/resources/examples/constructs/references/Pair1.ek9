@@ -1,0 +1,41 @@
+#!ek9
+defines module net.customer.some
+  
+  references
+    //function references
+    net.customer.pair::SpecialFunction
+    
+    //class type references
+    net.customer.pair::SlightlySpecial
+    
+    //Can I reference a constant
+    net.customer.pair::PI
+    
+  defines class
+      
+    C1
+      //property
+      another String: "Steve"
+      
+      testClassTypeMethod()
+        //So can I use this reference? Yes seems I can!
+        somewhat <- SlightlySpecial()
+        
+        //Can I just use the imported constant PI
+        myPi <- PI
+        
+        myE <- net.customer.pair::e
+        
+        //How about this? Yes that will also work.
+        very <- net.customer.pair::SpecialClass()
+      
+      testReferencedFunctionMethod()
+        //delegate to an imported referenced Function?
+        s1 <- SpecialFunction
+        
+        s1Result <- s1("So")
+        
+        directResult <- SpecialFunction("Very")
+        
+        specialFunction as SpecialFunction := SpecialFunction
+//EOF

@@ -1,0 +1,50 @@
+#!ek9
+
+<?-
+  Little test drive of the Priority Queue generic class that is built in
+-?>
+defines module com.customer.priority.example
+
+  defines type
+    List of String
+    
+  defines program
+    PQApplication
+      underTest <- SimpleQueueCheck()
+      underTest.testMethod()
+      
+  defines class
+  
+    SimpleQueueCheck
+    
+      checkUsingList()
+        people <- ["Steve", "Mark", "Matthew" ]
+        
+        q1 as PriorityQueue of String := PriorityQueue()
+        q1.setSize(5)
+        
+        q1 += people
+        
+      testMethod()
+
+        q1 as PriorityQueue of String := PriorityQueue()
+        q1.setSize(5)
+        
+        people <- ["Steve", "Mary", "Mungo", "Midge", "Cain"]
+        q1 += people
+                
+        showContents(q1)
+        
+        q1 += "Jimbo"
+        showContents(q1)        
+              
+      private showContents()
+        -> q as PriorityQueue of String
+        assert q?
+        stdout <- Stdout()
+        iter <- q.list().iterator()
+        stdout.println("Queue List is[")
+        while iter?
+          stdout.println("PQ " + iter.next())          
+        stdout.println("]")
+//EOF
