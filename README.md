@@ -29,7 +29,7 @@ Broadly speaking layout is a mix of Python and YAML style with indentation and w
 This also includes the **Pascal** type approach of creating sections for **constructs** (i.e., as section for constants).
 
 ### Source Files
-EK9 source files can contain any number of **constructs** and files must have a name ending in **.ek9**.
+EK9 source files can contain any number of **constructs** and files must have a name ending in '**.ek9**'.
 External build/make/poms are redundant by including a [package construct](https://www.ek9lang.org/packaging.html)
 into the language itself.
 
@@ -89,7 +89,8 @@ prototypes and proto-compilers to date. Now the grammar and the language (at lea
 together and there aren't that many inconsistencies.
 
 ### How does it feel?
-If you take a look at any of the [examples](https://www.ek9lang.org/index.html#examples) you can draw your own
+If you take a look at any of the examples in the [web site](https://www.ek9lang.org/index.html#examples)
+or from the [examples source](https://github.com/stephenjohnlimb/ek9/tree/main/src/test/resources/examples); you can draw your own
 conclusions. Is it the language I set out to design; - probably not! It is the one I iterated to
 by trying to balance feature X over feature Y. It does need more contributions from other people now though.
 
