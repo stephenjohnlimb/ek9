@@ -1,0 +1,302 @@
+#!ek9
+defines module net.customer.shapes
+ 
+  defines type
+    List of Shape
+     
+  defines trait
+  
+    T1 allow only Square
+      specialMessage() as pure
+        <- rtn as String: "T1"
+    T2
+      simpleMessage() as pure
+        <- rtn as String: "T2"
+ 
+  defines function
+  
+    intersectSquares() as pure
+      ->
+        s1 as Square
+        s2 as Square
+      <-
+        intersection as Intersection: LinesIntersection("Line Intersection two squares (by function)")
+        
+    intersectSquareAndRectangle() as pure
+      ->
+        s1 as Square
+        s2 as Rectangle
+      <-
+        intersection as Intersection: LinesIntersection("Line Intersection of a Square and Rectangle (by function)")    
+               
+  defines class
+
+    Coordinate
+      x Float?
+      y Float?
+
+      //Constructor         
+      Coordinate() as pure
+        this(0.0, 0.0)
+      
+      //Constructor  
+      Coordinate() as pure
+        ->
+          initialX as Float
+          initialY as Float
+        
+        assert initialX? and initialY?                   
+        x: Float(initialX)
+        y: Float(initialY)
+    
+      x() as pure
+        <- rtn as Float: Float(x)
+      y() as pure
+        <- rtn as Float: Float(y)
+      
+      operator $ as pure
+        <- rtn as String: $x + ", " + $y
+      operator #^ as pure
+        <- rtn as String: $this
+             
+    //Used for different types of intersection
+      
+    Intersection as open
+      message as String?
+      stdout as Stdout: Stdout()
+      startPoint Coordinate: Coordinate(0.0, 0.0)
+      
+      Intersection() as pure
+        -> message as String
+        this.message: String(message)
+      
+      render()
+        stdout.println(message)
+      
+      //... Other methods
+    
+    ArcIntersection is Intersection
+      endPoint Coordinate: Coordinate() 
+      centrePoint Coordinate: Coordinate()
+      
+      ArcIntersection()
+        -> message as String
+        super(message)
+            
+      //... Other methods
+    
+    LinesIntersection is Intersection
+      endPoint Coordinate: Coordinate()
+      end2Point Coordinate: Coordinate()
+      
+      LinesIntersection
+        -> message as String
+        super(message)      
+      
+      //... Other methods
+          
+    Shape as abstract
+      stdout as Stdout: Stdout()
+      
+      draw() as abstract
+      
+      protected draw()
+        -> message as String
+        stdout.println("DRAW: " + message)
+        
+    Ellipse extends Shape as open
+      override draw()
+        draw("Ellipse")
+    
+    Circle is Ellipse
+      override draw()
+        draw("Circle")
+        
+    Rectangle is Shape
+      override draw()
+        draw("Rectangle")
+        
+    Triangle is Shape
+      override draw()
+        draw("Triangle")
+    
+    Square is Shape with trait of T1, T2
+      override draw()
+        draw("Square " + T1.specialMessage() + " " + T2.simpleMessage())
+        
+    BaseIntersector as abstract      
+      intersect() as pure abstract
+        ->
+          s1 as Shape
+          s2 as Shape
+        <-
+          intersection as Intersection
+              
+      intersect() as pure
+        ->
+          s1 as Circle
+          s2 as Circle
+        <-
+          intersection as Intersection: ArcIntersection("Arc Intersection two circles")
+      
+      intersect() as pure
+        ->
+          s1 as Circle
+          s2 as Ellipse
+        <-
+          intersection as Intersection: ArcIntersection("Arc Intersection circle and ellipse")    
+      
+      intersect() as pure
+        ->
+          s1 as Ellipse
+          s2 as Circle
+        <-
+          intersection as Intersection: ArcIntersection("Arc Intersection ellipse and circle")
+              
+      intersect() as pure
+        ->
+          s1 as Circle
+          s2 as Rectangle
+        <-
+          intersection as Intersection: ArcIntersection("Arc Intersection circle and rectangle")
+
+      intersect() as pure
+        ->
+          s1 as Rectangle
+          s2 as Circle
+        <-
+          intersection as Intersection: ArcIntersection("Arc Intersection rectangle and circle")
+          
+      intersect() as pure
+        ->
+          s1 as Circle
+          s2 as Square
+        <-
+          intersection as Intersection: ArcIntersection("Arc Intersection circle and square")
+       
+      intersect() as pure
+        ->
+          s1 as Square
+          s2 as Circle
+        <-
+          intersection as Intersection: ArcIntersection("Arc Intersection squares and circle")
+          
+      intersect() as pure
+        ->
+          s1 as Rectangle
+          s2 as Rectangle
+        <-
+          intersection as Intersection: LinesIntersection("Line Intersection two rectangles")
+           
+    SpecialIntersector extends BaseIntersector as abstract
+      //Adding another method with additional types of shapes
+      //But still this is an abstract class
+      
+      intersect() as pure
+        ->
+          s1 as Ellipse
+          s2 as Triangle
+        <-
+          intersection as Intersection: LinesIntersection("Line Intersection ellipse and rectangle")
+          
+      intersect() as pure
+        ->
+          s1 as Circle
+          s2 as Triangle
+        <-
+          intersection as Intersection: LinesIntersection("Line Intersection circle and triangle")
+      
+      intersect() as pure
+        ->
+          s1 as Triangle
+          s2 as Triangle
+        <-
+          intersection as Intersection: LinesIntersection("Line Intersection two triangles")
+      
+      //Methods that just delegate to functions for the calculations.
+      intersect() as pure
+        ->
+          s1 as Square
+          s2 as Square
+        <-
+          intersection as Intersection: intersectSquares(s1, s2)
+      
+      intersect() as pure
+        ->
+          s1 as Square
+          s2 as Rectangle
+        <-
+          intersection as Intersection: intersectSquareAndRectangle(s1, s2)
+          
+      intersect() as pure
+        ->
+          s1 as Rectangle
+          s2 as Square
+        <-
+          intersection as Intersection: intersectSquareAndRectangle(s2, s1)
+          
+    //Finally make a concrete one - override the base intersect method that was abstract and mark it as a dispatcher
+    Intersector extends SpecialIntersector         
+      override intersect() as pure dispatcher
+        ->
+          s1 as Shape
+          s2 as Shape
+        <-
+          intersection as Intersection: Intersection("Intersection just two shapes!")     
+                 
+    Renderer
+    
+      //entry point for rendering via defining the dispatcher - this will find all sub type methods can call render
+      render() as dispatcher
+        -> s as Shape
+        s.draw()
+        
+      //Just use default method for Circle and Ellipse, but others does something slight different
+        
+      render()
+        -> s as Triangle
+        s.draw()
+        Stdout().println("Did draw triangle")
+          
+      render()
+        -> s as Rectangle
+        Stdout().println("Will Draw Rectangle")
+        s.draw()    
+            
+      render()
+        -> s as T1
+        Stdout().println("Drawing: " + s.specialMessage()) 
+                
+      render()
+        -> s as T2
+        Stdout().println("Drawing: " + s.simpleMessage())
+
+      //With Square also implementing T1 and T2 you have to add this in. Which is correct else ambiguous.      
+      render()
+        -> s as Square
+        Stdout().println("Before Square")
+        s.draw()
+        Stdout().println("After Square")      
+
+      render()
+        -> i as Intersection
+        i.render()
+        
+  defines program
+    testShapes()
+      //Would really need actual details of what the circles and triangles were.
+      //But this is just to show how dipatcher would work.        
+      firstShapes <- [ Circle(), Ellipse(), Rectangle(), Square(), Triangle() ]
+      secondShapes <- [ Circle(), Ellipse(), Rectangle(), Square(), Triangle() ]
+      
+      intersector <- Intersector()
+      renderer <- Renderer()
+      
+      //Simple imperative loop this time rather than stream pipeline.
+      for s1 in firstShapes
+        for s2 in secondShapes
+          renderer.render(s1)
+          renderer.render(s2)
+          intersection <- intersector.intersect(s1, s2)
+          renderer.render(intersection)
+//EOF

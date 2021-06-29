@@ -1,0 +1,220 @@
+#!ek9
+defines module com.customer.layout
+
+  //Just designed to test functions, named parameters and declarative layout lexing/parsing
+  //Note lots of samples here are just design to check the lexer/parser
+  //They don't really have usable functionality.
+  defines function
+
+    someHigher()
+      <- rtn as absFunction
+
+    someFunction
+      -> fn as absFunction
+      <- rtn as absFunction     
+      
+    absFunction() as abstract
+      -> p1 as Integer
+      <- rtn as Integer
+
+    checkDynamicFunction()
+      //You cannot directly inline these dynamic functions.
+      //Must create as variables and then you can use them in arrays.
+      //Ah but you can now!
+      dynamic1 <- () is absFunction()
+        something <- 32
+
+      dynamic2 <- () is absFunction()
+        something <- 39
+        somethingElse as Integer := 22
+
+      toCapture <- 22
+      //Now you can inline if it is a one liner.
+      dynamic3 <- (toCapture) is absFunction() (something <- toCapture)
+      
+      dynamic4 <- () is absFunction() as pure function (something <- 120)
+      
+      //now call a function with a function as a parameter
+      result1 <- someFunction(dynamic1)
+      
+      //So we can also define a new dynamic function and pass it in.
+      //take care Lisp death by parentheses
+      result2 <- someFunction((toCapture) is absFunction() (something <- toCapture) )
+      
+      result3 <- someFunction(fn: (toCapture) is absFunction() (something <- toCapture) )
+      
+      //It is possible to lay it out like this if you want
+      result4 <- someFunction(
+        fn: (toCapture) is absFunction() (something <- toCapture)
+        )
+            
+      dList as List of absFunction: [
+        dynamic1,
+        dynamic2,
+        someHigher()
+        ]
+
+      //would you want to do this, ie get the absFunction and call it directly - looks strange.
+      aResult <- someHigher()(34)
+      
+      //But this looks stranger, is your head hurting yet - a bit to lispy
+      bResult <- someFunction(fn: (toCapture) is absFunction() (something <- toCapture) )(34)
+      
+      //If so you might end up with this, functions returning functions and accepting parameters.
+      //Here's a little mind f*ck for you.
+      bResult <- someHigher()(34)("Check")("This")("Out")
+
+      //Imaging a parameterised generic function and we create a dynamic function from it
+      aFunct <- () extends someGenericFunction of String
+
+      //Of if it had two params
+      bFunct <- () extends someGenericFunction of (Integer, String)
+
+      //Maybe one of those was parameterised
+      cFunct <- () extends someGenericFunction of (Integer, Dict of (Date, String))
+
+      //Or we use directly and call, note the different between this and the next.
+      functResult1 <- () extends someGenericFunction of (Integer, Dict of (Date, String))(val: 56)
+
+      //Now we override the implementation with single liner impl
+      dFunct <- () extends someGenericFunction of (Integer, Dict of (Date, String)) (foo <- "BAR")
+
+      //Extend generic, override and call.
+      functResult2 <- () extends someGenericFunction of (Integer, Dict of (Date, String)) (foo <- "BAR")(val: 58)
+
+      //Now we override the implementation with multiple liner impl
+      eFunct <- () extends someGenericFunction of (Integer, Dict of (Date, String))
+        foo <- "BAR"
+        nice <- "Cool"
+
+
+    f1()
+      aVar <- "Steve"      
+      bVar as List of String: List()
+
+      cVar as List of String: ["A", "List", "Of", "Strings"]
+
+      dVar as List of String: [
+        "A",
+        "List",
+        "Of",
+        "Strings"
+        ]
+
+      anotherVar <- List() of Dict of (Integer, String)
+      
+    f2()
+      -> p1 as String
+      aVar <- "Steve"
+
+    p3()
+      ->
+        p1 as String
+      aVar <- "Steve"
+
+    p4()
+      ->
+        p1 as String
+        //Some comment and blank line
+
+        p2 as Integer
+
+      aVar <- "Steve"
+
+    f5()
+      -> p1 as String
+      <- rtn as String
+      aVar <- "Steve"
+
+    f6()
+      -> p1 as String
+      <- rtn as String: "Steve"
+
+    f7()
+      //Just call f6
+      aVar <- p4("Test")
+
+    f8()
+      //Just call f6 but with name parameter
+      aVar <- p6(p1: "Test")
+
+    f9()
+      //Just call f6 but with declarative type layout.
+      aVar <- p6(
+        "Test"
+        )
+
+    f10()
+      //Just call f6 but with declarative type layout and named param.
+      aVar <- p6(
+        p1: "Test"
+        )
+
+    fList1()
+      ->
+        focus as Integer
+        name as String
+        values as List of String
+      <-
+        rtn as Float: 0.0
+
+    fListCall1()
+      values <- ["quick", "brown", "fox"]
+      result <- fList1(1, "Steve", values)
+
+    fListCall2()
+      result <- fList1(1, "Steve", ["quick", "brown", "fox"])
+
+    fListCall3()
+      //named
+      result <- fList1(focus: 1, name: "Steve", values: ["quick", "brown", "fox"])
+
+    fListCall4()
+      //named but with declarative type layout
+      //See how much easier this is on the eye, vertical versus horizontal
+      //It is more text that the two above, but much clearer as to what is happening.
+      result <- fList1(
+        focus: 1,
+        name: "Steve",
+        values: ["quick", "brown", "fox"]
+        )
+
+    fListCall4()
+      //named but with declarative type layout but array spread
+      result <- fList1(
+        focus: 1,
+        name: "Steve",
+        values: [
+          "quick",
+          "brown",
+          "fox"
+          ]
+        )
+
+    fDictionary1()
+      ->
+        focus as Integer
+        name as String
+        values as Dict of (Integer, String)
+      <-
+        rtn as Float: 0.0
+
+    fDictionaryCall1()
+      values <- {1: "quick", 2: "brown", 3: "fox"}
+      result <- fDictionary1(1, "Steve", values)
+
+    fDictionaryCall2()
+      result <- fDictionary1(1, "Steve", {1: "quick", 2: "brown", 3: "fox"})
+
+    fDictionaryCall2()
+      result <- fDictionary1(
+        focus: 1,
+        name: "Steve",
+        values: {
+          1: "quick",
+          2: "brown",
+          3: "fox"
+          }
+        )
+
+//EOF

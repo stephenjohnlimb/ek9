@@ -1,0 +1,408 @@
+#!ek9
+<?-
+  Quite a long worked example this.
+  See https://www.ek9lang.org/standardTypes.html#worked_example for details
+  This is how you would use it.
+  cat stdin.txt | DataCorrelation.ek9 -v -d 2 -f namedFile.txt
+-?>
+defines module worked.example
+
+  defines program
+
+    DataCorrelation()
+      -> argv as Strings
+
+      stdin <- Stdin()
+      stdout <- Stdout()
+      stderr <- Stderr()
+
+      optionsHandler <- OptionsHandler()
+      options <- optionsHandler.processCommandLine(argv)
+      verboseMode <- options contains "-v"
+      debugLevel <- optionsHandler.processDebugLevel(verboseMode, options.get("-d"))
+
+      //namedFileContents <- NamedFileProcessor(verboseMode, debugLevel).processNamedFile(options.get("-f"))
+      //Inlined the above as a demonstration of procedural code.
+
+      filename <- options.get("-f")
+      if not filename?
+        throw Exception("Filename of 'named file' is required", 2)
+      filePath <- FileSystemPath(filename.get())
+      namedFile <- filePath.isAbsolute() <- TextFile(filePath) else TextFile(FileSystem().cwd() + filePath)
+      if not namedFile.isReadable()
+        throw Exception(`${namedFile} is not readable`, 2)
+      if not namedFile.isFile()
+        throw Exception(`${namedFile} is not a file`, 2)
+
+      if verboseMode or debugLevel > 0
+        stderr.println(`About to start processing [${namedFile}]`)
+
+      namedFileContents as Dict of (String, CustomerRecord): Dict()
+      try
+        -> input <- namedFile.input()
+        while input?
+          line <- input.next()
+          if line is not empty and #<line != '#'
+            splitLine <- line.split(/:/)
+            if debugLevel == 3
+              stderr.println(`About to split line [${line}]`)
+
+            if length of splitLine != 4
+              throw Exception(`Invalid line [${line}]`, 2)
+            id <- splitLine.get(0).trim()
+            if id is empty
+              throw Exception(`Invalid line [${line}] empty ID`, 2)
+
+            emailAddress <- splitLine.get(1).trim()
+            if emailAddress not matches /[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/
+              throw Exception(`Id [${id}] Invalid email address [${emailAddress}]`, 2)
+
+            dateLastPurchase <- $getAsDateTime(id, true, splitLine.get(3).trim())
+
+            entryValue <- CustomerRecord(id, String(), String(), emailAddress, String(), dateLastPurchase)
+            if debugLevel == 3
+              stderr.println(`Named file line [${line}] processed`)
+
+            namedFileContents += DictEntry(id, entryValue)
+
+          else if debugLevel > 1
+            stderr.println(`Discarding [${line}]`)
+
+
+      if verboseMode
+        stderr.println(`Process id is [${OS().pid()}]`)
+      if verboseMode or debugLevel > 0
+        stderr.println("Loaded " + $ length namedFileContents + " records from named file")
+
+      setupSignalHandling(verboseMode, debugLevel)
+
+      validLine <- createLineValidator(stderr, debugLevel)
+      toEntry <- createStdinLineHandler(stderr, debugLevel)
+      byMerging <- createCustomerRecordMerger(stderr, debugLevel, namedFileContents)
+
+      if debugLevel > 1
+        stderr.println("Ready to start processing Standard Input")
+
+      outputHeader(verboseMode, debugLevel, stdout)
+      cat stdin | filter by validLine | map toEntry | filter by validEntry | map byMerging > stdout
+
+      if debugLevel > 1
+        stderr.println("Standard Input processing complete")
+
+  defines function
+
+    lineValidator() as abstract
+      -> line as String
+      <- rtn as Boolean
+
+    lineToCustomerRecord() as abstract
+      -> line as String
+      <- rtn as DictEntry of (String, CustomerRecord)
+
+    customerRecordMerger() as abstract
+      -> entry as DictEntry of (String, CustomerRecord)
+      <- rtn as String
+
+    createLineValidator()
+      ->
+        stderr as Stderr
+        debugLevel as Integer
+      <-
+        validator as lineValidator
+
+      validator: (stderr, debugLevel) is lineValidator
+        rtn: line is not empty and #<line != '#'
+        if debugLevel > 1 and not rtn
+          stderr.println(`Discarding [${line}]`)
+
+    createStdinLineHandler()
+      ->
+        stderr as Stderr
+        debugLevel as Integer
+      <-
+        processor as lineToCustomerRecord
+
+      processor: (stderr, debugLevel) is lineToCustomerRecord
+        rtn: DictEntry()
+
+        splitLine <- line.split(/,/)
+        if debugLevel == 3
+          stderr.println(`About to split stdin line [${line}]`)
+
+        if length of splitLine == 4
+          id <- splitLine.get(0).trim()
+          firstname <- splitLine.get(1).trim()
+          lastname <- splitLine.get(2).trim()
+          dobStr <- splitLine.get(3).trim()
+          if id is not empty and firstname is not empty and lastname is not empty and dobStr is not empty
+            dob <- $getAsDateTime(id, false, dobStr)
+            if dob?
+              entryValue <- CustomerRecord(id, firstname, lastname, String(), dob, String())
+              if debugLevel == 3
+                stderr.println(`Line [${line}] processed`)
+              rtn: DictEntry(id, entryValue)
+
+        if not rtn?
+          stderr.println(`Invalid line [${line}]`)
+
+    getAsDateTime()
+      ->
+        id as String
+        throwException as Boolean
+        aDateInput as String //expecting YYYYMMDD
+      <-
+        rtn as DateTime: DateTime()
+
+      group <- aDateInput.group(/(\d{4})(\d{2})(\d{2})/)
+      if length group == 3
+        dateStr <- cat group | join with dashSeparated | collect as String
+        rtn: DateTime(Date(dateStr))
+      else if throwException
+        throw Exception(`Id [${id}] Invalid date [${aDateInput}]`, 2)
+      else
+        Stderr().println(`Id [${id}] Invalid date [${aDateInput}]`)
+
+    validEntry()
+      -> entry as DictEntry of (String, CustomerRecord)
+      <- rtn as Boolean: entry?
+
+    dashSeparated()
+      ->
+        firstPart String
+        secondPart String
+      <-
+        rtn as String: firstPart? and secondPart? <- firstPart + "-" + secondPart : String()
+
+    outputFormatSeparated()
+      ->
+        firstPart String
+        secondPart String
+      <-
+        rtn as String: firstPart? and secondPart? <- firstPart + ", " + secondPart : String()
+
+    setupSignalHandling()
+      ->
+        verboseMode as Boolean
+        debugLevel as Integer
+
+      terminationHandler <- (verboseMode, debugLevel) of SignalHandler
+        override handleSignal()
+          -> signal as String
+          <- rtn as Integer: 1 //Process will exit with code of one
+          if verboseMode or debugLevel > 0
+            Stderr().println(`Handled Terminal Signal [${signal}]`)
+
+      terminations <- Signals().register(Strings("HUP", "ABRT"), terminationHandler)
+      if terminations not contains "HUP"
+        Stderr().println("HUP Signal not supported")
+      if terminations not contains "ABRT"
+        Stderr().println("ABRT Signal not supported")
+
+      debugHandler <- (verboseMode, debugLevel) of SignalHandler
+        override handleSignal()
+          -> signal as String
+          <- rtn as Integer: Integer() //Note the Integer is not set so process will not terminate
+          if signal == "USR1" and debugLevel < 3
+            debugLevel++
+          else if signal == "USR2" and debugLevel > 0
+            debugLevel--
+          if verboseMode or debugLevel > 0
+            Stderr().println(`Handled Info Signal [${signal}] Debug Level now [${debugLevel}]`)
+
+      debugs <- Signals().register(Strings("USR1", "USR2"), debugHandler)
+      if debugs not contains "USR1"
+        Stderr().println("USR1 Signal not supported")
+      if debugs not contains "USR2"
+        Stderr().println("USR2 Signal not supported")
+
+    outputHeader()
+      ->
+        verboseMode as Boolean
+        debugLevel as Integer
+        stdout as Stdout
+
+      enGB <- Locale("en_GB")
+      if verboseMode or debugLevel > 2
+        Stderr().println(`About to create output header with locale ${enGB}`)
+
+      envVars <- EnvVars()
+      user <- envVars contains "USER" <- envVars.get("USER") else envVars.get("USERNAME")
+      dateTime <- enGB.mediumFormat(SystemClock().dateTime())
+
+      stdout.println(`#Created by ${user} on ${dateTime}`)
+      stdout.println("#id, firstName, lastName, emailAddress, dateOfBirth, dateLastPurchase")
+
+    createCustomerRecordMerger()
+      ->
+        stderr as Stderr
+        debugLevel as Integer
+        namedFileContents as Dict of (String, CustomerRecord)
+      <-
+        merge as customerRecordMerger
+
+      merge: (stderr, debugLevel, namedFileContents) is customerRecordMerger
+        rtn: String() //Output will be unset by default and there for not output
+        id <- entry.getKey()
+        if debugLevel == 3
+          stderr.println(`Merging id [${id}]`)
+        if namedFileContents contains id
+          stdinEntry <- entry.getValue()
+          namedFileEntry <- namedFileContents.get(id).get()
+          stdinEntry :~: namedFileEntry
+          rtn := $stdinEntry
+        else
+          stderr.println(`Not merging [${id}] as named file does not contain id`)
+
+  defines class
+
+    OptionsHandler
+
+      processCommandLine()
+        -> argv as Strings
+        <- options as Dict of (String, String): Dict()
+
+        arguments <- cat argv | collect as List of String
+        getopts <- setupGetOpt(":")
+        options := getopts.options(arguments)
+
+      private setupGetOpt()
+        -> rqParam as String
+        <- getopts as GetOpt of String: GetOpt(rqParam)
+
+        supportedOptions <- setupSupportedOptions(rqParam)
+        usage <- setupUsage()
+        getopts.pattern(supportedOptions).usage(usage)
+
+      private setupSupportedOptions()
+        -> rqParam as String
+        <- rtn as Dict of (String, String): Dict()
+
+        supportedOptions <- {
+          "-v": String(),
+          "-f": rqParam,
+          "-d": rqParam
+          }
+        rtn: supportedOptions
+
+      private setupUsage()
+        <- rtn as String: "Invalid option, only those list below are supported:\n"
+
+        rtn += "-v, verbose\n"
+        rtn += "-f filename, use file of filename (mandatory option)\n"
+        rtn += "-d level, use of debugging"
+
+      processDebugLevel()
+        ->
+          verboseMode as Boolean
+          level as Optional of String
+        <-
+          rtn as Integer: 0 //default to zero
+
+        debugLevel <- cat level | collect as Integer
+
+        rtn := debugLevel >= 0 and debugLevel <= 3 <- debugLevel else 0
+
+        if verboseMode and debugLevel < 0 or debugLevel > 3
+          Stderr().println(`Debug level ${debugLevel} not supported - reverting to debug level '0'`)
+
+    NamedFileProcessor
+      verboseMode as Boolean: false
+      debugLevel as Integer: Integer()
+
+      NamedFileProcessor()
+        ->
+          verboseMode as Boolean
+          debugLevel as Integer
+        this.verboseMode = verboseMode
+        this.debugLevel = debugLevel
+
+      processNamedFile()
+        ->
+          filename as Optional of String
+        <-
+          rtn as Dict of (String, CustomerRecord): Dict()
+
+        stderr <- Stderr()
+        if not filename?
+          throw Exception("Filename of 'named file' is required", 2)
+
+        namedFile <- getNamedFile(filename.get())
+        validLine <- createLineValidator(stderr, debugLevel)
+        toEntry <- createNamedFileLineHandler(stderr, debugLevel)
+
+        if verboseMode or debugLevel > 0
+          stderr.println(`About to start processing [${namedFile}]`)
+
+        cat namedFile | filter by validLine | map toEntry > rtn
+
+        if debugLevel > 1
+          stderr.println(`Processing [${namedFile}] complete`)
+
+      private getNamedFile()
+        -> filename as String
+        <- rtn as TextFile: TextFile()
+
+        filePath <- FileSystemPath(filename)
+        rtn := filePath.isAbsolute() <- TextFile(filePath) else TextFile(FileSystem().cwd() + filePath)
+        if not rtn.isReadable()
+          throw Exception($rtn + " is not readable", 2)
+        if not rtn.isFile()
+          throw Exception($rtn + " is not a file", 2)
+
+      private createNamedFileLineHandler()
+        ->
+          stderr as Stderr
+          debugLevel as Integer
+        <-
+          processor as lineToCustomerRecord
+
+        processor: (stderr, debugLevel) is lineToCustomerRecord
+          splitLine <- line.split(/:/)
+          if debugLevel == 3
+            stderr.println(`About to split line [${line}]`)
+
+          if length of splitLine != 4
+            throw Exception(`Invalid line [${line}]`, 2)
+          id <- splitLine.get(0).trim()
+          if id is empty
+            throw Exception(`Invalid line [${line}] empty ID`, 2)
+
+          emailAddress <- splitLine.get(1).trim()
+          if emailAddress not matches /[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/
+            throw Exception(`Id [${id}] Invalid email address [${emailAddress}]`, 2)
+
+          dateLastPurchase <- $getAsDateTime(id, true, splitLine.get(3).trim())
+
+          entryValue <- CustomerRecord(id, String(), String(), emailAddress, String(), dateLastPurchase)
+          if debugLevel == 3
+            stderr.println(`Named file line [${line}] processed`)
+          rtn: DictEntry(id, entryValue)
+
+  defines record
+
+    CustomerRecord
+      id as String: String()
+      firstName as String: String()
+      lastName as String: String()
+      email as String: String()
+      dob as String: String()
+      lastPurchase as String: String()
+
+      operator ?
+        <- rtn as Boolean: id?
+
+      operator :~:
+        -> arg as CustomerRecord
+        <- rtn as CustomerRecord: this        
+        
+        id :=? String(arg.id)
+        firstName :=? String(arg.firstName)
+        lastName :=? String(arg.lastName)
+        email :=? String(arg.email)
+        dob :=? String(arg.dob)
+        lastPurchase :=? String(arg.lastPurchase)
+
+      operator $
+        <- rtn as String: cat [id, firstName, lastName, email, dob, lastPurchase] | join with outputFormatSeparated | collect as String                
+        
+//EOF

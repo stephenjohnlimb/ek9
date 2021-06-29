@@ -1,0 +1,7 @@
+#Named File Input as follows
+#id: emailAddress: dateCustomer: dateLastPurchase
+
+AB-900011: jdoe@example.com: 20201220: 20210101
+AB-900012: super.marine@example.com: 20201229: 20210102
+#An invalid example - dateCustomer not valid
+#AB-900013: tonks@example.com: 2001220: 20210101

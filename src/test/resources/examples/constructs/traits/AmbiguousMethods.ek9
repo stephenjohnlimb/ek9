@@ -1,0 +1,68 @@
+#!ek9
+defines module net.customer
+
+  <?-
+    Lets see if we can detect a call where more than one method could be the target.
+    Idea is two traits, class extends those two traits. Then another class has methods of same name.
+ 
+    But one method accepts one trait and another the other trait. All OK but then we try and pass the class
+    the extend both those traits to the method name - which does it choose - we must detect the ambiguity here. 
+  -?>
+  defines trait
+  
+    Trait1
+      aMethod()
+        <- rtn String: "Default a Method Trait1"
+    
+    Trait2
+      bMethod()
+        <- rtn String = "Default b Method Trait2"
+          
+  defines class
+      
+    Multi with trait of Trait1, Trait2
+      cMethod()
+        <- rtn String := "Multi cMethod"
+      
+      asTrait1()
+        <- rtn as Trait1 := this
+    
+    Checker
+    
+      mainDriver()
+        //make the item to check that implements both Trait1 and Trait2
+        //Now try and call the check method - but which?
+        toCheck <- Multi()
+        
+        //We can be explicit in how we want to resolve like this.
+        //So here we are using a variable that is a Trait1 - we can assign this because toCheck has a trait of Trait1
+        asT1 as Trait1: toCheck
+        check(asT1)
+        
+        //Or use a method that adapts Multi to Trait1
+        check(toCheck.asTrait1())
+        
+        //Or we can trigger like this, as above but this time as Trait2
+        asT2 Trait2 = toCheck
+        check(asT2)
+        
+        //But this is ambiguous unless the final check method with param as toCheck as Multi is defined.
+        //See line 63 below where we accept a parameter of 'Multi' so now explicit 
+        check(toCheck)
+        
+      //first method accepting a Trait1
+      check()
+        -> toCheck Trait1
+        <- rtn String: "Checker of Trait1"
+    
+      //second method of same name overloaded but accepting Trait2       
+      check()
+        -> toCheck Trait2
+        <- rtn String := "Checker"
+      
+      //to resolve the ambiguity then must add another method of the specific type.
+      check()
+        -> toCheck Multi
+        <- rtn String := "Checker of Multi"      
+      
+//EOF

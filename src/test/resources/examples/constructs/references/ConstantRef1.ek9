@@ -1,0 +1,37 @@
+#!ek9
+defines module net.customer.geometry
+
+  //Still need to forward declare these for now.
+  defines type
+    List of String
+    Dict of (String, String)
+
+  //We can just create a package to limit the sources we want to include.
+  //For small projects/utilities maybe a single file could be used.
+  //But then you might need to split that but not a very lage project,
+  //So just list the files like this.
+
+  //But once you have many hundreds/thousands of files you need a project
+  //Where all the files are defaulted in.
+  //The use applyStandardIncludes <- true
+
+  defines package
+
+    description <- "Example of different constants in different modules."
+
+    //We only want this file and these three to be compiled up.
+    includeFiles <- [
+      "ConstantRef2.ek9",
+      "ConstantRef3.ek9",
+      "ConstantRef4.ek9"
+      ]
+
+  //handy to just put all your constants in here
+  //You can put all you functions in another source file in the module if you wish.
+  //Or have one big file with all your stuff for that module in one place.
+  defines constant
+    
+    PI <- 3.142
+    
+    e <- 2.71828
+//EOF

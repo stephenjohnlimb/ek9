@@ -1,0 +1,55 @@
+#!ek9
+defines module net.customer
+
+  <?-
+    Example of some components and abstract bases.
+  -?>
+  defines component
+  
+    <!-
+      Just a simple signature of a component with a method always public on a component.
+    -!>
+    Component1 abstract
+      aMethod() abstract
+      
+    <!-
+      So now lets extend and implement that component
+    -!>
+    Component2 extends Component1
+      val Integer: 4
+      
+      override aMethod()
+        var <- 0
+        var2 <- 9
+        var3 <- 21
+        
+        //would do processing in here
+        
+      //so here is a null safe way of using var or defaulting a value
+      //Now for returns I quite like : as a declaration type way of returning
+      //You can use = or := for assignment but in returns ':' looks/feels quite nice.
+      doubler()
+        -> var as Integer
+        <- rtn as Integer: var? <- var*2 : 0
+      
+      //Note for single incoming and outgoing params you can put the -> and <- on the same line.
+      otherMethod()
+        -> var as Float
+        <- rtn as Float: var? <- var^2 : 0
+          
+  //Test file for checking if all abstract method implemented
+  defines class
+      
+    //You can use 'as' in here if you wish or just be terse.
+    MyItem abstract
+      
+      //So no body, just the method signature
+      someMethod() abstract
+        <- val Integer
+        
+    //Lets extend My Item and not implement the abstract method - comment someMethod out to check this. 
+    MyImpl is MyItem
+      override someMethod()
+        <- val Integer: 90
+        
+//EOF

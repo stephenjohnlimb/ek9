@@ -1,0 +1,19 @@
+#!ek9
+defines module net.customer.geometry
+    
+  //So where did PI come from - another source file in the same module.
+  //No need to import - you can just use it.
+  //Note that ConstantRef1.ek9 has a package that just pulls these 4 example files together.
+  defines function
+  
+    //For single params you can put on same line
+    areaOfCircle()
+      -> diameter as Float
+      <- result as Float: PI * (diameter/2)^2
+        
+    //Or if you like the spacing and consistency do it like this.
+    circumferenceOfCircle()
+      -> diameter as Float
+      <- result as Float: PI * diameter
+
+//EOF   

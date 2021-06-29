@@ -1,0 +1,7 @@
+#Standard Input as follows
+
+#id, firstName, lastName, dateOfBirth
+AB-900011, John, Doe, 19601220
+AB-900012, The, Spitfire, 19581220
+#An invalid example - missing first name
+AB-900013,, Tonks, 19631220

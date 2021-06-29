@@ -1,0 +1,27 @@
+#!ek9
+defines module net.customer.specials
+  
+  <?-
+    So lets reference something from a different module.
+    Note this file is also included in the package in ConstantsRef1.ek9
+  -?>
+  references
+    net.customer.geometry::areaOfCircle
+    //net.customer.geometry::PI
+    
+  defines constant
+
+    //This is what we charge for a circle per mm squared
+    divisorPerSquareMM <- 1.98
+  
+  defines function
+  
+    priceOfCircle()
+      -> diameter as Float
+      <- result as Float: areaOfCircle(diameter) * net.customer.geometry::e/divisorPerSquareMM      
+      //We can just use areaOfCircle because it has been referenced.
+      //Lets just include e in here for fun but in fully qualified form just to show the mix.
+
+    printPI()
+      Stdout().println($net.customer.geometry::PI)
+//EOF          

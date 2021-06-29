@@ -1,0 +1,18 @@
+#!ek9
+defines module net.customer.specials
+
+    //Made with large spaces for indentation
+    //So each file use different indentation but you cannot change half way through a file.
+    //4 spaces too much for me - 2 is nicer.
+    defines constant
+    
+        mmToInch <- 2.54
+    
+    defines function
+    
+        areaOfCircleInInches()
+            ->
+                diameter as Float
+            <-
+                result as Float := areaOfCircle(diameter) * mmToInch
+//EOF

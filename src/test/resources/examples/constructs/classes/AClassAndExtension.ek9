@@ -1,0 +1,48 @@
+#!ek9
+defines module com.customer.classes
+
+  <?-
+    Just put this in to test out the override key word on methods
+    When the method does not override anything compiler should pick up when used incorrectly.
+    Also we method does override method from super or trait compiler should pick up and error if you don't use override
+    Finally for private methods where override is used the compiler errors because that makes no sense.
+    
+    Also now using abstract makes a class open to extend, but also if you have a concrete class and you want to allow
+    extension then you must explicitly allow it by using 'open'. So by default a concrete class is 'final' by default
+    i.e not open to be extended.
+    
+    Moved the open to be like abstract in its position, so make the definition more readable - you can use extends or is
+    'defines class Extensions extends Base as open'
+    So anything that s defined abstract is automatically open, but a class that can be instantiated is automatically
+    closed (ie cannot be extended) unless it is stated as being 'open' for extension.
+    
+    Note I'm also trying out assignment with just = rather than :=, but you can also just use : which looks and feels
+    quite nice in some locations.
+  -?>
+  defines class
+  
+    //If you say it is abstract then it is by default 'open'
+    Base as abstract
+      //Note new declaration indicating no memory allocated is possible
+      aField as String?
+
+      singleMethod()
+        <- rtn String = "Steve"
+        
+    //So this could not be extended as not abstract and not open
+    Extension1 extends Base
+      otherMethod()
+        <- rtn String: "OK"
+        
+      override singleMethod()
+        <- rtn String: "Steve"
+        
+    //Now because I've said open it can be used and extended
+    Extension2 extends Base as open
+      override singleMethod()
+        <- rtn String = "Steven"
+        
+    Extension3 extends Extension2
+      override singleMethod()
+        <- rtn String := "Stephen"
+//EOF

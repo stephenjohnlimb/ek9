@@ -1,0 +1,164 @@
+#!ek9
+defines module com.customer.components
+
+  defines component
+
+    BaseConfiguration abstract
+      getFileStoreName() abstract
+        <- rtn as String
+
+    Solution1 is BaseConfiguration
+      override getFileStoreName() as
+        <- rtn String: "MainStore"
+
+    Solution2 extends BaseConfiguration
+      override getFileStoreName() as
+        <- rtn as String: "SecondaryStore"
+
+    Solution3 extends BaseConfiguration
+      storeName as String: "DefaultStore"
+
+      override getFileStoreName() as
+        <- rtn as String: storeName
+
+  defines class
+
+    ConfigHandler
+      //This component will get injected
+      config as BaseConfiguration!
+
+      showConfigDetails()
+        stdout <- Stdout()
+        stdout.println(config.getFileStoreName())
+
+  defines function
+
+    checkConfigHandler()
+      stdout <- Stdout()
+      stdout.println("Will check config handler to see if file store name is available")
+      configHandler <- ConfigHandler()
+      configHandler.showConfigDetails()
+
+  defines application
+
+    noAspectApp
+      register Solution1() as BaseConfiguration
+
+    firstApp
+      register FileLogger() as ILogger
+      register Solution1() as BaseConfiguration with aspect of TimerAspect(SystemClock()), LoggingAspect("DEBUG")
+
+    secondApp
+      register FileLogger() as ILogger
+      register Solution2() as BaseConfiguration with aspect of LoggingAspect("WARN")
+
+    thirdApp
+      register FileLogger() as ILogger
+      register Solution3() as BaseConfiguration with aspect of TimerAspect(SystemClock())
+
+  defines program
+
+    Program0 with application of noAspectApp
+      stdout <- Stdout()
+      stdout.println("Program0 functionality")
+      checkConfigHandler()
+
+    Program1 with application of firstApp
+      stdout <- Stdout()
+      stdout.println("Program1 functionality")
+      checkConfigHandler()
+
+    Program2 with application of secondApp
+      stdout <- Stdout()
+      stdout.println("Program2 functionality")
+      checkConfigHandler()
+
+    Program3 with application of thirdApp
+      stdout <- Stdout()
+      stdout.println("Program3 functionality")
+      checkConfigHandler()
+
+  defines component
+
+    ILogger as abstract
+      log() as abstract
+        ->
+          level as String
+          content as String
+
+    FileLogger extends ILogger
+      stdout as Stdout: Stdout()
+      override log() as
+        ->
+          level as String
+          content as String
+        //Just use Stdout for logging for this example.
+        stdout.println(level + ": " + content)
+
+  defines class
+
+    LoggingAspect extends Aspect
+      loggingLevel as String?
+
+      LoggingAspect() as pure
+        this("WARN")
+
+      LoggingAspect() as pure
+        -> level as String
+        loggingLevel: level
+
+      override beforeAdvice()
+        -> joinPoint as JoinPoint
+        <- rtn as PreparedMetaData: PreparedMetaData(joinPoint)
+        //Will be injected
+        logger as ILogger!
+        logger.log(loggingLevel, "Before " + joinPoint.componentName() + " " + joinPoint.methodName())
+
+      override afterAdvice()
+        -> preparedMetaData as PreparedMetaData
+        joinPoint <- preparedMetaData.joinPoint()
+        //Will be injected
+        logger as ILogger!
+        logger.log(loggingLevel, "After " + joinPoint.componentName() + " " + joinPoint.methodName())
+
+    TimerData extends PreparedMetaData
+      before as Millisecond?
+
+      TimerData()
+        assert false
+
+      TimerData()
+        ->
+          millis as Millisecond
+          joinPoint as JoinPoint
+        super(joinPoint)
+        before: millis
+
+      before()
+        <- rtn as Millisecond: before
+
+    TimerAspect extends Aspect
+      clock as Clock?
+
+      TimerAspect()
+        assert false
+
+      TimerAspect()
+        -> clock as Clock
+        this.clock: clock
+
+      override beforeAdvice()
+        -> joinPoint as JoinPoint
+        <- rtn as TimerData: TimerData(clock.millisecond(), joinPoint)
+
+      //overload the after method and EK9 will find this method.
+      override afterAdvice()
+        -> timerData as TimerData
+        millisecondsTaken <- clock.millisecond() - timerData.before()
+        joinPoint <- timerData.joinPoint()
+        //Will be injected
+        logger as ILogger!
+        logger.log("INFO", $millisecondsTaken + " Milliseconds for " + joinPoint.componentName() + " " + joinPoint.methodName())
+
+
+//EOF

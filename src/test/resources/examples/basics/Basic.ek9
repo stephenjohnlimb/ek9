@@ -1,0 +1,139 @@
+#!ek9
+defines module net.customer.extend
+
+  <?-
+    Now with even just the Generic Editor in eclipse you get folding
+    Add in a little text mate and a viable development environment is there.
+    Note you can also plugin the faint lines from Certiv for Eclipse - very useful for indent based languages like ek9.
+    OK could do all sorts with textmate to improve - but that's for someone else to do.
+    This is workable especially when you expand tabs to spaces and use just two spaces
+    Now with folding you can include all sorts in the same file related traits, classes and function.
+    IntelliJ also works well with the EK9 textmate bundle and has faint lines out of the box.
+  -?>
+  
+  defines constant
+
+    anInt <- 1
+    bInt <- 1
+    cInt <- 1
+    another <- 33
+
+  defines type
+    
+    <!-
+    here we just want to use American spelling no real value other than stopping typos by Americans
+    But lets also add some constraints on the colour we can use
+    -!>
+    Color as Colour constrain as
+      (#0099CC or #9900CC or == #CC0099) and <> #CC0011
+     
+    <?-
+      But here we have some hard limits on driving ages
+      Typically you would soft code these based on geography but this is a reasonable scenario for testing.
+      Here special case for 89 year olds!
+    -?>
+    
+    DrivingAge as Integer constrain as
+      >= 16 and (<= 100 or == 89)
+      
+    <!-
+      Again a hard limit on salaries - normally soft coded - but could be hard compiled limits like this.
+      But there is no reason why configuration data could not be stored in EK9 format - pulled in - compiled and used
+      on the fly!
+    -!>
+    
+    Salary as Money constrain as
+      >= 10000#GBP and <= 120000#GBP
+
+  defines function
+  
+    //You don't need the () but you probably will just type them anyway out of habit.
+    someThingElse()
+        
+      //lets see if we can pickup a dimension. and also add something to it
+      //Can we also support negative dimensions?
+      dim1 <- -3.5em
+      dim2 <- dim1 + 1.5
+      dim3 <- dim1 + 1
+      
+      //use prefix and suffix aka first last
+      theSize <- #<dim3
+      theType <- #>dim3
+      
+      //Do we get built in promotion? I think you find you do.
+      aFloat Float := 1
+      
+      bFloat Float := anInt
+      
+      anotherInt <- anInt
+      
+      anotherInt += 10
+      
+      <!-
+      three different ways of saying assign
+      because we need to handle this type of assignment is css and html.
+      -!>
+
+      anotherInt := 20
+      
+      anotherInt: 25
+      
+      anotherInt = 45
+      
+      //Try out some new types here.
+      
+      res1 <- 240dpi
+      
+      //You can get the prefix or suffix 240 and dpi
+      //Any type of object can be configured with the prefix and suffix operator
+      resSize <- #<res1
+      resType <- #>res1
+      
+      //Get hash code! Yes the nice clear operator 'what is the hashcode' #?
+      colourCode <- #? #0099CC
+      
+      colour1 <- #0099CC
+      
+      //Can we use the type we have redefined from Colour?
+      c1 Color := Color(#0099CC)
+      
+      //Rather than do this 'c2 Color'
+      //you are better of doing this c2 <- Color()
+      //It's still undefined but not null!
+      c2 <- Color()
+      
+      c2 := Color(#0099CC)
+      
+      money1 <- 300.00#GBP
+      //lets get hashcode of that variable
+      moneyHashCode <- #? money1
+      
+      //now same on the literal
+      moneyHashCode2 <- #? 300.00#GBP
+      
+      //should be the same
+      if moneyHashCode <> moneyHashCode2
+        throw Exception("What; how can that be")
+      
+      //Use the suffix operator to get the currency.
+      moneyCurrency <- #> money1      
+       
+      money2 <- 400#GBP
+      
+      money3 <- -5000#GBP
+      
+    verySimple()
+      -> param as Integer
+      <- rtn as Float: 2.0 * param
+    
+    //So here this function is just a one liner and basically you just say
+    //the type the variable and the value all one one line if you want.
+    callsVerySimple()
+      <- result Float: verySimple(6)
+
+  defines program
+
+    justMath()
+      result <- 60 / 5 * (7-5)
+      Stdout().println($result)
+//EOF
