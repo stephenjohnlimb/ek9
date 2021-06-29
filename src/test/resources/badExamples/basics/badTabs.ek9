@@ -1,0 +1,7 @@
+#!ek9
+defines module checktabs
+//below are tabs where are not supported for indentation
+	defines constant
+		v1 <- 12
+
+//EOF

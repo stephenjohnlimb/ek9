@@ -1,0 +1,6 @@
+#!ek9
+defines module checkspaces
+//below are spaces but un even i.e., 3
+   defines constant
+      v1 <- 12
+//EOF
