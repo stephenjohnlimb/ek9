@@ -1,0 +1,18 @@
+#!ek9
+defines module com.ifelse
+
+  defines function
+  
+    testIfElseInteger()
+    
+      first <- 20      
+      trigger <- false
+            
+      if first > 21
+        trigger: true
+      else if first < 10
+        trigger: false
+      else
+        trigger: Boolean()
+
+//EOF

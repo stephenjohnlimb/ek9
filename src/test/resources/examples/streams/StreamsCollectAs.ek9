@@ -1,0 +1,36 @@
+#!ek9
+defines module com.customer.streams.collectas
+
+  defines record
+  
+    Stats
+      count as Integer: Integer()
+      total as Integer: Integer()
+      average as Float: Float()
+      
+      operator $
+        <- rtn as String: String()
+        
+        if total?
+          rtn := `[${count}, ${average}, ${total}]`
+        
+      operator |
+        -> arg as Integer
+        
+        if arg?
+          if ~total?
+            count := 1
+            total :=: arg
+          else
+            count++
+            total += arg        
+          average := (#^total)/count
+          
+  defines program
+    AsStats()
+      stdout <- Stdout()
+      
+      stats <- for i in 1 ... 12 | collect as Stats
+      stdout.println(`Stats are: ${stats}`)
+
+//EOF    

@@ -1,0 +1,64 @@
+#!ek9
+defines module com.customer.streams.splitter
+
+  defines function
+  
+    characterFilter() as abstract    
+      -> ch as Character
+      <- rtn as Boolean
+
+    stringFilter() as abstract    
+      -> string as String
+      <- rtn as Boolean
+
+    isSet() extends stringFilter()
+      -> string as String
+      <- rtn as Boolean: string?
+        
+    delimiter() extends stringFilter()
+      -> string as String
+      <- rtn as Boolean: string <> ":" and string <> ","
+
+    listToString()
+      -> chars as List of Character
+      <- string as String: ""
+      string += chars
+      
+    getOptions()
+      ->
+        optString as String
+        theFilter as characterFilter
+      <-
+        options as List of String: cat optString
+          | split with theFilter
+          | map with listToString
+          | filter by delimiter
+          | collect as List of String
+
+  defines program
+    TestStreamsSplit()
+      stdout <- Stdout()
+      //So lets say we have a config String like this with a set number of place holders.
+      //ie there can be 7 values. Note the missing one in the middle and the end
+      toBeSplit1 <- "Some:More:Items::Missing:One:" 
+      
+      toBeSplit2 <- "Some,More,Items,,Missing,One,"
+      
+      splitOnPrevious <- Character()
+      splitOn <- (splitOnPrevious) is characterFilter()
+        rtn: splitOnPrevious == ':' or ch == ':'           
+        splitOnPrevious := ch
+
+      splitOn2Previous <- Character()
+      splitOn2 <- (splitOn2Previous) is characterFilter()
+        rtn: splitOn2Previous == ',' or ch == ','            
+        splitOn2Previous := ch
+      
+      options <- getOptions(toBeSplit1, splitOn)
+      cat options > stdout
+      stdout.println(`All Done on the options size was ${options.length()} or if you like ${length options}`)
+      
+      options = getOptions(toBeSplit2, splitOn2)
+      cat options > stdout  
+        
+//EOF

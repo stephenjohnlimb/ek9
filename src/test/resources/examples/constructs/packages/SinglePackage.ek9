@@ -1,0 +1,45 @@
+#!ek9
+defines module net.customer
+    
+  defines package
+
+    <!- Some single line content -!>
+        
+    <!- Some single line content -!>
+    
+    //More comments
+    
+    <?-
+      A doc comments
+    -?>
+    
+    publicAccess as Boolean := true
+    version as Version: 1.0.0-0
+    description as String = "Simulation of something to exclude"
+    license <- "MIT"
+
+    //Two different ways to declare Lists    
+    tags <- [ "tools" ]
+    
+    includeFiles <- [
+      "**.{csv,jpeg}",
+          //I can put allsort of stuff in here then, without formatting
+        "Chelford",
+              "Guff"
+      ]
+    
+    deps <- {
+      "ekopen.network.support.utils": "1.6.1-9",
+      "ekopen.net.handy.tools": "3.2.1-0"
+      }
+
+    devDeps <- {
+      "ekopen.org.supertools.util": "4.6.1-6",
+      "ekopen.org.net.tools.misc": "3.2.3-21"
+      }
+
+    excludeDeps <- {
+      "ekopen.some.bad.dependency.pack": "ekopen.org.supertools.util"
+      }
+
+//EOF

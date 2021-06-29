@@ -1,0 +1,113 @@
+#!ek9
+<?-
+  Really nice way to encourage design with composition/delegation rather than inheritance.
+  So move from 'Is A' to 'Has A' we still say that a class has a trait of - but rather than using its implementation
+  we enable it to be easily delegated to another class that also has the same trait.
+-?>
+defines module com.customer.delegates
+
+  defines trait
+ 
+    <?-
+      Provide a simple trait but fully implement with default functionality
+    -?>
+    S1
+      s()
+        -> p Float
+        <- r String: "{" + $p + "}"
+        //Could have written `{${p}}` - but I prefer the above.
+      operator ?
+        <- rtn Boolean := true
+          
+    <?-
+      We don't need to say the trait is abstract but you can if
+      you like. Just feels more consistent - because you said t() was abstract.
+    -?>
+    T1 abstract
+      t() abstract
+        -> p String
+        <- r String
+        
+      operator ?
+        <- rtn Boolean: true
+              
+  defines class
+
+    <?-
+      I can just make one of these and because the trait is fully defined no need for implementation overrides
+    -?>
+    S with trait of S1
+    
+    <?-
+      Just a basic implementation - this will be used as a delegate for T1
+    -?>
+    C1 with trait of T1
+      override t()
+        -> p String
+        <- r String: "[" + p + "]"
+
+    <?-
+      Slightly different implementation - this will also be used as a delegate T1 as well
+    -?>
+    C2 with trait of T1
+      override t()
+        -> p String
+        <- r String: "<" + p + ">"
+    
+    <?-
+      This is an example of how to use the delegate.
+      Just say trait of t1 - but state what implements it as a field.
+      But you can have multiple traits and pick which are delegates
+      Make a constructor that accepts one of those then no need to define
+      the t() or s() method as it is implemented by auto proxy to the delegate.
+      try mis-spelling delegate or change type of field and compiler should detect
+      If you want to delegate some methods but implement others you can - just define them
+      If you super already has them, then just override and call super rather than letting delegate deal with.
+      Throw in delegate functions and there are lots of ways to avoid inheritance but get flexibility and re-use.
+    -?>  
+    C3 with trait of S1 by delegateS, T1 by delegateT
+      delegateT as T1?
+      delegateS as S1?
+      
+      C3()
+        ->
+          delegateT as T1
+          delegateS as S1
+        
+        //Put some simple checks in
+        assert delegateT? and delegateS?
+        this.delegateT := delegateT
+        this.delegateS := delegateS
+      
+      <?-
+        You have to define operator ? because both S1 and T1 have operator ?
+        hence it would be ambiguous and compiler would pick that up.
+      -?>
+      override operator ?
+        <- rtn Boolean: delegateT? and delegateS?
+          
+    //And that it for C3 we delegate of to any sort of T1 and S1 - see below
+      
+  defines program
+  
+    <?-
+      Simple main checker program
+    -?>
+    Checker
+      <- rtn String: "OK"
+      
+      //Access to Stdout for printing output.
+      stdout <- Stdout()
+      
+      s <- S()
+      c1 <- C1()
+      c2 <- C2()
+      
+      c3a <- C3(c1, s)
+      c3b <- C3(c2, s)
+      
+      stdout.println(c3a.t("Test1") + " " + c3a.s(99))
+      
+      stdout.println(c3b.t("Test2") + " " + c3b.s(76.998))
+
+//EOF

@@ -1,0 +1,135 @@
+#!ek9
+
+<?-
+  These are the text properties for the model
+  But they could be a call to interpolate presentation text.
+  Again these go into a namespace and can be used to define the text mappings.
+  So all validators in the name space module net.customer.model can be
+  ${input} is the input value being validated and ${constraint} is the value it is being constrained to.
+ 
+  So each component can be defined ‘for “language”’ i.e. for en or for en_GB etc.
+  In this way the text parts can be defined in files as components but also if needs be one big file
+  per language or one huge file with all languages in.
+  
+  Now a developer could decide not to use these text properties and use a CMS instead.
+  This could be done by just using a 'component' in the ui side and then just having different implementation
+  one could come here and anther could go to a CMS.
+
+  For implementation - WelcomePageText becomes an class net.customer.WelcomePageText
+  mainWelcome is just a public method with no parameters.
+  The defines text has an optional "lang" so this class provides the default methods with responses.
+
+  UiProductText -> Class and moreDetailsOn with parameter of "product as Product"
+
+  Then `More details on ${product.name}` is processed by the compiler to be:
+  "More details on " + product.name._string() (that is if the interpolation is valid)
+
+  The compiler then creates a class that extends UiProductText (or whatever text component)
+  i.e. UiProductText_en and all the methods are overridden o provide the text return.
+
+  When the code using the 'text' states WelcomePageText("en") a check is made to ensure
+  that "en" has been provided and so the actual class WelcomePageText_en can be instantiated
+  and the methods called!
+
+  In terms of validation, if 'WelcomePageText' is used as default or with "en" or "de" for example
+  then all must have all methods. i.e. if you add a message to the "de" then you must also add for "en" and
+  default (if that is present).
+-?>
+defines module net.customer
+
+  //This allows the translations of abstract error names to be mapped to text to be displayed.
+  //It also includes the ability to use the input text and any reference values.
+  //There is no business logic in here only formatting of parameters into text for output.
+
+  defines text for "en"
+  
+    WelcomePageText
+      mainWelcome()
+        "The main difference in processing html if you want to use hardwired content like this
+          You must put it all in quotes.
+          As you can see above with welcomeMessage, EK9 will look for variable names,
+          but anything in double quotes is a literal.
+          In general you would probably use the 'text' mechanisms described in the section before this."
+    //For use in customer pages.
+    CustomerPageText
+      customerTitle()
+        "Customer Page"
+      addNewCustomer()
+        "Add New Customer"
+    
+    //For use in product pages.    
+    ProductPageText
+      productTitle
+        "Products Page"
+      writtenBy
+        "Written by "
+      visitUs
+        "Visit us at:"
+      googleChrome
+        "Google Chrome"
+      googleChromeDescription
+        "Google Chrome is a web browser developed by Google,
+        released in 2008. Chrome is the world's most popular web browser today!"
+    
+    //Ah now for a a ui products component.
+    UiProductsText
+      productsTitle
+        "Products"
+      productFineDetails
+        "The fine details"
+      share
+        "Share"
+      moreDetailsOn
+        -> product as Product
+        `More details on ${product.name}`
+    
+    UiCustomerEntryText
+      firstNameLabel
+        "First Name"
+      lastNameLabel
+        "Last Name"
+      dobLabel
+        "Date of Birth"
+      emailLabel
+        "Email address"
+      emailPlaceHolder
+        "someone@example.com"
+      addCustomerLabel
+        "Add Customer"
+          
+    UiProductText
+      productDetailsTitle
+        -> product as Product
+        `${product.name} details`
+    
+    UiProductFooterText
+      authorLabel
+        -> author as String
+        `Author: ${author}`
+  
+    //So this "LanguageValidator" would be the class/function/component you are defining text for.
+    //The {input} and {constraint} variables are the parameters you pass in.
+    
+    //So how is this accessed from components - maybe just like a function would be: valuetooShort(someInput)
+    //That was we can just use the text directly
+    
+    //So this "LanguageValidator" would be the class/function/component you are defining text for and is a reference to the item
+    //Or do we think that it is better just to define a new object
+    //All the strings here can be just plain of interpolated and you can only pass variables in of a type.
+    LanguageValidator
+      
+      valueTooShort
+        -> input as String
+        `The value ${input} you entered is too short`
+        
+      valueTooLong
+        -> input as String
+        `The value ${input} you entered is too long`
+      
+      unknownLanguage
+        ->
+          input as String
+          constraint as String
+        `The value ${input} is not one of ${constraint}`
+
+//Last Line of file
