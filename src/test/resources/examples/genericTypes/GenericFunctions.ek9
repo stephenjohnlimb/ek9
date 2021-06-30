@@ -1,0 +1,114 @@
+#!ek9
+defines module net.customer.generic.functions
+
+  //See SimpleFunction.ek9 for just normal function processing
+  //This focuses on how generic functions will work.
+  //i.e. a full implementation of a function but in terms of abstract types like S and T
+  //You must fully implement the generic function - but then to use it you must use a dynamic function syntax filling in the type parameters.
+  //Now may be it would be nice to have an abstract generic function and then use it via the dynamic mechanism to provide its implementation
+  //So in that case it is just a signature really, might be good for use with generic classes that need to call out to a function 'listener'
+  defines function
+    
+    //Maybe this would be a nice way to define a double function
+    //It does not have to be pure - but in this case it is - also it could be called anything like 'doubler' or 'doubleT' whatever
+    //So in its simplest form we use T (could have been O or S) as the type then we can use normal operators
+    //How do we know we can use those operators? How to we know we can use other methods on T - we need to constrain T to be at least something
+    //We know something about. For time being lets just get a parse and production going then see about methods and operators.
+    
+    //I think this might need parentheses mapFunction() of type (S, T)
+    mapFunction() of type (S, T)
+      -> item as S
+      <- rtn as T := T()
+      assert item?
+    
+    sumFunction() of type S
+      -> item as List of S
+      <- rtn as S := S()
+      assert item?
+      iter <- item.iterator()
+              
+    eventHandler of type T
+      -> event as T
+      <- rtn as Boolean := false
+      //Replaces the if and an exception now with an assert.
+      assert event?      
+      rtn := true
+      
+    doubler of type T
+      -> param as T
+      <- retVal as T := param
+      
+      if param?
+        val2 <- retVal ?? param
+      
+      counter <- 0
+      
+      //Lets try a loop using the conceptual type T
+      for myVar in param ... retVal
+        counter++
+    
+  defines type
+  
+    //Now I have to define this here else stack over flow when using extension.
+    //Something wrong in resolving in parent scope.
+    List of Integer
+    
+    //I cannot say mapFunction of List of Integer, Integer - as confusion over where the parameters end.
+    //So I am forced to use a strong type def here - not sure I like that.
+    mapFunction of (IntArray, Integer)
+    
+    //Not working not getting iterator of Integer
+    //sumFunction of Integer
+    
+    //Now introduced the '(' ')' so that you can have generics of generics
+    //So code parses via syntax but BasicEK9PhaseListener: 193 needs to workout what to do!
+    //TODO
+    mapFunction of (List of Integer, Integer)
+
+  defines class
+  
+    //Quite nice way to make a type - but should this logically be just in the types above?
+    IntArray is List of Integer      
+    
+    TestItem
+     
+      tester()
+        ints <- IntArray()
+        
+      anotherCall
+        <- rtn as String: "OK"
+        
+        item <- 4        
+        item += 1
+        
+        rtn: "Some Value "
+        
+        capturedVar <- "Bill & Ted"
+        
+        //reads like a book - make me a dynamicFunction which is a function of doubler of Integer(s)
+        //You can use 'is' or 'extends'
+        dynamicIntDoubler <- () is doubler of Integer
+        
+        myHandler1 <- () is eventHandler of Date as function
+        
+        myHandler2 <- () is eventHandler of Date
+        
+        //Lets see if we can capture item in our generic function.
+        otherHandler1 <- (item) is eventHandler of DateTime
+          assert event?
+          rtn: true                      
+          if item < 44
+            checkDate <- event
+        
+        //You can use extends if you wish - rather than 'is'.
+        otherHandler2 <- (capturedVar) extends eventHandler of DateTime
+          assert event?
+          rtn: true
+          
+          if length capturedVar > 10
+            checkDate <- event
+        
+        //So do an expression and convert to string
+        other <- $ (6 + 9 + item)
+                            
+//EOF

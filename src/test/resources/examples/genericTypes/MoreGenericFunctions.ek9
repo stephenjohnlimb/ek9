@@ -5,7 +5,7 @@ defines module net.customer.generic.functions
   //generics of generics with more and varied parameters.
   defines function
         
-    mapFunction() of type S, T
+    mapFunction() of type (S, T)
       -> item as S
       <- rtn as T := T()
       assert item?

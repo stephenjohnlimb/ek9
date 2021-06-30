@@ -167,9 +167,10 @@ dynamicVariableCapture
     ;
 
 parameterisedParams
-    : OF? TYPE parameterisedDetail (COMMA parameterisedDetail)*
+    : OF? TYPE parameterisedDetail 
+    | OF? TYPE LPAREN parameterisedDetail (COMMA parameterisedDetail)+ RPAREN
     ;
-
+    
 parameterisedDetail
     : Identifier (CONSTRAIN BY typeDef)? //ie. String or whatever
     ;

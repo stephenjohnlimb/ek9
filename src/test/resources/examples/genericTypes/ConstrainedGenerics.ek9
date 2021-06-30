@@ -1,0 +1,114 @@
+#!ek9
+defines module net.customer.constrained
+
+  defines type
+        
+    EmailAddress as String constrain as
+      matches /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/
+    
+  //Now a few classes including the definition of a Generic type called List.
+  defines class
+
+    //Generic List but T is limited to String or classes that extend String    
+    List of type T constrain by String
+      
+      //This is where we store the T's for our list
+      actualList as RawList := RawList()
+      
+      aTest as T := T()
+      
+      //Constructor
+      List()
+        -> item as T
+        var <- item
+
+      get()
+        -> index as Integer
+        <- rtn as T := T()
+          
+      //Add a T to the list.
+      operator +
+        -> item as T
+        <- rtn as List of T := List()
+          
+        if item?
+          other as T := T()
+        else
+          check as T := T()
+       
+      something
+        <- rtn as List of T := List()
+    
+    //Lets try to define an Optional generic class but limit it to a List of EmailAddress
+    Optional of type O constrain by List of EmailAddress
+      
+      someVar as O?
+      
+      //Simple constructor taking the item to wrap
+      Optional()
+        -> item as O
+        set(item)
+      
+      //The setter of the item
+      set()
+        -> param as O
+        someVar := param
+        //Just try out and see if we can 'new' a T!
+        other <- O()
+      
+      //Get the item back again
+      get()
+        <- rtn as O := someVar
+                     
+    //Lets see how we can use those generic types.    
+    Class1
+
+      //So a simple testing method                
+      someMethod()
+        
+        //In its basic form
+        simple as List of String := List()
+        
+        //So this will be OK as we're making it concrete with a String
+        //Just declare a new instance of a List of Strings
+        myStringList <- List() of String        
+       
+        otherStringList <- myStringList + "Steve"
+      
+        //But look I can have a List of EmailAddress because that extends String - even though only very simply as a type
+        emailList as List of EmailAddress := List()
+        
+        anotherEmailList <- List() of EmailAddress
+        
+        //Now lets check type compatibility - no issues here
+        otherStringList := simple
+        
+        //But this is not allowed - as they are separate classes/types
+        //emailList := otherStringList
+        
+        //Now some optionals - generates the same code but look at the simplicity if you are a consumer of these generics
+        
+        myOptional as Optional of List of EmailAddress := Optional()
+        
+        //Can I say this - well yes I can (not sure I want to).
+        anotherOptional <- Optional() of List of EmailAddress
+        
+        //Could I do this - well yes I think you'll find you can
+        yetAnotherOptional <- Optional(emailList)
+        
+        //In it's simplest use you can do this - no need to mess about with types or generic <Foo-bar<This<That>>>
+        //This feels way more natural and intuitive. You get to say what you want with the stuff you have just created.
+        myEmail <- EmailAddress("limbs@widefield-computing.com")
+        listOfAddresses <- List(myEmail)
+        optionalListOfAddresses <- Optional(listOfAddresses)
+        
+        //Or combine it into one construction.
+        //OMG! snakes on a plane that's good.
+        otherOptionalList <- Optional(List(EmailAddress("stephenjohnlimb@gmail.com")))
+                
+        //Imagine the Java for this
+        //Optional<List<EmailAddress>>> optionalListOfAddresses = Optional.of(new List<...>> f**k I've lost the will to live already >>>>?>)        
+        
+    //end of Class1
+             
+//EOF

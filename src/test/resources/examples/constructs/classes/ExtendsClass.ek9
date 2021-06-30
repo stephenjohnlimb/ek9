@@ -1,0 +1,320 @@
+#!ek9
+defines module net.customer
+  
+  <?-
+    Lets try out some basic components these can use IOC - but classes that can only extend other classes and not be IOC items
+    All components get injected everywhere though classes other components, functions etc, etc
+  -?> 
+  defines component
+  
+    //So as a component and abstract this will be an IOC entry and will be injected where needed if referenced.
+    Pluggable1 as abstract
+      method1 as abstract
+      
+    //We can also make ComponentA1 pluggable by making it abstract
+    ComponentA1 extends Pluggable1 as abstract
+      val Integer: 23
+       
+      method2 as
+        someThing <- "Steve"
+        
+    //concrete implementation so 'could' be used in IOC - see Application for the point where it is plugged in
+    ComponentB1 is ComponentA1
+      val Integer: 33
+       
+      override method1 as
+        someThing <- "Stephen"
+      
+      override method2 as
+        someThing <- "Billy"
+
+    //An alternative implementation
+    //plus we can be a bit more terse if needs be
+    ComponentC1 is ComponentA1
+      val Integer: 43
+       
+      override method1
+        someThing <- "The"
+      
+      override method2
+        someThing <- "Fish"
+  
+    //Another IOC candidate to be used.
+    Pluggable2 abstract
+      method2 abstract
+      
+    //Concrete implementation
+    Component2 is Pluggable2
+      //property of whatever is Plugged in as Pluggable1 
+      somePluggable as Pluggable1?
+      val as Integer: 23
+       
+      override method2 as
+        someThing <- "Limb"
+  
+  defines function 
+    specialOne
+      -> p1 as String
+      <- pluggable as Pluggable1!
+      
+      //by default ioc injects stock pluggable
+      //but if p1 is not "Steve" get whatever is plugged in as ComponentA1 (also extends Pluggable1)
+      if p1 <> "Steve"
+        //This is how we get hold of an injectable item        
+        p as ComponentA1!
+        //And this is how we return it.
+        pluggable := p
+
+  //Look at this little beauty - a trait that defines a limit on classes that can implement it
+  //Try adding a Coordinate to the list - you get an error because Coordinate does not implement ShapeLimit!
+  defines trait
+    ShapeLimit allow only Shape, Ellipse, Circle, Rectangle, Square, Triangle
+      printDrawing()
+        -> message as String
+        stdout <- Stdout()
+        stdout.println(message)
+            
+  //Just a test file of shapes intersections and double dispatch
+  defines class
+    Coordinate
+      x as Float := 0
+      y as Float := 0
+         
+      Coordinate
+        x := 0.0
+        y := 0.0
+        
+      Coordinate
+        ->
+          initialX as Float
+          initialY as Float
+          
+        x := initialX
+        y := initialY
+      
+    Intersection as open
+      startPoint Coordinate := Coordinate(0.0,0.0)
+    
+    ArcIntersection is Intersection      
+      endPoint Coordinate: Coordinate() 
+      centrePoint Coordinate: Coordinate()      
+    
+    LinesIntersection is Intersection
+      endPoint Coordinate: Coordinate()
+      end2Point Coordinate: Coordinate()      
+    
+    //So now the abstract base class with an abstract draw method.
+    //But see here how we have applied the limit of shapes - by using the trait ShapeLimit
+    Shape with trait of ShapeLimit as abstract
+      draw() as abstract
+            
+    Ellipse extends Shape as open
+      override draw()
+        printDrawing("Ellipse")        
+    
+    <!--
+    //Try adding this line in - because of ShapeLimit you get a compiler error as ShapeLimit controls addition of classes using the trait.
+    Line is Shape
+      draw
+        val <- 9
+    -->
+    
+    Circle is Shape
+      override draw()
+        printDrawing("Circle")        
+        
+    Rectangle is Shape
+      override draw()
+        printDrawing("Rectangle")        
+        
+    Triangle is Shape
+      override draw()
+        printDrawing("Triangle")        
+    
+    Square is Shape
+      override draw()
+        printDrawing("Square")
+        
+    BaseIntersector as abstract
+      //This can be defined as abstract method and then implemented as a dispatcher method if needs be.
+      intersect() as abstract
+        ->
+          s1 as Shape
+          s2 as Shape
+        <-
+          intersection as Intersection
+      
+      //These are the different virtual (in effect) methods it needs to dispatch to    
+      intersect()
+        ->
+          s1 as Circle
+          s2 as Shape
+        <-
+          intersection as Intersection: Intersection()
+          
+      intersect()
+        ->
+          s1 as Shape
+          s2 as Circle
+        <-
+          intersection as Intersection: Intersection()
+        
+      //These are the different virtual (in effect) methods it needs to dispatch to
+      intersect()
+        ->
+          s1 as Circle
+          s2 as Circle
+        <-
+          intersection as Intersection: ArcIntersection()
+          
+      intersect()
+        ->
+          s1 as Circle
+          s2 as Rectangle
+        <-
+          intersection as Intersection: ArcIntersection()
+
+      intersect()
+        ->
+          s1 as Rectangle
+          s2 as Circle
+        <-
+          intersection as Intersection: ArcIntersection()
+          
+      intersect()
+        ->
+          s1 as Circle
+          s2 as Square
+        <-
+          intersection as Intersection: ArcIntersection()
+       
+      intersect()
+        ->
+          s1 as Square
+          s2 as Circle
+        <-
+          intersection as Intersection: ArcIntersection()
+          
+      intersect()
+        ->
+          s1 as Rectangle
+          s2 as Rectangle
+        <-
+          intersection as Intersection: LinesIntersection()
+       
+      //etc, etc - more combinations of shapes.   
+    
+    SpecialIntersector extends BaseIntersector as abstract
+      //Lets add to the base by adding another method with additional types of shapes
+      intersect()
+        ->
+          s1 as Ellipse
+          s2 as Triangle
+        <-
+          intersection as Intersection: LinesIntersection()
+    
+    //Now lets do a class that can do the dispatcher work.
+    //Yes that's it you can now call intersect(Shape s1, Shape s2) and it will call the most specific intersect method.    
+    Intersector extends SpecialIntersector
+      //So we override the base intersect method that was abstract and mark it as a dispatcher   
+      override intersect() as dispatcher
+        ->
+          s1 as Shape
+          s2 as Shape
+        <-
+          intersection as Intersection: Intersection()
+          
+      //We need to add this is to avoid ambiguous method matches.
+      intersect()
+        ->
+          s1 as Circle
+          s2 as Triangle
+        <-
+          intersection as Intersection: LinesIntersection()
+               
+    //Now lets have a renderer also as a dispatcher on the render method
+    //Clearly you could just call render as a virtual method on Shape
+    //But if you wanted to do something special outside of that you could.
+       
+    Renderer
+      render() as dispatcher
+        -> s1 as Shape
+        var <- 90
+        
+      render()
+        -> s1 as Ellipse
+        var <- 91
+        
+      render()
+        -> s1 as Circle
+        var <- 92
+        
+      render()
+        -> s1 as Triangle
+        var <- 93
+          
+      render()
+        -> s1 as Rectangle
+        var <- 94
+      
+    ClassA
+      methodA
+        val <- "Steve"
+        
+        refA as Class2 := Class2()
+        
+        ref1 as Class1 := Class2()
+        ref2 as Trait2 := Class2()
+        
+        //So it would be nice if this could just be injected via IOC - do we want that for variables like this
+        myPluggable as Pluggable1!
+        
+        //I say this because we might want to return the pluggable from elsewhere esp in the cases where IOC might have
+        //multiple Pluggable1s i.e Pluggable1/ComponentA1 with ComponentB1 and ComponentC1
+        
+        //Even better we stopped this from compiling or issued warning - that way we enforce injection of components
+        a1Pluggable as ComponentA1 
+        
+        //You'll get a warning with this
+        c1NotPluggable as ComponentC1 := ComponentC1()
+        
+        //But a compiler error with this - you are expecting injection of a concrete type
+        //c1NotAllowed as ComponentC1
+        
+    //class used above as base of Class2    
+    Class1 as abstract
+        
+      //Some methods can use just : for assignment now if you wish - looks and feels nice on default returns.
+      method1()        
+        <- rtn as String: "Steve"
+
+    //Another class but extending the first class which is a Base and adding in a trait
+    //see later we can define these anywhere
+    Class2 extends Class1 with trait of Trait2
+      
+      method2() as
+        <- rtn as String := "todo"     
+        item <- "Steve"
+        rtn := item
+
+  //Lets have a couple of traits in here then
+  
+  defines trait
+          
+    Trait1
+      //Can only have methods
+      method1()
+        <- rtn as String := "Something"        
+        
+    Trait2
+      //A second trait with same method name
+      method1()
+        <- rtn as String := "OK again"        
+
+    //We can say Trait3 with trait of Trait1, Trait2 or just
+    Trait3 of Trait1, Trait2 
+      //A third trait extending the first two - now we are forced to define the method!
+      override method1()
+        <- rtn as String := "Or more"
+        rtn := "different"              
+//EOF
