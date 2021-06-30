@@ -1,0 +1,26 @@
+#!ek9
+//For use with TCP example for resolving dependencies
+defines module ekopen.org.supertools.util
+
+  //For time being these need to be forward declared
+  defines type
+    List of String
+    Dict of (String, String)
+
+  defines package
+
+    publicAccess <- true
+    version <- 4.6.1-6
+    description <- "Super utility tools"
+    license <- "MIT"
+
+    tags <- [
+      "tools"
+      ]
+
+    //Just this source file and these files.
+    includeFiles <- [
+      "**.{png,jpg}"
+      ]
+
+//EOF

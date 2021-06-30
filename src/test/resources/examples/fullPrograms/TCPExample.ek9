@@ -1,0 +1,258 @@
+#!ek9
+defines module example.networking
+
+  defines type
+    List of serverFunction
+    List of String
+    Dict of (String, String)
+    Optional of TCP
+
+  <?-
+    Now have new construct called package. This is a single construct per module scope.
+    It has a predefined set of variables with specific types it can support.
+
+    We will use this example to try out dependencies, the ones listed below don't contain
+    anything meaningful, but we just want to try out the process and feel of if the idea
+    will work.
+  -?>
+  defines package
+
+    //Can this package be published to a public repo
+    publicAccess <- false
+
+    //The version number of the package - once published cannot be reissued with same number
+    //major.minor.patch-build (or feature format major.minor.patch-feature-build) - no other format
+    version <- 2.3.14-20
+
+    //What is the package all about. The only mandatory entry if you do use a package.
+    description <- "A Set of TCP Client Server Examples"
+
+    //When made public what is the license agreement.
+    license <- "MIT"
+
+    //So users can search and find packages of specific types.
+    tags <- [
+      "networking",
+      "communications",
+      "client",
+      "server"
+      ]
+
+    //These are the dependencies once deployed.
+    //We use the free for all ek9open for open source (wild west of dependencies).
+    //ek9open is first come first served, real domains like com.googlecode will need clearing for ownership!
+    deps <- {
+      "ekopen.network.support.utils": "1.6.1-9",
+      "ekopen.net.handy.tools": "3.2.1-0"
+      }
+
+    //These are development/test dependencies.
+    devDeps <- {
+      "ekopen.org.supertools.util": "4.6.1-6",
+      "ekopen.org.net.tools.misc": "3.2.3-21"
+      }
+
+    //This is a mechanism to say exclude
+    //ek9open.some.bad.dependency.pack from the dependencies in ek9open.org.supertools.util
+    //Maybe it brings a version that is broken or too new, but will work with an older version
+    //Some other dependencies like ek9open.org.net.tools.misc brought in!
+    excludeDeps <- {
+      "ekopen.some.bad.dependency.pack": "ekopen.org.supertools.util"
+      }
+
+    //For all types of file including source to build includes and then excludes.
+    //Uses fairly stock globs to match files, just a list of globs to include
+    //Relative to this file's directory.
+    //If you omit includeFiles then everything is included (**.*), subequently excludes can remove matches
+
+    //If your project is fairly standard leave this flag as true and files like
+    //**.ek9, **.properties, **.png, **.gif, **.js, **.jpg, **.css all get included
+    //If however you want to have fine control set flag to false and crack on.
+    //Not if you want most of the standard but just exclude a few see excludes below.
+
+    //If your project is a single file then don't set this flag at all and only that ek9 source will be used.
+    //You can still add other includes if you wish.
+    applyStandardIncludes <- false
+
+    includeFiles <- [
+      "**.{txt,cal}"
+      ]
+
+    //There are some files like .gitignore .project, etc that you may or may not
+    //want to apply - by default they are always added, but you might like to include everything
+    //Set the flag below to false if you do.
+    applyStandardExcludes <- true
+
+    //Now these are the globs we then exclude, in additional to the standard ones above.
+    excludeFiles <- [
+      "sample/images/{perch.png,nonSuch.jpeg}"
+      ]
+
+    //And that's it for package
+
+  defines function
+
+    processingFunction() as abstract
+      -> input as String
+      <- response as String
+
+    serverFunction() as abstract
+      <- response as String
+
+    serviceConnections()
+      ->
+        tcpServer as TCP
+        handler as TCPHandler
+      <-
+        response as String: "TCP Server on " + $tcpServer + " completed and shutdown"
+
+      if not tcpServer.acceptWith(handler)
+        response: "Was not able to service requests gracefully on " + $tcpServer
+
+    createShutdownHandler
+      ->
+        controlServer as TCP
+        processingServer as TCP
+        shutdownCommand as String
+      <-
+        rtn as TCPHandler: (controlServer, processingServer, shutdownCommand) of TCPHandler
+          override connected()
+            ->
+              input as StringInput
+              output as StringOutput
+            while input?
+              command <- input.next()
+              if command == shutdownCommand
+                output.println("Shutting down")
+                processingServer.close()
+                controlServer.close()
+              else
+                output.println("Ignoring [" + command + "]")
+
+    createHandler()
+      <- rtn as TCPHandler: () of TCPHandler
+          override connected()
+            ->
+              input as StringInput
+              output as StringOutput
+            cat input | map toUpperCase > output
+
+    toUpperCase()
+      -> input as String
+      <- output as String: input.upperCase()
+
+    shutdownFunction()
+      -> tcpClient as TCP
+      <- response as String: "Connection failed " + $tcpClient
+
+      if tcpClient?
+        try
+          -> connection <- tcpClient.connect()
+          if connection?
+            connection.output().println("SHUTDOWN")
+            response: "Received response [" + connection.input().next() + "] from " + $tcpClient
+          else
+            response: "Failed to connect on [" + $tcpClient + "]"
+      else
+        response: "Failed to get TCP client running [" + $tcpClient + "]"
+
+  defines program
+
+    TCPServer1()
+      stdout <- Stdout()
+      stderr <- Stderr()
+
+      stdout.println("Version of program package is " + Package().version)
+
+      tcpServer <- TCP(4446, 5, 4, true)
+
+      if tcpServer?
+        handler <- (tcpServer, stderr) with trait of TCPHandler
+          override connected()
+            ->
+              input as StringInput
+              output as StringOutput
+
+            stderr.println("Connection made")
+            while input?
+              line <- input.next()
+              stderr.println("Received [" + line + "]")
+              output.println(line.trim().upperCase())
+              if line == "end"
+                input.close()
+              if line == "shutdown"
+                tcpServer.close()
+            stderr.println("No more input on connection")
+
+        stdout.println("Awaiting connections")
+        if tcpServer.acceptWith(handler)
+          stdout.println("TCP Server completed and shutdown")
+        else
+          stderr.println("Was not able to service requests gracefully [" + $tcpServer + "]")
+      else
+        stderr.println("Failed to get TCP server running [" + $tcpServer + "]")
+
+    TCPServer2()
+      ->
+        processingPort as Integer
+        controlPort as Integer
+        shutdownCommand as String
+
+      stdout <- Stdout()
+
+      processingServer <- TCP(processingPort, 250ms, 2, 4, false)
+      controlServer <- TCP(controlPort)
+
+      if controlServer? and processingServer?
+
+        shutdownControl <- (controlServer, processingServer, shutdownCommand) extends serverFunction
+          shutdownHandler <- createShutdownHandler(controlServer, processingServer, shutdownCommand)
+          response: serviceConnections(controlServer, shutdownHandler)
+
+        processing <- (processingServer) is serverFunction
+          response: serviceConnections(processingServer, createHandler())
+
+        cat [shutdownControl, processing] | async > stdout
+
+      else
+        Stderr().println("Failed to start servers, control:" + $controlServer + " processing: " + $processingServer)
+
+    TCPClient1()
+      stdout <- Stdout()
+      stderr <- Stderr()
+
+      tcpClient <- TCP("localhost", 4446)
+
+      if tcpClient?
+        stdout.println("Will attempt to connect to server " + $tcpClient)
+        try
+          -> connection <- tcpClient.connect()
+          if connection?
+            connection.output().println("Short Message")
+            stdout.println("Received response [" + connection.input().next() + "]")
+            //End of the try will just close the connection.
+          else
+            stderr.println("Failed to connect [" + $tcpClient + "]")
+      else
+        stderr.println("Failed to get TCP client running [" + $tcpClient + "]")
+
+    TCPClient2()
+      ->
+        processingPort as Integer
+        controlPort as Integer
+
+      stdout <- Stdout()
+      processingClient <- TCP("localhost", processingPort)
+
+      if processingClient?
+        try
+          -> connection <- processingClient.connect()
+          sender <- (connection) is processingFunction as function
+            connection.output().println(input)
+            response: connection.input().next()
+
+          cat ["one", "two", "Alpha", "Beta", "Zeta", "end", "begin"] | map with sender > stdout
+
+      cat Optional(TCP("localhost", controlPort)) | map with shutdownFunction > stdout
+    
+//EOF

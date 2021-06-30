@@ -1,0 +1,191 @@
+#!ek9
+defines module com.customer.exceptions
+
+  defines type
+
+    BigCat
+      Lion
+      Tiger
+      WildCat
+      Leopard
+      Lynx
+
+  defines class
+
+    AnException extends Exception
+      supportingInformation String: String()
+
+      AnException()
+        ->
+          primaryReason as String
+          supportingInformation as String
+          exitCode as Integer
+        super(primaryReason, exitCode)
+        this.supportingInformation :=: supportingInformation
+
+      supportingInformation()
+        <- rtn as String: supportingInformation
+
+      override operator $
+        <- rtn as String: information() + " " + supportingInformation() + " exit code " + $exitCode()
+
+    OtherException extends Exception
+      retryAfter as DateTime: DateTime()
+
+      OtherException()
+        ->
+          reason as String
+          retryAfter as DateTime
+        super(reason)
+        this.retryAfter :=: retryAfter
+
+      retryAfter()
+        <- rtn as DateTime: retryAfter
+
+      override operator $
+        <- rtn as String: information() + " retry after " + $retryAfter()
+
+    ExceptionExample
+      clock as Clock?
+      deferProcessingUntilAfter as DateTime: DateTime()
+
+      private ExceptionExample()
+        assert false
+
+      ExceptionExample()
+        -> clock as Clock
+        this.clock: clock
+
+      checkExceptionHandling()
+        -> cat as BigCat
+        <- didProcess as Boolean: false
+
+        stdout <- Stdout()
+        stderr <- Stderr()
+
+        try
+          if deferProcessing()
+            stdout.println("Deferred until after " + $deferProcessingUntilAfter + " " + $cat + " not processed")
+          else
+            stdout.println(triggerPossibleException(cat))
+            didProcess: true
+        catch
+          -> ex as Exception
+          errorMessage <- handleException(ex)
+          stderr.println(errorMessage)
+        finally
+          stdout.println("Finished checking " + $cat)
+
+      triggerPossibleException()
+        -> cat as BigCat
+        <- rtn as String: String()
+
+        switch cat
+          case BigCat.Lion
+            throw Exception($cat, 1)
+          case BigCat.Tiger
+            throw AnException("Too dangerous", $cat, 2)
+          case BigCat.Leopard
+            throw OtherException($cat, clock.dateTime() + PT2H)
+          default
+            rtn: "Success with " + $cat
+
+      deferProcessing()
+        <- rtn as Boolean: false
+        if deferProcessingUntilAfter?
+          rtn: deferProcessingUntilAfter > clock.dateTime()
+
+      private handleException() as dispatcher
+        -> ex as Exception
+        <- rtn as String: $ex
+
+      private handleException()
+        -> ex as AnException
+        <- rtn as String: $ex
+        if ex.exitCode()?
+          tidyUpReadyForProgramExit()
+
+      private handleException()
+        -> ex as OtherException
+        <- rtn as String: $ex
+        this.deferProcessingUntilAfter: ex.retryAfter()
+
+      private tidyUpReadyForProgramExit()
+        Stdout().println("Would tidy up any state ready for program exit")
+
+
+    FileExceptionExample
+
+      demonstrateFileNotFound()
+        stdout <- Stdout()
+        stderr <- Stderr()
+
+        file <- TextFile("MightNotExist.txt")
+        try
+          -> input <- file.input()
+          cat input > stdout
+        //rather than use catch 'handle' can be used
+        handle
+          -> ex as Exception
+          stderr.println($ex)
+        finally
+          stdout.println("Automatically closed file if opened")
+
+      demonstrateFilesNotFound()
+
+        file1 <- TextFile("MightNotExist.txt")
+        file2 <- TextFile("AlsoMightNotExist.txt")
+        mainResults <- try
+          ->
+            input1 <- file1.input()
+            input2 <- file2.input()
+          <-
+            rtn as String: String()
+
+          results <- cat input1 | collect as List of String
+          cat input2 >> results
+          rtn: $results
+        //Let the exceptions fly back - don't handle in here.
+        Stdout().println("main Results [" + mainResults + "]")
+
+  defines program
+    TryCatchExample()
+      stdout <- Stdout()
+      stderr <- Stderr()
+
+      //Rather than use SystemClock - simulate one so that date time can be altered.
+      simulatedClock <- () with trait of Clock
+        currentDateTime as DateTime: 1971-02-01T12:00:00Z
+        override dateTime()
+          <- rtn as DateTime: currentDateTime
+
+        setCurrentDateTime()
+          -> newDateTime as DateTime
+          this.currentDateTime = newDateTime
+
+      //use the simulated clock
+      example1 <- ExceptionExample(simulatedClock)
+
+      for cat in BigCat
+        if example1.checkExceptionHandling(cat)
+          stdout.println("Processing of " + $cat + " was completed")
+        else
+          stderr.println("Processing of " + $cat + " was NOT completed")
+
+      //just try Lynx again
+      assert ~ example1.checkExceptionHandling(BigCat.Lynx)
+
+      //alter the time just passed the retry after time.
+      simulatedClock.setCurrentDateTime(simulatedClock.dateTime() + PT2H1M)
+      //Now it should be processed.
+      assert example1.checkExceptionHandling(BigCat.Lynx)
+
+      example2 <- FileExceptionExample()
+      example2.demonstrateFileNotFound()
+
+      try
+        example2.demonstrateFilesNotFound()
+      catch
+        -> ex as Exception
+        Stderr().println("TryCatchExample: " + $ex)
+//EOF

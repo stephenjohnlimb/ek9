@@ -1,0 +1,43 @@
+#!ek9
+defines module com.customer.html
+
+  defines text for "en"
+    WebSite
+      index()
+        `<html>
+<head>
+    <meta charset="UTF-8"/>
+</head>
+<body>
+  <p>Hello, World</p>
+</body>
+</html>`
+
+  defines service
+
+    Site :/site
+
+      index() as GET for :/index.html
+        <- response as HTTPResponse
+
+        webSite <- WebSite("en")
+        response: (webSite) of HTTPResponse
+          etag as String: String()
+
+          override etag()
+            <- rtn as String: String()
+            etag :=? HMAC().SHA256(content())
+            rtn :=: etag
+
+          override cacheControl()
+            <- rtn as String: "public,max-age=3600,must-revalidate"
+          override contentType()
+            <- rtn as String: "text/html"
+          override contentLanguage()
+            <- rtn as String: "en"
+          override content()
+            <- rtn as String: webSite.index()
+          override status()
+            <- rtn as Integer: 200
+
+//EOF

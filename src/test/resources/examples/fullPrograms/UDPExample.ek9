@@ -1,0 +1,164 @@
+#!ek9
+defines module example.networking
+
+  defines type
+    List of String
+    
+  defines function
+        
+    UDPPacketHandler() as abstract
+      -> incoming as UDPPacket
+      <- outgoing as UDPPacket
+
+    packetConverter() as abstract
+      -> content as String
+      <- outgoing as UDPPacket
+
+    stringToPacket() is packetConverter
+      -> content as String
+      <- outgoing as UDPPacket: UDPPacket("localhost", 4445, content)
+
+  defines program
+
+    UDPServer1()
+      stdout <- Stdout()
+      udpConnection <- UDP(4445)
+
+      while udpConnection?
+        packet <- udpConnection.receive()
+        if packet?
+          if packet.content() == "end"
+            endPacket <- UDPPacket(packet.host(), packet.port(), "OK will stop Server")
+            udpConnection.send(endPacket)
+            udpConnection.close()
+          else
+            udpConnection.send(packet)
+
+      stdout.println("UDP Server Complete")
+
+    UDPServer2()
+      -> port as Integer
+
+      stdout <- Stdout()
+      udpConnection <- UDP(port)
+
+      while udpConnection.hasNext()
+        packet <- udpConnection.next()
+        if packet?
+          if packet.content() == "end"
+            endPacket <- UDPPacket(packet.host(), packet.port(), "OK will stop Server")
+            udpConnection.send(endPacket)
+            udpConnection.close()
+          else
+            udpConnection.send(packet)
+
+      stdout.println("UDP Server Complete")
+
+    UDPServer3()
+      stdout <- Stdout()
+      udpConnection <- UDP(4445)
+
+      echoFunction <- (udpConnection) is UDPPacketHandler as function
+        if incoming.content() == "end"
+          outgoing = UDPPacket(incoming.host(), incoming.port(), "OK will stop Server")
+          udpConnection.send(outgoing)
+          udpConnection.close()
+        else
+          outgoing = incoming
+          udpConnection.send(outgoing)
+
+      cat udpConnection | map by echoFunction > stdout
+      stdout.println("UDP Server Complete")
+
+    UDPServer4()
+      ->
+        port as Integer
+        packetSze as Integer
+        signal as String
+
+      stdout <- Stdout()
+      udpConnection <- UDP(port, packetSze)
+
+      //This time stop server with abort signal not content 'end'.
+      abortHandler <- (udpConnection) of SignalHandler as class
+        override handleSignal()
+          -> signal as String
+          <- rtn as Integer: 0
+          Stderr().println("Received abort Signal closing connection")
+          udpConnection.close()
+
+      registered <- Signals().register(signal, abortHandler)
+
+      echoFunction <- (udpConnection) is UDPPacketHandler
+        outgoing = incoming
+        udpConnection.send(outgoing)
+
+      cat udpConnection | map by echoFunction > stdout
+      stdout.println("UDP Server Complete")
+
+    UDPClient1()
+      stdout <- Stdout()
+      stderr <- Stderr()
+
+      try //use a try block with a closable resource, auto close
+        -> client <- UDP().setTimeout(250ms)
+
+        packet1 <- UDPPacket("localhost", 4445, "A Test")
+        stdout.println("Sending [" + $packet1 + "]")
+        client.send(packet1)
+        stdout.println("Waiting for response")
+        response1 <- client.receive()
+        if response1?
+          stdout.println("Received [" + $response1 + "]")
+        else
+          stderr.println("There was no response [" + client.getLastErrorMessage() + "]")
+
+        packet2 <- UDPPacket("localhost", 4445, "end")
+        stdout.println("Sending [" + $packet2 + "]")
+        client.send(packet2)
+        stdout.println("Waiting for response")
+        response2 <- client.receive()
+        if response2?
+          stdout.println("Received [" + $response2 + "]")
+        else
+          stderr.println("There was no response [" + client.getLastErrorMessage() + "]")
+
+      stdout.println("UDP Client Complete")
+
+    UDPClient2()
+      stdout <- Stdout()
+
+      try
+        -> udpConnection <- UDP().setTimeout(250ms)
+        sendingToServer <- (udpConnection) is UDPPacketHandler as function
+          udpConnection.send(incoming)
+          outgoing := udpConnection.receive()
+
+        cat ["A Test", "Middle Item", "end" ] | map stringToPacket | map by sendingToServer > stdout
+
+      stdout.println("UDP Client Complete")
+
+    UDPClient3()
+      try
+        -> udpConnection <- UDP().setTimeout(250ms)
+        //If we don't care about the responses from the server (more UDP ish)
+        cat ["A Test", "Middle Item", "end" ] | map stringToPacket > udpConnection
+
+      Stdout().println("UDP Client Complete")
+
+    UDPClient4()
+      ->
+        hostname as String
+        port as Integer
+        timeout as Millisecond
+      try
+        -> udpConnection <- UDP().setTimeout(timeout)
+
+        //This is the nearest we get to a lambda, inline dynamic function
+        //You must use () for the single line you are allowed.
+        cat ["A Test", "Middle Item", "end" ]
+          | map (hostname, port) extends packetConverter (outgoing: UDPPacket(hostname, port, content))
+          > udpConnection
+
+      Stdout().println("UDP Client Complete")
+//EOF

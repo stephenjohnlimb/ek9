@@ -1,0 +1,49 @@
+#!ek9
+defines module com.customer.webserver
+  defines service
+    WebServer :/website
+
+      documentRoot()
+        <- rtn as FileSystemPath: FileSystemPath(EnvVars().get("DOCUMENT_ROOT"))
+        if not rtn?
+          throw Exception("Invalid Document Root")
+
+      file() as GET for :/{fileName}
+        -> fileName as String
+        <- response as HTTPResponse
+
+        webServer <- this
+        response: (webServer, fileName) with trait of HTTPResponse
+          lastModified as DateTime: DateTime()
+
+          private lastModifiedOfTextFile()
+            <- rtn as DateTime: DateTime()
+            file <- textFile()
+            if not file.isReadable()
+              Stdout().println(`${file} is not readable`)
+            if not file.isFile()
+              Stdout().println(`${file} is not a file`)
+            rtn :=: file.lastModified()
+
+          private textFile()
+            <- rtn as TextFile: TextFile(webServer.documentRoot() + FileSystemPath(fileName))
+
+          override lastModified()
+            <- rtn as DateTime: DateTime()
+            lastModified :=? lastModifiedOfTextFile()
+            rtn :=: lastModified
+
+          override cacheControl()
+            <- rtn as String: "public,max-age=3600,must-revalidate"
+          override contentType()
+            <- rtn as String: "text/html"
+          override contentLanguage()
+            <- rtn as String: "en"
+          override status()
+            <- rtn as Integer: lastModified? <- 200:404
+
+          override content()
+            <- rtn as String: String()
+            if lastModified?
+              cat textFile() > rtn
+//EOF

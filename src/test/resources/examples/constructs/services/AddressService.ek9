@@ -1,0 +1,618 @@
+#!ek9
+defines module com.customer.services
+
+  defines type
+    //Just for strong typing - no constraints
+    AddressId is String
+
+  defines record
+    Address
+      id as AddressId: AddressId()
+      street as String: String()
+      street2 as String: String()
+      city as String: String()
+      state as String: String()
+      zipcode as String: String()
+
+      Address()
+        -> from as Address
+        this :=: from
+
+      Address()
+        -> from as Optional of Address
+        if from?
+          this :=: from.get()          
+      
+      //Copy
+      operator :=:
+        -> from as Address
+        id :=: from.id
+        street :=: from.street
+        street2 :=: from.street2
+        city :=: from.city
+        state :=: from.state
+        zipcode :=: from.zipcode
+
+      //Merge only if incoming address parts are set
+      operator :~:
+        -> address as Address        
+        if address.street?
+          street :=: address.street
+        if address.street2?
+          street2 :=: address.street2
+        if address.city?
+          city :=: address.city
+        if address.state?
+          state :=: address.state  
+        if address.zipcode?        
+          zipcode :=: address.zipcode
+        
+      operator ?
+        //street2 is optional and can be omitted
+        <- rtn as Boolean: id? and street? and city? and state? and zipcode?                
+
+  defines text for "en"
+    AddressToOutputFormat
+      
+      toJSON()
+        -> address as Address
+        `{
+"address":
+    {
+    "id": "${address.id}",
+    "street": "${address.street}",
+    ${optionalJSON("street2", address.street2)}
+    "city": "${address.city}",
+    "state": "${address.state}",
+    "zipcode": "${address.zipcode}"
+    }
+}`
+  
+  defines function
+
+    //Used for specific operations to be applied to a set of addresses
+    addressOperation() as abstract
+      ->
+        addresses as AddressAccess
+        address as Address          
+
+    //deals with wrapping the operation in the calls to deal with mutex lock.
+    safeOperation()
+      ->
+        lockedAddressSet as MutexLock of AddressSet
+        address as Address
+        operation as addressOperation
+
+      accessKey <- (address, lockedAddressSet, operation) of MutexKey
+        override access()
+          operation(lockedAddressSet.get(), address)
+      lockedAddressSet.enter(accessKey)
+                      
+    addressFromJson()
+      -> addressInJSONFormat as String
+      <- rtn as Address: Address()
+
+      addressParts <- addressDictionaryFromJSON(addressInJSONFormat)
+      rtn.id: AddressId(addressParts.get("id"))
+      rtn.street: String(addressParts.get("street"))
+      rtn.street2: String(addressParts.get("street2"))
+      rtn.city: String(addressParts.get("city"))
+      rtn.state: String(addressParts.get("state"))
+      rtn.zipcode: String(addressParts.get("zipcode"))
+
+    <?-
+      Until we have a more general JSON parser
+      a bespoke parser is needed for this demonstration
+    -?>
+    addressDictionaryFromJSON()
+      -> json as String
+      <- rtn as Dict of (String, String): Dict()
+      stdout <- Stdout()
+      //Just pull out the address bits from within {}'s using a regex
+      extractAddressPartsEx <- /\{\s+"address":\s+\{\s+([^}]*?)\s+\}\s+\}/
+      //Now break into lines based on commas
+      addressItems <- json.group(extractAddressPartsEx).first().split(/,/)
+      //Map to a dictionary and return.
+      results <- cat addressItems | map with toDictEntry | collect as Dict of (String, String)
+      rtn: results
+
+    toDictEntry()
+      -> line as String
+      <- rtn as DictEntry of (String, String): DictEntry()
+      keyValues <- line.trim().split(/:/)
+      rtn: DictEntry(keyValues.first().trim().trim('"'), keyValues.last().trim().trim('"'))
+
+    copyAddress()
+      -> from as Address
+      <- to as Address: Address(from)
+    
+    commaSeparated()
+      ->
+        firstPart String
+        secondPart String
+      <-
+        rtn as String: firstPart? and secondPart? <- firstPart + "," + secondPart : String()
+
+    addressToJSON()
+      -> address as Address
+      <- addressAsString as String: AddressToOutputFormat("en").toJSON(address)
+
+    addressListToJSON()
+      -> addresses as List of Address
+      <- listAsString as String
+
+      body <- cat addresses | map with addressToJSON | join with commaSeparated | collect as String
+      listAsString := `[ ${body} ]`
+
+    optionalJSON()
+      ->
+        name as String
+        value as String
+      <-
+        rtn as String: value? <- `"${name}": "${value}",` else String()
+
+  defines trait
+    AddressAccess
+      operator +=
+        -> address as Address
+        <- rtn as AddressAccess
+        
+      operator -=
+        -> address as Address
+        <- rtn as AddressAccess
+
+      //merge with an existing address
+      operator :~:
+        -> address as Address
+        <- rtn as AddressAccess
+
+      //replace an existing address
+      operator :^:
+        -> address as Address
+        <- rtn as AddressAccess
+        
+      operator contains
+        -> addressId as AddressId
+        <- rtn as Boolean
+          
+      hash()
+        <- rtn as String
+        
+      hashOfAddress()
+        -> id as AddressId
+        <- rtn as String
+                
+      byId()
+        -> id as AddressId
+        <- rtn as Address
+        
+      listAll()
+        <- rtn as List of Address
+                                       
+  defines class
+    AddressSet with trait of AddressAccess
+      hash as String: HMAC().SHA256(GUID())
+      addresses as Dict of (AddressId, Address): Dict()
+      hashes as Dict of (AddressId, String): Dict()
+
+      override operator +=
+        -> address as Address
+        <- rtn as AddressAccess: this
+        assert address?
+        
+        if this not contains address
+          includeAddress(address)
+      
+      override operator -=
+        -> address as Address
+        <- rtn as AddressAccess: this
+        assert address.id?
+        
+        addresses -= address.id
+        hashes -= address.id
+        updateHash()      
+
+      override operator :~:
+        -> address as Address
+        <- rtn as AddressAccess: this
+        assert address.id?
+        //We don't assert whole address because it can be partial
+
+        currentAddress <- addresses.get(address.id)
+        if currentAddress?
+          //make a new copy and then merge the two.
+          updatedAddress <- Address(currentAddress)
+          updatedAddress :~: address
+          includeAddress(updatedAddress)
+
+      override operator :^:
+        -> address as Address
+        <- rtn as AddressAccess: this
+        assert address?
+                        
+        if this contains address
+          includeAddress(address)
+      
+      operator contains
+        -> address as Address
+        <- rtn as Boolean: this contains address.id      
+    
+      override operator contains
+        -> addressId as AddressId
+        <- rtn as Boolean: addresses contains addressId      
+      
+      override hash()
+        <- rtn as String: this.hash
+
+      override hashOfAddress()
+        -> id as AddressId
+        <- rtn as String: String(hashes.get(id))
+
+      override byId()
+        -> id as AddressId
+        <- rtn as Address: Address(addresses.get(id))
+      
+      override listAll()
+        <- rtn as List of Address: List()
+
+        iter <- addresses.values()
+        cat iter | map with copyAddress > rtn
+
+      private includeAddress()
+        -> address as Address
+                
+        copy <- Address(address)
+        addresses += DictEntry(copy.id, copy)
+        hashes += DictEntry(copy.id, HMAC().SHA256(addressToJSON(copy)))
+        updateHash()
+
+      private updateHash()
+        hash :=: HMAC().SHA256(GUID())
+
+    //Example of wrapping shared data set in a mutex lock.
+    LockableAddressSet with trait of AddressAccess
+      lockedAddressSet as MutexLock of AddressSet: MutexLock(AddressSet()) 
+      
+      override operator +=
+        -> address as Address
+        <- rtn as AddressAccess: this
+        
+        //You can inline this simple dynamic function if you wish
+        //Also used named parameters
+        safeOperation(
+          lockedAddressSet: lockedAddressSet,
+          address: address,
+          operation: () is addressOperation (addresses += address)
+          )
+                  
+      override operator -=
+        -> address as Address
+        <- rtn as AddressAccess: this
+
+        //Or you can inline all on one line.
+        safeOperation(lockedAddressSet, address, () is addressOperation (addresses -= address))
+
+      override operator :~:
+        -> address as Address
+        <- rtn as AddressAccess: this
+
+        //Or define a dynamic function and pass in as delegate (my preferred way)
+        operation <- () is addressOperation
+          addresses :~: address
+        safeOperation(lockedAddressSet, address, operation)        
+
+      override operator :^:
+        -> address as Address
+        <- rtn as AddressAccess: this
+        operation <- () is addressOperation
+          addresses :^: address
+        safeOperation(lockedAddressSet, address, operation)
+
+      override operator contains
+        -> addressId as AddressId
+        <- rtn as Boolean: false
+        accessKey <- (addressId, lockedAddressSet, rtn) of MutexKey
+          override access()
+            rtn :=: lockedAddressSet.get() contains addressId          
+        lockedAddressSet.enter(accessKey)
+        
+      override hash()
+        <- rtn as String: String()
+        accessKey <- (rtn, lockedAddressSet) of MutexKey
+          override access()
+            rtn :=: lockedAddressSet.get().hash()            
+        lockedAddressSet.enter(accessKey)
+
+      override hashOfAddress()
+        -> id as AddressId
+        <- rtn as String: String()
+        accessKey <- (id, rtn, lockedAddressSet) of MutexKey
+          override access()
+            rtn :=: lockedAddressSet.get().hashOfAddress(id)
+        lockedAddressSet.enter(accessKey)
+
+      override byId()
+        -> id as AddressId
+        <- rtn as Address: Address()
+        accessKey <- (id, rtn, lockedAddressSet) of MutexKey
+          override access()
+            rtn :=: lockedAddressSet.get().byId(id)
+        lockedAddressSet.enter(accessKey)
+
+      override listAll()
+        <- rtn as List of Address: List()
+        accessKey <- (rtn, lockedAddressSet) of MutexKey
+          override access()
+            rtn += lockedAddressSet.get().listAll()
+        lockedAddressSet.enter(accessKey)
+
+  defines function
+    plainNonCacheableHTTPResponse()
+      <- rtn as HTTPResponse
+      rtn: () of HTTPResponse
+        override cacheControl()
+          <- rtn as String: "no-store,max-age=0"
+        override contentType()
+          <- rtn as String: "text/plain"
+        override contentLanguage()
+          <- rtn as String: "en"
+
+    cacheableHTTPResponse()
+      <- rtn as HTTPResponse
+      rtn: () of HTTPResponse
+        override cacheControl()
+          <- rtn as String: "public,max-age=5,must-revalidate"
+        override contentType()
+          <- rtn as String: "application/json"
+        override contentLanguage()
+          <- rtn as String: "en"
+
+  defines class
+
+    ByETagHTTPResponse with trait of HTTPResponse by delegate
+      repository as Repository!
+
+      delegate as HTTPResponse?
+      addressId as AddressId?
+      provideContentLocation as Boolean?
+
+      status as Integer: 200
+      etagOfAddress as String: String()
+      
+      private ByETagHTTPResponse()
+        assert false
+        
+      ByETagHTTPResponse()
+        ->
+          addressId as AddressId
+          delegate as HTTPResponse
+          provideContentLocation as Boolean
+        assert addressId? and delegate? and provideContentLocation?
+
+        this.addressId: addressId
+        this.provideContentLocation: provideContentLocation
+        this.delegate: delegate
+
+      ByETagHTTPResponse()
+        ->
+          addressId as AddressId
+          delegate as HTTPResponse
+        this(addressId, delegate, true)
+        
+      override etag()
+        <- rtn as String: String()
+        //Only call if un-set.
+        etagOfAddress :=? repository.addresses().hashOfAddress(addressId)            
+        rtn :=: etagOfAddress
+        if ~etagOfAddress?
+          status: 404
+
+      override status()
+        -> newStatus as Integer
+        status :=: newStatus
+      override status()
+        <- rtn as Integer: status
+      override contentLocation()
+        <- rtn as String: status < 400 and provideContentLocation <- `/addresses/${addressId}` else String()
+                     
+  <?-
+    REST web service.    
+  -?>
+  defines service
+    //The Name of the and the uri it is mapped to
+    Addresses :/addresses
+
+      byId() as GET for :/{address-id}
+        -> addressId as AddressId :=: PATH "address-id" //required because different name
+        <- response as HTTPResponse
+
+        delegate <- ByETagHTTPResponse(addressId, cacheableHTTPResponse(), false)
+        response: (addressId, delegate) of HTTPResponse by delegate
+          repository as Repository!
+
+          override content()
+            <- rtn as String: String()
+            if delegate.status() <> 404
+              rtn: addressToJSON(repository.addresses().byId(addressId))
+              status(200)
+
+      //A POST
+      operator += :/
+        -> request as HTTPRequest :=: REQUEST          
+        <- response as HTTPResponse
+        
+        nonCacheable <- plainNonCacheableHTTPResponse()
+        
+        response: (request, nonCacheable) of HTTPResponse by nonCacheable
+          repository as Repository!
+          address as Address: Address()
+          status as Integer: 201
+
+          override content()
+            <- rtn as String: String()            
+            address: addressFromJson(request.content())
+            //But the server sets the ID!
+            if address.id?
+              status := 422 //unprocessable entity
+              rtn: "Do not supply ID in Address, server will set this"
+            else
+              address.id: AddressId(GUID())
+              if ~address?
+                status := 422 //unprocessable entity
+              else if repository.addresses() contains address.id
+                status := 409 //conflict
+              else            
+                repository.addresses() += address
+          
+          override contentLocation()
+            <- rtn as String: status == 201 <- `/addresses/${address.id}` else String()
+          override status()
+            <- rtn as Integer: status  
+            
+      //A DELETE
+      operator -= :/{addressId}
+        -> addressId as AddressId //Assume PATH
+        <- response as HTTPResponse
+                
+        delegate <- ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse(), false)
+        response: (addressId, delegate) of HTTPResponse by delegate
+          repository as Repository!
+                    
+          override content()
+            <- rtn as String: String()
+            //Only if the etag was found can we delete it!
+            if delegate.status() <> 404
+              repository.addresses() -= repository.addresses().byId(addressId)
+              status(204)
+
+      //A PATCH which is a merge
+      operator :~: :/{addressId}
+        ->
+          addressId as AddressId //Assume PATH
+          incomingContent as String :=: CONTENT          
+        <-
+          response as HTTPResponse
+        
+        delegate <- ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())
+        
+        response: (addressId, incomingContent, delegate) of HTTPResponse by delegate
+          repository as Repository!
+
+          override content()
+            <- rtn as String: String()
+            if delegate.status() <> 404
+              address <- addressFromJson(incomingContent)
+              if ~address.id?
+                status(422) //unprocessable entity
+              else if address.id <> addressId
+                status(400) //the id on the url is not the same as the id in the body content
+              else
+                repository.addresses() :~: address
+                status(204)
+
+      //A PUT which is a replace for an existing address
+      operator :^: :/{addressId}
+        ->
+          addressId as AddressId //Assume PATH
+          incomingContent as String :=: CONTENT          
+        <-
+          response as HTTPResponse
+        
+        delegate <- ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())
+
+        response: (addressId, incomingContent, delegate) of HTTPResponse by delegate
+          repository as Repository!
+ 
+          override content()
+            <- rtn as String: String()
+            if delegate.status() <> 404
+              address <- addressFromJson(incomingContent)
+              if ~address?
+                status(422) //unprocessable entity
+              else if address.id <> addressId
+                status(400) //the id on the url is not the same as the value in the body content
+              else
+                repository.addresses() :^: address
+                status(204)
+
+      listAll() :/
+        <- response as HTTPResponse
+
+        cacheable <- cacheableHTTPResponse()
+        response: (cacheable) of HTTPResponse by cacheable
+          repository as Repository!
+          
+          override etag()
+            <- rtn as String: repository.addresses().hash()
+          override content()
+            <- rtn as String: addressListToJSON(repository.addresses().listAll())
+
+  defines component
+    Repository as abstract
+     
+      addresses() as abstract
+        <- rtn as AddressAccess     
+      
+    InMemoryRepository extends Repository
+      addresses as AddressAccess: LockableAddressSet()
+            
+      InMemoryRepository()
+        addresses += Address(AddressId(GUID()), "121 Admin Rd.", String(), "Concord", "NH", "03301")
+        addresses += Address(AddressId(GUID()), "67 Paperwork Ave", String(), "Manchester", "NH", "03101")
+        addresses += Address(AddressId(GUID()), "15 Rose St", "Apt. B-1", "Concord", "NH", "03301")
+        addresses += Address(AddressId(GUID()), "39 Sole St.", String(), "Concord", "NH", "03301")
+        addresses += Address(AddressId(GUID()), "99 Mountain Rd.", String(), "Concord", "NH", "03301")     
+                       
+      override addresses()
+        <- rtn as AddressAccess: addresses       
+
+  defines application
+    AccessPoint
+      //We could register other services and components here
+      
+      register InMemoryRepository() for Repository
+      register Addresses()
+    
+  defines program
+    TestAddressOutput with application of AccessPoint
+      //Expect injection
+      repository as Repository!
+                
+      stdout <- Stdout()
+      
+      //Ensure that a string can be made from an optional of a string.
+      check as Optional of String: Optional("Steve")      
+      justString <- String(check)
+      stdout.println(`${justString}`)
+      
+      address1 <- Address(AddressId(GUID()), "121 Admin Rd.", String(), "Concord", "NH", "03301")
+      address2 <- Address(AddressId(GUID()), "15 Rose St", "Apt. B-1", "Concord", "NH", "03301")
+
+      addresses <- [address1, address2]
+      
+      iter <- addresses.iterator()
+      //promote iterator to a list
+      backToList <- #^iter
+
+      stdout.println("Address as JSON")
+      stdout.println(addressToJSON(address1))
+
+      jsonAddress <- addressFromJson(addressToJSON(address1))
+
+      stdout.println("Rebuilt address is [" + addressToJSON(jsonAddress) + "]")
+      
+      stdout.println("Now arrays")
+
+      stdout.println(addressListToJSON(addresses))
+
+      stdout.println("Done basics now all addresses")
+      
+      allAddresses <- repository.addresses().listAll()
+      
+      stdout.println(`Hash of all addresses is [${repository.addresses().hash()}]`)
+      
+      stdout.println(addressListToJSON(allAddresses))
+      
+      stdout.println("Done!")
+
+//EOF

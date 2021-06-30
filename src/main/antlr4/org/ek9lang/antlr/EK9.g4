@@ -170,7 +170,7 @@ parameterisedParams
     : OF? TYPE parameterisedDetail 
     | OF? TYPE LPAREN parameterisedDetail (COMMA parameterisedDetail)+ RPAREN
     ;
-    
+
 parameterisedDetail
     : Identifier (CONSTRAIN BY typeDef)? //ie. String or whatever
     ;
@@ -189,8 +189,8 @@ allowingOnly
     ;
 
 typeDeclaration
-    : Identifier AS? typeDef constrainDeclaration?
-    | Identifier AS? NL+ INDENT NL* enumerationDeclaration DEDENT
+    : Identifier (AS | IS | EXTENDS)? typeDef constrainDeclaration?
+    | Identifier (AS | IS | EXTENDS)? NL+ INDENT NL* enumerationDeclaration DEDENT
     | parameterisedType
     ;
 
@@ -566,6 +566,8 @@ operator
     | REM
     | ABS
     | SQRT
+    | CONTAINS
+    | MATCHES
     | ASSIGN
     | ASSIGN_UNSET
     | PIPE
