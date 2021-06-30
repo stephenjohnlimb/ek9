@@ -1,0 +1,385 @@
+#!ek9
+defines module net.customer
+
+  defines record
+    
+    Rec1
+      first String: String()
+      last String: String()
+      //Just try using some reasonable names even though keys words in some contexts.
+      record Integer: 10      
+      
+      //open Boolean: false
+      filter Boolean: true
+      map String: "By something"
+      group Boolean: false
+      extending Boolean: true
+      is String: "Some input stream"
+    
+    Rec2 as open
+      item String: String()
+      rec1 Rec1: Rec1()
+        
+    Rec3 is Rec2
+      something String: "or nothing"
+      
+  //Just a test file some classes with methods and calling of the methods.
+  defines class
+
+    Class1
+      //just checking I can use a key word as a field
+      style String: String()
+      record Rec2: Rec2()
+      special Rec2: Rec2()
+      
+      val1 as Float := 10
+      val as Float := -10
+      someBool as Boolean := not true
+      
+      //clearly nonsense will always be true
+      yetAnotherBoolean as Boolean := true or false
+      
+      //clearly will always be false
+      moreRubbish Boolean: true and false      
+      
+      //how about - will always be false because not true is false and false is false
+      junk Boolean: not true or false
+      
+      //So true and not false is always true but then to 'not' it makes it false.
+      moreJunk Boolean: not (true and not false)
+      orThis Boolean: ~(true and not false)
+      
+      //A couple of constructors with or without ()
+      Class1()
+        val := -10.00
+        someBool := not false
+        
+      Class1
+        ->
+          arg1 as Integer
+        val := arg1
+        
+      Class1
+        ->
+          arg1 as Integer
+          arg2 as Integer
+        val := arg1 + arg2
+        
+      Class1
+        ->
+          arg1 as Class1
+          arg2 as Class1
+        val := 23
+        
+      Class1
+        ->
+          arg1 as Float
+          arg2 as Float
+        val := arg1 + arg2
+        
+      //Some methods
+      
+      methodA()
+        <- rtn as String := "Default Value"
+        
+        rtn := "Steve"
+      
+      methodB()
+        <- rtn as String := "Default Value"
+        //note no body just default above 
+           
+      //method 1 just a simple echo method
+      method1() as
+        ->
+          param1 as String
+          param2 as String
+          param3 as Float
+        <-
+          rtn as String := "Steve"
+          
+        //make a new Class2 and then we'll call some methods on it.
+        //Now does not look like we've type checked this against constructors.
+        clazz2 <- Class2(60)
+            
+        rtn := "Hi " + rtn + " " + param1 + " " + param2
+        
+      someMethod1() as
+        ->
+          param1 as String
+          param2 as String
+          param3 as Float
+        <-
+          rtn as String := "Steve"
+          
+        valA <- String()
+        valB <- "Steve"
+        valC <- String()
+        
+        //So if valA is null then return valB else use valC or use "Limb" if that is null
+        valD <- valA ?? valB ?? valC ?? "Limb"
+        
+        //Now we also have nice ternary operators
+        int1 as Integer := 8
+        int2 <- 6
+        
+        if int1 < int2
+          rtn := "JarJar"
+          
+        //So need to map to Integer someInt == int1._lt(int2).isTrue() ? int1 : int2; 
+        someInt1 <- int1 <? int2
+        someInt2 <- int1 <=? int2
+        someInt3 <- int1 >? int2
+        someInt4 <- int1 >=? int2
+        
+        //Combine with ternary to be null safe!
+        //but also if int1 and int2 are not null and have values then if int1 < int2 use int1 else use int2 - but if either null just use 8
+        //Just look at the simplicity on a single line!        
+        someInt5 <- int1? and int2? <- int1 <? int2 : 8
+        
+        //You could do this
+        //make variable someInt6 as equal to int1 if less than int2 or int2 if not but only if int1 and int2 are not null - in that case use 8
+        someInt6 <- int1? and int2? <- int1 <? int2 : 8
+        
+        //Do we need the elvis operator of ?:
+        
+        rtn := "OK"
+    
+      getRecord()
+        <- rtn as Rec2 := record
+      
+      getRecord()
+        -> provideSpecial as Boolean
+        <- rtn as Rec2: provideSpecial <- special : record
+                      
+      //Another method1 but different parameters      
+      method1()
+        -> param1 as Integer
+        
+        clazzN as Class2 := Class2()
+      
+      method2()
+        <- rtn as String := "Default Value"
+        
+        len as Float := length "Steve"
+        
+        len := length "Limb"        
+        
+        notContent <- "Limb" is empty
+        
+        notContent := "Limb" is not empty
+        
+        //try out a nice new duration
+        duration <- P3Y2M6DT12H15M6S
+        
+        //Nice and easy regex
+        steveRegEx as RegEx := /[S|s]te(?:ven?|phen)/
+        //Note if I want a / in the match I have to escape it
+        //Not quite sure how to do that yet
+        testRegEx as RegEx := /^Some\/Thing$/
+        
+        //See if we can get a match, either way around
+        matches1 as Boolean := "Steve" matches steveRegEx
+        matches2 as Boolean := steveRegEx matches "Steve"
+        checkMatch as Boolean := "Some\Thing" matches testRegEx
+        
+        //So this does not make sense needs to resolve to boolean
+        if length "Steve" < 8
+          rtn := "Here"
+        
+        if length "Steve" < length "Limb"
+          rtn := "Some Value"
+          
+        rtn := rtn + " set"
+        
+      method3()
+        //check calling a local method and calling a method as a parameter
+        val <- method1("A", "B", 2.0)
+        someValue as String := method1("A", method2(), 2)
+        
+      //end of methods (ish)
+      //We can use some of the the keywords as method and variable names if we need to.      
+      //So we might want to record something - not a 'record' but to record an item
+      record()
+        -> item as String
+        <- rtn as Boolean := true
+      
+      reference()
+        -> item as String
+        <- rtn as Boolean := true
+      
+      references()
+        -> item as String
+        <- rtn as Boolean := true
+              
+      sort()
+        <- rtn as Boolean := false
+      
+      group()
+        <- rtn as Boolean := false
+      
+      map()
+        <- rtn as Boolean := false
+      
+      filter()
+        <- rtn as Boolean := false
+      
+      split()
+        <- rtn as Boolean := false
+      
+      collect()
+        <- rtn as Boolean := false
+          
+      head()
+        -> numOf as Integer
+        <- rtn as Boolean := false
+      
+      //The () are optional!
+      tail
+        -> numOf as Integer
+        <- rtn as Boolean := false
+          
+      contains()
+        -> toCheck as Character
+        <- rtn as Boolean := true
+      
+      where()
+        -> toCheck as Character
+        <- rtn as Boolean := true
+          
+      //So try some operators - lets see if missing the key word 'operator' without will work
+      //Overload the + operator using with and returning - but see later for more terse code.
+      //So developer can make judgement on verbosity of the definition.
+      operator +
+        -> arg as Class1
+        <- rtnOp as Class1 := Class1(arg, arg)        
+        //Not really and add here just checking we can do a single line no body on operator
+      
+      operator == as
+        -> arg as Class1
+        <- rtn as Boolean := true
+                    
+      //So you can omit the 'operator' if you want super terse code.
+      <
+        -> arg as Class1
+        <- rtn as Boolean := true
+      <=
+        -> arg as Class1
+        <- rtn as Boolean := true
+      >
+        -> arg as Class1
+        <- rtn as Boolean := true
+      >=
+        -> arg as Class1
+        <- rtn as Boolean := true
+      <=>
+        -> arg as Class1
+        <- rtn as Integer := 0
+      sqrt
+        <- rtnSqrt as Class1
+        rtnSqrt := Class1()
+        //rtnSqrt := Class1(sqrt val)
+      length
+        <- rtn as Integer := 10
+      
+      ?
+        <- rtn as Boolean := true
+              
+      //promote Class1 to a Class2
+      #^
+        <- myPromotion as Class2 := Class2(90.0)
+          
+      //Return a string representation of this class    
+      $
+        <- rtn as String := "OK"
+    
+    //The second class that we are going to create a new one of and then call its method.
+    Class2
+      anotherFloat as Float := 90.99
+    
+      Class2
+        anotherFloat := 90.8
+        
+      Class2
+        -> arg1 as Float
+        anotherFloat := arg1
+      
+      getClass1()
+        <- rtn as Class1 := Class1()
+            
+      specialMethod()
+        ->
+          param1 as String
+          param2 as Integer
+        <-
+          rtn as String := "A Default"
+      
+        calculation as Float := param2
+        
+        val as Float := 21
+      
+        //lets see if we can get an automatic promotion here
+        if param1 == "Steve"
+          calculation := calculation * 21 + 6
+        
+        //rtn := rtn + " " + calculation    
+      //end of method
+      
+      checkClass1()
+        cls1 <- Class1()
+        cls2 <- Class1()
+                        
+        cls1.method3()
+
+        res <- cls1.sort()
+        
+        res2 <- cls1.group()
+        res3 <- cls1.map()
+        res4 <- cls1.filter()
+        res5 <- cls1.contains('A')
+        res6 <- cls1.where('A')
+        
+        rec2 <- cls1.getRecord()
+        
+        rec1 <- cls1.getRecord(true).rec1
+        
+        first <- cls1.getRecord().rec1.first
+        
+        lengthOf <- length cls1.getRecord().rec1.first
+        
+        if lengthOf > 3
+          var <- true
+          
+        shouldGroup <- cls1.getRecord().rec1.group        
+        
+        record <- cls1.getRecord().rec1.record
+        
+        g1 <- getClass1().getRecord().rec1.group
+        
+        g2 Boolean := getClass1().getRecord().rec1.group
+        
+        g2 := getClass1().getRecord().rec1.group
+        
+      dateTimeMethod()
+        aSimpleDate as Date := 2001-04-03
+        
+        aTime as Time := 23:59
+        
+        accurateTime as Time := 12:00:01
+    
+        isoDateTime as DateTime := 2000-02-21T01:30:00-05:00
+        
+    //end of class
+  defines program
+  
+    CheckPromotion()
+    
+      i1 <- 9
+      
+      f1 <- #^ i1
+      
+      c1 <- Class1(20)
+        
+      c2 <- Class2(90)
+      
+      c3 <- #^ c1   
+//EOF

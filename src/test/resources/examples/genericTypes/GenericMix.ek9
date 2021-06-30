@@ -1,0 +1,93 @@
+#!ek9
+defines module net.customer.generic.mix
+
+  defines type
+    List of Float
+    
+    //Optional of Integer
+    
+    Optional of Float
+    
+  //See SimpleFunction.ek9 for just normal function processing
+  //This focuses on how generic functions will work but in combination with generic classes.
+  //i.e. a full implementation of a function but in terms of abstract types like S and T
+  //You must fully implement the generic function - but then to use it you must use a dynamic function syntax filling in the type parameters.
+  defines function
+    
+    //Maybe this would be a nice way to define a doubler function
+    //It does not have to be pure - but in this case it is - also it could be called anything like 'doubler' or 'doubleT' whatever
+    //So in its simplest form we use T (could have been P or S) as the type then we can use normal operators
+    //How do we know we can use those operators? How to we know we can use other methods on T - we need to constrain T to be at least something
+    //We know something about. For time being lets just get a parse and production going then see about methods and operators.
+    
+    doubler of type T as pure
+      -> param1 as T
+      <- retVal as T := param1 + param1
+
+  defines class
+
+    //Generic List -with a contrived method to add double of a value
+    List of type T
+      
+      //This is where we store the T's for our list
+      actualList as RawList := RawList()
+      
+      aTest as T := T()
+       
+      //Constructor
+      List
+        -> item as T
+        var <- item
+        
+      get
+        -> index as Integer
+        <- rtn as T := T()
+          
+      //Add a T to the list.
+      addDoubleValue
+        -> item as T
+        <- rtn as List of T := List()
+        
+        //Just check we can define an optional
+        ourOptional as Optional of T := Optional(item)
+        //But nicely we can do this!
+        inferredOptional <- Optional(item)
+       
+    Optional of type T
+      
+      someVar as T?
+      
+      //Simple constructor taking the item to wrap
+      Optional
+        -> item as T
+        set(item)
+      
+      //The setter of the item
+      set
+        -> param as T
+        someVar := param
+        //Just try out and see if we can 'new' a T!
+        other <- T()
+        
+        //So I want a dynamic function but in terms of a conceptual type T
+        //Only when my list is made with real concrete types will we know!
+        //But when it is I want double of whatever T is!
+        aDoublerFunction <- () is doubler of T
+        
+        hardWiredFunction <- () is doubler of Float as function
+        
+        //So now lets have double of whatever param is and I don't even know what type it is!
+        someValue <- aDoublerFunction(param)
+        
+        otherValue <- hardWiredFunction(66.9)
+        
+    TestItem
+     
+      anotherCall
+        <- rtn as String := "OK"
+        
+        rtn := "Some Value "
+        dynamicIntDoubler <- () is doubler of Integer as function
+        
+        myList <- List() of Float            
+//EOF

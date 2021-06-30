@@ -1,0 +1,67 @@
+#!ek9
+defines module com.customer.just
+
+  defines type
+    PriorityQueue of String
+
+  defines function
+    suitableLength
+      -> value as String
+      <- rtn as Boolean: length of value > 5
+
+  //Would really like to do this a a function or a dynamic class.
+  defines class
+    StringCompare is Comparator of String
+      override call()
+        ->
+          o1 as String
+          o2 as String
+        <-
+          rtn as Integer: ~(o1 <=> o2) //negate the returned comparison.
+
+  defines program
+
+    ShowPriorityQueue()
+      stdout <- Stdout()
+
+      //Can't do this at present, but we can do the above - i.e use a class
+      //comparator <- () is Comparator of String as function
+      //  rtn: o1 <=> o2
+      //comparator <- StringComparator()
+
+      qOne <- PriorityQueue("Bill").useComparator(StringCompare())
+
+      qOne += "And"
+      qOne += "Ted"
+      qOne += "Excellent"
+      qOne += "Adventure"
+      qOne += "Outrageous"
+      qOne += "Bogus"
+
+      allEntries <- cat qOne | collect as List of String
+      stdout.println($allEntries)
+      assert $allEntries == "[Ted, Outrageous, Excellent, Bogus, Bill, And, Adventure]"
+
+      qOne.setSize(3)
+
+      limitedEntries <- qOne.list()
+      assert $limitedEntries == "[Bill, And, Adventure]"
+      stdout.println($limitedEntries)
+
+      qOne += "Missy"
+      iter <- qOne.iterator()
+      while iter?
+        stdout.println($iter.next())
+
+      //Alternative way to get the list - but in reverse order.
+      asList <- ~qOne.list()
+      stdout.println($asList)
+      assert $asList == "[Adventure, And, Bill]"
+
+      bestTwo as PriorityQueue of String: PriorityQueue().setSize(2).useComparator(StringCompare())
+      cat allEntries | filter by suitableLength > bestTwo
+      stdout.println($~bestTwo.list())
+      assert $~bestTwo.list() == "[Adventure, Excellent]"
+
+
+//EOF

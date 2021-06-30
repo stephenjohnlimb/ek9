@@ -1,0 +1,469 @@
+#!ek9
+<?-
+  Designed to be be built up in stages as I implement the object expression and 'this'/'super' functionality.
+  Now move on to check public protected private 
+-?>
+defines module com.customer.resolution
+
+  defines constant
+    
+    defaultCountry <- "GB"
+    
+  defines record
+  
+    R1 as abstract
+      firstName String: String()
+      lastName String: String()
+      nickName String: String()
+      address Address: Address()
+      
+      operator $ as abstract
+        <- is String
+    
+    R2 extends R1
+      DOB Date: Date()
+      
+      override operator $
+        <- is String := super.firstName        
+        is += " "
+        is += super.lastName
+        is += " ("
+        is += this.nickName
+        is += ") "
+        is += $DOB        
+
+  defines trait
+    
+    T1
+      t()
+        <- tVal String := "OK"
+      t()
+        -> param String
+        <- tVal String := "OK " + param
+    
+    T2 trait of T1
+      u()
+        <- uVal String := "OK"
+      u()
+        -> param String
+        <- uVal String := "OK " + param
+
+  defines function
+  
+    <?-
+      Provide the concept of a function but in abstract form
+    -?>
+    plugabbleFunction() as abstract
+      -> param String
+      <- rtn String
+      
+    functionB1()
+      <- house as UKAddress := UKAddress()
+    
+    functionB2()
+      -> country as String
+      <- house as UKAddress := UKAddress(country)
+
+  defines class
+  
+    Simple
+      val String: "Val"
+      
+      Simple()
+        val := "Some Default"
+
+      Simple()
+        -> v as String
+        val := v
+
+    Address with trait of T2 as open
+      houseNumber Integer: 20
+      street String: "A Street"
+      city String: "Town"
+      postCode String: "P05 C0D"
+      
+      Address()
+        //Check J
+        this(20, "A Street", "Town", "P05 C0D")
+        v1 <- "Steve"
+        
+      Address()
+        -> houseNo Integer
+        houseNumber := houseNo
+        //Check L
+        this.houseNumber := houseNo
+      
+      Address()
+        ->
+          houseNo Integer
+          theStreet String
+        houseNumber := houseNo
+        street := theStreet
+        //Check L
+        this.houseNumber := houseNo
+        this.street := theStreet  
+      
+      Address()
+        ->
+          houseNo Integer
+          theStreet String
+          theCity String
+        houseNumber := houseNo
+        street := theStreet
+        city := theCity
+        //Check L
+        this.houseNumber := houseNo
+        this.street := theStreet
+        this.city := theCity
+      
+      Address()
+        ->
+          houseNo Integer
+          theStreet String
+          theCity String
+          thePostCode String
+        houseNumber := houseNo
+        street := theStreet
+        city := theCity
+        postCode := thePostCode
+        //Check L
+        this.houseNumber := houseNo
+        this.street := theStreet
+        this.city := theCity
+        this.postCode := thePostCode
+        
+      <?-
+        Just a call to a constructor
+      -?>  
+      checkA()
+        a1 <- Simple()
+        a2 <- Simple("A")
+
+      <?-
+        Just a call to a function
+      -?>        
+      checkB()
+        b1 <- functionB1()
+        b2 <- functionB2("US")
+
+      <?-
+        Just a call to a method - in this class
+      -?>  
+      checkC()
+        c1 <- method()
+        c2 <- method("FR")
+      
+      <?-
+        Just a call to a method - in this class but via 'this'
+      -?> 
+      checkCthis()
+        c <- "TODO"
+        c1 <- this.method()
+        c2 <- this.method("FR")
+       
+      <?-
+        Just a access a field but also access a constant short hand but also fully qualified.
+      -?>         
+      checkD()
+        d1 <- houseNumber
+        d2 <- defaultCountry
+        d3 <- com.customer.resolution::defaultCountry
+      
+      <?-
+        Just a access a field but via 'this'.
+      -?>
+      checkDthis()
+        d <- "TODO"
+        d1 <- this.houseNumber
+        
+      checkF1super()
+        f <- "TODO"
+        //These will parse but
+        //These should not be allowed semantically
+        //TODO
+        //f1 <- T2.u()
+        //f2 <- T2.u("FR")
+        f3 <- u()
+        f4 <- u("FR")
+        
+      checkG1super()
+        g <- "TODO"
+        //These will parse but
+        //These should not be allowed semantically
+        //TODO
+        //g1 <- T1.t()
+        //g2 <- T1.t("FR")        
+        //g3 <- T2.t()
+        //g4 <- T2.t("FR")
+        g5 <- t()
+        g6 <- t("FR")
+        
+      getRecord()
+        <- record R2 := R2()
+      
+      getRecord()
+        -> param String
+        <- record R2 := R2()
+        
+      method()
+        <- result String := "OK"
+      
+      method()
+        -> param String
+        <- result String := "OK " + param
+       
+      private setPostCode()
+        -> newPostCode String
+        postCode := newPostCode
+      
+      private getPostCode()
+        <- rtn String := postCode
+          
+      protected getCity()
+        <- rtn String := city
+      
+      getStreet()
+        <- rtn String := street
+            
+      getAddress()
+        <- rtn String := $houseNumber + " " + street + " " + getCity() + " " + getPostCode()
+      
+      operator $
+        <- rtn String := getAddress()
+
+    UKAddress is Address
+      country String: "UK"
+      
+      UKAddress()
+        //Check J
+        //TODO
+        this("UK")
+        country := "UK"
+        
+      UKAddress()
+        -> theCountry String
+        //CHECK K
+        //TODO
+        super(20, "A Street", "Town", "P05 C0D")
+        country := theCountry
+      
+      //should be able to super.getCity() as protected but not super.getPostCode() and not super.city
+      //"Nice " + super.getCity() + " " + super.getPostCode() + " " + super.city
+      override protected getCity()
+        <- rtn String := "Nice " + super.getCity()
+        
+      getCountry()
+        <- rtn String := country
+      
+      <?-
+        Just a call to a method - in super class
+      -?>
+      checkE()
+        //Check we can resolve in super
+        e1 <- method()
+        e2 <- method("FR")
+
+      <?-
+        Just a call to a method - in super class - but this time explicit via 'super'
+      -?>        
+      checkEsuper()
+        e <- "TODO"
+        //Check we can resolve in super but explicit
+        e1 <- super.method()
+        e2 <- super.method("FR")
+      
+      <?-
+        Just a call to a method - in a trait that is in the hierarchy - but note immediate super class could have overridden - we should not know.
+      -?>
+      checkF()
+        //Check we can resolve in trait
+        f1 <- u()
+        f2 <- u("FR")
+      
+      <?-
+        Check we 'cannot' resolve in trait - we don't allow known access - you only know immediate class super
+        We do not want to allow inheritance for 'reuse'
+      -?>
+      checkFsuper()
+        f <- "TODO"
+        //These will parse but
+        //These should not be allowed semantically
+        //TODO
+        //f1 <- T2.u()
+        //f2 <- T2.u("FR")
+      
+      checkG()
+        //Check we can resolve in trait
+        g1 <- t()
+        g2 <- t("FR")
+      
+      <?-
+        Check we 'cannot' resolve in trait - we don't allow known access - you only know immediate class super
+        We do not want to allow inheritance for 'reuse'
+      -?>
+      checkGsuper()
+        g <- "TODO"
+        //These will parse but
+        //These should not be allowed semantically
+        //TODO
+        //g1 <- T1.t()
+        //g2 <- T1.t("FR")        
+        //Now can we resolve via T2 because it extends has trait of T1
+        //g3 <- T2.t()
+        //g4 <- T2.t("FR")
+
+      <?-
+        Now on to chained methods - ensure we can resolve method and method with parameter and also another method call
+      -?>
+      checkH()
+        h <- "TODO"
+        h1 <- getRecord().DOB
+        h2 <- getRecord("H").firstName
+        h3 <- getRecord(getCountry()).DOB
+
+      <?-
+        Chained methods usng 'this' but also with method calls in params
+      -?>
+      checkHthis()
+        h <- "TODO"
+        h1 <- this.getRecord().DOB
+        h2 <- this.getRecord("H").firstName
+        h3 <- this.getRecord(getCountry()).firstName
+        h4 <- this.getRecord(this.getCountry()).firstName
+        
+      <?-
+        Chained methods usng 'super' but also with method calls in params
+      -?>       
+      checkHsuper()
+        h <- "TODO"
+        h1 <- super.getRecord().DOB
+        h2 <- super.getRecord("H").firstName
+        h3 <- super.getRecord(getCountry()).firstName
+        h4 <- super.getRecord(this.getCountry()).firstName
+
+      <?-
+        Now on to chained methods - but deeper chain.
+      -?>  
+      checkI()
+        i <- "TODO"
+        i1 <- getRecord().address.getStreet()
+        i2 <- getRecord("I").address.getStreet()
+        i3 <- getRecord(getCountry()).address.getStreet()
+        i4 <- getRecord(this.getCountry()).address.getStreet()
+
+      <?-
+        Now on to chained methods - but deeper chain, but using 'this'.
+      -?>
+      checkIthis()
+        i <- "TODO"
+        i1 <- this.getRecord().address.getStreet()
+        i2 <- this.getRecord("I").address.getStreet()
+        i3 <- this.getRecord(getCountry()).address.getStreet()
+        i4 <- this.getRecord(this.getCountry()).address.getStreet()
+
+      <?-
+        Now on to chained methods - but deeper chain, but using 'super'.
+      -?>
+      checkIsuper()
+        i <- "TODO"
+        i1 <- super.getRecord().address.getStreet()
+        i2 <- super.getRecord("I").address.getStreet()
+        i3 <- super.getRecord(getCountry()).address.getStreet()
+        i4 <- super.getRecord(this.getCountry()).address.getStreet()
+        
+        //So check we can set a variable
+        super.getRecord("H").address := Address()
+        
+        //This should parse but be checked on semantics
+        //super.getRecord(this.getCountry()).address.getStreet() := Address()
+      
+      checkJ()
+        //Check no access to super private fields
+        //ACCESS
+        //city := "Town"
+        //nor private methods
+        //thePostCode <- getPostCode()
+        //but can access protected methods
+        theCity <- getCity()
+        //and public
+        theStreet <- getStreet()
+      
+      checkJthis()
+        //Check no access to super private fields
+        //ACCESS
+        //this.city := "Town"
+        //nor private methods
+        //thePostCode <- this.getPostCode()
+        //but can access protected methods
+        theCity <- this.getCity()
+        //and public
+        theStreet <- this.getStreet()
+
+      checkJsuper()
+        //Check no access to super private fields
+        //ACCESS
+        //super.city := "Town"
+        //nor private methods
+        //thePostCode <- super.getPostCode()
+        //but can access protected methods
+        theCity <- super.getCity()
+        //and public
+        theStreet <- super.getStreet()
+      
+    Accessor
+      checkMethod()
+        
+        myHouse <- UKAddress()
+        
+        anotherHouse <- UKAddress("EN24 3PR")
+        
+        //Check M allowed as public
+        //TODO
+        country <- anotherHouse.getCountry()
+
+        //Check M allowed as public
+        //TODO
+        t1 <- anotherHouse.t()
+
+        //Check M allowed as public
+        //TODO
+        t2 <- anotherHouse.t("VAL1")
+
+        //Check M allowed as public
+        //TODO
+        u1 <- anotherHouse.u()
+
+        //Check M allowed as public
+        //TODO
+        u2 <- anotherHouse.u("VAL2")
+        
+        //Check M not allowed as private and protected
+        //TODO
+        //city1 <- anotherHouse.city
+        //city2 <- anotherHouse.getCity()
+        
+        //Check M not allowed as private
+        //TODO
+        //postcode <- anotherHouse.getPostCode()
+        
+        //Check N allowed as public and to record
+        //TODO
+        first1 <- anotherHouse.getRecord().firstName
+
+        //Check N allowed as public and to record
+        //TODO
+        first2 <- anotherHouse.getRecord("UK").firstName
+        
+        //Check O allowed as public and to record but as setter
+        //TODO
+        anotherHouse.getRecord("UK").firstName := "Steve"
+        
+        //Check P allowed as public and to record but with expression inside.
+        //TODO
+        first3 <- anotherHouse.getRecord(anotherHouse.getCountry()).firstName
+        
+        //Check P allowed as public and to record but with expression inside and transform result.
+        //TODO
+        dobString <- $anotherHouse.getRecord(anotherHouse.getCountry()).DOB
+   
+//EOF

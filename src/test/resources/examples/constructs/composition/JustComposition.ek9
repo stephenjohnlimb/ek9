@@ -1,0 +1,257 @@
+#!ek9
+defines module com.customer.just.employees
+<?-
+Example from https://realpython.com/inheritance-composition-python/
+But implemented in EK9, slight alteration to hierarchy and use of abstract classes.
+I would have probably had Employee, Person, Address and pulled together with Employment.
+-?>
+  defines trait
+
+    IRole
+      performDuties()
+        -> hours as Integer
+        <- activity as String
+
+    IPayrollCalculator
+      trackWork()
+        -> hours as Integer
+      calculatePayroll()
+        <- amount as Money
+
+  defines record
+    Address
+      street as String: String()
+      street2 as String: String()
+      city as String: String()
+      state as String: String()
+      zipcode as String: String()
+
+      operator ?
+        <- rtn as Boolean: street? and city? and state? and zipcode?
+
+      operator $
+        <- rtn as String: String()
+        rtn: String(street)
+        if street2?
+          rtn += "\n" + street2
+        rtn += "\n" + city + " " + state+ " " + zipcode
+
+  defines class
+
+    Employee with trait of IRole by role, IPayrollCalculator by payroll
+      id as Integer: Integer()
+      name as String: String()
+      address as Address: Address()
+      role as IRole?
+      payroll as IPayrollCalculator?
+
+      Employee()
+        ->
+          id as Integer
+          name as String
+          address as Address
+          role as IRole
+          payroll as IPayrollCalculator
+        this.id: id
+        this.name: name
+        this.address: address
+        this.role: role
+        this.payroll: payroll
+
+      work()
+        -> hours as Integer
+
+        stdout <- Stdout()
+        duties <- performDuties(hours)
+        stdout.println(`Employee ${this}:`)
+        stdout.println(` - ${duties}\n`)        
+        payroll.trackWork(hours)
+
+      address()
+        <- rtn as Address: address
+
+      operator $
+        <- rtn as String: $id + " - " + name
+
+    AddressBook
+      employeeAddresses as Dict of (Integer, Address): {
+        1: Address("121 Admin Rd.", String(), "Concord", "NH", "03301"),
+        2: Address("67 Paperwork Ave", String(), "Manchester", "NH", "03101"),
+        3: Address("15 Rose St", "Apt. B-1", "Concord", "NH", "03301"),
+        4: Address("39 Sole St.", String(), "Concord", "NH", "03301"),
+        5: Address("99 Mountain Rd.", String(), "Concord", "NH", "03301")
+        }
+
+      getEmployeeAddress()
+        -> employeeId as Integer
+        <- rtn as Address: Address()
+        address <- employeeAddresses.get(employeeId)
+        assert address?
+        rtn: address.get()
+
+    ProductivitySystem
+      roles as Dict of (String, IRole): {
+        "manager": ManagerRole(),
+        "secretary": SecretaryRole(),
+        "sales": SalesRole(),
+        "factory": FactoryRole()
+        }
+
+      getRole()
+        -> roleId as String
+        <- rtn as IRole
+        theRole <- roles.get(roleId)
+        assert theRole?
+        rtn: theRole.get()
+
+      track()
+        ->
+          employees as List of Employee
+          hours as Integer
+
+        stdout <- Stdout()
+        stdout.println("Tracking Employee Productivity")
+        stdout.println("==============================")
+        for employee in employees
+          employee.work(hours)
+        stdout.print("\n")
+
+    <!- Employee roles -!>
+
+    ManagerRole with trait of IRole
+      override performDuties()
+        -> hours as Integer
+        <- activity as String: `screams and yells for ${hours} hours.`
+
+    SecretaryRole with trait of IRole
+      override performDuties()
+        -> hours as Integer
+        <- activity as String: `does paperwork for ${hours} hours.`
+
+    SalesRole with trait of IRole
+      override performDuties()
+        -> hours as Integer
+        <- activity as String: `expends ${hours} hours on the phone.`
+
+    FactoryRole with trait of IRole
+      override performDuties()
+        -> hours as Integer
+        <- activity as String: `manufactures gadgets for ${hours} hours.`
+
+    <!- Payroll classes -!>
+
+    PayrollSystem
+      employeePolicies as Dict of (Integer, PayrollPolicy): {
+        1: SalaryPolicy(3000#USD),
+        2: SalaryPolicy(1500#USD),
+        3: CommissionPolicy(1000#USD, 100#USD),
+        4: HourlyPolicy(15#USD),
+        5: HourlyPolicy(9#USD)
+        }
+
+      getPolicy()
+        -> employeeId as Integer
+        <- rtn as PayrollPolicy
+        policy <- employeePolicies.get(employeeId)
+        assert policy?
+        rtn: policy.get()
+
+      calculatePayroll()
+        -> employees as List of Employee
+        stdout <- Stdout()
+        stdout.println("Calculating Payroll")
+        stdout.println("===================")
+        for employee in employees
+          stdout.println(`Payroll for: ${employee}`)
+          stdout.println(`- Check amount: ${employee.calculatePayroll()}`)
+          if employee.address()?
+              stdout.println(`- Sent to:\n${employee.address()}`)              
+          stdout.print("\n")
+
+    PayrollPolicy with trait of IPayrollCalculator as abstract
+      hoursWorked as Integer: 0
+
+      override trackWork()
+        -> hours as Integer
+        hoursWorked += hours
+
+      hoursWorked()
+        <- hours as Integer: hoursWorked
+
+    HourlyPolicy extends PayrollPolicy
+      hourRate as Money: Money()
+
+      HourlyPolicy()
+        -> hourRate as Money
+        this.hourRate = hourRate
+
+      override calculatePayroll()
+        <- amount as Money: hourRate * hoursWorked()
+
+    SalaryPolicy extends PayrollPolicy as open
+      weeklySalary as Money: Money()
+
+      SalaryPolicy()
+        -> weeklySalary as Money
+        this.weeklySalary = weeklySalary
+
+      override calculatePayroll()
+        <- amount as Money: weeklySalary
+
+    CommissionPolicy extends SalaryPolicy
+      commissionPerSale as Money: Money()
+
+      CommissionPolicy()
+        ->
+          weeklySalary as Money
+          commissionPerSale as Money
+        super(weeklySalary)
+        this.commissionPerSale = commissionPerSale
+
+      override calculatePayroll()
+        <- amount as Money: super.calculatePayroll()
+        amount += commission()
+
+      private commission()
+        <- amount as Money: commissionPerSale/5.0 * hoursWorked()
+
+    <!- Part of the driver to create the employees -!>
+
+    EmployeeDatabase
+      productivitySystem as ProductivitySystem: ProductivitySystem()
+      payrollSystem as PayrollSystem: PayrollSystem()
+      addresses as AddressBook: AddressBook()
+
+      employees()
+        <- rtn as List of Employee: List()
+
+        rtn += createEmployee(1, "Mary Poppins", "manager")
+        rtn += createEmployee(2, "John Smith", "secretary")
+        rtn += createEmployee(3, "Kevin Bacon", "sales")
+        rtn += createEmployee(4, "Jane Doe", "factory")
+        rtn += createEmployee(5, "Robin Williams", "secretary")
+
+      private createEmployee()
+        ->
+          id as Integer
+          name as String
+          theRole as String
+        <-
+          rtn as Employee: Employee()
+        address <- addresses.getEmployeeAddress(id)
+        employeeRole <- productivitySystem.getRole(theRole)
+        payrollPolicy <- payrollSystem.getPolicy(id)
+
+        rtn: Employee(id, name, address, employeeRole, payrollPolicy)
+
+  defines program
+    Demonstration()
+      productivitySystem <- ProductivitySystem()
+      payrollSystem <- PayrollSystem()
+
+      employeeDatabase <- EmployeeDatabase()
+      employees <- employeeDatabase.employees()
+
+      productivitySystem.track(employees, 40)
+      payrollSystem.calculatePayroll(employees)
+//EOF

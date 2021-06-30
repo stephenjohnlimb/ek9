@@ -1,0 +1,192 @@
+#!ek9
+defines module com.customer.records
+  defines type
+
+    Index as Integer constrain as
+      > 0
+
+  defines function
+    defaultDateOfBirth()
+      <- rtn as Date? : Date()
+
+  defines record
+
+    IdRecord as abstract
+      id as Index : Index()
+      createdAt as DateTime: SystemClock().dateTime()
+
+      IdRecord()
+        -> id as Index
+        assert id?
+        this.id: id
+
+      operator $
+        <- rtn as String: $id + " " + $createdAt
+      operator ?
+        <- rtn as Boolean: id?
+      operator ==
+        -> item as IdRecord
+        <- rtn as Boolean: Boolean()
+        if item?
+          rtn: item.id == this.id
+      operator <>
+        -> item as IdRecord
+        <- rtn as Boolean: not (item == this)
+
+    CustomerDetail extends IdRecord
+      firstName as String: String()
+      lastName as String: String()
+      dateOfBirth as Date? : defaultDateOfBirth()
+
+      CustomerDetail()
+        ->
+          id as Index
+          firstName as String
+          lastName as String
+
+        super(id)
+        assert firstName?
+        assert lastName?
+        this.firstName: firstName
+        this.lastName: lastName
+
+      CustomerDetail()
+        ->
+          id as Index
+          dateOfBirth as Date
+
+        super(id)
+        assert dateOfBirth?
+        this.dateOfBirth: dateOfBirth
+
+      CustomerDetail()
+        ->
+          id as Index
+          firstName as String
+          lastName as String
+          dateOfBirth as Date
+
+        super(id)
+        assert firstName?
+        assert lastName?
+        assert dateOfBirth?
+        this.firstName: firstName
+        this.lastName: lastName
+        this.dateOfBirth: dateOfBirth
+
+      setFirstName()
+        -> newName as String?
+        //TODO pick on the fact that newName could be null but firstName can never be null
+        //because it was not declared to accept null.
+        this.firstName :=: newName
+        //So we want to force this - and we want the pain of the if statement - don't make it too easy
+        //we're trying to remove the use of possible null all together.
+        if newName?
+          this.firstName :=: newName
+
+
+      operator :=:
+        -> item as CustomerDetail
+        id :=: item.id
+        firstName :=: item.firstName
+        lastName :=: item.lastName
+        dateOfBirth :=: item.dateOfBirth
+
+      operator :~:
+        -> item as CustomerDetail
+        if not id?
+          id :=: item.id
+        if not firstName?
+          firstName :=: item.firstName
+        if not lastName?
+          lastName :=: item.lastName
+        if not dateOfBirth?
+          dateOfBirth :=: item.dateOfBirth
+
+      operator <~>
+        -> item as CustomerDetail
+        <- rtn as Integer: 0
+
+        //Use a fuzzy match on string version of date of birth first
+        rtn: $this.dateOfBirth <~> $item.dateOfBirth
+        rtn += this.lastName <~> item.lastName
+        rtn += this.firstName <~> item.firstName
+
+      operator <=>
+        -> item as CustomerDetail
+        <- rtn as Integer: 0
+
+        rtn: dateOfBirth <=> item.dateOfBirth
+        rtn += lastName <=> item.lastName
+        rtn += firstName <=> item.firstName
+
+      operator <
+        -> item as CustomerDetail
+        <- rtn as Boolean: item <=> this < 0
+      operator >
+        -> item as CustomerDetail
+        <- rtn as Boolean: item <=> this > 0
+      operator <=
+        -> item as CustomerDetail
+        <- rtn as Boolean: item <=> this <= 0
+      operator >=
+        -> item as CustomerDetail
+        <- rtn as Boolean: item <=> this >= 0
+      operator #^
+        <- rtn as String: $this
+
+      override operator $
+        <- rtn as String: $super + " " + firstName + " " + lastName + " " + $dateOfBirth
+      override operator ?
+        <- rtn as Boolean: super? and firstName? and lastName? and dateOfBirth?
+
+  defines program
+    ShowCustomerRecords()
+      stdout <- Stdout()
+
+      unknownCustomer <- CustomerDetail()
+      assert ~unknownCustomer?
+
+      try
+        invalidCustomer <- CustomerDetail(Index(-1), "", "", Date())
+      catch
+        -> ex as Exception
+        stdout.println("As expected Index cannot be less than zero " + $ex)
+
+      try
+        invalidCustomer <- CustomerDetail(Index(1), String(), String(), Date())
+      catch
+        -> ex as Exception
+        stdout.println("As expected details must be set " + $ex)
+
+      customer1 <- CustomerDetail(Index(1), "Gomez", "Addams", 1963-06-08)
+      customer2 <- CustomerDetail(Index(2), "Morticia", "Addams", 1965-01-03)
+      customer3 <- CustomerDetail(Index(3), "Pugsley", "Addams", 1984-10-21)
+
+      assert customer1 <> customer2
+
+      stdout.println("Three Addams, " + customer1.firstName + " " + customer2.firstName + " and " + customer3.firstName)
+      //Some Addams we've not see before but born on same day or typo of Gomez?
+      customer4 <- CustomerDetail(Index(4), "Goetez", "Addams", 1963-06-08)
+      comp1 <- customer4 <=> customer1
+      comp2 <- customer4 <=> customer2
+      comp3 <- customer4 <=> customer3
+      stdout.println("Compares [" + $comp1 + " " + $comp2 + " " + $comp3 + "]")
+
+      best <- customer4 <~> customer1 < customer4 <~> customer2 <- customer1 else customer2
+      best: customer4 <~> customer3 < customer4 <~> best <- customer3 else best
+
+      //full copy of the details
+      unknownCustomer :=: best
+      //now while objects differ contents are the same.
+      assert unknownCustomer <=> customer1 == 0
+
+      partialCustomer1 <- CustomerDetail(Index(1), "Gomez", "Addams")
+      partialCustomer2 <- CustomerDetail(Index(1), 1963-06-08)
+      //As both are partial the result will be unset!
+      assert not (partialCustomer1 <=> partialCustomer2)?
+
+      partialCustomer1 :~: partialCustomer2
+      //After merging the two should match Gomez.
+      assert partialCustomer1 <=> customer1 == 0
+//EOF

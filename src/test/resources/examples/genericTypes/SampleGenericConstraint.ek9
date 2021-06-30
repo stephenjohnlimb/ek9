@@ -1,0 +1,131 @@
+#!ek9
+defines module com.customer.sample
+
+  defines function
+
+    //Generic function - but cannot be abstract
+    eventHandler of type T constrain by Shape
+      -> shape as T
+      assert shape?
+      //Not it is possible access the 'description' method
+      //If needs be.
+      assert shape.description()?
+
+  defines class
+    Text
+      value as String?
+
+      private Text()
+        assert false
+
+      Text() as pure
+        -> content as String
+        value: String(content)
+
+      value() as pure
+        <- rtn as String: String(value)
+
+    Shape as abstract
+      shapeInfo as String?
+
+      private Shape()
+        assert false
+
+      Shape() as pure
+        -> info as String
+        shapeInfo: String(info)
+
+      description() as pure
+        <- rtn as String: String(shapeInfo)
+
+      operator ? as pure
+        <- rtn as Boolean: shapeInfo?
+
+    Circle is Shape
+      Circle() as pure
+        super("Circle")
+
+      roundness() as pure
+        <- rtn as Float: 0.0
+
+    Square is Shape
+      Square() as pure
+        super("Square")
+
+  defines program
+
+    ExampleDriver1()
+      stdout <- Stdout()
+      stdout.println("Driver for generic event handler")
+      eventProcessor <- ShapeEventProcessor()
+
+      //This is not allowed because eventHandler is constrained to shapes
+      //textHandler <- (eventProcessor) is eventHandler of Text
+
+      //Setup some event handlers and an example
+      //Process through 'Shape'
+      shapeHandler <- (eventProcessor) is eventHandler of Shape
+        eventProcessor.processShapeEvent(shape)
+
+      //Now type safe via generics and direct call to specific method
+      circleHandler <- (eventProcessor) is eventHandler of Circle
+        //Note strict typing means method 'roundness' is accessible.
+        Stdout().println("Roundness " + $shape.roundness())
+        eventProcessor.processCircleEvent(shape)
+
+      //While handler is specific to Square can still call via processShapeEvent
+      squareHandler <- (eventProcessor) is eventHandler of Square
+        eventProcessor.processShapeEvent(shape)
+
+      //make some calls on the event handlers
+      shapeHandler(Circle())
+      shapeHandler(Square())
+
+      circleHandler(Circle())
+      squareHandler(Square())
+
+      //Will not compile - which is correct!
+      //circleHandler(Square())
+      //squareHandler(Circle())
+
+  defines class
+    //non-generic processor
+    ShapeEventProcessor
+      stdout as Stdout: Stdout()
+
+      processShapeEvent()
+        -> shape as Shape
+        assert shape?
+        stdout.println("Processed shape [" + shape.description() + "]")
+
+      processCircleEvent()
+        -> circle as Circle
+        assert circle?
+        stdout.println("Processed circle [" + circle.description() + " roundness " + $circle.roundness() + "]")
+
+  defines program
+
+    ExampleDriver2()
+      stdout <- Stdout()
+      stdout.println("Driver for generic event handler and generic processor")
+
+      eventProcessor as GenericShapeEventProcessor of Shape: GenericShapeEventProcessor()
+
+      shapeHandler <- (eventProcessor) is eventHandler of Shape
+        eventProcessor.processShapeEvent(shape)
+
+      //make some calls on the event handler
+      shapeHandler(Circle())
+      shapeHandler(Square())
+
+  defines class
+
+    GenericShapeEventProcessor of type T constrain by Shape
+      stdout as Stdout: Stdout()
+
+      processShapeEvent()
+        -> shape as T
+        assert shape?
+        stdout.println("Processed shape [" + shape.description() + "]")
+
+//EOF

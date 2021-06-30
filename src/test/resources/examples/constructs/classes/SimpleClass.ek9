@@ -1,0 +1,94 @@
+#!ek9
+defines module net.customer.assertions
+
+  <!--
+    New multi-line comment
+  -->
+  
+  //Just a test file of very simple 'class'
+  defines class
+      
+    //This is the first class but there is another at the bottom you can have any number of them
+    First
+      //Some properties first two explicit type
+      firstInteger Integer := 22
+      secondInteger as Integer := 23
+      
+      //Removed inference on declarations on on uses of what has been declared
+      //So inference only works in bodies! much clearer and consistent with methods and functions requiring
+      //declarations to specify yhe type.
+      firstString String: "Initial Value"
+      
+      //A simple constructor
+      First()
+        //Note the different types of assignment we can use
+        firstInteger: 99
+        secondInteger = 919
+        firstString := "Steve"
+        
+      //Some methods
+        
+      method1()
+        ->
+          param1 as String
+          param2 as String
+          param3 as Float
+        <-
+          rtn as String := "Steve"
+      
+        //Lets just try out assert
+        assert param1? and param2? and param3?
+        //again with ()
+        assert(param1? and param2? and param3?)
+        
+        firstInteger := firstInteger - 44 + secondInteger * 39
+      
+        firstInteger := (firstInteger - 4) + (secondInteger * 3)
+      
+        if firstString == "Home"
+          firstInteger := 99
+      
+        rtn := "Return Value " + param1 + " " + param2
+        
+      method2()
+        -> param1 as String
+        <- rtn as String := "Default Value"
+        
+        small <- "Small String"
+        rtn := small + "Addition"
+        
+      method3()
+        initialValue as String := "Initial"
+        someValue as String := initialValue
+        
+        someValue += method1("A", method2("FF"), 2)
+        
+      method4()
+        val <- method1("A", "B", 9)
+          
+    //Here's that second class
+    AnotherOne
+      anotherFloat as Float := 90.99
+      
+      AnotherOne()
+        -> defaultValue as Float
+        anotherFloat := defaultValue
+        
+    MyItem as abstract
+      var Integer: 99
+      
+      someMethod() as abstract
+        <- val as Integer
+        //So no body as abstract
+      
+    //Lets extend My Item  
+    MyImpl is MyItem
+      anotherVar Integer: 100
+      
+      override someMethod()
+        <- val as Integer := 90
+                  
+        checkClass as AnotherOne := AnotherOne(90)
+        
+        checkClass := AnotherOne()
+//EOF

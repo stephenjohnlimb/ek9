@@ -1,0 +1,146 @@
+#!ek9
+defines module com.utils
+
+  <!-
+    This is just a general comment one that is not really intended as a code comment
+    So this has a consistent open and close like the doc comments with the ?
+  -!>
+  
+  <!--
+    As is this but in the html style of comment. Just in case developers are so used
+    to that type of commenting they can't kick the habit.
+    We don't support the /* */ or /** */ type comments of c, c++ and java
+    
+    The doc comment should always be indented and then the folding just works.
+  -->
+  
+  <?-
+    Just a couple of forward declarations of our use of the FSM - for type inference
+    But also a simple enumerated type for use with the FSM
+  -?>
+  defines type
+  
+    FSM of Integer
+    FSM of String
+  
+    <?-
+      Lets just define a simple enumerated type and use the finite state machine with that.
+    -?>
+    CardSuit as
+      Hearts
+      Diamonds
+      Clubs
+      Spades
+  
+  <?-
+    Functions for use in this module.
+  -?>
+  defines function
+
+    <?-
+      Basic function that can be called by the FSM on changes
+      Has a default implementation - but now you can override
+      Do this by creating a dynamic function and provide the implementation you want  
+    -?>
+    FSMListener() of type T
+      ->
+        fromState as T
+        toState as T
+        
+      assert fromState? and toState?    
+                
+  defines class
+  
+    <?-
+      Outline of a finite state machine idea 
+      just to see if the generic classes and functions could hang together
+    -?>
+    FSM of type T
+    
+      //Couple of properties to hang on to
+      currentState as T?
+      listener as FSMListener of T?
+      
+      <?-
+        Simple constructor so we can infer generic type when used.
+      -?>
+      FSM()
+        -> initialState as T
+          
+        assert initialState?
+        currentState := initialState
+      
+      setState()
+        -> newState as T
+        assert newState?
+        if listener?
+          listener(currentState, newState)
+        currentState := newState
+      getState()
+        <- rtn as T := currentState 
+      
+      setListener()
+        -> listenerToAdd as FSMListener of T
+        assert listenerToAdd?
+        listener := listenerToAdd
+            
+  defines program
+  
+    <?-
+      A Simple driver program to be used to check out the use of FSM and the listener
+    -?>
+    Driver as
+    
+      //I can add functionality in a block in this listener or just use the default one
+      myListener <- () is FSMListener of Integer
+        stdout <- Stdout()
+        assert fromState? and toState?
+        stdout.println(`Changing from ${fromState} to ${toState}`)
+      
+      //Now we can just infer the type to be used by passing in the parameter in the constructor of a certain type
+      //This causes us to have a limitation on constructors however, they can only accept the number of parameters
+      //based on the generic number of parameters - but worth the trade off IMO
+      
+      myMachine <- FSM(2)
+      
+      
+      //myMachine.setListener(myListener)
+      //Need method resolving to call myMachine.addListener(myListener)
+      myMachine.setState(5)
+      
+      defaultListener <- () is FSMListener of Float
+      //Not going at add functionality just use default implementation in this listener
+      
+      //So we can be more explicit if required
+      floatMachine1 as FSM of Float := FSM()
+    
+      //OR use this mechanism which is also quite nice
+      floatMachine2 <- FSM() of Float
+      
+      //We will pass this in as a captured variable
+      //If you wanted to alter the value then you can but not via an := == but += and the like work.
+      //The value inside the function.
+      toCheckAgainst <- "Limb"
+      
+      //So lets try a capture variable into the function, also override the generic function
+      //We've done these before but not with a generic template type function
+      //Then use the params and also the captured variable
+      //Nice thing is we can pass this checkListener around like a variable
+      
+      checkListener <- (toCheckAgainst) is FSMListener of String as function
+        //Hey I can even override the functionality like this.
+        if fromState == toCheckAgainst or toState == toCheckAgainst
+          val <- "Do Something"
+          
+      stringMachine <- FSM("Steve")
+      //machine <- FSM(2, myListener)
+      
+      cardSuitListener <- () is FSMListener of CardSuit
+        item <- $fromState + " " + $toState
+      
+      cardSuitFSM as FSM of CardSuit := FSM()
+      
+      //or
+      cardSuitFSM2 <- FSM() of CardSuit
+      
+//EOF
