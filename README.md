@@ -116,7 +116,7 @@ The main reason for this was the adoption of a more **functional** approach
 (which is not my main background - I'm not a devout Haskell or Lisp programmer). However, having tried this more
 **functional** approach I can see real benefits of it rather than just using an **'OO'** approach.
 
-There is another [example](https://www.ek9lang.org/composition.html/composition_example) that is based on promoting a
+There is another [example](https://www.ek9lang.org/composition.html#composition_example) that is based on promoting a
 **compositional** design. Originally the external site example was in C++ and then adapted to
 [Python](https://realpython.com/inheritance-composition-python/). If you compare the EK9 and Python code you'll see it
 is very similar. So you can just code EK9 in a sort of Python style if you wish - then slowly start to incorporate
