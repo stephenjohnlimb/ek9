@@ -52,15 +52,17 @@ EK9 is not a 'teaching language', but it does have characteristics that make it 
 to programming. It builds upon a variety of software concepts in layers each of which is progressively more
 sophisticated.
 
-Capabilities like **functions** are treated as peers of **classes**. **Composition** can be used just as easily as
-**inheritance** .
+Capabilities like **functions** are treated as peers of **classes**. 
+[Composition](https://www.ek9lang.org/composition.html#composition_example) can be used just as easily as
+[Inheritance](https://www.ek9lang.org/inheritance.html) .
 Excessive use of **< >** and **{ }** when mixed with **( )** in some languages can be confusing;
 hence the adoption of indentation for block structure. 
 
 The language retains the structural/controlling mechanisms from Java and Scala where **Interfaces and Traits** enable
 strong polymorphic typing.
 
-It includes **Type Inference**, [Operators](https://www.ek9lang.org/operators.html) and **design patterns** in the language itself. It does not use
+It includes **Type Inference**, [Operators](https://www.ek9lang.org/operators.html) and
+[design patterns](https://www.ek9lang.org/advancedClassMethods.html) in the language itself. It does not use
 **Primitives**, only **Objects**; enabling more consistency.
 
 **Null/Nill** does not exist in the EK9 language, neither does any form of **casting**.
