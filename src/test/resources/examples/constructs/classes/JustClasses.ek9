@@ -136,5 +136,20 @@ defines module com.customer.just
       
       //Functional
       drawnShapes <- cat shapes | map with drawShape | collect as Bits  
-      stdout.println("Shapes drawn is: " + $drawnShapes) 
+      stdout.println("Shapes drawn is: " + $drawnShapes)
+      
+      //You could have also done this
+      shapeInfo <- cat [
+        Circle(),
+        Square(),
+        Ellipse(),
+        Rectangle(),
+        Triangle(),
+        Square(doSimpleDrawing),
+        Square(doFancyDrawing),
+        Rectangle(false)
+        ]
+        | map with drawShape
+        | collect as Bits
+      
 //EOF

@@ -1,9 +1,9 @@
 #!ek9
 defines module com.customer.just.employees
 <?-
-Example from https://realpython.com/inheritance-composition-python/
-But implemented in EK9, slight alteration to hierarchy and use of abstract classes.
-I would have probably had Employee, Person, Address and pulled together with Employment.
+  Example from https://realpython.com/inheritance-composition-python/
+  But implemented in EK9, slight alteration to hierarchy and use of abstract classes.
+  I would have probably had Employee, Person, Address and pulled together with Employment.
 -?>
   defines trait
 
@@ -254,4 +254,5 @@ I would have probably had Employee, Person, Address and pulled together with Emp
 
       productivitySystem.track(employees, 40)
       payrollSystem.calculatePayroll(employees)
+      
 //EOF

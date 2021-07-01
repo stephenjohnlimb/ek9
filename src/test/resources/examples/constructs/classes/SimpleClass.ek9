@@ -81,7 +81,7 @@ defines module net.customer.assertions
         <- val as Integer
         //So no body as abstract
       
-    //Lets extend My Item  
+    //Lets extend MyItem  
     MyImpl is MyItem
       anotherVar Integer: 100
       

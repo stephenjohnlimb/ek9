@@ -4,8 +4,8 @@ defines module net.customer.inferred
   defines class
         
     //Class the check a few things around type inference.
-    //So in general method and function declarations need to have types defined
-    //This is to make it easy to bootstrap the type resolution and makes it very obvious when you are looking at calling methods and what you will get back
+    //So in general method and function declarations need to have types defined explicitly.
+    //This is to make it easy to bootstrap the type resolution and makes it very obvious when you are looking at calling methods and what you will get back.
     //This is by design - I'm not trying to get rid of types all together - just reduce when writing main bodies and the types can be obvious.
     //But when defining interfaces in and out of classes and components I want the developer to think.
     

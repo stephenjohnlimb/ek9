@@ -13,7 +13,7 @@ defines module com.customer.classes
     
     Moved the open to be like abstract in its position, so make the definition more readable - you can use extends or is
     'defines class Extensions extends Base as open'
-    So anything that s defined abstract is automatically open, but a class that can be instantiated is automatically
+    So anything that's defined abstract is automatically open, but a class that can be instantiated is automatically
     closed (ie cannot be extended) unless it is stated as being 'open' for extension.
     
     Note I'm also trying out assignment with just = rather than :=, but you can also just use : which looks and feels

@@ -70,8 +70,8 @@ defines module net.customer.extend
       anotherInt += 10
       
       <!-
-      three different ways of saying assign
-      because we need to handle this type of assignment is css and html.
+        Three different ways of saying assign
+        because we need to handle this type of assignment is css and html.
       -!>
 
       anotherInt := 20

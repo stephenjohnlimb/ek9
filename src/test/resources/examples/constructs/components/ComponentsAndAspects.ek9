@@ -160,5 +160,4 @@ defines module com.customer.components
         logger as ILogger!
         logger.log("INFO", $millisecondsTaken + " Milliseconds for " + joinPoint.componentName() + " " + joinPoint.methodName())
 
-
 //EOF
