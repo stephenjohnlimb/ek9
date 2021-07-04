@@ -5,6 +5,9 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenFactory;
 import org.antlr.v4.runtime.TokenSource;
+import org.ek9lang.compiler.files.Module;
+import org.ek9lang.compiler.files.Source;
+import org.ek9lang.compiler.symbol.support.MatchResults;
 import org.junit.Test;
 
 /**
@@ -18,6 +21,79 @@ import org.junit.Test;
  */
 public class ErrorListenerTest
 {
+    @Test
+    public void testReturningRequired()
+    {
+        ErrorListener underTest = new ErrorListener();
+        underTest.raiseReturningRequired(createSyntheticToken(), "_EK9 Test");
+        assertInError(underTest);
+    }
+
+    @Test
+    public void testReturningRedundant()
+    {
+        ErrorListener underTest = new ErrorListener();
+        underTest.raiseReturningRedundant(createSyntheticToken(), "_EK9 Test");
+        assertInError(underTest);
+    }
+
+    @Test
+    public void testSemanticErrorCreationWithModule()
+    {
+        ErrorListener underTest = new ErrorListener();
+        Module module = new Module() {
+            @Override
+            public Source getSource()
+            {
+                return new Source()
+                {
+                    @Override
+                    public String getFileName()
+                    {
+                        return "NoneSuch.ek9";
+                    }
+                };
+            }
+        };
+        underTest.setModule(module);
+        underTest.semanticError(createSyntheticToken(), "_EK9 Test", ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
+        assertInError(underTest);
+    }
+    @Test
+    public void testSemanticErrorCreation()
+    {
+        ErrorListener underTest = new ErrorListener();
+        underTest.semanticError(createSyntheticToken(), "_EK9 Test", ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
+        assertInError(underTest);
+    }
+
+    @Test
+    public void testSemanticErrorCreationNoToken()
+    {
+        ErrorListener underTest = new ErrorListener();
+        underTest.semanticError(null, "Test", ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
+        assertInError(underTest);
+    }
+
+    @Test
+    public void testSemanticErrorFuzzyResults()
+    {
+        ErrorListener underTest = new ErrorListener();
+        MatchResults results = new MatchResults() {
+            @Override
+            public String toString() { return "Simulated fuzzy match details"; }
+        };
+        underTest.semanticError(createSyntheticToken(), "Fuzzy", ErrorListener.SemanticClassification.CONSTRUCTOR_NOT_RESOLVED, results);
+        assertInError(underTest);
+    }
+
+    private void assertInError(ErrorListener underTest)
+    {
+        TestCase.assertFalse(underTest.isErrorFree());
+        ErrorListener.ErrorDetails details = underTest.getErrors().next();
+        TestCase.assertNotNull(details);
+        TestCase.assertNotNull(details.toString());
+    }
     @Test
     public void testConstructionAndSetup()
     {
@@ -46,6 +122,9 @@ public class ErrorListenerTest
         //Should now be in error
         TestCase.assertFalse(underTest.isErrorFree());
         ErrorListener.ErrorDetails details = underTest.getErrors().next();
+        TestCase.assertNotNull(details);
+        TestCase.assertNotNull(details.getClassification());
+
         TestCase.assertNotNull(details.toString());
         TestCase.assertEquals(ErrorListener.SemanticClassification.RETURNING_REDUNDANT, details.getSemanticClassification());
 

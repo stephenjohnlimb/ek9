@@ -34,13 +34,13 @@ public class ErrorListener extends BaseErrorListener
 	 */
 	private Module module;
 	
-	private List<ErrorDetails> errors = new ArrayList<ErrorDetails>();
+	private List<ErrorDetails> errors = new ArrayList<>();
 	
 	//This is so we can limit the number of errors we output when we get multiple triggers for the same type/variable but for different reasons.
 	//Normally its the first reason that is the cause, the rest are just follow ones from that.
-	private HashMap<String, ErrorDetails> uniqueErrors = new HashMap<String, ErrorDetails>();
+	private HashMap<String, ErrorDetails> uniqueErrors = new HashMap<>();
 	
-	private List<ErrorDetails> warnings = new ArrayList<ErrorDetails>();
+	private List<ErrorDetails> warnings = new ArrayList<>();
 
 	public ErrorListener()
 	{
@@ -184,7 +184,7 @@ public class ErrorListener extends BaseErrorListener
 		else if(e != null)
 			reason = e.getClass().getSimpleName();
 		
-		if(offendingSymbol != null && offendingSymbol instanceof Token)
+		if(offendingSymbol instanceof Token)
 		{
 			Token offender = (Token)offendingSymbol;
 			error = new ErrorDetails(ErrorClassification.SYNTAX_ERROR, offender.getText(), null, line, charPositionInLine, reason);
@@ -252,7 +252,7 @@ public class ErrorListener extends BaseErrorListener
 		DEPRECATION,
 		SYNTAX_ERROR,
 		SEMANTIC_WARNING,
-		SEMANTIC_ERROR;
+		SEMANTIC_ERROR
 	};
 	
 	public static enum SemanticClassification
@@ -299,7 +299,7 @@ public class ErrorListener extends BaseErrorListener
 		SERVICE_INCOMPATIBLE_PARAM_TYPE_NON_REQUEST("Web Service parameter type cannot be HTTPRequest"),
 		SERVICE_MISSING_RETURN("Web Service must have return value and it must be compatible with HTTPResponse"),
 		GENERIC_TYPE_DEFINITION_CANNOT_EXTEND("this generic class definition cannot extend other classes or generic types"),
-		TYPE_REQUIRED_FOR_RETURN("type must be declared for returing values"),
+		TYPE_REQUIRED_FOR_RETURN("type must be declared for returning values"),
 		RETURNING_REQUIRED("returning block required to assign from switch"),
 		RETURNING_REDUNDANT("returning block is redundant for a standard switch"),
 		RETURNING_MISSING("returning variable and type missing"),
@@ -450,7 +450,7 @@ public class ErrorListener extends BaseErrorListener
 		@Override
 		public String toString()
 		{
-			StringBuffer buffer = new StringBuffer(super.toString());
+			StringBuilder buffer = new StringBuilder(super.toString());
 			
 			if(fuzzySearchResults != null && fuzzySearchResults.size() > 0)
 			{
@@ -486,14 +486,13 @@ public class ErrorListener extends BaseErrorListener
 			this.possibleShortFileName = shortFileName;
 			this.lineNumber = lineNumber;
 			this.position = characterNumber;
-			StringBuffer buffer = new StringBuffer();
-			buffer.append(likelyOffendingSymbol)
-			.append("' on line ")
-			.append(lineNumber)
-			.append(" position ")
-			.append(characterNumber);
-			
-			symbolErrorText = buffer.toString();
+
+			String buffer = likelyOffendingSymbol +
+					"' on line " +
+					lineNumber +
+					" position " +
+					characterNumber;
+			symbolErrorText = buffer;
 		}
 		
 		protected abstract String getClassificationDescription();
@@ -546,7 +545,7 @@ public class ErrorListener extends BaseErrorListener
 		 */
 		public String toLinePositionReference()
 		{
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			if(possibleShortFileName != null)
 				buffer.append(possibleShortFileName);
 			buffer.append(":").append(lineNumber);
@@ -556,7 +555,7 @@ public class ErrorListener extends BaseErrorListener
 		@Override
 		public String toString()
 		{
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			
 			buffer.append(getClassificationDescription());
 			
