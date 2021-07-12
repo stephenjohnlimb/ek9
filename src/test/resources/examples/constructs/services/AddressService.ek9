@@ -113,8 +113,7 @@ defines module com.customer.services
       //Now break into lines based on commas
       addressItems <- json.group(extractAddressPartsEx).first().split(/,/)
       //Map to a dictionary and return.
-      results <- cat addressItems | map with toDictEntry | collect as Dict of (String, String)
-      rtn: results
+      rtn: cat addressItems | map with toDictEntry | collect as Dict of (String, String)      
 
     toDictEntry()
       -> line as String
