@@ -50,7 +50,7 @@ defines module com.customer.just.functions
       for op in ops
         stdout.println("Result: " + $op(21, 7))
         
-    DynamicMathExample()
+    DynamicMathExample1()
       stdout <- Stdout()
       stdout.println("Math Dynamic Operation Example")
       fixedValue <- 9.8
@@ -74,4 +74,20 @@ defines module com.customer.just.functions
 
       for op in ops
         stdout.println("Result: " + $op(21, 7))
+
+    DynamicMathExample2()
+      stdout <- Stdout()
+      stdout.println("Math Dynamic Operation Example")
+      fixedValue <- 9.8
+                     
+      ops <- [
+        () is mathOperation as pure (result: x+y),
+        () is mathOperation as pure (result: x-y),
+        () is mathOperation as pure (result: x/y),          
+        () is mathOperation as pure (result: x*y),
+        (fixedValue) is mathOperation pure (result: (x+fixedValue) * y^fixedValue)
+        ]
+
+      for op in ops
+        stdout.println("Result: " + $op(21, 7))        
 //EOF
