@@ -152,6 +152,10 @@ defines module com.customer.just
       parts <- [i1, space, i2]
       sentence2 <- cat parts | collect as String      
       stdout.println("Sentence2 [" + sentence2 + "]")
+      
+      //OR
+      sentence3 <- cat [i1, space, i2] | collect as String      
+      stdout.println("Sentence3 [" + sentence3 + "]")
 
       jumpingBrownFox <- cat sentence2 | skip 10 | head 15 | collect as String
       stdout.println("snip [" + $jumpingBrownFox + "] is set [" + $jumpingBrownFox? + "]")
