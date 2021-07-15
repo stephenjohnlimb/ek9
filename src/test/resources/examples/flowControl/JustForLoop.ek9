@@ -13,9 +13,8 @@ defines module com.customer.just
     collectionsForLoop()
       stdout <- Stdout()
       
-      stdout.println("Strings")
-      items <- ["Alpha", "Beta", "Charlie"]
-      for item in items
+      stdout.println("Strings")      
+      for item in ["Alpha", "Beta", "Charlie"]
         stdout.println(item)
 
       stdout.println("Characters1")

@@ -403,6 +403,8 @@ defines module worked.example
         lastPurchase :=? String(arg.lastPurchase)
 
       operator $
-        <- rtn as String: cat [id, firstName, lastName, email, dob, lastPurchase] | join with outputFormatSeparated | collect as String                
+        <- rtn as String: cat [id, firstName, lastName, email, dob, lastPurchase]
+          | join with outputFormatSeparated
+          | collect as String                
         
 //EOF

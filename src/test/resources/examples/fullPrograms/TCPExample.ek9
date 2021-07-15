@@ -205,9 +205,8 @@ defines module example.networking
 
       if controlServer? and processingServer?
 
-        shutdownControl <- (controlServer, processingServer, shutdownCommand) extends serverFunction
-          shutdownHandler <- createShutdownHandler(controlServer, processingServer, shutdownCommand)
-          response: serviceConnections(controlServer, shutdownHandler)
+        shutdownControl <- (controlServer, processingServer, shutdownCommand) extends serverFunction          
+          response: serviceConnections(controlServer, createShutdownHandler(controlServer, processingServer, shutdownCommand))
 
         processing <- (processingServer) is serverFunction
           response: serviceConnections(processingServer, createHandler())

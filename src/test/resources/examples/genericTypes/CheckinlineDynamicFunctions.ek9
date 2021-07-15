@@ -1,0 +1,356 @@
+#!ek9
+<?-
+  A demonstration of using [] and {} for lists and dictionaries in short hand.
+  Just feels natural to define small chunks of data like this. Clearly if you have large amounts
+  you'd put it separate json files. But now you could just put is separate files as code.
+  If you look at json and this definition there is minimal difference.
+  So either use a database or just use ek9 files, not sure if there is much value in using a separate format.
+  
+  Slight alteration from the old example to try out inline dynamic functions.
+-?>
+defines module com.customer.streams.build
+
+  <?-
+    As long as these types have been defined/used somewhere then we can use inference..
+  -?>
+  defines type
+    List of Integer
+    List of getAddams    
+    Dict of (Integer, String)
+    Dict of (String, Date)
+    Dict of (Integer, Addams)
+    Dict of (Integer, getAddams)
+  
+  <?-
+    Just used to see if we can call functions and get results from records via chained calls.
+  -?>
+  defines record
+  
+    Stats
+      count as Integer: Integer()
+      total as Integer: Integer()
+      average as Float: Float()
+      
+      operator $
+        <- rtn as String: String()
+        
+        if total?
+          rtn := "[" + $count + ", " + $average + ", " + $total + "]"
+        
+      operator |
+        -> arg as Integer
+        
+        if arg?
+          if ~total?
+            count := 1
+            total :=: arg
+          else
+            count++
+            total += arg        
+          average := (#^total)/count
+          
+    Addams
+      name String: String()
+      dob Date: Date()
+      
+      //Sample of a of developer constructor
+      //But other built in one get auto generated.
+      Addams()
+        -> dateOfBirth as Date
+        if dateOfBirth?
+          dob :=: dateOfBirth
+                 
+      operator $
+        <- rtn as String: name + " " + $dob
+        
+      operator ?
+        <- rtn as Boolean: name? and dob?
+
+      operator #^
+        <- rtn as String: $this
+      
+  defines function
+  
+    <?-
+      Used to map a key integer value to a name (well Optional of name)
+      Similar functions below id to something.
+    -?>
+    idToString() as abstract
+      -> id as Integer
+      <- rtn as Optional of String: Optional()
+      
+    nameToDate() as abstract
+      -> name as String
+      <- rtn as Optional of Date: Optional()
+      
+    idToAddams() as abstract
+      -> id as Integer
+      <- rtn as Optional of Addams: Optional()
+    
+    idToGetAddams() as abstract
+      -> id as Integer
+      <- rtn as Optional of getAddams: Optional()
+        
+    toString
+      -> item as Integer
+      <- rtn as String: $item
+      
+    isSet
+      -> item as Integer
+      <- rtn as Boolean: item?
+    
+    addamsToDictEntry
+      -> person as Addams
+      <- rtn as DictEntry of (String, Date): DictEntry(person.name, person.dob)
+        
+    addamsToString()
+      -> person as Addams
+      <- rtn as String: "DOB: " + $person.dob + " Name: " + person.name    
+       
+    getAddams() as abstract
+      <- rtn as Addams
+    
+    //Using the full constructor that is auto generated.  
+    getMorticia() is getAddams
+      <- rtn as Addams: Addams("Morticia", 1965-01-03)      
+    
+    getGomez() is getAddams
+      <- rtn as Addams: Addams( "Gomez", 1963-06-08)      
+    
+    getPugsley() is getAddams
+      <- rtn as Addams: Addams("Pugsley", 1984-10-21)     
+    
+    //You can use the developer created constructor
+    getFester() is getAddams
+      <- rtn as Addams: Addams(1960-11-21)      
+      rtn.name: "Fester"
+      
+    //Or use the default constructor
+    getWednesday() is getAddams
+      <- rtn as Addams: Addams()
+      rtn.name: "Wednesday"
+      rtn.dob: 1998-01-09
+    
+    checkReceiveList()
+      -> strings as List of String
+      <- rtn as String: "OK"
+         
+  defines program
+    
+    CheckIfListCanBeDeclaredInCall()     
+      result <- checkReceiveList(["A", "Simple", "List"])
+        
+    ListFunctionIteratorExample()
+      stdout <- Stdout()
+      
+      functionList <- [ getGomez, getMorticia ]
+      iter <- functionList.iterator()
+      while iter?
+        fn <- iter.next()
+        //notice you can drop the $ because of #^ promotion to String
+        stdout.println(fn())
+     
+    ListFunctionStreamExample()
+      stdout <- Stdout()
+      
+      //again we can drop the need to map to String.
+      cat [ getGomez, getMorticia ] | call > stdout      
+      cat [ getGomez, getMorticia ] | async | map with addamsToString > stdout
+      
+    ListCreationExample()
+      stdout <- Stdout()
+      
+      aList <- List() of Integer
+      bList as List of Integer: List()
+      
+      cList <- List(1)
+      
+      //You can define like this which is quite nice.
+      l1 as List of Integer: [ 57, 55, 26, 24, 21 ]
+      
+      stdout.println("List l1 is " + $l1)
+      
+      //But take a look at this - well it could not be more minimal.      
+      l2 <- [ 1, 2, 3, 4, 5, 6, 7, Integer() ]
+      
+      stdout.println("List l2 is " + $l2)
+
+      //Now if you have a lot of items or their construction is quite complex then you can do this.
+      l3 <- [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        Integer()
+        ]
+      stdout.println("List l3 is " + $l3)
+            
+      cat l3 | filter by isSet | map with toString > stdout
+      
+      //But now with multiple _pipe methods on stdout we can do this.
+      cat l3 | filter by isSet > stdout
+
+      //Can also capture values via tee
+      storedValues as List of Integer := List()
+      cat l3 | filter by isSet | tee in storedValues > stdout
+      stdout.println("List storedValues is " + $storedValues)
+      
+      //Or if you just wanted the value values
+      validValues <- cat l3 | filter by isSet | collect as List of Integer
+      stdout.println("List validValues is " + $validValues)
+      
+      //Or perhaps just the sum of them
+      sumOfValues <- cat l3 | filter by isSet | collect as Integer
+      stdout.println("Sum of values is " + $sumOfValues)
+      
+      //Maybe you need a bit more than just the total
+      stats <- cat l3 | filter by isSet | collect as Stats
+      stdout.println("Statistics of values is " + $stats)
+
+    ListDictionaryExample()
+      dictionaryExample <- SimpleDictionaryUse()
+      dictionaryExample.showDictionary()
+
+  defines class    
+      
+    SimpleDictionaryUse
+      
+      stdout as Stdout: Stdout()
+        
+      private getName()
+        <- name String: "Gomez"
+                
+      showDictionary()
+
+        //Setup some dictionaries in different ways.
+        idNameDictionary <- { 1: getName(), 2: getMorticia().name, 3: "Pugsley", 4: "Fester", 5: "Wednesday" }
+
+        //If data is long or complex in nature - you can layout ike this
+        addamsParents <- {
+          getName(): 1963-06-08,
+          getMorticia().name: getMorticia().dob
+          }
+
+        addamsKids <- {
+          "Pugsley": 1984-10-21,
+          "Wednesday": 1998-01-09
+          }
+
+        //Dictionaries can be built up in stages if needs be.
+        nameDateDictionary <- addamsParents + addamsKids + DictEntry("Fester", 1960-11-21)
+
+        //During construction functions can be called to populate data.
+        idRecordDictionary <- {
+          1: getGomez(),
+          2: getMorticia(),
+          3: getPugsley(),
+          4: getFester(),
+          5: getWednesday()
+          }        
+
+        //Or we can delay accessing the functions by holding delegates.
+        idFunctionDictionary <- {
+          1: getGomez,
+          2: getMorticia,
+          3: getPugsley,
+          4: getFester,
+          5: getWednesday
+          }
+
+        //Now we can use some of the data.
+        results as List of String: List()
+        stdout.println("First with iterator")
+        keyIter <- idNameDictionary.keys()
+        while keyIter is not empty
+          key <- keyIter.next()
+          name <- idNameDictionary.get(key)
+          if name?
+            results += "Key " + $key + " with name " + $name.get()
+        
+        //Some keys that won't ever be found
+        invalidValues <- [9, 10, 100]
+            
+        //Some keys that will be found    
+        keys1 <- idNameDictionary.keys()
+        //and some that won't
+        keys2 <- invalidValues.iterator()
+        
+        //Prepare a dynamic function for use in pipeline
+        nameMapping <- (idNameDictionary) is idToString as function
+          rtn: idNameDictionary.get(id)
+        
+        stdout.println("Key mapping pipeline")
+        //Example of pipeline with dynamic function and variable capture, plus flatten
+        //As you can see the second keys result in an empty optional that is flattened to nothing.  
+        validValues <- cat keys1, keys2
+          | map with nameMapping
+          | flatten
+          | collect as List of String
+
+        stdout.println("validValues " + $ validValues)
+
+        //Above could have been inline dynamic function like this
+        additionalValues <- cat keys1, keys2
+          | map with (idNameDictionary) is idToString (rtn: idNameDictionary.get(id))
+          | flatten
+          | collect as List of String          
+        
+        //A second dynamic function that will be used to get the date of birth
+        dateMapping <- (nameDateDictionary) extends nameToDate as function
+          rtn: nameDateDictionary.get(name)
+          
+        //Now we've used the previous iterator up so need new ones 
+        keys1A <- idNameDictionary.keys()
+        keys2A <- invalidValues.iterator()
+
+        validDates <- cat keys1A, keys2A
+          | map with nameMapping
+          | flatten
+          | map with dateMapping
+          | flatten
+          |collect as List of Date
+
+        stdout.println("validDates " + $ validDates)
+
+        //Function to map Integer id to Addams record
+        recordMapping <- (idRecordDictionary) extends idToAddams as function
+          rtn: idRecordDictionary.get(id)
+        
+        //Now we've used the previous iterator up so need new ones 
+        keys1B <- idNameDictionary.keys()
+        keys2B <- invalidValues.iterator()
+        validAddams <- cat keys1B, keys2B | map with recordMapping | flatten | collect as List of Addams
+        stdout.println("validAddams " + $ validAddams)
+        
+        keys1C <- idNameDictionary.keys()
+        keys2C <- invalidValues.iterator()
+        //Note map id to Optional of function getAddams then flatten to get the function and call it, collect result
+        
+        addamsFamily <- cat keys1C, keys2C
+          | map with (idFunctionDictionary) extends idToGetAddams (rtn: idFunctionDictionary.get(id))
+          | flatten
+          | call
+          | collect as List of Addams
+          
+        stdout.println("AddamsFamily " + $ addamsFamily)
+
+        //Be nice to cat an iterator! Well now you can!
+        stdout.println("Just the values")        
+        values <- idNameDictionary.values()
+        cat values > stdout
+
+        stdout.println("Just Find Gomez")  
+        found <- idFunctionDictionary.get(1)
+        
+        if found?          
+          m <- found.get()
+          item <- $m()
+          stdout.println(item)
+
+        
+      //End of methods
+         
+//EOF
