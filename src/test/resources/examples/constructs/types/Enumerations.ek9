@@ -47,19 +47,9 @@ defines module com.customer.enumerations
     
     fullRankCreator()
       -> suit as CardSuit
-      <- rtn as List of Card: List()
-      
-      deckPopulator <- (suit) is cardCreator as function
-        rtn: Card(rank, suit)        
-      cat CardRank | map with deckPopulator > rtn          
-        
-    CardSuitToString()
-      -> suit as CardSuit
-      <- rtn as String: $suit
-      
-    CardRankToString()
-      -> rank as CardRank
-      <- rtn as String: $rank  
+      <- rtn as List of Card: cat CardRank
+        | map with (suit) is cardCreator (rtn: Card(rank, suit))
+        | collect as List of Card
 
   defines program
   
@@ -114,11 +104,11 @@ defines module com.customer.enumerations
 
       //List the four suits
       stdout.println("Cat Suits")
-      cat CardSuit | map CardSuitToString > stdout
+      cat CardSuit > stdout
 
       //List each of the Ranks
       stdout.println("Cat Ranks")
-      cat CardRank | map CardRankToString > stdout
+      cat CardRank > stdout
 
       <!-
         It would be nice to do this
