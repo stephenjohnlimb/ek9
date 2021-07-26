@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.tokenizer;
 
 import org.ek9lang.antlr.EK9LexerRules;
+
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
@@ -70,6 +71,8 @@ public class EK9Lexer extends EK9LexerRules implements LexerPlugin
 	// The amount of opened braces, brackets and parenthesis
 	private int opened = 0;
 
+	private TokenConsumptionListener tokenListener = null;
+	
 	public static final String TEXT_INSERTED_INDENT = "INDENT";
 
 	public EK9Lexer(CharStream input, int indentToken, int dedentToken)
@@ -78,6 +81,12 @@ public class EK9Lexer extends EK9LexerRules implements LexerPlugin
         this.indentToken = indentToken;
         this.dedentToken = dedentToken;
     }
+	
+	public EK9Lexer setTokenListener(TokenConsumptionListener tokenListener)
+	{
+		this.tokenListener = tokenListener;
+		return this;
+	}
 	
 	public int getIndentToken()
 	{
@@ -100,7 +109,7 @@ public class EK9Lexer extends EK9LexerRules implements LexerPlugin
 	{
 		if (_input.size() == 0)
 		{
-			return new CommonToken(EOF, "<EOF>");
+			return publishToken(new CommonToken(EOF, "<EOF>"));
 		}
 		else
 		{
@@ -117,8 +126,15 @@ public class EK9Lexer extends EK9LexerRules implements LexerPlugin
 				}
 
 			}
-			return rtn;
+			return publishToken(rtn);
 		}
+	}
+
+	private Token publishToken(Token token)
+	{
+		if(tokenListener != null)
+			tokenListener.tokenConsumed(token);
+		return token;
 	}
 
 	public EK9Lexer setPrintTokensAsSupplied(boolean printTokensAsSupplied)
