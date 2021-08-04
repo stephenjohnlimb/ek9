@@ -569,7 +569,7 @@ defines module com.customer.services
     AccessPoint
       //We could register other services and components here
       
-      register InMemoryRepository() for Repository
+      register InMemoryRepository() as Repository
       register Addresses()
     
   defines program

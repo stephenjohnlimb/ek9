@@ -129,7 +129,7 @@ applicationDeclaration
     ;
 
 registerStatement
-    : REGISTER call ((FOR | AS) (ISOLATED? identifierReference (LPAREN RPAREN)? aspectDeclaration?))?
+    : REGISTER call (AS (ISOLATED? identifierReference (LPAREN RPAREN)? aspectDeclaration?))?
     ;
 
 aspectDeclaration
