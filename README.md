@@ -24,6 +24,11 @@ The [EK9](https://www.ek9lang.org) website has many more examples, but this shor
           stdout.println("Hello, World")
     //EOF
 
+### Development Environment
+To help developers get started there is a [VSCode Extension](https://github.com/stephenjohnlimb/vscode-ek9-ls) that has code snippets and syntax highlighting.
+
+Once the compiler has been fully developed, the extension will be published, but at present it is only available as source code from GitHub.
+
 ### Structure and Source Code Layout
 Broadly speaking layout is a mix of Python and YAML style with indentation and whitespace rather than **{** **}**.
 This also includes the **Pascal** type approach of creating sections for **constructs** (i.e., as section for constants).
