@@ -1,13 +1,20 @@
 package org.ek9lang.compiler.errors;
 
-import org.ek9lang.core.utils.OsSupport;
-import org.ek9lang.compiler.files.Module;
-import org.ek9lang.compiler.symbol.support.MatchResults;
-import org.antlr.v4.runtime.*;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
+import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
-
-import java.util.*;
+import org.ek9lang.compiler.symbol.support.MatchResults;
+import org.ek9lang.core.utils.OsSupport;
 
 /**
  * We need an error listener for the lexing parsing and also our own tree
@@ -27,12 +34,7 @@ public class ErrorListener extends BaseErrorListener
 
 	private boolean exceptionOnAmbiguity = false;
 	private boolean exceptionOnContextSensitive = false;
-	private boolean exceptionOnFullContext = false;
-
-	/**
-	 * The parsed module this listener is for. Not always set.
-	 */
-	private Module module;
+	private boolean exceptionOnFullContext = false;	
 	
 	private List<ErrorDetails> errors = new ArrayList<>();
 	
@@ -52,15 +54,7 @@ public class ErrorListener extends BaseErrorListener
 		errors = new ArrayList<ErrorDetails>();
 		uniqueErrors = new HashMap<String, ErrorDetails>();
 		warnings = new ArrayList<ErrorDetails>();
-	}
-	/**
-	 * Called after a successful parse.
-	 * @param module The parsed module for this error listener.
-	 */
-	public void setModule(Module module)
-	{
-		this.module = module;
-	}
+	}	
 
 	public boolean isExceptionOnAmbiguity()
 	{
@@ -149,18 +143,15 @@ public class ErrorListener extends BaseErrorListener
 	
 	private ErrorDetails createSemanticError(Token offendingToken, String msg, SemanticClassification classification)
 	{
-		ErrorDetails error = null;
-		String shortFileName = null;
-		
-		if(module != null && module.getSource() != null)
-			shortFileName = osSupport.getFileNameWithoutPath(module.getSource().getFileName());
+		ErrorDetails error = null;		
 		
 		if(offendingToken == null)
 		{
-			error = new ErrorDetails(ErrorClassification.SEMANTIC_ERROR, "Unknown Location", shortFileName, 0, 0, msg);
+			error = new ErrorDetails(ErrorClassification.SEMANTIC_ERROR, "Unknown Location", "unknown", 0, 0, msg);
 		}
 		else
 		{
+			String shortFileName = osSupport.getFileNameWithoutPath(offendingToken.getTokenSource().getSourceName());
 			error = new ErrorDetails(ErrorClassification.SEMANTIC_ERROR, offendingToken.getText(), shortFileName, offendingToken.getLine(), offendingToken.getCharPositionInLine(), msg);
 		}
 		error.setSemanticClassification(classification);

@@ -70,6 +70,8 @@ public class EK9Lexer extends EK9LexerRules implements LexerPlugin
 
 	// The amount of opened braces, brackets and parenthesis
 	private int opened = 0;
+	
+	private String sourceName = "unknown";
 
 	private TokenConsumptionListener tokenListener = null;
 	
@@ -81,6 +83,18 @@ public class EK9Lexer extends EK9LexerRules implements LexerPlugin
         this.indentToken = indentToken;
         this.dedentToken = dedentToken;
     }
+	
+	@Override
+	public String getSourceName()
+	{	
+		return sourceName;
+	}
+	
+	public EK9Lexer setSourceName(String sourceName)
+	{	
+		this.sourceName = sourceName;
+		return this;
+	}
 	
 	public EK9Lexer setTokenListener(TokenConsumptionListener tokenListener)
 	{

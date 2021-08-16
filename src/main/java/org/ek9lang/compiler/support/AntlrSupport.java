@@ -48,13 +48,13 @@ public abstract class AntlrSupport
 
 	}
 	
-	protected abstract Lexer getLexer(CharStream input);
+	protected abstract Lexer getLexer(CharStream input, String sourceName);
 
 	protected abstract String getGrammarName() ;
 
 	private void streamLexerTokensFor(String inputFileName) throws IOException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException
 	{
-		LexerPlugin lexer1  = new DelegatingLexer((LexerPlugin)getLexer(CharStreams.fromFileName(inputFileName)));
+		LexerPlugin lexer1  = new DelegatingLexer((LexerPlugin)getLexer(CharStreams.fromFileName(inputFileName), inputFileName));
 		new TokenStreamAssessment().assess(lexer1, true);
 	}
 
@@ -71,7 +71,7 @@ public abstract class AntlrSupport
 				@Override
 				public void process() throws Exception {
 					ClassLoader cl = Thread.currentThread().getContextClassLoader();
-					Lexer lexer = getLexer(null);
+					Lexer lexer = getLexer(null, inputFileName);
 					
 					Class<? extends Parser> parserClass = null;
 					Parser parser = null;

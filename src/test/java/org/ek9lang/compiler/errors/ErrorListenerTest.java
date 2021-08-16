@@ -40,22 +40,7 @@ public class ErrorListenerTest
     @Test
     public void testSemanticErrorCreationWithModule()
     {
-        ErrorListener underTest = new ErrorListener();
-        Module module = new Module() {
-            @Override
-            public Source getSource()
-            {
-                return new Source()
-                {
-                    @Override
-                    public String getFileName()
-                    {
-                        return "NoneSuch.ek9";
-                    }
-                };
-            }
-        };
-        underTest.setModule(module);
+        ErrorListener underTest = new ErrorListener();             
         underTest.semanticError(createSyntheticToken(), "_EK9 Test", ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
         assertInError(underTest);
     }
@@ -223,7 +208,7 @@ public class ErrorListenerTest
                     @Override
                     public String getSourceName()
                     {
-                        return "Synthetic Token Source";
+                        return "SyntheticTokenSource";
                     }
 
                     @Override
