@@ -1,0 +1,39 @@
+#!ek9
+defines module net.customer
+  
+  //A broken package with stuff that just should not work.  
+  defines package    
+    
+    publicAccess <- false
+    version as Version: 1.0.0-0
+    description as String = "Simulation of something to exclude"
+    license <- "MIT"
+    
+    //duplicate version
+    version as Version: 2.0.0-0
+
+    //Two different ways to declare Lists    
+    tags <- [ "tools" ]
+    
+    includeFiles <- [
+      "**.{csv,jpeg}",
+          //I can put allsort of stuff in here then, without formatting
+        "Chelford",
+              "Guff"
+      ]
+    
+    deps <- {
+      "ekopen.network.support.utils": "1.6.1-9",
+      "ekopen.net.handy.tools": "3.2.1-0"
+      }
+
+    devDeps <- {
+      "ekopen.org.supertools.util": "4.6.1-6",
+      "ekopen.org.net.tools.misc": "3.2.3-21"
+      }
+
+    excludeDeps <- {
+      "ekopen.some.bad.dependency.pack": "ekopen.org.supertools.util"
+      }
+
+//EOF
