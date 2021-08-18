@@ -14,7 +14,7 @@ defines module net.customer
     //description as String = "Simulation of something to exclude"
     
     //Invalid license
-    license <- false
+    license <- [ "A", "B" ]
     
     //duplicate version
     version as Version: 1.0.0-0
@@ -47,4 +47,5 @@ defines module net.customer
     //Incorrect must be a dictionary/map
     excludeDeps <- false
 
+    bogusPackageItem <- true
 //EOF
