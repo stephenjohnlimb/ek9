@@ -42,6 +42,17 @@ public class TestPackageParsing
 	}
 	
 	@Test
+	public void testUnParsablePackage() throws URISyntaxException
+	{
+		JustParser underTest = new JustParser();
+		
+		File file = new File(getClass().getResource("/badExamples/basics/unevenIndentation.ek9").toURI());		
+		EK9SourceVisitor visitor = new EK9SourceVisitor();
+		boolean result = underTest.readSourceFile(file, visitor);
+		TestCase.assertFalse(result);		
+	}
+	
+	@Test
 	public void testSmallPackage() throws URISyntaxException
 	{
 		JustParser underTest = new JustParser();

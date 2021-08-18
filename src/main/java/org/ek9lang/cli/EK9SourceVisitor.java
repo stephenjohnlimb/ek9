@@ -149,7 +149,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 				}
 				else
 				{
-					errorListener.semanticError(ive.expression().start, "In '" + moduleName + "' package: 'deps' property must be Dict of String, String.", SemanticClassification.PARAMETER_MISMATCH);					
+					errorListener.semanticError(ive.expression().start, "In '" + moduleName + "' package: 'deps' property must be Dict of (String, String).", SemanticClassification.PARAMETER_MISMATCH);					
 				}
 			}
 			else if("devDeps".equals(identifier))
@@ -161,7 +161,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 				}
 				else
 				{
-					errorListener.semanticError(ive.expression().start, "In " + moduleName + " package: 'devDeps' property must be Dict of String, String.", SemanticClassification.PARAMETER_MISMATCH);					
+					errorListener.semanticError(ive.expression().start, "In " + moduleName + " package: 'devDeps' property must be Dict of (String, String).", SemanticClassification.PARAMETER_MISMATCH);					
 				}
 			}			
 			else if("excludeDeps".equals(identifier))
@@ -173,7 +173,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 				}
 				else
 				{
-					errorListener.semanticError(ive.expression().start, "In " + moduleName + " package: 'excludeDeps' property must be Dict of String, String.", SemanticClassification.PARAMETER_MISMATCH);					
+					errorListener.semanticError(ive.expression().start, "In " + moduleName + " package: 'excludeDeps' property must be Dict of (String, String).", SemanticClassification.PARAMETER_MISMATCH);					
 				}
 
 			}
@@ -231,9 +231,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 			}
 		}
 		if(!foundDescription)
-		{
-			System.err.print("Package: property 'description' is mandatory if a package is declared.");			
-		}
+			errorListener.semanticError(ctx.start, "Package: property 'description' is mandatory if a package is declared.", SemanticClassification.NOT_RESOLVED);					
 		return super.visitPackageBlock(ctx);
 	}
 

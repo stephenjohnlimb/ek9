@@ -6,7 +6,6 @@ import java.io.InputStream;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.ek9lang.antlr.EK9LexerRules;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.antlr.EK9Parser.CompilationUnitContext;
 import org.ek9lang.cli.EK9SourceVisitor;
@@ -68,7 +67,7 @@ public class JustParser
 				visitor.visitCompilationUnit(context);
 				if (!errorListener.isErrorFree())
 				{
-					errorListener.getErrors().forEachRemaining(error -> {
+					errorListener.getErrors().forEachRemaining(error -> {						
 						System.err.println(error);
 					});
 					return false;

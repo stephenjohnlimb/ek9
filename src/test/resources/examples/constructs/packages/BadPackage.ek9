@@ -6,34 +6,26 @@ defines module net.customer
     
     publicAccess <- false
     version as Version: 1.0.0-0
-    description as String = "Simulation of something to exclude"
+    //miss out description
+    //description as String = "Simulation of something to exclude"
     license <- "MIT"
     
     //duplicate version
     version as Version: 2.0.0-0
 
-    //Two different ways to declare Lists    
-    tags <- [ "tools" ]
+    //Incorrect use of boolean here should be an array    
+    tags <- true
     
-    includeFiles <- [
-      "**.{csv,jpeg}",
-          //I can put allsort of stuff in here then, without formatting
-        "Chelford",
-              "Guff"
-      ]
+    //Incoorect mist be a list of String
+    includeFiles <- "Blurb"
     
-    deps <- {
-      "ekopen.network.support.utils": "1.6.1-9",
-      "ekopen.net.handy.tools": "3.2.1-0"
-      }
+    //Incorrect must be a dictionary/map
+    deps <- false
 
-    devDeps <- {
-      "ekopen.org.supertools.util": "4.6.1-6",
-      "ekopen.org.net.tools.misc": "3.2.3-21"
-      }
+    //Incorrect must be a dictionary/map
+    devDeps <- true 
 
-    excludeDeps <- {
-      "ekopen.some.bad.dependency.pack": "ekopen.org.supertools.util"
-      }
+    //Incorrect must be a dictionary/map
+    excludeDeps <- false
 
 //EOF
