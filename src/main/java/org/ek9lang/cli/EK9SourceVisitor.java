@@ -77,7 +77,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 			EK9Parser.AssignmentExpressionContext ive = vd.assignmentExpression();
 			if("publicAccess".equals(identifier))
 			{				
-				if(ive.expression() != null)
+				if(ive.expression() != null && ive.expression().primary() != null)
 				{					
 					String access = ive.expression().getText().trim();
 					publicAccess = Boolean.valueOf(access);
@@ -93,7 +93,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 				{
 					errorListener.semanticError(ive.expression().start, "In '" + moduleName + "' package: 'version'.", SemanticClassification.DUPLICATE_VARIABLE);
 				}
-				if(ive.expression() != null)
+				if(ive.expression() != null && ive.expression().primary() != null)
 				{
 					this.version = ive.expression().getText().trim();
 					versionNumberOnLine = ive.expression().getStart().getLine();					
@@ -107,7 +107,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 			
 			else if("description".equals(identifier))
 			{
-				if(ive.expression() != null)
+				if(ive.expression() != null && ive.expression().primary() != null)
 				{
 					description = ive.expression().getText().trim().replaceAll("\"", "");
 					foundDescription = true;
@@ -119,7 +119,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 			}
 			else if("license".equals(identifier))
 			{
-				if(ive.expression() != null)
+				if(ive.expression() != null && ive.expression().primary() != null)
 				{
 					license = ive.expression().getText().trim().replaceAll("\"", "");
 				}
@@ -179,7 +179,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 			}
 			else if("applyStandardIncludes".equals(identifier))
 			{
-				if(ive.expression() != null)
+				if(ive.expression() != null && ive.expression().primary() != null)
 				{					
 					String value = ive.expression().getText().trim();
 					applyStandardIncludes = Boolean.valueOf(value);
@@ -203,7 +203,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 			}
 			else if("applyStandardExcludes".equals(identifier))
 			{
-				if(ive.expression() != null)
+				if(ive.expression() != null && ive.expression().primary() != null)
 				{					
 					String value = ive.expression().getText().trim();
 					applyStandardExcludes = Boolean.valueOf(value);

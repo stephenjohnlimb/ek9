@@ -78,9 +78,19 @@ public class TestPackageParsing
 		TestCase.assertFalse(visitor.isPublicAccess());
 		TestCase.assertTrue("2.3.14-20".equals(visitor.getVersion()));
 		TestCase.assertFalse(visitor.isApplyStandardIncludes());
+		TestCase.assertTrue(visitor.isApplyStandardExcludes());
 		
 		TestCase.assertTrue(visitor.getIncludeFiles().contains("**.{txt,cal}"));
 		TestCase.assertTrue(visitor.getExcludeFiles().contains("sample/images/{perch.png,nonSuch.jpeg}"));
+		
+		TestCase.assertTrue(visitor.isSemanticVersioning());
+		TestCase.assertEquals(25, visitor.getVersionNumberOnLine());
+		TestCase.assertTrue(visitor.isPackagePresent());
+		TestCase.assertTrue(visitor.getPrograms().size() == 4);
+		TestCase.assertTrue("MIT".equals(visitor.getLicense()));
+
+		//Will always be this for the dependencies in this example (TCPExample.ek9)
+		TestCase.assertTrue("0C5F4976C78292B001221E300A80F414D4B6F161CF4EFBA17B66DBF7DA7E3A5A".equals(visitor.getDependencyFingerPrint()));		
 	}
 	
 	@Test
