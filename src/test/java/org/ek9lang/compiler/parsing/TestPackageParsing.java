@@ -65,6 +65,25 @@ public class TestPackageParsing
 	}
 	
 	@Test
+	public void testFullApplicationPackage() throws URISyntaxException
+	{
+		JustParser underTest = new JustParser();
+		
+		File file = new File(getClass().getResource("/examples/fullPrograms/TCPExample.ek9").toURI());		
+		EK9SourceVisitor visitor = new EK9SourceVisitor();
+		boolean result = underTest.readSourceFile(file, visitor);
+		TestCase.assertTrue(result);
+		TestCase.assertTrue("example.networking".equals(visitor.getModuleName()));
+		
+		TestCase.assertFalse(visitor.isPublicAccess());
+		TestCase.assertTrue("2.3.14-20".equals(visitor.getVersion()));
+		TestCase.assertFalse(visitor.isApplyStandardIncludes());
+		
+		TestCase.assertTrue(visitor.getIncludeFiles().contains("**.{txt,cal}"));
+		TestCase.assertTrue(visitor.getExcludeFiles().contains("sample/images/{perch.png,nonSuch.jpeg}"));
+	}
+	
+	@Test
 	public void testSimplePackage() throws URISyntaxException
 	{
 		JustParser underTest = new JustParser();
@@ -93,9 +112,6 @@ public class TestPackageParsing
 		TestCase.assertTrue(visitor.getDevDeps().get("ekopen.org.net.tools.misc").equals("3.2.3-21"));
 		
 		TestCase.assertTrue(visitor.getExcludeDeps().containsKey("ekopen.some.bad.dependency.pack"));
-		TestCase.assertTrue(visitor.getExcludeDeps().get("ekopen.some.bad.dependency.pack").equals("ekopen.org.supertools.util"));
-		
-		
-		
+		TestCase.assertTrue(visitor.getExcludeDeps().get("ekopen.some.bad.dependency.pack").equals("ekopen.org.supertools.util"));		
 	}
 }

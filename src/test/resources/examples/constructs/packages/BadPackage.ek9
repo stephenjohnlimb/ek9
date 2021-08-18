@@ -16,8 +16,20 @@ defines module net.customer
     //Incorrect use of boolean here should be an array    
     tags <- true
     
-    //Incoorect mist be a list of String
+    //Incorrect must be a list of String
     includeFiles <- "Blurb"
+    
+    //Should be booleans
+    applyStandardIncludes <- [ "Not", "Correct" ]
+    
+    //Should be booleans
+    applyStandardExcludes <- [ "Also", "Not", "Correct" ]
+    
+    //Incorrect must be a list of String
+    includeFiles <- no    
+    
+    //Incorrect must be a list of String
+    excludeFiles <- yes
     
     //Incorrect must be a dictionary/map
     deps <- false
