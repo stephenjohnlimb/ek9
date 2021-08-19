@@ -6,12 +6,12 @@ import org.ek9lang.lsp.Server;
 /**
  * Main entry point into the compiler, build system and language server.
  * Will probably be wrapped in a native C executable at some point - or even moved native.
- * But for now just use java -cp ek9.jar
+ * But for now just use java -jar ek9.jar
  */
 public class EK9
 {
 	/**
-	 * java -cp ek9.jar -C ./some/path/to/file.ek9
+	 * java -jar ek9.jar -C ./some/path/to/file.ek9
 	 *
 	 * From an end user point of view they would interact with the script so they would only write:
 	 * ./some/path/to/file.ek9 -d 2 -f someother.txt
@@ -43,19 +43,7 @@ public class EK9
 			int result = commandLine.processCommandLine(argv[0]);
 			if(result > 0)
 				System.exit(result);
-			//Need to keep a cache once files are loaded because each of the executions may call each other.
-			//FileCache sourceFileCache = new FileCache(commandLine);
-
-			if(commandLine.isDependenciesAltered())
-			{
-				if(commandLine.isVerbose())
-					System.err.println("Dependencies altered.");
-				/*
-				File target = fileHandling.getTargetExecutableArtefact(commandLine.ek9FullPathToFileName, commandLine.targetArchitecture);
-				if(target.exists())
-					target.delete();
-				*/
-			}
+			
 			//Maybe do this below with hash table of command option to E (execution)!.			
 			if(commandLine.isRunEK9AsLanguageServer())
 			{

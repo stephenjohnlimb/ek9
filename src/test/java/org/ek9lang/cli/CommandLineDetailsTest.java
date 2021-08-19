@@ -257,6 +257,13 @@ public class CommandLineDetailsTest
 	}
 
 	@Test
+	public void testCommandLineInvalidSetVersionParam()
+	{
+		CommandLineDetails underTest = new CommandLineDetails();				
+		TestCase.assertEquals(2, underTest.processCommandLine("-SV 10.3.A someFile.ek9"));
+	}
+	
+	@Test
 	public void testCommandLineSetVersionParam()
 	{
 		CommandLineDetails underTest = new CommandLineDetails();				
@@ -264,6 +271,13 @@ public class CommandLineDetailsTest
 		TestCase.assertTrue(underTest.isSetReleaseVector());
 		TestCase.assertTrue("10.3.1".equals(underTest.getOptionParameter("-SV")));
 		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+	}
+	
+	@Test
+	public void testCommandLineInvalidSetFeatureParam()
+	{
+		CommandLineDetails underTest = new CommandLineDetails();				
+		TestCase.assertEquals(2, underTest.processCommandLine("-SF 10.3.2-1bogus someFile.ek9"));
 	}
 	
 	@Test
@@ -303,7 +317,7 @@ public class CommandLineDetailsTest
 	public void testCommandLineDebugMissingSourceFile()
 	{
 		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(2, underTest.processCommandLine("-d"));	
+		TestCase.assertEquals(3, underTest.processCommandLine("-d"));	
 	}
 	
 	@Test
@@ -332,6 +346,55 @@ public class CommandLineDetailsTest
 	}
 
 	@Test
+	public void testCommandLineInvalidBuildRunProgram()
+	{
+		CommandLineDetails underTest = new CommandLineDetails();				
+		TestCase.assertEquals(4, underTest.processCommandLine("-c someFile.ek9 -r SomeProgram"));		
+	}
+	
+	@Test
+	public void testCommandLineConflictingBuild1()
+	{
+		CommandLineDetails underTest = new CommandLineDetails();				
+		TestCase.assertEquals(2, underTest.processCommandLine("-c -C someFile.ek9"));		
+	}
+	
+	@Test
+	public void testCommandLineConflictingBuild2()
+	{
+		CommandLineDetails underTest = new CommandLineDetails();				
+		TestCase.assertEquals(2, underTest.processCommandLine("-GK -C someFile.ek9"));		
+	}
+	
+	@Test
+	public void testCommandLineConflictingBuild3()
+	{
+		CommandLineDetails underTest = new CommandLineDetails();				
+		TestCase.assertEquals(2, underTest.processCommandLine("-C -t someFile.ek9"));		
+	}
+	
+	@Test
+	public void testCommandLineConflictingBuild4()
+	{
+		CommandLineDetails underTest = new CommandLineDetails();				
+		TestCase.assertEquals(2, underTest.processCommandLine("-C -PV someFile.ek9"));		
+	}
+	
+	@Test
+	public void testCommandLineConflictingBuild5()
+	{
+		CommandLineDetails underTest = new CommandLineDetails();				
+		TestCase.assertEquals(2, underTest.processCommandLine("-c -d 9000 someFile.ek9"));		
+	}
+	
+	@Test
+	public void testCommandLineInvalidReleaseRunProgram()
+	{
+		CommandLineDetails underTest = new CommandLineDetails();				
+		TestCase.assertEquals(4, underTest.processCommandLine("-IV patch someFile.ek9 -r SomeProgram"));		
+	}
+	
+	@Test
 	public void testCommandLineRunProgram()
 	{
 		CommandLineDetails underTest = new CommandLineDetails();				
@@ -346,6 +409,16 @@ public class CommandLineDetailsTest
 	{
 		CommandLineDetails underTest = new CommandLineDetails();				
 		TestCase.assertEquals(2, underTest.processCommandLine("-T wasm someFile.ek9"));
+	}
+	
+	@Test
+	public void testCommandLineEnvironment()
+	{
+		CommandLineDetails underTest = new CommandLineDetails();				
+		TestCase.assertEquals(0, underTest.processCommandLine("-e checker=false -e vogons='Bear Tree' someFile.ek9"));
+		TestCase.assertTrue(underTest.getEk9AppDefines().contains("checker=false"));
+		//Not the move to double quotes
+		TestCase.assertTrue(underTest.getEk9AppDefines().contains("vogons=\"Bear Tree\""));
 	}
 	
 	@Test

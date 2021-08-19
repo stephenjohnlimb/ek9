@@ -19,7 +19,6 @@ public class CommandLineDetails
 	String ek9JustFileName = null;	
 	String targetArchitecture = "java";
 	int debugPort = 8000;
-	boolean dependenciesAltered = false;
 		
 	private boolean foundEk9File = false;	
 	
@@ -74,6 +73,11 @@ public class CommandLineDetails
 			}
 			else if(strArray[i].equals("-d") && i<strArray.length-1)
 			{				
+				if(!acceptableParameter(strArray[i]))
+				{
+					System.err.println("Incompatible command line options [" + commandLine + "]");
+					return 2;
+				}
 				activeParameters.add(strArray[i]);
 				//So next is port to debug on
 				String port = strArray[++i];				
@@ -282,6 +286,7 @@ public class CommandLineDetails
 			case "-Cl":
 			case "-Dp":
 			case "-t":
+			case "-d":
 			case "-P":
 			case "-I":
 			case "-Gk":
@@ -296,12 +301,7 @@ public class CommandLineDetails
 				return false;
 		}
 	}
-
-	public boolean isDependenciesAltered()
-	{
-		return dependenciesAltered;
-	}
-
+	
 	private boolean isModifierParam(String param)
 	{
 		switch(param)
@@ -354,8 +354,13 @@ public class CommandLineDetails
 				isSetFeatureVector();
 	}	
 	
-	
-	
+		
+
+	public List<String> getEk9AppDefines()
+	{
+		return ek9AppDefines;
+	}
+
 	public String getTargetArchitecture()
 	{
 		return targetArchitecture;
