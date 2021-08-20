@@ -1,0 +1,291 @@
+package org.ek9lang.dependency;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * Designed to deal with managing dependencies of ek9 modules.
+ *
+ * So when an ek9 module is defined and packaged it can reference dependencies and
+ * development dependencies. These are basically a mix of both the module name and a version number.
+ *
+ * Note that the module scope package IS public interface to your package, if you want internal,
+ * implementations constructs put them in a module under the module you are packaging.
+ * For example if publishing/packaging ek9open.google.tools.networking and you want to have
+ * internal stuff that can only be used inside the package then use:
+ * ek9open.google.tools.networking.internal or ek9open.google.tools.networking.utils etc.
+ *
+ * Full vector could be 'ek9open.google.tools.networking.utils-1.0.8-5'
+ * module '-' MAJOR '.' MINOR '.' PATCH '-' BUILD
+ * For feature branch builds it might be 'ek9open.google.tools.networking.utils-1.0.8-VSTS9889-5'
+ * module '-' MAJOR '.' MINOR '.' PATCH ('-' FEATURE)? '-' BUILD
+ *
+ * The actual artefact would have a suffix of '.zip'
+ *
+ * So what's the big issue here, well we need to:
+ * 1. Prohibit and detect circular dependencies.
+ * 2. Remove dependencies that the developer does not want to include that other deps my pull in.
+ * 3. Ensure only a single version (highest based on version numbering) is included.
+ * 4. For semanticVersioning - fail build if major version gets pulled up when other dependencies need lower version.
+ *
+ * For semantic versioning major > minor > patch > build and patch without feature is higher.
+ * Features are ordered by alpha. i.e Alpha > Beta for example.
+ *
+ * This is done with a directed graph with back pointers back up the graph tree.
+ * The main Nodes in the graph hold both the moduleName and the Version separately and have a flag to denote rejection.
+ * They also hold a list of other Nodes that they depend on.
+ *
+ * Once you have checked for circular dependencies (and there are none)
+ * You can then use reject to exclude modules.
+ * Then use this method so that modules that are the same but different version numbers can be
+ * rationalised. This means finding the module of the same name but the highest version (that has not
+ * already been rejected). Only keep the highest none rejected version, mark others as rejected.
+ *
+ * BUT NOTE: this does mean sometimes additional dependencies get included because we might have
+ * rejected a module that had a number of dependencies that only that version of the module used!
+ *
+ * At the end it is possible the developer excluded a set of dependencies that were needed.
+ * The compiler will let the developer know because there will be missing symbols.
+ */
+public class DependencyManager
+{
+    private DependencyNode root;
+
+    public DependencyManager(DependencyNode root)
+    {
+        this.root = root;
+    }
+
+    /**
+     * Mark modules as rejected if there is a higher version of the same module (that is not marked
+     * as rejected.
+     */
+    public void rationalise()
+    {
+        List<String> allModules = this.listAllModuleNames();
+        allModules.forEach(module -> {
+            List<DependencyNode> deps = findByModuleName(module);
+            //Now there could be one or more here
+            boolean selected = false;
+            DependencyNode selectedNode = null;
+            for(DependencyNode node : deps)
+            {
+                //pick first non rejected node (it is possible all have already been rejected!)
+                if(!selected && !node.isRejected())
+                {
+                    selectedNode = node;
+                    selected = true;
+                }
+                else if(!node.isRejected())
+                {
+                    if(selectedNode.getVersion().equals(node.getVersion()))
+                        node.setRejected(DependencyNode.RejectionReason.SAME_VERSION, true, false);
+                    else
+                        node.setRejected(DependencyNode.RejectionReason.RATIONALISATION, true, false);
+                }
+            }
+        });
+    }
+
+    /**
+     * Marks dependencies that fall along a reject path as rejected.
+     * Can and probably should be called in a loop until returns false.
+     * Because you might process nodes in an order where a lower level tree node
+     * has a viable path back to parent and so is not marked as rejected.
+     * But then a little later in the processing a critical node in the path is
+     * marked as rejected. Now the lower level one has not path back.
+     *
+     * So call in a loop until fully optimised.
+     * @return true is optimisation took place, false if there was nothing to optimise.
+     */
+    public boolean optimise()
+    {
+        boolean didOptimise = false;
+        List<String> allModules = this.listAllModuleNames();
+        for(String module : allModules)
+        {
+            List<DependencyNode> deps = findByModuleName(module);
+            //So some of these will already be rejected but we need to check from each of these
+            //dependencies back up towards root to see if the parent dependency is rejected
+            //if all dependencies all encounter a rejected node then clearly even any unrejected
+            //node is not required and can be optimised out.
+            boolean allEncounterRejectedNode = true;
+            boolean allRejectedAlready = true;
+            for(DependencyNode dep: deps)
+            {
+                allRejectedAlready &= dep.isRejected();
+                allEncounterRejectedNode &= dep.isParentRejected();
+            }
+            if(allEncounterRejectedNode && !allRejectedAlready)
+            {
+                didOptimise = true;
+                for(DependencyNode dep: deps)
+                {
+                    if(!dep.isRejected())
+                        dep.setRejected(DependencyNode.RejectionReason.OPTIMISED, true, false);
+                }
+            }
+        }
+        return didOptimise;
+    }
+
+    /**
+     * Any situation where the top selected dependency has one or more lower version numbers where the
+     * major version is less that that selected.
+     * Basically this means you cannot continue with this set of dependencies - it just won't work at all for you.
+     * Unlike Java etc we do actually get the packages and recompile them, so public interfaces in packages
+     * must match.
+     * @return The list of offending nodes.
+     */
+    public List<DependencyNode> reportStrictSemanticVersionBreaches()
+    {
+        List<DependencyNode> rtn = new ArrayList<>();
+        List<String> allModules = this.listAllModuleNames();
+        allModules.forEach(module -> {
+            List<DependencyNode> deps = findByModuleName(module);
+            DependencyNode selected = null;
+            for(DependencyNode node: deps)
+            {
+                if(!node.isRejected())
+                    selected = node;
+                else if(selected != null && selected.getVersion().major() > node.getVersion().major())
+                    rtn.add(selected);
+            }
+        });
+        return rtn;
+    }
+
+    /**
+     * Provide a list of all rejected dependencies.
+     * @return The list.
+     */
+    public List<DependencyNode> reportRejectedDependencies()
+    {
+        List<DependencyNode> rtn = new ArrayList<>();
+        List<String> allModules = this.listAllModuleNames();
+        allModules.forEach(module -> {
+            List<DependencyNode> deps = findByModuleName(module);
+            rtn.addAll(deps.stream().filter(dep -> dep.isRejected()).collect(Collectors.toList()));
+        });
+        return rtn;
+    }
+
+    public List<DependencyNode> reportAcceptedDependencies()
+    {
+        List<DependencyNode> rtn = new ArrayList<>();
+        List<String> allModules = this.listAllModuleNames();
+        allModules.forEach(module -> {
+            List<DependencyNode> deps = findByModuleName(module);
+            rtn.addAll(deps.stream().filter(dep -> !dep.isRejected()).collect(Collectors.toList()));
+        });
+        return rtn;
+    }
+
+    /*
+     * Reject a moduleName dependency if is has been pulled in when is it a dependency of another module.
+     */
+    public void reject(String moduleName, String whenDependencyOf)
+    {
+        List<DependencyNode> found = findByModuleName(moduleName);
+        if(!found.isEmpty())
+        {
+            found.forEach(node -> {
+                if(node.isDependencyOf(whenDependencyOf))
+                    node.setRejected(DependencyNode.RejectionReason.MANUAL, true, true);
+            });
+        }
+    }
+
+    /**
+     * Traverse the tree graph to find all the distinct module names in use ignoring the version numbers.
+     * @return The list of unique module names.
+     */
+    public List<String> listAllModuleNames()
+    {
+    	HashSet<String> uniqueResults = new HashSet<>();
+    	
+    	for(String moduleName : reportAllDependencies())
+    		uniqueResults.add(moduleName);
+    	
+    	return uniqueResults.stream().sorted().collect(Collectors.toList());
+    }
+    
+    /**
+     * Search for a particular moduleName, can return multiple matches if there are
+     * multiple versions of the same dependency.
+     * Returned highest version number first.
+     * @param moduleName The module name to search for.
+     * @return The list of modules that match (i.e same module name but maybe multiple versions).
+     */
+    public List<DependencyNode> findByModuleName(String moduleName)
+    {
+        List<DependencyNode> rtn = doFindByModuleName(root, moduleName);
+
+        rtn.sort(new Comparator<DependencyNode>()
+        {
+            @Override
+            public int compare(DependencyNode o1, DependencyNode o2)
+            {
+                //We want them in higher major, min, patch, build number order.
+                return o1.getVersion().compareTo(o2.getVersion()) * -1;
+            }
+        });
+        return rtn;
+    }
+
+    private List<DependencyNode> doFindByModuleName(DependencyNode from, String moduleName)
+    {
+        List<DependencyNode> rtn = new ArrayList<>();
+        if(from != null)
+        {
+            if (from.getModuleName().equals(moduleName))
+                rtn.add(from);
+            from.getDependencies().forEach(dependency -> {
+                rtn.addAll(doFindByModuleName(dependency, moduleName));
+            });
+        }
+
+        return rtn;
+    }
+
+    /**
+     * Check if there are any circular references and report back up on the
+     * path the dependency was found in.
+     * @return One or more circular paths in the graph/tree.
+     */
+    public List<String> reportCircularDependencies(boolean includeVersion)
+    {
+        return doReportCircularDependencies(this.root, includeVersion);
+    }
+    public List<String> reportCircularDependencies()
+    {
+        return doReportCircularDependencies(this.root, false);
+    }
+
+    private List<String> doReportCircularDependencies(DependencyNode from, boolean includeVersion)
+    {
+        List<String> rtn = new ArrayList<>();
+        if(from != null)
+        {
+            from.getDependencies().forEach(dependency -> {
+                String backPath = dependency.reportCircularDependencies(includeVersion);
+                if (backPath != null)
+                    rtn.add(backPath);
+                rtn.addAll(doReportCircularDependencies(dependency, includeVersion));
+            });
+        }
+
+        return rtn;
+    }
+    
+    public List<String> reportAllDependencies()
+    {
+    	List<String> rtn = new ArrayList<>();
+        if(root != null)
+        	rtn.addAll(root.reportAllDependencies());        
+        return rtn.stream().sorted().collect(Collectors.toList());
+    }
+}
