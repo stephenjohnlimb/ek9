@@ -107,9 +107,8 @@ public class DependencyNode
         DependencyNode d = parent;
         while (d != null)
         {
-            backTrace.insert(0, " ~> ");
-            if(includeVersion)
-                backTrace.insert(0, d.toString(includeVersion));
+            backTrace.insert(0, " ~> ");           
+            backTrace.insert(0, d.toString(includeVersion));
             d = d.getParent();
         }
         return backTrace.toString();
@@ -167,11 +166,12 @@ public class DependencyNode
 
     private String toString(boolean includeVersion)
     {
+    	String rtn = moduleName;
         if(includeVersion)
-            return toString();
+            rtn = toString();
         if(rejected)
-            return moduleName + " ("+ reason + ")";
-        return moduleName;
+            rtn += " ("+ reason + ")";
+        return rtn;
     }
 
     @Override

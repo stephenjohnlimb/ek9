@@ -14,12 +14,13 @@ public class SemanticVersion implements Comparable<SemanticVersion>
 	private int patch = 0;
 	private String feature = null;
 	private int buildNumber = 0;
-
+	
 	public static SemanticVersion _of(String value)
 	{
 		SemanticVersion rtn = new SemanticVersion();
 
-		rtn.parse(value);
+		if(!rtn.parse(value))
+			return null;
 
 		return rtn;
 	}

@@ -8,6 +8,32 @@ public class SemanticVersionTest
 {
 
 	@Test
+	public void testInvalidSemanticVersionNumber()
+	{		
+		TestCase.assertNull(SemanticVersion._withNoBuildNumber("1.2.A"));
+		
+		TestCase.assertNull(SemanticVersion._of("1.2.A"));
+	}
+	
+	@Test
+	public void testSemenaticVersionWithoutBuildNumber()
+	{
+		SemanticVersion v2 = SemanticVersion._withNoBuildNumber("1.2.3");
+		TestCase.assertEquals(1, v2.major());
+		TestCase.assertEquals(2, v2.minor());
+		TestCase.assertEquals(3, v2.patch());
+		TestCase.assertEquals(0, v2.buildNumber());
+		TestCase.assertNull(v2.feature());
+		
+		SemanticVersion v3 = SemanticVersion._withNoBuildNumber("10.8.13-feature29");
+		TestCase.assertEquals(10, v3.major());
+		TestCase.assertEquals(8, v3.minor());
+		TestCase.assertEquals(13, v3.patch());
+		TestCase.assertEquals(0, v3.buildNumber());		
+		TestCase.assertEquals("feature29", v3.feature());
+	}
+	
+	@Test
 	public void testSemanticVersionNumber()
 	{
 		
@@ -43,7 +69,12 @@ public class SemanticVersionTest
 		v3.incrementMajor();
 		TestCase.assertTrue(v3.toString().equals("11.0.0-feature29-0"));
 		
+		SemanticVersion ANull = null;
+		TestCase.assertFalse(SemanticVersion._of("1.0.0-0").equals(ANull));
+		
 		TestCase.assertTrue(SemanticVersion._of("1.0.0-0").compareTo(SemanticVersion._of("1.0.0-0")) == 0);
+		
+		TestCase.assertEquals(SemanticVersion._of("1.0.0-0").hashCode(), SemanticVersion._of("1.0.0-0").hashCode());
 		
 		TestCase.assertTrue(SemanticVersion._of("1.0.0-0").compareTo(SemanticVersion._of("1.0.0-10")) < 0);
 		

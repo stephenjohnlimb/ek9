@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A range of different tests - could probably do with a lot more as this is a somewhat complex area.
@@ -72,7 +73,10 @@ public class DependencyTest
     public void testExcludeDependencies()
     {
         DependencyNode root = DependencyNode.of("a.b.c-1.0.0-0");
-
+        //Record the fact that this will be a rejection for this configuration.
+        //Though it still has to be applied -- see later.
+        root.addDependencyRejection("a.b.f", "a.z.e");
+        
         DependencyNode d1 = DependencyNode.of("a.b.d-1.0.0-0");
         root.addDependency(d1);
         DependencyNode d2 = DependencyNode.of("a.b.e-1.0.0-0");
@@ -96,6 +100,7 @@ public class DependencyTest
         TestCase.assertTrue(found.size() == 1);
         TestCase.assertTrue(found.get(0).getModuleName().equals("a.b.c"));
 
+        //So expect the two
         found = underTest.findByModuleName("a.b.f");
         TestCase.assertTrue(found.size() == 2);
         found.forEach(node -> {
@@ -104,16 +109,35 @@ public class DependencyTest
 
         //Now a.b.f-1.2.0-40 needs to be excluded but only when pulled in by a.z.e
         //We want to stay on version 1.0.0-0 for some reason.
-        underTest.reject("a.b.f", "a.z.e");
+        
+        List<DependencyNode> allDependencies = underTest.reportAcceptedDependencies();
+		allDependencies.forEach(dep -> {
+			Map<String, String> rejections = dep.getDependencyRejections();
+			rejections.keySet().forEach(key -> {
+				String moduleName = key ;
+				String whenDependencyOf = rejections.get(key);				
+				System.err.println("Resolve: Exclusion '" + moduleName + "' <- '" + whenDependencyOf + "'");
+				underTest.reject(moduleName, whenDependencyOf);
+			});
+		});
+        
+		//There will still be two but one will now be marked as rejected.
         found = underTest.findByModuleName("a.b.f");
         TestCase.assertTrue(found.size() == 2);
-        /*
+        
         System.out.println("testExcludeDependencies");
         System.out.println("Modules");
         found.forEach(System.out::println);
-        */
+        
         TestCase.assertTrue(found.get(0).isRejected());
         TestCase.assertFalse(found.get(1).isRejected());
+        
+        TestCase.assertFalse(underTest.optimise());
+        
+        System.out.println("Accepted after Optimisation");
+        underTest.reportAcceptedDependencies().forEach(accept -> {
+            System.out.println(accept.showPathToDependency(true));
+        });
     }
 
     @Test
@@ -553,7 +577,7 @@ public class DependencyTest
 
         System.out.println("Accepted after Optimisation");
         accepted.forEach(accept -> {
-            System.out.println(accept.showPathToDependency(true));
+            System.out.println(accept.showPathToDependency(false));
         });
 
         System.out.println("Final set of Dependencies");
