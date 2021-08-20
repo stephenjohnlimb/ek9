@@ -41,6 +41,36 @@ public class OsSupport
 		return f.getName();
 	}
 
+	public boolean isFileReadable(String fileName)
+	{
+		return fileName != null && isFileReadable(new File(fileName));
+	}
+	
+	public boolean isFileReadable(File file)
+	{		
+		return file != null && file.isFile() && !file.isDirectory() && file.canRead();
+	}
+	
+	public boolean isDirectoryReadable(String directoryName)
+	{
+		return directoryName != null && isDirectoryReadable(new File(directoryName));
+	}
+	
+	public boolean isDirectoryReadable(File directory)
+	{
+		return directory != null && directory.isDirectory() && directory.canRead();
+	}
+	
+	public boolean isDirectoryWritable(String directoryName)
+	{
+		return isDirectoryWritable(new File(directoryName));
+	}
+	
+	public boolean isDirectoryWritable(File directory)
+	{
+		return directory != null && directory.isDirectory() && directory.canWrite();
+	}
+	
 	/**
 	 * deletes matching files
 	 * @param dir the directory to look in

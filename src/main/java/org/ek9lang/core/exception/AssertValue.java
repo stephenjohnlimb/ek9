@@ -4,11 +4,15 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Optional;
 
+import org.ek9lang.core.utils.OsSupport;
+
 /**
  * Used as simple one liners to check a value and issue an illegal argument exception if empty.
  */
 public class AssertValue
 {
+	private static OsSupport osSupport = new OsSupport();
+	
 	/**
 	 * Checks if a string value is null or an empty string and if so issues an illegal argument exception.
 	 * @param valueToCheck The value to check.
@@ -43,31 +47,31 @@ public class AssertValue
 			throw new IllegalArgumentException(messageIfNull);
 	}
 	
-	public static void checkCanReadFile(String messageIfNoRead, String filename)
+	public static void checkCanReadFile(String messageIfNoRead, String fileName)
 	{
-		checkNotEmpty("Filename cannot be empty or null", filename);
-		File file = new File(filename);
-		if(!file.isFile() || file.isDirectory() || !file.canRead())
-			throw new IllegalArgumentException(messageIfNoRead + "[" + filename + "]");
+		checkNotEmpty("Filename cannot be empty or null", fileName);
+		if(!osSupport.isFileReadable(fileName))
+			throw new IllegalArgumentException(messageIfNoRead + "[" + fileName + "]");
 	}
 	
-	public static void checkDirectoryReadable(String messageIfNoRead, String filename)
+	public static void checkDirectoryReadable(String messageIfNoRead, String directoryName)
 	{
-		checkNotEmpty("Filename cannot be empty or null", filename);
-		File file = new File(filename);
-		if(!file.isDirectory() || !file.canRead())
-			throw new IllegalArgumentException(messageIfNoRead + "[" + filename + "]");
+		checkNotEmpty("Filename cannot be empty or null", directoryName);
+		if(!osSupport.isDirectoryReadable(directoryName))
+			throw new IllegalArgumentException(messageIfNoRead + "[" + directoryName + "]");
 	}
 
-	public static void checkDirectoryWritable(String messageIfNoWrite, String dirName)
+	public static void checkDirectoryWritable(String messageIfNoWrite, String directoryName)
 	{
-		checkDirectoryWritable(messageIfNoWrite, new File(dirName));
+		AssertValue.checkNotNull(messageIfNoWrite, directoryName);
+		if(!osSupport.isDirectoryWritable(directoryName))
+			throw new IllegalArgumentException(messageIfNoWrite + "[" + directoryName + "]");		
 	}
 
 	public static void checkDirectoryWritable(String messageIfNoWrite, File dir)
 	{
 		AssertValue.checkNotNull(messageIfNoWrite, dir);
-		if(!dir.isDirectory() || !dir.canWrite())
+		if(!osSupport.isDirectoryWritable(dir))
 			throw new IllegalArgumentException(messageIfNoWrite + "[" + dir.getPath() + "]");
 	}
 

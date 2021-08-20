@@ -11,6 +11,7 @@ import org.ek9lang.antlr.EK9Parser.CompilationUnitContext;
 import org.ek9lang.cli.EK9SourceVisitor;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.tokenizer.EK9Lexer;
+import org.ek9lang.core.utils.OsSupport;
 
 
 /**
@@ -20,6 +21,8 @@ import org.ek9lang.compiler.tokenizer.EK9Lexer;
 public class JustParser
 {
 	private EK9Parser parser;
+	private OsSupport osSupport = new OsSupport();
+	
 	private ErrorListener errorListener = new ErrorListener();
 	
 	public boolean readSourceFile(File sourceFile, EK9SourceVisitor visitor)
@@ -27,21 +30,11 @@ public class JustParser
 		visitor.setErrorListener(errorListener);
 		try
 		{			
-			if(!sourceFile.exists())
+			if(!osSupport.isFileReadable(sourceFile))
 			{
-				System.err.println("File [" + sourceFile.getName() + "] cannot be found");
+				System.err.println("File [" + sourceFile.getName() + "] os not readable");
 				return false;
-			}
-			if(!sourceFile.canRead())
-			{
-				System.err.println("File [" + sourceFile.getName() + "] is not readable");
-				return false;
-			}
-			if(!sourceFile.isFile())
-			{
-				System.err.println("File [" + sourceFile.getName() + "] is not a file");
-				return false;
-			}
+			}			
 			try(InputStream inputStream = new FileInputStream(sourceFile))
 			{
 				//EK9Lexer lex = new ExperimentalEK9Lexer(CharStreams.fromStream(inputStream));
