@@ -37,6 +37,8 @@ public class SemanticVersionTest
 	public void testSemanticVersionNumber()
 	{
 		
+		SemanticVersion v1 = new SemanticVersion("1.2.3-9");
+		
 		SemanticVersion v2 = SemanticVersion._of("1.2.3-9");
 		TestCase.assertEquals(1, v2.major());
 		TestCase.assertEquals(2, v2.minor());
@@ -44,6 +46,8 @@ public class SemanticVersionTest
 		TestCase.assertEquals(9, v2.buildNumber());
 		TestCase.assertNull(v2.feature());
 
+		TestCase.assertTrue(v1.equals(v2));
+		
 		SemanticVersion v3 = SemanticVersion._of("10.8.13-feature29-95");
 		TestCase.assertEquals(10, v3.major());
 		TestCase.assertEquals(8, v3.minor());
@@ -51,6 +55,12 @@ public class SemanticVersionTest
 		TestCase.assertEquals(95, v3.buildNumber());		
 		TestCase.assertEquals("feature29", v3.feature());
 
+		SemanticVersion v4 = new SemanticVersion("10.8.13-feature29-95");
+		TestCase.assertTrue(v3.equals(v4));
+		
+		SemanticVersion v5 = new SemanticVersion("10.8.13-95");
+		TestCase.assertFalse(v5.equals(v4));
+		
 		v3.incrementBuildNumber();
 		TestCase.assertTrue(v3.toString().equals("10.8.13-feature29-96"));
 
