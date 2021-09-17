@@ -87,7 +87,7 @@ defines module example.networking
           Stderr().println("Received abort Signal closing connection")
           udpConnection.close()
 
-      registered <- Signals().register(signal, abortHandler)
+      Signals().register(signal, abortHandler)
 
       echoFunction <- (udpConnection) is UDPPacketHandler
         outgoing = incoming
