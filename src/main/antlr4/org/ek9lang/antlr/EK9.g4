@@ -463,7 +463,6 @@ pipelinePart
     | call
     ;
 
-
 objectAccessExpression
     : objectAccessStart objectAccess
     ;
