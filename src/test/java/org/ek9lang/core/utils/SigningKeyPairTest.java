@@ -4,6 +4,8 @@ import org.junit.Test;
 
 import junit.framework.TestCase;
 
+import java.io.File;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 public class SigningKeyPairTest
@@ -38,6 +40,17 @@ public class SigningKeyPairTest
 		String plainText = keyPair.decryptWithPrivateKey(cipherText);
 		//System.out.println("[" + plainText +"]");
 		TestCase.assertTrue(theMessage.equals(plainText));
+	}
+
+	@Test(expected = java.lang.NullPointerException.class)
+	public void doInvalidEncryption()
+	{
+		String theMessage = "The quick brown fox jumps over the lazy dog";
+
+		SigningKeyPair keyPair = SigningKeyPair.generate(2048);
+		String cipherText = keyPair.encryptWithPublicKey(theMessage);
+		//Now incorrectly use wrong key
+		String plainText = keyPair.decryptWithPublicKey(cipherText);
 	}
 
 	@Test
@@ -169,6 +182,24 @@ public class SigningKeyPairTest
 				"FQIDAQAB\n" +
 				"-----END PUBLIC KEY-----\n";
 		return publicPem;
+	}
+
+	@Test
+	public void testOpenSSLGeneratedFromFile()
+	{
+		URL rootDirectoryForTest = this.getClass().getResource("/forSigningKeyTests");
+		TestCase.assertNotNull(rootDirectoryForTest);
+
+		File publicFile = new File(rootDirectoryForTest.getPath(), "publicKey.pem");
+		File privateFile = new File(rootDirectoryForTest.getPath(), "privateKey.pem");
+
+		SigningKeyPair openTest = SigningKeyPair.of(privateFile, publicFile);
+		TestCase.assertNotNull(openTest);
+
+		SigningKeyPair privateSigningKey = SigningKeyPair.ofPrivate(privateFile);
+		TestCase.assertNotNull(privateSigningKey);
+		SigningKeyPair publicSigningKey = SigningKeyPair.ofPublic(publicFile);
+		TestCase.assertNotNull(publicSigningKey);
 	}
 
 	@Test

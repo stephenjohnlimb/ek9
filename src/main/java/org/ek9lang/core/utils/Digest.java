@@ -1,12 +1,11 @@
 package org.ek9lang.core.utils;
 
+import org.ek9lang.core.exception.AssertValue;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import org.ek9lang.core.exception.AssertValue;
 
 /**
  * Wraps the SHA 256 digest and the resulting byte array into objects so we can deal with
@@ -36,7 +35,6 @@ public class Digest
 		}
 		catch (UnsupportedEncodingException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
@@ -78,7 +76,7 @@ public class Digest
 
 	public static class CheckSum
 	{
-		private byte[] cksum;
+		private byte[] cksum = null;
 
 		public CheckSum(File sha256File)
 		{
@@ -154,6 +152,7 @@ public class Digest
 				System.err.println("Unable to load " + sha256File.getName() + " " + th.getMessage());
 				return false;
 			}
+
 			return true;
 		}
 	}

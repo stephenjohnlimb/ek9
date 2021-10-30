@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -69,6 +70,24 @@ public class OsSupportTest
 		List<File> files = underTest.getFilesRecursivelyFrom(new File(testPath), searchCondition);
 		TestCase.assertNotNull(files);
 		TestCase.assertEquals(2, files.size());
+	}
+
+	@Test
+	public void testGlobListFileInDirectory()
+	{
+		URL rootDirectoryForTest = this.getClass().getResource("/forFileFindTests");
+		TestCase.assertNotNull(rootDirectoryForTest);
+		String testPath = rootDirectoryForTest.getPath();
+
+		//Using globs not normal file wild cards.
+		List<String> includes = Arrays.asList("**.file", "**/*.notfile");
+		List<String> excludes = Arrays.asList("**/*.junk", "**/*.txt");
+		Glob searchCondition = new Glob(includes, excludes);
+
+		//Needs the correct directory structure in /forFileFindTests
+		List<File> files = underTest.getFilesRecursivelyFrom(new File(testPath), searchCondition);
+		TestCase.assertNotNull(files);
+		TestCase.assertEquals(4, files.size());
 	}
 
 	@Test

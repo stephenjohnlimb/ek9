@@ -92,7 +92,6 @@ public class SigningKeyPair
 	{
 		SigningKeyPair rtn = new SigningKeyPair();
 		rtn.pub = publicFromBase64(publicBase64);
-
 		return rtn;
 	}
 
@@ -113,34 +112,32 @@ public class SigningKeyPair
 	{
 		SigningKeyPair rtn = new SigningKeyPair();
 		rtn.pvt = privateFromBase64(privateBase64);
-
 		return rtn;
 	}
 
 	private SigningKeyPair()
 	{
-		try
-		{
-			this.cipher = Cipher.getInstance("RSA");
-		}
-		catch(Throwable th)
-		{
-			System.err.println("Unable to get RSA Cipher");
-		}
+		cipher = getRSACipher();
 	}
 	
 	public SigningKeyPair(String privateBase64, String publicBase64)
 	{
 		pvt = privateFromBase64(privateBase64);
 		pub = publicFromBase64(publicBase64);
+		cipher = getRSACipher();
+	}
+
+	private Cipher getRSACipher()
+	{
 		try
 		{
-			this.cipher = Cipher.getInstance("RSA");
+			return Cipher.getInstance("RSA");
 		}
 		catch(Throwable th)
 		{
 			System.err.println("Unable to get RSA Cipher");
 		}
+		return null;
 	}
 
 	private static PublicKey publicFromBase64(String publicBase64)
@@ -189,16 +186,6 @@ public class SigningKeyPair
 		return null;
 	}
 
-	public byte[] encryptWithPublicKey(byte[] data)
-	{
-		return encrypt(data, this.pub);
-	}
-
-	public byte[] encryptWithPrivateKey(byte[] data)
-	{
-		return encrypt(data, this.pvt);
-	}
-
 	public String encryptWithPublicKey(String data)
 	{
 		return encrypt(data, this.pub);
@@ -207,16 +194,6 @@ public class SigningKeyPair
 	public String encryptWithPrivateKey(String data)
 	{
 		return encrypt(data, this.pvt);
-	}
-
-	public byte[] decryptWithPublicKey(byte[] data)
-	{
-		return decrypt(data, this.pub);
-	}
-
-	public byte[] decryptWithPrivateKey(byte[] data)
-	{
-		return decrypt(data, this.pvt);
 	}
 
 	public String decryptWithPublicKey(String data)
