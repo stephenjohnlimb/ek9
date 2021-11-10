@@ -17,7 +17,7 @@ language will be like once the first reference implementation of the compiler is
 If you want to see why specific decisions have been made on the details of the language then you can follow the [EK9 blog](https://blog.ek9.io/).
 
 ### Hello World Example
-The [EK9](https://www.ek9lang.org) website has many more examples, but this short sample should give you a feel for the language.
+The [EK9](https://www.ek9lang.org) website has many more examples; but this short sample should give you a feel for the language.
 
     #!ek9
     defines module introduction
