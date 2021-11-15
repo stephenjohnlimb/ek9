@@ -33,7 +33,7 @@ public class DelegatingLexer implements LexerPlugin
 			return "dedent";
 		return delegateTo.getSymbolicName(tokenType);
 	}
-
+	
 	@Override
 	public Token nextToken()
 	{		
