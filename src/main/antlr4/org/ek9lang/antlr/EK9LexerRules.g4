@@ -479,6 +479,7 @@ SEMI : ';';
 COMMA : ',';
 DOT : '.';
 HASH : '#';
+TOJSON : '$$';
 DOLLAR : '$';
 SHEBANG : '#!ek9';
 PROMOTE : '#^'; //ek9 promote operator

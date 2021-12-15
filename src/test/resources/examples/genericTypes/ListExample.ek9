@@ -8,50 +8,103 @@ defines module com.customer.priority.example
 
   defines type
     List of String
-    
+    List of Integer
+
+    List of SimpleRecord
+
+  defines record
+    SimpleRecord
+      id as Integer: Integer()
+      name as String: "Steve"
+      aliases as List of String: List()
+
+      <?-
+        make an additional constructor that has no aliases
+      -?>
+      SimpleRecord
+        ->
+          id as Integer
+          name as String
+        this.id :=: id
+        this.name :=: name
+
+      operator $$ as pure
+        <- rtn as JSON
+
   defines program
-  
+
     ListTest
-      underTest <- SimpleListCheck()      
+      underTest <- SimpleListCheck()
       underTest.testMethod()
-      
+
+    <!-
+      Just trying out conversion of record to JSON and then a list
+      of them to JSON.
+    -!>
+    ListOfRecordToJSON
+      stdout <- Stdout()
+      r1 <- SimpleRecord(1, "Stephen")
+      stdout.println(`R1 is ${$$ r1}`)
+      //Note new parser grammar for inline lists and named parameters.
+      l1 <- [
+        r1,
+        SimpleRecord(),
+        SimpleRecord(2, "Billy"),
+        SimpleRecord(id: 3, name: "Apoc", aliases: ["EvilApoc", "ApocThe"])
+        ]
+      stdout.println(`L1 is ${$$ l1}`)
+
+    ListToJSON
+      stdout <- Stdout()
+      l1 <- [
+        "Steve",
+        "Mary",
+        "Mungo",
+        "Midge",
+        "Cain"
+        ]
+      stdout.println(`L1 is ${$$ l1}`)
+
+      l2 <- [ 1, 2, 3, 4, Integer()]
+      stdout.println(`L2 is ${$$ l2}`)
+
   defines class
-  
+
     SimpleListCheck
-    
+
       testMethod
         stdout <- Stdout()
-        
+
         l1 <- [
-          "Steve",        
-          "Mary",        
-          "Mungo",        
-          "Midge",        
+          "Steve",
+          "Mary",
+          "Mungo",
+          "Midge",
           "Cain"
           ]
-        
+
         iter1 <- l1.iterator()
         while iter1?
           stdout.println("L1 [" + iter1.next() + "]")
-        
+
         if "Steve" is not in l1
           stdout.println("List l1 does not have Steve")
         else
           stdout.println("List l1 does not Steve")
-          
+
         //flip it and reverse it
         l2 <- ~l1
-        
+
         //Or if you just want a method
         l3 <- l1.reverse()
-        
+
         g1 <- l1.first()
         g2 <- g1.get()
         g3 <- g2.first()
         g4 <- g2.last()
-        
+
         stdout.println("G1 " + g1 + " g2 " + g2 + " g3 " + g3 + " g4 " + g4)
-        
+
         //So I just want the first and last entries.
         //get the first item in the list
         //Here I want the first character of the first string out of the list
@@ -59,33 +112,35 @@ defines module com.customer.priority.example
         f1 <- #< l1
         f2 <- #< f1
         f3 <- #< f2
-                
+
+        assert f3?
+
         //Or all in one go?
         firstChar <- #< #< #<l1
         stdout.println("First Char is " + firstChar)
         //Or chained
         stdout.println("By Chain First Char is " + l1.first().get().first())
-        
+
         firstL1 <- #<l1
-        lastL1 <- #>l1        
-        stdout.println("L1 first " + firstL1 + " last " + lastL1) 
+        lastL1 <- #>l1
+        stdout.println("L1 first " + firstL1 + " last " + lastL1)
         stdout.println("All L1 " + $l1)
-        
+
         firstL2 <- #<l2
         lastL2 <- #>l2
-        stdout.println("L2 first " + firstL2 + " last " + lastL2) 
+        stdout.println("L2 first " + firstL2 + " last " + lastL2)
         stdout.println("All L2 " + $l2)
-        
+
         stdout.println("All L3 " + $l3)
-        
+
         emptyList <- List() of String
-        
+
         first <- #< emptyList
-                
+
         if first?
           stdout.println("First is [" + first +"]")
         else
           stdout.println("As expected no item as list is empty")
-          
+
         stdout.println("You could just have this with an optional [" + first + "]")
 //EOF

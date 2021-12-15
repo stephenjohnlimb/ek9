@@ -349,6 +349,7 @@ throwStatement
 
 expression
     : expression QUESTION
+    | TOJSON expression
     | DOLLAR expression
     | PROMOTE expression
     | LENGTH OF? expression
@@ -575,6 +576,7 @@ operator
     | MUL_ASSIGN
     | DIV_ASSIGN
     | PROMOTE
+    | TOJSON
     | DOLLAR
     | PROMOTE
     | HASHCODE

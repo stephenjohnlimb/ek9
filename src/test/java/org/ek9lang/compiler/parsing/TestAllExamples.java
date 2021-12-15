@@ -35,8 +35,6 @@ public class TestAllExamples
         }
     }
 
-
-
     @Test
     public void testInvalidEK9ExampleSource() throws Exception
     {

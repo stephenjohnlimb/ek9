@@ -1,0 +1,35 @@
+#!ek9
+defines module com.customer.dictionary.example
+
+  defines type
+    Dict of (String, String)
+
+  defines record
+    SimpleRecord
+      id as Integer: Integer()
+      aliases as Dict of (String, String): Dict()
+
+      <?-
+        make an additional constructor that has no aliases
+      -?>
+      SimpleRecord
+        -> id as Integer
+        this.id :=: id
+
+      operator $$ as pure
+        <- rtn as JSON
+
+  defines program
+
+    SimpleDictionaryCheck
+      stdout <- Stdout()
+      d1 <- {
+        "Steve": "Nice",
+        "Ruth": "Fancy"
+        }
+
+      stdout.println(`D1 ${ $$d1 }`)
+
+      r1 <- SimpleRecord(1, d1)
+      stdout.println(`R1 ${ $$r1 }`)
+//EOF
