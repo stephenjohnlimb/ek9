@@ -23,7 +23,7 @@ defines module net.customer
     
     includeFiles <- [
       "**.{csv,jpeg}",
-          //I can put allsort of stuff in here then, without formatting
+          //I can put allsorts of stuff in here then, without formatting
         "Chelford",
               "Guff"
       ]

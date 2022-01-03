@@ -51,7 +51,7 @@ defines module com.customer.just
               
       selectedTemperature <- Integer()       
        
-      //See if we can find some hot temperator somewhere so in the US we have no idea! because value is unset
+      //See if we can find some hot temperature somewhere so in the US we have no idea! because value is unset
       when selectedTemperature := currentTemperature("US") with selectedTemperature > 50
         stdout.println("Temp of " + $selectedTemperature + " a little warm in the US")
       else when selectedTemperature := currentTemperature("US") with selectedTemperature < 50

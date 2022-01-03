@@ -1,6 +1,9 @@
 #!ek9
 defines module net.customer
 
+  <?-
+    Just trying out using some keywords as property names on records.
+  -?>
   defines record
     
     Rec1

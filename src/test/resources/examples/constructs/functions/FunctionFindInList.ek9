@@ -2,14 +2,14 @@
 defines module test.functions
 
   defines program
+
     ATest
       stdout <- Stdout()
-           
-      values <- [1,2,5,6,8,9,11]      
-      
-      indexOfSearch <- getIndexBinarySearch(values, 6)
+
+      //Another example of using named parameters
+      indexOfSearch <- getIndexBinarySearch(array: [1,2,5,6,8,9,11], value: 6)
       if indexOfSearch?
-        stdout.println("Index is " + $indexOfSearch)
+        stdout.println(`Index is ${indexOfSearch}`)
       else
         stdout.println("Index not found for value 6")
         

@@ -14,10 +14,8 @@ defines module net.customer.assertions
       firstInteger Integer := 22
       secondInteger as Integer := 23
       
-      //Removed inference on declarations on on uses of what has been declared
-      //So inference only works in bodies! much clearer and consistent with methods and functions requiring
-      //declarations to specify yhe type.
-      firstString String: "Initial Value"
+      //Added type inference for default constructors and literals back in.
+      firstString <- "Initial Value"
       
       //A simple constructor
       First()
@@ -68,7 +66,7 @@ defines module net.customer.assertions
           
     //Here's that second class
     AnotherOne
-      anotherFloat as Float := 90.99
+      anotherFloat <- 90.99
       
       AnotherOne()
         -> defaultValue as Float

@@ -1,0 +1,57 @@
+#!ek9
+defines module com.customer.jsonexample
+
+  defines type
+    Optional of JSON
+    List of Integer
+
+  defines program
+
+    <?-
+      Some simple examples with built-in types being created from JSON
+    -?>
+    PipesWithJSON()
+
+      optionalJson <- Optional(JSON("value", JSON("2")))
+      anInteger <- cat optionalJson | collect as Integer
+      assert anInteger == 2
+
+      //You can also just do this
+      optionalJson: Optional(JSON("value", JSON("null")))
+      nullInteger <- cat optionalJson | collect as Integer
+      assert not nullInteger?
+
+      //Same with Floats, not necessary to give a label
+      optionalJson: Optional(JSON("2.88"))
+      aFloat <- cat optionalJson | collect as Float
+      assert aFloat == 2.88
+
+      //Character, use the to JSON operator $$ to convert
+      optionalJson: Optional($$ Character('C'))
+      aChar <- cat optionalJson | collect as Character
+      assert aChar == 'C'
+
+      //It's not necessary to wrap in an Optional with JSON as it is
+      //an intelligent pipe source
+
+      //Colour, use the to JSON operator $$ to convert
+      colourJson <- $$ #FFAACC
+      aColour <- cat colourJson | collect as Colour
+      assert aColour == #FFAACC
+
+      //Try with lists, but convert to JSON through the pipeline
+      //This is just to try out JSON pipes into an Integer
+      sumOfArray <- cat $$ [4, 6, 18, Integer(), 22] | collect as Integer
+      assert sumOfArray == 50
+
+      stdout <- Stdout()
+
+      //Now try with a JSON object with some int properties
+      json <- JSON(`{"first": 1, "second": null, "third": 22}`)
+      sumOfProperties <- cat json | collect as Integer
+      assert sumOfProperties == 23
+
+      for j in json.iterator()
+        stdout.println(`J is ${j}`)
+
+//EOF

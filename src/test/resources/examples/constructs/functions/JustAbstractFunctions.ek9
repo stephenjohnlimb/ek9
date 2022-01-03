@@ -1,5 +1,6 @@
 #!ek9
 defines module com.customer.just.functions
+
   defines type
     List of mathOperation
 
@@ -78,7 +79,8 @@ defines module com.customer.just.functions
       stdout <- Stdout()
       stdout.println("Math Dynamic Operation Example2")
       fixedValue <- 9.8
-                     
+
+      //Nearest EK9 gets to a lambda - wrap in parenthesis on single line.
       ops <- [
         () is mathOperation as pure (result: x+y),
         () is mathOperation as pure (result: x-y),

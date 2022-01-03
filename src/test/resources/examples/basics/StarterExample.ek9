@@ -71,10 +71,10 @@ defines module com.customer.starter.example
     -?>
     Introduction
       <?-  Declare a field/property on this class - always private so no need to specify -?>
-      welcome String: "Hello "
+      welcome <- "Hello "
       
       <?- Another field/property but this one is not set to anything meaningful. -?>
-      to String: String()
+      to <- String()
       
       <?-
         The constructor.
@@ -82,7 +82,7 @@ defines module com.customer.starter.example
       Introduction()
         -> message as String
         //This is where the 'to' field gets set.
-        to := message
+        to :=: message
         
       <?-
       You can overload operators - here is an example of the 'to string' operator.

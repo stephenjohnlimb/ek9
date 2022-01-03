@@ -33,20 +33,20 @@ defines module com.customer.resolution
     //just used in testing
     R0 as abstract
       //If we can simplify fields/properties then I'd like to process in phase 1 ref and be able to use
-      //firstname <- String()
-      firstName String: String()
-      
+      //Now I can!
+      firstname <- String()
+
     R1 as abstract
-      firstName String: String()
-      lastName String: String()
-      nickName String: String()
-      address Address: Address()
+      firstName <- String()
+      lastName <- String()
+      nickName <- String()
+      address <- Address()
       
       operator $ as abstract
         <- is String
     
     R2 extends R1
-      DOB as Date: Date()
+      DOB <- Date()
       
       override operator $
         <- is String: "["
@@ -153,10 +153,10 @@ defines module com.customer.resolution
       It's open to be extended if necessary
     -?>
     Address with trait of T2 as open
-      houseNumber Integer: 20
-      street String: "A Street"
-      city String: "A Town"
-      postCode String: "PO5 C0D"
+      houseNumber <- 20
+      street <- "A Street"
+      city <- "A Town"
+      postCode <- "PO5 C0D"
       
       Address()
         //Check J

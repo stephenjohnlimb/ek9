@@ -55,7 +55,7 @@ defines module com.customer.just.tuples
 
         //Make the data up from base information and dynamic content.
         firstName <- name + "-" + $i
-        dob <- dateOfBirth + Duration("P"+$i+"M")
+        dob <- dateOfBirth + Duration(`P${i}M`)
 
         //define, populate and get an object of that type
         tuple <- ATuple(firstName, dob, language) as class

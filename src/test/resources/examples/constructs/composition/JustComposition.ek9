@@ -19,12 +19,14 @@ defines module com.customer.just.employees
         <- amount as Money
 
   defines record
+    //Added support for type inference back in for fields/properties
+    //bt only is default constructor or a literal
     Address
-      street as String: String()
-      street2 as String: String()
-      city as String: String()
-      state as String: String()
-      zipcode as String: String()
+      street <- String()
+      street2 <- String()
+      city <- String()
+      state <- String()
+      zipcode <- String()
 
       operator ?
         <- rtn as Boolean: street? and city? and state? and zipcode?
@@ -39,11 +41,15 @@ defines module com.customer.just.employees
   defines class
 
     Employee with trait of IRole by role, IPayrollCalculator by payroll
-      id as Integer: Integer()
-      name as String: String()
-      address as Address: Address()
+      id <- Integer()
+      name <- String()
+      address <- Address()
       role as IRole?
       payroll as IPayrollCalculator?
+
+      //You can make a default constructor unavailable if you wish
+      private Employee()
+      //No body
 
       Employee()
         ->
@@ -236,13 +242,14 @@ defines module com.customer.just.employees
           id as Integer
           name as String
           theRole as String
-        <-
-          rtn as Employee: Employee()
-        address <- addresses.getEmployeeAddress(id)
-        employeeRole <- productivitySystem.getRole(theRole)
-        payrollPolicy <- payrollSystem.getPolicy(id)
-
-        rtn: Employee(id, name, address, employeeRole, payrollPolicy)
+        <- //a bit of a mouth full, but you can use named parameters like this if you wish.
+          rtn as Employee: Employee(
+            id: id,
+            name: name,
+            address: addresses.getEmployeeAddress(id),
+            role: productivitySystem.getRole(theRole),
+            payroll: payrollSystem.getPolicy(id)
+            )
 
   defines program
     Demonstration()

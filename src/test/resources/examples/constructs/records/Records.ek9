@@ -12,7 +12,8 @@ defines module com.customer.records
   defines record
 
     IdRecord as abstract
-      id as Index : Index()
+      //We can support simple inference, but not complex expressions for fields/properties.
+      id <- Index()
       createdAt as DateTime: SystemClock().dateTime()
 
       IdRecord()
