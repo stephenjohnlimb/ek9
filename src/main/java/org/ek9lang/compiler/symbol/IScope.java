@@ -42,7 +42,7 @@ public interface IScope
 	 * Typically used with functions.
 	 * Something that is pure cannot have 'side effects'.
 	 * To enforce this a bit of logic can have no references to other variables, methods and functions 
-	 * else how can no side effects be guaranteed. Hence a function that just tests a value or calculates a result
+	 * else how can no side effects be guaranteed. Hence, a function that just tests a value or calculates a result
 	 * is deemed pure. Anything else is questionable.
 	 * @return true if marked as pure, false otherwise.
 	 */

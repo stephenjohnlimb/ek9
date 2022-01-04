@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.ek9lang.compiler.symbol;
 
 import org.ek9lang.compiler.symbol.support.MethodSymbolSearch;
@@ -16,49 +13,52 @@ import java.util.Optional;
  * This is typically a 'class' or an interface type where it can include the definitions of new
  * properties. These can then be made accessible via the symbol table to its
  * methods.
- * 
+ * <p>
  * But note there is also a single super 'AggregateScopedSymbol' that maps to a
  * super class so here the resolve can access variables in the super class.
- * 
- * i.e we only support single inheritance - but see AggregateWithTraitsSymbol for 'traits' support.
- * 
- * I've also added in a mechanism to parameterise the aggregate like Java generics.
- * 
+ * <p>
+ * i.e. we only support single inheritance - but see AggregateWithTraitsSymbol for 'traits' support.
+ * <p>
+ * I've also added in a mechanism to parameterize the aggregate like Java generics.
+ * <p>
  * In general the resolution would be able to resolve variables in the enclosing
  * scope because that will be module level in ZEN, there are new global types
  * and global constants that can appear to exist in the package (module) level
  * scope.
- * 
+ * <p>
  * So for example it is possible to reference a 'constant' or a 'type' that is
  * defined in the same module or if another module is drawn in through
  * 'references'.
- * 
+ * <p>
  * In reality (when creating the Java code) the constants and types can just be
  * public statics on a class. For example module the.mod that defines Constants
  * could have a class called the.mod._Constants with public final statics
  * defined.
- * 
+ * <p>
  * So there are two ways to resolve references first is module scope and second
  * is super class type scope.
- *
  */
 public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggregateSymbol
 {
 	//This is the module this aggregate has been defined in.
 	private IScope moduleScope;
-	
+
 	/**
 	 * Just used in commented output really - just handy to understand the origin of the aggregate
 	 * as some are synthetic.
 	 */
 	private String aggregateDescription;
-	
-	//This this actually a 'T' itself - we will need to know this.
+
+	/**
+	 * This is actually a 'T' itself - we will need to know this.
+	 */
 	private boolean genericTypeParameter;
-	
-	/** If there is a method that acts as a dispatcher then this aggregate is also a dispatcher.. */
+
+	/**
+	 * If there is a method that acts as a dispatcher then this aggregate is also a dispatcher.
+	 */
 	private boolean markedAsDispatcher = false;
-	
+
 	/**
 	 * Might always be null if a base 'class' or 'interface'.
 	 */
@@ -66,22 +66,45 @@ public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggreg
 
 	/**
 	 * Also keep a back pointer to the direct subclasses.
+	 * This is really useful for analysing a class or a trait.
 	 */
-	private List<IAggregateSymbol> subAggregateScopedSymbols = new ArrayList<IAggregateSymbol>();
-	
-	/*
+	private final List<IAggregateSymbol> subAggregateScopedSymbols = new ArrayList<IAggregateSymbol>();
+
+	/**
 	 * Was the aggregate marked as abstract in the source code.
 	 */
 	private boolean markedAbstract = false;
-	
+
+	/**
+	 * Now an aggregate might not have been marked as abstract.
+	 * But it might have on inherit some methods that are abstract.
+	 * In such cases we force this aggregate to be marked as virtual.
+	 * We can then do simple analysis and indicate the aggregate must
+	 * be marked as abstract by the developer.
+	 */
 	private boolean forceVirtual = false;
 
+	/**
+	 * Can this aggregate be injected by IOC/DI.
+	 */
 	private boolean injectable = false;
-	
+
+	/**
+	 * Is this aggregate open to be extended.
+	 * i.e. is it closed so that not other aggregates can extend it.
+	 */
 	private boolean openForExtension = false;
-	
+
+	/**
+	 * When used in pipeline processing, what is the type this aggregate could
+	 * support to receive types.
+	 */
 	private Optional<String> pipeSinkType = Optional.ofNullable(null);
-	
+
+	/**
+	 * When used in pipeline processing, what is the type this aggregate could
+	 * support to create types.
+	 */
 	private Optional<String> pipeSourceType = Optional.ofNullable(null);
 
 	/**
@@ -90,13 +113,15 @@ public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggreg
 	 * i.e. a sort of closure over a variable - but has to be declared and is not implicit like java/other languages.
 	 */
 	private Optional<LocalScope> capturedVariables = Optional.ofNullable(null);
-	
-	/**
-	 * For reverse engineered aggregates we need to know if "_get" of object as itself
-	 * is supported so we can create the IR output. 
+
+	/*
+	 * For built-in or reverse engineered aggregates we need to know if "_get()" of object as itself
+	 * is supported; so we can create the IR output.
+	 * This is typically needed if we want to use these aggregates in pipelines.
+	 * Though this will be rationalised with an iterator that just returns an iterator or one item of itself.
 	 */
-	private boolean getOfSelfSupported = false;
-	
+	//private boolean getOfSelfSupported = false;
+
 	public AggregateSymbol(String name, IScope enclosingScope)
 	{
 		super(name, enclosingScope);
@@ -149,17 +174,25 @@ public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggreg
 			newCopy.setCapturedVariables(newCaptureScope);
 		}
 
-		newCopy.getOfSelfSupported = getOfSelfSupported;
-
 		return newCopy;
 	}
 
+	/**
+	 * If used in dynamic form, this will return the scope with any dynamic variables
+	 * that we captured at definition.
+	 * @return An optional of a scope containing zero or more captured variables.
+	 */
 	@Override
 	public Optional<LocalScope> getCapturedVariables()
 	{
 		return capturedVariables;
 	}
 
+	/**
+	 * Attempt to resolve a named variable but exclude looking any captured variables.
+	 * @param search The symbol search to use to find the variable.
+	 * @return An optional match if one is found.
+	 */
 	@Override
 	public Optional<ISymbol> resolveExcludingCapturedVariables(SymbolSearch search)
 	{
@@ -167,34 +200,30 @@ public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggreg
 		return rtn;
 	}
 
+	/**
+	 * When used in a dynamic style aggregate to set the variables that have been captured.
+	 * @param capturedVariables The scope with the captured variables in.
+	 */
+	@Override
 	public void setCapturedVariables(LocalScope capturedVariables)
 	{
 		this.capturedVariables = Optional.ofNullable(capturedVariables);
 	}
 
-	public void setCapturedVariablesVisibility(boolean isPublic)
-	{
-		if(capturedVariables.isPresent())
-		{
-			capturedVariables.get().getSymbolsForThisScope().forEach(symbol -> {
-				if(symbol instanceof VariableSymbol)
-				{
-					((VariableSymbol)symbol).setPrivate(!isPublic);
-				}
-			});
-		}
-	}
-	public void setCapturedVariables(Optional<LocalScope> capturedVariables)
-	{
-		this.capturedVariables = capturedVariables;
-	}
-
+	/**
+	 * Provides a friendly name of this aggregate that could be presented to the developer.
+	 * @return The friendly name - especially useful for anonymous dynamic types.
+	 */
 	@Override
 	public String getFriendlyName()
-	{		
-		return doGetFriendlyName();	
+	{
+		return doGetFriendlyName();
 	}
 
+	/**
+	 * Typically used for synthetically generated aggregates.
+	 * @return A description or the friendly name of no description has been set.
+	 */
 	public String getAggregateDescription()
 	{
 		if(this.aggregateDescription == null)
@@ -202,21 +231,12 @@ public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggreg
 		return aggregateDescription;
 	}
 
+	/**
+	 * Typically used for synthetically generated aggregates.
+	 */
 	public void setAggregateDescription(String aggregateDescription)
 	{
 		this.aggregateDescription = aggregateDescription;
-	}
-	
-	@Override
-	public boolean isGetOfSelfSupported()
-	{
-		return getOfSelfSupported;
-	}
-
-	@Override
-	public void setGetOfSelfSupported(boolean getOfSelfSupported)
-	{
-		this.getOfSelfSupported = getOfSelfSupported;
 	}
 
 	public Optional<String> getPipeSinkType()
@@ -238,35 +258,15 @@ public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggreg
 	{
 		this.pipeSourceType = pipeSourceType;
 	}
-	
+
 	public boolean isOpenForExtension()
 	{
 		return this.openForExtension;
 	}
-	
+
 	public void setOpenForExtension(boolean open)
 	{
 		this.openForExtension = open;
-	}
-	
-	/**
-	 * Is this aggregate itself a generic sort of aggregate.
-	 * @return boolean true if is parameterised 
-	 */
-	public boolean isGenericInNature()
-	{
-		return !this.getParameterisedTypes().isEmpty();
-	}
-	
-	@Override
-	public boolean isGenericTypeParameter()
-	{
-		return genericTypeParameter;
-	}
-
-	public void setGenericTypeParameter(boolean genericTypeParameter)
-	{
-		this.genericTypeParameter = genericTypeParameter;
 	}
 
 	public boolean isMarkedAsDispatcher()
@@ -278,135 +278,7 @@ public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggreg
 	{
 		this.markedAsDispatcher = markedAsDispatcher;
 	}
-	
-	public List<IAggregateSymbol> getSubAggregateScopedSymbols()
-	{
-		return subAggregateScopedSymbols;
-	}
-	
-	public void addSubAggregateScopedSymbol(IAggregateSymbol sub)
-	{
-		if(!subAggregateScopedSymbols.contains(sub))
-			subAggregateScopedSymbols.add(sub);
-	}
 
-	/**
-	 * Gets all abstract methods in this aggregate and any super classes
-	 * @return A list of all the methods marked as abstract.
-	 */
-	@Override
-	public List<MethodSymbol> getAllAbstractMethods()
-	{
-		ArrayList<MethodSymbol> rtn = new ArrayList<MethodSymbol>();
-		if(superAggregateScopedSymbol.isPresent())
-			rtn.addAll(superAggregateScopedSymbol.get().getAllAbstractMethods());
-			
-		for(ISymbol sym: getSymbolsForThisScope())
-			if(sym.isAMethod())
-				if(((MethodSymbol)sym).isMarkedAbstract())
-					rtn.add((MethodSymbol)sym);
-		return rtn; 
-	}
-	
-	/**
-	 * Provides access to the properties on this aggregate - but only this aggregate.
-	 * @return The list of properties.
-	 */
-	@Override
-	public List<ISymbol> getProperties()
-	{
-		ArrayList<ISymbol> rtn = new ArrayList<ISymbol>();
-		for(ISymbol sym: getSymbolsForThisScope())
-			if(sym.isAVariable())
-				rtn.add(sym);
-		
-		return rtn;
-	}
-		
-	@Override
-	public List<MethodSymbol> getConstructors()
-	{
-		ArrayList<MethodSymbol> rtn = new ArrayList<MethodSymbol>();
-		for(ISymbol sym: getSymbolsForThisScope())
-			if(sym.isAMethod())
-				if(((MethodSymbol)sym).isConstructor())
-					rtn.add((MethodSymbol)sym);
-		return rtn;
-	}
-
-	@Override
-	public List<MethodSymbol> getAllNonAbstractMethods()
-	{
-		ArrayList<MethodSymbol> rtn = new ArrayList<MethodSymbol>();
-		if(superAggregateScopedSymbol.isPresent())
-			rtn.addAll(superAggregateScopedSymbol.get().getAllNonAbstractMethods());
-			
-		rtn.addAll(getAllNonAbstractMethodsInThisScopeOnly());
-		return rtn; 
-	}
-	
-	public List<ISymbol> getAllPropertyFieldsInThisScopeOnly()
-	{
-		ArrayList<ISymbol> rtn = new ArrayList<ISymbol>();
-		for(ISymbol sym: getSymbolsForThisScope())
-			if(!sym.isAMethod()) //might have functions in there hung on as delegates
-				rtn.add(sym);
-		return rtn;
-	}
-	
-	@Override
-	public List<MethodSymbol> getAllNonAbstractMethodsInThisScopeOnly()
-	{
-		ArrayList<MethodSymbol> rtn = new ArrayList<MethodSymbol>();
-		for(ISymbol sym: getSymbolsForThisScope())
-			if(sym.isAMethod())
-				if(!((MethodSymbol)sym).isMarkedAbstract())
-					rtn.add((MethodSymbol)sym);
-		return rtn;
-	}
-	
-	@Override
-	public boolean isTraitImplemented(AggregateWithTraitsSymbol thisTraitSymbol)
-	{
-		if(superAggregateScopedSymbol.isPresent())
-			return superAggregateScopedSymbol.get().isTraitImplemented(thisTraitSymbol);
-		return false;
-	}
-	
-	@Override
-	public List<AggregateWithTraitsSymbol> getAllTraits()
-	{
-		//This has no traits but its super might.
-		List<AggregateWithTraitsSymbol> rtn = new ArrayList<AggregateWithTraitsSymbol>();
-		if(getSuperAggregateScopedSymbol().isPresent())
-		{
-			IAggregateSymbol theSuper = getSuperAggregateScopedSymbol().get();
-			List<AggregateWithTraitsSymbol> superTraits = theSuper.getAllTraits();
-			superTraits.forEach(trait -> {
-				if(!rtn.contains(trait))
-					rtn.add(trait);
-			});
-		}
-		
-		return rtn;
-	}
-	
-	public IScope getModuleScope()
-	{
-		return moduleScope;
-	}
-
-	public void setModuleScope(Optional<IScope> moduleScope)
-	{
-		if(moduleScope.isPresent())
-			this.moduleScope = moduleScope.get();
-	}
-	
-	public void setModuleScope(IScope moduleScope)
-	{
-		this.moduleScope = moduleScope;
-	}
-	
 	public boolean isMarkedAbstract()
 	{
 		return markedAbstract;
@@ -422,7 +294,7 @@ public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggreg
 	{
 		return forceVirtual;
 	}
-	
+
 	@Override
 	public boolean isInjectable()
 	{
@@ -435,6 +307,170 @@ public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggreg
 	}
 
 	@Override
+	public void setVirtual(boolean virtual)
+	{
+		this.forceVirtual = virtual;
+	}
+
+	/**
+	 * Is this aggregate based of generic sort of aggregate and it has been parameterized.
+	 */
+	@Override
+	public boolean isGenericInNature()
+	{
+		return !this.getParameterisedTypes().isEmpty();
+	}
+
+	/**
+	 * Is this aggregate itself a generic type that has been used as a parameter
+	 */
+	@Override
+	public boolean isGenericTypeParameter()
+	{
+		return genericTypeParameter;
+	}
+
+	/**
+	 * Set this aggregate to be a generic type parameter
+	 */
+	public void setGenericTypeParameter(boolean genericTypeParameter)
+	{
+		this.genericTypeParameter = genericTypeParameter;
+	}
+
+	/**
+	 * Parameterize this with an aggregate type
+	 */
+	public AggregateSymbol addParameterisedType(AggregateSymbol parameterisedType)
+	{
+		super.addParameterisedType(parameterisedType);
+		super.setCategory(SymbolCategory.TEMPLATE_TYPE);
+		return this;
+	}
+
+	public List<IAggregateSymbol> getSubAggregateScopedSymbols()
+	{
+		return subAggregateScopedSymbols;
+	}
+
+	public void addSubAggregateScopedSymbol(IAggregateSymbol sub)
+	{
+		if(!subAggregateScopedSymbols.contains(sub))
+			subAggregateScopedSymbols.add(sub);
+	}
+
+	/**
+	 * Gets all abstract methods in this aggregate and any super classes.
+	 * @return A list of all the methods marked as abstract.
+	 */
+	@Override
+	public List<MethodSymbol> getAllAbstractMethods()
+	{
+		ArrayList<MethodSymbol> rtn = new ArrayList<MethodSymbol>();
+		if(superAggregateScopedSymbol.isPresent())
+			rtn.addAll(superAggregateScopedSymbol.get().getAllAbstractMethods());
+
+		for(ISymbol sym : getSymbolsForThisScope())
+			if(sym.isAMethod())
+				if(((MethodSymbol)sym).isMarkedAbstract())
+					rtn.add((MethodSymbol)sym);
+		return rtn;
+	}
+
+	/**
+	 * Provides access to the properties on this aggregate - but only this aggregate.
+	 * @return The list of properties.
+	 */
+	@Override
+	public List<ISymbol> getProperties()
+	{
+		ArrayList<ISymbol> rtn = new ArrayList<ISymbol>();
+		for(ISymbol sym : getSymbolsForThisScope())
+			if(sym.isAVariable())
+				rtn.add(sym);
+
+		return rtn;
+	}
+
+	@Override
+	public List<MethodSymbol> getConstructors()
+	{
+		ArrayList<MethodSymbol> rtn = new ArrayList<MethodSymbol>();
+		for(ISymbol sym : getSymbolsForThisScope())
+			if(sym.isAMethod())
+				if(((MethodSymbol)sym).isConstructor())
+					rtn.add((MethodSymbol)sym);
+		return rtn;
+	}
+
+	@Override
+	public List<MethodSymbol> getAllNonAbstractMethods()
+	{
+		ArrayList<MethodSymbol> rtn = new ArrayList<MethodSymbol>();
+		if(superAggregateScopedSymbol.isPresent())
+			rtn.addAll(superAggregateScopedSymbol.get().getAllNonAbstractMethods());
+
+		rtn.addAll(getAllNonAbstractMethodsInThisScopeOnly());
+		return rtn;
+	}
+
+	public List<ISymbol> getAllPropertyFieldsInThisScopeOnly()
+	{
+		ArrayList<ISymbol> rtn = new ArrayList<ISymbol>();
+		for(ISymbol sym : getSymbolsForThisScope())
+			if(!sym.isAMethod()) //might have functions in there hung on as delegates
+				rtn.add(sym);
+		return rtn;
+	}
+
+	@Override
+	public List<MethodSymbol> getAllNonAbstractMethodsInThisScopeOnly()
+	{
+		ArrayList<MethodSymbol> rtn = new ArrayList<MethodSymbol>();
+		for(ISymbol sym : getSymbolsForThisScope())
+			if(sym.isAMethod())
+				if(!((MethodSymbol)sym).isMarkedAbstract())
+					rtn.add((MethodSymbol)sym);
+		return rtn;
+	}
+
+	@Override
+	public boolean isTraitImplemented(AggregateWithTraitsSymbol thisTraitSymbol)
+	{
+		if(superAggregateScopedSymbol.isPresent())
+			return superAggregateScopedSymbol.get().isTraitImplemented(thisTraitSymbol);
+		return false;
+	}
+
+	@Override
+	public List<AggregateWithTraitsSymbol> getAllTraits()
+	{
+		//This has no traits but its super might.
+		List<AggregateWithTraitsSymbol> rtn = new ArrayList<AggregateWithTraitsSymbol>();
+		if(getSuperAggregateScopedSymbol().isPresent())
+		{
+			IAggregateSymbol theSuper = getSuperAggregateScopedSymbol().get();
+			List<AggregateWithTraitsSymbol> superTraits = theSuper.getAllTraits();
+			superTraits.forEach(trait -> {
+				if(!rtn.contains(trait))
+					rtn.add(trait);
+			});
+		}
+
+		return rtn;
+	}
+
+	public IScope getModuleScope()
+	{
+		return moduleScope;
+	}
+
+	public void setModuleScope(IScope moduleScope)
+	{
+		this.moduleScope = moduleScope;
+	}
+
+	@Override
 	public boolean isExtensionOfInjectable()
 	{
 		if(injectable)
@@ -443,96 +479,84 @@ public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggreg
 			return superAggregateScopedSymbol.get().isExtensionOfInjectable();
 		return false;
 	}
-	
-	@Override
-	public void setVirtual(boolean virtual)
-	{
-		this.forceVirtual = virtual;
-	}
-	
+
+
 	private double checkParameterisedTypesAssignable(List<ISymbol> listA, List<ISymbol> listB)
 	{
 		if(listA.size() != listB.size())
 			return -1.0;
-		
+
 		double canAssign = 0.0;
-		for(int i=0; i<listA.size(); i++)
+		for(int i = 0; i < listA.size(); i++)
 		{
 			canAssign += listA.get(i).getAssignableWeightTo(listB.get(i));
 			if(canAssign < 0.0)
 				return canAssign;
 		}
-		
+
 		return canAssign;
 	}
-	
+
 	@Override
 	public double getAssignableWeightTo(ISymbol s)
 	{
 		//Here be dragons - looks simple but there are complexities in here with super types and generics
-		
+
 		//might not be able to be directly assignable - but not end of the world!
 		//We might get a coersion match so weight might not be 0.0.
 		double canAssign = super.getAssignableWeightTo(s);
-		
+
 		//Check if assignable as super
 		if(superAggregateScopedSymbol.isPresent() && canAssign < 0.0)
 		{
 			//now we can check superclass matches. but add some weight because this did not match
 			double weight = superAggregateScopedSymbol.get().getAssignableWeightTo(s);
-			canAssign = 0.05 + weight;			
-						
+			canAssign = 0.05 + weight;
+
 			if(canAssign < 0.0)
-				return canAssign;			
+				return canAssign;
 		}
-				
+
 		if(canAssign >= 0.0)
 		{
 			if(s instanceof AggregateSymbol && canAssign >= 0.0)
 			{
 				AggregateSymbol toCheck = (AggregateSymbol)s;
-				double paramterisedWeight = checkParameterisedTypesAssignable(getParameterisedTypes(), toCheck.getParameterisedTypes()); 
+				double paramterisedWeight = checkParameterisedTypesAssignable(getParameterisedTypes(), toCheck.getParameterisedTypes());
 				canAssign += paramterisedWeight;
-			}			
+			}
 		}
 
 		return canAssign;
 	}
-	
+
 	public double getUnCoercedAssignableWeightTo(ISymbol s)
 	{
 		double canAssign = super.getUnCoercedAssignableWeightTo(s);
-		
+
 		if(superAggregateScopedSymbol.isPresent() && canAssign < 0.0)
 		{
 			//now we can check superclass matches. but add some weight because this did not match
 			double weight = superAggregateScopedSymbol.get().getUnCoercedAssignableWeightTo(s);
-			canAssign = 0.05 + weight;			
-						
+			canAssign = 0.05 + weight;
+
 			if(canAssign < 0.0)
-				return canAssign;			
+				return canAssign;
 		}
-				
+
 		if(canAssign >= 0.0)
 		{
 			if(s instanceof AggregateSymbol && canAssign >= 0.0)
 			{
 				AggregateSymbol toCheck = (AggregateSymbol)s;
-				double paramterisedWeight = checkParameterisedTypesAssignable(getParameterisedTypes(), toCheck.getParameterisedTypes()); 
+				double paramterisedWeight = checkParameterisedTypesAssignable(getParameterisedTypes(), toCheck.getParameterisedTypes());
 				canAssign += paramterisedWeight;
-			}			
+			}
 		}
 
 		return canAssign;
 	}
-	
-	public AggregateSymbol addParameterisedType(AggregateSymbol parameterisedType)
-	{
-		super.addParameterisedType(parameterisedType);
-		super.setCategory(SymbolCategory.TEMPLATE_TYPE);
-		return this;
-	}
-	
+
 	public void setSuperAggregateScopedSymbol(Optional<IAggregateSymbol> superAggregateScopedSymbol)
 	{
 		AssertValue.checkNotNull("Optional superAggregateScopedSymbol cannot be null", superAggregateScopedSymbol);
@@ -545,10 +569,10 @@ public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggreg
 	{
 		setSuperAggregateScopedSymbol(Optional.ofNullable(baseSymbol));
 	}
-	
+
 	public Optional<IAggregateSymbol> getSuperAggregateScopedSymbol()
 	{
-		return superAggregateScopedSymbol;	
+		return superAggregateScopedSymbol;
 	}
 
 	public boolean hasImmediateSuper(IAggregateSymbol theSuper)
@@ -557,7 +581,7 @@ public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggreg
 			return superAggregateScopedSymbol.get().isExactSameType(theSuper);
 		return false;
 	}
-	
+
 	@Override
 	public ISymbol setType(Optional<ISymbol> type)
 	{
@@ -566,7 +590,7 @@ public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggreg
 			this.setSuperAggregateScopedSymbol((IAggregateSymbol)type.get());
 		else if(super.getType().isPresent())
 			throw new RuntimeException("You cannot set the type of an aggregate Symbol");
-			
+
 		return super.setType(type);
 	}
 
@@ -576,12 +600,12 @@ public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggreg
 		//This is also a type
 		return Optional.of(this);
 	}
-	
+
 	@Override
 	public MethodSymbolSearchResult resolveForAllMatchingMethods(MethodSymbolSearch search, MethodSymbolSearchResult result)
 	{
 		//System.out.println("Search '" + this.getName() + "' AggregateSymbol: " + search);
-		
+
 		MethodSymbolSearchResult buildResult = new MethodSymbolSearchResult(result);
 		//Do supers first then do own
 		if(superAggregateScopedSymbol.isPresent())
@@ -590,23 +614,23 @@ public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggreg
 			buildResult = buildResult.mergePeerToNewResult(superAggregateScopedSymbol.get().resolveForAllMatchingMethods(search, new MethodSymbolSearchResult()));
 			//System.out.println(this.getName() + ": AggregateSymbol super: " + buildResult);
 		}
-		
+
 		MethodSymbolSearchResult res = resolveForAllMatchingMethodsInThisScopeOnly(search, new MethodSymbolSearchResult());
 		//System.out.println("Res '" + this.getName() + "' AggregateSymbol: " + search + ": " + res);
-		buildResult = buildResult.overrideToNewResult(res);		
-		
+		buildResult = buildResult.overrideToNewResult(res);
+
 		//System.out.println("End Search '" + this.getName() + "' AggregateSymbol: " + search + ": " + buildResult);
 		return buildResult;
 	}
-	
-    public Optional<ISymbol> resolveMember(SymbolSearch search)
-    {
-        //For members we only look to our aggregate and super (unless we introduce traits later)
-        Optional<ISymbol> rtn = resolveInThisScopeOnly(search);
-        if(!rtn.isPresent() && superAggregateScopedSymbol.isPresent())
-            rtn = superAggregateScopedSymbol.get().resolveMember(search);
-        return rtn;
-    }
+
+	public Optional<ISymbol> resolveMember(SymbolSearch search)
+	{
+		//For members we only look to our aggregate and super (unless we introduce traits later)
+		Optional<ISymbol> rtn = resolveInThisScopeOnly(search);
+		if(!rtn.isPresent() && superAggregateScopedSymbol.isPresent())
+			rtn = superAggregateScopedSymbol.get().resolveMember(search);
+		return rtn;
+	}
 
 	@Override
 	public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search)
@@ -625,18 +649,18 @@ public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggreg
 	protected Optional<ISymbol> resolveWithParentScope(SymbolSearch search)
 	{
 		Optional<ISymbol> rtn = Optional.ofNullable(null);
-	
+
 		//So we keep going back up the class hierarchy until no more supers then
 		//When we get to the final aggregate we use the scopedSymbol local and back up to global symbol table.
 		if(superAggregateScopedSymbol.isPresent())
 			rtn = superAggregateScopedSymbol.get().resolve(search);
-		
+
 		if(!rtn.isPresent())
 			rtn = super.resolve(search);
-		
+
 		return rtn;
 	}
-	
+
 	/**
 	 * So this is where we alter the mechanism of normal symbol resolution.
 	 */
@@ -653,7 +677,7 @@ public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggreg
 					rtn = Optional.of(parameterisedType);
 			}
 		}
-		
+
 		//Now see if it is defined in this aggregate.
 		if(!rtn.isPresent())
 			rtn = resolveInThisScopeOnly(search);
@@ -669,7 +693,7 @@ public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggreg
 		buffer.append(getAnyGenericParamsAsFriendlyNames());
 		return buffer.toString();
 	}
-	
+
 	protected String getAnyGenericParamsAsFriendlyNames()
 	{
 		StringBuffer buffer = new StringBuffer();

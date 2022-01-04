@@ -19,18 +19,18 @@ import org.ek9lang.core.utils.OsSupport;
 /**
  * We need an error listener for the lexing parsing and also our own tree
  * visiting. So our own tree visiting will be able to use additional methods we
- * add on to this so we can report semantic errors and warnings.
+ * add on to this; so we can report semantic errors and warnings.
  * 
- * Why: because we need to gather up all the errors on a per file processing
+ * Why: because we need to gather-up all the errors on a per-file processing
  * basis. This is needed because we are going to multi-thread the various stages
  * of compilation based on a thread per source file. So, we would not want the
  * error information being interleaved in the console output. Plus eventually
- * there will be a UI over the compiler and we will need very focused sets of
+ * there will be a UI over the compiler, and we will need very focused sets of
  * errors on a per source code basis.
  */
 public class ErrorListener extends BaseErrorListener
 {
-	private OsSupport osSupport = new OsSupport();
+	private final OsSupport osSupport = new OsSupport();
 
 	private boolean exceptionOnAmbiguity = false;
 	private boolean exceptionOnContextSensitive = false;
@@ -39,7 +39,7 @@ public class ErrorListener extends BaseErrorListener
 	private List<ErrorDetails> errors = new ArrayList<>();
 	
 	//This is so we can limit the number of errors we output when we get multiple triggers for the same type/variable but for different reasons.
-	//Normally its the first reason that is the cause, the rest are just follow ones from that.
+	//Normally it's the first reason that is the cause, the rest are just follow ones from that.
 	private HashMap<String, ErrorDetails> uniqueErrors = new HashMap<>();
 	
 	private List<ErrorDetails> warnings = new ArrayList<>();
@@ -51,9 +51,9 @@ public class ErrorListener extends BaseErrorListener
 
 	public void reset()
 	{
-		errors = new ArrayList<ErrorDetails>();
-		uniqueErrors = new HashMap<String, ErrorDetails>();
-		warnings = new ArrayList<ErrorDetails>();
+		errors = new ArrayList<>();
+		uniqueErrors = new HashMap<>();
+		warnings = new ArrayList<>();
 	}	
 
 	public boolean isExceptionOnAmbiguity()
@@ -87,7 +87,7 @@ public class ErrorListener extends BaseErrorListener
 	}
 
 	/**
-	 * Get all Errors. See other methods (yet to come to get specific types of errors/warnings.
+	 * Get all Errors. See other methods (yet to come to get specific types of errors/warnings).
 	 */
 	public Iterator<ErrorDetails> getErrors()
 	{
@@ -126,7 +126,7 @@ public class ErrorListener extends BaseErrorListener
 
 	public void semanticWarning(Token offendingSymbol, String msg, SemanticClassification classification)
 	{
-		ErrorDetails warning = null;
+		ErrorDetails warning;
 		if(offendingSymbol == null)
 			warning = new ErrorDetails(ErrorClassification.SEMANTIC_WARNING, "Unknown Text", null, 0, 0, msg);
 		else
@@ -143,7 +143,7 @@ public class ErrorListener extends BaseErrorListener
 	
 	private ErrorDetails createSemanticError(Token offendingToken, String msg, SemanticClassification classification)
 	{
-		ErrorDetails error = null;		
+		ErrorDetails error;
 		
 		if(offendingToken == null)
 		{
@@ -189,7 +189,7 @@ public class ErrorListener extends BaseErrorListener
 
 	@Override
 	public void reportAmbiguity(Parser recognizer, DFA dfa, int startIndex, int stopIndex, boolean exact,
-			BitSet ambigAlts, ATNConfigSet configs)
+			BitSet ambiguousAlts, ATNConfigSet configs)
 	{
 		if(exceptionOnAmbiguity)
 			throw new RuntimeException("reportAmbiguity");
@@ -237,16 +237,16 @@ public class ErrorListener extends BaseErrorListener
 		}
 	}
 
-	public static enum ErrorClassification
+	public enum ErrorClassification
 	{
 		WARNING,
 		DEPRECATION,
 		SYNTAX_ERROR,
 		SEMANTIC_WARNING,
 		SEMANTIC_ERROR
-	};
-	
-	public static enum SemanticClassification
+	}
+
+	public enum SemanticClassification
 	{
 		NOT_RESOLVED_FUZZY_MATCH("is the closest match found"),
 		NOT_RESOLVED("not resolved"),
@@ -260,8 +260,9 @@ public class ErrorListener extends BaseErrorListener
 		TYPE_AMBIGUOUS("type use is ambiguous"),
 		TYPE_MUST_BE_STRING("result must be String or can be promoted to String"),
 		SYMBOL_LOCATED_BUT_TYPE_NOT_RESOLVED("symbol located but its type is not resolved"),
-		TYPE_OR_FUNCTION_NOT_RESOLVED("type/function of variable not resolved"), //In the generic case where we're not sure what youre looking for.
+		TYPE_OR_FUNCTION_NOT_RESOLVED("type/function of variable not resolved"), //In the generic case where we're not sure what you're looking for.
 		CONSTRUCTOR_NOT_RESOLVED("constructor not resolved with specified parameters"),
+		CONSTRUCTOR_BY_JSON_NOT_RESOLVED("constructor of this type with single JSON parameter is not resolved"),
 		CONSTRUCTOR_NOT_RESOLVED_IN_GENERIC_CONTEXT("constructor not resolved, check parameters where this generic type is being created"),
 		GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED("type/function is generic but no parameters were supplied"),
 		GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INVALID("this generic usage with this type is not allowed"),
@@ -270,7 +271,7 @@ public class ErrorListener extends BaseErrorListener
 		GENERIC_TYPE_OR_FUNCTION_PARAMETER_MISMATCH("type/function is generic but generic parameters and constructor parameters conflict"),
 		GENERIC_TYPE_OR_FUNCTION_NOT_RESOLVED("type/function is generic but could not be resolved, use 'define type as' and type inference will work."),
 		GENERIC_TYPE_OR_FUNCTION_NOT_APPLICABLE("type/function is not generic but parameters were supplied"),
-		TYPE_REQUIRED_FOR_PROPERTIES("type must be declared for properties - '<-' operator is not supported"),
+		TYPE_REQUIRED_FOR_PROPERTIES("type must be declared for this property - '<-' operator is not supported with complex call"),
 		USE_OF_SUPER_INAPPROPRIATE("cannot be used here (but 'this' has support for :=:, :~:, +=, -=, /= and *=)"),
 		USE_OF_THIS_INAPPROPRIATE("can be used with :=:, :~:, +=, -=, /= and *=. But not direct assignment"),
 		INVALID_TEXT_INTERPOLATION("interpolated text is invalid - check balanced ${}"),
@@ -291,8 +292,8 @@ public class ErrorListener extends BaseErrorListener
 		SERVICE_MISSING_RETURN("Web Service must have return value and it must be compatible with HTTPResponse"),
 		GENERIC_TYPE_DEFINITION_CANNOT_EXTEND("this generic class definition cannot extend other classes or generic types"),
 		TYPE_REQUIRED_FOR_RETURN("type must be declared for returning values"),
-		RETURNING_REQUIRED("returning block required to assign from switch"),
-		RETURNING_REDUNDANT("returning block is redundant for a standard switch"),
+		RETURNING_REQUIRED("returning block required to assign from switch/try"),
+		RETURNING_REDUNDANT("returning block is redundant for a standard switch/try"),
 		RETURNING_MISSING("returning variable and type missing"),
 		METHOD_ACCESS_MODIFIER_PRIVATE_OVERRIDE("remove 'override' with use of 'private' access modifier"),
 		METHOD_MODIFIER_PROTECTED_IN_SERVICE("non web service methods cannot be marked with the 'protected' access modifier"),
@@ -303,12 +304,13 @@ public class ErrorListener extends BaseErrorListener
 		ACCESS_MODIFIER_INAPPROPRIATE("access modifier inappropriate here"),
 		APPLICATION_SELECTION_INVALID("application selection not allowed in this context"),
 		STATEMENT_UNREACHABLE("unreachable statement"),
+		POINTLESS_EXPRESSION("constant Boolean literal in expression is pointless"),
 		TYPE_IS_ABSTRACT("type is abstract and cannot be instantiated"),
 		TYPE_IS_INJECTABLE("type is or extends an injectable component"),
 		TYPE_IS_NOT_INJECTABLE("type is not an injectable component"),
 		TYPE_IS_NOT_ASPECT("type is not an aspect"),
 		TYPE_MUST_EXTEND_EXCEPTION("type must be of Exception type"),
-		TYPE_MUST_BE_FUNCTION("type must be a function"),		
+		TYPE_MUST_BE_FUNCTION("type must be a function"),
 		PARAM_MUST_BE_VARIABLE("parameter must be a variable"),
 		FUNCTION_MUST_HAVE_NO_PARAMETERS("function must have no parameters"),
 		FUNCTION_MUST_HAVE_SINGLE_PARAMETER("function must have a single parameter"),
@@ -322,6 +324,9 @@ public class ErrorListener extends BaseErrorListener
 		FUNCTION_MUST_RETURN_INTEGER("function must return an Integer"),
 		FUNCTION_MUST_RETURN_VALUE("function must return a value"),
 		FUNCTION_MUST_RETURN_SAME_TYPE_AS_INPUT("function must return the same type as the input type"),
+		CALL_DOES_NOT_RETURN_ANYTHING("Right hand side does not return a value"),
+		CONVERT_CONSTANT_TO_VARIABLE("convert this constant to a variable"),
+		CONSTANT_PARAM_NEEDS_PURE("use 'pure' modifier with a constant parameter or convert the constant to a variable"),
 		DUPLICATE_PROPERTY_FIELD("Property/Field duplicated"),
 		DUPLICATE_VARIABLE("Variable/Constant duplicated"),
 		DUPLICATE_METHOD("Method duplicated"),
@@ -367,7 +372,13 @@ public class ErrorListener extends BaseErrorListener
 		INVALID_NUMBER_OF_PARAMETERS("invalid number of parameters"),
 		INVALID_PARAMETER_TYPE("invalid parameter type"),
 		SIGNATURE_MISMATCH("parameter type mismatch"),
+		OPERATOR_EQUALS_AND_HASHCODE_INCONSISTENT("operators should be implemented for consistency"),
+		OVERRIDE_OPERATOR_EQUALS("operator == should be overridden for consistency"),
+		OVERRIDE_OPERATOR_HASHCODE("operator #? should be overridden for consistency"),
 		OPERATOR_NOT_DEFINED("operator not defined"),
+		OPERATOR_DOES_NOT_SUPPORT_PARAMETERS("operator does not support parameters"),
+		OPERATOR_REQUIRES_PARAMETER("operator requires a single parameter"),
+		OPERATOR_INCORRECT_RETURN_TYPE("operator has incorrect return type or no return type"),
 		SERVICE_OPERATOR_NOT_SUPPORTED("operator not supported, only +, -, :=, :~: and ? supported"),
 		NO_VERB_REQUIRED_WITH_SERVICE_OPERATOR("use of operator means that verb is implied and cannot be specified"),
 		OPERATOR_NOT_DEFINED_FROM_GENERIC("operator must be defined when using a generic implementation with a specific type"),
@@ -378,37 +389,46 @@ public class ErrorListener extends BaseErrorListener
 		NOT_IMMEDIATE_TRAIT("not an immediate trait of this context"),
 		NOT_IMMEDIATE_SUPER("not an immediate super of this context"),
 		NOT_ACCESSIBLE("not accessible from this context"),
+		MUST_BE_PURE_AS_SUPER_IS_PURE("super is marked as 'pure', this must also be 'pure'"),
+		NO_REASSIGNMENT_FROM_CONTEXT_AS_PURE("not re-assignable from this 'pure' context"),
 		TYPE_ADDRESS_NOT_SUITABLE("addressing access in this way is not suitable from this context"),
 		METHOD_OVERRIDES("as it overrides method of same name/signature in hierarchy"),
 		METHOD_DOES_NOT_OVERRIDE("does not override any method in hierarchy"),
 		METHOD_ACCESS_MODIFIERS_DIFFER("methods with same signature have different access modifiers"),
+		PURE_MODIFIERS_DIFFER("'pure' in super requires 'pure' for this definition"),
 		SWITCH_REQUIRES_EQUALS("switch statement requires type to have '=' operator"),
 		USED_BEFORE_DEFINED("identifier used before definition"),
 		USED_BEFORE_INITIALISED("identifier might be used before being initialised"),
 		SELF_ASSIGNMENT("self assignment"),
-		NO_PURE_REASSIGNMENT("variables cannot be reassigned when scope is marked as 'pure'"),
+		NOT_REFERENCED("is not referenced anywhere"),
+		LIKELY_DEFECT("likely defect"),
+		NO_PURE_PROPERTY_REASSIGNMENT("properties cannot be reassigned when scope is marked as 'pure', but you can copy/merge/replace (:=:, :~:, :^:)"),
+		NO_PURE_VARIABLE_REASSIGNMENT("variables cannot be reassigned when scope is marked as 'pure'"),
+		NO_PURE_REASSIGNMENT("reassignment not allowed when scope is marked as 'pure'"),
+		NO_MUTATION_IN_PURE_CONTEXT("mutating variables is not allowed when scope is marked as 'pure'"),
 		PURE_RETURN_REASSIGNMENT("reassignment of return values is discouraged when scope is marked as 'pure'"),
 		COMPONENT_INJECTION_IN_PURE("component injection not allowed when scope is marked as 'pure'"),
 		COMPONENT_INJECTION_OF_NON_ABSTRACT("dependency injection of a non-abstract component is not allowed, use an abstract base component"),
 		COMPONENT_INJECTION_NOT_POSSIBLE("dependency injection is not allowed"),
 		COMPONENT_NOT_INITIALISED("component not marked for injection nor initialised"),
+		COMPONENT_NOT_MARKED_FOR_INJECTION("component not marked for injection"),
 		USE_OF_NULLABLE_NOT_POSSIBLE("use of nullable is meaningless here"),
 		NONE_PURE_CALL_IN_PURE_SCOPE("is not marked 'pure' call in a scope that is marked as 'pure'"),
 		DEFAULT_VALUE_SHOULD_BE_PROVIDED("A Default value should be provided"),
 		INVALID_VALUE("Invalid value"),
 		DEFAULT_VALUE_WILL_NOT_BE_USED("A Default value will not be used in this context (abstract function/method)");
-		
+
 		public String description;
-		
-		private SemanticClassification(String description)
+
+		SemanticClassification(String description)
 		{
 			this.description = description;
 		}
-	};
+	}
 		
 	public static class ErrorDetails extends Details
 	{
-		private ErrorClassification classification;
+		private final ErrorClassification classification;
 		private MatchResults fuzzySearchResults;
 		
 		private ErrorDetails(ErrorClassification classification, String likelyOffendingSymbol, String shortFileName, int lineNumber, int characterNumber, String typeOfError)
@@ -458,14 +478,14 @@ public class ErrorListener extends BaseErrorListener
 		/**
 		 * Not always set
 		 */
-		private String possibleShortFileName;
+		private final String possibleShortFileName;
 		
 		// Normally just before the error is actually reported.
-		private String likelyOffendingSymbol = "";
-		private String symbolErrorText = "";
-		private String typeOfError;
-		private int lineNumber = 0;
-		private int position = 0;
+		private final String likelyOffendingSymbol;
+		private final String symbolErrorText;
+		private final String typeOfError;
+		private final int lineNumber;
+		private final int position;
 		
 		//Only used with semantic errors.
 		private SemanticClassification semanticClassification;
@@ -478,12 +498,11 @@ public class ErrorListener extends BaseErrorListener
 			this.lineNumber = lineNumber;
 			this.position = characterNumber;
 
-			String buffer = likelyOffendingSymbol +
+			this.symbolErrorText = likelyOffendingSymbol +
 					"' on line " +
 					lineNumber +
 					" position " +
 					characterNumber;
-			symbolErrorText = buffer;
 		}
 		
 		protected abstract String getClassificationDescription();
@@ -527,7 +546,9 @@ public class ErrorListener extends BaseErrorListener
 		@Override
 		public boolean equals(Object obj)
 		{
-			return this.toString().equals(obj.toString());			
+			if(obj instanceof Details)
+				return this.toString().equals(obj.toString());
+			return false;
 		}
 
 		/**

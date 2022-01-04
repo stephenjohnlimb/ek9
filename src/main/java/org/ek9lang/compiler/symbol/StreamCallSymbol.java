@@ -10,7 +10,7 @@ import java.util.Optional;
  * In some cases (like a call to head) we can accept anything in and will produce the same back out.
  * But a filter can only accept a certain type in - but will then also product that same type out.
  * A map on the other hand will only accept a certain type and will product another type (maybe - depending on the map).
- * A flatten can only accept accept something is can iterate over and will then product whatever that type is that is provided by the iterator. 
+ * Flatten can only accept something is can iterate over and will then product whatever that type is that is provided by the iterator.
  */
 public class StreamCallSymbol extends MethodSymbol implements IAssignableSymbol
 {
@@ -28,7 +28,7 @@ public class StreamCallSymbol extends MethodSymbol implements IAssignableSymbol
 	
 	//For head, skip, tail, flatten, call and async - we're not bothered what type we get passed
 	//indeed this 'command' has no way of knowing what it will/should be passed.
-	//So it does need to be told so it can also say what it produces.
+	//So it does need to be told, so it can also say what it produces.
 	//So I'm expecting the pipeline to go through and tell these type of calls what they will be consuming.
 	//So that logic will need to also check a couple of things for flatten, call and async as those do have constraints.
 	private boolean capableOfConsumingAnything = false;
@@ -57,11 +57,6 @@ public class StreamCallSymbol extends MethodSymbol implements IAssignableSymbol
 	public StreamCallSymbol(String name, IScope enclosingScope)
 	{
 		super(name, enclosingScope);		
-	}
-
-	public StreamCallSymbol(String name, Optional<ISymbol> type, IScope enclosingScope)
-	{
-		super(name, type, enclosingScope);
 	}
 
 	@Override
@@ -113,11 +108,6 @@ public class StreamCallSymbol extends MethodSymbol implements IAssignableSymbol
 	public void setCapableOfConsumingAnything(boolean capableOfConsumingAnything)
 	{
 		this.capableOfConsumingAnything = capableOfConsumingAnything;
-	}
-
-	public boolean isProducerSymbolTypeSameAsConsumerSymbolType()
-	{
-		return producerSymbolTypeSameAsConsumerSymbolType;
 	}
 
 	public void setProducerSymbolTypeSameAsConsumerSymbolType(boolean producerSymbolTypeSameAsConsumerSymbolType)

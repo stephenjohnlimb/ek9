@@ -27,6 +27,21 @@ public class Symbol implements ISymbol
 	private boolean hasBeenSet = false;
 
 	/**
+	 * Not always set if ek9 core.
+	 * But is the token where this symbol was defined.
+	 */
+	private Token sourceToken = null;
+
+	/**
+	 * This is the token that initialised the symbol.
+	 * Typically, ony valid for Variables and expressions.
+	 */
+	private Token initialisedBy = null;
+
+	/** Was this symbol referenced. */
+	private boolean referenced = false;
+
+	/**
 	 * The idea is to assume that symbol cannot be null by default.
 	 * i.e a variable cannot null or a function/method cannot return a null value
 	 * If the developer wants to support then ? has to be used to make that explicit. 
@@ -45,24 +60,13 @@ public class Symbol implements ISymbol
 	private boolean produceFullyQualifiedName = false;
 	
 	/**
-	 * Where this this symbol come from - not always set for every symbol.
+	 * Where this symbol come from - not always set for every symbol.
 	 */
 	private Module parsedModule;
 	
-	/**
-	 * Not always set if ek9 core.
-	 * But is the token where this symbol was defined.
-	 */
-	private Token sourceToken = null;
-
-	/**
-	 * This is the token that initialised the sysmbol.
-	 * Typically ony valid for Variables and expressions.
-	 */
-	private Token initialisedBy = null;
 
 	//Sometimes it is necessary to pick data and hold it in the symbol for later.
-	private Map<String, String> squirrelledAway = new HashMap<String, String>();
+	private final Map<String, String> squirrelledAway = new HashMap<>();
 
 	public Symbol(String name)
 	{
@@ -101,6 +105,7 @@ public class Symbol implements ISymbol
 		newCopy.parsedModule = this.parsedModule;
 		newCopy.sourceToken = this.sourceToken;
 		newCopy.squirrelledAway.putAll(this.squirrelledAway);
+		newCopy.referenced = this.referenced;
 		return newCopy;
 	}
 
@@ -112,6 +117,16 @@ public class Symbol implements ISymbol
 	public void setInitialisedBy(Token initialisedBy)
 	{
 		this.initialisedBy = initialisedBy;
+	}
+
+	public boolean isReferenced()
+	{
+		return referenced;
+	}
+
+	public void setReferenced()
+	{
+		this.referenced = true;
 	}
 
 	public void putSquirrelledData(String key, String value)

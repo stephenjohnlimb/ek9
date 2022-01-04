@@ -20,7 +20,7 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol
 	
 	/**
 	 * The range of aggregates that are allowed to extend/implement this aggregate.
-	 * Currently used in a a trait definition to limit the classes that can implement it.
+	 * Currently, used in a trait definition to limit the classes that can implement it.
 	 * But could clearly be used elsewhere in the future.
 	 */
 	private List<IAggregateSymbol> allowOnly = new ArrayList<IAggregateSymbol>();
@@ -210,7 +210,7 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol
 	
 	/**
 	 * Is the extender allowed to implement this aggregate (normally a trait)
-	 * @param extenderSymbol The class (normally the we are testing)
+	 * @param extenderSymbol The class (normally the one we are testing)
 	 * @return true if extending is allowed.
 	 */
 	public boolean isAllowingExtensionBy(IAggregateSymbol extenderSymbol)

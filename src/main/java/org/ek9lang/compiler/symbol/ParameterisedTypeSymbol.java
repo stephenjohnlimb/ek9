@@ -15,7 +15,8 @@ import java.util.Optional;
  * We are saying List<SomeObjectType>
  * This class is probably one of biggest 'mind fucks' you'll ever have.
  * generics of generics with parameters.
- * 
+ *
+ * TODO maybe refactor this and the ParameterisedFunctionSymbol to pull out common stuff.
  */
 public class ParameterisedTypeSymbol extends AggregateSymbol implements ParameterisedSymbol, SymbolType
 {	
@@ -325,7 +326,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 			rtn.setConstructor(willClone.isConstructor());
 			rtn.setOperator(willClone.isOperator());
 			rtn.setMarkedPure(willClone.isMarkedPure());
-			rtn.setUsedAsProxyforDelegate(willClone.getUsedAsProxyforDelegate());
+			rtn.setUsedAsProxyForDelegate(willClone.getUsedAsProxyForDelegate());
 			rtn.setParameterisedWrappingRequired(willClone.isParameterisedWrappingRequired());
 			rtn.setEk9ReturnsThis(willClone.isEk9ReturnsThis());
 			for(ISymbol symbol : willClone.getSymbolsForThisScope())

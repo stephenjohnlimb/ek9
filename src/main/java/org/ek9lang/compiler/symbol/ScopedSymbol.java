@@ -37,7 +37,7 @@ public class ScopedSymbol extends Symbol implements IScope
 	/**
 	 * So this is the list of generic parameters the class/function can accept.
 	 * If we were generating a class of A then this would be empty
-	 * But if is were a generic type class like 'class B<T>' then this would be set to
+	 * But if it were a generic type class like 'class B<T>' then this would be set to
 	 * Symbol T.
 	 * Likewise function zule<K,V> would have K and V symbols in it.
 	 * But if class Jaguar<S, T> then this would have S and T a symbols in it.
@@ -204,7 +204,6 @@ public class ScopedSymbol extends Symbol implements IScope
 		return actualScope.getScopeName();
 	}	
 
-	
 	@Override
 	public String getFriendlyScopeName()
 	{

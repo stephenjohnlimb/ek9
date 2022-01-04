@@ -77,7 +77,7 @@ public class LocalScope extends SymbolTable
 	/**
 	 * Useful to be able to check if the scope you have in hand is the same that enclosing scope for this.
 	 * 
-	 * Typically used when looking at access modifiers.
+	 * Typically, used when looking at access modifiers.
 	 * Find the scope of the aggregate (assuming not a function) where the call is being made from then call this to see
 	 * if that scope is the same enclosing scope.
 	 * Then you can determine if access should be allowed.

@@ -5,8 +5,6 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenFactory;
 import org.antlr.v4.runtime.TokenSource;
-import org.ek9lang.compiler.files.Module;
-import org.ek9lang.compiler.files.Source;
 import org.ek9lang.compiler.symbol.support.MatchResults;
 import org.junit.Test;
 
@@ -15,9 +13,9 @@ import org.junit.Test;
  * EK9 source code that is designed to 'fail' to compile.
  *
  * These examples of EK9 that fail to compile should be stored in 'badExamples' in the
- * resources directory. Ideally these bad example will be grouped in to subdirectories.
+ * resources' directory. Ideally these bad example will be grouped in to subdirectories.
  *
- * So this unit test is just designed to to test the basic mechanisms.
+ * So this unit test is just designed to test the basic mechanisms.
  */
 public class ErrorListenerTest
 {
@@ -77,6 +75,10 @@ public class ErrorListenerTest
         TestCase.assertFalse(underTest.isErrorFree());
         ErrorListener.ErrorDetails details = underTest.getErrors().next();
         TestCase.assertNotNull(details);
+				TestCase.assertNotNull(details.getTypeOfError());
+				TestCase.assertEquals(0, details.getPosition());
+				TestCase.assertEquals(0, details.getLineNumber());
+				TestCase.assertNotNull(details.getLikelyOffendingSymbol());
         TestCase.assertNotNull(details.toString());
     }
     @Test
@@ -127,109 +129,6 @@ public class ErrorListenerTest
 
     private Token createSyntheticToken()
     {
-        return new Token() {
-            @Override
-            public String getText()
-            {
-                return "Synthetic Token";
-            }
-
-            @Override
-            public int getType()
-            {
-                return 0;
-            }
-
-            @Override
-            public int getLine()
-            {
-                return 0;
-            }
-
-            @Override
-            public int getCharPositionInLine()
-            {
-                return 0;
-            }
-
-            @Override
-            public int getChannel()
-            {
-                return 0;
-            }
-
-            @Override
-            public int getTokenIndex()
-            {
-                return 0;
-            }
-
-            @Override
-            public int getStartIndex()
-            {
-                return 0;
-            }
-
-            @Override
-            public int getStopIndex()
-            {
-                return 0;
-            }
-
-            @Override
-            public TokenSource getTokenSource()
-            {
-                return new TokenSource() {
-
-                    @Override
-                    public Token nextToken()
-                    {
-                        return null;
-                    }
-
-                    @Override
-                    public int getLine()
-                    {
-                        return 0;
-                    }
-
-                    @Override
-                    public int getCharPositionInLine()
-                    {
-                        return 0;
-                    }
-
-                    @Override
-                    public CharStream getInputStream()
-                    {
-                        return null;
-                    }
-
-                    @Override
-                    public String getSourceName()
-                    {
-                        return "SyntheticTokenSource";
-                    }
-
-                    @Override
-                    public void setTokenFactory(TokenFactory<?> factory)
-                    {
-
-                    }
-
-                    @Override
-                    public TokenFactory<?> getTokenFactory()
-                    {
-                        return null;
-                    }
-                };
-            }
-
-            @Override
-            public CharStream getInputStream()
-            {
-                return null;
-            }
-        };
+			return new org.ek9lang.compiler.tokenizer.SyntheticToken();
     }
 }

@@ -24,8 +24,7 @@ public interface IAggregateSymbol extends ICanCaptureVariables, ISymbol, IScope
 	 * @return true if marked as a dispatcher.
 	 */
 	boolean isMarkedAsDispatcher();
-	
-	
+
 	@Override
 	default boolean isMarkedPure()
 	{		
@@ -39,18 +38,8 @@ public interface IAggregateSymbol extends ICanCaptureVariables, ISymbol, IScope
 	 */
 	default boolean isReversedEngineeredToEK9() { return false; }
 	
-	/**
-	 * For reverse engineered aggregates we need to know if _get() is present.
-	 */
-	boolean isGetOfSelfSupported();
-	
 	Optional<String> getPipeSinkType();
 
-	/**
-	 * Can this class return itself via _get() method.
-	 */
-	void setGetOfSelfSupported(boolean getOfSelfSupported);
-	
 	/**
 	 * To get a full hierarchy you will need to get these subclasses and then get the subclasses of those.
 	 * @return a list of all the subclasses of this class

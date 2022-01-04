@@ -14,6 +14,8 @@ import java.util.Optional;
  * Given myFunction<T>
  * Given SomeObjectType
  * We are saying myFunction<SomeObjectType>
+ * This class is probably one of biggest 'mind fucks' you'll ever have.
+ * generics of generics with parameters.
  * 
  * TODO maybe refactor this and the ParameterisedTypeSymbol to pull out common stuff.
  */

@@ -9,10 +9,13 @@ import java.util.Optional;
  */
 public interface ICanCaptureVariables
 {
+
+	/**
+	 * So that a number of variables can be captured when a new dynamic type is defined.
+	 * @param capturedVariables The variables to capture.
+	 */
 	void setCapturedVariables(LocalScope capturedVariables);
-	
-	void setCapturedVariables(Optional<LocalScope> capturedVariables);
-	
+
 	/**
 	 * Make the scope that holds the captured variables (if any accessible).
 	 * @return The scope holding the captured variables.

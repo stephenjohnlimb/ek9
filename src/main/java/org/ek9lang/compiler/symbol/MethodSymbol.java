@@ -21,14 +21,14 @@ public class MethodSymbol extends ScopedSymbol
 	private ISymbol returningSymbol;
 	
 	//Just used internally to check for method signature matching
-	private SymbolMatcher matcher = new SymbolMatcher();
+	private final SymbolMatcher matcher = new SymbolMatcher();
 	
 	/**
 	 * So has the developer indicated that this method is an overriding method.
 	 */
 	private boolean override = false;
 	/**
-	 * By default access to methods is public unless otherwise modified.
+	 * By default, access to methods is public unless otherwise modified.
 	 */
 	private String accessModifier = "public";
 	
@@ -75,7 +75,7 @@ public class MethodSymbol extends ScopedSymbol
 	 */
 	private boolean ek9ReturnsThis = false;
 	
-	private String usedAsProxyforDelegate = null;
+	private String usedAsProxyForDelegate = null;
 	
 	/**
 	 * When returning a values and this method is in a generic parameterised class does the return value
@@ -137,7 +137,7 @@ public class MethodSymbol extends ScopedSymbol
 		newCopy.markedNoClone = this.markedNoClone;
 		newCopy.synthetic = this.synthetic;
 		newCopy.ek9ReturnsThis = this.ek9ReturnsThis;
-		newCopy.usedAsProxyforDelegate = this.usedAsProxyforDelegate;
+		newCopy.usedAsProxyForDelegate = this.usedAsProxyForDelegate;
 		newCopy.parameterisedWrappingRequired = this.parameterisedWrappingRequired;
 
 		return newCopy;
@@ -211,19 +211,19 @@ public class MethodSymbol extends ScopedSymbol
 		return super.setType(type);
 	}
 
-	public boolean isUsedAsProxyforDelegate()
+	public boolean isUsedAsProxyForDelegate()
 	{
-		return usedAsProxyforDelegate != null;
+		return usedAsProxyForDelegate != null;
 	}
 
-	public String getUsedAsProxyforDelegate()
+	public String getUsedAsProxyForDelegate()
 	{
-		return usedAsProxyforDelegate;
+		return this.usedAsProxyForDelegate;
 	}
-	
-	public void setUsedAsProxyforDelegate(String delegateName)
+
+	public void setUsedAsProxyForDelegate(String delegateName)
 	{
-		this.usedAsProxyforDelegate = delegateName;
+		this.usedAsProxyForDelegate = delegateName;
 		//now this also means a couple of other things
 		this.setOverride(true);
 		this.setMarkedAbstract(false);
@@ -385,7 +385,7 @@ public class MethodSymbol extends ScopedSymbol
 	}
 	
 	/**
-	 * Added convenience method to make the parameters abit more obvious
+	 * Added convenience method to make the parameters a bit more obvious
 	 */
 	public List<ISymbol> getMethodParameters()
 	{

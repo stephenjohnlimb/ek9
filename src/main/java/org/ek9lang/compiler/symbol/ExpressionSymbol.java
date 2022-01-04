@@ -24,13 +24,16 @@ public class ExpressionSymbol extends Symbol implements IAssignableSymbol
 	private boolean promotionRequired = false;
 	//Or maybe just need to call the $ _string() operator (this the returning type has it).
 	private boolean useStringOperator = false;
-	
+
+	private boolean declaredAsAConstant = false;
+
 	public ExpressionSymbol(ISymbol symbol)
 	{
 		super(symbol.getName());
 		super.setGenus(symbol.getGenus());
 		setType(symbol.getType());
-		setCategory(symbol.getCategory());		
+		setCategory(symbol.getCategory());
+		setDeclaredAsAConstant(symbol.isDeclaredAsAConstant());
 	}
 	
 	public ExpressionSymbol(String name)
@@ -50,9 +53,22 @@ public class ExpressionSymbol extends Symbol implements IAssignableSymbol
 		super.cloneIntoSymbol(newCopy);
 		newCopy.promotionRequired = promotionRequired;
 		newCopy.useStringOperator = useStringOperator;
+		newCopy.setSourceToken(getSourceToken());
+		newCopy.setDeclaredAsAConstant(isDeclaredAsAConstant());
 		return newCopy;
 	}
-	
+
+	@Override
+	public boolean isDeclaredAsAConstant()
+	{
+		return declaredAsAConstant;
+	}
+
+	public void setDeclaredAsAConstant(boolean declaredAsAConstant)
+	{
+		this.declaredAsAConstant = declaredAsAConstant;
+	}
+
 	@Override
 	public boolean isMutable()
 	{
