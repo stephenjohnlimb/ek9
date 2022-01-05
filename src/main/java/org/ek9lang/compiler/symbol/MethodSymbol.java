@@ -244,12 +244,6 @@ public class MethodSymbol extends ScopedSymbol
 	{
 		return markedPure;
 	}
-	
-	@Override
-	public boolean isRestrictedToPureCalls()
-	{
-		return this.isMarkedPure();
-	}
 
 	public void setMarkedPure(boolean markedPure)
 	{

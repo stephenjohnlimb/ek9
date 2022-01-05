@@ -13,7 +13,7 @@ import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
-import org.ek9lang.compiler.symbol.support.MatchResults;
+import org.ek9lang.compiler.symbol.support.search.MatchResults;
 import org.ek9lang.core.utils.OsSupport;
 
 /**

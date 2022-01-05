@@ -2,6 +2,7 @@ package org.ek9lang.compiler.symbol.support;
 
 import junit.framework.TestCase;
 import org.ek9lang.compiler.symbol.*;
+import org.ek9lang.compiler.symbol.support.search.*;
 import org.ek9lang.compiler.tokenizer.SyntheticToken;
 import org.junit.Test;
 

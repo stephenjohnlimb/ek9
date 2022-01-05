@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.symbol;
 
-import org.ek9lang.compiler.symbol.support.TypeSymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.utils.Digest;
 
@@ -18,7 +18,7 @@ import java.util.Optional;
  *
  * TODO maybe refactor this and the ParameterisedFunctionSymbol to pull out common stuff.
  */
-public class ParameterisedTypeSymbol extends AggregateSymbol implements ParameterisedSymbol, SymbolType
+public class ParameterisedTypeSymbol extends AggregateSymbol implements ParameterisedSymbol
 {	
 	//This is the class that can be parameterised
 	//Now you need to check if this symbol type was reverse engineered as you will need to treat it in a different manner maybe.

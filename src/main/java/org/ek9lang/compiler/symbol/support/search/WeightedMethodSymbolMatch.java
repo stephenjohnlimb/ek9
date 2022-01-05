@@ -1,7 +1,10 @@
-package org.ek9lang.compiler.symbol.support;
+package org.ek9lang.compiler.symbol.support.search;
 
 import org.ek9lang.compiler.symbol.MethodSymbol;
 
+/**
+ * When searching for methods, this will be a weighted result of how well a method matched.
+ */
 public class WeightedMethodSymbolMatch
 {
 	private double weight;

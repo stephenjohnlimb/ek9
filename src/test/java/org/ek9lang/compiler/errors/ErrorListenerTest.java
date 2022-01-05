@@ -1,11 +1,8 @@
 package org.ek9lang.compiler.errors;
 
 import junit.framework.TestCase;
-import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenFactory;
-import org.antlr.v4.runtime.TokenSource;
-import org.ek9lang.compiler.symbol.support.MatchResults;
+import org.ek9lang.compiler.symbol.support.search.MatchResults;
 import org.junit.Test;
 
 /**

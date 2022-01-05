@@ -2,12 +2,19 @@ package org.ek9lang.compiler.symbol.support;
 
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
 import java.util.Optional;
 
 /**
  * Holds the coercions we can make from and to on types.
+ *
+ * The main driver and extensibility on this is the #^ promotion operator.
+ * If there is a promotion operator that can return a compatible type then it can be coerced.
+ *
+ * But any type can only have one promotion operator. i.e. from Integer to Float for example.
+ * An Integer could not also have a promotion to String or something else as well.
  */
 public class TypeCoercions
 {
@@ -42,7 +49,7 @@ public class TypeCoercions
 		if(from instanceof IAggregateSymbol)
 		{
 			IAggregateSymbol fromAggregate = (IAggregateSymbol)from;
-			Optional<ISymbol> promoteMethod = fromAggregate.resolve(new MethodSymbolSearch("#^")); //that is the promote symbol
+			Optional<ISymbol> promoteMethod = fromAggregate.resolve(new MethodSymbolSearch("#^")); //that is the promotion symbol
 			if(promoteMethod.isPresent())
 			{
 				Optional<ISymbol> allowed = promoteMethod.get().getType();

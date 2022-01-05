@@ -2,6 +2,9 @@ package org.ek9lang.compiler.symbol.support;
 
 import junit.framework.TestCase;
 import org.ek9lang.compiler.symbol.*;
+import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.compiler.tokenizer.SyntheticToken;
 import org.junit.Before;
 import org.junit.Test;
@@ -102,10 +105,8 @@ public class SymbolsTest
         VariableSymbol v2 = new VariableSymbol("v2", Optional.of(integerType));
         v2.setInitialisedBy(new SyntheticToken());
         v2.setIncomingParameter(true);
-        v2.setRestrictedToPureCalls(true);
 
         TestCase.assertTrue(v2.isInitialised());
-        TestCase.assertTrue(v2.isRestrictedToPureCalls());
 
         VariableSymbol v3 = new VariableSymbol("v3", Optional.of(integerType));
         v3.setReturningParameter(true);
@@ -164,7 +165,5 @@ public class SymbolsTest
         TestCase.assertFalse(v.isIncomingParameter());
         TestCase.assertFalse(v.isReturningParameter());
         TestCase.assertFalse(v.isInitialised());
-        TestCase.assertFalse(v.isRestrictedToPureCalls());
-
     }
 }

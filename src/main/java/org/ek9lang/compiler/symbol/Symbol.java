@@ -13,6 +13,10 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * A bit of a beast.
+ * Is extended widely for particular types of symbol.
+ */
 public class Symbol implements ISymbol
 {
 	//This also covers constants - change mutability for those.

@@ -1,7 +1,8 @@
-package org.ek9lang.compiler.symbol.support;
+package org.ek9lang.compiler.symbol.support.search;
 
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.support.SymbolTable;
 import org.ek9lang.core.exception.AssertValue;
 
 import java.util.ArrayList;
@@ -39,7 +40,10 @@ public class SymbolSearch
 	 * But note these are not just a list of types they are the parameters with the type set into that symbol.
 	 */
 	private List<ISymbol> parameters = new ArrayList<ISymbol>();
-	
+
+	/**
+	 * What type of search is being triggered.
+	 */
 	private ISymbol.SymbolCategory searchType = ISymbol.SymbolCategory.VARIABLE;
 	
 	public SymbolSearch(String name)

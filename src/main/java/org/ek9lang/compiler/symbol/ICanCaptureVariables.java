@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.symbol;
 
-import org.ek9lang.compiler.symbol.support.SymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 
 import java.util.Optional;
 

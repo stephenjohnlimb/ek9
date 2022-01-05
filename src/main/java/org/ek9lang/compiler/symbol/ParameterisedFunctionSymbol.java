@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.symbol;
 
 import org.ek9lang.compiler.symbol.support.AggregateSupport;
-import org.ek9lang.compiler.symbol.support.TypeSymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.utils.Digest;
 
@@ -19,7 +19,7 @@ import java.util.Optional;
  * 
  * TODO maybe refactor this and the ParameterisedTypeSymbol to pull out common stuff.
  */
-public class ParameterisedFunctionSymbol extends FunctionSymbol implements ParameterisedSymbol, SymbolType
+public class ParameterisedFunctionSymbol extends FunctionSymbol implements ParameterisedSymbol
 {
 	private AggregateSupport aggregateSupport = new AggregateSupport();
 	

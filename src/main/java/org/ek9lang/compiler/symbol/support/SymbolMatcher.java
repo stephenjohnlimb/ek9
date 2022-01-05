@@ -2,6 +2,9 @@ package org.ek9lang.compiler.symbol.support;
 
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.MethodSymbol;
+import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.WeightedMethodSymbolMatch;
 import org.ek9lang.core.exception.AssertValue;
 
 import java.util.List;

@@ -1,6 +1,8 @@
 package org.ek9lang.compiler.symbol.support;
 
 import org.ek9lang.compiler.symbol.*;
+import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +14,7 @@ import java.util.Optional;
  * This is typically used in the phase 3 where we have one aggregate with a set of methods and what another aggregate
  * to have those methods but in some cases we want to alter the return types via covariance.
  *
- * It also have more general uses in creating operators and methods for specific types or generic types of T.
+ * It also has more general uses in creating operators and methods for specific types or generic types of T.
  */
 public class AggregateSupport
 {

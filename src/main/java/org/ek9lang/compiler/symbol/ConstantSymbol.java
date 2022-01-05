@@ -7,7 +7,7 @@ import java.util.Optional;
  * For example PI = 3.242 would be a constant.
  * 
  */
-public class ConstantSymbol extends Symbol implements SymbolType
+public class ConstantSymbol extends Symbol
 {
 	/**
 	 * Is this constant defined as a literal.

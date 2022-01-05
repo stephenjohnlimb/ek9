@@ -1,11 +1,17 @@
-package org.ek9lang.compiler.symbol.support;
+package org.ek9lang.compiler.symbol.support.search;
 
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.MethodSymbol;
-import org.ek9lang.compiler.symbol.Symbol;
 
 import java.util.Optional;
 
+/**
+ * Quite a few option to a method search.
+ * In some cases you need to be exact but in others you
+ * want the return type left open.
+ *
+ * So there are multiple constructors tp support this.
+ */
 public class MethodSymbolSearch extends SymbolSearch
 {
 	
@@ -26,7 +32,7 @@ public class MethodSymbolSearch extends SymbolSearch
 	{
 		this(methodSymbol.getName());
 		this.setParameters(methodSymbol.getSymbolsForThisScope());
-		//don't set the return type leave that open.
+		//don't set the return type leave that open, so we can handle covariance.
 	}
 	
 	public MethodSymbolSearch(String name)

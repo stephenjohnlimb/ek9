@@ -1,7 +1,6 @@
 package org.ek9lang.compiler.symbol;
 
 import org.ek9lang.compiler.files.Module;
-import org.ek9lang.compiler.symbol.support.ITokenReference;
 
 import java.util.Optional;
 
@@ -136,19 +135,6 @@ public interface ISymbol extends ITokenReference
 	 * @return true if pure, false otherwise. By default false - lets assume the worst.
 	 */
 	default boolean isMarkedPure() { return false; }
-
-	/**
-	 * Not typically used for type symbols - but for Variables and Functions - this does make sense
-	 * if the context of the use is 'pure' then only 'pure' calls can be made.
-	 * @return true if only pure calls can be made.
-	 */
-	default boolean isRestrictedToPureCalls() { return false; }
-
-	/**
-	 * Is this symbol itself restricted to only make pure calls - typically used on an aggregate type variable
-	 * So that only pure method calls can be made.
-	 */
-	default void setRestrictedToPureCalls(boolean restrictedToPureCalls) { };
 
 	default boolean isMutable() { return false; }
 

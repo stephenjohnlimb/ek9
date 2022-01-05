@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.symbol.support;
+package org.ek9lang.compiler.symbol.support.search;
 
 /**
  * Search for a symbol of any category with the matching name.

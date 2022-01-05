@@ -2,6 +2,9 @@ package org.ek9lang.compiler.symbol.support;
 
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.symbol.*;
+import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
 import java.util.*;
@@ -42,7 +45,8 @@ import java.util.stream.Collectors;
  * The Symbol has a type already when we define it - we know if it is an AggregateSymbol, MethodSymbol etc.
  * We also know its name!
  * We know the Symbol we will use for it's return type or what it is i.e the Symbol of Integer as the return type or what it is.
- * For methods (which are Scoped Symbols) we also have the parameters (in order).
+ * For methods (which are Scoped Symbols) we also have the parameters (in order). So while parameters can be used when making the call
+ * this is just sugar - the order still has to match.
  * 
  * Well we could have separate internal tables for methods/functions, classes/types and variables. So we can quickly and simply resolve
  * obvious ones like variables and types. Then use more expensive operations for methods.
@@ -57,14 +61,18 @@ public class SymbolTable implements IScope
 {
 	private String scopeName = "global";
 
-	//We now store the symbols in separate areas for quick access on expensive method lookups.
-	private Map<ISymbol.SymbolCategory, Map<String, List<ISymbol>>> splitSymbols = new HashMap<ISymbol.SymbolCategory, Map<String, List<ISymbol>>>();
+	/**
+	 * We now store the symbols in separate areas for quick access.
+	 * It might seem strange but for some symbols like methods we have a single name
+	 * but a list of actual symbols. i.e. method overloading.
+	 */
+	private final Map<ISymbol.SymbolCategory, Map<String, List<ISymbol>>> splitSymbols = new HashMap<>();
 
 	//But also an ordered list - useful for ordered parameters.
-	private List<ISymbol> orderedSymbols = new ArrayList<ISymbol>();
+	private final List<ISymbol> orderedSymbols = new ArrayList<>();
 
-	private AggregateSupport aggregateSupport = new AggregateSupport();
-	private SymbolMatcher matcher = new SymbolMatcher();
+	private final AggregateSupport aggregateSupport = new AggregateSupport();
+	private final SymbolMatcher matcher = new SymbolMatcher();
 
 	/**
 	 * If we encounter an exception within a scope we need to note the line number
@@ -79,7 +87,13 @@ public class SymbolTable implements IScope
 	public SymbolTable()
 	{
 	}
-	
+
+	@Override
+	public String getScopeName()
+	{
+		return scopeName;
+	}
+
 	public Token getEncounteredExceptionToken()
 	{
 		return encounteredExceptionToken;
@@ -88,12 +102,6 @@ public class SymbolTable implements IScope
 	public void setEncounteredExceptionToken(Token encounteredExceptionToken)
 	{
 		this.encounteredExceptionToken = encounteredExceptionToken;
-	}
-
-	@Override
-	public String getScopeName()
-	{
-		return scopeName;
 	}
 
 	@Override
@@ -115,21 +123,23 @@ public class SymbolTable implements IScope
 	@Override
 	public void define(ISymbol symbol)
 	{
+		//Add in the split symbols and also the ordered symbols.
 		AssertValue.checkNotNull("Symbol cannot be null", symbol);
 		addToSplitSymbols(symbol);
-		
 		orderedSymbols.add(symbol);
 	}
-	
+
+	/**
+	 * So we have a split map for each category
+	 * each of those has a map with a list of symbols of the same name.
+	 * So this means we can handle multiple methods with same name but different signatures.
+	 */
 	private void addToSplitSymbols(ISymbol symbol)
 	{
-		//So we have a split map for each category
-		//each of those has a map with a list of symbols of the same name.
-		//So this means we can handle multiple methods with same name but different signatures.
 		Map<String, List<ISymbol>> table = splitSymbols.get(symbol.getCategory());
 		if(table == null)
 		{
-			table = new HashMap<String, List<ISymbol>>();
+			table = new HashMap<>();
 			splitSymbols.put(symbol.getCategory(), table);
 		}		
 		List<ISymbol> list = table.get(symbol.getName());
@@ -143,18 +153,27 @@ public class SymbolTable implements IScope
 		list.add(symbol);		
 	}
 
+	/**
+	 * Find symbols in a specific category.
+	 */
 	public List<ISymbol> getSymbolsForThisScopeOfCategory(ISymbol.SymbolCategory category)
 	{
 		List<ISymbol> rtn = orderedSymbols.stream().filter(symbol -> category.equals(symbol.getCategory())).collect(Collectors.toList());
 		return rtn;
 	}
-	
+
+	/**
+	 * Get all the symbols in this table.
+	 */
 	@Override
 	public List<ISymbol> getSymbolsForThisScope()
 	{
 		return Collections.unmodifiableList(orderedSymbols);
 	}
-		
+
+	/**
+	 * Search and resolve from a symbol search.
+	 */
 	public Optional<ISymbol> resolve(SymbolSearch search)
 	{
 		Optional<ISymbol> rtn = resolveInThisScopeOnly(search);
@@ -163,7 +182,10 @@ public class SymbolTable implements IScope
 		
 		return rtn;
 	}
-	
+
+	/**
+	 * Add all matching methods for a method search.
+	 */
 	@Override
 	public MethodSymbolSearchResult resolveForAllMatchingMethods(MethodSymbolSearch search, MethodSymbolSearchResult result)
 	{
@@ -178,6 +200,9 @@ public class SymbolTable implements IScope
 		return buildResult;
 	}
 
+	/**
+	 * Add all matching methods for a method search but only in this scope.
+	 */
 	@Override
 	public MethodSymbolSearchResult resolveForAllMatchingMethodsInThisScopeOnly(MethodSymbolSearch search, MethodSymbolSearchResult result)
 	{
@@ -195,13 +220,19 @@ public class SymbolTable implements IScope
 		//System.out.println("SymbolTable: " + result);
 		return result;
 	}
-	
+
+	/**
+	 * There are no supers so this will not add any methods.
+	 */
 	protected MethodSymbolSearchResult resolveForAllMatchingMethodsInEnclosingScope(MethodSymbolSearch search, MethodSymbolSearchResult result)
 	{
 		//nothing needed  here.
 		return result;
 	}
 
+	/**
+	 * Resolve a symbol in this symbol table only.
+	 */
 	@Override
 	public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search)
 	{
@@ -258,7 +289,12 @@ public class SymbolTable implements IScope
 		
 		return resolveInThisScopeOnly(symbolList, search);
 	}
-	
+
+	/**
+	 * This is really the backbone of the symbol table and pretty much the compiler.
+	 * Resolving a symbol of a specific type using the symbol search criteria.
+	 *
+	 */
 	private Optional<ISymbol> resolveInThisScopeOnly(List<ISymbol> symbolList, SymbolSearch search)
 	{
 		Optional<ISymbol> rtn = Optional.ofNullable(null);
@@ -274,19 +310,19 @@ public class SymbolTable implements IScope
 			}
 			else if(result.isSingleBestMatchPresent())
 			{
-				MethodSymbol bestMatch = result.getSingleBestMatch();
-				rtn = Optional.of(bestMatch);
+				rtn = result.getSingleBestMatchSymbol();
 			}
 			else
 			{
-				//This is ambiguous so failed to find, calling code then needs
+				//This is ambiguous - i.e. we found more than one method that would match.
+				//so report failed to find, calling code then needs
 				//to do a fuzzy search and report on ambiguities to make developer choose.
 				rtn = Optional.ofNullable(null);
 			}
 		}
 		else if(search.getSearchType().equals(ISymbol.SymbolCategory.FUNCTION))
 		{
-			//We can only have one function of a single name - no function method overloading
+			//We can only have one function of a single name in a specific scope - no function method overloading
 			//That is the main difference between functional and methods.
 			//More like C unique function name.
 			rtn = Optional.of(symbolList.get(0));
@@ -335,7 +371,7 @@ public class SymbolTable implements IScope
 			
 			if(toReceive.isPresent())
 			{
-				//So we have found a variable but it cannot be assigned back to how it can be received.
+				//So we have found a variable, but it cannot be assigned back to how it can be received.
 				if(!foundType.isPresent() || !foundType.get().isAssignableTo(toReceive))
 					rtn = Optional.ofNullable(null);
 			}
@@ -347,11 +383,13 @@ public class SymbolTable implements IScope
 		}
 		return rtn ;
 	}
-		
+
+	/**
+	 * This class is the root and so there is no enclosing scope
+	 * sub-classes will override to provide the scope that encloses them
+	 */
 	protected Optional<ISymbol> resolveWithEnclosingScope(SymbolSearch search)
 	{
-		//This class is the root and so there is no enclosing scope
-		//sub classes will override to provide the scope that encloses them
 		return Optional.ofNullable(null);
 	}	
 	

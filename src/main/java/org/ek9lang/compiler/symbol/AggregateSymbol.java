@@ -1,8 +1,8 @@
 package org.ek9lang.compiler.symbol;
 
-import org.ek9lang.compiler.symbol.support.MethodSymbolSearch;
-import org.ek9lang.compiler.symbol.support.MethodSymbolSearchResult;
-import org.ek9lang.compiler.symbol.support.SymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ import java.util.Optional;
  * So there are two ways to resolve references first is module scope and second
  * is super class type scope.
  */
-public class AggregateSymbol extends ScopedSymbol implements SymbolType, IAggregateSymbol
+public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 {
 	//This is the module this aggregate has been defined in.
 	private IScope moduleScope;

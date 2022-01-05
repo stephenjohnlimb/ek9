@@ -1,16 +1,14 @@
 package org.ek9lang.compiler.symbol;
 
-import org.antlr.v4.runtime.Token;
-
 import java.util.Optional;
 
-public class VariableSymbol extends Symbol implements SymbolType, IAssignableSymbol
+public class VariableSymbol extends Symbol implements IAssignableSymbol
 {
+	private boolean loopVariable = false;
+
 	private boolean incomingParameter = false;
 	
 	private boolean returningParameter = false;
-	
-	private boolean restrictedToPureCalls = false;
 	
 	/**
 	 * Limited scope of variables from other scopes
@@ -47,9 +45,9 @@ public class VariableSymbol extends Symbol implements SymbolType, IAssignableSym
 	protected VariableSymbol cloneIntoVariable(VariableSymbol newCopy)
 	{
 		cloneIntoSymbol(newCopy);
+		newCopy.loopVariable = this.loopVariable;
 		newCopy.incomingParameter = this.incomingParameter;
 		newCopy.returningParameter = this.returningParameter;
-		newCopy.restrictedToPureCalls = this.restrictedToPureCalls;
 		newCopy.setPrivate(this.isPrivate);
 		newCopy.setAggregatePropertyField(this.isAggregatePropertyField);
 		return newCopy;
@@ -82,20 +80,16 @@ public class VariableSymbol extends Symbol implements SymbolType, IAssignableSym
 		return !isPrivate;
 	}
 
-	/**
-	 * Is this variable restricted to only allow calls to it's object type that are marked as pure.
-	 * 
-	 * Typically used when a variable is used in the 'pure' context so no side effects.
-	 */
 	@Override
-	public boolean isRestrictedToPureCalls()
+	public boolean isLoopVariable()
 	{
-		return this.restrictedToPureCalls;
+		return loopVariable;
 	}
-	
-    public void setRestrictedToPureCalls(boolean restrictedToPureCalls)
-    {
-		this.restrictedToPureCalls = restrictedToPureCalls;
+
+	@Override
+	public void setLoopVariable(boolean asLoopVar)
+	{
+		loopVariable = asLoopVar;
 	}
 
 	public boolean isIncomingParameter()
@@ -116,6 +110,12 @@ public class VariableSymbol extends Symbol implements SymbolType, IAssignableSym
 	public void setReturningParameter(boolean returningParameter)
 	{
 		this.returningParameter = returningParameter;
+	}
+
+	@Override
+	public boolean isMutable()
+	{
+		return true;
 	}
 
 	@Override
