@@ -78,9 +78,8 @@ public class DependencyNode
     {
     	List<String> rtn = new ArrayList<>();
     	rtn.add(getModuleName());
-    	for(DependencyNode dep: dependencies)
-    		rtn.addAll(dep.reportAllDependencies());
-    	
+			dependencies.forEach(dep -> rtn.addAll(dep.reportAllDependencies()));
+
     	return rtn;
     }
     

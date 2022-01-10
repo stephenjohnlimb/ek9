@@ -8,7 +8,7 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 /**
- * EK9 LSP server launcher. You can run from main below but it is designed to work with cli/EK9.java
+ * EK9 LSP server launcher. You can run from main below, but it is designed to work with cli/EK9.java
  * 
  * Plan to use much of the compiler as possible in the first instance.
  * This will be mainly for the diagnostics and the like.
