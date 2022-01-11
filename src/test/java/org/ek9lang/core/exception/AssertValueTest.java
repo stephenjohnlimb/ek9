@@ -4,10 +4,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class AssertValueTest
 {
@@ -53,6 +50,13 @@ public class AssertValueTest
 	{
 		Date toCheck = null;
 		AssertValue.checkNotEmpty("Should not be empty", Optional.of(5));
+	}
+
+	@Test
+	public void testCollectionEmpty()
+	{
+		Date toCheck = null;
+		AssertValue.checkNotEmpty("Should not be empty", Arrays.asList("Buenos Aires", "Córdoba", "La Plata"));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -149,6 +153,34 @@ public class AssertValueTest
 		AssertValue.checkCanReadFile("File Cannot be found", "nosuchfile");
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void testInAccessibleReadableDirectory() throws IOException
+	{
+		String dir = "D";
+		AssertValue.checkDirectoryReadable("Must be able to read from", dir);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testInAccessibleWritableDirectory() throws IOException
+	{
+		String dir = "D";
+		AssertValue.checkDirectoryWritable("Must be able to read from", dir);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testInAccessibleFileReadableDirectory() throws IOException
+	{
+		File dir = new File("D");
+		AssertValue.checkDirectoryReadable("Must be able to read from", dir);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testInAccessibleFileWritableDirectory() throws IOException
+	{
+		File dir = new File("D");
+		AssertValue.checkDirectoryWritable("Must be able to read from", dir);
+	}
+
 	@Test
 	public void testAccessibleDirectory() throws IOException
 	{
@@ -156,6 +188,10 @@ public class AssertValueTest
 
 		AssertValue.checkDirectoryReadable("Must be able to read from", tempDir);
 		AssertValue.checkDirectoryWritable("Must be able to write to", tempDir);
+
+		File tempDirFile = new File(tempDir);
+		AssertValue.checkDirectoryReadable("Must be able to read from", tempDirFile);
+		AssertValue.checkDirectoryWritable("Must be able to write to", tempDirFile);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

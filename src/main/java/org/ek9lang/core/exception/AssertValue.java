@@ -1,20 +1,21 @@
 package org.ek9lang.core.exception;
 
+import org.ek9lang.core.utils.OsSupport;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.Optional;
 
-import org.ek9lang.core.utils.OsSupport;
-
 /**
- * Used as simple one liners to check a value and issue an illegal argument exception if empty.
+ * Used as simple one-liners to check a value and issue an illegal argument exception if empty.
  */
 public class AssertValue
 {
 	private static OsSupport osSupport = new OsSupport();
-	
+
 	/**
 	 * Checks if a string value is null or an empty string and if so issues an illegal argument exception.
+	 *
 	 * @param valueToCheck The value to check.
 	 */
 	public static void checkNotEmpty(String messageIfEmpty, String valueToCheck)
@@ -22,7 +23,7 @@ public class AssertValue
 		if(valueToCheck == null || "".equals(valueToCheck))
 			throw new IllegalArgumentException(messageIfEmpty);
 	}
-	
+
 	public static void checkNotEmpty(String messageIfEmpty, String[] valuesToCheck)
 	{
 		if(valuesToCheck == null || valuesToCheck.length == 0)
@@ -30,7 +31,7 @@ public class AssertValue
 		for(String value : valuesToCheck)
 			AssertValue.checkNotEmpty(messageIfEmpty, value);
 	}
-	
+
 	public static void checkRange(String messageIfOutside, Integer valueToCheck, Integer min, Integer max)
 	{
 		if(valueToCheck == null)
@@ -40,20 +41,20 @@ public class AssertValue
 		if(max != null && valueToCheck > max)
 			throw new IllegalArgumentException(messageIfOutside);
 	}
-	
+
 	public static void checkNotNull(String messageIfNull, Object valueToCheck)
 	{
 		if(valueToCheck == null)
 			throw new IllegalArgumentException(messageIfNull);
 	}
-	
+
 	public static void checkCanReadFile(String messageIfNoRead, String fileName)
 	{
 		checkNotEmpty("Filename cannot be empty or null", fileName);
 		if(!osSupport.isFileReadable(fileName))
 			throw new IllegalArgumentException(messageIfNoRead + "[" + fileName + "]");
 	}
-	
+
 	public static void checkDirectoryReadable(String messageIfNoRead, String directoryName)
 	{
 		checkNotEmpty("Filename cannot be empty or null", directoryName);
@@ -61,11 +62,18 @@ public class AssertValue
 			throw new IllegalArgumentException(messageIfNoRead + "[" + directoryName + "]");
 	}
 
+	public static void checkDirectoryReadable(String messageIfNoRead, File dir)
+	{
+		AssertValue.checkNotNull(messageIfNoRead, dir);
+		if(!osSupport.isDirectoryReadable(dir))
+			throw new IllegalArgumentException(messageIfNoRead + "[" + dir.getPath() + "]");
+	}
+
 	public static void checkDirectoryWritable(String messageIfNoWrite, String directoryName)
 	{
 		AssertValue.checkNotNull(messageIfNoWrite, directoryName);
 		if(!osSupport.isDirectoryWritable(directoryName))
-			throw new IllegalArgumentException(messageIfNoWrite + "[" + directoryName + "]");		
+			throw new IllegalArgumentException(messageIfNoWrite + "[" + directoryName + "]");
 	}
 
 	public static void checkDirectoryWritable(String messageIfNoWrite, File dir)
@@ -80,8 +88,8 @@ public class AssertValue
 		checkNotNull(messageIfEmpty, item);
 		if(!item.isPresent())
 			throw new IllegalArgumentException(messageIfEmpty);
-		
 	}
+
 	public static void checkNotEmpty(String messageIfEmpty, Collection<?> items)
 	{
 		checkNotNull(messageIfEmpty, items);

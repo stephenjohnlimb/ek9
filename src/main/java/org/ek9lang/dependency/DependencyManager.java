@@ -72,7 +72,7 @@ public class DependencyManager
 			DependencyNode selectedNode = null;
 			for(DependencyNode node : findByModuleName(module))
 			{
-				//pick first non rejected node (it is possible all have already been rejected!)
+				//pick first non-rejected node (it is possible all have already been rejected!)
 				if(!selected && !node.isRejected())
 				{
 					selectedNode = node;
@@ -95,8 +95,8 @@ public class DependencyManager
 	 * Because you might process nodes in an order where a lower level tree node
 	 * has a viable path back to parent and so is not marked as rejected.
 	 * But then a little later in the processing a critical node in the path is
-	 * marked as rejected. Now the lower level one has not path back.
-	 * <p>
+	 * marked as rejected. Now the lower level one does not have path back.
+	 *
 	 * So call in a loop until fully optimised.
 	 *
 	 * @return true is optimisation took place, false if there was nothing to optimise.
@@ -106,15 +106,16 @@ public class DependencyManager
 		boolean didOptimise = false;
 		for(String module : listAllModuleNames())
 		{
-			List<DependencyNode> deps = findByModuleName(module);
-			//So some of these will already be rejected but we need to check from each of these
+			List<DependencyNode> dependencies = findByModuleName(module);
+
+			//Some of these will already be rejected, but we need to check from each of these
 			//dependencies back up towards root to see if the parent dependency is rejected
-			//if all dependencies all encounter a rejected node then clearly even any unrejected
+			//if all dependencies all encounter a rejected node then clearly even any un-rejected
 			//node is not required and can be optimised out.
 			boolean allEncounterRejectedNode = true;
 			boolean allRejectedAlready = true;
 
-			for(DependencyNode dep : deps)
+			for(DependencyNode dep : dependencies)
 			{
 				allRejectedAlready &= dep.isRejected();
 				allEncounterRejectedNode &= dep.isParentRejected();
@@ -123,11 +124,10 @@ public class DependencyManager
 			if(allEncounterRejectedNode && !allRejectedAlready)
 			{
 				didOptimise = true;
-				for(DependencyNode dep : deps)
-				{
-					if(!dep.isRejected())
-						dep.setRejected(DependencyNode.RejectionReason.OPTIMISED, true, false);
-				}
+				dependencies
+						.stream()
+						.filter(dep -> !dep.isRejected())
+						.forEach(dep -> dep.setRejected(DependencyNode.RejectionReason.OPTIMISED, true, false));
 			}
 		}
 		return didOptimise;
@@ -193,10 +193,10 @@ public class DependencyManager
 	 */
 	public void reject(String moduleName, String whenDependencyOf)
 	{
-		findByModuleName(moduleName).forEach(node -> {
-			if(node.isDependencyOf(whenDependencyOf))
-				node.setRejected(DependencyNode.RejectionReason.MANUAL, true, true);
-		});
+		findByModuleName(moduleName)
+				.stream()
+				.filter(node -> node.isDependencyOf(whenDependencyOf))
+				.forEach(node -> node.setRejected(DependencyNode.RejectionReason.MANUAL, true, true));
 	}
 
 	/**

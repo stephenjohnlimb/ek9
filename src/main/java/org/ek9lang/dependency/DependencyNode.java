@@ -12,15 +12,15 @@ public class DependencyNode
     //Navigational graph structure.
     //Will remain null if this is the top node.
     private DependencyNode parent = null;
-    private List<DependencyNode> dependencies = new ArrayList<>();
+    private final List<DependencyNode> dependencies = new ArrayList<>();
     //When loading up nodes these are the defined rejections that need to be applied.
-    private Map<String, String> dependencyRejections = new HashMap<>();
+    private final Map<String, String> dependencyRejections = new HashMap<>();
 
     private boolean rejected = false;
     private RejectionReason reason;
 
-    private String moduleName;
-    private SemanticVersion version;
+    private final String moduleName;
+    private final SemanticVersion version;
 
     /**
      * Create a node from a vector
@@ -33,9 +33,7 @@ public class DependencyNode
         String moduleName = dependencyVector.substring(0, versionStart);
         String versionPart = dependencyVector.substring(versionStart+1);
 
-        DependencyNode rtn = new DependencyNode(moduleName, versionPart);
-
-        return rtn;
+        return new DependencyNode(moduleName, versionPart);
     }
 
     public DependencyNode(String moduleName, String version)
@@ -44,10 +42,9 @@ public class DependencyNode
         this.version = SemanticVersion._of(version);
     }
 
-    public DependencyNode addDependencyRejection(String moduleName, String whenDependencyOf)
+    public void addDependencyRejection(String moduleName, String whenDependencyOf)
     {
         this.dependencyRejections.put(moduleName, whenDependencyOf);
-        return this;
     }
 
     public Map<String, String> getDependencyRejections()
@@ -55,11 +52,10 @@ public class DependencyNode
         return dependencyRejections;
     }
 
-    public DependencyNode addDependency(DependencyNode node)
+    public void addDependency(DependencyNode node)
     {
         node.setParent(this);
         dependencies.add(node);
-        return this;
     }
 
     public boolean isDependencyOf(String whenDependencyOf)
@@ -101,7 +97,7 @@ public class DependencyNode
 
     public String showPathToDependency(boolean includeVersion)
     {
-        StringBuffer backTrace = new StringBuffer(toString(includeVersion));
+        StringBuilder backTrace = new StringBuilder(toString(includeVersion));
 
         DependencyNode d = parent;
         while (d != null)
@@ -140,7 +136,7 @@ public class DependencyNode
         this.rejected = rejected;
         this.reason = reason;
         if(alsoRejectDependencies)
-            dependencies.forEach(dep -> dep.setRejected(reason, rejected, alsoRejectDependencies));
+            dependencies.forEach(dep -> dep.setRejected(reason, rejected, true));
     }
 
     public DependencyNode getParent()
@@ -195,7 +191,7 @@ public class DependencyNode
             return moduleName + "-" + version + " ("+ reason + ")";
     }
 
-    public static enum RejectionReason
+    public enum RejectionReason
     {
         //The developer configured this dependency to be rejected in the package directive.
         MANUAL,
@@ -213,7 +209,7 @@ public class DependencyNode
         //numbered dependency gets rationalised away, leaving a trail of stuff it pulled in
         //that is now no longer needed. You can just reject the dependencies and all it's
         //dependencies directly as those dependencies might be used elsewhere.
-        OPTIMISED;
+        OPTIMISED
 
         //But note is something that was rationalised/optimised out did bring in a dependency
         //that it at a higher level than one that is still needed elsewhere then we will use that

@@ -1,36 +1,29 @@
 package org.ek9lang.core.utils;
 
+import javax.crypto.Cipher;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-
-import javax.crypto.Cipher;
 
 /**
  * Just a wrapper around java public private key processing.
  */
 public class SigningKeyPair
 {
-	private Base64.Encoder encoder = Base64.getEncoder();
-	private Base64.Decoder decoder = Base64.getDecoder();
+	private final Base64.Encoder encoder = Base64.getEncoder();
+	private final Base64.Decoder decoder = Base64.getDecoder();
+	private final Cipher cipher;
 	private PublicKey pub;
 	private PrivateKey pvt;
-	private Cipher cipher;
-	
+
 	public static SigningKeyPair generate(int keySize)
 	{
-		SigningKeyPair rtn = null ;
-		
+		SigningKeyPair rtn = null;
+
 		try
 		{
 			rtn = new SigningKeyPair();
@@ -38,20 +31,20 @@ public class SigningKeyPair
 			kpg.initialize(keySize);
 			KeyPair kp = kpg.generateKeyPair();
 			rtn.pub = kp.getPublic();
-			rtn.pvt = kp.getPrivate();			
+			rtn.pvt = kp.getPrivate();
 		}
-		catch (NoSuchAlgorithmException e)
+		catch(NoSuchAlgorithmException e)
 		{
 			System.err.println("Failed to create public private key pair: " + e.getMessage());
 		}
-		
+
 		return rtn;
 	}
 
 	public static SigningKeyPair of(File privateKeyFile, File publicKeyFile)
 	{
-		String privatePemContents = null;
-		String publicPemContents = null;
+		String privatePemContents;
+		String publicPemContents;
 
 		try(FileInputStream fis = new FileInputStream(privateKeyFile))
 		{
@@ -119,7 +112,7 @@ public class SigningKeyPair
 	{
 		cipher = getRSACipher();
 	}
-	
+
 	public SigningKeyPair(String privateBase64, String publicBase64)
 	{
 		pvt = privateFromBase64(privateBase64);
@@ -145,10 +138,10 @@ public class SigningKeyPair
 		try
 		{
 			String publicKeyPEM = publicBase64
-				  .replaceAll("\\n", "")
-			      .replace("-----BEGIN PUBLIC KEY-----", "")
-			      .replaceAll(System.lineSeparator(), "")
-			      .replace("-----END PUBLIC KEY-----", "");
+					.replaceAll("\\n", "")
+					.replace("-----BEGIN PUBLIC KEY-----", "")
+					.replaceAll(System.lineSeparator(), "")
+					.replace("-----END PUBLIC KEY-----", "");
 
 			byte[] encoded = Base64.getDecoder().decode(publicKeyPEM);
 
@@ -168,16 +161,16 @@ public class SigningKeyPair
 		try
 		{
 			String privateKeyPEM = privateBase64
-					  .replaceAll("\\n", "")
-				      .replace("-----BEGIN PRIVATE KEY-----", "")
-				      .replaceAll(System.lineSeparator(), "")
-				      .replace("-----END PRIVATE KEY-----", "");
+					.replaceAll("\\n", "")
+					.replace("-----BEGIN PRIVATE KEY-----", "")
+					.replaceAll(System.lineSeparator(), "")
+					.replace("-----END PRIVATE KEY-----", "");
 
-		    byte[] encoded = Base64.getDecoder().decode(privateKeyPEM);
+			byte[] encoded = Base64.getDecoder().decode(privateKeyPEM);
 
-		    KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-		    PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
-		    return keyFactory.generatePrivate(keySpec);
+			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+			PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
+			return keyFactory.generatePrivate(keySpec);
 		}
 		catch(Throwable th)
 		{
@@ -205,6 +198,7 @@ public class SigningKeyPair
 	{
 		return decrypt(data, this.pvt);
 	}
+
 	/**
 	 * Accepts a string converts to bytes encrypts and converts to base64.
 	 */
@@ -228,7 +222,7 @@ public class SigningKeyPair
 	}
 
 	/*
-    * Accepts a base 64 string converts to bytes decrypts and converts back to String.
+	 * Accepts a base 64 string converts to bytes decrypts and converts back to String.
 	 */
 	private String decrypt(String data, Key key)
 	{
@@ -249,32 +243,29 @@ public class SigningKeyPair
 			return null;
 		}
 	}
-	
+
 	public String getPvtBase64()
 	{
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("-----BEGIN PRIVATE KEY-----\n");
-		buffer.append(to64CharacterLines(encoder.encodeToString(pvt.getEncoded())));
-		buffer.append("-----END PRIVATE KEY-----\n");
-		return buffer.toString();
+		return "-----BEGIN PRIVATE KEY-----\n" +
+				to64CharacterLines(encoder.encodeToString(pvt.getEncoded())) +
+				"-----END PRIVATE KEY-----\n";
 	}
-	
+
 	public String getPubBase64()
 	{
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("-----BEGIN PUBLIC KEY-----\n");
-		buffer.append(to64CharacterLines(encoder.encodeToString(pub.getEncoded())));
-		buffer.append("-----END PUBLIC KEY-----\n");
-		return buffer.toString();
+		return "-----BEGIN PUBLIC KEY-----\n" +
+				to64CharacterLines(encoder.encodeToString(pub.getEncoded())) +
+				"-----END PUBLIC KEY-----\n";
 	}
-	
+
 	private String to64CharacterLines(String pemText)
 	{
-		StringBuffer buffer = new StringBuffer();		
+		StringBuilder buffer = new StringBuilder();
 		int index = 0;
-		while (index < pemText.length()) {
-		    buffer.append(pemText.substring(index, Math.min(index + 64,pemText.length()))).append("\n");
-		    index += 64;
+		while(index < pemText.length())
+		{
+			buffer.append(pemText, index, Math.min(index + 64, pemText.length())).append("\n");
+			index += 64;
 		}
 		return buffer.toString();
 	}

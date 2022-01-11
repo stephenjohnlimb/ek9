@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 /**
  * Can be a normal version number like 6.8.2-9 i.e 9 is the build number
- * Or can be for a feature like 6.1.6-specialFeature12-19 i.e build number 19 of specialFeature12
+ * Or can be for a feature like 6.1.6-specialFeature12-19 i.e. build number 19 of specialFeature12
  */
 public class SemanticVersion implements Comparable<SemanticVersion>
 {
@@ -14,7 +14,7 @@ public class SemanticVersion implements Comparable<SemanticVersion>
 	private int patch = 0;
 	private String feature = null;
 	private int buildNumber = 0;
-	
+
 	public static SemanticVersion _of(String value)
 	{
 		SemanticVersion rtn = new SemanticVersion();
@@ -39,18 +39,18 @@ public class SemanticVersion implements Comparable<SemanticVersion>
 		rtn.patch = java.lang.Integer.parseInt(m.group("patch"));
 		//might not be present
 		rtn.feature = m.group("feature");
-		rtn.buildNumber = 0;		
+		rtn.buildNumber = 0;
 		return rtn;
 	}
 
 	private SemanticVersion()
-	{		
+	{
 	}
-	
+
 	public SemanticVersion(String value)
-	{				
+	{
 		parse(value);
-	}	
+	}
 
 	public int major()
 	{
@@ -62,7 +62,7 @@ public class SemanticVersion implements Comparable<SemanticVersion>
 		major++;
 		minor = 0;
 		patch = 0;
-		buildNumber = 0;		
+		buildNumber = 0;
 	}
 
 	public int minor()
@@ -74,9 +74,9 @@ public class SemanticVersion implements Comparable<SemanticVersion>
 	{
 		minor++;
 		patch = 0;
-		buildNumber = 0;		
+		buildNumber = 0;
 	}
-	
+
 	public int patch()
 	{
 		return patch;
@@ -85,14 +85,14 @@ public class SemanticVersion implements Comparable<SemanticVersion>
 	public void incrementPatch()
 	{
 		patch++;
-		buildNumber = 0;		
+		buildNumber = 0;
 	}
 
 	public String feature()
 	{
 		return feature;
 	}
-	
+
 	public int buildNumber()
 	{
 		return buildNumber;
@@ -100,7 +100,7 @@ public class SemanticVersion implements Comparable<SemanticVersion>
 
 	public void incrementBuildNumber()
 	{
-		buildNumber++;		
+		buildNumber++;
 	}
 
 	private boolean parse(java.lang.String value)
@@ -118,7 +118,7 @@ public class SemanticVersion implements Comparable<SemanticVersion>
 		this.buildNumber = java.lang.Integer.parseInt(m.group("buildNumber"));
 		return true;
 	}
-	
+
 	@Override
 	public int compareTo(SemanticVersion value)
 	{
@@ -135,7 +135,7 @@ public class SemanticVersion implements Comparable<SemanticVersion>
 						{
 							return java.lang.Integer.compare(this.buildNumber, value.buildNumber);
 						}
-						return featureCompare;								
+						return featureCompare;
 					}
 					else if(feature != null)
 					{
@@ -152,29 +152,29 @@ public class SemanticVersion implements Comparable<SemanticVersion>
 			}
 			return java.lang.Integer.compare(this.minor, value.minor);
 		}
-		return java.lang.Integer.compare(this.major, value.major);	
+		return java.lang.Integer.compare(this.major, value.major);
 	}
-			
+
 	public String toString()
 	{
 		//Format
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append(major).append(".").append(minor).append(".").append(patch);
 		if(feature != null)
 			buffer.append("-").append(feature);
 		buffer.append("-").append(buildNumber);
 		return buffer.toString();
 	}
-		
+
 	public int hashCode()
 	{
 		return toString().hashCode();
 	}
-	
+
 	public boolean equals(Object obj)
 	{
 		if(obj instanceof SemanticVersion)
-			return toString().equals(((SemanticVersion)obj).toString());
+			return toString().equals(obj.toString());
 		return false;
 	}
 }

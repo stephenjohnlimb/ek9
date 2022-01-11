@@ -6,11 +6,11 @@ public class ARI
 	{
 		//Slight modification to the ARI routine here, because source code is not really prose or normal sentences
 		//We have to alter or try and workout what we mean by a sentence and also slightly alter the word count.
-		int numberOfSentences = numberOfIndents + numberOfNewLines/2;
+		int numberOfSentences = numberOfIndents + numberOfNewLines / 2;
 		double wordAdjustment = numberOfWords * 1.25;
-        //System.out.println("L=" + numberOfLetters + " W=" + wordAdjustment + " S=" + numberOfSentences);		
-		double score = 4.71*(numberOfLetters/wordAdjustment) + 0.50 *(wordAdjustment/numberOfSentences) - 20.25;
-		
+		//System.out.println("L=" + numberOfLetters + " W=" + wordAdjustment + " S=" + numberOfSentences);
+		double score = 4.71 * (numberOfLetters / wordAdjustment) + 0.50 * (wordAdjustment / numberOfSentences) - 20.25;
+
 		//System.out.println("Score " + score);
 		if(score < 2)
 			return "5-6 Kindergarten";
@@ -25,7 +25,7 @@ public class ARI
 		if(score < 7)
 			return "11-12 Sixth Grade";
 		if(score < 8)
-			return "12-13 Seventh Grade";		
+			return "12-13 Seventh Grade";
 		if(score < 9)
 			return "13-14 Eighth Grade";
 		if(score < 10)
@@ -38,7 +38,7 @@ public class ARI
 			return "17-18 Twelfth Grade";
 		if(score < 14)
 			return "18-24 College student";
-		
-		return "24+	Graduate";     
+
+		return "24+	Graduate";
 	}
 }
