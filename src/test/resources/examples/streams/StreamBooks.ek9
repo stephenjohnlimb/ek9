@@ -275,15 +275,16 @@ defines module com.customer.books
       books <- Library().books()
 
       excludingFirstTwoBooks <- () is bookNumberFilter as pure function
-        limited <- cat books | skip 2 | collect as List of Book
-        rtn: limited
-        
+        rtn: cat books | skip 2 | collect as List of Book
+
+      //Just trying out a single inline dynamic function
+      //See how much harder it is to read than just using the above.
       cat books
         | sort by compareAuthor
         | split by getAuthorChange()
         | select with sufficientBooks
         | map by orderOnPublishedDate
-        | map by excludingFirstTwoBooks
+        | map by () is bookNumberFilter as pure (rtn: cat books | skip 2 | collect as List of Book)
         | flatten
         > stdout
 
@@ -293,9 +294,8 @@ defines module com.customer.books
 
       authorId <- getAuthorChange()
       firstBook <- () is bookNumberFilter as pure function
-        limited <- cat books | head 1 | collect as List of Book
-        rtn: limited
-        
+        rtn: cat books | head 1 | collect as List of Book
+
       cat books
         | sort by compareAuthor
         | split by authorId
@@ -311,9 +311,8 @@ defines module com.customer.books
 
       authorId <- getAuthorChange()
       lastBook <- () is bookNumberFilter as pure function
-        limited <- cat books | tail 1 | collect as List of Book
-        rtn: limited
-        
+        rtn:  cat books | tail 1 | collect as List of Book
+
       cat books
         | sort by compareAuthor
         | split by authorId
