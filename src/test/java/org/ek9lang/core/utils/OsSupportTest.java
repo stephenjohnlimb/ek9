@@ -29,6 +29,9 @@ public class OsSupportTest
 
 		String home = underTest.getUsersHomeDirectory();
 		TestCase.assertNotNull(home);
+
+		String temp = underTest.getTempDirectory();
+		TestCase.assertNotNull(temp);
 	}
 
 	@Test
@@ -113,13 +116,14 @@ public class OsSupportTest
 		List<File> files = underTest.getFilesRecursivelyFrom(rootDir, searchCondition);
 		TestCase.assertNotNull(files);
 		TestCase.assertEquals(1, files.size());
-		underTest.deleteMatchingFiles(newDir, "a\\.newfile");
+		FileHandling fileHandling = new FileHandling(underTest);
+		fileHandling.deleteMatchingFiles(newDir, "a\\.newfile");
 		//Now check it has gone
 		files = underTest.getFilesRecursivelyFrom(rootDir, searchCondition);
 		TestCase.assertNotNull(files);
 		TestCase.assertEquals(0, files.size());
 
-		underTest.deleteContentsAndBelow(newDir, true);
+		fileHandling.deleteContentsAndBelow(newDir, true);
 
 	}
 

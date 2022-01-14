@@ -3,9 +3,13 @@ package org.ek9lang.core.utils;
 import org.ek9lang.core.exception.AssertValue;
 
 import java.io.File;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.*;
 
+/**
+ * Operating System support and generic stuff for directories and files.
+ */
 public class OsSupport
 {
 	public static int numberOfProcessors()
@@ -13,13 +17,73 @@ public class OsSupport
 		return Runtime.getRuntime().availableProcessors();
 	}
 
+	/**
+	 * When is stub mode the users home directory and current working directory are altered.
+	 */
+	private boolean stubMode = false;
+
+	public OsSupport()
+	{
+
+	}
+
+	/**
+	 * Used as and when you want to use a stub for testing.
+	 * You don't always want to create or access the actual users
+	 * home directory or current working directory.
+	 */
+	public OsSupport(boolean testStubMode)
+	{
+		this.stubMode = testStubMode;
+	}
+
+	/**
+	 * Provides the current process id of this running application.
+	 */
+	public long getPid()
+	{
+		return ProcessHandle.current().pid();
+	}
+
+	/**
+	 * Create a simulated tmp, home and current working directory under
+	 * the temp directory for a particular process.
+	 * This enables us to run tests with real files being created but in a safe way.
+	 */
+	private String createStubbedDirectory(String forDir)
+	{
+		String rtn = System.getProperty("java.io.tmpdir") +
+				FileSystems.getDefault().getSeparator() +
+				getPid() +
+				FileSystems.getDefault().getSeparator() +
+				forDir;
+
+		File directory = new File(rtn);
+		if(!directory.exists())
+			if(!directory.mkdirs())
+				throw new RuntimeException("Unable to create directory [" + directory.getPath() + "]");
+
+		return rtn;
+	}
+
+	public String getTempDirectory()
+	{
+		if(stubMode)
+			return createStubbedDirectory("tmp");
+		return System.getProperty("java.io.tmpdir");
+	}
+
 	public String getUsersHomeDirectory()
 	{
+		if(stubMode)
+			return createStubbedDirectory("home");
 		return System.getProperty("user.home");
 	}
 
 	public String getCurrentWorkingDirectory()
 	{
+		if(stubMode)
+			return createStubbedDirectory("cwd");
 		return System.getProperty("user.dir");
 	}
 
@@ -65,50 +129,6 @@ public class OsSupport
 	public boolean isDirectoryWritable(File directory)
 	{
 		return directory != null && directory.isDirectory() && directory.canWrite();
-	}
-
-	/**
-	 * deletes matching files
-	 *
-	 * @param dir             the directory to look in
-	 * @param fileNamePattern The pattern regex not shell so for * use .* for .txt use \\.txt
-	 */
-	public void deleteMatchingFiles(File dir, String fileNamePattern)
-	{
-		AssertValue.checkNotNull("Dir cannot be null", dir);
-		AssertValue.checkNotNull("FileNamePattern cannot be null", fileNamePattern);
-
-		File[] files = dir.listFiles((dir1, name) -> name.matches(fileNamePattern));
-		if(files != null)
-		{
-			for(final File file : files)
-			{
-				if(!file.delete())
-					System.err.println("Can't remove " + file.getAbsolutePath());
-			}
-		}
-	}
-
-	/**
-	 * Does a recursive delete from this directory and below.
-	 * If includeDirectoryRoot is true then it will delete that directory as well
-	 */
-	@SuppressWarnings("ResultOfMethodCallIgnored")
-	public void deleteContentsAndBelow(File dir, boolean includeDirectoryRoot)
-	{
-		File[] files = dir.listFiles();
-		if(files != null)
-		{
-			for(File toDelete : files)
-			{
-				if(toDelete.isDirectory())
-					deleteContentsAndBelow(toDelete, true);
-				else
-					toDelete.delete();
-			}
-		}
-		if(includeDirectoryRoot)
-			dir.delete();
 	}
 
 	public List<File> getFilesFromDirectories(Collection<File> inDirectories, String fileSuffix)

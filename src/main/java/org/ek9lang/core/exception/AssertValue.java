@@ -55,6 +55,13 @@ public class AssertValue
 			throw new IllegalArgumentException(messageIfNoRead + "[" + fileName + "]");
 	}
 
+	public static void checkCanReadFile(String messageIfNoRead, File file)
+	{
+		checkNotNull("File cannot be be null", file);
+		if(!osSupport.isFileReadable(file))
+			throw new IllegalArgumentException(messageIfNoRead + "[" + file.getPath() + "]");
+	}
+
 	public static void checkDirectoryReadable(String messageIfNoRead, String directoryName)
 	{
 		checkNotEmpty("Filename cannot be empty or null", directoryName);

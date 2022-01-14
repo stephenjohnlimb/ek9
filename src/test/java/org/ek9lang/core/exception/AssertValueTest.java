@@ -144,7 +144,7 @@ public class AssertValueTest
 	@Test(expected = IllegalArgumentException.class)
 	public void testNullNotFoundFile()
 	{
-		AssertValue.checkCanReadFile("File Cannot be found", null);
+		AssertValue.checkCanReadFile("File Cannot be found", (File)null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
