@@ -1,11 +1,18 @@
 package org.ek9lang.core.utils;
 
 import junit.framework.TestCase;
+import org.junit.After;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.zip.ZipEntry;
 
 /**
  * Ensure that the file handling class functions as expected.
@@ -13,6 +20,15 @@ import java.nio.file.FileSystems;
 public class FileHandlingTest
 {
 	private final FileHandling underTest = new FileHandling(new OsSupport(true));
+
+	@After
+	public void tidyUp()
+	{
+		String testHomeDirectory = underTest.getUsersHomeDirectory();
+		TestCase.assertNotNull(testHomeDirectory);
+		//As this is a test delete from process id and below
+		underTest.deleteContentsAndBelow(new File(new File(testHomeDirectory).getParent()), true);
+	}
 
 	@Test
 	public void testEK9DirectoryNaming()
@@ -25,7 +41,6 @@ public class FileHandlingTest
 
 		File testHomeEK9LibDirectory = underTest.getUsersHomeEK9LibDirectory();
 		TestCase.assertNotNull(testHomeEK9LibDirectory);
-		underTest.deleteContentsAndBelow(new File(testHomeDirectory), true);
 	}
 
 	@Test
@@ -97,9 +112,6 @@ public class FileHandlingTest
 
 		//Ensure no stale zips.
 		underTest.deleteStalePackages(aProjectDirectory.getPath(), "any.mod.name");
-
-
-		underTest.deleteContentsAndBelow(new File(testHomeDirectory), true);
 	}
 
 	@Test
@@ -107,6 +119,7 @@ public class FileHandlingTest
 	{
 		//Ensure it is there
 		underTest.validateHomeEK9Directory("java");
+
 		String testHomeDirectory = underTest.getUsersHomeDirectory();
 		SigningKeyPair keyPair = SigningKeyPair.generate(2048);
 		boolean saved = underTest.saveToHomeEK9Directory(keyPair);
@@ -117,8 +130,75 @@ public class FileHandlingTest
 
 		TestCase.assertEquals(keyPair.getPvtBase64(), reloadedKeyPair.getPvtBase64());
 		TestCase.assertEquals(keyPair.getPubBase64(), reloadedKeyPair.getPubBase64());
+	}
 
-		//Now tidy up and delete it all.
-		underTest.deleteContentsAndBelow(new File(testHomeDirectory), true);
+	@Test
+	public void testZippingAndPackaging() throws IOException
+	{
+		underTest.validateHomeEK9Directory("java");
+
+		//We need a project directory so that we can try out the other capabilities.
+		//i.e. This is a project you will have checked out, here it is empty, we just create it
+		String testHomeDirectory = underTest.getUsersHomeDirectory();
+		File aProjectDirectory = FileSystems.getDefault().getPath(testHomeDirectory, "src", "aProject").toFile();
+		underTest.makeDirectoryIfNotExists(aProjectDirectory);
+
+		//Dummy source file
+		File sampleEK9 = FileSystems.getDefault().getPath(aProjectDirectory.getPath(), "sample.ek9").toFile();
+		TestCase.assertTrue(sampleEK9.createNewFile());
+
+		List<File> files = new OsSupport().getFilesRecursivelyFrom(new File(sampleEK9.getParent()));
+
+		//Now get the .ek9 directory under that, this is where we will store the built artefacts.
+		String projectDotEK9Directory = underTest.getDotEK9Directory(aProjectDirectory);
+
+		//This will check or make the whole .ek9 tree.
+		underTest.validateEK9Directory(projectDotEK9Directory, "java");
+
+		String zipFileName = underTest.makePackagedModuleZipFileName("some.mod.name", "2.3.1");
+		String fileName = projectDotEK9Directory + zipFileName;
+
+		File propsFile = underTest.getTargetPropertiesArtefact(sampleEK9.getPath());
+		TestCase.assertTrue(propsFile.createNewFile());
+
+		ZipSet fileSet = new ZipSet(aProjectDirectory.toPath(), files);
+		boolean created = underTest.createZip(fileName, fileSet, propsFile);
+		TestCase.assertTrue(created);
+		TestCase.assertTrue(new File(fileName).exists());
+		TestCase.assertTrue(new File(fileName).delete());
+		TestCase.assertFalse(new File(fileName).exists());
+
+		byte[] someBinaryData = "The Quick Brown fox".getBytes(StandardCharsets.UTF_8);
+		List<ZipBinaryContent> entries = new ArrayList<>();
+		entries.add(new ZipBinaryContent("text", someBinaryData));
+
+		ZipSet binarySet = new ZipSet(entries);
+		created = underTest.createZip(fileName, binarySet, propsFile);
+		TestCase.assertTrue(created);
+		File zipFile = new File(fileName);
+		TestCase.assertTrue(zipFile.exists());
+		TestCase.assertTrue(zipFile.delete());
+		TestCase.assertFalse(zipFile.exists());
+
+		//Now try jar functionality
+		created = underTest.createJar(fileName, Arrays.asList(fileSet, binarySet));
+		TestCase.assertTrue(created);
+		TestCase.assertTrue(zipFile.exists());
+
+		//unpack that zip
+		boolean unzipped = underTest.unZipFileTo(zipFile, underTest.getTempDirectory());
+
+		//Now remove zip file
+		zipFile = new File(fileName);
+		TestCase.assertTrue(zipFile.delete());
+		TestCase.assertFalse(zipFile.exists());
+
+		//Check what was unzipped.
+		File unPackedSampleEK9 = FileSystems.getDefault().getPath(underTest.getTempDirectory(), "sample.ek9").toFile();
+		TestCase.assertTrue(sampleEK9.exists());
+
+		File unPackedText = FileSystems.getDefault().getPath(underTest.getTempDirectory(), "text").toFile();
+		TestCase.assertTrue(unPackedText.exists());
+
 	}
 }

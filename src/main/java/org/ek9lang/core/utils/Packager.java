@@ -48,13 +48,11 @@ public class Packager
 		AssertValue.checkCanReadFile("Zip File not readable", zipFile);
 		fileHandling.makeDirectoryIfNotExists(unpackedDir);
 
-		try
+		try(FileInputStream fis = new FileInputStream(zipFile))
 		{
-			FileInputStream fis;
 			//buffer for read and write data to file
 			byte[] buffer = new byte[1024];
 
-			fis = new FileInputStream(zipFile);
 			ZipInputStream zis = new ZipInputStream(fis);
 			ZipEntry ze = zis.getNextEntry();
 			while(ze != null)
@@ -63,11 +61,12 @@ public class Packager
 				File newFile = new File(unpackedDir, fileName);
 				//System.err.println("Unzipping to "+newFile.getAbsolutePath());
 				//create directories for subdirectories in zip
-				if(!new File(newFile.getParent()).mkdirs())
+				File parent = new File(newFile.getParent());
+				if(!parent.exists() && !parent.mkdirs())
 					throw new RuntimeException("Unable to create directory structure");
 				if(ze.isDirectory())
 				{
-					if(!newFile.mkdir())
+					if(!newFile.exists() && !newFile.mkdir())
 						throw new RuntimeException("Unable to create directory structure");
 				}
 				else
@@ -87,7 +86,6 @@ public class Packager
 			//close last ZipEntry
 			zis.closeEntry();
 			zis.close();
-			fis.close();
 		}
 		catch(Throwable th)
 		{

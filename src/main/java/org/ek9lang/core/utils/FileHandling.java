@@ -32,6 +32,11 @@ public class FileHandling
 		this.directoryStructure = new EK9DirectoryStructure(this);
 	}
 
+	public String getTempDirectory()
+	{
+		return osSupport.getTempDirectory();
+	}
+
 	public String getUsersHomeDirectory()
 	{
 		return osSupport.getUsersHomeDirectory();
@@ -172,6 +177,11 @@ public class FileHandling
 	public boolean createJar(String fileName, List<ZipSet> sets)
 	{
 		return packager.createJar(fileName, sets);
+	}
+
+	public boolean unZipFileTo(File zipFile, String unpackedDir)
+	{
+		return unZipFileTo(zipFile, new File(unpackedDir));
 	}
 
 	/**
