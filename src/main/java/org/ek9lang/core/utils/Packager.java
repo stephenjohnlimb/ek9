@@ -48,12 +48,10 @@ public class Packager
 		AssertValue.checkCanReadFile("Zip File not readable", zipFile);
 		fileHandling.makeDirectoryIfNotExists(unpackedDir);
 
-		try(FileInputStream fis = new FileInputStream(zipFile))
+		try(FileInputStream fis = new FileInputStream(zipFile); ZipInputStream zis = new ZipInputStream(fis))
 		{
 			//buffer for read and write data to file
 			byte[] buffer = new byte[1024];
-
-			ZipInputStream zis = new ZipInputStream(fis);
 			ZipEntry ze = zis.getNextEntry();
 			while(ze != null)
 			{
@@ -71,13 +69,12 @@ public class Packager
 				}
 				else
 				{
-					FileOutputStream fos = new FileOutputStream(newFile);
-					int len;
-					while((len = zis.read(buffer)) > 0)
+					try(FileOutputStream fos = new FileOutputStream(newFile))
 					{
-						fos.write(buffer, 0, len);
+						int len;
+						while((len = zis.read(buffer)) > 0)
+							fos.write(buffer, 0, len);
 					}
-					fos.close();
 				}
 				//close this ZipEntry
 				zis.closeEntry();
@@ -85,7 +82,6 @@ public class Packager
 			}
 			//close last ZipEntry
 			zis.closeEntry();
-			zis.close();
 		}
 		catch(Throwable th)
 		{

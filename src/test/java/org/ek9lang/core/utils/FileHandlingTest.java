@@ -6,13 +6,11 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.zip.ZipEntry;
 
 /**
  * Ensure that the file handling class functions as expected.
@@ -121,6 +119,7 @@ public class FileHandlingTest
 		underTest.validateHomeEK9Directory("java");
 
 		String testHomeDirectory = underTest.getUsersHomeDirectory();
+		TestCase.assertNotNull(testHomeDirectory);
 		SigningKeyPair keyPair = SigningKeyPair.generate(2048);
 		boolean saved = underTest.saveToHomeEK9Directory(keyPair);
 		TestCase.assertTrue(saved);
@@ -187,6 +186,7 @@ public class FileHandlingTest
 
 		//unpack that zip
 		boolean unzipped = underTest.unZipFileTo(zipFile, underTest.getTempDirectory());
+		TestCase.assertTrue(unzipped);
 
 		//Now remove zip file
 		zipFile = new File(fileName);
@@ -195,7 +195,7 @@ public class FileHandlingTest
 
 		//Check what was unzipped.
 		File unPackedSampleEK9 = FileSystems.getDefault().getPath(underTest.getTempDirectory(), "sample.ek9").toFile();
-		TestCase.assertTrue(sampleEK9.exists());
+		TestCase.assertTrue(unPackedSampleEK9.exists());
 
 		File unPackedText = FileSystems.getDefault().getPath(underTest.getTempDirectory(), "text").toFile();
 		TestCase.assertTrue(unPackedText.exists());
