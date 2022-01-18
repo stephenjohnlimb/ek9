@@ -53,6 +53,7 @@ public class OsSupport
 	private String createStubbedDirectory(String forDir)
 	{
 		String rtn = System.getProperty("java.io.tmpdir") +
+				FileSystems.getDefault().getSeparator() +
 				getPid() +
 				FileSystems.getDefault().getSeparator() +
 				forDir;
