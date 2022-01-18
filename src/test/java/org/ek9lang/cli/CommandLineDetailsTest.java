@@ -1,18 +1,36 @@
 package org.ek9lang.cli;
 
+import org.ek9lang.core.utils.FileHandling;
+import org.ek9lang.core.utils.OsSupport;
+import org.junit.After;
 import org.junit.Test;
 
 import junit.framework.TestCase;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+
 /**
  * Some tests to check the command line processing.
  * 
- * Always difficult and error prone to handle a range of different command line options.
+ * Always difficult and error-prone to handle a range of different command line options.
  * 
  * So if there are issues, always add another test.
  */
 public class CommandLineDetailsTest
 {
+	private final OsSupport osSupport = new OsSupport(true);
+	private final FileHandling fileHandling = new FileHandling(osSupport);
+
+	@After
+	public void tidyUp()
+	{
+		String testHomeDirectory = fileHandling.getUsersHomeDirectory();
+		TestCase.assertNotNull(testHomeDirectory);
+		//As this is a test delete from process id and below
+		fileHandling.deleteContentsAndBelow(new File(new File(testHomeDirectory).getParent()), true);
+	}
 
 	@Test
 	public void testCommandLineHelpText()
@@ -23,7 +41,7 @@ public class CommandLineDetailsTest
 	@Test
 	public void testEmptyCommandLine()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
 		TestCase.assertEquals(2, underTest.processCommandLine(null));
 		TestCase.assertEquals(2, underTest.processCommandLine(""));		
 	}
@@ -31,14 +49,32 @@ public class CommandLineDetailsTest
 	@Test
 	public void testCommandLineVersion()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-V"));
 	}
-	
+
+	@Test
+	public void testDefaultPackageSettings()
+	{
+		String sourceName = "TCPExample.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/fullPrograms/", sourceName);
+
+		//As part of the package mechanism we have defaults when not specified.
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+		TestCase.assertEquals(0, underTest.processCommandLine("-c " + sourceName));
+
+		TestCase.assertFalse(underTest.applyStandardIncludes());
+		TestCase.assertTrue(underTest.applyStandardExcludes());
+
+		TestCase.assertEquals(1, underTest.getIncludeFiles().size());
+		TestCase.assertEquals(1, underTest.getExcludeFiles().size());
+	}
+
 	@Test
 	public void testLanguageServerCommandLine()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-ls"));
 		TestCase.assertTrue(underTest.isRunEK9AsLanguageServer());		
 	}
@@ -46,7 +82,7 @@ public class CommandLineDetailsTest
 	@Test
 	public void testLanguageServerWithHoverHelpCommandLine()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-ls -lsh"));
 		TestCase.assertTrue(underTest.isRunEK9AsLanguageServer());
 		TestCase.assertTrue(underTest.isEK9LanguageServerHelpEnabled());
@@ -55,158 +91,257 @@ public class CommandLineDetailsTest
 	@Test
 	public void testCommandLineHelp()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-h"));
 	}
 	
 	@Test
 	public void testCommandLineInvalidIncrementalCompile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(3, underTest.processCommandLine("-c"));
 	}
-	
+
+	@Test
+	public void testSimulationOfSourceFileAccess() throws IOException
+	{
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+		//Now we can put a dummy source file in the simulated/test cwd and then try and process it.
+		File cwd = new File(osSupport.getCurrentWorkingDirectory());
+
+		TestCase.assertEquals(0, underTest.processCommandLine("-c " + sourceName));
+
+		//Now a few directories and files now should exist.
+		File propsFile = new File(fileHandling.getDotEK9Directory(cwd), "SinglePackage.properties");
+		TestCase.assertTrue(propsFile.exists());
+
+		//Now we can test the reloading. Without forced reloading
+		TestCase.assertNull(underTest.processEK9FileProperties(false));
+		//Now with forced reloading
+		TestCase.assertNotNull(underTest.processEK9FileProperties(true));
+		//TODO
+	}
+
+	@Test
+	public void testHandlingEK9Package() throws IOException
+	{
+		String sourceName = "TCPExample.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/fullPrograms/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+		//Now we can put a dummy source file in the simulated/test cwd and then try and process it.
+
+		TestCase.assertEquals(0, underTest.processCommandLine("-c " + sourceName));
+
+		TestCase.assertEquals("2.3.14-20", underTest.getVersion());
+		TestCase.assertEquals("example.networking", underTest.getModuleName());
+		TestCase.assertEquals(4, underTest.numberOfProgramsInSourceFile());
+
+	}
+
+	private void copyFileToTestCWD(String fromRelativeTestUrl, String ek9SourceFileName)
+	{
+		URL fileForTest = this.getClass().getResource(fromRelativeTestUrl+ek9SourceFileName);
+		TestCase.assertNotNull(fileForTest);
+		File example = new File(fileForTest.getPath());
+
+		//Now we can put a dummy source file in the simulated/test cwd and then try and process it.
+		File cwd = new File(osSupport.getCurrentWorkingDirectory());
+		TestCase.assertTrue(cwd.exists());
+		TestCase.assertTrue(fileHandling.copy(new File(example.getParent()), cwd, ek9SourceFileName));
+		File aSourceFile = new File(cwd, ek9SourceFileName);
+		TestCase.assertTrue(aSourceFile.exists());
+	}
+
 	@Test
 	public void testCommandLineIncrementalCompile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-c someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-c " + sourceName));		
 		TestCase.assertTrue(underTest.isIncrementalCompile());
 		TestCase.assertFalse(underTest.isFullCompile());
 		TestCase.assertFalse(underTest.isVerbose());
 		TestCase.assertFalse(underTest.isDebuggingInstrumentation());
 		TestCase.assertFalse(underTest.isDevBuild());
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals(sourceName,underTest.getSourceFileName());
 	}
 	
 	@Test
-	public void testCommandLineIncrementalDebugCompile()
+	public void testCommandLineIncrementalDebugCompile() throws IOException
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-cg someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+		TestCase.assertEquals(0, underTest.processCommandLine("-cg " + sourceName));
 		TestCase.assertTrue(underTest.isIncrementalCompile());
 		TestCase.assertFalse(underTest.isFullCompile());
 		TestCase.assertFalse(underTest.isVerbose());
 		TestCase.assertTrue(underTest.isDebuggingInstrumentation());
 		TestCase.assertFalse(underTest.isDevBuild());
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals(sourceName,underTest.getSourceFileName());
 	}
 	
 	@Test
 	public void testCommandLineIncrementalDevCompile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-cd someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-cd " + sourceName));
 		TestCase.assertTrue(underTest.isIncrementalCompile());
 		TestCase.assertFalse(underTest.isFullCompile());
 		TestCase.assertFalse(underTest.isVerbose());
 		TestCase.assertTrue(underTest.isDebuggingInstrumentation());
 		TestCase.assertTrue(underTest.isDevBuild());
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals(sourceName,underTest.getSourceFileName());
 	}
 	
 	@Test
 	public void testCommandLineFullCompile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-C someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-C " + sourceName));
 		TestCase.assertFalse(underTest.isIncrementalCompile());
 		TestCase.assertTrue(underTest.isFullCompile());
 		TestCase.assertFalse(underTest.isVerbose());
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
 	}
 	
 	@Test
 	public void testCommandLineFullVerboseCompile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-C -v someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-C -v " + sourceName));		
 		TestCase.assertFalse(underTest.isIncrementalCompile());
 		TestCase.assertTrue(underTest.isFullCompile());
 		TestCase.assertTrue(underTest.isVerbose());
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
 	}
 	
 	@Test
 	public void testCommandLineFullDebugCompile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-Cg someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-Cg " + sourceName));		
 		TestCase.assertFalse(underTest.isIncrementalCompile());
 		TestCase.assertTrue(underTest.isFullCompile());
 		TestCase.assertFalse(underTest.isVerbose());
 		TestCase.assertTrue(underTest.isDebuggingInstrumentation());
 		TestCase.assertFalse(underTest.isDevBuild());
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
 	}
 	
 	@Test
 	public void testCommandLineFullDevCompile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-Cd someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-Cd " + sourceName));		
 		TestCase.assertFalse(underTest.isIncrementalCompile());
 		TestCase.assertTrue(underTest.isFullCompile());
 		TestCase.assertFalse(underTest.isVerbose());
 		TestCase.assertTrue(underTest.isDebuggingInstrumentation());
 		TestCase.assertTrue(underTest.isDevBuild());
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
 	}
 	
 	@Test
 	public void testCommandLineClean()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-Cl someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-Cl " + sourceName));		
 		TestCase.assertTrue(underTest.isCleanAll());
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
 	}
 	
 	@Test
 	public void testCommandLinePackageMissingSourceFile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(3, underTest.processCommandLine("-P"));				
 	}
 	
 	@Test
 	public void testCommandLineResolveDependencies()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-Dp someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-Dp " + sourceName));		
 		TestCase.assertTrue(underTest.isResolveDependencies());
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
 	}
 	
 	@Test
 	public void testCommandLinePackage()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-P someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-P " + sourceName));		
 		TestCase.assertTrue(underTest.isPackaging());
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
 	}
 	
 	@Test
 	public void testCommandLineInstallMissingSourceFile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(3, underTest.processCommandLine("-I"));		
 	}
 	
 	@Test
 	public void testCommandLineInstall()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-I someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-I " + sourceName));		
 		TestCase.assertTrue(underTest.isInstall());
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
 	}
 
 	@Test
 	public void testCommandLineGenerateKeys()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-Gk"));		
 		TestCase.assertTrue(underTest.isGenerateSigningKeys());
 		
@@ -215,207 +350,291 @@ public class CommandLineDetailsTest
 	@Test
 	public void testCommandLineGenerateKeysAdditionalSourceFile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(4, underTest.processCommandLine("-Gk someFile.ek9"));
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(4, underTest.processCommandLine("-Gk " + sourceName));
 	}
 
 	@Test
 	public void testCommandLineDeployMissingSourceFile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(3, underTest.processCommandLine("-D"));		
 	}
 	
 	@Test
 	public void testCommandLineDeploy()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-D someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-D " + sourceName));		
 		TestCase.assertTrue(underTest.isDeployment());
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
 	}
 	
 	@Test
 	public void testCommandLineIncrementVersionMissingParamAndSourceFile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(2, underTest.processCommandLine("-IV"));		
 	}
 
 	@Test
 	public void testCommandLineIncrementVersionMissingSourceFile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(3, underTest.processCommandLine("-IV major"));		
 	}
 	
 	@Test
 	public void testCommandLineIncrementVersionMissingParam()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(2, underTest.processCommandLine("-IV someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(2, underTest.processCommandLine("-IV " + sourceName));		
 	}
 
 	@Test
 	public void testCommandLineInvalidSetVersionParam()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(2, underTest.processCommandLine("-SV 10.3.A someFile.ek9"));
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(2, underTest.processCommandLine("-SV 10.3.A " + sourceName));
 	}
 	
 	@Test
 	public void testCommandLineSetVersionParam()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-SV 10.3.1 someFile.ek9"));
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-SV 10.3.1 " + sourceName));
 		TestCase.assertTrue(underTest.isSetReleaseVector());
-		TestCase.assertTrue("10.3.1".equals(underTest.getOptionParameter("-SV")));
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals("10.3.1", underTest.getOptionParameter("-SV"));
+		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
 	}
 	
 	@Test
 	public void testCommandLineInvalidSetFeatureParam()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(2, underTest.processCommandLine("-SF 10.3.2-1bogus someFile.ek9"));
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(2, underTest.processCommandLine("-SF 10.3.2-1bogus " + sourceName));
 	}
 	
 	@Test
 	public void testCommandLineSetFeatureVersionParam()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-SF 10.3.1-special someFile.ek9"));
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-SF 10.3.1-special " + sourceName));
 		TestCase.assertTrue(underTest.isSetFeatureVector());
-		TestCase.assertTrue("10.3.1-special".equals(underTest.getOptionParameter("-SF")));
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals("10.3.1-special", underTest.getOptionParameter("-SF"));
+		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
 	}
 	
 	@Test
 	public void testCommandLinePrintVersionMissingSourceFile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(3, underTest.processCommandLine("-PV"));	
 	}
 	
 	@Test
 	public void testCommandLineTestMissingSourceFile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(3, underTest.processCommandLine("-t"));	
 	}
 	
 	@Test
 	public void testCommandLineTest()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-t someFile.ek9"));
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-t " + sourceName));
 		TestCase.assertTrue(underTest.isUnitTestExecution());
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
 	}
 	
 	@Test
 	public void testCommandLineDebugMissingSourceFile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(3, underTest.processCommandLine("-d"));	
 	}
 	
 	@Test
 	public void testCommandLineDebugMissingPort()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(2, underTest.processCommandLine("-d someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(2, underTest.processCommandLine("-d " + sourceName));		
 	}
 	
 	@Test
 	public void testCommandLineDebug()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-d 9000 someFile.ek9"));
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-d 9000 " + sourceName));
 		TestCase.assertTrue(underTest.isRunDebugMode());
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
 	}
 	
 	@Test
 	public void testCommandLineRun()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("someFile.ek9"));
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine(sourceName));
 		TestCase.assertTrue(underTest.isRunNormalMode());
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
 	}
 
 	@Test
 	public void testCommandLineInvalidBuildRunProgram()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(4, underTest.processCommandLine("-c someFile.ek9 -r SomeProgram"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(4, underTest.processCommandLine("-c " + sourceName + " -r SomeProgram"));
 	}
 	
 	@Test
 	public void testCommandLineConflictingBuild1()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(2, underTest.processCommandLine("-c -C someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(2, underTest.processCommandLine("-c -C " + sourceName));		
 	}
 	
 	@Test
 	public void testCommandLineConflictingBuild2()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(2, underTest.processCommandLine("-GK -C someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(2, underTest.processCommandLine("-GK -C " + sourceName));		
 	}
 	
 	@Test
 	public void testCommandLineConflictingBuild3()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(2, underTest.processCommandLine("-C -t someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(2, underTest.processCommandLine("-C -t " + sourceName));		
 	}
 	
 	@Test
 	public void testCommandLineConflictingBuild4()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(2, underTest.processCommandLine("-C -PV someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(2, underTest.processCommandLine("-C -PV " + sourceName));		
 	}
 	
 	@Test
 	public void testCommandLineConflictingBuild5()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(2, underTest.processCommandLine("-c -d 9000 someFile.ek9"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(2, underTest.processCommandLine("-c -d 9000 " + sourceName));		
 	}
 	
 	@Test
 	public void testCommandLineInvalidReleaseRunProgram()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(4, underTest.processCommandLine("-IV patch someFile.ek9 -r SomeProgram"));		
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(4, underTest.processCommandLine("-IV patch " + sourceName + " -r SomeProgram"));
 	}
 	
 	@Test
 	public void testCommandLineRunProgram()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("someFile.ek9 -r SomeProgram"));
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine(sourceName + " -r SomeProgram"));
 		TestCase.assertTrue(underTest.isRunNormalMode());
-		TestCase.assertTrue("SomeProgram".equals(underTest.getProgramToRun()));
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals("SomeProgram", underTest.getProgramToRun());
+		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
 	}
 	
 	@Test
 	public void testCommandLineRunAsInvalidTarget()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(2, underTest.processCommandLine("-T wasm someFile.ek9"));
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(2, underTest.processCommandLine("-T wasm " + sourceName));
 	}
 	
 	@Test
 	public void testCommandLineEnvironment()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-e checker=false -e vogons='Bear Tree' someFile.ek9"));
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-e checker=false -e vogons='Bear Tree' " + sourceName));
 		TestCase.assertTrue(underTest.getEk9AppDefines().contains("checker=false"));
 		//Not the move to double quotes
 		TestCase.assertTrue(underTest.getEk9AppDefines().contains("vogons=\"Bear Tree\""));
@@ -424,21 +643,29 @@ public class CommandLineDetailsTest
 	@Test
 	public void testCommandLineRunAsJavaTarget()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-T java someFile.ek9 -r"));
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-T java " + sourceName + " -r"));
 		TestCase.assertTrue(underTest.isRunNormalMode());
 		TestCase.assertNull(underTest.getProgramToRun());
-		TestCase.assertTrue("java".equals(underTest.getTargetArchitecture()));
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals("java", underTest.getTargetArchitecture());
+		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
 	}
 
 	@Test
 	public void testCommandLinePrintVersion()
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-PV someFile.ek9"));
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-PV " + sourceName));
 		TestCase.assertTrue(underTest.isPrintReleaseVector());		
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals(sourceName,underTest.getSourceFileName());
 	}
 	
 	@Test
@@ -452,11 +679,15 @@ public class CommandLineDetailsTest
 	
 	private void assertIVParam(String param)
 	{
-		CommandLineDetails underTest = new CommandLineDetails();				
-		TestCase.assertEquals(0, underTest.processCommandLine("-IV " + param + " someFile.ek9"));
+		String sourceName = "SinglePackage.ek9";
+		//We will copy this into a working directory and process it.
+		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		TestCase.assertEquals(0, underTest.processCommandLine("-IV " + param + " " + sourceName));
 		TestCase.assertTrue(underTest.isIncrementReleaseVector());
-		TestCase.assertTrue(param.equals(underTest.getOptionParameter("-IV")));
-		TestCase.assertTrue("someFile.ek9".equals(underTest.getSourceFileName()));
+		TestCase.assertEquals(param, underTest.getOptionParameter("-IV"));
+		TestCase.assertEquals(sourceName,underTest.getSourceFileName());
 	}
 	
 }

@@ -1,5 +1,7 @@
 package org.ek9lang.cli;
 
+import org.ek9lang.core.utils.FileHandling;
+import org.ek9lang.core.utils.OsSupport;
 import org.ek9lang.lsp.Server;
 
 
@@ -39,7 +41,9 @@ public class EK9
 		}
 		else
 		{
-			CommandLineDetails commandLine = new CommandLineDetails();
+			OsSupport osSupport = new OsSupport();
+			FileHandling fileHandling = new FileHandling(osSupport);
+			CommandLineDetails commandLine = new CommandLineDetails(fileHandling, osSupport);
 			int result = commandLine.processCommandLine(argv[0]);
 			if(result > 0)
 				System.exit(result);

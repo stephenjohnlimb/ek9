@@ -199,6 +199,5 @@ public class FileHandlingTest
 
 		File unPackedText = FileSystems.getDefault().getPath(underTest.getTempDirectory(), "text").toFile();
 		TestCase.assertTrue(unPackedText.exists());
-
 	}
 }
