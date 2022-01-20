@@ -4,8 +4,9 @@ import org.ek9lang.core.exception.AssertValue;
 
 import java.io.File;
 import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Operating System support and generic stuff for directories and files.
@@ -146,13 +147,12 @@ public class OsSupport
 		AssertValue.checkNotNull("InDirectory cannot be null", inDirectory);
 		AssertValue.checkNotNull("ExcludeStartingWith cannot be null", excludeStartingWith);
 
-		ArrayList<File> rtn = new ArrayList<>();
 		File[] files = inDirectory.listFiles((d, name) -> !name.startsWith(excludeStartingWith));
-		if(files != null)
-			for(File f : files)
-				if(f.isDirectory())
-					rtn.add(f);
-		return rtn;
+		return Optional.ofNullable(files)
+				.map(Arrays::stream)
+				.orElseGet(Stream::empty)
+				.filter(file -> file.isDirectory())
+				.collect(Collectors.toList());
 	}
 
 	public List<File> getFilesRecursivelyFrom(File inDirectory, Glob searchCondition)
@@ -160,15 +160,10 @@ public class OsSupport
 		AssertValue.checkNotNull("InDirectory cannot be null", inDirectory);
 		AssertValue.checkNotNull("SearchCondition cannot be null", searchCondition);
 
-		ArrayList<File> rtn = new ArrayList<>();
-		List<File> fullList = getFilesRecursivelyFrom(inDirectory);
-		fullList.forEach(file -> {
-			Path thePath = file.toPath();
-			Path relPath = inDirectory.toPath().relativize(thePath);
-			if(searchCondition.isAcceptable(relPath))
-				rtn.add(file);
-		});
-		return rtn;
+		return getFilesRecursivelyFrom(inDirectory)
+				.stream()
+				.filter(file -> searchCondition.isAcceptable(inDirectory.toPath().relativize(file.toPath())))
+				.collect(Collectors.toList());
 	}
 
 	public List<File> getFilesRecursivelyFrom(File inDirectory)
@@ -195,21 +190,19 @@ public class OsSupport
 		AssertValue.checkNotNull("InDirectory cannot be null", inDirectory);
 		AssertValue.checkNotNull("FileSuffix cannot be null", fileSuffix);
 
-		ArrayList<File> rtn = new ArrayList<>();
 		File[] files = inDirectory.listFiles((d, name) -> name.endsWith(fileSuffix));
-		if(files != null)
-			Collections.addAll(rtn, files);
-
-		return rtn;
+		return Optional.ofNullable(files)
+				.map(Arrays::stream)
+				.orElseGet(Stream::empty)
+				.collect(Collectors.toList());
 	}
 
 	public Collection<File> getAllSubdirectories(String directoryRoot)
 	{
 		AssertValue.checkNotNull("DirectoryRoot cannot be null", directoryRoot);
 
-		ArrayList<File> rtn = new ArrayList<>();
-
 		File dir = new File(directoryRoot);
+		ArrayList<File> rtn = new ArrayList<>();
 		rtn.add(dir);
 		rtn.addAll(doGetAllSubdirectories(dir));
 
@@ -221,17 +214,16 @@ public class OsSupport
 		AssertValue.checkNotNull("Dir cannot be null", dir);
 
 		ArrayList<File> rtn = new ArrayList<>();
-
 		File[] files = dir.listFiles();
-		if(files != null)
-		{
-			Arrays.stream(files)
-					.filter(file -> file.isDirectory() && file.canRead())
-					.forEach(file -> {
-						rtn.add(file);
-						rtn.addAll(doGetAllSubdirectories(file));
-					});
-		}
+		Optional.ofNullable(files)
+				.map(Arrays::stream)
+				.orElseGet(Stream::empty)
+				.filter(file -> file.isDirectory() && file.canRead())
+				.forEach(file -> {
+					rtn.add(file);
+					rtn.addAll(doGetAllSubdirectories(file));
+				});
+
 		return rtn;
 	}
 }

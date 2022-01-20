@@ -1,10 +1,5 @@
 package org.ek9lang.cli;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.ek9lang.antlr.EK9BaseVisitor;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.antlr.EK9Parser.ModuleDeclarationContext;
@@ -12,6 +7,11 @@ import org.ek9lang.antlr.EK9Parser.ProgramBlockContext;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.errors.ErrorListener.SemanticClassification;
 import org.ek9lang.core.utils.Digest;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 {
@@ -21,12 +21,12 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 	private boolean packagePresent = false;
 	//Only version is actually mandatory
 	private boolean publicAccess = false;
-	private String version = new String();	
+	private String version = new String();
 	boolean semanticVersioning = true;
 	private int versionNumberOnLine = 0;
 	private String description = new String();
 	private String license = new String();
-	private List<String> tags =  new ArrayList<String>();
+	private List<String> tags = new ArrayList<String>();
 	private Map<String, String> deps = new HashMap<>();
 	private Map<String, String> devDeps = new HashMap<>();
 	private Map<String, String> excludeDeps = new HashMap<>();
@@ -38,28 +38,28 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 	//Now any programs that might be in the file.
 	private List<String> programs = new ArrayList<String>();
 
-	private ErrorListener errorListener;	
-	
+	private ErrorListener errorListener;
+
 	public EK9SourceVisitor setErrorListener(ErrorListener errorListener)
 	{
 		this.errorListener = errorListener;
 		return this;
 	}
-	
+
 	@Override
 	public Void visitModuleDeclaration(ModuleDeclarationContext ctx)
-	{	
+	{
 		moduleName = ctx.dottedName().getText();
 		return super.visitModuleDeclaration(ctx);
 	}
 
-	
+
 	@Override
 	public Void visitProgramBlock(ProgramBlockContext ctx)
 	{
 		ctx.methodDeclaration().forEach(methodDeclaration -> {
 			programs.add(methodDeclaration.identifier().getText().trim());
-		});		
+		});
 		return super.visitProgramBlock(ctx);
 	}
 
@@ -69,22 +69,22 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 		packagePresent = true;
 		boolean foundVersion = false;
 		boolean foundDescription = false;
-		
+
 		//need to manually traverse down so we only get version in this context
 		for(EK9Parser.VariableDeclarationContext vd : ctx.variableDeclaration())
 		{
 			String identifier = vd.identifier().getText();
 			EK9Parser.AssignmentExpressionContext ive = vd.assignmentExpression();
 			if("publicAccess".equals(identifier))
-			{				
+			{
 				if(ive.expression() != null && ive.expression().primary() != null)
-				{					
+				{
 					String access = ive.expression().getText().trim();
 					publicAccess = Boolean.valueOf(access);
 				}
 				else
 				{
-					errorListener.semanticError(ive.expression().start, "In '" + moduleName + "' package: 'publicAccess' property must be a Boolean.", SemanticClassification.PARAMETER_MISMATCH);					
+					errorListener.semanticError(ive.expression().start, "In '" + moduleName + "' package: 'publicAccess' property must be a Boolean.", SemanticClassification.PARAMETER_MISMATCH);
 				}
 			}
 			else if("version".equals(identifier))
@@ -96,15 +96,15 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 				if(ive.expression() != null && ive.expression().primary() != null)
 				{
 					this.version = ive.expression().getText().trim();
-					versionNumberOnLine = ive.expression().getStart().getLine();					
+					versionNumberOnLine = ive.expression().getStart().getLine();
 					foundVersion = true;
 				}
 				else
 				{
-					errorListener.semanticError(ive.expression().start, "In '" + moduleName + "' package: 'version' property must be a VersionNumber type.", SemanticClassification.PARAMETER_MISMATCH);					
+					errorListener.semanticError(ive.expression().start, "In '" + moduleName + "' package: 'version' property must be a VersionNumber type.", SemanticClassification.PARAMETER_MISMATCH);
 				}
 			}
-			
+
 			else if("description".equals(identifier))
 			{
 				if(ive.expression() != null && ive.expression().primary() != null)
@@ -114,7 +114,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 				}
 				else
 				{
-					errorListener.semanticError(ive.expression().start, "In '" + moduleName + "' package: 'description' property must be a String type.", SemanticClassification.PARAMETER_MISMATCH);					
+					errorListener.semanticError(ive.expression().start, "In '" + moduleName + "' package: 'description' property must be a String type.", SemanticClassification.PARAMETER_MISMATCH);
 				}
 			}
 			else if("license".equals(identifier))
@@ -125,7 +125,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 				}
 				else
 				{
-					errorListener.semanticError(ive.expression().start, "In '" + moduleName + "' package: 'license' property must be a String type.", SemanticClassification.PARAMETER_MISMATCH);					
+					errorListener.semanticError(ive.expression().start, "In '" + moduleName + "' package: 'license' property must be a String type.", SemanticClassification.PARAMETER_MISMATCH);
 				}
 			}
 			else if("tags".equals(identifier))
@@ -137,7 +137,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 				}
 				else
 				{
-					errorListener.semanticError(ive.expression().start, "In '" + moduleName + "' package: 'tags' property must be a List of String type.", SemanticClassification.PARAMETER_MISMATCH);					
+					errorListener.semanticError(ive.expression().start, "In '" + moduleName + "' package: 'tags' property must be a List of String type.", SemanticClassification.PARAMETER_MISMATCH);
 				}
 			}
 			else if("deps".equals(identifier))
@@ -149,7 +149,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 				}
 				else
 				{
-					errorListener.semanticError(ive.expression().start, "In '" + moduleName + "' package: 'deps' property must be Dict of (String, String).", SemanticClassification.PARAMETER_MISMATCH);					
+					errorListener.semanticError(ive.expression().start, "In '" + moduleName + "' package: 'deps' property must be Dict of (String, String).", SemanticClassification.PARAMETER_MISMATCH);
 				}
 			}
 			else if("devDeps".equals(identifier))
@@ -161,9 +161,9 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 				}
 				else
 				{
-					errorListener.semanticError(ive.expression().start, "In " + moduleName + " package: 'devDeps' property must be Dict of (String, String).", SemanticClassification.PARAMETER_MISMATCH);					
+					errorListener.semanticError(ive.expression().start, "In " + moduleName + " package: 'devDeps' property must be Dict of (String, String).", SemanticClassification.PARAMETER_MISMATCH);
 				}
-			}			
+			}
 			else if("excludeDeps".equals(identifier))
 			{
 				//We cannot assume this because user might have not used correct type
@@ -173,20 +173,20 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 				}
 				else
 				{
-					errorListener.semanticError(ive.expression().start, "In " + moduleName + " package: 'excludeDeps' property must be Dict of (String, String).", SemanticClassification.PARAMETER_MISMATCH);					
+					errorListener.semanticError(ive.expression().start, "In " + moduleName + " package: 'excludeDeps' property must be Dict of (String, String).", SemanticClassification.PARAMETER_MISMATCH);
 				}
 
 			}
 			else if("applyStandardIncludes".equals(identifier))
 			{
 				if(ive.expression() != null && ive.expression().primary() != null)
-				{					
+				{
 					String value = ive.expression().getText().trim();
 					applyStandardIncludes = Boolean.valueOf(value);
-				}				
+				}
 				else
 				{
-					errorListener.semanticError(ive.expression().start, "In " + moduleName + " package: 'applyStandardIncludes' property must be a Boolean.", SemanticClassification.PARAMETER_MISMATCH);				
+					errorListener.semanticError(ive.expression().start, "In " + moduleName + " package: 'applyStandardIncludes' property must be a Boolean.", SemanticClassification.PARAMETER_MISMATCH);
 				}
 			}
 			else if("includeFiles".equals(identifier))
@@ -198,19 +198,19 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 				}
 				else
 				{
-					errorListener.semanticError(ive.expression().start, "In " + moduleName + " package: 'includeFiles' property must be List of String.", SemanticClassification.PARAMETER_MISMATCH);					
+					errorListener.semanticError(ive.expression().start, "In " + moduleName + " package: 'includeFiles' property must be List of String.", SemanticClassification.PARAMETER_MISMATCH);
 				}
 			}
 			else if("applyStandardExcludes".equals(identifier))
 			{
 				if(ive.expression() != null && ive.expression().primary() != null)
-				{					
+				{
 					String value = ive.expression().getText().trim();
 					applyStandardExcludes = Boolean.valueOf(value);
-				}	
+				}
 				else
 				{
-					errorListener.semanticError(ive.expression().start, "In " + moduleName + " package: 'applyStandardExcludes' property must be a Boolean.", SemanticClassification.PARAMETER_MISMATCH);					
+					errorListener.semanticError(ive.expression().start, "In " + moduleName + " package: 'applyStandardExcludes' property must be a Boolean.", SemanticClassification.PARAMETER_MISMATCH);
 				}
 			}
 			else if("excludeFiles".equals(identifier))
@@ -222,7 +222,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 				}
 				else
 				{
-					errorListener.semanticError(ive.expression().start, "In " + moduleName + " package: 'excludeFiles' property must be List of String.", SemanticClassification.PARAMETER_MISMATCH);				
+					errorListener.semanticError(ive.expression().start, "In " + moduleName + " package: 'excludeFiles' property must be List of String.", SemanticClassification.PARAMETER_MISMATCH);
 				}
 			}
 			else
@@ -231,7 +231,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 			}
 		}
 		if(!foundDescription)
-			errorListener.semanticError(ctx.start, "Package: property 'description' is mandatory if a package is declared.", SemanticClassification.NOT_RESOLVED);					
+			errorListener.semanticError(ctx.start, "Package: property 'description' is mandatory if a package is declared.", SemanticClassification.NOT_RESOLVED);
 		return super.visitPackageBlock(ctx);
 	}
 
@@ -282,7 +282,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 	{
 		return publicAccess;
 	}
-	
+
 	public boolean isSemanticVersioning()
 	{
 		return semanticVersioning;
@@ -313,11 +313,12 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 	 * configuration, deps, devDeps and excludeDeps.
 	 * So hash with all the contents and then it can be stored in the properties file.
 	 * If it changes then we need to trigger a full recompile.
+	 *
 	 * @return The fingerprint of the dependencies.
 	 */
 	public String getDependencyFingerPrint()
 	{
-		String all = deps.toString()+devDeps.toString()+excludeDeps.toString();
+		String all = deps.toString() + devDeps.toString() + excludeDeps.toString();
 		return Digest.digest(all).toString();
 	}
 
