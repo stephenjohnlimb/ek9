@@ -16,7 +16,6 @@ public class Esv extends Eve
 
 		if(commandLine.isPackagePresent())
 		{
-			//Need to get from command line.
 			String newVersionParameter = commandLine.getOptionParameter("-SV");
 			Version newVersion = Version.withNoBuildNumber(newVersionParameter);
 			if(!super.setVersionNewNumber(newVersion))

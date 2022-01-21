@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Abstract versioning commands.
+ */
 public abstract class Eve extends E
 {
 	public Eve(CommandLineDetails commandLine, FileCache sourceFileCache, OsSupport osSupport)
@@ -83,50 +86,49 @@ public abstract class Eve extends E
 		private int major = 0;
 		private int minor = 0;
 		private int patch = 0;
-		private java.lang.String feature = null;
+		private String feature = null;
 		private int buildNumber = 0;
 
-		public static Version withNoBuildNumber(java.lang.String value)
+		/**
+		 * Parse the incoming - but expect no build number.
+		 */
+		public static Version withNoBuildNumber(String value)
+		{
+			return parse(false, value);
+		}
+
+		/**
+		 * Parse the incoming - but expect build number.
+		 */
+		public static Version withBuildNumber(String value)
+		{
+			return parse(true, value);
+		}
+
+		/**
+		 * Does the parsing of a version number either with or without a build number.
+		 */
+		private static Version parse(boolean withBuildNumber, String value)
 		{
 			Version rtn = new Version();
 
-			Pattern p = Pattern.compile("^(?<major>\\d+)(\\.)(?<minor>\\d+)(\\.)(?<patch>\\d+)((-)(?<feature>[a-zA-Z]+[a-zA-Z0-9]*))?$");
+			Pattern p;
+			if(withBuildNumber)
+				p = Pattern.compile("^(?<major>\\d+)(\\.)(?<minor>\\d+)(\\.)(?<patch>\\d+)((-)(?<feature>[a-zA-Z]+[a-zA-Z0-9]*))?(-)(?<buildNumber>\\d+)$");
+			else
+				p = Pattern.compile("^(?<major>\\d+)(\\.)(?<minor>\\d+)(\\.)(?<patch>\\d+)((-)(?<feature>[a-zA-Z]+[a-zA-Z0-9]*))?$");
 			Matcher m = p.matcher(value);
 
 			if(!m.find())
 				throw new RuntimeException("Unable to use " + value + " as a VersionNumber");
-			rtn.major = java.lang.Integer.parseInt(m.group("major"));
-			rtn.minor = java.lang.Integer.parseInt(m.group("minor"));
-			rtn.patch = java.lang.Integer.parseInt(m.group("patch"));
+			rtn.major = Integer.parseInt(m.group("major"));
+			rtn.minor = Integer.parseInt(m.group("minor"));
+			rtn.patch = Integer.parseInt(m.group("patch"));
 			//might not be present
 			rtn.feature = m.group("feature");
-			rtn.buildNumber = 0;
+			if(withBuildNumber)
+				rtn.buildNumber = Integer.parseInt(m.group("buildNumber"));
 			return rtn;
-		}
-
-		public Version()
-		{
-
-		}
-
-		public Version(String ofString)
-		{
-			this.parse(ofString);
-		}
-
-		protected void parse(java.lang.String value)
-		{
-			Pattern p = Pattern.compile("^(?<major>\\d+)(\\.)(?<minor>\\d+)(\\.)(?<patch>\\d+)((-)(?<feature>[a-zA-Z]+[a-zA-Z0-9]*))?(-)(?<buildNumber>\\d+)$");
-			Matcher m = p.matcher(value);
-
-			if(!m.find())
-				throw new RuntimeException("Unable to use " + value + " as a VersionNumber");
-			this.major = java.lang.Integer.parseInt(m.group("major"));
-			this.minor = java.lang.Integer.parseInt(m.group("minor"));
-			this.patch = java.lang.Integer.parseInt(m.group("patch"));
-			//might not be present
-			this.feature = m.group("feature");
-			this.buildNumber = java.lang.Integer.parseInt(m.group("buildNumber"));
 		}
 
 		public Integer major()
@@ -161,7 +163,6 @@ public abstract class Eve extends E
 		{
 			patch++;
 		}
-
 
 		public String feature()
 		{

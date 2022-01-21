@@ -15,7 +15,6 @@ public class Esf extends Eve
 		log("Feature=: Prepare");
 		if(commandLine.isPackagePresent())
 		{
-			//Need to get from command line.
 			String newVersionParameter = commandLine.getOptionParameter("-SF");
 			Version newVersion = Version.withNoBuildNumber(newVersionParameter);
 			if(!super.setVersionNewNumber(newVersion))

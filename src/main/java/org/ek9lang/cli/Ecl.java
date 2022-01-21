@@ -4,7 +4,7 @@ import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.core.utils.OsSupport;
 
 /**
- * Clean a project down for full resolution and compile.
+ * Clean a project down.
  */
 public class Ecl extends E
 {

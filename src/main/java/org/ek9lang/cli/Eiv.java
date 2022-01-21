@@ -17,7 +17,7 @@ public class Eiv extends Eve
 		{
 			//Need to get from command line.
 			String partToIncrement = commandLine.getOptionParameter("-IV");
-			Version versionNumber = new Version(commandLine.getVersion());
+			Version versionNumber = Version.withBuildNumber(commandLine.getVersion());
 			switch(partToIncrement)
 			{
 				case "major":

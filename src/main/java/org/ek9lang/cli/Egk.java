@@ -5,7 +5,7 @@ import org.ek9lang.core.utils.OsSupport;
 import org.ek9lang.core.utils.SigningKeyPair;
 
 /**
- * Generate keys
+ * Generate signing keys.
  */
 public class Egk extends E
 {

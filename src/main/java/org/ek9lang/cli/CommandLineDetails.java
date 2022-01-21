@@ -478,6 +478,11 @@ public class CommandLineDetails
 		}
 	}
 
+	public boolean isDependenciesAltered()
+	{
+		return dependenciesAltered;
+	}
+
 	private boolean isModifierParam(String param)
 	{
 		return switch(param)
@@ -527,6 +532,11 @@ public class CommandLineDetails
 	public List<String> getEk9AppDefines()
 	{
 		return ek9AppDefines;
+	}
+
+	public List<String> getEk9ProgramParameters()
+	{
+		return ek9ProgramParameters;
 	}
 
 	public String getTargetArchitecture()

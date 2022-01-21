@@ -14,18 +14,18 @@ import java.nio.file.FileSystems;
  */
 public class EK9DirectoryStructure
 {
-	private static final String JAVA = "java";
-	private static final String CLASSES = "classes";
-	private static final String DOT_JAR = ".jar";
-	private static final String DOT_EK9 = ".ek9";
-	private static final String DOT_PROPERTIES = ".properties";
-	private static final String MAIN = "main";
-	private static final String LIB = "lib";
-	private static final String DEV = "dev";
-	private static final String GENERATED = "generated";
+	public static final String JAVA = "java";
+	public static final String CLASSES = "classes";
+	public static final String DOT_JAR = ".jar";
+	public static final String DOT_EK9 = ".ek9";
+	public static final String DOT_PROPERTIES = ".properties";
+	public static final String MAIN = "main";
+	public static final String LIB = "lib";
+	public static final String DEV = "dev";
+	public static final String GENERATED = "generated";
 
-	private static final String PUBLIC_PEM = "public.pem";
-	private static final String PRIVATE_PEM = "private.pem";
+	public static final String PUBLIC_PEM = "public.pem";
+	public static final String PRIVATE_PEM = "private.pem";
 
 	private final FileHandling fileHandling;
 

@@ -165,7 +165,7 @@ public class Packager
 			}
 			else
 			{
-				throw new RuntimeException("Unsure what to add to zip");
+				//it is empty - which OK, just nothing to add.
 			}
 		}
 		catch(IOException ioException)

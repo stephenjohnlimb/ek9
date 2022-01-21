@@ -15,6 +15,11 @@ public class ZipSet
 	private Collection<File> files;
 	private Collection<ZipBinaryContent> entries;
 
+	public ZipSet()
+	{
+
+	}
+
 	public ZipSet(Path relativePath, Collection<File> files)
 	{
 		this.relativePath = relativePath;
@@ -24,6 +29,11 @@ public class ZipSet
 	public ZipSet(Collection<ZipBinaryContent> entries)
 	{
 		this.entries = entries;
+	}
+
+	public boolean isEmpty()
+	{
+		return !isFileBased() && !isEntryBased();
 	}
 
 	public boolean isFileBased()
