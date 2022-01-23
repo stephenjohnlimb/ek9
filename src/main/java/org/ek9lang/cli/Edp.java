@@ -20,18 +20,24 @@ public class Edp extends E
 		super(commandLine, sourceFileCache, osSupport);
 	}
 
+	@Override
+	protected String messagePrefix()
+	{
+		return "Resolve : ";
+	}
+
 	public boolean run()
 	{
-		log("Resolve: - Clean");
+		log("- Clean");
 
 		Ecl ecl = new Ecl(commandLine, sourceFileCache, osSupport);
 		if(ecl.run())
 		{
-			log("Resolve: Prepare");
+			log("Prepare");
 
 			if(!commandLine.isPackagePresent())
 			{
-				report("Resolve: No Dependencies defined");
+				log("No Dependencies defined");
 			}
 			else
 			{
@@ -43,27 +49,27 @@ public class Edp extends E
 				Optional<DependencyNode> rootNode = Optional.ofNullable(null);
 				if(rootNode.isPresent())
 				{
-					log("Resolve: All loaded");
+					log("All loaded");
 
 					DependencyManager dependencyManager = new DependencyManager(rootNode.get());
 					if(processDependencies(dependencyManager))
 					{
-						log("Resolve: Processing Success");
+						log("Processing Success");
 					}
 					else
 					{
-						report("Resolve: Processing Failure");
+						report("Processing Failure");
 						return false;
 					}
 				}
 				else
 				{
-					report("Resolve: Failure");
+					report("Failure");
 					return false;
 				}
 			}
 
-			log("Resolve: Complete");
+			log("Complete");
 
 			return true;
 		}
@@ -73,9 +79,9 @@ public class Edp extends E
 
 	private boolean processDependencies(DependencyManager dependencyManager)
 	{
-		log("Resolve: Analysing");
+		log("Analysing");
 
-		log("Resolve: Circular?");
+		log("Circular?");
 
 		List<String> circulars = dependencyManager.reportCircularDependencies(true);
 		if(!circulars.isEmpty())
@@ -84,7 +90,7 @@ public class Edp extends E
 			return false;
 		}
 
-		log("Resolve: Exclusions!");
+		log("Exclusions!");
 
 		//They will all be accepted at the moment, we need to get all their exclusions and apply them
 		List<DependencyNode> allDependencies = dependencyManager.reportAcceptedDependencies();
@@ -93,16 +99,16 @@ public class Edp extends E
 			rejections.keySet().forEach(key -> {
 				String moduleName = key;
 				String whenDependencyOf = rejections.get(key);
-				log("Resolve: Exclusion '" + moduleName + "' <- '" + whenDependencyOf + "'");
+				log("Exclusion '" + moduleName + "' <- '" + whenDependencyOf + "'");
 				dependencyManager.reject(moduleName, whenDependencyOf);
 			});
 		});
 
-		log("Resolve: Promotions");
+		log("Promotions");
 
 		dependencyManager.rationalise();
 
-		log("Resolve: Optimising");
+		log("Optimising");
 
 		//This would manage a deep tree and ensure there can never been an infinite loop in case of error.
 		int maxOptimisations = 100;
@@ -112,19 +118,19 @@ public class Edp extends E
 		{
 			iterations++;
 			optimised = dependencyManager.optimise();
-			log("Resolve: Optimisation " + iterations);
+			log("Optimisation " + iterations);
 		}
 
-		log("Resolve: Version breaches?");
+		log("Version breaches?");
 
 		//Now we must check for semantic version breaches ie some part of the
 		//dependency tree requires 'major' version at one value and anther part another value
 		List<DependencyNode> breaches = dependencyManager.reportStrictSemanticVersionBreaches();
 		if(!breaches.isEmpty())
 		{
-			report("Resolve: Semantic version breaches follow:");
+			report("Semantic version breaches follow:");
 			breaches.forEach(this::report);
-			report("Resolve: You must review/refine your dependencies");
+			report("You must review/refine your dependencies");
 			return false;
 		}
 
@@ -133,10 +139,10 @@ public class Edp extends E
 		{
 			List<DependencyNode> rejected = dependencyManager.reportRejectedDependencies();
 			if(!rejected.isEmpty())
-				report("Resolve: Not applied:");
+				report("Not applied:");
 			rejected.forEach(this::report);
 
-			report("Resolve: Applied:");
+			report("Applied:");
 			List<DependencyNode> accepted = dependencyManager.reportAcceptedDependencies();
 			accepted.forEach(this::report);
 		}

@@ -27,17 +27,22 @@ public abstract class E
 		this.fileHandling = new FileHandling(osSupport);
 	}
 
+	/**
+	 * Provide the report/log message prefix
+	 */
+	protected abstract String messagePrefix();
+
 	public abstract boolean run();
 
 	protected void log(Object message)
 	{
 		if(commandLine.isVerbose())
-			System.err.println(message);
+			System.err.println(messagePrefix() + message);
 	}
 
 	protected void report(Object message)
 	{
-		System.err.println(message);
+		System.err.println(messagePrefix() + message);
 	}
 
 	public boolean isDebuggingInstrumentation()

@@ -23,16 +23,16 @@ public class Efc extends Ec
 
 	public boolean run()
 	{
-		log(messagePrefix() + "Prepare - Resolve");
+		log("Prepare - Resolve");
 		Edp edp = new Edp(commandLine, sourceFileCache, osSupport);
 		if(edp.run())
 		{
-			log(messagePrefix() + "Prepare");
+			log("Prepare");
 			prepareCompilation();
 
 			if(!compile(sourceFileCache.getAllCompilableProjectFiles()))
 			{
-				report(messagePrefix() + "failed");
+				report("Failed");
 				return false;
 			}
 

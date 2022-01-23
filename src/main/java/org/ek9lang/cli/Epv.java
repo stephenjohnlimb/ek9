@@ -13,9 +13,15 @@ public class Epv extends E
 		super(commandLine, sourceFileCache, osSupport);
 	}
 
+	@Override
+	protected String messagePrefix()
+	{
+		return "$Version: ";
+	}
+
 	public boolean run()
 	{
-		log("$Version: Prepare");
+		log("Prepare");
 
 		if(commandLine.isPackagePresent())
 		{
@@ -26,7 +32,7 @@ public class Epv extends E
 			report("File " + commandLine.getSourceFileName() + " does not define a package");
 			return false;
 		}
-		log("$Version: Complete");
+		log("Complete");
 
 		return true;
 	}

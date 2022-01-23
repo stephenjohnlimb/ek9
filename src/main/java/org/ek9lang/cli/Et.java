@@ -12,10 +12,16 @@ public class Et extends E
 	{
 		super(commandLine, sourceFileCache, osSupport);
 	}
-	
+
+	@Override
+	protected String messagePrefix()
+	{
+		return "Test    : ";
+	}
+
 	public boolean run()
 	{
-		log("Test: Compile!");
+		log("Compile!");
 
 		//trigger rebuild if needed
 		Eic eic = new Eic(commandLine, sourceFileCache, osSupport);
@@ -24,9 +30,9 @@ public class Et extends E
 		if(eic.run())
 		{
 			//Now run all tests.
-			log("Test: Prepare");
+			log("Prepare");
 			//TODO - call to run all the tests
-			log("Test: Complete");
+			log("Complete");
 
 			return true;
 		}

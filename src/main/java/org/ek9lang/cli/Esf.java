@@ -10,9 +10,15 @@ public class Esf extends Eve
 		super(commandLine, sourceFileCache, osSupport);
 	}
 
+	@Override
+	protected String messagePrefix()
+	{
+		return "Feature=: ";
+	}
+
 	public boolean run()
 	{
-		log("Feature=: Prepare");
+		log("Prepare");
 		if(commandLine.isPackagePresent())
 		{
 			String newVersionParameter = commandLine.getOptionParameter("-SF");
@@ -28,7 +34,7 @@ public class Esf extends Eve
 			report("File " + super.commandLine.getSourceFileName() + " does not define a package");
 			return false;
 		}
-		log("Feature=: Complete");
+		log("Complete");
 
 		return true;
 	}

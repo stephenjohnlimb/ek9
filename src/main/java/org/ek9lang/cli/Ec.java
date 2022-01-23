@@ -21,11 +21,6 @@ public abstract class Ec extends E
 		super(commandLine, sourceFileCache, osSupport);
 	}
 
-	/**
-	 * Provide the report/log message prefix
-	 */
-	protected abstract String messagePrefix();
-
 	protected void prepareCompilation()
 	{
 		//Set if not already set
@@ -35,19 +30,18 @@ public abstract class Ec extends E
 			setDevBuild(commandLine.isDevBuild());
 
 		if(isDebuggingInstrumentation())
-			log(messagePrefix() + "Instrumenting");
+			log("Instrumenting");
 		if(isDevBuild())
-			log(messagePrefix() + "Development");
+			log("Development");
 	}
 
 	protected boolean compile(List<File> compilableProjectFiles)
 	{
-		log(messagePrefix() + compilableProjectFiles.size() + " source file(s)");
+		log(compilableProjectFiles.size() + " source file(s)");
 
 		//TODO the actual compilation!
-		compilableProjectFiles.forEach(file -> {
-			report(messagePrefix() + file.getAbsolutePath());
-		});
+
+		compilableProjectFiles.forEach(file -> log(file.getAbsolutePath()));
 
 		return true; //or false if compilation failed
 	}
@@ -57,7 +51,7 @@ public abstract class Ec extends E
 		//We can only build a jar for java at present.
 		if(commandLine.targetArchitecture == EK9DirectoryStructure.JAVA)
 		{
-			log(messagePrefix() + "Creating target");
+			log("Creating target");
 
 			List<ZipSet> zipSets = new ArrayList<>();
 			addProjectResources(zipSets);
@@ -76,11 +70,11 @@ public abstract class Ec extends E
 			String targetFileName = sourceFileCache.getTargetExecutableArtefact().getAbsolutePath();
 			if(!fileHandling.createJar(targetFileName, zipSets))
 			{
-				report(messagePrefix() + "Target creating failed");
+				report("Target creating failed");
 				return false;
 			}
 
-			log(messagePrefix() + "Complete");
+			log("Complete");
 			return true;
 		}
 		return false;
@@ -88,6 +82,7 @@ public abstract class Ec extends E
 
 	/**
 	 * This will be the stock set of runtime code that we need to bundle.
+	 *
 	 * @return
 	 */
 	private ZipSet getCoreComponents()
@@ -97,7 +92,7 @@ public abstract class Ec extends E
 
 	private List<ZipSet> addClassesFrom(File classesDir, List<ZipSet> zipSetList)
 	{
-		log(messagePrefix() + "Including classes from " + classesDir.getAbsolutePath());
+		log("Including classes from " + classesDir.getAbsolutePath());
 		List<File> listOfFiles = osSupport.getFilesRecursivelyFrom(classesDir);
 		zipSetList.add(new ZipSet(classesDir.toPath(), listOfFiles));
 		return zipSetList;

@@ -14,27 +14,33 @@ public class Egk extends E
 		super(commandLine, sourceFileCache, osSupport);
 	}
 
+	@Override
+	protected String messagePrefix()
+	{
+		return "Keys    : ";
+	}
+
 	public boolean run()
 	{
-		log("Keys: Prepare");
+		log("Prepare");
 
 		if(!fileHandling.isUsersSigningKeyPairPresent())
 		{
-			log("Keys: Generating new signing keys");
+			log("Generating new signing keys");
 
 			//Clients only use short key lengths, server uses 2048.
 			if(!fileHandling.saveToHomeEK9Directory(SigningKeyPair.generate(1024)))
 			{
-				report("Keys: Failed to regenerate keys");
+				report("Failed to regenerate keys");
 				return false;
 			}
 		}
 		else
 		{
-			log("Keys: Already present - not regenerating");
+			log("Already present - not regenerating");
 		}
 
-		log("Keys: Complete");
+		log("Complete");
 		return true;
 	}
 }

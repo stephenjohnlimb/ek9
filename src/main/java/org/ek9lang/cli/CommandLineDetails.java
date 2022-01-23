@@ -60,6 +60,21 @@ public class CommandLineDetails
 	}
 
 	/**
+	 * process the command line as supplied from main.
+	 */
+	public int processCommandLine(String[] argv)
+	{
+		if(argv == null || argv.length == 0)
+		{
+			System.err.println("ek9 <options>");
+			System.err.println(CommandLineDetails.getCommandLineHelp());
+			return EK9.BAD_COMMANDLINE_EXIT_CODE;
+		}
+
+		return processCommandLine(argv[0]);
+	}
+
+	/**
 	 * Process the command line.
 	 *
 	 * @param commandLine The command line the user or remote system used.
@@ -67,10 +82,17 @@ public class CommandLineDetails
 	 */
 	public int processCommandLine(String commandLine)
 	{
-		if(commandLine == null)
+		//Pick up any proposed architect from environment first
+		//This replaces the built-in default of 'java'
+		//But even this can be overridden on the command line with -T
+		String proposedTargetArchitecture = System.getenv("EK9_TARGET");
+		if(proposedTargetArchitecture != null && !proposedTargetArchitecture.isEmpty())
+			this.targetArchitecture = proposedTargetArchitecture;
+
+		if(commandLine == null || commandLine.isEmpty())
 		{
-			System.err.println("CommandLine is null");
-			return 2;
+			System.err.println("CommandLine is null/empty");
+			return EK9.BAD_COMMANDLINE_EXIT_CODE;
 		}
 
 		boolean processingEK9Parameters = true;
@@ -103,7 +125,7 @@ public class CommandLineDetails
 				if(!targetArchitecture.equals("java"))
 				{
 					System.err.println("Only Java is currently supported as a target [" + commandLine + "]");
-					return 2;
+					return EK9.BAD_COMMANDLINE_EXIT_CODE;
 				}
 			}
 			else if(strArray[i].equals("-r") && i < strArray.length - 1)
@@ -116,7 +138,7 @@ public class CommandLineDetails
 				if(!isAcceptableParameter(strArray[i]))
 				{
 					System.err.println("Incompatible command line options [" + commandLine + "]");
-					return 2;
+					return EK9.BAD_COMMAND_COMBINATION_EXIT_CODE;
 				}
 				activeParameters.add(strArray[i]);
 				//So next is port to debug on
@@ -127,7 +149,7 @@ public class CommandLineDetails
 				if(!m.find())
 				{
 					System.err.println("Debug Mode: expecting integer port number [" + commandLine + "]");
-					return 2;
+					return EK9.BAD_COMMANDLINE_EXIT_CODE;
 				}
 				this.debugPort = Integer.parseInt(port);
 			}
@@ -136,7 +158,7 @@ public class CommandLineDetails
 				if(processingEK9Parameters && !isAcceptableParameter(strArray[i]))
 				{
 					System.err.println("Incompatible command line options [" + commandLine + "]");
-					return 2;
+					return EK9.BAD_COMMAND_COMBINATION_EXIT_CODE;
 				}
 				activeParameters.add(strArray[i]);
 				//Need to consume next option.
@@ -155,7 +177,7 @@ public class CommandLineDetails
 									!versionParam.equals("build"))
 							{
 								System.err.println("Increment Version: expecting major|minor|patch|build [" + commandLine + "]");
-								return 2;
+								return EK9.BAD_COMMANDLINE_EXIT_CODE;
 							}
 						}
 						else if(versioningOption.equals("-SV"))
@@ -166,7 +188,7 @@ public class CommandLineDetails
 							if(!m.find())
 							{
 								System.err.println("Set Version: expecting major.minor.patch [" + commandLine + "]");
-								return 2;
+								return EK9.BAD_COMMANDLINE_EXIT_CODE;
 							}
 						}
 						else
@@ -177,7 +199,7 @@ public class CommandLineDetails
 							if(!m.find())
 							{
 								System.err.println("Set Feature Version: expecting major.minor.patch-feature (feature must start with alpha)[" + commandLine + "]");
-								return 2;
+								return EK9.BAD_COMMANDLINE_EXIT_CODE;
 							}
 						}
 						activeParameters.add(versionParam);
@@ -185,7 +207,7 @@ public class CommandLineDetails
 					else
 					{
 						System.err.println("Missing parameter [" + commandLine + "]");
-						return 2;
+						return EK9.BAD_COMMANDLINE_EXIT_CODE;
 					}
 				}
 			}
@@ -195,12 +217,14 @@ public class CommandLineDetails
 		{
 			System.err.println("ek9 <options>");
 			System.err.println(CommandLineDetails.getCommandLineHelp());
-			return 0;
+			//i.e. no further commands need to run
+			return EK9.SUCCESS_EXIT_CODE;
 		}
 		if(isVersionOfEK9Option())
 		{
 			System.err.println("EK9 Version 0.0.1-0");
-			return 0;
+			//i.e. no further commands need to run
+			return EK9.SUCCESS_EXIT_CODE;
 		}
 
 		//Add in run mode if no options supplied as default.
@@ -214,7 +238,7 @@ public class CommandLineDetails
 		if(isDeveloperManagementOption() && foundEk9File)
 		{
 			System.err.println("A generate Keys does not require or use EK9 filename.");
-			return 4;
+			return EK9.BAD_COMMAND_COMBINATION_EXIT_CODE;
 		}
 
 		if(!isDeveloperManagementOption() && !isRunEK9AsLanguageServer())
@@ -222,7 +246,7 @@ public class CommandLineDetails
 			if(!foundEk9File)
 			{
 				System.err.println("no EK9 file name in command line [" + commandLine + "]");
-				return 3;
+				return EK9.FILE_ISSUE_EXIT_CODE;
 			}
 
 			processEK9FileProperties(false);
@@ -230,12 +254,12 @@ public class CommandLineDetails
 			if(isJustABuildTypeOption() && ek9ProgramToRun != null)
 			{
 				System.err.println("A Build request for " + mainSourceFile.getName() + " does not require or use program parameters.");
-				return 4;
+				return EK9.BAD_COMMAND_COMBINATION_EXIT_CODE;
 			}
 			if(isReleaseVectorOption() && ek9ProgramToRun != null)
 			{
 				System.err.println("A modification to version number for " + mainSourceFile.getName() + " does not require or use program parameters.");
-				return 4;
+				return EK9.BAD_COMMAND_COMBINATION_EXIT_CODE;
 			}
 
 			if(isRunOption())
@@ -243,7 +267,8 @@ public class CommandLineDetails
 				//Do nothing in here, external caller will need to check if there is a program to run.
 			}
 		}
-		return 0;
+		//i.e. a command does need to run.
+		return EK9.RUN_COMMAND_EXIT_CODE;
 	}
 
 	public Integer processEK9FileProperties(boolean forceRegeneration)
@@ -282,12 +307,12 @@ public class CommandLineDetails
 		if(versionProperties.isNewerThan(sourceFile) && !forceRegeneration)
 		{
 			if(isVerbose())
-				System.err.println("Reusing " + versionProperties.getFileName());
+				System.err.println("Props   : Reusing " + versionProperties.getFileName());
 		}
 		else
 		{
 			if(isVerbose())
-				System.err.println("Regenerating " + versionProperties.getFileName());
+				System.err.println("Props   : Regenerating " + versionProperties.getFileName());
 
 			visitor = getSourceVisitor();
 			moduleName = visitor.getModuleName();
@@ -328,7 +353,7 @@ public class CommandLineDetails
 			if (!new JustParser().readSourceFile(mainSourceFile, visitor))
 			{
 				System.err.println("Unable to Parse source file [" + mainSourceFile.getAbsolutePath() + "]");
-				System.exit(3);
+				System.exit(EK9.FILE_ISSUE_EXIT_CODE);
 			}
 		}
 

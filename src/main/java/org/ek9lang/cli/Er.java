@@ -14,13 +14,19 @@ public class Er extends E
 		super(commandLine, sourceFileCache, osSupport);
 	}
 
+	@Override
+	protected String messagePrefix()
+	{
+		return "Run     : ";
+	}
+
 	public boolean run()
 	{
 		if(commandLine.targetArchitecture == EK9DirectoryStructure.JAVA)
 		{
 			if(!sourceFileCache.isTargetExecutableArtefactCurrent())
 			{
-				log("Run: Stale target - Compile");
+				log("Stale target - Compile");
 
 				//So it needs to be built so let's assume an incremental build - but that might decide on full build.
 				Ec execution = new Eic(commandLine, sourceFileCache, osSupport);
@@ -29,7 +35,7 @@ public class Er extends E
 					return false;
 			}
 
-			log("Run: Execute");
+			log("Execute");
 
 			//OK we can issue run command.
 			StringBuffer theRunCommand = new StringBuffer("java");

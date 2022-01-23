@@ -16,7 +16,7 @@ public class Eic extends Ec
 	@Override
 	protected String messagePrefix()
 	{
-		return "Compile: ";
+		return "Compile : ";
 	}
 
 	public boolean run()
@@ -24,7 +24,7 @@ public class Eic extends Ec
 		//Check if it even exists - if not then that is a full build that is needed.
 		if(!sourceFileCache.isTargetExecutableArtefactPresent())
 		{
-			log(messagePrefix() + "Missing target  - Compile!");
+			log("Missing target - Compile!");
 			Efc execution = new Efc(commandLine, sourceFileCache, osSupport);
 			//may have been forced in and so we must pass on.
 			execution.setDebuggingInstrumentation(this.isDebuggingInstrumentation());
@@ -37,22 +37,22 @@ public class Eic extends Ec
 
 			if(sourceFileCache.isTargetExecutableArtefactCurrent())
 			{
-				report(messagePrefix() + "Target already in date");
+				log("Target already in date");
 				return true;
 			}
 			else
 			{
-				log(messagePrefix() + "Prepare");
+				log("Prepare");
 				prepareCompilation();
 
 				if(!compile(sourceFileCache.getIncrementalCompilableProjectFiles()))
 				{
-					report(messagePrefix() + "failed");
+					report("Failed");
 					return false;
 				}
 
 				int changesToPackage = sourceFileCache.getIncrementalFilesPartOfBuild().size();
-				log(messagePrefix() + changesToPackage + " changed file(s)");
+				log(changesToPackage + " changed file(s)");
 
 				return repackageTargetArtefact();
 			}

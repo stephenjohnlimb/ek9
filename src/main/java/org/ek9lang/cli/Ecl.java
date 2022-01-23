@@ -13,15 +13,22 @@ public class Ecl extends E
 		super(commandLine, sourceFileCache, osSupport);
 	}
 
+	@Override
+	protected String messagePrefix()
+	{
+		return "Clean   : ";
+	}
+
 	public boolean run()
 	{
-		log("Clean: Prepare");
+		log("Prepare");
 
 		fileHandling.cleanEK9DirectoryStructureFor(commandLine.getFullPathToSourceFileName(), commandLine.targetArchitecture);
 		//Now trigger file structure and property file regeneration.
+		log("- Props");
 		commandLine.processEK9FileProperties(true);
 
-		log("Clean: Complete");
+		log("Complete");
 		return true;
 	}
 }

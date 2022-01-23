@@ -1,5 +1,6 @@
 package org.ek9lang.cli;
 
+import org.eclipse.lsp4j.Command;
 import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.OsSupport;
@@ -17,6 +18,19 @@ import java.util.Map;
  */
 public class EK9
 {
+	public static int RUN_COMMAND_EXIT_CODE = 0;
+	public static int SUCCESS_EXIT_CODE = 1;
+	public static int BAD_COMMANDLINE_EXIT_CODE = 2;
+	public static int FILE_ISSUE_EXIT_CODE = 3;
+	public static int BAD_COMMAND_COMBINATION_EXIT_CODE = 4;
+	public static int NO_PROGRAMS_EXIT_CODE = 5;
+	public static int PROGRAM_NOT_SPECIFIED_EXIT_CODE = 6;
+	public static int LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE = 7;
+
+	private final OsSupport osSupport;
+	private final FileHandling fileHandling;
+	private final CommandLineDetails commandLine;
+
 	/**
 	 * java -jar ek9.jar -C ./some/path/to/file.ek9
 	 * <p>
@@ -39,104 +53,127 @@ public class EK9
 	 */
 	public static void main(String[] argv)
 	{
-		if(argv.length == 0)
+		OsSupport osSupport = new OsSupport();
+		FileHandling fileHandling = new FileHandling(osSupport);
+		CommandLineDetails commandLine = new CommandLineDetails(fileHandling, osSupport);
+
+		int result = commandLine.processCommandLine(argv);
+		if(result >= EK9.SUCCESS_EXIT_CODE)
+			System.exit(result);
+
+		System.exit(new EK9(commandLine, fileHandling, osSupport).run());
+	}
+
+	public EK9(CommandLineDetails commandLine, FileHandling fileHandling, OsSupport osSupport)
+	{
+		this.commandLine = commandLine;
+		this.fileHandling = fileHandling;
+		this.osSupport = osSupport;
+	}
+
+	/**
+	 * Run the command line and return the exit code.
+	 */
+	public int run()
+	{
+		//This will cause the application to block and remain running as a language server.
+		if(commandLine.isRunEK9AsLanguageServer())
+			return runAsLanguageServer(commandLine);
+
+		//Just run the command as is.
+		return runAsCommand(commandLine, fileHandling, osSupport);
+	}
+
+	/**
+	 * Just run as a language server.
+	 * Blocks in the running.
+	 * @param commandLine The commandline developer used.
+	 * @return The exit code to exit with
+	 */
+	private int runAsLanguageServer(CommandLineDetails commandLine)
+	{
+		try
 		{
-			System.err.println("ek9 <options>");
-			System.err.println(CommandLineDetails.getCommandLineHelp());
-			System.exit(2);
+			System.err.println("EK9 running as LSP languageHelp=" + commandLine.isEK9LanguageServerHelpEnabled());
+			Server.runEK9LanguageServer(System.in, System.out, commandLine.isEK9LanguageServerHelpEnabled());
+			return SUCCESS_EXIT_CODE;
 		}
-		else
+		catch(Exception ex)
 		{
-			OsSupport osSupport = new OsSupport();
-			FileHandling fileHandling = new FileHandling(osSupport);
-			CommandLineDetails commandLine = new CommandLineDetails(fileHandling, osSupport);
-			int result = commandLine.processCommandLine(argv[0]);
-			if(result > 0)
-				System.exit(result);
-
-			//Need to keep a cache once files are loaded because each of the executions may call each other.
-			FileCache sourceFileCache = new FileCache(commandLine, osSupport);
-
-			if(commandLine.isDependenciesAltered())
-			{
-				if(commandLine.isVerbose())
-					System.err.println("Dependencies altered.");
-				File target = fileHandling.getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(), commandLine.targetArchitecture);
-				if(target.exists())
-					target.delete();
-			}
-
-			E execution = null;
-			//Maybe do this below with hash table of command option to E (execution)!.
-			if(commandLine.isRunEK9AsLanguageServer())
-			{
-				try
-				{
-					System.err.println("EK9 running as LSP languageHelp=" + commandLine.isEK9LanguageServerHelpEnabled());
-					Server.runEK9LanguageServer(System.in, System.out, commandLine.isEK9LanguageServerHelpEnabled());
-					System.exit(0);
-				}
-				catch(Exception ex)
-				{
-					System.err.println("Failed to Start Language Server");
-					System.exit(7);
-				}
-			}
-			else if(commandLine.isJustABuildTypeOption())
-			{
-				if(commandLine.isCleanAll())
-					execution = new Ecl(commandLine, sourceFileCache, osSupport);
-				else if(commandLine.isResolveDependencies())
-					execution = new Edp(commandLine, sourceFileCache, osSupport);
-				else if(commandLine.isIncrementalCompile())
-					execution = new Eic(commandLine, sourceFileCache, osSupport);
-				else if(commandLine.isFullCompile())
-					execution = new Efc(commandLine, sourceFileCache, osSupport);
-				else if(commandLine.isPackaging())
-					execution = new Ep(commandLine, sourceFileCache, osSupport);
-				else if(commandLine.isInstall())
-					execution = new Ei(commandLine, sourceFileCache, osSupport);
-				else if(commandLine.isDeployment())
-					execution = new Ed(commandLine, sourceFileCache, osSupport);
-				execution.run();
-				System.exit(1);
-			}
-			else if(commandLine.isReleaseVectorOption())
-			{
-				if(commandLine.isIncrementReleaseVector())
-					execution = new Eiv(commandLine, sourceFileCache, osSupport);
-				else if(commandLine.isSetReleaseVector())
-					execution = new Esv(commandLine, sourceFileCache, osSupport);
-				else if(commandLine.isSetFeatureVector())
-					execution = new Esf(commandLine, sourceFileCache, osSupport);
-				else if(commandLine.isPrintReleaseVector())
-					execution = new Epv(commandLine, sourceFileCache, osSupport);
-				execution.run();
-				System.exit(1);
-			}
-			else if(commandLine.isDeveloperManagementOption())
-			{
-				execution = new Egk(commandLine, sourceFileCache, osSupport);
-				execution.run();
-				System.exit(1);
-			}
-			else if(commandLine.isUnitTestExecution())
-			{
-				execution = new Et(commandLine, sourceFileCache, osSupport);
-				execution.run();
-				System.exit(1);
-			}
-			else if(commandLine.isRunOption())
-			{
-				execution = new Er(commandLine, sourceFileCache, osSupport);
-				execution.run();
-				System.exit(0);
-			}
-			else
-			{
-				System.err.println("Not sure");
-				System.exit(2);
-			}
+			System.err.println("Failed to Start Language Server");
+			return LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE;
 		}
+	}
+
+	/**
+	 * Just run a normal EK9 commandline command.
+	 */
+	private int runAsCommand(CommandLineDetails commandLine, FileHandling fileHandling, OsSupport osSupport)
+	{
+		//Need to keep a cache once files are loaded, because each of the executions may call each other.
+		FileCache sourceFileCache = new FileCache(commandLine, osSupport);
+
+		if(commandLine.isDependenciesAltered())
+		{
+			if(commandLine.isVerbose())
+				System.err.println("Dependencies altered.");
+			File target = fileHandling.getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(), commandLine.targetArchitecture);
+			fileHandling.deleteFileIfExists(target);
+		}
+
+		int rtn = BAD_COMMANDLINE_EXIT_CODE;
+		E execution = null;
+		//Maybe do this below with hash table of command option to E (execution)!.
+		if(commandLine.isJustABuildTypeOption())
+		{
+			if(commandLine.isCleanAll())
+				execution = new Ecl(commandLine, sourceFileCache, osSupport);
+			else if(commandLine.isResolveDependencies())
+				execution = new Edp(commandLine, sourceFileCache, osSupport);
+			else if(commandLine.isIncrementalCompile())
+				execution = new Eic(commandLine, sourceFileCache, osSupport);
+			else if(commandLine.isFullCompile())
+				execution = new Efc(commandLine, sourceFileCache, osSupport);
+			else if(commandLine.isPackaging())
+				execution = new Ep(commandLine, sourceFileCache, osSupport);
+			else if(commandLine.isInstall())
+				execution = new Ei(commandLine, sourceFileCache, osSupport);
+			else if(commandLine.isDeployment())
+				execution = new Ed(commandLine, sourceFileCache, osSupport);
+			rtn = SUCCESS_EXIT_CODE;
+		}
+		else if(commandLine.isReleaseVectorOption())
+		{
+			if(commandLine.isIncrementReleaseVector())
+				execution = new Eiv(commandLine, sourceFileCache, osSupport);
+			else if(commandLine.isSetReleaseVector())
+				execution = new Esv(commandLine, sourceFileCache, osSupport);
+			else if(commandLine.isSetFeatureVector())
+				execution = new Esf(commandLine, sourceFileCache, osSupport);
+			else if(commandLine.isPrintReleaseVector())
+				execution = new Epv(commandLine, sourceFileCache, osSupport);
+			rtn = SUCCESS_EXIT_CODE;
+		}
+		else if(commandLine.isDeveloperManagementOption())
+		{
+			execution = new Egk(commandLine, sourceFileCache, osSupport);
+			rtn = SUCCESS_EXIT_CODE;
+		}
+		else if(commandLine.isUnitTestExecution())
+		{
+			execution = new Et(commandLine, sourceFileCache, osSupport);
+			rtn = SUCCESS_EXIT_CODE;
+		}
+		else if(commandLine.isRunOption())
+		{
+			execution = new Er(commandLine, sourceFileCache, osSupport);
+			rtn = RUN_COMMAND_EXIT_CODE ;
+		}
+		if(execution == null || !execution.run())
+		{
+			System.err.println("Command not executed");
+			rtn = BAD_COMMANDLINE_EXIT_CODE;
+		}
+		return rtn;
 	}
 }

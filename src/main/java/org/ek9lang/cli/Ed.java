@@ -19,9 +19,15 @@ public class Ed extends E
 		super(commandLine, sourceFileCache, osSupport);
 	}
 
+	@Override
+	protected String messagePrefix()
+	{
+		return "Deploy  : ";
+	}
+
 	public boolean run()
 	{
-		log("Deploy: - Package");
+		log("- Package");
 		Ep ep = new Ep(commandLine, sourceFileCache, osSupport);
 		if(ep.run())
 		{
@@ -30,11 +36,11 @@ public class Ed extends E
 			if(egk.run())
 			{
 				//Now do deployment.
-				log("Deploy: Prepare");
+				log("Prepare");
 
 				if(!prepareEncryptedZipHash())
 				{
-					report("Deploy: Unable to complete package deployment");
+					report("Unable to complete package deployment");
 					return false;
 				}
 				//Still TODO
@@ -42,7 +48,7 @@ public class Ed extends E
 
 				//Also needs an account with some credentials to send to https://deploy.ek9lang.org
 				//TODO - we will leave this for now - see SigningKeyPairTest on how we will do it.
-				log("Deploy: Complete");
+				log("Complete");
 				return true;
 			}
 		}
@@ -62,19 +68,19 @@ public class Ed extends E
 
 		if(zipFile.exists() && sha256File.exists())
 		{
-			log("Deploy: Signing deployment package");
+			log("Signing deployment package");
 			//Yes hard coded again - revisit later maybe
 			String serverPublicKey = getServerPublicKey("repo.ek9lang.org");
 			if(serverPublicKey == null)
 			{
-				report("Deploy: Unable to sign package for deployment");
+				report("Unable to sign package for deployment");
 			}
 			else
 			{
 				SigningKeyPair usersSigningKeyPair = fileHandling.getUsersSigningKeyPair();
 				if(usersSigningKeyPair == null)
 				{
-					report("Deploy: Unable to load users signing keys");
+					report("Unable to load users signing keys");
 				}
 				else
 				{
@@ -88,19 +94,19 @@ public class Ed extends E
 					try(FileOutputStream fos = new FileOutputStream((sha256EncFile)))
 					{
 						fos.write(finalCipherText.getBytes(StandardCharsets.UTF_8));
-						log("Deploy: Deployment package signed");
+						log("Deployment package signed");
 						return true;
 					}
 					catch(Throwable th)
 					{
-						report("Deploy: Failed to create signed package");
+						report("Failed to create signed package");
 					}
 				}
 			}
 		}
 		else
 		{
-			report("Deploy: Failed to find deployable zip/sha files");
+			report("Failed to find deployable zip/sha files");
 		}
 		return false;
 	}

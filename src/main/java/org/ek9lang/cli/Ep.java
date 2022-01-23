@@ -19,10 +19,16 @@ public class Ep extends E
 		super(commandLine, sourceFileCache, osSupport);
 	}
 
+	@Override
+	protected String messagePrefix()
+	{
+		return "Package : ";
+	}
+
 	public boolean run()
 	{
 		//Now do packaging
-		log("Package: Prepare");
+		log("Prepare");
 
 		if(!commandLine.isPackagePresent())
 		{
@@ -44,11 +50,11 @@ public class Ep extends E
 
 		if(fileHandling.createZip(fileName, new ZipSet(fromPath, listOfFiles), commandLine.getSourcePropertiesFile()))
 		{
-			log("Package: Complete");
+			log("Complete");
 
-			log("Package: Check summing");
+			log("Check summing");
 			Digest.CheckSum checkSum = fileHandling.createSha256Of(fileName);
-			log("Package: " + fileName + " created, checksum " + checkSum);
+			log(fileName + " created, checksum " + checkSum);
 
 			return true;
 		}

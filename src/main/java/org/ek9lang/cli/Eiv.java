@@ -10,9 +10,15 @@ public class Eiv extends Eve
 		super(commandLine, sourceFileCache, osSupport);
 	}
 
+	@Override
+	protected String messagePrefix()
+	{
+		return "Version+: ";
+	}
+
 	public boolean run()
 	{
-		log("Version+: Prepare");
+		log("Prepare");
 		if(commandLine.isPackagePresent())
 		{
 			//Need to get from command line.
@@ -44,7 +50,7 @@ public class Eiv extends Eve
 			report("File " + super.commandLine.getSourceFileName() + " does not define a package");
 			return false;
 		}
-		log("Version+: Complete");
+		log("Complete");
 
 		return true;
 	}

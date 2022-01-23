@@ -15,43 +15,49 @@ public class Ei extends E
 		super(commandLine, sourceFileCache, osSupport);
 	}
 
+	@Override
+	protected String messagePrefix()
+	{
+		return "Install : ";
+	}
+
 	public boolean run()
 	{
-		log("Install: - Package");
+		log("- Package");
 
 		Ep ep = new Ep(commandLine, sourceFileCache, osSupport);
 		if(ep.run())
 		{
 			//Now do deployment.
-			log("Install: Prepare");
+			log("Prepare");
 
 			String zipFileName = fileHandling.makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion().toString());
 			File fromDir = new File(fileHandling.getDotEK9Directory(commandLine.getSourceFileDirectory()));
 			File destinationDir = fileHandling.getUsersHomeEK9LibDirectory();
 
-			log("Install: Copying '" + zipFileName + "' from '" + fromDir.toString() + "' to '" + destinationDir + "'");
+			log("Copying '" + zipFileName + "' from '" + fromDir.toString() + "' to '" + destinationDir + "'");
 
 			if(!fileHandling.copy(fromDir, destinationDir, zipFileName))
 			{
-				report("Install: Failed");
+				report("Failed");
 				return false;
 			}
 			else
 			{
-				report("Install: " + new File(destinationDir, zipFileName).toString() + " installed");
+				report("" + new File(destinationDir, zipFileName).toString() + " installed");
 			}
 			String sha256FileName = zipFileName + ".sha256";
 			if(!fileHandling.copy(fromDir, destinationDir, sha256FileName))
 			{
-				report("Install: Failed");
+				report("Failed");
 				return false;
 			}
 			else
 			{
-				report("Install: " + new File(destinationDir, sha256FileName).toString() + " provided");
+				report(new File(destinationDir, sha256FileName).toString() + " provided");
 			}
 
-			log("Install: Complete");
+			log("Complete");
 
 			return true;
 		}

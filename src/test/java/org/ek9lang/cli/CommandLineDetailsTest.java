@@ -22,7 +22,8 @@ public class CommandLineDetailsTest
 {
 	private final OsSupport osSupport = new OsSupport(true);
 	private final FileHandling fileHandling = new FileHandling(osSupport);
-
+	private final SourceFileSupport sourceFileSupport = new SourceFileSupport(fileHandling, osSupport);
+	
 	@After
 	public void tidyUp()
 	{
@@ -42,15 +43,19 @@ public class CommandLineDetailsTest
 	public void testEmptyCommandLine()
 	{
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
-		TestCase.assertEquals(2, underTest.processCommandLine(null));
-		TestCase.assertEquals(2, underTest.processCommandLine(""));		
+		TestCase.assertEquals(2, underTest.processCommandLine((String)null));
+		TestCase.assertEquals(2, underTest.processCommandLine(""));
+
+		TestCase.assertEquals(2, underTest.processCommandLine((String[])null));
+		String[] argv = {};
+		TestCase.assertEquals(2, underTest.processCommandLine(argv));
 	}
 	
 	@Test
 	public void testCommandLineVersion()
 	{
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
-		TestCase.assertEquals(0, underTest.processCommandLine("-V"));
+		TestCase.assertEquals(1, underTest.processCommandLine("-V"));
 	}
 
 	@Test
@@ -58,7 +63,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "TCPExample.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/fullPrograms/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/fullPrograms/", sourceName);
 
 		//As part of the package mechanism we have defaults when not specified.
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
@@ -92,7 +97,7 @@ public class CommandLineDetailsTest
 	public void testCommandLineHelp()
 	{
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
-		TestCase.assertEquals(0, underTest.processCommandLine("-h"));
+		TestCase.assertEquals(1, underTest.processCommandLine("-h"));
 	}
 	
 	@Test
@@ -107,7 +112,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
 		//Now we can put a dummy source file in the simulated/test cwd and then try and process it.
@@ -131,7 +136,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "TCPExample.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/fullPrograms/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/fullPrograms/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
 		//Now we can put a dummy source file in the simulated/test cwd and then try and process it.
@@ -144,26 +149,14 @@ public class CommandLineDetailsTest
 
 	}
 
-	private void copyFileToTestCWD(String fromRelativeTestUrl, String ek9SourceFileName)
-	{
-		URL fileForTest = this.getClass().getResource(fromRelativeTestUrl+ek9SourceFileName);
-		TestCase.assertNotNull(fileForTest);
-		File example = new File(fileForTest.getPath());
 
-		//Now we can put a dummy source file in the simulated/test cwd and then try and process it.
-		File cwd = new File(osSupport.getCurrentWorkingDirectory());
-		TestCase.assertTrue(cwd.exists());
-		TestCase.assertTrue(fileHandling.copy(new File(example.getParent()), cwd, ek9SourceFileName));
-		File aSourceFile = new File(cwd, ek9SourceFileName);
-		TestCase.assertTrue(aSourceFile.exists());
-	}
 
 	@Test
 	public void testCommandLineIncrementalCompile()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-c " + sourceName));		
@@ -180,7 +173,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
 		TestCase.assertEquals(0, underTest.processCommandLine("-cg " + sourceName));
 		TestCase.assertTrue(underTest.isIncrementalCompile());
@@ -196,7 +189,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-cd " + sourceName));
@@ -213,7 +206,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-C " + sourceName));
@@ -228,7 +221,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-C -v " + sourceName));		
@@ -243,7 +236,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-Cg " + sourceName));		
@@ -260,7 +253,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-Cd " + sourceName));		
@@ -277,7 +270,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-Cl " + sourceName));		
@@ -297,7 +290,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-Dp " + sourceName));		
@@ -310,7 +303,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-P " + sourceName));		
@@ -330,7 +323,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-I " + sourceName));		
@@ -352,7 +345,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(4, underTest.processCommandLine("-Gk " + sourceName));
@@ -370,7 +363,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-D " + sourceName));		
@@ -397,7 +390,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(2, underTest.processCommandLine("-IV " + sourceName));		
@@ -408,7 +401,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(2, underTest.processCommandLine("-SV 10.3.A " + sourceName));
@@ -419,7 +412,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-SV 10.3.1 " + sourceName));
@@ -433,7 +426,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(2, underTest.processCommandLine("-SF 10.3.2-1bogus " + sourceName));
@@ -444,7 +437,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-SF 10.3.1-special " + sourceName));
@@ -472,7 +465,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-t " + sourceName));
@@ -492,7 +485,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(2, underTest.processCommandLine("-d " + sourceName));		
@@ -503,7 +496,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-d 9000 " + sourceName));
@@ -516,7 +509,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine(sourceName));
@@ -529,7 +522,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(4, underTest.processCommandLine("-c " + sourceName + " -r SomeProgram"));
@@ -540,10 +533,10 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
-		TestCase.assertEquals(2, underTest.processCommandLine("-c -C " + sourceName));		
+		TestCase.assertEquals(4, underTest.processCommandLine("-c -C " + sourceName));
 	}
 	
 	@Test
@@ -551,10 +544,10 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
-		TestCase.assertEquals(2, underTest.processCommandLine("-GK -C " + sourceName));		
+		TestCase.assertEquals(4, underTest.processCommandLine("-GK -C " + sourceName));
 	}
 	
 	@Test
@@ -562,10 +555,10 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
-		TestCase.assertEquals(2, underTest.processCommandLine("-C -t " + sourceName));		
+		TestCase.assertEquals(4, underTest.processCommandLine("-C -t " + sourceName));
 	}
 	
 	@Test
@@ -573,10 +566,10 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
-		TestCase.assertEquals(2, underTest.processCommandLine("-C -PV " + sourceName));		
+		TestCase.assertEquals(4, underTest.processCommandLine("-C -PV " + sourceName));
 	}
 	
 	@Test
@@ -584,10 +577,10 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
-		TestCase.assertEquals(2, underTest.processCommandLine("-c -d 9000 " + sourceName));		
+		TestCase.assertEquals(4, underTest.processCommandLine("-c -d 9000 " + sourceName));
 	}
 	
 	@Test
@@ -595,7 +588,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(4, underTest.processCommandLine("-IV patch " + sourceName + " -r SomeProgram"));
@@ -606,7 +599,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine(sourceName + " -r SomeProgram"));
@@ -620,7 +613,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(2, underTest.processCommandLine("-T wasm " + sourceName));
@@ -631,7 +624,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-e checker=false -e vogons='Bear Tree' " + sourceName));
@@ -645,7 +638,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-T java " + sourceName + " -r"));
@@ -660,7 +653,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-PV " + sourceName));
@@ -681,7 +674,7 @@ public class CommandLineDetailsTest
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
-		copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 		
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-IV " + param + " " + sourceName));
