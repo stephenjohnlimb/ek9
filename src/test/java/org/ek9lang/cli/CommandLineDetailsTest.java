@@ -146,10 +146,7 @@ public class CommandLineDetailsTest
 		TestCase.assertEquals("2.3.14-20", underTest.getVersion());
 		TestCase.assertEquals("example.networking", underTest.getModuleName());
 		TestCase.assertEquals(4, underTest.numberOfProgramsInSourceFile());
-
 	}
-
-
 
 	@Test
 	public void testCommandLineIncrementalCompile()
@@ -463,9 +460,9 @@ public class CommandLineDetailsTest
 	@Test
 	public void testCommandLineTest()
 	{
-		String sourceName = "SinglePackage.ek9";
-		//We will copy this into a working directory and process it.
-		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		String sourceName = "HelloWorld.ek9";
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+		TestCase.assertNotNull(sourceFile);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-t " + sourceName));
@@ -494,9 +491,9 @@ public class CommandLineDetailsTest
 	@Test
 	public void testCommandLineDebug()
 	{
-		String sourceName = "SinglePackage.ek9";
-		//We will copy this into a working directory and process it.
-		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		String sourceName = "HelloWorld.ek9";
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+		TestCase.assertNotNull(sourceFile);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-d 9000 " + sourceName));
@@ -507,9 +504,9 @@ public class CommandLineDetailsTest
 	@Test
 	public void testCommandLineRun()
 	{
-		String sourceName = "SinglePackage.ek9";
-		//We will copy this into a working directory and process it.
-		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		String sourceName = "HelloWorld.ek9";
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+		TestCase.assertNotNull(sourceFile);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine(sourceName));
@@ -527,7 +524,56 @@ public class CommandLineDetailsTest
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(4, underTest.processCommandLine("-c " + sourceName + " -r SomeProgram"));
 	}
-	
+
+
+	@Test
+	public void testUnspecifiedRunProgram()
+	{
+		String sourceName = "HelloWorlds.ek9";
+
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+		TestCase.assertNotNull(sourceFile);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+		TestCase.assertEquals(6, underTest.processCommandLine(sourceName));
+	}
+
+	@Test
+	public void testIncorrectRunProgram()
+	{
+		String sourceName = "HelloWorlds.ek9";
+
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+		TestCase.assertNotNull(sourceFile);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+		TestCase.assertEquals(4, underTest.processCommandLine(sourceName + " -r NonSuch"));
+	}
+
+	@Test
+	public void testRunHelloWorld()
+	{
+		String sourceName = "HelloWorlds.ek9";
+
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+		TestCase.assertNotNull(sourceFile);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+		TestCase.assertEquals(0, underTest.processCommandLine(sourceName + " -r HelloWorld"));
+	}
+
+	@Test
+	public void testRunHelloMars()
+	{
+		String sourceName = "HelloWorlds.ek9";
+
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+		TestCase.assertNotNull(sourceFile);
+
+		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+		TestCase.assertEquals(0, underTest.processCommandLine(sourceName + " -r HelloMars"));
+	}
+
 	@Test
 	public void testCommandLineConflictingBuild1()
 	{
@@ -602,10 +648,7 @@ public class CommandLineDetailsTest
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
-		TestCase.assertEquals(0, underTest.processCommandLine(sourceName + " -r SomeProgram"));
-		TestCase.assertTrue(underTest.isRunNormalMode());
-		TestCase.assertEquals("SomeProgram", underTest.getProgramToRun());
-		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
+		TestCase.assertEquals(5, underTest.processCommandLine(sourceName + " -r SomeProgram"));
 	}
 	
 	@Test
@@ -622,9 +665,9 @@ public class CommandLineDetailsTest
 	@Test
 	public void testCommandLineEnvironment()
 	{
-		String sourceName = "SinglePackage.ek9";
-		//We will copy this into a working directory and process it.
-		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		String sourceName = "HelloWorld.ek9";
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+		TestCase.assertNotNull(sourceFile);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
 		TestCase.assertEquals(0, underTest.processCommandLine("-e checker=false -e vogons='Bear Tree' " + sourceName));
@@ -636,14 +679,14 @@ public class CommandLineDetailsTest
 	@Test
 	public void testCommandLineRunAsJavaTarget()
 	{
-		String sourceName = "SinglePackage.ek9";
-		//We will copy this into a working directory and process it.
-		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		String sourceName = "HelloWorld.ek9";
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+		TestCase.assertNotNull(sourceFile);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
-		TestCase.assertEquals(0, underTest.processCommandLine("-T java " + sourceName + " -r"));
+		TestCase.assertEquals(0, underTest.processCommandLine("-T java " + sourceName));
 		TestCase.assertTrue(underTest.isRunNormalMode());
-		TestCase.assertNull(underTest.getProgramToRun());
+		TestCase.assertEquals("HelloWorld", underTest.getProgramToRun());
 		TestCase.assertEquals("java", underTest.getTargetArchitecture());
 		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
 	}

@@ -24,6 +24,8 @@ public class Egk extends E
 	{
 		log("Prepare");
 
+		//Ensure the .ek9 directory exists in users home directory.
+		fileHandling.validateHomeEK9Directory(commandLine.targetArchitecture);
 		if(!fileHandling.isUsersSigningKeyPairPresent())
 		{
 			log("Generating new signing keys");

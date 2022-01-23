@@ -27,36 +27,46 @@ public class Ep extends E
 
 	public boolean run()
 	{
-		//Now do packaging
-		log("Prepare");
-
-		if(!commandLine.isPackagePresent())
+		log("- Compile!");
+		//Need to ensure a full compile works.
+		Efc execution = new Efc(commandLine, sourceFileCache, osSupport);
+		if(!execution.run())
 		{
-			report("File " + commandLine.getSourceFileName() + " does not define a package");
-			return false;
+			report("Failed");
 		}
-
-		fileHandling.deleteStalePackages(commandLine.getSourceFileDirectory(), commandLine.getModuleName());
-
-		File projectDirectory = new File(commandLine.getSourceFileDirectory());
-		Path fromPath = projectDirectory.toPath();
-		List<File> listOfFiles = sourceFileCache.getPackageFiles();
-
-		if(commandLine.isVerbose())
-			listOfFiles.forEach(file -> log("Zip: " + file.toString()));
-
-		String zipFileName = fileHandling.makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion().toString());
-		String fileName = fileHandling.getDotEK9Directory(commandLine.getSourceFileDirectory()) + zipFileName;
-
-		if(fileHandling.createZip(fileName, new ZipSet(fromPath, listOfFiles), commandLine.getSourcePropertiesFile()))
+		else
 		{
-			log("Complete");
+			//Now do packaging
+			log("Prepare");
 
-			log("Check summing");
-			Digest.CheckSum checkSum = fileHandling.createSha256Of(fileName);
-			log(fileName + " created, checksum " + checkSum);
+			if(!commandLine.isPackagePresent())
+			{
+				report("File " + commandLine.getSourceFileName() + " does not define a package");
+				return false;
+			}
 
-			return true;
+			fileHandling.deleteStalePackages(commandLine.getSourceFileDirectory(), commandLine.getModuleName());
+
+			File projectDirectory = new File(commandLine.getSourceFileDirectory());
+			Path fromPath = projectDirectory.toPath();
+			List<File> listOfFiles = sourceFileCache.getPackageFiles();
+
+			if(commandLine.isVerbose())
+				listOfFiles.forEach(file -> log("Zip: " + file.toString()));
+
+			String zipFileName = fileHandling.makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion().toString());
+			String fileName = fileHandling.getDotEK9Directory(commandLine.getSourceFileDirectory()) + zipFileName;
+
+			if(fileHandling.createZip(fileName, new ZipSet(fromPath, listOfFiles), commandLine.getSourcePropertiesFile()))
+			{
+				log("Complete");
+
+				log("Check summing");
+				Digest.CheckSum checkSum = fileHandling.createSha256Of(fileName);
+				log(fileName + " created, checksum " + checkSum);
+
+				return true;
+			}
 		}
 		return false;
 	}

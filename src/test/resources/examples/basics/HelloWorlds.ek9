@@ -1,0 +1,15 @@
+#!ek9
+defines module introduction
+
+  defines constant
+    worldMessage <- "Hello, World"
+
+  defines program
+    HelloWorld()
+      stdout <- Stdout()
+      stdout.println(worldMessage)
+
+    HelloMars()
+      stdout <- Stdout()
+      stdout.println("Hello, Mars")
+//EOF

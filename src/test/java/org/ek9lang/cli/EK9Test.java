@@ -3,6 +3,7 @@ package org.ek9lang.cli;
 import junit.framework.TestCase;
 import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.OsSupport;
+import org.ek9lang.core.utils.SigningKeyPair;
 import org.junit.After;
 import org.junit.Test;
 
@@ -88,6 +89,95 @@ public class EK9Test
 		assertCompilationArtefactsPresent(assertResult(EK9.SUCCESS_EXIT_CODE, command));
 	}
 
+	@Test
+	public void testGenerateKeys()
+	{
+		String[] command = new String[]{"-Gk"};
+
+		File home = new File(osSupport.getUsersHomeDirectory());
+		TestCase.assertTrue(home.exists());
+
+		//This will actually trigger a full compile.
+		assertKeysPresent(assertResult(EK9.SUCCESS_EXIT_CODE, command));
+	}
+
+	@Test
+	public void testRunSingleProgram()
+	{
+		String sourceName = "HelloWorld.ek9";
+
+		String[] command = new String[]{sourceName};
+
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+		TestCase.assertNotNull(sourceFile);
+
+		//This will actually trigger a full compile and then run.
+		assertCompilationArtefactsPresent(assertResult(EK9.RUN_COMMAND_EXIT_CODE, command));
+	}
+
+	@Test
+	public void testRunUnitTests()
+	{
+		String sourceName = "HelloWorlds.ek9";
+
+		String[] command = new String[]{"-t " + sourceName};
+
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+		TestCase.assertNotNull(sourceFile);
+
+		//This will actually trigger a full compile and then run.
+		assertCompilationArtefactsPresent(assertResult(EK9.SUCCESS_EXIT_CODE, command));
+	}
+
+	@Test
+	public void testRunSelectedProgram()
+	{
+		String sourceName = "HelloWorlds.ek9";
+
+		String[] command = new String[]{sourceName + " -r HelloMars"};
+
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+		TestCase.assertNotNull(sourceFile);
+
+		//This will actually trigger a full compile and then run.
+		assertCompilationArtefactsPresent(assertResult(EK9.RUN_COMMAND_EXIT_CODE, command));
+	}
+
+	@Test
+	public void testInstallNonSuchPackage()
+	{
+		String sourceName = "HelloWorlds.ek9";
+
+		String[] command = new String[]{"-I " + sourceName};
+
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+		TestCase.assertNotNull(sourceFile);
+
+		//Should fail because this source does not define a package.
+		assertResult(EK9.BAD_COMMANDLINE_EXIT_CODE, command);
+	}
+
+	@Test
+	public void testInstallPackage()
+	{
+		String sourceName = "PackageNoDeps.ek9";
+
+		String[] command = new String[]{"-I " + sourceName};
+
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		TestCase.assertNotNull(sourceFile);
+
+		//This should succeed and install the package in users lib directory
+		assertResult(EK9.SUCCESS_EXIT_CODE, command);
+
+		File libDir = fileHandling.getUsersHomeEK9LibDirectory();
+		TestCase.assertNotNull(libDir);
+		TestCase.assertTrue((libDir.exists()));
+		TestCase.assertNotNull(libDir.listFiles());
+		//Expect a zip and a sha256 of that zip.
+		TestCase.assertEquals(2, libDir.listFiles().length);
+	}
+
 	private CommandLineDetails assertResult(int expectation, String[] argv)
 	{
 		CommandLineDetails commandLine = new CommandLineDetails(fileHandling, osSupport);
@@ -100,6 +190,16 @@ public class EK9Test
 			TestCase.assertEquals(expectation, new EK9(commandLine, fileHandling, osSupport).run());
 
 		return commandLine;
+	}
+
+	private void assertKeysPresent(CommandLineDetails commandLine)
+	{
+		TestCase.assertTrue(fileHandling.isUsersSigningKeyPairPresent());
+		SigningKeyPair signingKeyPair = fileHandling.getUsersSigningKeyPair();
+		TestCase.assertNotNull(signingKeyPair);
+		TestCase.assertNotNull(signingKeyPair.getPubBase64());
+		TestCase.assertNotNull(signingKeyPair.getPvtBase64());
+		//get keys and check they are ok
 	}
 
 	private void assertCompilationArtefactsPresent(CommandLineDetails commandLine)

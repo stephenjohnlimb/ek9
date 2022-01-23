@@ -44,7 +44,7 @@ public class Ei extends E
 			}
 			else
 			{
-				report("" + new File(destinationDir, zipFileName).toString() + " installed");
+				log("" + new File(destinationDir, zipFileName).toString() + " installed");
 			}
 			String sha256FileName = zipFileName + ".sha256";
 			if(!fileHandling.copy(fromDir, destinationDir, sha256FileName))
@@ -54,7 +54,7 @@ public class Ei extends E
 			}
 			else
 			{
-				report(new File(destinationDir, sha256FileName).toString() + " provided");
+				log(new File(destinationDir, sha256FileName).toString() + " provided");
 			}
 
 			log("Complete");

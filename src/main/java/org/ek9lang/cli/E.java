@@ -32,6 +32,11 @@ public abstract class E
 	 */
 	protected abstract String messagePrefix();
 
+	protected FileHandling getFileHandling()
+	{
+		return fileHandling;
+	}
+
 	public abstract boolean run();
 
 	protected void log(Object message)

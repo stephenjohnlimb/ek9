@@ -1,5 +1,6 @@
 package org.ek9lang.cli;
 
+import org.ek9lang.cli.support.DependencyNodeFactory;
 import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.core.utils.OsSupport;
 import org.ek9lang.dependency.DependencyManager;
@@ -41,30 +42,26 @@ public class Edp extends E
 			}
 			else
 			{
-				//TODO add in the factory and http request stuff.
-				/*
-				DependencyNodeFactory nodeFactory = new DependencyNodeFactory(commandLine.isVerbose());
+				DependencyNodeFactory nodeFactory = new DependencyNodeFactory(commandLine, getFileHandling(), osSupport);
 				Optional<DependencyNode> rootNode = nodeFactory.createFrom(commandLine.getSourceVisitor());
-				*/
-				Optional<DependencyNode> rootNode = Optional.ofNullable(null);
 				if(rootNode.isPresent())
 				{
-					log("All loaded");
+					log("Loaded");
 
 					DependencyManager dependencyManager = new DependencyManager(rootNode.get());
 					if(processDependencies(dependencyManager))
 					{
-						log("Processing Success");
+						log("Success");
 					}
 					else
 					{
-						report("Processing Failure");
+						report("Failed");
 						return false;
 					}
 				}
 				else
 				{
-					report("Failure");
+					report("Failed");
 					return false;
 				}
 			}
@@ -104,7 +101,7 @@ public class Edp extends E
 			});
 		});
 
-		log("Promotions");
+		log("Version Promotions");
 
 		dependencyManager.rationalise();
 
@@ -113,19 +110,19 @@ public class Edp extends E
 		//This would manage a deep tree and ensure there can never been an infinite loop in case of error.
 		int maxOptimisations = 100;
 		int iterations = 0;
-		boolean optimised = dependencyManager.optimise();
-		while(optimised && iterations < maxOptimisations)
+		boolean optimise = dependencyManager.optimise();
+		while(optimise && iterations < maxOptimisations)
 		{
 			iterations++;
-			optimised = dependencyManager.optimise();
+			optimise = dependencyManager.optimise();
 			log("Optimisation " + iterations);
 		}
 
-		log("Version breaches?");
+		List<DependencyNode> breaches = dependencyManager.reportStrictSemanticVersionBreaches();
+		log("Version breaches (" + breaches.size() + "]");
 
 		//Now we must check for semantic version breaches ie some part of the
 		//dependency tree requires 'major' version at one value and anther part another value
-		List<DependencyNode> breaches = dependencyManager.reportStrictSemanticVersionBreaches();
 		if(!breaches.isEmpty())
 		{
 			report("Semantic version breaches follow:");
@@ -139,12 +136,19 @@ public class Edp extends E
 		{
 			List<DependencyNode> rejected = dependencyManager.reportRejectedDependencies();
 			if(!rejected.isEmpty())
-				report("Not applied:");
-			rejected.forEach(this::report);
+			{
+				System.err.print(messagePrefix() + "Not Applied:");
+				rejected.stream().map(node -> " '" + node.toString() + "'").forEach(System.err::print);
+				System.err.println(".");
+			}
 
-			report("Applied:");
 			List<DependencyNode> accepted = dependencyManager.reportAcceptedDependencies();
-			accepted.forEach(this::report);
+			if(!accepted.isEmpty())
+			{
+				System.err.print(messagePrefix() + "Applied:");
+				accepted.stream().map(node -> " '" + node.toString() + "'").forEach(System.err::print);
+				System.err.println(".");
+			}
 		}
 		return true;
 	}

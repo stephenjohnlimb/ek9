@@ -232,7 +232,8 @@ public class CommandLineDetails
 				&& !isReleaseVectorOption()
 				&& !isDeveloperManagementOption()
 				&& !isRunDebugMode()
-				&& !isRunEK9AsLanguageServer())
+				&& !isRunEK9AsLanguageServer()
+				&& !isUnitTestExecution())
 			ek9AppParameters.add("-r");
 
 		if(isDeveloperManagementOption() && foundEk9File)
@@ -264,7 +265,37 @@ public class CommandLineDetails
 
 			if(isRunOption())
 			{
-				//Do nothing in here, external caller will need to check if there is a program to run.
+				//Check run options
+				if(programs.isEmpty())
+				{
+					//There's nothing that can be run
+					System.err.println(mainSourceFile.getName() + " does not contain any programs.");
+					return EK9.NO_PROGRAMS_EXIT_CODE;
+				}
+				if(ek9ProgramToRun == null)
+				{
+					if(programs.size() == 1)
+					{
+						//We can default that in.
+						ek9ProgramToRun = programs.get(0);
+					}
+					else
+					{
+						System.err.print("Use '-r' and select one of");
+						programs.stream().map(progName -> " '" + progName + "'").forEach(System.err::print);
+						System.err.println(" from source file " + mainSourceFile.getName());
+						return EK9.PROGRAM_NOT_SPECIFIED_EXIT_CODE;
+					}
+				}
+				//Check program name is actually in the list of programs
+				if(!programs.contains(ek9ProgramToRun))
+				{
+					System.err.print("Program must be one of");
+					programs.stream().map(progName -> " '" + progName + "'").forEach(System.err::print);
+					System.err.println(", source file " + mainSourceFile.getName() + " does not have program '" + ek9ProgramToRun + "'");
+
+					return EK9.BAD_COMMAND_COMBINATION_EXIT_CODE;
+				}
 			}
 		}
 		//i.e. a command does need to run.
@@ -350,7 +381,7 @@ public class CommandLineDetails
 		if(visitor == null)
 		{
 			visitor = new EK9SourceVisitor();
-			if (!new JustParser().readSourceFile(mainSourceFile, visitor))
+			if(!new JustParser().readSourceFile(mainSourceFile, visitor))
 			{
 				System.err.println("Unable to Parse source file [" + mainSourceFile.getAbsolutePath() + "]");
 				System.exit(EK9.FILE_ISSUE_EXIT_CODE);
@@ -359,6 +390,7 @@ public class CommandLineDetails
 
 		return visitor;
 	}
+
 	public File getSourcePropertiesFile()
 	{
 		return fileHandling.getTargetPropertiesArtefact(mainSourceFile.getPath());
