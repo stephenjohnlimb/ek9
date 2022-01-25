@@ -59,6 +59,16 @@ public class CommandLineDetails
 		this.osSupport = osSupport;
 	}
 
+	public OsSupport getOsSupport()
+	{
+		return osSupport;
+	}
+
+	public FileHandling getFileHandling()
+	{
+		return fileHandling;
+	}
+
 	/**
 	 * process the command line as supplied from main.
 	 */
@@ -304,6 +314,9 @@ public class CommandLineDetails
 
 	public Integer processEK9FileProperties(boolean forceRegeneration)
 	{
+		if(forceRegeneration)
+			this.visitor = null;
+
 		String projectEK9Directory = fileHandling.getDotEK9Directory(this.getSourceFileDirectory());
 		fileHandling.validateEK9Directory(projectEK9Directory, this.targetArchitecture);
 		fileHandling.validateHomeEK9Directory(this.targetArchitecture);

@@ -1,7 +1,6 @@
 package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.FileCache;
-import org.ek9lang.core.utils.OsSupport;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,9 +17,9 @@ import java.util.regex.Pattern;
  */
 public abstract class Eve extends E
 {
-	public Eve(CommandLineDetails commandLine, FileCache sourceFileCache, OsSupport osSupport)
+	public Eve(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
-		super(commandLine, sourceFileCache, osSupport);
+		super(commandLine, sourceFileCache);
 	}
 
 	public boolean setVersionNewNumber(Version newVersion)
@@ -47,7 +46,10 @@ public abstract class Eve extends E
 							if(!m.find())
 								throw new RuntimeException("Unable to find 'version' in line [" + line + "]");
 							String prefix = m.group("ver");
-							line = prefix + "<- " + newVersion.toString();
+							if(prefix.contains(" as "))
+								line = prefix + " Version := " + newVersion.toString();
+							else
+								line = prefix + "<- " + newVersion.toString();
 						}
 						output.add(line);
 					}
@@ -152,6 +154,8 @@ public abstract class Eve extends E
 		public void incrementMinor()
 		{
 			minor++;
+			patch = 0;
+			buildNumber = 0;
 		}
 
 		public Integer patch()
@@ -162,6 +166,7 @@ public abstract class Eve extends E
 		public void incrementPatch()
 		{
 			patch++;
+			buildNumber = 0;
 		}
 
 		public String feature()

@@ -16,9 +16,9 @@ import java.util.List;
  */
 public abstract class Ec extends E
 {
-	public Ec(CommandLineDetails commandLine, FileCache sourceFileCache, OsSupport osSupport)
+	public Ec(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
-		super(commandLine, sourceFileCache, osSupport);
+		super(commandLine, sourceFileCache);
 	}
 
 	protected void prepareCompilation()
@@ -68,7 +68,7 @@ public abstract class Ec extends E
 			zipSets.add(getCoreComponents());
 
 			String targetFileName = sourceFileCache.getTargetExecutableArtefact().getAbsolutePath();
-			if(!fileHandling.createJar(targetFileName, zipSets))
+			if(!getFileHandling().createJar(targetFileName, zipSets))
 			{
 				report("Target creating failed");
 				return false;
@@ -93,7 +93,7 @@ public abstract class Ec extends E
 	private List<ZipSet> addClassesFrom(File classesDir, List<ZipSet> zipSetList)
 	{
 		log("Including classes from " + classesDir.getAbsolutePath());
-		List<File> listOfFiles = osSupport.getFilesRecursivelyFrom(classesDir);
+		List<File> listOfFiles = getOsSupport().getFilesRecursivelyFrom(classesDir);
 		zipSetList.add(new ZipSet(classesDir.toPath(), listOfFiles));
 		return zipSetList;
 	}

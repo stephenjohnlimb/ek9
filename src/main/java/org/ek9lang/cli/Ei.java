@@ -1,7 +1,6 @@
 package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.FileCache;
-import org.ek9lang.core.utils.OsSupport;
 
 import java.io.File;
 
@@ -10,9 +9,9 @@ import java.io.File;
  */
 public class Ei extends E
 {
-	public Ei(CommandLineDetails commandLine, FileCache sourceFileCache, OsSupport osSupport)
+	public Ei(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
-		super(commandLine, sourceFileCache, osSupport);
+		super(commandLine, sourceFileCache);
 	}
 
 	@Override
@@ -25,19 +24,19 @@ public class Ei extends E
 	{
 		log("- Package");
 
-		Ep ep = new Ep(commandLine, sourceFileCache, osSupport);
+		Ep ep = new Ep(commandLine, sourceFileCache);
 		if(ep.run())
 		{
 			//Now do deployment.
 			log("Prepare");
 
-			String zipFileName = fileHandling.makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion().toString());
-			File fromDir = new File(fileHandling.getDotEK9Directory(commandLine.getSourceFileDirectory()));
-			File destinationDir = fileHandling.getUsersHomeEK9LibDirectory();
+			String zipFileName = getFileHandling().makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion().toString());
+			File fromDir = new File(getFileHandling().getDotEK9Directory(commandLine.getSourceFileDirectory()));
+			File destinationDir = getFileHandling().getUsersHomeEK9LibDirectory();
 
 			log("Copying '" + zipFileName + "' from '" + fromDir.toString() + "' to '" + destinationDir + "'");
 
-			if(!fileHandling.copy(fromDir, destinationDir, zipFileName))
+			if(!getFileHandling().copy(fromDir, destinationDir, zipFileName))
 			{
 				report("Failed");
 				return false;
@@ -47,7 +46,7 @@ public class Ei extends E
 				log("" + new File(destinationDir, zipFileName).toString() + " installed");
 			}
 			String sha256FileName = zipFileName + ".sha256";
-			if(!fileHandling.copy(fromDir, destinationDir, sha256FileName))
+			if(!getFileHandling().copy(fromDir, destinationDir, sha256FileName))
 			{
 				report("Failed");
 				return false;

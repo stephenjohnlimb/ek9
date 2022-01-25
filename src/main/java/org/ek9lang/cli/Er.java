@@ -2,16 +2,15 @@ package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.core.utils.EK9DirectoryStructure;
-import org.ek9lang.core.utils.OsSupport;
 
 /**
  * Run the application that has been built or is already built.
  */
 public class Er extends E
 {
-	public Er(CommandLineDetails commandLine, FileCache sourceFileCache, OsSupport osSupport)
+	public Er(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
-		super(commandLine, sourceFileCache, osSupport);
+		super(commandLine, sourceFileCache);
 	}
 
 	@Override
@@ -29,7 +28,7 @@ public class Er extends E
 				log("Stale target - Compile");
 
 				//So it needs to be built so let's assume an incremental build - but that might decide on full build.
-				Ec execution = new Eic(commandLine, sourceFileCache, osSupport);
+				Ec execution = new Eic(commandLine, sourceFileCache);
 
 				if(!execution.run())
 					return false;

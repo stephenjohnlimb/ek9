@@ -8,9 +8,9 @@ import org.ek9lang.core.utils.OsSupport;
  */
 public class Ecl extends E
 {
-	public Ecl(CommandLineDetails commandLine, FileCache sourceFileCache, OsSupport osSupport)
+	public Ecl(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
-		super(commandLine, sourceFileCache, osSupport);
+		super(commandLine, sourceFileCache);
 	}
 
 	@Override
@@ -23,7 +23,7 @@ public class Ecl extends E
 	{
 		log("Prepare");
 
-		fileHandling.cleanEK9DirectoryStructureFor(commandLine.getFullPathToSourceFileName(), commandLine.targetArchitecture);
+		getFileHandling().cleanEK9DirectoryStructureFor(commandLine.getFullPathToSourceFileName(), commandLine.targetArchitecture);
 		//Now trigger file structure and property file regeneration.
 		log("- Props");
 		commandLine.processEK9FileProperties(true);

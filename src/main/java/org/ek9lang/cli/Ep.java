@@ -2,7 +2,6 @@ package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.core.utils.Digest;
-import org.ek9lang.core.utils.OsSupport;
 import org.ek9lang.core.utils.ZipSet;
 
 import java.io.File;
@@ -14,9 +13,9 @@ import java.util.List;
  */
 public class Ep extends E
 {
-	public Ep(CommandLineDetails commandLine, FileCache sourceFileCache, OsSupport osSupport)
+	public Ep(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
-		super(commandLine, sourceFileCache, osSupport);
+		super(commandLine, sourceFileCache);
 	}
 
 	@Override
@@ -29,7 +28,7 @@ public class Ep extends E
 	{
 		log("- Compile!");
 		//Need to ensure a full compile works.
-		Efc execution = new Efc(commandLine, sourceFileCache, osSupport);
+		Efc execution = new Efc(commandLine, sourceFileCache);
 		if(!execution.run())
 		{
 			report("Failed");
@@ -45,7 +44,7 @@ public class Ep extends E
 				return false;
 			}
 
-			fileHandling.deleteStalePackages(commandLine.getSourceFileDirectory(), commandLine.getModuleName());
+			getFileHandling().deleteStalePackages(commandLine.getSourceFileDirectory(), commandLine.getModuleName());
 
 			File projectDirectory = new File(commandLine.getSourceFileDirectory());
 			Path fromPath = projectDirectory.toPath();
@@ -54,15 +53,15 @@ public class Ep extends E
 			if(commandLine.isVerbose())
 				listOfFiles.forEach(file -> log("Zip: " + file.toString()));
 
-			String zipFileName = fileHandling.makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion().toString());
-			String fileName = fileHandling.getDotEK9Directory(commandLine.getSourceFileDirectory()) + zipFileName;
+			String zipFileName = getFileHandling().makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion().toString());
+			String fileName = getFileHandling().getDotEK9Directory(commandLine.getSourceFileDirectory()) + zipFileName;
 
-			if(fileHandling.createZip(fileName, new ZipSet(fromPath, listOfFiles), commandLine.getSourcePropertiesFile()))
+			if(getFileHandling().createZip(fileName, new ZipSet(fromPath, listOfFiles), commandLine.getSourcePropertiesFile()))
 			{
 				log("Complete");
 
 				log("Check summing");
-				Digest.CheckSum checkSum = fileHandling.createSha256Of(fileName);
+				Digest.CheckSum checkSum = getFileHandling().createSha256Of(fileName);
 				log(fileName + " created, checksum " + checkSum);
 
 				return true;

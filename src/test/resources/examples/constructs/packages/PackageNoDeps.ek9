@@ -3,7 +3,7 @@ defines module net.customer
     
   defines package
     publicAccess as Boolean := true
-    version as Version: 1.0.0-0
+    version <- 1.0.0-0
     description as String = "Simulation of a package"
     license <- "MIT"
 

@@ -2,8 +2,6 @@ package org.ek9lang.cli.support;
 
 import org.ek9lang.cli.CommandLineDetails;
 import org.ek9lang.cli.EK9SourceVisitor;
-import org.ek9lang.core.utils.FileHandling;
-import org.ek9lang.core.utils.OsSupport;
 import org.ek9lang.dependency.DependencyNode;
 
 import java.util.Map;
@@ -19,16 +17,12 @@ import java.util.Optional;
 public class DependencyNodeFactory
 {
 	private final CommandLineDetails commandLine;
-	private final FileHandling fileHandling;
-	private final OsSupport osSupport;
 	private PackageResolver packageResolver;
 
-	public DependencyNodeFactory(CommandLineDetails commandLine, FileHandling fileHandling, OsSupport osSupport)
+	public DependencyNodeFactory(CommandLineDetails commandLine)
 	{
 		this.commandLine = commandLine;
-		this.fileHandling = fileHandling;
-		this.osSupport = osSupport;
-		packageResolver = new PackageResolver(commandLine, fileHandling, osSupport);
+		packageResolver = new PackageResolver(commandLine);
 	}
 
 	public Optional<DependencyNode> createFrom(EK9SourceVisitor visitor)
@@ -66,7 +60,7 @@ public class DependencyNodeFactory
 
 			for(String key : deps.keySet())
 			{
-				String dependencyVector = fileHandling.makeDependencyVector(key, deps.get(key));
+				String dependencyVector = commandLine.getFileHandling().makeDependencyVector(key, deps.get(key));
 				if(commandLine.isVerbose())
 					System.err.println("Resolve : Dependency '" + dependencyVector + "'");
 				Optional<EK9SourceVisitor> depVisitor = packageResolver.resolve(dependencyVector);
@@ -89,7 +83,7 @@ public class DependencyNodeFactory
 
 			for(String key : devDeps.keySet())
 			{
-				String dependencyVector = fileHandling.makeDependencyVector(key, devDeps.get(key));
+				String dependencyVector = commandLine.getFileHandling().makeDependencyVector(key, devDeps.get(key));
 				if(commandLine.isVerbose())
 					System.err.println("Resolve : '" + dependencyVector + "'");
 				Optional<EK9SourceVisitor> depVisitor = packageResolver.resolve(dependencyVector);

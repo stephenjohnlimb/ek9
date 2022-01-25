@@ -1,13 +1,15 @@
 package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.FileCache;
-import org.ek9lang.core.utils.OsSupport;
 
+/**
+ * Just increments a version number.
+ */
 public class Eiv extends Eve
 {
-	public Eiv(CommandLineDetails commandLine, FileCache sourceFileCache, OsSupport osSupport)
+	public Eiv(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
-		super(commandLine, sourceFileCache, osSupport);
+		super(commandLine, sourceFileCache);
 	}
 
 	@Override

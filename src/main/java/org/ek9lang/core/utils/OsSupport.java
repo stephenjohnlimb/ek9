@@ -39,6 +39,14 @@ public class OsSupport
 	}
 
 	/**
+	 * Is this configured to be in stub mode.
+	 */
+	public boolean isInStubMode()
+	{
+		return stubMode;
+	}
+
+	/**
 	 * Provides the current process id of this running application.
 	 */
 	public long getPid()

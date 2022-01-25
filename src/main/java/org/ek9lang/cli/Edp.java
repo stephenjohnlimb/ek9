@@ -2,7 +2,6 @@ package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.DependencyNodeFactory;
 import org.ek9lang.cli.support.FileCache;
-import org.ek9lang.core.utils.OsSupport;
 import org.ek9lang.dependency.DependencyManager;
 import org.ek9lang.dependency.DependencyNode;
 
@@ -16,9 +15,9 @@ import java.util.Optional;
  */
 public class Edp extends E
 {
-	public Edp(CommandLineDetails commandLine, FileCache sourceFileCache, OsSupport osSupport)
+	public Edp(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
-		super(commandLine, sourceFileCache, osSupport);
+		super(commandLine, sourceFileCache);
 	}
 
 	@Override
@@ -31,51 +30,38 @@ public class Edp extends E
 	{
 		log("- Clean");
 
-		Ecl ecl = new Ecl(commandLine, sourceFileCache, osSupport);
-		if(ecl.run())
+		Ecl ecl = new Ecl(commandLine, sourceFileCache);
+		if(!ecl.run())
+			return false;
+
+		log("Prepare");
+
+		if(!commandLine.isPackagePresent())
+			log("No Dependencies defined");
+
+		Optional<DependencyNode> rootNode = new DependencyNodeFactory(commandLine).createFrom(commandLine.getSourceVisitor());
+		if(!rootNode.isPresent())
 		{
-			log("Prepare");
-
-			if(!commandLine.isPackagePresent())
-			{
-				log("No Dependencies defined");
-			}
-			else
-			{
-				DependencyNodeFactory nodeFactory = new DependencyNodeFactory(commandLine, getFileHandling(), osSupport);
-				Optional<DependencyNode> rootNode = nodeFactory.createFrom(commandLine.getSourceVisitor());
-				if(rootNode.isPresent())
-				{
-					log("Loaded");
-
-					DependencyManager dependencyManager = new DependencyManager(rootNode.get());
-					if(processDependencies(dependencyManager))
-					{
-						log("Success");
-					}
-					else
-					{
-						report("Failed");
-						return false;
-					}
-				}
-				else
-				{
-					report("Failed");
-					return false;
-				}
-			}
-
-			log("Complete");
-
-			return true;
+			report("Failed");
+			return false;
 		}
 
-		return false;
+		log("Loaded");
+
+		if(!processDependencies(rootNode.get()))
+		{
+			report("Failed");
+			return false;
+		}
+
+		log("Complete");
+
+		return true;
 	}
 
-	private boolean processDependencies(DependencyManager dependencyManager)
+	private boolean processDependencies(DependencyNode fromNode)
 	{
+		DependencyManager dependencyManager = new DependencyManager(fromNode);
 		log("Analysing");
 
 		log("Circular?");
@@ -119,7 +105,7 @@ public class Edp extends E
 		}
 
 		List<DependencyNode> breaches = dependencyManager.reportStrictSemanticVersionBreaches();
-		log("Version breaches (" + breaches.size() + "]");
+		log("Version breaches (" + breaches.size() + ")");
 
 		//Now we must check for semantic version breaches ie some part of the
 		//dependency tree requires 'major' version at one value and anther part another value

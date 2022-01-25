@@ -11,20 +11,16 @@ import java.io.File;
  */
 public abstract class E
 {
-	protected final FileHandling fileHandling;
 	protected final CommandLineDetails commandLine;
-	protected final OsSupport osSupport;
 	protected final FileCache sourceFileCache;
 
 	private boolean debuggingInstrumentation = false;
 	private boolean devBuild = false;
 
-	public E(CommandLineDetails commandLine, FileCache sourceFileCache, OsSupport osSupport)
+	public E(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
 		this.commandLine = commandLine;
 		this.sourceFileCache = sourceFileCache;
-		this.osSupport = osSupport;
-		this.fileHandling = new FileHandling(osSupport);
 	}
 
 	/**
@@ -34,7 +30,12 @@ public abstract class E
 
 	protected FileHandling getFileHandling()
 	{
-		return fileHandling;
+		return commandLine.getFileHandling();
+	}
+
+	protected OsSupport getOsSupport()
+	{
+		return commandLine.getOsSupport();
 	}
 
 	public abstract boolean run();
@@ -73,26 +74,26 @@ public abstract class E
 
 	protected String getDotEK9Directory()
 	{
-		return fileHandling.getDotEK9Directory(commandLine.getSourceFileDirectory());
+		return getFileHandling().getDotEK9Directory(commandLine.getSourceFileDirectory());
 	}
 
 	protected File getMainGeneratedOutputDirectory()
 	{
-		return fileHandling.getMainGeneratedOutputDirectory(getDotEK9Directory(), commandLine.targetArchitecture);
+		return getFileHandling().getMainGeneratedOutputDirectory(getDotEK9Directory(), commandLine.targetArchitecture);
 	}
 
 	protected File getMainFinalOutputDirectory()
 	{
-		return fileHandling.getMainFinalOutputDirectory(getDotEK9Directory(), commandLine.targetArchitecture);
+		return getFileHandling().getMainFinalOutputDirectory(getDotEK9Directory(), commandLine.targetArchitecture);
 	}
 
 	protected File getDevGeneratedOutputDirectory()
 	{
-		return fileHandling.getDevGeneratedOutputDirectory(getDotEK9Directory(), commandLine.targetArchitecture);
+		return getFileHandling().getDevGeneratedOutputDirectory(getDotEK9Directory(), commandLine.targetArchitecture);
 	}
 
 	protected File getDevFinalOutputDirectory()
 	{
-		return fileHandling.getDevFinalOutputDirectory(getDotEK9Directory(), commandLine.targetArchitecture);
+		return getFileHandling().getDevFinalOutputDirectory(getDotEK9Directory(), commandLine.targetArchitecture);
 	}
 }

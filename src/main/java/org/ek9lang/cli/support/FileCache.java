@@ -1,7 +1,6 @@
 package org.ek9lang.cli.support;
 
 import org.ek9lang.cli.CommandLineDetails;
-import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.Glob;
 import org.ek9lang.core.utils.OsSupport;
 
@@ -25,18 +24,14 @@ import java.util.stream.Stream;
  */
 public class FileCache
 {
-	private final OsSupport osSupport;
-	private final FileHandling fileHandling;
 	private final CommandLineDetails commandLine;
 
 	private boolean devBuild = false;
 	private List<File> cachedFileList = null;
 
-	public FileCache(CommandLineDetails commandLine, OsSupport osSupport)
+	public FileCache(CommandLineDetails commandLine)
 	{
-		this.osSupport = osSupport;
 		this.commandLine = commandLine;
-		this.fileHandling = new FileHandling(osSupport);
 	}
 
 	/**
@@ -72,7 +67,7 @@ public class FileCache
 	 */
 	public File getTargetExecutableArtefact()
 	{
-		return fileHandling.getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(), commandLine.getTargetArchitecture());
+		return commandLine.getFileHandling().getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(), commandLine.getTargetArchitecture());
 	}
 
 	/**
@@ -211,7 +206,7 @@ public class FileCache
 	{
 		if(cachedFileList == null)
 		{
-			cachedFileList = osSupport.getFilesRecursivelyFrom(new File(commandLine.getSourceFileDirectory()), new Glob(includeFiles, excludeFiles))
+			cachedFileList = commandLine.getOsSupport().getFilesRecursivelyFrom(new File(commandLine.getSourceFileDirectory()), new Glob(includeFiles, excludeFiles))
 					.stream()
 					.sorted(Comparator.comparingLong(File::lastModified).reversed())
 					.collect(Collectors.toList());

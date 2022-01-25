@@ -2,10 +2,7 @@ package org.ek9lang.cli.support;
 
 import org.ek9lang.cli.CommandLineDetails;
 import org.ek9lang.cli.EK9SourceVisitor;
-import org.ek9lang.cli.support.EK9ProjectProperties;
 import org.ek9lang.compiler.parsing.JustParser;
-import org.ek9lang.core.utils.FileHandling;
-import org.ek9lang.core.utils.OsSupport;
 
 import java.io.File;
 import java.util.Optional;
@@ -55,21 +52,17 @@ import java.util.Properties;
 public class PackageResolver
 {
 	private final CommandLineDetails commandLine;
-	private final FileHandling fileHandling;
-	private final OsSupport osSupport;
 
-	public PackageResolver(CommandLineDetails commandLine, FileHandling fileHandling, OsSupport osSupport)
+	public PackageResolver(CommandLineDetails commandLine)
 	{
 		this.commandLine = commandLine;
-		this.fileHandling = fileHandling;
-		this.osSupport = osSupport;
 	}
 
 	public Optional<EK9SourceVisitor> resolve(String dependencyVector)
 	{
 		EK9SourceVisitor visitor = null;
-		String zipFileName = fileHandling.makePackagedModuleZipFileName(dependencyVector);
-		File homeEK9Lib = fileHandling.getUsersHomeEK9LibDirectory();
+		String zipFileName = commandLine.getFileHandling().makePackagedModuleZipFileName(dependencyVector);
+		File homeEK9Lib = commandLine.getFileHandling().getUsersHomeEK9LibDirectory();
 		//Lets check if it is unpacked already, if not we can unpack it.
 		File unpackedDir = new File(homeEK9Lib, dependencyVector);
 
@@ -77,12 +70,12 @@ public class PackageResolver
 		if(commandLine.isVerbose())
 			System.err.println("Resolve : Checking '" + dependencyVector + "'");
 
-		if(osSupport.isFileReadable(zipFile))
+		if(commandLine.getOsSupport().isFileReadable(zipFile))
 		{
 			if(commandLine.isVerbose())
-				System.err.println("Resolve : Found '" + zipFile.toString() + "'");
+				System.err.println("Resolve : Found '" + zipFile + "'");
 
-			if(osSupport.isDirectoryReadable(unpackedDir))
+			if(commandLine.getOsSupport().isDirectoryReadable(unpackedDir))
 			{
 				if(commandLine.isVerbose())
 					System.err.println("Resolve : Already unpacked '" + dependencyVector + "'");
@@ -92,7 +85,7 @@ public class PackageResolver
 			else
 			{
 				if(commandLine.isVerbose())
-					System.err.println("Resolve : Unpacking '" + zipFile.toString() + "'");
+					System.err.println("Resolve : Unpacking '" + zipFile + "'");
 				if(unZip(zipFile, unpackedDir))
 					visitor = processPackageProperties(unpackedDir);
 			}
@@ -102,7 +95,7 @@ public class PackageResolver
 			if(downloadDependency(dependencyVector))
 			{
 				if(commandLine.isVerbose())
-					System.err.println("Resolve : Unpacking '" + zipFile.toString() + "'");
+					System.err.println("Resolve : Unpacking '" + zipFile + "'");
 				if(unZip(zipFile, unpackedDir))
 					visitor = processPackageProperties(unpackedDir);
 			}
@@ -121,7 +114,7 @@ public class PackageResolver
 	}
 
 	/**
-	 * Load .package.prperties file from the unpacked dir and fet the property 'sourceFile'
+	 * Load .package.properties file from the unpacked dir and fet the property 'sourceFile'
 	 * This will tell us which of the sources of ek9 files is the one containing the package directive to use.
 	 *
 	 * @param unpackedDir The directory where the zip is unpacked to.
@@ -132,7 +125,7 @@ public class PackageResolver
 		File propertiesFile = new File(unpackedDir, ".package.properties");
 		EK9SourceVisitor visitor = null;
 		if(commandLine.isVerbose())
-			System.err.println("Resolve : Loading '" + propertiesFile.toString() + "'");
+			System.err.println("Resolve : Loading '" + propertiesFile + "'");
 
 		EK9ProjectProperties projectProperties = new EK9ProjectProperties(propertiesFile);
 		Properties properties = projectProperties.loadProperties();
@@ -141,7 +134,7 @@ public class PackageResolver
 			System.err.println("Resolve : SourceFile '" + srcToAccess + "'");
 
 		File src = new File(unpackedDir, srcToAccess);
-		if(osSupport.isFileReadable(src))
+		if(commandLine.getOsSupport().isFileReadable(src))
 		{
 			visitor = loadFileAndVisit(src);
 		}
@@ -154,7 +147,7 @@ public class PackageResolver
 
 	private boolean unZip(File zipFile, File unpackedDir)
 	{
-		if(!fileHandling.unZipFileTo(zipFile, unpackedDir))
+		if(!commandLine.getFileHandling().unZipFileTo(zipFile, unpackedDir))
 		{
 			System.err.println("Resolve : Failed to unzip '" + zipFile.toString() + "'");
 			return false;

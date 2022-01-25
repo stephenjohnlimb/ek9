@@ -1,16 +1,15 @@
 package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.FileCache;
-import org.ek9lang.core.utils.OsSupport;
 
 /**
  * Print the version number of the package.
  */
 public class Epv extends E
 {
-	public Epv(CommandLineDetails commandLine, FileCache sourceFileCache, OsSupport osSupport)
+	public Epv(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
-		super(commandLine, sourceFileCache, osSupport);
+		super(commandLine, sourceFileCache);
 	}
 
 	@Override

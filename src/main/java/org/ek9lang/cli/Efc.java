@@ -1,7 +1,6 @@
 package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.FileCache;
-import org.ek9lang.core.utils.OsSupport;
 
 /**
  * Do a full recompile of all sources inside project.
@@ -10,9 +9,9 @@ import org.ek9lang.core.utils.OsSupport;
  */
 public class Efc extends Ec
 {
-	public Efc(CommandLineDetails commandLine, FileCache sourceFileCache, OsSupport osSupport)
+	public Efc(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
-		super(commandLine, sourceFileCache, osSupport);
+		super(commandLine, sourceFileCache);
 	}
 
 	@Override
@@ -24,7 +23,7 @@ public class Efc extends Ec
 	public boolean run()
 	{
 		log("Prepare - Resolve");
-		Edp edp = new Edp(commandLine, sourceFileCache, osSupport);
+		Edp edp = new Edp(commandLine, sourceFileCache);
 		if(edp.run())
 		{
 			log("Prepare");

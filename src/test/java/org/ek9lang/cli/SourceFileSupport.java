@@ -27,9 +27,14 @@ public class SourceFileSupport
 		//Now we can put a dummy source file in the simulated/test cwd and then try and process it.
 		File cwd = new File(osSupport.getCurrentWorkingDirectory());
 		TestCase.assertTrue(cwd.exists());
-		TestCase.assertTrue(fileHandling.copy(new File(example.getParent()), cwd, ek9SourceFileName));
 		File aSourceFile = new File(cwd, ek9SourceFileName);
-		TestCase.assertTrue(aSourceFile.exists());
+		if(!aSourceFile.exists())
+		{
+			TestCase.assertTrue(fileHandling.copy(new File(example.getParent()), cwd, ek9SourceFileName));
+			TestCase.assertTrue(aSourceFile.exists());
+		}
+
+
 		return aSourceFile;
 	}
 }

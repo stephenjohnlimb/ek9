@@ -1,13 +1,15 @@
 package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.FileCache;
-import org.ek9lang.core.utils.OsSupport;
 
+/**
+ * Use to explicitly set a feature name on a package.
+ */
 public class Esf extends Eve
 {
-	public Esf(CommandLineDetails commandLine, FileCache sourceFileCache, OsSupport osSupport)
+	public Esf(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
-		super(commandLine, sourceFileCache, osSupport);
+		super(commandLine, sourceFileCache);
 	}
 
 	@Override

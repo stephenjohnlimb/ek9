@@ -1,16 +1,15 @@
 package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.FileCache;
-import org.ek9lang.core.utils.OsSupport;
 
 /**
  * Just does an incremental build if possible.
  */
 public class Eic extends Ec
 {
-	public Eic(CommandLineDetails commandLine, FileCache sourceFileCache, OsSupport osSupport)
+	public Eic(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
-		super(commandLine, sourceFileCache, osSupport);
+		super(commandLine, sourceFileCache);
 	}
 
 	@Override
@@ -25,7 +24,7 @@ public class Eic extends Ec
 		if(!sourceFileCache.isTargetExecutableArtefactPresent())
 		{
 			log("Missing target - Compile!");
-			Efc execution = new Efc(commandLine, sourceFileCache, osSupport);
+			Efc execution = new Efc(commandLine, sourceFileCache);
 			//may have been forced in and so we must pass on.
 			execution.setDebuggingInstrumentation(this.isDebuggingInstrumentation());
 			execution.setDevBuild((this.isDevBuild()));

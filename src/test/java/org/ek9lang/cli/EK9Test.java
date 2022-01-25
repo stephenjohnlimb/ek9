@@ -8,11 +8,10 @@ import org.junit.After;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Test the main command to run EK9 but from a test pint of view.
- *
+ * <p>
  * Only design to test valid command line instructions.
  * See CommandLineDetailsTest of invalid combinations.
  */
@@ -34,20 +33,20 @@ public class EK9Test
 	@Test
 	public void testCommandLineHelpText()
 	{
-		assertResult(EK9.SUCCESS_EXIT_CODE, new String[] {"-h"});
+		assertResult(EK9.SUCCESS_EXIT_CODE, new String[]{"-h"});
 	}
 
 	@Test
 	public void testCommandLineVersionText()
 	{
-		assertResult(EK9.SUCCESS_EXIT_CODE, new String[] {"-V"});
+		assertResult(EK9.SUCCESS_EXIT_CODE, new String[]{"-V"});
 	}
 
 	@Test
 	public void testIncrementationCompilation()
 	{
 		String sourceName = "HelloWorld.ek9";
-		String[] command = new String[] {"-c " + sourceName};
+		String[] command = new String[]{"-c " + sourceName};
 
 		//We will copy this into a working directory and process it.
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
@@ -67,7 +66,7 @@ public class EK9Test
 
 		long lastModified = targetArtefact.lastModified();
 		//Now simulate updating the source to ensure target gets rebuilt.
-		sourceFile.setLastModified(lastModified+1);
+		sourceFile.setLastModified(lastModified + 1);
 
 		//Trigger incremental rebuild
 		assertCompilationArtefactsPresent(assertResult(EK9.SUCCESS_EXIT_CODE, command));
@@ -178,6 +177,85 @@ public class EK9Test
 		TestCase.assertEquals(2, libDir.listFiles().length);
 	}
 
+	@Test
+	public void testBuildVersioningOfPackage()
+	{
+		assertPackageVersionChange("1.0.0-1", "-IV build", "PackageNoDeps.ek9");
+	}
+
+	@Test
+	public void testPatchVersioningOfPackage()
+	{
+		assertPackageVersionChange("1.0.1-0", "-IV patch", "PackageNoDeps.ek9");
+	}
+
+	@Test
+	public void testMinorVersioningOfPackage()
+	{
+		assertPackageVersionChange("1.1.0-0", "-IV minor", "PackageNoDeps.ek9");
+	}
+
+	@Test
+	public void testMajorVersioningOfPackage()
+	{
+		assertPackageVersionChange("2.0.0-0", "-IV major", "PackageNoDeps.ek9");
+	}
+
+	@Test
+	public void testSetVersioningOfPackage()
+	{
+		assertPackageVersionChange("3.8.6-0", "-SV 3.8.6", "PackageNoDeps.ek9");
+		//Now check that it can also be incremented.
+		assertPackageVersionChange("3.9.0-0", "-IV minor", "PackageNoDeps.ek9");
+	}
+
+	@Test
+	public void testSetFeatureVersioningOfPackage()
+	{
+		assertPackageVersionChange("3.8.6-specials-0", "-SF 3.8.6-specials", "PackageNoDeps.ek9");
+		//Now check that it can also be incremented.
+		assertPackageVersionChange("3.9.0-specials-0", "-IV minor", "PackageNoDeps.ek9");
+	}
+
+	@Test
+	public void testPrintVersioningOfPackage()
+	{
+		assertPackageVersionChange("3.8.6-specials-0", "-SF 3.8.6-specials", "PackageNoDeps.ek9");
+		//Now check that it can also be printed.
+		assertPackageVersionChange("3.8.6-specials-0", "-PV", "PackageNoDeps.ek9");
+	}
+
+	@Test
+	public void testDeploymentOfPackage()
+	{
+		String sourceName = "PackageNoDeps.ek9";
+		String[] incrementBuildNo = new String[]{"-D " + sourceName};
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		TestCase.assertNotNull(sourceFile);
+
+		//So this should just package up and deploy the artefact.
+		CommandLineDetails commandLine = assertResult(EK9.SUCCESS_EXIT_CODE, incrementBuildNo);
+
+		String zipFileName = fileHandling.makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion().toString());
+		File sha256EncFile = new File(fileHandling.getDotEK9Directory(commandLine.getSourceFileDirectory()), zipFileName + ".sha256.enc");
+		TestCase.assertTrue(sha256EncFile.exists());
+	}
+
+	private void assertPackageVersionChange(String expectedVersion, String command, String sourceName)
+	{
+		String[] incrementBuildNo = new String[]{command + " " + sourceName};
+
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		TestCase.assertNotNull(sourceFile);
+
+		//So this should just increment the build number from '0' which is what is in PackageNoDeps.ek9 to '1'
+		CommandLineDetails commandLine = assertResult(EK9.SUCCESS_EXIT_CODE, incrementBuildNo);
+
+		//Now get the line number
+		Integer versionLineNumber = commandLine.processEK9FileProperties(true);
+		TestCase.assertEquals(expectedVersion, commandLine.getVersion());
+	}
+
 	private CommandLineDetails assertResult(int expectation, String[] argv)
 	{
 		CommandLineDetails commandLine = new CommandLineDetails(fileHandling, osSupport);
@@ -187,7 +265,7 @@ public class EK9Test
 
 		//Now should something be run and executed.
 		if(result == EK9.RUN_COMMAND_EXIT_CODE)
-			TestCase.assertEquals(expectation, new EK9(commandLine, fileHandling, osSupport).run());
+			TestCase.assertEquals(expectation, new EK9(commandLine).run());
 
 		return commandLine;
 	}
