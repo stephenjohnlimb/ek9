@@ -12,7 +12,7 @@ import java.util.*;
  * We need an error listener for the lexing parsing and also our own tree
  * visiting. So our own tree visiting will be able to use additional methods we
  * add on to this; so we can report semantic errors and warnings.
- *
+ * <p>
  * Why: because we need to gather-up all the errors on a per-file processing
  * basis. This is needed because we are going to multi-thread the various stages
  * of compilation based on a thread per source file. So, we would not want the
@@ -116,13 +116,18 @@ public class ErrorListener extends BaseErrorListener
 		addErrorDetails(createSemanticError(offendingToken, msg, classification).setFuzzySearchResults(results));
 	}
 
-	public void semanticWarning(Token offendingSymbol, String msg, SemanticClassification classification)
+	public void semanticWarning(Token offendingToken, String msg, SemanticClassification classification)
 	{
 		ErrorDetails warning;
-		if(offendingSymbol == null)
-			warning = new ErrorDetails(ErrorClassification.SEMANTIC_WARNING, "Unknown Text", null, 0, 0, msg);
+		if(offendingToken == null)
+		{
+			warning = new ErrorDetails(ErrorClassification.SEMANTIC_WARNING, "Unknown Text", null, 0, 0, 1, msg);
+		}
 		else
-			warning = new ErrorDetails(ErrorClassification.SEMANTIC_WARNING, offendingSymbol.getText(), null, offendingSymbol.getLine(), offendingSymbol.getCharPositionInLine(), msg);
+		{
+			int tokenLength = offendingToken.getText().length();
+			warning = new ErrorDetails(ErrorClassification.SEMANTIC_WARNING, offendingToken.getText(), null, offendingToken.getLine(), offendingToken.getCharPositionInLine(), tokenLength, msg);
+		}
 		warning.setSemanticClassification(classification);
 		if(!warnings.contains(warning))
 			warnings.add(warning);
@@ -139,12 +144,13 @@ public class ErrorListener extends BaseErrorListener
 
 		if(offendingToken == null)
 		{
-			error = new ErrorDetails(ErrorClassification.SEMANTIC_ERROR, "Unknown Location", "unknown", 0, 0, msg);
+			error = new ErrorDetails(ErrorClassification.SEMANTIC_ERROR, "Unknown Location", "unknown", 0, 0, 1, msg);
 		}
 		else
 		{
 			String shortFileName = osSupport.getFileNameWithoutPath(offendingToken.getTokenSource().getSourceName());
-			error = new ErrorDetails(ErrorClassification.SEMANTIC_ERROR, offendingToken.getText(), shortFileName, offendingToken.getLine(), offendingToken.getCharPositionInLine(), msg);
+			int tokenLength = offendingToken.getText().length();
+			error = new ErrorDetails(ErrorClassification.SEMANTIC_ERROR, offendingToken.getText(), shortFileName, offendingToken.getLine(), offendingToken.getCharPositionInLine(), tokenLength, msg);
 		}
 		error.setSemanticClassification(classification);
 
@@ -170,11 +176,12 @@ public class ErrorListener extends BaseErrorListener
 		if(offendingSymbol instanceof Token)
 		{
 			Token offender = (Token)offendingSymbol;
-			error = new ErrorDetails(ErrorClassification.SYNTAX_ERROR, offender.getText(), null, line, charPositionInLine, reason);
+			int tokenLength = offender.getText().length();
+			error = new ErrorDetails(ErrorClassification.SYNTAX_ERROR, offender.getText(), null, line, charPositionInLine, tokenLength, reason);
 		}
 		else
 		{
-			error = new ErrorDetails(ErrorClassification.SYNTAX_ERROR, "'Unknown'", null, line, charPositionInLine, reason);
+			error = new ErrorDetails(ErrorClassification.SYNTAX_ERROR, "'Unknown'", null, line, charPositionInLine, 1, reason);
 		}
 		addErrorDetails(error);
 	}
@@ -423,9 +430,9 @@ public class ErrorListener extends BaseErrorListener
 		private final ErrorClassification classification;
 		private MatchResults fuzzySearchResults;
 
-		private ErrorDetails(ErrorClassification classification, String likelyOffendingSymbol, String shortFileName, int lineNumber, int characterNumber, String typeOfError)
+		private ErrorDetails(ErrorClassification classification, String likelyOffendingSymbol, String shortFileName, int lineNumber, int characterNumber, int tokenLength, String typeOfError)
 		{
-			super(likelyOffendingSymbol, shortFileName, lineNumber, characterNumber, typeOfError);
+			super(likelyOffendingSymbol, shortFileName, lineNumber, characterNumber, tokenLength, typeOfError);
 			this.classification = classification;
 		}
 
@@ -470,31 +477,35 @@ public class ErrorListener extends BaseErrorListener
 		/**
 		 * Not always set
 		 */
-		private final String possibleShortFileName;
+		private String possibleShortFileName;
 
 		// Normally just before the error is actually reported.
-		private final String likelyOffendingSymbol;
-		private final String symbolErrorText;
-		private final String typeOfError;
-		private final int lineNumber;
-		private final int position;
+		private String likelyOffendingSymbol = "";
+		private String symbolErrorText = "";
+		private String typeOfError;
+		private int lineNumber = 0;
+		private int position = 0;
+		private int tokenLength = 1;
 
 		//Only used with semantic errors.
 		private SemanticClassification semanticClassification;
 
-		private Details(String likelyOffendingSymbol, String shortFileName, int lineNumber, int characterNumber, String typeOfError)
+		private Details(String likelyOffendingSymbol, String shortFileName, int lineNumber, int characterNumber, int tokenLength, String typeOfError)
 		{
 			this.likelyOffendingSymbol = likelyOffendingSymbol;
 			this.typeOfError = typeOfError;
 			this.possibleShortFileName = shortFileName;
 			this.lineNumber = lineNumber;
 			this.position = characterNumber;
+			this.tokenLength = tokenLength;
+			StringBuffer buffer = new StringBuffer();
+			buffer.append(likelyOffendingSymbol)
+					.append("' on line ")
+					.append(lineNumber)
+					.append(" position ")
+					.append(characterNumber);
 
-			this.symbolErrorText = likelyOffendingSymbol +
-					"' on line " +
-					lineNumber +
-					" position " +
-					characterNumber;
+			symbolErrorText = buffer.toString();
 		}
 
 		protected abstract String getClassificationDescription();
@@ -524,6 +535,11 @@ public class ErrorListener extends BaseErrorListener
 			return position;
 		}
 
+		public int getTokenLength()
+		{
+			return tokenLength;
+		}
+
 		public String getLikelyOffendingSymbol()
 		{
 			return likelyOffendingSymbol;
@@ -538,9 +554,7 @@ public class ErrorListener extends BaseErrorListener
 		@Override
 		public boolean equals(Object obj)
 		{
-			if(obj instanceof Details)
-				return this.toString().equals(obj.toString());
-			return false;
+			return this.toString().equals(obj.toString());
 		}
 
 		/**
@@ -550,7 +564,7 @@ public class ErrorListener extends BaseErrorListener
 		 */
 		public String toLinePositionReference()
 		{
-			StringBuilder buffer = new StringBuilder();
+			StringBuffer buffer = new StringBuffer();
 			if(possibleShortFileName != null)
 				buffer.append(possibleShortFileName);
 			buffer.append(":").append(lineNumber);
@@ -560,7 +574,7 @@ public class ErrorListener extends BaseErrorListener
 		@Override
 		public String toString()
 		{
-			StringBuilder buffer = new StringBuilder();
+			StringBuffer buffer = new StringBuffer();
 
 			buffer.append(getClassificationDescription());
 
