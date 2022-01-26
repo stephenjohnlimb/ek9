@@ -14,15 +14,22 @@ import java.util.Optional;
  * <p>
  * There's a bit of recursion going on here.
  */
-public class DependencyNodeFactory
+public class DependencyNodeFactory extends Reporter
 {
 	private final CommandLineDetails commandLine;
-	private PackageResolver packageResolver;
+	private final PackageResolver packageResolver;
 
 	public DependencyNodeFactory(CommandLineDetails commandLine)
 	{
+		super(commandLine.isVerbose());
 		this.commandLine = commandLine;
 		packageResolver = new PackageResolver(commandLine);
+	}
+
+	@Override
+	protected String messagePrefix()
+	{
+		return "Resolve : ";
 	}
 
 	public Optional<DependencyNode> createFrom(EK9SourceVisitor visitor)
@@ -32,89 +39,56 @@ public class DependencyNodeFactory
 
 	private Optional<DependencyNode> createFrom(DependencyNode parent, EK9SourceVisitor visitor)
 	{
-		DependencyNode rtn = null;
-		boolean errorsEncountered = false;
-
 		DependencyNode workingNode = new DependencyNode(visitor.getModuleName(), visitor.getVersion());
 
-		if(commandLine.isVerbose())
-			System.err.println("Resolve : Processing '" + workingNode.toString() + "'");
+		log("Processing '" + workingNode + "'");
 
 		if(parent != null)
 		{
 			parent.addDependency(workingNode);
-			if(commandLine.isVerbose())
-				System.err.println("Resolve : Added " + workingNode + " as dependency of " + parent);
+			log("Added " + workingNode + " as dependency of " + parent);
 			String circulars = parent.reportCircularDependencies(true);
-			errorsEncountered = circulars != null;
-			if(errorsEncountered)
-				System.err.println("Resolve : Circular dependency! '" + circulars + "'");
+			if(circulars != null)
+			{
+				report("Circular dependency! '" + circulars + "'");
+				return Optional.empty();
+			}
 		}
 
-		if(!errorsEncountered)
+		log("deps (" + visitor.getDeps().size() + ")");
+		if(!processDependencies(workingNode, visitor.getDeps()))
+			return Optional.empty();
+
+		log("devDeps (" + visitor.getDevDeps().size() + ")");
+		if(!processDependencies(workingNode, visitor.getDevDeps()))
+			return Optional.empty();
+
+		Map<String, String> excludesDeps = visitor.getExcludeDeps();
+		log("excludesDeps (" + excludesDeps.size() + ")");
+
+		excludesDeps.keySet().forEach(key -> {
+			String dependencyOf = excludesDeps.get(key);
+			workingNode.addDependencyRejection(key, dependencyOf);
+			log("From '" + workingNode + "': excluding '" + key + "' when dependency of '" + dependencyOf + "'");
+		});
+
+		return Optional.of(workingNode);
+	}
+
+	private boolean processDependencies(DependencyNode workingNode, Map<String, String> deps)
+	{
+		for(String key : deps.keySet())
 		{
-			Map<String, String> deps = visitor.getDeps();
+			String dependencyVector = commandLine.getFileHandling().makeDependencyVector(key, deps.get(key));
+			log("Dependency '" + dependencyVector + "'");
+			Optional<EK9SourceVisitor> depVisitor = packageResolver.resolve(dependencyVector);
+			if(depVisitor.isEmpty())
+				return false;
 
-			if(commandLine.isVerbose())
-				System.err.println("Resolve : deps (" + deps.size() + ")");
-
-			for(String key : deps.keySet())
-			{
-				String dependencyVector = commandLine.getFileHandling().makeDependencyVector(key, deps.get(key));
-				if(commandLine.isVerbose())
-					System.err.println("Resolve : Dependency '" + dependencyVector + "'");
-				Optional<EK9SourceVisitor> depVisitor = packageResolver.resolve(dependencyVector);
-				if(depVisitor.isPresent())
-				{
-					Optional<DependencyNode> maybeDep = createFrom(workingNode, depVisitor.get());
-					if(!maybeDep.isPresent())
-						errorsEncountered = true;
-				}
-				else
-				{
-					errorsEncountered = true;
-				}
-			}
-
-			Map<String, String> devDeps = visitor.getDevDeps();
-
-			if(commandLine.isVerbose())
-				System.err.println("Resolve : devDeps (" + devDeps.size() + ")");
-
-			for(String key : devDeps.keySet())
-			{
-				String dependencyVector = commandLine.getFileHandling().makeDependencyVector(key, devDeps.get(key));
-				if(commandLine.isVerbose())
-					System.err.println("Resolve : '" + dependencyVector + "'");
-				Optional<EK9SourceVisitor> depVisitor = packageResolver.resolve(dependencyVector);
-				if(depVisitor.isPresent())
-				{
-					Optional<DependencyNode> maybeDep = createFrom(workingNode, depVisitor.get());
-					if(!maybeDep.isPresent())
-						errorsEncountered = true;
-				}
-				else
-				{
-					errorsEncountered = true;
-				}
-			}
-
-			Map<String, String> excludesDeps = visitor.getExcludeDeps();
-			if(commandLine.isVerbose())
-				System.err.println("Resolve : excludesDeps (" + excludesDeps.size() + ")");
-
-			excludesDeps.keySet().forEach(key -> {
-				String moduleName = key;
-				String dependencyOf = excludesDeps.get(key);
-				workingNode.addDependencyRejection(moduleName, dependencyOf);
-				if(commandLine.isVerbose())
-					System.err.println("Resolve : From '" + workingNode.toString() + "': excluding '" + moduleName + "' when dependency of '" + dependencyOf + "'");
-			});
+			//Build a recursive structure.
+			if(createFrom(workingNode, depVisitor.get()).isEmpty())
+				return false;
 		}
-
-		if(!errorsEncountered)
-			rtn = workingNode;
-
-		return Optional.ofNullable(rtn);
+		return true;
 	}
 }

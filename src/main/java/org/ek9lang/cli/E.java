@@ -1,6 +1,7 @@
 package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.cli.support.Reporter;
 import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.OsSupport;
 
@@ -9,7 +10,7 @@ import java.io.File;
 /**
  * Abstract base for the command line ek9 commands.
  */
-public abstract class E
+public abstract class E extends Reporter
 {
 	protected final CommandLineDetails commandLine;
 	protected final FileCache sourceFileCache;
@@ -19,6 +20,7 @@ public abstract class E
 
 	public E(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
+		super(commandLine.isVerbose());
 		this.commandLine = commandLine;
 		this.sourceFileCache = sourceFileCache;
 	}

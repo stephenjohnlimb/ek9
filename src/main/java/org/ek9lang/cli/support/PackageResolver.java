@@ -49,13 +49,20 @@ import java.util.Properties;
  * <p>
  * Anyway that's the general idea.
  */
-public class PackageResolver
+public class PackageResolver extends Reporter
 {
 	private final CommandLineDetails commandLine;
 
 	public PackageResolver(CommandLineDetails commandLine)
 	{
+		super(commandLine.isVerbose());
 		this.commandLine = commandLine;
+	}
+
+	@Override
+	protected String messagePrefix()
+	{
+		return "Resolve : ";
 	}
 
 	public Optional<EK9SourceVisitor> resolve(String dependencyVector)
@@ -67,25 +74,20 @@ public class PackageResolver
 		File unpackedDir = new File(homeEK9Lib, dependencyVector);
 
 		File zipFile = new File(homeEK9Lib, zipFileName);
-		if(commandLine.isVerbose())
-			System.err.println("Resolve : Checking '" + dependencyVector + "'");
+		log("Checking '" + dependencyVector + "'");
 
 		if(commandLine.getOsSupport().isFileReadable(zipFile))
 		{
-			if(commandLine.isVerbose())
-				System.err.println("Resolve : Found '" + zipFile + "'");
+			log("Found '" + zipFile + "'");
 
 			if(commandLine.getOsSupport().isDirectoryReadable(unpackedDir))
 			{
-				if(commandLine.isVerbose())
-					System.err.println("Resolve : Already unpacked '" + dependencyVector + "'");
+				log("Already unpacked '" + dependencyVector + "'");
 				visitor = processPackageProperties(unpackedDir);
-
 			}
 			else
 			{
-				if(commandLine.isVerbose())
-					System.err.println("Resolve : Unpacking '" + zipFile + "'");
+				log("Unpacking '" + zipFile + "'");
 				if(unZip(zipFile, unpackedDir))
 					visitor = processPackageProperties(unpackedDir);
 			}
@@ -94,14 +96,13 @@ public class PackageResolver
 		{
 			if(downloadDependency(dependencyVector))
 			{
-				if(commandLine.isVerbose())
-					System.err.println("Resolve : Unpacking '" + zipFile + "'");
+				log("Unpacking '" + zipFile + "'");
 				if(unZip(zipFile, unpackedDir))
 					visitor = processPackageProperties(unpackedDir);
 			}
 			else
 			{
-				System.err.println("Resolve : '" + dependencyVector + "' cannot be resolved!");
+				report("'" + dependencyVector + "' cannot be resolved!");
 			}
 		}
 		return Optional.ofNullable(visitor);
@@ -110,7 +111,7 @@ public class PackageResolver
 	private boolean downloadDependency(String dependencyVector)
 	{
 		//TODO the download part
-		return true;
+		return false;
 	}
 
 	/**
@@ -124,14 +125,12 @@ public class PackageResolver
 	{
 		File propertiesFile = new File(unpackedDir, ".package.properties");
 		EK9SourceVisitor visitor = null;
-		if(commandLine.isVerbose())
-			System.err.println("Resolve : Loading '" + propertiesFile + "'");
+		log("Loading '" + propertiesFile + "'");
 
 		EK9ProjectProperties projectProperties = new EK9ProjectProperties(propertiesFile);
 		Properties properties = projectProperties.loadProperties();
 		String srcToAccess = properties.getProperty("sourceFile");
-		if(commandLine.isVerbose())
-			System.err.println("Resolve : SourceFile '" + srcToAccess + "'");
+		log("SourceFile '" + srcToAccess + "'");
 
 		File src = new File(unpackedDir, srcToAccess);
 		if(commandLine.getOsSupport().isFileReadable(src))
@@ -140,7 +139,7 @@ public class PackageResolver
 		}
 		else
 		{
-			System.err.println("Resolve : Unable to read sourceFile '" + srcToAccess + "'");
+			report("Unable to read sourceFile '" + srcToAccess + "'");
 		}
 		return visitor;
 	}
@@ -149,11 +148,10 @@ public class PackageResolver
 	{
 		if(!commandLine.getFileHandling().unZipFileTo(zipFile, unpackedDir))
 		{
-			System.err.println("Resolve : Failed to unzip '" + zipFile.toString() + "'");
+			report("Failed to unzip '" + zipFile.toString() + "'");
 			return false;
 		}
 		return true;
-
 	}
 
 	private EK9SourceVisitor loadFileAndVisit(File sourceFile)
@@ -161,7 +159,7 @@ public class PackageResolver
 		EK9SourceVisitor visitor = new EK9SourceVisitor();
 		if(!new JustParser().readSourceFile(sourceFile, visitor))
 		{
-			System.err.println("Unable to Parse source file [" + sourceFile.getAbsolutePath() + "]");
+			report("Unable to Parse source file [" + sourceFile.getAbsolutePath() + "]");
 			return null;
 		}
 		return visitor;

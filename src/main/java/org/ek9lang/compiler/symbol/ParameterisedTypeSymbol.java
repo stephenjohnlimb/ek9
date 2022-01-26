@@ -542,7 +542,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 		 * Not is may already exist and was resolved OK
 		 * See was Resolved below.
 		 */
-		Optional<ISymbol> symbol = Optional.ofNullable(null);
+		Optional<ISymbol> symbol = Optional.empty();
 		
 		/**
 		 * So the result may well be set, but in the case of PAramterisedTypeSymbols

@@ -23,13 +23,13 @@ public class ConstantSymbol extends Symbol
 	
 	public ConstantSymbol(String name, boolean fromLiteral)
 	{
-		this(name, Optional.ofNullable(null));
+		this(name, Optional.empty());
 		this.literal = fromLiteral;
 	}
 	
 	public ConstantSymbol(String name)
 	{
-		this(name, Optional.ofNullable(null));
+		this(name, Optional.empty());
 	}
 	
 	public ConstantSymbol(String name, ISymbol type, boolean fromLiteral)

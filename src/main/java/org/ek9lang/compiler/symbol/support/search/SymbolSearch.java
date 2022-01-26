@@ -33,7 +33,7 @@ public class SymbolSearch
 	/**
 	 * Of this Type/Super type or the return type of the function/method.
 	 */
-	private Optional<ISymbol> ofTypeOrReturn = Optional.ofNullable(null);
+	private Optional<ISymbol> ofTypeOrReturn = Optional.empty();
 	
 	/**
 	 * Typically if searching for a method this will be zero or more parameters.

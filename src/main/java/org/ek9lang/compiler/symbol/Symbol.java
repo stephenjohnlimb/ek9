@@ -26,7 +26,7 @@ public class Symbol implements ISymbol
 	
 	private String name;
 	
-	private Optional<ISymbol> type = Optional.ofNullable(null);
+	private Optional<ISymbol> type = Optional.empty();
 
 	private boolean hasBeenSet = false;
 

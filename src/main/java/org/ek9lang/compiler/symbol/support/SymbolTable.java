@@ -244,7 +244,7 @@ public class SymbolTable implements IScope
 			//Then it is a fully qualified search so if the scope name of this table does not match
 			//what has been provided then even if the symbol name matches it's a miss.
 			if(!this.getScopeName().equals(aggregateSupport.getModuleNameIfPresent(symbolName)))
-				return Optional.ofNullable(null);
+				return Optional.empty();
 
 			//So now just use the actual symbol name bit of com.something:MyClass i.e. use the MyClass bit.
 			symbolName = aggregateSupport.getUnqualifiedName(symbolName);
@@ -254,7 +254,7 @@ public class SymbolTable implements IScope
 		ISymbol.SymbolCategory searchType = search.getSearchType();
 		if(searchType == null)
 		{
-			Optional<ISymbol> rtn = Optional.ofNullable(null);
+			Optional<ISymbol> rtn = Optional.empty();
 			
 			for(ISymbol.SymbolCategory key : ISymbol.SymbolCategory.values())
 			{
@@ -279,13 +279,13 @@ public class SymbolTable implements IScope
 	{
 		//not found
 		if(table == null || table.isEmpty())
-			return Optional.ofNullable(null);
+			return Optional.empty();
 		
 		List<ISymbol> symbolList = table.get(shortSymbolName);
 		
 		//not found
 		if(symbolList == null || symbolList.isEmpty())
-			return Optional.ofNullable(null);
+			return Optional.empty();
 		
 		return resolveInThisScopeOnly(symbolList, search);
 	}
@@ -297,7 +297,7 @@ public class SymbolTable implements IScope
 	 */
 	private Optional<ISymbol> resolveInThisScopeOnly(List<ISymbol> symbolList, SymbolSearch search)
 	{
-		Optional<ISymbol> rtn = Optional.ofNullable(null);
+		Optional<ISymbol> rtn = Optional.empty();
 		
 		if(search.getSearchType().equals(ISymbol.SymbolCategory.METHOD))
 		{
@@ -306,7 +306,7 @@ public class SymbolTable implements IScope
 				
 			if(result.isEmpty())
 			{
-				rtn = Optional.ofNullable(null);
+				rtn = Optional.empty();
 			}
 			else if(result.isSingleBestMatchPresent())
 			{
@@ -317,7 +317,7 @@ public class SymbolTable implements IScope
 				//This is ambiguous - i.e. we found more than one method that would match.
 				//so report failed to find, calling code then needs
 				//to do a fuzzy search and report on ambiguities to make developer choose.
-				rtn = Optional.ofNullable(null);
+				rtn = Optional.empty();
 			}
 		}
 		else if(search.getSearchType().equals(ISymbol.SymbolCategory.FUNCTION))
@@ -355,7 +355,7 @@ public class SymbolTable implements IScope
 			{
 				ISymbol toSet = rtn.get();
 				if(!toSet.isAssignableTo(searchSymbol))
-					rtn = Optional.ofNullable(null);				
+					rtn = Optional.empty();				
 			}
 		}
 		else if(search.getSearchType().equals(ISymbol.SymbolCategory.VARIABLE))
@@ -373,7 +373,7 @@ public class SymbolTable implements IScope
 			{
 				//So we have found a variable, but it cannot be assigned back to how it can be received.
 				if(!foundType.isPresent() || !foundType.get().isAssignableTo(toReceive))
-					rtn = Optional.ofNullable(null);
+					rtn = Optional.empty();
 			}
 			//So we'll go with rtn as is.
 		}
@@ -390,7 +390,7 @@ public class SymbolTable implements IScope
 	 */
 	protected Optional<ISymbol> resolveWithEnclosingScope(SymbolSearch search)
 	{
-		return Optional.ofNullable(null);
+		return Optional.empty();
 	}	
 	
 	@Override
@@ -402,7 +402,7 @@ public class SymbolTable implements IScope
 	@Override
 	public Optional<ScopedSymbol> findNearestAggregateScopeInEnclosingScopes()
 	{
-		return Optional.ofNullable(null);
+		return Optional.empty();
 	}
 	
 	@Override

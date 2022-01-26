@@ -134,14 +134,14 @@ public class MethodSymbolSearchResult
 	{
 		if(isSingleBestMatchPresent())
 			return Optional.of(results.get(0).getMethodSymbol());
-		return Optional.ofNullable(null);
+		return Optional.empty();
 	}
 
 	public Optional<ISymbol> getSingleBestMatchSymbol()
 	{
 		if(isSingleBestMatchPresent())
 			return Optional.of(results.get(0).getMethodSymbol());
-		return Optional.ofNullable(null);
+		return Optional.empty();
 	}
 	/**
 	 * Is there a single best match available.

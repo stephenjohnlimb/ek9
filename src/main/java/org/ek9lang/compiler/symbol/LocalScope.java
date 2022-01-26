@@ -104,7 +104,7 @@ public class LocalScope extends SymbolTable
 	 */
 	public Optional<ScopedSymbol> findNearestAggregateScopeInEnclosingScopes()
 	{
-		Optional<ScopedSymbol> rtn = Optional.ofNullable(null);
+		Optional<ScopedSymbol> rtn = Optional.empty();
 		if(enclosingScope != null)
 		{
 			if(enclosingScope.getScopeType().equals(IScope.ScopeType.AGGREGATE))
@@ -125,11 +125,11 @@ public class LocalScope extends SymbolTable
 				if(enclosingScope.getScopeType().equals(IScope.ScopeType.BLOCK))
 					return enclosingScope.resolve(search);
 				else
-					return Optional.ofNullable(null);
+					return Optional.empty();
 			}
 			return enclosingScope.resolve(search);
 		}
-		return Optional.ofNullable(null);
+		return Optional.empty();
 	}
 	
 	protected MethodSymbolSearchResult resolveForAllMatchingMethodsInEnclosingScope(MethodSymbolSearch search, MethodSymbolSearchResult result)

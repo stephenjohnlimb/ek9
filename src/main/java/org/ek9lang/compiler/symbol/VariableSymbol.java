@@ -22,7 +22,7 @@ public class VariableSymbol extends Symbol implements IAssignableSymbol
 	
 	public VariableSymbol(String name)
 	{
-		this(name, Optional.ofNullable(null));
+		this(name, Optional.empty());
 	}
 	
 	public VariableSymbol(String name, ISymbol type)

@@ -159,8 +159,15 @@ public class EK9Test
 	@Test
 	public void testInstallPackage()
 	{
-		String sourceName = "PackageNoDeps.ek9";
+		installPackage("PackageNoDeps.ek9");
+		File libDir = fileHandling.getUsersHomeEK9LibDirectory();
+		TestCase.assertNotNull(libDir.listFiles());
+		//Expect a zip and a sha256 of that zip.
+		TestCase.assertEquals(2, libDir.listFiles().length);
+	}
 
+	private void installPackage(String sourceName)
+	{
 		String[] command = new String[]{"-I " + sourceName};
 
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
@@ -172,11 +179,7 @@ public class EK9Test
 		File libDir = fileHandling.getUsersHomeEK9LibDirectory();
 		TestCase.assertNotNull(libDir);
 		TestCase.assertTrue((libDir.exists()));
-		TestCase.assertNotNull(libDir.listFiles());
-		//Expect a zip and a sha256 of that zip.
-		TestCase.assertEquals(2, libDir.listFiles().length);
 	}
-
 	@Test
 	public void testBuildVersioningOfPackage()
 	{
@@ -228,17 +231,59 @@ public class EK9Test
 	@Test
 	public void testDeploymentOfPackage()
 	{
-		String sourceName = "PackageNoDeps.ek9";
-		String[] incrementBuildNo = new String[]{"-D " + sourceName};
+		deployPackage(EK9.SUCCESS_EXIT_CODE, "PackageNoDeps.ek9");
+	}
+
+	/**
+	 * A more complex test that checks that the package resolver mechanism works.
+	 * For this test we actually build and package each of the dependencies locally.
+	 * But if they were not local builds, the resolver would (in the future)
+	 * try and pull these from a repository.
+	 */
+	@Test
+	public void testPackageDependencyResolution()
+	{
+		//So firstly we need to 'install' a number of dependent packages
+		//then we can try and resolve those dependencies.
+		installPackage("SupportUtils.ek9");
+		installPackage("HandyTools.ek9");
+		installPackage("SupertoolsUtil.ek9");
+		installPackage("ToolsMisc.ek9");
+
+		//Now for the one with dependencies
+		deployPackage(EK9.SUCCESS_EXIT_CODE, "SinglePackage.ek9");
+	}
+
+	@Test
+	public void testMissingPackageDependencyResolution()
+	{
+		//So firstly we need to 'install' a number of dependent packages
+		//then we can try and resolve those dependencies.
+		installPackage("SupportUtils.ek9");
+		//We omit this package and the overall resolution should fail
+		//installPackage("HandyTools.ek9");
+		installPackage("SupertoolsUtil.ek9");
+		installPackage("ToolsMisc.ek9");
+
+		//Now for the one with dependencies - but we've not got one present.
+		deployPackage(EK9.BAD_COMMANDLINE_EXIT_CODE, "SinglePackage.ek9");
+	}
+
+	private void deployPackage(int expectedExitCode, String sourceName)
+	{
+		String[] deployCommand = new String[]{"-v -D " + sourceName};
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 		TestCase.assertNotNull(sourceFile);
 
 		//So this should just package up and deploy the artefact.
-		CommandLineDetails commandLine = assertResult(EK9.SUCCESS_EXIT_CODE, incrementBuildNo);
+		CommandLineDetails commandLine = assertResult(expectedExitCode, deployCommand);
 
-		String zipFileName = fileHandling.makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion().toString());
-		File sha256EncFile = new File(fileHandling.getDotEK9Directory(commandLine.getSourceFileDirectory()), zipFileName + ".sha256.enc");
-		TestCase.assertTrue(sha256EncFile.exists());
+		if(expectedExitCode == EK9.SUCCESS_EXIT_CODE)
+		{
+			String zipFileName = fileHandling.makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion().toString());
+			File sha256EncFile = new File(fileHandling.getDotEK9Directory(commandLine.getSourceFileDirectory()), zipFileName + ".sha256.enc");
+			TestCase.assertTrue(sha256EncFile.exists());
+		}
 	}
 
 	private void assertPackageVersionChange(String expectedVersion, String command, String sourceName)

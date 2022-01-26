@@ -29,14 +29,14 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 	 * To be used when this function extends a trait type abstract function.
 	 * So we want the same method signature as the abstract function but this provides the implementation.
 	 */
-	private Optional<FunctionSymbol> superFunctionSymbol = Optional.ofNullable(null);
+	private Optional<FunctionSymbol> superFunctionSymbol = Optional.empty();
 	
 	/**
 	 * For dynamic functions we can capture variables from the enclosing scope(s) and pull them in
 	 * We can then hold and access them in the dynamic function even when the function has moved out of the original scope.
 	 * i.e. a sort of closure over a variable.
 	 */
-	private Optional<LocalScope> capturedVariables = Optional.ofNullable(null);
+	private Optional<LocalScope> capturedVariables = Optional.empty();
 	
 	public FunctionSymbol(String name, Optional<ISymbol> type, IScope enclosingScope)
 	{
@@ -219,7 +219,7 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 		//But not stuff from the scope where the function as defined (captured get passed in).
 		//But in some cases we need to resolve a generic type like T as it was used in a parent class or function!
 		
-		Optional<ISymbol> rtn = Optional.ofNullable(null);
+		Optional<ISymbol> rtn = Optional.empty();
 		//Now if this is a generic type class we might need to resolve the name of the type 'T' or 'S' or whatever for example		
 		if(isGenericInNature() && search.getSearchType().equals(SymbolCategory.TYPE))
 		{

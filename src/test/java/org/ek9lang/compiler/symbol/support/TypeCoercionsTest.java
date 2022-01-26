@@ -24,7 +24,7 @@ public class TypeCoercionsTest
         ISymbol typeB = new AggregateSymbol("TypeB", symbolTable);
 
         TestCase.assertFalse(TypeCoercions.get().isCoercible(Optional.of(typeA), Optional.of(typeB)));
-        TestCase.assertFalse(TypeCoercions.get().isCoercible(Optional.of(typeA), Optional.ofNullable(null)));
+        TestCase.assertFalse(TypeCoercions.get().isCoercible(Optional.of(typeA), Optional.empty()));
 
         TestCase.assertFalse(TypeCoercions.get().isCoercible(typeB, typeA));
     }

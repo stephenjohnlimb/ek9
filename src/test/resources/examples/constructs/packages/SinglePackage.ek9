@@ -27,15 +27,20 @@ defines module net.customer
         "Chelford",
               "Guff"
       ]
-    
+
+    //Deliberated added in a duplicate dependency
+
     deps <- {
       "ekopen.network.support.utils": "1.6.1-9",
+      "ekopen.net.handy.tools": "3.2.1-0",
       "ekopen.net.handy.tools": "3.2.1-0"
       }
 
+
     devDeps <- {
       "ekopen.org.supertools.util": "4.6.1-6",
-      "ekopen.org.net.tools.misc": "3.2.3-21"
+      "ekopen.org.net.tools.misc": "3.2.3-21",
+      "ekopen.net.handy.tools": "3.2.1-0"
       }
 
     excludeDeps <- {

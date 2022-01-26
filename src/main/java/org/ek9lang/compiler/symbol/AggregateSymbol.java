@@ -62,7 +62,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	/**
 	 * Might always be null if a base 'class' or 'interface'.
 	 */
-	private Optional<IAggregateSymbol> superAggregateScopedSymbol = Optional.ofNullable(null);
+	private Optional<IAggregateSymbol> superAggregateScopedSymbol = Optional.empty();
 
 	/**
 	 * Also keep a back pointer to the direct subclasses.
@@ -99,20 +99,20 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	 * When used in pipeline processing, what is the type this aggregate could
 	 * support to receive types.
 	 */
-	private Optional<String> pipeSinkType = Optional.ofNullable(null);
+	private Optional<String> pipeSinkType = Optional.empty();
 
 	/**
 	 * When used in pipeline processing, what is the type this aggregate could
 	 * support to create types.
 	 */
-	private Optional<String> pipeSourceType = Optional.ofNullable(null);
+	private Optional<String> pipeSourceType = Optional.empty();
 
 	/**
 	 * For dynamic classes we can capture variables from the enclosing scope(s) and pull them in
 	 * We can then hold and access them in the dynamic class even when the class has moved out of the original scope.
 	 * i.e. a sort of closure over a variable - but has to be declared and is not implicit like java/other languages.
 	 */
-	private Optional<LocalScope> capturedVariables = Optional.ofNullable(null);
+	private Optional<LocalScope> capturedVariables = Optional.empty();
 
 	/*
 	 * For built-in or reverse engineered aggregates we need to know if "_get()" of object as itself
@@ -648,7 +648,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	 */
 	protected Optional<ISymbol> resolveWithParentScope(SymbolSearch search)
 	{
-		Optional<ISymbol> rtn = Optional.ofNullable(null);
+		Optional<ISymbol> rtn = Optional.empty();
 
 		//So we keep going back up the class hierarchy until no more supers then
 		//When we get to the final aggregate we use the scopedSymbol local and back up to global symbol table.
@@ -667,7 +667,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	@Override
 	public Optional<ISymbol> resolve(SymbolSearch search)
 	{
-		Optional<ISymbol> rtn = Optional.ofNullable(null);
+		Optional<ISymbol> rtn = Optional.empty();
 		//Now if this is a generic type class we might need to resolve the name of the type 'T' or 'S' or whatever for example		
 		if(isGenericInNature() && search.getSearchType().equals(SymbolCategory.TYPE))
 		{
