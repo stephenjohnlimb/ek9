@@ -18,7 +18,7 @@ public class Et extends E
 		return "Test    : ";
 	}
 
-	public boolean run()
+	protected boolean doRun()
 	{
 		log("Compile!");
 

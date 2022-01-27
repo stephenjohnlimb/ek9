@@ -19,10 +19,8 @@ public class Ecl extends E
 		return "Clean   : ";
 	}
 
-	public boolean run()
+	protected boolean doRun()
 	{
-		log("Prepare");
-
 		getFileHandling().cleanEK9DirectoryStructureFor(commandLine.getFullPathToSourceFileName(), commandLine.targetArchitecture);
 		//Now trigger file structure and property file regeneration.
 		log("- Props");

@@ -24,7 +24,7 @@ public class Ep extends E
 		return "Package : ";
 	}
 
-	public boolean run()
+	protected boolean doRun()
 	{
 		log("- Compile!");
 		//Need to ensure a full compile works.

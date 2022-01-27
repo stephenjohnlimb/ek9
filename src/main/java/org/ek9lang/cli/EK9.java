@@ -52,11 +52,19 @@ public class EK9
 		FileHandling fileHandling = new FileHandling(osSupport);
 		CommandLineDetails commandLine = new CommandLineDetails(fileHandling, osSupport);
 
-		int result = commandLine.processCommandLine(argv);
-		if(result >= EK9.SUCCESS_EXIT_CODE)
-			System.exit(result);
+		try
+		{
+			int result = commandLine.processCommandLine(argv);
+			if(result >= EK9.SUCCESS_EXIT_CODE)
+				System.exit(result);
 
-		System.exit(new EK9(commandLine).run());
+			System.exit(new EK9(commandLine).run());
+		}
+		catch(RuntimeException rex)
+		{
+			System.err.println(rex);
+			System.exit(BAD_COMMANDLINE_EXIT_CODE);
+		}
 	}
 
 	public EK9(CommandLineDetails commandLine)

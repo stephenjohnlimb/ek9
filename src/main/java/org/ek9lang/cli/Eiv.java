@@ -18,42 +18,31 @@ public class Eiv extends Eve
 		return "Version+: ";
 	}
 
-	public boolean run()
+	protected boolean doRun()
 	{
 		log("Prepare");
-		if(commandLine.isPackagePresent())
+		//Need to get from command line.
+		String partToIncrement = commandLine.getOptionParameter("-IV");
+		Version versionNumber = Version.withBuildNumber(commandLine.getVersion());
+		switch(partToIncrement)
 		{
-			//Need to get from command line.
-			String partToIncrement = commandLine.getOptionParameter("-IV");
-			Version versionNumber = Version.withBuildNumber(commandLine.getVersion());
-			switch(partToIncrement)
-			{
-				case "major":
-					versionNumber.incrementMajor();
-					break;
-				case "minor":
-					versionNumber.incrementMinor();
-					break;
-				case "patch":
-					versionNumber.incrementPatch();
-					break;
-				case "build":
-					versionNumber.incrementBuildNumber();
-					break;
-			}
-			if(!super.setVersionNewNumber(versionNumber))
-			{
-				report("Failed to set version in " + commandLine.getSourceFileName());
-				return false;
-			}
+			case "major":
+				versionNumber.incrementMajor();
+				break;
+			case "minor":
+				versionNumber.incrementMinor();
+				break;
+			case "patch":
+				versionNumber.incrementPatch();
+				break;
+			case "build":
+				versionNumber.incrementBuildNumber();
+				break;
 		}
-		else
-		{
-			report("File " + super.commandLine.getSourceFileName() + " does not define a package");
+		if(!super.setVersionNewNumber(versionNumber))
 			return false;
-		}
-		log("Complete");
 
+		log("Complete");
 		return true;
 	}
 }

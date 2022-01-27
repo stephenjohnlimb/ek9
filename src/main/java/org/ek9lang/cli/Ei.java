@@ -20,7 +20,7 @@ public class Ei extends E
 		return "Install : ";
 	}
 
-	public boolean run()
+	protected boolean doRun()
 	{
 		log("- Package");
 

@@ -6,7 +6,7 @@ import org.ek9lang.cli.support.FileCache;
  * Used to explicitly set the version of a package.
  */
 public class Esv extends Eve
-{	
+{
 	public Esv(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
 		super(commandLine, sourceFileCache);
@@ -18,27 +18,14 @@ public class Esv extends Eve
 		return "Version=: ";
 	}
 
-	public boolean run()
+	protected boolean doRun()
 	{
-		log("Prepare");
-
-		if(commandLine.isPackagePresent())
-		{
-			String newVersionParameter = commandLine.getOptionParameter("-SV");
-			Version newVersion = Version.withNoBuildNumber(newVersionParameter);
-			if(!super.setVersionNewNumber(newVersion))
-			{
-				report("Failed to set version in " + commandLine.getSourceFileName());
-				return false;
-			}
-		}
-		else
-		{
-			report("File " + super.commandLine.getSourceFileName() + " does not define a package");
+		String newVersionParameter = commandLine.getOptionParameter("-SV");
+		Version newVersion = Version.withNoBuildNumber(newVersionParameter);
+		if(!super.setVersionNewNumber(newVersion))
 			return false;
-		}
-		log("Complete");
 
+		log("Complete");
 		return true;
 	}
 }

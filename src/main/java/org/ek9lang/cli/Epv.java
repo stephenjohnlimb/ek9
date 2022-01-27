@@ -18,10 +18,8 @@ public class Epv extends E
 		return "$Version: ";
 	}
 
-	public boolean run()
+	protected boolean doRun()
 	{
-		log("Prepare");
-
 		if(commandLine.isPackagePresent())
 		{
 			report(commandLine.getVersion());

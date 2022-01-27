@@ -18,7 +18,7 @@ public class Eic extends Ec
 		return "Compile : ";
 	}
 
-	public boolean run()
+	protected boolean doRun()
 	{
 		//Check if it even exists - if not then that is a full build that is needed.
 		if(!sourceFileCache.isTargetExecutableArtefactPresent())

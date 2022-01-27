@@ -25,9 +25,8 @@ public class Ed extends E
 		return "Deploy  : ";
 	}
 
-	public boolean run()
+	protected boolean doRun()
 	{
-		log("- Package");
 		Ep ep = new Ep(commandLine, sourceFileCache);
 		if(ep.run())
 		{
@@ -35,9 +34,6 @@ public class Ed extends E
 			Egk egk = new Egk(commandLine, sourceFileCache);
 			if(egk.run())
 			{
-				//Now do deployment.
-				log("Prepare");
-
 				if(!prepareEncryptedZipHash())
 				{
 					report("Unable to complete package deployment");

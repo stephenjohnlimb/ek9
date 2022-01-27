@@ -26,7 +26,7 @@ public class Edp extends E
 		return "Resolve : ";
 	}
 
-	public boolean run()
+	protected boolean doRun()
 	{
 		log("- Clean");
 

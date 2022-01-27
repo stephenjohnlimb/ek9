@@ -19,7 +19,7 @@ public class Er extends E
 		return "Run     : ";
 	}
 
-	public boolean run()
+	protected boolean doRun()
 	{
 		if(commandLine.targetArchitecture == EK9DirectoryStructure.JAVA)
 		{

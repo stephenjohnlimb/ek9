@@ -19,10 +19,8 @@ public class Egk extends E
 		return "Keys    : ";
 	}
 
-	public boolean run()
+	protected boolean doRun()
 	{
-		log("Prepare");
-
 		//Ensure the .ek9 directory exists in users home directory.
 		getFileHandling().validateHomeEK9Directory(commandLine.targetArchitecture);
 		if(!getFileHandling().isUsersSigningKeyPairPresent())

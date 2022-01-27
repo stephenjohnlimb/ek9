@@ -20,13 +20,11 @@ public class Efc extends Ec
 		return "Compile!: ";
 	}
 
-	public boolean run()
+	protected boolean doRun()
 	{
-		log("Prepare - Resolve");
 		Edp edp = new Edp(commandLine, sourceFileCache);
 		if(edp.run())
 		{
-			log("Prepare");
 			prepareCompilation();
 
 			if(!compile(sourceFileCache.getAllCompilableProjectFiles()))

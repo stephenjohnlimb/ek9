@@ -18,26 +18,14 @@ public class Esf extends Eve
 		return "Feature=: ";
 	}
 
-	public boolean run()
+	protected boolean doRun()
 	{
-		log("Prepare");
-		if(commandLine.isPackagePresent())
-		{
-			String newVersionParameter = commandLine.getOptionParameter("-SF");
-			Version newVersion = Version.withNoBuildNumber(newVersionParameter);
-			if(!super.setVersionNewNumber(newVersion))
-			{
-				report("Failed to set version in " + commandLine.getFullPathToSourceFileName());
-				return false;
-			}
-		}
-		else
-		{
-			report("File " + super.commandLine.getSourceFileName() + " does not define a package");
+		String newVersionParameter = commandLine.getOptionParameter("-SF");
+		Version newVersion = Version.withNoBuildNumber(newVersionParameter);
+		if(!super.setVersionNewNumber(newVersion))
 			return false;
-		}
-		log("Complete");
 
+		log("Complete");
 		return true;
 	}
 }

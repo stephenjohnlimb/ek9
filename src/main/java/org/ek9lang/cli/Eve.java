@@ -2,10 +2,7 @@ package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.FileCache;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Abstract versioning commands.
+ * Base for the versioning commands.
  */
 public abstract class Eve extends E
 {
@@ -22,69 +19,91 @@ public abstract class Eve extends E
 		super(commandLine, sourceFileCache);
 	}
 
+	@Override
+	public boolean preConditionCheck()
+	{
+		if(!super.preConditionCheck() || !commandLine.isPackagePresent())
+		{
+			report("File " + super.commandLine.getSourceFileName() + " does not define a package");
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Just sets the new version into the source file.
+	 */
 	public boolean setVersionNewNumber(Version newVersion)
 	{
-		if(commandLine.isPackagePresent())
+		try
 		{
-			List<String> output = new ArrayList<>();
-			//Now for processing of existing to get the line number.
-			Integer versionLineNumber = commandLine.processEK9FileProperties(true);
-			if(versionLineNumber != null)
+			List<String> output = loadAndUpdateVersionFromSourceFile(newVersion);
+			if(!output.isEmpty())
 			{
-				File sourceFileToModify = new File(commandLine.getFullPathToSourceFileName());
-				int lineCount = 0;
-				try(BufferedReader br = new BufferedReader(new FileReader(sourceFileToModify)))
-				{
-					String line;
-					while((line = br.readLine()) != null)
-					{
-						lineCount++;
-						if(lineCount == versionLineNumber)
-						{
-							Pattern p = Pattern.compile("^(?<ver>[ a-z]+)(.*)$");
-							Matcher m = p.matcher(line);
-							if(!m.find())
-								throw new RuntimeException("Unable to find 'version' in line [" + line + "]");
-							String prefix = m.group("ver");
-							if(prefix.contains(" as "))
-								line = prefix + " Version := " + newVersion.toString();
-							else
-								line = prefix + "<- " + newVersion.toString();
-						}
-						output.add(line);
-					}
-				}
-				catch(Throwable th)
-				{
-					report("Failed to read " + commandLine.getFullPathToSourceFileName() + " " + th.getMessage());
-					return false;
-				}
-				//Now write it back out
-				try(PrintWriter writer = new PrintWriter(sourceFileToModify, StandardCharsets.UTF_8))
-				{
-					output.forEach(writer::println);
-				}
-				catch(Throwable th)
-				{
-					report("Failed to update " + commandLine.getFullPathToSourceFileName() + " " + th.getMessage());
-					return false;
-				}
+				saveUpdatedSourceFile(output);
 				return true;
 			}
-			else
-			{
-				report("Cannot determine line number of version in " + commandLine.getSourceFileName());
-			}
 		}
-		else
+		catch(Throwable th)
 		{
-			report("File " + commandLine.getSourceFileName() + " does not define a package");
+			report("Failed to set version in  " + commandLine.getFullPathToSourceFileName() + " " + th.getMessage());
 		}
 		return false;
 	}
 
+	private void saveUpdatedSourceFile(List<String> output) throws IOException
+	{
+		//Now write it back out
+		try(PrintWriter writer = new PrintWriter(commandLine.getFullPathToSourceFileName(), StandardCharsets.UTF_8))
+		{
+			output.forEach(writer::println);
+		}
+	}
+
+	private List<String> loadAndUpdateVersionFromSourceFile(Version newVersion) throws IOException
+	{
+		List<String> output = new ArrayList<>();
+		//Now for processing of existing to get the line number.
+		Integer versionLineNumber = commandLine.processEK9FileProperties(true);
+		if(versionLineNumber != null)
+		{
+			int lineCount = 0;
+			try(BufferedReader br = new BufferedReader(new FileReader(commandLine.getFullPathToSourceFileName())))
+			{
+				String line;
+				while((line = br.readLine()) != null)
+				{
+					lineCount++;
+					if(lineCount == versionLineNumber)
+					{
+						Matcher m = Pattern.compile("^(?<ver>[ a-z]+)(.*)$").matcher(line);
+						if(m.find())
+						{
+							String prefix = m.group("ver");
+							if(prefix.contains(" as "))
+								line = prefix + " Version := " + newVersion;
+							else
+								line = prefix + "<- " + newVersion;
+						}
+					}
+					output.add(line);
+				}
+			}
+		}
+		return output;
+	}
+
+	/**
+	 * Holder for the version.
+	 * Takes a version text for features or plain versions.
+	 * Both with or without a build number.
+	 * This then allows the developer to manipulate major, minor, patch and build numbers.
+	 */
 	public static class Version
 	{
+		private static String MAJOR_MINOR_PATCH = "(?<major>\\d+)(\\.)(?<minor>\\d+)(\\.)(?<patch>\\d+)";
+		private static String FEATURE = "((-)(?<feature>[a-zA-Z]+[a-zA-Z0-9]*))";
+		private static String BUILD_NO = "(-)(?<buildNumber>\\d+)";
 		private int major = 0;
 		private int minor = 0;
 		private int patch = 0;
@@ -96,30 +115,37 @@ public abstract class Eve extends E
 		 */
 		public static Version withNoBuildNumber(String value)
 		{
-			return parse(false, value);
+			Matcher m = matcher("^" + MAJOR_MINOR_PATCH + FEATURE + "?$", value);
+			return parse(false, true, m, value);
+		}
+
+		public static Version withNoFeatureNoBuildNumber(String value)
+		{
+			Matcher m = matcher("^" + MAJOR_MINOR_PATCH + "$", value);
+			return parse(false, false, m, value);
+		}
+
+		public static Version withFeatureNoBuildNumber(String value)
+		{
+			Matcher m = matcher("^" + MAJOR_MINOR_PATCH + FEATURE + "$", value);
+			return parse(false, true, m, value);
 		}
 
 		/**
-		 * Parse the incoming - but expect build number.
+		 * Parse the incoming - but expect a build number.
 		 */
 		public static Version withBuildNumber(String value)
 		{
-			return parse(true, value);
+			Matcher m = matcher("^" + MAJOR_MINOR_PATCH + FEATURE + "?" + BUILD_NO + "$", value);
+			return parse(true, true, m, value);
 		}
 
 		/**
 		 * Does the parsing of a version number either with or without a build number.
 		 */
-		private static Version parse(boolean withBuildNumber, String value)
+		private static Version parse(boolean withBuildNumber, boolean withFeature, Matcher m, String value)
 		{
 			Version rtn = new Version();
-
-			Pattern p;
-			if(withBuildNumber)
-				p = Pattern.compile("^(?<major>\\d+)(\\.)(?<minor>\\d+)(\\.)(?<patch>\\d+)((-)(?<feature>[a-zA-Z]+[a-zA-Z0-9]*))?(-)(?<buildNumber>\\d+)$");
-			else
-				p = Pattern.compile("^(?<major>\\d+)(\\.)(?<minor>\\d+)(\\.)(?<patch>\\d+)((-)(?<feature>[a-zA-Z]+[a-zA-Z0-9]*))?$");
-			Matcher m = p.matcher(value);
 
 			if(!m.find())
 				throw new RuntimeException("Unable to use " + value + " as a VersionNumber");
@@ -127,10 +153,16 @@ public abstract class Eve extends E
 			rtn.minor = Integer.parseInt(m.group("minor"));
 			rtn.patch = Integer.parseInt(m.group("patch"));
 			//might not be present
-			rtn.feature = m.group("feature");
+			if(withFeature)
+				rtn.feature = m.group("feature");
 			if(withBuildNumber)
 				rtn.buildNumber = Integer.parseInt(m.group("buildNumber"));
 			return rtn;
+		}
+
+		private static Matcher matcher(String pattern, String value)
+		{
+			return Pattern.compile(pattern).matcher(value);
 		}
 
 		public Integer major()
@@ -189,10 +221,10 @@ public abstract class Eve extends E
 		{
 			//Format
 			StringBuilder buffer = new StringBuilder();
-			buffer.append(major).append(".").append(minor).append(".").append(patch);
+			buffer.append(major()).append(".").append(minor()).append(".").append(patch());
 			if(feature != null)
-				buffer.append("-").append(feature);
-			buffer.append("-").append(buildNumber);
+				buffer.append("-").append(feature());
+			buffer.append("-").append(buildNumber());
 			return buffer.toString();
 		}
 	}

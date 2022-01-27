@@ -393,7 +393,7 @@ public class CommandLineDetailsTest
 		TestCase.assertEquals(2, underTest.processCommandLine("-IV " + sourceName));		
 	}
 
-	@Test
+	@Test(expected = RuntimeException.class)
 	public void testCommandLineInvalidSetVersionParam()
 	{
 		String sourceName = "SinglePackage.ek9";
@@ -401,7 +401,7 @@ public class CommandLineDetailsTest
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
-		TestCase.assertEquals(2, underTest.processCommandLine("-SV 10.3.A " + sourceName));
+		underTest.processCommandLine("-SV 10.3.A " + sourceName);
 	}
 	
 	@Test
@@ -418,7 +418,7 @@ public class CommandLineDetailsTest
 		TestCase.assertEquals(sourceName, underTest.getSourceFileName());
 	}
 	
-	@Test
+	@Test(expected = RuntimeException.class)
 	public void testCommandLineInvalidSetFeatureParam()
 	{
 		String sourceName = "SinglePackage.ek9";
@@ -426,7 +426,7 @@ public class CommandLineDetailsTest
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
 		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
-		TestCase.assertEquals(2, underTest.processCommandLine("-SF 10.3.2-1bogus " + sourceName));
+		underTest.processCommandLine("-SF 10.3.2-1bogus " + sourceName);
 	}
 	
 	@Test

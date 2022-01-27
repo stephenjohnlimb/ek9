@@ -40,7 +40,26 @@ public abstract class E extends Reporter
 		return commandLine.getOsSupport();
 	}
 
-	public abstract boolean run();
+	public boolean run()
+	{
+		return preConditionCheck() && doRun();
+
+	}
+	/**
+	 * Do a precondition check to ensure run can execute.
+	 *
+	 * @return true if all Ok false if precondition not met.
+	 */
+	public boolean preConditionCheck()
+	{
+		log("Prepare");
+		return true;
+	}
+
+	/**
+	 * Actually run the execution.
+	 */
+	protected abstract boolean doRun();
 
 	protected void log(Object message)
 	{

@@ -192,25 +192,11 @@ public class CommandLineDetails
 						}
 						else if(versioningOption.equals("-SV"))
 						{
-							//So only expecting following major.minor.patch
-							Pattern p = Pattern.compile("^(\\d+)(\\.)(\\d+)(\\.)(\\d+)$");
-							Matcher m = p.matcher(versionParam);
-							if(!m.find())
-							{
-								System.err.println("Set Version: expecting major.minor.patch [" + commandLine + "]");
-								return EK9.BAD_COMMANDLINE_EXIT_CODE;
-							}
+							Eve.Version.withNoFeatureNoBuildNumber(versionParam);
 						}
 						else
 						{
-							//So only expecting following major.minor.patch-featureName
-							Pattern p = Pattern.compile("^(\\d+)(\\.)(\\d+)(\\.)(\\d+)(-)([a-zA-Z]+[a-zA-Z0-9]*)$");
-							Matcher m = p.matcher(versionParam);
-							if(!m.find())
-							{
-								System.err.println("Set Feature Version: expecting major.minor.patch-feature (feature must start with alpha)[" + commandLine + "]");
-								return EK9.BAD_COMMANDLINE_EXIT_CODE;
-							}
+							Eve.Version.withFeatureNoBuildNumber(versionParam);
 						}
 						activeParameters.add(versionParam);
 					}
