@@ -18,9 +18,9 @@ The development of reference implementation of the compiler is under way and is 
 See the [WIKI](https://github.com/stephenjohnlimb/ek9/wiki/EK9-Development) to see how the project is structured and
 how you can run and debug the grammar with some EK9 source code.
 
-The initial implementation will be written in Java (15), all code must have unit tests and code coverage analysis is employed.
+The initial implementation will be written in Java (17), all code must have unit tests and code coverage analysis is employed.
 
-At this point in time focus is on getting the existing grammar robust and resilient -
+At this point in time; focus is on getting the existing grammar robust and resilient -
 rather than adding more features or capabilities in.
 
 Having written all the examples and actually used the EK9 language to accomplish a few things

@@ -46,8 +46,8 @@ into the language itself.
 See [Contributing](CONTRIBUTING.md) and the [WIKI](https://github.com/stephenjohnlimb/ek9/wiki/EK9-Development) for details.
 
 ## Why create another programming language?
-Frustration with other languages, like C, C++, Pascal, Java and so some extent Python. I love them all in
-the way they are - but really wanted feature X from one language in another (and add a few new things in)!
+Frustration with other languages, like C, C++, Pascal, Java and to some extent Python. I love them all in
+the way they are - but really wanted feature X from one language in another (and add a few new things in as well)!
 
 The aim is a language that is easy (trivial) to get started with, but can scale in terms of **constructs** and
 more advanced **software design concepts**. EK9 has been designed to make easy things; 'easy' and harder things;
@@ -64,7 +64,7 @@ Capabilities like **functions** are treated as peers of **classes**.
 [Composition](https://www.ek9lang.org/composition.html#composition_example) can be used just as easily as
 [Inheritance](https://www.ek9lang.org/inheritance.html) .
 Excessive use of **< >** and **{ }** when mixed with **( )** in some languages can be confusing;
-hence the adoption of indentation for block structure. 
+hence the adoption of indentation block structure. 
 
 The language retains the structural/controlling mechanisms from Java and Scala where **Interfaces and Traits** enable
 strong polymorphic typing.
