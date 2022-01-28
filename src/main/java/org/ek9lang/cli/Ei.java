@@ -28,38 +28,21 @@ public class Ei extends E
 		if(ep.run())
 		{
 			//Now do deployment.
-			log("Prepare");
-
 			String zipFileName = getFileHandling().makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion().toString());
 			File fromDir = new File(getFileHandling().getDotEK9Directory(commandLine.getSourceFileDirectory()));
 			File destinationDir = getFileHandling().getUsersHomeEK9LibDirectory();
 
-			log("Copying '" + zipFileName + "' from '" + fromDir.toString() + "' to '" + destinationDir + "'");
-
-			if(!getFileHandling().copy(fromDir, destinationDir, zipFileName))
-			{
-				report("Failed");
-				return false;
-			}
-			else
-			{
-				log("" + new File(destinationDir, zipFileName).toString() + " installed");
-			}
-			String sha256FileName = zipFileName + ".sha256";
-			if(!getFileHandling().copy(fromDir, destinationDir, sha256FileName))
-			{
-				report("Failed");
-				return false;
-			}
-			else
-			{
-				log(new File(destinationDir, sha256FileName).toString() + " provided");
-			}
-
-			log("Complete");
-
-			return true;
+			return copyFile(fromDir, destinationDir, zipFileName) && copyFile(fromDir, destinationDir, zipFileName + ".sha256");
 		}
 		return false;
+	}
+
+	private boolean copyFile(File fromDir, File destinationDir, String fileName)
+	{
+		log("Copying '" + fileName + "' from '" + fromDir.toString() + "' to '" + destinationDir + "'");
+		boolean rtn = getFileHandling().copy(fromDir, destinationDir, fileName);
+		if(rtn)
+			log("" + new File(destinationDir, fileName) + " installed");
+		return rtn;
 	}
 }

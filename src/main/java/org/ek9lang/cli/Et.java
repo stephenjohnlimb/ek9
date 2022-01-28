@@ -28,11 +28,7 @@ public class Et extends E
 		eic.setDevBuild(true);
 		if(eic.run())
 		{
-			//Now find and run all tests.
-			log("Prepare");
 			//TODO - call to run all the tests
-			log("Complete");
-
 			return true;
 		}
 		return false;

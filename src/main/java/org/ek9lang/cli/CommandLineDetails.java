@@ -2,6 +2,7 @@ package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.EK9ProjectProperties;
 import org.ek9lang.compiler.parsing.JustParser;
+import org.ek9lang.core.exception.ExitException;
 import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.OsSupport;
 
@@ -89,20 +90,28 @@ public class CommandLineDetails
 	 */
 	public int processCommandLine(String commandLine)
 	{
-		if(commandLine == null || commandLine.isEmpty())
+		try
 		{
-			showHelp();
-			return EK9.BAD_COMMANDLINE_EXIT_CODE;
+			if(commandLine == null || commandLine.isEmpty())
+			{
+				showHelp();
+				return EK9.BAD_COMMANDLINE_EXIT_CODE;
+			}
+
+			processDefaultArchitecture();
+
+			int returnCode = extractCommandLineDetails(commandLine);
+
+			if(returnCode == EK9.RUN_COMMAND_EXIT_CODE)
+				return assessCommandLine(commandLine);
+
+			return returnCode;
 		}
-
-		processDefaultArchitecture();
-
-		int returnCode = extractCommandLineDetails(commandLine);
-
-		if(returnCode == EK9.RUN_COMMAND_EXIT_CODE)
-			return assessCommandLine(commandLine);
-
-		return returnCode;
+		catch(ExitException exitException)
+		{
+			System.err.println(exitException);
+			return exitException.getExitCode();
+		}
 	}
 
 	/**
@@ -419,10 +428,7 @@ public class CommandLineDetails
 		{
 			visitor = new EK9SourceVisitor();
 			if(!new JustParser().readSourceFile(mainSourceFile, visitor))
-			{
-				System.err.println("Unable to Parse source file [" + mainSourceFile.getAbsolutePath() + "]");
-				System.exit(EK9.FILE_ISSUE_EXIT_CODE);
-			}
+				throw new ExitException(EK9.FILE_ISSUE_EXIT_CODE, "Unable to Parse source file [" + mainSourceFile.getAbsolutePath() + "]");
 		}
 
 		return visitor;

@@ -92,19 +92,23 @@ public class FileHandling
 		AssertValue.checkDirectoryReadable("Source directory not readable", sourceDir);
 		AssertValue.checkDirectoryWritable("Destination directory not writable", destinationDir);
 
+		return copy(new File(sourceDir, fileName), new File(destinationDir, fileName));
+	}
+
+	public boolean copy(File fullSourcePath, File fullDestinationPath)
+	{
 		try
 		{
-			//This should normally work - unless you're out of disk space.
-			Path originalPath = new File(sourceDir, fileName).toPath();
-			Path targetPath = new File(destinationDir, fileName).toPath();
+			Path originalPath = fullSourcePath.toPath();
+			Path targetPath = fullDestinationPath.toPath();
 			Files.copy(originalPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+			return true;
 		}
 		catch(Throwable th)
 		{
 			System.err.println("File copy failed: " + th.getMessage());
 			return false;
 		}
-		return true;
 	}
 
 	public void deleteFileIfExists(File file)

@@ -6,7 +6,6 @@ import org.ek9lang.compiler.parsing.JustParser;
 
 import java.io.File;
 import java.util.Optional;
-import java.util.Properties;
 
 /**
  * Once the EK9 'Edp' dependency module has determined that a packaged module now needs to be resolved
@@ -76,35 +75,31 @@ public class PackageResolver extends Reporter
 		File zipFile = new File(homeEK9Lib, zipFileName);
 		log("Checking '" + dependencyVector + "'");
 
-		if(commandLine.getOsSupport().isFileReadable(zipFile))
+		//See if it is already unpackaged and available
+		if(commandLine.getOsSupport().isDirectoryReadable(unpackedDir))
 		{
-			log("Found '" + zipFile + "'");
-
-			if(commandLine.getOsSupport().isDirectoryReadable(unpackedDir))
-			{
-				log("Already unpacked '" + dependencyVector + "'");
-				visitor = processPackageProperties(unpackedDir);
-			}
-			else
-			{
-				log("Unpacking '" + zipFile + "'");
-				if(unZip(zipFile, unpackedDir))
-					visitor = processPackageProperties(unpackedDir);
-			}
+			log("Already unpacked '" + dependencyVector + "'");
+			return Optional.of(processPackageProperties(unpackedDir));
 		}
-		else
+
+		if(!commandLine.getOsSupport().isFileReadable(zipFile))
 		{
-			if(downloadDependency(dependencyVector))
-			{
-				log("Unpacking '" + zipFile + "'");
-				if(unZip(zipFile, unpackedDir))
-					visitor = processPackageProperties(unpackedDir);
-			}
-			else
+			//OK not there so download
+			if(!downloadDependency(dependencyVector))
 			{
 				report("'" + dependencyVector + "' cannot be resolved!");
+				return Optional.empty();
 			}
 		}
+
+		//So it should now have been downloaded we can un-package.
+		if(commandLine.getOsSupport().isFileReadable(zipFile))
+		{
+			log("Unpacking '" + zipFile + "'");
+			if(unZip(zipFile, unpackedDir))
+				return Optional.of(processPackageProperties(unpackedDir));
+		}
+
 		return Optional.ofNullable(visitor);
 	}
 

@@ -1,6 +1,7 @@
 package org.ek9lang.cli;
 
 import junit.framework.TestCase;
+import org.ek9lang.core.exception.ExitException;
 import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.OsSupport;
 import org.ek9lang.core.utils.SigningKeyPair;
@@ -8,6 +9,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import java.io.File;
+import java.net.URL;
 
 /**
  * Test the main command to run EK9 but from a test pint of view.
@@ -234,6 +236,22 @@ public class EK9Test
 		deployPackage(EK9.SUCCESS_EXIT_CODE, "PackageNoDeps.ek9");
 	}
 
+	@Test
+	public void testBadPackage()
+	{
+		String sourceName = "BadPackage.ek9";
+		String[] command = new String[]{"-I " + sourceName};
+
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		TestCase.assertNotNull(sourceFile);
+
+		//This should Fail with a file issue, because it should not parse.
+		CommandLineDetails commandLine = new CommandLineDetails(fileHandling, osSupport);
+
+		int result = commandLine.processCommandLine(command);
+		TestCase.assertEquals(EK9.FILE_ISSUE_EXIT_CODE, result);
+	}
+
 	/**
 	 * A more complex test that checks that the package resolver mechanism works.
 	 * For this test we actually build and package each of the dependencies locally.
@@ -267,6 +285,45 @@ public class EK9Test
 
 		//Now for the one with dependencies - but we've not got one present.
 		deployPackage(EK9.BAD_COMMANDLINE_EXIT_CODE, "SinglePackage.ek9");
+	}
+
+	@Test
+	public void testCircularDependencies()
+	{
+		//We have to cheat like a developer would do and put some stuff in the place where it would have been packaged!
+		//So put mangled version of both deps in and then we can resolve both to build a new one.
+		//Then we can see if we can detect those circular references.
+
+		//make sure the structure for packages exists.
+		fileHandling.validateHomeEK9Directory("java");
+
+		simulatePackagedInstallation("Circular2", "net.circular.two", "1.0.1-0");
+		simulatePackagedInstallation("Circular1", "net.circular.one", "1.0.0-0");
+
+		//Only now we've simulated how a developer might try and build circular refs can we test our next check.
+		//TODO expect a failure.
+		//installPackage("Circular1.ek9");
+	}
+
+	private void simulatePackagedInstallation(String sourceName, String moduleName, String version)
+	{
+		String dependencyVector = fileHandling.makeDependencyVector(moduleName, version);
+		File homeEK9Lib = fileHandling.getUsersHomeEK9LibDirectory();
+
+		//Let's check if it is unpacked already, if not we can unpack it.
+		File unpackedDir = new File(homeEK9Lib, dependencyVector);
+		if(!unpackedDir.exists())
+			TestCase.assertTrue(unpackedDir.mkdirs());
+
+		URL simulatedProperties = getClass().getResource("/examples/constructs/packages/"+sourceName+".package.properties");
+		TestCase.assertNotNull(simulatedProperties);
+		fileHandling.copy(new File(simulatedProperties.getPath()), new File(unpackedDir, ".package.properties"));
+
+		//Now the source file for that package
+		URL simulatedSource = getClass().getResource("/examples/constructs/packages/"+sourceName+".ek9");
+		TestCase.assertNotNull(simulatedSource);
+		fileHandling.copy(new File(simulatedSource.getPath()), new File(unpackedDir, sourceName+".ek9"));
+
 	}
 
 	private void deployPackage(int expectedExitCode, String sourceName)

@@ -23,14 +23,9 @@ public class Epv extends E
 		if(commandLine.isPackagePresent())
 		{
 			report(commandLine.getVersion());
+			return true;
 		}
-		else
-		{
-			report("File " + commandLine.getSourceFileName() + " does not define a package");
-			return false;
-		}
-		log("Complete");
-
-		return true;
+		report("File " + commandLine.getSourceFileName() + " does not define a package");
+		return false;
 	}
 }

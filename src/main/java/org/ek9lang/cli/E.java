@@ -42,9 +42,9 @@ public abstract class E extends Reporter
 
 	public boolean run()
 	{
-		return preConditionCheck() && doRun();
-
+		return preConditionCheck() && doRun() && postConditionCheck();
 	}
+
 	/**
 	 * Do a precondition check to ensure run can execute.
 	 *
@@ -53,6 +53,12 @@ public abstract class E extends Reporter
 	public boolean preConditionCheck()
 	{
 		log("Prepare");
+		return true;
+	}
+
+	public boolean postConditionCheck()
+	{
+		log("Complete");
 		return true;
 	}
 

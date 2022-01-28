@@ -22,10 +22,6 @@ public class Esf extends Eve
 	{
 		String newVersionParameter = commandLine.getOptionParameter("-SF");
 		Version newVersion = Version.withNoBuildNumber(newVersionParameter);
-		if(!super.setVersionNewNumber(newVersion))
-			return false;
-
-		log("Complete");
-		return true;
+		return super.setVersionNewNumber(newVersion);
 	}
 }

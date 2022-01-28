@@ -26,20 +26,13 @@ public class Egk extends E
 		if(!getFileHandling().isUsersSigningKeyPairPresent())
 		{
 			log("Generating new signing keys");
-
 			//Clients only use short key lengths, server uses 2048.
-			if(!getFileHandling().saveToHomeEK9Directory(SigningKeyPair.generate(1024)))
-			{
-				report("Failed to regenerate keys");
-				return false;
-			}
+			return getFileHandling().saveToHomeEK9Directory(SigningKeyPair.generate(1024));
 		}
 		else
 		{
 			log("Already present - not regenerating");
 		}
-
-		log("Complete");
 		return true;
 	}
 }

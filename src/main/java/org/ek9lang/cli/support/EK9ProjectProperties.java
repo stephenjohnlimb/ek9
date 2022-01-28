@@ -70,7 +70,7 @@ public class EK9ProjectProperties
 	{
 		try(OutputStream output = new FileOutputStream(file))
 		{
-			properties.store(output, "Program Properties");
+			properties.store(output, "Package Properties");
 		}
 		catch(Throwable th)
 		{

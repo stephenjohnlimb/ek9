@@ -2,7 +2,6 @@ package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.core.utils.Digest;
-import org.ek9lang.core.utils.OsSupport;
 import org.ek9lang.core.utils.SigningKeyPair;
 
 import java.io.File;
@@ -44,7 +43,6 @@ public class Ed extends E
 
 				//Also needs an account with some credentials to send to https://deploy.ek9lang.org
 				//TODO - we will leave this for now - see SigningKeyPairTest on how we will do it.
-				log("Complete");
 				return true;
 			}
 		}
@@ -110,6 +108,7 @@ public class Ed extends E
 	/**
 	 * For now we will embed this public key in this deployment.
 	 * Eventually we will pull a public key from a repo server.
+	 *
 	 * @param serverName The server to pull the public certificate from i.e. repo.ek9lang.org
 	 * @return The servers public certificate.
 	 */

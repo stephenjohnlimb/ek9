@@ -26,14 +26,7 @@ public class Efc extends Ec
 		if(edp.run())
 		{
 			prepareCompilation();
-
-			if(!compile(sourceFileCache.getAllCompilableProjectFiles()))
-			{
-				report("Failed");
-				return false;
-			}
-
-			return repackageTargetArtefact();
+			return compile(sourceFileCache.getAllCompilableProjectFiles()) && repackageTargetArtefact();
 		}
 		return false;
 	}

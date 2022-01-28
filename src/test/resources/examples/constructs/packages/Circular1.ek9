@@ -1,0 +1,15 @@
+#!ek9
+defines module net.circular.one
+
+  defines package
+
+    publicAccess as Boolean := true
+    version as Version: 1.0.0-0
+    description as String = "Simulation of circular references"
+    license <- "MIT"
+
+    deps <- {
+      "net.circular.two": "1.0.1-0"
+      }
+
+//EOF

@@ -2,7 +2,6 @@ package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.core.utils.EK9DirectoryStructure;
-import org.ek9lang.core.utils.OsSupport;
 import org.ek9lang.core.utils.ZipSet;
 
 import java.io.File;
@@ -23,7 +22,8 @@ public abstract class Ec extends E
 
 	protected void prepareCompilation()
 	{
-		//Set if not already set
+		log("Preparing");
+		// Set if not already set
 		if(!isDebuggingInstrumentation())
 			setDebuggingInstrumentation(commandLine.isDebuggingInstrumentation());
 		if(!isDevBuild())
@@ -68,15 +68,11 @@ public abstract class Ec extends E
 			zipSets.add(getCoreComponents());
 
 			String targetFileName = sourceFileCache.getTargetExecutableArtefact().getAbsolutePath();
-			if(!getFileHandling().createJar(targetFileName, zipSets))
-			{
-				report("Target creating failed");
-				return false;
-			}
-
-			log("Complete");
-			return true;
+			if(getFileHandling().createJar(targetFileName, zipSets))
+				return true;
+			report("Target creating failed");
 		}
+
 		return false;
 	}
 

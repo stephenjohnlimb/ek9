@@ -34,8 +34,6 @@ public class Edp extends E
 		if(!ecl.run())
 			return false;
 
-		log("Prepare");
-
 		if(!commandLine.isPackagePresent())
 			log("No Dependencies defined");
 
@@ -53,9 +51,6 @@ public class Edp extends E
 			report("Failed");
 			return false;
 		}
-
-		log("Complete");
-
 		return true;
 	}
 

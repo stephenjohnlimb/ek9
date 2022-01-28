@@ -35,9 +35,6 @@ public class Ep extends E
 		}
 		else
 		{
-			//Now do packaging
-			log("Prepare");
-
 			if(!commandLine.isPackagePresent())
 			{
 				report("File " + commandLine.getSourceFileName() + " does not define a package");
@@ -58,12 +55,9 @@ public class Ep extends E
 
 			if(getFileHandling().createZip(fileName, new ZipSet(fromPath, listOfFiles), commandLine.getSourcePropertiesFile()))
 			{
-				log("Complete");
-
 				log("Check summing");
 				Digest.CheckSum checkSum = getFileHandling().createSha256Of(fileName);
 				log(fileName + " created, checksum " + checkSum);
-
 				return true;
 			}
 		}

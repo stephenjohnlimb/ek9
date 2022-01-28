@@ -1,7 +1,6 @@
 package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.FileCache;
-import org.ek9lang.core.utils.OsSupport;
 
 /**
  * Clean a project down.
@@ -26,7 +25,6 @@ public class Ecl extends E
 		log("- Props");
 		commandLine.processEK9FileProperties(true);
 
-		log("Complete");
 		return true;
 	}
 }
