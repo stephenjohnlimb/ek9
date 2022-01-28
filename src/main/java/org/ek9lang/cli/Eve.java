@@ -2,7 +2,10 @@ package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.FileCache;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,6 +112,14 @@ public abstract class Eve extends E
 		private int patch = 0;
 		private String feature = null;
 		private int buildNumber = 0;
+
+		public static boolean isInvalidVersionAddressPart(String versionParam)
+		{
+			return(!versionParam.equals("major") &&
+					!versionParam.equals("minor") &&
+					!versionParam.equals("patch") &&
+					!versionParam.equals("build"));
+		}
 
 		/**
 		 * Parse the incoming - but expect no build number.

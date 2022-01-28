@@ -10,15 +10,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Just deals with handling the command line options for the compiler.
  * <p>
- * TODO this is no where near finished yet, still need to add more functionality
- * TODO for example the visitor that can process any package directives.
- * TODO also deal with the properties processing and checking of .ek9 directories.
+ * Quite a beast now, but command line argument handling is always a bit complex.
  */
 public class CommandLineDetails
 {
@@ -28,11 +25,7 @@ public class CommandLineDetails
 	private final List<String> ek9AppDefines = new ArrayList<>();
 	private final List<String> ek9ProgramParameters = new ArrayList<>();
 
-	String ek9ProgramToRun = null;
 	private File mainSourceFile;
-	String targetArchitecture = "java";
-	int debugPort = 8000;
-
 	private String moduleName = null;
 	private List<String> programs = new ArrayList<>();
 
@@ -46,6 +39,10 @@ public class CommandLineDetails
 	private boolean dependenciesAltered = false;
 	private boolean packagePresent = false;
 	private boolean foundEk9File = false;
+
+	String ek9ProgramToRun = null;
+	String targetArchitecture = "java";
+	int debugPort = 8000;
 
 	/**
 	 * This is just a really simple cut down version of a visitor
@@ -70,14 +67,14 @@ public class CommandLineDetails
 	}
 
 	/**
-	 * process the command line as supplied from main.
+	 * Process the command line as supplied from main.
+	 * Expects a single entry in the array.
 	 */
 	public int processCommandLine(String[] argv)
 	{
 		if(argv == null || argv.length == 0)
 		{
-			System.err.println("ek9 <options>");
-			System.err.println(CommandLineDetails.getCommandLineHelp());
+			showHelp();
 			return EK9.BAD_COMMANDLINE_EXIT_CODE;
 		}
 
@@ -92,19 +89,29 @@ public class CommandLineDetails
 	 */
 	public int processCommandLine(String commandLine)
 	{
-		//Pick up any proposed architect from environment first
-		//This replaces the built-in default of 'java'
-		//But even this can be overridden on the command line with -T
-		String proposedTargetArchitecture = System.getenv("EK9_TARGET");
-		if(proposedTargetArchitecture != null && !proposedTargetArchitecture.isEmpty())
-			this.targetArchitecture = proposedTargetArchitecture;
-
 		if(commandLine == null || commandLine.isEmpty())
 		{
-			System.err.println("CommandLine is null/empty");
+			showHelp();
 			return EK9.BAD_COMMANDLINE_EXIT_CODE;
 		}
 
+		processDefaultArchitecture();
+
+		int returnCode = extractCommandLineDetails(commandLine);
+
+		if(returnCode == EK9.RUN_COMMAND_EXIT_CODE)
+			return assessCommandLine(commandLine);
+
+		return returnCode;
+	}
+
+	/**
+	 * Extract the details of the command line out.
+	 * There are some basic checks here, but only up to a point.
+	 * The assessCommandLine checks the combination of commands.
+	 */
+	private int extractCommandLineDetails(String commandLine)
+	{
 		boolean processingEK9Parameters = true;
 		List<String> activeParameters = ek9AppParameters;
 		//Need to break this up remove extra spaces unless in quotes.
@@ -117,11 +124,10 @@ public class CommandLineDetails
 				foundEk9File = true;
 				String ek9SourceFileName = strArray[i];
 				mainSourceFile = new File(ek9SourceFileName);
+				//We need to look in the current directory instead
 				if(!mainSourceFile.exists())
-				{
-					//We need to look in the current directory instead
 					mainSourceFile = new File(osSupport.getCurrentWorkingDirectory(), ek9SourceFileName);
-				}
+
 				processingEK9Parameters = false;
 				activeParameters = ek9ProgramParameters;
 			}
@@ -154,9 +160,7 @@ public class CommandLineDetails
 				//So next is port to debug on
 				String port = strArray[++i];
 				activeParameters.add(port);
-				Pattern p = Pattern.compile("^(\\d+)$");
-				Matcher m = p.matcher(port);
-				if(!m.find())
+				if(!Pattern.compile("^(\\d+)$").matcher(port).find())
 				{
 					System.err.println("Debug Mode: expecting integer port number [" + commandLine + "]");
 					return EK9.BAD_COMMANDLINE_EXIT_CODE;
@@ -181,10 +185,7 @@ public class CommandLineDetails
 						if(versioningOption.equals("-IV"))
 						{
 							//must be one of major|minor|patch|build
-							if(!versionParam.equals("major") &&
-									!versionParam.equals("minor") &&
-									!versionParam.equals("patch") &&
-									!versionParam.equals("build"))
+							if(Eve.Version.isInvalidVersionAddressPart(versionParam))
 							{
 								System.err.println("Increment Version: expecting major|minor|patch|build [" + commandLine + "]");
 								return EK9.BAD_COMMANDLINE_EXIT_CODE;
@@ -208,29 +209,22 @@ public class CommandLineDetails
 				}
 			}
 		}
+		//Looks like we're potentially good here, next needs assessment.
+		return EK9.RUN_COMMAND_EXIT_CODE;
+	}
 
+	/**
+	 * Assess the values extracted from the command line to see if they are valid and viable.
+	 */
+	private int assessCommandLine(String commandLine)
+	{
 		if(isHelp())
-		{
-			System.err.println("ek9 <options>");
-			System.err.println(CommandLineDetails.getCommandLineHelp());
-			//i.e. no further commands need to run
-			return EK9.SUCCESS_EXIT_CODE;
-		}
-		if(isVersionOfEK9Option())
-		{
-			System.err.println("EK9 Version 0.0.1-0");
-			//i.e. no further commands need to run
-			return EK9.SUCCESS_EXIT_CODE;
-		}
+			return showHelp();
 
-		//Add in run mode if no options supplied as default.
-		if(!isJustABuildTypeOption()
-				&& !isReleaseVectorOption()
-				&& !isDeveloperManagementOption()
-				&& !isRunDebugMode()
-				&& !isRunEK9AsLanguageServer()
-				&& !isUnitTestExecution())
-			ek9AppParameters.add("-r");
+		if(isVersionOfEK9Option())
+			return showVersionOfEK9();
+
+		appendRunOptionIfNecessary();
 
 		if(isDeveloperManagementOption() && foundEk9File)
 		{
@@ -260,42 +254,87 @@ public class CommandLineDetails
 			}
 
 			if(isRunOption())
-			{
-				//Check run options
-				if(programs.isEmpty())
-				{
-					//There's nothing that can be run
-					System.err.println(mainSourceFile.getName() + " does not contain any programs.");
-					return EK9.NO_PROGRAMS_EXIT_CODE;
-				}
-				if(ek9ProgramToRun == null)
-				{
-					if(programs.size() == 1)
-					{
-						//We can default that in.
-						ek9ProgramToRun = programs.get(0);
-					}
-					else
-					{
-						System.err.print("Use '-r' and select one of");
-						programs.stream().map(progName -> " '" + progName + "'").forEach(System.err::print);
-						System.err.println(" from source file " + mainSourceFile.getName());
-						return EK9.PROGRAM_NOT_SPECIFIED_EXIT_CODE;
-					}
-				}
-				//Check program name is actually in the list of programs
-				if(!programs.contains(ek9ProgramToRun))
-				{
-					System.err.print("Program must be one of");
-					programs.stream().map(progName -> " '" + progName + "'").forEach(System.err::print);
-					System.err.println(", source file " + mainSourceFile.getName() + " does not have program '" + ek9ProgramToRun + "'");
-
-					return EK9.BAD_COMMAND_COMBINATION_EXIT_CODE;
-				}
-			}
+				return assessRunOptions();
 		}
 		//i.e. a command does need to run.
 		return EK9.RUN_COMMAND_EXIT_CODE;
+	}
+
+	private int showHelp()
+	{
+		System.err.println("ek9 <options>");
+		System.err.println(CommandLineDetails.getCommandLineHelp());
+		//i.e. no further commands need to run
+		return EK9.SUCCESS_EXIT_CODE;
+	}
+
+	private int showVersionOfEK9()
+	{
+		System.err.println("EK9 Version 0.0.1-0");
+		//i.e. no further commands need to run
+		return EK9.SUCCESS_EXIT_CODE;
+	}
+
+	private void appendRunOptionIfNecessary()
+	{
+		//Add in run mode if no options supplied as default.
+		if(!isJustABuildTypeOption()
+				&& !isReleaseVectorOption()
+				&& !isDeveloperManagementOption()
+				&& !isRunDebugMode()
+				&& !isRunEK9AsLanguageServer()
+				&& !isUnitTestExecution())
+			ek9AppParameters.add("-r");
+	}
+
+	private int assessRunOptions()
+	{
+		//Check run options
+		if(programs.isEmpty())
+		{
+			//There's nothing that can be run
+			System.err.println(mainSourceFile.getName() + " does not contain any programs.");
+			return EK9.NO_PROGRAMS_EXIT_CODE;
+		}
+		if(ek9ProgramToRun == null)
+		{
+			if(programs.size() == 1)
+			{
+				//We can default that in.
+				ek9ProgramToRun = programs.get(0);
+			}
+			else
+			{
+				System.err.print("Use '-r' and select one of");
+				programs.stream().map(progName -> " '" + progName + "'").forEach(System.err::print);
+				System.err.println(" from source file " + mainSourceFile.getName());
+				return EK9.PROGRAM_NOT_SPECIFIED_EXIT_CODE;
+			}
+		}
+		//Check program name is actually in the list of programs
+		if(!programs.contains(ek9ProgramToRun))
+		{
+			System.err.print("Program must be one of");
+			programs.stream().map(progName -> " '" + progName + "'").forEach(System.err::print);
+			System.err.println(", source file " + mainSourceFile.getName() + " does not have program '" + ek9ProgramToRun + "'");
+
+			return EK9.BAD_COMMAND_COMBINATION_EXIT_CODE;
+		}
+
+		//i.e. a command does need to run.
+		return EK9.RUN_COMMAND_EXIT_CODE;
+	}
+
+	/**
+	 * Pick up any proposed architect from environment first
+	 * This replaces the built-in default of 'java'
+	 * But even this can be overridden on the command line with -T
+	 */
+	private void processDefaultArchitecture()
+	{
+		String proposedTargetArchitecture = System.getenv("EK9_TARGET");
+		if(proposedTargetArchitecture != null && !proposedTargetArchitecture.isEmpty())
+			this.targetArchitecture = proposedTargetArchitecture;
 	}
 
 	public Integer processEK9FileProperties(boolean forceRegeneration)
@@ -356,7 +395,6 @@ public class CommandLineDetails
 			if(oldFingerPrint != null && !oldFingerPrint.equals(depsFingerPrint))
 				dependenciesAltered = true;
 
-			//TODO additional processing
 			Properties properties = new Properties();
 			properties.setProperty("sourceFile", sourceFile.getName());
 			properties.setProperty("moduleName", moduleName);

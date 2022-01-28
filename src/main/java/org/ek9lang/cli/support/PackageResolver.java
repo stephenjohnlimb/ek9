@@ -15,7 +15,7 @@ import java.util.Properties;
  * This resolver will initially look in the users $HOME/.ek9/lib directory for a zip file
  * matching the vector for the packages module ie 'ekopen.network.support.utils-1.6.1-9.zip'
  * <p>
- * If that is not present then it will make an https request to repo.ek9lang.com
+ * If that is not present then it will make a https request to repo.ek9lang.com
  * to obtain that zip file, and hash of zip fingerprint.
  * <p>
  * The manual steps for this are:
@@ -70,7 +70,7 @@ public class PackageResolver extends Reporter
 		EK9SourceVisitor visitor = null;
 		String zipFileName = commandLine.getFileHandling().makePackagedModuleZipFileName(dependencyVector);
 		File homeEK9Lib = commandLine.getFileHandling().getUsersHomeEK9LibDirectory();
-		//Lets check if it is unpacked already, if not we can unpack it.
+		//Let's check if it is unpacked already, if not we can unpack it.
 		File unpackedDir = new File(homeEK9Lib, dependencyVector);
 
 		File zipFile = new File(homeEK9Lib, zipFileName);
@@ -124,34 +124,20 @@ public class PackageResolver extends Reporter
 	private EK9SourceVisitor processPackageProperties(File unpackedDir)
 	{
 		File propertiesFile = new File(unpackedDir, ".package.properties");
-		EK9SourceVisitor visitor = null;
 		log("Loading '" + propertiesFile + "'");
 
-		EK9ProjectProperties projectProperties = new EK9ProjectProperties(propertiesFile);
-		Properties properties = projectProperties.loadProperties();
-		String srcToAccess = properties.getProperty("sourceFile");
-		log("SourceFile '" + srcToAccess + "'");
-
-		File src = new File(unpackedDir, srcToAccess);
+		File src = new File(unpackedDir, new EK9ProjectProperties(propertiesFile).loadProperties().getProperty("sourceFile"));
+		log("SourceFile '" + src + "'");
 		if(commandLine.getOsSupport().isFileReadable(src))
-		{
-			visitor = loadFileAndVisit(src);
-		}
-		else
-		{
-			report("Unable to read sourceFile '" + srcToAccess + "'");
-		}
-		return visitor;
+			return loadFileAndVisit(src);
+
+		report("Unable to read sourceFile '" + src + "'");
+		return null;
 	}
 
 	private boolean unZip(File zipFile, File unpackedDir)
 	{
-		if(!commandLine.getFileHandling().unZipFileTo(zipFile, unpackedDir))
-		{
-			report("Failed to unzip '" + zipFile.toString() + "'");
-			return false;
-		}
-		return true;
+		return commandLine.getFileHandling().unZipFileTo(zipFile, unpackedDir);
 	}
 
 	private EK9SourceVisitor loadFileAndVisit(File sourceFile)

@@ -2,7 +2,6 @@ package org.ek9lang.cli.support;
 
 import org.ek9lang.cli.CommandLineDetails;
 import org.ek9lang.core.utils.Glob;
-import org.ek9lang.core.utils.OsSupport;
 
 import java.io.File;
 import java.util.ArrayList;
