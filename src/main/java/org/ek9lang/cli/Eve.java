@@ -25,12 +25,12 @@ public abstract class Eve extends E
 	@Override
 	public boolean preConditionCheck()
 	{
-		if(!super.preConditionCheck() || !commandLine.isPackagePresent())
+		if(!commandLine.isPackagePresent())
 		{
 			report("File " + super.commandLine.getSourceFileName() + " does not define a package");
 			return false;
 		}
-		return true;
+		return super.preConditionCheck();
 	}
 
 	/**

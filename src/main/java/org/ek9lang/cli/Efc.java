@@ -22,12 +22,11 @@ public class Efc extends Ec
 
 	protected boolean doRun()
 	{
-		Edp edp = new Edp(commandLine, sourceFileCache);
-		if(edp.run())
-		{
-			prepareCompilation();
-			return compile(sourceFileCache.getAllCompilableProjectFiles()) && repackageTargetArtefact();
-		}
-		return false;
+		if(!new Edp(commandLine, sourceFileCache).run())
+			return false;
+
+		prepareCompilation();
+
+		return compile(sourceFileCache.getAllCompilableProjectFiles()) && repackageTargetArtefact();
 	}
 }

@@ -1,0 +1,21 @@
+#!ek9
+defines module net.semantic.breach
+    
+  defines package
+    
+    publicAccess as Boolean := true
+    version as Version: 1.0.0-0
+    description as String = "Simulation semantic breach"
+    license <- "MIT"
+
+    tags <- [ "tools" ]
+
+    //So both of these are ok
+    //But their transient dependencies cause a semantic breach of
+    //ekopen.network.support.utils
+    deps <- {
+      "net.inter1": "1.2.0-0",
+      "net.inter2": "9.2.0-0"
+      }
+
+//EOF

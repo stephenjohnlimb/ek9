@@ -19,39 +19,38 @@ public class Er extends E
 		return "Run     : ";
 	}
 
+	public boolean preConditionCheck()
+	{
+		return commandLine.targetArchitecture == EK9DirectoryStructure.JAVA && super.preConditionCheck();
+	}
+
 	protected boolean doRun()
 	{
-		if(commandLine.targetArchitecture == EK9DirectoryStructure.JAVA)
+		if(!sourceFileCache.isTargetExecutableArtefactCurrent())
 		{
-			if(!sourceFileCache.isTargetExecutableArtefactCurrent())
-			{
-				log("Stale target - Compile");
+			log("Stale target - Compile");
 
-				//So it needs to be built so let's assume an incremental build - but that might decide on full build.
-				Ec execution = new Eic(commandLine, sourceFileCache);
-
-				if(!execution.run())
-					return false;
-			}
-
-			log("Execute");
-
-			//OK we can issue run command.
-			StringBuffer theRunCommand = new StringBuffer("java");
-			if(commandLine.isRunDebugMode())
-				theRunCommand.append(" -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:").append(commandLine.debugPort);
-
-			String target = sourceFileCache.getTargetExecutableArtefact().getAbsolutePath();
-			commandLine.getEk9AppDefines().forEach(define -> theRunCommand.append(" ").append("-D").append(define));
-			theRunCommand.append(" -classpath");
-			theRunCommand.append(" ").append(target);
-			theRunCommand.append(" ").append(commandLine.getModuleName()).append(".").append("_").append(commandLine.ek9ProgramToRun);
-
-			commandLine.getEk9ProgramParameters().forEach(param -> theRunCommand.append(" ").append(param));
-			System.out.println(theRunCommand);
-
-			return true;
+			//So it needs to be built so let's assume an incremental build - but that might decide on full build.
+			if(!new Eic(commandLine, sourceFileCache).run())
+				return false;
 		}
-		return false;
+
+		log("Execute");
+
+		//OK we can issue run command.
+		StringBuffer theRunCommand = new StringBuffer("java");
+		if(commandLine.isRunDebugMode())
+			theRunCommand.append(" -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:").append(commandLine.debugPort);
+
+		String target = sourceFileCache.getTargetExecutableArtefact().getAbsolutePath();
+		commandLine.getEk9AppDefines().forEach(define -> theRunCommand.append(" ").append("-D").append(define));
+		theRunCommand.append(" -classpath");
+		theRunCommand.append(" ").append(target);
+		theRunCommand.append(" ").append(commandLine.getModuleName()).append(".").append("_").append(commandLine.ek9ProgramToRun);
+
+		commandLine.getEk9ProgramParameters().forEach(param -> theRunCommand.append(" ").append(param));
+		System.out.println(theRunCommand);
+
+		return true;
 	}
 }

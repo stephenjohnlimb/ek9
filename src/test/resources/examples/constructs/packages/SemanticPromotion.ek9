@@ -1,0 +1,20 @@
+#!ek9
+defines module net.semantic.promotion
+    
+  defines package
+    
+    publicAccess as Boolean := true
+    version as Version: 1.0.0-0
+    description as String = "Simulation semantic promotion"
+    license <- "MIT"
+
+    tags <- [ "tools" ]
+
+    //Both use ekopen.network.support.utils": "1.6.x-x
+    //So these are semantic version compatible
+    deps <- {
+      "net.inter1": "1.2.0-0",
+      "net.inter3": "1.8.8-0"
+      }
+
+//EOF

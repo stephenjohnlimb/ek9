@@ -1,0 +1,12 @@
+#!ek9
+defines module net.circular.verone
+
+  defines package
+
+    publicAccess as Boolean := true
+    version as Version: 2.3.6-12
+    description as String = "Simulation of circular references"
+    license <- "MIT"
+
+    //no deps
+//EOF

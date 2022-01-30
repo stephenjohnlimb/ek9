@@ -1,0 +1,27 @@
+#!ek9
+defines module net.semantic.ver.optimise
+    
+  defines package
+    
+    publicAccess as Boolean := true
+    version as Version: 1.0.0-0
+    description as String = "Simulation semantic promotio"
+    license <- "MIT"
+
+    tags <- [ "tools" ]
+
+    //Both use ekopen.network.support.utils": "1.6.x-x
+    //So these are semantic version compatible
+    //But now we've added them multiple times
+    //These should be rationalised.
+    deps <- {
+      "net.inter1": "1.2.0-0",
+      "net.inter3": "1.8.8-0",
+      "net.inter6": "1.6.10-0"
+      }
+
+    excludeDeps <- {
+      "net.inter5": "net.inter6"
+      }
+
+//EOF

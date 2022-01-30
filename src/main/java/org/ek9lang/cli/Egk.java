@@ -21,18 +21,13 @@ public class Egk extends E
 
 	protected boolean doRun()
 	{
-		//Ensure the .ek9 directory exists in users home directory.
-		getFileHandling().validateHomeEK9Directory(commandLine.targetArchitecture);
-		if(!getFileHandling().isUsersSigningKeyPairPresent())
-		{
-			log("Generating new signing keys");
-			//Clients only use short key lengths, server uses 2048.
-			return getFileHandling().saveToHomeEK9Directory(SigningKeyPair.generate(1024));
-		}
-		else
+		if(getFileHandling().isUsersSigningKeyPairPresent())
 		{
 			log("Already present - not regenerating");
+			return true;
 		}
-		return true;
+		log("Generating new signing keys");
+		//Clients only use short key lengths, server uses 2048.
+		return getFileHandling().saveToHomeEK9Directory(SigningKeyPair.generate(1024));
 	}
 }

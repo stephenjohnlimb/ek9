@@ -1,0 +1,27 @@
+#!ek9
+//For use with TCP example for resolving dependencies
+defines module ekopen.network.support.utils
+
+  //For time being these need to be forward declared
+  defines type
+    List of String
+    Dict of (String, String)
+
+  defines package
+
+    publicAccess <- true
+    version <- 2.4.1-9
+    description <- "Example of support network tools v2"
+    license <- "MIT"
+
+    tags <- [
+      "networking",
+      "tools"
+      ]
+
+    //Just this source file and these files.
+    includeFiles <- [
+      "**.{txt,cal}"
+      ]
+
+//EOF

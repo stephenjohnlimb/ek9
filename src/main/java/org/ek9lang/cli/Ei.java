@@ -24,8 +24,7 @@ public class Ei extends E
 	{
 		log("- Package");
 
-		Ep ep = new Ep(commandLine, sourceFileCache);
-		if(ep.run())
+		if(new Ep(commandLine, sourceFileCache).run())
 		{
 			//Now do deployment.
 			String zipFileName = getFileHandling().makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion().toString());

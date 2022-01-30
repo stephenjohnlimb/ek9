@@ -86,7 +86,6 @@ public class EK9Test
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
 		TestCase.assertNotNull(sourceFile);
 
-		//This will actually trigger a full compile.
 		assertCompilationArtefactsPresent(assertResult(EK9.SUCCESS_EXIT_CODE, command));
 	}
 
@@ -98,7 +97,6 @@ public class EK9Test
 		File home = new File(osSupport.getUsersHomeDirectory());
 		TestCase.assertTrue(home.exists());
 
-		//This will actually trigger a full compile.
 		assertKeysPresent(assertResult(EK9.SUCCESS_EXIT_CODE, command));
 	}
 
@@ -106,13 +104,11 @@ public class EK9Test
 	public void testRunSingleProgram()
 	{
 		String sourceName = "HelloWorld.ek9";
-
 		String[] command = new String[]{sourceName};
 
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
 		TestCase.assertNotNull(sourceFile);
 
-		//This will actually trigger a full compile and then run.
 		assertCompilationArtefactsPresent(assertResult(EK9.RUN_COMMAND_EXIT_CODE, command));
 	}
 
@@ -120,7 +116,6 @@ public class EK9Test
 	public void testRunUnitTests()
 	{
 		String sourceName = "HelloWorlds.ek9";
-
 		String[] command = new String[]{"-t " + sourceName};
 
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
@@ -134,7 +129,6 @@ public class EK9Test
 	public void testRunSelectedProgram()
 	{
 		String sourceName = "HelloWorlds.ek9";
-
 		String[] command = new String[]{sourceName + " -r HelloMars"};
 
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
@@ -148,7 +142,6 @@ public class EK9Test
 	public void testInstallNonSuchPackage()
 	{
 		String sourceName = "HelloWorlds.ek9";
-
 		String[] command = new String[]{"-I " + sourceName};
 
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
@@ -168,20 +161,6 @@ public class EK9Test
 		TestCase.assertEquals(2, libDir.listFiles().length);
 	}
 
-	private void installPackage(String sourceName)
-	{
-		String[] command = new String[]{"-I " + sourceName};
-
-		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
-		TestCase.assertNotNull(sourceFile);
-
-		//This should succeed and install the package in users lib directory
-		assertResult(EK9.SUCCESS_EXIT_CODE, command);
-
-		File libDir = fileHandling.getUsersHomeEK9LibDirectory();
-		TestCase.assertNotNull(libDir);
-		TestCase.assertTrue((libDir.exists()));
-	}
 	@Test
 	public void testBuildVersioningOfPackage()
 	{
@@ -210,7 +189,7 @@ public class EK9Test
 	public void testSetVersioningOfPackage()
 	{
 		assertPackageVersionChange("3.8.6-0", "-SV 3.8.6", "PackageNoDeps.ek9");
-		//Now check that it can also be incremented.
+		//Now check that it can also be incremented and appropriate resets on patch and build no.
 		assertPackageVersionChange("3.9.0-0", "-IV minor", "PackageNoDeps.ek9");
 	}
 
@@ -218,7 +197,7 @@ public class EK9Test
 	public void testSetFeatureVersioningOfPackage()
 	{
 		assertPackageVersionChange("3.8.6-specials-0", "-SF 3.8.6-specials", "PackageNoDeps.ek9");
-		//Now check that it can also be incremented.
+		//Now check that it can also be incremented and patch/build number is reset to 0.
 		assertPackageVersionChange("3.9.0-specials-0", "-IV minor", "PackageNoDeps.ek9");
 	}
 
@@ -253,6 +232,17 @@ public class EK9Test
 	}
 
 	/**
+	 * Check that standard includes works.
+	 */
+	@Test
+	public void testPackageWithStandardIncludes()
+	{
+		//So firstly we need to 'install' a number of dependent packages
+		//then we can try and resolve those dependencies.
+		installPackage("StandardIncludes.ek9");
+	}
+
+	/**
 	 * A more complex test that checks that the package resolver mechanism works.
 	 * For this test we actually build and package each of the dependencies locally.
 	 * But if they were not local builds, the resolver would (in the future)
@@ -271,6 +261,44 @@ public class EK9Test
 		//Now for the one with dependencies
 		deployPackage(EK9.SUCCESS_EXIT_CODE, "SinglePackage.ek9");
 	}
+
+	@Test
+	public void testSemanticVersionBreach()
+	{
+		installPackage("SupportUtils.ek9");
+		installPackage("SupportUtils2.ek9");
+		installPackage("InterPackage1.ek9");
+		installPackage("InterPackage2.ek9");
+
+		installPackage(EK9.BAD_COMMANDLINE_EXIT_CODE, "SemanticBreach.ek9");
+	}
+
+	@Test
+	public void testSemanticVersionPromotion()
+	{
+		installPackage("SupportUtils.ek9");
+		installPackage("SupportUtils3.ek9");
+		installPackage("InterPackage1.ek9");
+		installPackage("InterPackage3.ek9");
+
+		installPackage("SemanticPromotion.ek9");
+	}
+
+	@Test
+	public void testSemanticVersionOptimisation()
+	{
+		installPackage("SupportUtils.ek9");
+		installPackage("SupertoolsUtil.ek9");
+		installPackage("SupportUtils3.ek9");
+		installPackage("InterPackage1.ek9");
+		installPackage("InterPackage3.ek9");
+		installPackage("InterPackage4.ek9");
+		installPackage("InterPackage5.ek9");
+		installPackage("InterPackage6.ek9");
+
+		installPackage("SemanticVersionOptimisation.ek9");
+	}
+
 
 	@Test
 	public void testMissingPackageDependencyResolution()
@@ -301,8 +329,65 @@ public class EK9Test
 		simulatePackagedInstallation("Circular1", "net.circular.one", "1.0.0-0");
 
 		//Only now we've simulated how a developer might try and build circular refs can we test our next check.
-		//TODO expect a failure.
-		//installPackage("Circular1.ek9");
+
+		installPackage(EK9.BAD_COMMANDLINE_EXIT_CODE, "Circular1.ek9");
+	}
+
+	@Test
+	public void testCircularDependenciesDifferentVersions()
+	{
+		//make sure the structure for packages exists.
+		fileHandling.validateHomeEK9Directory("java");
+
+		//Now these should install OK
+		installPackage(EK9.SUCCESS_EXIT_CODE, "CircularVersions3.ek9");
+		installPackage(EK9.SUCCESS_EXIT_CODE, "CircularVersions2.ek9");
+
+		//But now we rework 'net.circular.verone' but introduce a circular dependency
+		//So in EK9 in a single build there can only be one version of a package named module
+		//It is not possible to have multiple versions of the same named package
+		//The can all exist in the repository or in the lib, but it cannot depend on previous versions
+		//of itself.
+		installPackage(EK9.BAD_COMMANDLINE_EXIT_CODE, "CircularVersions1.ek9");
+	}
+
+	@Test
+	public void testCircularDependencyResolution()
+	{
+		//Similar to above but just checking dependency resolution for circular detections.
+		//make sure the structure for packages exists.
+		fileHandling.validateHomeEK9Directory("java");
+
+		simulatePackagedInstallation("Circular2", "net.circular.two", "1.0.1-0");
+		simulatePackagedInstallation("Circular1", "net.circular.one", "1.0.0-0");
+
+		//Only now we've simulated how a developer might try and build circular refs can we test our next check.
+		String sourceName = "Circular1.ek9";
+		String[] command = new String[]{"-Dp " + sourceName};
+
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		TestCase.assertNotNull(sourceFile);
+		assertResult(EK9.BAD_COMMANDLINE_EXIT_CODE, command);
+	}
+
+	private void installPackage(String sourceName)
+	{
+		installPackage(EK9.SUCCESS_EXIT_CODE, sourceName);
+
+		File libDir = fileHandling.getUsersHomeEK9LibDirectory();
+		TestCase.assertNotNull(libDir);
+		TestCase.assertTrue((libDir.exists()));
+	}
+
+	private void installPackage(int expectation, String sourceName)
+	{
+		String[] command = new String[]{"-I " + sourceName};
+
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+		TestCase.assertNotNull(sourceFile);
+
+		//This should succeed and install the package in users lib directory
+		assertResult(expectation, command);
 	}
 
 	private void simulatePackagedInstallation(String sourceName, String moduleName, String version)
@@ -323,7 +408,6 @@ public class EK9Test
 		URL simulatedSource = getClass().getResource("/examples/constructs/packages/"+sourceName+".ek9");
 		TestCase.assertNotNull(simulatedSource);
 		fileHandling.copy(new File(simulatedSource.getPath()), new File(unpackedDir, sourceName+".ek9"));
-
 	}
 
 	private void deployPackage(int expectedExitCode, String sourceName)
@@ -361,8 +445,8 @@ public class EK9Test
 	private CommandLineDetails assertResult(int expectation, String[] argv)
 	{
 		CommandLineDetails commandLine = new CommandLineDetails(fileHandling, osSupport);
-
 		int result = commandLine.processCommandLine(argv);
+
 		TestCase.assertTrue(result <= EK9.SUCCESS_EXIT_CODE);
 
 		//Now should something be run and executed.

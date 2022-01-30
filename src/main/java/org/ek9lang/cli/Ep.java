@@ -24,23 +24,26 @@ public class Ep extends E
 		return "Package : ";
 	}
 
+	public boolean preConditionCheck()
+	{
+		if(!commandLine.isPackagePresent())
+		{
+			report("File " + commandLine.getSourceFileName() + " does not define a package");
+			return false;
+		}
+		return super.preConditionCheck();
+	}
+
 	protected boolean doRun()
 	{
 		log("- Compile!");
 		//Need to ensure a full compile works.
-		Efc execution = new Efc(commandLine, sourceFileCache);
-		if(!execution.run())
+		if(!new Efc(commandLine, sourceFileCache).run())
 		{
 			report("Failed");
 		}
 		else
 		{
-			if(!commandLine.isPackagePresent())
-			{
-				report("File " + commandLine.getSourceFileName() + " does not define a package");
-				return false;
-			}
-
 			getFileHandling().deleteStalePackages(commandLine.getSourceFileDirectory(), commandLine.getModuleName());
 
 			File projectDirectory = new File(commandLine.getSourceFileDirectory());

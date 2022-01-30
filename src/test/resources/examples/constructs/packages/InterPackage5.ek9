@@ -1,0 +1,17 @@
+#!ek9
+defines module net.inter5
+    
+  defines package
+    
+    publicAccess as Boolean := true
+    version as Version: 11.29.18-0
+    description as String = "Simulation intermediate package"
+    license <- "MIT"
+
+    tags <- [ "tools" ]
+
+    deps <- {
+      "ekopen.org.supertools.util": "4.6.1-6"
+      }
+
+//EOF

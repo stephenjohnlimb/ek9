@@ -5,7 +5,7 @@ import org.ek9lang.cli.support.FileCache;
 /**
  * Print the version number of the package.
  */
-public class Epv extends E
+public class Epv extends Eve
 {
 	public Epv(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
@@ -20,12 +20,7 @@ public class Epv extends E
 
 	protected boolean doRun()
 	{
-		if(commandLine.isPackagePresent())
-		{
-			report(commandLine.getVersion());
-			return true;
-		}
-		report("File " + commandLine.getSourceFileName() + " does not define a package");
-		return false;
+		report(commandLine.getVersion());
+		return true;
 	}
 }

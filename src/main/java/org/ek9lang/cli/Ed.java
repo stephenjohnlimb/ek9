@@ -26,12 +26,10 @@ public class Ed extends E
 
 	protected boolean doRun()
 	{
-		Ep ep = new Ep(commandLine, sourceFileCache);
-		if(ep.run())
+		if(new Ep(commandLine, sourceFileCache).run())
 		{
 			//Need to ensure that the user has some signing keys.
-			Egk egk = new Egk(commandLine, sourceFileCache);
-			if(egk.run())
+			if(new Egk(commandLine, sourceFileCache).run())
 			{
 				if(!prepareEncryptedZipHash())
 				{

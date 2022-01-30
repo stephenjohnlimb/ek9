@@ -1,0 +1,14 @@
+#!ek9
+defines module net.circular.vertwo
+
+  defines package
+
+    publicAccess as Boolean := true
+    version as Version: 4.8.1-0
+    description as String = "Simulation of circular references"
+    license <- "MIT"
+
+    deps <- {
+      "net.circular.verone": "2.3.6-12"
+      }
+//EOF

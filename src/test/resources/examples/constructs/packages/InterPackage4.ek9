@@ -1,0 +1,17 @@
+#!ek9
+defines module net.inter4
+    
+  defines package
+    
+    publicAccess as Boolean := true
+    version as Version: 1.9.18-0
+    description as String = "Simulation intermediate package"
+    license <- "MIT"
+
+    tags <- [ "tools" ]
+
+    deps <- {
+      "ekopen.network.support.utils": "1.6.3-9"
+      }
+
+//EOF

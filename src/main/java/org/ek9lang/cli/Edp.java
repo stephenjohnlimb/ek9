@@ -30,8 +30,7 @@ public class Edp extends E
 	{
 		log("- Clean");
 
-		Ecl ecl = new Ecl(commandLine, sourceFileCache);
-		if(!ecl.run())
+		if(!new Ecl(commandLine, sourceFileCache).run())
 			return false;
 
 		if(!commandLine.isPackagePresent())
@@ -44,34 +43,57 @@ public class Edp extends E
 			return false;
 		}
 
-		log("Loaded");
-
-		if(!processDependencies(rootNode.get()))
+		if(!processDependencies(new DependencyManager(rootNode.get())))
 		{
 			report("Failed");
 			return false;
 		}
+
 		return true;
 	}
 
-	private boolean processDependencies(DependencyNode fromNode)
+	private boolean processDependencies(DependencyManager dependencyManager)
 	{
-		DependencyManager dependencyManager = new DependencyManager(fromNode);
-		log("Analysing");
+		log("Analysing Dependencies");
 
-		log("Circular?");
-
-		List<String> circulars = dependencyManager.reportCircularDependencies(true);
-		if(!circulars.isEmpty())
-		{
-			circulars.forEach(this::report);
+		if(hasCircularDependencies(dependencyManager))
 			return false;
-		}
 
-		log("Exclusions!");
+		processExclusions(dependencyManager);
 
+		log("Version Promotions");
+		dependencyManager.rationalise();
+
+		optimise(dependencyManager);
+
+		if(hasSemanticVersionBreaches(dependencyManager))
+			return false;
+
+		//Now some information
+		if(commandLine.isVerbose())
+			showAnalysisInformation(dependencyManager);
+
+		return true;
+	}
+
+	private boolean hasCircularDependencies(DependencyManager dependencyManager)
+	{
+		List<String> circulars = dependencyManager.reportCircularDependencies(true);
+
+		log("Circular Dependencies (" + circulars.size() + ")");
+
+		if(circulars.isEmpty())
+			return false;
+
+		circulars.forEach(this::report);
+		return true;
+	}
+
+	private void processExclusions(DependencyManager dependencyManager)
+	{
 		//They will all be accepted at the moment, we need to get all their exclusions and apply them
 		List<DependencyNode> allDependencies = dependencyManager.reportAcceptedDependencies();
+		log("Exclusions (" + allDependencies.size() + ")");
 		allDependencies.forEach(dep -> {
 			Map<String, String> rejections = dep.getDependencyRejections();
 			rejections.keySet().forEach(key -> {
@@ -81,11 +103,10 @@ public class Edp extends E
 				dependencyManager.reject(moduleName, whenDependencyOf);
 			});
 		});
+	}
 
-		log("Version Promotions");
-
-		dependencyManager.rationalise();
-
+	private void optimise(DependencyManager dependencyManager)
+	{
 		log("Optimising");
 
 		//This would manage a deep tree and ensure there can never been an infinite loop in case of error.
@@ -96,41 +117,37 @@ public class Edp extends E
 		{
 			iterations++;
 			optimise = dependencyManager.optimise();
-			log("Optimisation " + iterations);
+			log("Optimisation (" + iterations + ")");
 		}
+	}
 
+	private boolean hasSemanticVersionBreaches(DependencyManager dependencyManager)
+	{
 		List<DependencyNode> breaches = dependencyManager.reportStrictSemanticVersionBreaches();
 		log("Version breaches (" + breaches.size() + ")");
 
-		//Now we must check for semantic version breaches ie some part of the
-		//dependency tree requires 'major' version at one value and anther part another value
-		if(!breaches.isEmpty())
-		{
-			report("Semantic version breaches follow:");
-			breaches.forEach(this::report);
-			report("You must review/refine your dependencies");
+		if(breaches.isEmpty())
 			return false;
-		}
 
-		//Now some information
-		if(commandLine.isVerbose())
-		{
-			List<DependencyNode> rejected = dependencyManager.reportRejectedDependencies();
-			if(!rejected.isEmpty())
-			{
-				System.err.print(messagePrefix() + "Not Applied:");
-				rejected.stream().map(node -> " '" + node.toString() + "'").forEach(System.err::print);
-				System.err.println(".");
-			}
-
-			List<DependencyNode> accepted = dependencyManager.reportAcceptedDependencies();
-			if(!accepted.isEmpty())
-			{
-				System.err.print(messagePrefix() + "Applied:");
-				accepted.stream().map(node -> " '" + node.toString() + "'").forEach(System.err::print);
-				System.err.println(".");
-			}
-		}
+		report("Semantic version breaches:");
+		breaches.forEach(this::report);
+		report("You must review/refine your dependencies");
 		return true;
+	}
+
+	private void showAnalysisInformation(DependencyManager dependencyManager)
+	{
+		showAnalysisDetails("Not Applied:", dependencyManager.reportRejectedDependencies());
+		showAnalysisDetails("Applied:", dependencyManager.reportAcceptedDependencies());
+	}
+
+	private void showAnalysisDetails(String application, List<DependencyNode> list)
+	{
+		if(!list.isEmpty())
+		{
+			System.err.print(messagePrefix() + application);
+			list.stream().map(node -> " '" + node + "'").forEach(System.err::print);
+			System.err.println(".");
+		}
 	}
 }
