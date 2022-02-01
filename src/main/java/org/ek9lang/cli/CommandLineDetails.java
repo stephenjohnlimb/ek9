@@ -1,16 +1,14 @@
 package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.EK9ProjectProperties;
+import org.ek9lang.cli.support.EK9SourceVisitor;
 import org.ek9lang.compiler.parsing.JustParser;
 import org.ek9lang.core.exception.ExitException;
 import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.OsSupport;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -324,7 +322,7 @@ public class CommandLineDetails
 		if(!programs.contains(ek9ProgramToRun))
 		{
 			System.err.print("Program must be one of");
-			programs.stream().map(progName -> " '" + progName + "'").forEach(System.err::print);
+			programs.stream().map(programName -> " '" + programName + "'").forEach(System.err::print);
 			System.err.println(", source file " + mainSourceFile.getName() + " does not have program '" + ek9ProgramToRun + "'");
 
 			return EK9.BAD_COMMAND_COMBINATION_EXIT_CODE;
@@ -369,9 +367,9 @@ public class CommandLineDetails
 			moduleName = properties.getProperty("moduleName");
 
 			depsFingerPrint = properties.getProperty("depsFingerPrint");
-			String progs = properties.getProperty("programs");
-			if(progs != null)
-				programs = Arrays.asList(progs.split(","));
+			String programs = properties.getProperty("programs");
+			if(programs != null)
+				this.programs = Arrays.asList(programs.split(","));
 
 			String hasPackage = properties.getProperty("package");
 			if(hasPackage != null)
@@ -519,7 +517,10 @@ public class CommandLineDetails
 		if(isModifierParam(param))
 			return true;
 		if(!isMainParam(param))
+		{
+			System.err.println("Option '" + param + "' not understood");
 			return false;
+		}
 		//only if we are not one of these already.
 		if(isJustABuildTypeOption())
 		{
@@ -551,31 +552,11 @@ public class CommandLineDetails
 
 	private boolean isMainParam(String param)
 	{
-		switch(param)
-		{
-			case "-c":
-			case "-cg":
-			case "-cd":
-			case "-C":
-			case "-Cg":
-			case "-Cd":
-			case "-Cl":
-			case "-Dp":
-			case "-t":
-			case "-d":
-			case "-P":
-			case "-I":
-			case "-Gk":
-			case "-D":
-			case "-IV":
-			case "-SV":
-			case "-SF":
-			case "-PV":
-				return true;
-			default:
-				System.err.println("Option '" + param + "' not understood");
-				return false;
-		}
+		return Set.of(
+						"-c", "-cg", "-cd", "-C", "-Cg", "-Cd",
+						"-Cl", "-Dp", "-t", "-d", "-P", "-I",
+						"-Gk", "-D", "-IV", "-SV", "-SF", "-PV")
+				.contains(param);
 	}
 
 	public boolean isDependenciesAltered()
@@ -585,29 +566,17 @@ public class CommandLineDetails
 
 	private boolean isModifierParam(String param)
 	{
-		return switch(param)
-				{
-					case "-V", "-h", "-v", "-ls", "-lsh" -> true;
-					default -> false;
-				};
+		return Set.of("-V", "-h", "-v", "-ls", "-lsh").contains(param);
 	}
 
 	public boolean isDebuggingInstrumentation()
 	{
-		return isExecutionOptionPresent("-cg") ||
-				isExecutionOptionPresent("-cd") ||
-				isExecutionOptionPresent("-Cg") ||
-				isExecutionOptionPresent("-Cd");
+		return isOptionPresentInAppParameters(Set.of("-cg", "-cd", "-Cg", "-Cd"));
 	}
 
 	public boolean isDevBuild()
 	{
-		return isExecutionOptionPresent("-Cd") || isExecutionOptionPresent("-cd");
-	}
-
-	public boolean isExecutionOptionPresent(String option)
-	{
-		return this.ek9AppParameters.contains(option);
+		return isOptionPresentInAppParameters(Set.of("-Cd", "-cd"));
 	}
 
 	public boolean isJustABuildTypeOption()
@@ -673,7 +642,7 @@ public class CommandLineDetails
 
 	public boolean isVerbose()
 	{
-		return this.ek9AppParameters.contains("-v");
+		return isOptionPresentInAppParameters(Set.of("-v"));
 	}
 
 	public boolean isDeveloperManagementOption()
@@ -683,27 +652,27 @@ public class CommandLineDetails
 
 	public boolean isGenerateSigningKeys()
 	{
-		return this.ek9AppParameters.contains("-Gk");
+		return isOptionPresentInAppParameters(Set.of("-Gk"));
 	}
 
 	public boolean isCleanAll()
 	{
-		return this.ek9AppParameters.contains("-Cl");
+		return isOptionPresentInAppParameters(Set.of("-Cl"));
 	}
 
 	public boolean isResolveDependencies()
 	{
-		return this.ek9AppParameters.contains("-Dp");
+		return isOptionPresentInAppParameters(Set.of("-Dp"));
 	}
 
 	public boolean isIncrementalCompile()
 	{
-		return this.ek9AppParameters.contains("-c") || this.ek9AppParameters.contains("-cg") || this.ek9AppParameters.contains("-cd");
+		return isOptionPresentInAppParameters(Set.of("-c", "-cg", "-cd"));
 	}
 
 	public boolean isFullCompile()
 	{
-		return this.ek9AppParameters.contains("-C") || this.ek9AppParameters.contains("-Cg") || this.ek9AppParameters.contains("-Cd");
+		return isOptionPresentInAppParameters(Set.of("-C", "-Cg", "-Cd"));
 	}
 
 	public String getOptionParameter(String option)
@@ -717,57 +686,57 @@ public class CommandLineDetails
 
 	public boolean isInstall()
 	{
-		return this.ek9AppParameters.contains("-I");
+		return isOptionPresentInAppParameters(Set.of("-I"));
 	}
 
 	public boolean isPackaging()
 	{
-		return this.ek9AppParameters.contains("-P");
+		return isOptionPresentInAppParameters(Set.of("-P"));
 	}
 
 	public boolean isDeployment()
 	{
-		return this.ek9AppParameters.contains("-D");
+		return isOptionPresentInAppParameters(Set.of("-D"));
 	}
 
 	public boolean isPrintReleaseVector()
 	{
-		return this.ek9AppParameters.contains("-PV");
+		return isOptionPresentInAppParameters(Set.of("-PV"));
 	}
 
 	public boolean isIncrementReleaseVector()
 	{
-		return this.ek9AppParameters.contains("-IV");
+		return isOptionPresentInAppParameters(Set.of("-IV"));
 	}
 
 	public boolean isSetReleaseVector()
 	{
-		return this.ek9AppParameters.contains("-SV");
+		return isOptionPresentInAppParameters(Set.of("-SV"));
 	}
 
 	public boolean isSetFeatureVector()
 	{
-		return this.ek9AppParameters.contains("-SF");
+		return isOptionPresentInAppParameters(Set.of("-SF"));
 	}
 
 	public boolean isHelp()
 	{
-		return this.ek9AppParameters.contains("-h");
+		return isOptionPresentInAppParameters(Set.of("-h"));
 	}
 
 	public boolean isVersionOfEK9Option()
 	{
-		return this.ek9AppParameters.contains("-V");
+		return isOptionPresentInAppParameters(Set.of("-V"));
 	}
 
 	public boolean isRunEK9AsLanguageServer()
 	{
-		return this.ek9AppParameters.contains("-ls");
+		return isOptionPresentInAppParameters(Set.of("-ls"));
 	}
 
 	public boolean isEK9LanguageServerHelpEnabled()
 	{
-		return this.ek9AppParameters.contains("-lsh");
+		return isOptionPresentInAppParameters(Set.of("-lsh"));
 	}
 
 	public boolean isRunOption()
@@ -777,16 +746,21 @@ public class CommandLineDetails
 
 	public boolean isUnitTestExecution()
 	{
-		return this.ek9AppParameters.contains("-t");
+		return isOptionPresentInAppParameters(Set.of("-t"));
 	}
 
 	public boolean isRunDebugMode()
 	{
-		return this.ek9AppParameters.contains("-d");
+		return isOptionPresentInAppParameters(Set.of("-d"));
 	}
 
 	public boolean isRunNormalMode()
 	{
-		return this.ek9AppParameters.contains("-r");
+		return isOptionPresentInAppParameters(Set.of("-r"));
+	}
+
+	private boolean isOptionPresentInAppParameters(Set<String> options)
+	{
+		return options.stream().anyMatch(ek9AppParameters::contains);
 	}
 }

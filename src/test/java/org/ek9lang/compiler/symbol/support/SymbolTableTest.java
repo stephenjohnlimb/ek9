@@ -77,33 +77,51 @@ public class SymbolTableTest
 
     @Test
     public void testMethodDefinition()
-    {
-        SymbolTable underTest = new SymbolTable();
+		{
+			SymbolTable underTest = new SymbolTable();
 
-        //A simple method (I know it's just in a symbol table), don't define any parameters or returns.
-        underTest.define(new MethodSymbol("method1", underTest));
-        Optional<ISymbol> searchResult = underTest.resolve(new AnySymbolSearch("method1"));
-        TestCase.assertTrue(searchResult.isPresent());
-        TestCase.assertTrue("method1".equals(searchResult.get().getName()));
+			//A simple method (I know it's just in a symbol table), don't define any parameters or returns.
+			var methodName = "method1";
+			underTest.define(new MethodSymbol(methodName, underTest));
+			assertMethodPresentInSymbolTable(underTest, methodName);
+		}
 
-        MethodSymbolSearch methodSearch = new MethodSymbolSearch("method1");
-        TestCase.assertTrue(methodSearch.toString() != null);
-        TestCase.assertTrue(methodSearch.getNameAsSymbol().isPresent());
-        searchResult = underTest.resolve(methodSearch);
-        TestCase.assertTrue(searchResult.isPresent());
-        TestCase.assertTrue("method1".equals(searchResult.get().getName()));
+	@Test
+	public void testCloneSymbolTable()
+	{
+		SymbolTable underTest = new SymbolTable();
 
-        //Should not find as a type.
-        searchResult = underTest.resolve(new TypeSymbolSearch("method1"));
-        TestCase.assertFalse(searchResult.isPresent());
+		//A simple method (I know it's just in a symbol table), don't define any parameters or returns.
+		var methodName = "method1";
+		underTest.define(new MethodSymbol(methodName, underTest));
+		//Now clone but with an empty enclosing scope, we should still be able to find the same method
+		assertMethodPresentInSymbolTable(underTest.clone(new SymbolTable()), methodName);
+	}
 
-        MethodSymbolSearchResult result = new MethodSymbolSearchResult();
-        result = underTest.resolveForAllMatchingMethods(new MethodSymbolSearch("method1"), result);
-        TestCase.assertFalse(result.isEmpty());
-        TestCase.assertFalse(result.isAmbiguous());
-        TestCase.assertNotNull(result.toString());
-        TestCase.assertTrue(result.getSingleBestMatchSymbol().isPresent());
-    }
+		private void assertMethodPresentInSymbolTable(SymbolTable underTest, String methodName)
+		{
+			Optional<ISymbol> searchResult = underTest.resolve(new AnySymbolSearch(methodName));
+			TestCase.assertTrue(searchResult.isPresent());
+			TestCase.assertTrue(methodName.equals(searchResult.get().getName()));
+
+			MethodSymbolSearch methodSearch = new MethodSymbolSearch(methodName);
+			TestCase.assertTrue(methodSearch.toString() != null);
+			TestCase.assertTrue(methodSearch.getNameAsSymbol().isPresent());
+			searchResult = underTest.resolve(methodSearch);
+			TestCase.assertTrue(searchResult.isPresent());
+			TestCase.assertTrue(methodName.equals(searchResult.get().getName()));
+
+			//Should not find as a type.
+			searchResult = underTest.resolve(new TypeSymbolSearch(methodName));
+			TestCase.assertFalse(searchResult.isPresent());
+
+			MethodSymbolSearchResult result = new MethodSymbolSearchResult();
+			result = underTest.resolveForAllMatchingMethods(new MethodSymbolSearch(methodName), result);
+			TestCase.assertFalse(result.isEmpty());
+			TestCase.assertFalse(result.isAmbiguous());
+			TestCase.assertNotNull(result.toString());
+			TestCase.assertTrue(result.getSingleBestMatchSymbol().isPresent());
+		}
 
     @Test
     public void testVariableDefinitionInMethod()

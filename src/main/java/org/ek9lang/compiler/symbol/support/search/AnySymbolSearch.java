@@ -7,7 +7,7 @@ public class AnySymbolSearch extends SymbolSearch
 {
 	public AnySymbolSearch(String name)
 	{
-		super(name);	
+		super(name);
 		setSearchType(null);
 	}
 }

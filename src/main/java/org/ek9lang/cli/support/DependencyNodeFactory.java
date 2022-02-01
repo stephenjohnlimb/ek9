@@ -1,7 +1,6 @@
 package org.ek9lang.cli.support;
 
 import org.ek9lang.cli.CommandLineDetails;
-import org.ek9lang.cli.EK9SourceVisitor;
 import org.ek9lang.dependency.DependencyNode;
 
 import java.util.Map;

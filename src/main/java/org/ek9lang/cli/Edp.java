@@ -69,7 +69,6 @@ public class Edp extends E
 		if(hasSemanticVersionBreaches(dependencyManager))
 			return false;
 
-		//Now some information
 		if(commandLine.isVerbose())
 			showAnalysisInformation(dependencyManager);
 

@@ -11,7 +11,7 @@ public class FunctionSymbolSearch extends SymbolSearch
 {
 	public FunctionSymbolSearch(String name)
 	{
-		super(name);	
+		super(name);
 		setSearchType(ISymbol.SymbolCategory.FUNCTION);
 	}
 }

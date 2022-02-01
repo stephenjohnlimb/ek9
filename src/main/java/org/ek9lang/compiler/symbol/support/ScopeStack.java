@@ -7,7 +7,7 @@ import java.util.Stack;
 
 /**
  * This stack object is only designed to be used when first parsing.
- * 
+ * <p>
  * The idea is to actually associate the scope with the specific contexts by
  * putting them in a ParseTreeProperty<Scope>, this tree is held in the
  * ParsedModule. So why do we need this stack? That is because as we
@@ -25,19 +25,17 @@ public class ScopeStack extends Stack<IScope>
 	public ScopeStack(IScope base)
 	{
 		push(base);
-		
 	}
 
 	public IScope getVeryBaseScope()
 	{
 		return super.firstElement();
 	}
-	
+
 	@Override
 	public IScope push(IScope scope)
 	{
 		AssertValue.checkNotNull("Scope Cannot be null", scope);
-
 		return super.push(scope);
 	}
 

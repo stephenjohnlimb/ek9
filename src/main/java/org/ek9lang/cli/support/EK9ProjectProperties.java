@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * Designed only to be used on the front end of the compiler to access
@@ -36,14 +37,7 @@ public class EK9ProjectProperties
 
 	public String prepareListForStorage(List<String> list)
 	{
-		StringBuffer buffer = new StringBuffer();
-		for(int i = 0; i < list.size(); i++)
-		{
-			if(i != 0)
-				buffer.append(",");
-			buffer.append(list.get(i));
-		}
-		return buffer.toString();
+		return list.stream().collect(Collectors.joining(","));
 	}
 
 	public boolean isNewerThan(File sourceFile)

@@ -299,7 +299,6 @@ public class EK9Test
 		installPackage("SemanticVersionOptimisation.ek9");
 	}
 
-
 	@Test
 	public void testMissingPackageDependencyResolution()
 	{

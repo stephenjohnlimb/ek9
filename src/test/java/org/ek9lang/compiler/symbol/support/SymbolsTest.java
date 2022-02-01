@@ -11,23 +11,8 @@ import org.junit.Test;
 
 import java.util.Optional;
 
-public class SymbolsTest
+public class SymbolsTest extends AbstractSymbolTestBase
 {
-    private AggregateSupport support = new AggregateSupport();
-    private IScope symbolTable = new SymbolTable();
-
-    @Before
-    public void setupBasicSymbols()
-    {
-        symbolTable = new SymbolTable();
-        AggregateSymbol integerType = new AggregateSymbol("Integer", symbolTable);
-        symbolTable.define(integerType);
-        AggregateSymbol stringType = new AggregateSymbol("String", symbolTable);
-        symbolTable.define(stringType);
-        symbolTable.define(new AggregateSymbol("Boolean", symbolTable));
-        symbolTable.define(new AggregateSymbol("Void", symbolTable));
-    }
-
     @Test
     public void testFullyQualifiedName()
     {
@@ -113,6 +98,13 @@ public class SymbolsTest
         v3.setPrivate(true);
         TestCase.assertTrue(v3.isReturningParameter());
         TestCase.assertNotNull(v3.toString());
+
+			VariableSymbol loopVar = new VariableSymbol("loopVar", Optional.of(integerType));
+			loopVar.setLoopVariable(true);
+			TestCase.assertTrue(loopVar.isLoopVariable());
+			TestCase.assertTrue(loopVar.clone(symbolTable).isLoopVariable());
+
+
     }
 
     @Test

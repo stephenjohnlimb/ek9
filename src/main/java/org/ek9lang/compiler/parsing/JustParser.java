@@ -8,7 +8,7 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.antlr.EK9Parser.CompilationUnitContext;
-import org.ek9lang.cli.EK9SourceVisitor;
+import org.ek9lang.cli.support.EK9SourceVisitor;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.tokenizer.EK9Lexer;
 import org.ek9lang.core.utils.OsSupport;

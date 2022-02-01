@@ -3,7 +3,7 @@ package org.ek9lang.compiler.parsing;
 import java.io.File;
 import java.net.URISyntaxException;
 
-import org.ek9lang.cli.EK9SourceVisitor;
+import org.ek9lang.cli.support.EK9SourceVisitor;
 import org.junit.Test;
 
 import junit.framework.TestCase;

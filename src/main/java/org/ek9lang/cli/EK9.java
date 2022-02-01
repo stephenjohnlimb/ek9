@@ -6,7 +6,8 @@ import org.ek9lang.core.utils.OsSupport;
 import org.ek9lang.lsp.Server;
 
 import java.io.File;
-
+import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Main entry point into the compiler, build system and language server.
@@ -124,7 +125,7 @@ public class EK9
 
 		int rtn = BAD_COMMANDLINE_EXIT_CODE;
 		E execution = null;
-		//Maybe do this below with hash table of command option to E (execution)!.
+		
 		if(commandLine.isJustABuildTypeOption())
 		{
 			if(commandLine.isCleanAll())
