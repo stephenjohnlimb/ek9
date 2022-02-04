@@ -76,13 +76,7 @@ public class Symbol implements ISymbol
 	{
 		this.setName(name);
 	}
-	
-	public Symbol(String name, ISymbol type)
-	{
-		this(name);
-		this.setType(type);
-	}
-	
+
 	public Symbol(String name, Optional<ISymbol> type)
 	{
 		this(name);

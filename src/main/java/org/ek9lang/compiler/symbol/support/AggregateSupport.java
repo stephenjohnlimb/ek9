@@ -102,7 +102,6 @@ public class AggregateSupport
 				if(method.getType().isEmpty())
 					throw new RuntimeException("Method return type must be set for use to copy methods over");
 
-
 				if(method.getType().get().isExactSameType(from) && !method.isMarkedNoClone())
 				{
 					//So we have a method that returns the same type - we need to modify this and add it in.
@@ -212,55 +211,32 @@ public class AggregateSupport
 		Optional<ISymbol> voidType = scope.resolve(new TypeSymbolSearch("Void"));
 
 		//Now make the '?', null check operator - this enables us to do null checking in the template definition in the ek9 file
-		MethodSymbol isSetMethod = new MethodSymbol("?", t);
-		isSetMethod.setType(booleanType);
-		t.define(isSetMethod);
 
-		MethodSymbol stringMethod = new MethodSymbol("$", t);
-		stringMethod.setType(stringType);
-		t.define(stringMethod);
+		//isSet
+		addPurePublicSyntheticSimpleOperator(t, "?", booleanType);
+		//Now a _string $ operator
+		addPurePublicSyntheticSimpleOperator(t, "$", stringType);
+		//To JSON operator
+		addPurePublicSyntheticSimpleOperator(t, "$$", stringType);
+		//hash code
+		addPurePublicSyntheticSimpleOperator(t, "#?", integerType);
 
-		MethodSymbol hashCodeMethod = new MethodSymbol("#?", t);
-		hashCodeMethod.setType(integerType);
-		t.define(hashCodeMethod);
+		addPurePublicSyntheticSimpleOperator(t, "empty", booleanType);
+		addPurePublicSyntheticSimpleOperator(t, "length", integerType);
 
-		MethodSymbol emptyMethod = new MethodSymbol("empty", t);
-		emptyMethod.setType(booleanType);
-		t.define(emptyMethod);
-
-		MethodSymbol lengthMethod = new MethodSymbol("length", t);
-		lengthMethod.setType(integerType);
-		t.define(lengthMethod);
+		//First and last
+		addPurePublicSyntheticPrefixSuffixMethod(t, "#<");
+		addPurePublicSyntheticPrefixSuffixMethod(t, "#>");
 
 		//negate operator
-		MethodSymbol negateMethod = new MethodSymbol("~", t);
-		negateMethod.setType(t);
-		t.define(negateMethod);
+		addPurePublicSyntheticPrefixSuffixMethod(t, "~");
 
-		MethodSymbol prefixMethod = new MethodSymbol("#<", t);
-		prefixMethod.setType(t);
-		t.define(prefixMethod);
-
-		MethodSymbol suffixMethod = new MethodSymbol("#>", t);
-		suffixMethod.setType(t);
-		t.define(suffixMethod);
-
-		MethodSymbol incMethod = new MethodSymbol("++", t);
-		incMethod.setType(t);
-		t.define(incMethod);
-
-		MethodSymbol decMethod = new MethodSymbol("--", t);
-		decMethod.setType(t);
-		t.define(decMethod);
+		addPurePublicSyntheticPrefixSuffixMethod(t, "++");
+		addPurePublicSyntheticPrefixSuffixMethod(t, "--");
 
 		//Support automatic opening and closing of 'things'
-		MethodSymbol openMethod = new MethodSymbol("open", t);
-		openMethod.setType(voidType);
-		t.define(openMethod);
-
-		MethodSymbol closeMethod = new MethodSymbol("close", t);
-		closeMethod.setType(voidType);
-		t.define(closeMethod);
+		addPurePublicSyntheticSimpleOperator(t, "open", voidType);
+		addPurePublicSyntheticSimpleOperator(t, "close", voidType);
 
 		//Other operators
 
@@ -284,111 +260,99 @@ public class AggregateSupport
 		//replace
 		addOperator(t, ":^:");
 
-		addComparator(t, "==", booleanType);
-		addComparator(t, "<>", booleanType);
-		addComparator(t, "<", booleanType);
-		addComparator(t, "<=", booleanType);
-		addComparator(t, ">=", booleanType);
-		addComparator(t, ">", booleanType);
+		addComparatorOperator(t, "==", booleanType);
+		addComparatorOperator(t, "<>", booleanType);
+		addComparatorOperator(t, "<", booleanType);
+		addComparatorOperator(t, "<=", booleanType);
+		addComparatorOperator(t, ">=", booleanType);
+		addComparatorOperator(t, ">", booleanType);
 
 		//compare
-		addComparator(t, "<=>", integerType);
+		addComparatorOperator(t, "<=>", integerType);
 		//fuzzy compare
-		addComparator(t, "<~>", integerType);
+		addComparatorOperator(t, "<~>", integerType);
 
 		return t;
 	}
 
-	private void addComparator(AggregateSymbol t, String comparatorType, Optional<ISymbol> returnType)
+	/**
+	 * Just add a method to an aggregate with the name and parameters and return type.
+	 * The methodParameters can be empty if there are none.
+	 */
+	public MethodSymbol addPublicMethod(AggregateSymbol clazz, String methodName, List<ISymbol> methodParameters, Optional<ISymbol> returnType)
 	{
-		VariableSymbol paramT = new VariableSymbol("param", t);
-
-		MethodSymbol operator = new MethodSymbol(comparatorType, t);
-		operator.define(paramT);
-
-		operator.setType(returnType);
-		t.define(operator);
+		MethodSymbol method = new MethodSymbol(methodName, clazz);
+		method.setParsedModule(clazz.getParsedModule());
+		methodParameters.forEach(param -> method.define(param));
+		clazz.define(method);
+		method.setType(returnType);
+		return method;
 	}
 
 	public void addSyntheticEnumerationMethods(AggregateSymbol clazz)
 	{
-		addPurePublicSyntheticPrefixSuffixMethod(clazz, "#<");
-		addPurePublicSyntheticPrefixSuffixMethod(clazz, "#>");
-
 		Optional<ISymbol> booleanType = clazz.resolve(new TypeSymbolSearch("Boolean"));
 		Optional<ISymbol> integerType = clazz.resolve(new TypeSymbolSearch("Integer"));
 		Optional<ISymbol> stringType = clazz.resolve(new TypeSymbolSearch("String"));
 		//Some reasonable operations
 		//compare
-		addPurePublicSyntheticOperator(clazz, "<=>", integerType);
-		addPurePublicSyntheticOperator(clazz, "==", booleanType);
-		addPurePublicSyntheticOperator(clazz, "<>", booleanType);
-		addPurePublicSyntheticOperator(clazz, "<", booleanType);
-		addPurePublicSyntheticOperator(clazz, ">", booleanType);
-		addPurePublicSyntheticOperator(clazz, "<=", booleanType);
-		addPurePublicSyntheticOperator(clazz, ">=", booleanType);
+		addComparatorOperator(clazz, "<=>", integerType);
+		addComparatorOperator(clazz, "==", booleanType);
+		addComparatorOperator(clazz, "<>", booleanType);
+		addComparatorOperator(clazz, "<", booleanType);
+		addComparatorOperator(clazz, ">", booleanType);
+		addComparatorOperator(clazz, "<=", booleanType);
+		addComparatorOperator(clazz, ">=", booleanType);
 
+		//isSet
+		addPurePublicSyntheticSimpleOperator(clazz, "?", booleanType);
 		//Now a _string $ operator
-		MethodSymbol stringMethod = new MethodSymbol("$", clazz);
-		stringMethod.setParsedModule(clazz.getParsedModule());
-		stringMethod.setAccessModifier("public");
-		stringMethod.setMarkedPure(true);
-		stringMethod.setType(stringType);
-		stringMethod.setOperator(true);
-		clazz.define(stringMethod);
-
+		addPurePublicSyntheticSimpleOperator(clazz, "$", stringType);
+		//To JSON operator
+		addPurePublicSyntheticSimpleOperator(clazz, "$$", stringType);
 		//hash code
-		MethodSymbol hashCodeMethod = new MethodSymbol("#?", clazz);
-		hashCodeMethod.setParsedModule(clazz.getParsedModule());
-		hashCodeMethod.setAccessModifier("public");
-		hashCodeMethod.setMarkedPure(true);
-		hashCodeMethod.setType(integerType);
-		hashCodeMethod.setOperator(true);
-		clazz.define(hashCodeMethod);
+		addPurePublicSyntheticSimpleOperator(clazz, "#?", integerType);
 
-		MethodSymbol isSetMethod = new MethodSymbol("?", clazz);
-		isSetMethod.setParsedModule(clazz.getParsedModule());
-		isSetMethod.setAccessModifier("public");
-		isSetMethod.setMarkedPure(true);
-		isSetMethod.setType(booleanType);
-		isSetMethod.setOperator(true);
-		clazz.define(isSetMethod);
+		//First and last
+		addPurePublicSyntheticPrefixSuffixMethod(clazz, "#<");
+		addPurePublicSyntheticPrefixSuffixMethod(clazz, "#>");
 	}
 
 	private MethodSymbol addPurePublicSyntheticPrefixSuffixMethod(AggregateSymbol clazz, String methodName)
 	{
-		MethodSymbol method = new MethodSymbol(methodName, clazz);
-		method.setParsedModule(clazz.getParsedModule());
-		method.setAccessModifier("public");
-		method.setMarkedPure(true);
-		method.setType(clazz);
-		method.setOperator(true);
-		clazz.define(method);
-		return method;
+		return addPurePublicSyntheticSimpleOperator(clazz, methodName, Optional.of(clazz));
 	}
 
-	private MethodSymbol addPurePublicSyntheticOperator(AggregateSymbol clazz, String methodName, Optional<ISymbol> returnType)
+	public MethodSymbol addComparatorOperator(AggregateSymbol clazz, String comparatorType, Optional<ISymbol> returnType)
+	{
+		MethodSymbol operator = addPurePublicSyntheticSimpleOperator(clazz, comparatorType, returnType);
+		operator.define(new VariableSymbol("param", clazz));
+		return operator;
+	}
+
+	private MethodSymbol addPurePublicSyntheticSimpleOperator(AggregateSymbol clazz, String methodName, Optional<ISymbol> returnType)
 	{
 		MethodSymbol method = new MethodSymbol(methodName, clazz);
 		method.setParsedModule(clazz.getParsedModule());
 		method.setAccessModifier("public");
 		method.setMarkedPure(true);
 		method.setType(returnType);
-		method.define(new ConstantSymbol("arg", clazz));
 		method.setOperator(true);
 		clazz.define(method);
-
 		return method;
 	}
 
-	private void addOperator(AggregateSymbol t, String operatorType)
+	private MethodSymbol addOperator(AggregateSymbol clazz, String operatorType)
 	{
-		VariableSymbol paramT = new VariableSymbol("param", t);
+		VariableSymbol paramT = new VariableSymbol("param", clazz);
 
-		MethodSymbol operator = new MethodSymbol(operatorType, t);
+		MethodSymbol operator = new MethodSymbol(operatorType, clazz);
+		operator.setParsedModule(clazz.getParsedModule());
+		operator.setAccessModifier("public");
 		operator.define(paramT);
 		//returns the same type as itself
-		operator.setType(t);
-		t.define(operator);
+		operator.setType(clazz);
+		clazz.define(operator);
+		return operator;
 	}
 }
