@@ -7,37 +7,37 @@ import org.ek9lang.core.utils.Digest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Given a parameterised symbol and the symbol used to use as the parameter we are in effect saying:
  * Given List<T>
  * Given SomeObjectType
  * We are saying List<SomeObjectType>
- * This class is probably one of biggest 'mind fucks' you'll ever have.
- * generics of generics with parameters.
- *
+ * But SomeObjectType can also be a parameterised/able type!
  * TODO maybe refactor this and the ParameterisedFunctionSymbol to pull out common stuff.
  */
 public class ParameterisedTypeSymbol extends AggregateSymbol implements ParameterisedSymbol
-{	
+{
 	//This is the class that can be parameterised
 	//Now you need to check if this symbol type was reverse engineered as you will need to treat it in a different manner maybe.
 	private AggregateSymbol parameterisableSymbol;
-	
+
 	//This is what it is parameterised with.
 	private List<ISymbol> parameterSymbols = new ArrayList<ISymbol>();
-	
+
 	private boolean variablesAndMethodsHydrated = false;
-	
+
 	/**
 	 * So this is where we make a real internal name as a real type.
+	 *
 	 * @return the internal name to be used by combining the parameterisableSymbol with the parameters provided.
 	 */
 	public static String getInternalNameFor(IAggregateSymbol parameterisableSymbol, List<ISymbol> parameterSymbols)
 	{
-		return getEK9InternalNameFor(parameterisableSymbol, parameterSymbols);	
+		return getEK9InternalNameFor(parameterisableSymbol, parameterSymbols);
 	}
-	
+
 	private static String getEK9InternalNameFor(IAggregateSymbol parameterisableSymbol, List<ISymbol> parameterSymbols)
 	{
 		StringBuffer rtn = new StringBuffer("_");
@@ -52,40 +52,30 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 			buffer.append(symbol.getFullyQualifiedName());
 		}
 		rtn.append(Digest.digest(buffer.toString()).toString());
-		
+
 		return rtn.toString();
 	}
-	
+
 	public ParameterisedTypeSymbol(AggregateSymbol parameterisableSymbol, List<ISymbol> parameterSymbols, IScope enclosingScope)
 	{
 		this(parameterisableSymbol, enclosingScope);
 		parameterSymbols.forEach(parameterSymbol -> addParameterSymbol(parameterSymbol));
 		parameterisationComplete();
 	}
-	
+
 	public ParameterisedTypeSymbol(AggregateSymbol parameterisableSymbol, Optional<ISymbol> parameterSymbol, IScope enclosingScope)
 	{
-		this(parameterisableSymbol, enclosingScope);
-		addParameterSymbol(parameterSymbol);
-		parameterisationComplete();
+		this(parameterisableSymbol, parameterSymbol.stream().collect(Collectors.toList()), enclosingScope);
 	}
-	
-	public ParameterisedTypeSymbol(AggregateSymbol parameterisableSymbol, Optional<ISymbol> parameterSymbol1, Optional<ISymbol> parameterSymbol2, IScope enclosingScope)
-	{
-		this(parameterisableSymbol, enclosingScope);
-		addParameterSymbol(parameterSymbol1);
-		addParameterSymbol(parameterSymbol2);
-		parameterisationComplete();
-	}
-	
+
 	private ParameterisedTypeSymbol(AggregateSymbol parameterisableSymbol, IScope enclosingScope)
-	{		
+	{
 		super("", enclosingScope); //Gets set below
 		AssertValue.checkNotNull("parameterisableSymbol cannot be null", parameterisableSymbol);
-		
+
 		if(!parameterisableSymbol.isGenericInNature() || !parameterisableSymbol.isATemplateType())
 			throw new IllegalArgumentException("parameterisableSymbol must be parameterised");
-		
+
 		this.parameterisableSymbol = parameterisableSymbol;
 		//Put is in the same module as where the generic type has been defined.
 		//Note that this could and probably will be a system on in many cases list List and Optional.
@@ -93,11 +83,11 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 		super.setCategory(SymbolCategory.TYPE);
 		//take note if source from reverse engineering.
 		setReversedEngineeredToEK9(parameterisableSymbol.isReversedEngineeredToEK9());
-		
+
 		setProduceFullyQualifiedName(parameterisableSymbol.getProduceFullyQualifiedName());
 		setEk9Core(parameterisableSymbol.isEk9Core());
-	}	
-	
+	}
+
 	@Override
 	public boolean isOpenForExtension()
 	{
@@ -125,20 +115,20 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 	{
 		return true;
 	}
-	
+
 	@Override
 	public boolean isGenericInNature()
 	{
 		//These can also be generic definitions when initially parsed.
 		//But when given a set of valid parameter are no longer generic aggregates.
-		for(ISymbol param :parameterSymbols)
+		for(ISymbol param : parameterSymbols)
 		{
 			if(param.isGenericTypeParameter())
 				return true;
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean isSymbolTypeMatch(ISymbol symbolType)
 	{
@@ -156,7 +146,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 	{
 		if(list1.size() == list2.size())
 		{
-			for(int i=0; i<list1.size(); i++)
+			for(int i = 0; i < list1.size(); i++)
 				if(!list1.get(i).isExactSameType(list2.get(i)))
 					return false;
 			return true;
@@ -169,6 +159,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 	 * within the symbol tables and when defining other generic types.
 	 * But these cannot actually be generated. So we do need to be able to distinguish between
 	 * those that can be really used and those that are just used with other generic classes.
+	 *
 	 * @return true if just conceptual and cannot be generated, false if can actually be made manifest and used.
 	 */
 	public boolean isConceptualParameterisedType()
@@ -180,22 +171,23 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 		}
 		return false;
 	}
+
 	public ParameterisedTypeSymbol addParameterSymbol(Optional<ISymbol> parameterSymbol)
 	{
-		AssertValue.checkNotNull("parameterSymbol cannot be null", parameterSymbol);		
+		AssertValue.checkNotNull("parameterSymbol cannot be null", parameterSymbol);
 		addParameterSymbol(parameterSymbol.get());
 		return this;
 	}
-	
+
 	public ParameterisedTypeSymbol addParameterSymbol(ISymbol parameterSymbol)
 	{
 		AssertValue.checkNotNull("parameterSymbol cannot be null", parameterSymbol);
-		
+
 		parameterSymbols.add(parameterSymbol);
-		
+
 		return this;
 	}
-	
+
 	/**
 	 * So once you have created this object and added all the parameters you want to
 	 * Call this so that the full name of the concrete parameterised generic type is manifest.
@@ -204,11 +196,12 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 	{
 		super.setName(getInternalNameFor(parameterisableSymbol, parameterSymbols));
 	}
-	
+
 	/**
 	 * Need to go through this parameterised type and workout and return if any new paramterised types are required.
 	 * So for example Optional<OO> might use a Iterator<II> so if we create a new Optional<V> it means we also need an Iterator<V>
-	 * @param global 
+	 *
+	 * @param global
 	 * @return The list of parameterised types this parameterised type depends on
 	 */
 	public void establishDependentParameterisedTypes(IScope global)
@@ -217,7 +210,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 		{
 			//So if method or variable get it's return type and resolve with new
 			//lets see if it needs creating or if it already exists.
-			
+
 			ResolutionResult result = resolveWithNewType(symbol.getType());
 			if(!result.wasResolved)
 			{
@@ -243,29 +236,30 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 			}
 		}
 	}
+
 	/**
 	 * After phase one all the basic types and method signatures are set up for the types we can use for templates.
 	 * But now we need to create the parameterised types an setup the specific signatures with the actual types.
 	 */
 	public void initialSetupVariablesAndMethods()
 	{
-		
+
 		//Collect up all these defs in a single symbol table not per module - but more like
 		//a global symbol table just for templates that have been turned into types by having
 		//parameters provided.
 		//then you can get back to cloning the properties and methods from the parameterisableSymbol
 		//and replacing the T's and S's etc with these actual parameterSymbols types.
 		//Then it's just like you've written the same code with different parameter types.
-		
+
 		//Then you can go to the resolve phase and you'll have concrete types in place.
 		//Just remember in the symbols we don't really deal with bodies as such - that is the IR phase
 		//Symbol phase we are really checking all these methods, classes and properties exist and are of the right type.
 		//In the expression phase just checking all those add up ok.
 		//But only in the IR phase do we really pull together the contents of the methods into Nodes.
 		//So that's where we will also need to pull together the template type, concrete parameters to create a full correct concrete IR
-		
+
 		//First off lets go through symbols and create copies but with the applied concrete types.
-		
+
 		for(ISymbol symbol : parameterisableSymbol.getSymbolsForThisScope())
 		{
 			//Going in
@@ -275,13 +269,14 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 			//System.out.println("C: {" + this.getFriendlyName() + "}: [" + replacementSymbol.getFriendlyName() + "]");
 			this.define(replacementSymbol);
 		}
-		
+
 		//We have now hydrated variables and methods they should now be resolvable.
 		variablesAndMethodsHydrated = true;
 	}
 
 	/**
 	 * Clones any symbols that employ generic parameters. For non generic uses the same symbol.
+	 *
 	 * @param toClone The symbol to Clone.
 	 * @return A new symbol or symbol passed in if no generic parameter replacement is required.
 	 */
@@ -295,7 +290,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 			Optional<ISymbol> newType = resolveWithNewType(fromType).symbol;
 			//System.out.println("variable type from [" + fromType.get() + "] to [" + newType.get() + "]"); 
 			VariableSymbol rtn = willClone.clone(null);
-			rtn.setType(newType);			
+			rtn.setType(newType);
 			//So mimic the location of the source
 			rtn.setSourceToken(toClone.getSourceToken());
 			return rtn;
@@ -307,19 +302,19 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 			Optional<ISymbol> fromType = willClone.getType();
 			Optional<ISymbol> newType = resolveWithNewType(fromType).symbol;
 			String useMethodName = willClone.getName();
-			
+
 			//Shit man what about the constructor methods!
 			//Don't we need to change their names to match the new class name
 			//This is not Java - this is ek9 - the constructor method for aggregate Optional
 			//is still marked as a constructor but keeps its old name! That way we can still resolve it in ek9
 			//Only at generation time to Java does that get changed.
 			//But see how templateValidator has to deal with this.
-			
+
 			MethodSymbol rtn = new MethodSymbol(useMethodName, this);
 			//System.out.println("Method cloning [" + willClone + "] [" + willClone.getName() + "]  constructor [" + willClone.isConstructor() + "]");
 
 			//System.out.println("method type from [" + fromType.get() + "] to [" + newType.get() + "]"); 
-			
+
 			rtn.setType(newType);
 			rtn.setOverride(willClone.isOverride());
 			rtn.setAccessModifier(willClone.getAccessModifier());
@@ -335,7 +330,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 				//System.out.println("Cloning of method [" + willClone.getName() + "] [" + symbol + "] - [" + clonedParam + "]");
 				rtn.define(clonedParam);
 			}
-			
+
 			//what about rtn and type
 			ISymbol rtnSymbol = willClone.getReturningSymbol();
 			if(rtnSymbol != null)
@@ -349,9 +344,10 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 		}
 		throw new RuntimeException("We can only clone variables and methods in generic type templates not [" + toClone + "]");
 	}
-	
+
 	/**
 	 * Resolve the type could be concrete or could be As S or T type generic.
+	 *
 	 * @param typeToResolve The type to resolve.
 	 * @return The new resolved symbol.
 	 */
@@ -385,13 +381,13 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 				String parameterisedTypeSymbolName = getInternalNameFor(aggregate, lookupParameterSymbols);
 				TypeSymbolSearch search = new TypeSymbolSearch(parameterisedTypeSymbolName);
 				ResolutionResult rtn = new ResolutionResult();
-				rtn.symbol = this.resolve(search);				
-				rtn.wasResolved = rtn.symbol.isPresent(); 
+				rtn.symbol = this.resolve(search);
+				rtn.wasResolved = rtn.symbol.isPresent();
 				//So if not resolved then make one.
 				if(!rtn.wasResolved)
 					rtn.symbol = Optional.of(new ParameterisedTypeSymbol(aggregate, lookupParameterSymbols, this.getEnclosingScope()));
 				//System.out.println("Looking for [" + parameterisedTypeSymbolName + "] resolved is [" + resolvedSymbol.isPresent() + "]");
-				
+
 				return rtn;
 			}
 			else if(aggregate.isGenericTypeParameter())
@@ -402,20 +398,20 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 				ISymbol resolvedSymbol = parameterSymbols.get(index);
 				ResolutionResult rtn = new ResolutionResult();
 				rtn.symbol = Optional.of(resolvedSymbol);
-				rtn.wasResolved = rtn.symbol.isPresent(); 
+				rtn.wasResolved = rtn.symbol.isPresent();
 				return rtn;
 			}
 			else if(aggregate.isGenericInNature() && aggregate instanceof ParameterisedTypeSymbol)
 			{
 				//Now this is a  bastard because we need to clone one of these classes we're already in.
 				//But it might be a List of T or a real List of Integer for example.
-				
+
 				//So the thing we are to clone it itself a generic aggregate.
 				//System.out.println("Need to Clone a generic aggregate [" + aggregate + "]");
 				ParameterisedTypeSymbol asParameterisedTypeSymbol = (ParameterisedTypeSymbol)aggregate;
 				List<ISymbol> lookupParameterSymbols = new ArrayList<ISymbol>();
 				//Now it may really be a concrete one or it too could be something like a List of P
-				
+
 				for(ISymbol symbol : asParameterisedTypeSymbol.parameterSymbols)
 				{
 					//So lets see might be a K or V for example but we must be able to find that type in this object	
@@ -435,12 +431,12 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 						lookupParameterSymbols.add(symbol);
 					}
 				}
-				
+
 				String parameterisedTypeSymbolName = getInternalNameFor(asParameterisedTypeSymbol.parameterisableSymbol, lookupParameterSymbols);
 				TypeSymbolSearch search = new TypeSymbolSearch(parameterisedTypeSymbolName);
 				ResolutionResult rtn = new ResolutionResult();
-				rtn.symbol = this.resolve(search);				
-				rtn.wasResolved = rtn.symbol.isPresent(); 
+				rtn.symbol = this.resolve(search);
+				rtn.wasResolved = rtn.symbol.isPresent();
 				//So if not resolved then make one.
 				if(!rtn.wasResolved)
 					rtn.symbol = Optional.of(new ParameterisedTypeSymbol(asParameterisedTypeSymbol.parameterisableSymbol, lookupParameterSymbols, this.getEnclosingScope()));
@@ -452,10 +448,11 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 		rtn.wasResolved = true;
 		return rtn;
 	}
-	
+
 	/**
 	 * For the type passed in - a T or and S whatever we need to know it's index.
 	 * From this we can look at what this has been parameterised with and use that type.
+	 *
 	 * @param theType The generic definition parameter i.e S, or T
 	 * @return The index or -1 if not found.
 	 */
@@ -463,7 +460,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 	{
 		if(theType.isPresent())
 		{
-			for(int i=0; i < parameterisableSymbol.getParameterisedTypes().size(); i++)
+			for(int i = 0; i < parameterisableSymbol.getParameterisedTypes().size(); i++)
 			{
 				ISymbol pType = parameterisableSymbol.getParameterisedTypes().get(i);
 				if(pType.isExactSameType(theType.get()))
@@ -472,21 +469,21 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 		}
 		return -1;
 	}
-	
+
 	@Override
 	public Optional<ISymbol> getType()
 	{
 		//This is also a type
 		return Optional.of(this);
 	}
-	
+
 	@Override
 	public String getFriendlyName()
 	{
 		StringBuffer buffer = new StringBuffer(parameterisableSymbol.getName());
 		buffer.append(" of ");
 		boolean first = true;
-		
+
 		for(ISymbol symbol : parameterSymbols)
 		{
 			if(!first)
@@ -502,14 +499,14 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 	public ISymbol setType(Optional<ISymbol> type)
 	{
 		throw new RuntimeException("Cannot alter ParameterisedTypeSymbol types", new UnsupportedOperationException());
-	}	
-	
+	}
+
 	/**
 	 * So now here when it comes to being assignable the generic parameterisable type has to be the same.
 	 * And the parameters it has been parameterised with also have to be the same and match.
-	 *
+	 * <p>
 	 * Only then do we consider it to be assignable via a weight.
-	 * 
+	 * <p>
 	 * This might be a bit over simplified, but at least it is simple and straightforward.
 	 * We are not currently considering extending or inheritance with generic templates types - they are already complex enough.
 	 */
@@ -518,7 +515,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 	{
 		return getUnCoercedAssignableWeightTo(s);
 	}
-	
+
 	public double getUnCoercedAssignableWeightTo(ISymbol s)
 	{
 		//Now because we've hashed the class and parameter signature we can do a very quick check here.
@@ -528,7 +525,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 
 		return -1000.0;
 	}
-	
+
 	@Override
 	public ScopeType getScopeType()
 	{
@@ -536,17 +533,17 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 	}
 
 	private static class ResolutionResult
-	{		
+	{
 		/**
 		 * The Type that would be needed.
 		 * Not is may already exist and was resolved OK
 		 * See was Resolved below.
 		 */
 		Optional<ISymbol> symbol = Optional.empty();
-		
+
 		/**
 		 * So the result may well be set, but in the case of PAramterisedTypeSymbols
-		 * it maybe that this is what we need - but it has not yet been created. 
+		 * it maybe that this is what we need - but it has not yet been created.
 		 */
 		boolean wasResolved = false;
 	}

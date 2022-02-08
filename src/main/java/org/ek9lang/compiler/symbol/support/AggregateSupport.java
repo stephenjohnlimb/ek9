@@ -186,6 +186,11 @@ public class AggregateSupport
 		return constructor;
 	}
 
+	public AggregateSymbol createTemplateGenericType(String name, IScope enclosingScope, AggregateSymbol tSymbol)
+	{
+		return new AggregateSymbol(name, enclosingScope, List.of(tSymbol));
+	}
+
 	/**
 	 * Create a generic parameter of specific name.
 	 * We use the name createGenericT, so it is obvious what we are doing here.

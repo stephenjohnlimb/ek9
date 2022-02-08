@@ -8,6 +8,7 @@ import org.ek9lang.core.exception.AssertValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * This is typically a 'class' or an interface type where it can include the definitions of new
@@ -68,7 +69,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	 * Also keep a back pointer to the direct subclasses.
 	 * This is really useful for analysing a class or a trait.
 	 */
-	private final List<IAggregateSymbol> subAggregateScopedSymbols = new ArrayList<IAggregateSymbol>();
+	private final List<IAggregateSymbol> subAggregateScopedSymbols = new ArrayList<>();
 
 	/**
 	 * Was the aggregate marked as abstract in the source code.
@@ -122,6 +123,9 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	 */
 	//private boolean getOfSelfSupported = false;
 
+	/**
+	 * A simple straight forward aggregate type, like a class or record.
+	 */
 	public AggregateSymbol(String name, IScope enclosingScope)
 	{
 		super(name, enclosingScope);
@@ -129,11 +133,24 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 		super.setProduceFullyQualifiedName(true);
 	}
 
+	/**
+	 * A simple straight forward aggregate type, like a class or record.
+	 */
 	public AggregateSymbol(String name, Optional<ISymbol> type, IScope enclosingScope)
 	{
 		super(name, type, enclosingScope);
 		super.setCategory(SymbolCategory.TYPE);
 		super.setProduceFullyQualifiedName(true);
+	}
+
+	/**
+	 * An aggregate that can be parameterised, i.e. like a 'List of T'
+	 * So the name would be 'List' and the parameterTypes would be a single aggregate of a conceptual T.
+	 */
+	public AggregateSymbol(String name, IScope enclosingScope, List<AggregateSymbol> parameterTypes)
+	{
+		this(name, enclosingScope);
+		parameterTypes.forEach(this::addParameterisedType);
 	}
 
 	@Override
@@ -147,7 +164,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 		super.cloneIntoScopeSymbol(newCopy);
 		newCopy.moduleScope = moduleScope;
 		if(aggregateDescription != null)
-			newCopy.aggregateDescription = new String(aggregateDescription);
+			newCopy.aggregateDescription = aggregateDescription;
 
 		newCopy.genericTypeParameter = genericTypeParameter;
 		newCopy.markedAsDispatcher = markedAsDispatcher;
@@ -161,11 +178,9 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 		newCopy.injectable = injectable;
 		newCopy.openForExtension = openForExtension;
 
-		if(pipeSinkType.isPresent())
-			newCopy.pipeSinkType = Optional.of(pipeSinkType.get());
+		pipeSinkType.ifPresent(s -> newCopy.pipeSinkType = Optional.of(s));
 
-		if(pipeSourceType.isPresent())
-			newCopy.pipeSourceType = Optional.of(pipeSourceType.get());
+		pipeSourceType.ifPresent(s -> newCopy.pipeSourceType = Optional.of(s));
 
 		if(capturedVariables.isPresent())
 		{
@@ -196,8 +211,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	@Override
 	public Optional<ISymbol> resolveExcludingCapturedVariables(SymbolSearch search)
 	{
-		Optional<ISymbol> rtn = super.resolveInThisScopeOnly(search);
-		return rtn;
+		return super.resolveInThisScopeOnly(search);
 	}
 
 	/**
@@ -366,13 +380,12 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	@Override
 	public List<MethodSymbol> getAllAbstractMethods()
 	{
-		ArrayList<MethodSymbol> rtn = new ArrayList<MethodSymbol>();
-		if(superAggregateScopedSymbol.isPresent())
-			rtn.addAll(superAggregateScopedSymbol.get().getAllAbstractMethods());
+		ArrayList<MethodSymbol> rtn = new ArrayList<>();
+		superAggregateScopedSymbol.ifPresent(iAggregateSymbol -> rtn.addAll(iAggregateSymbol.getAllAbstractMethods()));
 
 		for(ISymbol sym : getSymbolsForThisScope())
 			if(sym.isAMethod())
-				if(((MethodSymbol)sym).isMarkedAbstract())
+				if(sym.isMarkedAbstract())
 					rtn.add((MethodSymbol)sym);
 		return rtn;
 	}
@@ -384,18 +397,13 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	@Override
 	public List<ISymbol> getProperties()
 	{
-		ArrayList<ISymbol> rtn = new ArrayList<ISymbol>();
-		for(ISymbol sym : getSymbolsForThisScope())
-			if(sym.isAVariable())
-				rtn.add(sym);
-
-		return rtn;
+		return getSymbolsForThisScope().stream().filter(sym -> sym.isAVariable()).collect(Collectors.toList());
 	}
 
 	@Override
 	public List<MethodSymbol> getConstructors()
 	{
-		ArrayList<MethodSymbol> rtn = new ArrayList<MethodSymbol>();
+		ArrayList<MethodSymbol> rtn = new ArrayList<>();
 		for(ISymbol sym : getSymbolsForThisScope())
 			if(sym.isAMethod())
 				if(((MethodSymbol)sym).isConstructor())
@@ -406,9 +414,8 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	@Override
 	public List<MethodSymbol> getAllNonAbstractMethods()
 	{
-		ArrayList<MethodSymbol> rtn = new ArrayList<MethodSymbol>();
-		if(superAggregateScopedSymbol.isPresent())
-			rtn.addAll(superAggregateScopedSymbol.get().getAllNonAbstractMethods());
+		ArrayList<MethodSymbol> rtn = new ArrayList<>();
+		superAggregateScopedSymbol.ifPresent(iAggregateSymbol -> rtn.addAll(iAggregateSymbol.getAllNonAbstractMethods()));
 
 		rtn.addAll(getAllNonAbstractMethodsInThisScopeOnly());
 		return rtn;
@@ -416,20 +423,16 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 
 	public List<ISymbol> getAllPropertyFieldsInThisScopeOnly()
 	{
-		ArrayList<ISymbol> rtn = new ArrayList<ISymbol>();
-		for(ISymbol sym : getSymbolsForThisScope())
-			if(!sym.isAMethod()) //might have functions in there hung on as delegates
-				rtn.add(sym);
-		return rtn;
+		return getSymbolsForThisScope().stream().filter(sym -> !sym.isAMethod()).collect(Collectors.toList());
 	}
 
 	@Override
 	public List<MethodSymbol> getAllNonAbstractMethodsInThisScopeOnly()
 	{
-		ArrayList<MethodSymbol> rtn = new ArrayList<MethodSymbol>();
+		ArrayList<MethodSymbol> rtn = new ArrayList<>();
 		for(ISymbol sym : getSymbolsForThisScope())
 			if(sym.isAMethod())
-				if(!((MethodSymbol)sym).isMarkedAbstract())
+				if(!sym.isMarkedAbstract())
 					rtn.add((MethodSymbol)sym);
 		return rtn;
 	}
@@ -437,16 +440,14 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	@Override
 	public boolean isTraitImplemented(AggregateWithTraitsSymbol thisTraitSymbol)
 	{
-		if(superAggregateScopedSymbol.isPresent())
-			return superAggregateScopedSymbol.get().isTraitImplemented(thisTraitSymbol);
-		return false;
+		return superAggregateScopedSymbol.map(iAggregateSymbol -> iAggregateSymbol.isTraitImplemented(thisTraitSymbol)).orElse(false);
 	}
 
 	@Override
 	public List<AggregateWithTraitsSymbol> getAllTraits()
 	{
 		//This has no traits but its super might.
-		List<AggregateWithTraitsSymbol> rtn = new ArrayList<AggregateWithTraitsSymbol>();
+		List<AggregateWithTraitsSymbol> rtn = new ArrayList<>();
 		if(getSuperAggregateScopedSymbol().isPresent())
 		{
 			IAggregateSymbol theSuper = getSuperAggregateScopedSymbol().get();
@@ -475,9 +476,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	{
 		if(injectable)
 			return true;
-		if(superAggregateScopedSymbol.isPresent())
-			return superAggregateScopedSymbol.get().isExtensionOfInjectable();
-		return false;
+		return superAggregateScopedSymbol.map(ISymbol::isExtensionOfInjectable).orElse(false);
 	}
 
 
@@ -503,7 +502,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 		//Here be dragons - looks simple but there are complexities in here with super types and generics
 
 		//might not be able to be directly assignable - but not end of the world!
-		//We might get a coersion match so weight might not be 0.0.
+		//We might get a coercion match so weight might not be 0.0.
 		double canAssign = super.getAssignableWeightTo(s);
 
 		//Check if assignable as super
@@ -519,11 +518,10 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 
 		if(canAssign >= 0.0)
 		{
-			if(s instanceof AggregateSymbol && canAssign >= 0.0)
+			if(s instanceof AggregateSymbol toCheck)
 			{
-				AggregateSymbol toCheck = (AggregateSymbol)s;
-				double paramterisedWeight = checkParameterisedTypesAssignable(getParameterisedTypes(), toCheck.getParameterisedTypes());
-				canAssign += paramterisedWeight;
+				double parameterisedWeight = checkParameterisedTypesAssignable(getParameterisedTypes(), toCheck.getParameterisedTypes());
+				canAssign += parameterisedWeight;
 			}
 		}
 
@@ -546,11 +544,10 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 
 		if(canAssign >= 0.0)
 		{
-			if(s instanceof AggregateSymbol && canAssign >= 0.0)
+			if(s instanceof AggregateSymbol toCheck)
 			{
-				AggregateSymbol toCheck = (AggregateSymbol)s;
-				double paramterisedWeight = checkParameterisedTypesAssignable(getParameterisedTypes(), toCheck.getParameterisedTypes());
-				canAssign += paramterisedWeight;
+				double parameterisedWeight = checkParameterisedTypesAssignable(getParameterisedTypes(), toCheck.getParameterisedTypes());
+				canAssign += parameterisedWeight;
 			}
 		}
 
@@ -561,8 +558,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	{
 		AssertValue.checkNotNull("Optional superAggregateScopedSymbol cannot be null", superAggregateScopedSymbol);
 		this.superAggregateScopedSymbol = superAggregateScopedSymbol;
-		if(superAggregateScopedSymbol.isPresent())
-			superAggregateScopedSymbol.get().addSubAggregateScopedSymbol(this);
+		superAggregateScopedSymbol.ifPresent(iAggregateSymbol -> iAggregateSymbol.addSubAggregateScopedSymbol(this));
 	}
 
 	public void setSuperAggregateScopedSymbol(IAggregateSymbol baseSymbol)
@@ -577,16 +573,14 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 
 	public boolean hasImmediateSuper(IAggregateSymbol theSuper)
 	{
-		if(superAggregateScopedSymbol.isPresent())
-			return superAggregateScopedSymbol.get().isExactSameType(theSuper);
-		return false;
+		return superAggregateScopedSymbol.map(iAggregateSymbol -> iAggregateSymbol.isExactSameType(theSuper)).orElse(false);
 	}
 
 	@Override
 	public ISymbol setType(Optional<ISymbol> type)
 	{
 		//Used when cloning so type can be set if not already populated.
-		if(this.isGenericTypeParameter())
+		if(this.isGenericTypeParameter() && type.isPresent())
 			this.setSuperAggregateScopedSymbol((IAggregateSymbol)type.get());
 		else if(super.getType().isPresent())
 			throw new RuntimeException("You cannot set the type of an aggregate Symbol");
@@ -627,7 +621,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	{
 		//For members we only look to our aggregate and super (unless we introduce traits later)
 		Optional<ISymbol> rtn = resolveInThisScopeOnly(search);
-		if(!rtn.isPresent() && superAggregateScopedSymbol.isPresent())
+		if(rtn.isEmpty() && superAggregateScopedSymbol.isPresent())
 			rtn = superAggregateScopedSymbol.get().resolveMember(search);
 		return rtn;
 	}
@@ -637,7 +631,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	{
 		Optional<ISymbol> rtn = super.resolveInThisScopeOnly(search);
 		//But note we limit the search in the captured vars to that scope only - no looking up the enclosing scopes just the capture scope!
-		if(!rtn.isPresent() && capturedVariables.isPresent())
+		if(rtn.isEmpty() && capturedVariables.isPresent())
 			rtn = capturedVariables.get().resolveInThisScopeOnly(search);
 
 		return rtn;
@@ -655,7 +649,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 		if(superAggregateScopedSymbol.isPresent())
 			rtn = superAggregateScopedSymbol.get().resolve(search);
 
-		if(!rtn.isPresent())
+		if(rtn.isEmpty())
 			rtn = super.resolve(search);
 
 		return rtn;
@@ -679,24 +673,22 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 		}
 
 		//Now see if it is defined in this aggregate.
-		if(!rtn.isPresent())
+		if(rtn.isEmpty())
 			rtn = resolveInThisScopeOnly(search);
 		//if not then resolve with parent scope which could be super or back up scope tree
-		if(!rtn.isPresent())
+		if(rtn.isEmpty())
 			rtn = resolveWithParentScope(search);
 		return rtn;
 	}
 
 	private String doGetFriendlyName()
 	{
-		StringBuffer buffer = new StringBuffer(super.getFriendlyName());
-		buffer.append(getAnyGenericParamsAsFriendlyNames());
-		return buffer.toString();
+		return super.getFriendlyName() + getAnyGenericParamsAsFriendlyNames();
 	}
 
 	protected String getAnyGenericParamsAsFriendlyNames()
 	{
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		if(isGenericInNature())
 		{
 			buffer.append(" of ");
