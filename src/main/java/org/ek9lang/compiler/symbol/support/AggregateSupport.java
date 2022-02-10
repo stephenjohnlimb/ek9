@@ -186,6 +186,11 @@ public class AggregateSupport
 		return constructor;
 	}
 
+	public AggregateSymbol createTemplateGenericType(String name, IScope enclosingScope, List<AggregateSymbol> tSymbols)
+	{
+		return new AggregateSymbol(name, enclosingScope, tSymbols);
+	}
+
 	public AggregateSymbol createTemplateGenericType(String name, IScope enclosingScope, AggregateSymbol tSymbol)
 	{
 		return new AggregateSymbol(name, enclosingScope, List.of(tSymbol));

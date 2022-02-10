@@ -3,6 +3,7 @@ package org.ek9lang.compiler.symbol;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * While we don't add these in the scoped structures when compiling.
@@ -33,16 +34,6 @@ public class ParamExpressionSymbol extends Symbol
 	@Override
 	public String getFriendlyName()
 	{
-		StringBuffer buffer = new StringBuffer("(");
-		boolean first = true;
-		for(ISymbol symbol : params)
-		{
-			if(!first)
-				buffer.append(", ");
-			first = false;
-			buffer.append(symbol.getFriendlyName());
-		}
-		buffer.append(")");
-		return buffer.toString();
+		return "(" + params.stream().map(symbol -> symbol.getFriendlyName()).collect(Collectors.joining(", ")) + ")";
 	}
 }

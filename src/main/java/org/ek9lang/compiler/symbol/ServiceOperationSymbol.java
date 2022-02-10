@@ -8,7 +8,6 @@ import java.util.Optional;
  */
 public class ServiceOperationSymbol extends MethodSymbol
 {
-
 	public ServiceOperationSymbol(String name, Optional<ISymbol> type, IScope enclosingScope)
 	{
 		super(name, type, enclosingScope);
@@ -30,5 +29,4 @@ public class ServiceOperationSymbol extends MethodSymbol
 		super.cloneIntoMethodSymbol(newCopy);
 		return newCopy;
 	}
-
 }

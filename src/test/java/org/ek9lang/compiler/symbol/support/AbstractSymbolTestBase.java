@@ -13,11 +13,10 @@ public class AbstractSymbolTestBase
 	public void setupBasicSymbols()
 	{
 		symbolTable = new SymbolTable();
-		AggregateSymbol integerType = new AggregateSymbol("Integer", symbolTable);
-		symbolTable.define(integerType);
-		AggregateSymbol stringType = new AggregateSymbol("String", symbolTable);
-		symbolTable.define(stringType);
+		symbolTable.define(new AggregateSymbol("Integer", symbolTable));
+		symbolTable.define(new AggregateSymbol("String", symbolTable));
 		symbolTable.define(new AggregateSymbol("Boolean", symbolTable));
+		symbolTable.define(new AggregateSymbol("Date", symbolTable));
 		symbolTable.define(new AggregateSymbol("Void", symbolTable));
 	}
 }

@@ -333,6 +333,8 @@ public interface ISymbol extends ITokenReference
 	 */
 	String getName();
 
+	void setName(String name);
+
 	Optional<ISymbol> getType();
 
 	default ISymbol setType(ISymbol type) { return setType(Optional.ofNullable(type)); }

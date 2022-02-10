@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ScopedSymbol extends Symbol implements IScope
 {
@@ -159,7 +160,12 @@ public class ScopedSymbol extends Symbol implements IScope
 			addParameterisedType(parameterisedType.get());
 		return this;
 	}
-	
+
+	public List<ISymbol> getAnyGenericParameters()
+	{
+		return parameterisedTypes.stream().filter(t -> t.isGenericTypeParameter()).collect(Collectors.toList());
+	}
+
 	public List<ISymbol> getParameterisedTypes()
 	{
 		return Collections.unmodifiableList(parameterisedTypes);

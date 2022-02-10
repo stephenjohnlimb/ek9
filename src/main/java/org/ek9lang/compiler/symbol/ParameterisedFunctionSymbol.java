@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.symbol;
 
 import org.ek9lang.compiler.symbol.support.AggregateSupport;
+import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.utils.Digest;
@@ -8,6 +9,7 @@ import org.ek9lang.core.utils.Digest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Given a parameterised symbol and the symbol used to use as the parameter we are in effect saying:
@@ -21,60 +23,28 @@ import java.util.Optional;
  */
 public class ParameterisedFunctionSymbol extends FunctionSymbol implements ParameterisedSymbol
 {
-	private AggregateSupport aggregateSupport = new AggregateSupport();
+	private final AggregateSupport aggregateSupport = new AggregateSupport();
 	
 	//This is the function that can be parameterised
-	private FunctionSymbol parameterisableSymbol;
+	private final FunctionSymbol parameterisableSymbol;
 	
 	//This is what it is parameterised with - so this could be common with ParameterisedTypeSymbol.
-	private List<ISymbol> parameterSymbols = new ArrayList<ISymbol>();
+	private final List<ISymbol> parameterSymbols = new ArrayList<ISymbol>();
 	
 	private boolean variablesAndMethodsHydrated = false;
-	
-	/**
-	 * So this is where we make a real internal name as a real type.
-	 * @return the internal name to be used by combining the parameterisableSymbol with the parameters provided.
-	 */
-	public static String getInternalNameFor(FunctionSymbol parameterisableSymbol, List<ISymbol> parameterSymbols)
+
+	public ParameterisedFunctionSymbol(FunctionSymbol parameterisableSymbol, Optional<ISymbol> parameterSymbol, IScope enclosingScope)
 	{
-		StringBuffer rtn = new StringBuffer("_");
-		rtn.append(parameterisableSymbol.getName());
-		rtn.append("_");
-		//Also include but as fully qualified in the hash to ensure unique across modules with same type name
-		//i.e net.customer.myFunction and some.other.myFunction - will both prefix with _myFunction but hash will differ.
-		StringBuffer buffer = new StringBuffer(parameterisableSymbol.getFullyQualifiedName());
-		for(ISymbol symbol : parameterSymbols)
-		{
-			buffer.append("_");
-			buffer.append(symbol.getFullyQualifiedName());
-		}
-		rtn.append(Digest.digest(buffer.toString()).toString());
-		
-		return rtn.toString();
+		this(parameterisableSymbol, parameterSymbol.stream().collect(Collectors.toList()), enclosingScope);
 	}
-	
+
 	public ParameterisedFunctionSymbol(FunctionSymbol parameterisableSymbol, List<ISymbol> parameterSymbols, IScope enclosingScope)
 	{
 		this(parameterisableSymbol, enclosingScope);
-		parameterSymbols.forEach(parameterSymbol -> addParameterSymbol(parameterSymbol));
+		parameterSymbols.forEach(this::addParameterSymbol);
 		parameterisationComplete();
 	}
-	
-	public ParameterisedFunctionSymbol(FunctionSymbol parameterisableSymbol, Optional<ISymbol> parameterSymbol, IScope enclosingScope)
-	{
-		this(parameterisableSymbol, enclosingScope);
-		addParameterSymbol(parameterSymbol);
-		parameterisationComplete();
-	}
-	
-	public ParameterisedFunctionSymbol(FunctionSymbol parameterisableSymbol, Optional<ISymbol> parameterSymbol1, Optional<ISymbol> parameterSymbol2, IScope enclosingScope)
-	{
-		this(parameterisableSymbol, enclosingScope);
-		addParameterSymbol(parameterSymbol1);
-		addParameterSymbol(parameterSymbol2);
-		parameterisationComplete();
-	}
-	
+
 	private ParameterisedFunctionSymbol(FunctionSymbol parameterisableSymbol, IScope enclosingScope)
 	{		
 		super("", enclosingScope); //Gets set below
@@ -84,10 +54,6 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 			throw new IllegalArgumentException("parameterisableSymbol must be parameterised");
 		
 		this.parameterisableSymbol = parameterisableSymbol;
-		
-		this.setModuleScope(parameterisableSymbol.getModuleScope());
-		super.setCategory(SymbolCategory.FUNCTION);
-		super.setGenus(SymbolGenus.FUNCTION);
 	}
 	
 	public FunctionSymbol getParameterisableSymbol()
@@ -104,19 +70,6 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 	{
 		return variablesAndMethodsHydrated;
 	}
-
-	@Override
-	public boolean isGenericInNature()
-	{
-		//These can also be generic definitions when initially parsed.
-		//But when given a set of valid parameter are no longer generic aggregates.
-		for(ISymbol param :parameterSymbols)
-		{
-			if(param.isGenericTypeParameter())
-				return true;
-		}
-		return false;
-	}
 	
 	@Override
 	public boolean isSymbolTypeMatch(ISymbol symbolType)
@@ -126,54 +79,9 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 		{
 			//So this might also be considered equivalent
 			//But lets check that the parameterised types are a match
-			return doSymbolsMatch(parameterSymbols, parameterisableSymbol.getParameterisedTypes());
+			return CommonParameterisedTypeDetails.doSymbolsMatch(parameterSymbols, parameterisableSymbol.getParameterisedTypes());
 		}
 		return super.isSymbolTypeMatch(symbolType);
-	}
-
-	private boolean doSymbolsMatch(List<ISymbol> list1, List<ISymbol> list2)
-	{
-		if(list1.size() == list2.size())
-		{
-			for(int i=0; i<list1.size(); i++)
-				if(!list1.get(i).isExactSameType(list2.get(i)))
-					return false;
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Some parameterised types have been parameterised with S and T. This is done for use
-	 * within the symbol tables and when defining other generic types.
-	 * But these cannot actually be generated. So we do need to be able to distinguish between
-	 * those that can be really used and those that are just used with other generic classes.
-	 * @return true if just conceptual and cannot be generated, false if can actually be made manifest and used.
-	 */
-	public boolean isConceptualParameterisedType()
-	{
-		for(ISymbol param : parameterSymbols)
-		{
-			if(param.isGenericTypeParameter())
-				return true;
-		}
-		return false;
-	}
-	
-	public ParameterisedFunctionSymbol addParameterSymbol(Optional<ISymbol> parameterSymbol)
-	{
-		AssertValue.checkNotNull("parameterSymbol cannot be null", parameterSymbol);		
-		addParameterSymbol(parameterSymbol.get());
-		return this;
-	}
-	
-	public ParameterisedFunctionSymbol addParameterSymbol(ISymbol parameterSymbol)
-	{
-		AssertValue.checkNotNull("parameterSymbol cannot be null", parameterSymbol);
-		
-		parameterSymbols.add(parameterSymbol);
-		
-		return this;
 	}
 	
 	/**
@@ -182,7 +90,13 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 	 */
 	private void parameterisationComplete()
 	{
-		super.setName(getInternalNameFor(parameterisableSymbol, parameterSymbols));
+		super.setName(CommonParameterisedTypeDetails.getInternalNameFor(parameterisableSymbol, parameterSymbols));
+		this.setModuleScope(parameterisableSymbol.getModuleScope());
+		if(this.isGenericInNature())
+			super.setCategory(SymbolCategory.TEMPLATE_FUNCTION);
+		else
+			super.setCategory(SymbolCategory.FUNCTION);
+		super.setGenus(SymbolGenus.FUNCTION);
 	}
 	
 	/**
@@ -255,7 +169,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 				{
 					//So given a T or whatever we need to find which index position it is in
 					//Then we can use that same index position to get the equiv symbol from what parameters have been applied.
-					int index = getIndexOfType(Optional.of(symbol));
+					int index = CommonParameterisedTypeDetails.getIndexOfType(parameterisableSymbol, Optional.of(symbol));
 					if(index < 0)
 					{
 						throw new RuntimeException("Unable to find symbol [" + symbol + "]");
@@ -264,7 +178,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 					lookupParameterSymbols.add(resolvedSymbol);
 				}
 				//So now we have a generic type and a set of actual parameters we can resolve it!
-				String parameterisedTypeSymbolName = ParameterisedTypeSymbol.getInternalNameFor(aggregate, lookupParameterSymbols);
+				String parameterisedTypeSymbolName = CommonParameterisedTypeDetails.getInternalNameFor(aggregate, lookupParameterSymbols);
 				TypeSymbolSearch search = new TypeSymbolSearch(parameterisedTypeSymbolName);
 				return this.resolve(search);
 			}
@@ -272,7 +186,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 			{
 				//So if this is a T or and S or a P for example we need to know
 				//What actual symbol to use from the parameterSymbols we have been parameterised with.
-				int index = getIndexOfType(typeToResolve);
+				int index = CommonParameterisedTypeDetails.getIndexOfType(parameterisableSymbol, typeToResolve);
 				ISymbol resolvedSymbol = parameterSymbols.get(index);
 				
 				return Optional.of(resolvedSymbol);
@@ -293,7 +207,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 					//So lets see might be a K or V for example but we must be able to find that type in this object	
 					if(symbol.isGenericTypeParameter())
 					{
-						int index = getIndexOfType(Optional.of(symbol));
+						int index = CommonParameterisedTypeDetails.getIndexOfType(parameterisableSymbol, Optional.of(symbol));
 						if(index < 0)
 						{
 							throw new RuntimeException("Unable to find symbol [" + symbol + "]");
@@ -308,7 +222,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 					}
 				}
 				
-				String parameterisedTypeSymbolName = getInternalNameFor(asParameterisedTypeSymbol.parameterisableSymbol, lookupParameterSymbols);
+				String parameterisedTypeSymbolName = CommonParameterisedTypeDetails.getInternalNameFor(asParameterisedTypeSymbol.parameterisableSymbol, lookupParameterSymbols);
 				TypeSymbolSearch search = new TypeSymbolSearch(parameterisedTypeSymbolName);
 				Optional<ISymbol> resolvedSymbol = this.resolve(search);
 				return resolvedSymbol;
@@ -316,25 +230,6 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 				
 		}
 		return typeToResolve;
-	}
-	
-	/**
-	 * For the type passed in - a T or and S whatever we need to know it's index.
-	 * From this we can look at what this has been parameterised with and use that type.
-	 * @param theType The generic definition parameter i.e S, or T
-	 * @return The index or -1 if not found.
-	 */
-	private int getIndexOfType(Optional<ISymbol> theType)
-	{
-		if(theType.isPresent())
-		{
-			for(int i=0; i < parameterisableSymbol.getParameterisedTypes().size(); i++)
-			{
-				if(parameterisableSymbol.getParameterisedTypes().get(i).isExactSameType(theType.get()))
-					return i;
-			}
-		}
-		return -1;
 	}
 	
 	@Override
@@ -355,62 +250,8 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 			buffer.append("Unknown");
 		
 		buffer.append(" <- ").append(nameOfFunction);
-		buffer.append("(");
-		boolean first = true;
-		for(ISymbol symbol : parameterSymbols)
-		{
-			if(!first)
-				buffer.append(", ");
-			buffer.append(symbol);
-			first = false;
-		}
-		buffer.append(")");
-		
-		return buffer.toString();
-	}
-	
-	private String parameterSymbolsAsCommaSeparated()
-	{
-		StringBuffer buffer = new StringBuffer();
-		boolean first = true;
-		for(ISymbol symbol : parameterSymbols)
-		{
-			if(!first)
-				buffer.append(", ");
-			first = false;
-			buffer.append(symbol);
-		}
-		return buffer.toString();
-	}
+		buffer.append("(").append(parameterSymbolsAsCommaSeparated()).append(")");
 
-	@Override
-	public ISymbol setType(Optional<ISymbol> type)
-	{
-		throw new RuntimeException("Cannot alter ParameterisedFunctionSymbol types", new UnsupportedOperationException());
-	}	
-	
-	/**
-	 * So now here when it comes to being assignable the generic parameterisable type has to be the same.
-	 * And the parameters it has been parameterised with also have to be the same and match.
-	 *
-	 * Only then do we consider it to be assignable via a weight.
-	 * 
-	 * This might be a bit over simplified, but at least it is simple and straightforward.
-	 * We are not currently considering extending or inheritance with generic templates types - they are already complex enough.
-	 */
-	@Override
-	public double getAssignableWeightTo(ISymbol s)
-	{
-		return getUnCoercedAssignableWeightTo(s);
-	}
-	
-	public double getUnCoercedAssignableWeightTo(ISymbol s)
-	{
-		//Now because we've hashed the class and parameter signature we can do a very quick check here.
-		//Plus we dont allow any types of coersion or super class matching.
-		if(this.getName().equals(s.getName()))
-			return 0.0;
-
-		return -1000.0;
+		return buffer.toString();
 	}
 }

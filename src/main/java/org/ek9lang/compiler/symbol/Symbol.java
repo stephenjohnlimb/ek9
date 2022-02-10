@@ -389,6 +389,7 @@ public class Symbol implements ISymbol
 		return getFriendlyName();
 	}
 
+	@Override
 	public void setName(String name)
 	{
 		AssertValue.checkNotNull("Name cannot be null", name);
