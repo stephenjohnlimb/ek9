@@ -26,7 +26,7 @@ public class Ep extends E
 
 	public boolean preConditionCheck()
 	{
-		if(!commandLine.isPackagePresent())
+		if(commandLine.noPackageIsPresent())
 		{
 			report("File " + commandLine.getSourceFileName() + " does not define a package");
 			return false;
@@ -53,7 +53,7 @@ public class Ep extends E
 			if(commandLine.isVerbose())
 				listOfFiles.forEach(file -> log("Zip: " + file.toString()));
 
-			String zipFileName = getFileHandling().makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion().toString());
+			String zipFileName = getFileHandling().makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion());
 			String fileName = getFileHandling().getDotEK9Directory(commandLine.getSourceFileDirectory()) + zipFileName;
 
 			if(getFileHandling().createZip(fileName, new ZipSet(fromPath, listOfFiles), commandLine.getSourcePropertiesFile()))

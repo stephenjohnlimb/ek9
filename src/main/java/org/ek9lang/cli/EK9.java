@@ -6,8 +6,6 @@ import org.ek9lang.core.utils.OsSupport;
 import org.ek9lang.lsp.Server;
 
 import java.io.File;
-import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * Main entry point into the compiler, build system and language server.

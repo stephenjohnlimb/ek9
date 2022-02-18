@@ -4,25 +4,25 @@ import org.ek9lang.compiler.symbol.support.SymbolMatcher;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Represents some type of method that exists on an aggregate type scope.
  * Or it could just be a function type concept at the module level.
- * 
+ * <p>
  * This could be an 'operation' that exists on a model type aggregate for
  * example. Or it may be one of the storage operations.
- * 
  */
 public class MethodSymbol extends ScopedSymbol
-{	
+{
 	/**
 	 * Keep separate variable for what we are returning because we need its name and type.
 	 */
 	private ISymbol returningSymbol;
-	
+
 	//Just used internally to check for method signature matching
 	private final SymbolMatcher matcher = new SymbolMatcher();
-	
+
 	/**
 	 * So has the developer indicated that this method is an overriding method.
 	 */
@@ -31,29 +31,29 @@ public class MethodSymbol extends ScopedSymbol
 	 * By default, access to methods is public unless otherwise modified.
 	 */
 	private String accessModifier = "public";
-	
+
 	/**
 	 * Is this a constructor method or just a normal method
 	 */
 	private boolean constructor = false;
-	
+
 	/**
 	 * Is this an operator like := or < etc.
 	 */
 	private boolean operator = false;
-	
-	/** 
+
+	/**
 	 * Was it marked abstract in the source code.
 	 */
 	private boolean markedAbstract = false;
-	
+
 	/**
 	 * We may be interested to know and may restrict some operation if this function is marked as pure.
 	 */
 	private boolean markedPure = false;
-	
+
 	private boolean markedAsDispatcher = false;
-	
+
 	/**
 	 * We may or may not alter if it was abstract by setting this virtual value.
 	 */
@@ -63,26 +63,26 @@ public class MethodSymbol extends ScopedSymbol
 	 * Should this method be cloned during a clone operation like for type defines.
 	 */
 	private boolean markedNoClone = false;
-	
+
 	/**
 	 * Is this method a synthetic one, ie typically for constructors the compiler can indicate
 	 * this method should be created in code generation.
 	 */
 	private boolean synthetic = false;
-	
+
 	/**
 	 * Really just used for reverse engineered methods from Java we need to know if the method returns this or not.
 	 */
 	private boolean ek9ReturnsThis = false;
-	
+
 	private String usedAsProxyForDelegate = null;
-	
+
 	/**
 	 * When returning a values and this method is in a generic parameterised class does the return value
 	 * need wrapping up or can it be returned directly.
 	 */
 	private boolean parameterisedWrappingRequired = false;
-	
+
 	public MethodSymbol(String name, IScope enclosingScope)
 	{
 		super(name, enclosingScope);
@@ -99,7 +99,7 @@ public class MethodSymbol extends ScopedSymbol
 		super.setCategory(SymbolCategory.METHOD);
 		super.setGenus(SymbolGenus.VALUE);
 	}
-	
+
 	public MethodSymbol(String name, Optional<ISymbol> type, IScope enclosingScope)
 	{
 		super(name, type, enclosingScope);
@@ -132,7 +132,7 @@ public class MethodSymbol extends ScopedSymbol
 		newCopy.operator = this.operator;
 		newCopy.markedAbstract = this.markedAbstract;
 		newCopy.markedPure = this.markedPure;
-		newCopy.markedAsDispatcher  = this.markedAsDispatcher;
+		newCopy.markedAsDispatcher = this.markedAsDispatcher;
 		newCopy.virtual = this.virtual;
 		newCopy.markedNoClone = this.markedNoClone;
 		newCopy.synthetic = this.synthetic;
@@ -163,7 +163,7 @@ public class MethodSymbol extends ScopedSymbol
 	{
 		this.parameterisedWrappingRequired = parameterisedWrappingRequired;
 	}
-	
+
 	public boolean isOverride()
 	{
 		return override;
@@ -188,23 +188,23 @@ public class MethodSymbol extends ScopedSymbol
 	{
 		return accessModifier.equals("private");
 	}
-	
+
 	public boolean isProtected()
 	{
 		return accessModifier.equals("protected");
 	}
-	
+
 	public boolean isPublic()
 	{
 		return accessModifier.equals("public");
 	}
-	
+
 	@Override
 	public void define(ISymbol symbol)
 	{
-		super.define(symbol);		
+		super.define(symbol);
 	}
-	
+
 	@Override
 	public ISymbol setType(Optional<ISymbol> type)
 	{
@@ -234,7 +234,7 @@ public class MethodSymbol extends ScopedSymbol
 	{
 		this.ek9ReturnsThis = ek9ReturnsThis;
 	}
-	
+
 	public boolean isEk9ReturnsThis()
 	{
 		return ek9ReturnsThis;
@@ -254,12 +254,12 @@ public class MethodSymbol extends ScopedSymbol
 	{
 		return markedNoClone;
 	}
-	
+
 	public void setMarkedNoClone(boolean markedNoClone)
 	{
 		this.markedNoClone = markedNoClone;
 	}
-	
+
 	public boolean isMarkedAsDispatcher()
 	{
 		return markedAsDispatcher;
@@ -285,12 +285,12 @@ public class MethodSymbol extends ScopedSymbol
 	{
 		this.virtual = virtual;
 	}
-	
+
 	public boolean isVirtual()
 	{
 		return virtual;
 	}
-	
+
 	@Override
 	public boolean isAConstant()
 	{
@@ -307,7 +307,7 @@ public class MethodSymbol extends ScopedSymbol
 		this.constructor = constructor;
 		return this;
 	}
-	
+
 	public boolean isOperator()
 	{
 		return operator;
@@ -328,7 +328,7 @@ public class MethodSymbol extends ScopedSymbol
 	{
 		return returningSymbol != null;
 	}
-	
+
 	public ISymbol getReturningSymbol()
 	{
 		return returningSymbol;
@@ -338,11 +338,11 @@ public class MethodSymbol extends ScopedSymbol
 	{
 		this.returningSymbol = returningSymbol;
 	}
-	
+
 	public void setReturningSymbol(ISymbol returningSymbol)
 	{
 		justSetReturningSymbol(returningSymbol);
-		
+
 		if(returningSymbol != null)
 			this.setType(returningSymbol.getType());
 	}
@@ -362,22 +362,18 @@ public class MethodSymbol extends ScopedSymbol
 			return false;
 		//System.out.println("parameter match weight is "+ weight);
 		weight = matcher.getWeightOfMatch(this.getType(), toMethod.getType());
-		
+
 		//System.out.println("Return type weight is "+ weight);
-		if(weight < 0.0)
-			return false;
-		return true;
+		return !(weight < 0.0);
 	}
-	
+
 	public boolean isParameterSignatureMatchTo(List<ISymbol> params)
 	{
 		List<ISymbol> ourParams = this.getSymbolsForThisScope();
 		double weight = matcher.getWeightOfParameterMatch(ourParams, params);
-		if(weight < 0.0)
-			return false;
-		return true;
+		return !(weight < 0.0);
 	}
-	
+
 	/**
 	 * Added convenience method to make the parameters a bit more obvious
 	 */
@@ -385,34 +381,35 @@ public class MethodSymbol extends ScopedSymbol
 	{
 		return super.getSymbolsForThisScope();
 	}
-	
+
 	/**
 	 * Typically used when making synthetic methods you want to add in all the params from another method or something.
+	 *
 	 * @param params The parameters to pass to the method.
 	 * @return this method - used for chaining.
 	 */
 	public MethodSymbol setMethodParameters(List<ISymbol> params)
 	{
-		for(ISymbol param: params)
+		for(ISymbol param : params)
 			define(param);
 		return this;
 	}
-	
+
 	@Override
 	public String getFriendlyName()
 	{
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		if(this.isOverride())
 			buffer.append("override ");
-		
+
 		buffer.append(accessModifier).append(" ");
-		
-		if(getType().isPresent() )
+
+		if(getType().isPresent())
 		{
 			ISymbol theType = getType().get();
 			if(theType instanceof ParameterisedTypeSymbol)
 			{
-				buffer.append(((ParameterisedTypeSymbol)theType).getFriendlyName());
+				buffer.append(theType.getFriendlyName());
 			}
 			else
 			{
@@ -425,34 +422,27 @@ public class MethodSymbol extends ScopedSymbol
 		{
 			buffer.append("Unknown");
 		}
-		
+
 		buffer.append(" <- ").append(super.getName());
 		buffer.append("(");
-		boolean first = true;
-		for(ISymbol symbol : getSymbolsForThisScope())
-		{
-			if(!first)
-				buffer.append(", ");
-			buffer.append(symbol.getFriendlyName());
-			first = false;
-		}
+		buffer.append(getSymbolsForThisScope().stream().map(ISymbol::getFriendlyName).collect(Collectors.joining(", ")));
 		buffer.append(")");
-		
+
 		return buffer.toString();
 	}
 
 	public String toString()
 	{
-		StringBuffer buffer = new StringBuffer();
-		
+		StringBuilder buffer = new StringBuilder();
+
 		//for to string we want a bit of extra info here that we don't show end user. but good for debugging.
 		if(this.markedAbstract)
 			buffer.append("abstract ");
 		if(this.virtual)
 			buffer.append("virtual ");
-		
+
 		buffer.append(getFriendlyName());
-		
+
 		return buffer.toString();
 	}
 }

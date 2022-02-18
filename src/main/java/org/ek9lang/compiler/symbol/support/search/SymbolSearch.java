@@ -21,11 +21,11 @@ public class SymbolSearch
 	 * like com.abc:Something - or a function like com.abc:myFunction or a function call com.abc:myFunction()
 	 * Or just a variable in a scope like 'a' or a method like transmutant()
 	 */
-	private String name;
+	private final String name;
 
 	/**
 	 * For variables - esp when checking for duplicates we want to allow
-	 * for class level variables of a name and allow a local variable to have same name
+	 * for class level variables of a name and allow a local variable to have the same name
 	 * But we want to stop any block within block level definition of variables with the same name.
 	 * So more like java and less like C++ where C and C++ allow variable hiding/shadowing in blocks within blocks.
 	 */
@@ -39,7 +39,7 @@ public class SymbolSearch
 	 * Typically if searching for a method this will be zero or more parameters.
 	 * But note these are not just a list of types they are the parameters with the type set into that symbol.
 	 */
-	private List<ISymbol> parameters = new ArrayList<ISymbol>();
+	private final List<ISymbol> parameters = new ArrayList<>();
 
 	/**
 	 * What type of search is being triggered.
@@ -101,7 +101,12 @@ public class SymbolSearch
 	
 	public List<ISymbol> getParameterTypes()
 	{
-		return parameters.stream().map(symbol -> symbol.getType().get()).collect(Collectors.toList());
+		return parameters
+				.stream()
+				.map(ISymbol::getType)
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.collect(Collectors.toList());
 	}
 
 	public SymbolSearch addParameter(ISymbol parameter)
@@ -114,7 +119,7 @@ public class SymbolSearch
 	public SymbolSearch setParameters(List<ISymbol> parameters)
 	{
 		AssertValue.checkNotNull("parameters cannot be null for search Symbol", parameters);
-		parameters.forEach(param -> addParameter(param));
+		parameters.forEach(this::addParameter);
 		return this;
 	}
 
@@ -141,11 +146,11 @@ public class SymbolSearch
 	
 	public Optional<ISymbol> getNameAsSymbol(String fromModuleName)
 	{
-		AggregateSymbol sym = null;
+		AggregateSymbol sym;
 		String theName = name;
 		if(name.contains("::"))
 		{
-			String parts[] = name.split("::");
+			String[] parts = name.split("::");
 			if(fromModuleName.equals(parts[0]))
 				theName = parts[1];
 		}
@@ -161,7 +166,7 @@ public class SymbolSearch
 	
 	public String toString()
 	{
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		
 		if(getOfTypeOrReturn().isPresent())
 			buffer.append(getOfTypeOrReturn().get().getName()).append(" <- ");
@@ -170,21 +175,17 @@ public class SymbolSearch
 		if(this.searchType == ISymbol.SymbolCategory.METHOD)
 		{
 			buffer.append("(");
-			boolean first = true;
-			for(ISymbol symbol : parameters)
-			{
-				if(!first)
-					buffer.append(", ");
-				buffer.append(symbol.getName()).append(" as ");
-				if(symbol.getType().isPresent())
-					buffer.append(symbol.getType().get().getName());
-				else
-					buffer.append("?");
-				first = false;
-			}
+			buffer.append(parameters.stream().map(this::paramAndTypeToString).collect(Collectors.joining(", ")));
 			buffer.append(")");
 		}
 		
 		return buffer.toString();
+	}
+
+	private String paramAndTypeToString(ISymbol symbol)
+	{
+		StringBuilder builder = new StringBuilder(symbol.getName());
+		symbol.getType().ifPresent(type -> builder.append(" as ").append(type.getName()));
+		return builder.toString();
 	}
 }

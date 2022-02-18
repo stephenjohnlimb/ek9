@@ -1,7 +1,5 @@
 package org.ek9lang.compiler.symbol;
 
-import java.util.Optional;
-
 /**
  * EK9 'for' type symbol - we need a scope because we declare a new variable as the loop variable.
  * The for loop can be used to iterator over a collection or increment/decrement over a range.

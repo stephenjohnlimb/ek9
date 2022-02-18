@@ -13,11 +13,11 @@ public class Eiv extends Eve
 	/**
 	 * Rather than use a switch use a map of version vector name to a method call.
 	 */
-	private Map<String, Consumer<Version>> operation = Map.of(
-			"major", v -> v.incrementMajor(),
-			"minor", v -> v.incrementMinor(),
-			"patch", v -> v.incrementPatch(),
-			"build", v -> v.incrementBuildNumber()
+	private final Map<String, Consumer<Version>> operation = Map.of(
+			"major", Version::incrementMajor,
+			"minor", Version::incrementMinor,
+			"patch", Version::incrementPatch,
+			"build", Version::incrementBuildNumber
 	);
 
 	public Eiv(CommandLineDetails commandLine, FileCache sourceFileCache)

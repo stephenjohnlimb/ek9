@@ -2,14 +2,14 @@ package org.ek9lang.compiler.symbol;
 
 /**
  * EK9 switch statement - this can effectively return a value if it is configured with returning part.
- * 
+ * <p>
  * When generating out put we need this to create it's own block so variables inside are hidden from later scopes.
- * 
+ * <p>
  * So as we have a returning part (optional) we need a scope to put it in (i.e this scope) this then means that when
  * we use the case parts of the switch we can find that returning variable - but also check of local variables
  * declared in the case block against this switch scope and any outer scopes.
- * 
- * Finally when coming to generate the output - this symbol will be able to supply the outer variable to set the result to.
+ * <p>
+ * Finally, when coming to generate the output - this symbol will be able to supply the outer variable to set the result to.
  */
 public class SwitchSymbol extends ControlSymbol
 {

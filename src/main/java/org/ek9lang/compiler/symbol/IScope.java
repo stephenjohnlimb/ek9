@@ -19,10 +19,10 @@ public interface IScope
 	 * You can have fields as variables with a name say 'v1' and parameters and block declarations of something as 'v1'.
 	 * But once in a block scope then you cannot redefine 'v1'. 
 	 */
-	public static enum ScopeType {
+	enum ScopeType {
 		AGGREGATE,
-		BLOCK;
-	};
+		BLOCK
+	}
 
 	Object clone(IScope withParentAsAppropriate);
 
@@ -51,17 +51,16 @@ public interface IScope
 	/**
 	 * Used to keep track of any parameterised types used in a generic type that use some or all of the generic parameters.
 	 */
-	default List<ParameterisedTypeSymbol> getParameterisedTypeReferences() { return new ArrayList<ParameterisedTypeSymbol>();}
+	default List<ParameterisedTypeSymbol> getParameterisedTypeReferences() { return new ArrayList<>();}
 	
 	/**
 	 * Keep track of parameterised functions used.
 	 */
-	default List<ParameterisedFunctionSymbol> getParameterisedFunctionReferences() { return new ArrayList<ParameterisedFunctionSymbol>();}
+	default List<ParameterisedFunctionSymbol> getParameterisedFunctionReferences() { return new ArrayList<>();}
 	
 	/**
 	 * Typically in a scoped block we can encounter situations (like exceptions) that cause the block
 	 * to end (terminate) early.
-	 * @return
 	 */
 	default boolean isTerminatedNormally()
 	{

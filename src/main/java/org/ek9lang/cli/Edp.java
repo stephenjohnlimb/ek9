@@ -33,11 +33,11 @@ public class Edp extends E
 		if(!new Ecl(commandLine, sourceFileCache).run())
 			return false;
 
-		if(!commandLine.isPackagePresent())
+		if(commandLine.noPackageIsPresent())
 			log("No Dependencies defined");
 
 		Optional<DependencyNode> rootNode = new DependencyNodeFactory(commandLine).createFrom(commandLine.getSourceVisitor());
-		if(!rootNode.isPresent())
+		if(rootNode.isEmpty())
 		{
 			report("Failed");
 			return false;
@@ -95,9 +95,8 @@ public class Edp extends E
 		log("Exclusions (" + allDependencies.size() + ")");
 		allDependencies.forEach(dep -> {
 			Map<String, String> rejections = dep.getDependencyRejections();
-			rejections.keySet().forEach(key -> {
-				String moduleName = key;
-				String whenDependencyOf = rejections.get(key);
+			rejections.keySet().forEach(moduleName -> {
+				String whenDependencyOf = rejections.get(moduleName);
 				log("Exclusion '" + moduleName + "' <- '" + whenDependencyOf + "'");
 				dependencyManager.reject(moduleName, whenDependencyOf);
 			});
@@ -142,11 +141,11 @@ public class Edp extends E
 
 	private void showAnalysisDetails(String application, List<DependencyNode> list)
 	{
-		if(!list.isEmpty())
-		{
-			System.err.print(messagePrefix() + application);
-			list.stream().map(node -> " '" + node + "'").forEach(System.err::print);
-			System.err.println(".");
-		}
+		if(list.isEmpty())
+			return;
+
+		System.err.print(messagePrefix() + application);
+		list.stream().map(node -> " '" + node + "'").forEach(System.err::print);
+		System.err.println(".");
 	}
 }

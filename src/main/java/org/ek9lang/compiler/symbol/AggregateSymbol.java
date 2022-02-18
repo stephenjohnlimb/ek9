@@ -169,8 +169,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 		newCopy.genericTypeParameter = genericTypeParameter;
 		newCopy.markedAsDispatcher = markedAsDispatcher;
 
-		if(superAggregateScopedSymbol.isPresent())
-			newCopy.superAggregateScopedSymbol = Optional.of(superAggregateScopedSymbol.get());
+		superAggregateScopedSymbol.ifPresent(iAggregateSymbol -> newCopy.superAggregateScopedSymbol = Optional.of(iAggregateSymbol));
 
 		newCopy.subAggregateScopedSymbols.addAll(subAggregateScopedSymbols);
 		newCopy.markedAbstract = markedAbstract;
@@ -195,6 +194,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	/**
 	 * If used in dynamic form, this will return the scope with any dynamic variables
 	 * that we captured at definition.
+	 *
 	 * @return An optional of a scope containing zero or more captured variables.
 	 */
 	@Override
@@ -205,6 +205,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 
 	/**
 	 * Attempt to resolve a named variable but exclude looking any captured variables.
+	 *
 	 * @param search The symbol search to use to find the variable.
 	 * @return An optional match if one is found.
 	 */
@@ -216,6 +217,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 
 	/**
 	 * When used in a dynamic style aggregate to set the variables that have been captured.
+	 *
 	 * @param capturedVariables The scope with the captured variables in.
 	 */
 	@Override
@@ -226,6 +228,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 
 	/**
 	 * Provides a friendly name of this aggregate that could be presented to the developer.
+	 *
 	 * @return The friendly name - especially useful for anonymous dynamic types.
 	 */
 	@Override
@@ -236,6 +239,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 
 	/**
 	 * Typically used for synthetically generated aggregates.
+	 *
 	 * @return A description or the friendly name of no description has been set.
 	 */
 	public String getAggregateDescription()
@@ -327,7 +331,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	}
 
 	/**
-	 * Is this aggregate based of generic sort of aggregate and it has been parameterized.
+	 * Is this aggregate based of generic sort of aggregate, and it has been parameterized.
 	 */
 	@Override
 	public boolean isGenericInNature()
@@ -375,6 +379,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 
 	/**
 	 * Gets all abstract methods in this aggregate and any super classes.
+	 *
 	 * @return A list of all the methods marked as abstract.
 	 */
 	@Override
@@ -392,12 +397,13 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 
 	/**
 	 * Provides access to the properties on this aggregate - but only this aggregate.
+	 *
 	 * @return The list of properties.
 	 */
 	@Override
 	public List<ISymbol> getProperties()
 	{
-		return getSymbolsForThisScope().stream().filter(sym -> sym.isAVariable()).collect(Collectors.toList());
+		return getSymbolsForThisScope().stream().filter(ISymbol::isAVariable).collect(Collectors.toList());
 	}
 
 	@Override
@@ -619,7 +625,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 
 	public Optional<ISymbol> resolveMember(SymbolSearch search)
 	{
-		//For members we only look to our aggregate and super (unless we introduce traits later)
+		//For members; we only look to our aggregate and super (unless we introduce traits later)
 		Optional<ISymbol> rtn = resolveInThisScopeOnly(search);
 		if(rtn.isEmpty() && superAggregateScopedSymbol.isPresent())
 			rtn = superAggregateScopedSymbol.get().resolveMember(search);

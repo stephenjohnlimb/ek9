@@ -86,6 +86,11 @@ public class ErrorListener extends BaseErrorListener
 		return errors.iterator();
 	}
 
+	public boolean hasErrors()
+	{
+		return !isErrorFree();
+	}
+
 	public boolean isErrorFree()
 	{
 		return errors.size() == 0;
@@ -171,11 +176,12 @@ public class ErrorListener extends BaseErrorListener
 				reason = msg;
 		}
 		else if(e != null)
-			reason = e.getClass().getSimpleName();
-
-		if(offendingSymbol instanceof Token)
 		{
-			Token offender = (Token)offendingSymbol;
+			reason = e.getClass().getSimpleName();
+		}
+
+		if(offendingSymbol instanceof Token offender)
+		{
 			int tokenLength = offender.getText().length();
 			error = new ErrorDetails(ErrorClassification.SYNTAX_ERROR, offender.getText(), null, line, charPositionInLine, tokenLength, reason);
 		}
@@ -477,15 +483,15 @@ public class ErrorListener extends BaseErrorListener
 		/**
 		 * Not always set
 		 */
-		private String possibleShortFileName;
+		private final String possibleShortFileName;
 
 		// Normally just before the error is actually reported.
-		private String likelyOffendingSymbol = "";
-		private String symbolErrorText = "";
-		private String typeOfError;
-		private int lineNumber = 0;
-		private int position = 0;
-		private int tokenLength = 1;
+		private final String likelyOffendingSymbol;
+		private final String symbolErrorText;
+		private final String typeOfError;
+		private final int lineNumber;
+		private final int position;
+		private final int tokenLength;
 
 		//Only used with semantic errors.
 		private SemanticClassification semanticClassification;
@@ -498,14 +504,12 @@ public class ErrorListener extends BaseErrorListener
 			this.lineNumber = lineNumber;
 			this.position = characterNumber;
 			this.tokenLength = tokenLength;
-			StringBuffer buffer = new StringBuffer();
-			buffer.append(likelyOffendingSymbol)
-					.append("' on line ")
-					.append(lineNumber)
-					.append(" position ")
-					.append(characterNumber);
 
-			symbolErrorText = buffer.toString();
+			symbolErrorText = likelyOffendingSymbol +
+					"' on line " +
+					lineNumber +
+					" position " +
+					characterNumber;
 		}
 
 		protected abstract String getClassificationDescription();
@@ -554,7 +558,9 @@ public class ErrorListener extends BaseErrorListener
 		@Override
 		public boolean equals(Object obj)
 		{
-			return this.toString().equals(obj.toString());
+			if(obj instanceof Details)
+				return this.toString().equals(obj.toString());
+			return false;
 		}
 
 		/**
@@ -564,7 +570,7 @@ public class ErrorListener extends BaseErrorListener
 		 */
 		public String toLinePositionReference()
 		{
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			if(possibleShortFileName != null)
 				buffer.append(possibleShortFileName);
 			buffer.append(":").append(lineNumber);
@@ -574,7 +580,7 @@ public class ErrorListener extends BaseErrorListener
 		@Override
 		public String toString()
 		{
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 
 			buffer.append(getClassificationDescription());
 

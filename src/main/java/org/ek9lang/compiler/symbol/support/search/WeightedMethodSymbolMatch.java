@@ -7,9 +7,9 @@ import org.ek9lang.compiler.symbol.MethodSymbol;
  */
 public class WeightedMethodSymbolMatch
 {
-	private double weight;
-	private MethodSymbol methodSymbol;
-	
+	private final double weight;
+	private final MethodSymbol methodSymbol;
+
 	public WeightedMethodSymbolMatch(MethodSymbol methodSymbol, double matchWeight)
 	{
 		this.weight = matchWeight;
@@ -29,11 +29,6 @@ public class WeightedMethodSymbolMatch
 	@Override
 	public String toString()
 	{
-		//handy for debugging.
-		StringBuffer buffer = new StringBuffer(methodSymbol.toString());
-		buffer.append(": ");
-		buffer.append(weight);
-		
-		return buffer.toString();
+		return methodSymbol.toString() + ": " + weight;
 	}
 }

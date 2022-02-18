@@ -8,6 +8,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * An abstract base for creating the target artefact.
@@ -41,6 +42,7 @@ public abstract class Ec extends E
 
 		//TODO the actual compilation!
 
+		//At present if in log mode show the list of files to be compiled.
 		compilableProjectFiles.forEach(file -> log(file.getAbsolutePath()));
 
 		return true; //or false if compilation failed
@@ -49,7 +51,7 @@ public abstract class Ec extends E
 	protected boolean repackageTargetArtefact()
 	{
 		//We can only build a jar for java at present.
-		if(commandLine.targetArchitecture == EK9DirectoryStructure.JAVA)
+		if(Objects.equals(commandLine.targetArchitecture, EK9DirectoryStructure.JAVA))
 		{
 			log("Creating target");
 
@@ -78,8 +80,6 @@ public abstract class Ec extends E
 
 	/**
 	 * This will be the stock set of runtime code that we need to bundle.
-	 *
-	 * @return
 	 */
 	private ZipSet getCoreComponents()
 	{

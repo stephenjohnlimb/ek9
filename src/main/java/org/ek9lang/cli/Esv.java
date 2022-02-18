@@ -21,7 +21,6 @@ public class Esv extends Eve
 	protected boolean doRun()
 	{
 		String newVersionParameter = commandLine.getOptionParameter("-SV");
-		Version newVersion = Version.withNoBuildNumber(newVersionParameter);
-		return super.setVersionNewNumber(newVersion);
+		return super.setVersionNewNumber(Version.withNoBuildNumber(newVersionParameter));
 	}
 }

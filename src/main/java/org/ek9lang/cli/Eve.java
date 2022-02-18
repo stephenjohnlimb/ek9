@@ -25,7 +25,7 @@ public abstract class Eve extends E
 	@Override
 	public boolean preConditionCheck()
 	{
-		if(!commandLine.isPackagePresent())
+		if(commandLine.noPackageIsPresent())
 		{
 			report("File " + super.commandLine.getSourceFileName() + " does not define a package");
 			return false;
@@ -104,9 +104,9 @@ public abstract class Eve extends E
 	 */
 	public static class Version
 	{
-		private static String MAJOR_MINOR_PATCH = "(?<major>\\d+)(\\.)(?<minor>\\d+)(\\.)(?<patch>\\d+)";
-		private static String FEATURE = "((-)(?<feature>[a-zA-Z]+[a-zA-Z0-9]*))";
-		private static String BUILD_NO = "(-)(?<buildNumber>\\d+)";
+		private static final String MAJOR_MINOR_PATCH = "(?<major>\\d+)(\\.)(?<minor>\\d+)(\\.)(?<patch>\\d+)";
+		private static final String FEATURE = "((-)(?<feature>[a-zA-Z]+[a-zA-Z0-9]*))";
+		private static final String BUILD_NO = "(-)(?<buildNumber>\\d+)";
 		private int major = 0;
 		private int minor = 0;
 		private int patch = 0;

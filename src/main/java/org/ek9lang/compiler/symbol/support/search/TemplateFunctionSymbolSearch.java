@@ -12,7 +12,7 @@ public class TemplateFunctionSymbolSearch extends SymbolSearch
 {
 	public TemplateFunctionSymbolSearch(String name)
 	{
-		super(name);	
+		super(name);
 		setSearchType(ISymbol.SymbolCategory.TEMPLATE_FUNCTION);
 	}
 }

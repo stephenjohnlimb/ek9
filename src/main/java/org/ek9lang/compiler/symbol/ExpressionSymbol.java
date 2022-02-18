@@ -2,21 +2,19 @@ package org.ek9lang.compiler.symbol;
 
 import org.antlr.v4.runtime.Token;
 
-import java.util.Optional;
-
 /**
  * While we don't add these in the scoped structures when compiling.
- * 
+ * <p>
  * We do use these to augment the parse tree for the appropriate context.
- * 
- *  We do this so that we can work out what type of result will be returned from an expression.
- *  
- *  See methods like isExactSameType and isAssignableTo for type checking in the Symbol class.
- *  
- *  The idea is to augment the parse tree with these expression symbols so that once we've been through
- *  sufficient passes of the tree we have sufficient information to add in any promotions/coercions and also check
- *  the type of parameters on operations are compatible. We can then add in explicit IR type conversions if needed.
- *  This information will also be used in the semantic analysis phase.
+ * <p>
+ * We do this so that we can work out what type of result will be returned from an expression.
+ * <p>
+ * See methods like isExactSameType and isAssignableTo for type checking in the Symbol class.
+ * <p>
+ * The idea is to augment the parse tree with these expression symbols so that once we've been through
+ * sufficient passes of the tree we have sufficient information to add in any promotions/coercions and also check
+ * the type of parameters on operations are compatible. We can then add in explicit IR type conversions if needed.
+ * This information will also be used in the semantic analysis phase.
  */
 public class ExpressionSymbol extends Symbol implements IAssignableSymbol
 {
@@ -35,11 +33,11 @@ public class ExpressionSymbol extends Symbol implements IAssignableSymbol
 		setCategory(symbol.getCategory());
 		setDeclaredAsAConstant(symbol.isDeclaredAsAConstant());
 	}
-	
+
 	public ExpressionSymbol(String name)
 	{
 		super(name);
-		super.setGenus(SymbolGenus.VALUE);		
+		super.setGenus(SymbolGenus.VALUE);
 	}
 
 	@Override
@@ -74,7 +72,7 @@ public class ExpressionSymbol extends Symbol implements IAssignableSymbol
 	{
 		return false;
 	}
-	
+
 	@Override
 	public boolean isAConstant()
 	{
@@ -95,8 +93,8 @@ public class ExpressionSymbol extends Symbol implements IAssignableSymbol
 	public void setPromotionRequired(boolean promotionRequired)
 	{
 		this.promotionRequired = promotionRequired;
-	}	
-	
+	}
+
 	public boolean isUseStringOperator()
 	{
 		return useStringOperator;

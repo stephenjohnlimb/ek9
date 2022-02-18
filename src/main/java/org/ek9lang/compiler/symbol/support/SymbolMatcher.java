@@ -87,12 +87,12 @@ public class SymbolMatcher
 		for(int i=0; i<numParams1LookedFor; i++)
 		{
 			ISymbol from = fromSymbols.get(i);
-			if(!from.getType().isPresent())
+			if(from.getType().isEmpty())
 				throw new RuntimeException("From type is not present for [" + from + "]");
 			ISymbol fromType = from.getType().get();
 			
 			ISymbol to = toSymbols.get(i);
-			if(!to.getType().isPresent())
+			if(to.getType().isEmpty())
 				throw new RuntimeException("To type is not present for [" + to + "]");
 			
 			ISymbol toType = to.getType().get();
@@ -111,12 +111,12 @@ public class SymbolMatcher
 	{
 		double rtn = -1.0;
 		
-		//So neither is set thats Ok
-		if(!fromSymbol.isPresent() && !toSymbol.isPresent())
+		//So neither is set that's Ok
+		if(fromSymbol.isEmpty() && toSymbol.isEmpty())
 			return 0.0;
-		if(fromSymbol.isPresent() && !toSymbol.isPresent())
+		if(fromSymbol.isPresent() && toSymbol.isEmpty())
 			return rtn;
-		if(!fromSymbol.isPresent() && toSymbol.isPresent())
+		if(fromSymbol.isEmpty())
 			return rtn;
 					
 		//Ok so both set lets see what the cost is

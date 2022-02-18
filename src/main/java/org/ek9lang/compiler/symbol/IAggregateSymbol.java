@@ -48,7 +48,7 @@ public interface IAggregateSymbol extends ICanCaptureVariables, ISymbol, IScope
 	
 	/**
 	 * used to add back pointers to subclasses.
-	 * @param sub The sub class to point back to.
+	 * @param sub The sub-class to point back to.
 	 */
 	void addSubAggregateScopedSymbol(IAggregateSymbol sub);
 	
@@ -101,7 +101,7 @@ public interface IAggregateSymbol extends ICanCaptureVariables, ISymbol, IScope
 	
 	/**
 	 * Resolve for matching methods and add matches to result.
-	 * Idea is to be able to gather all these up and ensure only one single good result i.e
+	 * Idea is to be able to gather all these up and ensure only one single good result i.e.
 	 * matching methods does exist and one single method matches best. Else ambiguity or no match. 
 	 */
 	MethodSymbolSearchResult resolveForAllMatchingMethods(MethodSymbolSearch search, MethodSymbolSearchResult result);
@@ -116,26 +116,23 @@ public interface IAggregateSymbol extends ICanCaptureVariables, ISymbol, IScope
 	
 	Optional<IAggregateSymbol> getSuperAggregateScopedSymbol();
 
-	/**
-	 * By default there are none.
-	 */
-	default List<IAggregateSymbol> getTraits() { return  new ArrayList<IAggregateSymbol>(); }
+	default List<IAggregateSymbol> getTraits() { return new ArrayList<>(); }
 	
-	default List<AggregateWithTraitsSymbol> getAllExtensionConstrainedTraits() { return  new ArrayList<AggregateWithTraitsSymbol>(); }
+	default List<AggregateWithTraitsSymbol> getAllExtensionConstrainedTraits() { return new ArrayList<>(); }
 	
-	default List<AggregateWithTraitsSymbol> getAllTraits() { return  new ArrayList<AggregateWithTraitsSymbol>(); }
+	default List<AggregateWithTraitsSymbol> getAllTraits() { return new ArrayList<>(); }
 	
 	default boolean isExtensionConstrained() { return false ; }
 	
 	/**
 	 * Only really used by aggregates that can have one or more traits.
 	 */
-	default boolean isTraitImplemented(AggregateWithTraitsSymbol thisTraitSymbol) { return false; };
+	default boolean isTraitImplemented(AggregateWithTraitsSymbol thisTraitSymbol) { return false; }
 	
 	/**
 	 * Used when a symbol can be defined as a generic/parameterised type.
 	 */
-	default public ParserRuleContext getContextForParameterisedType() { throw new RuntimeException("Not a Generic Type"); }
+	default ParserRuleContext getContextForParameterisedType() { throw new RuntimeException("Not a Generic Type"); }
 
 	String getAggregateDescription();
 

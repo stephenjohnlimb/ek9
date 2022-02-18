@@ -10,7 +10,7 @@ import java.util.Optional;
 
 /**
  * Used in many ways via composition.
- * The local scope can be either just a block (if, where, etc) or aggregate (class, component, etc).
+ * The local scope can be either just a block (if, where, etc.) or aggregate (class, component, etc.).
  */
 public class LocalScope extends SymbolTable
 {
@@ -75,7 +75,7 @@ public class LocalScope extends SymbolTable
 	}
 
 	/**
-	 * Useful to be able to check if the scope you have in hand is the same that enclosing scope for this.
+	 * Useful to be able to check if the scope you have in hand is the same the enclosing scope for this.
 	 * 
 	 * Typically, used when looking at access modifiers.
 	 * Find the scope of the aggregate (assuming not a function) where the call is being made from then call this to see
@@ -91,7 +91,7 @@ public class LocalScope extends SymbolTable
 		{
 			rtn = enclosingScope == toCheck;
 			if(!rtn && toCheck instanceof ScopedSymbol)
-				rtn = ((ScopedSymbol)toCheck).getActualScope() == toCheck;
+				rtn = ((ScopedSymbol)toCheck).getActualScope() == enclosingScope;
 		}
 		return rtn;
 	}

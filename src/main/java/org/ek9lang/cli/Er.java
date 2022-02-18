@@ -3,6 +3,8 @@ package org.ek9lang.cli;
 import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.core.utils.EK9DirectoryStructure;
 
+import java.util.Objects;
+
 /**
  * Run the application that has been built or is already built.
  */
@@ -21,7 +23,7 @@ public class Er extends E
 
 	public boolean preConditionCheck()
 	{
-		return commandLine.targetArchitecture == EK9DirectoryStructure.JAVA && super.preConditionCheck();
+		return Objects.equals(commandLine.targetArchitecture, EK9DirectoryStructure.JAVA) && super.preConditionCheck();
 	}
 
 	protected boolean doRun()

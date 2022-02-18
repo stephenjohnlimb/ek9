@@ -10,7 +10,7 @@ import java.util.Optional;
  * In some cases you need to be exact but in others you
  * want the return type left open.
  *
- * So there are multiple constructors tp support this.
+ * So there are multiple constructors to support this.
  */
 public class MethodSymbolSearch extends SymbolSearch
 {

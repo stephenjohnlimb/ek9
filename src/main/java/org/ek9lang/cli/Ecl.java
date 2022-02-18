@@ -24,7 +24,6 @@ public class Ecl extends E
 		//Now trigger file structure and property file regeneration.
 		log("- Props");
 		commandLine.processEK9FileProperties(true);
-
 		return true;
 	}
 }

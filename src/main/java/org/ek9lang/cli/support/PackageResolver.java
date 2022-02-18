@@ -11,7 +11,7 @@ import java.util.Optional;
  * it will call upon this resolver to make sure that it is available.
  * <p>
  * This resolver will initially look in the users $HOME/.ek9/lib directory for a zip file
- * matching the vector for the packages module ie 'ekopen.network.support.utils-1.6.1-9.zip'
+ * matching the vector for the packages, module i.e. 'ekopen.network.support.utils-1.6.1-9.zip'
  * <p>
  * If that is not present then it will make a https request to repo.ek9lang.com
  * to obtain that zip file, and hash of zip fingerprint.
@@ -65,7 +65,6 @@ public class PackageResolver extends Reporter
 
 	public Optional<EK9SourceVisitor> resolve(String dependencyVector)
 	{
-		EK9SourceVisitor visitor = null;
 		String zipFileName = commandLine.getFileHandling().makePackagedModuleZipFileName(dependencyVector);
 		File homeEK9Lib = commandLine.getFileHandling().getUsersHomeEK9LibDirectory();
 		//Let's check if it is unpacked already, if not we can unpack it.
@@ -78,7 +77,7 @@ public class PackageResolver extends Reporter
 		if(commandLine.getOsSupport().isDirectoryReadable(unpackedDir))
 		{
 			log("Already unpacked '" + dependencyVector + "'");
-			return Optional.of(processPackageProperties(unpackedDir));
+			return Optional.ofNullable(processPackageProperties(unpackedDir));
 		}
 
 		if(!commandLine.getOsSupport().isFileReadable(zipFile))
@@ -96,10 +95,10 @@ public class PackageResolver extends Reporter
 		{
 			log("Unpacking '" + zipFile + "'");
 			if(unZip(zipFile, unpackedDir))
-				return Optional.of(processPackageProperties(unpackedDir));
+				return Optional.ofNullable(processPackageProperties(unpackedDir));
 		}
 
-		return Optional.ofNullable(visitor);
+		return Optional.empty();
 	}
 
 	private boolean downloadDependency(String dependencyVector)

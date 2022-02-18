@@ -113,9 +113,7 @@ public class SymbolTable implements IScope
 	protected SymbolTable cloneIntoSymbolTable(SymbolTable rtn, IScope withParentAsAppropriate)
 	{
 		rtn.scopeName = this.scopeName;
-		this.orderedSymbols.forEach(symbol -> {
-			rtn.define(symbol.clone(withParentAsAppropriate));
-		});
+		orderedSymbols.forEach(symbol -> rtn.define(symbol.clone(withParentAsAppropriate)));
 
 		return rtn;
 	}
@@ -136,18 +134,8 @@ public class SymbolTable implements IScope
 	 */
 	private void addToSplitSymbols(ISymbol symbol)
 	{
-		Map<String, List<ISymbol>> table = splitSymbols.get(symbol.getCategory());
-		if(table == null)
-		{
-			table = new HashMap<>();
-			splitSymbols.put(symbol.getCategory(), table);
-		}		
-		List<ISymbol> list = table.get(symbol.getName());
-		if(list == null)
-		{
-			list = new ArrayList<ISymbol>();
-			table.put(symbol.getName(), list);
-		}
+		Map<String, List<ISymbol>> table = splitSymbols.computeIfAbsent(symbol.getCategory(), k -> new HashMap<>());
+		List<ISymbol> list = table.computeIfAbsent(symbol.getName(), k -> new ArrayList<>());
 		if(!symbol.getCategory().equals(ISymbol.SymbolCategory.METHOD) && list.contains(symbol))
 			throw new RuntimeException("Compiler Coding Error - Duplicate symbol [" + symbol + "]");
 		list.add(symbol);		
@@ -158,8 +146,7 @@ public class SymbolTable implements IScope
 	 */
 	public List<ISymbol> getSymbolsForThisScopeOfCategory(ISymbol.SymbolCategory category)
 	{
-		List<ISymbol> rtn = orderedSymbols.stream().filter(symbol -> category.equals(symbol.getCategory())).collect(Collectors.toList());
-		return rtn;
+		return orderedSymbols.stream().filter(symbol -> category.equals(symbol.getCategory())).collect(Collectors.toList());
 	}
 
 	/**
@@ -177,7 +164,7 @@ public class SymbolTable implements IScope
 	public Optional<ISymbol> resolve(SymbolSearch search)
 	{
 		Optional<ISymbol> rtn = resolveInThisScopeOnly(search);
-		if(!rtn.isPresent())
+		if(rtn.isEmpty())
 			rtn = resolveWithEnclosingScope(search);
 		
 		return rtn;
@@ -246,7 +233,7 @@ public class SymbolTable implements IScope
 			if(!this.getScopeName().equals(aggregateSupport.getModuleNameIfPresent(symbolName)))
 				return Optional.empty();
 
-			//So now just use the actual symbol name bit of com.something:MyClass i.e. use the MyClass bit.
+			//So now just use the actual symbol name part of com.something:MyClass i.e. use the MyClass bit.
 			symbolName = aggregateSupport.getUnqualifiedName(symbolName);
 		}
 		
@@ -297,7 +284,7 @@ public class SymbolTable implements IScope
 	 */
 	private Optional<ISymbol> resolveInThisScopeOnly(List<ISymbol> symbolList, SymbolSearch search)
 	{
-		Optional<ISymbol> rtn = Optional.empty();
+		Optional<ISymbol> rtn;
 		
 		if(search.getSearchType().equals(ISymbol.SymbolCategory.METHOD))
 		{
@@ -351,7 +338,7 @@ public class SymbolTable implements IScope
 			Optional<ISymbol> searchSymbol = search.getNameAsSymbol(this.getScopeName());
 			
 			//check assignable in some way handles coercion and base/super classes.
-			if(searchSymbol.isPresent() && rtn.isPresent())
+			if(searchSymbol.isPresent())
 			{
 				ISymbol toSet = rtn.get();
 				if(!toSet.isAssignableTo(searchSymbol))
@@ -372,7 +359,7 @@ public class SymbolTable implements IScope
 			if(toReceive.isPresent())
 			{
 				//So we have found a variable, but it cannot be assigned back to how it can be received.
-				if(!foundType.isPresent() || !foundType.get().isAssignableTo(toReceive))
+				if(foundType.isEmpty() || !foundType.get().isAssignableTo(toReceive))
 					rtn = Optional.empty();
 			}
 			//So we'll go with rtn as is.

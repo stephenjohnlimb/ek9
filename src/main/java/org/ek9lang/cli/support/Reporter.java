@@ -1,7 +1,5 @@
 package org.ek9lang.cli.support;
 
-import org.ek9lang.cli.CommandLineDetails;
-
 public abstract class Reporter
 {
 	private final boolean verbose;

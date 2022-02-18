@@ -3,6 +3,7 @@ package org.ek9lang.compiler.symbol.support;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.core.exception.AssertValue;
 
+import java.io.Serial;
 import java.util.Stack;
 
 /**
@@ -20,6 +21,7 @@ import java.util.Stack;
  */
 public class ScopeStack extends Stack<IScope>
 {
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	public ScopeStack(IScope base)
@@ -42,6 +44,7 @@ public class ScopeStack extends Stack<IScope>
 	@Override
 	public IScope pop()
 	{
+		AssertValue.checkTrue("ScopeStack cannot be empty for pop", !empty());
 		return super.pop();
 	}
 }

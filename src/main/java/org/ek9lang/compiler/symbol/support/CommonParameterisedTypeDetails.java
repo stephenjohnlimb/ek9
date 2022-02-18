@@ -27,21 +27,12 @@ public class CommonParameterisedTypeDetails
 
 	private static String getEK9InternalNameFor(ISymbol parameterisableSymbol, List<ISymbol> parameterSymbols)
 	{
-		StringBuffer rtn = new StringBuffer("_");
-		rtn.append(parameterisableSymbol.getName());
-		rtn.append("_");
-		//Also include but as fully qualified in the hash to ensure unique across modules with same type name
-		//i.e net.customer.List and some.other.List - will both prefix with _List but hash will differ.
-		StringBuffer buffer = new StringBuffer(parameterisableSymbol.getFullyQualifiedName());
-		buffer.append(parameterSymbols.stream().map(symbol -> symbol.getFullyQualifiedName()).collect(Collectors.joining("_")));
-		for(ISymbol symbol : parameterSymbols)
-		{
-			buffer.append("_");
-			buffer.append(symbol.getFullyQualifiedName());
-		}
-		rtn.append(Digest.digest(buffer.toString()));
+		var toDigest = parameterisableSymbol.getFullyQualifiedName() + parameterSymbols
+				.stream()
+				.map(ISymbol::getFullyQualifiedName)
+				.collect(Collectors.joining("_"));
 
-		return rtn.toString();
+		return "_" + parameterisableSymbol.getName() + "_" + Digest.digest(toDigest);
 	}
 
 	public static boolean doSymbolsMatch(List<ISymbol> list1, List<ISymbol> list2)
@@ -57,7 +48,7 @@ public class CommonParameterisedTypeDetails
 	}
 
 	/**
-	 * For the type passed in - a T or and S whatever we need to know it's index.
+	 * For the type passed in - a T or and S whatever we need to know its index.
 	 * From this we can look at what this has been parameterised with and use that type.
 	 *
 	 * @param theType The generic definition parameter i.e S, or T

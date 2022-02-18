@@ -4,7 +4,6 @@ import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.MethodSymbol;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,28 +11,28 @@ public class MethodSymbolSearchResult
 {
 	/**
 	 * The actual results of the method search.
-	 *
+	 * <p>
 	 * It's a bit tricky matching methods in aggregate hierarchies and with method overloading
 	 * but also with class compatibility or parameters and possible coercions.
 	 */
-	private List<WeightedMethodSymbolMatch> results = new ArrayList<WeightedMethodSymbolMatch>();
+	private final List<WeightedMethodSymbolMatch> results = new ArrayList<>();
 
 	private boolean accessModifierIncompatible = false;
-	
+
 	private boolean methodNotMarkedWithOverride = false;
-	
+
 	public MethodSymbolSearchResult()
 	{
-		
+
 	}
-	
+
 	public MethodSymbolSearchResult(MethodSymbolSearchResult startWithResults)
 	{
 		add(startWithResults.results);
 		setAccessModifierIncompatible(startWithResults.accessModifierIncompatible);
 		setMethodNotMarkedWithOverride(startWithResults.methodNotMarkedWithOverride);
 	}
-	
+
 	public boolean isAccessModifierIncompatible()
 	{
 		return accessModifierIncompatible;
@@ -43,8 +42,8 @@ public class MethodSymbolSearchResult
 	{
 		//once true always true
 		this.accessModifierIncompatible |= accessModifierIncompatible;
-	}	
-	
+	}
+
 	public boolean isMethodNotMarkedWithOverride()
 	{
 		return methodNotMarkedWithOverride;
@@ -64,6 +63,7 @@ public class MethodSymbolSearchResult
 	 * We now have a situation where 'methodBoo' has two default implementations (diamond-ish); and therefore we must define one in ClassK.
 	 * We need to know that there are two methods that would match via different routes - it's not the case where one has overridden the other
 	 * that's what default methods in traits/interfaces has introduced.
+	 *
 	 * @param withResults The results to merge in
 	 * @return A new set of results - does not alter either of the two sets being merged.
 	 */
@@ -76,30 +76,31 @@ public class MethodSymbolSearchResult
 		rtn.add(withResults.results);
 		return rtn;
 	}
-	
+
 	/**
 	 * So now let's imagine we have a set of results from various interfaces and classes (maybe using method above to accumulate the methods)
 	 * But now you are dealing with a Class or a Trait - now we need to know that for all the methods that could be called we only have one
 	 * single one that would be resolved. If this is not the case then it is an indicator that the method should be implemented in the class
 	 * so as tobe explicit which implementation is to be used.
-	 * 
+	 * <p>
 	 * So we will be checking for matching method name and parameters and compatible covariance return types.
+	 *
 	 * @param withResults The set of methods that can be used to override one or more results.
 	 * @return A new set of results - does not alter either of the two sets being merged.
 	 */
 	public MethodSymbolSearchResult overrideToNewResult(MethodSymbolSearchResult withResults)
 	{
 		//Always include new results - but we may not always include the set we have already gathered
-		MethodSymbolSearchResult buildResult = new MethodSymbolSearchResult(withResults);		
-		
+		MethodSymbolSearchResult buildResult = new MethodSymbolSearchResult(withResults);
+
 		//But if with result is empty then we can just include all our current set or results
 		if(withResults.isEmpty())
 			buildResult.add(results);
-				
+
 		for(WeightedMethodSymbolMatch newResult : withResults.results)
-		{			
+		{
 			for(WeightedMethodSymbolMatch result : results)
-			{		
+			{
 				MethodSymbol methodSymbol = newResult.getMethodSymbol();
 				//You need to get this the right way around in terms of checking params and compatible return types.
 				//System.out.println("Sig check for [" + newResult + "] against [" + result + "]");
@@ -122,11 +123,11 @@ public class MethodSymbolSearchResult
 					{
 						//So we are here and the method signatures are the same, so it's an override but has not been marked as such
 						buildResult.setMethodNotMarkedWithOverride(true);
-					}					
-				}				
+					}
+				}
 			}
 		}
-		
+
 		return buildResult;
 	}
 
@@ -143,11 +144,13 @@ public class MethodSymbolSearchResult
 			return Optional.of(results.get(0).getMethodSymbol());
 		return Optional.empty();
 	}
+
 	/**
 	 * Is there a single best match available.
 	 * Could be there are no results, could be a single (very good result - perfect match),
 	 * Could be a match but not perfect but acceptable.
-	 * But could also be several results all of equal weight; in which case we have an ambiguity.
+	 * But could also be several results. Of equal weight; in which case we have an ambiguity.
+	 *
 	 * @return true if there is a single best match.
 	 */
 	public boolean isSingleBestMatchPresent()
@@ -159,12 +162,10 @@ public class MethodSymbolSearchResult
 				//need to check first and second to see if weight is same.
 				double firstWeight = results.get(0).getWeight();
 				double secondWeight = results.get(1).getWeight();
-				
+
 				//are these two within a tolerance of each other - if so ambiguous.
-				if(Math.abs(firstWeight - secondWeight) < 0.001)
-					return false;
+				return !(Math.abs(firstWeight - secondWeight) < 0.001);
 				//No one is better than the other.
-				return true;
 			}
 			//yes we have one best match.
 			return true;
@@ -172,44 +173,44 @@ public class MethodSymbolSearchResult
 		//no there is no single best match 
 		return false;
 	}
-	
+
 	public boolean isAmbiguous()
 	{
 		return !isEmpty() && !isSingleBestMatchPresent();
 	}
-	
+
 	public String getAmbiguousMethodParameters()
 	{
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		if(!isEmpty())
 		{
 			if(results.size() > 1)
 			{
 				ISymbol s = results.get(0).getMethodSymbol();
-				buffer.append(s.toString() + " line " + s.getSourceToken().getLine());
+				buffer.append(s.toString()).append(" line ").append(s.getSourceToken().getLine());
 				//need to check first and second to see if weight is same.
 				double firstWeight = results.get(0).getWeight();
-				for(int i=1; i<results.size(); i++)
-				{	
+				for(int i = 1; i < results.size(); i++)
+				{
 					if(Math.abs(firstWeight - results.get(i).getWeight()) < 0.001)
 					{
 						s = results.get(i).getMethodSymbol();
 						buffer.append(" , ");
-						buffer.append(s.toString() + " line " + s.getSourceToken().getLine());
+						buffer.append(s.toString()).append(" line ").append(s.getSourceToken().getLine());
 					}
 					else
 						break;
 				}
 			}
 		}
-		
+
 		return buffer.toString();
 	}
-	
+
 	@Override
 	public String toString()
 	{
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("[");
 		boolean first = true;
 		for(WeightedMethodSymbolMatch result : results)
@@ -230,29 +231,23 @@ public class MethodSymbolSearchResult
 	{
 		return results.isEmpty();
 	}
-	
+
 	public MethodSymbolSearchResult add(List<WeightedMethodSymbolMatch> moreResults)
 	{
 		results.addAll(moreResults);
 		sortResults();
 		return this;
 	}
-	
+
 	public MethodSymbolSearchResult add(WeightedMethodSymbolMatch weightedMethodSymbolMatch)
 	{
 		results.add(weightedMethodSymbolMatch);
 		sortResults();
 		return this;
 	}
-	
+
 	private void sortResults()
 	{
-		results.sort(new Comparator<WeightedMethodSymbolMatch>() {
-			@Override
-			public int compare(WeightedMethodSymbolMatch o1, WeightedMethodSymbolMatch o2) {
-				
-				return Double.compare(o2.getWeight(), o1.getWeight());
-			}
-		});		
+		results.sort((o1, o2) -> Double.compare(o2.getWeight(), o1.getWeight()));
 	}
 }

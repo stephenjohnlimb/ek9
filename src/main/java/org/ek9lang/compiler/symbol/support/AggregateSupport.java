@@ -173,16 +173,15 @@ public class AggregateSupport
 	 */
 	public MethodSymbol addConstructor(AggregateSymbol t, Optional<ISymbol> s)
 	{
-		return addConstructor(t, s.get());
+		if(s.isPresent())
+			return addConstructor(t, s.get());
+		return addConstructor(t);
 	}
 
 	public MethodSymbol addConstructor(AggregateSymbol t, ISymbol s)
 	{
-		MethodSymbol constructor = new MethodSymbol(t.getName(), t);
+		MethodSymbol constructor = addConstructor(t);
 		constructor.define(s);
-		constructor.setConstructor(true);
-		constructor.setType(t);
-		t.define(constructor);
 		return constructor;
 	}
 
@@ -293,7 +292,7 @@ public class AggregateSupport
 	{
 		MethodSymbol method = new MethodSymbol(methodName, clazz);
 		method.setParsedModule(clazz.getParsedModule());
-		methodParameters.forEach(param -> method.define(param));
+		methodParameters.forEach(method::define);
 		clazz.define(method);
 		method.setType(returnType);
 		return method;

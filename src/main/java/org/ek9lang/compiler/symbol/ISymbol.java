@@ -14,7 +14,8 @@ public interface ISymbol extends ITokenReference
 	 * We can also use this information when parsing the structure and then doing the semantic
 	 * analysis before the IR node generation. We can modify output by using this information.
 	 */
-	enum SymbolGenus {
+	enum SymbolGenus
+	{
 		GENERAL_APPLICATION,
 		SERVICE_APPLICATION,
 		COMPONENT,
@@ -38,7 +39,8 @@ public interface ISymbol extends ITokenReference
 	 * So we may need to alter these methods below to treat a function also as a type and a method.
 	 * A control is an example of a switch statement that can return a value - we may add others.
 	 */
-	enum SymbolCategory {
+	enum SymbolCategory
+	{
 		TYPE,
 		TEMPLATE_TYPE, //This is a definition of the template once MyTemplate with type of T is made read as a type MyTemplate of Integer it becomes a TYPE
 		METHOD,
@@ -50,10 +52,14 @@ public interface ISymbol extends ITokenReference
 
 	/**
 	 * Typically used with constants some are just general use constants
-	 * But others are defined at module scope and we may and do need to treat these differently in some contexts.
+	 * But others are defined at module scope; and we may and do need to treat these differently in some contexts.
+	 *
 	 * @return true if at module scope false otherwise.
 	 */
-	default boolean isAtModuleScope() { return false; }
+	default boolean isAtModuleScope()
+	{
+		return false;
+	}
 
 	//Used for declarations of variables/params where they can be null.
 	boolean isNullAllowed();
@@ -77,97 +83,177 @@ public interface ISymbol extends ITokenReference
 
 	/**
 	 * For some symbols you may wish to specify the parsed module they were defined in.
+	 *
 	 * @param parsedModule The parsedModule the symbol was defined in.
 	 */
-	default void setParsedModule(Module parsedModule) {}
+	default void setParsedModule(Module parsedModule)
+	{
+	}
 
-	default Module getParsedModule() { return null ;}
+	default Module getParsedModule()
+	{
+		return null;
+	}
 
 	/**
 	 * Where was this symbol defined if known.
+	 *
 	 * @return The location maybe a file or a stream.
 	 */
-	default String getSourceFileLocation() { return ""; }
+	default String getSourceFileLocation()
+	{
+		return "";
+	}
 
-	default boolean isDevSource() { return false; }
+	default boolean isDevSource()
+	{
+		return false;
+	}
 
-	default boolean isLibSource() { return false; }
+	default boolean isLibSource()
+	{
+		return false;
+	}
 
 	/**
 	 * Clone the symbol and re-parent if this symbol like a method should have a parent.
 	 * Other symbols like VariableSymbols are un-parented
-	 * @param withParentAsAppropriate
-	 * @return a new instance of the symbol.
 	 */
-	default ISymbol clone(IScope withParentAsAppropriate) { return null; }
+	default ISymbol clone(IScope withParentAsAppropriate)
+	{
+		return null;
+	}
 
 	/**
 	 * So just to add to the confusion.
-	 * A type that has been used with a type of a generic nature with some parameters.
-	 * So this would normally result in a type that is now concrete. i.e List (generic in nature) and String (concrete) so
+	 * A type that has been used with a type that is generic in nature with some parameters.
+	 * So this would normally result in a type that is now concrete. i.e. List (generic in nature) and String (concrete) so
 	 * This resulting type 'List of String' isAParameterisedType=true and isGenericInNature=false.
 	 * But if List were parameterised with another generic parameter it would still be of a generic nature.
-	 * For example, consider List<T> and Iterator<I> when we defined List<T> and use the Iterator with it we parameterise Iterator with 'T'. But they are
+	 * For example, consider List<T> and Iterator<I> when we defined List<T> and use the Iterator with it; we parameterise Iterator with 'T'. But they are
 	 * still both 'isGenericTypeParameter' it only when we use List (and by implication Iterator) with String do they both stop being generic in nature.
+	 *
 	 * @return true if a parameterised type (note parameterised not just of a generic nature).
 	 */
-	default boolean isAParameterisedType() { return false; }
+	default boolean isAParameterisedType()
+	{
+		return false;
+	}
 
-	default boolean isParameterisedWrappingRequired() { return false; }
+	default boolean isParameterisedWrappingRequired()
+	{
+		return false;
+	}
 
 	/**
-	 * Is this symbol type of a generic nature i.e can it be parameterised with types.
-	 * @return false by default. Aggregate Symbols can be defines to accept one or more parameters ie S and T.
+	 * Is this symbol a type that is generic in nature i.e. can it be parameterised with types.
+	 *
+	 * @return false by default. Aggregate Symbols can be defined to accept one or more parameters ie S and T.
 	 */
-	default boolean isGenericInNature() { return false; }
+	default boolean isGenericInNature()
+	{
+		return false;
+	}
 
 	/**
 	 * Some symbols are simulated as generic type parameters like T and S and U for example
 	 * When they are constructed as AggregateTypes this will be set to true in those classes.
 	 * In general this is useful when working with Generic classes and needing types like S and T
 	 * But they can never really be generated.
+	 *
 	 * @return by default false.
 	 */
-	default boolean isGenericTypeParameter() { return false; }
+	default boolean isGenericTypeParameter()
+	{
+		return false;
+	}
 
 	/**
-	 * This symbol itself can be marked as pure - i.e an operator with no side effects.
-	 * @return true if pure, false otherwise. By default false - lets assume the worst.
+	 * This symbol itself can be marked as pure - i.e. an operator with no side effects.
+	 *
+	 * @return true if pure, false otherwise. By default, false - lets assume the worst.
 	 */
-	default boolean isMarkedPure() { return false; }
+	default boolean isMarkedPure()
+	{
+		return false;
+	}
 
-	default boolean isMutable() { return false; }
+	default boolean isMutable()
+	{
+		return false;
+	}
 
-	default void setNotMutable() {};
+	default void setNotMutable()
+	{
+	}
 
-	default boolean isPrivate() { return false; }
+	default boolean isPrivate()
+	{
+		return false;
+	}
 
-	default boolean isProtected() { return false; }
+	default boolean isProtected()
+	{
+		return false;
+	}
 
-	default boolean isPublic() { return true; }
+	default boolean isPublic()
+	{
+		return true;
+	}
 
-	default public boolean isLoopVariable() { return false; }
+	default boolean isLoopVariable()
+	{
+		return false;
+	}
 
-	default public void setLoopVariable(boolean asLoopVar) {}
+	default void setLoopVariable(boolean asLoopVar)
+	{
+	}
 
-	default public boolean isIncomingParameter() { return false; }
+	default boolean isIncomingParameter()
+	{
+		return false;
+	}
 
-	default void setIncomingParameter(boolean incomingParameter) { };
+	default void setIncomingParameter(boolean incomingParameter)
+	{
+	}
 
-	default public boolean isReturningParameter() { return false; }
+	default boolean isReturningParameter()
+	{
+		return false;
+	}
 
-	default void setReturningParameter(boolean returningParameter) {};
+	default void setReturningParameter(boolean returningParameter)
+	{
+	}
 
-	default boolean isATemplateType() { return getCategory().equals(SymbolCategory.TEMPLATE_TYPE); }
+	default boolean isATemplateType()
+	{
+		return getCategory().equals(SymbolCategory.TEMPLATE_TYPE);
+	}
 
-	default boolean isATemplateFunction() { return getCategory().equals(SymbolCategory.TEMPLATE_FUNCTION); }
+	default boolean isATemplateFunction()
+	{
+		return getCategory().equals(SymbolCategory.TEMPLATE_FUNCTION);
+	}
 
-	default boolean isAType() { return getCategory().equals(SymbolCategory.TYPE); }
+	default boolean isAType()
+	{
+		return getCategory().equals(SymbolCategory.TYPE);
+	}
 
-	default boolean isAVariable() { return getCategory().equals(SymbolCategory.VARIABLE); }
+	default boolean isAVariable()
+	{
+		return getCategory().equals(SymbolCategory.VARIABLE);
+	}
 
 	//Special type of variable one that is a property on an aggregate.
-	default boolean isAggregatePropertyField() { return false; }
+	default boolean isAggregatePropertyField()
+	{
+		return false;
+	}
 
 	/**
 	 * Is the symbol a core primitive type.
@@ -179,14 +265,11 @@ public interface ISymbol extends ITokenReference
 
 	default boolean isAnApplication()
 	{
-		switch(getGenus())
-		{
-			case GENERAL_APPLICATION:
-			case SERVICE_APPLICATION:
-				return true;
-			default:
-				return false;
-		}
+		return switch(getGenus())
+				{
+					case GENERAL_APPLICATION, SERVICE_APPLICATION -> true;
+					default -> false;
+				};
 	}
 
 	/**
@@ -194,69 +277,94 @@ public interface ISymbol extends ITokenReference
 	 */
 	default boolean isDeclaredAsAConstant()
 	{
-		if (this instanceof ConstantSymbol)
+		if(this instanceof ConstantSymbol)
 		{
 			//We do expect all types to be known by this point
-			if (this.getType().isPresent())
+			if(this.getType().isPresent())
 			{
 				//We allow enumerations because there is no :=: operator to modify them
-				//We also allow function delegates but they are also constants.
-				if ((this.getType().get().getGenus() != ISymbol.SymbolGenus.CLASS_ENUMERATION) &&
+				//We also allow function delegates, but they are also constants.
+				if((this.getType().get().getGenus() != ISymbol.SymbolGenus.CLASS_ENUMERATION) &&
 						(this.getType().get().getGenus() != ISymbol.SymbolGenus.FUNCTION) &&
 						(this.getType().get().getGenus() != ISymbol.SymbolGenus.FUNCTION_TRAIT))
 				{
 					//We allow literals to be utilised in any way.
-					boolean literal = ((ConstantSymbol) this).isFromLiteral();
+					boolean literal = this.isFromLiteral();
 					return !literal;
 				}
 			}
 		}
-		else if(this.isLoopVariable())
-		{
-			//We consider loop variables as constants - EK9 deals with changing the value
-			//But we don't want references being taken.
-			return true;
-		}
+		//We consider loop variables as constants - EK9 deals with changing the value
+		return this.isLoopVariable();
+	}
+
+	default boolean isAMethod()
+	{
+		return getCategory().equals(SymbolCategory.METHOD);
+	}
+
+	default boolean isAFunction()
+	{
+		return getCategory().equals(SymbolCategory.FUNCTION);
+	}
+
+	default boolean isAControl()
+	{
+		return getCategory().equals(SymbolCategory.CONTROL);
+	}
+
+	default boolean isAConstant()
+	{
 		return false;
 	}
 
-	default boolean isAMethod() { return getCategory().equals(SymbolCategory.METHOD); }
+	default boolean isFromLiteral()
+	{
+		return false;
+	}
 
-	default boolean isAFunction() { return getCategory().equals(SymbolCategory.FUNCTION); }
-
-	default boolean isAControl() { return getCategory().equals(SymbolCategory.CONTROL); }
-
-	default boolean isAConstant() { return false; }
-
-	default boolean isFromLiteral() { return false; }
-
-	default boolean isMarkedAbstract() { return false; }
+	default boolean isMarkedAbstract()
+	{
+		return false;
+	}
 
 	/**
 	 * Some classes generated can be injected and others not.
 	 *
 	 * @return true if this can be injected, false if not.
 	 */
-	default boolean isInjectable() { return false; }
+	default boolean isInjectable()
+	{
+		return false;
+	}
 
 	/**
 	 * While this aggregate itself might not able been marked as injectable
 	 * Does this extend an aggregate that is marked as injectable.
+	 *
 	 * @return true if this is injectable or any of its supers area
 	 */
-	default boolean isExtensionOfInjectable() { return false ; }
+	default boolean isExtensionOfInjectable()
+	{
+		return false;
+	}
 
 	/**
-	 * By default isExactSameType, but can be used if symbols are a conceptual match like generics can be.
+	 * By default, isExactSameType; but can be used if symbols are a conceptual match like generics can be.
 	 */
-	default boolean isSymbolTypeMatch(ISymbol symbolType) { return isExactSameType(symbolType); }
+	default boolean isSymbolTypeMatch(ISymbol symbolType)
+	{
+		return isExactSameType(symbolType);
+	}
 
 	/**
 	 * If is the symbol is an exact match.
 	 */
-	boolean isExactSameType(ISymbol symbolType) ;
+	boolean isExactSameType(ISymbol symbolType);
 
-	/** Is this a core thing from EK9 */
+	/**
+	 * Is this a core thing from EK9
+	 */
 	boolean isEk9Core();
 
 	/**
@@ -268,17 +376,35 @@ public interface ISymbol extends ITokenReference
 	 * But we need to know when it comes to IR generation whether to include a PromoteNode
 	 * or whether the code generated will just work because of class inheritance/interface implementation.
 	 */
-	default boolean isPromotionSupported(ISymbol s) { return false; }
+	default boolean isPromotionSupported(ISymbol s)
+	{
+		return false;
+	}
 
-	default boolean isAssignableTo(ISymbol s) { return false; }
+	default boolean isAssignableTo(ISymbol s)
+	{
+		return false;
+	}
 
-	default boolean isAssignableTo(Optional<ISymbol> s) { return false; }
+	default boolean isAssignableTo(Optional<ISymbol> s)
+	{
+		return false;
+	}
 
-	default double getAssignableWeightTo(Optional<ISymbol> s) { return -1.0; }
+	default double getAssignableWeightTo(Optional<ISymbol> s)
+	{
+		return -1.0;
+	}
 
-	default double getAssignableWeightTo(ISymbol s) { return -1.0;}
+	default double getAssignableWeightTo(ISymbol s)
+	{
+		return -1.0;
+	}
 
-	default double getUnCoercedAssignableWeightTo(ISymbol s) { return -1.0;}
+	default double getUnCoercedAssignableWeightTo(ISymbol s)
+	{
+		return -1.0;
+	}
 
 	/**
 	 * Assuming you've already checked that this isAssignableTo (s)
@@ -292,14 +418,16 @@ public interface ISymbol extends ITokenReference
 
 	void setGenus(SymbolGenus genus);
 
-	default SymbolGenus getGenus() { return SymbolGenus.CLASS; };
+	default SymbolGenus getGenus()
+	{
+		return SymbolGenus.CLASS;
+	}
 
 	SymbolCategory getCategory();
 
 	/**
 	 * Was the symbol defined from the outset in a fully qualified manner.
-	 * i.e. was is item as 'com.items.specials:GoodThing' or just 'GoodThing'
-	 * @return
+	 * i.e. was it item as 'com.items.specials:GoodThing' or just 'GoodThing'
 	 */
 	default boolean isDefinedInAFullyQualifiedManner()
 	{
@@ -308,6 +436,7 @@ public interface ISymbol extends ITokenReference
 
 	/**
 	 * Provide the internal fully qualified name of this symbol - defaults to just the name unless overridden
+	 *
 	 * @return The fully qualified internal name - useful for generating output where you want to ensure fully qualified names are used.
 	 */
 	default String getFullyQualifiedName()
@@ -329,6 +458,7 @@ public interface ISymbol extends ITokenReference
 
 	/**
 	 * Provide the internal name of this symbol - not fully qualified in terms of the module it is in.
+	 *
 	 * @return The basic internal name we'd use to resolve the symbol
 	 */
 	String getName();
@@ -337,7 +467,10 @@ public interface ISymbol extends ITokenReference
 
 	Optional<ISymbol> getType();
 
-	default ISymbol setType(ISymbol type) { return setType(Optional.ofNullable(type)); }
+	default ISymbol setType(ISymbol type)
+	{
+		return setType(Optional.ofNullable(type));
+	}
 
 	ISymbol setType(Optional<ISymbol> type);
 }

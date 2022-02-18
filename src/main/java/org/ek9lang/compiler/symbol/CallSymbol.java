@@ -1,7 +1,5 @@
 package org.ek9lang.compiler.symbol;
 
-import org.antlr.v4.runtime.Token;
-
 import java.util.Optional;
 
 /**
@@ -12,10 +10,10 @@ import java.util.Optional;
 public class CallSymbol extends MethodSymbol implements IAssignableSymbol
 {
 	private MethodSymbol resolvedMethodToCall = null;
-	
+
 	public CallSymbol(String name, IScope enclosingScope)
 	{
-		super(name, enclosingScope);		
+		super(name, enclosingScope);
 	}
 
 	public CallSymbol(String name, Optional<ISymbol> type, IScope enclosingScope)

@@ -5,7 +5,6 @@ import java.util.Optional;
 /**
  * A very simple type that holds a single distinct value.
  * For example PI = 3.242 would be a constant.
- * 
  */
 public class ConstantSymbol extends Symbol
 {
@@ -13,36 +12,36 @@ public class ConstantSymbol extends Symbol
 	 * Is this constant defined as a literal.
 	 */
 	private boolean literal = false;
-	
+
 	/**
 	 * Now we can have constants that are just general constants.
 	 * But others that are defined at the module scope level.
 	 * We need to distinguish these for various reasons.
 	 */
 	private boolean atModuleScope = false;
-	
+
 	public ConstantSymbol(String name, boolean fromLiteral)
 	{
 		this(name, Optional.empty());
 		this.literal = fromLiteral;
 	}
-	
+
 	public ConstantSymbol(String name)
 	{
 		this(name, Optional.empty());
 	}
-	
+
 	public ConstantSymbol(String name, ISymbol type, boolean fromLiteral)
 	{
 		this(name, Optional.ofNullable(type));
 		this.literal = fromLiteral;
 	}
-	
+
 	public ConstantSymbol(String name, ISymbol type)
 	{
 		this(name, Optional.ofNullable(type));
 	}
-	
+
 	public ConstantSymbol(String name, Optional<ISymbol> type)
 	{
 		super(name, type);
@@ -90,8 +89,6 @@ public class ConstantSymbol extends Symbol
 
 	public String toString()
 	{
-		StringBuffer buffer = new StringBuffer("const ");
-		buffer.append(getFriendlyName());		
-		return buffer.toString();
+		return "const " + getFriendlyName();
 	}
 }

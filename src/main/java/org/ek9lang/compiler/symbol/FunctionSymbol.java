@@ -7,16 +7,16 @@ import java.util.Optional;
 
 /**
  * Scope for functions that are part of a module.
- * 
- * While in ek9 these are just functions, when mapped to java we can implement in any way we like i.e classes.
- * 
+ * <p>
+ * While in ek9 these are just functions, when mapped to java we can implement in any way we like i.e. classes.
+ * <p>
  * We need to ensure that any functions we extend have the same method signature.
  */
 public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 {
 	//This is the module this aggregate has been defined in.
 	private IScope moduleScope;
-		
+
 	/**
 	 * For Functions symbols we keep a handle on the context where the returning param (if any) was defined.
 	 * We do this because with functions we allow the function name to be defined when implementing an abstract function
@@ -30,21 +30,21 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 	 * So we want the same method signature as the abstract function but this provides the implementation.
 	 */
 	private Optional<FunctionSymbol> superFunctionSymbol = Optional.empty();
-	
+
 	/**
 	 * For dynamic functions we can capture variables from the enclosing scope(s) and pull them in
 	 * We can then hold and access them in the dynamic function even when the function has moved out of the original scope.
 	 * i.e. a sort of closure over a variable.
 	 */
 	private Optional<LocalScope> capturedVariables = Optional.empty();
-	
+
 	public FunctionSymbol(String name, Optional<ISymbol> type, IScope enclosingScope)
 	{
 		super(name, type, enclosingScope);
 		super.setCategory(SymbolCategory.FUNCTION);
 		super.setProduceFullyQualifiedName(true);
 	}
-	
+
 	public FunctionSymbol(String name, IScope enclosingScope)
 	{
 		super(name, enclosingScope);
@@ -73,8 +73,7 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 		newCopy.setProduceFullyQualifiedName(this.getProduceFullyQualifiedName());
 		newCopy.moduleScope = this.moduleScope;
 		newCopy.returningParamContext = this.returningParamContext;
-		if(superFunctionSymbol.isPresent())
-			newCopy.superFunctionSymbol = Optional.of(superFunctionSymbol.get());
+		superFunctionSymbol.ifPresent(functionSymbol -> newCopy.superFunctionSymbol = Optional.of(functionSymbol));
 
 		if(capturedVariables.isPresent())
 		{
@@ -84,23 +83,24 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 		}
 		return newCopy;
 	}
-	
+
 	/**
 	 * Is this aggregate itself a generic sort of aggregate.
-	 * @return boolean true if is parameterised 
+	 *
+	 * @return boolean true if is parameterised
 	 */
 	public boolean isGenericInNature()
 	{
 		return !this.getParameterisedTypes().isEmpty();
 	}
-	
+
 	public FunctionSymbol addParameterisedType(AggregateSymbol parameterisedType)
 	{
 		super.addParameterisedType(parameterisedType);
 		super.setCategory(SymbolCategory.TEMPLATE_FUNCTION);
 		return this;
 	}
-	
+
 	public EK9Parser.ReturningParamContext getReturningParamContext()
 	{
 		return returningParamContext;
@@ -120,7 +120,7 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 	{
 		this.moduleScope = moduleScope;
 	}
-	
+
 	public Optional<LocalScope> getCapturedVariables()
 	{
 		return capturedVariables;
@@ -130,7 +130,7 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 	{
 		this.capturedVariables = Optional.ofNullable(capturedVariables);
 	}
-	
+
 	public void setCapturedVariables(Optional<LocalScope> capturedVariables)
 	{
 		this.capturedVariables = capturedVariables;
@@ -138,15 +138,12 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 
 	public void setCapturedVariablesVisibility(boolean isPublic)
 	{
-		if(capturedVariables.isPresent())
-		{
-			capturedVariables.get().getSymbolsForThisScope().forEach(symbol -> {
-				if(symbol instanceof VariableSymbol)
-				{
-					((VariableSymbol)symbol).setPrivate(!isPublic);
-				}
-			});
-		}
+		capturedVariables.ifPresent(localScope -> localScope.getSymbolsForThisScope().forEach(symbol -> {
+			if(symbol instanceof VariableSymbol)
+			{
+				((VariableSymbol)symbol).setPrivate(!isPublic);
+			}
+		}));
 	}
 
 	public Optional<FunctionSymbol> getSuperFunctionSymbol()
@@ -157,14 +154,14 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 	public void setSuperFunctionSymbol(Optional<FunctionSymbol> superFunctionSymbol)
 	{
 		this.superFunctionSymbol = superFunctionSymbol;
-	}	
+	}
 
 	@Override
 	public void setReturningSymbol(ISymbol returningSymbol)
 	{
 		justSetReturningSymbol(returningSymbol);
 	}
-		
+
 	@Override
 	public double getAssignableWeightTo(ISymbol s)
 	{
@@ -181,10 +178,10 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 			//now we can check superclass matches. but add some weight because this did not match
 			canAssign = 0.05 + superFunctionSymbol.get().getUnCoercedAssignableWeightTo(s);
 			return canAssign;
-		}		
+		}
 		return -1.0;
 	}
-	
+
 	@Override
 	public Optional<ISymbol> getType()
 	{
@@ -192,33 +189,32 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 		//getReturningSymbol() - which means that functional that return Void still need to have a returning symbol;
 		return Optional.of(this);
 	}
-	
+
 	@Override
 	public Optional<ISymbol> resolveExcludingCapturedVariables(SymbolSearch search)
 	{
-		Optional<ISymbol> rtn = super.resolveInThisScopeOnly(search);
-		return rtn;
+		return super.resolveInThisScopeOnly(search);
 	}
 
 	@Override
 	public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search)
 	{
-		//first check normally - i.e the params on the function call and anything declared in the function body
+		//first check normally - i.e. the params on the function call and anything declared in the function body
 		Optional<ISymbol> rtn = super.resolveInThisScopeOnly(search);
-		if(!rtn.isPresent() && capturedVariables.isPresent())
-		  rtn = capturedVariables.get().resolveInThisScopeOnly(search);	
+		if(rtn.isEmpty() && capturedVariables.isPresent())
+			rtn = capturedVariables.get().resolveInThisScopeOnly(search);
 
 		return rtn;
 	}
-	
+
 	@Override
 	public Optional<ISymbol> resolve(SymbolSearch search)
 	{
 		//So a bit complex in how we resolve variables in functions
-		//because we want to be able to resolve parameteric types, general types, scope module items captured variables and method params.
-		//But not stuff from the scope where the function as defined (captured get passed in).
+		//because we want to be able to resolve parametric types, general types, scope module items captured variables and method params.
+		//But not stuff from the scope where the function as defined (captured gets passed-in).
 		//But in some cases we need to resolve a generic type like T as it was used in a parent class or function!
-		
+
 		Optional<ISymbol> rtn = Optional.empty();
 		//Now if this is a generic type class we might need to resolve the name of the type 'T' or 'S' or whatever for example		
 		if(isGenericInNature() && search.getSearchType().equals(SymbolCategory.TYPE))
@@ -228,24 +224,24 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 				if(parameterisedType.isAssignableTo(search.getNameAsSymbol()))
 					rtn = Optional.of(parameterisedType);
 			}
-		}		
-		
+		}
+
 		//But note we limit the search in the captured vars to that scope only - no looking up the enclosing scopes just the capture scope!
-		if(!rtn.isPresent() && capturedVariables.isPresent())
-		  rtn = capturedVariables.get().resolveInThisScopeOnly(search);	
+		if(rtn.isEmpty() && capturedVariables.isPresent())
+			rtn = capturedVariables.get().resolveInThisScopeOnly(search);
 
 		//Now here we must resolve some things but not others in specific ways
-		if(!rtn.isPresent())
+		if(rtn.isEmpty())
 			rtn = super.resolveInThisScopeOnly(search); // check for parameters
-		
+
 		//check for general types
-		if(!rtn.isPresent())
+		if(rtn.isEmpty())
 			rtn = moduleScope.resolve(search);
-		
+
 		//only now do we check up the enclosing scope and for a generic function that could have a generic type defined but that is all we are allowed.
 		//So if we need to resolve stuff in the enclosing scope and that scope is a class of a function that is generic then S T or whatever
-		//well be resolvable and we need that in this case.
-		if(!rtn.isPresent())
+		//well be resolvable; and we need that in this case.
+		if(rtn.isEmpty())
 		{
 			Optional<ISymbol> check = super.getEnclosingScope().resolve(search);
 			if(check.isPresent() && check.get().isGenericTypeParameter())

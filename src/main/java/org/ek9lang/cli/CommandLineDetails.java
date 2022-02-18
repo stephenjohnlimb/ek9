@@ -116,6 +116,8 @@ public class CommandLineDetails
 	 * Extract the details of the command line out.
 	 * There are some basic checks here, but only up to a point.
 	 * The assessCommandLine checks the combination of commands.
+	 * <p>
+	 * A bit nasty in terms of processing the options. Take some time to focus here.
 	 */
 	private int extractCommandLineDetails(String commandLine)
 	{
@@ -158,7 +160,7 @@ public class CommandLineDetails
 			}
 			else if(strArray[i].equals("-d") && i < strArray.length - 1)
 			{
-				if(!isAcceptableParameter(strArray[i]))
+				if(isParameterUnacceptable(strArray[i]))
 				{
 					System.err.println("Incompatible command line options [" + commandLine + "]");
 					return EK9.BAD_COMMAND_COMBINATION_EXIT_CODE;
@@ -176,7 +178,7 @@ public class CommandLineDetails
 			}
 			else
 			{
-				if(processingEK9Parameters && !isAcceptableParameter(strArray[i]))
+				if(processingEK9Parameters && isParameterUnacceptable(strArray[i]))
 				{
 					System.err.println("Incompatible command line options [" + commandLine + "]");
 					return EK9.BAD_COMMAND_COMBINATION_EXIT_CODE;
@@ -447,9 +449,9 @@ public class CommandLineDetails
 		return moduleName;
 	}
 
-	public boolean isPackagePresent()
+	public boolean noPackageIsPresent()
 	{
-		return packagePresent;
+		return !packagePresent;
 	}
 
 	public String getVersion()
@@ -512,42 +514,42 @@ public class CommandLineDetails
 				""";
 	}
 
-	private boolean isAcceptableParameter(String param)
+	private boolean isParameterUnacceptable(String param)
 	{
 		if(isModifierParam(param))
-			return true;
+			return false;
 		if(!isMainParam(param))
 		{
 			System.err.println("Option '" + param + "' not understood");
-			return false;
+			return true;
 		}
 		//only if we are not one of these already.
 		if(isJustABuildTypeOption())
 		{
 			System.err.println("Option '" + param + "' not compatible with existing build option");
-			return false;
+			return true;
 		}
 		if(isDeveloperManagementOption())
 		{
 			System.err.println("Option '" + param + "' not compatible with existing management option");
-			return false;
+			return true;
 		}
 		if(isReleaseVectorOption())
 		{
 			System.err.println("Option '" + param + "' not compatible with existing release option");
-			return false;
+			return true;
 		}
 		if(isRunOption())
 		{
 			System.err.println("Option '" + param + "' not compatible with existing run option");
-			return false;
+			return true;
 		}
 		if(isUnitTestExecution())
 		{
 			System.err.println("Option '" + param + "' not compatible with existing unit test option");
-			return false;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	private boolean isMainParam(String param)

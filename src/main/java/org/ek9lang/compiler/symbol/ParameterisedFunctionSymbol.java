@@ -1,10 +1,8 @@
 package org.ek9lang.compiler.symbol;
 
-import org.ek9lang.compiler.symbol.support.AggregateSupport;
 import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
-import org.ek9lang.core.utils.Digest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,13 +21,12 @@ import java.util.stream.Collectors;
  */
 public class ParameterisedFunctionSymbol extends FunctionSymbol implements ParameterisedSymbol
 {
-	private final AggregateSupport aggregateSupport = new AggregateSupport();
-	
+
 	//This is the function that can be parameterised
 	private final FunctionSymbol parameterisableSymbol;
 	
 	//This is what it is parameterised with - so this could be common with ParameterisedTypeSymbol.
-	private final List<ISymbol> parameterSymbols = new ArrayList<ISymbol>();
+	private final List<ISymbol> parameterSymbols = new ArrayList<>();
 	
 	private boolean variablesAndMethodsHydrated = false;
 
@@ -134,9 +131,8 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 	private ISymbol cloneSymbolWithNewType(ISymbol toClone)
 	{
 		//TODO refactor - don't clone the code!
-		if(toClone instanceof VariableSymbol)
+		if(toClone instanceof VariableSymbol willClone)
 		{
-			VariableSymbol willClone = (VariableSymbol)toClone;
 			Optional<ISymbol> fromType = willClone.getType();
 			Optional<ISymbol> newType = resolveWithNewType(fromType);
 			//System.out.println("variable type from [" + fromType.get() + "] to [" + newType.get() + "]");
@@ -156,15 +152,14 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 	 */
 	private Optional<ISymbol> resolveWithNewType(Optional<ISymbol> typeToResolve)
 	{
-		if(typeToResolve.isPresent() && typeToResolve.get() instanceof IAggregateSymbol)
+		if(typeToResolve.isPresent() && typeToResolve.get() instanceof IAggregateSymbol aggregate)
 		{
-			IAggregateSymbol aggregate = (IAggregateSymbol)typeToResolve.get();
 			if(aggregate.isATemplateType())
 			{
 				//So the aggregate here is the generic template definition.
 				//We must ensure we marry up the generic parameters here - for example we might have 2 params S and T
 				//But the aggregate we are lookup might just have one the 'T'. So we need to deal with this.
-				List<ISymbol> lookupParameterSymbols = new ArrayList<ISymbol>();
+				List<ISymbol> lookupParameterSymbols = new ArrayList<>();
 				for(ISymbol symbol : aggregate.getParameterisedTypes())
 				{
 					//So given a T or whatever we need to find which index position it is in
@@ -191,15 +186,14 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 				
 				return Optional.of(resolvedSymbol);
 			}
-			else if(aggregate.isGenericInNature() && aggregate instanceof ParameterisedFunctionSymbol)
+			else if(aggregate.isGenericInNature() && aggregate instanceof ParameterisedFunctionSymbol asParameterisedTypeSymbol)
 			{
 				//Now this is a  bastard because we need to clone one of these classes we're already in.
 				//But it might be a List of T or a real List of Integer for example.
 				
 				//So the thing we are to clone it itself a generic aggregate.
 				//System.out.println("Need to Clone a generic aggregate [" + aggregate + "]");
-				ParameterisedFunctionSymbol asParameterisedTypeSymbol = (ParameterisedFunctionSymbol)aggregate;
-				List<ISymbol> lookupParameterSymbols = new ArrayList<ISymbol>();
+				List<ISymbol> lookupParameterSymbols = new ArrayList<>();
 				//Now it may really be a concrete one or it too could be something like a List of P
 				
 				for(ISymbol symbol : asParameterisedTypeSymbol.parameterSymbols)
@@ -224,8 +218,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 				
 				String parameterisedTypeSymbolName = CommonParameterisedTypeDetails.getInternalNameFor(asParameterisedTypeSymbol.parameterisableSymbol, lookupParameterSymbols);
 				TypeSymbolSearch search = new TypeSymbolSearch(parameterisedTypeSymbolName);
-				Optional<ISymbol> resolvedSymbol = this.resolve(search);
-				return resolvedSymbol;
+				return this.resolve(search);
 			}
 				
 		}
@@ -243,7 +236,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 	public String getFriendlyName()
 	{	
 		String nameOfFunction = parameterisableSymbol.getName() + " of " + parameterSymbolsAsCommaSeparated();
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		if(getType().isPresent())
 			buffer.append(nameOfFunction);
 		else

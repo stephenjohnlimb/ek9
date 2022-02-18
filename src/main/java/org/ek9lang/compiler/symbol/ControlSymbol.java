@@ -1,12 +1,10 @@
 package org.ek9lang.compiler.symbol;
 
-import java.util.Optional;
-
 /**
  * EK9 switch/try control type symbol - this can effectively return a value if it is configured with returning part.
- * 
+ * <p>
  * When generating out put we need this to create its own block so variables inside are hidden from later scopes.
- * 
+ * <p>
  * So as we have a returning part (optional) we need a scope to put it in (i.e. this scope) this then means that when
  * we finally come to generate the output - this symbol will be able to supply the outer variable to set the result to.
  */
@@ -29,7 +27,6 @@ public class ControlSymbol extends ScopedSymbol
 	protected ControlSymbol cloneIntoControlSymbol(ControlSymbol newCopy)
 	{
 		super.cloneIntoScopeSymbol(newCopy);
-
 		return newCopy;
 	}
 }

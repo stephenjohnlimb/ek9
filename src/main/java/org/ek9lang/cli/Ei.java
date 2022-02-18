@@ -27,7 +27,7 @@ public class Ei extends E
 		if(new Ep(commandLine, sourceFileCache).run())
 		{
 			//Now do deployment.
-			String zipFileName = getFileHandling().makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion().toString());
+			String zipFileName = getFileHandling().makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion());
 			File fromDir = new File(getFileHandling().getDotEK9Directory(commandLine.getSourceFileDirectory()));
 			File destinationDir = getFileHandling().getUsersHomeEK9LibDirectory();
 

@@ -20,10 +20,9 @@ import org.ek9lang.core.utils.OsSupport;
  */
 public class JustParser
 {
-	private EK9Parser parser;
-	private OsSupport osSupport = new OsSupport();
+	private final OsSupport osSupport = new OsSupport();
 	
-	private ErrorListener errorListener = new ErrorListener();
+	private final ErrorListener errorListener = new ErrorListener();
 	
 	public boolean readSourceFile(File sourceFile, EK9SourceVisitor visitor)
 	{
@@ -42,27 +41,23 @@ public class JustParser
 				lex.setSourceName(sourceFile.getName());
 				lex.removeErrorListeners();
 
-				parser = new EK9Parser(new CommonTokenStream(lex));
+				EK9Parser parser = new EK9Parser(new CommonTokenStream(lex));
 				parser.removeErrorListeners();
 
 				lex.addErrorListener(errorListener);
 				parser.addErrorListener(errorListener);
 
 				CompilationUnitContext context = parser.compilationUnit();
-				if (!errorListener.isErrorFree())
+				if (errorListener.hasErrors())
 				{
-					errorListener.getErrors().forEachRemaining(error -> {
-						System.err.println(error);
-					});
+					errorListener.getErrors().forEachRemaining(System.err::println);
 					return false;
 				}
 
 				visitor.visitCompilationUnit(context);
-				if (!errorListener.isErrorFree())
+				if (errorListener.hasErrors())
 				{
-					errorListener.getErrors().forEachRemaining(error -> {						
-						System.err.println(error);
-					});
+					errorListener.getErrors().forEachRemaining(System.err::println);
 					return false;
 				}
 				return true;
@@ -70,9 +65,7 @@ public class JustParser
 		}
 		catch(Exception ex)
 		{
-			System.err.println(ex);
-			ex.printStackTrace(System.err);
 			return false;
-		}		
+		}
 	}
 }

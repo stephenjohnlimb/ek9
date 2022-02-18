@@ -54,7 +54,7 @@ public class Ed extends E
 	 */
 	private boolean prepareEncryptedZipHash()
 	{
-		String zipFileName = getFileHandling().makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion().toString());
+		String zipFileName = getFileHandling().makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion());
 		File zipFile = new File(getFileHandling().getDotEK9Directory(commandLine.getSourceFileDirectory()), zipFileName);
 		File sha256File = new File(getFileHandling().getDotEK9Directory(commandLine.getSourceFileDirectory()), zipFileName + ".sha256");
 
@@ -104,7 +104,7 @@ public class Ed extends E
 	}
 
 	/**
-	 * For now we will embed this public key in this deployment.
+	 * For now; we will embed this public key in this deployment.
 	 * Eventually we will pull a public key from a repo server.
 	 *
 	 * @param serverName The server to pull the public certificate from i.e. repo.ek9lang.org
