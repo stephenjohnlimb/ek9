@@ -37,7 +37,7 @@ public class CommonParameterisedTypeDetails
 
 	public static boolean doSymbolsMatch(List<ISymbol> list1, List<ISymbol> list2)
 	{
-		if(list1.size() == list2.size())
+		if(list1 != null && list2 != null && list1.size() == list2.size())
 		{
 			for(int i = 0; i < list1.size(); i++)
 				if(!list1.get(i).isExactSameType(list2.get(i)))

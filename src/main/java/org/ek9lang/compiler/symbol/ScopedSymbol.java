@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ScopedSymbol extends Symbol implements IScope
+public class ScopedSymbol extends Symbol implements IScope, ISymbol
 {
 	private LocalScope actualScope;
 
@@ -28,12 +28,12 @@ public class ScopedSymbol extends Symbol implements IScope
 	 * need to replace MapEntry<K, V> with MapEntry<String, Float>. YOu could also imagine a situation where you have to replace
 	 * Something<Integer, V> with Something<Integer, Float>!
 	 */
-	private List<ParameterisedTypeSymbol> parameterisedTypeReferences = new ArrayList<ParameterisedTypeSymbol>();
+	private final List<ParameterisedTypeSymbol> parameterisedTypeReferences = new ArrayList<>();
 	
 	/**
 	 * Also set up the same but for generic functions.
 	 */
-	private List<ParameterisedFunctionSymbol> parameterisedFunctionReferences = new ArrayList<ParameterisedFunctionSymbol>();
+	private final List<ParameterisedFunctionSymbol> parameterisedFunctionReferences = new ArrayList<>();
 	
 	/**
 	 * So this is the list of generic parameters the class/function can accept.
@@ -45,7 +45,7 @@ public class ScopedSymbol extends Symbol implements IScope
 	 * Note that you need to use ParameterisedTypeSymbol with this and a couple of concrete classes
 	 * To have something concrete.
 	 */
-	private List<AggregateSymbol> parameterisedTypes = new ArrayList<AggregateSymbol>();
+	private final List<AggregateSymbol> parameterisedTypes = new ArrayList<>();
 
 	/**
 	 * Has this scoped symbol been reverse engineered in to EK9 from Java or some other source.
@@ -69,13 +69,19 @@ public class ScopedSymbol extends Symbol implements IScope
 	public ScopedSymbol(String name, IScope enclosingScope)
 	{
 		super(name);
-		setupActualScope(name, enclosingScope);		
+		setupActualScope(ScopeType.BLOCK, name, enclosingScope);
+	}
+
+	public ScopedSymbol(IScope.ScopeType scopeType, String scopeName, IScope enclosingScope)
+	{
+		super(scopeName);
+		setupActualScope(scopeType, scopeName, enclosingScope);
 	}
 
 	public ScopedSymbol(String name, Optional<ISymbol> type, IScope enclosingScope)
 	{
 		super(name, type);
-		setupActualScope(name, enclosingScope);
+		setupActualScope(ScopeType.BLOCK, name, enclosingScope);
 	}
 
 	@Override
@@ -98,14 +104,20 @@ public class ScopedSymbol extends Symbol implements IScope
 		return newCopy;
 	}
 
-	private void setupActualScope(String name, IScope enclosingScope)
+	private void setupActualScope(IScope.ScopeType scopeType, String name, IScope enclosingScope)
 	{
-		actualScope = new LocalScope(getScopeType(), name, enclosingScope);		
+		actualScope = new LocalScope(scopeType, name, enclosingScope);
 	}
 	
 	public LocalScope getActualScope()
 	{
 		return actualScope;
+	}
+
+	@Override
+	public IScope.ScopeType getScopeType()
+	{
+		return actualScope.getScopeType();
 	}
 
 	public boolean isReversedEngineeredToEK9()
@@ -156,14 +168,13 @@ public class ScopedSymbol extends Symbol implements IScope
 	public ScopedSymbol addParameterisedType(Optional<AggregateSymbol> parameterisedType)
 	{
 		AssertValue.checkNotNull("Optional parameterisedType cannot be null", parameterisedType);
-		if(parameterisedType.isPresent())
-			addParameterisedType(parameterisedType.get());
+		parameterisedType.ifPresent(this::addParameterisedType);
 		return this;
 	}
 
 	public List<ISymbol> getAnyGenericParameters()
 	{
-		return parameterisedTypes.stream().filter(t -> t.isGenericTypeParameter()).collect(Collectors.toList());
+		return parameterisedTypes.stream().filter(AggregateSymbol::isGenericTypeParameter).collect(Collectors.toList());
 	}
 
 	public List<ISymbol> getParameterisedTypes()
@@ -184,9 +195,7 @@ public class ScopedSymbol extends Symbol implements IScope
 	@Override
 	public boolean isMarkedPure()
 	{
-		if(actualScope.isMarkedPure())
-			return true;
-		return IScope.super.isMarkedPure();
+		return actualScope.isMarkedPure();
 	}
 	
 	public ScopedSymbol(String name)

@@ -1,13 +1,16 @@
 package org.ek9lang.compiler.symbol.support;
 
 import junit.framework.TestCase;
+import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.ParameterisedTypeSymbol;
 import org.ek9lang.compiler.symbol.support.search.TemplateTypeSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.junit.Test;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Going to be very hard to get your head around this as generics and
@@ -25,6 +28,10 @@ public class GenericTypeTest extends AbstractSymbolTestBase
 		//Now the actual template type that can be parameterised.
 		var z = support.createTemplateGenericType("Zee", symbolTable, t);
 		symbolTable.define(z);
+
+		//Now make sure it is possible to find the correct index of 'Tee'
+		//This will be needed when we come to process parameterised types.
+		TestCase.assertEquals(0, CommonParameterisedTypeDetails.getIndexOfType(z, Optional.of(t)));
 
 		//Check we CANNOT find this as a type, but only as a template type.
 		TestCase.assertTrue(symbolTable.resolve(new TypeSymbolSearch("Zee")).isEmpty());
@@ -49,9 +56,59 @@ public class GenericTypeTest extends AbstractSymbolTestBase
 		TestCase.assertEquals("Zee of Integer", integerZeeType.getFriendlyName());
 	}
 
+	@Test
+	public void testMatchingListsOfTypes()
+	{
+		var dateType = symbolTable.resolve(new TypeSymbolSearch("Date"));
+		var stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
+		TestCase.assertTrue(dateType.isPresent());
+		TestCase.assertTrue(stringType.isPresent());
+
+		TestCase.assertFalse(CommonParameterisedTypeDetails
+				.doSymbolsMatch(
+						List.of(dateType.get()), null
+				)
+		);
+		TestCase.assertFalse(CommonParameterisedTypeDetails
+				.doSymbolsMatch(
+						null, List.of(dateType.get())
+				)
+		);
+
+		TestCase.assertFalse(CommonParameterisedTypeDetails
+				.doSymbolsMatch(
+						List.of(dateType.get()), List.of(stringType.get())
+				)
+		);
+
+		TestCase.assertFalse(CommonParameterisedTypeDetails
+				.doSymbolsMatch(
+						List.of(dateType.get(), stringType.get()), List.of(stringType.get())
+				)
+		);
+
+		TestCase.assertFalse(CommonParameterisedTypeDetails
+				.doSymbolsMatch(
+						List.of(dateType.get(), stringType.get()), List.of(stringType.get(), dateType.get())
+				)
+		);
+
+		TestCase.assertTrue(CommonParameterisedTypeDetails
+				.doSymbolsMatch(
+						List.of(dateType.get()),List.of(dateType.get())
+				)
+		);
+
+		TestCase.assertTrue(CommonParameterisedTypeDetails
+				.doSymbolsMatch(
+						List.of(stringType.get(), dateType.get()), List.of(stringType.get(), dateType.get())
+				)
+		);
+	}
+
 	/**
 	 * A quick check of some type that can be parameterised with multiple types.
-	 *
+	 * <p>
 	 * We've got multiple uses and reuses of generic types in here.
 	 */
 	@Test
@@ -76,6 +133,11 @@ public class GenericTypeTest extends AbstractSymbolTestBase
 
 		var y = support.createTemplateGenericType("Why", symbolTable, List.of(p, r));
 		symbolTable.define(y);
+
+		//Check we can find the types that ave been used and cannot find the ones that haven't.
+		TestCase.assertEquals(0, CommonParameterisedTypeDetails.getIndexOfType(y, Optional.of(p)));
+		TestCase.assertEquals(1, CommonParameterisedTypeDetails.getIndexOfType(y, Optional.of(r)));
+		TestCase.assertEquals(-1, CommonParameterisedTypeDetails.getIndexOfType(y, Optional.of(q)));
 
 		var z = support.createTemplateGenericType("Zee", symbolTable, List.of(r, q, p));
 		symbolTable.define(z);
@@ -144,7 +206,7 @@ public class GenericTypeTest extends AbstractSymbolTestBase
 	 * i.e. lets say with G we use a List of S or a Function of T. This means when we come to use
 	 * actual types like String or Integer for S and T, we must put those in place in G.
 	 * But in some cases within G of (S, T) we might use a List of Date i.e. we don;t need to replace!
-	 *
+	 * <p>
 	 * HARD, very HARD (well for me anyway).
 	 */
 	@Test

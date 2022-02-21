@@ -11,6 +11,9 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Basic tests for symbols.
+ */
 public class SymbolsTest extends AbstractSymbolTestBase
 {
 	@Test
