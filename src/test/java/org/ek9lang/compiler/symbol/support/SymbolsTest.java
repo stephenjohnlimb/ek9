@@ -127,6 +127,50 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
+	public void testExpressionSymbol()
+	{
+		var expr = new ExpressionSymbol("Expr");
+
+		//This is the type this expression can return
+		expr.setType(symbolTable.resolve(new TypeSymbolSearch("String")));
+		TestCase.assertTrue(expr.getType().isPresent());
+
+		var clone = expr.clone(symbolTable);
+		TestCase.assertTrue(clone.getType().isPresent());
+	}
+
+	@Test
+	public void testParamExpressionSymbol()
+	{
+		var expr = new ParamExpressionSymbol("ParamExpr");
+
+		expr.addParameter(new VariableSymbol("v1", symbolTable.resolve(new TypeSymbolSearch("Integer"))));
+		//This is the type this param expression can return
+		expr.setType(symbolTable.resolve(new TypeSymbolSearch("String")));
+		TestCase.assertTrue(expr.getType().isPresent());
+
+		var clone = expr.clone(symbolTable);
+		TestCase.assertTrue(clone.getType().isPresent());
+		TestCase.assertEquals(1, clone.getParameters().size());
+		TestCase.assertEquals("v1", clone.getParameters().get(0).getName());
+		TestCase.assertTrue(clone.getParameters().get(0).getType().isPresent());
+		TestCase.assertEquals("Integer", clone.getParameters().get(0).getType().get().getName());
+	}
+
+	@Test
+	public void testStreamPipeLineSymbol()
+	{
+		var expr = new StreamPipeLineSymbol("Pipe");
+
+		//This is the type this pipe can return
+		expr.setType(symbolTable.resolve(new TypeSymbolSearch("String")));
+		TestCase.assertTrue(expr.getType().isPresent());
+
+		var clone = expr.clone(symbolTable);
+		TestCase.assertTrue(clone.getType().isPresent());
+	}
+
+	@Test
 	public void testVariableSymbol()
 	{
 		IScope symbolTable = new SymbolTable();

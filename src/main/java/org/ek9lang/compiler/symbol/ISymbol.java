@@ -102,6 +102,8 @@ public interface ISymbol extends ITokenReference
 	 */
 	default String getSourceFileLocation()
 	{
+		if(isEk9Core())
+			return "_ek9/global/builtin.ek9";
 		return "";
 	}
 

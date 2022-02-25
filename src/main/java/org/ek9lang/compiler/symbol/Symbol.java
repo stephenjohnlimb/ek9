@@ -104,6 +104,15 @@ public class Symbol implements ISymbol
 		newCopy.sourceToken = this.sourceToken;
 		newCopy.squirrelledAway.putAll(this.squirrelledAway);
 		newCopy.referenced = this.referenced;
+		if(this instanceof AggregateSymbol)
+		{
+			//We don't copy over any type as the aggregate IS the type
+		}
+		else
+		{
+			if(this.getType().isPresent())
+				newCopy.setType(getType().get());
+		}
 		return newCopy;
 	}
 
@@ -248,9 +257,6 @@ public class Symbol implements ISymbol
 	@Override
 	public String getSourceFileLocation()
 	{
-		if(isEk9Core())
-			return "_ek9/global/builtin.ek9";
-		
 		if(parsedModule != null && parsedModule.getSource() != null)
 			return parsedModule.getSource().getFileName();
 	
@@ -259,32 +265,14 @@ public class Symbol implements ISymbol
 
 	public boolean isExactSameType(ISymbol symbolType)
 	{
-		String thisName = this.getName();
-		String symbolTypeName = symbolType.getName();
-		
-		if(this.isAType() && symbolType.isAType())
-		{
-			//if the same symbol physical memory or name is the same
-			return this == symbolType || thisName.equals(symbolTypeName);							
-		}
-		else if(this.isATemplateType() && symbolType.isATemplateType())
-		{
-			//if the same symbol physical memory or name is the same
-			return this == symbolType || thisName.equals(symbolTypeName);							
-		}
-		else if(this.isATemplateFunction() && symbolType.isATemplateFunction())
-		{
-			//if the same symbol physical memory or name is the same
-			return this == symbolType || thisName.equals(symbolTypeName);							
-		}
-		else if(this.isAFunction() && symbolType.isAFunction())
-		{
-			//if the same symbol physical memory or name is the same
-			return this == symbolType || thisName.equals(symbolTypeName);							
-		}
-		return false;
+		return sameCategory(this, symbolType) && getFullyQualifiedName().equals(symbolType.getFullyQualifiedName());
 	}
-		
+
+	private boolean sameCategory(ISymbol c1, ISymbol c2)
+	{
+		return c1.getCategory().equals(c2.getCategory());
+	}
+
 	public boolean isAssignableTo(ISymbol s)
 	{
 		return getAssignableWeightTo(s) >= 0.0;
@@ -297,19 +285,16 @@ public class Symbol implements ISymbol
 	
 	public double getAssignableWeightTo(Optional<ISymbol> s)
 	{
-		if(!s.isPresent())
-			return -1000000.0;
-		return getAssignableWeightTo(s.get());
+		return s.map(this::getAssignableWeightTo).orElse(-1000000.0);
 	}
 	
 	@Override
 	public boolean isPromotionSupported(ISymbol s)
 	{
 		//Check if any need to promote might be same type
-		if(isExactSameType(s))
-			return false;
-		
-		return TypeCoercions.get().isCoercible(this, s);
+		if(!isExactSameType(s))
+			return TypeCoercions.get().isCoercible(this, s);
+		return false;
 	}
 	
 	public double getAssignableWeightTo(ISymbol s)
@@ -368,7 +353,7 @@ public class Symbol implements ISymbol
 	@Override
 	public String getFriendlyName()
 	{
-		StringBuffer rtn = new StringBuffer(getName());
+		StringBuilder rtn = new StringBuilder(getName());
 		
 		if(this.getType().isPresent())
 		{

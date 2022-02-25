@@ -3,6 +3,7 @@ package org.ek9lang.compiler.symbol;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -50,6 +51,16 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 		super(name, enclosingScope);
 		super.setCategory(SymbolCategory.FUNCTION);
 		super.setProduceFullyQualifiedName(true);
+	}
+
+	/**
+	 * An function that can be parameterised, i.e. like a 'List of T'
+	 * So the name would be 'List' and the parameterTypes would be a single aggregate of a conceptual T.
+	 */
+	public FunctionSymbol(String name, IScope enclosingScope, List<AggregateSymbol> parameterTypes)
+	{
+		this(name, enclosingScope);
+		parameterTypes.forEach(this::addParameterisedType);
 	}
 
 	@Override
@@ -235,7 +246,7 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 			rtn = super.resolveInThisScopeOnly(search); // check for parameters
 
 		//check for general types
-		if(rtn.isEmpty())
+		if(rtn.isEmpty() && moduleScope != null)
 			rtn = moduleScope.resolve(search);
 
 		//only now do we check up the enclosing scope and for a generic function that could have a generic type defined but that is all we are allowed.

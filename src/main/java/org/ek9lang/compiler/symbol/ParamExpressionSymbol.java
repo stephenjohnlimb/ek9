@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  */
 public class ParamExpressionSymbol extends Symbol
 {
-	private List<ISymbol> params = new ArrayList<ISymbol>();
+	private final List<ISymbol> params = new ArrayList<>();
 
 	public ParamExpressionSymbol(String name)
 	{
@@ -26,6 +26,19 @@ public class ParamExpressionSymbol extends Symbol
 		return this;
 	}
 
+	@Override
+	public ParamExpressionSymbol clone(IScope withParentAsAppropriate)
+	{
+		return cloneIntoStreamPipeLineSymbol(new ParamExpressionSymbol(getName()));
+	}
+
+	protected ParamExpressionSymbol cloneIntoStreamPipeLineSymbol(ParamExpressionSymbol newCopy)
+	{
+		super.cloneIntoSymbol(newCopy);
+		getParameters().forEach(newCopy::addParameter);
+		return newCopy;
+	}
+
 	public List<ISymbol> getParameters()
 	{
 		return Collections.unmodifiableList(params);
@@ -34,6 +47,6 @@ public class ParamExpressionSymbol extends Symbol
 	@Override
 	public String getFriendlyName()
 	{
-		return "(" + params.stream().map(symbol -> symbol.getFriendlyName()).collect(Collectors.joining(", ")) + ")";
+		return "(" + params.stream().map(ISymbol::getFriendlyName).collect(Collectors.joining(", ")) + ")";
 	}
 }

@@ -195,6 +195,11 @@ public class AggregateSupport
 		return new AggregateSymbol(name, enclosingScope, List.of(tSymbol));
 	}
 
+	public FunctionSymbol createTemplateGenericFunction(String name, IScope enclosingScope, AggregateSymbol tSymbol)
+	{
+		return new FunctionSymbol(name, enclosingScope, List.of(tSymbol));
+	}
+
 	/**
 	 * Create a generic parameter of specific name.
 	 * We use the name createGenericT, so it is obvious what we are doing here.
