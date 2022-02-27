@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbol;
 
+import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
@@ -690,23 +691,5 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	private String doGetFriendlyName()
 	{
 		return super.getFriendlyName() + getAnyGenericParamsAsFriendlyNames();
-	}
-
-	protected String getAnyGenericParamsAsFriendlyNames()
-	{
-		StringBuilder buffer = new StringBuilder();
-		if(isGenericInNature())
-		{
-			buffer.append(" of ");
-			boolean first = true;
-			for(ISymbol symbol : this.getParameterisedTypes())
-			{
-				if(!first)
-					buffer.append(", ");
-				first = false;
-				buffer.append(symbol.getFriendlyName());
-			}
-		}
-		return buffer.toString();
 	}
 }

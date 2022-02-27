@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.symbol;
 
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 
 import java.util.List;
@@ -67,7 +68,7 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 	public String getFriendlyScopeName()
 	{
 		if(capturedVariables.isPresent())
-			return "dynamic function(...)";
+			return "dynamic function" + CommonParameterisedTypeDetails.asCommaSeparated(getCapturedVariables().get().getSymbolsForThisScope(), true);
 		return super.getFriendlyScopeName();
 	}
 
@@ -194,6 +195,15 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 	}
 
 	@Override
+	public String getFriendlyName()
+	{
+		String name = doGetFriendlyName(Optional.empty());
+		if(getReturningSymbol() != null)
+			name = doGetFriendlyName(getReturningSymbol().getType());
+		return name  + getAnyGenericParamsAsFriendlyNames();
+	}
+
+	@Override
 	public Optional<ISymbol> getType()
 	{
 		//Treat this as a type. To get result of call need to use:
@@ -253,11 +263,7 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 		//So if we need to resolve stuff in the enclosing scope and that scope is a class of a function that is generic then S T or whatever
 		//well be resolvable; and we need that in this case.
 		if(rtn.isEmpty())
-		{
-			Optional<ISymbol> check = super.getEnclosingScope().resolve(search);
-			if(check.isPresent() && check.get().isGenericTypeParameter())
-				rtn = check;
-		}
+			return super.getEnclosingScope().resolve(search);
 		return rtn;
 	}
 }

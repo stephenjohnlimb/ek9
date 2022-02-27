@@ -2,6 +2,7 @@ package org.ek9lang.compiler.symbol;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
+import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
@@ -170,6 +171,18 @@ public class ScopedSymbol extends Symbol implements IScope, ISymbol
 		AssertValue.checkNotNull("Optional parameterisedType cannot be null", parameterisedType);
 		parameterisedType.ifPresent(this::addParameterisedType);
 		return this;
+	}
+
+	protected String getAnyGenericParamsAsFriendlyNames()
+	{
+		StringBuilder buffer = new StringBuilder();
+		if(isGenericInNature())
+		{
+			buffer.append(" of type ");
+			var params = getParameterisedTypes();
+			buffer.append(CommonParameterisedTypeDetails.asCommaSeparated(params, params.size() > 1));
+		}
+		return buffer.toString();
 	}
 
 	public List<ISymbol> getAnyGenericParameters()

@@ -52,7 +52,7 @@ public class Symbol implements ISymbol
 	 */
 	private boolean nullAllowed = false;
 
-	//For components we need to know if injection is exected.
+	//For components, we need to know if injection is exected.
 	private boolean injectionExpected = false;
 
 	/** 
@@ -353,21 +353,25 @@ public class Symbol implements ISymbol
 	@Override
 	public String getFriendlyName()
 	{
-		StringBuilder rtn = new StringBuilder(getName());
-		
-		if(this.getType().isPresent())
+		String theType = getSymbolTypeAsString(this.getType());
+		if(theType.length() > 0)
+			return  getName() + " as " + theType;
+		return getName();
+	}
+
+	protected String getSymbolTypeAsString(Optional<ISymbol> aType)
+	{
+		if(aType.isPresent())
 		{
-			ISymbol theType = getType().get();
+			ISymbol theType = aType.get();
 			//avoid self
 			if(this != theType)
-			{
-				rtn.append(" as ");				
-				rtn.append(theType.getFriendlyName());
-			}
+				return theType.getFriendlyName();
+			return "";
 		}
-		return rtn.toString();
+		return "Unknown";
 	}
-	
+
 	@Override
 	public String toString()
 	{

@@ -39,6 +39,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 	{
 		this(parameterisableSymbol, enclosingScope);
 		parameterSymbols.forEach(this::addParameterSymbol);
+		this.setReturningSymbol(parameterisableSymbol.getReturningSymbol());
 		parameterisationComplete();
 	}
 
@@ -234,17 +235,17 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 
 	@Override
 	public String getFriendlyName()
-	{	
-		String nameOfFunction = parameterisableSymbol.getName() + " of " + parameterSymbolsAsCommaSeparated();
+	{
+		String nameOfFunction = parameterisableSymbol.getName() + getAnyGenericParamsAsFriendlyNames();
 		StringBuilder buffer = new StringBuilder();
-		if(getType().isPresent())
-			buffer.append(nameOfFunction);
+		buffer.append(getAccessModifier()).append(" ");
+		if(getReturningSymbol() != null)
+			buffer.append(getSymbolTypeAsString(getReturningSymbol().getType()));
 		else
 			buffer.append("Unknown");
-		
-		buffer.append(" <- ").append(nameOfFunction);
-		buffer.append("(").append(parameterSymbolsAsCommaSeparated()).append(")");
 
+		buffer.append(" <- ").append(nameOfFunction);
+		buffer.append(CommonParameterisedTypeDetails.asCommaSeparated(getSymbolsForThisScope(), true));
 		return buffer.toString();
 	}
 }

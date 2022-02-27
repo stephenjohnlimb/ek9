@@ -35,6 +35,38 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		AggregateSymbol t = support.createGenericT("T", symbolTable);
 		TestCase.assertNotNull(t);
 		TestCase.assertFalse(t.getSymbolsForThisScope().isEmpty());
+
+		TestCase.assertEquals("T", t.getFriendlyName());
+
+		//Now the idea of a variable inside some sort of generic class/function of type T
+		var v1 = new VariableSymbol("v1", t);
+		TestCase.assertEquals("v1 as T", v1.getFriendlyName());
+	}
+
+	@Test
+	public void testSymbolCloning()
+	{
+		var symbol = new Symbol("Sym", symbolTable.resolve(new TypeSymbolSearch("Integer")));
+		symbol.setInitialisedBy(new SyntheticToken());
+		symbol.setReferenced();
+		symbol.putSquirrelledData("key1", "value1");
+		symbol.putSquirrelledData("key2", "\"value2\"");
+		symbol.setNotMutable();
+
+		assertBasicSymbolSettings(symbol);
+
+		var cloned = symbol.clone(symbolTable);
+		assertBasicSymbolSettings(cloned);
+	}
+
+	private void assertBasicSymbolSettings(Symbol s)
+	{
+		TestCase.assertNotNull(s);
+		TestCase.assertNotNull(s.getInitialisedBy());
+		TestCase.assertTrue(s.isReferenced());
+		TestCase.assertEquals(s.getSquirrelledData("key1"), "value1");
+		TestCase.assertEquals(s.getSquirrelledData("key2"), "value2");
+		TestCase.assertFalse(s.isMutable());
 	}
 
 	@Test
@@ -45,11 +77,17 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		Optional<ISymbol> integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
 		var newMethod1 = support.addPublicMethod(from, "someMethod", List.of(), Optional.of(from));
 
+		TestCase.assertEquals("public From <- someMethod()", newMethod1.getFriendlyName());
+
 		var var1 = new VariableSymbol("v1", integerType);
 		var newMethod2 = support.addPublicMethod(from, "someMethod", List.of(var1), Optional.of(from));
 
-		var newMethod3 = support.addPublicMethod(from, "someAbstractMethod", List.of(var1), Optional.of(from));
+		TestCase.assertEquals("public From <- someMethod(v1 as Integer)", newMethod2.getFriendlyName());
+
+		var var2 = new VariableSymbol("v2", integerType);
+		var newMethod3 = support.addPublicMethod(from, "someAbstractMethod", List.of(var1, var2), Optional.of(from));
 		newMethod3.setMarkedAbstract(true);
+		TestCase.assertEquals("public From <- someAbstractMethod(v1 as Integer, v2 as Integer) as abstract", newMethod3.getFriendlyName());
 
 		//Now lets clone those symbols over from "From" to "To" - but we only want the non-abstract methods.
 		//But we should get the methods and also any public constructors if From had the public constructors.
@@ -105,6 +143,10 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		//Now that constructor should exist
 		resolvedMethod = underTest.resolveInThisScopeOnly(search2);
 		TestCase.assertTrue(resolvedMethod.isPresent());
+
+		//Now create a variable of that Type.
+		var v1 = new VariableSymbol("v1", underTest);
+		TestCase.assertEquals("v1 as UnderTest", v1.getFriendlyName());
 	}
 
 	private AggregateSymbol createBasicAggregate(String name)
@@ -137,6 +179,8 @@ public class SymbolsTest extends AbstractSymbolTestBase
 
 		var clone = expr.clone(symbolTable);
 		TestCase.assertTrue(clone.getType().isPresent());
+
+		TestCase.assertEquals("String <- Expr", expr.getFriendlyName());
 	}
 
 	@Test
@@ -155,6 +199,8 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		TestCase.assertEquals("v1", clone.getParameters().get(0).getName());
 		TestCase.assertTrue(clone.getParameters().get(0).getType().isPresent());
 		TestCase.assertEquals("Integer", clone.getParameters().get(0).getType().get().getName());
+
+		TestCase.assertEquals("(v1 as Integer)", expr.getFriendlyName());
 	}
 
 	@Test
@@ -195,6 +241,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 
 		VariableSymbol loopVar = new VariableSymbol("loopVar", Optional.of(integerType));
 		loopVar.setLoopVariable(true);
+
 		TestCase.assertTrue(loopVar.isLoopVariable());
 		TestCase.assertTrue(loopVar.clone(symbolTable).isLoopVariable());
 

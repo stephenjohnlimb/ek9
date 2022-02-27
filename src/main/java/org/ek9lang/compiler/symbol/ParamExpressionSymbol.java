@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.symbol;
 
+import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,6 +49,6 @@ public class ParamExpressionSymbol extends Symbol
 	@Override
 	public String getFriendlyName()
 	{
-		return "(" + params.stream().map(ISymbol::getFriendlyName).collect(Collectors.joining(", ")) + ")";
+		return CommonParameterisedTypeDetails.asCommaSeparated(params, true);
 	}
 }

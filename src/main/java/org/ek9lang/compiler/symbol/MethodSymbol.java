@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbol;
 
+import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import org.ek9lang.compiler.symbol.support.SymbolMatcher;
 
 import java.util.List;
@@ -398,36 +399,23 @@ public class MethodSymbol extends ScopedSymbol
 	@Override
 	public String getFriendlyName()
 	{
+		return doGetFriendlyName(this.getType());
+	}
+
+	protected String doGetFriendlyName(Optional<ISymbol> aType)
+	{
 		StringBuilder buffer = new StringBuilder();
 		if(this.isOverride())
 			buffer.append("override ");
 
 		buffer.append(accessModifier).append(" ");
 
-		if(getType().isPresent())
-		{
-			ISymbol theType = getType().get();
-			if(theType instanceof ParameterisedTypeSymbol)
-			{
-				buffer.append(theType.getFriendlyName());
-			}
-			else
-			{
-				buffer.append(theType.getName());
-				if(theType instanceof AggregateSymbol)
-					buffer.append(((AggregateSymbol)theType).getAnyGenericParamsAsFriendlyNames());
-			}
-		}
-		else
-		{
-			buffer.append("Unknown");
-		}
+		buffer.append(getSymbolTypeAsString(aType));
 
 		buffer.append(" <- ").append(super.getName());
-		buffer.append("(");
-		buffer.append(getSymbolsForThisScope().stream().map(ISymbol::getFriendlyName).collect(Collectors.joining(", ")));
-		buffer.append(")");
-
+		buffer.append(CommonParameterisedTypeDetails.asCommaSeparated(getSymbolsForThisScope(), true));
+		if(this.markedAbstract)
+			buffer.append(" as abstract");
 		return buffer.toString();
 	}
 
@@ -436,8 +424,6 @@ public class MethodSymbol extends ScopedSymbol
 		StringBuilder buffer = new StringBuilder();
 
 		//for to string we want a bit of extra info here that we don't show end user. but good for debugging.
-		if(this.markedAbstract)
-			buffer.append("abstract ");
 		if(this.virtual)
 			buffer.append("virtual ");
 

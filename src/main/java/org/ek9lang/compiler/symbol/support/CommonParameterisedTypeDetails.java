@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
  * Yes it's a long name.
  * The idea is to type and get the common stuff out of
  * ParameterisedTypeSymbol and ParameterisedFunctionSymbol.
+ * <p>
+ * Also general for of Symbol type stuff
  */
 public class CommonParameterisedTypeDetails
 {
@@ -45,6 +47,14 @@ public class CommonParameterisedTypeDetails
 			return true;
 		}
 		return false;
+	}
+
+	public static String asCommaSeparated(List<ISymbol> params, boolean includeBraces)
+	{
+		var commaSeparated = params.stream().map(ISymbol::getFriendlyName).collect(Collectors.joining(", "));
+		if(!includeBraces)
+			return commaSeparated;
+		return "(" + commaSeparated + ")";
 	}
 
 	/**

@@ -39,7 +39,7 @@ public class GenericTypeTest extends AbstractSymbolTestBase
 
 		TestCase.assertTrue(z.isGenericInNature());
 		TestCase.assertTrue(symbolTable.resolve(new TemplateTypeSymbolSearch("Zee")).isPresent());
-		TestCase.assertEquals("Zee of Tee", z.getFriendlyName());
+		TestCase.assertEquals("Zee of type Tee", z.getFriendlyName());
 
 		//Now lets use that generic Z with a String and then with an Integer
 

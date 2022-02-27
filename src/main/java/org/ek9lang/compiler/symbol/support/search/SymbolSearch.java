@@ -2,6 +2,7 @@ package org.ek9lang.compiler.symbol.support.search;
 
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import org.ek9lang.compiler.symbol.support.SymbolTable;
 import org.ek9lang.core.exception.AssertValue;
 
@@ -173,19 +174,8 @@ public class SymbolSearch
 		buffer.append(getName());
 		
 		if(this.searchType == ISymbol.SymbolCategory.METHOD)
-		{
-			buffer.append("(");
-			buffer.append(parameters.stream().map(this::paramAndTypeToString).collect(Collectors.joining(", ")));
-			buffer.append(")");
-		}
+			buffer.append(CommonParameterisedTypeDetails.asCommaSeparated(parameters, true));
 		
 		return buffer.toString();
-	}
-
-	private String paramAndTypeToString(ISymbol symbol)
-	{
-		StringBuilder builder = new StringBuilder(symbol.getName());
-		symbol.getType().ifPresent(type -> builder.append(" as ").append(type.getName()));
-		return builder.toString();
 	}
 }

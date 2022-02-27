@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbol;
 
+import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import org.ek9lang.core.exception.AssertValue;
 
 import java.util.List;
@@ -41,7 +42,7 @@ public interface ParameterisedSymbol extends IScope, ISymbol
 		//But when given a set of valid parameter are no longer generic aggregates.
 		return getParameterSymbols()
 				.stream()
-				.map(param -> param.isGenericTypeParameter())
+				.map(ISymbol::isGenericTypeParameter)
 				.findFirst()
 				.orElse(false);
 	}
@@ -88,7 +89,7 @@ public interface ParameterisedSymbol extends IScope, ISymbol
 	default ParameterisedSymbol addParameterSymbol(Optional<ISymbol> parameterSymbol)
 	{
 		AssertValue.checkNotNull("parameterSymbol cannot be null", parameterSymbol);
-		addParameterSymbol(parameterSymbol.get());
+		parameterSymbol.ifPresent(this::addParameterSymbol);
 		return this;
 	}
 
@@ -102,14 +103,6 @@ public interface ParameterisedSymbol extends IScope, ISymbol
 	default String optionalParenthesisParameterSymbolsAsCommaSeparated()
 	{
 		var params = getParameterSymbols();
-		if(params.size() < 2)
-			return parameterSymbolsAsCommaSeparated();
-
-		return "(" + parameterSymbolsAsCommaSeparated() + ")";
-	}
-
-	default String parameterSymbolsAsCommaSeparated()
-	{
-		return getParameterSymbols().stream().map(symbol -> symbol.toString()).collect(Collectors.joining(", "));
+		return CommonParameterisedTypeDetails.asCommaSeparated(params, params.size() > 1);
 	}
 }

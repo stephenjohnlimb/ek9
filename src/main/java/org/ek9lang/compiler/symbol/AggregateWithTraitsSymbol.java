@@ -144,12 +144,7 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol
 	 */
 	public boolean hasImmediateTrait(IAggregateSymbol trait)
 	{
-		for(IAggregateSymbol ownTrait : this.traits)
-		{
-			if(ownTrait.isExactSameType(trait))
-				return true;
-		}
-		return false;
+		return traits.stream().anyMatch(ownTrait -> ownTrait.isExactSameType(trait));
 	}
 
 	/**

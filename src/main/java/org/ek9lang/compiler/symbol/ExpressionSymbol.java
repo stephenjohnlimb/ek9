@@ -57,6 +57,19 @@ public class ExpressionSymbol extends Symbol implements IAssignableSymbol
 	}
 
 	@Override
+	public String getFriendlyName()
+	{
+		StringBuilder buffer = new StringBuilder();
+
+		getType().ifPresentOrElse(theType -> buffer.append(theType.getFriendlyName()),
+				() -> buffer.append("Unknown"));
+
+		buffer.append(" <- ").append(super.getName());
+
+		return buffer.toString();
+	}
+
+	@Override
 	public boolean isDeclaredAsAConstant()
 	{
 		return declaredAsAConstant;

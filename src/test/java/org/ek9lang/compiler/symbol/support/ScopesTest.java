@@ -35,6 +35,8 @@ public class ScopesTest extends AbstractSymbolTestBase
 		TestCase.assertTrue(local.getScopeName().equals("someName"));
 		TestCase.assertNotNull(local);
 		TestCase.assertEquals(IScope.ScopeType.AGGREGATE, local.getScopeType());
+
+		TestCase.assertEquals("someName", local.getFriendlyScopeName());
 	}
 
 	@Test
@@ -75,8 +77,12 @@ public class ScopesTest extends AbstractSymbolTestBase
 		var z = support.createTemplateGenericType("Zee", symbolTable, t);
 		symbolTable.define(z);
 
+		TestCase.assertEquals("Zee of type Tee", z.getFriendlyName());
 		//This would be a concrete Zee with a concrete type of String to replace 'Tee'
-		TestCase.assertNotNull(checkScopedSymbol(new ParameterisedTypeSymbol(z, symbolTable.resolve(new TypeSymbolSearch("String")), symbolTable)));
+		var pTypeSymbol = new ParameterisedTypeSymbol(z, symbolTable.resolve(new TypeSymbolSearch("String")), symbolTable);
+		TestCase.assertNotNull(checkScopedSymbol(pTypeSymbol));
+
+		TestCase.assertEquals("Zee of String", pTypeSymbol.getFriendlyName());
 	}
 
 	@Test
@@ -86,8 +92,23 @@ public class ScopesTest extends AbstractSymbolTestBase
 		var fun = support.createTemplateGenericFunction("fun", symbolTable, t);
 		symbolTable.define(fun);
 
+		//We've not defined the return type of the function
+		TestCase.assertEquals("public Unknown <- fun() of type Tee", fun.getFriendlyName());
+
+		fun.setReturningSymbol(new VariableSymbol("rtn", symbolTable.resolve(new TypeSymbolSearch("Integer"))));
+		TestCase.assertEquals("public Integer <- fun() of type Tee", fun.getFriendlyName());
+
 		//This would be a concrete 'fun' with a concrete type of String to replace 'Tee'
-		TestCase.assertNotNull(checkScopedSymbol(new ParameterisedFunctionSymbol(fun, symbolTable.resolve(new TypeSymbolSearch("String")), symbolTable)));
+		var pFun = new ParameterisedFunctionSymbol(fun, symbolTable.resolve(new TypeSymbolSearch("String")), symbolTable);
+
+		TestCase.assertNotNull(pFun.getReturningSymbol());
+		var clonedPFun = checkScopedSymbol(pFun);
+		TestCase.assertNotNull(clonedPFun);
+
+		//The return is the function should be the return type.
+		System.out.println(pFun.getFriendlyName());
+
+		System.out.println(clonedPFun.getFriendlyName());
 	}
 
 	@Test
