@@ -22,11 +22,11 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		TestCase.assertFalse(support.isSymbolNameFullyQualified("name"));
 		TestCase.assertTrue(support.isSymbolNameFullyQualified("com.name::name"));
 
-		TestCase.assertTrue("com.part".equals(support.getModuleNameIfPresent("com.part::name")));
-		TestCase.assertTrue("".equals(support.getModuleNameIfPresent("name")));
+		TestCase.assertEquals("com.part", support.getModuleNameIfPresent("com.part::name"));
+		TestCase.assertEquals("", support.getModuleNameIfPresent("name"));
 
-		TestCase.assertTrue("name".equals(support.getUnqualifiedName("com.part::name")));
-		TestCase.assertTrue("name".equals(support.getUnqualifiedName("name")));
+		TestCase.assertEquals("name", support.getUnqualifiedName("com.part::name"));
+		TestCase.assertEquals("name", support.getUnqualifiedName("name"));
 	}
 
 	@Test
@@ -52,6 +52,11 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		symbol.putSquirrelledData("key1", "value1");
 		symbol.putSquirrelledData("key2", "\"value2\"");
 		symbol.setNotMutable();
+		//Can the symbol possibly be null i.e. never assigned a value.
+		symbol.setNullAllowed(true);
+		symbol.setInjectionExpected(true);
+		//Imagine this is actually part of the ek9 core itself.
+		symbol.setEk9Core(true);
 
 		assertBasicSymbolSettings(symbol);
 
@@ -67,6 +72,10 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		TestCase.assertEquals(s.getSquirrelledData("key1"), "value1");
 		TestCase.assertEquals(s.getSquirrelledData("key2"), "value2");
 		TestCase.assertFalse(s.isMutable());
+		TestCase.assertTrue(s.isNullAllowed());
+		TestCase.assertTrue(s.isInjectionExpected());
+		TestCase.assertTrue(s.isEk9Core());
+		TestCase.assertNotNull(s.getSourceToken());
 	}
 
 	@Test
@@ -109,8 +118,79 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	public void testCreateEnumerationType()
 	{
 		AggregateSymbol e = new AggregateSymbol("CheckEnum", symbolTable);
-		support.addSyntheticEnumerationMethods(e);
+		support.addEnumerationMethods(e);
 		TestCase.assertFalse(e.getSymbolsForThisScope().isEmpty());
+	}
+
+	/**
+	 * We're just testing the properties of delegation here.
+	 * Not the actual delegation itself. The trait part is omitted here
+	 */
+	@Test
+	public void testSimpleMethodDelegation()
+	{
+		AggregateSymbol e = new AggregateSymbol("SomeAgg", symbolTable);
+		var toStringOnE = support.addPurePublicSimpleOperator(e, "$", symbolTable.resolve(new TypeSymbolSearch("String")));
+
+		AggregateSymbol f = new AggregateSymbol("AdditionalAgg", symbolTable);
+		f.define(new VariableSymbol("theDelegate", e));
+		var toStringOnF = support.addPurePublicSimpleOperator(f, "$", symbolTable.resolve(new TypeSymbolSearch("String")));
+		toStringOnF.setUsedAsProxyForDelegate("theDelegate");
+
+		//So the idea is call method/operator '$' on instance of 'AdditionalAgg' and EK9
+		//Would call theDelegate.$() i.e. $ is proxied on 'AdditionalAgg' automatically.
+		TestCase.assertFalse(toStringOnE.isUsedAsProxyForDelegate());
+		TestCase.assertTrue(toStringOnF.isUsedAsProxyForDelegate());
+		TestCase.assertTrue(toStringOnF.isOverride());
+		TestCase.assertFalse(toStringOnF.isVirtual());
+		TestCase.assertEquals("theDelegate", toStringOnF.getUsedAsProxyForDelegate());
+	}
+
+	/**
+	 * Just really aimed at testing the properties on a method.
+	 * So we're not checking resolution of stuff here, just basic props.
+	 */
+	@Test
+	public void testSimpleMethodProperties()
+	{
+		AggregateSymbol e = new AggregateSymbol("SomeAgg", symbolTable);
+
+		//Add a synthetic comparator operator
+		var comparator = support.addComparatorOperator(e, "<>", symbolTable.resolve(new TypeSymbolSearch("Boolean")));
+
+		TestCase.assertFalse(comparator.isSynthetic());
+		TestCase.assertFalse(comparator.isVirtual());
+		TestCase.assertFalse(comparator.isConstructor());
+		TestCase.assertFalse(comparator.isOverride());
+		TestCase.assertFalse(comparator.isPrivate());
+		TestCase.assertFalse(comparator.isProtected());
+		TestCase.assertTrue(comparator.isPublic());
+		TestCase.assertTrue(comparator.isOperator());
+		TestCase.assertFalse(comparator.isEk9ReturnsThis());
+		TestCase.assertTrue(comparator.isReturningSymbolPresent());
+		TestCase.assertFalse(comparator.isMarkedNoClone());
+		TestCase.assertTrue(comparator.isMarkedPure());
+		TestCase.assertTrue(comparator.isSignatureMatchTo(comparator));
+		TestCase.assertTrue(comparator.isAConstant());
+		TestCase.assertFalse(comparator.isMarkedAbstract());
+		TestCase.assertFalse(comparator.isMarkedAsDispatcher());
+		TestCase.assertFalse(comparator.isParameterisedWrappingRequired());
+
+		TestCase.assertTrue(comparator.isSignatureMatchTo(comparator));
+		TestCase.assertTrue(comparator.isParameterSignatureMatchTo(List.of(e)));
+		TestCase.assertFalse(comparator.isParameterSignatureMatchTo(List.of()));
+
+		var lt = support.addComparatorOperator(e, "<", symbolTable.resolve(new TypeSymbolSearch("Integer")));
+		TestCase.assertFalse(comparator.isSignatureMatchTo(lt));
+		TestCase.assertTrue(lt.isParameterSignatureMatchTo(List.of(e)));
+
+		var isSet = support.addPurePublicSimpleOperator(e, "?", symbolTable.resolve(new TypeSymbolSearch("Boolean")));
+		TestCase.assertFalse(comparator.isSignatureMatchTo(isSet));
+
+		//Now check we can find the comparator!
+		var resolvedComparator = e.resolve(new MethodSymbolSearch(comparator));
+		TestCase.assertTrue(resolvedComparator.isPresent());
+
 	}
 
 	@Test
@@ -165,6 +245,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		support.addConstructor(rtn);
 		//Add another constructor that takes a String as an argument
 		MethodSymbol constructor2 = support.addConstructor(rtn, stringType);
+		TestCase.assertNotNull(constructor2);
 		return rtn;
 	}
 
@@ -173,13 +254,33 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	{
 		var expr = new ExpressionSymbol("Expr");
 
+		//Check before we set the type
+		TestCase.assertEquals("Unknown <- Expr", expr.getFriendlyName());
+
 		//This is the type this expression can return
 		expr.setType(symbolTable.resolve(new TypeSymbolSearch("String")));
-		TestCase.assertTrue(expr.getType().isPresent());
+		expr.setPromotionRequired(false);
+		expr.setUseStringOperator(true);
+		assertExpressionSymbolValues(expr);
 
 		var clone = expr.clone(symbolTable);
-		TestCase.assertTrue(clone.getType().isPresent());
+		assertExpressionSymbolValues(clone);
 
+		TestCase.assertEquals(expr, clone);
+		TestCase.assertFalse(expr.equals("AString"));
+
+		var expr2 = new ExpressionSymbol(new VariableSymbol("v1", symbolTable.resolve(new TypeSymbolSearch("String"))));
+		TestCase.assertNotNull(expr2);
+
+	}
+
+	private void assertExpressionSymbolValues(ExpressionSymbol expr)
+	{
+		TestCase.assertFalse(expr.isPromotionRequired());
+		TestCase.assertTrue(expr.getType().isPresent());
+		TestCase.assertTrue(expr.isUseStringOperator());
+		TestCase.assertFalse(expr.isMutable());
+		TestCase.assertTrue(expr.isAConstant());
 		TestCase.assertEquals("String <- Expr", expr.getFriendlyName());
 	}
 
@@ -201,6 +302,8 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		TestCase.assertEquals("Integer", clone.getParameters().get(0).getType().get().getName());
 
 		TestCase.assertEquals("(v1 as Integer)", expr.getFriendlyName());
+		TestCase.assertEquals(expr, clone);
+		TestCase.assertFalse(expr.equals("AString"));
 	}
 
 	@Test
@@ -214,6 +317,8 @@ public class SymbolsTest extends AbstractSymbolTestBase
 
 		var clone = expr.clone(symbolTable);
 		TestCase.assertTrue(clone.getType().isPresent());
+		TestCase.assertEquals(expr, clone);
+		TestCase.assertFalse(expr.equals("AString"));
 	}
 
 	@Test
@@ -225,7 +330,10 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		//define without type first
 		VariableSymbol v1 = new VariableSymbol("v1");
 		assertVariable1(v1);
-		assertVariable1(v1.clone(symbolTable));
+		var clone = v1.clone(symbolTable);
+		assertVariable1(clone);
+		TestCase.assertEquals(v1, clone);
+		TestCase.assertFalse(v1.equals("AString"));
 
 		VariableSymbol v2 = new VariableSymbol("v2", Optional.of(integerType));
 		v2.setInitialisedBy(new SyntheticToken());
@@ -263,7 +371,11 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		c1.setNotMutable();
 
 		assertConstant1(c1);
-		assertConstant1(c1.clone(symbolTable));
+		var clone = c1.clone(symbolTable);
+		assertConstant1(clone);
+
+		TestCase.assertEquals(c1, clone);
+		TestCase.assertFalse("AString".equals(c1));
 
 		ConstantSymbol c2 = new ConstantSymbol("1", integerType, true);
 		c2.setAtModuleScope(false);
@@ -272,10 +384,10 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		TestCase.assertTrue(c2.isMutable());
 		TestCase.assertFalse(c2.isAtModuleScope());
 		TestCase.assertTrue(c2.isFromLiteral());
-		TestCase.assertTrue(c2.getGenus().equals(ISymbol.SymbolGenus.VALUE));
+		TestCase.assertEquals(c2.getGenus(), ISymbol.SymbolGenus.VALUE);
 
 		ConstantSymbol c3 = new ConstantSymbol("1", integerType);
-		TestCase.assertTrue(c3.getGenus().equals(ISymbol.SymbolGenus.VALUE));
+		TestCase.assertEquals(c3.getGenus(), ISymbol.SymbolGenus.VALUE);
 
 	}
 
@@ -286,7 +398,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		TestCase.assertFalse(c.isMutable());
 		TestCase.assertTrue(c.isAtModuleScope());
 		TestCase.assertTrue(c.isFromLiteral());
-		TestCase.assertTrue(c.getGenus().equals(ISymbol.SymbolGenus.VALUE));
+		TestCase.assertEquals(c.getGenus(), ISymbol.SymbolGenus.VALUE);
 	}
 
 	private void assertVariable1(VariableSymbol v)

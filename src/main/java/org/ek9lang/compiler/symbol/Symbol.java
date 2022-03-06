@@ -52,7 +52,7 @@ public class Symbol implements ISymbol
 	 */
 	private boolean nullAllowed = false;
 
-	//For components, we need to know if injection is exected.
+	//For components, we need to know if injection is expected.
 	private boolean injectionExpected = false;
 
 	/** 
@@ -194,7 +194,8 @@ public class Symbol implements ISymbol
 	public void setEk9Core(boolean ek9Core)
 	{
 		this.ek9Core = ek9Core;
-		setSourceToken(new SyntheticToken());
+		if(ek9Core)
+			setSourceToken(new SyntheticToken());
 	}
 	
 	public boolean isDevSource()
@@ -346,7 +347,7 @@ public class Symbol implements ISymbol
 	public boolean equals(Object obj)
 	{
 		if(obj instanceof ISymbol)
-			return getName().equals(((ISymbol)obj).getName());
+			return getFriendlyName().equals(((ISymbol)obj).getFriendlyName());
 		return false;
 	}
 
@@ -385,11 +386,13 @@ public class Symbol implements ISymbol
 		this.name = name;
 	}
 
+	@Override
 	public Optional<ISymbol> getType()
 	{
 		return type;
 	}
-	
+
+	@Override
 	public ISymbol setType(Optional<ISymbol> type)
 	{
 		AssertValue.checkNotNull("SymbolType cannot be null", type);

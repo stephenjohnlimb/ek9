@@ -23,6 +23,8 @@ public class ExpressionSymbol extends Symbol implements IAssignableSymbol
 	//Or maybe just need to call the $ _string() operator (this the returning type has it).
 	private boolean useStringOperator = false;
 
+	//Now an Expression might just be really simple like the use of a constant value.
+	//It may be important to know this when analysing the IR.
 	private boolean declaredAsAConstant = false;
 
 	public ExpressionSymbol(ISymbol symbol)

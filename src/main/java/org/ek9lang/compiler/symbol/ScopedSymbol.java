@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class ScopedSymbol extends Symbol implements IScope, ISymbol
 {
-	private LocalScope actualScope;
+	private final LocalScope actualScope;
 
 	/**
 	 * If this AggregateSymbol/FunctionSymbol is a generic type then within its code area
@@ -66,23 +66,23 @@ public class ScopedSymbol extends Symbol implements IScope, ISymbol
 	 * If we encounter an exception within a scope we need to note the line number
 	 */
 	private Token encounteredExceptionToken = null;
-	
+
 	public ScopedSymbol(String name, IScope enclosingScope)
 	{
 		super(name);
-		setupActualScope(ScopeType.BLOCK, name, enclosingScope);
+		actualScope = new LocalScope(ScopeType.BLOCK, name, enclosingScope);
 	}
 
 	public ScopedSymbol(IScope.ScopeType scopeType, String scopeName, IScope enclosingScope)
 	{
 		super(scopeName);
-		setupActualScope(scopeType, scopeName, enclosingScope);
+		actualScope = new LocalScope(scopeType, scopeName, enclosingScope);
 	}
 
 	public ScopedSymbol(String name, Optional<ISymbol> type, IScope enclosingScope)
 	{
 		super(name, type);
-		setupActualScope(ScopeType.BLOCK, name, enclosingScope);
+		actualScope = new LocalScope(ScopeType.BLOCK, name, enclosingScope);
 	}
 
 	@Override
@@ -103,11 +103,6 @@ public class ScopedSymbol extends Symbol implements IScope, ISymbol
 		newCopy.encounteredExceptionToken = this.encounteredExceptionToken;
 
 		return newCopy;
-	}
-
-	private void setupActualScope(IScope.ScopeType scopeType, String name, IScope enclosingScope)
-	{
-		actualScope = new LocalScope(scopeType, name, enclosingScope);
 	}
 	
 	public LocalScope getActualScope()
@@ -210,12 +205,7 @@ public class ScopedSymbol extends Symbol implements IScope, ISymbol
 	{
 		return actualScope.isMarkedPure();
 	}
-	
-	public ScopedSymbol(String name)
-	{
-		super(name);
-	}
-	
+
 	public Token getEncounteredExceptionToken()
 	{
 		return encounteredExceptionToken;

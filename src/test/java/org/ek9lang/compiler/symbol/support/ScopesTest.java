@@ -31,12 +31,19 @@ public class ScopesTest extends AbstractSymbolTestBase
 	public void testNamedScope()
 	{
 		//It's not really an aggregate scope but let;s test that type of setting.
-		var local = new LocalScope(IScope.ScopeType.AGGREGATE, "someName", symbolTable);
-		TestCase.assertTrue(local.getScopeName().equals("someName"));
-		TestCase.assertNotNull(local);
-		TestCase.assertEquals(IScope.ScopeType.AGGREGATE, local.getScopeType());
+		VariableSymbol v1 = new VariableSymbol("v3", symbolTable.resolve(new TypeSymbolSearch("Integer")));
 
+		var local = new LocalScope(IScope.ScopeType.AGGREGATE, "someName", symbolTable);
+		TestCase.assertNotNull(local);
+		local.define(v1);
+		TestCase.assertTrue(local.getScopeName().equals("someName"));
+		TestCase.assertEquals(IScope.ScopeType.AGGREGATE, local.getScopeType());
 		TestCase.assertEquals("someName", local.getFriendlyScopeName());
+
+		var clone = local.clone(symbolTable);
+		TestCase.assertNotNull(clone);
+		TestCase.assertTrue(local.equals(clone));
+		TestCase.assertFalse(local.equals("AString"));
 	}
 
 	@Test

@@ -11,8 +11,12 @@ import java.util.stream.Collectors;
  * Represents some type of method that exists on an aggregate type scope.
  * Or it could just be a function type concept at the module level.
  * <p>
- * This could be an 'operation' that exists on a model type aggregate for
- * example. Or it may be one of the storage operations.
+ * So it really is some type of callable 'thing' that has a scope of its own.
+ * This scope is used to hold incoming parameters.
+ * <p>
+ * It can also have some form of visibility/access modifiers and holds the concept
+ * of being overridable in terms of inheritance. In some cases it may also be
+ * defined as one of the 'operators' such as '+' or '$' for example.
  */
 public class MethodSymbol extends ScopedSymbol
 {
@@ -76,6 +80,16 @@ public class MethodSymbol extends ScopedSymbol
 	 */
 	private boolean ek9ReturnsThis = false;
 
+	/**
+	 * This is the name of the delegate in the aggregate.
+	 * <pre>
+	 * DelegatingProcessor with trait of Processor by proc
+	 * 	proc as Processor?
+	 * </pre>
+	 * This is held at method level, so some methods can be delegated and others implemented.
+	 * In effect the compiler needs to add synthetic methods in for the methods on the trait.
+	 * But the developer can decide to implement them if they elect to.
+	 */
 	private String usedAsProxyForDelegate = null;
 
 	/**

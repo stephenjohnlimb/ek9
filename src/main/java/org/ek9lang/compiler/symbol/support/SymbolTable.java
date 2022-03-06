@@ -127,6 +127,13 @@ public class SymbolTable implements IScope
 		orderedSymbols.add(symbol);
 	}
 
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(obj instanceof IScope)
+			return getFriendlyScopeName().equals(((IScope)obj).getFriendlyScopeName());
+		return false;
+	}
 	/**
 	 * So we have a split map for each category
 	 * each of those has a map with a list of symbols of the same name.

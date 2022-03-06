@@ -227,30 +227,30 @@ public class AggregateSupport
 		//Now make the '?', null check operator - this enables us to do null checking in the template definition in the ek9 file
 
 		//isSet
-		addPurePublicSyntheticSimpleOperator(t, "?", booleanType);
+		addPurePublicSimpleOperator(t, "?", booleanType);
 		//Now a _string $ operator
-		addPurePublicSyntheticSimpleOperator(t, "$", stringType);
+		addPurePublicSimpleOperator(t, "$", stringType);
 		//To JSON operator
-		addPurePublicSyntheticSimpleOperator(t, "$$", stringType);
+		addPurePublicSimpleOperator(t, "$$", stringType);
 		//hash code
-		addPurePublicSyntheticSimpleOperator(t, "#?", integerType);
+		addPurePublicSimpleOperator(t, "#?", integerType);
 
-		addPurePublicSyntheticSimpleOperator(t, "empty", booleanType);
-		addPurePublicSyntheticSimpleOperator(t, "length", integerType);
+		addPurePublicSimpleOperator(t, "empty", booleanType);
+		addPurePublicSimpleOperator(t, "length", integerType);
 
 		//First and last
-		addPurePublicSyntheticPrefixSuffixMethod(t, "#<");
-		addPurePublicSyntheticPrefixSuffixMethod(t, "#>");
+		addPurePublicPrefixSuffixMethod(t, "#<");
+		addPurePublicPrefixSuffixMethod(t, "#>");
 
 		//negate operator
-		addPurePublicSyntheticPrefixSuffixMethod(t, "~");
+		addPurePublicPrefixSuffixMethod(t, "~");
 
-		addPurePublicSyntheticPrefixSuffixMethod(t, "++");
-		addPurePublicSyntheticPrefixSuffixMethod(t, "--");
+		addPurePublicPrefixSuffixMethod(t, "++");
+		addPurePublicPrefixSuffixMethod(t, "--");
 
 		//Support automatic opening and closing of 'things'
-		addPurePublicSyntheticSimpleOperator(t, "open", voidType);
-		addPurePublicSyntheticSimpleOperator(t, "close", voidType);
+		addPurePublicSimpleOperator(t, "open", voidType);
+		addPurePublicSimpleOperator(t, "close", voidType);
 
 		//Other operators
 
@@ -303,7 +303,7 @@ public class AggregateSupport
 		return method;
 	}
 
-	public void addSyntheticEnumerationMethods(AggregateSymbol clazz)
+	public void addEnumerationMethods(AggregateSymbol clazz)
 	{
 		Optional<ISymbol> booleanType = clazz.resolve(new TypeSymbolSearch("Boolean"));
 		Optional<ISymbol> integerType = clazz.resolve(new TypeSymbolSearch("Integer"));
@@ -319,44 +319,45 @@ public class AggregateSupport
 		addComparatorOperator(clazz, ">=", booleanType);
 
 		//isSet
-		addPurePublicSyntheticSimpleOperator(clazz, "?", booleanType);
+		addPurePublicSimpleOperator(clazz, "?", booleanType);
 		//Now a _string $ operator
-		addPurePublicSyntheticSimpleOperator(clazz, "$", stringType);
+		addPurePublicSimpleOperator(clazz, "$", stringType);
 		//To JSON operator
-		addPurePublicSyntheticSimpleOperator(clazz, "$$", stringType);
+		addPurePublicSimpleOperator(clazz, "$$", stringType);
 		//hash code
-		addPurePublicSyntheticSimpleOperator(clazz, "#?", integerType);
+		addPurePublicSimpleOperator(clazz, "#?", integerType);
 
 		//First and last
-		addPurePublicSyntheticPrefixSuffixMethod(clazz, "#<");
-		addPurePublicSyntheticPrefixSuffixMethod(clazz, "#>");
+		addPurePublicPrefixSuffixMethod(clazz, "#<");
+		addPurePublicPrefixSuffixMethod(clazz, "#>");
 	}
 
-	private MethodSymbol addPurePublicSyntheticPrefixSuffixMethod(AggregateSymbol clazz, String methodName)
+	private MethodSymbol addPurePublicPrefixSuffixMethod(AggregateSymbol clazz, String methodName)
 	{
-		return addPurePublicSyntheticSimpleOperator(clazz, methodName, Optional.of(clazz));
+		return addPurePublicSimpleOperator(clazz, methodName, Optional.of(clazz));
 	}
 
 	public MethodSymbol addComparatorOperator(AggregateSymbol clazz, String comparatorType, Optional<ISymbol> returnType)
 	{
-		MethodSymbol operator = addPurePublicSyntheticSimpleOperator(clazz, comparatorType, returnType);
+		MethodSymbol operator = addPurePublicSimpleOperator(clazz, comparatorType, returnType);
 		operator.define(new VariableSymbol("param", clazz));
 		return operator;
 	}
 
-	private MethodSymbol addPurePublicSyntheticSimpleOperator(AggregateSymbol clazz, String methodName, Optional<ISymbol> returnType)
+	public MethodSymbol addPurePublicSimpleOperator(AggregateSymbol clazz, String methodName, Optional<ISymbol> returnType)
 	{
 		MethodSymbol method = new MethodSymbol(methodName, clazz);
+		method.setReturningSymbol(new VariableSymbol("rtn", returnType));
 		method.setParsedModule(clazz.getParsedModule());
 		method.setAccessModifier("public");
 		method.setMarkedPure(true);
-		method.setType(returnType);
 		method.setOperator(true);
+		method.setVirtual(false);
 		clazz.define(method);
 		return method;
 	}
 
-	private MethodSymbol addOperator(AggregateSymbol clazz, String operatorType)
+	public MethodSymbol addOperator(AggregateSymbol clazz, String operatorType)
 	{
 		VariableSymbol paramT = new VariableSymbol("param", clazz);
 
