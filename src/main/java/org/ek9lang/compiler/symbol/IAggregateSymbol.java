@@ -5,7 +5,6 @@ import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,19 +26,6 @@ public interface IAggregateSymbol extends ICanCaptureVariables, ISymbol, IScope
 	 * @return true if marked as a dispatcher.
 	 */
 	boolean isMarkedAsDispatcher();
-
-	@Override
-	default boolean isMarkedPure()
-	{		
-		return ISymbol.super.isMarkedPure();
-	}
-	
-	/**
-	 * Is the true source of this symbol from some reverse engineered source.
-	 * Or was it actually written in the EK9 language itself.
-	 * @return true if reverse engineered - allows us to re-use - with some effort other libraries.
-	 */
-	default boolean isReversedEngineeredToEK9() { return false; }
 	
 	Optional<String> getPipeSinkType();
 
@@ -119,18 +105,18 @@ public interface IAggregateSymbol extends ICanCaptureVariables, ISymbol, IScope
 	
 	Optional<IAggregateSymbol> getSuperAggregateScopedSymbol();
 
-	default List<IAggregateSymbol> getTraits() { return new ArrayList<>(); }
+	List<IAggregateSymbol> getTraits();
 
-	default List<AggregateWithTraitsSymbol> getAllExtensionConstrainedTraits() { return new ArrayList<>(); }
+	List<AggregateWithTraitsSymbol> getAllExtensionConstrainedTraits();
 	
-	default List<AggregateWithTraitsSymbol> getAllTraits() { return new ArrayList<>(); }
+	List<AggregateWithTraitsSymbol> getAllTraits();
 
-	default boolean isExtensionConstrained() { return false ; }
+	boolean isExtensionConstrained() ;
 	
 	/**
 	 * Only really used by aggregates that can have one or more traits.
 	 */
-	default boolean isTraitImplemented(AggregateWithTraitsSymbol thisTraitSymbol) { return false; }
+	boolean isTraitImplemented(AggregateWithTraitsSymbol thisTraitSymbol);
 	
 	/**
 	 * Used when a symbol can be defined as a generic/parameterised type.
@@ -139,5 +125,5 @@ public interface IAggregateSymbol extends ICanCaptureVariables, ISymbol, IScope
 
 	String getAggregateDescription();
 
-	default ISymbol clone(IScope withParentAsAppropriate) { return null; }
+	ISymbol clone(IScope withParentAsAppropriate);
 }

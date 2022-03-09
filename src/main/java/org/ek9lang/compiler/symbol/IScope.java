@@ -46,7 +46,7 @@ public interface IScope
 	 * is deemed pure. Anything else is questionable.
 	 * @return true if marked as pure, false otherwise.
 	 */
-	default boolean isMarkedPure() { return false; }
+	boolean isMarkedPure();
 	
 	/**
 	 * Used to keep track of any parameterised types used in a generic type that use some or all of the generic parameters.

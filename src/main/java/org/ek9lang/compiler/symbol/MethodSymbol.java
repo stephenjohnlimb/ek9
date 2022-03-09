@@ -255,16 +255,6 @@ public class MethodSymbol extends ScopedSymbol
 		return ek9ReturnsThis;
 	}
 
-	public boolean isMarkedPure()
-	{
-		return markedPure;
-	}
-
-	public void setMarkedPure(boolean markedPure)
-	{
-		this.markedPure = markedPure;
-	}
-
 	public boolean isMarkedNoClone()
 	{
 		return markedNoClone;

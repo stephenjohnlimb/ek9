@@ -175,10 +175,7 @@ public interface ISymbol extends ITokenReference
 	 *
 	 * @return true if pure, false otherwise. By default, false - lets assume the worst.
 	 */
-	default boolean isMarkedPure()
-	{
-		return false;
-	}
+	boolean isMarkedPure();
 
 	default boolean isMutable()
 	{

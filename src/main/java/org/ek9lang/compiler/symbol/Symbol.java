@@ -60,7 +60,12 @@ public class Symbol implements ISymbol
 	 * Normally used to drive the generation of fully qualified names.
 	 */
 	private boolean ek9Core = false;
-		
+
+	/**
+	 * Is this symbol marked as being pure.
+	 */
+	private boolean markedPure = false;
+
 	private boolean produceFullyQualifiedName = false;
 	
 	/**
@@ -99,6 +104,7 @@ public class Symbol implements ISymbol
 		newCopy.nullAllowed = this.nullAllowed;
 		newCopy.injectionExpected = this.injectionExpected;
 		newCopy.ek9Core = this.ek9Core;
+		newCopy.markedPure = this.markedPure;
 		newCopy.produceFullyQualifiedName = this.produceFullyQualifiedName;
 		newCopy.parsedModule = this.parsedModule;
 		newCopy.sourceToken = this.sourceToken;
@@ -114,6 +120,16 @@ public class Symbol implements ISymbol
 				newCopy.setType(getType().get());
 		}
 		return newCopy;
+	}
+
+	public boolean isMarkedPure()
+	{
+		return markedPure;
+	}
+
+	public void setMarkedPure(boolean markedPure)
+	{
+		this.markedPure = markedPure;
 	}
 
 	public Token getInitialisedBy()

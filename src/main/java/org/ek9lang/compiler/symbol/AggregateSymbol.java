@@ -451,6 +451,27 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	}
 
 	@Override
+	public List<AggregateWithTraitsSymbol> getAllExtensionConstrainedTraits()
+	{
+		return new ArrayList<>();
+	}
+
+	@Override
+	public boolean isExtensionConstrained()
+	{
+		return false;
+	}
+
+	/**
+	 * @return an empty list, as it has no traits of its own.
+	 */
+	@Override
+	public List<IAggregateSymbol> getTraits()
+	{
+		return new ArrayList<>();
+	}
+
+	@Override
 	public List<AggregateWithTraitsSymbol> getAllTraits()
 	{
 		//This has no traits but its super might.

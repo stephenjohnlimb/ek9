@@ -59,7 +59,7 @@ public class LocalScope extends SymbolTable
 	@Override
 	public boolean isMarkedPure()
 	{
-		return enclosingScope.isMarkedPure();
+		return super.isMarkedPure();
 	}
 
 

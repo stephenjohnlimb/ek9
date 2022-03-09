@@ -53,8 +53,6 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 		//Note that this could and probably will be a system on in many cases List and Optional.
 		this.setModuleScope(parameterisableSymbol.getModuleScope());
 		super.setCategory(SymbolCategory.TYPE);
-		//take note if source from reverse engineering.
-		setReversedEngineeredToEK9(parameterisableSymbol.isReversedEngineeredToEK9());
 
 		setProduceFullyQualifiedName(parameterisableSymbol.getProduceFullyQualifiedName());
 		setEk9Core(parameterisableSymbol.isEk9Core());

@@ -47,13 +47,6 @@ public class ScopedSymbol extends Symbol implements IScope, ISymbol
 	 * To have something concrete.
 	 */
 	private final List<AggregateSymbol> parameterisedTypes = new ArrayList<>();
-
-	/**
-	 * Has this scoped symbol been reverse engineered in to EK9 from Java or some other source.
-	 * If so we may wish to treat it differently - especially when it comes to code generation.
-	 * And even more so if this is of a generic nature.
-	 */
-	private boolean reversedEngineeredToEK9;
 	
 	/**
 	 * Used for parameterised generic types/functions so that we can hang on to the context for phase IR generation
@@ -98,7 +91,6 @@ public class ScopedSymbol extends Symbol implements IScope, ISymbol
 		newCopy.parameterisedTypeReferences.addAll(parameterisedTypeReferences);
 		newCopy.parameterisedFunctionReferences.addAll(parameterisedFunctionReferences);
 		newCopy.parameterisedTypes.addAll(parameterisedTypes);
-		newCopy.reversedEngineeredToEK9 = this.reversedEngineeredToEK9;
 		newCopy.contextForParameterisedType = this.contextForParameterisedType;
 		newCopy.encounteredExceptionToken = this.encounteredExceptionToken;
 
@@ -114,16 +106,6 @@ public class ScopedSymbol extends Symbol implements IScope, ISymbol
 	public IScope.ScopeType getScopeType()
 	{
 		return actualScope.getScopeType();
-	}
-
-	public boolean isReversedEngineeredToEK9()
-	{
-		return reversedEngineeredToEK9;
-	}
-
-	public void setReversedEngineeredToEK9(boolean reversedEngineeredToEK9)
-	{
-		this.reversedEngineeredToEK9 = reversedEngineeredToEK9;
 	}
 
 	@Override
@@ -203,7 +185,13 @@ public class ScopedSymbol extends Symbol implements IScope, ISymbol
 	@Override
 	public boolean isMarkedPure()
 	{
-		return actualScope.isMarkedPure();
+		var rtn = actualScope.isMarkedPure();
+		return rtn;
+	}
+
+	public void setMarkedPure(boolean markedPure)
+	{
+		actualScope.setMarkedPure(markedPure);
 	}
 
 	public Token getEncounteredExceptionToken()

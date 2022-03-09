@@ -74,6 +74,8 @@ public class SymbolTable implements IScope
 	private final AggregateSupport aggregateSupport = new AggregateSupport();
 	private final SymbolMatcher matcher = new SymbolMatcher();
 
+	private boolean markedPure = false;
+
 	/**
 	 * If we encounter an exception within a scope we need to note the line number
 	 */
@@ -113,9 +115,20 @@ public class SymbolTable implements IScope
 	protected SymbolTable cloneIntoSymbolTable(SymbolTable rtn, IScope withParentAsAppropriate)
 	{
 		rtn.scopeName = this.scopeName;
+		rtn.markedPure = this.markedPure;
 		orderedSymbols.forEach(symbol -> rtn.define(symbol.clone(withParentAsAppropriate)));
 
 		return rtn;
+	}
+
+	public boolean isMarkedPure()
+	{
+		return markedPure;
+	}
+
+	public void setMarkedPure(boolean markedPure)
+	{
+		this.markedPure = markedPure;
 	}
 
 	@Override
