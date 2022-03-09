@@ -413,10 +413,10 @@ public class MethodSymbol extends ScopedSymbol
 	@Override
 	public String getFriendlyName()
 	{
-		return doGetFriendlyName(this.getType());
+		return doGetFriendlyName(super.getName(), this.getType());
 	}
 
-	protected String doGetFriendlyName(Optional<ISymbol> aType)
+	protected String doGetFriendlyName(String withName, Optional<ISymbol> aType)
 	{
 		StringBuilder buffer = new StringBuilder();
 		if(this.isOverride())
@@ -426,7 +426,7 @@ public class MethodSymbol extends ScopedSymbol
 
 		buffer.append(getSymbolTypeAsString(aType));
 
-		buffer.append(" <- ").append(super.getName());
+		buffer.append(" <- ").append(withName);
 		buffer.append(CommonParameterisedTypeDetails.asCommaSeparated(getSymbolsForThisScope(), true));
 		if(this.markedAbstract)
 			buffer.append(" as abstract");

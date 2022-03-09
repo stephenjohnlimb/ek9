@@ -16,36 +16,30 @@ import java.util.Optional;
  */
 public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 {
-	//This is the module this aggregate has been defined in.
+	//This is the module this function has been defined in.
 	private IScope moduleScope;
 
 	/**
 	 * For Functions symbols we keep a handle on the context where the returning param (if any) was defined.
 	 * We do this because with functions we allow the function name to be defined when implementing an abstract function
-	 * without the need to refine all the parameter and returns. clearly this would not make sense for methods where you have overloading
-	 * but for functions there is only one name for that function just the parameters and returns alter.
+	 * without the need to refine all the parameter and returns. clearly this would not make sense for methods where you
+	 * have overloading but for functions there is only one name for that function just the parameters and returns alter.
 	 */
 	private EK9Parser.ReturningParamContext returningParamContext;
 
 	/**
-	 * To be used when this function extends a trait type abstract function.
+	 * To be used when this function extends an abstract function.
 	 * So we want the same method signature as the abstract function but this provides the implementation.
+	 * It is sort of object-oriented but for functions.
 	 */
 	private Optional<FunctionSymbol> superFunctionSymbol = Optional.empty();
 
 	/**
 	 * For dynamic functions we can capture variables from the enclosing scope(s) and pull them in
 	 * We can then hold and access them in the dynamic function even when the function has moved out of the original scope.
-	 * i.e. a sort of closure over a variable.
+	 * i.e. a sort of closure over variables.
 	 */
 	private Optional<LocalScope> capturedVariables = Optional.empty();
-
-	public FunctionSymbol(String name, Optional<ISymbol> type, IScope enclosingScope)
-	{
-		super(name, type, enclosingScope);
-		super.setCategory(SymbolCategory.FUNCTION);
-		super.setProduceFullyQualifiedName(true);
-	}
 
 	public FunctionSymbol(String name, IScope enclosingScope)
 	{
@@ -55,7 +49,7 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 	}
 
 	/**
-	 * An function that can be parameterised, i.e. like a 'List of T'
+	 * A function that can be parameterised, i.e. like a 'List of T'
 	 * So the name would be 'List' and the parameterTypes would be a single aggregate of a conceptual T.
 	 */
 	public FunctionSymbol(String name, IScope enclosingScope, List<AggregateSymbol> parameterTypes)
@@ -65,17 +59,9 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 	}
 
 	@Override
-	public String getFriendlyScopeName()
-	{
-		if(capturedVariables.isPresent())
-			return "dynamic function" + CommonParameterisedTypeDetails.asCommaSeparated(getCapturedVariables().get().getSymbolsForThisScope(), true);
-		return super.getFriendlyScopeName();
-	}
-
-	@Override
 	public FunctionSymbol clone(IScope withParentAsAppropriate)
 	{
-		return cloneIntoFunctionSymbol(new FunctionSymbol(this.getName(), this.getType(), withParentAsAppropriate));
+		return cloneIntoFunctionSymbol(new FunctionSymbol(this.getName(), withParentAsAppropriate));
 	}
 
 	protected FunctionSymbol cloneIntoFunctionSymbol(FunctionSymbol newCopy)
@@ -140,7 +126,7 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 
 	public void setCapturedVariables(LocalScope capturedVariables)
 	{
-		this.capturedVariables = Optional.ofNullable(capturedVariables);
+		setCapturedVariables(Optional.ofNullable(capturedVariables));
 	}
 
 	public void setCapturedVariables(Optional<LocalScope> capturedVariables)
@@ -195,12 +181,30 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 	}
 
 	@Override
+	public String getName()
+	{
+		if(capturedVariables.isPresent())
+			return "dynamic function" + CommonParameterisedTypeDetails.asCommaSeparated(getCapturedVariables().get().getSymbolsForThisScope(), true);
+		return super.getName();
+	}
+
+	@Override
+	public String getFriendlyScopeName()
+	{
+		return getFriendlyName();
+	}
+
+	@Override
 	public String getFriendlyName()
 	{
-		String name = doGetFriendlyName(Optional.empty());
+		String name = doGetFriendlyName(getName(), Optional.empty());
 		if(getReturningSymbol() != null)
-			name = doGetFriendlyName(getReturningSymbol().getType());
-		return name  + getAnyGenericParamsAsFriendlyNames();
+			name = doGetFriendlyName(getName(), getReturningSymbol().getType());
+
+		name += getAnyGenericParamsAsFriendlyNames();
+		if(superFunctionSymbol.isPresent())
+			name += " is " + superFunctionSymbol.get().getName();
+		return name;
 	}
 
 	@Override

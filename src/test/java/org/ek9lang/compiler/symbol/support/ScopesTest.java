@@ -51,6 +51,10 @@ public class ScopesTest extends AbstractSymbolTestBase
 	{
 		var aggregateScope1 = new ScopedSymbol(IScope.ScopeType.AGGREGATE, "aggregateScope", symbolTable);
 		TestCase.assertFalse(aggregateScope1.isMarkedPure());
+		TestCase.assertEquals("aggregateScope as Unknown", aggregateScope1.getFriendlyScopeName());
+		TestCase.assertEquals("aggregateScope", aggregateScope1.getName());
+		TestCase.assertEquals("aggregateScope", aggregateScope1.getScopeName());
+		TestCase.assertNotNull(aggregateScope1.getActualScope());
 
 		var blockScope1 = new ScopedSymbol(IScope.ScopeType.BLOCK, "blockScope", aggregateScope1);
 

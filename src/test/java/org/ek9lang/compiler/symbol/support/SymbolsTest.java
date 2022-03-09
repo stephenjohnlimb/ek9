@@ -146,6 +146,20 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		TestCase.assertEquals("theDelegate", toStringOnF.getUsedAsProxyForDelegate());
 	}
 
+	@Test
+	public void testDispatcherProperty()
+	{
+		//Only testing the fact the property is set - at this point not that it will dispatch!
+		AggregateSymbol e = new AggregateSymbol("SomeAgg", symbolTable);
+		var param = new VariableSymbol("p1", symbolTable.resolve(new TypeSymbolSearch("Integer")));
+		var methodOnE = support.addPublicMethod(e, "someMethod", List.of(param), symbolTable.resolve(new TypeSymbolSearch("String")));
+		methodOnE.setMarkedAsDispatcher(true);
+		methodOnE.setMarkedNoClone(true);
+
+		TestCase.assertTrue(methodOnE.isMarkedAsDispatcher());
+		TestCase.assertTrue(methodOnE.isMarkedNoClone());
+	}
+
 	/**
 	 * Just really aimed at testing the properties on a method.
 	 * So we're not checking resolution of stuff here, just basic props.
@@ -191,6 +205,100 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		var resolvedComparator = e.resolve(new MethodSymbolSearch(comparator));
 		TestCase.assertTrue(resolvedComparator.isPresent());
 
+	}
+
+	@Test
+	public void testFunctionProperties()
+	{
+		Optional<ISymbol> stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
+		Optional<ISymbol> integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
+		var f1 = new FunctionSymbol("f1", symbolTable);
+		f1.setReturningSymbol(new VariableSymbol("rtn", integerType));
+		//Now add a parameter.
+		f1.define(new VariableSymbol("arg1", stringType));
+
+		TestCase.assertNotNull(f1);
+		TestCase.assertEquals("public Integer <- f1(arg1 as String)", f1.getFriendlyName());
+		TestCase.assertEquals("public Integer <- f1(arg1 as String)", f1.getFriendlyScopeName());
+		//Does not have a super.
+		TestCase.assertTrue(f1.getSuperFunctionSymbol().isEmpty());
+
+		var f2 = f1.clone(symbolTable);
+		TestCase.assertNotNull(f2);
+		f2.setName("f2");
+		TestCase.assertEquals("public Integer <- f2(arg1 as String)", f2.getFriendlyName());
+		TestCase.assertEquals("public Integer <- f2(arg1 as String)", f2.getFriendlyScopeName());
+		TestCase.assertTrue(f2.getSuperFunctionSymbol().isEmpty());
+
+		var superF = new FunctionSymbol("superF", symbolTable);
+		superF.setReturningSymbol(new VariableSymbol("rtn", integerType));
+		//Now add a parameter.
+		superF.define(new VariableSymbol("arg1", stringType));
+		//So this is just a signature
+		superF.setMarkedAbstract(true);
+		TestCase.assertNotNull(f2);
+		TestCase.assertEquals("public Integer <- superF(arg1 as String) as abstract", superF.getFriendlyName());
+		TestCase.assertEquals("public Integer <- superF(arg1 as String) as abstract", superF.getFriendlyScopeName());
+		TestCase.assertTrue(superF.getSuperFunctionSymbol().isEmpty());
+
+		//Now lets make a function that extends this super function.
+		var f3 = f1.clone(symbolTable);
+		TestCase.assertNotNull(f3);
+		f3.setName("f3");
+		f3.setSuperFunctionSymbol(Optional.of(superF));
+		TestCase.assertTrue(f3.getSuperFunctionSymbol().isPresent());
+		TestCase.assertEquals("public Integer <- f3(arg1 as String) is superF", f3.getFriendlyName());
+	}
+
+	@Test
+	public void testFunctionWithCapturedVariables()
+	{
+		Optional<ISymbol> stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
+		Optional<ISymbol> integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
+		//Going to be a dynamic function
+		var f1 = new FunctionSymbol("", symbolTable);
+		f1.setReturningSymbol(new VariableSymbol("rtn", integerType));
+		//Now add a parameter.
+		f1.define(new VariableSymbol("arg1", stringType));
+
+		//OK now lets set up the captured variables
+		LocalScope capturedVariables = new LocalScope(symbolTable);
+		capturedVariables.define(new VariableSymbol("first", stringType));
+		capturedVariables.define(new VariableSymbol("second", integerType));
+		f1.setCapturedVariables(capturedVariables);
+		f1.setCapturedVariablesVisibility(true);
+
+		TestCase.assertEquals("public Integer <- dynamic function(first as String, second as Integer)(arg1 as String)", f1.getFriendlyScopeName());
+		TestCase.assertEquals("public Integer <- dynamic function(first as String, second as Integer)(arg1 as String)", f1.getFriendlyName());
+
+		//Check the cloning works.
+		var f2 = f1.clone(symbolTable);
+		TestCase.assertEquals("public Integer <- dynamic function(first as String, second as Integer)(arg1 as String)", f2.getFriendlyName());
+	}
+
+	@Test
+	public void testCallSymbolProperties()
+	{
+		Optional<ISymbol> stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
+		Optional<ISymbol> integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
+		var call1 = new CallSymbol("call1", symbolTable);
+
+		var f1 = new FunctionSymbol("f1", symbolTable);
+		f1.setReturningSymbol(new VariableSymbol("rtn", integerType));
+		//Now add a parameter.
+		f1.define(new VariableSymbol("arg1", stringType));
+		TestCase.assertEquals("call1", call1.getFriendlyName());
+
+		//Now modify the call1; so it actually references the function we want to call.
+		call1.setResolvedMethodToCall(f1);
+		TestCase.assertEquals("call1 => public Integer <- f1(arg1 as String)", call1.getFriendlyName());
+
+		//clone and check the thing to call is still present.
+		var call2 = call1.clone(symbolTable);
+		call2.setName("call2");
+		TestCase.assertNotNull(call2.getResolvedMethodToCall());
+		TestCase.assertEquals("call2 => public Integer <- f1(arg1 as String)", call2.getFriendlyScopeName());
+		TestCase.assertEquals("call2 => public Integer <- f1(arg1 as String)", call2.getFriendlyName());
 	}
 
 	@Test

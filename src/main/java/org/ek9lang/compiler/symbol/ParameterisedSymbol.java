@@ -5,7 +5,6 @@ import org.ek9lang.core.exception.AssertValue;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public interface ParameterisedSymbol extends IScope, ISymbol
 {
@@ -28,7 +27,7 @@ public interface ParameterisedSymbol extends IScope, ISymbol
 	 * But these cannot actually be generated. So we do need to be able to distinguish between
 	 * those that can be really used and those that are just used with other generic classes.
 	 *
-	 * @return true if just conceptual and cannot be generated, false if can actually be made manifest and used.
+	 * @return true if just conceptual and cannot be generated. false when it can actually be made manifest and used.
 	 */
 	default boolean isConceptualParameterisedType()
 	{
@@ -79,7 +78,7 @@ public interface ParameterisedSymbol extends IScope, ISymbol
 	default double getUnCoercedAssignableWeightTo(ISymbol s)
 	{
 		//Now because we've hashed the class and parameter signature we can do a very quick check here.
-		//Plus we dont allow any types of coersion or super class matching.
+		//Plus we don't allow any types of coercion or super class matching.
 		if(this.getName().equals(s.getName()))
 			return 0.0;
 

@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * I've also added in a mechanism to parameterize the aggregate like Java generics.
  * <p>
  * In general the resolution would be able to resolve variables in the enclosing
- * scope because that will be module level in ZEN, there are new global types
+ * scope because that will be module level in EK9, there are new global types
  * and global constants that can appear to exist in the package (module) level
  * scope.
  * <p>

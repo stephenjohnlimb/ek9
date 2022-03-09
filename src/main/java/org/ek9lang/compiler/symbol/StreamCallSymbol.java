@@ -1,9 +1,5 @@
 package org.ek9lang.compiler.symbol;
 
-import org.antlr.v4.runtime.Token;
-
-import java.util.Optional;
-
 /**
  * Just re-uses the bulk of method symbol. This is only used in part of the stream pipeline.
  * We need additional information surrounding the type that can be accepted and the type that is produced (chained).
@@ -14,7 +10,7 @@ import java.util.Optional;
  */
 public class StreamCallSymbol extends MethodSymbol implements IAssignableSymbol
 {
-	//For mid part of a stream pipeline both of these types will be set.
+	//For mid-part of a stream pipeline both of these types will be set.
 	//Not sure about 'tee' it is an anomaly in some ways - consumes yes
 	//but also can map to a terminal, but also pass on the type it consumes!
 
@@ -25,26 +21,26 @@ public class StreamCallSymbol extends MethodSymbol implements IAssignableSymbol
 	private ISymbol consumesSymbolType = null;
 	//Not always set for a terminal node it does not produce anything.
 	private ISymbol producesSymbolType = null;
-	
-	//For head, skip, tail, flatten, call and async - we're not bothered what type we get passed
+
+	//For head, skip, tail, flatten, call and async - we're not bothered what type we get
 	//indeed this 'command' has no way of knowing what it will/should be passed.
 	//So it does need to be told, so it can also say what it produces.
 	//So I'm expecting the pipeline to go through and tell these type of calls what they will be consuming.
 	//So that logic will need to also check a couple of things for flatten, call and async as those do have constraints.
 	private boolean capableOfConsumingAnything = false;
-	
+
 	/**
 	 * For flatten the consumes must have an iterator and the call would produce N of the type the iterator supplies.
 	 */
 	private boolean derivesProducesTypeFromConsumesType = false;
-	
+
 	private boolean producesTypeMustBeAFunction = false;
-	
+
 	/**
 	 * In the case of something like filter, head, tail, skip whatever is consumed is also produced (conditionally and maybe in limited volume)
 	 */
 	private boolean producerSymbolTypeSameAsConsumerSymbolType = false;
-	
+
 	/**
 	 * Typically used in terminal but also tee.
 	 * This indicates that when a pipeline type is known in the pipeline itself we really
@@ -53,10 +49,10 @@ public class StreamCallSymbol extends MethodSymbol implements IAssignableSymbol
 	 * multiple '|' pipe operators it means we have more flexibility and can reduce the number of map functions required.
 	 */
 	private boolean sinkInNature = false;
-	
+
 	public StreamCallSymbol(String name, IScope enclosingScope)
 	{
-		super(name, enclosingScope);		
+		super(name, enclosingScope);
 	}
 
 	@Override
@@ -114,7 +110,7 @@ public class StreamCallSymbol extends MethodSymbol implements IAssignableSymbol
 	{
 		this.producerSymbolTypeSameAsConsumerSymbolType = producerSymbolTypeSameAsConsumerSymbolType;
 	}
-	
+
 	public boolean isDerivesProducesTypeFromConsumesType()
 	{
 		return derivesProducesTypeFromConsumesType;
@@ -134,7 +130,7 @@ public class StreamCallSymbol extends MethodSymbol implements IAssignableSymbol
 	{
 		this.producesTypeMustBeAFunction = producesTypeMustBeAFunction;
 	}
-	
+
 	public ISymbol getConsumesSymbolType()
 	{
 		return consumesSymbolType;

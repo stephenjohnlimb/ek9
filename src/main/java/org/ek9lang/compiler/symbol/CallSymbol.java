@@ -16,11 +16,6 @@ public class CallSymbol extends MethodSymbol implements IAssignableSymbol
 		super(name, enclosingScope);
 	}
 
-	public CallSymbol(String name, Optional<ISymbol> type, IScope enclosingScope)
-	{
-		super(name, type, enclosingScope);
-	}
-
 	@Override
 	public CallSymbol clone(IScope withParentAsAppropriate)
 	{
@@ -44,5 +39,19 @@ public class CallSymbol extends MethodSymbol implements IAssignableSymbol
 		this.resolvedMethodToCall = resolvedMethodToCall;
 		//make a note if this method ia actually an operator.
 		this.setOperator(resolvedMethodToCall.isOperator());
+	}
+
+	@Override
+	public String getFriendlyScopeName()
+	{
+		return getFriendlyName();
+	}
+
+	@Override
+	public String getFriendlyName()
+	{
+		if(resolvedMethodToCall == null)
+			return getName();
+		return getName() + " => " + resolvedMethodToCall.getFriendlyName();
 	}
 }

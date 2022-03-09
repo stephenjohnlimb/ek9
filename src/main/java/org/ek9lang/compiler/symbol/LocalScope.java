@@ -109,14 +109,9 @@ public class LocalScope extends SymbolTable
 	@Override
 	protected Optional<ISymbol> resolveWithEnclosingScope(SymbolSearch search)
 	{
+		if(search.isLimitToBlocks() && !enclosingScope.getScopeType().equals(IScope.ScopeType.BLOCK))
+			return Optional.empty();
 
-		if(search.isLimitToBlocks())
-		{
-			if(enclosingScope.getScopeType().equals(IScope.ScopeType.BLOCK))
-				return enclosingScope.resolve(search);
-			else
-				return Optional.empty();
-		}
 		return enclosingScope.resolve(search);
 	}
 

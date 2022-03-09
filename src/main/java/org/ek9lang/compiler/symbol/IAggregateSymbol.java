@@ -16,8 +16,11 @@ public interface IAggregateSymbol extends ICanCaptureVariables, ISymbol, IScope
 	 * @return The module scope.
 	 */
 	IScope getModuleScope();
-	
-	default ScopeType getScopeType() { return ScopeType.AGGREGATE; }
+
+	/**
+	 * What sort of scope is this aggregate
+	 */
+	ScopeType getScopeType();
 
 	/**
 	 * Is this aggregate a dispatcher or just a normal class component whatever.
@@ -117,11 +120,11 @@ public interface IAggregateSymbol extends ICanCaptureVariables, ISymbol, IScope
 	Optional<IAggregateSymbol> getSuperAggregateScopedSymbol();
 
 	default List<IAggregateSymbol> getTraits() { return new ArrayList<>(); }
-	
+
 	default List<AggregateWithTraitsSymbol> getAllExtensionConstrainedTraits() { return new ArrayList<>(); }
 	
 	default List<AggregateWithTraitsSymbol> getAllTraits() { return new ArrayList<>(); }
-	
+
 	default boolean isExtensionConstrained() { return false ; }
 	
 	/**
