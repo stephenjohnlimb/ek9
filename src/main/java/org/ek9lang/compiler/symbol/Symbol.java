@@ -182,6 +182,30 @@ public class Symbol implements ISymbol
 		hasBeenSet = true;
 	}
 
+	@Override
+	public boolean isLoopVariable()
+	{
+		return false;
+	}
+
+	@Override
+	public boolean isIncomingParameter()
+	{
+		return false;
+	}
+
+	@Override
+	public boolean isReturningParameter()
+	{
+		return false;
+	}
+
+	@Override
+	public boolean isAggregatePropertyField()
+	{
+		return false;
+	}
+
 	public boolean isNullAllowed()
 	{
 		return nullAllowed;

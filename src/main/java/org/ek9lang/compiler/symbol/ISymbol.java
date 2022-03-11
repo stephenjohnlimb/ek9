@@ -125,14 +125,14 @@ public interface ISymbol extends ITokenReference
 	 */
 	boolean isMarkedPure();
 
-	default boolean isMutable()
-	{
-		return false;
-	}
+	/**
+	 * Even constants can be mutable until set. then they change to being none mutable.
+	 * Likewise in 'pure' scopes a variable can be mutable until it is first set then none mutable.
+	 * @return If this symbol is mutable or not.
+	 */
+	boolean isMutable();
 
-	default void setNotMutable()
-	{
-	}
+	void setNotMutable();
 
 	default boolean isPrivate()
 	{
@@ -149,32 +149,14 @@ public interface ISymbol extends ITokenReference
 		return true;
 	}
 
-	default boolean isLoopVariable()
-	{
-		return false;
-	}
+	boolean isLoopVariable();
 
-	default void setLoopVariable(boolean asLoopVar)
-	{
-	}
+	boolean isIncomingParameter();
 
-	default boolean isIncomingParameter()
-	{
-		return false;
-	}
+	boolean isReturningParameter();
 
-	default void setIncomingParameter(boolean incomingParameter)
-	{
-	}
-
-	default boolean isReturningParameter()
-	{
-		return false;
-	}
-
-	default void setReturningParameter(boolean returningParameter)
-	{
-	}
+	//Special type of variable one that is a property on an aggregate.
+	boolean isAggregatePropertyField();
 
 	default boolean isATemplateType()
 	{
@@ -194,12 +176,6 @@ public interface ISymbol extends ITokenReference
 	default boolean isAVariable()
 	{
 		return getCategory().equals(SymbolCategory.VARIABLE);
-	}
-
-	//Special type of variable one that is a property on an aggregate.
-	default boolean isAggregatePropertyField()
-	{
-		return false;
 	}
 
 	/**
@@ -365,10 +341,7 @@ public interface ISymbol extends ITokenReference
 
 	void setGenus(SymbolGenus genus);
 
-	default SymbolGenus getGenus()
-	{
-		return SymbolGenus.CLASS;
-	}
+	SymbolGenus getGenus();
 
 	SymbolCategory getCategory();
 

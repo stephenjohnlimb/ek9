@@ -86,7 +86,6 @@ public class VariableSymbol extends Symbol implements IAssignableSymbol
 		return loopVariable;
 	}
 
-	@Override
 	public void setLoopVariable(boolean asLoopVar)
 	{
 		loopVariable = asLoopVar;

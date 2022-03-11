@@ -46,6 +46,53 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
+	public void testDefaultSymbolProperties()
+	{
+		var s1 = new Symbol("v1", symbolTable.resolve(new TypeSymbolSearch("Integer")));
+
+		TestCase.assertFalse(s1.isPrivate());
+		TestCase.assertFalse(s1.isProtected());
+		TestCase.assertTrue(s1.isPublic());
+
+		TestCase.assertTrue(s1.isAVariable());
+		TestCase.assertFalse(s1.isAMethod());
+		TestCase.assertFalse(s1.isAType());
+		TestCase.assertFalse(s1.isAControl());
+		TestCase.assertFalse(s1.isAFunction());
+		TestCase.assertFalse(s1.isAnApplication());
+		TestCase.assertFalse(s1.isAPrimitiveType());
+		TestCase.assertFalse(s1.isATemplateFunction());
+		TestCase.assertFalse(s1.isAConstant());
+		TestCase.assertFalse(s1.isATemplateType());
+
+		TestCase.assertFalse(s1.isNullAllowed());
+		s1.setNullAllowed(true);
+		TestCase.assertTrue(s1.isNullAllowed());
+
+		TestCase.assertFalse(s1.isInjectionExpected());
+		s1.setInjectionExpected(true);
+		TestCase.assertTrue(s1.isInjectionExpected());
+
+		TestCase.assertFalse(s1.isReferenced());
+		s1.setReferenced(true);
+		TestCase.assertTrue(s1.isReferenced());
+
+		TestCase.assertFalse(s1.isAParameterisedType());
+		TestCase.assertFalse(s1.isGenericInNature());
+		TestCase.assertFalse(s1.isGenericTypeParameter());
+
+		TestCase.assertTrue(s1.isMutable());
+		s1.setNotMutable();
+		TestCase.assertFalse(s1.isMutable());
+
+		TestCase.assertFalse(s1.isLoopVariable());
+
+		TestCase.assertFalse(s1.isIncomingParameter());
+		TestCase.assertFalse(s1.isReturningParameter());
+		TestCase.assertFalse(s1.isAggregatePropertyField());
+	}
+
+	@Test
 	public void testSymbolModuleAndSource()
 	{
 		var variable = new VariableSymbol("v1", symbolTable.resolve(new TypeSymbolSearch("Integer")));
