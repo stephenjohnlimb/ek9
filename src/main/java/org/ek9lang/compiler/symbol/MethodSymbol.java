@@ -92,12 +92,6 @@ public class MethodSymbol extends ScopedSymbol
 	 */
 	private String usedAsProxyForDelegate = null;
 
-	/**
-	 * When returning a values and this method is in a generic parameterised class does the return value
-	 * need wrapping up or can it be returned directly.
-	 */
-	private boolean parameterisedWrappingRequired = false;
-
 	public MethodSymbol(String name, IScope enclosingScope)
 	{
 		super(name, enclosingScope);
@@ -153,7 +147,6 @@ public class MethodSymbol extends ScopedSymbol
 		newCopy.synthetic = this.synthetic;
 		newCopy.ek9ReturnsThis = this.ek9ReturnsThis;
 		newCopy.usedAsProxyForDelegate = this.usedAsProxyForDelegate;
-		newCopy.parameterisedWrappingRequired = this.parameterisedWrappingRequired;
 
 		return newCopy;
 	}
@@ -166,17 +159,6 @@ public class MethodSymbol extends ScopedSymbol
 	public void setSynthetic(boolean synthetic)
 	{
 		this.synthetic = synthetic;
-	}
-
-	@Override
-	public boolean isParameterisedWrappingRequired()
-	{
-		return parameterisedWrappingRequired;
-	}
-
-	public void setParameterisedWrappingRequired(boolean parameterisedWrappingRequired)
-	{
-		this.parameterisedWrappingRequired = parameterisedWrappingRequired;
 	}
 
 	public boolean isOverride()

@@ -1,6 +1,8 @@
 package org.ek9lang.compiler.symbol.support;
 
 import junit.framework.TestCase;
+import org.ek9lang.compiler.files.Module;
+import org.ek9lang.compiler.files.Source;
 import org.ek9lang.compiler.symbol.*;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
@@ -44,11 +46,58 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
+	public void testSymbolModuleAndSource()
+	{
+		var variable = new VariableSymbol("v1", symbolTable.resolve(new TypeSymbolSearch("Integer")));
+		TestCase.assertFalse(variable.isDevSource());
+		TestCase.assertFalse(variable.isLibSource());
+
+		var module = new Module() {
+			@Override
+			public Source getSource()
+			{
+				return new Source() {
+
+					@Override
+					public String getFileName()
+					{
+						return "Simulated_file.ek9";
+					}
+
+					@Override
+					public boolean isLib()
+					{
+						return true;
+					}
+					@Override
+					public boolean isDev()
+					{
+						return true;
+					}
+				};
+			}
+
+			@Override
+			public String getScopeName()
+			{
+				return "Simulated Module Scope";
+			}
+		};
+
+		//Check a null module
+		variable.setParsedModule(Optional.ofNullable(null));
+		//Now a simulated module
+		variable.setParsedModule(Optional.of(module));
+		TestCase.assertTrue(variable.isDevSource());
+		TestCase.assertTrue(variable.isLibSource());
+	}
+
+	@Test
 	public void testSymbolCloning()
 	{
 		var symbol = new Symbol("Sym", symbolTable.resolve(new TypeSymbolSearch("Integer")));
 		symbol.setInitialisedBy(new SyntheticToken());
-		symbol.setReferenced();
+		symbol.setReferenced(true);
 		symbol.putSquirrelledData("key1", "value1");
 		symbol.putSquirrelledData("key2", "\"value2\"");
 		symbol.setNotMutable();
@@ -188,7 +237,6 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		TestCase.assertTrue(comparator.isAConstant());
 		TestCase.assertFalse(comparator.isMarkedAbstract());
 		TestCase.assertFalse(comparator.isMarkedAsDispatcher());
-		TestCase.assertFalse(comparator.isParameterisedWrappingRequired());
 
 		TestCase.assertTrue(comparator.isSignatureMatchTo(comparator));
 		TestCase.assertTrue(comparator.isParameterSignatureMatchTo(List.of(e)));
@@ -463,7 +511,6 @@ public class SymbolsTest extends AbstractSymbolTestBase
 
 		TestCase.assertNotNull(loopVar.getFriendlyName());
 		TestCase.assertNotNull(loopVar.getFullyQualifiedName());
-		TestCase.assertNotNull(loopVar.getSourceFileLocation());
 
 		TestCase.assertTrue(integerType.isAssignableTo(v3.getType()));
 	}
@@ -475,7 +522,6 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		ISymbol integerType = new AggregateSymbol("Integer", symbolTable);
 		ConstantSymbol c1 = new ConstantSymbol("1", true);
 		c1.setType(integerType);
-		c1.setAtModuleScope(true);
 		c1.setNotMutable();
 
 		assertConstant1(c1);
@@ -486,11 +532,9 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		TestCase.assertFalse("AString".equals(c1));
 
 		ConstantSymbol c2 = new ConstantSymbol("1", integerType, true);
-		c2.setAtModuleScope(false);
 
 		TestCase.assertTrue(c2.isAConstant());
 		TestCase.assertTrue(c2.isMutable());
-		TestCase.assertFalse(c2.isAtModuleScope());
 		TestCase.assertTrue(c2.isFromLiteral());
 		TestCase.assertEquals(c2.getGenus(), ISymbol.SymbolGenus.VALUE);
 
@@ -504,7 +548,6 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		TestCase.assertNotNull(c.getFriendlyName());
 		TestCase.assertTrue(c.isAConstant());
 		TestCase.assertFalse(c.isMutable());
-		TestCase.assertTrue(c.isAtModuleScope());
 		TestCase.assertTrue(c.isFromLiteral());
 		TestCase.assertEquals(c.getGenus(), ISymbol.SymbolGenus.VALUE);
 	}
@@ -512,7 +555,6 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	private void assertVariable1(VariableSymbol v)
 	{
 		TestCase.assertNotNull(v.getFriendlyName());
-		TestCase.assertFalse(v.isAtModuleScope());
 		TestCase.assertFalse(v.isAggregatePropertyField());
 		TestCase.assertTrue(v.isMutable());
 		TestCase.assertFalse(v.isIncomingParameter());

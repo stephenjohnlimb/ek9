@@ -13,39 +13,37 @@ public class ConstantSymbol extends Symbol
 	 */
 	private boolean literal = false;
 
-	/**
-	 * Now we can have constants that are just general constants.
-	 * But others that are defined at the module scope level.
-	 * We need to distinguish these for various reasons.
-	 */
-	private boolean atModuleScope = false;
-
 	public ConstantSymbol(String name, boolean fromLiteral)
 	{
-		this(name, Optional.empty());
-		this.literal = fromLiteral;
+		this(name, Optional.empty(), fromLiteral);
 	}
 
 	public ConstantSymbol(String name)
 	{
-		this(name, Optional.empty());
+		this(name, Optional.empty(), false);
 	}
 
 	public ConstantSymbol(String name, ISymbol type, boolean fromLiteral)
 	{
-		this(name, Optional.ofNullable(type));
-		this.literal = fromLiteral;
+		this(name, Optional.ofNullable(type), fromLiteral);
 	}
 
 	public ConstantSymbol(String name, ISymbol type)
 	{
-		this(name, Optional.ofNullable(type));
+		this(name, Optional.ofNullable(type), false);
 	}
 
 	public ConstantSymbol(String name, Optional<ISymbol> type)
 	{
+		this(name, type, false);
+	}
+
+	public ConstantSymbol(String name, Optional<ISymbol> type, boolean fromLiteral)
+	{
 		super(name, type);
 		super.setGenus(SymbolGenus.VALUE);
+		this.literal = fromLiteral;
+		super.setProduceFullyQualifiedName(!fromLiteral);
 	}
 
 	public boolean isFromLiteral()
@@ -69,22 +67,7 @@ public class ConstantSymbol extends Symbol
 	{
 		cloneIntoSymbol(newCopy);
 		newCopy.literal = this.literal;
-		newCopy.atModuleScope = this.atModuleScope;
 		return newCopy;
-	}
-
-	public boolean isAtModuleScope()
-	{
-		return atModuleScope;
-	}
-
-	public void setAtModuleScope(boolean atModuleScope)
-	{
-		this.atModuleScope = atModuleScope;
-		//If this is a module scope level as a constant then we need fully qualified
-		//It may have to be further mangled for out put depending on where it is output.
-		if(atModuleScope)
-			super.setProduceFullyQualifiedName(true);
 	}
 
 	public String toString()

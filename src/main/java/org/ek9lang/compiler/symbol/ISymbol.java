@@ -50,17 +50,6 @@ public interface ISymbol extends ITokenReference
 		VARIABLE
 	}
 
-	/**
-	 * Typically used with constants some are just general use constants
-	 * But others are defined at module scope; and we may and do need to treat these differently in some contexts.
-	 *
-	 * @return true if at module scope false otherwise.
-	 */
-	default boolean isAtModuleScope()
-	{
-		return false;
-	}
-
 	//Used for declarations of variables/params where they can be null.
 	boolean isNullAllowed();
 
@@ -74,7 +63,7 @@ public interface ISymbol extends ITokenReference
 	boolean isReferenced();
 
 	//mark the symbol as referenced.
-	void setReferenced();
+	void setReferenced(boolean referenced);
 
 	//Bits of information we might need to put away for later processing
 	void putSquirrelledData(String key, String value);
@@ -83,48 +72,21 @@ public interface ISymbol extends ITokenReference
 
 	/**
 	 * For some symbols you may wish to specify the parsed module they were defined in.
-	 *
 	 * @param parsedModule The parsedModule the symbol was defined in.
 	 */
-	default void setParsedModule(Module parsedModule)
-	{
-	}
+	void setParsedModule(Optional<Module> parsedModule);
 
-	default Module getParsedModule()
-	{
-		return null;
-	}
+	Optional<Module> getParsedModule();
 
-	/**
-	 * Where was this symbol defined if known.
-	 *
-	 * @return The location maybe a file or a stream.
-	 */
-	default String getSourceFileLocation()
-	{
-		if(isEk9Core())
-			return "_ek9/global/builtin.ek9";
-		return "";
-	}
+	boolean isDevSource();
 
-	default boolean isDevSource()
-	{
-		return false;
-	}
-
-	default boolean isLibSource()
-	{
-		return false;
-	}
+	boolean isLibSource();
 
 	/**
 	 * Clone the symbol and re-parent if this symbol like a method should have a parent.
 	 * Other symbols like VariableSymbols are un-parented
 	 */
-	default ISymbol clone(IScope withParentAsAppropriate)
-	{
-		return null;
-	}
+	ISymbol clone(IScope withParentAsAppropriate);
 
 	/**
 	 * So just to add to the confusion.
@@ -137,25 +99,14 @@ public interface ISymbol extends ITokenReference
 	 *
 	 * @return true if a parameterised type (note parameterised not just of a generic nature).
 	 */
-	default boolean isAParameterisedType()
-	{
-		return false;
-	}
-
-	default boolean isParameterisedWrappingRequired()
-	{
-		return false;
-	}
+	boolean isAParameterisedType();
 
 	/**
 	 * Is this symbol a type that is generic in nature i.e. can it be parameterised with types.
 	 *
 	 * @return false by default. Aggregate Symbols can be defined to accept one or more parameters ie S and T.
 	 */
-	default boolean isGenericInNature()
-	{
-		return false;
-	}
+	boolean isGenericInNature();
 
 	/**
 	 * Some symbols are simulated as generic type parameters like T and S and U for example
@@ -165,10 +116,7 @@ public interface ISymbol extends ITokenReference
 	 *
 	 * @return by default false.
 	 */
-	default boolean isGenericTypeParameter()
-	{
-		return false;
-	}
+	boolean isGenericTypeParameter();
 
 	/**
 	 * This symbol itself can be marked as pure - i.e. an operator with no side effects.

@@ -7,6 +7,7 @@ import org.ek9lang.compiler.symbol.support.TypeCoercions;
 import org.ek9lang.compiler.tokenizer.SyntheticToken;
 import org.ek9lang.core.exception.AssertValue;
 
+import javax.swing.text.html.Option;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -71,7 +72,7 @@ public class Symbol implements ISymbol
 	/**
 	 * Where this symbol come from - not always set for every symbol.
 	 */
-	private Module parsedModule;
+	private Optional<Module> parsedModule = Optional.empty();
 	
 
 	//Sometimes it is necessary to pick data and hold it in the symbol for later.
@@ -96,28 +97,27 @@ public class Symbol implements ISymbol
 
 	protected Symbol cloneIntoSymbol(Symbol newCopy)
 	{
-		newCopy.initialisedBy = initialisedBy;
-		newCopy.category = this.category;
-		newCopy.genus = this.genus;
-		newCopy.name = this.name;
+		newCopy.setInitialisedBy(this.getInitialisedBy());
+		newCopy.setCategory(this.getCategory());
+		newCopy.setGenus(this.getGenus());
+		newCopy.setName(this.getName());
 		newCopy.hasBeenSet = this.hasBeenSet;
-		newCopy.nullAllowed = this.nullAllowed;
-		newCopy.injectionExpected = this.injectionExpected;
-		newCopy.ek9Core = this.ek9Core;
-		newCopy.markedPure = this.markedPure;
-		newCopy.produceFullyQualifiedName = this.produceFullyQualifiedName;
-		newCopy.parsedModule = this.parsedModule;
-		newCopy.sourceToken = this.sourceToken;
+		newCopy.setNullAllowed(this.isNullAllowed());
+		newCopy.setInjectionExpected(this.isInjectionExpected());
+		newCopy.setEk9Core(this.isEk9Core());
+		newCopy.setMarkedPure(this.isMarkedPure());
+		newCopy.setProduceFullyQualifiedName(this.getProduceFullyQualifiedName());
+		parsedModule.ifPresent(newCopy::doSetModule);
+		newCopy.setSourceToken(this.getSourceToken());
 		newCopy.squirrelledAway.putAll(this.squirrelledAway);
-		newCopy.referenced = this.referenced;
+		newCopy.setReferenced(this.isReferenced());
 		if(this instanceof AggregateSymbol)
 		{
 			//We don't copy over any type as the aggregate IS the type
 		}
 		else
 		{
-			if(this.getType().isPresent())
-				newCopy.setType(getType().get());
+			getType().ifPresent(newCopy::setType);
 		}
 		return newCopy;
 	}
@@ -147,9 +147,9 @@ public class Symbol implements ISymbol
 		return referenced;
 	}
 
-	public void setReferenced()
+	public void setReferenced(boolean referenced)
 	{
-		this.referenced = true;
+		this.referenced = referenced;
 	}
 
 	public void putSquirrelledData(String key, String value)
@@ -216,16 +216,12 @@ public class Symbol implements ISymbol
 	
 	public boolean isDevSource()
 	{
-		if(parsedModule != null)
-			return parsedModule.getSource().isDev();
-		return false;
+		return parsedModule.map(m -> m.getSource().isDev()).orElseGet(() -> false);
 	}
 
 	public boolean isLibSource()
 	{
-		if(parsedModule != null)
-			return parsedModule.getSource().isLib();
-		return false;
+		return parsedModule.map(m -> m.getSource().isLib()).orElseGet(() -> false);
 	}
 
 	public void setProduceFullyQualifiedName(boolean produceFullyQualifiedName)
@@ -248,36 +244,29 @@ public class Symbol implements ISymbol
 		this.sourceToken = sourceToken;
 	}
 	
-	public Module getParsedModule()
+	public Optional<Module> getParsedModule()
 	{
 		return parsedModule;
 	}
 
-	public void setParsedModule(Module parsedModule)
-	{		
-		//only set if not already set and not ek9 core.
-		if(this.parsedModule == null && !isEk9Core())
-			this.parsedModule = parsedModule;
+	public void setParsedModule(Optional<Module> module)
+	{
+		module.ifPresent(this::doSetModule);
 	}
-	
+
+	private void doSetModule(Module module)
+	{
+		if(parsedModule.isEmpty() && !isEk9Core())
+			parsedModule = Optional.of(module);
+	}
+
 	public String getFullyQualifiedName()
 	{
 		String rtn = getName();
 		if(rtn.contains("::"))
 			return rtn; //already qualified in how it was constructed.
-		
-		if(produceFullyQualifiedName && parsedModule != null)
-			return parsedModule.getScopeName() + "::" + getName();
-		return rtn;
-	}
-	
-	@Override
-	public String getSourceFileLocation()
-	{
-		if(parsedModule != null && parsedModule.getSource() != null)
-			return parsedModule.getSource().getFileName();
-	
-		return ISymbol.super.getSourceFileLocation();
+
+		return parsedModule.map(m -> m.getScopeName() + "::" + rtn).orElse(rtn);
 	}
 
 	public boolean isExactSameType(ISymbol symbolType)
@@ -354,11 +343,6 @@ public class Symbol implements ISymbol
 		this.genus = genus;
 	}
 
-	public String getName()
-	{
-		return name;
-	}
-
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -402,6 +386,11 @@ public class Symbol implements ISymbol
 		this.name = name;
 	}
 
+	public String getName()
+	{
+		return name;
+	}
+
 	@Override
 	public Optional<ISymbol> getType()
 	{
@@ -415,4 +404,23 @@ public class Symbol implements ISymbol
 		this.type = type;
 		return this;
 	}
+
+	@Override
+	public boolean isAParameterisedType()
+	{
+		return false;
+	}
+
+	@Override
+	public boolean isGenericInNature()
+	{
+		return false;
+	}
+
+	@Override
+	public boolean isGenericTypeParameter()
+	{
+		return false;
+	}
+
 }

@@ -8,7 +8,7 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import java.util.List;
 import java.util.Optional;
 
-public interface IAggregateSymbol extends ICanCaptureVariables, ISymbol, IScope
+public interface IAggregateSymbol extends ICanCaptureVariables, IScopedSymbol
 {
 	/**
 	 * The module scope this aggregate has been defined in.
@@ -121,7 +121,7 @@ public interface IAggregateSymbol extends ICanCaptureVariables, ISymbol, IScope
 	/**
 	 * Used when a symbol can be defined as a generic/parameterised type.
 	 */
-	default ParserRuleContext getContextForParameterisedType() { throw new RuntimeException("Not a Generic Type"); }
+	ParserRuleContext getContextForParameterisedType();
 
 	String getAggregateDescription();
 

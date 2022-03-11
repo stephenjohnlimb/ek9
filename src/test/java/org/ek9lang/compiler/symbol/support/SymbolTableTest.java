@@ -143,6 +143,8 @@ public class SymbolTableTest
     public void testMethodWithParameters()
     {
         SymbolTable globalSymbolTable = new SymbolTable();
+				TestCase.assertEquals(IScope.ScopeType.BLOCK, globalSymbolTable.getScopeType());
+
         ISymbol floatType = new AggregateSymbol("Float", globalSymbolTable);
         ISymbol integerType = new AggregateSymbol("Integer", globalSymbolTable);
         ISymbol stringType = new AggregateSymbol("String", globalSymbolTable);

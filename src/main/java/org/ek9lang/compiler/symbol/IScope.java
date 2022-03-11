@@ -26,7 +26,7 @@ public interface IScope
 
 	Object clone(IScope withParentAsAppropriate);
 
-	default ScopeType getScopeType() { return ScopeType.BLOCK; }
+	ScopeType getScopeType();
 	
 	String getScopeName();
 
@@ -36,7 +36,7 @@ public interface IScope
 	 * So some items are both scopes and symbols - so ideally we'd want to use a friendly name where possible.
 	 * @return The friendly name to be used for the developer.
 	 */
-	default String getFriendlyScopeName() { return getScopeName();}
+	String getFriendlyScopeName();
 	
 	/**
 	 * Typically used with functions.
@@ -47,29 +47,7 @@ public interface IScope
 	 * @return true if marked as pure, false otherwise.
 	 */
 	boolean isMarkedPure();
-	
-	/**
-	 * Used to keep track of any parameterised types used in a generic type that use some or all of the generic parameters.
-	 */
-	default List<ParameterisedTypeSymbol> getParameterisedTypeReferences() { return new ArrayList<>();}
-	
-	/**
-	 * Keep track of parameterised functions used.
-	 */
-	default List<ParameterisedFunctionSymbol> getParameterisedFunctionReferences() { return new ArrayList<>();}
-	
-	/**
-	 * Typically in a scoped block we can encounter situations (like exceptions) that cause the block
-	 * to end (terminate) early.
-	 */
-	default boolean isTerminatedNormally()
-	{
-		return getEncounteredExceptionToken() == null;
-	}
-	
-	Token getEncounteredExceptionToken();
-	
-	void setEncounteredExceptionToken(Token encounteredExceptionToken);
+
 	/**
 	 * Define a Symbol in this scope.
 	 */
@@ -102,4 +80,14 @@ public interface IScope
 	boolean isScopeAMatchForEnclosingScope(IScope toCheck);
 	
 	Optional<ScopedSymbol> findNearestAggregateScopeInEnclosingScopes();
+
+	/**
+	 * Typically in a scoped block we can encounter situations (like exceptions) that cause the block
+	 * to end (terminate) early.
+	 */
+	boolean isTerminatedNormally();
+
+	Token getEncounteredExceptionToken();
+
+	void setEncounteredExceptionToken(Token encounteredExceptionToken);
 }

@@ -231,7 +231,6 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 			rtn.setOperator(willClone.isOperator());
 			rtn.setMarkedPure(willClone.isMarkedPure());
 			rtn.setUsedAsProxyForDelegate(willClone.getUsedAsProxyForDelegate());
-			rtn.setParameterisedWrappingRequired(willClone.isParameterisedWrappingRequired());
 			rtn.setEk9ReturnsThis(willClone.isEk9ReturnsThis());
 			for(ISymbol symbol : willClone.getSymbolsForThisScope())
 			{

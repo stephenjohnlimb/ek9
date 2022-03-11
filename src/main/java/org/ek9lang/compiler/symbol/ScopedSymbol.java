@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ScopedSymbol extends Symbol implements IScope, ISymbol
+public class ScopedSymbol extends Symbol implements IScopedSymbol
 {
 	private final LocalScope actualScope;
 
@@ -194,11 +194,19 @@ public class ScopedSymbol extends Symbol implements IScope, ISymbol
 		actualScope.setMarkedPure(markedPure);
 	}
 
+	@Override
+	public  boolean isTerminatedNormally()
+	{
+		return getEncounteredExceptionToken() == null;
+	}
+
+	@Override
 	public Token getEncounteredExceptionToken()
 	{
 		return encounteredExceptionToken;
 	}
 
+	@Override
 	public void setEncounteredExceptionToken(Token encounteredExceptionToken)
 	{
 		this.encounteredExceptionToken = encounteredExceptionToken;

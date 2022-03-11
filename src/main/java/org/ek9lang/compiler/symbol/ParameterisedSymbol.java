@@ -6,7 +6,7 @@ import org.ek9lang.core.exception.AssertValue;
 import java.util.List;
 import java.util.Optional;
 
-public interface ParameterisedSymbol extends IScope, ISymbol
+public interface ParameterisedSymbol extends IScopedSymbol
 {
 	default ScopeType getScopeType() { return ScopeType.AGGREGATE; }
 	

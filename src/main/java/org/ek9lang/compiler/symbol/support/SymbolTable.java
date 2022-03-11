@@ -1,7 +1,10 @@
 package org.ek9lang.compiler.symbol.support;
 
 import org.antlr.v4.runtime.Token;
-import org.ek9lang.compiler.symbol.*;
+import org.ek9lang.compiler.symbol.IScope;
+import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.MethodSymbol;
+import org.ek9lang.compiler.symbol.ScopedSymbol;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
@@ -39,7 +42,7 @@ import java.util.stream.Collectors;
  * 3. What type (or return type) are we expecting - but here we should accept a super class match with some weight match value
  * 4. What is the order and type of parameters - again we need to try and match with some weight using super class matches.
  * </pre>
- * 
+ * <p>
  * So what sort of algorithm can we use for this?
  * <pre>
  * The Symbol has a type already when we define it - we know if it is an AggregateSymbol, MethodSymbol etc.
@@ -47,10 +50,10 @@ import java.util.stream.Collectors;
  * We know the Symbol we will use for it's return type or what it is i.e the Symbol of Integer as the return type or what it is.
  * For methods (which are Scoped Symbols) we also have the parameters (in order). So while parameters can be used when making the call
  * this is just sugar - the order still has to match.
- * 
+ *
  * Well we could have separate internal tables for methods/functions, classes/types and variables. So we can quickly and simply resolve
  * obvious ones like variables and types. Then use more expensive operations for methods.
- * 
+ *
  * Now for methods we can store in a hash map of method names - so in a simple case with just one method of name A we're done!
  * But in that hashmap we store and List of all methods of that name - now we have the costly activity of going through each and getting the
  * weight of each to find a match. in local scopes which ever is the best match we return - but clearly it is possible there is no match
@@ -80,14 +83,20 @@ public class SymbolTable implements IScope
 	 * If we encounter an exception within a scope we need to note the line number
 	 */
 	private Token encounteredExceptionToken = null;
-	
+
 	public SymbolTable(String scopeName)
-	{		
+	{
 		this.scopeName = scopeName;
 	}
-	
+
 	public SymbolTable()
 	{
+	}
+
+	@Override
+	public String getFriendlyScopeName()
+	{
+		return getScopeName();
 	}
 
 	@Override
@@ -96,11 +105,25 @@ public class SymbolTable implements IScope
 		return scopeName;
 	}
 
+	@Override
+	public ScopeType getScopeType()
+	{
+		return ScopeType.BLOCK;
+	}
+
+	@Override
+	public  boolean isTerminatedNormally()
+	{
+		return getEncounteredExceptionToken() == null;
+	}
+
+	@Override
 	public Token getEncounteredExceptionToken()
 	{
 		return encounteredExceptionToken;
 	}
 
+	@Override
 	public void setEncounteredExceptionToken(Token encounteredExceptionToken)
 	{
 		this.encounteredExceptionToken = encounteredExceptionToken;
@@ -147,6 +170,7 @@ public class SymbolTable implements IScope
 			return getFriendlyScopeName().equals(((IScope)obj).getFriendlyScopeName());
 		return false;
 	}
+
 	/**
 	 * So we have a split map for each category
 	 * each of those has a map with a list of symbols of the same name.
@@ -158,7 +182,7 @@ public class SymbolTable implements IScope
 		List<ISymbol> list = table.computeIfAbsent(symbol.getName(), k -> new ArrayList<>());
 		if(!symbol.getCategory().equals(ISymbol.SymbolCategory.METHOD) && list.contains(symbol))
 			throw new RuntimeException("Compiler Coding Error - Duplicate symbol [" + symbol + "]");
-		list.add(symbol);		
+		list.add(symbol);
 	}
 
 	/**
@@ -186,7 +210,7 @@ public class SymbolTable implements IScope
 		Optional<ISymbol> rtn = resolveInThisScopeOnly(search);
 		if(rtn.isEmpty())
 			rtn = resolveWithEnclosingScope(search);
-		
+
 		return rtn;
 	}
 
@@ -197,13 +221,13 @@ public class SymbolTable implements IScope
 	public MethodSymbolSearchResult resolveForAllMatchingMethods(MethodSymbolSearch search, MethodSymbolSearchResult result)
 	{
 		MethodSymbolSearchResult buildResult = new MethodSymbolSearchResult(result);
-		
+
 		//Do our enclosing scope first then this scope.
 		buildResult = buildResult.mergePeerToNewResult(resolveForAllMatchingMethodsInEnclosingScope(search, new MethodSymbolSearchResult()));
-		
+
 		//So override results with anything from this scope
 		buildResult = buildResult.overrideToNewResult(resolveForAllMatchingMethodsInThisScopeOnly(search, new MethodSymbolSearchResult()));
-				
+
 		return buildResult;
 	}
 
@@ -216,13 +240,13 @@ public class SymbolTable implements IScope
 		Map<String, List<ISymbol>> table = splitSymbols.get(search.getSearchType());
 		//not found
 		if(table != null && !table.isEmpty())
-		{			
+		{
 			List<ISymbol> list = table.get(search.getName());
 			if(list != null && !list.isEmpty())
 			{
 				List<MethodSymbol> methodList = list.stream().map(symbol -> (MethodSymbol)symbol).collect(Collectors.toList());
 				matcher.addMatchesToResult(result, search, methodList);
-			}	
+			}
 		}
 		//System.out.println("SymbolTable: " + result);
 		return result;
@@ -244,7 +268,7 @@ public class SymbolTable implements IScope
 	public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search)
 	{
 		AssertValue.checkNotNull("Search cannot be null", search);
-		
+
 		String symbolName = search.getName();
 		if(symbolName.contains("::"))
 		{
@@ -256,13 +280,13 @@ public class SymbolTable implements IScope
 			//So now just use the actual symbol name part of com.something:MyClass i.e. use the MyClass bit.
 			symbolName = aggregateSupport.getUnqualifiedName(symbolName);
 		}
-		
+
 		//So if search type is not set then that means search all categories!
 		ISymbol.SymbolCategory searchType = search.getSearchType();
 		if(searchType == null)
 		{
 			Optional<ISymbol> rtn = Optional.empty();
-			
+
 			for(ISymbol.SymbolCategory key : ISymbol.SymbolCategory.values())
 			{
 				Map<String, List<ISymbol>> table = splitSymbols.get(key);
@@ -281,36 +305,35 @@ public class SymbolTable implements IScope
 			return resolveInThisScopeOnly(table, symbolName, search);
 		}
 	}
-	
+
 	private Optional<ISymbol> resolveInThisScopeOnly(Map<String, List<ISymbol>> table, String shortSymbolName, SymbolSearch search)
 	{
 		//not found
 		if(table == null || table.isEmpty())
 			return Optional.empty();
-		
+
 		List<ISymbol> symbolList = table.get(shortSymbolName);
-		
+
 		//not found
 		if(symbolList == null || symbolList.isEmpty())
 			return Optional.empty();
-		
+
 		return resolveInThisScopeOnly(symbolList, search);
 	}
 
 	/**
 	 * This is really the backbone of the symbol table and pretty much the compiler.
 	 * Resolving a symbol of a specific type using the symbol search criteria.
-	 *
 	 */
 	private Optional<ISymbol> resolveInThisScopeOnly(List<ISymbol> symbolList, SymbolSearch search)
 	{
 		Optional<ISymbol> rtn;
-		
+
 		if(search.getSearchType().equals(ISymbol.SymbolCategory.METHOD))
 		{
 			MethodSymbolSearch methodSearch = new MethodSymbolSearch(search);
 			MethodSymbolSearchResult result = resolveForAllMatchingMethodsInThisScopeOnly(methodSearch, new MethodSymbolSearchResult());
-				
+
 			if(result.isEmpty())
 			{
 				rtn = Optional.empty();
@@ -350,19 +373,19 @@ public class SymbolTable implements IScope
 		{
 			//Do a type search
 			AssertValue.checkRange("Expecting a Single result in the symbol table", symbolList.size(), 1, 1);
-			
+
 			//Now we can also check the types here
 			rtn = Optional.of(symbolList.get(0));
 
 			//We provide the scope name so that we can just check the symbol name without scope if appropriate.
 			Optional<ISymbol> searchSymbol = search.getNameAsSymbol(this.getScopeName());
-			
+
 			//check assignable in some way handles coercion and base/super classes.
 			if(searchSymbol.isPresent())
 			{
 				ISymbol toSet = rtn.get();
 				if(!toSet.isAssignableTo(searchSymbol))
-					rtn = Optional.empty();				
+					rtn = Optional.empty();
 			}
 		}
 		else if(search.getSearchType().equals(ISymbol.SymbolCategory.VARIABLE))
@@ -372,10 +395,10 @@ public class SymbolTable implements IScope
 			rtn = Optional.of(symbolList.get(0));
 			//So found a variable now need to check that the type is right.
 			Optional<ISymbol> foundType = rtn.get().getType();
-			
+
 			//We must now check that the found type of the variable is right for what we are searching for.
 			Optional<ISymbol> toReceive = search.getOfTypeOrReturn();
-			
+
 			if(toReceive.isPresent())
 			{
 				//So we have found a variable, but it cannot be assigned back to how it can be received.
@@ -388,7 +411,7 @@ public class SymbolTable implements IScope
 		{
 			throw new RuntimeException("Unknown symbol search type [" + search.getSearchType() + "]");
 		}
-		return rtn ;
+		return rtn;
 	}
 
 	/**
@@ -398,8 +421,8 @@ public class SymbolTable implements IScope
 	protected Optional<ISymbol> resolveWithEnclosingScope(SymbolSearch search)
 	{
 		return Optional.empty();
-	}	
-	
+	}
+
 	@Override
 	public boolean isScopeAMatchForEnclosingScope(IScope toCheck)
 	{
@@ -411,7 +434,7 @@ public class SymbolTable implements IScope
 	{
 		return Optional.empty();
 	}
-	
+
 	@Override
 	public String toString()
 	{
