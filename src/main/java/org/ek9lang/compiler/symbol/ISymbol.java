@@ -72,6 +72,7 @@ public interface ISymbol extends ITokenReference
 
 	/**
 	 * For some symbols you may wish to specify the parsed module they were defined in.
+	 *
 	 * @param parsedModule The parsedModule the symbol was defined in.
 	 */
 	void setParsedModule(Optional<Module> parsedModule);
@@ -128,6 +129,7 @@ public interface ISymbol extends ITokenReference
 	/**
 	 * Even constants can be mutable until set. then they change to being none mutable.
 	 * Likewise in 'pure' scopes a variable can be mutable until it is first set then none mutable.
+	 *
 	 * @return If this symbol is mutable or not.
 	 */
 	boolean isMutable();

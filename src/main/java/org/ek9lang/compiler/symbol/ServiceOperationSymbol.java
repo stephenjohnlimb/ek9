@@ -4,7 +4,6 @@ import java.util.Optional;
 
 /**
  * Scope for callable methods (operations) that are part of a Service.
- * 
  */
 public class ServiceOperationSymbol extends MethodSymbol
 {
@@ -12,7 +11,7 @@ public class ServiceOperationSymbol extends MethodSymbol
 	{
 		super(name, type, enclosingScope);
 	}
-	
+
 	public ServiceOperationSymbol(String name, IScope enclosingScope)
 	{
 		super(name, enclosingScope);

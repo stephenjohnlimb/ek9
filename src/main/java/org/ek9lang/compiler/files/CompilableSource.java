@@ -33,14 +33,14 @@ public class CompilableSource implements Source, TokenConsumptionListener
 
 	//If it was brought in as part of a package then we need to know the module name of the package.
 	//This is so we can let all parts of that package resolve against each other.
-	//But stop code from other packages/main etc accessing anything put constructs defined at this
+	//But stop code from other packages/main etc. Accessing anything put constructs defined at this
 	//top level package name.
 
 	private String packageModuleName;
 	private boolean lib = false;
 
 	// This is the full path to the filename.
-	protected String filename = null;
+	protected String filename;
 	protected Digest.CheckSum checkSum = null;
 	private long lastModified = -1;
 
@@ -49,8 +49,8 @@ public class CompilableSource implements Source, TokenConsumptionListener
 	private ErrorListener errorListener;
 
 	//As the tokens get consumed by the parser and pulled from the Lexer this
-	//class listens for tokenConsumed messages and records the line and token so they can be search for
-	//In an Language Server use this is really important.
+	//class listens for tokenConsumed messages and records the line and token, so they can be searched
+	// for in a Language Server use this is really important.
 	private Map<Integer, ArrayList<Token>> tokens = null;
 
 	/**
@@ -71,25 +71,19 @@ public class CompilableSource implements Source, TokenConsumptionListener
 	@Override
 	public void tokenConsumed(Token token)
 	{
-		ArrayList<Token> line = tokens.get(token.getLine());
-		if(line == null)
-		{
-			//create and add in to the map
-			line = new ArrayList<Token>();
-			tokens.put(token.getLine(), line);
-		}
+		ArrayList<Token> line = tokens.computeIfAbsent(token.getLine(), k -> new ArrayList<>());
+		//create and add in to the map
 		//Now add the token.
 		line.add(token);
 	}
 
 	public TokenResult nearestToken(int line, int characterPosition)
 	{
-		//System.err.println("Searching for token on line " + line + " near position " + characterPosition);
 		TokenResult rtn = new TokenResult();
 		ArrayList<Token> lineOfTokens = tokens.get(line);
 		if(lineOfTokens != null)
 		{
-			//Now the position won't be exact so we need to find the lower bound.
+			//Now the position won't be exact, so we need to find the lower bound.
 			for(int i = 0; i < lineOfTokens.size(); i++)
 			{
 				Token t = lineOfTokens.get(i);
@@ -158,7 +152,7 @@ public class CompilableSource implements Source, TokenConsumptionListener
 
 	private void resetTokens()
 	{
-		tokens = new HashMap<Integer, ArrayList<Token>>();
+		tokens = new HashMap<>();
 	}
 
 	private void updateFileDetails()
@@ -249,7 +243,7 @@ public class CompilableSource implements Source, TokenConsumptionListener
 	{
 		try
 		{
-			return new FileInputStream(new File(filename));
+			return new FileInputStream(filename);
 		}
 		catch(Exception ex)
 		{

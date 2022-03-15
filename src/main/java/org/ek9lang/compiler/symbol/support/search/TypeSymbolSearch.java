@@ -10,7 +10,7 @@ public class TypeSymbolSearch extends SymbolSearch
 {
 	public TypeSymbolSearch(String name)
 	{
-		super(name);	
+		super(name);
 		setSearchType(ISymbol.SymbolCategory.TYPE);
 	}
 }

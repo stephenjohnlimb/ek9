@@ -12,7 +12,7 @@ import java.util.Map;
 public class Workspace
 {
 	//The maps of source code file to compliable source objects
-	private Map<String, CompilableSource> sources = new HashMap<>();
+	private final Map<String, CompilableSource> sources = new HashMap<>();
 
 	//TODO rework when we develop rest of ParsedModule etc.
 
@@ -34,7 +34,7 @@ public class Workspace
 	public synchronized CompilableSource reParseSource(String uri)
 	{
 		System.err.println("parsing/reparsing [" + uri + "]");
-		CompilableSource compilableSource = null;
+		CompilableSource compilableSource;
 		if(isSourcePresent(uri))
 		{
 			compilableSource = getSource(uri);

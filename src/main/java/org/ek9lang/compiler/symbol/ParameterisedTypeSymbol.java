@@ -116,7 +116,6 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 	/**
 	 * Need to go through this parameterised type and workout and return if any new paramterised types are required.
 	 * So for example Optional<OO> might use a Iterator<II> so if we create a new Optional<V> it means we also need an Iterator<V>
-	 *
 	 */
 	public void establishDependentParameterisedTypes(IScope global)
 	{
@@ -139,7 +138,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 				MethodSymbol method = (MethodSymbol)symbol;
 				method.getSymbolsForThisScope().forEach(param -> {
 					ResolutionResult paramResult = resolveWithNewType(param.getType());
-					if(!paramResult.wasResolved &&  paramResult.symbol.isPresent())
+					if(!paramResult.wasResolved && paramResult.symbol.isPresent())
 					{
 						ISymbol s = paramResult.symbol.get();
 						//System.out.println("Param Type [" + s.getFriendlyName() + "] did not exist needs creating");

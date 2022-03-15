@@ -8,18 +8,27 @@ import java.util.Optional;
 
 public interface ParameterisedSymbol extends IScopedSymbol
 {
-	default ScopeType getScopeType() { return ScopeType.AGGREGATE; }
-	
+	default ScopeType getScopeType()
+	{
+		return ScopeType.AGGREGATE;
+	}
+
 	List<ISymbol> getParameterSymbols();
-	
+
 	ScopedSymbol getParameterisableSymbol();
 
 	//These will need to be implemented in the actual parameterised types/functions
 	@Override
-	default ISymbol clone(IScope withParentAsAppropriate) { return null; }
+	default ISymbol clone(IScope withParentAsAppropriate)
+	{
+		return null;
+	}
 
 	@Override
-	default boolean isMarkedPure() { return false; }
+	default boolean isMarkedPure()
+	{
+		return false;
+	}
 
 	/**
 	 * Some parameterised types have been parameterised with S and T. This is done for use

@@ -2,7 +2,7 @@ package org.ek9lang.compiler.files;
 
 public interface Module
 {
-    Source getSource();
+	Source getSource();
 
-    String getScopeName();
+	String getScopeName();
 }

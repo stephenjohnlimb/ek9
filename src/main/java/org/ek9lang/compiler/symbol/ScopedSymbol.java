@@ -21,21 +21,21 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol
 	/**
 	 * If this AggregateSymbol/FunctionSymbol is a generic type then within its code area
 	 * either properties, methods or return types it may use another generic type with the same parameters K and V for example.
-	 * 
+	 * <p>
 	 * So when we come to actually use this generic type class with K=String and V=Float we must also look to replace these
 	 * conceptual parameterised type symbols because they would be Item<K, V> and need to be Item<String, Float>.
-	 * 
+	 * <p>
 	 * A good example is Map<K, V> and MapEntry<K, V> - when you make a Map<String, Float> we replace K->String, V->Float but also
 	 * need to replace MapEntry<K, V> with MapEntry<String, Float>. YOu could also imagine a situation where you have to replace
 	 * Something<Integer, V> with Something<Integer, Float>!
 	 */
 	private final List<ParameterisedTypeSymbol> parameterisedTypeReferences = new ArrayList<>();
-	
+
 	/**
 	 * Also set up the same but for generic functions.
 	 */
 	private final List<ParameterisedFunctionSymbol> parameterisedFunctionReferences = new ArrayList<>();
-	
+
 	/**
 	 * So this is the list of generic parameters the class/function can accept.
 	 * If we were generating a class of A then this would be empty
@@ -47,14 +47,14 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol
 	 * To have something concrete.
 	 */
 	private final List<AggregateSymbol> parameterisedTypes = new ArrayList<>();
-	
+
 	/**
 	 * Used for parameterised generic types/functions so that we can hang on to the context for phase IR generation
 	 * We really do use the code as a template and so need to visit and generate Nodes multiple times but alter the
 	 * type of S and T for the concrete types provided.
 	 */
 	private ParserRuleContext contextForParameterisedType;
-		
+
 	/**
 	 * If we encounter an exception within a scope we need to note the line number
 	 */
@@ -96,7 +96,7 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol
 
 		return newCopy;
 	}
-	
+
 	public LocalScope getActualScope()
 	{
 		return actualScope;
@@ -113,7 +113,7 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol
 	{
 		return Collections.unmodifiableList(parameterisedFunctionReferences);
 	}
-	
+
 	public void addParameterisedFunctionReference(ParameterisedFunctionSymbol parameterisedFunctionReference)
 	{
 		if(!parameterisedFunctionReferences.contains(parameterisedFunctionReference))
@@ -135,14 +135,14 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol
 			parameterisedTypeReferences.add(parameterisedTypeReference);
 		}
 	}
-	
+
 	public ScopedSymbol addParameterisedType(AggregateSymbol parameterisedType)
 	{
 		AssertValue.checkNotNull("ParameterisedType cannot be null", parameterisedType);
 		this.parameterisedTypes.add(parameterisedType);
 		return this;
 	}
-	
+
 	public ScopedSymbol addParameterisedType(Optional<AggregateSymbol> parameterisedType)
 	{
 		AssertValue.checkNotNull("Optional parameterisedType cannot be null", parameterisedType);
@@ -171,17 +171,17 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol
 	{
 		return Collections.unmodifiableList(parameterisedTypes);
 	}
-	
+
 	public void setContextForParameterisedType(ParserRuleContext ctx)
 	{
-		this.contextForParameterisedType = ctx;	
+		this.contextForParameterisedType = ctx;
 	}
-	
+
 	public ParserRuleContext getContextForParameterisedType()
 	{
 		return contextForParameterisedType;
 	}
-	
+
 	@Override
 	public boolean isMarkedPure()
 	{
@@ -195,7 +195,7 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol
 	}
 
 	@Override
-	public  boolean isTerminatedNormally()
+	public boolean isTerminatedNormally()
 	{
 		return getEncounteredExceptionToken() == null;
 	}
@@ -211,12 +211,12 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol
 	{
 		this.encounteredExceptionToken = encounteredExceptionToken;
 	}
-	
+
 	@Override
 	public String getScopeName()
 	{
 		return actualScope.getScopeName();
-	}	
+	}
 
 	@Override
 	public String getFriendlyScopeName()
@@ -229,36 +229,36 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol
 	{
 		actualScope.define(symbol);
 	}
-	
+
 	protected IScope getEnclosingScope()
 	{
 		return actualScope.getEnclosingScope();
 	}
-	
+
 	@Override
 	public List<ISymbol> getSymbolsForThisScope()
 	{
 		return actualScope.getSymbolsForThisScope();
 	}
-	
+
 	@Override
 	public MethodSymbolSearchResult resolveForAllMatchingMethods(MethodSymbolSearch search, MethodSymbolSearchResult result)
 	{
-		return actualScope.resolveForAllMatchingMethods(search, result);		
+		return actualScope.resolveForAllMatchingMethods(search, result);
 	}
 
 	@Override
 	public MethodSymbolSearchResult resolveForAllMatchingMethodsInThisScopeOnly(MethodSymbolSearch search, MethodSymbolSearchResult result)
 	{
-		return actualScope.resolveForAllMatchingMethodsInThisScopeOnly(search, result);		
+		return actualScope.resolveForAllMatchingMethodsInThisScopeOnly(search, result);
 	}
-	
+
 	@Override
 	public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search)
 	{
 		return actualScope.resolveInThisScopeOnly(search);
 	}
-	
+
 	@Override
 	public Optional<ISymbol> resolve(SymbolSearch search)
 	{
@@ -267,7 +267,7 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol
 
 	@Override
 	public Optional<ScopedSymbol> findNearestAggregateScopeInEnclosingScopes()
-	{		
+	{
 		if(getScopeType().equals(ScopeType.AGGREGATE))
 			return Optional.of(this);
 		return actualScope.findNearestAggregateScopeInEnclosingScopes();

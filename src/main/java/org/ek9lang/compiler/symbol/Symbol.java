@@ -1,13 +1,11 @@
 package org.ek9lang.compiler.symbol;
 
 import org.antlr.v4.runtime.Token;
-
 import org.ek9lang.compiler.files.Module;
 import org.ek9lang.compiler.symbol.support.TypeCoercions;
 import org.ek9lang.compiler.tokenizer.SyntheticToken;
 import org.ek9lang.core.exception.AssertValue;
 
-import javax.swing.text.html.Option;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -22,11 +20,11 @@ public class Symbol implements ISymbol
 {
 	//This also covers constants - change mutability for those.
 	private SymbolCategory category = SymbolCategory.VARIABLE;
-	
+
 	private SymbolGenus genus = SymbolGenus.CLASS;
-	
+
 	private String name;
-	
+
 	private Optional<ISymbol> type = Optional.empty();
 
 	private boolean hasBeenSet = false;
@@ -43,20 +41,22 @@ public class Symbol implements ISymbol
 	 */
 	private Token initialisedBy = null;
 
-	/** Was this symbol referenced. */
+	/**
+	 * Was this symbol referenced.
+	 */
 	private boolean referenced = false;
 
 	/**
 	 * The idea is to assume that symbol cannot be null by default.
 	 * i.e a variable cannot null or a function/method cannot return a null value
-	 * If the developer wants to support then ? has to be used to make that explicit. 
+	 * If the developer wants to support then ? has to be used to make that explicit.
 	 */
 	private boolean nullAllowed = false;
 
 	//For components, we need to know if injection is expected.
 	private boolean injectionExpected = false;
 
-	/** 
+	/**
 	 * Used to mark a symbol as ek9 core or not.
 	 * Normally used to drive the generation of fully qualified names.
 	 */
@@ -68,12 +68,12 @@ public class Symbol implements ISymbol
 	private boolean markedPure = false;
 
 	private boolean produceFullyQualifiedName = false;
-	
+
 	/**
 	 * Where this symbol come from - not always set for every symbol.
 	 */
 	private Optional<Module> parsedModule = Optional.empty();
-	
+
 
 	//Sometimes it is necessary to pick data and hold it in the symbol for later.
 	private final Map<String, String> squirrelledAway = new HashMap<>();
@@ -159,12 +159,12 @@ public class Symbol implements ISymbol
 			//We only store the value that is in the Quotes not the quotes themselves
 			Pattern p = Pattern.compile("\"(.*)\""); //just the contents in the quotes
 			Matcher m = p.matcher(value);
-			if (m.find())
+			if(m.find())
 				value = m.group(1);
 		}
 		squirrelledAway.put(key, value);
 	}
-	
+
 	public String getSquirrelledData(String key)
 	{
 		return squirrelledAway.get(key);
@@ -237,22 +237,22 @@ public class Symbol implements ISymbol
 		if(ek9Core)
 			setSourceToken(new SyntheticToken());
 	}
-	
+
 	public boolean isDevSource()
 	{
-		return parsedModule.map(m -> m.getSource().isDev()).orElseGet(() -> false);
+		return parsedModule.map(m -> m.getSource().isDev()).orElse(false);
 	}
 
 	public boolean isLibSource()
 	{
-		return parsedModule.map(m -> m.getSource().isLib()).orElseGet(() -> false);
+		return parsedModule.map(m -> m.getSource().isLib()).orElse(false);
 	}
 
 	public void setProduceFullyQualifiedName(boolean produceFullyQualifiedName)
 	{
 		this.produceFullyQualifiedName = produceFullyQualifiedName;
 	}
-	
+
 	public boolean getProduceFullyQualifiedName()
 	{
 		return produceFullyQualifiedName;
@@ -267,7 +267,7 @@ public class Symbol implements ISymbol
 	{
 		this.sourceToken = sourceToken;
 	}
-	
+
 	public Optional<Module> getParsedModule()
 	{
 		return parsedModule;
@@ -307,17 +307,17 @@ public class Symbol implements ISymbol
 	{
 		return getAssignableWeightTo(s) >= 0.0;
 	}
-	
+
 	public boolean isAssignableTo(Optional<ISymbol> s)
 	{
 		return getAssignableWeightTo(s) >= 0.0;
 	}
-	
+
 	public double getAssignableWeightTo(Optional<ISymbol> s)
 	{
 		return s.map(this::getAssignableWeightTo).orElse(-1000000.0);
 	}
-	
+
 	@Override
 	public boolean isPromotionSupported(ISymbol s)
 	{
@@ -326,27 +326,27 @@ public class Symbol implements ISymbol
 			return TypeCoercions.get().isCoercible(this, s);
 		return false;
 	}
-	
+
 	public double getAssignableWeightTo(ISymbol s)
 	{
 		double canAssign = getUnCoercedAssignableWeightTo(s);
 		//Well if not the same symbol can we coerce/promote?
 		if(canAssign < 0.0 && TypeCoercions.get().isCoercible(this, s))
 			canAssign = 0.5;
-		
+
 		return canAssign;
 	}
-	
+
 	public double getUnCoercedAssignableWeightTo(ISymbol s)
 	{
 		double canAssign = -1000000.0;
 		AssertValue.checkNotNull("Symbol cannot be null", s);
-		
+
 		if(isExactSameType(s))
-			canAssign = 0.0;			
+			canAssign = 0.0;
 		return canAssign;
 	}
-	
+
 	public SymbolCategory getCategory()
 	{
 		return category;
@@ -356,13 +356,13 @@ public class Symbol implements ISymbol
 	{
 		this.category = category;
 	}
-	
+
 	public SymbolGenus getGenus()
 	{
 		return genus;
 	}
 
-	public void setGenus(SymbolGenus genus) 
+	public void setGenus(SymbolGenus genus)
 	{
 		this.genus = genus;
 	}
@@ -380,7 +380,7 @@ public class Symbol implements ISymbol
 	{
 		String theType = getSymbolTypeAsString(this.getType());
 		if(theType.length() > 0)
-			return  getName() + " as " + theType;
+			return getName() + " as " + theType;
 		return getName();
 	}
 

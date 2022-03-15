@@ -8,8 +8,8 @@ public interface IAssignableSymbol
 	{
 		return getInitialisedBy() != null;
 	}
-	
+
 	Token getInitialisedBy();
-	
-	void setInitialisedBy(Token initialisedBy);	
+
+	void setInitialisedBy(Token initialisedBy);
 }

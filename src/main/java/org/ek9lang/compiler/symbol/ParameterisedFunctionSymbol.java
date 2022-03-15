@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * We are saying myFunction<SomeObjectType>
  * This class is probably one of biggest 'mind fucks' you'll ever have.
  * generics of generics with parameters.
- * 
+ * <p>
  * TODO maybe refactor this and the ParameterisedTypeSymbol to pull out common stuff.
  */
 public class ParameterisedFunctionSymbol extends FunctionSymbol implements ParameterisedSymbol
@@ -24,10 +24,10 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 
 	//This is the function that can be parameterised
 	private final FunctionSymbol parameterisableSymbol;
-	
+
 	//This is what it is parameterised with - so this could be common with ParameterisedTypeSymbol.
 	private final List<ISymbol> parameterSymbols = new ArrayList<>();
-	
+
 	private boolean variablesAndMethodsHydrated = false;
 
 	public ParameterisedFunctionSymbol(FunctionSymbol parameterisableSymbol, Optional<ISymbol> parameterSymbol, IScope enclosingScope)
@@ -44,16 +44,16 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 	}
 
 	private ParameterisedFunctionSymbol(FunctionSymbol parameterisableSymbol, IScope enclosingScope)
-	{		
+	{
 		super("", enclosingScope); //Gets set below
 		AssertValue.checkNotNull("parameterisableSymbol cannot be null", parameterisableSymbol);
-		
+
 		if(!parameterisableSymbol.isGenericInNature() || !parameterisableSymbol.isATemplateFunction())
 			throw new IllegalArgumentException("parameterisableSymbol must be parameterised");
-		
+
 		this.parameterisableSymbol = parameterisableSymbol;
 	}
-	
+
 	public FunctionSymbol getParameterisableSymbol()
 	{
 		return parameterisableSymbol;
@@ -68,7 +68,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 	{
 		return variablesAndMethodsHydrated;
 	}
-	
+
 	@Override
 	public boolean isSymbolTypeMatch(ISymbol symbolType)
 	{
@@ -81,7 +81,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 		}
 		return super.isSymbolTypeMatch(symbolType);
 	}
-	
+
 	/**
 	 * So once you have created this object and added all the parameters you want to
 	 * Call this so that the full name of the concrete parameterised generic type is manifest.
@@ -96,13 +96,13 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 			super.setCategory(SymbolCategory.FUNCTION);
 		super.setGenus(SymbolGenus.FUNCTION);
 	}
-	
+
 	/**
 	 * After phase one all the basic types and method signatures are set up for the types we can use for templates.
 	 * But now we need to create the parameterised types an setup the specific signatures with the actual types.
 	 */
 	public void initialSetupVariablesAndMethods()
-	{	
+	{
 		//System.out.println("Hydration of parameterised function");
 		for(ISymbol symbol : parameterisableSymbol.getSymbolsForThisScope())
 		{
@@ -126,6 +126,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 
 	/**
 	 * Clones any symbols that employ generic parameters. For non generic uses the same symbol.
+	 *
 	 * @param toClone The symbol to Clone.
 	 * @return A new symbol or symbol passed in if no generic parameter replacement is required.
 	 */
@@ -145,9 +146,10 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 		}
 		throw new RuntimeException("We can only clone variables in generic function templates not [" + toClone + "]");
 	}
-	
+
 	/**
 	 * Resolve the type could be concrete or could be As S or T type generic.
+	 *
 	 * @param typeToResolve The type to resolve.
 	 * @return The new resolved symbol.
 	 */
@@ -184,19 +186,19 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 				//What actual symbol to use from the parameterSymbols we have been parameterised with.
 				int index = CommonParameterisedTypeDetails.getIndexOfType(parameterisableSymbol, typeToResolve);
 				ISymbol resolvedSymbol = parameterSymbols.get(index);
-				
+
 				return Optional.of(resolvedSymbol);
 			}
 			else if(aggregate.isGenericInNature() && aggregate instanceof ParameterisedFunctionSymbol asParameterisedTypeSymbol)
 			{
 				//Now this is a  bastard because we need to clone one of these classes we're already in.
 				//But it might be a List of T or a real List of Integer for example.
-				
+
 				//So the thing we are to clone it itself a generic aggregate.
 				//System.out.println("Need to Clone a generic aggregate [" + aggregate + "]");
 				List<ISymbol> lookupParameterSymbols = new ArrayList<>();
 				//Now it may really be a concrete one or it too could be something like a List of P
-				
+
 				for(ISymbol symbol : asParameterisedTypeSymbol.parameterSymbols)
 				{
 					//So lets see might be a K or V for example but we must be able to find that type in this object	
@@ -216,16 +218,16 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 						lookupParameterSymbols.add(symbol);
 					}
 				}
-				
+
 				String parameterisedTypeSymbolName = CommonParameterisedTypeDetails.getInternalNameFor(asParameterisedTypeSymbol.parameterisableSymbol, lookupParameterSymbols);
 				TypeSymbolSearch search = new TypeSymbolSearch(parameterisedTypeSymbolName);
 				return this.resolve(search);
 			}
-				
+
 		}
 		return typeToResolve;
 	}
-	
+
 	@Override
 	public Optional<ISymbol> getType()
 	{

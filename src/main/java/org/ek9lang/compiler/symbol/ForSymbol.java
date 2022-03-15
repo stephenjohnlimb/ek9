@@ -6,7 +6,7 @@ package org.ek9lang.compiler.symbol;
  */
 public class ForSymbol extends ScopedSymbol
 {
-	
+
 	public ForSymbol(IScope enclosingScope)
 	{
 		super("For", enclosingScope);

@@ -1,13 +1,9 @@
 package org.ek9lang.compiler.symbol;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Intended to model the pipeline flow in a streaming of cat or for loop though | and map etc.
  * So really all we're trying to do in the symbol modelling is ensuring that the piping with the types and commands
  * are compatible with each other. Phase 7 the IR phase will have to create objects that can be linked.
- *
  */
 public class StreamPipeLineSymbol extends Symbol
 {

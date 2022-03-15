@@ -1,15 +1,14 @@
 package org.ek9lang.compiler.support;
 
+import org.antlr.v4.gui.TestRig;
+import org.antlr.v4.runtime.*;
 import org.ek9lang.compiler.tokenizer.DelegatingLexer;
 import org.ek9lang.compiler.tokenizer.LexerPlugin;
 import org.ek9lang.compiler.tokenizer.TokenStreamAssessment;
-import org.antlr.v4.gui.TestRig;
-import org.antlr.v4.runtime.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -19,9 +18,9 @@ public abstract class AntlrSupport
 	/**
 	 * Show the stream of tokens for the file being parsed (lexed for tokens).
 	 */
-	private static boolean streamTokens = true;
+	private static final boolean streamTokens = true;
 
-	public AntlrSupport(String inputFileName) throws IOException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException
+	public AntlrSupport(String inputFileName) throws IOException, IllegalArgumentException, SecurityException
 	{
 		if(! new File(inputFileName).exists())
 			System.out.println("AntlrSupport cannot find file [" + inputFileName + "]");
@@ -52,7 +51,7 @@ public abstract class AntlrSupport
 
 	protected abstract String getGrammarName() ;
 
-	private void streamLexerTokensFor(String inputFileName) throws IOException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException
+	private void streamLexerTokensFor(String inputFileName) throws IOException, IllegalArgumentException, SecurityException
 	{
 		LexerPlugin lexer1  = new DelegatingLexer((LexerPlugin)getLexer(CharStreams.fromFileName(inputFileName), inputFileName));
 		new TokenStreamAssessment().assess(lexer1, true);
@@ -66,8 +65,8 @@ public abstract class AntlrSupport
 		try
 		{
 			
-			//Now because the test Rig is written the way it is and we want to use our own lexer we have to do this
-			TestRig antrlTestRig = new TestRig(params){				
+			//Now because the test Rig is written the way it is; and we want to use our own lexer we have to do this
+			return new TestRig(params){
 				@Override
 				public void process() throws Exception {
 					ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -97,7 +96,6 @@ public abstract class AntlrSupport
 					}
 				}
 			};
-			return antrlTestRig;
 		}
 		catch (Exception e)
 		{		

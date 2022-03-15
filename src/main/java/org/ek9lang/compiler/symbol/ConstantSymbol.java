@@ -11,7 +11,7 @@ public class ConstantSymbol extends Symbol
 	/**
 	 * Is this constant defined as a literal.
 	 */
-	private boolean literal = false;
+	private boolean literal;
 
 	public ConstantSymbol(String name, boolean fromLiteral)
 	{

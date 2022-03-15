@@ -112,7 +112,7 @@ public class SymbolTable implements IScope
 	}
 
 	@Override
-	public  boolean isTerminatedNormally()
+	public boolean isTerminatedNormally()
 	{
 		return getEncounteredExceptionToken() == null;
 	}

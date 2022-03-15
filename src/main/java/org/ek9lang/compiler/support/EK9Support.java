@@ -18,7 +18,7 @@ public class EK9Support extends AntlrSupport
 			new EK9Support(args[0]);
 	}
 
-	public EK9Support(String inputFileName) throws IOException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException
+	public EK9Support(String inputFileName) throws IOException, IllegalArgumentException, SecurityException
 	{
 		super(inputFileName);
 	}
@@ -30,5 +30,5 @@ public class EK9Support extends AntlrSupport
 	}
 
 	@Override
-	protected String getGrammarName() { return "org.ek9lang.antlr.EK9";};
+	protected String getGrammarName() { return "org.ek9lang.antlr.EK9";}
 }

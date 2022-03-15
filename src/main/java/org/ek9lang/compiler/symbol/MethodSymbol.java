@@ -5,7 +5,6 @@ import org.ek9lang.compiler.symbol.support.SymbolMatcher;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Represents some type of method that exists on an aggregate type scope.

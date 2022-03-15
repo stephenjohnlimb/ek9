@@ -1,7 +1,5 @@
 package org.ek9lang.compiler.symbol;
 
-import java.util.Optional;
-
 /**
  * Just re-uses the bulk of method symbol for when we want to make a symbol that is a call to an actual method.
  * This will be used to build up the sort of call we want to make based on the source - we then have to resolve

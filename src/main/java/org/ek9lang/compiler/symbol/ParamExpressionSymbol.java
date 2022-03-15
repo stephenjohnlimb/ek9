@@ -5,7 +5,6 @@ import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * While we don't add these in the scoped structures when compiling.

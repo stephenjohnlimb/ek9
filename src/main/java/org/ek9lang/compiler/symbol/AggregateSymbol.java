@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.symbol;
 
-import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;

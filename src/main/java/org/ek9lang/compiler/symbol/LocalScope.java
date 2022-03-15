@@ -1,9 +1,9 @@
 package org.ek9lang.compiler.symbol;
 
+import org.ek9lang.compiler.symbol.support.SymbolTable;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
-import org.ek9lang.compiler.symbol.support.SymbolTable;
 import org.ek9lang.core.exception.AssertValue;
 
 import java.util.Optional;

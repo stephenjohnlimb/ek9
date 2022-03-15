@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * To be used to search for symbols in a Symbol table.
  */
-public class SymbolSearch 
+public class SymbolSearch
 {
 	/**
 	 * The name of the symbol looking for.
@@ -35,7 +35,7 @@ public class SymbolSearch
 	 * Of this Type/Super type or the return type of the function/method.
 	 */
 	private Optional<ISymbol> ofTypeOrReturn = Optional.empty();
-	
+
 	/**
 	 * Typically if searching for a method this will be zero or more parameters.
 	 * But note these are not just a list of types they are the parameters with the type set into that symbol.
@@ -46,27 +46,27 @@ public class SymbolSearch
 	 * What type of search is being triggered.
 	 */
 	private ISymbol.SymbolCategory searchType = ISymbol.SymbolCategory.VARIABLE;
-	
+
 	public SymbolSearch(String name)
 	{
 		AssertValue.checkNotEmpty("name cannot be null for search Symbol", name);
 		this.name = name;
 	}
-	
+
 	protected SymbolSearch(String name, Optional<ISymbol> ofTypeOrReturn)
 	{
 		this(name);
 		AssertValue.checkNotEmpty("Type Or Return Type cannot be empty", ofTypeOrReturn);
 		this.ofTypeOrReturn = ofTypeOrReturn;
 	}
-	
+
 	protected SymbolSearch(String name, ISymbol ofTypeOrReturn)
 	{
 		this(name);
 		AssertValue.checkNotNull("ofTypeOrReturn cannot be null for search Symbol", ofTypeOrReturn);
 		this.ofTypeOrReturn = Optional.of(ofTypeOrReturn);
 	}
-	
+
 	public boolean isLimitToBlocks()
 	{
 		return limitToBlocks;
@@ -87,7 +87,7 @@ public class SymbolSearch
 	{
 		return setOfTypeOrReturn(Optional.ofNullable(ofTypeOrReturn));
 	}
-	
+
 	public SymbolSearch setOfTypeOrReturn(Optional<ISymbol> ofTypeOrReturn)
 	{
 		AssertValue.checkNotNull("ofTypeOrReturn cannot be null for search Symbol", ofTypeOrReturn);
@@ -99,7 +99,7 @@ public class SymbolSearch
 	{
 		return parameters;
 	}
-	
+
 	public List<ISymbol> getParameterTypes()
 	{
 		return parameters
@@ -116,7 +116,7 @@ public class SymbolSearch
 		this.parameters.add(parameter);
 		return this;
 	}
-	
+
 	public SymbolSearch setParameters(List<ISymbol> parameters)
 	{
 		AssertValue.checkNotNull("parameters cannot be null for search Symbol", parameters);
@@ -137,6 +137,7 @@ public class SymbolSearch
 
 	/**
 	 * Provide a symbol using the name of the search which may or may not be fully qualified.
+	 *
 	 * @return The Optional symbol.
 	 */
 	public Optional<ISymbol> getNameAsSymbol()
@@ -144,7 +145,7 @@ public class SymbolSearch
 		AggregateSymbol sym = new AggregateSymbol(name, new SymbolTable());
 		return Optional.of(sym);
 	}
-	
+
 	public Optional<ISymbol> getNameAsSymbol(String fromModuleName)
 	{
 		AggregateSymbol sym;
@@ -156,26 +157,26 @@ public class SymbolSearch
 				theName = parts[1];
 		}
 		sym = new AggregateSymbol(theName, new SymbolTable());
-		
+
 		return Optional.of(sym);
 	}
-	
+
 	public String getName()
 	{
 		return name;
 	}
-	
+
 	public String toString()
 	{
 		StringBuilder buffer = new StringBuilder();
-		
+
 		if(getOfTypeOrReturn().isPresent())
 			buffer.append(getOfTypeOrReturn().get().getName()).append(" <- ");
 		buffer.append(getName());
-		
+
 		if(this.searchType == ISymbol.SymbolCategory.METHOD)
 			buffer.append(CommonParameterisedTypeDetails.asCommaSeparated(parameters, true));
-		
+
 		return buffer.toString();
 	}
 }

@@ -12,9 +12,9 @@ public class VariableSymbol extends Symbol implements IAssignableSymbol
 	
 	/**
 	 * Limited scope of variables from other scopes
-	 * fields/properties on classes/components etc are always private
+	 * fields/properties on classes/components etc. are always private
 	 * Those on records are public and local variable a visible up the scope tree.
-	 * So it depends where you are accessing the variable from.
+	 * So it depends on where you are accessing the variable from.
 	 */
 	private boolean isPrivate = false;
 	
@@ -120,7 +120,7 @@ public class VariableSymbol extends Symbol implements IAssignableSymbol
 	@Override
 	public String getFriendlyName()
 	{
-		StringBuffer rtn = new StringBuffer();
+		StringBuilder rtn = new StringBuilder();
 		if(this.isPrivate)
 			rtn.append("private ");
 		rtn.append(super.getFriendlyName());		
