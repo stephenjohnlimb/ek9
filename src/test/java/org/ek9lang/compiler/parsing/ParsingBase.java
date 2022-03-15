@@ -1,6 +1,9 @@
 package org.ek9lang.compiler.parsing;
 
-import junit.framework.TestCase;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -10,10 +13,9 @@ import org.ek9lang.compiler.tokenizer.DelegatingLexer;
 import org.ek9lang.compiler.tokenizer.EK9Lexer;
 import org.ek9lang.compiler.tokenizer.LexerPlugin;
 import org.ek9lang.compiler.tokenizer.LexingBase;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.io.InputStream;
+import java.util.function.Supplier;
 
 /**
  * Now move beyond lexing, to parsing content.
@@ -23,11 +25,11 @@ public abstract class ParsingBase extends LexingBase
 	private EK9Parser underTest;
 	private ErrorListener errorListener = new ErrorListener();
 
-	@Before
+	@BeforeEach
 	public void loadTokenStreamInParser() throws Exception
 	{
 		InputStream inputStream = getClass().getResourceAsStream(getEK9FileName());
-		TestCase.assertNotNull("Read File", inputStream);
+		assertNotNull(inputStream,"Read File");
 
 		LexerPlugin lexer = getEK9Lexer(CharStreams.fromStream(inputStream));
 		lexer.removeErrorListeners();
@@ -47,7 +49,7 @@ public abstract class ParsingBase extends LexingBase
 	@Test
 	public void test() throws Exception
 	{
-		TestCase.assertNotNull(underTest);
+		assertNotNull(underTest);
 
 		long before = System.currentTimeMillis();
 		EK9Parser.CompilationUnitContext context = underTest.compilationUnit();
@@ -61,7 +63,7 @@ public abstract class ParsingBase extends LexingBase
 				System.out.println(error);
 			});
 		}
-		TestCase.assertTrue("Parsing of " + getEK9FileName() + " failed", errorListener.isErrorFree());
-		TestCase.assertNotNull(context);		
+		assertTrue(errorListener.isErrorFree(), "Parsing of " + getEK9FileName() + " failed");
+		assertNotNull(context);		
 	}
 }

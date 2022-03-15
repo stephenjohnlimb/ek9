@@ -1,16 +1,14 @@
 package org.ek9lang.compiler.symbol.support;
 
-import junit.framework.TestCase;
-import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.ParameterisedTypeSymbol;
 import org.ek9lang.compiler.symbol.support.search.TemplateTypeSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Going to be very hard to get your head around this as generics and
@@ -19,9 +17,17 @@ import java.util.stream.Collectors;
  */
 public class GenericTypeTest extends AbstractSymbolTestBase
 {
+
 	@Test
 	public void testTemplateTypeCreation()
 	{
+		var dateType = symbolTable.resolve(new TypeSymbolSearch("Date"));
+		var stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
+		var integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
+		assertTrue(dateType.isPresent());
+		assertTrue(stringType.isPresent());
+		assertTrue(integerType.isPresent());
+
 		//The type T we are going to use as part of the template type definition
 		var t = support.createGenericT("Tee", symbolTable);
 
@@ -31,29 +37,29 @@ public class GenericTypeTest extends AbstractSymbolTestBase
 
 		//Now make sure it is possible to find the correct index of 'Tee'
 		//This will be needed when we come to process parameterised types.
-		TestCase.assertEquals(0, CommonParameterisedTypeDetails.getIndexOfType(z, Optional.of(t)));
+		assertEquals(0, CommonParameterisedTypeDetails.getIndexOfType(z, Optional.of(t)));
 
 		//Check we CANNOT find this as a type, but only as a template type.
-		TestCase.assertTrue(symbolTable.resolve(new TypeSymbolSearch("Zee")).isEmpty());
-		TestCase.assertTrue(symbolTable.resolve(new TypeSymbolSearch("Tee")).isEmpty());
+		assertTrue(symbolTable.resolve(new TypeSymbolSearch("Zee")).isEmpty());
+		assertTrue(symbolTable.resolve(new TypeSymbolSearch("Tee")).isEmpty());
 
-		TestCase.assertTrue(z.isGenericInNature());
-		TestCase.assertTrue(symbolTable.resolve(new TemplateTypeSymbolSearch("Zee")).isPresent());
-		TestCase.assertEquals("Zee of type Tee", z.getFriendlyName());
+		assertTrue(z.isGenericInNature());
+		assertTrue(symbolTable.resolve(new TemplateTypeSymbolSearch("Zee")).isPresent());
+		assertEquals("Zee of type Tee", z.getFriendlyName());
 
 		//Now lets use that generic Z with a String and then with an Integer
 
-		var stringZeeType = new ParameterisedTypeSymbol(z, symbolTable.resolve(new TypeSymbolSearch("String")), symbolTable);
+		var stringZeeType = new ParameterisedTypeSymbol(z, stringType, symbolTable);
 		symbolTable.define(stringZeeType);
-		TestCase.assertEquals("Zee of String", stringZeeType.getFriendlyName());
+		assertEquals("Zee of String", stringZeeType.getFriendlyName());
 		//It is now a real concrete type and not generic in nature.
-		TestCase.assertFalse(stringZeeType.isGenericInNature());
+		assertFalse(stringZeeType.isGenericInNature());
 		//But it is actually a parameterised type
-		TestCase.assertTrue(stringZeeType.isAParameterisedType());
+		assertTrue(stringZeeType.isAParameterisedType());
 
-		var integerZeeType = new ParameterisedTypeSymbol(z, symbolTable.resolve(new TypeSymbolSearch("Integer")), symbolTable);
+		var integerZeeType = new ParameterisedTypeSymbol(z, integerType, symbolTable);
 		symbolTable.define(integerZeeType);
-		TestCase.assertEquals("Zee of Integer", integerZeeType.getFriendlyName());
+		assertEquals("Zee of Integer", integerZeeType.getFriendlyName());
 	}
 
 	@Test
@@ -61,45 +67,45 @@ public class GenericTypeTest extends AbstractSymbolTestBase
 	{
 		var dateType = symbolTable.resolve(new TypeSymbolSearch("Date"));
 		var stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
-		TestCase.assertTrue(dateType.isPresent());
-		TestCase.assertTrue(stringType.isPresent());
+		assertTrue(dateType.isPresent());
+		assertTrue(stringType.isPresent());
 
-		TestCase.assertFalse(CommonParameterisedTypeDetails
+		assertFalse(CommonParameterisedTypeDetails
 				.doSymbolsMatch(
 						List.of(dateType.get()), null
 				)
 		);
-		TestCase.assertFalse(CommonParameterisedTypeDetails
+		assertFalse(CommonParameterisedTypeDetails
 				.doSymbolsMatch(
 						null, List.of(dateType.get())
 				)
 		);
 
-		TestCase.assertFalse(CommonParameterisedTypeDetails
+		assertFalse(CommonParameterisedTypeDetails
 				.doSymbolsMatch(
 						List.of(dateType.get()), List.of(stringType.get())
 				)
 		);
 
-		TestCase.assertFalse(CommonParameterisedTypeDetails
+		assertFalse(CommonParameterisedTypeDetails
 				.doSymbolsMatch(
 						List.of(dateType.get(), stringType.get()), List.of(stringType.get())
 				)
 		);
 
-		TestCase.assertFalse(CommonParameterisedTypeDetails
+		assertFalse(CommonParameterisedTypeDetails
 				.doSymbolsMatch(
 						List.of(dateType.get(), stringType.get()), List.of(stringType.get(), dateType.get())
 				)
 		);
 
-		TestCase.assertTrue(CommonParameterisedTypeDetails
+		assertTrue(CommonParameterisedTypeDetails
 				.doSymbolsMatch(
 						List.of(dateType.get()),List.of(dateType.get())
 				)
 		);
 
-		TestCase.assertTrue(CommonParameterisedTypeDetails
+		assertTrue(CommonParameterisedTypeDetails
 				.doSymbolsMatch(
 						List.of(stringType.get(), dateType.get()), List.of(stringType.get(), dateType.get())
 				)
@@ -119,10 +125,10 @@ public class GenericTypeTest extends AbstractSymbolTestBase
 		var integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
 		var booleanType = symbolTable.resolve(new TypeSymbolSearch("Boolean"));
 
-		TestCase.assertTrue(dateType.isPresent());
-		TestCase.assertTrue(stringType.isPresent());
-		TestCase.assertTrue(integerType.isPresent());
-		TestCase.assertTrue(booleanType.isPresent());
+		assertTrue(dateType.isPresent());
+		assertTrue(stringType.isPresent());
+		assertTrue(integerType.isPresent());
+		assertTrue(booleanType.isPresent());
 
 		var p = support.createGenericT("Pee", symbolTable);
 		var q = support.createGenericT("Que", symbolTable);
@@ -134,10 +140,10 @@ public class GenericTypeTest extends AbstractSymbolTestBase
 		var y = support.createTemplateGenericType("Why", symbolTable, List.of(p, r));
 		symbolTable.define(y);
 
-		//Check we can find the types that ave been used and cannot find the ones that haven't.
-		TestCase.assertEquals(0, CommonParameterisedTypeDetails.getIndexOfType(y, Optional.of(p)));
-		TestCase.assertEquals(1, CommonParameterisedTypeDetails.getIndexOfType(y, Optional.of(r)));
-		TestCase.assertEquals(-1, CommonParameterisedTypeDetails.getIndexOfType(y, Optional.of(q)));
+		//Check we can find the types that have been used and cannot find the ones that haven't.
+		assertEquals(0, CommonParameterisedTypeDetails.getIndexOfType(y, Optional.of(p)));
+		assertEquals(1, CommonParameterisedTypeDetails.getIndexOfType(y, Optional.of(r)));
+		assertEquals(-1, CommonParameterisedTypeDetails.getIndexOfType(y, Optional.of(q)));
 
 		var z = support.createTemplateGenericType("Zee", symbolTable, List.of(r, q, p));
 		symbolTable.define(z);
@@ -149,7 +155,7 @@ public class GenericTypeTest extends AbstractSymbolTestBase
 		try
 		{
 			new ParameterisedTypeSymbol(z, stringType, symbolTable);
-			TestCase.fail("Expected incompatible number of parameters");
+			fail("Expected incompatible number of parameters");
 		}
 		catch(RuntimeException th)
 		{
@@ -171,15 +177,15 @@ public class GenericTypeTest extends AbstractSymbolTestBase
 			//So what do we expect here?
 			//whereas y -> p, r: When defined in the context of Z: we expect p -> Boolean, r -> String
 			//System.out.println("types " + types);
-			TestCase.assertEquals("Boolean", types.get(0).getName());
-			TestCase.assertEquals("String", types.get(1).getName());
+			assertEquals("Boolean", types.get(0).getName());
+			assertEquals("String", types.get(1).getName());
 			//Now we would be able to create a real concrete type!
 			//This in effect what our compiler will have to do, when processing generic type definitions
 			//that actually use other generics within them. When the outer definition is made 'manifest'
 			//the compiler has to make manifest all the other uses of other generic types that use both real
 			//and conceptual generic 'T' parameters.
 			var yDashDash = new ParameterisedTypeSymbol(y, types, symbolTable);
-			TestCase.assertEquals("Why of (Boolean, String)", yDashDash.getFriendlyName());
+			assertEquals("Why of (Boolean, String)", yDashDash.getFriendlyName());
 		}
 
 		//Now lets try and 'X' but mix real Types and conceptual 'T'
@@ -190,11 +196,11 @@ public class GenericTypeTest extends AbstractSymbolTestBase
 			//whereas x -> p, q, r: But xDash: p -> r, q -> r, r -> "Date"
 			// When defined in the context of Z: we expect p -> String, q -> String - but r is fixed on "Date"
 			//System.out.println("types " + types);
-			TestCase.assertEquals("String", types.get(0).getName());
-			TestCase.assertEquals("String", types.get(1).getName());
-			TestCase.assertEquals("Date", types.get(2).getName());
+			assertEquals("String", types.get(0).getName());
+			assertEquals("String", types.get(1).getName());
+			assertEquals("Date", types.get(2).getName());
 			var xDashDash = new ParameterisedTypeSymbol(x, types, symbolTable);
-			TestCase.assertEquals("Ex of (String, String, Date)", xDashDash.getFriendlyName());
+			assertEquals("Ex of (String, String, Date)", xDashDash.getFriendlyName());
 		}
 
 	}
@@ -212,6 +218,12 @@ public class GenericTypeTest extends AbstractSymbolTestBase
 	@Test
 	public void testCommonT()
 	{
+		var stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
+		var integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
+
+		assertTrue(stringType.isPresent());
+		assertTrue(integerType.isPresent());
+
 		var t = support.createGenericT("Tee", symbolTable);
 		var z = support.createTemplateGenericType("Zee", symbolTable, t);
 		symbolTable.define(z);
@@ -224,12 +236,6 @@ public class GenericTypeTest extends AbstractSymbolTestBase
 		//Now make a parameterised type but not with a concrete type but with Tee again.
 		var pDash = new ParameterisedTypeSymbol(p, Optional.of(t), symbolTable);
 
-		var stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
-		var integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
-
-		TestCase.assertTrue(stringType.isPresent());
-		TestCase.assertTrue(integerType.isPresent());
-
 		var stringZeeType = new ParameterisedTypeSymbol(z, stringType, symbolTable);
 		symbolTable.define(stringZeeType);
 
@@ -238,12 +244,12 @@ public class GenericTypeTest extends AbstractSymbolTestBase
 
 		var types = support.getSuitableParameters(stringZeeType, pDash);
 
-		TestCase.assertFalse(types.isEmpty());
-		TestCase.assertTrue(types.get(0).isExactSameType(stringType.get()));
+		assertFalse(types.isEmpty());
+		assertTrue(types.get(0).isExactSameType(stringType.get()));
 
 		var concreteTypes = support.getSuitableParameters(stringZeeType, integerZeeType);
 
-		TestCase.assertFalse(concreteTypes.isEmpty());
-		TestCase.assertTrue(concreteTypes.get(0).isExactSameType(integerType.get()));
+		assertFalse(concreteTypes.isEmpty());
+		assertTrue(concreteTypes.get(0).isExactSameType(integerType.get()));
 	}
 }

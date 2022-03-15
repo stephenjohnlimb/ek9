@@ -1,10 +1,10 @@
 package org.ek9lang.compiler.symbol.support;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.ek9lang.compiler.symbol.*;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
-import org.junit.Test;
 
 import java.util.Optional;
 
@@ -22,7 +22,7 @@ public class AggregateSymbolTest
         SymbolTable symbolTable1 = new SymbolTable();
 
         AggregateSymbol underTest = new AggregateSymbol("UnderTest", symbolTable1);
-        TestCase.assertTrue("UnderTest".equals(underTest.getAggregateDescription()));
+        assertTrue("UnderTest".equals(underTest.getAggregateDescription()));
 
         SymbolTable symbolTable2 = new SymbolTable();
 
@@ -44,38 +44,38 @@ public class AggregateSymbolTest
         SymbolTable symbolTable3 = new SymbolTable();
         AggregateSymbol cloned2 = underTest.clone(symbolTable3);
 
-        TestCase.assertTrue("Modified".equals(underTest.getName()));
-        TestCase.assertTrue("Modified".equals(underTest.getType().get().getName()));
-        TestCase.assertTrue(underTest.isMarkedAbstract());
-        TestCase.assertTrue(underTest.isInjectable());
-        TestCase.assertTrue(underTest.isMarkedAsDispatcher());
-        TestCase.assertTrue(underTest.isOpenForExtension());
-        TestCase.assertTrue(underTest.getPipeSinkType().isPresent());
-        TestCase.assertTrue("ASinkType".equals(underTest.getPipeSinkType().get()));
-        TestCase.assertTrue(underTest.getPipeSourceType().isPresent());
-        TestCase.assertTrue("ASourceType".equals(underTest.getPipeSourceType().get()));
+        assertTrue("Modified".equals(underTest.getName()));
+        assertTrue("Modified".equals(underTest.getType().get().getName()));
+        assertTrue(underTest.isMarkedAbstract());
+        assertTrue(underTest.isInjectable());
+        assertTrue(underTest.isMarkedAsDispatcher());
+        assertTrue(underTest.isOpenForExtension());
+        assertTrue(underTest.getPipeSinkType().isPresent());
+        assertTrue("ASinkType".equals(underTest.getPipeSinkType().get()));
+        assertTrue(underTest.getPipeSourceType().isPresent());
+        assertTrue("ASourceType".equals(underTest.getPipeSourceType().get()));
 
-        TestCase.assertNotNull(cloned1);
-        TestCase.assertTrue("UnderTest".equals(cloned1.getName()));
-        TestCase.assertTrue("UnderTest".equals(cloned1.getType().get().getName()));
-        TestCase.assertFalse(cloned1.isMarkedAbstract());
-        TestCase.assertFalse(cloned1.isInjectable());
-        TestCase.assertFalse(cloned1.isMarkedAsDispatcher());
-        TestCase.assertFalse(cloned1.isOpenForExtension());
-        TestCase.assertFalse(cloned1.getPipeSinkType().isPresent());
-        TestCase.assertFalse(cloned1.getPipeSourceType().isPresent());
+        assertNotNull(cloned1);
+        assertTrue("UnderTest".equals(cloned1.getName()));
+        assertTrue("UnderTest".equals(cloned1.getType().get().getName()));
+        assertFalse(cloned1.isMarkedAbstract());
+        assertFalse(cloned1.isInjectable());
+        assertFalse(cloned1.isMarkedAsDispatcher());
+        assertFalse(cloned1.isOpenForExtension());
+        assertFalse(cloned1.getPipeSinkType().isPresent());
+        assertFalse(cloned1.getPipeSourceType().isPresent());
 
-        TestCase.assertNotNull(cloned2);
-        TestCase.assertTrue("Modified".equals(cloned2.getName()));
-        TestCase.assertTrue("Modified".equals(cloned2.getType().get().getName()));
-        TestCase.assertTrue(cloned2.isMarkedAbstract());
-        TestCase.assertTrue(cloned2.isInjectable());
-        TestCase.assertTrue(cloned2.isMarkedAsDispatcher());
-        TestCase.assertTrue(cloned2.isOpenForExtension());
-        TestCase.assertTrue(cloned2.getPipeSinkType().isPresent());
-        TestCase.assertTrue("ASinkType".equals(cloned2.getPipeSinkType().get()));
-        TestCase.assertTrue(cloned2.getPipeSourceType().isPresent());
-        TestCase.assertTrue("ASourceType".equals(cloned2.getPipeSourceType().get()));
+        assertNotNull(cloned2);
+        assertTrue("Modified".equals(cloned2.getName()));
+        assertTrue("Modified".equals(cloned2.getType().get().getName()));
+        assertTrue(cloned2.isMarkedAbstract());
+        assertTrue(cloned2.isInjectable());
+        assertTrue(cloned2.isMarkedAsDispatcher());
+        assertTrue(cloned2.isOpenForExtension());
+        assertTrue(cloned2.getPipeSinkType().isPresent());
+        assertTrue("ASinkType".equals(cloned2.getPipeSinkType().get()));
+        assertTrue(cloned2.getPipeSourceType().isPresent());
+        assertTrue("ASourceType".equals(cloned2.getPipeSourceType().get()));
     }
 
     @Test
@@ -96,14 +96,14 @@ public class AggregateSymbolTest
 
         //Now search and find that method, must add in the param to be able to resolve it.
         Optional<ISymbol> resolvedMethod = underTest.resolveInThisScopeOnly(new MethodSymbolSearch("method1").addParameter(new VariableSymbol("arg1", stringType)));
-        TestCase.assertTrue(resolvedMethod.isPresent());
+        assertTrue(resolvedMethod.isPresent());
         assertSymbol(resolvedMethod, "method1", "Integer");
 
         //Now clone and check again
         AggregateSymbol cloned = underTest.clone(symbolTable);
-        TestCase.assertNotNull(cloned);
+        assertNotNull(cloned);
         resolvedMethod = cloned.resolveInThisScopeOnly(new MethodSymbolSearch("method1").addParameter(new VariableSymbol("arg1", stringType)));
-        TestCase.assertTrue(resolvedMethod.isPresent());
+        assertTrue(resolvedMethod.isPresent());
         assertSymbol(resolvedMethod, "method1", "Integer");
 
         //Now alter method1 cloned version but original should stay as is.
@@ -113,18 +113,18 @@ public class AggregateSymbolTest
 
         //Test original is still OK
         resolvedMethod = underTest.resolveInThisScopeOnly(new MethodSymbolSearch("method1").addParameter(new VariableSymbol("arg1", stringType)));
-        TestCase.assertTrue(resolvedMethod.isPresent());
+        assertTrue(resolvedMethod.isPresent());
         assertSymbol(resolvedMethod, "method1", "Integer");
 
         //Now check cloned one has been altered
         resolvedMethod = cloned.resolveInThisScopeOnly(new MethodSymbolSearch("method1").addParameter(new VariableSymbol("arg1", stringType)));
-        TestCase.assertFalse(resolvedMethod.isPresent());
+        assertFalse(resolvedMethod.isPresent());
 
         resolvedMethod = cloned.resolveInThisScopeOnly(
                 new MethodSymbolSearch("method1")
                         .addParameter(new VariableSymbol("arg1", stringType))
                         .addParameter(new VariableSymbol("arg2", integerType)));
-        TestCase.assertTrue(resolvedMethod.isPresent());
+        assertTrue(resolvedMethod.isPresent());
         assertSymbol(resolvedMethod, "method1", "String");
 
     }
@@ -140,7 +140,7 @@ public class AggregateSymbolTest
         symbolTable.define(stringType);
 
         AggregateSymbol underTest = new AggregateSymbol("UnderTest", symbolTable);
-        TestCase.assertTrue("UnderTest".equals(underTest.getAggregateDescription()));
+        assertTrue("UnderTest".equals(underTest.getAggregateDescription()));
 
         VariableSymbol prop1 = new VariableSymbol("prop1", integerType);
         underTest.define(prop1);
@@ -149,7 +149,7 @@ public class AggregateSymbolTest
         assertSymbol(resolvedProperty, "prop1", "Integer");
 
         AggregateSymbol cloned = underTest.clone(symbolTable);
-        TestCase.assertNotNull(cloned);
+        assertNotNull(cloned);
 
         //Now check same can be found on the cloned version
         resolvedProperty = cloned.resolveInThisScopeOnly(new SymbolSearch("prop1"));
@@ -169,8 +169,8 @@ public class AggregateSymbolTest
 
     private void assertSymbol(Optional<ISymbol> resolvedSymbol, String expectedName, String expectedTypeName)
     {
-        TestCase.assertTrue(resolvedSymbol.isPresent());
-        TestCase.assertTrue(expectedName.equals(resolvedSymbol.get().getName()));
-        TestCase.assertTrue(expectedTypeName.equals(resolvedSymbol.get().getType().get().getName()));
+        assertTrue(resolvedSymbol.isPresent());
+        assertTrue(expectedName.equals(resolvedSymbol.get().getName()));
+        assertTrue(expectedTypeName.equals(resolvedSymbol.get().getType().get().getName()));
     }
 }

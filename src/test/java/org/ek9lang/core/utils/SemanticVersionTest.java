@@ -1,8 +1,7 @@
 package org.ek9lang.core.utils;
 
-import org.junit.Test;
-
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SemanticVersionTest
 {
@@ -10,27 +9,27 @@ public class SemanticVersionTest
 	@Test
 	public void testInvalidSemanticVersionNumber()
 	{		
-		TestCase.assertNull(SemanticVersion._withNoBuildNumber("1.2.A"));
+		assertNull(SemanticVersion._withNoBuildNumber("1.2.A"));
 		
-		TestCase.assertNull(SemanticVersion._of("1.2.A"));
+		assertNull(SemanticVersion._of("1.2.A"));
 	}
 	
 	@Test
 	public void testSemenaticVersionWithoutBuildNumber()
 	{
 		SemanticVersion v2 = SemanticVersion._withNoBuildNumber("1.2.3");
-		TestCase.assertEquals(1, v2.major());
-		TestCase.assertEquals(2, v2.minor());
-		TestCase.assertEquals(3, v2.patch());
-		TestCase.assertEquals(0, v2.buildNumber());
-		TestCase.assertNull(v2.feature());
+		assertEquals(1, v2.major());
+		assertEquals(2, v2.minor());
+		assertEquals(3, v2.patch());
+		assertEquals(0, v2.buildNumber());
+		assertNull(v2.feature());
 		
 		SemanticVersion v3 = SemanticVersion._withNoBuildNumber("10.8.13-feature29");
-		TestCase.assertEquals(10, v3.major());
-		TestCase.assertEquals(8, v3.minor());
-		TestCase.assertEquals(13, v3.patch());
-		TestCase.assertEquals(0, v3.buildNumber());		
-		TestCase.assertEquals("feature29", v3.feature());
+		assertEquals(10, v3.major());
+		assertEquals(8, v3.minor());
+		assertEquals(13, v3.patch());
+		assertEquals(0, v3.buildNumber());		
+		assertEquals("feature29", v3.feature());
 	}
 	
 	@Test
@@ -40,72 +39,72 @@ public class SemanticVersionTest
 		SemanticVersion v1 = new SemanticVersion("1.2.3-9");
 		
 		SemanticVersion v2 = SemanticVersion._of("1.2.3-9");
-		TestCase.assertEquals(1, v2.major());
-		TestCase.assertEquals(2, v2.minor());
-		TestCase.assertEquals(3, v2.patch());
-		TestCase.assertEquals(9, v2.buildNumber());
-		TestCase.assertNull(v2.feature());
+		assertEquals(1, v2.major());
+		assertEquals(2, v2.minor());
+		assertEquals(3, v2.patch());
+		assertEquals(9, v2.buildNumber());
+		assertNull(v2.feature());
 
-		TestCase.assertTrue(v1.equals(v2));
+		assertTrue(v1.equals(v2));
 		
 		SemanticVersion v3 = SemanticVersion._of("10.8.13-feature29-95");
-		TestCase.assertEquals(10, v3.major());
-		TestCase.assertEquals(8, v3.minor());
-		TestCase.assertEquals(13, v3.patch());
-		TestCase.assertEquals(95, v3.buildNumber());		
-		TestCase.assertEquals("feature29", v3.feature());
+		assertEquals(10, v3.major());
+		assertEquals(8, v3.minor());
+		assertEquals(13, v3.patch());
+		assertEquals(95, v3.buildNumber());		
+		assertEquals("feature29", v3.feature());
 
 		SemanticVersion v4 = new SemanticVersion("10.8.13-feature29-95");
-		TestCase.assertTrue(v3.equals(v4));
+		assertTrue(v3.equals(v4));
 		
 		SemanticVersion v5 = new SemanticVersion("10.8.13-95");
-		TestCase.assertFalse(v5.equals(v4));
+		assertFalse(v5.equals(v4));
 		
 		v3.incrementBuildNumber();
-		TestCase.assertTrue(v3.toString().equals("10.8.13-feature29-96"));
+		assertTrue(v3.toString().equals("10.8.13-feature29-96"));
 
 		v3.incrementPatch();
-		TestCase.assertTrue(v3.toString().equals("10.8.14-feature29-0"));
+		assertTrue(v3.toString().equals("10.8.14-feature29-0"));
 
 		v3.incrementBuildNumber();
-		TestCase.assertTrue(v3.toString().equals("10.8.14-feature29-1"));
+		assertTrue(v3.toString().equals("10.8.14-feature29-1"));
 
 		v3.incrementMinor();
-		TestCase.assertTrue(v3.toString().equals("10.9.0-feature29-0"));
+		assertTrue(v3.toString().equals("10.9.0-feature29-0"));
 
 		v3.incrementBuildNumber();
-		TestCase.assertTrue(v3.toString().equals("10.9.0-feature29-1"));
+		assertTrue(v3.toString().equals("10.9.0-feature29-1"));
 
 		v3.incrementMajor();
-		TestCase.assertTrue(v3.toString().equals("11.0.0-feature29-0"));
+		assertTrue(v3.toString().equals("11.0.0-feature29-0"));
 		
 		SemanticVersion ANull = null;
-		TestCase.assertFalse(SemanticVersion._of("1.0.0-0").equals(ANull));
+		assertFalse(SemanticVersion._of("1.0.0-0").equals(ANull));
 		
-		TestCase.assertTrue(SemanticVersion._of("1.0.0-0").compareTo(SemanticVersion._of("1.0.0-0")) == 0);
+		assertTrue(SemanticVersion._of("1.0.0-0").compareTo(SemanticVersion._of("1.0.0-0")) == 0);
 		
-		TestCase.assertEquals(SemanticVersion._of("1.0.0-0").hashCode(), SemanticVersion._of("1.0.0-0").hashCode());
+		assertEquals(SemanticVersion._of("1.0.0-0").hashCode(), SemanticVersion._of("1.0.0-0").hashCode());
 		
-		TestCase.assertTrue(SemanticVersion._of("1.0.0-0").compareTo(SemanticVersion._of("1.0.0-10")) < 0);
+		assertTrue(SemanticVersion._of("1.0.0-0").compareTo(SemanticVersion._of("1.0.0-10")) < 0);
 		
-		TestCase.assertTrue(SemanticVersion._of("1.0.1-2").compareTo(SemanticVersion._of("1.0.0-10")) > 0);
+		assertTrue(SemanticVersion._of("1.0.1-2").compareTo(SemanticVersion._of("1.0.0-10")) > 0);
 		
-		TestCase.assertTrue(SemanticVersion._of("1.0.21-0").compareTo(SemanticVersion._of("1.1.0-10")) < 0);
+		assertTrue(SemanticVersion._of("1.0.21-0").compareTo(SemanticVersion._of("1.1.0-10")) < 0);
 		
-		TestCase.assertTrue(SemanticVersion._of("1.0.2-2").compareTo(SemanticVersion._of("1.0.1-10")) > 0);
+		assertTrue(SemanticVersion._of("1.0.2-2").compareTo(SemanticVersion._of("1.0.1-10")) > 0);
 		
-		TestCase.assertTrue(SemanticVersion._of("4.0.21-0").compareTo(SemanticVersion._of("6.1.9-10")) < 0);
+		assertTrue(SemanticVersion._of("4.0.21-0").compareTo(SemanticVersion._of("6.1.9-10")) < 0);
 		
-		TestCase.assertTrue(SemanticVersion._of("8.5.2-2").compareTo(SemanticVersion._of("7.99.1-10")) > 0);
+		assertTrue(SemanticVersion._of("8.5.2-2").compareTo(SemanticVersion._of("7.99.1-10")) > 0);
 		
 
 		//Features
-		TestCase.assertTrue(SemanticVersion._of("1.0.0-alpha1-0").compareTo(SemanticVersion._of("1.0.0-alpha3-10")) < 0);
+		assertTrue(SemanticVersion._of("1.0.0-alpha1-0").compareTo(SemanticVersion._of("1.0.0-alpha3-10")) < 0);
 		
-		TestCase.assertTrue(SemanticVersion._of("1.0.0-alpha-2").compareTo(SemanticVersion._of("1.0.0-beta-1")) < 0);
+		assertTrue(SemanticVersion._of("1.0.0-alpha-2").compareTo(SemanticVersion._of("1.0.0-beta-1")) < 0);
 		
 		//Because it is a feature.
-		TestCase.assertTrue(SemanticVersion._of("1.0.0-alpha-2").compareTo(SemanticVersion._of("1.0.0-1")) < 0);
+		assertTrue(SemanticVersion._of("1.0.0-alpha-2").compareTo(SemanticVersion._of("1.0.0-1")) < 0);
 	}
 
 }

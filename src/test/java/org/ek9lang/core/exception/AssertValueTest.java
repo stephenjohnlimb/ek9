@@ -1,33 +1,41 @@
 package org.ek9lang.core.exception;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class AssertValueTest
 {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testNullRange()
 	{
-		Date toCheck = null;
-		AssertValue.checkRange("Outside range", null, 1, 10);
+		assertThrows(IllegalArgumentException.class, () -> {
+			Date toCheck = null;
+			AssertValue.checkRange("Outside range", null, 1, 10);
+		});
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testLowerRange()
 	{
-		Date toCheck = null;
-		AssertValue.checkRange("Outside range", -1, 1, null);
+		assertThrows(IllegalArgumentException.class, () -> {
+			Date toCheck = null;
+			AssertValue.checkRange("Outside range", -1, 1, null);
+		});
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testUpperRange()
 	{
-		Date toCheck = null;
-		AssertValue.checkRange("Outside range", 11, null, 10);
+		assertThrows(IllegalArgumentException.class, () -> {
+			Date toCheck = null;
+			AssertValue.checkRange("Outside range", 11, null, 10);
+		});
 	}
 
 	@Test
@@ -38,11 +46,13 @@ public class AssertValueTest
 		//No exception
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testOptionNotEmpty()
 	{
-		Date toCheck = null;
-		AssertValue.checkNotEmpty("Should not be empty", Optional.empty());
+		assertThrows(IllegalArgumentException.class, () -> {
+			Date toCheck = null;
+			AssertValue.checkNotEmpty("Should not be empty", Optional.empty());
+		});
 	}
 
 	@Test
@@ -59,18 +69,22 @@ public class AssertValueTest
 		AssertValue.checkNotEmpty("Should not be empty", Arrays.asList("Buenos Aires", "Córdoba", "La Plata"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testCollectionNotEmpty()
 	{
-		Date toCheck = null;
-		AssertValue.checkNotEmpty("Should not be empty", new ArrayList<String>());
+		assertThrows(IllegalArgumentException.class, () -> {
+			Date toCheck = null;
+			AssertValue.checkNotEmpty("Should not be empty", new ArrayList<String>());
+		});
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testNullDate()
 	{
-		Date toCheck = null;
-		AssertValue.checkNotNull("Some Message", toCheck);
+		assertThrows(IllegalArgumentException.class, () -> {
+			Date toCheck = null;
+			AssertValue.checkNotNull("Some Message", toCheck);
+		});
 	}
 
 	@Test
@@ -80,10 +94,12 @@ public class AssertValueTest
 		AssertValue.checkNotNull("Some Message", toCheck);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testCheckTrue()
 	{
-		AssertValue.checkTrue("Cannot be false", false);
+		assertThrows(IllegalArgumentException.class, () -> {
+			AssertValue.checkTrue("Cannot be false", false);
+		});
 	}
 
 	@Test
@@ -92,18 +108,22 @@ public class AssertValueTest
 		AssertValue.checkTrue("Cannot be false", true);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testNullString()
 	{
-		String toCheck = null;
-		AssertValue.checkNotEmpty("Some Message", toCheck);
+		assertThrows(IllegalArgumentException.class, () -> {
+			String toCheck = null;
+			AssertValue.checkNotEmpty("Some Message", toCheck);
+		});
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testEmptyString()
 	{
-		String toCheck = "";
-		AssertValue.checkNotEmpty("Some Message", toCheck);
+		assertThrows(IllegalArgumentException.class, () -> {
+			String toCheck = "";
+			AssertValue.checkNotEmpty("Some Message", toCheck);
+		});
 	}
 
 	@Test
@@ -113,25 +133,31 @@ public class AssertValueTest
 		AssertValue.checkNotEmpty("Some Message", toCheck);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testNullStrings()
 	{
-		String[] toCheck = null;
-		AssertValue.checkNotEmpty("Some Message", toCheck);
+		assertThrows(IllegalArgumentException.class, () -> {
+			String[] toCheck = null;
+			AssertValue.checkNotEmpty("Some Message", toCheck);
+		});
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testEmptyStrings()
 	{
-		String[] toCheck = new String[0];
-		AssertValue.checkNotEmpty("Some Message", toCheck);
+		assertThrows(IllegalArgumentException.class, () -> {
+			String[] toCheck = new String[0];
+			AssertValue.checkNotEmpty("Some Message", toCheck);
+		});
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testPartEmptyStrings()
 	{
-		String[] toCheck = { "Some Text", null };
-		AssertValue.checkNotEmpty("Some Message", toCheck);
+		assertThrows(IllegalArgumentException.class, () -> {
+			String[] toCheck = {"Some Text", null};
+			AssertValue.checkNotEmpty("Some Message", toCheck);
+		});
 	}
 
 	@Test
@@ -141,44 +167,56 @@ public class AssertValueTest
 		AssertValue.checkNotEmpty("Some Message", toCheck);
 	}
 	
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testNullNotFoundFile()
 	{
-		AssertValue.checkCanReadFile("File Cannot be found", (File)null);
+		assertThrows(IllegalArgumentException.class, () -> {
+			AssertValue.checkCanReadFile("File Cannot be found", (File)null);
+		});
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testNotFoundFile()
 	{
-		AssertValue.checkCanReadFile("File Cannot be found", "nosuchfile");
+		assertThrows(IllegalArgumentException.class, () -> {
+			AssertValue.checkCanReadFile("File Cannot be found", "nosuchfile");
+		});
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testInAccessibleReadableDirectory() throws IOException
 	{
-		String dir = "D";
-		AssertValue.checkDirectoryReadable("Must be able to read from", dir);
+		assertThrows(IllegalArgumentException.class, () -> {
+			String dir = "D";
+			AssertValue.checkDirectoryReadable("Must be able to read from", dir);
+		});
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testInAccessibleWritableDirectory() throws IOException
 	{
-		String dir = "D";
-		AssertValue.checkDirectoryWritable("Must be able to read from", dir);
+		assertThrows(IllegalArgumentException.class, () -> {
+			String dir = "D";
+			AssertValue.checkDirectoryWritable("Must be able to read from", dir);
+		});
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testInAccessibleFileReadableDirectory() throws IOException
 	{
-		File dir = new File("D");
-		AssertValue.checkDirectoryReadable("Must be able to read from", dir);
+		assertThrows(IllegalArgumentException.class, () -> {
+			File dir = new File("D");
+			AssertValue.checkDirectoryReadable("Must be able to read from", dir);
+		});
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testInAccessibleFileWritableDirectory() throws IOException
 	{
-		File dir = new File("D");
-		AssertValue.checkDirectoryWritable("Must be able to read from", dir);
+		assertThrows(IllegalArgumentException.class, () -> {
+			File dir = new File("D");
+			AssertValue.checkDirectoryWritable("Must be able to read from", dir);
+		});
 	}
 
 	@Test
@@ -194,20 +232,24 @@ public class AssertValueTest
 		AssertValue.checkDirectoryWritable("Must be able to write to", tempDirFile);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testNonReadableDirectory() throws IOException
 	{
-		String tempDir = " no such directory/";
-		AssertValue.checkDirectoryReadable("Must be able to read", tempDir);
+		assertThrows(IllegalArgumentException.class, () -> {
+			String tempDir = " no such directory/";
+			AssertValue.checkDirectoryReadable("Must be able to read", tempDir);
+		});
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testNonWritableDirectory() throws IOException
 	{
-		String tempDir = " no such directory/";
-
-		AssertValue.checkDirectoryWritable("Must be able to write", tempDir);
+		assertThrows(IllegalArgumentException.class, () -> {
+			String tempDir = " no such directory/";
+			AssertValue.checkDirectoryWritable("Must be able to write", tempDir);
+		});
 	}
+
 	@Test
 	public void testFoundFile() throws IOException
 	{

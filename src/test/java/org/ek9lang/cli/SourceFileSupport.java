@@ -1,6 +1,7 @@
 package org.ek9lang.cli;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.OsSupport;
 
@@ -21,17 +22,17 @@ public class SourceFileSupport
 	public File copyFileToTestCWD(String fromRelativeTestUrl, String ek9SourceFileName)
 	{
 		URL fileForTest = this.getClass().getResource(fromRelativeTestUrl+ek9SourceFileName);
-		TestCase.assertNotNull(fileForTest);
+		assertNotNull(fileForTest);
 		File example = new File(fileForTest.getPath());
 
 		//Now we can put a dummy source file in the simulated/test cwd and then try and process it.
 		File cwd = new File(osSupport.getCurrentWorkingDirectory());
-		TestCase.assertTrue(cwd.exists());
+		assertTrue(cwd.exists());
 		File aSourceFile = new File(cwd, ek9SourceFileName);
 		if(!aSourceFile.exists())
 		{
-			TestCase.assertTrue(fileHandling.copy(new File(example.getParent()), cwd, ek9SourceFileName));
-			TestCase.assertTrue(aSourceFile.exists());
+			assertTrue(fileHandling.copy(new File(example.getParent()), cwd, ek9SourceFileName));
+			assertTrue(aSourceFile.exists());
 		}
 
 

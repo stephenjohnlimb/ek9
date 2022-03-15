@@ -1,12 +1,11 @@
 package org.ek9lang.cli;
 
-import junit.framework.TestCase;
-import org.ek9lang.core.exception.ExitException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.OsSupport;
 import org.ek9lang.core.utils.SigningKeyPair;
-import org.junit.After;
-import org.junit.Test;
 
 import java.io.File;
 import java.net.URL;
@@ -23,11 +22,11 @@ public class EK9Test
 	private final FileHandling fileHandling = new FileHandling(osSupport);
 	private final SourceFileSupport sourceFileSupport = new SourceFileSupport(fileHandling, osSupport);
 
-	@After
+	@AfterEach
 	public void tidyUp()
 	{
 		String testHomeDirectory = fileHandling.getUsersHomeDirectory();
-		TestCase.assertNotNull(testHomeDirectory);
+		assertNotNull(testHomeDirectory);
 		//As this is a test delete from process id and below
 		fileHandling.deleteContentsAndBelow(new File(new File(testHomeDirectory).getParent()), true);
 	}
@@ -52,7 +51,7 @@ public class EK9Test
 
 		//We will copy this into a working directory and process it.
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
-		TestCase.assertNotNull(sourceFile);
+		assertNotNull(sourceFile);
 
 		//This will actually trigger a full compile first.
 		assertCompilationArtefactsPresent(assertResult(EK9.SUCCESS_EXIT_CODE, command));
@@ -63,17 +62,17 @@ public class EK9Test
 
 		//If we remove the target it will trigger a full re-compile and packaging
 		File targetArtefact = fileHandling.getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(), commandLine.targetArchitecture);
-		TestCase.assertTrue(targetArtefact.delete());
+		assertTrue(targetArtefact.delete());
 		assertCompilationArtefactsPresent(assertResult(EK9.SUCCESS_EXIT_CODE, command));
 
 		long lastModified = targetArtefact.lastModified();
 		//Now simulate updating the source to ensure target gets rebuilt.
-		sourceFile.setLastModified(lastModified + 1);
+		assertTrue(sourceFile.setLastModified(lastModified + 1));
 
 		//Trigger incremental rebuild
 		assertCompilationArtefactsPresent(assertResult(EK9.SUCCESS_EXIT_CODE, command));
 		targetArtefact = fileHandling.getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(), commandLine.targetArchitecture);
-		TestCase.assertNotSame(lastModified, targetArtefact.lastModified());
+		assertNotSame(lastModified, targetArtefact.lastModified());
 	}
 
 	@Test
@@ -84,7 +83,7 @@ public class EK9Test
 
 		//We will copy this into a working directory and process it.
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
-		TestCase.assertNotNull(sourceFile);
+		assertNotNull(sourceFile);
 
 		assertCompilationArtefactsPresent(assertResult(EK9.SUCCESS_EXIT_CODE, command));
 	}
@@ -95,9 +94,10 @@ public class EK9Test
 		String[] command = new String[]{"-Gk"};
 
 		File home = new File(osSupport.getUsersHomeDirectory());
-		TestCase.assertTrue(home.exists());
-
-		assertKeysPresent(assertResult(EK9.SUCCESS_EXIT_CODE, command));
+		assertTrue(home.exists());
+		var commandLineDetails = assertResult(EK9.SUCCESS_EXIT_CODE, command);
+		assertNotNull(commandLineDetails);
+		assertKeysPresent();
 	}
 
 	@Test
@@ -107,7 +107,7 @@ public class EK9Test
 		String[] command = new String[]{sourceName};
 
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
-		TestCase.assertNotNull(sourceFile);
+		assertNotNull(sourceFile);
 
 		assertCompilationArtefactsPresent(assertResult(EK9.RUN_COMMAND_EXIT_CODE, command));
 	}
@@ -119,7 +119,7 @@ public class EK9Test
 		String[] command = new String[]{"-t " + sourceName};
 
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
-		TestCase.assertNotNull(sourceFile);
+		assertNotNull(sourceFile);
 
 		//This will actually trigger a full compile and then run.
 		assertCompilationArtefactsPresent(assertResult(EK9.SUCCESS_EXIT_CODE, command));
@@ -132,7 +132,7 @@ public class EK9Test
 		String[] command = new String[]{sourceName + " -r HelloMars"};
 
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
-		TestCase.assertNotNull(sourceFile);
+		assertNotNull(sourceFile);
 
 		//This will actually trigger a full compile and then run.
 		assertCompilationArtefactsPresent(assertResult(EK9.RUN_COMMAND_EXIT_CODE, command));
@@ -145,7 +145,7 @@ public class EK9Test
 		String[] command = new String[]{"-I " + sourceName};
 
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
-		TestCase.assertNotNull(sourceFile);
+		assertNotNull(sourceFile);
 
 		//Should fail because this source does not define a package.
 		assertResult(EK9.BAD_COMMANDLINE_EXIT_CODE, command);
@@ -156,9 +156,11 @@ public class EK9Test
 	{
 		installPackage("PackageNoDeps.ek9");
 		File libDir = fileHandling.getUsersHomeEK9LibDirectory();
-		TestCase.assertNotNull(libDir.listFiles());
+		assertNotNull(libDir.listFiles());
 		//Expect a zip and a sha256 of that zip.
-		TestCase.assertEquals(2, libDir.listFiles().length);
+		var files = libDir.listFiles();
+		assertNotNull(files);
+		assertEquals(2, files.length);
 	}
 
 	@Test
@@ -222,13 +224,13 @@ public class EK9Test
 		String[] command = new String[]{"-I " + sourceName};
 
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
-		TestCase.assertNotNull(sourceFile);
+		assertNotNull(sourceFile);
 
 		//This should Fail with a file issue, because it should not parse.
 		CommandLineDetails commandLine = new CommandLineDetails(fileHandling, osSupport);
 
 		int result = commandLine.processCommandLine(command);
-		TestCase.assertEquals(EK9.FILE_ISSUE_EXIT_CODE, result);
+		assertEquals(EK9.FILE_ISSUE_EXIT_CODE, result);
 	}
 
 	/**
@@ -318,7 +320,7 @@ public class EK9Test
 	public void testCircularDependencies()
 	{
 		//We have to cheat like a developer would do and put some stuff in the place where it would have been packaged!
-		//So put mangled version of both deps in and then we can resolve both to build a new one.
+		//So put mangled version of both deps in; and then we can resolve both to build a new one.
 		//Then we can see if we can detect those circular references.
 
 		//make sure the structure for packages exists.
@@ -365,7 +367,7 @@ public class EK9Test
 		String[] command = new String[]{"-Dp " + sourceName};
 
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
-		TestCase.assertNotNull(sourceFile);
+		assertNotNull(sourceFile);
 		assertResult(EK9.BAD_COMMANDLINE_EXIT_CODE, command);
 	}
 
@@ -374,8 +376,8 @@ public class EK9Test
 		installPackage(EK9.SUCCESS_EXIT_CODE, sourceName);
 
 		File libDir = fileHandling.getUsersHomeEK9LibDirectory();
-		TestCase.assertNotNull(libDir);
-		TestCase.assertTrue((libDir.exists()));
+		assertNotNull(libDir);
+		assertTrue((libDir.exists()));
 	}
 
 	private void installPackage(int expectation, String sourceName)
@@ -383,7 +385,7 @@ public class EK9Test
 		String[] command = new String[]{"-I " + sourceName};
 
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
-		TestCase.assertNotNull(sourceFile);
+		assertNotNull(sourceFile);
 
 		//This should succeed and install the package in users lib directory
 		assertResult(expectation, command);
@@ -397,15 +399,15 @@ public class EK9Test
 		//Let's check if it is unpacked already, if not we can unpack it.
 		File unpackedDir = new File(homeEK9Lib, dependencyVector);
 		if(!unpackedDir.exists())
-			TestCase.assertTrue(unpackedDir.mkdirs());
+			assertTrue(unpackedDir.mkdirs());
 
 		URL simulatedProperties = getClass().getResource("/examples/constructs/packages/"+sourceName+".package.properties");
-		TestCase.assertNotNull(simulatedProperties);
+		assertNotNull(simulatedProperties);
 		fileHandling.copy(new File(simulatedProperties.getPath()), new File(unpackedDir, ".package.properties"));
 
 		//Now the source file for that package
 		URL simulatedSource = getClass().getResource("/examples/constructs/packages/"+sourceName+".ek9");
-		TestCase.assertNotNull(simulatedSource);
+		assertNotNull(simulatedSource);
 		fileHandling.copy(new File(simulatedSource.getPath()), new File(unpackedDir, sourceName+".ek9"));
 	}
 
@@ -413,16 +415,16 @@ public class EK9Test
 	{
 		String[] deployCommand = new String[]{"-v -D " + sourceName};
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
-		TestCase.assertNotNull(sourceFile);
+		assertNotNull(sourceFile);
 
 		//So this should just package up and deploy the artefact.
 		CommandLineDetails commandLine = assertResult(expectedExitCode, deployCommand);
 
 		if(expectedExitCode == EK9.SUCCESS_EXIT_CODE)
 		{
-			String zipFileName = fileHandling.makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion().toString());
+			String zipFileName = fileHandling.makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion());
 			File sha256EncFile = new File(fileHandling.getDotEK9Directory(commandLine.getSourceFileDirectory()), zipFileName + ".sha256.enc");
-			TestCase.assertTrue(sha256EncFile.exists());
+			assertTrue(sha256EncFile.exists());
 		}
 	}
 
@@ -431,14 +433,15 @@ public class EK9Test
 		String[] incrementBuildNo = new String[]{command + " " + sourceName};
 
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
-		TestCase.assertNotNull(sourceFile);
+		assertNotNull(sourceFile);
 
 		//So this should just increment the build number from '0' which is what is in PackageNoDeps.ek9 to '1'
 		CommandLineDetails commandLine = assertResult(EK9.SUCCESS_EXIT_CODE, incrementBuildNo);
 
 		//Now get the line number
 		Integer versionLineNumber = commandLine.processEK9FileProperties(true);
-		TestCase.assertEquals(expectedVersion, commandLine.getVersion());
+		assertNotNull(versionLineNumber);
+		assertEquals(expectedVersion, commandLine.getVersion());
 	}
 
 	private CommandLineDetails assertResult(int expectation, String[] argv)
@@ -446,31 +449,31 @@ public class EK9Test
 		CommandLineDetails commandLine = new CommandLineDetails(fileHandling, osSupport);
 		int result = commandLine.processCommandLine(argv);
 
-		TestCase.assertTrue(result <= EK9.SUCCESS_EXIT_CODE);
+		assertTrue(result <= EK9.SUCCESS_EXIT_CODE);
 
 		//Now should something be run and executed.
 		if(result == EK9.RUN_COMMAND_EXIT_CODE)
-			TestCase.assertEquals(expectation, new EK9(commandLine).run());
+			assertEquals(expectation, new EK9(commandLine).run());
 
 		return commandLine;
 	}
 
-	private void assertKeysPresent(CommandLineDetails commandLine)
+	private void assertKeysPresent()
 	{
-		TestCase.assertTrue(fileHandling.isUsersSigningKeyPairPresent());
+		assertTrue(fileHandling.isUsersSigningKeyPairPresent());
 		SigningKeyPair signingKeyPair = fileHandling.getUsersSigningKeyPair();
-		TestCase.assertNotNull(signingKeyPair);
-		TestCase.assertNotNull(signingKeyPair.getPubBase64());
-		TestCase.assertNotNull(signingKeyPair.getPvtBase64());
+		assertNotNull(signingKeyPair);
+		assertNotNull(signingKeyPair.getPubBase64());
+		assertNotNull(signingKeyPair.getPvtBase64());
 		//get keys and check they are ok
 	}
 
 	private void assertCompilationArtefactsPresent(CommandLineDetails commandLine)
 	{
 		File propsFile = fileHandling.getTargetPropertiesArtefact(commandLine.getFullPathToSourceFileName());
-		TestCase.assertTrue(propsFile.exists());
+		assertTrue(propsFile.exists());
 
 		File targetArtefact = fileHandling.getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(), commandLine.targetArchitecture);
-		TestCase.assertTrue(targetArtefact.exists());
+		assertTrue(targetArtefact.exists());
 	}
 }

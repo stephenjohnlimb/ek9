@@ -1,8 +1,7 @@
 package org.ek9lang.dependency;
 
-import junit.framework.TestCase;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -32,7 +31,7 @@ public class DependencyTest
     {
         DependencyNode n = DependencyNode.of("a.b.c-1.0.0-0");
         DependencyManager underTest = new DependencyManager(n);
-        TestCase.assertTrue(underTest.reportCircularDependencies().size() == 0);
+        assertTrue(underTest.reportCircularDependencies().size() == 0);
     }
 
     @Test
@@ -45,7 +44,7 @@ public class DependencyTest
         root.addDependency(DependencyNode.of("a.b.f-1.0.0-0"));
 
         DependencyManager underTest = new DependencyManager(root);
-        TestCase.assertTrue(underTest.reportCircularDependencies().size() == 0);
+        assertTrue(underTest.reportCircularDependencies().size() == 0);
     }
 
     @Test
@@ -66,7 +65,7 @@ public class DependencyTest
         d3.addDependency(DependencyNode.of("a.z.f-1.0.0-0"));
 
         DependencyManager underTest = new DependencyManager(root);
-        TestCase.assertTrue(underTest.reportCircularDependencies().size() == 0);
+        assertTrue(underTest.reportCircularDependencies().size() == 0);
     }
 
     @Test
@@ -93,18 +92,18 @@ public class DependencyTest
         //First check no circulars
         DependencyManager underTest = new DependencyManager(root);
         List<String> circulars = underTest.reportCircularDependencies();
-        TestCase.assertTrue(circulars.size() == 0);
+        assertTrue(circulars.size() == 0);
 
         //find root
         List<DependencyNode> found = underTest.findByModuleName("a.b.c");
-        TestCase.assertTrue(found.size() == 1);
-        TestCase.assertTrue(found.get(0).getModuleName().equals("a.b.c"));
+        assertTrue(found.size() == 1);
+        assertTrue(found.get(0).getModuleName().equals("a.b.c"));
 
         //So expect the two
         found = underTest.findByModuleName("a.b.f");
-        TestCase.assertTrue(found.size() == 2);
+        assertTrue(found.size() == 2);
         found.forEach(node -> {
-            TestCase.assertFalse(node.isRejected());
+            assertFalse(node.isRejected());
         });
 
         //Now a.b.f-1.2.0-40 needs to be excluded but only when pulled in by a.z.e
@@ -123,16 +122,16 @@ public class DependencyTest
         
 		//There will still be two but one will now be marked as rejected.
         found = underTest.findByModuleName("a.b.f");
-        TestCase.assertTrue(found.size() == 2);
+        assertTrue(found.size() == 2);
         
         System.out.println("testExcludeDependencies");
         System.out.println("Modules");
         found.forEach(System.out::println);
         
-        TestCase.assertTrue(found.get(0).isRejected());
-        TestCase.assertFalse(found.get(1).isRejected());
+        assertTrue(found.get(0).isRejected());
+        assertFalse(found.get(1).isRejected());
         
-        TestCase.assertFalse(underTest.optimise());
+        assertFalse(underTest.optimise());
         
         System.out.println("Accepted after Optimisation");
         underTest.reportAcceptedDependencies().forEach(accept -> {
@@ -164,8 +163,8 @@ public class DependencyTest
         underTest.rationalise();
         List<DependencyNode> rejected = underTest.reportRejectedDependencies();
         List<DependencyNode> accepted = underTest.reportAcceptedDependencies();        
-        TestCase.assertTrue(rejected.size() == 3);
-        TestCase.assertTrue(accepted.size() == 4);
+        assertTrue(rejected.size() == 3);
+        assertTrue(accepted.size() == 4);
         
         /*
         System.out.println("testSameDependencies");
@@ -201,9 +200,9 @@ public class DependencyTest
         List<DependencyNode> accepted = underTest.reportAcceptedDependencies();
         List<DependencyNode> breaches = underTest.reportStrictSemanticVersionBreaches();
         
-        TestCase.assertTrue(rejected.size() == 1);
-        TestCase.assertTrue(accepted.size() == 4);
-        TestCase.assertTrue(breaches.size() == 1);
+        assertTrue(rejected.size() == 1);
+        assertTrue(accepted.size() == 4);
+        assertTrue(breaches.size() == 1);
         
         //So even though "a.b.d-2.2.0-0" is in the accepted list it is also in the breaches - so must be addressed
         /*
@@ -245,13 +244,13 @@ public class DependencyTest
         DependencyManager underTest = new DependencyManager(root);
         
         List<String> deps = underTest.reportAllDependencies();
-        TestCase.assertEquals(deps.size(),  10);
+        assertEquals(deps.size(),  10);
         
         deps = underTest.listAllModuleNames();
-        TestCase.assertEquals(deps.size(),  8);
+        assertEquals(deps.size(),  8);
 
         List<String> circulars = underTest.reportCircularDependencies(true);
-        TestCase.assertEquals(2, circulars.size());
+        assertEquals(2, circulars.size());
         
         /*
         System.out.println("testCircularDependencies");
@@ -264,7 +263,7 @@ public class DependencyTest
         deps.forEach(System.out::println);
         System.out.println("----");
         System.out.println("Circulars");
-        TestCase.assertTrue(circulars.size() == 2);
+        assertTrue(circulars.size() == 2);
         circulars.forEach(System.out::println);
         */
     }
@@ -334,19 +333,19 @@ public class DependencyTest
         assertRejectionsAcceptance(underTest, 0, 85);
 
         //We don't expect any changes.
-        TestCase.assertFalse(underTest.optimise());
+        assertFalse(underTest.optimise());
 
         //Now lets reject high in the tree - but not the dependencies.
         reject1.setRejected(DependencyNode.RejectionReason.MANUAL, true, false);
         assertRejectionsAcceptance(underTest, 1, 84);
 
         boolean didOptimise = underTest.optimise();
-        TestCase.assertTrue(didOptimise);
+        assertTrue(didOptimise);
         assertRejectionsAcceptance(underTest, 5, 80);
 
         //So note how we had to run optimise twice here
         didOptimise = underTest.optimise();
-        TestCase.assertTrue(didOptimise);
+        assertTrue(didOptimise);
         assertRejectionsAcceptance(underTest, 13, 72);
 
         //And again - so the deeper the tree the more times optimise needs to be called
@@ -354,32 +353,32 @@ public class DependencyTest
         //the processing and structure of the tree such that it processes the data in a certain way
         //In real life the tree would be in a very different structure fat bit's/long tails etc.
         didOptimise = underTest.optimise();
-        TestCase.assertTrue(didOptimise);
+        assertTrue(didOptimise);
         assertRejectionsAcceptance(underTest, 21, 64);
 
         //OK so that's then end - no more
         didOptimise = underTest.optimise();
-        TestCase.assertFalse(didOptimise);
+        assertFalse(didOptimise);
 
         //But now lets reject number 2!
         reject2.setRejected(DependencyNode.RejectionReason.MANUAL, true, false);
         //now optimise
         didOptimise = underTest.optimise();
-        TestCase.assertTrue(didOptimise);
+        assertTrue(didOptimise);
         assertRejectionsAcceptance(underTest, 26, 59);
 
         //Again no change just optimise again
         didOptimise = underTest.optimise();
-        TestCase.assertTrue(didOptimise);
+        assertTrue(didOptimise);
         assertRejectionsAcceptance(underTest, 34, 51);
 
         didOptimise = underTest.optimise();
-        TestCase.assertTrue(didOptimise);
+        assertTrue(didOptimise);
         assertRejectionsAcceptance(underTest, 42, 43);
 
         //OK so that's then end - no more
         didOptimise = underTest.optimise();
-        TestCase.assertFalse(didOptimise);
+        assertFalse(didOptimise);
 
         //Now reject root!
         root.setRejected(DependencyNode.RejectionReason.MANUAL, true, false);
@@ -394,8 +393,8 @@ public class DependencyTest
         List<DependencyNode> rejected = underTest.reportRejectedDependencies();
         List<DependencyNode> accepted = underTest.reportAcceptedDependencies();
 
-        TestCase.assertEquals(expectNumRejected, rejected.size());
-        TestCase.assertEquals(expectNumAccepted, accepted.size());
+        assertEquals(expectNumRejected, rejected.size());
+        assertEquals(expectNumAccepted, accepted.size());
 
         /*
         System.out.println("Rejected");
@@ -497,12 +496,12 @@ public class DependencyTest
         List<String> circulars = underTest.reportCircularDependencies();
         List<String> uniqueDepNames = underTest.listAllModuleNames();
 
-        TestCase.assertEquals(21, deps.size());
-        TestCase.assertEquals(0, rejected.size());
+        assertEquals(21, deps.size());
+        assertEquals(0, rejected.size());
         //There should be no circular references in what we have defined
-        TestCase.assertEquals(0, circulars.size());
+        assertEquals(0, circulars.size());
         //Unique names before exclusions
-        TestCase.assertEquals(13, uniqueDepNames.size());
+        assertEquals(13, uniqueDepNames.size());
         
         /*
         System.out.println("testDependencyOptimisation");
@@ -525,7 +524,7 @@ public class DependencyTest
         uniqueDepNames.forEach(System.out::println);
         
         rejected = underTest.reportRejectedDependencies();
-        TestCase.assertEquals(2, rejected.size());
+        assertEquals(2, rejected.size());
         
         System.out.println("Rejected");
         rejected.forEach(System.out::println);
@@ -542,7 +541,7 @@ public class DependencyTest
         */
 
         rejected = underTest.reportRejectedDependencies();
-        TestCase.assertEquals(8, rejected.size());
+        assertEquals(8, rejected.size());
         List<DependencyNode> accepted = underTest.reportAcceptedDependencies();
         
         /*
@@ -566,9 +565,9 @@ public class DependencyTest
         while(underTest.optimise());
 
         rejected = underTest.reportRejectedDependencies();
-        TestCase.assertEquals(10, rejected.size());
+        assertEquals(10, rejected.size());
         accepted = underTest.reportAcceptedDependencies();
-        TestCase.assertEquals(11, accepted.size());
+        assertEquals(11, accepted.size());
         
         System.out.println("Rejected after Optimisation");
         rejected.forEach(reject -> {
@@ -602,7 +601,7 @@ public class DependencyTest
         assertPresent("v.w.x-10.10.10-10", accepted);
         assertPresent("x.y.z-2.9.1-4", accepted);
 
-        TestCase.assertEquals(10, rejected.size());
+        assertEquals(10, rejected.size());
         assertPresent("c.d.e-8.8.1-1", rejected);
         assertPresent("c.d.e-8.8.0-10", rejected);
         assertPresent("j.k.l-2.7.3-23", rejected);
@@ -617,7 +616,7 @@ public class DependencyTest
 
     private void assertPresent(String dependencyName, Collection<DependencyNode> dependencies)
     {
-        TestCase.assertTrue(dependencies.contains(DependencyNode.of(dependencyName)));
+        assertTrue(dependencies.contains(DependencyNode.of(dependencyName)));
     }
 
 

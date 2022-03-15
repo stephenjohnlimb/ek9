@@ -1,12 +1,11 @@
 package org.ek9lang.compiler.symbol.support;
 
-import junit.framework.TestCase;
 import org.ek9lang.compiler.symbol.*;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Aimed at testing scopes and in some cases scoped symbols.
@@ -20,11 +19,11 @@ public class ScopesTest extends AbstractSymbolTestBase
 	{
 		var local = new LocalScope(symbolTable);
 
-		TestCase.assertNotNull(local);
-		TestCase.assertEquals(IScope.ScopeType.BLOCK, local.getScopeType());
-		TestCase.assertFalse(local.isMarkedPure());
-		TestCase.assertTrue(local.isScopeAMatchForEnclosingScope(symbolTable));
-		TestCase.assertFalse(local.isScopeAMatchForEnclosingScope(new SymbolTable()));
+		assertNotNull(local);
+		assertEquals(IScope.ScopeType.BLOCK, local.getScopeType());
+		assertFalse(local.isMarkedPure());
+		assertTrue(local.isScopeAMatchForEnclosingScope(symbolTable));
+		assertFalse(local.isScopeAMatchForEnclosingScope(new SymbolTable()));
 	}
 
 	@Test
@@ -34,51 +33,51 @@ public class ScopesTest extends AbstractSymbolTestBase
 		VariableSymbol v1 = new VariableSymbol("v3", symbolTable.resolve(new TypeSymbolSearch("Integer")));
 
 		var local = new LocalScope(IScope.ScopeType.AGGREGATE, "someName", symbolTable);
-		TestCase.assertNotNull(local);
+		assertNotNull(local);
 		local.define(v1);
-		TestCase.assertTrue(local.getScopeName().equals("someName"));
-		TestCase.assertEquals(IScope.ScopeType.AGGREGATE, local.getScopeType());
-		TestCase.assertEquals("someName", local.getFriendlyScopeName());
+		assertEquals("someName", local.getScopeName());
+		assertEquals(IScope.ScopeType.AGGREGATE, local.getScopeType());
+		assertEquals("someName", local.getFriendlyScopeName());
 
 		var clone = local.clone(symbolTable);
-		TestCase.assertNotNull(clone);
-		TestCase.assertTrue(local.equals(clone));
-		TestCase.assertFalse(local.equals("AString"));
+		assertNotNull(clone);
+		assertEquals(local, clone);
+		assertNotEquals("AString", local.getScopeName());
 	}
 
 	@Test
 	public void testFindingAggregateScope()
 	{
 		var aggregateScope1 = new ScopedSymbol(IScope.ScopeType.AGGREGATE, "aggregateScope", symbolTable);
-		TestCase.assertFalse(aggregateScope1.isMarkedPure());
-		TestCase.assertEquals("aggregateScope as Unknown", aggregateScope1.getFriendlyScopeName());
-		TestCase.assertEquals("aggregateScope", aggregateScope1.getName());
-		TestCase.assertEquals("aggregateScope", aggregateScope1.getScopeName());
-		TestCase.assertNotNull(aggregateScope1.getActualScope());
+		assertFalse(aggregateScope1.isMarkedPure());
+		assertEquals("aggregateScope as Unknown", aggregateScope1.getFriendlyScopeName());
+		assertEquals("aggregateScope", aggregateScope1.getName());
+		assertEquals("aggregateScope", aggregateScope1.getScopeName());
+		assertNotNull(aggregateScope1.getActualScope());
 
 		var blockScope1 = new ScopedSymbol(IScope.ScopeType.BLOCK, "blockScope", aggregateScope1);
 
 		var local = new LocalScope("JustLocalBlock", blockScope1);
 
 		var foundScope = local.findNearestAggregateScopeInEnclosingScopes();
-		TestCase.assertTrue(foundScope.isPresent());
-		TestCase.assertTrue(aggregateScope1.equals(foundScope.get()));
+		assertTrue(foundScope.isPresent());
+		assertEquals(aggregateScope1, foundScope.get());
 
-		TestCase.assertTrue(blockScope1.isScopeAMatchForEnclosingScope(aggregateScope1));
+		assertTrue(blockScope1.isScopeAMatchForEnclosingScope(aggregateScope1));
 	}
 
 	@Test
 	public void testAggregateSymbolScope()
 	{
 		//So this would be an actual 'type' like an OOP 'Customer' for example
-		TestCase.assertNotNull(checkScopedSymbol(new AggregateSymbol("aggregate", symbolTable)));
+		assertNotNull(checkScopedSymbol(new AggregateSymbol("aggregate", symbolTable)));
 	}
 
 	@Test
 	public void testAggregateWithTraitsSymbolScope()
 	{
 		//This would be an aggregate that implements a number of traits.
-		TestCase.assertNotNull(checkScopedSymbol(new AggregateWithTraitsSymbol("aggregateWithTraits", symbolTable)));
+		assertNotNull(checkScopedSymbol(new AggregateWithTraitsSymbol("aggregateWithTraits", symbolTable)));
 	}
 
 	@Test
@@ -88,12 +87,12 @@ public class ScopesTest extends AbstractSymbolTestBase
 		var z = support.createTemplateGenericType("Zee", symbolTable, t);
 		symbolTable.define(z);
 
-		TestCase.assertEquals("Zee of type Tee", z.getFriendlyName());
+		assertEquals("Zee of type Tee", z.getFriendlyName());
 		//This would be a concrete Zee with a concrete type of String to replace 'Tee'
 		var pTypeSymbol = new ParameterisedTypeSymbol(z, symbolTable.resolve(new TypeSymbolSearch("String")), symbolTable);
-		TestCase.assertNotNull(checkScopedSymbol(pTypeSymbol));
+		assertNotNull(checkScopedSymbol(pTypeSymbol));
 
-		TestCase.assertEquals("Zee of String", pTypeSymbol.getFriendlyName());
+		assertEquals("Zee of String", pTypeSymbol.getFriendlyName());
 	}
 
 	@Test
@@ -104,17 +103,17 @@ public class ScopesTest extends AbstractSymbolTestBase
 		symbolTable.define(fun);
 
 		//We've not defined the return type of the function
-		TestCase.assertEquals("public Unknown <- fun() of type Tee", fun.getFriendlyName());
+		assertEquals("public Unknown <- fun() of type Tee", fun.getFriendlyName());
 
 		fun.setReturningSymbol(new VariableSymbol("rtn", symbolTable.resolve(new TypeSymbolSearch("Integer"))));
-		TestCase.assertEquals("public Integer <- fun() of type Tee", fun.getFriendlyName());
+		assertEquals("public Integer <- fun() of type Tee", fun.getFriendlyName());
 
 		//This would be a concrete 'fun' with a concrete type of String to replace 'Tee'
 		var pFun = new ParameterisedFunctionSymbol(fun, symbolTable.resolve(new TypeSymbolSearch("String")), symbolTable);
 
-		TestCase.assertNotNull(pFun.getReturningSymbol());
+		assertNotNull(pFun.getReturningSymbol());
 		var clonedPFun = checkScopedSymbol(pFun);
-		TestCase.assertNotNull(clonedPFun);
+		assertNotNull(clonedPFun);
 
 		//The return is the function should be the return type.
 		System.out.println(pFun.getFriendlyName());
@@ -125,72 +124,72 @@ public class ScopesTest extends AbstractSymbolTestBase
 	@Test
 	public void testControlSymbolScope()
 	{
-		TestCase.assertNotNull(checkScopedSymbol(new ControlSymbol("Control", symbolTable)));
+		assertNotNull(checkScopedSymbol(new ControlSymbol("Control", symbolTable)));
 	}
 
 	@Test
 	public void testScopedSymbolScope()
 	{
-		TestCase.assertNotNull(checkScopedSymbol(new ScopedSymbol(IScope.ScopeType.AGGREGATE, "aggregateScope", symbolTable)));
+		assertNotNull(checkScopedSymbol(new ScopedSymbol(IScope.ScopeType.AGGREGATE, "aggregateScope", symbolTable)));
 	}
 
 	@Test
 	public void testForSymbolScope()
 	{
-		TestCase.assertNotNull(checkScopedSymbol(new ForSymbol(symbolTable)));
+		assertNotNull(checkScopedSymbol(new ForSymbol(symbolTable)));
 	}
 
 	@Test
 	public void testMethodSymbolScope()
 	{
-		TestCase.assertNotNull(checkScopedSymbol(new MethodSymbol("aMethod", symbolTable)));
+		assertNotNull(checkScopedSymbol(new MethodSymbol("aMethod", symbolTable)));
 	}
 
 	@Test
 	public void testFunctionSymbolScope()
 	{
-		TestCase.assertNotNull(checkScopedSymbol(new FunctionSymbol("aFunction", symbolTable)));
+		assertNotNull(checkScopedSymbol(new FunctionSymbol("aFunction", symbolTable)));
 	}
 
 	@Test
 	public void testCallSymbolScope()
 	{
-		TestCase.assertNotNull(checkScopedSymbol(new CallSymbol("aMethodCall", symbolTable)));
+		assertNotNull(checkScopedSymbol(new CallSymbol("aMethodCall", symbolTable)));
 	}
 
 	@Test
 	public void testServiceOperationSymbolScope()
 	{
-		TestCase.assertNotNull(checkScopedSymbol(new ServiceOperationSymbol("aServiceOperationCall", symbolTable)));
+		assertNotNull(checkScopedSymbol(new ServiceOperationSymbol("aServiceOperationCall", symbolTable)));
 	}
 
 	@Test
 	public void testStreamCallSymbolScope()
 	{
-		TestCase.assertNotNull(checkScopedSymbol(new StreamCallSymbol("aStreamCall", symbolTable)));
+		assertNotNull(checkScopedSymbol(new StreamCallSymbol("aStreamCall", symbolTable)));
 	}
 
 	@Test
 	public void testSwitchSymbolScope()
 	{
-		TestCase.assertNotNull(checkScopedSymbol(new SwitchSymbol(symbolTable)));
+		assertNotNull(checkScopedSymbol(new SwitchSymbol(symbolTable)));
 	}
 
 	@Test
 	public void testTrySymbolScope()
 	{
-		TestCase.assertNotNull(checkScopedSymbol(new TrySymbol(symbolTable)));
+		assertNotNull(checkScopedSymbol(new TrySymbol(symbolTable)));
 	}
 
 	private ScopedSymbol checkScopedSymbol(ScopedSymbol scopedSymbol)
 	{
-		TestCase.assertNotNull(scopedSymbol);
+		assertNotNull(scopedSymbol);
 
 		scopedSymbol.define(new VariableSymbol("check", scopedSymbol.resolve(new TypeSymbolSearch("String"))));
-		TestCase.assertTrue(scopedSymbol.resolve(new SymbolSearch("check")).isPresent());
+		assertTrue(scopedSymbol.resolve(new SymbolSearch("check")).isPresent());
 
 		var clonedSymbol = scopedSymbol.clone(symbolTable);
-		TestCase.assertTrue(clonedSymbol.resolve(new SymbolSearch("check")).isPresent());
+		assertTrue(clonedSymbol.resolve(new SymbolSearch("check")).isPresent());
 
 		return clonedSymbol;
 	}

@@ -2,14 +2,14 @@ package org.ek9lang.compiler.symbol.support;
 
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.IScope;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class AbstractSymbolTestBase
 {
 	protected AggregateSupport support = new AggregateSupport();
 	protected IScope symbolTable = new SymbolTable();
 
-	@Before
+	@BeforeEach
 	public void setupBasicSymbols()
 	{
 		symbolTable = new SymbolTable();

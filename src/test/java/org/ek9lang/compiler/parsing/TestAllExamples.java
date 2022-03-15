@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.parsing;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -12,7 +13,6 @@ import org.ek9lang.compiler.tokenizer.LexerPlugin;
 import org.ek9lang.compiler.tokenizer.TokenStreamAssessment;
 import org.ek9lang.core.utils.Glob;
 import org.ek9lang.core.utils.OsSupport;
-import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,7 +25,7 @@ public class TestAllExamples
     {
         OsSupport os = new OsSupport();
         URL rootDirectoryForTest = this.getClass().getResource("/examples");
-        TestCase.assertNotNull(rootDirectoryForTest);
+        assertNotNull(rootDirectoryForTest);
         File examples = new File(rootDirectoryForTest.getPath());
         Glob ek9 = new Glob("**.ek9");
         for(File file : os.getFilesRecursivelyFrom(examples, ek9))
@@ -40,7 +40,7 @@ public class TestAllExamples
     {
         OsSupport os = new OsSupport();
         URL rootDirectoryForTest = this.getClass().getResource("/badExamples");
-        TestCase.assertNotNull(rootDirectoryForTest);
+        assertNotNull(rootDirectoryForTest);
         File examples = new File(rootDirectoryForTest.getPath());
         Glob ek9 = new Glob("**.ek9");
         for(File file : os.getFilesRecursivelyFrom(examples, ek9))
@@ -83,12 +83,12 @@ public class TestAllExamples
                     System.out.println(error);
                 });
             }
-            TestCase.assertTrue("Parsing of " + ek9SourceFile.getName() + " failed", errorListener.isErrorFree());
-            TestCase.assertNotNull(context);
+            assertTrue(errorListener.isErrorFree(), "Parsing of " + ek9SourceFile.getName() + " failed");
+            assertNotNull(context);
         }
         else
         {
-            TestCase.assertFalse("Parsing of " + ek9SourceFile.getName() + " should have failed", errorListener.isErrorFree());
+            assertFalse(errorListener.isErrorFree(), "Parsing of " + ek9SourceFile.getName() + " should have failed");
         }
     }
 

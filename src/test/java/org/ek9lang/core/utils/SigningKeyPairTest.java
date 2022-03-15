@@ -1,8 +1,7 @@
 package org.ek9lang.core.utils;
 
-import org.junit.Test;
-
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.net.URL;
@@ -23,7 +22,7 @@ public class SigningKeyPairTest
 
 		String plainText = keyPair.decryptWithPublicKey(cipherText);
 		//System.out.println("[" + plainText +"]");
-		TestCase.assertTrue(theMessage.equals(plainText));
+		assertTrue(theMessage.equals(plainText));
 	}
 
 
@@ -39,18 +38,20 @@ public class SigningKeyPairTest
 
 		String plainText = keyPair.decryptWithPrivateKey(cipherText);
 		//System.out.println("[" + plainText +"]");
-		TestCase.assertTrue(theMessage.equals(plainText));
+		assertTrue(theMessage.equals(plainText));
 	}
 
-	@Test(expected = java.lang.NullPointerException.class)
+	@Test
 	public void doInvalidEncryption()
 	{
-		String theMessage = "The quick brown fox jumps over the lazy dog";
+		assertThrows(java.lang.NullPointerException.class, () -> {
+			String theMessage = "The quick brown fox jumps over the lazy dog";
 
-		SigningKeyPair keyPair = SigningKeyPair.generate(2048);
-		String cipherText = keyPair.encryptWithPublicKey(theMessage);
-		//Now incorrectly use wrong key
-		String plainText = keyPair.decryptWithPublicKey(cipherText);
+			SigningKeyPair keyPair = SigningKeyPair.generate(2048);
+			String cipherText = keyPair.encryptWithPublicKey(theMessage);
+			//Now incorrectly use wrong key
+			String plainText = keyPair.decryptWithPublicKey(cipherText);
+		});
 	}
 
 	@Test
@@ -85,7 +86,7 @@ public class SigningKeyPairTest
 		String innerCipherText = simulatedClient.encryptWithPrivateKey(toSend);
 
 		byte[] bytes = innerCipherText.getBytes(StandardCharsets.UTF_8);
-		TestCase.assertTrue(bytes.length > 0);
+		assertTrue(bytes.length > 0);
 		
 		//Ah but the client also has the servers public key and so encrypts the encrypted message!
 		String transmittableCipherText = simulatedServer.encryptWithPublicKey(innerCipherText);
@@ -97,7 +98,7 @@ public class SigningKeyPairTest
 
 		//So it is still cipher text - we must now decrypt that with the clients public key
 		String hashInPlainText = simulatedClient.decryptWithPublicKey(clientsCipherText);
-		TestCase.assertTrue(toSend.equals(hashInPlainText));
+		assertTrue(toSend.equals(hashInPlainText));
 
 		//So in the above scenario.
 		//Client has public/private key pair (1024 length)- generated with ek9 -Gk some public.pem and private.pem are generated
@@ -128,13 +129,13 @@ public class SigningKeyPairTest
 		//System.out.println(privatePem);
 	
 		SigningKeyPair reverseTest = new SigningKeyPair(privatePem, publicPem);
-		TestCase.assertTrue(reverseTest != null);
+		assertTrue(reverseTest != null);
 		
 		String checkPublicPem = reverseTest.getPubBase64();
 		String checkPrivatePem = reverseTest.getPvtBase64();
 		
-		TestCase.assertEquals(publicPem, checkPublicPem);
-		TestCase.assertEquals(privatePem, checkPrivatePem);
+		assertEquals(publicPem, checkPublicPem);
+		assertEquals(privatePem, checkPrivatePem);
 	}
 
 	public static String getOpenSSLGeneratedPrivateKey()
@@ -188,18 +189,18 @@ public class SigningKeyPairTest
 	public void testOpenSSLGeneratedFromFile()
 	{
 		URL rootDirectoryForTest = this.getClass().getResource("/forSigningKeyTests");
-		TestCase.assertNotNull(rootDirectoryForTest);
+		assertNotNull(rootDirectoryForTest);
 
 		File publicFile = new File(rootDirectoryForTest.getPath(), "publicKey.pem");
 		File privateFile = new File(rootDirectoryForTest.getPath(), "privateKey.pem");
 
 		SigningKeyPair openTest = SigningKeyPair.of(privateFile, publicFile);
-		TestCase.assertNotNull(openTest);
+		assertNotNull(openTest);
 
 		SigningKeyPair privateSigningKey = SigningKeyPair.ofPrivate(privateFile);
-		TestCase.assertNotNull(privateSigningKey);
+		assertNotNull(privateSigningKey);
 		SigningKeyPair publicSigningKey = SigningKeyPair.ofPublic(publicFile);
-		TestCase.assertNotNull(publicSigningKey);
+		assertNotNull(publicSigningKey);
 	}
 
 	@Test
@@ -215,7 +216,7 @@ public class SigningKeyPairTest
 		String privatePem = getOpenSSLGeneratedPrivateKey();
 		
 		SigningKeyPair openTest = new SigningKeyPair(privatePem, publicPem);
-		TestCase.assertTrue(openTest != null);
+		assertTrue(openTest != null);
 		
 		String checkPublicPem = openTest.getPubBase64();
 		String checkPrivatePem = openTest.getPvtBase64();
@@ -223,7 +224,7 @@ public class SigningKeyPairTest
 		//System.out.println(checkPublicPem);
 		//System.out.println(checkPrivatePem);
 		
-		TestCase.assertEquals(publicPem, checkPublicPem);
-		TestCase.assertEquals(privatePem, checkPrivatePem);
+		assertEquals(publicPem, checkPublicPem);
+		assertEquals(privatePem, checkPrivatePem);
 	}
 }

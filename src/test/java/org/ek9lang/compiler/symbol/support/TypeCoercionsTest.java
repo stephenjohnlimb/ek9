@@ -1,8 +1,8 @@
 package org.ek9lang.compiler.symbol.support;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.ek9lang.compiler.symbol.*;
-import org.junit.Test;
 
 import java.util.Optional;
 
@@ -20,10 +20,10 @@ public class TypeCoercionsTest
 		ISymbol typeA = new AggregateSymbol("TypeA", symbolTable);
 		ISymbol typeB = new AggregateSymbol("TypeB", symbolTable);
 
-		TestCase.assertFalse(TypeCoercions.get().isCoercible(Optional.of(typeA), Optional.of(typeB)));
-		TestCase.assertFalse(TypeCoercions.get().isCoercible(Optional.of(typeA), Optional.empty()));
+		assertFalse(TypeCoercions.get().isCoercible(Optional.of(typeA), Optional.of(typeB)));
+		assertFalse(TypeCoercions.get().isCoercible(Optional.of(typeA), Optional.empty()));
 
-		TestCase.assertFalse(TypeCoercions.get().isCoercible(typeB, typeA));
+		assertFalse(TypeCoercions.get().isCoercible(typeB, typeA));
 	}
 
 	@Test
@@ -33,7 +33,7 @@ public class TypeCoercionsTest
 		//two unrelated types
 		ISymbol typeA = new AggregateSymbol("TypeA", symbolTable);
 		ISymbol typeB = new FunctionSymbol("Func1", symbolTable);
-		TestCase.assertFalse(TypeCoercions.get().isCoercible(typeB, typeA));
+		assertFalse(TypeCoercions.get().isCoercible(typeB, typeA));
 	}
 
 	@Test
@@ -51,9 +51,9 @@ public class TypeCoercionsTest
 		typeA.define(promotion);
 
 		//OK now check it can be coerced
-		TestCase.assertTrue(TypeCoercions.get().isCoercible(typeA, typeB));
+		assertTrue(TypeCoercions.get().isCoercible(typeA, typeB));
 
 		//But only one way
-		TestCase.assertFalse(TypeCoercions.get().isCoercible(typeB, typeA));
+		assertFalse(TypeCoercions.get().isCoercible(typeB, typeA));
 	}
 }

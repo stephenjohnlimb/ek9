@@ -1,9 +1,9 @@
 package org.ek9lang.compiler.tokenizer;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.antlr.v4.runtime.CharStreams;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.junit.Test;
 
 import java.io.InputStream;
 
@@ -20,7 +20,7 @@ public abstract class LexingBase
 	{
 		InputStream inputStream = getClass().getResourceAsStream(getEK9FileName());
 
-		TestCase.assertNotNull(inputStream);
+		assertNotNull(inputStream);
 
 		LexerPlugin lexer = getEK9Lexer(CharStreams.fromStream(inputStream));
 		lexer.removeErrorListeners();						

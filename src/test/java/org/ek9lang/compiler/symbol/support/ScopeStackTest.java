@@ -1,9 +1,9 @@
 package org.ek9lang.compiler.symbol.support;
 
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.ek9lang.compiler.symbol.LocalScope;
-import org.junit.Test;
 
 /**
  * Just simple tests of the scope stack that will be used in the
@@ -15,33 +15,33 @@ public class ScopeStackTest
 	public void testNewScopeStack()
 	{
 		ScopeStack underTest = new ScopeStack(new SymbolTable());
-		TestCase.assertFalse(underTest.empty());
+		assertFalse(underTest.empty());
 
 		var theTop = underTest.getVeryBaseScope();
-		TestCase.assertNotNull(theTop);
+		assertNotNull(theTop);
 		var top = underTest.pop();
 
-		TestCase.assertTrue(top == theTop);
-		TestCase.assertNotNull(top);
-		TestCase.assertTrue(underTest.empty());
+		assertTrue(top == theTop);
+		assertNotNull(top);
+		assertTrue(underTest.empty());
 	}
 
 	@Test
 	public void testPushOnScopeStack()
 	{
 		ScopeStack underTest = new ScopeStack(new SymbolTable());
-		TestCase.assertFalse(underTest.empty());
+		assertFalse(underTest.empty());
 
 		underTest.push(new LocalScope("A test", new SymbolTable()));
 
 		var scope = underTest.pop();
-		TestCase.assertNotNull(scope);
-		TestCase.assertFalse(underTest.empty());
+		assertNotNull(scope);
+		assertFalse(underTest.empty());
 
 		var top = underTest.pop();
-		TestCase.assertNotNull(top);
+		assertNotNull(top);
 
-		TestCase.assertTrue(underTest.empty());
+		assertTrue(underTest.empty());
 	}
 
 }

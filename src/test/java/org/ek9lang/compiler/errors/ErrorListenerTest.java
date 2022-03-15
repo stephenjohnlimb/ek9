@@ -1,13 +1,13 @@
 package org.ek9lang.compiler.errors;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.SymbolTable;
 import org.ek9lang.compiler.symbol.support.search.MatchResult;
 import org.ek9lang.compiler.symbol.support.search.MatchResults;
-import org.junit.Test;
 
 /**
  * Most of the use of the ErrorListener will be driven by examples of
@@ -72,26 +72,26 @@ public class ErrorListenerTest
 
 		//Just do some simple checks on the results match code
 		results.add(new MatchResult(2, new VariableSymbol("v2", integerType)));
-		TestCase.assertEquals(1, results.size());
+		assertEquals(1, results.size());
 		results.add(new MatchResult(5, new VariableSymbol("v5", integerType)));
-		TestCase.assertEquals(2, results.size());
+		assertEquals(2, results.size());
 
 		results.add(new MatchResult(0, new VariableSymbol("top", integerType)));
 		results.add(new MatchResult(1000, new VariableSymbol("worst", integerType)));
 
 		results.add(new MatchResult(3, new VariableSymbol("v3", integerType)));
-		TestCase.assertEquals(5, results.size());
-		TestCase.assertEquals("top as Integer, v2 as Integer, v3 as Integer, v5 as Integer, worst as Integer", results.toString());
+		assertEquals(5, results.size());
+		assertEquals("top as Integer, v2 as Integer, v3 as Integer, v5 as Integer, worst as Integer", results.toString());
 
 		//Now lets check the priority functionality by adding more
 		results.add(new MatchResult(1, new VariableSymbol("v1", integerType)));
 		results.add(new MatchResult(4, new VariableSymbol("v4", integerType)));
-		TestCase.assertEquals(5, results.size());
-		TestCase.assertEquals("top as Integer, v1 as Integer, v2 as Integer, v3 as Integer, v4 as Integer", results.toString());
+		assertEquals(5, results.size());
+		assertEquals("top as Integer, v1 as Integer, v2 as Integer, v3 as Integer, v4 as Integer", results.toString());
 
 		var iter = results.iterator();
 		while(iter.hasNext())
-			TestCase.assertNotNull(iter.next().getSymbol());
+			assertNotNull(iter.next().getSymbol());
 
 		underTest.semanticError(createSyntheticToken(), "Fuzzy", ErrorListener.SemanticClassification.CONSTRUCTOR_NOT_RESOLVED, results);
 		assertInError(underTest);
@@ -99,14 +99,14 @@ public class ErrorListenerTest
 
 	private void assertInError(ErrorListener underTest)
 	{
-		TestCase.assertFalse(underTest.isErrorFree());
+		assertFalse(underTest.isErrorFree());
 		ErrorListener.ErrorDetails details = underTest.getErrors().next();
-		TestCase.assertNotNull(details);
-		TestCase.assertNotNull(details.getTypeOfError());
-		TestCase.assertEquals(0, details.getPosition());
-		TestCase.assertEquals(0, details.getLineNumber());
-		TestCase.assertNotNull(details.getLikelyOffendingSymbol());
-		TestCase.assertNotNull(details.toString());
+		assertNotNull(details);
+		assertNotNull(details.getTypeOfError());
+		assertEquals(0, details.getPosition());
+		assertEquals(0, details.getLineNumber());
+		assertNotNull(details.getLikelyOffendingSymbol());
+		assertNotNull(details.toString());
 	}
 
 	@Test
@@ -115,43 +115,43 @@ public class ErrorListenerTest
 		ErrorListener underTest = new ErrorListener();
 
 		//Setup check defaults and ensure switches work.
-		TestCase.assertTrue(underTest.isErrorFree());
-		TestCase.assertTrue(underTest.isWarningFree());
+		assertTrue(underTest.isErrorFree());
+		assertTrue(underTest.isWarningFree());
 
 		//These are the three main flags that indicate there might be an issue with the grammar.
-		TestCase.assertFalse(underTest.isExceptionOnAmbiguity());
+		assertFalse(underTest.isExceptionOnAmbiguity());
 		underTest.setExceptionOnAmbiguity(true);
-		TestCase.assertTrue(underTest.isExceptionOnAmbiguity());
+		assertTrue(underTest.isExceptionOnAmbiguity());
 
-		TestCase.assertFalse(underTest.isExceptionOnContextSensitive());
+		assertFalse(underTest.isExceptionOnContextSensitive());
 		underTest.setExceptionOnContextSensitive(true);
-		TestCase.assertTrue(underTest.isExceptionOnContextSensitive());
+		assertTrue(underTest.isExceptionOnContextSensitive());
 
-		TestCase.assertFalse(underTest.isExceptionOnFullContext());
+		assertFalse(underTest.isExceptionOnFullContext());
 		underTest.setExceptionOnFullContext(true);
-		TestCase.assertTrue(underTest.isExceptionOnFullContext());
+		assertTrue(underTest.isExceptionOnFullContext());
 
 		Token token = createSyntheticToken();
 		underTest.raiseReturningRedundant(token, "Test Message");
 
 		//Should now be in error
-		TestCase.assertFalse(underTest.isErrorFree());
+		assertFalse(underTest.isErrorFree());
 		ErrorListener.ErrorDetails details = underTest.getErrors().next();
-		TestCase.assertNotNull(details);
-		TestCase.assertNotNull(details.getClassification());
+		assertNotNull(details);
+		assertNotNull(details.getClassification());
 
-		TestCase.assertNotNull(details.toString());
-		TestCase.assertEquals(ErrorListener.SemanticClassification.RETURNING_REDUNDANT, details.getSemanticClassification());
+		assertNotNull(details.toString());
+		assertEquals(ErrorListener.SemanticClassification.RETURNING_REDUNDANT, details.getSemanticClassification());
 
-		TestCase.assertTrue(underTest.isWarningFree());
+		assertTrue(underTest.isWarningFree());
 
 		//Now create a warning
 		underTest.semanticWarning(createSyntheticToken(), "Test Warning Message", ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
-		TestCase.assertFalse(underTest.isWarningFree());
+		assertFalse(underTest.isWarningFree());
 
 		details = underTest.getWarnings().next();
-		TestCase.assertNotNull(details.toString());
-		TestCase.assertEquals(ErrorListener.SemanticClassification.METHOD_AMBIGUOUS, details.getSemanticClassification());
+		assertNotNull(details.toString());
+		assertEquals(ErrorListener.SemanticClassification.METHOD_AMBIGUOUS, details.getSemanticClassification());
 
 	}
 

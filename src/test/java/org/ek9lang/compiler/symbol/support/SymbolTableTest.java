@@ -1,10 +1,10 @@
 package org.ek9lang.compiler.symbol.support;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.ek9lang.compiler.symbol.*;
 import org.ek9lang.compiler.symbol.support.search.*;
 import org.ek9lang.compiler.tokenizer.SyntheticToken;
-import org.junit.Test;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,36 +43,36 @@ public class SymbolTableTest
 
     private void assertNotFound(SymbolTable underTest)
     {
-        TestCase.assertFalse(underTest.resolve(new AnySymbolSearch("SomeThing")).isPresent());
-        TestCase.assertFalse(underTest.resolve(new AnySymbolSearch("Fully.Qualified::SomeThing")).isPresent());
+        assertFalse(underTest.resolve(new AnySymbolSearch("SomeThing")).isPresent());
+        assertFalse(underTest.resolve(new AnySymbolSearch("Fully.Qualified::SomeThing")).isPresent());
 
         //By specific search types.
-        TestCase.assertFalse(underTest.resolve(new TypeSymbolSearch("SomeThing")).isPresent());
-        TestCase.assertFalse(underTest.resolve(new TypeSymbolSearch("Fully.Qualified::SomeThing")).isPresent());
+        assertFalse(underTest.resolve(new TypeSymbolSearch("SomeThing")).isPresent());
+        assertFalse(underTest.resolve(new TypeSymbolSearch("Fully.Qualified::SomeThing")).isPresent());
 
-        TestCase.assertFalse(underTest.resolve(new TemplateTypeSymbolSearch("SomeThing")).isPresent());
-        TestCase.assertFalse(underTest.resolve(new TemplateTypeSymbolSearch("Fully.Qualified::SomeThing")).isPresent());
+        assertFalse(underTest.resolve(new TemplateTypeSymbolSearch("SomeThing")).isPresent());
+        assertFalse(underTest.resolve(new TemplateTypeSymbolSearch("Fully.Qualified::SomeThing")).isPresent());
 
-        TestCase.assertFalse(underTest.resolve(new FunctionSymbolSearch("SomeThing")).isPresent());
-        TestCase.assertFalse(underTest.resolve(new FunctionSymbolSearch("Fully.Qualified::SomeThing")).isPresent());
+        assertFalse(underTest.resolve(new FunctionSymbolSearch("SomeThing")).isPresent());
+        assertFalse(underTest.resolve(new FunctionSymbolSearch("Fully.Qualified::SomeThing")).isPresent());
 
-        TestCase.assertFalse(underTest.resolve(new TemplateFunctionSymbolSearch("SomeThing")).isPresent());
-        TestCase.assertFalse(underTest.resolve(new TemplateFunctionSymbolSearch("Fully.Qualified::SomeThing")).isPresent());
+        assertFalse(underTest.resolve(new TemplateFunctionSymbolSearch("SomeThing")).isPresent());
+        assertFalse(underTest.resolve(new TemplateFunctionSymbolSearch("Fully.Qualified::SomeThing")).isPresent());
 
-        TestCase.assertFalse(underTest.resolveInThisScopeOnly(new TemplateFunctionSymbolSearch("SomeThing")).isPresent());
-        TestCase.assertFalse(underTest.resolve(new MethodSymbolSearch("SomeThing")).isPresent());
+        assertFalse(underTest.resolveInThisScopeOnly(new TemplateFunctionSymbolSearch("SomeThing")).isPresent());
+        assertFalse(underTest.resolve(new MethodSymbolSearch("SomeThing")).isPresent());
         MethodSymbolSearchResult result = new MethodSymbolSearchResult();
-        TestCase.assertTrue(underTest.resolveForAllMatchingMethods(new MethodSymbolSearch("SomeThing"), result).isEmpty());
+        assertTrue(underTest.resolveForAllMatchingMethods(new MethodSymbolSearch("SomeThing"), result).isEmpty());
     }
 
     @Test
     public void testEncounteredExceptionToken()
     {
         SymbolTable underTest = new SymbolTable();
-        TestCase.assertNull(underTest.getEncounteredExceptionToken());
+        assertNull(underTest.getEncounteredExceptionToken());
 
         underTest.setEncounteredExceptionToken(new SyntheticToken());
-        TestCase.assertNotNull(underTest.getEncounteredExceptionToken());
+        assertNotNull(underTest.getEncounteredExceptionToken());
     }
 
     @Test
@@ -101,26 +101,26 @@ public class SymbolTableTest
 		private void assertMethodPresentInSymbolTable(SymbolTable underTest, String methodName)
 		{
 			Optional<ISymbol> searchResult = underTest.resolve(new AnySymbolSearch(methodName));
-			TestCase.assertTrue(searchResult.isPresent());
-			TestCase.assertTrue(methodName.equals(searchResult.get().getName()));
+			assertTrue(searchResult.isPresent());
+			assertTrue(methodName.equals(searchResult.get().getName()));
 
 			MethodSymbolSearch methodSearch = new MethodSymbolSearch(methodName);
-			TestCase.assertTrue(methodSearch.toString() != null);
-			TestCase.assertTrue(methodSearch.getNameAsSymbol().isPresent());
+			assertTrue(methodSearch.toString() != null);
+			assertTrue(methodSearch.getNameAsSymbol().isPresent());
 			searchResult = underTest.resolve(methodSearch);
-			TestCase.assertTrue(searchResult.isPresent());
-			TestCase.assertTrue(methodName.equals(searchResult.get().getName()));
+			assertTrue(searchResult.isPresent());
+			assertTrue(methodName.equals(searchResult.get().getName()));
 
 			//Should not find as a type.
 			searchResult = underTest.resolve(new TypeSymbolSearch(methodName));
-			TestCase.assertFalse(searchResult.isPresent());
+			assertFalse(searchResult.isPresent());
 
 			MethodSymbolSearchResult result = new MethodSymbolSearchResult();
 			result = underTest.resolveForAllMatchingMethods(new MethodSymbolSearch(methodName), result);
-			TestCase.assertFalse(result.isEmpty());
-			TestCase.assertFalse(result.isAmbiguous());
-			TestCase.assertNotNull(result.toString());
-			TestCase.assertTrue(result.getSingleBestMatchSymbol().isPresent());
+			assertFalse(result.isEmpty());
+			assertFalse(result.isAmbiguous());
+			assertNotNull(result.toString());
+			assertTrue(result.getSingleBestMatchSymbol().isPresent());
 		}
 
     @Test
@@ -143,7 +143,7 @@ public class SymbolTableTest
     public void testMethodWithParameters()
     {
         SymbolTable globalSymbolTable = new SymbolTable();
-				TestCase.assertEquals(IScope.ScopeType.BLOCK, globalSymbolTable.getScopeType());
+				assertEquals(IScope.ScopeType.BLOCK, globalSymbolTable.getScopeType());
 
         ISymbol floatType = new AggregateSymbol("Float", globalSymbolTable);
         ISymbol integerType = new AggregateSymbol("Integer", globalSymbolTable);
@@ -162,15 +162,15 @@ public class SymbolTableTest
         //So it could now be called as method1(56.9, 22, "steve")
         //Now find it and also fail to find it.
         MethodSymbolSearch symbolSearch = new MethodSymbolSearch(method1);
-        TestCase.assertEquals(3, symbolSearch.getParameterTypes().size());
-        TestCase.assertTrue("method1(p1 as Float, p2 as Integer, p3 as String)".equals(symbolSearch.toString()));
+        assertEquals(3, symbolSearch.getParameterTypes().size());
+        assertTrue("method1(p1 as Float, p2 as Integer, p3 as String)".equals(symbolSearch.toString()));
         Optional<ISymbol> resolvedMethod = globalSymbolTable.resolve(symbolSearch);
-        TestCase.assertTrue(resolvedMethod.isPresent());
+        assertTrue(resolvedMethod.isPresent());
 
         symbolSearch = new MethodSymbolSearch("method1");
         resolvedMethod = globalSymbolTable.resolve(symbolSearch);
         //method1 does exist but the search will not find it because no params added.
-        TestCase.assertFalse(resolvedMethod.isPresent());
+        assertFalse(resolvedMethod.isPresent());
     }
 
     @Test
@@ -189,32 +189,32 @@ public class SymbolTableTest
         underTest.define(method1);
 
         Optional<ISymbol> searchResult = underTest.resolve(new AnySymbolSearch("method1"));
-        TestCase.assertTrue(searchResult.isPresent());
-        TestCase.assertTrue("method1".equals(searchResult.get().getName()));
+        assertTrue(searchResult.isPresent());
+        assertTrue("method1".equals(searchResult.get().getName()));
 
         //Search by using a know method as a prototype for a search.
         searchResult = underTest.resolve(new MethodSymbolSearch(method1));
-        TestCase.assertTrue(searchResult.isPresent());
-        TestCase.assertTrue("method1".equals(searchResult.get().getName()));
+        assertTrue(searchResult.isPresent());
+        assertTrue("method1".equals(searchResult.get().getName()));
 
         //Now search but looking for specific return Type.
         searchResult = underTest.resolve(new MethodSymbolSearch("method1", floatType));
-        TestCase.assertTrue(searchResult.isPresent());
-        TestCase.assertTrue("method1".equals(searchResult.get().getName()));
+        assertTrue(searchResult.isPresent());
+        assertTrue("method1".equals(searchResult.get().getName()));
 
         //Look for same method but returning String, should fail
         searchResult = underTest.resolve(new MethodSymbolSearch("method1", Optional.of(stringType)));
-        TestCase.assertFalse(searchResult.isPresent());
+        assertFalse(searchResult.isPresent());
 
         //Same again with Integer
         searchResult = underTest.resolve(new MethodSymbolSearch("method1").setOfTypeOrReturn(integerType));
-        TestCase.assertFalse(searchResult.isPresent());
+        assertFalse(searchResult.isPresent());
 
         //Now define again, should allow as overloading
         underTest.define(new MethodSymbol("method1", underTest));
         searchResult = underTest.resolve(new MethodSymbolSearch("method1"));
         //But now it has become ambiguous and so will fail to resolve.
-        TestCase.assertFalse(searchResult.isPresent());
+        assertFalse(searchResult.isPresent());
     }
 
     @Test
@@ -225,37 +225,39 @@ public class SymbolTableTest
         //A simple function, don't define any parameters or returns.
         underTest.define(new FunctionSymbol("function1", underTest));
         Optional<ISymbol> searchResult = underTest.resolve(new AnySymbolSearch("function1"));
-        TestCase.assertTrue(searchResult.isPresent());
-        TestCase.assertTrue("function1".equals(searchResult.get().getName()));
+        assertTrue(searchResult.isPresent());
+        assertTrue("function1".equals(searchResult.get().getName()));
 
         searchResult = underTest.resolve(new FunctionSymbolSearch("function1"));
-        TestCase.assertTrue(searchResult.isPresent());
-        TestCase.assertTrue("function1".equals(searchResult.get().getName()));
+        assertTrue(searchResult.isPresent());
+        assertTrue("function1".equals(searchResult.get().getName()));
 
         //This turns the functions/aggregates into Template Generic types
         underTest.define(new FunctionSymbol("function2", underTest).addParameterisedType(new AggregateSymbol("NoneSuch1", underTest)));
 
         searchResult = underTest.resolve(new TemplateFunctionSymbolSearch("function2"));
-        TestCase.assertTrue(searchResult.isPresent());
-        TestCase.assertTrue("function2".equals(searchResult.get().getName()));
+        assertTrue(searchResult.isPresent());
+        assertTrue("function2".equals(searchResult.get().getName()));
 
         //Should not find as a type.
         searchResult = underTest.resolve(new TypeSymbolSearch("function1"));
-        TestCase.assertFalse(searchResult.isPresent());
+        assertFalse(searchResult.isPresent());
 
         searchResult = underTest.resolve(new TypeSymbolSearch("function2"));
-        TestCase.assertFalse(searchResult.isPresent());
+        assertFalse(searchResult.isPresent());
 
     }
 
-    @Test(expected = java.lang.RuntimeException.class)
+    @Test
     public void testDuplicateFunctionDefinition()
     {
-        SymbolTable underTest = new SymbolTable();
+			assertThrows(java.lang.RuntimeException.class, () -> {
+				SymbolTable underTest = new SymbolTable();
 
-        //duplicate check
-        underTest.define(new FunctionSymbol("function1", underTest));
-        underTest.define(new FunctionSymbol("function1", underTest));
+				//duplicate check
+				underTest.define(new FunctionSymbol("function1", underTest));
+				underTest.define(new FunctionSymbol("function1", underTest));
+			});
     }
 
     @Test
@@ -265,8 +267,8 @@ public class SymbolTableTest
         //We should be able to add it without saying what type it is
         underTest.define(new ConstantSymbol("PI"));
         Optional<ISymbol> searchResult = underTest.resolve(new AnySymbolSearch("PI"));
-        TestCase.assertTrue(searchResult.isPresent());
-        TestCase.assertTrue("PI".equals(searchResult.get().getName()));
+        assertTrue(searchResult.isPresent());
+        assertTrue("PI".equals(searchResult.get().getName()));
     }
 
     @Test
@@ -278,7 +280,7 @@ public class SymbolTableTest
         //But if we search and ask for a specific type of return then it should not be found.
         SymbolSearch search = new AnySymbolSearch("PI").setOfTypeOrReturn(new AggregateSymbol("Float", underTest));
         Optional<ISymbol> searchResult = underTest.resolve(search);
-        TestCase.assertFalse(searchResult.isPresent());
+        assertFalse(searchResult.isPresent());
     }
 
     @Test
@@ -291,77 +293,79 @@ public class SymbolTableTest
         SymbolSearch search = new AnySymbolSearch("PI").setOfTypeOrReturn(new AggregateSymbol("Float", underTest));
         Optional<ISymbol> searchResult = underTest.resolve(search);
         //Now it should be found
-        TestCase.assertTrue(searchResult.isPresent());
-        TestCase.assertTrue("PI".equals(searchResult.get().getName()));
+        assertTrue(searchResult.isPresent());
+        assertTrue("PI".equals(searchResult.get().getName()));
 
         //It should also be found if we don't request a specific return type.
         searchResult = underTest.resolve(new AnySymbolSearch("PI"));
         //Now it should be found
-        TestCase.assertTrue(searchResult.isPresent());
-        TestCase.assertTrue("PI".equals(searchResult.get().getName()));
+        assertTrue(searchResult.isPresent());
+        assertTrue("PI".equals(searchResult.get().getName()));
     }
 
-    @Test(expected = java.lang.RuntimeException.class)
+    @Test
     public void testDuplicateConstantDefinition()
     {
-        SymbolTable underTest = new SymbolTable();
-        underTest.define(new ConstantSymbol("PI"));
-        //Check duplications detected.
-        underTest.define(new ConstantSymbol("PI"));
+			assertThrows(java.lang.RuntimeException.class, () -> {
+				SymbolTable underTest = new SymbolTable();
+				underTest.define(new ConstantSymbol("PI"));
+				//Check duplications detected.
+				underTest.define(new ConstantSymbol("PI"));
+			});
     }
 
     @Test
     public void testBasicTypeDefinitionAndLookup()
     {
         SymbolTable underTest = new SymbolTable();
-        TestCase.assertTrue(underTest.getScopeName().equals("global"));
-        TestCase.assertTrue("global".equals(underTest.toString()));
+        assertTrue(underTest.getScopeName().equals("global"));
+        assertTrue("global".equals(underTest.toString()));
 
-        TestCase.assertFalse(underTest.resolve(new TypeSymbolSearch("Float")).isPresent());
+        assertFalse(underTest.resolve(new TypeSymbolSearch("Float")).isPresent());
 
         AggregateSymbol floatType = new AggregateSymbol("Float", underTest);
         floatType.setSourceToken(new SyntheticToken());
-        TestCase.assertNotNull(floatType.getSourceToken());
+        assertNotNull(floatType.getSourceToken());
         underTest.define(floatType);
 
 
         List<ISymbol> symbols = underTest.getSymbolsForThisScope();
-        TestCase.assertEquals(1, symbols.size());
-        TestCase.assertTrue("Float".equals(symbols.get(0).getName()));
+        assertEquals(1, symbols.size());
+        assertTrue("Float".equals(symbols.get(0).getName()));
 
         symbols = underTest.getSymbolsForThisScopeOfCategory(ISymbol.SymbolCategory.TYPE);
-        TestCase.assertEquals(1, symbols.size());
-        TestCase.assertTrue("Float".equals(symbols.get(0).getName()));
+        assertEquals(1, symbols.size());
+        assertTrue("Float".equals(symbols.get(0).getName()));
 
         //Now do a type symbol search for a type we know must be there
         Optional<ISymbol> searchResult = underTest.resolve(new TypeSymbolSearch("Float"));
-        TestCase.assertTrue(searchResult.isPresent());
-        TestCase.assertTrue("Float".equals(searchResult.get().getName()));
+        assertTrue(searchResult.isPresent());
+        assertTrue("Float".equals(searchResult.get().getName()));
 
         //Now search via fully qualified name
         searchResult = underTest.resolve(new TypeSymbolSearch("global::Float"));
-        TestCase.assertTrue(searchResult.isPresent());
-        TestCase.assertTrue("Float".equals(searchResult.get().getName()));
+        assertTrue(searchResult.isPresent());
+        assertTrue("Float".equals(searchResult.get().getName()));
 
         //Now search via any search.
         searchResult = underTest.resolve(new AnySymbolSearch("Float"));
-        TestCase.assertTrue(searchResult.isPresent());
-        TestCase.assertTrue("Float".equals(searchResult.get().getName()));
+        assertTrue(searchResult.isPresent());
+        assertTrue("Float".equals(searchResult.get().getName()));
 
         //Now do a type symbol search for a type we know can't be there
         searchResult = underTest.resolveInThisScopeOnly(new TypeSymbolSearch("Integer"));
-        TestCase.assertFalse(searchResult.isPresent());
+        assertFalse(searchResult.isPresent());
 
         //Has no enclosing scope so expect false.
-        TestCase.assertFalse(underTest.findNearestAggregateScopeInEnclosingScopes().isPresent());
-        TestCase.assertFalse(underTest.isScopeAMatchForEnclosingScope(underTest));
-        TestCase.assertFalse(underTest.resolveWithEnclosingScope(new TypeSymbolSearch("Float")).isPresent());
+        assertFalse(underTest.findNearestAggregateScopeInEnclosingScopes().isPresent());
+        assertFalse(underTest.isScopeAMatchForEnclosingScope(underTest));
+        assertFalse(underTest.resolveWithEnclosingScope(new TypeSymbolSearch("Float")).isPresent());
 
         AggregateSymbol templateType = new AggregateSymbol("Special", underTest);
         templateType.addParameterisedType(new AggregateSymbol("T", underTest));
         underTest.define(templateType);
         searchResult = underTest.resolveInThisScopeOnly(new TemplateTypeSymbolSearch("Special"));
-        TestCase.assertTrue(searchResult.isPresent());
+        assertTrue(searchResult.isPresent());
 
 
     }
