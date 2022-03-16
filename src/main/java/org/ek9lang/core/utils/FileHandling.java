@@ -9,7 +9,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * Designed to abstract out all file handling for the compiler.
@@ -139,9 +138,7 @@ public class FileHandling
 		AssertValue.checkNotNull("FileNamePattern cannot be null", fileNamePattern);
 
 		File[] files = dir.listFiles((dir1, name) -> name.matches(fileNamePattern));
-		Optional.ofNullable(files)
-				.map(Arrays::stream)
-				.orElseGet(Stream::empty)
+		Optional.ofNullable(files).stream().flatMap(Arrays::stream)
 				.forEach(this::deleteFileIfExists);
 	}
 
@@ -151,17 +148,16 @@ public class FileHandling
 	 */
 	public void deleteContentsAndBelow(File dir, boolean includeDirectoryRoot)
 	{
-		File[] files = dir.listFiles();
-		if(files != null)
-		{
-			for(File toDelete : files)
-			{
-				if(toDelete.isDirectory())
-					deleteContentsAndBelow(toDelete, true);
-				else
-					deleteFileIfExists(toDelete);
-			}
-		}
+		Optional.ofNullable(dir.listFiles())
+				.stream()
+				.flatMap(Arrays::stream)
+				.forEach(toDelete -> {
+					if(toDelete.isDirectory())
+						deleteContentsAndBelow(toDelete, true);
+					else
+						deleteFileIfExists(toDelete);
+				});
+
 		if(includeDirectoryRoot)
 			deleteFileIfExists(dir);
 	}

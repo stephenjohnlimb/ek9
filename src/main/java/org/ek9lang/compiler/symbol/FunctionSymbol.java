@@ -171,21 +171,17 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 		double canAssign = super.getUnCoercedAssignableWeightTo(s);
 		if(canAssign >= 0.0)
 			return canAssign;
-		if(superFunctionSymbol.isPresent())
-		{
-			//now we can check superclass matches. but add some weight because this did not match
-			canAssign = 0.05 + superFunctionSymbol.get().getUnCoercedAssignableWeightTo(s);
-			return canAssign;
-		}
-		return -1.0;
+
+		//now we can check superclass matches. but add some weight because this did not match
+		return superFunctionSymbol.map(value -> 0.05 + value.getUnCoercedAssignableWeightTo(s)).orElse(-1.0);
 	}
 
 	@Override
 	public String getName()
 	{
-		if(capturedVariables.isPresent())
-			return "dynamic function" + CommonParameterisedTypeDetails.asCommaSeparated(getCapturedVariables().get().getSymbolsForThisScope(), true);
-		return super.getName();
+		return capturedVariables
+				.map(scope -> "dynamic function" + CommonParameterisedTypeDetails.asCommaSeparated(scope.getSymbolsForThisScope(), true))
+				.orElse(super.getName());
 	}
 
 	@Override
@@ -201,10 +197,9 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 		if(getReturningSymbol() != null)
 			name = doGetFriendlyName(getName(), getReturningSymbol().getType());
 
-		name += getAnyGenericParamsAsFriendlyNames();
-		if(superFunctionSymbol.isPresent())
-			name += " is " + superFunctionSymbol.get().getName();
-		return name;
+		final var fullName = name += getAnyGenericParamsAsFriendlyNames();
+
+		return superFunctionSymbol.map(s -> fullName + " is " + s.getName()).orElse(fullName);
 	}
 
 	@Override

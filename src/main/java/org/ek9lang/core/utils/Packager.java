@@ -4,6 +4,7 @@ import org.ek9lang.core.exception.AssertValue;
 
 import java.io.*;
 import java.net.URI;
+import java.nio.file.FileSystem;
 import java.nio.file.*;
 import java.util.HashMap;
 import java.util.List;
@@ -163,10 +164,7 @@ public class Packager
 					}
 				}
 			}
-			else
-			{
-				//it is empty - which OK, just nothing to add.
-			}
+			//it is empty - which OK, just nothing to add.
 		}
 		catch(IOException ioException)
 		{

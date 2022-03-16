@@ -8,10 +8,10 @@ import org.antlr.v4.runtime.TokenFactory;
 public class DelegatingLexer implements LexerPlugin
 {
 	private LexerPlugin delegateTo;
-	
+
 	public DelegatingLexer(LexerPlugin delegateTo)
 	{
-		this.delegateTo = delegateTo;				
+		this.delegateTo = delegateTo;
 	}
 
 	public int getIndentToken()
@@ -22,21 +22,21 @@ public class DelegatingLexer implements LexerPlugin
 	public int getDedentToken()
 	{
 		return delegateTo.getDedentToken();
-	}	
-	
+	}
+
 	@Override
 	public String getSymbolicName(int tokenType)
-	{	
+	{
 		if(tokenType == getIndentToken())
 			return "indent";
 		else if(tokenType == getDedentToken())
 			return "dedent";
 		return delegateTo.getSymbolicName(tokenType);
 	}
-	
+
 	@Override
 	public Token nextToken()
-	{		
+	{
 		return delegateTo.nextToken();
 	}
 
@@ -79,12 +79,12 @@ public class DelegatingLexer implements LexerPlugin
 	@Override
 	public void removeErrorListeners()
 	{
-		delegateTo.removeErrorListeners();	
+		delegateTo.removeErrorListeners();
 	}
 
 	@Override
 	public void addErrorListener(ANTLRErrorListener listener)
 	{
 		delegateTo.addErrorListener(listener);
-	}		
+	}
 }

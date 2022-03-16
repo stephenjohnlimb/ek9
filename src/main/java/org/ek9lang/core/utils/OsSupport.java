@@ -6,7 +6,6 @@ import java.io.File;
 import java.nio.file.FileSystems;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Operating System support and generic stuff for directories and files.
@@ -156,10 +155,8 @@ public class OsSupport
 		AssertValue.checkNotNull("ExcludeStartingWith cannot be null", excludeStartingWith);
 
 		File[] files = inDirectory.listFiles((d, name) -> !name.startsWith(excludeStartingWith));
-		return Optional.ofNullable(files)
-				.map(Arrays::stream)
-				.orElseGet(Stream::empty)
-				.filter(file -> file.isDirectory())
+		return Optional.ofNullable(files).stream().flatMap(Arrays::stream)
+				.filter(File::isDirectory)
 				.collect(Collectors.toList());
 	}
 
@@ -199,9 +196,7 @@ public class OsSupport
 		AssertValue.checkNotNull("FileSuffix cannot be null", fileSuffix);
 
 		File[] files = inDirectory.listFiles((d, name) -> name.endsWith(fileSuffix));
-		return Optional.ofNullable(files)
-				.map(Arrays::stream)
-				.orElseGet(Stream::empty)
+		return Optional.ofNullable(files).stream().flatMap(Arrays::stream)
 				.collect(Collectors.toList());
 	}
 
@@ -222,10 +217,7 @@ public class OsSupport
 		AssertValue.checkNotNull("Dir cannot be null", dir);
 
 		ArrayList<File> rtn = new ArrayList<>();
-		File[] files = dir.listFiles();
-		Optional.ofNullable(files)
-				.map(Arrays::stream)
-				.orElseGet(Stream::empty)
+		Optional.ofNullable(dir.listFiles()).stream().flatMap(Arrays::stream)
 				.filter(file -> file.isDirectory() && file.canRead())
 				.forEach(file -> {
 					rtn.add(file);

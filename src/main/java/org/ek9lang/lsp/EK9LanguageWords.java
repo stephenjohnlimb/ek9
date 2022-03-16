@@ -11,16 +11,16 @@ import org.ek9lang.compiler.tokenizer.TokenResult;
  * But there is also some descriptive text that is provided with the work.
  * These can be used for code completion or for the hover functionality.
  * <p>
- * This might seem like a duplication of what ANTLR has generated, but it we need to supply
+ * This might seem like a duplication of what ANTLR has generated, but we need to supply
  * much more information around each word. This is to really help developers get started even very new developers.
  * <p>
- * In the future might make this functional optional as you get used to it you might now want the hover/help.
+ * In the future might make this functional optional as you get used to it, you might now want the hover/help.
  * <p>
  * This only deals with simple single word completion and simple cases.
  */
 public class EK9LanguageWords
 {
-	private Map<String, KeyWordInformation> keywordMap = new HashMap<>();
+	private final Map<String, KeyWordInformation> keywordMap = new HashMap<>();
 
 	public EK9LanguageWords()
 	{
@@ -31,37 +31,37 @@ public class EK9LanguageWords
 	{
 		keywordMap.put("#!ek9",
 				new KeyWordInformation("An EK9 source code file, https://www.ek9.io/structure.html",
-						Arrays.asList(),
-						search -> search.previousTokensIndentsOrFirst()
+						List.of(),
+						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
 
 		keywordMap.put("defines",
 				new KeyWordInformation("Define a module or construct block, https://www.ek9.io/structure.html",
-						Arrays.asList(),
-						search -> search.previousTokensIndentsOrFirst()
+						List.of(),
+						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
 
 		keywordMap.put("references",
 				new KeyWordInformation("Reference construct from a module, https://www.ek9.io/structure.html#references",
-						Arrays.asList("references\n"
+						List.of("references\n"
 						),
-						search -> search.previousTokensIndentsOrFirst()
+						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
 		keywordMap.put("module",
 				new KeyWordInformation("Module declaration block, https://www.ek9.io/structure.html#module",
-						Arrays.asList("module"
+						List.of("module"
 						),
-						search -> search.previousTokenIsDefines()
+						TokenResult::previousTokenIsDefines
 				)
 		);
 		keywordMap.put("constant",
 				new KeyWordInformation("Constant declaration, https://www.ek9.io/constants.html",
-						Arrays.asList("constant\n"
+						List.of("constant\n"
 						),
-						search -> search.previousTokenIsDefines()
+						TokenResult::previousTokenIsDefines
 				)
 		);
 		keywordMap.put("program",
@@ -69,7 +69,7 @@ public class EK9LanguageWords
 						Arrays.asList("program\n",
 								"program application\n"
 						),
-						search -> search.previousTokenIsDefines()
+						TokenResult::previousTokenIsDefines
 				)
 		);
 		keywordMap.put("type",
@@ -83,51 +83,51 @@ public class EK9LanguageWords
 		);
 		keywordMap.put("function",
 				new KeyWordInformation("Function declaration , https://www.ek9.io/functions.html",
-						Arrays.asList("function"
+						List.of("function"
 						),
-						search -> search.previousTokenIsDefines()
+						TokenResult::previousTokenIsDefines
 				)
 		);
 		keywordMap.put("record",
 				new KeyWordInformation("Record declaration, https://www.ek9.io/records.html",
-						Arrays.asList("record"
+						List.of("record"
 						),
-						search -> search.previousTokenIsDefines()
+						TokenResult::previousTokenIsDefines
 				)
 		);
 		keywordMap.put("class",
 				new KeyWordInformation("Class declaration, https://www.ek9.io/classes.html",
-						Arrays.asList("class"
+						List.of("class"
 						),
 						search -> !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("trait",
 				new KeyWordInformation("Trait declaration/use, https://www.ek9.io/traits.html",
-						Arrays.asList("trait"
+						List.of("trait"
 						),
-						search -> search.previousTokenIsDefines()
+						TokenResult::previousTokenIsDefines
 				)
 		);
 		keywordMap.put("package",
 				new KeyWordInformation("Package build/publishing control, https://www.ek9.io/packaging.html",
-						Arrays.asList("package\n"
+						List.of("package\n"
 						),
-						search -> search.previousTokenIsDefines()
+						TokenResult::previousTokenIsDefines
 				)
 		);
 		keywordMap.put("text",
 				new KeyWordInformation("Text construct for output, https://www.ek9.io/textProperties.html",
-						Arrays.asList("text\n"
+						List.of("text\n"
 						),
-						search -> search.previousTokenIsDefines()
+						TokenResult::previousTokenIsDefines
 				)
 		);
 		keywordMap.put("component",
 				new KeyWordInformation("Component declaration, https://www.ek9.io/components.html",
-						Arrays.asList("component\n"
+						List.of("component\n"
 						),
-						search -> search.previousTokenIsDefines()
+						TokenResult::previousTokenIsDefines
 				)
 		);
 		keywordMap.put("application",
@@ -143,7 +143,7 @@ public class EK9LanguageWords
 						Arrays.asList("service",
 								"service application"
 						),
-						search -> search.previousTokenIsDefines()
+						TokenResult::previousTokenIsDefines
 				)
 		);
 		//Just joining words
@@ -195,30 +195,30 @@ public class EK9LanguageWords
 
 		keywordMap.put("override",
 				new KeyWordInformation("Used when overriding methods/operators, https://www.ek9.io/methods.html",
-						Arrays.asList("override"
+						List.of("override"
 						),
-						search -> search.previousTokensIndentsOrFirst()
+						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
 		keywordMap.put("public",
 				new KeyWordInformation("Public declarations not required in EK9, https://www.ek9.io/basics.html#visibility",
-						Arrays.asList(""
+						List.of(""
 						),
-						search -> search.previousTokensIndentsOrFirst()
+						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
 		keywordMap.put("protected",
 				new KeyWordInformation("Protected method modifier on classes, https://www.ek9.io/basics.html#class_visibility",
-						Arrays.asList("protected"
+						List.of("protected"
 						),
-						search -> search.previousTokensIndentsOrFirst()
+						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
 		keywordMap.put("private",
 				new KeyWordInformation("Private method modifier, https://www.ek9.io/basics.html#visibility",
-						Arrays.asList("private"
+						List.of("private"
 						),
-						search -> search.previousTokensIndentsOrFirst()
+						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
 		keywordMap.put("operator",
@@ -271,367 +271,366 @@ public class EK9LanguageWords
 
 		keywordMap.put("?",
 				new KeyWordInformation("Is set, https://www.ek9.io/operators.html#ternary",
-						Arrays.asList(
-						),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("??",
 				new KeyWordInformation("Null coalescing, https://www.ek9.io/operators.html#ternary",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("?:",
 				new KeyWordInformation("Null is set coalescing (Elvis), https://www.ek9.io/operators.html#ternary",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("?=",
 				new KeyWordInformation("Guarded assignment (if/when conditionals), https://www.ek9.io/flowControl.html#if_elseif_else",
-						Arrays.asList(""),
+						List.of(""),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("!=",
 				new KeyWordInformation("Not Equals, https://www.ek9.io/operators.html#comparison",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("<>",
 				new KeyWordInformation("Not Equals, https://www.ek9.io/operators.html#comparison",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("=",
 				new KeyWordInformation("Assignment, https://www.ek9.io/operators.html#assignment",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("==",
 				new KeyWordInformation("Equals, https://www.ek9.io/operators.html#comparison",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 
 		keywordMap.put(":",
 				new KeyWordInformation("Assignment, https://www.ek9.io/operators.html#assignment",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put(":=",
 				new KeyWordInformation("Assignment, https://www.ek9.io/operators.html#assignment",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("::",
 				new KeyWordInformation("References construct, https://www.ek9.io/basics.html#references_example",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put(":=:",
 				new KeyWordInformation("Deep copy, https://www.ek9.io/operators.html#modification",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put(":~:",
 				new KeyWordInformation("Merge, https://www.ek9.io/operators.html#modification",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put(":^:",
 				new KeyWordInformation("Replace, https://www.ek9.io/operators.html#modification",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put(":=?",
 				new KeyWordInformation("Assign if unset, https://www.ek9.io/operators.html#ternary",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("$",
 				new KeyWordInformation("String conversion, https://www.ek9.io/operators.html#functional",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("$$",
 				new KeyWordInformation("JSON conversion, https://www.ek9.io/operators.html#functional",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("->",
 				new KeyWordInformation("Incoming parameter(s)",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokenIsPipe()
 				)
 		);
 
 		keywordMap.put("<",
 				new KeyWordInformation("Less than, https://www.ek9.io/operators.html#comparison",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("<-",
 				new KeyWordInformation("Returning / declaration/ out of",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("<?",
 				new KeyWordInformation("Null safe less than, https://www.ek9.io/operators.html#assignment_coalescing",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("<=",
 				new KeyWordInformation("Less than or equal to, https://www.ek9.io/operators.html#comparison",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("<=>",
 				new KeyWordInformation("Comparison (space ship), https://www.ek9.io/operators.html#comparison",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("<~>",
 				new KeyWordInformation("Fuzzy Comparison, https://www.ek9.io/operators.html#comparison",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("<=?",
 				new KeyWordInformation("Null safe less than or equal to, https://www.ek9.io/operators.html#assignment_coalescing",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("<<",
 				new KeyWordInformation("Shift bits left",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 
 		keywordMap.put(">",
 				new KeyWordInformation("Greater than / Add to a collection out of stream, https://www.ek9.io/operators.html#comparison ",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put(">?",
 				new KeyWordInformation("Null safe greater than, https://www.ek9.io/operators.html#assignment_coalescing",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put(">=",
 				new KeyWordInformation("Greater than or equal to, https://www.ek9.io/operators.html#comparison",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put(">=?",
 				new KeyWordInformation("Null safe greater than or equal to, https://www.ek9.io/operators.html#assignment_coalescing",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put(">>",
 				new KeyWordInformation("Shift bits right / Append to a collection out of stream",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("+",
 				new KeyWordInformation("Mathematical addition, https://www.ek9.io/operators.html#mathematical",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("-",
 				new KeyWordInformation("Mathematical subtraction, https://www.ek9.io/operators.html#mathematical",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("*",
 				new KeyWordInformation("Mathematical multiplication, https://www.ek9.io/operators.html#mathematical",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("/",
 				new KeyWordInformation("Mathematical division, https://www.ek9.io/operators.html#mathematical",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("+=",
 				new KeyWordInformation("Mathematical addition and assignment, https://www.ek9.io/operators.html#assignment",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("-=",
 				new KeyWordInformation("Mathematical subtraction and assignment, https://www.ek9.io/operators.html#assignment",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("*=",
 				new KeyWordInformation("Mathematical multiplication and assignment, https://www.ek9.io/operators.html#assignment",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("/=",
 				new KeyWordInformation("Mathematical division and assignment, https://www.ek9.io/operators.html#assignment",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("++",
 				new KeyWordInformation("Mathematical increment, https://www.ek9.io/operators.html#mathematical",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("--",
 				new KeyWordInformation("Mathematical decrement, https://www.ek9.io/operators.html#mathematical",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 
 		keywordMap.put("^",
 				new KeyWordInformation("Mathematical power",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("|",
 				new KeyWordInformation("Stream pipelines linkage",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("#^",
 				new KeyWordInformation("Promotion, https://www.ek9.io/operators.html#functional",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("#?",
 				new KeyWordInformation("Get hash code, https://www.ek9.io/operators.html#functional",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("#<",
 				new KeyWordInformation("Get first, https://www.ek9.io/operators.html#functional",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("#>",
 				new KeyWordInformation("Get last, https://www.ek9.io/operators.html#functional",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("mod",
 				new KeyWordInformation("Mathematical modulus, https://www.ek9.io/operators.html#mathematical",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("rem",
 				new KeyWordInformation("Remainder, https://www.ek9.io/operators.html#mathematical",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("abs",
 				new KeyWordInformation("Absolute value, https://www.ek9.io/operators.html#mathematical",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("sqrt",
 				new KeyWordInformation("mathematical Square Root, https://www.ek9.io/operators.html#mathematical",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("contains",
 				new KeyWordInformation("Does container contain and item",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("matches",
 				new KeyWordInformation("Does one item match another",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("empty",
 				new KeyWordInformation("Has no content, https://www.ek9.io/operators.html#functional",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("length",
 				new KeyWordInformation("Length, https://www.ek9.io/operators.html#functional",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 
 		keywordMap.put("and",
 				new KeyWordInformation("Boolean 'and' / Bitwise 'and'",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("or",
 				new KeyWordInformation("Boolean 'or' / Bitwise 'or'",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("xor",
 				new KeyWordInformation("Boolean 'exclusive or' / Bitwise 'exclusive or'",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("not",
 				new KeyWordInformation("Boolean 'not' / Bitwise 'not'",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("~",
 				new KeyWordInformation("Boolean 'not' /Bitwise 'not' / reverse a list",
-						Arrays.asList(),
+						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
@@ -639,117 +638,117 @@ public class EK9LanguageWords
 		keywordMap.put("assert",
 				new KeyWordInformation("Assert a statement is true, Exception is thrown when false",
 						Arrays.asList("assert", "assert()"),
-						search -> search.previousTokensIndentsOrFirst()
+						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
 		keywordMap.put("by",
 				new KeyWordInformation("Generic/Type constraint. For loop incrementer. Trait delegation, Pipeline",
-						Arrays.asList("by"),
-						search -> search.previousTokensIndentsOrFirst()
+						List.of("by"),
+						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
 		//Now the flow control items
 		keywordMap.put("if",
 				new KeyWordInformation("Conditional if/when, https://www.ek9.io/flowControl.html#switch",
-						Arrays.asList(),
+						List.of(),
 						search -> search.previousTokensIndentsOrFirst() || search.previousTokenIsAssignment()
 				)
 		);
 		keywordMap.put("switch",
 				new KeyWordInformation("Conditional switch/given, https://www.ek9.io/flowControl.html#switch",
-						Arrays.asList(),
+						List.of(),
 						search -> search.previousTokensIndentsOrFirst() || search.previousTokenIsAssignment()
 				)
 		);
 		keywordMap.put("given",
 				new KeyWordInformation("Conditional switch/given, https://www.ek9.io/flowControl.html#switch",
-						Arrays.asList("given"),
+						List.of("given"),
 						search -> search.previousTokensIndentsOrFirst() || search.previousTokenIsAssignment()
 				)
 		);
 		keywordMap.put("case",
 				new KeyWordInformation("Conditional switch/case condition, https://www.ek9.io/flowControl.html#switch",
-						Arrays.asList("case"),
-						search -> search.previousTokensIndentsOrFirst()
+						List.of("case"),
+						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
 		keywordMap.put("default",
 				new KeyWordInformation("Default switch/given condition, https://www.ek9.io/flowControl.html#switch",
-						Arrays.asList("default\n"),
-						search -> search.previousTokensIndentsOrFirst()
+						List.of("default\n"),
+						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
 		keywordMap.put("when",
 				new KeyWordInformation("Conditional if/when/case",
-						Arrays.asList("when")
+						List.of("when")
 				)
 		);
 		keywordMap.put("else",
 				new KeyWordInformation("Conditional else, https://www.ek9.io/flowControl.html#if_elseif_else",
-						Arrays.asList("else"),
-						search -> search.previousTokensIndentsOrFirst()
+						List.of("else"),
+						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
 		keywordMap.put("do",
 				new KeyWordInformation("Do loop, https://www.ek9.io/flowControl.html#do_while_loop",
-						Arrays.asList(),
-						search -> search.previousTokensIndentsOrFirst()
+						List.of(),
+						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
 		keywordMap.put("while",
 				new KeyWordInformation("While loop, https://www.ek9.io/flowControl.html#while_loop",
-						Arrays.asList(),
-						search -> search.previousTokensIndentsOrFirst()
+						List.of(),
+						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
 
 		keywordMap.put("try",
-				new KeyWordInformation("Try/catch expection block, https://www.ek9.io/exceptions.html",
-						Arrays.asList(),
+				new KeyWordInformation("Try/catch exception block, https://www.ek9.io/exceptions.html",
+						List.of(),
 						search -> search.previousTokensIndentsOrFirst() || search.previousTokenIsAssignment()
 				)
 		);
 		keywordMap.put("catch",
-				new KeyWordInformation("Catch expection block, https://www.ek9.io/exceptions.html",
-						Arrays.asList(),
-						search -> search.previousTokensIndentsOrFirst()
+				new KeyWordInformation("Catch exception block, https://www.ek9.io/exceptions.html",
+						List.of(),
+						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
 		keywordMap.put("handle",
 				new KeyWordInformation("Handle exception block, https://www.ek9.io/exceptions.html",
-						Arrays.asList(),
-						search -> search.previousTokensIndentsOrFirst()
+						List.of(),
+						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
 		keywordMap.put("finally",
 				new KeyWordInformation("Finally exception block, https://www.ek9.io/exceptions.html",
-						Arrays.asList(),
-						search -> search.previousTokensIndentsOrFirst()
+						List.of(),
+						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
 
 		keywordMap.put("for",
 				new KeyWordInformation("For loop / for stream / text for language / service for URI",
-						Arrays.asList(),
+						List.of(),
 						search -> search.previousTokensIndentsOrFirst() || search.previousTokenIsAssignment()
 				)
 		);
 		keywordMap.put("pure",
 				new KeyWordInformation("Limit reassignment of variables/side effects, https://www.ek9.io/basics.html#pure",
-						Arrays.asList("pure"),
+						List.of("pure"),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("abstract",
 				new KeyWordInformation("Non concrete functions/components/records/classes/methods/operators",
-						Arrays.asList("abstract"),
+						List.of("abstract"),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 
 		keywordMap.put("allow",
 				new KeyWordInformation("Limit reuse by extension, https://www.ek9.io/traits.html",
-						Arrays.asList("allow"),
+						List.of("allow"),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
@@ -761,13 +760,13 @@ public class EK9LanguageWords
 		);
 		keywordMap.put("open",
 				new KeyWordInformation("Leave open for extension, https://www.ek9.io/inheritance.html",
-						Arrays.asList("open"),
+						List.of("open"),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("extends",
 				new KeyWordInformation("Extend a function/class/component/record, https://www.ek9.io/inheritance.html",
-						Arrays.asList("extends"),
+						List.of("extends"),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
@@ -779,19 +778,19 @@ public class EK9LanguageWords
 		);
 		keywordMap.put("register",
 				new KeyWordInformation("Register a component instance for injection, https://www.ek9.io/dependencyInjection.html",
-						Arrays.asList("register"),
-						search -> search.previousTokensIndentsOrFirst()
+						List.of("register"),
+						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
 		keywordMap.put("dispatcher",
 				new KeyWordInformation("Dispatcher method for calling polymorphic objects, https://www.ek9.io/advancedClassMethods.html",
-						Arrays.asList("dispatcher"),
+						List.of("dispatcher"),
 						search -> !search.previousTokensIndentsOrFirst()
 				)
 		);
 		keywordMap.put("cat",
 				new KeyWordInformation("Catenate stream (start streaming), https://www.ek9.io/streamsAndPipelines.html",
-						Arrays.asList(),
+						List.of(),
 						search -> search.previousTokensIndentsOrFirst() || search.previousTokenIsAssignment()
 				)
 		);
@@ -801,7 +800,7 @@ public class EK9LanguageWords
 								"filter with",
 								"filter by"
 						),
-						search -> search.previousTokenIsPipe()
+						TokenResult::previousTokenIsPipe
 				)
 		);
 		keywordMap.put("select",
@@ -810,7 +809,7 @@ public class EK9LanguageWords
 								"select with",
 								"select by"
 						),
-						search -> search.previousTokenIsPipe()
+						TokenResult::previousTokenIsPipe
 				)
 		);
 		keywordMap.put("map",
@@ -819,7 +818,7 @@ public class EK9LanguageWords
 								"map with",
 								"map by"
 						),
-						search -> search.previousTokenIsPipe()
+						TokenResult::previousTokenIsPipe
 				)
 		);
 		keywordMap.put("sort",
@@ -828,7 +827,7 @@ public class EK9LanguageWords
 								"sort with",
 								"sort by"
 						),
-						search -> search.previousTokenIsPipe()
+						TokenResult::previousTokenIsPipe
 				)
 		);
 		keywordMap.put("group",
@@ -837,7 +836,7 @@ public class EK9LanguageWords
 								"group with",
 								"group by"
 						),
-						search -> search.previousTokenIsPipe()
+						TokenResult::previousTokenIsPipe
 				)
 		);
 		keywordMap.put("join",
@@ -846,7 +845,7 @@ public class EK9LanguageWords
 								"join with",
 								"join by"
 						),
-						search -> search.previousTokenIsPipe()
+						TokenResult::previousTokenIsPipe
 				)
 		);
 		keywordMap.put("split",
@@ -855,7 +854,7 @@ public class EK9LanguageWords
 								"split with",
 								"split by"
 						),
-						search -> search.previousTokenIsPipe()
+						TokenResult::previousTokenIsPipe
 				)
 		);
 		keywordMap.put("uniq",
@@ -864,7 +863,7 @@ public class EK9LanguageWords
 								"uniq with",
 								"uniq by"
 						),
-						search -> search.previousTokenIsPipe()
+						TokenResult::previousTokenIsPipe
 				)
 		);
 		keywordMap.put("tee",
@@ -874,28 +873,28 @@ public class EK9LanguageWords
 								"tee by",
 								"tee in"
 						),
-						search -> search.previousTokenIsPipe()
+						TokenResult::previousTokenIsPipe
 				)
 		);
 		keywordMap.put("flatten",
 				new KeyWordInformation("Flatten - take items out of collections and stream, https://www.ek9.io/streamsAndPipelines.html",
-						Arrays.asList("flatten"
+						List.of("flatten"
 						),
-						search -> search.previousTokenIsPipe()
+						TokenResult::previousTokenIsPipe
 				)
 		);
 		keywordMap.put("call",
 				new KeyWordInformation("Call delegate, https://www.ek9.io/streamsAndPipelines.html",
-						Arrays.asList("call"
+						List.of("call"
 						),
-						search -> search.previousTokenIsPipe()
+						TokenResult::previousTokenIsPipe
 				)
 		);
 		keywordMap.put("async",
 				new KeyWordInformation("Asynchronously call delegate, https://www.ek9.io/streamsAndPipelines.html",
-						Arrays.asList("async"
+						List.of("async"
 						),
-						search -> search.previousTokenIsPipe()
+						TokenResult::previousTokenIsPipe
 				)
 		);
 		keywordMap.put("skip",
@@ -905,7 +904,7 @@ public class EK9LanguageWords
 								"skip of",
 								"skip only"
 						),
-						search -> search.previousTokenIsPipe()
+						TokenResult::previousTokenIsPipe
 				)
 		);
 		keywordMap.put("head",
@@ -915,7 +914,7 @@ public class EK9LanguageWords
 								"head of",
 								"head only"
 						),
-						search -> search.previousTokenIsPipe()
+						TokenResult::previousTokenIsPipe
 				)
 		);
 		keywordMap.put("tail",
@@ -925,14 +924,14 @@ public class EK9LanguageWords
 								"tail of",
 								"tail only"
 						),
-						search -> search.previousTokenIsPipe()
+						TokenResult::previousTokenIsPipe
 				)
 		);
 		keywordMap.put("collect",
 				new KeyWordInformation("Collect items from stream into a collection, https://www.ek9.io/streamsAndPipelines.html",
-						Arrays.asList("collect as"
+						List.of("collect as"
 						),
-						search -> search.previousTokenIsPipe()
+						TokenResult::previousTokenIsPipe
 				)
 		);
 		//Web Services
@@ -989,14 +988,13 @@ public class EK9LanguageWords
 
 	public KeyWordInformation exactMatch(TokenResult search)
 	{
-		KeyWordInformation rtn = keywordMap.get(search.getToken().getText());
-		return rtn;
+		return keywordMap.get(search.getToken().getText());
 	}
 
 	/**
 	 * Typically used for completion, where string is partial.
-	 * Receive a TokenResults so we can also see position in the line.
-	 * This will affect some of the search results.
+	 * Receive a TokenResults, so we can also see position in the line.
+	 * This will affect the search results.
 	 */
 	public List<String> fuzzyMatch(TokenResult search)
 	{
@@ -1017,8 +1015,6 @@ public class EK9LanguageWords
 				}
 			}
 		}
-		//System.err.println("Returning List");
-		//rtn.forEach(item -> System.err.println(item));
 		return rtn;
 	}
 
@@ -1027,7 +1023,7 @@ public class EK9LanguageWords
 		//The hover text to be shown
 		public String hoverText;
 		//One or more bits of text that could complete the partial keyword.
-		public List<String> completionText = new ArrayList<>();
+		public List<String> completionText;
 		//An optional function that can be used to indicate if this keyword is appropriate in the context of use
 		//i.e. defines is only appropriate is the previous tokens were only indents.
 		public Function<TokenResult, Boolean> inContext = null;

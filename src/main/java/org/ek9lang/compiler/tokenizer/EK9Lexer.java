@@ -1,16 +1,14 @@
 package org.ek9lang.compiler.tokenizer;
 
-import org.ek9lang.antlr.EK9LexerRules;
-
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
+import org.ek9lang.antlr.EK9LexerRules;
 
 import java.util.LinkedList;
 import java.util.Stack;
 
-/*
 /*
  * The MIT License (MIT)
  *
@@ -53,16 +51,16 @@ import java.util.Stack;
 public class EK9Lexer extends EK9LexerRules implements LexerPlugin
 {
 	private final int indentToken;
-    private final int dedentToken;
-    private boolean printTokensAsSupplied = false;
+	private final int dedentToken;
+	private boolean printTokensAsSupplied = false;
 
-    // The stack that keeps track of the indentation lengths
+	// The stack that keeps track of the indentation lengths
 	private Stack<Integer> indentLengths = new Stack<>();
 	//Whatever the first indent length all others must be the same.
 	private int firstIndentLength = 0;
 
 	// A linked list where extra tokens are pushed on
-	private LinkedList<Token> pendingTokens = new LinkedList<>();
+	private final LinkedList<Token> pendingTokens = new LinkedList<>();
 	// An int that stores the last pending token type (including the inserted
 	// INDENT/DEDENT/NEWLINE token types also)
 	private Token lastToken = null;
@@ -70,38 +68,38 @@ public class EK9Lexer extends EK9LexerRules implements LexerPlugin
 
 	// The amount of opened braces, brackets and parenthesis
 	private int opened = 0;
-	
+
 	private String sourceName = "unknown";
 
 	private TokenConsumptionListener tokenListener = null;
-	
+
 	public static final String TEXT_INSERTED_INDENT = "INDENT";
 
 	public EK9Lexer(CharStream input, int indentToken, int dedentToken)
-    {
-        super(input);
-        this.indentToken = indentToken;
-        this.dedentToken = dedentToken;
-    }
-	
+	{
+		super(input);
+		this.indentToken = indentToken;
+		this.dedentToken = dedentToken;
+	}
+
 	@Override
 	public String getSourceName()
-	{	
+	{
 		return sourceName;
 	}
-	
+
 	public EK9Lexer setSourceName(String sourceName)
-	{	
+	{
 		this.sourceName = sourceName;
 		return this;
 	}
-	
+
 	public EK9Lexer setTokenListener(TokenConsumptionListener tokenListener)
 	{
 		this.tokenListener = tokenListener;
 		return this;
 	}
-	
+
 	public int getIndentToken()
 	{
 		return indentToken;
@@ -110,18 +108,18 @@ public class EK9Lexer extends EK9LexerRules implements LexerPlugin
 	public int getDedentToken()
 	{
 		return dedentToken;
-	}	
-	
+	}
+
 	@Override
 	public String getSymbolicName(int tokenType)
-    {
-    	return EK9LexerRules.VOCABULARY.getSymbolicName(tokenType);
+	{
+		return EK9LexerRules.VOCABULARY.getSymbolicName(tokenType);
 	}
 
 	@Override
 	public Token nextToken()
 	{
-		if (_input.size() == 0)
+		if(_input.size() == 0)
 		{
 			return publishToken(new CommonToken(EOF, "<EOF>"));
 		}
@@ -129,8 +127,8 @@ public class EK9Lexer extends EK9LexerRules implements LexerPlugin
 		{
 			checkNextToken();
 			Token rtn = this.pendingTokens.pollFirst();
-			
-			if(printTokensAsSupplied)
+
+			if(printTokensAsSupplied && rtn != null)
 			{
 				System.out.println("Supplying token [" + rtn.getText() + "]");
 				if(!_modeStack.isEmpty())
@@ -158,51 +156,37 @@ public class EK9Lexer extends EK9LexerRules implements LexerPlugin
 	}
 
 	@Override
-    public int popMode()
+	public int popMode()
 	{
-		int rtnMode = _modeStack.isEmpty()
-            ? DEFAULT_MODE
-            : super.popMode();
-		return rtnMode;
-    }
-	
-	protected boolean isRegexPossible()
-    {	
-        if (this.lastToken == null)
-        {
-            // No token has been produced yet: at the start of the input,
-            // no division is possible, so a regex literal _is_ possible.
-            return true;
-        }
+		return _modeStack.isEmpty()
+				? DEFAULT_MODE
+				: super.popMode();
+	}
 
-        switch (this.lastToken.getType())
-        {
-            case Identifier:
-            case BooleanLiteral:
-            case IntegerLiteral:
-            case StringLiteral:
-            case FloatingPointLiteral:
-            case CharacterLiteral:
-            case TimeLiteral:
-            case DateLiteral:
-            case DateTimeLiteral:
-            case DurationLiteral:
-            case MillisecondLiteral:
-            case RBRACE:
-            case RBRACK:
-            case RPAREN:
-                // After any of the tokens above, no regex literal can follow.
-                return false;
-            default:
-                // In all other cases, a regex literal _is_ possible.
-                //System.out.println("Regex is possible as previous token type was: " + this.lastToken.getType());
-                return true;
-        }
+	protected boolean isRegexPossible()
+	{
+		if(this.lastToken == null)
+		{
+			// No token has been produced yet: at the start of the input,
+			// no division is possible, so a regex literal _is_ possible.
+			return true;
+		}
+
+		return switch(this.lastToken.getType())
+				{
+					case Identifier, BooleanLiteral, IntegerLiteral, StringLiteral, FloatingPointLiteral, CharacterLiteral, TimeLiteral, DateLiteral, DateTimeLiteral, DurationLiteral, MillisecondLiteral, RBRACE, RBRACK, RPAREN ->
+							// After any of the tokens above, no regex literal can follow.
+							false;
+					default ->
+							// In all other cases, a regex literal _is_ possible.
+							//System.out.println("Regex is possible as previous token type was: " + this.lastToken.getType());
+							true;
+				};
 	}
 
 	private void checkNextToken()
 	{
-		if (this.indentLengths != null)
+		if(this.indentLengths != null)
 		{
 			final int startSize = this.pendingTokens.size();
 			Token curToken;
@@ -211,52 +195,52 @@ public class EK9Lexer extends EK9LexerRules implements LexerPlugin
 				curToken = super.nextToken(); // get the next token from the input stream
 				lastToken = curToken;
 				checkStartOfInput(curToken);
-				switch (curToken.getType())
+				switch(curToken.getType())
 				{
-				case LPAREN:
-				case LBRACK:
-				case LBRACE:
-					//If we are in a interpolated string mode will be pushed we don't
-					//allow multi-line braces in interpolated strings.
-					if(_modeStack.isEmpty())
-						this.opened++;
-					this.pendingTokens.addLast(curToken);
-					break;
-				case RPAREN:
-				case RBRACK:
-				case RBRACE:
-					//If we are in a interpolated string mode will be pushed we don't
-					//allow multi-line braces in interpolated strings.
-					if(_modeStack.isEmpty())
-						this.opened--;
-					this.pendingTokens.addLast(curToken);
-					break;
-				case NL:
-					handleNewLineToken(curToken);
-					break;
-				case EOF:
-					handleEofToken(curToken); // indentLengths stack will be set to null
-					break;
-				case TAB:
-					getErrorListenerDispatch().syntaxError(this,
-							curToken, curToken.getLine(),
-							curToken.getCharPositionInLine(),
-							"Tabs not supported for indentation; use spaces", null);
-				default:
-					this.pendingTokens.addLast(curToken);
+					case LPAREN:
+					case LBRACK:
+					case LBRACE:
+						//If we are in an interpolated string mode will be pushed we don't
+						//allow multi-line braces in interpolated strings.
+						if(_modeStack.isEmpty())
+							this.opened++;
+						this.pendingTokens.addLast(curToken);
+						break;
+					case RPAREN:
+					case RBRACK:
+					case RBRACE:
+						//If we are in an interpolated string mode will be pushed we don't
+						//allow multi-line braces in interpolated strings.
+						if(_modeStack.isEmpty())
+							this.opened--;
+						this.pendingTokens.addLast(curToken);
+						break;
+					case NL:
+						handleNewLineToken(curToken);
+						break;
+					case EOF:
+						handleEofToken(curToken); // indentLengths stack will be set to null
+						break;
+					case TAB:
+						getErrorListenerDispatch().syntaxError(this,
+								curToken, curToken.getLine(),
+								curToken.getCharPositionInLine(),
+								"Tabs not supported for indentation; use spaces", null);
+					default:
+						this.pendingTokens.addLast(curToken);
 				}
 			}
-			while (this.pendingTokens.size() == startSize);
+			while(this.pendingTokens.size() == startSize);
 			this.lastPendingTokenType = curToken.getType();
 		}
 	}
 
 	private void checkStartOfInput(Token curToken)
 	{
-		if (indentLengths.size() == 0)
+		if(indentLengths.size() == 0)
 		{
 			indentLengths.push(0); // initialize the stack with default 0 indentation length
-			if (_input.getText(new Interval(0, 0)).trim().length() == 0)
+			if(_input.getText(new Interval(0, 0)).trim().length() == 0)
 			{
 				this.insertLeadingTokens(curToken.getType(), curToken.getStartIndex());
 			}
@@ -266,31 +250,31 @@ public class EK9Lexer extends EK9LexerRules implements LexerPlugin
 	private void handleNewLineToken(Token curToken)
 	{
 		//System.out.println("handleNewLineToken opened is " + this.opened);
-		if (this.opened == 0)
-		{ 
+		if(this.opened == 0)
+		{
 			int toCheck = _input.LA(1);
-			switch (toCheck)
+			switch(toCheck)
 			{
-			case '\r':
-			case '\n':
-			case '\f':			
-			case EOF:					
-				return;
-						
-			default:
-				this.pendingTokens.addLast(curToken); // insert the current NEWLINE token
-				int indentLength = getIndentationLength(curToken.getText());
-				if (firstIndentLength == 0)
-					firstIndentLength = indentLength;
+				case '\r':
+				case '\n':
+				case '\f':
+				case EOF:
+					return;
 
-				this.insertIndentDedentTokens(indentLength);
-				if(indentLength %2 != 0)
-				{
-					getErrorListenerDispatch().syntaxError(this,
-							curToken, curToken.getLine(),
-							curToken.getCharPositionInLine(),
-							"Odd number of spaces for indentation", null);
-				}
+				default:
+					this.pendingTokens.addLast(curToken); // insert the current NEWLINE token
+					int indentLength = getIndentationLength(curToken.getText());
+					if(firstIndentLength == 0)
+						firstIndentLength = indentLength;
+
+					this.insertIndentDedentTokens(indentLength);
+					if(indentLength % 2 != 0)
+					{
+						getErrorListenerDispatch().syntaxError(this,
+								curToken, curToken.getLine(),
+								curToken.getCharPositionInLine(),
+								"Odd number of spaces for indentation", null);
+					}
 			}
 		}
 	}
@@ -303,7 +287,7 @@ public class EK9Lexer extends EK9LexerRules implements LexerPlugin
 
 	private void insertLeadingTokens(int type, int startIndex)
 	{
-		if (type != NL && type != EOF)
+		if(type != NL && type != EOF)
 		{
 			// (after a whitespace) The first token is visible, so We insert a NEWLINE
 			// and an INDENT token before it to raise an 'unexpected indent' error
@@ -319,7 +303,7 @@ public class EK9Lexer extends EK9LexerRules implements LexerPlugin
 	private void insertIndentDedentTokens(int curIndentLength)
 	{
 		int prevIndentLength = this.indentLengths.peek();
-		if (curIndentLength > prevIndentLength)
+		if(curIndentLength > prevIndentLength)
 		{
 			this.insertToken("<" + TEXT_INSERTED_INDENT + ", " + this.getIndentationDescription(curIndentLength) + ">",
 					indentToken);
@@ -327,39 +311,38 @@ public class EK9Lexer extends EK9LexerRules implements LexerPlugin
 		}
 		else
 		{
-			while (curIndentLength < prevIndentLength)
+			while(curIndentLength < prevIndentLength)
 			{ // More than 1 DEDENT token may be inserted
 				this.indentLengths.pop();
 				prevIndentLength = this.indentLengths.peek();
-				if (curIndentLength <= prevIndentLength)
+				if(curIndentLength <= prevIndentLength)
 				{
 					this.insertToken("<DEDENT, " + this.getIndentationDescription(prevIndentLength) + ">",
 							dedentToken);
 					//Always add a spare new line make grammar more consistent after a dedent
-					this.insertToken("<NEWLINE>", NL);
 				}
 				else
 				{
 					this.insertToken("<DEDENT, " + "length=" + curIndentLength + ">",
 							dedentToken);
 					//Always add a spare new line make grammar more consistent after a dedent
-					this.insertToken("<NEWLINE>", NL);
 					//TODO think about raising an error here as indentation level is not right.
 				}
+				this.insertToken("<NEWLINE>", NL);
 			}
 		}
 	}
 
 	private void insertTrailingTokens(int type)
 	{
-		if (type != NL && type != dedentToken)
+		if(type != NL && type != dedentToken)
 		{
 			// If the last pending token was not a NEWLINE and not a DEDENT then
 			this.insertToken("<NEWLINE>", NL);
 			// insert an extra trailing NEWLINE token that serves as the end of the statement
 		}
 
-		while (this.indentLengths.size() > 1)
+		while(this.indentLengths.size() > 1)
 		{
 			// Now insert as much trailing DEDENT tokens as needed
 			this.insertToken(
@@ -376,7 +359,8 @@ public class EK9Lexer extends EK9LexerRules implements LexerPlugin
 		return "length=" + lengthOfIndent + ", level=" + this.indentLengths.size();
 	}
 
-	private void insertToken(String text, int type) {
+	private void insertToken(String text, int type)
+	{
 		final int startIndex = _tokenStartCharIndex + getText().length();
 		this.insertToken(startIndex, startIndex - 1, text, type, getLine(), getCharPositionInLine());
 	}
@@ -392,15 +376,14 @@ public class EK9Lexer extends EK9LexerRules implements LexerPlugin
 	}
 
 	// Calculates the indentation of the provided spaces.
-	private int getIndentationLength(String textOfMatchedNEWLINE) {
+	private int getIndentationLength(String textOfMatchedNEWLINE)
+	{
 		int count = 0;
-		for (char ch : textOfMatchedNEWLINE.toCharArray()) {
-			switch (ch) {
-			case ' ': // A normal space char - only thing allowed				
+		for(char ch : textOfMatchedNEWLINE.toCharArray())
+		{
+			if(ch == ' ')
 				count++;
-				break;			
-			}
-		}		
+		}
 		return count;
-	}	
+	}
 }

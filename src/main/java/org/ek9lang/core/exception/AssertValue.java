@@ -11,7 +11,7 @@ import java.util.Optional;
  */
 public class AssertValue
 {
-	private static OsSupport osSupport = new OsSupport();
+	private static final OsSupport osSupport = new OsSupport();
 
 	/**
 	 * Checks if a string value is null or an empty string and if so issues an illegal argument exception.
@@ -93,7 +93,7 @@ public class AssertValue
 	public static void checkNotEmpty(String messageIfEmpty, Optional<?> item)
 	{
 		checkNotNull(messageIfEmpty, item);
-		if(!item.isPresent())
+		if(item.isEmpty())
 			throw new IllegalArgumentException(messageIfEmpty);
 	}
 

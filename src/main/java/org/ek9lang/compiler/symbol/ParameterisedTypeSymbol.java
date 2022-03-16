@@ -219,9 +219,6 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 			//But see how templateValidator has to deal with this.
 
 			MethodSymbol rtn = new MethodSymbol(useMethodName, this);
-			//System.out.println("Method cloning [" + willClone + "] [" + willClone.getName() + "]  constructor [" + willClone.isConstructor() + "]");
-
-			//System.out.println("method type from [" + fromType.get() + "] to [" + newType.get() + "]"); 
 
 			rtn.setType(newType);
 			rtn.setOverride(willClone.isOverride());

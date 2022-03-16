@@ -1,8 +1,11 @@
 package org.ek9lang.dependency;
 
-import java.util.*;
-
 import org.ek9lang.core.utils.SemanticVersion;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a single dependency by moduleName and version.
@@ -172,9 +175,8 @@ public class DependencyNode
 	@Override
 	public boolean equals(Object obj)
 	{
-		if(obj instanceof DependencyNode)
+		if(obj instanceof DependencyNode dep)
 		{
-			DependencyNode dep = (DependencyNode)obj;
 			String thisVector = moduleName + "-" + version;
 			String otherVector = dep.moduleName + "-" + dep.version;
 			return thisVector.equals(otherVector);

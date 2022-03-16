@@ -7,11 +7,11 @@ public class ZipBinaryContent
 {
 	private final String entryName;
 	private final byte[] content;
-	
+
 	public ZipBinaryContent(String entryName, byte[] content)
 	{
 		this.content = content;
-		this.entryName = entryName;				
+		this.entryName = entryName;
 	}
 
 	public String getEntryName()

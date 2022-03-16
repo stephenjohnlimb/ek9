@@ -20,5 +20,4 @@ public class ExitException extends RuntimeException
 	{
 		return exitCode;
 	}
-
 }

@@ -62,11 +62,11 @@ public class Glob
 
 	private boolean included(Path path)
 	{
-		return includes.stream().filter(matcher -> matcher.matches(path)).findFirst().isPresent();
+		return includes.stream().anyMatch(matcher -> matcher.matches(path));
 	}
 
 	private boolean excluded(Path path)
 	{
-		return excludes.stream().filter(matcher -> matcher.matches(path)).findFirst().isPresent();
+		return excludes.stream().anyMatch(matcher -> matcher.matches(path));
 	}
 }

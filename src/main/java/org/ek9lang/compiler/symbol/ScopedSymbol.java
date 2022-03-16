@@ -185,8 +185,7 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol
 	@Override
 	public boolean isMarkedPure()
 	{
-		var rtn = actualScope.isMarkedPure();
-		return rtn;
+		return actualScope.isMarkedPure();
 	}
 
 	public void setMarkedPure(boolean markedPure)

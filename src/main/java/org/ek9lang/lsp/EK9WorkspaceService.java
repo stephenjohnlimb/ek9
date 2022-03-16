@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class EK9WorkspaceService extends EK9Service implements WorkspaceService
 {
-	private Workspace ek9WorkSpace = new Workspace();
+	private final Workspace ek9WorkSpace = new Workspace();
 
 	public EK9WorkspaceService(EK9LanguageServer languageServer)
 	{
@@ -38,22 +38,10 @@ public class EK9WorkspaceService extends EK9Service implements WorkspaceService
 	public void didChangeWatchedFiles(DidChangeWatchedFilesParams params)
 	{
 		params.getChanges().forEach(fileEvent -> {
-
 			switch(fileEvent.getType())
 			{
-				case Changed:
-					System.err.println("didChangeWatchedFiles " + fileEvent.getUri() + " changed");
-					//This could have been from a git pull, revert or generated code - not just edit.
-					reportOnCompiledSource(getWorkspace().reParseSource(getPath(fileEvent.getUri())));
-					break;
-				case Created:
-					System.err.println("didChangeWatchedFiles " + fileEvent.getUri() + " created");
-					reportOnCompiledSource(getWorkspace().reParseSource(getPath(fileEvent.getUri())));
-					break;
-				case Deleted:
-					System.err.println("didChangeWatchedFiles " + fileEvent.getUri() + " deleted");
-					clearOldCompiledDiagnostics(getWorkspace().removeSource(getPath(fileEvent.getUri())));
-					break;
+				case Changed, Created -> reportOnCompiledSource(getWorkspace().reParseSource(getPath(fileEvent.getUri())));
+				case Deleted -> clearOldCompiledDiagnostics(getWorkspace().removeSource(getPath(fileEvent.getUri())));
 			}
 		});
 	}
@@ -62,5 +50,4 @@ public class EK9WorkspaceService extends EK9Service implements WorkspaceService
 	{
 		return ek9WorkSpace;
 	}
-
 }

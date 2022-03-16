@@ -96,7 +96,7 @@ public class DependencyManager
 	 * has a viable path back to parent and so is not marked as rejected.
 	 * But then a little later in the processing a critical node in the path is
 	 * marked as rejected. Now the lower level one does not have path back.
-	 *
+	 * <p>
 	 * So call in a loop until fully optimised.
 	 *
 	 * @return true is optimisation took place, false if there was nothing to optimise.

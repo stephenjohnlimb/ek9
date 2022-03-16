@@ -8,6 +8,7 @@ import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.Objects;
 
 /**
  * Just a wrapper around java public private key processing.
@@ -227,7 +228,7 @@ public class SigningKeyPair
 	private String decrypt(String data, Key key)
 	{
 		byte[] decoded = decoder.decode(data.getBytes(StandardCharsets.UTF_8));
-		return new String(decrypt(decoded, key), StandardCharsets.UTF_8);
+		return new String(Objects.requireNonNull(decrypt(decoded, key)), StandardCharsets.UTF_8);
 	}
 
 	private byte[] decrypt(byte[] data, Key key)

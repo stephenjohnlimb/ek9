@@ -2,7 +2,6 @@ package org.ek9lang.lsp;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -28,7 +27,7 @@ public class Server
 		}
 	}
 
-	public static void runEK9LanguageServer(InputStream in, OutputStream out, boolean provideLanguageHoverHelp) throws ExecutionException, InterruptedException
+	public static void runEK9LanguageServer(InputStream in, OutputStream out, boolean provideLanguageHoverHelp)
 	{
 		//Switch off any logging as we are using stdin/stdout for protocol exchange
 		LogManager.getLogManager().reset();

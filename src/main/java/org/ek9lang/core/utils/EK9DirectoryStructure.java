@@ -4,7 +4,6 @@ import org.ek9lang.core.exception.AssertValue;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.FileSystems;
 
@@ -107,8 +106,9 @@ public class EK9DirectoryStructure
 
 	/**
 	 * This expects an ek9 source file in a specific directory.
+	 *
 	 * @param ek9FullPathToFileName i.e. main.ek9
-	 * @param targetArchitecture i.e. "java"
+	 * @param targetArchitecture    i.e. "java"
 	 */
 	public void cleanEK9DirectoryStructureFor(String ek9FullPathToFileName, String targetArchitecture)
 	{
@@ -191,7 +191,7 @@ public class EK9DirectoryStructure
 		String dir = fileHandling.getUsersHomeEK9Directory();
 
 		return saveToOutput(new File(dir, PRIVATE_PEM), keyPair.getPvtBase64()) &&
-			saveToOutput(new File(dir, PUBLIC_PEM), keyPair.getPubBase64());
+				saveToOutput(new File(dir, PUBLIC_PEM), keyPair.getPubBase64());
 	}
 
 	private boolean saveToOutput(File file, String value)
