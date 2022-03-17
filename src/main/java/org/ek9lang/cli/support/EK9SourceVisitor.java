@@ -108,6 +108,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 				"applyStandardExcludes", this::processApplyStandardExcludes,
 				"excludeFiles", this::processExcludeFiles
 		));
+
 		return rtn;
 	}
 

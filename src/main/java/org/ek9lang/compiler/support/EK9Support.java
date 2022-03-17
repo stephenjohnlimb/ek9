@@ -1,9 +1,9 @@
 package org.ek9lang.compiler.support;
 
-import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.tokenizer.EK9Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Lexer;
+import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.tokenizer.EK9Lexer;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -30,5 +30,8 @@ public class EK9Support extends AntlrSupport
 	}
 
 	@Override
-	protected String getGrammarName() { return "org.ek9lang.antlr.EK9";}
+	protected String getGrammarName()
+	{
+		return "org.ek9lang.antlr.EK9";
+	}
 }

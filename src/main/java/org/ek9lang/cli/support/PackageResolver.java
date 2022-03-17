@@ -2,6 +2,7 @@ package org.ek9lang.cli.support;
 
 import org.ek9lang.cli.CommandLineDetails;
 import org.ek9lang.compiler.parsing.JustParser;
+import org.ek9lang.core.exception.AssertValue;
 
 import java.io.File;
 import java.util.Optional;
@@ -103,6 +104,7 @@ public class PackageResolver extends Reporter
 
 	private boolean downloadDependency(String dependencyVector)
 	{
+		AssertValue.checkNotNull("DependencyVector cannot be null", dependencyVector);
 		//TODO the download part
 		return false;
 	}

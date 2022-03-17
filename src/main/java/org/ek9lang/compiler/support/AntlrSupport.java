@@ -22,7 +22,7 @@ public abstract class AntlrSupport
 
 	public AntlrSupport(String inputFileName) throws IOException, IllegalArgumentException, SecurityException
 	{
-		if(! new File(inputFileName).exists())
+		if(!new File(inputFileName).exists())
 			System.out.println("AntlrSupport cannot find file [" + inputFileName + "]");
 		else
 			System.out.println("AntlrSupport for EK9");
@@ -39,21 +39,21 @@ public abstract class AntlrSupport
 			{
 				testRig.process();
 			}
-			catch (Exception e)
+			catch(Exception e)
 			{
 				e.printStackTrace();
 			}
 		}
 
 	}
-	
+
 	protected abstract Lexer getLexer(CharStream input, String sourceName);
 
-	protected abstract String getGrammarName() ;
+	protected abstract String getGrammarName();
 
 	private void streamLexerTokensFor(String inputFileName) throws IOException, IllegalArgumentException, SecurityException
 	{
-		LexerPlugin lexer1  = new DelegatingLexer((LexerPlugin)getLexer(CharStreams.fromFileName(inputFileName), inputFileName));
+		LexerPlugin lexer1 = new DelegatingLexer((LexerPlugin)getLexer(CharStreams.fromFileName(inputFileName), inputFileName));
 		new TokenStreamAssessment().assess(lexer1, true);
 	}
 
@@ -64,32 +64,38 @@ public abstract class AntlrSupport
 		System.out.println("Running TestRig with " + Arrays.toString(params));
 		try
 		{
-			
+
 			//Now because the test Rig is written the way it is; and we want to use our own lexer we have to do this
-			return new TestRig(params){
+			return new TestRig(params)
+			{
 				@Override
-				public void process() throws Exception {
+				public void process() throws Exception
+				{
 					ClassLoader cl = Thread.currentThread().getContextClassLoader();
 					Lexer lexer = getLexer(null, inputFileName);
-					
+
 					Class<? extends Parser> parserClass = null;
 					Parser parser = null;
-					if ( !startRuleName.equals(LEXER_START_RULE_NAME) ) {
-						String parserName = grammarName+"Parser";
+					if(!startRuleName.equals(LEXER_START_RULE_NAME))
+					{
+						String parserName = grammarName + "Parser";
 						parserClass = cl.loadClass(parserName).asSubclass(Parser.class);
 						Constructor<? extends Parser> parserCtor = parserClass.getConstructor(TokenStream.class);
 						parser = parserCtor.newInstance((TokenStream)null);
 					}
 
-					Charset charset = ( encoding == null ? Charset.defaultCharset () : Charset.forName(encoding) );
-					if ( inputFiles.size()==0 ) {
+					Charset charset = (encoding == null ? Charset.defaultCharset() : Charset.forName(encoding));
+					if(inputFiles.size() == 0)
+					{
 						CharStream charStream = CharStreams.fromStream(System.in, charset);
 						process(lexer, parserClass, parser, charStream);
 						return;
 					}
-					for (String inputFile : inputFiles) {
-				                CharStream charStream = CharStreams.fromPath(Paths.get(inputFile), charset);
-						if ( inputFiles.size()>1 ) {
+					for(String inputFile : inputFiles)
+					{
+						CharStream charStream = CharStreams.fromPath(Paths.get(inputFile), charset);
+						if(inputFiles.size() > 1)
+						{
 							System.err.println(inputFile);
 						}
 						process(lexer, parserClass, parser, charStream);
@@ -97,8 +103,8 @@ public abstract class AntlrSupport
 				}
 			};
 		}
-		catch (Exception e)
-		{		
+		catch(Exception e)
+		{
 			e.printStackTrace();
 		}
 		return null;

@@ -7,9 +7,9 @@ public class VariableSymbol extends Symbol implements IAssignableSymbol
 	private boolean loopVariable = false;
 
 	private boolean incomingParameter = false;
-	
+
 	private boolean returningParameter = false;
-	
+
 	/**
 	 * Limited scope of variables from other scopes
 	 * fields/properties on classes/components etc. are always private
@@ -17,24 +17,24 @@ public class VariableSymbol extends Symbol implements IAssignableSymbol
 	 * So it depends on where you are accessing the variable from.
 	 */
 	private boolean isPrivate = false;
-	
+
 	private boolean isAggregatePropertyField = false;
-	
+
 	public VariableSymbol(String name)
 	{
 		this(name, Optional.empty());
 	}
-	
+
 	public VariableSymbol(String name, ISymbol type)
 	{
 		this(name, Optional.ofNullable(type));
 	}
-	
+
 	public VariableSymbol(String name, Optional<ISymbol> type)
 	{
-		super(name, type);	
+		super(name, type);
 		super.setGenus(SymbolGenus.VALUE);
-	}	
+	}
 
 	@Override
 	public VariableSymbol clone(IScope withParentAsAppropriate)
@@ -92,20 +92,20 @@ public class VariableSymbol extends Symbol implements IAssignableSymbol
 	}
 
 	public boolean isIncomingParameter()
-    {
-    	return incomingParameter;
-    }
-	
+	{
+		return incomingParameter;
+	}
+
 	public void setIncomingParameter(boolean incomingParameter)
 	{
 		this.incomingParameter = incomingParameter;
 	}
-	
+
 	public boolean isReturningParameter()
-    {
-    	return returningParameter;
-    }
-	
+	{
+		return returningParameter;
+	}
+
 	public void setReturningParameter(boolean returningParameter)
 	{
 		this.returningParameter = returningParameter;
@@ -123,7 +123,7 @@ public class VariableSymbol extends Symbol implements IAssignableSymbol
 		StringBuilder rtn = new StringBuilder();
 		if(this.isPrivate)
 			rtn.append("private ");
-		rtn.append(super.getFriendlyName());		
+		rtn.append(super.getFriendlyName());
 		return rtn.toString();
-	}	
+	}
 }
