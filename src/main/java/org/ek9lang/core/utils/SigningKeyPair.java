@@ -12,6 +12,7 @@ import java.util.Objects;
 
 /**
  * Just a wrapper around java public private key processing.
+ * Can hold either public key and private key, just one or none.
  */
 public class SigningKeyPair
 {
@@ -21,92 +22,81 @@ public class SigningKeyPair
 	private PublicKey pub;
 	private PrivateKey pvt;
 
-	public static SigningKeyPair generate(int keySize)
+	private static KeyPairGenerator getRSAKeyPairGenerator()
 	{
-		SigningKeyPair rtn = null;
-
 		try
 		{
-			rtn = new SigningKeyPair();
-			KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-			kpg.initialize(keySize);
-			KeyPair kp = kpg.generateKeyPair();
-			rtn.pub = kp.getPublic();
-			rtn.pvt = kp.getPrivate();
+			return KeyPairGenerator.getInstance("RSA");
 		}
 		catch(NoSuchAlgorithmException e)
 		{
 			System.err.println("Failed to create public private key pair: " + e.getMessage());
+			//Show-stopper.
+			System.exit(3);
 		}
+		return null;
+	}
+
+	public static SigningKeyPair generate(int keySize)
+	{
+		SigningKeyPair rtn = new SigningKeyPair();
+		KeyPairGenerator kpg = getRSAKeyPairGenerator();
+		kpg.initialize(keySize);
+		KeyPair kp = kpg.generateKeyPair();
+		rtn.pub = kp.getPublic();
+		rtn.pvt = kp.getPrivate();
 
 		return rtn;
 	}
 
 	public static SigningKeyPair of(File privateKeyFile, File publicKeyFile)
 	{
-		String privatePemContents;
-		String publicPemContents;
-
-		try(FileInputStream fis = new FileInputStream(privateKeyFile))
-		{
-			privatePemContents = new String(fis.readAllBytes(), StandardCharsets.UTF_8);
-		}
-		catch(Throwable th)
-		{
-			System.err.println("Failed to open private key file: " + th.getMessage());
-			return null;
-		}
-		try(FileInputStream fis = new FileInputStream(publicKeyFile))
-		{
-			publicPemContents = new String(fis.readAllBytes(), StandardCharsets.UTF_8);
-		}
-		catch(Throwable th)
-		{
-			System.err.println("Failed to open public key file: " + th.getMessage());
-			return null;
-		}
-
-		return new SigningKeyPair(privatePemContents, publicPemContents);
+		return new SigningKeyPair(asBase64(privateKeyFile), asBase64(publicKeyFile));
 	}
 
 	public static SigningKeyPair ofPublic(File publicKeyFile)
 	{
-		try(FileInputStream fis = new FileInputStream(publicKeyFile))
-		{
-			return ofPublic(new String(fis.readAllBytes(), StandardCharsets.UTF_8));
-		}
-		catch(Throwable th)
-		{
-			System.err.println("Failed to open public key file: " + th.getMessage());
-			return null;
-		}
-	}
-
-	public static SigningKeyPair ofPublic(String publicBase64)
-	{
-		SigningKeyPair rtn = new SigningKeyPair();
-		rtn.pub = publicFromBase64(publicBase64);
-		return rtn;
+		return ofPublic(asBase64(publicKeyFile));
 	}
 
 	public static SigningKeyPair ofPrivate(File privateKeyFile)
 	{
-		try(FileInputStream fis = new FileInputStream(privateKeyFile))
-		{
-			return ofPrivate(new String(fis.readAllBytes(), StandardCharsets.UTF_8));
-		}
-		catch(Throwable th)
-		{
-			System.err.println("Failed to open private key file: " + th.getMessage());
-			return null;
-		}
+		return ofPrivate(asBase64(privateKeyFile));
+	}
+
+	public static SigningKeyPair ofPublic(String publicBase64)
+	{
+		return new SigningKeyPair(publicFromBase64(publicBase64));
 	}
 
 	public static SigningKeyPair ofPrivate(String privateBase64)
 	{
-		SigningKeyPair rtn = new SigningKeyPair();
-		rtn.pvt = privateFromBase64(privateBase64);
-		return rtn;
+		return new SigningKeyPair(privateFromBase64(privateBase64));
+	}
+
+	private static String asBase64(File keyFile)
+	{
+		try(FileInputStream fis = new FileInputStream(keyFile))
+		{
+			return new String(fis.readAllBytes(), StandardCharsets.UTF_8);
+		}
+		catch(Throwable th)
+		{
+			System.err.println("Failed to open file: " + th.getMessage());
+			return null;
+		}
+	}
+
+	private SigningKeyPair(PublicKey pub)
+	{
+		this();
+		this.pub = pub;
+	}
+
+	private SigningKeyPair(PrivateKey pvt)
+	{
+		this();
+		this.pvt = pvt;
 	}
 
 	private SigningKeyPair()
@@ -180,6 +170,16 @@ public class SigningKeyPair
 		return null;
 	}
 
+	public boolean isPublic()
+	{
+		return pub != null;
+	}
+
+	public boolean isPrivate()
+	{
+		return pvt != null;
+	}
+
 	public String encryptWithPublicKey(String data)
 	{
 		return encrypt(data, this.pub);
@@ -200,26 +200,36 @@ public class SigningKeyPair
 		return decrypt(data, this.pvt);
 	}
 
+	private byte[] encrypt(byte[] data, Key key)
+	{
+		return applyCipher(Cipher.ENCRYPT_MODE, data, key);
+	}
+
+	private byte[] decrypt(byte[] data, Key key)
+	{
+		return applyCipher(Cipher.DECRYPT_MODE, data, key);
+	}
+
+	private byte[] applyCipher(int encryptDecryptMode, byte[] data, Key key)
+	{
+		try
+		{
+			this.cipher.init(encryptDecryptMode, key);
+			return this.cipher.doFinal(data);
+		}
+		catch(Throwable th)
+		{
+			System.err.println("Unable apply Cipher " + th.getMessage());
+			return null;
+		}
+	}
+
 	/**
 	 * Accepts a string converts to bytes encrypts and converts to base64.
 	 */
 	private String encrypt(String data, Key key)
 	{
 		return encoder.encodeToString(encrypt(data.getBytes(StandardCharsets.UTF_8), key));
-	}
-
-	private byte[] encrypt(byte[] data, Key key)
-	{
-		try
-		{
-			this.cipher.init(Cipher.ENCRYPT_MODE, key);
-			return this.cipher.doFinal(data);
-		}
-		catch(Throwable th)
-		{
-			System.err.println("Unable encrypt " + th.getMessage());
-			return null;
-		}
 	}
 
 	/*
@@ -231,19 +241,6 @@ public class SigningKeyPair
 		return new String(Objects.requireNonNull(decrypt(decoded, key)), StandardCharsets.UTF_8);
 	}
 
-	private byte[] decrypt(byte[] data, Key key)
-	{
-		try
-		{
-			this.cipher.init(Cipher.DECRYPT_MODE, key);
-			return this.cipher.doFinal(data);
-		}
-		catch(Throwable th)
-		{
-			System.err.println("Unable decrypt " + th.getMessage());
-			return null;
-		}
-	}
 
 	public String getPvtBase64()
 	{
