@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 public class AbstractSymbolTestBase
 {
-	protected AggregateSupport support = new AggregateSupport();
+	protected AggregateFactory support = new AggregateFactory();
 	protected IScope symbolTable = new SymbolTable();
 
 	@BeforeEach

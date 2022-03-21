@@ -13,8 +13,10 @@ import java.util.Optional;
  * This is typically used in the phase 3 where we have one aggregate with a set of methods and what another aggregate
  * to have those methods but in some cases we want to alter the return types via covariance.
  * It also has more general uses in creating operators and methods for specific types or generic types of T.
+ *
+ * This is a factory of sorts, not in the pure OO sense; but a factory none the less.
  */
-public class AggregateSupport
+public class AggregateFactory
 {
 	public boolean isSymbolNameFullyQualified(String symbolName)
 	{

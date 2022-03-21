@@ -74,7 +74,7 @@ public class SymbolTable implements IScope
 	//But also an ordered list - useful for ordered parameters.
 	private final List<ISymbol> orderedSymbols = new ArrayList<>();
 
-	private final AggregateSupport aggregateSupport = new AggregateSupport();
+	private final AggregateFactory aggregateFactory = new AggregateFactory();
 	private final SymbolMatcher matcher = new SymbolMatcher();
 
 	private boolean markedPure = false;
@@ -274,11 +274,11 @@ public class SymbolTable implements IScope
 		{
 			//Then it is a fully qualified search so if the scope name of this table does not match
 			//what has been provided then even if the symbol name matches it's a miss.
-			if(!this.getScopeName().equals(aggregateSupport.getModuleNameIfPresent(symbolName)))
+			if(!this.getScopeName().equals(aggregateFactory.getModuleNameIfPresent(symbolName)))
 				return Optional.empty();
 
 			//So now just use the actual symbol name part of com.something:MyClass i.e. use the MyClass bit.
-			symbolName = aggregateSupport.getUnqualifiedName(symbolName);
+			symbolName = aggregateFactory.getUnqualifiedName(symbolName);
 		}
 
 		//So if search type is not set then that means search all categories!
