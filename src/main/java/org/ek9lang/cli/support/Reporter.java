@@ -1,5 +1,9 @@
 package org.ek9lang.cli.support;
 
+/**
+ * Designed to ensure consistent reporting as part of the command line
+ * commands and executions.
+ */
 public abstract class Reporter
 {
 	private final boolean verbose;

@@ -26,7 +26,6 @@ public class JustParser
 
 	public boolean readSourceFile(File sourceFile, EK9SourceVisitor visitor)
 	{
-		visitor.setErrorListener(errorListener);
 		try
 		{
 			if(!osSupport.isFileReadable(sourceFile))
@@ -53,8 +52,7 @@ public class JustParser
 					errorListener.getErrors().forEachRemaining(System.err::println);
 					return false;
 				}
-
-				visitor.visitCompilationUnit(context);
+				visitor.visit(context, errorListener);
 				if(errorListener.hasErrors())
 				{
 					errorListener.getErrors().forEachRemaining(System.err::println);

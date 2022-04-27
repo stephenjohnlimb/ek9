@@ -28,6 +28,7 @@ public class TestAllExamples
         assertNotNull(rootDirectoryForTest);
         File examples = new File(rootDirectoryForTest.getPath());
         Glob ek9 = new Glob("**.ek9");
+
         for(File file : os.getFilesRecursivelyFrom(examples, ek9))
         {
             test(file, false);

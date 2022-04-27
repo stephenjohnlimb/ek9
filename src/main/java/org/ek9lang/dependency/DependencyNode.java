@@ -2,10 +2,7 @@ package org.ek9lang.dependency;
 
 import org.ek9lang.core.utils.SemanticVersion;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Represents a single dependency by moduleName and version.
@@ -83,7 +80,7 @@ public class DependencyNode
 		return rtn;
 	}
 
-	public String reportCircularDependencies(boolean includeVersion)
+	public Optional<String> reportCircularDependencies(boolean includeVersion)
 	{
 		DependencyNode d = parent;
 		while(d != null)
@@ -91,11 +88,11 @@ public class DependencyNode
 			if(d.isSameModule(this))
 			{
 				//Found a circular dependency
-				return showPathToDependency(includeVersion);
+				return Optional.ofNullable(showPathToDependency(includeVersion));
 			}
 			d = d.getParent();
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	public String showPathToDependency(boolean includeVersion)

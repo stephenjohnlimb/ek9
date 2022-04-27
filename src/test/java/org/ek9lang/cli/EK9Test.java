@@ -1,5 +1,6 @@
 package org.ek9lang.cli;
 
+import org.ek9lang.LanguageMetaData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,6 +19,7 @@ import java.net.URL;
  */
 public class EK9Test
 {
+	private final LanguageMetaData languageMetaData = new LanguageMetaData("0.0.1-0");
 	private final OsSupport osSupport = new OsSupport(true);
 	private final FileHandling fileHandling = new FileHandling(osSupport);
 	private final SourceFileSupport sourceFileSupport = new SourceFileSupport(fileHandling, osSupport);
@@ -227,7 +229,7 @@ public class EK9Test
 		assertNotNull(sourceFile);
 
 		//This should Fail with a file issue, because it should not parse.
-		CommandLineDetails commandLine = new CommandLineDetails(fileHandling, osSupport);
+		CommandLineDetails commandLine = new CommandLineDetails(languageMetaData, fileHandling, osSupport);
 
 		int result = commandLine.processCommandLine(command);
 		assertEquals(EK9.FILE_ISSUE_EXIT_CODE, result);
@@ -446,7 +448,7 @@ public class EK9Test
 
 	private CommandLineDetails assertResult(int expectation, String[] argv)
 	{
-		CommandLineDetails commandLine = new CommandLineDetails(fileHandling, osSupport);
+		CommandLineDetails commandLine = new CommandLineDetails(languageMetaData, fileHandling, osSupport);
 		int result = commandLine.processCommandLine(argv);
 
 		assertTrue(result <= EK9.SUCCESS_EXIT_CODE);

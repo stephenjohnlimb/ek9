@@ -38,47 +38,49 @@ public class DependencyNodeFactory extends Reporter
 
 	private Optional<DependencyNode> createFrom(DependencyNode parent, EK9SourceVisitor visitor)
 	{
-		DependencyNode workingNode = new DependencyNode(visitor.getModuleName(), visitor.getVersion());
-
-		log("Processing '" + workingNode + "'");
-
-		if(parent != null)
+		var details = visitor.getPackageDetails();
+		if(details.isPresent())
 		{
-			parent.addDependency(workingNode);
-			log("Added " + workingNode + " as dependency of " + parent);
-			String circulars = parent.reportCircularDependencies(true);
-			if(circulars != null)
+			var packageDetails = details.get();
+			DependencyNode workingNode = new DependencyNode(packageDetails.moduleName(), packageDetails.version());
+
+			log("Processing '" + workingNode + "'");
+
+			if(parent != null)
 			{
-				report("Circular dependency! '" + circulars + "'");
-				return Optional.empty();
+				parent.addDependency(workingNode);
+				log("Added " + workingNode + " as dependency of " + parent);
+				var circulars = parent.reportCircularDependencies(true);
+				if(circulars.isPresent())
+				{
+					report("Circular dependency! '" + circulars.get() + "'");
+					return Optional.empty();
+				}
+			}
+
+			log("deps (" + packageDetails.deps().size() + ")");
+			if(processDependencies(workingNode, packageDetails.deps()))
+			{
+				log("devDeps (" + packageDetails.devDeps().size() + ")");
+				if(processDependencies(workingNode, packageDetails.devDeps()))
+				{
+					log("excludesDeps (" + packageDetails.excludeDeps().size() + ")");
+					packageDetails.excludeDeps().forEach((key, value) -> {
+						workingNode.addDependencyRejection(key, value);
+						log("From '" + workingNode + "': excluding '" + key + "' when dependency of '" + value + "'");
+					});
+					return Optional.of(workingNode);
+				}
 			}
 		}
-
-		log("deps (" + visitor.getDeps().size() + ")");
-		if(!processDependencies(workingNode, visitor.getDeps()))
-			return Optional.empty();
-
-		log("devDeps (" + visitor.getDevDeps().size() + ")");
-		if(!processDependencies(workingNode, visitor.getDevDeps()))
-			return Optional.empty();
-
-		Map<String, String> excludesDeps = visitor.getExcludeDeps();
-		log("excludesDeps (" + excludesDeps.size() + ")");
-
-		excludesDeps.keySet().forEach(key -> {
-			String dependencyOf = excludesDeps.get(key);
-			workingNode.addDependencyRejection(key, dependencyOf);
-			log("From '" + workingNode + "': excluding '" + key + "' when dependency of '" + dependencyOf + "'");
-		});
-
-		return Optional.of(workingNode);
+		return Optional.empty();
 	}
 
 	private boolean processDependencies(DependencyNode workingNode, Map<String, String> deps)
 	{
-		for(String key : deps.keySet())
+		for(var entry : deps.entrySet())
 		{
-			String dependencyVector = commandLine.getFileHandling().makeDependencyVector(key, deps.get(key));
+			String dependencyVector = commandLine.getFileHandling().makeDependencyVector(entry.getKey(), entry.getValue());
 			log("Dependency '" + dependencyVector + "'");
 			Optional<EK9SourceVisitor> depVisitor = packageResolver.resolve(dependencyVector);
 			if(depVisitor.isEmpty())

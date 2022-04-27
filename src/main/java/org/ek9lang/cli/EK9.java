@@ -1,5 +1,6 @@
 package org.ek9lang.cli;
 
+import org.ek9lang.LanguageMetaData;
 import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.OsSupport;
@@ -43,13 +44,14 @@ public class EK9
 	public static int PROGRAM_NOT_SPECIFIED_EXIT_CODE = 6;
 	public static int LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE = 7;
 
+	private static final LanguageMetaData languageMetaData = new LanguageMetaData("0.0.1-0");
 	private final CommandLineDetails commandLine;
 
 	public static void main(String[] argv)
 	{
 		OsSupport osSupport = new OsSupport();
 		FileHandling fileHandling = new FileHandling(osSupport);
-		CommandLineDetails commandLine = new CommandLineDetails(fileHandling, osSupport);
+		CommandLineDetails commandLine = new CommandLineDetails(languageMetaData, fileHandling, osSupport);
 
 		try
 		{

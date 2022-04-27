@@ -1,7 +1,9 @@
 package org.ek9lang.cli;
 
+import org.ek9lang.LanguageMetaData;
 import org.ek9lang.cli.support.EK9ProjectProperties;
 import org.ek9lang.cli.support.EK9SourceVisitor;
+import org.ek9lang.cli.support.PackageDetails;
 import org.ek9lang.compiler.parsing.JustParser;
 import org.ek9lang.core.exception.ExitException;
 import org.ek9lang.core.utils.FileHandling;
@@ -18,6 +20,7 @@ import java.util.regex.Pattern;
  */
 public class CommandLineDetails
 {
+	private final LanguageMetaData languageMetaData;
 	private final OsSupport osSupport;
 	private final FileHandling fileHandling;
 	private final List<String> ek9AppParameters = new ArrayList<>();
@@ -49,8 +52,9 @@ public class CommandLineDetails
 	 */
 	private EK9SourceVisitor visitor = null;
 
-	public CommandLineDetails(FileHandling fileHandling, OsSupport osSupport)
+	public CommandLineDetails(LanguageMetaData languageMetaData, FileHandling fileHandling, OsSupport osSupport)
 	{
+		this.languageMetaData = languageMetaData;
 		this.fileHandling = fileHandling;
 		this.osSupport = osSupport;
 	}
@@ -63,6 +67,11 @@ public class CommandLineDetails
 	public FileHandling getFileHandling()
 	{
 		return fileHandling;
+	}
+
+	public LanguageMetaData getLanguageMetaData()
+	{
+		return languageMetaData;
 	}
 
 	/**
@@ -279,7 +288,7 @@ public class CommandLineDetails
 
 	private int showVersionOfEK9()
 	{
-		System.err.println("EK9 Version 0.0.1-0");
+		System.err.println("EK9 Version " + getLanguageMetaData().version());
 		//i.e. no further commands need to run
 		return EK9.SUCCESS_EXIT_CODE;
 	}
@@ -393,30 +402,34 @@ public class CommandLineDetails
 				System.err.println("Props   : Regenerating " + versionProperties.getFileName());
 
 			visitor = getSourceVisitor();
-			moduleName = visitor.getModuleName();
-			programs = visitor.getPrograms();
-			packagePresent = visitor.isPackagePresent();
-			version = visitor.getVersion();
-
-			String oldFingerPrint = depsFingerPrint;
-			depsFingerPrint = visitor.getDependencyFingerPrint();
-
-			if(oldFingerPrint != null && !oldFingerPrint.equals(depsFingerPrint))
-				dependenciesAltered = true;
-
-			Properties properties = new Properties();
-			properties.setProperty("sourceFile", sourceFile.getName());
-			properties.setProperty("moduleName", moduleName);
-			properties.setProperty("programs", versionProperties.prepareListForStorage(programs));
-			properties.setProperty("depsFingerPrint", depsFingerPrint);
-
-			if(version != null)
+			if(visitor.getPackageDetails().isPresent())
 			{
-				properties.setProperty("version", version);
-				rtn = visitor.getVersionNumberOnLine();
+				var packageDetails = visitor.getPackageDetails().get();
+				moduleName = packageDetails.moduleName();
+				programs = packageDetails.programs();
+				packagePresent = packageDetails.packagePresent();
+				version = packageDetails.version();
+
+				String oldFingerPrint = depsFingerPrint;
+				depsFingerPrint = packageDetails.dependencyFingerPrint();
+
+				if(oldFingerPrint != null && !oldFingerPrint.equals(depsFingerPrint))
+					dependenciesAltered = true;
+
+				Properties properties = new Properties();
+				properties.setProperty("sourceFile", sourceFile.getName());
+				properties.setProperty("moduleName", moduleName);
+				properties.setProperty("programs", versionProperties.prepareListForStorage(programs));
+				properties.setProperty("depsFingerPrint", depsFingerPrint);
+
+				if(version != null)
+				{
+					properties.setProperty("version", version);
+					rtn = visitor.getPackageDetails().get().versionNumberOnLine();
+				}
+				properties.setProperty("package", Boolean.toString(packagePresent));
+				versionProperties.storeProperties(properties);
 			}
-			properties.setProperty("package", Boolean.toString(packagePresent));
-			versionProperties.storeProperties(properties);
 		}
 
 		return rtn;
@@ -461,23 +474,35 @@ public class CommandLineDetails
 
 	public boolean applyStandardIncludes()
 	{
-		return getSourceVisitor().isApplyStandardIncludes();
+		return getSourceVisitor()
+				.getPackageDetails()
+				.map(PackageDetails::applyStandardIncludes)
+				.orElse(false);
 	}
 
 	public boolean applyStandardExcludes()
 	{
-		return getSourceVisitor().isApplyStandardExcludes();
+		return getSourceVisitor()
+				.getPackageDetails()
+				.map(PackageDetails::applyStandardExcludes)
+				.orElse(false);
 	}
 
 	public List<String> getIncludeFiles()
 	{
-		return getSourceVisitor().getIncludeFiles();
+		return getSourceVisitor()
+				.getPackageDetails()
+				.map(PackageDetails::includeFiles)
+				.orElse(Collections.emptyList());
 	}
 
 	//Will pick up from visitor when processing any package directives
 	public List<String> getExcludeFiles()
 	{
-		return getSourceVisitor().getExcludeFiles();
+		return getSourceVisitor()
+				.getPackageDetails()
+				.map(PackageDetails::excludeFiles)
+				.orElse(Collections.emptyList());
 	}
 
 	public static String getCommandLineHelp()

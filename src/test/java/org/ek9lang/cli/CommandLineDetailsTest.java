@@ -1,5 +1,6 @@
 package org.ek9lang.cli;
 
+import org.ek9lang.LanguageMetaData;
 import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.OsSupport;
 
@@ -23,6 +24,7 @@ import java.util.stream.Stream;
  */
 public class CommandLineDetailsTest
 {
+	private final LanguageMetaData languageMetaData = new LanguageMetaData("0.0.1-0");
 	private final OsSupport osSupport = new OsSupport(true);
 	private final FileHandling fileHandling = new FileHandling(osSupport);
 	private final SourceFileSupport sourceFileSupport = new SourceFileSupport(fileHandling, osSupport);
@@ -36,6 +38,10 @@ public class CommandLineDetailsTest
 		fileHandling.deleteContentsAndBelow(new File(new File(testHomeDirectory).getParent()), true);
 	}
 
+	private CommandLineDetails createClassUnderTest()
+	{
+		return new CommandLineDetails(languageMetaData, fileHandling, osSupport);
+	}
 	@Test
 	public void testCommandLineHelpText()
 	{
@@ -45,7 +51,7 @@ public class CommandLineDetailsTest
 	@Test
 	public void testEmptyCommandLine()
 	{
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(2, underTest.processCommandLine((String)null));
 		assertEquals(2, underTest.processCommandLine(""));
 
@@ -57,7 +63,7 @@ public class CommandLineDetailsTest
 	@Test
 	public void testCommandLineVersion()
 	{
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(1, underTest.processCommandLine("-V"));
 	}
 
@@ -69,7 +75,7 @@ public class CommandLineDetailsTest
 		sourceFileSupport.copyFileToTestCWD("/examples/fullPrograms/", sourceName);
 
 		//As part of the package mechanism we have defaults when not specified.
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(0, underTest.processCommandLine("-c " + sourceName));
 
 		assertFalse(underTest.applyStandardIncludes());
@@ -82,7 +88,7 @@ public class CommandLineDetailsTest
 	@Test
 	public void testLanguageServerCommandLine()
 	{
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-ls"));
 		assertTrue(underTest.isRunEK9AsLanguageServer());		
 	}
@@ -90,7 +96,7 @@ public class CommandLineDetailsTest
 	@Test
 	public void testLanguageServerWithHoverHelpCommandLine()
 	{
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-ls -lsh"));
 		assertTrue(underTest.isRunEK9AsLanguageServer());
 		assertTrue(underTest.isEK9LanguageServerHelpEnabled());
@@ -99,14 +105,14 @@ public class CommandLineDetailsTest
 	@Test
 	public void testCommandLineHelp()
 	{
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(1, underTest.processCommandLine("-h"));
 	}
 	
 	@Test
 	public void testCommandLineInvalidIncrementalCompile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(3, underTest.processCommandLine("-c"));
 	}
 
@@ -117,7 +123,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+		CommandLineDetails underTest = createClassUnderTest();
 		//Now we can put a dummy source file in the simulated/test cwd and then try and process it.
 		File cwd = new File(osSupport.getCurrentWorkingDirectory());
 
@@ -141,7 +147,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/fullPrograms/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+		CommandLineDetails underTest = createClassUnderTest();
 		//Now we can put a dummy source file in the simulated/test cwd and then try and process it.
 
 		assertEquals(0, underTest.processCommandLine("-c " + sourceName));
@@ -158,7 +164,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-c " + sourceName));		
 		assertTrue(underTest.isIncrementalCompile());
 		assertFalse(underTest.isFullCompile());
@@ -174,7 +180,7 @@ public class CommandLineDetailsTest
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(0, underTest.processCommandLine("-cg " + sourceName));
 		assertTrue(underTest.isIncrementalCompile());
 		assertFalse(underTest.isFullCompile());
@@ -191,7 +197,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-cd " + sourceName));
 		assertTrue(underTest.isIncrementalCompile());
 		assertFalse(underTest.isFullCompile());
@@ -208,7 +214,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-C " + sourceName));
 		assertFalse(underTest.isIncrementalCompile());
 		assertTrue(underTest.isFullCompile());
@@ -223,7 +229,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-C -v " + sourceName));		
 		assertFalse(underTest.isIncrementalCompile());
 		assertTrue(underTest.isFullCompile());
@@ -238,7 +244,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-Cg " + sourceName));		
 		assertFalse(underTest.isIncrementalCompile());
 		assertTrue(underTest.isFullCompile());
@@ -255,7 +261,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-Cd " + sourceName));		
 		assertFalse(underTest.isIncrementalCompile());
 		assertTrue(underTest.isFullCompile());
@@ -272,7 +278,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-Cl " + sourceName));		
 		assertTrue(underTest.isCleanAll());
 		assertEquals(sourceName, underTest.getSourceFileName());
@@ -281,7 +287,7 @@ public class CommandLineDetailsTest
 	@Test
 	public void testCommandLinePackageMissingSourceFile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(3, underTest.processCommandLine("-P"));				
 	}
 	
@@ -292,7 +298,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-Dp " + sourceName));		
 		assertTrue(underTest.isResolveDependencies());
 		assertEquals(sourceName, underTest.getSourceFileName());
@@ -305,7 +311,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-P " + sourceName));		
 		assertTrue(underTest.isPackaging());
 		assertEquals(sourceName, underTest.getSourceFileName());
@@ -314,7 +320,7 @@ public class CommandLineDetailsTest
 	@Test
 	public void testCommandLineInstallMissingSourceFile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(3, underTest.processCommandLine("-I"));		
 	}
 	
@@ -325,7 +331,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-I " + sourceName));		
 		assertTrue(underTest.isInstall());
 		assertEquals(sourceName, underTest.getSourceFileName());
@@ -334,7 +340,7 @@ public class CommandLineDetailsTest
 	@Test
 	public void testCommandLineGenerateKeys()
 	{
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-Gk"));		
 		assertTrue(underTest.isGenerateSigningKeys());
 		
@@ -347,14 +353,14 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(4, underTest.processCommandLine("-Gk " + sourceName));
 	}
 
 	@Test
 	public void testCommandLineDeployMissingSourceFile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(3, underTest.processCommandLine("-D"));		
 	}
 	
@@ -365,7 +371,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-D " + sourceName));		
 		assertTrue(underTest.isDeployment());
 		assertEquals(sourceName, underTest.getSourceFileName());
@@ -374,14 +380,14 @@ public class CommandLineDetailsTest
 	@Test
 	public void testCommandLineIncrementVersionMissingParamAndSourceFile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(2, underTest.processCommandLine("-IV"));		
 	}
 
 	@Test
 	public void testCommandLineIncrementVersionMissingSourceFile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(3, underTest.processCommandLine("-IV major"));		
 	}
 	
@@ -392,7 +398,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(2, underTest.processCommandLine("-IV " + sourceName));		
 	}
 
@@ -404,7 +410,7 @@ public class CommandLineDetailsTest
 			//We will copy this into a working directory and process it.
 			sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-			CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+			CommandLineDetails underTest = createClassUnderTest();
 			underTest.processCommandLine("-SV 10.3.A " + sourceName);
 		});
 	}
@@ -416,7 +422,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-SV 10.3.1 " + sourceName));
 		assertTrue(underTest.isSetReleaseVector());
 		assertEquals("10.3.1", underTest.getOptionParameter("-SV"));
@@ -431,7 +437,7 @@ public class CommandLineDetailsTest
 			//We will copy this into a working directory and process it.
 			sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-			CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+			CommandLineDetails underTest = createClassUnderTest();
 			underTest.processCommandLine("-SF 10.3.2-1bogus " + sourceName);
 		});
 	}
@@ -443,7 +449,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-SF 10.3.1-special " + sourceName));
 		assertTrue(underTest.isSetFeatureVector());
 		assertEquals("10.3.1-special", underTest.getOptionParameter("-SF"));
@@ -453,14 +459,14 @@ public class CommandLineDetailsTest
 	@Test
 	public void testCommandLinePrintVersionMissingSourceFile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(3, underTest.processCommandLine("-PV"));	
 	}
 	
 	@Test
 	public void testCommandLineTestMissingSourceFile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(3, underTest.processCommandLine("-t"));	
 	}
 	
@@ -471,7 +477,7 @@ public class CommandLineDetailsTest
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
 		assertNotNull(sourceFile);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-t " + sourceName));
 		assertTrue(underTest.isUnitTestExecution());
 		assertEquals(sourceName, underTest.getSourceFileName());
@@ -480,7 +486,7 @@ public class CommandLineDetailsTest
 	@Test
 	public void testCommandLineDebugMissingSourceFile()
 	{
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(3, underTest.processCommandLine("-d"));	
 	}
 	
@@ -491,7 +497,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(2, underTest.processCommandLine("-d " + sourceName));		
 	}
 	
@@ -502,7 +508,7 @@ public class CommandLineDetailsTest
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
 		assertNotNull(sourceFile);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-d 9000 " + sourceName));
 		assertTrue(underTest.isRunDebugMode());
 		assertEquals(sourceName, underTest.getSourceFileName());
@@ -515,7 +521,7 @@ public class CommandLineDetailsTest
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
 		assertNotNull(sourceFile);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine(sourceName));
 		assertTrue(underTest.isRunNormalMode());
 		assertEquals(sourceName, underTest.getSourceFileName());
@@ -528,7 +534,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(4, underTest.processCommandLine("-c " + sourceName + " -r SomeProgram"));
 	}
 
@@ -541,7 +547,7 @@ public class CommandLineDetailsTest
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
 		assertNotNull(sourceFile);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(6, underTest.processCommandLine(sourceName));
 	}
 
@@ -553,7 +559,7 @@ public class CommandLineDetailsTest
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
 		assertNotNull(sourceFile);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(4, underTest.processCommandLine(sourceName + " -r NonSuch"));
 	}
 
@@ -565,7 +571,7 @@ public class CommandLineDetailsTest
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
 		assertNotNull(sourceFile);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(0, underTest.processCommandLine(sourceName + " -r HelloWorld"));
 	}
 
@@ -577,7 +583,7 @@ public class CommandLineDetailsTest
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
 		assertNotNull(sourceFile);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);
+		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(0, underTest.processCommandLine(sourceName + " -r HelloMars"));
 	}
 
@@ -588,7 +594,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(4, underTest.processCommandLine("-c -C " + sourceName));
 	}
 	
@@ -599,7 +605,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(4, underTest.processCommandLine("-GK -C " + sourceName));
 	}
 	
@@ -610,7 +616,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(4, underTest.processCommandLine("-C -t " + sourceName));
 	}
 	
@@ -621,7 +627,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(4, underTest.processCommandLine("-C -PV " + sourceName));
 	}
 	
@@ -632,7 +638,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(4, underTest.processCommandLine("-c -d 9000 " + sourceName));
 	}
 	
@@ -643,7 +649,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(4, underTest.processCommandLine("-IV patch " + sourceName + " -r SomeProgram"));
 	}
 	
@@ -654,7 +660,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(5, underTest.processCommandLine(sourceName + " -r SomeProgram"));
 	}
 	
@@ -665,7 +671,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(2, underTest.processCommandLine("-T wasm " + sourceName));
 	}
 	
@@ -676,7 +682,7 @@ public class CommandLineDetailsTest
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
 		assertNotNull(sourceFile);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-e checker=false -e vogons='Bear Tree' " + sourceName));
 		assertTrue(underTest.getEk9AppDefines().contains("checker=false"));
 		//Not the move to double quotes
@@ -690,7 +696,7 @@ public class CommandLineDetailsTest
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
 		assertNotNull(sourceFile);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-T java " + sourceName));
 		assertTrue(underTest.isRunNormalMode());
 		assertEquals("HelloWorld", underTest.getProgramToRun());
@@ -705,7 +711,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-PV " + sourceName));
 		assertTrue(underTest.isPrintReleaseVector());		
 		assertEquals(sourceName,underTest.getSourceFileName());
@@ -726,7 +732,7 @@ public class CommandLineDetailsTest
 		//We will copy this into a working directory and process it.
 		sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 		
-		CommandLineDetails underTest = new CommandLineDetails(fileHandling, osSupport);				
+		CommandLineDetails underTest = createClassUnderTest();				
 		assertEquals(0, underTest.processCommandLine("-IV " + param + " " + sourceName));
 		assertTrue(underTest.isIncrementReleaseVector());
 		assertEquals(param, underTest.getOptionParameter("-IV"));

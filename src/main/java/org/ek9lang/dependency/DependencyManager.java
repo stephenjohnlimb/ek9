@@ -260,9 +260,8 @@ public class DependencyManager
 		if(from != null)
 		{
 			from.getDependencies().forEach(dependency -> {
-				String backPath = dependency.reportCircularDependencies(includeVersion);
-				if(backPath != null)
-					rtn.add(backPath);
+				var backPath = dependency.reportCircularDependencies(includeVersion);
+				backPath.ifPresent(rtn::add);
 				rtn.addAll(doReportCircularDependencies(dependency, includeVersion));
 			});
 		}
