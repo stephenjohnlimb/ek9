@@ -26,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public final class TestAllExamples
 {
 
+	private final Function<File, String> fileToFileName = File::getName;
+
 	private final Function<File, String> readabilityAssessor = ek9SourceFile -> {
 		try(var is = new FileInputStream(ek9SourceFile))
 		{
@@ -46,65 +48,69 @@ public final class TestAllExamples
 	@Test
 	public void testValidEK9ExampleSource()
 	{
-		OsSupport os = new OsSupport();
-		URL rootDirectoryForTest = this.getClass().getResource("/examples");
-		assertNotNull(rootDirectoryForTest);
-		File examples = new File(rootDirectoryForTest.getPath());
-		Glob ek9 = new Glob("**.ek9");
-
-		os.getFilesRecursivelyFrom(examples, ek9).forEach(file -> {
-			test(file, false);
-			readabilityAssessor.apply(file);
-		});
+		var func = fileToFileName.compose(getTestExpecting(false));
+		processEK9SourceFilesExpecting("/examples", func);
 	}
 
 	@Test
 	public void testInvalidEK9ExampleSource()
 	{
+		var func = fileToFileName.compose(getTestExpecting(true));
+		processEK9SourceFilesExpecting("/badExamples", func);
+	}
+
+	private void processEK9SourceFilesExpecting(final String fromDirectory, final Function<File, String> func)
+	{
 		OsSupport os = new OsSupport();
-		URL rootDirectoryForTest = this.getClass().getResource("/badExamples");
+		URL rootDirectoryForTest = this.getClass().getResource(fromDirectory);
 		assertNotNull(rootDirectoryForTest);
 		File examples = new File(rootDirectoryForTest.getPath());
 		Glob ek9 = new Glob("**.ek9");
-		for(File file : os.getFilesRecursivelyFrom(examples, ek9))
-			test(file, true);
+
+		os.getFilesRecursivelyFrom(examples, ek9)
+				.parallelStream()
+				.map(func)
+				.forEach(System.out::println);
 	}
 
-	private void test(File ek9SourceFile, boolean expectError)
+	private Function<File, File> getTestExpecting(final boolean expectError)
 	{
-		try(var is = new FileInputStream(ek9SourceFile))
-		{
-			ErrorListener errorListener = new ErrorListener();
-			LexerPlugin lexer = getEK9Lexer(CharStreams.fromStream(is));
-			lexer.removeErrorListeners();
-			lexer.addErrorListener(errorListener);
-
-			EK9Parser parser = new EK9Parser(new CommonTokenStream(lexer));
-			parser.removeErrorListeners();
-			parser.addErrorListener(errorListener);
-
-			long before = System.currentTimeMillis();
-			EK9Parser.CompilationUnitContext context = parser.compilationUnit();
-			long after = System.currentTimeMillis();
-
-			System.out.println("Parsed " + ek9SourceFile.getName() + " in " + (after - before) + "ms. Expecting Error [" + expectError + "]");
-
-			if(!expectError)
+		return ek9SourceFile -> {
+			try(var is = new FileInputStream(ek9SourceFile))
 			{
-				if(!errorListener.isErrorFree())
-					errorListener.getErrors().forEachRemaining(System.out::println);
-				assertTrue(errorListener.isErrorFree(), "Parsing of " + ek9SourceFile.getName() + " failed");
-				assertNotNull(context);
+				ErrorListener errorListener = new ErrorListener();
+				LexerPlugin lexer = getEK9Lexer(CharStreams.fromStream(is));
+				lexer.removeErrorListeners();
+				lexer.addErrorListener(errorListener);
+
+				EK9Parser parser = new EK9Parser(new CommonTokenStream(lexer));
+				parser.removeErrorListeners();
+				parser.addErrorListener(errorListener);
+
+				long before = System.currentTimeMillis();
+				EK9Parser.CompilationUnitContext context = parser.compilationUnit();
+				long after = System.currentTimeMillis();
+
+				System.out.println("Parsed " + ek9SourceFile.getName() + " in " + (after - before) + "ms. Expecting Error [" + expectError + "]");
+
+				if(!expectError)
+				{
+					if(!errorListener.isErrorFree())
+						errorListener.getErrors().forEachRemaining(System.out::println);
+					assertTrue(errorListener.isErrorFree(), "Parsing of " + ek9SourceFile.getName() + " failed");
+					assertNotNull(context);
+				}
+				else
+				{
+					assertFalse(errorListener.isErrorFree(), "Parsing of " + ek9SourceFile.getName() + " should have failed");
+				}
+				return ek9SourceFile;
 			}
-			else
+			catch(Exception ex)
 			{
-				assertFalse(errorListener.isErrorFree(), "Parsing of " + ek9SourceFile.getName() + " should have failed");
+				throw new RuntimeException((ex));
 			}
-		}
-		catch(Exception ex)
-		{
-			throw new RuntimeException((ex));
-		}
+		};
 	}
 
 	private LexerPlugin getEK9Lexer(CharStream charStream)
