@@ -1,13 +1,14 @@
 package org.ek9lang.compiler.errors;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.SymbolTable;
 import org.ek9lang.compiler.symbol.support.search.MatchResult;
 import org.ek9lang.compiler.symbol.support.search.MatchResults;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Most of the use of the ErrorListener will be driven by examples of
@@ -18,7 +19,7 @@ import org.ek9lang.compiler.symbol.support.search.MatchResults;
  * <p>
  * So this unit test is just designed to test the basic mechanisms.
  */
-public class ErrorListenerTest
+public final class ErrorListenerTest
 {
 	@Test
 	public void testReturningRequired()

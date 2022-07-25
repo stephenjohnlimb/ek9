@@ -1,9 +1,6 @@
 package org.ek9lang.compiler.parsing;
 
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -13,9 +10,13 @@ import org.ek9lang.compiler.tokenizer.DelegatingLexer;
 import org.ek9lang.compiler.tokenizer.EK9Lexer;
 import org.ek9lang.compiler.tokenizer.LexerPlugin;
 import org.ek9lang.compiler.tokenizer.LexingBase;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
-import java.util.function.Supplier;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Now move beyond lexing, to parsing content.
@@ -23,13 +24,13 @@ import java.util.function.Supplier;
 public abstract class ParsingBase extends LexingBase
 {
 	private EK9Parser underTest;
-	private ErrorListener errorListener = new ErrorListener();
+	private final ErrorListener errorListener = new ErrorListener();
 
 	@BeforeEach
 	public void loadTokenStreamInParser() throws Exception
 	{
 		InputStream inputStream = getClass().getResourceAsStream(getEK9FileName());
-		assertNotNull(inputStream,"Read File");
+		assertNotNull(inputStream, "Read File");
 
 		LexerPlugin lexer = getEK9Lexer(CharStreams.fromStream(inputStream));
 		lexer.removeErrorListeners();
@@ -54,16 +55,13 @@ public abstract class ParsingBase extends LexingBase
 		long before = System.currentTimeMillis();
 		EK9Parser.CompilationUnitContext context = underTest.compilationUnit();
 		long after = System.currentTimeMillis();
-		
-		System.out.println("Parsing " + (after-before) + "ms for " + getEK9FileName());
-		
+
+		System.out.println("Parsing " + (after - before) + "ms for " + getEK9FileName());
+
 		if(!errorListener.isErrorFree())
-		{
-			errorListener.getErrors().forEachRemaining(error -> {
-				System.out.println(error);
-			});
-		}
+			errorListener.getErrors().forEachRemaining(System.out::println);
+
 		assertTrue(errorListener.isErrorFree(), "Parsing of " + getEK9FileName() + " failed");
-		assertNotNull(context);		
+		assertNotNull(context);
 	}
 }

@@ -1,15 +1,16 @@
 package org.ek9lang.cli;
 
 import org.ek9lang.LanguageMetaData;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.OsSupport;
 import org.ek9lang.core.utils.SigningKeyPair;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.net.URL;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test the main command to run EK9 but from a test pint of view.
@@ -17,7 +18,7 @@ import java.net.URL;
  * Only design to test valid command line instructions.
  * See CommandLineDetailsTest of invalid combinations.
  */
-public class EK9Test
+public final class EK9Test
 {
 	private final LanguageMetaData languageMetaData = new LanguageMetaData("0.0.1-0");
 	private final OsSupport osSupport = new OsSupport(true);
@@ -403,14 +404,14 @@ public class EK9Test
 		if(!unpackedDir.exists())
 			assertTrue(unpackedDir.mkdirs());
 
-		URL simulatedProperties = getClass().getResource("/examples/constructs/packages/"+sourceName+".package.properties");
+		URL simulatedProperties = getClass().getResource("/examples/constructs/packages/" + sourceName + ".package.properties");
 		assertNotNull(simulatedProperties);
 		fileHandling.copy(new File(simulatedProperties.getPath()), new File(unpackedDir, ".package.properties"));
 
 		//Now the source file for that package
-		URL simulatedSource = getClass().getResource("/examples/constructs/packages/"+sourceName+".ek9");
+		URL simulatedSource = getClass().getResource("/examples/constructs/packages/" + sourceName + ".ek9");
 		assertNotNull(simulatedSource);
-		fileHandling.copy(new File(simulatedSource.getPath()), new File(unpackedDir, sourceName+".ek9"));
+		fileHandling.copy(new File(simulatedSource.getPath()), new File(unpackedDir, sourceName + ".ek9"));
 	}
 
 	private void deployPackage(int expectedExitCode, String sourceName)
