@@ -26,8 +26,14 @@ import static org.junit.jupiter.api.Assertions.*;
 public final class TestAllExamples
 {
 
+	/**
+	 * Function just to convert File to file name, ready for output.
+	 */
 	private final Function<File, String> fileToFileName = File::getName;
 
+	/**
+	 * Assesses the readability of a file and returns the result of that readability.
+	 */
 	private final Function<File, String> readabilityAssessor = ek9SourceFile -> {
 		try(var is = new FileInputStream(ek9SourceFile))
 		{
@@ -48,14 +54,14 @@ public final class TestAllExamples
 	@Test
 	public void testValidEK9ExampleSource()
 	{
-		var func = fileToFileName.compose(getTestExpecting(false));
+		var func = readabilityAssessor.compose(getTestFunction(false));
 		processEK9SourceFilesExpecting("/examples", func);
 	}
 
 	@Test
 	public void testInvalidEK9ExampleSource()
 	{
-		var func = fileToFileName.compose(getTestExpecting(true));
+		var func = fileToFileName.compose(getTestFunction(true));
 		processEK9SourceFilesExpecting("/badExamples", func);
 	}
 
@@ -73,7 +79,7 @@ public final class TestAllExamples
 				.forEach(System.out::println);
 	}
 
-	private Function<File, File> getTestExpecting(final boolean expectError)
+	private Function<File, File> getTestFunction(final boolean expectError)
 	{
 		return ek9SourceFile -> {
 			try(var is = new FileInputStream(ek9SourceFile))
@@ -108,7 +114,7 @@ public final class TestAllExamples
 			}
 			catch(Exception ex)
 			{
-				throw new RuntimeException((ex));
+				throw new RuntimeException(ex);
 			}
 		};
 	}
