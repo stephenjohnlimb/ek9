@@ -207,11 +207,8 @@ public class SymbolTable implements IScope
 	 */
 	public Optional<ISymbol> resolve(SymbolSearch search)
 	{
-		Optional<ISymbol> rtn = resolveInThisScopeOnly(search);
-		if(rtn.isEmpty())
-			rtn = resolveWithEnclosingScope(search);
-
-		return rtn;
+		var rtn = resolveInThisScopeOnly(search);
+		return rtn.isPresent() ? rtn : resolveWithEnclosingScope(search);
 	}
 
 	/**
@@ -231,18 +228,19 @@ public class SymbolTable implements IScope
 		return buildResult;
 	}
 
+
 	/**
 	 * Add all matching methods for a method search but only in this scope.
 	 */
 	@Override
 	public MethodSymbolSearchResult resolveForAllMatchingMethodsInThisScopeOnly(MethodSymbolSearch search, MethodSymbolSearchResult result)
 	{
-		Map<String, List<ISymbol>> table = splitSymbols.get(search.getSearchType());
-		//not found
-		if(table != null && !table.isEmpty())
+		var table = getSplitSymbolTable(search.getSearchType());
+
+		if(!table.isEmpty())
 		{
-			List<ISymbol> list = table.get(search.getName());
-			if(list != null && !list.isEmpty())
+			var list = getSymbolByName(table, search.getName());
+			if(!list.isEmpty())
 			{
 				List<MethodSymbol> methodList = list.stream().map(symbol -> (MethodSymbol)symbol).collect(Collectors.toList());
 				matcher.addMatchesToResult(result, search, methodList);
@@ -257,7 +255,7 @@ public class SymbolTable implements IScope
 	 */
 	protected MethodSymbolSearchResult resolveForAllMatchingMethodsInEnclosingScope(MethodSymbolSearch search, MethodSymbolSearchResult result)
 	{
-		//nothing needed  here.
+		//nothing needed here.
 		return result;
 	}
 
@@ -289,7 +287,7 @@ public class SymbolTable implements IScope
 
 			for(ISymbol.SymbolCategory key : ISymbol.SymbolCategory.values())
 			{
-				Map<String, List<ISymbol>> table = splitSymbols.get(key);
+				var table = getSplitSymbolTable(key);
 				search.setSearchType(key);
 				rtn = resolveInThisScopeOnly(table, symbolName, search);
 				if(rtn.isPresent())
@@ -301,35 +299,34 @@ public class SymbolTable implements IScope
 		}
 		else
 		{
-			Map<String, List<ISymbol>> table = splitSymbols.get(search.getSearchType());
+			var table = getSplitSymbolTable(search.getSearchType());
 			return resolveInThisScopeOnly(table, symbolName, search);
 		}
 	}
 
-	private Optional<ISymbol> resolveInThisScopeOnly(Map<String, List<ISymbol>> table, String shortSymbolName, SymbolSearch search)
+	private Optional<ISymbol> resolveInThisScopeOnly(final Map<String, List<ISymbol>> table, final String shortSymbolName, final SymbolSearch search)
 	{
-		//not found
-		if(table == null || table.isEmpty())
-			return Optional.empty();
-
-		List<ISymbol> symbolList = table.get(shortSymbolName);
-
-		//not found
-		if(symbolList == null || symbolList.isEmpty())
-			return Optional.empty();
-
-		return resolveInThisScopeOnly(symbolList, search);
+		return Optional.of(table)
+				.stream()
+				.map(t -> getSymbolByName(t, shortSymbolName))
+				.map(symbolList -> resolveInThisScopeOnly(symbolList, search))
+				.findAny()
+				.orElse(Optional.empty());
 	}
 
 	/**
 	 * This is really the backbone of the symbol table and pretty much the compiler.
 	 * Resolving a symbol of a specific type using the symbol search criteria.
 	 */
-	private Optional<ISymbol> resolveInThisScopeOnly(List<ISymbol> symbolList, SymbolSearch search)
+	private Optional<ISymbol> resolveInThisScopeOnly(final List<ISymbol> symbolList, final SymbolSearch search)
 	{
+		if(symbolList.isEmpty())
+			return Optional.empty();
+
+		var searchType = search.getSearchType();
 		Optional<ISymbol> rtn;
 
-		if(search.getSearchType().equals(ISymbol.SymbolCategory.METHOD))
+		if(searchType.equals(ISymbol.SymbolCategory.METHOD))
 		{
 			MethodSymbolSearch methodSearch = new MethodSymbolSearch(search);
 			MethodSymbolSearchResult result = resolveForAllMatchingMethodsInThisScopeOnly(methodSearch, new MethodSymbolSearchResult());
@@ -350,26 +347,26 @@ public class SymbolTable implements IScope
 				rtn = Optional.empty();
 			}
 		}
-		else if(search.getSearchType().equals(ISymbol.SymbolCategory.FUNCTION))
+		else if(searchType.equals(ISymbol.SymbolCategory.FUNCTION))
 		{
 			//We can only have one function of a single name in a specific scope - no function method overloading
 			//That is the main difference between functional and methods.
 			//More like C unique function name.
 			rtn = Optional.of(symbolList.get(0));
 		}
-		else if(search.getSearchType().equals(ISymbol.SymbolCategory.TEMPLATE_TYPE))
+		else if(searchType.equals(ISymbol.SymbolCategory.TEMPLATE_TYPE))
 		{
 			//Search for template type to be used.
 			AssertValue.checkRange("Expecting a Single result in the symbol table", symbolList.size(), 1, 1);
 			rtn = Optional.of(symbolList.get(0));
 		}
-		else if(search.getSearchType().equals(ISymbol.SymbolCategory.TEMPLATE_FUNCTION))
+		else if(searchType.equals(ISymbol.SymbolCategory.TEMPLATE_FUNCTION))
 		{
 			//Search for template function to be used.
 			AssertValue.checkRange("Expecting a Single result in the symbol table", symbolList.size(), 1, 1);
 			rtn = Optional.of(symbolList.get(0));
 		}
-		else if(search.getSearchType().equals(ISymbol.SymbolCategory.TYPE))
+		else if(searchType.equals(ISymbol.SymbolCategory.TYPE))
 		{
 			//Do a type search
 			AssertValue.checkRange("Expecting a Single result in the symbol table", symbolList.size(), 1, 1);
@@ -388,7 +385,7 @@ public class SymbolTable implements IScope
 					rtn = Optional.empty();
 			}
 		}
-		else if(search.getSearchType().equals(ISymbol.SymbolCategory.VARIABLE))
+		else if(searchType.equals(ISymbol.SymbolCategory.VARIABLE))
 		{
 			//Do a variable search
 			AssertValue.checkRange("Expecting a Single result in the symbol table for " + search, symbolList.size(), 1, 1);
@@ -439,5 +436,23 @@ public class SymbolTable implements IScope
 	public String toString()
 	{
 		return scopeName;
+	}
+
+	/**
+	 * Just a wrapper to make null safe.
+	 */
+	private Map<String, List<ISymbol>> getSplitSymbolTable(final ISymbol.SymbolCategory category)
+	{
+		var table = splitSymbols.get(category);
+		return table != null ? table : Map.of();
+	}
+
+	/**
+	 * Just a wrapper to make null safe.
+	 */
+	private List<ISymbol> getSymbolByName(final Map<String, List<ISymbol>> table, final String name)
+	{
+		var list = table.get(name);
+		return list != null ? list : List.of();
 	}
 }
