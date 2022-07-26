@@ -339,7 +339,6 @@ public final class CommandLineDetailsTest
 		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(0, underTest.processCommandLine("-Gk"));
 		assertTrue(underTest.isGenerateSigningKeys());
-
 	}
 
 	@Test

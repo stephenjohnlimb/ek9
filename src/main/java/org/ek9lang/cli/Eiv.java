@@ -36,6 +36,7 @@ public class Eiv extends Eve
 		//Need to get from command line.
 		String partToIncrement = commandLine.getOptionParameter("-IV");
 		Version versionNumber = Version.withBuildNumber(commandLine.getVersion());
+		log("Processing increment " + versionNumber);
 		//i.e. Find the key or produce a no-op, this is in place of a switch.
 		operation.getOrDefault(partToIncrement, v -> {}).accept(versionNumber);
 

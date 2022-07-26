@@ -45,6 +45,16 @@ public abstract class Ec extends E
 		//At present if in log mode show the list of files to be compiled.
 		compilableProjectFiles.forEach(file -> log(file.getAbsolutePath()));
 
+		//TODO compile this with appropriate compiler
+
+		var generatedOutputDirectory = getMainGeneratedOutputDirectory();
+		//This will be some sort of intermediate form (i.e. java we then need to actually compile.
+
+		if(this.isDevBuild())
+		{
+			var devGeneratedOutputDirectory = getDevGeneratedOutputDirectory();
+			//This will be some sort of intermediate form (i.e. java we then need to actually compile.
+		}
 		return true; //or false if compilation failed
 	}
 

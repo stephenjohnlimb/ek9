@@ -50,7 +50,7 @@ public final class EK9Test
 	public void testIncrementationCompilation()
 	{
 		String sourceName = "HelloWorld.ek9";
-		String[] command = new String[]{"-c " + sourceName};
+		String[] command = new String[]{"-v -c " + sourceName};
 
 		//We will copy this into a working directory and process it.
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
@@ -101,13 +101,18 @@ public final class EK9Test
 		var commandLineDetails = assertResult(EK9.SUCCESS_EXIT_CODE, command);
 		assertNotNull(commandLineDetails);
 		assertKeysPresent();
+
+		//Now trigger it again to ensure it does not cause any errors
+		commandLineDetails = assertResult(EK9.SUCCESS_EXIT_CODE, command);
+		assertNotNull(commandLineDetails);
+		assertKeysPresent();
 	}
 
 	@Test
 	public void testRunSingleProgram()
 	{
 		String sourceName = "HelloWorld.ek9";
-		String[] command = new String[]{sourceName};
+		String[] command = new String[]{"-v " + sourceName};
 
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
 		assertNotNull(sourceFile);
@@ -119,7 +124,7 @@ public final class EK9Test
 	public void testRunUnitTests()
 	{
 		String sourceName = "HelloWorlds.ek9";
-		String[] command = new String[]{"-t " + sourceName};
+		String[] command = new String[]{"-v -t " + sourceName};
 
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
 		assertNotNull(sourceFile);
@@ -132,7 +137,7 @@ public final class EK9Test
 	public void testRunSelectedProgram()
 	{
 		String sourceName = "HelloWorlds.ek9";
-		String[] command = new String[]{sourceName + " -r HelloMars"};
+		String[] command = new String[]{"-v " + sourceName + " -r HelloMars"};
 
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
 		assertNotNull(sourceFile);
@@ -181,7 +186,7 @@ public final class EK9Test
 	@Test
 	public void testMinorVersioningOfPackage()
 	{
-		assertPackageVersionChange("1.1.0-0", "-IV minor", "PackageNoDeps.ek9");
+		assertPackageVersionChange("1.1.0-0", "-v -IV minor", "PackageNoDeps.ek9");
 	}
 
 	@Test
@@ -193,7 +198,7 @@ public final class EK9Test
 	@Test
 	public void testSetVersioningOfPackage()
 	{
-		assertPackageVersionChange("3.8.6-0", "-SV 3.8.6", "PackageNoDeps.ek9");
+		assertPackageVersionChange("3.8.6-0", "-v -SV 3.8.6", "PackageNoDeps.ek9");
 		//Now check that it can also be incremented and appropriate resets on patch and build no.
 		assertPackageVersionChange("3.9.0-0", "-IV minor", "PackageNoDeps.ek9");
 	}
@@ -201,7 +206,7 @@ public final class EK9Test
 	@Test
 	public void testSetFeatureVersioningOfPackage()
 	{
-		assertPackageVersionChange("3.8.6-specials-0", "-SF 3.8.6-specials", "PackageNoDeps.ek9");
+		assertPackageVersionChange("3.8.6-specials-0", "-v -SF 3.8.6-specials", "PackageNoDeps.ek9");
 		//Now check that it can also be incremented and patch/build number is reset to 0.
 		assertPackageVersionChange("3.9.0-specials-0", "-IV minor", "PackageNoDeps.ek9");
 	}
@@ -385,7 +390,7 @@ public final class EK9Test
 
 	private void installPackage(int expectation, String sourceName)
 	{
-		String[] command = new String[]{"-I " + sourceName};
+		String[] command = new String[]{"-v -I " + sourceName};
 
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 		assertNotNull(sourceFile);
