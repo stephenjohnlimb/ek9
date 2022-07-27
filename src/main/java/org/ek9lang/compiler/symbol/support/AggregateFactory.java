@@ -54,25 +54,7 @@ public class AggregateFactory
 		}
 	}
 
-	public String getModuleNameIfPresent(String symbolName)
-	{
-		if(symbolName.contains("::"))
-		{
-			String[] parts = symbolName.split("::");
-			return parts[0];
-		}
-		return "";
-	}
 
-	public String getUnqualifiedName(String symbolName)
-	{
-		if(symbolName.contains("::"))
-		{
-			String[] parts = symbolName.split("::");
-			return parts[1];
-		}
-		return symbolName;
-	}
 
 	/**
 	 * Takes the 'from' aggregate obtains all the methods that are not abstract that have a return the type

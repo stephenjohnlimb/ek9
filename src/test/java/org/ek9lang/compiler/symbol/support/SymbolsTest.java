@@ -25,11 +25,11 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		assertFalse(support.isSymbolNameFullyQualified("name"));
 		assertTrue(support.isSymbolNameFullyQualified("com.name::name"));
 
-		assertEquals("com.part", support.getModuleNameIfPresent("com.part::name"));
-		assertEquals("", support.getModuleNameIfPresent("name"));
+		assertEquals("com.part", ISymbol.getModuleNameIfPresent("com.part::name"));
+		assertEquals("", ISymbol.getModuleNameIfPresent("name"));
 
-		assertEquals("name", support.getUnqualifiedName("com.part::name"));
-		assertEquals("name", support.getUnqualifiedName("name"));
+		assertEquals("name", ISymbol.getUnqualifiedName("com.part::name"));
+		assertEquals("name", ISymbol.getUnqualifiedName("name"));
 	}
 
 	@Test

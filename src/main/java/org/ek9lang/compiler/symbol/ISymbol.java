@@ -50,6 +50,26 @@ public interface ISymbol extends ITokenReference
 		VARIABLE
 	}
 
+	static String getModuleNameIfPresent(String symbolName)
+	{
+		if(symbolName.contains("::"))
+		{
+			String[] parts = symbolName.split("::");
+			return parts[0];
+		}
+		return "";
+	}
+
+	static String getUnqualifiedName(String symbolName)
+	{
+		if(symbolName.contains("::"))
+		{
+			String[] parts = symbolName.split("::");
+			return parts[1];
+		}
+		return symbolName;
+	}
+
 	//Used for declarations of variables/params where they can be null.
 	boolean isNullAllowed();
 
