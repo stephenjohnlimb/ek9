@@ -95,6 +95,8 @@ public class SymbolTableTest
 		//A simple method (I know it's just in a symbol table), don't define any parameters or returns.
 		var methodName = "method1";
 		underTest.define(new MethodSymbol(methodName, underTest));
+		assertMethodPresentInSymbolTable(underTest, methodName);
+
 		//Now clone but with an empty enclosing scope, we should still be able to find the same method
 		assertMethodPresentInSymbolTable(underTest.clone(new SymbolTable()), methodName);
 	}

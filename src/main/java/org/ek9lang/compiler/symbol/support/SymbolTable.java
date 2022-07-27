@@ -11,7 +11,9 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -94,6 +96,30 @@ public class SymbolTable implements IScope
 		this.scopeName = scopeName;
 	}
 
+	/**
+	 * Function to work with MethodSymbols here rather than just ISymbols.
+	 */
+	private final Function<List<ISymbol>, List<MethodSymbol>> methodSymbolCast = list -> list
+			.stream()
+			.filter(symbol -> symbol instanceof MethodSymbol)
+			.map(symbol -> (MethodSymbol)symbol).collect(Collectors.toList());
+	/**
+	 * Function to check there is one and only one item in a symbol list and then to return that item.
+	 */
+	private final Function<List<ISymbol>, Optional<ISymbol>> checkAndSelectFirstItem = symbols -> {
+		AssertValue.checkRange("Expecting a Single result in the symbol table", symbols.size(), 1, 1);
+		return Optional.of(symbols.get(0));
+	};
+
+	/**
+	 * Simple BI Function to see if two ISymbols contained within Optionals are assignable.
+	 * i.e. is the 'from' assignable to the 'to'?
+	 */
+	private final BiFunction<Optional<ISymbol>, Optional<ISymbol>, Boolean> isAssignable = (to, from) -> from
+			.stream()
+			.map(toSet -> toSet.isAssignableTo(to))
+			.findFirst().orElse(false);
+
 	public SymbolTable()
 	{
 	}
@@ -129,18 +155,18 @@ public class SymbolTable implements IScope
 	}
 
 	@Override
-	public void setEncounteredExceptionToken(Token encounteredExceptionToken)
+	public void setEncounteredExceptionToken(final Token encounteredExceptionToken)
 	{
 		this.encounteredExceptionToken = encounteredExceptionToken;
 	}
 
 	@Override
-	public SymbolTable clone(IScope withParentAsAppropriate)
+	public SymbolTable clone(final IScope withParentAsAppropriate)
 	{
 		return cloneIntoSymbolTable(new SymbolTable(this.getScopeName()), withParentAsAppropriate);
 	}
 
-	protected SymbolTable cloneIntoSymbolTable(SymbolTable rtn, IScope withParentAsAppropriate)
+	protected SymbolTable cloneIntoSymbolTable(final SymbolTable rtn, final IScope withParentAsAppropriate)
 	{
 		rtn.scopeName = this.scopeName;
 		rtn.markedPure = this.markedPure;
@@ -154,13 +180,13 @@ public class SymbolTable implements IScope
 		return markedPure;
 	}
 
-	public void setMarkedPure(boolean markedPure)
+	public void setMarkedPure(final boolean markedPure)
 	{
 		this.markedPure = markedPure;
 	}
 
 	@Override
-	public void define(ISymbol symbol)
+	public void define(final ISymbol symbol)
 	{
 		//Add in the split symbols and also the ordered symbols.
 		AssertValue.checkNotNull("Symbol cannot be null", symbol);
@@ -169,10 +195,10 @@ public class SymbolTable implements IScope
 	}
 
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(final Object obj)
 	{
-		if(obj instanceof IScope)
-			return getFriendlyScopeName().equals(((IScope)obj).getFriendlyScopeName());
+		if(obj instanceof IScope scope)
+			return getFriendlyScopeName().equals((scope).getFriendlyScopeName());
 		return false;
 	}
 
@@ -181,7 +207,7 @@ public class SymbolTable implements IScope
 	 * each of those has a map with a list of symbols of the same name.
 	 * So this means we can handle multiple methods with same name but different signatures.
 	 */
-	private void addToSplitSymbols(ISymbol symbol)
+	private void addToSplitSymbols(final ISymbol symbol)
 	{
 		Map<String, List<ISymbol>> table = splitSymbols.computeIfAbsent(symbol.getCategory(), k -> new HashMap<>());
 		List<ISymbol> list = table.computeIfAbsent(symbol.getName(), k -> new ArrayList<>());
@@ -193,7 +219,7 @@ public class SymbolTable implements IScope
 	/**
 	 * Find symbols in a specific category.
 	 */
-	public List<ISymbol> getSymbolsForThisScopeOfCategory(ISymbol.SymbolCategory category)
+	public List<ISymbol> getSymbolsForThisScopeOfCategory(final ISymbol.SymbolCategory category)
 	{
 		return orderedSymbols.stream().filter(symbol -> category.equals(symbol.getCategory())).collect(Collectors.toList());
 	}
@@ -210,7 +236,7 @@ public class SymbolTable implements IScope
 	/**
 	 * Search and resolve from a symbol search.
 	 */
-	public Optional<ISymbol> resolve(SymbolSearch search)
+	public Optional<ISymbol> resolve(final SymbolSearch search)
 	{
 		var rtn = resolveInThisScopeOnly(search);
 		return rtn.isPresent() ? rtn : resolveWithEnclosingScope(search);
@@ -220,7 +246,7 @@ public class SymbolTable implements IScope
 	 * Add all matching methods for a method search.
 	 */
 	@Override
-	public MethodSymbolSearchResult resolveForAllMatchingMethods(MethodSymbolSearch search, MethodSymbolSearchResult result)
+	public MethodSymbolSearchResult resolveForAllMatchingMethods(final MethodSymbolSearch search, MethodSymbolSearchResult result)
 	{
 		MethodSymbolSearchResult buildResult = new MethodSymbolSearchResult(result);
 
@@ -237,11 +263,8 @@ public class SymbolTable implements IScope
 	 * Add all matching methods for a method search but only in this scope.
 	 */
 	@Override
-	public MethodSymbolSearchResult resolveForAllMatchingMethodsInThisScopeOnly(MethodSymbolSearch search, MethodSymbolSearchResult result)
+	public MethodSymbolSearchResult resolveForAllMatchingMethodsInThisScopeOnly(final MethodSymbolSearch search, MethodSymbolSearchResult result)
 	{
-		//Function to work with MethodSymbols here rather than just ISymbols.
-		Function<List<ISymbol>, List<MethodSymbol>> methodSymbolCast = list -> list.stream().map(symbol -> (MethodSymbol)symbol).collect(Collectors.toList());
-
 		var optTable = Optional.ofNullable(getSplitSymbolTable(search.getSearchType()));
 		optTable
 				.stream()
@@ -255,55 +278,50 @@ public class SymbolTable implements IScope
 	/**
 	 * There are no supers so this will not add any methods.
 	 */
-	protected MethodSymbolSearchResult resolveForAllMatchingMethodsInEnclosingScope(MethodSymbolSearch search, MethodSymbolSearchResult result)
+	protected MethodSymbolSearchResult resolveForAllMatchingMethodsInEnclosingScope(final MethodSymbolSearch search, MethodSymbolSearchResult result)
 	{
 		//nothing needed here.
 		return result;
 	}
 
 	/**
+	 * If search is unqualified (i.e. just a name then yes we look in this scope).
+	 * If the search is a fully qualified name then the scope name in the search has to match this scope.
+	 */
+	private boolean isSearchInThisScope(final SymbolSearch search)
+	{
+		String symbolName = search.getName();
+		if(ISymbol.isQualifiedName(symbolName))
+			return getScopeName().equals(ISymbol.getModuleNameIfPresent(symbolName));
+		return true;
+	}
+
+	/**
 	 * Resolve a symbol in this symbol table only.
 	 */
 	@Override
-	public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search)
+	public Optional<ISymbol> resolveInThisScopeOnly(final SymbolSearch search)
 	{
 		AssertValue.checkNotNull("Search cannot be null", search);
 
-		String symbolName = search.getName();
-		if(ISymbol.isQualifiedName(symbolName))
-		{
-			//Then it is a fully qualified search so if the scope name of this table does not match
-			//what has been provided then even if the symbol name matches it's a miss.
-			if(!this.getScopeName().equals(ISymbol.getModuleNameIfPresent(symbolName)))
-				return Optional.empty();
+		if(!isSearchInThisScope(search))
+			return Optional.empty();
 
-			//So now just use the actual symbol name part of com.something:MyClass i.e. use the MyClass bit.
-			symbolName = ISymbol.getUnqualifiedName(symbolName);
-		}
+		String searchName = ISymbol.getUnqualifiedName(search.getName());
+
+		if(search.getSearchType() != null)
+			return resolveFromSplitSymbolTable(searchName, search);
 
 		//So if search type is not set then that means search all categories!
-		ISymbol.SymbolCategory searchType = search.getSearchType();
-		if(searchType == null)
-		{
-			Optional<ISymbol> rtn = Optional.empty();
+		return Arrays.stream(ISymbol.SymbolCategory.values())
+				.map(category -> resolveFromSplitSymbolTable(searchName, search.clone().setSearchType(category)))
+				.filter(Optional::isPresent)
+				.findFirst().orElse(Optional.empty());
+	}
 
-			for(ISymbol.SymbolCategory key : ISymbol.SymbolCategory.values())
-			{
-				var table = getSplitSymbolTable(key);
-				search.setSearchType(key);
-				rtn = resolveInThisScopeOnly(table, symbolName, search);
-				if(rtn.isPresent())
-					break;
-			}
-			//Set search type back again.
-			search.setSearchType(null);
-			return rtn;
-		}
-		else
-		{
-			var table = getSplitSymbolTable(search.getSearchType());
-			return resolveInThisScopeOnly(table, symbolName, search);
-		}
+	private Optional<ISymbol> resolveFromSplitSymbolTable(final String symbolName, final SymbolSearch search)
+	{
+		return resolveInThisScopeOnly(getSplitSymbolTable(search.getSearchType()), symbolName, search);
 	}
 
 	private Optional<ISymbol> resolveInThisScopeOnly(final Map<String, List<ISymbol>> table, final String shortSymbolName, final SymbolSearch search)
@@ -312,6 +330,7 @@ public class SymbolTable implements IScope
 				.stream()
 				.map(t -> getSymbolByName(t, shortSymbolName))
 				.map(symbolList -> resolveInThisScopeOnly(symbolList, search))
+				.filter(Optional::isPresent)
 				.findAny()
 				.orElse(Optional.empty());
 	}
@@ -325,92 +344,52 @@ public class SymbolTable implements IScope
 		if(symbolList.isEmpty())
 			return Optional.empty();
 
-		var searchType = search.getSearchType();
-		Optional<ISymbol> rtn;
+		// I've pulled out common code to in-method functions, so I can capture incoming parameters and re-use the code.
 
-		if(searchType.equals(ISymbol.SymbolCategory.METHOD))
-		{
-			MethodSymbolSearch methodSearch = new MethodSymbolSearch(search);
-			MethodSymbolSearchResult result = resolveForAllMatchingMethodsInThisScopeOnly(methodSearch, new MethodSymbolSearchResult());
+		final Function<Optional<ISymbol>, Boolean> canBeAssigned = toCheck -> {
+			final Optional<ISymbol> searchSymbol = search.getNameAsSymbol(getScopeName());
+			return isAssignable.apply(toCheck, searchSymbol);
+		};
 
-			if(result.isEmpty())
-			{
-				rtn = Optional.empty();
-			}
-			else if(result.isSingleBestMatchPresent())
-			{
-				rtn = result.getSingleBestMatchSymbol();
-			}
-			else
-			{
-				//This is ambiguous - i.e. we found more than one method that would match.
-				//so report failed to find, calling code then needs
-				//to do a fuzzy search and report on ambiguities to make developer choose.
-				rtn = Optional.empty();
-			}
-		}
-		else if(searchType.equals(ISymbol.SymbolCategory.FUNCTION))
-		{
-			//We can only have one function of a single name in a specific scope - no function method overloading
-			//That is the main difference between functional and methods.
-			//More like C unique function name.
-			rtn = Optional.of(symbolList.get(0));
-		}
-		else if(searchType.equals(ISymbol.SymbolCategory.TEMPLATE_TYPE))
-		{
-			//Search for template type to be used.
-			AssertValue.checkRange("Expecting a Single result in the symbol table", symbolList.size(), 1, 1);
-			rtn = Optional.of(symbolList.get(0));
-		}
-		else if(searchType.equals(ISymbol.SymbolCategory.TEMPLATE_FUNCTION))
-		{
-			//Search for template function to be used.
-			AssertValue.checkRange("Expecting a Single result in the symbol table", symbolList.size(), 1, 1);
-			rtn = Optional.of(symbolList.get(0));
-		}
-		else if(searchType.equals(ISymbol.SymbolCategory.TYPE))
-		{
-			//Do a type search
-			AssertValue.checkRange("Expecting a Single result in the symbol table", symbolList.size(), 1, 1);
+		final Function<Optional<ISymbol>, Boolean> canVariableTypeBeAssigned = foundType -> {
+			final Optional<ISymbol> toReceive = search.getOfTypeOrReturn();
+			//We do consider this acceptable as the search has not indicated a specific type required.
+			return toReceive.isEmpty() || isAssignable.apply(toReceive, foundType);
+		};
 
-			//Now we can also check the types here
-			rtn = Optional.of(symbolList.get(0));
+		// Finds a method (if present) in a list of ISymbols, by casting to methodSymbols and runs the matcher to add to results.
+		final Supplier<MethodSymbolSearchResult> findMethod = () -> {
+			MethodSymbolSearchResult result = new MethodSymbolSearchResult();
+			Optional.of(symbolList).stream().parallel()
+					.map(methodSymbolCast)
+					.forEach(methodList -> matcher.addMatchesToResult(result, search, methodList));
+			return result;
+		};
 
-			//We provide the scope name so that we can just check the symbol name without scope if appropriate.
-			Optional<ISymbol> searchSymbol = search.getNameAsSymbol(this.getScopeName());
+		final var searchType = search.getSearchType();
 
-			//check assignable in some way handles coercion and base/super classes.
-			if(searchSymbol.isPresent())
-			{
-				ISymbol toSet = rtn.get();
-				if(!toSet.isAssignableTo(searchSymbol))
-					rtn = Optional.empty();
-			}
-		}
-		else if(searchType.equals(ISymbol.SymbolCategory.VARIABLE))
-		{
-			//Do a variable search
-			AssertValue.checkRange("Expecting a Single result in the symbol table for " + search, symbolList.size(), 1, 1);
-			rtn = Optional.of(symbolList.get(0));
-			//So found a variable now need to check that the type is right.
-			Optional<ISymbol> foundType = rtn.get().getType();
+		return switch(searchType)
+				{
+					case METHOD:
+						var result = findMethod.get();
 
-			//We must now check that the found type of the variable is right for what we are searching for.
-			Optional<ISymbol> toReceive = search.getOfTypeOrReturn();
-
-			if(toReceive.isPresent())
-			{
-				//So we have found a variable, but it cannot be assigned back to how it can be received.
-				if(foundType.isEmpty() || !foundType.get().isAssignableTo(toReceive))
-					rtn = Optional.empty();
-			}
-			//So we'll go with rtn as is.
-		}
-		else
-		{
-			throw new RuntimeException("Unknown symbol search type [" + search.getSearchType() + "]");
-		}
-		return rtn;
+						//This is ambiguous - i.e. we found more than one method that would match.
+						//so report failed to find, calling code then needs
+						//to do a fuzzy search and report on ambiguities to make developer choose.
+						yield result.isSingleBestMatchPresent() ? result.getSingleBestMatchSymbol() : Optional.empty();
+					case FUNCTION, TEMPLATE_TYPE, TEMPLATE_FUNCTION:
+						yield checkAndSelectFirstItem.apply(symbolList);
+					case TYPE:
+						var checkType = checkAndSelectFirstItem.apply(symbolList);
+						yield canBeAssigned.apply(checkType) ? checkType : Optional.empty();
+					case VARIABLE:
+						var checkVariable = checkAndSelectFirstItem.apply(symbolList);
+						var foundType = checkVariable.stream().map(ISymbol::getType).findFirst().orElse(Optional.empty());
+						yield canVariableTypeBeAssigned.apply(foundType) ? checkVariable : Optional.empty();
+					case CONTROL:
+						//You can never locate controls. Well not yet; and I don't think we will need to.
+						yield Optional.empty();
+				};
 	}
 
 	/**
