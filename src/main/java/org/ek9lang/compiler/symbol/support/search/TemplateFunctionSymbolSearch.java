@@ -8,11 +8,19 @@ import org.ek9lang.compiler.symbol.ISymbol;
  * That would have been defined as an actual FUNCTION now (albeit a parameterised one).
  * So you would need to look that up as a FUNCTION.
  */
-public class TemplateFunctionSymbolSearch extends SymbolSearch
+public final class TemplateFunctionSymbolSearch extends SymbolSearch
 {
 	public TemplateFunctionSymbolSearch(String name)
 	{
 		super(name);
 		setSearchType(ISymbol.SymbolCategory.TEMPLATE_FUNCTION);
+	}
+
+	@Override
+	public TemplateFunctionSymbolSearch clone()
+	{
+		var rtn = new TemplateFunctionSymbolSearch(getName());
+		cloneIntoSearchSymbol(rtn);
+		return rtn;
 	}
 }

@@ -11,6 +11,7 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -228,25 +229,22 @@ public class SymbolTable implements IScope
 		return buildResult;
 	}
 
-
 	/**
 	 * Add all matching methods for a method search but only in this scope.
 	 */
 	@Override
 	public MethodSymbolSearchResult resolveForAllMatchingMethodsInThisScopeOnly(MethodSymbolSearch search, MethodSymbolSearchResult result)
 	{
-		var table = getSplitSymbolTable(search.getSearchType());
+		//We need to work with MethodSymbols here rather than just ISymbols.
+		Function<List<ISymbol>, List<MethodSymbol>> methodSymbolCast = list -> list.stream().map(symbol -> (MethodSymbol)symbol).collect(Collectors.toList());
 
-		if(!table.isEmpty())
-		{
-			var list = getSymbolByName(table, search.getName());
-			if(!list.isEmpty())
-			{
-				List<MethodSymbol> methodList = list.stream().map(symbol -> (MethodSymbol)symbol).collect(Collectors.toList());
-				matcher.addMatchesToResult(result, search, methodList);
-			}
-		}
-		//System.out.println("SymbolTable: " + result);
+		var optTable = Optional.ofNullable(getSplitSymbolTable(search.getSearchType()));
+		optTable
+				.stream()
+				.map(table -> getSymbolByName(table, search.getName()))
+				.map(methodSymbolCast)
+				.forEach(methodList -> matcher.addMatchesToResult(result, search, methodList));
+
 		return result;
 	}
 

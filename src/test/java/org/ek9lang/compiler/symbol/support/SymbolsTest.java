@@ -526,6 +526,23 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
+	public void testUnableToFindControlSymbol()
+	{
+		/*
+		While we model for loops, while loops switches etc. as symbols (mainly for scope)
+		but also because we may want to use them in expressions, we should not be able to 'search'
+		for them in the same way as a type, variable, function, template etc.
+		 */
+		var search = new SymbolSearch("nonSuch").setSearchType(ISymbol.SymbolCategory.CONTROL);
+		var shouldNotBeFound = symbolTable.resolve(search);
+		assertFalse(shouldNotBeFound.isPresent());
+
+		//Check cloning also fails to find
+		shouldNotBeFound = symbolTable.resolve(search.clone());
+		assertFalse(shouldNotBeFound.isPresent());
+	}
+
+	@Test
 	public void testVariableSymbol()
 	{
 		IScope symbolTable = new SymbolTable();

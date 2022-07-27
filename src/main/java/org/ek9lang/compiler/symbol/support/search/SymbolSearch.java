@@ -67,6 +67,20 @@ public class SymbolSearch
 		this.ofTypeOrReturn = Optional.of(ofTypeOrReturn);
 	}
 
+	@Override
+	public SymbolSearch clone()
+	{
+		return cloneIntoSearchSymbol(new SymbolSearch(name));
+	}
+
+	protected SymbolSearch cloneIntoSearchSymbol(SymbolSearch symbolSearch)
+	{
+		return symbolSearch.setOfTypeOrReturn(ofTypeOrReturn)
+				.setParameters(parameters)
+				.setLimitToBlocks(limitToBlocks)
+				.setSearchType(searchType);
+	}
+
 	public boolean isLimitToBlocks()
 	{
 		return limitToBlocks;

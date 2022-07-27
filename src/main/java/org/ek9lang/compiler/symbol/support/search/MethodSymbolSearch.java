@@ -12,7 +12,7 @@ import java.util.Optional;
  * <p>
  * So there are multiple constructors to support this.
  */
-public class MethodSymbolSearch extends SymbolSearch
+public final class MethodSymbolSearch extends SymbolSearch
 {
 	public MethodSymbolSearch(SymbolSearch from)
 	{
@@ -50,6 +50,14 @@ public class MethodSymbolSearch extends SymbolSearch
 	{
 		super(name, ofTypeOrReturn);
 		setSearchType(ISymbol.SymbolCategory.METHOD);
+	}
+
+	@Override
+	public MethodSymbolSearch clone()
+	{
+		var rtn = new MethodSymbolSearch(getName());
+		cloneIntoSearchSymbol(rtn);
+		return rtn;
 	}
 
 	@Override
