@@ -17,16 +17,14 @@ import java.util.Optional;
  */
 public class SymbolMatcher
 {
-
 	/**
 	 * Match the search criteria against one or more symbol methods.
 	 * We use a weighting algorithm to try and find the best match where there are methods of the same name.
 	 */
-	public MethodSymbolSearchResult addMatchesToResult(MethodSymbolSearchResult result, SymbolSearch criteria, List<MethodSymbol> methodSymbols)
+	public void addMatchesToResult(MethodSymbolSearchResult result, SymbolSearch criteria, List<MethodSymbol> methodSymbols)
 	{
 		AssertValue.checkNotNull("Search cannot be null", criteria);
-		if(methodSymbols == null || methodSymbols.isEmpty())
-			return result;
+		AssertValue.checkNotNull("MethodSymbols cannot be null", methodSymbols);
 
 		methodSymbols.forEach(methodSymbol -> {
 			double weight = getWeightOfMethodMatch(criteria, methodSymbol);
@@ -35,7 +33,6 @@ public class SymbolMatcher
 			if(weight >= 0.0)
 				result.add(new WeightedMethodSymbolMatch(methodSymbol, weight));
 		});
-		return result;
 	}
 
 	/**

@@ -32,11 +32,11 @@ public class TypeCoercions
 
 	public boolean isCoercible(Optional<ISymbol> from, Optional<ISymbol> to)
 	{
-		if(from.isEmpty() || to.isEmpty())
-			return false;
-
 		AssertValue.checkNotNull("Coercion from cannot be null", from);
 		AssertValue.checkNotNull("Coercion to cannot be null", to);
+
+		if(from.isEmpty() || to.isEmpty())
+			return false;
 
 		return isCoercible(from.get(), to.get());
 	}
