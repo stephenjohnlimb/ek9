@@ -18,11 +18,6 @@ import java.util.Optional;
  */
 public class AggregateFactory
 {
-	public boolean isSymbolNameFullyQualified(String symbolName)
-	{
-		return symbolName.contains("::");
-	}
-
 	public void addSyntheticConstructorIfRequired(IAggregateSymbol aggregateSymbol)
 	{
 		//Default constructor

@@ -22,8 +22,8 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	@Test
 	public void testFullyQualifiedName()
 	{
-		assertFalse(support.isSymbolNameFullyQualified("name"));
-		assertTrue(support.isSymbolNameFullyQualified("com.name::name"));
+		assertFalse(ISymbol.isQualifiedName("name"));
+		assertTrue(ISymbol.isQualifiedName("com.name::name"));
 
 		assertEquals("com.part", ISymbol.getModuleNameIfPresent("com.part::name"));
 		assertEquals("", ISymbol.getModuleNameIfPresent("name"));

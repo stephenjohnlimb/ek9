@@ -164,11 +164,10 @@ public class SymbolSearch
 	{
 		AggregateSymbol sym;
 		String theName = name;
-		if(name.contains("::"))
+		if(ISymbol.isQualifiedName(name))
 		{
-			String[] parts = name.split("::");
-			if(fromModuleName.equals(parts[0]))
-				theName = parts[1];
+			if(fromModuleName.equals(ISymbol.getModuleNameIfPresent(name)))
+				theName = ISymbol.getUnqualifiedName(name);
 		}
 		sym = new AggregateSymbol(theName, new SymbolTable());
 

@@ -287,10 +287,7 @@ public class Symbol implements ISymbol
 	public String getFullyQualifiedName()
 	{
 		String rtn = getName();
-		if(rtn.contains("::"))
-			return rtn; //already qualified in how it was constructed.
-
-		return parsedModule.map(m -> m.getScopeName() + "::" + rtn).orElse(rtn);
+		return parsedModule.map(m -> ISymbol.makeFullyQualifiedName(m.getScopeName(), rtn)).orElse(rtn);
 	}
 
 	public boolean isExactSameType(ISymbol symbolType)

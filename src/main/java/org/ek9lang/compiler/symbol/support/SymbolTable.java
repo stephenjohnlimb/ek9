@@ -79,6 +79,9 @@ public class SymbolTable implements IScope
 
 	private final SymbolMatcher matcher = new SymbolMatcher();
 
+	/**
+	 * Is this scope marked as pure, so that mutations cannot be undertaken
+	 */
 	private boolean markedPure = false;
 
 	/**
@@ -236,7 +239,7 @@ public class SymbolTable implements IScope
 	@Override
 	public MethodSymbolSearchResult resolveForAllMatchingMethodsInThisScopeOnly(MethodSymbolSearch search, MethodSymbolSearchResult result)
 	{
-		//We need to work with MethodSymbols here rather than just ISymbols.
+		//Function to work with MethodSymbols here rather than just ISymbols.
 		Function<List<ISymbol>, List<MethodSymbol>> methodSymbolCast = list -> list.stream().map(symbol -> (MethodSymbol)symbol).collect(Collectors.toList());
 
 		var optTable = Optional.ofNullable(getSplitSymbolTable(search.getSearchType()));
@@ -267,7 +270,7 @@ public class SymbolTable implements IScope
 		AssertValue.checkNotNull("Search cannot be null", search);
 
 		String symbolName = search.getName();
-		if(symbolName.contains("::"))
+		if(ISymbol.isQualifiedName(symbolName))
 		{
 			//Then it is a fully qualified search so if the scope name of this table does not match
 			//what has been provided then even if the symbol name matches it's a miss.

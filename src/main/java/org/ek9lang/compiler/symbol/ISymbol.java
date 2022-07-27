@@ -52,7 +52,7 @@ public interface ISymbol extends ITokenReference
 
 	static String getModuleNameIfPresent(String symbolName)
 	{
-		if(symbolName.contains("::"))
+		if(isQualifiedName(symbolName))
 		{
 			String[] parts = symbolName.split("::");
 			return parts[0];
@@ -62,12 +62,24 @@ public interface ISymbol extends ITokenReference
 
 	static String getUnqualifiedName(String symbolName)
 	{
-		if(symbolName.contains("::"))
+		if(isQualifiedName(symbolName))
 		{
 			String[] parts = symbolName.split("::");
 			return parts[1];
 		}
 		return symbolName;
+	}
+
+	static boolean isQualifiedName(String symbolName)
+	{
+		return symbolName.contains("::");
+	}
+
+	static String makeFullyQualifiedName(String scopeName, String symbolName)
+	{
+		if(isQualifiedName(symbolName))
+			return symbolName;
+		return scopeName+"::"+symbolName;
 	}
 
 	//Used for declarations of variables/params where they can be null.
