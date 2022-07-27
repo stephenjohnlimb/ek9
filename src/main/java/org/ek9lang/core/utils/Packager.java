@@ -15,7 +15,7 @@ import java.util.zip.ZipInputStream;
 /**
  * Focus on the responsibility of packaging. i.e. zipping and unzipping.
  */
-public class Packager
+public final class Packager
 {
 	private final FileHandling fileHandling;
 

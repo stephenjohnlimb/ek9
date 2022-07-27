@@ -9,7 +9,7 @@ import java.util.Collection;
  * But also can just contain binary contents i.e. one or the other.
  * Makes it easy to take a range of files from various locations and drop them into a zip.
  */
-public class ZipSet
+public final class ZipSet
 {
 	private Path relativePath;
 	private Collection<File> files;

@@ -13,7 +13,7 @@ import java.util.List;
  * Setup one or more includes and then excludes if you need to.
  * But at least one include.
  */
-public class Glob
+public final class Glob
 {
 	private final List<PathMatcher> includes = new ArrayList<>();
 	private final List<PathMatcher> excludes = new ArrayList<>();

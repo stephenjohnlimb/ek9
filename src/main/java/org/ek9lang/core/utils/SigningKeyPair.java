@@ -14,7 +14,7 @@ import java.util.Objects;
  * Just a wrapper around java public private key processing.
  * Can hold either public key and private key, just one or none.
  */
-public class SigningKeyPair
+public final class SigningKeyPair
 {
 	private final Base64.Encoder encoder = Base64.getEncoder();
 	private final Base64.Decoder decoder = Base64.getDecoder();

@@ -11,7 +11,7 @@ import java.nio.file.FileSystems;
  * Responsibility of dealing with aspects of the ek9 directory structure.
  * Typically, lib, keys, artefacts and other places where EK9 expects items to be located.
  */
-public class EK9DirectoryStructure
+public final class EK9DirectoryStructure
 {
 	public static final String JAVA = "java";
 	public static final String CLASSES = "classes";

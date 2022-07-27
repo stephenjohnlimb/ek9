@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 /**
  * Operating System support and generic stuff for directories and files.
  */
-public class OsSupport
+public final class OsSupport
 {
 	public static int numberOfProcessors()
 	{

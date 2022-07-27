@@ -7,7 +7,7 @@ import java.util.*;
 /**
  * Represents a single dependency by moduleName and version.
  */
-public class DependencyNode
+public final class DependencyNode
 {
 	//Navigational graph structure.
 	//Will remain null if this is the top node.
@@ -88,7 +88,7 @@ public class DependencyNode
 			if(d.isSameModule(this))
 			{
 				//Found a circular dependency
-				return Optional.ofNullable(showPathToDependency(includeVersion));
+				return Optional.of(showPathToDependency(includeVersion));
 			}
 			d = d.getParent();
 		}

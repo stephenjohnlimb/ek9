@@ -11,7 +11,7 @@ import java.security.NoSuchAlgorithmException;
  * Wraps the SHA 256 digest and the resulting byte array into objects,
  * so we can deal with check objects rather than raw bytes.
  */
-public class Digest
+public final class Digest
 {
 	public static MessageDigest getSha256()
 	{
@@ -39,17 +39,14 @@ public class Digest
 
 	public static CheckSum digest(File file)
 	{
-		try
+		try(InputStream is = new FileInputStream(file))
 		{
-			try(InputStream is = new FileInputStream(file))
-			{
-				MessageDigest digest = getSha256();
-				byte[] buffer = new byte[4096];
-				int amountRead;
-				while((amountRead = is.read(buffer, 0, 4096)) != -1)
-					digest.update(buffer, 0, amountRead);
-				return new CheckSum(digest.digest());
-			}
+			MessageDigest digest = getSha256();
+			byte[] buffer = new byte[4096];
+			int amountRead;
+			while((amountRead = is.read(buffer, 0, 4096)) != -1)
+				digest.update(buffer, 0, amountRead);
+			return new CheckSum(digest.digest());
 		}
 		catch(IOException e)
 		{
@@ -65,7 +62,7 @@ public class Digest
 		return providedSha.equals(contentsSha);
 	}
 
-	public static class CheckSum
+	public final static class CheckSum
 	{
 		private byte[] checksum = null;
 

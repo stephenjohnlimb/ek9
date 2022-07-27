@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
  * Can be a normal version number like 6.8.2-9 i.e 9 is the build number
  * Or can be for a feature like 6.1.6-specialFeature12-19 i.e. build number 19 of specialFeature12
  */
-public class SemanticVersion implements Comparable<SemanticVersion>
+public final class SemanticVersion implements Comparable<SemanticVersion>
 {
 	private int major = 0;
 	private int minor = 0;

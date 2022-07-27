@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * 4. For semanticVersioning - fail build if major version gets pulled up when other dependencies need lower version.
  * <p>
  * For semantic versioning major > minor > patch > build and patch without feature is higher.
- * Features are ordered by alpha. i.e Alpha > Beta for example.
+ * Features are ordered by alpha. i.e. Alpha > Beta for example.
  * <p>
  * This is done with a directed graph with back pointers back up the graph tree.
  * The main Nodes in the graph hold both the moduleName and the Version separately and have a flag to denote rejection.
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  * At the end it is possible the developer excluded a set of dependencies that were needed.
  * The compiler will let the developer know because there will be missing symbols.
  */
-public class DependencyManager
+public final class DependencyManager
 {
 	private final DependencyNode root;
 

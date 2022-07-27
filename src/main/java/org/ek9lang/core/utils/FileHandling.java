@@ -13,7 +13,7 @@ import java.util.Optional;
 /**
  * Designed to abstract out all file handling for the compiler.
  */
-public class FileHandling
+public final class FileHandling
 {
 	private final OsSupport osSupport;
 	private final Packager packager;

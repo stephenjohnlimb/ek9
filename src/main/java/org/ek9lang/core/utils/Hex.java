@@ -1,6 +1,6 @@
 package org.ek9lang.core.utils;
 
-public class Hex
+public final class Hex
 {
 	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
