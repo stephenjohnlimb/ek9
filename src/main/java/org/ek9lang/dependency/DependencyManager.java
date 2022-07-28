@@ -277,8 +277,6 @@ public final class DependencyManager
 	 */
 	public List<String> reportAllDependencies()
 	{
-		if(root == null)
-			return new ArrayList<>();
-		return root.reportAllDependencies();
+		return root != null ? root.reportAllDependencies() : List.of();
 	}
 }

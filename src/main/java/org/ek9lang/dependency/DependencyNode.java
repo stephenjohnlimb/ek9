@@ -111,9 +111,7 @@ public final class DependencyNode
 
 	public boolean isParentRejected()
 	{
-		if(parent != null)
-			return parent.isRejected();
-		return false;
+		return parent != null ? parent.isRejected() : false;
 	}
 
 	public boolean isSameModule(DependencyNode node)
@@ -161,33 +159,37 @@ public final class DependencyNode
 
 	private String toString(boolean includeVersion)
 	{
-		String rtn = moduleName;
 		if(includeVersion)
-			rtn = toString();
-		if(rejected)
-			rtn += " (" + reason + ")";
-		return rtn;
+			return toString();
+
+		return rejected ? moduleName + getReason() : moduleName;
 	}
 
 	@Override
 	public boolean equals(Object obj)
 	{
 		if(obj instanceof DependencyNode dep)
-		{
-			String thisVector = moduleName + "-" + version;
-			String otherVector = dep.moduleName + "-" + dep.version;
-			return thisVector.equals(otherVector);
-		}
+			return getModuleAndVersion().equals(dep.getModuleAndVersion());
 		return super.equals(obj);
+	}
+
+	private String getModuleAndVersion()
+	{
+		return new StringBuilder(moduleName).append("-").append(version).toString();
+	}
+
+	private String getReason()
+	{
+		return new StringBuilder("(").append(reason).append(")").toString();
 	}
 
 	@Override
 	public String toString()
 	{
-		if(!rejected)
-			return moduleName + "-" + version;
-		else
-			return moduleName + "-" + version + " (" + reason + ")";
+		var builder = new StringBuilder(getModuleAndVersion());
+		if(rejected)
+			builder.append(getReason());
+		return builder.toString();
 	}
 
 	public enum RejectionReason
