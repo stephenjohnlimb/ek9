@@ -53,6 +53,7 @@ public class VariableSymbol extends Symbol implements IAssignableSymbol
 		return newCopy;
 	}
 
+	@Override
 	public boolean isAggregatePropertyField()
 	{
 		return isAggregatePropertyField;
@@ -91,6 +92,7 @@ public class VariableSymbol extends Symbol implements IAssignableSymbol
 		loopVariable = asLoopVar;
 	}
 
+	@Override
 	public boolean isIncomingParameter()
 	{
 		return incomingParameter;
@@ -101,6 +103,7 @@ public class VariableSymbol extends Symbol implements IAssignableSymbol
 		this.incomingParameter = incomingParameter;
 	}
 
+	@Override
 	public boolean isReturningParameter()
 	{
 		return returningParameter;

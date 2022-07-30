@@ -9,10 +9,10 @@ import org.ek9lang.compiler.symbol.LocalScope;
  * Just simple tests of the scope stack that will be used in the
  * compiler phases when building the internal model and symbols.
  */
-public class ScopeStackTest
+class ScopeStackTest
 {
 	@Test
-	public void testNewScopeStack()
+	void testNewScopeStack()
 	{
 		ScopeStack underTest = new ScopeStack(new SymbolTable());
 		assertFalse(underTest.empty());
@@ -21,13 +21,13 @@ public class ScopeStackTest
 		assertNotNull(theTop);
 		var top = underTest.pop();
 
-		assertTrue(top == theTop);
+		assertSame(top, theTop);
 		assertNotNull(top);
 		assertTrue(underTest.empty());
 	}
 
 	@Test
-	public void testPushOnScopeStack()
+	void testPushOnScopeStack()
 	{
 		ScopeStack underTest = new ScopeStack(new SymbolTable());
 		assertFalse(underTest.empty());

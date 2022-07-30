@@ -8,7 +8,6 @@ import org.ek9lang.core.exception.AssertValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class AggregateWithTraitsSymbol extends AggregateSymbol
 {
@@ -67,6 +66,7 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol
 		return -1000000.0;
 	}
 
+	@Override
 	public double getUnCoercedAssignableWeightTo(ISymbol s)
 	{
 		//easy if same type and parameterization
@@ -85,6 +85,7 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol
 		return -1000000.0;
 	}
 
+	@Override
 	public double getAssignableWeightTo(Optional<ISymbol> s)
 	{
 		return s.map(this::getAssignableWeightTo).orElse(-100000.0);
@@ -132,7 +133,7 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol
 	@Override
 	public List<AggregateWithTraitsSymbol> getAllExtensionConstrainedTraits()
 	{
-		return getAllTraits().stream().filter(AggregateWithTraitsSymbol::isExtensionConstrained).collect(Collectors.toList());
+		return getAllTraits().stream().filter(AggregateWithTraitsSymbol::isExtensionConstrained).toList();
 	}
 
 	/**
@@ -168,15 +169,13 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol
 		});
 
 		//So this might be a class itself - so go up the supers to get all those traits.
-		if(getSuperAggregateScopedSymbol().isPresent())
-		{
-			IAggregateSymbol theSuper = getSuperAggregateScopedSymbol().get();
+		getSuperAggregateScopedSymbol().ifPresent(theSuper -> {
 			List<AggregateWithTraitsSymbol> superTraits = theSuper.getAllTraits();
 			superTraits.forEach(trait -> {
 				if(!rtn.contains(trait))
 					rtn.add(trait);
 			});
-		}
+		});
 
 		return rtn;
 	}
@@ -242,23 +241,19 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol
 	@Override
 	public MethodSymbolSearchResult resolveForAllMatchingMethods(MethodSymbolSearch search, MethodSymbolSearchResult result)
 	{
-		//System.out.println("Search '" + this.getName() + "' AggregateWithTraitsSymbol: " + search);
-
 		MethodSymbolSearchResult buildResult = new MethodSymbolSearchResult(result);
 		//Do traits first then do own and our supers - so with the traits we consider them 'peers' and so need to merge the result
 		//So this would give us potentially two methods with same signature in our results - which is what we need to see.
 		for(IAggregateSymbol trait : traits)
 		{
 			buildResult = buildResult.mergePeerToNewResult(trait.resolveForAllMatchingMethods(search, new MethodSymbolSearchResult()));
-			//System.out.println(this.getName() + ": AggregateWithTraitsSymbol after " + trait.getName()+ ": " + buildResult);
-		}
+			}
 		//But now we need to find the results for our own scope and classes we inherit from
 		//But the key here is that when this scope provides an implementation it overrides zero, one or more implementations from the traits
 
 		//No sure it this is right actually the super class is really a peer with the trait in terms of method resolution		
 		buildResult = buildResult.overrideToNewResult(super.resolveForAllMatchingMethods(search, new MethodSymbolSearchResult()));
 
-		//System.out.println("End Search '" + this.getName() + "' AggregateWithTraitsSymbol: " + search + ": " + buildResult);
 		return buildResult;
 	}
 
@@ -284,18 +279,11 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol
 		return rtn;
 	}
 
-	@Override
-	public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search)
-	{
-		//Now we also have to account for captured variables as well.
-
-		return super.resolveInThisScopeOnly(search);
-	}
-
 	/**
 	 * Resolve using super aggregate and or any traits we have.
 	 * Look in our traits first then go to the normal AggregateSymbol resolution.
 	 */
+	@Override
 	protected Optional<ISymbol> resolveWithParentScope(SymbolSearch search)
 	{
 		Optional<ISymbol> rtn = resolveInTraits(search);

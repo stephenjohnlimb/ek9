@@ -9,7 +9,6 @@ import org.ek9lang.core.exception.AssertValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * To be used to search for symbols in a Symbol table.
@@ -121,7 +120,7 @@ public class SymbolSearch
 				.map(ISymbol::getType)
 				.filter(Optional::isPresent)
 				.map(Optional::get)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	public SymbolSearch addParameter(ISymbol parameter)
@@ -164,11 +163,10 @@ public class SymbolSearch
 	{
 		AggregateSymbol sym;
 		String theName = name;
-		if(ISymbol.isQualifiedName(name))
-		{
-			if(fromModuleName.equals(ISymbol.getModuleNameIfPresent(name)))
+
+		if(ISymbol.isQualifiedName(name) && fromModuleName.equals(ISymbol.getModuleNameIfPresent(name)))
 				theName = ISymbol.getUnqualifiedName(name);
-		}
+
 		sym = new AggregateSymbol(theName, new SymbolTable());
 
 		return Optional.of(sym);
@@ -183,8 +181,7 @@ public class SymbolSearch
 	{
 		StringBuilder buffer = new StringBuilder();
 
-		if(getOfTypeOrReturn().isPresent())
-			buffer.append(getOfTypeOrReturn().get().getName()).append(" <- ");
+		getOfTypeOrReturn().ifPresent(returnType -> buffer.append(returnType.getName()).append(" <- "));
 		buffer.append(getName());
 
 		if(this.searchType == ISymbol.SymbolCategory.METHOD)

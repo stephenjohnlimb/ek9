@@ -139,7 +139,6 @@ public class StreamCallSymbol extends MethodSymbol implements IAssignableSymbol
 	public void setConsumesSymbolType(ISymbol consumesSymbolType)
 	{
 		this.consumesSymbolType = consumesSymbolType;
-		//System.out.println("setConsumesSymbolType [" + consumesSymbolType.getFriendlyName() + "]");
 
 		if(producerSymbolTypeSameAsConsumerSymbolType)
 			setProducesSymbolType(consumesSymbolType);
@@ -152,7 +151,6 @@ public class StreamCallSymbol extends MethodSymbol implements IAssignableSymbol
 
 	public void setProducesSymbolType(ISymbol producesSymbolType)
 	{
-		//System.out.println("setProducesSymbolType [" + producesSymbolType.getFriendlyName() + "]");
 		this.producesSymbolType = producesSymbolType;
 	}
 }

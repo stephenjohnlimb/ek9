@@ -15,7 +15,7 @@ public final class SemanticVersion implements Comparable<SemanticVersion>
 	private String feature = null;
 	private int buildNumber = 0;
 
-	public static SemanticVersion _of(String value)
+	public static SemanticVersion of(String value)
 	{
 		SemanticVersion rtn = new SemanticVersion();
 
@@ -25,7 +25,7 @@ public final class SemanticVersion implements Comparable<SemanticVersion>
 		return rtn;
 	}
 
-	public static SemanticVersion _withNoBuildNumber(String value)
+	public static SemanticVersion withNoBuildNumber(String value)
 	{
 		SemanticVersion rtn = new SemanticVersion();
 

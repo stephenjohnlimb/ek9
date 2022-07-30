@@ -180,31 +180,22 @@ public class MethodSymbol extends ScopedSymbol
 		this.accessModifier = accessModifier;
 	}
 
+	@Override
 	public boolean isPrivate()
 	{
 		return accessModifier.equals("private");
 	}
 
+	@Override
 	public boolean isProtected()
 	{
 		return accessModifier.equals("protected");
 	}
 
+	@Override
 	public boolean isPublic()
 	{
 		return accessModifier.equals("public");
-	}
-
-	@Override
-	public void define(ISymbol symbol)
-	{
-		super.define(symbol);
-	}
-
-	@Override
-	public ISymbol setType(Optional<ISymbol> type)
-	{
-		return super.setType(type);
 	}
 
 	public boolean isUsedAsProxyForDelegate()
@@ -257,9 +248,15 @@ public class MethodSymbol extends ScopedSymbol
 		return this;
 	}
 
+	@Override
 	public boolean isMarkedAbstract()
 	{
 		return markedAbstract;
+	}
+
+	public boolean isNotMarkedAbstract()
+	{
+		return !markedAbstract;
 	}
 
 	public void setMarkedAbstract(boolean markedAbstract)
@@ -346,18 +343,16 @@ public class MethodSymbol extends ScopedSymbol
 		//must be exact match
 		if(weight > 0.0 || weight < 0.0)
 			return false;
-		//System.out.println("parameter match weight is "+ weight);
 		weight = matcher.getWeightOfMatch(this.getType(), toMethod.getType());
 
-		//System.out.println("Return type weight is "+ weight);
-		return !(weight < 0.0);
+		return weight >= 0.0;
 	}
 
 	public boolean isParameterSignatureMatchTo(List<ISymbol> params)
 	{
 		List<ISymbol> ourParams = this.getSymbolsForThisScope();
 		double weight = matcher.getWeightOfParameterMatch(ourParams, params);
-		return !(weight < 0.0);
+		return weight >= 0.0;
 	}
 
 	/**
@@ -404,6 +399,7 @@ public class MethodSymbol extends ScopedSymbol
 		return buffer.toString();
 	}
 
+	@Override
 	public String toString()
 	{
 		StringBuilder buffer = new StringBuilder();

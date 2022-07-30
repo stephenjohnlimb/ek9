@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Designed to deal with managing dependencies of ek9 modules.
@@ -185,7 +184,7 @@ public final class DependencyManager
 				.map(this::findByModuleName)
 				.flatMap(Collection::stream)
 				.filter(byPredicate)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	/**
@@ -206,8 +205,7 @@ public final class DependencyManager
 	 */
 	public List<String> listAllModuleNames()
 	{
-		HashSet<String> uniqueResults = new HashSet<>(reportAllDependencies());
-		return uniqueResults.stream().sorted().collect(Collectors.toList());
+		return new HashSet<>(reportAllDependencies()).stream().sorted().toList();
 	}
 
 	/**

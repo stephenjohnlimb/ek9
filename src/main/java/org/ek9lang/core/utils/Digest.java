@@ -1,11 +1,13 @@
 package org.ek9lang.core.utils;
 
 import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.exception.CompilerException;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 /**
  * Wraps the SHA 256 digest and the resulting byte array into objects,
@@ -13,6 +15,12 @@ import java.security.NoSuchAlgorithmException;
  */
 public final class Digest
 {
+
+	private Digest()
+	{
+		//Just to stop instantiation.
+	}
+
 	public static MessageDigest getSha256()
 	{
 		try
@@ -21,7 +29,7 @@ public final class Digest
 		}
 		catch(NoSuchAlgorithmException e)
 		{
-			throw new RuntimeException("Unable to create SHA256 Message Digest", e);
+			throw new CompilerException("Unable to create SHA256 Message Digest", e);
 		}
 	}
 
@@ -50,7 +58,7 @@ public final class Digest
 		}
 		catch(IOException e)
 		{
-			throw new RuntimeException("Unable to Read file " + file.getAbsolutePath(), e);
+			throw new CompilerException("Unable to Read file " + file.getAbsolutePath(), e);
 		}
 	}
 
@@ -62,9 +70,9 @@ public final class Digest
 		return providedSha.equals(contentsSha);
 	}
 
-	public final static class CheckSum
+	public static final class CheckSum
 	{
-		private byte[] checksum = null;
+		private byte[] theCheckSum = null;
 
 		public CheckSum(File sha256File)
 		{
@@ -74,7 +82,13 @@ public final class Digest
 		public CheckSum(byte[] checksum)
 		{
 			AssertValue.checkNotNull("checksum bytes array cannot be null", checksum);
-			this.checksum = checksum;
+			this.theCheckSum = checksum;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			return Arrays.hashCode(theCheckSum);
 		}
 
 		@Override
@@ -83,11 +97,11 @@ public final class Digest
 			if(obj == this)
 				return true;
 
-			if(obj instanceof CheckSum)
-				return checkBytesSame(((CheckSum)obj).checksum, checksum);
+			if(obj instanceof CheckSum cs)
+				return checkBytesSame(cs.theCheckSum, theCheckSum);
 
-			if(obj instanceof byte[])
-				return checkBytesSame((byte[])obj, checksum);
+			if(obj instanceof byte[] bytes)
+				return checkBytesSame(bytes, theCheckSum);
 
 			return false;
 		}
@@ -107,7 +121,7 @@ public final class Digest
 		@Override
 		public String toString()
 		{
-			return Hex.toString(checksum);
+			return Hex.toString(theCheckSum);
 		}
 
 		public void saveToFile(File sha256File)
@@ -119,9 +133,9 @@ public final class Digest
 				String content = this + " *-\n";
 				output.write(content.getBytes());
 			}
-			catch(Throwable th)
+			catch(Exception ex)
 			{
-				System.err.println("Unable to save " + sha256File.getName() + " " + th.getMessage());
+				System.err.println("Unable to save " + sha256File.getName() + " " + ex.getMessage());
 			}
 		}
 
@@ -131,11 +145,11 @@ public final class Digest
 			{
 				String line = new String(is.readAllBytes(), StandardCharsets.UTF_8);
 				String firstPart = line.split(" ")[0];
-				checksum = Hex.toByteArray(firstPart);
+				theCheckSum = Hex.toByteArray(firstPart);
 			}
-			catch(Throwable th)
+			catch(Exception ex)
 			{
-				System.err.println("Unable to load " + sha256File.getName() + " " + th.getMessage());
+				System.err.println("Unable to load " + sha256File.getName() + " " + ex.getMessage());
 			}
 		}
 	}

@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Only design to test valid command line instructions.
  * See CommandLineDetailsTest of invalid combinations.
  */
-public final class EK9Test
+final class EK9Test
 {
 	private final LanguageMetaData languageMetaData = new LanguageMetaData("0.0.1-0");
 	private final OsSupport osSupport = new OsSupport(true);
@@ -26,7 +26,7 @@ public final class EK9Test
 	private final SourceFileSupport sourceFileSupport = new SourceFileSupport(fileHandling, osSupport);
 
 	@AfterEach
-	public void tidyUp()
+	void tidyUp()
 	{
 		String testHomeDirectory = fileHandling.getUsersHomeDirectory();
 		assertNotNull(testHomeDirectory);
@@ -35,19 +35,19 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testCommandLineHelpText()
+	void testCommandLineHelpText()
 	{
 		assertResult(EK9.SUCCESS_EXIT_CODE, new String[]{"-h"});
 	}
 
 	@Test
-	public void testCommandLineVersionText()
+	void testCommandLineVersionText()
 	{
 		assertResult(EK9.SUCCESS_EXIT_CODE, new String[]{"-V"});
 	}
 
 	@Test
-	public void testIncrementationCompilation()
+	void testIncrementationCompilation()
 	{
 		String sourceName = "HelloWorld.ek9";
 		String[] command = new String[]{"-v -c " + sourceName};
@@ -79,7 +79,7 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testDebugDevCompilation()
+	void testDebugDevCompilation()
 	{
 		String sourceName = "HelloWorld.ek9";
 		String[] command = new String[]{"-Cd " + sourceName};
@@ -92,7 +92,7 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testGenerateKeys()
+	void testGenerateKeys()
 	{
 		String[] command = new String[]{"-Gk"};
 
@@ -109,7 +109,7 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testRunSingleProgram()
+	void testRunSingleProgram()
 	{
 		String sourceName = "HelloWorld.ek9";
 		String[] command = new String[]{"-v " + sourceName};
@@ -121,7 +121,7 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testRunUnitTests()
+	void testRunUnitTests()
 	{
 		String sourceName = "HelloWorlds.ek9";
 		String[] command = new String[]{"-v -t " + sourceName};
@@ -134,7 +134,7 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testRunSelectedProgram()
+	void testRunSelectedProgram()
 	{
 		String sourceName = "HelloWorlds.ek9";
 		String[] command = new String[]{"-v " + sourceName + " -r HelloMars"};
@@ -147,7 +147,7 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testInstallNonSuchPackage()
+	void testInstallNonSuchPackage()
 	{
 		String sourceName = "HelloWorlds.ek9";
 		String[] command = new String[]{"-I " + sourceName};
@@ -160,7 +160,21 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testInstallPackage()
+	void testEnvironmentVariable()
+	{
+		var user="'Steve Limb'";
+		String sourceName = "HelloWorlds.ek9";
+		String[] command = new String[]{"-e " + user + " " + sourceName + " -r HelloMars"};
+
+		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+		assertNotNull(sourceFile);
+
+		//Should fail because this source does not define a package.
+		assertResult(EK9.RUN_COMMAND_EXIT_CODE, command);
+
+	}
+	@Test
+	void testInstallPackage()
 	{
 		installPackage("PackageNoDeps.ek9");
 		File libDir = fileHandling.getUsersHomeEK9LibDirectory();
@@ -172,31 +186,31 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testBuildVersioningOfPackage()
+	void testBuildVersioningOfPackage()
 	{
 		assertPackageVersionChange("1.0.0-1", "-IV build", "PackageNoDeps.ek9");
 	}
 
 	@Test
-	public void testPatchVersioningOfPackage()
+	void testPatchVersioningOfPackage()
 	{
 		assertPackageVersionChange("1.0.1-0", "-IV patch", "PackageNoDeps.ek9");
 	}
 
 	@Test
-	public void testMinorVersioningOfPackage()
+	void testMinorVersioningOfPackage()
 	{
 		assertPackageVersionChange("1.1.0-0", "-v -IV minor", "PackageNoDeps.ek9");
 	}
 
 	@Test
-	public void testMajorVersioningOfPackage()
+	void testMajorVersioningOfPackage()
 	{
 		assertPackageVersionChange("2.0.0-0", "-IV major", "PackageNoDeps.ek9");
 	}
 
 	@Test
-	public void testSetVersioningOfPackage()
+	void testSetVersioningOfPackage()
 	{
 		assertPackageVersionChange("3.8.6-0", "-v -SV 3.8.6", "PackageNoDeps.ek9");
 		//Now check that it can also be incremented and appropriate resets on patch and build no.
@@ -204,7 +218,7 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testSetFeatureVersioningOfPackage()
+	void testSetFeatureVersioningOfPackage()
 	{
 		assertPackageVersionChange("3.8.6-specials-0", "-v -SF 3.8.6-specials", "PackageNoDeps.ek9");
 		//Now check that it can also be incremented and patch/build number is reset to 0.
@@ -212,7 +226,7 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testPrintVersioningOfPackage()
+	void testPrintVersioningOfPackage()
 	{
 		assertPackageVersionChange("3.8.6-specials-0", "-SF 3.8.6-specials", "PackageNoDeps.ek9");
 		//Now check that it can also be printed.
@@ -220,13 +234,13 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testDeploymentOfPackage()
+	void testDeploymentOfPackage()
 	{
 		deployPackage(EK9.SUCCESS_EXIT_CODE, "PackageNoDeps.ek9");
 	}
 
 	@Test
-	public void testBadPackage()
+	void testBadPackage()
 	{
 		String sourceName = "BadPackage.ek9";
 		String[] command = new String[]{"-I " + sourceName};
@@ -245,7 +259,7 @@ public final class EK9Test
 	 * Check that standard includes works.
 	 */
 	@Test
-	public void testPackageWithStandardIncludes()
+	void testPackageWithStandardIncludes()
 	{
 		//So firstly we need to 'install' a number of dependent packages
 		//then we can try and resolve those dependencies.
@@ -259,7 +273,7 @@ public final class EK9Test
 	 * try and pull these from a repository.
 	 */
 	@Test
-	public void testPackageDependencyResolution()
+	void testPackageDependencyResolution()
 	{
 		//So firstly we need to 'install' a number of dependent packages
 		//then we can try and resolve those dependencies.
@@ -273,7 +287,7 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testSemanticVersionBreach()
+	void testSemanticVersionBreach()
 	{
 		installPackage("SupportUtils.ek9");
 		installPackage("SupportUtils2.ek9");
@@ -284,7 +298,7 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testSemanticVersionPromotion()
+	void testSemanticVersionPromotion()
 	{
 		installPackage("SupportUtils.ek9");
 		installPackage("SupportUtils3.ek9");
@@ -295,7 +309,7 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testSemanticVersionOptimisation()
+	void testSemanticVersionOptimisation()
 	{
 		installPackage("SupportUtils.ek9");
 		installPackage("SupertoolsUtil.ek9");
@@ -310,7 +324,7 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testMissingPackageDependencyResolution()
+	void testMissingPackageDependencyResolution()
 	{
 		//So firstly we need to 'install' a number of dependent packages
 		//then we can try and resolve those dependencies.
@@ -325,7 +339,7 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testCircularDependencies()
+	void testCircularDependencies()
 	{
 		//We have to cheat like a developer would do and put some stuff in the place where it would have been packaged!
 		//So put mangled version of both deps in; and then we can resolve both to build a new one.
@@ -343,7 +357,7 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testCircularDependenciesDifferentVersions()
+	void testCircularDependenciesDifferentVersions()
 	{
 		//make sure the structure for packages exists.
 		fileHandling.validateHomeEK9Directory("java");
@@ -361,7 +375,7 @@ public final class EK9Test
 	}
 
 	@Test
-	public void testCircularDependencyResolution()
+	void testCircularDependencyResolution()
 	{
 		//Similar to above but just checking dependency resolution for circular detections.
 		//make sure the structure for packages exists.

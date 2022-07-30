@@ -87,11 +87,13 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 	 *
 	 * @return boolean true if is parameterised
 	 */
+	@Override
 	public boolean isGenericInNature()
 	{
 		return !this.getParameterisedTypes().isEmpty();
 	}
 
+	@Override
 	public FunctionSymbol addParameterisedType(AggregateSymbol parameterisedType)
 	{
 		super.addParameterisedType(parameterisedType);
@@ -134,13 +136,11 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 		this.capturedVariables = capturedVariables;
 	}
 
-	public void setCapturedVariablesVisibility(boolean isPublic)
+	public void setCapturedVariablesVisibility(final boolean isPublic)
 	{
 		capturedVariables.ifPresent(localScope -> localScope.getSymbolsForThisScope().forEach(symbol -> {
-			if(symbol instanceof VariableSymbol)
-			{
-				((VariableSymbol)symbol).setPrivate(!isPublic);
-			}
+			if(symbol instanceof VariableSymbol s)
+				s.setPrivate(!isPublic);
 		}));
 	}
 
@@ -166,6 +166,7 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 		return getUnCoercedAssignableWeightTo(s);
 	}
 
+	@Override
 	public double getUnCoercedAssignableWeightTo(ISymbol s)
 	{
 		double canAssign = super.getUnCoercedAssignableWeightTo(s);
@@ -193,20 +194,16 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 	@Override
 	public String getFriendlyName()
 	{
-		String name = doGetFriendlyName(getName(), Optional.empty());
-		if(getReturningSymbol() != null)
-			name = doGetFriendlyName(getName(), getReturningSymbol().getType());
+		Optional<ISymbol> returningSymbolType = getReturningSymbol() != null ? getReturningSymbol().getType() : Optional.empty();
+		var	name = doGetFriendlyName(getName(), returningSymbolType) + getAnyGenericParamsAsFriendlyNames();
 
-		final var fullName = name += getAnyGenericParamsAsFriendlyNames();
-
-		return superFunctionSymbol.map(s -> fullName + " is " + s.getName()).orElse(fullName);
+		return superFunctionSymbol.map(s -> name + " is " + s.getName()).orElse(name);
 	}
 
 	@Override
 	public Optional<ISymbol> getType()
 	{
 		//Treat this as a type. To get result of call need to use:
-		//getReturningSymbol() - which means that functional that return Void still need to have a returning symbol;
 		return Optional.of(this);
 	}
 

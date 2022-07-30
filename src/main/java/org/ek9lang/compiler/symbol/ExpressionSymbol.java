@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.symbol;
 
 import org.antlr.v4.runtime.Token;
+import org.ek9lang.core.exception.CompilerException;
 
 /**
  * While we don't add these in the scoped structures when compiling.
@@ -97,7 +98,7 @@ public class ExpressionSymbol extends Symbol implements IAssignableSymbol
 	@Override
 	public void setNotMutable()
 	{
-		throw new RuntimeException("Compiler error: Base ExpressionSymbol does not support mutability");
+		throw new CompilerException("Compiler error: Base ExpressionSymbol does not support mutability");
 	}
 
 	public boolean isPromotionRequired()

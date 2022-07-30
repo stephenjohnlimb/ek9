@@ -1,6 +1,7 @@
 package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.utils.Digest;
 import org.ek9lang.core.utils.SigningKeyPair;
 
@@ -26,23 +27,22 @@ public class Ed extends E
 
 	protected boolean doRun()
 	{
-		if(new Ep(commandLine, sourceFileCache).run())
+		if(new Ep(commandLine, sourceFileCache).run() && new Egk(commandLine, sourceFileCache).run())
 		{
 			//Need to ensure that the user has some signing keys.
-			if(new Egk(commandLine, sourceFileCache).run())
-			{
-				if(!prepareEncryptedZipHash())
-				{
-					report("Unable to complete package deployment");
-					return false;
-				}
-				//Still TODO
-				//OK now we can zip the zip, encrypted hash and clients public key and send
 
-				//Also needs an account with some credentials to send to https://deploy.ek9lang.org
-				//TODO - we will leave this for now - see SigningKeyPairTest on how we will do it.
-				return true;
+			if(!prepareEncryptedZipHash())
+			{
+				report("Unable to complete package deployment");
+				return false;
 			}
+			//Still TODO
+			//OK now we can zip the zip, encrypted hash and clients public key and send
+
+			//Also needs an account with some credentials to send to https://deploy.ek9lang.org
+			//TODO - we will leave this for now - see SigningKeyPairTest on how we will do it.
+			return true;
+
 		}
 		return false;
 	}
@@ -89,9 +89,9 @@ public class Ed extends E
 						log("Deployment package signed [" + sha256EncFile.getPath() + "]");
 						return true;
 					}
-					catch(Throwable th)
+					catch(Exception ex)
 					{
-						report("Failed to create signed package");
+						report("Failed to create signed package " + ex.getMessage());
 					}
 				}
 			}
@@ -112,6 +112,9 @@ public class Ed extends E
 	 */
 	private String getServerPublicKey(String serverName)
 	{
+		AssertValue.checkNotNull("ServerName cannot be null", serverName);
+		//TODO actually get te server public key
+
 		return """
 				-----BEGIN PUBLIC KEY-----
 				MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzwKIYiKTuohPeKvvifwM

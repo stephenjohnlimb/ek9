@@ -10,7 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 
 public class EK9Support extends AntlrSupport
 {
-	public static void main(String... args) throws IOException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException
+	public static void main(String... args) throws IOException, IllegalArgumentException, SecurityException
 	{
 		if(args.length != 1)
 			System.out.println("Expect a single argument of the ek9 source file to process");

@@ -8,16 +8,14 @@ public class ARI
 		//We have to alter or try and workout what we mean by a sentence and also slightly alter the word count.
 		int numberOfSentences = numberOfIndents + numberOfNewLines / 2;
 		double wordAdjustment = numberOfWords * 1.25;
-		//System.out.println("L=" + numberOfLetters + " W=" + wordAdjustment + " S=" + numberOfSentences);
 		double score = 4.71 * (numberOfLetters / wordAdjustment) + 0.50 * (wordAdjustment / numberOfSentences) - 20.25;
 
-		//System.out.println("Score " + score);
 		if(score < 2)
 			return "5-6 Kindergarten";
 		if(score < 3)
 			return "6-7 First/Second Grade";
 		if(score < 4)
-			return "7-9	Third Grade";
+			return "7-9 Third Grade";
 		if(score < 5)
 			return "9-10 Fourth Grade";
 		if(score < 6)
@@ -39,6 +37,6 @@ public class ARI
 		if(score < 14)
 			return "18-24 College student";
 
-		return "24+	Graduate";
+		return "24+ Graduate";
 	}
 }

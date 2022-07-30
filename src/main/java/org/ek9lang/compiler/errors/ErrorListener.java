@@ -4,6 +4,7 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.ek9lang.compiler.symbol.support.search.MatchResults;
+import org.ek9lang.core.exception.CompilerException;
 import org.ek9lang.core.utils.OsSupport;
 
 import java.util.*;
@@ -93,7 +94,7 @@ public class ErrorListener extends BaseErrorListener
 
 	public boolean isErrorFree()
 	{
-		return errors.size() == 0;
+		return errors.isEmpty();
 	}
 
 	public Iterator<ErrorDetails> getWarnings()
@@ -103,7 +104,7 @@ public class ErrorListener extends BaseErrorListener
 
 	public boolean isWarningFree()
 	{
-		return warnings.size() == 0;
+		return warnings.isEmpty();
 	}
 
 	public void raiseReturningRedundant(Token token, String msg)
@@ -171,7 +172,7 @@ public class ErrorListener extends BaseErrorListener
 		{
 			//Handle our own messages
 			if(msg.startsWith("_EK9"))
-				reason = msg.replaceAll("_EK9", "Probable Cause");
+				reason = msg.replace("_EK9", "Probable Cause");
 			else
 				reason = msg;
 		}
@@ -197,7 +198,7 @@ public class ErrorListener extends BaseErrorListener
 															BitSet ambiguousAlts, ATNConfigSet configs)
 	{
 		if(exceptionOnAmbiguity)
-			throw new RuntimeException("reportAmbiguity");
+			throw new CompilerException("reportAmbiguity");
 	}
 
 	@Override
@@ -205,7 +206,7 @@ public class ErrorListener extends BaseErrorListener
 																					BitSet conflictingAlts, ATNConfigSet configs)
 	{
 		if(exceptionOnFullContext)
-			throw new RuntimeException("reportAttemptingFullContext");
+			throw new CompilerException("reportAttemptingFullContext");
 	}
 
 	@Override
@@ -213,12 +214,11 @@ public class ErrorListener extends BaseErrorListener
 																			 ATNConfigSet configs)
 	{
 		if(exceptionOnContextSensitive)
-			throw new RuntimeException("reportContextSensitivity");
+			throw new CompilerException("reportContextSensitivity");
 	}
 
 	private void addErrorDetails(ErrorDetails details)
 	{
-		//System.out.println("Error: " + details.toString());
 		String key = details.toLinePositionReference();
 		if(!uniqueErrors.containsKey(key))
 		{
@@ -423,7 +423,7 @@ public class ErrorListener extends BaseErrorListener
 		INVALID_VALUE("Invalid value"),
 		DEFAULT_VALUE_WILL_NOT_BE_USED("A Default value will not be used in this context (abstract function/method)");
 
-		public String description;
+		private String description;
 
 		SemanticClassification(String description)
 		{
@@ -478,7 +478,7 @@ public class ErrorListener extends BaseErrorListener
 		}
 	}
 
-	public static abstract class Details
+	public abstract static class Details
 	{
 		/**
 		 * Not always set

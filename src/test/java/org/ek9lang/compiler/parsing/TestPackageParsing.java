@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * <p>
  * These are both used in the command line tool as part of the packaging options.
  */
-public class TestPackageParsing
+class TestPackageParsing
 {
 
 	/**
@@ -133,7 +133,7 @@ public class TestPackageParsing
 			visitor -> visitor.getPackageDetails().orElseThrow(() -> new RuntimeException("Expecting package details"));
 
 	@Test
-	public void testUnableToOpenFile()
+	void testUnableToOpenFile()
 	{
 		JustParser underTest = new JustParser();
 
@@ -144,7 +144,7 @@ public class TestPackageParsing
 	}
 
 	@Test
-	public void testBadPackages()
+	void testBadPackages()
 	{
 		// A couple of source file with bad packaging in them.
 		List.of("/examples/constructs/packages/BadPackage.ek9"
@@ -155,7 +155,7 @@ public class TestPackageParsing
 	}
 
 	@Test
-	public void testPackaging()
+	void testPackaging()
 	{
 		var toTest = Map.of("/examples/constructs/packages/HandyTools.ek9", validateSmallPackage,
 				"/examples/fullPrograms/TCPExample.ek9", validateFullPackage,

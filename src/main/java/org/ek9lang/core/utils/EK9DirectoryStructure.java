@@ -1,6 +1,7 @@
 package org.ek9lang.core.utils;
 
 import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.exception.CompilerException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,9 +34,10 @@ public final class EK9DirectoryStructure
 		this.fileHandling = fileHandling;
 	}
 
+
 	public File getTargetExecutableArtefact(String ek9FullPathToFileName, String targetArchitecture)
 	{
-		AssertValue.checkNotEmpty("EK9FullPathToFileName is empty", ek9FullPathToFileName);
+		assertEK9FullPathToFileNameValid(ek9FullPathToFileName);
 		assertTargetArchitectureSupported(targetArchitecture);
 
 		File sourceFile = new File(ek9FullPathToFileName);
@@ -48,7 +50,7 @@ public final class EK9DirectoryStructure
 
 	public File getTargetPropertiesArtefact(String ek9FullPathToFileName)
 	{
-		AssertValue.checkNotEmpty("EK9FullPathToFileName is empty", ek9FullPathToFileName);
+		assertEK9FullPathToFileNameValid(ek9FullPathToFileName);
 		File sourceFile = new File(ek9FullPathToFileName);
 		String ek9FileNameDirectory = sourceFile.getParent();
 
@@ -73,7 +75,7 @@ public final class EK9DirectoryStructure
 	 */
 	public void makeEK9DevDirectoryStructure(String fromEK9BaseDirectory, String targetArchitecture)
 	{
-		AssertValue.checkNotEmpty("FromEK9BaseDirectory is empty", fromEK9BaseDirectory);
+		assertFromEK9BaseDirectoryValid(fromEK9BaseDirectory);
 		assertTargetArchitectureSupported(targetArchitecture);
 
 		//For ALL libraries still in source ek9 but under their full versioned package name.
@@ -132,7 +134,7 @@ public final class EK9DirectoryStructure
 
 	public File getMainGeneratedOutputDirectory(String fromEK9BaseDirectory, String targetArchitecture)
 	{
-		AssertValue.checkNotEmpty("FromEK9BaseDirectory is empty", fromEK9BaseDirectory);
+		assertFromEK9BaseDirectoryValid(fromEK9BaseDirectory);
 		assertTargetArchitectureSupported(targetArchitecture);
 
 		return FileSystems.getDefault().getPath(fromEK9BaseDirectory, GENERATED, MAIN, targetArchitecture).toFile();
@@ -140,7 +142,7 @@ public final class EK9DirectoryStructure
 
 	public File getMainFinalOutputDirectory(String fromEK9BaseDirectory, String targetArchitecture)
 	{
-		AssertValue.checkNotEmpty("FromEK9BaseDirectory is empty", fromEK9BaseDirectory);
+		assertFromEK9BaseDirectoryValid(fromEK9BaseDirectory);
 		assertTargetArchitectureSupported(targetArchitecture);
 
 		return FileSystems.getDefault().getPath(fromEK9BaseDirectory, GENERATED, MAIN, CLASSES).toFile();
@@ -148,7 +150,7 @@ public final class EK9DirectoryStructure
 
 	public File getDevGeneratedOutputDirectory(String fromEK9BaseDirectory, String targetArchitecture)
 	{
-		AssertValue.checkNotEmpty("FromEK9BaseDirectory is empty", fromEK9BaseDirectory);
+		assertFromEK9BaseDirectoryValid(fromEK9BaseDirectory);
 		assertTargetArchitectureSupported(targetArchitecture);
 
 		return FileSystems.getDefault().getPath(fromEK9BaseDirectory, GENERATED, DEV, targetArchitecture).toFile();
@@ -156,7 +158,7 @@ public final class EK9DirectoryStructure
 
 	public File getDevFinalOutputDirectory(String fromEK9BaseDirectory, String targetArchitecture)
 	{
-		AssertValue.checkNotEmpty("FromEK9BaseDirectory is empty", fromEK9BaseDirectory);
+		assertFromEK9BaseDirectoryValid(fromEK9BaseDirectory);
 		assertTargetArchitectureSupported(targetArchitecture);
 
 		return FileSystems.getDefault().getPath(fromEK9BaseDirectory, GENERATED, DEV, CLASSES).toFile();
@@ -201,9 +203,9 @@ public final class EK9DirectoryStructure
 			output.write(value.getBytes());
 			return true;
 		}
-		catch(Throwable th)
+		catch(Exception ex)
 		{
-			System.err.println("Unable to save " + file.getPath() + " " + th.getMessage());
+			System.err.println("Unable to save " + file.getPath() + " " + ex.getMessage());
 			return false;
 		}
 	}
@@ -214,13 +216,10 @@ public final class EK9DirectoryStructure
 		AssertValue.checkNotEmpty("NewDir is empty", newDir);
 
 		File directory = new File(baseDir, newDir);
-		if(!directory.exists())
+		if(!directory.exists() && !directory.mkdir())
 		{
-			if(!directory.mkdir())
-			{
-				System.err.println("Unable to create directory " + directory);
-				System.exit(3);
-			}
+			System.err.println("Unable to create directory " + directory);
+			System.exit(3);
 		}
 		return directory.getAbsolutePath();
 	}
@@ -231,7 +230,7 @@ public final class EK9DirectoryStructure
 		{
 			AssertValue.checkNotEmpty("TargetArchitecture is empty", targetArchitecture);
 			if(!targetArchitecture.equals(JAVA))
-				throw new RuntimeException("Unsupported target architecture " + targetArchitecture);
+				throw new CompilerException("Unsupported target architecture " + targetArchitecture);
 		}
 		catch(RuntimeException rex)
 		{
@@ -240,4 +239,15 @@ public final class EK9DirectoryStructure
 			System.exit(3);
 		}
 	}
+
+	private void assertEK9FullPathToFileNameValid(String path)
+	{
+		AssertValue.checkNotEmpty("EK9FullPathToFileName is empty", path);
+	}
+
+	private void assertFromEK9BaseDirectoryValid(String path)
+	{
+		AssertValue.checkNotEmpty("FromEK9BaseDirectory is empty", path);
+	}
+
 }

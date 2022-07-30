@@ -26,11 +26,11 @@ public class Et extends E
 		Eic eic = new Eic(commandLine, sourceFileCache);
 		eic.setDebuggingInstrumentation(true);
 		eic.setDevBuild(true);
-		if(eic.run())
-		{
-			//TODO - call to run all the tests
-			return true;
-		}
-		return false;
+		return eic.run() && runTheTests();
+	}
+
+	private boolean runTheTests()
+	{
+		return true;
 	}
 }

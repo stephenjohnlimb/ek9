@@ -13,6 +13,10 @@ public class AssertValue
 {
 	private static final OsSupport osSupport = new OsSupport();
 
+	private AssertValue()
+	{
+		//Just to stop instantiation.
+	}
 	/**
 	 * Checks if a string value is null or an empty string and if so issues an illegal argument exception.
 	 *
@@ -100,7 +104,7 @@ public class AssertValue
 	public static void checkNotEmpty(String messageIfEmpty, Collection<?> items)
 	{
 		checkNotNull(messageIfEmpty, items);
-		if(items.size() == 0)
+		if(items.isEmpty())
 			throw new IllegalArgumentException(messageIfEmpty);
 		items.forEach(item -> checkNotNull(messageIfEmpty, item));
 	}

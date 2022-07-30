@@ -42,7 +42,7 @@ public class ScopeStack extends Stack<IScope>
 	}
 
 	@Override
-	public IScope pop()
+	public synchronized IScope pop()
 	{
 		AssertValue.checkTrue("ScopeStack cannot be empty for pop", !empty());
 		return super.pop();

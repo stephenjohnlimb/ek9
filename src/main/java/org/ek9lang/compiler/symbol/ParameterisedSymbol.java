@@ -2,6 +2,7 @@ package org.ek9lang.compiler.symbol;
 
 import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.exception.CompilerException;
 
 import java.util.List;
 import java.util.Optional;
@@ -65,7 +66,7 @@ public interface ParameterisedSymbol extends IScopedSymbol
 	@Override
 	default ISymbol setType(Optional<ISymbol> type)
 	{
-		throw new RuntimeException("Cannot alter ParameterisedTypeSymbol types", new UnsupportedOperationException());
+		throw new CompilerException("Cannot alter ParameterisedTypeSymbol types", new UnsupportedOperationException());
 	}
 
 	/**

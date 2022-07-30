@@ -3,6 +3,7 @@ package org.ek9lang.compiler.tokenizer;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 /**
@@ -14,70 +15,110 @@ import java.util.regex.Pattern;
  */
 public class TokenStreamAssessment
 {
+	private String getSymbolicContent(final String symbolicName, final String literalContent)
+	{
+		return symbolicName == null ? literalContent : symbolicName;
+	}
+
 	public String assess(LexerPlugin lexer, boolean printTokens)
+	{
+		if(printTokens)
+			System.out.println("\n[TOKENS]");
+		return doAssessment(lexer, printTokens);
+	}
+
+	private String doAssessment(LexerPlugin lexer, boolean printTokens)
 	{
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		tokens.fill();
 
-		if(printTokens)
-			System.out.println("\n[TOKENS]");
+		var counters = new Counters();
 
-		int numWords = 0;
-		int numLetters = 0;
-		int numIndents = 0;
-		int numNewLines = 0;
 		for(Token t : tokens.getTokens())
 		{
-			String symbolicName = lexer.getSymbolicName(t.getType());
-			String literalContent = t.getText().replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t");
-
-			String symbolicContent = symbolicName == null ? literalContent : symbolicName;
-
+			String literalContent = tidyLiteralContent(t.getText());
+			final String symbolicContent = getSymbolicContent(lexer.getSymbolicName(t.getType()), literalContent);
 			if(printTokens)
-				System.out.printf("  %-20s '%s'\n", symbolicContent, literalContent);
+				System.out.printf("  %-20s '%s'%n", symbolicContent, literalContent);
 
-			if(symbolicContent.equals("NL") || symbolicContent.equals("newline") || symbolicContent.equals("indent") || symbolicContent.equals("dedent"))
+			doAssessTokenContent(symbolicContent, literalContent, counters);
+		}
+
+		return assessReadability(printTokens, counters);
+	}
+
+	private void doAssessTokenContent(String symbolicContent, String literalContent, Counters counters)
+	{
+		if(!assessFormOfNewLine(symbolicContent, counters))
+		{
+			if(!Pattern.matches("\\p{Punct}", literalContent) && !literalContent.equals("<-") && !literalContent.equals("->") && !literalContent.equals(":="))
 			{
-				if(symbolicContent.equals("NL"))
-					numNewLines++;
-				if(symbolicContent.equals("indent"))
-					numIndents++;
+				if(!assessQuotedContent(literalContent, counters))
+				{
+					counters.numLetters += literalContent.length();
+					counters.numWords++;
+				}
 			}
 			else
 			{
-				if(!Pattern.matches("\\p{Punct}", literalContent) && !literalContent.equals("<-") && !literalContent.equals("->") && !literalContent.equals(":="))
-				{
-					if(literalContent.startsWith("\""))
-					{
-						String[] words = literalContent.split("\\s+");
-						numWords += words.length;
-						for(String word : words)
-						{
-							numLetters += word.length();
-						}
-					}
-					else
-					{
-						numLetters += literalContent.length();
-						numWords++;
-					}
-				}
-				else
-				{
-					int contentLength = literalContent.length();
-					if(contentLength != 1 && !literalContent.equals("<-") && !literalContent.equals("->") && !literalContent.equals(":="))
-					{
-						numWords++;
-					}
-					numLetters += contentLength;
-				}
+				assessConsideredAWholeWord(literalContent, counters);
+				counters.numLetters += literalContent.length();
 			}
 		}
+	}
 
+	private boolean assessQuotedContent(String literalContent, Counters counters)
+	{
+		var consideredQuotedContent = literalContent.startsWith("\"");
+		if(consideredQuotedContent)
+		{
+			String[] words = literalContent.split("\\s+");
+			counters.numWords += words.length;
+			counters.numLetters += Arrays.stream(words).map(String::length).reduce(0, Integer::sum);
+		}
+		return consideredQuotedContent;
+	}
+
+	private String assessReadability(boolean printTokens, Counters counters)
+	{
 		//We have to approximate sentences in source code
-		String readability = new org.ek9lang.core.metrics.ARI().getScore(numLetters, numWords, numIndents, numNewLines);
+		String readability = new org.ek9lang.core.metrics.ARI().getScore(counters.numLetters, counters.numWords, counters.numIndents, counters.numNewLines);
 		if(printTokens)
 			System.out.println("Readability [" + readability + "]");
 		return readability;
+	}
+
+	private boolean assessConsideredAWholeWord(String literalContent, Counters counters)
+	{
+		var formOfWholeWord = literalContent.length() != 1 && !literalContent.equals("<-") && !literalContent.equals("->") && !literalContent.equals(":=");
+		if(formOfWholeWord)
+			counters.numWords++;
+		return formOfWholeWord;
+	}
+
+	private boolean assessFormOfNewLine(String symbolicContent, Counters counters)
+	{
+		var formOfNewLine = symbolicContent.equals("NL") || symbolicContent.equals("newline") || symbolicContent.equals("indent") || symbolicContent.equals("dedent");
+		if(formOfNewLine)
+		{
+			if(symbolicContent.equals("NL"))
+				counters.numNewLines++;
+			if(symbolicContent.equals("indent"))
+				counters.numIndents++;
+		}
+		return formOfNewLine;
+	}
+
+	private String tidyLiteralContent(String content)
+	{
+		return content.replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t");
+	}
+
+	private static class Counters
+	{
+		public int numWords = 0;
+		public int numLetters = 0;
+		public int numIndents = 0;
+		public int numNewLines = 0;
 	}
 }

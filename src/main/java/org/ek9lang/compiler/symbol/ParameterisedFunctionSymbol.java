@@ -3,11 +3,11 @@ package org.ek9lang.compiler.symbol;
 import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.exception.CompilerException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Given a parameterised symbol and the symbol used to use as the parameter we are in effect saying:
@@ -32,7 +32,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 
 	public ParameterisedFunctionSymbol(FunctionSymbol parameterisableSymbol, Optional<ISymbol> parameterSymbol, IScope enclosingScope)
 	{
-		this(parameterisableSymbol, parameterSymbol.stream().collect(Collectors.toList()), enclosingScope);
+		this(parameterisableSymbol, parameterSymbol.stream().toList(), enclosingScope);
 	}
 
 	public ParameterisedFunctionSymbol(FunctionSymbol parameterisableSymbol, List<ISymbol> parameterSymbols, IScope enclosingScope)
@@ -103,12 +103,9 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 	 */
 	public void initialSetupVariablesAndMethods()
 	{
-		//System.out.println("Hydration of parameterised function");
 		for(ISymbol symbol : parameterisableSymbol.getSymbolsForThisScope())
 		{
-			//System.out.println("Funct G: " + this.getFriendlyName() + ": [" + symbol.getFriendlyName() + "]");
 			ISymbol replacementSymbol = cloneSymbolWithNewType(symbol);
-			//System.out.println("Funct C: " + this.getFriendlyName() + ": [" + replacementSymbol.getFriendlyName() + "]");
 			this.define(replacementSymbol);
 		}
 		//what about rtn and type
@@ -116,7 +113,6 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 		if(rtnSymbol != null)
 		{
 			ISymbol replacementSymbol = cloneSymbolWithNewType(rtnSymbol);
-			//System.out.println("Cloning function rtn [" + rtnSymbol + "] to [" + replacementSymbol + "]");
 			this.setReturningSymbol(replacementSymbol);
 		}
 		//We do not make a note of the returning context as we need to define the returning type after replacement of the type.
@@ -137,14 +133,13 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 		{
 			Optional<ISymbol> fromType = willClone.getType();
 			Optional<ISymbol> newType = resolveWithNewType(fromType);
-			//System.out.println("variable type from [" + fromType.get() + "] to [" + newType.get() + "]");
 			VariableSymbol rtn = willClone.clone(null);
 			rtn.setType(newType);
 			//So mimic the location of the source
 			rtn.setSourceToken(toClone.getSourceToken());
 			return rtn;
 		}
-		throw new RuntimeException("We can only clone variables in generic function templates not [" + toClone + "]");
+		throw new CompilerException("We can only clone variables in generic function templates not [" + toClone + "]");
 	}
 
 	/**
@@ -170,7 +165,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 					int index = CommonParameterisedTypeDetails.getIndexOfType(parameterisableSymbol, Optional.of(symbol));
 					if(index < 0)
 					{
-						throw new RuntimeException("Unable to find symbol [" + symbol + "]");
+						throw new CompilerException("Unable to find symbol [" + symbol + "]");
 					}
 					ISymbol resolvedSymbol = parameterSymbols.get(index);
 					lookupParameterSymbols.add(resolvedSymbol);
@@ -195,7 +190,6 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 				//But it might be a List of T or a real List of Integer for example.
 
 				//So the thing we are to clone it itself a generic aggregate.
-				//System.out.println("Need to Clone a generic aggregate [" + aggregate + "]");
 				List<ISymbol> lookupParameterSymbols = new ArrayList<>();
 				//Now it may really be a concrete one or it too could be something like a List of P
 
@@ -206,9 +200,8 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 					{
 						int index = CommonParameterisedTypeDetails.getIndexOfType(parameterisableSymbol, Optional.of(symbol));
 						if(index < 0)
-						{
-							throw new RuntimeException("Unable to find symbol [" + symbol + "]");
-						}
+							throw new CompilerException("Unable to find symbol [" + symbol + "]");
+
 						ISymbol resolvedSymbol = parameterSymbols.get(index);
 						lookupParameterSymbols.add(resolvedSymbol);
 					}

@@ -56,13 +56,6 @@ public class LocalScope extends SymbolTable
 		return scopeType;
 	}
 
-	@Override
-	public boolean isMarkedPure()
-	{
-		return super.isMarkedPure();
-	}
-
-
 	protected IScope getEnclosingScope()
 	{
 		return enclosingScope;
@@ -79,14 +72,15 @@ public class LocalScope extends SymbolTable
 	 * @param toCheck The scope to check
 	 * @return true if a match false otherwise
 	 */
+	@Override
 	public boolean isScopeAMatchForEnclosingScope(IScope toCheck)
 	{
 		boolean rtn = false;
 		if(toCheck != null)
 		{
 			rtn = enclosingScope == toCheck;
-			if(!rtn && toCheck instanceof ScopedSymbol)
-				rtn = ((ScopedSymbol)toCheck).getActualScope() == enclosingScope;
+			if(!rtn && toCheck instanceof ScopedSymbol scopedSymbol)
+				rtn = scopedSymbol.getActualScope() == enclosingScope;
 		}
 		return rtn;
 	}
@@ -98,6 +92,7 @@ public class LocalScope extends SymbolTable
 	 *
 	 * @return An Optional scope of the first encounter with and scope that is an aggregate or empty.
 	 */
+	@Override
 	public Optional<ScopedSymbol> findNearestAggregateScopeInEnclosingScopes()
 	{
 		if(enclosingScope.getScopeType().equals(ScopeType.AGGREGATE))
@@ -115,6 +110,7 @@ public class LocalScope extends SymbolTable
 		return enclosingScope.resolve(search);
 	}
 
+	@Override
 	protected MethodSymbolSearchResult resolveForAllMatchingMethodsInEnclosingScope(MethodSymbolSearch search, MethodSymbolSearchResult result)
 	{
 		return enclosingScope.resolveForAllMatchingMethods(search, result);

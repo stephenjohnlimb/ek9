@@ -17,10 +17,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Basic tests for symbols.
  */
-public class SymbolsTest extends AbstractSymbolTestBase
+class SymbolsTest extends AbstractSymbolTestBase
 {
 	@Test
-	public void testFullyQualifiedName()
+	void testFullyQualifiedName()
 	{
 		assertFalse(ISymbol.isQualifiedName("name"));
 		assertTrue(ISymbol.isQualifiedName("com.name::name"));
@@ -33,7 +33,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testCreateGenericTypeT()
+	void testCreateGenericTypeT()
 	{
 		AggregateSymbol t = support.createGenericT("T", symbolTable);
 		assertNotNull(t);
@@ -47,7 +47,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testDefaultSymbolProperties()
+	void testDefaultSymbolProperties()
 	{
 		var s1 = new Symbol("v1", symbolTable.resolve(new TypeSymbolSearch("Integer")));
 
@@ -94,7 +94,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testSymbolModuleAndSource()
+	void testSymbolModuleAndSource()
 	{
 		var variable = new VariableSymbol("v1", symbolTable.resolve(new TypeSymbolSearch("Integer")));
 		assertFalse(variable.isDevSource());
@@ -141,7 +141,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testSymbolCloning()
+	void testSymbolCloning()
 	{
 		var symbol = new Symbol("Sym", symbolTable.resolve(new TypeSymbolSearch("Integer")));
 		symbol.setInitialisedBy(new SyntheticToken());
@@ -166,8 +166,8 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		assertNotNull(s);
 		assertNotNull(s.getInitialisedBy());
 		assertTrue(s.isReferenced());
-		assertEquals(s.getSquirrelledData("key1"), "value1");
-		assertEquals(s.getSquirrelledData("key2"), "value2");
+		assertEquals("value1", s.getSquirrelledData("key1") );
+		assertEquals("value2", s.getSquirrelledData("key2"));
 		assertFalse(s.isMutable());
 		assertTrue(s.isNullAllowed());
 		assertTrue(s.isInjectionExpected());
@@ -176,7 +176,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testTypeCloningMechanism()
+	void testTypeCloningMechanism()
 	{
 		var from = createBasicAggregate("From");
 		//Now add in an additional method.
@@ -196,7 +196,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		assertEquals("public From <- someAbstractMethod(v1 as Integer, v2 as Integer) as abstract", newMethod3.getFriendlyName());
 
 		//Now lets clone those symbols over from "From" to "To" - but we only want the non-abstract methods.
-		//But we should get the methods and also any public constructors if From had the public constructors.
+		//But we should get the methods and also any constructors if From had the constructors.
 		//This addNonAbstractMethods only applies to methods that return a type of "From" so not all abstract methods.
 		var to = new AggregateSymbol("To", symbolTable);
 
@@ -212,7 +212,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testCreateEnumerationType()
+	void testCreateEnumerationType()
 	{
 		AggregateSymbol e = new AggregateSymbol("CheckEnum", symbolTable);
 		support.addEnumerationMethods(e);
@@ -224,7 +224,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	 * Not the actual delegation itself. The trait part is omitted here
 	 */
 	@Test
-	public void testSimpleMethodDelegation()
+	void testSimpleMethodDelegation()
 	{
 		AggregateSymbol e = new AggregateSymbol("SomeAgg", symbolTable);
 		var toStringOnE = support.addPurePublicSimpleOperator(e, "$", symbolTable.resolve(new TypeSymbolSearch("String")));
@@ -244,7 +244,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testDispatcherProperty()
+	void testDispatcherProperty()
 	{
 		//Only testing the fact the property is set - at this point not that it will dispatch!
 		AggregateSymbol e = new AggregateSymbol("SomeAgg", symbolTable);
@@ -262,7 +262,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	 * So we're not checking resolution of stuff here, just basic props.
 	 */
 	@Test
-	public void testSimpleMethodProperties()
+	void testSimpleMethodProperties()
 	{
 		AggregateSymbol e = new AggregateSymbol("SomeAgg", symbolTable);
 
@@ -304,7 +304,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testFunctionProperties()
+	void testFunctionProperties()
 	{
 		Optional<ISymbol> stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
 		Optional<ISymbol> integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
@@ -347,7 +347,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testFunctionWithCapturedVariables()
+	void testFunctionWithCapturedVariables()
 	{
 		Optional<ISymbol> stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
 		Optional<ISymbol> integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
@@ -373,7 +373,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testCallSymbolProperties()
+	void testCallSymbolProperties()
 	{
 		Optional<ISymbol> stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
 		Optional<ISymbol> integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
@@ -398,7 +398,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testAggregateCreation()
+	void testAggregateCreation()
 	{
 		Optional<ISymbol> stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
 		Optional<ISymbol> integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
@@ -454,7 +454,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testExpressionSymbol()
+	void testExpressionSymbol()
 	{
 		var expr = new ExpressionSymbol("Expr");
 
@@ -489,7 +489,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testParamExpressionSymbol()
+	void testParamExpressionSymbol()
 	{
 		var expr = new ParamExpressionSymbol("ParamExpr");
 
@@ -511,7 +511,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testStreamPipeLineSymbol()
+	void testStreamPipeLineSymbol()
 	{
 		var expr = new StreamPipeLineSymbol("Pipe");
 
@@ -526,7 +526,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testUnableToFindControlSymbol()
+	void testUnableToFindControlSymbol()
 	{
 		/*
 		While we model for loops, while loops switches etc. as symbols (mainly for scope)
@@ -543,7 +543,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testVariableSymbol()
+	void testVariableSymbol()
 	{
 		IScope symbolTable = new SymbolTable();
 		ISymbol integerType = new AggregateSymbol("Integer", symbolTable);
@@ -581,7 +581,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testConstantSymbol()
+	void testConstantSymbol()
 	{
 		IScope symbolTable = new SymbolTable();
 		ISymbol integerType = new AggregateSymbol("Integer", symbolTable);
@@ -601,10 +601,10 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		assertTrue(c2.isAConstant());
 		assertTrue(c2.isMutable());
 		assertTrue(c2.isFromLiteral());
-		assertEquals(c2.getGenus(), ISymbol.SymbolGenus.VALUE);
+		assertEquals(ISymbol.SymbolGenus.VALUE, c2.getGenus());
 
 		ConstantSymbol c3 = new ConstantSymbol("1", integerType);
-		assertEquals(c3.getGenus(), ISymbol.SymbolGenus.VALUE);
+		assertEquals(ISymbol.SymbolGenus.VALUE, c3.getGenus());
 
 	}
 
@@ -614,7 +614,7 @@ public class SymbolsTest extends AbstractSymbolTestBase
 		assertTrue(c.isAConstant());
 		assertFalse(c.isMutable());
 		assertTrue(c.isFromLiteral());
-		assertEquals(c.getGenus(), ISymbol.SymbolGenus.VALUE);
+		assertEquals(ISymbol.SymbolGenus.VALUE, c.getGenus());
 	}
 
 	private void assertVariable1(VariableSymbol v)

@@ -1,6 +1,7 @@
 package org.ek9lang.core.utils;
 
 import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.exception.CompilerException;
 
 import java.io.*;
 import java.net.URI;
@@ -35,9 +36,9 @@ public final class Packager
 		{
 			sets.forEach(set -> addZipSet(zip, set));
 		}
-		catch(Throwable th)
+		catch(Exception ex)
 		{
-			System.err.println(th.getMessage());
+			System.err.println(ex.getMessage());
 			return false;
 		}
 		return true;
@@ -58,15 +59,14 @@ public final class Packager
 			{
 				String fileName = ze.getName();
 				File newFile = new File(unpackedDir, fileName);
-				//System.err.println("Unzipping to "+newFile.getAbsolutePath());
 				//create directories for subdirectories in zip
 				File parent = new File(newFile.getParent());
 				if(!parent.exists() && !parent.mkdirs())
-					throw new RuntimeException("Unable to create directory structure");
+					throw new CompilerException("Unable to create directory structure");
 				if(ze.isDirectory())
 				{
 					if(!newFile.exists() && !newFile.mkdir())
-						throw new RuntimeException("Unable to create directory structure");
+						throw new CompilerException("Unable to create directory structure");
 				}
 				else
 				{
@@ -84,9 +84,9 @@ public final class Packager
 			//close last ZipEntry
 			zis.closeEntry();
 		}
-		catch(Throwable th)
+		catch(Exception ex)
 		{
-			System.err.println(th.getMessage());
+			System.err.println(ex.getMessage());
 			return false;
 		}
 		return true;
@@ -109,9 +109,9 @@ public final class Packager
 			Path pathInZipFile = zip.getPath(".package.properties");
 			Files.copy(externalTxtFile, pathInZipFile, StandardCopyOption.REPLACE_EXISTING);
 		}
-		catch(Throwable th)
+		catch(Exception ex)
 		{
-			System.err.println(th.getMessage());
+			System.err.println(ex.getMessage());
 			return false;
 		}
 		return true;
@@ -168,7 +168,7 @@ public final class Packager
 		}
 		catch(IOException ioException)
 		{
-			throw new RuntimeException(ioException);
+			throw new CompilerException(ioException);
 		}
 	}
 }

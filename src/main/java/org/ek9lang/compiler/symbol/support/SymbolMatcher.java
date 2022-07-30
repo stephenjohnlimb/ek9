@@ -28,7 +28,6 @@ public class SymbolMatcher
 
 		methodSymbols.forEach(methodSymbol -> {
 			double weight = getWeightOfMethodMatch(criteria, methodSymbol);
-			//System.out.println("[" + weight + "] S: " + criteria.toString() + "  M: " + methodSymbol.toString());
 
 			if(weight >= 0.0)
 				result.add(new WeightedMethodSymbolMatch(methodSymbol, weight));
@@ -53,7 +52,6 @@ public class SymbolMatcher
 		//Now need to check on method parameter symbols and match those against the parameters on the method.
 
 		double paramCost = getWeightOfParameterMatch(criteria.getParameters(), methodSymbol.getSymbolsForThisScope());
-		//System.out.println("Param Cost: " + paramCost);
 		if(paramCost < 0.0)
 			return rtn;
 
@@ -85,18 +83,12 @@ public class SymbolMatcher
 		for(int i = 0; i < numParams1LookedFor; i++)
 		{
 			ISymbol from = fromSymbols.get(i);
-			if(from.getType().isEmpty())
-				throw new RuntimeException("From type is not present for [" + from + "]");
-			ISymbol fromType = from.getType().get();
+			var fromType = from.getType().orElseThrow();
 
 			ISymbol to = toSymbols.get(i);
-			if(to.getType().isEmpty())
-				throw new RuntimeException("To type is not present for [" + to + "]");
-
-			ISymbol toType = to.getType().get();
+			var toType = to.getType().orElseThrow();
 
 			double thisCost = getCostOfSymbolMatch(fromType, toType);
-			//System.out.println("P: " + thisCost + " " + from.getName() + " " + to.getName());
 			if(thisCost < 0.0)
 				return rtn; //No match
 			paramCost += thisCost;

@@ -1,6 +1,7 @@
 package org.ek9lang.core.utils;
 
 import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.exception.CompilerException;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -103,9 +104,9 @@ public final class FileHandling
 			Files.copy(originalPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
 			return true;
 		}
-		catch(Throwable th)
+		catch(Exception ex)
 		{
-			System.err.println("File copy failed: " + th.getMessage());
+			System.err.println("File copy failed: " + ex.getMessage());
 			return false;
 		}
 	}
@@ -113,17 +114,19 @@ public final class FileHandling
 	public void deleteFileIfExists(File file)
 	{
 		AssertValue.checkNotNull("File cannot be null", file);
-		if(file.exists())
-			if(!file.delete())
-				throw new RuntimeException("Unable to delete [" + file.getPath() + "]");
+		try
+		{
+			Files.deleteIfExists(file.toPath());
+		}
+		catch(Exception ex)
+		{
+			throw new CompilerException("Unable to delete [" + ex.getMessage() + "]", ex);
+		}
 	}
 
 	public void makeDirectoryIfNotExists(File directory)
 	{
-		AssertValue.checkNotNull("Directory cannot be null", directory);
-		if(!directory.exists())
-			if(!directory.mkdirs())
-				throw new RuntimeException("Unable to create directory [" + directory.getPath() + "]");
+		osSupport.makeDirectoryIfNotExists(directory);
 	}
 
 	/**

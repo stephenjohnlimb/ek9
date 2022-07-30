@@ -1,11 +1,11 @@
 package org.ek9lang.core.utils;
 
 import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.exception.CompilerException;
 
 import java.io.File;
 import java.nio.file.FileSystems;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Operating System support and generic stuff for directories and files.
@@ -66,12 +66,16 @@ public final class OsSupport
 				FileSystems.getDefault().getSeparator() +
 				forDir;
 
-		File directory = new File(rtn);
-		if(!directory.exists())
-			if(!directory.mkdirs())
-				throw new RuntimeException("Unable to create directory [" + directory.getPath() + "]");
+		makeDirectoryIfNotExists(new File(rtn));
 
 		return rtn;
+	}
+
+	public void makeDirectoryIfNotExists(File directory)
+	{
+		AssertValue.checkNotNull("Directory cannot be null", directory);
+		if(!directory.exists() && !directory.mkdirs())
+			throw new CompilerException("Unable to create directory [" + directory.getPath() + "]");
 	}
 
 	public String getTempDirectory()
@@ -151,29 +155,29 @@ public final class OsSupport
 
 	public List<File> getDirectoriesInDirectory(File inDirectory, String excludeStartingWith)
 	{
-		AssertValue.checkNotNull("InDirectory cannot be null", inDirectory);
+		assertInDirectoryValid(inDirectory);
 		AssertValue.checkNotNull("ExcludeStartingWith cannot be null", excludeStartingWith);
 
 		File[] files = inDirectory.listFiles((d, name) -> !name.startsWith(excludeStartingWith));
 		return Optional.ofNullable(files).stream().flatMap(Arrays::stream)
 				.filter(File::isDirectory)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	public List<File> getFilesRecursivelyFrom(File inDirectory, Glob searchCondition)
 	{
-		AssertValue.checkNotNull("InDirectory cannot be null", inDirectory);
+		assertInDirectoryValid(inDirectory);
 		AssertValue.checkNotNull("SearchCondition cannot be null", searchCondition);
 
 		return getFilesRecursivelyFrom(inDirectory)
 				.stream()
 				.filter(file -> searchCondition.isAcceptable(inDirectory.toPath().relativize(file.toPath())))
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	public List<File> getFilesRecursivelyFrom(File inDirectory)
 	{
-		AssertValue.checkNotNull("InDirectory cannot be null", inDirectory);
+		assertInDirectoryValid(inDirectory);
 
 		ArrayList<File> rtn = new ArrayList<>();
 		File[] files = inDirectory.listFiles();
@@ -192,12 +196,12 @@ public final class OsSupport
 
 	public Collection<File> getFilesFromDirectory(File inDirectory, String fileSuffix)
 	{
-		AssertValue.checkNotNull("InDirectory cannot be null", inDirectory);
+		assertInDirectoryValid(inDirectory);
 		AssertValue.checkNotNull("FileSuffix cannot be null", fileSuffix);
 
 		File[] files = inDirectory.listFiles((d, name) -> name.endsWith(fileSuffix));
 		return Optional.ofNullable(files).stream().flatMap(Arrays::stream)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	public Collection<File> getAllSubdirectories(String directoryRoot)
@@ -225,5 +229,10 @@ public final class OsSupport
 				});
 
 		return rtn;
+	}
+
+	private void assertInDirectoryValid(File path)
+	{
+		AssertValue.checkNotNull("InDirectory cannot be null", path);
 	}
 }

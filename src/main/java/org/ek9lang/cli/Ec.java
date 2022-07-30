@@ -1,6 +1,7 @@
 package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.utils.EK9DirectoryStructure;
 import org.ek9lang.core.utils.ZipSet;
 
@@ -16,7 +17,7 @@ import java.util.Objects;
  */
 public abstract class Ec extends E
 {
-	public Ec(CommandLineDetails commandLine, FileCache sourceFileCache)
+	protected Ec(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
 		super(commandLine, sourceFileCache);
 	}
@@ -48,11 +49,13 @@ public abstract class Ec extends E
 		//TODO compile this with appropriate compiler
 
 		var generatedOutputDirectory = getMainGeneratedOutputDirectory();
+		AssertValue.checkNotNull("Main generated out file null", generatedOutputDirectory);
 		//This will be some sort of intermediate form (i.e. java we then need to actually compile.
 
 		if(this.isDevBuild())
 		{
 			var devGeneratedOutputDirectory = getDevGeneratedOutputDirectory();
+			AssertValue.checkNotNull("Dev generated out file null", devGeneratedOutputDirectory);
 			//This will be some sort of intermediate form (i.e. java we then need to actually compile.
 		}
 		return true; //or false if compilation failed

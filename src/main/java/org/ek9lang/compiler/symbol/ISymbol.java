@@ -79,7 +79,7 @@ public interface ISymbol extends ITokenReference
 	{
 		if(isQualifiedName(symbolName))
 			return symbolName;
-		return scopeName+"::"+symbolName;
+		return scopeName + "::" + symbolName;
 	}
 
 	//Used for declarations of variables/params where they can be null.
@@ -234,21 +234,18 @@ public interface ISymbol extends ITokenReference
 	 */
 	default boolean isDeclaredAsAConstant()
 	{
-		if(this instanceof ConstantSymbol)
+		var thisType = this.getType();
+		if(this instanceof ConstantSymbol && thisType.isPresent())
 		{
-			//We do expect all types to be known by this point
-			if(this.getType().isPresent())
+			var thisGenus = thisType.get().getGenus();
+			//We allow enumerations because there is no :=: operator to modify them
+			//We also allow function delegates, but they are also constants.
+			if((thisGenus != ISymbol.SymbolGenus.CLASS_ENUMERATION) &&
+					(thisGenus != ISymbol.SymbolGenus.FUNCTION) &&
+					(thisGenus != ISymbol.SymbolGenus.FUNCTION_TRAIT))
 			{
-				//We allow enumerations because there is no :=: operator to modify them
-				//We also allow function delegates, but they are also constants.
-				if((this.getType().get().getGenus() != ISymbol.SymbolGenus.CLASS_ENUMERATION) &&
-						(this.getType().get().getGenus() != ISymbol.SymbolGenus.FUNCTION) &&
-						(this.getType().get().getGenus() != ISymbol.SymbolGenus.FUNCTION_TRAIT))
-				{
-					//We allow literals to be utilised in any way.
-					boolean literal = this.isFromLiteral();
-					return !literal;
-				}
+				//We allow literals to be utilised in any way.
+				return !this.isFromLiteral();
 			}
 		}
 		//We consider loop variables as constants - EK9 deals with changing the value

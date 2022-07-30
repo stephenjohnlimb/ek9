@@ -15,12 +15,12 @@ import java.util.List;
 /**
  * Ensure that the file handling class functions as expected.
  */
-public class FileHandlingTest
+class FileHandlingTest
 {
 	private final FileHandling underTest = new FileHandling(new OsSupport(true));
 
 	@AfterEach
-	public void tidyUp()
+	void tidyUp()
 	{
 		String testHomeDirectory = underTest.getUsersHomeDirectory();
 		assertNotNull(testHomeDirectory);
@@ -29,7 +29,7 @@ public class FileHandlingTest
 	}
 
 	@Test
-	public void testEK9DirectoryNaming()
+	void testEK9DirectoryNaming()
 	{
 		String testHomeDirectory = underTest.getUsersHomeDirectory();
 		assertNotNull(testHomeDirectory);
@@ -42,14 +42,14 @@ public class FileHandlingTest
 	}
 
 	@Test
-	public void testPackagedModuleZipFileName()
+	void testPackagedModuleZipFileName()
 	{
 		String result = underTest.makePackagedModuleZipFileName("some.module.name", "2.5.1");
 		assertEquals("some.module.name-2.5.1.zip", result);
 	}
 
 	@Test
-	public void testFileStructure() throws IOException
+	void testFileStructure() throws IOException
 	{
 		//So this creates a full .ek9 structure under the developers home directory
 		underTest.validateHomeEK9Directory("java");
@@ -113,7 +113,7 @@ public class FileHandlingTest
 	}
 
 	@Test
-	public void testKeySigningPairPersistence()
+	void testKeySigningPairPersistence()
 	{
 		//Ensure it is there
 		underTest.validateHomeEK9Directory("java");
@@ -132,7 +132,7 @@ public class FileHandlingTest
 	}
 
 	@Test
-	public void testZippingAndPackaging() throws IOException
+	void testZippingAndPackaging() throws IOException
 	{
 		underTest.validateHomeEK9Directory("java");
 

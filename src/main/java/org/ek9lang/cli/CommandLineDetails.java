@@ -133,7 +133,7 @@ public class CommandLineDetails
 		boolean processingEK9Parameters = true;
 		List<String> activeParameters = ek9AppParameters;
 		//Need to break this up remove extra spaces unless in quotes.
-		String[] strArray = commandLine.split(" +(?=([^']*'[^']*')*[^']*$)");
+		String[] strArray = commandLine.split(" +(?=([^']*+'[^']*+')*+[^']*+$)");
 
 		for(int i = 0; i < strArray.length; i++)
 		{
@@ -151,7 +151,7 @@ public class CommandLineDetails
 			}
 			else if(strArray[i].equals("-e") && i < strArray.length - 1)
 			{
-				ek9AppDefines.add(strArray[++i].replaceAll("'", "\""));
+				ek9AppDefines.add(strArray[++i].replace("'", "\""));
 			}
 			else if(strArray[i].equals("-T") && i < strArray.length - 1)
 			{

@@ -1,7 +1,9 @@
 package org.ek9lang.compiler.symbol.support;
 
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
+
 import org.ek9lang.compiler.symbol.*;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
@@ -11,166 +13,174 @@ import java.util.Optional;
 /**
  * Designed to test a range of aggregate class constructs, such as EK9
  * classes, traits, components - all use the AggregateSymbol
- *
+ * <p>
  * This is a major test as it tests Symbol tables, variable symbols and method symbols
  */
-public class AggregateSymbolTest
+class AggregateSymbolTest
 {
-    @Test
-    public void testEmptyAggregate()
-    {
-        SymbolTable symbolTable1 = new SymbolTable();
+	@Test
+	void testEmptyAggregate()
+	{
+		SymbolTable symbolTable1 = new SymbolTable();
 
-        AggregateSymbol underTest = new AggregateSymbol("UnderTest", symbolTable1);
-        assertTrue("UnderTest".equals(underTest.getAggregateDescription()));
+		AggregateSymbol underTest = new AggregateSymbol("UnderTest", symbolTable1);
+		assertEquals("UnderTest", underTest.getAggregateDescription());
 
-        SymbolTable symbolTable2 = new SymbolTable();
+		SymbolTable symbolTable2 = new SymbolTable();
 
-        AggregateSymbol cloned1 = underTest.clone(symbolTable2);
+		//Now make a copy/clone of 'underTest' before setting any values in 'underTest'
+		AggregateSymbol cloned1 = underTest.clone(symbolTable2);
 
-        //Alter name to check cloned version is truly cloned.
-        //Also check that the type has changed
-        underTest.setName("Modified");
-        //Just set a range of flags positive and check they stick and cloned version does not have them
-        underTest.setAggregateDescription("SomeModifiedAggregate");
-        underTest.setMarkedAbstract(true);
-        underTest.setInjectable(true);
-        underTest.setMarkedAsDispatcher(true);
-        underTest.setOpenForExtension(true);
-        underTest.setPipeSinkType(Optional.of("ASinkType"));
-        underTest.setPipeSourceType(Optional.of("ASourceType"));
+		//Alter name to check cloned version is truly cloned.
+		//Also check that the type has changed
+		underTest.setName("Modified");
+		//Just set a range of flags positive and check they stick and cloned version does not have them
+		underTest.setAggregateDescription("SomeModifiedAggregate");
+		underTest.setMarkedAbstract(true);
+		underTest.setInjectable(true);
+		underTest.setMarkedAsDispatcher(true);
+		underTest.setOpenForExtension(true);
+		underTest.setPipeSinkType(Optional.of("ASinkType"));
+		underTest.setPipeSourceType(Optional.of("ASourceType"));
 
-        //Now make another clone with values set.
-        SymbolTable symbolTable3 = new SymbolTable();
-        AggregateSymbol cloned2 = underTest.clone(symbolTable3);
+		//Check all that stuck.
+		assertCommonPropertiesAfterSetting(underTest);
+		assertEquals("Modified", underTest.getName());
+		assertEquals("Modified", underTest.getType().get().getName());
 
-        assertTrue("Modified".equals(underTest.getName()));
-        assertTrue("Modified".equals(underTest.getType().get().getName()));
-        assertTrue(underTest.isMarkedAbstract());
-        assertTrue(underTest.isInjectable());
-        assertTrue(underTest.isMarkedAsDispatcher());
-        assertTrue(underTest.isOpenForExtension());
-        assertTrue(underTest.getPipeSinkType().isPresent());
-        assertTrue("ASinkType".equals(underTest.getPipeSinkType().get()));
-        assertTrue(underTest.getPipeSourceType().isPresent());
-        assertTrue("ASourceType".equals(underTest.getPipeSourceType().get()));
+		//Check Original clone has not been affected.
+		assertCommonPropertiesWithoutSetting(cloned1);
 
-        assertNotNull(cloned1);
-        assertTrue("UnderTest".equals(cloned1.getName()));
-        assertTrue("UnderTest".equals(cloned1.getType().get().getName()));
-        assertFalse(cloned1.isMarkedAbstract());
-        assertFalse(cloned1.isInjectable());
-        assertFalse(cloned1.isMarkedAsDispatcher());
-        assertFalse(cloned1.isOpenForExtension());
-        assertFalse(cloned1.getPipeSinkType().isPresent());
-        assertFalse(cloned1.getPipeSourceType().isPresent());
+		//Now make another clone with values set.
+		SymbolTable symbolTable3 = new SymbolTable();
+		AggregateSymbol cloned2 = underTest.clone(symbolTable3);
 
-        assertNotNull(cloned2);
-        assertTrue("Modified".equals(cloned2.getName()));
-        assertTrue("Modified".equals(cloned2.getType().get().getName()));
-        assertTrue(cloned2.isMarkedAbstract());
-        assertTrue(cloned2.isInjectable());
-        assertTrue(cloned2.isMarkedAsDispatcher());
-        assertTrue(cloned2.isOpenForExtension());
-        assertTrue(cloned2.getPipeSinkType().isPresent());
-        assertTrue("ASinkType".equals(cloned2.getPipeSinkType().get()));
-        assertTrue(cloned2.getPipeSourceType().isPresent());
-        assertTrue("ASourceType".equals(cloned2.getPipeSourceType().get()));
-    }
 
-    @Test
-    public void testAggregateMethod()
-    {
-        IScope symbolTable = new SymbolTable();
+		assertEquals("UnderTest", cloned1.getName());
+		assertEquals("UnderTest", cloned1.getType().get().getName());
 
-        AggregateSymbol integerType = new AggregateSymbol("Integer", symbolTable);
-        symbolTable.define(integerType);
-        AggregateSymbol stringType = new AggregateSymbol("String", symbolTable);
-        symbolTable.define(stringType);
+		assertEquals("Modified", cloned2.getName());
+		assertEquals("Modified", cloned2.getType().get().getName());
+		assertCommonPropertiesAfterSetting(cloned2);
+	}
 
-        AggregateSymbol underTest = new AggregateSymbol("UnderTest", symbolTable);
+	private void assertCommonPropertiesWithoutSetting(AggregateSymbol toCheck)
+	{
+		assertNotNull(toCheck);
+		assertFalse(toCheck.isMarkedAbstract());
+		assertFalse(toCheck.isInjectable());
+		assertFalse(toCheck.isMarkedAsDispatcher());
+		assertFalse(toCheck.isOpenForExtension());
+		assertFalse(toCheck.getPipeSinkType().isPresent());
+		assertFalse(toCheck.getPipeSourceType().isPresent());
+	}
 
-        MethodSymbol method = new MethodSymbol("method1", integerType, underTest);
-        method.define(new VariableSymbol("arg1", stringType));
-        underTest.define(method);
+	private void assertCommonPropertiesAfterSetting(AggregateSymbol toCheck)
+	{
+		assertNotNull(toCheck);
+		assertTrue(toCheck.isMarkedAbstract());
+		assertTrue(toCheck.isInjectable());
+		assertTrue(toCheck.isMarkedAsDispatcher());
+		assertTrue(toCheck.isOpenForExtension());
+		assertTrue(toCheck.getPipeSinkType().isPresent());
+		assertEquals("ASinkType", toCheck.getPipeSinkType().get());
+		assertTrue(toCheck.getPipeSourceType().isPresent());
+		assertEquals("ASourceType", toCheck.getPipeSourceType().get());
+	}
 
-        //Now search and find that method, must add in the param to be able to resolve it.
-        Optional<ISymbol> resolvedMethod = underTest.resolveInThisScopeOnly(new MethodSymbolSearch("method1").addParameter(new VariableSymbol("arg1", stringType)));
-        assertTrue(resolvedMethod.isPresent());
-        assertSymbol(resolvedMethod, "method1", "Integer");
+	@Test
+	void testAggregateMethod()
+	{
+		IScope symbolTable = new SymbolTable();
 
-        //Now clone and check again
-        AggregateSymbol cloned = underTest.clone(symbolTable);
-        assertNotNull(cloned);
-        resolvedMethod = cloned.resolveInThisScopeOnly(new MethodSymbolSearch("method1").addParameter(new VariableSymbol("arg1", stringType)));
-        assertTrue(resolvedMethod.isPresent());
-        assertSymbol(resolvedMethod, "method1", "Integer");
+		AggregateSymbol integerType = new AggregateSymbol("Integer", symbolTable);
+		symbolTable.define(integerType);
+		AggregateSymbol stringType = new AggregateSymbol("String", symbolTable);
+		symbolTable.define(stringType);
 
-        //Now alter method1 cloned version but original should stay as is.
-        MethodSymbol toAlter = (MethodSymbol)resolvedMethod.get();
-        toAlter.setType(stringType);
-        toAlter.define(new VariableSymbol("arg2", integerType));
+		AggregateSymbol underTest = new AggregateSymbol("UnderTest", symbolTable);
 
-        //Test original is still OK
-        resolvedMethod = underTest.resolveInThisScopeOnly(new MethodSymbolSearch("method1").addParameter(new VariableSymbol("arg1", stringType)));
-        assertTrue(resolvedMethod.isPresent());
-        assertSymbol(resolvedMethod, "method1", "Integer");
+		MethodSymbol method = new MethodSymbol("method1", integerType, underTest);
+		method.define(new VariableSymbol("arg1", stringType));
+		underTest.define(method);
 
-        //Now check cloned one has been altered
-        resolvedMethod = cloned.resolveInThisScopeOnly(new MethodSymbolSearch("method1").addParameter(new VariableSymbol("arg1", stringType)));
-        assertFalse(resolvedMethod.isPresent());
+		//Now search and find that method, must add in the param to be able to resolve it.
+		Optional<ISymbol> resolvedMethod = underTest.resolveInThisScopeOnly(new MethodSymbolSearch("method1").addParameter(new VariableSymbol("arg1", stringType)));
+		assertTrue(resolvedMethod.isPresent());
+		assertSymbol(resolvedMethod, "method1", "Integer");
 
-        resolvedMethod = cloned.resolveInThisScopeOnly(
-                new MethodSymbolSearch("method1")
-                        .addParameter(new VariableSymbol("arg1", stringType))
-                        .addParameter(new VariableSymbol("arg2", integerType)));
-        assertTrue(resolvedMethod.isPresent());
-        assertSymbol(resolvedMethod, "method1", "String");
+		//Now clone and check again
+		AggregateSymbol cloned = underTest.clone(symbolTable);
+		assertNotNull(cloned);
+		resolvedMethod = cloned.resolveInThisScopeOnly(new MethodSymbolSearch("method1").addParameter(new VariableSymbol("arg1", stringType)));
+		assertTrue(resolvedMethod.isPresent());
+		assertSymbol(resolvedMethod, "method1", "Integer");
 
-    }
+		//Now alter method1 cloned version but original should stay as is.
+		MethodSymbol toAlter = (MethodSymbol)resolvedMethod.get();
+		toAlter.setType(stringType);
+		toAlter.define(new VariableSymbol("arg2", integerType));
 
-    @Test
-    public void testAggregateProperty()
-    {
-        IScope symbolTable = new SymbolTable();
+		//Test original is still OK
+		resolvedMethod = underTest.resolveInThisScopeOnly(new MethodSymbolSearch("method1").addParameter(new VariableSymbol("arg1", stringType)));
+		assertTrue(resolvedMethod.isPresent());
+		assertSymbol(resolvedMethod, "method1", "Integer");
 
-        AggregateSymbol integerType = new AggregateSymbol("Integer", symbolTable);
-        symbolTable.define(integerType);
-        AggregateSymbol stringType = new AggregateSymbol("String", symbolTable);
-        symbolTable.define(stringType);
+		//Now check cloned one has been altered
+		resolvedMethod = cloned.resolveInThisScopeOnly(new MethodSymbolSearch("method1").addParameter(new VariableSymbol("arg1", stringType)));
+		assertFalse(resolvedMethod.isPresent());
 
-        AggregateSymbol underTest = new AggregateSymbol("UnderTest", symbolTable);
-        assertTrue("UnderTest".equals(underTest.getAggregateDescription()));
+		resolvedMethod = cloned.resolveInThisScopeOnly(
+				new MethodSymbolSearch("method1")
+						.addParameter(new VariableSymbol("arg1", stringType))
+						.addParameter(new VariableSymbol("arg2", integerType)));
+		assertTrue(resolvedMethod.isPresent());
+		assertSymbol(resolvedMethod, "method1", "String");
 
-        VariableSymbol prop1 = new VariableSymbol("prop1", integerType);
-        underTest.define(prop1);
+	}
 
-        Optional<ISymbol> resolvedProperty = underTest.resolveInThisScopeOnly(new SymbolSearch("prop1"));
-        assertSymbol(resolvedProperty, "prop1", "Integer");
+	@Test
+	void testAggregateProperty()
+	{
+		IScope symbolTable = new SymbolTable();
 
-        AggregateSymbol cloned = underTest.clone(symbolTable);
-        assertNotNull(cloned);
+		AggregateSymbol integerType = new AggregateSymbol("Integer", symbolTable);
+		symbolTable.define(integerType);
+		AggregateSymbol stringType = new AggregateSymbol("String", symbolTable);
+		symbolTable.define(stringType);
 
-        //Now check same can be found on the cloned version
-        resolvedProperty = cloned.resolveInThisScopeOnly(new SymbolSearch("prop1"));
-        assertSymbol(resolvedProperty, "prop1", "Integer");
+		AggregateSymbol underTest = new AggregateSymbol("UnderTest", symbolTable);
+		assertEquals("UnderTest",underTest.getAggregateDescription());
 
-        //Now alter prop1 type on the cloned version but original should stay as is.
-        resolvedProperty.get().setType(stringType);
+		VariableSymbol prop1 = new VariableSymbol("prop1", integerType);
+		underTest.define(prop1);
 
-        //Search and find again to check.
-        resolvedProperty = underTest.resolveInThisScopeOnly(new SymbolSearch("prop1"));
-        assertSymbol(resolvedProperty, "prop1", "Integer");
+		Optional<ISymbol> resolvedProperty = underTest.resolveInThisScopeOnly(new SymbolSearch("prop1"));
+		assertSymbol(resolvedProperty, "prop1", "Integer");
 
-        //But cloned should be String
-        resolvedProperty = cloned.resolveInThisScopeOnly(new SymbolSearch("prop1"));
-        assertSymbol(resolvedProperty, "prop1", "String");
-    }
+		AggregateSymbol cloned = underTest.clone(symbolTable);
+		assertNotNull(cloned);
 
-    private void assertSymbol(Optional<ISymbol> resolvedSymbol, String expectedName, String expectedTypeName)
-    {
-        assertTrue(resolvedSymbol.isPresent());
-        assertTrue(expectedName.equals(resolvedSymbol.get().getName()));
-        assertTrue(expectedTypeName.equals(resolvedSymbol.get().getType().get().getName()));
-    }
+		//Now check same can be found on the cloned version
+		resolvedProperty = cloned.resolveInThisScopeOnly(new SymbolSearch("prop1"));
+		assertSymbol(resolvedProperty, "prop1", "Integer");
+
+		//Now alter prop1 type on the cloned version but original should stay as is.
+		resolvedProperty.get().setType(stringType);
+
+		//Search and find again to check.
+		resolvedProperty = underTest.resolveInThisScopeOnly(new SymbolSearch("prop1"));
+		assertSymbol(resolvedProperty, "prop1", "Integer");
+
+		//But cloned should be String
+		resolvedProperty = cloned.resolveInThisScopeOnly(new SymbolSearch("prop1"));
+		assertSymbol(resolvedProperty, "prop1", "String");
+	}
+
+	private void assertSymbol(Optional<ISymbol> resolvedSymbol, String expectedName, String expectedTypeName)
+	{
+		assertTrue(resolvedSymbol.isPresent());
+		assertEquals(expectedName, resolvedSymbol.get().getName());
+		assertEquals(expectedTypeName, resolvedSymbol.get().getType().get().getName());
+	}
 }

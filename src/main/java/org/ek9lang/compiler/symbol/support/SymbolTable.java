@@ -9,12 +9,12 @@ import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.exception.CompilerException;
 
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * We need to support simple things like classes which are unique per symbol table
@@ -72,7 +72,7 @@ public class SymbolTable implements IScope
 	 * It might seem strange but for some symbols like methods we have a single name
 	 * but a list of actual symbols. i.e. method overloading.
 	 */
-	private final Map<ISymbol.SymbolCategory, Map<String, List<ISymbol>>> splitSymbols = new HashMap<>();
+	private final Map<ISymbol.SymbolCategory, Map<String, List<ISymbol>>> splitSymbols = new EnumMap<>(ISymbol.SymbolCategory.class);
 
 	/**
 	 * But also keep an ordered list - useful for ordered parameters.
@@ -101,8 +101,8 @@ public class SymbolTable implements IScope
 	 */
 	private final Function<List<ISymbol>, List<MethodSymbol>> methodSymbolCast = list -> list
 			.stream()
-			.filter(symbol -> symbol instanceof MethodSymbol)
-			.map(symbol -> (MethodSymbol)symbol).collect(Collectors.toList());
+			.filter(MethodSymbol.class::isInstance)
+			.map(MethodSymbol.class::cast).toList();
 	/**
 	 * Function to check there is one and only one item in a symbol list and then to return that item.
 	 */
@@ -195,6 +195,12 @@ public class SymbolTable implements IScope
 	}
 
 	@Override
+	public int hashCode()
+	{
+		return getFriendlyScopeName().hashCode();
+	}
+
+	@Override
 	public boolean equals(final Object obj)
 	{
 		if(obj instanceof IScope scope)
@@ -212,7 +218,7 @@ public class SymbolTable implements IScope
 		Map<String, List<ISymbol>> table = splitSymbols.computeIfAbsent(symbol.getCategory(), k -> new HashMap<>());
 		List<ISymbol> list = table.computeIfAbsent(symbol.getName(), k -> new ArrayList<>());
 		if(!symbol.getCategory().equals(ISymbol.SymbolCategory.METHOD) && list.contains(symbol))
-			throw new RuntimeException("Compiler Coding Error - Duplicate symbol [" + symbol + "]");
+			throw new CompilerException("Compiler Coding Error - Duplicate symbol [" + symbol + "]");
 		list.add(symbol);
 	}
 
@@ -221,7 +227,7 @@ public class SymbolTable implements IScope
 	 */
 	public List<ISymbol> getSymbolsForThisScopeOfCategory(final ISymbol.SymbolCategory category)
 	{
-		return orderedSymbols.stream().filter(symbol -> category.equals(symbol.getCategory())).collect(Collectors.toList());
+		return orderedSymbols.stream().filter(symbol -> category.equals(symbol.getCategory())).toList();
 	}
 
 	/**
@@ -280,6 +286,8 @@ public class SymbolTable implements IScope
 	 */
 	protected MethodSymbolSearchResult resolveForAllMatchingMethodsInEnclosingScope(final MethodSymbolSearch search, MethodSymbolSearchResult result)
 	{
+		AssertValue.checkNotNull("Search must not be null", search);
+
 		//nothing needed here.
 		return result;
 	}
@@ -396,8 +404,9 @@ public class SymbolTable implements IScope
 	 * This class is the root and so there is no enclosing scope
 	 * sub-classes will override to provide the scope that encloses them
 	 */
-	protected Optional<ISymbol> resolveWithEnclosingScope(SymbolSearch search)
+	protected Optional<ISymbol> resolveWithEnclosingScope(final SymbolSearch search)
 	{
+		AssertValue.checkNotNull("Search must not be null", search);
 		return Optional.empty();
 	}
 

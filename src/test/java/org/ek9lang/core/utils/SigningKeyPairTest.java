@@ -7,11 +7,11 @@ import java.io.File;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-public class SigningKeyPairTest
+class SigningKeyPairTest
 {
 
 	@Test
-	public void encryptPrivateDecryptPublic()
+	void encryptPrivateDecryptPublic()
 	{
 		//Just check we can encrypt and decrypt
 		String theMessage = "The quick brown fox jumps over the lazy dog";
@@ -27,7 +27,7 @@ public class SigningKeyPairTest
 
 
 	@Test
-	public void encryptPublicDecryptPrivate()
+	void encryptPublicDecryptPrivate()
 	{
 		//Just check we can encrypt and decrypt
 		String theMessage = "The quick brown fox jumps over the lazy dog";
@@ -42,9 +42,9 @@ public class SigningKeyPairTest
 	}
 
 	@Test
-	public void doInvalidEncryption()
+	void doInvalidEncryption()
 	{
-		assertThrows(java.lang.NullPointerException.class, () -> {
+		assertThrows(java.lang.RuntimeException.class, () -> {
 			String theMessage = "The quick brown fox jumps over the lazy dog";
 
 			SigningKeyPair keyPair = SigningKeyPair.generate(2048);
@@ -55,7 +55,7 @@ public class SigningKeyPairTest
 	}
 
 	@Test
-	public void doubleEncryption()
+	void doubleEncryption()
 	{
 		//I know this seems a bit pointless, but this is basically how you can
 		//pass secure data and be assured that it came from a source.
@@ -118,7 +118,7 @@ public class SigningKeyPairTest
 	}
 
 	@Test
-	public void testPublicPrivateKeySerialise()
+	void testPublicPrivateKeySerialise()
 	{
 		SigningKeyPair underTest = SigningKeyPair.generate(2048);
 		
@@ -135,7 +135,7 @@ public class SigningKeyPairTest
 		assertEquals(privatePem, checkPrivatePem);
 	}
 
-	public static String getOpenSSLGeneratedPrivateKey()
+	static String getOpenSSLGeneratedPrivateKey()
 	{
 		return """
 				-----BEGIN PRIVATE KEY-----
@@ -169,7 +169,7 @@ public class SigningKeyPairTest
 				""";
 	}
 
-	public static String getOpenSSLGeneratedPublicKey()
+	static String getOpenSSLGeneratedPublicKey()
 	{
 		return """
 				-----BEGIN PUBLIC KEY-----
@@ -185,7 +185,7 @@ public class SigningKeyPairTest
 	}
 
 	@Test
-	public void testOpenSSLGeneratedFromFile()
+	void testOpenSSLGeneratedFromFile()
 	{
 		URL rootDirectoryForTest = this.getClass().getResource("/forSigningKeyTests");
 		assertNotNull(rootDirectoryForTest);
@@ -203,14 +203,14 @@ public class SigningKeyPairTest
 	}
 
 	@Test
-	public void testNullPublicKeyFile()
+	void testNullPublicKeyFile()
 	{
 		assertFalse(SigningKeyPair.ofPublic((File)null).isPublic());
 		assertFalse(SigningKeyPair.ofPublic((File)null).isPrivate());
 	}
 
 	@Test
-	public void testOpenSSLGenerated()
+	void testOpenSSLGenerated()
 	{
 		//Generates using openSSL
 		//openssl genrsa -out mykey.pem 2048

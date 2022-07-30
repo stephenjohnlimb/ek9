@@ -81,14 +81,10 @@ public class PackageResolver extends Reporter
 			return Optional.ofNullable(processPackageProperties(unpackedDir));
 		}
 
-		if(!commandLine.getOsSupport().isFileReadable(zipFile))
+		if(!commandLine.getOsSupport().isFileReadable(zipFile) && !downloadDependency(dependencyVector))
 		{
-			//OK not there so download
-			if(!downloadDependency(dependencyVector))
-			{
-				report("'" + dependencyVector + "' cannot be resolved!");
-				return Optional.empty();
-			}
+			report("'" + dependencyVector + "' cannot be resolved!");
+			return Optional.empty();
 		}
 
 		//So it should now have been downloaded we can un-package.

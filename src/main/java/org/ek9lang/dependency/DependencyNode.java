@@ -40,7 +40,7 @@ public final class DependencyNode
 	public DependencyNode(String moduleName, String version)
 	{
 		this.moduleName = moduleName;
-		this.version = SemanticVersion._of(version);
+		this.version = SemanticVersion.of(version);
 	}
 
 	public void addDependencyRejection(String moduleName, String whenDependencyOf)
@@ -111,7 +111,7 @@ public final class DependencyNode
 
 	public boolean isParentRejected()
 	{
-		return parent != null ? parent.isRejected() : false;
+		return parent != null && parent.isRejected();
 	}
 
 	public boolean isSameModule(DependencyNode node)
@@ -163,6 +163,12 @@ public final class DependencyNode
 			return toString();
 
 		return rejected ? moduleName + getReason() : moduleName;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return getModuleAndVersion().hashCode();
 	}
 
 	@Override

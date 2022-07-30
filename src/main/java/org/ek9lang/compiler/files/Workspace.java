@@ -14,15 +14,6 @@ public class Workspace
 	//The maps of source code file to compliable source objects
 	private final Map<String, CompilableSource> sources = new HashMap<>();
 
-	//TODO rework when we develop rest of ParsedModule etc.
-
-	//Once the Compilable Source has been parsed we will have a set of ParsedModules.
-	//Used to be held in the CompilableSource but now decoupled. 
-	//private Map<CompilableSource, ParsedModule> modules = new HashMap<>();
-
-	//The Intermediate representation as nodes with links to Symbols and Tokens.
-	//private Map<CompilableSource, IRModule> irModules = new HashMap<>();
-
 	/**
 	 * ReParses or loads and parses a source file.
 	 */

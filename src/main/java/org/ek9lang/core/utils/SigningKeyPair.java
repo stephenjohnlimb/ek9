@@ -1,5 +1,7 @@
 package org.ek9lang.core.utils;
 
+import org.ek9lang.core.exception.CompilerException;
+
 import javax.crypto.Cipher;
 import java.io.File;
 import java.io.FileInputStream;
@@ -80,9 +82,9 @@ public final class SigningKeyPair
 		{
 			return new String(fis.readAllBytes(), StandardCharsets.UTF_8);
 		}
-		catch(Throwable th)
+		catch(Exception ex)
 		{
-			System.err.println("Failed to open file: " + th.getMessage());
+			System.err.println("Failed to open file: " + ex.getMessage());
 			return null;
 		}
 	}
@@ -117,7 +119,7 @@ public final class SigningKeyPair
 		{
 			return Cipher.getInstance("RSA");
 		}
-		catch(Throwable th)
+		catch(Exception ex)
 		{
 			System.err.println("Unable to get RSA Cipher");
 		}
@@ -129,9 +131,9 @@ public final class SigningKeyPair
 		try
 		{
 			String publicKeyPEM = publicBase64
-					.replaceAll("\\n", "")
+					.replace("\\n", "")
 					.replace("-----BEGIN PUBLIC KEY-----", "")
-					.replaceAll(System.lineSeparator(), "")
+					.replace(System.lineSeparator(), "")
 					.replace("-----END PUBLIC KEY-----", "");
 
 			byte[] encoded = Base64.getDecoder().decode(publicKeyPEM);
@@ -140,9 +142,9 @@ public final class SigningKeyPair
 			X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encoded);
 			return keyFactory.generatePublic(keySpec);
 		}
-		catch(Throwable th)
+		catch(Exception ex)
 		{
-			System.err.println("Unable to load pubic key " + th.getMessage());
+			System.err.println("Unable to load pubic key " + ex.getMessage());
 		}
 		return null;
 	}
@@ -152,9 +154,9 @@ public final class SigningKeyPair
 		try
 		{
 			String privateKeyPEM = privateBase64
-					.replaceAll("\\n", "")
+					.replace("\\n", "")
 					.replace("-----BEGIN PRIVATE KEY-----", "")
-					.replaceAll(System.lineSeparator(), "")
+					.replace(System.lineSeparator(), "")
 					.replace("-----END PRIVATE KEY-----", "");
 
 			byte[] encoded = Base64.getDecoder().decode(privateKeyPEM);
@@ -163,9 +165,9 @@ public final class SigningKeyPair
 			PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
 			return keyFactory.generatePrivate(keySpec);
 		}
-		catch(Throwable th)
+		catch(Exception ex)
 		{
-			System.err.println("Unable to load private key " + th.getMessage());
+			System.err.println("Unable to load private key " + ex.getMessage());
 		}
 		return null;
 	}
@@ -202,12 +204,18 @@ public final class SigningKeyPair
 
 	private byte[] encrypt(byte[] data, Key key)
 	{
-		return applyCipher(Cipher.ENCRYPT_MODE, data, key);
+		var rtn = applyCipher(Cipher.ENCRYPT_MODE, data, key);
+		if(rtn.length == 0)
+			throw new CompilerException("Encryption failed");
+		return rtn;
 	}
 
 	private byte[] decrypt(byte[] data, Key key)
 	{
-		return applyCipher(Cipher.DECRYPT_MODE, data, key);
+		var rtn = applyCipher(Cipher.DECRYPT_MODE, data, key);
+		if(rtn.length == 0)
+			throw new CompilerException("Decryption failed");
+		return rtn;
 	}
 
 	private byte[] applyCipher(int encryptDecryptMode, byte[] data, Key key)
@@ -217,10 +225,10 @@ public final class SigningKeyPair
 			this.cipher.init(encryptDecryptMode, key);
 			return this.cipher.doFinal(data);
 		}
-		catch(Throwable th)
+		catch(Exception ex)
 		{
-			System.err.println("Unable apply Cipher " + th.getMessage());
-			return null;
+			System.err.println("Unable apply Cipher " + ex.getMessage());
+			return new byte[0];
 		}
 	}
 

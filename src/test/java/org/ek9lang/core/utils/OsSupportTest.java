@@ -10,19 +10,19 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class OsSupportTest
+class OsSupportTest
 {
 	OsSupport underTest = new OsSupport();
 
 	@Test
-	public void testNumberOfProcessors()
+	void testNumberOfProcessors()
 	{
 		int count = underTest.getNumberOfProcessors();
 		assertTrue(count > 1);
 	}
 
 	@Test
-	public void checkDirectories()
+	void checkDirectories()
 	{
 		String cwd = underTest.getCurrentWorkingDirectory();
 		assertNotNull(cwd);
@@ -35,7 +35,7 @@ public class OsSupportTest
 	}
 
 	@Test
-	public void testRecursiveListing()
+	void testRecursiveListing()
 	{
 		URL rootDirectoryForTest = this.getClass().getResource("/forFileFindTests");
 		assertNotNull(rootDirectoryForTest);
@@ -47,7 +47,7 @@ public class OsSupportTest
 	}
 
 	@Test
-	public void testDirectoriesInDirectory()
+	void testDirectoriesInDirectory()
 	{
 		URL rootDirectoryForTest = this.getClass().getResource("/forFileFindTests");
 		assertNotNull(rootDirectoryForTest);
@@ -60,7 +60,7 @@ public class OsSupportTest
 	}
 
 	@Test
-	public void testGlobFileInDirectory()
+	void testGlobFileInDirectory()
 	{
 		URL rootDirectoryForTest = this.getClass().getResource("/forFileFindTests");
 		assertNotNull(rootDirectoryForTest);
@@ -76,7 +76,7 @@ public class OsSupportTest
 	}
 
 	@Test
-	public void testGlobListFileInDirectory()
+	void testGlobListFileInDirectory()
 	{
 		URL rootDirectoryForTest = this.getClass().getResource("/forFileFindTests");
 		assertNotNull(rootDirectoryForTest);
@@ -94,7 +94,7 @@ public class OsSupportTest
 	}
 
 	@Test
-	public void testDeleteDirectory() throws IOException
+	void testDeleteDirectory() throws IOException
 	{
 		URL rootDirectoryForTest = this.getClass().getResource("/forFileFindTests");
 		assertNotNull(rootDirectoryForTest);
@@ -128,7 +128,7 @@ public class OsSupportTest
 	}
 
 	@Test
-	public void testFileListing()
+	void testFileListing()
 	{
 		URL rootDirectoryForTest = this.getClass().getResource("/forFileFindTests");
 		assertNotNull(rootDirectoryForTest);
@@ -146,7 +146,7 @@ public class OsSupportTest
 	}
 	
 	@Test
-	public void testDirectoryListing()
+	void testDirectoryListing()
 	{
 		URL rootDirectoryForTest = this.getClass().getResource("/forFileFindTests");
 		assertNotNull(rootDirectoryForTest);
@@ -160,7 +160,7 @@ public class OsSupportTest
 	}
 	
 	@Test
-	public void testFileNameProcessing()
+	void testFileNameProcessing()
 	{
 		String result = underTest.getFileNameWithoutPath(null);
 		assertEquals("", result);
@@ -179,7 +179,7 @@ public class OsSupportTest
 	}
 	
 	@Test
-	public void testDuffDirectoryListing()
+	void testDuffDirectoryListing()
 	{
 		assertThrows(IllegalArgumentException.class, () -> {
 			underTest.getAllSubdirectories(null);

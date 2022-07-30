@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Locates both good examples and checks they parse, but also badExamples to check they don't.
  */
-public final class TestAllExamples
+final class TestAllExamples
 {
 
 	/**
@@ -52,14 +52,14 @@ public final class TestAllExamples
 	};
 
 	@Test
-	public void testValidEK9ExampleSource()
+	void testValidEK9ExampleSource()
 	{
 		var func = readabilityAssessor.compose(getTestFunction(false));
 		processEK9SourceFilesExpecting("/examples", func);
 	}
 
 	@Test
-	public void testInvalidEK9ExampleSource()
+	void testInvalidEK9ExampleSource()
 	{
 		var func = fileToFileName.compose(getTestFunction(true));
 		processEK9SourceFilesExpecting("/badExamples", func);

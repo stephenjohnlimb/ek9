@@ -19,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * <p>
  * So this unit test is just designed to test the basic mechanisms.
  */
-public final class ErrorListenerTest
+final class ErrorListenerTest
 {
 	@Test
-	public void testReturningRequired()
+	void testReturningRequired()
 	{
 		ErrorListener underTest = new ErrorListener();
 		underTest.raiseReturningRequired(createSyntheticToken(), "_EK9 Test");
@@ -30,7 +30,7 @@ public final class ErrorListenerTest
 	}
 
 	@Test
-	public void testReturningRedundant()
+	void testReturningRedundant()
 	{
 		ErrorListener underTest = new ErrorListener();
 		underTest.raiseReturningRedundant(createSyntheticToken(), "_EK9 Test");
@@ -38,7 +38,7 @@ public final class ErrorListenerTest
 	}
 
 	@Test
-	public void testSemanticErrorCreationWithModule()
+	void testSemanticErrorCreationWithModule()
 	{
 		ErrorListener underTest = new ErrorListener();
 		underTest.semanticError(createSyntheticToken(), "_EK9 Test", ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
@@ -46,7 +46,7 @@ public final class ErrorListenerTest
 	}
 
 	@Test
-	public void testSemanticErrorCreation()
+	void testSemanticErrorCreation()
 	{
 		ErrorListener underTest = new ErrorListener();
 		underTest.semanticError(createSyntheticToken(), "_EK9 Test", ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
@@ -54,7 +54,7 @@ public final class ErrorListenerTest
 	}
 
 	@Test
-	public void testSemanticErrorCreationNoToken()
+	void testSemanticErrorCreationNoToken()
 	{
 		ErrorListener underTest = new ErrorListener();
 		underTest.semanticError(null, "Test", ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
@@ -62,7 +62,7 @@ public final class ErrorListenerTest
 	}
 
 	@Test
-	public void testSemanticErrorFuzzyResults()
+	void testSemanticErrorFuzzyResults()
 	{
 		var symbolTable = new SymbolTable();
 		AggregateSymbol integerType = new AggregateSymbol("Integer", symbolTable);
@@ -111,7 +111,7 @@ public final class ErrorListenerTest
 	}
 
 	@Test
-	public void testConstructionAndSetup()
+	void testConstructionAndSetup()
 	{
 		ErrorListener underTest = new ErrorListener();
 

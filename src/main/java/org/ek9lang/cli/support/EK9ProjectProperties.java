@@ -52,13 +52,13 @@ public class EK9ProjectProperties
 			properties.load(reader);
 			return properties;
 		}
-		catch(Throwable th)
+		catch(Exception ex)
 		{
-			System.err.println("Unable to load properties " + file.getName() + " " + th.getMessage());
+			System.err.println("Unable to load properties " + file.getName() + " " + ex.getMessage());
 			System.exit(3);
 		}
 		//Can't get here because of exit.
-		return null;
+		return new Properties();
 	}
 
 	public void storeProperties(Properties properties)
@@ -67,9 +67,9 @@ public class EK9ProjectProperties
 		{
 			properties.store(output, "Package Properties");
 		}
-		catch(Throwable th)
+		catch(Exception ex)
 		{
-			System.err.println("Unable to save properties " + file.getName() + " " + th.getMessage());
+			System.err.println("Unable to save properties " + file.getName() + " " + ex.getMessage());
 			System.exit(3);
 		}
 	}

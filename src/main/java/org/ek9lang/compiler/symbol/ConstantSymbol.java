@@ -46,6 +46,7 @@ public class ConstantSymbol extends Symbol
 		super.setProduceFullyQualifiedName(!fromLiteral);
 	}
 
+	@Override
 	public boolean isFromLiteral()
 	{
 		return literal;
@@ -70,6 +71,7 @@ public class ConstantSymbol extends Symbol
 		return newCopy;
 	}
 
+	@Override
 	public String toString()
 	{
 		return "const " + getFriendlyName();

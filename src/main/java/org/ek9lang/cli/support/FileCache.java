@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -56,7 +55,7 @@ public class FileCache
 	 */
 	public boolean isTargetExecutableArtefactCurrent()
 	{
-		return isTargetExecutableArtefactPresent() && getIncrementalCompilableProjectFiles().size() == 0;
+		return isTargetExecutableArtefactPresent() && getIncrementalCompilableProjectFiles().isEmpty();
 	}
 
 	/**
@@ -104,7 +103,7 @@ public class FileCache
 				"**.project",
 				"**.classpath"
 		);
-		return Stream.of(directoriesToIgnore, filesToIgnore).flatMap(List::stream).collect(Collectors.toList());
+		return Stream.of(directoriesToIgnore, filesToIgnore).flatMap(List::stream).toList();
 	}
 
 	/**
@@ -208,7 +207,7 @@ public class FileCache
 			cachedFileList = commandLine.getOsSupport().getFilesRecursivelyFrom(new File(commandLine.getSourceFileDirectory()), new Glob(includeFiles, excludeFiles))
 					.stream()
 					.sorted(Comparator.comparingLong(File::lastModified).reversed())
-					.collect(Collectors.toList());
+					.toList();
 		}
 		return cachedFileList;
 	}
@@ -222,6 +221,6 @@ public class FileCache
 		return list
 				.stream()
 				.filter(predicate)
-				.collect(Collectors.toList());
+				.toList();
 	}
 }

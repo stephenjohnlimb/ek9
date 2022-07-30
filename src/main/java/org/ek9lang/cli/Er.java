@@ -21,6 +21,7 @@ public class Er extends E
 		return "Run     : ";
 	}
 
+	@Override
 	public boolean preConditionCheck()
 	{
 		return Objects.equals(commandLine.targetArchitecture, EK9DirectoryStructure.JAVA) && super.preConditionCheck();
@@ -40,7 +41,7 @@ public class Er extends E
 		log("Execute");
 
 		//OK we can issue run command.
-		StringBuffer theRunCommand = new StringBuffer("java");
+		StringBuilder theRunCommand = new StringBuilder("java");
 		if(commandLine.isRunDebugMode())
 			theRunCommand.append(" -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:").append(commandLine.debugPort);
 

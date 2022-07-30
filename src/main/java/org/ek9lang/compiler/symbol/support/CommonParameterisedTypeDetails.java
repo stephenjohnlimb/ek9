@@ -13,10 +13,15 @@ import java.util.stream.Collectors;
  * The idea is to type and get the common stuff out of
  * ParameterisedTypeSymbol and ParameterisedFunctionSymbol.
  * <p>
- * Also general for of Symbol type stuff
+ * Also, general for of Symbol type stuff, it's more just a name space really.
  */
 public class CommonParameterisedTypeDetails
 {
+
+	private CommonParameterisedTypeDetails()
+	{
+		//Just to stop instantiation.
+	}
 
 	/**
 	 * Could be either a ParameterisedTypeSymbol or a ParameterisedFunctionSymbol

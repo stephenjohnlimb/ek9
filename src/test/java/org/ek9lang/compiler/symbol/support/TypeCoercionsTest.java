@@ -10,10 +10,10 @@ import java.util.Optional;
  * Some simple tests on coercions, for this set of tests
  * a number of simulated Aggregates are created with the 'promote' operator added in.
  */
-public class TypeCoercionsTest
+class TypeCoercionsTest
 {
 	@Test
-	public void testUnrelatedTypes()
+	void testUnrelatedTypes()
 	{
 		SymbolTable symbolTable = new SymbolTable();
 		//two unrelated types
@@ -27,7 +27,7 @@ public class TypeCoercionsTest
 	}
 
 	@Test
-	public void testNoneAggregate()
+	void testNoneAggregate()
 	{
 		SymbolTable symbolTable = new SymbolTable();
 		//two unrelated types
@@ -37,7 +37,7 @@ public class TypeCoercionsTest
 	}
 
 	@Test
-	public void testPromotionTypes()
+	void testPromotionTypes()
 	{
 		SymbolTable symbolTable = new SymbolTable();
 		//two unrelated types

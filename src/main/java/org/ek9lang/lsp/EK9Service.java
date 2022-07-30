@@ -16,12 +16,12 @@ public abstract class EK9Service
 	private EK9LanguageServer languageServer;
 	private final ErrorsToDiagnostics diagnosticExtractor = new ErrorsToDiagnostics();
 
-	public EK9Service()
+	protected EK9Service()
 	{
 
 	}
 
-	public EK9Service(EK9LanguageServer languageServer)
+	protected EK9Service(EK9LanguageServer languageServer)
 	{
 		//Keep a reference, so we can access client and send back messages.
 		this.languageServer = languageServer;
@@ -50,7 +50,6 @@ public abstract class EK9Service
 		{
 			int line = params.getPosition().getLine() + 1;
 			int charPos = params.getPosition().getCharacter() + 1;
-			//System.err.println("Line " + line + " Char Pos " + charPos);
 			rtn = getWorkspace().getSource(uri).nearestToken(line, charPos);
 		}
 		return rtn;

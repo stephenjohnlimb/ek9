@@ -3,11 +3,11 @@ package org.ek9lang.core.utils;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GlobTest
+class GlobTest
 {
 
     @Test
-    public void basicGlobbing()
+    void basicGlobbing()
     {
         Glob underTest = new Glob();
         assertFalse(underTest.isAcceptable("src/Foo.java"));
@@ -27,7 +27,7 @@ public class GlobTest
     }
 
     @Test
-    public void groupGlobbing()
+    void groupGlobbing()
     {
         Glob underTest = new Glob();
         underTest.addInclude("**.{html,htm}");
@@ -52,7 +52,7 @@ public class GlobTest
     }
 
     @Test
-    public void pathPartGlobbing()
+    void pathPartGlobbing()
     {
         Glob underTest = new Glob();
         underTest.addInclude("**.{html,htm}");
@@ -65,7 +65,7 @@ public class GlobTest
     }
 
     @Test
-    public void exampleGlobbing()
+    void exampleGlobbing()
     {
         Glob underTest = new Glob();
         underTest.addInclude("sample/images/*.{png,jpeg}");
@@ -88,7 +88,7 @@ public class GlobTest
     }
     
     @Test
-    public void onlySourceFilesGlobbing()
+    void onlySourceFilesGlobbing()
     {
         Glob underTest = new Glob();
         //underTest.addInclude("*.ek9");
@@ -115,7 +115,7 @@ public class GlobTest
     }
     
     @Test
-    public void dotFileGlobbing()
+    void dotFileGlobbing()
     {
         Glob underTest = new Glob();
         //Everything

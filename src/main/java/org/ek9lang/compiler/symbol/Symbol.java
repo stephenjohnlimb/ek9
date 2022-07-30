@@ -284,6 +284,7 @@ public class Symbol implements ISymbol
 			parsedModule = Optional.of(module);
 	}
 
+	@Override
 	public String getFullyQualifiedName()
 	{
 		String rtn = getName();
@@ -300,16 +301,19 @@ public class Symbol implements ISymbol
 		return c1.getCategory().equals(c2.getCategory());
 	}
 
+	@Override
 	public boolean isAssignableTo(ISymbol s)
 	{
 		return getAssignableWeightTo(s) >= 0.0;
 	}
 
+	@Override
 	public boolean isAssignableTo(Optional<ISymbol> s)
 	{
 		return getAssignableWeightTo(s) >= 0.0;
 	}
 
+	@Override
 	public double getAssignableWeightTo(Optional<ISymbol> s)
 	{
 		return s.map(this::getAssignableWeightTo).orElse(-1000000.0);
@@ -324,6 +328,7 @@ public class Symbol implements ISymbol
 		return false;
 	}
 
+	@Override
 	public double getAssignableWeightTo(ISymbol s)
 	{
 		double canAssign = getUnCoercedAssignableWeightTo(s);
@@ -334,6 +339,7 @@ public class Symbol implements ISymbol
 		return canAssign;
 	}
 
+	@Override
 	public double getUnCoercedAssignableWeightTo(ISymbol s)
 	{
 		double canAssign = -1000000.0;
@@ -365,10 +371,16 @@ public class Symbol implements ISymbol
 	}
 
 	@Override
+	public int hashCode()
+	{
+		return getFriendlyName().hashCode();
+	}
+
+	@Override
 	public boolean equals(Object obj)
 	{
-		if(obj instanceof ISymbol)
-			return getFriendlyName().equals(((ISymbol)obj).getFriendlyName());
+		if(obj instanceof ISymbol iSymbol)
+			return getFriendlyName().equals(iSymbol.getFriendlyName());
 		return false;
 	}
 

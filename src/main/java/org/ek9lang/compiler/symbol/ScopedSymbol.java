@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class ScopedSymbol extends Symbol implements IScopedSymbol
 {
@@ -130,10 +129,7 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol
 	{
 		//only need to add once but source might have many references to the type.
 		if(!parameterisedTypeReferences.contains(parameterisedTypeReference))
-		{
-			//System.out.println("Added parameterised reference [" + parameterisedTypeReference + "] to  [" + this + "]");
 			parameterisedTypeReferences.add(parameterisedTypeReference);
-		}
 	}
 
 	public ScopedSymbol addParameterisedType(AggregateSymbol parameterisedType)
@@ -164,7 +160,11 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol
 
 	public List<ISymbol> getAnyGenericParameters()
 	{
-		return parameterisedTypes.stream().filter(AggregateSymbol::isGenericTypeParameter).collect(Collectors.toList());
+		return parameterisedTypes
+				.stream()
+				.filter(AggregateSymbol::isGenericTypeParameter)
+				.map(ISymbol.class::cast)
+				.toList();
 	}
 
 	public List<ISymbol> getParameterisedTypes()
@@ -188,6 +188,7 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol
 		return actualScope.isMarkedPure();
 	}
 
+	@Override
 	public void setMarkedPure(boolean markedPure)
 	{
 		actualScope.setMarkedPure(markedPure);

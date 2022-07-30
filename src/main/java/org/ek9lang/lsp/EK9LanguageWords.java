@@ -43,6 +43,99 @@ public class EK9LanguageWords
 				)
 		);
 
+		//Just joining words
+		keywordMap.put("with",
+				new KeyWordInformation("Linking stream mapping/if statements, use of traits/applications and aspects",
+						Arrays.asList("with",
+								"with trait of",
+								"with application of",
+								"with aspect of"
+						),
+						search -> !search.previousTokenIsPipe()
+				)
+		);
+
+		keywordMap.put("as",
+				new KeyWordInformation("Declaration or linking",
+						Arrays.asList("as",
+								"as\n",
+								"as open\n",
+								"as abstract\n",
+								"as function\n",
+								"as class\n",
+								"as dispatcher\n",
+								"as pure\n",
+								"as pure abstract\n",
+								"as pure function\n",
+								"as pure abstract\n",
+								"as pure dispatcher\n",
+								"as GET for :/",
+								"as DELETE for :/",
+								"as HEAD for :/",
+								"as POST for :/",
+								"as PUT for :/",
+								"as PATCH for :/",
+								"as OPTIONS for :/"
+						),
+						search -> !search.previousTokenIsPipe()
+				)
+		);
+
+		keywordMap.put("of",
+				new KeyWordInformation("Used with Generic types, applications, aspects, traits and conditionally with streams, length/abs/sqrt",
+						Arrays.asList("of",
+								"of type"
+						),
+						search -> !search.previousTokenIsPipe()
+				)
+		);
+
+		keywordMap.put("assert",
+				new KeyWordInformation("Assert a statement is true, Exception is thrown when false",
+						Arrays.asList("assert", "assert()"),
+						TokenResult::previousTokensIndentsOrFirst
+				)
+		);
+		keywordMap.put("by",
+				new KeyWordInformation("Generic/Type constraint. For loop incrementer. Trait delegation, Pipeline",
+						List.of("by"),
+						TokenResult::previousTokensIndentsOrFirst
+				)
+		);
+
+		keywordMap.put("is",
+				new KeyWordInformation("Extend function/class/component/record (or logic), https://www.ek9.io/inheritance.html",
+						Arrays.asList("is", "is not", "is in", "is not in"),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+
+		keywordMap.put("register",
+				new KeyWordInformation("Register a component instance for injection, https://www.ek9.io/dependencyInjection.html",
+						List.of("register"),
+						TokenResult::previousTokensIndentsOrFirst
+				)
+		);
+		keywordMap.put("dispatcher",
+				new KeyWordInformation("Dispatcher method for calling polymorphic objects, https://www.ek9.io/advancedClassMethods.html",
+						List.of("dispatcher"),
+						search -> !search.previousTokensIndentsOrFirst()
+				)
+		);
+
+		populateConstructs(keywordMap);
+		populateModifiers(keywordMap);
+		populateOperators(keywordMap);
+		populateFlowControl(keywordMap);
+		populateLoops(keywordMap);
+		populateTryCatch(keywordMap);
+		populateStreaming(keywordMap);
+		populateWebServices(keywordMap);
+
+	}
+
+	private void populateConstructs(Map<String, KeyWordInformation> keywordMap)
+	{
 		keywordMap.put("references",
 				new KeyWordInformation("Reference construct from a module, https://www.ek9.io/structure.html#references",
 						List.of("references\n"
@@ -146,53 +239,10 @@ public class EK9LanguageWords
 						TokenResult::previousTokenIsDefines
 				)
 		);
-		//Just joining words
-		keywordMap.put("with",
-				new KeyWordInformation("Linking stream mapping/if statements, use of traits/applications and aspects",
-						Arrays.asList("with",
-								"with trait of",
-								"with application of",
-								"with aspect of"
-						),
-						search -> !search.previousTokenIsPipe()
-				)
-		);
+	}
 
-		keywordMap.put("as",
-				new KeyWordInformation("Declaration or linking",
-						Arrays.asList("as",
-								"as\n",
-								"as open\n",
-								"as abstract\n",
-								"as function\n",
-								"as class\n",
-								"as dispatcher\n",
-								"as pure\n",
-								"as pure abstract\n",
-								"as pure function\n",
-								"as pure abstract\n",
-								"as pure dispatcher\n",
-								"as GET for :/",
-								"as DELETE for :/",
-								"as HEAD for :/",
-								"as POST for :/",
-								"as PUT for :/",
-								"as PATCH for :/",
-								"as OPTIONS for :/"
-						),
-						search -> !search.previousTokenIsPipe()
-				)
-		);
-
-		keywordMap.put("of",
-				new KeyWordInformation("Used with Generic types, applications, aspects, traits and conditionally with streams, length/abs/sqrt",
-						Arrays.asList("of",
-								"of type"
-						),
-						search -> !search.previousTokenIsPipe()
-				)
-		);
-
+	private void populateModifiers(Map<String, KeyWordInformation> keywordMap)
+	{
 		keywordMap.put("override",
 				new KeyWordInformation("Used when overriding methods/operators, https://www.ek9.io/methods.html",
 						List.of("override"
@@ -221,145 +271,88 @@ public class EK9LanguageWords
 						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
-		keywordMap.put("operator",
-				new KeyWordInformation("Declaration of an operator (such as +-*/), https://www.ek9.io/operators.html",
-						Arrays.asList("operator",
-								"operator $",
-								"operator $$",
-								"operator >",
-								"operator <",
-								"operator :=",
-								"operator !=",
-								"operator <=",
-								"operator >=",
-								"operator <=>",
-								"operator <~>",
-								"operator :~:",
-								"operator :=:",
-								"operator :^:",
-								"operator !",
-								"operator ?",
-								"operator ~",
-								"operator ++",
-								"operator --",
-								"operator +",
-								"operator -",
-								"operator *",
-								"operator /",
-								"operator +=",
-								"operator -=",
-								"operator *=",
-								"operator /=",
-								"operator ^",
-								"operator |",
-								"operator #^",
-								"operator #?",
-								"operator #<",
-								"operator #>",
-								"operator mod",
-								"operator rem",
-								"operator abs",
-								"operator sqrt",
-								"operator contains",
-								"operator matches",
-								"operator empty",
-								"operator length"
-						),
-						search -> search.previousTokensIndentsOrFirst() || search.previousTokenIsOverride()
+		keywordMap.put("open",
+				new KeyWordInformation("Leave open for extension, https://www.ek9.io/inheritance.html",
+						List.of("open"),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
+		keywordMap.put("extends",
+				new KeyWordInformation("Extend a function/class/component/record, https://www.ek9.io/inheritance.html",
+						List.of("extends"),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("constrain",
+				new KeyWordInformation("Restrict an existing type / Control generic type",
+						Arrays.asList("constrain by", "constrain as"),
+						search -> !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("pure",
+				new KeyWordInformation("Limit reassignment of variables/side effects, https://www.ek9.io/basics.html#pure",
+						List.of("pure"),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("abstract",
+				new KeyWordInformation("Non concrete functions/components/records/classes/methods/operators",
+						List.of("abstract"),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("allow",
+				new KeyWordInformation("Limit reuse by extension, https://www.ek9.io/traits.html",
+						List.of("allow"),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+	}
 
-		keywordMap.put("?",
-				new KeyWordInformation("Is set, https://www.ek9.io/operators.html#ternary",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("??",
-				new KeyWordInformation("Null coalescing, https://www.ek9.io/operators.html#ternary",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("?:",
-				new KeyWordInformation("Null is set coalescing (Elvis), https://www.ek9.io/operators.html#ternary",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("?=",
-				new KeyWordInformation("Guarded assignment (if/when conditionals), https://www.ek9.io/flowControl.html#if_elseif_else",
-						List.of(""),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("!=",
-				new KeyWordInformation("Not Equals, https://www.ek9.io/operators.html#comparison",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("<>",
-				new KeyWordInformation("Not Equals, https://www.ek9.io/operators.html#comparison",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("=",
-				new KeyWordInformation("Assignment, https://www.ek9.io/operators.html#assignment",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("==",
-				new KeyWordInformation("Equals, https://www.ek9.io/operators.html#comparison",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
 
-		keywordMap.put(":",
-				new KeyWordInformation("Assignment, https://www.ek9.io/operators.html#assignment",
+	private void populateOperators(Map<String, KeyWordInformation> keywordMap)
+	{
+		populateListOfOperators(keywordMap);
+		populateAssignmentTypeOperators(keywordMap);
+		populateEqualityOperators(keywordMap);
+		populateMathematicsOperators(keywordMap);
+		populatesInOutOperators(keywordMap);
+		populateConversionOperators(keywordMap);
+		populateAccessOperators(keywordMap);
+		populateBooleanOperators(keywordMap);
+	}
+
+	private void populateAccessOperators(Map<String, KeyWordInformation> keywordMap)
+	{
+
+		keywordMap.put("contains",
+				new KeyWordInformation("Does container contain and item",
 						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
-		keywordMap.put(":=",
-				new KeyWordInformation("Assignment, https://www.ek9.io/operators.html#assignment",
+		keywordMap.put("matches",
+				new KeyWordInformation("Does one item match another",
 						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
-		keywordMap.put("::",
-				new KeyWordInformation("References construct, https://www.ek9.io/basics.html#references_example",
+		keywordMap.put("empty",
+				new KeyWordInformation("Has no content, https://www.ek9.io/operators.html#functional",
 						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
-		keywordMap.put(":=:",
-				new KeyWordInformation("Deep copy, https://www.ek9.io/operators.html#modification",
+		keywordMap.put("length",
+				new KeyWordInformation("Length, https://www.ek9.io/operators.html#functional",
 						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
-		keywordMap.put(":~:",
-				new KeyWordInformation("Merge, https://www.ek9.io/operators.html#modification",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put(":^:",
-				new KeyWordInformation("Replace, https://www.ek9.io/operators.html#modification",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put(":=?",
-				new KeyWordInformation("Assign if unset, https://www.ek9.io/operators.html#ternary",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
+	}
+
+	private void populateConversionOperators(Map<String, KeyWordInformation> keywordMap)
+	{
 		keywordMap.put("$",
 				new KeyWordInformation("String conversion, https://www.ek9.io/operators.html#functional",
 						List.of(),
@@ -372,6 +365,35 @@ public class EK9LanguageWords
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
+
+		keywordMap.put("#^",
+				new KeyWordInformation("Promotion, https://www.ek9.io/operators.html#functional",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("#?",
+				new KeyWordInformation("Get hash code, https://www.ek9.io/operators.html#functional",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("#<",
+				new KeyWordInformation("Get first, https://www.ek9.io/operators.html#functional",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("#>",
+				new KeyWordInformation("Get last, https://www.ek9.io/operators.html#functional",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+	}
+
+	private void populatesInOutOperators(Map<String, KeyWordInformation> keywordMap)
+	{
 		keywordMap.put("->",
 				new KeyWordInformation("Incoming parameter(s)",
 						List.of(),
@@ -379,16 +401,149 @@ public class EK9LanguageWords
 				)
 		);
 
-		keywordMap.put("<",
-				new KeyWordInformation("Less than, https://www.ek9.io/operators.html#comparison",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
 		keywordMap.put("<-",
 				new KeyWordInformation("Returning / declaration/ out of",
 						List.of(),
 						search -> !search.previousTokenIsPipe()
+				)
+		);
+	}
+
+	private void populateBooleanOperators(Map<String, KeyWordInformation> keywordMap)
+	{
+		keywordMap.put("and",
+				new KeyWordInformation("Boolean 'and' / Bitwise 'and'",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("or",
+				new KeyWordInformation("Boolean 'or' / Bitwise 'or'",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("xor",
+				new KeyWordInformation("Boolean 'exclusive or' / Bitwise 'exclusive or'",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("not",
+				new KeyWordInformation("Boolean 'not' / Bitwise 'not'",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("~",
+				new KeyWordInformation("Boolean 'not' /Bitwise 'not' / reverse a list",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+	}
+
+	private void populateMathematicsOperators(Map<String, KeyWordInformation> keywordMap)
+	{
+		keywordMap.put("+",
+				new KeyWordInformation("Mathematical addition, https://www.ek9.io/operators.html#mathematical",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("-",
+				new KeyWordInformation("Mathematical subtraction, https://www.ek9.io/operators.html#mathematical",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("*",
+				new KeyWordInformation("Mathematical multiplication, https://www.ek9.io/operators.html#mathematical",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("/",
+				new KeyWordInformation("Mathematical division, https://www.ek9.io/operators.html#mathematical",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("+=",
+				new KeyWordInformation("Mathematical addition and assignment, https://www.ek9.io/operators.html#assignment",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("-=",
+				new KeyWordInformation("Mathematical subtraction and assignment, https://www.ek9.io/operators.html#assignment",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("*=",
+				new KeyWordInformation("Mathematical multiplication and assignment, https://www.ek9.io/operators.html#assignment",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("/=",
+				new KeyWordInformation("Mathematical division and assignment, https://www.ek9.io/operators.html#assignment",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("++",
+				new KeyWordInformation("Mathematical increment, https://www.ek9.io/operators.html#mathematical",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("--",
+				new KeyWordInformation("Mathematical decrement, https://www.ek9.io/operators.html#mathematical",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("^",
+				new KeyWordInformation("Mathematical power",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+
+		keywordMap.put("mod",
+				new KeyWordInformation("Mathematical modulus, https://www.ek9.io/operators.html#mathematical",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("rem",
+				new KeyWordInformation("Remainder, https://www.ek9.io/operators.html#mathematical",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("abs",
+				new KeyWordInformation("Absolute value, https://www.ek9.io/operators.html#mathematical",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("sqrt",
+				new KeyWordInformation("mathematical Square Root, https://www.ek9.io/operators.html#mathematical",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+	}
+
+	private void populateEqualityOperators(Map<String, KeyWordInformation> keywordMap)
+	{
+		keywordMap.put("<",
+				new KeyWordInformation("Less than, https://www.ek9.io/operators.html#comparison",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 		keywordMap.put("<?",
@@ -458,196 +613,158 @@ public class EK9LanguageWords
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
-		keywordMap.put("+",
-				new KeyWordInformation("Mathematical addition, https://www.ek9.io/operators.html#mathematical",
+	}
+
+	private void populateAssignmentTypeOperators(Map<String, KeyWordInformation> keywordMap)
+	{
+		var assignmentText = "Assignment, https://www.ek9.io/operators.html#assignment";
+
+		keywordMap.put("?",
+				new KeyWordInformation("Is set, https://www.ek9.io/operators.html#ternary",
 						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
-		keywordMap.put("-",
-				new KeyWordInformation("Mathematical subtraction, https://www.ek9.io/operators.html#mathematical",
+		keywordMap.put("??",
+				new KeyWordInformation("Null coalescing, https://www.ek9.io/operators.html#ternary",
 						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
-		keywordMap.put("*",
-				new KeyWordInformation("Mathematical multiplication, https://www.ek9.io/operators.html#mathematical",
+		keywordMap.put("?:",
+				new KeyWordInformation("Null is set coalescing (Elvis), https://www.ek9.io/operators.html#ternary",
 						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
-		keywordMap.put("/",
-				new KeyWordInformation("Mathematical division, https://www.ek9.io/operators.html#mathematical",
+		keywordMap.put("?=",
+				new KeyWordInformation("Guarded assignment (if/when conditionals), https://www.ek9.io/flowControl.html#if_elseif_else",
+						List.of(""),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+		keywordMap.put("!=",
+				new KeyWordInformation("Not Equals, https://www.ek9.io/operators.html#comparison",
 						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
-		keywordMap.put("+=",
-				new KeyWordInformation("Mathematical addition and assignment, https://www.ek9.io/operators.html#assignment",
+		keywordMap.put("<>",
+				new KeyWordInformation("Not Equals, https://www.ek9.io/operators.html#comparison",
 						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
-		keywordMap.put("-=",
-				new KeyWordInformation("Mathematical subtraction and assignment, https://www.ek9.io/operators.html#assignment",
+		keywordMap.put("=",
+				new KeyWordInformation(assignmentText,
 						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
-		keywordMap.put("*=",
-				new KeyWordInformation("Mathematical multiplication and assignment, https://www.ek9.io/operators.html#assignment",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("/=",
-				new KeyWordInformation("Mathematical division and assignment, https://www.ek9.io/operators.html#assignment",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("++",
-				new KeyWordInformation("Mathematical increment, https://www.ek9.io/operators.html#mathematical",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("--",
-				new KeyWordInformation("Mathematical decrement, https://www.ek9.io/operators.html#mathematical",
+		keywordMap.put("==",
+				new KeyWordInformation("Equals, https://www.ek9.io/operators.html#comparison",
 						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
 
-		keywordMap.put("^",
-				new KeyWordInformation("Mathematical power",
+		keywordMap.put(":",
+				new KeyWordInformation(assignmentText,
 						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
-		keywordMap.put("|",
-				new KeyWordInformation("Stream pipelines linkage",
+		keywordMap.put(":=",
+				new KeyWordInformation(assignmentText,
 						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
-		keywordMap.put("#^",
-				new KeyWordInformation("Promotion, https://www.ek9.io/operators.html#functional",
+		keywordMap.put("::",
+				new KeyWordInformation("References construct, https://www.ek9.io/basics.html#references_example",
 						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
-		keywordMap.put("#?",
-				new KeyWordInformation("Get hash code, https://www.ek9.io/operators.html#functional",
+		keywordMap.put(":=:",
+				new KeyWordInformation("Deep copy, https://www.ek9.io/operators.html#modification",
 						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
-		keywordMap.put("#<",
-				new KeyWordInformation("Get first, https://www.ek9.io/operators.html#functional",
+		keywordMap.put(":~:",
+				new KeyWordInformation("Merge, https://www.ek9.io/operators.html#modification",
 						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
-		keywordMap.put("#>",
-				new KeyWordInformation("Get last, https://www.ek9.io/operators.html#functional",
+		keywordMap.put(":^:",
+				new KeyWordInformation("Replace, https://www.ek9.io/operators.html#modification",
 						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
-		keywordMap.put("mod",
-				new KeyWordInformation("Mathematical modulus, https://www.ek9.io/operators.html#mathematical",
+		keywordMap.put(":=?",
+				new KeyWordInformation("Assign if unset, https://www.ek9.io/operators.html#ternary",
 						List.of(),
 						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
 				)
 		);
-		keywordMap.put("rem",
-				new KeyWordInformation("Remainder, https://www.ek9.io/operators.html#mathematical",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("abs",
-				new KeyWordInformation("Absolute value, https://www.ek9.io/operators.html#mathematical",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("sqrt",
-				new KeyWordInformation("mathematical Square Root, https://www.ek9.io/operators.html#mathematical",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("contains",
-				new KeyWordInformation("Does container contain and item",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("matches",
-				new KeyWordInformation("Does one item match another",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("empty",
-				new KeyWordInformation("Has no content, https://www.ek9.io/operators.html#functional",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("length",
-				new KeyWordInformation("Length, https://www.ek9.io/operators.html#functional",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
+	}
 
-		keywordMap.put("and",
-				new KeyWordInformation("Boolean 'and' / Bitwise 'and'",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+	private void populateListOfOperators(Map<String, KeyWordInformation> keywordMap)
+	{
+		keywordMap.put("operator",
+				new KeyWordInformation("Declaration of an operator (such as +-*/), https://www.ek9.io/operators.html",
+						Arrays.asList("operator",
+								"operator $",
+								"operator $$",
+								"operator >",
+								"operator <",
+								"operator :=",
+								"operator !=",
+								"operator <=",
+								"operator >=",
+								"operator <=>",
+								"operator <~>",
+								"operator :~:",
+								"operator :=:",
+								"operator :^:",
+								"operator !",
+								"operator ?",
+								"operator ~",
+								"operator ++",
+								"operator --",
+								"operator +",
+								"operator -",
+								"operator *",
+								"operator /",
+								"operator +=",
+								"operator -=",
+								"operator *=",
+								"operator /=",
+								"operator ^",
+								"operator |",
+								"operator #^",
+								"operator #?",
+								"operator #<",
+								"operator #>",
+								"operator mod",
+								"operator rem",
+								"operator abs",
+								"operator sqrt",
+								"operator contains",
+								"operator matches",
+								"operator empty",
+								"operator length"
+						),
+						search -> search.previousTokensIndentsOrFirst() || search.previousTokenIsOverride()
 				)
 		);
-		keywordMap.put("or",
-				new KeyWordInformation("Boolean 'or' / Bitwise 'or'",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("xor",
-				new KeyWordInformation("Boolean 'exclusive or' / Bitwise 'exclusive or'",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("not",
-				new KeyWordInformation("Boolean 'not' / Bitwise 'not'",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("~",
-				new KeyWordInformation("Boolean 'not' /Bitwise 'not' / reverse a list",
-						List.of(),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
+	}
 
-		keywordMap.put("assert",
-				new KeyWordInformation("Assert a statement is true, Exception is thrown when false",
-						Arrays.asList("assert", "assert()"),
-						TokenResult::previousTokensIndentsOrFirst
-				)
-		);
-		keywordMap.put("by",
-				new KeyWordInformation("Generic/Type constraint. For loop incrementer. Trait delegation, Pipeline",
-						List.of("by"),
-						TokenResult::previousTokensIndentsOrFirst
-				)
-		);
-		//Now the flow control items
+	private void populateFlowControl(Map<String, KeyWordInformation> keywordMap)
+	{
 		keywordMap.put("if",
 				new KeyWordInformation("Conditional if/when, https://www.ek9.io/flowControl.html#switch",
 						List.of(),
@@ -689,6 +806,10 @@ public class EK9LanguageWords
 						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
+	}
+
+	private void populateLoops(Map<String, KeyWordInformation> keywordMap)
+	{
 		keywordMap.put("do",
 				new KeyWordInformation("Do loop, https://www.ek9.io/flowControl.html#do_while_loop",
 						List.of(),
@@ -702,6 +823,16 @@ public class EK9LanguageWords
 				)
 		);
 
+		keywordMap.put("for",
+				new KeyWordInformation("For loop / for stream / text for language / service for URI",
+						List.of(),
+						search -> search.previousTokensIndentsOrFirst() || search.previousTokenIsAssignment()
+				)
+		);
+	}
+
+	private void populateTryCatch(Map<String, EK9LanguageWords.KeyWordInformation> keywordMap)
+	{
 		keywordMap.put("try",
 				new KeyWordInformation("Try/catch exception block, https://www.ek9.io/exceptions.html",
 						List.of(),
@@ -726,74 +857,24 @@ public class EK9LanguageWords
 						TokenResult::previousTokensIndentsOrFirst
 				)
 		);
+	}
 
-		keywordMap.put("for",
-				new KeyWordInformation("For loop / for stream / text for language / service for URI",
-						List.of(),
-						search -> search.previousTokensIndentsOrFirst() || search.previousTokenIsAssignment()
-				)
-		);
-		keywordMap.put("pure",
-				new KeyWordInformation("Limit reassignment of variables/side effects, https://www.ek9.io/basics.html#pure",
-						List.of("pure"),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("abstract",
-				new KeyWordInformation("Non concrete functions/components/records/classes/methods/operators",
-						List.of("abstract"),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-
-		keywordMap.put("allow",
-				new KeyWordInformation("Limit reuse by extension, https://www.ek9.io/traits.html",
-						List.of("allow"),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("is",
-				new KeyWordInformation("Extend function/class/component/record (or logic), https://www.ek9.io/inheritance.html",
-						Arrays.asList("is", "is not", "is in", "is not in"),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("open",
-				new KeyWordInformation("Leave open for extension, https://www.ek9.io/inheritance.html",
-						List.of("open"),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("extends",
-				new KeyWordInformation("Extend a function/class/component/record, https://www.ek9.io/inheritance.html",
-						List.of("extends"),
-						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("constrain",
-				new KeyWordInformation("Restrict an existing type / Control generic type",
-						Arrays.asList("constrain by", "constrain as"),
-						search -> !search.previousTokenIsPipe()
-				)
-		);
-		keywordMap.put("register",
-				new KeyWordInformation("Register a component instance for injection, https://www.ek9.io/dependencyInjection.html",
-						List.of("register"),
-						TokenResult::previousTokensIndentsOrFirst
-				)
-		);
-		keywordMap.put("dispatcher",
-				new KeyWordInformation("Dispatcher method for calling polymorphic objects, https://www.ek9.io/advancedClassMethods.html",
-						List.of("dispatcher"),
-						search -> !search.previousTokensIndentsOrFirst()
-				)
-		);
+	private void populateStreaming(Map<String, EK9LanguageWords.KeyWordInformation> keywordMap)
+	{
 		keywordMap.put("cat",
 				new KeyWordInformation("Catenate stream (start streaming), https://www.ek9.io/streamsAndPipelines.html",
 						List.of(),
 						search -> search.previousTokensIndentsOrFirst() || search.previousTokenIsAssignment()
 				)
 		);
+
+		keywordMap.put("|",
+				new KeyWordInformation("Stream pipelines linkage",
+						List.of(),
+						search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()
+				)
+		);
+
 		keywordMap.put("filter",
 				new KeyWordInformation("Filter/Select items to be passed through stream, https://www.ek9.io/streamsAndPipelines.html",
 						Arrays.asList("filter",
@@ -934,7 +1015,10 @@ public class EK9LanguageWords
 						TokenResult::previousTokenIsPipe
 				)
 		);
-		//Web Services
+	}
+
+	private void populateWebServices(Map<String, EK9LanguageWords.KeyWordInformation> keywordMap)
+	{
 		keywordMap.put("GET",
 				new KeyWordInformation("HTTP GET verb (idempotent)",
 						Arrays.asList("GET :/", "GET for :/"
@@ -1000,44 +1084,40 @@ public class EK9LanguageWords
 	{
 		List<String> rtn = new ArrayList<>();
 
-		//System.err.println("Searching for [" + search.getToken().getText() + "]");
-		for(String word : keywordMap.keySet())
-		{
-			if(word.startsWith(search.getToken().getText()))
-			{
-				KeyWordInformation info = keywordMap.get(word);
-				if(info.isValidInThisContext(search))
-				{
-					info.completionText.forEach(match -> {
-						if(!rtn.contains(match))
-							rtn.add(match);
-					});
-				}
-			}
-		}
+		keywordMap
+				.entrySet()
+				.stream()
+				.filter(entry -> entry.getKey().startsWith(search.getToken().getText()))
+				.filter(entry -> entry.getValue().isValidInThisContext(search))
+				.forEach(entry -> entry.getValue().completionText.forEach(match -> {
+					if(!rtn.contains(match))
+						rtn.add(match);
+				}));
+
 		return rtn;
 	}
 
 	public static class KeyWordInformation
 	{
 		//The hover text to be shown
-		public String hoverText;
+		public final String hoverText;
 		//One or more bits of text that could complete the partial keyword.
-		public List<String> completionText;
+		private final List<String> completionText;
 		//An optional function that can be used to indicate if this keyword is appropriate in the context of use
 		//i.e. defines is only appropriate is the previous tokens were only indents.
-		public Function<TokenResult, Boolean> inContext = null;
+		private final Function<TokenResult, Boolean> inContext;
 
 		public KeyWordInformation(String hover, List<String> completions, Function<TokenResult, Boolean> inContext)
 		{
-			this(hover, completions);
+			this.hoverText = hover;
+			this.completionText = completions;
 			this.inContext = inContext;
 		}
 
 		public KeyWordInformation(String hover, List<String> completions)
 		{
-			this.hoverText = hover;
-			this.completionText = completions;
+			this(hover, completions, null);
+
 		}
 
 		public boolean isValidInThisContext(TokenResult tokenResult)

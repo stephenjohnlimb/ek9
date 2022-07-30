@@ -3,6 +3,7 @@ package org.ek9lang.compiler.symbol.support;
 import org.ek9lang.compiler.symbol.*;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
+import org.ek9lang.core.exception.CompilerException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,26 +67,25 @@ public class AggregateFactory
 	{
 		for(MethodSymbol method : from.getAllNonAbstractMethods())
 		{
-			if(method.isConstructor() && method.getType().get().isExactSameType(from))
-			{
-				MethodSymbol newMethod = new MethodSymbol(to.getName(), Optional.of(to), to).setConstructor(true);
-				List<ISymbol> params = method.getMethodParameters();
-				newMethod.setMethodParameters(params);
-				to.define(newMethod);
-			}
-			else
-			{
-				//Just a normal method or operation
-				if(method.getType().isEmpty())
-					throw new RuntimeException("Method return type must be set for use to copy methods over");
-
-				if(method.getType().get().isExactSameType(from) && !method.isMarkedNoClone())
+			method.getType().ifPresentOrElse(methodType -> {
+				if(method.isConstructor() && methodType.isExactSameType(from))
 				{
-					//So we have a method that returns the same type - we need to modify this and add it in.
-					MethodSymbol newMethod = cloneMethodWithNewType(method, to);
+					MethodSymbol newMethod = new MethodSymbol(to.getName(), Optional.of(to), to).setConstructor(true);
+					List<ISymbol> params = method.getMethodParameters();
+					newMethod.setMethodParameters(params);
 					to.define(newMethod);
 				}
-			}
+				else
+				{
+					if(methodType.isExactSameType(from) && !method.isMarkedNoClone())
+					{
+						//So we have a method that returns the same type - we need to modify this and add it in.
+						MethodSymbol newMethod = cloneMethodWithNewType(method, to);
+						to.define(newMethod);
+					}
+				}
+			}, () -> { throw new CompilerException("Method return type must be set for use to copy methods over");} );
+
 		}
 		return to;
 	}
@@ -101,26 +101,22 @@ public class AggregateFactory
 		//Our concreteSymbolType will have a set of real concrete parameters,
 		//and we need to know how those map from S->String and T->Integer for example.
 
-		//System.out.println("Doing [" + parameterisedSymbol + "]");
 		List<ISymbol> appropriateParams = new ArrayList<>();
 		parameterisedSymbol.getParameterSymbols().forEach(symbol -> {
 			if(symbol.isGenericTypeParameter())
 			{
-				//System.out.println("Will look for [" + symbol + "]");
 				List<ISymbol> concreteParameters = concreteSymbol.getParameterSymbols();
 				List<ISymbol> genericParameters = concreteSymbol.getParameterisableSymbol().getParameterisedTypes();
 				for(int i = 0; i < concreteParameters.size(); i++)
 				{
 					if(symbol.isExactSameType(genericParameters.get(i)))
 					{
-						//System.out.println("Generic [" + genericParameters.get(i) + "] Concrete [" + concreteParameters.get(i) + "]");
 						appropriateParams.add(concreteParameters.get(i));
 					}
 				}
 			}
 			else
 			{
-				//System.out.println("Will just add [" + symbol + "]");
 				appropriateParams.add(symbol);
 			}
 		});

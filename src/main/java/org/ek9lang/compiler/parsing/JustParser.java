@@ -35,7 +35,6 @@ public class JustParser
 			}
 			try(InputStream inputStream = new FileInputStream(sourceFile))
 			{
-				//EK9Lexer lex = new ExperimentalEK9Lexer(CharStreams.fromStream(inputStream));
 				EK9Lexer lex = new EK9Lexer(CharStreams.fromStream(inputStream), EK9Parser.INDENT, EK9Parser.DEDENT);
 				lex.setSourceName(sourceFile.getName());
 				lex.removeErrorListeners();

@@ -8,7 +8,7 @@ public abstract class Reporter
 {
 	private final boolean verbose;
 
-	public Reporter(boolean verbose)
+	protected Reporter(boolean verbose)
 	{
 		this.verbose = verbose;
 	}

@@ -18,9 +18,9 @@ public abstract class AntlrSupport
 	/**
 	 * Show the stream of tokens for the file being parsed (lexed for tokens).
 	 */
-	private static final boolean streamTokens = true;
+	private static final boolean STREAM_TOKENS = true;
 
-	public AntlrSupport(String inputFileName) throws IOException, IllegalArgumentException, SecurityException
+	protected AntlrSupport(String inputFileName) throws IOException, IllegalArgumentException, SecurityException
 	{
 		if(!new File(inputFileName).exists())
 			System.out.println("AntlrSupport cannot find file [" + inputFileName + "]");
@@ -29,7 +29,7 @@ public abstract class AntlrSupport
 
 		//This is useful to see the tokens that are being presented to the parser
 		//The parse need to type and find the right combinations to create the parse structure.
-		if(streamTokens)
+		if(STREAM_TOKENS)
 			streamLexerTokensFor(inputFileName);
 
 		TestRig testRig = makeTestRig(inputFileName);
@@ -85,7 +85,7 @@ public abstract class AntlrSupport
 					}
 
 					Charset charset = (encoding == null ? Charset.defaultCharset() : Charset.forName(encoding));
-					if(inputFiles.size() == 0)
+					if(inputFiles.isEmpty())
 					{
 						CharStream charStream = CharStreams.fromStream(System.in, charset);
 						process(lexer, parserClass, parser, charStream);

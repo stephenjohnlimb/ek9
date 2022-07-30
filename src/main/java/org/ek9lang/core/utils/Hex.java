@@ -2,7 +2,12 @@ package org.ek9lang.core.utils;
 
 public final class Hex
 {
-	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+	protected static final char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+	private Hex()
+	{
+		//Just to stop instantiation.
+	}
 
 	public static String toString(byte[] bytes)
 	{

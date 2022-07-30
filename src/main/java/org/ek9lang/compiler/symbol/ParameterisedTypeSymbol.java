@@ -3,11 +3,11 @@ package org.ek9lang.compiler.symbol;
 import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.exception.CompilerException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Given a parameterised symbol and the symbol used to use as the parameter we are in effect saying:
@@ -37,7 +37,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 
 	public ParameterisedTypeSymbol(AggregateSymbol parameterisableSymbol, Optional<ISymbol> parameterSymbol, IScope enclosingScope)
 	{
-		this(parameterisableSymbol, parameterSymbol.stream().collect(Collectors.toList()), enclosingScope);
+		this(parameterisableSymbol, parameterSymbol.stream().toList(), enclosingScope);
 	}
 
 	private ParameterisedTypeSymbol(AggregateSymbol parameterisableSymbol, IScope enclosingScope)
@@ -109,7 +109,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 		var numberOfAvailableGenericParameters = this.parameterisableSymbol.getAnyGenericParameters().size();
 
 		if(numberOfParameters != numberOfAvailableGenericParameters)
-			throw new RuntimeException("Compiler error mismatch in number of parameters");
+			throw new CompilerException("Compiler error mismatch in number of parameters");
 		super.setName(CommonParameterisedTypeDetails.getInternalNameFor(parameterisableSymbol, parameterSymbols));
 	}
 
@@ -128,10 +128,9 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 			if(!result.wasResolved && result.symbol.isPresent())
 			{
 				ISymbol s = result.symbol.get();
-				//System.out.println("Return Type [" + result.symbol.get() + "] did not exist needs creating");
 				global.define(s);
-				if(s instanceof ParameterisedTypeSymbol)
-					((ParameterisedTypeSymbol)s).establishDependentParameterisedTypes(global);
+				if(s instanceof ParameterisedTypeSymbol ps)
+					ps.establishDependentParameterisedTypes(global);
 			}
 			if(symbol.isAMethod())
 			{
@@ -141,10 +140,9 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 					if(!paramResult.wasResolved && paramResult.symbol.isPresent())
 					{
 						ISymbol s = paramResult.symbol.get();
-						//System.out.println("Param Type [" + s.getFriendlyName() + "] did not exist needs creating");
 						global.define(s);
-						if(s instanceof ParameterisedTypeSymbol)
-							((ParameterisedTypeSymbol)s).establishDependentParameterisedTypes(global);
+						if(s instanceof ParameterisedTypeSymbol ps)
+							ps.establishDependentParameterisedTypes(global);
 					}
 				});
 			}
@@ -197,7 +195,6 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 		{
 			Optional<ISymbol> fromType = willClone.getType();
 			Optional<ISymbol> newType = resolveWithNewType(fromType).symbol;
-			//System.out.println("variable type from [" + fromType.get() + "] to [" + newType.get() + "]"); 
 			VariableSymbol rtn = willClone.clone(null);
 			rtn.setType(newType);
 			//So mimic the location of the source
@@ -231,7 +228,6 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 			for(ISymbol symbol : willClone.getSymbolsForThisScope())
 			{
 				ISymbol clonedParam = cloneSymbolWithNewType(symbol);
-				//System.out.println("Cloning of method [" + willClone.getName() + "] [" + symbol + "] - [" + clonedParam + "]");
 				rtn.define(clonedParam);
 			}
 
@@ -242,11 +238,10 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 				ISymbol replacementSymbol = cloneSymbolWithNewType(rtnSymbol);
 				rtn.setReturningSymbol(replacementSymbol);
 			}
-			//System.out.println("Method cloned [" + rtn + "] [" + rtn.getName() + "] constructor [" + rtn.isConstructor() + "]");
 
 			return rtn;
 		}
-		throw new RuntimeException("We can only clone variables and methods in generic type templates not [" + toClone + "]");
+		throw new CompilerException("We can only clone variables and methods in generic type templates not [" + toClone + "]");
 	}
 
 	/**
@@ -257,7 +252,6 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 	 */
 	private ResolutionResult resolveWithNewType(Optional<ISymbol> typeToResolve)
 	{
-		//System.out.println("resolveWithNewType [" + typeToResolve.get() + "]");
 		if(typeToResolve.isPresent() && typeToResolve.get() instanceof IAggregateSymbol)
 		{
 			AggregateSymbol aggregate = (AggregateSymbol)typeToResolve.get();
@@ -276,7 +270,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 					{
 						//Just for debug.
 						getIndexOfType(Optional.of(symbol));
-						throw new RuntimeException("Unable to find symbol [" + symbol + "] in [" + aggregate + "] in [" + this + "]");
+						throw new CompilerException("Unable to find symbol [" + symbol + "] in [" + aggregate + "] in [" + this + "]");
 					}
 					ISymbol resolvedSymbol = parameterSymbols.get(index);
 					lookupParameterSymbols.add(resolvedSymbol);
@@ -290,7 +284,6 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 				//So if not resolved then make one.
 				if(!rtn.wasResolved)
 					rtn.symbol = Optional.of(new ParameterisedTypeSymbol(aggregate, lookupParameterSymbols, this.getEnclosingScope()));
-				//System.out.println("Looking for [" + parameterisedTypeSymbolName + "] resolved is [" + resolvedSymbol.isPresent() + "]");
 
 				return rtn;
 			}
@@ -311,7 +304,6 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 				//But it might be a List of T or a real List of Integer for example.
 
 				//So the thing we are to clone it itself a generic aggregate.
-				//System.out.println("Need to Clone a generic aggregate [" + aggregate + "]");
 				List<ISymbol> lookupParameterSymbols = new ArrayList<>();
 				//Now it may really be a concrete one, or it too could be something like a List of P
 
@@ -322,9 +314,8 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 					{
 						int index = getIndexOfType(Optional.of(symbol));
 						if(index < 0)
-						{
-							throw new RuntimeException("Unable to find symbol [" + symbol + "]");
-						}
+							throw new CompilerException("Unable to find symbol [" + symbol + "]");
+
 						ISymbol resolvedSymbol = parameterSymbols.get(index);
 						lookupParameterSymbols.add(resolvedSymbol);
 					}

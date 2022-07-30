@@ -47,7 +47,6 @@ public class EK9LanguageServer extends EK9Service implements LanguageServer, Lan
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params)
 	{
-		//System.err.println("initialize [" + params.toString() + "]");
 		final InitializeResult initializeResult = new InitializeResult(new ServerCapabilities());
 
 		List<WorkspaceFolder> folders = params.getWorkspaceFolders();
@@ -55,12 +54,10 @@ public class EK9LanguageServer extends EK9Service implements LanguageServer, Lan
 			folders.forEach(folder -> {
 				Path path = getPath(folder.getUri());
 
-				//System.err.println("Folder: " + path.toString());
 
 				Glob searchCondition = new Glob("**.ek9");
 				List<File> fileList = osSupport.getFilesRecursivelyFrom(path.toFile(), searchCondition);
 				fileList.forEach(file -> {
-					//System.err.println("File [" + file.toPath().toString() + "]");
 					//TODO use thread pool to process these files in terms of parsing concurrently.
 					try
 					{

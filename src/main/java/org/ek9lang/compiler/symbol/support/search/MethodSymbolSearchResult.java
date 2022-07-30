@@ -103,11 +103,9 @@ public class MethodSymbolSearchResult
 			{
 				MethodSymbol methodSymbol = newResult.getMethodSymbol();
 				//You need to get this the right way around in terms of checking params and compatible return types.
-				//System.out.println("Sig check for [" + newResult + "] against [" + result + "]");
 				if(!methodSymbol.isSignatureMatchTo(result.getMethodSymbol()))
 				{
 					//So not a signature match then just add in result
-					//System.out.println("NO Signature match for " + result.getMethodSymbol().getName());
 					buildResult.add(result);
 				}
 				else
@@ -129,13 +127,6 @@ public class MethodSymbolSearchResult
 		}
 
 		return buildResult;
-	}
-
-	public Optional<MethodSymbol> getSingleBestMatchMethodSymbol()
-	{
-		if(isSingleBestMatchPresent())
-			return Optional.of(results.get(0).getMethodSymbol());
-		return Optional.empty();
 	}
 
 	public Optional<ISymbol> getSingleBestMatchSymbol()
@@ -164,7 +155,7 @@ public class MethodSymbolSearchResult
 				double secondWeight = results.get(1).getWeight();
 
 				//are these two within a tolerance of each other - if so ambiguous.
-				return !(Math.abs(firstWeight - secondWeight) < 0.001);
+				return Math.abs(firstWeight - secondWeight) >= 0.001;
 				//No one is better than the other.
 			}
 			//yes we have one best match.
@@ -182,25 +173,23 @@ public class MethodSymbolSearchResult
 	public String getAmbiguousMethodParameters()
 	{
 		StringBuilder buffer = new StringBuilder();
-		if(!isEmpty())
+
+		if(results.size() > 1)
 		{
-			if(results.size() > 1)
+			ISymbol s = results.get(0).getMethodSymbol();
+			buffer.append(s.toString()).append(" line ").append(s.getSourceToken().getLine());
+			//need to check first and second to see if weight is same.
+			double firstWeight = results.get(0).getWeight();
+			for(int i = 1; i < results.size(); i++)
 			{
-				ISymbol s = results.get(0).getMethodSymbol();
-				buffer.append(s.toString()).append(" line ").append(s.getSourceToken().getLine());
-				//need to check first and second to see if weight is same.
-				double firstWeight = results.get(0).getWeight();
-				for(int i = 1; i < results.size(); i++)
+				if(Math.abs(firstWeight - results.get(i).getWeight()) < 0.001)
 				{
-					if(Math.abs(firstWeight - results.get(i).getWeight()) < 0.001)
-					{
-						s = results.get(i).getMethodSymbol();
-						buffer.append(" , ");
-						buffer.append(s.toString()).append(" line ").append(s.getSourceToken().getLine());
-					}
-					else
-						break;
+					s = results.get(i).getMethodSymbol();
+					buffer.append(" , ");
+					buffer.append(s.toString()).append(" line ").append(s.getSourceToken().getLine());
 				}
+				else
+					break;
 			}
 		}
 

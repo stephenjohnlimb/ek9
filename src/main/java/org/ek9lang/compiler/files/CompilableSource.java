@@ -9,6 +9,7 @@ import org.ek9lang.compiler.tokenizer.EK9Lexer;
 import org.ek9lang.compiler.tokenizer.TokenConsumptionListener;
 import org.ek9lang.compiler.tokenizer.TokenResult;
 import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.exception.CompilerException;
 import org.ek9lang.core.utils.Digest;
 
 import java.io.File;
@@ -101,6 +102,7 @@ public class CompilableSource implements Source, TokenConsumptionListener
 		return compilationUnitContext;
 	}
 
+	@Override
 	public boolean isDev()
 	{
 		return dev;
@@ -112,6 +114,7 @@ public class CompilableSource implements Source, TokenConsumptionListener
 		return this;
 	}
 
+	@Override
 	public boolean isLib()
 	{
 		return lib;
@@ -185,8 +188,8 @@ public class CompilableSource implements Source, TokenConsumptionListener
 	{
 		if(obj == this)
 			return true;
-		if(obj instanceof CompilableSource)
-			return ((CompilableSource)obj).filename.equals(filename);
+		if(obj instanceof CompilableSource cs)
+			return cs.filename.equals(filename);
 
 		return false;
 	}
@@ -210,7 +213,7 @@ public class CompilableSource implements Source, TokenConsumptionListener
 		}
 		catch(Exception ex)
 		{
-			throw new RuntimeException("Unable to parse file " + filename, ex);
+			throw new CompilerException("Unable to parse file " + filename, ex);
 		}
 	}
 
@@ -222,19 +225,18 @@ public class CompilableSource implements Source, TokenConsumptionListener
 			compilationUnitContext = parser.compilationUnit();
 			return compilationUnitContext;
 		}
-		throw new RuntimeException("Need to call prepareToParse before accessing compilation unit");
+		throw new CompilerException("Need to call prepareToParse before accessing compilation unit");
 	}
 
 	private void setErrorListener(ErrorListener listener)
 	{
-		//System.out.println("Source set error listener [" + this.getFileName() + "]");
 		this.errorListener = listener;
 	}
 
 	public ErrorListener getErrorListener()
 	{
 		if(this.errorListener == null)
-			throw new RuntimeException("Need to call prepareToParse before accessing compilation unit and getting errors");
+			throw new CompilerException("Need to call prepareToParse before accessing compilation unit and getting errors");
 
 		return this.errorListener;
 	}
@@ -247,7 +249,7 @@ public class CompilableSource implements Source, TokenConsumptionListener
 		}
 		catch(Exception ex)
 		{
-			throw new RuntimeException("Unable to open file " + filename);
+			throw new CompilerException("Unable to open file " + filename, ex);
 		}
 	}
 

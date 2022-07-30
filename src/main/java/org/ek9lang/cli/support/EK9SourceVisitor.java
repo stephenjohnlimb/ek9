@@ -214,7 +214,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 	{
 		if(ive.expression() != null && ive.expression().primary() != null)
 		{
-			description = getTextFromRuleContext(ive.expression()).replaceAll("\"", "");
+			description = getTextFromRuleContext(ive.expression()).replace("\"", "");
 			foundDescription = true;
 		}
 		else
@@ -226,7 +226,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 	private void processLicense(EK9Parser.AssignmentExpressionContext ive)
 	{
 		if(ive.expression() != null && ive.expression().primary() != null)
-			license = getTextFromRuleContext(ive.expression()).replaceAll("\"", "");
+			license = getTextFromRuleContext(ive.expression()).replace("\"", "");
 		else
 			errorListener.semanticError(ive.expression().start, "In '" + moduleName + "' package: 'license' property must be a String type.", SemanticClassification.PARAMETER_MISMATCH);
 	}
@@ -307,8 +307,8 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 				.expression()
 				.stream()
 				.map(this::getTextFromRuleContext)
-				.map(value -> value.replaceAll("\"", ""))
-				.collect(Collectors.toList());
+				.map(value -> value.replace("\"", ""))
+				.toList();
 	}
 
 	private Map<String, String> extractMapFromDict(EK9Parser.DictContext ctx)
@@ -327,7 +327,7 @@ public class EK9SourceVisitor extends EK9BaseVisitor<Void>
 
 	private String getUnQuotedTextFromRuleContext(RuleContext ctx)
 	{
-		return ctx.getText().trim().replaceAll("\"", "");
+		return ctx.getText().trim().replace("\"", "");
 	}
 
 	private String getTextFromRuleContext(RuleContext ctx)

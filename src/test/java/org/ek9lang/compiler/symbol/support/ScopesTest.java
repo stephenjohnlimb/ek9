@@ -12,10 +12,10 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * Does not fully test aggregates and the like, just their scoped type natures.
  */
-public class ScopesTest extends AbstractSymbolTestBase
+class ScopesTest extends AbstractSymbolTestBase
 {
 	@Test
-	public void testLocalScope()
+	void testLocalScope()
 	{
 		var local = new LocalScope(symbolTable);
 
@@ -27,7 +27,7 @@ public class ScopesTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testNamedScope()
+	void testNamedScope()
 	{
 		//It's not really an aggregate scope but let;s test that type of setting.
 		VariableSymbol v1 = new VariableSymbol("v3", symbolTable.resolve(new TypeSymbolSearch("Integer")));
@@ -46,7 +46,7 @@ public class ScopesTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testFindingAggregateScope()
+	void testFindingAggregateScope()
 	{
 		var aggregateScope1 = new ScopedSymbol(IScope.ScopeType.AGGREGATE, "aggregateScope", symbolTable);
 		assertFalse(aggregateScope1.isMarkedPure());
@@ -67,21 +67,21 @@ public class ScopesTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testAggregateSymbolScope()
+	void testAggregateSymbolScope()
 	{
 		//So this would be an actual 'type' like an OOP 'Customer' for example
 		assertNotNull(checkScopedSymbol(new AggregateSymbol("aggregate", symbolTable)));
 	}
 
 	@Test
-	public void testAggregateWithTraitsSymbolScope()
+	void testAggregateWithTraitsSymbolScope()
 	{
 		//This would be an aggregate that implements a number of traits.
 		assertNotNull(checkScopedSymbol(new AggregateWithTraitsSymbol("aggregateWithTraits", symbolTable)));
 	}
 
 	@Test
-	public void testParameterisedTypeSymbolScope()
+	void testParameterisedTypeSymbolScope()
 	{
 		var t = support.createGenericT("Tee", symbolTable);
 		var z = support.createTemplateGenericType("Zee", symbolTable, t);
@@ -96,7 +96,7 @@ public class ScopesTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testParameterisedFunctionSymbolScope()
+	void testParameterisedFunctionSymbolScope()
 	{
 		var t = support.createGenericT("Tee", symbolTable);
 		var fun = support.createTemplateGenericFunction("fun", symbolTable, t);
@@ -122,61 +122,61 @@ public class ScopesTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testControlSymbolScope()
+	void testControlSymbolScope()
 	{
 		assertNotNull(checkScopedSymbol(new ControlSymbol("Control", symbolTable)));
 	}
 
 	@Test
-	public void testScopedSymbolScope()
+	void testScopedSymbolScope()
 	{
 		assertNotNull(checkScopedSymbol(new ScopedSymbol(IScope.ScopeType.AGGREGATE, "aggregateScope", symbolTable)));
 	}
 
 	@Test
-	public void testForSymbolScope()
+	void testForSymbolScope()
 	{
 		assertNotNull(checkScopedSymbol(new ForSymbol(symbolTable)));
 	}
 
 	@Test
-	public void testMethodSymbolScope()
+	void testMethodSymbolScope()
 	{
 		assertNotNull(checkScopedSymbol(new MethodSymbol("aMethod", symbolTable)));
 	}
 
 	@Test
-	public void testFunctionSymbolScope()
+	void testFunctionSymbolScope()
 	{
 		assertNotNull(checkScopedSymbol(new FunctionSymbol("aFunction", symbolTable)));
 	}
 
 	@Test
-	public void testCallSymbolScope()
+	void testCallSymbolScope()
 	{
 		assertNotNull(checkScopedSymbol(new CallSymbol("aMethodCall", symbolTable)));
 	}
 
 	@Test
-	public void testServiceOperationSymbolScope()
+	void testServiceOperationSymbolScope()
 	{
 		assertNotNull(checkScopedSymbol(new ServiceOperationSymbol("aServiceOperationCall", symbolTable)));
 	}
 
 	@Test
-	public void testStreamCallSymbolScope()
+	void testStreamCallSymbolScope()
 	{
 		assertNotNull(checkScopedSymbol(new StreamCallSymbol("aStreamCall", symbolTable)));
 	}
 
 	@Test
-	public void testSwitchSymbolScope()
+	void testSwitchSymbolScope()
 	{
 		assertNotNull(checkScopedSymbol(new SwitchSymbol(symbolTable)));
 	}
 
 	@Test
-	public void testTrySymbolScope()
+	void testTrySymbolScope()
 	{
 		assertNotNull(checkScopedSymbol(new TrySymbol(symbolTable)));
 	}

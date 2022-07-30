@@ -1,6 +1,7 @@
 package org.ek9lang.cli;
 
 import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.core.exception.CompilerException;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -17,7 +18,7 @@ import java.util.regex.Pattern;
  */
 public abstract class Eve extends E
 {
-	public Eve(CommandLineDetails commandLine, FileCache sourceFileCache)
+	protected Eve(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
 		super(commandLine, sourceFileCache);
 	}
@@ -47,9 +48,9 @@ public abstract class Eve extends E
 				return true;
 			}
 		}
-		catch(Throwable th)
+		catch(Exception ex)
 		{
-			report("Failed to set version in  " + commandLine.getFullPathToSourceFileName() + " " + th.getMessage());
+			report("Failed to set version in  " + commandLine.getFullPathToSourceFileName() + " " + ex.getMessage());
 		}
 		return false;
 	}
@@ -104,9 +105,9 @@ public abstract class Eve extends E
 	 */
 	public static class Version
 	{
-		private static final String MAJOR_MINOR_PATCH = "(?<major>\\d+)(\\.)(?<minor>\\d+)(\\.)(?<patch>\\d+)";
-		private static final String FEATURE = "((-)(?<feature>[a-zA-Z]+[a-zA-Z0-9]*))";
-		private static final String BUILD_NO = "(-)(?<buildNumber>\\d+)";
+		private static final String MAJOR_MINOR_PATCH_REGEX = "(?<major>\\d+)(\\.)(?<minor>\\d+)(\\.)(?<patch>\\d+)";
+		private static final String FEATURE_REGEX = "((-)(?<feature>[a-zA-Z]+[a-zA-Z0-9]*))";
+		private static final String BUILD_NO_REGEX = "(-)(?<buildNumber>\\d+)";
 		private int major = 0;
 		private int minor = 0;
 		private int patch = 0;
@@ -126,19 +127,19 @@ public abstract class Eve extends E
 		 */
 		public static Version withNoBuildNumber(String value)
 		{
-			Matcher m = matcher("^" + MAJOR_MINOR_PATCH + FEATURE + "?$", value);
+			Matcher m = matcher("^" + MAJOR_MINOR_PATCH_REGEX + FEATURE_REGEX + "?$", value);
 			return parse(false, true, m, value);
 		}
 
 		public static Version withNoFeatureNoBuildNumber(String value)
 		{
-			Matcher m = matcher("^" + MAJOR_MINOR_PATCH + "$", value);
+			Matcher m = matcher("^" + MAJOR_MINOR_PATCH_REGEX + "$", value);
 			return parse(false, false, m, value);
 		}
 
 		public static Version withFeatureNoBuildNumber(String value)
 		{
-			Matcher m = matcher("^" + MAJOR_MINOR_PATCH + FEATURE + "$", value);
+			Matcher m = matcher("^" + MAJOR_MINOR_PATCH_REGEX + FEATURE_REGEX + "$", value);
 			return parse(false, true, m, value);
 		}
 
@@ -147,7 +148,7 @@ public abstract class Eve extends E
 		 */
 		public static Version withBuildNumber(String value)
 		{
-			Matcher m = matcher("^" + MAJOR_MINOR_PATCH + FEATURE + "?" + BUILD_NO + "$", value);
+			Matcher m = matcher("^" + MAJOR_MINOR_PATCH_REGEX + FEATURE_REGEX + "?" + BUILD_NO_REGEX + "$", value);
 			return parse(true, true, m, value);
 		}
 
@@ -159,7 +160,7 @@ public abstract class Eve extends E
 			Version rtn = new Version();
 
 			if(!m.find())
-				throw new RuntimeException("Unable to use " + value + " as a VersionNumber");
+				throw new CompilerException("Unable to use " + value + " as a VersionNumber");
 			rtn.major = Integer.parseInt(m.group("major"));
 			rtn.minor = Integer.parseInt(m.group("minor"));
 			rtn.patch = Integer.parseInt(m.group("patch"));

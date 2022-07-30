@@ -6,6 +6,7 @@ import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.services.WorkspaceService;
 import org.ek9lang.compiler.files.Workspace;
+import org.ek9lang.core.exception.CompilerException;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -42,6 +43,7 @@ public class EK9WorkspaceService extends EK9Service implements WorkspaceService
 			{
 				case Changed, Created -> reportOnCompiledSource(getWorkspace().reParseSource(getPath(fileEvent.getUri())));
 				case Deleted -> clearOldCompiledDiagnostics(getWorkspace().removeSource(getPath(fileEvent.getUri())));
+				default -> throw new CompilerException("Unknown Event Type");
 			}
 		});
 	}

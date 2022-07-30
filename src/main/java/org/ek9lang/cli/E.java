@@ -18,7 +18,7 @@ public abstract class E extends Reporter
 	private boolean debuggingInstrumentation = false;
 	private boolean devBuild = false;
 
-	public E(CommandLineDetails commandLine, FileCache sourceFileCache)
+	protected E(CommandLineDetails commandLine, FileCache sourceFileCache)
 	{
 		super(commandLine.isVerbose());
 		this.commandLine = commandLine;
@@ -68,17 +68,6 @@ public abstract class E extends Reporter
 	 * Actually run the execution.
 	 */
 	protected abstract boolean doRun();
-
-	protected void log(Object message)
-	{
-		if(commandLine.isVerbose())
-			System.err.println(messagePrefix() + message);
-	}
-
-	protected void report(Object message)
-	{
-		System.err.println(messagePrefix() + message);
-	}
 
 	public boolean isDebuggingInstrumentation()
 	{

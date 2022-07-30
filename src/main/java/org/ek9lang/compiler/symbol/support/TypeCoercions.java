@@ -25,11 +25,6 @@ public class TypeCoercions
 		return instance;
 	}
 
-	public TypeCoercions()
-	{
-
-	}
-
 	public boolean isCoercible(Optional<ISymbol> from, Optional<ISymbol> to)
 	{
 		AssertValue.checkNotNull("Coercion from cannot be null", from);

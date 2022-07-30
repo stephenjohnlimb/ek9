@@ -94,7 +94,7 @@ public class SyntheticToken implements Token
 			@Override
 			public void setTokenFactory(TokenFactory<?> factory)
 			{
-
+				//No op in a synthetic token.
 			}
 
 			@Override

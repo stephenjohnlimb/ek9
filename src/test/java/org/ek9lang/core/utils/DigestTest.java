@@ -7,13 +7,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.File;
 import java.io.IOException;
 
-public class DigestTest
+class DigestTest
 {
 	private static String testFileName = "assertTest.txt";
 	private static String sha256FileName = "assertTest.sha256";
 	
 	@BeforeEach
-	public void removeFile()
+	void removeFile()
 	{
 		File newFile = new File(System.getProperty("java.io.tmpdir"), testFileName);
 		//Remove it if already there
@@ -25,14 +25,14 @@ public class DigestTest
 	}
 
 	@Test
-	public void testNullCheckSums()
+	void testNullCheckSums()
 	{
 		Digest.CheckSum cksum = new Digest.CheckSum(new byte[1]);
 		assertFalse(cksum.equals(null));
 	}
 
 	@Test
-	public void missingFile()
+	void missingFile()
 	{
 		assertThrows(java.lang.RuntimeException.class, () -> {
 			File nonSuch = new File(System.getProperty("java.io.tmpdir"), "nonSuch.txt");
@@ -41,7 +41,7 @@ public class DigestTest
 	}
 
 	@Test
-	public void missingChecksumFile()
+	void missingChecksumFile()
 	{
 		assertThrows(java.lang.RuntimeException.class, () -> {
 		File nonSuch = new File(System.getProperty("java.io.tmpdir"), "nonSuch.txt");
@@ -51,7 +51,7 @@ public class DigestTest
 	}
 
 	@Test
-	public void quickCheck()
+	void quickCheck()
 	{
 		//checked against https://xorbin.com/tools/sha256-hash-calculator
 		String data = "The quick brown fox";
@@ -62,7 +62,7 @@ public class DigestTest
 	}
 
 	@Test
-	public void testDigestEmptyFile() throws IOException
+	void testDigestEmptyFile() throws IOException
 	{
 		File newFile = new File(System.getProperty("java.io.tmpdir"), testFileName);
 		newFile.createNewFile();
@@ -76,8 +76,7 @@ public class DigestTest
 
 		Digest.CheckSum ckSum2 = Digest.digest(newFile);
 
-		assertTrue(ckSum1.equals(ckSum1));
-		assertTrue(ckSum1.equals(ckSum2));
+		assertEquals(ckSum1, ckSum2);
 
 		//There is no content so check sum always the same
 		assertEquals("E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855", ckSum1.toString());

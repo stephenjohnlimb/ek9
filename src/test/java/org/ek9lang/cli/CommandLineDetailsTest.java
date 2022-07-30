@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * <p>
  * So if there are issues, always add another test.
  */
-public final class CommandLineDetailsTest
+final class CommandLineDetailsTest
 {
 	private final LanguageMetaData languageMetaData = new LanguageMetaData("0.0.1-0");
 	private final OsSupport osSupport = new OsSupport(true);
@@ -25,7 +25,7 @@ public final class CommandLineDetailsTest
 	private final SourceFileSupport sourceFileSupport = new SourceFileSupport(fileHandling, osSupport);
 
 	@AfterEach
-	public void tidyUp()
+	void tidyUp()
 	{
 		String testHomeDirectory = fileHandling.getUsersHomeDirectory();
 		assertNotNull(testHomeDirectory);
@@ -39,13 +39,13 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineHelpText()
+	void testCommandLineHelpText()
 	{
 		assertNotNull(CommandLineDetails.getCommandLineHelp());
 	}
 
 	@Test
-	public void testEmptyCommandLine()
+	void testEmptyCommandLine()
 	{
 		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(2, underTest.processCommandLine((String)null));
@@ -57,14 +57,14 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineVersion()
+	void testCommandLineVersion()
 	{
 		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(1, underTest.processCommandLine("-V"));
 	}
 
 	@Test
-	public void testDefaultPackageSettings()
+	void testDefaultPackageSettings()
 	{
 		String sourceName = "TCPExample.ek9";
 		//We will copy this into a working directory and process it.
@@ -82,7 +82,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testLanguageServerCommandLine()
+	void testLanguageServerCommandLine()
 	{
 		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(0, underTest.processCommandLine("-ls"));
@@ -90,7 +90,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testLanguageServerWithHoverHelpCommandLine()
+	void testLanguageServerWithHoverHelpCommandLine()
 	{
 		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(0, underTest.processCommandLine("-ls -lsh"));
@@ -99,21 +99,21 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineHelp()
+	void testCommandLineHelp()
 	{
 		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(1, underTest.processCommandLine("-h"));
 	}
 
 	@Test
-	public void testCommandLineInvalidIncrementalCompile()
+	void testCommandLineInvalidIncrementalCompile()
 	{
 		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(3, underTest.processCommandLine("-c"));
 	}
 
 	@Test
-	public void testSimulationOfSourceFileAccess()
+	void testSimulationOfSourceFileAccess()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -137,7 +137,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testHandlingEK9Package()
+	void testHandlingEK9Package()
 	{
 		String sourceName = "TCPExample.ek9";
 		//We will copy this into a working directory and process it.
@@ -154,7 +154,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineIncrementalCompile()
+	void testCommandLineIncrementalCompile()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -171,7 +171,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineIncrementalDebugCompile()
+	void testCommandLineIncrementalDebugCompile()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -187,7 +187,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineIncrementalDevCompile()
+	void testCommandLineIncrementalDevCompile()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -204,7 +204,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineFullCompile()
+	void testCommandLineFullCompile()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -219,7 +219,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineFullVerboseCompile()
+	void testCommandLineFullVerboseCompile()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -234,7 +234,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineFullDebugCompile()
+	void testCommandLineFullDebugCompile()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -251,7 +251,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineFullDevCompile()
+	void testCommandLineFullDevCompile()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -268,7 +268,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineClean()
+	void testCommandLineClean()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -281,14 +281,14 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLinePackageMissingSourceFile()
+	void testCommandLinePackageMissingSourceFile()
 	{
 		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(3, underTest.processCommandLine("-P"));
 	}
 
 	@Test
-	public void testCommandLineResolveDependencies()
+	void testCommandLineResolveDependencies()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -301,7 +301,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLinePackage()
+	void testCommandLinePackage()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -314,14 +314,14 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineInstallMissingSourceFile()
+	void testCommandLineInstallMissingSourceFile()
 	{
 		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(3, underTest.processCommandLine("-I"));
 	}
 
 	@Test
-	public void testCommandLineInstall()
+	void testCommandLineInstall()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -334,7 +334,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineGenerateKeys()
+	void testCommandLineGenerateKeys()
 	{
 		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(0, underTest.processCommandLine("-Gk"));
@@ -342,7 +342,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineGenerateKeysAdditionalSourceFile()
+	void testCommandLineGenerateKeysAdditionalSourceFile()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -353,14 +353,14 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineDeployMissingSourceFile()
+	void testCommandLineDeployMissingSourceFile()
 	{
 		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(3, underTest.processCommandLine("-D"));
 	}
 
 	@Test
-	public void testCommandLineDeploy()
+	void testCommandLineDeploy()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -373,21 +373,21 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineIncrementVersionMissingParamAndSourceFile()
+	void testCommandLineIncrementVersionMissingParamAndSourceFile()
 	{
 		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(2, underTest.processCommandLine("-IV"));
 	}
 
 	@Test
-	public void testCommandLineIncrementVersionMissingSourceFile()
+	void testCommandLineIncrementVersionMissingSourceFile()
 	{
 		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(3, underTest.processCommandLine("-IV major"));
 	}
 
 	@Test
-	public void testCommandLineIncrementVersionMissingParam()
+	void testCommandLineIncrementVersionMissingParam()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -398,7 +398,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineInvalidSetVersionParam()
+	void testCommandLineInvalidSetVersionParam()
 	{
 		assertThrows(java.lang.RuntimeException.class, () -> {
 			String sourceName = "SinglePackage.ek9";
@@ -411,7 +411,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineSetVersionParam()
+	void testCommandLineSetVersionParam()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -425,7 +425,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineInvalidSetFeatureParam()
+	void testCommandLineInvalidSetFeatureParam()
 	{
 		assertThrows(java.lang.RuntimeException.class, () -> {
 			String sourceName = "SinglePackage.ek9";
@@ -438,7 +438,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineSetFeatureVersionParam()
+	void testCommandLineSetFeatureVersionParam()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -452,21 +452,21 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLinePrintVersionMissingSourceFile()
+	void testCommandLinePrintVersionMissingSourceFile()
 	{
 		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(3, underTest.processCommandLine("-PV"));
 	}
 
 	@Test
-	public void testCommandLineTestMissingSourceFile()
+	void testCommandLineTestMissingSourceFile()
 	{
 		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(3, underTest.processCommandLine("-t"));
 	}
 
 	@Test
-	public void testCommandLineTest()
+	void testCommandLineTest()
 	{
 		String sourceName = "HelloWorld.ek9";
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
@@ -479,14 +479,14 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineDebugMissingSourceFile()
+	void testCommandLineDebugMissingSourceFile()
 	{
 		CommandLineDetails underTest = createClassUnderTest();
 		assertEquals(3, underTest.processCommandLine("-d"));
 	}
 
 	@Test
-	public void testCommandLineDebugMissingPort()
+	void testCommandLineDebugMissingPort()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -497,7 +497,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineDebug()
+	void testCommandLineDebug()
 	{
 		String sourceName = "HelloWorld.ek9";
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
@@ -510,7 +510,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineRun()
+	void testCommandLineRun()
 	{
 		String sourceName = "HelloWorld.ek9";
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
@@ -523,7 +523,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineInvalidBuildRunProgram()
+	void testCommandLineInvalidBuildRunProgram()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -535,7 +535,7 @@ public final class CommandLineDetailsTest
 
 
 	@Test
-	public void testUnspecifiedRunProgram()
+	void testUnspecifiedRunProgram()
 	{
 		String sourceName = "HelloWorlds.ek9";
 
@@ -547,7 +547,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testIncorrectRunProgram()
+	void testIncorrectRunProgram()
 	{
 		String sourceName = "HelloWorlds.ek9";
 
@@ -559,7 +559,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testRunHelloWorld()
+	void testRunHelloWorld()
 	{
 		String sourceName = "HelloWorlds.ek9";
 
@@ -571,7 +571,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testRunHelloMars()
+	void testRunHelloMars()
 	{
 		String sourceName = "HelloWorlds.ek9";
 
@@ -583,7 +583,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineConflictingBuild1()
+	void testCommandLineConflictingBuild1()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -594,7 +594,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineConflictingBuild2()
+	void testCommandLineConflictingBuild2()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -605,7 +605,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineConflictingBuild3()
+	void testCommandLineConflictingBuild3()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -616,7 +616,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineConflictingBuild4()
+	void testCommandLineConflictingBuild4()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -627,7 +627,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineConflictingBuild5()
+	void testCommandLineConflictingBuild5()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -638,7 +638,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineInvalidReleaseRunProgram()
+	void testCommandLineInvalidReleaseRunProgram()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -649,7 +649,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineRunProgram()
+	void testCommandLineRunProgram()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -660,7 +660,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineRunAsInvalidTarget()
+	void testCommandLineRunAsInvalidTarget()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -671,7 +671,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineEnvironment()
+	void testCommandLineEnvironment()
 	{
 		String sourceName = "HelloWorld.ek9";
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
@@ -685,7 +685,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineRunAsJavaTarget()
+	void testCommandLineRunAsJavaTarget()
 	{
 		String sourceName = "HelloWorld.ek9";
 		File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
@@ -700,7 +700,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLinePrintVersion()
+	void testCommandLinePrintVersion()
 	{
 		String sourceName = "SinglePackage.ek9";
 		//We will copy this into a working directory and process it.
@@ -713,7 +713,7 @@ public final class CommandLineDetailsTest
 	}
 
 	@Test
-	public void testCommandLineIncrementVersion()
+	void testCommandLineIncrementVersion()
 	{
 		assertIVParam("major");
 		assertIVParam("minor");

@@ -4,11 +4,12 @@ import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.exception.CompilerException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
 /**
  * This is typically a 'class' or an interface type where it can include the definitions of new
@@ -120,8 +121,8 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	 * is supported; so we can create the IR output.
 	 * This is typically needed if we want to use these aggregates in pipelines.
 	 * Though this will be rationalised with an iterator that just returns an iterator or one item of itself.
+	 * getOfSelfSupported = false
 	 */
-	//private boolean getOfSelfSupported = false;
 
 	/**
 	 * A simple straight forward aggregate type, like a class or record.
@@ -244,9 +245,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	 */
 	public String getAggregateDescription()
 	{
-		if(this.aggregateDescription == null)
-			return this.getFriendlyName();
-		return aggregateDescription;
+		return aggregateDescription != null ? aggregateDescription : getFriendlyName();
 	}
 
 	/**
@@ -297,6 +296,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 		this.markedAsDispatcher = markedAsDispatcher;
 	}
 
+	@Override
 	public boolean isMarkedAbstract()
 	{
 		return markedAbstract;
@@ -359,6 +359,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	/**
 	 * Parameterize this with an aggregate type
 	 */
+	@Override
 	public AggregateSymbol addParameterisedType(AggregateSymbol parameterisedType)
 	{
 		super.addParameterisedType(parameterisedType);
@@ -388,10 +389,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 		ArrayList<MethodSymbol> rtn = new ArrayList<>();
 		superAggregateScopedSymbol.ifPresent(iAggregateSymbol -> rtn.addAll(iAggregateSymbol.getAllAbstractMethods()));
 
-		for(ISymbol sym : getSymbolsForThisScope())
-			if(sym.isAMethod())
-				if(sym.isMarkedAbstract())
-					rtn.add((MethodSymbol)sym);
+		rtn.addAll(filterMethods(MethodSymbol::isMarkedAbstract));
 		return rtn;
 	}
 
@@ -403,18 +401,13 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	@Override
 	public List<ISymbol> getProperties()
 	{
-		return getSymbolsForThisScope().stream().filter(ISymbol::isAVariable).collect(Collectors.toList());
+		return getSymbolsForThisScope().stream().filter(ISymbol::isAVariable).toList();
 	}
 
 	@Override
 	public List<MethodSymbol> getConstructors()
 	{
-		ArrayList<MethodSymbol> rtn = new ArrayList<>();
-		for(ISymbol sym : getSymbolsForThisScope())
-			if(sym.isAMethod())
-				if(((MethodSymbol)sym).isConstructor())
-					rtn.add((MethodSymbol)sym);
-		return rtn;
+		return filterMethods(MethodSymbol::isConstructor);
 	}
 
 	@Override
@@ -429,18 +422,23 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 
 	public List<ISymbol> getAllPropertyFieldsInThisScopeOnly()
 	{
-		return getSymbolsForThisScope().stream().filter(sym -> !sym.isAMethod()).collect(Collectors.toList());
+		return getSymbolsForThisScope().stream().filter(sym -> !sym.isAMethod()).toList();
 	}
 
 	@Override
 	public List<MethodSymbol> getAllNonAbstractMethodsInThisScopeOnly()
 	{
-		ArrayList<MethodSymbol> rtn = new ArrayList<>();
-		for(ISymbol sym : getSymbolsForThisScope())
-			if(sym.isAMethod())
-				if(!sym.isMarkedAbstract())
-					rtn.add((MethodSymbol)sym);
-		return rtn;
+		return filterMethods(MethodSymbol::isNotMarkedAbstract);
+	}
+
+	private List<MethodSymbol> filterMethods(Predicate<MethodSymbol> predicate)
+	{
+		return getSymbolsForThisScope()
+				.parallelStream()
+				.filter(ISymbol::isAMethod)
+				.map(MethodSymbol.class::cast)
+				.filter(predicate)
+				.toList();
 	}
 
 	@Override
@@ -475,15 +473,13 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	{
 		//This has no traits but its super might.
 		List<AggregateWithTraitsSymbol> rtn = new ArrayList<>();
-		if(getSuperAggregateScopedSymbol().isPresent())
-		{
-			IAggregateSymbol theSuper = getSuperAggregateScopedSymbol().get();
+		getSuperAggregateScopedSymbol().ifPresent(theSuper -> {
 			List<AggregateWithTraitsSymbol> superTraits = theSuper.getAllTraits();
 			superTraits.forEach(trait -> {
 				if(!rtn.contains(trait))
 					rtn.add(trait);
 			});
-		}
+		});
 
 		return rtn;
 	}
@@ -505,7 +501,6 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 			return true;
 		return superAggregateScopedSymbol.map(ISymbol::isExtensionOfInjectable).orElse(false);
 	}
-
 
 	private double checkParameterisedTypesAssignable(List<ISymbol> listA, List<ISymbol> listB)
 	{
@@ -543,18 +538,16 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 				return canAssign;
 		}
 
-		if(canAssign >= 0.0)
+		if(canAssign >= 0.0 && s instanceof AggregateSymbol toCheck)
 		{
-			if(s instanceof AggregateSymbol toCheck)
-			{
-				double parameterisedWeight = checkParameterisedTypesAssignable(getParameterisedTypes(), toCheck.getParameterisedTypes());
-				canAssign += parameterisedWeight;
-			}
+			double parameterisedWeight = checkParameterisedTypesAssignable(getParameterisedTypes(), toCheck.getParameterisedTypes());
+			canAssign += parameterisedWeight;
 		}
 
 		return canAssign;
 	}
 
+	@Override
 	public double getUnCoercedAssignableWeightTo(ISymbol s)
 	{
 		double canAssign = super.getUnCoercedAssignableWeightTo(s);
@@ -569,13 +562,10 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 				return canAssign;
 		}
 
-		if(canAssign >= 0.0)
+		if(canAssign >= 0.0 && s instanceof AggregateSymbol toCheck)
 		{
-			if(s instanceof AggregateSymbol toCheck)
-			{
-				double parameterisedWeight = checkParameterisedTypesAssignable(getParameterisedTypes(), toCheck.getParameterisedTypes());
-				canAssign += parameterisedWeight;
-			}
+			double parameterisedWeight = checkParameterisedTypesAssignable(getParameterisedTypes(), toCheck.getParameterisedTypes());
+			canAssign += parameterisedWeight;
 		}
 
 		return canAssign;
@@ -610,7 +600,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 		if(this.isGenericTypeParameter() && type.isPresent())
 			this.setSuperAggregateScopedSymbol((IAggregateSymbol)type.get());
 		else if(super.getType().isPresent())
-			throw new RuntimeException("You cannot set the type of an aggregate Symbol");
+			throw new CompilerException("You cannot set the type of an aggregate Symbol");
 
 		return super.setType(type);
 	}
@@ -625,22 +615,15 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol
 	@Override
 	public MethodSymbolSearchResult resolveForAllMatchingMethods(MethodSymbolSearch search, MethodSymbolSearchResult result)
 	{
-		//System.out.println("Search '" + this.getName() + "' AggregateSymbol: " + search);
-
 		MethodSymbolSearchResult buildResult = new MethodSymbolSearchResult(result);
 		//Do supers first then do own
+		//So if we have a super then this will bee a peer of anything we already have passed in could be traits/interfaces
 		if(superAggregateScopedSymbol.isPresent())
-		{
-			//So if we have a super then this will bee a peer of anything we already have passed in could be traits/interfaces
 			buildResult = buildResult.mergePeerToNewResult(superAggregateScopedSymbol.get().resolveForAllMatchingMethods(search, new MethodSymbolSearchResult()));
-			//System.out.println(this.getName() + ": AggregateSymbol super: " + buildResult);
-		}
 
 		MethodSymbolSearchResult res = resolveForAllMatchingMethodsInThisScopeOnly(search, new MethodSymbolSearchResult());
-		//System.out.println("Res '" + this.getName() + "' AggregateSymbol: " + search + ": " + res);
 		buildResult = buildResult.overrideToNewResult(res);
 
-		//System.out.println("End Search '" + this.getName() + "' AggregateSymbol: " + search + ": " + buildResult);
 		return buildResult;
 	}
 

@@ -14,18 +14,18 @@ import static org.junit.jupiter.api.Assertions.*;
  * Test out the basic operations on the symbol table.
  * The Symbol Table is used in many contexts.
  */
-public class SymbolTableTest
+class SymbolTableTest
 {
 
 	@Test
-	public void testSearchEmptySymbolTable()
+	void testSearchEmptySymbolTable()
 	{
 		SymbolTable underTest = new SymbolTable();
 		assertNotFound(underTest);
 	}
 
 	@Test
-	public void testUnresolvedSymbolTable()
+	void testUnresolvedSymbolTable()
 	{
 		//Define some symbols - but not the ones we're going to look up.
 		SymbolTable underTest = new SymbolTable();
@@ -67,7 +67,7 @@ public class SymbolTableTest
 	}
 
 	@Test
-	public void testEncounteredExceptionToken()
+	void testEncounteredExceptionToken()
 	{
 		SymbolTable underTest = new SymbolTable();
 		assertNull(underTest.getEncounteredExceptionToken());
@@ -77,7 +77,7 @@ public class SymbolTableTest
 	}
 
 	@Test
-	public void testMethodDefinition()
+	void testMethodDefinition()
 	{
 		SymbolTable underTest = new SymbolTable();
 
@@ -88,7 +88,7 @@ public class SymbolTableTest
 	}
 
 	@Test
-	public void testCloneSymbolTable()
+	void testCloneSymbolTable()
 	{
 		SymbolTable underTest = new SymbolTable();
 
@@ -139,7 +139,7 @@ public class SymbolTableTest
 	}
 
 	@Test
-	public void testVariableDefinitionInMethod()
+	void testVariableDefinitionInMethod()
 	{
 		SymbolTable globalSymbolTable = new SymbolTable();
 		MethodSymbol method1 = new MethodSymbol("method1", globalSymbolTable);
@@ -155,7 +155,7 @@ public class SymbolTableTest
 	}
 
 	@Test
-	public void testMethodWithParameters()
+	void testMethodWithParameters()
 	{
 		SymbolTable globalSymbolTable = new SymbolTable();
 		assertEquals(IScope.ScopeType.BLOCK, globalSymbolTable.getScopeType());
@@ -193,7 +193,7 @@ public class SymbolTableTest
 	}
 
 	@Test
-	public void testMethodOverLoadedDefinition()
+	void testMethodOverLoadedDefinition()
 	{
 		SymbolTable underTest = new SymbolTable();
 
@@ -237,7 +237,7 @@ public class SymbolTableTest
 	}
 
 	@Test
-	public void testFunctionDefinition()
+	void testFunctionDefinition()
 	{
 		SymbolTable underTest = new SymbolTable();
 
@@ -279,7 +279,7 @@ public class SymbolTableTest
 	}
 
 	@Test
-	public void testDuplicateFunctionDefinition()
+	void testDuplicateFunctionDefinition()
 	{
 		assertThrows(java.lang.RuntimeException.class, () -> {
 			SymbolTable underTest = new SymbolTable();
@@ -291,7 +291,7 @@ public class SymbolTableTest
 	}
 
 	@Test
-	public void testConstantDefinition()
+	void testConstantDefinition()
 	{
 		SymbolTable underTest = new SymbolTable();
 		//We should be able to add it without saying what type it is
@@ -302,7 +302,7 @@ public class SymbolTableTest
 	}
 
 	@Test
-	public void testConstantDefinitionInvalidType()
+	void testConstantDefinitionInvalidType()
 	{
 		SymbolTable underTest = new SymbolTable();
 		//We should be able to add it without saying what type it is
@@ -314,7 +314,7 @@ public class SymbolTableTest
 	}
 
 	@Test
-	public void testConstantDefinitionValidType()
+	void testConstantDefinitionValidType()
 	{
 		SymbolTable underTest = new SymbolTable();
 		//This time give it a type.
@@ -334,7 +334,7 @@ public class SymbolTableTest
 	}
 
 	@Test
-	public void testDuplicateConstantDefinition()
+	void testDuplicateConstantDefinition()
 	{
 		assertThrows(java.lang.RuntimeException.class, () -> {
 			SymbolTable underTest = new SymbolTable();
@@ -345,7 +345,7 @@ public class SymbolTableTest
 	}
 
 	@Test
-	public void testBasicTypeDefinitionAndLookup()
+	void testBasicTypeDefinitionAndLookup()
 	{
 		SymbolTable underTest = new SymbolTable();
 		assertTrue(underTest.getScopeName().equals("global"));

@@ -15,11 +15,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * parameterised polymorphism is hard.
  * Especially templates that use templates.
  */
-public class GenericTypeTest extends AbstractSymbolTestBase
+class GenericTypeTest extends AbstractSymbolTestBase
 {
 
 	@Test
-	public void testTemplateTypeCreation()
+	void testTemplateTypeCreation()
 	{
 		var dateType = symbolTable.resolve(new TypeSymbolSearch("Date"));
 		var stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
@@ -63,7 +63,7 @@ public class GenericTypeTest extends AbstractSymbolTestBase
 	}
 
 	@Test
-	public void testMatchingListsOfTypes()
+	void testMatchingListsOfTypes()
 	{
 		var dateType = symbolTable.resolve(new TypeSymbolSearch("Date"));
 		var stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
@@ -118,7 +118,7 @@ public class GenericTypeTest extends AbstractSymbolTestBase
 	 * We've got multiple uses and reuses of generic types in here.
 	 */
 	@Test
-	public void testMultipleT()
+	void testMultipleT()
 	{
 		var dateType = symbolTable.resolve(new TypeSymbolSearch("Date"));
 		var stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
@@ -216,7 +216,7 @@ public class GenericTypeTest extends AbstractSymbolTestBase
 	 * HARD, very HARD (well for me anyway).
 	 */
 	@Test
-	public void testCommonT()
+	void testCommonT()
 	{
 		var stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
 		var integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
