@@ -51,20 +51,7 @@ class SymbolsTest extends AbstractSymbolTestBase
 	{
 		var s1 = new Symbol("v1", symbolTable.resolve(new TypeSymbolSearch("Integer")));
 
-		assertFalse(s1.isPrivate());
-		assertFalse(s1.isProtected());
-		assertTrue(s1.isPublic());
-
-		assertTrue(s1.isAVariable());
-		assertFalse(s1.isAMethod());
-		assertFalse(s1.isAType());
-		assertFalse(s1.isAControl());
-		assertFalse(s1.isAFunction());
-		assertFalse(s1.isAnApplication());
-		assertFalse(s1.isAPrimitiveType());
-		assertFalse(s1.isATemplateFunction());
-		assertFalse(s1.isAConstant());
-		assertFalse(s1.isATemplateType());
+		assertJustVariable(s1);
 
 		assertFalse(s1.isNullAllowed());
 		s1.setNullAllowed(true);
@@ -77,10 +64,6 @@ class SymbolsTest extends AbstractSymbolTestBase
 		assertFalse(s1.isReferenced());
 		s1.setReferenced(true);
 		assertTrue(s1.isReferenced());
-
-		assertFalse(s1.isAParameterisedType());
-		assertFalse(s1.isGenericInNature());
-		assertFalse(s1.isGenericTypeParameter());
 
 		assertTrue(s1.isMutable());
 		s1.setNotMutable();
@@ -619,15 +602,38 @@ class SymbolsTest extends AbstractSymbolTestBase
 
 	private void assertVariable1(VariableSymbol v)
 	{
-		assertNotNull(v.getFriendlyName());
+		assertJustVariable(v);
 		assertFalse(v.isAggregatePropertyField());
 		assertTrue(v.isMutable());
-		assertFalse(v.isIncomingParameter());
-		assertFalse(v.isPrivate());
-		assertTrue(v.isPublic());
-		assertFalse(v.isAggregatePropertyField());
-		assertFalse(v.isIncomingParameter());
-		assertFalse(v.isReturningParameter());
 		assertFalse(v.isInitialised());
+	}
+
+	private void assertJustVariable(Symbol symbol)
+	{
+		assertNotNull(symbol.getFriendlyName());
+		assertFalse(symbol.isIncomingParameter());
+		assertFalse(symbol.isAggregatePropertyField());
+		assertFalse(symbol.isIncomingParameter());
+		assertFalse(symbol.isReturningParameter());
+
+
+		assertFalse(symbol.isPrivate());
+		assertFalse(symbol.isProtected());
+		assertTrue(symbol.isPublic());
+
+		assertTrue(symbol.isAVariable());
+		assertFalse(symbol.isAMethod());
+		assertFalse(symbol.isAType());
+		assertFalse(symbol.isAControl());
+		assertFalse(symbol.isAFunction());
+		assertFalse(symbol.isAnApplication());
+		assertFalse(symbol.isAPrimitiveType());
+		assertFalse(symbol.isATemplateFunction());
+		assertFalse(symbol.isAConstant());
+		assertFalse(symbol.isATemplateType());
+		assertFalse(symbol.isAParameterisedType());
+		assertFalse(symbol.isGenericInNature());
+		assertFalse(symbol.isGenericTypeParameter());
+
 	}
 }

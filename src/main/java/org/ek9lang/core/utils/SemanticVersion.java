@@ -14,13 +14,17 @@ public final class SemanticVersion implements Comparable<SemanticVersion>
 	private int patch = 0;
 	private String feature = null;
 	private int buildNumber = 0;
+	private boolean valid = false;
+
+	private static final String MAIN_REGEX = "^(?<major>\\d+)(\\.)(?<minor>\\d+)(\\.)(?<patch>\\d+)((-)(?<feature>[a-zA-Z]+[a-zA-Z0-9]*))?";
+	private static final String FEATURE_REGEX = "(-)(?<buildNumber>\\d+)";
 
 	public static SemanticVersion of(String value)
 	{
 		SemanticVersion rtn = new SemanticVersion();
 
-		if(!rtn.parse(value))
-			return null;
+		if(!rtn.parseWithBuildNumber(value))
+			return new SemanticVersion();
 
 		return rtn;
 	}
@@ -29,17 +33,9 @@ public final class SemanticVersion implements Comparable<SemanticVersion>
 	{
 		SemanticVersion rtn = new SemanticVersion();
 
-		Pattern p = Pattern.compile("^(?<major>\\d+)(\\.)(?<minor>\\d+)(\\.)(?<patch>\\d+)((-)(?<feature>[a-zA-Z]+[a-zA-Z0-9]*))?$");
-		Matcher m = p.matcher(value);
+		if(!rtn.parseWithoutBuildNumber(value))
+			return new SemanticVersion();
 
-		if(!m.find())
-			return null;
-		rtn.major = java.lang.Integer.parseInt(m.group("major"));
-		rtn.minor = java.lang.Integer.parseInt(m.group("minor"));
-		rtn.patch = java.lang.Integer.parseInt(m.group("patch"));
-		//might not be present
-		rtn.feature = m.group("feature");
-		rtn.buildNumber = 0;
 		return rtn;
 	}
 
@@ -49,7 +45,7 @@ public final class SemanticVersion implements Comparable<SemanticVersion>
 
 	public SemanticVersion(String value)
 	{
-		parse(value);
+		parseWithBuildNumber(value);
 	}
 
 	public int major()
@@ -103,56 +99,100 @@ public final class SemanticVersion implements Comparable<SemanticVersion>
 		buildNumber++;
 	}
 
-	private boolean parse(java.lang.String value)
+	private boolean parseWithBuildNumber(String value)
 	{
-		Pattern p = Pattern.compile("^(?<major>\\d+)(\\.)(?<minor>\\d+)(\\.)(?<patch>\\d+)((-)(?<feature>[a-zA-Z]+[a-zA-Z0-9]*))?(-)(?<buildNumber>\\d+)$");
+		Pattern p = Pattern.compile(MAIN_REGEX + FEATURE_REGEX + "$");
 		Matcher m = p.matcher(value);
 
+		if(!extractMatches(m))
+			return false;
+
+		this.buildNumber = java.lang.Integer.parseInt(m.group("buildNumber"));
+		this.valid = true;
+		return true;
+	}
+
+	private boolean parseWithoutBuildNumber(String value)
+	{
+		Pattern p = Pattern.compile(MAIN_REGEX + "$");
+		Matcher m = p.matcher(value);
+		if(!extractMatches(m))
+			return false;
+
+		this.buildNumber = 0;
+		this.valid = true;
+		return true;
+	}
+
+	private boolean extractMatches(final Matcher m)
+	{
 		if(!m.find())
 			return false;
+
 		this.major = java.lang.Integer.parseInt(m.group("major"));
 		this.minor = java.lang.Integer.parseInt(m.group("minor"));
 		this.patch = java.lang.Integer.parseInt(m.group("patch"));
 		//might not be present
 		this.feature = m.group("feature");
-		this.buildNumber = java.lang.Integer.parseInt(m.group("buildNumber"));
 		return true;
 	}
 
 	@Override
-	public int compareTo(SemanticVersion value)
+	public int compareTo(SemanticVersion ver)
 	{
-		if(this.major == value.major)
+		if(this.major == ver.major)
+			return compareMinor(ver);
+		return java.lang.Integer.compare(this.major, ver.major);
+	}
+
+	private int compareMinor(SemanticVersion ver)
+	{
+		if(this.minor == ver.minor)
+			return comparePatch(ver);
+		return java.lang.Integer.compare(this.minor, ver.minor);
+	}
+
+	private int comparePatch(SemanticVersion ver)
+	{
+		if(this.patch == ver.patch)
+			return compareFeatureAndBuildNumber(ver);
+		return java.lang.Integer.compare(this.patch, ver.patch);
+	}
+
+	private int compareFeatureAndBuildNumber(SemanticVersion ver)
+	{
+		if(feature != null && ver.feature != null)
 		{
-			if(this.minor == value.minor)
-			{
-				if(this.patch == value.patch)
-				{
-					if(feature != null && value.feature != null)
-					{
-						int featureCompare = feature.compareTo(value.feature);
-						if(featureCompare == 0)
-						{
-							return java.lang.Integer.compare(this.buildNumber, value.buildNumber);
-						}
-						return featureCompare;
-					}
-					else if(feature != null)
-					{
-						//because it has a feature it is not as important as those without.
-						return -1;
-					}
-					else if(value.feature != null)
-					{
-						return 1;
-					}
-					return java.lang.Integer.compare(this.buildNumber, value.buildNumber);
-				}
-				return java.lang.Integer.compare(this.patch, value.patch);
-			}
-			return java.lang.Integer.compare(this.minor, value.minor);
+			return compareFeature(ver);
 		}
-		return java.lang.Integer.compare(this.major, value.major);
+		else if(feature != null)
+		{
+			//because it has a feature it is not as important as those without.
+			return -1;
+		}
+		else if(ver.feature != null)
+		{
+			return 1;
+		}
+		return compareBuildNumber(ver);
+	}
+
+	private int compareFeature(SemanticVersion ver)
+	{
+		int featureCompare = feature.compareTo(ver.feature);
+		if(featureCompare == 0)
+			return compareBuildNumber(ver);
+		return featureCompare;
+	}
+
+	private int compareBuildNumber(SemanticVersion ver)
+	{
+		return java.lang.Integer.compare(this.buildNumber, ver.buildNumber);
+	}
+
+	public boolean isValid()
+	{
+		return valid;
 	}
 
 	public String toString()

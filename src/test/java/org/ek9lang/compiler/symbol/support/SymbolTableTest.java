@@ -106,25 +106,25 @@ class SymbolTableTest
 		var anySymbolSearch = new AnySymbolSearch(methodName);
 		Optional<ISymbol> searchResult = underTest.resolve(anySymbolSearch);
 		assertTrue(searchResult.isPresent());
-		assertTrue(methodName.equals(searchResult.get().getName()));
+		assertEquals(methodName, searchResult.get().getName());
 
 		//Now clone search and check again!
 		underTest.resolve(anySymbolSearch.clone());
 		assertTrue(searchResult.isPresent());
-		assertTrue(methodName.equals(searchResult.get().getName()));
+		assertEquals(methodName, searchResult.get().getName());
 
 		MethodSymbolSearch methodSearch = new MethodSymbolSearch(methodName);
-		assertTrue(methodSearch.toString() != null);
+		assertNotNull(methodSearch.toString());
 		assertTrue(methodSearch.getNameAsSymbol().isPresent());
 
 		searchResult = underTest.resolve(methodSearch);
 		assertTrue(searchResult.isPresent());
-		assertTrue(methodName.equals(searchResult.get().getName()));
+		assertEquals(methodName, searchResult.get().getName());
 
 		// Now clone that search and check again
 		searchResult = underTest.resolve(methodSearch.clone());
 		assertTrue(searchResult.isPresent());
-		assertTrue(methodName.equals(searchResult.get().getName()));
+		assertEquals(methodName, searchResult.get().getName());
 
 		//Should not find as a type.
 		searchResult = underTest.resolve(new TypeSymbolSearch(methodName));
@@ -152,6 +152,7 @@ class SymbolTableTest
 		//Ok so now have a variable defined in a method in a global symbol table.
 		//Find the variable.
 		Optional<ISymbol> searchResult = method1.resolve(new AnySymbolSearch("var1").setLimitToBlocks(true));
+		assertTrue(searchResult.isPresent());
 	}
 
 	@Test
@@ -178,7 +179,7 @@ class SymbolTableTest
 		//Now find it and also fail to find it.
 		MethodSymbolSearch symbolSearch = new MethodSymbolSearch(method1);
 		assertEquals(3, symbolSearch.getParameterTypes().size());
-		assertTrue("method1(p1 as Float, p2 as Integer, p3 as String)".equals(symbolSearch.toString()));
+		assertEquals("method1(p1 as Float, p2 as Integer, p3 as String)", symbolSearch.toString());
 		Optional<ISymbol> resolvedMethod = globalSymbolTable.resolve(symbolSearch);
 		assertTrue(resolvedMethod.isPresent());
 
@@ -209,17 +210,17 @@ class SymbolTableTest
 
 		Optional<ISymbol> searchResult = underTest.resolve(new AnySymbolSearch("method1"));
 		assertTrue(searchResult.isPresent());
-		assertTrue("method1".equals(searchResult.get().getName()));
+		assertEquals("method1",searchResult.get().getName());
 
 		//Search by using a know method as a prototype for a search.
 		searchResult = underTest.resolve(new MethodSymbolSearch(method1));
 		assertTrue(searchResult.isPresent());
-		assertTrue("method1".equals(searchResult.get().getName()));
+		assertEquals("method1", searchResult.get().getName());
 
 		//Now search but looking for specific return Type.
 		searchResult = underTest.resolve(new MethodSymbolSearch("method1", floatType));
 		assertTrue(searchResult.isPresent());
-		assertTrue("method1".equals(searchResult.get().getName()));
+		assertEquals("method1", searchResult.get().getName());
 
 		//Look for same method but returning String, should fail
 		searchResult = underTest.resolve(new MethodSymbolSearch("method1", Optional.of(stringType)));
@@ -245,17 +246,17 @@ class SymbolTableTest
 		underTest.define(new FunctionSymbol("function1", underTest));
 		Optional<ISymbol> searchResult = underTest.resolve(new AnySymbolSearch("function1"));
 		assertTrue(searchResult.isPresent());
-		assertTrue("function1".equals(searchResult.get().getName()));
+		assertEquals("function1", searchResult.get().getName());
 
 		var functionSymbolSearch = new FunctionSymbolSearch("function1");
 		searchResult = underTest.resolve(functionSymbolSearch);
 		assertTrue(searchResult.isPresent());
-		assertTrue("function1".equals(searchResult.get().getName()));
+		assertEquals("function1", searchResult.get().getName());
 
 		//Clone search and try again.
 		searchResult = underTest.resolve(functionSymbolSearch.clone());
 		assertTrue(searchResult.isPresent());
-		assertTrue("function1".equals(searchResult.get().getName()));
+		assertEquals("function1", searchResult.get().getName());
 
 		//This turns the functions/aggregates into Template Generic types
 		underTest.define(new FunctionSymbol("function2", underTest).addParameterisedType(new AggregateSymbol("NoneSuch1", underTest)));
@@ -263,12 +264,12 @@ class SymbolTableTest
 		var templateFunctionSymbolSearch = new TemplateFunctionSymbolSearch("function2");
 		searchResult = underTest.resolve(templateFunctionSymbolSearch);
 		assertTrue(searchResult.isPresent());
-		assertTrue("function2".equals(searchResult.get().getName()));
+		assertEquals("function2", searchResult.get().getName());
 
 		//Clone search and try again
 		searchResult = underTest.resolve(templateFunctionSymbolSearch.clone());
 		assertTrue(searchResult.isPresent());
-		assertTrue("function2".equals(searchResult.get().getName()));
+		assertEquals("function2", searchResult.get().getName());
 
 		//Should not find as a type.
 		searchResult = underTest.resolve(new TypeSymbolSearch("function1"));
@@ -298,7 +299,7 @@ class SymbolTableTest
 		underTest.define(new ConstantSymbol("PI"));
 		Optional<ISymbol> searchResult = underTest.resolve(new AnySymbolSearch("PI"));
 		assertTrue(searchResult.isPresent());
-		assertTrue("PI".equals(searchResult.get().getName()));
+		assertEquals("PI", searchResult.get().getName());
 	}
 
 	@Test
@@ -324,13 +325,13 @@ class SymbolTableTest
 		Optional<ISymbol> searchResult = underTest.resolve(search);
 		//Now it should be found
 		assertTrue(searchResult.isPresent());
-		assertTrue("PI".equals(searchResult.get().getName()));
+		assertEquals("PI", searchResult.get().getName());
 
 		//It should also be found if we don't request a specific return type.
 		searchResult = underTest.resolve(new AnySymbolSearch("PI"));
 		//Now it should be found
 		assertTrue(searchResult.isPresent());
-		assertTrue("PI".equals(searchResult.get().getName()));
+		assertEquals("PI", searchResult.get().getName());
 	}
 
 	@Test
@@ -348,8 +349,8 @@ class SymbolTableTest
 	void testBasicTypeDefinitionAndLookup()
 	{
 		SymbolTable underTest = new SymbolTable();
-		assertTrue(underTest.getScopeName().equals("global"));
-		assertTrue("global".equals(underTest.toString()));
+		assertEquals("global", underTest.getScopeName());
+		assertEquals("global", underTest.toString());
 
 		assertFalse(underTest.resolve(new TypeSymbolSearch("Float")).isPresent());
 
@@ -361,26 +362,26 @@ class SymbolTableTest
 
 		List<ISymbol> symbols = underTest.getSymbolsForThisScope();
 		assertEquals(1, symbols.size());
-		assertTrue("Float".equals(symbols.get(0).getName()));
+		assertEquals("Float", symbols.get(0).getName());
 
 		symbols = underTest.getSymbolsForThisScopeOfCategory(ISymbol.SymbolCategory.TYPE);
 		assertEquals(1, symbols.size());
-		assertTrue("Float".equals(symbols.get(0).getName()));
+		assertEquals("Float", symbols.get(0).getName());
 
 		//Now do a type symbol search for a type we know must be there
 		Optional<ISymbol> searchResult = underTest.resolve(new TypeSymbolSearch("Float"));
 		assertTrue(searchResult.isPresent());
-		assertTrue("Float".equals(searchResult.get().getName()));
+		assertEquals("Float", searchResult.get().getName());
 
 		//Now search via fully qualified name
 		searchResult = underTest.resolve(new TypeSymbolSearch("global::Float"));
 		assertTrue(searchResult.isPresent());
-		assertTrue("Float".equals(searchResult.get().getName()));
+		assertEquals("Float", searchResult.get().getName());
 
 		//Now search via any search.
 		searchResult = underTest.resolve(new AnySymbolSearch("Float"));
 		assertTrue(searchResult.isPresent());
-		assertTrue("Float".equals(searchResult.get().getName()));
+		assertEquals("Float", searchResult.get().getName());
 
 		//Now do a type symbol search for a type we know can't be there
 		var typeSymbolSearch = new TypeSymbolSearch("Integer");
