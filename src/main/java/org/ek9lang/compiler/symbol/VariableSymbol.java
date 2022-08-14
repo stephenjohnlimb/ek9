@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbol;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class VariableSymbol extends Symbol implements IAssignableSymbol
@@ -34,6 +35,30 @@ public class VariableSymbol extends Symbol implements IAssignableSymbol
 	{
 		super(name, type);
 		super.setGenus(SymbolGenus.VALUE);
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if(this == o)
+			return true;
+		if(o == null || getClass() != o.getClass())
+			return false;
+		if(!super.equals(o))
+			return false;
+		VariableSymbol that = (VariableSymbol)o;
+		return loopVariable == that.loopVariable
+				&& incomingParameter == that.incomingParameter
+				&& returningParameter == that.returningParameter
+				&& isPrivate == that.isPrivate
+				&& isAggregatePropertyField == that.isAggregatePropertyField
+				&& getFriendlyName().equals(that.getFriendlyName());
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(super.hashCode(), loopVariable, incomingParameter, returningParameter, isPrivate, isAggregatePropertyField);
 	}
 
 	@Override
