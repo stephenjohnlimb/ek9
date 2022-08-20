@@ -18,6 +18,7 @@ import org.ek9lang.compiler.tokenizer.Ek9Lexer;
 import org.ek9lang.compiler.tokenizer.LexerPlugin;
 import org.ek9lang.compiler.tokenizer.TokenStreamAssessment;
 import org.ek9lang.core.utils.Glob;
+import org.ek9lang.core.utils.Logger;
 import org.ek9lang.core.utils.OsSupport;
 import org.junit.jupiter.api.Test;
 
@@ -91,7 +92,7 @@ final class TestAllExamples {
         EK9Parser.CompilationUnitContext context = parser.compilationUnit();
         long after = System.currentTimeMillis();
 
-        System.out.println("Parsed " + ek9SourceFile.getName() + " in " + (after - before) +
+        Logger.log("Parsed " + ek9SourceFile.getName() + " in " + (after - before) +
             "ms. Expecting Error [" + expectError + "]");
 
         if (!expectError) {

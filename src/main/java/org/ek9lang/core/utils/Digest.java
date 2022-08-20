@@ -149,7 +149,7 @@ public final class Digest {
         String content = this + " *-\n";
         output.write(content.getBytes());
       } catch (Exception ex) {
-        System.err.println("Unable to save " + sha256File.getName() + " " + ex.getMessage());
+        Logger.error("Unable to save " + sha256File.getName() + " " + ex.getMessage());
       }
     }
 
@@ -159,7 +159,7 @@ public final class Digest {
         String firstPart = line.split(" ")[0];
         theCheckSum = Hex.toByteArray(firstPart);
       } catch (Exception ex) {
-        System.err.println("Unable to load " + sha256File.getName() + " " + ex.getMessage());
+        Logger.error("Unable to load " + sha256File.getName() + " " + ex.getMessage());
       }
     }
   }

@@ -17,7 +17,7 @@ class ScopeStackTest {
   @Test
   void testNewScopeStack() {
     ScopeStack underTest = new ScopeStack(new SymbolTable());
-    assertFalse(underTest.empty());
+    assertFalse(underTest.isEmpty());
 
     var theTop = underTest.getVeryBaseScope();
     assertNotNull(theTop);
@@ -25,24 +25,24 @@ class ScopeStackTest {
 
     assertSame(top, theTop);
     assertNotNull(top);
-    assertTrue(underTest.empty());
+    assertTrue(underTest.isEmpty());
   }
 
   @Test
   void testPushOnScopeStack() {
     ScopeStack underTest = new ScopeStack(new SymbolTable());
-    assertFalse(underTest.empty());
+    assertFalse(underTest.isEmpty());
 
     underTest.push(new LocalScope("A test", new SymbolTable()));
 
     var scope = underTest.pop();
     assertNotNull(scope);
-    assertFalse(underTest.empty());
+    assertFalse(underTest.isEmpty());
 
     var top = underTest.pop();
     assertNotNull(top);
 
-    assertTrue(underTest.empty());
+    assertTrue(underTest.isEmpty());
   }
 
 }

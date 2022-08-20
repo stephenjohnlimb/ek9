@@ -94,7 +94,7 @@ public final class FileHandling {
       Files.copy(originalPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
       return true;
     } catch (Exception ex) {
-      System.err.println("File copy failed: " + ex.getMessage());
+      Logger.error("File copy failed: " + ex.getMessage());
       return false;
     }
   }

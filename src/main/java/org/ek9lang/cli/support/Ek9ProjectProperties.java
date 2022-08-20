@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Properties;
+import org.ek9lang.core.utils.Logger;
 
 /**
  * Designed only to be used on the front end of the compiler to access
@@ -47,7 +48,7 @@ public class Ek9ProjectProperties {
       properties.load(reader);
       return properties;
     } catch (Exception ex) {
-      System.err.println("Unable to load properties " + file.getName() + " " + ex.getMessage());
+      Logger.error("Unable to load properties " + file.getName() + " " + ex.getMessage());
       System.exit(3);
     }
     //Can't get here because of exit.
@@ -61,7 +62,7 @@ public class Ek9ProjectProperties {
     try (OutputStream output = new FileOutputStream(file)) {
       properties.store(output, "Package Properties");
     } catch (Exception ex) {
-      System.err.println("Unable to save properties " + file.getName() + " " + ex.getMessage());
+      Logger.error("Unable to save properties " + file.getName() + " " + ex.getMessage());
       System.exit(3);
     }
   }

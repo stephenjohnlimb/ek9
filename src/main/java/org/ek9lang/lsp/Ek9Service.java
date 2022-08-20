@@ -14,6 +14,7 @@ import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.ek9lang.compiler.files.CompilableSource;
 import org.ek9lang.compiler.files.Workspace;
 import org.ek9lang.compiler.tokenizer.TokenResult;
+import org.ek9lang.core.utils.Logger;
 
 /**
  * Base service for EK9 language compilation.
@@ -74,7 +75,7 @@ public abstract class Ek9Service {
   }
 
   protected void reportOnCompiledSource(CompilableSource compilableSource) {
-    System.err.println("Reporting on " + compilableSource.getFileName());
+    Logger.error("Reporting on " + compilableSource.getFileName());
 
     clearOldCompiledDiagnostics(compilableSource);
     PublishDiagnosticsParams sourceDiagnostics =

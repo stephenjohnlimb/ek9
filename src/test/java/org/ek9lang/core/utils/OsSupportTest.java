@@ -138,7 +138,7 @@ class OsSupportTest {
     //only three because some directories are empty and only three files have suffix ".file"
     assertEquals(3, sourceFiles.size());
 
-    sourceFiles.forEach(dir -> System.out.println("File [" + dir.getPath() + "]"));
+    sourceFiles.forEach(dir -> Logger.log("File [" + dir.getPath() + "]"));
   }
 
   @Test
@@ -151,7 +151,7 @@ class OsSupportTest {
     Collection<File> subdirectories = underTest.getAllSubdirectories(testPath);
     assertEquals(6, subdirectories.size());
 
-    subdirectories.forEach(dir -> System.out.println("Directory [" + dir.getPath() + "]"));
+    subdirectories.forEach(dir -> Logger.log("Directory [" + dir.getPath() + "]"));
   }
 
   @Test

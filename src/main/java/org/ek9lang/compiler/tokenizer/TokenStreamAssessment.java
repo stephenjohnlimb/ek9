@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.core.metrics.Ari;
+import org.ek9lang.core.utils.Logger;
 
 /**
  * But also to aid in listing out tokens so that when building grammars out of tokens
@@ -23,7 +24,7 @@ public class TokenStreamAssessment {
    */
   public String assess(LexerPlugin lexer, boolean printTokens) {
     if (printTokens) {
-      System.out.println("\n[TOKENS]");
+      Logger.log("\n[TOKENS]");
     }
     return doAssessment(lexer, printTokens);
   }
@@ -39,7 +40,7 @@ public class TokenStreamAssessment {
       final String symbolicContent =
           getSymbolicContent(lexer.getSymbolicName(t.getType()), literalContent);
       if (printTokens) {
-        System.out.printf("  %-20s '%s'%n", symbolicContent, literalContent);
+        Logger.logf("  %-20s '%s'%n", symbolicContent, literalContent);
       }
 
       doAssessTokenContent(symbolicContent, literalContent, counters);
@@ -80,7 +81,7 @@ public class TokenStreamAssessment {
         new Ari().getScore(counters.numLetters, counters.numWords,
             counters.numIndents, counters.numNewLines);
     if (printTokens) {
-      System.out.println("Readability [" + readability + "]");
+      Logger.log("Readability [" + readability + "]");
     }
     return readability;
   }

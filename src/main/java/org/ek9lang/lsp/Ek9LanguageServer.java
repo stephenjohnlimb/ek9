@@ -14,6 +14,7 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.ek9lang.core.utils.Glob;
+import org.ek9lang.core.utils.Logger;
 import org.ek9lang.core.utils.OsSupport;
 
 /**
@@ -65,7 +66,7 @@ public class Ek9LanguageServer extends Ek9Service implements LanguageServer, Lan
             getWorkspace().reParseSource(file.toPath());
             reportOnCompiledSource(getWorkspace().getSource(file.toPath()));
           } catch (RuntimeException rex) {
-            System.err.println("Failed to load and parse " + file.toString());
+            Logger.error("Failed to load and parse " + file.toString());
           }
         });
       });

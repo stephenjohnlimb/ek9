@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.ek9lang.cli.support.DependencyNodeFactory;
 import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.core.utils.Logger;
 import org.ek9lang.dependency.DependencyManager;
 import org.ek9lang.dependency.DependencyNode;
 
@@ -139,8 +140,9 @@ public class Edp extends E {
       return;
     }
 
-    System.err.print(messagePrefix() + application);
-    list.stream().map(node -> " '" + node + "'").forEach(System.err::print);
-    System.err.println(".");
+    var builder = new StringBuilder(messagePrefix()).append(application);
+    list.stream().map(node -> " '" + node + "'").forEach(builder::append);
+    builder.append(".");
+    Logger.error(builder);
   }
 }

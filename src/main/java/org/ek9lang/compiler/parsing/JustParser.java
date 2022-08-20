@@ -10,6 +10,7 @@ import org.ek9lang.antlr.EK9Parser.CompilationUnitContext;
 import org.ek9lang.cli.support.Ek9SourceVisitor;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.tokenizer.Ek9Lexer;
+import org.ek9lang.core.utils.Logger;
 import org.ek9lang.core.utils.OsSupport;
 
 
@@ -28,7 +29,7 @@ public class JustParser {
   public boolean readSourceFile(File sourceFile, Ek9SourceVisitor visitor) {
     try {
       if (!osSupport.isFileReadable(sourceFile)) {
-        System.err.println("File [" + sourceFile.getName() + "] os not readable");
+        Logger.error("File [" + sourceFile.getName() + "] os not readable");
         return false;
       }
       try (InputStream inputStream = new FileInputStream(sourceFile)) {
@@ -45,12 +46,12 @@ public class JustParser {
 
         CompilationUnitContext context = parser.compilationUnit();
         if (errorListener.hasErrors()) {
-          errorListener.getErrors().forEachRemaining(System.err::println);
+          errorListener.getErrors().forEachRemaining(Logger::error);
           return false;
         }
         visitor.visit(context, errorListener);
         if (errorListener.hasErrors()) {
-          errorListener.getErrors().forEachRemaining(System.err::println);
+          errorListener.getErrors().forEachRemaining(Logger::error);
           return false;
         }
         return true;

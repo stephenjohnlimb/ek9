@@ -5,6 +5,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Lexer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.tokenizer.Ek9Lexer;
+import org.ek9lang.core.utils.Logger;
 
 /**
  * Support for the EK9 language based on antlr GUI.
@@ -21,7 +22,7 @@ public class Ek9Support extends AntlrSupport {
   public static void main(String... args)
       throws IOException, IllegalArgumentException, SecurityException {
     if (args.length != 1) {
-      System.out.println("Expect a single argument of the ek9 source file to process");
+      Logger.log("Expect a single argument of the ek9 source file to process");
     } else {
       new Ek9Support(args[0]);
     }

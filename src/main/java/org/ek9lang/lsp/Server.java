@@ -2,9 +2,14 @@ package org.ek9lang.lsp;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+import org.eclipse.lsp4j.jsonrpc.Launcher;
+import org.eclipse.lsp4j.launch.LSPLauncher;
+import org.eclipse.lsp4j.services.LanguageClient;
 
 /**
  * EK9 LSP server launcher. You can run from main below, but it is designed to work with
@@ -18,40 +23,38 @@ public class Server {
   /**
    * Main entry point to start and run the language server.
    */
-  public static void main(String[] args) {
-    try {
-      runEk9LanguageServer(System.in, System.out, true);
-    } catch (Exception ex) {
-      System.err.println("Failed to Start Language Server");
-    }
+  @SuppressWarnings("java:S106")
+  public static void main(String[] args)
+      throws ExecutionException, InterruptedException {
+    runEk9LanguageServer(System.in, System.out, true);
   }
 
   /**
    * Triggers the actual execution of the language service.
    */
   public static void runEk9LanguageServer(InputStream in, OutputStream out,
-                                          boolean provideLanguageHoverHelp) {
+                                          boolean provideLanguageHoverHelp)
+      throws ExecutionException, InterruptedException {
     //Switch off any logging as we are using stdin/stdout for protocol exchange
     LogManager.getLogManager().reset();
     Logger globalLogger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     globalLogger.setLevel(Level.OFF);
 
     //Ready for document and workspace processing.
-    /*
-    EK9LanguageServer languageServer = new EK9LanguageServer();
+
+    Ek9LanguageServer languageServer = new Ek9LanguageServer();
     languageServer.getCompilerConfig().setProvideLanguageHoverHelp(provideLanguageHoverHelp);
-      Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(languageServer, in, out);
+    Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(languageServer, in, out);
 
-      LanguageClient client = launcher.getRemoteProxy();
+    LanguageClient client = launcher.getRemoteProxy();
 
-      languageServer.connect(client);
+    languageServer.connect(client);
 
-      Future<?> startListening = launcher.startListening();
+    Future<?> startListening = launcher.startListening();
 
-      //Basically this will cause the to keep listening until it get the shutdown call
-      //Then the server will issue System.exit.
-      System.err.println("EK9 Language Server Listening");
-      startListening.get();
-      */
+    //Basically this will cause the to keep listening until it get the shutdown call
+    //Then the server will issue System.exit.
+    org.ek9lang.core.utils.Logger.error("EK9 Language Server Listening");
+    startListening.get();
   }
 }

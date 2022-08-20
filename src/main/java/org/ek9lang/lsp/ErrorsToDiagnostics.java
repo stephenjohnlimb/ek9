@@ -10,6 +10,7 @@ import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.files.CompilableSource;
+import org.ek9lang.core.utils.Logger;
 
 /**
  * Convert ErrorListener warnings and errors to LSP Diagnostics.
@@ -47,7 +48,7 @@ public class ErrorsToDiagnostics {
 
     rtn.setDiagnostics(diagnostics);
 
-    System.err.println(
+    Logger.error(
         "Our URI [" + compilableSource.getGeneralIdentifier() + "] "
             + diagnostics.size() + " diagnostics");
     return rtn;

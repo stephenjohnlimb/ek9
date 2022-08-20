@@ -15,6 +15,7 @@ import org.antlr.v4.runtime.TokenStream;
 import org.ek9lang.compiler.tokenizer.DelegatingLexer;
 import org.ek9lang.compiler.tokenizer.LexerPlugin;
 import org.ek9lang.compiler.tokenizer.TokenStreamAssessment;
+import org.ek9lang.core.utils.Logger;
 
 /**
  * Support of Antlr.
@@ -29,9 +30,9 @@ public abstract class AntlrSupport {
   protected AntlrSupport(String inputFileName)
       throws IOException, IllegalArgumentException, SecurityException {
     if (!new File(inputFileName).exists()) {
-      System.out.println("AntlrSupport cannot find file [" + inputFileName + "]");
+      Logger.log("AntlrSupport cannot find file [" + inputFileName + "]");
     } else {
-      System.out.println("AntlrSupport for EK9");
+      Logger.log("AntlrSupport for EK9");
     }
 
     //This is useful to see the tokens that are being presented to the parser
@@ -64,7 +65,7 @@ public abstract class AntlrSupport {
   private TestRig makeTestRig(String inputFileName) {
     String grammarName = getGrammarName();
     String[] params = {grammarName, "compilationUnit", "-gui", inputFileName};
-    System.out.println("Running TestRig with " + Arrays.toString(params));
+    Logger.log("Running TestRig with " + Arrays.toString(params));
     try {
 
       //Now because the test Rig is written the way it is; and we want to use our
@@ -95,7 +96,7 @@ public abstract class AntlrSupport {
           for (String inputFile : inputFiles) {
             CharStream charStream = CharStreams.fromPath(Paths.get(inputFile), charset);
             if (inputFiles.size() > 1) {
-              System.err.println(inputFile);
+              Logger.error(inputFile);
             }
             process(lexer, parserClass, parser, charStream);
           }

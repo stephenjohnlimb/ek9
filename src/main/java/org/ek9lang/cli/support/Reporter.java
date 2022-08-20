@@ -1,5 +1,7 @@
 package org.ek9lang.cli.support;
 
+import org.ek9lang.core.utils.Logger;
+
 /**
  * Designed to ensure consistent reporting as part of the command line
  * commands and executions.
@@ -18,11 +20,11 @@ public abstract class Reporter {
 
   protected void log(Object message) {
     if (verbose) {
-      System.err.println(messagePrefix() + message);
+      Logger.error(messagePrefix() + message);
     }
   }
 
   protected void report(Object message) {
-    System.err.println(messagePrefix() + message);
+    Logger.error(messagePrefix() + message);
   }
 }

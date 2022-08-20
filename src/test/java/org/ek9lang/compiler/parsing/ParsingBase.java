@@ -14,6 +14,7 @@ import org.ek9lang.compiler.tokenizer.DelegatingLexer;
 import org.ek9lang.compiler.tokenizer.Ek9Lexer;
 import org.ek9lang.compiler.tokenizer.LexerPlugin;
 import org.ek9lang.compiler.tokenizer.LexingBase;
+import org.ek9lang.core.utils.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -51,7 +52,7 @@ public abstract class ParsingBase extends LexingBase {
     EK9Parser.CompilationUnitContext context = underTest.compilationUnit();
     long after = System.currentTimeMillis();
 
-    System.out.println("Parsing " + (after - before) + "ms for " + getEK9FileName());
+    Logger.log("Parsing " + (after - before) + "ms for " + getEK9FileName());
 
     if (!errorListener.isErrorFree()) {
       errorListener.getErrors().forEachRemaining(System.out::println);

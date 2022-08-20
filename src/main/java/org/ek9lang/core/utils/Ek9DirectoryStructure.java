@@ -227,7 +227,7 @@ public final class Ek9DirectoryStructure {
       output.write(value.getBytes());
       return true;
     } catch (Exception ex) {
-      System.err.println("Unable to save " + file.getPath() + " " + ex.getMessage());
+      Logger.error("Unable to save " + file.getPath() + " " + ex.getMessage());
       return false;
     }
   }
@@ -238,7 +238,7 @@ public final class Ek9DirectoryStructure {
 
     File directory = new File(baseDir, newDir);
     if (!directory.exists() && !directory.mkdir()) {
-      System.err.println("Unable to create directory " + directory);
+      Logger.error("Unable to create directory " + directory);
       System.exit(3);
     }
     return directory.getAbsolutePath();
@@ -251,7 +251,7 @@ public final class Ek9DirectoryStructure {
         throw new CompilerException("Unsupported target architecture " + targetArchitecture);
       }
     } catch (RuntimeException rex) {
-      System.err.println(rex.getMessage());
+      Logger.error(rex.getMessage());
       //That's a hard fail and exit compiler
       System.exit(3);
     }

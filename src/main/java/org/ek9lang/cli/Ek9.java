@@ -1,9 +1,11 @@
 package org.ek9lang.cli;
 
 import java.io.File;
+import java.util.concurrent.ExecutionException;
 import org.ek9lang.LanguageMetaData;
 import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.core.utils.FileHandling;
+import org.ek9lang.core.utils.Logger;
 import org.ek9lang.core.utils.OsSupport;
 import org.ek9lang.lsp.Server;
 
@@ -34,14 +36,14 @@ public class Ek9 {
    * The range of exit codes that EK9 will use.
    */
 
-  public static int RUN_COMMAND_EXIT_CODE = 0;
-  public static int SUCCESS_EXIT_CODE = 1;
-  public static int BAD_COMMANDLINE_EXIT_CODE = 2;
-  public static int FILE_ISSUE_EXIT_CODE = 3;
-  public static int BAD_COMMAND_COMBINATION_EXIT_CODE = 4;
-  public static int NO_PROGRAMS_EXIT_CODE = 5;
-  public static int PROGRAM_NOT_SPECIFIED_EXIT_CODE = 6;
-  public static int LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE = 7;
+  public static final int RUN_COMMAND_EXIT_CODE = 0;
+  public static final int SUCCESS_EXIT_CODE = 1;
+  public static final int BAD_COMMANDLINE_EXIT_CODE = 2;
+  public static final int FILE_ISSUE_EXIT_CODE = 3;
+  public static final int BAD_COMMAND_COMBINATION_EXIT_CODE = 4;
+  public static final int NO_PROGRAMS_EXIT_CODE = 5;
+  public static final int PROGRAM_NOT_SPECIFIED_EXIT_CODE = 6;
+  public static final int LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE = 7;
   private final CommandLineDetails commandLine;
 
   public Ek9(CommandLineDetails commandLine) {
@@ -51,7 +53,7 @@ public class Ek9 {
   /**
    * Run the main Ek9 compiler.
    */
-  public static void main(String[] argv) {
+  public static void main(String[] argv) throws InterruptedException {
     OsSupport osSupport = new OsSupport();
     FileHandling fileHandling = new FileHandling(osSupport);
     CommandLineDetails commandLine =
@@ -65,7 +67,7 @@ public class Ek9 {
 
       System.exit(new Ek9(commandLine).run());
     } catch (RuntimeException rex) {
-      System.err.println(rex);
+      Logger.error(rex);
       System.exit(BAD_COMMANDLINE_EXIT_CODE);
     }
   }
@@ -73,7 +75,7 @@ public class Ek9 {
   /**
    * Run the command line and return the exit code.
    */
-  public int run() {
+  public int run() throws InterruptedException {
     //This will cause the application to block and remain running as a language server.
     if (commandLine.isRunEk9AsLanguageServer()) {
       return runAsLanguageServer(commandLine);
@@ -90,15 +92,16 @@ public class Ek9 {
    * @param commandLine The commandline developer used.
    * @return The exit code to exit with
    */
-  private int runAsLanguageServer(CommandLineDetails commandLine) {
+  @SuppressWarnings("java:S106")
+  private int runAsLanguageServer(CommandLineDetails commandLine) throws InterruptedException {
     try {
-      System.err.println(
+      Logger.error(
           "EK9 running as LSP languageHelp=" + commandLine.isEk9LanguageServerHelpEnabled());
       Server.runEk9LanguageServer(System.in, System.out,
           commandLine.isEk9LanguageServerHelpEnabled());
       return SUCCESS_EXIT_CODE;
-    } catch (Exception ex) {
-      System.err.println("Failed to Start Language Server");
+    } catch (ExecutionException ex) {
+      Logger.error("Failed to Start Language Server");
       return LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE;
     }
   }
@@ -112,7 +115,7 @@ public class Ek9 {
 
     if (commandLine.isDependenciesAltered()) {
       if (commandLine.isVerbose()) {
-        System.err.println("Dependencies altered.");
+        Logger.error("Dependencies altered.");
       }
       File target = commandLine.getFileHandling()
           .getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(),
@@ -163,7 +166,7 @@ public class Ek9 {
     }
 
     if (execution == null || !execution.run()) {
-      System.err.println("Command not executed");
+      Logger.error("Command not executed");
       rtn = BAD_COMMANDLINE_EXIT_CODE;
     }
     return rtn;

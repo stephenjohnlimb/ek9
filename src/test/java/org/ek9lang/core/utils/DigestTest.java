@@ -2,6 +2,7 @@ package org.ek9lang.core.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -28,6 +29,7 @@ class DigestTest {
   }
 
   @Test
+  @SuppressWarnings("java:S5785")
   void testNullCheckSums() {
     Digest.CheckSum cksum = new Digest.CheckSum(new byte[1]);
     assertFalse(cksum.equals(null));
@@ -62,6 +64,7 @@ class DigestTest {
   }
 
   @Test
+  @SuppressWarnings("java:S5785")
   void testDigestEmptyFile() throws IOException {
     File newFile = new File(System.getProperty("java.io.tmpdir"), testFileName);
     newFile.createNewFile();
@@ -90,6 +93,7 @@ class DigestTest {
     assertFalse(ckSum1.equals(inValidBytes));
 
     assertFalse(ckSum1.equals(new byte[0]));
+
 
     assertFalse(ckSum1.equals(""));
 

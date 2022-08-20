@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.net.URL;
@@ -461,7 +462,13 @@ final class EK9Test {
 
     //Now should something be run and executed.
     if (result == Ek9.RUN_COMMAND_EXIT_CODE) {
-      assertEquals(expectation, new Ek9(commandLine).run());
+      try {
+        assertEquals(expectation, new Ek9(commandLine).run());
+      } catch(InterruptedException iex)
+      {
+        fail("Interrupt exception ", iex);
+      }
+
     }
 
     return commandLine;

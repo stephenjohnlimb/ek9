@@ -173,7 +173,7 @@ class GenericTypeTest extends AbstractSymbolTestBase {
       var types = support.getSuitableParameters(theZType, yDash);
       //So what do we expect here?
       //whereas y -> p, r: When defined in the context of Z: we expect p -> Boolean, r -> String
-      //System.out.println("types " + types);
+      //Logger.log("types " + types);
       assertEquals("Boolean", types.get(0).getName());
       assertEquals("String", types.get(1).getName());
       //Now we would be able to create a real concrete type!
@@ -192,7 +192,7 @@ class GenericTypeTest extends AbstractSymbolTestBase {
       //So what do we expect here?
       //whereas x -> p, q, r: But xDash: p -> r, q -> r, r -> "Date"
       // When defined in the context of Z: we expect p -> String, q -> String - but r is fixed on "Date"
-      //System.out.println("types " + types);
+      //Logger.log("types " + types);
       assertEquals("String", types.get(0).getName());
       assertEquals("String", types.get(1).getName());
       assertEquals("Date", types.get(2).getName());

@@ -21,6 +21,7 @@ import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.ek9lang.compiler.tokenizer.TokenResult;
+import org.ek9lang.core.utils.Logger;
 import org.ek9lang.lsp.Ek9LanguageWords.KeyWordInformation;
 
 /**
@@ -45,7 +46,7 @@ public class Ek9TextDocumentService extends Ek9Service implements TextDocumentSe
   public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>>
       definition(DefinitionParams params) {
     return CompletableFuture.supplyAsync(() -> {
-      System.err.println("Would do definition of [" + params.toString() + "]");
+      Logger.error("Would do definition of [" + params.toString() + "]");
       List<? extends Location> rtn = new ArrayList<>();
       //TODO search for definition in symbol table and populate location
       return Either.forLeft(rtn);
@@ -56,7 +57,7 @@ public class Ek9TextDocumentService extends Ek9Service implements TextDocumentSe
   public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>>
       declaration(DeclarationParams params) {
     return CompletableFuture.supplyAsync(() -> {
-      System.err.println("Would do declaration of [" + params.toString() + "]");
+      Logger.error("Would do declaration of [" + params.toString() + "]");
       List<? extends Location> rtn = new ArrayList<>();
       //TODO search for a declaration in symbol table and populate location
       return Either.forLeft(rtn);
@@ -66,7 +67,7 @@ public class Ek9TextDocumentService extends Ek9Service implements TextDocumentSe
   @Override
   public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
     return CompletableFuture.supplyAsync(() -> {
-      System.err.println("Would do references of [" + params.toString() + "]");
+      Logger.error("Would do references of [" + params.toString() + "]");
       //TODO search for reference use in symbol table and populate location
       return new ArrayList<>();
     });
@@ -119,10 +120,10 @@ public class Ek9TextDocumentService extends Ek9Service implements TextDocumentSe
   public void didOpen(DidOpenTextDocumentParams params) {
     try {
       String uri = getFilename(params.getTextDocument());
-      System.err.println("didOpen Opened Source [" + uri + "]");
+      Logger.error("didOpen Opened Source [" + uri + "]");
       reportOnCompiledSource(getWorkspace().reParseSource(uri));
     } catch (RuntimeException rex) {
-      System.err.println("didOpen exception: " + rex.getMessage());
+      Logger.error("didOpen exception: " + rex.getMessage());
     }
   }
 
@@ -130,26 +131,26 @@ public class Ek9TextDocumentService extends Ek9Service implements TextDocumentSe
   public void didChange(DidChangeTextDocumentParams params) {
     try {
       String uri = getFilename(params.getTextDocument());
-      System.err.println("didChange Changed Source [" + uri + "]");
+      Logger.error("didChange Changed Source [" + uri + "]");
       reportOnCompiledSource(getWorkspace().reParseSource(uri));
     } catch (RuntimeException rex) {
-      System.err.println("didChange exception: " + rex.getMessage());
+      Logger.error("didChange exception: " + rex.getMessage());
     }
   }
 
   @Override
   public void didClose(DidCloseTextDocumentParams params) {
-    System.err.println("didClose [" + params + "]");
+    Logger.error("didClose [" + params + "]");
   }
 
   @Override
   public void didSave(DidSaveTextDocumentParams params) {
     try {
       String uri = getFilename(params.getTextDocument());
-      System.err.println("didSave Changed Source [" + uri + "]");
+      Logger.error("didSave Changed Source [" + uri + "]");
       reportOnCompiledSource(getWorkspace().reParseSource(uri));
     } catch (RuntimeException rex) {
-      System.err.println("didSave exception: " + rex.getMessage());
+      Logger.error("didSave exception: " + rex.getMessage());
     }
   }
 }

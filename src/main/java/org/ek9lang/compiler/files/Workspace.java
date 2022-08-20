@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import org.ek9lang.core.utils.Logger;
 
 /**
  * Designed to represent one or more source files that are part of a workspace.
@@ -24,7 +25,7 @@ public class Workspace {
    * Triggers the reparsing of the source file. Normally after an edit so errors can be checked.
    */
   public synchronized CompilableSource reParseSource(String uri) {
-    System.err.println("parsing/reparsing [" + uri + "]");
+    Logger.error("parsing/reparsing [" + uri + "]");
     CompilableSource compilableSource;
     if (isSourcePresent(uri)) {
       compilableSource = getSource(uri);
@@ -34,7 +35,7 @@ public class Workspace {
     }
     compilableSource.prepareToParse().parse();
 
-    System.err.println("Workspace has " + sources.size() + " source files");
+    Logger.error("Workspace has " + sources.size() + " source files");
     return compilableSource;
   }
 
@@ -83,7 +84,7 @@ public class Workspace {
     //also remove from modules.
     //modules.remove(rtn);
 
-    System.err.println("Workspace now has " + sources.size() + " source files");
+    Logger.error("Workspace now has " + sources.size() + " source files");
     return rtn;
   }
 

@@ -55,7 +55,7 @@ public final class SigningKeyPair {
     try {
       return KeyPairGenerator.getInstance("RSA");
     } catch (NoSuchAlgorithmException e) {
-      System.err.println("Failed to create public private key pair: " + e.getMessage());
+      Logger.error("Failed to create public private key pair: " + e.getMessage());
       //Show-stopper.
       System.exit(3);
     }
@@ -100,7 +100,7 @@ public final class SigningKeyPair {
     try (FileInputStream fis = new FileInputStream(keyFile)) {
       return new String(fis.readAllBytes(), StandardCharsets.UTF_8);
     } catch (Exception ex) {
-      System.err.println("Failed to open file: " + ex.getMessage());
+      Logger.error("Failed to open file: " + ex.getMessage());
       return null;
     }
   }
@@ -119,7 +119,7 @@ public final class SigningKeyPair {
       X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encoded);
       return keyFactory.generatePublic(keySpec);
     } catch (Exception ex) {
-      System.err.println("Unable to load pubic key " + ex.getMessage());
+      Logger.error("Unable to load pubic key " + ex.getMessage());
     }
     return null;
   }
@@ -138,16 +138,17 @@ public final class SigningKeyPair {
       PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
       return keyFactory.generatePrivate(keySpec);
     } catch (Exception ex) {
-      System.err.println("Unable to load private key " + ex.getMessage());
+      Logger.error("Unable to load private key " + ex.getMessage());
     }
     return null;
   }
 
+  @SuppressWarnings("java:S5542")
   private Cipher getRsaCipher() {
     try {
       return Cipher.getInstance("RSA");
     } catch (Exception ex) {
-      System.err.println("Unable to get RSA Cipher");
+      Logger.error("Unable to get RSA Cipher");
     }
     return null;
   }
@@ -213,7 +214,7 @@ public final class SigningKeyPair {
       this.cipher.init(encryptDecryptMode, key);
       return this.cipher.doFinal(data);
     } catch (Exception ex) {
-      System.err.println("Unable apply Cipher " + ex.getMessage());
+      Logger.error("Unable apply Cipher " + ex.getMessage());
       return new byte[0];
     }
   }

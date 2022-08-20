@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.ek9lang.core.utils.Logger;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -109,7 +110,7 @@ class DependencyTest {
       Map<String, String> rejections = dep.getDependencyRejections();
       rejections.keySet().forEach(key -> {
         String whenDependencyOf = rejections.get(key);
-        System.err.println("Resolve: Exclusion '" + key + "' <- '" + whenDependencyOf + "'");
+        Logger.error("Resolve: Exclusion '" + key + "' <- '" + whenDependencyOf + "'");
         underTest.reject(key, whenDependencyOf);
       });
     });
@@ -118,8 +119,8 @@ class DependencyTest {
     found = underTest.findByModuleName("a.b.f");
     assertEquals(2, found.size());
 
-    System.out.println("testExcludeDependencies");
-    System.out.println("Modules");
+    Logger.log("testExcludeDependencies");
+    Logger.log("Modules");
     found.forEach(System.out::println);
 
     assertTrue(found.get(0).isRejected());
@@ -127,9 +128,9 @@ class DependencyTest {
 
     assertFalse(underTest.optimise());
 
-    System.out.println("Accepted after Optimisation");
+    Logger.log("Accepted after Optimisation");
     underTest.reportAcceptedDependencies()
-        .forEach(accept -> System.out.println(accept.showPathToDependency(true)));
+        .forEach(accept -> Logger.log(accept.showPathToDependency(true)));
   }
 
   @Test
@@ -189,13 +190,13 @@ class DependencyTest {
 
     //So even though "a.b.d-2.2.0-0" is in the accepted list it is also in the breaches - so must be addressed
         /*
-        System.out.println("testMajorVersionIncompatibleDependencies");
-        System.out.println("Rejected");
+        Logger.log("testMajorVersionIncompatibleDependencies");
+        Logger.log("Rejected");
         rejected.forEach(System.out::println);
-        System.out.println("Accepted");
+        Logger.log("Accepted");
         accepted.forEach(System.out::println);
 
-        System.out.println("Breaches");
+        Logger.log("Breaches");
         breaches.forEach(System.out::println);
         */
   }
@@ -235,16 +236,16 @@ class DependencyTest {
     assertEquals(2, circulars.size());
         
         /*
-        System.out.println("testCircularDependencies");
-        System.out.println("All");
+        Logger.log("testCircularDependencies");
+        Logger.log("All");
         deps.forEach(System.out::println);
-        System.out.println("----");
+        Logger.log("----");
 
-        System.out.println("Uniq");
+        Logger.log("Uniq");
         deps = underTest.listAllModuleNames();
         deps.forEach(System.out::println);
-        System.out.println("----");
-        System.out.println("Circulars");
+        Logger.log("----");
+        Logger.log("Circulars");
         assertTrue(circulars.size() == 2);
         circulars.forEach(System.out::println);
         */
@@ -375,9 +376,9 @@ class DependencyTest {
     assertEquals(expectNumAccepted, accepted.size());
 
         /*
-        System.out.println("Rejected");
+        Logger.log("Rejected");
         rejected.forEach(System.out::println);
-        System.out.println("Accepted");
+        Logger.log("Accepted");
         accepted.forEach(System.out::println);
         */
   }
@@ -481,13 +482,13 @@ class DependencyTest {
     assertEquals(13, uniqueDepNames.size());
         
         /*
-        System.out.println("testDependencyOptimisation");
-        System.out.println("All module names");
+        Logger.log("testDependencyOptimisation");
+        Logger.log("All module names");
         deps.forEach(System.out::println);
         
-        System.out.println("Unique module names");
+        Logger.log("Unique module names");
         uniqueDepNames.forEach(System.out::println);
-        System.out.println("Rejected");
+        Logger.log("Rejected");
         rejected.forEach(System.out::println);
         */
 
@@ -495,15 +496,15 @@ class DependencyTest {
     underTest.reject("c.d.e", "p.q.r");
         
         /*
-        System.out.println("After manually removing 'c.d.e' when dependency of 'p.q.r'");
+        Logger.log("After manually removing 'c.d.e' when dependency of 'p.q.r'");
         uniqueDepNames = underTest.listAllModuleNames();
-        System.out.println("Unique module names");
+        Logger.log("Unique module names");
         uniqueDepNames.forEach(System.out::println);
         
         rejected = underTest.reportRejectedDependencies();
         assertEquals(2, rejected.size());
         
-        System.out.println("Rejected");
+        Logger.log("Rejected");
         rejected.forEach(System.out::println);
         */
 
@@ -511,9 +512,9 @@ class DependencyTest {
     underTest.rationalise();
 
         /*
-        System.out.println("After rationalising");
+        Logger.log("After rationalising");
         uniqueDepNames = underTest.listAllModuleNames();
-        System.out.println("Unique module names");
+        Logger.log("Unique module names");
         uniqueDepNames.forEach(System.out::println);
         */
 
@@ -525,7 +526,7 @@ class DependencyTest {
     //For example s.t.u is only every used in p.q.r-9.8.1-6 and that has been rationalised.
     //n.m.p is used in p.q.r-9.8.8-1 and p.q.r-9.8.1-6 - both rationalised.
     //So those could and should be removed.
-    //System.out.println("Optimising");
+    //Logger.log("Optimising");
     while (underTest.optimise()) ;
 
     rejected = underTest.reportRejectedDependencies();
@@ -533,16 +534,16 @@ class DependencyTest {
     var accepted = underTest.reportAcceptedDependencies();
     assertEquals(11, accepted.size());
 
-    System.out.println("Rejected after Optimisation");
-    rejected.forEach(reject -> System.out.println(reject.showPathToDependency(true)));
+    Logger.log("Rejected after Optimisation");
+    rejected.forEach(reject -> Logger.log(reject.showPathToDependency(true)));
 
-    System.out.println("Accepted after Optimisation");
-    accepted.forEach(accept -> System.out.println(accept.showPathToDependency(false)));
+    Logger.log("Accepted after Optimisation");
+    accepted.forEach(accept -> Logger.log(accept.showPathToDependency(false)));
 
-    System.out.println("Final set of Dependencies");
-    accepted.forEach(accept -> System.out.println(accept.toString()));
-    System.out.println("Final Rejections");
-    rejected.forEach(reject -> System.out.println(reject.toString()));
+    Logger.log("Final set of Dependencies");
+    accepted.forEach(accept -> Logger.log(accept.toString()));
+    Logger.log("Final Rejections");
+    rejected.forEach(reject -> Logger.log(reject.toString()));
 
     assertAccepted(accepted);
 

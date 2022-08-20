@@ -15,6 +15,7 @@ import org.ek9lang.cli.support.PackageDetails;
 import org.ek9lang.compiler.parsing.JustParser;
 import org.ek9lang.core.exception.ExitException;
 import org.ek9lang.core.utils.FileHandling;
+import org.ek9lang.core.utils.Logger;
 import org.ek9lang.core.utils.OsSupport;
 
 /**
@@ -144,7 +145,7 @@ public class CommandLineDetails {
 
       return returnCode;
     } catch (ExitException exitException) {
-      System.err.println(exitException);
+      Logger.error(exitException);
       return exitException.getExitCode();
     }
   }
@@ -154,6 +155,7 @@ public class CommandLineDetails {
    * There are some basic checks here, but only up to a point.
    * The assessCommandLine checks the combination of commands.
    * A bit nasty in terms of processing the options. Take some time to focus here.
+   * TODO make it simpler!
    */
   private int extractCommandLineDetails(String commandLine) {
     boolean processingEk9Parameters = true;
@@ -178,7 +180,7 @@ public class CommandLineDetails {
       } else if (strArray[i].equals("-T") && i < strArray.length - 1) {
         targetArchitecture = strArray[++i].toLowerCase();
         if (!targetArchitecture.equals("java")) {
-          System.err.println("Only Java is currently supported as a target [" + commandLine + "]");
+          Logger.error("Only Java is currently supported as a target [" + commandLine + "]");
           return Ek9.BAD_COMMANDLINE_EXIT_CODE;
         }
       } else if (strArray[i].equals("-r") && i < strArray.length - 1) {
@@ -186,7 +188,7 @@ public class CommandLineDetails {
         ek9ProgramToRun = strArray[++i];
       } else if (strArray[i].equals("-d") && i < strArray.length - 1) {
         if (isParameterUnacceptable(strArray[i])) {
-          System.err.println("Incompatible command line options [" + commandLine + "]");
+          Logger.error("Incompatible command line options [" + commandLine + "]");
           return Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE;
         }
         activeParameters.add(strArray[i]);
@@ -194,13 +196,13 @@ public class CommandLineDetails {
         String port = strArray[++i];
         activeParameters.add(port);
         if (!Pattern.compile("^(\\d+)$").matcher(port).find()) {
-          System.err.println("Debug Mode: expecting integer port number [" + commandLine + "]");
+          Logger.error("Debug Mode: expecting integer port number [" + commandLine + "]");
           return Ek9.BAD_COMMANDLINE_EXIT_CODE;
         }
         this.debugPort = Integer.parseInt(port);
       } else {
         if (processingEk9Parameters && isParameterUnacceptable(strArray[i])) {
-          System.err.println("Incompatible command line options [" + commandLine + "]");
+          Logger.error("Incompatible command line options [" + commandLine + "]");
           return Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE;
         }
         activeParameters.add(strArray[i]);
@@ -212,7 +214,7 @@ public class CommandLineDetails {
             if (versioningOption.equals("-IV")) {
               //must be one of major|minor|patch|build
               if (Eve.Version.isInvalidVersionAddressPart(versionParam)) {
-                System.err.println(
+                Logger.error(
                     "Increment Version: expecting major|minor|patch|build [" + commandLine + "]");
                 return Ek9.BAD_COMMANDLINE_EXIT_CODE;
               }
@@ -223,7 +225,7 @@ public class CommandLineDetails {
             }
             activeParameters.add(versionParam);
           } else {
-            System.err.println("Missing parameter [" + commandLine + "]");
+            Logger.error("Missing parameter [" + commandLine + "]");
             return Ek9.BAD_COMMANDLINE_EXIT_CODE;
           }
         }
@@ -248,25 +250,25 @@ public class CommandLineDetails {
     appendRunOptionIfNecessary();
 
     if (isDeveloperManagementOption() && foundEk9File) {
-      System.err.println("A generate Keys does not require or use EK9 filename.");
+      Logger.error("A generate Keys does not require or use EK9 filename.");
       return Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE;
     }
 
     if (!isDeveloperManagementOption() && !isRunEk9AsLanguageServer()) {
       if (!foundEk9File) {
-        System.err.println("no EK9 file name in command line [" + commandLine + "]");
+        Logger.error("no EK9 file name in command line [" + commandLine + "]");
         return Ek9.FILE_ISSUE_EXIT_CODE;
       }
 
       processEk9FileProperties(false);
 
       if (isJustBuildTypeOption() && ek9ProgramToRun != null) {
-        System.err.println("A Build request for "
+        Logger.error("A Build request for "
             + mainSourceFile.getName() + " does not require or use program parameters.");
         return Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE;
       }
       if (isReleaseVectorOption() && ek9ProgramToRun != null) {
-        System.err.println("A modification to version number for "
+        Logger.error("A modification to version number for "
             + mainSourceFile.getName() + " does not require or use program parameters.");
         return Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE;
       }
@@ -280,14 +282,14 @@ public class CommandLineDetails {
   }
 
   private int showHelp() {
-    System.err.println("ek9 <options>");
-    System.err.println(CommandLineDetails.getCommandLineHelp());
+    Logger.error("ek9 <options>");
+    Logger.error(CommandLineDetails.getCommandLineHelp());
     //i.e. no further commands need to run
     return Ek9.SUCCESS_EXIT_CODE;
   }
 
   private int showVersionOfEk9() {
-    System.err.println("EK9 Version " + getLanguageMetaData().version());
+    Logger.error("EK9 Version " + getLanguageMetaData().version());
     //i.e. no further commands need to run
     return Ek9.SUCCESS_EXIT_CODE;
   }
@@ -304,7 +306,7 @@ public class CommandLineDetails {
     //Check run options
     if (programs.isEmpty()) {
       //There's nothing that can be run
-      System.err.println(mainSourceFile.getName() + " does not contain any programs.");
+      Logger.error(mainSourceFile.getName() + " does not contain any programs.");
       return Ek9.NO_PROGRAMS_EXIT_CODE;
     }
     if (ek9ProgramToRun == null) {
@@ -312,18 +314,26 @@ public class CommandLineDetails {
         //We can default that in.
         ek9ProgramToRun = programs.get(0);
       } else {
-        System.err.print("Use '-r' and select one of");
-        programs.stream().map(progName -> " '" + progName + "'").forEach(System.err::print);
-        System.err.println(" from source file " + mainSourceFile.getName());
+        var builder = new StringBuilder("Use '-r' and select one of");
+        programs.stream().map(progName -> " '" + progName + "'").forEach(builder::append);
+        builder.append(" from source file ").append(mainSourceFile.getName());
+        Logger.error(builder.toString());
         return Ek9.PROGRAM_NOT_SPECIFIED_EXIT_CODE;
       }
     }
     //Check program name is actually in the list of programs
     if (!programs.contains(ek9ProgramToRun)) {
-      System.err.print("Program must be one of");
-      programs.stream().map(programName -> " '" + programName + "'").forEach(System.err::print);
-      System.err.println(", source file " + mainSourceFile.getName() + " does not have program '"
-          + ek9ProgramToRun + "'");
+      var builder = new StringBuilder("Program must be one of");
+      programs.stream()
+          .map(programName -> " '" + programName + "'")
+          .forEach(builder::append);
+
+      builder.append(", source file ")
+          .append(mainSourceFile.getName())
+          .append(" does not have program '")
+          .append(ek9ProgramToRun).append("'");
+
+      Logger.error(builder.toString());
 
       return Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE;
     }
@@ -368,14 +378,14 @@ public class CommandLineDetails {
       moduleName = properties.getProperty("moduleName");
 
       depsFingerPrint = properties.getProperty("depsFingerPrint");
-      String programs = properties.getProperty("programs");
-      if (programs != null) {
-        this.programs = Arrays.asList(programs.split(","));
+      String thePrograms = properties.getProperty("programs");
+      if (thePrograms != null) {
+        this.programs = Arrays.asList(thePrograms.split(","));
       }
 
       String hasPackage = properties.getProperty("package");
       if (hasPackage != null) {
-        packagePresent = properties.getProperty("package").equals("true");
+        packagePresent = hasPackage.equals("true");
       }
 
       String ver = properties.getProperty("version");
@@ -386,16 +396,18 @@ public class CommandLineDetails {
 
     if (versionProperties.isNewerThan(sourceFile) && !forceRegeneration) {
       if (isVerbose()) {
-        System.err.println("Props   : Reusing " + versionProperties.getFileName());
+        Logger.error("Props   : Reusing " + versionProperties.getFileName());
       }
     } else {
       if (isVerbose()) {
-        System.err.println("Props   : Regenerating " + versionProperties.getFileName());
+        Logger.error("Props   : Regenerating " + versionProperties.getFileName());
       }
 
       visitor = getSourceVisitor();
-      if (visitor.getPackageDetails().isPresent()) {
-        var packageDetails = visitor.getPackageDetails().get();
+      var optionalDetails = visitor.getPackageDetails();
+
+      if (optionalDetails.isPresent()) {
+        var packageDetails = optionalDetails.get();
         moduleName = packageDetails.moduleName();
         programs = packageDetails.programs();
         packagePresent = packageDetails.packagePresent();
@@ -416,7 +428,7 @@ public class CommandLineDetails {
 
         if (version != null) {
           properties.setProperty("version", version);
-          rtn = visitor.getPackageDetails().get().versionNumberOnLine();
+          rtn = packageDetails.versionNumberOnLine();
         }
         properties.setProperty("package", Boolean.toString(packagePresent));
         versionProperties.storeProperties(properties);
@@ -486,29 +498,31 @@ public class CommandLineDetails {
     if (isModifierParam(param)) {
       return false;
     }
+    var builder = new StringBuilder("Option '").append(param);
+
     if (!isMainParam(param)) {
-      System.err.println("Option '" + param + "' not understood");
+      Logger.error(builder.append("' not understood"));
       return true;
     }
     //only if we are not one of these already.
     if (isJustBuildTypeOption()) {
-      System.err.println("Option '" + param + "' not compatible with existing build option");
+      Logger.error(builder.append("' not compatible with existing build option"));
       return true;
     }
     if (isDeveloperManagementOption()) {
-      System.err.println("Option '" + param + "' not compatible with existing management option");
+      Logger.error(builder.append("' not compatible with existing management option"));
       return true;
     }
     if (isReleaseVectorOption()) {
-      System.err.println("Option '" + param + "' not compatible with existing release option");
+      Logger.error(builder.append("' not compatible with existing release option"));
       return true;
     }
     if (isRunOption()) {
-      System.err.println("Option '" + param + "' not compatible with existing run option");
+      Logger.error(builder.append("' not compatible with existing run option"));
       return true;
     }
     if (isUnitTestExecution()) {
-      System.err.println("Option '" + param + "' not compatible with existing unit test option");
+      Logger.error(builder.append("' not compatible with existing unit test option"));
       return true;
     }
     return false;

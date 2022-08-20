@@ -67,10 +67,10 @@ class SigningKeyPairTest {
 
     SigningKeyPair keyPair = SigningKeyPair.generate(2048);
     String cipherText = keyPair.encryptWithPrivateKey(theMessage);
-    //System.out.println("[" + cipherText + "]");
+    //Logger.log("[" + cipherText + "]");
 
     String plainText = keyPair.decryptWithPublicKey(cipherText);
-    //System.out.println("[" + plainText +"]");
+    //Logger.log("[" + plainText +"]");
     assertEquals(theMessage, plainText);
   }
 
@@ -81,10 +81,10 @@ class SigningKeyPairTest {
 
     SigningKeyPair keyPair = SigningKeyPair.generate(2048);
     String cipherText = keyPair.encryptWithPublicKey(theMessage);
-    //System.out.println("[" + cipherText + "]");
+    //Logger.log("[" + cipherText + "]");
 
     String plainText = keyPair.decryptWithPrivateKey(cipherText);
-    //System.out.println("[" + plainText +"]");
+    //Logger.log("[" + plainText +"]");
     assertEquals(theMessage, plainText);
   }
 
@@ -219,8 +219,8 @@ class SigningKeyPairTest {
     String checkPublicPem = openTest.getPublicKeyInBase64();
     String checkPrivatePem = openTest.getPrivateKeyInBase64();
 
-    //System.out.println(checkPublicPem);
-    //System.out.println(checkPrivatePem);
+    //Logger.log(checkPublicPem);
+    //Logger.log(checkPrivatePem);
 
     assertEquals(publicPem, checkPublicPem);
     assertEquals(privatePem, checkPrivatePem);

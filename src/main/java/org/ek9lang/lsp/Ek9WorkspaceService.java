@@ -9,6 +9,7 @@ import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.services.WorkspaceService;
 import org.ek9lang.compiler.files.Workspace;
 import org.ek9lang.core.exception.CompilerException;
+import org.ek9lang.core.utils.Logger;
 
 /**
  * Part of the language server functionality.
@@ -24,13 +25,13 @@ public class Ek9WorkspaceService extends Ek9Service implements WorkspaceService 
   public CompletableFuture<List<? extends SymbolInformation>> symbol(WorkspaceSymbolParams params) {
     String globalSymbolToFind = params.getQuery();
     //TODO the actual processing.
-    System.err.println("symbol [" + globalSymbolToFind + "]");
+    Logger.error("symbol [" + globalSymbolToFind + "]");
     return null;
   }
 
   @Override
   public void didChangeConfiguration(DidChangeConfigurationParams params) {
-    System.err.println("didChangeConfiguration [" + params + "]");
+    Logger.error("didChangeConfiguration [" + params + "]");
   }
 
   @Override

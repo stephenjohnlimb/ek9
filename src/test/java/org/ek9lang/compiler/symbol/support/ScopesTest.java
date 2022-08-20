@@ -25,6 +25,7 @@ import org.ek9lang.compiler.symbol.TrySymbol;
 import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
+import org.ek9lang.core.utils.Logger;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -136,9 +137,9 @@ class ScopesTest extends AbstractSymbolTestBase {
     assertNotNull(clonedPFun);
 
     //The return is the function should be the return type.
-    System.out.println(pFun.getFriendlyName());
+    Logger.log(pFun.getFriendlyName());
 
-    System.out.println(clonedPFun.getFriendlyName());
+    Logger.log(clonedPFun.getFriendlyName());
   }
 
   @Test

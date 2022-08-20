@@ -41,7 +41,7 @@ public final class Packager {
     try (FileSystem zip = FileSystems.newFileSystem(getZipUri(fileName), getZipEnv())) {
       sets.forEach(set -> addZipSet(zip, set));
     } catch (Exception ex) {
-      System.err.println(ex.getMessage());
+      Logger.error(ex.getMessage());
       return false;
     }
     return true;
@@ -87,7 +87,7 @@ public final class Packager {
       //close last ZipEntry
       zis.closeEntry();
     } catch (Exception ex) {
-      System.err.println(ex.getMessage());
+      Logger.error(ex.getMessage());
       return false;
     }
     return true;
@@ -111,7 +111,7 @@ public final class Packager {
       Path pathInZipFile = zip.getPath(".package.properties");
       Files.copy(externalTxtFile, pathInZipFile, StandardCopyOption.REPLACE_EXISTING);
     } catch (Exception ex) {
-      System.err.println(ex.getMessage());
+      Logger.error(ex.getMessage());
       return false;
     }
     return true;

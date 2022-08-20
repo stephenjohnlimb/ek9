@@ -3,6 +3,7 @@ package org.ek9lang.cli;
 import java.util.Objects;
 import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.core.utils.Ek9DirectoryStructure;
+import org.ek9lang.core.utils.Logger;
 
 /**
  * Run the application that has been built or is already built.
@@ -51,7 +52,7 @@ public class Er extends E {
         .append(commandLine.ek9ProgramToRun);
 
     commandLine.getEk9ProgramParameters().forEach(param -> theRunCommand.append(" ").append(param));
-    System.out.println(theRunCommand);
+    Logger.log(theRunCommand.toString());
 
     return true;
   }

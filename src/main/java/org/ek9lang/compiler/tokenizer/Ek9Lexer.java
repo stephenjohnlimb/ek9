@@ -1,12 +1,14 @@
 package org.ek9lang.compiler.tokenizer;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.LinkedList;
-import java.util.Stack;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.ek9lang.antlr.EK9LexerRules;
+import org.ek9lang.core.utils.Logger;
 
 /*
  * The MIT License (MIT)
@@ -56,7 +58,7 @@ public class Ek9Lexer extends EK9LexerRules implements LexerPlugin {
   private final LinkedList<Token> pendingTokens = new LinkedList<>();
   private boolean printTokensAsSupplied = false;
   // The stack that keeps track of the indentation lengths
-  private Stack<Integer> indentLengths = new Stack<>();
+  private Deque<Integer> indentLengths = new ArrayDeque<>();
   //Whatever the first indent length all others must be the same.
   private int firstIndentLength = 0;
   // An int that stores the last pending token type (including the inserted
@@ -114,10 +116,10 @@ public class Ek9Lexer extends EK9LexerRules implements LexerPlugin {
       Token rtn = this.pendingTokens.pollFirst();
 
       if (printTokensAsSupplied && rtn != null) {
-        System.out.println("Supplying token [" + rtn.getText() + "]");
+        Logger.log("Supplying token [" + rtn.getText() + "]");
         if (!_modeStack.isEmpty()) {
           int currentMode = _modeStack.peek();
-          System.out.println("in mode [" + currentMode + "]");
+          Logger.log("in mode [" + currentMode + "]");
         }
 
       }

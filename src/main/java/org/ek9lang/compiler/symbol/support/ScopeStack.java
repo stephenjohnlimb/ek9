@@ -1,7 +1,8 @@
 package org.ek9lang.compiler.symbol.support;
 
 import java.io.Serial;
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.core.exception.AssertValue;
 
@@ -17,27 +18,42 @@ import org.ek9lang.core.exception.AssertValue;
  * to be thread safe. Plus it exposes information that should only be available
  * to the scope itself - not any other bit of code.
  */
-public class ScopeStack extends Stack<IScope> {
+public class ScopeStack {
   @Serial
   private static final long serialVersionUID = 1L;
+
+  private Deque<IScope> actualStack = new ArrayDeque<IScope>();
 
   public ScopeStack(IScope base) {
     push(base);
   }
 
   public IScope getVeryBaseScope() {
-    return super.firstElement();
+    return actualStack.getFirst();
   }
 
-  @Override
+  /**
+   * Push a scope on to this stack.
+   */
   public IScope push(IScope scope) {
     AssertValue.checkNotNull("Scope Cannot be null", scope);
-    return super.push(scope);
+    actualStack.push(scope);
+    return scope;
   }
 
-  @Override
-  public synchronized IScope pop() {
-    AssertValue.checkTrue("ScopeStack cannot be empty for pop", !empty());
-    return super.pop();
+  /**
+   * Pop a scope of the stack (exception is empty.
+   */
+  public IScope pop() {
+    AssertValue.checkTrue("ScopeStack cannot be empty for pop", !actualStack.isEmpty());
+    return actualStack.pop();
   }
+
+  /**
+   * True if stack has no contents.
+   */
+  public boolean isEmpty() {
+    return actualStack.isEmpty();
+  }
+
 }

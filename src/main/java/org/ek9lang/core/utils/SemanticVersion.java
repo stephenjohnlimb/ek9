@@ -8,13 +8,13 @@ import java.util.regex.Pattern;
  * Or can be for a feature like 6.1.6-specialFeature12-19 i.e. build number 19 of specialFeature12
  */
 public final class SemanticVersion implements Comparable<SemanticVersion> {
-  private static final String MAJOR = "(?<major>\\d+)";
-  private static final String MINOR = "(?<minor>\\d+)";
-  private static final String PATCH = "(?<patch>\\d+)";
-  private static final String FEATURE = "(?<feature>[a-zA-Z]+[a-zA-Z0-9]*)";
+  private static final String MAJOR_R = "(?<major>\\d+)";
+  private static final String MINOR_R = "(?<minor>\\d+)";
+  private static final String PATCH_R = "(?<patch>\\d+)";
+  private static final String FEATURE_R = "(?<feature>[a-zA-Z]+[a-zA-Z0-9]*)";
 
   private static final String MAIN_REGEX =
-      "^" + MAJOR + "(\\.)" + MINOR + "(\\.)" + PATCH + "((-)" + FEATURE + ")?";
+      "^" + MAJOR_R + "(\\.)" + MINOR_R + "(\\.)" + PATCH_R + "((-)" + FEATURE_R + ")?";
 
   private static final String BUILD_NO_REGEX = "(-)(?<buildNumber>\\d+)";
   private int major = 0;
