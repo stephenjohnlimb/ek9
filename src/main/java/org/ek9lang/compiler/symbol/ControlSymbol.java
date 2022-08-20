@@ -1,32 +1,33 @@
 package org.ek9lang.compiler.symbol;
 
 /**
- * EK9 switch/try control type symbol - this can effectively return a value if it is configured with returning part.
- * <p>
- * When generating out put we need this to create its own block so variables inside are hidden from later scopes.
- * <p>
- * So as we have a returning part (optional) we need a scope to put it in (i.e. this scope) this then means that when
- * we finally come to generate the output - this symbol will be able to supply the outer variable to set the result to.
+ * EK9 switch/try control type symbol - this can effectively return a value if it is configured
+ * with returning part.
+ * When generating out put we need this to create its own block so variables inside are hidden
+ * from later scopes.
+ * So as we have a returning part (optional) we need a scope to put it in (i.e. this scope)
+ * this then means that when we finally come to generate the output - this symbol will be able
+ * to supply the outer variable to set the result to.
  */
-public class ControlSymbol extends ScopedSymbol
-{
-	public ControlSymbol(String name, IScope enclosingScope)
-	{
-		super(name, enclosingScope);
-		super.setCategory(SymbolCategory.CONTROL);
-		//So it is a sort of function in a way.
-		super.setGenus(SymbolGenus.FUNCTION);
-	}
+public class ControlSymbol extends ScopedSymbol {
 
-	@Override
-	public ControlSymbol clone(IScope withParentAsAppropriate)
-	{
-		return cloneIntoControlSymbol(new ControlSymbol(this.getName(), withParentAsAppropriate));
-	}
+  /**
+   * Create a new Control Symbol.
+   */
+  public ControlSymbol(String name, IScope enclosingScope) {
+    super(name, enclosingScope);
+    super.setCategory(SymbolCategory.CONTROL);
+    //So it is a sort of function in a way.
+    super.setGenus(SymbolGenus.FUNCTION);
+  }
 
-	protected ControlSymbol cloneIntoControlSymbol(ControlSymbol newCopy)
-	{
-		super.cloneIntoScopeSymbol(newCopy);
-		return newCopy;
-	}
+  @Override
+  public ControlSymbol clone(IScope withParentAsAppropriate) {
+    return cloneIntoControlSymbol(new ControlSymbol(this.getName(), withParentAsAppropriate));
+  }
+
+  protected ControlSymbol cloneIntoControlSymbol(ControlSymbol newCopy) {
+    super.cloneIntoScopeSymbol(newCopy);
+    return newCopy;
+  }
 }

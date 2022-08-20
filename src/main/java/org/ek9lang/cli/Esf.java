@@ -5,22 +5,18 @@ import org.ek9lang.cli.support.FileCache;
 /**
  * Use to explicitly set a feature name on a package.
  */
-public class Esf extends Eve
-{
-	public Esf(CommandLineDetails commandLine, FileCache sourceFileCache)
-	{
-		super(commandLine, sourceFileCache);
-	}
+public class Esf extends Eve {
+  public Esf(CommandLineDetails commandLine, FileCache sourceFileCache) {
+    super(commandLine, sourceFileCache);
+  }
 
-	@Override
-	protected String messagePrefix()
-	{
-		return "Feature=: ";
-	}
+  @Override
+  protected String messagePrefix() {
+    return "Feature=: ";
+  }
 
-	protected boolean doRun()
-	{
-		String newVersionParameter = commandLine.getOptionParameter("-SF");
-		return super.setVersionNewNumber(Version.withNoBuildNumber(newVersionParameter));
-	}
+  protected boolean doRun() {
+    String newVersionParameter = commandLine.getOptionParameter("-SF");
+    return super.setVersionNewNumber(Version.withNoBuildNumber(newVersionParameter));
+  }
 }

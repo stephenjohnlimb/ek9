@@ -1,8 +1,10 @@
 package org.ek9lang.compiler.files;
 
-public interface Module
-{
-	Source getSource();
+/**
+ * Defines a module scope, the main concept for namespaces in EK9.
+ */
+public interface Module {
+  Source getSource();
 
-	String getScopeName();
+  String getScopeName();
 }

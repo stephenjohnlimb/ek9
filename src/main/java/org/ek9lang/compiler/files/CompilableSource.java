@@ -1,17 +1,5 @@
 package org.ek9lang.compiler.files;
 
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.Token;
-import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.tokenizer.EK9Lexer;
-import org.ek9lang.compiler.tokenizer.TokenConsumptionListener;
-import org.ek9lang.compiler.tokenizer.TokenResult;
-import org.ek9lang.core.exception.AssertValue;
-import org.ek9lang.core.exception.CompilerException;
-import org.ek9lang.core.utils.Digest;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -19,260 +7,255 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Token;
+import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.tokenizer.Ek9Lexer;
+import org.ek9lang.compiler.tokenizer.TokenConsumptionListener;
+import org.ek9lang.compiler.tokenizer.TokenResult;
+import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.exception.CompilerException;
+import org.ek9lang.core.utils.Digest;
 
 /**
  * Holds a reference to the name of the file being compiled a checksum of the
  * file and the date time last modified.
- * <p>
  * This is used to detect changes in source that needs to have a new parse tree
  * generated.
  */
-public class CompilableSource implements Source, TokenConsumptionListener
-{
-	//Need to know if the source is a development source or a lib source or both or neither
-	private boolean dev = false;
+public class CompilableSource implements Source, TokenConsumptionListener {
+  // This is the full path to the filename.
+  protected String filename;
 
-	//If it was brought in as part of a package then we need to know the module name of the package.
-	//This is so we can let all parts of that package resolve against each other.
-	//But stop code from other packages/main etc. Accessing anything put constructs defined at this
-	//top level package name.
+  //If it was brought in as part of a package then we need to know the module name of the package.
+  //This is so we can let all parts of that package resolve against each other.
+  //But stop code from other packages/main etc. Accessing anything put constructs defined at this
+  //top level package name.
+  protected Digest.CheckSum checkSum = null;
+  //Need to know if the source is a development source or a lib source or both or neither
+  private boolean dev = false;
+  private String packageModuleName;
+  private boolean lib = false;
+  private long lastModified = -1;
 
-	private String packageModuleName;
-	private boolean lib = false;
+  private EK9Parser parser;
 
-	// This is the full path to the filename.
-	protected String filename;
-	protected Digest.CheckSum checkSum = null;
-	private long lastModified = -1;
+  private ErrorListener errorListener;
 
-	private EK9Parser parser;
+  //As the tokens get consumed by the parser and pulled from the Lexer this
+  //class listens for tokenConsumed messages and records the line and token, so they can be searched
+  // for in a Language Server use this is really important.
+  private Map<Integer, ArrayList<Token>> tokens = null;
 
-	private ErrorListener errorListener;
+  /**
+   * Set once parsed.
+   */
+  private EK9Parser.CompilationUnitContext compilationUnitContext = null;
 
-	//As the tokens get consumed by the parser and pulled from the Lexer this
-	//class listens for tokenConsumed messages and records the line and token, so they can be searched
-	// for in a Language Server use this is really important.
-	private Map<Integer, ArrayList<Token>> tokens = null;
+  /**
+   * Create compilable source for a specific filename.
+   */
+  public CompilableSource(String filename) {
+    AssertValue.checkNotEmpty(filename, "Filename cannot be empty or null");
+    this.filename = filename;
+    resetDetails();
+  }
 
-	/**
-	 * Set once parsed.
-	 */
-	private EK9Parser.CompilationUnitContext compilationUnitContext = null;
+  /**
+   * Informed when a token have been consumed out of the Lexer.
+   */
+  @Override
+  public void tokenConsumed(Token token) {
+    ArrayList<Token> line = tokens.computeIfAbsent(token.getLine(), k -> new ArrayList<>());
+    //create and add in to the map
+    //Now add the token.
+    line.add(token);
+  }
 
-	public CompilableSource(String filename)
-	{
-		AssertValue.checkNotEmpty(filename, "Filename cannot be empty or null");
-		this.filename = filename;
-		resetDetails();
-	}
+  /**
+   * Get the nearest source token on a particular line and character position.
+   */
+  public TokenResult nearestToken(int line, int characterPosition) {
+    TokenResult rtn = new TokenResult();
+    ArrayList<Token> lineOfTokens = tokens.get(line);
+    if (lineOfTokens != null) {
+      //Now the position won't be exact, so we need to find the lower bound.
+      for (int i = 0; i < lineOfTokens.size(); i++) {
+        Token t = lineOfTokens.get(i);
+        if (t.getCharPositionInLine() < characterPosition) {
+          rtn = new TokenResult(t, lineOfTokens, i);
+        } else {
+          return rtn;
+        }
+      }
+    }
+    return rtn;
+  }
 
-	/**
-	 * Informed when a token have been consumed out of the Lexer.
-	 */
-	@Override
-	public void tokenConsumed(Token token)
-	{
-		ArrayList<Token> line = tokens.computeIfAbsent(token.getLine(), k -> new ArrayList<>());
-		//create and add in to the map
-		//Now add the token.
-		line.add(token);
-	}
+  public EK9Parser.CompilationUnitContext getCompilationUnitContext() {
+    return compilationUnitContext;
+  }
 
-	public TokenResult nearestToken(int line, int characterPosition)
-	{
-		TokenResult rtn = new TokenResult();
-		ArrayList<Token> lineOfTokens = tokens.get(line);
-		if(lineOfTokens != null)
-		{
-			//Now the position won't be exact, so we need to find the lower bound.
-			for(int i = 0; i < lineOfTokens.size(); i++)
-			{
-				Token t = lineOfTokens.get(i);
-				if(t.getCharPositionInLine() < characterPosition)
-					rtn = new TokenResult(t, lineOfTokens, i);
-				else
-					return rtn;
-			}
-		}
-		return rtn;
-	}
+  @Override
+  public boolean isDev() {
+    return dev;
+  }
 
-	public EK9Parser.CompilationUnitContext getCompilationUnitContext()
-	{
-		return compilationUnitContext;
-	}
+  public CompilableSource setDev(boolean dev) {
+    this.dev = dev;
+    return this;
+  }
 
-	@Override
-	public boolean isDev()
-	{
-		return dev;
-	}
+  @Override
+  public boolean isLib() {
+    return lib;
+  }
 
-	public CompilableSource setDev(boolean dev)
-	{
-		this.dev = dev;
-		return this;
-	}
+  public String getPackageModuleName() {
+    return packageModuleName;
+  }
 
-	@Override
-	public boolean isLib()
-	{
-		return lib;
-	}
+  /**
+   * Set this compilable source as a library.
+   */
+  public CompilableSource setLib(String packageModuleName, boolean lib) {
+    this.packageModuleName = packageModuleName;
+    this.lib = lib;
+    return this;
+  }
 
-	public String getPackageModuleName()
-	{
-		return packageModuleName;
-	}
+  /**
+   * Checks if the file content have changed from when first calculated.
+   *
+   * @return true if modified, false if modified time and checksum are the same.
+   */
+  public boolean isModified() {
+    return lastModified != calculateLastModified() || !checkSum.equals(calculateCheckSum());
+  }
 
-	public CompilableSource setLib(String packageModuleName, boolean lib)
-	{
-		this.packageModuleName = packageModuleName;
-		this.lib = lib;
-		return this;
-	}
+  /**
+   * Just updates the last modified and the check sum to current values.
+   */
+  public CompilableSource resetDetails() {
+    updateFileDetails();
+    resetTokens();
+    return this;
+  }
 
-	/**
-	 * Checks if the file content have changed from when first calculated
-	 *
-	 * @return true if modified, false if modified time and checksum are the
-	 * same.
-	 */
-	public boolean isModified()
-	{
-		return lastModified != calculateLastModified() || !checkSum.equals(calculateCheckSum());
-	}
+  private void resetTokens() {
+    tokens = new HashMap<>();
+  }
 
-	/**
-	 * Just updates the last modified and the check sum to current values.
-	 */
-	public CompilableSource resetDetails()
-	{
-		updateFileDetails();
-		resetTokens();
-		return this;
-	}
+  private void updateFileDetails() {
+    lastModified = calculateLastModified();
+    checkSum = calculateCheckSum();
+  }
 
-	private void resetTokens()
-	{
-		tokens = new HashMap<>();
-	}
+  private long calculateLastModified() {
+    AssertValue.checkCanReadFile("Unable to read file " + filename, filename);
+    File file = new File(filename);
+    return file.lastModified();
+  }
 
-	private void updateFileDetails()
-	{
-		lastModified = calculateLastModified();
-		checkSum = calculateCheckSum();
-	}
+  private Digest.CheckSum calculateCheckSum() {
+    AssertValue.checkCanReadFile("Unable to read file " + filename, filename);
+    return Digest.digest(new File(filename));
+  }
 
-	private long calculateLastModified()
-	{
-		AssertValue.checkCanReadFile("Unable to read file " + filename, filename);
-		File file = new File(filename);
-		return file.lastModified();
-	}
+  @Override
+  public int hashCode() {
+    return filename.hashCode();
+  }
 
-	private Digest.CheckSum calculateCheckSum()
-	{
-		AssertValue.checkCanReadFile("Unable to read file " + filename, filename);
-		return Digest.digest(new File(filename));
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof CompilableSource cs) {
+      return cs.filename.equals(filename);
+    }
 
-	@Override
-	public int hashCode()
-	{
-		return filename.hashCode();
-	}
+    return false;
+  }
 
-	@Override
-	public boolean equals(Object obj)
-	{
-		if(obj == this)
-			return true;
-		if(obj instanceof CompilableSource cs)
-			return cs.filename.equals(filename);
+  /**
+   * Sets up the compilable source to be parsed.
+   */
+  public CompilableSource prepareToParse() {
+    try {
+      //So make a new error listener to get all the errors
+      setErrorListener(new ErrorListener());
+      //we will set the parsed module once parsed.
+      InputStream inputStream = getInputStream();
+      Ek9Lexer lexer = new Ek9Lexer(CharStreams.fromStream(inputStream), EK9Parser.INDENT,
+          EK9Parser.DEDENT).setSourceName(filename);
+      lexer.setTokenListener(this);
+      parser = new EK9Parser(new CommonTokenStream(lexer));
+      lexer.removeErrorListeners();
+      lexer.addErrorListener(errorListener);
+      parser.removeErrorListeners();
+      parser.addErrorListener(errorListener);
+      return this;
+    } catch (Exception ex) {
+      throw new CompilerException("Unable to parse file " + filename, ex);
+    }
+  }
 
-		return false;
-	}
+  /**
+   * Actually parse the source code.
+   */
+  public EK9Parser.CompilationUnitContext parse() {
+    if (parser != null) {
+      resetTokens();
+      compilationUnitContext = parser.compilationUnit();
+      return compilationUnitContext;
+    }
+    throw new CompilerException("Need to call prepareToParse before accessing compilation unit");
+  }
 
-	public CompilableSource prepareToParse()
-	{
-		try
-		{
-			//So make a new error listener to get all the errors
-			setErrorListener(new ErrorListener());
-			//we will set the parsed module once parsed.
-			InputStream inputStream = getInputStream();
-			EK9Lexer lexer = new EK9Lexer(CharStreams.fromStream(inputStream), EK9Parser.INDENT, EK9Parser.DEDENT).setSourceName(filename);
-			lexer.setTokenListener(this);
-			parser = new EK9Parser(new CommonTokenStream(lexer));
-			lexer.removeErrorListeners();
-			lexer.addErrorListener(errorListener);
-			parser.removeErrorListeners();
-			parser.addErrorListener(errorListener);
-			return this;
-		}
-		catch(Exception ex)
-		{
-			throw new CompilerException("Unable to parse file " + filename, ex);
-		}
-	}
+  /**
+   * Access the error listener, only check after parsing.
+   */
+  public ErrorListener getErrorListener() {
+    if (this.errorListener == null) {
+      throw new CompilerException(
+          "Need to call prepareToParse before accessing compilation unit and getting errors");
+    }
 
-	public EK9Parser.CompilationUnitContext parse()
-	{
-		if(parser != null)
-		{
-			resetTokens();
-			compilationUnitContext = parser.compilationUnit();
-			return compilationUnitContext;
-		}
-		throw new CompilerException("Need to call prepareToParse before accessing compilation unit");
-	}
+    return this.errorListener;
+  }
 
-	private void setErrorListener(ErrorListener listener)
-	{
-		this.errorListener = listener;
-	}
+  private void setErrorListener(ErrorListener listener) {
+    this.errorListener = listener;
+  }
 
-	public ErrorListener getErrorListener()
-	{
-		if(this.errorListener == null)
-			throw new CompilerException("Need to call prepareToParse before accessing compilation unit and getting errors");
+  private InputStream getInputStream() {
+    try {
+      return new FileInputStream(filename);
+    } catch (Exception ex) {
+      throw new CompilerException("Unable to open file " + filename, ex);
+    }
+  }
 
-		return this.errorListener;
-	}
+  @Override
+  public String toString() {
+    return filename;
+  }
 
-	private InputStream getInputStream()
-	{
-		try
-		{
-			return new FileInputStream(filename);
-		}
-		catch(Exception ex)
-		{
-			throw new CompilerException("Unable to open file " + filename, ex);
-		}
-	}
+  @Override
+  public String getFileName() {
+    return filename;
+  }
 
-	@Override
-	public String toString()
-	{
-		return filename;
-	}
+  public String getGeneralIdentifier() {
+    return getEncodedFileName(filename);
+  }
 
-	@Override
-	public String getFileName()
-	{
-		return filename;
-	}
-
-	public String getGeneralIdentifier()
-	{
-		return getEncodedFileName(filename);
-	}
-
-	private String getEncodedFileName(String fileName)
-	{
-		String uri = Path.of(fileName).toUri().toString();
-		return uri.replace("c:", "c%3A").replace("C:", "c%3A");
-	}
+  private String getEncodedFileName(String fileName) {
+    String uri = Path.of(fileName).toUri().toString();
+    return uri.replace("c:", "c%3A").replace("C:", "c%3A");
+  }
 }

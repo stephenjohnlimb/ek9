@@ -1,8 +1,5 @@
 package org.ek9lang.core.utils;
 
-import org.ek9lang.core.exception.AssertValue;
-import org.ek9lang.core.exception.CompilerException;
-
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,270 +7,252 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.exception.CompilerException;
 
 /**
  * Designed to abstract out all file handling for the compiler.
  */
-public final class FileHandling
-{
-	private final OsSupport osSupport;
-	private final Packager packager;
-	private final EK9DirectoryStructure directoryStructure;
+public final class FileHandling {
+  private final OsSupport osSupport;
+  private final Packager packager;
+  private final Ek9DirectoryStructure directoryStructure;
 
-	/**
-	 * Create File Handling with the appropriately configured OS support.
-	 * <p>
-	 * Quite a few of these methods just delegate to OsSupport and the Packager.
-	 */
-	public FileHandling(OsSupport osSupport)
-	{
-		this.osSupport = osSupport;
-		this.packager = new Packager(this);
-		this.directoryStructure = new EK9DirectoryStructure(this);
-	}
+  /**
+   * Create File Handling with the appropriately configured OS support.
+   * Quite a few of these methods just delegate to OsSupport and the Packager.
+   */
+  public FileHandling(OsSupport osSupport) {
+    this.osSupport = osSupport;
+    this.packager = new Packager(this);
+    this.directoryStructure = new Ek9DirectoryStructure(this);
+  }
 
-	public String getTempDirectory()
-	{
-		return osSupport.getTempDirectory();
-	}
+  public String getTempDirectory() {
+    return osSupport.getTempDirectory();
+  }
 
-	public String getUsersHomeDirectory()
-	{
-		return osSupport.getUsersHomeDirectory();
-	}
+  public String getUsersHomeDirectory() {
+    return osSupport.getUsersHomeDirectory();
+  }
 
-	public File getUsersHomeEK9LibDirectory()
-	{
-		return new File(getUsersHomeEK9Directory(), "lib");
-	}
+  public File getUsersHomeEk9LibDirectory() {
+    return new File(getUsersHomeEk9Directory(), "lib");
+  }
 
-	public String getUsersHomeEK9Directory()
-	{
-		return getDotEK9Directory(osSupport.getUsersHomeDirectory());
-	}
+  public String getUsersHomeEk9Directory() {
+    return getDotEk9Directory(osSupport.getUsersHomeDirectory());
+  }
 
-	public String getDotEK9Directory(File directory)
-	{
-		AssertValue.checkDirectoryReadable("Directory not readable", directory);
-		return directory.getAbsolutePath() + File.separatorChar + ".ek9" + File.separatorChar;
-	}
+  public String getDotEk9Directory(File directory) {
+    AssertValue.checkDirectoryReadable("Directory not readable", directory);
+    return directory.getAbsolutePath() + File.separatorChar + ".ek9" + File.separatorChar;
+  }
 
-	public String getDotEK9Directory(String fromDirectory)
-	{
-		AssertValue.checkNotEmpty("FromDirectory is empty", fromDirectory);
-		return getDotEK9Directory(new File(fromDirectory));
-	}
+  public String getDotEk9Directory(String fromDirectory) {
+    AssertValue.checkNotEmpty("FromDirectory is empty", fromDirectory);
+    return getDotEk9Directory(new File(fromDirectory));
+  }
 
-	public String makePackagedModuleZipFileName(String moduleName, String version)
-	{
-		return makePackagedModuleZipFileName(makeDependencyVector(moduleName, version));
-	}
+  public String makePackagedModuleZipFileName(String moduleName, String version) {
+    return makePackagedModuleZipFileName(makeDependencyVector(moduleName, version));
+  }
 
-	public String makePackagedModuleZipFileName(String dependencyVector)
-	{
-		AssertValue.checkNotEmpty("Dependency Vector is empty", dependencyVector);
-		return dependencyVector + ".zip";
-	}
+  public String makePackagedModuleZipFileName(String dependencyVector) {
+    AssertValue.checkNotEmpty("Dependency Vector is empty", dependencyVector);
+    return dependencyVector + ".zip";
+  }
 
-	public String makeDependencyVector(String moduleName, String version)
-	{
-		AssertValue.checkNotEmpty("ModuleName is empty", moduleName);
-		AssertValue.checkNotEmpty("Version is empty", version);
-		return moduleName + "-" + version;
-	}
+  /**
+   * Create a full dependency vector out of module name and verssion.
+   */
+  public String makeDependencyVector(String moduleName, String version) {
+    AssertValue.checkNotEmpty("ModuleName is empty", moduleName);
+    AssertValue.checkNotEmpty("Version is empty", version);
+    return moduleName + "-" + version;
+  }
 
-	/**
-	 * Copy a named file from a source directory to a destination directory.
-	 */
-	public boolean copy(File sourceDir, File destinationDir, String fileName)
-	{
-		//Let exception break everything here - these are precondition.
-		AssertValue.checkNotEmpty("Filename empty", fileName);
-		AssertValue.checkDirectoryReadable("Source directory not readable", sourceDir);
-		AssertValue.checkDirectoryWritable("Destination directory not writable", destinationDir);
+  /**
+   * Copy a named file from a source directory to a destination directory.
+   */
+  public boolean copy(File sourceDir, File destinationDir, String fileName) {
+    //Let exception break everything here - these are precondition.
+    AssertValue.checkNotEmpty("Filename empty", fileName);
+    AssertValue.checkDirectoryReadable("Source directory not readable", sourceDir);
+    AssertValue.checkDirectoryWritable("Destination directory not writable", destinationDir);
 
-		return copy(new File(sourceDir, fileName), new File(destinationDir, fileName));
-	}
+    return copy(new File(sourceDir, fileName), new File(destinationDir, fileName));
+  }
 
-	public boolean copy(File fullSourcePath, File fullDestinationPath)
-	{
-		try
-		{
-			Path originalPath = fullSourcePath.toPath();
-			Path targetPath = fullDestinationPath.toPath();
-			Files.copy(originalPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
-			return true;
-		}
-		catch(Exception ex)
-		{
-			System.err.println("File copy failed: " + ex.getMessage());
-			return false;
-		}
-	}
+  /**
+   * Copy a file to a new destination.
+   */
+  public boolean copy(File fullSourcePath, File fullDestinationPath) {
+    try {
+      Path originalPath = fullSourcePath.toPath();
+      Path targetPath = fullDestinationPath.toPath();
+      Files.copy(originalPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+      return true;
+    } catch (Exception ex) {
+      System.err.println("File copy failed: " + ex.getMessage());
+      return false;
+    }
+  }
 
-	public void deleteFileIfExists(File file)
-	{
-		AssertValue.checkNotNull("File cannot be null", file);
-		try
-		{
-			Files.deleteIfExists(file.toPath());
-		}
-		catch(Exception ex)
-		{
-			throw new CompilerException("Unable to delete [" + ex.getMessage() + "]", ex);
-		}
-	}
+  /**
+   * Deletes a file if it exists or a compiler exception if it cannot be deleted.
+   */
+  public void deleteFileIfExists(File file) {
+    AssertValue.checkNotNull("File cannot be null", file);
+    try {
+      Files.deleteIfExists(file.toPath());
+    } catch (Exception ex) {
+      throw new CompilerException("Unable to delete [" + ex.getMessage() + "]", ex);
+    }
+  }
 
-	public void makeDirectoryIfNotExists(File directory)
-	{
-		osSupport.makeDirectoryIfNotExists(directory);
-	}
+  /**
+   * Create a directory.
+   */
+  public void makeDirectoryIfNotExists(File directory) {
+    osSupport.makeDirectoryIfNotExists(directory);
+  }
 
-	/**
-	 * deletes matching files
-	 *
-	 * @param dir             the directory to look in
-	 * @param fileNamePattern The pattern regex not shell so for * use .* for .txt use \\.txt
-	 */
-	public void deleteMatchingFiles(File dir, String fileNamePattern)
-	{
-		AssertValue.checkNotNull("Dir cannot be null", dir);
-		AssertValue.checkNotNull("FileNamePattern cannot be null", fileNamePattern);
+  /**
+   * deletes matching files.
+   *
+   * @param dir             the directory to look in
+   * @param fileNamePattern The pattern regex not shell so for * use .* for .txt use \\.txt
+   */
+  public void deleteMatchingFiles(File dir, String fileNamePattern) {
+    AssertValue.checkNotNull("Dir cannot be null", dir);
+    AssertValue.checkNotNull("FileNamePattern cannot be null", fileNamePattern);
 
-		File[] files = dir.listFiles((dir1, name) -> name.matches(fileNamePattern));
-		Optional.ofNullable(files).stream().flatMap(Arrays::stream)
-				.forEach(this::deleteFileIfExists);
-	}
+    File[] files = dir.listFiles((dir1, name) -> name.matches(fileNamePattern));
+    Optional.ofNullable(files).stream().flatMap(Arrays::stream)
+        .forEach(this::deleteFileIfExists);
+  }
 
-	/**
-	 * Does a recursive delete from this directory and below.
-	 * If includeDirectoryRoot is true then it will delete that directory as well
-	 */
-	public void deleteContentsAndBelow(File dir, boolean includeDirectoryRoot)
-	{
-		Optional.ofNullable(dir.listFiles())
-				.stream()
-				.flatMap(Arrays::stream)
-				.forEach(toDelete -> {
-					if(toDelete.isDirectory())
-						deleteContentsAndBelow(toDelete, true);
-					else
-						deleteFileIfExists(toDelete);
-				});
+  /**
+   * Does a recursive delete from this directory and below.
+   * If includeDirectoryRoot is true then it will delete that directory as well
+   */
+  public void deleteContentsAndBelow(File dir, boolean includeDirectoryRoot) {
+    Optional.ofNullable(dir.listFiles())
+        .stream()
+        .flatMap(Arrays::stream)
+        .forEach(toDelete -> {
+          if (toDelete.isDirectory()) {
+            deleteContentsAndBelow(toDelete, true);
+          } else {
+            deleteFileIfExists(toDelete);
+          }
+        });
 
-		if(includeDirectoryRoot)
-			deleteFileIfExists(dir);
-	}
+    if (includeDirectoryRoot) {
+      deleteFileIfExists(dir);
+    }
+  }
 
-	public Digest.CheckSum createSha256Of(String fileName)
-	{
-		File sha256File = new File(fileName + ".sha256");
-		File fileToCheckSum = new File(fileName);
-		Digest.CheckSum checkSum = Digest.digest(fileToCheckSum);
-		checkSum.saveToFile(sha256File);
-		return checkSum;
-	}
+  /**
+   * Create a sha256 hash of a file and save it in fileName".sha256"
+   */
+  public Digest.CheckSum createSha256Of(String fileName) {
+    File sha256File = new File(fileName + ".sha256");
+    File fileToCheckSum = new File(fileName);
+    Digest.CheckSum checkSum = Digest.digest(fileToCheckSum);
+    checkSum.saveToFile(sha256File);
+    return checkSum;
+  }
 
-	/**
-	 * Create a Java jar file with a list of zip sets.
-	 */
-	public boolean createJar(String fileName, List<ZipSet> sets)
-	{
-		return packager.createJar(fileName, sets);
-	}
+  /**
+   * Create a Java jar file with a list of zip sets.
+   */
+  public boolean createJar(String fileName, List<ZipSet> sets) {
+    return packager.createJar(fileName, sets);
+  }
 
-	public boolean unZipFileTo(File zipFile, String unpackedDir)
-	{
-		return unZipFileTo(zipFile, new File(unpackedDir));
-	}
+  public boolean unZipFileTo(File zipFile, String unpackedDir) {
+    return unZipFileTo(zipFile, new File(unpackedDir));
+  }
 
-	/**
-	 * Unzips a zip file into a directory, the directory will be created if it does not exist.
-	 */
-	public boolean unZipFileTo(File zipFile, File unpackedDir)
-	{
-		return packager.unZipFileTo(zipFile, unpackedDir);
-	}
+  /**
+   * Unzips a zip file into a directory, the directory will be created if it does not exist.
+   */
+  public boolean unZipFileTo(File zipFile, File unpackedDir) {
+    return packager.unZipFileTo(zipFile, unpackedDir);
+  }
 
-	/**
-	 * To be used for making the zip when publishing ek9 source to artefact server.
-	 *
-	 * @param fileName             The name of the zip to create
-	 * @param sourcePropertiesFile The properties file that describes the package.
-	 * @return true if all OK.
-	 */
-	public boolean createZip(String fileName, ZipSet set, File sourcePropertiesFile)
-	{
-		return packager.createZip(fileName, set, sourcePropertiesFile);
-	}
+  /**
+   * To be used for making the zip when publishing ek9 source to artefact server.
+   *
+   * @param fileName             The name of the zip to create
+   * @param sourcePropertiesFile The properties file that describes the package.
+   * @return true if all OK.
+   */
+  public boolean createZip(String fileName, ZipSet set, File sourcePropertiesFile) {
+    return packager.createZip(fileName, set, sourcePropertiesFile);
+  }
 
-	public File getTargetExecutableArtefact(String ek9FullPathToFileName, String targetArchitecture)
-	{
-		return directoryStructure.getTargetExecutableArtefact(ek9FullPathToFileName, targetArchitecture);
-	}
+  public File getTargetExecutableArtefact(String ek9FullPathToFileName, String targetArchitecture) {
+    return directoryStructure.getTargetExecutableArtefact(ek9FullPathToFileName,
+        targetArchitecture);
+  }
 
-	public File getTargetPropertiesArtefact(String ek9FullPathToFileName)
-	{
-		return directoryStructure.getTargetPropertiesArtefact(ek9FullPathToFileName);
-	}
+  public File getTargetPropertiesArtefact(String ek9FullPathToFileName) {
+    return directoryStructure.getTargetPropertiesArtefact(ek9FullPathToFileName);
+  }
 
-	public void validateHomeEK9Directory(String targetArchitecture)
-	{
-		validateEK9Directory(getUsersHomeEK9Directory(), targetArchitecture);
-	}
+  public void validateHomeEk9Directory(String targetArchitecture) {
+    validateEk9Directory(getUsersHomeEk9Directory(), targetArchitecture);
+  }
 
-	public void validateEK9Directory(String directoryName, String targetArchitecture)
-	{
-		directoryStructure.validateEK9Directory(directoryName, targetArchitecture);
-	}
+  public void validateEk9Directory(String directoryName, String targetArchitecture) {
+    directoryStructure.validateEk9Directory(directoryName, targetArchitecture);
+  }
 
-	public void cleanEK9DirectoryStructureFor(File ek9File, String targetArchitecture)
-	{
-		cleanEK9DirectoryStructureFor(ek9File.getPath(), targetArchitecture);
-	}
+  public void cleanEk9DirectoryStructureFor(File ek9File, String targetArchitecture) {
+    cleanEk9DirectoryStructureFor(ek9File.getPath(), targetArchitecture);
+  }
 
-	public void cleanEK9DirectoryStructureFor(String ek9FullPathToFileName, String targetArchitecture)
-	{
-		directoryStructure.cleanEK9DirectoryStructureFor(ek9FullPathToFileName, targetArchitecture);
-	}
+  public void cleanEk9DirectoryStructureFor(String ek9FullPathToFileName,
+                                            String targetArchitecture) {
+    directoryStructure.cleanEk9DirectoryStructureFor(ek9FullPathToFileName, targetArchitecture);
+  }
 
-	public File getMainGeneratedOutputDirectory(String fromEK9BaseDirectory, String targetArchitecture)
-	{
-		return directoryStructure.getMainGeneratedOutputDirectory(fromEK9BaseDirectory, targetArchitecture);
-	}
+  public File getMainGeneratedOutputDirectory(String fromEk9BaseDirectory,
+                                              String targetArchitecture) {
+    return directoryStructure.getMainGeneratedOutputDirectory(fromEk9BaseDirectory,
+        targetArchitecture);
+  }
 
-	public File getMainFinalOutputDirectory(String fromEK9BaseDirectory, String targetArchitecture)
-	{
-		return directoryStructure.getMainFinalOutputDirectory(fromEK9BaseDirectory, targetArchitecture);
-	}
+  public File getMainFinalOutputDirectory(String fromEk9BaseDirectory, String targetArchitecture) {
+    return directoryStructure.getMainFinalOutputDirectory(fromEk9BaseDirectory, targetArchitecture);
+  }
 
-	public File getDevGeneratedOutputDirectory(String fromEK9BaseDirectory, String targetArchitecture)
-	{
-		return directoryStructure.getDevGeneratedOutputDirectory(fromEK9BaseDirectory, targetArchitecture);
-	}
+  public File getDevGeneratedOutputDirectory(String fromEk9BaseDirectory,
+                                             String targetArchitecture) {
+    return directoryStructure.getDevGeneratedOutputDirectory(fromEk9BaseDirectory,
+        targetArchitecture);
+  }
 
-	public File getDevFinalOutputDirectory(String fromEK9BaseDirectory, String targetArchitecture)
-	{
-		return directoryStructure.getDevFinalOutputDirectory(fromEK9BaseDirectory, targetArchitecture);
-	}
+  public File getDevFinalOutputDirectory(String fromEk9BaseDirectory, String targetArchitecture) {
+    return directoryStructure.getDevFinalOutputDirectory(fromEk9BaseDirectory, targetArchitecture);
+  }
 
-	public void deleteStalePackages(String ek9FileNameDirectory, String moduleName)
-	{
-		directoryStructure.deleteStalePackages(ek9FileNameDirectory, moduleName);
-	}
+  public void deleteStalePackages(String ek9FileNameDirectory, String moduleName) {
+    directoryStructure.deleteStalePackages(ek9FileNameDirectory, moduleName);
+  }
 
-	public boolean isUsersSigningKeyPairPresent()
-	{
-		return directoryStructure.isUsersSigningKeyPairPresent();
-	}
+  public boolean isUsersSigningKeyPairPresent() {
+    return directoryStructure.isUsersSigningKeyPairPresent();
+  }
 
-	public SigningKeyPair getUsersSigningKeyPair()
-	{
-		return directoryStructure.getUsersSigningKeyPair();
-	}
+  public SigningKeyPair getUsersSigningKeyPair() {
+    return directoryStructure.getUsersSigningKeyPair();
+  }
 
-	public boolean saveToHomeEK9Directory(SigningKeyPair keyPair)
-	{
-		return directoryStructure.saveToHomeEK9Directory(keyPair);
-	}
+  public boolean saveToHomeEk9Directory(SigningKeyPair keyPair) {
+    return directoryStructure.saveToHomeEk9Directory(keyPair);
+  }
 }

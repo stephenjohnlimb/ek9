@@ -8,22 +8,21 @@ import java.util.Map;
  * Normally created by parsing an EK9 file.
  */
 public record PackageDetails(
-		String moduleName,
-		boolean packagePresent,
-		boolean publicAccess,
-		String version,
-		int versionNumberOnLine,
-		String description,
-		List<String> tags,
-		String license,
-		boolean applyStandardIncludes,
-		List<String> includeFiles,
-		boolean applyStandardExcludes,
-		Map<String, String> deps,
-		Map<String, String> excludeDeps,
-		Map<String, String> devDeps,
-		List<String> excludeFiles,
-		List<String> programs,
-		String dependencyFingerPrint)
-{
+    String moduleName,
+    boolean packagePresent,
+    boolean publicAccess,
+    String version,
+    int versionNumberOnLine,
+    String description,
+    List<String> tags,
+    String license,
+    boolean applyStandardIncludes,
+    List<String> includeFiles,
+    boolean applyStandardExcludes,
+    Map<String, String> deps,
+    Map<String, String> excludeDeps,
+    Map<String, String> devDeps,
+    List<String> excludeFiles,
+    List<String> programs,
+    String dependencyFingerPrint) {
 }

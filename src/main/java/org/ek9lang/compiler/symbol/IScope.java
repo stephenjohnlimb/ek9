@@ -1,97 +1,101 @@
 package org.ek9lang.compiler.symbol;
 
+import java.util.List;
+import java.util.Optional;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 
-import java.util.List;
-import java.util.Optional;
+/**
+ * Concept of a scope where functions, methods and variables can be declared.
+ */
+public interface IScope {
 
-public interface IScope
-{
+  Object clone(IScope withParentAsAppropriate);
 
-	/**
-	 * Two main type of scope in use a block is just like a set of instruction inside an if block or a while block
-	 * whereas an aggregate block is as the whole class/component level.
-	 * So for variable definition it follows that same sort of logic as java not C/C++.
-	 * You can have fields as variables with a name say 'v1' and parameters and block declarations of something as 'v1'.
-	 * But once in a block scope then you cannot redefine 'v1'.
-	 */
-	enum ScopeType
-	{
-		AGGREGATE,
-		BLOCK
-	}
+  ScopeType getScopeType();
 
-	Object clone(IScope withParentAsAppropriate);
+  String getScopeName();
 
-	ScopeType getScopeType();
+  /**
+   * Useful for printing out errors and information.
+   * The scope name might be a complex generated name used internally a bit like symbol names are.
+   * So some items are both scopes and symbols - so ideally we'd want to use a friendly name
+   * where possible.
+   *
+   * @return The friendly name to be used for the developer.
+   */
+  String getFriendlyScopeName();
 
-	String getScopeName();
+  /**
+   * Typically used with functions.
+   * Something that is pure cannot have 'side effects'.
+   * To enforce this a bit of logic can have no references to other variables, methods and functions
+   * else how can no side effects be guaranteed. Hence, a function that just tests a value
+   * or calculates a result is deemed pure. Anything else is questionable.
+   *
+   * @return true if marked as pure, false otherwise.
+   */
+  boolean isMarkedPure();
 
-	/**
-	 * Useful for printing out errors and information.
-	 * The scope name might be a complex generated name used internally a bit like symbol names are.
-	 * So some items are both scopes and symbols - so ideally we'd want to use a friendly name where possible.
-	 *
-	 * @return The friendly name to be used for the developer.
-	 */
-	String getFriendlyScopeName();
+  /**
+   * Define a Symbol in this scope.
+   */
+  void define(ISymbol symbol);
 
-	/**
-	 * Typically used with functions.
-	 * Something that is pure cannot have 'side effects'.
-	 * To enforce this a bit of logic can have no references to other variables, methods and functions
-	 * else how can no side effects be guaranteed. Hence, a function that just tests a value or calculates a result
-	 * is deemed pure. Anything else is questionable.
-	 *
-	 * @return true if marked as pure, false otherwise.
-	 */
-	boolean isMarkedPure();
+  /**
+   * Provide a list of all the parameters held in this scope and only this scope.
+   */
+  List<ISymbol> getSymbolsForThisScope();
 
-	/**
-	 * Define a Symbol in this scope.
-	 */
-	void define(ISymbol symbol);
+  /**
+   * Find the nearest symbol of that name up the scope tree.
+   */
+  Optional<ISymbol> resolve(SymbolSearch search);
 
-	/**
-	 * Provide a list of all the parameters held in this scope and only this scope.
-	 */
-	List<ISymbol> getSymbolsForThisScope();
+  /**
+   * Looks in scope and parent scopes.
+   */
+  MethodSymbolSearchResult resolveMatchingMethods(MethodSymbolSearch search,
+                                                  MethodSymbolSearchResult result);
 
-	/**
-	 * Find the nearest symbol of that name up the scope tree.
-	 */
-	Optional<ISymbol> resolve(SymbolSearch search);
+  /**
+   * Look in own scope just for methods and return all those that could match.
+   * ideally there would be one in the case of ambiguities there will be more.
+   */
+  MethodSymbolSearchResult resolveMatchingMethodsInThisScopeOnly(MethodSymbolSearch search,
+                                                                 MethodSymbolSearchResult result);
 
-	/**
-	 * Looks in scope and parent scopes.
-	 */
-	MethodSymbolSearchResult resolveForAllMatchingMethods(MethodSymbolSearch search, MethodSymbolSearchResult result);
+  /**
+   * Just look in own scope.
+   */
+  Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search);
 
-	/**
-	 * Look in own scope just for methods and return all those that could match.
-	 * ideally there would be one in the case of ambiguities there will be more.
-	 */
-	MethodSymbolSearchResult resolveForAllMatchingMethodsInThisScopeOnly(MethodSymbolSearch search, MethodSymbolSearchResult result);
+  boolean isScopeAMatchForEnclosingScope(IScope toCheck);
 
-	/**
-	 * Just look in own scope.
-	 */
-	Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search);
+  Optional<ScopedSymbol> findNearestAggregateScopeInEnclosingScopes();
 
-	boolean isScopeAMatchForEnclosingScope(IScope toCheck);
+  /**
+   * Typically in a scoped block we can encounter situations (like exceptions) that cause the block
+   * to end (terminate) early.
+   */
+  boolean isTerminatedNormally();
 
-	Optional<ScopedSymbol> findNearestAggregateScopeInEnclosingScopes();
+  Token getEncounteredExceptionToken();
 
-	/**
-	 * Typically in a scoped block we can encounter situations (like exceptions) that cause the block
-	 * to end (terminate) early.
-	 */
-	boolean isTerminatedNormally();
+  void setEncounteredExceptionToken(Token encounteredExceptionToken);
 
-	Token getEncounteredExceptionToken();
-
-	void setEncounteredExceptionToken(Token encounteredExceptionToken);
+  /**
+   * Two main type of scope in use a block is just like a set of instruction inside an if block
+   * or a while block whereas an aggregate block is as the whole class/component level.
+   * So for variable definition it follows that same sort of logic as java not C/C++.
+   * You can have fields as variables with a name say 'v1' and parameters and block declarations
+   * of something as 'v1'.
+   * But once in a block scope then you cannot redefine 'v1'.
+   */
+  enum ScopeType {
+    AGGREGATE,
+    BLOCK
+  }
 }

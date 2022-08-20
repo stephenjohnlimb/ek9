@@ -1,415 +1,401 @@
 package org.ek9lang.compiler.symbol;
 
-import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
-import org.ek9lang.compiler.symbol.support.SymbolMatcher;
-
 import java.util.List;
 import java.util.Optional;
+import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
+import org.ek9lang.compiler.symbol.support.SymbolMatcher;
 
 /**
  * Represents some type of method that exists on an aggregate type scope.
  * Or it could just be a function type concept at the module level.
- * <p>
  * So it really is some type of callable 'thing' that has a scope of its own.
  * This scope is used to hold incoming parameters.
- * <p>
  * It can also have some form of visibility/access modifiers and holds the concept
  * of being overridable in terms of inheritance. In some cases it may also be
  * defined as one of the 'operators' such as '+' or '$' for example.
  */
-public class MethodSymbol extends ScopedSymbol
-{
-	/**
-	 * Keep separate variable for what we are returning because we need its name and type.
-	 */
-	private ISymbol returningSymbol;
-
-	//Just used internally to check for method signature matching
-	private final SymbolMatcher matcher = new SymbolMatcher();
-
-	/**
-	 * So has the developer indicated that this method is an overriding method.
-	 */
-	private boolean override = false;
-	/**
-	 * By default, access to methods is public unless otherwise modified.
-	 */
-	private String accessModifier = "public";
-
-	/**
-	 * Is this a constructor method or just a normal method
-	 */
-	private boolean constructor = false;
-
-	/**
-	 * Is this an operator like := or < etc.
-	 */
-	private boolean operator = false;
-
-	/**
-	 * Was it marked abstract in the source code.
-	 */
-	private boolean markedAbstract = false;
-
-	/**
-	 * We may be interested to know and may restrict some operation if this function is marked as pure.
-	 */
-	private boolean markedPure = false;
-
-	private boolean markedAsDispatcher = false;
-
-	/**
-	 * We may or may not alter if it was abstract by setting this virtual value.
-	 */
-	private boolean virtual = false;
-
-	/**
-	 * Should this method be cloned during a clone operation like for type defines.
-	 */
-	private boolean markedNoClone = false;
-
-	/**
-	 * Is this method a synthetic one, ie typically for constructors the compiler can indicate
-	 * this method should be created in code generation.
-	 */
-	private boolean synthetic = false;
-
-	/**
-	 * Really just used for reverse engineered methods from Java we need to know if the method returns this or not.
-	 */
-	private boolean ek9ReturnsThis = false;
-
-	/**
-	 * This is the name of the delegate in the aggregate.
-	 * <pre>
-	 * DelegatingProcessor with trait of Processor by proc
-	 * 	proc as Processor?
-	 * </pre>
-	 * This is held at method level, so some methods can be delegated and others implemented.
-	 * In effect the compiler needs to add synthetic methods in for the methods on the trait.
-	 * But the developer can decide to implement them if they elect to.
-	 */
-	private String usedAsProxyForDelegate = null;
-
-	public MethodSymbol(String name, IScope enclosingScope)
-	{
-		super(name, enclosingScope);
-		super.setCategory(SymbolCategory.METHOD);
-		super.setGenus(SymbolGenus.VALUE);
-	}
-
-	/**
-	 * Typically used for cloning constructors.
-	 */
-	public MethodSymbol(String name, ISymbol type, IScope enclosingScope)
-	{
-		super(name, Optional.of(type), enclosingScope);
-		super.setCategory(SymbolCategory.METHOD);
-		super.setGenus(SymbolGenus.VALUE);
-	}
-
-	public MethodSymbol(String name, Optional<ISymbol> type, IScope enclosingScope)
-	{
-		super(name, type, enclosingScope);
-		super.setCategory(SymbolCategory.METHOD);
-		super.setGenus(SymbolGenus.VALUE);
-	}
-
-	public MethodSymbol clone(ISymbol withType, IScope withParentAsAppropriate)
-	{
-		return cloneIntoMethodSymbol(new MethodSymbol(this.getName(), withType, withParentAsAppropriate));
-	}
-
-	@Override
-	public MethodSymbol clone(IScope withParentAsAppropriate)
-	{
-		return cloneIntoMethodSymbol(new MethodSymbol(this.getName(), this.getType(), withParentAsAppropriate));
-	}
-
-	protected MethodSymbol cloneIntoMethodSymbol(MethodSymbol newCopy)
-	{
-		super.cloneIntoScopeSymbol(newCopy);
-
-		newCopy.setSourceToken(getSourceToken());
-		if(isReturningSymbolPresent())
-			newCopy.returningSymbol = this.returningSymbol.clone(newCopy);
-
-		newCopy.override = this.override;
-		newCopy.accessModifier = this.accessModifier;
-		newCopy.constructor = this.constructor;
-		newCopy.operator = this.operator;
-		newCopy.markedAbstract = this.markedAbstract;
-		newCopy.markedPure = this.markedPure;
-		newCopy.markedAsDispatcher = this.markedAsDispatcher;
-		newCopy.virtual = this.virtual;
-		newCopy.markedNoClone = this.markedNoClone;
-		newCopy.synthetic = this.synthetic;
-		newCopy.ek9ReturnsThis = this.ek9ReturnsThis;
-		newCopy.usedAsProxyForDelegate = this.usedAsProxyForDelegate;
-
-		return newCopy;
-	}
-
-	public boolean isSynthetic()
-	{
-		return synthetic;
-	}
-
-	public void setSynthetic(boolean synthetic)
-	{
-		this.synthetic = synthetic;
-	}
-
-	public boolean isOverride()
-	{
-		return override;
-	}
-
-	public void setOverride(boolean override)
-	{
-		this.override = override;
-	}
-
-	public String getAccessModifier()
-	{
-		return accessModifier;
-	}
-
-	public void setAccessModifier(String accessModifier)
-	{
-		this.accessModifier = accessModifier;
-	}
-
-	@Override
-	public boolean isPrivate()
-	{
-		return accessModifier.equals("private");
-	}
-
-	@Override
-	public boolean isProtected()
-	{
-		return accessModifier.equals("protected");
-	}
-
-	@Override
-	public boolean isPublic()
-	{
-		return accessModifier.equals("public");
-	}
-
-	public boolean isUsedAsProxyForDelegate()
-	{
-		return usedAsProxyForDelegate != null;
-	}
-
-	public String getUsedAsProxyForDelegate()
-	{
-		return this.usedAsProxyForDelegate;
-	}
-
-	public void setUsedAsProxyForDelegate(String delegateName)
-	{
-		this.usedAsProxyForDelegate = delegateName;
-		//now this also means a couple of other things
-		this.setOverride(true);
-		this.setMarkedAbstract(false);
-		this.setVirtual(false);
-	}
-
-	public void setEk9ReturnsThis(boolean ek9ReturnsThis)
-	{
-		this.ek9ReturnsThis = ek9ReturnsThis;
-	}
-
-	public boolean isEk9ReturnsThis()
-	{
-		return ek9ReturnsThis;
-	}
-
-	public boolean isMarkedNoClone()
-	{
-		return markedNoClone;
-	}
-
-	public void setMarkedNoClone(boolean markedNoClone)
-	{
-		this.markedNoClone = markedNoClone;
-	}
-
-	public boolean isMarkedAsDispatcher()
-	{
-		return markedAsDispatcher;
-	}
-
-	public MethodSymbol setMarkedAsDispatcher(boolean markedAsDispatcher)
-	{
-		this.markedAsDispatcher = markedAsDispatcher;
-		return this;
-	}
-
-	@Override
-	public boolean isMarkedAbstract()
-	{
-		return markedAbstract;
-	}
-
-	public boolean isNotMarkedAbstract()
-	{
-		return !markedAbstract;
-	}
-
-	public void setMarkedAbstract(boolean markedAbstract)
-	{
-		this.markedAbstract = markedAbstract;
-	}
-
-	public void setVirtual(boolean virtual)
-	{
-		this.virtual = virtual;
-	}
-
-	public boolean isVirtual()
-	{
-		return virtual;
-	}
-
-	@Override
-	public boolean isAConstant()
-	{
-		return true;
-	}
-
-	public boolean isConstructor()
-	{
-		return constructor;
-	}
-
-	public MethodSymbol setConstructor(boolean constructor)
-	{
-		this.constructor = constructor;
-		return this;
-	}
-
-	public boolean isOperator()
-	{
-		return operator;
-	}
-
-	public MethodSymbol setOperator(boolean operator)
-	{
-		this.operator = operator;
-		return this;
-	}
-
-	/**
-	 * Some methods and functions have a named return symbol 'like rtn as String' for example.
-	 * In other cases a method or a function will not return anything (We use 'Void') in the case as the 'type'.
-	 * So when a Returning Symbol is set we use the type of the returning variable as the type return on the function/method.
-	 */
-	public boolean isReturningSymbolPresent()
-	{
-		return returningSymbol != null;
-	}
-
-	public ISymbol getReturningSymbol()
-	{
-		return returningSymbol;
-	}
-
-	protected void justSetReturningSymbol(ISymbol returningSymbol)
-	{
-		this.returningSymbol = returningSymbol;
-	}
-
-	public void setReturningSymbol(ISymbol returningSymbol)
-	{
-		justSetReturningSymbol(returningSymbol);
-
-		if(returningSymbol != null)
-			this.setType(returningSymbol.getType());
-	}
-
-	/**
-	 * Does the signature of this method match that of the method passed in.
-	 * Not the name of the method just the signature of the parameter types
-	 * and special treatment for the return type - this can be coerced back or be a super type
-	 */
-	public boolean isSignatureMatchTo(MethodSymbol toMethod)
-	{
-		List<ISymbol> ourParams = this.getSymbolsForThisScope();
-		List<ISymbol> theirParams = toMethod.getSymbolsForThisScope();
-		double weight = matcher.getWeightOfParameterMatch(ourParams, theirParams);
-		//must be exact match
-		if(weight > 0.0 || weight < 0.0)
-			return false;
-		weight = matcher.getWeightOfMatch(this.getType(), toMethod.getType());
-
-		return weight >= 0.0;
-	}
-
-	public boolean isParameterSignatureMatchTo(List<ISymbol> params)
-	{
-		List<ISymbol> ourParams = this.getSymbolsForThisScope();
-		double weight = matcher.getWeightOfParameterMatch(ourParams, params);
-		return weight >= 0.0;
-	}
-
-	/**
-	 * Added convenience method to make the parameters a bit more obvious
-	 */
-	public List<ISymbol> getMethodParameters()
-	{
-		return super.getSymbolsForThisScope();
-	}
-
-	/**
-	 * Typically used when making synthetic methods you want to add in all the params from another method or something.
-	 *
-	 * @param params The parameters to pass to the method.
-	 * @return this method - used for chaining.
-	 */
-	public MethodSymbol setMethodParameters(List<ISymbol> params)
-	{
-		for(ISymbol param : params)
-			define(param);
-		return this;
-	}
-
-	@Override
-	public String getFriendlyName()
-	{
-		return doGetFriendlyName(super.getName(), this.getType());
-	}
-
-	protected String doGetFriendlyName(String withName, Optional<ISymbol> aType)
-	{
-		StringBuilder buffer = new StringBuilder();
-		if(this.isOverride())
-			buffer.append("override ");
-
-		buffer.append(accessModifier).append(" ");
-
-		buffer.append(getSymbolTypeAsString(aType));
-
-		buffer.append(" <- ").append(withName);
-		buffer.append(CommonParameterisedTypeDetails.asCommaSeparated(getSymbolsForThisScope(), true));
-		if(this.markedAbstract)
-			buffer.append(" as abstract");
-		return buffer.toString();
-	}
-
-	@Override
-	public String toString()
-	{
-		StringBuilder buffer = new StringBuilder();
-
-		//for to string we want a bit of extra info here that we don't show end user. but good for debugging.
-		if(this.virtual)
-			buffer.append("virtual ");
-
-		buffer.append(getFriendlyName());
-
-		return buffer.toString();
-	}
+public class MethodSymbol extends ScopedSymbol {
+  //Just used internally to check for method signature matching
+  private final SymbolMatcher matcher = new SymbolMatcher();
+
+  /**
+   * Keep separate variable for what we are returning because we need its name and type.
+   */
+  private ISymbol returningSymbol;
+
+  /**
+   * So has the developer indicated that this method is an overriding method.
+   */
+  private boolean override = false;
+
+  /**
+   * By default, access to methods is public unless otherwise modified.
+   */
+  private String accessModifier = "public";
+
+  /**
+   * Is this a constructor method or just a normal method.
+   */
+  private boolean constructor = false;
+
+  /**
+   * Is this an operator like := or < etc.
+   */
+  private boolean operator = false;
+
+  /**
+   * Was it marked abstract in the source code.
+   */
+  private boolean markedAbstract = false;
+
+  /**
+   * We may be interested to know and may restrict operations if this function is marked as pure.
+   */
+  private boolean markedPure = false;
+
+  private boolean markedAsDispatcher = false;
+
+  /**
+   * We may or may not alter if it was abstract by setting this virtual value.
+   */
+  private boolean virtual = false;
+
+  /**
+   * Should this method be cloned during a clone operation like for type defines.
+   */
+  private boolean markedNoClone = false;
+
+  /**
+   * Is this method a synthetic one, ie typically for constructors the compiler can indicate
+   * this method should be created in code generation.
+   */
+  private boolean synthetic = false;
+
+  /**
+   * Really just used for reverse engineered methods from Java we need to know if the method
+   * returns this or not.
+   */
+  private boolean ek9ReturnsThis = false;
+
+  /**
+   * This is the name of the delegate in the aggregate.
+   * DelegatingProcessor with trait of Processor by proc
+   * proc as Processor?
+   * This is held at method level, so some methods can be delegated and others implemented.
+   * In effect the compiler needs to add synthetic methods in for the methods on the trait.
+   * But the developer can decide to implement them if they elect to.
+   */
+  private String usedAsProxyForDelegate = null;
+
+  /**
+   * Create  new method symbol of a specific name with an enclosing scope (i.e. a class).
+   */
+  public MethodSymbol(String name, IScope enclosingScope) {
+    super(name, enclosingScope);
+    super.setCategory(SymbolCategory.METHOD);
+    super.setGenus(SymbolGenus.VALUE);
+  }
+
+  /**
+   * Typically used for cloning constructors.
+   */
+  public MethodSymbol(String name, ISymbol type, IScope enclosingScope) {
+    super(name, Optional.of(type), enclosingScope);
+    super.setCategory(SymbolCategory.METHOD);
+    super.setGenus(SymbolGenus.VALUE);
+  }
+
+  /**
+   * Create  new method symbol of a specific name with an enclosing scope (i.e. a class).
+   */
+  public MethodSymbol(String name, Optional<ISymbol> type, IScope enclosingScope) {
+    super(name, type, enclosingScope);
+    super.setCategory(SymbolCategory.METHOD);
+    super.setGenus(SymbolGenus.VALUE);
+  }
+
+  public MethodSymbol clone(ISymbol withType, IScope withParentAsAppropriate) {
+    return cloneIntoMethodSymbol(
+        new MethodSymbol(this.getName(), withType, withParentAsAppropriate));
+  }
+
+  @Override
+  public MethodSymbol clone(IScope withParentAsAppropriate) {
+    return cloneIntoMethodSymbol(
+        new MethodSymbol(this.getName(), this.getType(), withParentAsAppropriate));
+  }
+
+  protected MethodSymbol cloneIntoMethodSymbol(MethodSymbol newCopy) {
+    super.cloneIntoScopeSymbol(newCopy);
+
+    newCopy.setSourceToken(getSourceToken());
+    if (isReturningSymbolPresent()) {
+      newCopy.returningSymbol = this.returningSymbol.clone(newCopy);
+    }
+
+    newCopy.override = this.override;
+    newCopy.accessModifier = this.accessModifier;
+    newCopy.constructor = this.constructor;
+    newCopy.operator = this.operator;
+    newCopy.markedAbstract = this.markedAbstract;
+    newCopy.markedPure = this.markedPure;
+    newCopy.markedAsDispatcher = this.markedAsDispatcher;
+    newCopy.virtual = this.virtual;
+    newCopy.markedNoClone = this.markedNoClone;
+    newCopy.synthetic = this.synthetic;
+    newCopy.ek9ReturnsThis = this.ek9ReturnsThis;
+    newCopy.usedAsProxyForDelegate = this.usedAsProxyForDelegate;
+
+    return newCopy;
+  }
+
+  public boolean isSynthetic() {
+    return synthetic;
+  }
+
+  public void setSynthetic(boolean synthetic) {
+    this.synthetic = synthetic;
+  }
+
+  public boolean isOverride() {
+    return override;
+  }
+
+  public void setOverride(boolean override) {
+    this.override = override;
+  }
+
+  public String getAccessModifier() {
+    return accessModifier;
+  }
+
+  public void setAccessModifier(String accessModifier) {
+    this.accessModifier = accessModifier;
+  }
+
+  @Override
+  public boolean isPrivate() {
+    return accessModifier.equals("private");
+  }
+
+  @Override
+  public boolean isProtected() {
+    return accessModifier.equals("protected");
+  }
+
+  @Override
+  public boolean isPublic() {
+    return accessModifier.equals("public");
+  }
+
+  public boolean isUsedAsProxyForDelegate() {
+    return usedAsProxyForDelegate != null;
+  }
+
+  public String getUsedAsProxyForDelegate() {
+    return this.usedAsProxyForDelegate;
+  }
+
+  /**
+   * Set this method to be marked so at it delegates any calls to a delegate.
+   */
+  public void setUsedAsProxyForDelegate(String delegateName) {
+    this.usedAsProxyForDelegate = delegateName;
+    //now this also means a couple of other things
+    this.setOverride(true);
+    this.setMarkedAbstract(false);
+    this.setVirtual(false);
+  }
+
+  public boolean isEk9ReturnsThis() {
+    return ek9ReturnsThis;
+  }
+
+  public void setEk9ReturnsThis(boolean ek9ReturnsThis) {
+    this.ek9ReturnsThis = ek9ReturnsThis;
+  }
+
+  public boolean isMarkedNoClone() {
+    return markedNoClone;
+  }
+
+  public void setMarkedNoClone(boolean markedNoClone) {
+    this.markedNoClone = markedNoClone;
+  }
+
+  public boolean isMarkedAsDispatcher() {
+    return markedAsDispatcher;
+  }
+
+  public MethodSymbol setMarkedAsDispatcher(boolean markedAsDispatcher) {
+    this.markedAsDispatcher = markedAsDispatcher;
+    return this;
+  }
+
+  @Override
+  public boolean isMarkedAbstract() {
+    return markedAbstract;
+  }
+
+  public void setMarkedAbstract(boolean markedAbstract) {
+    this.markedAbstract = markedAbstract;
+  }
+
+  public boolean isNotMarkedAbstract() {
+    return !markedAbstract;
+  }
+
+  public boolean isVirtual() {
+    return virtual;
+  }
+
+  public void setVirtual(boolean virtual) {
+    this.virtual = virtual;
+  }
+
+  @Override
+  public boolean isConstant() {
+    return true;
+  }
+
+  public boolean isConstructor() {
+    return constructor;
+  }
+
+  public MethodSymbol setConstructor(boolean constructor) {
+    this.constructor = constructor;
+    return this;
+  }
+
+  public boolean isOperator() {
+    return operator;
+  }
+
+  public MethodSymbol setOperator(boolean operator) {
+    this.operator = operator;
+    return this;
+  }
+
+  /**
+   * Some methods and functions have a named return symbol 'like rtn as String' for example.
+   * In other cases a method or a function will not return anything (We use 'Void') in the
+   * case as the 'type'.
+   * So when a Returning Symbol is set we use the type of the returning variable as the type
+   * return on the function/method.
+   */
+  public boolean isReturningSymbolPresent() {
+    return returningSymbol != null;
+  }
+
+  /**
+   * Provide a symbol that is returned from this method.
+   * Note in EK9 this is not just a type but actually a variable symbol (that has a type).
+   */
+  public ISymbol getReturningSymbol() {
+    return returningSymbol;
+  }
+
+  /**
+   * Sets the returning symbol (variable not just type).
+
+   */
+  public void setReturningSymbol(ISymbol returningSymbol) {
+    justSetReturningSymbol(returningSymbol);
+
+    if (returningSymbol != null) {
+      this.setType(returningSymbol.getType());
+    }
+  }
+
+  protected void justSetReturningSymbol(ISymbol returningSymbol) {
+    this.returningSymbol = returningSymbol;
+  }
+
+  /**
+   * Does the signature of this method match that of the method passed in.
+   * Not the name of the method just the signature of the parameter types
+   * and special treatment for the return type - this can be coerced back or be a super type
+   */
+  public boolean isSignatureMatchTo(MethodSymbol toMethod) {
+    List<ISymbol> ourParams = this.getSymbolsForThisScope();
+    List<ISymbol> theirParams = toMethod.getSymbolsForThisScope();
+    double weight = matcher.getWeightOfParameterMatch(ourParams, theirParams);
+    //must be exact match
+    if (weight > 0.0 || weight < 0.0) {
+      return false;
+    }
+    weight = matcher.getWeightOfMatch(this.getType(), toMethod.getType());
+
+    return weight >= 0.0;
+  }
+
+  /**
+   * Very important method; that checks if the parameter list provided can match
+   * the parameters declared for this method.
+   * But this takes into account polymorphism and promotions.
+   */
+  public boolean isParameterSignatureMatchTo(List<ISymbol> params) {
+    List<ISymbol> ourParams = this.getSymbolsForThisScope();
+    double weight = matcher.getWeightOfParameterMatch(ourParams, params);
+    return weight >= 0.0;
+  }
+
+  /**
+   * Added convenience method to make the parameters a bit more obvious.
+   */
+  public List<ISymbol> getMethodParameters() {
+    return super.getSymbolsForThisScope();
+  }
+
+  /**
+   * Typically used when making synthetic methods you want to add in all the params from another
+   * method or something.
+   *
+   * @param params The parameters to pass to the method.
+   * @return this method - used for chaining.
+   */
+  public MethodSymbol setMethodParameters(List<ISymbol> params) {
+    for (ISymbol param : params) {
+      define(param);
+    }
+    return this;
+  }
+
+  @Override
+  public String getFriendlyName() {
+    return doGetFriendlyName(super.getName(), this.getType());
+  }
+
+  protected String doGetFriendlyName(String withName, Optional<ISymbol> theType) {
+    StringBuilder buffer = new StringBuilder();
+    if (this.isOverride()) {
+      buffer.append("override ");
+    }
+
+    buffer.append(accessModifier).append(" ");
+
+    buffer.append(getSymbolTypeAsString(theType));
+
+    buffer.append(" <- ").append(withName);
+    buffer.append(CommonParameterisedTypeDetails.asCommaSeparated(getSymbolsForThisScope(), true));
+    if (this.markedAbstract) {
+      buffer.append(" as abstract");
+    }
+    return buffer.toString();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buffer = new StringBuilder();
+
+    //for to string we want a bit of extra info here that we don't show end user.
+    //but good for debugging.
+    if (this.virtual) {
+      buffer.append("virtual ");
+    }
+
+    buffer.append(getFriendlyName());
+
+    return buffer.toString();
+  }
 }

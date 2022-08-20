@@ -130,7 +130,7 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>org.ek9lang.cli.EK9</mainClass>
+              <mainClass>org.ek9lang.cli.Ek9</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>
