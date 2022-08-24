@@ -464,11 +464,9 @@ final class EK9Test {
     if (result == Ek9.RUN_COMMAND_EXIT_CODE) {
       try {
         assertEquals(expectation, new Ek9(commandLine).run());
-      } catch(InterruptedException iex)
-      {
+      } catch(InterruptedException iex) {
         fail("Interrupt exception ", iex);
       }
-
     }
 
     return commandLine;

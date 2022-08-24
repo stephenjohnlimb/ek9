@@ -12,6 +12,10 @@ package org.ek9lang.compiler.files;
  * disable typeFunctionConstructorSuggestionRequired and enable variableSuggestionRequired.
  * Also -Xlint:key(,key)* for different levels of warning - which we can drive from here
  * when we want to control warnings.
+ * Some of these flags exist in CommandLineDetails, I may move some or all of that configuration
+ * into this class. But those options are more about 'what' to do with the compiler.
+ * These flags are more like - how you want the compiler to behave when issuing errors or
+ * suggestions.
  */
 public class CompilerFlags {
   /**
@@ -37,6 +41,11 @@ public class CompilerFlags {
   }
 
   public void setNumberOfSuggestions(int numberOfSuggestions) {
-    this.numberOfSuggestions = numberOfSuggestions;
+    if (numberOfSuggestions < 1) {
+      setSuggestionRequired(false);
+      this.numberOfSuggestions = 0;
+    } else {
+      this.numberOfSuggestions = numberOfSuggestions;
+    }
   }
 }

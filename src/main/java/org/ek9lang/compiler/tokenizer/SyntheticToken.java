@@ -11,9 +11,25 @@ import org.antlr.v4.runtime.TokenSource;
  * in the actual source code input.
  */
 public class SyntheticToken implements Token {
+
+  private String textName ="Synthetic";
+
+  /**
+   * Create a new token with default name of 'Synthetic'.
+   */
+  public SyntheticToken() {
+  }
+
+  /**
+   * Create a new token with a specific name.
+   */
+  public SyntheticToken(String textName) {
+    this.textName = textName;
+  }
+
   @Override
   public String getText() {
-    return "Synthetic";
+    return textName;
   }
 
   @Override
