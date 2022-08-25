@@ -12,7 +12,7 @@ import org.antlr.v4.runtime.TokenSource;
  */
 public class SyntheticToken implements Token {
 
-  private String textName ="Synthetic";
+  private String textName = "Synthetic";
 
   /**
    * Create a new token with default name of 'Synthetic'.

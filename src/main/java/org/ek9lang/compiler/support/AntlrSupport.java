@@ -27,6 +27,8 @@ public abstract class AntlrSupport {
    */
   private static final boolean STREAM_TOKENS = true;
 
+  private final TestRig testRig;
+
   protected AntlrSupport(String inputFileName)
       throws IOException, IllegalArgumentException, SecurityException {
     if (!new File(inputFileName).exists()) {
@@ -41,7 +43,13 @@ public abstract class AntlrSupport {
       streamLexerTokensFor(inputFileName);
     }
 
-    TestRig testRig = makeTestRig(inputFileName);
+    testRig = makeTestRig(inputFileName);
+  }
+
+  /**
+   * Run the rig now it has been created.
+   */
+  public void runTestRig() {
     if (testRig != null) {
       try {
         testRig.process();

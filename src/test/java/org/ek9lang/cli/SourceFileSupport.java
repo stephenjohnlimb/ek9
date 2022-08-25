@@ -17,10 +17,14 @@ public final class SourceFileSupport {
     this.osSupport = osSupport;
   }
 
-  public File copyFileToTestCWD(String fromRelativeTestUrl, String ek9SourceFileName) {
+  public String getPath(String fromRelativeTestUrl, String ek9SourceFileName) {
     URL fileForTest = this.getClass().getResource(fromRelativeTestUrl + ek9SourceFileName);
     assertNotNull(fileForTest);
-    File example = new File(fileForTest.getPath());
+    return fileForTest.getPath();
+  }
+
+  public File copyFileToTestCWD(String fromRelativeTestUrl, String ek9SourceFileName) {
+    File example = new File(getPath(fromRelativeTestUrl, ek9SourceFileName));
 
     //Now we can put a dummy source file in the simulated/test cwd and then try and process it.
     File cwd = new File(osSupport.getCurrentWorkingDirectory());

@@ -3,44 +3,93 @@ package org.ek9lang.lsp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.tokenizer.SyntheticToken;
 import org.ek9lang.compiler.tokenizer.TokenResult;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class Ek9LanguageWordsTest {
 
+  private final Ek9LanguageWords underTest = new Ek9LanguageWords();
+
+  private final Function<String, TokenResult> keyWordToTokenResult = keyWord -> {
+    Token synthetic = new SyntheticToken(keyWord);
+    return new TokenResult(synthetic, List.of(synthetic), 0);
+  };
+
+  static Stream<String> getAllKeyWords() {
+    return Optional.of(new Ek9LanguageWords())
+        .map(Ek9LanguageWords::getAllKeyWords)
+        .stream()
+        .flatMap(Collection::stream);
+  }
+
   @Test
   void testInitialisation() {
-    var underTest = new Ek9LanguageWords();
     assertNotNull(underTest);
   }
 
   @Test
+  void testListingAllEk9LanguageWords() {
+    assertEquals(133, underTest.getAllKeyWords().size());
+  }
+
+  @ParameterizedTest
+  @MethodSource("getAllKeyWords")
+  void testAllWordsExactMatch(String keyWord) {
+    var foundKeyWord = Optional.of(keyWord)
+        .map(keyWordToTokenResult)
+        .map(underTest::exactMatch)
+        .map(found -> found.hoverText)
+        .isPresent();
+    assertTrue(foundKeyWord, "Unable to find " + keyWord);
+  }
+
+  @ParameterizedTest
+  @MethodSource("getAllKeyWords")
+  void testAllWordsFuzzyMatch(String keyWord) {
+    var numFound = Optional.of(keyWord)
+        .map(keyWordToTokenResult)
+        .map(underTest::fuzzyMatch)
+        .stream()
+        .flatMap(Collection::stream)
+        .count();
+    //We may or may not have any fuzzy matches in a context.
+    assertTrue(numFound >= 0);
+
+  }
+
+  @Test
   void testExactMatch() {
-    var underTest = new Ek9LanguageWords();
-    TokenResult search = createSyntheticTokenResultFor("defines");
-    var foundKeyWord = underTest.exactMatch(search);
-    assertNotNull(foundKeyWord);
+
+    var actual = Optional.of("defines")
+        .map(keyWordToTokenResult)
+        .map(underTest::exactMatch)
+        .map(found -> found.hoverText)
+        .orElse("");
+
     assertEquals("Define a module or construct block, https://www.ek9.io/structure.html",
-        foundKeyWord.hoverText);
+        actual);
   }
 
   @Test
   void testFuzzyMatch() {
-    var underTest = new Ek9LanguageWords();
-    TokenResult search = createSyntheticTokenResultFor("operator");
-    var foundKeyWords = underTest.fuzzyMatch(search);
-    assertNotNull(foundKeyWords);
-    assertEquals(41, foundKeyWords.size());
+    var numMatches = Optional.of("operator")
+        .map(keyWordToTokenResult)
+        .map(underTest::fuzzyMatch)
+        .stream()
+        .mapToLong(Collection::size)
+        .sum();
+
+    assertEquals(41, numMatches);
   }
 
-  private TokenResult createSyntheticTokenResultFor(String lookupWord)
-  {
-    Token synthetic = new SyntheticToken(lookupWord);
-    return new TokenResult(synthetic, List.of(synthetic), 0);
-  }
 }

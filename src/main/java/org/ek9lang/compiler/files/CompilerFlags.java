@@ -40,6 +40,9 @@ public class CompilerFlags {
     return numberOfSuggestions;
   }
 
+  /**
+   * Configure the number of suggestions for interactive help on errors.
+   */
   public void setNumberOfSuggestions(int numberOfSuggestions) {
     if (numberOfSuggestions < 1) {
       setSuggestionRequired(false);

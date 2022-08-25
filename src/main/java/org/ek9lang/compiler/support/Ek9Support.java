@@ -11,6 +11,10 @@ import org.ek9lang.core.utils.Logger;
  * Support for the EK9 language based on antlr GUI.
  */
 public class Ek9Support extends AntlrSupport {
+
+  /**
+   * Create an EK9Support object for running the antlr test rig with a specidic file.
+   */
   public Ek9Support(String inputFileName)
       throws IOException, IllegalArgumentException, SecurityException {
     super(inputFileName);
@@ -24,7 +28,8 @@ public class Ek9Support extends AntlrSupport {
     if (args.length != 1) {
       Logger.log("Expect a single argument of the ek9 source file to process");
     } else {
-      new Ek9Support(args[0]);
+      var ek9Support = new Ek9Support(args[0]);
+      ek9Support.runTestRig();
     }
   }
 

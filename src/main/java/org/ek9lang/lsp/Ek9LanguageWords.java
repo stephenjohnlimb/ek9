@@ -27,6 +27,10 @@ public class Ek9LanguageWords {
     setupKeyWords();
   }
 
+  public List<String> getAllKeyWords() {
+    return keywordMap.keySet().stream().sorted().toList();
+  }
+
   private void setupKeyWords() {
     keywordMap.put("#!ek9",
         new KeyWordInformation("An EK9 source code file, https://www.ek9.io/structure.html",
@@ -85,7 +89,7 @@ public class Ek9LanguageWords {
     keywordMap.put("of",
         new KeyWordInformation(
             "Used with Generic types, applications, aspects, traits"
-            + " and conditionally with streams, length/abs/sqrt",
+                + " and conditionally with streams, length/abs/sqrt",
             Arrays.asList("of",
                 "of type"
             ),
