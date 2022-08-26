@@ -26,13 +26,15 @@ public class Server {
   @SuppressWarnings("java:S106")
   public static void main(String[] args)
       throws ExecutionException, InterruptedException {
-    runEk9LanguageServer(System.in, System.out, true);
+    var startListening = runEk9LanguageServer(System.in, System.out, true);
+    //Will cause main thread to block until control-C ends program.
+    startListening.get();
   }
 
   /**
    * Triggers the actual execution of the language service.
    */
-  public static void runEk9LanguageServer(InputStream in, OutputStream out,
+  public static Future<?> runEk9LanguageServer(InputStream in, OutputStream out,
                                           boolean provideLanguageHoverHelp)
       throws ExecutionException, InterruptedException {
     //Switch off any logging as we are using stdin/stdout for protocol exchange
@@ -55,6 +57,7 @@ public class Server {
     //Basically this will cause the to keep listening until it get the shutdown call
     //Then the server will issue System.exit.
     org.ek9lang.core.utils.Logger.error("EK9 Language Server Listening");
-    startListening.get();
+
+    return startListening;
   }
 }
