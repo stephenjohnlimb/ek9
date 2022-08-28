@@ -57,11 +57,11 @@ public class Ek9LanguageServer extends Ek9Service implements LanguageServer, Lan
       folders.forEach(folder -> {
         Path path = getPath(folder.getUri());
 
-
         Glob searchCondition = new Glob("**.ek9");
         List<File> fileList = osSupport.getFilesRecursivelyFrom(path.toFile(), searchCondition);
         fileList.forEach(file -> {
           //TODO use thread pool to process these files in terms of parsing concurrently.
+          //actually use new JDK19 virtual threads for this.
           try {
             getWorkspace().reParseSource(file.toPath());
             reportOnCompiledSource(getWorkspace().getSource(file.toPath()));

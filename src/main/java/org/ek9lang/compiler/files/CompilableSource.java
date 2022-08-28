@@ -2,6 +2,7 @@ package org.ek9lang.compiler.files;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -95,6 +96,10 @@ public class CompilableSource implements Source, TokenConsumptionListener {
   }
 
   public EK9Parser.CompilationUnitContext getCompilationUnitContext() {
+    if (this.compilationUnitContext == null) {
+      throw new CompilerException(
+          "Need to call prepareToParse before accessing compilation unit");
+    }
     return compilationUnitContext;
   }
 
@@ -154,13 +159,13 @@ public class CompilableSource implements Source, TokenConsumptionListener {
   }
 
   private long calculateLastModified() {
-    AssertValue.checkCanReadFile("Unable to read file " + filename, filename);
+    AssertValue.checkCanReadFile("Unable to read file", filename);
     File file = new File(filename);
     return file.lastModified();
   }
 
   private Digest.CheckSum calculateCheckSum() {
-    AssertValue.checkCanReadFile("Unable to read file " + filename, filename);
+    AssertValue.checkCanReadFile("Unable to read file", filename);
     return Digest.digest(new File(filename));
   }
 
@@ -232,17 +237,13 @@ public class CompilableSource implements Source, TokenConsumptionListener {
     this.errorListener = listener;
   }
 
-  private InputStream getInputStream() {
-    try {
-      return new FileInputStream(filename);
-    } catch (Exception ex) {
-      throw new CompilerException("Unable to open file " + filename, ex);
-    }
+  private InputStream getInputStream() throws FileNotFoundException {
+    return new FileInputStream(filename);
   }
 
   @Override
   public String toString() {
-    return filename;
+    return getFileName();
   }
 
   @Override
@@ -251,7 +252,7 @@ public class CompilableSource implements Source, TokenConsumptionListener {
   }
 
   public String getGeneralIdentifier() {
-    return getEncodedFileName(filename);
+    return getEncodedFileName(toString());
   }
 
   private String getEncodedFileName(String fileName) {

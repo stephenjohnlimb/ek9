@@ -8,11 +8,7 @@ package org.ek9lang.compiler.files;
 public interface Source {
   String getFileName();
 
-  default boolean isDev() {
-    return false;
-  }
+  boolean isDev();
 
-  default boolean isLib() {
-    return false;
-  }
+  boolean isLib();
 }

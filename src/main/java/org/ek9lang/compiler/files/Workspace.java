@@ -11,7 +11,7 @@ import org.ek9lang.core.utils.Logger;
  * Needs to become thread safe. use synchronized for now.
  */
 public class Workspace {
-  //The maps of source code file to compliable source objects
+  //The maps of source code file to compilable source objects
   private final Map<String, CompilableSource> sources = new HashMap<>();
 
   /**
