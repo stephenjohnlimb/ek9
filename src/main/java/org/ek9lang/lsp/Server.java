@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.ek9lang.core.utils.OsSupport;
 
 /**
  * EK9 LSP server launcher. You can run from main below, but it is designed to work with
@@ -24,9 +25,8 @@ public class Server {
    * Main entry point to start and run the language server.
    */
   @SuppressWarnings("java:S106")
-  public static void main(String[] args)
-      throws ExecutionException, InterruptedException {
-    var startListening = runEk9LanguageServer(System.in, System.out, true);
+  public static void main(String[] args) throws ExecutionException, InterruptedException {
+    var startListening = runEk9LanguageServer(new OsSupport(), System.in, System.out, true);
     //Will cause main thread to block until control-C ends program.
     startListening.get();
   }
@@ -34,8 +34,9 @@ public class Server {
   /**
    * Triggers the actual execution of the language service.
    */
-  public static Future<?> runEk9LanguageServer(InputStream in, OutputStream out,
-                                          boolean provideLanguageHoverHelp)
+  public static Future<?> runEk9LanguageServer(final OsSupport osSupport, final InputStream in,
+                                               final OutputStream out,
+                                               final boolean provideLanguageHoverHelp)
       throws ExecutionException, InterruptedException {
     //Switch off any logging as we are using stdin/stdout for protocol exchange
     LogManager.getLogManager().reset();
@@ -44,7 +45,7 @@ public class Server {
 
     //Ready for document and workspace processing.
 
-    Ek9LanguageServer languageServer = new Ek9LanguageServer();
+    Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
     languageServer.getCompilerConfig().setProvideLanguageHoverHelp(provideLanguageHoverHelp);
     Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(languageServer, in, out);
 

@@ -16,6 +16,7 @@ import org.ek9lang.core.utils.Logger;
  * Part of the language server functionality.
  */
 public class Ek9WorkspaceService extends Ek9Service implements WorkspaceService {
+
   private final Workspace ek9WorkSpace = new Workspace();
 
   public Ek9WorkspaceService(Ek9LanguageServer languageServer) {

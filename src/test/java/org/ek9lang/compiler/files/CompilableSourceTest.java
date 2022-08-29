@@ -140,8 +140,7 @@ class CompilableSourceTest {
 
     return Stream.of(
         helloWorldSource::getCompilationUnitContext,
-        helloWorldSource::parse,
-        helloWorldSource::getErrorListener
+        helloWorldSource::parse
     );
   }
 

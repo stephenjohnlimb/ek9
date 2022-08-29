@@ -14,6 +14,7 @@ import org.ek9lang.core.exception.CompilerException;
  * Operating System support and generic stuff for directories and files.
  */
 public final class OsSupport {
+
   /**
    * When is stub mode the users home directory and current working directory are altered.
    */

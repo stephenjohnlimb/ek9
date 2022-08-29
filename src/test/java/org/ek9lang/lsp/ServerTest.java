@@ -4,8 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import org.ek9lang.core.utils.OsSupport;
 import org.junit.jupiter.api.Test;
 
 class ServerTest {
@@ -13,7 +12,8 @@ class ServerTest {
   @Test
   void startAndStopServer() throws ExecutionException, InterruptedException {
 
-    var languageServer = Server.runEk9LanguageServer(System.in, System.out, true);
+    var osSupport = new OsSupport(true);
+    var languageServer = Server.runEk9LanguageServer(osSupport, System.in, System.out, true);
 
     assertFalse(languageServer.isDone());
     assertFalse(languageServer.isCancelled());

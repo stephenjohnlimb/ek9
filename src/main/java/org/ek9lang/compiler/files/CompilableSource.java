@@ -146,6 +146,7 @@ public class CompilableSource implements Source, TokenConsumptionListener {
   public CompilableSource resetDetails() {
     updateFileDetails();
     resetTokens();
+    setErrorListener(new ErrorListener(getGeneralIdentifier()));
     return this;
   }
 
@@ -225,11 +226,6 @@ public class CompilableSource implements Source, TokenConsumptionListener {
    * Access the error listener, only check after parsing.
    */
   public ErrorListener getErrorListener() {
-    if (this.errorListener == null) {
-      throw new CompilerException(
-          "Need to call prepareToParse before accessing compilation unit and getting errors");
-    }
-
     return this.errorListener;
   }
 

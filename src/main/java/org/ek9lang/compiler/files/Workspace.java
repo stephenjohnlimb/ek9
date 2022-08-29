@@ -65,6 +65,14 @@ public class Workspace {
   }
   */
 
+  public Workspace addSource(Path path) {
+    return addSource(path.toString());
+  }
+
+  public Workspace addSource(String fileName) {
+    return addSource(new CompilableSource(fileName));
+  }
+
   public Workspace addSource(CompilableSource source) {
     sources.put(source.getFileName(), source);
     return this;
@@ -75,7 +83,7 @@ public class Workspace {
   }
 
   public CompilableSource getSource(Path path) {
-    return sources.get(path.toString());
+    return getSource(path.toString());
   }
 
   public CompilableSource getSource(String fileName) {
@@ -87,7 +95,11 @@ public class Workspace {
    */
   public Optional<ErrorListener> removeSource(Path path) {
     //use a reentrant lock around the sources.
-    return Optional.ofNullable(sources.remove(path.toString()))
+    return removeSource(path.toString());
+  }
+
+  public Optional<ErrorListener> removeSource(String fileName) {
+    return Optional.ofNullable(sources.remove(fileName))
         .map(CompilableSource::getErrorListener);
   }
 

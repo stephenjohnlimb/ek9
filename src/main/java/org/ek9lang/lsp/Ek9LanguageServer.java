@@ -21,7 +21,7 @@ import org.ek9lang.core.utils.OsSupport;
  * The Language Server Implementation into the modular EK9 compiler.
  */
 public class Ek9LanguageServer extends Ek9Service implements LanguageServer, LanguageClientAware {
-  private final OsSupport osSupport = new OsSupport();
+  private final OsSupport osSupport;
   private final Ek9CompilerConfig compilerConfig;
   private final Ek9TextDocumentService textDocumentService;
   private final Ek9WorkspaceService workspaceService;
@@ -32,7 +32,8 @@ public class Ek9LanguageServer extends Ek9Service implements LanguageServer, Lan
   /**
    * Uses part of the compiler as a plugin language server.
    */
-  public Ek9LanguageServer() {
+  public Ek9LanguageServer(final OsSupport osSupport) {
+    this.osSupport = osSupport;
     this.textDocumentService = new Ek9TextDocumentService(this);
     this.workspaceService = new Ek9WorkspaceService(this);
     this.compilerConfig = new Ek9CompilerConfig();

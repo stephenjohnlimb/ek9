@@ -97,7 +97,7 @@ public class Ek9 {
     try {
       Logger.error(
           "EK9 running as LSP languageHelp=" + commandLine.isEk9LanguageServerHelpEnabled());
-      Server.runEk9LanguageServer(System.in, System.out,
+      Server.runEk9LanguageServer(commandLine.getOsSupport(), System.in, System.out,
           commandLine.isEk9LanguageServerHelpEnabled());
       return SUCCESS_EXIT_CODE;
     } catch (ExecutionException ex) {
