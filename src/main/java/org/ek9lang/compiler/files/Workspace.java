@@ -4,28 +4,36 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.core.utils.Logger;
 
 /**
  * Designed to represent one or more source files that are part of a workspace.
- * Needs to become thread safe. use synchronized for now.
+ * Needs to become thread safe, especially around re-parsing.
+ * This is because when a user is typing via lsp mode - this will get triggered over and over.
  */
 public class Workspace {
   //The maps of source code file to compilable source objects
+
+  //Maybe put a re-entrant lock around this.
   private final Map<String, CompilableSource> sources = new HashMap<>();
 
   /**
    * ReParses or loads and parses a source file.
    */
-  public synchronized CompilableSource reParseSource(Path path) {
+  public ErrorListener reParseSource(Path path) {
     return reParseSource(path.toString());
   }
 
   /**
    * Triggers the reparsing of the source file. Normally after an edit so errors can be checked.
    */
-  public synchronized CompilableSource reParseSource(String uri) {
-    Logger.error("parsing/reparsing [" + uri + "]");
+  public ErrorListener reParseSource(String uri) {
+    //Consider a queue of requests per uri as in an interactive mode the same file
+    //will be triggered for reparsing over and over again. We only need one request to be honoured!
+
+    Logger.debug("parsing/reparsing [" + uri + "]");
     CompilableSource compilableSource;
     if (isSourcePresent(uri)) {
       compilableSource = getSource(uri);
@@ -34,9 +42,7 @@ public class Workspace {
       addSource(compilableSource);
     }
     compilableSource.prepareToParse().parse();
-
-    Logger.error("Workspace has " + sources.size() + " source files");
-    return compilableSource;
+    return compilableSource.getErrorListener();
   }
 
   /*
@@ -79,13 +85,10 @@ public class Workspace {
   /**
    * Remove some source code from the work space. Maybe a file has been deleted or renamed.
    */
-  public synchronized CompilableSource removeSource(Path path) {
-    CompilableSource rtn = sources.remove(path.toString());
-    //also remove from modules.
-    //modules.remove(rtn);
-
-    Logger.error("Workspace now has " + sources.size() + " source files");
-    return rtn;
+  public Optional<ErrorListener> removeSource(Path path) {
+    //use a reentrant lock around the sources.
+    return Optional.ofNullable(sources.remove(path.toString()))
+        .map(CompilableSource::getErrorListener);
   }
 
   public Collection<CompilableSource> getSources() {

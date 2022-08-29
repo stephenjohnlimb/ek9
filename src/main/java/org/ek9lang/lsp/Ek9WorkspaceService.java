@@ -7,6 +7,7 @@ import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.services.WorkspaceService;
+import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.files.Workspace;
 import org.ek9lang.core.exception.CompilerException;
 import org.ek9lang.core.utils.Logger;
@@ -25,13 +26,13 @@ public class Ek9WorkspaceService extends Ek9Service implements WorkspaceService 
   public CompletableFuture<List<? extends SymbolInformation>> symbol(WorkspaceSymbolParams params) {
     String globalSymbolToFind = params.getQuery();
     //TODO the actual processing.
-    Logger.error("symbol [" + globalSymbolToFind + "]");
+    Logger.debug("symbol [" + globalSymbolToFind + "]");
     return null;
   }
 
   @Override
   public void didChangeConfiguration(DidChangeConfigurationParams params) {
-    Logger.error("didChangeConfiguration [" + params + "]");
+    Logger.debug("didChangeConfiguration [" + params + "]");
   }
 
   @Override
@@ -40,8 +41,9 @@ public class Ek9WorkspaceService extends Ek9Service implements WorkspaceService 
       switch (fileEvent.getType()) {
         case Changed, Created -> reportOnCompiledSource(
             getWorkspace().reParseSource(getPath(fileEvent.getUri())));
-        case Deleted -> clearOldCompiledDiagnostics(
-            getWorkspace().removeSource(getPath(fileEvent.getUri())));
+        case Deleted -> getWorkspace().removeSource(getPath(fileEvent.getUri()))
+            .map(ErrorListener::getGeneralIdentifierOfSource)
+            .ifPresent(this::clearOldCompiledDiagnostics);
         default -> throw new CompilerException("Unknown Event Type");
       }
     });

@@ -37,7 +37,7 @@ final class TestAllExamples {
    */
   private final Function<File, String> readabilityAssessor = ek9SourceFile -> {
     try (var is = new FileInputStream(ek9SourceFile)) {
-      ErrorListener errorListener = new ErrorListener();
+      ErrorListener errorListener = new ErrorListener(ek9SourceFile.getName());
       LexerPlugin lexer = getEK9Lexer(CharStreams.fromStream(is));
       lexer.removeErrorListeners();
       lexer.addErrorListener(errorListener);
@@ -79,7 +79,7 @@ final class TestAllExamples {
   private Function<File, File> getTestFunction(final boolean expectError) {
     return ek9SourceFile -> {
       try (var is = new FileInputStream(ek9SourceFile)) {
-        ErrorListener errorListener = new ErrorListener();
+        ErrorListener errorListener = new ErrorListener(ek9SourceFile.getName());
         LexerPlugin lexer = getEK9Lexer(CharStreams.fromStream(is));
         lexer.removeErrorListeners();
         lexer.addErrorListener(errorListener);

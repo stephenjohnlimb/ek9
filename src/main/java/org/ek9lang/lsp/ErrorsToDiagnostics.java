@@ -20,9 +20,9 @@ public class ErrorsToDiagnostics {
   /**
    * Used as part of the language server to obtain an empty set of diagnostic information.
    */
-  public PublishDiagnosticsParams getEmptyDiagnostics(CompilableSource compilableSource) {
+  public PublishDiagnosticsParams getEmptyDiagnostics(String generalIdentifierOfSource) {
     PublishDiagnosticsParams rtn = new PublishDiagnosticsParams();
-    rtn.setUri(compilableSource.getGeneralIdentifier());
+    rtn.setUri(generalIdentifierOfSource);
     rtn.setDiagnostics(new ArrayList<>(0));
 
     return rtn;
@@ -31,12 +31,11 @@ public class ErrorsToDiagnostics {
   /**
    * Used as part of the language server to convert errors in to diagnostic information.
    */
-  public PublishDiagnosticsParams getErrorDiagnostics(CompilableSource compilableSource) {
+  public PublishDiagnosticsParams getErrorDiagnostics(ErrorListener errorListener) {
     PublishDiagnosticsParams rtn = new PublishDiagnosticsParams();
-    rtn.setUri(compilableSource.getGeneralIdentifier());
+    rtn.setUri(errorListener.getGeneralIdentifierOfSource());
     List<Diagnostic> diagnostics = new ArrayList<>(0);
 
-    ErrorListener errorListener = compilableSource.getErrorListener();
     if (!errorListener.isWarningFree()) {
       diagnostics.addAll(
           extractDiagnostics(errorListener.getWarnings(), DiagnosticSeverity.Warning));
@@ -48,8 +47,8 @@ public class ErrorsToDiagnostics {
 
     rtn.setDiagnostics(diagnostics);
 
-    Logger.error(
-        "Our URI [" + compilableSource.getGeneralIdentifier() + "] "
+    Logger.debug(
+        "Our URI [" + errorListener.getGeneralIdentifierOfSource() + "] "
             + diagnostics.size() + " diagnostics");
     return rtn;
   }

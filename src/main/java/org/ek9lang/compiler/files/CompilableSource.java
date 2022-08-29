@@ -192,7 +192,7 @@ public class CompilableSource implements Source, TokenConsumptionListener {
   public CompilableSource prepareToParse() {
     try {
       //So make a new error listener to get all the errors
-      setErrorListener(new ErrorListener());
+      setErrorListener(new ErrorListener(getGeneralIdentifier()));
       //we will set the parsed module once parsed.
       InputStream inputStream = getInputStream();
       Ek9Lexer lexer = new Ek9Lexer(CharStreams.fromStream(inputStream), EK9Parser.INDENT,

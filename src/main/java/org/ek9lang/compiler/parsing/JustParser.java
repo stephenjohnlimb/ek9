@@ -21,8 +21,6 @@ import org.ek9lang.core.utils.OsSupport;
 public class JustParser {
   private final OsSupport osSupport = new OsSupport();
 
-  private final ErrorListener errorListener = new ErrorListener();
-
   /**
    * Read the source file using the visitor supplied.
    */
@@ -41,6 +39,7 @@ public class JustParser {
         EK9Parser parser = new EK9Parser(new CommonTokenStream(lex));
         parser.removeErrorListeners();
 
+        ErrorListener errorListener = new ErrorListener(sourceFile.getName());
         lex.addErrorListener(errorListener);
         parser.addErrorListener(errorListener);
 

@@ -25,6 +25,10 @@ public class Logger {
     System.err.println(content);
   }
 
+  public static void debug(Object content) {
+    System.err.println("DEBUG: " + content);
+  }
+
   public static void error(Throwable throwable) {
     System.err.println(throwable);
   }

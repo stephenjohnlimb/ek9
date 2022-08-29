@@ -43,8 +43,14 @@ public class ErrorListener extends BaseErrorListener {
 
   private List<ErrorDetails> warnings = new ArrayList<>();
 
-  public ErrorListener() {
+  private final String generalIdentifierOfSource;
+  public ErrorListener(String generalIdentifierOfSource) {
+    this.generalIdentifierOfSource = generalIdentifierOfSource;
     reset();
+  }
+
+  public String getGeneralIdentifierOfSource() {
+    return generalIdentifierOfSource;
   }
 
   /**

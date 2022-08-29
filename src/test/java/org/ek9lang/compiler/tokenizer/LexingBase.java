@@ -9,7 +9,6 @@ import org.ek9lang.core.utils.Logger;
 import org.junit.jupiter.api.Test;
 
 public abstract class LexingBase {
-  private final ErrorListener errorListener = new ErrorListener();
 
   protected abstract String getEK9FileName();
 
@@ -23,6 +22,8 @@ public abstract class LexingBase {
 
     LexerPlugin lexer = getEK9Lexer(CharStreams.fromStream(inputStream));
     lexer.removeErrorListeners();
+    ErrorListener errorListener = new ErrorListener(getEK9FileName());
+
     lexer.addErrorListener(errorListener);
 
     String readability = new TokenStreamAssessment().assess(lexer, false);

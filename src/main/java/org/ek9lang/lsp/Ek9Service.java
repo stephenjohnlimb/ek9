@@ -11,7 +11,7 @@ import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
-import org.ek9lang.compiler.files.CompilableSource;
+import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.files.Workspace;
 import org.ek9lang.compiler.tokenizer.TokenResult;
 import org.ek9lang.core.utils.Logger;
@@ -74,20 +74,20 @@ public abstract class Ek9Service {
     return path;
   }
 
-  protected void reportOnCompiledSource(CompilableSource compilableSource) {
-    Logger.error("Reporting on " + compilableSource.getFileName());
+  protected void reportOnCompiledSource(ErrorListener errorListener) {
+    Logger.error("Reporting on " + errorListener.getGeneralIdentifierOfSource());
 
-    clearOldCompiledDiagnostics(compilableSource);
+    clearOldCompiledDiagnostics(errorListener.getGeneralIdentifierOfSource());
     PublishDiagnosticsParams sourceDiagnostics =
-        diagnosticExtractor.getErrorDiagnostics(compilableSource);
+        diagnosticExtractor.getErrorDiagnostics(errorListener);
     sendDiagnostics(sourceDiagnostics);
 
   }
 
-  protected void clearOldCompiledDiagnostics(CompilableSource compilableSource) {
-    if (compilableSource != null) {
+  protected void clearOldCompiledDiagnostics(String generalIdentifierOfSource) {
+    if (generalIdentifierOfSource != null) {
       PublishDiagnosticsParams clearedDiagnostics =
-          diagnosticExtractor.getEmptyDiagnostics(compilableSource);
+          diagnosticExtractor.getEmptyDiagnostics(generalIdentifierOfSource);
       sendDiagnostics(clearedDiagnostics);
     }
   }

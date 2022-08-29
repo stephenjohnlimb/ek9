@@ -25,21 +25,21 @@ import org.junit.jupiter.api.Test;
 final class ErrorListenerTest {
   @Test
   void testReturningRequired() {
-    ErrorListener underTest = new ErrorListener();
+    ErrorListener underTest = new ErrorListener("test");
     underTest.raiseReturningRequired(createSyntheticToken(), "_EK9 Test");
     assertInError(underTest);
   }
 
   @Test
   void testReturningRedundant() {
-    ErrorListener underTest = new ErrorListener();
+    ErrorListener underTest = new ErrorListener("test");
     underTest.raiseReturningRedundant(createSyntheticToken(), "_EK9 Test");
     assertInError(underTest);
   }
 
   @Test
   void testSemanticErrorCreationWithModule() {
-    ErrorListener underTest = new ErrorListener();
+    ErrorListener underTest = new ErrorListener("test");
     underTest.semanticError(createSyntheticToken(), "_EK9 Test",
         ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
     assertInError(underTest);
@@ -47,7 +47,7 @@ final class ErrorListenerTest {
 
   @Test
   void testSemanticErrorCreation() {
-    ErrorListener underTest = new ErrorListener();
+    ErrorListener underTest = new ErrorListener("test");
     underTest.semanticError(createSyntheticToken(), "_EK9 Test",
         ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
     assertInError(underTest);
@@ -55,7 +55,7 @@ final class ErrorListenerTest {
 
   @Test
   void testSemanticErrorCreationNoToken() {
-    ErrorListener underTest = new ErrorListener();
+    ErrorListener underTest = new ErrorListener("test");
     underTest.semanticError(null, "Test", ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
     assertInError(underTest);
   }
@@ -66,7 +66,7 @@ final class ErrorListenerTest {
     AggregateSymbol integerType = new AggregateSymbol("Integer", symbolTable);
     symbolTable.define(integerType);
 
-    ErrorListener underTest = new ErrorListener();
+    ErrorListener underTest = new ErrorListener("test");
     MatchResults results = new MatchResults(5);
 
     //Just do some simple checks on the results match code
@@ -113,7 +113,7 @@ final class ErrorListenerTest {
 
   @Test
   void testConstructionAndSetup() {
-    ErrorListener underTest = new ErrorListener();
+    ErrorListener underTest = new ErrorListener("test");
 
     //Setup check defaults and ensure switches work.
     assertTrue(underTest.isErrorFree());

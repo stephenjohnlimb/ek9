@@ -60,11 +60,10 @@ public class Ek9LanguageServer extends Ek9Service implements LanguageServer, Lan
         Glob searchCondition = new Glob("**.ek9");
         List<File> fileList = osSupport.getFilesRecursivelyFrom(path.toFile(), searchCondition);
         fileList.forEach(file -> {
-          //TODO use thread pool to process these files in terms of parsing concurrently.
-          //actually use new JDK19 virtual threads for this.
+          //TODO use new JDK19 virtual threads for this.
           try {
-            getWorkspace().reParseSource(file.toPath());
-            reportOnCompiledSource(getWorkspace().getSource(file.toPath()));
+            var errorListener = getWorkspace().reParseSource(file.toPath());
+            reportOnCompiledSource(errorListener);
           } catch (RuntimeException rex) {
             Logger.error("Failed to load and parse " + file.toString());
           }
