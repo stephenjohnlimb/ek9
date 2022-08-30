@@ -3,6 +3,7 @@ package org.ek9lang.lsp;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.InitializeParams;
@@ -20,7 +21,9 @@ import org.ek9lang.core.utils.OsSupport;
 /**
  * The Language Server Implementation into the modular EK9 compiler.
  */
-public class Ek9LanguageServer extends Ek9Service implements LanguageServer, LanguageClientAware {
+public final class Ek9LanguageServer extends Ek9Service
+    implements LanguageServer, LanguageClientAware {
+
   private final OsSupport osSupport;
   private final Ek9CompilerConfig compilerConfig;
   private final Ek9TextDocumentService textDocumentService;
@@ -88,8 +91,8 @@ public class Ek9LanguageServer extends Ek9Service implements LanguageServer, Lan
     return CompletableFuture.supplyAsync(() -> initializeResult);
   }
 
-  public LanguageClient getClient() {
-    return client;
+  public Optional<LanguageClient> getClient() {
+    return Optional.ofNullable(client);
   }
 
   public Ek9CompilerConfig getCompilerConfig() {

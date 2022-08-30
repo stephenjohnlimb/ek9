@@ -370,7 +370,6 @@ final class CommandLineDetailsTest {
 
   @Test
   void testCommandLineIncrementVersionMissingParam() {
-    var toProcess = copyFileToTestCWD.andThen(processStringCommandLine);
     String sourceName = "SinglePackage.ek9";
     //We will copy this into a working directory and process it.
     sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);

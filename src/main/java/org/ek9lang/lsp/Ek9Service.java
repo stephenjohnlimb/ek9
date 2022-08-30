@@ -75,13 +75,12 @@ public abstract class Ek9Service {
   }
 
   protected void reportOnCompiledSource(ErrorListener errorListener) {
-    Logger.error("Reporting on " + errorListener.getGeneralIdentifierOfSource());
+    Logger.debug("Reporting on " + errorListener.getGeneralIdentifierOfSource());
 
     clearOldCompiledDiagnostics(errorListener.getGeneralIdentifierOfSource());
     PublishDiagnosticsParams sourceDiagnostics =
         diagnosticExtractor.getErrorDiagnostics(errorListener);
     sendDiagnostics(sourceDiagnostics);
-
   }
 
   protected void clearOldCompiledDiagnostics(String generalIdentifierOfSource) {
@@ -97,8 +96,8 @@ public abstract class Ek9Service {
    *
    * @param diagnostics The set of diagnostics to be returned to the user.
    */
-  public void sendDiagnostics(PublishDiagnosticsParams diagnostics) {
-    getLanguageServer().getClient().publishDiagnostics(diagnostics);
+  public void sendDiagnostics(final PublishDiagnosticsParams diagnostics) {
+    getLanguageServer().getClient().ifPresent(client -> client.publishDiagnostics(diagnostics));
   }
 
   protected void sendWarningBackToClient(String message) {
@@ -118,6 +117,6 @@ public abstract class Ek9Service {
   }
 
   private void sendLogMessageBackToClient(MessageParams message) {
-    getLanguageServer().getClient().logMessage(message);
+    getLanguageServer().getClient().ifPresent(client -> client.logMessage(message));
   }
 }
