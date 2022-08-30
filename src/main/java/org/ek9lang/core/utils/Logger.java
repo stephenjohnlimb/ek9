@@ -13,6 +13,10 @@ public class Logger {
 
   }
 
+  public static void debug(Object content) {
+    System.err.println("DEBUG: " + content);
+  }
+
   public static void log(String content) {
     System.out.println(content);
   }
@@ -23,10 +27,6 @@ public class Logger {
 
   public static void error(Object content) {
     System.err.println(content);
-  }
-
-  public static void debug(Object content) {
-    System.err.println("DEBUG: " + content);
   }
 
   public static void error(Throwable throwable) {

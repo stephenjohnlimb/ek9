@@ -23,7 +23,7 @@ import org.junit.jupiter.params.provider.ValueSource;
  * Just checks all the functionality present in the CompilableSource class.
  * But this does use a real parser and real files. There is no mocking.
  */
-class CompilableSourceTest {
+final class CompilableSourceTest {
 
   private static final Supplier<CompilableSource> validEk9Source = () -> {
     URL helloWorld = CompilableSourceTest.class.getResource("/examples/basics/HelloWorld.ek9");
@@ -138,22 +138,16 @@ class CompilableSourceTest {
   static Stream<Supplier<?>> getInvalidCalls() {
     var helloWorldSource = validEk9Source.get();
 
-    return Stream.of(
-        helloWorldSource::getCompilationUnitContext,
-        helloWorldSource::parse
-    );
+    return Stream.of(helloWorldSource::getCompilationUnitContext, helloWorldSource::parse);
   }
 
   static Stream<ExpectedTokenPosition> getPositionsToSearchFor() {
     return Stream.of(new ExpectedTokenPosition(2, 1, "defines"),
-        new ExpectedTokenPosition(2, 8, "defines"),
-        new ExpectedTokenPosition(2, 9, "module"),
+        new ExpectedTokenPosition(2, 8, "defines"), new ExpectedTokenPosition(2, 9, "module"),
         new ExpectedTokenPosition(2, 15, "module"),
         new ExpectedTokenPosition(2, 16, "introduction"),
-        new ExpectedTokenPosition(3, 5, "defines"),
-        new ExpectedTokenPosition(4, 5, "HelloWorld"),
-        new ExpectedTokenPosition(5, 7, "stdout"),
-        new ExpectedTokenPosition(5, 14, "<-"));
+        new ExpectedTokenPosition(3, 5, "defines"), new ExpectedTokenPosition(4, 5, "HelloWorld"),
+        new ExpectedTokenPosition(5, 7, "stdout"), new ExpectedTokenPosition(5, 14, "<-"));
   }
 
   private static class ExpectedTokenPosition {

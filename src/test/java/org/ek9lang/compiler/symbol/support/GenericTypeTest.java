@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
  * parameterised polymorphism is hard.
  * Especially templates that use templates.
  */
-class GenericTypeTest extends AbstractSymbolTestBase {
+final class GenericTypeTest extends AbstractSymbolTestBase {
 
   @Test
   void testTemplateTypeCreation() {

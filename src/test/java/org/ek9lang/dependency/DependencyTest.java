@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
  * If a developer releases a module package that does break backwards compatibility without bumping major version
  * The compiler will find that out and builds will fail, that module package will be useless.
  */
-class DependencyTest {
+final class DependencyTest {
   @Test
   void testEmptyDependencies() {
     DependencyNode n = DependencyNode.of("a.b.c-1.0.0-0");

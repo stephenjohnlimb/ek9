@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
  * Test out the basic operations on the symbol table.
  * The Symbol Table is used in many contexts.
  */
-class SymbolTableTest {
+final class SymbolTableTest {
 
   @Test
   void testSearchEmptySymbolTable() {

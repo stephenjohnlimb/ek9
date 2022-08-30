@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
  * <p>
  * These are both used in the command line tool as part of the packaging options.
  */
-class TestPackageParsing {
+final class TestPackageParsing {
 
   /**
    * Deals with the conversion of url to file and the specific exceptions we may encounter.
@@ -146,6 +146,7 @@ class TestPackageParsing {
   }
 
   @Test
+  @SuppressWarnings(java:S2699")
   void testBadPackages() {
     // A couple of source file with bad packaging in them.
     List.of("/examples/constructs/packages/BadPackage.ek9",

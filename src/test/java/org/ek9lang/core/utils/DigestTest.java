@@ -10,7 +10,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class DigestTest {
+final class DigestTest {
   private static final String testFileName = "assertTest.txt";
   private static final String sha256FileName = "assertTest.sha256";
 

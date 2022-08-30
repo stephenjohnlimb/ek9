@@ -11,7 +11,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
-class SigningKeyPairTest {
+final class SigningKeyPairTest {
 
   static String getOpenSSLGeneratedPrivateKey() {
     return """

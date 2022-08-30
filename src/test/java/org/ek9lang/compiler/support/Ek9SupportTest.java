@@ -8,7 +8,7 @@ import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.OsSupport;
 import org.junit.jupiter.api.Test;
 
-class Ek9SupportTest {
+final class Ek9SupportTest {
   private final OsSupport osSupport = new OsSupport(true);
   private final FileHandling fileHandling = new FileHandling(osSupport);
   private final SourceFileSupport sourceFileSupport =

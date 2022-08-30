@@ -95,6 +95,10 @@ public class CompilableSource implements Source, TokenConsumptionListener {
     return rtn;
   }
 
+  /**
+   * Provide access to the main compilation context.
+   * This is only valid if a prepareToParse and parse has been run.
+   */
   public EK9Parser.CompilationUnitContext getCompilationUnitContext() {
     if (this.compilationUnitContext == null) {
       throw new CompilerException(

@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
  * Just simple tests of the scope stack that will be used in the
  * compiler phases when building the internal model and symbols.
  */
-class ScopeStackTest {
+final class ScopeStackTest {
   @Test
   void testNewScopeStack() {
     ScopeStack underTest = new ScopeStack(new SymbolTable());

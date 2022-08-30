@@ -1,19 +1,14 @@
 package org.ek9lang.compiler.errors;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import org.antlr.v4.runtime.BaseErrorListener;
-import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.atn.ATNConfigSet;
-import org.antlr.v4.runtime.dfa.DFA;
 import org.ek9lang.compiler.symbol.support.search.MatchResults;
-import org.ek9lang.core.exception.CompilerException;
 import org.ek9lang.core.utils.OsSupport;
 
 /**
@@ -44,6 +39,7 @@ public class ErrorListener extends BaseErrorListener {
   private List<ErrorDetails> warnings = new ArrayList<>();
 
   private final String generalIdentifierOfSource;
+
   public ErrorListener(String generalIdentifierOfSource) {
     this.generalIdentifierOfSource = generalIdentifierOfSource;
     reset();
@@ -252,7 +248,7 @@ public class ErrorListener extends BaseErrorListener {
         "constructor of this type with single JSON parameter is not resolved"),
     CONSTRUCTOR_NOT_RESOLVED_IN_GENERIC_CONTEXT(
         "constructor not resolved, check parameters "
-        + "where this generic type is being created"),
+            + "where this generic type is being created"),
     GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED(
         "type/function is generic but no parameters were supplied"),
     GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INVALID("this generic usage with "
@@ -261,18 +257,18 @@ public class ErrorListener extends BaseErrorListener {
         "type/function is generic but incorrect number of parameters supplied"),
     GENERIC_TYPE_CONSTRUCTOR_INAPPROPRIATE(
         "type is generic, but for type inference to work; the number of generic "
-        + "and constructor parameters must be the same"),
+            + "and constructor parameters must be the same"),
     GENERIC_TYPE_OR_FUNCTION_PARAMETER_MISMATCH(
         "type/function is generic but generic parameters and constructor parameters"
-        + "conflict"),
+            + "conflict"),
     GENERIC_TYPE_OR_FUNCTION_NOT_RESOLVED(
         "type/function is generic but could not be resolved, use 'define type as'"
-        + "and type inference will work."),
+            + "and type inference will work."),
     GENERIC_TYPE_OR_FUNCTION_NOT_APPLICABLE(
         "type/function is not generic but parameters were supplied"),
     TYPE_REQUIRED_FOR_PROPERTIES(
         "type must be declared for this property - '<-' operator is not supported"
-        + "with complex call"),
+            + "with complex call"),
     USE_OF_SUPER_INAPPROPRIATE(
         "cannot be used here (but 'this' has support for :=:, :~:, +=, -=, /= and *=)"),
     USE_OF_THIS_INAPPROPRIATE(
@@ -320,7 +316,7 @@ public class ErrorListener extends BaseErrorListener {
         "declaration supporting 'null' is not needed as a value is assigned"),
     METHOD_ACCESS_MODIFIER_DEFAULT(
         "access modifier is not really needed here - all class methods are 'public'"
-        +  "by default"),
+            + "by default"),
     ACCESS_MODIFIER_INAPPROPRIATE("access modifier inappropriate here"),
     APPLICATION_SELECTION_INVALID("application selection not allowed in this context"),
     STATEMENT_UNREACHABLE("unreachable statement"),
@@ -350,7 +346,7 @@ public class ErrorListener extends BaseErrorListener {
     CONVERT_CONSTANT_TO_VARIABLE("convert this constant to a variable"),
     CONSTANT_PARAM_NEEDS_PURE(
         "use 'pure' modifier with a constant parameter or convert the constant to a"
-        + "variable"),
+            + "variable"),
     DUPLICATE_PROPERTY_FIELD("Property/Field duplicated"),
     DUPLICATE_VARIABLE("Variable/Constant duplicated"),
     DUPLICATE_METHOD("Method duplicated"),
@@ -414,7 +410,7 @@ public class ErrorListener extends BaseErrorListener {
         "operator must be defined when using a generic implementation with a specific type"),
     IMPLIED_OPERATOR_NOT_DEFINED_FROM_GENERIC(
         "implied operator must be defined when using a generic implementation with a"
-        + "specific type"),
+            + "specific type"),
     OPERATOR_AMBIGUOUS("operator ambiguous match"),
     METHOD_AMBIGUOUS("ambiguous match"),
     METHOD_DUPLICATED("duplicate/ambiguous methods"),
@@ -437,7 +433,7 @@ public class ErrorListener extends BaseErrorListener {
     LIKELY_DEFECT("likely defect"),
     NO_PURE_PROPERTY_REASSIGNMENT(
         "properties cannot be reassigned when scope is marked as 'pure', but you can"
-        + "copy/merge/replace (:=:, :~:, :^:)"),
+            + "copy/merge/replace (:=:, :~:, :^:)"),
     NO_PURE_VARIABLE_REASSIGNMENT("variables cannot be reassigned when scope is marked as 'pure'"),
     NO_PURE_REASSIGNMENT("reassignment not allowed when scope is marked as 'pure'"),
     NO_MUTATION_IN_PURE_CONTEXT("mutating variables is not allowed when scope is marked as 'pure'"),
@@ -446,7 +442,7 @@ public class ErrorListener extends BaseErrorListener {
     COMPONENT_INJECTION_IN_PURE("component injection not allowed when scope is marked as 'pure'"),
     COMPONENT_INJECTION_OF_NON_ABSTRACT(
         "dependency injection of a non-abstract component is not allowed, use an"
-      + "abstract base component"),
+            + "abstract base component"),
     COMPONENT_INJECTION_NOT_POSSIBLE("dependency injection is not allowed"),
     COMPONENT_NOT_INITIALISED("component not marked for injection nor initialised"),
     COMPONENT_NOT_MARKED_FOR_INJECTION("component not marked for injection"),

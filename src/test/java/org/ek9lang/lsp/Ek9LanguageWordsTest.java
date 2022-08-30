@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class Ek9LanguageWordsTest {
+final class Ek9LanguageWordsTest {
 
   private final Ek9LanguageWords underTest = new Ek9LanguageWords();
 

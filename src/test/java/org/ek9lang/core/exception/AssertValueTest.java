@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
-class AssertValueTest {
+final class AssertValueTest {
 
   @Test
   void testNullRange() {

@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Basic tests for symbols.
  */
-class SymbolsTest extends AbstractSymbolTestBase {
+final class SymbolsTest extends AbstractSymbolTestBase {
   @Test
   void testFullyQualifiedName() {
     assertFalse(ISymbol.isQualifiedName("name"));

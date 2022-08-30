@@ -27,7 +27,7 @@ public class JustParser {
   public boolean readSourceFile(File sourceFile, Ek9SourceVisitor visitor) {
     try {
       if (!osSupport.isFileReadable(sourceFile)) {
-        Logger.error("File [" + sourceFile.getName() + "] os not readable");
+        Logger.error("File [" + sourceFile.getName() + "] is not readable");
         return false;
       }
       try (InputStream inputStream = new FileInputStream(sourceFile)) {

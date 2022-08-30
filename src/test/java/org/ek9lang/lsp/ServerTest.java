@@ -7,9 +7,10 @@ import java.util.concurrent.ExecutionException;
 import org.ek9lang.core.utils.OsSupport;
 import org.junit.jupiter.api.Test;
 
-class ServerTest {
+final class ServerTest {
 
   @Test
+  @SuppressWarnings("java:S2925")
   void startAndStopServer() throws ExecutionException, InterruptedException {
 
     var osSupport = new OsSupport(true);

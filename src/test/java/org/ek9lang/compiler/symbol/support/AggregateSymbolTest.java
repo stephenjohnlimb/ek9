@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
  * <p>
  * This is a major test as it tests Symbol tables, variable symbols and method symbols
  */
-class AggregateSymbolTest {
+final class AggregateSymbolTest {
   @Test
   void testEmptyAggregate() {
     SymbolTable symbolTable1 = new SymbolTable();

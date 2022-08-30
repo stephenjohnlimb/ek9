@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-class OsSupportTest {
+final class OsSupportTest {
   OsSupport underTest = new OsSupport();
 
   @Test

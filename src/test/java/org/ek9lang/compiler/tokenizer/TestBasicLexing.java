@@ -6,7 +6,7 @@ import org.ek9lang.antlr.EK9Parser;
 /**
  * Just read a single Hello world EK9 source file and test the lexer.
  */
-public class TestBasicLexing extends LexingBase {
+final class TestBasicLexing extends LexingBase {
   @Override
   protected String getEK9FileName() {
     return "/examples/basics/HelloWorld.ek9";

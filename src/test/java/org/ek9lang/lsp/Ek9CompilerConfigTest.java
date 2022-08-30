@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Simple tests for the compiler flags in general use and the lsp specific flags.
  */
-class Ek9CompilerConfigTest {
+final class Ek9CompilerConfigTest {
 
   @Test
   void testBasicDefaultValues() {

@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
  * <p>
  * Does not fully test aggregates and the like, just their scoped type natures.
  */
-class ScopesTest extends AbstractSymbolTestBase {
+final class ScopesTest extends AbstractSymbolTestBase {
   @Test
   void testLocalScope() {
     var local = new LocalScope(symbolTable);

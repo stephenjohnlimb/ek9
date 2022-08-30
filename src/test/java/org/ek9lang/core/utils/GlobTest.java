@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-class GlobTest {
+final class GlobTest {
 
   @Test
   void basicGlobbing() {

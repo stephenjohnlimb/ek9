@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Ensure that the file handling class functions as expected.
  */
-class FileHandlingTest {
+final class FileHandlingTest {
   private final FileHandling underTest = new FileHandling(new OsSupport(true));
 
   @AfterEach
