@@ -146,7 +146,7 @@ final class TestPackageParsing {
   }
 
   @Test
-  @SuppressWarnings(java:S2699")
+  @SuppressWarnings("java:S2699")
   void testBadPackages() {
     // A couple of source file with bad packaging in them.
     List.of("/examples/constructs/packages/BadPackage.ek9",
