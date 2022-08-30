@@ -158,7 +158,7 @@ public final class Packager {
       }
       //it is empty - which OK, just nothing to add.
     } catch (IOException ioException) {
-      throw new CompilerException(ioException);
+      throw new CompilerException("Failing during zip packaging", ioException);
     }
   }
 }

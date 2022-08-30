@@ -2,7 +2,6 @@ package org.ek9lang.core.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -61,6 +60,17 @@ class DigestTest {
     String check = ckSum.toString();
     assertEquals("5cac4f980fedc3d3f1f99b4be3472c9b30d56523e632d151237ec9309048bda9".toUpperCase(),
         check);
+  }
+
+  @Test
+  void testEquality() {
+    String data = "The quick brown fox";
+    Digest.CheckSum ckSum1 = Digest.digest(data);
+    Digest.CheckSum ckSum2 = Digest.digest(data);
+    assertEquals(ckSum1, ckSum2);
+    assertEquals(ckSum1, ckSum1);
+    assertEquals(ckSum1.hashCode(), ckSum2.hashCode());
+
   }
 
   @Test

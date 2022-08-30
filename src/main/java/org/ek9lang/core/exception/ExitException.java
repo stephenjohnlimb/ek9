@@ -13,11 +13,6 @@ public class ExitException extends RuntimeException {
     this.exitCode = exitCode;
   }
 
-  public ExitException(int exitCode, Throwable throwable) {
-    super(throwable);
-    this.exitCode = exitCode;
-  }
-
   public int getExitCode() {
     return exitCode;
   }

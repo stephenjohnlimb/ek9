@@ -136,8 +136,8 @@ public class ErrorListener extends BaseErrorListener {
     ErrorDetails warning;
     if (offendingToken == null) {
       warning =
-          new ErrorDetails(ErrorClassification.SEMANTIC_WARNING, "Unknown Text", null, 0, 0, 1,
-              msg);
+          new ErrorDetails(ErrorClassification.SEMANTIC_WARNING,
+              "Unknown Text", null, 0, 0, 1, msg);
     } else {
       int tokenLength = offendingToken.getText().length();
       warning = new ErrorDetails(ErrorClassification.SEMANTIC_WARNING, offendingToken.getText(),
@@ -149,8 +149,6 @@ public class ErrorListener extends BaseErrorListener {
       warnings.add(warning);
     }
   }
-
-
 
   private ErrorDetails createSemanticError(Token offendingToken, String msg,
                                            SemanticClassification classification) {
@@ -194,36 +192,10 @@ public class ErrorListener extends BaseErrorListener {
       error = new ErrorDetails(ErrorClassification.SYNTAX_ERROR, offender.getText(), null, line,
           charPositionInLine, tokenLength, reason);
     } else {
-      error = new ErrorDetails(ErrorClassification.SYNTAX_ERROR, "'Unknown'", null, line,
+      error = new ErrorDetails(ErrorClassification.SYNTAX_ERROR, "Unknown", null, line,
           charPositionInLine, 1, reason);
     }
     addErrorDetails(error);
-  }
-
-  @Override
-  public void reportAmbiguity(Parser recognizer, DFA dfa, int startIndex, int stopIndex,
-                              boolean exact,
-                              BitSet ambiguousAlts, ATNConfigSet configs) {
-    if (exceptionOnAmbiguity) {
-      throw new CompilerException("reportAmbiguity");
-    }
-  }
-
-  @Override
-  public void reportAttemptingFullContext(Parser recognizer, DFA dfa, int startIndex, int stopIndex,
-                                          BitSet conflictingAlts, ATNConfigSet configs) {
-    if (exceptionOnFullContext) {
-      throw new CompilerException("reportAttemptingFullContext");
-    }
-  }
-
-  @Override
-  public void reportContextSensitivity(Parser recognizer, DFA dfa, int startIndex, int stopIndex,
-                                       int prediction,
-                                       ATNConfigSet configs) {
-    if (exceptionOnContextSensitive) {
-      throw new CompilerException("reportContextSensitivity");
-    }
   }
 
   private void addErrorDetails(ErrorDetails details) {

@@ -23,6 +23,13 @@ import org.junit.jupiter.api.Test;
  * So this unit test is just designed to test the basic mechanisms.
  */
 final class ErrorListenerTest {
+
+  @Test
+  void testErrorSourceName() {
+    ErrorListener underTest = new ErrorListener("test");
+    assertEquals("test", underTest.getGeneralIdentifierOfSource());
+  }
+
   @Test
   void testReturningRequired() {
     ErrorListener underTest = new ErrorListener("test");
@@ -54,9 +61,46 @@ final class ErrorListenerTest {
   }
 
   @Test
+  void testDuplicateSemanticErrorCreation() {
+    ErrorListener underTest = new ErrorListener("test");
+
+    underTest.semanticError(createSyntheticToken(), "_EK9 Test",
+        ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
+
+    //Add same again and check deduplicated.
+    underTest.semanticError(createSyntheticToken(), "_EK9 Test",
+        ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
+
+    assertInError(underTest);
+  }
+
+  @Test
   void testSemanticErrorCreationNoToken() {
     ErrorListener underTest = new ErrorListener("test");
     underTest.semanticError(null, "Test", ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
+    assertInError(underTest);
+  }
+
+  @Test
+  void testSemanticWarningCreationNoToken() {
+    ErrorListener underTest = new ErrorListener("test");
+    underTest.semanticWarning(null, "Test", ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
+    assertJustWarnings(underTest);
+  }
+
+  @Test
+  void testSyntaxErrorWithEK9Message() {
+    ErrorListener underTest = new ErrorListener("test");
+    var msg = "_EK9 Some sort of general syntax error";
+    underTest.syntaxError(null, "Anything", 0, 0, msg, null);
+    assertInError(underTest);
+  }
+
+  @Test
+  void testSyntaxErrorWithGeneralMessage() {
+    ErrorListener underTest = new ErrorListener("test");
+    var msg = "Some sort of general syntax error";
+    underTest.syntaxError(null, "Anything", 0, 0, msg, null);
     assertInError(underTest);
   }
 
@@ -97,12 +141,27 @@ final class ErrorListenerTest {
 
     underTest.semanticError(createSyntheticToken(), "Fuzzy",
         ErrorListener.SemanticClassification.CONSTRUCTOR_NOT_RESOLVED, results);
+
+    //Also add a second time to ensure deduplicated
+    underTest.semanticError(createSyntheticToken(), "Fuzzy",
+        ErrorListener.SemanticClassification.CONSTRUCTOR_NOT_RESOLVED, results);
+
     assertInError(underTest);
+  }
+
+  private void assertJustWarnings(ErrorListener underTest) {
+    assertTrue(underTest.isErrorFree());
+    assertFalse(underTest.isWarningFree());
+    assertErrorDetails(underTest.getWarnings().next());
   }
 
   private void assertInError(ErrorListener underTest) {
     assertFalse(underTest.isErrorFree());
-    ErrorListener.ErrorDetails details = underTest.getErrors().next();
+    assertTrue(underTest.isWarningFree());
+    assertErrorDetails(underTest.getErrors().next());
+  }
+
+  private void assertErrorDetails(ErrorListener.ErrorDetails details) {
     assertNotNull(details);
     assertNotNull(details.getTypeOfError());
     assertEquals(0, details.getPosition());
