@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.net.URL;
@@ -183,43 +182,43 @@ final class EK9Test {
 
   @Test
   void testBuildVersioningOfPackage() {
-    assertPackageVersionChange("1.0.0-1", "-IV build", "PackageNoDeps.ek9");
+    assertPackageVersionChange("1.0.0-1", "-IV build");
   }
 
   @Test
   void testPatchVersioningOfPackage() {
-    assertPackageVersionChange("1.0.1-0", "-IV patch", "PackageNoDeps.ek9");
+    assertPackageVersionChange("1.0.1-0", "-IV patch");
   }
 
   @Test
   void testMinorVersioningOfPackage() {
-    assertPackageVersionChange("1.1.0-0", "-v -IV minor", "PackageNoDeps.ek9");
+    assertPackageVersionChange("1.1.0-0", "-v -IV minor");
   }
 
   @Test
   void testMajorVersioningOfPackage() {
-    assertPackageVersionChange("2.0.0-0", "-IV major", "PackageNoDeps.ek9");
+    assertPackageVersionChange("2.0.0-0", "-IV major");
   }
 
   @Test
   void testSetVersioningOfPackage() {
-    assertPackageVersionChange("3.8.6-0", "-v -SV 3.8.6", "PackageNoDeps.ek9");
+    assertPackageVersionChange("3.8.6-0", "-v -SV 3.8.6");
     //Now check that it can also be incremented and appropriate resets on patch and build no.
-    assertPackageVersionChange("3.9.0-0", "-IV minor", "PackageNoDeps.ek9");
+    assertPackageVersionChange("3.9.0-0", "-IV minor");
   }
 
   @Test
   void testSetFeatureVersioningOfPackage() {
-    assertPackageVersionChange("3.8.6-specials-0", "-v -SF 3.8.6-specials", "PackageNoDeps.ek9");
+    assertPackageVersionChange("3.8.6-specials-0", "-v -SF 3.8.6-specials");
     //Now check that it can also be incremented and patch/build number is reset to 0.
-    assertPackageVersionChange("3.9.0-specials-0", "-IV minor", "PackageNoDeps.ek9");
+    assertPackageVersionChange("3.9.0-specials-0", "-IV minor");
   }
 
   @Test
   void testPrintVersioningOfPackage() {
-    assertPackageVersionChange("3.8.6-specials-0", "-SF 3.8.6-specials", "PackageNoDeps.ek9");
+    assertPackageVersionChange("3.8.6-specials-0", "-SF 3.8.6-specials");
     //Now check that it can also be printed.
-    assertPackageVersionChange("3.8.6-specials-0", "-PV", "PackageNoDeps.ek9");
+    assertPackageVersionChange("3.8.6-specials-0", "-PV");
   }
 
   @Test
@@ -436,8 +435,8 @@ final class EK9Test {
     }
   }
 
-  private void assertPackageVersionChange(String expectedVersion, String command,
-                                          String sourceName) {
+  private void assertPackageVersionChange(String expectedVersion, String command) {
+    String sourceName = "PackageNoDeps.ek9";
     String[] incrementBuildNo = new String[] {command + " " + sourceName};
 
     File sourceFile =
@@ -462,11 +461,7 @@ final class EK9Test {
 
     //Now should something be run and executed.
     if (result == Ek9.RUN_COMMAND_EXIT_CODE) {
-      try {
-        assertEquals(expectation, new Ek9(commandLine).run());
-      } catch(InterruptedException iex) {
-        fail("Interrupt exception ", iex);
-      }
+      assertEquals(expectation, new Ek9(commandLine).run());
     }
 
     return commandLine;

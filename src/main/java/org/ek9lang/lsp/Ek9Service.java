@@ -36,10 +36,6 @@ public abstract class Ek9Service {
     return languageServer;
   }
 
-  protected void setLanguageServer(Ek9LanguageServer languageServer) {
-    this.languageServer = languageServer;
-  }
-
   protected Workspace getWorkspace() {
     return getLanguageServer().getWorkspaceService().getEk9WorkSpace();
   }
@@ -100,19 +96,19 @@ public abstract class Ek9Service {
     getLanguageServer().getClient().ifPresent(client -> client.publishDiagnostics(diagnostics));
   }
 
-  protected void sendWarningBackToClient(String message) {
+  public void sendWarningBackToClient(String message) {
     sendLogMessageBackToClient(new MessageParams(MessageType.Warning, message));
   }
 
-  protected void sendErrorBackToClient(String message) {
+  public void sendErrorBackToClient(String message) {
     sendLogMessageBackToClient(new MessageParams(MessageType.Error, message));
   }
 
-  protected void sendInfoBackToClient(String message) {
+  public void sendInfoBackToClient(String message) {
     sendLogMessageBackToClient(new MessageParams(MessageType.Info, message));
   }
 
-  protected void sendLogBackToClient(String message) {
+  public void sendLogBackToClient(String message) {
     sendLogMessageBackToClient(new MessageParams(MessageType.Log, message));
   }
 

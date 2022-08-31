@@ -1,7 +1,6 @@
 package org.ek9lang.cli;
 
 import java.io.File;
-import java.util.concurrent.ExecutionException;
 import org.ek9lang.LanguageMetaData;
 import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.core.utils.FileHandling;
@@ -43,7 +42,6 @@ public class Ek9 {
   public static final int BAD_COMMAND_COMBINATION_EXIT_CODE = 4;
   public static final int NO_PROGRAMS_EXIT_CODE = 5;
   public static final int PROGRAM_NOT_SPECIFIED_EXIT_CODE = 6;
-  public static final int LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE = 7;
   private final CommandLineDetails commandLine;
 
   public Ek9(CommandLineDetails commandLine) {
@@ -53,7 +51,7 @@ public class Ek9 {
   /**
    * Run the main Ek9 compiler.
    */
-  public static void main(String[] argv) throws InterruptedException {
+  public static void main(String[] argv) {
     OsSupport osSupport = new OsSupport();
     FileHandling fileHandling = new FileHandling(osSupport);
     CommandLineDetails commandLine =
@@ -75,7 +73,7 @@ public class Ek9 {
   /**
    * Run the command line and return the exit code.
    */
-  public int run() throws InterruptedException {
+  public int run() {
     //This will cause the application to block and remain running as a language server.
     if (commandLine.isRunEk9AsLanguageServer()) {
       return runAsLanguageServer(commandLine);
@@ -93,17 +91,12 @@ public class Ek9 {
    * @return The exit code to exit with
    */
   @SuppressWarnings("java:S106")
-  private int runAsLanguageServer(CommandLineDetails commandLine) throws InterruptedException {
-    try {
-      Logger.error(
-          "EK9 running as LSP languageHelp=" + commandLine.isEk9LanguageServerHelpEnabled());
-      Server.runEk9LanguageServer(commandLine.getOsSupport(), System.in, System.out,
-          commandLine.isEk9LanguageServerHelpEnabled());
-      return SUCCESS_EXIT_CODE;
-    } catch (ExecutionException ex) {
-      Logger.error("Failed to Start Language Server");
-      return LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE;
-    }
+  private int runAsLanguageServer(CommandLineDetails commandLine) {
+    Logger.error("EK9 running as LSP languageHelp="
+        + commandLine.isEk9LanguageServerHelpEnabled());
+    Server.runEk9LanguageServer(commandLine.getOsSupport(), System.in, System.out,
+        commandLine.isEk9LanguageServerHelpEnabled());
+    return SUCCESS_EXIT_CODE;
   }
 
   /**

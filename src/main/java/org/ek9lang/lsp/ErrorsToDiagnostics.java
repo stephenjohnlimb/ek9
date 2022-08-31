@@ -9,7 +9,6 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.files.CompilableSource;
 import org.ek9lang.core.utils.Logger;
 
 /**
@@ -80,7 +79,8 @@ public class ErrorsToDiagnostics {
     d.setSeverity(severity);
     d.setMessage(details.getTypeOfError());
 
-    //This should line up with the source in the LSP.
+    //This should line up with the source in the LSP - as it is zero based.
+    //Quite a few space/indent errors will report on the previous line.
     int lineNo = details.getLineNumber() - 1;
     int charPos = details.getPosition();
 
