@@ -671,7 +671,7 @@ public class CommandLineDetails {
   }
 
   public boolean isRunEk9AsLanguageServer() {
-    return isOptionPresentInAppParameters(Set.of("-ls"));
+    return isOptionPresentInAppParameters(Set.of("-ls")) || isEk9LanguageServerHelpEnabled();
   }
 
   public boolean isEk9LanguageServerHelpEnabled() {
