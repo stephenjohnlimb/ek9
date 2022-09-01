@@ -14,6 +14,7 @@ import org.ek9lang.core.utils.Logger;
 
 /**
  * Part of the language server functionality.
+ * See WorkspaceService for additional methods we can implement.
  */
 public class Ek9WorkspaceService extends Ek9Service implements WorkspaceService {
 
@@ -24,20 +25,14 @@ public class Ek9WorkspaceService extends Ek9Service implements WorkspaceService 
   }
 
   @Override
-  public CompletableFuture<List<? extends SymbolInformation>> symbol(WorkspaceSymbolParams params) {
-    String globalSymbolToFind = params.getQuery();
-    //TODO the actual processing.
-    Logger.debug("symbol [" + globalSymbolToFind + "]");
-    return null;
-  }
-
-  @Override
   public void didChangeConfiguration(DidChangeConfigurationParams params) {
     Logger.debug("didChangeConfiguration [" + params + "]");
   }
 
   @Override
   public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
+    Logger.debug("didChangeWatchedFiles [" + params + "]");
+
     params.getChanges().forEach(fileEvent -> {
       switch (fileEvent.getType()) {
         case Changed, Created -> reportOnCompiledSource(

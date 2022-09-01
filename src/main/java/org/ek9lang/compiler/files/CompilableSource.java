@@ -196,10 +196,22 @@ public class CompilableSource implements Source, TokenConsumptionListener {
    */
   public CompilableSource prepareToParse() {
     try {
+      //we will set the parsed module once parsed.
+      InputStream inputStream = getInputStream();
+      return prepareToParse(inputStream);
+    } catch (Exception ex) {
+      throw new CompilerException("Unable to parse file " + filename, ex);
+    }
+  }
+
+  /**
+   * Prepare to parse but with a provided input stream of what to parse.
+   */
+  public CompilableSource prepareToParse(final InputStream inputStream) {
+    try {
       //So make a new error listener to get all the errors
       setErrorListener(new ErrorListener(getGeneralIdentifier()));
       //we will set the parsed module once parsed.
-      InputStream inputStream = getInputStream();
       Ek9Lexer lexer = new Ek9Lexer(CharStreams.fromStream(inputStream), EK9Parser.INDENT,
           EK9Parser.DEDENT).setSourceName(filename);
       lexer.setTokenListener(this);

@@ -45,8 +45,12 @@ public abstract class Ek9Service {
     String uri = getFilename(params.getTextDocument());
     if (getWorkspace().isSourcePresent(uri)) {
       int line = params.getPosition().getLine() + 1;
-      int charPos = params.getPosition().getCharacter() + 1;
+      int charPos = params.getPosition().getCharacter();
       rtn = getWorkspace().getSource(uri).nearestToken(line, charPos);
+      //Try a bit further back.
+      if (!rtn.isPresent()) {
+        rtn = getWorkspace().getSource(uri).nearestToken(line, charPos - 1);
+      }
     }
     return rtn;
   }

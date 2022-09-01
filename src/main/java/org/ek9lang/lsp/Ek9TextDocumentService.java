@@ -1,5 +1,6 @@
 package org.ek9lang.lsp;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -26,6 +27,10 @@ import org.ek9lang.lsp.Ek9LanguageWords.KeyWordInformation;
 
 /**
  * Part of the language server functionality.
+ * Some of the methods we could implement but Ignore the events as we pick
+ * up changes by implementing didChangeWatchedFiles in the workspace service.
+ * Note there are lots of other methods we will implement in here.
+ * Like type hierarchy for example. See TextDocumentService for other methods we can implement.
  */
 public class Ek9TextDocumentService extends Ek9Service implements TextDocumentService {
   private final Ek9LanguageWords languageWords;
@@ -39,43 +44,11 @@ public class Ek9TextDocumentService extends Ek9Service implements TextDocumentSe
     return languageWords;
   }
 
-  /**
-   * Go to definition of symbol.
-   */
-  @Override
-  public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>>
-      definition(DefinitionParams params) {
-    return CompletableFuture.supplyAsync(() -> {
-      Logger.debug("Would do definition of [" + params.toString() + "]");
-      List<? extends Location> rtn = new ArrayList<>();
-      //TODO search for definition in symbol table and populate location
-      return Either.forLeft(rtn);
-    });
-  }
-
-  @Override
-  public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>>
-      declaration(DeclarationParams params) {
-    return CompletableFuture.supplyAsync(() -> {
-      Logger.debug("Would do declaration of [" + params.toString() + "]");
-      List<? extends Location> rtn = new ArrayList<>();
-      //TODO search for a declaration in symbol table and populate location
-      return Either.forLeft(rtn);
-    });
-  }
-
-  @Override
-  public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
-    return CompletableFuture.supplyAsync(() -> {
-      Logger.debug("Would do references of [" + params.toString() + "]");
-      //TODO search for reference use in symbol table and populate location
-      return new ArrayList<>();
-    });
-  }
-
   @Override
   public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(
       CompletionParams position) {
+    Logger.debug("Would do completion [" + position.toString() + "]");
+
     return CompletableFuture.supplyAsync(() -> {
       List<CompletionItem> list = new ArrayList<>();
 
@@ -85,6 +58,7 @@ public class Ek9TextDocumentService extends Ek9Service implements TextDocumentSe
 
         languageMatches.forEach(completion -> {
           if (list.size() < getLanguageServer().getCompilerConfig().getNumberOfSuggestions()) {
+            Logger.debug("Adding completion of [" + completion + "]");
             list.add(new CompletionItem(completion));
           }
         });
@@ -97,6 +71,8 @@ public class Ek9TextDocumentService extends Ek9Service implements TextDocumentSe
 
   @Override
   public CompletableFuture<Hover> hover(HoverParams params) {
+    Logger.debug("Would do hover [" + params.toString() + "]");
+
     return CompletableFuture.supplyAsync(() -> {
 
       TokenResult tokenResult = getNearestToken(params);
@@ -121,7 +97,9 @@ public class Ek9TextDocumentService extends Ek9Service implements TextDocumentSe
     try {
       String uri = getFilename(params.getTextDocument());
       Logger.debug("didOpen Opened Source [" + uri + "]");
-      reportOnCompiledSource(getWorkspace().reParseSource(uri));
+
+      var inputStream = new ByteArrayInputStream(params.getTextDocument().getText().getBytes());
+      reportOnCompiledSource(getWorkspace().reParseSource(uri, inputStream));
     } catch (RuntimeException rex) {
       Logger.debug("didOpen exception: " + rex.getMessage());
     }
@@ -129,28 +107,18 @@ public class Ek9TextDocumentService extends Ek9Service implements TextDocumentSe
 
   @Override
   public void didChange(DidChangeTextDocumentParams params) {
-    try {
-      String uri = getFilename(params.getTextDocument());
-      Logger.debug("didChange Changed Source [" + uri + "]");
-      reportOnCompiledSource(getWorkspace().reParseSource(uri));
-    } catch (RuntimeException rex) {
-      Logger.debug("didChange exception: " + rex.getMessage());
-    }
+    //Ignore as we implement watched files and work on saved data.
   }
 
   @Override
   public void didClose(DidCloseTextDocumentParams params) {
     Logger.debug("didClose [" + params + "]");
+    String uri = getFilename(params.getTextDocument());
+    clearOldCompiledDiagnostics(uri);
   }
 
   @Override
   public void didSave(DidSaveTextDocumentParams params) {
-    try {
-      String uri = getFilename(params.getTextDocument());
-      Logger.debug("didSave Changed Source [" + uri + "]");
-      reportOnCompiledSource(getWorkspace().reParseSource(uri));
-    } catch (RuntimeException rex) {
-      Logger.error("didSave exception: " + rex.getMessage());
-    }
+    //Ignore as we implement watched files and work on saved data.
   }
 }

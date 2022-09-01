@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.files;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,6 +28,16 @@ public class Workspace {
   }
 
   /**
+   * Typically used via the language server.
+   */
+  public ErrorListener reParseSource(String uri, InputStream inputStream) {
+    Logger.debug("parsing/reparsing [" + uri + "] but with direct inputstream");
+    CompilableSource compilableSource = ensureCompilableSourceAvailable(uri);
+    compilableSource.prepareToParse(inputStream).parse();
+    return compilableSource.getErrorListener();
+  }
+
+  /**
    * Triggers the reparsing of the source file. Normally after an edit so errors can be checked.
    */
   public ErrorListener reParseSource(String uri) {
@@ -34,17 +45,18 @@ public class Workspace {
     //will be triggered for reparsing over and over again. We only need one request to be honoured!
 
     Logger.debug("parsing/reparsing [" + uri + "]");
-    CompilableSource compilableSource;
-    if (isSourcePresent(uri)) {
-      compilableSource = getSource(uri);
-    } else {
-      compilableSource = new CompilableSource(uri);
-      addSource(compilableSource);
-    }
+    CompilableSource compilableSource = ensureCompilableSourceAvailable(uri);
     compilableSource.prepareToParse().parse();
     return compilableSource.getErrorListener();
   }
 
+  private CompilableSource ensureCompilableSourceAvailable(String uri) {
+    if (isSourcePresent(uri)) {
+      return getSource(uri);
+    }
+
+    return addSource(new CompilableSource(uri));
+  }
   /*
   public synchronized Workspace addParsedModule(ParsedModule module) {
     modules.put(module.getCompilableSource(), module);
@@ -65,17 +77,17 @@ public class Workspace {
   }
   */
 
-  public Workspace addSource(Path path) {
+  public CompilableSource addSource(Path path) {
     return addSource(path.toString());
   }
 
-  public Workspace addSource(String fileName) {
+  public CompilableSource addSource(String fileName) {
     return addSource(new CompilableSource(fileName));
   }
 
-  public Workspace addSource(CompilableSource source) {
+  public CompilableSource addSource(CompilableSource source) {
     sources.put(source.getFileName(), source);
-    return this;
+    return source;
   }
 
   public boolean isSourcePresent(String fileName) {
@@ -99,8 +111,7 @@ public class Workspace {
   }
 
   public Optional<ErrorListener> removeSource(String fileName) {
-    return Optional.ofNullable(sources.remove(fileName))
-        .map(CompilableSource::getErrorListener);
+    return Optional.ofNullable(sources.remove(fileName)).map(CompilableSource::getErrorListener);
   }
 
   public Collection<CompilableSource> getSources() {

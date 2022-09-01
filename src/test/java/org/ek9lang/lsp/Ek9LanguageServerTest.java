@@ -11,12 +11,16 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import org.eclipse.lsp4j.DidCloseTextDocumentParams;
+import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.MessageActionItem;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.ShowMessageRequestParams;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.ek9lang.cli.SourceFileSupport;
@@ -68,8 +72,7 @@ final class Ek9LanguageServerTest {
     SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
 
     //As SinglePackage.ek9 is valid we'd expect zero length error diagnotics.
-    client.getLastDiagnostics().ifPresent(diagnostics -> assertEquals(0, diagnostics.getDiagnostics().size()));
-
+    assertNoErrors(client);
     languageServer.shutdown();
   }
 
@@ -81,13 +84,50 @@ final class Ek9LanguageServerTest {
     SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
 
     //Now we'd expect errors
+    assertOddNumberOfSpacesError(client);
+
+    languageServer.shutdown();
+  }
+
+  @Test
+  void testInvalidEk9SourceFileEvents() {
+    var file = sourceFileSupport.copyFileToTestCWD(relativePathToInvalidSource, invalidSource);
+
+
+    Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
+    SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
+
+    assertOddNumberOfSpacesError(client);
+    //We will now simulate some events
+    var textDocService = languageServer.getTextDocumentService();
+
+    var documentIdentifier = new TextDocumentIdentifier(file.toURI().toString());
+    textDocService.didClose(new DidCloseTextDocumentParams(documentIdentifier));
+    assertNoErrors(client);
+
+    var actualContent = osSupport.getFileContent(file);
+
+    actualContent.ifPresent(fileContent -> {
+      var textDocumentItem = new TextDocumentItem(file.toURI().toString(),
+          "ek9", 1, fileContent);
+      textDocService.didOpen(new DidOpenTextDocumentParams(textDocumentItem));
+      assertOddNumberOfSpacesError(client);
+
+    });
+
+    languageServer.shutdown();
+  }
+
+  private void assertOddNumberOfSpacesError(final SimulatedLspClient client) {
     client.getLastDiagnostics().ifPresent(diagnostics -> {
       assertEquals(1, diagnostics.getDiagnostics().size());
       var theError = diagnostics.getDiagnostics().get(0);
       assertEquals("Odd number of spaces for indentation", theError.getMessage());
     });
+  }
 
-    languageServer.shutdown();
+  private void assertNoErrors(final SimulatedLspClient client) {
+    client.getLastDiagnostics().ifPresent(diagnostics -> assertEquals(0, diagnostics.getDiagnostics().size()));
   }
 
   @Test

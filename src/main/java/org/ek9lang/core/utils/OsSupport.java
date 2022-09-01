@@ -1,6 +1,11 @@
 package org.ek9lang.core.utils;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -133,6 +138,22 @@ public final class OsSupport {
 
   public boolean isFileReadable(File file) {
     return file != null && file.isFile() && !file.isDirectory() && file.canRead();
+  }
+
+  /**
+   * Load up a file into a String. Option empty if not possible to load.
+   */
+  public Optional<String> getFileContent(File file) {
+    if (!isFileReadable(file)) {
+      return Optional.empty();
+    }
+
+    try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
+      String line = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+      return Optional.ofNullable(line);
+    } catch (IOException ioex) {
+      return Optional.empty();
+    }
   }
 
   public boolean isDirectoryReadable(String directoryName) {
