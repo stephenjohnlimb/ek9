@@ -1,6 +1,7 @@
 package org.ek9lang.cli;
 
 import java.io.File;
+import java.util.concurrent.ExecutionException;
 import org.ek9lang.LanguageMetaData;
 import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.core.utils.FileHandling;
@@ -42,6 +43,7 @@ public class Ek9 {
   public static final int BAD_COMMAND_COMBINATION_EXIT_CODE = 4;
   public static final int NO_PROGRAMS_EXIT_CODE = 5;
   public static final int PROGRAM_NOT_SPECIFIED_EXIT_CODE = 6;
+  public static final int LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE = 7;
   private final CommandLineDetails commandLine;
 
   public Ek9(CommandLineDetails commandLine) {
@@ -94,8 +96,19 @@ public class Ek9 {
   private int runAsLanguageServer(CommandLineDetails commandLine) {
     Logger.error("EK9 running as LSP languageHelp="
         + commandLine.isEk9LanguageServerHelpEnabled());
-    Server.runEk9LanguageServer(commandLine.getOsSupport(), System.in, System.out,
-        commandLine.isEk9LanguageServerHelpEnabled());
+    var startListening =
+        Server.runEk9LanguageServer(commandLine.getOsSupport(), System.in, System.out,
+            commandLine.isEk9LanguageServerHelpEnabled());
+
+    try {
+      startListening.get();
+    } catch (ExecutionException executionException) {
+      Logger.error("Failed to Start Language Server");
+      return LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE;
+    } catch (InterruptedException interruptedException) {
+      Logger.error("Start Language Server Interrupted Stopping");
+      return SUCCESS_EXIT_CODE;
+    }
     return SUCCESS_EXIT_CODE;
   }
 
