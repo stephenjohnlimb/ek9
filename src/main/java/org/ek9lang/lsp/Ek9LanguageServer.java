@@ -63,6 +63,7 @@ public final class Ek9LanguageServer extends Ek9Service
 
         Glob searchCondition = new Glob("**.ek9");
         List<File> fileList = osSupport.getFilesRecursivelyFrom(path.toFile(), searchCondition);
+        Logger.debug("Found " + fileList.size() + " files");
         fileList.forEach(file -> {
           //TODO use new JDK19 virtual threads for this.
           try {
