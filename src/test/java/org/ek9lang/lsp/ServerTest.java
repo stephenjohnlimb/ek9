@@ -11,7 +11,7 @@ final class ServerTest {
 
   @Test
   @SuppressWarnings("java:S2925")
-  void startAndStopServer() throws ExecutionException, InterruptedException {
+  void startAndStopServer() throws InterruptedException {
 
     var osSupport = new OsSupport(true);
     var languageServer = Server.runEk9LanguageServer(osSupport, System.in, System.out, true);
