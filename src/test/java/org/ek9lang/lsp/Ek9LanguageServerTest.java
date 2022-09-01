@@ -22,7 +22,7 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import org.ek9lang.cli.SourceFileSupport;
 import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.OsSupport;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 final class Ek9LanguageServerTest {
@@ -53,8 +53,8 @@ final class Ek9LanguageServerTest {
     return client;
   };
 
-  @AfterAll
-  static void tidyUpTempWorkspace() {
+  @AfterEach
+  void tidyUpTempWorkspace() {
     //This will delete stubbed home and stubbed cwd.
     fileHandling.deleteContentsAndBelow(
         new File(new File(osSupport.getUsersHomeDirectory()).getParent()), true);
@@ -118,7 +118,8 @@ final class Ek9LanguageServerTest {
 
     private Optional<PublishDiagnosticsParams> lastDiagnostics = Optional.empty();
 
-    private Optional<MessageParams> lastMessage = Optional.empty();
+    private
+    Optional<MessageParams> lastMessage = Optional.empty();
 
     @Override
     public void telemetryEvent(Object object) {
