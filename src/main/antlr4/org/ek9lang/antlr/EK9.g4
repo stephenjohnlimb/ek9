@@ -230,7 +230,7 @@ aggregateProperty
     ;
 
 methodDeclaration
-    : OVERRIDE? accessModifier? identifier (LPAREN RPAREN)? (WITH APPLICATION OF? identifierReference (LPAREN RPAREN)?)? AS? PURE? (ABSTRACT | DISPATCHER)? NL+ operationDetails?
+    : (OVERRIDE | DEFAULT)? accessModifier? identifier (LPAREN RPAREN)? (WITH APPLICATION OF? identifierReference (LPAREN RPAREN)?)? AS? PURE? (ABSTRACT | DISPATCHER)? NL+ operationDetails?
     ;
 
 operatorDeclaration

@@ -49,8 +49,7 @@ defines module com.customer.exceptions
       clock as Clock?
       deferProcessingUntilAfter as DateTime: DateTime()
 
-      private ExceptionExample()
-        assert false
+      default private ExceptionExample()
 
       ExceptionExample()
         -> clock as Clock
