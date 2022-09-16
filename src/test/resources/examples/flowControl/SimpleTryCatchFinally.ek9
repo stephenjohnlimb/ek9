@@ -132,20 +132,15 @@ defines module com.customer.exceptions
 
       demonstrateFilesNotFound()
 
-        file1 <- TextFile("MightNotExist.txt")
-        file2 <- TextFile("AlsoMightNotExist.txt")
         mainResults <- try
           ->
-            input1 <- file1.input()
-            input2 <- file2.input()
+            input1 <- TextFile("MightNotExist.txt").input()
+            input2 <- TextFile("AlsoMightNotExist.txt").input()
           <-
-            rtn as String: String()
+            rtn as List of String: cat input1, input2 | collect as List of String
 
-          results <- cat input1 | collect as List of String
-          cat input2 >> results
-          rtn: $results
         //Let the exceptions fly back - don't handle in here.
-        Stdout().println("main Results [" + mainResults + "]")
+        Stdout().println("main Results [" + $mainResults + "]")
 
   defines program
     TryCatchExample()

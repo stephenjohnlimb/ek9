@@ -398,7 +398,8 @@ call
     ;
 
 tryStatementExpression
-    : TRY NL+ INDENT NL* declareArgumentParam? returningParam? instructionBlock DEDENT catchStatementExpression? finallyStatementExpression?
+    : TRY NL+ INDENT NL* declareArgumentParam? instructionBlock DEDENT catchStatementExpression? finallyStatementExpression?
+    | TRY NL+ INDENT NL* declareArgumentParam? returningParam instructionBlock? DEDENT catchStatementExpression? finallyStatementExpression?
     ;
 
 catchStatementExpression
