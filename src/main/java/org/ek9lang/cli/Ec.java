@@ -29,6 +29,10 @@ public abstract class Ec extends E {
       setDevBuild(commandLine.isDevBuild());
     }
 
+    if (!isCheckCompilationOnly()) {
+      setCheckCompilationOnly(commandLine.isCheckCompileOnly());
+    }
+
     if (isDebuggingInstrumentation()) {
       log("Instrumenting");
     }
@@ -47,6 +51,8 @@ public abstract class Ec extends E {
 
     //TODO compile this with appropriate compiler
 
+    //TODO make sure we pass in this.isCheckCompilationOnly()
+
     var generatedOutputDirectory = getMainGeneratedOutputDirectory();
     AssertValue.checkNotNull("Main generated out file null", generatedOutputDirectory);
     //This will be some sort of intermediate form (i.e. java we then need to actually compile.
@@ -60,6 +66,11 @@ public abstract class Ec extends E {
   }
 
   protected boolean repackageTargetArtefact() {
+    if(this.isCheckCompilationOnly()) {
+      log("Check Compilation so NOT creating target");
+      return true;
+    }
+
     //We can only build a jar for java at present.
     if (Objects.equals(commandLine.targetArchitecture, Ek9DirectoryStructure.JAVA)) {
       log("Creating target");

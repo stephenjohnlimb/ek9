@@ -23,6 +23,7 @@ public class Eic extends Ec {
       //may have been forced in, and so we must pass on.
       execution.setDebuggingInstrumentation(this.isDebuggingInstrumentation());
       execution.setDevBuild((this.isDevBuild()));
+      execution.setCheckCompilationOnly(this.isCheckCompilationOnly());
       return execution.run();
     } else {
       //Yes we can do an incremental build.

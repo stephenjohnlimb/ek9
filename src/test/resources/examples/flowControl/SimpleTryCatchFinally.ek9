@@ -90,9 +90,7 @@ defines module com.customer.exceptions
             rtn: "Success with " + $cat
 
       deferProcessing()
-        <- rtn as Boolean: false
-        if deferProcessingUntilAfter?
-          rtn: deferProcessingUntilAfter > clock.dateTime()
+        <- rtn as Boolean: deferProcessingUntilAfter? <- deferProcessingUntilAfter > clock.dateTime() else false
 
       private handleException() as dispatcher
         -> ex as Exception
@@ -112,16 +110,14 @@ defines module com.customer.exceptions
       private tidyUpReadyForProgramExit()
         Stdout().println("Would tidy up any state ready for program exit")
 
-
     FileExceptionExample
 
       demonstrateFileNotFound()
         stdout <- Stdout()
         stderr <- Stderr()
 
-        file <- TextFile("MightNotExist.txt")
         try
-          -> input <- file.input()
+          -> input <- TextFile("MightNotExist.txt").input()
           cat input > stdout
         //rather than use catch 'handle' can be used
         handle

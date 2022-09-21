@@ -9,6 +9,9 @@ defines module net.customer.extend
     This is workable especially when you expand tabs to spaces and use just two spaces
     Now with folding you can include all sorts in the same file related traits, classes and function.
     IntelliJ also works well with the EK9 textmate bundle and has faint lines out of the box.
+
+    The EK9 LSP with VSCode is also looking very good for language help.
+    As the compiler gets more complete then symbols and type hierarchies will be available.
   -?>
   
   defines constant
@@ -19,7 +22,11 @@ defines module net.customer.extend
     another <- 33
 
   defines type
-    
+
+    //Acts as an alias, but with no constraints.
+    PostCode as String
+    ZipCode as String
+
     <!-
     here we just want to use American spelling no real value other than stopping typos by Americans
     But lets also add some constraints on the colour we can use

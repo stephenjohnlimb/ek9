@@ -161,7 +161,11 @@ public class Ek9 {
       }
       rtn = SUCCESS_EXIT_CODE;
     } else if (commandLine.isDeveloperManagementOption()) {
-      execution = new Egk(commandLine, sourceFileCache);
+      if(commandLine.isGenerateSigningKeys()) {
+        execution = new Egk(commandLine, sourceFileCache);
+      } else if (commandLine.isUpdateUpgrade()) {
+        execution = new Up(commandLine, sourceFileCache);
+      }
       rtn = SUCCESS_EXIT_CODE;
     } else if (commandLine.isUnitTestExecution()) {
       execution = new Et(commandLine, sourceFileCache);

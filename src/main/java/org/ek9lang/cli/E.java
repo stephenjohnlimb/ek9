@@ -15,6 +15,7 @@ public abstract class E extends Reporter {
 
   private boolean debuggingInstrumentation = false;
   private boolean devBuild = false;
+  private boolean checkCompilationOnly = false;
 
   protected E(CommandLineDetails commandLine, FileCache sourceFileCache) {
     super(commandLine.isVerbose());
@@ -76,6 +77,14 @@ public abstract class E extends Reporter {
   public void setDevBuild(boolean devBuild) {
     this.devBuild = devBuild;
     this.sourceFileCache.setDevBuild(devBuild);
+  }
+
+  public boolean isCheckCompilationOnly() {
+    return checkCompilationOnly;
+  }
+
+  public void setCheckCompilationOnly(boolean checkCompilationOnly) {
+    this.checkCompilationOnly = checkCompilationOnly;
   }
 
   protected String getDotEk9Directory() {

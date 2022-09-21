@@ -72,11 +72,15 @@ public class CommandLineDetails {
         \t-lsh Provide EK9 Language Help/Hover
         \t-h Help message
         \t-c Incremental compile; but don't run
+        \t-ch Incremental compile; but don't link to final executable
         \t-cg Incremental compile but with debugging information; but don't run
-        \t-cd Incremental compile but with all dev code and debugging information; but don't run
+        \t-cd Incremental compile include dev code and debugging information; but don't run
+        \t-cdh Incremental compile; include dev code, but don't link to final executable
         \t-C Force full recompilation; but don't run
+        \t-Ch Force full recompilation; but don't link to final executable
         \t-Cg Force full recompilation with debugging information; but don't run
-        \t-Cd Force full recompilation with all dev code and debugging information; but don't run
+        \t-Cd Force full recompilation include dev code and debugging information; but don't run
+        \t-Cdh Force full recompilation; include dev code, but don't link to final executable
         \t-Cl Clean all, including dependencies
         \t-Dp Resolve all dependencies, this triggers -Cl clean all first
         \t-P Package ready for deployment to artefact server/library.
@@ -87,6 +91,7 @@ public class CommandLineDetails {
         \t-SV major.minor.patch - setting to a value i.e 6.8.1-0 (zeros build)
         \t-SF major.minor.patch-feature - setting to a value i.e 6.8.0-specials-0 (zeros build)
         \t-PV print out the current version i.e 6.8.1-0 or 6.8.0-specials-0 for a feature.
+        \t-Up Check for newer version of ek9 and upgrade if available.
         \t-v Verbose mode
         \t-t Runs all unit tests that have been found, this triggers -Cd full compile first
         \t-d port Run in debug mode (requires debugging information - on a port)
@@ -250,7 +255,7 @@ public class CommandLineDetails {
     appendRunOptionIfNecessary();
 
     if (isDeveloperManagementOption() && foundEk9File) {
-      Logger.error("A generate Keys does not require or use EK9 filename.");
+      Logger.error("EK9 filename not required for this option.");
       return Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE;
     }
 
@@ -529,8 +534,9 @@ public class CommandLineDetails {
   }
 
   private boolean isMainParam(String param) {
-    return Set.of("-c", "-cg", "-cd", "-C", "-Cg", "-Cd", "-Cl", "-Dp", "-t", "-d", "-P", "-I",
-        "-Gk", "-D", "-IV", "-SV", "-SF", "-PV").contains(param);
+    return Set.of("-c", "-ch", "-cg", "-cd", "-cdh", "-C", "-Ch", "-Cg", "-Cd", "-Cdh", "-Cl",
+        "-Dp", "-t", "-d", "-P", "-I", "-Gk", "-D", "-IV", "-SV", "-SF", "-PV", "-Up")
+        .contains(param);
   }
 
   public boolean isDependenciesAltered() {
@@ -542,11 +548,11 @@ public class CommandLineDetails {
   }
 
   public boolean isDebuggingInstrumentation() {
-    return isOptionPresentInAppParameters(Set.of("-cg", "-cd", "-Cg", "-Cd"));
+    return isOptionPresentInAppParameters(Set.of("-cg", "-cd", "-cdh", "-Cg", "-Cd", "-Cdh"));
   }
 
   public boolean isDevBuild() {
-    return isOptionPresentInAppParameters(Set.of("-Cd", "-cd"));
+    return isOptionPresentInAppParameters(Set.of("-cd", "-cdh", "-Cd", "-Cdh"));
   }
 
   public boolean isJustBuildTypeOption() {
@@ -599,11 +605,15 @@ public class CommandLineDetails {
   }
 
   public boolean isDeveloperManagementOption() {
-    return isGenerateSigningKeys();
+    return isGenerateSigningKeys() || isUpdateUpgrade();
   }
 
   public boolean isGenerateSigningKeys() {
     return isOptionPresentInAppParameters(Set.of("-Gk"));
+  }
+
+  public boolean isUpdateUpgrade() {
+    return isOptionPresentInAppParameters(Set.of("-Up"));
   }
 
   public boolean isCleanAll() {
@@ -615,11 +625,15 @@ public class CommandLineDetails {
   }
 
   public boolean isIncrementalCompile() {
-    return isOptionPresentInAppParameters(Set.of("-c", "-cg", "-cd"));
+    return isOptionPresentInAppParameters(Set.of("-c", "-ch", "-cg", "-cd", "-cdh"));
   }
 
   public boolean isFullCompile() {
-    return isOptionPresentInAppParameters(Set.of("-C", "-Cg", "-Cd"));
+    return isOptionPresentInAppParameters(Set.of("-C", "-Ch", "-Cg", "-Cd", "-Cdh"));
+  }
+
+  public boolean isCheckCompileOnly() {
+    return isOptionPresentInAppParameters(Set.of("-ch", "-cdh", "-Ch", "-Cdh"));
   }
 
   /**

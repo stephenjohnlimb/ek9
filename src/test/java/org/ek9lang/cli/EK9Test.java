@@ -1,6 +1,7 @@
 package org.ek9lang.cli;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -81,6 +82,20 @@ final class EK9Test {
   }
 
   @Test
+  void testIncrementationCheckCompilation() {
+    String sourceName = "HelloWorld.ek9";
+    String[] command = new String[] {"-v -ch " + sourceName};
+
+    //We will copy this into a working directory and process it.
+    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+    assertNotNull(sourceFile);
+
+    //This will actually trigger a full compile first, but no artefact should be created in a check.
+    assertCompilationArtefactsNotPresent(assertResult(Ek9.SUCCESS_EXIT_CODE, command));
+
+  }
+
+  @Test
   void testDebugDevCompilation() {
     String sourceName = "HelloWorld.ek9";
     String[] command = new String[] {"-Cd " + sourceName};
@@ -106,6 +121,13 @@ final class EK9Test {
     commandLineDetails = assertResult(Ek9.SUCCESS_EXIT_CODE, command);
     assertNotNull(commandLineDetails);
     assertKeysPresent();
+  }
+
+  @Test
+  void testUpdateUpgrade() {
+    String[] command = new String[] {"-v -Up"};
+    var commandLineDetails = assertResult(Ek9.SUCCESS_EXIT_CODE, command);
+    assertNotNull(commandLineDetails);
   }
 
   @Test
@@ -485,5 +507,13 @@ final class EK9Test {
         fileHandling.getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(),
             commandLine.targetArchitecture);
     assertTrue(targetArtefact.exists());
+  }
+
+  private void assertCompilationArtefactsNotPresent(CommandLineDetails commandLine) {
+
+    File targetArtefact =
+        fileHandling.getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(),
+            commandLine.targetArchitecture);
+    assertFalse(targetArtefact.exists());
   }
 }

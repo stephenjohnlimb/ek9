@@ -18,6 +18,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Some tests to check the command line processing.
@@ -32,20 +33,47 @@ final class CommandLineDetailsTest {
   private final FileHandling fileHandling = new FileHandling(osSupport);
   private final SourceFileSupport sourceFileSupport =
       new SourceFileSupport(fileHandling, osSupport);
+
   private final Function<String, String> copyFileToTestCWD = sourceName -> {
     sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
     return sourceName;
   };
+
   private final Function<String, Integer> processStringCommandLine =
       commandLine -> createClassUnderTest().processCommandLine(commandLine);
+
   private final Function<String[], Integer> processStringArrayCommandLine =
       commandLine -> createClassUnderTest().processCommandLine(commandLine);
+
   private final Function<String, CommandLineDetails> processStringCommandLineExpectSuccess =
       commandLine -> {
         var commandLineDetails = createClassUnderTest();
         assertEquals(0, commandLineDetails.processCommandLine(commandLine));
         return commandLineDetails;
       };
+
+  private final Function<String, Function<String, CommandLineDetails>> makeProcess = command ->
+    copyFileToTestCWD
+        .andThen(fileName -> command + " " + fileName)
+        .andThen(processStringCommandLineExpectSuccess);
+
+  private final Consumer<CommandLineDetails> assertIncrementalCompilation =
+      commandLineDetails -> assertTrue(commandLineDetails.isIncrementalCompile());
+
+  private final Consumer<CommandLineDetails> assertDevBuild =
+      commandLineDetails -> assertTrue(commandLineDetails.isDevBuild());
+
+  private final Consumer<CommandLineDetails> assertFullCompilation =
+      commandLineDetails -> assertTrue(commandLineDetails.isFullCompile());
+
+  private final Consumer<CommandLineDetails> assertDebug =
+      commandLineDetails -> assertTrue(commandLineDetails.isDebuggingInstrumentation());
+
+  private final Consumer<CommandLineDetails> assertVerbose =
+      commandLineDetails -> assertTrue(commandLineDetails.isVerbose());
+
+  private final Consumer<CommandLineDetails> assertCheckCompile =
+      commandLineDetails -> assertTrue(commandLineDetails.isCheckCompileOnly());
 
   @AfterEach
   void tidyUp() {
@@ -170,110 +198,112 @@ final class CommandLineDetailsTest {
   }
 
   @Test
+  @SuppressWarnings("java:S2699")
   void testCommandLineIncrementalCompile() {
-    String sourceName = "SinglePackage.ek9";
-    //We will copy this into a working directory and process it.
-    sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
-
-    CommandLineDetails underTest = createClassUnderTest();
-    assertEquals(0, underTest.processCommandLine("-c " + sourceName));
-    assertTrue(underTest.isIncrementalCompile());
-    assertFalse(underTest.isFullCompile());
-    assertFalse(underTest.isVerbose());
-    assertFalse(underTest.isDebuggingInstrumentation());
-    assertFalse(underTest.isDevBuild());
-    assertEquals(sourceName, underTest.getSourceFileName());
+    var process = makeProcess.apply("-c");
+    assertIncrementalCompilation
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
   }
 
   @Test
+  @SuppressWarnings("java:S2699")
+  void testCommandLineIncrementalCheckCompileOnly() {
+    var process = makeProcess.apply("-ch");
+    assertIncrementalCompilation
+        .andThen(assertCheckCompile)
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
+  }
+
+  @Test
+  @SuppressWarnings("java:S2699")
   void testCommandLineIncrementalDebugCompile() {
-    String sourceName = "SinglePackage.ek9";
-    //We will copy this into a working directory and process it.
-    sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
-    CommandLineDetails underTest = createClassUnderTest();
-    assertEquals(0, underTest.processCommandLine("-cg " + sourceName));
-    assertTrue(underTest.isIncrementalCompile());
-    assertFalse(underTest.isFullCompile());
-    assertFalse(underTest.isVerbose());
-    assertTrue(underTest.isDebuggingInstrumentation());
-    assertFalse(underTest.isDevBuild());
-    assertEquals(sourceName, underTest.getSourceFileName());
+
+    var process = makeProcess.apply("-cg");
+    assertIncrementalCompilation
+        .andThen(assertDebug)
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
   }
 
   @Test
+  @SuppressWarnings("java:S2699")
   void testCommandLineIncrementalDevCompile() {
-    String sourceName = "SinglePackage.ek9";
-    //We will copy this into a working directory and process it.
-    sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-    CommandLineDetails underTest = createClassUnderTest();
-    assertEquals(0, underTest.processCommandLine("-cd " + sourceName));
-    assertTrue(underTest.isIncrementalCompile());
-    assertFalse(underTest.isFullCompile());
-    assertFalse(underTest.isVerbose());
-    assertTrue(underTest.isDebuggingInstrumentation());
-    assertTrue(underTest.isDevBuild());
-    assertEquals(sourceName, underTest.getSourceFileName());
+    var process = makeProcess.apply("-cd");
+    assertIncrementalCompilation
+        .andThen(assertDebug)
+        .andThen(assertDevBuild)
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
   }
 
   @Test
+  @SuppressWarnings("java:S2699")
+  void testCommandLineIncrementalDevCheckCompile() {
+
+    var process = makeProcess.apply("-cdh");
+    assertIncrementalCompilation
+        .andThen(assertDebug)
+        .andThen(assertDevBuild)
+        .andThen(assertCheckCompile)
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
+  }
+
+  @Test
+  @SuppressWarnings("java:S2699")
   void testCommandLineFullCompile() {
-    String sourceName = "SinglePackage.ek9";
-    //We will copy this into a working directory and process it.
-    sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
-
-    CommandLineDetails underTest = createClassUnderTest();
-    assertEquals(0, underTest.processCommandLine("-C " + sourceName));
-    assertFalse(underTest.isIncrementalCompile());
-    assertTrue(underTest.isFullCompile());
-    assertFalse(underTest.isVerbose());
-    assertEquals(sourceName, underTest.getSourceFileName());
+    var process = makeProcess.apply("-C");
+    assertFullCompilation
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
   }
 
   @Test
+  @SuppressWarnings("java:S2699")
+  void testCommandLineFullCheckCompileOnly() {
+    var process = makeProcess.apply("-Ch");
+    assertFullCompilation
+        .andThen(assertCheckCompile)
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
+  }
+
+  @Test
+  @SuppressWarnings("java:S2699")
   void testCommandLineFullVerboseCompile() {
-    String sourceName = "SinglePackage.ek9";
-    //We will copy this into a working directory and process it.
-    sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
-
-    CommandLineDetails underTest = createClassUnderTest();
-    assertEquals(0, underTest.processCommandLine("-C -v " + sourceName));
-    assertFalse(underTest.isIncrementalCompile());
-    assertTrue(underTest.isFullCompile());
-    assertTrue(underTest.isVerbose());
-    assertEquals(sourceName, underTest.getSourceFileName());
+    var process = makeProcess.apply("-C -v");
+    assertFullCompilation
+        .andThen(assertVerbose)
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
   }
 
   @Test
+  @SuppressWarnings("java:S2699")
   void testCommandLineFullDebugCompile() {
-    String sourceName = "SinglePackage.ek9";
-    //We will copy this into a working directory and process it.
-    sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-    CommandLineDetails underTest = createClassUnderTest();
-    assertEquals(0, underTest.processCommandLine("-Cg " + sourceName));
-    assertFalse(underTest.isIncrementalCompile());
-    assertTrue(underTest.isFullCompile());
-    assertFalse(underTest.isVerbose());
-    assertTrue(underTest.isDebuggingInstrumentation());
-    assertFalse(underTest.isDevBuild());
-    assertEquals(sourceName, underTest.getSourceFileName());
+    var process = makeProcess.apply("-Cg");
+    assertFullCompilation
+        .andThen(assertDebug)
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
   }
 
   @Test
+  @SuppressWarnings("java:S2699")
   void testCommandLineFullDevCompile() {
-    String sourceName = "SinglePackage.ek9";
-    //We will copy this into a working directory and process it.
-    sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-    CommandLineDetails underTest = createClassUnderTest();
-    assertEquals(0, underTest.processCommandLine("-Cd " + sourceName));
-    assertFalse(underTest.isIncrementalCompile());
-    assertTrue(underTest.isFullCompile());
-    assertFalse(underTest.isVerbose());
-    assertTrue(underTest.isDebuggingInstrumentation());
-    assertTrue(underTest.isDevBuild());
-    assertEquals(sourceName, underTest.getSourceFileName());
+    var process = makeProcess.apply("-Cd");
+    assertFullCompilation
+        .andThen(assertDebug)
+        .andThen(assertDevBuild)
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
+  }
+
+  @Test
+  @SuppressWarnings("java:S2699")
+  void testCommandLineFullDevCheckCompile() {
+
+    var process = makeProcess.apply("-Cdh");
+    assertFullCompilation
+        .andThen(assertDebug)
+        .andThen(assertDevBuild)
+        .andThen(assertCheckCompile)
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
   }
 
   @Test
@@ -368,13 +398,14 @@ final class CommandLineDetailsTest {
     assertEquals(3, processStringCommandLine.apply("-IV major"));
   }
 
-  @Test
-  void testCommandLineIncrementVersionMissingParam() {
+  @ParameterizedTest
+  @ValueSource(strings = {"-IV","-d", "-T wasm"})
+  void testBadCommandLine(String commandOption) {
     String sourceName = "SinglePackage.ek9";
     //We will copy this into a working directory and process it.
     sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
-    assertEquals(2, processStringCommandLine.apply("-IV " + sourceName));
+    assertEquals(2, processStringCommandLine.apply(commandOption + " " + sourceName));
   }
 
   @Test
@@ -452,14 +483,6 @@ final class CommandLineDetailsTest {
     assertEquals(3, processStringCommandLine.apply("-d"));
   }
 
-  @Test
-  void testCommandLineDebugMissingPort() {
-    String sourceName = "SinglePackage.ek9";
-    //We will copy this into a working directory and process it.
-    sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
-
-    assertEquals(2, processStringCommandLine.apply("-d " + sourceName));
-  }
 
   @Test
   void testCommandLineDebug() {
@@ -536,6 +559,7 @@ final class CommandLineDetailsTest {
       "SinglePackage.ek9,-C -PV,4",
       "SinglePackage.ek9,--c -d 9000,4"})
   void testBadCommandLine(String sourceName, String command, int expectedErrorCode) {
+
     var process = copyFileToTestCWD
         .andThen(fileName -> command + " " + fileName)
         .andThen(processStringCommandLine);
@@ -560,15 +584,6 @@ final class CommandLineDetailsTest {
     sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
 
     assertEquals(5, processStringCommandLine.apply(sourceName + " -r SomeProgram"));
-  }
-
-  @Test
-  void testCommandLineRunAsInvalidTarget() {
-    String sourceName = "SinglePackage.ek9";
-    //We will copy this into a working directory and process it.
-    sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
-
-    assertEquals(2, processStringCommandLine.apply("-T wasm " + sourceName));
   }
 
   @Test

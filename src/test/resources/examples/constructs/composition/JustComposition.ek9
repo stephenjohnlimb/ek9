@@ -28,6 +28,17 @@ defines module com.customer.just.employees
       state <- String()
       zipcode <- String()
 
+      //You can either omit this and get it by default
+      //or define it like this, but state you want a default implementation
+      //or you can actually define the body yourself
+      default Address()
+        ->
+          street as String
+          street2 as String
+          city as String
+          state as String
+          zipcode as String
+
       operator ?
         <- rtn as Boolean: street? and city? and state? and zipcode?
 
@@ -51,6 +62,8 @@ defines module com.customer.just.employees
       private Employee()
       //No body
 
+      //You could just use
+      //default Employee() + the paramaters and the ek9 compiler would do that implementation for you.
       Employee()
         ->
           id as Integer

@@ -28,7 +28,7 @@ defines module net.customer.inferred
         
         //You can also do this - NICE! all result in correct output of Integer limbLength1 = String._of("Limb")._len();
         //infer type for variables
-        //just look at all that sugar! too much? all do the same thing but get more terse!
+        //just look at all that sugar! too much? all do the same thing but gets more terse!
         //Yes it was too much; so got rid of verbiage of initial value. Moving away from wordy back into coding in succinct manner.
         //It's all the same output - but as developers in EK9 you can decide on the level of verbosity!
         
@@ -73,15 +73,13 @@ defines module net.customer.inferred
         stockName <- "Stephen"
         check1 <- "Steve"
         check2 <- "Steven"
-        
-        bestOne <- String()
-               
+
+        //fuzzy matching
         weight1 <- stockName <~> check1
         weight2 <- stockName <~> check2
-        if weight1 < weight2
-          bestOne := check1
-        else
-          bestOne := check2
+
+        //You could inline the two expressions above in here, if you wanted to.
+        bestOne <- weight1 < weight2 <- check1 else check2
       
     //end of class
 //EOF

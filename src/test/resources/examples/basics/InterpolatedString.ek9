@@ -5,7 +5,8 @@ defines module com.customer.interpolated
     Person
       firstName String: String()
       lastName String: String()
-      
+
+      //Maybe if we used the 'default' keyword here and param names/types aligned we could auto implement via compiler.
       Person()
         ->
           firstName String
