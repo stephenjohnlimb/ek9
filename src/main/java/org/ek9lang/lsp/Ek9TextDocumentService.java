@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.DeclarationParams;
@@ -59,7 +60,9 @@ public class Ek9TextDocumentService extends Ek9Service implements TextDocumentSe
         languageMatches.forEach(completion -> {
           if (list.size() < getLanguageServer().getCompilerConfig().getNumberOfSuggestions()) {
             Logger.debug("Adding completion of [" + completion + "]");
-            list.add(new CompletionItem(completion));
+            var languageKeyWord = new CompletionItem(completion);
+            languageKeyWord.setKind(CompletionItemKind.Keyword);
+            list.add(languageKeyWord);
           }
         });
         //TODO add in Symbol matches as well

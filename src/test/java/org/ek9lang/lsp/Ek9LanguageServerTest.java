@@ -1,6 +1,9 @@
 package org.ek9lang.lsp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
@@ -8,20 +11,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.FileChangeType;
 import org.eclipse.lsp4j.FileEvent;
+import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.MessageActionItem;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.ShowMessageRequestParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
@@ -87,6 +94,48 @@ final class Ek9LanguageServerTest {
   }
 
   @Test
+  /*
+   * This just checks for word completion of the language.
+   * Later once the parsing and processing is complete it will be possible
+   * to use completion for variable, class, record, method and function names.
+   */
+  void testLanguageCompletionAndHover() throws ExecutionException, InterruptedException {
+    var sourceFile = sourceFileSupport.copyFileToTestCWD(relativePathToValidSource, validSource);
+
+    Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
+    SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
+
+    //As SinglePackage.ek9 is valid we'd expect zero length error diagnotics.
+    assertNoErrors(client);
+    //Now lets see if we can get a language completion.
+    //line 1 position 9 (both zero based) should give us 'module'
+
+    var completionParams =
+        new CompletionParams(new TextDocumentIdentifier(sourceFile.toURI().toString()),
+            new Position(1, 9));
+
+    var completionResult = languageServer
+        .getTextDocumentService().completion(completionParams);
+    var result = completionResult.get();
+    assertTrue(result.isLeft());
+    assertFalse(result.isRight());
+    assertEquals(1, result.getLeft().size());
+    var completionItem = result.getLeft().get(0);
+    assertNotNull(completionItem);
+    assertEquals("module", completionItem.getLabel());
+
+    var hoverResult = languageServer
+        .getTextDocumentService().hover(new HoverParams(new TextDocumentIdentifier(sourceFile.toURI().toString()),
+            new Position(1, 9)));
+
+    var hover = hoverResult.get();
+    assertNotNull(hover);
+    assertEquals("Module declaration block, https://www.ek9.io/structure.html#module",
+        hover.getContents().getRight().getValue());
+    languageServer.shutdown();
+  }
+
+  @Test
   void testChangedAndDeletedFileEvent() {
     var theSourceFile = sourceFileSupport.copyFileToTestCWD(relativePathToValidSource, validSource);
 
@@ -97,15 +146,13 @@ final class Ek9LanguageServerTest {
     assertNoErrors(client);
 
     //Now we wish to simulate a change to that file.
-    languageServer
-        .getWorkspaceService()
+    languageServer.getWorkspaceService()
         .didChangeWatchedFiles(prepareChangedFile.apply(theSourceFile, FileChangeType.Changed));
     //We would still expect no errors, as no real change has taken place.
     assertNoErrors(client);
 
     //Now simulate a deletion
-    languageServer
-        .getWorkspaceService()
+    languageServer.getWorkspaceService()
         .didChangeWatchedFiles(prepareChangedFile.apply(theSourceFile, FileChangeType.Deleted));
 
     languageServer.shutdown();
