@@ -8,11 +8,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import org.eclipse.lsp4j.DidChangeConfigurationParams;
+import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
+import org.eclipse.lsp4j.FileChangeType;
+import org.eclipse.lsp4j.FileEvent;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.MessageActionItem;
 import org.eclipse.lsp4j.MessageParams;
@@ -30,6 +35,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 final class Ek9LanguageServerTest {
+
   private static final OsSupport osSupport = new OsSupport(true);
   private static final FileHandling fileHandling = new FileHandling(osSupport);
   private static final SourceFileSupport sourceFileSupport =
@@ -57,6 +63,10 @@ final class Ek9LanguageServerTest {
     return client;
   };
 
+  final BiFunction<File, FileChangeType, DidChangeWatchedFilesParams> prepareChangedFile =
+      (file, changeType) -> new DidChangeWatchedFilesParams(
+          List.of(new FileEvent(file.toURI().toString(), changeType)));
+
   @AfterEach
   void tidyUpTempWorkspace() {
     //This will delete stubbed home and stubbed cwd.
@@ -77,6 +87,42 @@ final class Ek9LanguageServerTest {
   }
 
   @Test
+  void testChangedAndDeletedFileEvent() {
+    var theSourceFile = sourceFileSupport.copyFileToTestCWD(relativePathToValidSource, validSource);
+
+    Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
+    SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
+
+    //As SinglePackage.ek9 is valid we'd expect zero length error diagnotics.
+    assertNoErrors(client);
+
+    //Now we wish to simulate a change to that file.
+    languageServer
+        .getWorkspaceService()
+        .didChangeWatchedFiles(prepareChangedFile.apply(theSourceFile, FileChangeType.Changed));
+    //We would still expect no errors, as no real change has taken place.
+    assertNoErrors(client);
+
+    //Now simulate a deletion
+    languageServer
+        .getWorkspaceService()
+        .didChangeWatchedFiles(prepareChangedFile.apply(theSourceFile, FileChangeType.Deleted));
+
+    languageServer.shutdown();
+  }
+
+  @Test
+  void testChangeConfiguration() {
+    //No files but we just want to trigger the fact configuration has changed.
+    var params = new DidChangeConfigurationParams();
+    Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
+    languageServer.getWorkspaceService().didChangeConfiguration(params);
+    SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
+
+    assertNoErrors(client);
+  }
+
+  @Test
   void testBasicStartupWithInvalidEk9Source() {
     sourceFileSupport.copyFileToTestCWD(relativePathToInvalidSource, invalidSource);
 
@@ -93,7 +139,6 @@ final class Ek9LanguageServerTest {
   void testInvalidEk9SourceFileEvents() {
     var file = sourceFileSupport.copyFileToTestCWD(relativePathToInvalidSource, invalidSource);
 
-
     Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
     SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
 
@@ -108,8 +153,7 @@ final class Ek9LanguageServerTest {
     var actualContent = osSupport.getFileContent(file);
 
     actualContent.ifPresent(fileContent -> {
-      var textDocumentItem = new TextDocumentItem(file.toURI().toString(),
-          "ek9", 1, fileContent);
+      var textDocumentItem = new TextDocumentItem(file.toURI().toString(), "ek9", 1, fileContent);
       textDocService.didOpen(new DidOpenTextDocumentParams(textDocumentItem));
       assertOddNumberOfSpacesError(client);
 
@@ -127,7 +171,8 @@ final class Ek9LanguageServerTest {
   }
 
   private void assertNoErrors(final SimulatedLspClient client) {
-    client.getLastDiagnostics().ifPresent(diagnostics -> assertEquals(0, diagnostics.getDiagnostics().size()));
+    client.getLastDiagnostics()
+        .ifPresent(diagnostics -> assertEquals(0, diagnostics.getDiagnostics().size()));
   }
 
   @Test
@@ -137,18 +182,16 @@ final class Ek9LanguageServerTest {
     final Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
     final SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
 
-    Map<MessageType, Consumer<String>> messageTypes = Map.of(
-        MessageType.Warning, languageServer::sendWarningBackToClient,
-        MessageType.Log, languageServer::sendLogBackToClient,
-        MessageType.Info, languageServer::sendInfoBackToClient,
-        MessageType.Error, languageServer::sendErrorBackToClient
-    );
+    Map<MessageType, Consumer<String>> messageTypes =
+        Map.of(MessageType.Warning, languageServer::sendWarningBackToClient, MessageType.Log,
+            languageServer::sendLogBackToClient, MessageType.Info,
+            languageServer::sendInfoBackToClient, MessageType.Error,
+            languageServer::sendErrorBackToClient);
 
     messageTypes.forEach((key, value) -> {
       value.accept("A Message");
-      client.getLastMessage()
-          .ifPresentOrElse(message -> assertEquals(key, message.getType()),
-              () -> fail("Expecting message"));
+      client.getLastMessage().ifPresentOrElse(message -> assertEquals(key, message.getType()),
+          () -> fail("Expecting message"));
     });
 
     languageServer.shutdown();
@@ -158,8 +201,7 @@ final class Ek9LanguageServerTest {
 
     private Optional<PublishDiagnosticsParams> lastDiagnostics = Optional.empty();
 
-    private
-    Optional<MessageParams> lastMessage = Optional.empty();
+    private Optional<MessageParams> lastMessage = Optional.empty();
 
     @Override
     public void telemetryEvent(Object object) {

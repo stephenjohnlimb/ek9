@@ -1,11 +1,7 @@
 package org.ek9lang.lsp;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
-import org.eclipse.lsp4j.SymbolInformation;
-import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.services.WorkspaceService;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.files.Workspace;

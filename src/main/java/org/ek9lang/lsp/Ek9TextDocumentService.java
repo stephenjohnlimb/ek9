@@ -27,7 +27,7 @@ import org.ek9lang.lsp.Ek9LanguageWords.KeyWordInformation;
 
 /**
  * Part of the language server functionality.
- * Some of the methods we could implement but Ignore the events as we pick
+ * Some methods could be implemented but Ignore the events as we pick
  * up changes by implementing didChangeWatchedFiles in the workspace service.
  * Note there are lots of other methods we will implement in here.
  * Like type hierarchy for example. See TextDocumentService for other methods we can implement.
