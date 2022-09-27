@@ -4,27 +4,22 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
-import org.eclipse.lsp4j.DeclarationParams;
-import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DidSaveTextDocumentParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverParams;
-import org.eclipse.lsp4j.Location;
-import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MarkupContent;
-import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.ek9lang.compiler.tokenizer.TokenResult;
 import org.ek9lang.core.utils.Logger;
-import org.ek9lang.lsp.Ek9LanguageWords.KeyWordInformation;
 
 /**
  * Part of the language server functionality.
@@ -45,31 +40,33 @@ public class Ek9TextDocumentService extends Ek9Service implements TextDocumentSe
     return languageWords;
   }
 
+  private final Function<String, CompletionItem> newKeyWordCompletionItem = completion -> {
+    var languageKeyWord = new CompletionItem(completion);
+    languageKeyWord.setKind(CompletionItemKind.Keyword);
+    return languageKeyWord;
+  };
+
   @Override
   public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(
       CompletionParams position) {
     Logger.debug("Would do completion [" + position.toString() + "]");
 
     return CompletableFuture.supplyAsync(() -> {
-      List<CompletionItem> list = new ArrayList<>();
 
-      TokenResult tokenResult = getNearestToken(position);
-      if (tokenResult.isPresent()) {
-        List<String> languageMatches = getLanguageWords().fuzzyMatch(tokenResult);
+      var tokenResult = getNearestToken(position);
+      List<CompletionItem> list = new ArrayList<>(completeViaLanguageKeyWord(tokenResult));
 
-        languageMatches.forEach(completion -> {
-          if (list.size() < getLanguageServer().getCompilerConfig().getNumberOfSuggestions()) {
-            Logger.debug("Adding completion of [" + completion + "]");
-            var languageKeyWord = new CompletionItem(completion);
-            languageKeyWord.setKind(CompletionItemKind.Keyword);
-            list.add(languageKeyWord);
-          }
-        });
-        //TODO add in Symbol matches as well
-      }
+      //Here we can then add in lots of different types of completion
+      //These can be variable lookups, function lookup, and we can set 'kind' appropriately.
 
       return Either.forLeft(list);
     });
+  }
+
+  private List<CompletionItem> completeViaLanguageKeyWord(TokenResult tokenResult) {
+    return getLanguageWords().fuzzyMatch(tokenResult).stream()
+        .limit(getLanguageServer().getCompilerConfig().getNumberOfSuggestions()).parallel()
+        .map(newKeyWordCompletionItem).toList();
   }
 
   @Override
@@ -78,34 +75,32 @@ public class Ek9TextDocumentService extends Ek9Service implements TextDocumentSe
 
     return CompletableFuture.supplyAsync(() -> {
 
-      TokenResult tokenResult = getNearestToken(params);
-      if (tokenResult.isPresent()) {
-        //TODO Now we'd do a symbol lookup here.
-        KeyWordInformation match = null;
-        //If not a match on the symbols, and we're configured just do a language keyword search.
-        if (match == null && getLanguageServer().getCompilerConfig().isProvideLanguageHoverHelp()) {
-          match = getLanguageWords().exactMatch(tokenResult);
-          if (match != null) {
-            MarkupContent markedUp = new MarkupContent("plaintext", match.hoverText);
-            return new Hover(markedUp);
-          }
-        }
+      var tokenResult = getNearestToken(params);
+      Hover rtn = null;
+      if (getLanguageServer().getCompilerConfig().isProvideLanguageHoverHelp()) {
+        rtn = hoverViaLanguageKeyWord(tokenResult);
       }
-      return null;
+      //Here we can then add in lots of different type of hover
+
+      return rtn;
     });
+  }
+
+  private Hover hoverViaLanguageKeyWord(TokenResult tokenResult) {
+    var match = getLanguageWords().exactMatch(tokenResult);
+    if (match != null) {
+      return new Hover(new MarkupContent("plaintext", match.hoverText));
+    }
+    return null;
   }
 
   @Override
   public void didOpen(DidOpenTextDocumentParams params) {
-    try {
-      String uri = getFilename(params.getTextDocument());
-      Logger.debug("didOpen Opened Source [" + uri + "]");
+    String uri = getFilename(params.getTextDocument());
+    Logger.debug("didOpen Opened Source [" + uri + "]");
 
-      var inputStream = new ByteArrayInputStream(params.getTextDocument().getText().getBytes());
-      reportOnCompiledSource(getWorkspace().reParseSource(uri, inputStream));
-    } catch (RuntimeException rex) {
-      Logger.debug("didOpen exception: " + rex.getMessage());
-    }
+    var inputStream = new ByteArrayInputStream(params.getTextDocument().getText().getBytes());
+    reportOnCompiledSource(getWorkspace().reParseSource(uri, inputStream));
   }
 
   @Override
