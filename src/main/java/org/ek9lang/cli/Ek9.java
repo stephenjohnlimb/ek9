@@ -53,7 +53,7 @@ public class Ek9 {
   /**
    * Run the main Ek9 compiler.
    */
-  public static void main(String[] argv) {
+  public static void main(String[] argv) throws InterruptedException {
     OsSupport osSupport = new OsSupport();
     FileHandling fileHandling = new FileHandling(osSupport);
     CommandLineDetails commandLine =
@@ -75,7 +75,7 @@ public class Ek9 {
   /**
    * Run the command line and return the exit code.
    */
-  public int run() {
+  public int run() throws InterruptedException {
     //This will cause the application to block and remain running as a language server.
     if (commandLine.isRunEk9AsLanguageServer()) {
       return runAsLanguageServer(commandLine);
@@ -93,9 +93,8 @@ public class Ek9 {
    * @return The exit code to exit with
    */
   @SuppressWarnings("java:S106")
-  private int runAsLanguageServer(CommandLineDetails commandLine) {
-    Logger.error("EK9 running as LSP languageHelp="
-        + commandLine.isEk9LanguageServerHelpEnabled());
+  private int runAsLanguageServer(CommandLineDetails commandLine) throws InterruptedException {
+    Logger.error("EK9 running as LSP languageHelp=" + commandLine.isEk9LanguageServerHelpEnabled());
     var startListening =
         Server.runEk9LanguageServer(commandLine.getOsSupport(), System.in, System.out,
             commandLine.isEk9LanguageServerHelpEnabled());
@@ -107,7 +106,7 @@ public class Ek9 {
       return LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE;
     } catch (InterruptedException interruptedException) {
       Logger.error("Start Language Server Interrupted Stopping");
-      return SUCCESS_EXIT_CODE;
+      throw interruptedException;
     }
     return SUCCESS_EXIT_CODE;
   }
@@ -161,7 +160,7 @@ public class Ek9 {
       }
       rtn = SUCCESS_EXIT_CODE;
     } else if (commandLine.isDeveloperManagementOption()) {
-      if(commandLine.isGenerateSigningKeys()) {
+      if (commandLine.isGenerateSigningKeys()) {
         execution = new Egk(commandLine, sourceFileCache);
       } else if (commandLine.isUpdateUpgrade()) {
         execution = new Up(commandLine, sourceFileCache);

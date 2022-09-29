@@ -113,6 +113,7 @@ public class TokenStreamAssessment {
     return content.replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t");
   }
 
+  @SuppressWarnings("java:S1104")
   private static class Counters {
     public int numWords = 0;
     public int numLetters = 0;

@@ -57,24 +57,9 @@ public class Workspace {
 
     return addSource(new CompilableSource(uri));
   }
+
   /*
-  public synchronized Workspace addParsedModule(ParsedModule module) {
-    modules.put(module.getCompilableSource(), module);
-    return this;
-  }
-
-  public ParsedModule getParsedModule(CompilableSource source) {
-    return modules.get(source);
-  }
-
-  public synchronized Workspace addIRModule(IRModule irModule) {
-    irModules.put(irModule.getCompilableSource(), irModule);
-    return this;
-  }
-
-  public IRModule getIRModule(CompilableSource source) {
-    return irModules.get(source);
-  }
+  ParsedModule and IRModule to be added in
   */
 
   public CompilableSource addSource(Path path) {

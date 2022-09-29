@@ -1,6 +1,9 @@
 package org.ek9lang.core.utils;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -95,6 +98,19 @@ public final class FileHandling {
       return true;
     } catch (Exception ex) {
       Logger.error("File copy failed: " + ex.getMessage());
+      return false;
+    }
+  }
+
+  /**
+   * Save some text to a file.
+   */
+  public boolean saveToOutput(File file, String value) {
+    try (OutputStream output = new FileOutputStream(file)) {
+      output.write(value.getBytes(StandardCharsets.UTF_8));
+      return true;
+    } catch (Exception ex) {
+      Logger.error("Unable to save " + file.getPath() + " " + ex.getMessage());
       return false;
     }
   }

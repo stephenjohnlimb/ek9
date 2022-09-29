@@ -54,8 +54,8 @@ public class Ek9LanguageWords {
             "as OPTIONS for :/"), search -> !search.previousTokenIsPipe()));
 
     keywordMap.put("of", new KeyWordInformation(
-        "Used with Generic types, applications, aspects, traits" +
-            " and conditionally with streams, length/abs/sqrt", Arrays.asList("of", "of type"),
+        "Used with Generic types, applications, aspects, traits"
+            + " and conditionally with streams, length/abs/sqrt", Arrays.asList("of", "of type"),
         search -> !search.previousTokenIsPipe()));
 
     keywordMap.put("assert",
@@ -554,6 +554,9 @@ public class Ek9LanguageWords {
             search -> !search.previousTokensIndentsOrFirst() && !search.previousTokenIsPipe()));
   }
 
+  /**
+   * Get only an exact match for this search.
+   */
   public KeyWordInformation exactMatch(TokenResult search) {
     if (search.isPresent()) {
       return keywordMap.get(search.getToken().getText());

@@ -33,22 +33,27 @@ import org.ek9lang.core.exception.CompilerException;
  * is super class type scope.
  */
 public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
+
   /**
    * Also keep a back pointer to the direct subclasses.
    * This is really useful for analysing a class or a trait.
    */
   private final List<IAggregateSymbol> subAggregateScopedSymbols = new ArrayList<>();
+
   //This is the module this aggregate has been defined in.
   private IScope moduleScope;
+
   /**
    * Just used in commented output really - just handy to understand the origin of the aggregate
    * as some are synthetic.
    */
   private String aggregateDescription;
+
   /**
    * This is actually a 'T' itself - we will need to know this.
    */
   private boolean genericTypeParameter;
+
   /**
    * If there is a method that acts as a dispatcher then this aggregate is also a dispatcher.
    */
@@ -57,6 +62,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
    * Might always be null if a base 'class' or 'interface'.
    */
   private Optional<IAggregateSymbol> superAggregateScopedSymbol = Optional.empty();
+
   /**
    * Was the aggregate marked as abstract in the source code.
    */

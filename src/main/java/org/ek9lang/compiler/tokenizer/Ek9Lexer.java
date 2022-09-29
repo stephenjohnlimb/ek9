@@ -274,7 +274,7 @@ public class Ek9Lexer extends EK9LexerRules implements LexerPlugin {
           this.insertToken(DEDENT + "length=" + curIndentLength + ">",
               dedentToken);
           //Always add a spare new line make grammar more consistent after a dedent
-          //TODO think about raising an error here as indentation level is not right.
+          //Think about raising an error here as indentation level is not right.
         }
         this.insertToken(NEW_LINE, NL);
       }

@@ -218,18 +218,8 @@ public final class Ek9DirectoryStructure {
     AssertValue.checkNotNull("Keypair is null", keyPair);
     String dir = fileHandling.getUsersHomeEk9Directory();
 
-    return saveToOutput(new File(dir, PRIVATE_PEM), keyPair.getPrivateKeyInBase64())
-        && saveToOutput(new File(dir, PUBLIC_PEM), keyPair.getPublicKeyInBase64());
-  }
-
-  private boolean saveToOutput(File file, String value) {
-    try (OutputStream output = new FileOutputStream(file)) {
-      output.write(value.getBytes());
-      return true;
-    } catch (Exception ex) {
-      Logger.error("Unable to save " + file.getPath() + " " + ex.getMessage());
-      return false;
-    }
+    return fileHandling.saveToOutput(new File(dir, PRIVATE_PEM), keyPair.getPrivateKeyInBase64())
+        && fileHandling.saveToOutput(new File(dir, PUBLIC_PEM), keyPair.getPublicKeyInBase64());
   }
 
   private String addDirectory(String baseDir, String newDir) {

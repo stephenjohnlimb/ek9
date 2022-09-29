@@ -533,6 +533,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
   }
 
   @Test
+  @SuppressWarnings("java:S5785")
   void testVariableSymbol() {
     IScope symbolTable = new SymbolTable();
     ISymbol integerType = new AggregateSymbol("Integer", symbolTable);
@@ -540,6 +541,12 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     //define without type first
     VariableSymbol v1 = new VariableSymbol("v1");
     assertVariable1(v1);
+
+    assertTrue(v1.equals(v1));
+
+    VariableSymbol v1RefNull = null;
+    assertNotEquals(v1, v1RefNull);
+
     var clone = v1.clone(symbolTable);
     assertVariable1(clone);
     assertEquals(v1, clone);

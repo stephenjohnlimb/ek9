@@ -44,14 +44,14 @@ public abstract class Ec extends E {
   protected boolean compile(List<File> compilableProjectFiles) {
     log(compilableProjectFiles.size() + " source file(s)");
 
-    //TODO the actual compilation!
+    //Do the actual compilation!
 
     //At present if in log mode show the list of files to be compiled.
     compilableProjectFiles.forEach(file -> log(file.getAbsolutePath()));
 
-    //TODO compile this with appropriate compiler
+    //Do compile this with appropriate compiler
 
-    //TODO make sure we pass in this.isCheckCompilationOnly()
+    //Do make sure we pass in this.isCheckCompilationOnly()
 
     var generatedOutputDirectory = getMainGeneratedOutputDirectory();
     AssertValue.checkNotNull("Main generated out file null", generatedOutputDirectory);
@@ -66,7 +66,7 @@ public abstract class Ec extends E {
   }
 
   protected boolean repackageTargetArtefact() {
-    if(this.isCheckCompilationOnly()) {
+    if (this.isCheckCompilationOnly()) {
       log("Check Compilation so NOT creating target");
       return true;
     }
@@ -78,11 +78,11 @@ public abstract class Ec extends E {
       List<ZipSet> zipSets = new ArrayList<>();
       addProjectResources(zipSets);
       addClassesFrom(getMainFinalOutputDirectory(), zipSets);
-      //TODO go through the deps and locate the jar file for each dependency and pull that in.
+      //Do go through the deps and locate the jar file for each dependency and pull that in.
 
       if (super.isDevBuild()) {
         addClassesFrom(getDevFinalOutputDirectory(), zipSets);
-        //TODO go through the dev-deps and locate the jar file for each dependency and pull that in.
+        //Do go through the dev-deps and locate the jar file for each dependency and pull that in.
       }
 
       //The parts of the EK9 runtime that we need to package in the jar.

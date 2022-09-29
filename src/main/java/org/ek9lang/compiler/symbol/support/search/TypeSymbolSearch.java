@@ -12,10 +12,13 @@ public final class TypeSymbolSearch extends SymbolSearch {
     setSearchType(ISymbol.SymbolCategory.TYPE);
   }
 
+  public TypeSymbolSearch(TypeSymbolSearch from) {
+    super(from);
+  }
+
   @Override
   public TypeSymbolSearch clone() {
-    var rtn = new TypeSymbolSearch(getName());
-    cloneIntoSearchSymbol(rtn);
-    return rtn;
+    return new TypeSymbolSearch(this);
   }
+
 }

@@ -22,7 +22,7 @@ public class ScopeStack {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private Deque<IScope> actualStack = new ArrayDeque<IScope>();
+  private Deque<IScope> actualStack = new ArrayDeque<>();
 
   public ScopeStack(IScope base) {
     push(base);

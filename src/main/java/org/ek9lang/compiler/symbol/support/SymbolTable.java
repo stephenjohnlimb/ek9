@@ -8,8 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.symbol.IScope;
@@ -107,11 +108,12 @@ public class SymbolTable implements IScope {
    * Simple BI Function to see if two ISymbols contained within Optionals are assignable.
    * i.e. is the 'from' assignable to the 'to'?
    */
-  private final BiFunction<Optional<ISymbol>, Optional<ISymbol>, Boolean> isAssignable =
+  private final BiPredicate<Optional<ISymbol>, Optional<ISymbol>> isAssignable =
       (to, from) -> from
           .stream()
           .map(toSet -> toSet.isAssignableTo(to))
           .findFirst().orElse(false);
+
   private String scopeName = "global";
 
   /**
@@ -355,15 +357,15 @@ public class SymbolTable implements IScope {
     // I've pulled out common code to in-method functions, so I can capture incoming parameters
     // and re-use the code.
 
-    final Function<Optional<ISymbol>, Boolean> canBeAssigned = toCheck -> {
+    final Predicate<Optional<ISymbol>> canBeAssigned = toCheck -> {
       final Optional<ISymbol> searchSymbol = search.getNameAsSymbol(getScopeName());
-      return isAssignable.apply(toCheck, searchSymbol);
+      return isAssignable.test(toCheck, searchSymbol);
     };
 
-    final Function<Optional<ISymbol>, Boolean> canVariableTypeBeAssigned = foundType -> {
+    final Predicate<Optional<ISymbol>> canVariableTypeBeAssigned = foundType -> {
       final Optional<ISymbol> toReceive = search.getOfTypeOrReturn();
       //We do consider this acceptable as the search has not indicated a specific type required.
-      return toReceive.isEmpty() || isAssignable.apply(toReceive, foundType);
+      return toReceive.isEmpty() || isAssignable.test(toReceive, foundType);
     };
 
     // Finds a method (if present) in a list of ISymbols, by casting to methodSymbols and runs
@@ -391,12 +393,12 @@ public class SymbolTable implements IScope {
         yield checkAndSelectFirstItem.apply(symbolList);
       case TYPE:
         var checkType = checkAndSelectFirstItem.apply(symbolList);
-        yield canBeAssigned.apply(checkType) ? checkType : Optional.empty();
+        yield canBeAssigned.test(checkType) ? checkType : Optional.empty();
       case VARIABLE:
         var checkVariable = checkAndSelectFirstItem.apply(symbolList);
         var foundType =
             checkVariable.stream().map(ISymbol::getType).findFirst().orElse(Optional.empty());
-        yield canVariableTypeBeAssigned.apply(foundType) ? checkVariable : Optional.empty();
+        yield canVariableTypeBeAssigned.test(foundType) ? checkVariable : Optional.empty();
       case CONTROL:
         //You can never locate controls. Well not yet; and I don't think we will need to.
         yield Optional.empty();
