@@ -55,32 +55,41 @@ public abstract class Eve extends E {
   }
 
   private List<String> loadAndUpdateVersionFromSourceFile(Version newVersion) throws IOException {
-    List<String> output = new ArrayList<>();
     //Now for processing of existing to get the line number.
     Integer versionLineNumber = commandLine.processEk9FileProperties(true);
-    if (versionLineNumber != null) {
+    return versionLineNumber != null ? updateVersionOnLineNumber(newVersion, versionLineNumber) : List.of();
+  }
+
+  private List<String> updateVersionOnLineNumber(final Version newVersion, final Integer versionLineNumber)
+      throws IOException {
+    List<String> output = new ArrayList<>();
+
+    try (BufferedReader br = new BufferedReader(
+        new FileReader(commandLine.getFullPathToSourceFileName()))) {
       int lineCount = 0;
-      try (BufferedReader br = new BufferedReader(
-          new FileReader(commandLine.getFullPathToSourceFileName()))) {
-        String line;
-        while ((line = br.readLine()) != null) {
-          lineCount++;
-          if (lineCount == versionLineNumber) {
-            Matcher m = Pattern.compile("^(?<ver>[ a-z]+)(.*)$").matcher(line);
-            if (m.find()) {
-              String prefix = m.group("ver");
-              if (prefix.contains(" as ")) {
-                line = prefix + " Version := " + newVersion;
-              } else {
-                line = prefix + "<- " + newVersion;
-              }
-            }
-          }
-          output.add(line);
+      String line;
+      while ((line = br.readLine()) != null) {
+        lineCount++;
+        if (lineCount == versionLineNumber) {
+          line = updateVersionOnLine(newVersion, line);
         }
+        output.add(line);
       }
     }
     return output;
+  }
+
+  private String updateVersionOnLine(final Version newVersion, String line) {
+    Matcher m = Pattern.compile("^(?<ver>[ a-z]+)(.*)$").matcher(line);
+    if (m.find()) {
+      String prefix = m.group("ver");
+      if (prefix.contains(" as ")) {
+        line = prefix + " Version := " + newVersion;
+      } else {
+        line = prefix + "<- " + newVersion;
+      }
+    }
+    return line;
   }
 
   /**
@@ -166,7 +175,7 @@ public abstract class Eve extends E {
     }
 
     /**
-     * Only valid if one of major, minor, patch and buildNumber is none-zero
+     * Only valid if one of major, minor, patch and buildNumber is none-zero.
      */
     public boolean isValid() {
       return !(major == 0 && minor == 0 && patch == 0 && buildNumber == 0);
