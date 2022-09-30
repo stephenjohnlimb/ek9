@@ -15,6 +15,7 @@ import org.ek9lang.dependency.DependencyNode;
  * targets are removed.
  */
 public class Edp extends E {
+
   public Edp(CommandLineDetails commandLine, FileCache sourceFileCache) {
     super(commandLine, sourceFileCache);
   }
@@ -27,27 +28,16 @@ public class Edp extends E {
   protected boolean doRun() {
     log("- Clean");
 
-    if (!new Ecl(commandLine, sourceFileCache).run()) {
-      return false;
+    boolean rtn = new Ecl(commandLine, sourceFileCache).run();
+    if (rtn) {
+      if (commandLine.noPackageIsPresent()) {
+        log("No Dependencies defined");
+      }
+      Optional<DependencyNode> rootNode =
+          new DependencyNodeFactory(commandLine).createFrom(commandLine.getSourceVisitor());
+      rtn = rootNode.isPresent() && processDependencies(new DependencyManager(rootNode.get()));
     }
-
-    if (commandLine.noPackageIsPresent()) {
-      log("No Dependencies defined");
-    }
-
-    Optional<DependencyNode> rootNode =
-        new DependencyNodeFactory(commandLine).createFrom(commandLine.getSourceVisitor());
-    if (rootNode.isEmpty()) {
-      report("Failed");
-      return false;
-    }
-
-    if (!processDependencies(new DependencyManager(rootNode.get()))) {
-      report("Failed");
-      return false;
-    }
-
-    return true;
+    return rtn;
   }
 
   private boolean processDependencies(DependencyManager dependencyManager) {
@@ -105,15 +95,13 @@ public class Edp extends E {
   private void optimise(DependencyManager dependencyManager) {
     log("Optimising");
 
-    //Manage a deep tree and ensure there can never been an infinite loop in case of error.
-    int maxOptimisations = 100;
     int iterations = 0;
-    boolean optimise = dependencyManager.optimise();
-    while (optimise && iterations < maxOptimisations) {
-      iterations++;
-      optimise = dependencyManager.optimise();
+    boolean optimised = false;
+    do {
+      optimised = dependencyManager.optimise(iterations++);
       log("Optimisation (" + iterations + ")");
     }
+    while (optimised);
   }
 
   private boolean hasSemanticVersionBreaches(DependencyManager dependencyManager) {

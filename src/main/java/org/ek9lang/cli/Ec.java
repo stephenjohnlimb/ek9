@@ -66,13 +66,16 @@ public abstract class Ec extends E {
   }
 
   protected boolean repackageTargetArtefact() {
+
     if (this.isCheckCompilationOnly()) {
       log("Check Compilation so NOT creating target");
       return true;
     }
 
+    boolean rtn = Objects.equals(commandLine.targetArchitecture, Ek9DirectoryStructure.JAVA);
+
     //We can only build a jar for java at present.
-    if (Objects.equals(commandLine.targetArchitecture, Ek9DirectoryStructure.JAVA)) {
+    if (rtn) {
       log("Creating target");
 
       List<ZipSet> zipSets = new ArrayList<>();
@@ -89,13 +92,10 @@ public abstract class Ec extends E {
       zipSets.add(getCoreComponents());
 
       String targetFileName = sourceFileCache.getTargetExecutableArtefact().getAbsolutePath();
-      if (getFileHandling().createJar(targetFileName, zipSets)) {
-        return true;
-      }
-      report("Target creating failed");
+      rtn = getFileHandling().createJar(targetFileName, zipSets);
     }
 
-    return false;
+    return rtn;
   }
 
   /**

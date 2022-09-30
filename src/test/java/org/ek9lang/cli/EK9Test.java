@@ -143,6 +143,17 @@ final class EK9Test {
   }
 
   @Test
+  void testRunSingleProgramInDebug() {
+    String sourceName = "HelloWorld.ek9";
+    String[] command = new String[] {"-v -d 9999 " + sourceName };
+
+    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+    assertNotNull(sourceFile);
+
+    assertCompilationArtefactsPresent(assertResult(Ek9.RUN_COMMAND_EXIT_CODE, command));
+  }
+
+  @Test
   void testRunUnitTests() {
     String sourceName = "HelloWorlds.ek9";
     String[] command = new String[] {"-v -t " + sourceName};
@@ -221,6 +232,17 @@ final class EK9Test {
   @Test
   void testMajorVersioningOfPackage() {
     assertPackageVersionChange("2.0.0-0", "-IV major");
+  }
+
+  @Test
+  void testSetVersionButNoPackagePresent() {
+    String sourceName = "HelloWorld.ek9";
+    String[] incrementBuildNo = new String[] {"-SV 3.6.7 " + sourceName};
+
+    File sourceFile =
+        sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+    assertNotNull(sourceFile);
+    CommandLineDetails commandLine = assertResult(Ek9.BAD_COMMANDLINE_EXIT_CODE, incrementBuildNo);
   }
 
   @Test

@@ -14,16 +14,16 @@ import org.junit.jupiter.api.Test;
  * A range of different tests - could probably do with a lot more as this is a somewhat complex area.
  * <p>
  * There are a couple of critical points here.
- * 1. Detect circular dependencies - that's show stopper
- * 2. Detect semantic version violations, i.e same module required at major v4 and major v3 - show stopper
+ * 1. Detect circular dependencies - that's show-stopper
+ * 2. Detect semantic version violations, i.e. same module required at major v4 and major v3 - show-stopper
  * 3. Apply developer defines exclusions first as that rules out loads of dependencies.
  * 4. In rationalisation always pick the highest semantic version of a dependency -
  * even if that is a transitive dependency and cause of transitive is not included in final set.
- * 5. In final optimisation - reject dependencies that can not longer be reached in tree from root.
+ * 5. In final optimisation - reject dependencies that can no longer be reached in tree from root.
  * 6. Run optimisation multiple times as nodes can be in various orders and a path that was open can
  * subsequently be rejected meaning more dependencies can be rejected.
  * <p>
- * Finally we're aiming for the least number of dependencies that are all minor,patch,build number compatible.
+ * Finally, we're aiming for the least number of dependencies that are all minor,patch,build number compatible.
  * If a developer releases a module package that does break backwards compatibility without bumping major version
  * The compiler will find that out and builds will fail, that module package will be useless.
  */
@@ -126,7 +126,7 @@ final class DependencyTest {
     assertTrue(found.get(0).isRejected());
     assertFalse(found.get(1).isRejected());
 
-    assertFalse(underTest.optimise());
+    assertFalse(underTest.optimise(0));
 
     Logger.log("Accepted after Optimisation");
     underTest.reportAcceptedDependencies()
@@ -189,16 +189,6 @@ final class DependencyTest {
     assertEquals(1, breaches.size());
 
     //So even though "a.b.d-2.2.0-0" is in the accepted list it is also in the breaches - so must be addressed
-        /*
-        Logger.log("testMajorVersionIncompatibleDependencies");
-        Logger.log("Rejected");
-        rejected.forEach(System.out::println);
-        Logger.log("Accepted");
-        accepted.forEach(System.out::println);
-
-        Logger.log("Breaches");
-        breaches.forEach(System.out::println);
-        */
   }
 
   @Test
@@ -234,21 +224,6 @@ final class DependencyTest {
 
     List<String> circulars = underTest.reportCircularDependencies(true);
     assertEquals(2, circulars.size());
-        
-        /*
-        Logger.log("testCircularDependencies");
-        Logger.log("All");
-        deps.forEach(System.out::println);
-        Logger.log("----");
-
-        Logger.log("Uniq");
-        deps = underTest.listAllModuleNames();
-        deps.forEach(System.out::println);
-        Logger.log("----");
-        Logger.log("Circulars");
-        assertTrue(circulars.size() == 2);
-        circulars.forEach(System.out::println);
-        */
   }
 
   /**
@@ -257,7 +232,7 @@ final class DependencyTest {
    * and then check that the optimise mechanism can find all nodes under those
    * key dependencies and mark those as rejected.
    * <p>
-   * In general optimise would always be the last phase of dependency management
+   * In general optimise would always be the last phase of dependency management,
    * but we need to check it can handle a range of scenarios.
    */
   @Test
@@ -311,57 +286,64 @@ final class DependencyTest {
     DependencyManager underTest = new DependencyManager(root);
     assertRejectionsAcceptance(underTest, 0, 85);
 
+    var iterations = 0;
     //We don't expect any changes.
-    assertFalse(underTest.optimise());
+    assertFalse(underTest.optimise(iterations++));
 
     //Now lets reject high in the tree - but not the dependencies.
     reject1.setRejected(DependencyNode.RejectionReason.MANUAL, true, false);
     assertRejectionsAcceptance(underTest, 1, 84);
 
-    boolean didOptimise = underTest.optimise();
+    boolean didOptimise = underTest.optimise(iterations++);
     assertTrue(didOptimise);
     assertRejectionsAcceptance(underTest, 5, 80);
 
     //So note how we had to run optimise twice here
-    didOptimise = underTest.optimise();
+    didOptimise = underTest.optimise(iterations++);
     assertTrue(didOptimise);
     assertRejectionsAcceptance(underTest, 13, 72);
 
     //And again - so the deeper the tree the more times optimise needs to be called
-    //until it's worked it's way right down - but this is contrived because I've made
+    //until it's worked its way right down - but this is contrived because I've made
     //the processing and structure of the tree such that it processes the data in a certain way
     //In real life the tree would be in a very different structure fat bit's/long tails etc.
-    didOptimise = underTest.optimise();
+    didOptimise = underTest.optimise(iterations++);
     assertTrue(didOptimise);
     assertRejectionsAcceptance(underTest, 21, 64);
 
     //OK so that's then end - no more
-    didOptimise = underTest.optimise();
+    didOptimise = underTest.optimise(iterations++);
     assertFalse(didOptimise);
 
     //But now lets reject number 2!
     reject2.setRejected(DependencyNode.RejectionReason.MANUAL, true, false);
     //now optimise
-    didOptimise = underTest.optimise();
+    didOptimise = underTest.optimise(iterations++);
     assertTrue(didOptimise);
     assertRejectionsAcceptance(underTest, 26, 59);
 
     //Again no change just optimise again
-    didOptimise = underTest.optimise();
+    didOptimise = underTest.optimise(iterations++);
     assertTrue(didOptimise);
     assertRejectionsAcceptance(underTest, 34, 51);
 
-    didOptimise = underTest.optimise();
+    didOptimise = underTest.optimise(iterations++);
     assertTrue(didOptimise);
     assertRejectionsAcceptance(underTest, 42, 43);
 
     //OK so that's then end - no more
-    didOptimise = underTest.optimise();
+    didOptimise = underTest.optimise(iterations++);
     assertFalse(didOptimise);
 
     //Now reject root!
     root.setRejected(DependencyNode.RejectionReason.MANUAL, true, false);
-    while (underTest.optimise()) ;
+    var optimised = false;
+    do {
+      optimised = underTest.optimise(iterations++);
+      System.out.println("Optimised iterations " + iterations);
+    }
+    while (optimised);
+
     //We should have rejected everything now
     assertRejectionsAcceptance(underTest, 85, 0);
 
@@ -374,13 +356,6 @@ final class DependencyTest {
 
     assertEquals(expectNumRejected, rejected.size());
     assertEquals(expectNumAccepted, accepted.size());
-
-        /*
-        Logger.log("Rejected");
-        rejected.forEach(System.out::println);
-        Logger.log("Accepted");
-        accepted.forEach(System.out::println);
-        */
   }
 
 
@@ -444,7 +419,7 @@ final class DependencyTest {
     rationalise1.addDependency(DependencyNode.of("s.t.u-12.3.1-12"));
     //This is used in two versions of 'p.q.r'
     rationalise1.addDependency(DependencyNode.of("j.k.l-2.7.3-23"));
-    //This is also used in both version of 'p.q.r' - but rationalise2 actually uses a earlier version.
+    //This is also used in both version of 'p.q.r' - but rationalise2 actually uses an earlier version.
     rationalise1.addDependency(DependencyNode.of("l.m.n-1.4.3-3"));
     //note x.y.z is not used in later version of "p.q.r" but is still used in "a.b.d" above
     rationalise1.addDependency(DependencyNode.of("x.y.z-2.9.1-4"));
@@ -480,43 +455,12 @@ final class DependencyTest {
     assertEquals(0, circulars.size());
     //Unique names before exclusions
     assertEquals(13, uniqueDepNames.size());
-        
-        /*
-        Logger.log("testDependencyOptimisation");
-        Logger.log("All module names");
-        deps.forEach(System.out::println);
-        
-        Logger.log("Unique module names");
-        uniqueDepNames.forEach(System.out::println);
-        Logger.log("Rejected");
-        rejected.forEach(System.out::println);
-        */
 
     //So lets manually exclude c.d.e
     underTest.reject("c.d.e", "p.q.r");
-        
-        /*
-        Logger.log("After manually removing 'c.d.e' when dependency of 'p.q.r'");
-        uniqueDepNames = underTest.listAllModuleNames();
-        Logger.log("Unique module names");
-        uniqueDepNames.forEach(System.out::println);
-        
-        rejected = underTest.reportRejectedDependencies();
-        assertEquals(2, rejected.size());
-        
-        Logger.log("Rejected");
-        rejected.forEach(System.out::println);
-        */
 
     //OK now to rationalise.
     underTest.rationalise();
-
-        /*
-        Logger.log("After rationalising");
-        uniqueDepNames = underTest.listAllModuleNames();
-        Logger.log("Unique module names");
-        uniqueDepNames.forEach(System.out::println);
-        */
 
     rejected = underTest.reportRejectedDependencies();
     assertEquals(8, rejected.size());
@@ -527,7 +471,12 @@ final class DependencyTest {
     //n.m.p is used in p.q.r-9.8.8-1 and p.q.r-9.8.1-6 - both rationalised.
     //So those could and should be removed.
     //Logger.log("Optimising");
-    while (underTest.optimise()) ;
+    var iterations = 0;
+    var optimised = false;
+    do {
+      optimised = underTest.optimise(iterations++);
+    }
+    while (optimised);
 
     rejected = underTest.reportRejectedDependencies();
     assertEquals(10, rejected.size());

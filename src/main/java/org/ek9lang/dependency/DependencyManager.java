@@ -86,29 +86,33 @@ public final class DependencyManager {
    *
    * @return true is optimisation took place, false if there was nothing to optimise.
    */
-  public boolean optimise() {
+  public boolean optimise(int numberOfOptimiseCalls) {
     boolean didOptimise = false;
-    for (String module : listAllModuleNames()) {
-      List<DependencyNode> dependencies = findByModuleName(module);
+    if (numberOfOptimiseCalls < 100) {
 
-      //Some of these will already be rejected, but we need to check from each of these
-      //dependencies back up towards root to see if the parent dependency is rejected
-      //if all dependencies all encounter a rejected node then clearly even any un-rejected
-      //node is not required and can be optimised out.
-      boolean allEncounterRejectedNode = true;
-      boolean allRejectedAlready = true;
+      for (String module : listAllModuleNames()) {
+        List<DependencyNode> dependencies = findByModuleName(module);
 
-      for (DependencyNode dep : dependencies) {
-        allRejectedAlready &= dep.isRejected();
-        allEncounterRejectedNode &= dep.isParentRejected();
-      }
+        //Some of these will already be rejected, but we need to check from each of these
+        //dependencies back up towards root to see if the parent dependency is rejected
+        //if all dependencies all encounter a rejected node then clearly even any un-rejected
+        //node is not required and can be optimised out.
+        boolean allEncounterRejectedNode = true;
+        boolean allRejectedAlready = true;
 
-      if (allEncounterRejectedNode && !allRejectedAlready) {
-        didOptimise = true;
-        dependencies
-            .stream()
-            .filter(dep -> !dep.isRejected())
-            .forEach(dep -> dep.setRejected(DependencyNode.RejectionReason.OPTIMISED, true, false));
+        for (DependencyNode dep : dependencies) {
+          allRejectedAlready &= dep.isRejected();
+          allEncounterRejectedNode &= dep.isParentRejected();
+        }
+
+        if (allEncounterRejectedNode && !allRejectedAlready) {
+          didOptimise = true;
+          dependencies
+              .stream()
+              .filter(dep -> !dep.isRejected())
+              .forEach(
+                  dep -> dep.setRejected(DependencyNode.RejectionReason.OPTIMISED, true, false));
+        }
       }
     }
     return didOptimise;

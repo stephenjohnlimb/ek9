@@ -224,9 +224,17 @@ public class CommandLineDetails {
                 return Ek9.BAD_COMMANDLINE_EXIT_CODE;
               }
             } else if (versioningOption.equals("-SV")) {
-              Eve.Version.withNoFeatureNoBuildNumber(versionParam);
+              if (!Eve.Version.withNoFeatureNoBuildNumber(versionParam).isValid()) {
+                Logger.error(
+                    "Set Version: expecting major.minor.patch [" + commandLine + "]");
+                return Ek9.BAD_COMMANDLINE_EXIT_CODE;
+              }
             } else {
-              Eve.Version.withFeatureNoBuildNumber(versionParam);
+              if (!Eve.Version.withFeatureNoBuildNumber(versionParam).isValid()) {
+                Logger.error(
+                    "Set Feature: expecting major.minor.patch-feature [" + commandLine + "]");
+                return Ek9.BAD_COMMANDLINE_EXIT_CODE;
+              }
             }
             activeParameters.add(versionParam);
           } else {

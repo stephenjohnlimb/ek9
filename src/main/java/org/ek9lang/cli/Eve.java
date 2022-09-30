@@ -165,6 +165,13 @@ public abstract class Eve extends E {
       return Pattern.compile(pattern).matcher(value);
     }
 
+    /**
+     * Only valid if one of major, minor, patch and buildNumber is none-zero
+     */
+    public boolean isValid() {
+      return !(major == 0 && minor == 0 && patch == 0 && buildNumber == 0);
+    }
+
     public Integer major() {
       return major;
     }

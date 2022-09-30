@@ -16,33 +16,34 @@ public class Eic extends Ec {
   }
 
   protected boolean doRun() {
+    boolean rtn = sourceFileCache.isTargetExecutableArtefactPresent();
     //Check if it even exists - if not then that is a full build that is needed.
-    if (!sourceFileCache.isTargetExecutableArtefactPresent()) {
+    if (!rtn) {
       log("Missing target - Compile!");
       Efc execution = new Efc(commandLine, sourceFileCache);
       //may have been forced in, and so we must pass on.
       execution.setDebuggingInstrumentation(this.isDebuggingInstrumentation());
       execution.setDevBuild((this.isDevBuild()));
       execution.setCheckCompilationOnly(this.isCheckCompilationOnly());
-      return execution.run();
+      rtn = execution.run();
     } else {
       //Yes we can do an incremental build.
       if (sourceFileCache.isTargetExecutableArtefactCurrent()) {
         log("Target already in date");
-        return true;
+        rtn = true;
       } else {
         prepareCompilation();
 
-        if (!compile(sourceFileCache.getIncrementalCompilableProjectFiles())) {
-          report("Failed");
-          return false;
-        }
+        rtn = compile(sourceFileCache.getIncrementalCompilableProjectFiles());
 
         int changesToPackage = sourceFileCache.getIncrementalFilesPartOfBuild().size();
         log(changesToPackage + " changed file(s)");
 
-        return repackageTargetArtefact();
+        if (rtn) {
+          rtn = repackageTargetArtefact();
+        }
       }
     }
+    return rtn;
   }
 }
