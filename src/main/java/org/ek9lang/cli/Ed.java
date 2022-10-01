@@ -1,11 +1,10 @@
 package org.ek9lang.cli;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-import java.util.stream.Stream;
 import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.core.utils.Digest;
 import org.ek9lang.core.utils.SigningKeyPair;
@@ -28,18 +27,16 @@ public class Ed extends E {
 
   protected boolean doRun() {
 
-    if (new Ep(commandLine, sourceFileCache).run() && new Egk(commandLine, sourceFileCache).run()) {
-      //Need to ensure that the user has some signing keys.
+    return Optional.of(new Ep(commandLine, sourceFileCache).run()).stream()
+        .filter(result -> result)
+        .map(result -> new Egk(commandLine, sourceFileCache).run())
+        .filter(result -> result)
+        .map(result -> getFileHandling()
+            .makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion()))
+        .map(this::prepareEncryptedZipHash)
+        .findAny()
+        .orElse(false);
 
-      final Supplier<String> zipFileNameSupplier =
-          () -> getFileHandling().makePackagedModuleZipFileName(commandLine.getModuleName(),
-              commandLine.getVersion());
-
-      return Stream
-          .of(zipFileNameSupplier)
-          .map(this::prepareEncryptedZipHash)
-          .findAny()
-          .orElse(false);
 
       //Still to be done
       //OK now we can zip the zip, encrypted hash and clients public key and send
@@ -47,8 +44,6 @@ public class Ed extends E {
       //Also needs an account with some credentials to send to https://deploy.ek9lang.org
       //We will leave this for now - see SigningKeyPairTest on how we will do it.
 
-    }
-    return false;
   }
 
   /**
@@ -56,7 +51,7 @@ public class Ed extends E {
    * This method can take the sha256 file and double encrypt it ready to accompany
    * the zip and the clients public key.
    */
-  private boolean prepareEncryptedZipHash(final Supplier<String> zipFileNameSupplier) {
+  private boolean prepareEncryptedZipHash(final String fileName) {
 
     final UnaryOperator<String> getServerPublicKey = serverName ->
         //Actually get the server public key - for now hard code
@@ -97,7 +92,7 @@ public class Ed extends E {
     final Function<String, Boolean> saveEncryptedContents = finalCipherText -> {
       File sha256EncFile =
           new File(getFileHandling().getDotEk9Directory(commandLine.getSourceFileDirectory()),
-              zipFileNameSupplier.get() + ".sha256.enc");
+              fileName + ".sha256.enc");
       var rtn = getFileHandling().saveToOutput(sha256EncFile, finalCipherText);
 
       if (rtn) {
@@ -107,8 +102,7 @@ public class Ed extends E {
     };
 
     //Now the actual processing.
-    return Stream
-        .generate(zipFileNameSupplier)
+    return Optional.of(fileName).stream()
         .filter(zipFileExists)
         .filter(sha256FileExists)
         .map(toSha256File)
@@ -118,6 +112,5 @@ public class Ed extends E {
         .map(saveEncryptedContents)
         .findAny()
         .orElse(false);
-
   }
 }
