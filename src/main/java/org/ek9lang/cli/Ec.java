@@ -55,12 +55,12 @@ public abstract class Ec extends E {
 
     var generatedOutputDirectory = getMainGeneratedOutputDirectory();
     AssertValue.checkNotNull("Main generated out file null", generatedOutputDirectory);
-    //This will be some sort of intermediate form (i.e. java we then need to actually compile.
+    //This will be some sort of intermediate form (i.e. java we then need to actually compile).
 
     if (this.isDevBuild()) {
       var devGeneratedOutputDirectory = getDevGeneratedOutputDirectory();
       AssertValue.checkNotNull("Dev generated out file null", devGeneratedOutputDirectory);
-      //This will be some sort of intermediate form (i.e. java we then need to actually compile.
+      //This will be some sort of intermediate form (i.e. java we then need to actually compile).
     }
     return true; //or false if compilation failed
   }
@@ -105,18 +105,16 @@ public abstract class Ec extends E {
     return new ZipSet();
   }
 
-  private List<ZipSet> addClassesFrom(File classesDir, List<ZipSet> zipSetList) {
+  private void addClassesFrom(File classesDir, List<ZipSet> zipSetList) {
     log("Including classes from " + classesDir.getAbsolutePath());
     List<File> listOfFiles = getOsSupport().getFilesRecursivelyFrom(classesDir);
     zipSetList.add(new ZipSet(classesDir.toPath(), listOfFiles));
-    return zipSetList;
   }
 
-  private List<ZipSet> addProjectResources(List<ZipSet> zipSetList) {
+  private void addProjectResources(List<ZipSet> zipSetList) {
     File projectDirectory = new File(commandLine.getSourceFileDirectory());
     Path fromPath = projectDirectory.toPath();
     List<File> listOfFiles = sourceFileCache.getAllNonCompilableProjectFiles();
     zipSetList.add(new ZipSet(fromPath, listOfFiles));
-    return zipSetList;
   }
 }

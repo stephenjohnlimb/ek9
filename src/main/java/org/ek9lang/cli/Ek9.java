@@ -1,6 +1,5 @@
 package org.ek9lang.cli;
 
-import java.io.File;
 import java.util.concurrent.ExecutionException;
 import org.ek9lang.LanguageMetaData;
 import org.ek9lang.cli.support.FileCache;
@@ -118,46 +117,16 @@ public class Ek9 {
     //Keep a cache once files are loaded, because each of the executions may call each other.
     FileCache sourceFileCache = new FileCache(commandLine);
 
-    if (commandLine.isDependenciesAltered()) {
-      if (commandLine.isVerbose()) {
-        Logger.error("Dependencies altered.");
-      }
-      File target = commandLine.getFileHandling()
-          .getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(),
-              commandLine.targetArchitecture);
-      commandLine.getFileHandling().deleteFileIfExists(target);
-    }
+    deleteFinalArtifactIfDependenciesAltered(sourceFileCache);
 
     int rtn = BAD_COMMANDLINE_EXIT_CODE;
     E execution = null;
 
     if (commandLine.isJustBuildTypeOption()) {
-      if (commandLine.isCleanAll()) {
-        execution = new Ecl(commandLine, sourceFileCache);
-      } else if (commandLine.isResolveDependencies()) {
-        execution = new Edp(commandLine, sourceFileCache);
-      } else if (commandLine.isIncrementalCompile()) {
-        execution = new Eic(commandLine, sourceFileCache);
-      } else if (commandLine.isFullCompile()) {
-        execution = new Efc(commandLine, sourceFileCache);
-      } else if (commandLine.isPackaging()) {
-        execution = new Ep(commandLine, sourceFileCache);
-      } else if (commandLine.isInstall()) {
-        execution = new Ei(commandLine, sourceFileCache);
-      } else if (commandLine.isDeployment()) {
-        execution = new Ed(commandLine, sourceFileCache);
-      }
+      execution = getExecutionForBuildTypeOption(sourceFileCache);
       rtn = SUCCESS_EXIT_CODE;
     } else if (commandLine.isReleaseVectorOption()) {
-      if (commandLine.isIncrementReleaseVector()) {
-        execution = new Eiv(commandLine, sourceFileCache);
-      } else if (commandLine.isSetReleaseVector()) {
-        execution = new Esv(commandLine, sourceFileCache);
-      } else if (commandLine.isSetFeatureVector()) {
-        execution = new Esf(commandLine, sourceFileCache);
-      } else if (commandLine.isPrintReleaseVector()) {
-        execution = new Epv(commandLine, sourceFileCache);
-      }
+      execution = getExecutionForReleaseVectorOption(sourceFileCache);
       rtn = SUCCESS_EXIT_CODE;
     } else if (commandLine.isDeveloperManagementOption()) {
       if (commandLine.isGenerateSigningKeys()) {
@@ -179,5 +148,55 @@ public class Ek9 {
       rtn = BAD_COMMANDLINE_EXIT_CODE;
     }
     return rtn;
+  }
+
+  private void deleteFinalArtifactIfDependenciesAltered(FileCache sourceFileCache) {
+    if (commandLine.isDependenciesAltered()) {
+      if (commandLine.isVerbose()) {
+        Logger.error("Dependencies altered.");
+      }
+      sourceFileCache.deleteTargetExecutableArtefact();
+    }
+  }
+
+  private E getExecutionForBuildTypeOption(FileCache sourceFileCache) {
+    if (commandLine.isCleanAll()) {
+      return new Ecl(commandLine, sourceFileCache);
+    }
+    if (commandLine.isResolveDependencies()) {
+      return new Edp(commandLine, sourceFileCache);
+    }
+    if (commandLine.isIncrementalCompile()) {
+      return new Eic(commandLine, sourceFileCache);
+    }
+    if (commandLine.isFullCompile()) {
+      return new Efc(commandLine, sourceFileCache);
+    }
+    if (commandLine.isPackaging()) {
+      return new Ep(commandLine, sourceFileCache);
+    }
+    if (commandLine.isInstall()) {
+      return new Ei(commandLine, sourceFileCache);
+    }
+    if (commandLine.isDeployment()) {
+      return  new Ed(commandLine, sourceFileCache);
+    }
+    return null;
+  }
+
+  private E getExecutionForReleaseVectorOption(FileCache sourceFileCache) {
+    if (commandLine.isIncrementReleaseVector()) {
+      return new Eiv(commandLine, sourceFileCache);
+    }
+    if (commandLine.isSetReleaseVector()) {
+      return new Esv(commandLine, sourceFileCache);
+    }
+    if (commandLine.isSetFeatureVector()) {
+      return new Esf(commandLine, sourceFileCache);
+    }
+    if (commandLine.isPrintReleaseVector()) {
+      return new Epv(commandLine, sourceFileCache);
+    }
+    return null;
   }
 }

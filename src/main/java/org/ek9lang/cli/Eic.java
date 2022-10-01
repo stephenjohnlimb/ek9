@@ -30,7 +30,6 @@ public class Eic extends Ec {
       //Yes we can do an incremental build.
       if (sourceFileCache.isTargetExecutableArtefactCurrent()) {
         log("Target already in date");
-        rtn = true;
       } else {
         prepareCompilation();
 

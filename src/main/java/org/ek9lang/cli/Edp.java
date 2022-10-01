@@ -96,7 +96,7 @@ public class Edp extends E {
     log("Optimising");
 
     int iterations = 0;
-    boolean optimised = false;
+    boolean optimised;
     do {
       optimised = dependencyManager.optimise(iterations++);
       log("Optimisation (" + iterations + ")");

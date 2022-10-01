@@ -65,6 +65,10 @@ public class FileCache {
             commandLine.getTargetArchitecture());
   }
 
+  public void deleteTargetExecutableArtefact() {
+    commandLine.getFileHandling().deleteFileIfExists(getTargetExecutableArtefact());
+  }
+
   /**
    * Supplies a list of standard file to include.
    * These are typically **.ek9, **.properties, etc.
