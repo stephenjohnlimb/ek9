@@ -132,6 +132,17 @@ final class EK9Test {
   }
 
   @Test
+  void testCleanBuildEnvironment() {
+    String sourceName = "HelloWorld.ek9";
+    String[] command = new String[] {"-Cl " + sourceName};
+
+    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+    assertNotNull(sourceFile);
+
+    assertCompilationArtefactsNotPresent(assertResult(Ek9.SUCCESS_EXIT_CODE, command));
+  }
+
+  @Test
   void testRunSingleProgram() {
     String sourceName = "HelloWorld.ek9";
     String[] command = new String[] {"-v " + sourceName};
@@ -187,6 +198,75 @@ final class EK9Test {
 
     //Should fail because this source does not define a package.
     assertResult(Ek9.BAD_COMMANDLINE_EXIT_CODE, command);
+  }
+
+  @Test
+  void testValidPackage() {
+    String sourceName = "PackageNoDeps.ek9";
+    String[] command = new String[] {"-v -P " + sourceName};
+
+    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/",
+        sourceName);
+    assertNotNull(sourceFile);
+
+    //Should pass because it does have a valid package.
+    assertResult(Ek9.SUCCESS_EXIT_CODE, command);
+  }
+
+  @Test
+  void testAlterationToDependencies() {
+    var sourceName = "testFile.ek9";
+    var ek9InitialSource = """
+#!ek9
+defines module net.inter1
+    
+  defines package
+    
+    publicAccess as Boolean := true
+    version as Version: 1.2.0-0
+    description as String = "Simulation intermediate package"
+    license <- "MIT"
+
+    tags <- [ "tools" ]
+
+    deps <- {
+      "ekopen.network.support.utils": "1.6.1-9"
+      }
+//EOF""";
+
+    //Make sure we have the dependency in place
+    installPackage("SupportUtils.ek9");
+
+    File cwd = new File(osSupport.getCurrentWorkingDirectory());
+    assertTrue(cwd.exists());
+    File newSourceFile = new File(cwd, sourceName);
+    fileHandling.saveToOutput(newSourceFile, ek9InitialSource);
+    String[] command = new String[] {"-v -P " + sourceName};
+    assertResult(Ek9.SUCCESS_EXIT_CODE, command);
+    //OK so now simulate changing the dependency
+
+    var updatedEk9InitialSource = """
+#!ek9
+defines module net.inter1
+    
+  defines package
+    
+    publicAccess as Boolean := true
+    version as Version: 1.2.0-0
+    description as String = "Simulation intermediate package"
+    license <- "MIT"
+
+    tags <- [ "tools" ]
+
+    deps <- {
+      "ekopen.network.support.utils": "2.4.1-9"
+      }
+//EOF""";
+    //So update th source code and put in the new dependency
+    fileHandling.saveToOutput(newSourceFile, updatedEk9InitialSource);
+    installPackage("SupportUtils2.ek9");
+    //Now check that too runs and is successful.
+    assertResult(Ek9.SUCCESS_EXIT_CODE, command);
   }
 
   @Test

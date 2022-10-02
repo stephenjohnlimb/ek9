@@ -129,11 +129,7 @@ public class Ek9 {
       execution = getExecutionForReleaseVectorOption(sourceFileCache);
       rtn = SUCCESS_EXIT_CODE;
     } else if (commandLine.isDeveloperManagementOption()) {
-      if (commandLine.isGenerateSigningKeys()) {
-        execution = new Egk(commandLine, sourceFileCache);
-      } else if (commandLine.isUpdateUpgrade()) {
-        execution = new Up(commandLine, sourceFileCache);
-      }
+      execution = getExecutionForDeveloperManagementOption(sourceFileCache);
       rtn = SUCCESS_EXIT_CODE;
     } else if (commandLine.isUnitTestExecution()) {
       execution = new Et(commandLine, sourceFileCache);
@@ -159,44 +155,47 @@ public class Ek9 {
     }
   }
 
+  private E getExecutionForDeveloperManagementOption(FileCache sourceFileCache) {
+    E execution = null;
+    if (commandLine.isGenerateSigningKeys()) {
+      execution = new Egk(commandLine, sourceFileCache);
+    } else if (commandLine.isUpdateUpgrade()) {
+      execution = new Up(commandLine, sourceFileCache);
+    }
+    return execution;
+  }
+
   private E getExecutionForBuildTypeOption(FileCache sourceFileCache) {
+    E execution = null;
     if (commandLine.isCleanAll()) {
-      return new Ecl(commandLine, sourceFileCache);
+      execution = new Ecl(commandLine, sourceFileCache);
+    } else if (commandLine.isResolveDependencies()) {
+      execution = new Edp(commandLine, sourceFileCache);
+    } else if (commandLine.isIncrementalCompile()) {
+      execution = new Eic(commandLine, sourceFileCache);
+    } else if (commandLine.isFullCompile()) {
+      execution = new Efc(commandLine, sourceFileCache);
+    } else if (commandLine.isPackaging()) {
+      execution = new Ep(commandLine, sourceFileCache);
+    } else if (commandLine.isInstall()) {
+      execution = new Ei(commandLine, sourceFileCache);
+    } else if (commandLine.isDeployment()) {
+      execution = new Ed(commandLine, sourceFileCache);
     }
-    if (commandLine.isResolveDependencies()) {
-      return new Edp(commandLine, sourceFileCache);
-    }
-    if (commandLine.isIncrementalCompile()) {
-      return new Eic(commandLine, sourceFileCache);
-    }
-    if (commandLine.isFullCompile()) {
-      return new Efc(commandLine, sourceFileCache);
-    }
-    if (commandLine.isPackaging()) {
-      return new Ep(commandLine, sourceFileCache);
-    }
-    if (commandLine.isInstall()) {
-      return new Ei(commandLine, sourceFileCache);
-    }
-    if (commandLine.isDeployment()) {
-      return  new Ed(commandLine, sourceFileCache);
-    }
-    return null;
+    return execution;
   }
 
   private E getExecutionForReleaseVectorOption(FileCache sourceFileCache) {
+    E execution = null;
     if (commandLine.isIncrementReleaseVector()) {
-      return new Eiv(commandLine, sourceFileCache);
+      execution = new Eiv(commandLine, sourceFileCache);
+    } else if (commandLine.isSetReleaseVector()) {
+      execution = new Esv(commandLine, sourceFileCache);
+    } else if (commandLine.isSetFeatureVector()) {
+      execution = new Esf(commandLine, sourceFileCache);
+    } else if (commandLine.isPrintReleaseVector()) {
+      execution = new Epv(commandLine, sourceFileCache);
     }
-    if (commandLine.isSetReleaseVector()) {
-      return new Esv(commandLine, sourceFileCache);
-    }
-    if (commandLine.isSetFeatureVector()) {
-      return new Esf(commandLine, sourceFileCache);
-    }
-    if (commandLine.isPrintReleaseVector()) {
-      return new Epv(commandLine, sourceFileCache);
-    }
-    return null;
+    return execution;
   }
 }
