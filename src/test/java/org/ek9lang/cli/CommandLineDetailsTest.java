@@ -483,6 +483,30 @@ final class CommandLineDetailsTest {
     assertEquals(3, processStringCommandLine.apply("-d"));
   }
 
+  @Test
+  void testInvalidBuildCommandLineDebug() {
+    assertEquals(2, processStringCommandLine.apply("-Cg -d 9000 HelloWorld.ek9"));
+  }
+
+  @Test
+  void testInvalidManagementCommandLineDebug() {
+    assertEquals(2, processStringCommandLine.apply("-Up -d 9000 HelloWorld.ek9"));
+  }
+
+  @Test
+  void testInvalidReleaseVectorCommandLineDebug() {
+    assertEquals(2, processStringCommandLine.apply("-PV -d 9000 HelloWorld.ek9"));
+  }
+
+  @Test
+  void testInvalidRunCommandLineDebug() {
+    assertEquals(2, processStringCommandLine.apply("-d 5600 -d 9000 HelloWorld.ek9"));
+  }
+
+  @Test
+  void testInvalidUnitTestCommandLineDebug() {
+    assertEquals(2, processStringCommandLine.apply("-t -d 9000 HelloWorld.ek9"));
+  }
 
   @Test
   void testCommandLineDebug() {
@@ -608,6 +632,23 @@ final class CommandLineDetailsTest {
 
     CommandLineDetails underTest = createClassUnderTest();
     assertEquals(0, underTest.processCommandLine("-T java " + sourceName));
+    assertTrue(underTest.isRunNormalMode());
+    assertEquals("HelloWorld", underTest.getProgramToRun());
+    assertEquals("java", underTest.getTargetArchitecture());
+    assertEquals(sourceName, underTest.getSourceFileName());
+  }
+
+  @Test
+  void testEnvironmentVariableRunAsJavaTarget() {
+    String sourceName = "HelloWorld.ek9";
+    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+    assertNotNull(sourceFile);
+
+    //Simulate picking up from environment variables.
+    CommandLineDetails.addDefaultSetting("EK9_TARGET", "java");
+
+    CommandLineDetails underTest = createClassUnderTest();
+    assertEquals(0, underTest.processCommandLine(sourceName));
     assertTrue(underTest.isRunNormalMode());
     assertEquals("HelloWorld", underTest.getProgramToRun());
     assertEquals("java", underTest.getTargetArchitecture());

@@ -4,7 +4,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
@@ -24,6 +26,10 @@ import org.ek9lang.core.utils.OsSupport;
  * Quite a beast now, but command line argument handling is always a bit complex.
  */
 public class CommandLineDetails {
+
+  //Clone environment variables in, but also allow use to programmatically alter them.
+  private static final Map<String, String> DEFAULTS = new HashMap<>(System.getenv());
+
   private final LanguageMetaData languageMetaData;
   private final OsSupport osSupport;
   private final FileHandling fileHandling;
@@ -57,9 +63,14 @@ public class CommandLineDetails {
    */
   public CommandLineDetails(LanguageMetaData languageMetaData, FileHandling fileHandling,
                             OsSupport osSupport) {
+
     this.languageMetaData = languageMetaData;
     this.fileHandling = fileHandling;
     this.osSupport = osSupport;
+  }
+
+  public static void addDefaultSetting(String name, String value) {
+    DEFAULTS.put(name, value);
   }
 
   /**
@@ -145,6 +156,11 @@ public class CommandLineDetails {
 
       int returnCode = extractCommandLineDetails(commandLine);
 
+      if (!targetArchitecture.equals("java")) {
+        Logger.error("Only Java is currently supported as a target [" + commandLine + "]");
+        return Ek9.BAD_COMMANDLINE_EXIT_CODE;
+      }
+
       if (returnCode == Ek9.RUN_COMMAND_EXIT_CODE) {
         return assessCommandLine(commandLine);
       }
@@ -156,12 +172,118 @@ public class CommandLineDetails {
     }
   }
 
+  private boolean processIfIndexIsEk9FileName(String[] strArray, int index) {
+    var rtn = strArray[index].endsWith("ek9") && !strArray[index].contains("=");
+
+    if (rtn) {
+      foundEk9File = true;
+      String ek9SourceFileName = strArray[index];
+      mainSourceFile = new File(ek9SourceFileName);
+      //We need to look in the current directory instead
+      if (!mainSourceFile.exists()) {
+        mainSourceFile = new File(osSupport.getCurrentWorkingDirectory(), ek9SourceFileName);
+      }
+    }
+    return rtn;
+  }
+
+  private boolean processIfSimpleOption(String[] strArray, int index) {
+    return processIfEnvironmentVariable(strArray, index)
+        || processIfTargetArchitecture(strArray, index)
+        || processIfProgramToRun(strArray, index);
+  }
+
+  private boolean processIfEnvironmentVariable(String[] strArray, int index) {
+    var rtn = strArray[index].equals("-e") && index < strArray.length - 1;
+
+    if (rtn) {
+      ek9AppDefines.add(strArray[index + 1].replace("'", "\""));
+    }
+    return rtn;
+  }
+
+  private boolean processIfTargetArchitecture(String[] strArray, int index) {
+    var rtn = strArray[index].equals("-T") && index < strArray.length - 1;
+
+    if (rtn) {
+      targetArchitecture = strArray[index + 1].toLowerCase();
+    }
+    return rtn;
+  }
+
+  private boolean processIfProgramToRun(String[] strArray, int index) {
+    var rtn = strArray[index].equals("-r") && index < strArray.length - 1;
+
+    if (rtn) {
+      ek9ProgramToRun = strArray[index + 1];
+    }
+    return rtn;
+  }
+
+  private boolean isVersioningOption(String[] strArray, int index) {
+    return strArray[index].equals("-IV")
+        || strArray[index].equals("-SV")
+        || strArray[index].equals("-SF");
+  }
+
+  private boolean processVersioningOption(String[] strArray, int index,
+                                          List<String> activeParameters) {
+    String versioningOption = strArray[index];
+    if (index < strArray.length - 1) {
+      String versionParam = strArray[index + 1];
+      if (versioningOption.equals("-IV")) {
+        if (Eve.Version.isInvalidVersionAddressPart(versionParam)) {
+          Logger.error(
+              "Increment Version: expecting major|minor|patch|build");
+          return false;
+        }
+      } else if (versioningOption.equals("-SV")) {
+        //If not valid a runtime exception will occur.
+        Eve.Version.withNoFeatureNoBuildNumber(versionParam);
+      } else {
+        Eve.Version.withFeatureNoBuildNumber(versionParam);
+      }
+      activeParameters.add(strArray[index]);
+      activeParameters.add(versionParam);
+    } else {
+      Logger.error("Missing versioning parameter");
+      return false;
+    }
+    return true;
+  }
+
+  private boolean isDebugOption(String[] strArray, int index) {
+    return strArray[index].equals("-d") && index < strArray.length - 1;
+  }
+
+  private boolean processDebugOption(String[] strArray, int index,
+                                     List<String> activeParameters) {
+
+    if (isParameterUnacceptable(strArray[index])) {
+      Logger.error("Incompatible command line options");
+      return false;
+    }
+    activeParameters.add(strArray[index]);
+    //So next is port to debug on
+    String port = strArray[index + 1];
+
+    if (!Pattern.compile("^(\\d+)$").matcher(port).find()) {
+      Logger.error("Debug Mode: expecting integer port number");
+      return false;
+    }
+    activeParameters.add(port);
+    this.debugPort = Integer.parseInt(port);
+    return true;
+  }
+
+  private boolean isInvalidEk9Parameter(boolean processingEk9Parameters, String parameter) {
+    return processingEk9Parameters && isParameterUnacceptable(parameter);
+  }
   /**
    * Extract the details of the command line out.
    * There are some basic checks here, but only up to a point.
    * The assessCommandLine checks the combination of commands.
-   * A bit nasty in terms of processing the options. Take some time to focus here.
-   * TODO make it simpler!
+   * A bit nasty in terms of processing the options.
    */
   private int extractCommandLineDetails(String commandLine) {
     boolean processingEk9Parameters = true;
@@ -169,80 +291,30 @@ public class CommandLineDetails {
     //Need to break this up remove extra spaces unless in quotes.
     String[] strArray = commandLine.split(" +(?=([^']*+'[^']*+')*+[^']*+$)");
 
-    for (int i = 0; i < strArray.length; i++) {
-      if (strArray[i].endsWith("ek9") && !strArray[i].contains("=")) {
-        foundEk9File = true;
-        String ek9SourceFileName = strArray[i];
-        mainSourceFile = new File(ek9SourceFileName);
-        //We need to look in the current directory instead
-        if (!mainSourceFile.exists()) {
-          mainSourceFile = new File(osSupport.getCurrentWorkingDirectory(), ek9SourceFileName);
-        }
-
+    int index = 0;
+    while (index < strArray.length) {
+      if (processIfIndexIsEk9FileName(strArray, index)) {
         processingEk9Parameters = false;
         activeParameters = ek9ProgramParameters;
-      } else if (strArray[i].equals("-e") && i < strArray.length - 1) {
-        ek9AppDefines.add(strArray[++i].replace("'", "\""));
-      } else if (strArray[i].equals("-T") && i < strArray.length - 1) {
-        targetArchitecture = strArray[++i].toLowerCase();
-        if (!targetArchitecture.equals("java")) {
-          Logger.error("Only Java is currently supported as a target [" + commandLine + "]");
+      } else if (processIfSimpleOption(strArray, index)) {
+        index++;
+      } else if (isDebugOption(strArray, index)) {
+        if (!processDebugOption(strArray, index, activeParameters)) {
           return Ek9.BAD_COMMANDLINE_EXIT_CODE;
         }
-      } else if (strArray[i].equals("-r") && i < strArray.length - 1) {
-        //So next is program to run
-        ek9ProgramToRun = strArray[++i];
-      } else if (strArray[i].equals("-d") && i < strArray.length - 1) {
-        if (isParameterUnacceptable(strArray[i])) {
-          Logger.error("Incompatible command line options [" + commandLine + "]");
-          return Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE;
-        }
-        activeParameters.add(strArray[i]);
-        //So next is port to debug on
-        String port = strArray[++i];
-        activeParameters.add(port);
-        if (!Pattern.compile("^(\\d+)$").matcher(port).find()) {
-          Logger.error("Debug Mode: expecting integer port number [" + commandLine + "]");
+        index++;
+      } else if (isInvalidEk9Parameter(processingEk9Parameters, strArray[index])) {
+        Logger.error("Incompatible command line options");
+        return Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE;
+      } else if (isVersioningOption(strArray, index)) {
+        if (!processVersioningOption(strArray, index, activeParameters)) {
           return Ek9.BAD_COMMANDLINE_EXIT_CODE;
         }
-        this.debugPort = Integer.parseInt(port);
+        index++;
       } else {
-        if (processingEk9Parameters && isParameterUnacceptable(strArray[i])) {
-          Logger.error("Incompatible command line options [" + commandLine + "]");
-          return Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE;
-        }
-        activeParameters.add(strArray[i]);
-        //Need to consume next option.
-        if (strArray[i].equals("-IV") || strArray[i].equals("-SV") || strArray[i].equals("-SF")) {
-          String versioningOption = strArray[i];
-          if (i < strArray.length - 1) {
-            String versionParam = strArray[++i];
-            if (versioningOption.equals("-IV")) {
-              //must be one of major|minor|patch|build
-              if (Eve.Version.isInvalidVersionAddressPart(versionParam)) {
-                Logger.error(
-                    "Increment Version: expecting major|minor|patch|build [" + commandLine + "]");
-                return Ek9.BAD_COMMANDLINE_EXIT_CODE;
-              }
-            } else if (versioningOption.equals("-SV")) {
-              if (!Eve.Version.withNoFeatureNoBuildNumber(versionParam).isValid()) {
-                Logger.error("Set Version: expecting major.minor.patch [" + commandLine + "]");
-                return Ek9.BAD_COMMANDLINE_EXIT_CODE;
-              }
-            } else {
-              if (!Eve.Version.withFeatureNoBuildNumber(versionParam).isValid()) {
-                Logger.error(
-                    "Set Feature: expecting major.minor.patch-feature [" + commandLine + "]");
-                return Ek9.BAD_COMMANDLINE_EXIT_CODE;
-              }
-            }
-            activeParameters.add(versionParam);
-          } else {
-            Logger.error("Missing parameter [" + commandLine + "]");
-            return Ek9.BAD_COMMANDLINE_EXIT_CODE;
-          }
-        }
+        activeParameters.add(strArray[index]);
       }
+      index++;
     }
     //Looks like we're potentially good here, next needs assessment.
     return Ek9.RUN_COMMAND_EXIT_CODE;
@@ -376,7 +448,7 @@ public class CommandLineDetails {
    * But even this can be overridden on the command line with -T
    */
   private void processDefaultArchitecture() {
-    String proposedTargetArchitecture = System.getenv("EK9_TARGET");
+    String proposedTargetArchitecture = DEFAULTS.get("EK9_TARGET");
     if (proposedTargetArchitecture != null && !proposedTargetArchitecture.isEmpty()) {
       this.targetArchitecture = proposedTargetArchitecture;
     }
@@ -682,12 +754,14 @@ public class CommandLineDetails {
    * Access a parameter option from the command line.
    */
   public String getOptionParameter(String option) {
+
+    String rtn = null;
     int optionIndex = ek9AppParameters.indexOf(option);
     optionIndex++;
     if (optionIndex < ek9AppParameters.size()) {
-      return ek9AppParameters.get(optionIndex);
+      rtn = ek9AppParameters.get(optionIndex);
     }
-    return null;
+    return rtn;
   }
 
   public boolean isInstall() {

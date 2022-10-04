@@ -1,8 +1,6 @@
 package org.ek9lang.core.utils;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.nio.file.FileSystems;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.exception.CompilerException;
