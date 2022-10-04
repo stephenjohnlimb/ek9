@@ -2,7 +2,6 @@ package org.ek9lang.cli;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -11,6 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.core.exception.CompilerException;
+import org.ek9lang.core.utils.ExceptionConverter;
+import org.ek9lang.core.utils.Processor;
 
 /**
  * Base for the versioning commands.
@@ -33,28 +34,32 @@ public abstract class Eve extends E {
    * Just sets the new version into the source file.
    */
   public boolean setVersionNewNumber(Version newVersion) {
-    try {
+
+    Processor processor = () -> {
       List<String> output = loadAndUpdateVersionFromSourceFile(newVersion);
       if (!output.isEmpty()) {
         saveUpdatedSourceFile(output);
         return true;
       }
-    } catch (Exception ex) {
-      report("Failed to set version in  " + commandLine.getFullPathToSourceFileName()
-          + " " + ex.getMessage());
-    }
-    return false;
+      return false;
+    };
+    return new ExceptionConverter().apply(processor);
   }
 
-  private void saveUpdatedSourceFile(List<String> output) throws IOException {
+  private void saveUpdatedSourceFile(List<String> output) {
     //Now write it back out
-    try (PrintWriter writer = new PrintWriter(commandLine.getFullPathToSourceFileName(),
-        StandardCharsets.UTF_8)) {
-      output.forEach(writer::println);
-    }
+
+    Processor processor = () -> {
+      try (PrintWriter writer = new PrintWriter(commandLine.getFullPathToSourceFileName(),
+          StandardCharsets.UTF_8)) {
+        output.forEach(writer::println);
+        return true;
+      }
+    };
+    new ExceptionConverter().apply(processor);
   }
 
-  private List<String> loadAndUpdateVersionFromSourceFile(Version newVersion) throws IOException {
+  private List<String> loadAndUpdateVersionFromSourceFile(Version newVersion) {
     //Now for processing of existing to get the line number.
     Integer versionLineNumber = commandLine.processEk9FileProperties(true);
     return versionLineNumber != null ? updateVersionOnLineNumber(newVersion, versionLineNumber) :
@@ -62,22 +67,25 @@ public abstract class Eve extends E {
   }
 
   private List<String> updateVersionOnLineNumber(final Version newVersion,
-                                                 final Integer versionLineNumber)
-      throws IOException {
+                                                 final Integer versionLineNumber) {
     List<String> output = new ArrayList<>();
 
-    try (BufferedReader br = new BufferedReader(
-        new FileReader(commandLine.getFullPathToSourceFileName()))) {
-      int lineCount = 0;
-      String line;
-      while ((line = br.readLine()) != null) {
-        lineCount++;
-        if (lineCount == versionLineNumber) {
-          line = updateVersionOnLine(newVersion, line);
+    Processor processor = () -> {
+      try (BufferedReader br = new BufferedReader(
+          new FileReader(commandLine.getFullPathToSourceFileName()))) {
+        int lineCount = 0;
+        String line;
+        while ((line = br.readLine()) != null) {
+          lineCount++;
+          if (lineCount == versionLineNumber) {
+            line = updateVersionOnLine(newVersion, line);
+          }
+          output.add(line);
         }
-        output.add(line);
       }
-    }
+      return true;
+    };
+    new ExceptionConverter().apply(processor);
     return output;
   }
 

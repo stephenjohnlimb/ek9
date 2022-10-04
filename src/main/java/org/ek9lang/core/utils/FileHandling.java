@@ -10,6 +10,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.exception.CompilerException;
 
@@ -20,6 +21,8 @@ public final class FileHandling {
   private final OsSupport osSupport;
   private final Packager packager;
   private final Ek9DirectoryStructure directoryStructure;
+
+  private final ExceptionConverter writer = new ExceptionConverter();
 
   /**
    * Create File Handling with the appropriately configured OS support.
@@ -90,41 +93,36 @@ public final class FileHandling {
   /**
    * Copy a file to a new destination.
    */
-  public boolean copy(File fullSourcePath, File fullDestinationPath) {
-    try {
+  public boolean copy(final File fullSourcePath, final File fullDestinationPath) {
+
+    Processor accessor = () -> {
       Path originalPath = fullSourcePath.toPath();
       Path targetPath = fullDestinationPath.toPath();
       Files.copy(originalPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
       return true;
-    } catch (Exception ex) {
-      Logger.error("File copy failed: " + ex.getMessage());
-      return false;
-    }
+    };
+    return writer.apply(accessor);
   }
 
   /**
    * Save some text to a file.
    */
-  public boolean saveToOutput(File file, String value) {
-    try (OutputStream output = new FileOutputStream(file)) {
-      output.write(value.getBytes(StandardCharsets.UTF_8));
-      return true;
-    } catch (Exception ex) {
-      Logger.error("Unable to save " + file.getPath() + " " + ex.getMessage());
-      return false;
-    }
+  public boolean saveToOutput(final File file, final String value) {
+    Processor accessor = () -> {
+      try (OutputStream output = new FileOutputStream(file)) {
+        output.write(value.getBytes(StandardCharsets.UTF_8));
+        return true;
+      }
+    };
+    return writer.apply(accessor);
   }
 
   /**
    * Deletes a file if it exists or a compiler exception if it cannot be deleted.
    */
-  public void deleteFileIfExists(File file) {
+  public void deleteFileIfExists(final File file) {
     AssertValue.checkNotNull("File cannot be null", file);
-    try {
-      Files.deleteIfExists(file.toPath());
-    } catch (Exception ex) {
-      throw new CompilerException("Unable to delete [" + ex.getMessage() + "]", ex);
-    }
+    writer.apply(() -> Files.deleteIfExists(file.toPath()));
   }
 
   /**
