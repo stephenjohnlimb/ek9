@@ -57,10 +57,12 @@ public abstract class Eve extends E {
   private List<String> loadAndUpdateVersionFromSourceFile(Version newVersion) throws IOException {
     //Now for processing of existing to get the line number.
     Integer versionLineNumber = commandLine.processEk9FileProperties(true);
-    return versionLineNumber != null ? updateVersionOnLineNumber(newVersion, versionLineNumber) : List.of();
+    return versionLineNumber != null ? updateVersionOnLineNumber(newVersion, versionLineNumber) :
+        List.of();
   }
 
-  private List<String> updateVersionOnLineNumber(final Version newVersion, final Integer versionLineNumber)
+  private List<String> updateVersionOnLineNumber(final Version newVersion,
+                                                 final Integer versionLineNumber)
       throws IOException {
     List<String> output = new ArrayList<>();
 

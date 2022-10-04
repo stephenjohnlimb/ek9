@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -225,8 +226,7 @@ public class CommandLineDetails {
               }
             } else if (versioningOption.equals("-SV")) {
               if (!Eve.Version.withNoFeatureNoBuildNumber(versionParam).isValid()) {
-                Logger.error(
-                    "Set Version: expecting major.minor.patch [" + commandLine + "]");
+                Logger.error("Set Version: expecting major.minor.patch [" + commandLine + "]");
                 return Ek9.BAD_COMMANDLINE_EXIT_CODE;
               }
             } else {
@@ -248,16 +248,41 @@ public class CommandLineDetails {
     return Ek9.RUN_COMMAND_EXIT_CODE;
   }
 
+  private Optional<Integer> checkHelpOrVersion() {
+    Optional<Integer> rtn = Optional.empty();
+    if (isHelp()) {
+      rtn = Optional.of(showHelp());
+    } else if (isVersionOfEk9Option()) {
+      rtn = Optional.of(showVersionOfEk9());
+    }
+    return rtn;
+  }
+
+  private Optional<Integer> checkInappropriateProgram() {
+    final String errorSuffix =
+        mainSourceFile.getName() + " does not require or use program parameters.";
+    Optional<Integer> rtn = Optional.empty();
+    if (ek9ProgramToRun != null) {
+      if (isJustBuildTypeOption()) {
+        Logger.error("A Build request for " + errorSuffix);
+        rtn = Optional.of(Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE);
+      }
+      if (isReleaseVectorOption()) {
+        Logger.error("A modification to version number for " + errorSuffix);
+        rtn = Optional.of(Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE);
+      }
+    }
+    return rtn;
+  }
+
   /**
    * Assess the values extracted from the command line to see if they are valid and viable.
    */
   private int assessCommandLine(String commandLine) {
-    if (isHelp()) {
-      return showHelp();
-    }
 
-    if (isVersionOfEk9Option()) {
-      return showVersionOfEk9();
+    var helpOrVersion = checkHelpOrVersion();
+    if (helpOrVersion.isPresent()) {
+      return helpOrVersion.get();
     }
 
     appendRunOptionIfNecessary();
@@ -275,15 +300,9 @@ public class CommandLineDetails {
 
       processEk9FileProperties(false);
 
-      if (isJustBuildTypeOption() && ek9ProgramToRun != null) {
-        Logger.error("A Build request for "
-            + mainSourceFile.getName() + " does not require or use program parameters.");
-        return Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE;
-      }
-      if (isReleaseVectorOption() && ek9ProgramToRun != null) {
-        Logger.error("A modification to version number for "
-            + mainSourceFile.getName() + " does not require or use program parameters.");
-        return Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE;
+      var inappropriateProgramUse = checkInappropriateProgram();
+      if (inappropriateProgramUse.isPresent()) {
+        return inappropriateProgramUse.get();
       }
 
       if (isRunOption()) {
@@ -337,14 +356,10 @@ public class CommandLineDetails {
     //Check program name is actually in the list of programs
     if (!programs.contains(ek9ProgramToRun)) {
       var builder = new StringBuilder("Program must be one of");
-      programs.stream()
-          .map(programName -> " '" + programName + "'")
-          .forEach(builder::append);
+      programs.stream().map(programName -> " '" + programName + "'").forEach(builder::append);
 
-      builder.append(", source file ")
-          .append(mainSourceFile.getName())
-          .append(" does not have program '")
-          .append(ek9ProgramToRun).append("'");
+      builder.append(", source file ").append(mainSourceFile.getName())
+          .append(" does not have program '").append(ek9ProgramToRun).append("'");
 
       Logger.error(builder.toString());
 
@@ -384,68 +399,87 @@ public class CommandLineDetails {
 
   private Integer establishSourceProperties(File sourceFile, boolean forceRegeneration) {
     Ek9ProjectProperties versionProperties = new Ek9ProjectProperties(getSourcePropertiesFile());
+    updateFromVersionProperties(versionProperties);
+
     Integer rtn = null;
-    if (versionProperties.exists()) {
-      Properties properties = versionProperties.loadProperties();
-      //There will always be a moduleName - but the rest may not be present.
-      moduleName = properties.getProperty("moduleName");
 
-      depsFingerPrint = properties.getProperty("depsFingerPrint");
-      String thePrograms = properties.getProperty("programs");
-      if (thePrograms != null) {
-        this.programs = Arrays.asList(thePrograms.split(","));
-      }
-
-      String hasPackage = properties.getProperty("package");
-      if (hasPackage != null) {
-        packagePresent = hasPackage.equals("true");
-      }
-
-      String ver = properties.getProperty("version");
-      if (ver != null) {
-        version = ver;
-      }
-    }
-
-    if (versionProperties.isNewerThan(sourceFile) && !forceRegeneration) {
-      if (isVerbose()) {
-        Logger.error("Props   : Reusing " + versionProperties.getFileName());
-      }
-    } else {
+    if (!versionProperties.isNewerThan(sourceFile) || forceRegeneration) {
       if (isVerbose()) {
         Logger.error("Props   : Regenerating " + versionProperties.getFileName());
       }
-
-      visitor = getSourceVisitor();
-      var optionalDetails = visitor.getPackageDetails();
-
-      if (optionalDetails.isPresent()) {
-        var packageDetails = optionalDetails.get();
-        moduleName = packageDetails.moduleName();
-        programs = packageDetails.programs();
-        packagePresent = packageDetails.packagePresent();
-        version = packageDetails.version();
-
-        String oldFingerPrint = depsFingerPrint;
-        depsFingerPrint = packageDetails.dependencyFingerPrint();
-
-        if (oldFingerPrint != null && !oldFingerPrint.equals(depsFingerPrint)) {
-          dependenciesAltered = true;
-        }
-
-        Properties properties = new Properties();
-        properties.setProperty("sourceFile", sourceFile.getName());
-        properties.setProperty("moduleName", moduleName);
-        properties.setProperty("programs", versionProperties.prepareListForStorage(programs));
-        properties.setProperty("depsFingerPrint", depsFingerPrint);
-
-        if (version != null) {
-          properties.setProperty("version", version);
-          rtn = packageDetails.versionNumberOnLine();
-        }
-        properties.setProperty("package", Boolean.toString(packagePresent));
-        versionProperties.storeProperties(properties);
+      rtn = reprocessProperties(sourceFile, versionProperties);
+    } else {
+      if (isVerbose()) {
+        Logger.error("Props   : Reusing " + versionProperties.getFileName());
       }
+    }
+    return rtn;
+  }
+
+  private void updateFromVersionProperties(Ek9ProjectProperties versionProperties) {
+    if (versionProperties.exists()) {
+      Properties properties = versionProperties.loadProperties();
+      //There will always be a moduleName/finger-print - but the rest may not be present.
+      moduleName = properties.getProperty("moduleName");
+      depsFingerPrint = properties.getProperty("depsFingerPrint");
+      updatePrograms(properties);
+      updatePackage(properties);
+      updateVersion(properties);
+    }
+  }
+
+  private void updatePrograms(Properties properties) {
+    String thePrograms = properties.getProperty("programs");
+    if (thePrograms != null) {
+      this.programs = Arrays.asList(thePrograms.split(","));
+    }
+  }
+
+  private void updatePackage(Properties properties) {
+    String hasPackage = properties.getProperty("package");
+    if (hasPackage != null) {
+      packagePresent = hasPackage.equals("true");
+    }
+  }
+
+  private void updateVersion(Properties properties) {
+    String ver = properties.getProperty("version");
+    if (ver != null) {
+      version = ver;
+    }
+  }
+
+  private Integer reprocessProperties(File sourceFile, Ek9ProjectProperties versionProperties) {
+    Integer rtn = null;
+    visitor = getSourceVisitor();
+    var optionalDetails = visitor.getPackageDetails();
+
+    if (optionalDetails.isPresent()) {
+      var packageDetails = optionalDetails.get();
+      moduleName = packageDetails.moduleName();
+      programs = packageDetails.programs();
+      packagePresent = packageDetails.packagePresent();
+      version = packageDetails.version();
+
+      String oldFingerPrint = depsFingerPrint;
+      depsFingerPrint = packageDetails.dependencyFingerPrint();
+
+      if (oldFingerPrint != null && !oldFingerPrint.equals(depsFingerPrint)) {
+        dependenciesAltered = true;
+      }
+
+      Properties properties = new Properties();
+      properties.setProperty("sourceFile", sourceFile.getName());
+      properties.setProperty("moduleName", moduleName);
+      properties.setProperty("programs", versionProperties.prepareListForStorage(programs));
+      properties.setProperty("depsFingerPrint", depsFingerPrint);
+
+      if (version != null) {
+        properties.setProperty("version", version);
+        rtn = packageDetails.versionNumberOnLine();
+      }
+      properties.setProperty("package", Boolean.toString(packagePresent));
+      versionProperties.storeProperties(properties);
     }
 
     return rtn;
@@ -543,7 +577,7 @@ public class CommandLineDetails {
 
   private boolean isMainParam(String param) {
     return Set.of("-c", "-ch", "-cg", "-cd", "-cdh", "-C", "-Ch", "-Cg", "-Cd", "-Cdh", "-Cl",
-        "-Dp", "-t", "-d", "-P", "-I", "-Gk", "-D", "-IV", "-SV", "-SF", "-PV", "-Up")
+            "-Dp", "-t", "-d", "-P", "-I", "-Gk", "-D", "-IV", "-SV", "-SF", "-PV", "-Up")
         .contains(param);
   }
 

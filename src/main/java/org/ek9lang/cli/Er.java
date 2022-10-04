@@ -20,8 +20,8 @@ public class Er extends E {
 
   @Override
   public boolean preConditionCheck() {
-    return Objects.equals(commandLine.targetArchitecture, Ek9DirectoryStructure.JAVA) &&
-        super.preConditionCheck();
+    return Objects.equals(commandLine.targetArchitecture, Ek9DirectoryStructure.JAVA)
+        && super.preConditionCheck();
   }
 
   protected boolean doRun() {

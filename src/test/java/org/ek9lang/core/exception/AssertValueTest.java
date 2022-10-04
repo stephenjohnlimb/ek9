@@ -1,6 +1,7 @@
 package org.ek9lang.core.exception;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,31 +15,21 @@ final class AssertValueTest {
 
   @Test
   void testNullRange() {
-    assertThrows(IllegalArgumentException.class, () -> {
-      Date toCheck = null;
-      AssertValue.checkRange("Outside range", null, 1, 10);
-    });
+    assertThrows(IllegalArgumentException.class, () -> AssertValue.checkRange("Outside range", null, 1, 10));
   }
 
   @Test
   void testLowerRange() {
-    assertThrows(IllegalArgumentException.class, () -> {
-      Date toCheck = null;
-      AssertValue.checkRange("Outside range", -1, 1, null);
-    });
+    assertThrows(IllegalArgumentException.class, () -> AssertValue.checkRange("Outside range", -1, 1, null));
   }
 
   @Test
   void testUpperRange() {
-    assertThrows(IllegalArgumentException.class, () -> {
-      Date toCheck = null;
-      AssertValue.checkRange("Outside range", 11, null, 10);
-    });
+    assertThrows(IllegalArgumentException.class, () -> AssertValue.checkRange("Outside range", 11, null, 10));
   }
 
   @Test
   void testRange() {
-    Date toCheck = null;
     AssertValue.checkRange("Outside range", 1, 0, 10);
     //No exception
   }
@@ -46,20 +37,16 @@ final class AssertValueTest {
   @Test
   void testOptionNotEmpty() {
     var empty = Optional.empty();
-    assertThrows(IllegalArgumentException.class, () -> {
-      AssertValue.checkNotEmpty("Should not be empty", empty);
-    });
+    assertThrows(IllegalArgumentException.class, () -> AssertValue.checkNotEmpty("Should not be empty", empty));
   }
 
   @Test
   void testOption() {
-    Date toCheck = null;
     AssertValue.checkNotEmpty("Should not be empty", Optional.of(5));
   }
 
   @Test
   void testCollectionEmpty() {
-    Date toCheck = null;
     AssertValue.checkNotEmpty("Should not be empty",
         Arrays.asList("Buenos Aires", "Córdoba", "La Plata"));
   }
@@ -87,9 +74,7 @@ final class AssertValueTest {
 
   @Test
   void testCheckTrue() {
-    assertThrows(IllegalArgumentException.class, () -> {
-      AssertValue.checkTrue("Cannot be false", false);
-    });
+    assertThrows(IllegalArgumentException.class, () -> AssertValue.checkTrue("Cannot be false", false));
   }
 
   @Test
@@ -151,20 +136,16 @@ final class AssertValueTest {
 
   @Test
   void testNullNotFoundFile() {
-    assertThrows(IllegalArgumentException.class, () -> {
-      AssertValue.checkCanReadFile("File Cannot be found", (File) null);
-    });
+    assertThrows(IllegalArgumentException.class, () -> AssertValue.checkCanReadFile("File Cannot be found", (File) null));
   }
 
   @Test
   void testNotFoundFile() {
-    assertThrows(IllegalArgumentException.class, () -> {
-      AssertValue.checkCanReadFile("File Cannot be found", "nosuchfile");
-    });
+    assertThrows(IllegalArgumentException.class, () -> AssertValue.checkCanReadFile("File Cannot be found", "nosuchfile"));
   }
 
   @Test
-  void testInAccessibleReadableDirectory() throws IOException {
+  void testInAccessibleReadableDirectory() {
     assertThrows(IllegalArgumentException.class, () -> {
       String dir = "D";
       AssertValue.checkDirectoryReadable("Must be able to read from", dir);
@@ -172,7 +153,7 @@ final class AssertValueTest {
   }
 
   @Test
-  void testInAccessibleWritableDirectory() throws IOException {
+  void testInAccessibleWritableDirectory() {
     assertThrows(IllegalArgumentException.class, () -> {
       String dir = "D";
       AssertValue.checkDirectoryWritable("Must be able to read from", dir);
@@ -180,21 +161,21 @@ final class AssertValueTest {
   }
 
   @Test
-  void testInAccessibleFileReadableDirectory() throws IOException {
+  void testInAccessibleFileReadableDirectory() {
     final File dir = new File("D");
     assertThrows(IllegalArgumentException.class,
         () -> AssertValue.checkDirectoryReadable("Must be able to read from", dir));
   }
 
   @Test
-  void testInAccessibleFileWritableDirectory() throws IOException {
+  void testInAccessibleFileWritableDirectory() {
     final File dir = new File("D");
     assertThrows(IllegalArgumentException.class,
         () -> AssertValue.checkDirectoryWritable("Must be able to read from", dir));
   }
 
   @Test
-  void testAccessibleDirectory() throws IOException {
+  void testAccessibleDirectory() {
     String tempDir = System.getProperty("java.io.tmpdir");
 
     AssertValue.checkDirectoryReadable("Must be able to read from", tempDir);
@@ -206,7 +187,7 @@ final class AssertValueTest {
   }
 
   @Test
-  void testNonReadableDirectory() throws IOException {
+  void testNonReadableDirectory() {
     assertThrows(IllegalArgumentException.class, () -> {
       String tempDir = " no such directory/";
       AssertValue.checkDirectoryReadable("Must be able to read", tempDir);
@@ -214,7 +195,7 @@ final class AssertValueTest {
   }
 
   @Test
-  void testNonWritableDirectory() throws IOException {
+  void testNonWritableDirectory() {
     assertThrows(IllegalArgumentException.class, () -> {
       String tempDir = " no such directory/";
       AssertValue.checkDirectoryWritable("Must be able to write", tempDir);
@@ -228,14 +209,14 @@ final class AssertValueTest {
     File newFile = new File(tempDir, "assertTest.txt");
     //Remove it if already there
     if (newFile.exists()) {
-      newFile.delete();
+      assertTrue(newFile.delete());
     }
 
     //make the file check can access
-    newFile.createNewFile();
+    assertTrue(newFile.createNewFile());
     AssertValue.checkCanReadFile("File Cannot be found", newFile.getAbsolutePath());
     if (newFile.exists()) {
-      newFile.delete();
+      assertTrue(newFile.delete());
     }
   }
 }

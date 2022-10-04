@@ -44,6 +44,9 @@ public class SymbolSearch implements Cloneable {
    */
   private ISymbol.SymbolCategory searchType = ISymbol.SymbolCategory.VARIABLE;
 
+  /**
+   * Clone from Symbol search into a new instance.
+   */
   public SymbolSearch(SymbolSearch from) {
     AssertValue.checkNotNull("from cannot be null for search Symbol", from);
     this.name = from.name;

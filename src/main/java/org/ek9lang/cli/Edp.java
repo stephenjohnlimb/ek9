@@ -100,8 +100,7 @@ public class Edp extends E {
     do {
       optimised = dependencyManager.optimise(iterations++);
       log("Optimisation (" + iterations + ")");
-    }
-    while (optimised);
+    } while (optimised);
   }
 
   private boolean hasSemanticVersionBreaches(DependencyManager dependencyManager) {
