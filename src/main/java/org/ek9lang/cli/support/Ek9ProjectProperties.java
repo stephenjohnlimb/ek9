@@ -6,7 +6,8 @@ import java.io.FileReader;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Properties;
-import org.ek9lang.core.utils.Logger;
+import org.ek9lang.core.utils.ExceptionConverter;
+import org.ek9lang.core.utils.Processor;
 
 /**
  * Designed only to be used on the front end of the compiler to access
@@ -43,27 +44,28 @@ public class Ek9ProjectProperties {
    * Load up all the properties and return them.
    */
   public Properties loadProperties() {
-    try (FileReader reader = new FileReader(file)) {
-      Properties properties = new Properties();
-      properties.load(reader);
-      return properties;
-    } catch (Exception ex) {
-      Logger.error("Unable to load properties " + file.getName() + " " + ex.getMessage());
-      System.exit(3);
-    }
-    //Can't get here because of exit.
-    return new Properties();
+    Properties properties = new Properties();
+
+    Processor processor = () -> {
+      try (FileReader reader = new FileReader(file)) {
+        properties.load(reader);
+        return true;
+      }
+    };
+    new ExceptionConverter().apply(processor);
+    return properties;
   }
 
   /**
    * Save the properties to the configured file.
    */
   public void storeProperties(Properties properties) {
-    try (OutputStream output = new FileOutputStream(file)) {
-      properties.store(output, "Package Properties");
-    } catch (Exception ex) {
-      Logger.error("Unable to save properties " + file.getName() + " " + ex.getMessage());
-      System.exit(3);
-    }
+    Processor processor = () -> {
+      try (OutputStream output = new FileOutputStream(file)) {
+        properties.store(output, "Package Properties");
+        return true;
+      }
+    };
+    new ExceptionConverter().apply(processor);
   }
 }

@@ -31,6 +31,7 @@ import org.ek9lang.lsp.Server;
  */
 public class Ek9 {
   private static final LanguageMetaData languageMetaData = new LanguageMetaData("0.0.1-0");
+
   /**
    * The range of exit codes that EK9 will use.
    */

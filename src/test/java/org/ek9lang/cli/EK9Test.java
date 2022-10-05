@@ -333,6 +333,13 @@ defines module net.inter1
   }
 
   @Test
+  void testSetVersioningOfPackageUsingAsVersion() {
+    assertPackageVersionOfFileChange("SinglePackage.ek9", "3.8.6-0", "-v -SV 3.8.6");
+    //Now check that it can also be incremented and appropriate resets on patch and build no.
+    assertPackageVersionOfFileChange("SinglePackage.ek9", "3.9.0-0", "-IV minor");
+  }
+
+  @Test
   void testSetFeatureVersioningOfPackage() {
     assertPackageVersionChange("3.8.6-specials-0", "-v -SF 3.8.6-specials");
     //Now check that it can also be incremented and patch/build number is reset to 0.
@@ -561,7 +568,10 @@ defines module net.inter1
   }
 
   private void assertPackageVersionChange(String expectedVersion, String command) {
-    String sourceName = "PackageNoDeps.ek9";
+    assertPackageVersionOfFileChange("PackageNoDeps.ek9", expectedVersion, command);
+  }
+
+  private void assertPackageVersionOfFileChange(String sourceName, String expectedVersion, String command) {
     String[] incrementBuildNo = new String[] {command + " " + sourceName};
 
     File sourceFile =

@@ -10,9 +10,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import org.ek9lang.core.exception.AssertValue;
-import org.ek9lang.core.exception.CompilerException;
 
 /**
  * Designed to abstract out all file handling for the compiler.

@@ -37,11 +37,11 @@ public abstract class Eve extends E {
 
     Processor processor = () -> {
       List<String> output = loadAndUpdateVersionFromSourceFile(newVersion);
-      if (!output.isEmpty()) {
+      var rtn = !output.isEmpty();
+      if (rtn) {
         saveUpdatedSourceFile(output);
-        return true;
       }
-      return false;
+      return rtn;
     };
     return new ExceptionConverter().apply(processor);
   }
@@ -62,8 +62,7 @@ public abstract class Eve extends E {
   private List<String> loadAndUpdateVersionFromSourceFile(Version newVersion) {
     //Now for processing of existing to get the line number.
     Integer versionLineNumber = commandLine.processEk9FileProperties(true);
-    return versionLineNumber != null ? updateVersionOnLineNumber(newVersion, versionLineNumber) :
-        List.of();
+    return updateVersionOnLineNumber(newVersion, versionLineNumber);
   }
 
   private List<String> updateVersionOnLineNumber(final Version newVersion,
@@ -77,7 +76,7 @@ public abstract class Eve extends E {
         String line;
         while ((line = br.readLine()) != null) {
           lineCount++;
-          if (lineCount == versionLineNumber) {
+          if (Integer.valueOf(lineCount).equals(versionLineNumber)) {
             line = updateVersionOnLine(newVersion, line);
           }
           output.add(line);
