@@ -5,6 +5,6 @@ package org.ek9lang.core.utils;
  * processing and expose any exceptions.
  */
 @FunctionalInterface
-public interface Processor {
-  boolean process() throws Exception;
+public interface Processor<T> {
+  T process() throws Exception;
 }

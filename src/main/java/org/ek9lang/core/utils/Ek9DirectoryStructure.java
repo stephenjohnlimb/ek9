@@ -225,24 +225,20 @@ public final class Ek9DirectoryStructure {
     AssertValue.checkNotEmpty("NewDir is empty", newDir);
 
     File directory = new File(baseDir, newDir);
-    if (!directory.exists() && !directory.mkdir()) {
-      Logger.error("Unable to create directory " + directory);
-      System.exit(3);
-    }
+    fileHandling.makeDirectoryIfNotExists(directory);
     return directory.getAbsolutePath();
   }
 
   private void assertTargetArchitectureSupported(String targetArchitecture) {
-    try {
+
+    Processor<Void> processor = () -> {
       AssertValue.checkNotEmpty("TargetArchitecture is empty", targetArchitecture);
       if (!targetArchitecture.equals(JAVA)) {
         throw new CompilerException("Unsupported target architecture " + targetArchitecture);
       }
-    } catch (RuntimeException rex) {
-      Logger.error(rex.getMessage());
-      //That's a hard fail and exit compiler
-      System.exit(3);
-    }
+      return null;
+    };
+    new ExceptionConverter<Void>().apply(processor);
   }
 
   private void assertEk9FullPathToFileNameValid(String path) {

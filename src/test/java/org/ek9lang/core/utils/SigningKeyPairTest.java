@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import org.ek9lang.core.exception.CompilerException;
 import org.junit.jupiter.api.Test;
 
 final class SigningKeyPairTest {
@@ -66,6 +67,9 @@ final class SigningKeyPairTest {
     String theMessage = "The quick brown fox jumps over the lazy dog";
 
     SigningKeyPair keyPair = SigningKeyPair.generate(2048);
+
+    assertTrue(keyPair.isPrivate());
+    assertTrue(keyPair.isPublic());
     String cipherText = keyPair.encryptWithPrivateKey(theMessage);
     //Logger.log("[" + cipherText + "]");
 
@@ -198,8 +202,10 @@ final class SigningKeyPairTest {
 
   @Test
   void testNullPublicKeyFile() {
-    assertFalse(SigningKeyPair.ofPublic((File) null).isPublic());
-    assertFalse(SigningKeyPair.ofPublic((File) null).isPrivate());
+    assertThrows(CompilerException.class,
+        () -> SigningKeyPair.ofPublic((File) null).isPublic());
+    assertThrows(CompilerException.class,
+        () -> SigningKeyPair.ofPublic((File) null).isPrivate());
   }
 
   @Test

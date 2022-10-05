@@ -17,6 +17,7 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
       "^" + MAJOR_R + "(\\.)" + MINOR_R + "(\\.)" + PATCH_R + "((-)" + FEATURE_R + ")?";
 
   private static final String BUILD_NO_REGEX = "(-)(?<buildNumber>\\d+)";
+
   private int major = 0;
   private int minor = 0;
   private int patch = 0;
@@ -223,9 +224,10 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
 
   @Override
   public boolean equals(Object obj) {
+    var rtn = false;
     if (obj instanceof SemanticVersion) {
-      return toString().equals(obj.toString());
+      rtn = toString().equals(obj.toString());
     }
-    return false;
+    return rtn;
   }
 }

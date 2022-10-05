@@ -140,8 +140,14 @@ final class AssertValueTest {
   }
 
   @Test
-  void testNotFoundFile() {
+  void testNotFoundFileByName() {
     assertThrows(IllegalArgumentException.class, () -> AssertValue.checkCanReadFile("File Cannot be found", "nosuchfile"));
+  }
+
+  @Test
+  void testNotFoundFile() {
+    assertThrows(IllegalArgumentException.class,
+        () -> AssertValue.checkCanReadFile("File Cannot be found", new File("/nosuchfile")));
   }
 
   @Test

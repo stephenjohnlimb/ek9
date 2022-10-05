@@ -35,7 +35,7 @@ public abstract class Eve extends E {
    */
   public boolean setVersionNewNumber(Version newVersion) {
 
-    Processor processor = () -> {
+    Processor<Boolean> processor = () -> {
       List<String> output = loadAndUpdateVersionFromSourceFile(newVersion);
       var rtn = !output.isEmpty();
       if (rtn) {
@@ -43,20 +43,20 @@ public abstract class Eve extends E {
       }
       return rtn;
     };
-    return new ExceptionConverter().apply(processor);
+    return new ExceptionConverter<Boolean>().apply(processor);
   }
 
   private void saveUpdatedSourceFile(List<String> output) {
     //Now write it back out
 
-    Processor processor = () -> {
+    Processor<Boolean> processor = () -> {
       try (PrintWriter writer = new PrintWriter(commandLine.getFullPathToSourceFileName(),
           StandardCharsets.UTF_8)) {
         output.forEach(writer::println);
         return true;
       }
     };
-    new ExceptionConverter().apply(processor);
+    new ExceptionConverter<Boolean>().apply(processor);
   }
 
   private List<String> loadAndUpdateVersionFromSourceFile(Version newVersion) {
@@ -69,7 +69,7 @@ public abstract class Eve extends E {
                                                  final Integer versionLineNumber) {
     List<String> output = new ArrayList<>();
 
-    Processor processor = () -> {
+    Processor<Boolean> processor = () -> {
       try (BufferedReader br = new BufferedReader(
           new FileReader(commandLine.getFullPathToSourceFileName()))) {
         int lineCount = 0;
@@ -84,7 +84,7 @@ public abstract class Eve extends E {
       }
       return true;
     };
-    new ExceptionConverter().apply(processor);
+    new ExceptionConverter<Boolean>().apply(processor);
     return output;
   }
 

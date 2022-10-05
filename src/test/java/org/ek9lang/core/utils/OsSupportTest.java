@@ -13,6 +13,8 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import org.ek9lang.core.exception.CompilerException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 final class OsSupportTest {
@@ -22,6 +24,13 @@ final class OsSupportTest {
   void testNumberOfProcessors() {
     int count = underTest.getNumberOfProcessors();
     assertTrue(count > 1);
+  }
+
+  @Test
+  void checkFailToCreateDirectory() {
+    assertFalse(underTest.isInStubMode());
+    assertThrows(CompilerException.class,
+        () -> underTest.makeDirectoryIfNotExists(new File("/not valid directory")));
   }
 
   @Test

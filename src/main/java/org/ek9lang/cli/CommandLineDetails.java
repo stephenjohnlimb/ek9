@@ -279,6 +279,7 @@ public class CommandLineDetails {
   private boolean isInvalidEk9Parameter(boolean processingEk9Parameters, String parameter) {
     return processingEk9Parameters && isParameterUnacceptable(parameter);
   }
+
   /**
    * Extract the details of the command line out.
    * There are some basic checks here, but only up to a point.

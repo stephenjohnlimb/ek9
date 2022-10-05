@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.exception.CompilerException;
@@ -28,11 +27,8 @@ public final class Digest {
    * Access a sha1 message digest.
    */
   public static MessageDigest getSha256() {
-    try {
-      return MessageDigest.getInstance("SHA-256");
-    } catch (NoSuchAlgorithmException e) {
-      throw new CompilerException("Unable to create SHA256 Message Digest", e);
-    }
+    Processor<MessageDigest> processor = () -> MessageDigest.getInstance("SHA-256");
+    return new ExceptionConverter<MessageDigest>().apply(processor);
   }
 
   /**
@@ -83,13 +79,12 @@ public final class Digest {
    * A Checksum.
    */
   public static final class CheckSum {
-    private byte[] theCheckSum = null;
-
+    private final byte[] theCheckSum;
     /**
      * Load a checksum from a file.
      */
     public CheckSum(File sha256File) {
-      this.loadFromFile(sha256File);
+      this.theCheckSum = this.loadFromFile(sha256File);
     }
 
     public CheckSum(byte[] checksum) {
@@ -109,20 +104,19 @@ public final class Digest {
       }
 
       if (obj instanceof CheckSum cs) {
-        return checkBytesSame(cs.theCheckSum, theCheckSum);
+        return checkBytesSame(theCheckSum, cs.theCheckSum);
       }
 
       if (obj instanceof byte[] bytes) {
-        return checkBytesSame(bytes, theCheckSum);
+        if(bytes != null) {
+          return checkBytesSame(theCheckSum, bytes);
+        }
       }
 
       return false;
     }
 
     private boolean checkBytesSame(byte[] checksum1, byte[] checksum2) {
-      if (checksum1 == null || checksum2 == null) {
-        return false;
-      }
       if (checksum1.length != checksum2.length) {
         return false;
       }
@@ -142,25 +136,34 @@ public final class Digest {
     /**
      * Just save this digest to a file.
      */
-    public void saveToFile(File sha256File) {
-      try (OutputStream output = new FileOutputStream(sha256File)) {
-        //Don't include the file name - because it might be very long, and we need to
-        //keep what we have to send short because it is going to use PKI to encrypt it.
-        String content = this + " *-\n";
-        output.write(content.getBytes());
-      } catch (Exception ex) {
-        Logger.error("Unable to save " + sha256File.getName() + " " + ex.getMessage());
-      }
+    public byte[] saveToFile(final File sha256File) {
+
+      Processor<byte[]> processor = () -> {
+        try (OutputStream output = new FileOutputStream(sha256File)) {
+          //Don't include the file name - because it might be very long, and we need to
+          //keep what we have to send short because it is going to use PKI to encrypt it.
+          String content = this + " *-\n";
+          var rtn = content.getBytes();
+          output.write(rtn);
+          return rtn;
+        }
+      };
+      return run(processor);
     }
 
-    private void loadFromFile(File sha256File) {
-      try (InputStream is = new BufferedInputStream(new FileInputStream(sha256File))) {
-        String line = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-        String firstPart = line.split(" ")[0];
-        theCheckSum = Hex.toByteArray(firstPart);
-      } catch (Exception ex) {
-        Logger.error("Unable to load " + sha256File.getName() + " " + ex.getMessage());
-      }
+    private byte[] loadFromFile(File sha256File) {
+      Processor<byte[]> processor = () -> {
+        try (InputStream is = new BufferedInputStream(new FileInputStream(sha256File))) {
+          String line = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+          String firstPart = line.split(" ")[0];
+          return Hex.toByteArray(firstPart);
+        }
+      };
+      return run(processor);
+    }
+
+    private byte[] run(Processor<byte[]> processor) {
+      return new ExceptionConverter<byte[]>().apply(processor);
     }
   }
 }

@@ -9,7 +9,7 @@ class ExceptionConverterTest {
 
   @Test
   void testWithException() {
-    ExceptionConverter underTest = new ExceptionConverter();
+    ExceptionConverter underTest = new ExceptionConverter<Boolean>();
 
     Exception exception = assertThrows(CompilerException.class,
         () -> underTest.apply(() -> { throw new Exception("A test");}));

@@ -144,16 +144,15 @@ public final class OsSupport {
    * Load up a file into a String. Option empty if not possible to load.
    */
   public Optional<String> getFileContent(File file) {
-    if (!isFileReadable(file)) {
-      return Optional.empty();
-    }
-
-    try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
-      String line = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-      return Optional.ofNullable(line);
-    } catch (IOException ioex) {
-      return Optional.empty();
-    }
+    final StringBuilder builder = new StringBuilder();
+    Processor<Boolean> processor = () -> {
+      try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
+        builder.append(new String(is.readAllBytes(), StandardCharsets.UTF_8));
+      }
+      return true;
+    };
+    new ExceptionConverter<Boolean>().apply(processor);
+    return Optional.of(builder.toString());
   }
 
   public boolean isDirectoryReadable(String directoryName) {

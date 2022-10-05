@@ -20,7 +20,7 @@ public final class FileHandling {
   private final Packager packager;
   private final Ek9DirectoryStructure directoryStructure;
 
-  private final ExceptionConverter writer = new ExceptionConverter();
+  private final ExceptionConverter<Boolean> writer = new ExceptionConverter<>();
 
   /**
    * Create File Handling with the appropriately configured OS support.
@@ -93,7 +93,7 @@ public final class FileHandling {
    */
   public boolean copy(final File fullSourcePath, final File fullDestinationPath) {
 
-    Processor accessor = () -> {
+    Processor<Boolean> accessor = () -> {
       Path originalPath = fullSourcePath.toPath();
       Path targetPath = fullDestinationPath.toPath();
       Files.copy(originalPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
@@ -106,7 +106,7 @@ public final class FileHandling {
    * Save some text to a file.
    */
   public boolean saveToOutput(final File file, final String value) {
-    Processor accessor = () -> {
+    Processor<Boolean> accessor = () -> {
       try (OutputStream output = new FileOutputStream(file)) {
         output.write(value.getBytes(StandardCharsets.UTF_8));
         return true;

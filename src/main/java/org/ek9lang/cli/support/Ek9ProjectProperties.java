@@ -46,13 +46,13 @@ public class Ek9ProjectProperties {
   public Properties loadProperties() {
     Properties properties = new Properties();
 
-    Processor processor = () -> {
+    Processor<Boolean> processor = () -> {
       try (FileReader reader = new FileReader(file)) {
         properties.load(reader);
         return true;
       }
     };
-    new ExceptionConverter().apply(processor);
+    new ExceptionConverter<Boolean>().apply(processor);
     return properties;
   }
 
@@ -60,12 +60,12 @@ public class Ek9ProjectProperties {
    * Save the properties to the configured file.
    */
   public void storeProperties(Properties properties) {
-    Processor processor = () -> {
+    Processor<Boolean> processor = () -> {
       try (OutputStream output = new FileOutputStream(file)) {
         properties.store(output, "Package Properties");
         return true;
       }
     };
-    new ExceptionConverter().apply(processor);
+    new ExceptionConverter<Boolean>().apply(processor);
   }
 }

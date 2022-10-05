@@ -177,10 +177,11 @@ public final class DependencyNode {
 
   @Override
   public boolean equals(Object obj) {
+    var rtn = false;
     if (obj instanceof DependencyNode dep) {
-      return getModuleAndVersion().equals(dep.getModuleAndVersion());
+      rtn = getModuleAndVersion().equals(dep.getModuleAndVersion());
     }
-    return super.equals(obj);
+    return rtn;
   }
 
   private String getModuleAndVersion() {

@@ -7,7 +7,6 @@ import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -52,14 +51,8 @@ public final class SigningKeyPair {
   }
 
   private static KeyPairGenerator getRsaKeyPairGenerator() {
-    try {
-      return KeyPairGenerator.getInstance("RSA");
-    } catch (NoSuchAlgorithmException e) {
-      Logger.error("Failed to create public private key pair: " + e.getMessage());
-      //Show-stopper.
-      System.exit(3);
-    }
-    return null;
+    Processor<KeyPairGenerator> processor = () -> KeyPairGenerator.getInstance("RSA");
+    return new ExceptionConverter<KeyPairGenerator>().apply(processor);
   }
 
   /**
@@ -97,16 +90,16 @@ public final class SigningKeyPair {
   }
 
   private static String asBase64(File keyFile) {
-    try (FileInputStream fis = new FileInputStream(keyFile)) {
-      return new String(fis.readAllBytes(), StandardCharsets.UTF_8);
-    } catch (Exception ex) {
-      Logger.error("Failed to open file: " + ex.getMessage());
-      return null;
-    }
+    Processor<String> processor = () -> {
+      try (FileInputStream fis = new FileInputStream(keyFile)) {
+        return new String(fis.readAllBytes(), StandardCharsets.UTF_8);
+      }
+    };
+    return new ExceptionConverter<String>().apply(processor);
   }
 
   private static PublicKey publicFromBase64(String publicBase64) {
-    try {
+    Processor<PublicKey> processor = () -> {
       String publicKeyPem = publicBase64
           .replace("\\n", "")
           .replace("-----BEGIN PUBLIC KEY-----", "")
@@ -118,14 +111,12 @@ public final class SigningKeyPair {
       KeyFactory keyFactory = KeyFactory.getInstance("RSA");
       X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encoded);
       return keyFactory.generatePublic(keySpec);
-    } catch (Exception ex) {
-      Logger.error("Unable to load pubic key " + ex.getMessage());
-    }
-    return null;
+    };
+    return new ExceptionConverter<PublicKey>().apply(processor);
   }
 
   private static PrivateKey privateFromBase64(String privateBase64) {
-    try {
+    Processor<PrivateKey> processor = () -> {
       String privateKeyPem = privateBase64
           .replace("\\n", "")
           .replace("-----BEGIN PRIVATE KEY-----", "")
@@ -137,20 +128,15 @@ public final class SigningKeyPair {
       KeyFactory keyFactory = KeyFactory.getInstance("RSA");
       PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
       return keyFactory.generatePrivate(keySpec);
-    } catch (Exception ex) {
-      Logger.error("Unable to load private key " + ex.getMessage());
-    }
-    return null;
+    };
+
+    return new ExceptionConverter<PrivateKey>().apply(processor);
   }
 
   @SuppressWarnings("java:S5542")
   private Cipher getRsaCipher() {
-    try {
-      return Cipher.getInstance("RSA");
-    } catch (Exception ex) {
-      Logger.error("Unable to get RSA Cipher");
-    }
-    return null;
+    Processor<Cipher> processor = () -> Cipher.getInstance("RSA");
+    return new ExceptionConverter<Cipher>().apply(processor);
   }
 
   public boolean isPublic() {

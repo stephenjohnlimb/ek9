@@ -112,8 +112,15 @@ final class SemanticVersionTest {
     assertTrue(
         SemanticVersion.of("1.0.0-alpha-2").compareTo(SemanticVersion.of("1.0.0-beta-1")) < 0);
 
+    assertTrue(
+        SemanticVersion.of("1.0.0-alpha-2").compareTo(SemanticVersion.of("1.0.0-alpha-3")) < 0);
+
+    assertTrue(
+        SemanticVersion.of("1.0.0-alpha-3").compareTo(SemanticVersion.of("1.0.0-alpha-2")) > 0);
+
     //Because it is a feature.
     assertTrue(SemanticVersion.of("1.0.0-alpha-2").compareTo(SemanticVersion.of("1.0.0-1")) < 0);
+    assertTrue(SemanticVersion.of("1.0.0-1").compareTo(SemanticVersion.of("1.0.0-alpha-2")) > 0);
   }
 
 }

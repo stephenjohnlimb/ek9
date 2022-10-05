@@ -28,6 +28,18 @@ import org.junit.jupiter.api.Test;
  * The compiler will find that out and builds will fail, that module package will be useless.
  */
 final class DependencyTest {
+
+  @Test
+  void testEquality() {
+
+    DependencyNode n1 = DependencyNode.of("a.b.c-1.0.0-0");
+    DependencyNode n2 = DependencyNode.of("a.b.c-1.0.0-0");
+
+    assertEquals(n1, n2);
+
+    assertEquals(n1.hashCode(), n2.hashCode());
+  }
+
   @Test
   void testEmptyDependencies() {
     DependencyNode n = DependencyNode.of("a.b.c-1.0.0-0");
