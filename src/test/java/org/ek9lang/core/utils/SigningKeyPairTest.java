@@ -201,6 +201,7 @@ final class SigningKeyPairTest {
   }
 
   @Test
+  @SuppressWarnings("java:S5778")
   void testNullPublicKeyFile() {
     assertThrows(CompilerException.class,
         () -> SigningKeyPair.ofPublic((File) null).isPublic());

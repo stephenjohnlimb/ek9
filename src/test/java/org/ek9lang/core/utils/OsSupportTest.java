@@ -29,8 +29,9 @@ final class OsSupportTest {
   @Test
   void checkFailToCreateDirectory() {
     assertFalse(underTest.isInStubMode());
+    var file = new File("/not valid directory");
     assertThrows(CompilerException.class,
-        () -> underTest.makeDirectoryIfNotExists(new File("/not valid directory")));
+        () -> underTest.makeDirectoryIfNotExists(file));
   }
 
   @Test

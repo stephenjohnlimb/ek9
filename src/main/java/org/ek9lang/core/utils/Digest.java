@@ -80,6 +80,7 @@ public final class Digest {
    */
   public static final class CheckSum {
     private final byte[] theCheckSum;
+
     /**
      * Load a checksum from a file.
      */
@@ -108,9 +109,7 @@ public final class Digest {
       }
 
       if (obj instanceof byte[] bytes) {
-        if(bytes != null) {
-          return checkBytesSame(theCheckSum, bytes);
-        }
+        return checkBytesSame(theCheckSum, bytes);
       }
 
       return false;

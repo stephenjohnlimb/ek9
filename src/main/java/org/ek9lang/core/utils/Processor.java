@@ -5,6 +5,7 @@ package org.ek9lang.core.utils;
  * processing and expose any exceptions.
  */
 @FunctionalInterface
+@SuppressWarnings("java:S112")
 public interface Processor<T> {
   T process() throws Exception;
 }
