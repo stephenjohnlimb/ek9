@@ -199,10 +199,11 @@ public class SymbolTable implements IScope {
 
   @Override
   public boolean equals(final Object obj) {
+    var rtn = false;
     if (obj instanceof IScope scope) {
-      return getFriendlyScopeName().equals((scope).getFriendlyScopeName());
+      rtn = getFriendlyScopeName().equals(scope.getFriendlyScopeName());
     }
-    return false;
+    return rtn;
   }
 
   /**

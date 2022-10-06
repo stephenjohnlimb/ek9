@@ -2,6 +2,7 @@ package org.ek9lang.compiler.symbol.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,6 +33,22 @@ import org.junit.jupiter.api.Test;
  * The Symbol Table is used in many contexts.
  */
 final class SymbolTableTest {
+
+  @Test
+  void testEquality() {
+    var st1 = new SymbolTable();
+    var st2 = new SymbolTable();
+
+    assertEquals(st1, st2);
+    assertEquals(st1.hashCode(), st2.hashCode());
+
+    var st3 = new SymbolTable("GeneralTable");
+    assertNotEquals(st1, st3);
+    assertNotEquals(st1.hashCode(), st3.hashCode());
+
+    //actually really to be used in local scopes.
+    assertTrue(st1.isTerminatedNormally());
+  }
 
   @Test
   void testSearchEmptySymbolTable() {

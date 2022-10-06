@@ -13,11 +13,12 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
 /**
- * Represents a symbol that also has a scope. Typically this means it can have variables,
+ * Represents a symbol that also has a scope. Typically, this means it can have variables,
  * methods and function declared within it. But also includes block scoped constructs like
  * for loops for example.
  */
 public class ScopedSymbol extends Symbol implements IScopedSymbol {
+
   private final LocalScope actualScope;
 
   /**

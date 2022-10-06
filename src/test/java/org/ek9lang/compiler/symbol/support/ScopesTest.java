@@ -23,6 +23,8 @@ import org.ek9lang.compiler.symbol.StreamCallSymbol;
 import org.ek9lang.compiler.symbol.SwitchSymbol;
 import org.ek9lang.compiler.symbol.TrySymbol;
 import org.ek9lang.compiler.symbol.VariableSymbol;
+import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.utils.Logger;
@@ -34,15 +36,70 @@ import org.junit.jupiter.api.Test;
  * Does not fully test aggregates and the like, just their scoped type natures.
  */
 final class ScopesTest extends AbstractSymbolTestBase {
+
   @Test
   void testLocalScope() {
-    var local = new LocalScope(symbolTable);
+    var local1 = new LocalScope(symbolTable);
+    var local2 = new LocalScope(symbolTable);
 
-    assertNotNull(local);
-    assertEquals(IScope.ScopeType.BLOCK, local.getScopeType());
-    assertFalse(local.isMarkedPure());
-    assertTrue(local.isScopeAMatchForEnclosingScope(symbolTable));
-    assertFalse(local.isScopeAMatchForEnclosingScope(new SymbolTable()));
+    //These will be considered equal
+    assertEquals(local1, local2);
+    assertEquals(local1.hashCode(), local2.hashCode());
+
+    assertNotNull(local1);
+    assertEquals(IScope.ScopeType.BLOCK, local1.getScopeType());
+    assertFalse(local1.isMarkedPure());
+    assertTrue(local1.isScopeAMatchForEnclosingScope(symbolTable));
+    assertFalse(local1.isScopeAMatchForEnclosingScope(new SymbolTable()));
+  }
+
+  @Test
+  void testDifferentLocalScopes() {
+    //Normally when creating local scopes, we could use the name of the file and line no.
+    //as the unique identifier of the local scope.
+    var local1 = new LocalScope("l1", symbolTable);
+    var local2 = new LocalScope("l2", symbolTable);
+
+    assertNotEquals(local1, local2);
+    assertNotEquals(local1.hashCode(), local2.hashCode());
+  }
+
+  @Test
+  void testEnclosingScopeSymbolResolution() {
+    var local1 = new LocalScope(symbolTable);
+
+    var resolved = local1.resolve(new TypeSymbolSearch("Boolean"));
+    assertTrue(resolved.isPresent());
+    assertEquals("Boolean", resolved.get().getName());
+  }
+
+  @Test
+  void testBlockLimitingResolution() {
+    var local1 = new LocalScope(IScope.ScopeType .AGGREGATE, "SimulatedAggregate", symbolTable);
+    var local2 = new LocalScope(local1);
+
+    //Now if we limit to blocks, should not be able to resolve.
+    var notResolved = local2
+        .resolve(new TypeSymbolSearch("Boolean").setLimitToBlocks(true));
+    assertFalse(notResolved.isPresent());
+  }
+
+  @Test
+  void testGeneralMethodResolution() {
+    var local1 = new LocalScope(IScope.ScopeType .AGGREGATE,"SimulatedAggregate", symbolTable);
+
+    //Create a method and add.
+    var method = new MethodSymbol("aMethod", local1);
+    local1.define(method);
+
+    var local2 = new LocalScope(local1);
+    //Now lets see if we can find that method in the simulated aggregate
+    var results = new MethodSymbolSearchResult();
+    results = local2.resolveMatchingMethods(new MethodSymbolSearch("aMethod"), results);
+
+    assertTrue(results.isSingleBestMatchPresent());
+    assertTrue(results.getSingleBestMatchSymbol().isPresent());
+    assertEquals(method, results.getSingleBestMatchSymbol().get());
   }
 
   @Test

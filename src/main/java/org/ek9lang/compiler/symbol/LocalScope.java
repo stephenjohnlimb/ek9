@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbol;
 
+import java.util.Objects;
 import java.util.Optional;
 import org.ek9lang.compiler.symbol.support.SymbolTable;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
@@ -12,7 +13,7 @@ import org.ek9lang.core.exception.AssertValue;
  * The local scope can be either just a block (if, where, etc.)
  * or aggregate (class, component, etc.).
  */
-public class LocalScope extends SymbolTable {
+public final class LocalScope extends SymbolTable {
 
   private final IScope enclosingScope;
   private IScope.ScopeType scopeType = IScope.ScopeType.BLOCK;
@@ -43,12 +44,30 @@ public class LocalScope extends SymbolTable {
   }
 
   @Override
+  public int hashCode() {
+    return Objects.hash(getFriendlyScopeName().hashCode(), enclosingScope.hashCode());
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    var rtn = false;
+    if (obj instanceof LocalScope localScope && super.equals(obj)) {
+      rtn = localScope.getScopeType() == this.scopeType
+          && enclosingScope.equals(localScope.enclosingScope);
+    }
+    return rtn;
+  }
+
+  @Override
   public LocalScope clone(IScope withParentAsAppropriate) {
     return cloneIntoLocalScope(
         new LocalScope(this.scopeType, this.getScopeName(), withParentAsAppropriate));
   }
 
-  protected LocalScope cloneIntoLocalScope(LocalScope newCopy) {
+  /**
+   * Clones the content of this into the new copy.
+   */
+  public LocalScope cloneIntoLocalScope(LocalScope newCopy) {
     super.cloneIntoSymbolTable(newCopy, this.enclosingScope);
     //properties set at construction.
     return newCopy;
@@ -59,7 +78,7 @@ public class LocalScope extends SymbolTable {
     return scopeType;
   }
 
-  protected IScope getEnclosingScope() {
+  public IScope getEnclosingScope() {
     return enclosingScope;
   }
 
