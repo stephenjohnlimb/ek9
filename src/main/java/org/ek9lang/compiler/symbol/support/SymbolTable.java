@@ -327,7 +327,7 @@ public class SymbolTable implements IScope {
     //So if search type is not set then that means search all categories!
     return Arrays.stream(ISymbol.SymbolCategory.values())
         .map(category -> resolveFromSplitSymbolTable(searchName,
-            search.clone().setSearchType(category)))
+            new SymbolSearch(search).setSearchType(category)))
         .filter(Optional::isPresent)
         .findFirst().orElse(Optional.empty());
   }

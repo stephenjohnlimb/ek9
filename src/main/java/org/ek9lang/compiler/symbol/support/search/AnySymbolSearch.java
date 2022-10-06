@@ -9,10 +9,7 @@ public final class AnySymbolSearch extends SymbolSearch {
     setSearchType(null);
   }
 
-  @Override
-  public AnySymbolSearch clone() {
-    var rtn = new AnySymbolSearch(getName());
-    cloneIntoSearchSymbol(rtn);
-    return rtn;
+  public AnySymbolSearch(AnySymbolSearch from) {
+    super(from);
   }
 }

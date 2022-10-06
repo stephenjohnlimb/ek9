@@ -12,7 +12,7 @@ import org.ek9lang.core.exception.AssertValue;
 /**
  * To be used to search for symbols in a Symbol table.
  */
-public class SymbolSearch implements Cloneable {
+public class SymbolSearch {
   /**
    * The name of the symbol looking for.
    * Could be all sorts fully qualified type name
@@ -50,7 +50,7 @@ public class SymbolSearch implements Cloneable {
   public SymbolSearch(SymbolSearch from) {
     AssertValue.checkNotNull("from cannot be null for search Symbol", from);
     this.name = from.name;
-    cloneIntoSearchSymbol(from);
+    from.cloneIntoSearchSymbol(this);
   }
 
   public SymbolSearch(String name) {
@@ -68,11 +68,6 @@ public class SymbolSearch implements Cloneable {
     this(name);
     AssertValue.checkNotNull("ofTypeOrReturn cannot be null for search Symbol", ofTypeOrReturn);
     this.ofTypeOrReturn = Optional.of(ofTypeOrReturn);
-  }
-
-  @Override
-  public SymbolSearch clone() {
-    return new SymbolSearch(this);
   }
 
   protected SymbolSearch cloneIntoSearchSymbol(SymbolSearch symbolSearch) {

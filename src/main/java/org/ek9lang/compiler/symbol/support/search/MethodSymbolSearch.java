@@ -11,6 +11,7 @@ import org.ek9lang.compiler.symbol.MethodSymbol;
  * So there are multiple constructors to support this.
  */
 public final class MethodSymbolSearch extends SymbolSearch {
+
   public MethodSymbolSearch(SymbolSearch from) {
     this(from.getName(), from);
   }
@@ -51,13 +52,6 @@ public final class MethodSymbolSearch extends SymbolSearch {
   public MethodSymbolSearch(String name, ISymbol ofTypeOrReturn) {
     super(name, ofTypeOrReturn);
     setSearchType(ISymbol.SymbolCategory.METHOD);
-  }
-
-  @Override
-  public MethodSymbolSearch clone() {
-    var rtn = new MethodSymbolSearch(getName());
-    cloneIntoSearchSymbol(rtn);
-    return rtn;
   }
 
   @Override

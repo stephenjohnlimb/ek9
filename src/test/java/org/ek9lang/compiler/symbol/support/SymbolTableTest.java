@@ -125,7 +125,7 @@ final class SymbolTableTest {
     assertEquals(methodName, searchResult.get().getName());
 
     //Now clone search and check again!
-    underTest.resolve(anySymbolSearch.clone());
+    searchResult = underTest.resolve(new AnySymbolSearch(anySymbolSearch));
     assertTrue(searchResult.isPresent());
     assertEquals(methodName, searchResult.get().getName());
 
@@ -138,7 +138,7 @@ final class SymbolTableTest {
     assertEquals(methodName, searchResult.get().getName());
 
     // Now clone that search and check again
-    searchResult = underTest.resolve(methodSearch.clone());
+    searchResult = underTest.resolve(new MethodSymbolSearch(methodSearch));
     assertTrue(searchResult.isPresent());
     assertEquals(methodName, searchResult.get().getName());
 
@@ -199,7 +199,7 @@ final class SymbolTableTest {
     assertTrue(resolvedMethod.isPresent());
 
     //Now lets try a more details clone of the method symbol search
-    resolvedMethod = globalSymbolTable.resolve(symbolSearch.clone());
+    resolvedMethod = globalSymbolTable.resolve(new MethodSymbolSearch(symbolSearch));
     assertTrue(resolvedMethod.isPresent());
 
     symbolSearch = new MethodSymbolSearch("method1");
@@ -268,7 +268,7 @@ final class SymbolTableTest {
     assertEquals("function1", searchResult.get().getName());
 
     //Clone search and try again.
-    searchResult = underTest.resolve(functionSymbolSearch.clone());
+    searchResult = underTest.resolve(new FunctionSymbolSearch(functionSymbolSearch));
     assertTrue(searchResult.isPresent());
     assertEquals("function1", searchResult.get().getName());
 
@@ -282,7 +282,7 @@ final class SymbolTableTest {
     assertEquals("function2", searchResult.get().getName());
 
     //Clone search and try again
-    searchResult = underTest.resolve(templateFunctionSymbolSearch.clone());
+    searchResult = underTest.resolve(new TemplateFunctionSymbolSearch(templateFunctionSymbolSearch));
     assertTrue(searchResult.isPresent());
     assertEquals("function2", searchResult.get().getName());
 
@@ -400,7 +400,7 @@ final class SymbolTableTest {
     assertFalse(searchResult.isPresent());
 
     //Clone and try again
-    searchResult = underTest.resolveInThisScopeOnly(typeSymbolSearch.clone());
+    searchResult = underTest.resolveInThisScopeOnly(new TypeSymbolSearch(typeSymbolSearch));
     assertFalse(searchResult.isPresent());
 
     //Has no enclosing scope so expect false.
@@ -417,7 +417,8 @@ final class SymbolTableTest {
     assertTrue(searchResult.isPresent());
 
     //Clone search and check again
-    searchResult = underTest.resolveInThisScopeOnly(templateTypeSymbolSearch.clone());
+    searchResult = underTest
+        .resolveInThisScopeOnly(new TemplateTypeSymbolSearch(templateTypeSymbolSearch));
     assertTrue(searchResult.isPresent());
 
   }

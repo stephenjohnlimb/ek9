@@ -8,15 +8,13 @@ import org.ek9lang.compiler.symbol.ISymbol;
  * but cannot be overloaded. i.e. have multiple method signatures in the same module.
  */
 public final class FunctionSymbolSearch extends SymbolSearch {
+
   public FunctionSymbolSearch(String name) {
     super(name);
     setSearchType(ISymbol.SymbolCategory.FUNCTION);
   }
 
-  @Override
-  public FunctionSymbolSearch clone() {
-    var rtn = new FunctionSymbolSearch(getName());
-    cloneIntoSearchSymbol(rtn);
-    return rtn;
+  public FunctionSymbolSearch(FunctionSymbolSearch from) {
+    super(from);
   }
 }

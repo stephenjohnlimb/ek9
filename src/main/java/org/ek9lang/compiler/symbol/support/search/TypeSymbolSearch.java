@@ -15,10 +15,4 @@ public final class TypeSymbolSearch extends SymbolSearch {
   public TypeSymbolSearch(TypeSymbolSearch from) {
     super(from);
   }
-
-  @Override
-  public TypeSymbolSearch clone() {
-    return new TypeSymbolSearch(this);
-  }
-
 }

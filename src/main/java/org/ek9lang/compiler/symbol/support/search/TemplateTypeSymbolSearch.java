@@ -14,10 +14,7 @@ public final class TemplateTypeSymbolSearch extends SymbolSearch {
     setSearchType(ISymbol.SymbolCategory.TEMPLATE_TYPE);
   }
 
-  @Override
-  public TemplateTypeSymbolSearch clone() {
-    var rtn = new TemplateTypeSymbolSearch(getName());
-    cloneIntoSearchSymbol(rtn);
-    return rtn;
+  public TemplateTypeSymbolSearch(TemplateTypeSymbolSearch from) {
+    super(from);
   }
 }

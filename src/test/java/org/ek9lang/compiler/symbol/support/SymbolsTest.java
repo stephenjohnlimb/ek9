@@ -528,7 +528,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertFalse(shouldNotBeFound.isPresent());
 
     //Check cloning also fails to find
-    shouldNotBeFound = symbolTable.resolve(search.clone());
+    shouldNotBeFound = symbolTable.resolve(new SymbolSearch(search));
     assertFalse(shouldNotBeFound.isPresent());
   }
 
