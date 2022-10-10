@@ -39,7 +39,7 @@ public class CommonParameterisedTypeDetails {
   }
 
   /**
-   * Checks if the symbols in the two lists match or not.
+   * Checks if the types of symbols in the two lists match or not.
    */
   public static boolean doSymbolsMatch(List<ISymbol> list1, List<ISymbol> list2) {
     if (list1 != null && list2 != null && list1.size() == list2.size()) {

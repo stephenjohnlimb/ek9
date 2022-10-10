@@ -3,6 +3,7 @@ package org.ek9lang.compiler.symbol;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
@@ -80,6 +81,32 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   public ScopedSymbol(String name, Optional<ISymbol> type, IScope enclosingScope) {
     super(name, type);
     actualScope = new LocalScope(ScopeType.BLOCK, name, enclosingScope);
+  }
+
+  @Override
+  public int hashCode() {
+
+    return Objects.hash(super.hashCode(), actualScope.hashCode(),
+        parameterisedTypeReferences.hashCode(), parameterisedFunctionReferences.hashCode(),
+        parameterisedTypes.hashCode());
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    var rtn = super.equals(obj);
+    if (rtn && obj instanceof ScopedSymbol scopedSymbol) {
+      rtn = actualScope.equals(scopedSymbol.actualScope);
+      rtn &= CommonParameterisedTypeDetails
+          .doSymbolsMatch(Collections.unmodifiableList(parameterisedTypeReferences),
+          Collections.unmodifiableList(scopedSymbol.parameterisedTypeReferences));
+      rtn &= CommonParameterisedTypeDetails
+          .doSymbolsMatch(Collections.unmodifiableList(parameterisedFunctionReferences),
+              Collections.unmodifiableList(scopedSymbol.parameterisedFunctionReferences));
+      rtn &= CommonParameterisedTypeDetails
+          .doSymbolsMatch(Collections.unmodifiableList(parameterisedTypes),
+              Collections.unmodifiableList(scopedSymbol.parameterisedTypes));
+    }
+    return rtn;
   }
 
   @Override

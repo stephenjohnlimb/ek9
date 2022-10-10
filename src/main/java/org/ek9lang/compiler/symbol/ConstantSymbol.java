@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbol;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -7,6 +8,7 @@ import java.util.Optional;
  * For example PI = 3.242 would be a constant.
  */
 public class ConstantSymbol extends Symbol {
+
   /**
    * Is this constant defined as a literal.
    */
@@ -61,6 +63,20 @@ public class ConstantSymbol extends Symbol {
     cloneIntoSymbol(newCopy);
     newCopy.literal = this.literal;
     return newCopy;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), this.literal);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    var rtn = super.equals(obj);
+    if (rtn && obj instanceof ConstantSymbol constant) {
+      rtn = constant.literal == this.literal;
+    }
+    return rtn;
   }
 
   @Override

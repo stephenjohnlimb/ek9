@@ -33,6 +33,28 @@ import org.junit.jupiter.api.Test;
  * Basic tests for symbols.
  */
 final class SymbolsTest extends AbstractSymbolTestBase {
+
+  @Test
+  void testNoPromotion() {
+    var symbol1 = new Symbol("name1");
+    var symbol2 = new Symbol("name2");
+
+    assertFalse(symbol1.isPromotionSupported(symbol2));
+  }
+
+  @Test
+  void testSimpleSymbolEquality() {
+    var symbol1 = new Symbol("name");
+    var symbol2 = new Symbol("name");
+    var symbol3 = new Symbol("differentName");
+
+    assertEquals(symbol1, symbol2);
+    assertEquals(symbol1.hashCode(), symbol2.hashCode());
+
+    assertNotEquals(symbol1, symbol3);
+    assertNotEquals(symbol1.hashCode(), symbol3.hashCode());
+  }
+
   @Test
   void testFullyQualifiedName() {
     assertFalse(ISymbol.isQualifiedName("name"));
@@ -589,6 +611,9 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertConstant1(clone);
 
     assertEquals(c1, clone);
+    assertEquals(c1.hashCode(), clone.hashCode());
+
+    assertEquals(c1, clone);
     assertNotEquals("AString", c1.getFriendlyName());
 
     ConstantSymbol c2 = new ConstantSymbol("1", integerType, true);
@@ -600,7 +625,6 @@ final class SymbolsTest extends AbstractSymbolTestBase {
 
     ConstantSymbol c3 = new ConstantSymbol("1", integerType);
     assertEquals(ISymbol.SymbolGenus.VALUE, c3.getGenus());
-
   }
 
   private void assertConstant1(ConstantSymbol c) {
@@ -624,7 +648,6 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertFalse(symbol.isAggregatePropertyField());
     assertFalse(symbol.isIncomingParameter());
     assertFalse(symbol.isReturningParameter());
-
 
     assertFalse(symbol.isPrivate());
     assertFalse(symbol.isProtected());

@@ -90,9 +90,8 @@ public class Symbol implements ISymbol {
     newCopy.setSourceToken(this.getSourceToken());
     newCopy.squirrelledAway.putAll(this.squirrelledAway);
     newCopy.setReferenced(this.isReferenced());
-    if (this instanceof AggregateSymbol) {
-      //We don't copy over any type as the aggregate IS the type
-    } else {
+
+    if (!(this instanceof AggregateSymbol)) {
       getType().ifPresent(newCopy::setType);
     }
     return newCopy;
@@ -286,10 +285,11 @@ public class Symbol implements ISymbol {
   @Override
   public boolean isPromotionSupported(ISymbol s) {
     //Check if any need to promote might be same type
+    var rtn = false;
     if (!isExactSameType(s)) {
-      return TypeCoercions.get().isCoercible(this, s);
+      rtn = TypeCoercions.get().isCoercible(this, s);
     }
-    return false;
+    return rtn;
   }
 
 
@@ -327,10 +327,11 @@ public class Symbol implements ISymbol {
 
   @Override
   public boolean equals(Object obj) {
+    var rtn = false;
     if (obj instanceof ISymbol symbol) {
-      return getFriendlyName().equals(symbol.getFriendlyName());
+      rtn = getFriendlyName().equals(symbol.getFriendlyName());
     }
-    return false;
+    return rtn;
   }
 
   @Override
