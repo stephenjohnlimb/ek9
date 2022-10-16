@@ -79,5 +79,14 @@ defines module com.customer.just
       else when selectedTemperature ?= currentTemperature("DE") then selectedTemperature > 40
         stdout.println("Temp of " + $selectedTemperature + " a little warm in the DE")
       else
-        stdout.println("Not sure where it might be warm")    
+        stdout.println("Not sure where it might be warm")
+
+    kotlinLikeRangeCheck()
+      stdout <- Stdout()
+
+      value <- 20
+
+      isWithing <- value in 19 ... 21-1
+      stdout.println(`Checking if ${value} is within a range of 19 ... 21 - 1`)
+
 //EOF

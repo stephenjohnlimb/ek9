@@ -386,6 +386,7 @@ expression
     | left=expression NOT? CONTAINS right=expression
     | left=expression IS? NOT? IN right=expression
     | left=expression op=(AND | OR | XOR) NL? right=expression
+    | identifier IN range
     ;
 
 call
