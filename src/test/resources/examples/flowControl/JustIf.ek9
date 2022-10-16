@@ -86,7 +86,12 @@ defines module com.customer.just
 
       value <- 20
 
+      //just checking I can use expressions in the range operator here.
       isWithing <- value in 19 ... 21-1
       stdout.println(`Checking if ${value} is within a range of 19 ... 21 - 1`)
+
+      isNotWithin <- value not in 16-2 ... 21-1
+
+      stdout.println(`Checking if ${value} is NOT within a range of 16-2 ... 21 - 1`)
 
 //EOF
