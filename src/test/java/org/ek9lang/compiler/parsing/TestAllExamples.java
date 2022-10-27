@@ -23,7 +23,7 @@ import org.ek9lang.core.utils.OsSupport;
 import org.junit.jupiter.api.Test;
 
 /**
- * Locates both good examples and checks they parse, but also badExamples to check they don't.
+ * Locate both good examples and checks they parse, but also badExamples to check they don't.
  */
 final class TestAllExamples {
 
