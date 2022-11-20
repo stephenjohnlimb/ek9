@@ -14,6 +14,7 @@ import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.services.LanguageServer;
+import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.core.utils.Glob;
 import org.ek9lang.core.utils.Logger;
 import org.ek9lang.core.utils.OsSupport;
@@ -39,7 +40,7 @@ public final class Ek9LanguageServer extends Ek9Service
     this.osSupport = osSupport;
     this.textDocumentService = new Ek9TextDocumentService(this);
     this.workspaceService = new Ek9WorkspaceService(this);
-    this.compilerConfig = new Ek9CompilerConfig();
+    this.compilerConfig = new Ek9CompilerConfig(CompilationPhase.IR_ANALYSIS);
   }
 
   @Override

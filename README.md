@@ -13,6 +13,25 @@ Much as been done already in terms of research/development and the definition of
 Lots of [worked examples](https://www.ek9lang.org/index.html#examples) have been created to get the feel of what the
 language will be like once the first reference implementation of the compiler is complete.
 
+### Java and binaries
+The base version of Java for this project is now Java 19. I'm planning to use the lightweight threading mechanism in
+Java 19 to make the compiler as multithreaded as possible (I mean how hard can it be!).
+
+I've also taken a look at [Graalvm](https://www.graalvm.org) to see if I can create a native application from the
+Java compiler. My main reason for doing this - is general interest. But a native application should also start and
+run faster. See the [instructions](https://www.graalvm.org/java/quickstart/) and
+[how to install native-image](https://www.graalvm.org/22.3/reference-manual/native-image/#install-native-image).
+
+For this project, once you've built the 'fat jar' (`mvn clean install`), you can use the following command:
+`native-image --no-fallback  -jar ek9.jar` to create a native binary.
+
+You can then just run that application `./ek9` or send it to someone; and they can run it (must be same OS);
+but they don;t need Java installed (i.e. it is a full standalone binary).
+
+Now this is early days and there's some gotchas with reflection and proxies
+(mainly in the lsp libraries being used). But I'm currently focussing on the command-line compiler.
+So for now the language-server still has to be run with java as a jar. But I'll get there.
+
 ### Blog
 If you want to see why specific decisions have been made on the details of the language then you can follow the [EK9 blog](https://blog.ek9.io/).
 

@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.files;
 
+import org.ek9lang.compiler.CompilationPhase;
+
 /**
  * Used to drive how the compiler operates.
  * As error message details, future will be to add debug output files for 'edb' the Ek9 Debugger.
@@ -18,6 +20,13 @@ package org.ek9lang.compiler.files;
  * suggestions.
  */
 public class CompilerFlags {
+
+  private boolean debuggingInstrumentation = false;
+
+  private boolean devBuild = false;
+
+  private boolean checkCompilationOnly = false;
+
   /**
    * Does the developer want suggestions for compiler errors or not.
    */
@@ -27,6 +36,17 @@ public class CompilerFlags {
    * How many suggestions.
    */
   private int numberOfSuggestions = 5;
+
+  /**
+   * Enable the developer to limit how far the compilation should run to.
+   * Very useful when developing the compiler, so you can stop it early.
+   * Also, useful for the language server. You may only want to go up to IR_ANALYSIS.
+   */
+  private CompilationPhase compileToPhase;
+
+  public CompilerFlags(CompilationPhase compileToPhase) {
+    this.compileToPhase = compileToPhase;
+  }
 
   public boolean isSuggestionRequired() {
     return suggestionRequired;
@@ -49,6 +69,51 @@ public class CompilerFlags {
       this.numberOfSuggestions = 0;
     } else {
       this.numberOfSuggestions = numberOfSuggestions;
+    }
+  }
+
+  public CompilationPhase getCompileToPhase() {
+    return compileToPhase;
+  }
+
+  /**
+   * Only compile to a specific phase of the overall compilation process.
+   */
+  public void setCompileToPhase(CompilationPhase compileToPhase) {
+    this.compileToPhase = compileToPhase;
+    if (compileToPhase != CompilationPhase.APPLICATION_PACKAGING) {
+      this.checkCompilationOnly = true;
+    }
+  }
+
+  public boolean isDebuggingInstrumentation() {
+    return debuggingInstrumentation;
+  }
+
+  public void setDebuggingInstrumentation(boolean debuggingInstrumentation) {
+    this.debuggingInstrumentation = debuggingInstrumentation;
+  }
+
+  public boolean isDevBuild() {
+    return devBuild;
+  }
+
+  public void setDevBuild(boolean devBuild) {
+    this.devBuild = devBuild;
+  }
+
+  public boolean isCheckCompilationOnly() {
+    return checkCompilationOnly;
+  }
+
+  /**
+   * Only run a check compilation.
+   * This means run upto IR Analysis phase only.
+   */
+  public void setCheckCompilationOnly(boolean checkCompilationOnly) {
+    this.checkCompilationOnly = checkCompilationOnly;
+    if (checkCompilationOnly) {
+      compileToPhase = CompilationPhase.IR_ANALYSIS;
     }
   }
 }

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.compiler.CompilationPhase;
+import org.ek9lang.compiler.files.CompilerFlags;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.utils.Ek9DirectoryStructure;
 import org.ek9lang.core.utils.ZipSet;
@@ -15,6 +17,9 @@ import org.ek9lang.core.utils.ZipSet;
  * Normally extended by compile commands.
  */
 public abstract class Ec extends E {
+
+  private CompilerFlags compilerFlags = new CompilerFlags(CompilationPhase.APPLICATION_PACKAGING);
+
   protected Ec(CommandLineDetails commandLine, FileCache sourceFileCache) {
     super(commandLine, sourceFileCache);
   }
@@ -31,6 +36,13 @@ public abstract class Ec extends E {
 
     if (!isCheckCompilationOnly()) {
       setCheckCompilationOnly(commandLine.isCheckCompileOnly());
+    }
+
+    if (commandLine.isPhasedCompileOnly()) {
+      final CompilationPhase requiredPhase = commandLine.isDevBuild()
+          ? CompilationPhase.valueOf(commandLine.getOptionParameter("-Cdp")) :
+          CompilationPhase.valueOf(commandLine.getOptionParameter("-Cp"));
+      setPhaseToCompileTo(requiredPhase);
     }
 
     if (isDebuggingInstrumentation()) {
@@ -83,7 +95,7 @@ public abstract class Ec extends E {
       addClassesFrom(getMainFinalOutputDirectory(), zipSets);
       //Do go through the deps and locate the jar file for each dependency and pull that in.
 
-      if (super.isDevBuild()) {
+      if (isDevBuild()) {
         addClassesFrom(getDevFinalOutputDirectory(), zipSets);
         //Do go through the dev-deps and locate the jar file for each dependency and pull that in.
       }
@@ -96,6 +108,39 @@ public abstract class Ec extends E {
     }
 
     return rtn;
+  }
+
+  public boolean isDebuggingInstrumentation() {
+    return compilerFlags.isDebuggingInstrumentation();
+  }
+
+  public void setDebuggingInstrumentation(boolean debuggingInstrumentation) {
+    compilerFlags.setDebuggingInstrumentation(debuggingInstrumentation);
+  }
+
+  public boolean isDevBuild() {
+    return compilerFlags.isDevBuild();
+  }
+
+  public void setDevBuild(boolean devBuild) {
+    compilerFlags.setDevBuild(devBuild);
+    this.sourceFileCache.setDevBuild(devBuild);
+  }
+
+  public boolean isCheckCompilationOnly() {
+    return compilerFlags.isCheckCompilationOnly();
+  }
+
+  public void setCheckCompilationOnly(boolean checkCompilationOnly) {
+    compilerFlags.setCheckCompilationOnly(checkCompilationOnly);
+  }
+
+  public CompilationPhase getPhaseToCompileTo() {
+    return compilerFlags.getCompileToPhase();
+  }
+
+  public void setPhaseToCompileTo(CompilationPhase phaseToCompileTo) {
+    compilerFlags.setCompileToPhase(phaseToCompileTo);
   }
 
   /**

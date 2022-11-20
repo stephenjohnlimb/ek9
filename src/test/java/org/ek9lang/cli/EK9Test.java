@@ -15,6 +15,8 @@ import org.ek9lang.core.utils.OsSupport;
 import org.ek9lang.core.utils.SigningKeyPair;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Test the main command to run EK9 but from a test pint of view.
@@ -82,10 +84,11 @@ final class EK9Test {
     assertNotSame(lastModified, targetArtefact.lastModified());
   }
 
-  @Test
-  void testIncrementationCheckCompilation() {
+ @ParameterizedTest
+ @ValueSource(strings = {"-Cdp IR_ANALYSIS", "-Cp IR_ANALYSIS", "-v -ch", "-Cl"})
+  void testNoneArtifactCompilation(final String flag) {
     String sourceName = "HelloWorld.ek9";
-    String[] command = new String[] {"-v -ch " + sourceName};
+    String[] command = new String[] {String.format("-v %s %s", flag, sourceName)};
 
     //We will copy this into a working directory and process it.
     File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
@@ -93,19 +96,6 @@ final class EK9Test {
 
     //This will actually trigger a full compile first, but no artefact should be created in a check.
     assertCompilationArtefactsNotPresent(assertResult(Ek9.SUCCESS_EXIT_CODE, command));
-
-  }
-
-  @Test
-  void testDebugDevCompilation() {
-    String sourceName = "HelloWorld.ek9";
-    String[] command = new String[] {"-Cd " + sourceName};
-
-    //We will copy this into a working directory and process it.
-    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
-    assertNotNull(sourceFile);
-
-    assertCompilationArtefactsPresent(assertResult(Ek9.SUCCESS_EXIT_CODE, command));
   }
 
   @Test
@@ -132,14 +122,15 @@ final class EK9Test {
   }
 
   @Test
-  void testCleanBuildEnvironment() {
+  void testDebugDevCompilation() {
     String sourceName = "HelloWorld.ek9";
-    String[] command = new String[] {"-Cl " + sourceName};
+    String[] command = new String[] {"-Cd " + sourceName};
 
+    //We will copy this into a working directory and process it.
     File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
     assertNotNull(sourceFile);
 
-    assertCompilationArtefactsNotPresent(assertResult(Ek9.SUCCESS_EXIT_CODE, command));
+    assertCompilationArtefactsPresent(assertResult(Ek9.SUCCESS_EXIT_CODE, command));
   }
 
   @Test

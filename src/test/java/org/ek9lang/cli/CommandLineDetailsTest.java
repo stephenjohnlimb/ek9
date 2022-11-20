@@ -257,6 +257,28 @@ final class CommandLineDetailsTest {
 
   @Test
   @SuppressWarnings("java:S2699")
+  void testCommandLineFullPhasedCompile() {
+    var process = makeProcess.apply("-Cp PARSING");
+    assertFullCompilation
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
+  }
+
+  @Test
+  @SuppressWarnings("java:S2699")
+  void testCommandLineFullPhasedDevCompile() {
+    var process = makeProcess.apply("-Cdp PARSING");
+    assertFullCompilation
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
+  }
+
+  @Test
+  @SuppressWarnings("java:S2699")
+  void testInvalidCommandLineFullPhasedCompile() {
+    assertEquals(2, processStringCommandLine.apply("-Cp parse HelloWorld.ek9"));
+  }
+
+  @Test
+  @SuppressWarnings("java:S2699")
   void testCommandLineFullCheckCompileOnly() {
     var process = makeProcess.apply("-Ch");
     assertFullCompilation

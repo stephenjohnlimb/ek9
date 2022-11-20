@@ -16,6 +16,7 @@ import org.ek9lang.LanguageMetaData;
 import org.ek9lang.cli.support.Ek9ProjectProperties;
 import org.ek9lang.cli.support.Ek9SourceVisitor;
 import org.ek9lang.cli.support.PackageDetails;
+import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.parsing.JustParser;
 import org.ek9lang.core.exception.ExitException;
 import org.ek9lang.core.utils.FileHandling;
@@ -89,6 +90,8 @@ public class CommandLineDetails {
         \t-cg Incremental compile but with debugging information; but don't run
         \t-cd Incremental compile include dev code and debugging information; but don't run
         \t-cdh Incremental compile; include dev code, but don't link to final executable
+        \t-Cp [phase] Full recompilation; compile up to a specific phase
+        \t-Cdp [phase] Full recompilation (include dev code); compile up to a specific phase
         \t-C Force full recompilation; but don't run
         \t-Ch Force full recompilation; but don't link to final executable
         \t-Cg Force full recompilation with debugging information; but don't run
@@ -138,7 +141,6 @@ public class CommandLineDetails {
     }
 
     var fullCommandLine = Arrays.stream(argv).collect(Collectors.joining(" "));
-    //System.err.println(fullCommandLine);
     return processCommandLine(fullCommandLine);
   }
 
@@ -223,6 +225,33 @@ public class CommandLineDetails {
     return rtn;
   }
 
+  private boolean isPhasedCompilation(String[] strArray, int index) {
+    return strArray[index].equals("-Cp") || strArray[index].equals("-Cdp");
+  }
+
+  private boolean processPhasedCompilationOption(String[] strArray, int index,
+                                                 List<String> activeParameters) {
+
+    String compileCommand = strArray[index];
+    if (index < strArray.length - 1) {
+      String compilationPhaseOptionProvided = strArray[index + 1];
+      //Let's check that the option provided is one of the enumeration values.
+      try {
+        CompilationPhase.valueOf(compilationPhaseOptionProvided);
+        activeParameters.add(compileCommand);
+        activeParameters.add(compilationPhaseOptionProvided);
+        return true;
+      } catch (Exception ex) {
+        var optionsToChooseFrom = Arrays
+            .stream(CompilationPhase.values())
+            .map(Enum::name)
+            .collect(Collectors.joining(", "));
+        Logger.error(String.format("Phased Compilation: expecting one of %s", optionsToChooseFrom));
+      }
+    }
+    return false;
+  }
+
   private boolean isVersioningOption(String[] strArray, int index) {
     return strArray[index].equals("-IV")
         || strArray[index].equals("-SV")
@@ -304,6 +333,11 @@ public class CommandLineDetails {
         index++;
       } else if (isDebugOption(strArray, index)) {
         if (!processDebugOption(strArray, index, activeParameters)) {
+          return Ek9.BAD_COMMANDLINE_EXIT_CODE;
+        }
+        index++;
+      } else if (isPhasedCompilation(strArray, index)) {
+        if (!processPhasedCompilationOption(strArray, index, activeParameters)) {
           return Ek9.BAD_COMMANDLINE_EXIT_CODE;
         }
         index++;
@@ -652,8 +686,9 @@ public class CommandLineDetails {
   }
 
   private boolean isMainParam(String param) {
-    return Set.of("-c", "-ch", "-cg", "-cd", "-cdh", "-C", "-Ch", "-Cg", "-Cd", "-Cdh", "-Cl",
-            "-Dp", "-t", "-d", "-P", "-I", "-Gk", "-D", "-IV", "-SV", "-SF", "-PV", "-Up")
+    return Set.of("-c", "-ch", "-cg", "-cd", "-cdh", "-Cp", "-Cdp", "-C", "-Ch", "-Cg", "-Cd",
+            "-Cdh", "-Cl", "-Dp", "-t", "-d", "-P", "-I", "-Gk", "-D", "-IV", "-SV", "-SF", "-PV",
+            "-Up")
         .contains(param);
   }
 
@@ -666,11 +701,12 @@ public class CommandLineDetails {
   }
 
   public boolean isDebuggingInstrumentation() {
-    return isOptionPresentInAppParameters(Set.of("-cg", "-cd", "-cdh", "-Cg", "-Cd", "-Cdh"));
+    return isOptionPresentInAppParameters(
+        Set.of("-cg", "-cd", "-cdh", "-Cg", "-Cd", "-Cdh", "-Cdp"));
   }
 
   public boolean isDevBuild() {
-    return isOptionPresentInAppParameters(Set.of("-cd", "-cdh", "-Cd", "-Cdh"));
+    return isOptionPresentInAppParameters(Set.of("-cd", "-cdh", "-Cd", "-Cdh", "-Cdp"));
   }
 
   public boolean isJustBuildTypeOption() {
@@ -747,11 +783,15 @@ public class CommandLineDetails {
   }
 
   public boolean isFullCompile() {
-    return isOptionPresentInAppParameters(Set.of("-C", "-Ch", "-Cg", "-Cd", "-Cdh"));
+    return isOptionPresentInAppParameters(Set.of("-Cp", "-Cdp", "-C", "-Ch", "-Cg", "-Cd", "-Cdh"));
   }
 
   public boolean isCheckCompileOnly() {
-    return isOptionPresentInAppParameters(Set.of("-ch", "-cdh", "-Ch", "-Cdh"));
+    return isOptionPresentInAppParameters(Set.of("-Cp", "-Cdp", "-ch", "-cdh", "-Ch", "-Cdh"));
+  }
+
+  public boolean isPhasedCompileOnly() {
+    return isOptionPresentInAppParameters(Set.of("-Cp", "-Cdp"));
   }
 
   /**

@@ -3,12 +3,20 @@ package org.ek9lang.lsp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+
+import org.ek9lang.compiler.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
 /**
  * Simple tests for the compiler flags in general use and the lsp specific flags.
  */
 final class Ek9CompilerConfigTest {
+
+  @Test
+  void testDefaultToFullPackaging() {
+    var underTest = new Ek9CompilerConfig();
+    assertEquals(CompilationPhase.APPLICATION_PACKAGING, underTest.getCompileToPhase());
+  }
 
   @Test
   void testBasicDefaultValues() {

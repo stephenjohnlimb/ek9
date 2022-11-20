@@ -13,10 +13,6 @@ public abstract class E extends Reporter {
   protected final CommandLineDetails commandLine;
   protected final FileCache sourceFileCache;
 
-  private boolean debuggingInstrumentation = false;
-  private boolean devBuild = false;
-  private boolean checkCompilationOnly = false;
-
   protected E(CommandLineDetails commandLine, FileCache sourceFileCache) {
     super(commandLine.isVerbose());
     this.commandLine = commandLine;
@@ -61,31 +57,6 @@ public abstract class E extends Reporter {
    * Actually run the execution.
    */
   protected abstract boolean doRun();
-
-  public boolean isDebuggingInstrumentation() {
-    return debuggingInstrumentation || commandLine.isDebuggingInstrumentation();
-  }
-
-  public void setDebuggingInstrumentation(boolean debuggingInstrumentation) {
-    this.debuggingInstrumentation = debuggingInstrumentation;
-  }
-
-  public boolean isDevBuild() {
-    return devBuild || commandLine.isDevBuild();
-  }
-
-  public void setDevBuild(boolean devBuild) {
-    this.devBuild = devBuild;
-    this.sourceFileCache.setDevBuild(devBuild);
-  }
-
-  public boolean isCheckCompilationOnly() {
-    return checkCompilationOnly;
-  }
-
-  public void setCheckCompilationOnly(boolean checkCompilationOnly) {
-    this.checkCompilationOnly = checkCompilationOnly;
-  }
 
   protected String getDotEk9Directory() {
     return getFileHandling().getDotEk9Directory(commandLine.getSourceFileDirectory());
