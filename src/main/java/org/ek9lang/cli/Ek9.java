@@ -35,7 +35,6 @@ public class Ek9 {
   /**
    * The range of exit codes that EK9 will use.
    */
-
   public static final int RUN_COMMAND_EXIT_CODE = 0;
   public static final int SUCCESS_EXIT_CODE = 1;
   public static final int BAD_COMMANDLINE_EXIT_CODE = 2;

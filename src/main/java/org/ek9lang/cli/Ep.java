@@ -32,7 +32,9 @@ public class Ep extends E {
   protected boolean doRun() {
     log("- Compile!");
     //Need to ensure a full compile works.
-    if (!new Efc(commandLine, sourceFileCache).run()) {
+    Efc execution = new Efc(commandLine, sourceFileCache);
+
+    if (!execution.run()) {
       report("Failed");
     } else {
       getFileHandling().deleteStalePackages(commandLine.getSourceFileDirectory(),

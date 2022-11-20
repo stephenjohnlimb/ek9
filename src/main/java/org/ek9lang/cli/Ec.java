@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.ek9lang.cli.support.FileCache;
-import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.files.CompilerFlags;
+import org.ek9lang.compiler.main.CompilerFlags;
+import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.utils.Ek9DirectoryStructure;
 import org.ek9lang.core.utils.ZipSet;
@@ -27,14 +27,14 @@ public abstract class Ec extends E {
   protected void prepareCompilation() {
     log("Preparing");
     // Set if not already set
-    if (!isDebuggingInstrumentation()) {
+    if (!compilerFlags.isDebuggingInstrumentation()) {
       setDebuggingInstrumentation(commandLine.isDebuggingInstrumentation());
     }
-    if (!isDevBuild()) {
+    if (!compilerFlags.isDevBuild()) {
       setDevBuild(commandLine.isDevBuild());
     }
 
-    if (!isCheckCompilationOnly()) {
+    if (!compilerFlags.isCheckCompilationOnly()) {
       setCheckCompilationOnly(commandLine.isCheckCompileOnly());
     }
 
@@ -45,10 +45,10 @@ public abstract class Ec extends E {
       setPhaseToCompileTo(requiredPhase);
     }
 
-    if (isDebuggingInstrumentation()) {
+    if (compilerFlags.isDebuggingInstrumentation()) {
       log("Instrumenting");
     }
-    if (isDevBuild()) {
+    if (compilerFlags.isDevBuild()) {
       log("Development");
     }
   }
@@ -69,7 +69,7 @@ public abstract class Ec extends E {
     AssertValue.checkNotNull("Main generated out file null", generatedOutputDirectory);
     //This will be some sort of intermediate form (i.e. java we then need to actually compile).
 
-    if (this.isDevBuild()) {
+    if (compilerFlags.isDevBuild()) {
       var devGeneratedOutputDirectory = getDevGeneratedOutputDirectory();
       AssertValue.checkNotNull("Dev generated out file null", devGeneratedOutputDirectory);
       //This will be some sort of intermediate form (i.e. java we then need to actually compile).
@@ -79,7 +79,7 @@ public abstract class Ec extends E {
 
   protected boolean repackageTargetArtefact() {
 
-    if (this.isCheckCompilationOnly()) {
+    if (compilerFlags.isCheckCompilationOnly()) {
       log("Check Compilation so NOT creating target");
       return true;
     }
@@ -95,7 +95,7 @@ public abstract class Ec extends E {
       addClassesFrom(getMainFinalOutputDirectory(), zipSets);
       //Do go through the deps and locate the jar file for each dependency and pull that in.
 
-      if (isDevBuild()) {
+      if (compilerFlags.isDevBuild()) {
         addClassesFrom(getDevFinalOutputDirectory(), zipSets);
         //Do go through the dev-deps and locate the jar file for each dependency and pull that in.
       }
@@ -110,16 +110,8 @@ public abstract class Ec extends E {
     return rtn;
   }
 
-  public boolean isDebuggingInstrumentation() {
-    return compilerFlags.isDebuggingInstrumentation();
-  }
-
   public void setDebuggingInstrumentation(boolean debuggingInstrumentation) {
     compilerFlags.setDebuggingInstrumentation(debuggingInstrumentation);
-  }
-
-  public boolean isDevBuild() {
-    return compilerFlags.isDevBuild();
   }
 
   public void setDevBuild(boolean devBuild) {
@@ -127,20 +119,20 @@ public abstract class Ec extends E {
     this.sourceFileCache.setDevBuild(devBuild);
   }
 
-  public boolean isCheckCompilationOnly() {
-    return compilerFlags.isCheckCompilationOnly();
-  }
-
   public void setCheckCompilationOnly(boolean checkCompilationOnly) {
     compilerFlags.setCheckCompilationOnly(checkCompilationOnly);
   }
 
-  public CompilationPhase getPhaseToCompileTo() {
-    return compilerFlags.getCompileToPhase();
-  }
-
   public void setPhaseToCompileTo(CompilationPhase phaseToCompileTo) {
     compilerFlags.setCompileToPhase(phaseToCompileTo);
+  }
+
+  public CompilerFlags getCompilerFlags() {
+    return compilerFlags;
+  }
+
+  public void setCompilerFlags(CompilerFlags compilerFlags) {
+    this.compilerFlags = compilerFlags;
   }
 
   /**

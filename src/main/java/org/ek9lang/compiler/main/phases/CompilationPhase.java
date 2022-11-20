@@ -1,4 +1,4 @@
-package org.ek9lang.compiler;
+package org.ek9lang.compiler.main.phases;
 
 /**
  * Identifies the ordered set of compilation phases used in EK9.

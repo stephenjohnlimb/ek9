@@ -1,8 +1,8 @@
 package org.ek9lang.lsp;
 
 
-import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.files.CompilerFlags;
+import org.ek9lang.compiler.main.CompilerFlags;
+import org.ek9lang.compiler.main.phases.CompilationPhase;
 
 /**
  * Designed to hold the all the soft coded configurations for the

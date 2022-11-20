@@ -22,9 +22,7 @@ public class Eic extends Ec {
       log("Missing target - Compile!");
       Efc execution = new Efc(commandLine, sourceFileCache);
       //may have been forced in, and so we must pass on.
-      execution.setDebuggingInstrumentation(this.isDebuggingInstrumentation());
-      execution.setDevBuild((this.isDevBuild()));
-      execution.setCheckCompilationOnly(this.isCheckCompilationOnly());
+      execution.setCompilerFlags(getCompilerFlags());
       rtn = execution.run();
     } else {
       //Yes we can do an incremental build.

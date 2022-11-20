@@ -1,6 +1,6 @@
-package org.ek9lang.compiler.files;
+package org.ek9lang.compiler.main;
 
-import org.ek9lang.compiler.CompilationPhase;
+import org.ek9lang.compiler.main.phases.CompilationPhase;
 
 /**
  * Used to drive how the compiler operates.

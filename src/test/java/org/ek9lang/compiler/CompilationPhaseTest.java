@@ -3,6 +3,7 @@ package org.ek9lang.compiler;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
