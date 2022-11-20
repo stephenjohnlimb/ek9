@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.ek9lang.LanguageMetaData;
 import org.ek9lang.cli.support.Ek9ProjectProperties;
 import org.ek9lang.cli.support.Ek9SourceVisitor;
@@ -136,7 +137,9 @@ public class CommandLineDetails {
       return Ek9.BAD_COMMANDLINE_EXIT_CODE;
     }
 
-    return processCommandLine(argv[0]);
+    var fullCommandLine = Arrays.stream(argv).collect(Collectors.joining(" "));
+    //System.err.println(fullCommandLine);
+    return processCommandLine(fullCommandLine);
   }
 
   /**

@@ -49,7 +49,7 @@ public abstract class Ec extends E {
     //At present if in log mode show the list of files to be compiled.
     compilableProjectFiles.forEach(file -> log(file.getAbsolutePath()));
 
-    //Do compile this with appropriate compiler
+    //Do compile these files with appropriate compiler
 
     //Do make sure we pass in this.isCheckCompilationOnly()
 

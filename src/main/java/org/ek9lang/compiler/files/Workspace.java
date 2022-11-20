@@ -38,13 +38,13 @@ public class Workspace {
   }
 
   /**
-   * Triggers the reparsing of the source file. Normally after an edit so errors can be checked.
+   * Triggers the re-parsing of the source file. Normally after an edit so errors can be checked.
    */
   public ErrorListener reParseSource(String uri) {
     //Consider a queue of requests per uri as in an interactive mode the same file
-    //will be triggered for reparsing over and over again. We only need one request to be honoured!
+    //will be triggered for re-parsing over and over again. We only need one request to be honoured!
 
-    Logger.debug("parsing/reparsing [" + uri + "]");
+    Logger.debug("parsing/re-parsing [" + uri + "]");
     CompilableSource compilableSource = ensureCompilableSourceAvailable(uri);
     compilableSource.prepareToParse().parse();
     return compilableSource.getErrorListener();

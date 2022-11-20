@@ -453,7 +453,7 @@ public class ErrorListener extends BaseErrorListener {
     DEFAULT_VALUE_WILL_NOT_BE_USED(
         "A Default value will not be used in this context (abstract function/method)");
 
-    private String description;
+    private final String description;
 
     SemanticClassification(String description) {
       this.description = description;

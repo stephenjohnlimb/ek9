@@ -65,7 +65,8 @@ defines module com.customer.just
         
     guardedAssignmentInIf()
       stdout <- Stdout()
-              
+
+      someIntegerValue <- 42
       selectedTemperature <- Integer()       
       
       //Here we use a guarded assignment checks for null and unset and only then does the conditional check

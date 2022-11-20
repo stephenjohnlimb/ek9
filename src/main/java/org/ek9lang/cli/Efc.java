@@ -4,7 +4,7 @@ import org.ek9lang.cli.support.FileCache;
 
 /**
  * Do a full recompile of all sources inside project.
- * Not this triggers a full resolution of dependencies and those too are pulled again
+ * Note this triggers a full resolution of dependencies and those too are pulled again
  * and recompiled.
  */
 public class Efc extends Ec {
