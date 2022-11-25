@@ -15,12 +15,14 @@ import org.ek9lang.core.utils.OsSupport;
  * We need an error listener for the lexing parsing and also our own tree
  * visiting. So our own tree visiting will be able to use additional methods we
  * add on to this; so we can report semantic errors and warnings.
- * Why: because we need to gather-up all the errors on a per-file processing
+ * Why? Because we need to gather-up all the errors on a per-file processing
  * basis. This is needed because we are going to multi-thread the various stages
  * of compilation based on a thread per source file. So, we would not want the
  * error information being interleaved in the console output. Plus eventually
  * there will be a UI over the compiler, and we will need very focused sets of
  * errors on a per source code basis.
+ * This is not designed to be thread safe, only one thread should be parsing/processing
+ * a source or one a specific phase.
  */
 public class ErrorListener extends BaseErrorListener {
   private final OsSupport osSupport = new OsSupport();
@@ -463,7 +465,7 @@ public class ErrorListener extends BaseErrorListener {
   /**
    * The details of an error, position, etc.
    */
-  public static class ErrorDetails extends Details {
+  public static class ErrorDetails extends Details implements CompilationIssue {
     private final ErrorClassification classification;
     private MatchResults fuzzySearchResults;
 

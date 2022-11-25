@@ -9,6 +9,7 @@ package org.ek9lang.compiler.main.phases;
  */
 public enum CompilationPhase {
 
+  PREPARE_PARSE("Preparation for Parsing"),
   PARSING("Source Code Parsing"),
   SYMBOL_DEFINITION("Defining Symbols"),
   REFERENCE_CHECKS("Reference Checking"),

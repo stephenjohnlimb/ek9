@@ -20,7 +20,8 @@ public class Ek9WorkspaceService extends Ek9Service implements WorkspaceService 
   private final Workspace ek9WorkSpace = new Workspace();
 
   private final Consumer<FileEvent> reParseSource = fileEvent ->
-      reportOnCompiledSource(getWorkspace().reParseSource(getPath(fileEvent.getUri())));
+      reportOnCompiledSource(getWorkspace()
+          .reParseSource(getPath(fileEvent.getUri())).getErrorListener());
 
   private final Consumer<FileEvent> cleanUpSourceAfterDelete = fileEvent ->
       getWorkspace().removeSource(getPath(fileEvent.getUri()))

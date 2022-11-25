@@ -100,11 +100,15 @@ public class CompilableSource implements Source, TokenConsumptionListener {
    * This is only valid if a prepareToParse and parse has been run.
    */
   public EK9Parser.CompilationUnitContext getCompilationUnitContext() {
-    if (this.compilationUnitContext == null) {
+    if (hasNotBeenSuccessfullyParsed()) {
       throw new CompilerException(
           "Need to call prepareToParse before accessing compilation unit");
     }
     return compilationUnitContext;
+  }
+
+  public boolean hasNotBeenSuccessfullyParsed() {
+    return this.compilationUnitContext == null;
   }
 
   @Override
@@ -224,6 +228,11 @@ public class CompilableSource implements Source, TokenConsumptionListener {
     } catch (Exception ex) {
       throw new CompilerException("Unable to parse file " + filename, ex);
     }
+  }
+
+  public CompilableSource completeParsing() {
+    this.parse();
+    return this;
   }
 
   /**

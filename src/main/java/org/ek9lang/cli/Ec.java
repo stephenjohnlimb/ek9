@@ -116,7 +116,7 @@ public abstract class Ec extends E {
 
   public void setDevBuild(boolean devBuild) {
     compilerFlags.setDevBuild(devBuild);
-    this.sourceFileCache.setDevBuild(devBuild);
+    sourceFileCache.setDevBuild(devBuild);
   }
 
   public void setCheckCompilationOnly(boolean checkCompilationOnly) {

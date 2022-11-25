@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.net.URL;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
+import org.ek9lang.compiler.testsupport.PathToSourceFromName;
 import org.ek9lang.compiler.tokenizer.TokenResult;
 import org.ek9lang.core.exception.CompilerException;
 import org.junit.jupiter.api.Test;
@@ -26,18 +26,14 @@ import org.junit.jupiter.params.provider.ValueSource;
 final class CompilableSourceTest {
 
   private static final Supplier<CompilableSource> validEk9Source = () -> {
-    URL helloWorld = CompilableSourceTest.class.getResource("/examples/basics/HelloWorld.ek9");
-
-    assertNotNull(helloWorld, "Expecting URL for hello world to be available.");
-    var helloWorldSource = new CompilableSource(helloWorld.getPath());
+    var fullPath = new PathToSourceFromName().apply("/examples/basics/HelloWorld.ek9");
+    var helloWorldSource = new CompilableSource(fullPath);
     assertNotNull(helloWorldSource, "Expecting source to be available");
     return helloWorldSource;
   };
 
-  private static final UnaryOperator<CompilableSource> processEk9Source = source -> {
-    source.prepareToParse().parse();
-    return source;
-  };
+  private static final UnaryOperator<CompilableSource> processEk9Source =
+      source -> source.prepareToParse().completeParsing();
 
   @ParameterizedTest
   @NullSource

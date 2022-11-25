@@ -44,6 +44,10 @@ public class CompilerFlags {
    */
   private CompilationPhase compileToPhase;
 
+  public CompilerFlags() {
+    this(CompilationPhase.APPLICATION_PACKAGING);
+  }
+
   public CompilerFlags(CompilationPhase compileToPhase) {
     this.compileToPhase = compileToPhase;
   }

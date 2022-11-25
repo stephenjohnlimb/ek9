@@ -15,13 +15,16 @@ import org.ek9lang.core.utils.Glob;
  * We need to load up references to the files once and then filter as needed.
  * Obviously for a Language Server this would be done with listeners and watchers.
  * But for a command line process - we have to reload all the time.
- * This calls enables up to keep the base set of full files and then provide cut down
+ * This enables us to keep the base set of full files and then provide cut down
  * lists depending on what command is to be used.
  */
 public class FileCache {
   private final CommandLineDetails commandLine;
 
-  private boolean devBuild = false;
+  /**
+   * We hold dev-build here, because we may have forced it, it was not in compiler command line.
+   */
+  private boolean devBuild;
   private List<File> cachedFileList = null;
 
   /**
@@ -29,6 +32,7 @@ public class FileCache {
    */
   public FileCache(CommandLineDetails commandLine) {
     this.commandLine = commandLine;
+    this.devBuild = commandLine.isDevBuild();
   }
 
   /**

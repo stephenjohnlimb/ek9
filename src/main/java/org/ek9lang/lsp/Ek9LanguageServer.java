@@ -68,8 +68,8 @@ public final class Ek9LanguageServer extends Ek9Service
         fileList.forEach(file -> {
           //Use new JDK19 virtual threads for this.
           try {
-            var errorListener = getWorkspace().reParseSource(file.toPath());
-            reportOnCompiledSource(errorListener);
+            var compilableSource = getWorkspace().reParseSource(file.toPath());
+            reportOnCompiledSource(compilableSource.getErrorListener());
           } catch (RuntimeException rex) {
             Logger.error("Failed to load and parse " + file.toString());
           }

@@ -24,14 +24,34 @@ public final class SourceFileSupport {
   }
 
   public File copyFileToTestCWD(String fromRelativeTestUrl, String ek9SourceFileName) {
-    File example = new File(getPath(fromRelativeTestUrl, ek9SourceFileName));
+    File fileToCopy = new File(getPath(fromRelativeTestUrl, ek9SourceFileName));
 
     //Now we can put a dummy source file in the simulated/test cwd and then try and process it.
     File cwd = new File(osSupport.getCurrentWorkingDirectory());
     assertTrue(cwd.exists());
-    File aSourceFile = new File(cwd, ek9SourceFileName);
+    return copyToDirectory(fileToCopy, cwd, ek9SourceFileName);
+  }
+
+  public File copyFileToTestDirectoryUnderCWD(String fromRelativeTestUrl,
+                                              String ek9SourceFileName,
+                                              String directoryNameUnderCWD) {
+    File fileToCopy = new File(getPath(fromRelativeTestUrl, ek9SourceFileName));
+
+    //Now we can put a dummy source file in the simulated/test cwd and then try and process it.
+    File cwd = new File(osSupport.getCurrentWorkingDirectory());
+    assertTrue(cwd.exists());
+    File directory = directoryNameUnderCWD != "."
+        ? new File(cwd, directoryNameUnderCWD)
+        : cwd;
+    osSupport.makeDirectoryIfNotExists(directory);
+    assertTrue(directory.exists());
+    return copyToDirectory(fileToCopy, directory, ek9SourceFileName);
+  }
+
+    private File copyToDirectory(File toCopy, File directory, String fileName) {
+    File aSourceFile = new File(directory, fileName);
     if (!aSourceFile.exists()) {
-      assertTrue(fileHandling.copy(new File(example.getParent()), cwd, ek9SourceFileName));
+      assertTrue(fileHandling.copy(new File(toCopy.getParent()), directory, fileName));
       assertTrue(aSourceFile.exists());
     }
 

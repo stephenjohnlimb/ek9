@@ -23,31 +23,31 @@ public class Workspace {
   /**
    * ReParses or loads and parses a source file.
    */
-  public ErrorListener reParseSource(Path path) {
+  public CompilableSource reParseSource(Path path) {
     return reParseSource(path.toString());
   }
 
   /**
    * Typically used via the language server.
    */
-  public ErrorListener reParseSource(String uri, InputStream inputStream) {
+  public CompilableSource reParseSource(String uri, InputStream inputStream) {
     Logger.debug("parsing/reparsing [" + uri + "] but with direct inputstream");
     CompilableSource compilableSource = ensureCompilableSourceAvailable(uri);
     compilableSource.prepareToParse(inputStream).parse();
-    return compilableSource.getErrorListener();
+    return compilableSource;
   }
 
   /**
    * Triggers the re-parsing of the source file. Normally after an edit so errors can be checked.
    */
-  public ErrorListener reParseSource(String uri) {
+  public CompilableSource reParseSource(String uri) {
     //Consider a queue of requests per uri as in an interactive mode the same file
     //will be triggered for re-parsing over and over again. We only need one request to be honoured!
 
     Logger.debug("parsing/re-parsing [" + uri + "]");
     CompilableSource compilableSource = ensureCompilableSourceAvailable(uri);
     compilableSource.prepareToParse().parse();
-    return compilableSource.getErrorListener();
+    return compilableSource;
   }
 
   private CompilableSource ensureCompilableSourceAvailable(String uri) {

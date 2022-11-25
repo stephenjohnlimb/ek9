@@ -100,7 +100,7 @@ public class Ek9TextDocumentService extends Ek9Service implements TextDocumentSe
     Logger.debug("didOpen Opened Source [" + uri + "]");
 
     var inputStream = new ByteArrayInputStream(params.getTextDocument().getText().getBytes());
-    reportOnCompiledSource(getWorkspace().reParseSource(uri, inputStream));
+    reportOnCompiledSource(getWorkspace().reParseSource(uri, inputStream).getErrorListener());
   }
 
   @Override

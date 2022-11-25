@@ -24,7 +24,7 @@ final class WorkspaceTest {
     URL helloWorld = WorkspaceTest.class.getResource("/examples/basics/HelloWorld.ek9");
     assertNotNull(helloWorld);
     Path path = Path.of(helloWorld.getPath());
-    var errorListener = workspace.reParseSource(path);
+    var errorListener = workspace.reParseSource(path).getErrorListener();
     assertNotNull(errorListener);
     assertTrue(errorListener.isErrorFree());
 
@@ -38,7 +38,7 @@ final class WorkspaceTest {
     URL helloWorld = WorkspaceTest.class.getResource("/examples/basics/HelloWorld.ek9");
     workspace.addSource(new CompilableSource(helloWorld.getPath()));
     assertTrue(workspace.isSourcePresent(helloWorld.getPath()));
-    var errorListener = workspace.reParseSource(helloWorld.getPath());
+    var errorListener = workspace.reParseSource(helloWorld.getPath()).getErrorListener();
     assertNotNull(errorListener);
     assertTrue(errorListener.isErrorFree());
   }

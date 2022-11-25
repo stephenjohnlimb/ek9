@@ -247,26 +247,11 @@ final class CommandLineDetailsTest {
         .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
   }
 
-  @Test
+  @ParameterizedTest
+  @ValueSource(strings = {"-C", "-Cp PARSING", "-Cdp PARSING"})
   @SuppressWarnings("java:S2699")
-  void testCommandLineFullCompile() {
-    var process = makeProcess.apply("-C");
-    assertFullCompilation
-        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
-  }
-
-  @Test
-  @SuppressWarnings("java:S2699")
-  void testCommandLineFullPhasedCompile() {
-    var process = makeProcess.apply("-Cp PARSING");
-    assertFullCompilation
-        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
-  }
-
-  @Test
-  @SuppressWarnings("java:S2699")
-  void testCommandLineFullPhasedDevCompile() {
-    var process = makeProcess.apply("-Cdp PARSING");
+  void testCommandLineFullCompile(final String flag) {
+    var process = makeProcess.apply(flag);
     assertFullCompilation
         .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
   }

@@ -31,7 +31,9 @@ public class Eic extends Ec {
       } else {
         prepareCompilation();
 
-        rtn = compile(sourceFileCache.getIncrementalCompilableProjectFiles());
+        //We still get all the compilable project files.
+        //The compiler will only generate new artefacts if they are out of date.
+        rtn = compile(sourceFileCache.getAllCompilableProjectFiles());
 
         int changesToPackage = sourceFileCache.getIncrementalFilesPartOfBuild().size();
         log(changesToPackage + " changed file(s)");

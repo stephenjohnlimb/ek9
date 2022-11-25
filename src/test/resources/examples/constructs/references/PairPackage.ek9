@@ -1,0 +1,19 @@
+#!ek9
+//For use with Testing pair files all get loaded.
+defines module ekopen.std.incs
+
+  defines package
+
+    publicAccess <- true
+    version <- 1.0.1-0
+    description <- "Example of standard includes"
+    license <- "MIT"
+
+    tags <- [
+      "general",
+      "tools"
+      ]
+
+    applyStandardIncludes <- true
+
+//EOF

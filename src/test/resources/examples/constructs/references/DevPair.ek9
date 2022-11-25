@@ -1,0 +1,8 @@
+#!ek9
+defines module net.customer.pair.dev
+
+  //Just for testing picking up development sources.
+  defines constant
+    Steve <- "Steve"
+
+//EOF
