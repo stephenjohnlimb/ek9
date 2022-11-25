@@ -140,7 +140,7 @@ public class CommandLineDetails {
       return Ek9.BAD_COMMANDLINE_EXIT_CODE;
     }
 
-    var fullCommandLine = Arrays.stream(argv).collect(Collectors.joining(" "));
+    var fullCommandLine = String.join(" ", argv);
     return processCommandLine(fullCommandLine);
   }
 

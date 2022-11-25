@@ -31,7 +31,7 @@ public class Workspace {
    * Typically used via the language server.
    */
   public CompilableSource reParseSource(String uri, InputStream inputStream) {
-    Logger.debug("parsing/reparsing [" + uri + "] but with direct inputstream");
+    Logger.debug("parsing/re-parsing [" + uri + "] but with direct input stream");
     CompilableSource compilableSource = ensureCompilableSourceAvailable(uri);
     compilableSource.prepareToParse(inputStream).parse();
     return compilableSource;

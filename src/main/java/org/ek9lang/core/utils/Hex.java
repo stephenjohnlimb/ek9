@@ -4,7 +4,7 @@ package org.ek9lang.core.utils;
  * Converts bytes to Hexadecimal and back.
  */
 public final class Hex {
-  protected static final char[] hexArray = "0123456789ABCDEF".toCharArray();
+  private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
 
   private Hex() {
     //Just to stop instantiation.

@@ -47,7 +47,7 @@ public final class Packager {
   }
 
   /**
-   * Unpackes a zip/jar file to a specific directory.
+   * Unpacks a zip/jar file to a specific directory.
    */
   public boolean unZipFileTo(File zipFile, File unpackedDir) {
     //Preconditions

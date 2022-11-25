@@ -510,7 +510,7 @@ public class ErrorListener extends BaseErrorListener {
   /**
    * Fine detail of the error.
    */
-  public abstract static class Details {
+  public abstract static class Details implements CompilationIssue{
 
     /**
      * Not always set.
@@ -541,8 +541,6 @@ public class ErrorListener extends BaseErrorListener {
           + "' on line " + lineNumber + " position " + characterNumber;
     }
 
-    protected abstract String getClassificationDescription();
-
     public SemanticClassification getSemanticClassification() {
       return semanticClassification;
     }
@@ -551,22 +549,27 @@ public class ErrorListener extends BaseErrorListener {
       this.semanticClassification = semanticClassification;
     }
 
+    @Override
     public String getTypeOfError() {
       return typeOfError;
     }
 
+    @Override
     public int getLineNumber() {
       return lineNumber;
     }
 
+    @Override
     public int getPosition() {
       return position;
     }
 
+    @Override
     public int getTokenLength() {
       return tokenLength;
     }
 
+    @Override
     public String getLikelyOffendingSymbol() {
       return likelyOffendingSymbol;
     }
@@ -589,6 +592,7 @@ public class ErrorListener extends BaseErrorListener {
      *
      * @return The unique vector for the position.
      */
+    @Override
     public String toLinePositionReference() {
       StringBuilder buffer = new StringBuilder();
       if (possibleShortFileName != null) {

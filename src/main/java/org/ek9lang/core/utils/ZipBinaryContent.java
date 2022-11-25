@@ -6,7 +6,7 @@ import java.util.Objects;
 /**
  * Very simple wrapper for binary contents.
  */
-public final record ZipBinaryContent(String entryName, byte[] content) {
+public record ZipBinaryContent(String entryName, byte[] content) {
   public String getEntryName() {
     return entryName;
   }
@@ -36,12 +36,7 @@ public final record ZipBinaryContent(String entryName, byte[] content) {
 
   @Override
   public String toString() {
-    return new StringBuilder("ZipBinaryContent{")
-        .append("entryName='")
-        .append(entryName)
-        .append("'")
-        .append(", content=")
-        .append(Arrays.toString(content))
-        .append("}").toString();
+    return String.format("ZipBinaryContent{entryName='%s',content=%s}",
+        entryName, Arrays.toString(content));
   }
 }

@@ -33,8 +33,8 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
   }
 
   /**
-   * Parse a version string to produce a Semanic Version object.
-   * If unparsable then an invalid semantic version will result.
+   * Parse a version string to produce a Semantic Version object.
+   * If un-parsable then an invalid semantic version will result.
    */
   public static SemanticVersion of(String value) {
     SemanticVersion rtn = new SemanticVersion();
@@ -47,8 +47,8 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
   }
 
   /**
-   * Parse a version string that also have a build number to produce a Semanic Version object.
-   * If unparsable then an invalid semantic version will result.
+   * Parse a version string that also have a build number to produce a Semantic Version object.
+   * If un-parsable then an invalid semantic version will result.
    */
   public static SemanticVersion withNoBuildNumber(String value) {
     SemanticVersion rtn = new SemanticVersion();
@@ -121,7 +121,7 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
     Pattern p = Pattern.compile(MAIN_REGEX + BUILD_NO_REGEX + "$");
     Matcher m = p.matcher(value);
 
-    if (!extractMatches(m)) {
+    if (extractDoesNotMatch(m)) {
       return false;
     }
 
@@ -133,7 +133,7 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
   private boolean parseWithoutBuildNumber(String value) {
     Pattern p = Pattern.compile(MAIN_REGEX + "$");
     Matcher m = p.matcher(value);
-    if (!extractMatches(m)) {
+    if (extractDoesNotMatch(m)) {
       return false;
     }
 
@@ -142,9 +142,9 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
     return true;
   }
 
-  private boolean extractMatches(final Matcher m) {
+  private boolean extractDoesNotMatch(final Matcher m) {
     if (!m.find()) {
-      return false;
+      return true;
     }
 
     this.major = java.lang.Integer.parseInt(m.group("major"));
@@ -152,7 +152,7 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
     this.patch = java.lang.Integer.parseInt(m.group("patch"));
     //might not be present
     this.feature = m.group("feature");
-    return true;
+    return false;
   }
 
   @Override

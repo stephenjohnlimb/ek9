@@ -9,7 +9,7 @@ import org.antlr.v4.runtime.TokenFactory;
  * A Lexer, but one that delegates to the actual lexer that in plugged in.
  */
 public class DelegatingLexer implements LexerPlugin {
-  private LexerPlugin delegateTo;
+  private final LexerPlugin delegateTo;
 
   public DelegatingLexer(LexerPlugin delegateTo) {
     this.delegateTo = delegateTo;

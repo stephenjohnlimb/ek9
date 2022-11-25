@@ -185,11 +185,11 @@ public final class DependencyNode {
   }
 
   private String getModuleAndVersion() {
-    return new StringBuilder(moduleName).append("-").append(version).toString();
+    return String.format("%s-%s", moduleName, version);
   }
 
   private String getReason() {
-    return new StringBuilder("(").append(reason).append(")").toString();
+    return String.format("(%s)", reason);
   }
 
   /**
