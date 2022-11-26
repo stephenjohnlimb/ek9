@@ -48,9 +48,11 @@ public abstract class Ec extends E {
     }
 
     if (compilerFlags.isDebuggingInstrumentation()) {
+
       log("Instrumenting");
     }
     if (compilerFlags.isDevBuild()) {
+
       log("Development");
     }
   }
@@ -58,34 +60,39 @@ public abstract class Ec extends E {
   /**
    * HERE FOR COMPILER ENTRY.
    * This is the key entry point into the CLI compile process.
+   * This creates a workspace with all the required files.
+   * Then it uses the compiler from the compilationContext and flags
+   * to trigger the compile process.
    */
   protected boolean compile(List<File> compilableProjectFiles) {
     log(compilableProjectFiles.size() + " source file(s)");
 
     //Do the actual compilation!
-
-    //At present if in log mode show the list of files to be compiled.
-    compilableProjectFiles.forEach(file -> log(file.getAbsolutePath()));
-
-    //Do compile these files with appropriate compiler
-
-    //Do make sure we pass in this.isCheckCompilationOnly()
     Workspace workspace = new Workspace();
-    compilableProjectFiles.forEach(workspace::addSource);
+
+    //Show the list of files to be compiled (if in verbose mode).
+    //Add to the workspace the compiler will use
+    compilableProjectFiles.forEach(file -> {
+      log(file.getAbsolutePath());
+      workspace.addSource(file);
+    });
 
     // HERE for triggering the compilation of the workspace
-    compilationContext.compiler().compile(workspace, compilerFlags);
+    var compilationResult = compilationContext.compiler().compile(workspace, compilerFlags);
 
-    var generatedOutputDirectory = getMainGeneratedOutputDirectory();
-    AssertValue.checkNotNull("Main generated out file null", generatedOutputDirectory);
-    //This will be some sort of intermediate form (i.e. java we then need to actually compile).
-
-    if (compilerFlags.isDevBuild()) {
-      var devGeneratedOutputDirectory = getDevGeneratedOutputDirectory();
-      AssertValue.checkNotNull("Dev generated out file null", devGeneratedOutputDirectory);
+    if (compilationResult) {
+      var generatedOutputDirectory = getMainGeneratedOutputDirectory();
+      AssertValue.checkNotNull("Main generated out file null", generatedOutputDirectory);
       //This will be some sort of intermediate form (i.e. java we then need to actually compile).
+
+      if (compilerFlags.isDevBuild()) {
+        var devGeneratedOutputDirectory = getDevGeneratedOutputDirectory();
+        AssertValue.checkNotNull("Dev generated out file null", devGeneratedOutputDirectory);
+        //This will be some sort of intermediate form (i.e. java we then need to actually compile).
+      }
     }
-    return true; //or false if compilation failed
+
+    return compilationResult; //or false if compilation failed
   }
 
   protected boolean repackageTargetArtefact() {

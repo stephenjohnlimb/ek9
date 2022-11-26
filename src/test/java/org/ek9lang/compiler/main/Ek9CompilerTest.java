@@ -51,7 +51,7 @@ class Ek9CompilerTest {
     };
 
     var compiler = new Ek9Compiler(listener);
-    assertTrue(compiler.compile(validEk9Workspace.get(), new CompilerFlags(upToPhase)));
+    assertTrue(compiler.compile(validEk9Workspace.get(), new CompilerFlags(upToPhase, true)));
   }
 
   @Test

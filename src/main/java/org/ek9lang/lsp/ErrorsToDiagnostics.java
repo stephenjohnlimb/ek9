@@ -35,12 +35,12 @@ public class ErrorsToDiagnostics {
     rtn.setUri(errorListener.getGeneralIdentifierOfSource());
     List<Diagnostic> diagnostics = new ArrayList<>(0);
 
-    if (!errorListener.isWarningFree()) {
+    if (errorListener.hasWarnings()) {
       diagnostics.addAll(
           extractDiagnostics(errorListener.getWarnings(), DiagnosticSeverity.Warning));
     }
 
-    if (!errorListener.isErrorFree()) {
+    if (errorListener.hasErrors()) {
       diagnostics.addAll(extractDiagnostics(errorListener.getErrors(), DiagnosticSeverity.Error));
     }
 

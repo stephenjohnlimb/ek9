@@ -558,10 +558,11 @@ public class Ek9LanguageWords {
    * Get only an exact match for this search.
    */
   public KeyWordInformation exactMatch(TokenResult search) {
+    KeyWordInformation rtn = null;
     if (search.isPresent()) {
-      return keywordMap.get(search.getToken().getText());
+      rtn = keywordMap.get(search.getToken().getText());
     }
-    return null;
+    return rtn;
   }
 
   /**

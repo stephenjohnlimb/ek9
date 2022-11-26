@@ -18,12 +18,18 @@ public abstract class Reporter {
    */
   protected abstract String messagePrefix();
 
+  /**
+   * Log a message to stderr if verbose enabled.
+   */
   public void log(Object message) {
     if (verbose) {
       Logger.error(messagePrefix() + message);
     }
   }
 
+  /**
+   * Report a message to stderr.
+   */
   public void report(Object message) {
     Logger.error(messagePrefix() + message);
   }

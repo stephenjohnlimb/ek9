@@ -9,7 +9,6 @@ import org.ek9lang.compiler.files.CompilableSource;
 import org.ek9lang.compiler.files.Workspace;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.core.exception.AssertValue;
-import org.ek9lang.core.utils.Logger;
 
 /**
  * The main EK9 compiler.
@@ -68,10 +67,9 @@ public class Ek9Compiler implements Compiler {
     return true;
   }
 
-  private boolean prepareToParseSources(Workspace workspace, CompilerFlags flags) {
+  private void prepareToParseSources(Workspace workspace, CompilerFlags flags) {
     reporter.log(CompilationPhase.PREPARE_PARSE);
     underTakeParsing(workspace, CompilationPhase.PREPARE_PARSE, CompilableSource::prepareToParse);
-    return true;
   }
 
   private boolean parseSources(Workspace workspace, CompilerFlags flags) {
@@ -92,7 +90,6 @@ public class Ek9Compiler implements Compiler {
     sources.forEach(
         source -> listener.processed(phase, source));
   }
-
 
   private static class CompilerReporter extends Reporter {
     protected CompilerReporter(boolean verbose) {

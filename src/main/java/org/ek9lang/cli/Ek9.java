@@ -54,6 +54,9 @@ public class Ek9 {
   private final CompilationContext compilationContext;
   private final CompilationReporter reporter;
 
+  /**
+   * Creates the compilerContext with the commandLine, and a real compiler.
+   */
   private static final Function<CommandLineDetails, CompilationContext> compilationContextCreation =
       commandLine -> {
         CompilationReporter compilerReporter = new CompilationReporter(commandLine.isVerbose());
@@ -94,6 +97,7 @@ public class Ek9 {
 
   /**
    * Run the command line and return the exit code.
+   * This can be either the language server or just the command line compiler.
    */
   public int run() throws InterruptedException {
     //This will cause the application to block and remain running as a language server.
@@ -133,7 +137,7 @@ public class Ek9 {
   }
 
   /**
-   * Just run a normal EK9 commandline command.
+   * Just run a normal EK9 commandline command - which could call the compiler.
    */
   private int runAsCommand() {
 
@@ -159,6 +163,7 @@ public class Ek9 {
       rtn = RUN_COMMAND_EXIT_CODE;
     }
 
+    //If the command line was to call for compilation this execution will trigger it.
     if (execution == null || !execution.run()) {
       reporter.report("Command not executed");
       rtn = BAD_COMMANDLINE_EXIT_CODE;
@@ -217,6 +222,9 @@ public class Ek9 {
     return execution;
   }
 
+  /**
+   * Just used for reporting and logging errors and warnings.
+   */
   private static class CompilationReporter extends Reporter {
     protected CompilationReporter(boolean verbose) {
       super(verbose);

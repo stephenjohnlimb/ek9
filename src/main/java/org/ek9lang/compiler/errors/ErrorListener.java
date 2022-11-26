@@ -514,7 +514,7 @@ public class ErrorListener extends BaseErrorListener {
   /**
    * Fine detail of the error.
    */
-  public abstract static class Details implements CompilationIssue{
+  public abstract static class Details implements CompilationIssue {
 
     /**
      * Not always set.

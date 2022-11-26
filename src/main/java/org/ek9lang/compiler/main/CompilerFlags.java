@@ -55,6 +55,11 @@ public class CompilerFlags {
     this.compileToPhase = compileToPhase;
   }
 
+  public CompilerFlags(CompilationPhase compileToPhase, boolean verbose) {
+    this.compileToPhase = compileToPhase;
+    this.verbose = verbose;
+  }
+
   public boolean isSuggestionRequired() {
     return suggestionRequired;
   }

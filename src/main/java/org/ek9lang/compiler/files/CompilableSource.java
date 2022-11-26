@@ -199,9 +199,7 @@ public class CompilableSource implements Source, TokenConsumptionListener {
    * Sets up the compilable source to be parsed.
    */
   public CompilableSource prepareToParse() {
-    try {
-      //we will set the parsed module once parsed.
-      InputStream inputStream = getInputStream();
+    try (InputStream inputStream = getInputStream()) {
       return prepareToParse(inputStream);
     } catch (Exception ex) {
       throw new CompilerException("Unable to parse file " + filename, ex);

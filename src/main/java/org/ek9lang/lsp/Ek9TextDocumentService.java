@@ -87,11 +87,12 @@ public class Ek9TextDocumentService extends Ek9Service implements TextDocumentSe
   }
 
   private Hover hoverViaLanguageKeyWord(TokenResult tokenResult) {
+    Hover rtn = null;
     var match = getLanguageWords().exactMatch(tokenResult);
     if (match != null) {
-      return new Hover(new MarkupContent("plaintext", match.hoverText));
+      rtn = new Hover(new MarkupContent("plaintext", match.hoverText));
     }
-    return null;
+    return rtn;
   }
 
   @Override
