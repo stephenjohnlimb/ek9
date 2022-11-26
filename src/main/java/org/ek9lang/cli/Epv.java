@@ -1,13 +1,13 @@
 package org.ek9lang.cli;
 
-import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.cli.support.CompilationContext;
 
 /**
  * Print the version number of the package.
  */
 public class Epv extends Eve {
-  public Epv(CommandLineDetails commandLine, FileCache sourceFileCache) {
-    super(commandLine, sourceFileCache);
+  public Epv(CompilationContext compilationContext) {
+    super(compilationContext);
   }
 
   @Override
@@ -16,7 +16,7 @@ public class Epv extends Eve {
   }
 
   protected boolean doRun() {
-    report(commandLine.getVersion());
+    report(compilationContext.commandLine().getVersion());
     return true;
   }
 }

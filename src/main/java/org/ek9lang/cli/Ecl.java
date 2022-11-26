@@ -1,13 +1,13 @@
 package org.ek9lang.cli;
 
-import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.cli.support.CompilationContext;
 
 /**
  * Clean a project down.
  */
 public class Ecl extends E {
-  public Ecl(CommandLineDetails commandLine, FileCache sourceFileCache) {
-    super(commandLine, sourceFileCache);
+  public Ecl(CompilationContext compilationContext) {
+    super(compilationContext);
   }
 
   @Override
@@ -16,11 +16,12 @@ public class Ecl extends E {
   }
 
   protected boolean doRun() {
-    getFileHandling().cleanEk9DirectoryStructureFor(commandLine.getFullPathToSourceFileName(),
-        commandLine.targetArchitecture);
+    getFileHandling().cleanEk9DirectoryStructureFor(
+        compilationContext.commandLine().getFullPathToSourceFileName(),
+        compilationContext.commandLine().targetArchitecture);
     //Now trigger file structure and property file regeneration.
     log("- Props");
-    commandLine.processEk9FileProperties(true);
+    compilationContext.commandLine().processEk9FileProperties(true);
     return true;
   }
 }

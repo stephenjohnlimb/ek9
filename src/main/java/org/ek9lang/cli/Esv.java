@@ -1,13 +1,13 @@
 package org.ek9lang.cli;
 
-import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.cli.support.CompilationContext;
 
 /**
  * Used to explicitly set the version of a package.
  */
 public class Esv extends Eve {
-  public Esv(CommandLineDetails commandLine, FileCache sourceFileCache) {
-    super(commandLine, sourceFileCache);
+  public Esv(CompilationContext compilationContext) {
+    super(compilationContext);
   }
 
   @Override
@@ -16,7 +16,7 @@ public class Esv extends Eve {
   }
 
   protected boolean doRun() {
-    String newVersionParameter = commandLine.getOptionParameter("-SV");
+    String newVersionParameter = compilationContext.commandLine().getOptionParameter("-SV");
     return super.setVersionNewNumber(Version.withNoBuildNumber(newVersionParameter));
   }
 }

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.cli.support.CompilationContext;
 import org.ek9lang.core.exception.CompilerException;
 import org.ek9lang.core.utils.ExceptionConverter;
 import org.ek9lang.core.utils.Processor;
@@ -17,14 +17,15 @@ import org.ek9lang.core.utils.Processor;
  * Base for the versioning commands.
  */
 public abstract class Eve extends E {
-  protected Eve(CommandLineDetails commandLine, FileCache sourceFileCache) {
-    super(commandLine, sourceFileCache);
+  protected Eve(CompilationContext compilationContext) {
+    super(compilationContext);
   }
 
   @Override
   public boolean preConditionCheck() {
-    if (commandLine.noPackageIsPresent()) {
-      report("File " + super.commandLine.getSourceFileName() + " does not define a package");
+    if (compilationContext.commandLine().noPackageIsPresent()) {
+      report("File " + compilationContext.commandLine().getSourceFileName()
+          + " does not define a package");
       return false;
     }
     return super.preConditionCheck();
@@ -50,7 +51,8 @@ public abstract class Eve extends E {
     //Now write it back out
 
     Processor<Boolean> processor = () -> {
-      try (PrintWriter writer = new PrintWriter(commandLine.getFullPathToSourceFileName(),
+      try (PrintWriter writer = new PrintWriter(
+          compilationContext.commandLine().getFullPathToSourceFileName(),
           StandardCharsets.UTF_8)) {
         output.forEach(writer::println);
         return true;
@@ -61,7 +63,7 @@ public abstract class Eve extends E {
 
   private List<String> loadAndUpdateVersionFromSourceFile(Version newVersion) {
     //Now for processing of existing to get the line number.
-    Integer versionLineNumber = commandLine.processEk9FileProperties(true);
+    Integer versionLineNumber = compilationContext.commandLine().processEk9FileProperties(true);
     return updateVersionOnLineNumber(newVersion, versionLineNumber);
   }
 
@@ -71,7 +73,7 @@ public abstract class Eve extends E {
 
     Processor<Boolean> processor = () -> {
       try (BufferedReader br = new BufferedReader(
-          new FileReader(commandLine.getFullPathToSourceFileName()))) {
+          new FileReader(compilationContext.commandLine().getFullPathToSourceFileName()))) {
         int lineCount = 0;
         String line;
         while ((line = br.readLine()) != null) {

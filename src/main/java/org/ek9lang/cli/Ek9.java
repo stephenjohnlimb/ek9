@@ -1,8 +1,15 @@
 package org.ek9lang.cli;
 
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 import org.ek9lang.LanguageMetaData;
+import org.ek9lang.cli.support.CompilationContext;
 import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.cli.support.Reporter;
+import org.ek9lang.compiler.files.CompilableSource;
+import org.ek9lang.compiler.main.Compiler;
+import org.ek9lang.compiler.main.Ek9Compiler;
+import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.Logger;
 import org.ek9lang.core.utils.OsSupport;
@@ -43,10 +50,22 @@ public class Ek9 {
   public static final int NO_PROGRAMS_EXIT_CODE = 5;
   public static final int PROGRAM_NOT_SPECIFIED_EXIT_CODE = 6;
   public static final int LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE = 7;
-  private final CommandLineDetails commandLine;
 
-  public Ek9(CommandLineDetails commandLine) {
-    this.commandLine = commandLine;
+  private final CompilationContext compilationContext;
+  private final CompilationReporter reporter;
+
+  private static final Function<CommandLineDetails, CompilationContext> compilationContextCreation =
+      commandLine -> {
+        CompilationReporter compilerReporter = new CompilationReporter(commandLine.isVerbose());
+        FileCache sourceFileCache = new FileCache(commandLine);
+        Compiler compiler = new Ek9Compiler(compilerReporter::logPhaseCompilation);
+
+        return new CompilationContext(commandLine, compiler, sourceFileCache);
+      };
+
+  public Ek9(CompilationContext compilationContext) {
+    this.compilationContext = compilationContext;
+    this.reporter = new CompilationReporter(compilationContext.commandLine().isVerbose());
   }
 
   /**
@@ -60,51 +79,54 @@ public class Ek9 {
 
     try {
       int result = commandLine.processCommandLine(argv);
+
       if (result >= Ek9.SUCCESS_EXIT_CODE) {
         System.exit(result);
       }
 
-      System.exit(new Ek9(commandLine).run());
+      System.exit(new Ek9(compilationContextCreation.apply(commandLine)).run());
     } catch (RuntimeException rex) {
       Logger.error(rex);
       System.exit(BAD_COMMANDLINE_EXIT_CODE);
     }
   }
 
+
   /**
    * Run the command line and return the exit code.
    */
   public int run() throws InterruptedException {
     //This will cause the application to block and remain running as a language server.
-    if (commandLine.isRunEk9AsLanguageServer()) {
-      return runAsLanguageServer(commandLine);
+    if (compilationContext.commandLine().isRunEk9AsLanguageServer()) {
+      return runAsLanguageServer();
     }
 
     //Just run the command as is.
-    return runAsCommand(commandLine);
+    return runAsCommand();
   }
 
   /**
    * Just run as a language server.
    * Blocks in the running.
    *
-   * @param commandLine The commandline developer used.
    * @return The exit code to exit with
    */
   @SuppressWarnings("java:S106")
-  private int runAsLanguageServer(CommandLineDetails commandLine) throws InterruptedException {
-    Logger.error("EK9 running as LSP languageHelp=" + commandLine.isEk9LanguageServerHelpEnabled());
+  private int runAsLanguageServer() throws InterruptedException {
+    reporter.report("EK9 running as LSP languageHelp=" + compilationContext.commandLine()
+        .isEk9LanguageServerHelpEnabled());
     var startListening =
-        Server.runEk9LanguageServer(commandLine.getOsSupport(), System.in, System.out,
-            commandLine.isEk9LanguageServerHelpEnabled());
+        Server.runEk9LanguageServer(compilationContext.commandLine().getOsSupport(), System.in,
+            System.out,
+            compilationContext.commandLine().isEk9LanguageServerHelpEnabled());
 
     try {
       startListening.get();
     } catch (ExecutionException executionException) {
-      Logger.error("Failed to Start Language Server");
+      reporter.report("Failed to Start Language Server");
       return LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE;
     } catch (InterruptedException interruptedException) {
-      Logger.error("Start Language Server Interrupted Stopping");
+      reporter.report("Start Language Server Interrupted Stopping");
       throw interruptedException;
     }
     return SUCCESS_EXIT_CODE;
@@ -113,89 +135,111 @@ public class Ek9 {
   /**
    * Just run a normal EK9 commandline command.
    */
-  private int runAsCommand(CommandLineDetails commandLine) {
-    //Keep a cache once files are loaded, because each of the executions may call each other.
-    FileCache sourceFileCache = new FileCache(commandLine);
+  private int runAsCommand() {
 
-    deleteFinalArtifactIfDependenciesAltered(sourceFileCache);
+    deleteFinalArtifactIfDependenciesAltered(compilationContext);
 
     int rtn = BAD_COMMANDLINE_EXIT_CODE;
     E execution = null;
 
-    if (commandLine.isJustBuildTypeOption()) {
-      execution = getExecutionForBuildTypeOption(sourceFileCache);
+    if (compilationContext.commandLine().isJustBuildTypeOption()) {
+      execution = getExecutionForBuildTypeOption(compilationContext);
       rtn = SUCCESS_EXIT_CODE;
-    } else if (commandLine.isReleaseVectorOption()) {
-      execution = getExecutionForReleaseVectorOption(sourceFileCache);
+    } else if (compilationContext.commandLine().isReleaseVectorOption()) {
+      execution = getExecutionForReleaseVectorOption(compilationContext);
       rtn = SUCCESS_EXIT_CODE;
-    } else if (commandLine.isDeveloperManagementOption()) {
-      execution = getExecutionForDeveloperManagementOption(sourceFileCache);
+    } else if (compilationContext.commandLine().isDeveloperManagementOption()) {
+      execution = getExecutionForDeveloperManagementOption(compilationContext);
       rtn = SUCCESS_EXIT_CODE;
-    } else if (commandLine.isUnitTestExecution()) {
-      execution = new Et(commandLine, sourceFileCache);
+    } else if (compilationContext.commandLine().isUnitTestExecution()) {
+      execution = new Et(compilationContext);
       rtn = SUCCESS_EXIT_CODE;
-    } else if (commandLine.isRunOption()) {
-      execution = new Er(commandLine, sourceFileCache);
+    } else if (compilationContext.commandLine().isRunOption()) {
+      execution = new Er(compilationContext);
       rtn = RUN_COMMAND_EXIT_CODE;
     }
 
     if (execution == null || !execution.run()) {
-      Logger.error("Command not executed");
+      reporter.report("Command not executed");
       rtn = BAD_COMMANDLINE_EXIT_CODE;
     }
     return rtn;
   }
 
-  private void deleteFinalArtifactIfDependenciesAltered(FileCache sourceFileCache) {
-    if (commandLine.isDependenciesAltered()) {
-      if (commandLine.isVerbose()) {
-        Logger.error("Dependencies altered.");
+  private void deleteFinalArtifactIfDependenciesAltered(CompilationContext compilationContext) {
+    if (compilationContext.commandLine().isDependenciesAltered()) {
+      reporter.log("Dependencies altered.");
+      compilationContext.sourceFileCache().deleteTargetExecutableArtefact();
+    }
+  }
+
+  private E getExecutionForDeveloperManagementOption(CompilationContext compilationContext) {
+    E execution = null;
+    if (compilationContext.commandLine().isGenerateSigningKeys()) {
+      execution = new Egk(compilationContext);
+    } else if (compilationContext.commandLine().isUpdateUpgrade()) {
+      execution = new Up(compilationContext);
+    }
+    return execution;
+  }
+
+  private E getExecutionForBuildTypeOption(CompilationContext compilationContext) {
+    E execution = null;
+    if (compilationContext.commandLine().isCleanAll()) {
+      execution = new Ecl(compilationContext);
+    } else if (compilationContext.commandLine().isResolveDependencies()) {
+      execution = new Edp(compilationContext);
+    } else if (compilationContext.commandLine().isIncrementalCompile()) {
+      execution = new Eic(compilationContext);
+    } else if (compilationContext.commandLine().isFullCompile()) {
+      execution = new Efc(compilationContext);
+    } else if (compilationContext.commandLine().isPackaging()) {
+      execution = new Ep(compilationContext);
+    } else if (compilationContext.commandLine().isInstall()) {
+      execution = new Ei(compilationContext);
+    } else if (compilationContext.commandLine().isDeployment()) {
+      execution = new Ed(compilationContext);
+    }
+    return execution;
+  }
+
+  private E getExecutionForReleaseVectorOption(CompilationContext compilationContext) {
+    E execution = null;
+    if (compilationContext.commandLine().isIncrementReleaseVector()) {
+      execution = new Eiv(compilationContext);
+    } else if (compilationContext.commandLine().isSetReleaseVector()) {
+      execution = new Esv(compilationContext);
+    } else if (compilationContext.commandLine().isSetFeatureVector()) {
+      execution = new Esf(compilationContext);
+    } else if (compilationContext.commandLine().isPrintReleaseVector()) {
+      execution = new Epv(compilationContext);
+    }
+    return execution;
+  }
+
+  private static class CompilationReporter extends Reporter {
+    protected CompilationReporter(boolean verbose) {
+      super(verbose);
+    }
+
+    public void logPhaseCompilation(CompilationPhase phase, CompilableSource source) {
+      var errorListener = source.getErrorListener();
+      log(String.format("%s: %s processed", phase, source.getFileName()));
+
+      if (errorListener.hasWarnings()) {
+        report(String.format("%s: %s has warnings", phase, source.getFileName()));
+        errorListener.getWarnings().forEachRemaining(this::report);
       }
-      sourceFileCache.deleteTargetExecutableArtefact();
-    }
-  }
 
-  private E getExecutionForDeveloperManagementOption(FileCache sourceFileCache) {
-    E execution = null;
-    if (commandLine.isGenerateSigningKeys()) {
-      execution = new Egk(commandLine, sourceFileCache);
-    } else if (commandLine.isUpdateUpgrade()) {
-      execution = new Up(commandLine, sourceFileCache);
+      if (errorListener.hasErrors()) {
+        report(String.format("%s: Errors in %s", phase, source.getFileName()));
+        errorListener.getErrors().forEachRemaining(this::report);
+      }
     }
-    return execution;
-  }
 
-  private E getExecutionForBuildTypeOption(FileCache sourceFileCache) {
-    E execution = null;
-    if (commandLine.isCleanAll()) {
-      execution = new Ecl(commandLine, sourceFileCache);
-    } else if (commandLine.isResolveDependencies()) {
-      execution = new Edp(commandLine, sourceFileCache);
-    } else if (commandLine.isIncrementalCompile()) {
-      execution = new Eic(commandLine, sourceFileCache);
-    } else if (commandLine.isFullCompile()) {
-      execution = new Efc(commandLine, sourceFileCache);
-    } else if (commandLine.isPackaging()) {
-      execution = new Ep(commandLine, sourceFileCache);
-    } else if (commandLine.isInstall()) {
-      execution = new Ei(commandLine, sourceFileCache);
-    } else if (commandLine.isDeployment()) {
-      execution = new Ed(commandLine, sourceFileCache);
+    @Override
+    protected String messagePrefix() {
+      return "EK9     : ";
     }
-    return execution;
-  }
-
-  private E getExecutionForReleaseVectorOption(FileCache sourceFileCache) {
-    E execution = null;
-    if (commandLine.isIncrementReleaseVector()) {
-      execution = new Eiv(commandLine, sourceFileCache);
-    } else if (commandLine.isSetReleaseVector()) {
-      execution = new Esv(commandLine, sourceFileCache);
-    } else if (commandLine.isSetFeatureVector()) {
-      execution = new Esf(commandLine, sourceFileCache);
-    } else if (commandLine.isPrintReleaseVector()) {
-      execution = new Epv(commandLine, sourceFileCache);
-    }
-    return execution;
   }
 }

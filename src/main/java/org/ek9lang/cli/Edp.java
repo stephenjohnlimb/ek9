@@ -3,8 +3,8 @@ package org.ek9lang.cli;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.ek9lang.cli.support.CompilationContext;
 import org.ek9lang.cli.support.DependencyNodeFactory;
-import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.core.utils.Logger;
 import org.ek9lang.dependency.DependencyManager;
 import org.ek9lang.dependency.DependencyNode;
@@ -16,8 +16,8 @@ import org.ek9lang.dependency.DependencyNode;
  */
 public class Edp extends E {
 
-  public Edp(CommandLineDetails commandLine, FileCache sourceFileCache) {
-    super(commandLine, sourceFileCache);
+  public Edp(CompilationContext compilationContext) {
+    super(compilationContext);
   }
 
   @Override
@@ -28,13 +28,14 @@ public class Edp extends E {
   protected boolean doRun() {
     log("- Clean");
 
-    boolean rtn = new Ecl(commandLine, sourceFileCache).run();
+    boolean rtn = new Ecl(compilationContext).run();
     if (rtn) {
-      if (commandLine.noPackageIsPresent()) {
+      if (compilationContext.commandLine().noPackageIsPresent()) {
         log("No Dependencies defined");
       }
       Optional<DependencyNode> rootNode =
-          new DependencyNodeFactory(commandLine).createFrom(commandLine.getSourceVisitor());
+          new DependencyNodeFactory(compilationContext.commandLine()).createFrom(
+              compilationContext.commandLine().getSourceVisitor());
       rtn = rootNode.isPresent() && processDependencies(new DependencyManager(rootNode.get()));
     }
     return rtn;
@@ -58,7 +59,7 @@ public class Edp extends E {
       return false;
     }
 
-    if (commandLine.isVerbose()) {
+    if (compilationContext.commandLine().isVerbose()) {
       showAnalysisInformation(dependencyManager);
     }
 

@@ -8,7 +8,7 @@ import org.ek9lang.compiler.files.Workspace;
 public class StubCompiler implements Compiler {
 
   @Override
-  public boolean compile(Workspace workspace) {
+  public boolean compile(Workspace workspace, CompilerFlags flags) {
     return true;
   }
 }

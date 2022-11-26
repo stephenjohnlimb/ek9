@@ -1,13 +1,13 @@
 package org.ek9lang.cli;
 
-import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.cli.support.CompilationContext;
 
 /**
  * Use to explicitly set a feature name on a package.
  */
 public class Esf extends Eve {
-  public Esf(CommandLineDetails commandLine, FileCache sourceFileCache) {
-    super(commandLine, sourceFileCache);
+  public Esf(CompilationContext compilationContext) {
+    super(compilationContext);
   }
 
   @Override
@@ -16,7 +16,7 @@ public class Esf extends Eve {
   }
 
   protected boolean doRun() {
-    String newVersionParameter = commandLine.getOptionParameter("-SF");
+    String newVersionParameter = compilationContext.commandLine().getOptionParameter("-SF");
     return super.setVersionNewNumber(Version.withNoBuildNumber(newVersionParameter));
   }
 }

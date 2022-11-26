@@ -1,6 +1,6 @@
 package org.ek9lang.cli;
 
-import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.cli.support.CompilationContext;
 
 /**
  * Do a full recompile of all sources inside project.
@@ -8,8 +8,8 @@ import org.ek9lang.cli.support.FileCache;
  * and recompiled.
  */
 public class Efc extends Ec {
-  public Efc(CommandLineDetails commandLine, FileCache sourceFileCache) {
-    super(commandLine, sourceFileCache);
+  public Efc(CompilationContext compilationContext) {
+    super(compilationContext);
   }
 
   @Override
@@ -18,12 +18,13 @@ public class Efc extends Ec {
   }
 
   protected boolean doRun() {
-    if (!new Edp(commandLine, sourceFileCache).run()) {
+    if (!new Edp(compilationContext).run()) {
       return false;
     }
 
     prepareCompilation();
 
-    return compile(sourceFileCache.getAllCompilableProjectFiles()) && repackageTargetArtefact();
+    return compile(compilationContext.sourceFileCache().getAllCompilableProjectFiles())
+        && repackageTargetArtefact();
   }
 }

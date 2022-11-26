@@ -1,7 +1,7 @@
 package org.ek9lang.cli;
 
 import java.io.File;
-import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.cli.support.CompilationContext;
 import org.ek9lang.cli.support.Reporter;
 import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.OsSupport;
@@ -10,13 +10,11 @@ import org.ek9lang.core.utils.OsSupport;
  * Abstract base for the command line ek9 commands.
  */
 public abstract class E extends Reporter {
-  protected final CommandLineDetails commandLine;
-  protected final FileCache sourceFileCache;
+  protected final CompilationContext compilationContext;
 
-  protected E(CommandLineDetails commandLine, FileCache sourceFileCache) {
-    super(commandLine.isVerbose());
-    this.commandLine = commandLine;
-    this.sourceFileCache = sourceFileCache;
+  protected E(CompilationContext compilationContext) {
+    super(compilationContext.commandLine().isVerbose());
+    this.compilationContext = compilationContext;
   }
 
   /**
@@ -25,11 +23,11 @@ public abstract class E extends Reporter {
   protected abstract String messagePrefix();
 
   protected FileHandling getFileHandling() {
-    return commandLine.getFileHandling();
+    return compilationContext.commandLine().getFileHandling();
   }
 
   protected OsSupport getOsSupport() {
-    return commandLine.getOsSupport();
+    return compilationContext.commandLine().getOsSupport();
   }
 
   public boolean run() {
@@ -44,7 +42,7 @@ public abstract class E extends Reporter {
   public boolean preConditionCheck() {
     log("Prepare");
     //Ensure the .ek9 directory exists in users home directory.
-    getFileHandling().validateHomeEk9Directory(commandLine.targetArchitecture);
+    getFileHandling().validateHomeEk9Directory(compilationContext.commandLine().targetArchitecture);
     return true;
   }
 
@@ -59,26 +57,27 @@ public abstract class E extends Reporter {
   protected abstract boolean doRun();
 
   protected String getDotEk9Directory() {
-    return getFileHandling().getDotEk9Directory(commandLine.getSourceFileDirectory());
+    return getFileHandling().getDotEk9Directory(
+        compilationContext.commandLine().getSourceFileDirectory());
   }
 
   protected File getMainGeneratedOutputDirectory() {
     return getFileHandling().getMainGeneratedOutputDirectory(getDotEk9Directory(),
-        commandLine.targetArchitecture);
+        compilationContext.commandLine().targetArchitecture);
   }
 
   protected File getMainFinalOutputDirectory() {
     return getFileHandling().getMainFinalOutputDirectory(getDotEk9Directory(),
-        commandLine.targetArchitecture);
+        compilationContext.commandLine().targetArchitecture);
   }
 
   protected File getDevGeneratedOutputDirectory() {
     return getFileHandling().getDevGeneratedOutputDirectory(getDotEk9Directory(),
-        commandLine.targetArchitecture);
+        compilationContext.commandLine().targetArchitecture);
   }
 
   protected File getDevFinalOutputDirectory() {
     return getFileHandling().getDevFinalOutputDirectory(getDotEk9Directory(),
-        commandLine.targetArchitecture);
+        compilationContext.commandLine().targetArchitecture);
   }
 }

@@ -1,14 +1,14 @@
 package org.ek9lang.cli;
 
-import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.cli.support.CompilationContext;
 import org.ek9lang.core.utils.SigningKeyPair;
 
 /**
  * Generate signing keys.
  */
 public class Egk extends E {
-  public Egk(CommandLineDetails commandLine, FileCache sourceFileCache) {
-    super(commandLine, sourceFileCache);
+  public Egk(CompilationContext compilationContext) {
+    super(compilationContext);
   }
 
   @Override

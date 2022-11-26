@@ -21,6 +21,9 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
  */
 public class CompilerFlags {
 
+  //Normally populated via the CLI.
+  private boolean verbose = false;
+
   private boolean debuggingInstrumentation = false;
 
   private boolean devBuild = false;
@@ -119,5 +122,13 @@ public class CompilerFlags {
     if (checkCompilationOnly) {
       compileToPhase = CompilationPhase.IR_ANALYSIS;
     }
+  }
+
+  public void setVerbose(boolean verbose) {
+    this.verbose = verbose;
+  }
+
+  public boolean isVerbose() {
+    return verbose;
   }
 }

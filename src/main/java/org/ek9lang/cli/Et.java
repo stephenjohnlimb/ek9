@@ -1,13 +1,13 @@
 package org.ek9lang.cli;
 
-import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.cli.support.CompilationContext;
 
 /**
  * Run all unit tests inside a project.
  */
 public class Et extends E {
-  public Et(CommandLineDetails commandLine, FileCache sourceFileCache) {
-    super(commandLine, sourceFileCache);
+  public Et(CompilationContext compilationContext) {
+    super(compilationContext);
   }
 
   @Override
@@ -19,7 +19,7 @@ public class Et extends E {
     log("Compile!");
 
     //trigger rebuild if needed
-    Eic eic = new Eic(commandLine, sourceFileCache);
+    Eic eic = new Eic(compilationContext);
     eic.setDebuggingInstrumentation(true);
     eic.setDevBuild(true);
     return eic.run() && runTheTests();

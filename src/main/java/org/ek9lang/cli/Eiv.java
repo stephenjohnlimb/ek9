@@ -2,7 +2,7 @@ package org.ek9lang.cli;
 
 import java.util.Map;
 import java.util.function.Consumer;
-import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.cli.support.CompilationContext;
 
 /**
  * Just increments a version number.
@@ -18,8 +18,8 @@ public class Eiv extends Eve {
       "build", Version::incrementBuildNumber
   );
 
-  public Eiv(CommandLineDetails commandLine, FileCache sourceFileCache) {
-    super(commandLine, sourceFileCache);
+  public Eiv(CompilationContext compilationContext) {
+    super(compilationContext);
   }
 
   @Override
@@ -29,8 +29,8 @@ public class Eiv extends Eve {
 
   protected boolean doRun() {
     //Need to get from command line.
-    String partToIncrement = commandLine.getOptionParameter("-IV");
-    Version versionNumber = Version.withBuildNumber(commandLine.getVersion());
+    String partToIncrement = compilationContext.commandLine().getOptionParameter("-IV");
+    Version versionNumber = Version.withBuildNumber(compilationContext.commandLine().getVersion());
     log("Processing increment " + versionNumber);
     //i.e. Find the key or produce a no-op, this is in place of a switch.
     operation.getOrDefault(partToIncrement, v -> {

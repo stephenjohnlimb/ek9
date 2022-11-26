@@ -18,13 +18,13 @@ public abstract class Reporter {
    */
   protected abstract String messagePrefix();
 
-  protected void log(Object message) {
+  public void log(Object message) {
     if (verbose) {
       Logger.error(messagePrefix() + message);
     }
   }
 
-  protected void report(Object message) {
+  public void report(Object message) {
     Logger.error(messagePrefix() + message);
   }
 }

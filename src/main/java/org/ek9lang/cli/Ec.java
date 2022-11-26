@@ -5,7 +5,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.cli.support.CompilationContext;
+import org.ek9lang.compiler.files.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.core.exception.AssertValue;
@@ -20,28 +21,29 @@ public abstract class Ec extends E {
 
   private CompilerFlags compilerFlags = new CompilerFlags(CompilationPhase.APPLICATION_PACKAGING);
 
-  protected Ec(CommandLineDetails commandLine, FileCache sourceFileCache) {
-    super(commandLine, sourceFileCache);
+  protected Ec(CompilationContext compilationContext) {
+    super(compilationContext);
+    compilerFlags.setVerbose(compilationContext.commandLine().isVerbose());
   }
 
   protected void prepareCompilation() {
     log("Preparing");
     // Set if not already set
     if (!compilerFlags.isDebuggingInstrumentation()) {
-      setDebuggingInstrumentation(commandLine.isDebuggingInstrumentation());
+      setDebuggingInstrumentation(compilationContext.commandLine().isDebuggingInstrumentation());
     }
     if (!compilerFlags.isDevBuild()) {
-      setDevBuild(commandLine.isDevBuild());
+      setDevBuild(compilationContext.commandLine().isDevBuild());
     }
 
     if (!compilerFlags.isCheckCompilationOnly()) {
-      setCheckCompilationOnly(commandLine.isCheckCompileOnly());
+      setCheckCompilationOnly(compilationContext.commandLine().isCheckCompileOnly());
     }
 
-    if (commandLine.isPhasedCompileOnly()) {
-      final CompilationPhase requiredPhase = commandLine.isDevBuild()
-          ? CompilationPhase.valueOf(commandLine.getOptionParameter("-Cdp")) :
-          CompilationPhase.valueOf(commandLine.getOptionParameter("-Cp"));
+    if (compilationContext.commandLine().isPhasedCompileOnly()) {
+      final CompilationPhase requiredPhase = compilationContext.commandLine().isDevBuild()
+          ? CompilationPhase.valueOf(compilationContext.commandLine().getOptionParameter("-Cdp")) :
+          CompilationPhase.valueOf(compilationContext.commandLine().getOptionParameter("-Cp"));
       setPhaseToCompileTo(requiredPhase);
     }
 
@@ -53,6 +55,10 @@ public abstract class Ec extends E {
     }
   }
 
+  /**
+   * HERE FOR COMPILER ENTRY.
+   * This is the key entry point into the CLI compile process.
+   */
   protected boolean compile(List<File> compilableProjectFiles) {
     log(compilableProjectFiles.size() + " source file(s)");
 
@@ -64,6 +70,11 @@ public abstract class Ec extends E {
     //Do compile these files with appropriate compiler
 
     //Do make sure we pass in this.isCheckCompilationOnly()
+    Workspace workspace = new Workspace();
+    compilableProjectFiles.forEach(workspace::addSource);
+
+    // HERE for triggering the compilation of the workspace
+    compilationContext.compiler().compile(workspace, compilerFlags);
 
     var generatedOutputDirectory = getMainGeneratedOutputDirectory();
     AssertValue.checkNotNull("Main generated out file null", generatedOutputDirectory);
@@ -84,7 +95,8 @@ public abstract class Ec extends E {
       return true;
     }
 
-    boolean rtn = Objects.equals(commandLine.targetArchitecture, Ek9DirectoryStructure.JAVA);
+    boolean rtn = Objects.equals(compilationContext.commandLine().targetArchitecture,
+        Ek9DirectoryStructure.JAVA);
 
     //We can only build a jar for java at present.
     if (rtn) {
@@ -103,7 +115,8 @@ public abstract class Ec extends E {
       //The parts of the EK9 runtime that we need to package in the jar.
       zipSets.add(getCoreComponents());
 
-      String targetFileName = sourceFileCache.getTargetExecutableArtefact().getAbsolutePath();
+      String targetFileName =
+          compilationContext.sourceFileCache().getTargetExecutableArtefact().getAbsolutePath();
       rtn = getFileHandling().createJar(targetFileName, zipSets);
     }
 
@@ -116,7 +129,7 @@ public abstract class Ec extends E {
 
   public void setDevBuild(boolean devBuild) {
     compilerFlags.setDevBuild(devBuild);
-    sourceFileCache.setDevBuild(devBuild);
+    compilationContext.sourceFileCache().setDevBuild(devBuild);
   }
 
   public void setCheckCompilationOnly(boolean checkCompilationOnly) {
@@ -149,9 +162,9 @@ public abstract class Ec extends E {
   }
 
   private void addProjectResources(List<ZipSet> zipSetList) {
-    File projectDirectory = new File(commandLine.getSourceFileDirectory());
+    File projectDirectory = new File(compilationContext.commandLine().getSourceFileDirectory());
     Path fromPath = projectDirectory.toPath();
-    List<File> listOfFiles = sourceFileCache.getAllNonCompilableProjectFiles();
+    List<File> listOfFiles = compilationContext.sourceFileCache().getAllNonCompilableProjectFiles();
     zipSetList.add(new ZipSet(fromPath, listOfFiles));
   }
 }

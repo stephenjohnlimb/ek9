@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
-import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.cli.support.CompilationContext;
 import org.ek9lang.core.utils.Digest;
 import org.ek9lang.core.utils.SigningKeyPair;
 
@@ -16,8 +16,8 @@ public class Ed extends E {
 
   private static final String REPO_URL = "repo.ek9lang.org";
 
-  public Ed(CommandLineDetails commandLine, FileCache sourceFileCache) {
-    super(commandLine, sourceFileCache);
+  public Ed(CompilationContext compilationContext) {
+    super(compilationContext);
   }
 
   @Override
@@ -27,22 +27,23 @@ public class Ed extends E {
 
   protected boolean doRun() {
 
-    return Optional.of(new Ep(commandLine, sourceFileCache).run()).stream()
+    return Optional.of(new Ep(compilationContext).run()).stream()
         .filter(result -> result)
-        .map(result -> new Egk(commandLine, sourceFileCache).run())
+        .map(result -> new Egk(compilationContext).run())
         .filter(result -> result)
         .map(result -> getFileHandling()
-            .makePackagedModuleZipFileName(commandLine.getModuleName(), commandLine.getVersion()))
+            .makePackagedModuleZipFileName(compilationContext.commandLine().getModuleName(),
+                compilationContext.commandLine().getVersion()))
         .map(this::prepareEncryptedZipHash)
         .findAny()
         .orElse(false);
 
 
-      //Still to be done
-      //OK now we can zip the zip, encrypted hash and clients public key and send
+    //Still to be done
+    //OK now we can zip the zip, encrypted hash and clients public key and send
 
-      //Also needs an account with some credentials to send to https://deploy.ek9lang.org
-      //We will leave this for now - see SigningKeyPairTest on how we will do it.
+    //Also needs an account with some credentials to send to https://deploy.ek9lang.org
+    //We will leave this for now - see SigningKeyPairTest on how we will do it.
 
   }
 
@@ -68,11 +69,13 @@ public class Ed extends E {
             """;
 
     final Predicate<String> zipFileExists = zipFileName -> new File(
-        getFileHandling().getDotEk9Directory(commandLine.getSourceFileDirectory()),
+        getFileHandling().getDotEk9Directory(
+            compilationContext.commandLine().getSourceFileDirectory()),
         zipFileName).exists();
 
     final Function<String, File> toSha256File = zipFileName -> new File(
-        getFileHandling().getDotEk9Directory(commandLine.getSourceFileDirectory()),
+        getFileHandling().getDotEk9Directory(
+            compilationContext.commandLine().getSourceFileDirectory()),
         zipFileName + ".sha256");
 
     final Predicate<String> sha256FileExists =
@@ -91,7 +94,8 @@ public class Ed extends E {
 
     final Function<String, Boolean> saveEncryptedContents = finalCipherText -> {
       File sha256EncFile =
-          new File(getFileHandling().getDotEk9Directory(commandLine.getSourceFileDirectory()),
+          new File(getFileHandling().getDotEk9Directory(
+              compilationContext.commandLine().getSourceFileDirectory()),
               fileName + ".sha256.enc");
       var rtn = getFileHandling().saveToOutput(sha256EncFile, finalCipherText);
 

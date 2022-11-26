@@ -37,22 +37,11 @@ class Ek9CompilerTest {
     return rtn;
   };
 
-  @Test
-  void testInvalidListenerAndFlags() {
-    assertThrows(java.lang.IllegalArgumentException.class, () -> new Ek9Compiler(null, null));
-  }
 
   @Test
   void testInvalidListener() {
     assertThrows(java.lang.IllegalArgumentException.class,
-        () -> new Ek9Compiler(null, new CompilerFlags()));
-  }
-
-  @Test
-  void testInvalidFlags() {
-    assertThrows(java.lang.IllegalArgumentException.class,
-        () -> new Ek9Compiler((phase, source) -> {
-        }, null));
+        () -> new Ek9Compiler(null));
   }
 
   @ParameterizedTest
@@ -60,9 +49,9 @@ class Ek9CompilerTest {
   void testSimpleSuccessfulParsing(final CompilationPhase upToPhase) {
     CompilationListener listener = (phase, source) -> {
     };
-    var compiler = new Ek9Compiler(listener, new CompilerFlags(upToPhase));
 
-    assertTrue(compiler.compile(validEk9Workspace.get()));
+    var compiler = new Ek9Compiler(listener);
+    assertTrue(compiler.compile(validEk9Workspace.get(), new CompilerFlags(upToPhase)));
   }
 
   @Test
@@ -70,9 +59,8 @@ class Ek9CompilerTest {
     //Not concerned with what the error is.
     CompilationListener listener = (phase, source) -> {
     };
-    var compiler = new Ek9Compiler(listener, new CompilerFlags());
-
-    assertFalse(compiler.compile(inValidEk9Workspace.get()));
+    var compiler = new Ek9Compiler(listener);
+    assertFalse(compiler.compile(inValidEk9Workspace.get(), new CompilerFlags()));
   }
 
   private static Stream<CompilationPhase> allCompilationPhases() {

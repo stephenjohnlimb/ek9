@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.files;
 
+import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -61,6 +62,10 @@ public class Workspace {
   /*
   ParsedModule and IRModule to be added in
   */
+
+  public CompilableSource addSource(File file) {
+    return addSource(file.toPath());
+  }
 
   public CompilableSource addSource(Path path) {
     return addSource(path.toString());

@@ -3,11 +3,13 @@ package org.ek9lang.compiler.main;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
+import org.ek9lang.cli.support.Reporter;
 import org.ek9lang.compiler.errors.CompilationListener;
 import org.ek9lang.compiler.files.CompilableSource;
 import org.ek9lang.compiler.files.Workspace;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.utils.Logger;
 
 /**
  * The main EK9 compiler.
@@ -19,8 +21,8 @@ import org.ek9lang.core.exception.AssertValue;
 public class Ek9Compiler implements Compiler {
 
   private final CompilationListener listener;
-  private final CompilerFlags flags;
 
+  private CompilerReporter reporter = new CompilerReporter(false);
   /**
    * Check if any of the sources have errors.
    */
@@ -39,35 +41,41 @@ public class Ek9Compiler implements Compiler {
   /**
    * Create a new compiler. Configure it with your event listener and flags.
    */
-  public Ek9Compiler(CompilationListener listener, CompilerFlags flags) {
+  public Ek9Compiler(CompilationListener listener) {
     AssertValue.checkNotNull("Compilation Listener must be provided", listener);
-    AssertValue.checkNotNull("Compilation Flags must be provided", flags);
 
     this.listener = listener;
-    this.flags = flags;
   }
 
   @Override
-  public boolean compile(Workspace workspace) {
+  public boolean compile(Workspace workspace, CompilerFlags flags) {
     AssertValue.checkNotNull("Workspace must be provided", workspace);
+    AssertValue.checkNotNull("Compiler Flags must be provided", flags);
 
-    prepareToParseSources(workspace);
+    reporter = new CompilerReporter(flags.isVerbose());
+
+    prepareToParseSources(workspace, flags);
 
     if (flags.getCompileToPhase() == CompilationPhase.PREPARE_PARSE) {
       return true;
     }
 
-    if (!parseSources(workspace)) {
+    if (!parseSources(workspace, flags)) {
       return false;
     }
+
+    reporter.log("All implemented compiler phases complete");
     return true;
   }
 
-  private void prepareToParseSources(Workspace workspace) {
+  private boolean prepareToParseSources(Workspace workspace, CompilerFlags flags) {
+    reporter.log(CompilationPhase.PREPARE_PARSE);
     underTakeParsing(workspace, CompilationPhase.PREPARE_PARSE, CompilableSource::prepareToParse);
+    return true;
   }
 
-  private boolean parseSources(Workspace workspace) {
+  private boolean parseSources(Workspace workspace, CompilerFlags flags) {
+    reporter.log(CompilationPhase.PARSING);
     return underTakeParsing(workspace, CompilationPhase.PARSING, CompilableSource::completeParsing);
   }
 
@@ -83,5 +91,17 @@ public class Ek9Compiler implements Compiler {
   private void informListener(CompilationPhase phase, Collection<CompilableSource> sources) {
     sources.forEach(
         source -> listener.processed(phase, source));
+  }
+
+
+  private static class CompilerReporter extends Reporter {
+    protected CompilerReporter(boolean verbose) {
+      super(verbose);
+    }
+
+    @Override
+    protected String messagePrefix() {
+      return "EK9Comp : ";
+    }
   }
 }

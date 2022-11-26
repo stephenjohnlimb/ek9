@@ -103,6 +103,10 @@ public class ErrorListener extends BaseErrorListener {
     return warnings.iterator();
   }
 
+  public boolean hasWarnings() {
+    return !isWarningFree();
+  }
+
   public boolean isWarningFree() {
     return warnings.isEmpty();
   }

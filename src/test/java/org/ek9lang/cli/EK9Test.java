@@ -10,6 +10,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.net.URL;
 import org.ek9lang.LanguageMetaData;
+import org.ek9lang.cli.support.CompilationContext;
+import org.ek9lang.cli.support.FileCache;
+import org.ek9lang.compiler.main.Compiler;
+import org.ek9lang.compiler.main.StubCompiler;
 import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.OsSupport;
 import org.ek9lang.core.utils.SigningKeyPair;
@@ -84,8 +88,8 @@ final class EK9Test {
     assertNotSame(lastModified, targetArtefact.lastModified());
   }
 
- @ParameterizedTest
- @ValueSource(strings = {"-Cdp IR_ANALYSIS", "-Cp IR_ANALYSIS", "-v -ch", "-Cl"})
+  @ParameterizedTest
+  @ValueSource(strings = {"-Cdp IR_ANALYSIS", "-Cp IR_ANALYSIS", "-v -ch", "-Cl"})
   void testNoneArtifactCompilation(final String flag) {
     String sourceName = "HelloWorld.ek9";
     String[] command = new String[] {String.format("-v %s %s", flag, sourceName)};
@@ -147,7 +151,7 @@ final class EK9Test {
   @Test
   void testRunSingleProgramInDebug() {
     String sourceName = "HelloWorld.ek9";
-    String[] command = new String[] {"-v -d 9999 " + sourceName };
+    String[] command = new String[] {"-v -d 9999 " + sourceName};
 
     File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
     assertNotNull(sourceFile);
@@ -208,22 +212,22 @@ final class EK9Test {
   void testAlterationToDependencies() {
     var sourceName = "testFile.ek9";
     var ek9InitialSource = """
-#!ek9
-defines module net.inter1
-    
-  defines package
-    
-    publicAccess as Boolean := true
-    version as Version: 1.2.0-0
-    description as String = "Simulation intermediate package"
-    license <- "MIT"
+        #!ek9
+        defines module net.inter1
+            
+          defines package
+            
+            publicAccess as Boolean := true
+            version as Version: 1.2.0-0
+            description as String = "Simulation intermediate package"
+            license <- "MIT"
 
-    tags <- [ "tools" ]
+            tags <- [ "tools" ]
 
-    deps <- {
-      "ekopen.network.support.utils": "1.6.1-9"
-      }
-//EOF""";
+            deps <- {
+              "ekopen.network.support.utils": "1.6.1-9"
+              }
+        //EOF""";
 
     //Make sure we have the dependency in place
     installPackage("SupportUtils.ek9");
@@ -237,22 +241,22 @@ defines module net.inter1
     //OK so now simulate changing the dependency
 
     var updatedEk9InitialSource = """
-#!ek9
-defines module net.inter1
-    
-  defines package
-    
-    publicAccess as Boolean := true
-    version as Version: 1.2.0-0
-    description as String = "Simulation intermediate package"
-    license <- "MIT"
+        #!ek9
+        defines module net.inter1
+            
+          defines package
+            
+            publicAccess as Boolean := true
+            version as Version: 1.2.0-0
+            description as String = "Simulation intermediate package"
+            license <- "MIT"
 
-    tags <- [ "tools" ]
+            tags <- [ "tools" ]
 
-    deps <- {
-      "ekopen.network.support.utils": "2.4.1-9"
-      }
-//EOF""";
+            deps <- {
+              "ekopen.network.support.utils": "2.4.1-9"
+              }
+        //EOF""";
     //So update th source code and put in the new dependency
     fileHandling.saveToOutput(newSourceFile, updatedEk9InitialSource);
     installPackage("SupportUtils2.ek9");
@@ -562,7 +566,8 @@ defines module net.inter1
     assertPackageVersionOfFileChange("PackageNoDeps.ek9", expectedVersion, command);
   }
 
-  private void assertPackageVersionOfFileChange(String sourceName, String expectedVersion, String command) {
+  private void assertPackageVersionOfFileChange(String sourceName, String expectedVersion,
+                                                String command) {
     String[] incrementBuildNo = new String[] {command + " " + sourceName};
 
     File sourceFile =
@@ -581,6 +586,11 @@ defines module net.inter1
   private CommandLineDetails assertResult(int expectation, String[] argv) {
     CommandLineDetails commandLine =
         new CommandLineDetails(languageMetaData, fileHandling, osSupport);
+    FileCache sourceFileCache = new FileCache(commandLine);
+    Compiler compiler = new StubCompiler();
+    CompilationContext compilationContext =
+        new CompilationContext(commandLine, compiler, sourceFileCache);
+
     int result = commandLine.processCommandLine(argv);
 
     assertTrue(result <= Ek9.SUCCESS_EXIT_CODE);
@@ -588,7 +598,7 @@ defines module net.inter1
     //Now should something be run and executed.
     try {
       if (result == Ek9.RUN_COMMAND_EXIT_CODE) {
-        assertEquals(expectation, new Ek9(commandLine).run());
+        assertEquals(expectation, new Ek9(compilationContext).run());
       }
     } catch (InterruptedException exception) {
       fail(exception);
