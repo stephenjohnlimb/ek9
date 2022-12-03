@@ -62,7 +62,8 @@ public class Ek9Compiler implements Compiler {
   private List<BiFunction<Workspace, CompilerFlags, CompilationPhaseResult>> getCompilationPhases() {
 
     //Parsing, symbol definition and basic resolution prior to having an IR.
-    var frontEnd = List.of(new Ek9Phase0Parsing(listener, reporter),
+    var frontEnd = List.of(
+        new Ek9Phase0Parsing(listener, reporter),
         new Ek9Phase1SymbolDefinition(listener, reporter),
         new Ek9Phase1ReferenceChecks(listener, reporter),
         new Ek9Phase1SymbolDuplicationChecks(listener, reporter),
@@ -73,13 +74,15 @@ public class Ek9Compiler implements Compiler {
         new Ek9Phase6PluginResolution(listener, reporter));
 
     //Yes the notorious 'middle-end' - build the intermediate representation, analyse and optimise.
-    var middleEnd = List.of(new Ek9Phase7IRGeneration(listener, reporter),
+    var middleEnd = List.of(
+        new Ek9Phase7IRGeneration(listener, reporter),
         new Ek9Phase7ProgramWithIR(listener, reporter),
         new Ek9Phase8IRTemplateGeneration(listener, reporter),
         new Ek9Phase9IRAnalysis(listener, reporter),
         new Ek9Phase9IROptimisation(listener, reporter));
 
-    var backEnd = List.of(new Ek9Phase10CodeGenerationPreparation(listener, reporter),
+    var backEnd = List.of(
+        new Ek9Phase10CodeGenerationPreparation(listener, reporter),
         new Ek9Phase10CodeGenerationAggregates(listener, reporter),
         new Ek9Phase10CodeGenerationConstants(listener, reporter),
         new Ek9Phase10CodeGenerationFunctions(listener, reporter),

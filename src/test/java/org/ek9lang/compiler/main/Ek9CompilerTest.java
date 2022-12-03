@@ -15,11 +15,24 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 /**
+ * HERE FOR THE PRIMARY INITIAL TESTING OF THE COMPILER eND TO END.
+ * ALBEIT WITH JUST A SIMPLE HelloWorld.ek9 SOURCE FILE.
+ *
  * OK so here it is, the first test of the compiler.
  * Obviously in an agile manner I'll have to build this up in stages.
  * Then eventually I'll need a fuzzer.
- * But first lets just take single source file and parse it.
- * Then we can add further stages.
+ * But first lets just take single source file and cut a thin slice right through to a final outputted application.
+ * This will involve all the structures and phases - but they will be minimal and thin.
+ *
+ * We need to process just this for now.
+ * <pre>
+ * #!ek9
+ * defines module introduction
+ *   defines program
+ *     HelloWorld()
+ *       stdout <- Stdout()
+ *       stdout.println("Hello, World")
+ * </pre>
  */
 class Ek9CompilerTest {
 
