@@ -1,4 +1,3 @@
-
 package org.ek9lang.compiler.main.phases;
 
 import java.util.function.BiFunction;
@@ -14,8 +13,7 @@ import org.ek9lang.compiler.main.phases.result.CompilerReporter;
  * At this point IR is complete and viable. This phase can now optimise the IR prior to any
  * code generation.
  */
-public class Ek9Phase9IROptimisation implements
-    BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+public class Ek9Phase9IROptimisation implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
   private final CompilationListener listener;
   private final CompilerReporter reporter;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();

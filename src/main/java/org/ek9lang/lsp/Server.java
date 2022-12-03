@@ -35,8 +35,8 @@ public class Server {
    * Triggers the actual execution of the language service.
    */
   public static Future<Void> runEk9LanguageServer(final OsSupport osSupport, final InputStream in,
-                                               final OutputStream out,
-                                               final boolean provideLanguageHoverHelp) {
+                                                  final OutputStream out,
+                                                  final boolean provideLanguageHoverHelp) {
     //Switch off any logging as we are using stdin/stdout for protocol exchange
     LogManager.getLogManager().reset();
     Logger globalLogger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);

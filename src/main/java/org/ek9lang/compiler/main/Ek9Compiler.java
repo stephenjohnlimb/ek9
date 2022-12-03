@@ -59,8 +59,7 @@ public class Ek9Compiler implements Compiler {
    * Clearly the order is important, if we need a new phase. Just define the function in phases
    * and plug it in (in the correct spot).
    */
-  private List<BiFunction<Workspace, CompilerFlags, CompilationPhaseResult>>
-      getCompilationPhases() {
+  private List<BiFunction<Workspace, CompilerFlags, CompilationPhaseResult>> getCompilationPhases() {
 
     //Parsing, symbol definition and basic resolution prior to having an IR.
     var frontEnd = List.of(new Ek9Phase0Parsing(listener, reporter),

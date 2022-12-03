@@ -37,8 +37,6 @@ import org.ek9lang.lsp.Server;
  * Exit code 7 means the ek9 compiler when running as LSP failed.
  */
 public class Ek9 {
-  private static final LanguageMetaData languageMetaData = new LanguageMetaData("0.0.1-0");
-
   /**
    * The range of exit codes that EK9 will use.
    */
@@ -50,10 +48,7 @@ public class Ek9 {
   public static final int NO_PROGRAMS_EXIT_CODE = 5;
   public static final int PROGRAM_NOT_SPECIFIED_EXIT_CODE = 6;
   public static final int LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE = 7;
-
-  private final CompilationContext compilationContext;
-  private final CompilationReporter reporter;
-
+  private static final LanguageMetaData languageMetaData = new LanguageMetaData("0.0.1-0");
   /**
    * Creates the compilerContext with the commandLine, and a real compiler.
    */
@@ -65,6 +60,8 @@ public class Ek9 {
 
         return new CompilationContext(commandLine, compiler, sourceFileCache);
       };
+  private final CompilationContext compilationContext;
+  private final CompilationReporter reporter;
 
   public Ek9(CompilationContext compilationContext) {
     this.compilationContext = compilationContext;

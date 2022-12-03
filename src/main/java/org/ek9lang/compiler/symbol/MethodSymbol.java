@@ -297,7 +297,6 @@ public class MethodSymbol extends ScopedSymbol {
 
   /**
    * Sets the returning symbol (variable not just type).
-
    */
   public void setReturningSymbol(ISymbol returningSymbol) {
     justSetReturningSymbol(returningSymbol);

@@ -26,21 +26,16 @@ import org.ek9lang.core.utils.OsSupport;
  */
 public class ErrorListener extends BaseErrorListener {
   private final OsSupport osSupport = new OsSupport();
-
+  private final String generalIdentifierOfSource;
   private boolean exceptionOnAmbiguity = false;
   private boolean exceptionOnContextSensitive = false;
   private boolean exceptionOnFullContext = false;
-
   private List<ErrorDetails> errors = new ArrayList<>();
-
   //This is so we can limit the number of errors we output when we get multiple triggers for
   //the same type/variable but for different reasons.
   //Normally it's the first reason that is the cause, the rest are just follow ones from that.
   private HashMap<String, ErrorDetails> uniqueErrors = new HashMap<>();
-
   private List<ErrorDetails> warnings = new ArrayList<>();
-
-  private final String generalIdentifierOfSource;
 
   public ErrorListener(String generalIdentifierOfSource) {
     this.generalIdentifierOfSource = generalIdentifierOfSource;

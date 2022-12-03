@@ -30,6 +30,11 @@ import org.ek9lang.core.utils.Logger;
  */
 public class Ek9TextDocumentService extends Ek9Service implements TextDocumentService {
   private final Ek9LanguageWords languageWords;
+  private final Function<String, CompletionItem> newKeyWordCompletionItem = completion -> {
+    var languageKeyWord = new CompletionItem(completion);
+    languageKeyWord.setKind(CompletionItemKind.Keyword);
+    return languageKeyWord;
+  };
 
   public Ek9TextDocumentService(Ek9LanguageServer languageServer) {
     super(languageServer);
@@ -39,12 +44,6 @@ public class Ek9TextDocumentService extends Ek9Service implements TextDocumentSe
   protected Ek9LanguageWords getLanguageWords() {
     return languageWords;
   }
-
-  private final Function<String, CompletionItem> newKeyWordCompletionItem = completion -> {
-    var languageKeyWord = new CompletionItem(completion);
-    languageKeyWord.setKind(CompletionItemKind.Keyword);
-    return languageKeyWord;
-  };
 
   @Override
   public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(

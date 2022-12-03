@@ -98,7 +98,7 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
       rtn = actualScope.equals(scopedSymbol.actualScope);
       rtn &= CommonParameterisedTypeDetails
           .doSymbolsMatch(Collections.unmodifiableList(parameterisedTypeReferences),
-          Collections.unmodifiableList(scopedSymbol.parameterisedTypeReferences));
+              Collections.unmodifiableList(scopedSymbol.parameterisedTypeReferences));
       rtn &= CommonParameterisedTypeDetails
           .doSymbolsMatch(Collections.unmodifiableList(parameterisedFunctionReferences),
               Collections.unmodifiableList(scopedSymbol.parameterisedFunctionReferences));

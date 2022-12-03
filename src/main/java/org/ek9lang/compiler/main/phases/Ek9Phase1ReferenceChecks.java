@@ -13,8 +13,7 @@ import org.ek9lang.compiler.main.phases.result.CompilerReporter;
  * We don't want two different files reference com.abc.Item and another file
  * com.def.Item in the same module - even though different source files.
  */
-public class Ek9Phase1ReferenceChecks implements
-    BiFunction<Workspace, CompilerFlags, CompilationPhaseResult>  {
+public class Ek9Phase1ReferenceChecks implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
   private final CompilationListener listener;
   private final CompilerReporter reporter;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();

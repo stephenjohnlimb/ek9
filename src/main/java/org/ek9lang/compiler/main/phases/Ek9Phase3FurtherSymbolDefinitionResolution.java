@@ -18,14 +18,13 @@ import org.ek9lang.compiler.main.phases.result.CompilerReporter;
  * before this phase that's why this is phase three not two! But phase 4 after this is where we
  * hydrate the template types to get real details on those types.
  */
-public class Ek9Phase3FurtherSymbolDefinitionResolution implements
-    BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+public class Ek9Phase3FurtherSymbolDefinitionResolution
+    implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
   private final CompilationListener listener;
   private final CompilerReporter reporter;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
-  public Ek9Phase3FurtherSymbolDefinitionResolution(CompilationListener listener,
-                                                    CompilerReporter reporter) {
+  public Ek9Phase3FurtherSymbolDefinitionResolution(CompilationListener listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
   }
@@ -33,8 +32,7 @@ public class Ek9Phase3FurtherSymbolDefinitionResolution implements
   @Override
   public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
     final var thisPhase = CompilationPhase.FURTHER_SYMBOL_DEFINITION;
-    return new CompilationPhaseResult(thisPhase, true,
-        compilerFlags.getCompileToPhase() == thisPhase);
+    return new CompilationPhaseResult(thisPhase, true, compilerFlags.getCompileToPhase() == thisPhase);
   }
 
 }

@@ -1,4 +1,3 @@
-
 package org.ek9lang.compiler.main.phases;
 
 import java.util.function.BiFunction;

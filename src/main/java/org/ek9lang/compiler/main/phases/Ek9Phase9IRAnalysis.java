@@ -1,4 +1,3 @@
-
 package org.ek9lang.compiler.main.phases;
 
 import java.util.function.BiFunction;
@@ -19,8 +18,7 @@ import org.ek9lang.compiler.main.phases.result.CompilerReporter;
  * That's what this phase is for, analysing the whole IR and doing any and all final checks before
  * optimisation takes place.
  */
-public class Ek9Phase9IRAnalysis implements
-    BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+public class Ek9Phase9IRAnalysis implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
   private final CompilationListener listener;
   private final CompilerReporter reporter;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
@@ -33,7 +31,6 @@ public class Ek9Phase9IRAnalysis implements
   @Override
   public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
     final var thisPhase = CompilationPhase.IR_ANALYSIS;
-    return new CompilationPhaseResult(thisPhase, true,
-        compilerFlags.getCompileToPhase() == thisPhase);
+    return new CompilationPhaseResult(thisPhase, true, compilerFlags.getCompileToPhase() == thisPhase);
   }
 }

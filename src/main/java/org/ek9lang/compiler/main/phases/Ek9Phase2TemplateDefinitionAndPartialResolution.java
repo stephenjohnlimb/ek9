@@ -23,8 +23,7 @@ public class Ek9Phase2TemplateDefinitionAndPartialResolution implements
   private final CompilerReporter reporter;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
-  public Ek9Phase2TemplateDefinitionAndPartialResolution(CompilationListener listener,
-                                                         CompilerReporter reporter) {
+  public Ek9Phase2TemplateDefinitionAndPartialResolution(CompilationListener listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
   }

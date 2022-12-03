@@ -320,7 +320,7 @@ public interface ISymbol extends ITokenReference {
   /**
    * Provide the internal fully qualified name of this symbol.
    * Defaults to just the name unless overridden.
-   *-Useful for generating output where you want to ensure fully qualified names are used.
+   * -Useful for generating output where you want to ensure fully qualified names are used.
    */
   default String getFullyQualifiedName() {
     return getName();

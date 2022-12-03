@@ -17,8 +17,7 @@ import org.ek9lang.compiler.main.phases.result.CompilerReporter;
  * Now in a multi source compile we need to check that for the same module - the same class names,
  * functions have not been redefined.
  */
-public class Ek9Phase1SymbolDuplicationChecks implements
-    BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+public class Ek9Phase1SymbolDuplicationChecks implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
   private final CompilationListener listener;
   private final CompilerReporter reporter;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();

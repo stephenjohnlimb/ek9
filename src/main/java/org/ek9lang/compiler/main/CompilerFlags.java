@@ -129,11 +129,11 @@ public class CompilerFlags {
     }
   }
 
-  public void setVerbose(boolean verbose) {
-    this.verbose = verbose;
-  }
-
   public boolean isVerbose() {
     return verbose;
+  }
+
+  public void setVerbose(boolean verbose) {
+    this.verbose = verbose;
   }
 }
