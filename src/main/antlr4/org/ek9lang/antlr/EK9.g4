@@ -695,6 +695,7 @@ literal
     | SUB? moneyLit #moneyLiteral
     | regExLit #regularExpressionLiteral
     | versionNumberLit #versionNumberLiteral
+    | pathLit #pathLiteral
     ;
 
 integerLit
@@ -766,7 +767,11 @@ dimensionLit
 colourLit
     : ColourLiteral
     ;
-    
+
+pathLit
+    : PathLiteral
+    ;
+
 moneyLit
     : MoneyLiteral
     ;

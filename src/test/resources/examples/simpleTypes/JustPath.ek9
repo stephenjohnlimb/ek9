@@ -1,0 +1,38 @@
+#!ek9
+defines module com.customer.just
+
+  <!-
+    Introduced the concept of a path, but more than just a string.
+
+    This will be checked by the compiler when it is a literal.
+    The idea is much like jsonPath (xmlPath), initially just name and array use.
+    But in the fullness of time maybe built in expressions and predicates.
+
+    The path starts with $?
+  -!>
+
+  defines program
+
+    ASimpleSetOfPaths()
+      path1 <- $?.some.path.inc[0].array
+      path2 <- $?.another[2][1].multi-dimensional.array.access_value
+
+      simplePath <- $?.aKey
+      firstArrayElement <- $?[0]
+      propertyFromFirstElement <- $?[0].a-field
+
+      //Not to be confused with string conversion
+      anInt <- 90
+      stringRepresentation <- $anInt
+
+      //Or json conversion of a record.
+      me <- CustomerDetail(firstName: "Steve", lastName: "Limb")
+      jsonOfMe <- $$me
+
+  defines record
+
+    Record1
+      firstName <- String()
+      lastName <- String()
+
+//EOF

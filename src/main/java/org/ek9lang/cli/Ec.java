@@ -14,6 +14,7 @@ import org.ek9lang.core.utils.Ek9DirectoryStructure;
 import org.ek9lang.core.utils.ZipSet;
 
 /**
+ * HERE FOR COMPILER ENTRY.
  * An abstract base for creating the target artefact.
  * Normally extended by compile commands.
  */
@@ -77,7 +78,10 @@ public abstract class Ec extends E {
       workspace.addSource(file);
     });
 
-    // HERE for triggering the compilation of the workspace
+    /*
+     * HERE FOR COMPILER ENTRY.
+     * HERE for triggering the compilation of the workspace
+     */
     var compilationResult = compilationContext.compiler().compile(workspace, compilerFlags);
 
     if (compilationResult) {

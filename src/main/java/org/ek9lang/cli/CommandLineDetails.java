@@ -17,7 +17,7 @@ import org.ek9lang.cli.support.Ek9ProjectProperties;
 import org.ek9lang.cli.support.Ek9SourceVisitor;
 import org.ek9lang.cli.support.PackageDetails;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
-import org.ek9lang.compiler.parsing.JustParser;
+import org.ek9lang.compiler.support.JustParser;
 import org.ek9lang.core.exception.ExitException;
 import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.Logger;

@@ -105,8 +105,7 @@ public interface IAggregateSymbol extends ICanCaptureVariables, IScopedSymbol {
    * Idea is to be able to gather all these up and ensure only one single good result i.e.
    * matching methods does exist and one single method matches best. Else ambiguity or no match.
    */
-  MethodSymbolSearchResult resolveMatchingMethods(MethodSymbolSearch search,
-                                                  MethodSymbolSearchResult result);
+  MethodSymbolSearchResult resolveMatchingMethods(MethodSymbolSearch search, MethodSymbolSearchResult result);
 
   Optional<ISymbol> resolveMember(SymbolSearch search);
 

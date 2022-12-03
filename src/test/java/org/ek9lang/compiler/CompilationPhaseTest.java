@@ -10,21 +10,28 @@ import org.junit.jupiter.params.provider.ValueSource;
 class CompilationPhaseTest {
 
   @ParameterizedTest
-  @ValueSource(strings = {"PARSING",
+  @ValueSource(strings = {"PREPARE_PARSE",
+      "PARSING",
       "SYMBOL_DEFINITION",
       "REFERENCE_CHECKS",
       "DUPLICATE_CHECKS",
-      "SIMPLE_RESOLUTION",
+      "TEMPLATE_DEFINITION_RESOLUTION",
+      "FURTHER_SYMBOL_DEFINITION",
       "TEMPLATE_EXPANSION",
       "FULL_RESOLUTION",
       "PLUGIN_RESOLUTION",
       "SIMPLE_IR_GENERATION",
+      "PROGRAM_IR_CONFIGURATION",
       "TEMPLATE_IR_GENERATION",
       "IR_ANALYSIS",
-      "FUNCTION_CODE_GENERATION",
-      "AGGREGATE_CODE_GENERATION",
-      "CONSTANT_CODE_GENERATION",
-      "APPLICATION_PACKAGING"})
+      "IR_OPTIMISATION",
+      "CODE_GENERATION_PREPARATION",
+      "CODE_GENERATION_AGGREGATES",
+      "CODE_GENERATION_CONSTANTS",
+      "CODE_GENERATION_FUNCTIONS",
+      "CODE_OPTIMISATION",
+      "APPLICATION_PACKAGING",
+      "PACKAGING_POST_PROCESSING"})
   void testCorrectCreationOfEnumeration(final String fromStringValue) {
     var allowedValue = CompilationPhase.valueOf(fromStringValue);
     assertNotNull(allowedValue);

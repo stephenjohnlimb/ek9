@@ -185,9 +185,19 @@ MoneyLiteral
     : Digits ('.' Digits)? HASH [A-Z][A-Z][A-Z]
     ;
 
+//Need to support [index] for arrays as well
+PathLiteral
+    : PATH PathPart+
+    ;
+
 //With optional alpha, if present the alpha is first two hex digits
 ColourLiteral
     : HASH HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit (HexDigit HexDigit)?
+    ;
+
+fragment
+PathPart
+    : (DOT [a-zA-Z0-9_-]+)  | (LBRACK Digit+ RBRACK)
     ;
 
 fragment
@@ -481,6 +491,7 @@ DOT : '.';
 HASH : '#';
 TOJSON : '$$';
 DOLLAR : '$';
+PATH : '$?';
 SHEBANG : '#!ek9';
 PROMOTE : '#^'; //ek9 promote operator
 HASHCODE : '#?'; //ek9 hashcode operator

@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import org.ek9lang.cli.support.Ek9SourceVisitor;
 import org.ek9lang.cli.support.PackageDetails;
+import org.ek9lang.compiler.support.JustParser;
 import org.junit.jupiter.api.Test;
 
 /**

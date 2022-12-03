@@ -26,11 +26,18 @@ For this project, once you've built the 'fat jar' (`mvn clean install`), you can
 `native-image --no-fallback  -jar ek9.jar` to create a native binary.
 
 You can then just run that application `./ek9` or send it to someone; and they can run it (must be same OS);
-but they don;t need Java installed (i.e. it is a full standalone binary).
+but they don't need Java installed (i.e. it is a full standalone binary).
 
 Now this is early days and there's some gotchas with reflection and proxies
 (mainly in the lsp libraries being used). But I'm currently focussing on the command-line compiler.
 So for now the language-server still has to be run with java as a jar. But I'll get there.
+
+### Main Entry Point
+
+The Java source `org.ek9lang.cli.Ek9.java` is the main entry point in and
+`org.ek9lang.compiler.main.Ek9Compiler.java` is where the actual compiler is.
+Though this is split into many 'phases' as the EK9 compile is a multi-pass compiler.
+Some of these phases are single-threaded and some are multi-threaded.
 
 ### Blog
 If you want to see why specific decisions have been made on the details of the language then you can follow the [EK9 blog](https://blog.ek9.io/).
@@ -52,7 +59,7 @@ To help developers get started there is a [VSCode Extension](https://github.com/
 Once the compiler has been fully developed, the extension will be published, but at present it is only available as source code from GitHub.
 
 ### Structure and Source Code Layout
-Broadly speaking layout is a mix of Python and YAML style with indentation and whitespace rather than **{** **}**.
+Broadly speaking EK9 layout is a mix of Python and YAML style with indentation and whitespace rather than **{** **}**.
 This also includes the **Pascal** type approach of creating sections for **constructs** (i.e., as section for constants).
 
 ### Source Files
@@ -62,7 +69,8 @@ into the language itself.
 
 ## Contributing
 
-See [Contributing](CONTRIBUTING.md) and the [WIKI](https://github.com/stephenjohnlimb/ek9/wiki/EK9-Development) for details.
+See [Contributing](CONTRIBUTING.md) for lots of detail on where EK9 is at the moment and supporting technologies.
+The [WIKI](https://github.com/stephenjohnlimb/ek9/wiki/EK9-Development) for details.
 
 ## Why create another programming language?
 Frustration with other languages, like C, C++, Pascal, Java and to some extent Python. I love them all in
@@ -76,14 +84,14 @@ The aim is for very young developers (aged ten or so) to be able to use some lan
 As developers become more experienced they can employ more advanced capabilities (in the same language).
 
 EK9 is not a 'teaching language', but it does have characteristics that make it very suitable as an introduction
-to programming. It builds upon a variety of software concepts in layers each of which is progressively more
+to programming. It builds upon a variety of software concepts in layers; each of which is progressively more
 sophisticated.
 
 Capabilities like **functions** are treated as peers of **classes**. 
 [Composition](https://www.ek9lang.org/composition.html#composition_example) can be used just as easily as
 [Inheritance](https://www.ek9lang.org/inheritance.html) .
-Excessive use of **< >** and **{ }** when mixed with **( )** in some languages can be confusing;
-hence the adoption of indentation block structure. 
+The adoption of indentation block structure is employed to remove the excessive use of **< >** and **{ }** when
+mixed with **( )** in some languages can be confusing. 
 
 The language retains the structural/controlling mechanisms from Java and Scala where **Interfaces and Traits** enable
 strong polymorphic typing.
@@ -156,6 +164,14 @@ This makes for an easy transition should you elect to adopt EK9.
 EK9 adds additional structure and type safety to Python (as well as being compiled). It adds simplicity/clarity of syntax, 
 **functions** and **operators** to languages like Java. More over it adds a standard **fluent** type **functional**
 processing pipeline flow that is not available in most languages.
+
+Even though I've been tinkering with this for many years, I'm more excited and enthusiastic about it now than I've
+ever been. Having taken some quite long layoffs from it has actually helped me come back to it with fresh eyes and
+ideas.
+
+For example - I've just added a sort of [jsonPath](https://www.ek9.io/builtInTypes.html#path) built-in type with
+compiler checked literal syntax checking (nice). Why add this in? Accessing paths through structured graphs of
+objects/arrays is pretty much a fundamental programming need! Be it JSON, XML, or any object graph. 
 
 ## License and Trademark
 It is licensed under the MIT license; see [License](LICENSE) and

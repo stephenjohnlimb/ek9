@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.parsing;
+package org.ek9lang.compiler.support;
 
 import java.io.File;
 import java.io.FileInputStream;

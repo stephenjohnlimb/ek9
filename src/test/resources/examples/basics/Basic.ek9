@@ -128,6 +128,11 @@ defines module net.customer.extend
       money2 <- 400#GBP
       
       money3 <- -5000#GBP
+
+      //Lets try a new path literal - use like jsonPath
+      aPath <- $?.some.path.inc[0].array
+
+      bPath <- $?.another[0][9].multi-named.array
       
     verySimple()
       -> param as Integer

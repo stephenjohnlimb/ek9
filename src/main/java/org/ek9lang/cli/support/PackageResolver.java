@@ -3,7 +3,7 @@ package org.ek9lang.cli.support;
 import java.io.File;
 import java.util.Optional;
 import org.ek9lang.cli.CommandLineDetails;
-import org.ek9lang.compiler.parsing.JustParser;
+import org.ek9lang.compiler.support.JustParser;
 import org.ek9lang.core.exception.AssertValue;
 
 /**

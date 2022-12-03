@@ -18,7 +18,7 @@ The development of reference implementation of the compiler is under way and is 
 See the [WIKI](https://github.com/stephenjohnlimb/ek9/wiki/EK9-Development) to see how the project is structured and
 how you can run and debug the grammar with some EK9 source code.
 
-The initial implementation will be written in Java (17), all code must have unit tests and code coverage analysis is employed.
+The initial implementation will be written in Java (19), all code must have unit tests and code coverage analysis is employed.
 
 At this point in time; focus is on getting the existing grammar robust and resilient -
 rather than adding more features or capabilities in.
@@ -38,15 +38,25 @@ I can now see a linear (but hard) path to building the reference implementation 
 
 I'm expecting this next phase to take about another ten years - maybe with some help we could get that time down!
 
+### Supporting tooling
+Having grappled with lexing and parsing issues - I've built on top of Antlr and included:
+- [Ek9Support](src/test/java/org/ek9lang/compiler/support/Ek9Support.java) - this show a graphical AST of an EK9 source file.
+- [ASMSupport](src/test/java/org/ek9lang/compiler/support/ASMSupport.java) - this shows the ASM code (java bytecode) you'd need to write for a class.
 
 ### Phase of development
 
-#### Phase 1
-The first version of the grammar is being finalised. All the EK9 source code examples, together with a Lexer/Parser in
-Java will be contributed.
+During the previous prototype compiler work, I focussed on broad areas of functionality, trying to
+tease out all the intricacies. I'm now focussing on getting something fully end-to-end, folding in the lessons of the
+prototypes. So I'll start with the full grammar, but will cut thin slices through the whole compiler to go
+fully end to end with each slice.
 
-'Fuzzer' contributions required to automatically generate code that won't quite 'parse'. Ensure parsing and lexing
-gives suitable and accurate locations of where the errors are.
+With this in mind, I'll start with a single program, statement and expression (`Hello World`), but actually
+integrate the whole compiler to produce Java byte code directly (for the Java target).
+I'm planning on using `graalvm` to produce binaries of the ek9 compiler.
+
+#### Phase 1
+The first version of the grammar ~~is being~~ has been finalised. All the EK9 source code examples,
+together with a Lexer/Parser in Java ~~will be~~ have been contributed.
 
 #### Phase 2
 Symbol table creation, phased parsing to populate symbol tables
@@ -64,18 +74,22 @@ Create an Intermediate Representation that is sufficiently detailed that any num
 languages can be generated. 
 
 #### Phase 6
-Code generation, initially produce Java source code an an output from the Intermediate Representation.
+Code generation, initially produce Java source code an output from the Intermediate Representation.
 If there is sufficient interest in generating different output formats, for example LLVM or MSIL or even Java Byte code then
 those projects can be run in parallel to the main focus of generating Java source code for the compiler.
 
 #### Phase 7
-Wrap the resulting compiler (java jar) in native executables/packages for Linux, Windows and MacOS
+Wrap the resulting compiler (java jar) in native executables/packages for Linux, Windows and MacOS. Graalvm.
 
 #### Phase 8
 Get version 0.1.0 out of the door so that defects and issues can be found with a range of real code by as many
 developers as possible.
 
-
 ### Phase 9 
-Fix more problems
-...
+'Fuzzer' contributions required to automatically generate code that won't quite 'parse'. Ensure parsing and lexing
+gives suitable and accurate locations of where the errors are.
+
+I see phases 2-9 being repeated over and over as I add functionality in an incremental manner. i.e.
+thin slices through a 'walking skeleton'. The exception being the grammar which is pretty much fully complete for the
+first release. I've done this because I see that many language fail to gracefully incorporate new syntax in
+once the 'die is cast'.
