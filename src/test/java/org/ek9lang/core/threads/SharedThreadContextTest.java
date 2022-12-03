@@ -1,11 +1,9 @@
 package org.ek9lang.core.threads;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 
-import org.ek9lang.core.exception.CompilerException;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 
 class SharedThreadContextTest {
@@ -18,27 +16,48 @@ class SharedThreadContextTest {
   void testSharedAccess() {
     final var underTest = new SharedThreadContext<>(new SomeDataAggregate());
 
-    underTest.own(stc -> {
-      underTest.get().setSomeOtherValue(45.77f);
-      underTest.get().setSomeValue(23);
+    underTest.accept(data -> {
+      data.setSomeOtherValue(45.77f);
+      data.setSomeValue(23);
     });
 
     //Now check the values has stuck
-    underTest.own(stc -> {
-      assertEquals(45.77f, underTest.get().getSomeOtherValue());
-      assertEquals(23, underTest.get().getSomeValue());
+    underTest.accept(data -> {
+      assertEquals(45.77f, data.getSomeOtherValue());
+      assertEquals(23, data.getSomeValue());
     });
   }
 
   @Test
-  @SuppressWarnings("java:S5578")
-  void testNotOwningThread() {
-    final var underTest = new SharedThreadContext<>(new SomeDataAggregate());
-    assertThrows(CompilerException.class, () -> {
-      //So here we expect a failure! because we did not 'own' the data
-      assertNull(underTest.get().getSomeValue());
-      fail("Should have received exception");
+  void testJustReadAccess() {
+    final var underTest = new SharedThreadContext<>(new SomeDataAggregate(21));
+    underTest.accept(myAggregate -> {
+      assertEquals(21, myAggregate.getSomeValue());
     });
+  }
+
+  @Test
+  void testReentrantNature() {
+    final Consumer<Consumer<SomeDataAggregate>> underTest = new SharedThreadContext<>(new SomeDataAggregate());
+
+    underTest.accept(data -> {
+      data.setSomeOtherValue(45.77f);
+      data.setSomeValue(23);
+      //Test we can get the lock when we already have it.
+      underTest.accept(data2 -> {
+        data2.setSomeValue(24);
+      });
+    });
+
+    underTest.accept(data -> {
+      assertEquals(45.77f, data.getSomeOtherValue());
+      assertEquals(24, data.getSomeValue());
+    });
+  }
+
+  @Test
+  void testExceptionOnInvalidData() {
+    assertThrows(IllegalArgumentException.class, () -> new SharedThreadContext<>(null));
   }
 
   /**
@@ -49,6 +68,11 @@ class SharedThreadContextTest {
     private Float someOtherValue;
 
     public SomeDataAggregate() {
+    }
+
+    public SomeDataAggregate(int someValue) {
+      this.someValue = someValue;
+      someOtherValue = 0.0f;
     }
 
     public void setSomeValue(int newValue) {

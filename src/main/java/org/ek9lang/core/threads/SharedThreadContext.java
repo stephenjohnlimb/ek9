@@ -1,51 +1,42 @@
 package org.ek9lang.core.threads;
 
 import java.util.concurrent.locks.ReentrantLock;
-import org.ek9lang.core.exception.CompilerException;
+import java.util.function.Consumer;
+import org.ek9lang.core.exception.AssertValue;
 
 /**
  * Concept here is to be able to protect raw java objects from multiple threaded access.
  * These could be real full platform threads or the new virtualThreads from Java 19 onwards.
  * We need a range of objects structures that are not synchronized (so access is quick)
  * so we want a thread to effectively own the whole tree of data when it accesses it.
+ * This has been modeled on the 'Consumer' so hand your data over and then call 'accept' on this
+ * object with your own consumer, and you'll get data back (don't hold references to it).
+ * Keep it protected within this context.
  */
-public class SharedThreadContext<T> {
+public class SharedThreadContext<T> implements Consumer<Consumer<T>> {
   private final ReentrantLock lock = new ReentrantLock();
+  private final T protectedData;
 
-  private final ProtectedData<T> protectedData;
-
+  /**
+   * Wraps the object being protected - hides it, so it can only be accessed via your consumer.
+   */
   public SharedThreadContext(T toBeProtected) {
-    this.protectedData = new ProtectedData<>(toBeProtected);
-  }
-
-  public interface ISharedThreadRunnable<T> {
-    void run(SharedThreadContext<T> stc);
-  }
-
-  public void assertHeldByThread() {
-    if (!lock.isHeldByCurrentThread()) {
-      String msg = "An attempt was made to call a method in shared context without owning the required lock.";
-      throw new CompilerException(msg);
-    }
-  }
-
-  public void own(ISharedThreadRunnable<T> r) {
-    try {
-      lock.lock();
-      r.run(this);
-    } finally {
-      lock.unlock();
-    }
-  }
-
-  public T get() {
-    assertHeldByThread();
-    return protectedData.data();
+    AssertValue.checkNotNull("Data to be protected cannot be null", toBeProtected);
+    this.protectedData = toBeProtected;
   }
 
   /**
-   * Used to wrap the actual data we want to protect.
+   * Take ownership of the reentrant lock - wait if another thread has it.
+   * Once ownership is taken then your consumer 'accept'
+   * method will be called with your protected data as the parameter.
    */
-  private record ProtectedData<S>(S data) {
+  @Override
+  public void accept(Consumer<T> consumer) {
+    try {
+      lock.lock();
+      consumer.accept(protectedData);
+    } finally {
+      lock.unlock();
+    }
   }
 }

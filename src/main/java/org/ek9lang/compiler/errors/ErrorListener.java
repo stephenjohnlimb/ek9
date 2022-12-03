@@ -481,7 +481,8 @@ public class ErrorListener extends BaseErrorListener {
       this.position = characterNumber;
       this.tokenLength = tokenLength;
 
-      symbolErrorText = String.format("'%s' on line %d position %d", likelyOffendingSymbol, lineNumber, characterNumber);
+      symbolErrorText = String.format("'%s' on line %d position %d",
+          likelyOffendingSymbol, lineNumber, characterNumber);
     }
 
     public SemanticClassification getSemanticClassification() {
