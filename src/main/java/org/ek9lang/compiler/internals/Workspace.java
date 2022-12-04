@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.files;
+package org.ek9lang.compiler.internals;
 
 import java.io.File;
 import java.io.InputStream;

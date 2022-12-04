@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 import org.ek9lang.compiler.errors.CompilationListener;
-import org.ek9lang.compiler.files.Workspace;
+import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.phases.Ek9Phase0Parsing;
 import org.ek9lang.compiler.main.phases.Ek9Phase10CodeGenerationAggregates;
 import org.ek9lang.compiler.main.phases.Ek9Phase10CodeGenerationConstants;
@@ -13,6 +13,7 @@ import org.ek9lang.compiler.main.phases.Ek9Phase10CodeGenerationPreparation;
 import org.ek9lang.compiler.main.phases.Ek9Phase11CodeOptimisation;
 import org.ek9lang.compiler.main.phases.Ek9Phase12Packaging;
 import org.ek9lang.compiler.main.phases.Ek9Phase12PackagingPostProcessing;
+import org.ek9lang.compiler.main.phases.Ek9Phase12PluginLinkage;
 import org.ek9lang.compiler.main.phases.Ek9Phase1ReferenceChecks;
 import org.ek9lang.compiler.main.phases.Ek9Phase1SymbolDefinition;
 import org.ek9lang.compiler.main.phases.Ek9Phase1SymbolDuplicationChecks;
@@ -87,6 +88,7 @@ public class Ek9Compiler implements Compiler {
         new Ek9Phase10CodeGenerationConstants(listener, reporter),
         new Ek9Phase10CodeGenerationFunctions(listener, reporter),
         new Ek9Phase11CodeOptimisation(listener, reporter),
+        new Ek9Phase12PluginLinkage(listener, reporter),
         new Ek9Phase12Packaging(listener, reporter),
         new Ek9Phase12PackagingPostProcessing(listener, reporter));
 

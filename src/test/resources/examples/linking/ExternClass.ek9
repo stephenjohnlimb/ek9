@@ -1,0 +1,39 @@
+#!ek9
+defines extern module net.customer.assertions
+
+  <!--
+    Defines a class that is not in EK9, but provided in some sort of external
+    binary form. For Java could just be a Java class.
+
+    These type of definitions are just signatures. But they must use EK9 basic types.
+
+    So if you we're developing a binary library in C or C++ to interface back and forth to
+    EK9 - the basic types EK9 can support must be employed.
+    i.e. 'char *' - would not really work with EK9 garbage collected Strings!
+  -->
+  
+  //Just a test file of very simple 'class'
+  defines class
+      
+    //This is the first class but there is another at the bottom you can have any number of them
+    First
+
+      //A simple constructor
+      First()
+
+      method1()
+        ->
+          param1 as String
+          param2 as String
+          param3 as Float
+        <-
+          rtn as String
+
+      method2()
+        -> param1 as String
+        <- rtn as String
+        
+      method3()
+
+      method4()
+//EOF

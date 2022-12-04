@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.main;
 
-import org.ek9lang.compiler.files.Workspace;
+import org.ek9lang.compiler.internals.Workspace;
 
 /**
  * Just a dummy to be used during testing of components.

@@ -30,6 +30,7 @@ class CompilationPhaseTest {
       "CODE_GENERATION_CONSTANTS",
       "CODE_GENERATION_FUNCTIONS",
       "CODE_OPTIMISATION",
+      "PLUGIN_LINKAGE",
       "APPLICATION_PACKAGING",
       "PACKAGING_POST_PROCESSING"})
   void testCorrectCreationOfEnumeration(final String fromStringValue) {

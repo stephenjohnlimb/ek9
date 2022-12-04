@@ -6,7 +6,7 @@ import org.ek9lang.LanguageMetaData;
 import org.ek9lang.cli.support.CompilationContext;
 import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.cli.support.Reporter;
-import org.ek9lang.compiler.files.CompilableSource;
+import org.ek9lang.compiler.internals.CompilableSource;
 import org.ek9lang.compiler.main.Compiler;
 import org.ek9lang.compiler.main.Ek9Compiler;
 import org.ek9lang.compiler.main.phases.CompilationPhase;

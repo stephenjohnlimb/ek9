@@ -18,7 +18,7 @@ sheBang
     ;
 
 moduleDeclaration
-    : DEFINES MODULE dottedName NL+ (INDENT NL* (referencesBlock NL+)? (moduleBlock NL+)+ DEDENT)?
+    : DEFINES EXTERN? MODULE dottedName NL+ (INDENT NL* (referencesBlock NL+)? (moduleBlock NL+)+ DEDENT)?
     ;
 
 moduleBlock

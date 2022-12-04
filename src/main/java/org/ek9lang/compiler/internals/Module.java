@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.files;
+package org.ek9lang.compiler.internals;
 
 /**
  * Defines a module scope, the main concept for namespaces in EK9.

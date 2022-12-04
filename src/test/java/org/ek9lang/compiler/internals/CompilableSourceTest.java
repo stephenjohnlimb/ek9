@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.files;
+package org.ek9lang.compiler.internals;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -25,12 +25,7 @@ import org.junit.jupiter.params.provider.ValueSource;
  */
 final class CompilableSourceTest {
 
-  private static final Supplier<CompilableSource> validEk9Source = () -> {
-    var fullPath = new PathToSourceFromName().apply("/examples/basics/HelloWorld.ek9");
-    var helloWorldSource = new CompilableSource(fullPath);
-    assertNotNull(helloWorldSource, "Expecting source to be available");
-    return helloWorldSource;
-  };
+  private static final Supplier<CompilableSource> validEk9Source = new HelloWorldSupplier();
 
   private static final UnaryOperator<CompilableSource> processEk9Source =
       source -> source.prepareToParse().completeParsing();

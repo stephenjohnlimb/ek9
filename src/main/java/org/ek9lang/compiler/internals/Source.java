@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.files;
+package org.ek9lang.compiler.internals;
 
 /**
  * Defines the concept of an EK9 source file.

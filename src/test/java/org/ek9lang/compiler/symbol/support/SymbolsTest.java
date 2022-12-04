@@ -8,8 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Optional;
-import org.ek9lang.compiler.files.Module;
-import org.ek9lang.compiler.files.Source;
+import org.ek9lang.compiler.internals.Module;
+import org.ek9lang.compiler.internals.Source;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.CallSymbol;
 import org.ek9lang.compiler.symbol.ConstantSymbol;

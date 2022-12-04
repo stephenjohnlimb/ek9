@@ -29,6 +29,7 @@ public enum CompilationPhase {
   CODE_GENERATION_CONSTANTS("Generating Code for Constants"),
   CODE_GENERATION_FUNCTIONS("Generating Code for Functions"),
   CODE_OPTIMISATION("Optimising Generated Code"),
+  PLUGIN_LINKAGE("Linking Plugins"),
   APPLICATION_PACKAGING("Application Packaging"),
   PACKAGING_POST_PROCESSING("Completing Post Processing");
 

@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.symbol;
 
 import java.util.Optional;
-import org.ek9lang.compiler.files.Module;
+import org.ek9lang.compiler.internals.Module;
 
 /**
  * Represents the concept of what functionality a Symbol should have.

@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.files;
+package org.ek9lang.compiler.internals;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -188,11 +188,13 @@ public class CompilableSource implements Source, TokenConsumptionListener {
     if (obj == this) {
       return true;
     }
+
+    var rtn = false;
     if (obj instanceof CompilableSource cs) {
-      return cs.filename.equals(filename);
+      rtn = cs.filename.equals(filename);
     }
 
-    return false;
+    return rtn;
   }
 
   /**

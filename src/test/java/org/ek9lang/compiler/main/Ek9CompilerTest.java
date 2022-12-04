@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.ek9lang.compiler.errors.CompilationListener;
-import org.ek9lang.compiler.files.Workspace;
+import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.testsupport.PathToSourceFromName;
 import org.junit.jupiter.api.Test;

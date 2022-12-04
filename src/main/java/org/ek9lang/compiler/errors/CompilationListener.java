@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.errors;
 
-import org.ek9lang.compiler.files.CompilableSource;
+import org.ek9lang.compiler.internals.CompilableSource;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 
 /**

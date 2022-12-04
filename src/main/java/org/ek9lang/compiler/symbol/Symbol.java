@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.antlr.v4.runtime.Token;
-import org.ek9lang.compiler.files.Module;
+import org.ek9lang.compiler.internals.Module;
 import org.ek9lang.compiler.symbol.support.TypeCoercions;
 import org.ek9lang.compiler.tokenizer.SyntheticToken;
 import org.ek9lang.core.exception.AssertValue;

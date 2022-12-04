@@ -2,7 +2,7 @@ package org.ek9lang.compiler.main.phases;
 
 import java.util.function.BiFunction;
 import org.ek9lang.compiler.errors.CompilationListener;
-import org.ek9lang.compiler.files.Workspace;
+import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
 import org.ek9lang.compiler.main.phases.result.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;

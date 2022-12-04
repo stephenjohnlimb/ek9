@@ -78,6 +78,7 @@ CONST : 'const';
 DO : 'do';
 ELSE : 'else';
 EXTENDS : 'extends';
+EXTERN : 'extern';
 FINAL : 'final';
 FINALLY : 'finally';
 FLOAT : 'Float'; //ek9 float

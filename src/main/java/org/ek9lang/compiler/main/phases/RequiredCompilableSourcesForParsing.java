@@ -2,7 +2,7 @@ package org.ek9lang.compiler.main.phases;
 
 import java.util.Collection;
 import java.util.function.UnaryOperator;
-import org.ek9lang.compiler.files.CompilableSource;
+import org.ek9lang.compiler.internals.CompilableSource;
 
 /**
  * Determines which CompilableSources in a collection need to be parsed.

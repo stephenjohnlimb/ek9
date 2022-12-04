@@ -13,14 +13,14 @@ import org.ek9lang.core.exception.AssertValue;
  * The local scope can be either just a block (if, where, etc.)
  * or aggregate (class, component, etc.).
  */
-public final class LocalScope extends SymbolTable {
+public class LocalScope extends SymbolTable {
 
   private final IScope enclosingScope;
   private IScope.ScopeType scopeType = IScope.ScopeType.BLOCK;
 
   /**
    * Create a new named local scope with an outer enclosing scope.
-   * Scope type default to BLOCk.
+   * Scope type default to BLOCK.
    */
   public LocalScope(String scopeName, IScope enclosingScope) {
     super(scopeName);
