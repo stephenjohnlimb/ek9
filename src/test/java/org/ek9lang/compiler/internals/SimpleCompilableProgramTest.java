@@ -67,7 +67,6 @@ class SimpleCompilableProgramTest {
 
   @Test
   void checkParsedModuleIdentification() {
-    var sharedThreadContext = sharedContext.get();
     final var source = validEk9Source.get();
     final ParsedModule module = new ParsedModule(source, sharedContext.get());
 
@@ -79,7 +78,6 @@ class SimpleCompilableProgramTest {
 
   @Test
   void checkParsedModuleEquality() {
-    var sharedThreadContext = sharedContext.get();
     final var source = validEk9Source.get();
     final var compilationUnitContext = source.prepareToParse().parse();
 
@@ -97,7 +95,6 @@ class SimpleCompilableProgramTest {
     assertEquals(module1.toString(), module2.toString());
     assertEquals(moduleScope1, moduleScope2);
     assertEquals(moduleScope1.hashCode(), moduleScope2.hashCode());
-
   }
 
   /**

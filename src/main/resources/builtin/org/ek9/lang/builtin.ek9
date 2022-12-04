@@ -1,0 +1,68 @@
+#!ek9
+<!-
+  This is the signature definitions of built in ek9 Types etc.
+  The point of the 'extern' is to tell the compiler, there won't be any bodies.
+  But also the compiler needs to resolve these classes/methods in some 'jar'.
+-!>
+
+defines extern module org.ek9.lang
+
+  //So let's just add in an outline of our built in types
+  //Then we can flesh them out later on.
+  defines class
+
+    Boolean
+      Boolean()
+
+    Character
+      Character()
+
+    String
+      String()
+
+    Integer
+      Integer()
+
+    Float
+      Float()
+
+    Bits
+      Bits()
+
+    Time
+      Time()
+
+    Duration
+      Duration()
+
+    Millisecond
+      Millisecond()
+
+    Date
+      Date()
+
+    DateTime
+      DateTime()
+
+    Money
+      Money()
+
+    Locale
+      Locale()
+
+    Colour
+      Colour()
+
+    Path
+      Path()
+
+    JSON
+      JSON()
+
+    RegEx
+      RegEx()
+
+    //Collection/Generic/Templates to do
+
+    //Network type to do
+//EOF

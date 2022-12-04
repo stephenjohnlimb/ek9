@@ -67,11 +67,9 @@ BY : 'by';
 DISPATCHER : 'dispatcher'; //For certain classes etc we can support double dispatch if method marked with this
 ABSTRACT : 'abstract';
 ASSERT : 'assert';
-BOOLEAN : 'Boolean'; //ek9 boolean
 CASE : 'case';
 CATCH : 'catch';
 HANDLE : 'handle';
-CHARACTER : 'Character'; //ek9 character
 CLASS : 'class';
 COMPONENT: 'component';
 CONST : 'const';
@@ -81,11 +79,9 @@ EXTENDS : 'extends';
 EXTERN : 'extern';
 FINAL : 'final';
 FINALLY : 'finally';
-FLOAT : 'Float'; //ek9 float
 FOR : 'for';
 IF : 'if';
 IS : 'is';
-INTEGER : 'Integer'; //ek9 Integer
 PACKAGE : 'package';
 PRIVATE : 'private';
 PROTECTED : 'protected';
@@ -95,21 +91,12 @@ OPERATOR: 'operator';
 SUPER : 'super';
 SWITCH : 'switch';
 GIVEN : 'given' ;
-STRING : 'String';
-REGEX : 'RegEx';
-DATE : 'Date';
-DATETIME : 'DateTime';
-DURATION : 'Duration';
-TIME : 'Time';
 THIS : 'this';
 THROW : 'throw';
 TRY : 'try';
 WHILE : 'while';
-COLOUR: 'Colour';
-DIMENSION: 'Dimension';
-RESOLUTION: 'Resolution';
-MONEY: 'Money';
-VERSION: 'Version';
+
+
 
 HTTP_GET: 'GET';
 HTTP_DELETE: 'DELETE';

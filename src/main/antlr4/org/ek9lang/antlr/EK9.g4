@@ -594,25 +594,6 @@ operator
 
 definedType
     : identifierReference
-    | builtInType
-    ;
-
-builtInType
-    : BOOLEAN
-    | CHARACTER
-    | FLOAT
-    | INTEGER
-    | STRING
-    | REGEX
-    | DATE
-    | DATETIME
-    | TIME
-    | DURATION
-    | COLOUR
-    | DIMENSION
-    | RESOLUTION
-    | MONEY
-    | VERSION
     ;
 
 //Now we also add in some words that act as operators in some ways but we want the developer to be able to use them as identifiers.
