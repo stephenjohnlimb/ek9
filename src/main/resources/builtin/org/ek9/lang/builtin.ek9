@@ -2,13 +2,14 @@
 <!-
   This is the signature definitions of built in ek9 Types etc.
   The point of the 'extern' is to tell the compiler, there won't be any bodies.
-  But also the compiler needs to resolve these classes/methods in some 'jar'.
+  But also the compiler needs to resolve these classes/methods in some 'jar' or 'lib'.
 -!>
 
 defines extern module org.ek9.lang
 
   //So let's just add in an outline of our built in types
   //Then we can flesh them out later on.
+
   defines class
 
     Boolean

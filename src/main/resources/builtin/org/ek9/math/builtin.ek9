@@ -1,0 +1,9 @@
+#!ek9
+defines extern module org.ek9.math
+
+  //Just mathematical constants
+  defines constant
+
+    PI <- 3.141592653589793238
+    e <- 2.7182818284
+    root2 <- 1.41421356237309504880

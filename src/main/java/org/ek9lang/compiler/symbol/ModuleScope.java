@@ -1,7 +1,5 @@
 package org.ek9lang.compiler.symbol;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.symbol.support.SymbolTable;
 import org.ek9lang.core.threads.SharedThreadContext;

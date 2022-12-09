@@ -3,6 +3,9 @@ package org.ek9lang.compiler.symbol.support.search;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import org.ek9lang.compiler.internals.Module;
+import org.ek9lang.compiler.internals.Source;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
@@ -163,13 +166,31 @@ public class SymbolSearch {
    * Creates a new Symbol from the name in the search and the module name.
    */
   public Optional<ISymbol> getNameAsSymbol(String fromModuleName) {
-    AggregateSymbol sym;
-    String theName = fromModuleName.equals(ISymbol.getModuleNameIfPresent(name))
-        ? ISymbol.getUnqualifiedName(name) : name;
 
-    sym = new AggregateSymbol(theName, new SymbolTable());
+    final var newSymbolModuleName = ISymbol.getModuleNameIfPresent(name);
+    final String newSymbolName = ISymbol.getUnqualifiedName(name);
 
-    return Optional.of(sym);
+    //Make a new symbol (synthetic) and ensure it has the correct module name.
+    //Also ensure it has a valid unqualified name in that scope.
+    final var symbol = new AggregateSymbol(newSymbolName, new SymbolTable(newSymbolModuleName));
+    symbol.setParsedModule(Optional.of(new Module() {
+      @Override
+      public Source getSource() {
+        return new Source() {
+
+          @Override
+          public String getFileName() {
+            return "syntheticSource.ek9";
+          }
+        };
+      }
+      @Override
+      public String getScopeName() {
+        return newSymbolModuleName;
+      }
+    }));
+
+    return Optional.of(symbol);
   }
 
   public String getName() {

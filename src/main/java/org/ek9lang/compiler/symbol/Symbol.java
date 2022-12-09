@@ -237,9 +237,10 @@ public class Symbol implements ISymbol {
   }
 
   private void doSetModule(Module module) {
-    if (parsedModule.isEmpty() && !isEk9Core()) {
+    if (parsedModule.isEmpty()) {
       parsedModule = Optional.of(module);
     }
+    this.setEk9Core(module.isEk9Core());
   }
 
   @Override

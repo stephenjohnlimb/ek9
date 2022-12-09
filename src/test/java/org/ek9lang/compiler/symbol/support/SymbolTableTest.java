@@ -376,17 +376,17 @@ final class SymbolTableTest {
 
   @Test
   void testBasicTypeDefinitionAndLookup() {
+    final TypeCreator typeCreator = new TypeCreator();
+
+    //Now remember this is just a test of the symbol tables and general resolution
+    //So I'm using 'global' as the scope name - when it comes to real ek9 we'd use a specific name.
     SymbolTable underTest = new SymbolTable();
     assertEquals("global", underTest.getScopeName());
     assertEquals("global", underTest.toString());
 
-    assertFalse(underTest.resolve(new TypeSymbolSearch("Float")).isPresent());
+    assertFalse(underTest.resolve(new TypeSymbolSearch("global::Float")).isPresent());
 
-    AggregateSymbol floatType = new AggregateSymbol("Float", underTest);
-    floatType.setSourceToken(new SyntheticToken());
-    assertNotNull(floatType.getSourceToken());
-    underTest.define(floatType);
-
+    AggregateSymbol floatType = typeCreator.apply("Float", underTest);
 
     List<ISymbol> symbols = underTest.getSymbolsForThisScope();
     assertEquals(1, symbols.size());
@@ -395,11 +395,13 @@ final class SymbolTableTest {
     symbols = underTest.getSymbolsForThisScopeOfCategory(ISymbol.SymbolCategory.TYPE);
     assertEquals(1, symbols.size());
     assertEquals("Float", symbols.get(0).getName());
+    assertEquals("global::Float", symbols.get(0).getFullyQualifiedName());
 
     //Now do a type symbol search for a type we know must be there
-    Optional<ISymbol> searchResult = underTest.resolve(new TypeSymbolSearch("Float"));
+    Optional<ISymbol> searchResult = underTest.resolve(new TypeSymbolSearch("global::Float"));
     assertTrue(searchResult.isPresent());
     assertEquals("Float", searchResult.get().getName());
+    assertEquals("global::Float", searchResult.get().getFullyQualifiedName());
 
     //Now search via fully qualified name
     searchResult = underTest.resolve(new TypeSymbolSearch("global::Float"));
@@ -407,12 +409,12 @@ final class SymbolTableTest {
     assertEquals("Float", searchResult.get().getName());
 
     //Now search via any search.
-    searchResult = underTest.resolve(new AnySymbolSearch("Float"));
+    searchResult = underTest.resolve(new AnySymbolSearch("global::Float"));
     assertTrue(searchResult.isPresent());
     assertEquals("Float", searchResult.get().getName());
 
     //Now do a type symbol search for a type we know can't be there
-    var typeSymbolSearch = new TypeSymbolSearch("Integer");
+    var typeSymbolSearch = new TypeSymbolSearch("global::Integer");
     searchResult = underTest.resolveInThisScopeOnly(typeSymbolSearch);
     assertFalse(searchResult.isPresent());
 
@@ -423,13 +425,13 @@ final class SymbolTableTest {
     //Has no enclosing scope so expect false.
     assertFalse(underTest.findNearestAggregateScopeInEnclosingScopes().isPresent());
     assertFalse(underTest.isScopeAMatchForEnclosingScope(underTest));
-    assertFalse(underTest.resolveWithEnclosingScope(new TypeSymbolSearch("Float")).isPresent());
+    assertFalse(underTest.resolveWithEnclosingScope(new TypeSymbolSearch("global::Float")).isPresent());
 
     AggregateSymbol templateType = new AggregateSymbol("Special", underTest);
     templateType.addParameterisedType(new AggregateSymbol("T", underTest));
     underTest.define(templateType);
 
-    var templateTypeSymbolSearch = new TemplateTypeSymbolSearch("Special");
+    var templateTypeSymbolSearch = new TemplateTypeSymbolSearch("global::Special");
     searchResult = underTest.resolveInThisScopeOnly(templateTypeSymbolSearch);
     assertTrue(searchResult.isPresent());
 

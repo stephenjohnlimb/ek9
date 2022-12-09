@@ -39,7 +39,8 @@ public interface ISymbol extends ITokenReference {
    * Convert a scope name (module name) and a symbol name into a fully qualified symbol name.
    */
   static String makeFullyQualifiedName(String scopeName, String symbolName) {
-    if (isQualifiedName(symbolName)) {
+    //In come cases (mainly testing) we may have an empty scope name.
+    if (isQualifiedName(symbolName) || scopeName.equals("")) {
       return symbolName;
     }
     return scopeName + "::" + symbolName;
@@ -131,6 +132,10 @@ public interface ISymbol extends ITokenReference {
   boolean isMutable();
 
   void setNotMutable();
+
+  default String getSourceFileLocation() {
+    return getParsedModule().map(module -> module.getSource().getFileName()).orElse("Unknown");
+  }
 
   default boolean isPrivate() {
     return false;

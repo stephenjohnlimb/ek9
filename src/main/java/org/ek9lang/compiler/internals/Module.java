@@ -7,4 +7,6 @@ public interface Module {
   Source getSource();
 
   String getScopeName();
+
+  default boolean isEk9Core() { return false; };
 }

@@ -22,18 +22,18 @@ moduleDeclaration
     ;
 
 moduleBlock
-    : typeBlock
-    | packageBlock
-    | constantBlock
-    | recordBlock
-    | traitBlock
-    | classBlock
-    | componentBlock
-    | textBlock
-    | serviceBlock
-    | applicationBlock
-    | functionBlock
+    : constantBlock
     | programBlock
+    | typeBlock
+    | functionBlock
+    | recordBlock
+    | classBlock
+    | traitBlock
+    | packageBlock
+    | textBlock
+    | componentBlock
+    | applicationBlock
+    | serviceBlock
     ;
 
 referencesBlock

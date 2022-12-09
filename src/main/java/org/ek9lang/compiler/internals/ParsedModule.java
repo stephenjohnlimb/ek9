@@ -1,11 +1,14 @@
 package org.ek9lang.compiler.internals;
 
+import java.util.Optional;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.ModuleScope;
 import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.exception.CompilerException;
 import org.ek9lang.core.threads.SharedThreadContext;
 
 /**
@@ -62,10 +65,16 @@ public class ParsedModule implements Module {
    * But we may find there are duplicate and the like so that is semantic analysis.
    */
   protected ParseTreeProperty<ISymbol> symbols = new ParseTreeProperty<>();
+
   private String moduleName;
   private EK9Parser.CompilationUnitContext compilationUnitContext = null;
   //We also need to keep a record of the ModuleScope so that when we come to resolve across modules we can
   private ModuleScope moduleScope;
+
+  /**
+   * Is the parsed module an EK9 implementation or externally linked.
+   */
+  private boolean externallyImplemented = false;
 
   /**
    * We may hold Nodes in here - but not sure yet.
@@ -85,6 +94,18 @@ public class ParsedModule implements Module {
     this.moduleScope = moduleScope;
   }
 
+  public boolean isExternallyImplemented() {
+    return externallyImplemented;
+  }
+
+  public void setExternallyImplemented(boolean externallyImplemented) {
+    this.externallyImplemented = externallyImplemented;
+  }
+
+  public boolean isEk9Core() {
+    //Any module that start with this is deemed core.
+    return this.moduleName.startsWith("org.ek9");
+  }
   /**
    * Once the source code has been parsed by one of the stages in the compiler, the CompilationUnitContext
    * can be provided to this Parsed module. It will then have the second part of its initialisation complete.
@@ -93,10 +114,10 @@ public class ParsedModule implements Module {
   public ModuleScope acceptCompilationUnitContext(EK9Parser.CompilationUnitContext compilationUnitContext) {
     AssertValue.checkNotNull("CompilationUnitContext cannot be null", compilationUnitContext);
     this.compilationUnitContext = compilationUnitContext;
-    var moduleName = compilationUnitContext.moduleDeclaration().dottedName().getText();
-    AssertValue.checkNotEmpty("ModuleName must have a value", moduleName);
-    setModuleName(moduleName);
-    setModuleScope(new ModuleScope(moduleName, compilableProgram));
+    var theModuleName = compilationUnitContext.moduleDeclaration().dottedName().getText();
+    AssertValue.checkNotEmpty("ModuleName must have a value", theModuleName);
+    setModuleName(theModuleName);
+    setModuleScope(new ModuleScope(theModuleName, compilableProgram));
 
     return getModuleScope();
   }
@@ -104,6 +125,41 @@ public class ParsedModule implements Module {
   public boolean isForThisCompilableSource(CompilableSource compilableSource) {
     AssertValue.checkNotNull("CompilableSource cannot be null", compilableSource);
     return source.equals(compilableSource);
+  }
+
+  /**
+   * Record a particular node context during listen/visit of a context with a particular scope.
+   */
+  public ParsedModule recordScope(ParseTree node, IScope withScope)
+  {
+    AssertValue.checkNotNull("WithScope cannot be null", withScope);
+    scopes.put(node, withScope);
+    return this;
+  }
+
+  public IScope getRecordedScope(ParseTree node)
+  {
+    return scopes.get(node);
+  }
+
+  /**
+   * Record a particular node context with a particular symbol.
+   */
+  public ParsedModule recordSymbol(ParseTree node, ISymbol symbol)
+  {
+    AssertValue.checkNotNull("Symbol cannot be null", symbol);
+
+    //Let the symbol know where it is defined.
+    //But it can only be defined in one place - in case of references we record in other locations
+    //but we only want its actual module recorded the first time it is encountered.
+    symbol.setParsedModule(Optional.of(this));
+    symbols.put(node, symbol);
+    return this;
+  }
+
+  public ISymbol getRecordedSymbol(ParseTree node)
+  {
+    return symbols.get(node);
   }
 
   @Override
@@ -139,7 +195,7 @@ public class ParsedModule implements Module {
   }
 
   @Override
-  public Source getSource() {
+  public CompilableSource getSource() {
     return this.source;
   }
 

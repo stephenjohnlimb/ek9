@@ -37,6 +37,65 @@ import org.junit.jupiter.api.Test;
  */
 final class ScopesTest extends AbstractSymbolTestBase {
 
+  private final TypeCreator typeCreator = new TypeCreator();
+
+  /**
+   * Need to test for symbols declared in a module fully qualified and also non fully qualified searches.
+   */
+  @Test
+  void testModuleNamedSymbolResolution() {
+    //Raw none-module named
+    var module1SymbolTable = new SymbolTable("");
+
+    //This would be a raw String i.e. not in a moduleScope - so not a true reflection of what we will be doing
+    //Hence even fully qualified it will just be String
+    AggregateSymbol stringType = typeCreator.apply("String", module1SymbolTable);
+    assertEquals(stringType.getName(), stringType.getFullyQualifiedName());
+
+    AggregateSymbol noModuleInteger = typeCreator.apply("Integer", module1SymbolTable);
+    assertEquals(noModuleInteger.getName(), noModuleInteger.getFullyQualifiedName());
+
+    //But this Integer is going to be in an actual module so can be fully qualified
+    var ek9LangSymbolTable = new SymbolTable("org.ek9.lang");
+    AggregateSymbol orgEk9LangInteger = typeCreator.apply("Integer", ek9LangSymbolTable);
+
+    assertEquals("Integer", orgEk9LangInteger.getName());
+    assertEquals("org.ek9.lang::Integer", orgEk9LangInteger.getFullyQualifiedName());
+
+
+    //Now check that the noModuleInteger is not considered to be the same.
+    assertFalse(noModuleInteger.isExactSameType(orgEk9LangInteger));
+    //and the other way.
+    assertFalse(orgEk9LangInteger.isExactSameType(noModuleInteger));
+
+    //Search in the no module symbol table
+    assertTrue(module1SymbolTable.resolve(new TypeSymbolSearch("Integer")).isPresent());
+    assertFalse(module1SymbolTable.resolve(new TypeSymbolSearch("org.ek9.lang::Integer")).isPresent());
+  }
+
+  @Test
+  void testSameSymbolsInModuleResolve() {
+    var ek9LangSymbolTable = new SymbolTable("org.ek9.lang");
+    AggregateSymbol orgEk9LangInteger = typeCreator.apply("Integer", ek9LangSymbolTable);
+
+    var anotherEk9LangSymbolTable = new SymbolTable("org.ek9.lang");
+    AggregateSymbol anotherOrgEk9LangInteger = typeCreator.apply("Integer", anotherEk9LangSymbolTable);
+
+    assertTrue(anotherOrgEk9LangInteger.isExactSameType(orgEk9LangInteger));
+    //And the other way just to be sure
+    assertTrue(orgEk9LangInteger.isExactSameType(anotherOrgEk9LangInteger));
+
+  }
+
+  @Test
+  void testFullyQualifiedSearch() {
+    var ek9LangSymbolTable = new SymbolTable("org.ek9.lang");
+    AggregateSymbol orgEk9LangInteger = typeCreator.apply("Integer", ek9LangSymbolTable);
+
+    assertFalse(ek9LangSymbolTable.resolve(new TypeSymbolSearch("Integer")).isPresent());
+    assertTrue(ek9LangSymbolTable.resolve(new TypeSymbolSearch("org.ek9.lang::Integer")).isPresent());
+  }
+
   @Test
   void testLocalScope() {
     var local1 = new LocalScope(symbolTable);
@@ -75,7 +134,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
   @Test
   void testBlockLimitingResolution() {
-    var local1 = new LocalScope(IScope.ScopeType .AGGREGATE, "SimulatedAggregate", symbolTable);
+    var local1 = new LocalScope(IScope.ScopeType.AGGREGATE, "SimulatedAggregate", symbolTable);
     var local2 = new LocalScope(local1);
 
     //Now if we limit to blocks, should not be able to resolve.
@@ -86,7 +145,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
   @Test
   void testGeneralMethodResolution() {
-    var local1 = new LocalScope(IScope.ScopeType .AGGREGATE,"SimulatedAggregate", symbolTable);
+    var local1 = new LocalScope(IScope.ScopeType.AGGREGATE, "SimulatedAggregate", symbolTable);
 
     //Create a method and add.
     var method = new MethodSymbol("aMethod", local1);

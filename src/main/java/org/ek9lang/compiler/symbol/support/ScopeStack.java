@@ -38,7 +38,17 @@ public class ScopeStack {
   public IScope push(IScope scope) {
     AssertValue.checkNotNull("Scope Cannot be null", scope);
     actualStack.push(scope);
+
     return scope;
+  }
+
+  /**
+   * Take a look at the top of the stack.
+   *
+   * @return
+   */
+  public IScope peek() {
+    return actualStack.peekFirst();
   }
 
   /**

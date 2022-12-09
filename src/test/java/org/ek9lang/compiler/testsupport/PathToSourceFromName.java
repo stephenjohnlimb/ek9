@@ -8,9 +8,8 @@ import java.util.function.UnaryOperator;
 public class PathToSourceFromName implements UnaryOperator<String> {
   @Override
   public String apply(String resourceName) {
-    URL helloWorld = PathToSourceFromName.class.getResource(resourceName);
-
-    assertNotNull(helloWorld, "Expecting URL to be available.");
-    return helloWorld.getPath();
+    URL url = PathToSourceFromName.class.getResource(resourceName);
+    assertNotNull(url, "Expecting URL to be available.");
+    return url.getPath();
   }
 }
