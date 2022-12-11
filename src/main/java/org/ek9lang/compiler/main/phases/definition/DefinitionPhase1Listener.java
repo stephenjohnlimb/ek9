@@ -8,7 +8,6 @@ import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.SymbolFactory;
 import org.ek9lang.compiler.main.phases.listeners.AbstractEK9PhaseListener;
-import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
 import org.ek9lang.compiler.symbol.IScopedSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
@@ -75,18 +74,18 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     constant.setSourceToken(ctx.start);
     constant.setParsedModule(Optional.ofNullable(getParsedModule()));
 
-    if(!symbolChecker.errorsIfVariableSymbolAlreadyDefined(symbolAndScopeManagement.getTopScope(), constant))
+    if (!symbolChecker.errorsIfVariableSymbolAlreadyDefined(symbolAndScopeManagement.getTopScope(), constant)) {
       symbolAndScopeManagement.enterNewSymbol(constant, ctx);
+    }
 
     super.enterConstantDeclaration(ctx);
   }
 
   @Override
-  public void exitConstantDeclaration(EK9Parser.ConstantDeclarationContext ctx)
-  {
+  public void exitConstantDeclaration(EK9Parser.ConstantDeclarationContext ctx) {
     //Now because constants are and have to be quite simple we can work out the type
     //even in the def phase 1. That's because they can only be simple though.
-    ConstantSymbol constant = (ConstantSymbol)getParsedModule().getRecordedSymbol(ctx);
+    ConstantSymbol constant = (ConstantSymbol) getParsedModule().getRecordedSymbol(ctx);
 
     ISymbol constantValue = getParsedModule().getRecordedSymbol(ctx.constantInitialiser());
     AssertValue.checkNotNull("Need to be able to access the type of the constant.", constantValue);
@@ -98,19 +97,23 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   @Override
-  public void enterClassDeclaration(EK9Parser.ClassDeclarationContext ctx) {
-    final var className = ctx.Identifier().getText();
-    final var newTypeSymbol = new AggregateSymbol(className, getParsedModule().getModuleScope());
-
+  public void enterTraitDeclaration(EK9Parser.TraitDeclarationContext ctx) {
+    final var newTypeSymbol = symbolFactory.newTrait(ctx);
     checkAndDefineScopedSymbol(newTypeSymbol, ctx);
+    super.enterTraitDeclaration(ctx);
+  }
 
+  @Override
+  public void enterClassDeclaration(EK9Parser.ClassDeclarationContext ctx) {
+    final var newTypeSymbol = symbolFactory.newClass(ctx);
+    checkAndDefineScopedSymbol(newTypeSymbol, ctx);
     super.enterClassDeclaration(ctx);
   }
 
   @Override
   public void enterMethodDeclaration(EK9Parser.MethodDeclarationContext ctx) {
     //Now this is used quite widely in the grammar, the parent context is key here
-    if(ctx.getParent() instanceof EK9Parser.ProgramBlockContext) {
+    if (ctx.getParent() instanceof EK9Parser.ProgramBlockContext) {
       processProgramDeclaration(ctx);
     } else if (ctx.getParent() instanceof EK9Parser.AggregatePartsContext) {
       processMethodDeclaration(ctx);
@@ -119,6 +122,20 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     }
 
     super.enterMethodDeclaration(ctx);
+  }
+
+  @Override
+  public void enterFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
+    final var function = symbolFactory.newFunction(ctx);
+    checkAndDefineScopedSymbol(function, ctx);
+    super.enterFunctionDeclaration(ctx);
+  }
+
+  @Override
+  public void enterRecordDeclaration(EK9Parser.RecordDeclarationContext ctx) {
+    final var newTypeSymbol = symbolFactory.newRecord(ctx);
+    checkAndDefineScopedSymbol(newTypeSymbol, ctx);
+    super.enterRecordDeclaration(ctx);
   }
 
   private void processProgramDeclaration(EK9Parser.MethodDeclarationContext ctx) {
@@ -149,12 +166,12 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     symbolAndScopeManagement.recordScopeForStackConsistency(new LocalScope(currentScope), ctx);
   }
 
-  private ConstantSymbol recordConstant(ParseTree ctx, Token start, String typeName)
-  {
+  private ConstantSymbol recordConstant(ParseTree ctx, Token start, String typeName) {
     //Lets account for the optional '-' on some literals
     String literalText = ctx.getChild(0).getText();
-    if(ctx.getChildCount() == 2)
+    if (ctx.getChildCount() == 2) {
       literalText += ctx.getChild(1).getText();
+    }
     ConstantSymbol literal = symbolFactory.newLiteral(start, literalText);
     literal.setType(symbolAndScopeManagement.getTopScope().resolve(new TypeSymbolSearch(typeName)));
     symbolAndScopeManagement.enterNewLiteral(literal, ctx);

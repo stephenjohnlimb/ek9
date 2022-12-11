@@ -4,12 +4,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.ek9lang.compiler.errors.CompilationListener;
+import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
+import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
+import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.compiler.testsupport.PathToSourceFromName;
+import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -36,6 +41,9 @@ import org.junit.jupiter.params.provider.MethodSource;
  */
 class Ek9CompilerTest {
 
+  private static final Supplier<SharedThreadContext<CompilableProgram>> sharedContext =
+      () -> new SharedThreadContext<>(new CompilableProgram(List.of()));
+
   private static final Supplier<Workspace> validEk9Workspace = () -> {
     var fullPath = new PathToSourceFromName().apply("/examples/basics/HelloWorld.ek9");
     Workspace rtn = new Workspace();
@@ -51,28 +59,27 @@ class Ek9CompilerTest {
   };
 
 
-  @Test
-  void testInvalidListener() {
-    assertThrows(java.lang.IllegalArgumentException.class,
-        () -> new Ek9Compiler(null));
-  }
 
   @ParameterizedTest
   @MethodSource("allCompilationPhases")
   void testSimpleSuccessfulParsing(final CompilationPhase upToPhase) {
     CompilationListener listener = (phase, source) -> {
     };
+    FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedContext.get(),
+        listener, new CompilerReporter(true));
 
-    var compiler = new Ek9Compiler(listener);
+    var compiler = new Ek9Compiler(allPhases);
     assertTrue(compiler.compile(validEk9Workspace.get(), new CompilerFlags(upToPhase, true)));
   }
 
   @Test
   void testSimpleUnSuccessfulParsing() {
-    //Not concerned with what the error is.
     CompilationListener listener = (phase, source) -> {
     };
-    var compiler = new Ek9Compiler(listener);
+    FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedContext.get(),
+        listener, new CompilerReporter(true));
+
+    var compiler = new Ek9Compiler(allPhases);
     assertFalse(compiler.compile(inValidEk9Workspace.get(), new CompilerFlags()));
   }
 

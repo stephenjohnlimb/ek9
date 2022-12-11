@@ -1,0 +1,33 @@
+#!ek9
+<!-
+Designed for testing of bootstrap loader. check for bad definitions,
+-!>
+defines extern module org.lang.ek9
+
+  defines trait
+
+    //So define two with same name
+    CheckDuplicateTrait
+
+    CheckDuplicateTrait
+
+  defines class
+    CheckDuplicateClass
+      CheckDuplicateClass()
+
+    CheckDuplicateClass
+      CheckDuplicateClass()
+
+  defines function
+
+    //Same name is enough to be a duplicate
+    CheckDuplicateFunction
+      -> v1 as Integer
+
+    CheckDuplicateFunction
+      <- r1 as String
+
+
+  //TODO add in other constructs and check.
+
+//EOF

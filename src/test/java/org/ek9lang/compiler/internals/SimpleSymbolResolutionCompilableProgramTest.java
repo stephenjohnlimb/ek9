@@ -12,11 +12,11 @@ import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
 /**
- *
+ * Initial basic checks of the definition phase 1 listener.
  */
 class SimpleSymbolResolutionCompilableProgramTest {
 
-  private static final Supplier<CompilableSource> ek9BuiltInTypesSource = new Ek9BuiltinLangSupplier();
+  private static final Supplier<List<CompilableSource>> ek9BuiltInTypesSource = new Ek9BuiltinLangSupplier();
 
   private static final Supplier<SharedThreadContext<CompilableProgram>> sharedContext =
       () -> new SharedThreadContext<>(new CompilableProgram(List.of()));
@@ -29,42 +29,50 @@ class SimpleSymbolResolutionCompilableProgramTest {
   void parsingAndAdditionOfParsedModule() {
     var sharedThreadContext = sharedContext.get();
 
-    final var source = ek9BuiltInTypesSource.get();
-    final var compilationUnitContext = source.prepareToParse().parse();
-    final var errorListener = source.getErrorListener();
+    final var sources = ek9BuiltInTypesSource.get();
 
-    //Ensure this has parsed.
-    if (errorListener.hasErrors()) {
-      errorListener.getErrors().forEachRemaining(System.err::println);
-    }
-    assertTrue(errorListener.isErrorFree());
+    sources.forEach(source -> {
+      final var compilationUnitContext = source.prepareToParse().parse();
+      final var errorListener = source.getErrorListener();
 
-    final ParsedModule module = new ParsedModule(source, sharedContext.get());
-    final var moduleScope = module.acceptCompilationUnitContext(compilationUnitContext);
+      //Ensure this has parsed.
+      if (errorListener.hasErrors()) {
+        errorListener.getErrors().forEachRemaining(System.err::println);
+      }
+      assertTrue(errorListener.isErrorFree());
 
-    assertEquals("org.ek9.lang", module.getModuleName());
-    sharedThreadContext.accept(compilableProgram -> {
-      compilableProgram.add(module);
-      assertEquals(1, compilableProgram.getParsedModules(module.getModuleName()).size());
+      final ParsedModule module = new ParsedModule(source, sharedContext.get());
+      final var moduleScope = module.acceptCompilationUnitContext(compilationUnitContext);
+
+      //Add that module in before walking.
+      sharedThreadContext.accept(compilableProgram -> {
+        compilableProgram.add(module);
+        assertEquals(1, compilableProgram.getParsedModules(module.getModuleName()).size());
+      });
+
+      //Just check via org.ek9.lang with String
+      if(module.getModuleName().equals("org.ek9.lang")) {
+        //Just be sure this String type cannot be found.
+        final var resolved = moduleScope.resolve(new TypeSymbolSearch("org.ek9.lang::String"));
+        assertTrue(resolved.isEmpty());
+      }
+
+      //Now lets visit that source and extract and load the types into the parsed module.
+      DefinitionPhase1Listener listener = new DefinitionPhase1Listener(sharedContext.get(), module);
+      ParseTreeWalker walker = new ParseTreeWalker();
+      walker.walk(listener, compilationUnitContext);
+
+      assertTrue(listener.getErrorListener().isErrorFree());
+      //If we've managed all the listening correctly the scope stack should be empty
+      //i.e. have we matched out enters and exits.
+      assertTrue(listener.isScopeStackEmpty());
+
+      if(module.getModuleName().equals("org.ek9.lang")) {
+        //We should now find there some symbols defined.
+        //I would expect new TypeSymbolSearch("org.ek9.lang::String") and new TypeSymbolSearch("String") to work.
+        final var nowResolves = moduleScope.resolve(new TypeSymbolSearch("org.ek9.lang::String"));
+        assertTrue(nowResolves.isPresent());
+      }
     });
-
-    //Just be sure this String type cannot be found.
-    final var resolved = moduleScope.resolve(new TypeSymbolSearch("org.ek9.lang::String"));
-    assertTrue(resolved.isEmpty());
-
-    //Now lets visit that source and extract and load the types into the parsed module.
-    DefinitionPhase1Listener listener = new DefinitionPhase1Listener(sharedContext.get(), module);
-    ParseTreeWalker walker = new ParseTreeWalker();
-    walker.walk(listener, compilationUnitContext);
-
-    assertTrue(listener.getErrorListener().isErrorFree());
-    //If we've managed all the listening correctly the scope stack should be empty
-    //i.e. have we matched out enters and exits.
-    assertTrue(listener.isScopeStackEmpty());
-
-    //We should now find there some symbols defined.
-    //I would expect new TypeSymbolSearch("org.ek9.lang::String") and new TypeSymbolSearch("String") to work.
-    final var nowResolves = moduleScope.resolve(new TypeSymbolSearch("org.ek9.lang::String"));
-    assertTrue(nowResolves.isPresent());
   }
 }

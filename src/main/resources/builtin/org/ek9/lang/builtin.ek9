@@ -3,12 +3,37 @@
   This is the signature definitions of built in ek9 Types etc.
   The point of the 'extern' is to tell the compiler, there won't be any bodies.
   But also the compiler needs to resolve these classes/methods in some 'jar' or 'lib'.
+
+  The main idea is to model the built-in types so compilation can take place.
+  Then towards the end of compilation an external jar, lib or something is required for linking.
+  This should enable multiple target architectures to be supported.
 -!>
 
 defines extern module org.ek9.lang
 
+  defines package
+
+    version <- 0.0.1-0
+
+    description <- "Builtin EK9 language constructs."
+
+    tags <- [
+      "types"
+      ]
+
+    license <- "MIT"
+
   //So let's just add in an outline of our built in types
-  //Then we can flesh them out later on.
+  //Then we can flesh them out later on - i.e. add methods/operators.
+  //But in this boot strap the order is important.
+
+  <!- Start with the basic built in types and traits -!>
+  defines trait
+    <!- This is like the concept of an Object in java, i.e. everything is an 'Any' -!>
+    Any
+
+    <!- Typically for returns or none values -!>
+    Void
 
   defines class
 
@@ -54,16 +79,192 @@ defines extern module org.ek9.lang
     Colour
       Colour()
 
+    Dimension
+      Dimension()
+
     Path
       Path()
 
     JSON
       JSON()
 
+    JSONInput as abstract
+
     RegEx
       RegEx()
 
-    //Collection/Generic/Templates to do
 
-    //Network type to do
+  <!-
+    Some stock EK9 function signatures.
+    Can be useful as the EK9 compiler will look at your
+    functions and infer these from your declarations.
+    These are similar to Java - but are actual functions.
+  -!>
+  defines function
+
+    Supplier of type T
+      <- r as T
+
+    Consumer of type T
+      -> t as T
+
+    BiConsumer of type (T, U)
+      ->
+        t as T
+        u as U
+
+    UnaryOperator of type T
+      -> t as T
+      <- r as T
+
+    Function of type (T, R)
+      -> t as T
+      <- r as R
+
+    Predicate of type T
+      -> t as T
+      <- r as Boolean
+
+    BiPredicate of type (T, U)
+      ->
+        t as T
+        u as U
+      <-
+        r as Boolean
+
+    Comparator of type T
+      ->
+        t1 as T
+        t2 as T
+      <-
+        r as Integer
+
+  <!- Collection/Generic/Templates -!>
+  defines class
+
+    List of type T
+      List()
+
+    Optional of type T
+      Optional()
+
+    PriorityQueue of type T
+      PriorityQueue()
+
+    Dict of type (K, V)
+      Dict()
+
+    DictEntry of type (K, V)
+      DictEntry()
+
+    Iterator of type T
+      Iterator()
+
+  <!- Standard Types and Traits -!>
+  defines trait
+
+    Clock
+
+    StringInput
+
+    StringOutput
+
+  <!- Going to alter some functionality to use functions now I can define them this way -!>
+  <!- Will need to revisit examples and documentation -!>
+  defines function
+
+    SignalHandler() as abstract
+      -> value as String
+      <- result as Integer
+
+    <!- By its nature it is abstract -!>
+    MutexKey() of type T
+      -> value as T
+
+  defines class
+
+    SystemClock with trait of Clock
+      SystemClock()
+
+    Stdin with trait of StringInput
+      Stdin()
+
+    Stdout with trait of StringOutput
+      Stdout()
+
+    Stderr with trait of StringOutput
+      Stderr()
+
+    TextFile
+      TextFile()
+
+    FileSystem
+      FileSystem()
+
+    FileSystemPath
+      FileSystemPath()
+
+    <!- Operating System -!>
+    OS
+      OS()
+
+    GUID
+      GUID()
+
+    HMAC
+      HMAC()
+
+    Signals
+      Signals()
+
+    EnvVars
+      EnvVars()
+
+    GetOpt
+      GetOpt()
+
+    Version
+      Version()
+
+    MutexLock of type T
+      MutexLock()
+
+  <!- Network types -!>
+
+  defines function
+    TCPHandler
+      ->
+        input as StringInput
+        output as SpringOutput
+
+  defines trait
+    HTTPRequest
+
+    HTTPResponse
+
+    TCPConnection
+
+  defines class
+
+    UDP
+      UDP()
+
+    TCP
+      TCP()
+
+  defines record
+    UDPPacket
+      UDPPacket()
+
+  <!- Aspect Stuff -!>
+  defines class
+    Aspect
+      Aspect()
+
+    JoinPoint
+      JoinPoint()
+
+    PreparedMetaData
+      PreparedMetaData()
+
 //EOF

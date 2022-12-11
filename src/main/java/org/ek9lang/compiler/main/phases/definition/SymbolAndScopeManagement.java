@@ -1,7 +1,6 @@
 package org.ek9lang.compiler.main.phases.definition;
 
 import java.util.Optional;
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.symbol.IScope;
@@ -33,6 +32,9 @@ public class SymbolAndScopeManagement {
   private final ParsedModule parsedModule;
   private final ScopeStack scopeStack;
 
+  /**
+   * Create a new instance for symbol and scope management.
+   */
   public SymbolAndScopeManagement(ParsedModule parsedModule, ScopeStack scopeStack) {
     AssertValue.checkNotNull("ParsedModule cannot be null", parsedModule);
     AssertValue.checkNotNull("ScopeStack cannot be null", scopeStack);
@@ -103,8 +105,13 @@ public class SymbolAndScopeManagement {
   }
 
 
+  /**
+   * Record a new scoped symbol in the current scope on the stack.
+   * Also records the symbol as both a scope and a symbol in the parsedModule.
+   */
   public void defineScopedSymbol(IScopedSymbol symbol, ParseTree node) {
-    System.out.println("Defining [" + symbol.getName() + "] in " + scopeStack.peek());
+    AssertValue.checkNotNull("Looks like your enter/exits are not balanced", scopeStack.peek());
+
     scopeStack.peek().define(symbol);
     enterNewScopedSymbol(symbol, node);
   }

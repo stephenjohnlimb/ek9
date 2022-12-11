@@ -5,31 +5,16 @@ import java.util.function.BiFunction;
 import org.ek9lang.compiler.internals.Module;
 import org.ek9lang.compiler.internals.Source;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
+import org.ek9lang.compiler.symbol.ISymbol;
 
 /**
  * Just used in testing to add new named types to a symbol table.
  */
-public class TypeCreator implements BiFunction<String, SymbolTable, AggregateSymbol> {
+public class TypeCreator implements BiFunction<String, SymbolTable, ISymbol> {
+  private final AggregateSymbolCreator creator = new AggregateSymbolCreator();
   @Override
-  public AggregateSymbol apply(String typeName, SymbolTable inSymbolTable) {
-    var newType = new AggregateSymbol(typeName, inSymbolTable);
-    newType.setParsedModule(Optional.of(new Module() {
-      @Override
-      public Source getSource() {
-        return new Source() {
-
-          @Override
-          public String getFileName() {
-            return "syntheticSource.ek9";
-          }
-        };
-      }
-
-      @Override
-      public String getScopeName() {
-        return inSymbolTable.getScopeName();
-      }
-    }));
+  public ISymbol apply(String typeName, SymbolTable inSymbolTable) {
+    var newType = creator.apply(typeName, inSymbolTable);
     inSymbolTable.define(newType);
     return newType;
   }

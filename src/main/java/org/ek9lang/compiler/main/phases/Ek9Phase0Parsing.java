@@ -11,6 +11,7 @@ import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 
 /**
+ * Can be MULTI THREADED.
  * This class just deals with the parsing phase of compilation.
  * It is NOT a parser itself, but is used by the Ek9Compiler to initiate the
  * parsing.
@@ -58,9 +59,12 @@ public class Ek9Phase0Parsing
 
   private boolean underTakeParsing(Workspace workspace, CompilationPhase phase,
                                    UnaryOperator<CompilableSource> operator) {
-    final var affectedSources = sourcesToBeParsed.apply(workspace.getSources())
+    //May consider moving to Executor model
+    final var affectedSources = sourcesToBeParsed
+        .apply(workspace.getSources())
         .parallelStream()
         .map(operator).toList();
+
     affectedSources.forEach(source -> listener.processed(phase, source));
     return !sourceHaveErrors.test(affectedSources);
   }

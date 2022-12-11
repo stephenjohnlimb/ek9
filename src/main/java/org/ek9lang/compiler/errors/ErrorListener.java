@@ -206,7 +206,17 @@ public class ErrorListener extends BaseErrorListener {
    * The type of the error.
    */
   public enum ErrorClassification {
-    WARNING, DEPRECATION, SYNTAX_ERROR, SEMANTIC_WARNING, SEMANTIC_ERROR
+    WARNING("Warning "),
+    DEPRECATION("Deprecat"),
+    SYNTAX_ERROR("Syntax  "),
+    SEMANTIC_WARNING("Warning "),
+    SEMANTIC_ERROR("Error   ");
+
+    private final String description;
+
+    ErrorClassification(String description) {
+      this.description = description;
+    }
   }
 
   /**
@@ -426,7 +436,7 @@ public class ErrorListener extends BaseErrorListener {
     }
 
     public String getClassificationDescription() {
-      return classification.toString();
+      return classification.description;
     }
 
     public ErrorDetails setFuzzySearchResults(MatchResults fuzzySearchResults) {
@@ -481,7 +491,7 @@ public class ErrorListener extends BaseErrorListener {
       this.position = characterNumber;
       this.tokenLength = tokenLength;
 
-      symbolErrorText = String.format("'%s' on line %d position %d",
+      symbolErrorText = String.format("%s' on line %d position %d",
           likelyOffendingSymbol, lineNumber, characterNumber);
     }
 

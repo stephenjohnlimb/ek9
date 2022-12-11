@@ -359,7 +359,7 @@ public class SymbolTable implements IScope {
     // and re-use the code.
 
     final Predicate<Optional<ISymbol>> canBeAssigned = toCheck -> {
-      final Optional<ISymbol> searchSymbol = search.getNameAsSymbol(getScopeName());
+      final Optional<ISymbol> searchSymbol = search.getAsSymbol();
       return isAssignable.test(toCheck, searchSymbol);
     };
 

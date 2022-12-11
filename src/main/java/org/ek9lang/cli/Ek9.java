@@ -7,9 +7,13 @@ import org.ek9lang.cli.support.CompilationContext;
 import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.cli.support.Reporter;
 import org.ek9lang.compiler.internals.CompilableSource;
+import org.ek9lang.compiler.internals.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.main.Compiler;
 import org.ek9lang.compiler.main.Ek9Compiler;
+import org.ek9lang.compiler.main.Ek9LanguageBootStrap;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
+import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
+import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.core.utils.FileHandling;
 import org.ek9lang.core.utils.Logger;
 import org.ek9lang.core.utils.OsSupport;
@@ -49,17 +53,28 @@ public class Ek9 {
   public static final int PROGRAM_NOT_SPECIFIED_EXIT_CODE = 6;
   public static final int LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE = 7;
   private static final LanguageMetaData languageMetaData = new LanguageMetaData("0.0.1-0");
+
+
   /**
    * Creates the compilerContext with the commandLine, and a real compiler.
    */
   private static final Function<CommandLineDetails, CompilationContext> compilationContextCreation =
       commandLine -> {
-        CompilationReporter compilerReporter = new CompilationReporter(commandLine.isVerbose());
-        FileCache sourceFileCache = new FileCache(commandLine);
-        Compiler compiler = new Ek9Compiler(compilerReporter::logPhaseCompilation);
+        final var compilationReporter = new CompilationReporter(commandLine.isVerbose());
+        final var compilerReporter = new CompilerReporter(commandLine.isVerbose());
+        final var sourceFileCache = new FileCache(commandLine);
+        final var sourceSupplier  = new Ek9BuiltinLangSupplier();
+        Ek9LanguageBootStrap bootStrap =
+            new Ek9LanguageBootStrap(sourceSupplier, compilationReporter::logPhaseCompilation, compilerReporter);
+        //For the main compiler we want all phases.
+        FullPhaseSupplier allPhases = new FullPhaseSupplier(bootStrap.get(),
+            compilationReporter::logPhaseCompilation, new CompilerReporter(commandLine.isVerbose()));
+
+        Compiler compiler = new Ek9Compiler(allPhases);
 
         return new CompilationContext(commandLine, compiler, sourceFileCache);
       };
+
   private final CompilationContext compilationContext;
   private final CompilationReporter reporter;
 

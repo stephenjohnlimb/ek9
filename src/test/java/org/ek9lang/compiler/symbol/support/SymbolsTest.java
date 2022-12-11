@@ -154,6 +154,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
   @Test
   void testSymbolCloning() {
     var symbol = new Symbol("Sym", symbolTable.resolve(new TypeSymbolSearch("Integer")));
+    symbol.setSourceToken(new SyntheticToken());
     symbol.setInitialisedBy(new SyntheticToken());
     symbol.setReferenced(true);
     symbol.putSquirrelledData("key1", "value1");

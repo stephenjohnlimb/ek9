@@ -2,11 +2,13 @@ package org.ek9lang.compiler.main.phases;
 
 import java.util.function.BiFunction;
 import org.ek9lang.compiler.errors.CompilationListener;
+import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
 import org.ek9lang.compiler.main.phases.result.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
+import org.ek9lang.core.threads.SharedThreadContext;
 
 /**
  * SINGLE THREADED - because we only want one reference shorthand for an item.
@@ -16,11 +18,17 @@ import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 public class Ek9Phase1ReferenceChecks implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
   private final CompilationListener listener;
   private final CompilerReporter reporter;
+  private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
-  public Ek9Phase1ReferenceChecks(CompilationListener listener, CompilerReporter reporter) {
+  /**
+   * Create a new reference checker for modules contained in the compilable program.
+   */
+  public Ek9Phase1ReferenceChecks(SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                                  CompilationListener listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
+    this.compilableProgramAccess = compilableProgramAccess;
   }
 
   @Override

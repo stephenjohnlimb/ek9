@@ -64,6 +64,12 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   }
 
   @Override
+  public void exitTraitDeclaration(EK9Parser.TraitDeclarationContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitTraitDeclaration(ctx);
+  }
+
+  @Override
   public void exitClassDeclaration(EK9Parser.ClassDeclarationContext ctx) {
     symbolAndScopeManagement.exitScope();
     super.exitClassDeclaration(ctx);
@@ -73,5 +79,17 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   public void exitMethodDeclaration(EK9Parser.MethodDeclarationContext ctx) {
     symbolAndScopeManagement.exitScope();
     super.exitMethodDeclaration(ctx);
+  }
+
+  @Override
+  public void exitFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitFunctionDeclaration(ctx);
+  }
+
+  @Override
+  public void exitRecordDeclaration(EK9Parser.RecordDeclarationContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitRecordDeclaration(ctx);
   }
 }

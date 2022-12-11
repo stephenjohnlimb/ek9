@@ -44,8 +44,6 @@ public class ScopeStack {
 
   /**
    * Take a look at the top of the stack.
-   *
-   * @return
    */
   public IScope peek() {
     return actualStack.peekFirst();

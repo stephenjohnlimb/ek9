@@ -2,11 +2,13 @@ package org.ek9lang.compiler.main.phases;
 
 import java.util.function.BiFunction;
 import org.ek9lang.compiler.errors.CompilationListener;
+import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
 import org.ek9lang.compiler.main.phases.result.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
+import org.ek9lang.core.threads.SharedThreadContext;
 
 /**
  * MULTI THREADED
@@ -22,11 +24,17 @@ public class Ek9Phase3FurtherSymbolDefinitionResolution
     implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
   private final CompilationListener listener;
   private final CompilerReporter reporter;
+  private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
-  public Ek9Phase3FurtherSymbolDefinitionResolution(CompilationListener listener, CompilerReporter reporter) {
+  /**
+   * Create new instance for further symbol resolution.
+   */
+  public Ek9Phase3FurtherSymbolDefinitionResolution(SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                                                    CompilationListener listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
+    this.compilableProgramAccess = compilableProgramAccess;
   }
 
   @Override

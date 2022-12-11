@@ -1,33 +1,71 @@
 package org.ek9lang.compiler.main.phases;
 
 import java.util.function.BiFunction;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ek9lang.compiler.errors.CompilationListener;
+import org.ek9lang.compiler.internals.CompilableProgram;
+import org.ek9lang.compiler.internals.CompilableSource;
+import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
+import org.ek9lang.compiler.main.phases.definition.DefinitionPhase1Listener;
 import org.ek9lang.compiler.main.phases.result.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
+import org.ek9lang.core.threads.SharedThreadContext;
 
 /**
  * MULTI THREADED - Goes through the now successfully parse source files and uses
  * a visitor to do the first real pass at building the IR - simple Symbol definitions.
  * This means identifying types and other symbols.
  */
-public class Ek9Phase1SymbolDefinition implements
-    BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+public class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+
   private final CompilationListener listener;
   private final CompilerReporter reporter;
+  private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
-  public Ek9Phase1SymbolDefinition(CompilationListener listener, CompilerReporter reporter) {
+  /**
+   * Create a new phase 1 symbol definition instance.
+   */
+  public Ek9Phase1SymbolDefinition(SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                                   CompilationListener listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
+    this.compilableProgramAccess = compilableProgramAccess;
   }
 
   @Override
   public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
     final var thisPhase = CompilationPhase.SYMBOL_DEFINITION;
-    return new CompilationPhaseResult(thisPhase, true,
-        compilerFlags.getCompileToPhase() == thisPhase);
+    final var result = underTakeSymbolDefinition(workspace, thisPhase);
+    reporter.log(thisPhase);
+    return new CompilationPhaseResult(thisPhase, result, compilerFlags.getCompileToPhase() == thisPhase);
+  }
+
+  private boolean underTakeSymbolDefinition(Workspace workspace, CompilationPhase phase) {
+    //May consider moving to Executor model
+    final var affectedSources = workspace.getSources().parallelStream().map(this::defineSymbols).toList();
+
+    affectedSources.forEach(source -> listener.processed(phase, source));
+    return !sourceHaveErrors.test(affectedSources);
+  }
+
+  /**
+   * This must create 'new' stuff; except for compilableProgramAccess.
+   */
+  private CompilableSource defineSymbols(CompilableSource source) {
+    final ParsedModule module = new ParsedModule(source, compilableProgramAccess);
+    module.acceptCompilationUnitContext(source.getCompilationUnitContext());
+
+    DefinitionPhase1Listener phaseListener = new DefinitionPhase1Listener(compilableProgramAccess, module);
+    ParseTreeWalker walker = new ParseTreeWalker();
+    walker.walk(phaseListener, source.getCompilationUnitContext());
+
+    if (source.getErrorListener().isErrorFree()) {
+      compilableProgramAccess.accept(compilableProgram -> compilableProgram.add(module));
+    }
+    return source;
   }
 }

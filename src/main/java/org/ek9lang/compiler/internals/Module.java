@@ -8,5 +8,7 @@ public interface Module {
 
   String getScopeName();
 
-  default boolean isEk9Core() { return false; };
+  default boolean isEk9Core() {
+    return false;
+  }
 }

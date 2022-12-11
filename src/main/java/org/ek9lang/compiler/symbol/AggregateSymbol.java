@@ -639,7 +639,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
     //or whatever for example
     if (isGenericInNature() && search.getSearchType().equals(SymbolCategory.TYPE)) {
       for (ISymbol parameterisedType : getParameterisedTypes()) {
-        if (parameterisedType.isAssignableTo(search.getNameAsSymbol())) {
+        if (parameterisedType.isAssignableTo(search.getAsSymbol())) {
           rtn = Optional.of(parameterisedType);
         }
       }

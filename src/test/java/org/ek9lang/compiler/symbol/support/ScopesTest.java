@@ -13,6 +13,7 @@ import org.ek9lang.compiler.symbol.ControlSymbol;
 import org.ek9lang.compiler.symbol.ForSymbol;
 import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.IScope;
+import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.LocalScope;
 import org.ek9lang.compiler.symbol.MethodSymbol;
 import org.ek9lang.compiler.symbol.ParameterisedFunctionSymbol;
@@ -49,15 +50,15 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
     //This would be a raw String i.e. not in a moduleScope - so not a true reflection of what we will be doing
     //Hence even fully qualified it will just be String
-    AggregateSymbol stringType = typeCreator.apply("String", module1SymbolTable);
+    ISymbol stringType = typeCreator.apply("String", module1SymbolTable);
     assertEquals(stringType.getName(), stringType.getFullyQualifiedName());
 
-    AggregateSymbol noModuleInteger = typeCreator.apply("Integer", module1SymbolTable);
+    ISymbol noModuleInteger = typeCreator.apply("Integer", module1SymbolTable);
     assertEquals(noModuleInteger.getName(), noModuleInteger.getFullyQualifiedName());
 
     //But this Integer is going to be in an actual module so can be fully qualified
     var ek9LangSymbolTable = new SymbolTable("org.ek9.lang");
-    AggregateSymbol orgEk9LangInteger = typeCreator.apply("Integer", ek9LangSymbolTable);
+    ISymbol orgEk9LangInteger = typeCreator.apply("Integer", ek9LangSymbolTable);
 
     assertEquals("Integer", orgEk9LangInteger.getName());
     assertEquals("org.ek9.lang::Integer", orgEk9LangInteger.getFullyQualifiedName());
@@ -76,10 +77,10 @@ final class ScopesTest extends AbstractSymbolTestBase {
   @Test
   void testSameSymbolsInModuleResolve() {
     var ek9LangSymbolTable = new SymbolTable("org.ek9.lang");
-    AggregateSymbol orgEk9LangInteger = typeCreator.apply("Integer", ek9LangSymbolTable);
+    ISymbol orgEk9LangInteger = typeCreator.apply("Integer", ek9LangSymbolTable);
 
     var anotherEk9LangSymbolTable = new SymbolTable("org.ek9.lang");
-    AggregateSymbol anotherOrgEk9LangInteger = typeCreator.apply("Integer", anotherEk9LangSymbolTable);
+    ISymbol anotherOrgEk9LangInteger = typeCreator.apply("Integer", anotherEk9LangSymbolTable);
 
     assertTrue(anotherOrgEk9LangInteger.isExactSameType(orgEk9LangInteger));
     //And the other way just to be sure
@@ -90,7 +91,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
   @Test
   void testFullyQualifiedSearch() {
     var ek9LangSymbolTable = new SymbolTable("org.ek9.lang");
-    AggregateSymbol orgEk9LangInteger = typeCreator.apply("Integer", ek9LangSymbolTable);
+    ISymbol orgEk9LangInteger = typeCreator.apply("Integer", ek9LangSymbolTable);
 
     assertFalse(ek9LangSymbolTable.resolve(new TypeSymbolSearch("Integer")).isPresent());
     assertTrue(ek9LangSymbolTable.resolve(new TypeSymbolSearch("org.ek9.lang::Integer")).isPresent());

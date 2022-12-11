@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.internals.Module;
 import org.ek9lang.compiler.symbol.support.TypeCoercions;
-import org.ek9lang.compiler.tokenizer.SyntheticToken;
 import org.ek9lang.core.exception.AssertValue;
 
 /**
@@ -199,9 +198,6 @@ public class Symbol implements ISymbol {
    */
   public void setEk9Core(boolean ek9Core) {
     this.ek9Core = ek9Core;
-    if (ek9Core) {
-      setSourceToken(new SyntheticToken());
-    }
   }
 
   public boolean isDevSource() {

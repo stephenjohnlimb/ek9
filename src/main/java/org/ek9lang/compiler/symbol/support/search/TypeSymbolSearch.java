@@ -7,6 +7,7 @@ import org.ek9lang.compiler.symbol.ISymbol;
  * But this would not search for templated types like 'List of String' i.e. when templated.
  */
 public final class TypeSymbolSearch extends SymbolSearch {
+
   public TypeSymbolSearch(String name) {
     super(name);
     setSearchType(ISymbol.SymbolCategory.TYPE);
@@ -15,4 +16,5 @@ public final class TypeSymbolSearch extends SymbolSearch {
   public TypeSymbolSearch(TypeSymbolSearch from) {
     super(from);
   }
+
 }

@@ -3,7 +3,6 @@ package org.ek9lang.compiler.symbol.support.search;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import org.ek9lang.compiler.internals.Module;
 import org.ek9lang.compiler.internals.Source;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
@@ -24,6 +23,7 @@ public class SymbolSearch {
    * Or just a variable in a scope like 'a' or a method like transmutant()
    */
   private final String name;
+
   /**
    * Typically if searching for a method this will be zero or more parameters.
    * But note these are not just a list of types they are the parameters with the type
@@ -153,19 +153,9 @@ public class SymbolSearch {
   }
 
   /**
-   * Provide a symbol using the name of the search which may or may not be fully qualified.
-   *
-   * @return The Optional symbol.
-   */
-  public Optional<ISymbol> getNameAsSymbol() {
-    AggregateSymbol sym = new AggregateSymbol(name, new SymbolTable());
-    return Optional.of(sym);
-  }
-
-  /**
    * Creates a new Symbol from the name in the search and the module name.
    */
-  public Optional<ISymbol> getNameAsSymbol(String fromModuleName) {
+  public Optional<ISymbol> getAsSymbol() {
 
     final var newSymbolModuleName = ISymbol.getModuleNameIfPresent(name);
     final String newSymbolName = ISymbol.getUnqualifiedName(name);
@@ -176,14 +166,9 @@ public class SymbolSearch {
     symbol.setParsedModule(Optional.of(new Module() {
       @Override
       public Source getSource() {
-        return new Source() {
-
-          @Override
-          public String getFileName() {
-            return "syntheticSource.ek9";
-          }
-        };
+        return () -> "syntheticSource.ek9";
       }
+
       @Override
       public String getScopeName() {
         return newSymbolModuleName;

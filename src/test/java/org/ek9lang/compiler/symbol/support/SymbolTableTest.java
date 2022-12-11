@@ -148,7 +148,7 @@ final class SymbolTableTest {
 
     MethodSymbolSearch methodSearch = new MethodSymbolSearch(methodName);
     assertNotNull(methodSearch.toString());
-    assertTrue(methodSearch.getNameAsSymbol().isPresent());
+    assertTrue(methodSearch.getAsSymbol().isPresent());
 
     searchResult = underTest.resolve(methodSearch);
     assertTrue(searchResult.isPresent());
@@ -386,7 +386,7 @@ final class SymbolTableTest {
 
     assertFalse(underTest.resolve(new TypeSymbolSearch("global::Float")).isPresent());
 
-    AggregateSymbol floatType = typeCreator.apply("Float", underTest);
+    ISymbol floatType = typeCreator.apply("Float", underTest);
 
     List<ISymbol> symbols = underTest.getSymbolsForThisScope();
     assertEquals(1, symbols.size());

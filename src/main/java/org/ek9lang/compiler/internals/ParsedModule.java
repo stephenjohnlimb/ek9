@@ -8,7 +8,6 @@ import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.ModuleScope;
 import org.ek9lang.core.exception.AssertValue;
-import org.ek9lang.core.exception.CompilerException;
 import org.ek9lang.core.threads.SharedThreadContext;
 
 /**
@@ -102,10 +101,12 @@ public class ParsedModule implements Module {
     this.externallyImplemented = externallyImplemented;
   }
 
+  @Override
   public boolean isEk9Core() {
     //Any module that start with this is deemed core.
     return this.moduleName.startsWith("org.ek9");
   }
+
   /**
    * Once the source code has been parsed by one of the stages in the compiler, the CompilationUnitContext
    * can be provided to this Parsed module. It will then have the second part of its initialisation complete.
@@ -130,23 +131,20 @@ public class ParsedModule implements Module {
   /**
    * Record a particular node context during listen/visit of a context with a particular scope.
    */
-  public ParsedModule recordScope(ParseTree node, IScope withScope)
-  {
+  public ParsedModule recordScope(ParseTree node, IScope withScope) {
     AssertValue.checkNotNull("WithScope cannot be null", withScope);
     scopes.put(node, withScope);
     return this;
   }
 
-  public IScope getRecordedScope(ParseTree node)
-  {
+  public IScope getRecordedScope(ParseTree node) {
     return scopes.get(node);
   }
 
   /**
    * Record a particular node context with a particular symbol.
    */
-  public ParsedModule recordSymbol(ParseTree node, ISymbol symbol)
-  {
+  public ParsedModule recordSymbol(ParseTree node, ISymbol symbol) {
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
 
     //Let the symbol know where it is defined.
@@ -157,8 +155,7 @@ public class ParsedModule implements Module {
     return this;
   }
 
-  public ISymbol getRecordedSymbol(ParseTree node)
-  {
+  public ISymbol getRecordedSymbol(ParseTree node) {
     return symbols.get(node);
   }
 

@@ -26,9 +26,14 @@ import org.ek9lang.core.utils.Digest;
  * This is used to detect changes in source that needs to have a new parse tree
  * generated.
  */
-public class CompilableSource implements Source, TokenConsumptionListener {
+public final class CompilableSource implements Source, TokenConsumptionListener {
   // This is the full path to the filename.
-  protected String filename;
+  private String filename;
+
+  /**
+   * For some resources like builtin.ek9 inside the jar we load from an inputstream.
+   */
+  private InputStream inputStream;
 
   //If it was brought in as part of a package then we need to know the module name of the package.
   //This is so we can let all parts of that package resolve against each other.
@@ -59,8 +64,16 @@ public class CompilableSource implements Source, TokenConsumptionListener {
    * Create compilable source for a specific filename.
    */
   public CompilableSource(String filename) {
-    AssertValue.checkNotEmpty(filename, "Filename cannot be empty or null");
+    AssertValue.checkNotEmpty( "Filename cannot be empty or null", filename);
     this.filename = filename;
+    resetDetails();
+  }
+
+  public CompilableSource(String filename, InputStream inputStream) {
+    AssertValue.checkNotEmpty("Filename cannot be empty or null", filename);
+    AssertValue.checkNotNull("InputStream cannot be empty or null", inputStream);
+    this.filename = filename;
+    this.inputStream = inputStream;
     resetDetails();
   }
 
@@ -168,12 +181,19 @@ public class CompilableSource implements Source, TokenConsumptionListener {
   }
 
   private long calculateLastModified() {
+    //Do not try and check if modified as it is internal to the package.
+    if(inputStream != null) {
+      return 0;
+    }
     AssertValue.checkCanReadFile("Unable to read file", filename);
     File file = new File(filename);
     return file.lastModified();
   }
 
   private Digest.CheckSum calculateCheckSum() {
+    if(inputStream != null) {
+      return Digest.digest("filename");
+    }
     AssertValue.checkCanReadFile("Unable to read file", filename);
     return Digest.digest(new File(filename));
   }
@@ -259,6 +279,10 @@ public class CompilableSource implements Source, TokenConsumptionListener {
   }
 
   private InputStream getInputStream() throws FileNotFoundException {
+    //In the case where an input stream was provided.
+    if(inputStream != null) {
+      return inputStream;
+    }
     return new FileInputStream(filename);
   }
 

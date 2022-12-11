@@ -1,13 +1,12 @@
 package org.ek9lang.compiler.symbol.support;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Optional;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.support.search.FunctionSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
-import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
 /**
@@ -27,8 +26,7 @@ public class SymbolChecker {
    * Check if there is a matching variable in the same scope.
    * Add errors to errorListener if there are.
    */
-  public boolean errorsIfVariableSymbolAlreadyDefined(IScope inScope, ISymbol symbol)
-  {
+  public boolean errorsIfVariableSymbolAlreadyDefined(IScope inScope, ISymbol symbol) {
     return errorsIfSymbolAlreadyDefined(inScope, symbol, true);
   }
 
@@ -40,41 +38,36 @@ public class SymbolChecker {
     AssertValue.checkNotNull("Scope cannot be null", inScope);
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
 
-    //TODO need to check for duplicate definitions of generic types and generic functions?
+    var searches = Map
+        .of(ISymbol.SymbolCategory.FUNCTION, ErrorListener.SemanticClassification.DUPLICATE_FUNCTION,
+            ISymbol.SymbolCategory.TYPE, ErrorListener.SemanticClassification.DUPLICATE_TYPE,
+            ISymbol.SymbolCategory.TEMPLATE_FUNCTION, ErrorListener.SemanticClassification.DUPLICATE_FUNCTION,
+            ISymbol.SymbolCategory.TEMPLATE_TYPE, ErrorListener.SemanticClassification.DUPLICATE_TYPE
+        );
 
-    Optional<ISymbol> checkNotAlreadyDefined = inScope.resolve(new FunctionSymbolSearch(symbol.getName()));
+    for (var entry : searches.entrySet()) {
+      var search = new SymbolSearch(symbol.getFullyQualifiedName()).setSearchType(entry.getKey());
+      if (errorsIfResolved(inScope, symbol, search, entry.getValue())) {
+        return true;
+      }
+    }
+    //Need to do variables separate s only use name not fully qualified name
+    return errorsIfResolved(inScope, symbol,
+        new SymbolSearch(symbol.getName()).setLimitToBlocks(limitVarSearchToBlockScope),
+        ErrorListener.SemanticClassification.DUPLICATE_VARIABLE) ;
+  }
+
+  private boolean errorsIfResolved(IScope inScope, ISymbol symbol, SymbolSearch search,
+                                   ErrorListener.SemanticClassification classificationError) {
+    Optional<ISymbol> checkNotAlreadyDefined = inScope.resolve(search);
     if (checkNotAlreadyDefined.isPresent()) {
       ISymbol dup = checkNotAlreadyDefined.get();
-      String message = String.format("also found ' %s ' on line %d in %s.",
-          dup.getFriendlyName(), dup.getSourceToken().getLine(), new File(dup.getSourceFileLocation()).getName());
-      errorListener.semanticError(symbol.getSourceToken(), message,
-          ErrorListener.SemanticClassification.DUPLICATE_FUNCTION);
+      String message = String.format("'%s' on line %d already defined as %s in %s.",
+          dup.getFriendlyName(), dup.getSourceToken().getLine(), dup.getGenus(),
+          new File(dup.getSourceFileLocation()).getName());
+      errorListener.semanticError(symbol.getSourceToken(), message, classificationError);
       return true;
     }
-
-    checkNotAlreadyDefined = inScope.resolve(new TypeSymbolSearch(symbol.getName()));
-    if (checkNotAlreadyDefined.isPresent()) {
-      ISymbol item = checkNotAlreadyDefined.get();
-      String message = symbol.getName();
-      if (item.getSourceToken() != null) {
-        message += " line " + item.getSourceToken().getLine();
-        message += " already defined with genus " + item.getGenus() + ".";
-      }
-      errorListener.semanticError(symbol.getSourceToken(), message,
-          ErrorListener.SemanticClassification.DUPLICATE_TYPE);
-      return true;
-    }
-
-    checkNotAlreadyDefined =
-        inScope.resolve(new SymbolSearch(symbol.getName()).setLimitToBlocks(limitVarSearchToBlockScope));
-
-    if (checkNotAlreadyDefined.isPresent()) {
-      String message = "'" + symbol.getName() + "' line " + checkNotAlreadyDefined.get().getSourceToken().getLine();
-      errorListener.semanticError(symbol.getSourceToken(), message,
-          ErrorListener.SemanticClassification.DUPLICATE_VARIABLE);
-      return true;
-    }
-
     return false;
   }
 }

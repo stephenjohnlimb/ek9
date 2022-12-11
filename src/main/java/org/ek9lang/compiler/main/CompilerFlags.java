@@ -60,6 +60,10 @@ public class CompilerFlags {
     this.verbose = verbose;
   }
 
+  public CompilerFlags(boolean verbose) {
+    this.verbose = verbose;
+  }
+
   public boolean isSuggestionRequired() {
     return suggestionRequired;
   }
