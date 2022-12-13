@@ -67,36 +67,6 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   @Override
-  public void enterConstantDeclaration(EK9Parser.ConstantDeclarationContext ctx) {
-    ParseTree constantCtx = ctx.Identifier();
-
-    ConstantSymbol constant = new ConstantSymbol(constantCtx.getText(), false);
-    constant.setSourceToken(ctx.start);
-    constant.setParsedModule(Optional.ofNullable(getParsedModule()));
-
-    if (!symbolChecker.errorsIfVariableSymbolAlreadyDefined(symbolAndScopeManagement.getTopScope(), constant)) {
-      symbolAndScopeManagement.enterNewSymbol(constant, ctx);
-    }
-
-    super.enterConstantDeclaration(ctx);
-  }
-
-  @Override
-  public void exitConstantDeclaration(EK9Parser.ConstantDeclarationContext ctx) {
-    //Now because constants are and have to be quite simple we can work out the type
-    //even in the def phase 1. That's because they can only be simple though.
-    ConstantSymbol constant = (ConstantSymbol) getParsedModule().getRecordedSymbol(ctx);
-
-    ISymbol constantValue = getParsedModule().getRecordedSymbol(ctx.constantInitialiser());
-    AssertValue.checkNotNull("Need to be able to access the type of the constant.", constantValue);
-    //So this constant will be the same type.
-    constant.setType(constantValue.getType());
-    //Mark as referenced as they are public and might not be used 'yet'.
-    constant.setReferenced(true);
-    super.exitConstantDeclaration(ctx);
-  }
-
-  @Override
   public void enterTraitDeclaration(EK9Parser.TraitDeclarationContext ctx) {
     final var newTypeSymbol = symbolFactory.newTrait(ctx);
     checkAndDefineScopedSymbol(newTypeSymbol, ctx);
@@ -173,8 +143,64 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
       literalText += ctx.getChild(1).getText();
     }
     ConstantSymbol literal = symbolFactory.newLiteral(start, literalText);
-    literal.setType(symbolAndScopeManagement.getTopScope().resolve(new TypeSymbolSearch(typeName)));
+    var resolvedType = symbolAndScopeManagement.getTopScope().resolve(new TypeSymbolSearch(typeName));
+    AssertValue.checkTrue("Type of constant should have resolved", resolvedType.isPresent());
+    literal.setType(resolvedType);
     symbolAndScopeManagement.enterNewLiteral(literal, ctx);
     return literal;
+  }
+
+  @Override
+  public void enterConstantDeclaration(EK9Parser.ConstantDeclarationContext ctx) {
+    ParseTree constantCtx = ctx.Identifier();
+
+    ConstantSymbol constant = new ConstantSymbol(constantCtx.getText(), false);
+    constant.setSourceToken(ctx.start);
+    constant.setParsedModule(Optional.ofNullable(getParsedModule()));
+
+    if (!symbolChecker.errorsIfVariableSymbolAlreadyDefined(symbolAndScopeManagement.getTopScope(), constant)) {
+      symbolAndScopeManagement.enterNewSymbol(constant, ctx);
+    }
+
+    super.enterConstantDeclaration(ctx);
+  }
+
+  @Override
+  public void exitConstantDeclaration(EK9Parser.ConstantDeclarationContext ctx) {
+    //Now because constants are and have to be quite simple we can work out the type
+    //even in the def phase 1. That's because they can only be simple though.
+    ConstantSymbol constant = (ConstantSymbol) getParsedModule().getRecordedSymbol(ctx);
+
+    //See exitConstantInitialiser below for how this is populated.
+    ISymbol constantValue = getParsedModule().getRecordedSymbol(ctx.constantInitialiser());
+    AssertValue.checkNotNull("Need to be able to access the type of the constant.", constantValue);
+    //So this constant will be the same type.
+    constant.setType(constantValue.getType());
+    //Mark as referenced as they are public and might not be used 'yet'.
+    constant.setReferenced(true);
+    super.exitConstantDeclaration(ctx);
+  }
+  // OK down at the lower levels of defining literal
+
+
+  /**
+   * This is a very important exit, as it takes the literals defined and pulls them up.
+   * So the same literal will now be recorded against a constant initialiser context.
+   */
+  @Override
+  public void exitConstantInitialiser(EK9Parser.ConstantInitialiserContext ctx)
+  {
+    ISymbol literalSymbol = getParsedModule().getRecordedSymbol(ctx.literal());
+    AssertValue.checkNotNull("Need to have literals resolved in phase1: " + ctx.getText(), literalSymbol);
+    getParsedModule().recordSymbol(ctx, literalSymbol); //pass same symbol back up by recording on ctx.
+
+    super.exitConstantInitialiser(ctx);
+  }
+
+  @Override
+  public void enterFloatingPointLiteral(EK9Parser.FloatingPointLiteralContext ctx)
+  {
+    recordConstant(ctx, ctx.start, "org.ek9.lang::Float");
+    super.enterFloatingPointLiteral(ctx);
   }
 }

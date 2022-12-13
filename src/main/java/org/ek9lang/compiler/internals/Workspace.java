@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.ek9lang.compiler.errors.ErrorListener;
@@ -18,8 +19,9 @@ import org.ek9lang.core.utils.Logger;
 public class Workspace {
   //The maps of source code file to compilable source objects
 
-  //Maybe put a re-entrant lock around this.
-  private final Map<String, CompilableSource> sources = new HashMap<>();
+  //The ordering sources are added is important for bootstrap of the compiler.
+  //So uses a linked hashmap to preserve the order of addition.
+  private final Map<String, CompilableSource> sources = new LinkedHashMap<>();
 
   /**
    * ReParses or loads and parses a source file.

@@ -86,6 +86,9 @@ public class SymbolFactory {
     function.setModuleScope(parsedModule.getModuleScope());
     function.setParsedModule(Optional.of(parsedModule));
     function.setSourceToken(ctx.start);
+    if(parsedModule.isExternallyImplemented()) {
+      function.putSquirrelledData("EXTERN", "TRUE");
+    }
 
     //A function can be both pure and abstract - in this case it is establishing a 'contract' that the
     //implementation must also be pure!
@@ -121,6 +124,9 @@ public class SymbolFactory {
     literal.setParsedModule(Optional.of(parsedModule));
     //You cannot set this to any other value.
     literal.setNotMutable();
+    if(parsedModule.isExternallyImplemented()) {
+      literal.putSquirrelledData("EXTERN", "TRUE");
+    }
     return literal;
   }
 
@@ -135,6 +141,9 @@ public class SymbolFactory {
     aggregate.setModuleScope(parsedModule.getModuleScope());
     aggregate.setParsedModule(Optional.of(parsedModule));
     aggregate.setSourceToken(start);
+    if(parsedModule.isExternallyImplemented()) {
+      aggregate.putSquirrelledData("EXTERN", "TRUE");
+    }
   }
 
 }

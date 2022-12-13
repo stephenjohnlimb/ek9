@@ -1,8 +1,11 @@
 package org.ek9lang.compiler.symbol;
 
+import java.util.Optional;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.symbol.support.SymbolTable;
+import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.utils.Holder;
 
 /**
  * This is a very special scope, because the same module can be defined in
@@ -36,4 +39,47 @@ public class ModuleScope extends SymbolTable {
     return rtn;
   }
 
+  /**
+   * Looks to resolve search in either the references held or the symbols in this scope.
+   */
+  public Optional<ISymbol> resolveInThisModuleOnly(SymbolSearch search)
+  {
+    Optional<ISymbol> resolvedSymbol = resolveReferenceInThisModuleOnly(search);
+
+    if(!resolvedSymbol.isPresent())
+      resolvedSymbol = resolveInThisScopeOnly(search);
+
+    return resolvedSymbol;
+  }
+
+  /**
+   * Does a check if there is a references of that symbol already held in this module scope.
+   * But remember there can be multiple of these per named module.
+   */
+  public Optional<ISymbol> resolveReferenceInThisModuleOnly(SymbolSearch search)
+  {
+    //TODO implement
+    return Optional.empty();
+  }
+
+  @Override
+  protected Optional<ISymbol> resolveWithEnclosingScope(SymbolSearch search)
+  {
+    // Need to get result into a variable we can use outside of lambda
+    // but we need the lambda to ensure access is thread safe.
+    Holder<ISymbol> rtn = new Holder<ISymbol>();
+
+    compilableProgramContext.accept(compilableProgram -> {
+      // see if we can find in global context from modules with same scope
+      // name as this.
+      // This is because multiple files can have same module name.
+      rtn.accept(compilableProgram.resolveFromModule(getScopeName(), search));
+      if (!rtn.isPresent()) {
+        //Now these will be things like org.ek9.lang and or.ek9.math
+        rtn.accept(compilableProgram.resolveFromImplicitScopes(search));
+      }
+    });
+
+    return rtn.get();
+  }
 }

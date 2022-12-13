@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.main.phases;
 
+import java.util.List;
 import java.util.function.BiFunction;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ek9lang.compiler.errors.CompilationListener;
@@ -15,12 +16,14 @@ import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.core.threads.SharedThreadContext;
 
 /**
- * MULTI THREADED - Goes through the now successfully parse source files and uses
+ * Can be MULTI THREADED for developer source, but single threaded for bootstrapping.
+ * Goes through the now successfully parse source files and uses
  * a visitor to do the first real pass at building the IR - simple Symbol definitions.
  * This means identifying types and other symbols.
  */
 public class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
 
+  private boolean useMultiThreading = true;
   private final CompilationListener listener;
   private final CompilerReporter reporter;
   private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
@@ -36,6 +39,12 @@ public class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, Compiler
     this.compilableProgramAccess = compilableProgramAccess;
   }
 
+  public Ek9Phase1SymbolDefinition(boolean multiThread, SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                                   CompilationListener listener, CompilerReporter reporter) {
+    this(compilableProgramAccess, listener, reporter);
+    this.useMultiThreading = multiThread;
+  }
+
   @Override
   public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
     final var thisPhase = CompilationPhase.SYMBOL_DEFINITION;
@@ -46,10 +55,27 @@ public class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, Compiler
 
   private boolean underTakeSymbolDefinition(Workspace workspace, CompilationPhase phase) {
     //May consider moving to Executor model
-    final var affectedSources = workspace.getSources().parallelStream().map(this::defineSymbols).toList();
+
+    final var affectedSources = useMultiThreading
+        ? defineSymbolsMultiThreaded(workspace)
+        : defineSymbolsSingleThreaded(workspace);
 
     affectedSources.forEach(source -> listener.processed(phase, source));
     return !sourceHaveErrors.test(affectedSources);
+  }
+
+  private List<CompilableSource> defineSymbolsMultiThreaded(Workspace workspace) {
+    return workspace
+        .getSources()
+        .parallelStream()
+        .map(this::defineSymbols).toList();
+  }
+
+  private List<CompilableSource> defineSymbolsSingleThreaded(Workspace workspace) {
+    return workspace
+        .getSources()
+        .stream()
+        .map(this::defineSymbols).toList();
   }
 
   /**
@@ -62,7 +88,6 @@ public class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, Compiler
     DefinitionPhase1Listener phaseListener = new DefinitionPhase1Listener(compilableProgramAccess, module);
     ParseTreeWalker walker = new ParseTreeWalker();
     walker.walk(phaseListener, source.getCompilationUnitContext());
-
     if (source.getErrorListener().isErrorFree()) {
       compilableProgramAccess.accept(compilableProgram -> compilableProgram.add(module));
     }

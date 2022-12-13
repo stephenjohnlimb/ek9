@@ -41,7 +41,7 @@ class SimpleSymbolResolutionCompilableProgramTest {
       }
       assertTrue(errorListener.isErrorFree());
 
-      final ParsedModule module = new ParsedModule(source, sharedContext.get());
+      final ParsedModule module = new ParsedModule(source, sharedThreadContext);
       final var moduleScope = module.acceptCompilationUnitContext(compilationUnitContext);
 
       //Add that module in before walking.
@@ -58,7 +58,7 @@ class SimpleSymbolResolutionCompilableProgramTest {
       }
 
       //Now lets visit that source and extract and load the types into the parsed module.
-      DefinitionPhase1Listener listener = new DefinitionPhase1Listener(sharedContext.get(), module);
+      DefinitionPhase1Listener listener = new DefinitionPhase1Listener(sharedThreadContext, module);
       ParseTreeWalker walker = new ParseTreeWalker();
       walker.walk(listener, compilationUnitContext);
 
@@ -66,6 +66,9 @@ class SimpleSymbolResolutionCompilableProgramTest {
       //If we've managed all the listening correctly the scope stack should be empty
       //i.e. have we matched out enters and exits.
       assertTrue(listener.isScopeStackEmpty());
+
+      //OK now the ordering of sources is important and as we now also supply org.ek9.math with constants
+      //Those constants will need to resolve org.ek9.lang::Floats and things - so add module to context
 
       if(module.getModuleName().equals("org.ek9.lang")) {
         //We should now find there some symbols defined.

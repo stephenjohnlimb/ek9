@@ -54,7 +54,7 @@ public class FrontEndOnlySupplier
     //This is duplicated by design at this point because I may need to vary the functionality.
     return List.of(
         new Ek9Phase0Parsing(listener, reporter),
-        new Ek9Phase1SymbolDefinition(compilableProgramAccess, listener, reporter),
+        new Ek9Phase1SymbolDefinition(false, compilableProgramAccess, listener, reporter),
         new Ek9Phase1ReferenceChecks(compilableProgramAccess, listener, reporter),
         new Ek9Phase1SymbolDuplicationChecks(compilableProgramAccess, listener, reporter),
         new Ek9Phase2TemplateDefinitionAndPartialResolution(compilableProgramAccess, listener, reporter),

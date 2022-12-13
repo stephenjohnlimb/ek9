@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
@@ -76,29 +77,43 @@ public class CompilableProgram {
    * Provide read only access to the list of modules for a particular moduleName.
    */
   public List<ParsedModule> getParsedModules(String moduleName) {
-    var modules =  theParsedModules.get(moduleName);
+    var modules = theParsedModules.get(moduleName);
 
     return modules != null ? modules.getParsedModules() : List.of();
   }
 
   /**
-   * TODO write java doc on what this does and why.
+   * A package name (moduleName) can actually have multiple parsedModules
+   * (i.e. a module can be made from multiple source files, each of which has its own parsed module).
+   * But they are all part of the same namespace (package/module).
+   * This method finds the appropriate set of parsed modules (if that module name exists) and
+   * then checks each of the modules to see if the search can be resolved.
+   * It returns the first resolution or Optional empty if it cannot be resolved.
    */
-  public Optional<ISymbol> resolveFromModule(String moduleName, SymbolSearch search) {
-    //TODO implement
-    return Optional.empty();
+  public Optional<ISymbol> resolveFromModule(final String moduleName, final SymbolSearch search) {
+
+    var found = Stream
+        .ofNullable(theParsedModules.get(moduleName))
+        .map(ParsedModules::getParsedModules)
+        .flatMap(List::stream)
+        .map(ParsedModule::getModuleScope)
+        .map(moduleScope -> moduleScope.resolveInThisScopeOnly(search))
+        .filter(Optional::isPresent)
+        .flatMap(Optional::stream)
+        .findFirst();
+    return found;
   }
 
   /**
-   * Attempt to resolve the symbol for the search.
-   * If this is a type search then first check is in concrete types. If not found then
-   * The main set of implicit scopes are searched.
-   *
-   * @param search The search to try and locate the symbol for.
-   * @return An empty option or the resolved symbol.
+   * Search in the implicit ek9 module namespaces of:
+   * org.ek9.lang etc.
    */
-  public Optional<ISymbol> resolveFromImplicitScopes(SymbolSearch search) {
-    //TODO implement
-    return Optional.empty();
+  public Optional<ISymbol> resolveFromImplicitScopes(final SymbolSearch search) {
+    var found = Stream.of("org.ek9.lang", "org.ek9.math")
+        .map(moduleName -> this.resolveFromModule(moduleName, search))
+        .filter(Optional::isPresent)
+        .flatMap(Optional::stream)
+        .findFirst();
+    return found;
   }
 }
