@@ -144,6 +144,10 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     }
     ConstantSymbol literal = symbolFactory.newLiteral(start, literalText);
     var resolvedType = symbolAndScopeManagement.getTopScope().resolve(new TypeSymbolSearch(typeName));
+    if(resolvedType.isEmpty()) {
+      //Try again for debug.
+      resolvedType = symbolAndScopeManagement.getTopScope().resolve(new TypeSymbolSearch(typeName));
+    }
     AssertValue.checkTrue("Type of constant should have resolved", resolvedType.isPresent());
     literal.setType(resolvedType);
     symbolAndScopeManagement.enterNewLiteral(literal, ctx);
@@ -198,9 +202,40 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   @Override
+  public void enterIntegerLiteral(EK9Parser.IntegerLiteralContext ctx) {
+    recordConstant(ctx, ctx.start, "org.ek9.lang::Integer");
+    super.enterIntegerLiteral(ctx);
+  }
+
+  @Override
   public void enterFloatingPointLiteral(EK9Parser.FloatingPointLiteralContext ctx)
   {
     recordConstant(ctx, ctx.start, "org.ek9.lang::Float");
     super.enterFloatingPointLiteral(ctx);
   }
+
+  @Override
+  public void enterBinaryLiteral(EK9Parser.BinaryLiteralContext ctx) {
+    recordConstant(ctx, ctx.start, "org.ek9.lang::Binary");
+    super.enterBinaryLiteral(ctx);
+  }
+
+  @Override
+  public void enterBooleanLiteral(EK9Parser.BooleanLiteralContext ctx) {
+    recordConstant(ctx, ctx.start, "org.ek9.lang::Boolean");
+    super.enterBooleanLiteral(ctx);
+  }
+
+  @Override
+  public void enterCharacterLiteral(EK9Parser.CharacterLiteralContext ctx) {
+    recordConstant(ctx, ctx.start, "org.ek9.lang::Character");
+    super.enterCharacterLiteral(ctx);
+  }
+
+  @Override
+  public void enterStringLiteral(EK9Parser.StringLiteralContext ctx) {
+    recordConstant(ctx, ctx.start, "org.ek9.lang::String");
+    super.enterStringLiteral(ctx);
+  }
+
 }

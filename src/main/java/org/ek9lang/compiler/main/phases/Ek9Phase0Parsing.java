@@ -65,7 +65,7 @@ public class Ek9Phase0Parsing
         .parallelStream()
         .map(operator).toList();
 
-    affectedSources.forEach(source -> listener.processed(phase, source));
+    affectedSources.forEach(source -> listener.accept(phase, source));
     return !sourceHaveErrors.test(affectedSources);
   }
 }

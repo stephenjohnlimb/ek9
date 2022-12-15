@@ -29,6 +29,8 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   }
 
   private InputStream getOrgEk9LangDeclarations() {
+    //Note define the package at the end - because we need to define basic types first.
+    //Normally the package would come first by convention.
     var sources = List.of(orgEk9LangPreamble,
         definesClass,
         defineStringClass,
@@ -52,7 +54,8 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
         definesRecord,
         defineNetworkRecords,
         definesClass,
-        defineAspectClasses
+        defineAspectClasses,
+        definesLanguagePackage
     );
     return new ByteArrayInputStream(String.join("", sources).getBytes());
   }
@@ -65,7 +68,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   private final String orgEk9LangPreamble = """
 #!ek9
 defines extern module org.ek9.lang
+""";
 
+  private final String definesLanguagePackage = """
   defines package
   
     version <- 0.0.1-0
@@ -78,7 +83,7 @@ defines extern module org.ek9.lang
   
     license <- "MIT"
 """;
-  
+
   private final String definesClass = """
   defines class
 """;
@@ -113,6 +118,9 @@ defines extern module org.ek9.lang
    */
   private final String defineBuiltInTypeClasses = """
 
+    Binary
+      Binary()
+      
     Boolean
       Boolean()
 

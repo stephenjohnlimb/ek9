@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.errors;
 
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import org.ek9lang.compiler.internals.CompilableSource;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 
@@ -10,7 +12,7 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
  * There may not always be errors or warnings.
  * Use CompilableSource.getErrorListener() to check for errors/warnings.
  */
-public interface CompilationListener {
+public interface CompilationListener extends BiConsumer<CompilationPhase, CompilableSource> {
 
   /**
    * Once the compiler has processed (or attempted to process) a source file it will issue
@@ -19,6 +21,6 @@ public interface CompilationListener {
    * @param phase            The phase of compilation being undertaken.
    * @param compilableSource The source that was processed.
    */
-  void processed(CompilationPhase phase, CompilableSource compilableSource);
+  void accept(CompilationPhase phase, CompilableSource compilableSource);
 
 }

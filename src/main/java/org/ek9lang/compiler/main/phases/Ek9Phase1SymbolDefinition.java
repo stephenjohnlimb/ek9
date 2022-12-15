@@ -60,7 +60,7 @@ public class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, Compiler
         ? defineSymbolsMultiThreaded(workspace)
         : defineSymbolsSingleThreaded(workspace);
 
-    affectedSources.forEach(source -> listener.processed(phase, source));
+    affectedSources.forEach(source -> listener.accept(phase, source));
     return !sourceHaveErrors.test(affectedSources);
   }
 
