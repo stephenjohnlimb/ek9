@@ -13,6 +13,7 @@ import org.antlr.v4.runtime.TokenSource;
 public class SyntheticToken implements Token {
 
   private String textName = "Synthetic";
+  private int lineNumber = 0;
 
   /**
    * Create a new token with default name of 'Synthetic'.
@@ -27,6 +28,11 @@ public class SyntheticToken implements Token {
     this.textName = textName;
   }
 
+  public SyntheticToken(String textName, int lineNumber) {
+    this(textName);
+    this.lineNumber = lineNumber;
+  }
+
   @Override
   public String getText() {
     return textName;
@@ -39,7 +45,7 @@ public class SyntheticToken implements Token {
 
   @Override
   public int getLine() {
-    return 0;
+    return lineNumber;
   }
 
   @Override
@@ -78,7 +84,7 @@ public class SyntheticToken implements Token {
 
       @Override
       public int getLine() {
-        return 0;
+        return lineNumber;
       }
 
       @Override

@@ -39,15 +39,16 @@ public class ModuleScope extends SymbolTable {
     return rtn;
   }
 
+
   /**
    * Looks to resolve search in either the references held or the symbols in this scope.
    */
-  public Optional<ISymbol> resolveInThisModuleOnly(SymbolSearch search)
-  {
+  public Optional<ISymbol> resolveInThisModuleOnly(SymbolSearch search) {
     Optional<ISymbol> resolvedSymbol = resolveReferenceInThisModuleOnly(search);
 
-    if(!resolvedSymbol.isPresent())
+    if (!resolvedSymbol.isPresent()) {
       resolvedSymbol = resolveInThisScopeOnly(search);
+    }
 
     return resolvedSymbol;
   }
@@ -56,25 +57,25 @@ public class ModuleScope extends SymbolTable {
    * Does a check if there is a references of that symbol already held in this module scope.
    * But remember there can be multiple of these per named module.
    */
-  public Optional<ISymbol> resolveReferenceInThisModuleOnly(SymbolSearch search)
-  {
+  public Optional<ISymbol> resolveReferenceInThisModuleOnly(SymbolSearch search) {
     //TODO implement
     return Optional.empty();
   }
 
   @Override
-  protected Optional<ISymbol> resolveWithEnclosingScope(SymbolSearch search)
-  {
+  protected Optional<ISymbol> resolveWithEnclosingScope(SymbolSearch search) {
     // Need to get result into a variable we can use outside of lambda
     // but we need the lambda to ensure access is thread safe.
-    Holder<ISymbol> rtn = new Holder<ISymbol>();
+    Holder<ISymbol> rtn = new Holder<>();
 
     compilableProgramContext.accept(compilableProgram -> {
       // see if we can find in global context from modules with same scope
       // name as this.
       // This is because multiple files can have same module name.
       rtn.accept(compilableProgram.resolveFromModule(getScopeName(), search));
-      if (!rtn.isPresent()) {
+
+      //Only if we did not find anything and not limited to blocks do we search
+      if (rtn.isEmpty() && !search.isLimitToBlocks()) {
         //Now these will be things like org.ek9.lang and or.ek9.math
         rtn.accept(compilableProgram.resolveFromImplicitScopes(search));
       }

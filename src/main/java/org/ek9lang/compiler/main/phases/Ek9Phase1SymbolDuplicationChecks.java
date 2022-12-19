@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.main.phases;
 
 import java.util.function.BiFunction;
-import org.ek9lang.compiler.errors.CompilationListener;
+import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
@@ -20,7 +20,7 @@ import org.ek9lang.core.threads.SharedThreadContext;
  * functions have not been redefined.
  */
 public class Ek9Phase1SymbolDuplicationChecks implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
-  private final CompilationListener listener;
+  private final CompilationPhaseListener listener;
   private final CompilerReporter reporter;
   private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
@@ -29,7 +29,7 @@ public class Ek9Phase1SymbolDuplicationChecks implements BiFunction<Workspace, C
    * Create a new instance for checking of duplicate symbols.
    */
   public Ek9Phase1SymbolDuplicationChecks(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                          CompilationListener listener, CompilerReporter reporter) {
+                                          CompilationPhaseListener listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
     this.compilableProgramAccess = compilableProgramAccess;

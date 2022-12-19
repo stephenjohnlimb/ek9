@@ -1,7 +1,9 @@
 package org.ek9lang.compiler.main;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
@@ -10,6 +12,7 @@ import org.ek9lang.compiler.symbol.ConstantSymbol;
 import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.core.exception.AssertValue;
 
 /**
@@ -19,6 +22,8 @@ import org.ek9lang.core.exception.AssertValue;
 public class SymbolFactory {
 
   private final ParsedModule parsedModule;
+
+  private final Consumer<Object> checkContextNotNull = ctx -> AssertValue.checkNotNull("CTX cannot be null", ctx);
 
   /**
    * Create a new symbol factory for use with the parsedModule.
@@ -31,16 +36,16 @@ public class SymbolFactory {
   /**
    * Create a new aggregate that represents an EK9 program.
    */
-  public AggregateSymbol newProgram(EK9Parser.MethodDeclarationContext ctx, IScope scope) {
+  public AggregateSymbol newProgram(EK9Parser.MethodDeclarationContext ctx) {
+    checkContextNotNull.accept(ctx);
     AssertValue.checkNotNull("Failed to locate program name", ctx.identifier());
 
     //TODO Need to deal with the application setup part.
     //We underscore to class name and main processing method don't clash and look like a constructor.
     String programName = "_" + ctx.identifier().getText();
-
-    AggregateSymbol program = new AggregateSymbol(programName, scope);
+    AggregateSymbol program = new AggregateSymbol(programName, parsedModule.getModuleScope());
     configureAggregate(program, ctx.start);
-
+    //Not sure what genus to set this to at the moment.
     return program;
   }
 
@@ -49,6 +54,8 @@ public class SymbolFactory {
    */
 
   public AggregateWithTraitsSymbol newClass(EK9Parser.ClassDeclarationContext ctx) {
+    checkContextNotNull.accept(ctx);
+    AssertValue.checkNotNull("Failed to locate class name", ctx.Identifier());
     String className = ctx.Identifier().getText();
     return newAggregateWithTraitsSymbol(className, ctx.start, parsedModule.getModuleScope());
   }
@@ -57,8 +64,13 @@ public class SymbolFactory {
    * Create a new aggregate that represents an EK9 trait.
    */
   public AggregateWithTraitsSymbol newTrait(EK9Parser.TraitDeclarationContext ctx) {
+    checkContextNotNull.accept(ctx);
+    AssertValue.checkNotNull("Failed to locate trait name", ctx.Identifier());
+
     String traitName = ctx.Identifier().getText();
     AggregateWithTraitsSymbol trait = newAggregateWithTraitsSymbol(traitName, ctx.start, parsedModule.getModuleScope());
+    configureAggregate(trait, ctx.start);
+
     trait.setGenus(ISymbol.SymbolGenus.CLASS_TRAIT);
     //All traits are designed to be open to extending and use/override.
     trait.setOpenForExtension(true);
@@ -70,6 +82,8 @@ public class SymbolFactory {
    * Create a new aggregate that represents an EK9 record.
    */
   public AggregateSymbol newRecord(EK9Parser.RecordDeclarationContext ctx) {
+    checkContextNotNull.accept(ctx);
+    AssertValue.checkNotNull("Failed to locate record name", ctx.Identifier());
     String recordName = ctx.Identifier().getText();
     AggregateSymbol newRecord = new AggregateSymbol(recordName, parsedModule.getModuleScope());
     configureAggregate(newRecord, ctx.start);
@@ -81,14 +95,12 @@ public class SymbolFactory {
    * Create a new aggregate that represents an EK9 function.
    */
   public FunctionSymbol newFunction(EK9Parser.FunctionDeclarationContext ctx) {
+    checkContextNotNull.accept(ctx);
+    AssertValue.checkNotNull("Failed to locate function name", ctx.Identifier());
+
     String functionName = ctx.Identifier().getText();
     FunctionSymbol function = new FunctionSymbol(functionName, parsedModule.getModuleScope());
-    function.setModuleScope(parsedModule.getModuleScope());
-    function.setParsedModule(Optional.of(parsedModule));
-    function.setSourceToken(ctx.start);
-    if(parsedModule.isExternallyImplemented()) {
-      function.putSquirrelledData("EXTERN", "TRUE");
-    }
+    configureSymbol(function, ctx.start);
 
     //A function can be both pure and abstract - in this case it is establishing a 'contract' that the
     //implementation must also be pure!
@@ -112,6 +124,22 @@ public class SymbolFactory {
   }
 
   /**
+   * Creat and initialise a new variable symbol.
+   * Typically, a variable like name <- "Steve", so 'name' is the variable.
+   */
+  public VariableSymbol newVariable(EK9Parser.VariableDeclarationContext ctx) {
+    checkContextNotNull.accept(ctx);
+    AssertValue.checkNotNull("Failed to locate variable name", ctx.identifier());
+
+    ParseTree varName = ctx.identifier();
+    VariableSymbol variable = new VariableSymbol(varName.getText());
+    configureSymbol(variable, ctx.start);
+    variable.setNullAllowed(ctx.QUESTION() != null);
+
+    return variable;
+  }
+
+  /**
    * Create a new aggregate that represents an EK9 literal value.
    */
   public ConstantSymbol newLiteral(Token start, String name) {
@@ -119,14 +147,10 @@ public class SymbolFactory {
     AssertValue.checkNotNull("Name cannot be null", name);
 
     ConstantSymbol literal = new ConstantSymbol(name, true);
-
-    literal.setSourceToken(start);
-    literal.setParsedModule(Optional.of(parsedModule));
+    configureSymbol(literal, start);
     //You cannot set this to any other value.
     literal.setNotMutable();
-    if(parsedModule.isExternallyImplemented()) {
-      literal.putSquirrelledData("EXTERN", "TRUE");
-    }
+
     return literal;
   }
 
@@ -139,11 +163,14 @@ public class SymbolFactory {
 
   private void configureAggregate(AggregateSymbol aggregate, Token start) {
     aggregate.setModuleScope(parsedModule.getModuleScope());
+    configureSymbol(aggregate, start);
+  }
+
+  private void configureSymbol(ISymbol aggregate, Token start) {
     aggregate.setParsedModule(Optional.of(parsedModule));
     aggregate.setSourceToken(start);
-    if(parsedModule.isExternallyImplemented()) {
+    if (parsedModule.isExternallyImplemented()) {
       aggregate.putSquirrelledData("EXTERN", "TRUE");
     }
   }
-
 }

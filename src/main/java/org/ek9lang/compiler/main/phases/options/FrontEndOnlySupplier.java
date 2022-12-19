@@ -3,7 +3,7 @@ package org.ek9lang.compiler.main.phases.options;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
-import org.ek9lang.compiler.errors.CompilationListener;
+import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
@@ -29,7 +29,7 @@ import org.ek9lang.core.threads.SharedThreadContext;
 public class FrontEndOnlySupplier
     implements Supplier<List<BiFunction<Workspace, CompilerFlags, CompilationPhaseResult>>> {
 
-  private final CompilationListener listener;
+  private final CompilationPhaseListener listener;
   private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilerReporter reporter;
 
@@ -37,7 +37,7 @@ public class FrontEndOnlySupplier
    * Create a new supplier of front end only compiler phases.
    */
   public FrontEndOnlySupplier(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                              CompilationListener listener,
+                              CompilationPhaseListener listener,
                               CompilerReporter reporter) {
     AssertValue.checkNotNull("CompilableProgramAccess Listener must be provided", compilableProgramAccess);
     AssertValue.checkNotNull("Compilation Listener must be provided", listener);

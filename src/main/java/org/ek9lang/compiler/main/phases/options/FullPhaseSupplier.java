@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-import org.ek9lang.compiler.errors.CompilationListener;
+import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
@@ -40,7 +40,7 @@ import org.ek9lang.core.threads.SharedThreadContext;
  */
 public class FullPhaseSupplier implements Supplier<List<BiFunction<Workspace, CompilerFlags, CompilationPhaseResult>>> {
 
-  private final CompilationListener listener;
+  private final CompilationPhaseListener listener;
   private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilerReporter reporter;
 
@@ -48,7 +48,7 @@ public class FullPhaseSupplier implements Supplier<List<BiFunction<Workspace, Co
    * Create a new supplier of a full set of compiler phases.
    */
   public FullPhaseSupplier(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                           CompilationListener listener,
+                           CompilationPhaseListener listener,
                            CompilerReporter reporter) {
     AssertValue.checkNotNull("CompilableProgramAccess Listener must be provided", compilableProgramAccess);
     AssertValue.checkNotNull("Compilation Listener must be provided", listener);

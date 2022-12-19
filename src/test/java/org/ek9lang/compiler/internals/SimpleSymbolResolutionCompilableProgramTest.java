@@ -62,6 +62,9 @@ class SimpleSymbolResolutionCompilableProgramTest {
       ParseTreeWalker walker = new ParseTreeWalker();
       walker.walk(listener, compilationUnitContext);
 
+      if(listener.getErrorListener().hasErrors()) {
+        listener.getErrorListener().getErrors().forEachRemaining(System.out::println);
+      }
       assertTrue(listener.getErrorListener().isErrorFree());
       //If we've managed all the listening correctly the scope stack should be empty
       //i.e. have we matched out enters and exits.

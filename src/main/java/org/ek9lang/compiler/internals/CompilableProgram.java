@@ -1,9 +1,10 @@
 package org.ek9lang.compiler.internals;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.stream.Stream;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
@@ -30,7 +31,7 @@ public class CompilableProgram {
   /**
    * For developer defined modules. Quick access via module name into the parsedModules that are recorded.
    */
-  private final HashMap<String, ParsedModules> theParsedModules = new HashMap<>();
+  private final Map<String, ParsedModules> theParsedModules = new TreeMap<>();
 
   public CompilableProgram(List<ParsedModules> implicitBuiltInModules) {
     AssertValue.checkNotNull("ImplicitBuiltInModules cannot be null", implicitBuiltInModules);
@@ -82,6 +83,10 @@ public class CompilableProgram {
     return modules != null ? modules.getParsedModules() : List.of();
   }
 
+  public List<String> getParsedModuleNames() {
+    return theParsedModules.keySet().stream().toList();
+  }
+
   /**
    * A package name (moduleName) can actually have multiple parsedModules
    * (i.e. a module can be made from multiple source files, each of which has its own parsed module).
@@ -92,7 +97,7 @@ public class CompilableProgram {
    */
   public Optional<ISymbol> resolveFromModule(final String moduleName, final SymbolSearch search) {
 
-    var found = Stream
+    return Stream
         .ofNullable(theParsedModules.get(moduleName))
         .map(ParsedModules::getParsedModules)
         .flatMap(List::stream)
@@ -101,7 +106,6 @@ public class CompilableProgram {
         .filter(Optional::isPresent)
         .flatMap(Optional::stream)
         .findFirst();
-    return found;
   }
 
   /**
@@ -109,11 +113,10 @@ public class CompilableProgram {
    * org.ek9.lang etc.
    */
   public Optional<ISymbol> resolveFromImplicitScopes(final SymbolSearch search) {
-    var found = Stream.of("org.ek9.lang", "org.ek9.math")
+    return Stream.of("org.ek9.lang", "org.ek9.math")
         .map(moduleName -> this.resolveFromModule(moduleName, search))
         .filter(Optional::isPresent)
         .flatMap(Optional::stream)
         .findFirst();
-    return found;
   }
 }

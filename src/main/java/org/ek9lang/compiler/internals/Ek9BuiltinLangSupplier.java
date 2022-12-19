@@ -31,46 +31,48 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   private InputStream getOrgEk9LangDeclarations() {
     //Note define the package at the end - because we need to define basic types first.
     //Normally the package would come first by convention.
-    var sources = List.of(orgEk9LangPreamble,
-        definesClass,
-        defineStringClass,
-        defineBuiltInTypeClasses,
-        definesFunction,
-        defineBuiltInTemplateFunctions,
-        definesClass,
-        defineBuiltInTemplateClasses,
-        definesTrait,
-        defineBuiltInTraits,
-        definesFunction,
-        defineStandardFunctions,
-        definesClass,
-        defineStandardClasses,
-        definesFunction,
-        defineNetworkFunctions,
-        definesTrait,
-        defineNetworkTraits,
-        definesClass,
-        defineNetworkClasses,
-        definesRecord,
-        defineNetworkRecords,
-        definesClass,
-        defineAspectClasses,
-        definesLanguagePackage
+    var sources = List.of(ORG_EK_9_LANG_PREAMBLE,
+        DEFINES_CLASS,
+        DEFINE_STRING_CLASS,
+        DEFINE_BUILT_IN_TYPE_CLASSES,
+        DEFINES_FUNCTION,
+        DEFINE_BUILT_IN_TEMPLATE_FUNCTIONS,
+        DEFINES_CLASS,
+        DEFINE_BUILT_IN_TEMPLATE_CLASSES,
+        DEFINES_TRAIT,
+        DEFINE_BUILT_IN_TRAITS,
+        DEFINES_FUNCTION,
+        DEFINE_STANDARD_FUNCTIONS,
+        DEFINES_CLASS,
+        DEFINE_STANDARD_CLASSES,
+        DEFINES_FUNCTION,
+        DEFINE_NETWORK_FUNCTIONS,
+        DEFINES_TRAIT,
+        DEFINE_NETWORK_TRAITS,
+        DEFINES_CLASS,
+        DEFINE_NETWORK_CLASSES,
+        DEFINES_RECORD,
+        DEFINE_NETWORK_RECORDS,
+        DEFINES_CLASS,
+        DEFINE_ASPECT_CLASSES,
+        DEFINES_LANGUAGE_PACKAGE
     );
     return new ByteArrayInputStream(String.join("", sources).getBytes());
   }
 
   private InputStream getOrgEk9MathDeclarations() {
-    var sources = List.of(orgEk9MathPreamble, definesConstant, defineMathConstants);
+    var sources = List.of(ORG_EK9_MATH_PREMABLE, DEFINES_CONSTANT, DEFINE_MATH_CONSTANTS);
     return new ByteArrayInputStream(String.join("", sources).getBytes());
   }
 
-  private final String orgEk9LangPreamble = """
+  @SuppressWarnings({"Indentation"})
+  private static final String ORG_EK_9_LANG_PREAMBLE = """
 #!ek9
 defines extern module org.ek9.lang
 """;
 
-  private final String definesLanguagePackage = """
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINES_LANGUAGE_PACKAGE = """
   defines package
   
     version <- 0.0.1-0
@@ -84,30 +86,36 @@ defines extern module org.ek9.lang
     license <- "MIT"
 """;
 
-  private final String definesClass = """
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINES_CLASS = """
   defines class
 """;
 
-  private final String definesTrait = """
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINES_TRAIT = """
   defines trait
 """;
 
-  private final String definesFunction = """
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINES_FUNCTION = """
   defines function
 """;
 
-  private final String definesRecord = """
-  defines function
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINES_RECORD = """
+  defines record
 """;
 
-  private final String definesConstant = """
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINES_CONSTANT = """
   defines constant
 """;
 
   /**
    * Ready to start fleshing out String.
    */
-  private final String defineStringClass = """
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINE_STRING_CLASS = """
 
     String
       String()    
@@ -116,7 +124,8 @@ defines extern module org.ek9.lang
   /**
    * As each type is fleshed out pull it out of the list and create a new full signature.
    */
-  private final String defineBuiltInTypeClasses = """
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINE_BUILT_IN_TYPE_CLASSES = """
 
     Binary
       Binary()
@@ -132,9 +141,6 @@ defines extern module org.ek9.lang
 
     Float
       Float()
-
-    Bits
-      Bits()
 
     Time
       Time()
@@ -175,7 +181,8 @@ defines extern module org.ek9.lang
       RegEx()
 """;
 
-  private final String defineBuiltInTemplateFunctions = """
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINE_BUILT_IN_TEMPLATE_FUNCTIONS = """
     Supplier of type T
       <- r as T
 
@@ -214,7 +221,8 @@ defines extern module org.ek9.lang
         r as Integer
 """;
 
-  private final String defineBuiltInTemplateClasses = """
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINE_BUILT_IN_TEMPLATE_CLASSES = """
     List of type T
       List()
 
@@ -234,7 +242,8 @@ defines extern module org.ek9.lang
       Iterator()
 """;
 
-  private final String defineBuiltInTraits = """
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINE_BUILT_IN_TRAITS = """
     Clock
 
     StringInput
@@ -242,7 +251,8 @@ defines extern module org.ek9.lang
     StringOutput
 """;
 
-  private final String defineStandardFunctions = """
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINE_STANDARD_FUNCTIONS = """
     SignalHandler() as abstract
       -> value as String
       <- result as Integer
@@ -252,7 +262,8 @@ defines extern module org.ek9.lang
       -> value as T
 """;
 
-  private final String defineStandardClasses = """
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINE_STANDARD_CLASSES = """
     SystemClock with trait of Clock
       SystemClock()
 
@@ -300,14 +311,16 @@ defines extern module org.ek9.lang
       MutexLock()
 """;
 
-  private final String defineNetworkFunctions = """
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINE_NETWORK_FUNCTIONS = """
     TCPHandler
       ->
         input as StringInput
         output as SpringOutput
 """;
 
-  private final String defineNetworkTraits = """
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINE_NETWORK_TRAITS = """
     HTTPRequest
 
     HTTPResponse
@@ -315,7 +328,8 @@ defines extern module org.ek9.lang
     TCPConnection
 """;
 
-  private final String defineNetworkClasses = """
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINE_NETWORK_CLASSES = """
     UDP
       UDP()
 
@@ -323,12 +337,14 @@ defines extern module org.ek9.lang
       TCP()
 """;
 
-  private final String defineNetworkRecords = """
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINE_NETWORK_RECORDS = """
     UDPPacket
       UDPPacket()
 """;
 
-  private final String defineAspectClasses = """
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINE_ASPECT_CLASSES = """
     Aspect
       Aspect()
 
@@ -339,7 +355,8 @@ defines extern module org.ek9.lang
       PreparedMetaData()
 """;
 
-  private final String orgEk9MathPreamble = """
+  @SuppressWarnings({"Indentation"})
+  private static final String ORG_EK9_MATH_PREMABLE = """
 #!ek9
 defines extern module org.ek9.math
 
@@ -357,7 +374,8 @@ defines extern module org.ek9.math
     license <- "MIT"
 """;
 
-  private final String defineMathConstants = """
+  @SuppressWarnings({"Indentation"})
+  private static final String DEFINE_MATH_CONSTANTS = """
     PI <- 3.141592653589793238
     e <- 2.7182818284
     root2 <- 1.41421356237309504880

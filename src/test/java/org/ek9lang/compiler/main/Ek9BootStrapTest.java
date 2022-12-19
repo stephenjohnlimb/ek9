@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 import java.util.function.Supplier;
-import org.ek9lang.compiler.errors.CompilationListener;
+import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableSource;
 import org.ek9lang.compiler.internals.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 class Ek9BootStrapTest {
 
-  private final Supplier<CompilationListener> listener
+  private final Supplier<CompilationPhaseListener> listener
       = () -> (phase, source) -> {
     if (source.getErrorListener().hasErrors()) {
       source.getErrorListener().getErrors().forEachRemaining(System.err::println);

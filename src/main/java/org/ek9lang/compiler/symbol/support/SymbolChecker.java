@@ -54,14 +54,15 @@ public class SymbolChecker {
     //Need to do variables separate s only use name not fully qualified name
     return errorsIfResolved(inScope, symbol,
         new SymbolSearch(symbol.getName()).setLimitToBlocks(limitVarSearchToBlockScope),
-        ErrorListener.SemanticClassification.DUPLICATE_VARIABLE) ;
+        ErrorListener.SemanticClassification.DUPLICATE_VARIABLE);
   }
 
   private boolean errorsIfResolved(IScope inScope, ISymbol symbol, SymbolSearch search,
                                    ErrorListener.SemanticClassification classificationError) {
-    Optional<ISymbol> checkNotAlreadyDefined = inScope.resolve(search);
-    if (checkNotAlreadyDefined.isPresent()) {
-      ISymbol dup = checkNotAlreadyDefined.get();
+    Optional<ISymbol> symbolCheck = inScope.resolve(search);
+    if (symbolCheck.isPresent()) {
+      inScope.resolve(search);
+      ISymbol dup = symbolCheck.get();
       String message = String.format("'%s' on line %d already defined as %s in %s.",
           dup.getFriendlyName(), dup.getSourceToken().getLine(), dup.getGenus(),
           new File(dup.getSourceFileLocation()).getName());

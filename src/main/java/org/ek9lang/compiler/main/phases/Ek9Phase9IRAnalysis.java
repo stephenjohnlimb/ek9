@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.main.phases;
 
 import java.util.function.BiFunction;
-import org.ek9lang.compiler.errors.CompilationListener;
+import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
 import org.ek9lang.compiler.main.phases.result.CompilableSourceErrorCheck;
@@ -19,11 +19,11 @@ import org.ek9lang.compiler.main.phases.result.CompilerReporter;
  * optimisation takes place.
  */
 public class Ek9Phase9IRAnalysis implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
-  private final CompilationListener listener;
+  private final CompilationPhaseListener listener;
   private final CompilerReporter reporter;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
-  public Ek9Phase9IRAnalysis(CompilationListener listener, CompilerReporter reporter) {
+  public Ek9Phase9IRAnalysis(CompilationPhaseListener listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
   }

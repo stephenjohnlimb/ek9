@@ -3,7 +3,7 @@ package org.ek9lang.compiler.main.phases;
 import java.util.List;
 import java.util.function.BiFunction;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.ek9lang.compiler.errors.CompilationListener;
+import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.CompilableSource;
 import org.ek9lang.compiler.internals.ParsedModule;
@@ -24,7 +24,7 @@ import org.ek9lang.core.threads.SharedThreadContext;
 public class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
 
   private boolean useMultiThreading = true;
-  private final CompilationListener listener;
+  private final CompilationPhaseListener listener;
   private final CompilerReporter reporter;
   private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
@@ -33,14 +33,14 @@ public class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, Compiler
    * Create a new phase 1 symbol definition instance.
    */
   public Ek9Phase1SymbolDefinition(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                   CompilationListener listener, CompilerReporter reporter) {
+                                   CompilationPhaseListener listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
     this.compilableProgramAccess = compilableProgramAccess;
   }
 
   public Ek9Phase1SymbolDefinition(boolean multiThread, SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                   CompilationListener listener, CompilerReporter reporter) {
+                                   CompilationPhaseListener listener, CompilerReporter reporter) {
     this(compilableProgramAccess, listener, reporter);
     this.useMultiThreading = multiThread;
   }
@@ -79,6 +79,7 @@ public class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, Compiler
   }
 
   /**
+   * THIS IS WHERE THE DEFINITION PHASE 1 LISTENER IS CREATED AND USED.
    * This must create 'new' stuff; except for compilableProgramAccess.
    */
   private CompilableSource defineSymbols(CompilableSource source) {

@@ -64,11 +64,15 @@ public final class CompilableSource implements Source, TokenConsumptionListener 
    * Create compilable source for a specific filename.
    */
   public CompilableSource(String filename) {
-    AssertValue.checkNotEmpty( "Filename cannot be empty or null", filename);
+    AssertValue.checkNotEmpty("Filename cannot be empty or null", filename);
     this.filename = filename;
     resetDetails();
   }
 
+  /**
+   * Create a compilable source with a name, but provide the inputStream.
+   * This is useful for internal supplied sources.
+   */
   public CompilableSource(String filename, InputStream inputStream) {
     AssertValue.checkNotEmpty("Filename cannot be empty or null", filename);
     AssertValue.checkNotNull("InputStream cannot be empty or null", inputStream);
@@ -182,7 +186,7 @@ public final class CompilableSource implements Source, TokenConsumptionListener 
 
   private long calculateLastModified() {
     //Do not try and check if modified as it is internal to the package.
-    if(inputStream != null) {
+    if (inputStream != null) {
       return 0;
     }
     AssertValue.checkCanReadFile("Unable to read file", filename);
@@ -191,7 +195,7 @@ public final class CompilableSource implements Source, TokenConsumptionListener 
   }
 
   private Digest.CheckSum calculateCheckSum() {
-    if(inputStream != null) {
+    if (inputStream != null) {
       return Digest.digest("filename");
     }
     AssertValue.checkCanReadFile("Unable to read file", filename);
@@ -221,8 +225,8 @@ public final class CompilableSource implements Source, TokenConsumptionListener 
    * Sets up the compilable source to be parsed.
    */
   public CompilableSource prepareToParse() {
-    try (InputStream inputStream = getInputStream()) {
-      return prepareToParse(inputStream);
+    try (InputStream input = getInputStream()) {
+      return prepareToParse(input);
     } catch (Exception ex) {
       throw new CompilerException("Unable to parse file " + filename, ex);
     }
@@ -280,7 +284,7 @@ public final class CompilableSource implements Source, TokenConsumptionListener 
 
   private InputStream getInputStream() throws FileNotFoundException {
     //In the case where an input stream was provided.
-    if(inputStream != null) {
+    if (inputStream != null) {
       return inputStream;
     }
     return new FileInputStream(filename);

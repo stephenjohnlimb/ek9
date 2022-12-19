@@ -4,14 +4,18 @@ import java.util.Optional;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.errors.UnreachableStatement;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.SymbolFactory;
 import org.ek9lang.compiler.main.phases.listeners.AbstractEK9PhaseListener;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
+import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.IScopedSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.LocalScope;
+import org.ek9lang.compiler.symbol.ScopedSymbol;
+import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.SymbolChecker;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
@@ -66,18 +70,12 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     getParsedModule().setExternallyImplemented(ctx.EXTERN() != null);
   }
 
+  @SuppressWarnings("java:S1185")
   @Override
-  public void enterTraitDeclaration(EK9Parser.TraitDeclarationContext ctx) {
-    final var newTypeSymbol = symbolFactory.newTrait(ctx);
-    checkAndDefineScopedSymbol(newTypeSymbol, ctx);
-    super.enterTraitDeclaration(ctx);
-  }
-
-  @Override
-  public void enterClassDeclaration(EK9Parser.ClassDeclarationContext ctx) {
-    final var newTypeSymbol = symbolFactory.newClass(ctx);
-    checkAndDefineScopedSymbol(newTypeSymbol, ctx);
-    super.enterClassDeclaration(ctx);
+  public void enterProgramBlock(EK9Parser.ProgramBlockContext ctx) {
+    //Nothing to do here, check enterMethodDeclaration - this checks parent and processes
+    //a method as if it were a method (which in a way it is).
+    super.enterProgramBlock(ctx);
   }
 
   @Override
@@ -94,6 +92,25 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     super.enterMethodDeclaration(ctx);
   }
 
+  private void processProgramDeclaration(EK9Parser.MethodDeclarationContext ctx) {
+    var program = symbolFactory.newProgram(ctx);
+    checkAndDefineScopedSymbol(program, ctx);
+  }
+
+  @Override
+  public void enterTraitDeclaration(EK9Parser.TraitDeclarationContext ctx) {
+    final var newTypeSymbol = symbolFactory.newTrait(ctx);
+    checkAndDefineScopedSymbol(newTypeSymbol, ctx);
+    super.enterTraitDeclaration(ctx);
+  }
+
+  @Override
+  public void enterClassDeclaration(EK9Parser.ClassDeclarationContext ctx) {
+    final var newTypeSymbol = symbolFactory.newClass(ctx);
+    checkAndDefineScopedSymbol(newTypeSymbol, ctx);
+    super.enterClassDeclaration(ctx);
+  }
+
   @Override
   public void enterFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
     final var function = symbolFactory.newFunction(ctx);
@@ -108,11 +125,81 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     super.enterRecordDeclaration(ctx);
   }
 
-  private void processProgramDeclaration(EK9Parser.MethodDeclarationContext ctx) {
-    var currentScope = symbolAndScopeManagement.getTopScope();
-    var program = symbolFactory.newProgram(ctx, currentScope);
+  /**
+   * This is the main context for ek9 expressions and statements to be employed.
+   * i.e. it is THE place for the developers ek9 code to be expressed.
+   */
+  @Override
+  public void enterInstructionBlock(EK9Parser.InstructionBlockContext ctx) {
+    IScope scope = symbolAndScopeManagement.getTopScope();
+    String parentScopeName = scope.getScopeName();
+    if (scope instanceof ScopedSymbol scopedSymbol) {
+      parentScopeName = scopedSymbol.getFriendlyScopeName();
+    }
+    LocalScope instructionBlock = new LocalScope(parentScopeName, scope);
+    symbolAndScopeManagement.enterNewScope(instructionBlock, ctx);
+    super.enterInstructionBlock(ctx);
+  }
 
-    checkAndDefineScopedSymbol(program, ctx);
+  /**
+   * This is just a normal statement or variable declaration within a block.
+   * But we actually do some early analysis here. We check if the scope this is in has been
+   * marked as not terminating normally.
+   * What this means is that this block has been marked because a known uncaught exception has
+   * been issued.
+   * This works on the principle that a previous block or try has issued an exception that was not caught.
+   * As we listen to the events the previous blocks will have been entered and existed.
+   * They may have marked the scope this statement is in as abnormally terminated.
+   */
+  @Override
+  public void enterBlockStatement(EK9Parser.BlockStatementContext ctx) {
+    //So this will be called on each block statement
+    //if a previous block statement triggered an exception then
+    //this block has effectively terminated and additional statements are pointless and un-reachable
+    //We know this at compile time.
+    IScope scope = symbolAndScopeManagement.getTopScope();
+    if (!scope.isTerminatedNormally()) {
+      new UnreachableStatement(getErrorListener()).accept(ctx.start, scope.getEncounteredExceptionToken());
+    }
+
+    super.enterBlockStatement(ctx);
+  }
+
+  /**
+   * Just a straight forward declaration of a variable.
+   * But just like Kotlin we can explicitly let the variable not be allocated memory.
+   * This is done with the '?' suffix.
+   */
+  @Override
+  public void enterVariableDeclaration(EK9Parser.VariableDeclarationContext ctx) {
+    final var variable = symbolFactory.newVariable(ctx);
+
+    checkAndDefineSymbol(variable, ctx);
+    super.enterVariableDeclaration(ctx);
+  }
+
+  /**
+   * Now we have an assignment expression we can note that this variable was initialised.
+   */
+  @Override
+  public void exitVariableDeclaration(EK9Parser.VariableDeclarationContext ctx) {
+    VariableSymbol varSymbol = (VariableSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    //Might not have been registered if detected as a duplicate.
+    if (varSymbol != null) {
+      varSymbol.setInitialisedBy(ctx.assignmentExpression().start);
+    }
+    super.exitVariableDeclaration(ctx);
+  }
+
+  /**
+   * Just for pure Symbols - not ScopedSymbols - checks for duplicate symbols just within
+   * the current scope.
+   */
+  private void checkAndDefineSymbol(final ISymbol symbol, final ParseTree node) {
+    IScope scope = symbolAndScopeManagement.getTopScope();
+    if (!symbolChecker.errorsIfVariableSymbolAlreadyDefined(scope, symbol)) {
+      symbolAndScopeManagement.enterNewSymbol(symbol, node);
+    }
   }
 
   /**
@@ -144,7 +231,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     }
     ConstantSymbol literal = symbolFactory.newLiteral(start, literalText);
     var resolvedType = symbolAndScopeManagement.getTopScope().resolve(new TypeSymbolSearch(typeName));
-    if(resolvedType.isEmpty()) {
+    if (resolvedType.isEmpty()) {
       //Try again for debug.
       resolvedType = symbolAndScopeManagement.getTopScope().resolve(new TypeSymbolSearch(typeName));
     }
@@ -192,8 +279,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
    * So the same literal will now be recorded against a constant initialiser context.
    */
   @Override
-  public void exitConstantInitialiser(EK9Parser.ConstantInitialiserContext ctx)
-  {
+  public void exitConstantInitialiser(EK9Parser.ConstantInitialiserContext ctx) {
     ISymbol literalSymbol = getParsedModule().getRecordedSymbol(ctx.literal());
     AssertValue.checkNotNull("Need to have literals resolved in phase1: " + ctx.getText(), literalSymbol);
     getParsedModule().recordSymbol(ctx, literalSymbol); //pass same symbol back up by recording on ctx.
@@ -208,8 +294,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   @Override
-  public void enterFloatingPointLiteral(EK9Parser.FloatingPointLiteralContext ctx)
-  {
+  public void enterFloatingPointLiteral(EK9Parser.FloatingPointLiteralContext ctx) {
     recordConstant(ctx, ctx.start, "org.ek9.lang::Float");
     super.enterFloatingPointLiteral(ctx);
   }
@@ -238,4 +323,75 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     super.enterStringLiteral(ctx);
   }
 
+  @Override
+  public void enterTimeLiteral(EK9Parser.TimeLiteralContext ctx) {
+    recordConstant(ctx, ctx.start, "org.ek9.lang::Time");
+    super.enterTimeLiteral(ctx);
+  }
+
+  @Override
+  public void enterDateLiteral(EK9Parser.DateLiteralContext ctx) {
+    recordConstant(ctx, ctx.start, "org.ek9.lang::Date");
+    super.enterDateLiteral(ctx);
+  }
+
+  @Override
+  public void enterDateTimeLiteral(EK9Parser.DateTimeLiteralContext ctx) {
+    recordConstant(ctx, ctx.start, "org.ek9.lang::DateTime");
+    super.enterDateTimeLiteral(ctx);
+  }
+
+  @Override
+  public void enterDurationLiteral(EK9Parser.DurationLiteralContext ctx) {
+    recordConstant(ctx, ctx.start, "org.ek9.lang::Duration");
+    super.enterDurationLiteral(ctx);
+  }
+
+  @Override
+  public void enterMillisecondLiteral(EK9Parser.MillisecondLiteralContext ctx) {
+    recordConstant(ctx, ctx.start, "org.ek9.lang::Millisecond");
+    super.enterMillisecondLiteral(ctx);
+  }
+
+  @Override
+  public void enterDecorationDimensionLiteral(EK9Parser.DecorationDimensionLiteralContext ctx) {
+    recordConstant(ctx, ctx.start, "org.ek9.lang::Dimension");
+    super.enterDecorationDimensionLiteral(ctx);
+  }
+
+  @Override
+  public void enterDecorationResolutionLiteral(EK9Parser.DecorationResolutionLiteralContext ctx) {
+    recordConstant(ctx, ctx.start, "org.ek9.lang::Resolution");
+    super.enterDecorationResolutionLiteral(ctx);
+  }
+
+  @Override
+  public void enterColourLiteral(EK9Parser.ColourLiteralContext ctx) {
+    recordConstant(ctx, ctx.start, "org.ek9.lang::Colour");
+    super.enterColourLiteral(ctx);
+  }
+
+  @Override
+  public void enterMoneyLiteral(EK9Parser.MoneyLiteralContext ctx) {
+    recordConstant(ctx, ctx.start, "org.ek9.lang::Money");
+    super.enterMoneyLiteral(ctx);
+  }
+
+  @Override
+  public void enterRegularExpressionLiteral(EK9Parser.RegularExpressionLiteralContext ctx) {
+    recordConstant(ctx, ctx.start, "org.ek9.lang::RegEx");
+    super.enterRegularExpressionLiteral(ctx);
+  }
+
+  @Override
+  public void enterVersionNumberLiteral(EK9Parser.VersionNumberLiteralContext ctx) {
+    recordConstant(ctx, ctx.start, "org.ek9.lang::Version");
+    super.enterVersionNumberLiteral(ctx);
+  }
+
+  @Override
+  public void enterPathLiteral(EK9Parser.PathLiteralContext ctx) {
+    recordConstant(ctx, ctx.start, "org.ek9.lang::Path");
+    super.enterPathLiteral(ctx);
+  }
 }

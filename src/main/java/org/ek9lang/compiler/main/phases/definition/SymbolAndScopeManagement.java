@@ -97,13 +97,16 @@ public class SymbolAndScopeManagement {
     parsedModule.recordSymbol(node, symbol);
   }
 
+  public ISymbol getRecordedSymbol(ParseTree node) {
+    return parsedModule.getRecordedSymbol(node);
+  }
+
   /**
    * For literals we only record in the parsedModule.
    */
   public void enterNewLiteral(ISymbol symbol, ParseTree node) {
     parsedModule.recordSymbol(node, symbol);
   }
-
 
   /**
    * Record a new scoped symbol in the current scope on the stack.

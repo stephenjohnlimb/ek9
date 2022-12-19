@@ -2,7 +2,7 @@ package org.ek9lang.compiler.main.phases;
 
 import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
-import org.ek9lang.compiler.errors.CompilationListener;
+import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableSource;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
@@ -19,13 +19,13 @@ import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 public class Ek9Phase0Parsing
     implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
 
-  private final CompilationListener listener;
+  private final CompilationPhaseListener listener;
   private final CompilerReporter reporter;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
   private final RequiredCompilableSourcesForParsing sourcesToBeParsed =
       new RequiredCompilableSourcesForParsing();
 
-  public Ek9Phase0Parsing(CompilationListener listener, CompilerReporter reporter) {
+  public Ek9Phase0Parsing(CompilationPhaseListener listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
   }
