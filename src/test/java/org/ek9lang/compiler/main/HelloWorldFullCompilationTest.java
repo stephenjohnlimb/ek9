@@ -46,9 +46,12 @@ class HelloWorldFullCompilationTest {
       = new CompilableProgramSuitable();
 
   private static final Supplier<Workspace> helloWorldEk9Workspace = () -> {
-    var fullPath = new PathToSourceFromName().apply("/examples/basics/HelloWorld.ek9");
     Workspace rtn = new Workspace();
-    rtn.addSource(fullPath);
+
+    var constantPath = new PathToSourceFromName().apply("/examples/simpleReference/ExternalReference.ek9");
+    var programPath = new PathToSourceFromName().apply("/examples/simpleReference/HelloReference.ek9");
+    rtn.addSource(constantPath);
+    rtn.addSource(programPath);
     return rtn;
   };
 
@@ -71,6 +74,9 @@ class HelloWorldFullCompilationTest {
       program.getParsedModuleNames().forEach(System.out::println);
       var helloWorldModule = program.getParsedModules("introduction");
       assertNotNull(helloWorldModule);
+
+      var externalReferenceModule = program.getParsedModules("some.external");
+      assertNotNull(externalReferenceModule);
       System.out.println("STEVE YOU ARE HERE: Got hello world module");
     });
   }

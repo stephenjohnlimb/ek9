@@ -1,0 +1,6 @@
+#!ek9
+defines module some.external
+  defines constant
+    helloMessage <- "Hello, World"
+
+//EOF

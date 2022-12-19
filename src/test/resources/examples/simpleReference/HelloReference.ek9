@@ -1,0 +1,12 @@
+#!ek9
+defines module introduction
+
+  //pull in the constant from an external package and use it.
+  references
+    some.external::helloMessage
+
+  defines program
+    HelloWorld()
+      stdout <- Stdout()
+      stdout.println(helloMessage)
+//EOF
