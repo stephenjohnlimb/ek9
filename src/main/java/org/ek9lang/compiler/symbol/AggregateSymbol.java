@@ -182,6 +182,11 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
     return newCopy;
   }
 
+  @Override
+  public ScopeType getScopeType() {
+    return ScopeType.AGGREGATE;
+  }
+
   /**
    * If used in dynamic form, this will return the scope with any dynamic variables
    * that we captured at definition.

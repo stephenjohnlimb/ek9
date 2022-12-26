@@ -67,7 +67,9 @@ public class ParsedModule implements Module {
 
   private String moduleName;
   private EK9Parser.CompilationUnitContext compilationUnitContext = null;
+
   //We also need to keep a record of the ModuleScope so that when we come to resolve across modules we can
+  //Set after the first definition phase.
   private ModuleScope moduleScope;
 
   /**
@@ -118,7 +120,11 @@ public class ParsedModule implements Module {
     var theModuleName = compilationUnitContext.moduleDeclaration().dottedName().getText();
     AssertValue.checkNotEmpty("ModuleName must have a value", theModuleName);
     setModuleName(theModuleName);
-    setModuleScope(new ModuleScope(theModuleName, compilableProgram));
+    //Only set if a module scope is not yet present.
+    //Typically, on the definition phase will set this.
+    if (getModuleScope() == null) {
+      setModuleScope(new ModuleScope(theModuleName, compilableProgram));
+    }
 
     return getModuleScope();
   }

@@ -1,0 +1,135 @@
+#!ek9
+<!-
+  Fails in multiple ways.
+  1. clashes with FailToCompile2.ek9 by referencing alpha::THE_CONSTANT - which is already references in this module
+  2. the name THE_CONSTANT is referenced from two namespaces (modules) so which one wins!
+  3. a constant THE_CONSTANT is also defined in this module and hence that too clashes.
+  4. etc for each construct type
+-!>
+
+defines module fails.to.compile
+
+  references
+    alpha::THE_CONSTANT
+    alpha::A_FUNCTION
+    alpha::B_RECORD
+    alpha::C_TRAIT
+    alpha::D_CLASS
+    alpha::E_COMPONENT
+    alpha::F_TEXT_en_GB
+    alpha::G_SERVICE
+    alpha::H_APPLICATION
+    alpha::I_DYNAMIC_CLASS
+    alpha::J_TYPE
+    alpha::K_VARIABLE_1
+    alpha::K_VARIABLE_2
+    alpha::L_SERVICE_OPERATION
+    alpha::M_METHOD
+    alpha::N_SERVICE_METHOD
+    alpha::O_TEXT_BODY
+    alpha::P_FOR_LOOP
+    alpha::Q_FOR_RANGE
+    beta::THE_CONSTANT
+
+  defines constant
+    THE_CONSTANT <- "BROKEN"
+
+  defines function
+    A_FUNCTION
+      -> p as Integer
+      <- r as String: "Nothing"
+
+  defines record
+    B_RECORD
+      val <- "aValue"
+
+  defines trait
+    C_TRAIT
+      signatureMethod
+        -> v as Integer
+
+  defines class
+    D_CLASS
+      signatureMethod
+        -> v as Integer
+
+      M_METHOD
+        -> v as String
+
+  defines component
+    //This will be OK and is used later in the application.
+    OutputInterface as abstract
+      output()
+        <- outputTo as StringOutput: Stdout()
+    //This will be used also in the application
+    StdoutInterface is OutputInterface
+
+    E_COMPONENT
+      signatureMethod
+        -> v as Integer
+
+  defines text for "en_GB"
+    //First the main block
+    F_TEXT
+      //Now the individual text items
+      O_TEXT_BODY()
+        -> v as Integer
+        `Number ${v} has entered the room`
+
+  defines service
+    G_SERVICE :/site
+      L_SERVICE_OPERATION() as GET for :/index.html
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+      N_SERVICE_METHOD()
+        <- r as String: "value"
+
+  defines application
+    H_APPLICATION
+      register StdoutInterface() as OutputInterface
+
+  defines function
+    //Just a vehicle for a dynamic class and loops
+    SampleFunction()
+      firstName <- "Steve"
+      lastName <- "Limb"
+
+      someList <- List() of String
+
+      //Create a valid dynamic class
+      tuple1 <- Names(firstName, lastName) as class
+        name()
+          <- rtn as String: `${firstName} ${lastName}`
+
+      //Create a dynamic class with these two properties.
+      tuple <- I_DYNAMIC_CLASS(firstName, lastName) as class
+        name()
+          <- rtn as String: `${firstName} ${lastName}`
+
+      //A couple of valid type loops
+      for val in someList
+        v <- val
+
+      for i in 1 ... 10
+        v <- i
+
+      //Now conflicting wth references
+      for P_FOR_LOOP in someList
+        v <- P_FOR_LOOP
+
+      for Q_FOR_RANGE in 1 ... 10
+        v <- Q_FOR_RANGE
+
+  defines type
+    //Just use an enumeration for this duplicate name.
+    J_TYPE
+      V1
+      V2
+
+  defines function
+    SimpleTest()
+      K_VARIABLE_1 as Integer?
+      K_VARIABLE_2 <- "Some Value"
+
+//EOF
+

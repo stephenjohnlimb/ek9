@@ -327,8 +327,11 @@ whileStatement
     ;
 
 forStatement
-    : forRange block
-    | FOR identifier IN expression block
+    : (forLoop | forRange) block
+    ;
+
+forLoop
+    : FOR identifier IN expression
     ;
 
 forRange

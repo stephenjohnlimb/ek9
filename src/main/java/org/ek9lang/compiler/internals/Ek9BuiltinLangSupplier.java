@@ -169,6 +169,9 @@ defines extern module org.ek9.lang
     Dimension
       Dimension()
 
+    Resolution
+      Resolution()
+      
     Path
       Path()
 

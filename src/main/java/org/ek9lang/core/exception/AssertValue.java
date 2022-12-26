@@ -159,4 +159,13 @@ public class AssertValue {
       throw new IllegalArgumentException(messageIfFalse);
     }
   }
+
+  /**
+   * Asserts that the value is false, illegal argument exception if not.
+   */
+  public static void checkFalse(String messageIfTrue, boolean value) {
+    if (value) {
+      throw new IllegalArgumentException(messageIfTrue);
+    }
+  }
 }

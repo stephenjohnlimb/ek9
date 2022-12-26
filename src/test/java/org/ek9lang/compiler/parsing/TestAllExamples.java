@@ -32,6 +32,8 @@ final class TestAllExamples {
    */
   private final Function<File, String> fileToFileName = File::getName;
 
+  private final SourceFileList sourceFileList = new SourceFileList();
+
   /**
    * Assesses the readability of a file and returns the result of that readability.
    */
@@ -53,27 +55,15 @@ final class TestAllExamples {
   @Test
   void testValidEK9ExampleSource() {
     var func = readabilityAssessor.compose(getTestFunction(false));
-    processEK9SourceFilesExpecting("/examples", func);
+
+    sourceFileList.apply("/examples").parallelStream().map(func).forEach(System.out::println);
+
   }
 
   @Test
   void testInvalidEK9ExampleSource() {
     var func = fileToFileName.compose(getTestFunction(true));
-    processEK9SourceFilesExpecting("/badExamples", func);
-  }
-
-  private void processEK9SourceFilesExpecting(final String fromDirectory,
-                                              final Function<File, String> func) {
-    OsSupport os = new OsSupport();
-    URL rootDirectoryForTest = this.getClass().getResource(fromDirectory);
-    assertNotNull(rootDirectoryForTest);
-    File examples = new File(rootDirectoryForTest.getPath());
-    Glob ek9 = new Glob("**.ek9");
-
-    os.getFilesRecursivelyFrom(examples, ek9)
-        .parallelStream()
-        .map(func)
-        .forEach(System.out::println);
+    sourceFileList.apply("/badExamples").parallelStream().map(func).forEach(System.out::println);
   }
 
   private Function<File, File> getTestFunction(final boolean expectError) {

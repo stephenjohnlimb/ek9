@@ -1,12 +1,16 @@
 package org.ek9lang.compiler.internals;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Stream;
+import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.ModuleScope;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
@@ -33,9 +37,26 @@ public class CompilableProgram {
    */
   private final Map<String, ParsedModules> theParsedModules = new TreeMap<>();
 
+  /**
+   * It is important to maintain a quick mapping from source to parsed module.
+   */
+  private final Map<CompilableSource, ParsedModule> sourceToParsedModule = new HashMap<>();
+
+  private final Function<String, List<ModuleScope>> getModuleScopes =
+      moduleName -> Stream.ofNullable(theParsedModules.get(moduleName))
+          .map(ParsedModules::getParsedModules)
+          .flatMap(List::stream)
+          .map(ParsedModule::getModuleScope)
+          .toList();
+
   public CompilableProgram(List<ParsedModules> implicitBuiltInModules) {
     AssertValue.checkNotNull("ImplicitBuiltInModules cannot be null", implicitBuiltInModules);
     this.implicitBuiltInModules.addAll(implicitBuiltInModules);
+  }
+
+  public ParsedModule getParsedModuleForCompilableSource(CompilableSource source) {
+    AssertValue.checkNotNull("Compilable source cannot be null", source);
+    return this.sourceToParsedModule.get(source);
   }
 
   /**
@@ -58,6 +79,8 @@ public class CompilableProgram {
 
     //Will be checked for duplication.
     list.add(parsedModule);
+
+    sourceToParsedModule.put(parsedModule.getSource(), parsedModule);
   }
 
   /**
@@ -71,6 +94,7 @@ public class CompilableProgram {
     ParsedModules list = theParsedModules.get(parsedModule.getModuleName());
     if (list != null) {
       list.remove(parsedModule);
+      sourceToParsedModule.remove(parsedModule.getSource());
     }
   }
 
@@ -97,15 +121,40 @@ public class CompilableProgram {
    */
   public Optional<ISymbol> resolveFromModule(final String moduleName, final SymbolSearch search) {
 
-    return Stream
-        .ofNullable(theParsedModules.get(moduleName))
-        .map(ParsedModules::getParsedModules)
-        .flatMap(List::stream)
-        .map(ParsedModule::getModuleScope)
+    return getModuleScopes.apply(moduleName)
+        .stream()
         .map(moduleScope -> moduleScope.resolveInThisScopeOnly(search))
         .filter(Optional::isPresent)
-        .flatMap(Optional::stream)
-        .findFirst();
+        .findFirst()
+        .orElse(Optional.empty());
+  }
+
+
+  /**
+   * Locates the token when the first reference was established.
+   */
+  public Optional<Token> getOriginalReferenceLocation(final String moduleName, final SymbolSearch search) {
+    return getModuleScopes.apply(moduleName)
+        .stream()
+        .map(moduleScope -> moduleScope.getOriginalReferenceLocation(search))
+        .filter(Optional::isPresent)
+        .findFirst()
+        .orElse(Optional.empty());
+  }
+
+  /**
+   * Check the existing set of references in the moduleName.
+   * So that means as there are multiple sources per module it is necessary to check in each.
+   */
+  public Optional<ISymbol> resolveReferenceFromModule(final String moduleName, final SymbolSearch search) {
+
+    var maybeFound = getModuleScopes.apply(moduleName)
+        .stream()
+        .map(moduleScope -> moduleScope.resolveReferenceInThisModuleOnly(search))
+        .filter(Optional::isPresent)
+        .findFirst()
+        .orElse(Optional.empty());
+    return maybeFound;
   }
 
   /**
@@ -113,10 +162,7 @@ public class CompilableProgram {
    * org.ek9.lang etc.
    */
   public Optional<ISymbol> resolveFromImplicitScopes(final SymbolSearch search) {
-    return Stream.of("org.ek9.lang", "org.ek9.math")
-        .map(moduleName -> this.resolveFromModule(moduleName, search))
-        .filter(Optional::isPresent)
-        .flatMap(Optional::stream)
-        .findFirst();
+    return Stream.of("org.ek9.lang", "org.ek9.math").map(moduleName -> this.resolveFromModule(moduleName, search))
+        .filter(Optional::isPresent).flatMap(Optional::stream).findFirst();
   }
 }

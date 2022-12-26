@@ -1,0 +1,7 @@
+#!ek9
+<!- Simple module with a constant - all ok -!>
+defines module beta
+  defines constant
+    THE_CONSTANT <- "B"
+
+//EOF

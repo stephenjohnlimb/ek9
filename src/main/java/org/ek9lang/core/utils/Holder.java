@@ -61,4 +61,14 @@ public class Holder<T> implements Consumer<Optional<T>>, Supplier<Optional<T>> {
   public boolean isEmpty() {
     return !isPresent();
   }
+
+
+  /**
+   * Call the consumer if value is present.
+   */
+  public void ifPresent(Consumer<? super T> action) {
+    if (value != null && value.isPresent()) {
+      action.accept(value.get());
+    }
+  }
 }

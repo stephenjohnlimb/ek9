@@ -1,0 +1,20 @@
+#!ek9
+<!-
+  Looks OK but duplicates the reference to alpha::THE_CONSTANT
+  But also references charlie::THE_CONSTANT - which does not exist (as charlie does not exist).
+  And references alpha::NO_SUCH_CONSTANT - while alpha module exists, NO_SUCH_CONSTANT doesn't
+  We also try and reference something without qualifying it.
+  -!>
+defines module fails.to.compile
+
+  references
+    alpha::THE_CONSTANT
+    alpha::NO_SUCH_CONSTANT
+    charlie::THE_CONSTANT
+    SOME_THING_THAT_IS_NOT_FULLY_QUALIFIED
+
+  defines constant
+    CHECK <- "OK"
+
+//EOF
+

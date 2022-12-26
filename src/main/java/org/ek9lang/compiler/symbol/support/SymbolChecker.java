@@ -51,7 +51,7 @@ public class SymbolChecker {
         return true;
       }
     }
-    //Need to do variables separate s only use name not fully qualified name
+    //Need to do variables separate only use name not fully qualified name
     return errorsIfResolved(inScope, symbol,
         new SymbolSearch(symbol.getName()).setLimitToBlocks(limitVarSearchToBlockScope),
         ErrorListener.SemanticClassification.DUPLICATE_VARIABLE);
@@ -61,6 +61,8 @@ public class SymbolChecker {
                                    ErrorListener.SemanticClassification classificationError) {
     Optional<ISymbol> symbolCheck = inScope.resolve(search);
     if (symbolCheck.isPresent()) {
+
+      //For debug try again
       inScope.resolve(search);
       ISymbol dup = symbolCheck.get();
       String message = String.format("'%s' on line %d already defined as %s in %s.",

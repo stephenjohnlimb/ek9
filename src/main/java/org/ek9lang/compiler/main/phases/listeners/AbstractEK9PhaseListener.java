@@ -64,21 +64,15 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   }
 
   @Override
-  public void exitTraitDeclaration(EK9Parser.TraitDeclarationContext ctx) {
-    symbolAndScopeManagement.exitScope();
-    super.exitTraitDeclaration(ctx);
-  }
-
-  @Override
-  public void exitClassDeclaration(EK9Parser.ClassDeclarationContext ctx) {
-    symbolAndScopeManagement.exitScope();
-    super.exitClassDeclaration(ctx);
-  }
-
-  @Override
   public void exitMethodDeclaration(EK9Parser.MethodDeclarationContext ctx) {
     symbolAndScopeManagement.exitScope();
     super.exitMethodDeclaration(ctx);
+  }
+
+  @Override
+  public void exitOperatorDeclaration(EK9Parser.OperatorDeclarationContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitOperatorDeclaration(ctx);
   }
 
   @Override
@@ -91,6 +85,68 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   public void exitRecordDeclaration(EK9Parser.RecordDeclarationContext ctx) {
     symbolAndScopeManagement.exitScope();
     super.exitRecordDeclaration(ctx);
+  }
+
+  @Override
+  public void exitTraitDeclaration(EK9Parser.TraitDeclarationContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitTraitDeclaration(ctx);
+  }
+
+  @Override
+  public void exitClassDeclaration(EK9Parser.ClassDeclarationContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitClassDeclaration(ctx);
+  }
+
+  @Override
+  public void exitComponentDeclaration(EK9Parser.ComponentDeclarationContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitComponentDeclaration(ctx);
+  }
+
+  @Override
+  public void exitTextDeclaration(EK9Parser.TextDeclarationContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitTextDeclaration(ctx);
+  }
+
+  @Override
+  public void exitTextBodyDeclaration(EK9Parser.TextBodyDeclarationContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitTextBodyDeclaration(ctx);
+  }
+
+  @Override
+  public void exitServiceDeclaration(EK9Parser.ServiceDeclarationContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitServiceDeclaration(ctx);
+  }
+
+  @Override
+  public void exitServiceOperationDeclaration(EK9Parser.ServiceOperationDeclarationContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitServiceOperationDeclaration(ctx);
+  }
+
+  @Override
+  public void exitApplicationDeclaration(EK9Parser.ApplicationDeclarationContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitApplicationDeclaration(ctx);
+  }
+
+  @Override
+  public void exitDynamicClassDeclaration(EK9Parser.DynamicClassDeclarationContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitDynamicClassDeclaration(ctx);
+  }
+
+  @Override
+  public void exitTypeDeclaration(EK9Parser.TypeDeclarationContext ctx) {
+    if (ctx.Identifier() != null) {
+      symbolAndScopeManagement.exitScope();
+    }
+    super.exitTypeDeclaration(ctx);
   }
 
   @Override

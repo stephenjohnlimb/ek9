@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.main;
 
+import java.text.NumberFormat;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -40,6 +41,8 @@ public class Ek9Compiler implements Compiler {
     AssertValue.checkNotNull("Workspace must be provided", workspace);
     AssertValue.checkNotNull("Compiler Flags must be provided", flags);
     var reporter = new CompilerReporter(flags.isVerbose());
+    NumberFormat format = NumberFormat.getInstance();
+    format.setGroupingUsed(true);
 
     //Get all the phases and process in turn, if phase fails then stop (false)
     //If the phase was the final one required, then also stop (but true).
@@ -47,7 +50,8 @@ public class Ek9Compiler implements Compiler {
       long before = System.nanoTime();
       var phaseResult = phase.apply(workspace, flags);
       long after = System.nanoTime();
-      reporter.log(String.format("%s duration %d ns", phaseResult.phase(), after - before));
+      reporter.log(String.format("%s duration %s ns; success %b",
+          phaseResult.phase(), format.format(after - before), phaseResult.phaseSuccess()));
       if (!phaseResult.phaseSuccess()) {
         return false;
       } else if (phaseResult.phaseMatch()) {

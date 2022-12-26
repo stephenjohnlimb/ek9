@@ -58,9 +58,13 @@ class HelloWorldFullCompilationTest {
   @Test
   void testHelloWorldPhasedDevelopment() {
     //Just start with the basics and most on to the next phase one implemented.
-    CompilationPhase upToPhase = CompilationPhase.SYMBOL_DEFINITION;
+    CompilationPhase upToPhase = CompilationPhase.REFERENCE_CHECKS;
 
     CompilationPhaseListener listener = (phase, source) -> {
+      if (!source.getErrorListener().isErrorFree()) {
+        System.out.println("Errors in phase: " + phase);
+        source.getErrorListener().getErrors().forEachRemaining(System.out::println);
+      }
     };
     var sharedCompilableProgram= sharedContext.get();
 
@@ -71,7 +75,6 @@ class HelloWorldFullCompilationTest {
     assertTrue(compiler.compile(helloWorldEk9Workspace.get(), new CompilerFlags(upToPhase, true)));
 
     sharedCompilableProgram.accept(program -> {
-      program.getParsedModuleNames().forEach(System.out::println);
       var helloWorldModule = program.getParsedModules("introduction");
       assertNotNull(helloWorldModule);
 

@@ -133,7 +133,25 @@ defines module net.customer.extend
       aPath <- $?.some.path.inc[0].array
 
       bPath <- $?.another[0][9].multi-named.array
-      
+
+      regEx <- /[S|s]te(?:ven?|phen)/
+
+      Steve <- "Steve"
+      steve <- "steve"
+
+      Stephen <- "Stephen"
+      stephen <- "stephen"
+
+      Steven <- "Steven"
+      steven <- "steven"
+
+      Stephene <- "Stephene"
+      stephene <- "stephene"
+
+      assert Steve matches regEx and steve matches regEx
+      assert Stephen matches regEx and stephen matches regEx
+      assert Steven matches regEx and steven matches regEx
+
     verySimple()
       -> param as Integer
       <- rtn as Float: 2.0 * param

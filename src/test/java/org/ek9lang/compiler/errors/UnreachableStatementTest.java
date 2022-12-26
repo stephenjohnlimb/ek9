@@ -16,7 +16,7 @@ class UnreachableStatementTest {
 
     assertTrue(errorListener.hasErrors());
     var errorDetails = errorListener.getErrors().next();
-    assertEquals("Error   : File SyntheticTokenSource 'Cause' on line 5 position 0: Because 'Target' on line 10 makes 'Cause' an unreachable statement",
+    assertEquals("Error   : 'Cause' on line 5 position 0: Because 'Target' on line 10 makes 'Cause' an unreachable statement",
         errorDetails.toString());
 
   }

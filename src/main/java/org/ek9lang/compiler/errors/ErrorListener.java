@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.symbol.support.search.MatchResults;
+import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.utils.OsSupport;
 
 /**
@@ -53,6 +54,14 @@ public class ErrorListener extends BaseErrorListener {
     errors = new ArrayList<>();
     uniqueErrors = new HashMap<>();
     warnings = new ArrayList<>();
+  }
+
+  /**
+   * Get the filename (but not full path) of the source file.
+   */
+  public String getShortNameOfSourceFile(final Token token) {
+    AssertValue.checkNotNull("Token cannot be null", token);
+    return osSupport.getFileNameWithoutPath(token.getTokenSource().getSourceName());
   }
 
   public boolean isExceptionOnAmbiguity() {
@@ -206,11 +215,11 @@ public class ErrorListener extends BaseErrorListener {
    * The type of the error.
    */
   public enum ErrorClassification {
-    WARNING("Warning "),
-    DEPRECATION("Deprecat"),
-    SYNTAX_ERROR("Syntax  "),
-    SEMANTIC_WARNING("Warning "),
-    SEMANTIC_ERROR("Error   ");
+    WARNING("Warning :"),
+    DEPRECATION("Deprecat:"),
+    SYNTAX_ERROR("Syntax  :"),
+    SEMANTIC_WARNING("Warning :"),
+    SEMANTIC_ERROR("Error   :");
 
     private final String description;
 
@@ -320,9 +329,10 @@ public class ErrorListener extends BaseErrorListener {
     EXCEPTION_ONLY_SINGLE_PARAMETER("Exception handling is for a single parameter only"),
     DUPLICATE_TYPE("Type/Function duplicated"),
     DUPLICATE_SYMBOL("Symbol duplicated"),
-    INVALID_SYMBOL_BY_REFERENCE("invalid reference naming module scope name missing"),
-    DUPLICATE_SYMBOL_REFERENCE("Reference already in place for this module"),
-    DUPLICATE_SYMBOL_BY_REFERENCE("A reference and a symbol clash"),
+    INVALID_SYMBOL_BY_REFERENCE("invalid reference naming; module scope name missing"),
+    CONSTRUCT_REFERENCE_CONFLICT("conflicts with a reference"),
+    REFERENCES_CONFLICT("conflicting references"),
+    REFERENCE_DOES_NOT_RESOLVED("reference does not resolve"),
     DISPATCH_ONLY_SUPPORTED_IN_CLASSES("Dispatch only supported in classes"),
     TRAIT_DELEGATE_NOT_USED("has not been used for any methods as they have been defined"),
     TRAIT_BODY_MUST_BE_PROVIDED("traits cannot be abstract method bodies must be provided"),
@@ -561,10 +571,6 @@ public class ErrorListener extends BaseErrorListener {
       StringBuilder buffer = new StringBuilder();
 
       buffer.append(getClassificationDescription());
-
-      if (possibleShortFileName != null) {
-        buffer.append(": File ").append(possibleShortFileName);
-      }
 
       buffer.append(" '").append(symbolErrorText);
 

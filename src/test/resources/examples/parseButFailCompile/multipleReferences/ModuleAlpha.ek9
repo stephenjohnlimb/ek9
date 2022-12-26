@@ -1,0 +1,32 @@
+#!ek9
+<!-
+  Simple module with constants - all ok
+  The idea is the define these as constants and then
+  reference them for elsewhere and then also try and define
+  a construct of the same name.
+  Then check and expect errors.
+-!>
+defines module alpha
+
+  defines constant
+    THE_CONSTANT <- "A"
+    A_FUNCTION <- "FUNCTION"
+    B_RECORD <- "RECORD"
+    C_TRAIT <- "TRAIT"
+    D_CLASS <- "CLASS"
+    E_COMPONENT <- "COMPONENT"
+    F_TEXT_en_GB <- "TEXT"
+    G_SERVICE <- "SERVICE"
+    H_APPLICATION <- "APPLICATION"
+    I_DYNAMIC_CLASS <- "DYNAMIC CLASS"
+    J_TYPE <- "TYPE"
+    K_VARIABLE_1 <- "VARIABLE1"
+    K_VARIABLE_2 <- "VARIABLE2"
+    L_SERVICE_OPERATION <- "SERVICE OPERATION"
+    M_METHOD <- "METHOD"
+    N_SERVICE_METHOD <- "SERVICE METHOD"
+    O_TEXT_BODY <- "TEXT BODY"
+    P_FOR_LOOP <- "FOR LOOP"
+    Q_FOR_RANGE <- "FOR RANGE"
+
+//EOF

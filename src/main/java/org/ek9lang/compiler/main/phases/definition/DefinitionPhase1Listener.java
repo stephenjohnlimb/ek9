@@ -17,9 +17,9 @@ import org.ek9lang.compiler.symbol.LocalScope;
 import org.ek9lang.compiler.symbol.ScopedSymbol;
 import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.SymbolChecker;
+import org.ek9lang.compiler.symbol.support.TextLanguageExtraction;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
-import org.ek9lang.core.exception.CompilerException;
 import org.ek9lang.core.threads.SharedThreadContext;
 
 /**
@@ -38,6 +38,11 @@ import org.ek9lang.core.threads.SharedThreadContext;
 public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   /**
+   * Used for processing text blocks, so we can hold state of the current language the block is for.
+   */
+  private String currentTextBlockLanguage;
+
+  /**
    * For creating new symbols during definition.
    */
   private final SymbolFactory symbolFactory;
@@ -48,16 +53,30 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   private final SymbolChecker symbolChecker;
 
   /**
+   * Extractor/checker of the language like 'en_GB'.
+   */
+  private final TextLanguageExtraction textLanguageExtraction;
+
+  /**
+   * Error if it is possible to detect that a statement is unreachable.
+   */
+  private final UnreachableStatement unreachableStatement;
+
+  /**
    * First phase after parsing. Define symbols and infer types where possible.
+   * Uses a symbol factory to actually create the appropriate symbols.
    */
   public DefinitionPhase1Listener(SharedThreadContext<CompilableProgram> compilableProgramAccess,
                                   ParsedModule parsedModule) {
     super(compilableProgramAccess, parsedModule);
     this.symbolChecker = new SymbolChecker(parsedModule.getSource().getErrorListener());
     this.symbolFactory = new SymbolFactory(parsedModule);
+    this.unreachableStatement = new UnreachableStatement(parsedModule.getSource().getErrorListener());
+    this.textLanguageExtraction = new TextLanguageExtraction(parsedModule.getSource().getErrorListener());
   }
 
   // Now we hook into the ANTLR listener events - lots of them!
+  //This is the main/primary and ideally only purpose of this class.
 
   @Override
   public void enterModuleDeclaration(EK9Parser.ModuleDeclarationContext ctx) {
@@ -85,16 +104,42 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
       processProgramDeclaration(ctx);
     } else if (ctx.getParent() instanceof EK9Parser.AggregatePartsContext) {
       processMethodDeclaration(ctx);
-    } else {
-      throw new CompilerException("MPV implementation!");
+    } else if (ctx.getParent() instanceof EK9Parser.ServiceDeclarationContext) {
+      processMethodDeclaration(ctx);
     }
-
     super.enterMethodDeclaration(ctx);
+  }
+
+  @Override
+  public void enterOperatorDeclaration(EK9Parser.OperatorDeclarationContext ctx) {
+    var currentScope = symbolAndScopeManagement.getTopScope();
+    if (currentScope instanceof IScopedSymbol scopedSymbol) {
+      final var newTypeSymbol = symbolFactory.newOperation(ctx, scopedSymbol);
+      //Can define directly because overloaded methods are allowed.
+      symbolAndScopeManagement.defineScopedSymbol(newTypeSymbol, ctx);
+    } else {
+      symbolAndScopeManagement.recordScopeForStackConsistency(new LocalScope(currentScope), ctx);
+    }
+    super.enterOperatorDeclaration(ctx);
   }
 
   private void processProgramDeclaration(EK9Parser.MethodDeclarationContext ctx) {
     var program = symbolFactory.newProgram(ctx);
-    checkAndDefineScopedSymbol(program, ctx);
+    symbolAndScopeManagement.defineScopedSymbol(program, ctx);
+  }
+
+  @Override
+  public void enterFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
+    final var function = symbolFactory.newFunction(ctx);
+    checkAndDefineScopedSymbol(function, ctx);
+    super.enterFunctionDeclaration(ctx);
+  }
+
+  @Override
+  public void enterRecordDeclaration(EK9Parser.RecordDeclarationContext ctx) {
+    final var newTypeSymbol = symbolFactory.newRecord(ctx);
+    checkAndDefineScopedSymbol(newTypeSymbol, ctx);
+    super.enterRecordDeclaration(ctx);
   }
 
   @Override
@@ -112,17 +157,100 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   @Override
-  public void enterFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
-    final var function = symbolFactory.newFunction(ctx);
-    checkAndDefineScopedSymbol(function, ctx);
-    super.enterFunctionDeclaration(ctx);
+  public void enterComponentDeclaration(EK9Parser.ComponentDeclarationContext ctx) {
+    final var newTypeSymbol = symbolFactory.newComponent(ctx);
+    checkAndDefineScopedSymbol(newTypeSymbol, ctx);
+    super.enterComponentDeclaration(ctx);
   }
 
   @Override
-  public void enterRecordDeclaration(EK9Parser.RecordDeclarationContext ctx) {
-    final var newTypeSymbol = symbolFactory.newRecord(ctx);
+  public void enterTextBlock(EK9Parser.TextBlockContext ctx) {
+
+    currentTextBlockLanguage = textLanguageExtraction.apply(ctx.stringLit());
+
+    super.enterTextBlock(ctx);
+  }
+
+  @Override
+  public void exitTextBlock(EK9Parser.TextBlockContext ctx) {
+    currentTextBlockLanguage = null;
+  }
+
+  @Override
+  public void enterTextDeclaration(EK9Parser.TextDeclarationContext ctx) {
+    final var newTypeSymbol = symbolFactory.newText(ctx, currentTextBlockLanguage);
     checkAndDefineScopedSymbol(newTypeSymbol, ctx);
-    super.enterRecordDeclaration(ctx);
+    super.enterTextDeclaration(ctx);
+  }
+
+  @Override
+  public void enterTextBodyDeclaration(EK9Parser.TextBodyDeclarationContext ctx) {
+    var currentScope = symbolAndScopeManagement.getTopScope();
+    final var newTypeSymbol = symbolFactory.newTextBody(ctx, currentScope);
+    //Can define directly because overloaded methods are allowed.
+    symbolAndScopeManagement.defineScopedSymbol(newTypeSymbol, ctx);
+    super.enterTextBodyDeclaration(ctx);
+  }
+
+  @Override
+  public void enterServiceDeclaration(EK9Parser.ServiceDeclarationContext ctx) {
+    final var newTypeSymbol = symbolFactory.newService(ctx);
+    checkAndDefineScopedSymbol(newTypeSymbol, ctx);
+    super.enterServiceDeclaration(ctx);
+  }
+
+  @Override
+  public void enterServiceOperationDeclaration(EK9Parser.ServiceOperationDeclarationContext ctx) {
+    var currentScope = symbolAndScopeManagement.getTopScope();
+    final var newTypeSymbol = symbolFactory.newServiceOperation(ctx, currentScope);
+    checkAndDefineScopedSymbol(newTypeSymbol, ctx);
+    super.enterServiceOperationDeclaration(ctx);
+  }
+
+  @Override
+  public void enterApplicationDeclaration(EK9Parser.ApplicationDeclarationContext ctx) {
+    final var newTypeSymbol = symbolFactory.newApplication(ctx);
+    checkAndDefineScopedSymbol(newTypeSymbol, ctx);
+    super.enterApplicationDeclaration(ctx);
+  }
+
+  @Override
+  public void enterDynamicClassDeclaration(EK9Parser.DynamicClassDeclarationContext ctx) {
+    //It is necessary to pull this scope symbol upto module level.
+    final var newTypeSymbol = symbolFactory.newDynamicClass(ctx);
+    final var moduleScope = getParsedModule().getModuleScope();
+    if (!symbolChecker.errorsIfSymbolAlreadyDefined(moduleScope, newTypeSymbol, true)) {
+      symbolAndScopeManagement.enterNewDynamicScopedSymbol(newTypeSymbol, ctx);
+    } else {
+      symbolAndScopeManagement.recordScopeForStackConsistency(new LocalScope(moduleScope), ctx);
+    }
+    super.enterDynamicClassDeclaration(ctx);
+  }
+
+  @Override
+  public void enterTypeDeclaration(EK9Parser.TypeDeclarationContext ctx) {
+
+    //It is also possible to forward declare template types - but I might be
+    //able to get rid of that if I work hard at it.
+    if (ctx.Identifier() != null) {
+      final var newTypeSymbol = symbolFactory.newType(ctx);
+      checkAndDefineScopedSymbol(newTypeSymbol, ctx);
+    }
+    super.enterTypeDeclaration(ctx);
+  }
+
+  @Override
+  public void enterForLoop(EK9Parser.ForLoopContext ctx) {
+    final var variable = symbolFactory.newLoopVariable(ctx);
+    checkAndDefineSymbol(variable, ctx);
+    super.enterForLoop(ctx);
+  }
+
+  @Override
+  public void enterForRange(EK9Parser.ForRangeContext ctx) {
+    final var variable = symbolFactory.newLoopVariable(ctx);
+    checkAndDefineSymbol(variable, ctx);
+    super.enterForRange(ctx);
   }
 
   /**
@@ -159,10 +287,17 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     //We know this at compile time.
     IScope scope = symbolAndScopeManagement.getTopScope();
     if (!scope.isTerminatedNormally()) {
-      new UnreachableStatement(getErrorListener()).accept(ctx.start, scope.getEncounteredExceptionToken());
+      unreachableStatement.accept(ctx.start, scope.getEncounteredExceptionToken());
     }
 
     super.enterBlockStatement(ctx);
+  }
+
+  @Override
+  public void enterVariableOnlyDeclaration(EK9Parser.VariableOnlyDeclarationContext ctx) {
+    final var variable = symbolFactory.newVariable(ctx);
+    checkAndDefineSymbol(variable, ctx);
+    super.enterVariableOnlyDeclaration(ctx);
   }
 
   /**
@@ -209,7 +344,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
    */
   private void checkAndDefineScopedSymbol(final IScopedSymbol symbol, final ParseTree node) {
     final var moduleScope = getParsedModule().getModuleScope();
-    if (!symbolChecker.errorsIfVariableSymbolAlreadyDefined(moduleScope, symbol)) {
+    if (!symbolChecker.errorsIfSymbolAlreadyDefined(moduleScope, symbol, true)) {
       symbolAndScopeManagement.defineScopedSymbol(symbol, node);
     } else {
       symbolAndScopeManagement.recordScopeForStackConsistency(new LocalScope(moduleScope), node);
@@ -218,9 +353,13 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   private void processMethodDeclaration(EK9Parser.MethodDeclarationContext ctx) {
     var currentScope = symbolAndScopeManagement.getTopScope();
-
-    //just for now put a local scope in and do the methods tomorrow!
-    symbolAndScopeManagement.recordScopeForStackConsistency(new LocalScope(currentScope), ctx);
+    if (currentScope instanceof IScopedSymbol scopedSymbol) {
+      final var newTypeSymbol = symbolFactory.newMethod(ctx, scopedSymbol);
+      //Can define directly because overloaded methods are allowed.
+      symbolAndScopeManagement.defineScopedSymbol(newTypeSymbol, ctx);
+    } else {
+      symbolAndScopeManagement.recordScopeForStackConsistency(new LocalScope(currentScope), ctx);
+    }
   }
 
   private ConstantSymbol recordConstant(ParseTree ctx, Token start, String typeName) {
@@ -231,11 +370,15 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     }
     ConstantSymbol literal = symbolFactory.newLiteral(start, literalText);
     var resolvedType = symbolAndScopeManagement.getTopScope().resolve(new TypeSymbolSearch(typeName));
-    if (resolvedType.isEmpty()) {
-      //Try again for debug.
-      resolvedType = symbolAndScopeManagement.getTopScope().resolve(new TypeSymbolSearch(typeName));
-    }
-    AssertValue.checkTrue("Type of constant should have resolved", resolvedType.isPresent());
+    var source = literal.getSourceToken().getTokenSource().getSourceName();
+    var line = literal.getSourceToken().getTokenSource().getLine();
+    AssertValue.checkTrue("Type of constant for '"
+            + literal
+            + "' should have resolved in ["
+            + source
+            + "] on line "
+            + line,
+        resolvedType.isPresent());
     literal.setType(resolvedType);
     symbolAndScopeManagement.enterNewLiteral(literal, ctx);
     return literal;

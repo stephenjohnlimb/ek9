@@ -1,13 +1,17 @@
 package org.ek9lang.compiler.main.phases;
 
 import java.util.function.BiFunction;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableProgram;
+import org.ek9lang.compiler.internals.CompilableSource;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
+import org.ek9lang.compiler.main.phases.resolution.ReferencesPhase1Listener;
 import org.ek9lang.compiler.main.phases.result.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
+import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.threads.SharedThreadContext;
 
 /**
@@ -34,7 +38,35 @@ public class Ek9Phase1ReferenceChecks implements BiFunction<Workspace, CompilerF
   @Override
   public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
     final var thisPhase = CompilationPhase.REFERENCE_CHECKS;
-    return new CompilationPhaseResult(thisPhase, true,
+
+    workspace
+        .getSources()
+        .stream()
+        .forEach(this::resolveReferencedSymbols);
+
+    workspace.getSources().forEach(source -> listener.accept(thisPhase, source));
+    var errorFree = !sourceHaveErrors.test(workspace.getSources());
+
+    return new CompilationPhaseResult(thisPhase, errorFree,
         compilerFlags.getCompileToPhase() == thisPhase);
+  }
+
+  /**
+   * THIS IS WHERE THE REFERENCES PHASE 1 LISTENER IS CREATED AND USED.
+   * It's a sort on mini resolution phase just for references.
+   * Note that this code is designed to be singled threaded and so get a lock for the duration
+   * of processing each source. It could be widened for the whole listener/apply method.
+   */
+  private void resolveReferencedSymbols(CompilableSource source) {
+    compilableProgramAccess.accept(program -> {
+      var parsedModule = program.getParsedModuleForCompilableSource(source);
+      AssertValue.checkNotNull("ParsedModule must be present for source", parsedModule);
+
+      parsedModule.acceptCompilationUnitContext(source.getCompilationUnitContext());
+
+      ReferencesPhase1Listener phaseListener = new ReferencesPhase1Listener(program, parsedModule);
+      ParseTreeWalker walker = new ParseTreeWalker();
+      walker.walk(phaseListener, source.getCompilationUnitContext());
+    });
   }
 }

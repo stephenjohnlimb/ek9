@@ -12,7 +12,7 @@ public class UnreachableStatement implements BiConsumer<Token, Token> {
 
   private final ErrorListener errorListener;
 
-  public UnreachableStatement(ErrorListener errorListener) {
+  public UnreachableStatement(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 

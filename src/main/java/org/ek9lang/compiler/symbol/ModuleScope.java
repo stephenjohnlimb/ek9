@@ -1,9 +1,13 @@
 package org.ek9lang.compiler.symbol;
 
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
+import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.symbol.support.SymbolTable;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
+import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.threads.SharedThreadContext;
 import org.ek9lang.core.utils.Holder;
 
@@ -19,6 +23,19 @@ import org.ek9lang.core.utils.Holder;
 public class ModuleScope extends SymbolTable {
 
   private final SharedThreadContext<CompilableProgram> compilableProgramContext;
+
+  /**
+   * This is where we store the references to other module symbols but as a shorthand.
+   * i.e "Item" will map to com.abc.Item.
+   */
+  private Map<String, ISymbol> referencesScope = new TreeMap<>();
+
+  /**
+   * When a reference to a symbol is made, keep track of where that first reference was.
+   * This enables the compiler to give better error messages, indicating where a reference was first successful.
+   * So if there are duplicates of clashes, it can report where the first reference was.
+   */
+  private Map<String, Token> originalReferenceResolution = new TreeMap<>();
 
   public ModuleScope(String scopeName, SharedThreadContext<CompilableProgram> context) {
     super(scopeName);
@@ -39,6 +56,19 @@ public class ModuleScope extends SymbolTable {
     return rtn;
   }
 
+  /**
+   * Add a reference to another construct in another module, so it can be used in shorthand form
+   * in this module.
+   */
+  public void defineReference(final Token token, final ISymbol symbol) {
+    AssertValue.checkNotNull("Token cannot be null", token);
+    AssertValue.checkNotNull("Symbol cannot be null", symbol);
+
+    var shortName = ISymbol.getUnqualifiedName(symbol.getName());
+    AssertValue.checkFalse("Duplicate reference bing added", referencesScope.containsKey(shortName));
+    referencesScope.put(shortName, symbol);
+    originalReferenceResolution.put(shortName, token);
+  }
 
   /**
    * Looks to resolve search in either the references held or the symbols in this scope.
@@ -54,12 +84,31 @@ public class ModuleScope extends SymbolTable {
   }
 
   /**
+   * Returns the original location a reference was made (if present).
+   */
+  public Optional<Token> getOriginalReferenceLocation(SymbolSearch search) {
+    var shortName = ISymbol.getUnqualifiedName(search.getName());
+    return Optional.ofNullable(originalReferenceResolution.get(shortName));
+  }
+
+  /**
    * Does a check if there is a references of that symbol already held in this module scope.
    * But remember there can be multiple of these per named module.
    */
   public Optional<ISymbol> resolveReferenceInThisModuleOnly(SymbolSearch search) {
-    //TODO implement
-    return Optional.empty();
+    Optional<ISymbol> resolvedSymbol = Optional.ofNullable(null);
+
+    if (!search.getName().contains("::")) {
+      resolvedSymbol = Optional.ofNullable(referencesScope.get(search.getName()));
+    }
+    if (resolvedSymbol.isPresent()) {
+      //If not the right category then not a match.
+      //But a null in the search category means we are happy with just the name match.
+      if (search.getSearchType() != null && !resolvedSymbol.get().getCategory().equals(search.getSearchType())) {
+        resolvedSymbol = Optional.ofNullable(null);
+      }
+    }
+    return resolvedSymbol;
   }
 
   @Override

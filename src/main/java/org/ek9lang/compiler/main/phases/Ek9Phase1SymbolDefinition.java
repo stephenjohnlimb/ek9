@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.main.phases;
 
-import java.util.List;
 import java.util.function.BiFunction;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
@@ -56,33 +55,33 @@ public class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, Compiler
   private boolean underTakeSymbolDefinition(Workspace workspace, CompilationPhase phase) {
     //May consider moving to Executor model
 
-    final var affectedSources = useMultiThreading
-        ? defineSymbolsMultiThreaded(workspace)
-        : defineSymbolsSingleThreaded(workspace);
+    if (useMultiThreading) {
+      defineSymbolsMultiThreaded(workspace);
+    } else {
+      defineSymbolsSingleThreaded(workspace);
+    }
 
-    affectedSources.forEach(source -> listener.accept(phase, source));
-    return !sourceHaveErrors.test(affectedSources);
+    workspace.getSources().forEach(source -> listener.accept(phase, source));
+    return !sourceHaveErrors.test(workspace.getSources());
   }
 
-  private List<CompilableSource> defineSymbolsMultiThreaded(Workspace workspace) {
-    return workspace
-        .getSources()
+  private void defineSymbolsMultiThreaded(Workspace workspace) {
+    workspace.getSources()
         .parallelStream()
-        .map(this::defineSymbols).toList();
+        .forEach(this::defineSymbols);
   }
 
-  private List<CompilableSource> defineSymbolsSingleThreaded(Workspace workspace) {
-    return workspace
-        .getSources()
+  private void defineSymbolsSingleThreaded(Workspace workspace) {
+    workspace.getSources()
         .stream()
-        .map(this::defineSymbols).toList();
+        .forEach(this::defineSymbols);
   }
 
   /**
    * THIS IS WHERE THE DEFINITION PHASE 1 LISTENER IS CREATED AND USED.
    * This must create 'new' stuff; except for compilableProgramAccess.
    */
-  private CompilableSource defineSymbols(CompilableSource source) {
+  private void defineSymbols(CompilableSource source) {
     final ParsedModule module = new ParsedModule(source, compilableProgramAccess);
     module.acceptCompilationUnitContext(source.getCompilationUnitContext());
 
@@ -92,6 +91,5 @@ public class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, Compiler
     if (source.getErrorListener().isErrorFree()) {
       compilableProgramAccess.accept(compilableProgram -> compilableProgram.add(module));
     }
-    return source;
   }
 }
