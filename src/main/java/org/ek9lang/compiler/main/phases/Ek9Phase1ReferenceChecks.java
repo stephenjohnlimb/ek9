@@ -38,7 +38,7 @@ public class Ek9Phase1ReferenceChecks implements BiFunction<Workspace, CompilerF
   @Override
   public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
     final var thisPhase = CompilationPhase.REFERENCE_CHECKS;
-
+    reporter.log(thisPhase);
     workspace
         .getSources()
         .stream()

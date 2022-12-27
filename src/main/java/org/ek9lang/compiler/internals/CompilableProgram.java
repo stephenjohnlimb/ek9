@@ -148,13 +148,12 @@ public class CompilableProgram {
    */
   public Optional<ISymbol> resolveReferenceFromModule(final String moduleName, final SymbolSearch search) {
 
-    var maybeFound = getModuleScopes.apply(moduleName)
+    return getModuleScopes.apply(moduleName)
         .stream()
         .map(moduleScope -> moduleScope.resolveReferenceInThisModuleOnly(search))
         .filter(Optional::isPresent)
         .findFirst()
         .orElse(Optional.empty());
-    return maybeFound;
   }
 
   /**

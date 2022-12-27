@@ -101,12 +101,13 @@ public class ModuleScope extends SymbolTable {
     if (!search.getName().contains("::")) {
       resolvedSymbol = Optional.ofNullable(referencesScope.get(search.getName()));
     }
-    if (resolvedSymbol.isPresent()) {
-      //If not the right category then not a match.
-      //But a null in the search category means we are happy with just the name match.
-      if (search.getSearchType() != null && !resolvedSymbol.get().getCategory().equals(search.getSearchType())) {
-        resolvedSymbol = Optional.ofNullable(null);
-      }
+
+    //If not the right category then not a match.
+    //But a null in the search category means we are happy with just the name match.
+    if (search.getSearchType() != null
+        && resolvedSymbol.isPresent()
+        && !resolvedSymbol.get().getCategory().equals(search.getSearchType())) {
+      resolvedSymbol = Optional.empty();
     }
     return resolvedSymbol;
   }

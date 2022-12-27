@@ -47,8 +47,9 @@ public class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, Compiler
   @Override
   public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
     final var thisPhase = CompilationPhase.SYMBOL_DEFINITION;
-    final var result = underTakeSymbolDefinition(workspace, thisPhase);
+
     reporter.log(thisPhase);
+    final var result = underTakeSymbolDefinition(workspace, thisPhase);
     return new CompilationPhaseResult(thisPhase, result, compilerFlags.getCompileToPhase() == thisPhase);
   }
 

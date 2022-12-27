@@ -114,7 +114,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   public void enterOperatorDeclaration(EK9Parser.OperatorDeclarationContext ctx) {
     var currentScope = symbolAndScopeManagement.getTopScope();
     if (currentScope instanceof IScopedSymbol scopedSymbol) {
-      final var newTypeSymbol = symbolFactory.newOperation(ctx, scopedSymbol);
+      final var newTypeSymbol = symbolFactory.newOperator(ctx, scopedSymbol);
       //Can define directly because overloaded methods are allowed.
       symbolAndScopeManagement.defineScopedSymbol(newTypeSymbol, ctx);
     } else {

@@ -56,7 +56,6 @@ public class SymbolFactory {
   /**
    * Create a new aggregate that represents an EK9 class.
    */
-
   public AggregateWithTraitsSymbol newClass(EK9Parser.ClassDeclarationContext ctx) {
     checkContextNotNull.accept(ctx);
     AssertValue.checkNotNull("Failed to locate class name", ctx.Identifier());
@@ -68,6 +67,9 @@ public class SymbolFactory {
     return newClass;
   }
 
+  /**
+   * Create a new aggregate that represents an EK9 component.
+   */
   public AggregateWithTraitsSymbol newComponent(EK9Parser.ComponentDeclarationContext ctx) {
     checkContextNotNull.accept(ctx);
     AssertValue.checkNotNull("Failed to locate component name", ctx.Identifier());
@@ -142,6 +144,9 @@ public class SymbolFactory {
     return function;
   }
 
+  /**
+   * Create a new aggregate that represents EK9 text construct.
+   */
   public AggregateSymbol newText(EK9Parser.TextDeclarationContext ctx, String forLanguage) {
     //an error will have been created for the developer as language does not conform.
     if (forLanguage != null) {
@@ -157,6 +162,9 @@ public class SymbolFactory {
     return new AggregateSymbol(ctx.Identifier().getText(), parsedModule.getModuleScope());
   }
 
+  /**
+   * Create a new aggregate that represents an EK9 text body - this is represented by a method.
+   */
   public MethodSymbol newTextBody(EK9Parser.TextBodyDeclarationContext ctx, IScope scope) {
     String methodName = ctx.Identifier().getText();
 
@@ -174,6 +182,9 @@ public class SymbolFactory {
     return method;
   }
 
+  /**
+   * Create a new aggregate that represents an EK9 service.
+   */
   public AggregateSymbol newService(EK9Parser.ServiceDeclarationContext ctx) {
     String serviceName = ctx.Identifier().getText();
     AggregateSymbol service = new AggregateSymbol(serviceName, parsedModule.getModuleScope());
@@ -182,6 +193,9 @@ public class SymbolFactory {
     return service;
   }
 
+  /**
+   * Create a new aggregate that represents an EK9 service operation - a specialised method.
+   */
   public ServiceOperationSymbol newServiceOperation(EK9Parser.ServiceOperationDeclarationContext ctx, IScope scope) {
     boolean operator = false;
     String methodName = null;
@@ -204,6 +218,9 @@ public class SymbolFactory {
     return serviceOperation;
   }
 
+  /**
+   * Create a new aggregate that represents an EK9 application.
+   */
   public AggregateSymbol newApplication(EK9Parser.ApplicationDeclarationContext ctx) {
     String applicationName = ctx.Identifier().getText();
     AggregateSymbol application = new AggregateSymbol(applicationName, parsedModule.getModuleScope());
@@ -212,14 +229,17 @@ public class SymbolFactory {
     //By default a general program application
     application.setGenus(ISymbol.SymbolGenus.GENERAL_APPLICATION);
     EK9Parser.ApplicationBlockContext applicationBlockContext = (EK9Parser.ApplicationBlockContext) ctx.getParent();
-    if (applicationBlockContext.appType != null) {
-      if (applicationBlockContext.appType.getType() == EK9Parser.SERVICE) {
-        application.setGenus(ISymbol.SymbolGenus.SERVICE_APPLICATION);
-      }
+
+    if (applicationBlockContext.appType != null && applicationBlockContext.appType.getType() == EK9Parser.SERVICE) {
+      application.setGenus(ISymbol.SymbolGenus.SERVICE_APPLICATION);
     }
+
     return application;
   }
 
+  /**
+   * Create a new aggregate that represents an EK9 dynamic class.
+   */
   public AggregateWithTraitsSymbol newDynamicClass(EK9Parser.DynamicClassDeclarationContext ctx) {
     //Name is optional - if not present then generate a dynamic value.
     if (ctx.Identifier() != null) {
@@ -231,7 +251,10 @@ public class SymbolFactory {
         parsedModule.getModuleScope());
   }
 
-  public MethodSymbol newOperation(EK9Parser.OperatorDeclarationContext ctx, IScopedSymbol scopedSymbol) {
+  /**
+   * Create a new aggregate that represents an EK9 operator, uses a method for this.
+   */
+  public MethodSymbol newOperator(EK9Parser.OperatorDeclarationContext ctx, IScopedSymbol scopedSymbol) {
     String methodName = ctx.operator().getText();
     MethodSymbol method = new MethodSymbol(methodName, scopedSymbol);
 
@@ -247,6 +270,9 @@ public class SymbolFactory {
     return method;
   }
 
+  /**
+   * Create a new aggregate that represents an EK9 class/component method.
+   */
   public MethodSymbol newMethod(EK9Parser.MethodDeclarationContext ctx, IScopedSymbol scopedSymbol) {
     //So now we should have an aggregate we are adding this method into.
     String methodName = ctx.identifier().getText();
@@ -274,6 +300,9 @@ public class SymbolFactory {
     return method;
   }
 
+  /**
+   * Create a new aggregate that represents an EK9 type, constrained or enumeration.
+   */
   public AggregateSymbol newType(EK9Parser.TypeDeclarationContext ctx) {
     String newTypeName = ctx.Identifier().getText();
     AggregateSymbol clazz = new AggregateSymbol(newTypeName, parsedModule.getModuleScope());
@@ -288,11 +317,17 @@ public class SymbolFactory {
     return clazz;
   }
 
+  /**
+   * Create a new aggregate that represents an EK9 loop variable.
+   */
   public VariableSymbol newLoopVariable(EK9Parser.ForLoopContext ctx) {
     checkContextNotNull.accept(ctx);
     return newLoopVariable(ctx.identifier());
   }
 
+  /**
+   * Create a new aggregate that represents an EK9 loop variable for a range.
+   */
   public VariableSymbol newLoopVariable(EK9Parser.ForRangeContext ctx) {
     checkContextNotNull.accept(ctx);
     return newLoopVariable(ctx.identifier());
