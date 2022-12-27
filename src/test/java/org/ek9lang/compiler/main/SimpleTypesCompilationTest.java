@@ -25,7 +25,7 @@ class SimpleTypesCompilationTest {
     final SourceFileList sourceFileList = new SourceFileList();
     Workspace rtn = new Workspace();
     sourceFileList.apply("/examples/simpleTypes")
-        .parallelStream()
+        .stream()
         .forEach(rtn::addSource);
 
     return rtn;

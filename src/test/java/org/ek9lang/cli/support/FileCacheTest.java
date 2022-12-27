@@ -154,10 +154,10 @@ class FileCacheTest {
   private void assertSourcesIdentified(final List<String> expectedFiles,
                                        final List<File> identifiedFiles) {
 
-    var justFileNames = identifiedFiles.parallelStream().map(File::getName).toList();
+    var justFileNames = identifiedFiles.stream().map(File::getName).toList();
     assertEquals(expectedFiles.size(), justFileNames.size());
 
-    var allPresent = justFileNames.parallelStream().allMatch(justFileNames::contains);
+    var allPresent = justFileNames.stream().allMatch(justFileNames::contains);
 
     assertTrue(allPresent);
   }

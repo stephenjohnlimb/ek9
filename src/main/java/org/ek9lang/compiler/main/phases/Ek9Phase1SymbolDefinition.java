@@ -66,8 +66,9 @@ public class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, Compiler
   }
 
   private void defineSymbolsMultiThreaded(Workspace workspace) {
+    //May consider moving to Executor model
     workspace.getSources()
-        .parallelStream()
+        .stream()
         .forEach(this::defineSymbols);
   }
 

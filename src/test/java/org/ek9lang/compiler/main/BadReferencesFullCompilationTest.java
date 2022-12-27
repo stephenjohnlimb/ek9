@@ -32,7 +32,7 @@ class BadReferencesFullCompilationTest {
     final SourceFileList sourceFileList = new SourceFileList();
     Workspace rtn = new Workspace();
     sourceFileList.apply("/examples/parseButFailCompile/multipleReferences")
-        .parallelStream()
+        .stream()
         .forEach(rtn::addSource);
 
     return rtn;

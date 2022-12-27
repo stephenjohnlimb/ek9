@@ -56,14 +56,19 @@ final class TestAllExamples {
   void testValidEK9ExampleSource() {
     var func = readabilityAssessor.compose(getTestFunction(false));
 
-    sourceFileList.apply("/examples").parallelStream().map(func).forEach(System.out::println);
-
+    sourceFileList.apply("/examples")
+        .stream()
+        .map(func)
+        .forEach(System.out::println);
   }
 
   @Test
   void testInvalidEK9ExampleSource() {
     var func = fileToFileName.compose(getTestFunction(true));
-    sourceFileList.apply("/badExamples").parallelStream().map(func).forEach(System.out::println);
+    sourceFileList.apply("/badExamples")
+        .stream()
+        .map(func)
+        .forEach(System.out::println);
   }
 
   private Function<File, File> getTestFunction(final boolean expectError) {

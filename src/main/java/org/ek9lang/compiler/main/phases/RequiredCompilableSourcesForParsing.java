@@ -11,7 +11,7 @@ public class RequiredCompilableSourcesForParsing implements
     UnaryOperator<Collection<CompilableSource>> {
   @Override
   public Collection<CompilableSource> apply(Collection<CompilableSource> compilableSources) {
-    return compilableSources.parallelStream()
+    return compilableSources.stream()
         .filter(source -> source.hasNotBeenSuccessfullyParsed() || source.isModified())
         .toList();
   }

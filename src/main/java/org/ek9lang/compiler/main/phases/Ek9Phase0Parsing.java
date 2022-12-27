@@ -62,7 +62,7 @@ public class Ek9Phase0Parsing
     //May consider moving to Executor model
     final var affectedSources = sourcesToBeParsed
         .apply(workspace.getSources())
-        .parallelStream()
+        .stream()
         .map(operator).toList();
 
     affectedSources.forEach(source -> listener.accept(phase, source));

@@ -401,7 +401,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
   }
 
   private List<MethodSymbol> filterMethods(Predicate<MethodSymbol> predicate) {
-    return getSymbolsForThisScope().parallelStream().filter(ISymbol::isMethod)
+    return getSymbolsForThisScope().stream().filter(ISymbol::isMethod)
         .map(MethodSymbol.class::cast).filter(predicate).toList();
   }
 

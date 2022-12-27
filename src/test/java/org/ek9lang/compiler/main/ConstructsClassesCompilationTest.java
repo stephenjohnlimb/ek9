@@ -25,7 +25,7 @@ class ConstructsClassesCompilationTest {
     final SourceFileList sourceFileList = new SourceFileList();
     Workspace rtn = new Workspace();
     sourceFileList.apply("/examples/constructs/classes")
-        .parallelStream()
+        .stream()
         .forEach(rtn::addSource);
 
     return rtn;

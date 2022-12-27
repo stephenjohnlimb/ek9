@@ -151,7 +151,9 @@ final class TestPackageParsing {
   void testBadPackages() {
     // A couple of source file with bad packaging in them.
     List.of("/examples/constructs/packages/BadPackage.ek9",
-            "/badExamples/basics/unevenIndentation.ek9").parallelStream().map(fileForClassPathResource)
+            "/badExamples/basics/unevenIndentation.ek9")
+        .stream()
+        .map(fileForClassPathResource)
         .forEach(checkBadPackage);
   }
 
@@ -161,7 +163,7 @@ final class TestPackageParsing {
         "/examples/fullPrograms/TCPExample.ek9", validateFullPackage,
         "/examples/constructs/packages/SinglePackage.ek9", validateSimplePackage);
 
-    toTest.entrySet().parallelStream()
+    toTest.entrySet().stream()
         .forEach(entry -> processTest(entry.getKey(), entry.getValue()));
   }
 

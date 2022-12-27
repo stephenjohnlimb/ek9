@@ -11,7 +11,7 @@ public class CompilableSourceErrorCheck implements Predicate<Collection<Compilab
   @Override
   public boolean test(Collection<CompilableSource> compilableSources) {
     return compilableSources
-        .parallelStream()
+        .stream()
         .anyMatch(source -> source.getErrorListener().hasErrors());
 
   }

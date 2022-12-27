@@ -26,7 +26,7 @@ class BasicsCompilationTest {
     final SourceFileList sourceFileList = new SourceFileList();
     Workspace rtn = new Workspace();
     sourceFileList.apply("/examples/basics")
-        .parallelStream()
+        .stream()
         .forEach(rtn::addSource);
 
     return rtn;
