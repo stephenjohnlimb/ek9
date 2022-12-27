@@ -112,6 +112,7 @@ defines module com.customer.enumerations
 
       <!-
         It would be nice to do this
+        STEVE TODO need a block scope so 'suit' is 'contained'.
       -!>
       stdout.println("With just a for loop")
       for suit in CardSuit

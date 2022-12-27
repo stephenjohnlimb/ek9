@@ -299,6 +299,7 @@ public class SymbolTable implements IScope {
    * If search is unqualified (i.e. just a name then yes we look in this scope).
    * If the search is a fully qualified name then the scope name in the search has to match
    * this scope.
+   * If not fully qualified - then this method converts to fully qualified
    */
   private boolean isSearchInThisScope(final SymbolSearch search) {
     String symbolName = search.getName();
@@ -320,7 +321,6 @@ public class SymbolTable implements IScope {
     }
 
     String searchName = ISymbol.getUnqualifiedName(search.getName());
-
     if (search.getSearchType() != null) {
       return resolveFromSplitSymbolTable(searchName, search);
     }

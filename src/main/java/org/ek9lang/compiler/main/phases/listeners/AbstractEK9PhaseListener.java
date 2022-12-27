@@ -150,6 +150,36 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   }
 
   @Override
+  public void exitForLoop(EK9Parser.ForLoopContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitForLoop(ctx);
+  }
+
+  @Override
+  public void exitForRange(EK9Parser.ForRangeContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitForRange(ctx);
+  }
+
+  @Override
+  public void exitTryStatementExpression(EK9Parser.TryStatementExpressionContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitTryStatementExpression(ctx);
+  }
+
+  @Override
+  public void exitCatchStatementExpression(EK9Parser.CatchStatementExpressionContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitCatchStatementExpression(ctx);
+  }
+
+  @Override
+  public void exitFinallyStatementExpression(EK9Parser.FinallyStatementExpressionContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitFinallyStatementExpression(ctx);
+  }
+
+  @Override
   public void exitInstructionBlock(EK9Parser.InstructionBlockContext ctx) {
     symbolAndScopeManagement.exitScope();
     super.exitInstructionBlock(ctx);

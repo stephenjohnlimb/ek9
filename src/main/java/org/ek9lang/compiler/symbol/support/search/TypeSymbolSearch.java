@@ -16,5 +16,4 @@ public final class TypeSymbolSearch extends SymbolSearch {
   public TypeSymbolSearch(TypeSymbolSearch from) {
     super(from);
   }
-
 }

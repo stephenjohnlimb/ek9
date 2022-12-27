@@ -1,22 +1,25 @@
 package org.ek9lang.compiler.main.phases.definition;
 
 import java.util.Optional;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.UnreachableStatement;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.ParsedModule;
-import org.ek9lang.compiler.main.SymbolFactory;
 import org.ek9lang.compiler.main.phases.listeners.AbstractEK9PhaseListener;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
+import org.ek9lang.compiler.symbol.ForSymbol;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.IScopedSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.LocalScope;
 import org.ek9lang.compiler.symbol.ScopedSymbol;
+import org.ek9lang.compiler.symbol.TrySymbol;
 import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.SymbolChecker;
+import org.ek9lang.compiler.symbol.support.SymbolFactory;
 import org.ek9lang.compiler.symbol.support.TextLanguageExtraction;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
@@ -241,6 +244,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterForLoop(EK9Parser.ForLoopContext ctx) {
+    pushNewForLoopScope(ctx);
     final var variable = symbolFactory.newLoopVariable(ctx);
     checkAndDefineSymbol(variable, ctx);
     super.enterForLoop(ctx);
@@ -248,9 +252,43 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterForRange(EK9Parser.ForRangeContext ctx) {
+    pushNewForLoopScope(ctx);
     final var variable = symbolFactory.newLoopVariable(ctx);
     checkAndDefineSymbol(variable, ctx);
     super.enterForRange(ctx);
+  }
+
+  private void pushNewForLoopScope(final ParserRuleContext ctx) {
+    IScope outerScope = symbolAndScopeManagement.getTopScope();
+    var forBlock = new ForSymbol(outerScope);
+    forBlock.setSourceToken(ctx.start);
+    symbolAndScopeManagement.enterNewScope(forBlock, ctx);
+  }
+
+  @Override
+  public void enterTryStatementExpression(EK9Parser.TryStatementExpressionContext ctx) {
+    IScope outerScope = symbolAndScopeManagement.getTopScope();
+    var tryScope = new TrySymbol(outerScope);
+    tryScope.setSourceToken(ctx.start);
+    symbolAndScopeManagement.enterNewScope(tryScope, ctx);
+    super.enterTryStatementExpression(ctx);
+  }
+
+  @Override
+  public void enterCatchStatementExpression(EK9Parser.CatchStatementExpressionContext ctx) {
+    IScope outerScope = symbolAndScopeManagement.getTopScope();
+    var catchScope = new LocalScope("Catch", outerScope);
+    symbolAndScopeManagement.enterNewScope(catchScope, ctx);
+    super.enterCatchStatementExpression(ctx);
+  }
+
+  @Override
+  public void enterFinallyStatementExpression(EK9Parser.FinallyStatementExpressionContext ctx) {
+    //Don't really need this but for symmetry makes sense - really will just be an instructionBlock.
+    IScope outerScope = symbolAndScopeManagement.getTopScope();
+    var catchScope = new LocalScope("Finally", outerScope);
+    symbolAndScopeManagement.enterNewScope(catchScope, ctx);
+    super.enterFinallyStatementExpression(ctx);
   }
 
   /**

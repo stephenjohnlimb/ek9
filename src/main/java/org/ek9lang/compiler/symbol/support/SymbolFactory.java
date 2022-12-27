@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.main;
+package org.ek9lang.compiler.symbol.support;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -26,6 +26,11 @@ import org.ek9lang.core.utils.UniqueIdGenerator;
 public class SymbolFactory {
 
   private final ParsedModule parsedModule;
+
+  /**
+   * Used for low level additions of methods to aggregates.
+   */
+  private final AggregateFactory aggregateFactory = new AggregateFactory();
 
   private final Consumer<Object> checkContextNotNull = ctx -> AssertValue.checkNotNull("CTX cannot be null", ctx);
 
@@ -312,7 +317,7 @@ public class SymbolFactory {
       clazz.setGenus(ISymbol.SymbolGenus.CLASS_CONSTRAINED);
     } else if (ctx.enumerationDeclaration() != null) {
       clazz.setGenus(ISymbol.SymbolGenus.CLASS_ENUMERATION);
-      //TODO addSyntheticEnumerationMethods
+      aggregateFactory.addEnumerationMethods(clazz);
     }
     return clazz;
   }

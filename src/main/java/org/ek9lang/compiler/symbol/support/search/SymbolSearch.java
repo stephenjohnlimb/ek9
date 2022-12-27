@@ -56,6 +56,16 @@ public class SymbolSearch {
     from.cloneIntoSearchSymbol(this);
   }
 
+  /**
+   * Create a new search from an existing search with a new search name.
+   */
+  public SymbolSearch(String newName, SymbolSearch from) {
+    AssertValue.checkNotNull("from cannot be null for search Symbol", from);
+    AssertValue.checkNotNull("newName cannot be null for search Symbol", newName);
+    this.name = newName;
+    from.cloneIntoSearchSymbol(this);
+  }
+
   public SymbolSearch(String name) {
     AssertValue.checkNotEmpty("name cannot be null for search Symbol", name);
     this.name = name;

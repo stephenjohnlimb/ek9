@@ -203,10 +203,10 @@ public class AggregateFactory {
 
     addConstructor(t);
 
-    final Optional<ISymbol> integerType = scope.resolve(new TypeSymbolSearch("Integer"));
-    final Optional<ISymbol> stringType = scope.resolve(new TypeSymbolSearch("String"));
-    final Optional<ISymbol> booleanType = scope.resolve(new TypeSymbolSearch("Boolean"));
-    final Optional<ISymbol> voidType = scope.resolve(new TypeSymbolSearch("Void"));
+    final Optional<ISymbol> integerType = scope.resolve(new TypeSymbolSearch("org.ek9.lang::Integer"));
+    final Optional<ISymbol> stringType = scope.resolve(new TypeSymbolSearch("org.ek9.lang::String"));
+    final Optional<ISymbol> booleanType = scope.resolve(new TypeSymbolSearch("org.ek9.lang::Boolean"));
+    final Optional<ISymbol> voidType = scope.resolve(new TypeSymbolSearch("org.ek9.lang::Void"));
 
     /*
      * Now make the '?', null check operator - this enables us to do null checking in
@@ -298,9 +298,9 @@ public class AggregateFactory {
    * This allows a developer to use built-in methods on the 'Enumeration' type.
    */
   public void addEnumerationMethods(AggregateSymbol clazz) {
-    final Optional<ISymbol> booleanType = clazz.resolve(new TypeSymbolSearch("Boolean"));
-    final Optional<ISymbol> integerType = clazz.resolve(new TypeSymbolSearch("Integer"));
-    final Optional<ISymbol> stringType = clazz.resolve(new TypeSymbolSearch("String"));
+    final Optional<ISymbol> booleanType = clazz.resolve(new TypeSymbolSearch("org.ek9.lang::Boolean"));
+    final Optional<ISymbol> integerType = clazz.resolve(new TypeSymbolSearch("org.ek9.lang::Integer"));
+    final Optional<ISymbol> stringType = clazz.resolve(new TypeSymbolSearch("org.ek9.lang::String"));
     //Some reasonable operations
     //compare
     addComparatorOperator(clazz, "<=>", integerType);
