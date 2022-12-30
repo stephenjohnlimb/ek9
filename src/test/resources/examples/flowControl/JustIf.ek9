@@ -1,5 +1,5 @@
 #!ek9
-defines module com.customer.just
+defines module com.customer.just.ifs
 
   defines function
     currentTemperature()

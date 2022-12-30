@@ -29,7 +29,7 @@ import org.ek9lang.core.threads.SharedThreadContext;
  * Just go through and define the symbols and scopes putting into the ParsedModule against the appropriate context.
  * Also define the symbol in the parent scope (though its type is still to be determined - see next phase).
  * Check for duplicate variables/types/classes/constants and functions across parsed modules for the same module.
- * So at the end of phase one - we will have the names of Classes/Types/Functions etc recorded even though they
+ * So at the end of phase one - we will have the names of Classes/Types/Functions etc. recorded even though they
  * won't be fully defined.
  * This will also include the definition of generic/template types. But we cannot fully turn those into concrete
  * versions until all modules have been parsed by phase1. Only then will all types at least be recorded.
@@ -80,6 +80,8 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   // Now we hook into the ANTLR listener events - lots of them!
   //This is the main/primary and ideally only purpose of this class.
+
+  //I've tried to group the events logically. Also pulled out most processing to other 'factories' where possible.
 
   @Override
   public void enterModuleDeclaration(EK9Parser.ModuleDeclarationContext ctx) {
@@ -177,6 +179,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   @Override
   public void exitTextBlock(EK9Parser.TextBlockContext ctx) {
     currentTextBlockLanguage = null;
+    super.exitTextBlock(ctx);
   }
 
   @Override

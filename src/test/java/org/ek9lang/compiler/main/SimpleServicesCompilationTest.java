@@ -1,7 +1,5 @@
 package org.ek9lang.compiler.main;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.function.Supplier;
@@ -16,9 +14,9 @@ import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just test simple components all compile.
+ * Just test simple services all compile.
  */
-class SimpleComponentsCompilationTest {
+class SimpleServicesCompilationTest {
 
   private static final Supplier<SharedThreadContext<CompilableProgram>> sharedContext
       = new CompilableProgramSuitable();
@@ -26,7 +24,7 @@ class SimpleComponentsCompilationTest {
   private static final Supplier<Workspace> ek9Workspace = () -> {
     final SourceFileList sourceFileList = new SourceFileList();
     Workspace rtn = new Workspace();
-    sourceFileList.apply("/examples/constructs/components")
+    sourceFileList.apply("/examples/constructs/services")
         .stream()
         .forEach(rtn::addSource);
 
@@ -55,8 +53,13 @@ class SimpleComponentsCompilationTest {
     sharedCompilableProgram.accept(program -> {
       //Now this should have some enumerations and records/functions.
 
-      new SymbolCountCheck("net.customer", 4).test(program);
-      new SymbolCountCheck("com.customer.components", 19).test(program);
+      //A bit of a beast all in one file!
+      new SymbolCountCheck("com.customer.services", 38).test(program);
+
+      new SymbolCountCheck("com.customer.webserver", 2).test(program);
+
+      new SymbolCountCheck("com.customer.html", 3).test(program);
+
     });
 
   }

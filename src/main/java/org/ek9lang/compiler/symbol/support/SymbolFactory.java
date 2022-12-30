@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.errors.InvalidServiceDefinition;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
@@ -195,6 +196,12 @@ public class SymbolFactory {
     AggregateSymbol service = new AggregateSymbol(serviceName, parsedModule.getModuleScope());
     configureAggregate(service, ctx.start);
     service.setGenus(ISymbol.SymbolGenus.SERVICE);
+
+    var uri = ctx.Uriproto().getText();
+    service.putSquirrelledData("HTTPURI", uri);
+    if(uri.contains("{") || uri.contains("}")) {
+      new InvalidServiceDefinition(parsedModule.getSource().getErrorListener()).accept(service);
+    }
     return service;
   }
 

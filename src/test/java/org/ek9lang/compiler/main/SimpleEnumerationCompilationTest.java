@@ -59,12 +59,10 @@ class SimpleEnumerationCompilationTest {
     sharedCompilableProgram.accept(program -> {
       //Now this should have some enumerations and records/functions.
 
-      var theModule = program.getParsedModules("com.customer.enumerations");
-      assertNotNull(theModule);
+      new SymbolCountCheck("com.customer.enumerations", 7).test(program);
 
-      assertEquals(1, theModule.size());
+      var theModule = program.getParsedModules("com.customer.enumerations");
       var parsedModule = theModule.get(0);
-      assertEquals(7, parsedModule.getModuleScope().getSymbolsForThisScope().size());
 
       var cardRank = parsedModule
           .getModuleScope()

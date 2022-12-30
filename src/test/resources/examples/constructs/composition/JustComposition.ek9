@@ -20,7 +20,7 @@ defines module com.customer.just.employees
 
   defines record
     //Added support for type inference back in for fields/properties
-    //bt only is default constructor or a literal
+    //but only is default constructor or a literal
     Address
       street <- String()
       street2 <- String()

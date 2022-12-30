@@ -1,7 +1,5 @@
 package org.ek9lang.compiler.main;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.function.Supplier;
@@ -16,9 +14,9 @@ import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just test simple components all compile.
+ * Just test simple flow control all compile.
  */
-class SimpleComponentsCompilationTest {
+class SimpleFlowControlCompilationTest {
 
   private static final Supplier<SharedThreadContext<CompilableProgram>> sharedContext
       = new CompilableProgramSuitable();
@@ -26,7 +24,7 @@ class SimpleComponentsCompilationTest {
   private static final Supplier<Workspace> ek9Workspace = () -> {
     final SourceFileList sourceFileList = new SourceFileList();
     Workspace rtn = new Workspace();
-    sourceFileList.apply("/examples/constructs/components")
+    sourceFileList.apply("/examples/flowControl")
         .stream()
         .forEach(rtn::addSource);
 
@@ -55,8 +53,20 @@ class SimpleComponentsCompilationTest {
     sharedCompilableProgram.accept(program -> {
       //Now this should have some enumerations and records/functions.
 
-      new SymbolCountCheck("net.customer", 4).test(program);
-      new SymbolCountCheck("com.customer.components", 19).test(program);
+      new SymbolCountCheck("com.customer.just.loops", 7).test(program);
+
+      new SymbolCountCheck("com.customer.just.ifs", 5).test(program);
+
+      new SymbolCountCheck("com.customer.just.switches", 3).test(program);
+
+      new SymbolCountCheck("com.customer.just.ternary", 1).test(program);
+
+      new SymbolCountCheck("com.customer.loop", 14).test(program);
+
+      //Includes a dynamic class
+      new SymbolCountCheck("com.customer.exceptions", 7).test(program);
+
+      new SymbolCountCheck("com.ifelse", 1).test(program);
     });
 
   }
