@@ -9,6 +9,8 @@ import org.ek9lang.compiler.errors.UnreachableStatement;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.phases.listeners.AbstractEK9PhaseListener;
+import org.ek9lang.compiler.main.rules.CheckProtectedServiceMethods;
+import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
 import org.ek9lang.compiler.symbol.ForSymbol;
 import org.ek9lang.compiler.symbol.IScope;
@@ -203,6 +205,15 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     final var newTypeSymbol = symbolFactory.newService(ctx);
     checkAndDefineScopedSymbol(newTypeSymbol, ctx);
     super.enterServiceDeclaration(ctx);
+  }
+
+  @Override
+  public void exitServiceDeclaration(EK9Parser.ServiceDeclarationContext ctx) {
+    var aggregateSymbol = (AggregateSymbol)symbolAndScopeManagement.getRecordedSymbol(ctx);
+
+    var methodCheck = new CheckProtectedServiceMethods(getParsedModule().getSource().getErrorListener());
+    methodCheck.accept(aggregateSymbol);
+    super.exitServiceDeclaration(ctx);
   }
 
   @Override

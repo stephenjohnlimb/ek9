@@ -1,10 +1,6 @@
 package org.ek9lang.compiler.symbol.support;
 
-import java.util.Optional;
 import java.util.function.BiFunction;
-import org.ek9lang.compiler.internals.Module;
-import org.ek9lang.compiler.internals.Source;
-import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 
 /**
@@ -12,6 +8,7 @@ import org.ek9lang.compiler.symbol.ISymbol;
  */
 public class TypeCreator implements BiFunction<String, SymbolTable, ISymbol> {
   private final AggregateSymbolCreator creator = new AggregateSymbolCreator();
+
   @Override
   public ISymbol apply(String typeName, SymbolTable inSymbolTable) {
     var newType = creator.apply(typeName, inSymbolTable);
