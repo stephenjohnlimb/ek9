@@ -1,11 +1,17 @@
 package org.ek9lang.compiler.symbol.support;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.errors.InvalidEnumeratedValue;
 import org.ek9lang.compiler.errors.InvalidServiceDefinition;
 import org.ek9lang.compiler.internals.ParsedModule;
+import org.ek9lang.compiler.main.rules.CheckClassNotGenericExtending;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
@@ -35,12 +41,22 @@ public class SymbolFactory {
 
   private final Consumer<Object> checkContextNotNull = ctx -> AssertValue.checkNotNull("CTX cannot be null", ctx);
 
+  private final CheckClassNotGenericExtending checkClassNotGenericExtending;
   /**
    * Create a new symbol factory for use with the parsedModule.
    */
   public SymbolFactory(ParsedModule parsedModule) {
     AssertValue.checkNotNull("Parsed Module cannot be null", parsedModule);
     this.parsedModule = parsedModule;
+    checkClassNotGenericExtending = new CheckClassNotGenericExtending(parsedModule.getSource().getErrorListener());
+  }
+
+  public AggregateSymbol newPackage(EK9Parser.PackageBlockContext ctx) {
+    checkContextNotNull.accept(ctx);
+    AggregateSymbol pack = new AggregateSymbol("Package", parsedModule.getModuleScope());
+    configureAggregate(pack, ctx.start);
+    pack.setGenus(ISymbol.SymbolGenus.META_DATA);
+    return pack;
   }
 
   /**
@@ -61,15 +77,27 @@ public class SymbolFactory {
 
   /**
    * Create a new aggregate that represents an EK9 class.
+   * A bit tricky when it comes to parameterised (generic/template classes).
    */
   public AggregateWithTraitsSymbol newClass(EK9Parser.ClassDeclarationContext ctx) {
+    var moduleScope = parsedModule.getModuleScope();
     checkContextNotNull.accept(ctx);
     AssertValue.checkNotNull("Failed to locate class name", ctx.Identifier());
     String className = ctx.Identifier().getText();
-    final var newClass = newAggregateWithTraitsSymbol(className, ctx.start, parsedModule.getModuleScope());
+    final var newClass = newAggregateWithTraitsSymbol(className, ctx.start);
     newClass.setOpenForExtension(ctx.ABSTRACT() != null);
     newClass.setGenus(ISymbol.SymbolGenus.CLASS);
 
+    //Some basic early checks
+    checkClassNotGenericExtending.accept(ctx);
+
+    var parameterisedSymbols = createAndRegisterParameterisedSymbols(ctx.parameterisedParams(), moduleScope);
+    if (!parameterisedSymbols.isEmpty()) {
+      //Now need to register against the class we are creating
+      parameterisedSymbols.forEach(newClass::addParameterisedType);
+      //It is also important to hold on to the context when it comes to template/generic expansion.
+      newClass.setContextForParameterisedType(ctx);
+    }
     return newClass;
   }
 
@@ -80,7 +108,7 @@ public class SymbolFactory {
     checkContextNotNull.accept(ctx);
     AssertValue.checkNotNull("Failed to locate component name", ctx.Identifier());
     String componentName = ctx.Identifier().getText();
-    var component = newAggregateWithTraitsSymbol(componentName, ctx.start, parsedModule.getModuleScope());
+    var component = newAggregateWithTraitsSymbol(componentName, ctx.start);
     component.setOpenForExtension(ctx.ABSTRACT() != null);
     component.setGenus(ISymbol.SymbolGenus.COMPONENT);
 
@@ -95,7 +123,7 @@ public class SymbolFactory {
     AssertValue.checkNotNull("Failed to locate trait name", ctx.Identifier());
 
     String traitName = ctx.Identifier().getText();
-    AggregateWithTraitsSymbol trait = newAggregateWithTraitsSymbol(traitName, ctx.start, parsedModule.getModuleScope());
+    AggregateWithTraitsSymbol trait = newAggregateWithTraitsSymbol(traitName, ctx.start);
     configureAggregate(trait, ctx.start);
 
     trait.setGenus(ISymbol.SymbolGenus.CLASS_TRAIT);
@@ -199,7 +227,7 @@ public class SymbolFactory {
 
     var uri = ctx.Uriproto().getText();
     service.putSquirrelledData("HTTPURI", uri);
-    if(uri.contains("{") || uri.contains("}")) {
+    if (uri.contains("{") || uri.contains("}")) {
       new InvalidServiceDefinition(parsedModule.getSource().getErrorListener()).accept(service);
     }
     return service;
@@ -255,12 +283,11 @@ public class SymbolFactory {
   public AggregateWithTraitsSymbol newDynamicClass(EK9Parser.DynamicClassDeclarationContext ctx) {
     //Name is optional - if not present then generate a dynamic value.
     if (ctx.Identifier() != null) {
-      return newAggregateWithTraitsSymbol(ctx.Identifier().getText(), ctx.start, parsedModule.getModuleScope());
+      return newAggregateWithTraitsSymbol(ctx.Identifier().getText(), ctx.start);
     }
 
     //So if not named - we generate a dynamic unique name and use that.
-    return newAggregateWithTraitsSymbol("_Class_" + UniqueIdGenerator.getNewUniqueId(), ctx.start,
-        parsedModule.getModuleScope());
+    return newAggregateWithTraitsSymbol("_Class_" + UniqueIdGenerator.getNewUniqueId(), ctx.start);
   }
 
   /**
@@ -327,6 +354,44 @@ public class SymbolFactory {
       aggregateFactory.addEnumerationMethods(clazz);
     }
     return clazz;
+  }
+
+  /**
+   * Populates the enumeration with each of the values supplied in the identifiers.
+   * This does check for duplicates and will raise errors if there are any.
+   */
+  public void populateEnumeration(AggregateSymbol enumerationSymbol, List<TerminalNode> identifiers) {
+    //Quick way to ensure uniqueness, could have used enumerationSymbol to check.
+    //But I want to search irrespective of case and '_' and error on stuff that is similar.
+    var checkValues = new HashMap<String, Token>();
+
+    identifiers.forEach(identifier -> {
+      //For checking duplicates we uppercase and remove '_', developer may use mixed case in enumerations.
+      //But same/similar word in different cases is highly likely to cause issues or be an error (opinion).
+      var enumValue = identifier.getText().toUpperCase().replace("_", "");
+      var existing = checkValues.get(enumValue);
+
+      if (existing == null) {
+        checkValues.put(enumValue, identifier.getSymbol());
+        addEnumeratedValue(identifier, enumerationSymbol);
+      } else {
+        new InvalidEnumeratedValue(parsedModule.getSource().getErrorListener())
+            .accept(identifier.getSymbol(), existing);
+      }
+    });
+  }
+
+  private void addEnumeratedValue(TerminalNode ctx, AggregateSymbol inEnumeration) {
+    ConstantSymbol symbol = new ConstantSymbol(ctx.getText());
+    configureSymbol(symbol, ctx.getSymbol());
+    symbol.setNotMutable();
+    //The nature of an enumeration is to define possible values
+    //These do not have to be referenced to be valuable. So mark referenced.
+    symbol.setNullAllowed(false);
+    symbol.setInitialisedBy(ctx.getSymbol());
+    symbol.setReferenced(true);
+    symbol.setType(inEnumeration);
+    inEnumeration.define(symbol);
   }
 
   /**
@@ -397,7 +462,8 @@ public class SymbolFactory {
     return literal;
   }
 
-  private AggregateWithTraitsSymbol newAggregateWithTraitsSymbol(String className, Token start, IScope scope) {
+  private AggregateWithTraitsSymbol newAggregateWithTraitsSymbol(String className, Token start) {
+    var scope = parsedModule.getModuleScope();
     AggregateWithTraitsSymbol clazz = new AggregateWithTraitsSymbol(className, scope);
     configureAggregate(clazz, start);
     clazz.setGenus(ISymbol.SymbolGenus.CLASS);
@@ -417,4 +483,39 @@ public class SymbolFactory {
     }
   }
 
+  private List<AggregateSymbol> createAndRegisterParameterisedSymbols(final EK9Parser.ParameterisedParamsContext ctx,
+                                                                      final IScope scope) {
+    List<AggregateSymbol> rtn = new ArrayList<AggregateSymbol>();
+    if (ctx != null) {
+      for (int i = 0; i < ctx.parameterisedDetail().size(); i++) {
+        EK9Parser.ParameterisedDetailContext detail = ctx.parameterisedDetail(i);
+        //Then this is a generic type class we simulate and add the S, T, U whatever into the class scope it is
+        //a simulated type we have no real idea what it could be but it is a template parameter to be replace at
+        //cookie cutting time.
+        //getText(i) gives us the parameter name we just us 'T' here to denote a generic param
+
+        AggregateSymbol t = aggregateFactory.createGenericT(detail.Identifier().getText(), scope);
+
+        //Now going forward we also have constraints of those type S extends String etc.
+        //So after phase 1 - but before phase 5 (resolve) we will need to revisit this to ensure we have
+        //applied any super class to these 'T's
+        rtn.add(t);
+        parsedModule.recordSymbol(detail, t);
+      }
+      //Now we have simulated S, T, P etc - what about adding additional constructors - we have the default
+      //This would mean that we could do new T() and new T(an S) or new S(a T) etc. so just a single param
+      //type constructor.
+      //Otherwise it get too hard on ordering.
+
+      //Add other synthetic constructors now we have all the S, T, P etc.
+      rtn.forEach(t -> {
+        rtn.forEach(s -> {
+          ISymbol arg = new VariableSymbol("arg", s);
+          aggregateFactory.addConstructor(t, arg);
+        });
+      });
+
+    }
+    return rtn;
+  }
 }

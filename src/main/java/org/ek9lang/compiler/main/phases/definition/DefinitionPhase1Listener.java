@@ -96,6 +96,29 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     getParsedModule().setExternallyImplemented(ctx.EXTERN() != null);
   }
 
+  @Override
+  public void enterPackageBlock(EK9Parser.PackageBlockContext ctx) {
+    var pack = symbolFactory.newPackage(ctx);
+    checkAndDefineScopedSymbol(pack, ctx);
+    super.enterPackageBlock(ctx);
+  }
+
+  @Override
+  public void exitPackageBlock(EK9Parser.PackageBlockContext ctx) {
+    var pack = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    if(pack instanceof AggregateSymbol packageSymbol) {
+      //Now lets manipulate those properties that have been added
+      packageSymbol.getProperties().forEach(prop -> {
+        VariableSymbol symbol = (VariableSymbol) prop;
+        //EK9 will be referencing these.
+        symbol.setReferenced(true);
+        symbol.setAggregatePropertyField(true);
+        symbol.setPrivate(false);
+      });
+    }
+    super.exitPackageBlock(ctx);
+  }
+
   @SuppressWarnings("java:S1185")
   @Override
   public void enterProgramBlock(EK9Parser.ProgramBlockContext ctx) {
@@ -172,7 +195,6 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterTextBlock(EK9Parser.TextBlockContext ctx) {
-
     currentTextBlockLanguage = textLanguageExtraction.apply(ctx.stringLit());
 
     super.enterTextBlock(ctx);
@@ -254,6 +276,15 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
       checkAndDefineScopedSymbol(newTypeSymbol, ctx);
     }
     super.enterTypeDeclaration(ctx);
+  }
+
+  @Override
+  public void enterEnumerationDeclaration(EK9Parser.EnumerationDeclarationContext ctx) {
+    //Now get the parent enumeration this enumeration items are to be defined in
+    var enumerationSymbol = (AggregateSymbol)symbolAndScopeManagement.getRecordedSymbol(ctx.parent);
+    symbolFactory.populateEnumeration(enumerationSymbol, ctx.Identifier());
+
+    super.enterEnumerationDeclaration(ctx);
   }
 
   @Override

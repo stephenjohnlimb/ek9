@@ -326,6 +326,7 @@ public class ErrorListener extends BaseErrorListener {
     DUPLICATE_VARIABLE("Variable/Constant duplicated"),
     DUPLICATE_METHOD("Method duplicated"),
     DUPLICATE_FUNCTION("Function/Type duplicated"),
+    POSSIBLE_DUPLICATE_ENUMERATED_VALUE("are duplicated values (or are too similar, likely to be confusing)"),
     EXCEPTION_ONLY_SINGLE_PARAMETER("Exception handling is for a single parameter only"),
     DUPLICATE_TYPE("Type/Function duplicated"),
     DUPLICATE_SYMBOL("Symbol duplicated"),

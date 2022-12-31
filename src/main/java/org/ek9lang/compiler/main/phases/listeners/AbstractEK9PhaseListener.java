@@ -64,6 +64,12 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   }
 
   @Override
+  public void exitPackageBlock(EK9Parser.PackageBlockContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitPackageBlock(ctx);
+  }
+
+  @Override
   public void exitMethodDeclaration(EK9Parser.MethodDeclarationContext ctx) {
     symbolAndScopeManagement.exitScope();
     super.exitMethodDeclaration(ctx);
