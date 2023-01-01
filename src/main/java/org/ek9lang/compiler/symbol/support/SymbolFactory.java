@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.ek9lang.antlr.EK9Parser;
@@ -12,6 +14,7 @@ import org.ek9lang.compiler.errors.InvalidEnumeratedValue;
 import org.ek9lang.compiler.errors.InvalidServiceDefinition;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.rules.CheckClassNotGenericExtending;
+import org.ek9lang.compiler.main.rules.CheckSwitchReturns;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
@@ -21,6 +24,9 @@ import org.ek9lang.compiler.symbol.IScopedSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.MethodSymbol;
 import org.ek9lang.compiler.symbol.ServiceOperationSymbol;
+import org.ek9lang.compiler.symbol.StreamCallSymbol;
+import org.ek9lang.compiler.symbol.StreamPipeLineSymbol;
+import org.ek9lang.compiler.symbol.SwitchSymbol;
 import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
@@ -42,6 +48,31 @@ public class SymbolFactory {
   private final Consumer<Object> checkContextNotNull = ctx -> AssertValue.checkNotNull("CTX cannot be null", ctx);
 
   private final CheckClassNotGenericExtending checkClassNotGenericExtending;
+
+  private final CheckSwitchReturns checkSwitchReturns;
+
+  private final Set<String> streamPartCanConsumeAnything = Set.of("flatten",
+      "call", "async", "skipping", "head", "tail");
+
+  private final Set<String> streamPartProducerAndConsumerTypeSame = Set.of(
+      "skipping", "head", "tail", "filter", "select", "sort", "group",
+      "join", "uniq", "tee");
+
+  private final Predicate<String> canConsumeAnything
+      = operation -> streamPartCanConsumeAnything.contains(operation);
+
+  private final Predicate<String> isProducerAndConsumerSameType
+      = operation -> streamPartProducerAndConsumerTypeSame.contains(operation);
+
+  private final Predicate<String> isProducerDerivedFromConsumerType
+      = operation -> "flatten".equals(operation);
+
+  private final Predicate<String> isASinkInNature
+      = operation -> "tee".equals(operation);
+
+  private final Predicate<String> isFunctionRequired
+      = operation -> "call".equals(operation) || "async".equals(operation);
+
   /**
    * Create a new symbol factory for use with the parsedModule.
    */
@@ -49,6 +80,7 @@ public class SymbolFactory {
     AssertValue.checkNotNull("Parsed Module cannot be null", parsedModule);
     this.parsedModule = parsedModule;
     checkClassNotGenericExtending = new CheckClassNotGenericExtending(parsedModule.getSource().getErrorListener());
+    checkSwitchReturns = new CheckSwitchReturns(parsedModule.getSource().getErrorListener());
   }
 
   public AggregateSymbol newPackage(EK9Parser.PackageBlockContext ctx) {
@@ -394,6 +426,65 @@ public class SymbolFactory {
     inEnumeration.define(symbol);
   }
 
+  public StreamPipeLineSymbol newStream(EK9Parser.StreamContext ctx) {
+    StreamPipeLineSymbol pipeLine = new StreamPipeLineSymbol("stream");
+    configureSymbol(pipeLine, ctx.start);
+    pipeLine.setReferenced(true);
+    pipeLine.setNotMutable();
+    return pipeLine;
+  }
+
+  public StreamCallSymbol newStreamCat(EK9Parser.StreamCatContext ctx, IScope scope) {
+    StreamCallSymbol call = new StreamCallSymbol("cat", scope);
+    configureStreamCallSymbol(call, ctx.start);
+    return call;
+  }
+
+  public StreamCallSymbol newStreamFor(EK9Parser.StreamForContext ctx, IScope scope) {
+    StreamCallSymbol call = new StreamCallSymbol("for", scope);
+    configureStreamCallSymbol(call, ctx.start);
+    return call;
+  }
+
+  public StreamCallSymbol newStreamPart(EK9Parser.StreamPartContext ctx, IScope scope) {
+    final var operation = ctx.op.getText();
+    StreamCallSymbol call = new StreamCallSymbol(operation, scope);
+    configureStreamCallSymbol(call, ctx.start);
+
+    //It is necessary to correctly configure the stream part for later processing.
+    //This enables type inference and also other logic checks.
+    //May need to revisit this once addressing later phases.
+    call.setCapableOfConsumingAnything(canConsumeAnything.test(operation));
+    call.setProducerSymbolTypeSameAsConsumerSymbolType(isProducerAndConsumerSameType.test(operation));
+    call.setSinkInNature(isASinkInNature.test(operation));
+    call.setProducesTypeMustBeAFunction(isFunctionRequired.test(operation));
+    call.setDerivesProducesTypeFromConsumesType(isProducerDerivedFromConsumerType.test(operation));
+
+    return call;
+  }
+
+  public StreamCallSymbol newStreamTermination(EK9Parser.StreamTerminationContext ctx, IScope scope) {
+    final var operation = ctx.op.getText();
+    StreamCallSymbol call = new StreamCallSymbol(operation, scope);
+    configureStreamCallSymbol(call, ctx.start);
+    call.setSinkInNature(true);
+    return call;
+  }
+
+  private void configureStreamCallSymbol(final StreamCallSymbol call, final Token token) {
+    configureSymbol(call, token);
+    call.setReferenced(true);
+    call.setNotMutable();
+  }
+
+  public SwitchSymbol newSwitch(EK9Parser.SwitchStatementExpressionContext ctx, IScope scope) {
+    SwitchSymbol switchSymbol = new SwitchSymbol(scope);
+    configureSymbol(switchSymbol, ctx.start);
+    checkSwitchReturns.accept(ctx);
+    return switchSymbol;
+  }
+
+
   /**
    * Create a new aggregate that represents an EK9 loop variable.
    */
@@ -518,4 +609,5 @@ public class SymbolFactory {
     }
     return rtn;
   }
+
 }

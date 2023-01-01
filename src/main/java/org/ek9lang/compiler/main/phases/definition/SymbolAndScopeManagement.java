@@ -94,18 +94,21 @@ public class SymbolAndScopeManagement {
    */
   public void enterNewSymbol(ISymbol symbol, ParseTree node) {
     scopeStack.peek().define(symbol);
-    parsedModule.recordSymbol(node, symbol);
+    recordSymbol(symbol, node);
   }
 
   public ISymbol getRecordedSymbol(ParseTree node) {
     return parsedModule.getRecordedSymbol(node);
   }
 
+  public void recordSymbol(ISymbol symbol, ParseTree node) {
+    parsedModule.recordSymbol(node, symbol);
+  }
   /**
    * For literals we only record in the parsedModule.
    */
   public void enterNewLiteral(ISymbol symbol, ParseTree node) {
-    parsedModule.recordSymbol(node, symbol);
+    recordSymbol(symbol, node);
   }
 
   /**
@@ -124,7 +127,7 @@ public class SymbolAndScopeManagement {
    * Then push the scope on to the working scope stack.
    */
   public void enterNewScopedSymbol(IScopedSymbol symbol, ParseTree node) {
-    parsedModule.recordSymbol(node, symbol);
+    recordSymbol(symbol, node);
     enterNewScope(symbol, node);
   }
 

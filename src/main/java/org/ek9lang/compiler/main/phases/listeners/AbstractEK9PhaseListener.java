@@ -26,7 +26,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   protected final SymbolAndScopeManagement symbolAndScopeManagement;
 
   protected AbstractEK9PhaseListener(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                  ParsedModule parsedModule) {
+                                     ParsedModule parsedModule) {
     AssertValue.checkNotNull("CompilableProgramAccess cannot be null", compilableProgramAccess);
     AssertValue.checkNotNull("ParsedModule cannot be null", parsedModule);
 
@@ -153,6 +153,12 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
       symbolAndScopeManagement.exitScope();
     }
     super.exitTypeDeclaration(ctx);
+  }
+
+  @Override
+  public void exitSwitchStatementExpression(EK9Parser.SwitchStatementExpressionContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitSwitchStatementExpression(ctx);
   }
 
   @Override

@@ -16,7 +16,7 @@ defines module com.customer.books
       matches /^[a-zA-Z0-9 -+]+$/
 
     <?-
-      Simple enumeration
+      Simple enumeration for controlling filtering
     -?>
     BookFilterSelection
       SkipTwo
@@ -25,6 +25,9 @@ defines module com.customer.books
       
   defines class
 
+    <?-
+      Models the author of books.
+    -?>
     Author
       id as AuthorId?
       age as Age?
@@ -47,8 +50,10 @@ defines module com.customer.books
         -> author as Author
         this(author.id(), author.age(), author.firstname(), author.surname())
 
-      Author() as pure
-        assert false
+      <?-
+        Stop creation of empty Author.
+      -?>
+      private Author()
 
       id() as pure
         <- rtn as AuthorId: id
@@ -102,9 +107,19 @@ defines module com.customer.books
       operator $ as pure
         <- rtn as String: "Title: " + $title + ", " + $author + " Published: " + $published
 
+      operator #? as pure
+        <- rtn as Integer: #? $this
+
       operator #^ as pure
         <- rtn as String: $this
 
+      operator <=>
+        -> book as Book
+        <- rtn as Integer: published() <=> book.published()
+
+    <?-
+      Model the concept of a library, just an in-memory map for now
+    -?>
     Library
       //These are made up books and Age is when the author wrote the book
       //There are no books on EK9 yet!
@@ -126,6 +141,9 @@ defines module com.customer.books
         Book(BookTitle("Lisp"), Author(AuthorId(7), Age(25), Name("William"), Name("Fence")), 1977-09-24)
         ]
 
+      <?-
+      Provide access to the books in the library.
+      -?>
       books() as pure
         <- rtn as List of Book: books
 
@@ -156,7 +174,7 @@ defines module com.customer.books
             rtn: cat books | tail 1 | collect as List of Book
         default
           theFilter: () is bookNumberFilter as pure function            
-            rtn: books
+            rtn: books //no filtering.
     
     filterBooksToOutput()
       ->
@@ -167,7 +185,7 @@ defines module com.customer.books
       authorId <- getAuthorChange()  
       theBookFilter <- suitableBookFilter(filterSelection)
       cat books
-        | sort by compareAuthor
+        | sort by comparingAuthor
         | split by authorId
         | select with sufficientBooks
         | map by orderOnPublishedDate
@@ -198,7 +216,7 @@ defines module com.customer.books
       -> author as Author
       <- rtn as AuthorId: author.id()
 
-    compareAuthor() as pure
+    comparingAuthor() as pure
       ->
         book1 as Book
         book2 as Book
@@ -225,6 +243,10 @@ defines module com.customer.books
       -> book as Book
       <- rtn as Date: book.published()
 
+    <?-
+      Note that as book has a comparator on the published date it is possible to just
+      use cat books | sort | collect as List of Book
+    -?>
     orderOnPublishedDate() as pure
       -> books as List of Book
       <- rtn as List of Book: cat books | sort by compareDatePublished | collect as List of Book
@@ -249,18 +271,53 @@ defines module com.customer.books
       stdout <- Stdout()
       library <- Library()
 
-      cat library.books() | sort by compareAuthor > stdout
+      cat library.books() | sort by comparingAuthor > stdout
+
+    SortBooksByNaturalOrder()
+      stdout <- Stdout()
+      library <- Library()
+
+      //Just use the natural sort (compare) operator of Book
+      //This will be the published date
+      cat library.books() | sort > stdout
+
+    CheckUniqueByAddingDuplicate()
+      stdout <- Stdout()
+      library <- Library()
+
+      //Now you can layout like this and use naming.
+      //If you like this format. A bit like Dart.
+      duplicateBook <- Book(
+        title: BookTitle("Lisp"),
+        author: Author(
+          id: AuthorId(7),
+          age: Age(25),
+          firstname: Name("William"),
+          surname: Name("Fence")
+          ),
+        published: 1977-09-24
+        )
+
+      //Make a library with this additional Book in
+      myLibrary <- library + duplicateBook
+
+      //list my library should show two 'Lisp' books
+      cat myLibrary > stdout
+
+      //Now check uniq works on the hashcode of the book
+      //Note unique can also be used with a function.
+      cat myLibrary | uniq > stdout
 
     GroupBooksByPublishedDate()
       stdout <- Stdout()
       books <- Library().books()
-      cat books | sort by compareAuthor | group by dateBookPublished > stdout
+      cat books | sort by comparingAuthor | group by dateBookPublished > stdout
 
     ProcessByAuthor()
       stdout <- Stdout()
       books <- Library().books()
 
-      cat books | sort by compareAuthor | split by getAuthorChange() | map by orderOnPublishedDate | flatten > stdout
+      cat books | sort by comparingAuthor | split by getAuthorChange() | map by orderOnPublishedDate | flatten > stdout
 
     ProcessByAuthorWithThreeOrMoreBooks()
       stdout <- Stdout()
@@ -268,7 +325,7 @@ defines module com.customer.books
 
       authorId <- getAuthorChange()
 
-      cat books | sort by compareAuthor | split by authorId | select with sufficientBooks | map by orderOnPublishedDate | flatten > stdout
+      cat books | sort by comparingAuthor | split by authorId | select with sufficientBooks | map by orderOnPublishedDate | flatten > stdout
 
     ProcessByAuthorWithThreeOrMoreBooksIgnoreFirstTwo()
       stdout <- Stdout()
@@ -280,7 +337,7 @@ defines module com.customer.books
       //Just trying out a single inline dynamic function
       //See how much harder it is to read than just using the above.
       cat books
-        | sort by compareAuthor
+        | sort by comparingAuthor
         | split by getAuthorChange()
         | select with sufficientBooks
         | map by orderOnPublishedDate
@@ -292,12 +349,13 @@ defines module com.customer.books
       stdout <- Stdout()
       books <- Library().books()
 
+      //Note rather than say head 1 - it is possible to just use 'head' by itself.
       authorId <- getAuthorChange()
       firstBook <- () is bookNumberFilter as pure function
-        rtn: cat books | head 1 | collect as List of Book
+        rtn: cat books | head | collect as List of Book
 
       cat books
-        | sort by compareAuthor
+        | sort by comparingAuthor
         | split by authorId
         | select with sufficientBooks
         | map by orderOnPublishedDate
@@ -309,12 +367,13 @@ defines module com.customer.books
       stdout <- Stdout()
       books <- Library().books()
 
+      //As with 'head' if you only want the last one - just use 'tail' without any number.
       authorId <- getAuthorChange()
       lastBook <- () is bookNumberFilter as pure function
-        rtn:  cat books | tail 1 | collect as List of Book
+        rtn:  cat books | tail | collect as List of Book
 
       cat books
-        | sort by compareAuthor
+        | sort by comparingAuthor
         | split by authorId
         | select with sufficientBooks
         | map by orderOnPublishedDate
@@ -329,7 +388,7 @@ defines module com.customer.books
       stdout.println("Omit first two books where author has three or more books")
       excludingFirstTwoBooks <- suitableBookFilter(BookFilterSelection.SkipTwo)
       cat library.books()
-        | sort by compareAuthor
+        | sort by comparingAuthor
         | split by getAuthorChange()
         | select with sufficientBooks
         | map by orderOnPublishedDate
@@ -340,7 +399,7 @@ defines module com.customer.books
       stdout.println("First book where author has three or more books")
 
       cat library.books()
-        | sort by compareAuthor
+        | sort by comparingAuthor
         | split by getAuthorChange()
         | select with sufficientBooks
         | map by orderOnPublishedDate
@@ -351,7 +410,7 @@ defines module com.customer.books
       stdout.println("Last book where author has three or more books")
       lastBook <- suitableBookFilter(BookFilterSelection.JustLast)
       cat library.books()
-        | sort by compareAuthor
+        | sort by comparingAuthor
         | split by getAuthorChange()
         | select with sufficientBooks
         | map by orderOnPublishedDate
@@ -383,7 +442,7 @@ defines module com.customer.books
       stdout.println("Unique signing events on day of publication by authors with three or more books.")
 
       cat library.books()
-        | sort by compareAuthor
+        | sort by comparingAuthor
         | split by authorId        
         | tee in booksByEachAuthor
         | filter by sufficientBooks

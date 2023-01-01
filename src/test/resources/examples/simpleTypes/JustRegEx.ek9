@@ -80,7 +80,8 @@ defines module com.customer.just
       //direct access to first and last
       assert matchedGroups.first() == "This is a sample Text "
       assert matchedGroups.last() == " with numbers in between."
-      
+
+      //You can supply th number to skip or head but for '1' it can be omitted - see later.
       justTheNumber <- cat matchedGroups | skip 1 | head 1 | collect as String
       //Convert to an Integer - if possible
       asAnInteger <- Integer(justTheNumber)
@@ -96,8 +97,9 @@ defines module com.customer.just
       nonExtractionCheck <- "Another sample but with no numbers in it."
       matchedGroups := nonExtractionCheck.group(extractNumbersEx)
       assert not matchedGroups?
-      
-      justNotTheNumber <- cat matchedGroups | skip 1 | head 1 | collect as String
+
+      //If you only need a single skip, head or tail - you can omit the number.
+      justNotTheNumber <- cat matchedGroups | skip | head | collect as String
       stdout.println("Just the Number is [" + $justNotTheNumber + "] is set is [" + $justNotTheNumber? + "]")
       assert not justNotTheNumber?      
             

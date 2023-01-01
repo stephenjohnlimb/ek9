@@ -106,7 +106,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   @Override
   public void exitPackageBlock(EK9Parser.PackageBlockContext ctx) {
     var pack = symbolAndScopeManagement.getRecordedSymbol(ctx);
-    if(pack instanceof AggregateSymbol packageSymbol) {
+    if (pack instanceof AggregateSymbol packageSymbol) {
       //Now lets manipulate those properties that have been added
       packageSymbol.getProperties().forEach(prop -> {
         VariableSymbol symbol = (VariableSymbol) prop;
@@ -231,7 +231,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void exitServiceDeclaration(EK9Parser.ServiceDeclarationContext ctx) {
-    var aggregateSymbol = (AggregateSymbol)symbolAndScopeManagement.getRecordedSymbol(ctx);
+    var aggregateSymbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
 
     var methodCheck = new CheckProtectedServiceMethods(getParsedModule().getSource().getErrorListener());
     methodCheck.accept(aggregateSymbol);
@@ -281,10 +281,65 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   @Override
   public void enterEnumerationDeclaration(EK9Parser.EnumerationDeclarationContext ctx) {
     //Now get the parent enumeration this enumeration items are to be defined in
-    var enumerationSymbol = (AggregateSymbol)symbolAndScopeManagement.getRecordedSymbol(ctx.parent);
+    var enumerationSymbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx.parent);
     symbolFactory.populateEnumeration(enumerationSymbol, ctx.Identifier());
 
     super.enterEnumerationDeclaration(ctx);
+  }
+
+  @Override
+  public void enterStream(EK9Parser.StreamContext ctx) {
+    final var newTypeSymbol = symbolFactory.newStream(ctx);
+    symbolAndScopeManagement.recordSymbol(newTypeSymbol, ctx);
+    super.enterStream(ctx);
+  }
+
+  @Override
+  public void enterStreamCat(EK9Parser.StreamCatContext ctx) {
+    var currentScope = symbolAndScopeManagement.getTopScope();
+    final var newTypeSymbol = symbolFactory.newStreamCat(ctx, currentScope);
+    symbolAndScopeManagement.recordSymbol(newTypeSymbol, ctx);
+    super.enterStreamCat(ctx);
+  }
+
+  @Override
+  public void enterStreamFor(EK9Parser.StreamForContext ctx) {
+    var currentScope = symbolAndScopeManagement.getTopScope();
+    final var newTypeSymbol = symbolFactory.newStreamFor(ctx, currentScope);
+    symbolAndScopeManagement.recordSymbol(newTypeSymbol, ctx);
+    super.enterStreamFor(ctx);
+  }
+
+  @Override
+  public void enterStreamPart(EK9Parser.StreamPartContext ctx) {
+    var currentScope = symbolAndScopeManagement.getTopScope();
+    final var newStreamPartSymbol = symbolFactory.newStreamPart(ctx, currentScope);
+    symbolAndScopeManagement.recordSymbol(newStreamPartSymbol, ctx);
+
+    super.enterStreamPart(ctx);
+  }
+
+  @Override
+  public void enterStreamTermination(EK9Parser.StreamTerminationContext ctx) {
+    var currentScope = symbolAndScopeManagement.getTopScope();
+    final var newStreamPartSymbol = symbolFactory.newStreamTermination(ctx, currentScope);
+    symbolAndScopeManagement.recordSymbol(newStreamPartSymbol, ctx);
+
+    super.enterStreamTermination(ctx);
+  }
+
+  /**
+   * A couple of wrinkles with the switch because is can be used as a normal statement
+   * But also as an expression. If used as an expression then it must have a return part.
+   * If used as a statement then the return part is meaningless
+   */
+  @Override
+  public void enterSwitchStatementExpression(EK9Parser.SwitchStatementExpressionContext ctx) {
+    var currentScope = symbolAndScopeManagement.getTopScope();
+    final var newSwitchSymbol = symbolFactory.newSwitch(ctx, currentScope);
+    symbolAndScopeManagement.enterNewScopedSymbol(newSwitchSymbol, ctx);
+
+    super.enterSwitchStatementExpression(ctx);
   }
 
   @Override

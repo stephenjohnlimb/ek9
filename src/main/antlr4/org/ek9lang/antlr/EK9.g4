@@ -443,28 +443,30 @@ streamFor
     : forRange
     ;
 
+//Note that sort and unique can just use comparator and hashcode - respectively if present.
+//Also skip, head and tail now default to 1 is nothing is specified.
 streamPart
     : PIPE op=FILTER (WITH | BY)? pipelinePart
     | PIPE op=SELECT (WITH | BY)? pipelinePart
     | PIPE op=MAP (WITH | BY)? pipelinePart
-    | PIPE op=SORT (WITH | BY)? pipelinePart
+    | PIPE op=SORT ((WITH | BY)? pipelinePart)?
     | PIPE op=GROUP (WITH | BY)? pipelinePart
     | PIPE op=JOIN (WITH | BY)? pipelinePart
     | PIPE op=SPLIT (WITH | BY)? pipelinePart
-    | PIPE op=UNIQ (WITH | BY)? pipelinePart
+    | PIPE op=UNIQ ((WITH | BY)? pipelinePart)?
     | PIPE op=TEE (WITH | BY | IN)? pipelinePart
     | PIPE op=FLATTEN
     | PIPE op=CALL
     | PIPE op=ASYNC
-    | PIPE op=SKIPPING (BY | OF | ONLY)? (pipelinePart | integerLit)
-    | PIPE op=HEAD (BY | OF | ONLY)? (pipelinePart | integerLit)
-    | PIPE op=TAIL (BY | OF | ONLY)? (pipelinePart | integerLit)
+    | PIPE op=SKIPPING ((BY | OF | ONLY)? (pipelinePart | integerLit))?
+    | PIPE op=HEAD ((BY | OF | ONLY)? (pipelinePart | integerLit))?
+    | PIPE op=TAIL ((BY | OF | ONLY)? (pipelinePart | integerLit))?
     ;
 
 streamTermination
-    : GT pipelinePart
-    | SHFTR pipelinePart
-    | PIPE COLLECT AS typeDef
+    : op=GT pipelinePart
+    | op=SHFTR pipelinePart
+    | PIPE op=COLLECT AS typeDef
     ;
 
 pipelinePart
