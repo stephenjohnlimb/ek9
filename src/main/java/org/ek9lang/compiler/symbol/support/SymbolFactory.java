@@ -22,9 +22,11 @@ import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
 import org.ek9lang.compiler.symbol.ForSymbol;
 import org.ek9lang.compiler.symbol.FunctionSymbol;
+import org.ek9lang.compiler.symbol.ICanCaptureVariables;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.IScopedSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.LocalScope;
 import org.ek9lang.compiler.symbol.MethodSymbol;
 import org.ek9lang.compiler.symbol.ServiceOperationSymbol;
 import org.ek9lang.compiler.symbol.StreamCallSymbol;
@@ -194,31 +196,42 @@ public class SymbolFactory {
    */
   public FunctionSymbol newFunction(EK9Parser.FunctionDeclarationContext ctx) {
     checkContextNotNull.accept(ctx);
+    final var moduleScope = parsedModule.getModuleScope();
     AssertValue.checkNotNull("Failed to locate function name", ctx.Identifier());
 
     String functionName = ctx.Identifier().getText();
-    FunctionSymbol function = new FunctionSymbol(functionName, parsedModule.getModuleScope());
-    configureSymbol(function, ctx.start);
+    FunctionSymbol newFunction = new FunctionSymbol(functionName, moduleScope);
+    configureSymbol(newFunction, ctx.start);
 
+    //More like a library - so we mark as referenced.
+    newFunction.setReferenced(true);
     //A function can be both pure and abstract - in this case it is establishing a 'contract' that the
     //implementation must also be pure!
     //This is so that uses of abstract concepts can be used to ensure that there are no side effects.
     if (ctx.PURE() != null) {
-      function.setMarkedPure(true);
+      newFunction.setMarkedPure(true);
     }
 
     //While it maybe a function we need to know if it is abstract or not
     if (ctx.ABSTRACT() == null) {
-      function.setGenus(ISymbol.SymbolGenus.FUNCTION);
+      newFunction.setGenus(ISymbol.SymbolGenus.FUNCTION);
     } else {
-      function.setGenus(ISymbol.SymbolGenus.FUNCTION_TRAIT);
-      function.setMarkedAbstract(true);
+      newFunction.setGenus(ISymbol.SymbolGenus.FUNCTION_TRAIT);
+      newFunction.setMarkedAbstract(true);
+    }
+
+    var parameterisedSymbols = createAndRegisterParameterisedSymbols(ctx.parameterisedParams(), moduleScope);
+    if (!parameterisedSymbols.isEmpty()) {
+      //Now need to register against the class we are creating
+      parameterisedSymbols.forEach(newFunction::addParameterisedType);
+      //It is also important to hold on to the context when it comes to template/generic expansion.
+      newFunction.setContextForParameterisedType(ctx);
     }
 
     //make a note of this - could be null
-    function.setReturningParamContext(ctx.operationDetails().returningParam());
+    newFunction.setReturningParamContext(ctx.operationDetails().returningParam());
 
-    return function;
+    return newFunction;
   }
 
   /**
@@ -339,6 +352,7 @@ public class SymbolFactory {
     }
     //Perhaps keep a reference to the scope where this dynamic class was defined.
 
+    rtn.setReferenced(true);
     return rtn;
   }
 
@@ -348,15 +362,30 @@ public class SymbolFactory {
   public FunctionSymbol newDynamicFunction(EK9Parser.DynamicFunctionDeclarationContext ctx) {
     //As above need to consider how S, T etc would be resolved in later phases.
     var functionName = "_Function_" + UniqueIdGenerator.getNewUniqueId();
-    var function = new FunctionSymbol(functionName, parsedModule.getModuleScope());
+    var newFunction = new FunctionSymbol(functionName, parsedModule.getModuleScope());
 
-    configureSymbol(function, ctx.start);
-    function.setModuleScope(parsedModule.getModuleScope());
-    function.setGenus(ISymbol.SymbolGenus.FUNCTION);
-    function.setMarkedPure(ctx.PURE() != null);
+    configureSymbol(newFunction, ctx.start);
+    newFunction.setModuleScope(parsedModule.getModuleScope());
+    newFunction.setGenus(ISymbol.SymbolGenus.FUNCTION);
+    newFunction.setMarkedPure(ctx.PURE() != null);
+    newFunction.setReferenced(true);
 
-    return function;
+    return newFunction;
   }
+
+  /**
+   * Create a new local scope just for variables to be defined/captured in for dynamic classes/functions.
+   */
+  public LocalScope newDynamicVariableCapture(ICanCaptureVariables scope) {
+    //This local scope cannot access anything else in the scope it was defined in.
+    //It is a very isolated scope just for captured variables.
+    final var captureScope = new LocalScope("CaptureScope", parsedModule.getModuleScope());
+    //Now the dynamic class/function needs to know about this additional scope it may have to resolve variables in.
+    scope.setCapturedVariables(captureScope);
+    return captureScope;
+  }
+
+  //TODO enterMethodDeclaration
 
   /**
    * Create a new aggregate that represents an EK9 operator, uses a method for this.
@@ -675,6 +704,5 @@ public class SymbolFactory {
     }
     return rtn;
   }
-
 
 }

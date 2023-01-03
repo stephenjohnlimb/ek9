@@ -50,7 +50,7 @@ class SimpleFunctionsCompilationTest {
 
       new SymbolCountCheck("com.customer.just.functions", 24).test(program);
 
-      new SymbolCountCheck("com.customer.just", 5).test(program);
+      new SymbolCountCheck("com.customer.just", 6).test(program);
 
       new SymbolCountCheck("net.customer", 5).test(program);
     });

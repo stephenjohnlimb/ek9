@@ -148,6 +148,12 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   }
 
   @Override
+  public void exitDynamicVariableCapture(EK9Parser.DynamicVariableCaptureContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitDynamicVariableCapture(ctx);
+  }
+
+  @Override
   public void exitTypeDeclaration(EK9Parser.TypeDeclarationContext ctx) {
     if (ctx.Identifier() != null) {
       symbolAndScopeManagement.exitScope();

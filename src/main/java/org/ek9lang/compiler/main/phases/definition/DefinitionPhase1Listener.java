@@ -11,6 +11,7 @@ import org.ek9lang.compiler.main.phases.listeners.AbstractEK9PhaseListener;
 import org.ek9lang.compiler.main.rules.CheckProtectedServiceMethods;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
+import org.ek9lang.compiler.symbol.ICanCaptureVariables;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.IScopedSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
@@ -22,6 +23,7 @@ import org.ek9lang.compiler.symbol.support.SymbolFactory;
 import org.ek9lang.compiler.symbol.support.TextLanguageExtraction;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.exception.CompilerException;
 
 /**
  * Just go through and define the symbols and scopes putting into the ParsedModule against the appropriate context.
@@ -259,8 +261,20 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   public void enterDynamicFunctionDeclaration(EK9Parser.DynamicFunctionDeclarationContext ctx) {
     final var newTypeSymbol = symbolFactory.newDynamicFunction(ctx);
     checkAndDefineDynamicScopedSymbol(newTypeSymbol, ctx);
-
     super.enterDynamicFunctionDeclaration(ctx);
+  }
+
+  @Override
+  public void enterDynamicVariableCapture(EK9Parser.DynamicVariableCaptureContext ctx) {
+    var currentScope = symbolAndScopeManagement.getTopScope();
+
+    if (currentScope instanceof ICanCaptureVariables canCaptureVariables) {
+      final var newScope = symbolFactory.newDynamicVariableCapture(canCaptureVariables);
+      symbolAndScopeManagement.enterNewScope(newScope, ctx);
+    } else {
+      throw new CompilerException("Compiler error looking use dynamic variable but current scope is wrong");
+    }
+    super.enterDynamicVariableCapture(ctx);
   }
 
   @Override

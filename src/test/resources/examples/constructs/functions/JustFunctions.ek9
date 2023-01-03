@@ -18,7 +18,7 @@ defines module com.customer.just
     suitableMathOperation()
       -> value as Float
       <- op as mathOperation: value < 21 <- heavyMultiply else multiply
-        
+
   defines program
     SimpleFunction()
       stdout <- Stdout()
@@ -27,4 +27,19 @@ defines module com.customer.just
       mathOp <- suitableMathOperation(value)
       calculatedResult <- mathOp(value)
       stdout.println("The result is " + $ calculatedResult)
+
+      //Experiment with many parameters, so we need to employ multiple lines.
+      v1 <- 12
+      v2 <- 64
+      v3 <- 90
+
+      inlineFunction <- (
+        v1,
+        v2,
+        v2
+        ) is mathOperation as (result: v1 + v2 + v3 * value)
+
+      additionalCalculation <- inlineFunction(value)
+      // 12 + 64 + 90*9
+      stdout.println("The additional result is " + $ additionalCalculation)
 //EOF
