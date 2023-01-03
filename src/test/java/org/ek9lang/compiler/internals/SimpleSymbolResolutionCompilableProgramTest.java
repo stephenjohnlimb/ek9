@@ -58,7 +58,7 @@ class SimpleSymbolResolutionCompilableProgramTest {
       }
 
       //Now lets visit that source and extract and load the types into the parsed module.
-      DefinitionPhase1Listener listener = new DefinitionPhase1Listener(sharedThreadContext, module);
+      DefinitionPhase1Listener listener = new DefinitionPhase1Listener(module);
       ParseTreeWalker walker = new ParseTreeWalker();
       walker.walk(listener, compilationUnitContext);
 

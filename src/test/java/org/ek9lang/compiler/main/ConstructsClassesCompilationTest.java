@@ -9,7 +9,7 @@ import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.compiler.parsing.SourceFileList;
+import org.ek9lang.compiler.parsing.WorkSpaceFromResourceDirectoryFiles;
 import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
@@ -21,15 +21,8 @@ class ConstructsClassesCompilationTest {
   private static final Supplier<SharedThreadContext<CompilableProgram>> sharedContext
       = new CompilableProgramSuitable();
 
-  private static final Supplier<Workspace> ek9Workspace = () -> {
-    final SourceFileList sourceFileList = new SourceFileList();
-    Workspace rtn = new Workspace();
-    sourceFileList.apply("/examples/constructs/classes")
-        .stream()
-        .forEach(rtn::addSource);
-
-    return rtn;
-  };
+  private static final WorkSpaceFromResourceDirectoryFiles workspaceLoader = new WorkSpaceFromResourceDirectoryFiles();
+  private static final Workspace ek9Workspace = workspaceLoader.apply("/examples/constructs/classes");
 
   @Test
   void testReferencePhasedDevelopment() {
@@ -42,13 +35,13 @@ class ConstructsClassesCompilationTest {
         source.getErrorListener().getErrors().forEachRemaining(System.out::println);
       }
     };
-    var sharedCompilableProgram= sharedContext.get();
+    var sharedCompilableProgram = sharedContext.get();
 
     FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedCompilableProgram,
         listener, new CompilerReporter(true));
 
     var compiler = new Ek9Compiler(allPhases);
-    assertTrue(compiler.compile(ek9Workspace.get(), new CompilerFlags(upToPhase, true)));
+    assertTrue(compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, true)));
 
   }
 }

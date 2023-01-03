@@ -1,9 +1,7 @@
 package org.ek9lang.compiler.main;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
@@ -13,10 +11,8 @@ import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.compiler.parsing.SourceFileList;
-import org.ek9lang.compiler.testsupport.PathToSourceFromName;
+import org.ek9lang.compiler.parsing.WorkSpaceFromResourceDirectoryFiles;
 import org.ek9lang.core.threads.SharedThreadContext;
-import org.ek9lang.core.utils.Holder;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -28,15 +24,9 @@ class BadReferencesFullCompilationTest {
   private static final Supplier<SharedThreadContext<CompilableProgram>> sharedContext
       = new CompilableProgramSuitable();
 
-  private static final Supplier<Workspace> ek9Workspace = () -> {
-    final SourceFileList sourceFileList = new SourceFileList();
-    Workspace rtn = new Workspace();
-    sourceFileList.apply("/examples/parseButFailCompile/multipleReferences")
-        .stream()
-        .forEach(rtn::addSource);
-
-    return rtn;
-  };
+  private static final WorkSpaceFromResourceDirectoryFiles workspaceLoader = new WorkSpaceFromResourceDirectoryFiles();
+  private static final Workspace ek9Workspace =
+      workspaceLoader.apply("/examples/parseButFailCompile/multipleReferences");
 
   @Test
   void testReferencePhasedDevelopment() {
@@ -55,13 +45,13 @@ class BadReferencesFullCompilationTest {
       }
     };
 
-    var sharedCompilableProgram= sharedContext.get();
+    var sharedCompilableProgram = sharedContext.get();
 
     FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedCompilableProgram,
         listener, new CompilerReporter(true));
 
     var compiler = new Ek9Compiler(allPhases);
-    var compilationResult = compiler.compile(ek9Workspace.get(), new CompilerFlags(upToPhase, true));
+    var compilationResult = compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, true));
 
     assertEquals(24, counter.get());
     sharedCompilableProgram.accept(program -> {
@@ -70,7 +60,7 @@ class BadReferencesFullCompilationTest {
       var beta = program.getParsedModules("beta");
       assertNotNull(beta);
 
-      var failsToCompile =  program.getParsedModules("fails.to.compile");
+      var failsToCompile = program.getParsedModules("fails.to.compile");
       assertNotNull(failsToCompile);
     });
   }

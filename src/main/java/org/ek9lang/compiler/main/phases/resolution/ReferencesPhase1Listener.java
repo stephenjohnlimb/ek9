@@ -8,10 +8,10 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ConflictingTokens;
 import org.ek9lang.compiler.errors.ConstructAndReferenceConflict;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.errors.InvalidUseOfReference;
 import org.ek9lang.compiler.errors.ReferenceDoesNotResolve;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.ParsedModule;
+import org.ek9lang.compiler.main.rules.CheckForInvalidUseOfReference;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
@@ -25,7 +25,7 @@ public class ReferencesPhase1Listener extends EK9BaseListener {
 
   private final CompilableProgram compilableProgram;
   private final ParsedModule parsedModule;
-  private final InvalidUseOfReference invalidUseOfReference;
+  private final CheckForInvalidUseOfReference checkForInvalidUseOfReference;
   private final ReferenceDoesNotResolve referenceDoesNotResolve;
   private final ConstructAndReferenceConflict duplicateSymbolByReference;
   private final ConstructAndReferenceConflict constantAndReferenceConflict;
@@ -58,7 +58,7 @@ public class ReferencesPhase1Listener extends EK9BaseListener {
 
     this.compilableProgram = compilableProgram;
     this.parsedModule = parsedModule;
-    this.invalidUseOfReference = new InvalidUseOfReference(parsedModule.getSource().getErrorListener());
+    this.checkForInvalidUseOfReference = new CheckForInvalidUseOfReference(parsedModule.getSource().getErrorListener());
     this.duplicateSymbolByReference = new ConstructAndReferenceConflict("reference",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.REFERENCES_CONFLICT);
     this.referenceDoesNotResolve = new ReferenceDoesNotResolve(parsedModule.getSource().getErrorListener());
@@ -259,10 +259,9 @@ public class ReferencesPhase1Listener extends EK9BaseListener {
   private void processIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
     String identifierReference = ctx.getText();
 
+    checkForInvalidUseOfReference.accept(ctx);
     if (identifierReference.contains("::")) {
       checkIdentifierReference(ctx, identifierReference);
-    } else {
-      invalidUseOfReference.accept(ctx.start);
     }
   }
 

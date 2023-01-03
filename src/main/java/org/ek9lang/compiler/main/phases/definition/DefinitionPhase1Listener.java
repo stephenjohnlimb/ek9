@@ -6,26 +6,22 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.UnreachableStatement;
-import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.phases.listeners.AbstractEK9PhaseListener;
 import org.ek9lang.compiler.main.rules.CheckProtectedServiceMethods;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
-import org.ek9lang.compiler.symbol.ForSymbol;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.IScopedSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.LocalScope;
 import org.ek9lang.compiler.symbol.ScopedSymbol;
-import org.ek9lang.compiler.symbol.TrySymbol;
 import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.SymbolChecker;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
 import org.ek9lang.compiler.symbol.support.TextLanguageExtraction;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
-import org.ek9lang.core.threads.SharedThreadContext;
 
 /**
  * Just go through and define the symbols and scopes putting into the ParsedModule against the appropriate context.
@@ -71,9 +67,8 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
    * First phase after parsing. Define symbols and infer types where possible.
    * Uses a symbol factory to actually create the appropriate symbols.
    */
-  public DefinitionPhase1Listener(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                  ParsedModule parsedModule) {
-    super(compilableProgramAccess, parsedModule);
+  public DefinitionPhase1Listener(ParsedModule parsedModule) {
+    super(parsedModule);
     this.symbolChecker = new SymbolChecker(parsedModule.getSource().getErrorListener());
     this.symbolFactory = new SymbolFactory(parsedModule);
     this.unreachableStatement = new UnreachableStatement(parsedModule.getSource().getErrorListener());
@@ -255,15 +250,17 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterDynamicClassDeclaration(EK9Parser.DynamicClassDeclarationContext ctx) {
-    //It is necessary to pull this scope symbol upto module level.
     final var newTypeSymbol = symbolFactory.newDynamicClass(ctx);
-    final var moduleScope = getParsedModule().getModuleScope();
-    if (!symbolChecker.errorsIfSymbolAlreadyDefined(moduleScope, newTypeSymbol, true)) {
-      symbolAndScopeManagement.enterNewDynamicScopedSymbol(newTypeSymbol, ctx);
-    } else {
-      symbolAndScopeManagement.recordScopeForStackConsistency(new LocalScope(moduleScope), ctx);
-    }
+    checkAndDefineDynamicScopedSymbol(newTypeSymbol, ctx);
     super.enterDynamicClassDeclaration(ctx);
+  }
+
+  @Override
+  public void enterDynamicFunctionDeclaration(EK9Parser.DynamicFunctionDeclarationContext ctx) {
+    final var newTypeSymbol = symbolFactory.newDynamicFunction(ctx);
+    checkAndDefineDynamicScopedSymbol(newTypeSymbol, ctx);
+
+    super.enterDynamicFunctionDeclaration(ctx);
   }
 
   @Override
@@ -342,35 +339,18 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     super.enterSwitchStatementExpression(ctx);
   }
 
-  @Override
-  public void enterForLoop(EK9Parser.ForLoopContext ctx) {
-    pushNewForLoopScope(ctx);
-    final var variable = symbolFactory.newLoopVariable(ctx);
-    checkAndDefineSymbol(variable, ctx);
-    super.enterForLoop(ctx);
-  }
-
-  @Override
-  public void enterForRange(EK9Parser.ForRangeContext ctx) {
-    pushNewForLoopScope(ctx);
-    final var variable = symbolFactory.newLoopVariable(ctx);
-    checkAndDefineSymbol(variable, ctx);
-    super.enterForRange(ctx);
-  }
-
-  private void pushNewForLoopScope(final ParserRuleContext ctx) {
-    IScope outerScope = symbolAndScopeManagement.getTopScope();
-    var forBlock = new ForSymbol(outerScope);
-    forBlock.setSourceToken(ctx.start);
-    symbolAndScopeManagement.enterNewScope(forBlock, ctx);
-  }
-
+  /**
+   * Now push it on to stack and record against this context as scope and symbol.
+   * So this try is the outer scope, the body of the try block also has it's own instruction block scope.
+   * Each of the catch blocks have their scope, the finally has its scope.
+   * But the variables used with try with are available throughout all scopes as they are in the outer scope.
+   * These are a bit like 'Java' 'try with' variables. Just like 'Java' 'close methods are called if present.
+   */
   @Override
   public void enterTryStatementExpression(EK9Parser.TryStatementExpressionContext ctx) {
-    IScope outerScope = symbolAndScopeManagement.getTopScope();
-    var tryScope = new TrySymbol(outerScope);
-    tryScope.setSourceToken(ctx.start);
-    symbolAndScopeManagement.enterNewScope(tryScope, ctx);
+    var currentScope = symbolAndScopeManagement.getTopScope();
+    final var newTrySymbol = symbolFactory.newTry(ctx, currentScope);
+    symbolAndScopeManagement.enterNewScopedSymbol(newTrySymbol, ctx);
     super.enterTryStatementExpression(ctx);
   }
 
@@ -389,6 +369,29 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     var catchScope = new LocalScope("Finally", outerScope);
     symbolAndScopeManagement.enterNewScope(catchScope, ctx);
     super.enterFinallyStatementExpression(ctx);
+  }
+
+
+  @Override
+  public void enterForLoop(EK9Parser.ForLoopContext ctx) {
+    pushNewForLoopScope(ctx);
+    final var variable = symbolFactory.newLoopVariable(ctx);
+    checkAndDefineSymbol(variable, ctx);
+    super.enterForLoop(ctx);
+  }
+
+  @Override
+  public void enterForRange(EK9Parser.ForRangeContext ctx) {
+    pushNewForLoopScope(ctx);
+    final var variable = symbolFactory.newLoopVariable(ctx);
+    checkAndDefineSymbol(variable, ctx);
+    super.enterForRange(ctx);
+  }
+
+  private void pushNewForLoopScope(final ParserRuleContext ctx) {
+    IScope scope = symbolAndScopeManagement.getTopScope();
+    var forBlock = symbolFactory.newForLoop(ctx, scope);
+    symbolAndScopeManagement.enterNewScope(forBlock, ctx);
   }
 
   /**
@@ -489,6 +492,15 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     }
   }
 
+  private void checkAndDefineDynamicScopedSymbol(final IScopedSymbol symbol, final ParseTree node) {
+    final var moduleScope = getParsedModule().getModuleScope();
+    if (!symbolChecker.errorsIfSymbolAlreadyDefined(moduleScope, symbol, true)) {
+      symbolAndScopeManagement.enterNewDynamicScopedSymbol(symbol, node);
+    } else {
+      symbolAndScopeManagement.recordScopeForStackConsistency(new LocalScope(moduleScope), node);
+    }
+  }
+
   private void processMethodDeclaration(EK9Parser.MethodDeclarationContext ctx) {
     var currentScope = symbolAndScopeManagement.getTopScope();
     if (currentScope instanceof IScopedSymbol scopedSymbol) {
@@ -500,7 +512,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     }
   }
 
-  private ConstantSymbol recordConstant(ParseTree ctx, Token start, String typeName) {
+  private void recordConstant(ParseTree ctx, Token start, String typeName) {
     //Lets account for the optional '-' on some literals
     String literalText = ctx.getChild(0).getText();
     if (ctx.getChildCount() == 2) {
@@ -519,7 +531,6 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
         resolvedType.isPresent());
     literal.setType(resolvedType);
     symbolAndScopeManagement.enterNewLiteral(literal, ctx);
-    return literal;
   }
 
   @Override

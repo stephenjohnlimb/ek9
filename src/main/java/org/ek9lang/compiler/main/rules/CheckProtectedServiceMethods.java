@@ -18,16 +18,14 @@ public class CheckProtectedServiceMethods implements Consumer<AggregateSymbol> {
 
   @Override
   public void accept(AggregateSymbol aggregateSymbol) {
-    aggregateSymbol.getAllNonAbstractMethods().forEach(method -> {
-      if (!(method instanceof ServiceOperationSymbol)) {
-        //Then it is just a normal method
-        if ("protected".equals(method.getAccessModifier())) {
-          errorListener.semanticError(method.getSourceToken(),
-              "'" + method.getName() + "' in service '" + aggregateSymbol.getFriendlyName() + "'",
-              ErrorListener.SemanticClassification.METHOD_MODIFIER_PROTECTED_IN_SERVICE);
-        }
-      }
-    });
 
+    aggregateSymbol.getAllNonAbstractMethods()
+        .stream()
+        .filter(method -> !(method instanceof ServiceOperationSymbol))
+        .filter(method -> "protected".equals(method.getAccessModifier()))
+        .forEach(method ->
+            errorListener.semanticError(method.getSourceToken(),
+                "'" + method.getName() + "' in service '" + aggregateSymbol.getFriendlyName() + "'",
+                ErrorListener.SemanticClassification.METHOD_MODIFIER_PROTECTED_IN_SERVICE));
   }
 }

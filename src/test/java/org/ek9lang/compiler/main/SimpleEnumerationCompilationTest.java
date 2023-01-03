@@ -1,8 +1,6 @@
 package org.ek9lang.compiler.main;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.function.Supplier;
@@ -12,7 +10,7 @@ import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.compiler.parsing.SourceFileList;
+import org.ek9lang.compiler.parsing.WorkSpaceFromResourceDirectoryFiles;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.search.FunctionSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
@@ -27,15 +25,8 @@ class SimpleEnumerationCompilationTest {
   private static final Supplier<SharedThreadContext<CompilableProgram>> sharedContext
       = new CompilableProgramSuitable();
 
-  private static final Supplier<Workspace> ek9Workspace = () -> {
-    final SourceFileList sourceFileList = new SourceFileList();
-    Workspace rtn = new Workspace();
-    sourceFileList.apply("/examples/constructs/types")
-        .stream()
-        .forEach(rtn::addSource);
-
-    return rtn;
-  };
+  private static final WorkSpaceFromResourceDirectoryFiles workspaceLoader = new WorkSpaceFromResourceDirectoryFiles();
+  private static final Workspace ek9Workspace = workspaceLoader.apply("/examples/constructs/types");
 
   @Test
   void testReferencePhasedDevelopment() {
@@ -48,18 +39,18 @@ class SimpleEnumerationCompilationTest {
         source.getErrorListener().getErrors().forEachRemaining(System.out::println);
       }
     };
-    var sharedCompilableProgram= sharedContext.get();
+    var sharedCompilableProgram = sharedContext.get();
 
     FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedCompilableProgram,
         listener, new CompilerReporter(true));
 
     var compiler = new Ek9Compiler(allPhases);
-    assertTrue(compiler.compile(ek9Workspace.get(), new CompilerFlags(upToPhase, true)));
+    assertTrue(compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, true)));
 
     sharedCompilableProgram.accept(program -> {
       //Now this should have some enumerations and records/functions.
 
-      new SymbolCountCheck("com.customer.enumerations", 7).test(program);
+      new SymbolCountCheck("com.customer.enumerations", 8).test(program);
 
       var theModule = program.getParsedModules("com.customer.enumerations");
       var parsedModule = theModule.get(0);

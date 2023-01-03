@@ -24,7 +24,12 @@ public class SymbolCountCheck implements Predicate<CompilableProgram> {
     //only ever expect 1 during these tests
     assertEquals(1, modules.size());
     var parsedModule = modules.get(0);
-    assertEquals(expectedSymbolCount, parsedModule.getModuleScope().getSymbolsForThisScope().size());
+    var symbols = parsedModule.getModuleScope().getSymbolsForThisScope();
+    if(expectedSymbolCount != symbols.size()) {
+      System.out.println("For scope name [" + parsedModule.getModuleName() + "] " + parsedModule.getSource().getFileName());
+      symbols.forEach(System.out::println);
+    }
+    assertEquals(expectedSymbolCount, symbols.size());
 
     return true;
   }

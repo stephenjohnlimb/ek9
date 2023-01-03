@@ -11,6 +11,7 @@ import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
+import org.ek9lang.compiler.parsing.WorkSpaceFromResourceDirectoryFiles;
 import org.ek9lang.compiler.testsupport.PathToSourceFromName;
 import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
@@ -53,9 +54,7 @@ class Ek9CompilerTest {
     var compiler = new Ek9Compiler(allPhases);
     assertTrue(compiler.compile(validEk9Workspace.get(), new CompilerFlags(upToPhase, true)));
 
-    sharedCompilableProgram.accept(program -> {
-      program.getParsedModuleNames().forEach(System.out::println);
-    });
+    sharedCompilableProgram.accept(program -> program.getParsedModuleNames().forEach(System.out::println));
   }
 
   @Test

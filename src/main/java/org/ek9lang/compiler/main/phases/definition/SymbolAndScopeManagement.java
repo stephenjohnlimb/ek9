@@ -104,6 +104,7 @@ public class SymbolAndScopeManagement {
   public void recordSymbol(ISymbol symbol, ParseTree node) {
     parsedModule.recordSymbol(node, symbol);
   }
+
   /**
    * For literals we only record in the parsedModule.
    */

@@ -7,17 +7,20 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.InvalidEnumeratedValue;
-import org.ek9lang.compiler.errors.InvalidServiceDefinition;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.rules.CheckClassNotGenericExtending;
+import org.ek9lang.compiler.main.rules.CheckForInvalidServiceDefinition;
 import org.ek9lang.compiler.main.rules.CheckSwitchReturns;
+import org.ek9lang.compiler.main.rules.CheckTryReturns;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
+import org.ek9lang.compiler.symbol.ForSymbol;
 import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.IScopedSymbol;
@@ -27,6 +30,7 @@ import org.ek9lang.compiler.symbol.ServiceOperationSymbol;
 import org.ek9lang.compiler.symbol.StreamCallSymbol;
 import org.ek9lang.compiler.symbol.StreamPipeLineSymbol;
 import org.ek9lang.compiler.symbol.SwitchSymbol;
+import org.ek9lang.compiler.symbol.TrySymbol;
 import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
@@ -37,6 +41,25 @@ import org.ek9lang.core.utils.UniqueIdGenerator;
  * Ensures that newly created symbols are initialised correctly.
  */
 public class SymbolFactory {
+
+  private static final Set<String> streamPartCanConsumeAnything = Set.of("flatten",
+      "call", "async", "skipping", "head", "tail");
+
+  private static final Set<String> streamPartProducerAndConsumerTypeSame = Set.of(
+      "skipping", "head", "tail", "filter", "select", "sort", "group",
+      "join", "uniq", "tee");
+
+  private static final Predicate<String> canConsumeAnything = streamPartCanConsumeAnything::contains;
+
+  private static final Predicate<String> isProducerAndConsumerSameType =
+      streamPartProducerAndConsumerTypeSame::contains;
+
+  private static final Predicate<String> isProducerDerivedFromConsumerType = "flatten"::equals;
+
+  private static final Predicate<String> isASinkInNature = "tee"::equals;
+
+  private static final Predicate<String> isFunctionRequired
+      = operation -> "call".equals(operation) || "async".equals(operation);
 
   private final ParsedModule parsedModule;
 
@@ -51,27 +74,9 @@ public class SymbolFactory {
 
   private final CheckSwitchReturns checkSwitchReturns;
 
-  private final Set<String> streamPartCanConsumeAnything = Set.of("flatten",
-      "call", "async", "skipping", "head", "tail");
+  private final CheckTryReturns checkTryReturns;
 
-  private final Set<String> streamPartProducerAndConsumerTypeSame = Set.of(
-      "skipping", "head", "tail", "filter", "select", "sort", "group",
-      "join", "uniq", "tee");
-
-  private final Predicate<String> canConsumeAnything
-      = operation -> streamPartCanConsumeAnything.contains(operation);
-
-  private final Predicate<String> isProducerAndConsumerSameType
-      = operation -> streamPartProducerAndConsumerTypeSame.contains(operation);
-
-  private final Predicate<String> isProducerDerivedFromConsumerType
-      = operation -> "flatten".equals(operation);
-
-  private final Predicate<String> isASinkInNature
-      = operation -> "tee".equals(operation);
-
-  private final Predicate<String> isFunctionRequired
-      = operation -> "call".equals(operation) || "async".equals(operation);
+  private final CheckForInvalidServiceDefinition checkForInvalidServiceDefinition;
 
   /**
    * Create a new symbol factory for use with the parsedModule.
@@ -81,8 +86,14 @@ public class SymbolFactory {
     this.parsedModule = parsedModule;
     checkClassNotGenericExtending = new CheckClassNotGenericExtending(parsedModule.getSource().getErrorListener());
     checkSwitchReturns = new CheckSwitchReturns(parsedModule.getSource().getErrorListener());
+    checkTryReturns = new CheckTryReturns(parsedModule.getSource().getErrorListener());
+    checkForInvalidServiceDefinition =
+        new CheckForInvalidServiceDefinition(parsedModule.getSource().getErrorListener());
   }
 
+  /**
+   * Create a new EK9 package aggregate.
+   */
   public AggregateSymbol newPackage(EK9Parser.PackageBlockContext ctx) {
     checkContextNotNull.accept(ctx);
     AggregateSymbol pack = new AggregateSymbol("Package", parsedModule.getModuleScope());
@@ -112,7 +123,7 @@ public class SymbolFactory {
    * A bit tricky when it comes to parameterised (generic/template classes).
    */
   public AggregateWithTraitsSymbol newClass(EK9Parser.ClassDeclarationContext ctx) {
-    var moduleScope = parsedModule.getModuleScope();
+    final var moduleScope = parsedModule.getModuleScope();
     checkContextNotNull.accept(ctx);
     AssertValue.checkNotNull("Failed to locate class name", ctx.Identifier());
     String className = ctx.Identifier().getText();
@@ -259,9 +270,8 @@ public class SymbolFactory {
 
     var uri = ctx.Uriproto().getText();
     service.putSquirrelledData("HTTPURI", uri);
-    if (uri.contains("{") || uri.contains("}")) {
-      new InvalidServiceDefinition(parsedModule.getSource().getErrorListener()).accept(service);
-    }
+    checkForInvalidServiceDefinition.accept(service);
+
     return service;
   }
 
@@ -314,12 +324,38 @@ public class SymbolFactory {
    */
   public AggregateWithTraitsSymbol newDynamicClass(EK9Parser.DynamicClassDeclarationContext ctx) {
     //Name is optional - if not present then generate a dynamic value.
+    AggregateWithTraitsSymbol rtn;
     if (ctx.Identifier() != null) {
-      return newAggregateWithTraitsSymbol(ctx.Identifier().getText(), ctx.start);
-    }
+      rtn = newAggregateWithTraitsSymbol(ctx.Identifier().getText(), ctx.start);
+    } else {
 
-    //So if not named - we generate a dynamic unique name and use that.
-    return newAggregateWithTraitsSymbol("_Class_" + UniqueIdGenerator.getNewUniqueId(), ctx.start);
+      //Maybe need to consider generic params as defined in parent scope i.e. a present scope
+      //was generic with S, T, U whatever and this too has been defined with those same values, S, T, etc
+      //That means when parent scope is turned into concrete type with S =? Float, T => String
+      //This too must use Float and String. Same for Dynamic Functions.
+
+      //So if not named - we generate a dynamic unique name and use that.
+      rtn = newAggregateWithTraitsSymbol("_Class_" + UniqueIdGenerator.getNewUniqueId(), ctx.start);
+    }
+    //Perhaps keep a reference to the scope where this dynamic class was defined.
+
+    return rtn;
+  }
+
+  /**
+   * Create a new aggregate that represents an EK9 dynamic function.
+   */
+  public FunctionSymbol newDynamicFunction(EK9Parser.DynamicFunctionDeclarationContext ctx) {
+    //As above need to consider how S, T etc would be resolved in later phases.
+    var functionName = "_Function_" + UniqueIdGenerator.getNewUniqueId();
+    var function = new FunctionSymbol(functionName, parsedModule.getModuleScope());
+
+    configureSymbol(function, ctx.start);
+    function.setModuleScope(parsedModule.getModuleScope());
+    function.setGenus(ISymbol.SymbolGenus.FUNCTION);
+    function.setMarkedPure(ctx.PURE() != null);
+
+    return function;
   }
 
   /**
@@ -426,6 +462,9 @@ public class SymbolFactory {
     inEnumeration.define(symbol);
   }
 
+  /**
+   * Create a new symbol that represents an EK9 concept of a stream pipeline.
+   */
   public StreamPipeLineSymbol newStream(EK9Parser.StreamContext ctx) {
     StreamPipeLineSymbol pipeLine = new StreamPipeLineSymbol("stream");
     configureSymbol(pipeLine, ctx.start);
@@ -434,18 +473,27 @@ public class SymbolFactory {
     return pipeLine;
   }
 
+  /**
+   * Create a new symbol that represents an EK9 'cat' part of a stream pipeline.
+   */
   public StreamCallSymbol newStreamCat(EK9Parser.StreamCatContext ctx, IScope scope) {
     StreamCallSymbol call = new StreamCallSymbol("cat", scope);
     configureStreamCallSymbol(call, ctx.start);
     return call;
   }
 
+  /**
+   * Create a new symbol that represents an EK9 'for' part of a stream pipeline.
+   */
   public StreamCallSymbol newStreamFor(EK9Parser.StreamForContext ctx, IScope scope) {
     StreamCallSymbol call = new StreamCallSymbol("for", scope);
     configureStreamCallSymbol(call, ctx.start);
     return call;
   }
 
+  /**
+   * Create a new symbol that represents an EK9 stream function part of a stream pipeline.
+   */
   public StreamCallSymbol newStreamPart(EK9Parser.StreamPartContext ctx, IScope scope) {
     final var operation = ctx.op.getText();
     StreamCallSymbol call = new StreamCallSymbol(operation, scope);
@@ -463,6 +511,9 @@ public class SymbolFactory {
     return call;
   }
 
+  /**
+   * Create a new symbol that represents an EK9 terminal part of a stream pipeline.
+   */
   public StreamCallSymbol newStreamTermination(EK9Parser.StreamTerminationContext ctx, IScope scope) {
     final var operation = ctx.op.getText();
     StreamCallSymbol call = new StreamCallSymbol(operation, scope);
@@ -477,6 +528,9 @@ public class SymbolFactory {
     call.setNotMutable();
   }
 
+  /**
+   * Create a new symbol that represents an EK9 'switch' block.
+   */
   public SwitchSymbol newSwitch(EK9Parser.SwitchStatementExpressionContext ctx, IScope scope) {
     SwitchSymbol switchSymbol = new SwitchSymbol(scope);
     configureSymbol(switchSymbol, ctx.start);
@@ -484,6 +538,24 @@ public class SymbolFactory {
     return switchSymbol;
   }
 
+  /**
+   * Create a new symbol that represents an EK9 'try' block.
+   */
+  public TrySymbol newTry(EK9Parser.TryStatementExpressionContext ctx, IScope scope) {
+    TrySymbol trySymbol = new TrySymbol(scope);
+    configureSymbol(trySymbol, ctx.start);
+    checkTryReturns.accept(ctx);
+    return trySymbol;
+  }
+
+  /**
+   * Create a new symbol that represents an EK9 'for' loop.
+   */
+  public ForSymbol newForLoop(ParserRuleContext ctx, IScope scope) {
+    var forLoop = new ForSymbol(scope);
+    configureSymbol(forLoop, ctx.start);
+    return forLoop;
+  }
 
   /**
    * Create a new aggregate that represents an EK9 loop variable.
@@ -576,7 +648,7 @@ public class SymbolFactory {
 
   private List<AggregateSymbol> createAndRegisterParameterisedSymbols(final EK9Parser.ParameterisedParamsContext ctx,
                                                                       final IScope scope) {
-    List<AggregateSymbol> rtn = new ArrayList<AggregateSymbol>();
+    List<AggregateSymbol> rtn = new ArrayList<>();
     if (ctx != null) {
       for (int i = 0; i < ctx.parameterisedDetail().size(); i++) {
         EK9Parser.ParameterisedDetailContext detail = ctx.parameterisedDetail(i);
@@ -599,15 +671,10 @@ public class SymbolFactory {
       //Otherwise it get too hard on ordering.
 
       //Add other synthetic constructors now we have all the S, T, P etc.
-      rtn.forEach(t -> {
-        rtn.forEach(s -> {
-          ISymbol arg = new VariableSymbol("arg", s);
-          aggregateFactory.addConstructor(t, arg);
-        });
-      });
-
+      rtn.forEach(t -> rtn.forEach(s -> aggregateFactory.addConstructor(t, new VariableSymbol("arg", s))));
     }
     return rtn;
   }
+
 
 }

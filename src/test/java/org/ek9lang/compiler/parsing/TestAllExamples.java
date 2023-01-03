@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.net.URL;
 import java.util.function.Function;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -17,9 +16,7 @@ import org.ek9lang.compiler.tokenizer.DelegatingLexer;
 import org.ek9lang.compiler.tokenizer.Ek9Lexer;
 import org.ek9lang.compiler.tokenizer.LexerPlugin;
 import org.ek9lang.compiler.tokenizer.TokenStreamAssessment;
-import org.ek9lang.core.utils.Glob;
 import org.ek9lang.core.utils.Logger;
-import org.ek9lang.core.utils.OsSupport;
 import org.junit.jupiter.api.Test;
 
 /**

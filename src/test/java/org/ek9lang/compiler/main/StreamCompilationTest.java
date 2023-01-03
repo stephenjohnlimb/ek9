@@ -9,7 +9,7 @@ import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.compiler.parsing.SourceFileList;
+import org.ek9lang.compiler.parsing.WorkSpaceFromResourceDirectoryFiles;
 import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
@@ -21,15 +21,8 @@ class StreamCompilationTest {
   private static final Supplier<SharedThreadContext<CompilableProgram>> sharedContext
       = new CompilableProgramSuitable();
 
-  private static final Supplier<Workspace> ek9Workspace = () -> {
-    final SourceFileList sourceFileList = new SourceFileList();
-    Workspace rtn = new Workspace();
-    sourceFileList.apply("/examples/streams")
-        .stream()
-        .forEach(rtn::addSource);
-
-    return rtn;
-  };
+  private static final WorkSpaceFromResourceDirectoryFiles workspaceLoader = new WorkSpaceFromResourceDirectoryFiles();
+  private static final Workspace ek9Workspace = workspaceLoader.apply("/examples/streams");
 
   @Test
   void testReferencePhasedDevelopment() {
@@ -48,12 +41,12 @@ class StreamCompilationTest {
         listener, new CompilerReporter(true));
 
     var compiler = new Ek9Compiler(allPhases);
-    assertTrue(compiler.compile(ek9Workspace.get(), new CompilerFlags(upToPhase, true)));
+    assertTrue(compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, true)));
 
     sharedCompilableProgram.accept(program -> {
       //Now this should have some constructs.
 
-      new SymbolCountCheck("com.customer.justcat", 5).test(program);
+      new SymbolCountCheck("com.customer.justcat", 6).test(program);
 
       new SymbolCountCheck("com.customer.justparagraphs", 3).test(program);
 
@@ -61,11 +54,11 @@ class StreamCompilationTest {
 
       new SymbolCountCheck("ekopen.io.file.examples", 1).test(program);
 
-      new SymbolCountCheck("com.customer.books", 39).test(program);
+      new SymbolCountCheck("com.customer.books", 48).test(program);
 
       new SymbolCountCheck("com.customer.streams.collectas", 2).test(program);
 
-      new SymbolCountCheck("com.customer.streams.splitter", 7).test(program);
+      new SymbolCountCheck("com.customer.streams.splitter", 9).test(program);
 
     });
   }
