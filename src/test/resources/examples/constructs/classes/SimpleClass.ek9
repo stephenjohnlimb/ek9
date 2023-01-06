@@ -16,7 +16,7 @@ defines module net.customer.assertions
       
       //Added type inference for default constructors and literals back in.
       firstString <- "Initial Value"
-      
+
       //A simple constructor
       First()
         //Note the different types of assignment we can use

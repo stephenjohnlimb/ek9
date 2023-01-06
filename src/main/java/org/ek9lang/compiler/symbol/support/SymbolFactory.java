@@ -17,6 +17,7 @@ import org.ek9lang.compiler.main.rules.CheckClassNotGenericExtending;
 import org.ek9lang.compiler.main.rules.CheckForInvalidServiceDefinition;
 import org.ek9lang.compiler.main.rules.CheckSwitchReturns;
 import org.ek9lang.compiler.main.rules.CheckTryReturns;
+import org.ek9lang.compiler.main.rules.CommonMethodChecks;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
@@ -78,6 +79,8 @@ public class SymbolFactory {
 
   private final CheckTryReturns checkTryReturns;
 
+  private final CommonMethodChecks commonMethodChecks;
+
   private final CheckForInvalidServiceDefinition checkForInvalidServiceDefinition;
 
   /**
@@ -89,6 +92,7 @@ public class SymbolFactory {
     checkClassNotGenericExtending = new CheckClassNotGenericExtending(parsedModule.getSource().getErrorListener());
     checkSwitchReturns = new CheckSwitchReturns(parsedModule.getSource().getErrorListener());
     checkTryReturns = new CheckTryReturns(parsedModule.getSource().getErrorListener());
+    commonMethodChecks = new CommonMethodChecks(parsedModule.getSource().getErrorListener());
     checkForInvalidServiceDefinition =
         new CheckForInvalidServiceDefinition(parsedModule.getSource().getErrorListener());
   }
@@ -385,8 +389,6 @@ public class SymbolFactory {
     return captureScope;
   }
 
-  //TODO enterMethodDeclaration
-
   /**
    * Create a new aggregate that represents an EK9 operator, uses a method for this.
    */
@@ -420,6 +422,10 @@ public class SymbolFactory {
     method.setMarkedAbstract(ctx.ABSTRACT() != null);
     method.setMarkedPure(ctx.PURE() != null);
 
+    //General context free logic goes here.
+    //but anything that depends on if this method is used in as a program, trait method, class method
+    //etc. goes in the 'exit{Construct} iterate over the methods operators and do the validation in that
+    //context - i.e. where it is relevant.
     if (ctx.accessModifier() != null) {
       method.setAccessModifier(ctx.accessModifier().getText());
     }
@@ -433,6 +439,7 @@ public class SymbolFactory {
       method.setType(scopedSymbol.resolve(new TypeSymbolSearch("org.ek9.lang::Void")));
     }
 
+    commonMethodChecks.accept(method, ctx);
     return method;
   }
 

@@ -288,13 +288,16 @@ public class ErrorListener extends BaseErrorListener {
     RETURNING_REDUNDANT("returning block is redundant for a standard switch/try"),
     RETURNING_MISSING("returning variable and type missing"),
     METHOD_ACCESS_MODIFIER_PRIVATE_OVERRIDE("remove 'override' with use of 'private' access modifier"),
+    ABSTRACT_METHOD_AND_OVERRIDE("'override' of a method but with 'abstract' is not logical"),
+    ABSTRACT_CONSTRUCTOR("'abstract' modifier on a constructor is not logical"),
+    OVERRIDE_CONSTRUCTOR("'override' is not required on a constructor"),
     METHOD_MODIFIER_PROTECTED_IN_SERVICE(
         "non web service methods cannot be marked with the 'protected' access modifier"),
     MUST_BE_DECLARED_AS_POSSIBLE_NULL("declaration must indicate that this can be null"),
     CAN_BE_ASSIGNED_NULL_VALUE("assignment could result in 'null', so declaration must support this"),
     DECLARED_AS_NULL_NOT_NEEDED("declaration supporting 'null' is not needed as a value is assigned"),
     METHOD_ACCESS_MODIFIER_DEFAULT(
-        "access modifier is not really needed here - all class methods are 'public' by default"),
+        "access modifier is not needed here - methods are 'public' by default"),
     ACCESS_MODIFIER_INAPPROPRIATE("access modifier inappropriate here"),
     APPLICATION_SELECTION_INVALID("application selection not allowed in this context"),
     STATEMENT_UNREACHABLE("unreachable statement"),
