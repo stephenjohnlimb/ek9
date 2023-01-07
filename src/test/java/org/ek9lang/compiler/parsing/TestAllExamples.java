@@ -53,10 +53,14 @@ final class TestAllExamples {
   void testValidEK9ExampleSource() {
     var func = readabilityAssessor.compose(getTestFunction(false));
 
+    var before = System.currentTimeMillis();
     sourceFileList.apply("/examples")
-        .stream()
+        .parallelStream()
         .map(func)
         .forEach(System.out::println);
+
+    var after = System.currentTimeMillis();
+    System.out.println("Time taken for testValidEK9ExampleSource " + (after-before) + " ms");
   }
 
   @Test

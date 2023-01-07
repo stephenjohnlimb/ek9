@@ -28,14 +28,14 @@ public class ModuleScope extends SymbolTable {
    * This is where we store the references to other module symbols but as a shorthand.
    * i.e "Item" will map to com.abc.Item.
    */
-  private Map<String, ISymbol> referencesScope = new TreeMap<>();
+  private final Map<String, ISymbol> referencesScope = new TreeMap<>();
 
   /**
    * When a reference to a symbol is made, keep track of where that first reference was.
    * This enables the compiler to give better error messages, indicating where a reference was first successful.
    * So if there are duplicates of clashes, it can report where the first reference was.
    */
-  private Map<String, Token> originalReferenceResolution = new TreeMap<>();
+  private final Map<String, Token> originalReferenceResolution = new TreeMap<>();
 
   public ModuleScope(String scopeName, SharedThreadContext<CompilableProgram> context) {
     super(scopeName);
@@ -76,7 +76,7 @@ public class ModuleScope extends SymbolTable {
   public Optional<ISymbol> resolveInThisModuleOnly(SymbolSearch search) {
     Optional<ISymbol> resolvedSymbol = resolveReferenceInThisModuleOnly(search);
 
-    if (!resolvedSymbol.isPresent()) {
+    if (resolvedSymbol.isEmpty()) {
       resolvedSymbol = resolveInThisScopeOnly(search);
     }
 
@@ -96,11 +96,10 @@ public class ModuleScope extends SymbolTable {
    * But remember there can be multiple of these per named module.
    */
   public Optional<ISymbol> resolveReferenceInThisModuleOnly(SymbolSearch search) {
-    Optional<ISymbol> resolvedSymbol = Optional.ofNullable(null);
 
-    if (!search.getName().contains("::")) {
-      resolvedSymbol = Optional.ofNullable(referencesScope.get(search.getName()));
-    }
+    //Check by short name (i.e. unqualified)
+    var unqualifiedName = ISymbol.getUnqualifiedName(search.getName());
+    var resolvedSymbol = Optional.ofNullable(referencesScope.get(unqualifiedName));
 
     //If not the right category then not a match.
     //But a null in the search category means we are happy with just the name match.

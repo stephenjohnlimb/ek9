@@ -59,10 +59,10 @@ public class Ek9Phase0Parsing
 
   private boolean underTakeParsing(Workspace workspace, CompilationPhase phase,
                                    UnaryOperator<CompilableSource> operator) {
-    //May consider moving to Executor model
+
     final var affectedSources = sourcesToBeParsed
         .apply(workspace.getSources())
-        .stream()
+        .parallelStream()
         .map(operator).toList();
 
     affectedSources.forEach(source -> listener.accept(phase, source));

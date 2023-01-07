@@ -4,7 +4,7 @@ import java.util.function.BiConsumer;
 import org.antlr.v4.runtime.Token;
 
 /**
- * Error when a reference is made but it cannot be resolved.
+ * Error when a reference is made, but it cannot be resolved.
  */
 public class ReferenceDoesNotResolve implements BiConsumer<Token, String> {
   private final ErrorListener errorListener;

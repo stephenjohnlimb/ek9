@@ -106,7 +106,7 @@ public class ReferencesPhase1Listener extends EK9BaseListener {
 
   /**
    * This is where there are one or more references to types/functions or constants? in other modules
-   * that can now be resolved - at least as a name. The full details won;t yet be known.
+   * that can now be resolved - at least as a name. The full details won't yet be known.
    * But the definition phase will/should have at least defined them to some extent.
    */
   @Override
@@ -281,17 +281,19 @@ public class ReferencesPhase1Listener extends EK9BaseListener {
   private void checkIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx,
                                         final String fullyQualifiedIdentifierReference) {
 
-    //Gte the module name and the unqualified name first.
+    //Get the module name and the unqualified name first.
     final var moduleName = ISymbol.getModuleNameIfPresent(fullyQualifiedIdentifierReference);
-    final var unQualifiedIdentifierName = ISymbol.getUnqualifiedName(fullyQualifiedIdentifierReference);
 
     var identifierToken = ctx.identifier().start;
-    var search = new AnySymbolSearch(unQualifiedIdentifierName);
+    var search = new AnySymbolSearch(fullyQualifiedIdentifierReference);
     //So lets see if this thing that has been referenced actually exists in the module specified by the developer
     final var reference = compilableProgram.resolveFromModule(moduleName, search);
     if (reference.isEmpty()) {
       //Not good - it means that during definition time it was not defined in that module. So that's an error.
       referenceDoesNotResolve.accept(identifierToken, fullyQualifiedIdentifierReference);
+      //For debugging lets try again with a break point
+      compilableProgram.resolveFromModule(moduleName, search);
+
     } else {
       //Ok so we can add this to our set of references in our module.
 

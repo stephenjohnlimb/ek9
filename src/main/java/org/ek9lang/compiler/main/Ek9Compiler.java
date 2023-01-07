@@ -48,7 +48,10 @@ public class Ek9Compiler implements Compiler {
     //If the phase was the final one required, then also stop (but true).
     for (var phase : compilationPhaseSupplier.get()) {
       long before = System.nanoTime();
+
+      //This is where the actual work of the phase is done.
       var phaseResult = phase.apply(workspace, flags);
+
       long after = System.nanoTime();
       reporter.log(String.format("%s duration %s ns; success %b",
           phaseResult.phase(), format.format(after - before), phaseResult.phaseSuccess()));
