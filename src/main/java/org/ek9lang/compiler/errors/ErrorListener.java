@@ -291,6 +291,7 @@ public class ErrorListener extends BaseErrorListener {
     ABSTRACT_METHOD_AND_OVERRIDE("'override' of a method but with 'abstract' is not logical"),
     ABSTRACT_CONSTRUCTOR("'abstract' modifier on a constructor is not logical"),
     OVERRIDE_CONSTRUCTOR("'override' is not required on a constructor"),
+    INVALID_DEFAULT_CONSTRUCTOR("'default' constructor with parameters is not supported"),
     METHOD_MODIFIER_PROTECTED_IN_SERVICE(
         "non web service methods cannot be marked with the 'protected' access modifier"),
     MUST_BE_DECLARED_AS_POSSIBLE_NULL("declaration must indicate that this can be null"),
@@ -381,7 +382,7 @@ public class ErrorListener extends BaseErrorListener {
     OPERATOR_DOES_NOT_SUPPORT_PARAMETERS("operator does not support parameters"),
     OPERATOR_REQUIRES_PARAMETER("operator requires a single parameter"),
     OPERATOR_INCORRECT_RETURN_TYPE("operator has incorrect return type or no return type"),
-    SERVICE_OPERATOR_NOT_SUPPORTED("operator not supported, only +, -, :=, :~: and ? supported"),
+    SERVICE_OPERATOR_NOT_SUPPORTED("operator not supported, only +, +=, -, -=, :^:, :~: and ? are supported"),
     NO_VERB_REQUIRED_WITH_SERVICE_OPERATOR("use of operator means that verb is implied and cannot be specified"),
     OPERATOR_NOT_DEFINED_FROM_GENERIC(
         "operator must be defined when using a generic implementation with a specific type"),

@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.internals;
 
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_STRING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -53,7 +54,7 @@ class SimpleSymbolResolutionCompilableProgramTest {
       //Just check via org.ek9.lang with String
       if(module.getModuleName().equals("org.ek9.lang")) {
         //Just be sure this String type cannot be found.
-        final var resolved = moduleScope.resolve(new TypeSymbolSearch("org.ek9.lang::String"));
+        final var resolved = moduleScope.resolve(new TypeSymbolSearch(EK9_STRING));
         assertTrue(resolved.isEmpty());
       }
 
@@ -71,12 +72,12 @@ class SimpleSymbolResolutionCompilableProgramTest {
       assertTrue(listener.isScopeStackEmpty());
 
       //OK now the ordering of sources is important and as we now also supply org.ek9.math with constants
-      //Those constants will need to resolve org.ek9.lang::Floats and things - so add module to context
+      //Those constants will need to resolve EK9_FLOATs and things - so add module to context
 
       if(module.getModuleName().equals("org.ek9.lang")) {
         //We should now find there some symbols defined.
-        //I would expect new TypeSymbolSearch("org.ek9.lang::String") and new TypeSymbolSearch("String") to work.
-        final var nowResolves = moduleScope.resolve(new TypeSymbolSearch("org.ek9.lang::String"));
+        //I would expect new TypeSymbolSearch(EK9_STRING) and new TypeSymbolSearch("String") to work.
+        final var nowResolves = moduleScope.resolve(new TypeSymbolSearch(EK9_STRING));
         assertTrue(nowResolves.isPresent());
       }
     });

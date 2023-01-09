@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbol.support;
 
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_INTEGER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -61,7 +62,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
     ISymbol orgEk9LangInteger = typeCreator.apply("Integer", ek9LangSymbolTable);
 
     assertEquals("Integer", orgEk9LangInteger.getName());
-    assertEquals("org.ek9.lang::Integer", orgEk9LangInteger.getFullyQualifiedName());
+    assertEquals(EK9_INTEGER, orgEk9LangInteger.getFullyQualifiedName());
 
 
     //Now check that the noModuleInteger is not considered to be the same.
@@ -71,7 +72,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
     //Search in the no module symbol table
     assertTrue(module1SymbolTable.resolve(new TypeSymbolSearch("Integer")).isPresent());
-    assertFalse(module1SymbolTable.resolve(new TypeSymbolSearch("org.ek9.lang::Integer")).isPresent());
+    assertFalse(module1SymbolTable.resolve(new TypeSymbolSearch(EK9_INTEGER)).isPresent());
   }
 
   @Test
@@ -94,7 +95,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
     ISymbol orgEk9LangInteger = typeCreator.apply("Integer", ek9LangSymbolTable);
 
     assertFalse(ek9LangSymbolTable.resolve(new TypeSymbolSearch("Integer")).isPresent());
-    assertTrue(ek9LangSymbolTable.resolve(new TypeSymbolSearch("org.ek9.lang::Integer")).isPresent());
+    assertTrue(ek9LangSymbolTable.resolve(new TypeSymbolSearch(EK9_INTEGER)).isPresent());
   }
 
   @Test

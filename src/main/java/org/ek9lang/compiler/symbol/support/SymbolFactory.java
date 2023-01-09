@@ -1,8 +1,12 @@
 package org.ek9lang.compiler.symbol.support;
 
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_STRING;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_VOID;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -13,16 +17,17 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.InvalidEnumeratedValue;
 import org.ek9lang.compiler.internals.ParsedModule;
-import org.ek9lang.compiler.main.rules.CheckClassNotGenericExtending;
+import org.ek9lang.compiler.main.rules.CheckAppropriateWebVariable;
 import org.ek9lang.compiler.main.rules.CheckForInvalidServiceDefinition;
+import org.ek9lang.compiler.main.rules.CheckForInvalidServiceOperator;
 import org.ek9lang.compiler.main.rules.CheckSwitchReturns;
 import org.ek9lang.compiler.main.rules.CheckTryReturns;
-import org.ek9lang.compiler.main.rules.CommonMethodChecks;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
 import org.ek9lang.compiler.symbol.ForSymbol;
 import org.ek9lang.compiler.symbol.FunctionSymbol;
+import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.ICanCaptureVariables;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.IScopedSymbol;
@@ -45,12 +50,25 @@ import org.ek9lang.core.utils.UniqueIdGenerator;
  */
 public class SymbolFactory {
 
+  public static final String DEFAULTED = "DEFAULTED";
+  public static final String HTTPVERB = "HTTPVERB";
+
   private static final Set<String> streamPartCanConsumeAnything = Set.of("flatten",
       "call", "async", "skipping", "head", "tail");
 
   private static final Set<String> streamPartProducerAndConsumerTypeSame = Set.of(
       "skipping", "head", "tail", "filter", "select", "sort", "group",
       "join", "uniq", "tee");
+
+  private static final Map<String, String> operatorToHttpVerbMap = Map.of(
+      "+", "POST",
+      "+=", "POST",
+      "-", "DELETE",
+      "-=", "DELETE:",
+      ":^:", "PUT",
+      ":~:", "PATCH",
+      "?", "HEAD"
+  );
 
   private static final Predicate<String> canConsumeAnything = streamPartCanConsumeAnything::contains;
 
@@ -73,15 +91,16 @@ public class SymbolFactory {
 
   private final Consumer<Object> checkContextNotNull = ctx -> AssertValue.checkNotNull("CTX cannot be null", ctx);
 
-  private final CheckClassNotGenericExtending checkClassNotGenericExtending;
 
   private final CheckSwitchReturns checkSwitchReturns;
 
   private final CheckTryReturns checkTryReturns;
 
-  private final CommonMethodChecks commonMethodChecks;
-
   private final CheckForInvalidServiceDefinition checkForInvalidServiceDefinition;
+
+  private final CheckForInvalidServiceOperator checkForInvalidServiceOperator;
+
+  private final CheckAppropriateWebVariable checkAppropriateWebVariable;
 
   /**
    * Create a new symbol factory for use with the parsedModule.
@@ -89,12 +108,12 @@ public class SymbolFactory {
   public SymbolFactory(ParsedModule parsedModule) {
     AssertValue.checkNotNull("Parsed Module cannot be null", parsedModule);
     this.parsedModule = parsedModule;
-    checkClassNotGenericExtending = new CheckClassNotGenericExtending(parsedModule.getSource().getErrorListener());
     checkSwitchReturns = new CheckSwitchReturns(parsedModule.getSource().getErrorListener());
     checkTryReturns = new CheckTryReturns(parsedModule.getSource().getErrorListener());
-    commonMethodChecks = new CommonMethodChecks(parsedModule.getSource().getErrorListener());
     checkForInvalidServiceDefinition =
         new CheckForInvalidServiceDefinition(parsedModule.getSource().getErrorListener());
+    checkForInvalidServiceOperator = new CheckForInvalidServiceOperator(parsedModule.getSource().getErrorListener());
+    checkAppropriateWebVariable = new CheckAppropriateWebVariable(parsedModule.getSource().getErrorListener());
   }
 
   /**
@@ -136,9 +155,6 @@ public class SymbolFactory {
     final var newClass = newAggregateWithTraitsSymbol(className, ctx.start);
     newClass.setOpenForExtension(ctx.ABSTRACT() != null);
     newClass.setGenus(ISymbol.SymbolGenus.CLASS);
-
-    //Some basic early checks
-    checkClassNotGenericExtending.accept(ctx);
 
     var parameterisedSymbols = createAndRegisterParameterisedSymbols(ctx.parameterisedParams(), moduleScope);
     if (!parameterisedSymbols.isEmpty()) {
@@ -271,7 +287,7 @@ public class SymbolFactory {
 
     method.setOperator(false);
     //Always returns a String - no need or ability to declare it.
-    method.setType(scope.resolve(new TypeSymbolSearch("org.ek9.lang::String")));
+    method.setType(scope.resolve(new TypeSymbolSearch(EK9_STRING)));
 
     return method;
   }
@@ -314,6 +330,22 @@ public class SymbolFactory {
     serviceOperation.setOperator(operator);
 
     serviceOperation.putSquirrelledData("URIPROTO", ctx.Uriproto().getText());
+    //Make some initial assumptions, these can then be overridden
+    serviceOperation.putSquirrelledData(HTTPVERB, "GET");
+
+    if (ctx.httpVerb() != null) {
+      //A specific verb has been declared for use by the developer
+      var httpVerb = ctx.httpVerb().getText();
+      serviceOperation.putSquirrelledData(HTTPVERB, httpVerb);
+    }
+
+    if (ctx.operator() != null) {
+      //Check operator used is valid.
+      checkForInvalidServiceOperator.accept(serviceOperation);
+      serviceOperation.putSquirrelledData(HTTPVERB,
+          operatorToHttpVerbMap.getOrDefault(serviceOperation.getName(), ""));
+    }
+
     return serviceOperation;
   }
 
@@ -403,9 +435,40 @@ public class SymbolFactory {
     method.setMarkedPure(ctx.PURE() != null);
 
     //Set this as default unless we have a returning section
-    method.setType(scopedSymbol.resolve(new TypeSymbolSearch("org.ek9.lang::Void")));
+    method.setType(scopedSymbol.resolve(new TypeSymbolSearch(EK9_VOID)));
 
     return method;
+  }
+
+  /**
+   * A bit of a beast this method.
+   * Check if operator is not present if so add one in.
+   * But as it is used in very early phase of compilation not all types will be known.
+   * So here this method just uses the raw name of the method.
+   */
+  public void addMissingDefaultOperators(EK9Parser.DefaultOperatorContext ctx, IAggregateSymbol aggregate) {
+    var existingMethodNames = aggregate.getAllNonAbstractMethods()
+        .stream()
+        .map(ISymbol::getName)
+        .toList();
+
+    for (MethodSymbol operator : aggregateFactory.getAllPossibleDefaultOperators(aggregate)) {
+      if (!existingMethodNames.contains(operator.getName())) {
+        operator.setSourceToken(ctx.start);
+        operator.putSquirrelledData(DEFAULTED, "TRUE");
+        //Now we can add that operator in.
+        aggregate.define(operator);
+      }
+    }
+
+    //For records also add in the to JSON operator if not present.
+    if (aggregate.getGenus() == ISymbol.SymbolGenus.RECORD && !existingMethodNames.contains("$$")) {
+      var jsonOperator = aggregateFactory.createToJsonSimpleOperator(aggregate);
+      jsonOperator.setSourceToken(ctx.start);
+      jsonOperator.putSquirrelledData(DEFAULTED, "TRUE");
+      //Now we can add that operator in.
+      aggregate.define(jsonOperator);
+    }
   }
 
   /**
@@ -421,6 +484,9 @@ public class SymbolFactory {
     method.setOverride(ctx.OVERRIDE() != null);
     method.setMarkedAbstract(ctx.ABSTRACT() != null);
     method.setMarkedPure(ctx.PURE() != null);
+    if (ctx.DEFAULT() != null) {
+      method.putSquirrelledData(DEFAULTED, "TRUE");
+    }
 
     //General context free logic goes here.
     //but anything that depends on if this method is used in as a program, trait method, class method
@@ -436,10 +502,9 @@ public class SymbolFactory {
       method.setType(scopedSymbol);
     } else {
       //Set this as default unless we have a returning section
-      method.setType(scopedSymbol.resolve(new TypeSymbolSearch("org.ek9.lang::Void")));
+      method.setType(scopedSymbol.resolve(new TypeSymbolSearch(EK9_VOID)));
     }
 
-    commonMethodChecks.accept(method, ctx);
     return method;
   }
 
@@ -624,6 +689,9 @@ public class SymbolFactory {
    */
   public VariableSymbol newVariable(EK9Parser.VariableOnlyDeclarationContext ctx) {
     checkContextNotNull.accept(ctx);
+    //Now this is also used in web services and additional ctx.webVariableCorrelation()
+    //Makes sense but only for services.
+    checkAppropriateWebVariable.accept(ctx);
     return newVariable(ctx.identifier(), ctx.QUESTION() != null);
   }
 

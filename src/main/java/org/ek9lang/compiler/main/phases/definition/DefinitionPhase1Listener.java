@@ -1,5 +1,10 @@
 package org.ek9lang.compiler.main.phases.definition;
 
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_BOOLEAN;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_FLOAT;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_INTEGER;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_STRING;
+
 import java.util.Optional;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
@@ -9,13 +14,16 @@ import org.ek9lang.compiler.errors.UnreachableStatement;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.phases.listeners.AbstractEK9PhaseListener;
 import org.ek9lang.compiler.main.rules.CheckProtectedServiceMethods;
+import org.ek9lang.compiler.main.rules.CommonMethodChecks;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
+import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.ICanCaptureVariables;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.IScopedSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.LocalScope;
+import org.ek9lang.compiler.symbol.MethodSymbol;
 import org.ek9lang.compiler.symbol.ScopedSymbol;
 import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.SymbolChecker;
@@ -65,16 +73,21 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
    */
   private final UnreachableStatement unreachableStatement;
 
+  private final CommonMethodChecks commonMethodChecks;
+
+
   /**
    * First phase after parsing. Define symbols and infer types where possible.
    * Uses a symbol factory to actually create the appropriate symbols.
    */
   public DefinitionPhase1Listener(ParsedModule parsedModule) {
     super(parsedModule);
-    this.symbolChecker = new SymbolChecker(parsedModule.getSource().getErrorListener());
-    this.symbolFactory = new SymbolFactory(parsedModule);
-    this.unreachableStatement = new UnreachableStatement(parsedModule.getSource().getErrorListener());
-    this.textLanguageExtraction = new TextLanguageExtraction(parsedModule.getSource().getErrorListener());
+    symbolChecker = new SymbolChecker(parsedModule.getSource().getErrorListener());
+    symbolFactory = new SymbolFactory(parsedModule);
+    unreachableStatement = new UnreachableStatement(parsedModule.getSource().getErrorListener());
+    textLanguageExtraction = new TextLanguageExtraction(parsedModule.getSource().getErrorListener());
+    commonMethodChecks = new CommonMethodChecks(parsedModule.getSource().getErrorListener());
+
   }
 
   // Now we hook into the ANTLR listener events - lots of them!
@@ -138,6 +151,18 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   @Override
+  public void exitMethodDeclaration(EK9Parser.MethodDeclarationContext ctx) {
+    //Can be null if during definition 'enter' it was a duplicate method
+    if (!(ctx.getParent() instanceof EK9Parser.ProgramBlockContext)) {
+      var method = (MethodSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+      if (method != null) {
+        commonMethodChecks.accept(method, ctx);
+      }
+    }
+    super.exitMethodDeclaration(ctx);
+  }
+
+  @Override
   public void enterOperatorDeclaration(EK9Parser.OperatorDeclarationContext ctx) {
     var currentScope = symbolAndScopeManagement.getTopScope();
     if (currentScope instanceof IScopedSymbol scopedSymbol) {
@@ -148,6 +173,15 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
       symbolAndScopeManagement.recordScopeForStackConsistency(new LocalScope(currentScope), ctx);
     }
     super.enterOperatorDeclaration(ctx);
+  }
+
+  @Override
+  public void enterDefaultOperator(EK9Parser.DefaultOperatorContext ctx) {
+    var currentScope = symbolAndScopeManagement.getTopScope();
+    if (currentScope instanceof IAggregateSymbol aggregate) {
+      symbolFactory.addMissingDefaultOperators(ctx, aggregate);
+    }
+    super.enterDefaultOperator(ctx);
   }
 
   private void processProgramDeclaration(EK9Parser.MethodDeclarationContext ctx) {
@@ -595,13 +629,13 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterIntegerLiteral(EK9Parser.IntegerLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::Integer");
+    recordConstant(ctx, ctx.start, EK9_INTEGER);
     super.enterIntegerLiteral(ctx);
   }
 
   @Override
   public void enterFloatingPointLiteral(EK9Parser.FloatingPointLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::Float");
+    recordConstant(ctx, ctx.start, EK9_FLOAT);
     super.enterFloatingPointLiteral(ctx);
   }
 
@@ -613,7 +647,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterBooleanLiteral(EK9Parser.BooleanLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::Boolean");
+    recordConstant(ctx, ctx.start, EK9_BOOLEAN);
     super.enterBooleanLiteral(ctx);
   }
 
@@ -625,7 +659,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterStringLiteral(EK9Parser.StringLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::String");
+    recordConstant(ctx, ctx.start, EK9_STRING);
     super.enterStringLiteral(ctx);
   }
 

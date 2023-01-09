@@ -26,10 +26,9 @@ defines module com.customer.just
     Coordinate
       x Float: 0.0
       y Float: 0.0
-              
-      Coordinate()
-        x: 0.0
-        y: 0.0
+
+      //Sort of lombok like, no implementation needed.
+      default Coordinate()
       
       //Constructor  
       Coordinate()
@@ -63,6 +62,9 @@ defines module com.customer.just
         -> coord as Coordinate
         this.x -= coord.x()
         this.y -= coord.y()
+
+      //Instruction to add in additional operators where these can be auto generated.
+      default operator
             
     Shape as abstract      
       draw() as abstract

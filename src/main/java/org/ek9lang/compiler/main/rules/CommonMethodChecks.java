@@ -60,5 +60,11 @@ public class CommonMethodChecks implements BiConsumer<MethodSymbol, EK9Parser.Me
       errorListener.semanticError(ctx.OVERRIDE().getSymbol(), message,
           ErrorListener.SemanticClassification.OVERRIDE_CONSTRUCTOR);
     }
+
+    if ("TRUE".equals(method.getSquirrelledData("DEFAULTED"))
+        && method.isConstructor() && !method.getMethodParameters().isEmpty()) {
+      errorListener.semanticError(ctx.DEFAULT().getSymbol(), message,
+          ErrorListener.SemanticClassification.INVALID_DEFAULT_CONSTRUCTOR);
+    }
   }
 }

@@ -112,6 +112,14 @@ public class CompilableProgram {
   }
 
   /**
+   * Resolve some for of type via a fully qualified search.
+   */
+  public Optional<ISymbol> resolveByFullyQualifiedSearch(final SymbolSearch search) {
+    var moduleName = ISymbol.getModuleNameIfPresent(search.getName());
+    return resolveFromModule(moduleName, search);
+  }
+
+  /**
    * A package name (moduleName) can actually have multiple parsedModules
    * (i.e. a module can be made from multiple source files, each of which has its own parsed module).
    * But they are all part of the same namespace (package/module).

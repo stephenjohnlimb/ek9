@@ -238,7 +238,7 @@ operatorDeclaration
     ;
 
 serviceOperationDeclaration
-    : ((identifier (LPAREN RPAREN)?) | (OPERATOR? operator)) (AS? httpVerb)? FOR? Uriproto NL+ operationDetails
+    : ((identifier (LPAREN RPAREN)? (AS? httpVerb)?) | (OPERATOR? operator)) FOR? Uriproto NL+ operationDetails
     ;
 
 operationDetails

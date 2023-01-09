@@ -1,0 +1,54 @@
+#!ek9
+defines module bad.classmodifier.use
+
+  defines class
+
+    //Valid class used as a base class
+    C0
+      private basicMethod()
+        <- rtn as String: "OK"
+
+      protected anotherMethod()
+        <- rtn as String: "OK"
+
+    C1 extends C0
+
+      p1 as String
+      p2 as Integer
+
+      //This constructor is allowed
+      default C1()
+
+      //This constructor is not allowed because it has parameters
+      default C1()
+        -> param as String
+
+      //Not logical to define a constructor and say it is abstract
+      C1() as abstract
+        -> param as Integer
+
+      //While it logical and natural to 'think' you are overriding a constructor
+      //It does not get expressed this way.
+      override C1()
+        ->
+          p1 as String
+          p2 as Integer
+        super()
+        this.p1 = p1
+        this.p2 = p2
+
+      //This use of 'public' is not needed, public is defined but never required as it is likely
+      //To be a mistake developers moving from other OO languages will make.
+      public someMethod()
+        <- rtn as String: "OK"
+
+      //This makes no sense, if a method being overridden is private
+      //Then it is not visible and hence cannot be overridden
+      //If the method was not private then it is not possible to reduce it's visibility.
+      override private basicMethod()
+        <- rtn as String: "OK"
+
+      //This is not allowed either, not possible to take a concrete existing method
+      //And force it to be abstract when its super was not.
+      override anotherMethod() as abstract
+//EOF

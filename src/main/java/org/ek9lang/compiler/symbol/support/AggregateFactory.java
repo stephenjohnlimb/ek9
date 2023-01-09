@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.symbol.support;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
@@ -27,6 +28,12 @@ import org.ek9lang.core.exception.CompilerException;
  */
 public class AggregateFactory {
 
+  public static final String EK9_STRING = "org.ek9.lang::String";
+  public static final String EK9_INTEGER = "org.ek9.lang::Integer";
+  public static final String EK9_VOID = "org.ek9.lang::Void";
+  public static final String EK9_FLOAT = "org.ek9.lang::Float";
+  public static final String EK9_BOOLEAN = "org.ek9.lang::Boolean";
+  
   /**
    * Add a synthetic constructor, if a constructor is not present.
    */
@@ -42,16 +49,15 @@ public class AggregateFactory {
   /**
    * Add a synthetic constructor, if a constructor is not present.
    */
-  public void addSyntheticConstructorIfRequired(IAggregateSymbol aggregateSymbol,
-                                                List<ISymbol> constructorArguments) {
+  public void addSyntheticConstructorIfRequired(IAggregateSymbol aggregateSymbol, List<ISymbol> constructorArguments) {
     addConstructorIfRequired(aggregateSymbol, constructorArguments, true);
   }
 
   /**
    * Add a new constructor if not present, maybe marked as synthetic.
    */
-  public void addConstructorIfRequired(IAggregateSymbol aggregateSymbol,
-                                       List<ISymbol> constructorArguments, boolean synthetic) {
+  public void addConstructorIfRequired(IAggregateSymbol aggregateSymbol, List<ISymbol> constructorArguments,
+                                       boolean synthetic) {
     MethodSymbolSearch symbolSearch = new MethodSymbolSearch(aggregateSymbol.getName());
     symbolSearch.setParameters(constructorArguments);
     Optional<ISymbol> resolvedConstructor = aggregateSymbol.resolveMember(symbolSearch);
@@ -83,8 +89,7 @@ public class AggregateFactory {
     for (MethodSymbol method : from.getAllNonAbstractMethods()) {
       method.getType().ifPresentOrElse(methodType -> {
         if (method.isConstructor() && methodType.isExactSameType(from)) {
-          MethodSymbol newMethod =
-              new MethodSymbol(to.getName(), Optional.of(to), to).setConstructor(true);
+          MethodSymbol newMethod = new MethodSymbol(to.getName(), Optional.of(to), to).setConstructor(true);
           List<ISymbol> params = method.getMethodParameters();
           newMethod.setMethodParameters(params);
           to.define(newMethod);
@@ -120,8 +125,7 @@ public class AggregateFactory {
     parameterisedSymbol.getParameterSymbols().forEach(symbol -> {
       if (symbol.isGenericTypeParameter()) {
         List<ISymbol> concreteParameters = concreteSymbol.getParameterSymbols();
-        List<ISymbol> genericParameters =
-            concreteSymbol.getParameterisableSymbol().getParameterisedTypes();
+        List<ISymbol> genericParameters = concreteSymbol.getParameterisableSymbol().getParameterisedTypes();
         for (int i = 0; i < concreteParameters.size(); i++) {
           if (symbol.isExactSameType(genericParameters.get(i))) {
             appropriateParams.add(concreteParameters.get(i));
@@ -175,13 +179,11 @@ public class AggregateFactory {
     return new AggregateSymbol(name, enclosingScope, teeSymbols);
   }
 
-  public AggregateSymbol createTemplateGenericType(String name, IScope enclosingScope,
-                                                   AggregateSymbol teeSymbol) {
+  public AggregateSymbol createTemplateGenericType(String name, IScope enclosingScope, AggregateSymbol teeSymbol) {
     return new AggregateSymbol(name, enclosingScope, List.of(teeSymbol));
   }
 
-  public FunctionSymbol createTemplateGenericFunction(String name, IScope enclosingScope,
-                                                      AggregateSymbol teeSymbol) {
+  public FunctionSymbol createTemplateGenericFunction(String name, IScope enclosingScope, AggregateSymbol teeSymbol) {
     return new FunctionSymbol(name, enclosingScope, List.of(teeSymbol));
   }
 
@@ -203,87 +205,95 @@ public class AggregateFactory {
 
     addConstructor(t);
 
-    final Optional<ISymbol> integerType = scope.resolve(new TypeSymbolSearch("org.ek9.lang::Integer"));
-    final Optional<ISymbol> stringType = scope.resolve(new TypeSymbolSearch("org.ek9.lang::String"));
-    final Optional<ISymbol> booleanType = scope.resolve(new TypeSymbolSearch("org.ek9.lang::Boolean"));
-    final Optional<ISymbol> voidType = scope.resolve(new TypeSymbolSearch("org.ek9.lang::Void"));
-
-    /*
-     * Now make the '?', null check operator - this enables us to do null checking in
-     * the template definition in the ek9 file
-     */
-
-
-    //isSet
-    addPurePublicSimpleOperator(t, "?", booleanType);
-    //Now a _string $ operator
-    addPurePublicSimpleOperator(t, "$", stringType);
-    //To JSON operator
-    addPurePublicSimpleOperator(t, "$$", stringType);
-    //hash code
-    addPurePublicSimpleOperator(t, "#?", integerType);
-
-    addPurePublicSimpleOperator(t, "empty", booleanType);
-    addPurePublicSimpleOperator(t, "length", integerType);
-
-    //First and last
-    addPurePublicPrefixSuffixMethod(t, "#<");
-    addPurePublicPrefixSuffixMethod(t, "#>");
-
-    //negate operator
-    addPurePublicPrefixSuffixMethod(t, "~");
-
-    addPurePublicPrefixSuffixMethod(t, "++");
-    addPurePublicPrefixSuffixMethod(t, "--");
-
-    //Support automatic opening and closing of 'things'
-    addPurePublicSimpleOperator(t, "open", voidType);
-    addPurePublicSimpleOperator(t, "close", voidType);
-
-    //Other operators
-
-    //So for operators these will deal in the same type.
-    addOperator(t, "+", true);
-    addOperator(t, "-", true);
-    addOperator(t, "*", true);
-    addOperator(t, "/", true);
-
-    //copy/clone
-    addOperator(t, ":=:", true);
-
-    addOperator(t, "|", false);
-    addOperator(t, "+=", false);
-    addOperator(t, "-=", false);
-    addOperator(t, "*=", false);
-    addOperator(t, "/=", false);
-
-    //merge
-    addOperator(t, ":~:", false);
-
-    //replace
-    addOperator(t, ":^:", false);
-
-    addComparatorOperator(t, "==", booleanType);
-    addComparatorOperator(t, "<>", booleanType);
-    addComparatorOperator(t, "<", booleanType);
-    addComparatorOperator(t, "<=", booleanType);
-    addComparatorOperator(t, ">=", booleanType);
-    addComparatorOperator(t, ">", booleanType);
-
-    //compare
-    addComparatorOperator(t, "<=>", integerType);
-    //fuzzy compare
-    addComparatorOperator(t, "<~>", integerType);
-
+    getAllPossibleSyntheticOperators(t).forEach(t::define);
     return t;
+  }
+
+  /**
+   * Provides all the possible default operators.
+   * Does not add them to the aggregate, but does create them with the aggregate as the enclosing scope.
+   */
+  public List<MethodSymbol> getAllPossibleDefaultOperators(IAggregateSymbol aggregate) {
+    final Optional<ISymbol> integerType = aggregate.resolve(new TypeSymbolSearch(EK9_INTEGER));
+    final Optional<ISymbol> stringType = aggregate.resolve(new TypeSymbolSearch(EK9_STRING));
+    final Optional<ISymbol> booleanType = aggregate.resolve(new TypeSymbolSearch(EK9_BOOLEAN));
+
+    return new ArrayList<>(Arrays.asList(
+        //isSet
+        createPurePublicSimpleOperator(aggregate, "?", booleanType),
+        //Now a _string $ operator
+        createPurePublicSimpleOperator(aggregate, "$", stringType),
+        //hash code
+        createPurePublicSimpleOperator(aggregate, "#?", integerType),
+
+        createComparatorOperator(aggregate, "==", booleanType), createComparatorOperator(aggregate, "<>", booleanType),
+        createComparatorOperator(aggregate, "<", booleanType), createComparatorOperator(aggregate, "<=", booleanType),
+        createComparatorOperator(aggregate, ">=", booleanType), createComparatorOperator(aggregate, ">", booleanType),
+
+        //compare
+        createComparatorOperator(aggregate, "<=>", integerType)));
+  }
+
+  /**
+   * Provides a list of all possible synthetic operators, this includes the possible default operators.
+   * This is typically used when creating synthetic 'T' aggregates for generics/templates.
+   */
+  public List<MethodSymbol> getAllPossibleSyntheticOperators(IAggregateSymbol aggregate) {
+    final Optional<ISymbol> integerType = aggregate.resolve(new TypeSymbolSearch(EK9_INTEGER));
+    final Optional<ISymbol> booleanType = aggregate.resolve(new TypeSymbolSearch(EK9_BOOLEAN));
+    final Optional<ISymbol> voidType = aggregate.resolve(new TypeSymbolSearch(EK9_VOID));
+
+    var theDefaultOperators = getAllPossibleDefaultOperators(aggregate);
+
+    var additionalOperators = new ArrayList<>(Arrays.asList(createToJsonSimpleOperator(aggregate),
+
+        createPurePublicSimpleOperator(aggregate, "empty", booleanType),
+        createPurePublicSimpleOperator(aggregate, "length", integerType),
+
+        //First and last
+        createPurePublicPrefixSuffixMethod(aggregate, "#<"), createPurePublicPrefixSuffixMethod(aggregate, "#>"),
+
+        //negate operator
+        createPurePublicPrefixSuffixMethod(aggregate, "~"),
+
+        createPurePublicPrefixSuffixMethod(aggregate, "++"), createPurePublicPrefixSuffixMethod(aggregate, "--"),
+
+        //Support automatic opening and closing of 'things'
+        createPurePublicSimpleOperator(aggregate, "close", voidType),
+
+        //Other operators
+
+        //So for operators these will deal in the same type.
+        createOperator(aggregate, "+", true), createOperator(aggregate, "-", true),
+        createOperator(aggregate, "*", true), createOperator(aggregate, "/", true),
+
+        //copy/clone
+        createOperator(aggregate, ":=:", true),
+
+        createOperator(aggregate, "|", false), createOperator(aggregate, "+=", false),
+        createOperator(aggregate, "-=", false), createOperator(aggregate, "*=", false),
+        createOperator(aggregate, "/=", false),
+
+        //merge
+        createOperator(aggregate, ":~:", false),
+
+        //replace
+        createOperator(aggregate, ":^:", false),
+
+        //fuzzy compare
+        createComparatorOperator(aggregate, "<~>", integerType)));
+
+    List<MethodSymbol> rtn = new ArrayList<>(theDefaultOperators.size() + additionalOperators.size());
+    rtn.addAll(theDefaultOperators);
+    rtn.addAll(additionalOperators);
+    return rtn;
   }
 
   /**
    * Just add a method to an aggregate with the name and parameters and return type.
    * The methodParameters can be empty if there are none.
    */
-  public MethodSymbol addPublicMethod(AggregateSymbol clazz, String methodName,
-                                      List<ISymbol> methodParameters,
+  public MethodSymbol addPublicMethod(AggregateSymbol clazz, String methodName, List<ISymbol> methodParameters,
                                       Optional<ISymbol> returnType) {
     MethodSymbol method = new MethodSymbol(methodName, clazz);
     method.setParsedModule(clazz.getParsedModule());
@@ -298,9 +308,9 @@ public class AggregateFactory {
    * This allows a developer to use built-in methods on the 'Enumeration' type.
    */
   public void addEnumerationMethods(AggregateSymbol clazz) {
-    final Optional<ISymbol> booleanType = clazz.resolve(new TypeSymbolSearch("org.ek9.lang::Boolean"));
-    final Optional<ISymbol> integerType = clazz.resolve(new TypeSymbolSearch("org.ek9.lang::Integer"));
-    final Optional<ISymbol> stringType = clazz.resolve(new TypeSymbolSearch("org.ek9.lang::String"));
+    final Optional<ISymbol> booleanType = clazz.resolve(new TypeSymbolSearch(EK9_BOOLEAN));
+    final Optional<ISymbol> integerType = clazz.resolve(new TypeSymbolSearch(EK9_INTEGER));
+    final Optional<ISymbol> stringType = clazz.resolve(new TypeSymbolSearch(EK9_STRING));
     //Some reasonable operations
     //compare
     addComparatorOperator(clazz, "<=>", integerType);
@@ -315,6 +325,7 @@ public class AggregateFactory {
     addPurePublicSimpleOperator(clazz, "?", booleanType);
     //Now a _string $ operator
     addPurePublicSimpleOperator(clazz, "$", stringType);
+
     //To JSON operator
     addPurePublicSimpleOperator(clazz, "$$", stringType);
     //hash code
@@ -325,16 +336,29 @@ public class AggregateFactory {
     addPurePublicPrefixSuffixMethod(clazz, "#>");
   }
 
-  private MethodSymbol addPurePublicPrefixSuffixMethod(AggregateSymbol clazz, String methodName) {
-    return addPurePublicSimpleOperator(clazz, methodName, Optional.of(clazz));
+  private MethodSymbol addPurePublicPrefixSuffixMethod(IAggregateSymbol clazz, String methodName) {
+    var method = createPurePublicPrefixSuffixMethod(clazz, methodName);
+    clazz.define(method);
+    return method;
+  }
+
+  private MethodSymbol createPurePublicPrefixSuffixMethod(IAggregateSymbol clazz, String methodName) {
+    return createPurePublicSimpleOperator(clazz, methodName, Optional.of(clazz));
   }
 
   /**
    * Adds a form of a comparison operator.
    */
-  public MethodSymbol addComparatorOperator(AggregateSymbol clazz, String comparatorType,
+  public MethodSymbol addComparatorOperator(IAggregateSymbol clazz, String comparatorType,
                                             Optional<ISymbol> returnType) {
-    MethodSymbol operator = addPurePublicSimpleOperator(clazz, comparatorType, returnType);
+    MethodSymbol operator = createComparatorOperator(clazz, comparatorType, returnType);
+    clazz.define(operator);
+    return operator;
+  }
+
+  private MethodSymbol createComparatorOperator(IAggregateSymbol clazz, String comparatorType,
+                                                Optional<ISymbol> returnType) {
+    MethodSymbol operator = createPurePublicSimpleOperator(clazz, comparatorType, returnType);
     operator.define(new VariableSymbol("param", clazz));
     return operator;
   }
@@ -343,8 +367,20 @@ public class AggregateFactory {
    * Adds a simple operator, that is 'pure' (no side effects) and accepts no
    * parameters, but just returns a value.
    */
-  public MethodSymbol addPurePublicSimpleOperator(AggregateSymbol clazz, String methodName,
+  public MethodSymbol addPurePublicSimpleOperator(IAggregateSymbol clazz, String methodName,
                                                   Optional<ISymbol> returnType) {
+    var method = createPurePublicSimpleOperator(clazz, methodName, returnType);
+    clazz.define(method);
+    return method;
+  }
+
+  public MethodSymbol createToJsonSimpleOperator(IAggregateSymbol aggregate) {
+    final Optional<ISymbol> stringType = aggregate.resolve(new TypeSymbolSearch(EK9_STRING));
+    return createPurePublicSimpleOperator(aggregate, "$$", stringType);
+  }
+
+  private MethodSymbol createPurePublicSimpleOperator(IAggregateSymbol clazz, String methodName,
+                                                      Optional<ISymbol> returnType) {
     MethodSymbol method = new MethodSymbol(methodName, clazz);
     method.setReturningSymbol(new VariableSymbol("rtn", returnType));
     method.setParsedModule(clazz.getParsedModule());
@@ -352,7 +388,6 @@ public class AggregateFactory {
     method.setMarkedPure(true);
     method.setOperator(true);
     method.setVirtual(false);
-    clazz.define(method);
     return method;
   }
 
@@ -360,7 +395,13 @@ public class AggregateFactory {
    * Add a normal operator, that accepts a type and the type name of the operator.
    * Can be pure +/-/* etc or a mutator like *=.
    */
-  public MethodSymbol addOperator(AggregateSymbol clazz, String operatorType, boolean isPure) {
+  public MethodSymbol addOperator(IAggregateSymbol clazz, String operatorType, boolean isPure) {
+    var operator = createOperator(clazz, operatorType, isPure);
+    clazz.define(operator);
+    return operator;
+  }
+
+  private MethodSymbol createOperator(IAggregateSymbol clazz, String operatorType, boolean isPure) {
     VariableSymbol paramT = new VariableSymbol("param", clazz);
 
     MethodSymbol operator = new MethodSymbol(operatorType, clazz);
@@ -373,7 +414,7 @@ public class AggregateFactory {
     operator.define(paramT);
     //returns the same type as itself
     operator.setType(clazz);
-    clazz.define(operator);
+
     return operator;
   }
 }

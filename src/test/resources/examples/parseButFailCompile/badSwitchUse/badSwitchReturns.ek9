@@ -1,0 +1,32 @@
+#!ek9
+defines module bad.switches.use
+
+  defines program
+
+    Prog1()
+      val <- "ToCheck"
+
+      //So there is no point in this return from a switch
+      switch val
+        <- resultText as String
+        case "ToCheck"
+          resultText: "Jackpot"
+        case "This"
+          resultText: "Was this"
+        case "This"
+          resultText: "Was that"
+        default
+          resultText: "Nothing"
+
+      //Here there is no return value but one is expected
+      //This is likely to be ahow someone new to ek9 will get it wrong.
+      someResult <- switch val
+        case "ToCheck"
+          someResult: "Jackpot"
+        case "This"
+          someResult: "Was this"
+        case "This"
+          someResult: "Was that"
+        default
+          someResult: "Nothing"
+//EOF

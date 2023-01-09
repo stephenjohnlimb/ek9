@@ -5,7 +5,7 @@ import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 
 /**
- * Error when the definition of a service in invalid.
+ * Error when the definition of a service is invalid.
  */
 public class CheckForInvalidServiceDefinition implements Consumer<AggregateSymbol> {
   private final ErrorListener errorListener;

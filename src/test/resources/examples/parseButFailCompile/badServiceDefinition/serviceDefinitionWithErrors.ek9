@@ -1,0 +1,52 @@
+#!ek9
+<?-
+  Used as an example to test that the compiler can detect generics extending generics
+  Which is not possible.
+-?>
+defines module bad.services.use
+
+  <?-
+    REST web service.
+  -?>
+  defines service
+    //The Name of the and the uri it is mapped to - but break the code by using a parameter.
+    Addresses :/addresses/{not-allowed}
+
+      byId() as GET for :/{address-id}
+        -> addressId as AddressId :=: PATH "address-id" //required because different name
+        <- response as HTTPResponse
+
+        response: (addressId) of HTTPResponse by delegate
+          override content()
+            <- rtn as String: getOK()
+
+      //An invalid operator
+      operator <~> :/
+        -> request as HTTPRequest :=: REQUEST
+        <- response as HTTPResponse: (request) of HTTPResponse by delegate
+          override content()
+            <- rtn as String: getNotOK()
+
+      listAll() :/
+        <- response as HTTPResponse: () of HTTPResponse by delegate
+          override content()
+            <- rtn as String: notAllowed()
+
+      //Not allowed because this is just a normal method and 'correlation' to http is not possible.
+      private someMethod()
+        -> incomingContent as String :=: CONTENT
+
+      private anotherInvalidMethod()
+        <- incomingContent as String :=: CONTENT
+
+      //As private this is fine
+      private getOK()
+        <- rtn as String: "OK"
+
+      //As public this is fine
+      getNotOK()
+        <- rtn as String: "NOT OK"
+
+      protected notAllowed()
+        <- rtn as String: "Will be caught by compiler"
+//EOF
