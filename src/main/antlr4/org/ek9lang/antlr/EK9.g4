@@ -195,13 +195,13 @@ typeDeclaration
     ;
 
 typeDef
-    : definedType
+    : identifierReference
     | parameterisedType
     ;
 
 parameterisedType
-    : definedType OF LPAREN parameterisedArgs RPAREN
-    | definedType OF typeDef
+    : identifierReference OF LPAREN parameterisedArgs RPAREN
+    | identifierReference OF typeDef
     ;
 
 parameterisedArgs
@@ -393,9 +393,9 @@ expression
     ;
 
 call
-    : definedType paramExpression
-    | definedType paramExpression OF typeDef
-    | definedType paramExpression OF LPAREN parameterisedArgs RPAREN
+    : identifierReference paramExpression
+    | identifierReference paramExpression OF typeDef
+    | identifierReference paramExpression OF LPAREN parameterisedArgs RPAREN
     | primaryRef paramExpression
     | dynamicFunctionDeclaration
     | call paramExpression
@@ -595,10 +595,6 @@ operator
     | SUFFIX
     | EMPTY
     | LENGTH
-    ;
-
-definedType
-    : identifierReference
     ;
 
 //Now we also add in some words that act as operators in some ways but we want the developer to be able to use them as identifiers.

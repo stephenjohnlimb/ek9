@@ -24,6 +24,7 @@ import org.ek9lang.compiler.main.rules.CheckSwitchReturns;
 import org.ek9lang.compiler.main.rules.CheckTryReturns;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
+import org.ek9lang.compiler.symbol.CallSymbol;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
 import org.ek9lang.compiler.symbol.ForSymbol;
 import org.ek9lang.compiler.symbol.FunctionSymbol;
@@ -38,6 +39,7 @@ import org.ek9lang.compiler.symbol.ServiceOperationSymbol;
 import org.ek9lang.compiler.symbol.StreamCallSymbol;
 import org.ek9lang.compiler.symbol.StreamPipeLineSymbol;
 import org.ek9lang.compiler.symbol.SwitchSymbol;
+import org.ek9lang.compiler.symbol.Symbol;
 import org.ek9lang.compiler.symbol.TrySymbol;
 import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
@@ -628,6 +630,25 @@ public class SymbolFactory {
     call.setReferenced(true);
     call.setNotMutable();
   }
+
+  public Symbol newGeneralSymbol(final Token token, String name) {
+    Symbol symbol = new Symbol(name);
+    configureSymbol(symbol, token);
+    return symbol;
+  }
+
+  /**
+   * Symbol to model some type of call to a function, dynamic function, constructor, this, super etc.
+   */
+  public CallSymbol newCall(EK9Parser.CallContext ctx, IScope scope) {
+    var symbol = new CallSymbol(ctx.getText(), scope);
+    configureSymbol(symbol, ctx.start);
+
+    symbol.setInitialisedBy(ctx.start);
+
+    return symbol;
+  }
+
 
   /**
    * Create a new symbol that represents an EK9 'switch' block.

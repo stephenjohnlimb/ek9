@@ -442,6 +442,29 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     symbolAndScopeManagement.enterNewScope(forBlock, ctx);
   }
 
+  @Override
+  public void enterReturningParam(EK9Parser.ReturningParamContext ctx) {
+    IScope scope = symbolAndScopeManagement.getTopScope();
+    LocalScope returningScope = new LocalScope("Returning Param", scope);
+    symbolAndScopeManagement.enterNewScope(returningScope, ctx);
+
+    super.enterReturningParam(ctx);
+  }
+
+  @Override
+  public void exitReturningParam(EK9Parser.ReturningParamContext ctx) {
+    ParseTree child = ctx.variableDeclaration() != null ? ctx.variableDeclaration() : ctx.variableOnlyDeclaration();
+
+    var symbol = symbolAndScopeManagement.getRecordedSymbol(child);
+    if (symbol instanceof VariableSymbol variableSymbol) {
+      variableSymbol.setReturningParameter(true);
+      //Now we won't know its type yet but we will know it exists
+      //Just pass the symbol back up in the context
+      symbolAndScopeManagement.recordSymbol(variableSymbol, ctx);
+    }
+    super.exitReturningParam(ctx);
+  }
+
   /**
    * This is the main context for ek9 expressions and statements to be employed.
    * i.e. it is THE place for the developers ek9 code to be expressed.
@@ -480,6 +503,22 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     }
 
     super.enterBlockStatement(ctx);
+  }
+
+  @Override
+  public void enterPrimaryRef(EK9Parser.PrimaryRefContext ctx) {
+    var symbol = symbolFactory.newGeneralSymbol(ctx.start, ctx.getText());
+    symbolAndScopeManagement.recordSymbol(symbol, ctx);
+
+    super.enterPrimaryRef(ctx);
+  }
+
+  @Override
+  public void enterCall(EK9Parser.CallContext ctx) {
+    IScope scope = symbolAndScopeManagement.getTopScope();
+    var symbol = symbolFactory.newCall(ctx, scope);
+    symbolAndScopeManagement.recordSymbol(symbol, ctx);
+    super.enterCall(ctx);
   }
 
   @Override
@@ -570,12 +609,8 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     var resolvedType = symbolAndScopeManagement.getTopScope().resolve(new TypeSymbolSearch(typeName));
     var source = literal.getSourceToken().getTokenSource().getSourceName();
     var line = literal.getSourceToken().getTokenSource().getLine();
-    AssertValue.checkTrue("Type of constant for '"
-            + literal
-            + "' should have resolved in ["
-            + source
-            + "] on line "
-            + line,
+    AssertValue.checkTrue(
+        "Type of constant for '" + literal + "' should have resolved in [" + source + "] on line " + line,
         resolvedType.isPresent());
     literal.setType(resolvedType);
     symbolAndScopeManagement.enterNewLiteral(literal, ctx);
