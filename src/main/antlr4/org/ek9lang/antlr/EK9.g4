@@ -607,7 +607,7 @@ identifierReference
     ;
 
 dottedName
-    : Identifier (DOT Identifier)*
+    : identifier (DOT identifier)*
     ;
  
 identifier

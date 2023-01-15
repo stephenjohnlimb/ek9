@@ -1,5 +1,6 @@
 #!ek9
-defines module com.customer.layout
+//Try a couple of key words in the module name.
+defines module com.customer.is.handle.layout
 
   //Just designed to test functions, named parameters and declarative layout lexing/parsing
   //Note lots of samples here are just design to check the lexer/parser
