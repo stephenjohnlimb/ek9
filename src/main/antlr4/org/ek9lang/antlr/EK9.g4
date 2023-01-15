@@ -209,10 +209,10 @@ parameterisedArgs
     ;
 
 traitsList
-    : WITH? TRAIT? OF traitRef (COMMA traitRef)*
+    : WITH? TRAIT? OF traitReference (COMMA traitReference)*
     ;
 
-traitRef
+traitReference
     : identifierReference (BY identifier)?
     ;
 
@@ -339,7 +339,7 @@ forRange
     ;
 
 assignmentStatement
-    : (primaryRef | identifierReference | objectAccessExpression) op=(ASSIGN | ASSIGN2 | COLON | ASSIGN_UNSET | ADD_ASSIGN | SUB_ASSIGN | DIV_ASSIGN | MUL_ASSIGN | MERGE | REPLACE | COPY) assignmentExpression
+    : (primaryReference | identifierReference | objectAccessExpression) op=(ASSIGN | ASSIGN2 | COLON | ASSIGN_UNSET | ADD_ASSIGN | SUB_ASSIGN | DIV_ASSIGN | MUL_ASSIGN | MERGE | REPLACE | COPY) assignmentExpression
     ;
 
 assignmentExpression
@@ -389,14 +389,14 @@ expression
     | left=expression NOT? CONTAINS right=expression
     | left=expression IS? NOT? IN right=expression
     | left=expression op=(AND | OR | XOR) NL? right=expression
-    | identifier NOT? IN range
+    | identifierReference NOT? IN range
     ;
 
 call
     : identifierReference paramExpression
     | identifierReference paramExpression OF typeDef
     | identifierReference paramExpression OF LPAREN parameterisedArgs RPAREN
-    | primaryRef paramExpression
+    | primaryReference paramExpression
     | dynamicFunctionDeclaration
     | call paramExpression
     ;
@@ -480,7 +480,7 @@ objectAccessExpression
     ;
 
 objectAccessStart
-    :  (primaryRef | identifierReference | call)
+    :  (primaryReference | identifierReference | call)
     ;
 
 objectAccess
@@ -488,11 +488,11 @@ objectAccess
     ;
 
 objectAccessType
-    : DOT (identifier | operationCall)
+    : DOT (identifierReference | operationCall)
     ;
 
 operationCall
-    : identifier paramExpression
+    : identifierReference paramExpression
     | operator paramExpression
     ;
 
@@ -502,7 +502,7 @@ paramExpression
     ;
 
 expressionList
-    : LPAREN (Identifier (ASSIGN | ASSIGN2 | COLON))? expression (COMMA (Identifier (ASSIGN | ASSIGN2 | COLON))? expression)* RPAREN
+    : LPAREN (identifier (ASSIGN | ASSIGN2 | COLON))? expression (COMMA (identifier (ASSIGN | ASSIGN2 | COLON))? expression)* RPAREN
     ;
 
 assertStatement
@@ -524,12 +524,12 @@ initValuePair
 
 primary
     : LPAREN expression RPAREN
-    | primaryRef
+    | primaryReference
     | literal
     | identifierReference
     ;
 
-primaryRef
+primaryReference
     : THIS
     | SUPER
     ;

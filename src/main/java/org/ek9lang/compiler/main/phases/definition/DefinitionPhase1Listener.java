@@ -506,11 +506,11 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   @Override
-  public void enterPrimaryRef(EK9Parser.PrimaryRefContext ctx) {
+  public void enterPrimaryReference(EK9Parser.PrimaryReferenceContext ctx) {
     var symbol = symbolFactory.newGeneralSymbol(ctx.start, ctx.getText());
     symbolAndScopeManagement.recordSymbol(symbol, ctx);
 
-    super.enterPrimaryRef(ctx);
+    super.enterPrimaryReference(ctx);
   }
 
   @Override
