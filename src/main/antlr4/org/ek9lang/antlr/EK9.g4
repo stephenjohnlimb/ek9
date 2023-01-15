@@ -9,6 +9,9 @@ options
 //But similar to Python INDENT, DEDENT and NEWLINE are critical scope marking that's why they are everywhere in the
 //grammar - white space and newlines are significant.
 
+//Note that identifier is basically an unqualified name. IdentifierReference is an optionally fully qualified identifier.
+//Also note that Identifier (not identifier) is the lex token, identifier includes additional key words.
+
 compilationUnit
     : sheBang? moduleDeclaration NL* EOF
     ;
@@ -163,7 +166,7 @@ constantInitialiser
     ;
 
 dynamicVariableCapture
-    : LPAREN (identifierReference (COMMA identifierReference)*)? RPAREN
+    : LPAREN (identifier (COMMA identifier)*)? RPAREN
     ;
 
 parameterisedParams
@@ -318,7 +321,7 @@ ifStatement
     ;
 
 guardExpression
-    : identifierReference GUARD expression
+    : identifier GUARD expression
     ;
 
 whileStatement
@@ -335,11 +338,11 @@ forLoop
     ;
 
 forRange
-    : FOR identifier IN range (BY (literal | identifierReference))?
+    : FOR identifier IN range (BY (literal | identifier))?
     ;
 
 assignmentStatement
-    : (primaryReference | identifierReference | objectAccessExpression) op=(ASSIGN | ASSIGN2 | COLON | ASSIGN_UNSET | ADD_ASSIGN | SUB_ASSIGN | DIV_ASSIGN | MUL_ASSIGN | MERGE | REPLACE | COPY) assignmentExpression
+    : (primaryReference | identifier | objectAccessExpression) op=(ASSIGN | ASSIGN2 | COLON | ASSIGN_UNSET | ADD_ASSIGN | SUB_ASSIGN | DIV_ASSIGN | MUL_ASSIGN | MERGE | REPLACE | COPY) assignmentExpression
     ;
 
 assignmentExpression
@@ -389,7 +392,7 @@ expression
     | left=expression NOT? CONTAINS right=expression
     | left=expression IS? NOT? IN right=expression
     | left=expression op=(AND | OR | XOR) NL? right=expression
-    | identifierReference NOT? IN range
+    | identifier NOT? IN range
     ;
 
 call
@@ -470,7 +473,7 @@ streamTermination
     ;
 
 pipelinePart
-    : identifierReference
+    : identifier
     | objectAccessExpression
     | call
     ;
@@ -480,7 +483,7 @@ objectAccessExpression
     ;
 
 objectAccessStart
-    :  (primaryReference | identifierReference | call)
+    :  (primaryReference | identifier | call)
     ;
 
 objectAccess
@@ -488,11 +491,11 @@ objectAccess
     ;
 
 objectAccessType
-    : DOT (identifierReference | operationCall)
+    : DOT (identifier | operationCall)
     ;
 
 operationCall
-    : identifierReference paramExpression
+    : identifier paramExpression
     | operator paramExpression
     ;
 

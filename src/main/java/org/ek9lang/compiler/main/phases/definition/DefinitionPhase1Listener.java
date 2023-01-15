@@ -521,6 +521,18 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     super.enterCall(ctx);
   }
 
+  //For phase 1 no need to process objectAccessExpression, objectAccessStart, objectAccess, objectAccessType
+  //But operationCall is processed here
+
+
+  @Override
+  public void enterOperationCall(EK9Parser.OperationCallContext ctx) {
+    IScope scope = symbolAndScopeManagement.getTopScope();
+    var symbol = symbolFactory.newOperationCall(ctx, scope);
+    symbolAndScopeManagement.recordSymbol(symbol, ctx);
+    super.enterOperationCall(ctx);
+  }
+
   @Override
   public void enterVariableOnlyDeclaration(EK9Parser.VariableOnlyDeclarationContext ctx) {
     final var variable = symbolFactory.newVariable(ctx);

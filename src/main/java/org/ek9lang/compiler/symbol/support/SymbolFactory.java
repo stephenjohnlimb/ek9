@@ -649,6 +649,16 @@ public class SymbolFactory {
     return symbol;
   }
 
+  public CallSymbol newOperationCall(EK9Parser.OperationCallContext ctx, IScope scope) {
+
+    var callName = ctx.operator() != null ? ctx.operator().getText() : ctx.identifier().getText();
+    var symbol = new CallSymbol(callName, scope);
+    configureSymbol(symbol, ctx.start);
+    symbol.setOperator(ctx.operator() != null);
+    symbol.setInitialisedBy(ctx.start);
+
+    return symbol;
+  }
 
   /**
    * Create a new symbol that represents an EK9 'switch' block.
@@ -692,7 +702,8 @@ public class SymbolFactory {
    */
   public VariableSymbol newLoopVariable(EK9Parser.ForRangeContext ctx) {
     checkContextNotNull.accept(ctx);
-    return newLoopVariable(ctx.identifier());
+    //The second identifier (which may not be present) is the loop step either literal or another identifer.
+    return newLoopVariable(ctx.identifier(0));
   }
 
   private VariableSymbol newLoopVariable(EK9Parser.IdentifierContext identifier) {
@@ -800,5 +811,6 @@ public class SymbolFactory {
     }
     return rtn;
   }
+
 
 }
