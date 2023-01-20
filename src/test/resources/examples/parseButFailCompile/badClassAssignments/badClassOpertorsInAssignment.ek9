@@ -1,0 +1,74 @@
+#!ek9
+defines module bad.classassignment.use
+
+  defines class
+
+    C0 as open
+      //Explicitly allow this to be null
+      p0 as Integer?
+
+      default C0()
+
+      //define the copy operator
+      :=:
+        -> param as C0
+        this.p0 :=: param.p0
+
+    CC0 extends C0
+      //Explicitly allow this to be null
+      p11 as Integer?
+
+      //make the mistake of thinking you can copy the supers
+      CC0
+        -> param as CCO
+        super :=: param
+
+    C1
+      p1 as String: String()
+
+      C1()
+        -> param as String
+        this.p1: param
+
+      //This is not allowed, developer probably would mean copy the values.
+      C1()
+        -> param as C1
+        this: param
+
+    C2
+      p1 as String: String()
+
+      //This is not allowed, this is always set and so makes no sense.
+      C2()
+        -> param as C2
+        this :=? param
+
+    //But these are allowed
+    C3
+      p1 as String: String()
+
+      //Get a full copy of the values from param into this. - i.e. copy the value of param over
+      C3()
+        -> param as C3
+        this :=: param
+
+      //define the copy operator
+      :=:
+        -> param as C3
+        this.p1 :=: param.p1
+
+    C4
+      p1 as String: String()
+      p2 as String: "Steve"
+      //Get a merge of values from param into this. - i.e. copy the value of param over
+      C4()
+        -> param as C4
+        this :~: param
+
+      //define the merge operator
+      :~:
+        -> param as C4
+        //So if p1 or p2 is unset in this, but param p1/p2 is not then it gets merged in as appropriate
+        this.p1 :~: param.p1
+        this.p2 :~: param.p2
+//EOF

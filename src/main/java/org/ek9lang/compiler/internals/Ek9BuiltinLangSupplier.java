@@ -127,8 +127,8 @@ defines extern module org.ek9.lang
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_BUILT_IN_TYPE_CLASSES = """
 
-    Binary
-      Binary()
+    Bits
+      Bits()
       
     Boolean
       Boolean()

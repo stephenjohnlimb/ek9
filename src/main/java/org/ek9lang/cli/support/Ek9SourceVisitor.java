@@ -237,8 +237,8 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
 
   private void processExcludeFiles(EK9Parser.AssignmentExpressionContext ive) {
     //We cannot assume this because user might have not used correct type
-    if (ive.expression() != null && ive.expression().array() != null) {
-      excludeFiles = extractListFromArray(ive.expression().array());
+    if (ive.expression() != null && ive.expression().list() != null) {
+      excludeFiles = extractListFromArray(ive.expression().list());
     } else {
       errorListener.semanticError(ive.expression().start,
           "In " + moduleName + " package: 'excludeFiles' property must be List of String.",
@@ -258,8 +258,8 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
 
   private void processIncludeFiles(EK9Parser.AssignmentExpressionContext ive) {
     //We cannot assume this because user might have not used correct type
-    if (ive.expression() != null && ive.expression().array() != null) {
-      includeFiles = extractListFromArray(ive.expression().array());
+    if (ive.expression() != null && ive.expression().list() != null) {
+      includeFiles = extractListFromArray(ive.expression().list());
     } else {
       errorListener.semanticError(ive.expression().start,
           "In " + moduleName + " package: 'includeFiles' property must be List of String.",
@@ -312,8 +312,8 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
 
   private void processTags(EK9Parser.AssignmentExpressionContext ive) {
     //We cannot assume this because user might have not used correct type
-    if (ive.expression() != null && ive.expression().array() != null) {
-      tags = extractListFromArray(ive.expression().array());
+    if (ive.expression() != null && ive.expression().list() != null) {
+      tags = extractListFromArray(ive.expression().list());
     } else {
       errorListener.semanticError(ive.expression().start,
           "In '" + moduleName + "' package: 'tags' property must be a List of String type.",
@@ -321,7 +321,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
     }
   }
 
-  private List<String> extractListFromArray(EK9Parser.ArrayContext ctx) {
+  private List<String> extractListFromArray(EK9Parser.ListContext ctx) {
     return ctx
         .expression()
         .stream()

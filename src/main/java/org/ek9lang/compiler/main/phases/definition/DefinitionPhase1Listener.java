@@ -13,6 +13,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.UnreachableStatement;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.phases.listeners.AbstractEK9PhaseListener;
+import org.ek9lang.compiler.main.rules.CheckAssignment;
 import org.ek9lang.compiler.main.rules.CheckProtectedServiceMethods;
 import org.ek9lang.compiler.main.rules.CommonMethodChecks;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
@@ -75,6 +76,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   private final CommonMethodChecks commonMethodChecks;
 
+  private final CheckAssignment checkAssignment;
 
   /**
    * First phase after parsing. Define symbols and infer types where possible.
@@ -87,7 +89,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     unreachableStatement = new UnreachableStatement(parsedModule.getSource().getErrorListener());
     textLanguageExtraction = new TextLanguageExtraction(parsedModule.getSource().getErrorListener());
     commonMethodChecks = new CommonMethodChecks(parsedModule.getSource().getErrorListener());
-
+    checkAssignment = new CheckAssignment(parsedModule.getSource().getErrorListener());
   }
 
   // Now we hook into the ANTLR listener events - lots of them!
@@ -182,11 +184,6 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
       symbolFactory.addMissingDefaultOperators(ctx, aggregate);
     }
     super.enterDefaultOperator(ctx);
-  }
-
-  private void processProgramDeclaration(EK9Parser.MethodDeclarationContext ctx) {
-    var program = symbolFactory.newProgram(ctx);
-    symbolAndScopeManagement.defineScopedSymbol(program, ctx);
   }
 
   @Override
@@ -436,12 +433,6 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     super.enterForRange(ctx);
   }
 
-  private void pushNewForLoopScope(final ParserRuleContext ctx) {
-    IScope scope = symbolAndScopeManagement.getTopScope();
-    var forBlock = symbolFactory.newForLoop(ctx, scope);
-    symbolAndScopeManagement.enterNewScope(forBlock, ctx);
-  }
-
   @Override
   public void enterReturningParam(EK9Parser.ReturningParamContext ctx) {
     IScope scope = symbolAndScopeManagement.getTopScope();
@@ -524,13 +515,38 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   //For phase 1 no need to process objectAccessExpression, objectAccessStart, objectAccess, objectAccessType
   //But operationCall is processed here
 
-
   @Override
   public void enterOperationCall(EK9Parser.OperationCallContext ctx) {
     IScope scope = symbolAndScopeManagement.getTopScope();
     var symbol = symbolFactory.newOperationCall(ctx, scope);
     symbolAndScopeManagement.recordSymbol(symbol, ctx);
     super.enterOperationCall(ctx);
+  }
+
+  //Not sure these List, Dict and DictEntry calls are needed.
+  //If not remove them later.
+  @Override
+  public void enterList(EK9Parser.ListContext ctx) {
+    IScope scope = symbolAndScopeManagement.getTopScope();
+    var symbol = symbolFactory.newList(ctx, scope);
+    symbolAndScopeManagement.recordSymbol(symbol, ctx);
+    super.enterList(ctx);
+  }
+
+  @Override
+  public void enterDict(EK9Parser.DictContext ctx) {
+    IScope scope = symbolAndScopeManagement.getTopScope();
+    var symbol = symbolFactory.newDict(ctx, scope);
+    symbolAndScopeManagement.recordSymbol(symbol, ctx);
+    super.enterDict(ctx);
+  }
+
+  @Override
+  public void enterInitValuePair(EK9Parser.InitValuePairContext ctx) {
+    IScope scope = symbolAndScopeManagement.getTopScope();
+    var symbol = symbolFactory.newDictEntry(ctx, scope);
+    symbolAndScopeManagement.recordSymbol(symbol, ctx);
+    super.enterInitValuePair(ctx);
   }
 
   @Override
@@ -566,66 +582,11 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     super.exitVariableDeclaration(ctx);
   }
 
-  /**
-   * Just for pure Symbols - not ScopedSymbols - checks for duplicate symbols just within
-   * the current scope.
-   */
-  private void checkAndDefineSymbol(final ISymbol symbol, final ParseTree node) {
-    IScope scope = symbolAndScopeManagement.getTopScope();
-    if (!symbolChecker.errorsIfVariableSymbolAlreadyDefined(scope, symbol)) {
-      symbolAndScopeManagement.enterNewSymbol(symbol, node);
-    }
-  }
-
-  /**
-   * Checks for duplicate names symbols in the current parsedModule scope.
-   * Adds the new scoped symbol or adds a dummy just to ensure parse will continue
-   * with scope stack.
-   */
-  private void checkAndDefineScopedSymbol(final IScopedSymbol symbol, final ParseTree node) {
-    final var moduleScope = getParsedModule().getModuleScope();
-    if (!symbolChecker.errorsIfSymbolAlreadyDefined(moduleScope, symbol, true)) {
-      symbolAndScopeManagement.defineScopedSymbol(symbol, node);
-    } else {
-      symbolAndScopeManagement.recordScopeForStackConsistency(new LocalScope(moduleScope), node);
-    }
-  }
-
-  private void checkAndDefineDynamicScopedSymbol(final IScopedSymbol symbol, final ParseTree node) {
-    final var moduleScope = getParsedModule().getModuleScope();
-    if (!symbolChecker.errorsIfSymbolAlreadyDefined(moduleScope, symbol, true)) {
-      symbolAndScopeManagement.enterNewDynamicScopedSymbol(symbol, node);
-    } else {
-      symbolAndScopeManagement.recordScopeForStackConsistency(new LocalScope(moduleScope), node);
-    }
-  }
-
-  private void processMethodDeclaration(EK9Parser.MethodDeclarationContext ctx) {
-    var currentScope = symbolAndScopeManagement.getTopScope();
-    if (currentScope instanceof IScopedSymbol scopedSymbol) {
-      final var newTypeSymbol = symbolFactory.newMethod(ctx, scopedSymbol);
-      //Can define directly because overloaded methods are allowed.
-      symbolAndScopeManagement.defineScopedSymbol(newTypeSymbol, ctx);
-    } else {
-      symbolAndScopeManagement.recordScopeForStackConsistency(new LocalScope(currentScope), ctx);
-    }
-  }
-
-  private void recordConstant(ParseTree ctx, Token start, String typeName) {
-    //Lets account for the optional '-' on some literals
-    String literalText = ctx.getChild(0).getText();
-    if (ctx.getChildCount() == 2) {
-      literalText += ctx.getChild(1).getText();
-    }
-    ConstantSymbol literal = symbolFactory.newLiteral(start, literalText);
-    var resolvedType = symbolAndScopeManagement.getTopScope().resolve(new TypeSymbolSearch(typeName));
-    var source = literal.getSourceToken().getTokenSource().getSourceName();
-    var line = literal.getSourceToken().getTokenSource().getLine();
-    AssertValue.checkTrue(
-        "Type of constant for '" + literal + "' should have resolved in [" + source + "] on line " + line,
-        resolvedType.isPresent());
-    literal.setType(resolvedType);
-    symbolAndScopeManagement.enterNewLiteral(literal, ctx);
+  @Override
+  public void enterAssignmentStatement(EK9Parser.AssignmentStatementContext ctx) {
+    //There is nothing to record here, but we do need to plug a rule in
+    checkAssignment.accept(ctx);
+    super.enterAssignmentStatement(ctx);
   }
 
   @Override
@@ -688,7 +649,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterBinaryLiteral(EK9Parser.BinaryLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::Binary");
+    recordConstant(ctx, ctx.start, "org.ek9.lang::Bits");
     super.enterBinaryLiteral(ctx);
   }
 
@@ -780,5 +741,78 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   public void enterPathLiteral(EK9Parser.PathLiteralContext ctx) {
     recordConstant(ctx, ctx.start, "org.ek9.lang::Path");
     super.enterPathLiteral(ctx);
+  }
+
+  private void processProgramDeclaration(EK9Parser.MethodDeclarationContext ctx) {
+    var program = symbolFactory.newProgram(ctx);
+    symbolAndScopeManagement.defineScopedSymbol(program, ctx);
+  }
+
+  private void pushNewForLoopScope(final ParserRuleContext ctx) {
+    IScope scope = symbolAndScopeManagement.getTopScope();
+    var forBlock = symbolFactory.newForLoop(ctx, scope);
+    symbolAndScopeManagement.enterNewScope(forBlock, ctx);
+  }
+
+  /**
+   * Just for pure Symbols - not ScopedSymbols - checks for duplicate symbols just within
+   * the current scope.
+   */
+  private void checkAndDefineSymbol(final ISymbol symbol, final ParseTree node) {
+    IScope scope = symbolAndScopeManagement.getTopScope();
+    if (!symbolChecker.errorsIfVariableSymbolAlreadyDefined(scope, symbol)) {
+      symbolAndScopeManagement.enterNewSymbol(symbol, node);
+    }
+  }
+
+  /**
+   * Checks for duplicate names symbols in the current parsedModule scope.
+   * Adds the new scoped symbol or adds a dummy just to ensure parse will continue
+   * with scope stack.
+   */
+  private void checkAndDefineScopedSymbol(final IScopedSymbol symbol, final ParseTree node) {
+    final var moduleScope = getParsedModule().getModuleScope();
+    if (!symbolChecker.errorsIfSymbolAlreadyDefined(moduleScope, symbol, true)) {
+      symbolAndScopeManagement.defineScopedSymbol(symbol, node);
+    } else {
+      symbolAndScopeManagement.recordScopeForStackConsistency(new LocalScope(moduleScope), node);
+    }
+  }
+
+  private void checkAndDefineDynamicScopedSymbol(final IScopedSymbol symbol, final ParseTree node) {
+    final var moduleScope = getParsedModule().getModuleScope();
+    if (!symbolChecker.errorsIfSymbolAlreadyDefined(moduleScope, symbol, true)) {
+      symbolAndScopeManagement.enterNewDynamicScopedSymbol(symbol, node);
+    } else {
+      symbolAndScopeManagement.recordScopeForStackConsistency(new LocalScope(moduleScope), node);
+    }
+  }
+
+  private void processMethodDeclaration(EK9Parser.MethodDeclarationContext ctx) {
+    var currentScope = symbolAndScopeManagement.getTopScope();
+    if (currentScope instanceof IScopedSymbol scopedSymbol) {
+      final var newTypeSymbol = symbolFactory.newMethod(ctx, scopedSymbol);
+      //Can define directly because overloaded methods are allowed.
+      symbolAndScopeManagement.defineScopedSymbol(newTypeSymbol, ctx);
+    } else {
+      symbolAndScopeManagement.recordScopeForStackConsistency(new LocalScope(currentScope), ctx);
+    }
+  }
+
+  private void recordConstant(ParseTree ctx, Token start, String typeName) {
+    //Lets account for the optional '-' on some literals
+    String literalText = ctx.getChild(0).getText();
+    if (ctx.getChildCount() == 2) {
+      literalText += ctx.getChild(1).getText();
+    }
+    ConstantSymbol literal = symbolFactory.newLiteral(start, literalText);
+    var resolvedType = symbolAndScopeManagement.getTopScope().resolve(new TypeSymbolSearch(typeName));
+    var source = literal.getSourceToken().getTokenSource().getSourceName();
+    var line = literal.getSourceToken().getTokenSource().getLine();
+    AssertValue.checkTrue(
+        "Type of constant for '" + literal + "' should have resolved in [" + source + "] on line " + line,
+        resolvedType.isPresent());
+    literal.setType(resolvedType);
+    symbolAndScopeManagement.enterNewLiteral(literal, ctx);
   }
 }

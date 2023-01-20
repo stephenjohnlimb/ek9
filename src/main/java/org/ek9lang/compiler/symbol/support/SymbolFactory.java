@@ -649,6 +649,34 @@ public class SymbolFactory {
     return symbol;
   }
 
+  public CallSymbol newList(EK9Parser.ListContext ctx, IScope scope) {
+    var symbol = new CallSymbol("List", scope);
+    configureSymbol(symbol, ctx.start);
+
+    symbol.setInitialisedBy(ctx.start);
+
+    return symbol;
+  }
+
+  public CallSymbol newDict(EK9Parser.DictContext ctx, IScope scope) {
+    var symbol = new CallSymbol("Dict", scope);
+    configureSymbol(symbol, ctx.start);
+
+    symbol.setInitialisedBy(ctx.start);
+
+    return symbol;
+  }
+
+  public CallSymbol newDictEntry(EK9Parser.InitValuePairContext ctx, IScope scope) {
+    var symbol = new CallSymbol("DictEntry", scope);
+    configureSymbol(symbol, ctx.start);
+
+    symbol.setInitialisedBy(ctx.start);
+
+    return symbol;
+  }
+
+
   public CallSymbol newOperationCall(EK9Parser.OperationCallContext ctx, IScope scope) {
 
     var callName = ctx.operator() != null ? ctx.operator().getText() : ctx.identifier().getText();
@@ -708,7 +736,7 @@ public class SymbolFactory {
 
   private VariableSymbol newLoopVariable(EK9Parser.IdentifierContext identifier) {
     checkContextNotNull.accept(identifier);
-    var variable = newVariable(identifier, false);
+    var variable = newVariable(identifier, false, false);
     //Make note is a loop variable and EK9 will initialise it, developer cannot mutate it.
     variable.setLoopVariable(true);
     variable.setInitialisedBy(identifier.start);
@@ -724,7 +752,22 @@ public class SymbolFactory {
     //Now this is also used in web services and additional ctx.webVariableCorrelation()
     //Makes sense but only for services.
     checkAppropriateWebVariable.accept(ctx);
-    return newVariable(ctx.identifier(), ctx.QUESTION() != null);
+    var variable = newVariable(ctx.identifier(), ctx.QUESTION() != null, ctx.BANG() != null);
+
+    if(ctx.webVariableCorrelation() != null) {
+      //We need to squirrel away the information, so it can be both checked and used elsewhere
+      variable.putSquirrelledData("HTTPACCESS", ctx.webVariableCorrelation().httpAccess().getText());
+      if (ctx.webVariableCorrelation().stringLit() != null) {
+        //Where will this be pulled from
+        variable.putSquirrelledData("HTTPSOURCE", ctx.webVariableCorrelation().stringLit().getText());
+        //Obviously is httpAccess is HEADER then it must be a valid header name.
+        //If httpsAccess is PATH then it must exist in the PATH on the Method
+        //These things are checked elsewhere - here we are just gathering info.
+      } else {
+        variable.putSquirrelledData("HTTPSOURCE", variable.getName());
+      }
+    }
+    return variable;
   }
 
   /**
@@ -733,16 +776,17 @@ public class SymbolFactory {
    */
   public VariableSymbol newVariable(final EK9Parser.VariableDeclarationContext ctx) {
     checkContextNotNull.accept(ctx);
-
-    return newVariable(ctx.identifier(), ctx.QUESTION() != null);
+    return newVariable(ctx.identifier(), ctx.QUESTION() != null, false);
   }
 
-  private VariableSymbol newVariable(final EK9Parser.IdentifierContext identifier, final boolean nullAllowed) {
+  private VariableSymbol newVariable(final EK9Parser.IdentifierContext identifier,
+                                     final boolean nullAllowed, final boolean injectionExpected) {
     AssertValue.checkNotNull("Failed to locate variable name", identifier);
 
     VariableSymbol variable = new VariableSymbol(identifier.getText());
     configureSymbol(variable, identifier.start);
     variable.setNullAllowed(nullAllowed);
+    variable.setInjectionExpected(injectionExpected);
     return variable;
   }
 
@@ -811,6 +855,5 @@ public class SymbolFactory {
     }
     return rtn;
   }
-
 
 }

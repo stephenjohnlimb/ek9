@@ -375,7 +375,7 @@ expression
     | primary
     | call
     | objectAccessExpression
-    | array
+    | list
     | dict
     | SUB expression
     | expression op=(INC | DEC | BANG)
@@ -513,7 +513,7 @@ assertStatement
     | ASSERT LPAREN expression RPAREN
     ;
 
-array
+list
     : LBRACK expression (COMMA expression)* RBRACK
     ;
 
