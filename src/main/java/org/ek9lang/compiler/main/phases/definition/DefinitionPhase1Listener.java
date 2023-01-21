@@ -15,6 +15,7 @@ import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.phases.listeners.AbstractEK9PhaseListener;
 import org.ek9lang.compiler.main.rules.CheckAssignment;
 import org.ek9lang.compiler.main.rules.CheckProtectedServiceMethods;
+import org.ek9lang.compiler.main.rules.CheckVariableOnlyDeclaration;
 import org.ek9lang.compiler.main.rules.CommonMethodChecks;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
@@ -78,6 +79,8 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   private final CheckAssignment checkAssignment;
 
+  private final CheckVariableOnlyDeclaration checkVariableOnlyDeclaration;
+
   /**
    * First phase after parsing. Define symbols and infer types where possible.
    * Uses a symbol factory to actually create the appropriate symbols.
@@ -90,6 +93,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     textLanguageExtraction = new TextLanguageExtraction(parsedModule.getSource().getErrorListener());
     commonMethodChecks = new CommonMethodChecks(parsedModule.getSource().getErrorListener());
     checkAssignment = new CheckAssignment(parsedModule.getSource().getErrorListener());
+    checkVariableOnlyDeclaration = new CheckVariableOnlyDeclaration(parsedModule.getSource().getErrorListener());
   }
 
   // Now we hook into the ANTLR listener events - lots of them!
@@ -119,7 +123,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   public void exitPackageBlock(EK9Parser.PackageBlockContext ctx) {
     var pack = symbolAndScopeManagement.getRecordedSymbol(ctx);
     if (pack instanceof AggregateSymbol packageSymbol) {
-      //Now lets manipulate those properties that have been added
+      //Now let's manipulate those properties that have been added
       packageSymbol.getProperties().forEach(prop -> {
         VariableSymbol symbol = (VariableSymbol) prop;
         //EK9 will be referencing these.
@@ -386,10 +390,10 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   /**
    * Now push it on to stack and record against this context as scope and symbol.
-   * So this try is the outer scope, the body of the try block also has it's own instruction block scope.
+   * So this try is the outer scope, the body of the try block also has its own instruction block scope.
    * Each of the catch blocks have their scope, the finally has its scope.
    * But the variables used with try with are available throughout all scopes as they are in the outer scope.
-   * These are a bit like 'Java' 'try with' variables. Just like 'Java' 'close methods are called if present.
+   * These are a bit like 'Java' 'try with' variables. Just like 'Java' 'close' methods are called if present.
    */
   @Override
   public void enterTryStatementExpression(EK9Parser.TryStatementExpressionContext ctx) {
@@ -449,7 +453,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     var symbol = symbolAndScopeManagement.getRecordedSymbol(child);
     if (symbol instanceof VariableSymbol variableSymbol) {
       variableSymbol.setReturningParameter(true);
-      //Now we won't know its type yet but we will know it exists
+      //Now we won't know its type yet, but we will know it exists
       //Just pass the symbol back up in the context
       symbolAndScopeManagement.recordSymbol(variableSymbol, ctx);
     }
@@ -552,9 +556,11 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   @Override
   public void enterVariableOnlyDeclaration(EK9Parser.VariableOnlyDeclarationContext ctx) {
     final var variable = symbolFactory.newVariable(ctx);
+    checkVariableOnlyDeclaration.accept(ctx);
     checkAndDefineSymbol(variable, ctx);
     super.enterVariableOnlyDeclaration(ctx);
   }
+
 
   /**
    * Just a straight forward declaration of a variable.
@@ -800,7 +806,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   private void recordConstant(ParseTree ctx, Token start, String typeName) {
-    //Lets account for the optional '-' on some literals
+    //Let's account for the optional '-' on some literals
     String literalText = ctx.getChild(0).getText();
     if (ctx.getChildCount() == 2) {
       literalText += ctx.getChild(1).getText();

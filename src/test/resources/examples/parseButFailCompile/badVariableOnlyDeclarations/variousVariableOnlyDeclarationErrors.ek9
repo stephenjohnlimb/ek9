@@ -1,0 +1,45 @@
+#!ek9
+defines module bad.variableonly.use
+
+  defines component
+
+    Component1 abstract
+      aMethod() abstract
+
+    Component2 extends Component1
+      val Integer: 4
+
+      override aMethod()
+        val++
+
+  defines record
+    Record1
+      //Not supported, must be initialised or explicitly not initialised
+      var1 as String
+      //Web correlation not supported here
+      var2 as String :=: CONTENT
+      //This is OK (not desirable but OK)
+      var3 as String?
+
+  defines function
+
+    //Not allowed to use ? to state this could be un initialised.
+    //Push for everything to be initialised.
+    test1()
+      -> var as String?
+      <- rtn as String: String()
+      v1 <- "Steve"
+      //Not allowed below
+      v2 as String
+      //This is allowed.
+      v3 as String?
+
+      //Expect to be injected - this is OK.
+      v4 as Component1!
+
+    //Injection of incoming parameters is not supported.
+    //Web correlation not supported here
+    test2()
+      -> var as String!
+      <- rtn as String :=: CONTENT
+//EOF

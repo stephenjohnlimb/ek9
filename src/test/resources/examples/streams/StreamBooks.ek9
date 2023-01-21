@@ -92,7 +92,7 @@ defines module com.customer.books
         ->
           title as BookTitle
           author as Author
-          published as Date?
+          published as Date
         assert title? and author? and published?
         this.title: BookTitle(title)
         this.author: Author(author)

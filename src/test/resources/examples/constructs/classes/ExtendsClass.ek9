@@ -273,7 +273,8 @@ defines module net.customer
         //multiple Pluggable1s i.e Pluggable1/ComponentA1 with ComponentB1 and ComponentC1
         
         //Even better we stopped this from compiling or issued warning - that way we enforce injection of components
-        a1Pluggable as ComponentA1 
+        //Now we do, uncomment and see.
+        //a1Pluggable as ComponentA1
         
         //You'll get a warning with this
         c1NotPluggable as ComponentC1 := ComponentC1()

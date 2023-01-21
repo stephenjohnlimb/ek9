@@ -4,6 +4,9 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 
+/**
+ * Check an assignment again 'super' use and some operators against 'this' use.
+ */
 public class CheckAssignment implements Consumer<EK9Parser.AssignmentStatementContext> {
 
   private final ErrorListener errorListener;

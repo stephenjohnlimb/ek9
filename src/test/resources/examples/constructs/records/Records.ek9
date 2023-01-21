@@ -76,9 +76,8 @@ defines module com.customer.records
         this.dateOfBirth: dateOfBirth
 
       setFirstName()
-        -> newName as String?
-        //TODO pick on the fact that newName could be null but firstName can never be null
-        //because it was not declared to accept null.
+        -> newName as String
+        //Don't allow "newName as String?" that way we stop null/uninitialised being passed around.
         this.firstName :=: newName
         //So we want to force this - and we want the pain of the if statement - don't make it too easy
         //we're trying to remove the use of possible null all together.

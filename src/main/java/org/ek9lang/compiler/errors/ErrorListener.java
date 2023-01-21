@@ -294,9 +294,9 @@ public class ErrorListener extends BaseErrorListener {
     INVALID_DEFAULT_CONSTRUCTOR("'default' constructor with parameters is not supported"),
     METHOD_MODIFIER_PROTECTED_IN_SERVICE(
         "non web service methods cannot be marked with the 'protected' access modifier"),
-    MUST_BE_DECLARED_AS_POSSIBLE_NULL("declaration must indicate that this can be null"),
-    CAN_BE_ASSIGNED_NULL_VALUE("assignment could result in 'null', so declaration must support this"),
-    DECLARED_AS_NULL_NOT_NEEDED("declaration supporting 'null' is not needed as a value is assigned"),
+    MUST_BE_DECLARED_AS_POSSIBLE_NULL("declaration must indicate that this can be 'uninitialised'"),
+    CAN_BE_ASSIGNED_NULL_VALUE("assignment could result in 'uninitialised', so declaration must support this"),
+    DECLARED_AS_NULL_NOT_NEEDED("declaration supporting 'uninitialised' is not needed"),
     METHOD_ACCESS_MODIFIER_DEFAULT(
         "access modifier is not needed here - methods are 'public' by default"),
     ACCESS_MODIFIER_INAPPROPRIATE("access modifier inappropriate here"),
@@ -418,7 +418,7 @@ public class ErrorListener extends BaseErrorListener {
     COMPONENT_INJECTION_OF_NON_ABSTRACT(
         "dependency injection of a non-abstract component is not allowed, use an abstract base component"),
     COMPONENT_INJECTION_NOT_POSSIBLE("dependency injection is not allowed"),
-    COMPONENT_NOT_INITIALISED("component not marked for injection nor initialised"),
+    NOT_INITIALISED_IN_ANY_WAY("not marked for injection nor initialised"),
     COMPONENT_NOT_MARKED_FOR_INJECTION("component not marked for injection"),
     USE_OF_NULLABLE_NOT_POSSIBLE("use of nullable is meaningless here"),
     NONE_PURE_CALL_IN_PURE_SCOPE("is not marked 'pure' call in a scope that is marked as 'pure'"),
