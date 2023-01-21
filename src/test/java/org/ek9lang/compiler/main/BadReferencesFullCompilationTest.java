@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.main;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,6 +54,7 @@ class BadReferencesFullCompilationTest {
     var compiler = new Ek9Compiler(allPhases);
     var compilationResult = compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, true));
 
+    assertFalse(compilationResult);
     assertEquals(24, counter.get());
     sharedCompilableProgram.accept(program -> {
       var alpha = program.getParsedModules("alpha");

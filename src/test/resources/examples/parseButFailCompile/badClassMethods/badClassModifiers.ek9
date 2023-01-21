@@ -13,8 +13,8 @@ defines module bad.classmodifier.use
 
     C1 extends C0
 
-      p1 as String
-      p2 as Integer
+      p1 as String?
+      p2 as Integer?
 
       //This constructor is allowed
       default C1()
