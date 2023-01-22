@@ -5,11 +5,11 @@ defines module com.customer.streams.splitter
   
     characterFilter() as abstract    
       -> ch as Character
-      <- rtn as Boolean
+      <- rtn as Boolean: Boolean()
 
     stringFilter() as abstract    
       -> string as String
-      <- rtn as Boolean
+      <- rtn as Boolean: Boolean()
 
     isSet() extends stringFilter()
       -> string as String

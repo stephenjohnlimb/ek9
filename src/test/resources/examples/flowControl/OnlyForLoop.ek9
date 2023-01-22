@@ -3,7 +3,7 @@ defines module com.customer.loop
 
   defines function
     nameProvider as abstract
-      <- rtn as List of String
+      <- rtn as List of String: List()
 
     names() is nameProvider
       <- rtn as List of String: ["Alpha", "Beta", "Charlie"]

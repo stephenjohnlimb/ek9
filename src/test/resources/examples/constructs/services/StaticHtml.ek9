@@ -18,10 +18,9 @@ defines module com.customer.html
     Site :/site
 
       index() as GET for :/index.html
-        <- response as HTTPResponse
-
-        webSite <- WebSite("en")
-        response: (webSite) of HTTPResponse
+        <- response as HTTPResponse: () of HTTPResponse
+          //Normally you'd use a component and inject it (i.e. a singleton with web site within)
+          webSite <- WebSite("en")
           etag as String: String()
 
           override etag()

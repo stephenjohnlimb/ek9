@@ -11,7 +11,7 @@ defines module com.customer.just.functions
         x as Float
         y as Float
       <-
-        result as Float
+        result as Float?
 
     add() is mathOperation as pure
       ->

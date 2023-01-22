@@ -1,0 +1,40 @@
+#!ek9
+defines module some.source.code
+
+  <?-
+    EK9 can handle unicode blobs, but intellij needs a real plug in for this.
+    So just use ascii for now.
+    From: https://itnext.io/the-refactoring-of-the-very-efficient-code-from-dutch-digid-app-ac1b4ec5a2e2
+
+    Yes, you can get clever with functions, presentation separation etc.
+    But while there's a few bits wrong with the original (negative's and needless tests),
+    it is quite clear. So I've just fixed those bits up and used EK9 given, when.
+  -?>
+  defines function
+    ratingPercentage() as pure
+      -> percentage as Float
+      <- rtn as String: given percentage
+        <- rating as String: String()
+        when <= 0.0
+          rating: "0000000000"
+        when <= 0.1
+          rating: "*000000000"
+        when <= 0.2
+          rating: "**00000000"
+        when <= 0.3
+          rating: "***0000000"
+        when <= 0.4
+          rating: "****000000"
+        when <= 0.5
+          rating: "*****00000"
+        when <= 0.6
+          rating: "******0000"
+        when <= 0.7
+          rating: "*******000"
+        when <= 0.8
+          rating: "********00"
+        when <= 0.9
+          rating: "*********0"
+        default
+          rating: "**********"
+//EOF

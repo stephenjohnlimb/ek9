@@ -14,9 +14,7 @@ defines module bad.services.use
 
       byId() as GET for :/{address-id}
         -> addressId as AddressId :=: PATH "address-id" //required because different name
-        <- response as HTTPResponse
-
-        response: (addressId) of HTTPResponse by delegate
+        <- response as HTTPResponse: (addressId) of HTTPResponse by delegate
           override content()
             <- rtn as String: getOK()
 

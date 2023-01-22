@@ -142,7 +142,7 @@ defines module net.customer
           s1 as Shape
           s2 as Shape
         <-
-          intersection as Intersection
+          intersection as Intersection?
       
       //These are the different virtual (in effect) methods it needs to dispatch to    
       intersect()

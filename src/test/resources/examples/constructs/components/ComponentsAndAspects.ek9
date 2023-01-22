@@ -5,7 +5,7 @@ defines module com.customer.components
 
     BaseConfiguration abstract
       getFileStoreName() abstract
-        <- rtn as String
+        <- rtn as String: String()
 
     Solution1 is BaseConfiguration
       override getFileStoreName() as

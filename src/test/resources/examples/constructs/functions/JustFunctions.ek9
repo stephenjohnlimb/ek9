@@ -5,7 +5,7 @@ defines module com.customer.just
   
     mathOperation() as pure abstract
       -> value as Float
-      <- result as Float
+      <- result as Float: Float()
       
     multiply() is mathOperation as pure
       -> value as Float

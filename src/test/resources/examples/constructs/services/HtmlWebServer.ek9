@@ -10,7 +10,7 @@ defines module com.customer.webserver
 
       file() as GET for :/{fileName}
         -> fileName as String
-        <- response as HTTPResponse
+        <- response as HTTPResponse: () of HTTPResponse
 
         webServer <- this
         response: (webServer, fileName) with trait of HTTPResponse

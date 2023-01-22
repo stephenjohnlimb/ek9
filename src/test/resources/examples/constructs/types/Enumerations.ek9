@@ -43,7 +43,7 @@ defines module com.customer.enumerations
   
     cardCreator() as abstract
       -> rank as CardRank
-      <- rtn as Card
+      <- rtn as Card?
     
     fullRankCreator()
       -> suit as CardSuit

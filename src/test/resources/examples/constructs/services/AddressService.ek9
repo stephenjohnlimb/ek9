@@ -124,7 +124,11 @@ defines module com.customer.services
     copyAddress()
       -> from as Address
       <- to as Address: Address(from)
-    
+
+    wrapInBrackets()
+      -> value as String
+      <- rtn as String: `[ ${value} ]`
+
     commaSeparated()
       ->
         firstPart String
@@ -138,10 +142,12 @@ defines module com.customer.services
 
     addressListToJSON()
       -> addresses as List of Address
-      <- listAsString as String
+      <- listAsString as String: cat addresses
+        | map with addressToJSON
+        | join with commaSeparated
+        | map with wrapInBrackets
+        | collect as String
 
-      body <- cat addresses | map with addressToJSON | join with commaSeparated | collect as String
-      listAsString := `[ ${body} ]`
 
     optionalJSON()
       ->
@@ -151,42 +157,43 @@ defines module com.customer.services
         rtn as String: value? <- `"${name}": "${value}",` else String()
 
   defines trait
+
     AddressAccess
       operator +=
         -> address as Address
-        <- rtn as AddressAccess
+        <- rtn as AddressAccess?
         
       operator -=
         -> address as Address
-        <- rtn as AddressAccess
+        <- rtn as AddressAccess?
 
       //merge with an existing address
       operator :~:
         -> address as Address
-        <- rtn as AddressAccess
+        <- rtn as AddressAccess?
 
       //replace an existing address
       operator :^:
         -> address as Address
-        <- rtn as AddressAccess
+        <- rtn as AddressAccess?
         
       operator contains
         -> addressId as AddressId
-        <- rtn as Boolean
+        <- rtn as Boolean: Boolean()
           
       hash()
-        <- rtn as String
+        <- rtn as String: String()
         
       hashOfAddress()
         -> id as AddressId
-        <- rtn as String
+        <- rtn as String: String()
                 
       byId()
         -> id as AddressId
-        <- rtn as Address
+        <- rtn as Address?
         
       listAll()
-        <- rtn as List of Address
+        <- rtn as List of Address: List()
                                        
   defines class
     AddressSet with trait of AddressAccess
@@ -347,8 +354,7 @@ defines module com.customer.services
 
   defines function
     plainNonCacheableHTTPResponse()
-      <- rtn as HTTPResponse
-      rtn: () of HTTPResponse
+      <- rtn as HTTPResponse: () of HTTPResponse
         override cacheControl()
           <- rtn as String: "no-store,max-age=0"
         override contentType()
@@ -357,8 +363,7 @@ defines module com.customer.services
           <- rtn as String: "en"
 
     cacheableHTTPResponse()
-      <- rtn as HTTPResponse
-      rtn: () of HTTPResponse
+      <- rtn as HTTPResponse: () of HTTPResponse
         override cacheControl()
           <- rtn as String: "public,max-age=5,must-revalidate"
         override contentType()
@@ -423,7 +428,7 @@ defines module com.customer.services
 
       byId() as GET for :/{address-id}
         -> addressId as AddressId :=: PATH "address-id" //required because different name
-        <- response as HTTPResponse
+        <- response as HTTPResponse?
 
         delegate <- ByETagHTTPResponse(addressId, cacheableHTTPResponse(), false)
         response: (addressId, delegate) of HTTPResponse by delegate
@@ -438,10 +443,9 @@ defines module com.customer.services
       //A POST
       operator += :/
         -> request as HTTPRequest :=: REQUEST          
-        <- response as HTTPResponse
-        
+        <- response as HTTPResponse?
+
         nonCacheable <- plainNonCacheableHTTPResponse()
-        
         response: (request, nonCacheable) of HTTPResponse by nonCacheable
           repository as Repository!
           address as Address: Address()
@@ -471,7 +475,7 @@ defines module com.customer.services
       //A DELETE
       operator -= :/{addressId}
         -> addressId as AddressId //Assume PATH
-        <- response as HTTPResponse
+        <- response as HTTPResponse?
                 
         delegate <- ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse(), false)
         response: (addressId, delegate) of HTTPResponse by delegate
@@ -490,7 +494,7 @@ defines module com.customer.services
           addressId as AddressId //Assume PATH
           incomingContent as String :=: CONTENT          
         <-
-          response as HTTPResponse
+          response as HTTPResponse?
         
         delegate <- ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())
         
@@ -515,7 +519,7 @@ defines module com.customer.services
           addressId as AddressId //Assume PATH
           incomingContent as String :=: CONTENT          
         <-
-          response as HTTPResponse
+          response as HTTPResponse?
         
         delegate <- ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())
 
@@ -535,7 +539,7 @@ defines module com.customer.services
                 status(204)
 
       listAll() :/
-        <- response as HTTPResponse
+        <- response as HTTPResponse?
 
         cacheable <- cacheableHTTPResponse()
         response: (cacheable) of HTTPResponse by cacheable
@@ -550,7 +554,7 @@ defines module com.customer.services
     Repository as abstract
      
       addresses() as abstract
-        <- rtn as AddressAccess     
+        <- rtn as AddressAccess?
       
     InMemoryRepository extends Repository
       addresses as AddressAccess: LockableAddressSet()

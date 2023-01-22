@@ -151,31 +151,25 @@ defines module com.customer.books
 
     differentAuthor() as pure abstract
       -> book as Book
-      <- rtn as Boolean
+      <- rtn as Boolean: Boolean()
 
     bookNumberFilter() as pure abstract
       -> books as List of Book
-      <- rtn as List of Book
+      <- rtn as List of Book: List()
     
     suitableBookFilter() as pure
       -> selection as BookFilterSelection
-      <- bookFilter as bookNumberFilter
-      
-      bookFilter: switch selection
-        <- theFilter as bookNumberFilter
+      <- bookFilter as bookNumberFilter: switch selection
+        <- theFilter as bookNumberFilter?
         case BookFilterSelection.SkipTwo
-          theFilter: () is bookNumberFilter as pure function
-            rtn: cat books | skip 2 | collect as List of Book
+          theFilter: () is bookNumberFilter pure (rtn: cat books | skip 2 | collect as List of Book)
         case BookFilterSelection.JustFirst
-          theFilter: () is bookNumberFilter as pure function
-            rtn: cat books | head 1 | collect as List of Book
+          theFilter: () is bookNumberFilter pure (rtn: cat books | head 1 | collect as List of Book)
         case BookFilterSelection.JustLast
-          theFilter: () is bookNumberFilter as pure function
-            rtn: cat books | tail 1 | collect as List of Book
+          theFilter: () is bookNumberFilter pure (rtn: cat books | tail 1 | collect as List of Book)
         default
-          theFilter: () is bookNumberFilter as pure function            
-            rtn: books //no filtering.
-    
+          theFilter: () is bookNumberFilter pure (rtn: books) //i.e. inline not filtering
+
     filterBooksToOutput()
       ->
         books as List of Book
@@ -194,7 +188,7 @@ defines module com.customer.books
         > output
         
     getAuthorChange() as pure
-      <- authorChanged as differentAuthor
+      <- authorChanged as differentAuthor?
       byId <- AuthorId()
       authorChanged: (byId) is differentAuthor()
         rtn: byId? and byId != book.author().id()        

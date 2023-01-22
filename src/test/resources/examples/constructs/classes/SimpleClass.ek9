@@ -76,8 +76,8 @@ defines module net.customer.assertions
       var Integer: 99
       
       someMethod() as abstract
-        <- val as Integer
-        //So no body as abstract
+        <- val as Integer?
+        //So no body as abstract, but still need to say it could be uninitialised, or use : val as Integer: Integer()
       
     //Lets extend MyItem  
     MyImpl is MyItem

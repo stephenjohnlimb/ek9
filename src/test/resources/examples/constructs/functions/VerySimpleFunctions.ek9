@@ -7,7 +7,7 @@ defines module net.customer
   defines function
 
     abstractFunction() as abstract
-      <- rtn as String
+      <- rtn as String: String()
         
     //See how we can use 'rtn' from the declaration in the abstract function
     functionA() extends abstractFunction  
@@ -49,5 +49,5 @@ defines module net.customer
       function1()
 
       rtn += " " + result
-        
+
 //EOF

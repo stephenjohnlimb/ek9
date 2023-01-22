@@ -130,7 +130,7 @@ defines module net.customer.shapes
           s1 as Shape
           s2 as Shape
         <-
-          intersection as Intersection
+          intersection as Intersection?
               
       intersect() as pure
         ->

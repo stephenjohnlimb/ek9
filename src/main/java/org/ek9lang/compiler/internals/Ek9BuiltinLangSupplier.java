@@ -118,7 +118,7 @@ defines extern module org.ek9.lang
   private static final String DEFINE_STRING_CLASS = """
 
     String
-      String()    
+      String()
 """;
 
   /**
@@ -187,7 +187,7 @@ defines extern module org.ek9.lang
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_BUILT_IN_TEMPLATE_FUNCTIONS = """
     Supplier of type T
-      <- r as T
+      <- r as T?
 
     Consumer of type T
       -> t as T
@@ -199,29 +199,29 @@ defines extern module org.ek9.lang
 
     UnaryOperator of type T
       -> t as T
-      <- r as T
+      <- r as T?
 
     Function of type (T, R)
       -> t as T
-      <- r as R
+      <- r as R?
 
     Predicate of type T
       -> t as T
-      <- r as Boolean
+      <- r as Boolean: Boolean()
 
     BiPredicate of type (T, U)
       ->
         t as T
         u as U
       <-
-        r as Boolean
+        r as Boolean: Boolean()
 
     Comparator of type T
       ->
         t1 as T
         t2 as T
       <-
-        r as Integer
+        r as Integer: Integer()
 """;
 
   @SuppressWarnings({"Indentation"})
@@ -258,7 +258,7 @@ defines extern module org.ek9.lang
   private static final String DEFINE_STANDARD_FUNCTIONS = """
     SignalHandler() as abstract
       -> value as String
-      <- result as Integer
+      <- result as Integer: Integer()
 
     <!- By its nature it is abstract -!>
     MutexKey() of type T
