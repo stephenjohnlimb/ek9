@@ -166,7 +166,7 @@ constantInitialiser
     ;
 
 dynamicVariableCapture
-    : LPAREN (identifier (COMMA identifier)*)? RPAREN
+    : paramExpression
     ;
 
 parameterisedParams
@@ -418,7 +418,7 @@ finallyStatementExpression
     ;
 
 switchStatementExpression
-    : (SWITCH|GIVEN) control=expression NL+ INDENT (NL* returningParam)? caseStatement+ DEFAULT block NL+ DEDENT
+    : (SWITCH|GIVEN) control=expression NL+ INDENT (NL* returningParam)? caseStatement+ (DEFAULT block)? NL+ DEDENT
     ;
 
 caseStatement

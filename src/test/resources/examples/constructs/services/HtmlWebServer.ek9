@@ -8,12 +8,12 @@ defines module com.customer.webserver
         if not rtn?
           throw Exception("Invalid Document Root")
 
+      //Now I've altered the dynamicVariableCapture so it is possible name parameters.
+      //This means we can use expressions in the capture itself and hence can clean up the
+      //expression. This small change means that we can remove dummy creation of responses.
       file() as GET for :/{fileName}
         -> fileName as String
-        <- response as HTTPResponse: () of HTTPResponse
-
-        webServer <- this
-        response: (webServer, fileName) with trait of HTTPResponse
+        <- response as HTTPResponse: (webServer: this, fileName) with trait of HTTPResponse
           lastModified as DateTime: DateTime()
 
           private lastModifiedOfTextFile()

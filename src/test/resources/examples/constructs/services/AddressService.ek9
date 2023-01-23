@@ -426,6 +426,8 @@ defines module com.customer.services
     //The Name of the and the uri it is mapped to
     Addresses :/addresses
 
+      //It is still possible to use dynamic variable capture, like this but see the later code.
+      //It used named variables.
       byId() as GET for :/{address-id}
         -> addressId as AddressId :=: PATH "address-id" //required because different name
         <- response as HTTPResponse?
@@ -443,106 +445,99 @@ defines module com.customer.services
       //A POST
       operator += :/
         -> request as HTTPRequest :=: REQUEST          
-        <- response as HTTPResponse?
+        <- response as HTTPResponse: (request, nonCacheable: plainNonCacheableHTTPResponse()) of HTTPResponse by nonCacheable
+            repository as Repository!
+            address as Address: Address()
+            status as Integer: 201
 
-        nonCacheable <- plainNonCacheableHTTPResponse()
-        response: (request, nonCacheable) of HTTPResponse by nonCacheable
-          repository as Repository!
-          address as Address: Address()
-          status as Integer: 201
-
-          override content()
-            <- rtn as String: String()            
-            address: addressFromJson(request.content())
-            //But the server sets the ID!
-            if address.id?
-              status := 422 //unprocessable entity
-              rtn: "Do not supply ID in Address, server will set this"
-            else
-              address.id: AddressId(GUID())
-              if ~address?
+            override content()
+              <- rtn as String: String()
+              address: addressFromJson(request.content())
+              //But the server sets the ID!
+              if address.id?
                 status := 422 //unprocessable entity
-              else if repository.addresses() contains address.id
-                status := 409 //conflict
-              else            
-                repository.addresses() += address
-          
-          override contentLocation()
-            <- rtn as String: status == 201 <- `/addresses/${address.id}` else String()
-          override status()
-            <- rtn as Integer: status  
+                rtn: "Do not supply ID in Address, server will set this"
+              else
+                address.id: AddressId(GUID())
+                if ~address?
+                  status := 422 //unprocessable entity
+                else if repository.addresses() contains address.id
+                  status := 409 //conflict
+                else
+                  repository.addresses() += address
+
+            override contentLocation()
+              <- rtn as String: status == 201 <- `/addresses/${address.id}` else String()
+            override status()
+              <- rtn as Integer: status
             
       //A DELETE
       operator -= :/{addressId}
         -> addressId as AddressId //Assume PATH
-        <- response as HTTPResponse?
-                
-        delegate <- ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse(), false)
-        response: (addressId, delegate) of HTTPResponse by delegate
-          repository as Repository!
-                    
-          override content()
-            <- rtn as String: String()
-            //Only if the etag was found can we delete it!
-            if delegate.status() <> 404
-              repository.addresses() -= repository.addresses().byId(addressId)
-              status(204)
+        <- response as HTTPResponse: (addressId, delegate: ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse(), false)) of HTTPResponse by delegate
+            repository as Repository!
+
+            override content()
+              <- rtn as String: String()
+              //Only if the etag was found can we delete it!
+              if delegate.status() <> 404
+                repository.addresses() -= repository.addresses().byId(addressId)
+                status(204)
 
       //A PATCH which is a merge
+      //Note with dynamic variable capture, you can still do it all one one line if you wish.
       operator :~: :/{addressId}
         ->
           addressId as AddressId //Assume PATH
           incomingContent as String :=: CONTENT          
         <-
-          response as HTTPResponse?
-        
-        delegate <- ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())
-        
-        response: (addressId, incomingContent, delegate) of HTTPResponse by delegate
-          repository as Repository!
+          response as HTTPResponse: (addressId, incomingContent, delegate: ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())) of HTTPResponse by delegate
+            repository as Repository!
 
-          override content()
-            <- rtn as String: String()
-            if delegate.status() <> 404
-              address <- addressFromJson(incomingContent)
-              if ~address.id?
-                status(422) //unprocessable entity
-              else if address.id <> addressId
-                status(400) //the id on the url is not the same as the id in the body content
-              else
-                repository.addresses() :~: address
-                status(204)
+            override content()
+              <- rtn as String: String()
+              if delegate.status() <> 404
+                address <- addressFromJson(incomingContent)
+                if ~address.id?
+                  status(422) //unprocessable entity
+                else if address.id <> addressId
+                  status(400) //the id on the url is not the same as the id in the body content
+                else
+                  repository.addresses() :~: address
+                  status(204)
 
       //A PUT which is a replace for an existing address
+      //Now the dynamic variable capture allowed multiple lines and various formatting within the ()
       operator :^: :/{addressId}
         ->
           addressId as AddressId //Assume PATH
           incomingContent as String :=: CONTENT          
         <-
-          response as HTTPResponse?
-        
-        delegate <- ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())
+          response as HTTPResponse: (
+                addressId,
+                incomingContent,
+                delegate: ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())
+              ) of HTTPResponse by delegate
 
-        response: (addressId, incomingContent, delegate) of HTTPResponse by delegate
-          repository as Repository!
- 
-          override content()
-            <- rtn as String: String()
-            if delegate.status() <> 404
-              address <- addressFromJson(incomingContent)
-              if ~address?
-                status(422) //unprocessable entity
-              else if address.id <> addressId
-                status(400) //the id on the url is not the same as the value in the body content
-              else
-                repository.addresses() :^: address
-                status(204)
+            repository as Repository!
 
+            override content()
+              <- rtn as String: String()
+              if delegate.status() <> 404
+                address <- addressFromJson(incomingContent)
+                if ~address?
+                  status(422) //unprocessable entity
+                else if address.id <> addressId
+                  status(400) //the id on the url is not the same as the value in the body content
+                else
+                  repository.addresses() :^: address
+                  status(204)
+
+      //Note it is now possible to use named parameters in dynamic variable capture
+      //So now, we can do a simpler one liner, define the name of the property and use an expression
+      //to set it up, then use the 'by' on a trait to delegate as much or as little as we want to it.
       listAll() :/
-        <- response as HTTPResponse?
-
-        cacheable <- cacheableHTTPResponse()
-        response: (cacheable) of HTTPResponse by cacheable
+        <- response as HTTPResponse: (cacheable: cacheableHTTPResponse()) of HTTPResponse by cacheable
           repository as Repository!
           
           override etag()

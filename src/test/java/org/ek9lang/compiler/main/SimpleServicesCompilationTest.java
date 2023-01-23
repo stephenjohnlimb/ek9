@@ -49,7 +49,7 @@ class SimpleServicesCompilationTest {
       //A bit of a beast all in one file!
       new SymbolCountCheck("com.customer.services", 43).test(program);
 
-      new SymbolCountCheck("com.customer.webserver", 3).test(program);
+      new SymbolCountCheck("com.customer.webserver", 2).test(program);
 
       new SymbolCountCheck("com.customer.html", 3).test(program);
 
