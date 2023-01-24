@@ -292,6 +292,8 @@ public class ErrorListener extends BaseErrorListener {
     ABSTRACT_CONSTRUCTOR("'abstract' modifier on a constructor is not logical"),
     OVERRIDE_CONSTRUCTOR("'override' is not required on a constructor"),
     INVALID_DEFAULT_CONSTRUCTOR("'default' constructor with parameters is not supported"),
+    DEFAULT_REQUIRED_IN_SWITCH_STATEMENT("'default' is required in this switch statement"),
+    DEFAULT_REQUIRED_IN_SWITCH_EXPRESSION("'default' is required in this switch expression as return is uninitialised"),
     METHOD_MODIFIER_PROTECTED_IN_SERVICE(
         "non web service methods cannot be marked with the 'protected' access modifier"),
     MUST_BE_DECLARED_AS_POSSIBLE_NULL("declaration must indicate that this can be 'uninitialised'"),
@@ -344,6 +346,7 @@ public class ErrorListener extends BaseErrorListener {
     ABSTRACT_BUT_BODY_PROVIDED("defined as abstract but an implementation has been provided"),
     NOT_ABSTRACT_BUT_NO_BODY_PROVIDED("implementation not provided so must be declared as abstract"),
     DYNAMIC_CLASS_CANNOT_BE_ABSTRACT("a dynamic class cannot have abstract methods"),
+    CAPTURED_VARIABLE_MUST_BE_NAMED("variables being captured must be named when not just using identifiers"),
     GENERIC_FUNCTION_CANNOT_BE_ABSTRACT(
         "implementation must be provided for generic functions, but can be overridden when used"),
     NOT_MARKED_ABSTRACT_BUT_VIRTUAL("not declared abstract but is virtual"),

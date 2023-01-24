@@ -71,7 +71,7 @@ defines module com.customer.books
         <- rtn as Integer: #?id
 
       operator $ as pure
-        <- rtn as String: "Author: " + firstname + " " + surname + " Age: " + $age
+        <- rtn as String: `Author: ${firstname} ${surname}, Age: ${age}`
 
       operator ? as pure
         <- rtn as Boolean: age? and firstname? and surname?
@@ -105,7 +105,7 @@ defines module com.customer.books
         <- rtn as Date: published
 
       operator $ as pure
-        <- rtn as String: "Title: " + $title + ", " + $author + " Published: " + $published
+        <- rtn as String: `Title: ${title}, ${author}, Published: ${published}`
 
       operator #? as pure
         <- rtn as Integer: #? $this
@@ -156,19 +156,23 @@ defines module com.customer.books
     bookNumberFilter() as pure abstract
       -> books as List of Book
       <- rtn as List of Book: List()
-    
+
+    <?-
+      Higher order function, that uses the switch/given expression.
+      Demonstrates intialising the switch return with the default value, so default can be omitted.
+      With 'pure' methods, the returning value can be reset/overwritten as required.
+      Also shows the simple lambda-like one line functions.
+    -?>
     suitableBookFilter() as pure
       -> selection as BookFilterSelection
-      <- bookFilter as bookNumberFilter: switch selection
-        <- theFilter as bookNumberFilter?
-        case BookFilterSelection.SkipTwo
+      <- bookFilter as bookNumberFilter: given selection
+        <- theFilter as bookNumberFilter: () is bookNumberFilter pure (rtn: books) //i.e. nothing filtered
+        when BookFilterSelection.SkipTwo
           theFilter: () is bookNumberFilter pure (rtn: cat books | skip 2 | collect as List of Book)
-        case BookFilterSelection.JustFirst
+        when BookFilterSelection.JustFirst
           theFilter: () is bookNumberFilter pure (rtn: cat books | head 1 | collect as List of Book)
-        case BookFilterSelection.JustLast
+        when BookFilterSelection.JustLast
           theFilter: () is bookNumberFilter pure (rtn: cat books | tail 1 | collect as List of Book)
-        default
-          theFilter: () is bookNumberFilter pure (rtn: books) //i.e. inline not filtering
 
     filterBooksToOutput()
       ->
@@ -204,7 +208,7 @@ defines module com.customer.books
 
     authorName() as pure
       -> author as Author
-      <- rtn as Name: author.firstname() + " "+ author.surname()
+      <- rtn as Name: `${author.firstname()} ${author.surname()}`
 
     theAuthorId() as pure
       -> author as Author
@@ -251,7 +255,7 @@ defines module com.customer.books
 
     bookSigningEvent() as pure
       -> book as Book
-      <- rtn as String: "Date: " + $book.published()
+      <- rtn as String: `Date: ${book.published()}`
 
   defines program
 

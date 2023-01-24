@@ -9,7 +9,7 @@ import org.ek9lang.compiler.errors.ErrorListener;
  */
 public abstract class CheckReturns {
 
-  private final ErrorListener errorListener;
+  protected final ErrorListener errorListener;
 
   protected CheckReturns(final ErrorListener errorListener) {
     this.errorListener = errorListener;

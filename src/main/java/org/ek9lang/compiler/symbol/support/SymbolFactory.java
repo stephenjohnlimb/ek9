@@ -20,7 +20,7 @@ import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.rules.CheckAppropriateWebVariable;
 import org.ek9lang.compiler.main.rules.CheckForInvalidServiceDefinition;
 import org.ek9lang.compiler.main.rules.CheckForInvalidServiceOperator;
-import org.ek9lang.compiler.main.rules.CheckSwitchReturns;
+import org.ek9lang.compiler.main.rules.CheckSwitch;
 import org.ek9lang.compiler.main.rules.CheckTryReturns;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
@@ -94,7 +94,7 @@ public class SymbolFactory {
   private final Consumer<Object> checkContextNotNull = ctx -> AssertValue.checkNotNull("CTX cannot be null", ctx);
 
 
-  private final CheckSwitchReturns checkSwitchReturns;
+  private final CheckSwitch checkSwitch;
 
   private final CheckTryReturns checkTryReturns;
 
@@ -110,7 +110,7 @@ public class SymbolFactory {
   public SymbolFactory(ParsedModule parsedModule) {
     AssertValue.checkNotNull("Parsed Module cannot be null", parsedModule);
     this.parsedModule = parsedModule;
-    checkSwitchReturns = new CheckSwitchReturns(parsedModule.getSource().getErrorListener());
+    checkSwitch = new CheckSwitch(parsedModule.getSource().getErrorListener());
     checkTryReturns = new CheckTryReturns(parsedModule.getSource().getErrorListener());
     checkForInvalidServiceDefinition =
         new CheckForInvalidServiceDefinition(parsedModule.getSource().getErrorListener());
@@ -141,6 +141,7 @@ public class SymbolFactory {
     String programName = "_" + ctx.identifier().getText();
     AggregateSymbol program = new AggregateSymbol(programName, parsedModule.getModuleScope());
     configureAggregate(program, ctx.start);
+
     //Not sure what genus to set this to at the moment.
     return program;
   }
@@ -420,6 +421,8 @@ public class SymbolFactory {
     final var captureScope = new LocalScope("CaptureScope", parsedModule.getModuleScope());
     //Now the dynamic class/function needs to know about this additional scope it may have to resolve variables in.
     scope.setCapturedVariables(captureScope);
+
+    //Need to check if the naming is valid.
     return captureScope;
   }
 
@@ -631,6 +634,9 @@ public class SymbolFactory {
     call.setNotMutable();
   }
 
+  /**
+   * Just for general symbols, like references.
+   */
   public Symbol newGeneralSymbol(final Token token, String name) {
     Symbol symbol = new Symbol(name);
     configureSymbol(symbol, token);
@@ -649,6 +655,9 @@ public class SymbolFactory {
     return symbol;
   }
 
+  /**
+   * Create a new EK9 List (a generic type).
+   */
   public CallSymbol newList(EK9Parser.ListContext ctx, IScope scope) {
     var symbol = new CallSymbol("List", scope);
     configureSymbol(symbol, ctx.start);
@@ -658,6 +667,9 @@ public class SymbolFactory {
     return symbol;
   }
 
+  /**
+   * Create a new EK9 Dictionary - like a Map.
+   */
   public CallSymbol newDict(EK9Parser.DictContext ctx, IScope scope) {
     var symbol = new CallSymbol("Dict", scope);
     configureSymbol(symbol, ctx.start);
@@ -667,6 +679,9 @@ public class SymbolFactory {
     return symbol;
   }
 
+  /**
+   * Create a new entry for the Dictionary, basically a tuple.
+   */
   public CallSymbol newDictEntry(EK9Parser.InitValuePairContext ctx, IScope scope) {
     var symbol = new CallSymbol("DictEntry", scope);
     configureSymbol(symbol, ctx.start);
@@ -677,6 +692,9 @@ public class SymbolFactory {
   }
 
 
+  /**
+   * New call but modelled as an operator if marked as such.
+   */
   public CallSymbol newOperationCall(EK9Parser.OperationCallContext ctx, IScope scope) {
 
     var callName = ctx.operator() != null ? ctx.operator().getText() : ctx.identifier().getText();
@@ -694,7 +712,7 @@ public class SymbolFactory {
   public SwitchSymbol newSwitch(EK9Parser.SwitchStatementExpressionContext ctx, IScope scope) {
     SwitchSymbol switchSymbol = new SwitchSymbol(scope);
     configureSymbol(switchSymbol, ctx.start);
-    checkSwitchReturns.accept(ctx);
+    checkSwitch.accept(ctx);
     return switchSymbol;
   }
 
@@ -754,7 +772,7 @@ public class SymbolFactory {
     checkAppropriateWebVariable.accept(ctx);
     var variable = newVariable(ctx.identifier(), ctx.QUESTION() != null, ctx.BANG() != null);
 
-    if(ctx.webVariableCorrelation() != null) {
+    if (ctx.webVariableCorrelation() != null) {
       //We need to squirrel away the information, so it can be both checked and used elsewhere
       variable.putSquirrelledData("HTTPACCESS", ctx.webVariableCorrelation().httpAccess().getText());
       if (ctx.webVariableCorrelation().stringLit() != null) {

@@ -14,6 +14,7 @@ import org.ek9lang.compiler.errors.UnreachableStatement;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.phases.listeners.AbstractEK9PhaseListener;
 import org.ek9lang.compiler.main.rules.CheckAssignment;
+import org.ek9lang.compiler.main.rules.CheckDynamicVariableCapture;
 import org.ek9lang.compiler.main.rules.CheckProtectedServiceMethods;
 import org.ek9lang.compiler.main.rules.CheckVariableOnlyDeclaration;
 import org.ek9lang.compiler.main.rules.CommonMethodChecks;
@@ -81,6 +82,8 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   private final CheckVariableOnlyDeclaration checkVariableOnlyDeclaration;
 
+  private final CheckDynamicVariableCapture checkDynamicVariableCapture;
+
   /**
    * First phase after parsing. Define symbols and infer types where possible.
    * Uses a symbol factory to actually create the appropriate symbols.
@@ -94,6 +97,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     commonMethodChecks = new CommonMethodChecks(parsedModule.getSource().getErrorListener());
     checkAssignment = new CheckAssignment(parsedModule.getSource().getErrorListener());
     checkVariableOnlyDeclaration = new CheckVariableOnlyDeclaration(parsedModule.getSource().getErrorListener());
+    checkDynamicVariableCapture = new CheckDynamicVariableCapture(parsedModule.getSource().getErrorListener());
   }
 
   // Now we hook into the ANTLR listener events - lots of them!
@@ -302,6 +306,8 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   @Override
   public void enterDynamicVariableCapture(EK9Parser.DynamicVariableCaptureContext ctx) {
     var currentScope = symbolAndScopeManagement.getTopScope();
+
+    checkDynamicVariableCapture.accept(ctx);
 
     if (currentScope instanceof ICanCaptureVariables canCaptureVariables) {
       final var newScope = symbolFactory.newDynamicVariableCapture(canCaptureVariables);

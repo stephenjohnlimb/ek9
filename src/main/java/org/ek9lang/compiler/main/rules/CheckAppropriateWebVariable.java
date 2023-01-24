@@ -23,15 +23,12 @@ public class CheckAppropriateWebVariable implements Consumer<EK9Parser.VariableO
       return;
     }
 
-    var parent = ctx.getParent();
-    if (parent instanceof EK9Parser.ArgumentParamContext argumentParam) {
-      parent = argumentParam.getParent();
-      if (parent instanceof EK9Parser.OperationDetailsContext operationDetails) {
-        if (operationDetails.parent instanceof EK9Parser.ServiceOperationDeclarationContext) {
-          return;
-        }
-      }
+    if (ctx.getParent() instanceof EK9Parser.ArgumentParamContext argumentParam
+        && argumentParam.getParent() instanceof EK9Parser.OperationDetailsContext operationDetails
+        && operationDetails.parent instanceof EK9Parser.ServiceOperationDeclarationContext) {
+      return;
     }
+
     errorListener.semanticError(ctx.webVariableCorrelation().start, "Web Service",
         ErrorListener.SemanticClassification.SERVICE_HTTP_ACCESS_NOT_SUPPORTED);
   }

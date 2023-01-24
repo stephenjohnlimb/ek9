@@ -418,7 +418,7 @@ finallyStatementExpression
     ;
 
 switchStatementExpression
-    : (SWITCH|GIVEN) control=expression NL+ INDENT (NL* returningParam)? caseStatement+ (DEFAULT block)? NL+ DEDENT
+    : (SWITCH|GIVEN) control=expression NL+ INDENT (NL* returningParam)? caseStatement+ (DEFAULT block NL+)?  DEDENT
     ;
 
 caseStatement
@@ -501,11 +501,11 @@ operationCall
 
 paramExpression
     : LPAREN RPAREN
-    | expressionList
+    | LPAREN expressionParam (COMMA expressionParam)* RPAREN
     ;
 
-expressionList
-    : LPAREN (identifier (ASSIGN | ASSIGN2 | COLON))? expression (COMMA (identifier (ASSIGN | ASSIGN2 | COLON))? expression)* RPAREN
+expressionParam
+    : (identifier (ASSIGN | ASSIGN2 | COLON))? expression
     ;
 
 assertStatement
@@ -639,6 +639,8 @@ identifier
     | CONSTANT
     | TYPE 
     | RECORD
+    | FUNCTION
+    | CLASS
     | SERVICE
     | APPLICATION
     | PROGRAM
@@ -650,6 +652,8 @@ identifier
     | ISOLATED
     | RANGE
     | IS
+    | AND
+    | OR
     | HTTP_QUERY
     | HTTP_PATH
     | HTTP_HEADER

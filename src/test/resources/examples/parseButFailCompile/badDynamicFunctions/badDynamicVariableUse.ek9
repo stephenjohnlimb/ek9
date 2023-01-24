@@ -1,0 +1,117 @@
+#!ek9
+<?-
+  Some fairly gnarly compositions in here.
+  dynamic variable capture, named parameters, single line dynamic functions.
+  All being composed.
+-?>
+defines module bad.function.use
+
+  defines trait
+
+    LenValidator
+      validateLength() as pure abstract
+        -> p as String
+        <- r as Boolean: Boolean()
+
+  defines function
+
+    discriminator() as abstract
+      -> s as String
+      <- rtn as Boolean: Boolean()
+
+    minValue() as pure
+      <- rtn as Float: 9
+
+  defines program
+
+    <?-
+      First a valid example of what is allowable.
+    -?>
+    ValidExample1()
+      min <- 9
+      max <- 40
+
+      gt <- (min) is discriminator as function
+        rtn: length s > min
+
+      lt <- (max) is discriminator
+        rtn: length s < max
+
+      val1 <- "Some Value"
+      assert gt(val1) and lt(val1)
+
+    <?-
+      Same code, still valid using named parameters.
+      But now calling a function to get the min value.
+      Also using one line dynamic function implementations.
+      Showing one being pure and the other just a function.
+    -?>
+    ValidExample2()
+
+      gt <- (min: minValue()) is discriminator pure (rtn: length s > min)
+      lt <- (max: 40) is discriminator as (rtn: length s < max)
+
+      val1 <- "Some Value"
+      assert gt(val1) and lt(val1)
+
+    ValidExample3()
+      gt <- (min: minValue()) is discriminator pure (rtn: length s > min)
+      lt <- (max: 40) is discriminator as (rtn: length s < max)
+
+      //Lets try a valid dynamic variable capture with a class
+      lenValidator <- (lt, gt) of LenValidator as class
+        override validateLength()
+          -> p as String
+          <- r as Boolean: false
+          if p?
+            r := gt(p) and lt(p)
+
+      val1 <- "Some Value"
+      assert lenValidator.validateLength(val1)
+
+    ValidExample4()
+      //Some more complex inline stuff, but named, so should be ok
+      lenValidator <- (
+        lt: (min: minValue()) is discriminator pure (rtn: length s > min),
+        gt: (max: 40) is discriminator as (rtn: length s < max)
+        ) of LenValidator as class
+        override validateLength()
+          -> p as String
+          <- r as Boolean: false
+          if p?
+            r := gt(p) and lt(p)
+
+      assert lenValidator.validateLength(val1)
+
+    <?-
+      This example is not valid, the dynamic variable capture need a 'name'
+      for the variable it will use internally. Neither of these below provide that.
+      The code will parse, but rules mean that we have to reject this code.
+    -?>
+    InvalidExample1()
+
+      //minValue call, so not just an identifier and so must be named.
+      gt <- (minValue()) is discriminator pure (rtn: length s > min)
+      //a literal and again needs to be named.
+      lt <- (40) is discriminator as (rtn: length s < max)
+
+      val1 <- "Some Value"
+      assert gt(val1) and lt(val1)
+
+    InvalidExample2()
+
+      lenValidator <- (
+        //This is named so this is OK
+        lt: (max: 40) is discriminator as (rtn: length s < max),
+        //Not named so not OK
+        (min: minValue()) is discriminator pure (rtn: length s > min)
+        ) of LenValidator as class
+        override validateLength()
+          -> p as String
+          <- r as Boolean: false
+          if p?
+            r := gt(p) and lt(p)
+
+      assert lenValidator.validateLength(val1)
+
+//EOF

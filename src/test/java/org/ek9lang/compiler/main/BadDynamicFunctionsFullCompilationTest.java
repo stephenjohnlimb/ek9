@@ -17,9 +17,9 @@ import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests bad swtich usage.
+ * Just tests bad dynamic functions with dynamic variable capture usage.
  */
-class BadSwitchFullCompilationTest {
+class BadDynamicFunctionsFullCompilationTest {
 
 
   private static final Supplier<SharedThreadContext<CompilableProgram>> sharedContext
@@ -27,7 +27,7 @@ class BadSwitchFullCompilationTest {
 
   private static final WorkSpaceFromResourceDirectoryFiles workspaceLoader = new WorkSpaceFromResourceDirectoryFiles();
   private static final Workspace ek9Workspace =
-      workspaceLoader.apply("/examples/parseButFailCompile/badSwitchUse");
+      workspaceLoader.apply("/examples/parseButFailCompile/badDynamicFunctions");
 
   @Test
   void testReferencePhasedDevelopment() {
@@ -53,10 +53,11 @@ class BadSwitchFullCompilationTest {
 
     var compiler = new Ek9Compiler(allPhases);
     var compilationResult = compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, true));
+
     assertFalse(compilationResult);
-    assertEquals(4, counter.get());
+    assertEquals(3, counter.get());
     sharedCompilableProgram.accept(program -> {
-      var alpha = program.getParsedModules("bad.switches.use");
+      var alpha = program.getParsedModules("bad.function.use");
       assertNotNull(alpha);
     });
   }

@@ -3,7 +3,6 @@ package org.ek9lang.compiler.main.rules;
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.ServiceOperationSymbol;
 
 /**

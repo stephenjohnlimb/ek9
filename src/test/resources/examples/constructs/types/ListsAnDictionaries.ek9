@@ -1,0 +1,43 @@
+#!ek9
+defines module lists.and.dictionaries
+
+  <?-
+    A demonstration of lists and dictionaries.
+    How they can be written in a fairly free format.
+    Also how named values on parameters can be employed so that the
+    use of the parameters is a lot easy to understand as first look.
+
+  -?>
+  defines function
+
+    function1()
+      ->
+        focus as Integer
+        name as String
+        values as Dict of (Integer, String)
+      <-
+        rtn as Float: 0.0
+
+    functionCall1()
+      values <- {1: "quick", 2: "brown", 3: "fox"}
+      result <- function1(1, "Steve", values)
+
+    functionCall2()
+      result <- function1(1, "Steve", {1: "quick", 2: "brown", 3: "fox"})
+
+    <?-
+      Use of named parameters makes this code a bit more verbose,
+      but much more obvious.
+    -?>
+    functionCall3()
+      result <- function1(
+        focus: 1,
+        name: "Steve",
+        values: {
+          1: "quick",
+          2: "brown",
+          3: "fox"
+          }
+        )
+
+//EOF
