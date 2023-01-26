@@ -28,11 +28,26 @@ import org.ek9lang.core.exception.CompilerException;
  */
 public class AggregateFactory {
 
+  public static final String EK9_PATH = "org.ek9.lang::Path";
+  public static final String EK9_VERSION = "org.ek9.lang::Version";
+  public static final String EK9_REGEX = "org.ek9.lang::RegEx";
+  public static final String EK9_MONEY = "org.ek9.lang::Money";
+  public static final String EK9_COLOUR = "org.ek9.lang::Colour";
+  public static final String EK9_RESOLUTION ="org.ek9.lang::Resolution";
+  public static final String EK9_DIMENSION = "org.ek9.lang::Dimension";
+  public static final String EK9_MILLISECOND = "org.ek9.lang::Millisecond";
+  public static final String EK9_DURATION = "org.ek9.lang::Duration";
+  public static final String EK9_DATETIME = "org.ek9.lang::DateTime";
+
+  public static final String EK9_DATE = "org.ek9.lang::Date";
+  public static final String EK9_TIME = "org.ek9.lang::Time";
+  public static final String EK9_CHARACTER = "org.ek9.lang::Character";
   public static final String EK9_STRING = "org.ek9.lang::String";
   public static final String EK9_INTEGER = "org.ek9.lang::Integer";
   public static final String EK9_VOID = "org.ek9.lang::Void";
   public static final String EK9_FLOAT = "org.ek9.lang::Float";
   public static final String EK9_BOOLEAN = "org.ek9.lang::Boolean";
+  public static final String EK9_BITS ="org.ek9.lang::Bits";
   
   /**
    * Add a synthetic constructor, if a constructor is not present.

@@ -26,6 +26,7 @@ import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbol.CallSymbol;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
+import org.ek9lang.compiler.symbol.ExpressionSymbol;
 import org.ek9lang.compiler.symbol.ForSymbol;
 import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
@@ -752,6 +753,23 @@ public class SymbolFactory {
     return newLoopVariable(ctx.identifier(0));
   }
 
+  public ConstantSymbol newInterpolatedStringPart(final EK9Parser.StringPartContext ctx,final IScope scope) {
+    //if interpolated string had a " in now needs to be escaped because we will wrapping ""
+    //But also if we had and escaped $ i.e. \$ we can turn that back into a dollar now.
+    String literalText = ctx.getChild(0).getText().replace("\"", "\\\"").replace("\\$", "$").replace("\\`", "`");
+    ConstantSymbol literal = newLiteral(ctx.start, "\"" + literalText + "\"");
+    literal.setType(scope.resolve(new TypeSymbolSearch(EK9_STRING)));
+
+    return literal;
+  }
+
+  public ExpressionSymbol newInterpolatedExpressionPart(final EK9Parser.StringPartContext ctx,final IScope scope) {
+    ExpressionSymbol expressionSymbol = new ExpressionSymbol(ctx.getText());
+    configureSymbol(expressionSymbol, ctx.start);
+
+    return expressionSymbol;
+  }
+
   private VariableSymbol newLoopVariable(EK9Parser.IdentifierContext identifier) {
     checkContextNotNull.accept(identifier);
     var variable = newVariable(identifier, false, false);
@@ -761,6 +779,8 @@ public class SymbolFactory {
     variable.setNotMutable();
     return variable;
   }
+
+
 
   /**
    * Just a declaration of a variable by itself - i.e. without an assignment.

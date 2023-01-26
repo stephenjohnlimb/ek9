@@ -1,9 +1,23 @@
 package org.ek9lang.compiler.main.phases.definition;
 
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_BITS;
 import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_BOOLEAN;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_CHARACTER;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_COLOUR;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_DATE;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_DATETIME;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_DIMENSION;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_DURATION;
 import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_FLOAT;
 import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_INTEGER;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_MILLISECOND;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_MONEY;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_PATH;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_REGEX;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_RESOLUTION;
 import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_STRING;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_TIME;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_VERSION;
 
 import java.util.Optional;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -661,7 +675,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterBinaryLiteral(EK9Parser.BinaryLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::Bits");
+    recordConstant(ctx, ctx.start, EK9_BITS);
     super.enterBinaryLiteral(ctx);
   }
 
@@ -673,7 +687,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterCharacterLiteral(EK9Parser.CharacterLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::Character");
+    recordConstant(ctx, ctx.start, EK9_CHARACTER);
     super.enterCharacterLiteral(ctx);
   }
 
@@ -684,74 +698,93 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   @Override
+  public void enterStringPart(EK9Parser.StringPartContext ctx) {
+    IScope scope = symbolAndScopeManagement.getTopScope();
+    if(ctx.STRING_TEXT() != null)
+    {
+      //Then it is just a snip of TEXT
+      var literal = symbolFactory.newInterpolatedStringPart(ctx, scope);
+      symbolAndScopeManagement.recordSymbol(literal, ctx);
+    }
+    else
+    {
+      //Ah, so it is an expression part of an interpolated String
+      //We don't know what type it will return yet!
+      var expression = symbolFactory.newInterpolatedExpressionPart(ctx, scope);
+      symbolAndScopeManagement.recordSymbol(expression, ctx);
+    }
+    super.enterStringPart(ctx);
+  }
+
+  @Override
   public void enterTimeLiteral(EK9Parser.TimeLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::Time");
+    recordConstant(ctx, ctx.start, EK9_TIME);
     super.enterTimeLiteral(ctx);
   }
 
   @Override
   public void enterDateLiteral(EK9Parser.DateLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::Date");
+    recordConstant(ctx, ctx.start, EK9_DATE);
     super.enterDateLiteral(ctx);
   }
 
   @Override
   public void enterDateTimeLiteral(EK9Parser.DateTimeLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::DateTime");
+    recordConstant(ctx, ctx.start, EK9_DATETIME);
     super.enterDateTimeLiteral(ctx);
   }
 
   @Override
   public void enterDurationLiteral(EK9Parser.DurationLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::Duration");
+    recordConstant(ctx, ctx.start, EK9_DURATION);
     super.enterDurationLiteral(ctx);
   }
 
   @Override
   public void enterMillisecondLiteral(EK9Parser.MillisecondLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::Millisecond");
+    recordConstant(ctx, ctx.start, EK9_MILLISECOND);
     super.enterMillisecondLiteral(ctx);
   }
 
   @Override
   public void enterDecorationDimensionLiteral(EK9Parser.DecorationDimensionLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::Dimension");
+    recordConstant(ctx, ctx.start, EK9_DIMENSION);
     super.enterDecorationDimensionLiteral(ctx);
   }
 
   @Override
   public void enterDecorationResolutionLiteral(EK9Parser.DecorationResolutionLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::Resolution");
+    recordConstant(ctx, ctx.start, EK9_RESOLUTION);
     super.enterDecorationResolutionLiteral(ctx);
   }
 
   @Override
   public void enterColourLiteral(EK9Parser.ColourLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::Colour");
+    recordConstant(ctx, ctx.start, EK9_COLOUR);
     super.enterColourLiteral(ctx);
   }
 
   @Override
   public void enterMoneyLiteral(EK9Parser.MoneyLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::Money");
+    recordConstant(ctx, ctx.start, EK9_MONEY);
     super.enterMoneyLiteral(ctx);
   }
 
   @Override
   public void enterRegularExpressionLiteral(EK9Parser.RegularExpressionLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::RegEx");
+    recordConstant(ctx, ctx.start, EK9_REGEX);
     super.enterRegularExpressionLiteral(ctx);
   }
 
   @Override
   public void enterVersionNumberLiteral(EK9Parser.VersionNumberLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::Version");
+    recordConstant(ctx, ctx.start, EK9_VERSION);
     super.enterVersionNumberLiteral(ctx);
   }
 
   @Override
   public void enterPathLiteral(EK9Parser.PathLiteralContext ctx) {
-    recordConstant(ctx, ctx.start, "org.ek9.lang::Path");
+    recordConstant(ctx, ctx.start, EK9_PATH);
     super.enterPathLiteral(ctx);
   }
 
