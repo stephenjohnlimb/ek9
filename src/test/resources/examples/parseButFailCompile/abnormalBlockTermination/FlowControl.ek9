@@ -9,9 +9,11 @@
   But will be picked up once and IR is in place and calls/functions/expressions can be
   resolved and checked for abnormal termination.
 
-  TODO dynamicFunction bodies.
-  Remove examples not detectable on phase 1.
-  Will need to add examples for later phases.
+  Simple, quick and obvious errors - pickup as soon as possible to feed back to developer.
+  As EK9 only has one way to return early (via exceptions) this check is quick and cheap.
+
+  The try/switch statement/expression (with returns) make this a little more complex.
+
 -?>
 defines module bad.flowcontrol.examples
 
@@ -305,7 +307,6 @@ defines module bad.flowcontrol.examples
       <- rtn as String: "OK"
       throw Exception("Never can return OK")
 
-
     //Failure 21
     //The return value can never be assigned or returned
     //because an exception is always thrown, as above
@@ -334,7 +335,6 @@ defines module bad.flowcontrol.examples
         default
           throw Exception("Some default reason")
 
-
     //Failure 22 - not detected yet
     // All possible paths in thw switch result in an exception
     //So this whole block must fail and return cannot be set
@@ -347,7 +347,6 @@ defines module bad.flowcontrol.examples
           throw Exception("Some this/that reason")
         default
           throw Exception("Some default reason")
-
 
     //Failure 23
     //All possible paths in thw switch result in an exception
@@ -392,6 +391,5 @@ defines module bad.flowcontrol.examples
       throw Exception("No way to register Solution1")
       someVar <- "A Value"
       register Solution1() as BaseConfiguration
-
 
 //EOF
