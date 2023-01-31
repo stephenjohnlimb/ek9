@@ -30,6 +30,7 @@ import org.ek9lang.compiler.main.phases.listeners.AbstractEK9PhaseListener;
 import org.ek9lang.compiler.main.rules.CheckAssignment;
 import org.ek9lang.compiler.main.rules.CheckDynamicVariableCapture;
 import org.ek9lang.compiler.main.rules.CheckNormalTermination;
+import org.ek9lang.compiler.main.rules.CheckNotABooleanLiteral;
 import org.ek9lang.compiler.main.rules.CheckParamExpressionNamedParameters;
 import org.ek9lang.compiler.main.rules.CheckProtectedServiceMethods;
 import org.ek9lang.compiler.main.rules.CheckVariableOnlyDeclaration;
@@ -96,6 +97,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   private final CommonMethodChecks commonMethodChecks;
 
+  private final CheckProtectedServiceMethods checkProtectedServiceMethods;
   private final CheckAssignment checkAssignment;
 
   private final CheckVariableOnlyDeclaration checkVariableOnlyDeclaration;
@@ -105,6 +107,8 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   private final CheckParamExpressionNamedParameters checkParamExpressionNamedParameters;
 
   private final CheckNormalTermination checkNormalTermination;
+
+  private final CheckNotABooleanLiteral checkNotABooleanLiteral;
 
   /**
    * First phase after parsing. Define symbols and infer types where possible.
@@ -123,6 +127,8 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     checkParamExpressionNamedParameters =
         new CheckParamExpressionNamedParameters(parsedModule.getSource().getErrorListener());
     checkNormalTermination = new CheckNormalTermination(parsedModule.getSource().getErrorListener());
+    checkProtectedServiceMethods = new CheckProtectedServiceMethods(parsedModule.getSource().getErrorListener());
+    checkNotABooleanLiteral = new CheckNotABooleanLiteral(parsedModule.getSource().getErrorListener());
   }
 
   // Now we hook into the ANTLR listener events - lots of them!
@@ -294,8 +300,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   public void exitServiceDeclaration(EK9Parser.ServiceDeclarationContext ctx) {
     var aggregateSymbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
 
-    var methodCheck = new CheckProtectedServiceMethods(getParsedModule().getSource().getErrorListener());
-    methodCheck.accept(aggregateSymbol);
+    checkProtectedServiceMethods.accept(aggregateSymbol);
     super.exitServiceDeclaration(ctx);
   }
 
@@ -418,6 +423,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     IScope outerScope = symbolAndScopeManagement.getTopScope();
     var catchScope = new LocalScope("If-line-" + ctx.start.getTokenSource().getLine(), outerScope);
     symbolAndScopeManagement.enterNewScope(catchScope, ctx);
+    checkNotABooleanLiteral.accept(ctx.control);
     super.enterIfStatement(ctx);
   }
 
@@ -443,7 +449,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     var currentScope = symbolAndScopeManagement.getTopScope();
     final var newSwitchSymbol = symbolFactory.newSwitch(ctx, currentScope);
     symbolAndScopeManagement.enterNewScopedSymbol(newSwitchSymbol, ctx);
-
+    checkNotABooleanLiteral.accept(ctx.control);
     super.enterSwitchStatementExpression(ctx);
   }
 
@@ -558,6 +564,12 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   @Override
+  public void enterWhileStatement(EK9Parser.WhileStatementContext ctx) {
+    checkNotABooleanLiteral.accept(ctx.control);
+    super.enterWhileStatement(ctx);
+  }
+
+  @Override
   public void exitWhileStatement(EK9Parser.WhileStatementContext ctx) {
     var scope = symbolAndScopeManagement.getTopScope();
     pullBlockTerminationUp(ctx.block());
@@ -572,6 +584,8 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   @Override
   public void enterForLoop(EK9Parser.ForLoopContext ctx) {
     pushNewForLoopScope(ctx);
+    checkNotABooleanLiteral.accept(ctx.expression());
+
     final var variable = symbolFactory.newLoopVariable(ctx);
     checkAndDefineSymbol(variable, ctx, false);
     super.enterForLoop(ctx);
@@ -985,7 +999,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   private void processProgramDeclaration(EK9Parser.MethodDeclarationContext ctx) {
     var program = symbolFactory.newProgram(ctx);
-    symbolAndScopeManagement.defineScopedSymbol(program, ctx);
+    checkAndDefineScopedSymbol(program, ctx);
   }
 
   private void pushNewForLoopScope(final ParserRuleContext ctx) {

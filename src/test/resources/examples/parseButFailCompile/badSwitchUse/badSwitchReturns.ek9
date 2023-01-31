@@ -87,4 +87,13 @@ defines module bad.switches.use
         case "This"
           resultText: "Was that"
 
+    Prog4()
+      result <- "Unknown"
+      switch true
+        case true
+          result: "True"
+        case false
+          result: "False"
+        default
+          result: "Unknown"
 //EOF

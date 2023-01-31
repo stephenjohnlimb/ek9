@@ -54,7 +54,7 @@ class BadSwitchFullCompilationTest {
     var compiler = new Ek9Compiler(allPhases);
     var compilationResult = compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, true));
     assertFalse(compilationResult);
-    assertEquals(4, counter.get());
+    assertEquals(5, counter.get());
     sharedCompilableProgram.accept(program -> {
       var alpha = program.getParsedModules("bad.switches.use");
       assertNotNull(alpha);

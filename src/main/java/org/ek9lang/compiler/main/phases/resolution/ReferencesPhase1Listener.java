@@ -18,7 +18,7 @@ import org.ek9lang.core.exception.AssertValue;
 
 /**
  * Antlr listener for the references phase.
- * i.e. check rach reference and ensure it resolves, but also check
+ * i.e. check each reference and ensure it resolves, but also check
  * that no named constructs conflict with any named reference.
  */
 public class ReferencesPhase1Listener extends EK9BaseListener {

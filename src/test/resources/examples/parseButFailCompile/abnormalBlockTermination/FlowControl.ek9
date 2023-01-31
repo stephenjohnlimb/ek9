@@ -392,4 +392,41 @@ defines module bad.flowcontrol.examples
       someVar <- "A Value"
       register Solution1() as BaseConfiguration
 
+  defines program
+
+    //Failure 28
+    BadProgram1()
+      if true
+        x <- 91
+        assert x?
+
+    //Failure 29
+    BadProgram2()
+      value <- true
+      if value
+        x <- 91
+        assert x?
+      else if false
+        p <- 22
+        assert p?
+
+    //Failure 30
+    BadProgram3()
+      while true
+        x <- 91
+        assert x?
+
+    //Failure 31
+    BadProgram4()
+      do
+        x <- 91
+        assert x?
+      while true
+
+    //Failure 32
+    BadProgram5()
+      for value in true
+        x <- 91
+        assert x?
+
 //EOF

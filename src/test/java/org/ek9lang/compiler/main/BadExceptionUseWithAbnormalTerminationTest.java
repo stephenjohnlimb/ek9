@@ -55,7 +55,7 @@ class BadExceptionUseWithAbnormalTerminationTest {
     var compilationResult = compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, true));
 
     assertFalse(compilationResult);
-    assertEquals(27, counter.get());
+    assertEquals(32, counter.get());
     sharedCompilableProgram.accept(program -> {
       var alpha = program.getParsedModules("bad.flowcontrol.examples");
       assertNotNull(alpha);
