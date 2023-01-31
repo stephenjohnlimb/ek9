@@ -691,16 +691,26 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
    */
   @Override
   public void enterBlockStatement(EK9Parser.BlockStatementContext ctx) {
-    //So this will be called on each block statement
-    //if a previous block statement triggered an exception then
-    //this block has effectively terminated and additional statements are pointless and un-reachable
-    //We know this at compile time.
+
     IScope scope = symbolAndScopeManagement.getTopScope();
     if (!scope.isTerminatedNormally()) {
       unreachableStatement.accept(ctx.start, scope.getEncounteredExceptionToken());
     }
 
     super.enterBlockStatement(ctx);
+  }
+
+  /**
+   * Just like the block statement it is possible to see if the scope has already been
+   * marked as terminating abnormally, in which case the register statement won;t be reachable.
+   */
+  @Override
+  public void enterRegisterStatement(EK9Parser.RegisterStatementContext ctx) {
+    IScope scope = symbolAndScopeManagement.getTopScope();
+    if (!scope.isTerminatedNormally()) {
+      unreachableStatement.accept(ctx.start, scope.getEncounteredExceptionToken());
+    }
+    super.enterRegisterStatement(ctx);
   }
 
   @Override

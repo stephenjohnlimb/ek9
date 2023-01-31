@@ -15,6 +15,17 @@
 -?>
 defines module bad.flowcontrol.examples
 
+  //Just used for testing exception flow in applications
+  defines component
+
+    BaseConfiguration abstract
+      getFileStoreName() abstract
+        <- rtn as String: String()
+
+    Solution1 is BaseConfiguration
+      override getFileStoreName() as
+        <- rtn String: "MainStore"
+
   defines function
 
     //Just to be used in further examples
@@ -368,6 +379,19 @@ defines module bad.flowcontrol.examples
           throw Exception("Some this/that reason")
         default
           throw Exception("Some default reason")
+
+  defines application
+
+    //Failure 25
+    invalidApplicationDueToException1
+      throw Exception("No way to register Solution1")
+      register Solution1() as BaseConfiguration
+
+    //Failure 26 and Failure 27
+    invalidApplicationDueToException2
+      throw Exception("No way to register Solution1")
+      someVar <- "A Value"
+      register Solution1() as BaseConfiguration
 
 
 //EOF
