@@ -1,0 +1,221 @@
+#!ek9
+<!-
+Checks for duplicated variable in a range of situations.
+
+But also uses to clashing method/function/constant names.
+-!>
+defines module bad.variable.duplications
+
+  defines constant
+    someThingToClashWith <- 21
+
+  defines class
+
+    //But this is OK, it has to be we have a prop1 field
+    //and want to pass it in during construction
+    SomeClass
+      prop1 as String: String()
+
+      //This is OK, for incoming parameters, as it is a bit of convention in many languages.
+      SomeClass()
+        -> prop1 as String
+        this.prop1 :=: prop1
+
+      //But this is not OK
+      //Failure1, Failure2, Failure3 and Failure4
+      SomeClass()
+        ->
+          propA as String
+          other as Integer
+        this.prop1 :=: propA + $other
+
+        //This should result in an error, Failure1 - which is detected.
+        propA <- "Redeclare new variable of same name at incoming parameter"
+
+        //As should this because the class has a field of that same name, Failure2 - which is detected.
+        prop1 <- "Try to mangle field - but accidentally declared a new variable"
+
+      //Re-declaring a return variable which is likely to be confused with the class field/property, Failure3 - which is detected.
+      simpleMethod()
+        <- prop1 as String: this.prop1
+
+      //Re-declaring var1 inside the method, should cause an error, Failure4 - which is detected.
+      invalidMethodDuplicateVariable1()
+        <- var1 as String: "not OK"
+        var1 <- "Should cause an error"
+
+  defines function
+
+    //stock functionNoErrors
+    functionThatIsOK()
+      <- rtn as Integer: 9
+
+    //Failure5
+    invalidDuplicateVariable1()
+      -> var1 as String
+      //This is a duplicate variable name - which is detected.
+      var1 <- "Steve"
+      assert var1?
+
+    //Failure6
+    invalidDuplicateVariable2()
+      -> var1 as String
+
+      //While it is in a nested block it is still a duplicate variable - which is detected.
+      condition <- true
+      if condition
+        var1 <- "Steve"
+        assert var1?
+
+    //Re-declaring var1 as a return variable, should cause an error - which is detected.
+    //Failure7
+    invalidDuplicateVariable3()
+      -> var1 as String
+      <- var1 as String: "not OK"
+
+    //Re-declaring var1 inside the function, should cause an error - which is detected.
+    //Failure8
+    invalidDuplicateVariable4()
+      <- var1 as String: "not OK"
+      var1 <- "Should cause an error"
+
+    //Re-declaring var1 inside the function, should cause an error - which is detected.
+    //Failure9
+    invalidDuplicateVariable5()
+      <- var1 as String: "not OK"
+      var1 as String: "Should cause an error"
+
+    //Re-declaring var1 as incoming parameters should cause error - which is detected.
+    //Failure10
+    invalidDuplicateVariable6()
+      ->
+        var1 as String
+        var1 as String
+      <-
+        rtn as Integer: 1
+
+    //Failure11
+    invalidDuplicateVariableInTry1()
+      //declare in a try, duplicate v1 - which is detected.
+      try
+        -> someVar <- 1
+        v1 <- someVar
+        v1 <- functionThatIsOK()
+
+    //Failure12
+    invalidDuplicateVariableInTry2()
+
+      try
+        -> someVar <- 1
+        //Now redeclare - which is detected.
+        someVar <- functionThatIsOK()
+
+    //Failure13 - redeclare someVar as name of exception as well initialised parameter
+    invalidDuplicateVariableInTry3()
+      //But note you can reuse v1 in different blocks as they go out of scope
+      try
+        -> someVar <- 1
+        v1 <- functionThatIsOK()
+        assert v1?
+      //Now redeclare as the name of an exception - which is detected.
+      catch
+        -> someVar as Exception
+        v1 <- functionThatIsOK()
+        assert v1?
+
+    //Failure14
+    invalidDuplicateVariableInTry4()
+      //But note you can reuse v1 in different blocks as they go out of scope
+      try
+        -> someVar <- 1
+        v1 <- functionThatIsOK()
+        assert v1?
+      catch
+        -> ex as Exception
+        v1 <- functionThatIsOK()
+        assert v1?
+      //Now redeclare as the name of an variable in the finally - which is detected.
+      finally
+        someVar <- "Also will be a duplicate"
+
+    //Failure15
+    invalidDuplicateVariableInTry5()
+      //declare in a try, but this time as both incoming and outgoing with same name - which is detected.
+      value <- try
+        -> someVar <- 1
+        <- someVar as Integer: 1
+        v1 <- someVar
+        assert v1?
+
+    //Failure16
+    invalidDuplicateVariableInTry6()
+      //Use a try with just a return. But duplicate it
+      value <- try
+        <- someRtn as Integer: 1
+        //Need to detect as duplicate - which is detected.
+        someRtn <- 12
+        assert someRtn?
+
+    //Failure17
+    invalidDuplicateVariableInSwitch1()
+      val <- "ToCheck"
+
+      someResult <- switch val
+        <- resultText as String: "Unknown"
+        case "ToCheck"
+          //Accidentally redeclare - which is detected.
+          resultText <- "Jackpot"
+        case "This"
+          resultText: "Was this"
+        case "This"
+          resultText: "Was that"
+
+    //Failure18
+    invalidDuplicateVariableInSwitch2()
+      val <- "ToCheck"
+
+      someResult <- switch val
+        //Accidentally redeclare - which is detected
+        <- someResult as String: "Unknown"
+        case "ToCheck"
+          someResult: "Jackpot"
+        case "This"
+          someResult: "Was this"
+        case "This"
+          someResult: "Was that"
+
+    //Failure19
+    invalidDuplicateVariableInSwitch3()
+      val <- "ToCheck"
+
+      resultText <- "Unknown"
+      switch val
+        case "ToCheck"
+          //Accidentally redeclare - which is detected.
+          resultText <- "Jackpot"
+        case "This"
+          resultText: "Was this"
+        case "This"
+          resultText: "Was that"
+        default
+          resultText: "Not known"
+
+    //Failure20 - expect this incoming param to be detected as existing named constant - which is detected.
+    invalidDuplicateVariableClashWithConstant1()
+      -> someThingToClashWith as String
+      <- rtn as Integer: 1
+
+    //Failure21 - expect this returning param to be detected as existing named constant - which is detected.
+    invalidDuplicateVariableClashWithConstant2()
+      <- someThingToClashWith as String: "Not OK"
+
+    //Failure22 - expect this incoming param to be detected as existing function - which is detected.
+    invalidDuplicateVariableClashWithFunction1()
+      -> functionThatIsOK as String
+      <- rtn as Integer: 1
+
+    //Failure23 - expect this returning param to be detected as existing function - which is detected.
+    invalidDuplicateVariableClashWithFunction2()
+      <- functionThatIsOK as String: "Not OK"
+
+//EOF

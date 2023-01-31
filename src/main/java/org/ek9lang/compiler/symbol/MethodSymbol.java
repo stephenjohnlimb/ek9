@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import org.ek9lang.compiler.symbol.support.SymbolMatcher;
+import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 
 /**
  * Represents some type of method that exists on an aggregate type scope.
@@ -147,6 +148,24 @@ public class MethodSymbol extends ScopedSymbol {
     newCopy.usedAsProxyForDelegate = this.usedAsProxyForDelegate;
 
     return newCopy;
+  }
+
+  @Override
+  public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search) {
+    //This will now also check the returning symbol (if present)
+    if (this.isReturningSymbolPresent() && returningSymbol.getName().equals(search.getName())) {
+      return Optional.of(returningSymbol);
+    }
+    return super.resolveInThisScopeOnly(search);
+  }
+
+  @Override
+  public Optional<ISymbol> resolve(SymbolSearch search) {
+    //This will now also check the returning symbol (if present)
+    if (this.isReturningSymbolPresent() && returningSymbol.getName().equals(search.getName())) {
+      return Optional.of(returningSymbol);
+    }
+    return super.resolve(search);
   }
 
   public boolean isSynthetic() {

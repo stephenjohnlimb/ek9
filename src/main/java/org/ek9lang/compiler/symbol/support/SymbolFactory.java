@@ -753,23 +753,6 @@ public class SymbolFactory {
     return newLoopVariable(ctx.identifier(0));
   }
 
-  public ConstantSymbol newInterpolatedStringPart(final EK9Parser.StringPartContext ctx,final IScope scope) {
-    //if interpolated string had a " in now needs to be escaped because we will wrapping ""
-    //But also if we had and escaped $ i.e. \$ we can turn that back into a dollar now.
-    String literalText = ctx.getChild(0).getText().replace("\"", "\\\"").replace("\\$", "$").replace("\\`", "`");
-    ConstantSymbol literal = newLiteral(ctx.start, "\"" + literalText + "\"");
-    literal.setType(scope.resolve(new TypeSymbolSearch(EK9_STRING)));
-
-    return literal;
-  }
-
-  public ExpressionSymbol newInterpolatedExpressionPart(final EK9Parser.StringPartContext ctx,final IScope scope) {
-    ExpressionSymbol expressionSymbol = new ExpressionSymbol(ctx.getText());
-    configureSymbol(expressionSymbol, ctx.start);
-
-    return expressionSymbol;
-  }
-
   private VariableSymbol newLoopVariable(EK9Parser.IdentifierContext identifier) {
     checkContextNotNull.accept(identifier);
     var variable = newVariable(identifier, false, false);
@@ -781,6 +764,28 @@ public class SymbolFactory {
   }
 
 
+  /**
+   * Create a new constant that represents the fixed text part of an interpolated String.
+   */
+  public ConstantSymbol newInterpolatedStringPart(final EK9Parser.StringPartContext ctx, final IScope scope) {
+    //if interpolated string had a " in now needs to be escaped because we will wrapping ""
+    //But also if we had and escaped $ i.e. \$ we can turn that back into a dollar now.
+    String literalText = ctx.getChild(0).getText().replace("\"", "\\\"").replace("\\$", "$").replace("\\`", "`");
+    ConstantSymbol literal = newLiteral(ctx.start, "\"" + literalText + "\"");
+    literal.setType(scope.resolve(new TypeSymbolSearch(EK9_STRING)));
+
+    return literal;
+  }
+
+  /**
+   * Create a new expression that represents the expression part of and interpolated String.
+   */
+  public ExpressionSymbol newInterpolatedExpressionPart(final EK9Parser.StringPartContext ctx) {
+    ExpressionSymbol expressionSymbol = new ExpressionSymbol(ctx.getText());
+    configureSymbol(expressionSymbol, ctx.start);
+
+    return expressionSymbol;
+  }
 
   /**
    * Just a declaration of a variable by itself - i.e. without an assignment.

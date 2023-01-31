@@ -1,0 +1,373 @@
+#!ek9
+<?-
+  Designed to highlight examples of where statements following an exception
+  are pointless, but can be detected via normal compiler static analysis.
+
+  To not trying to detect situations where dynamic analysis is required.
+  Or where a complete IR is needed.
+  So some code identified as being in error, may not get caught in early phases.
+  But will be picked up once and IR is in place and calls/functions/expressions can be
+  resolved and checked for abnormal termination.
+
+  TODO dynamicFunction bodies.
+  Remove examples not detectable on phase 1.
+  Will need to add examples for later phases.
+-?>
+defines module bad.flowcontrol.examples
+
+  defines function
+
+    //Just to be used in further examples
+    validFunction()
+      <- rtn as Integer: 2
+
+    //Failure 1
+    invalidForLoopOverValues()
+      //There is an implicit continuation here, even though there are no
+      //following statements after the exception, this will fail at the first.
+      //It therefore not logical or normal.
+      for item in ["Alpha", "Beta", "Charlie"]
+        throw Exception("This will always fail")
+
+    //Failure 2
+    invalidTraditionalForLoop1()
+      for i in 1 ... 10
+        throw Exception("This will always fail")
+
+    //Failure 3 and Failure 4
+    invalidTraditionalForLoop2()
+      //Cannot really iterate
+      for i in 1 ... 10
+        throw Exception("This will always fail")
+        //Can never get here
+        assert i?
+
+    //Failure 5
+    invalidDoWhileLoop()
+      condition <- true
+      //loop is unreachable in terms of looping
+      do
+        //normally some more complex reason for this change.
+        condition := false
+        throw Exception("This will always fail")
+      while condition
+
+    //Failure 6
+    invalidWhileDoLoop1()
+      condition <- true
+      //loop is unreachable in terms of looping
+      while condition
+        //normally some more complex reason for this change.
+        condition := false
+        throw Exception("This will always fail")
+
+    //Failure 7 and Failure 8
+    invalidWhileDoLoop2()
+      condition <- true
+      //loop is unreachable in terms of looping
+      while condition
+        throw Exception("This will always fail")
+        //unreachable
+        condition := false
+
+    //Now while it looks strange, there is nothing wrong here.
+    //both paths of the if/else result in abnormal termination
+    //so function always results in abnormal termination.
+    //But that's OK, it now depends where this is called from.
+    validIfElseStatement()
+      condition <- true
+      if condition
+        throw Exception("Check If")
+      else
+        throw Exception("Check Else")
+
+    //This is also fine, just means that this function now terminates abnormally
+    validCallAbnormallyTerminatingFunctionOK()
+      validIfElseStatement()
+
+    //Failure 9
+    //But this can be detected as all paths in the if/else result in an exception.
+    //i.e. both blocks (if and else) result in abnormal termination and so
+    //The final statement cannot be executed.
+    invalidIfElseStatement1()
+      condition <- true
+      if condition
+        throw Exception("Check If")
+      else
+        throw Exception("Check Else")
+
+      someOtherStatement <- 21
+
+    //This is allowed, because might not trigger if (phase 1 cannot detect this is always true)
+    validIfStatement1()
+      condition <- true
+      if condition
+        throw Exception("Check If")
+
+      someOtherStatement <- 21
+
+    //Failure 10
+    //But this can be detected as all paths in the if/else result in an exception.
+    //i.e. both blocks (if and else) result in abnormal termination and so
+    //The final statement cannot be executed.
+    invalidIfElseStatement2()
+      condition <- true
+      if condition
+        throw Exception("Check If")
+      else if not condition
+        throw Exception("Check If/Else")
+      else
+        throw Exception("Check Else")
+
+      someOtherStatement <- 21
+
+    okResultForTesting()
+      <- rtn as String: "OK"
+
+    //Failure 11
+    //While there is no explicit following statement, there is the return
+    //So this could never return the value
+    invalidIfElseStatement3()
+      <- rtn as String: "OK"
+      condition <- true
+      if condition
+        throw Exception("Check If")
+      else
+        throw Exception("Check Else")
+
+    validTryCatchStatement1()
+
+      try
+        //To do something
+        var <- "OK"
+        //This will/may generate and exception
+        ifStatementOK()
+      catch
+        -> ex as Exception
+        otherProcessing <- 23
+        validSwitchStatement2()
+      finally
+        validFunction()
+
+    validTryCatchStatement2()
+
+      try
+        var <- "OK"
+        throw Exception("But with a catch")
+      catch
+        -> ex as Exception
+        otherProcessing <- 23
+        assert otherProcessing?
+      finally
+        moreProcessing <- 23
+        assert moreProcessing?
+
+    //Failure 12
+    invalidTryCatchStatement1()
+
+      try
+        var <- "OK"
+        throw Exception("But no catch")
+
+      //This can never be executed
+      someOtherStatement <- 21
+
+    //Failure 13
+    invalidTryCatchStatement2()
+
+      try
+        var <- "OK"
+        throw Exception("But with a catch")
+      catch
+        -> ex as Exception
+        //While this has been cause we now throw another
+        throw Exception("Thrown inside catch")
+
+      //This can never be executed
+      someOtherStatement <- 21
+
+    //Failure 14
+    invalidTryCatchStatement3()
+      try
+        var <- "OK"
+        throw Exception("But with catch and finally")
+      catch
+        -> ex as Exception
+        assert ex?
+      finally
+        //While this has been caught, another exception is thrown
+        throw Exception("Thrown inside finally")
+
+      //This can never be executed
+      someOtherStatement <- 21
+
+    //Failure 15
+    invalidTryCatchStatement4()
+      try
+        var <- "OK"
+        throw Exception("But with catch and finally")
+      catch
+        -> ex as Exception
+        assert ex?
+        throw Exception("Thrown inside catch")
+      finally
+        moreProcessing <- 23
+        assert moreProcessing?
+
+      //This can never be executed
+      someOtherStatement <- 21
+
+    validTryCatchExpression1()
+
+      result <- try
+        <- value as Integer: 1
+        //To do something
+        value: 2
+        //This will/may generate and exception
+        ifStatementOK()
+      catch
+        -> ex as Exception
+        value: 3
+        validSwitchStatement2()
+      finally
+        value: 21
+        validFunction()
+
+    //Failure 16
+    invalidTryCatchExpression1()
+
+      //Result cannot be assigned to as there is always an exception
+      result <- try
+        <- value as Integer: 1
+        value: 2
+        throw Exception("But no catch")
+
+    //Failure 17
+    invalidTryCatchExpression2()
+
+      //Result cannot be assigned to as there is always an exception
+      result <- try
+        <- value as Integer: 1
+        throw Exception("But with a catch")
+      catch
+        -> ex as Exception
+        value: 3
+        //While this has been caught we now throw another Exception
+        throw Exception("Thrown inside catch")
+
+    //Failure 18
+    invalidTryCatchExpression3()
+
+      //Result cannot be assigned to as there is always an Exception
+      result <- try
+        <- value as Integer: 1
+        var <- "OK"
+        throw Exception("But with catch and finally")
+      catch
+        -> ex as Exception
+        value: 3
+        assert ex?
+      finally
+        value: 21
+        //While this has been caught we now throw another Exception
+        throw Exception("Thrown inside finally")
+
+    //Failure 19
+    invalidTryCatchExpression4()
+
+      result <- try
+        <- value as Integer: 1
+        var <- "OK"
+        throw Exception("But with catch and finally")
+      catch
+        -> ex as Exception
+        value: 3
+        throw Exception("Thrown inside catch")
+      finally
+        //The catch forces another exception
+        value: 21
+
+    //Failure 20
+    //While the return value has been set, this can never be returned
+    //because an exception is always thrown, as above
+    alwaysAnException1()
+      <- rtn as String: "OK"
+      throw Exception("Never can return OK")
+
+
+    //Failure 21
+    //The return value can never be assigned or returned
+    //because an exception is always thrown, as above
+    alwaysAnException2()
+      <- rtn as String?
+      throw Exception("Never can return OK")
+
+    //Example of a valid switch statement
+    validSwitchStatement1()
+      -> value as String
+      <- result as Integer?
+
+      given value
+        when "THIS", "THAT"
+          result := 10
+        default
+          result := 12
+
+    validSwitchStatement2()
+      -> value as String
+      <- result as Integer?
+
+      given value
+        when "THIS", "THAT"
+          result := 10
+        default
+          throw Exception("Some default reason")
+
+
+    //Failure 22 - not detected yet
+    // All possible paths in thw switch result in an exception
+    //So this whole block must fail and return cannot be set
+    invalidSwitchStatement1()
+      -> value as String
+      <- result as Integer?
+
+      given value
+        when "THIS", "THAT"
+          throw Exception("Some this/that reason")
+        default
+          throw Exception("Some default reason")
+
+
+    //Failure 23
+    //All possible paths in thw switch result in an exception
+    //So following statement cannot be executed
+    invalidSwitchStatement2()
+      -> value as String
+
+      result <- 1
+      given value
+        when "THIS", "THAT"
+          throw Exception("Some this/that reason")
+        default
+          throw Exception("Some default reason")
+
+      //This can never be executed
+      result += 25
+
+
+    //Failure 24
+    //All possible paths in thw switch result in an exception
+    //So result statement cannot be assigned
+    invalidSwitchExpression1()
+      -> value as String
+
+      //result can never be assigned as all paths return an exception
+      result as Integer := given value
+        <- rtn as Integer: 1
+        when "THIS", "THAT"
+          throw Exception("Some this/that reason")
+        default
+          throw Exception("Some default reason")
+
+
+//EOF

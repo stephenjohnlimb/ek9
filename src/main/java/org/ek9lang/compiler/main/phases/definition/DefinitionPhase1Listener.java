@@ -29,6 +29,8 @@ import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.phases.listeners.AbstractEK9PhaseListener;
 import org.ek9lang.compiler.main.rules.CheckAssignment;
 import org.ek9lang.compiler.main.rules.CheckDynamicVariableCapture;
+import org.ek9lang.compiler.main.rules.CheckNormalTermination;
+import org.ek9lang.compiler.main.rules.CheckParamExpressionNamedParameters;
 import org.ek9lang.compiler.main.rules.CheckProtectedServiceMethods;
 import org.ek9lang.compiler.main.rules.CheckVariableOnlyDeclaration;
 import org.ek9lang.compiler.main.rules.CommonMethodChecks;
@@ -41,7 +43,6 @@ import org.ek9lang.compiler.symbol.IScopedSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.LocalScope;
 import org.ek9lang.compiler.symbol.MethodSymbol;
-import org.ek9lang.compiler.symbol.ScopedSymbol;
 import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.SymbolChecker;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
@@ -62,6 +63,9 @@ import org.ek9lang.core.exception.CompilerException;
  * take place with push and pop of what's on the stack. Else we get out of sync.
  * So yes we need to record errors and not put the named item on, but we need to put something in there to deal
  * with the pushing and popping on thr stack, because the rest of the code might be OK.
+ * There are a number of very simple 'early' checks used in this listener, the idea is a fail to compile as early
+ * as possible. It could be argued that you should do all the checks once you have an IR.
+ * My thought is that as soon as you can detect an error you should report it in the earliest phase as possible.
  */
 public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
@@ -98,6 +102,10 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   private final CheckDynamicVariableCapture checkDynamicVariableCapture;
 
+  private final CheckParamExpressionNamedParameters checkParamExpressionNamedParameters;
+
+  private final CheckNormalTermination checkNormalTermination;
+
   /**
    * First phase after parsing. Define symbols and infer types where possible.
    * Uses a symbol factory to actually create the appropriate symbols.
@@ -112,6 +120,9 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     checkAssignment = new CheckAssignment(parsedModule.getSource().getErrorListener());
     checkVariableOnlyDeclaration = new CheckVariableOnlyDeclaration(parsedModule.getSource().getErrorListener());
     checkDynamicVariableCapture = new CheckDynamicVariableCapture(parsedModule.getSource().getErrorListener());
+    checkParamExpressionNamedParameters =
+        new CheckParamExpressionNamedParameters(parsedModule.getSource().getErrorListener());
+    checkNormalTermination = new CheckNormalTermination(parsedModule.getSource().getErrorListener());
   }
 
   // Now we hook into the ANTLR listener events - lots of them!
@@ -394,6 +405,34 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     super.enterStreamTermination(ctx);
   }
 
+
+  /**
+   * Need to create a local scope for the if statement so that it is possible to detect
+   * if all paths result in abnormal termination (i.e. Exception).
+   * If this is the case then the statement can only result in an exception, so any statements
+   * after it will be unreachable. Though it is not an issue for all paths in an if else to result
+   * in abnormal termination - only if there are statements follow or a return in the method/function.
+   */
+  @Override
+  public void enterIfStatement(EK9Parser.IfStatementContext ctx) {
+    IScope outerScope = symbolAndScopeManagement.getTopScope();
+    var catchScope = new LocalScope("If-line-" + ctx.start.getTokenSource().getLine(), outerScope);
+    symbolAndScopeManagement.enterNewScope(catchScope, ctx);
+    super.enterIfStatement(ctx);
+  }
+
+  @Override
+  public void exitIfStatement(EK9Parser.IfStatementContext ctx) {
+
+    pullIfElseTerminationUp(ctx);
+
+    //Now pop off the scope stack to get the containing scope and pull that result up.
+    super.exitIfStatement(ctx);
+
+    pullBlockTerminationUp(ctx);
+
+  }
+
   /**
    * A couple of wrinkles with the switch because is can be used as a normal statement
    * But also as an expression. If used as an expression then it must have a return part.
@@ -406,6 +445,23 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     symbolAndScopeManagement.enterNewScopedSymbol(newSwitchSymbol, ctx);
 
     super.enterSwitchStatementExpression(ctx);
+  }
+
+  @Override
+  public void exitSwitchStatementExpression(EK9Parser.SwitchStatementExpressionContext ctx) {
+    var thisSwitchScope = symbolAndScopeManagement.getTopScope();
+
+    pullSwitchCaseDefaultUp(ctx);
+
+    if (ctx.returningParam() != null) {
+      checkNormalTermination.accept(ctx.returningParam().start, thisSwitchScope);
+    }
+    //It is not an error at this point, but in a wider set of statements could be
+
+    super.exitSwitchStatementExpression(ctx);
+
+    //So pull up this termination type and then if any statements follow and error will be issued.
+    pullBlockTerminationUp(ctx);
   }
 
   /**
@@ -423,12 +479,41 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     super.enterTryStatementExpression(ctx);
   }
 
+  /**
+   * A bit complex, because we need to check for normal termination on the
+   * try instructions, the catch and the finally blocks.
+   * Only if there is a returning variable is this an error.
+   * But we do need to pull the termination status up in to the parent set of instructions.]
+   */
+  @Override
+  public void exitTryStatementExpression(EK9Parser.TryStatementExpressionContext ctx) {
+
+    pullTryCatchFinallyUp(ctx);
+
+    IScope thisTryScope = symbolAndScopeManagement.getTopScope();
+    if (ctx.returningParam() != null) {
+      checkNormalTermination.accept(ctx.returningParam().start, thisTryScope);
+    }
+    //It is not an error at this point, but in a wider set of statements could be
+
+    super.exitTryStatementExpression(ctx);
+
+    //So pull up this termination type and then if any statements follow and error will be issued.
+    pullBlockTerminationUp(ctx);
+  }
+
   @Override
   public void enterCatchStatementExpression(EK9Parser.CatchStatementExpressionContext ctx) {
     IScope outerScope = symbolAndScopeManagement.getTopScope();
     var catchScope = new LocalScope("Catch", outerScope);
     symbolAndScopeManagement.enterNewScope(catchScope, ctx);
     super.enterCatchStatementExpression(ctx);
+  }
+
+  @Override
+  public void exitCatchStatementExpression(EK9Parser.CatchStatementExpressionContext ctx) {
+    pullBlockTerminationUp(ctx.instructionBlock());
+    super.exitCatchStatementExpression(ctx);
   }
 
   @Override
@@ -440,12 +525,55 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     super.enterFinallyStatementExpression(ctx);
   }
 
+  @Override
+  public void exitFinallyStatementExpression(EK9Parser.FinallyStatementExpressionContext ctx) {
+    pullBlockTerminationUp(ctx.block());
+    super.exitFinallyStatementExpression(ctx);
+  }
+
+  @Override
+  public void enterThrowStatement(EK9Parser.ThrowStatementContext ctx) {
+    //This is a key event as it in effect causes the current scope to fail with abnormal termination
+    //note down that this scope has encountered an exception at this line number
+    //but not if it already has encountered one.
+    IScope currentScope = symbolAndScopeManagement.getTopScope();
+
+    if (currentScope.isTerminatedNormally()) {
+      currentScope.setEncounteredExceptionToken(ctx.getStart());
+    }
+
+    super.enterThrowStatement(ctx);
+  }
+
+  @Override
+  public void exitForStatement(EK9Parser.ForStatementContext ctx) {
+    var scope = symbolAndScopeManagement.getTopScope();
+    pullBlockTerminationUp(ctx.block());
+
+    if (!scope.isTerminatedNormally()) {
+      unreachableStatement.accept(ctx.start, scope.getEncounteredExceptionToken());
+    }
+
+    super.exitForStatement(ctx);
+  }
+
+  @Override
+  public void exitWhileStatement(EK9Parser.WhileStatementContext ctx) {
+    var scope = symbolAndScopeManagement.getTopScope();
+    pullBlockTerminationUp(ctx.block());
+
+    if (!scope.isTerminatedNormally()) {
+      unreachableStatement.accept(ctx.start, scope.getEncounteredExceptionToken());
+    }
+
+    super.exitWhileStatement(ctx);
+  }
 
   @Override
   public void enterForLoop(EK9Parser.ForLoopContext ctx) {
     pushNewForLoopScope(ctx);
     final var variable = symbolFactory.newLoopVariable(ctx);
-    checkAndDefineSymbol(variable, ctx);
+    checkAndDefineSymbol(variable, ctx, false);
     super.enterForLoop(ctx);
   }
 
@@ -453,10 +581,21 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   public void enterForRange(EK9Parser.ForRangeContext ctx) {
     pushNewForLoopScope(ctx);
     final var variable = symbolFactory.newLoopVariable(ctx);
-    checkAndDefineSymbol(variable, ctx);
+    checkAndDefineSymbol(variable, ctx, false);
     super.enterForRange(ctx);
   }
 
+  /**
+   * A local scope is used to hold the returning parameter.
+   * The argumentParam values are defined in the scope of the method/function etc.
+   * These are the incoming parameters.
+   * The returingParam is held outside of those and must be declared inside the
+   * function/method (but not in the areas for incoming parameters), just as a normal
+   * local variable in the main block.
+   * Now the issue is that we must check that this returning variable name does not
+   * collide with any of the incoming parameters, nor any of the variables the developer declares
+   * in the main block.
+   */
   @Override
   public void enterReturningParam(EK9Parser.ReturningParamContext ctx) {
     IScope scope = symbolAndScopeManagement.getTopScope();
@@ -471,13 +610,60 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     ParseTree child = ctx.variableDeclaration() != null ? ctx.variableDeclaration() : ctx.variableOnlyDeclaration();
 
     var symbol = symbolAndScopeManagement.getRecordedSymbol(child);
+
     if (symbol instanceof VariableSymbol variableSymbol) {
       variableSymbol.setReturningParameter(true);
       //Now we won't know its type yet, but we will know it exists
-      //Just pass the symbol back up in the context
-      symbolAndScopeManagement.recordSymbol(variableSymbol, ctx);
+      //So it is possible to attach this symbol to the correct parent symbol
+      //I never really like doing this - make grammar brittle to change.
+      if (ctx.getParent() instanceof EK9Parser.OperationDetailsContext operationCtx) {
+        //This could be a function, method, operator or a serviceOperation - all extend methodSymbol.
+        var returningCapableSymbol =
+            (MethodSymbol) symbolAndScopeManagement.getRecordedSymbol(operationCtx.getParent());
+        if (returningCapableSymbol != null && !symbolChecker.errorsIfSymbolAlreadyDefined(returningCapableSymbol,
+            variableSymbol, true)) {
+          returningCapableSymbol.setReturningSymbol(variableSymbol);
+        }
+      } else {
+        //either a try or a switch, so define the return inside that control scope.
+        var parentScope = symbolAndScopeManagement.getRecordedScope(ctx.getParent());
+        parentScope.define(variableSymbol);
+      }
     }
     super.exitReturningParam(ctx);
+  }
+
+  @Override
+  public void enterBlock(EK9Parser.BlockContext ctx) {
+    IScope scope = symbolAndScopeManagement.getTopScope();
+    var scopeName = "Line-" + ctx.start.getLine() + "-Position-" + ctx.start.getCharPositionInLine();
+    LocalScope instructionBlock = new LocalScope(scopeName, scope);
+    symbolAndScopeManagement.enterNewScope(instructionBlock, ctx);
+
+    super.enterBlock(ctx);
+  }
+
+  /**
+   * There is a returning parameter, so the instruction block must terminate normally.
+   * i.e. not all paths in the instruction block can result in an Exception else there is no way
+   * it is possible ever return anything.
+   */
+  @Override
+  public void exitOperationDetails(EK9Parser.OperationDetailsContext ctx) {
+    //It is not mandatory to have either, typically one or the other or both.
+    if (ctx.returningParam() != null && ctx.instructionBlock() != null) {
+      var instructionBlockScope = symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock());
+      checkNormalTermination.accept(ctx.returningParam().start, instructionBlockScope);
+    }
+
+    super.exitOperationDetails(ctx);
+  }
+
+  @Override
+  public void exitBlock(EK9Parser.BlockContext ctx) {
+    pullBlockTerminationUp(ctx.instructionBlock());
+
+    super.exitBlock(ctx);
   }
 
   /**
@@ -487,11 +673,8 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   @Override
   public void enterInstructionBlock(EK9Parser.InstructionBlockContext ctx) {
     IScope scope = symbolAndScopeManagement.getTopScope();
-    String parentScopeName = scope.getScopeName();
-    if (scope instanceof ScopedSymbol scopedSymbol) {
-      parentScopeName = scopedSymbol.getFriendlyScopeName();
-    }
-    LocalScope instructionBlock = new LocalScope(parentScopeName, scope);
+    var scopeName = "Line-" + ctx.start.getLine() + "-Position-" + ctx.start.getCharPositionInLine();
+    LocalScope instructionBlock = new LocalScope(scopeName, scope);
     symbolAndScopeManagement.enterNewScope(instructionBlock, ctx);
     super.enterInstructionBlock(ctx);
   }
@@ -574,13 +757,19 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   @Override
+  public void exitParamExpression(EK9Parser.ParamExpressionContext ctx) {
+    checkParamExpressionNamedParameters.accept(ctx);
+    super.exitParamExpression(ctx);
+  }
+
+  @Override
   public void enterVariableOnlyDeclaration(EK9Parser.VariableOnlyDeclarationContext ctx) {
     final var variable = symbolFactory.newVariable(ctx);
     checkVariableOnlyDeclaration.accept(ctx);
-    checkAndDefineSymbol(variable, ctx);
+    var limitToBlocks = ctx.getParent() instanceof EK9Parser.ArgumentParamContext;
+    checkAndDefineSymbol(variable, ctx, limitToBlocks);
     super.enterVariableOnlyDeclaration(ctx);
   }
-
 
   /**
    * Just a straight forward declaration of a variable.
@@ -590,8 +779,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   @Override
   public void enterVariableDeclaration(EK9Parser.VariableDeclarationContext ctx) {
     final var variable = symbolFactory.newVariable(ctx);
-
-    checkAndDefineSymbol(variable, ctx);
+    checkAndDefineSymbol(variable, ctx, false);
     super.enterVariableDeclaration(ctx);
   }
 
@@ -700,17 +888,14 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   @Override
   public void enterStringPart(EK9Parser.StringPartContext ctx) {
     IScope scope = symbolAndScopeManagement.getTopScope();
-    if(ctx.STRING_TEXT() != null)
-    {
+    if (ctx.STRING_TEXT() != null) {
       //Then it is just a snip of TEXT
       var literal = symbolFactory.newInterpolatedStringPart(ctx, scope);
       symbolAndScopeManagement.recordSymbol(literal, ctx);
-    }
-    else
-    {
+    } else {
       //Ah, so it is an expression part of an interpolated String
       //We don't know what type it will return yet!
-      var expression = symbolFactory.newInterpolatedExpressionPart(ctx, scope);
+      var expression = symbolFactory.newInterpolatedExpressionPart(ctx);
       symbolAndScopeManagement.recordSymbol(expression, ctx);
     }
     super.enterStringPart(ctx);
@@ -803,9 +988,9 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
    * Just for pure Symbols - not ScopedSymbols - checks for duplicate symbols just within
    * the current scope.
    */
-  private void checkAndDefineSymbol(final ISymbol symbol, final ParseTree node) {
+  private void checkAndDefineSymbol(final ISymbol symbol, final ParseTree node, final boolean limitToBlock) {
     IScope scope = symbolAndScopeManagement.getTopScope();
-    if (!symbolChecker.errorsIfVariableSymbolAlreadyDefined(scope, symbol)) {
+    if (!symbolChecker.errorsIfSymbolAlreadyDefined(scope, symbol, limitToBlock)) {
       symbolAndScopeManagement.enterNewSymbol(symbol, node);
     }
   }

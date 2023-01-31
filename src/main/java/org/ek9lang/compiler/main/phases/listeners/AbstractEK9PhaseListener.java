@@ -1,10 +1,12 @@
 package org.ek9lang.compiler.main.phases.listeners;
 
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9BaseListener;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.support.ScopeStack;
 import org.ek9lang.core.exception.AssertValue;
 
@@ -31,6 +33,88 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
     this.symbolAndScopeManagement = new SymbolAndScopeManagement(parsedModule,
         new ScopeStack(parsedModule.getModuleScope()));
   }
+
+  protected void pullSwitchCaseDefaultUp(EK9Parser.SwitchStatementExpressionContext ctx) {
+    var noneExceptionPathPossible = false;
+    var thisSwitchScope = symbolAndScopeManagement.getTopScope();
+
+    //This is the 'default' if present
+    if (ctx.block() != null) {
+      noneExceptionPathPossible = symbolAndScopeManagement.getRecordedScope(ctx.block()).isTerminatedNormally();
+    }
+
+    for (var caseStatement : ctx.caseStatement()) {
+      noneExceptionPathPossible |=
+          symbolAndScopeManagement.getRecordedScope(caseStatement.block()).isTerminatedNormally();
+    }
+
+    //So no none exception paths.
+    if (!noneExceptionPathPossible) {
+      thisSwitchScope.setEncounteredExceptionToken(ctx.start);
+    }
+  }
+
+  protected void pullTryCatchFinallyUp(final EK9Parser.TryStatementExpressionContext ctx) {
+    //assume bad news
+    var noneExceptionPathPossible = true;
+    IScope thisTryScope = symbolAndScopeManagement.getTopScope();
+
+    //So may get an exception here
+    if (ctx.instructionBlock() != null) {
+      noneExceptionPathPossible =
+          symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock()).isTerminatedNormally();
+    }
+
+    //But if caught and no exception - we're golden - i.e. exception for instruction block consumed.
+    if (ctx.catchStatementExpression() != null) {
+      noneExceptionPathPossible =
+          symbolAndScopeManagement.getRecordedScope(ctx.catchStatementExpression()).isTerminatedNormally();
+    }
+
+    //an exception in a finally, trumps all.
+    if (ctx.finallyStatementExpression() != null) {
+      noneExceptionPathPossible &=
+          symbolAndScopeManagement.getRecordedScope(ctx.finallyStatementExpression()).isTerminatedNormally();
+    }
+
+    //So no none exception paths.
+    if (!noneExceptionPathPossible) {
+      thisTryScope.setEncounteredExceptionToken(ctx.start);
+    }
+  }
+
+  protected void pullIfElseTerminationUp(final EK9Parser.IfStatementContext ifCtx) {
+    IScope thisIfScope = symbolAndScopeManagement.getTopScope();
+    var ifBlock = symbolAndScopeManagement.getRecordedScope(ifCtx.block(0));
+
+    if (ifCtx.block().size() == 2) {
+      //then it is just an if/else
+      var elseBlock = symbolAndScopeManagement.getRecordedScope(ifCtx.block(1));
+      if (!ifBlock.isTerminatedNormally() && !elseBlock.isTerminatedNormally()) {
+        //Not really cause by a single Exception but all paths.
+        thisIfScope.setEncounteredExceptionToken(ifCtx.start);
+      }
+    } else if (ifCtx.ifStatement() != null) {
+      //then it is a chained if else if...
+      var ifElseBlock = symbolAndScopeManagement.getRecordedScope(ifCtx.ifStatement());
+      if (!ifBlock.isTerminatedNormally() && !ifElseBlock.isTerminatedNormally()) {
+        //Not really cause by a single Exception but all paths.
+        thisIfScope.setEncounteredExceptionToken(ifCtx.start);
+      }
+    }
+    //If it was just an if then - it may or may not terminate normally
+
+  }
+
+  protected void pullBlockTerminationUp(final ParseTree node) {
+    IScope scope = symbolAndScopeManagement.getTopScope();
+    var childScope = symbolAndScopeManagement.getRecordedScope(node);
+
+    if (childScope != null && !childScope.isTerminatedNormally()) {
+      scope.setEncounteredExceptionToken(childScope.getEncounteredExceptionToken());
+    }
+  }
+
 
   /**
    * Provide access to the parsedModule.
@@ -162,6 +246,12 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   }
 
   @Override
+  public void exitIfStatement(EK9Parser.IfStatementContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitIfStatement(ctx);
+  }
+
+  @Override
   public void exitSwitchStatementExpression(EK9Parser.SwitchStatementExpressionContext ctx) {
     symbolAndScopeManagement.exitScope();
     super.exitSwitchStatementExpression(ctx);
@@ -202,6 +292,12 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   public void exitFinallyStatementExpression(EK9Parser.FinallyStatementExpressionContext ctx) {
     symbolAndScopeManagement.exitScope();
     super.exitFinallyStatementExpression(ctx);
+  }
+
+  @Override
+  public void exitBlock(EK9Parser.BlockContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitBlock(ctx);
   }
 
   @Override

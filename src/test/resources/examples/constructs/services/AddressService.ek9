@@ -445,7 +445,7 @@ defines module com.customer.services
       //A POST
       operator += :/
         -> request as HTTPRequest :=: REQUEST          
-        <- response as HTTPResponse: (request, nonCacheable: plainNonCacheableHTTPResponse()) of HTTPResponse by nonCacheable
+        <- response as HTTPResponse: (request: request, nonCacheable: plainNonCacheableHTTPResponse()) of HTTPResponse by nonCacheable
             repository as Repository!
             address as Address: Address()
             status as Integer: 201
@@ -474,7 +474,7 @@ defines module com.customer.services
       //A DELETE
       operator -= :/{addressId}
         -> addressId as AddressId //Assume PATH
-        <- response as HTTPResponse: (addressId, delegate: ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse(), false)) of HTTPResponse by delegate
+        <- response as HTTPResponse: (addressId: addressId, delegate: ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse(), false)) of HTTPResponse by delegate
             repository as Repository!
 
             override content()
@@ -491,7 +491,11 @@ defines module com.customer.services
           addressId as AddressId //Assume PATH
           incomingContent as String :=: CONTENT          
         <-
-          response as HTTPResponse: (addressId, incomingContent, delegate: ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())) of HTTPResponse by delegate
+          response as HTTPResponse: (
+            addressId: addressId,
+            incomingContent: incomingContent,
+            delegate: ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())
+            ) of HTTPResponse by delegate
             repository as Repository!
 
             override content()
@@ -510,12 +514,12 @@ defines module com.customer.services
       //Now the dynamic variable capture allowed multiple lines and various formatting within the ()
       operator :^: :/{addressId}
         ->
-          addressId as AddressId //Assume PATH
-          incomingContent as String :=: CONTENT          
+          id as AddressId //Assume PATH
+          content as String :=: CONTENT
         <-
           response as HTTPResponse: (
-                addressId,
-                incomingContent,
+                addressId: id,
+                incomingContent: content,
                 delegate: ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())
               ) of HTTPResponse by delegate
 

@@ -18,10 +18,9 @@ public class UnreachableStatement implements BiConsumer<Token, Token> {
 
   @Override
   public void accept(final Token unreachablePoint, final Token reasonExceptionPoint) {
-    final var message = String.format("Because '%s' on line %d makes '%s' an",
+    final var message = String.format("Unreachable, because of '%s' on line %d:",
         reasonExceptionPoint.getText(),
-        reasonExceptionPoint.getLine(),
-        unreachablePoint.getText());
+        reasonExceptionPoint.getLine());
 
     errorListener.semanticError(unreachablePoint, message,
         ErrorListener.SemanticClassification.STATEMENT_UNREACHABLE);

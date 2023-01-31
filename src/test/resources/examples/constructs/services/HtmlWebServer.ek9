@@ -13,7 +13,10 @@ defines module com.customer.webserver
       //expression. This small change means that we can remove dummy creation of responses.
       file() as GET for :/{fileName}
         -> fileName as String
-        <- response as HTTPResponse: (webServer: this, fileName) with trait of HTTPResponse
+        <- response as HTTPResponse: (
+          webServer: this,
+          fileName: fileName
+          ) with trait of HTTPResponse
           lastModified as DateTime: DateTime()
 
           private lastModifiedOfTextFile()

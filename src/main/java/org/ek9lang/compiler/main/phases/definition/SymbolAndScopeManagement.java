@@ -97,8 +97,12 @@ public class SymbolAndScopeManagement {
     recordSymbol(symbol, node);
   }
 
-  public ISymbol getRecordedSymbol(ParseTree node) {
+  public ISymbol getRecordedSymbol(final ParseTree node) {
     return parsedModule.getRecordedSymbol(node);
+  }
+
+  public IScope getRecordedScope(final ParseTree node) {
+    return parsedModule.getRecordedScope(node);
   }
 
   public void recordSymbol(ISymbol symbol, ParseTree node) {

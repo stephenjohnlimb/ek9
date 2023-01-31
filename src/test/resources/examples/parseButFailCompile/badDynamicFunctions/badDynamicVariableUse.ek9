@@ -1,7 +1,8 @@
 #!ek9
 <?-
   Some fairly gnarly compositions in here.
-  dynamic variable capture, named parameters, single line dynamic functions.
+  Dynamic variable capture, named parameters, single line dynamic functions.
+  Also checking for partial naming of parameters.
   All being composed.
 -?>
 defines module bad.function.use
@@ -14,6 +15,13 @@ defines module bad.function.use
         <- r as Boolean: Boolean()
 
   defines function
+
+    aTestFunction()
+      ->
+        param1 as String
+        param2 as String
+      <-
+        rtn as String: `${param1} and ${param2}`
 
     discriminator() as abstract
       -> s as String
@@ -114,4 +122,44 @@ defines module bad.function.use
 
       assert lenValidator.validateLength(val1)
 
+    InvalidExample3()
+
+      lt <- (max: 40) is discriminator as (rtn: length s < max)
+
+      lenValidator <- (
+        //So accidentally add 'lt' twice, but also name one and not the other
+        lt: (max: 40) is discriminator as (rtn: length s < max),
+        //Not named, but is a variable of that name, so this is a duplicate within this dynamic function
+        lt
+        ) of LenValidator as class
+        override validateLength()
+          -> p as String
+          <- r as Boolean: false
+          if p?
+            r := gt(p) and lt(p)
+
+      assert lenValidator.validateLength(val1)
+
+    InvalidExample4()
+      gt <- (min: minValue()) is discriminator pure (rtn: length s > min)
+      lt <- (max: 40) is discriminator as (rtn: length s < max)
+
+      //Only name one named parameter, EK9 mandates either none named or all named.
+      //This is to drive consistency
+      lenValidator <- (lessThan: lt, gt) of LenValidator as class
+        override validateLength()
+          -> p as String
+          <- r as Boolean: false
+          if p?
+            r := gt(p) and lessThan(p)
+
+      val1 <- "Some Value"
+      assert lenValidator.validateLength(val1)
+
+    InvalidExample5()
+      //This is OK
+      resultOK <- aTestFunction("this", "that")
+
+      //Invalid either both or no parameters should be named.
+      notOK <- aTestFunction(param1: "this", "that")
 //EOF

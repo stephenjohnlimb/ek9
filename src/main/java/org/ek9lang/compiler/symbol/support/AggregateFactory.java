@@ -33,7 +33,7 @@ public class AggregateFactory {
   public static final String EK9_REGEX = "org.ek9.lang::RegEx";
   public static final String EK9_MONEY = "org.ek9.lang::Money";
   public static final String EK9_COLOUR = "org.ek9.lang::Colour";
-  public static final String EK9_RESOLUTION ="org.ek9.lang::Resolution";
+  public static final String EK9_RESOLUTION = "org.ek9.lang::Resolution";
   public static final String EK9_DIMENSION = "org.ek9.lang::Dimension";
   public static final String EK9_MILLISECOND = "org.ek9.lang::Millisecond";
   public static final String EK9_DURATION = "org.ek9.lang::Duration";
@@ -47,8 +47,8 @@ public class AggregateFactory {
   public static final String EK9_VOID = "org.ek9.lang::Void";
   public static final String EK9_FLOAT = "org.ek9.lang::Float";
   public static final String EK9_BOOLEAN = "org.ek9.lang::Boolean";
-  public static final String EK9_BITS ="org.ek9.lang::Bits";
-  
+  public static final String EK9_BITS = "org.ek9.lang::Bits";
+
   /**
    * Add a synthetic constructor, if a constructor is not present.
    */

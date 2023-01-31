@@ -29,14 +29,11 @@ defines module com.customer.just
       stdout.println("The result is " + $ calculatedResult)
 
       //Experiment with many parameters, so we need to employ multiple lines.
-      v1 <- 12
-      v2 <- 64
-      v3 <- 90
-
+      //Note that now it is possible to used named parameters in a capture.
       inlineFunction <- (
-        v1,
-        v2,
-        v2
+        v1: 12,
+        v2: 64,
+        v3: 90
         ) is mathOperation as (result: v1 + v2 + v3 * value)
 
       additionalCalculation <- inlineFunction(value)

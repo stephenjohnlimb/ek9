@@ -17,9 +17,9 @@ import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests bad dynamic functions with dynamic variable capture usage.
+ * Just tests bad use of duplicated variables.
  */
-class BadDynamicFunctionsFullCompilationTest {
+class BadVariableDuplicationDeclarationTest {
 
 
   private static final Supplier<SharedThreadContext<CompilableProgram>> sharedContext
@@ -27,7 +27,7 @@ class BadDynamicFunctionsFullCompilationTest {
 
   private static final WorkSpaceFromResourceDirectoryFiles workspaceLoader = new WorkSpaceFromResourceDirectoryFiles();
   private static final Workspace ek9Workspace =
-      workspaceLoader.apply("/examples/parseButFailCompile/badDynamicFunctions");
+      workspaceLoader.apply("/examples/parseButFailCompile/existingVariables");
 
   @Test
   void testReferencePhasedDevelopment() {
@@ -55,9 +55,9 @@ class BadDynamicFunctionsFullCompilationTest {
     var compilationResult = compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, true));
 
     assertFalse(compilationResult);
-    assertEquals(8, counter.get());
+    assertEquals(23, counter.get());
     sharedCompilableProgram.accept(program -> {
-      var alpha = program.getParsedModules("bad.function.use");
+      var alpha = program.getParsedModules("bad.variable.duplications");
       assertNotNull(alpha);
     });
   }

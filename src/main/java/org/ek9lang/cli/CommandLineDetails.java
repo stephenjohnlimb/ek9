@@ -318,6 +318,7 @@ public class CommandLineDetails {
    * The assessCommandLine checks the combination of commands.
    * A bit nasty in terms of processing the options.
    */
+  @SuppressWarnings("java:S3776")
   private int extractCommandLineDetails(String commandLine) {
     boolean processingEk9Parameters = true;
     List<String> activeParameters = ek9AppParameters;
