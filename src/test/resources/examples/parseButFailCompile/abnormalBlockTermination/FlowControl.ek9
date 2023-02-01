@@ -429,4 +429,22 @@ defines module bad.flowcontrol.examples
         x <- 91
         assert x?
 
+  defines class
+
+    AClassWithAbnormalMethods
+
+      //Constructor that can only result in an exception
+      //Failure 33
+      AClassWithAbnormalMethods()
+        throw Exception("Can never be constructed")
+
+      //Typical to trigger some sort of exception by calling a method
+      //This is acceptable because there is no return, but the value is a 'factory' for an exception!
+      validMethodThatAlwaysCausesAnException()
+        throw Exception("This is allowed")
+
+      //Failure 34, no return is possible.
+      invalidMethodBecauseReturnIsNotPossible()
+        <- rtn as String: "Can never be returned"
+        throw Exception("Always causes rtn to fail to be returned")
 //EOF

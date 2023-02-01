@@ -59,19 +59,19 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
     var noneExceptionPathPossible = true;
     IScope thisTryScope = symbolAndScopeManagement.getTopScope();
 
-    //So may get an exception here
+    //So may get an exception in the block so it does not terminate normally
     if (ctx.instructionBlock() != null) {
       noneExceptionPathPossible =
           symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock()).isTerminatedNormally();
     }
 
-    //But if caught and no exception - we're golden - i.e. exception for instruction block consumed.
+    //But if caught and no in the block exception - we're golden - i.e. exception for instruction block consumed.
     if (ctx.catchStatementExpression() != null) {
       noneExceptionPathPossible =
           symbolAndScopeManagement.getRecordedScope(ctx.catchStatementExpression()).isTerminatedNormally();
     }
 
-    //an exception in a finally, trumps all.
+    //Now maybe an exception in a finally - block, so this trumps all in an exception.
     if (ctx.finallyStatementExpression() != null) {
       noneExceptionPathPossible &=
           symbolAndScopeManagement.getRecordedScope(ctx.finallyStatementExpression()).isTerminatedNormally();

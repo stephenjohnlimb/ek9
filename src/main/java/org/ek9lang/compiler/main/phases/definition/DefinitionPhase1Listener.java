@@ -198,6 +198,10 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
       var method = (MethodSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
       if (method != null) {
         commonMethodChecks.accept(method, ctx);
+        //Now for constructors - EK9 does not allow abnormal termination only
+        if (method.isConstructor()) {
+          checkNormalTermination.accept(ctx.start, method);
+        }
       }
     }
     super.exitMethodDeclaration(ctx);
@@ -496,10 +500,12 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
     pullTryCatchFinallyUp(ctx);
 
+    //If there is a returning and this can only result in an exception then an error.
     IScope thisTryScope = symbolAndScopeManagement.getTopScope();
     if (ctx.returningParam() != null) {
       checkNormalTermination.accept(ctx.returningParam().start, thisTryScope);
     }
+
     //It is not an error at this point, but in a wider set of statements could be
 
     super.exitTryStatementExpression(ctx);
@@ -511,7 +517,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   @Override
   public void enterCatchStatementExpression(EK9Parser.CatchStatementExpressionContext ctx) {
     IScope outerScope = symbolAndScopeManagement.getTopScope();
-    var catchScope = new LocalScope("Catch", outerScope);
+    var catchScope = new LocalScope("Catch-line-" + ctx.start.getLine(), outerScope);
     symbolAndScopeManagement.enterNewScope(catchScope, ctx);
     super.enterCatchStatementExpression(ctx);
   }
@@ -526,7 +532,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   public void enterFinallyStatementExpression(EK9Parser.FinallyStatementExpressionContext ctx) {
     //Don't really need this but for symmetry makes sense - really will just be an instructionBlock.
     IScope outerScope = symbolAndScopeManagement.getTopScope();
-    var catchScope = new LocalScope("Finally", outerScope);
+    var catchScope = new LocalScope("Finally-line-" + ctx.start.getLine(), outerScope);
     symbolAndScopeManagement.enterNewScope(catchScope, ctx);
     super.enterFinallyStatementExpression(ctx);
   }
@@ -537,12 +543,14 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     super.exitFinallyStatementExpression(ctx);
   }
 
+  /**
+   * This is a key event as it in effect causes the current scope to fail with abnormal termination.
+   * Note down that this scope has encountered an exception at this line number
+   * but not if it already has encountered one.
+   */
   @Override
   public void enterThrowStatement(EK9Parser.ThrowStatementContext ctx) {
-    //This is a key event as it in effect causes the current scope to fail with abnormal termination
-    //note down that this scope has encountered an exception at this line number
-    //but not if it already has encountered one.
-    IScope currentScope = symbolAndScopeManagement.getTopScope();
+  IScope currentScope = symbolAndScopeManagement.getTopScope();
 
     if (currentScope.isTerminatedNormally()) {
       currentScope.setEncounteredExceptionToken(ctx.getStart());
@@ -665,6 +673,9 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   @Override
   public void exitOperationDetails(EK9Parser.OperationDetailsContext ctx) {
     //It is not mandatory to have either, typically one or the other or both.
+    if(ctx.instructionBlock() != null) {
+      pullBlockTerminationUp(ctx.instructionBlock());
+    }
     if (ctx.returningParam() != null && ctx.instructionBlock() != null) {
       var instructionBlockScope = symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock());
       checkNormalTermination.accept(ctx.returningParam().start, instructionBlockScope);

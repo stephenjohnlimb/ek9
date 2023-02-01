@@ -17,7 +17,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- Once intellIj get their act together: enable-preview -->
-    <jvm.options>--enable-preview</jvm.options>
+    <jvm.options></jvm.options>
     <java.version>19</java.version>
     <junit.version>5.8.2</junit.version>
     <jacoco.version>0.8.8</jacoco.version>
