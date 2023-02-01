@@ -51,6 +51,9 @@ class BasicsCompilationTest {
     var compiler = new Ek9Compiler(allPhases);
     var compilationResult = compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, true));
     //Seem to get period failures here cannot quite work out why.
+    //I had defined HelloWorld in the sma e module name but different files.
+    //So this indicates there is an ability to define the same token in a module part.
+    //So References phase maybe need to ensure uniqueness.
     if (!compilationResult) {
       sharedCompilableProgram.accept(program -> {
         program.getParsedModuleNames().forEach(moduleName -> {

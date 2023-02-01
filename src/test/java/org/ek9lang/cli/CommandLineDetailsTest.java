@@ -566,7 +566,7 @@ final class CommandLineDetailsTest {
 
   @Test
   void testRunHelloWorld() {
-    assertSimpleRunResults(" -r HelloWorld", 0);
+    assertSimpleRunResults(" -r HelloEarth", 0);
   }
 
   @Test

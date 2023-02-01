@@ -2,10 +2,10 @@
 defines module introduction
 
   defines constant
-    worldMessage <- "Hello, World"
+    worldMessage <- "Hello, Earth"
 
   defines program
-    HelloWorld()
+    HelloEarth()
       stdout <- Stdout()
       stdout.println(worldMessage)
 
