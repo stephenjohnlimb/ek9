@@ -16,8 +16,9 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <!-- Once intellIj get their act together: enable-preview -->
-    <jvm.options>--enable-preview</jvm.options>
+    <!-- By adding enable-preview the jacoco code coverage fails -->
+    <jvm.options></jvm.options>
+
     <java.version>19</java.version>
     <junit.version>5.8.2</junit.version>
     <jacoco.version>0.8.8</jacoco.version>
@@ -70,7 +71,7 @@
   </dependencies>
 
   <build>
-    <finalName>ek9-compiler</finalName>
+    <finalName>ek9c</finalName>
     <resources>
       <resource>
         <directory>src/main/resources</directory>
@@ -172,8 +173,7 @@
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
-          <finalName>ek9</finalName>
-          <appendAssemblyId>false</appendAssemblyId>
+
         </configuration>
         <executions>
           <execution>
@@ -250,7 +250,7 @@
           </execution>
           <execution>
             <id>report</id>
-            <phase>test</phase>
+            <phase>verify</phase>
             <goals>
               <goal>report</goal>
             </goals>

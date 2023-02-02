@@ -2,7 +2,7 @@
 
 ![GitHub top language](https://img.shields.io/github/languages/top/stephenjohnlimb/ek9)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/stephenjohnlimb/ek9)
-![GitHub Workflow Status (event)](https://img.shields.io/github/actions/workflow/status/stephenjohnlimb/ek9/test.yml?branch=main)
+![GitHub Workflow Status (event)](https://img.shields.io/github/actions/workflow/status/stephenjohnlimb/ek9/build.yml?branch=main)
 [![codecov](https://codecov.io/gh/stephenjohnlimb/ek9/branch/main/graph/badge.svg?token=F8MMCBREMB)](https://codecov.io/gh/stephenjohnlimb/ek9)
 ![GitHub](https://img.shields.io/github/license/stephenjohnlimb/ek9)
 ![Twitter Follow](https://img.shields.io/twitter/follow/stephenjohnlimb?label=Follow%20EK9&style=social)
@@ -23,7 +23,7 @@ run faster. See the [instructions](https://www.graalvm.org/java/quickstart/) and
 [how to install native-image](https://www.graalvm.org/22.3/reference-manual/native-image/#install-native-image).
 
 For this project, once you've built the 'fat jar' (`mvn clean install`), you can use the following command:
-`native-image --no-fallback  -jar ek9.jar` to create a native binary.
+`native-image --no-fallback  -jar ek9c-jar-with-dependencies.jar` to create a native binary.
 
 You can then just run that application `./ek9` or send it to someone; and they can run it (must be same OS);
 but they don't need Java installed (i.e. it is a full standalone binary).
