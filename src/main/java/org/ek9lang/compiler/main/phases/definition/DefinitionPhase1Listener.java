@@ -1053,7 +1053,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   private void checkAndDefineDynamicModuleScopedSymbol(final IScopedSymbol symbol, final ParseTree node) {
-    symbolAndScopeManagement.enterNewDynamicScopedSymbol(symbol, node, symbolChecker);
+    symbolAndScopeManagement.enterModuleScopedSymbol(symbol, node, symbolChecker);
   }
 
   private void processMethodDeclaration(EK9Parser.MethodDeclarationContext ctx) {
