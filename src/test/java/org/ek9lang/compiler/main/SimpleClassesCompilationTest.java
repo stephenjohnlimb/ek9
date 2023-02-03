@@ -1,67 +1,44 @@
 package org.ek9lang.compiler.main;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.function.Supplier;
-import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableProgram;
-import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
-import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
-import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.compiler.parsing.WorkSpaceFromResourceDirectoryFiles;
-import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
-import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
 /**
  * Just test simple classes all compile.
  */
-class SimpleClassesCompilationTest {
+class SimpleClassesCompilationTest extends FullCompilationTest {
 
-  private static final Supplier<SharedThreadContext<CompilableProgram>> sharedContext
-      = new CompilableProgramSuitable();
+  public SimpleClassesCompilationTest() {
+    super("/examples/constructs/classes");
+  }
 
-  private static final WorkSpaceFromResourceDirectoryFiles workspaceLoader = new WorkSpaceFromResourceDirectoryFiles();
-  private static final Workspace ek9Workspace = workspaceLoader.apply("/examples/constructs/classes");
 
   @Test
   void testReferencePhasedDevelopment() {
-    //Just start with the basics and most on to the next phase one implemented.
-    CompilationPhase upToPhase = CompilationPhase.REFERENCE_CHECKS;
-
-    CompilationPhaseListener listener = (phase, source) -> {
-      if (!source.getErrorListener().isErrorFree()) {
-        System.out.println("Errors  : " + phase + ", source: " + source.getFileName());
-        source.getErrorListener().getErrors().forEachRemaining(System.out::println);
-      }
-    };
-    var sharedCompilableProgram = sharedContext.get();
-
-    FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedCompilableProgram,
-        listener, new CompilerReporter(true));
-
-    var compiler = new Ek9Compiler(allPhases);
-    assertTrue(compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, true)));
-
-    sharedCompilableProgram.accept(program -> {
-      //Now this should have some enumerations and records/functions.
-
-      new SymbolCountCheck("com.customer.classes", 4).test(program);
-
-      new SymbolCountCheck("net.customer.shapes", 19).test(program);
-
-      new SymbolCountCheck("net.customer", 28).test(program);
-
-      new SymbolCountCheck("com.customer.just", 12).test(program);
-
-      new SymbolCountCheck("net.customer.assertions", 4).test(program);
-
-      var coordinateSymbol = program.resolveByFullyQualifiedSearch(new TypeSymbolSearch("com.customer.just::Coordinate"));
-      assertTrue(coordinateSymbol.isPresent());
-      //TODO Could check all the right methods exist!
-    });
-
+    testToPhase(CompilationPhase.REFERENCE_CHECKS);
   }
+
+  @Override
+  protected void assertResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
+    assertTrue(compilationResult);
+    assertEquals(0, numberOfErrors);
+    new SymbolCountCheck("com.customer.classes", 4).test(program);
+
+    new SymbolCountCheck("net.customer.shapes", 19).test(program);
+
+    new SymbolCountCheck("net.customer", 28).test(program);
+
+    new SymbolCountCheck("com.customer.just", 12).test(program);
+
+    new SymbolCountCheck("net.customer.assertions", 4).test(program);
+
+    var coordinateSymbol = program.resolveByFullyQualifiedSearch(new TypeSymbolSearch("com.customer.just::Coordinate"));
+    assertTrue(coordinateSymbol.isPresent());
+  }
+
 }

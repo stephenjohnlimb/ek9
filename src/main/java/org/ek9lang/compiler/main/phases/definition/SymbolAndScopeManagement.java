@@ -105,31 +105,16 @@ public class SymbolAndScopeManagement {
   }
 
   /**
-   * For dynamic functions, classes and records we need the aggregate to be defined at the module level.
-   * So the type is visible throughout the module.
-   * Hence, the symbol is defined at the module level (not the current scope in the scopeStack).
-   * It is also recorded as a symbol and a scope against the node in the parsedModule.
-   * Finally, the scope is pushed on to the scope stack.
-   * Yes, it's a bit strange - but this is how Dynamic classes and Functions can be defined like
-   * Tuples, Functions deep with scope block or for loops - and yet appear as a new module level Type.
+   * To be used when defining a high level symbol at module scope.
    */
-  public void enterNewDynamicScopedSymbol(IScopedSymbol symbol, ParseTree node, SymbolChecker symbolChecker ) {
+  public void enterModuleScopedSymbol(final IScopedSymbol symbol, final ParseTree node,
+                                      final SymbolChecker symbolChecker) {
     var moduleScope = parsedModule.getModuleScope();
     if (moduleScope.defineOrError(symbol, symbolChecker)) {
       enterNewScopedSymbol(symbol, node);
     } else {
       recordScopeForStackConsistency(new LocalScope(moduleScope), node);
     }
-  }
-
-  public boolean enterModuleScopedSymbol(final IScopedSymbol symbol, final ParseTree node, final SymbolChecker symbolChecker) {
-    var moduleScope = parsedModule.getModuleScope();
-    if (moduleScope.defineOrError(symbol, symbolChecker)) {
-      enterNewScopedSymbol(symbol, node);
-    } else {
-      recordScopeForStackConsistency(new LocalScope(moduleScope), node);
-    }
-    return false;
   }
 
   /**

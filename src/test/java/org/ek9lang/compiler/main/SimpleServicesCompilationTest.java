@@ -1,59 +1,36 @@
 package org.ek9lang.compiler.main;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.function.Supplier;
-import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableProgram;
-import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
-import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
-import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.compiler.parsing.WorkSpaceFromResourceDirectoryFiles;
-import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
 /**
  * Just test simple services all compile.
  */
-class SimpleServicesCompilationTest {
+class SimpleServicesCompilationTest extends FullCompilationTest {
 
-  private static final Supplier<SharedThreadContext<CompilableProgram>> sharedContext
-      = new CompilableProgramSuitable();
+  public SimpleServicesCompilationTest() {
+    super("/examples/constructs/services");
+  }
 
-  private static final WorkSpaceFromResourceDirectoryFiles workspaceLoader = new WorkSpaceFromResourceDirectoryFiles();
-  private static final Workspace ek9Workspace = workspaceLoader.apply("/examples/constructs/services");
 
   @Test
   void testReferencePhasedDevelopment() {
-    //Just start with the basics and most on to the next phase one implemented.
-    CompilationPhase upToPhase = CompilationPhase.REFERENCE_CHECKS;
+    testToPhase(CompilationPhase.REFERENCE_CHECKS);
+  }
 
-    CompilationPhaseListener listener = (phase, source) -> {
-      if (!source.getErrorListener().isErrorFree()) {
-        System.out.println("Errors  : " + phase + ", source: " + source.getFileName());
-        source.getErrorListener().getErrors().forEachRemaining(System.out::println);
-      }
-    };
-    var sharedCompilableProgram = sharedContext.get();
+  @Override
+  protected void assertResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
+    assertTrue(compilationResult);
+    assertEquals(0, numberOfErrors);
+    new SymbolCountCheck("com.customer.services", 43).test(program);
 
-    FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedCompilableProgram,
-        listener, new CompilerReporter(true));
+    new SymbolCountCheck("com.customer.webserver", 2).test(program);
 
-    var compiler = new Ek9Compiler(allPhases);
-    assertTrue(compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, true)));
-
-    sharedCompilableProgram.accept(program -> {
-      //Now this should have some enumerations and records/functions.
-
-      //A bit of a beast all in one file!
-      new SymbolCountCheck("com.customer.services", 43).test(program);
-
-      new SymbolCountCheck("com.customer.webserver", 2).test(program);
-
-      new SymbolCountCheck("com.customer.html", 3).test(program);
-
-    });
+    new SymbolCountCheck("com.customer.html", 3).test(program);
 
   }
 }

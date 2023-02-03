@@ -4,6 +4,10 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 
+/**
+ * Typically used in control expressions to check developer is not doing a while(true).
+ * But also used in other controls.
+ */
 public class CheckNotABooleanLiteral implements Consumer<EK9Parser.ExpressionContext> {
   private final ErrorListener errorListener;
 

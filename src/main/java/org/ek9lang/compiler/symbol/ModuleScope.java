@@ -116,6 +116,8 @@ public class ModuleScope extends SymbolTable {
   /**
    * Defines a new symbol and returns true if all when OK
    * But if there were errors created then false is returned.
+   * This is expensive in the sense that it does the check and define by owning the re-entrant lock
+   * on the compilable program.
    */
   public boolean defineOrError(final IScopedSymbol symbol, final SymbolChecker symbolChecker) {
     AtomicBoolean rtn = new AtomicBoolean(true);
@@ -123,7 +125,7 @@ public class ModuleScope extends SymbolTable {
     //Must own the lock to be able to check for and define symbol
     compilableProgramContext.accept(compilableProgram -> {
       var errors = symbolChecker.errorsIfSymbolAlreadyDefined(this, symbol, false);
-      if(!errors) {
+      if (!errors) {
         define(symbol);
       }
       rtn.set(!errors);
