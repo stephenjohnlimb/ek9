@@ -174,12 +174,15 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 
   @Override
   public String getName() {
+    return super.getName();
+  }
+
+  private String getPrivateVariablesForDisplay() {
     return capturedVariables
         .map(scope -> "dynamic function"
             + CommonParameterisedTypeDetails.asCommaSeparated(scope.getSymbolsForThisScope(), true))
         .orElse(super.getName());
   }
-
   @Override
   public String getFriendlyScopeName() {
     return getFriendlyName();
@@ -190,7 +193,7 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
     Optional<ISymbol> returningSymbolType =
         getReturningSymbol() != null ? getReturningSymbol().getType() : Optional.empty();
     var name =
-        doGetFriendlyName(getName(), returningSymbolType) + getAnyGenericParamsAsFriendlyNames();
+        doGetFriendlyName(getPrivateVariablesForDisplay(), returningSymbolType) + getAnyGenericParamsAsFriendlyNames();
 
     return superFunctionSymbol.map(s -> name + " is " + s.getName()).orElse(name);
   }

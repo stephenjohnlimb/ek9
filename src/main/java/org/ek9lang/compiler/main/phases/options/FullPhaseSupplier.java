@@ -17,6 +17,7 @@ import org.ek9lang.compiler.main.phases.Ek9Phase11CodeOptimisation;
 import org.ek9lang.compiler.main.phases.Ek9Phase12Packaging;
 import org.ek9lang.compiler.main.phases.Ek9Phase12PackagingPostProcessing;
 import org.ek9lang.compiler.main.phases.Ek9Phase12PluginLinkage;
+import org.ek9lang.compiler.main.phases.Ek9Phase1ModuleDuplicateSymbolChecks;
 import org.ek9lang.compiler.main.phases.Ek9Phase1ReferenceChecks;
 import org.ek9lang.compiler.main.phases.Ek9Phase1SymbolDefinition;
 import org.ek9lang.compiler.main.phases.Ek9Phase1SymbolDuplicationChecks;
@@ -64,6 +65,7 @@ public class FullPhaseSupplier implements Supplier<List<BiFunction<Workspace, Co
     var frontEnd = List.of(
         new Ek9Phase0Parsing(listener, reporter),
         new Ek9Phase1SymbolDefinition(compilableProgramAccess, listener, reporter),
+        new Ek9Phase1ModuleDuplicateSymbolChecks(compilableProgramAccess, listener, reporter),
         new Ek9Phase1ReferenceChecks(compilableProgramAccess, listener, reporter),
         new Ek9Phase1SymbolDuplicationChecks(compilableProgramAccess, listener, reporter),
         new Ek9Phase2TemplateDefinitionAndPartialResolution(compilableProgramAccess, listener, reporter),

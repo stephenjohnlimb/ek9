@@ -6,7 +6,9 @@ import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.IScopedSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.LocalScope;
 import org.ek9lang.compiler.symbol.support.ScopeStack;
+import org.ek9lang.compiler.symbol.support.SymbolChecker;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
@@ -75,20 +77,6 @@ public class SymbolAndScopeManagement {
   }
 
   /**
-   * For dynamic functions, classes and records we need the aggregate to be defined at the module level.
-   * So the type is visible throughout the module.
-   * Hence, the symbol is defined at the module level (not the current scope in the scopeStack).
-   * It is also recorded as a symbol and a scope against the node in the parsedModule.
-   * Finally, the scope is pushed on to the scope stack.
-   * Yes, it's a bit strange - but this is how Dynamic classes and Functions can be defined like
-   * Tuples, Functions deep with scope block or for loops - and yet appear as a new module level Type.
-   */
-  public void enterNewDynamicScopedSymbol(IScopedSymbol symbol, ParseTree node) {
-    parsedModule.getModuleScope().define(symbol);
-    enterNewScopedSymbol(symbol, node);
-  }
-
-  /**
    * A new symbol has been encountered and is defined within the current scope in the scope stack
    * and recorded in the parsedModule against the appropriate node.
    */
@@ -114,6 +102,34 @@ public class SymbolAndScopeManagement {
    */
   public void enterNewLiteral(ISymbol symbol, ParseTree node) {
     recordSymbol(symbol, node);
+  }
+
+  /**
+   * For dynamic functions, classes and records we need the aggregate to be defined at the module level.
+   * So the type is visible throughout the module.
+   * Hence, the symbol is defined at the module level (not the current scope in the scopeStack).
+   * It is also recorded as a symbol and a scope against the node in the parsedModule.
+   * Finally, the scope is pushed on to the scope stack.
+   * Yes, it's a bit strange - but this is how Dynamic classes and Functions can be defined like
+   * Tuples, Functions deep with scope block or for loops - and yet appear as a new module level Type.
+   */
+  public void enterNewDynamicScopedSymbol(IScopedSymbol symbol, ParseTree node, SymbolChecker symbolChecker ) {
+    var moduleScope = parsedModule.getModuleScope();
+    if (moduleScope.defineOrError(symbol, symbolChecker)) {
+      enterNewScopedSymbol(symbol, node);
+    } else {
+      recordScopeForStackConsistency(new LocalScope(moduleScope), node);
+    }
+  }
+
+  public boolean enterModuleScopedSymbol(final IScopedSymbol symbol, final ParseTree node, final SymbolChecker symbolChecker) {
+    var moduleScope = parsedModule.getModuleScope();
+    if (moduleScope.defineOrError(symbol, symbolChecker)) {
+      enterNewScopedSymbol(symbol, node);
+    } else {
+      recordScopeForStackConsistency(new LocalScope(moduleScope), node);
+    }
+    return false;
   }
 
   /**

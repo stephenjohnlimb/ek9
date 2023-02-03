@@ -12,6 +12,7 @@ public enum CompilationPhase {
   PREPARE_PARSE("Preparation for Parsing"),
   PARSING("Source Code Parsing"),
   SYMBOL_DEFINITION("Defining Symbols"),
+  DUPLICATION_CHECK("Duplicate Type Checking"),
   REFERENCE_CHECKS("Reference Checking"),
   DUPLICATE_CHECKS("Duplicate Symbol Checking"),
   TEMPLATE_DEFINITION_RESOLUTION("Definition and Resolution of Template Types"),

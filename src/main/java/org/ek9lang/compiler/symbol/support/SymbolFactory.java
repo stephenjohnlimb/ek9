@@ -377,21 +377,12 @@ public class SymbolFactory {
    */
   public AggregateWithTraitsSymbol newDynamicClass(EK9Parser.DynamicClassDeclarationContext ctx) {
     //Name is optional - if not present then generate a dynamic value.
-    AggregateWithTraitsSymbol rtn;
-    if (ctx.Identifier() != null) {
-      rtn = newAggregateWithTraitsSymbol(ctx.Identifier().getText(), ctx.start);
-    } else {
+    String dynamicClassName = ctx.Identifier() != null
+        ? ctx.Identifier().getText()
+        : "_Class_" + UniqueIdGenerator.getNewUniqueId();
 
-      //Maybe need to consider generic params as defined in parent scope i.e. a present scope
-      //was generic with S, T, U whatever and this too has been defined with those same values, S, T, etc
-      //That means when parent scope is turned into concrete type with S =? Float, T => String
-      //This too must use Float and String. Same for Dynamic Functions.
-
-      //So if not named - we generate a dynamic unique name and use that.
-      rtn = newAggregateWithTraitsSymbol("_Class_" + UniqueIdGenerator.getNewUniqueId(), ctx.start);
-    }
     //Perhaps keep a reference to the scope where this dynamic class was defined.
-
+    AggregateWithTraitsSymbol rtn = newAggregateWithTraitsSymbol(dynamicClassName, ctx.start);
     rtn.setReferenced(true);
     return rtn;
   }

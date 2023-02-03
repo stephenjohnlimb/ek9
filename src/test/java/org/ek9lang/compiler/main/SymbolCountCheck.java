@@ -34,7 +34,7 @@ public class SymbolCountCheck implements Predicate<CompilableProgram> {
 
     if(expectedSymbolCount != symbols.size()) {
       modules.forEach(module -> System.out.println("For scope name [" + module.getModuleName() + "] " + module.getSource().getFileName()));
-      symbols.forEach(System.out::println);
+      symbols.forEach(symbol -> System.out.println("Internal Name: [" + symbol.getName() + "] Presentable Name: [" + symbol.toString() + "]"));
     }
     assertEquals(expectedSymbolCount, symbols.size());
 

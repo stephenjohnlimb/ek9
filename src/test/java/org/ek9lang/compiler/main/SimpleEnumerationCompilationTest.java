@@ -50,6 +50,7 @@ class SimpleEnumerationCompilationTest {
     sharedCompilableProgram.accept(program -> {
       //Now this should have some enumerations and records/functions.
 
+      //was expecting 8
       new SymbolCountCheck("com.customer.enumerations", 8).test(program);
 
       var theModule = program.getParsedModules("com.customer.enumerations");

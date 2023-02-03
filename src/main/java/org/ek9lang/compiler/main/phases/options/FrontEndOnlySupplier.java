@@ -8,6 +8,7 @@ import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
 import org.ek9lang.compiler.main.phases.Ek9Phase0Parsing;
+import org.ek9lang.compiler.main.phases.Ek9Phase1ModuleDuplicateSymbolChecks;
 import org.ek9lang.compiler.main.phases.Ek9Phase1ReferenceChecks;
 import org.ek9lang.compiler.main.phases.Ek9Phase1SymbolDefinition;
 import org.ek9lang.compiler.main.phases.Ek9Phase1SymbolDuplicationChecks;
@@ -55,6 +56,7 @@ public class FrontEndOnlySupplier
     return List.of(
         new Ek9Phase0Parsing(listener, reporter),
         new Ek9Phase1SymbolDefinition(false, compilableProgramAccess, listener, reporter),
+        new Ek9Phase1ModuleDuplicateSymbolChecks(compilableProgramAccess, listener, reporter),
         new Ek9Phase1ReferenceChecks(compilableProgramAccess, listener, reporter),
         new Ek9Phase1SymbolDuplicationChecks(compilableProgramAccess, listener, reporter),
         new Ek9Phase2TemplateDefinitionAndPartialResolution(compilableProgramAccess, listener, reporter),

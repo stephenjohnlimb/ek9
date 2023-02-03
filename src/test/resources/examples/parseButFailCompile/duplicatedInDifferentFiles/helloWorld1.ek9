@@ -1,0 +1,14 @@
+#!ek9
+<?-
+  Just to check for duplicated Symbol of same name but in different files.
+-?>
+defines module duplications
+  defines constant
+    A_CONSTANT <- 19
+    B_CONSTANT <- 29
+
+  defines program
+    HelloWorld()
+      stdout <- Stdout()
+      stdout.println("Hello2")
+//EOF

@@ -37,6 +37,7 @@ public class SharedThreadContext<T> implements Consumer<Consumer<T>> {
       consumer.accept(protectedData);
     } finally {
       lock.unlock();
+
     }
   }
 }

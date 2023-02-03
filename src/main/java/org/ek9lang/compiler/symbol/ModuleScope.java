@@ -3,8 +3,10 @@ package org.ek9lang.compiler.symbol;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.internals.CompilableProgram;
+import org.ek9lang.compiler.symbol.support.SymbolChecker;
 import org.ek9lang.compiler.symbol.support.SymbolTable;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
@@ -111,6 +113,25 @@ public class ModuleScope extends SymbolTable {
     return resolvedSymbol;
   }
 
+  /**
+   * Defines a new symbol and returns true if all when OK
+   * But if there were errors created then false is returned.
+   */
+  public boolean defineOrError(final IScopedSymbol symbol, final SymbolChecker symbolChecker) {
+    AtomicBoolean rtn = new AtomicBoolean(true);
+
+    //Must own the lock to be able to check for and define symbol
+    compilableProgramContext.accept(compilableProgram -> {
+      var errors = symbolChecker.errorsIfSymbolAlreadyDefined(this, symbol, false);
+      if(!errors) {
+        define(symbol);
+      }
+      rtn.set(!errors);
+    });
+
+    return rtn.get();
+  }
+
   @Override
   protected Optional<ISymbol> resolveWithEnclosingScope(SymbolSearch search) {
     // Need to get result into a variable we can use outside of lambda
@@ -132,4 +153,5 @@ public class ModuleScope extends SymbolTable {
 
     return rtn.get();
   }
+
 }

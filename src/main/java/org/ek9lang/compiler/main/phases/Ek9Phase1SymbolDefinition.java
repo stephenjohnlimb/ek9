@@ -19,7 +19,7 @@ import org.ek9lang.core.threads.SharedThreadContext;
  * Goes through the now successfully parse source files and uses
  * a visitor to do the first real pass at building the IR - simple Symbol definitions.
  * This means identifying types and other symbols.
- * NOTE STILL SINGLE THREADED - WILL WAIT FOR Java 21 with full virtual Threads.
+ * WILL WAIT FOR Java 21 with full virtual Threads.
  */
 public class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
 
@@ -84,12 +84,13 @@ public class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, Compiler
   private void defineSymbols(CompilableSource source) {
     final ParsedModule module = new ParsedModule(source, compilableProgramAccess);
     module.acceptCompilationUnitContext(source.getCompilationUnitContext());
+    //Need to add this early - even though there may be compiler errors
+    //Otherwise several files in same module will not detect duplicate symbols.
+    compilableProgramAccess.accept(compilableProgram -> compilableProgram.add(module));
 
     DefinitionPhase1Listener phaseListener = new DefinitionPhase1Listener(module);
     ParseTreeWalker walker = new ParseTreeWalker();
     walker.walk(phaseListener, source.getCompilationUnitContext());
-    if (source.getErrorListener().isErrorFree()) {
-      compilableProgramAccess.accept(compilableProgram -> compilableProgram.add(module));
-    }
+
   }
 }
