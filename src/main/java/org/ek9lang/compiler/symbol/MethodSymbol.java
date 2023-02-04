@@ -115,6 +115,13 @@ public class MethodSymbol extends ScopedSymbol {
     super.setGenus(SymbolGenus.VALUE);
   }
 
+  /**
+   * For actual methods this will be the aggregate they are part of.
+   */
+  public IScope getParentScope() {
+    return this.getEnclosingScope();
+  }
+
   public MethodSymbol clone(ISymbol withType, IScope withParentAsAppropriate) {
     return cloneIntoMethodSymbol(
         new MethodSymbol(this.getName(), withType, withParentAsAppropriate));
@@ -319,10 +326,8 @@ public class MethodSymbol extends ScopedSymbol {
    */
   public void setReturningSymbol(ISymbol returningSymbol) {
     justSetReturningSymbol(returningSymbol);
-
-    if (returningSymbol != null) {
-      this.setType(returningSymbol.getType());
-    }
+    setNullAllowed(returningSymbol.isNullAllowed());
+    setType(returningSymbol.getType());
   }
 
   protected void justSetReturningSymbol(ISymbol returningSymbol) {

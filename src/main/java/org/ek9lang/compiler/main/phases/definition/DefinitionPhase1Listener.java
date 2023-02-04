@@ -28,6 +28,7 @@ import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.phases.listeners.AbstractEK9PhaseListener;
 import org.ek9lang.compiler.main.rules.CheckAssignment;
 import org.ek9lang.compiler.main.rules.CheckDynamicVariableCapture;
+import org.ek9lang.compiler.main.rules.CheckGenericConstructor;
 import org.ek9lang.compiler.main.rules.CheckNormalTermination;
 import org.ek9lang.compiler.main.rules.CheckNotABooleanLiteral;
 import org.ek9lang.compiler.main.rules.CheckParamExpressionNamedParameters;
@@ -109,6 +110,8 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   private final CheckNotABooleanLiteral checkNotABooleanLiteral;
 
+  private final CheckGenericConstructor checkGenericConstructor;
+
   /**
    * First phase after parsing. Define symbols and infer types where possible.
    * Uses a symbol factory to actually create the appropriate symbols.
@@ -128,6 +131,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     checkNormalTermination = new CheckNormalTermination(parsedModule.getSource().getErrorListener());
     checkProtectedServiceMethods = new CheckProtectedServiceMethods(parsedModule.getSource().getErrorListener());
     checkNotABooleanLiteral = new CheckNotABooleanLiteral(parsedModule.getSource().getErrorListener());
+    checkGenericConstructor = new CheckGenericConstructor(parsedModule.getSource().getErrorListener());
   }
 
   // Now we hook into the ANTLR listener events - lots of them!
@@ -197,9 +201,10 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
       var method = (MethodSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
       if (method != null) {
         commonMethodChecks.accept(method, ctx);
-        //Now for constructors - EK9 does not allow abnormal termination only
+        //Now for constructors - EK9 does not allow only abnormal termination
         if (method.isConstructor()) {
           checkNormalTermination.accept(ctx.start, method);
+          checkGenericConstructor.accept(ctx.start, method);
         }
       }
     }

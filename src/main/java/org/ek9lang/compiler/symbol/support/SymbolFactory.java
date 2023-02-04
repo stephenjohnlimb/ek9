@@ -778,12 +778,16 @@ public class SymbolFactory {
     return expressionSymbol;
   }
 
+  /**
+   * Create a new constant as declared in the constants section.
+   */
   public ConstantSymbol newConstant(EK9Parser.ConstantDeclarationContext ctx) {
     ConstantSymbol constant = new ConstantSymbol(ctx.Identifier().getText(), false);
     configureSymbol(constant, ctx.start);
 
     return constant;
   }
+
   /**
    * Just a declaration of a variable by itself - i.e. without an assignment.
    */

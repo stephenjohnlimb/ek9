@@ -1,0 +1,26 @@
+#!ek9
+<?-
+Should be a single failure on phase 1
+-?>
+defines module incorrect.parameters.on.constructors
+
+  defines class
+    SomeGenericType of type T
+      aField as T?
+
+      default SomeGenericType()
+
+      SomeGenericType()
+        -> param as T
+        aField :=: param
+
+      //Failure 1
+      //This is not allowed, as it is expected a single parameter will give the compiler
+      //the type to infer for the generic nature of the generic/template class.
+      SomeGenericType()
+        ->
+          param1 as T
+          param2 as T
+        aField :=: param1 + param2
+
+//EOF

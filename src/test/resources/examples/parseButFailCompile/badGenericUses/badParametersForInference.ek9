@@ -1,0 +1,56 @@
+#!ek9
+<?-
+  Requires later phases to detect these errors.
+-?>
+defines module incorrect.parameters.on.constructors
+
+  defines function
+
+    //This is allowed, because the lhs has the detail.
+    allowedDefaultConstructor()
+      //OK
+      val1 as List of String: List()
+      //Also OK
+      val2 <- List() of String
+
+      dict1 as Dict of (Integer, String): Dict()
+
+      dict2 <- Dict() of (Integer, String)
+
+    invalidGenericsUse()
+      //This will pass for phase1, but be picked up in later phases as an error
+      //Because List is a Generic/Template type and so types but be declared somewhere
+      val3 <- List()
+      dict3 <- Dict()
+
+    //These are also OK
+    allowedWithTypeInference()
+
+      val4 <- List("Steve")
+      dict4 <- Dict(1, "Steve")
+
+      num <- 1
+      name <- "Stephen"
+      val5 <- List(name)
+      dict5 <- Dict(num, name)
+
+    //This is how you would use multiple parameters with a List
+    allowedSpecificListSyntax()
+      val6 <- ["Lots", "Of", "Parameters", "Allowed"]
+
+    allowedSpecificDictSyntax()
+      dict6 <- {1: "Lots", 2: "Of", 3: "Parameters", 4: "Allowed"}
+
+    //You might this would work but no, cannot infer as too many parameters
+    //Failure 1 and Failure 2
+    invalidTooManyParameters()
+      //This will pass for phase1, but be picked up in later phases as an error
+      val7 <- List("something", "else")
+      dict7 <- Dict("something", "else", "as well")
+
+    //Failure 3
+    invalidTooFewParameters()
+      //This will pass for phase1, but be picked up in later phases as an error
+      //Missing 'value' type
+      val8 <- Dict("Key")
+//EOF
