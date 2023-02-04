@@ -9,11 +9,11 @@ defines module net.customer.geometry
     //For single params you can put on same line
     areaOfCircle()
       -> diameter as Float
-      <- result as Float: PI * (diameter/2)^2
+      <- result as Float: MY_PI * (diameter/2)^2
         
     //Or if you like the spacing and consistency do it like this.
     circumferenceOfCircle()
       -> diameter as Float
-      <- result as Float: PI * diameter
+      <- result as Float: MY_PI * diameter
 
 //EOF   

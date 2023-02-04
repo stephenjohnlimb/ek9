@@ -778,6 +778,12 @@ public class SymbolFactory {
     return expressionSymbol;
   }
 
+  public ConstantSymbol newConstant(EK9Parser.ConstantDeclarationContext ctx) {
+    ConstantSymbol constant = new ConstantSymbol(ctx.Identifier().getText(), false);
+    configureSymbol(constant, ctx.start);
+
+    return constant;
+  }
   /**
    * Just a declaration of a variable by itself - i.e. without an assignment.
    */
@@ -889,5 +895,6 @@ public class SymbolFactory {
     }
     return rtn;
   }
+
 
 }

@@ -104,6 +104,13 @@ public class SymbolAndScopeManagement {
     recordSymbol(symbol, node);
   }
 
+  public void enterNewConstant(final ISymbol symbol, final ParseTree node, final SymbolChecker symbolChecker) {
+    var moduleScope = parsedModule.getModuleScope();
+    if(moduleScope.defineOrError(symbol, symbolChecker)) {
+      recordSymbol(symbol, node);
+    }
+  }
+
   /**
    * To be used when defining a high level symbol at module scope.
    */

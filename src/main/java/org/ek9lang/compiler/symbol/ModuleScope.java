@@ -119,7 +119,7 @@ public class ModuleScope extends SymbolTable {
    * This is expensive in the sense that it does the check and define by owning the re-entrant lock
    * on the compilable program.
    */
-  public boolean defineOrError(final IScopedSymbol symbol, final SymbolChecker symbolChecker) {
+  public boolean defineOrError(final ISymbol symbol, final SymbolChecker symbolChecker) {
     AtomicBoolean rtn = new AtomicBoolean(true);
 
     //Must own the lock to be able to check for and define symbol

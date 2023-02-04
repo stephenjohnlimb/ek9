@@ -19,7 +19,6 @@ import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_STRING;
 import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_TIME;
 import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_VERSION;
 
-import java.util.Optional;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -851,16 +850,8 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterConstantDeclaration(EK9Parser.ConstantDeclarationContext ctx) {
-    ParseTree constantCtx = ctx.Identifier();
-
-    ConstantSymbol constant = new ConstantSymbol(constantCtx.getText(), false);
-    constant.setSourceToken(ctx.start);
-    constant.setParsedModule(Optional.ofNullable(getParsedModule()));
-
-    if (!symbolChecker.errorsIfVariableSymbolAlreadyDefined(symbolAndScopeManagement.getTopScope(), constant)) {
-      symbolAndScopeManagement.enterNewSymbol(constant, ctx);
-    }
-
+    var constant = symbolFactory.newConstant(ctx);
+    symbolAndScopeManagement.enterNewConstant(constant, ctx, symbolChecker);
     super.enterConstantDeclaration(ctx);
   }
 

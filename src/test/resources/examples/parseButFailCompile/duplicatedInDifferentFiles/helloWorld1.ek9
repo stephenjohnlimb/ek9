@@ -1,14 +1,24 @@
 #!ek9
 <?-
   Just to check for duplicated Symbol of same name but in different files.
+  But also check it is not possible to redefine something from the main ek9 built in constants.
+
+  Note you can redefine types, functions and the like in different package even though they are
+  in the main ek9 built in types. Not a good idea! But you can do it.
 -?>
 defines module duplications
   defines constant
     A_CONSTANT <- 19
     B_CONSTANT <- 29
 
+    //try and redefine PI for the standard ek9 math package
+    //constants are treated more like variables and so we don't allow
+    //them to be redefined  even in a different package
+    PI <- 3.14
+
   defines program
     HelloWorld()
       stdout <- Stdout()
       stdout.println("Hello2")
+
 //EOF

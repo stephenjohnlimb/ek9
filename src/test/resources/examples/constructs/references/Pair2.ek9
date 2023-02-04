@@ -9,8 +9,8 @@ defines module net.customer.pair
   //even though they are in different files.
    
   defines constant
-    PI <- 3.142
-    e <- 2.786
+    MY_PI <- 3.142
+    MY_e <- 2.786
     
   defines function
   
@@ -26,11 +26,11 @@ defines module net.customer.pair
     //That is an explicit conversion to a String
     //Also you don't need the () for functions if you don;t want to use them. Just looks nicer to me.    
     secondFunction
-      <- rtn as String: "World " + $e
+      <- rtn as String: "World " + $MY_e
     
     //But you can even use $ on expressions!    
     c2
-      <- ret as String: "hi " + $(PI/2) 
+      <- ret as String: "hi " + $(MY_PI/2)
    
   defines class
   

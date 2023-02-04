@@ -25,7 +25,7 @@ class BadDuplicatedSymbolsDifferentFilesTest extends FullCompilationTest {
   @Override
   protected void assertResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertEquals(2, numberOfErrors);
+    assertEquals(3, numberOfErrors);
     var alpha = program.getParsedModules("duplications");
     assertNotNull(alpha);
   }

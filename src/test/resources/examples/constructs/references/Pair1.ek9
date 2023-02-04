@@ -9,7 +9,7 @@ defines module net.customer.some
     net.customer.pair::SlightlySpecial
     
     //Can I reference a constant
-    net.customer.pair::PI
+    net.customer.pair::MY_PI
     
   defines class
       
@@ -22,9 +22,9 @@ defines module net.customer.some
         somewhat <- SlightlySpecial()
         
         //Can I just use the imported constant PI
-        myPi <- PI
+        myPi <- MY_PI
         
-        myE <- net.customer.pair::e
+        myE <- net.customer.pair::MY_e
         
         //How about this? Yes that will also work.
         very <- net.customer.pair::SpecialClass()

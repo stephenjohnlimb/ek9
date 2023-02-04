@@ -59,11 +59,9 @@ public class SymbolChecker {
 
   private boolean errorsIfResolved(IScope inScope, ISymbol symbol, SymbolSearch search,
                                    ErrorListener.SemanticClassification classificationError) {
+
     Optional<ISymbol> symbolCheck = inScope.resolve(search);
     if (symbolCheck.isPresent()) {
-
-      //For debug try again
-      inScope.resolve(search);
       ISymbol dup = symbolCheck.get();
       String message = String.format("'%s' on line %d already defined as %s in %s.",
           dup.getFriendlyName(), dup.getSourceToken().getLine(), dup.getGenus(),

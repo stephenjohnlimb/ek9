@@ -31,7 +31,7 @@ defines module net.customer.geometry
   //Or have one big file with all your stuff for that module in one place.
   defines constant
     
-    PI <- 3.142
+    MY_PI <- 3.142
     
-    e <- 2.71828
+    MY_e <- 2.71828
 //EOF

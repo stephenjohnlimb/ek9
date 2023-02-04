@@ -18,10 +18,10 @@ defines module net.customer.specials
   
     priceOfCircle()
       -> diameter as Float
-      <- result as Float: areaOfCircle(diameter) * net.customer.geometry::e/divisorPerSquareMM      
+      <- result as Float: areaOfCircle(diameter) * net.customer.geometry::MY_e/divisorPerSquareMM
       //We can just use areaOfCircle because it has been referenced.
       //Lets just include e in here for fun but in fully qualified form just to show the mix.
 
     printPI()
-      Stdout().println($net.customer.geometry::PI)
+      Stdout().println($net.customer.geometry::MY_PI)
 //EOF          
