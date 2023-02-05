@@ -228,21 +228,44 @@ defines extern module org.ek9.lang
   private static final String DEFINE_BUILT_IN_TEMPLATE_CLASSES = """
     List of type T
       List()
+      
+      List()
+        -> arg0 as T
 
     Optional of type T
       Optional()
+      
+      Optional()
+        -> arg0 as T
 
     PriorityQueue of type T
       PriorityQueue()
 
+      PriorityQueue()
+        -> arg0 as T
+      
     Dict of type (K, V)
       Dict()
 
+      Dict()
+        ->
+          k as K
+          v as V
+          
     DictEntry of type (K, V)
       DictEntry()
 
+      DictEntry()
+        ->
+          k as K
+          v as V
+
     Iterator of type T
       Iterator()
+      
+      Iterator()
+        -> arg0 as T
+
 """;
 
   @SuppressWarnings({"Indentation"})
@@ -312,6 +335,9 @@ defines extern module org.ek9.lang
 
     MutexLock of type T
       MutexLock()
+      
+      MutexLock()
+        -> value as T
 """;
 
   @SuppressWarnings({"Indentation"})

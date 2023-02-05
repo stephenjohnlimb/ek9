@@ -10,13 +10,13 @@ defines module com.customer.just.employees
     IRole
       performDuties()
         -> hours as Integer
-        <- activity as String
+        <- activity as String?
 
     IPayrollCalculator
       trackWork()
         -> hours as Integer
       calculatePayroll()
-        <- amount as Money
+        <- amount as Money?
 
   defines record
     //Added support for type inference back in for fields/properties
@@ -28,16 +28,19 @@ defines module com.customer.just.employees
       state <- String()
       zipcode <- String()
 
-      //You can either omit this and get it by default
-      //or define it like this, but state you want a default implementation
-      //or you can actually define the body yourself
-      default Address()
+      //Might allow default with matching number type and name of parameters.
+      Address()
         ->
           street as String
           street2 as String
           city as String
           state as String
           zipcode as String
+        this.street :=: street
+        this.street2 :=: street2
+        this.city :=: city
+        this.state :=: state
+        this.zipcode :=: zipcode
 
       operator ?
         <- rtn as Boolean: street? and city? and state? and zipcode?
@@ -118,7 +121,7 @@ defines module com.customer.just.employees
 
       getRole()
         -> roleId as String
-        <- rtn as IRole
+        <- rtn as IRole?
         theRole <- roles.get(roleId)
         assert theRole?
         rtn: theRole.get()
@@ -170,7 +173,7 @@ defines module com.customer.just.employees
 
       getPolicy()
         -> employeeId as Integer
-        <- rtn as PayrollPolicy
+        <- rtn as PayrollPolicy?
         policy <- employeePolicies.get(employeeId)
         assert policy?
         rtn: policy.get()
@@ -244,7 +247,8 @@ defines module com.customer.just.employees
       employees()
         <- rtn as List of Employee: List()
 
-        rtn += createEmployee(1, "Mary Poppins", "manager")
+        //You can use named variable if you prefer
+        rtn += createEmployee(id: 1, name: "Mary Poppins", theRole: "manager")
         rtn += createEmployee(2, "John Smith", "secretary")
         rtn += createEmployee(3, "Kevin Bacon", "sales")
         rtn += createEmployee(4, "Jane Doe", "factory")
