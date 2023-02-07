@@ -288,7 +288,7 @@ blockStatement
     ;
 
 variableOnlyDeclaration
-    : identifier AS? scope.resolve(new AnySymbolSearch(ofType)); (QUESTION | BANG)? webVariableCorrelation?
+    : identifier AS? typeDef (QUESTION | BANG)? webVariableCorrelation?
     ;
 
 webVariableCorrelation
