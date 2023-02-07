@@ -216,7 +216,8 @@ public class SymbolTable implements IScope {
         splitSymbols.computeIfAbsent(symbol.getCategory(), k -> new HashMap<>());
     List<ISymbol> list = table.computeIfAbsent(symbol.getName(), k -> new ArrayList<>());
     if (!symbol.getCategory().equals(ISymbol.SymbolCategory.METHOD) && list.contains(symbol)) {
-      throw new CompilerException("Compiler Coding Error - Duplicate symbol [" + symbol + "]");
+      throw new CompilerException(
+          "Compiler Coding Error - Duplicate symbol [" + symbol + "] try to add to [" + this.scopeName + "]");
     }
     list.add(symbol);
   }
@@ -292,7 +293,10 @@ public class SymbolTable implements IScope {
 
   private Optional<ISymbol> resolveFromSplitSymbolTable(final String symbolName,
                                                         final SymbolSearch search) {
-    return resolveInThisScopeOnly(getSplitSymbolTable(search.getSearchType()), symbolName, search);
+    if (search.getSearchType() != null) {
+      return resolveInThisScopeOnly(getSplitSymbolTable(search.getSearchType()), symbolName, search);
+    }
+    return Optional.empty();
   }
 
   /**

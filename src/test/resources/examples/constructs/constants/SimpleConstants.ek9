@@ -13,7 +13,7 @@ defines module net.customer
     maxNumberOfRetries <- 10        
     minTemperatureAllowed <- -2
    
-    PI <- 3.142
+    Pi <- 3.142
    
     bitMask <- 0b01110001
     

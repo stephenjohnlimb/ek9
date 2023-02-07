@@ -26,6 +26,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.UnreachableStatement;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.phases.listeners.AbstractEK9PhaseListener;
+import org.ek9lang.compiler.main.rules.CheckApplicationUseOnMethodDeclaration;
 import org.ek9lang.compiler.main.rules.CheckAssignment;
 import org.ek9lang.compiler.main.rules.CheckDynamicVariableCapture;
 import org.ek9lang.compiler.main.rules.CheckGenericConstructor;
@@ -48,6 +49,7 @@ import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.SymbolChecker;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
 import org.ek9lang.compiler.symbol.support.TextLanguageExtraction;
+import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.exception.CompilerException;
@@ -112,6 +114,8 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   private final CheckGenericConstructor checkGenericConstructor;
 
+  private final CheckApplicationUseOnMethodDeclaration checkApplicationUseOnMethodDeclaration;
+
   /**
    * First phase after parsing. Define symbols and infer types where possible.
    * Uses a symbol factory to actually create the appropriate symbols.
@@ -132,6 +136,8 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     checkProtectedServiceMethods = new CheckProtectedServiceMethods(parsedModule.getSource().getErrorListener());
     checkNotABooleanLiteral = new CheckNotABooleanLiteral(parsedModule.getSource().getErrorListener());
     checkGenericConstructor = new CheckGenericConstructor(parsedModule.getSource().getErrorListener());
+    checkApplicationUseOnMethodDeclaration =
+        new CheckApplicationUseOnMethodDeclaration(parsedModule.getSource().getErrorListener());
   }
 
   // Now we hook into the ANTLR listener events - lots of them!
@@ -512,8 +518,6 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     if (thisTryScope != null) {
       pullTryCatchFinallyUp(ctx);
 
-      //If there is a returning and this can only result in an exception then an error.
-
       if (ctx.returningParam() != null) {
         checkNormalTermination.accept(ctx.returningParam().start, thisTryScope);
       }
@@ -642,32 +646,37 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     super.enterReturningParam(ctx);
   }
 
+  /**
+   * A bit tricky or more not like many other methods.
+   * This is because returns in ek9 are defined as part of the signature up front in terms of variable name and type.
+   * This has the implication of the fact that named variable must be added to the relevant scope before any sort of
+   * body processing. Be that just an instruction block, catch, finally, or case blocks.
+   * This it to ensure that variables of the same name do not get declared at any point in those blocks.
+   * So you want wait until the end of the method, switch/try to add the return. It must be up front as
+   * sub blocks come in and out of scope within the main blocks. But we must stop duplicate named vars being used if
+   * declared as a returning value.
+   */
   @Override
   public void exitReturningParam(EK9Parser.ReturningParamContext ctx) {
-    ParseTree child = ctx.variableDeclaration() != null ? ctx.variableDeclaration() : ctx.variableOnlyDeclaration();
+    //Now get back to the parent scope, function, method, try, switch etc.
+    super.exitReturningParam(ctx);
+    var currentScope = symbolAndScopeManagement.getTopScope();
 
+    ParseTree child = ctx.variableDeclaration() != null ? ctx.variableDeclaration() : ctx.variableOnlyDeclaration();
     var symbol = symbolAndScopeManagement.getRecordedSymbol(child);
 
     if (symbol instanceof VariableSymbol variableSymbol) {
+      //Now also record the same symbol against this context for later use.
+      symbolAndScopeManagement.recordSymbol(symbol, ctx);
       variableSymbol.setReturningParameter(true);
-      //Now we won't know its type yet, but we will know it exists
-      //So it is possible to attach this symbol to the correct parent symbol
-      //I never really like doing this - make grammar brittle to change.
-      if (ctx.getParent() instanceof EK9Parser.OperationDetailsContext operationCtx) {
-        //This could be a function, method, operator or a serviceOperation - all extend methodSymbol.
-        var returningCapableSymbol =
-            (MethodSymbol) symbolAndScopeManagement.getRecordedSymbol(operationCtx.getParent());
-        if (returningCapableSymbol != null && !symbolChecker.errorsIfSymbolAlreadyDefined(returningCapableSymbol,
-            variableSymbol, true)) {
-          returningCapableSymbol.setReturningSymbol(variableSymbol);
+      if (!symbolChecker.errorsIfSymbolAlreadyDefined(currentScope, variableSymbol, true)) {
+        if (currentScope instanceof MethodSymbol method) {
+          method.setReturningSymbol(variableSymbol);
+        } else {
+          currentScope.define(variableSymbol);
         }
-      } else {
-        //either a try or a switch, so define the return inside that control scope.
-        var parentScope = symbolAndScopeManagement.getRecordedScope(ctx.getParent());
-        parentScope.define(variableSymbol);
       }
     }
-    super.exitReturningParam(ctx);
   }
 
   @Override
@@ -814,7 +823,15 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterVariableOnlyDeclaration(EK9Parser.VariableOnlyDeclarationContext ctx) {
+    final var scope = symbolAndScopeManagement.getTopScope();
     final var variable = symbolFactory.newVariable(ctx);
+    //Now it's not an error if we cannot resolve at this phase - but if these are built in types then we're all good.
+    //But parameterised types cannot be resolved at all yet.
+    if (ctx.typeDef().identifierReference() != null) {
+      var ofType = ctx.typeDef().identifierReference().getText();
+      variable.setType(scope.resolve(new AnySymbolSearch(ofType)));
+    }
+
     checkVariableOnlyDeclaration.accept(ctx);
     var limitToBlocks = ctx.getParent() instanceof EK9Parser.ArgumentParamContext;
     checkAndDefineSymbol(variable, ctx, limitToBlocks);
@@ -828,7 +845,16 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
    */
   @Override
   public void enterVariableDeclaration(EK9Parser.VariableDeclarationContext ctx) {
+    final var scope = symbolAndScopeManagement.getTopScope();
     final var variable = symbolFactory.newVariable(ctx);
+    //Now it's not an error if we cannot resolve at this phase - but if these are built in types then we're all good.
+    //But parameterised types cannot be resolved at all yet.
+    //Nor can we resolve types through expressions.
+    if (ctx.typeDef() != null && ctx.typeDef().identifierReference() != null) {
+      var ofType = ctx.typeDef().identifierReference().getText();
+      variable.setType(scope.resolve(new AnySymbolSearch(ofType)));
+    }
+
     checkAndDefineSymbol(variable, ctx, false);
     super.enterVariableDeclaration(ctx);
   }
@@ -1020,6 +1046,11 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   private void processProgramDeclaration(EK9Parser.MethodDeclarationContext ctx) {
     var program = symbolFactory.newProgram(ctx);
     checkAndDefineModuleScopedSymbol(program, ctx);
+    //Should we now add in a "main program' method to hold the instruction blocks.
+    var newMainProgramMethod = symbolFactory.newMethod(ctx, "main", program);
+    //But record against the operation details as the Program Aggregate is registered again main ctx
+    //This will also push this method scope on to the stack.
+    symbolAndScopeManagement.defineScopedSymbol(newMainProgramMethod, ctx.operationDetails());
   }
 
   private void pushNewForLoopScope(final ParserRuleContext ctx) {
@@ -1053,6 +1084,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   private void processMethodDeclaration(EK9Parser.MethodDeclarationContext ctx) {
+    checkApplicationUseOnMethodDeclaration.accept(ctx);
     var currentScope = symbolAndScopeManagement.getTopScope();
     if (currentScope instanceof IScopedSymbol scopedSymbol) {
       final var newTypeSymbol = symbolFactory.newMethod(ctx, scopedSymbol);

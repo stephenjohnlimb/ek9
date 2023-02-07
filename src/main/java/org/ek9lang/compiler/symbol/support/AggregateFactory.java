@@ -28,6 +28,9 @@ import org.ek9lang.core.exception.CompilerException;
  */
 public class AggregateFactory {
 
+  public static final String EK9_LANG = "org.ek9.lang";
+  public static final String EK9_MATH = "org.ek9.math";
+
   public static final String EK9_PATH = "org.ek9.lang::Path";
   public static final String EK9_VERSION = "org.ek9.lang::Version";
   public static final String EK9_REGEX = "org.ek9.lang::RegEx";

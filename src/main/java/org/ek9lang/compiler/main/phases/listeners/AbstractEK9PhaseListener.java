@@ -149,7 +149,12 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
 
   @Override
   public void exitMethodDeclaration(EK9Parser.MethodDeclarationContext ctx) {
+    //This will pop the synthetic main method off for the program
     symbolAndScopeManagement.exitScope();
+    //Now the parent scope can be popped off.
+    if (ctx.getParent() instanceof EK9Parser.ProgramBlockContext) {
+      symbolAndScopeManagement.exitScope();
+    }
     super.exitMethodDeclaration(ctx);
   }
 

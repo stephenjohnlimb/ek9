@@ -137,13 +137,18 @@ public class SymbolFactory {
     checkContextNotNull.accept(ctx);
     AssertValue.checkNotNull("Failed to locate program name", ctx.identifier());
 
-    //TODO Need to deal with the application setup part.
-    //We underscore to class name and main processing method don't clash and look like a constructor.
-    String programName = "_" + ctx.identifier().getText();
+    String programName = ctx.identifier().getText();
     AggregateSymbol program = new AggregateSymbol(programName, parsedModule.getModuleScope());
     configureAggregate(program, ctx.start);
 
-    //Not sure what genus to set this to at the moment.
+    //It is not necessary to wire in an application configuration to be used.
+    //But if present then it will be named here. In the resolve phase we will check it.
+    //For now just record it.
+    if (ctx.APPLICATION() != null) {
+      program.putSquirrelledData("APPLICATION", ctx.identifierReference().getText());
+    }
+
+    program.setGenus(ISymbol.SymbolGenus.PROGRAM);
     return program;
   }
 
@@ -474,6 +479,15 @@ public class SymbolFactory {
   public MethodSymbol newMethod(EK9Parser.MethodDeclarationContext ctx, IScopedSymbol scopedSymbol) {
     //So now we should have an aggregate we are adding this method into.
     String methodName = ctx.identifier().getText();
+    return newMethod(ctx, methodName, scopedSymbol);
+  }
+
+  /**
+   * Create a new method with a specific name.
+   */
+  public MethodSymbol newMethod(final EK9Parser.MethodDeclarationContext ctx, final String methodName,
+                                final IScopedSymbol scopedSymbol) {
+
     MethodSymbol method = new MethodSymbol(methodName, scopedSymbol);
 
     configureSymbol(method, ctx.start);

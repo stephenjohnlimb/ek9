@@ -229,7 +229,7 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
     Optional<ISymbol> rtn = Optional.empty();
     //Now if this is a generic type class we might need to resolve the name of
     //the type 'T' or 'S' or whatever for example
-    if (isGenericInNature() && search.getSearchType().equals(SymbolCategory.TYPE)) {
+    if (isGenericInNature() && SymbolCategory.TYPE.equals(search.getSearchType())) {
       for (ISymbol parameterisedType : getParameterisedTypes()) {
         if (parameterisedType.isAssignableTo(search.getAsSymbol())) {
           rtn = Optional.of(parameterisedType);

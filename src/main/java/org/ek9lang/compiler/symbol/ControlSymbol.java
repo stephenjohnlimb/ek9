@@ -3,7 +3,7 @@ package org.ek9lang.compiler.symbol;
 /**
  * EK9 switch/try control type symbol - this can effectively return a value if it is configured
  * with returning part.
- * When generating out put we need this to create its own block so variables inside are hidden
+ * When generating output we need this to create its own block so variables inside are hidden
  * from later scopes.
  * So as we have a returning part (optional) we need a scope to put it in (i.e. this scope)
  * this then means that when we finally come to generate the output - this symbol will be able

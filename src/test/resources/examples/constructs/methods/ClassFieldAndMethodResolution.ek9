@@ -22,7 +22,7 @@
   7. The additional alternative for 'mixins' and other forms of extensions is the function delegate. This also enforces encapsulation.
   8. The 'with trait of' really does encourage composition so that should promote that type of use rather than inheritance.
 -?>
-defines module com.customer.resolution
+defines module com.classandfield.resolution
 
   defines constant
     
@@ -43,7 +43,7 @@ defines module com.customer.resolution
       address <- Address()
       
       operator $ as abstract
-        <- is String
+        <- is String?
     
     R2 extends R1
       DOB <- Date()
@@ -91,7 +91,7 @@ defines module com.customer.resolution
     -?>
     plugabbleFunction() as abstract
       -> param String
-      <- rtn String
+      <- rtn String?
       
     functionB1()
       <- house as UKAddress: UKAddress()
@@ -353,7 +353,7 @@ defines module com.customer.resolution
         Just a call to a method - in super class - but this time explicit via 'super'
       -?>        
       checkEsuper()
-        e <- "TODO"
+        ev <- "TODO"
         //Check we can resolve in super but explicit
         e1 <- super.method()
         e2 <- super.method("FR")
@@ -545,7 +545,7 @@ defines module com.customer.resolution
       Quick program just to check field access and also method access
     -?>
     TestAccess
-      <- rtn String := String()
+      <- rtn String: String()
          
       myHouse <- Address()
       

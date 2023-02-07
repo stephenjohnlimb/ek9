@@ -9,6 +9,7 @@ import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableSource;
 import org.ek9lang.compiler.internals.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
+import org.ek9lang.compiler.symbol.support.AggregateFactory;
 import org.ek9lang.core.exception.CompilerException;
 import org.junit.jupiter.api.Test;
 
@@ -29,9 +30,8 @@ class Ek9BootStrapTest {
 
     final var sharedContext = underTest.get();
 
-    sharedContext.accept(compilableProgram -> {
-      assertEquals(1, compilableProgram.getParsedModules("org.ek9.lang").size());
-    });
+    sharedContext.accept(compilableProgram
+        -> assertEquals(1, compilableProgram.getParsedModules(AggregateFactory.EK9_LANG).size()));
   }
 
   @Test
@@ -42,6 +42,6 @@ class Ek9BootStrapTest {
 
     final var underTest = new Ek9LanguageBootStrap(sourceSupplier, listener.get(), new CompilerReporter(true));
 
-    assertThrows(CompilerException.class, () -> underTest.get());
+    assertThrows(CompilerException.class, underTest::get);
   }
 }

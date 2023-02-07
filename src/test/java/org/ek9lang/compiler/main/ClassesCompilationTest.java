@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test;
 /**
  * Just test simple classes all compile.
  */
-class SimpleClassesCompilationTest extends FullCompilationTest {
+class ClassesCompilationTest extends FullCompilationTest {
 
-  public SimpleClassesCompilationTest() {
+  public ClassesCompilationTest() {
     super("/examples/constructs/classes");
   }
 

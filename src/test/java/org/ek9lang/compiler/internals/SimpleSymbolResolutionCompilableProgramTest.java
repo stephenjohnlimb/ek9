@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ek9lang.compiler.main.phases.definition.DefinitionPhase1Listener;
+import org.ek9lang.compiler.symbol.support.AggregateFactory;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
@@ -52,7 +53,7 @@ class SimpleSymbolResolutionCompilableProgramTest {
       });
 
       //Just check via org.ek9.lang with String
-      if(module.getModuleName().equals("org.ek9.lang")) {
+      if(module.getModuleName().equals(AggregateFactory.EK9_LANG)) {
         //Just be sure this String type cannot be found.
         final var resolved = moduleScope.resolve(new TypeSymbolSearch(EK9_STRING));
         assertTrue(resolved.isEmpty());
@@ -74,7 +75,7 @@ class SimpleSymbolResolutionCompilableProgramTest {
       //OK now the ordering of sources is important and as we now also supply org.ek9.math with constants
       //Those constants will need to resolve EK9_FLOATs and things - so add module to context
 
-      if(module.getModuleName().equals("org.ek9.lang")) {
+      if(module.getModuleName().equals(AggregateFactory.EK9_LANG)) {
         //We should now find there some symbols defined.
         //I would expect new TypeSymbolSearch(EK9_STRING) and new TypeSymbolSearch("String") to work.
         final var nowResolves = moduleScope.resolve(new TypeSymbolSearch(EK9_STRING));

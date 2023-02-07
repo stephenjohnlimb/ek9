@@ -8,11 +8,11 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just test simple functions all compile.
+ * Just test functions all compile.
  */
-class SimpleFunctionsCompilationTest extends FullCompilationTest {
+class FunctionsCompilationTest extends FullCompilationTest {
 
-  public SimpleFunctionsCompilationTest() {
+  public FunctionsCompilationTest() {
     super("/examples/constructs/functions");
   }
 

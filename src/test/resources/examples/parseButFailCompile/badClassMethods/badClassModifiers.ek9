@@ -51,4 +51,9 @@ defines module bad.classmodifier.use
       //This is not allowed either, not possible to take a concrete existing method
       //And force it to be abstract when its super was not.
       override anotherMethod() as abstract
+
+      //This makes no sense on a method as it is for program
+      methodX with application of abc
+        v1 <- "Developer some how expecting application injection here"
+        assert v1?
 //EOF

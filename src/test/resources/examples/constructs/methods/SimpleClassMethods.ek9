@@ -196,7 +196,7 @@ defines module net.customer
         
       method3()
         //check calling a local method and calling a method as a parameter
-        val <- method1("A", "B", 2.0)
+        value <- method1("A", "B", 2.0)
         someValue as String := method1("A", method2(), 2)
         
       //end of methods (ish)
@@ -278,9 +278,8 @@ defines module net.customer
         -> arg as Class1
         <- rtn as Integer := 0
       sqrt
-        <- rtnSqrt as Class1
-        rtnSqrt := Class1()
-        //rtnSqrt := Class1(sqrt val)
+        <- rtnSqrt as Class1: Class1()
+
       length
         <- rtn as Integer := 10
       

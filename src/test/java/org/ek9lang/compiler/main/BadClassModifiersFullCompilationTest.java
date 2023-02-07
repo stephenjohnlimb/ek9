@@ -26,7 +26,7 @@ class BadClassModifiersFullCompilationTest extends FullCompilationTest {
   protected void assertResults(boolean compilationResult, int numberOfErrors,
                                CompilableProgram program) {
     assertFalse(compilationResult);
-    assertEquals(6, numberOfErrors);
+    assertEquals(7, numberOfErrors);
     var alpha = program.getParsedModules("bad.classmodifier.use");
     assertNotNull(alpha);
   }

@@ -13,6 +13,6 @@ defines module net.customer
       A doc comments
     -?>
     
-    limitNumberOfRetries <- true
+    moreLimitsOnRetries <- true
     
 //EOF

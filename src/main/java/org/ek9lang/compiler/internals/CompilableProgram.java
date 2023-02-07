@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.ModuleScope;
+import org.ek9lang.compiler.symbol.support.AggregateFactory;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
@@ -169,7 +170,22 @@ public class CompilableProgram {
    * org.ek9.lang etc.
    */
   public Optional<ISymbol> resolveFromImplicitScopes(final SymbolSearch search) {
-    return Stream.of("org.ek9.lang", "org.ek9.math").map(moduleName -> this.resolveFromModule(moduleName, search))
-        .filter(Optional::isPresent).flatMap(Optional::stream).findFirst();
+    //If the search name being presented is not fully qualified - which it probably won't be
+    //We need to modify the search.
+    var name = search.getName();
+    if (!ISymbol.isQualifiedName(name)) {
+      SymbolSearch newSearch =
+          new SymbolSearch(ISymbol.makeFullyQualifiedName(AggregateFactory.EK9_LANG, name), search);
+      var resolved = resolveFromModule(AggregateFactory.EK9_LANG, newSearch);
+      if (resolved.isEmpty()) {
+        newSearch = new SymbolSearch(ISymbol.makeFullyQualifiedName(AggregateFactory.EK9_MATH, name), search);
+        resolved = resolveFromModule(AggregateFactory.EK9_MATH, newSearch);
+      }
+      return resolved;
+    } else {
+      return Stream.of(AggregateFactory.EK9_LANG, AggregateFactory.EK9_MATH)
+          .map(moduleName -> this.resolveFromModule(moduleName, search))
+          .filter(Optional::isPresent).flatMap(Optional::stream).findFirst();
+    }
   }
 }
