@@ -56,7 +56,6 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
     this.setModuleScope(parameterisableSymbol.getModuleScope());
     super.setCategory(SymbolCategory.TYPE);
 
-    setProduceFullyQualifiedName(parameterisableSymbol.getProduceFullyQualifiedName());
     setEk9Core(parameterisableSymbol.isEk9Core());
   }
 

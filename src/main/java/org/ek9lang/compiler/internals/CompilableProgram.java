@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.ModuleScope;
+import org.ek9lang.compiler.symbol.ParameterisedSymbol;
 import org.ek9lang.compiler.symbol.support.AggregateFactory;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
@@ -118,6 +119,28 @@ public class CompilableProgram {
   public Optional<ISymbol> resolveByFullyQualifiedSearch(final SymbolSearch search) {
     var moduleName = ISymbol.getModuleNameIfPresent(search.getName());
     return resolveFromModule(moduleName, search);
+  }
+
+  /**
+   * When using generic types, the parameterised type goes into the same module namespace as the
+   * Generic Type. i.e. org.ek9.lang::List of some.mod.area::Thing would be given a fully qualified name
+   * like org.ek9.lang::_List_SOMEDIGEST_OF_FULLY_QULIFIED_NAMES.
+   * So once a List of String has been defined it can be used everywhere as it will be in the
+   * org.ek9.lang module.
+   */
+  public Optional<ISymbol> resolveOrDefine(final ParameterisedSymbol parameterisedSymbol) {
+    var moduleName = ISymbol.getModuleNameIfPresent(parameterisedSymbol.getFullyQualifiedName());
+    var search =
+        new SymbolSearch(parameterisedSymbol.getFullyQualifiedName()).setSearchType(parameterisedSymbol.getCategory());
+
+    var resolved = resolveFromModule(moduleName, search);
+    if (resolved.isEmpty()) {
+      //need to define it and return it.
+      var module = getModuleScopes.apply(moduleName).get(0);
+      module.define(parameterisedSymbol);
+      return Optional.of(parameterisedSymbol);
+    }
+    return resolved;
   }
 
   /**

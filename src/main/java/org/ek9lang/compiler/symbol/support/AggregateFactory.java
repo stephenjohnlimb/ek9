@@ -30,27 +30,29 @@ public class AggregateFactory {
 
   public static final String EK9_LANG = "org.ek9.lang";
   public static final String EK9_MATH = "org.ek9.math";
+  public static final String EK9_PATH = EK9_LANG + "::Path";
+  public static final String EK9_VERSION = EK9_LANG + "::Version";
+  public static final String EK9_REGEX = EK9_LANG + "::RegEx";
+  public static final String EK9_MONEY = EK9_LANG + "::Money";
+  public static final String EK9_COLOUR = EK9_LANG + "::Colour";
+  public static final String EK9_RESOLUTION = EK9_LANG + "::Resolution";
+  public static final String EK9_DIMENSION = EK9_LANG + "::Dimension";
+  public static final String EK9_MILLISECOND = EK9_LANG + "::Millisecond";
+  public static final String EK9_DURATION = EK9_LANG + "::Duration";
+  public static final String EK9_DATETIME = EK9_LANG + "::DateTime";
+  public static final String EK9_DATE = EK9_LANG + "::Date";
+  public static final String EK9_TIME = EK9_LANG + "::Time";
+  public static final String EK9_CHARACTER = EK9_LANG + "::Character";
+  public static final String EK9_STRING = EK9_LANG + "::String";
+  public static final String EK9_INTEGER = EK9_LANG + "::Integer";
+  public static final String EK9_VOID = EK9_LANG + "::Void";
+  public static final String EK9_FLOAT = EK9_LANG + "::Float";
+  public static final String EK9_BOOLEAN = EK9_LANG + "::Boolean";
+  public static final String EK9_BITS = EK9_LANG + "::Bits";
+  public static final String EK9_LIST = EK9_LANG + "::List";
+  public static final String EK9_OPTIONAL = EK9_LANG + "::Optional";
+  public static final String EK9_DICTIONARY = EK9_LANG + "::Dict";
 
-  public static final String EK9_PATH = "org.ek9.lang::Path";
-  public static final String EK9_VERSION = "org.ek9.lang::Version";
-  public static final String EK9_REGEX = "org.ek9.lang::RegEx";
-  public static final String EK9_MONEY = "org.ek9.lang::Money";
-  public static final String EK9_COLOUR = "org.ek9.lang::Colour";
-  public static final String EK9_RESOLUTION = "org.ek9.lang::Resolution";
-  public static final String EK9_DIMENSION = "org.ek9.lang::Dimension";
-  public static final String EK9_MILLISECOND = "org.ek9.lang::Millisecond";
-  public static final String EK9_DURATION = "org.ek9.lang::Duration";
-  public static final String EK9_DATETIME = "org.ek9.lang::DateTime";
-
-  public static final String EK9_DATE = "org.ek9.lang::Date";
-  public static final String EK9_TIME = "org.ek9.lang::Time";
-  public static final String EK9_CHARACTER = "org.ek9.lang::Character";
-  public static final String EK9_STRING = "org.ek9.lang::String";
-  public static final String EK9_INTEGER = "org.ek9.lang::Integer";
-  public static final String EK9_VOID = "org.ek9.lang::Void";
-  public static final String EK9_FLOAT = "org.ek9.lang::Float";
-  public static final String EK9_BOOLEAN = "org.ek9.lang::Boolean";
-  public static final String EK9_BITS = "org.ek9.lang::Bits";
 
   /**
    * Add a synthetic constructor, if a constructor is not present.

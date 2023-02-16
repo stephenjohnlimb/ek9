@@ -26,6 +26,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.UnreachableStatement;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.phases.listeners.AbstractEK9PhaseListener;
+import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineParameterisedType;
 import org.ek9lang.compiler.main.rules.CheckApplicationUseOnMethodDeclaration;
 import org.ek9lang.compiler.main.rules.CheckAssignment;
 import org.ek9lang.compiler.main.rules.CheckDynamicVariableCapture;
@@ -33,6 +34,8 @@ import org.ek9lang.compiler.main.rules.CheckGenericConstructor;
 import org.ek9lang.compiler.main.rules.CheckNormalTermination;
 import org.ek9lang.compiler.main.rules.CheckNotABooleanLiteral;
 import org.ek9lang.compiler.main.rules.CheckParamExpressionNamedParameters;
+import org.ek9lang.compiler.main.rules.CheckProgramArguments;
+import org.ek9lang.compiler.main.rules.CheckProgramReturns;
 import org.ek9lang.compiler.main.rules.CheckProtectedServiceMethods;
 import org.ek9lang.compiler.main.rules.CheckVariableOnlyDeclaration;
 import org.ek9lang.compiler.main.rules.CommonMethodChecks;
@@ -49,7 +52,6 @@ import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.SymbolChecker;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
 import org.ek9lang.compiler.symbol.support.TextLanguageExtraction;
-import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.exception.CompilerException;
@@ -116,28 +118,40 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   private final CheckApplicationUseOnMethodDeclaration checkApplicationUseOnMethodDeclaration;
 
+  private final CheckProgramReturns checkProgramReturns;
+  private final CheckProgramArguments checkProgramArguments;
+
+  private final ResolveOrDefineParameterisedType resolveOrDefineParameterisedType;
+
   /**
    * First phase after parsing. Define symbols and infer types where possible.
    * Uses a symbol factory to actually create the appropriate symbols.
    */
   public DefinitionPhase1Listener(ParsedModule parsedModule) {
     super(parsedModule);
-    symbolChecker = new SymbolChecker(parsedModule.getSource().getErrorListener());
+    var errorListener = parsedModule.getSource().getErrorListener();
+    symbolChecker = new SymbolChecker(errorListener);
     symbolFactory = new SymbolFactory(parsedModule);
-    unreachableStatement = new UnreachableStatement(parsedModule.getSource().getErrorListener());
-    textLanguageExtraction = new TextLanguageExtraction(parsedModule.getSource().getErrorListener());
-    commonMethodChecks = new CommonMethodChecks(parsedModule.getSource().getErrorListener());
-    checkAssignment = new CheckAssignment(parsedModule.getSource().getErrorListener());
-    checkVariableOnlyDeclaration = new CheckVariableOnlyDeclaration(parsedModule.getSource().getErrorListener());
-    checkDynamicVariableCapture = new CheckDynamicVariableCapture(parsedModule.getSource().getErrorListener());
+
+    unreachableStatement = new UnreachableStatement(errorListener);
+    textLanguageExtraction = new TextLanguageExtraction(errorListener);
+    commonMethodChecks = new CommonMethodChecks(errorListener);
+    checkAssignment = new CheckAssignment(errorListener);
+    checkVariableOnlyDeclaration = new CheckVariableOnlyDeclaration(errorListener);
+    checkDynamicVariableCapture = new CheckDynamicVariableCapture(errorListener);
     checkParamExpressionNamedParameters =
-        new CheckParamExpressionNamedParameters(parsedModule.getSource().getErrorListener());
-    checkNormalTermination = new CheckNormalTermination(parsedModule.getSource().getErrorListener());
-    checkProtectedServiceMethods = new CheckProtectedServiceMethods(parsedModule.getSource().getErrorListener());
-    checkNotABooleanLiteral = new CheckNotABooleanLiteral(parsedModule.getSource().getErrorListener());
-    checkGenericConstructor = new CheckGenericConstructor(parsedModule.getSource().getErrorListener());
+        new CheckParamExpressionNamedParameters(errorListener);
+    checkNormalTermination = new CheckNormalTermination(errorListener);
+    checkProtectedServiceMethods = new CheckProtectedServiceMethods(errorListener);
+    checkNotABooleanLiteral = new CheckNotABooleanLiteral(errorListener);
+    checkGenericConstructor = new CheckGenericConstructor(errorListener);
     checkApplicationUseOnMethodDeclaration =
-        new CheckApplicationUseOnMethodDeclaration(parsedModule.getSource().getErrorListener());
+        new CheckApplicationUseOnMethodDeclaration(errorListener);
+    checkProgramReturns = new CheckProgramReturns(errorListener);
+    checkProgramArguments = new CheckProgramArguments(errorListener);
+
+    resolveOrDefineParameterisedType =
+        new ResolveOrDefineParameterisedType(symbolAndScopeManagement, symbolFactory, errorListener, false);
   }
 
   // Now we hook into the ANTLR listener events - lots of them!
@@ -202,16 +216,18 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void exitMethodDeclaration(EK9Parser.MethodDeclarationContext ctx) {
+    var currentScope = symbolAndScopeManagement.getTopScope();
     //Can be null if during definition 'enter' it was a duplicate method
-    if (!(ctx.getParent() instanceof EK9Parser.ProgramBlockContext)) {
-      var method = (MethodSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-      if (method != null) {
-        commonMethodChecks.accept(method, ctx);
-        //Now for constructors - EK9 does not allow only abnormal termination
-        if (method.isConstructor()) {
-          checkNormalTermination.accept(ctx.start, method);
-          checkGenericConstructor.accept(ctx.start, method);
-        }
+    if (currentScope instanceof MethodSymbol method) {
+      commonMethodChecks.accept(method, ctx);
+      //Now for constructors - EK9 does not allow only abnormal termination
+      if (method.isConstructor()) {
+        checkNormalTermination.accept(ctx.start, method);
+        checkGenericConstructor.accept(ctx.start, method);
+      }
+      if (ctx.getParent() instanceof EK9Parser.ProgramBlockContext) {
+        checkProgramReturns.accept(ctx.start, method);
+        checkProgramArguments.accept(ctx.start, method);
       }
     }
     super.exitMethodDeclaration(ctx);
@@ -823,15 +839,10 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterVariableOnlyDeclaration(EK9Parser.VariableOnlyDeclarationContext ctx) {
-    final var scope = symbolAndScopeManagement.getTopScope();
     final var variable = symbolFactory.newVariable(ctx);
     //Now it's not an error if we cannot resolve at this phase - but if these are built in types then we're all good.
-    //But parameterised types cannot be resolved at all yet.
-    if (ctx.typeDef().identifierReference() != null) {
-      var ofType = ctx.typeDef().identifierReference().getText();
-      variable.setType(scope.resolve(new AnySymbolSearch(ofType)));
-    }
-
+    var varType = resolveOrDefineParameterisedType.apply(ctx.typeDef());
+    variable.setType(varType);
     checkVariableOnlyDeclaration.accept(ctx);
     var limitToBlocks = ctx.getParent() instanceof EK9Parser.ArgumentParamContext;
     checkAndDefineSymbol(variable, ctx, limitToBlocks);
@@ -840,35 +851,45 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   /**
    * Just a straight forward declaration of a variable.
-   * But just like Kotlin we can explicitly let the variable not be allocated memory.
-   * This is done with the '?' suffix.
    */
   @Override
   public void enterVariableDeclaration(EK9Parser.VariableDeclarationContext ctx) {
-    final var scope = symbolAndScopeManagement.getTopScope();
     final var variable = symbolFactory.newVariable(ctx);
-    //Now it's not an error if we cannot resolve at this phase - but if these are built in types then we're all good.
-    //But parameterised types cannot be resolved at all yet.
-    //Nor can we resolve types through expressions.
-    if (ctx.typeDef() != null && ctx.typeDef().identifierReference() != null) {
-      var ofType = ctx.typeDef().identifierReference().getText();
-      variable.setType(scope.resolve(new AnySymbolSearch(ofType)));
-    }
 
+    //Now it's not an error if we cannot resolve at this phase - but if these are built in types then we're all good.
+    var varType = resolveOrDefineParameterisedType.apply(ctx.typeDef());
+    variable.setType(varType);
     checkAndDefineSymbol(variable, ctx, false);
     super.enterVariableDeclaration(ctx);
   }
 
   /**
    * Now we have an assignment expression we can note that this variable was initialised.
+   * For some simple literals we can work out the type early as well.
    */
   @Override
   public void exitVariableDeclaration(EK9Parser.VariableDeclarationContext ctx) {
-    VariableSymbol varSymbol = (VariableSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+
+    VariableSymbol variable = (VariableSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     //Might not have been registered if detected as a duplicate.
-    if (varSymbol != null) {
-      varSymbol.setInitialisedBy(ctx.assignmentExpression().start);
+    if (variable != null) {
+      variable.setInitialisedBy(ctx.assignmentExpression().start);
+      //Now it's not an error if we cannot resolve at this phase - but if these are built in types then we're all good.
+      //But parameterised types cannot be resolved at all yet.
+      //Nor can we resolve types through expressions.
+      if (ctx.typeDef() != null && ctx.typeDef().identifierReference() != null) {
+        var varType = resolveOrDefineParameterisedType.apply(ctx.typeDef());
+        variable.setType(varType);
+      } else if (ctx.assignmentExpression() != null
+          && ctx.assignmentExpression().expression() != null
+          && ctx.assignmentExpression().expression().primary() != null
+          && ctx.assignmentExpression().expression().primary().literal() != null) {
+        var symbol =
+            symbolAndScopeManagement.getRecordedSymbol(ctx.assignmentExpression().expression().primary().literal());
+        variable.setType(symbol.getType());
+      }
     }
+
     super.exitVariableDeclaration(ctx);
   }
 

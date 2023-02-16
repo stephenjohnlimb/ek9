@@ -1,0 +1,59 @@
+#!ek9
+<?-
+  Just checks the return values of programs are only Integer type.
+  This is basically used as the exit code of the application.
+  Any visual output for console type application has to use Stdout or Stderr.
+-?>
+defines module bad.program.return
+
+  defines record
+    ATestRecord
+      first <- "A"
+      second <- 9
+
+  defines program
+
+    //Failure 1 - cannot return anything other than an Integer
+    BadReturnType1()
+      <- rtn as Float: 0.9
+      //Just some body to stop any other compiler errors
+      v <- "Steve"
+      assert v?
+
+    //Failure 2 - but value not set on
+    BadReturnType2()
+      <- rtn as Float?
+      rtn: 5.6
+
+    //Failure 3 - type inference - but still not allowed type
+    BadReturnType3()
+      <- rtn <- false
+      //Just some body to stop any other compiler errors
+      v <- "Steve"
+      assert v?
+
+    //Failure 4 - a specific developer created type
+    BadReturnType4()
+      <- rtn as ATestRecord?
+      //Just some body to stop any other compiler errors
+      v <- "Steve"
+      assert v?
+
+    ValidProgramNoReturn()
+      v <- "Steve"
+      assert v?
+
+    ValidProgramIntegerReturn1()
+      <- rtn as Integer: 0
+      //Just some body to stop any other compiler errors
+      v <- "Steve"
+      assert v?
+
+    //Valid with type inference and shorthand return notation.
+    ValidProgramIntegerReturn2()
+      <- rtn <- 0
+      //Just some body to stop any other compiler errors
+      v <- "Steve"
+      assert v?
+
+//EOF

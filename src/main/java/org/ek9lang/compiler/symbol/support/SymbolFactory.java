@@ -36,6 +36,8 @@ import org.ek9lang.compiler.symbol.IScopedSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.LocalScope;
 import org.ek9lang.compiler.symbol.MethodSymbol;
+import org.ek9lang.compiler.symbol.ParameterisedFunctionSymbol;
+import org.ek9lang.compiler.symbol.ParameterisedTypeSymbol;
 import org.ek9lang.compiler.symbol.ServiceOperationSymbol;
 import org.ek9lang.compiler.symbol.StreamCallSymbol;
 import org.ek9lang.compiler.symbol.StreamPipeLineSymbol;
@@ -409,6 +411,38 @@ public class SymbolFactory {
     return newFunction;
   }
 
+  /**
+   * Create a new parameterised type, i.e. take a generic type and a type parameter and create
+   * what is in effect a new type out of the two. 'List of String' or 'List of Date' for example.
+   */
+  public ParameterisedTypeSymbol newParameterisedTypeSymbol(final AggregateSymbol genericAggregateType,
+                                                            final List<ISymbol> parameterizingTypes) {
+    //Use the same module scope as the generic type as there is where the new type will reside.
+    var scope = genericAggregateType.getModuleScope();
+    var theType = new ParameterisedTypeSymbol(genericAggregateType, parameterizingTypes, scope);
+    //Use the same source token for this as the generic type.
+    theType.setModuleScope(genericAggregateType.getModuleScope());
+    theType.setParsedModule(genericAggregateType.getParsedModule());
+    theType.setSourceToken(genericAggregateType.getSourceToken());
+
+    return theType;
+  }
+
+  /**
+   * Create a new parameterised function, i.e. take a generic function and a type parameter and create
+   * what is in effect a new function out of the two. 'Supplier of String' or 'Consumer of Date' for example.
+   */
+  public ParameterisedFunctionSymbol newParameterisedFunctionSymbol(FunctionSymbol genericFunction, List<ISymbol> parameterizingTypes) {
+    //Use the same module scope as the generic type as there is where the new type will reside.
+    var scope = genericFunction.getModuleScope();
+    var theFunction = new ParameterisedFunctionSymbol(genericFunction, parameterizingTypes, scope);
+    //Use the same source token for this as the generic function.
+    theFunction.setModuleScope(genericFunction.getModuleScope());
+    theFunction.setParsedModule(genericFunction.getParsedModule());
+    theFunction.setSourceToken(genericFunction.getSourceToken());
+
+    return theFunction;
+  }
   /**
    * Create a new local scope just for variables to be defined/captured in for dynamic classes/functions.
    */
@@ -913,6 +947,7 @@ public class SymbolFactory {
     }
     return rtn;
   }
+
 
 
 }

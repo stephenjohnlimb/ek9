@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbol.support;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,6 +27,11 @@ public class CommonParameterisedTypeDetails {
   public static String getInternalNameFor(ISymbol parameterisableSymbol,
                                           List<ISymbol> parameterSymbols) {
     return getEk9InternalNameFor(parameterisableSymbol, parameterSymbols);
+  }
+
+  public static String getInternalNameFor(ISymbol parameterisableSymbol,
+                                          ISymbol parameterSymbol) {
+    return getEk9InternalNameFor(parameterisableSymbol, List.of(parameterSymbol));
   }
 
   private static String getEk9InternalNameFor(ISymbol parameterisableSymbol,
@@ -55,10 +61,23 @@ public class CommonParameterisedTypeDetails {
 
   /**
    * Converts a list to a comma separated list, with optional parenthesis.
+   * But you have to take care here as a Type is also its own type.
+   * So watch recursion.
    */
   public static String asCommaSeparated(List<ISymbol> params, boolean includeParenthesis) {
-    var commaSeparated =
-        params.stream().map(ISymbol::getFriendlyName).collect(Collectors.joining(", "));
+    List<String> names = new ArrayList<>();
+
+    for (var param : params) {
+      var paramType = param.getType();
+      if (paramType.isPresent() && !param.getFullyQualifiedName()
+          .equals(paramType.get().getFullyQualifiedName())) {
+        names.add(param.getFriendlyName());
+      } else {
+        names.add(param.getName());
+      }
+    }
+
+    var commaSeparated = String.join(", ", names);
     if (!includeParenthesis) {
       return commaSeparated;
     }

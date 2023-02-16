@@ -114,6 +114,23 @@ public class ModuleScope extends SymbolTable {
   }
 
   /**
+   * Used when resolving or needing to define a parameterised type, like 'List of String' for example.
+   * Now while this moduleScope maybe for the code being parsed and processed, the reference to
+   * a generic type like org.ek9.lang::List means that the resulting new type:
+   * 'org.ek9.lang::List of org.ek9.lang::String' or 'org.ek9.lang::List of my.mod.area::Widget' will be
+   * stored in the module space of the Generic Type.
+   * So do not assume this new type will reside in this module scope, it most probably won't.
+   */
+  public Optional<ISymbol> resolveOrDefine(final ParameterisedSymbol parameterisedSymbol) {
+    Holder<ISymbol> holder = new Holder<>();
+    compilableProgramContext.accept(compilableProgram -> {
+      Optional<ISymbol> resolvedOrDefined = compilableProgram.resolveOrDefine(parameterisedSymbol);
+      holder.accept(resolvedOrDefined);
+    });
+    return holder.get();
+  }
+
+  /**
    * Defines a new symbol and returns true if all when OK
    * But if there were errors created then false is returned.
    * This is expensive in the sense that it does the check and define by owning the re-entrant lock

@@ -1,0 +1,76 @@
+#!ek9
+<?-
+  EK9 programs can accept arguments being passed in, either:
+  1. A List of String as the main incoming parameter (i.e. like C, C++, Java etc.)
+  2. Any number of standard EK9 types like Integer, Duration, Float - literals in other words.
+-?>
+defines module bad.argument.parameters
+
+  //Just used to check that it is rejected as an argument.
+  defines record
+    ATestRecord
+      first <- "A"
+      second <- 9
+
+  //Also just used to check for errors
+  defines function
+
+    someAbstractFunction() as abstract
+      -> arg1 as Integer
+      <- result <- 0
+
+  defines program
+
+    //Valid Program
+    NoArgument()
+      //Just some body to stop any other compiler errors
+      v <- "Steve"
+      assert v?
+
+    //Valid Program - like C/Java just a List of String.
+    CStyleArguments()
+      -> argv as List of String
+      //Just some body to stop any other compiler errors
+      v <- "Steve"
+      assert v?
+
+    EK9Arguments()
+      ->
+        arg1 as String
+        arg2 as Integer
+        arg3 as Float
+        arg4 as Duration
+        arg5 as DateTime
+        //etc you get the picture
+
+      //Just some body to stop any other compiler errors
+      v <- "Steve"
+      assert v?
+
+    //Failure1 - not supported, it's either list all the parameters of have a List of String
+    BadArgumentCombination()
+      ->
+        arg1 as Integer
+        arg2 as List of String
+
+    //Failure2 - not supported, developer must take the List of String and build/parse them to create the record.
+    BadArgumentType1()
+      -> arg as ATestRecord
+      //Just some body to stop any other compiler errors
+      v <- "Steve"
+      assert v?
+
+    //Failure 3 - as above by using a function as the type
+    BadArgumentType2()
+      -> arg as someAbstractFunction
+      //Just some body to stop any other compiler errors
+      v <- "Steve"
+      assert v?
+
+    //Failure 4 - a list but can only be of String
+    BadArgumentType3()
+      -> argv as List of Integer
+      //Just some body to stop any other compiler errors
+      v <- "Steve"
+      assert v?
+//EOF

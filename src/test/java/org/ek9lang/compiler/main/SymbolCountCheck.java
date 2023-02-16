@@ -23,6 +23,7 @@ public class SymbolCountCheck implements Predicate<CompilableProgram> {
     this.forModuleName = forModuleName;
     this.expectedSymbolCount = expectedSymbolCount;
   }
+
   @Override
   public boolean test(CompilableProgram compilableProgram) {
     var modules = compilableProgram.getParsedModules(forModuleName);
@@ -32,9 +33,13 @@ public class SymbolCountCheck implements Predicate<CompilableProgram> {
     var symbols = modules.stream().map(module -> module.getModuleScope().getSymbolsForThisScope())
         .flatMap(List::stream).toList();
 
-    if(expectedSymbolCount != symbols.size()) {
-      modules.forEach(module -> System.out.println("For scope name [" + module.getModuleName() + "] " + module.getSource().getFileName()));
-      symbols.forEach(symbol -> System.out.println("Internal Name: [" + symbol.getName() + "] Presentable Name: [" + symbol.toString() + "]"));
+    if (expectedSymbolCount != symbols.size()) {
+      modules.forEach(module -> System.out.println(
+          "For scope name [" + module.getModuleName() + "] " + module.getSource().getFileName()));
+      for (var symbol : symbols) {
+        System.out.println("Internal Name: [" + symbol.getName() + "] Presentable Name: [" + symbol + "] ["
+            + symbol.getFullyQualifiedName() + "]");
+      }
     }
     assertEquals(expectedSymbolCount, symbols.size());
 

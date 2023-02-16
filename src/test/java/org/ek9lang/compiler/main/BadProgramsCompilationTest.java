@@ -9,13 +9,13 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests bad switch usage.
+ * Just tests bad program usage.
  */
-class BadSwitchFullCompilationTest extends FullCompilationTest {
+class BadProgramsCompilationTest extends FullCompilationTest {
 
 
-  public BadSwitchFullCompilationTest() {
-    super("/examples/parseButFailCompile/badSwitchUse");
+  public BadProgramsCompilationTest() {
+    super("/examples/parseButFailCompile/badPrograms");
   }
 
 
@@ -27,8 +27,12 @@ class BadSwitchFullCompilationTest extends FullCompilationTest {
   @Override
   protected void assertResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertEquals(5, numberOfErrors);
-    var alpha = program.getParsedModules("bad.switches.use");
+    assertEquals(8, numberOfErrors);
+
+    var alpha = program.getParsedModules("bad.program.return");
     assertNotNull(alpha);
+
+    var beta = program.getParsedModules("bad.argument.parameters");
+    assertNotNull(beta);
   }
 }

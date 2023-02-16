@@ -26,6 +26,7 @@ class SimpleServicesCompilationTest extends FullCompilationTest {
   protected void assertResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
+
     new SymbolCountCheck("com.customer.services", 43).test(program);
 
     new SymbolCountCheck("com.customer.webserver", 2).test(program);

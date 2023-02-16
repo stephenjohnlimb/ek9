@@ -119,6 +119,9 @@ defines extern module org.ek9.lang
 
     String
       String()
+      
+      String()
+        -> arg0 as String
 """;
 
   /**
@@ -130,58 +133,113 @@ defines extern module org.ek9.lang
     Bits
       Bits()
       
+      Bits()
+        -> arg0 as String
+
     Boolean
       Boolean()
+
+      Boolean()
+        -> arg0 as String
 
     Character
       Character()
 
+      Character()
+        -> arg0 as String
+
     Integer
       Integer()
+
+      Integer()
+        -> arg0 as String
 
     Float
       Float()
 
+      Float()
+        -> arg0 as String
+
     Time
       Time()
+
+      Time()
+        -> arg0 as String
 
     Duration
       Duration()
 
+      Duration()
+        -> arg0 as String
+
     Millisecond
       Millisecond()
+
+      Millisecond()
+        -> arg0 as String
 
     Date
       Date()
 
+      Date()
+        -> arg0 as String
+
     DateTime
       DateTime()
+
+      DateTime()
+        -> arg0 as String
 
     Money
       Money()
 
+      Money()
+        -> arg0 as String
+
     Locale
       Locale()
+
+      Locale()
+        -> arg0 as String
 
     Colour
       Colour()
 
+      Colour()
+        -> arg0 as String
+
     Dimension
       Dimension()
 
+      Dimension()
+        -> arg0 as String
+
     Resolution
       Resolution()
+
+      Resolution()
+        -> arg0 as String
       
     Path
       Path()
 
+      Path()
+        -> arg0 as String
+
     JSON
       JSON()
+
+      JSON()
+        -> arg0 as String
 
     JSONInput as abstract
 
     RegEx
       RegEx()
+
+      RegEx()
+        -> arg0 as String
+            
 """;
 
   @SuppressWarnings({"Indentation"})

@@ -542,15 +542,18 @@ defines module com.classandfield.resolution
   defines program
   
     <?-
-      Quick program just to check field access and also method access
+      Quick program just to check field access and also method access.
+      Note how it is possible to use a return type of integer in a program.
+      Also it is possible to use the shorthand of <- returning and <- for assignment.
     -?>
     TestAccess
-      <- rtn String: String()
+      <- rtn <- 0
          
       myHouse <- Address()
       
-      rtn := "Address is " + $myHouse
+      message <- "Address is " + $myHouse
 
+      Stdout().println(message)
       //Now lets see if we can access the methods via the objects
       //SJL chain
       addr <- myHouse.getAddress()
