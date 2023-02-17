@@ -130,6 +130,9 @@ defines extern module org.ek9.lang
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_BUILT_IN_TYPE_CLASSES = """
 
+    Void
+      Void()
+      
     Bits
       Bits()
       
@@ -309,6 +312,9 @@ defines extern module org.ek9.lang
         ->
           k as K
           v as V
+          
+      operator +=
+        -> arg as DictEntry of (K, V)
           
     DictEntry of type (K, V)
       DictEntry()

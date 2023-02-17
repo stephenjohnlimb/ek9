@@ -432,7 +432,8 @@ public class SymbolFactory {
    * Create a new parameterised function, i.e. take a generic function and a type parameter and create
    * what is in effect a new function out of the two. 'Supplier of String' or 'Consumer of Date' for example.
    */
-  public ParameterisedFunctionSymbol newParameterisedFunctionSymbol(FunctionSymbol genericFunction, List<ISymbol> parameterizingTypes) {
+  public ParameterisedFunctionSymbol newParameterisedFunctionSymbol(FunctionSymbol genericFunction,
+                                                                    List<ISymbol> parameterizingTypes) {
     //Use the same module scope as the generic type as there is where the new type will reside.
     var scope = genericFunction.getModuleScope();
     var theFunction = new ParameterisedFunctionSymbol(genericFunction, parameterizingTypes, scope);
@@ -443,6 +444,7 @@ public class SymbolFactory {
 
     return theFunction;
   }
+
   /**
    * Create a new local scope just for variables to be defined/captured in for dynamic classes/functions.
    */
@@ -871,16 +873,26 @@ public class SymbolFactory {
     return newVariable(ctx.identifier(), ctx.QUESTION() != null, false);
   }
 
-  private VariableSymbol newVariable(final EK9Parser.IdentifierContext identifier,
-                                     final boolean nullAllowed, final boolean injectionExpected) {
-    AssertValue.checkNotNull("Failed to locate variable name", identifier);
-
-    VariableSymbol variable = new VariableSymbol(identifier.getText());
-    configureSymbol(variable, identifier.start);
+  /**
+   * Crrate new variable typically when looking to create simulated variable.
+   */
+  public VariableSymbol newVariable(final String name, final Token token,
+                                    final boolean nullAllowed, final boolean injectionExpected) {
+    AssertValue.checkNotNull("Failed to locate variable name", name);
+    VariableSymbol variable = new VariableSymbol(name);
+    configureSymbol(variable, token);
     variable.setNullAllowed(nullAllowed);
     variable.setInjectionExpected(injectionExpected);
+
     return variable;
   }
+
+  public VariableSymbol newVariable(final EK9Parser.IdentifierContext identifier,
+                                     final boolean nullAllowed, final boolean injectionExpected) {
+    AssertValue.checkNotNull("Failed to locate variable name", identifier);
+    return newVariable(identifier.getText(), identifier.start, nullAllowed, injectionExpected);
+  }
+
 
   /**
    * Create a new aggregate that represents an EK9 literal value.
@@ -947,7 +959,6 @@ public class SymbolFactory {
     }
     return rtn;
   }
-
 
 
 }

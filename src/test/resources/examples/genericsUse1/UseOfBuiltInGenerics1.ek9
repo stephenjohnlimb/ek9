@@ -1,0 +1,32 @@
+#!ek9
+<?-
+  This is not relating to the definition of Generic/Template classes and Functions.
+  But just their use, i.e. assuming that some generic type exists creating instances of those
+  with a range of (built in) types to ensure they can be parsed but also created and then subsequently resolved.
+
+  This example is only designed to check the 'definition phase' where types are explicitly declared.
+  For example List of String, bit not designed to check for List("Steve").
+-?>
+defines module simple.generics.use.one
+
+  defines function
+
+    JustOptional()
+      -> param1 as Optional of String
+      assert param1?
+
+    AlsoJustOptional()
+      <- rtn as Optional of String?
+      v1 <- "Steve"
+      assert v1?
+
+    MultipleOptionals()
+      ->
+        arg1 as Optional of String
+        arg2 as Optional of String
+      <-
+        rtn as Optional of String: Optional()
+      v1 <- "Steve"
+      assert v1?
+
+//EOF

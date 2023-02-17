@@ -18,6 +18,7 @@ import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_RESOLUTIO
 import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_STRING;
 import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_TIME;
 import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_VERSION;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_VOID;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
@@ -41,6 +42,7 @@ import org.ek9lang.compiler.main.rules.CheckVariableOnlyDeclaration;
 import org.ek9lang.compiler.main.rules.CommonMethodChecks;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
+import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.ICanCaptureVariables;
 import org.ek9lang.compiler.symbol.IScope;
@@ -257,9 +259,21 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
-    final var function = symbolFactory.newFunction(ctx);
-    checkAndDefineModuleScopedSymbol(function, ctx);
+    final var functionSymbol = symbolFactory.newFunction(ctx);
+    checkAndDefineModuleScopedSymbol(functionSymbol, ctx);
     super.enterFunctionDeclaration(ctx);
+  }
+
+  @Override
+  public void exitFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
+    var functionSymbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    //There is returning so use a return of Void
+    if (ctx.operationDetails().returningParam() == null) {
+      var simulatedVoid = symbolFactory.newVariable("_rtn", ctx.start, false, false);
+      simulatedVoid.setType(functionSymbol.resolve(new TypeSymbolSearch(EK9_VOID)));
+      functionSymbol.setReturningSymbol(simulatedVoid);
+    }
+    super.exitFunctionDeclaration(ctx);
   }
 
   @Override

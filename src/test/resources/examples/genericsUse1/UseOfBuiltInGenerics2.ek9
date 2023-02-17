@@ -1,0 +1,26 @@
+#!ek9
+<?-
+  Additional checks on built in generic types.
+  For the same module.
+  These are the longhand form of declarations and uses of generics.
+  For phase1 definition we can process these, but later phases we can also
+  process 'var <- [1, 2, 3]' as shorthand for List of Integer.
+-?>
+defines module simple.generics.use.one
+
+  defines function
+
+    AnOptionalInDifferentFile()
+      -> param1 as Optional of String
+      assert param1?
+
+    ADictionary()
+      <- rtn as Iterator of Integer: Iterator()
+      aDictionary as Dict of (Integer, String): Dict()
+
+      newEntry as DictEntry of (Integer, String): DictEntry(1, "Steve")
+      aDictionary += newEntry
+
+      assert aDictionary?
+
+//EOF

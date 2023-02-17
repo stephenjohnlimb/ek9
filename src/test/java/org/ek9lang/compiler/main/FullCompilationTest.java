@@ -26,6 +26,12 @@ abstract class FullCompilationTest {
     ek9Workspace = workspaceLoader.apply(fromResourcesDirectory);
   }
 
+  /**
+   * Optionally test classes can implement this for precondition processing.
+   */
+  protected void assertPreConditions(CompilableProgram program) {
+  }
+
   protected abstract void assertResults(final boolean compilationResult,
                                         final int numberOfErrors,
                                         final CompilableProgram program);
@@ -51,6 +57,8 @@ abstract class FullCompilationTest {
         listener, new CompilerReporter(true));
 
     var compiler = new Ek9Compiler(allPhases);
+    sharedCompilableProgram.accept(program -> assertPreConditions(program));
+
     var compilationResult = compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, true));
 
     sharedCompilableProgram.accept(program -> assertResults(compilationResult, counter.get(), program));
