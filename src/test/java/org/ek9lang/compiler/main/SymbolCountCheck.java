@@ -38,7 +38,7 @@ public class SymbolCountCheck implements Predicate<CompilableProgram> {
           "For scope name [" + module.getModuleName() + "] " + module.getSource().getFileName()));
       for (var symbol : symbols) {
         System.out.println("Internal Name: [" + symbol.getName() + "] Presentable Name: [" + symbol + "] ["
-            + symbol.getFullyQualifiedName() + "]");
+            + symbol.getFullyQualifiedName() + "] as " + symbol.getCategory());
       }
     }
     assertEquals(expectedSymbolCount, symbols.size());

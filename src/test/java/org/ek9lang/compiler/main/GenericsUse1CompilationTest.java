@@ -2,13 +2,11 @@ package org.ek9lang.compiler.main;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
-import org.ek9lang.compiler.symbol.support.GenericTypeResolverForTesting;
+import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.search.FunctionSymbolSearch;
 import org.junit.jupiter.api.Test;
 
@@ -36,11 +34,9 @@ class GenericsUse1CompilationTest extends FullCompilationTest {
   protected void assertPreConditions(CompilableProgram program) {
     new SymbolCountCheck("org.ek9.lang", 66).test(program);
 
-    var orgEk9LangScope = program.getParsedModules("org.ek9.lang").get(0).getModuleScope();
-    GenericTypeResolverForTesting genericTypeResolver = new GenericTypeResolverForTesting(orgEk9LangScope);
-
-    var resolvedGenericType = genericTypeResolver.apply("Optional", List.of("String"));
-    assertTrue(resolvedGenericType.isEmpty());
+    var checker = new GenericsSymbolCheck(program, "org.ek9.lang", false);
+    checker.accept("Optional", List.of("String"));
+    checker.accept("Supplier", List.of("Integer"));
   }
 
   @Override
@@ -49,15 +45,15 @@ class GenericsUse1CompilationTest extends FullCompilationTest {
     assertEquals(0, numberOfErrors);
 
     //So we now expect more types as this ek9 source uses ek9 built in generic types.
-    new SymbolCountCheck("org.ek9.lang", 70).test(program);
+    new SymbolCountCheck("org.ek9.lang", 71).test(program);
 
-    //There are other types created but just check this one for now.
-    var orgEk9LangScope = program.getParsedModules("org.ek9.lang").get(0).getModuleScope();
-    GenericTypeResolverForTesting genericTypeResolver = new GenericTypeResolverForTesting(orgEk9LangScope);
-    var resolvedGenericType = genericTypeResolver.apply("Optional", List.of("String"));
-    assertTrue(resolvedGenericType.isPresent());
+    var typeChecker = new GenericsSymbolCheck(program, "org.ek9.lang", true, ISymbol.SymbolCategory.TYPE);
+    typeChecker.accept("Optional", List.of("String"));
 
-    new SymbolCountCheck(2, "simple.generics.use.one", 5).test(program);
+    var functionChecker = new GenericsSymbolCheck(program, "org.ek9.lang", true, ISymbol.SymbolCategory.FUNCTION);
+    functionChecker.accept("Supplier", List.of("Integer"));
+
+    new SymbolCountCheck(3, "simple.generics.use.one", 8).test(program);
 
     var justOptionalSymbol =
         program.resolveByFullyQualifiedSearch(new FunctionSymbolSearch("simple.generics.use.one::JustOptional"));
@@ -67,13 +63,19 @@ class GenericsUse1CompilationTest extends FullCompilationTest {
         program.resolveByFullyQualifiedSearch(new FunctionSymbolSearch("simple.generics.use.one::AlsoJustOptional"));
     assertTrue(alsoJustOptionalSymbol.isPresent());
 
-    if(alsoJustOptionalSymbol.get() instanceof FunctionSymbol alsoJustOptional) {
-      var returningSymbol = alsoJustOptional.getReturningSymbol();
-      assertTrue( returningSymbol.getType().isPresent());
-      assertEquals(resolvedGenericType.get().getFullyQualifiedName(), returningSymbol.getType().get().getFullyQualifiedName());
-    } else {
-      fail("Expecting AlsoJustOptional to be a function");
-    }
+    //So we both use and define some generic type in this module.
+    new SymbolCountCheck(1, "com.utils.fsm.example", 10).test(program);
+
+    var exampleTypeChecker =
+        new GenericsSymbolCheck(program, "com.utils.fsm.example", true, ISymbol.SymbolCategory.TYPE);
+
+    exampleTypeChecker.accept("FSM", List.of("Integer"));
+    exampleTypeChecker.accept("FSM", List.of("CardSuit"));
+
+    var exampleFunctionChecker =
+        new GenericsSymbolCheck(program, "com.utils.fsm.example", true, ISymbol.SymbolCategory.FUNCTION);
+    exampleFunctionChecker.accept("FSMListener", List.of("Integer"));
+    exampleFunctionChecker.accept("FSMListener", List.of("CardSuit"));
   }
 
 }

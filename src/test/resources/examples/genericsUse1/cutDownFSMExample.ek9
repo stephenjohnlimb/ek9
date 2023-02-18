@@ -1,0 +1,100 @@
+#!ek9
+<?-
+ A cut down version of a finite state machine in generic form.
+ Just seeing how much of this can be resolved in the definition phase of the compiler.
+ So the order will be important here, but as we will trigger resolution just after references phase
+ We should find that most generics will resolve (but not all because we also need to expand generics of generics.
+-?>
+defines module com.utils.fsm.example
+
+  defines type
+    <?-
+      Lets just define a simple enumerated type and use the finite state machine with that.
+    -?>
+    CardSuit as
+      Hearts
+      Diamonds
+      Clubs
+      Spades
+
+  defines function
+
+    <?-
+      Basic function that can be called by the FSM on changes
+      Has a default implementation - but now you can override
+      Do this by creating a dynamic function and provide the implementation you want
+    -?>
+    FSMListener() of type T
+      ->
+        fromState as T
+        toState as T
+      assert fromState? and toState?
+
+
+  defines class
+
+    <?-
+      Outline of a finite state machine idea.
+    -?>
+    FSM of type T
+
+      //Couple of properties to hang on to
+      currentState as T?
+      listener as FSMListener of T?
+
+      <?-
+        Simple constructor so we can infer generic type when used.
+      -?>
+      FSM()
+        -> initialState as T
+
+        assert initialState?
+        currentState := initialState
+
+      setState()
+        -> newState as T
+        assert newState?
+        if listener?
+          listener(currentState, newState)
+        currentState := newState
+      getState()
+        <- rtn as T := currentState
+
+      setListener()
+        -> listenerToAdd as FSMListener of T
+        assert listenerToAdd?
+        listener := listenerToAdd
+
+  defines program
+
+    <?-
+      A Simple driver program to be used to check out the use of FSM and the listener
+    -?>
+    Driver as
+
+      //Used as a capture variable into the dynamic functions
+      stdout <- Stdout()
+
+      //Need to use long hand to check definition phase via type defs.
+      //Later on we will check the interference mechanism one resolve phase is implemented.
+      myListener as FSMListener of Integer: (stdout) is FSMListener of Integer
+        assert fromState? and toState?
+        stdout.println(`Changing from ${fromState} to ${toState}`)
+
+      //Again in this example, use long hand to declare the type.
+      myMachine as FSM of Integer: FSM(2)
+      //Now a couple of interactions
+      myMachine.setListener(myListener)
+      myMachine.setState(5)
+
+      //Lets try it with the Cards, long hand again
+      cardListener as FSMListener of CardSuit: (stdout) is FSMListener of CardSuit
+        assert fromState? and toState?
+        stdout.println(`Changing from ${fromState} to ${toState}`)
+
+      cardMachine as FSM of CardSuit: FSM(CardSuit.Clubs)
+      //Again a few interactions
+      cardMachine.setListener(myListener)
+      cardMachine.setState(CardSuit.Hearts)
+
+//EOF

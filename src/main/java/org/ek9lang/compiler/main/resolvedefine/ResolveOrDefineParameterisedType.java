@@ -21,6 +21,7 @@ import org.ek9lang.core.exception.AssertValue;
  * Dict of(Integer, List of Date) for example.
  * So not used in the definition of the generic type itself. But used when the developer want to
  * use an exising/created Template/Generic type with specific parameters.
+ * This also works for generic Functions like 'Supplier of Integer' (but return type is not yet set).
  */
 public class ResolveOrDefineParameterisedType implements Function<EK9Parser.TypeDefContext, Optional<ISymbol>> {
 

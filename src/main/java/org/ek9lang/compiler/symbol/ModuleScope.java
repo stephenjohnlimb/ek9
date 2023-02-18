@@ -152,6 +152,21 @@ public class ModuleScope extends SymbolTable {
   }
 
   @Override
+  public Optional<ISymbol> resolveInThisScopeOnly(final SymbolSearch search) {
+    AssertValue.checkNotNull("Search cannot be null", search);
+
+    if (searchIsNotInThisScope(search)) {
+      return Optional.empty();
+    }
+
+    String searchName = ISymbol.getUnqualifiedName(search.getName());
+    var localScopeSearch = new SymbolSearch(ISymbol.makeFullyQualifiedName(getScopeName(), searchName)).setSearchType(
+        search.getSearchType());
+
+    return super.resolveInThisScopeOnly(localScopeSearch);
+  }
+
+  @Override
   protected Optional<ISymbol> resolveWithEnclosingScope(SymbolSearch search) {
     // Need to get result into a variable we can use outside of lambda
     // but we need the lambda to ensure access is thread safe.

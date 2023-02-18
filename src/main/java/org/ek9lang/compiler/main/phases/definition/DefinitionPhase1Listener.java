@@ -267,8 +267,8 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   @Override
   public void exitFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
     var functionSymbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    //There is returning so use a return of Void
-    if (ctx.operationDetails().returningParam() == null) {
+    //There is returning so use a return of Void, might be null if we had duplicate names.
+    if (functionSymbol != null && ctx.operationDetails().returningParam() == null) {
       var simulatedVoid = symbolFactory.newVariable("_rtn", ctx.start, false, false);
       simulatedVoid.setType(functionSymbol.resolve(new TypeSymbolSearch(EK9_VOID)));
       functionSymbol.setReturningSymbol(simulatedVoid);

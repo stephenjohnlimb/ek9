@@ -223,7 +223,7 @@ public class SymbolFactory {
   }
 
   /**
-   * Create a new aggregate that represents an EK9 function.
+   * Create a new function symbol that represents an EK9 function.
    */
   public FunctionSymbol newFunction(EK9Parser.FunctionDeclarationContext ctx) {
     checkContextNotNull.accept(ctx);
@@ -232,6 +232,7 @@ public class SymbolFactory {
 
     String functionName = ctx.Identifier().getText();
     FunctionSymbol newFunction = new FunctionSymbol(functionName, moduleScope);
+    newFunction.setModuleScope(parsedModule.getModuleScope());
     configureSymbol(newFunction, ctx.start);
 
     //More like a library - so we mark as referenced.
@@ -442,6 +443,11 @@ public class SymbolFactory {
     theFunction.setParsedModule(genericFunction.getParsedModule());
     theFunction.setSourceToken(genericFunction.getSourceToken());
 
+    //Consider any return type replacement as this stage?
+    //i.e. Supplier of type T
+    //       <- r as T?
+    //This is more complex than it looks and needs to be done in later compiler phases
+    //Because it could be returning a List of Optional of DictEntry of (Integer T)!
     return theFunction;
   }
 

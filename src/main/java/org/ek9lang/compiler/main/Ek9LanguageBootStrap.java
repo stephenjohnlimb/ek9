@@ -55,6 +55,5 @@ public class Ek9LanguageBootStrap implements Supplier<SharedThreadContext<Compil
     if (!compilationSuccess) {
       throw new CompilerException("Unable to bootstrap EK9 language, error in " + sources);
     }
-
   }
 }

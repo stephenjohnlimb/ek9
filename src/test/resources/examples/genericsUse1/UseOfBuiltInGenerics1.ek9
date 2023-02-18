@@ -29,4 +29,7 @@ defines module simple.generics.use.one
       v1 <- "Steve"
       assert v1?
 
+    UseOfASupplier()
+      -> supplier as Supplier of Integer
+      assert supplier?
 //EOF

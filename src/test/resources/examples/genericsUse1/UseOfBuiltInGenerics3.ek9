@@ -1,0 +1,25 @@
+#!ek9
+<?-
+  Additional checks on built in generic types.
+  For the same module.
+  BUt these are with non existing types. Should be ok for
+  phase1 definition, ignore in that phase but error in the resolution phase.
+-?>
+defines module simple.generics.use.one
+
+  defines function
+
+    AnOptionalWithUnknownType()
+      -> param1 as Optional of SomeUnknownType
+      assert param1?
+
+    ADictionaryWithUnknownTypes()
+      <- rtn as Iterator of ATypeToBeDefined: Iterator()
+      aDictionary as Dict of (Integer, AnotherUnknownType): Dict()
+
+      newEntry as DictEntry of (NoSuchType, String): DictEntry(1, "Steve")
+      aDictionary += newEntry
+
+      assert aDictionary?
+
+//EOF
