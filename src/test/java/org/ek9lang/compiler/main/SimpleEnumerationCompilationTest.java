@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.support.search.FunctionSymbolSearch;
-import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
+import org.ek9lang.compiler.symbol.support.SymbolCheck;
+import org.ek9lang.compiler.symbol.support.SymbolCountCheck;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -30,38 +30,24 @@ class SimpleEnumerationCompilationTest extends FullCompilationTest {
     assertEquals(0, numberOfErrors);
     new SymbolCountCheck("com.customer.enumerations", 8).test(program);
 
-    var theModule = program.getParsedModules("com.customer.enumerations");
-    var parsedModule = theModule.get(0);
+    var moduleName = "com.customer.enumerations";
+    SymbolCheck typeChecker = new SymbolCheck(program, moduleName, true, true, ISymbol.SymbolCategory.TYPE);
 
-    var cardRank = parsedModule
-        .getModuleScope()
-        .resolveInThisScopeOnly(new TypeSymbolSearch("com.customer.enumerations::CardRank"));
-    assertTrue(cardRank.isPresent());
-    assertEquals(ISymbol.SymbolGenus.CLASS_ENUMERATION, cardRank.get().getGenus());
+    //Check unqualified and qualified in this module
+    typeChecker.accept("CardRank");
+    typeChecker.accept("com.customer.enumerations::CardRank");
+    typeChecker.accept("CardSuit");
+    typeChecker.accept("com.customer.enumerations::CardSuit");
+    typeChecker.accept("Card");
+    typeChecker.accept("com.customer.enumerations::Card");
 
-    var cardSuit = parsedModule
-        .getModuleScope()
-        .resolveInThisScopeOnly(new TypeSymbolSearch("com.customer.enumerations::CardSuit"));
-    assertTrue(cardSuit.isPresent());
-    assertEquals(ISymbol.SymbolGenus.CLASS_ENUMERATION, cardSuit.get().getGenus());
+    SymbolCheck functionChecker = new SymbolCheck(program, moduleName, true, true, ISymbol.SymbolCategory.FUNCTION);
 
-    var card = parsedModule
-        .getModuleScope()
-        .resolveInThisScopeOnly(new TypeSymbolSearch("com.customer.enumerations::Card"));
-    assertTrue(card.isPresent());
-    assertEquals(ISymbol.SymbolGenus.RECORD, card.get().getGenus());
+    functionChecker.accept("cardCreator");
+    functionChecker.accept("com.customer.enumerations::cardCreator");
+    functionChecker.accept("fullRankCreator");
+    functionChecker.accept("com.customer.enumerations::fullRankCreator");
 
-    var cardCreator = parsedModule
-        .getModuleScope()
-        .resolveInThisScopeOnly(new FunctionSymbolSearch("com.customer.enumerations::cardCreator"));
-    assertTrue(cardCreator.isPresent());
-    assertEquals(ISymbol.SymbolGenus.FUNCTION_TRAIT, cardCreator.get().getGenus());
-
-    var fullRankCreator = parsedModule
-        .getModuleScope()
-        .resolveInThisScopeOnly(new FunctionSymbolSearch("com.customer.enumerations::fullRankCreator"));
-    assertTrue(fullRankCreator.isPresent());
-    assertEquals(ISymbol.SymbolGenus.FUNCTION, fullRankCreator.get().getGenus());
   }
 
 }

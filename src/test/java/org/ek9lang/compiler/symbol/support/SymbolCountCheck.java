@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.main;
+package org.ek9lang.compiler.symbol.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

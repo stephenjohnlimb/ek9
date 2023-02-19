@@ -7,6 +7,8 @@ import java.util.List;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.support.GenericsSymbolCheck;
+import org.ek9lang.compiler.symbol.support.SymbolCountCheck;
 import org.ek9lang.compiler.symbol.support.search.FunctionSymbolSearch;
 import org.junit.jupiter.api.Test;
 

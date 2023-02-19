@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
+import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.support.SymbolCheck;
+import org.ek9lang.compiler.symbol.support.SymbolCountCheck;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -25,6 +28,16 @@ class ConstantsCompilationTest extends FullCompilationTest {
   protected void assertResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
-    new SymbolCountCheck(2,"net.customer", 25).test(program);
+    var moduleName = "net.customer";
+    new SymbolCountCheck(2,moduleName, 25).test(program);
+
+    //Dont limit to a single scope, because this is made from multiple source files.
+    SymbolCheck checker = new SymbolCheck(program, moduleName, false, true, ISymbol.SymbolCategory.VARIABLE);
+    //Just resolve a couple of these constants (type variable).
+    checker.accept("limitNumberOfRetries");
+    checker.accept("net.customer::limitNumberOfRetries");
+    checker.accept("moreLimitsOnRetries");
+    checker.accept("net.customer::moreLimitsOnRetries");
+
   }
 }

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
+import org.ek9lang.compiler.symbol.support.SymbolCountCheck;
 import org.junit.jupiter.api.Test;
 
 /**

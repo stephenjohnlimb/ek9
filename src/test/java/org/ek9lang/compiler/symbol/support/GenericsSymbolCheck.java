@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.main;
+package org.ek9lang.compiler.symbol.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.support.GenericResolverForTesting;
 
 /**
  * Because lots of checks are needed to resolve generic types this consumer will
