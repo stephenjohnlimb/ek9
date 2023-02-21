@@ -6,8 +6,8 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.FunctionSymbol;
-import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.ModuleScope;
 import org.ek9lang.compiler.symbol.ParameterisedFunctionSymbol;
 import org.ek9lang.compiler.symbol.ParameterisedTypeSymbol;
 import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
@@ -20,9 +20,9 @@ import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
  */
 public class GenericResolverForTesting implements BiFunction<String, List<String>, Optional<ISymbol>> {
 
-  private final IScope scopeForResolution;
+  private final ModuleScope scopeForResolution;
 
-  public GenericResolverForTesting(final IScope scopeForResolution) {
+  public GenericResolverForTesting(final ModuleScope scopeForResolution) {
     this.scopeForResolution = scopeForResolution;
   }
 

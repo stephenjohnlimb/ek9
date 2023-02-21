@@ -237,7 +237,7 @@ methodDeclaration
     ;
 
 operatorDeclaration
-    : OVERRIDE? OPERATOR? operator AS? PURE? ABSTRACT? NL+ operationDetails?
+    : (OVERRIDE | DEFAULT)? OPERATOR? operator AS? PURE? ABSTRACT? NL+ operationDetails?
     ;
 
 serviceOperationDeclaration

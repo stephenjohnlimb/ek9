@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
 import java.util.function.Supplier;
 import org.ek9lang.core.exception.CompilerException;
 import org.ek9lang.core.threads.SharedThreadContext;
@@ -27,23 +26,7 @@ class SimpleCompilableProgramTest {
   private static final Supplier<CompilableSource> validEk9Source = new HelloWorldSupplier();
 
   private static final Supplier<SharedThreadContext<CompilableProgram>> sharedContext =
-      () -> new SharedThreadContext<>(new CompilableProgram(List.of()));
-
-  /**
-   * So this is a check without any built in implicit type definitions.
-   * Not really very useful to anyone, but just want to check assembly will still work.
-   */
-  @Test
-  void testEmptyBuildInModules() {
-    //So just an empty list of built-in modules.
-    CompilableProgram underTest = new CompilableProgram(List.of());
-    assertNotNull(underTest);
-  }
-
-  @Test
-  void brokenCompilableProgramConstruction() {
-    assertThrows(IllegalArgumentException.class, () -> new CompilableProgram(null));
-  }
+      () -> new SharedThreadContext<>(new CompilableProgram());
 
   @Test
   void brokenParseModuleConstructionNullSource() {
@@ -129,9 +112,8 @@ class SimpleCompilableProgramTest {
       assertEquals(1, compilableProgram.getParsedModules(module.getModuleName()).size());
     });
 
-    sharedThreadContext.accept(compilableProgram -> {
-      assertThrows(CompilerException.class, () -> compilableProgram.add(module));
-    });
+    sharedThreadContext.accept(
+        compilableProgram -> assertThrows(CompilerException.class, () -> compilableProgram.add(module)));
 
     //Now we will remove that parsed source
     sharedThreadContext.accept(compilableProgram -> {

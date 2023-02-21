@@ -37,7 +37,7 @@ public class Ek9LanguageBootStrap implements Supplier<SharedThreadContext<Compil
    * the ek9 built in symbols, in the appropriate modules.
    */
   public SharedThreadContext<CompilableProgram> get() {
-    final var sharedCompilableProgram = new SharedThreadContext<>(new CompilableProgram(List.of()));
+    final var sharedCompilableProgram = new SharedThreadContext<>(new CompilableProgram());
     addBuiltInEk9LanguageModules(sharedCompilableProgram);
     return sharedCompilableProgram;
   }

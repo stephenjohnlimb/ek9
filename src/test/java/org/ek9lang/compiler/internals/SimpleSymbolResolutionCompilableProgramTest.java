@@ -21,7 +21,7 @@ class SimpleSymbolResolutionCompilableProgramTest {
   private static final Supplier<List<CompilableSource>> ek9BuiltInTypesSource = new Ek9BuiltinLangSupplier();
 
   private static final Supplier<SharedThreadContext<CompilableProgram>> sharedContext =
-      () -> new SharedThreadContext<>(new CompilableProgram(List.of()));
+      () -> new SharedThreadContext<>(new CompilableProgram());
 
   /**
    * Just for now, we will just inject a 'Type' ('org.ek9.lang.String') and check we can resolve it.

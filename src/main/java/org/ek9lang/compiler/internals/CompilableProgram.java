@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.internals;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,13 +27,6 @@ import org.ek9lang.core.exception.AssertValue;
 public class CompilableProgram {
 
   /**
-   * This will be populated with all the standard built-in EK9 symbols and types.
-   * But we accept a list of modules as we may wish to add more in the future but in other namespaces.
-   * All developer created types will be in their own modules/symbol tables.
-   */
-  private final List<ParsedModules> implicitBuiltInModules = new ArrayList<>();
-
-  /**
    * For developer defined modules. Quick access via module name into the parsedModules that are recorded.
    */
   private final Map<String, ParsedModules> theParsedModules = new TreeMap<>();
@@ -50,11 +42,6 @@ public class CompilableProgram {
           .flatMap(List::stream)
           .map(ParsedModule::getModuleScope)
           .toList();
-
-  public CompilableProgram(List<ParsedModules> implicitBuiltInModules) {
-    AssertValue.checkNotNull("ImplicitBuiltInModules cannot be null", implicitBuiltInModules);
-    this.implicitBuiltInModules.addAll(implicitBuiltInModules);
-  }
 
   public ParsedModule getParsedModuleForCompilableSource(CompilableSource source) {
     AssertValue.checkNotNull("Compilable source cannot be null", source);
@@ -182,7 +169,7 @@ public class CompilableProgram {
 
     return getModuleScopes.apply(moduleName)
         .stream()
-        .map(moduleScope -> moduleScope.resolveReferenceInThisModuleOnly(search))
+        .map(moduleScope -> moduleScope.resolveReferenceInThisScopeOnly(search))
         .filter(Optional::isPresent)
         .findFirst()
         .orElse(Optional.empty());

@@ -14,13 +14,16 @@ import org.ek9lang.core.threads.SharedThreadContext;
 import org.ek9lang.core.utils.Holder;
 
 /**
- * This is a very special scope, because the same module can be defined in
+ * This is a very special scope, because the same 'module name' can be defined in
  * multiple files. So when looking to resolve variables we need to look up the
- * scope tree back to the global scope - but when we get here to this module
- * scope we need to look across all the other modules scopes (same module name)
+ * scope tree back to the global (program) scope - but when we get here to this module
+ * scope we need to look across all the other modules scopes (with the same module name)
  * to check in those as well.
- * Now we may also need to consider looking in a range of other named modules if those other modules
- * have been listed in a 'references' statement - but this is yet to be done!
+ * So 'resolve' -> 'resolveInThisModuleOnly' or 'resolveWithEnclosingScope'
+ * Then 'resolveInThisModuleOnly' -> scopes * 'resolveInThisScopeOnly' for all in scope in module
+ * Also 'resolveInThisModuleOnly' -> scopes * 'resolveReferenceInThisScopeOnly' for all scopes in module
+ * Finally 'resolveWithEnclosingScope' -> delegates to 'program' 'resolveByFullyQualifiedSearch'
+ * And 'resolveWithEnclosingScope' -> delegates to 'program' 'resolveFromImplicitScopes' (org.ek9.lang etc.).
  */
 public class ModuleScope extends SymbolTable {
 
@@ -73,44 +76,11 @@ public class ModuleScope extends SymbolTable {
   }
 
   /**
-   * Looks to resolve search in either the references held or the symbols in this scope.
-   */
-  public Optional<ISymbol> resolveInThisModuleOnly(SymbolSearch search) {
-    Optional<ISymbol> resolvedSymbol = resolveReferenceInThisModuleOnly(search);
-
-    if (resolvedSymbol.isEmpty()) {
-      resolvedSymbol = resolveInThisScopeOnly(search);
-    }
-
-    return resolvedSymbol;
-  }
-
-  /**
    * Returns the original location a reference was made (if present).
    */
   public Optional<Token> getOriginalReferenceLocation(SymbolSearch search) {
     var shortName = ISymbol.getUnqualifiedName(search.getName());
     return Optional.ofNullable(originalReferenceResolution.get(shortName));
-  }
-
-  /**
-   * Does a check if there is a references of that symbol already held in this module scope.
-   * But remember there can be multiple of these per named module.
-   */
-  public Optional<ISymbol> resolveReferenceInThisModuleOnly(SymbolSearch search) {
-
-    //Check by short name (i.e. unqualified)
-    var unqualifiedName = ISymbol.getUnqualifiedName(search.getName());
-    var resolvedSymbol = Optional.ofNullable(referencesScope.get(unqualifiedName));
-
-    //If not the right category then not a match.
-    //But a null in the search category means we are happy with just the name match.
-    if (search.getSearchType() != null
-        && resolvedSymbol.isPresent()
-        && !resolvedSymbol.get().getCategory().equals(search.getSearchType())) {
-      resolvedSymbol = Optional.empty();
-    }
-    return resolvedSymbol;
   }
 
   /**
@@ -152,6 +122,34 @@ public class ModuleScope extends SymbolTable {
   }
 
   @Override
+  public Optional<ISymbol> resolve(final SymbolSearch search) {
+    var rtn = resolveInThisModuleOnly(search);
+    return rtn.isPresent() ? rtn : resolveWithEnclosingScope(search);
+  }
+
+  /**
+   * Looks to resolve search in either the references held or the symbols
+   * in all the scopes for this module.
+   */
+  public Optional<ISymbol> resolveInThisModuleOnly(final SymbolSearch search) {
+    Holder<ISymbol> rtn = new Holder<>();
+
+    compilableProgramContext.accept(compilableProgram -> {
+      //Try and resolve in this scope name from one of that scopes modules.
+      rtn.accept(compilableProgram.resolveFromModule(getScopeName(), search));
+
+      if (rtn.isEmpty() && !search.isLimitToBlocks()) {
+        rtn.accept(compilableProgram.resolveReferenceFromModule(getScopeName(), search));
+      }
+    });
+    return rtn.get();
+  }
+
+  /**
+   * Just does a search in this particular module scope.
+   * Which means as there can be multiple module scopes in the name module, this is only a partial search.
+   */
+  @Override
   public Optional<ISymbol> resolveInThisScopeOnly(final SymbolSearch search) {
     AssertValue.checkNotNull("Search cannot be null", search);
 
@@ -163,7 +161,33 @@ public class ModuleScope extends SymbolTable {
     var localScopeSearch = new SymbolSearch(ISymbol.makeFullyQualifiedName(getScopeName(), searchName)).setSearchType(
         search.getSearchType());
 
-    return super.resolveInThisScopeOnly(localScopeSearch);
+    Optional<ISymbol> resolvedSymbol = super.resolveInThisScopeOnly(localScopeSearch);
+
+    if (resolvedSymbol.isEmpty()) {
+      resolvedSymbol = resolveReferenceInThisScopeOnly(search);
+    }
+
+    return resolvedSymbol;
+  }
+
+  /**
+   * Does a check if there is a references of that symbol already held in this module scope.
+   * But remember there can be multiple of these per named module.
+   */
+  public Optional<ISymbol> resolveReferenceInThisScopeOnly(SymbolSearch search) {
+
+    //Check by short name (i.e. unqualified)
+    var unqualifiedName = ISymbol.getUnqualifiedName(search.getName());
+    var resolvedSymbol = Optional.ofNullable(referencesScope.get(unqualifiedName));
+
+    //If not the right category then not a match.
+    //But a null in the search category means we are happy with just the name match.
+    if (search.getSearchType() != null
+        && resolvedSymbol.isPresent()
+        && !resolvedSymbol.get().getCategory().equals(search.getSearchType())) {
+      resolvedSymbol = Optional.empty();
+    }
+    return resolvedSymbol;
   }
 
   @Override
@@ -173,19 +197,20 @@ public class ModuleScope extends SymbolTable {
     Holder<ISymbol> rtn = new Holder<>();
 
     compilableProgramContext.accept(compilableProgram -> {
-      // see if we can find in global context from modules with same scope
-      // name as this.
-      // This is because multiple files can have same module name.
-      rtn.accept(compilableProgram.resolveFromModule(getScopeName(), search));
+      //If it is fully qualified let program scope workout module and resolve it.
+      //But if it is this module we will have already search for it.
+      var searchModule = ISymbol.getModuleNameIfPresent(search.getName());
+      if (ISymbol.isQualifiedName(search.getName()) && !getScopeName().equals(searchModule)) {
+        rtn.accept(compilableProgram.resolveByFullyQualifiedSearch(search));
+      } else {
 
-      //Only if we did not find anything and not limited to blocks do we search
-      if (rtn.isEmpty() && !search.isLimitToBlocks()) {
-        //Now these will be things like org.ek9.lang and or.ek9.math
-        rtn.accept(compilableProgram.resolveFromImplicitScopes(search));
+        //Only if we did not find anything and not limited to blocks do we search
+        if (rtn.isEmpty() && !search.isLimitToBlocks()) {
+          //Now these will be things like org.ek9.lang and or.ek9.math
+          rtn.accept(compilableProgram.resolveFromImplicitScopes(search));
+        }
       }
     });
-
     return rtn.get();
   }
-
 }

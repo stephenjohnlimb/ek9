@@ -10,6 +10,8 @@ import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
+import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.support.SymbolCheck;
 import org.ek9lang.compiler.testsupport.PathToSourceFromName;
 import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
@@ -66,7 +68,7 @@ class HelloWorldFullCompilationTest {
         source.getErrorListener().getErrors().forEachRemaining(System.out::println);
       }
     };
-    var sharedCompilableProgram= sharedContext.get();
+    var sharedCompilableProgram = sharedContext.get();
 
     FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedCompilableProgram,
         listener, new CompilerReporter(true));
@@ -74,12 +76,38 @@ class HelloWorldFullCompilationTest {
     var compiler = new Ek9Compiler(allPhases);
     assertTrue(compiler.compile(helloWorldEk9Workspace.get(), new CompilerFlags(upToPhase, true)));
 
+    assertSymbolsPresent(sharedCompilableProgram);
+  }
+
+  private void assertSymbolsPresent(SharedThreadContext<CompilableProgram> sharedCompilableProgram) {
     sharedCompilableProgram.accept(program -> {
-      var helloWorldModule = program.getParsedModules("introduction");
+      var introduction = "introduction";
+      var someExternal = "some.external";
+
+      var helloWorldModule = program.getParsedModules(introduction);
       assertNotNull(helloWorldModule);
 
-      var externalReferenceModule = program.getParsedModules("some.external");
+      var externalReferenceModule = program.getParsedModules(someExternal);
       assertNotNull(externalReferenceModule);
+
+      //Let's check if it is possible to resolve in the correct scope
+      SymbolCheck someExternalVariableChecker = new SymbolCheck(program, someExternal, false, true, ISymbol.SymbolCategory.VARIABLE);
+      someExternalVariableChecker.accept("helloMessage");
+      someExternalVariableChecker.accept("some.external::helloMessage");
+
+      //Now lets check for the program itself
+      SymbolCheck introductionTypeChecker = new SymbolCheck(program, introduction, true, true, ISymbol.SymbolCategory.TYPE);
+      introductionTypeChecker.accept("HelloWorld");
+
+      SymbolCheck introductionVariableChecker = new SymbolCheck(program, introduction, false, true, ISymbol.SymbolCategory.VARIABLE);
+
+      //Now because we have referenced helloMessage we should be able to resolve it like this.
+      introductionVariableChecker.accept("helloMessage");
+
+      //But also even though we are resolving in introduction scope, because we full qualify the name
+      //That scope should use the enclosing highest level scope and find the right module and resolve.
+      introductionVariableChecker.accept("some.external::helloMessage");
+
       System.out.println("STEVE YOU ARE HERE: Got hello world module");
     });
   }
