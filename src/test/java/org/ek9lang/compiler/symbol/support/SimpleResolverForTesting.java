@@ -7,7 +7,7 @@ import org.ek9lang.compiler.symbol.ModuleScope;
 import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
 
 /**
- * Just used in testing for resolving a symbol.
+ * Just used in testing for resolving a simple symbol.
  */
 public class SimpleResolverForTesting implements Function<String, Optional<ISymbol>> {
 

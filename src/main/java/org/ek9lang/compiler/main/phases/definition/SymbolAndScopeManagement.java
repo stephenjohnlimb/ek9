@@ -6,8 +6,8 @@ import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.IScopedSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.LocalScope;
 import org.ek9lang.compiler.symbol.ParameterisedSymbol;
+import org.ek9lang.compiler.symbol.StackConsistencyScope;
 import org.ek9lang.compiler.symbol.support.ScopeStack;
 import org.ek9lang.compiler.symbol.support.SymbolChecker;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
@@ -139,7 +139,7 @@ public class SymbolAndScopeManagement {
     if (moduleScope.defineOrError(symbol, symbolChecker)) {
       enterNewScopedSymbol(symbol, node);
     } else {
-      recordScopeForStackConsistency(new LocalScope(moduleScope), node);
+      recordScopeForStackConsistency(new StackConsistencyScope(moduleScope), node);
     }
   }
 

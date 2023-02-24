@@ -27,7 +27,7 @@ class BadProgramsCompilationTest extends FullCompilationTest {
   @Override
   protected void assertResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertEquals(8, numberOfErrors);
+    assertEquals(9, numberOfErrors);
 
     var alpha = program.getParsedModules("bad.program.return");
     assertNotNull(alpha);

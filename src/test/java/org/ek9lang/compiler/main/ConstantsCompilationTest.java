@@ -31,7 +31,6 @@ class ConstantsCompilationTest extends FullCompilationTest {
     var moduleName = "net.customer";
     new SymbolCountCheck(2,moduleName, 25).test(program);
 
-    //Dont limit to a single scope, because this is made from multiple source files.
     SymbolCheck checker = new SymbolCheck(program, moduleName, false, true, ISymbol.SymbolCategory.VARIABLE);
     //Just resolve a couple of these constants (type variable).
     checker.accept("limitNumberOfRetries");

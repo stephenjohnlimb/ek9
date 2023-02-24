@@ -9,7 +9,7 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests bad generic paramwters count on generics.
+ * Just tests bad generic parameters count on generics.
  */
 class BadGenericParametersFullCompilationTest extends FullCompilationTest {
 

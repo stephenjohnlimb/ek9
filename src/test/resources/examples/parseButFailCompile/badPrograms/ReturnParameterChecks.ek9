@@ -1,6 +1,8 @@
 #!ek9
 <?-
-  Just checks the return values of programs are only Integer type.
+  Checks the return values of programs are only Integer type.
+  Also checks that only simple types can be returned when used with short hand
+  '<- rtn <- value', this means if we can resolve a type in phase 1 we're OK.
   This is basically used as the exit code of the application.
   Any visual output for console type application has to use Stdout or Stderr.
 -?>
@@ -56,4 +58,48 @@ defines module bad.program.return
       v <- "Steve"
       assert v?
 
+  defines function
+    //Failure 4 - only allow basic build in types with return type inference.
+    invalidReturn()
+      <- rtn <- ATestRecord()
+
+    validIntegerReturn()
+      <- rtn <- 1
+
+    validFloatReturn()
+      <- rtn <- 4.56
+
+    validTimeReturn()
+      <- rtn <- 12:23:15
+
+    validDateReturn()
+      <- rtn <- 2023-02-24
+
+    validDateTimeReturn()
+      <- rtn <- 2023-02-24T15:48:21Z
+
+    //Two weeks
+    validDurationReturn()
+      <- rtn <- P2W
+
+    validMillisecondReturn()
+      <- rtn <- 202ms
+
+    validBitsReturn()
+      <- rtn <- 0b010110
+
+    validMoneyReturn()
+      <- rtn <- 330.26#GBP
+
+    validColourReturn()
+      <- rtn <- #CC04FADD
+
+    validDimensionReturn()
+      <- rtn <- 23.5km
+
+    validPathReturn()
+      <- rtn <- $?.some.path.inc[0].array
+
+    validRegexReturn()
+      <- rtn <- /[a-zA-Z0-9]{6}/
 //EOF

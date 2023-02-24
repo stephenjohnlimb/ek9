@@ -3,7 +3,6 @@ package org.ek9lang.compiler.main.resolvedefine;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
@@ -22,8 +21,11 @@ import org.ek9lang.core.exception.AssertValue;
  * So not used in the definition of the generic type itself. But used when the developer want to
  * use an exising/created Template/Generic type with specific parameters.
  * This also works for generic Functions like 'Supplier of Integer' (but return type is not yet set).
+ * As we need multiple entry points into this from different contexts, this abstract base has all the code.
+ * typeDef, parameterisedType, parameterisedArgs and identifierReference can be used in a recursive manner
+ * and so this code calls itself quite a bit.
  */
-public class ResolveOrDefineParameterisedType implements Function<EK9Parser.TypeDefContext, Optional<ISymbol>> {
+public abstract class ResolveOrDefineTypes {
 
   private final SymbolAndScopeManagement symbolAndScopeManagement;
   private final SymbolFactory symbolFactory;
@@ -34,9 +36,9 @@ public class ResolveOrDefineParameterisedType implements Function<EK9Parser.Type
    * A bit of a complex function constructor - for a function.
    * But then this is a bit of a beast of a function.
    */
-  public ResolveOrDefineParameterisedType(final SymbolAndScopeManagement symbolAndScopeManagement,
-                                          final SymbolFactory symbolFactory, final ErrorListener errorListener,
-                                          final boolean errorIfNotDefinedOrResolved) {
+  protected ResolveOrDefineTypes(final SymbolAndScopeManagement symbolAndScopeManagement,
+                              final SymbolFactory symbolFactory, final ErrorListener errorListener,
+                              final boolean errorIfNotDefinedOrResolved) {
     AssertValue.checkNotNull("symbolAndScopeManagement cannot be null", symbolAndScopeManagement);
     AssertValue.checkNotNull("symbolFactory cannot be null", symbolFactory);
     AssertValue.checkNotNull("errorListener cannot be null", errorListener);
@@ -47,57 +49,34 @@ public class ResolveOrDefineParameterisedType implements Function<EK9Parser.Type
     this.errorIfNotDefinedOrResolved = errorIfNotDefinedOrResolved;
   }
 
-  @Override
-  @SuppressWarnings("java:S125")
-  public Optional<ISymbol> apply(EK9Parser.TypeDefContext ctx) {
-
-    if (ctx == null) {
-      return Optional.empty();
-    }
-
-    //Now this is a bit nasty because the grammar is recursive.
-    //So this code is also recursive.
-    // So this allows things like 'Dict of(Integer, List of Date)' etc. but infinitely deep
-    /*
-    typeDef
-    : identifierReference
-    | parameterisedType
-    ;
-    parameterisedType
-    : identifierReference OF LPAREN parameterisedArgs RPAREN
-    | identifierReference OF typeDef
-    ;
-    parameterisedArgs
-    : typeDef (COMMA typeDef)*
-    ;
-    */
-
-    return attemptToTypeVariable(ctx);
-  }
-
-  private Optional<ISymbol> attemptToTypeVariable(final EK9Parser.TypeDefContext ctx) {
+  protected Optional<ISymbol> resolveTypeByTypeDef(final EK9Parser.TypeDefContext ctx) {
 
     //The Simple case
     if (ctx.identifierReference() != null) {
       return resolveSimpleTypeByIdentifierReference(ctx.identifierReference());
     }
 
-    //The Next most complex - a parameterisedType, with either:
+    //The Next most complex - a parameterisedType
     //either way it's back around the recursion via these methods to this same method with a different typeDef context
     if (ctx.parameterisedType() != null) {
       //Now we will attempt a simple resolution of the identifierReference
-      var resolvedGenericType = resolveSimpleTypeByIdentifierReference(ctx.parameterisedType().identifierReference());
-
-      if (resolvedGenericType.isPresent()) {
-        //So as that resolved lets now get any parameterizing parameters.
-        return resolveSimpleTypeByIdentifierReference(resolvedGenericType.get(), ctx.parameterisedType());
-      }
+      return resolveTypeByParameterizedType(ctx.parameterisedType());
     }
 
     return Optional.empty();
   }
 
-  private Optional<ISymbol> resolveSimpleTypeByIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
+  protected Optional<ISymbol> resolveTypeByParameterizedType(final EK9Parser.ParameterisedTypeContext ctx) {
+    var resolvedGenericType = resolveSimpleTypeByIdentifierReference(ctx.identifierReference());
+
+    if (resolvedGenericType.isPresent()) {
+      //So as that resolved lets now get any parameterizing parameters.
+      return resolveSimpleTypeByIdentifierReference(resolvedGenericType.get(), ctx);
+    }
+    return Optional.empty();
+  }
+
+  protected Optional<ISymbol> resolveSimpleTypeByIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
     var ofType = ctx.getText();
     var resolved = symbolAndScopeManagement.getTopScope().resolve(new AnySymbolSearch(ofType));
     if (resolved.isEmpty() && errorIfNotDefinedOrResolved) {
@@ -112,7 +91,7 @@ public class ResolveOrDefineParameterisedType implements Function<EK9Parser.Type
     //So trigger the recursive call back to the top most method.
     //This is just a single parameterizing parameter.
     if (ctx.typeDef() != null) {
-      var resolvedParameterisedType = attemptToTypeVariable(ctx.typeDef());
+      var resolvedParameterisedType = resolveTypeByTypeDef(ctx.typeDef());
       if (resolvedParameterisedType.isPresent()) {
         return resolveOrDefine(resolvedGenericType, List.of(resolvedParameterisedType.get()));
       }
@@ -122,7 +101,7 @@ public class ResolveOrDefineParameterisedType implements Function<EK9Parser.Type
       var genericParameters = new ArrayList<ISymbol>();
       for (var typeDefCtx : ctx.parameterisedArgs().typeDef()) {
         //Multiple recursive calls back around the loop.
-        var resolved = attemptToTypeVariable(typeDefCtx);
+        var resolved = resolveTypeByTypeDef(typeDefCtx);
         resolved.ifPresent(genericParameters::add);
       }
       //Did we resolve them all? Only if we did

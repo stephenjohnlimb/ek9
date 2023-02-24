@@ -1,0 +1,33 @@
+#!ek9
+<?-
+  This set of ek9 source is designed to push the compiler to the
+  resolution checking stage of high level constructs.
+  i.e. types, records, traits, ...
+
+  So define these in one named scope (module) then resolve within that module.
+  Also add a separate module (with a different module name) and check that they can be
+  resolved in a fully qualifies manner.
+
+  Also add another module (scope) that uses references and check that they can be resolved with
+  just the short name of the construct.
+
+  So, go through the define phase, references phase and on to the first resolution stage.
+  But this won't work in terms of expanding out generic types.
+-?>
+defines module just.resolution.items
+
+  defines constant
+    NAME <- "Steve"
+
+  defines function
+    useName()
+      name <- NAME
+
+    <?-
+      Not only us useName a function - it can be considered as a type as well
+    -?>
+    reference1Function()
+      -> arg1 as useName
+      assert arg1?
+
+//EOF

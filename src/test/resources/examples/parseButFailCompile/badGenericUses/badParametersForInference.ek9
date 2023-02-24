@@ -1,27 +1,27 @@
 #!ek9
 <?-
-  Requires later phases to detect these errors.
+  Generics incorrect use - that can be detected in phase1 def phase.
+
+  Some of the invalid functions will need moving out of here once we get to
+  the next phase and this file is designed to fail at phase 1.
+
+  I just need to get the tests down somewhere for now.
 -?>
-defines module incorrect.parameters.on.constructors
+defines module incorrect.generic.uses
 
   defines function
 
     //This is allowed, because the lhs has the detail.
     allowedDefaultConstructor()
+
       //OK
       val1 as List of String: List()
       //Also OK
-      val2 <- List() of String
+      val2 <- List() of Float
 
       dict1 as Dict of (Integer, String): Dict()
 
-      dict2 <- Dict() of (Integer, String)
-
-    invalidGenericsUse()
-      //This will pass for phase1, but be picked up in later phases as an error
-      //Because List is a Generic/Template type and so types but be declared somewhere
-      val3 <- List()
-      dict3 <- Dict()
+      dict2 <- Dict() of (Integer, Date)
 
     //These are also OK
     allowedWithTypeInference()
@@ -41,16 +41,127 @@ defines module incorrect.parameters.on.constructors
     allowedSpecificDictSyntax()
       dict6 <- {1: "Lots", 2: "Of", 3: "Parameters", 4: "Allowed"}
 
+
+    invalidPhase1IncorrectParenthesis1()
+      //Failure1
+      //Use of parenthesis on lhs
+      val1 as List() of String?
+
+      //Failure2
+      //Then missing parenthesis
+      val2 as List of String: List of String
+
+      //Failure3
+      //Again missing parenthesis
+      val3 <- List of String
+
+      //Failure4 - should be List() of List of String
+      val4 <- List() of List() of String
+
+      //A bit of a pointless statement - but valid
+      //Just create something new - which could have some sort of side effect
+      //i.e. a bit of processing or something like that.
+      List() of String
+
+      //Failure5 - not allowed - as does not create a new 'List' as missing ()
+      List of String
+
+    invalidGenericsUse()
+      //This will pass for phase1, but be picked up in later phases as an error
+      //Because List is a Generic/Template type and so types but be declared somewhere
+      val3 <- List()
+      dict3 <- Dict()
+
     //You might this would work but no, cannot infer as too many parameters
-    //Failure 1 and Failure 2
     invalidTooManyParameters()
       //This will pass for phase1, but be picked up in later phases as an error
       val7 <- List("something", "else")
       dict7 <- Dict("something", "else", "as well")
 
-    //Failure 3
     invalidTooFewParameters()
       //This will pass for phase1, but be picked up in later phases as an error
       //Missing 'value' type
       val8 <- Dict("Key")
+
+  defines class
+
+    <?-
+      Outline of a generic 'thing'.
+      Just used for checking extension.
+    -?>
+    GenericThing of type T
+      item as T?
+
+      default GenericThing()
+
+      GenericThing()
+        -> arg as T
+        this.item = arg
+
+      getItem()
+        <- rtn as T?
+
+    <!-
+      Make a concrete class that extends the generic type with an integer.
+      No additional functionality is added here, but just to check for compiler errors.
+    -!>
+    validConcreteClass is GenericThing of Integer
+
+    //Failure 6 - because the () is really use to indicate 'make me a new one'.
+    InvalidConcreteClass is GenericThing() of Integer
+
+  //More functions after the Generic type has been defined.
+  defines function
+
+    AListener() of type T
+      ->
+        fromState as T
+        toState as T
+      assert fromState? and toState?
+
+    validDynamicFunction()
+      listener <- () is AListener of Integer
+      listener(1, 2)
+
+    invalidDynamicFunction()
+      //Failure 7
+      listener <- () is AListener() of Integer
+      listener(1, 2)
+
+    validDynamicClass()
+      //Anonymous class is
+      genericOfDateInstance1 <- () is GenericThing of Date as class
+
+      //create a new named GenericThingOfDate class and created as an instance
+      genericOfDateInstance2 <-  GenericThingOfDateTime () is GenericThing of DateTime as class
+
+      //Something a bit more complex, anonymous first, then named
+      genericOfListDateInstance1 <- () is GenericThing of List of Date as class
+      genericOfListDateInstance2 <- GenericThingOfListOfDate () is GenericThing of List of Date as class
+
+    invalidDynamicClass()
+      //Failure 8 extra parenthesis after Generic Type name
+      genericOfDateInstance1 <- () is GenericThing() of Date as class
+
+      //Failure 9 extra parenthesis after Generic Type name
+      genericOfDateInstance2 <-  GenericThingOfDateBroken () is GenericThing() of Date as class
+
+      //Failure 10 extra parenthesis after second Generic Type name
+      genericOfListDateInstance1 <- () is GenericThing of List() of Date as class
+
+      //Failure 11 extra parenthesis after Generic Type name
+      genericOfListDateInstance2 <- GenericThingOfListOfDateBroken1 () is GenericThing() of List of Date as class
+
+      //Failure 12 extra parenthesis after Generic Type name
+      genericOfListDateInstance3 <- GenericThingOfListOfDateBroken2 () is GenericThing of List() of Date as class
+
+    invalidMixOfInferenceAndExplicit()
+
+      validInferenceCombination1 <- GenericThing() of Integer
+
+      validInferenceCombination2 <- GenericThing(32)
+
+      //Failure 13 - Not allowed because if parameters are provided in construction then we infer type.
+      invalidInferenceCombination <- GenericThing(32) of Integer
+
 //EOF

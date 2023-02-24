@@ -3,7 +3,7 @@ package org.ek9lang.compiler.symbol.support;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
@@ -15,33 +15,39 @@ import org.ek9lang.compiler.symbol.support.search.FunctionSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 
 /**
- * Just used in a testing context to see if it is possible to resolve a parameterised type/function.
- * i.e. resolve List, then resolve String - then see if it is possible resolve 'List of String' as a type.
+ * Just used in a testing context to see if it is possible to resolve types, both simple and parametric.
+ * There's a bit of recursion in here, so take care.
  */
-public class GenericResolverForTesting implements BiFunction<String, List<String>, Optional<ISymbol>> {
+public class ResolverForTesting implements Function<SymbolSearchForTest, Optional<ISymbol>> {
 
   private final ModuleScope scopeForResolution;
 
-  public GenericResolverForTesting(final ModuleScope scopeForResolution) {
+  public ResolverForTesting(final ModuleScope scopeForResolution) {
     this.scopeForResolution = scopeForResolution;
   }
 
   @Override
-  public Optional<ISymbol> apply(String genericName, List<String> parameterizingTypeNames) {
-    var genericSymbol = scopeForResolution.resolve(new AnySymbolSearch(genericName));
-    List<ISymbol> parameterizingTypeSymbols = getParameterizingSymbols(parameterizingTypeNames);
+  public Optional<ISymbol> apply(final SymbolSearchForTest toResolve) {
+    var mainSymbol = scopeForResolution.resolve(new AnySymbolSearch(toResolve.mainSymbolName()));
+
+    //For non-parametric stuff that's it.
+    if(!toResolve.isParametric()) {
+      return mainSymbol;
+    }
+
+    List<ISymbol> parameterizingTypeSymbols = getParameterizingSymbols(toResolve.parameterizingArguments());
 
     //Check it has been found and actually is generic in nature.
-    if (genericSymbol.isPresent()
-        && genericSymbol.get().isGenericInNature()
-        && parameterizingTypeSymbols.size() == parameterizingTypeNames.size()) {
+    if (mainSymbol.isPresent()
+        && mainSymbol.get().isGenericInNature()
+        && parameterizingTypeSymbols.size() == toResolve.parameterizingArguments().size()) {
 
-      if (genericSymbol.get() instanceof AggregateSymbol genericAggregateType) {
+      if (mainSymbol.get() instanceof AggregateSymbol genericAggregateType) {
         var theType = createParameterisedTypeSymbolToFind(genericAggregateType, parameterizingTypeSymbols);
         //Now lets see if it resolves
         //So this will be an actual type now.
         return scopeForResolution.resolve(new TypeSymbolSearch(theType.getFullyQualifiedName()));
-      } else if (genericSymbol.get() instanceof FunctionSymbol genericFunction) {
+      } else if (mainSymbol.get() instanceof FunctionSymbol genericFunction) {
         var theFunction = createParameterisedFunctionSymbolToFind(genericFunction, parameterizingTypeSymbols);
         //Again check it resolves and it will be an actual FUNCTION now as it is a new actual function not a template
         return scopeForResolution.resolve(new FunctionSymbolSearch(theFunction.getFullyQualifiedName()));
@@ -51,10 +57,11 @@ public class GenericResolverForTesting implements BiFunction<String, List<String
     return Optional.empty();
   }
 
-  private List<ISymbol> getParameterizingSymbols(final List<String> parameterizingTypeNames) {
+  private List<ISymbol> getParameterizingSymbols(final List<SymbolSearchForTest> parameterizingTypes) {
     List<ISymbol> parameterizingTypeSymbols = new ArrayList<>();
-    for (var paramTypeName : parameterizingTypeNames) {
-      var parameterizingType = scopeForResolution.resolve(new AnySymbolSearch(paramTypeName));
+    for (var paramType : parameterizingTypes) {
+      //Recursive call to this as SymbolSearchForTest can be nested
+      var parameterizingType = this.apply(paramType);
       parameterizingType.ifPresent(parameterizingTypeSymbols::add);
     }
     return parameterizingTypeSymbols;

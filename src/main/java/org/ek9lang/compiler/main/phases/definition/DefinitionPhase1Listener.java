@@ -27,10 +27,12 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.UnreachableStatement;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.phases.listeners.AbstractEK9PhaseListener;
-import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineParameterisedType;
+import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineParameterizedType;
+import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineTypeDef;
 import org.ek9lang.compiler.main.rules.CheckApplicationUseOnMethodDeclaration;
 import org.ek9lang.compiler.main.rules.CheckAssignment;
 import org.ek9lang.compiler.main.rules.CheckDynamicVariableCapture;
+import org.ek9lang.compiler.main.rules.CheckForInvalidParameterisedTypeUse;
 import org.ek9lang.compiler.main.rules.CheckGenericConstructor;
 import org.ek9lang.compiler.main.rules.CheckNormalTermination;
 import org.ek9lang.compiler.main.rules.CheckNotABooleanLiteral;
@@ -38,6 +40,7 @@ import org.ek9lang.compiler.main.rules.CheckParamExpressionNamedParameters;
 import org.ek9lang.compiler.main.rules.CheckProgramArguments;
 import org.ek9lang.compiler.main.rules.CheckProgramReturns;
 import org.ek9lang.compiler.main.rules.CheckProtectedServiceMethods;
+import org.ek9lang.compiler.main.rules.CheckReturningParam;
 import org.ek9lang.compiler.main.rules.CheckVariableOnlyDeclaration;
 import org.ek9lang.compiler.main.rules.CommonMethodChecks;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
@@ -50,6 +53,7 @@ import org.ek9lang.compiler.symbol.IScopedSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.LocalScope;
 import org.ek9lang.compiler.symbol.MethodSymbol;
+import org.ek9lang.compiler.symbol.StackConsistencyScope;
 import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.SymbolChecker;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
@@ -120,10 +124,15 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   private final CheckApplicationUseOnMethodDeclaration checkApplicationUseOnMethodDeclaration;
 
+  private final CheckReturningParam checkReturningParam;
   private final CheckProgramReturns checkProgramReturns;
   private final CheckProgramArguments checkProgramArguments;
 
-  private final ResolveOrDefineParameterisedType resolveOrDefineParameterisedType;
+  private final CheckForInvalidParameterisedTypeUse checkForInvalidParameterisedTypeUse;
+  private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
+
+  private final ResolveOrDefineParameterizedType resolveOrDefineParameterizedType;
+
 
   /**
    * First phase after parsing. Define symbols and infer types where possible.
@@ -149,11 +158,16 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     checkGenericConstructor = new CheckGenericConstructor(errorListener);
     checkApplicationUseOnMethodDeclaration =
         new CheckApplicationUseOnMethodDeclaration(errorListener);
+    checkReturningParam = new CheckReturningParam(errorListener);
     checkProgramReturns = new CheckProgramReturns(errorListener);
     checkProgramArguments = new CheckProgramArguments(errorListener);
+    checkForInvalidParameterisedTypeUse = new CheckForInvalidParameterisedTypeUse(errorListener);
 
-    resolveOrDefineParameterisedType =
-        new ResolveOrDefineParameterisedType(symbolAndScopeManagement, symbolFactory, errorListener, false);
+    resolveOrDefineTypeDef =
+        new ResolveOrDefineTypeDef(symbolAndScopeManagement, symbolFactory, errorListener, false);
+
+    resolveOrDefineParameterizedType =
+        new ResolveOrDefineParameterizedType(symbolAndScopeManagement, symbolFactory, errorListener, false);
   }
 
   // Now we hook into the ANTLR listener events - lots of them!
@@ -243,7 +257,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
       //Can define directly because overloaded methods are allowed.
       symbolAndScopeManagement.defineScopedSymbol(newTypeSymbol, ctx);
     } else {
-      symbolAndScopeManagement.recordScopeForStackConsistency(new LocalScope(currentScope), ctx);
+      symbolAndScopeManagement.recordScopeForStackConsistency(new StackConsistencyScope(currentScope), ctx);
     }
     super.enterOperatorDeclaration(ctx);
   }
@@ -660,7 +674,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
    * A local scope is used to hold the returning parameter.
    * The argumentParam values are defined in the scope of the method/function etc.
    * These are the incoming parameters.
-   * The returingParam is held outside of those and must be declared inside the
+   * The returningParam is held outside of those and must be declared inside the
    * function/method (but not in the areas for incoming parameters), just as a normal
    * local variable in the main block.
    * Now the issue is that we must check that this returning variable name does not
@@ -696,6 +710,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     var symbol = symbolAndScopeManagement.getRecordedSymbol(child);
 
     if (symbol instanceof VariableSymbol variableSymbol) {
+      checkReturningParam.accept(ctx, variableSymbol);
       //Now also record the same symbol against this context for later use.
       symbolAndScopeManagement.recordSymbol(symbol, ctx);
       variableSymbol.setReturningParameter(true);
@@ -852,10 +867,18 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   @Override
+  public void enterParameterisedType(EK9Parser.ParameterisedTypeContext ctx) {
+    //Now as I've altered the grammar we need to add a rule to ensure that it has
+    //valid structure in its context.
+    checkForInvalidParameterisedTypeUse.accept(ctx);
+    resolveOrDefineParameterizedType.apply(ctx);
+  }
+
+  @Override
   public void enterVariableOnlyDeclaration(EK9Parser.VariableOnlyDeclarationContext ctx) {
     final var variable = symbolFactory.newVariable(ctx);
     //Now it's not an error if we cannot resolve at this phase - but if these are built in types then we're all good.
-    var varType = resolveOrDefineParameterisedType.apply(ctx.typeDef());
+    var varType = resolveOrDefineTypeDef.apply(ctx.typeDef());
     variable.setType(varType);
     checkVariableOnlyDeclaration.accept(ctx);
     var limitToBlocks = ctx.getParent() instanceof EK9Parser.ArgumentParamContext;
@@ -871,7 +894,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     final var variable = symbolFactory.newVariable(ctx);
 
     //Now it's not an error if we cannot resolve at this phase - but if these are built in types then we're all good.
-    var varType = resolveOrDefineParameterisedType.apply(ctx.typeDef());
+    var varType = resolveOrDefineTypeDef.apply(ctx.typeDef());
     variable.setType(varType);
     checkAndDefineSymbol(variable, ctx, false);
     super.enterVariableDeclaration(ctx);
@@ -892,7 +915,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
       //But parameterised types cannot be resolved at all yet.
       //Nor can we resolve types through expressions.
       if (ctx.typeDef() != null && ctx.typeDef().identifierReference() != null) {
-        var varType = resolveOrDefineParameterisedType.apply(ctx.typeDef());
+        var varType = resolveOrDefineTypeDef.apply(ctx.typeDef());
         variable.setType(varType);
       } else if (ctx.assignmentExpression() != null
           && ctx.assignmentExpression().expression() != null
@@ -1081,7 +1104,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   private void processProgramDeclaration(EK9Parser.MethodDeclarationContext ctx) {
     var program = symbolFactory.newProgram(ctx);
     checkAndDefineModuleScopedSymbol(program, ctx);
-    //Should we now add in a "main program' method to hold the instruction blocks.
+    //Should we now add in a "main program" method to hold the instruction blocks?
     var newMainProgramMethod = symbolFactory.newMethod(ctx, "main", program);
     //But record against the operation details as the Program Aggregate is registered again main ctx
     //This will also push this method scope on to the stack.
@@ -1126,7 +1149,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
       //Can define directly because overloaded methods are allowed.
       symbolAndScopeManagement.defineScopedSymbol(newTypeSymbol, ctx);
     } else {
-      symbolAndScopeManagement.recordScopeForStackConsistency(new LocalScope(currentScope), ctx);
+      symbolAndScopeManagement.recordScopeForStackConsistency(new StackConsistencyScope(currentScope), ctx);
     }
   }
 

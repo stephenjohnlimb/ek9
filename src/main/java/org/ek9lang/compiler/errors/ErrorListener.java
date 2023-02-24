@@ -250,6 +250,9 @@ public class ErrorListener extends BaseErrorListener {
     CONSTRUCTOR_BY_JSON_NOT_RESOLVED("constructor of this type with single JSON parameter is not resolved"),
     CONSTRUCTOR_NOT_RESOLVED_IN_GENERIC_CONTEXT(
         "constructor not resolved, check parameters where this generic type is being created"),
+    PARENTHESIS_NOT_REQUIRED("use of parenthesis '( )' not allowed in this context"),
+    PARENTHESIS_REQUIRED("parenthesis '( )' required in this context"),
+    VALUES_AND_TYPE_INCOMPATIBLE("choose either parenthesis '( )' with values or a type definition"),
     GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED("type/function is generic but no parameters were supplied"),
     GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INVALID("this generic usage with this type is not allowed"),
     GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT(
@@ -324,6 +327,7 @@ public class ErrorListener extends BaseErrorListener {
     FUNCTION_MUST_RETURN_BOOLEAN("function must return a Boolean"),
     FUNCTION_MUST_RETURN_INTEGER("function must return an Integer"),
     PROGRAM_CAN_ONLY_RETURN_INTEGER("if a program returns a value it can only be an Integer"),
+    ONLY_SIMPLE_RETURNING_TYPES_SUPPORTED("only simple inferred types are supported for returning values"),
     PROGRAM_ARGUMENT_TYPE_INVALID("program arguments are limited to a finite range of EK9 built in types"),
     PROGRAM_ARGUMENTS_INAPPROPRIATE("inappropriate combination of program arguments"),
     FUNCTION_MUST_RETURN_VALUE("function must return a value"),

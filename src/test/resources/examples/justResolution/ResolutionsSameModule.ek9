@@ -1,0 +1,12 @@
+#!ek9
+<?-
+  Just resolve the constructs in the same module.
+-?>
+defines module just.resolution.items
+
+  defines function
+    reference2Function()
+      -> arg1 as useName
+      assert arg1?
+
+//EOF

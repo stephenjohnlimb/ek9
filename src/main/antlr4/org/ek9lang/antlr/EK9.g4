@@ -147,8 +147,8 @@ textBodyDeclaration
 
 dynamicClassDeclaration
     : Identifier? dynamicVariableCapture traitsList (AS? CLASS)? aggregateParts?
-    | Identifier dynamicVariableCapture AS CLASS aggregateParts
-    | Identifier? dynamicVariableCapture parameterisedType (AS? CLASS)? aggregateParts?
+    | Identifier dynamicVariableCapture AS? CLASS aggregateParts
+    | Identifier? dynamicVariableCapture (EXTENDS|IS) parameterisedType AS? CLASS aggregateParts?
     ;
 
 dynamicFunctionDeclaration
@@ -202,9 +202,11 @@ typeDef
     | parameterisedType
     ;
 
+//Added optional paramExpression here, to simplify grammar and processing
+//But now needs coding check to ensure only used in the correct context.
 parameterisedType
-    : identifierReference OF LPAREN parameterisedArgs RPAREN
-    | identifierReference OF typeDef
+    : identifierReference paramExpression? OF LPAREN parameterisedArgs RPAREN
+    | identifierReference paramExpression? OF typeDef
     ;
 
 parameterisedArgs
@@ -397,8 +399,7 @@ expression
 
 call
     : identifierReference paramExpression
-    | identifierReference paramExpression OF typeDef
-    | identifierReference paramExpression OF LPAREN parameterisedArgs RPAREN
+    | parameterisedType
     | primaryReference paramExpression
     | dynamicFunctionDeclaration
     | call paramExpression

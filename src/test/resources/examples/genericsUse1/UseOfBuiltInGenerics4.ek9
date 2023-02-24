@@ -1,0 +1,66 @@
+#!ek9
+<?-
+  See badParametersForInference.ek9 for lots of bad examples the compiler detects.
+-?>
+defines module simple.generics.use.four
+
+  defines class
+
+    <?-
+      Outline of a generic 'thing'.
+    -?>
+    GenericThing of type T
+      item as T?
+
+      default GenericThing()
+
+      GenericThing()
+        -> arg as T
+        this.item = arg
+
+      getItem()
+        <- rtn as T?
+
+    <?-
+      Another generic thing but with two parameterizing types.
+      Also examples of different ways to return values, explicit types,
+      but also via the <- mechanism.
+    -?>
+    GenericMapThing of type (K, V)
+      key as K?
+      value as V?
+
+      default GenericMapThing()
+
+      GenericMapThing()
+        ->
+          k as K
+          v as V
+        this.key = k
+        this.value = v
+
+      key()
+        <- rtn as K: key
+      value()
+        <- rtn as V: value
+
+  defines function
+
+    FunctionWithExplicitGenericConstruction()
+
+      //So these will get created in polymorphic parameterised form
+
+      thingOfDateTime as GenericThing of DateTime: GenericThing()
+
+      thingOfDuration as GenericThing of Duration?
+
+      //But for now in early compiler phases focus on this
+      //Looks like inferred - but really is explicit
+      thingOfDate <- GenericThing() of Date
+
+      //Now make a float version
+      thingOfFloat <- GenericThing() of Float
+
+      thingMap <- GenericMapThing() of (Integer, GenericThing of Millisecond)
+
+//EOF
