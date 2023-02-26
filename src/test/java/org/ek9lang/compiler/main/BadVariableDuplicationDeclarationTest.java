@@ -19,12 +19,12 @@ class BadVariableDuplicationDeclarationTest extends FullCompilationTest {
 
 
   @Test
-  void testReferencePhasedDevelopment() {
-    testToPhase(CompilationPhase.REFERENCE_CHECKS);
+  void testPhaseDevelopment() {
+    testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
   }
 
   @Override
-  protected void assertResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
+  protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
     assertEquals(23, numberOfErrors);
     var alpha = program.getParsedModules("bad.variable.duplications");

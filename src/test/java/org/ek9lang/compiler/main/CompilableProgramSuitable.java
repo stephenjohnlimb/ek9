@@ -16,6 +16,12 @@ public class CompilableProgramSuitable implements Supplier<SharedThreadContext<C
   public SharedThreadContext<CompilableProgram> get() {
     Ek9LanguageBootStrap bootStrap =
         new Ek9LanguageBootStrap(new Ek9BuiltinLangSupplier(), (phase, compilableSource) -> {
+          if (!compilableSource.getErrorListener().isErrorFree()) {
+            System.err.println("Errors  : " + phase + ", source: " + compilableSource.getFileName());
+            compilableSource.getErrorListener().getErrors().forEachRemaining(error -> {
+              System.err.println(error);
+            });
+          }
         }, new CompilerReporter(false));
 
     return bootStrap.get();

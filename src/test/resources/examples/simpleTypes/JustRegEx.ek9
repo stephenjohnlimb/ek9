@@ -90,7 +90,7 @@ defines module com.customer.just
       assert asAnInteger == 1234
       
       //Check just the last two
-      lastTwo <- cat matchedGroups | tail 2 | collect as Strings      
+      lastTwo <- cat matchedGroups | tail 2 | collect as List of String
       stdout.println("LastTwo is [" + $lastTwo + "]")
       assert length lastTwo == 2      
       

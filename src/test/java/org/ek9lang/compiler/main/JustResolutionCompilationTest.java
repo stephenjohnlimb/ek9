@@ -19,11 +19,11 @@ class JustResolutionCompilationTest extends FullCompilationTest {
 
   @Test
   void testPhasedDevelopment() {
-    testToPhase(CompilationPhase.DUPLICATE_CHECKS);
+    testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
   }
 
   @Override
-  protected void assertResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
+  protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
 

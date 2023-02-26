@@ -9,10 +9,12 @@ defines module simple.generics.use.one
 
   defines function
 
+    //Failure 1 - SomeUnknownType is not defined anywhere
     AnOptionalWithUnknownType()
       -> param1 as Optional of SomeUnknownType
       assert param1?
 
+    //Failure 2, 3, 4 - ATypeToBeDefined,  AnotherUnknownType and NoSuchType are not defined anywhere
     ADictionaryWithUnknownTypes()
       <- rtn as Iterator of ATypeToBeDefined: Iterator()
       aDictionary as Dict of (Integer, AnotherUnknownType): Dict()

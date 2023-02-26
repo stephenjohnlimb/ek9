@@ -114,10 +114,7 @@ defines module com.customer.just
       asListOfStrings <- [s1, space, s2]
       stdout.println($asListOfStrings)
 
-      asStrings <- cat asListOfStrings | collect as Strings
-      stdout.println($asStrings)
-
-      backToListOfStrings <- cat asStrings | collect as List of String
+      backToListOfStrings <- cat asListOfStrings | collect as List of String
       stdout.println($backToListOfStrings)
 
     ShowStringType()

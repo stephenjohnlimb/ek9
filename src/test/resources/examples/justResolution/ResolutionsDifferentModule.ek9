@@ -1,12 +1,12 @@
 #!ek9
 <?-
-  Just resolve the constructs in a different module.
+  Just resolve the constructs in a different module, via a fullyqualified name.
 -?>
 defines module just.reference.items
 
   defines function
     reference1Function()
-      -> arg1 as useName
+      -> arg1 as just.resolution.items::useName
       assert arg1?
 
 //EOF

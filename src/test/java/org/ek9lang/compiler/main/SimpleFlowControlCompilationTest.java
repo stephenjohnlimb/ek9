@@ -19,12 +19,12 @@ class SimpleFlowControlCompilationTest extends FullCompilationTest {
   }
 
   @Test
-  void testReferencePhasedDevelopment() {
-    testToPhase(CompilationPhase.REFERENCE_CHECKS);
+  void testPhaseDevelopment() {
+    testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
   }
 
   @Override
-  protected void assertResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
+  protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
     //Now this should have some enumerations and records/functions.

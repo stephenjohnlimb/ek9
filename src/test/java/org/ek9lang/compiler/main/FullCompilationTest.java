@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableProgram;
+import org.ek9lang.compiler.internals.CompilableSource;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
@@ -16,8 +17,7 @@ import org.ek9lang.core.threads.SharedThreadContext;
  */
 abstract class FullCompilationTest {
 
-  private final Supplier<SharedThreadContext<CompilableProgram>> sharedContext
-      = new CompilableProgramSuitable();
+  private final Supplier<SharedThreadContext<CompilableProgram>> sharedContext = new CompilableProgramSuitable();
 
   private final Workspace ek9Workspace;
 
@@ -32,12 +32,20 @@ abstract class FullCompilationTest {
   protected void assertPreConditions(CompilableProgram program) {
   }
 
-  protected abstract void assertResults(final boolean compilationResult,
-                                        final int numberOfErrors,
-                                        final CompilableProgram program);
+  protected abstract void assertFinalResults(final boolean compilationResult,
+                                             final int numberOfErrors,
+                                             final CompilableProgram program);
+
+  /**
+   * Override if the test needs to check any intermediate phase results.
+   */
+  protected void compilationPhaseCompleted(final CompilationPhase phase, final CompilableSource source,
+                                           final SharedThreadContext<CompilableProgram> sharedCompilableProgram) {
+  }
 
   protected void testToPhase(final CompilationPhase upToPhase) {
     //Just start with the basics and most on to the next phase one implemented.
+    var sharedCompilableProgram = sharedContext.get();
 
     AtomicInteger counter = new AtomicInteger(0);
     CompilationPhaseListener listener = (phase, source) -> {
@@ -49,9 +57,8 @@ abstract class FullCompilationTest {
           System.out.println(error);
         });
       }
+      compilationPhaseCompleted(phase, source, sharedCompilableProgram);
     };
-
-    var sharedCompilableProgram = sharedContext.get();
 
     FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedCompilableProgram,
         listener, new CompilerReporter(true));
@@ -61,6 +68,6 @@ abstract class FullCompilationTest {
 
     var compilationResult = compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, true));
 
-    sharedCompilableProgram.accept(program -> assertResults(compilationResult, counter.get(), program));
+    sharedCompilableProgram.accept(program -> assertFinalResults(compilationResult, counter.get(), program));
   }
 }

@@ -19,7 +19,12 @@ import java.util.function.Supplier;
  */
 public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> {
 
-  ///Obviously with ek9 the indentation is important.
+  /**
+   * As we add more, update this.
+   */
+  public static final int NUMBER_OF_EK9_SYMBOLS = 67;
+
+  //Obviously with ek9 the indentation is important.
 
   @Override
   public List<CompilableSource> get() {
@@ -242,7 +247,13 @@ defines extern module org.ek9.lang
 
       RegEx()
         -> arg0 as String
-            
+
+    Exception
+      Exception()
+      
+      Exception()
+        -> arg0 as String
+                    
 """;
 
   @SuppressWarnings({"Indentation"})
@@ -409,7 +420,7 @@ defines extern module org.ek9.lang
     TCPHandler
       ->
         input as StringInput
-        output as SpringOutput
+        output as StringOutput
 """;
 
   @SuppressWarnings({"Indentation"})

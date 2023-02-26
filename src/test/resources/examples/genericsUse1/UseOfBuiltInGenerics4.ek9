@@ -9,6 +9,7 @@ defines module simple.generics.use.four
     <?-
       Outline of a generic 'thing'.
     -?>
+    //Symbol 1
     GenericThing of type T
       item as T?
 
@@ -26,6 +27,7 @@ defines module simple.generics.use.four
       Also examples of different ways to return values, explicit types,
       but also via the <- mechanism.
     -?>
+    //Symbol 2
     GenericMapThing of type (K, V)
       key as K?
       value as V?
@@ -46,21 +48,45 @@ defines module simple.generics.use.four
 
   defines function
 
+    //Symbol 3
     FunctionWithExplicitGenericConstruction()
 
       //So these will get created in polymorphic parameterised form
-
+      //Symbol 4
       thingOfDateTime as GenericThing of DateTime: GenericThing()
 
+      //Symbol 5
       thingOfDuration as GenericThing of Duration?
 
       //But for now in early compiler phases focus on this
       //Looks like inferred - but really is explicit
+      //Symbol 6
       thingOfDate <- GenericThing() of Date
 
       //Now make a float version
+      //Symbol 7
       thingOfFloat <- GenericThing() of Float
 
+      //Symbol 8 and 9
       thingMap <- GenericMapThing() of (Integer, GenericThing of Millisecond)
+
+      //Now because we use BespokeClass before we have parsed it in the first phase
+      //This will not get resolved - compiler accepts this in the first phase but second pass
+      //Both BespokeClass and GenericThing as both known and so should then fully resolve.
+      //Symbol 10
+      thingOfBespokeClass <- GenericThing() of BespokeClass
+
+  //Now add in a class to be used with the GenericThing but 'after' its use above
+  //For the first definition phase this won't be resolved above and create a GenericThing of BespokeClass
+  //But in the next definition of explicit types phase it will, because the first phase will have
+  //found BespokeClass - hence on the second pass the above will get fully resolved.
+  defines class
+
+    //Symbol 11
+    BespokeClass
+      name <- "Steve"
+
+      name()
+        <- rtn as String: name
 
 //EOF

@@ -384,6 +384,7 @@ public class ErrorListener extends BaseErrorListener {
     CLASS_IS_NOT_ALLOWED_IN_THIS_CONTEXT("not allowed in this context"),
     NOT_OPEN_TO_EXTENSION("not open to be extended"),
     TEMPLATE_TYPES_NOT_EXTENSIBLE("Template/Generic types cannot be extended"),
+    NOT_A_TEMPLATE("as it is not 'template/generic' in nature"),
     DISPATCHERS_NOT_EXTENDABLE("extension is not possible"),
     INVALID_NUMBER_OF_PARAMETERS("invalid number of parameters"),
     INVALID_PARAMETER_TYPE("invalid parameter type"),

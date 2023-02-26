@@ -3,6 +3,7 @@ package org.ek9lang.compiler.main.resolvedefine;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
@@ -24,6 +25,7 @@ import org.ek9lang.core.exception.AssertValue;
  * As we need multiple entry points into this from different contexts, this abstract base has all the code.
  * typeDef, parameterisedType, parameterisedArgs and identifierReference can be used in a recursive manner
  * and so this code calls itself quite a bit.
+ * But it may get called with parameterization params that are also just parameters lie S and T for example.
  */
 public abstract class ResolveOrDefineTypes {
 
@@ -37,8 +39,8 @@ public abstract class ResolveOrDefineTypes {
    * But then this is a bit of a beast of a function.
    */
   protected ResolveOrDefineTypes(final SymbolAndScopeManagement symbolAndScopeManagement,
-                              final SymbolFactory symbolFactory, final ErrorListener errorListener,
-                              final boolean errorIfNotDefinedOrResolved) {
+                                 final SymbolFactory symbolFactory, final ErrorListener errorListener,
+                                 final boolean errorIfNotDefinedOrResolved) {
     AssertValue.checkNotNull("symbolAndScopeManagement cannot be null", symbolAndScopeManagement);
     AssertValue.checkNotNull("symbolFactory cannot be null", symbolFactory);
     AssertValue.checkNotNull("errorListener cannot be null", errorListener);
@@ -93,7 +95,7 @@ public abstract class ResolveOrDefineTypes {
     if (ctx.typeDef() != null) {
       var resolvedParameterisedType = resolveTypeByTypeDef(ctx.typeDef());
       if (resolvedParameterisedType.isPresent()) {
-        return resolveOrDefine(resolvedGenericType, List.of(resolvedParameterisedType.get()));
+        return resolveOrDefine(ctx.typeDef().start, resolvedGenericType, List.of(resolvedParameterisedType.get()));
       }
     } else if (ctx.parameterisedArgs() != null) {
       //This is for multiple parameterizing parameters.
@@ -106,13 +108,31 @@ public abstract class ResolveOrDefineTypes {
       }
       //Did we resolve them all? Only if we did
       if (genericParameters.size() == ctx.parameterisedArgs().typeDef().size()) {
-        return resolveOrDefine(resolvedGenericType, genericParameters);
+        return resolveOrDefine(ctx.parameterisedArgs().start, resolvedGenericType, genericParameters);
       }
     }
     return Optional.empty();
   }
 
-  private Optional<ISymbol> resolveOrDefine(final ISymbol genericType, final List<ISymbol> parameterizingTypes) {
+  private Optional<ISymbol> resolveOrDefine(final Token token, final ISymbol genericType,
+                                            final List<ISymbol> parameterizingTypes) {
+
+    if (!genericType.isGenericInNature()) {
+      if (errorIfNotDefinedOrResolved) {
+        errorListener.semanticError(token, "cannot be used to parameterize '" + genericType.getFriendlyName() + "':",
+            ErrorListener.SemanticClassification.NOT_A_TEMPLATE);
+      }
+      return Optional.empty();
+    }
+
+    //So are we actually trying to parameterize with non-concrete things.
+    //This can happen when processing a generic class/function, and it returns a BlahBlah of (K, V)
+    //i.e. we are not making a new concrete type: BlahBlah of (Integer, String), but just sticking with conceptual.
+    var usingNonConcreteTypes = anyTypesExistingGenericTypeParameters(parameterizingTypes);
+    if (usingNonConcreteTypes) {
+      return Optional.of(genericType);
+    }
+
     if (genericType instanceof AggregateSymbol genericAggregateType) {
       var theType = symbolFactory.newParameterisedTypeSymbol(genericAggregateType, parameterizingTypes);
       return symbolAndScopeManagement.resolveOrDefine(theType);
@@ -122,5 +142,9 @@ public abstract class ResolveOrDefineTypes {
     }
 
     return Optional.empty();
+  }
+
+  private boolean anyTypesExistingGenericTypeParameters(final List<ISymbol> parameterizingTypes) {
+    return parameterizingTypes.stream().anyMatch(ISymbol::isGenericTypeParameter);
   }
 }

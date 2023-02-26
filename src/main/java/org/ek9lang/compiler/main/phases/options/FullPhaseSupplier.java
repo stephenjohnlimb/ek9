@@ -18,6 +18,7 @@ import org.ek9lang.compiler.main.phases.Ek9Phase12Packaging;
 import org.ek9lang.compiler.main.phases.Ek9Phase12PackagingPostProcessing;
 import org.ek9lang.compiler.main.phases.Ek9Phase12PluginLinkage;
 import org.ek9lang.compiler.main.phases.Ek9Phase1ModuleDuplicateSymbolChecks;
+import org.ek9lang.compiler.main.phases.Ek9Phase1NonInferredTypeDefinition;
 import org.ek9lang.compiler.main.phases.Ek9Phase1ReferenceChecks;
 import org.ek9lang.compiler.main.phases.Ek9Phase1SymbolDefinition;
 import org.ek9lang.compiler.main.phases.Ek9Phase1SymbolDuplicationChecks;
@@ -68,6 +69,7 @@ public class FullPhaseSupplier implements Supplier<List<BiFunction<Workspace, Co
         new Ek9Phase1ModuleDuplicateSymbolChecks(compilableProgramAccess, listener, reporter),
         new Ek9Phase1ReferenceChecks(compilableProgramAccess, listener, reporter),
         new Ek9Phase1SymbolDuplicationChecks(compilableProgramAccess, listener, reporter),
+        new Ek9Phase1NonInferredTypeDefinition(compilableProgramAccess, listener, reporter),
         new Ek9Phase2TemplateDefinitionAndPartialResolution(compilableProgramAccess, listener, reporter),
         new Ek9Phase3FurtherSymbolDefinitionResolution(compilableProgramAccess, listener, reporter),
         new Ek9Phase4TemplateExpansion(compilableProgramAccess, listener, reporter),

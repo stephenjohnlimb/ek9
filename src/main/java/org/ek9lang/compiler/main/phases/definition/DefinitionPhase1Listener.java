@@ -130,7 +130,6 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   private final CheckForInvalidParameterisedTypeUse checkForInvalidParameterisedTypeUse;
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
-
   private final ResolveOrDefineParameterizedType resolveOrDefineParameterizedType;
 
 

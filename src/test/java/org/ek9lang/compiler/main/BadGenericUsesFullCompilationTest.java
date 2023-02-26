@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.main;
 
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_LANG;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -26,13 +27,13 @@ class BadGenericUsesFullCompilationTest extends FullCompilationTest {
   private final SymbolSearchMapFunction mappingFunction = new SymbolSearchMapFunction();
 
   @Test
-  void testReferencePhasedDevelopment() {
-    testToPhase(CompilationPhase.REFERENCE_CHECKS);
+  void testPhaseDevelopment() {
+    testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
   }
 
   @Override
-  protected void assertResults(final boolean compilationResult, final int numberOfErrors,
-                               final CompilableProgram program) {
+  protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
+                                    final CompilableProgram program) {
     assertFalse(compilationResult);
     assertEquals(13, numberOfErrors);
     assertEK9GeneratedGenericTypes(program);
@@ -41,7 +42,7 @@ class BadGenericUsesFullCompilationTest extends FullCompilationTest {
 
   private void assertEK9GeneratedGenericTypes(final CompilableProgram program) {
 
-    var moduleName = "org.ek9.lang";
+    var moduleName = EK9_LANG;
     var ek9 = program.getParsedModules(moduleName);
     assertNotNull(ek9);
     var typeChecker = new GenericsSymbolCheck(program, moduleName, true, ISymbol.SymbolCategory.TYPE);

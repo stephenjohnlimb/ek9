@@ -245,7 +245,14 @@ public class Symbol implements ISymbol {
     return parsedModule.map(m -> ISymbol.makeFullyQualifiedName(m.getScopeName(), rtn)).orElse(rtn);
   }
 
+  /**
+   * Checks if the type match exactly.
+   */
   public boolean isExactSameType(ISymbol symbolType) {
+    //If this is a T or U or whatever then just use the name as is.
+    if (this.isGenericTypeParameter()) {
+      return getName().equals(symbolType.getName());
+    }
     return sameCategory(this, symbolType)
         && getFullyQualifiedName().equals(symbolType.getFullyQualifiedName());
   }

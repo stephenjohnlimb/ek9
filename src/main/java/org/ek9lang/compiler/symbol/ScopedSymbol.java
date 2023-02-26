@@ -136,6 +136,11 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   }
 
   @Override
+  public boolean isGenericInNature() {
+    return !parameterisedTypes.isEmpty();
+  }
+
+  @Override
   public List<ParameterisedFunctionSymbol> getParameterisedFunctionReferences() {
     return Collections.unmodifiableList(parameterisedFunctionReferences);
   }

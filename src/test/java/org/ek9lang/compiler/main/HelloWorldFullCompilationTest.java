@@ -60,7 +60,7 @@ class HelloWorldFullCompilationTest {
   @Test
   void testHelloWorldPhasedDevelopment() {
     //Just start with the basics and most on to the next phase one implemented.
-    CompilationPhase upToPhase = CompilationPhase.REFERENCE_CHECKS;
+    CompilationPhase upToPhase = CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION;
 
     CompilationPhaseListener listener = (phase, source) -> {
       if (!source.getErrorListener().isErrorFree()) {

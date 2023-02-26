@@ -222,6 +222,17 @@ public final class CompilableSource implements Source, TokenConsumptionListener 
   }
 
   /**
+   * Used in debugging built-in sources.
+   */
+  public String getSourceAsStringForDebugging() {
+    try (InputStream input = getInputStream()) {
+      return new String(input.readAllBytes());
+    } catch (Exception ex) {
+      throw new CompilerException("Unable load file " + filename, ex);
+    }
+  }
+
+  /**
    * Sets up the compilable source to be parsed.
    */
   public CompilableSource prepareToParse() {

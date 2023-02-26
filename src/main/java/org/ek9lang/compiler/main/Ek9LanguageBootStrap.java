@@ -42,7 +42,7 @@ public class Ek9LanguageBootStrap implements Supplier<SharedThreadContext<Compil
     return sharedCompilableProgram;
   }
 
-  //THis needs more of the compiler phases!
+  //This needs more of the compiler phases!
   private void addBuiltInEk9LanguageModules(SharedThreadContext<CompilableProgram> sharedContext) {
 
     Ek9Compiler compiler = new Ek9Compiler(new FrontEndOnlySupplier(sharedContext, listener, reporter));
@@ -53,7 +53,13 @@ public class Ek9LanguageBootStrap implements Supplier<SharedThreadContext<Compil
     var compilationSuccess = compiler.compile(workspace, new CompilerFlags(false));
 
     if (!compilationSuccess) {
+      displaySources();
       throw new CompilerException("Unable to bootstrap EK9 language, error in " + sources);
     }
+  }
+
+  @SuppressWarnings("java:S106")
+  private void displaySources() {
+    sourceSupplier.get().stream().map(CompilableSource::getSourceAsStringForDebugging).forEach(System.err::println);
   }
 }

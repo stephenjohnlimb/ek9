@@ -1,0 +1,30 @@
+#!ek9
+<?-
+  Demonstrates the error of trying to use a know class that resolves as a generic
+  type. i.e. 'List of String' is fine but 'Date of String' is meaningless as Date is
+  not a generic type, it does not support Polymorphic Parameterization.
+  Also examples of non generic functions being attempted to be used.
+-?>
+defines module bad.use.non.generic
+
+  defines function
+
+    aNonGenericFunction()
+      -> arg1 as String
+      <- rtn as String: arg1
+
+    badClassUseOfNonGeneric()
+      //Failure 1
+      notActuallyGeneric <- Date() of String
+
+      //Failure 2
+      alsoNotGeneric as Date of String?
+
+    badFunctionUseOfNonGeneric()
+      //Failure 3
+      handler <- () is aNonGenericFunction of Date as function
+
+      //Failure 4
+      functionName as aNonGenericFunction of String?
+
+//EOF

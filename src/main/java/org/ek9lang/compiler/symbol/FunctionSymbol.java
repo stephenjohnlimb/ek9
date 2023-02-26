@@ -81,16 +81,6 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
     return newCopy;
   }
 
-  /**
-   * Is this aggregate itself a generic sort of aggregate.
-   *
-   * @return boolean true if is parameterised
-   */
-  @Override
-  public boolean isGenericInNature() {
-    return !this.getParameterisedTypes().isEmpty();
-  }
-
   @Override
   public FunctionSymbol addParameterisedType(AggregateSymbol parameterisedType) {
     super.addParameterisedType(parameterisedType);
@@ -229,7 +219,7 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
     Optional<ISymbol> rtn = Optional.empty();
     //Now if this is a generic type class we might need to resolve the name of
     //the type 'T' or 'S' or whatever for example
-    if (isGenericInNature() && SymbolCategory.TYPE.equals(search.getSearchType())) {
+    if (isGenericInNature() && (search.getSearchType() == null || SymbolCategory.TYPE.equals(search.getSearchType()))) {
       for (ISymbol parameterisedType : getParameterisedTypes()) {
         if (parameterisedType.isAssignableTo(search.getAsSymbol())) {
           rtn = Optional.of(parameterisedType);

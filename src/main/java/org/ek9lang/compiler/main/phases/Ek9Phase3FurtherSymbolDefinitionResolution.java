@@ -14,7 +14,7 @@ import org.ek9lang.core.threads.SharedThreadContext;
  * MULTI THREADED
  * Now try and resolve the types of the symbols we have now defined. But still define additional
  * symbols as and when we can.
- * NOTE, this means that inference and assignments and the like mean we still wont know what the
+ * NOTE, this means that inference and assignments and the like mean we still won't know what the
  * type of some variables are at the end of this phase.
  * Only the simple case - clearly we'd need to do the initial template type defs and resolutions
  * before this phase that's why this is phase three not two! But phase 4 after this is where we

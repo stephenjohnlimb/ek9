@@ -305,13 +305,6 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
     this.injectable = injectable;
   }
 
-  /**
-   * Is this aggregate based of generic sort of aggregate, and it has been parameterized.
-   */
-  @Override
-  public boolean isGenericInNature() {
-    return !this.getParameterisedTypes().isEmpty();
-  }
 
   /**
    * Is this aggregate itself a generic type that has been used as a parameter.
@@ -642,7 +635,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
     Optional<ISymbol> rtn = Optional.empty();
     //Now if this is a generic type class we might need to resolve the name of the type 'T' or 'S'
     //or whatever for example
-    if (isGenericInNature() && SymbolCategory.TYPE.equals(search.getSearchType())) {
+    if (isGenericInNature() && (search.getSearchType() == null || SymbolCategory.TYPE.equals(search.getSearchType()))) {
       for (ISymbol parameterisedType : getParameterisedTypes()) {
         if (parameterisedType.isAssignableTo(search.getAsSymbol())) {
           rtn = Optional.of(parameterisedType);
