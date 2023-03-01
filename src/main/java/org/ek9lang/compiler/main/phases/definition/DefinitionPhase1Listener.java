@@ -534,7 +534,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
       pullSwitchCaseDefaultUp(ctx);
 
       if (ctx.returningParam() != null) {
-        checkNormalTermination.accept(ctx.returningParam().start, thisSwitchScope);
+        checkNormalTermination.accept(ctx.returningParam().LEFT_ARROW().getSymbol(), thisSwitchScope);
       }
       //It is not an error at this point, but in a wider set of statements could be
     }
@@ -574,7 +574,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
       pullTryCatchFinallyUp(ctx);
 
       if (ctx.returningParam() != null) {
-        checkNormalTermination.accept(ctx.returningParam().start, thisTryScope);
+        checkNormalTermination.accept(ctx.returningParam().LEFT_ARROW().getSymbol(), thisTryScope);
       }
     }
     //It is not an error at this point, but in a wider set of statements could be
@@ -758,7 +758,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     }
     if (ctx.returningParam() != null && ctx.instructionBlock() != null) {
       var instructionBlockScope = symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock());
-      checkNormalTermination.accept(ctx.returningParam().start, instructionBlockScope);
+      checkNormalTermination.accept(ctx.returningParam().LEFT_ARROW().getSymbol(), instructionBlockScope);
     }
 
     super.exitOperationDetails(ctx);

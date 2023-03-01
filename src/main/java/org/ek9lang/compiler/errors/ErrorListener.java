@@ -265,7 +265,7 @@ public class ErrorListener extends BaseErrorListener {
     DIRECTIVE_MISSING("but the directive is missing"),
     DIRECTIVE_WRONG_CLASSIFICATION("directive error classification incorrect"),
     ERROR_MISSING("but the error is missing"),
-    DIRECTIVE_ERROR_MISMATCH("amounts don't match"),
+    DIRECTIVE_ERROR_MISMATCH("count does not match"),
     NOT_RESOLVED_FUZZY_MATCH("is the closest match found"),
     NOT_RESOLVED("not resolved"),
     OBJECT_NOT_RESOLVED("object not resolved"),

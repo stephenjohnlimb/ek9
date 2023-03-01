@@ -99,8 +99,10 @@ defines module bad.function.use
     InvalidExample1()
 
       //minValue call, so not just an identifier and so must be named.
+      @Error: SYMBOL_DEFINITION: CAPTURED_VARIABLE_MUST_BE_NAMED
       gt <- (minValue()) is discriminator pure (rtn: length s > min)
-      //a literal and again needs to be named.
+      //a literal and needs to be named.
+      @Error: SYMBOL_DEFINITION: CAPTURED_VARIABLE_MUST_BE_NAMED
       lt <- (40) is discriminator as (rtn: length s < max)
 
       val1 <- "Some Value"
@@ -108,10 +110,12 @@ defines module bad.function.use
 
     InvalidExample2()
 
+      @Error: SYMBOL_DEFINITION: EITHER_ALL_PARAMETERS_NAMED_OR_NONE
       lenValidator <- (
         //This is named so this is OK
         lt: (max: 40) is discriminator as (rtn: length s < max),
         //Not named so not OK
+        @Error: SYMBOL_DEFINITION: CAPTURED_VARIABLE_MUST_BE_NAMED
         (min: minValue()) is discriminator pure (rtn: length s > min)
         ) of LenValidator as class
         override validateLength()
@@ -127,16 +131,17 @@ defines module bad.function.use
       lt <- (max: 40) is discriminator as (rtn: length s < max)
 
       lenValidator <- (
-        //So accidentally add 'lt' twice, but also name one and not the other
-        lt: (max: 40) is discriminator as (rtn: length s < max),
-        //Not named, but is a variable of that name, so this is a duplicate within this dynamic function
-        lt
+        //So accidentally duplicate the names.
+        lessThan: (max: 40) is discriminator as (rtn: length s < max),
+        //Named, but there is a variable of that name, so this is a duplicate within this dynamic function
+        @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE_IN_CAPTURE
+        lessThan: lt
         ) of LenValidator as class
         override validateLength()
           -> p as String
           <- r as Boolean: false
           if p?
-            r := gt(p) and lt(p)
+            r := gt(p) and lessThan(p)
 
       assert lenValidator.validateLength(val1)
 
@@ -146,6 +151,7 @@ defines module bad.function.use
 
       //Only name one named parameter, EK9 mandates either none named or all named.
       //This is to drive consistency
+      @Error: SYMBOL_DEFINITION: EITHER_ALL_PARAMETERS_NAMED_OR_NONE
       lenValidator <- (lessThan: lt, gt) of LenValidator as class
         override validateLength()
           -> p as String
@@ -161,5 +167,6 @@ defines module bad.function.use
       resultOK <- aTestFunction("this", "that")
 
       //Invalid either both or no parameters should be named.
+      @Error: SYMBOL_DEFINITION: EITHER_ALL_PARAMETERS_NAMED_OR_NONE
       notOK <- aTestFunction(param1: "this", "that")
 //EOF

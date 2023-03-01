@@ -35,30 +35,36 @@ defines module bad.flowcontrol.examples
       <- rtn as Integer: 2
 
     //Failure 1
+
     invalidForLoopOverValues()
       //There is an implicit continuation here, even though there are no
       //following statements after the exception, this will fail at the first.
       //It therefore not logical or normal.
+      @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
       for item in ["Alpha", "Beta", "Charlie"]
         throw Exception("This will always fail")
 
     //Failure 2
     invalidTraditionalForLoop1()
+      @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
       for i in 1 ... 10
         throw Exception("This will always fail")
 
     //Failure 3 and Failure 4
     invalidTraditionalForLoop2()
       //Cannot really iterate
+      @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
       for i in 1 ... 10
         throw Exception("This will always fail")
         //Can never get here
+        @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
         assert i?
 
     //Failure 5
     invalidDoWhileLoop()
       condition <- true
       //loop is unreachable in terms of looping
+      @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
       do
         //normally some more complex reason for this change.
         condition := false
@@ -69,6 +75,7 @@ defines module bad.flowcontrol.examples
     invalidWhileDoLoop1()
       condition <- true
       //loop is unreachable in terms of looping
+      @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
       while condition
         //normally some more complex reason for this change.
         condition := false
@@ -78,9 +85,11 @@ defines module bad.flowcontrol.examples
     invalidWhileDoLoop2()
       condition <- true
       //loop is unreachable in terms of looping
+      @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
       while condition
         throw Exception("This will always fail")
         //unreachable
+        @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
         condition := false
 
     //Now while it looks strange, there is nothing wrong here.
@@ -109,6 +118,7 @@ defines module bad.flowcontrol.examples
       else
         throw Exception("Check Else")
 
+      @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
       someOtherStatement <- 21
 
     //This is allowed, because might not trigger if (phase 1 cannot detect this is always true)
@@ -132,6 +142,7 @@ defines module bad.flowcontrol.examples
       else
         throw Exception("Check Else")
 
+      @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
       someOtherStatement <- 21
 
     okResultForTesting()
@@ -141,6 +152,7 @@ defines module bad.flowcontrol.examples
     //While there is no explicit following statement, there is the return
     //So this could never return the value
     invalidIfElseStatement3()
+      @Error: SYMBOL_DEFINITION: RETURN_UNREACHABLE
       <- rtn as String: "OK"
       condition <- true
       if condition
@@ -183,6 +195,7 @@ defines module bad.flowcontrol.examples
         throw Exception("But no catch")
 
       //This can never be executed
+      @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
       someOtherStatement <- 21
 
     //Failure 13
@@ -197,6 +210,7 @@ defines module bad.flowcontrol.examples
         throw Exception("Thrown inside catch")
 
       //This can never be executed
+      @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
       someOtherStatement <- 21
 
     //Failure 14
@@ -212,6 +226,7 @@ defines module bad.flowcontrol.examples
         throw Exception("Thrown inside finally")
 
       //This can never be executed
+      @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
       someOtherStatement <- 21
 
     //Failure 15
@@ -228,6 +243,7 @@ defines module bad.flowcontrol.examples
         assert moreProcessing?
 
       //This can never be executed
+      @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
       someOtherStatement <- 21
 
     validTryCatchExpression1()
@@ -251,6 +267,7 @@ defines module bad.flowcontrol.examples
 
       //Result cannot be assigned to as there is always an exception
       result <- try
+        @Error: SYMBOL_DEFINITION: RETURN_UNREACHABLE
         <- value as Integer: 1
         value: 2
         throw Exception("But no catch")
@@ -260,6 +277,7 @@ defines module bad.flowcontrol.examples
 
       //Result cannot be assigned to as there is always an exception
       result <- try
+        @Error: SYMBOL_DEFINITION: RETURN_UNREACHABLE
         <- value as Integer: 1
         throw Exception("But with a catch")
       catch
@@ -273,6 +291,7 @@ defines module bad.flowcontrol.examples
 
       //Result cannot be assigned to as there is always an Exception
       result <- try
+        @Error: SYMBOL_DEFINITION: RETURN_UNREACHABLE
         <- value as Integer: 1
         var <- "OK"
         throw Exception("But with catch and finally")
@@ -289,6 +308,7 @@ defines module bad.flowcontrol.examples
     invalidTryCatchExpression4()
 
       result <- try
+        @Error: SYMBOL_DEFINITION: RETURN_UNREACHABLE
         <- value as Integer: 1
         var <- "OK"
         throw Exception("But with catch and finally")
@@ -304,6 +324,7 @@ defines module bad.flowcontrol.examples
     //While the return value has been set, this can never be returned
     //because an exception is always thrown, as above
     alwaysAnException1()
+      @Error: SYMBOL_DEFINITION: RETURN_UNREACHABLE
       <- rtn as String: "OK"
       throw Exception("Never can return OK")
 
@@ -311,6 +332,7 @@ defines module bad.flowcontrol.examples
     //The return value can never be assigned or returned
     //because an exception is always thrown, as above
     alwaysAnException2()
+      @Error: SYMBOL_DEFINITION: RETURN_UNREACHABLE
       <- rtn as String?
       throw Exception("Never can return OK")
 
@@ -335,11 +357,12 @@ defines module bad.flowcontrol.examples
         default
           throw Exception("Some default reason")
 
-    //Failure 22 - not detected yet
+    //Failure 22
     // All possible paths in thw switch result in an exception
     //So this whole block must fail and return cannot be set
     invalidSwitchStatement1()
       -> value as String
+      @Error: SYMBOL_DEFINITION: RETURN_UNREACHABLE
       <- result as Integer?
 
       given value
@@ -362,6 +385,7 @@ defines module bad.flowcontrol.examples
           throw Exception("Some default reason")
 
       //This can never be executed
+      @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
       result += 25
 
 
@@ -373,6 +397,7 @@ defines module bad.flowcontrol.examples
 
       //result can never be assigned as all paths return an exception
       result as Integer := given value
+        @Error: SYMBOL_DEFINITION: RETURN_UNREACHABLE
         <- rtn as Integer: 1
         when "THIS", "THAT"
           throw Exception("Some this/that reason")
@@ -384,18 +409,22 @@ defines module bad.flowcontrol.examples
     //Failure 25
     invalidApplicationDueToException1
       throw Exception("No way to register Solution1")
+      @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
       register Solution1() as BaseConfiguration
 
     //Failure 26 and Failure 27
     invalidApplicationDueToException2
       throw Exception("No way to register Solution1")
+      @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
       someVar <- "A Value"
+      @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
       register Solution1() as BaseConfiguration
 
   defines program
 
     //Failure 28
     BadProgram1()
+      @Error: SYMBOL_DEFINITION: POINTLESS_EXPRESSION
       if true
         x <- 91
         assert x?
@@ -406,12 +435,14 @@ defines module bad.flowcontrol.examples
       if value
         x <- 91
         assert x?
+      @Error: SYMBOL_DEFINITION: POINTLESS_EXPRESSION
       else if false
         p <- 22
         assert p?
 
     //Failure 30
     BadProgram3()
+      @Error: SYMBOL_DEFINITION: POINTLESS_EXPRESSION
       while true
         x <- 91
         assert x?
@@ -421,10 +452,12 @@ defines module bad.flowcontrol.examples
       do
         x <- 91
         assert x?
+      @Error: SYMBOL_DEFINITION: POINTLESS_EXPRESSION
       while true
 
     //Failure 32
     BadProgram5()
+      @Error: SYMBOL_DEFINITION: POINTLESS_EXPRESSION
       for value in true
         x <- 91
         assert x?
@@ -435,6 +468,7 @@ defines module bad.flowcontrol.examples
 
       //Constructor that can only result in an exception
       //Failure 33
+      @Error: SYMBOL_DEFINITION: RETURN_UNREACHABLE
       AClassWithAbnormalMethods()
         throw Exception("Can never be constructed")
 
@@ -445,6 +479,7 @@ defines module bad.flowcontrol.examples
 
       //Failure 34, no return is possible.
       invalidMethodBecauseReturnIsNotPossible()
+        @Error: SYMBOL_DEFINITION: RETURN_UNREACHABLE
         <- rtn as String: "Can never be returned"
         throw Exception("Always causes rtn to fail to be returned")
 //EOF

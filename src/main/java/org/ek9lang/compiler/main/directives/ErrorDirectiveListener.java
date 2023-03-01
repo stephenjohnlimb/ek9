@@ -44,10 +44,10 @@ public class ErrorDirectiveListener implements CompilationPhaseListener {
           ErrorListener.SemanticClassification.DIRECTIVE_ERROR_MISMATCH);
     }
 
-    for (var entry : directiveLineNumberLookup.entrySet()) {
-      var directiveLineNumber = entry.getKey();
+    var directiveLineNumbers = directiveLineNumberLookup.keySet().stream().sorted().toList();
+    for (var directiveLineNumber : directiveLineNumbers) {
+      var directive = (ErrorDirective) directiveLineNumberLookup.get(directiveLineNumber);
       var error = errorLineNumberLookup.get(directiveLineNumber);
-      var directive = (ErrorDirective) entry.getValue();
       if (error == null) {
         var msg = "'" + directive.getClassification() + "' for line: " + directiveLineNumber;
         errorListener.directiveError(directive.getDirectiveToken(), msg,
@@ -66,7 +66,10 @@ public class ErrorDirectiveListener implements CompilationPhaseListener {
     }
 
     //Now if there are any left in errors - they can't be in the directives because we've just looked.
-    for (var error : errorLineNumberLookup.values()) {
+    var errorLineNumbers = errorLineNumberLookup.keySet().stream().sorted().toList();
+
+    for (var errorLineNumber : errorLineNumbers) {
+      var error = errorLineNumberLookup.get(errorLineNumber);
       var msg = "as line: " + error.getLineNumber() + " has error: '" + error.getSemanticClassification() + "'";
       errorListener.directiveError(new SyntheticToken("Expecting @Error directive"), msg,
           ErrorListener.SemanticClassification.DIRECTIVE_MISSING);

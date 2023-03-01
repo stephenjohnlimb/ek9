@@ -21,6 +21,7 @@ defines module bad.classassignment.use
       //make the mistake of thinking you can copy the supers
       CC0
         -> param as CCO
+        @Error: SYMBOL_DEFINITION: USE_OF_SUPER_INAPPROPRIATE
         super :=: param
 
     C1
@@ -33,6 +34,7 @@ defines module bad.classassignment.use
       //This is not allowed, developer probably would mean copy the values.
       C1()
         -> param as C1
+        @Error: SYMBOL_DEFINITION: USE_OF_THIS_INAPPROPRIATE
         this: param
 
     C2
@@ -41,6 +43,7 @@ defines module bad.classassignment.use
       //This is not allowed, this is always set and so makes no sense.
       C2()
         -> param as C2
+        @Error: SYMBOL_DEFINITION: USE_OF_THIS_INAPPROPRIATE
         this :=? param
 
     //But these are allowed

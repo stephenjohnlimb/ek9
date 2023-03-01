@@ -22,7 +22,7 @@ sheBang
 
 //Provides a way to embed directives into EK9 source for various reasons to check/alter compilation/tests/generation
 directive
-    : AT identifier (COLON directivePart)* NL
+    : AT identifier (COLON directivePart)* NL?
     ;
 
 directivePart
@@ -138,7 +138,7 @@ serviceDeclaration
     ;
 
 applicationDeclaration
-    : Identifier (LPAREN RPAREN)? AS? NL+ INDENT NL* ((blockStatement | registerStatement) NL+)+ DEDENT
+    : Identifier (LPAREN RPAREN)? AS? NL+ INDENT NL* (directive? (blockStatement | registerStatement) NL+)+ DEDENT
     ;
 
 registerStatement
@@ -328,8 +328,8 @@ statement
     ;
 
 ifStatement
-    : (IF | WHEN) ((assignmentStatement | guardExpression) (WITH|THEN))? control=expression block (NL+ ELSE block)?
-    | (IF | WHEN) ((assignmentStatement | guardExpression) (WITH|THEN))? control=expression block NL+ ELSE ifStatement
+    : (IF | WHEN) ((assignmentStatement | guardExpression) (WITH|THEN))? control=expression block (NL+ directive? ELSE block)?
+    | (IF | WHEN) ((assignmentStatement | guardExpression) (WITH|THEN))? control=expression block NL+ directive? ELSE ifStatement
     ;
 
 guardExpression
@@ -338,7 +338,7 @@ guardExpression
 
 whileStatement
     : WHILE control=expression block
-    | DO block NL+ WHILE control=expression
+    | DO block NL+ directive? WHILE control=expression
     ;
 
 forStatement
@@ -421,19 +421,19 @@ tryStatementExpression
     ;
 
 catchStatementExpression
-    : NL+ (CATCH|HANDLE) NL+ INDENT NL* argumentParam instructionBlock DEDENT
+    : NL+ directive? (CATCH|HANDLE) NL+ INDENT NL* argumentParam instructionBlock DEDENT
     ;
 
 finallyStatementExpression
-    : NL+ FINALLY block
+    : NL+ directive? FINALLY block
     ;
 
 switchStatementExpression
-    : (SWITCH|GIVEN) control=expression NL+ INDENT (NL* returningParam)? caseStatement+ (DEFAULT block NL+)?  DEDENT
+    : (SWITCH|GIVEN) control=expression NL+ INDENT (NL* returningParam)? caseStatement+ (directive? DEFAULT block NL+)?  DEDENT
     ;
 
 caseStatement
-    : (CASE|WHEN) caseExpression (COMMA caseExpression)* block NL+
+    : directive? (CASE|WHEN) caseExpression (COMMA caseExpression)* block NL+
     ;
 
 caseExpression
@@ -516,7 +516,7 @@ paramExpression
     ;
 
 expressionParam
-    : (identifier (ASSIGN | ASSIGN2 | COLON))? expression
+    : directive? (identifier (ASSIGN | ASSIGN2 | COLON))? expression
     ;
 
 assertStatement

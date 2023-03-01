@@ -45,7 +45,7 @@ public class CheckDynamicVariableCapture implements Consumer<EK9Parser.DynamicVa
           //We've already got a variable/field/property that has than name
           //Then the dynamic function/class would end up with multiple fields of the same name.
           var msg = "and '" + existing.getText() + "' on line " + existing.getLine();
-          errorListener.semanticError(param.start, msg,
+          errorListener.semanticError(param.expression().start, msg,
               ErrorListener.SemanticClassification.DUPLICATE_VARIABLE_IN_CAPTURE);
         }
       }
@@ -57,7 +57,7 @@ public class CheckDynamicVariableCapture implements Consumer<EK9Parser.DynamicVa
         || param.expression().primary().identifierReference() == null)
         && param.identifier() == null) {
       //Developer has not used a simple identifier, but also has not named a parameter to use
-      errorListener.semanticError(param.start, "",
+      errorListener.semanticError(param.expression().start, "",
           ErrorListener.SemanticClassification.CAPTURED_VARIABLE_MUST_BE_NAMED);
       return true;
     }

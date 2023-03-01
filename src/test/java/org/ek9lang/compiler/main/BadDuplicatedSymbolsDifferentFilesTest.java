@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Just tests duplicated symbols but in different files.
+ * For this test we don't use @directives -cause the multi-thread nature of N files means you cannot
+ * guarantee the order of failure.
  */
 class BadDuplicatedSymbolsDifferentFilesTest extends FullCompilationTest {
 
