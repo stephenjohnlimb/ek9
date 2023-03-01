@@ -17,6 +17,7 @@ defines module bad.program.return
 
     //Failure 1 - cannot return anything other than an Integer
     BadReturnType1()
+      @Error: SYMBOL_DEFINITION: PROGRAM_CAN_ONLY_RETURN_INTEGER
       <- rtn as Float: 0.9
       //Just some body to stop any other compiler errors
       v <- "Steve"
@@ -24,11 +25,13 @@ defines module bad.program.return
 
     //Failure 2 - but value not set on
     BadReturnType2()
+      @Error: SYMBOL_DEFINITION: PROGRAM_CAN_ONLY_RETURN_INTEGER
       <- rtn as Float?
       rtn: 5.6
 
-    //Failure 3 - type inference - but still not allowed type
+    //Failure 3 - simple type inference - but still not allowed type
     BadReturnType3()
+      @Error: SYMBOL_DEFINITION: PROGRAM_CAN_ONLY_RETURN_INTEGER
       <- rtn <- false
       //Just some body to stop any other compiler errors
       v <- "Steve"
@@ -36,6 +39,7 @@ defines module bad.program.return
 
     //Failure 4 - a specific developer created type
     BadReturnType4()
+      @Error: SYMBOL_DEFINITION: PROGRAM_CAN_ONLY_RETURN_INTEGER
       <- rtn as ATestRecord?
       //Just some body to stop any other compiler errors
       v <- "Steve"
@@ -61,6 +65,7 @@ defines module bad.program.return
   defines function
     //Failure 4 - only allow basic build in types with return type inference.
     invalidReturn()
+      @Error: SYMBOL_DEFINITION: ONLY_SIMPLE_RETURNING_TYPES_SUPPORTED
       <- rtn <- ATestRecord()
 
     validIntegerReturn()

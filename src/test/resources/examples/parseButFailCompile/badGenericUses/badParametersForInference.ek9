@@ -45,17 +45,21 @@ defines module incorrect.generic.uses
     invalidPhase1IncorrectParenthesis1()
       //Failure1
       //Use of parenthesis on lhs
+      @Error: SYMBOL_DEFINITION: PARENTHESIS_NOT_REQUIRED
       val1 as List() of String?
 
       //Failure2
       //Then missing parenthesis
+      @Error: SYMBOL_DEFINITION: PARENTHESIS_REQUIRED
       val2 as List of String: List of String
 
       //Failure3
       //Again missing parenthesis
+      @Error: SYMBOL_DEFINITION: PARENTHESIS_REQUIRED
       val3 <- List of String
 
       //Failure4 - should be List() of List of String
+      @Error: SYMBOL_DEFINITION: PARENTHESIS_NOT_REQUIRED
       val4 <- List() of List() of String
 
       //A bit of a pointless statement - but valid
@@ -64,6 +68,7 @@ defines module incorrect.generic.uses
       List() of String
 
       //Failure5 - not allowed - as does not create a new 'List' as missing ()
+      @Error: SYMBOL_DEFINITION: PARENTHESIS_REQUIRED
       List of String
 
     invalidGenericsUse()
@@ -108,6 +113,7 @@ defines module incorrect.generic.uses
     validConcreteClass is GenericThing of Integer
 
     //Failure 6 - because the () is really use to indicate 'make me a new one'.
+    @Error: SYMBOL_DEFINITION: PARENTHESIS_NOT_REQUIRED
     InvalidConcreteClass is GenericThing() of Integer
 
   //More functions after the Generic type has been defined.
@@ -127,6 +133,7 @@ defines module incorrect.generic.uses
     invalidDynamicFunction()
       //Failure 7
       //Here we are telling the compiler to check we get an error here.
+      @Error: SYMBOL_DEFINITION: PARENTHESIS_NOT_REQUIRED
       listener <- () is AListener() of Integer
       listener(1, 2)
 
@@ -142,18 +149,23 @@ defines module incorrect.generic.uses
 
     invalidDynamicClass()
       //Failure 8 extra parenthesis after Generic Type name
+      @Error: SYMBOL_DEFINITION: PARENTHESIS_NOT_REQUIRED
       genericOfDateInstance1 <- () is GenericThing() of Date as class
 
       //Failure 9 extra parenthesis after Generic Type name
+      @Error: SYMBOL_DEFINITION: PARENTHESIS_NOT_REQUIRED
       genericOfDateInstance2 <-  GenericThingOfDateBroken () is GenericThing() of Date as class
 
       //Failure 10 extra parenthesis after second Generic Type name
+      @Error: SYMBOL_DEFINITION: PARENTHESIS_NOT_REQUIRED
       genericOfListDateInstance1 <- () is GenericThing of List() of Date as class
 
       //Failure 11 extra parenthesis after Generic Type name
+      @Error: SYMBOL_DEFINITION: PARENTHESIS_NOT_REQUIRED
       genericOfListDateInstance2 <- GenericThingOfListOfDateBroken1 () is GenericThing() of List of Date as class
 
       //Failure 12 extra parenthesis after Generic Type name
+      @Error: SYMBOL_DEFINITION: PARENTHESIS_NOT_REQUIRED
       genericOfListDateInstance3 <- GenericThingOfListOfDateBroken2 () is GenericThing of List() of Date as class
 
     invalidMixOfInferenceAndExplicit()
@@ -163,6 +175,7 @@ defines module incorrect.generic.uses
       validInferenceCombination2 <- GenericThing(32)
 
       //Failure 13 - Not allowed because if parameters are provided in construction then we infer type.
+      @Error: SYMBOL_DEFINITION: VALUES_AND_TYPE_INCOMPATIBLE
       invalidInferenceCombination <- GenericThing(32) of Integer
 
 //EOF

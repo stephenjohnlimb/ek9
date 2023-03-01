@@ -134,7 +134,7 @@ textDeclaration
     ;
 
 serviceDeclaration
-    : Identifier FOR? Uriproto AS? NL+ INDENT NL* (methodDeclaration | serviceOperationDeclaration)* DEDENT
+    : Identifier FOR? Uriproto AS? NL+ INDENT NL* (directive? (methodDeclaration | serviceOperationDeclaration))* DEDENT
     ;
 
 applicationDeclaration
@@ -554,7 +554,7 @@ declareArgumentParam
     ;
 
 argumentParam
-    : directive? RIGHT_ARROW NL+ INDENT directive? NL* (variableOnlyDeclaration NL+)+ DEDENT NL+
+    : directive? RIGHT_ARROW NL+ INDENT NL* (directive? variableOnlyDeclaration NL+)+ DEDENT NL+
     | directive? RIGHT_ARROW variableOnlyDeclaration NL+
     ;
 

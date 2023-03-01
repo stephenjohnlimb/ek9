@@ -15,16 +15,20 @@ defines module bad.use.non.generic
 
     badClassUseOfNonGeneric()
       //Failure 1
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_A_TEMPLATE
       notActuallyGeneric <- Date() of String
 
       //Failure 2
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_A_TEMPLATE
       alsoNotGeneric as Date of String?
 
     badFunctionUseOfNonGeneric()
       //Failure 3
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_A_TEMPLATE
       handler <- () is aNonGenericFunction of Date as function
 
       //Failure 4
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_A_TEMPLATE
       functionName as aNonGenericFunction of String?
 
 //EOF

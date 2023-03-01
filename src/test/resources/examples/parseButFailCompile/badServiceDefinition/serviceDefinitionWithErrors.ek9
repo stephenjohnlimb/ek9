@@ -10,6 +10,7 @@ defines module bad.services.use
   -?>
   defines service
     //The Name of the and the uri it is mapped to - but break the code by using a parameter.
+    @Error: SYMBOL_DEFINITION: SERVICE_URI_WITH_VARS_NOT_SUPPORTED
     Addresses :/addresses/{not-allowed}
 
       byId() as GET for :/{address-id}
@@ -19,6 +20,7 @@ defines module bad.services.use
             <- rtn as String: getOK()
 
       //An invalid operator
+      @Error: SYMBOL_DEFINITION: SERVICE_OPERATOR_NOT_SUPPORTED
       operator <~> :/
         -> request as HTTPRequest :=: REQUEST
         <- response as HTTPResponse: (request) of HTTPResponse by delegate
@@ -32,9 +34,11 @@ defines module bad.services.use
 
       //Not allowed because this is just a normal method and 'correlation' to http is not possible.
       private someMethod()
+        @Error: SYMBOL_DEFINITION: SERVICE_HTTP_ACCESS_NOT_SUPPORTED
         -> incomingContent as String :=: CONTENT
 
       private anotherInvalidMethod()
+        @Error: SYMBOL_DEFINITION: SERVICE_HTTP_ACCESS_NOT_SUPPORTED
         <- incomingContent as String :=: CONTENT
 
       //As private this is fine
@@ -45,6 +49,7 @@ defines module bad.services.use
       getNotOK()
         <- rtn as String: "NOT OK"
 
+      @Error: SYMBOL_DEFINITION: METHOD_MODIFIER_PROTECTED_IN_SERVICE
       protected notAllowed()
         <- rtn as String: "Will be caught by compiler"
 //EOF

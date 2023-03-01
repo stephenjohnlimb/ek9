@@ -17,6 +17,7 @@ defines module incorrect.parameters.on.constructors
       //Failure 1
       //This is not allowed, as it is expected a single parameter will give the compiler
       //the type to infer for the generic nature of the generic/template class.
+      @Error: SYMBOL_DEFINITION: GENERIC_TYPE_CONSTRUCTOR_INAPPROPRIATE
       SomeGenericType()
         ->
           param1 as T

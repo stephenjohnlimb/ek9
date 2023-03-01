@@ -24,7 +24,7 @@ public class CheckReturningParam implements BiConsumer<EK9Parser.ReturningParamC
 
       //While the grammar supports this, we currently don't in the compiler. Make type resolution much harder.
       //If types can be resolved in phase1 - simple built in types, then that's fine, but we can't 'chase the type'.
-      errorListener.semanticError(ctx.start, "use '<- " + variableSymbol.getName() + " as {type}?'",
+      errorListener.semanticError(ctx.LEFT_ARROW().getSymbol(), "use '<- " + variableSymbol.getName() + " as {type}?'",
           ErrorListener.SemanticClassification.ONLY_SIMPLE_RETURNING_TYPES_SUPPORTED);
     }
   }

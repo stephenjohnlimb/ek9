@@ -51,10 +51,12 @@ defines module bad.argument.parameters
     BadArgumentCombination()
       ->
         arg1 as Integer
+        @Error: SYMBOL_DEFINITION: PROGRAM_ARGUMENTS_INAPPROPRIATE
         arg2 as List of String
 
     //Failure2 - not supported, developer must take the List of String and build/parse them to create the record.
     BadArgumentType1()
+      @Error: SYMBOL_DEFINITION: PROGRAM_ARGUMENT_TYPE_INVALID
       -> arg as ATestRecord
       //Just some body to stop any other compiler errors
       v <- "Steve"
@@ -62,6 +64,7 @@ defines module bad.argument.parameters
 
     //Failure 3 - as above by using a function as the type
     BadArgumentType2()
+      @Error: SYMBOL_DEFINITION: PROGRAM_ARGUMENT_TYPE_INVALID
       -> arg as someAbstractFunction
       //Just some body to stop any other compiler errors
       v <- "Steve"
@@ -69,6 +72,7 @@ defines module bad.argument.parameters
 
     //Failure 4 - a list but can only be of String
     BadArgumentType3()
+      @Error: SYMBOL_DEFINITION: PROGRAM_ARGUMENT_TYPE_INVALID
       -> argv as List of Integer
       //Just some body to stop any other compiler errors
       v <- "Steve"

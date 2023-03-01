@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Just tests bad references usage.
+ * As this uses multiple files and multithreaded compiler it is not possible to use the '@directive' approach
+ * for errors.
  */
 class BadReferencesFullCompilationTest extends FullCompilationTest {
 

@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.main;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.ek9lang.compiler.internals.CompilableProgram;
@@ -24,8 +23,6 @@ class BadServiceFullCompilationTest extends FullCompilationTest {
 
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
-    assertFalse(compilationResult);
-    assertEquals(5, numberOfErrors);
     assertFalse(program.getParsedModules("bad.services.use").isEmpty());
   }
 }
