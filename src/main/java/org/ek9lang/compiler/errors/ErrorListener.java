@@ -31,6 +31,8 @@ public class ErrorListener extends BaseErrorListener {
   private boolean exceptionOnAmbiguity = false;
   private boolean exceptionOnContextSensitive = false;
   private boolean exceptionOnFullContext = false;
+  //Now have @ type directives we can hold these to one side.
+  private List<ErrorDetails> directiveErrors = new ArrayList<>();
   private List<ErrorDetails> errors = new ArrayList<>();
   //This is so we can limit the number of errors we output when we get multiple triggers for
   //the same type/variable but for different reasons.
@@ -51,6 +53,7 @@ public class ErrorListener extends BaseErrorListener {
    * Remove all errors and warnings.
    */
   public void reset() {
+    directiveErrors = new ArrayList<>();
     errors = new ArrayList<>();
     uniqueErrors = new HashMap<>();
     warnings = new ArrayList<>();
@@ -95,6 +98,14 @@ public class ErrorListener extends BaseErrorListener {
     return errors.iterator();
   }
 
+  public Iterator<ErrorDetails> getDirectiveErrors() {
+    return directiveErrors.iterator();
+  }
+
+  public boolean hasDirectiveErrors() {
+    return !directiveErrors.isEmpty();
+  }
+
   public boolean hasErrors() {
     return !isErrorFree();
   }
@@ -130,6 +141,23 @@ public class ErrorListener extends BaseErrorListener {
 
   public void semanticError(Token offendingToken, String msg, SemanticClassification classification) {
     addErrorDetails(createSemanticError(offendingToken, msg, classification));
+  }
+
+  /**
+   * Create a new error based on the directive. This means that if a directive was present or was missing
+   * against an actual compiler error - we can raise this specific type of error to indicate something
+   * that the EK9 developer was checking for (via a directive) is in error.
+   */
+  public void directiveError(final Token offendingToken, final String msg,
+                             final SemanticClassification classification) {
+    String shortFileName = osSupport.getFileNameWithoutPath(offendingToken.getTokenSource().getSourceName());
+    int tokenLength = offendingToken.getText().length();
+
+    var error = new ErrorDetails(ErrorClassification.DIRECTIVE_ERROR, offendingToken.getText(), shortFileName,
+        offendingToken.getLine(), offendingToken.getCharPositionInLine(), tokenLength, msg);
+
+    error.setSemanticClassification(classification);
+    directiveErrors.add(error);
   }
 
   /**
@@ -219,7 +247,8 @@ public class ErrorListener extends BaseErrorListener {
     DEPRECATION("Deprecat:"),
     SYNTAX_ERROR("Syntax  :"),
     SEMANTIC_WARNING("Warning :"),
-    SEMANTIC_ERROR("Error   :");
+    SEMANTIC_ERROR("Error   :"),
+    DIRECTIVE_ERROR("Directiv:");
 
     private final String description;
 
@@ -232,6 +261,11 @@ public class ErrorListener extends BaseErrorListener {
    * What is the semantic nature of the error.
    */
   public enum SemanticClassification {
+    UNKNOWN_DIRECTIVE("invalid directive"),
+    DIRECTIVE_MISSING("but the directive is missing"),
+    DIRECTIVE_WRONG_CLASSIFICATION("directive error classification incorrect"),
+    ERROR_MISSING("but the error is missing"),
+    DIRECTIVE_ERROR_MISMATCH("amounts don't match"),
     NOT_RESOLVED_FUZZY_MATCH("is the closest match found"),
     NOT_RESOLVED("not resolved"),
     OBJECT_NOT_RESOLVED("object not resolved"),
@@ -520,8 +554,12 @@ public class ErrorListener extends BaseErrorListener {
       this.position = characterNumber;
       this.tokenLength = tokenLength;
 
-      symbolErrorText = String.format("%s' on line %d position %d",
-          likelyOffendingSymbol, lineNumber, characterNumber);
+      if (lineNumber != 0 || position != 0) {
+        symbolErrorText = String.format("%s' on line %d position %d",
+            likelyOffendingSymbol, lineNumber, characterNumber);
+      } else {
+        symbolErrorText = likelyOffendingSymbol + "'";
+      }
     }
 
     public SemanticClassification getSemanticClassification() {

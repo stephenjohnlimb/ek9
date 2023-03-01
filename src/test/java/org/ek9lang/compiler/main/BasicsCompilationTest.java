@@ -37,7 +37,8 @@ class BasicsCompilationTest extends FullCompilationTest {
             System.err.println("Errors in [" + loadedModule + "]");
             var iter = errorListener.getErrors();
             while (iter.hasNext()) {
-              System.err.println(iter.next());
+              var error = iter.next();
+              System.err.println(error.getClassification() + ":" + error);
             }
           }
         });

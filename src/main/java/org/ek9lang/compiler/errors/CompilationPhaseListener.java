@@ -1,8 +1,6 @@
 package org.ek9lang.compiler.errors;
 
-import java.util.function.BiConsumer;
-import org.ek9lang.compiler.internals.CompilableSource;
-import org.ek9lang.compiler.main.phases.CompilationPhase;
+import java.util.function.Consumer;
 
 /**
  * Register this event listener with the compiler to pick up on
@@ -11,15 +9,11 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
  * There may not always be errors or warnings.
  * Use CompilableSource.getErrorListener() to check for errors/warnings.
  */
-public interface CompilationPhaseListener extends BiConsumer<CompilationPhase, CompilableSource> {
+public interface CompilationPhaseListener extends Consumer<CompilationEvent> {
 
   /**
    * Once the compiler has processed (or attempted to process) a source file it will issue
    * this event.
-   *
-   * @param phase            The phase of compilation being undertaken.
-   * @param compilableSource The source that was processed.
    */
-  void accept(CompilationPhase phase, CompilableSource compilableSource);
-
+  void accept(final CompilationEvent compilationEvent);
 }

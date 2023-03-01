@@ -9,10 +9,15 @@ import org.ek9lang.compiler.internals.CompilableSource;
  */
 public class CompilableSourceErrorCheck implements Predicate<Collection<CompilableSource>> {
   @Override
-  public boolean test(Collection<CompilableSource> compilableSources) {
+  public boolean test(final Collection<CompilableSource> compilableSources) {
+
+    return hasErrors(compilableSources);
+  }
+
+  private boolean hasErrors(final Collection<CompilableSource> compilableSources) {
     return compilableSources
         .stream()
-        .anyMatch(source -> source.getErrorListener().hasErrors());
-
+        .anyMatch(source -> source.getErrorListener().hasErrors() || source.getErrorListener().hasDirectiveErrors());
   }
+
 }

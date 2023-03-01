@@ -60,23 +60,26 @@ class GenericsUse1CompilationTest extends FullCompilationTest {
       var moduleName = "simple.generics.use.four";
       sharedCompilableProgram.accept(program -> {
         //Make some new type checkers to validate presence or absence of types.
+        //But we need to check the event we are being called on is for our source and module.
+        var parsedModule = program.getParsedModuleForCompilableSource(source);
+        if(parsedModule.getModuleName().equals(moduleName)) {
+          SymbolCheck templateTypeChecker =
+              new SymbolCheck(program, moduleName, true, true, ISymbol.SymbolCategory.TEMPLATE_TYPE);
+          SymbolCheck basicTypeChecker =
+              new SymbolCheck(program, moduleName, true, true, ISymbol.SymbolCategory.TYPE);
+          var missingGenericTypeChecker =
+              new GenericsSymbolCheck(program, moduleName, false, ISymbol.SymbolCategory.TYPE);
 
-        SymbolCheck templateTypeChecker =
-            new SymbolCheck(program, moduleName, true, true, ISymbol.SymbolCategory.TEMPLATE_TYPE);
-        SymbolCheck basicTypeChecker =
-            new SymbolCheck(program, moduleName, true, true, ISymbol.SymbolCategory.TYPE);
-        var missingGenericTypeChecker =
-            new GenericsSymbolCheck(program, moduleName, false, ISymbol.SymbolCategory.TYPE);
+          //So this template generic class should be present
+          templateTypeChecker.accept("GenericThing");
+          //Also this basic type class should be present
+          basicTypeChecker.accept("BespokeClass");
 
-        //So this template generic class should be present
-        templateTypeChecker.accept("GenericThing");
-        //Also this basic type clas should be present
-        basicTypeChecker.accept("BespokeClass");
-
-        //But because BespokeClass was declared after the use ' thingOfBespokeClass <- GenericThing() of BespokeClass'
-        //This type will not have been created - yet! - We need another run through the source to accomplish that
-        missingGenericTypeChecker.accept(
-            new SymbolSearchForTest("GenericThing", new SymbolSearchForTest("BespokeClass")));
+          //But because BespokeClass was declared after the use ' thingOfBespokeClass <- GenericThing() of BespokeClass'
+          //This type will not have been created - yet! - We need another run through the source to accomplish that
+          missingGenericTypeChecker.accept(
+              new SymbolSearchForTest("GenericThing", new SymbolSearchForTest("BespokeClass")));
+        }
       });
     }
   }

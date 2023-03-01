@@ -96,8 +96,6 @@ THROW : 'throw';
 TRY : 'try';
 WHILE : 'while';
 
-
-
 HTTP_GET: 'GET';
 HTTP_DELETE: 'DELETE';
 HTTP_HEAD: 'HEAD';
@@ -112,6 +110,7 @@ HTTP_QUERY: 'QUERY';
 HTTP_REQUEST: 'REQUEST';
 HTTP_CONTENT: 'CONTENT';
 HTTP_CONTEXT: 'CONTEXT';
+
 
 Uriproto
     : ':' + UriprotoPart+
@@ -415,6 +414,7 @@ SingleCharacter
 RegExLiteral
     : {isRegexPossible()}? '/' ( '\\/' | ~[\r\n] )*?  '/'
     ;
+
 
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
 //html style for developers with that back ground

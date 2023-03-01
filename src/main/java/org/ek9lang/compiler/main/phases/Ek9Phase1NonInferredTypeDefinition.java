@@ -2,7 +2,9 @@ package org.ek9lang.compiler.main.phases;
 
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.ek9lang.compiler.errors.CompilationEvent;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.CompilableSource;
@@ -37,45 +39,39 @@ public class Ek9Phase1NonInferredTypeDefinition
     implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
 
   private boolean useMultiThreading = true;
-  private final CompilationPhaseListener listener;
+  private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
+
+  private static final CompilationPhase thisPhase = CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION;
 
   /**
    * Create a new phase 1 second pass template type symbol resolution definition instance.
    */
   public Ek9Phase1NonInferredTypeDefinition(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                            CompilationPhaseListener listener, CompilerReporter reporter) {
+                                            Consumer<CompilationEvent> listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
     this.compilableProgramAccess = compilableProgramAccess;
   }
 
-  public Ek9Phase1NonInferredTypeDefinition(boolean multiThread,
-                                            SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                            CompilationPhaseListener listener, CompilerReporter reporter) {
-    this(compilableProgramAccess, listener, reporter);
-    this.useMultiThreading = multiThread;
-  }
-
   @Override
   public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
-    final var thisPhase = CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION;
+
 
     reporter.log(thisPhase);
-    final var result = underTakeTypeSymbolResolutionAndDefinition(workspace, thisPhase);
+    final var result = underTakeTypeSymbolResolutionAndDefinition(workspace);
     return new CompilationPhaseResult(thisPhase, result, compilerFlags.getCompileToPhase() == thisPhase);
   }
 
-  private boolean underTakeTypeSymbolResolutionAndDefinition(Workspace workspace, CompilationPhase phase) {
+  private boolean underTakeTypeSymbolResolutionAndDefinition(Workspace workspace) {
     if (useMultiThreading) {
       defineSymbolsMultiThreaded(workspace);
     } else {
       defineSymbolsSingleThreaded(workspace);
     }
 
-    workspace.getSources().forEach(source -> listener.accept(phase, source));
     return !sourceHaveErrors.test(workspace.getSources());
   }
 
@@ -96,18 +92,19 @@ public class Ek9Phase1NonInferredTypeDefinition
     //First get the parsed module for this source file.
     //This has to be done via a mutable holder through a reentrant lock to the program
     var holder = new Holder<ParsedModule>();
-    compilableProgramAccess.accept(program -> {
-      holder.accept(Optional.ofNullable(program.getParsedModuleForCompilableSource(source)));
-    });
+    compilableProgramAccess.accept(
+        program -> holder.accept(Optional.ofNullable(program.getParsedModuleForCompilableSource(source))));
 
     if (holder.isEmpty()) {
       throw new CompilerException("Compiler error, the parsed module must be present for " + source.getFileName());
     }
 
-    holder.ifPresent(module -> {
-      ResolveDefineExplicitTemplateUseListener phaseListener = new ResolveDefineExplicitTemplateUseListener(module);
+    holder.ifPresent(parsedModule -> {
+      ResolveDefineExplicitTemplateUseListener phaseListener =
+          new ResolveDefineExplicitTemplateUseListener(parsedModule);
       ParseTreeWalker walker = new ParseTreeWalker();
       walker.walk(phaseListener, source.getCompilationUnitContext());
+      listener.accept(new CompilationEvent(thisPhase, parsedModule, source));
     });
   }
 }

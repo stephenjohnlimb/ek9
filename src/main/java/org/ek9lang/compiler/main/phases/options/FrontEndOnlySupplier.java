@@ -2,11 +2,14 @@ package org.ek9lang.compiler.main.phases.options;
 
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
+import org.ek9lang.compiler.errors.CompilationEvent;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
+import org.ek9lang.compiler.main.directives.ErrorDirectiveListener;
 import org.ek9lang.compiler.main.phases.Ek9Phase0Parsing;
 import org.ek9lang.compiler.main.phases.Ek9Phase1ModuleDuplicateSymbolChecks;
 import org.ek9lang.compiler.main.phases.Ek9Phase1NonInferredTypeDefinition;
@@ -31,7 +34,7 @@ import org.ek9lang.core.threads.SharedThreadContext;
 public class FrontEndOnlySupplier
     implements Supplier<List<BiFunction<Workspace, CompilerFlags, CompilationPhaseResult>>> {
 
-  private final CompilationPhaseListener listener;
+  private final Consumer<CompilationEvent> listener;
   private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilerReporter reporter;
 
@@ -45,7 +48,7 @@ public class FrontEndOnlySupplier
     AssertValue.checkNotNull("Compilation Listener must be provided", listener);
     AssertValue.checkNotNull("Compilation Reporter must be provided", reporter);
     this.compilableProgramAccess = compilableProgramAccess;
-    this.listener = listener;
+    this.listener = new ErrorDirectiveListener().andThen(listener);
     this.reporter = reporter;
   }
 

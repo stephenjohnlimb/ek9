@@ -20,8 +20,18 @@ sheBang
     : SHEBANG NL+
     ;
 
+//Provides a way to embed directives into EK9 source for various reasons to check/alter compilation/tests/generation
+directive
+    : AT identifier (COLON directivePart)* NL
+    ;
+
+directivePart
+    : identifier
+    | stringLit
+    ;
+
 moduleDeclaration
-    : DEFINES EXTERN? MODULE dottedName NL+ (INDENT NL* (referencesBlock NL+)? (moduleBlock NL+)+ DEDENT)?
+    : directive? DEFINES EXTERN? MODULE dottedName NL+ (INDENT NL* (directive? referencesBlock NL+)? (directive? moduleBlock NL+)+ DEDENT)?
     ;
 
 moduleBlock
@@ -40,55 +50,55 @@ moduleBlock
     ;
 
 referencesBlock
-    : REFERENCES NL+ INDENT NL* (identifierReference NL+)+ DEDENT
+    : REFERENCES NL+ INDENT NL* (directive? identifierReference NL+)+ DEDENT
     ;
 
 typeBlock
-    : DEFINES TYPE NL+ INDENT NL* (typeDeclaration NL+)+ DEDENT
+    : DEFINES TYPE NL+ INDENT NL* (directive? typeDeclaration NL+)+ DEDENT
     ;
 
 packageBlock
-    : DEFINES PACKAGE NL+ INDENT NL* (variableDeclaration NL+)+ DEDENT
+    : DEFINES PACKAGE NL+ INDENT NL* (directive? variableDeclaration NL+)+ DEDENT
     ;
 
 constantBlock
-    : DEFINES CONSTANT NL+ INDENT NL* (constantDeclaration NL+)+ DEDENT
+    : DEFINES CONSTANT NL+ INDENT NL* (directive? constantDeclaration NL+)+ DEDENT
     ;
 
 recordBlock
-    : DEFINES RECORD NL+ INDENT NL* (recordDeclaration NL+)+ DEDENT
+    : DEFINES RECORD NL+ INDENT NL* (directive? recordDeclaration NL+)+ DEDENT
     ;
 
 traitBlock
-    : DEFINES TRAIT NL+ INDENT NL* (traitDeclaration NL+)+ DEDENT
+    : DEFINES TRAIT NL+ INDENT NL* (directive? traitDeclaration NL+)+ DEDENT
     ;
 
 classBlock
-    : DEFINES CLASS NL+ INDENT NL* (classDeclaration NL+)+ DEDENT
+    : DEFINES CLASS NL+ INDENT NL* (directive? classDeclaration NL+)+ DEDENT
     ;
 
 componentBlock
-    : DEFINES COMPONENT NL+ INDENT NL* (componentDeclaration NL+)+ DEDENT
+    : DEFINES COMPONENT NL+ INDENT NL* (directive? componentDeclaration NL+)+ DEDENT
     ;
 
 textBlock
-    : DEFINES TEXT FOR stringLit NL+ INDENT NL* (textDeclaration NL+)+ DEDENT
+    : DEFINES TEXT FOR stringLit NL+ INDENT NL* (directive? textDeclaration NL+)+ DEDENT
     ;
 
 serviceBlock
-    : DEFINES SERVICE NL+ INDENT NL* (serviceDeclaration NL+)+ DEDENT
+    : DEFINES SERVICE NL+ INDENT NL* (directive? serviceDeclaration NL+)+ DEDENT
     ;
 
 applicationBlock
-    : DEFINES appType=(PROGRAM | SERVICE)? APPLICATION NL+ INDENT NL* (applicationDeclaration NL+)+ DEDENT
+    : DEFINES appType=(PROGRAM | SERVICE)? APPLICATION NL+ INDENT NL* (directive? applicationDeclaration NL+)+ DEDENT
     ;
 
 functionBlock
-    : DEFINES FUNCTION NL+ INDENT NL* functionDeclaration+ DEDENT
+    : DEFINES FUNCTION NL+ INDENT NL* (directive? functionDeclaration)+ DEDENT
     ;
 
 programBlock
-    : DEFINES PROGRAM NL+ INDENT NL* methodDeclaration+ DEDENT
+    : DEFINES PROGRAM NL+ INDENT NL* (directive? methodDeclaration)+ DEDENT
     ;
 
 //End of main blocks
@@ -280,7 +290,7 @@ block
     ;
 
 instructionBlock
-    : (blockStatement NL+)+
+    : (directive? blockStatement NL+)+
     ;
 
 blockStatement
@@ -544,13 +554,13 @@ declareArgumentParam
     ;
 
 argumentParam
-    : RIGHT_ARROW NL+ INDENT NL* (variableOnlyDeclaration NL+)+ DEDENT NL+
-    | RIGHT_ARROW variableOnlyDeclaration NL+
+    : directive? RIGHT_ARROW NL+ INDENT directive? NL* (variableOnlyDeclaration NL+)+ DEDENT NL+
+    | directive? RIGHT_ARROW variableOnlyDeclaration NL+
     ;
 
 returningParam
-    : LEFT_ARROW NL+ INDENT NL* (variableDeclaration | variableOnlyDeclaration) NL DEDENT NL+
-    | LEFT_ARROW (variableDeclaration | variableOnlyDeclaration) NL+
+    : directive? LEFT_ARROW NL+ INDENT directive? NL* (variableDeclaration | variableOnlyDeclaration) NL DEDENT NL+
+    | directive? LEFT_ARROW (variableDeclaration | variableOnlyDeclaration) NL+
     ;
 
 //Simple stuff from here on

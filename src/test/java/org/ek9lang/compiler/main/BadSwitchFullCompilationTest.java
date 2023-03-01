@@ -1,8 +1,6 @@
 package org.ek9lang.compiler.main;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
@@ -18,7 +16,6 @@ class BadSwitchFullCompilationTest extends FullCompilationTest {
     super("/examples/parseButFailCompile/badSwitchUse");
   }
 
-
   @Test
   void testPhaseDevelopment() {
     testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
@@ -26,9 +23,6 @@ class BadSwitchFullCompilationTest extends FullCompilationTest {
 
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
-    assertFalse(compilationResult);
-    assertEquals(5, numberOfErrors);
-    var alpha = program.getParsedModules("bad.switches.use");
-    assertNotNull(alpha);
+    assertFalse(program.getParsedModules("bad.switches.use").isEmpty());
   }
 }

@@ -1,7 +1,8 @@
 package org.ek9lang.compiler.main.phases;
 
 import java.util.function.BiFunction;
-import org.ek9lang.compiler.errors.CompilationPhaseListener;
+import java.util.function.Consumer;
+import org.ek9lang.compiler.errors.CompilationEvent;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
@@ -22,16 +23,18 @@ import org.ek9lang.core.threads.SharedThreadContext;
  */
 public class Ek9Phase3FurtherSymbolDefinitionResolution
     implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
-  private final CompilationPhaseListener listener;
+  private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
+
+  private static final CompilationPhase thisPhase = CompilationPhase.FURTHER_SYMBOL_DEFINITION;
 
   /**
    * Create new instance for further symbol resolution.
    */
   public Ek9Phase3FurtherSymbolDefinitionResolution(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                                    CompilationPhaseListener listener, CompilerReporter reporter) {
+                                                    Consumer<CompilationEvent> listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
     this.compilableProgramAccess = compilableProgramAccess;
@@ -39,8 +42,6 @@ public class Ek9Phase3FurtherSymbolDefinitionResolution
 
   @Override
   public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
-    final var thisPhase = CompilationPhase.FURTHER_SYMBOL_DEFINITION;
     return new CompilationPhaseResult(thisPhase, true, compilerFlags.getCompileToPhase() == thisPhase);
   }
-
 }

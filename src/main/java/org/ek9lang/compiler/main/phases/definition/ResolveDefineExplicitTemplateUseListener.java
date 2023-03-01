@@ -225,6 +225,34 @@ public class ResolveDefineExplicitTemplateUseListener extends EK9BaseListener {
   }
 
   @Override
+  public void enterMethodDeclaration(EK9Parser.MethodDeclarationContext ctx) {
+    var scope = symbolAndScopeManagement.getRecordedScope(ctx);
+    AssertValue.checkNotNull("Method should have been defined", scope);
+    symbolAndScopeManagement.enterScope(scope);
+    super.enterMethodDeclaration(ctx);
+  }
+
+  @Override
+  public void exitMethodDeclaration(EK9Parser.MethodDeclarationContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitMethodDeclaration(ctx);
+  }
+
+  @Override
+  public void enterOperatorDeclaration(EK9Parser.OperatorDeclarationContext ctx) {
+    var scope = symbolAndScopeManagement.getRecordedScope(ctx);
+    AssertValue.checkNotNull("Operator should have been defined", scope);
+    symbolAndScopeManagement.enterScope(scope);
+    super.enterOperatorDeclaration(ctx);
+  }
+
+  @Override
+  public void exitOperatorDeclaration(EK9Parser.OperatorDeclarationContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitOperatorDeclaration(ctx);
+  }
+
+  @Override
   public void enterTypeDef(EK9Parser.TypeDefContext ctx) {
     resolveOrDefineTypeDef.apply(ctx);
   }

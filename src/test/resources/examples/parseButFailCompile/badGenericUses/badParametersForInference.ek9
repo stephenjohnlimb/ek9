@@ -123,13 +123,14 @@ defines module incorrect.generic.uses
       listener <- () is AListener of Integer
       listener(1, 2)
 
+    //New directives to enable 'requirement' and expectations to be embedded in the source
     invalidDynamicFunction()
       //Failure 7
+      //Here we are telling the compiler to check we get an error here.
       listener <- () is AListener() of Integer
       listener(1, 2)
 
     validDynamicClass()
-      //Anonymous class is
       genericOfDateInstance1 <- () is GenericThing of Date as class
 
       //create a new named GenericThingOfDate class and created as an instance

@@ -15,12 +15,16 @@ public class CompilableProgramSuitable implements Supplier<SharedThreadContext<C
   @Override
   public SharedThreadContext<CompilableProgram> get() {
     Ek9LanguageBootStrap bootStrap =
-        new Ek9LanguageBootStrap(new Ek9BuiltinLangSupplier(), (phase, compilableSource) -> {
-          if (!compilableSource.getErrorListener().isErrorFree()) {
-            System.err.println("Errors  : " + phase + ", source: " + compilableSource.getFileName());
-            compilableSource.getErrorListener().getErrors().forEachRemaining(error -> {
-              System.err.println(error);
-            });
+        new Ek9LanguageBootStrap(new Ek9BuiltinLangSupplier(), compilationEvent -> {
+          var source = compilationEvent.source();
+          var phase = compilationEvent.phase();
+          if (!source.getErrorListener().isErrorFree()) {
+            System.err.println("Errors  : " + phase + ", source: " + source.getFileName());
+            source.getErrorListener().getErrors().forEachRemaining(System.err::println);
+          }
+          if (source.getErrorListener().hasDirectiveErrors()) {
+            System.err.println("Directiv: " + phase + ", source: " + source.getFileName());
+            source.getErrorListener().getDirectiveErrors().forEachRemaining(System.err::println);
           }
         }, new CompilerReporter(false));
 

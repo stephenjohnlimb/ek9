@@ -4,6 +4,7 @@ defines module bad.switches.use
   defines program
 
     ValidProg()
+
       val <- "ToCheck"
 
       //If you include a default then String? is OK
@@ -33,6 +34,7 @@ defines module bad.switches.use
 
       //So there is no point in this return from a switch
       switch val
+        @Error: SYMBOL_DEFINITION: RETURNING_REDUNDANT
         <- resultText as String?
         case "ToCheck"
           resultText: "Jackpot"
@@ -45,6 +47,7 @@ defines module bad.switches.use
 
       //Here there is no return value but one is expected
       //This is likely to be how someone new to ek9 will get it wrong.
+      @Error: SYMBOL_DEFINITION: RETURNING_REQUIRED
       someResult <- switch val
         case "ToCheck"
           someResult: "Jackpot"
@@ -63,6 +66,7 @@ defines module bad.switches.use
 
       result as String?
 
+      @Error: SYMBOL_DEFINITION: DEFAULT_REQUIRED_IN_SWITCH_STATEMENT
       switch val
         case "This"
           result: "Nice"
@@ -78,6 +82,7 @@ defines module bad.switches.use
       val <- "ToCheck"
 
       //No initialiser for the switch return and also no default
+      @Error: SYMBOL_DEFINITION: DEFAULT_REQUIRED_IN_SWITCH_EXPRESSION
       someResult <- switch val
         <- resultText as String?
         case "ToCheck"
@@ -89,6 +94,7 @@ defines module bad.switches.use
 
     Prog4()
       result <- "Unknown"
+      @Error: SYMBOL_DEFINITION: POINTLESS_EXPRESSION
       switch true
         case true
           result: "True"

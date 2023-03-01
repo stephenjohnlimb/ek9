@@ -2,7 +2,8 @@ package org.ek9lang.compiler.main.phases;
 
 import java.util.HashSet;
 import java.util.function.BiFunction;
-import org.ek9lang.compiler.errors.CompilationPhaseListener;
+import java.util.function.Consumer;
+import org.ek9lang.compiler.errors.CompilationEvent;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
@@ -23,16 +24,17 @@ import org.ek9lang.core.threads.SharedThreadContext;
  */
 public class Ek9Phase1ModuleDuplicateSymbolChecks
     implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
-  private final CompilationPhaseListener listener;
+  private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
+  private static final CompilationPhase thisPhase = CompilationPhase.DUPLICATION_CHECK;
 
   /**
    * Create a new duplicate checker for modules contained in the compilable program.
    */
   public Ek9Phase1ModuleDuplicateSymbolChecks(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                              CompilationPhaseListener listener, CompilerReporter reporter) {
+                                              Consumer<CompilationEvent> listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
     this.compilableProgramAccess = compilableProgramAccess;
@@ -40,7 +42,6 @@ public class Ek9Phase1ModuleDuplicateSymbolChecks
 
   @Override
   public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
-    final var thisPhase = CompilationPhase.DUPLICATION_CHECK;
     reporter.log(thisPhase);
 
     //This will check and add any errors to the appropriate module source error listener.
@@ -65,7 +66,7 @@ public class Ek9Phase1ModuleDuplicateSymbolChecks
           var scope = parsedModule.getModuleScope();
           for (var symbol : scope.getSymbolsForThisScope()) {
             if (!dupChecks.add(symbol.getName())) {
-              throw new CompilerException("How has a duplicate Symbol gor passed the reentrant lock "
+              throw new CompilerException("How has a duplicate Symbol got passed the reentrant lock "
                   + symbol.getSourceToken().getTokenSource().getSourceName()
                   + "Line " + symbol.getSourceToken().getLine());
             }
@@ -73,7 +74,6 @@ public class Ek9Phase1ModuleDuplicateSymbolChecks
           AssertValue.checkNotNull("ParsedModule must be present for source", parsedModule);
         }
       }
-
     });
   }
 }

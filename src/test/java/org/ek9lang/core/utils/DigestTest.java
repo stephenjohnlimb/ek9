@@ -1,9 +1,8 @@
 package org.ek9lang.core.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +30,7 @@ final class DigestTest {
   @SuppressWarnings("java:S5785")
   void testNullCheckSums() {
     Digest.CheckSum cksum = new Digest.CheckSum(new byte[1]);
-    assertFalse(cksum.equals(null));
+    assertNotEquals(null, cksum);
   }
 
   @Test
@@ -96,16 +95,16 @@ final class DigestTest {
 
     byte[] validBytes =
         Hex.toByteArray("E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855");
-    assertTrue(ckSum1.equals(validBytes));
+    assertEquals(ckSum1, validBytes);
 
     byte[] inValidBytes =
         Hex.toByteArray("X3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855");
-    assertFalse(ckSum1.equals(inValidBytes));
+    assertNotEquals(ckSum1, inValidBytes);
 
-    assertFalse(ckSum1.equals(new byte[0]));
+    assertNotEquals(ckSum1, new byte[0]);
 
 
-    assertFalse(ckSum1.equals(""));
+    assertNotEquals("", ckSum1);
 
     if (newFile.exists()) {
       newFile.delete();

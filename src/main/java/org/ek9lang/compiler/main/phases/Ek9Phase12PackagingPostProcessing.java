@@ -1,7 +1,8 @@
 package org.ek9lang.compiler.main.phases;
 
 import java.util.function.BiFunction;
-import org.ek9lang.compiler.errors.CompilationPhaseListener;
+import java.util.function.Consumer;
+import org.ek9lang.compiler.errors.CompilationEvent;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
 import org.ek9lang.compiler.main.phases.result.CompilableSourceErrorCheck;
@@ -15,11 +16,13 @@ import org.ek9lang.compiler.main.phases.result.CompilerReporter;
  */
 public class Ek9Phase12PackagingPostProcessing implements
     BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
-  private final CompilationPhaseListener listener;
+  private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
-  public Ek9Phase12PackagingPostProcessing(CompilationPhaseListener listener,
+  private static final CompilationPhase thisPhase = CompilationPhase.PACKAGING_POST_PROCESSING;
+
+  public Ek9Phase12PackagingPostProcessing(Consumer<CompilationEvent> listener,
                                            CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
@@ -27,7 +30,7 @@ public class Ek9Phase12PackagingPostProcessing implements
 
   @Override
   public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
-    final var thisPhase = CompilationPhase.PACKAGING_POST_PROCESSING;
+
     return new CompilationPhaseResult(thisPhase, true,
         compilerFlags.getCompileToPhase() == thisPhase);
   }

@@ -6,12 +6,11 @@ import org.ek9lang.LanguageMetaData;
 import org.ek9lang.cli.support.CompilationContext;
 import org.ek9lang.cli.support.FileCache;
 import org.ek9lang.cli.support.Reporter;
-import org.ek9lang.compiler.internals.CompilableSource;
+import org.ek9lang.compiler.errors.CompilationEvent;
 import org.ek9lang.compiler.internals.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.main.Compiler;
 import org.ek9lang.compiler.main.Ek9Compiler;
 import org.ek9lang.compiler.main.Ek9LanguageBootStrap;
-import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.core.utils.FileHandling;
@@ -63,7 +62,7 @@ public class Ek9 {
         final var compilationReporter = new CompilationReporter(commandLine.isVerbose());
         final var compilerReporter = new CompilerReporter(commandLine.isVerbose());
         final var sourceFileCache = new FileCache(commandLine);
-        final var sourceSupplier  = new Ek9BuiltinLangSupplier();
+        final var sourceSupplier = new Ek9BuiltinLangSupplier();
         Ek9LanguageBootStrap bootStrap =
             new Ek9LanguageBootStrap(sourceSupplier, compilationReporter::logPhaseCompilation, compilerReporter);
         //For the main compiler we want all phases.
@@ -242,17 +241,18 @@ public class Ek9 {
       super(verbose);
     }
 
-    public void logPhaseCompilation(CompilationPhase phase, CompilableSource source) {
-      var errorListener = source.getErrorListener();
-      log(String.format("%s: %s processed", phase, source.getFileName()));
+    public void logPhaseCompilation(final CompilationEvent compilationEvent) {
+
+      var errorListener = compilationEvent.source().getErrorListener();
+      log(String.format("%s: %s processed", compilationEvent.phase(), compilationEvent.source().getFileName()));
 
       if (errorListener.hasWarnings()) {
-        report(String.format("%s: %s has warnings", phase, source.getFileName()));
+        report(String.format("%s: %s has warnings", compilationEvent.phase(), compilationEvent.source().getFileName()));
         errorListener.getWarnings().forEachRemaining(this::report);
       }
 
       if (errorListener.hasErrors()) {
-        report(String.format("%s: Errors in %s", phase, source.getFileName()));
+        report(String.format("%s: Errors in %s", compilationEvent.phase(), compilationEvent.source().getFileName()));
         errorListener.getErrors().forEachRemaining(this::report);
       }
     }

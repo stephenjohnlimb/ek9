@@ -28,7 +28,7 @@ import org.ek9lang.core.utils.Digest;
  */
 public final class CompilableSource implements Source, TokenConsumptionListener {
   // This is the full path to the filename.
-  private String filename;
+  private final String filename;
 
   /**
    * For some resources like builtin.ek9 inside the jar we load from an inputstream.
@@ -39,7 +39,7 @@ public final class CompilableSource implements Source, TokenConsumptionListener 
   //This is so we can let all parts of that package resolve against each other.
   //But stop code from other packages/main etc. Accessing anything put constructs defined at this
   //top level package name.
-  protected Digest.CheckSum checkSum = null;
+  private Digest.CheckSum checkSum = null;
   //Need to know if the source is a development source or a lib source or both or neither
   private boolean dev = false;
   private String packageModuleName;
@@ -150,10 +150,9 @@ public final class CompilableSource implements Source, TokenConsumptionListener 
   /**
    * Set this compilable source as a library.
    */
-  public CompilableSource setLib(String packageModuleName, boolean lib) {
+  public void setLib(String packageModuleName, boolean lib) {
     this.packageModuleName = packageModuleName;
     this.lib = lib;
-    return this;
   }
 
   /**
@@ -168,11 +167,10 @@ public final class CompilableSource implements Source, TokenConsumptionListener 
   /**
    * Just updates the last modified and the check sum to current values.
    */
-  public CompilableSource resetDetails() {
+  public void resetDetails() {
     updateFileDetails();
     resetTokens();
     setErrorListener(new ErrorListener(getGeneralIdentifier()));
-    return this;
   }
 
   private void resetTokens() {

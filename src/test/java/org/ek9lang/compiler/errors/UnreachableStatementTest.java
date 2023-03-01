@@ -1,6 +1,8 @@
 package org.ek9lang.compiler.errors;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.ek9lang.compiler.tokenizer.SyntheticToken;
 import org.junit.jupiter.api.Test;
 

@@ -1,9 +1,14 @@
 package org.ek9lang.compiler.internals;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.main.phases.CompilationPhase;
+import org.ek9lang.compiler.support.Directive;
+import org.ek9lang.compiler.support.DirectiveType;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.ModuleScope;
@@ -56,6 +61,12 @@ public class ParsedModule implements Module {
    * and important some with the same module name! so need to go to compilable program to access
    */
   protected ParseTreeProperty<IScope> scopes = new ParseTreeProperty<>();
+
+  /**
+   * These are the directives that can be added to EK9 source.
+   * These can be used for testing the compiler, but also enabled instrumentation and reification.
+   */
+  protected List<Directive> directives = new ArrayList<>();
 
   /**
    * On first pass through the code we don't know the types or other items relating to a symbol
@@ -135,12 +146,36 @@ public class ParsedModule implements Module {
   }
 
   /**
+   * When processing EK9 source code the developer now has some ability to use
+   * '@directives'. These are aimed at code compilation, instrumentation and error checking.
+   * This means that for compiler development, we can reduce the number of Java unit tests and
+   * specific coding (to some extent), by adding in our expectations just before we write
+   * so erroneous code (to check the compiler).
+   * This means that the test and the deliberated defective code as co-located.
+   */
+  public void recordDirective(final Directive directive) {
+    AssertValue.checkNotNull("Directive cannot be null", directive);
+    directives.add(directive);
+  }
+
+  /**
+   * Provide access to any directives recorded.
+   */
+  public List<Directive> getDirectives(final DirectiveType type, final CompilationPhase phase) {
+    return directives.stream().filter(directive -> directive.type() == type)
+        .filter(directive -> directive.isForPhase(phase)).toList();
+  }
+
+  public List<Directive> getDirectives(final DirectiveType type) {
+    return directives.stream().filter(directive -> directive.type() == type).toList();
+  }
+
+  /**
    * Record a particular node context during listen/visit of a context with a particular scope.
    */
-  public ParsedModule recordScope(ParseTree node, IScope withScope) {
+  public void recordScope(ParseTree node, IScope withScope) {
     AssertValue.checkNotNull("WithScope cannot be null", withScope);
     scopes.put(node, withScope);
-    return this;
   }
 
   public IScope getRecordedScope(ParseTree node) {
@@ -150,7 +185,7 @@ public class ParsedModule implements Module {
   /**
    * Record a particular node context with a particular symbol.
    */
-  public ParsedModule recordSymbol(ParseTree node, ISymbol symbol) {
+  public void recordSymbol(ParseTree node, ISymbol symbol) {
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
 
     //Let the symbol know where it is defined.
@@ -158,7 +193,7 @@ public class ParsedModule implements Module {
     //but we only want its actual module recorded the first time it is encountered.
     symbol.setParsedModule(Optional.of(this));
     symbols.put(node, symbol);
-    return this;
+
   }
 
   public ISymbol getRecordedSymbol(ParseTree node) {

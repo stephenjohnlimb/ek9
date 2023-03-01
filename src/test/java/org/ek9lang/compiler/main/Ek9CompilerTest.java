@@ -11,7 +11,6 @@ import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.compiler.parsing.WorkSpaceFromResourceDirectoryFiles;
 import org.ek9lang.compiler.testsupport.PathToSourceFromName;
 import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
@@ -44,7 +43,7 @@ class Ek9CompilerTest {
   @ParameterizedTest
   @MethodSource("allCompilationPhases")
   void testSimpleSuccessfulParsing(final CompilationPhase upToPhase) {
-    CompilationPhaseListener listener = (phase, source) -> {
+    CompilationPhaseListener listener = compilationEvent -> {
     };
     var sharedCompilableProgram = sharedContext.get();
 
@@ -59,7 +58,7 @@ class Ek9CompilerTest {
 
   @Test
   void testSimpleUnSuccessfulParsing() {
-    CompilationPhaseListener listener = (phase, source) -> {
+    CompilationPhaseListener listener = compilationEvent -> {
     };
     FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedContext.get(),
         listener, new CompilerReporter(true));

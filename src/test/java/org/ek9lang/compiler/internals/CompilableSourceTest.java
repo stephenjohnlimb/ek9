@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
-import org.ek9lang.compiler.testsupport.PathToSourceFromName;
 import org.ek9lang.compiler.tokenizer.TokenResult;
 import org.ek9lang.core.exception.CompilerException;
 import org.junit.jupiter.api.Test;

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableProgram;
@@ -24,7 +25,8 @@ class Ek9BootStrapTest {
   final Ek9BuiltinLangSupplier sourceSupplier = new Ek9BuiltinLangSupplier();
 
   private final Supplier<CompilationPhaseListener> listener
-      = () -> (phase, source) -> {
+      = () -> compilationEvent -> {
+    var source = compilationEvent.source();
     if (source.getErrorListener().hasErrors()) {
       source.getErrorListener().getErrors().forEachRemaining(System.err::println);
     }
@@ -40,7 +42,7 @@ class Ek9BootStrapTest {
     sharedContext.accept(compilableProgram
         -> assertEquals(1, compilableProgram.getParsedModules(EK9_LANG).size()));
 
-    sharedContext.accept(compilableProgram -> assertEk9(compilableProgram));
+    sharedContext.accept(this::assertEk9);
   }
 
   private void assertEk9(final CompilableProgram program) {
@@ -58,7 +60,7 @@ class Ek9BootStrapTest {
     resolved.ifPresentOrElse(listSymbol -> {
       if (listSymbol instanceof IAggregateSymbol list) {
         var resolvedT = list.resolve(new AnySymbolSearch("T"));
-        System.out.println("Resolved T is [" + resolvedT + "]");
+        resolvedT.ifPresentOrElse(t -> {}, () -> Assertions.fail("Expecting 'T' to be found"));
       }
     }, () -> Assertions.fail("Expecting 'List' to be found"));
 
@@ -69,8 +71,8 @@ class Ek9BootStrapTest {
   @Test
   void testBadBootstrapSource() {
     final Supplier<List<CompilableSource>> sourceSupplier =
-        () -> List.of(new CompilableSource(getClass().getResource(
-            "/examples/parseButFailCompile/builtin/badBuiltin.ek9").getPath()));
+        () -> List.of(new CompilableSource(Objects.requireNonNull(getClass().getResource(
+            "/examples/parseButFailCompile/builtin/badBuiltin.ek9")).getPath()));
 
     final var underTest = new Ek9LanguageBootStrap(sourceSupplier, listener.get(), new CompilerReporter(true));
 

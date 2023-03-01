@@ -62,7 +62,9 @@ class HelloWorldFullCompilationTest {
     //Just start with the basics and most on to the next phase one implemented.
     CompilationPhase upToPhase = CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION;
 
-    CompilationPhaseListener listener = (phase, source) -> {
+    CompilationPhaseListener listener = compilationEvent -> {
+      var source = compilationEvent.source();
+      var phase = compilationEvent.phase();
       if (!source.getErrorListener().isErrorFree()) {
         System.out.println("Errors in phase: " + phase);
         source.getErrorListener().getErrors().forEachRemaining(System.out::println);

@@ -186,6 +186,18 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   @Override
+  public void exitDirective(EK9Parser.DirectiveContext ctx) {
+
+    var directive = symbolFactory.newDirective(ctx);
+    if (directive != null) {
+      //i.e. the configuration by the developer was valid.
+      getParsedModule().recordDirective(directive);
+    }
+
+    super.exitDirective(ctx);
+  }
+
+  @Override
   public void enterPackageBlock(EK9Parser.PackageBlockContext ctx) {
     var pack = symbolFactory.newPackage(ctx);
     checkAndDefineModuleScopedSymbol(pack, ctx);

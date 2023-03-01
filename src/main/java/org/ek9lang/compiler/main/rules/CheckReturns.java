@@ -20,7 +20,7 @@ public abstract class CheckReturns {
 
     if (isStatement && returningParamCtx != null) {
       //We do not allow a return section. As it makes no sense
-      errorListener.semanticError(returningParamCtx.start, "",
+      errorListener.semanticError(returningParamCtx.LEFT_ARROW().getSymbol(), "",
           ErrorListener.SemanticClassification.RETURNING_REDUNDANT);
     } else if (!isStatement && returningParamCtx == null) {
       //In this case it only makes sense if a return section is included.

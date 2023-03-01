@@ -2,7 +2,6 @@ package org.ek9lang.compiler.main;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
@@ -29,10 +28,9 @@ class BadProgramsCompilationTest extends FullCompilationTest {
     assertFalse(compilationResult);
     assertEquals(9, numberOfErrors);
 
-    var alpha = program.getParsedModules("bad.program.return");
-    assertNotNull(alpha);
+    assertFalse(program.getParsedModules("bad.program.return").isEmpty());
 
-    var beta = program.getParsedModules("bad.argument.parameters");
-    assertNotNull(beta);
+    assertFalse(program.getParsedModules("bad.argument.parameters").isEmpty());
+
   }
 }

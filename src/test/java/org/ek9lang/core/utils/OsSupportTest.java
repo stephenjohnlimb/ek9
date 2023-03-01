@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import org.ek9lang.core.exception.CompilerException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 final class OsSupportTest {
@@ -184,8 +183,6 @@ final class OsSupportTest {
 
   @Test
   void testDuffDirectoryListing() {
-    assertThrows(IllegalArgumentException.class, () -> {
-      underTest.getAllSubdirectories(null);
-    });
+    assertThrows(IllegalArgumentException.class, () -> underTest.getAllSubdirectories(null));
   }
 }

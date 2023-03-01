@@ -2,7 +2,6 @@ package org.ek9lang.compiler.main;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
@@ -28,7 +27,6 @@ class BadExceptionUseWithAbnormalTerminationTest extends FullCompilationTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
     assertEquals(34, numberOfErrors);
-    var alpha = program.getParsedModules("bad.flowcontrol.examples");
-    assertNotNull(alpha);
+    assertFalse(program.getParsedModules("bad.flowcontrol.examples").isEmpty());
   }
 }

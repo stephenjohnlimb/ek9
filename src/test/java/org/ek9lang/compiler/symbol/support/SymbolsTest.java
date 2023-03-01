@@ -565,7 +565,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     VariableSymbol v1 = new VariableSymbol("v1");
     assertVariable1(v1);
 
-    assertTrue(v1.equals(v1));
+    assertEquals(v1, v1);
 
     VariableSymbol v1RefNull = null;
     assertNotEquals(v1, v1RefNull);
