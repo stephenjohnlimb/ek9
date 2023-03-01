@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.main;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.ek9lang.compiler.internals.CompilableProgram;
@@ -18,14 +17,11 @@ class BadClassModifiersFullCompilationTest extends FullCompilationTest {
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
+    testToPhase(CompilationPhase.SYMBOL_DEFINITION);
   }
 
   @Override
-  protected void assertFinalResults(boolean compilationResult, int numberOfErrors,
-                                    CompilableProgram program) {
-    assertFalse(compilationResult);
-    assertEquals(7, numberOfErrors);
+  protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(program.getParsedModules("bad.classmodifier.use").isEmpty());
   }
 }

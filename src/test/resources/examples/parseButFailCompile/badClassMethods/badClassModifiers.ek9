@@ -20,15 +20,18 @@ defines module bad.classmodifier.use
       default C1()
 
       //This constructor is not allowed because it has parameters
+      @Error: SYMBOL_DEFINITION: INVALID_DEFAULT_CONSTRUCTOR
       default C1()
         -> param as String
 
       //Not logical to define a constructor and say it is abstract
+      @Error: SYMBOL_DEFINITION: ABSTRACT_CONSTRUCTOR
       C1() as abstract
         -> param as Integer
 
       //While it logical and natural to 'think' you are overriding a constructor
       //It does not get expressed this way.
+      @Error: SYMBOL_DEFINITION: OVERRIDE_CONSTRUCTOR
       override C1()
         ->
           p1 as String
@@ -39,20 +42,24 @@ defines module bad.classmodifier.use
 
       //This use of 'public' is not needed, public is defined but never required as it is likely
       //To be a mistake developers moving from other OO languages will make.
+      @Error: SYMBOL_DEFINITION: METHOD_ACCESS_MODIFIER_DEFAULT
       public someMethod()
         <- rtn as String: "OK"
 
       //This makes no sense, if a method being overridden is private
       //Then it is not visible and hence cannot be overridden
       //If the method was not private then it is not possible to reduce it's visibility.
+      @Error: SYMBOL_DEFINITION: METHOD_ACCESS_MODIFIER_PRIVATE_OVERRIDE
       override private basicMethod()
         <- rtn as String: "OK"
 
       //This is not allowed either, not possible to take a concrete existing method
       //And force it to be abstract when its super was not.
+      @Error: SYMBOL_DEFINITION: ABSTRACT_METHOD_AND_OVERRIDE
       override anotherMethod() as abstract
 
       //This makes no sense on a method as it is for program
+      @Error: SYMBOL_DEFINITION: APPLICATION_SELECTION_INVALID
       methodX with application of abc
         v1 <- "Developer some how expecting application injection here"
         assert v1?

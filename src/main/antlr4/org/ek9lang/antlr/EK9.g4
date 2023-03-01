@@ -232,7 +232,7 @@ traitReference
     ;
 
 aggregateParts
-    : NL+ INDENT NL* aggregateProperty* (methodDeclaration | operatorDeclaration)* defaultOperator? DEDENT
+    : NL+ INDENT NL* (directive? aggregateProperty)* (directive? (methodDeclaration | operatorDeclaration))* defaultOperator? DEDENT
     ;
 
 defaultOperator
