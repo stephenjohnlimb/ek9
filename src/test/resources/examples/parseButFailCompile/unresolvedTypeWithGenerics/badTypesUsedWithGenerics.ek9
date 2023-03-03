@@ -1,24 +1,27 @@
 #!ek9
 <?-
   Additional checks on built in generic types.
-  For the same module.
-  BUt these are with non existing types. Should be ok for
-  phase1 definition, ignore in that phase but error in the resolution phase.
+  But with types that don't exist.
 -?>
-defines module simple.generics.use.one
+defines module bad.generics.use.types
 
   defines function
 
     //Failure 1 - SomeUnknownType is not defined anywhere
     AnOptionalWithUnknownType()
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
       -> param1 as Optional of SomeUnknownType
       assert param1?
 
     //Failure 2, 3, 4 - ATypeToBeDefined,  AnotherUnknownType and NoSuchType are not defined anywhere
     ADictionaryWithUnknownTypes()
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
       <- rtn as Iterator of ATypeToBeDefined: Iterator()
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
       aDictionary as Dict of (Integer, AnotherUnknownType): Dict()
 
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
       newEntry as DictEntry of (NoSuchType, String): DictEntry(1, "Steve")
       aDictionary += newEntry
 

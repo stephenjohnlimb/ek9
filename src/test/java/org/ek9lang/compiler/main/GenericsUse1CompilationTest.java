@@ -2,8 +2,6 @@ package org.ek9lang.compiler.main;
 
 import static org.ek9lang.compiler.internals.Ek9BuiltinLangSupplier.NUMBER_OF_EK9_SYMBOLS;
 import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_LANG;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -86,8 +84,6 @@ class GenericsUse1CompilationTest extends FullCompilationTest {
 
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
-    assertFalse(compilationResult);
-    assertEquals(4, numberOfErrors);
 
     //So we now expect more types as this ek9 source uses ek9 built in generic types.
     assertSimpleGenerics(program);
@@ -110,7 +106,7 @@ class GenericsUse1CompilationTest extends FullCompilationTest {
   }
 
   private void assertSimpleGenerics(final CompilableProgram program) {
-    new SymbolCountCheck(3, "simple.generics.use.one", 8).test(program);
+    new SymbolCountCheck(2, "simple.generics.use.one", 6).test(program);
 
     var justOptionalSymbol =
         program.resolveByFullyQualifiedSearch(new FunctionSymbolSearch("simple.generics.use.one::JustOptional"));

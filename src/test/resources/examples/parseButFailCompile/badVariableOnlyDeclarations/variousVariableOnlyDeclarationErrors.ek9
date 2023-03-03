@@ -15,8 +15,10 @@ defines module bad.variableonly.use
   defines record
     Record1
       //Not supported, must be initialised or explicitly not initialised
+      @Error: SYMBOL_DEFINITION: NOT_INITIALISED_IN_ANY_WAY
       var1 as String
       //Web correlation not supported here
+      @Error: SYMBOL_DEFINITION: SERVICE_HTTP_ACCESS_NOT_SUPPORTED
       var2 as String :=: CONTENT
       //This is OK (not desirable but OK)
       var3 as String?
@@ -26,10 +28,12 @@ defines module bad.variableonly.use
     //Not allowed to use ? to state this could be un initialised.
     //Push for everything to be initialised.
     test1()
+      @Error: SYMBOL_DEFINITION: DECLARED_AS_NULL_NOT_NEEDED
       -> var as String?
       <- rtn as String: String()
       v1 <- "Steve"
       //Not allowed below
+      @Error: SYMBOL_DEFINITION: NOT_INITIALISED_IN_ANY_WAY
       v2 as String
       //This is allowed.
       v3 as String?
@@ -40,6 +44,8 @@ defines module bad.variableonly.use
     //Injection of incoming parameters is not supported.
     //Web correlation not supported here
     test2()
+      @Error: SYMBOL_DEFINITION: COMPONENT_INJECTION_NOT_POSSIBLE
       -> var as String!
+      @Error: SYMBOL_DEFINITION: SERVICE_HTTP_ACCESS_NOT_SUPPORTED
       <- rtn as String :=: CONTENT
 //EOF

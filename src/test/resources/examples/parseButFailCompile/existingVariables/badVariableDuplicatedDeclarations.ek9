@@ -29,19 +29,23 @@ defines module bad.variable.duplications
           other as Integer
         this.prop1 :=: propA + $other
 
-        //This should result in an error, Failure1 - line 33 - which is detected.
+        //This should result in an error, Failure1 which is detected.
+        @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
         propA <- "Redeclare new variable of same name at incoming parameter"
 
-        //As should this because the class has a field of that same name, Failure2 - line 36 - which is detected.
+        //As should this because the class has a field of that same name, Failure2 - which is detected.
+        @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
         prop1 <- "Try to mangle field - but accidentally declared a new variable"
 
-      //Re-declaring a return variable which is likely to be confused with the class field/property, Failure3 - line 40 - which is detected.
+      //Re-declaring a return variable which is likely to be confused with the class field/property, Failure3 - which is detected.
       simpleMethod()
+        @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
         <- prop1 as String: this.prop1
 
-      //Re-declaring var1 inside the method, should cause an error, Failure4 - line 45 - which is detected.
+      //Re-declaring var1 inside the method, should cause an error, Failure4 - which is detected.
       invalidMethodDuplicateVariable1()
         <- var1 as String: "not OK"
+        @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
         var1 <- "Should cause an error"
 
   defines function
@@ -50,67 +54,75 @@ defines module bad.variable.duplications
     functionThatIsOK()
       <- rtn as Integer: 9
 
-    //Failure5 - line 57
+    //Failure5
     invalidDuplicateVariable1()
       -> var1 as String
       //This is a duplicate variable name - which is detected.
+      @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
       var1 <- "Steve"
       assert var1?
 
-    //Failure6 - line 67
+    //Failure6
     invalidDuplicateVariable2()
       -> var1 as String
 
       //While it is in a nested block it is still a duplicate variable - which is detected.
       condition <- true
       if condition
+        @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
         var1 <- "Steve"
         assert var1?
 
     //Re-declaring var1 as a return variable, should cause an error - which is detected.
-    //Failure7 - line 74
+    //Failure7
     invalidDuplicateVariable3()
       -> var1 as String
+      @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
       <- var1 as String: "not OK"
 
     //Re-declaring var1 inside the function, should cause an error - which is detected.
-    //Failure8 - line 80
+    //Failure8
     invalidDuplicateVariable4()
       <- var1 as String: "not OK"
+      @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
       var1 <- "Should cause an error"
 
     //Re-declaring var1 inside the function, should cause an error - which is detected.
-    //Failure9 - line 86
+    //Failure9
     invalidDuplicateVariable5()
       <- var1 as String: "not OK"
+      @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
       var1 as String: "Should cause an error"
 
     //Re-declaring var1 as incoming parameters should cause error - which is detected.
-    //Failure10 - line 93
+    //Failure10
     invalidDuplicateVariable6()
       ->
         var1 as String
+        @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
         var1 as String
       <-
         rtn as Integer: 1
 
-    //Failure11 -line 103
+    //Failure11
     invalidDuplicateVariableInTry1()
       //declare in a try, duplicate v1 - which is detected.
       try
         -> someVar <- 1
         v1 <- someVar
+        @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
         v1 <- functionThatIsOK()
 
-    //Failure12 -line 111
+    //Failure12
     invalidDuplicateVariableInTry2()
 
       try
         -> someVar <- 1
         //Now redeclare - which is detected.
+        @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
         someVar <- functionThatIsOK()
 
-    //Failure13 - line 122 - redeclare someVar as name of exception as well initialised parameter
+    //Failure13 - redeclare someVar as name of exception as well initialised parameter
     invalidDuplicateVariableInTry3()
       //But note you can reuse v1 in different blocks as they go out of scope
       try
@@ -119,11 +131,12 @@ defines module bad.variable.duplications
         assert v1?
       //Now redeclare as the name of an exception - which is detected.
       catch
+        @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
         -> someVar as Exception
         v1 <- functionThatIsOK()
         assert v1?
 
-    //Failure14 - line 139
+    //Failure14
     invalidDuplicateVariableInTry4()
       //But note you can reuse v1 in different blocks as they go out of scope
       try
@@ -136,13 +149,15 @@ defines module bad.variable.duplications
         assert v1?
       //Now redeclare as the name of an variable in the finally - which is detected.
       finally
+        @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
         someVar <- "Also will be a duplicate"
 
-    //Failure15 - line 146
+    //Failure15
     invalidDuplicateVariableInTry5()
       //declare in a try, but this time as both incoming and outgoing with same name - which is detected.
       value <- try
         -> someVar <- 1
+        @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
         <- someVar as Integer: 1
         v1 <- someVar
         assert v1?
@@ -153,6 +168,7 @@ defines module bad.variable.duplications
       value <- try
         <- someRtn as Integer: 1
         //Need to detect as duplicate - which is detected.
+        @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
         someRtn <- 12
         assert someRtn?
 
@@ -164,6 +180,7 @@ defines module bad.variable.duplications
         <- resultText as String: "Unknown"
         case "ToCheck"
           //Accidentally redeclare - which is detected.
+          @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
           resultText <- "Jackpot"
         case "This"
           resultText: "Was this"
@@ -176,6 +193,7 @@ defines module bad.variable.duplications
 
       someResult <- switch val
         //Accidentally redeclare - which is detected
+        @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
         <- someResult as String: "Unknown"
         case "ToCheck"
           someResult: "Jackpot"
@@ -192,6 +210,7 @@ defines module bad.variable.duplications
       switch val
         case "ToCheck"
           //Accidentally redeclare - which is detected.
+          @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
           resultText <- "Jackpot"
         case "This"
           resultText: "Was this"
@@ -202,20 +221,24 @@ defines module bad.variable.duplications
 
     //Failure20 - expect this incoming param to be detected as existing named constant - which is detected.
     invalidDuplicateVariableClashWithConstant1()
+      @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
       -> someThingToClashWith as String
       <- rtn as Integer: 1
 
     //Failure21 - expect this returning param to be detected as existing named constant - which is detected.
     invalidDuplicateVariableClashWithConstant2()
+      @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
       <- someThingToClashWith as String: "Not OK"
 
     //Failure22 - expect this incoming param to be detected as existing function - which is detected.
     invalidDuplicateVariableClashWithFunction1()
+      @Error: SYMBOL_DEFINITION: DUPLICATE_FUNCTION
       -> functionThatIsOK as String
       <- rtn as Integer: 1
 
     //Failure23 - expect this returning param to be detected as existing function - which is detected.
     invalidDuplicateVariableClashWithFunction2()
+      @Error: SYMBOL_DEFINITION: DUPLICATE_FUNCTION
       <- functionThatIsOK as String: "Not OK"
 
 //EOF

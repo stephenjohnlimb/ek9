@@ -7,12 +7,13 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests bad use of duplicated variables.
+ * Just tests bad types used with generics.
  */
-class BadVariableDuplicationDeclarationTest extends FullCompilationTest {
+class BadTypesUsedWithGenericsFullCompilationTest extends FullCompilationTest {
 
-  public BadVariableDuplicationDeclarationTest() {
-    super("/examples/parseButFailCompile/existingVariables");
+
+  public BadTypesUsedWithGenericsFullCompilationTest() {
+    super("/examples/parseButFailCompile/unresolvedTypeWithGenerics");
   }
 
 
@@ -23,6 +24,6 @@ class BadVariableDuplicationDeclarationTest extends FullCompilationTest {
 
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
-    assertFalse(program.getParsedModules("bad.variable.duplications").isEmpty());
+    assertFalse(program.getParsedModules("bad.generics.use.types").isEmpty());
   }
 }
