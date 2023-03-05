@@ -79,6 +79,11 @@ public class Ek9Lexer extends EK9LexerRules implements LexerPlugin {
     this.dedentToken = dedentToken;
   }
 
+  public Ek9Lexer(CharStream input, int indentToken, int dedentToken, boolean printTokens) {
+    this(input, indentToken, dedentToken);
+    this.printTokensAsSupplied = printTokens;
+  }
+
   @Override
   public String getSourceName() {
     return sourceName;
@@ -89,9 +94,8 @@ public class Ek9Lexer extends EK9LexerRules implements LexerPlugin {
     return this;
   }
 
-  public Ek9Lexer setTokenListener(TokenConsumptionListener tokenListener) {
+  public void setTokenListener(TokenConsumptionListener tokenListener) {
     this.tokenListener = tokenListener;
-    return this;
   }
 
   public int getIndentToken() {

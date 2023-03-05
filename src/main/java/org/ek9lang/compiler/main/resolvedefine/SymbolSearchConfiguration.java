@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.symbol.support;
+package org.ek9lang.compiler.main.resolvedefine;
 
 import java.util.List;
 
@@ -6,15 +6,17 @@ import java.util.List;
  * Can be used for a single Simple named search.
  * Or with parameter types for a generic type.
  */
-public record SymbolSearchForTest(String mainSymbolName, List<SymbolSearchForTest> parameterizingArguments) {
+public record SymbolSearchConfiguration(String mainSymbolName,
+                                        List<SymbolSearchConfiguration> parameterizingArguments) {
 
-  public SymbolSearchForTest(String mainSymbolName, SymbolSearchForTest parameter) {
+  public SymbolSearchConfiguration(String mainSymbolName, SymbolSearchConfiguration parameter) {
     this(mainSymbolName, List.of(parameter));
   }
+
   /**
    * Basic non parametric constructor, so just simple types.
    */
-  public SymbolSearchForTest(String mainSymbolName) {
+  public SymbolSearchConfiguration(String mainSymbolName) {
     this(mainSymbolName, List.of());
   }
 
@@ -22,12 +24,12 @@ public record SymbolSearchForTest(String mainSymbolName, List<SymbolSearchForTes
    * Simple search by name, or generic with polymorphic parameterization.
    */
   public boolean isParametric() {
-    return parameterizingArguments.size() > 0;
+    return !parameterizingArguments.isEmpty();
   }
 
   @Override
   public String toString() {
-    if(parameterizingArguments().isEmpty()) {
+    if (parameterizingArguments().isEmpty()) {
       return mainSymbolName;
     }
     return mainSymbolName + " " + parameterizingArguments();

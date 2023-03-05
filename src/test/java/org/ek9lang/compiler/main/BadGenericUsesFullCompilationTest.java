@@ -9,7 +9,7 @@ import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.GenericsSymbolCheck;
-import org.ek9lang.compiler.symbol.support.SymbolSearchForTest;
+import org.ek9lang.compiler.main.resolvedefine.SymbolSearchConfiguration;
 import org.ek9lang.compiler.symbol.support.SymbolSearchMapFunction;
 import org.junit.jupiter.api.Test;
 
@@ -43,15 +43,15 @@ class BadGenericUsesFullCompilationTest extends FullCompilationTest {
     assertNotNull(ek9);
     var typeChecker = new GenericsSymbolCheck(program, moduleName, true, ISymbol.SymbolCategory.TYPE);
 
-    var listOfString = new SymbolSearchForTest("List", new SymbolSearchForTest("String"));
-    var listOfFloat = new SymbolSearchForTest("List", new SymbolSearchForTest("Float"));
+    var listOfString = new SymbolSearchConfiguration("List", new SymbolSearchConfiguration("String"));
+    var listOfFloat = new SymbolSearchConfiguration("List", new SymbolSearchConfiguration("Float"));
 
-    var dictOfIntegerString = new SymbolSearchForTest("Dict",
-        List.of(new SymbolSearchForTest("Integer"), new SymbolSearchForTest("String"))
+    var dictOfIntegerString = new SymbolSearchConfiguration("Dict",
+        List.of(new SymbolSearchConfiguration("Integer"), new SymbolSearchConfiguration("String"))
     );
 
-    var dictOfIntegerDate = new SymbolSearchForTest("Dict",
-        List.of(new SymbolSearchForTest("Integer"), new SymbolSearchForTest("Date"))
+    var dictOfIntegerDate = new SymbolSearchConfiguration("Dict",
+        List.of(new SymbolSearchConfiguration("Integer"), new SymbolSearchConfiguration("Date"))
     );
 
     checkExistsWith(typeChecker, List.of(listOfString, listOfFloat, dictOfIntegerString, dictOfIntegerDate));
@@ -92,18 +92,18 @@ class BadGenericUsesFullCompilationTest extends FullCompilationTest {
     );
 
     //Now the concrete parameterised types built from the generics.
-    var genericThingOfInteger = new SymbolSearchForTest("GenericThing", new SymbolSearchForTest("Integer"));
+    var genericThingOfInteger = new SymbolSearchConfiguration("GenericThing", new SymbolSearchConfiguration("Integer"));
 
-    var genericThingOfDate = new SymbolSearchForTest("GenericThing", new SymbolSearchForTest("Date"));
+    var genericThingOfDate = new SymbolSearchConfiguration("GenericThing", new SymbolSearchConfiguration("Date"));
 
     checkExistsWith(typeChecker, List.of(genericThingOfInteger, genericThingOfDate));
   }
 
-  private void checkExists(final Consumer<SymbolSearchForTest> checker, final List<String> names) {
+  private void checkExists(final Consumer<SymbolSearchConfiguration> checker, final List<String> names) {
     checkExistsWith(checker, mappingFunction.apply(names));
   }
 
-  private void checkExistsWith(final Consumer<SymbolSearchForTest> checker, final List<SymbolSearchForTest> searches) {
+  private void checkExistsWith(final Consumer<SymbolSearchConfiguration> checker, final List<SymbolSearchConfiguration> searches) {
     searches.forEach(checker);
   }
 }
