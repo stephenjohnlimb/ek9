@@ -9,8 +9,8 @@ import org.ek9lang.compiler.tokenizer.SyntheticToken;
  * The idea is to accept this sort of thing.
  * //@Error: SYMBOL_DEFINITION: PARENTHESIS_NOT_REQUIRED
  * //@Error: REFERENCE_CHECKS: NOT_RESOLVED
- * //@Resolve: EXPLICIT_TYPE_SYMBOL_DEFINITION: TEMPLATE_TYPE: "List"
- * //@Resolve: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of Integer"
+ * //@Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TEMPLATE_TYPE: "List"
+ * //@Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of Integer"
  * //@Instrument: CODE_GENERATION_PREPARATION: DEBUG
  * //@Symbols: SYMBOL_DEFINITION: ALL: 21
  * //@Symbols: SYMBOL_DEFINITION: TYPE: 11

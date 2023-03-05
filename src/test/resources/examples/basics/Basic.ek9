@@ -53,8 +53,9 @@ defines module net.customer.extend
       >= 10000#GBP and <= 120000#GBP
 
   defines function
-  
-    //You don't need the () but you probably will just type them anyway out of habit.
+
+    //Lets try the new compiler test directives to ensure that stuff we declare is actually defined.
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "someThingElse"
     someThingElse()
         
       //lets see if we can pickup a dimension. and also add something to it

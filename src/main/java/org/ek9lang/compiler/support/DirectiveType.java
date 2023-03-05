@@ -10,7 +10,8 @@ package org.ek9lang.compiler.support;
 @SuppressWarnings("java:S115")
 public enum DirectiveType {
   Error,
-  Resolve,
+  Resolved,
+  NotResolved,
   Symbols,
   Compiler,
   Instrument

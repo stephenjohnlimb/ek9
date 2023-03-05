@@ -27,7 +27,13 @@ import org.ek9lang.compiler.main.rules.CheckSwitch;
 import org.ek9lang.compiler.main.rules.CheckTryReturns;
 import org.ek9lang.compiler.support.Directive;
 import org.ek9lang.compiler.support.DirectiveType;
+import org.ek9lang.compiler.support.DirectivesCompilationPhase;
+import org.ek9lang.compiler.support.DirectivesNextLineNumber;
+import org.ek9lang.compiler.support.DirectivesSymbolCategory;
+import org.ek9lang.compiler.support.DirectivesSymbolName;
 import org.ek9lang.compiler.support.ErrorDirective;
+import org.ek9lang.compiler.support.NotResolvedDirective;
+import org.ek9lang.compiler.support.ResolvedDirective;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbol.CallSymbol;
@@ -95,6 +101,14 @@ public class SymbolFactory {
 
   private final ParsedModule parsedModule;
 
+  private final DirectivesNextLineNumber directivesNextLineNumber = new DirectivesNextLineNumber();
+
+  private final DirectivesCompilationPhase directivesCompilationPhase = new DirectivesCompilationPhase();
+
+  private final DirectivesSymbolCategory directivesSymbolCategory = new DirectivesSymbolCategory();
+
+  private final DirectivesSymbolName directivesSymbolName = new DirectivesSymbolName();
+
   /**
    * Used for low level additions of methods to aggregates.
    */
@@ -138,7 +152,9 @@ public class SymbolFactory {
 
       return switch (typeOfDirective) {
         case Error -> newErrorDirective(ctx);
-        case Resolve, Symbols, Compiler, Instrument ->
+        case Resolved -> newResolutionDirective(ctx, true);
+        case NotResolved -> newResolutionDirective(ctx, false);
+        case Symbols, Compiler, Instrument ->
             throw new IllegalArgumentException("Unsupported directive '" + nameOfDirective + "'");
       };
     } catch (IllegalArgumentException ex) {
@@ -148,37 +164,16 @@ public class SymbolFactory {
     return null;
   }
 
-  private ErrorDirective newErrorDirective(EK9Parser.DirectiveContext ctx) {
+  private Directive newErrorDirective(EK9Parser.DirectiveContext ctx) {
 
     if (ctx.directivePart().size() != 2) {
       throw new IllegalArgumentException("Expecting, compilerPhase: errorClassification");
     }
 
-    var applyToLine = 0;
-    var parent = ctx.getParent();
-    //Need to get the next ctx to find the line the errors should appear.
-    for (int i = 0; i < parent.children.size(); i++) {
-      var child = parent.getChild(i);
-
-      if (child == ctx) {
-        var nextChild = parent.getChild(i + 1);
-        if (nextChild instanceof ParserRuleContext ruleCtx) {
-          applyToLine = ruleCtx.start.getLine();
-        } else if (nextChild instanceof TerminalNode terminalCtx) {
-          applyToLine = terminalCtx.getSymbol().getLine();
-        } else {
-          throw new IllegalArgumentException("Directives need to get next symbol to apply rule to, this has failed.");
-        }
-      }
-    }
-
-    CompilationPhase compilerPhase;
-    try {
-      compilerPhase = CompilationPhase.valueOf(ctx.directivePart(0).getText());
-    } catch (IllegalArgumentException ex) {
-      throw new IllegalArgumentException("Expecting one of: " + Arrays.toString(CompilationPhase.values()));
-    }
+    var applyToLine = directivesNextLineNumber.apply(ctx);
+    CompilationPhase compilerPhase = directivesCompilationPhase.apply(ctx);
     ErrorListener.SemanticClassification errorClassification;
+
     try {
       errorClassification = ErrorListener.SemanticClassification.valueOf(ctx.directivePart(1).getText());
     } catch (IllegalArgumentException ex) {
@@ -187,6 +182,23 @@ public class SymbolFactory {
     }
 
     return new ErrorDirective(ctx.start, compilerPhase, errorClassification, applyToLine);
+  }
+
+  private Directive newResolutionDirective(EK9Parser.DirectiveContext ctx, boolean resolve) {
+
+    if (ctx.directivePart().size() != 3) {
+      throw new IllegalArgumentException("Expecting, compilerPhase: symbolCategory: \"type/function\"");
+    }
+
+    var applyToLine = directivesNextLineNumber.apply(ctx);
+    CompilationPhase compilerPhase = directivesCompilationPhase.apply(ctx);
+    var category = directivesSymbolCategory.apply(ctx);
+    var symbolName = directivesSymbolName.apply(ctx);
+
+    if (resolve) {
+      return new ResolvedDirective(ctx.start, compilerPhase, category, symbolName, applyToLine);
+    }
+    return new NotResolvedDirective(ctx.start, compilerPhase, category, symbolName, applyToLine);
   }
 
   /**

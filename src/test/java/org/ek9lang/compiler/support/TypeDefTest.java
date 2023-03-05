@@ -18,7 +18,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-class JustTypeDefTest {
+/**
+ * Not intended to be an exhaustive test of resolving existing ek9 types.
+ * But does check a handful to check resolution actually works and non-resolution also works.
+ * Then goes on to define some new parameterized types like List/Iterator with concrete simple types.
+ */
+class TypeDefTest {
 
   private JustTypeDef underTest;
 
@@ -26,7 +31,7 @@ class JustTypeDefTest {
 
   private final PartialEk9StringToTypeDef partialEk9StringToTypeDef = new PartialEk9StringToTypeDef();
 
-  public JustTypeDefTest() {
+  public TypeDefTest() {
     //OK boot up the ek9 main module scope loaded for testing resolutions.
     final var ek9 = new Ek9LanguageBootStrap(new Ek9BuiltinLangSupplier(), compilationEvent -> {
     },
@@ -60,11 +65,10 @@ class JustTypeDefTest {
     assertTrue(resolved.isPresent());
     assertEquals(typeName, resolved.get().getName());
     assertFalse(resolved.get().isGenericInNature());
-    assertFalse(resolved.get().isGenericInNature());
   }
 
   /**
-   * Find the generic type. Not yet parameterised.
+   * Find the generic type. Not yet parameterised with specific types.
    */
   @ParameterizedTest
   @CsvSource({"List", "Iterator", "Dict", "Optional",
@@ -74,27 +78,6 @@ class JustTypeDefTest {
     assertTrue(resolved.isPresent());
     assertEquals(genericTypeName, resolved.get().getName());
     assertTrue(resolved.get().isGenericInNature());
-  }
-
-  /**
-   * Note that using commas in this test for things like
-   * Dict of (Integer, String) - confuses junit.
-   */
-  @ParameterizedTest
-  @CsvSource({"List of (DateTime)", "Iterator of (Date)"})
-  void testResolveParameterizedType(final String parameterizedType) {
-    var failToResolved = underTest.typeDefToSymbol(parameterizedType);
-    //Firstly check it is not resolved
-    assertTrue(failToResolved.isEmpty());
-
-    //Now do what the compiler will do and 'resolve of define it'.
-    assertTrue(Optional.of(parameterizedType).map(partialEk9StringToTypeDef).map(resolveOrDefineTypeDef).isPresent());
-
-    //Now check it can just be resolved.
-    var resolved = underTest.typeDefToSymbol(parameterizedType);
-    assertTrue(resolved.isPresent());
-    //But as a parameterized type - it is not generic in nature.
-    assertFalse(resolved.get().isGenericInNature());
   }
 
   @Test
@@ -107,5 +90,28 @@ class JustTypeDefTest {
   void testResolveDictOfIntegerListOfString() {
     var parameterizedType = "Dict of (Integer, List of String)";
     testResolveParameterizedType(parameterizedType);
+  }
+
+  /**
+   * Note that using commas in this test for things like
+   * Dict of (Integer, String) - confuses junit.
+   * See methods above that just call this directly.
+   */
+  @ParameterizedTest
+  @CsvSource({"List of (DateTime)", "Iterator of (Date)"})
+  void testResolveParameterizedType(final String parameterizedType) {
+    var failToResolved = underTest.typeDefToSymbol(parameterizedType);
+    //Firstly check it is not resolved
+    assertTrue(failToResolved.isEmpty());
+
+    //Now do what the compiler will do and 'resolve or define it'.
+    //So as it was not previously resolved - it will now get defined.
+    assertTrue(Optional.of(parameterizedType).map(partialEk9StringToTypeDef).map(resolveOrDefineTypeDef).isPresent());
+
+    //Now check it can just be resolved.
+    var resolved = underTest.typeDefToSymbol(parameterizedType);
+    assertTrue(resolved.isPresent());
+    //But as a parameterized type - it is not generic in nature.
+    assertFalse(resolved.get().isGenericInNature());
   }
 }
