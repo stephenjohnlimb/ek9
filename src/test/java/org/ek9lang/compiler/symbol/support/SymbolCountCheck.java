@@ -33,7 +33,7 @@ public class SymbolCountCheck implements Predicate<CompilableProgram> {
     assertEquals(expectModuleCount, modules.size(), "Incorrect number of modules for package.");
 
     var numSymbols = modules.stream().map(module -> module.getModuleScope().getSymbolsForThisScope())
-        .flatMap(List::stream).count();
+        .mapToLong(List::size).sum();
 
     if (expectedSymbolCount != numSymbols) {
       symbolDisplay.accept(modules);
