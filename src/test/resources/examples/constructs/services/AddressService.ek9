@@ -3,6 +3,7 @@ defines module com.customer.services
 
   defines type
     //Just for strong typing - no constraints
+    @Resolved: SYMBOL_DEFINITION: TYPE: "AddressId"
     AddressId is String
 
   defines record
@@ -52,6 +53,7 @@ defines module com.customer.services
         <- rtn as Boolean: id? and street? and city? and state? and zipcode?                
 
   defines text for "en"
+    @Resolved: SYMBOL_DEFINITION: TYPE: "AddressToOutputFormat_en"
     AddressToOutputFormat
       
       toJSON()
@@ -424,6 +426,7 @@ defines module com.customer.services
   -?>
   defines service
     //The Name of the and the uri it is mapped to
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Addresses"
     Addresses :/addresses
 
       //It is still possible to use dynamic variable capture, like this but see the later code.
@@ -550,6 +553,8 @@ defines module com.customer.services
             <- rtn as String: addressListToJSON(repository.addresses().listAll())
 
   defines component
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Repository"
     Repository as abstract
      
       addresses() as abstract
@@ -569,6 +574,8 @@ defines module com.customer.services
         <- rtn as AddressAccess: addresses       
 
   defines application
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "AccessPoint"
     AccessPoint
       //We could register other services and components here
       
@@ -576,6 +583,8 @@ defines module com.customer.services
       register Addresses()
     
   defines program
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "TestAddressOutput"
     TestAddressOutput with application of AccessPoint
       //Expect injection
       repository as Repository!

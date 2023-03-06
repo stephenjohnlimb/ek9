@@ -2,6 +2,8 @@
 defines module introduction
 
   defines constant
+    //While it is a constant internally we model as a VARIABLE
+    @Resolved: SYMBOL_DEFINITION: VARIABLE: "worldMessage"
     worldMessage <- "Hello, Earth"
 
   defines program

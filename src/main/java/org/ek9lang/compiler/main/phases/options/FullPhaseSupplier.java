@@ -10,7 +10,7 @@ import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
-import org.ek9lang.compiler.main.directives.ErrorDirectiveListener;
+import org.ek9lang.compiler.main.directives.DirectiveListenerSupplier;
 import org.ek9lang.compiler.main.phases.Ek9Phase0Parsing;
 import org.ek9lang.compiler.main.phases.Ek9Phase10CodeGenerationAggregates;
 import org.ek9lang.compiler.main.phases.Ek9Phase10CodeGenerationConstants;
@@ -59,7 +59,7 @@ public class FullPhaseSupplier implements Supplier<List<BiFunction<Workspace, Co
     AssertValue.checkNotNull("Compilation Listener must be provided", listener);
     AssertValue.checkNotNull("Compilation Reporter must be provided", reporter);
 
-    this.listener = new ErrorDirectiveListener().andThen(listener);
+    this.listener = new DirectiveListenerSupplier().get().andThen(listener);
     this.compilableProgramAccess = compilableProgramAccess;
     this.reporter = reporter;
   }

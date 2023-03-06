@@ -22,6 +22,7 @@ defines module com.customer.classes
   defines class
   
     //If you say it is abstract then it is by default 'open'
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Base"
     Base as abstract
       //Note new declaration indicating no memory allocated is possible
       aField as String?
@@ -30,6 +31,7 @@ defines module com.customer.classes
         <- rtn String = "Steve"
         
     //So this could not be extended as not abstract and not open
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Extension1"
     Extension1 extends Base
       otherMethod()
         <- rtn String: "OK"
@@ -38,10 +40,12 @@ defines module com.customer.classes
         <- rtn String: "Steve"
         
     //Now because I've said open it can be used and extended
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Extension2"
     Extension2 extends Base as open
       override singleMethod()
         <- rtn String = "Steven"
-        
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Extension3"
     Extension3 extends Extension2
       override singleMethod()
         <- rtn String := "Stephen"

@@ -14,6 +14,7 @@ defines module lists.and.dictionaries
       ->
         focus as Integer
         name as String
+        //@Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "Dict of (Integer, String)"
         values as Dict of (Integer, String)
       <-
         rtn as Float: 0.0

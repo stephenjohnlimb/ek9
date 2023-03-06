@@ -2,7 +2,11 @@
 defines module com.customer.jsonexample
 
   defines type
+    //Check it is possible resolve this template type
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "Optional"
     Optional of JSON
+
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "List"
     List of Integer
 
   defines program

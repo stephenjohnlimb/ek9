@@ -42,7 +42,7 @@ defines module net.customer
   //There is no business logic in here only formatting of parameters into text for output.
 
   defines text for "en"
-  
+
     WelcomePageText
       mainWelcome()
         "The main difference in processing html if you want to use hardwired content like this

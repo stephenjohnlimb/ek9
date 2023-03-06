@@ -2,6 +2,7 @@
 defines module com.customer.interpolated
 
   defines record
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Person"
     Person
       firstName String: String()
       lastName String: String()

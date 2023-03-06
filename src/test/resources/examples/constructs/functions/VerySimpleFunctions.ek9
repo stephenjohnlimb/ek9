@@ -6,21 +6,26 @@ defines module net.customer
   //Note the () on function names are optional
   defines function
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "abstractFunction"
     abstractFunction() as abstract
       <- rtn as String: String()
         
     //See how we can use 'rtn' from the declaration in the abstract function
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "functionA"
     functionA() extends abstractFunction  
       rtn: "Infer Please"
-      
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "functionB"
     functionB() extends abstractFunction  
       rtn: "Infer as well"
       
     //But we can also define fully if we wish
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "function1"
     function1() extends abstractFunction
       <- rtn as String: "Default Value"        
       rtn: "Steve"
-        
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "function2"
     function2()
       <- rtn as String: "Default Value"
       

@@ -7,6 +7,7 @@ defines module com.customer.just.employees
 -?>
   defines trait
 
+    @Resolved: SYMBOL_DEFINITION: TYPE: "IRole"
     IRole
       performDuties()
         -> hours as Integer
@@ -21,6 +22,7 @@ defines module com.customer.just.employees
   defines record
     //Added support for type inference back in for fields/properties
     //but only is default constructor or a literal
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Address"
     Address
       street <- String()
       street2 <- String()
@@ -54,6 +56,7 @@ defines module com.customer.just.employees
 
   defines class
 
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Employee"
     Employee with trait of IRole by role, IPayrollCalculator by payroll
       id <- Integer()
       name <- String()
@@ -269,6 +272,8 @@ defines module com.customer.just.employees
             )
 
   defines program
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Demonstration"
     Demonstration()
       productivitySystem <- ProductivitySystem()
       payrollSystem <- PayrollSystem()

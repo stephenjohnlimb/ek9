@@ -14,6 +14,8 @@ public class SymbolCountCheck implements Predicate<CompilableProgram> {
 
   private final int expectModuleCount;
 
+  private final ShowSymbolInModule symbolDisplay = new ShowSymbolInModule();
+
   public SymbolCountCheck(final String forModuleName, final int expectedSymbolCount) {
     this(1, forModuleName, expectedSymbolCount);
   }
@@ -28,20 +30,16 @@ public class SymbolCountCheck implements Predicate<CompilableProgram> {
   public boolean test(CompilableProgram compilableProgram) {
     var modules = compilableProgram.getParsedModules(forModuleName);
     assertNotNull(modules);
-    //only ever expect 1 during these tests
     assertEquals(expectModuleCount, modules.size(), "Incorrect number of modules for package.");
-    var symbols = modules.stream().map(module -> module.getModuleScope().getSymbolsForThisScope())
-        .flatMap(List::stream).toList();
 
-    if (expectedSymbolCount != symbols.size()) {
-      modules.forEach(module -> System.out.println(
-          "For scope name [" + module.getModuleName() + "] " + module.getSource().getFileName()));
-      for (var symbol : symbols) {
-        System.out.println("Internal Name: [" + symbol.getName() + "] Presentable Name: [" + symbol + "] ["
-            + symbol.getFullyQualifiedName() + "] as " + symbol.getCategory());
-      }
+    var numSymbols = modules.stream().map(module -> module.getModuleScope().getSymbolsForThisScope())
+        .flatMap(List::stream).count();
+
+    if (expectedSymbolCount != numSymbols) {
+      symbolDisplay.accept(modules);
     }
-    assertEquals(expectedSymbolCount, symbols.size());
+
+    assertEquals(expectedSymbolCount, numSymbols);
 
     return true;
   }

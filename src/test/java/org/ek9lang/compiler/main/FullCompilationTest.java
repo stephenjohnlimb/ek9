@@ -14,6 +14,7 @@ import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.compiler.parsing.WorkSpaceFromResourceDirectoryFiles;
 import org.ek9lang.compiler.support.DirectiveType;
+import org.ek9lang.compiler.symbol.support.ShowAllSymbolsInAllModules;
 import org.ek9lang.core.threads.SharedThreadContext;
 
 /**
@@ -24,6 +25,8 @@ abstract class FullCompilationTest {
   private final Supplier<SharedThreadContext<CompilableProgram>> sharedContext = new CompilableProgramSuitable();
 
   private final Workspace ek9Workspace;
+
+  private final ShowAllSymbolsInAllModules showAllSymbolsInAllModules = new ShowAllSymbolsInAllModules();
 
   public FullCompilationTest(final String fromResourcesDirectory) {
     var workspaceLoader = new WorkSpaceFromResourceDirectoryFiles();
@@ -60,7 +63,6 @@ abstract class FullCompilationTest {
     assertFinalResults(compilationResult, numberOfErrors, program);
   }
 
-
   /**
    * Override if the test needs to check any intermediate phase results.
    */
@@ -74,7 +76,14 @@ abstract class FullCompilationTest {
     //Now there should be no directive errors at all, else this test has failed.
     //As the directives have been added into the EK9 source for testing it means that the EK9 source
     //Now also contains the types and locations of the errors we are looking for.
-    assertFalse(source.getErrorListener().hasDirectiveErrors(), "There are @Error directives that have failed");
+
+    //Dump all the symbols for all modules.
+
+    if(source.getErrorListener().hasDirectiveErrors()) {
+      System.out.println("Dumping all Symbols from all Modules");
+      showAllSymbolsInAllModules.accept(sharedCompilableProgram);
+    }
+    assertFalse(source.getErrorListener().hasDirectiveErrors(), "There are '@' directives that have failed");
   }
 
   protected void testToPhase(final CompilationPhase upToPhase) {

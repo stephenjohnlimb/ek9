@@ -5,6 +5,7 @@
 defines module com.customer.params
 
   defines program
+
     TestOutNamedParameters()
       c1 <- C1()
       
@@ -26,6 +27,8 @@ defines module com.customer.params
       v <- "Another"
       
   defines class
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "C1"
     C1
       //So can I have a p1 and a p2 at instance level
       p1 String: "Cooper"
@@ -40,6 +43,8 @@ defines module com.customer.params
           solution String: p1 + " " + $p2
       
   defines function
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "f1"
     f1()
       ->
         p1 String

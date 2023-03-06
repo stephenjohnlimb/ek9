@@ -11,6 +11,7 @@ defines module com.customer.records
 
   defines record
 
+    @Resolved: SYMBOL_DEFINITION: TYPE: "IdRecord"
     IdRecord as abstract
       //We can support simple inference, but not complex expressions for fields/properties.
       id <- Index()
@@ -34,6 +35,7 @@ defines module com.customer.records
         -> item as IdRecord
         <- rtn as Boolean: not (item == this)
 
+    @Resolved: SYMBOL_DEFINITION: TYPE: "CustomerDetail"
     CustomerDetail extends IdRecord
       firstName as String: String()
       lastName as String: String()

@@ -9,7 +9,7 @@ import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
-import org.ek9lang.compiler.main.directives.ErrorDirectiveListener;
+import org.ek9lang.compiler.main.directives.DirectiveListenerSupplier;
 import org.ek9lang.compiler.main.phases.Ek9Phase0Parsing;
 import org.ek9lang.compiler.main.phases.Ek9Phase1ModuleDuplicateSymbolChecks;
 import org.ek9lang.compiler.main.phases.Ek9Phase1NonInferredTypeDefinition;
@@ -48,7 +48,7 @@ public class FrontEndOnlySupplier
     AssertValue.checkNotNull("Compilation Listener must be provided", listener);
     AssertValue.checkNotNull("Compilation Reporter must be provided", reporter);
     this.compilableProgramAccess = compilableProgramAccess;
-    this.listener = new ErrorDirectiveListener().andThen(listener);
+    this.listener = new DirectiveListenerSupplier().get().andThen(listener);
     this.reporter = reporter;
   }
 

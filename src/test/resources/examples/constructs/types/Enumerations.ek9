@@ -2,7 +2,8 @@
 defines module com.customer.enumerations
 
   defines type
-    
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "CardRank"
     CardRank
       Two
       Three
@@ -17,7 +18,9 @@ defines module com.customer.enumerations
       Queen
       King
       Ace
-      
+
+    //Also check it is possible to resolve via fully qualified name.
+    @Resolved: SYMBOL_DEFINITION: TYPE: "com.customer.enumerations::CardSuit"
     CardSuit
       Hearts
       Diamonds
@@ -25,7 +28,8 @@ defines module com.customer.enumerations
       Spades
     
   defines record
-    
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Card"
     Card
       rank as CardRank: CardRank()
       suit as CardSuit: CardSuit()
@@ -40,11 +44,14 @@ defines module com.customer.enumerations
         <- rtn as String: $this
                   
   defines function
-  
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "cardCreator"
     cardCreator() as abstract
       -> rank as CardRank
       <- rtn as Card?
-    
+
+    //Also check via fully qualified name
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "com.customer.enumerations::fullRankCreator"
     fullRankCreator()
       -> suit as CardSuit
       <- rtn as List of Card: cat CardRank
@@ -52,7 +59,8 @@ defines module com.customer.enumerations
         | collect as List of Card
 
   defines program
-  
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "ShowOperators"
     ShowOperators()
       stdout <- Stdout()
       
@@ -99,6 +107,7 @@ defines module com.customer.enumerations
             rtn: "Not so lucky " + $rank
         stdout.println(message)
 
+    @Resolved: SYMBOL_DEFINITION: TYPE: "DeckOfPlayingCards"
     DeckOfPlayingCards()
       stdout <- Stdout()
 

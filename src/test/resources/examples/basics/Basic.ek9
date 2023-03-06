@@ -153,17 +153,20 @@ defines module net.customer.extend
       assert Stephen matches regEx and stephen matches regEx
       assert Steven matches regEx and steven matches regEx
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "verySimple"
     verySimple()
       -> param as Integer
       <- rtn as Float: 2.0 * param
     
     //So here this function is just a one liner and basically you just say
     //the type the variable and the value all one one line if you want.
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "callsVerySimple"
     callsVerySimple()
       <- result Float: verySimple(6)
 
   defines program
 
+    @Resolved: SYMBOL_DEFINITION: TYPE: "justMath"
     justMath()
       result <- 60 / 5 * (7-5)
       Stdout().println($result)

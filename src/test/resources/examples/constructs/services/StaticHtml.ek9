@@ -2,6 +2,8 @@
 defines module com.customer.html
 
   defines text for "en"
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "WebSite_en"
     WebSite
       index()
         `<html>
@@ -15,6 +17,7 @@ defines module com.customer.html
 
   defines service
 
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Site"
     Site :/site
 
       index() as GET for :/index.html

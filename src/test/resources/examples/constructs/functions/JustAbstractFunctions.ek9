@@ -6,6 +6,7 @@ defines module com.customer.just.functions
 
   defines function
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "mathOperation"
     mathOperation() as pure abstract
       ->
         x as Float
@@ -54,7 +55,7 @@ defines module com.customer.just.functions
       stdout <- Stdout()
       stdout.println("Math Dynamic Operation Example1")
       fixedValue <- 9.8
-      
+
       addFunction <- () is mathOperation as pure function
         result: x+y
 

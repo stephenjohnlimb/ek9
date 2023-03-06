@@ -133,11 +133,14 @@ final class CompilableSourceTest {
 
   static Stream<ExpectedTokenPosition> getPositionsToSearchFor() {
     return Stream.of(new ExpectedTokenPosition(2, 1, "defines"),
-        new ExpectedTokenPosition(2, 8, "defines"), new ExpectedTokenPosition(2, 9, "module"),
+        new ExpectedTokenPosition(2, 8, "defines"),
+        new ExpectedTokenPosition(2, 9, "module"),
         new ExpectedTokenPosition(2, 15, "module"),
         new ExpectedTokenPosition(2, 16, "introduction"),
-        new ExpectedTokenPosition(3, 5, "defines"), new ExpectedTokenPosition(4, 5, "HelloWorld"),
-        new ExpectedTokenPosition(5, 7, "stdout"), new ExpectedTokenPosition(5, 14, "<-"));
+        new ExpectedTokenPosition(3, 5, "defines"),
+        new ExpectedTokenPosition(4, 5, "HelloWorld"),
+        new ExpectedTokenPosition(8, 7, "stdout"),
+        new ExpectedTokenPosition(8 , 14, "<-"));
   }
 
   private static class ExpectedTokenPosition {

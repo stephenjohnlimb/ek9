@@ -49,6 +49,14 @@ public abstract class ResolutionDirective implements Directive {
     return lineNumber;
   }
 
+  public ISymbol.SymbolCategory getSymbolCategory() {
+    return symbolCategory;
+  }
+
+  public String getSymbolName() {
+    return symbolName;
+  }
+
   @Override
   public String toString() {
     return type() + ": " + phase + ": " + symbolCategory + ": \"" + symbolName + "\": Line: " + lineNumber;
