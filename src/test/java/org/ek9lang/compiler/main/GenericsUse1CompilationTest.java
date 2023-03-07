@@ -2,19 +2,17 @@ package org.ek9lang.compiler.main;
 
 import static org.ek9lang.compiler.internals.Ek9BuiltinLangSupplier.NUMBER_OF_EK9_SYMBOLS;
 import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_LANG;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.CompilableSource;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
+import org.ek9lang.compiler.main.resolvedefine.SymbolSearchConfiguration;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.GenericsSymbolCheck;
 import org.ek9lang.compiler.symbol.support.SymbolCheck;
 import org.ek9lang.compiler.symbol.support.SymbolCountCheck;
-import org.ek9lang.compiler.main.resolvedefine.SymbolSearchConfiguration;
 import org.ek9lang.compiler.symbol.support.SymbolSearchMapFunction;
-import org.ek9lang.compiler.symbol.support.search.FunctionSymbolSearch;
 import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
@@ -44,6 +42,7 @@ class GenericsUse1CompilationTest extends FullCompilationTest {
   protected void assertPreConditions(CompilableProgram program) {
     new SymbolCountCheck(EK9_LANG, NUMBER_OF_EK9_SYMBOLS).test(program);
 
+    //While we do have @ directives, this is a good test just to ensure that precondition of missing types is correct.
     var checker = new GenericsSymbolCheck(program, EK9_LANG, false);
     checker.accept(new SymbolSearchConfiguration("Optional", mapFunction.apply(List.of("String"))));
     checker.accept(new SymbolSearchConfiguration("Supplier", mapFunction.apply(List.of("Integer"))));
@@ -60,7 +59,7 @@ class GenericsUse1CompilationTest extends FullCompilationTest {
         //Make some new type checkers to validate presence or absence of types.
         //But we need to check the event we are being called on is for our source and module.
         var parsedModule = program.getParsedModuleForCompilableSource(source);
-        if(parsedModule.getModuleName().equals(moduleName)) {
+        if (parsedModule.getModuleName().equals(moduleName)) {
           SymbolCheck templateTypeChecker =
               new SymbolCheck(program, moduleName, true, true, ISymbol.SymbolCategory.TEMPLATE_TYPE);
           SymbolCheck basicTypeChecker =
@@ -94,7 +93,7 @@ class GenericsUse1CompilationTest extends FullCompilationTest {
 
   private void assertEk9(final CompilableProgram program) {
     //Additional polymorphic parameterised types will have been added to the module.
-
+    //Note these are also checked in the EK9 sourcecode via directives.
     var typeChecker = new GenericsSymbolCheck(program, EK9_LANG, true, ISymbol.SymbolCategory.TYPE);
     typeChecker.accept(new SymbolSearchConfiguration("Optional", mapFunction.apply(List.of("String"))));
 
@@ -106,89 +105,17 @@ class GenericsUse1CompilationTest extends FullCompilationTest {
   }
 
   private void assertSimpleGenerics(final CompilableProgram program) {
+    //See @ directive check in EK9 source.
     new SymbolCountCheck(2, "simple.generics.use.one", 6).test(program);
-
-    var justOptionalSymbol =
-        program.resolveByFullyQualifiedSearch(new FunctionSymbolSearch("simple.generics.use.one::JustOptional"));
-    assertTrue(justOptionalSymbol.isPresent());
-
-    var alsoJustOptionalSymbol =
-        program.resolveByFullyQualifiedSearch(new FunctionSymbolSearch("simple.generics.use.one::AlsoJustOptional"));
-    assertTrue(alsoJustOptionalSymbol.isPresent());
   }
 
   private void assertFSMGenerics(final CompilableProgram program) {
     //So we both use and define some generic type in this module.
     new SymbolCountCheck(1, "com.utils.fsm.example", 10).test(program);
-
-    var typeChecker =
-        new GenericsSymbolCheck(program, "com.utils.fsm.example", true, ISymbol.SymbolCategory.TYPE);
-
-    typeChecker.accept(new SymbolSearchConfiguration("FSM", mapFunction.apply(List.of("Integer"))));
-    typeChecker.accept(new SymbolSearchConfiguration("FSM", mapFunction.apply(List.of("CardSuit"))));
-
-    var functionChecker =
-        new GenericsSymbolCheck(program, "com.utils.fsm.example", true, ISymbol.SymbolCategory.FUNCTION);
-    functionChecker.accept(new SymbolSearchConfiguration("FSMListener", mapFunction.apply(List.of("Integer"))));
-    functionChecker.accept(new SymbolSearchConfiguration("FSMListener", mapFunction.apply(List.of("CardSuit"))));
   }
 
   private void assertExpressionDeclarationWithGenerics(final CompilableProgram program) {
-    SymbolCheck ek9TypeChecker =
-        new SymbolCheck(program, EK9_LANG, true, true, ISymbol.SymbolCategory.TYPE);
-
-    var moduleName = "simple.generics.use.four";
-
-    SymbolCheck templateTypeChecker =
-        new SymbolCheck(program, moduleName, true, true, ISymbol.SymbolCategory.TEMPLATE_TYPE);
-
-    SymbolCheck basicTypeChecker =
-        new SymbolCheck(program, moduleName, true, true, ISymbol.SymbolCategory.TYPE);
-
-    SymbolCheck basicFunctionChecker =
-        new SymbolCheck(program, moduleName, true, true, ISymbol.SymbolCategory.FUNCTION);
-
-    var genericTypeChecker = new GenericsSymbolCheck(program, moduleName, true, ISymbol.SymbolCategory.TYPE);
-
-    //OK now lets see what is present and what is not
-
-    templateTypeChecker.accept("GenericThing");
-    templateTypeChecker.accept("GenericMapThing");
-    basicTypeChecker.accept("BespokeClass");
-    basicFunctionChecker.accept("FunctionWithExplicitGenericConstruction");
-
-    //Just check we can resolve the parameterizing types in the appropriate scope.
-    ek9TypeChecker.accept("Date");
-    ek9TypeChecker.accept("Millisecond");
-
-    //So we've resolved the building blocks of what we need.
-    //Now let's see if the compiler has parsed processed and constructed the new types that
-    //should result for this combination.
-
-    //For this we used the full declaration of the type, so it should get created and registered.
-    var genericThingOfDateTimeSearch = new SymbolSearchConfiguration("GenericThing", mapFunction.apply(List.of("DateTime")));
-    genericTypeChecker.accept(genericThingOfDateTimeSearch);
-
-    var genericThingOfDurationSearch = new SymbolSearchConfiguration("GenericThing", mapFunction.apply(List.of("Duration")));
-    genericTypeChecker.accept(genericThingOfDurationSearch);
-
-    var genericThingOfMilliSecondSearch =
-        new SymbolSearchConfiguration("GenericThing", mapFunction.apply(List.of("Millisecond")));
-    genericTypeChecker.accept(genericThingOfMilliSecondSearch);
-
-    genericTypeChecker.accept(new SymbolSearchConfiguration("GenericThing", mapFunction.apply(List.of("Date"))));
-
-    genericTypeChecker.accept(new SymbolSearchConfiguration("GenericThing", mapFunction.apply(List.of("Float"))));
-
-    var integerSearch = new SymbolSearchConfiguration("Integer");
-    genericTypeChecker.accept(
-        new SymbolSearchConfiguration("GenericMapThing", List.of(integerSearch, genericThingOfMilliSecondSearch)));
-
-    //Check for it being present as we have done sufficient passes to now resolve this.
-    genericTypeChecker.accept(
-        new SymbolSearchConfiguration("GenericThing", new SymbolSearchConfiguration("BespokeClass")));
-
     //We'd expect this no more and no less.
-    new SymbolCountCheck(1, moduleName, 11).test(program);
+    new SymbolCountCheck(1, "simple.generics.use.four", 11).test(program);
   }
 }

@@ -7,6 +7,7 @@ defines module com.customer.services
     AddressId is String
 
   defines record
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Address"
     Address
       id as AddressId: AddressId()
       street as String: String()
@@ -73,12 +74,14 @@ defines module com.customer.services
   defines function
 
     //Used for specific operations to be applied to a set of addresses
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "addressOperation"
     addressOperation() as abstract
       ->
         addresses as AddressAccess
         address as Address          
 
     //deals with wrapping the operation in the calls to deal with mutex lock.
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "safeOperation"
     safeOperation()
       ->
         lockedAddressSet as MutexLock of AddressSet
@@ -89,7 +92,8 @@ defines module com.customer.services
         override access()
           operation(lockedAddressSet.get(), address)
       lockedAddressSet.enter(accessKey)
-                      
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "addressFromJson"
     addressFromJson()
       -> addressInJSONFormat as String
       <- rtn as Address: Address()
@@ -106,6 +110,7 @@ defines module com.customer.services
       Until we have a more general JSON parser
       a bespoke parser is needed for this demonstration
     -?>
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "addressDictionaryFromJSON"
     addressDictionaryFromJSON()
       -> json as String
       <- rtn as Dict of (String, String): Dict()
@@ -117,20 +122,24 @@ defines module com.customer.services
       //Map to a dictionary and return.
       rtn: cat addressItems | map with toDictEntry | collect as Dict of (String, String)      
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "toDictEntry"
     toDictEntry()
       -> line as String
       <- rtn as DictEntry of (String, String): DictEntry()
       keyValues <- line.trim().split(/:/)
       rtn: DictEntry(keyValues.first().trim().trim('"'), keyValues.last().trim().trim('"'))
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "copyAddress"
     copyAddress()
       -> from as Address
       <- to as Address: Address(from)
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "wrapInBrackets"
     wrapInBrackets()
       -> value as String
       <- rtn as String: `[ ${value} ]`
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "commaSeparated"
     commaSeparated()
       ->
         firstPart String
@@ -138,10 +147,12 @@ defines module com.customer.services
       <-
         rtn as String: firstPart? and secondPart? <- firstPart + "," + secondPart : String()
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "addressToJSON"
     addressToJSON()
       -> address as Address
       <- addressAsString as String: AddressToOutputFormat("en").toJSON(address)
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "addressListToJSON"
     addressListToJSON()
       -> addresses as List of Address
       <- listAsString as String: cat addresses
@@ -151,6 +162,7 @@ defines module com.customer.services
         | collect as String
 
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "optionalJSON"
     optionalJSON()
       ->
         name as String
@@ -160,6 +172,7 @@ defines module com.customer.services
 
   defines trait
 
+    @Resolved: SYMBOL_DEFINITION: TYPE: "AddressAccess"
     AddressAccess
       operator +=
         -> address as Address
@@ -198,6 +211,8 @@ defines module com.customer.services
         <- rtn as List of Address: List()
                                        
   defines class
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "AddressSet"
     AddressSet with trait of AddressAccess
       hash as String: HMAC().SHA256(GUID())
       addresses as Dict of (AddressId, Address): Dict()
@@ -278,6 +293,7 @@ defines module com.customer.services
         hash :=: HMAC().SHA256(GUID())
 
     //Example of wrapping shared data set in a mutex lock.
+    @Resolved: SYMBOL_DEFINITION: TYPE: "LockableAddressSet"
     LockableAddressSet with trait of AddressAccess
       lockedAddressSet as MutexLock of AddressSet: MutexLock(AddressSet()) 
       
@@ -355,6 +371,8 @@ defines module com.customer.services
         lockedAddressSet.enter(accessKey)
 
   defines function
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "plainNonCacheableHTTPResponse"
     plainNonCacheableHTTPResponse()
       <- rtn as HTTPResponse: () of HTTPResponse
         override cacheControl()
@@ -364,6 +382,7 @@ defines module com.customer.services
         override contentLanguage()
           <- rtn as String: "en"
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "cacheableHTTPResponse"
     cacheableHTTPResponse()
       <- rtn as HTTPResponse: () of HTTPResponse
         override cacheControl()
@@ -375,6 +394,7 @@ defines module com.customer.services
 
   defines class
 
+    @Resolved: SYMBOL_DEFINITION: TYPE: "ByETagHTTPResponse"
     ByETagHTTPResponse with trait of HTTPResponse by delegate
       repository as Repository!
 
@@ -559,7 +579,8 @@ defines module com.customer.services
      
       addresses() as abstract
         <- rtn as AddressAccess?
-      
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "InMemoryRepository"
     InMemoryRepository extends Repository
       addresses as AddressAccess: LockableAddressSet()
             
@@ -592,6 +613,7 @@ defines module com.customer.services
       stdout <- Stdout()
       
       //Ensure that a string can be made from an optional of a string.
+      @Resolved: SYMBOL_DEFINITION: TYPE: "Optional of (String)"
       check as Optional of String: Optional("Steve")      
       justString <- String(check)
       stdout.println(`${justString}`)

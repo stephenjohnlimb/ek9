@@ -54,6 +54,7 @@ defines module com.customer.enumerations
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "com.customer.enumerations::fullRankCreator"
     fullRankCreator()
       -> suit as CardSuit
+      @Resolved: SYMBOL_DEFINITION: TYPE: "List of (Card)"
       <- rtn as List of Card: cat CardRank
         | map with (suit) is cardCreator (rtn: Card(rank, suit))
         | collect as List of Card
@@ -128,6 +129,7 @@ defines module com.customer.enumerations
         stdout.println($suit)
 
       //If you wanted a list of suits
+      @Resolved: SYMBOL_DEFINITION: TYPE: "List of (CardSuit)"
       suits <- cat CardSuit | collect as List of CardSuit
 
       stdout.println("Procedural Deck creation")

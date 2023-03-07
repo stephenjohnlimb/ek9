@@ -2,48 +2,78 @@
 defines module net.customer
     
   defines constant
-      
-    limitNumberOfRetries <- true    
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "limitNumberOfRetries"
+    limitNumberOfRetries <- true
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "updateErrorLog"
     updateErrorLog <- false
-    
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "delimiter"
     delimiter <- ':'
-      
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "author"
     author <- "Frank Jones"
-      
-    maxNumberOfRetries <- 10        
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "maxNumberOfRetries"
+    maxNumberOfRetries <- 10
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "minTemperatureAllowed"
     minTemperatureAllowed <- -2
-   
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "Pi"
     Pi <- 3.142
-   
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "bitMask"
     bitMask <- 0b01110001
-    
-    noon <- 12:00    
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "noon"
+    noon <- 12:00
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "justAfterNoon"
     justAfterNoon <- 12:00:01
     
-    //ISO 8601 i.e P[n]Y[n]M[n]DT[n]H[n]M[n]S    
+    //ISO 8601 i.e P[n]Y[n]M[n]DT[n]H[n]M[n]S
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "maxRenewalDuration"
     maxRenewalDuration <- P3Y2M6DT12H15M6S
-        
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "twoYears"
     twoYears <- P2Y
-    twoMonths <- P2M    
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "twoMonths"
+    twoMonths <- P2M
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "minusTwoDays"
     minusTwoDays <- P-2D
-    
-    twoHours <- PT2H    
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "twoHours"
+    twoHours <- PT2H
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "minusTwoHours"
     minusTwoHours <- PT-2H
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "twoMinutes"
     twoMinutes <- PT2M
-    
-    timeoutperiod <- 250ms
-    
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "timeoutPeriod"
+    timeoutPeriod <- 250ms
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "newMillennium"
     newMillennium <- 2000-01-01
-    
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "ek9CreatedDateTime"
     ek9CreatedDateTime <- 2018-01-31T01:30:00-05:00
-    
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "maxPayment"
     maxPayment <- 300000#USD
-        
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "defaultColour"
     defaultColour <- #AB6F2B
-    
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "twoMeters"
     twoMeters <- 2m
 
-    
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "matchSteves"
     matchSteves <- /[S|s]te(?:ven?|phen)/
     
     //A comment

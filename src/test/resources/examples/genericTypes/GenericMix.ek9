@@ -50,7 +50,7 @@ defines module net.customer.generic.mix
         
         //Just check we can define an optional
         ourOptional as Optional of T := Optional(item)
-        //But nicely we can do this!
+        //But nicely we can do this! - This makes resolution too hard inside a generic class!
         inferredOptional <- Optional(item)
        
     Optional of type T

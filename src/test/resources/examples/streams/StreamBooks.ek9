@@ -2,22 +2,27 @@
 defines module com.customer.books
 
   defines type
-    
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "AuthorId"
     AuthorId as Integer constrain
       > 0
 
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Age"
     Age as Integer constrain
       > 0
 
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Name"
     Name as String constrain as
       matches /^[a-zA-Z -]+$/
 
+    @Resolved: SYMBOL_DEFINITION: TYPE: "BookTitle"
     BookTitle as String constrain as
       matches /^[a-zA-Z0-9 -+]+$/
 
     <?-
       Simple enumeration for controlling filtering
     -?>
+    @Resolved: SYMBOL_DEFINITION: TYPE: "BookFilterSelection"
     BookFilterSelection
       SkipTwo
       JustFirst
@@ -28,6 +33,7 @@ defines module com.customer.books
     <?-
       Models the author of books.
     -?>
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Author"
     Author
       id as AuthorId?
       age as Age?
@@ -83,6 +89,7 @@ defines module com.customer.books
         firstname :=: author.firstname()
         surname :=: author.surname()
 
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Book"
     Book
       title as BookTitle?
       author as Author?
@@ -120,9 +127,11 @@ defines module com.customer.books
     <?-
       Model the concept of a library, just an in-memory map for now
     -?>
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Library"
     Library
       //These are made up books and Age is when the author wrote the book
       //There are no books on EK9 yet!
+      @Resolved: SYMBOL_DEFINITION: TYPE: "List of (Book)"
       books as List of Book: [
         Book(BookTitle("Java"), Author(AuthorId(1), Age(50), Name("John"), Name("Doe")), 1998-01-01),
         Book(BookTitle("C++"), Author(AuthorId(1), Age(42), Name("John"), Name("Doe")), 1990-01-07),
@@ -145,14 +154,18 @@ defines module com.customer.books
       Provide access to the books in the library.
       -?>
       books() as pure
+        //Just check that 'List' is resolvable in actually is template/generic type
+        @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "List"
         <- rtn as List of Book: books
 
   defines function
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "differentAuthor"
     differentAuthor() as pure abstract
       -> book as Book
       <- rtn as Boolean: Boolean()
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "bookNumberFilter"
     bookNumberFilter() as pure abstract
       -> books as List of Book
       <- rtn as List of Book: List()
@@ -163,6 +176,7 @@ defines module com.customer.books
       With 'pure' methods, the returning value can be reset/overwritten as required.
       Also shows the simple lambda-like one line functions.
     -?>
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "suitableBookFilter"
     suitableBookFilter() as pure
       -> selection as BookFilterSelection
       <- bookFilter as bookNumberFilter: given selection
@@ -174,6 +188,7 @@ defines module com.customer.books
         when BookFilterSelection.JustLast
           theFilter: () is bookNumberFilter pure (rtn: cat books | tail 1 | collect as List of Book)
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "filterBooksToOutput"
     filterBooksToOutput()
       ->
         books as List of Book
@@ -190,7 +205,8 @@ defines module com.customer.books
         | map with theBookFilter
         | flatten
         > output
-        
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "getAuthorChange"
     getAuthorChange() as pure
       <- authorChanged as differentAuthor?
       byId <- AuthorId()
@@ -198,22 +214,27 @@ defines module com.customer.books
         rtn: byId? and byId != book.author().id()        
         byId: book.author().id()
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "bookAuthor"
     bookAuthor() as pure
       -> book as Book
       <- author as Author: book.author()
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "acceptableAuthorAge"
     acceptableAuthorAge() as pure
       -> author as Author
       <- rtn as Boolean: author.age() >= Age(50)
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "authorName"
     authorName() as pure
       -> author as Author
       <- rtn as Name: `${author.firstname()} ${author.surname()}`
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "theAuthorId"
     theAuthorId() as pure
       -> author as Author
       <- rtn as AuthorId: author.id()
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "comparingAuthor"
     comparingAuthor() as pure
       ->
         book1 as Book
@@ -221,6 +242,7 @@ defines module com.customer.books
       <-
         rtn as Integer: book1.author().id() <=> book2.author().id()
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "comparingAuthorName"
     comparingAuthorName() as pure
       ->
         author1 as Author
@@ -229,14 +251,16 @@ defines module com.customer.books
         rtn as Integer: author1.surname() <=> author2.surname()
       if rtn == 0
         rtn: author1.firstname() <=> author2.firstname()
-        
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "compareDatePublished"
     compareDatePublished() as pure
       ->
         book1 as Book
         book2 as Book
       <-
         rtn as Integer: book1.published() <=> book2.published()
-    
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "dateBookPublished"
     dateBookPublished() as pure
       -> book as Book
       <- rtn as Date: book.published()
@@ -245,14 +269,17 @@ defines module com.customer.books
       Note that as book has a comparator on the published date it is possible to just
       use cat books | sort | collect as List of Book
     -?>
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "orderOnPublishedDate"
     orderOnPublishedDate() as pure
       -> books as List of Book
       <- rtn as List of Book: cat books | sort by compareDatePublished | collect as List of Book
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "sufficientBooks"
     sufficientBooks() as pure
       -> books as List of Book
       <- rtn as Boolean: length books >= 3
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "bookSigningEvent"
     bookSigningEvent() as pure
       -> book as Book
       <- rtn as String: `Date: ${book.published()}`

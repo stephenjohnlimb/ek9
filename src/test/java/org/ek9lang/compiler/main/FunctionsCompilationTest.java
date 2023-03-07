@@ -28,11 +28,8 @@ class FunctionsCompilationTest extends FullCompilationTest {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
     new SymbolCountCheck("test.functions", 2).test(program);
-
     new SymbolCountCheck("com.customer.just.functions", 24).test(program);
-
     new SymbolCountCheck("com.customer.just", 6).test(program);
-
     new SymbolCountCheck("net.customer", 5).test(program);
   }
 

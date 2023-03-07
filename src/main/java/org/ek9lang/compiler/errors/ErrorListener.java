@@ -267,6 +267,7 @@ public class ErrorListener extends BaseErrorListener {
     ERROR_MISSING("but the error is missing"),
     DIRECTIVE_SYMBOL_NOT_RESOLVED("symbol not resolved"),
     DIRECTIVE_SYMBOL_CATEGORY_MISMATCH("symbol category mismatched"),
+    DIRECTIVE_SYMBOL_FOUND_UNEXPECTED_SYMBOL("unexpected symbol resolved"),
     DIRECTIVE_ERROR_MISMATCH("count does not match"),
     NOT_RESOLVED_FUZZY_MATCH("is the closest match found"),
     NOT_RESOLVED("not resolved"),
@@ -292,7 +293,7 @@ public class ErrorListener extends BaseErrorListener {
     GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED("type/function is generic but no parameters were supplied"),
     GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INVALID("this generic usage with this type is not allowed"),
     GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT(
-        "type/function is generic but incorrect number of parameters supplied"),
+        "type/function is generic, but incorrect number of parameters supplied"),
     GENERIC_TYPE_CONSTRUCTOR_INAPPROPRIATE(
         "type is generic, but for type inference to work; the number of generic "
             + "and constructor parameters must be the same"),

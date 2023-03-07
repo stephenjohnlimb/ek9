@@ -15,9 +15,13 @@ defines module simple.generics.use.one
       assert param1?
 
     ADictionary()
+      @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "Iterator of (Integer)"
       <- rtn as Iterator of Integer: Iterator()
+
+      @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "Dict of (Integer, String)"
       aDictionary as Dict of (Integer, String): Dict()
 
+      @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "DictEntry of (Integer, String)"
       newEntry as DictEntry of (Integer, String): DictEntry(1, "Steve")
       aDictionary += newEntry
 

@@ -109,6 +109,10 @@ public class SymbolFactory {
 
   private final DirectivesSymbolName directivesSymbolName = new DirectivesSymbolName();
 
+  private final ParameterizedTypeCreator parameterizedTypeCreator = new ParameterizedTypeCreator();
+
+  private final ParameterizedFunctionCreator parameterizedFunctionCreator = new ParameterizedFunctionCreator();
+
   /**
    * Used for low level additions of methods to aggregates.
    */
@@ -498,15 +502,7 @@ public class SymbolFactory {
    */
   public ParameterisedTypeSymbol newParameterisedTypeSymbol(final AggregateSymbol genericAggregateType,
                                                             final List<ISymbol> parameterizingTypes) {
-    //Use the same module scope as the generic type as there is where the new type will reside.
-    var scope = genericAggregateType.getModuleScope();
-    var theType = new ParameterisedTypeSymbol(genericAggregateType, parameterizingTypes, scope);
-    //Use the same source token for this as the generic type.
-    theType.setModuleScope(genericAggregateType.getModuleScope());
-    theType.setParsedModule(genericAggregateType.getParsedModule());
-    theType.setSourceToken(genericAggregateType.getSourceToken());
-
-    return theType;
+    return parameterizedTypeCreator.apply(genericAggregateType, parameterizingTypes);
   }
 
   /**
@@ -515,20 +511,7 @@ public class SymbolFactory {
    */
   public ParameterisedFunctionSymbol newParameterisedFunctionSymbol(FunctionSymbol genericFunction,
                                                                     List<ISymbol> parameterizingTypes) {
-    //Use the same module scope as the generic type as there is where the new type will reside.
-    var scope = genericFunction.getModuleScope();
-    var theFunction = new ParameterisedFunctionSymbol(genericFunction, parameterizingTypes, scope);
-    //Use the same source token for this as the generic function.
-    theFunction.setModuleScope(genericFunction.getModuleScope());
-    theFunction.setParsedModule(genericFunction.getParsedModule());
-    theFunction.setSourceToken(genericFunction.getSourceToken());
-
-    //Consider any return type replacement as this stage?
-    //i.e. Supplier of type T
-    //       <- r as T?
-    //This is more complex than it looks and needs to be done in later compiler phases
-    //Because it could be returning a List of Optional of DictEntry of (Integer T)!
-    return theFunction;
+    return parameterizedFunctionCreator.apply(genericFunction, parameterizingTypes);
   }
 
   /**

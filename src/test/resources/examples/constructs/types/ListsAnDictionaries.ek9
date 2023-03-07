@@ -7,6 +7,8 @@ defines module lists.and.dictionaries
     Also how named values on parameters can be employed so that the
     use of the parameters is a lot easy to understand as first look.
 
+    With the addition of the '@' directives it is now possible to check if
+    types are resolvable at different compilation phases.
   -?>
   defines function
 
@@ -14,12 +16,13 @@ defines module lists.and.dictionaries
       ->
         focus as Integer
         name as String
-        //@Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "Dict of (Integer, String)"
+        @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "Dict of (Integer, String)"
         values as Dict of (Integer, String)
       <-
         rtn as Float: 0.0
 
     functionCall1()
+      //Here we are using the inferred Dict of (Integer, String)
       values <- {1: "quick", 2: "brown", 3: "fox"}
       result <- function1(1, "Steve", values)
 
@@ -40,5 +43,4 @@ defines module lists.and.dictionaries
           3: "fox"
           }
         )
-
 //EOF

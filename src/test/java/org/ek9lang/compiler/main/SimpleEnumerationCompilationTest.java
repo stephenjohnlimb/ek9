@@ -28,7 +28,6 @@ class SimpleEnumerationCompilationTest extends FullCompilationTest {
     assertEquals(0, numberOfErrors);
     //There is an extra type created which is dynamic function.
     new SymbolCountCheck("com.customer.enumerations", 8).test(program);
-
     //Tests now in the ek9 source code via directives.
   }
 

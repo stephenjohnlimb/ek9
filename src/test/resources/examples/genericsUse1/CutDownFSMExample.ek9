@@ -12,6 +12,7 @@ defines module com.utils.fsm.example
       Lets just define a simple enumerated type and use the finite state machine with that.
     -?>
     //Symbol 1
+    @Resolved: SYMBOL_DEFINITION: TYPE: "CardSuit"
     CardSuit as
       Hearts
       Diamonds
@@ -26,6 +27,7 @@ defines module com.utils.fsm.example
       Do this by creating a dynamic function and provide the implementation you want
     -?>
     //Symbol 2
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_FUNCTION: "FSMListener"
     FSMListener() of type T
       ->
         fromState as T
@@ -39,6 +41,7 @@ defines module com.utils.fsm.example
       Outline of a finite state machine idea.
     -?>
     //Symbol 3
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "FSM"
     FSM of type T
 
       //Couple of properties to hang on to
@@ -74,6 +77,7 @@ defines module com.utils.fsm.example
       A Simple driver program to be used to check out the use of FSM and the listener
     -?>
     //Symbol 4
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Driver"
     Driver as
 
       //Used as a capture variable into the dynamic functions
@@ -82,12 +86,14 @@ defines module com.utils.fsm.example
       //Need to use long hand to check definition phase via type defs.
       //Later on we will check the interference mechanism one resolve phase is implemented.
       //Symbol 5 and Symbol 6
+      @Resolved: SYMBOL_DEFINITION: FUNCTION: "FSMListener of (Integer)"
       myListener as FSMListener of Integer: (stdout) is FSMListener of Integer
         assert fromState? and toState?
         stdout.println(`Changing from ${fromState} to ${toState}`)
 
       //Again in this example, use long hand to declare the type.
-      //Symbol 7
+      //Symbol 7 - eventually we'll get to 'myMachine <- FSM(2)'
+      @Resolved: SYMBOL_DEFINITION: TYPE: "FSM of (Integer)"
       myMachine as FSM of Integer: FSM(2)
       //Now a couple of interactions
       myMachine.setListener(myListener)
@@ -95,11 +101,13 @@ defines module com.utils.fsm.example
 
       //Lets try it with the Cards, long hand again
       //Symbol 8 and Symbol 9
+      @Resolved: SYMBOL_DEFINITION: FUNCTION: "FSMListener of (CardSuit)"
       cardListener as FSMListener of CardSuit: (stdout) is FSMListener of CardSuit
         assert fromState? and toState?
         stdout.println(`Changing from ${fromState} to ${toState}`)
 
-      //Symbol 10
+      //Symbol 10 - eventually we'll get to 'cardMachine <- FSM(CardSuit.Clubs)'
+      @Resolved: SYMBOL_DEFINITION: TYPE: "FSM of (CardSuit)"
       cardMachine as FSM of CardSuit: FSM(CardSuit.Clubs)
       //Again a few interactions
       cardMachine.setListener(myListener)

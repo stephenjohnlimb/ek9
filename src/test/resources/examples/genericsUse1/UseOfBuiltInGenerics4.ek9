@@ -10,6 +10,7 @@ defines module simple.generics.use.four
       Outline of a generic 'thing'.
     -?>
     //Symbol 1
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "GenericThing"
     GenericThing of type T
       item as T?
 
@@ -28,6 +29,7 @@ defines module simple.generics.use.four
       but also via the <- mechanism.
     -?>
     //Symbol 2
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "GenericMapThing"
     GenericMapThing of type (K, V)
       key as K?
       value as V?
@@ -49,33 +51,42 @@ defines module simple.generics.use.four
   defines function
 
     //Symbol 3
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "FunctionWithExplicitGenericConstruction"
     FunctionWithExplicitGenericConstruction()
 
       //So these will get created in polymorphic parameterised form
       //Symbol 4
+      @Resolved: SYMBOL_DEFINITION: TYPE: "GenericThing of (DateTime)"
       thingOfDateTime as GenericThing of DateTime: GenericThing()
 
       //Symbol 5
+      @Resolved: SYMBOL_DEFINITION: TYPE: "GenericThing of (Duration)"
       thingOfDuration as GenericThing of Duration?
 
       //But for now in early compiler phases focus on this
       //Looks like inferred - but really is explicit
       //Symbol 6
+      @Resolved: SYMBOL_DEFINITION: TYPE: "GenericThing of (Date)"
       thingOfDate <- GenericThing() of Date
 
       //Now make a float version
       //Symbol 7
+      @Resolved: SYMBOL_DEFINITION: TYPE: "GenericThing of (Float)"
       thingOfFloat <- GenericThing() of Float
 
       //Symbol 8 and 9
+      @Resolved: SYMBOL_DEFINITION: TYPE: "GenericMapThing of (Integer, GenericThing of (Millisecond))"
       thingMap <- GenericMapThing() of (Integer, GenericThing of Millisecond)
 
       //Now because we use BespokeClass before we have parsed it in the first phase
       //This will not get resolved - compiler accepts this in the first phase but second pass
       //Both BespokeClass and GenericThing as both known and so should then fully resolve.
       //Symbol 10
+      @NotResolved: SYMBOL_DEFINITION: TYPE: "GenericThing of (BespokeClass)"
       thingOfBespokeClass <- GenericThing() of BespokeClass
 
+      @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "GenericThing of (BespokeClass)"
+      nowResolvedAtThisPhase <- GenericThing() of BespokeClass
   //Now add in a class to be used with the GenericThing but 'after' its use above
   //For the first definition phase this won't be resolved above and create a GenericThing of BespokeClass
   //But in the next definition of explicit types phase it will, because the first phase will have
@@ -83,6 +94,7 @@ defines module simple.generics.use.four
   defines class
 
     //Symbol 11
+    @Resolved: SYMBOL_DEFINITION: TYPE: "BespokeClass"
     BespokeClass
       name <- "Steve"
 

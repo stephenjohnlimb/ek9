@@ -44,10 +44,12 @@ class TypeDefTest {
       if (parsedModule == null) {
         Assertions.fail("Unable to load ek9 scope");
       }
+      var errorListener = parsedModule.getSource().getErrorListener();
+
       this.underTest = new JustTypeDef(parsedModule.getModuleScope());
       var symbolAndScopeManagement = new SymbolAndScopeManagement(parsedModule,
           new ScopeStack(parsedModule.getModuleScope()));
-      var errorListener = parsedModule.getSource().getErrorListener();
+
       var symbolFactory = new SymbolFactory(parsedModule);
 
       resolveOrDefineTypeDef =

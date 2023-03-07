@@ -1,34 +1,48 @@
 #!ek9
+
+<?-
+  Added the use of @ directives to make testing self contained.
+-?>
 defines module com.customer.streams.splitter
 
+  //Not important here, but just a test to check that List of Date does NOT exist
+  //not for any reason other than just to check the @NotResolved directive works.
+  @NotResolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of (Date)"
   defines function
-  
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: FUNCTION: "characterFilter"
     characterFilter() as abstract    
       -> ch as Character
       <- rtn as Boolean: Boolean()
 
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: FUNCTION: "stringFilter"
     stringFilter() as abstract    
       -> string as String
       <- rtn as Boolean: Boolean()
 
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: FUNCTION: "isSet"
     isSet() extends stringFilter()
       -> string as String
       <- rtn as Boolean: string?
-        
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: FUNCTION: "delimiter"
     delimiter() extends stringFilter()
       -> string as String
       <- rtn as Boolean: string <> ":" and string <> ","
 
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: FUNCTION: "listToString"
     listToString()
       -> chars as List of Character
       <- string as String: ""
       string += chars
-      
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: FUNCTION: "getOptions"
     getOptions()
       ->
         optString as String
         theFilter as characterFilter
       <-
+        @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of (String)"
         options as List of String: cat optString
           | split with theFilter
           | map with listToString
@@ -36,7 +50,10 @@ defines module com.customer.streams.splitter
           | collect as List of String
 
   defines program
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "TestStreamsSplit"
     TestStreamsSplit()
+
       stdout <- Stdout()
       //So lets say we have a config String like this with a set number of place holders.
       //ie there can be 7 values. Note the missing one in the middle and the end

@@ -9,7 +9,8 @@
 defines module com.customer.streams.build
 
   <?-
-    As long as these types have been defined/used somewhere then we can use inference..
+    As long as these types have been defined/used somewhere then we can use inference.
+    But I may be able to sort this out with correct phasing.
   -?>
   defines type
     List of Integer

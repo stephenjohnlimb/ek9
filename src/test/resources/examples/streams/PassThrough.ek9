@@ -3,9 +3,16 @@ defines module ekopen.io.file.examples
 
   defines program
 
+    @Resolved: SYMBOL_DEFINITION: TYPE: "passThrough"
     passThrough()
+
+      @Resolved: SYMBOL_DEFINITION: TYPE: "Stdin"
       stdin <- Stdin()
+
+      @Resolved: SYMBOL_DEFINITION: TYPE: "Stdout"
       stdout <- Stdout()
+
+      @Resolved: SYMBOL_DEFINITION: TYPE: "Stderr"
       stderr <- Stderr()
 
       stderr.println("Error Channel")

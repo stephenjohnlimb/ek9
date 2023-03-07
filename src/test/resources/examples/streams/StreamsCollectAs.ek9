@@ -2,7 +2,8 @@
 defines module com.customer.streams.collectas
 
   defines record
-  
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "Stats"
     Stats
       count as Integer: Integer()
       total as Integer: Integer()
@@ -27,6 +28,7 @@ defines module com.customer.streams.collectas
           average := (#^total)/count
           
   defines program
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "AsStats"
     AsStats()
       stdout <- Stdout()
       

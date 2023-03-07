@@ -12,18 +12,24 @@ defines module incorrect.generic.uses
   defines function
 
     //This is allowed, because the lhs has the detail.
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "allowedDefaultConstructor"
     allowedDefaultConstructor()
 
       //OK
+      @Resolved: SYMBOL_DEFINITION: TYPE: "List of (String)"
       val1 as List of String: List()
       //Also OK
+      @Resolved: SYMBOL_DEFINITION: TYPE: "List of (Float)"
       val2 <- List() of Float
 
+      @Resolved: SYMBOL_DEFINITION: TYPE: "Dict of (Integer, String)"
       dict1 as Dict of (Integer, String): Dict()
 
+      @Resolved: SYMBOL_DEFINITION: TYPE: "Dict of (Integer, Date)"
       dict2 <- Dict() of (Integer, Date)
 
-    //These are also OK
+    //These are also OK - but only once type inference is done.
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "allowedWithTypeInference"
     allowedWithTypeInference()
 
       val4 <- List("Steve")
@@ -35,13 +41,15 @@ defines module incorrect.generic.uses
       dict5 <- Dict(num, name)
 
     //This is how you would use multiple parameters with a List
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "allowedSpecificListSyntax"
     allowedSpecificListSyntax()
       val6 <- ["Lots", "Of", "Parameters", "Allowed"]
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "allowedSpecificDictSyntax"
     allowedSpecificDictSyntax()
       dict6 <- {1: "Lots", 2: "Of", 3: "Parameters", 4: "Allowed"}
 
-
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "invalidPhase1IncorrectParenthesis1"
     invalidPhase1IncorrectParenthesis1()
       //Failure1
       //Use of parenthesis on lhs
@@ -71,19 +79,41 @@ defines module incorrect.generic.uses
       @Error: SYMBOL_DEFINITION: PARENTHESIS_REQUIRED
       List of String
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "invalidGenericsUse"
     invalidGenericsUse()
       //This will pass for phase1, but be picked up in later phases as an error
       //Because List is a Generic/Template type and so types but be declared somewhere
       val3 <- List()
       dict3 <- Dict()
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "invalidNumberOfParametersExplicitType1"
+    invalidNumberOfParametersExplicitType1()
+      //We should be able to pick this up in the early phases
+      @Error: SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      val4 as List of (Integer, Date): List()
+
+      @Error: SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      dict4 as Dict of (Integer): Dict()
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "invalidNumberOfParametersExplicitType2"
+    invalidNumberOfParametersExplicitType2()
+      //We should be able to pick this up in the early phases
+      @Error: SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      val5 <- List() of (Integer, Date)
+
+      @Error: SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      dict5 <- Dict() of (Integer)
+
+
     //You might this would work but no, cannot infer as too many parameters
-    invalidTooManyParameters()
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "invalidTooManyParametersInferredType"
+    invalidTooManyParametersInferredType()
       //This will pass for phase1, but be picked up in later phases as an error
       val7 <- List("something", "else")
       dict7 <- Dict("something", "else", "as well")
 
-    invalidTooFewParameters()
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "invalidTooFewParametersInferredType"
+    invalidTooFewParametersInferredType()
       //This will pass for phase1, but be picked up in later phases as an error
       //Missing 'value' type
       val8 <- Dict("Key")
@@ -94,6 +124,7 @@ defines module incorrect.generic.uses
       Outline of a generic 'thing'.
       Just used for checking extension.
     -?>
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "GenericThing"
     GenericThing of type T
       item as T?
 
@@ -110,6 +141,7 @@ defines module incorrect.generic.uses
       Make a concrete class that extends the generic type with an integer.
       No additional functionality is added here, but just to check for compiler errors.
     -!>
+    @Resolved: SYMBOL_DEFINITION: TYPE: "GenericThing of (Integer)"
     validConcreteClass is GenericThing of Integer
 
     //Failure 6 - because the () is really use to indicate 'make me a new one'.
@@ -119,17 +151,20 @@ defines module incorrect.generic.uses
   //More functions after the Generic type has been defined.
   defines function
 
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_FUNCTION: "AListener"
     AListener() of type T
       ->
         fromState as T
         toState as T
       assert fromState? and toState?
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "validDynamicFunction"
     validDynamicFunction()
       listener <- () is AListener of Integer
       listener(1, 2)
 
     //New directives to enable 'requirement' and expectations to be embedded in the source
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "invalidDynamicFunction"
     invalidDynamicFunction()
       //Failure 7
       //Here we are telling the compiler to check we get an error here.
@@ -137,7 +172,9 @@ defines module incorrect.generic.uses
       listener <- () is AListener() of Integer
       listener(1, 2)
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "validDynamicClass"
     validDynamicClass()
+      @Resolved: SYMBOL_DEFINITION: TYPE: "GenericThing of (Date)"
       genericOfDateInstance1 <- () is GenericThing of Date as class
 
       //create a new named GenericThingOfDate class and created as an instance
@@ -147,6 +184,7 @@ defines module incorrect.generic.uses
       genericOfListDateInstance1 <- () is GenericThing of List of Date as class
       genericOfListDateInstance2 <- GenericThingOfListOfDate () is GenericThing of List of Date as class
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "invalidDynamicClass"
     invalidDynamicClass()
       //Failure 8 extra parenthesis after Generic Type name
       @Error: SYMBOL_DEFINITION: PARENTHESIS_NOT_REQUIRED
@@ -168,6 +206,7 @@ defines module incorrect.generic.uses
       @Error: SYMBOL_DEFINITION: PARENTHESIS_NOT_REQUIRED
       genericOfListDateInstance3 <- GenericThingOfListOfDateBroken2 () is GenericThing of List() of Date as class
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "invalidMixOfInferenceAndExplicit"
     invalidMixOfInferenceAndExplicit()
 
       validInferenceCombination1 <- GenericThing() of Integer

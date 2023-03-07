@@ -1,9 +1,9 @@
 #!ek9
+<?-
+  Not there is an explicit check that List of Paragraph cannot ye be resolved in phase EXPLICIT_TYPE_SYMBOL_DEFINITION.
+-?>
 defines module com.customer.justparagraphs
 
-  defines type
-    List of Paragraph
-    
   defines class
   
     Paragraph
@@ -35,12 +35,18 @@ defines module com.customer.justparagraphs
       
       //Add this in to make the page 'catable' so we can get the paragraphs.
       iterator()
+        @Resolved: SYMBOL_DEFINITION: TYPE: "Iterator of (Paragraph)"
         <- rtn as Iterator of Paragraph: Iterator()
-        
+
+        //Now this is a 'List of (Paragraph)'' - but we cannot resolve it at this phase
+        //We will only be able to resolve it after we are done type inference phase
+        @NotResolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of (Paragraph)"
         paragraphs <- [introduction, mainBody, conclusion]
+
         rtn := paragraphs.iterator()
             
   defines program
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "JustPageAndParagraph"
     JustPageAndParagraph()
       stdout <- Stdout()
       

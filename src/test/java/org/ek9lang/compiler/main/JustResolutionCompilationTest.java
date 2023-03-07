@@ -30,7 +30,6 @@ class JustResolutionCompilationTest extends FullCompilationTest {
     var mainModuleName = "just.resolution.items";
     var referencingModuleName = "just.reference.items";
 
-
     new SymbolCountCheck(2,mainModuleName, 4).test(program);
     new SymbolCountCheck(1,referencingModuleName, 1).test(program);
 

@@ -15,7 +15,6 @@ class BadServiceFullCompilationTest extends FullCompilationTest {
     super("/examples/parseButFailCompile/badServiceDefinition");
   }
 
-
   @Test
   void testPhaseDevelopment() {
     testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);

@@ -1,11 +1,9 @@
 #!ek9
 defines module com.customer.justcat
 
-  defines type
-    List of String
-
   defines function
     someNames()
+      @Resolved: SYMBOL_DEFINITION: TYPE: "List of (String)"
       <- rtn as List of String: ["Some", "Words", "From", "Function"]
 
     outputFormatSeparated()
@@ -17,6 +15,7 @@ defines module com.customer.justcat
 
   //Some examples of the new parser grammar to enable return values from stream pipelines over multiple lines.
   defines class
+    @Resolved: SYMBOL_DEFINITION: TYPE: "NameProvider"
     NameProvider
       someNames()
         <- rtn as List of String: ["Some", "Words", "From", "Class", "Method"]

@@ -11,10 +11,13 @@ defines module simple.generics.use.one
 
   defines function
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "JustOptional"
     JustOptional()
+      @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "Optional of (String)"
       -> param1 as Optional of String
       assert param1?
 
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "AlsoJustOptional"
     AlsoJustOptional()
       <- rtn as Optional of String?
       v1 <- "Steve"
@@ -30,6 +33,7 @@ defines module simple.generics.use.one
       assert v1?
 
     UseOfASupplier()
+      @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: FUNCTION: "Supplier of (Integer)"
       -> supplier as Supplier of Integer
       assert supplier?
 //EOF
