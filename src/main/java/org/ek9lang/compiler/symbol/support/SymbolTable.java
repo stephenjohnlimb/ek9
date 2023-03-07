@@ -424,7 +424,7 @@ public class SymbolTable implements IScope {
   }
 
   @Override
-  public Optional<ScopedSymbol> findNearestAggregateScopeInEnclosingScopes() {
+  public Optional<ScopedSymbol> findNearestNonBlockScopeInEnclosingScopes() {
     return Optional.empty();
   }
 

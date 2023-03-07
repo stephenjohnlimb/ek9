@@ -3,7 +3,7 @@ package org.ek9lang.compiler.main.phases.definition;
 import org.ek9lang.antlr.EK9BaseListener;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.internals.ParsedModule;
-import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineParameterizedType;
+import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineExplicitParameterizedType;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineTypeDef;
 import org.ek9lang.compiler.symbol.support.ScopeStack;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
@@ -22,7 +22,7 @@ import org.ek9lang.core.exception.AssertValue;
 public class ResolveDefineExplicitTemplateUseListener extends EK9BaseListener {
   private final SymbolAndScopeManagement symbolAndScopeManagement;
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
-  private final ResolveOrDefineParameterizedType resolveOrDefineParameterizedType;
+  private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
 
   /**
    * Still in def phase 1 - but second pass to try and resolve types due to declaration ordering.
@@ -38,8 +38,8 @@ public class ResolveDefineExplicitTemplateUseListener extends EK9BaseListener {
     resolveOrDefineTypeDef =
         new ResolveOrDefineTypeDef(symbolAndScopeManagement, symbolFactory, errorListener, true);
 
-    resolveOrDefineParameterizedType =
-        new ResolveOrDefineParameterizedType(symbolAndScopeManagement, symbolFactory, errorListener, true);
+    resolveOrDefineExplicitParameterizedType =
+        new ResolveOrDefineExplicitParameterizedType(symbolAndScopeManagement, symbolFactory, errorListener, true);
   }
 
   @Override
@@ -259,7 +259,8 @@ public class ResolveDefineExplicitTemplateUseListener extends EK9BaseListener {
 
   @Override
   public void enterParameterisedType(EK9Parser.ParameterisedTypeContext ctx) {
-    resolveOrDefineParameterizedType.apply(ctx);
+    //Nothing is done with the return here
+    resolveOrDefineExplicitParameterizedType.apply(ctx);
   }
 }
 

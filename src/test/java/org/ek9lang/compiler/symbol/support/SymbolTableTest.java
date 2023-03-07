@@ -67,10 +67,15 @@ final class SymbolTableTest {
     underTest.define(new AggregateSymbol("notThisType", underTest));
 
     //This turns the functions/aggregates into Template Generic types
-    underTest.define(new FunctionSymbol("notThisFunction", underTest).addParameterisedType(
-        new AggregateSymbol("NoneSuch1", underTest)));
-    underTest.define(new AggregateSymbol("notThisType", underTest).addParameterisedType(
-        new AggregateSymbol("NoneSuch2", underTest)));
+    var functionSymbol = new FunctionSymbol("notThisFunction", underTest);
+    functionSymbol.addParameterisedType(
+        new AggregateSymbol("NoneSuch1", underTest));
+    underTest.define(functionSymbol);
+
+    var aggregateSymbol = new AggregateSymbol("notThisType", underTest);
+    aggregateSymbol.addParameterisedType(
+        new AggregateSymbol("NoneSuch2", underTest));
+    underTest.define(aggregateSymbol);
 
     assertNotFound(underTest);
   }
@@ -290,8 +295,10 @@ final class SymbolTableTest {
     assertEquals("function1", searchResult.get().getName());
 
     //This turns the functions/aggregates into Template Generic types
-    underTest.define(new FunctionSymbol("function2", underTest).addParameterisedType(
-        new AggregateSymbol("NoneSuch1", underTest)));
+    var functionSymbol = new FunctionSymbol("function2", underTest);
+    functionSymbol.addParameterisedType(
+        new AggregateSymbol("NoneSuch1", underTest));
+    underTest.define(functionSymbol);
 
     var templateFunctionSymbolSearch = new TemplateFunctionSymbolSearch("function2");
     searchResult = underTest.resolve(templateFunctionSymbolSearch);
@@ -423,7 +430,7 @@ final class SymbolTableTest {
     assertFalse(searchResult.isPresent());
 
     //Has no enclosing scope so expect false.
-    assertFalse(underTest.findNearestAggregateScopeInEnclosingScopes().isPresent());
+    assertFalse(underTest.findNearestNonBlockScopeInEnclosingScopes().isPresent());
     assertFalse(underTest.isScopeAMatchForEnclosingScope(underTest));
     assertFalse(underTest.resolveWithEnclosingScope(new TypeSymbolSearch("global::Float")).isPresent());
 

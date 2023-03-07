@@ -12,14 +12,14 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
  * way we like i.e. classes.
  * We need to ensure that any functions we extend have the same method signature.
  */
-public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables {
+public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables, ICanBeGeneric {
   //This is the module this function has been defined in.
   private IScope moduleScope;
 
   /**
    * For Functions symbols we keep a handle on the context where the returning param (if any)
    * was defined. We do this because with functions we allow the function name to be defined
-   * when implementing an abstract functio without the need to refine all the parameter and returns.
+   * when implementing an abstract function without the need to refine all the parameter and returns.
    * Clearly this would not make sense for methods where you have overloading but for functions
    * there is only one name for that function just the parameters and returns alter.
    */
@@ -82,10 +82,9 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
   }
 
   @Override
-  public FunctionSymbol addParameterisedType(AggregateSymbol parameterisedType) {
+  public void addParameterisedType(AggregateSymbol parameterisedType) {
     super.addParameterisedType(parameterisedType);
     super.setCategory(SymbolCategory.TEMPLATE_FUNCTION);
-    return this;
   }
 
   public EK9Parser.ReturningParamContext getReturningParamContext() {
@@ -102,6 +101,11 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 
   public void setModuleScope(IScope moduleScope) {
     this.moduleScope = moduleScope;
+  }
+
+  @Override
+  public ScopeType getScopeType() {
+    return ScopeType.NON_BLOCK;
   }
 
   public Optional<LocalScope> getCapturedVariables() {

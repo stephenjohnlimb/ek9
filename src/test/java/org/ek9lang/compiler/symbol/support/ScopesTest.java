@@ -93,7 +93,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
   void testFullyQualifiedSearch() {
     var ek9LangSymbolTable = new SymbolTable(AggregateFactory.EK9_LANG);
     ISymbol orgEk9LangInteger = typeCreator.apply("Integer", ek9LangSymbolTable);
-
+    assertNotNull(orgEk9LangInteger);
     assertFalse(ek9LangSymbolTable.resolve(new TypeSymbolSearch("Integer")).isPresent());
     assertTrue(ek9LangSymbolTable.resolve(new TypeSymbolSearch(EK9_INTEGER)).isPresent());
   }
@@ -136,7 +136,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
   @Test
   void testBlockLimitingResolution() {
-    var local1 = new LocalScope(IScope.ScopeType.AGGREGATE, "SimulatedAggregate", symbolTable);
+    var local1 = new LocalScope(IScope.ScopeType.NON_BLOCK, "SimulatedAggregate", symbolTable);
     var local2 = new LocalScope(local1);
 
     //Now if we limit to blocks, should not be able to resolve.
@@ -147,7 +147,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
   @Test
   void testGeneralMethodResolution() {
-    var local1 = new LocalScope(IScope.ScopeType.AGGREGATE, "SimulatedAggregate", symbolTable);
+    var local1 = new LocalScope(IScope.ScopeType.NON_BLOCK, "SimulatedAggregate", symbolTable);
 
     //Create a method and add.
     var method = new MethodSymbol("aMethod", local1);
@@ -169,11 +169,11 @@ final class ScopesTest extends AbstractSymbolTestBase {
     VariableSymbol v1 =
         new VariableSymbol("v3", symbolTable.resolve(new TypeSymbolSearch("Integer")));
 
-    var local = new LocalScope(IScope.ScopeType.AGGREGATE, "someName", symbolTable);
+    var local = new LocalScope(IScope.ScopeType.NON_BLOCK, "someName", symbolTable);
     assertNotNull(local);
     local.define(v1);
     assertEquals("someName", local.getScopeName());
-    assertEquals(IScope.ScopeType.AGGREGATE, local.getScopeType());
+    assertEquals(IScope.ScopeType.NON_BLOCK, local.getScopeType());
     assertEquals("someName", local.getFriendlyScopeName());
 
     var clone = local.clone(symbolTable);
@@ -185,7 +185,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
   @Test
   void testFindingAggregateScope() {
     var aggregateScope1 =
-        new ScopedSymbol(IScope.ScopeType.AGGREGATE, "aggregateScope", symbolTable);
+        new ScopedSymbol(IScope.ScopeType.NON_BLOCK, "aggregateScope", symbolTable);
     assertFalse(aggregateScope1.isMarkedPure());
     assertEquals("aggregateScope as Unknown", aggregateScope1.getFriendlyScopeName());
     assertEquals("aggregateScope", aggregateScope1.getName());
@@ -196,7 +196,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
     var local = new LocalScope("JustLocalBlock", blockScope1);
 
-    var foundScope = local.findNearestAggregateScopeInEnclosingScopes();
+    var foundScope = local.findNearestNonBlockScopeInEnclosingScopes();
     assertTrue(foundScope.isPresent());
     assertEquals(aggregateScope1, foundScope.get());
 
@@ -268,7 +268,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
   @Test
   void testScopedSymbolScope() {
     assertNotNull(checkScopedSymbol(
-        new ScopedSymbol(IScope.ScopeType.AGGREGATE, "aggregateScope", symbolTable)));
+        new ScopedSymbol(IScope.ScopeType.NON_BLOCK, "aggregateScope", symbolTable)));
   }
 
   @Test

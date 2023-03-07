@@ -11,7 +11,7 @@ import org.ek9lang.core.exception.CompilerException;
  */
 public interface ParameterisedSymbol extends IScopedSymbol {
   default ScopeType getScopeType() {
-    return ScopeType.AGGREGATE;
+    return ScopeType.NON_BLOCK;
   }
 
   List<ISymbol> getParameterSymbols();

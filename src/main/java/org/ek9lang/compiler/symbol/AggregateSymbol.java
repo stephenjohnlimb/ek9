@@ -32,7 +32,7 @@ import org.ek9lang.core.exception.CompilerException;
  * So there are two ways to resolve references first is module scope and second
  * is super class type scope.
  */
-public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
+public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, ICanBeGeneric {
 
   /**
    * Also keep a back pointer to the direct subclasses.
@@ -184,7 +184,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
 
   @Override
   public ScopeType getScopeType() {
-    return ScopeType.AGGREGATE;
+    return ScopeType.NON_BLOCK;
   }
 
   /**
@@ -325,10 +325,10 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
    * Parameterize this with an aggregate type.
    */
   @Override
-  public AggregateSymbol addParameterisedType(AggregateSymbol parameterisedType) {
+  public void addParameterisedType(AggregateSymbol parameterisedType) {
     super.addParameterisedType(parameterisedType);
     super.setCategory(SymbolCategory.TEMPLATE_TYPE);
-    return this;
+
   }
 
   public List<IAggregateSymbol> getSubAggregateScopedSymbols() {

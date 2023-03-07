@@ -115,12 +115,12 @@ public class LocalScope extends SymbolTable {
    * @return An Optional scope of the first encounter with and scope that is an aggregate or empty.
    */
   @Override
-  public Optional<ScopedSymbol> findNearestAggregateScopeInEnclosingScopes() {
-    if (enclosingScope.getScopeType().equals(ScopeType.AGGREGATE)) {
+  public Optional<ScopedSymbol> findNearestNonBlockScopeInEnclosingScopes() {
+    if (enclosingScope.getScopeType().equals(ScopeType.NON_BLOCK)) {
       return Optional.of((ScopedSymbol) enclosingScope);
     }
 
-    return enclosingScope.findNearestAggregateScopeInEnclosingScopes();
+    return enclosingScope.findNearestNonBlockScopeInEnclosingScopes();
   }
 
   @Override

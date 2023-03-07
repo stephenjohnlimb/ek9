@@ -74,7 +74,7 @@ public interface IScope {
 
   boolean isScopeAMatchForEnclosingScope(IScope toCheck);
 
-  Optional<ScopedSymbol> findNearestAggregateScopeInEnclosingScopes();
+  Optional<ScopedSymbol> findNearestNonBlockScopeInEnclosingScopes();
 
   /**
    * Typically in a scoped block we can encounter situations (like exceptions) that cause the block
@@ -88,14 +88,14 @@ public interface IScope {
 
   /**
    * Two main type of scope in use a block is just like a set of instruction inside an if block
-   * or a while block whereas an aggregate block is as the whole class/component level.
+   * or a while block whereas an non-block is as the whole class/function/component level.
    * So for variable definition it follows that same sort of logic as java not C/C++.
    * You can have fields as variables with a name say 'v1' and parameters and block declarations
    * of something as 'v1'.
    * But once in a block scope then you cannot redefine 'v1'.
    */
   enum ScopeType {
-    AGGREGATE,
+    NON_BLOCK,
     BLOCK
   }
 }

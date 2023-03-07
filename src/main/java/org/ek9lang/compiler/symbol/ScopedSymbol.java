@@ -173,19 +173,9 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   /**
    * Add a parameterised type aggregate to this scope.
    */
-  public ScopedSymbol addParameterisedType(AggregateSymbol parameterisedType) {
+  public void addParameterisedType(AggregateSymbol parameterisedType) {
     AssertValue.checkNotNull("ParameterisedType cannot be null", parameterisedType);
     this.parameterisedTypes.add(parameterisedType);
-    return this;
-  }
-
-  /**
-   * Add a parameterised type aggregate to this scope.
-   */
-  public ScopedSymbol addParameterisedType(Optional<AggregateSymbol> parameterisedType) {
-    AssertValue.checkNotNull("Optional parameterisedType cannot be null", parameterisedType);
-    parameterisedType.ifPresent(this::addParameterisedType);
-    return this;
   }
 
   protected String getAnyGenericParamsAsFriendlyNames() {
@@ -294,11 +284,11 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   }
 
   @Override
-  public Optional<ScopedSymbol> findNearestAggregateScopeInEnclosingScopes() {
-    if (getScopeType().equals(ScopeType.AGGREGATE)) {
+  public Optional<ScopedSymbol> findNearestNonBlockScopeInEnclosingScopes() {
+    if (getScopeType().equals(ScopeType.NON_BLOCK)) {
       return Optional.of(this);
     }
-    return actualScope.findNearestAggregateScopeInEnclosingScopes();
+    return actualScope.findNearestNonBlockScopeInEnclosingScopes();
   }
 
   @Override

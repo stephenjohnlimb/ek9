@@ -365,7 +365,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 
   @Override
   public ScopeType getScopeType() {
-    return ScopeType.AGGREGATE;
+    return ScopeType.NON_BLOCK;
   }
 
   private static class ResolutionResult {

@@ -87,6 +87,7 @@ defines module simple.generics.use.four
 
       @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "GenericThing of (BespokeClass)"
       nowResolvedAtThisPhase <- GenericThing() of BespokeClass
+
   //Now add in a class to be used with the GenericThing but 'after' its use above
   //For the first definition phase this won't be resolved above and create a GenericThing of BespokeClass
   //But in the next definition of explicit types phase it will, because the first phase will have

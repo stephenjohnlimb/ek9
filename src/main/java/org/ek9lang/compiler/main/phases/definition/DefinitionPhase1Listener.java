@@ -27,7 +27,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.UnreachableStatement;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.phases.listeners.AbstractEK9PhaseListener;
-import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineParameterizedType;
+import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineExplicitParameterizedType;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineTypeDef;
 import org.ek9lang.compiler.main.rules.CheckApplicationUseOnMethodDeclaration;
 import org.ek9lang.compiler.main.rules.CheckAssignment;
@@ -130,7 +130,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   private final CheckForInvalidParameterisedTypeUse checkForInvalidParameterisedTypeUse;
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
-  private final ResolveOrDefineParameterizedType resolveOrDefineParameterizedType;
+  private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
 
 
   /**
@@ -165,8 +165,8 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     resolveOrDefineTypeDef =
         new ResolveOrDefineTypeDef(symbolAndScopeManagement, symbolFactory, errorListener, false);
 
-    resolveOrDefineParameterizedType =
-        new ResolveOrDefineParameterizedType(symbolAndScopeManagement, symbolFactory, errorListener, false);
+    resolveOrDefineExplicitParameterizedType =
+        new ResolveOrDefineExplicitParameterizedType(symbolAndScopeManagement, symbolFactory, errorListener, false);
   }
 
   // Now we hook into the ANTLR listener events - lots of them!
@@ -882,7 +882,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     //Now as I've altered the grammar we need to add a rule to ensure that it has
     //valid structure in its context.
     checkForInvalidParameterisedTypeUse.accept(ctx);
-    resolveOrDefineParameterizedType.apply(ctx);
+    resolveOrDefineExplicitParameterizedType.apply(ctx);
   }
 
   @Override
