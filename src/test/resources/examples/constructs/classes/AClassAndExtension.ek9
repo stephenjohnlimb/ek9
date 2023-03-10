@@ -2,15 +2,6 @@
 defines module com.customer.classes
 
   <?-
-    Just put this in to test out the override key word on methods
-    When the method does not override anything compiler should pick up when used incorrectly.
-    Also we method does override method from super or trait compiler should pick up and error if you don't use override
-    Finally for private methods where override is used the compiler errors because that makes no sense.
-    
-    Also now using abstract makes a class open to extend, but also if you have a concrete class and you want to allow
-    extension then you must explicitly allow it by using 'open'. So by default a concrete class is 'final' by default
-    i.e not open to be extended.
-    
     Moved the open to be like abstract in its position, so make the definition more readable - you can use extends or is
     'defines class Extensions extends Base as open'
     So anything that's defined abstract is automatically open, but a class that can be instantiated is automatically
@@ -45,8 +36,28 @@ defines module com.customer.classes
       override singleMethod()
         <- rtn String = "Steven"
 
-    @Resolved: SYMBOL_DEFINITION: TYPE: "Extension3"
-    Extension3 extends Extension2
+    //So extension2 can be used to extend from
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Extension3A"
+    Extension3A extends Extension2
       override singleMethod()
         <- rtn String := "Stephen"
+
+    //This is the same as above but the check we're making here is to ensure hierarchy
+    //@Implements: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "Extension3B": "Extension2"
+    Extension3B extends Extension2
+      override singleMethod()
+        <- rtn String := "Stephen"
+
+  defines function
+
+    BaseFunction as pure abstract
+      -> arg0 as String
+      <- rtn as String: arg0
+
+    //Check this directive works for functions as well
+    //@Implements: EXPLICIT_TYPE_SYMBOL_DEFINITION: FUNCTION: "ExtendsFunction": "BaseFunction"
+    ExtendsFunction is BaseFunction as pure
+      -> arg0 as String
+      <- rtn as String: "[" + arg0 + "]"
+
 //EOF

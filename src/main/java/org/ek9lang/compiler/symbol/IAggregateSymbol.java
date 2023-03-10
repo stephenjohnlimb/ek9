@@ -127,8 +127,10 @@ public interface IAggregateSymbol extends ICanCaptureVariables, IScopedSymbol {
 
   /**
    * Only really used by aggregates that can have one or more traits.
+   * But also super classes or super traits.
+   * So can either be implementing directly, super, super - super or traits and supe traits.
    */
-  boolean isTraitImplemented(AggregateWithTraitsSymbol thisTraitSymbol);
+  boolean isImplementingInSomeWay(IAggregateSymbol aggregate);
 
   /**
    * Used when a symbol can be defined as a generic/parameterised type.

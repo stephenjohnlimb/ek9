@@ -155,18 +155,18 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
   }
 
   @Override
-  public boolean isTraitImplemented(AggregateWithTraitsSymbol traitSymbol) {
+  public boolean isImplementingInSomeWay(IAggregateSymbol traitSymbol) {
     if (this == traitSymbol) {
       return true;
     }
 
     for (AggregateWithTraitsSymbol trait : traits) {
-      if (trait.isTraitImplemented(traitSymbol)) {
+      if (trait.isImplementingInSomeWay(traitSymbol)) {
         return true;
       }
     }
 
-    return super.isTraitImplemented(traitSymbol);
+    return super.isImplementingInSomeWay(traitSymbol);
   }
 
   /**

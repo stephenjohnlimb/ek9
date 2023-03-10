@@ -10,55 +10,51 @@ import org.ek9lang.compiler.symbol.ISymbol;
  * //@NotResolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of Integer"
  */
 public abstract class ResolutionDirective implements Directive {
-  private final CompilationPhase phase;
 
-  private final Token directiveToken;
-
-  private final ISymbol.SymbolCategory symbolCategory;
-
-  private final String symbolName;
-  private final int lineNumber;
+  private final DirectiveSpec spec;
 
   /**
    * A new resolution style directive.
    * The symbol Name can be single like Integer or parameterised like List of (String).
    * If parameterised it must have the parenthesis.
    */
-  protected ResolutionDirective(final Token token, final CompilationPhase phase,
-                             final ISymbol.SymbolCategory symbolCategory,
-                             final String symbolName,
-                             final int lineNumber) {
-    this.directiveToken = token;
-    this.symbolCategory = symbolCategory;
-    this.symbolName = symbolName;
-    this.phase = phase;
-    this.lineNumber = lineNumber;
+  protected ResolutionDirective(final DirectiveSpec spec) {
+    this.spec = spec;
   }
 
   public boolean isForPhase(final CompilationPhase phase) {
-    return this.phase == phase;
+    return spec.phase() == phase;
   }
 
   @Override
   public Token getDirectiveToken() {
-    return directiveToken;
+    return spec.token();
   }
 
   @Override
   public int getAppliesToLineNumber() {
-    return lineNumber;
+    return spec.lineNumber();
   }
 
   public ISymbol.SymbolCategory getSymbolCategory() {
-    return symbolCategory;
+    return spec.symbolCategory();
   }
 
   public String getSymbolName() {
-    return symbolName;
+    return spec.symbolName();
+  }
+
+  public String getAdditionalName() {
+    return spec.additionalName();
   }
 
   @Override
   public String toString() {
-    return type() + ": " + phase + ": " + symbolCategory + ": \"" + symbolName + "\": Line: " + lineNumber;
+    var base = type() + ": " + spec.phase() + ": " + spec.symbolCategory() + ": \"" + spec.symbolName() + "\"";
+
+    if (spec.additionalName() != null) {
+      base += ": \"" + spec.additionalName() + "\"";
+    }
+    return base + ": Line: " + spec.lineNumber();
   }
 }

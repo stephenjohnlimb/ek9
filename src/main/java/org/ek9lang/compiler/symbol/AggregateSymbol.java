@@ -396,10 +396,11 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, I
   }
 
   @Override
-  public boolean isTraitImplemented(AggregateWithTraitsSymbol thisTraitSymbol) {
+  public boolean isImplementingInSomeWay(IAggregateSymbol aggregate) {
     return superAggregateScopedSymbol.map(
-        aggregateSymbol -> aggregateSymbol.isTraitImplemented(thisTraitSymbol)).orElse(false);
+        aggregateSymbol -> aggregateSymbol.isImplementingInSomeWay(aggregate)).orElse(false);
   }
+
 
   @Override
   public List<AggregateWithTraitsSymbol> getAllExtensionConstrainedTraits() {

@@ -24,19 +24,19 @@ public class ResolvedDirectiveListener extends ResolutionDirectiveListener {
   }
 
   @Override
-  protected void symbolMatch(ErrorListener errorListener, ResolutionDirective directive, ISymbol symbol) {
+  protected void symbolMatch(final CompilationEvent compilationEvent, ResolutionDirective directive, ISymbol symbol) {
     var categoryMatch = symbol.getCategory().equals(directive.getSymbolCategory());
     if (!categoryMatch) {
-      var msg = "Looking for '" + directive + "' but got category '" + symbol.getCategory() + "'";
-      errorListener.directiveError(directive.getDirectiveToken(), msg,
+      var msg = "Looking for '" + directive + "' but got category '" + symbol.getCategory() + "':";
+      compilationEvent.source().getErrorListener().directiveError(directive.getDirectiveToken(), msg,
           ErrorListener.SemanticClassification.DIRECTIVE_SYMBOL_CATEGORY_MISMATCH);
     }
   }
 
   @Override
-  protected void noSymbolMatch(ErrorListener errorListener, ResolutionDirective directive) {
-    var msg = "'" + directive + "'";
-    errorListener.directiveError(directive.getDirectiveToken(), msg,
+  protected void noSymbolMatch(final CompilationEvent compilationEvent, ResolutionDirective directive) {
+    var msg = "'" + directive + "':";
+    compilationEvent.source().getErrorListener().directiveError(directive.getDirectiveToken(), msg,
         ErrorListener.SemanticClassification.DIRECTIVE_SYMBOL_NOT_RESOLVED);
   }
 }

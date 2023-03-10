@@ -26,12 +26,12 @@ import org.ek9lang.compiler.main.rules.CheckForInvalidServiceOperator;
 import org.ek9lang.compiler.main.rules.CheckSwitch;
 import org.ek9lang.compiler.main.rules.CheckTryReturns;
 import org.ek9lang.compiler.support.Directive;
+import org.ek9lang.compiler.support.DirectiveSpecExtractor;
 import org.ek9lang.compiler.support.DirectiveType;
 import org.ek9lang.compiler.support.DirectivesCompilationPhase;
 import org.ek9lang.compiler.support.DirectivesNextLineNumber;
-import org.ek9lang.compiler.support.DirectivesSymbolCategory;
-import org.ek9lang.compiler.support.DirectivesSymbolName;
 import org.ek9lang.compiler.support.ErrorDirective;
+import org.ek9lang.compiler.support.ImplementsDirective;
 import org.ek9lang.compiler.support.NotResolvedDirective;
 import org.ek9lang.compiler.support.ResolvedDirective;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
@@ -105,10 +105,6 @@ public class SymbolFactory {
 
   private final DirectivesCompilationPhase directivesCompilationPhase = new DirectivesCompilationPhase();
 
-  private final DirectivesSymbolCategory directivesSymbolCategory = new DirectivesSymbolCategory();
-
-  private final DirectivesSymbolName directivesSymbolName = new DirectivesSymbolName();
-
   private final ParameterizedTypeCreator parameterizedTypeCreator = new ParameterizedTypeCreator();
 
   private final ParameterizedFunctionCreator parameterizedFunctionCreator = new ParameterizedFunctionCreator();
@@ -120,7 +116,6 @@ public class SymbolFactory {
 
   private final Consumer<Object> checkContextNotNull = ctx -> AssertValue.checkNotNull("CTX cannot be null", ctx);
 
-
   private final CheckSwitch checkSwitch;
 
   private final CheckTryReturns checkTryReturns;
@@ -130,6 +125,8 @@ public class SymbolFactory {
   private final CheckForInvalidServiceOperator checkForInvalidServiceOperator;
 
   private final CheckAppropriateWebVariable checkAppropriateWebVariable;
+
+  private final DirectiveSpecExtractor directiveSpecExtractor = new DirectiveSpecExtractor();
 
   /**
    * Create a new symbol factory for use with the parsedModule.
@@ -149,17 +146,16 @@ public class SymbolFactory {
    * Create a new directive to be used inside the compiler.
    */
   public Directive newDirective(EK9Parser.DirectiveContext ctx) {
-
+    var nameOfDirective = ctx.identifier().getText();
     try {
-      var nameOfDirective = ctx.identifier().getText();
       var typeOfDirective = DirectiveType.valueOf(nameOfDirective);
-
       return switch (typeOfDirective) {
         case Error -> newErrorDirective(ctx);
         case Resolved -> newResolutionDirective(ctx, true);
+        case Implements -> newImplementsDirective(ctx);
         case NotResolved -> newResolutionDirective(ctx, false);
         case Symbols, Compiler, Instrument ->
-            throw new IllegalArgumentException("Unsupported directive '" + nameOfDirective + "'");
+            throw new IllegalArgumentException("Unsupported '@" + nameOfDirective + "':");
       };
     } catch (IllegalArgumentException ex) {
       var errorListener = parsedModule.getSource().getErrorListener();
@@ -188,21 +184,19 @@ public class SymbolFactory {
     return new ErrorDirective(ctx.start, compilerPhase, errorClassification, applyToLine);
   }
 
-  private Directive newResolutionDirective(EK9Parser.DirectiveContext ctx, boolean resolve) {
+  private Directive newImplementsDirective(EK9Parser.DirectiveContext ctx) {
+    var spec = directiveSpecExtractor.apply(ctx);
+    return new ImplementsDirective(spec);
+  }
 
-    if (ctx.directivePart().size() != 3) {
-      throw new IllegalArgumentException("Expecting, compilerPhase: symbolCategory: \"type/function\"");
-    }
+  private Directive newResolutionDirective(final EK9Parser.DirectiveContext ctx, boolean resolve) {
 
-    var applyToLine = directivesNextLineNumber.apply(ctx);
-    CompilationPhase compilerPhase = directivesCompilationPhase.apply(ctx);
-    var category = directivesSymbolCategory.apply(ctx);
-    var symbolName = directivesSymbolName.apply(ctx);
+    var spec = directiveSpecExtractor.apply(ctx);
 
     if (resolve) {
-      return new ResolvedDirective(ctx.start, compilerPhase, category, symbolName, applyToLine);
+      return new ResolvedDirective(spec);
     }
-    return new NotResolvedDirective(ctx.start, compilerPhase, category, symbolName, applyToLine);
+    return new NotResolvedDirective(spec);
   }
 
   /**

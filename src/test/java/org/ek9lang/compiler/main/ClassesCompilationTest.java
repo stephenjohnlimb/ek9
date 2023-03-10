@@ -28,7 +28,7 @@ class ClassesCompilationTest extends FullCompilationTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
-    new SymbolCountCheck("com.customer.classes", 4).test(program);
+    new SymbolCountCheck("com.customer.classes", 7).test(program);
 
     new SymbolCountCheck("net.customer.shapes", 19).test(program);
 

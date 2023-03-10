@@ -26,16 +26,15 @@ public class NotResolvedDirectiveListener extends ResolutionDirectiveListener {
   }
 
   @Override
-  protected void symbolMatch(ErrorListener errorListener, ResolutionDirective directive, ISymbol symbol) {
+  protected void symbolMatch(final CompilationEvent compilationEvent, ResolutionDirective directive, ISymbol symbol) {
 
-    var msg = "Directive '" + directive + "' but found '" + symbol.getFriendlyName() + "'";
-    errorListener.directiveError(directive.getDirectiveToken(), msg,
+    var msg = "Directive '" + directive + "' but found '" + symbol.getFriendlyName() + "':";
+    compilationEvent.source().getErrorListener().directiveError(directive.getDirectiveToken(), msg,
         ErrorListener.SemanticClassification.DIRECTIVE_SYMBOL_FOUND_UNEXPECTED_SYMBOL);
-
   }
 
   @Override
-  protected void noSymbolMatch(ErrorListener errorListener, ResolutionDirective directive) {
+  protected void noSymbolMatch(final CompilationEvent compilationEvent, ResolutionDirective directive) {
     //This is a 'no-op' this listener is expecting not to find no symbol!
   }
 }

@@ -13,11 +13,15 @@ import org.ek9lang.core.exception.AssertValue;
 /**
  * A bit of a long-winded name, but this is really the second pass of the first phase of compilation.
  * The first pass will have defined lots of types, but in the case of explicit (non-inferred uses) of
- * template/generic types - definition might not have been possible during the first pass.
+ * template/generic types - definition will not have been possible during the first pass.
  * Also the association to types being extended could not be done in the very first pass.
  * So this pass also hooks up the super types/function - by resolving them.
  * It is important to do this 'supers' bit now - because the generic types can be referenced in bodies.
- * It is now a hard fail if explicit type cannot be resolved. Not not inferred types.
+ * So as they are explicitly used in terms of 'T', 'K' and 'V' etc in subtypes/functions we need them
+ * to be resolvable via the type/function hierarchy.
+ * Note, we're not trying to resolve normal variables and parameters in this phase, but parametric types.
+ * There's a reason everyone leaves out Generics/Templates - it's really hard.
+ * It is now a hard fail if explicit type cannot be resolved. Not inferred types.
  * This is due to definition ordering and also the fact that each file is processed concurrently.
  * So, ordering is not guaranteed, the first pass - just accepts this and resolves/defines what it can.
  * But this second pass in the first phase will need to raise errors if it cannot resolve or define uses

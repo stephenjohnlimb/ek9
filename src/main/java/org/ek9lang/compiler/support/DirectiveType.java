@@ -11,6 +11,7 @@ package org.ek9lang.compiler.support;
 public enum DirectiveType {
   Error,
   Resolved,
+  Implements,
   NotResolved,
   Symbols,
   Compiler,

@@ -82,6 +82,19 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
     return newCopy;
   }
 
+  /**
+   * Does this function directly implement or through its hierarch implement the function passed in.
+   */
+  public boolean isImplementingInSomeWay(final FunctionSymbol function) {
+    if (function == this) {
+      return true;
+    }
+    if (superFunctionSymbol.isPresent()) {
+      return superFunctionSymbol.get().isImplementingInSomeWay(function);
+    }
+    return false;
+  }
+
   @Override
   public void addParameterisedType(AggregateSymbol parameterisedType) {
     super.addParameterisedType(parameterisedType);
