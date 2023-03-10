@@ -6,21 +6,18 @@ defines module net.customer.constrained
     EmailAddress as String constrain as
       matches /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/
     
-  //Now a few classes including the definition of a Generic type called List.
+  //Now a few classes including the definition of a Generic type called MyList.
   defines class
 
-    //Generic List but T is limited to String or classes that extend String    
-    List of type T constrain by String
-      
-      //This is where we store the T's for our list
-      actualList as RawList := RawList()
-      
+    //Generic MyList but T is limited to String or classes that extend String    
+    MyList of type T constrain by String
+
       aTest as T := T()
       
       //Constructor
-      List()
+      MyList()
         -> item as T
-        var <- item
+        var as T: item
 
       get()
         -> index as Integer
@@ -29,7 +26,7 @@ defines module net.customer.constrained
       //Add a T to the list.
       operator +
         -> item as T
-        <- rtn as List of T := List()
+        <- rtn as MyList of T := MyList()
           
         if item?
           other as T := T()
@@ -37,15 +34,15 @@ defines module net.customer.constrained
           check as T := T()
        
       something
-        <- rtn as List of T := List()
+        <- rtn as MyList of T := MyList()
     
-    //Lets try to define an Optional generic class but limit it to a List of EmailAddress
-    Optional of type O constrain by List of EmailAddress
+    //Lets try to define an MyOptional generic class but limit it to a MyList of EmailAddress
+    MyOptional of type O constrain by MyList of EmailAddress
       
       someVar as O?
       
       //Simple constructor taking the item to wrap
-      Optional()
+      MyOptional()
         -> item as O
         set(item)
       
@@ -53,8 +50,8 @@ defines module net.customer.constrained
       set()
         -> param as O
         someVar := param
-        //Just try out and see if we can 'new' a T!
-        other <- O()
+        //If 'O' were an abstract type this would fail when creating the 
+        other as O: O()
       
       //Get the item back again
       get()
@@ -67,47 +64,47 @@ defines module net.customer.constrained
       someMethod()
         
         //In its basic form
-        simple as List of String := List()
+        simple as MyList of String := MyList()
         
         //So this will be OK as we're making it concrete with a String
-        //Just declare a new instance of a List of Strings
-        myStringList <- List() of String        
+        //Just declare a new instance of a MyList of Strings
+        myStringMyList <- MyList() of String        
        
-        otherStringList <- myStringList + "Steve"
+        otherStringMyList <- myStringMyList + "Steve"
       
-        //But look I can have a List of EmailAddress because that extends String - even though only very simply as a type
-        emailList as List of EmailAddress := List()
+        //But look I can have a MyList of EmailAddress because that extends String - even though only very simply as a type
+        emailMyList as MyList of EmailAddress := MyList()
         
-        anotherEmailList <- List() of EmailAddress
+        anotherEmailMyList <- MyList() of EmailAddress
         
         //Now lets check type compatibility - no issues here
-        otherStringList := simple
+        otherStringMyList := simple
         
         //But this is not allowed - as they are separate classes/types
-        //emailList := otherStringList
+        //emailMyList := otherStringMyList
         
         //Now some optionals - generates the same code but look at the simplicity if you are a consumer of these generics
         
-        myOptional as Optional of List of EmailAddress := Optional()
+        myMyOptional as MyOptional of MyList of EmailAddress := MyOptional()
         
         //Can I say this - well yes I can (not sure I want to).
-        anotherOptional <- Optional() of List of EmailAddress
+        anotherMyOptional <- MyOptional() of MyList of EmailAddress
         
         //Could I do this - well yes I think you'll find you can
-        yetAnotherOptional <- Optional(emailList)
+        yetAnotherMyOptional <- MyOptional(emailMyList)
         
         //In it's simplest use you can do this - no need to mess about with types or generic <Foo-bar<This<That>>>
         //This feels way more natural and intuitive. You get to say what you want with the stuff you have just created.
         myEmail <- EmailAddress("limbs@widefield-computing.com")
-        listOfAddresses <- List(myEmail)
-        optionalListOfAddresses <- Optional(listOfAddresses)
+        listOfAddresses <- MyList(myEmail)
+        optionalMyListOfAddresses <- MyOptional(listOfAddresses)
         
         //Or combine it into one construction.
         //OMG! snakes on a plane that's good.
-        otherOptionalList <- Optional(List(EmailAddress("stephenjohnlimb@gmail.com")))
+        otherMyOptionalMyList <- MyOptional(MyList(EmailAddress("stephenjohnlimb@gmail.com")))
                 
         //Imagine the Java for this
-        //Optional<List<EmailAddress>>> optionalListOfAddresses = Optional.of(new List<...>> f**k I've lost the will to live already >>>>?>)        
+        //MyOptional<MyList<EmailAddress>>> optionalMyListOfAddresses = MyOptional.of(new MyList<...>> f**k I've lost the will to live already >>>>?>)        
         
     //end of Class1
              

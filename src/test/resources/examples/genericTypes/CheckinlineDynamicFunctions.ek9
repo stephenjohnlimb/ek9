@@ -8,7 +8,7 @@
   
   Slight alteration from the old example to try out inline dynamic functions.
 -?>
-defines module com.customer.streams.build
+defines module com.customer.dynamic.streams.build
 
   <?-
     As long as these types have been defined/used somewhere then we can use inference..
@@ -26,7 +26,7 @@ defines module com.customer.streams.build
   -?>
   defines record
   
-    Stats
+    Statistics
       count as Integer: Integer()
       total as Integer: Integer()
       average as Float: Float()
@@ -108,7 +108,7 @@ defines module com.customer.streams.build
       <- rtn as String: "DOB: " + $person.dob + " Name: " + person.name    
        
     getAddams() as abstract
-      <- rtn as Addams
+      <- rtn as Addams?
     
     //Using the full constructor that is auto generated.  
     getMorticia() is getAddams
@@ -207,7 +207,7 @@ defines module com.customer.streams.build
       stdout.println("Sum of values is " + $sumOfValues)
       
       //Maybe you need a bit more than just the total
-      stats <- cat l3 | filter by isSet | collect as Stats
+      stats <- cat l3 | filter by isSet | collect as Statistics
       stdout.println("Statistics of values is " + $stats)
 
     ListDictionaryExample()

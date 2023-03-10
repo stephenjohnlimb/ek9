@@ -31,6 +31,7 @@ import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineExplicitParameteri
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineTypeDef;
 import org.ek9lang.compiler.main.rules.CheckApplicationUseOnMethodDeclaration;
 import org.ek9lang.compiler.main.rules.CheckAssignment;
+import org.ek9lang.compiler.main.rules.CheckDynamicClassDeclaration;
 import org.ek9lang.compiler.main.rules.CheckDynamicVariableCapture;
 import org.ek9lang.compiler.main.rules.CheckForInvalidParameterisedTypeUse;
 import org.ek9lang.compiler.main.rules.CheckGenericConstructor;
@@ -41,6 +42,7 @@ import org.ek9lang.compiler.main.rules.CheckProgramArguments;
 import org.ek9lang.compiler.main.rules.CheckProgramReturns;
 import org.ek9lang.compiler.main.rules.CheckProtectedServiceMethods;
 import org.ek9lang.compiler.main.rules.CheckReturningParam;
+import org.ek9lang.compiler.main.rules.CheckVariableDeclaration;
 import org.ek9lang.compiler.main.rules.CheckVariableOnlyDeclaration;
 import org.ek9lang.compiler.main.rules.CommonMethodChecks;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
@@ -112,8 +114,11 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   private final CheckVariableOnlyDeclaration checkVariableOnlyDeclaration;
 
+  private final CheckVariableDeclaration checkVariableDeclaration;
+
   private final CheckDynamicVariableCapture checkDynamicVariableCapture;
 
+  private final CheckDynamicClassDeclaration checkDynamicClassDeclaration;
   private final CheckParamExpressionNamedParameters checkParamExpressionNamedParameters;
 
   private final CheckNormalTermination checkNormalTermination;
@@ -148,22 +153,22 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     commonMethodChecks = new CommonMethodChecks(errorListener);
     checkAssignment = new CheckAssignment(errorListener);
     checkVariableOnlyDeclaration = new CheckVariableOnlyDeclaration(errorListener);
+    checkVariableDeclaration = new CheckVariableDeclaration(symbolAndScopeManagement, errorListener);
+    checkDynamicClassDeclaration = new CheckDynamicClassDeclaration(symbolAndScopeManagement, errorListener);
     checkDynamicVariableCapture = new CheckDynamicVariableCapture(errorListener);
-    checkParamExpressionNamedParameters =
-        new CheckParamExpressionNamedParameters(errorListener);
+    checkParamExpressionNamedParameters = new CheckParamExpressionNamedParameters(errorListener);
     checkNormalTermination = new CheckNormalTermination(errorListener);
     checkProtectedServiceMethods = new CheckProtectedServiceMethods(errorListener);
     checkNotABooleanLiteral = new CheckNotABooleanLiteral(errorListener);
     checkGenericConstructor = new CheckGenericConstructor(errorListener);
-    checkApplicationUseOnMethodDeclaration =
-        new CheckApplicationUseOnMethodDeclaration(errorListener);
+    checkApplicationUseOnMethodDeclaration = new CheckApplicationUseOnMethodDeclaration(errorListener);
     checkReturningParam = new CheckReturningParam(errorListener);
     checkProgramReturns = new CheckProgramReturns(errorListener);
     checkProgramArguments = new CheckProgramArguments(errorListener);
     checkForInvalidParameterisedTypeUse = new CheckForInvalidParameterisedTypeUse(errorListener);
 
-    resolveOrDefineTypeDef =
-        new ResolveOrDefineTypeDef(symbolAndScopeManagement, symbolFactory, errorListener, false);
+
+    resolveOrDefineTypeDef = new ResolveOrDefineTypeDef(symbolAndScopeManagement, symbolFactory, errorListener, false);
 
     resolveOrDefineExplicitParameterizedType =
         new ResolveOrDefineExplicitParameterizedType(symbolAndScopeManagement, symbolFactory, errorListener, false);
@@ -395,15 +400,27 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterDynamicClassDeclaration(EK9Parser.DynamicClassDeclarationContext ctx) {
-    final var newTypeSymbol = symbolFactory.newDynamicClass(ctx);
-    checkAndDefineDynamicModuleScopedSymbol(newTypeSymbol, ctx);
+    var enclosingMainTypeOrFunction = symbolAndScopeManagement.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
+    enclosingMainTypeOrFunction.ifPresentOrElse(scope -> {
+      final var newTypeSymbol = symbolFactory.newDynamicClass((IScopedSymbol) scope, ctx);
+      checkAndDefineDynamicModuleScopedSymbol(newTypeSymbol, ctx);
+      checkDynamicClassDeclaration.accept(ctx);
+    }, () -> {
+      throw new CompilerException("Compiler error dynamic class must be contained");
+    });
+
     super.enterDynamicClassDeclaration(ctx);
   }
 
   @Override
   public void enterDynamicFunctionDeclaration(EK9Parser.DynamicFunctionDeclarationContext ctx) {
-    final var newTypeSymbol = symbolFactory.newDynamicFunction(ctx);
-    checkAndDefineDynamicModuleScopedSymbol(newTypeSymbol, ctx);
+    var enclosingMainTypeOrFunction = symbolAndScopeManagement.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
+    enclosingMainTypeOrFunction.ifPresentOrElse(scope -> {
+      final var newTypeSymbol = symbolFactory.newDynamicFunction((IScopedSymbol) scope, ctx);
+      checkAndDefineDynamicModuleScopedSymbol(newTypeSymbol, ctx);
+    }, () -> {
+      throw new CompilerException("Compiler error dynamic function must be contained");
+    });
     super.enterDynamicFunctionDeclaration(ctx);
   }
 
@@ -904,6 +921,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   public void enterVariableDeclaration(EK9Parser.VariableDeclarationContext ctx) {
     final var variable = symbolFactory.newVariable(ctx);
 
+    checkVariableDeclaration.accept(ctx);
     //Now it's not an error if we cannot resolve at this phase - but if these are built in types then we're all good.
     var varType = resolveOrDefineTypeDef.apply(ctx.typeDef());
     variable.setType(varType);
@@ -928,8 +946,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
       if (ctx.typeDef() != null && ctx.typeDef().identifierReference() != null) {
         var varType = resolveOrDefineTypeDef.apply(ctx.typeDef());
         variable.setType(varType);
-      } else if (ctx.assignmentExpression() != null
-          && ctx.assignmentExpression().expression() != null
+      } else if (ctx.assignmentExpression() != null && ctx.assignmentExpression().expression() != null
           && ctx.assignmentExpression().expression().primary() != null
           && ctx.assignmentExpression().expression().primary().literal() != null) {
         var symbol =

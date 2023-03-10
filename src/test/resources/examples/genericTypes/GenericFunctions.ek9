@@ -25,7 +25,7 @@ defines module net.customer.generic.functions
       -> item as List of S
       <- rtn as S := S()
       assert item?
-      iter <- item.iterator()
+      iter as Iterator of S: item.iterator()
               
     eventHandler of type T
       -> event as T
@@ -39,9 +39,9 @@ defines module net.customer.generic.functions
       <- retVal as T := param
       
       if param?
-        val2 <- retVal ?? param
+        val2 as T: retVal ?? param
       
-      counter <- 0
+      counter as Integer: 0
       
       //Lets try a loop using the conceptual type T
       for myVar in param ... retVal

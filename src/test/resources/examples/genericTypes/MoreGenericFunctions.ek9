@@ -1,5 +1,5 @@
 #!ek9
-defines module net.customer.generic.functions
+defines module net.customer.more.generic.functions
 
   //Not compiling yet just trying to get a parse - I need to make the generics more capable of accepting
   //generics of generics with more and varied parameters.
@@ -14,7 +14,7 @@ defines module net.customer.generic.functions
       -> item as List of S
       <- rtn as S := S()
       assert item?
-      iter <- item.iterator()
+      iter as Iterator of S: item.iterator()
       while iter.hasNext()
         rtn += iter.next()
     

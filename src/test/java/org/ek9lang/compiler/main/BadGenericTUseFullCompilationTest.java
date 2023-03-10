@@ -7,12 +7,12 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests bad generic uses of generics with parameteric types.
+ * Just tests generics and detection of T and other conceptual types.
  */
-class BadGenericInferenceFullCompilationTest extends FullCompilationTest {
+class BadGenericTUseFullCompilationTest extends FullCompilationTest {
 
-  public BadGenericInferenceFullCompilationTest() {
-    super("/examples/parseButFailCompile/badGenericNesting");
+  public BadGenericTUseFullCompilationTest() {
+    super("/examples/parseButFailCompile/badGenericTUse");
   }
 
   @Test
@@ -24,6 +24,6 @@ class BadGenericInferenceFullCompilationTest extends FullCompilationTest {
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
 
-    assertFalse(program.getParsedModules("bad.inference.example").isEmpty());
+    assertFalse(program.getParsedModules("bad.use.conceptual.parameters").isEmpty());
   }
 }

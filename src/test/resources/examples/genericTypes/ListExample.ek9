@@ -29,7 +29,7 @@ defines module com.customer.priority.example
         this.name :=: name
 
       operator $$ as pure
-        <- rtn as JSON
+        <- rtn as JSON?
 
   defines program
 

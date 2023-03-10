@@ -122,6 +122,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, I
   public AggregateSymbol(String name, IScope enclosingScope) {
     super(name, enclosingScope);
     super.setCategory(SymbolCategory.TYPE);
+    super.setScopeType(ScopeType.NON_BLOCK);
     super.setProduceFullyQualifiedName(true);
   }
 
@@ -131,6 +132,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, I
   public AggregateSymbol(String name, Optional<ISymbol> type, IScope enclosingScope) {
     super(name, type, enclosingScope);
     super.setCategory(SymbolCategory.TYPE);
+    super.setScopeType(ScopeType.NON_BLOCK);
     super.setProduceFullyQualifiedName(true);
   }
 
@@ -180,11 +182,6 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, I
     }
 
     return newCopy;
-  }
-
-  @Override
-  public ScopeType getScopeType() {
-    return ScopeType.NON_BLOCK;
   }
 
   /**

@@ -78,6 +78,10 @@ public class LocalScope extends SymbolTable {
     return scopeType;
   }
 
+  public void setScopeType(final IScope.ScopeType scopeType) {
+    this.scopeType = scopeType;
+  }
+
   public IScope getEnclosingScope() {
     return enclosingScope;
   }
@@ -121,6 +125,15 @@ public class LocalScope extends SymbolTable {
     }
 
     return enclosingScope.findNearestNonBlockScopeInEnclosingScopes();
+  }
+
+  @Override
+  public Optional<ScopedSymbol> findNearestDynamicBlockScopeInEnclosingScopes() {
+    if (enclosingScope.getScopeType().equals(ScopeType.DYNAMIC_BLOCK)) {
+      return Optional.of((ScopedSymbol) enclosingScope);
+    }
+
+    return enclosingScope.findNearestDynamicBlockScopeInEnclosingScopes();
   }
 
   @Override

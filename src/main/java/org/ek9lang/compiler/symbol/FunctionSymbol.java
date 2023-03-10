@@ -46,6 +46,7 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
   public FunctionSymbol(String name, IScope enclosingScope) {
     super(name, enclosingScope);
     super.setCategory(SymbolCategory.FUNCTION);
+    super.setScopeType(ScopeType.NON_BLOCK);
     super.setProduceFullyQualifiedName(true);
   }
 
@@ -101,11 +102,6 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
 
   public void setModuleScope(IScope moduleScope) {
     this.moduleScope = moduleScope;
-  }
-
-  @Override
-  public ScopeType getScopeType() {
-    return ScopeType.NON_BLOCK;
   }
 
   public Optional<LocalScope> getCapturedVariables() {

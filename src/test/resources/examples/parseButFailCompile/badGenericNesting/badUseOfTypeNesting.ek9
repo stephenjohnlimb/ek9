@@ -6,30 +6,9 @@ defines module bad.inference.example
 
   defines class
 
-    @Resolved: SYMBOL_DEFINITION: TYPE: "ValidGenericUse"
-    ValidGenericUse
-
-      testList()
-        //Note how the phase has to be promoted to EXPLICIT_TYPE_SYMBOL_DEFINITION
-        @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of (ExampleClass)"
-        <- rtn as List of ExampleClass: List()
-
-      testAGenericClass()
-        @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "AGenericClass of (ExampleClass)"
-        <- rtn as AGenericClass of ExampleClass: AGenericClass()
-
-      testMultipleCombination()
-        @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of (AGenericClass of (ExampleClass))"
-        <- rtn as List of AGenericClass of ExampleClass: List()
-
-      @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "AGenericClass of (Integer)"
-      testCalculatorCapability()
-        <- rtn as AGenericClass of Integer: AGenericClass
-
-    @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "AGenericClass"
     AGenericClass of type T
-
       item as T?
+
       default AGenericClass()
 
       AGenericClass()
@@ -37,14 +16,46 @@ defines module bad.inference.example
         //make a copy
         item :=: arg0
 
-      validIterator()
-        <- rtn as Iterator of T: Iterator(item)
+      //But here, we are inferring type of someVar
+      invalidIterator()
+        <- rtn as Iterator of T?
+        @Error: SYMBOL_DEFINITION: TYPE_INFERENCE_NOT_SUPPORTED
+        someVar <- Iterator(item)
+        rtn: someVar
+
+      //Now we are inferring from a method call result
+      alsoInvalidIterator()
+        <- rtn as Iterator of T?
+        @Error: SYMBOL_DEFINITION: TYPE_INFERENCE_NOT_SUPPORTED
+        someVar <- Iterator(item())
+        rtn: someVar
+
+      //No inference allowed at all not just with conceptual T
+      notOkToUse()
+        <- rtn as Iterator of Integer?
+        @Error: SYMBOL_DEFINITION: TYPE_INFERENCE_NOT_SUPPORTED
+        value <- 1
+        @Error: SYMBOL_DEFINITION: TYPE_INFERENCE_NOT_SUPPORTED
+        someVar <- Iterator(value)
+        rtn: someVar
 
       calculator()
-        <- rtn as SomeGenericFunction of (T, T): SomeGenericFunction
+        <- rtn as SomeGenericFunction of (T, T): () is SomeGenericFunction of (Integer, T) as pure
+          rtn: T(arg0 * 20)
+
+      anotherCalculator()
+        <- rtn as SomeGenericFunction of (T, T)?
+        rtn: () is SomeGenericFunction of (Integer, T) as pure (rtn: T(arg0 * 20))
+
+      anotherCalculator()
+        <- value as SomeGenericFunction of (T, T)?
+        value: () is SomeGenericFunction of (Integer, T) as pure function
+          //Also we should detect inside a generic type/function
+          @Error: SYMBOL_DEFINITION: TYPE_INFERENCE_NOT_SUPPORTED
+          val <- T(arg0 * 20)
+          rtn :=: val
 
     //Just used as a class that is defined after its use in a generic example above
-    @Resolved: SYMBOL_DEFINITION: TYPE: "ExampleClass"
     ExampleClass
       value <- "Steve"
 
@@ -53,23 +64,17 @@ defines module bad.inference.example
 
   defines function
 
-    @Resolved: SYMBOL_DEFINITION: TEMPLATE_FUNCTION: "SomeGenericFunction"
+    PlainFunction()
+      -> arg0 as Integer
+      <- rtn as Integer?
+      val <- arg0 * 10
+      rtn: val
+
     SomeGenericFunction() of type (S, T)
       -> arg0 as S
-      <- rtn as T: arg0 * 10
+      <- rtn as T?
+      @Error: SYMBOL_DEFINITION: TYPE_INFERENCE_NOT_SUPPORTED
+      val <- arg0 * 10
+      rtn: val
 
-  defines program
-
-    Driver()
-
-      //Just make one of these
-      //So you'd think the act of creating a new ValidGenericUse would then trigger
-      //AGenericClass of Integer - but that is explicit and so will be created early
-      //But that has the effect of needing both:
-      //Iterator of T -> to create Iterator of Integer
-      //SomeGenericFunction of (T, T) -> to create SomeGenericFunction of (Integer, Integer)
-      //For this to work, it is necessary to build a list of dependent generic types/functions when
-      //parsing a generic type/function.
-      //Then when we encounter the need for AGenericClass of Integer - we can create those concrete dependents.
-      example <- ValidGenericUse()
 //EOF

@@ -349,7 +349,9 @@ public class Symbol implements ISymbol {
 
   protected String getSymbolTypeAsString(Optional<ISymbol> type) {
     final var self = this;
-    return type.map(theType -> self != theType ? theType.getFriendlyName() : "").orElse("Unknown");
+    //The problem of using theType.getFriendlyName is that aggregate has method -> back to same aggregate
+    //So not a direct type is the same type - but aggregate -> method -> uses aggregate -> method  ... stack overflow
+    return type.map(theType -> self != theType ? theType.getName() : "").orElse("Unknown");
   }
 
   @Override

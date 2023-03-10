@@ -108,7 +108,7 @@ defines module com.customer.streams.build
       <- rtn as String: `DOB: ${person.dob} Name: ${person.name}`    
        
     getAddams() as abstract
-      <- rtn as Addams
+      <- rtn as Addams?
     
     //Using the full constructor that is auto generated.  
     getMorticia() is getAddams

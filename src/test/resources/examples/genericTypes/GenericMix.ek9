@@ -2,11 +2,11 @@
 defines module net.customer.generic.mix
 
   defines type
-    List of Float
+    MyList of Float
     
-    //Optional of Integer
+    //MyOptional of Integer
     
-    Optional of Float
+    MyOptional of Float
     
   //See SimpleFunction.ek9 for just normal function processing
   //This focuses on how generic functions will work but in combination with generic classes.
@@ -26,18 +26,15 @@ defines module net.customer.generic.mix
 
   defines class
 
-    //Generic List -with a contrived method to add double of a value
-    List of type T
-      
-      //This is where we store the T's for our list
-      actualList as RawList := RawList()
-      
+    //Generic MyList -with a contrived method to add double of a value
+    MyList of type T
+
       aTest as T := T()
        
       //Constructor
-      List
+      MyList
         -> item as T
-        var <- item
+        var as T: item
         
       get
         -> index as Integer
@@ -46,19 +43,17 @@ defines module net.customer.generic.mix
       //Add a T to the list.
       addDoubleValue
         -> item as T
-        <- rtn as List of T := List()
+        <- rtn as MyList of T := MyList()
         
         //Just check we can define an optional
-        ourOptional as Optional of T := Optional(item)
-        //But nicely we can do this! - This makes resolution too hard inside a generic class!
-        inferredOptional <- Optional(item)
+        ourMyOptional as MyOptional of T := MyOptional(item)
        
-    Optional of type T
+    MyOptional of type T
       
       someVar as T?
       
       //Simple constructor taking the item to wrap
-      Optional
+      MyOptional
         -> item as T
         set(item)
       
@@ -67,19 +62,20 @@ defines module net.customer.generic.mix
         -> param as T
         someVar := param
         //Just try out and see if we can 'new' a T!
-        other <- T()
+        //Later compilation rules will check if the T in question is abstract and cause a failure.
+        other as T: T()
         
         //So I want a dynamic function but in terms of a conceptual type T
         //Only when my list is made with real concrete types will we know!
         //But when it is I want double of whatever T is!
-        aDoublerFunction <- () is doubler of T
-        
-        hardWiredFunction <- () is doubler of Float as function
-        
-        //So now lets have double of whatever param is and I don't even know what type it is!
-        someValue <- aDoublerFunction(param)
-        
-        otherValue <- hardWiredFunction(66.9)
+
+        //TODO fix this up T at position 59 is not resolved. Why?
+        //aDoublerFunction as doubler of T: () is doubler of T
+        //someValue as T: aDoublerFunction(param)
+
+        hardWiredFunction as doubler of Float: () is doubler of Float as function
+
+        otherValue as Float: hardWiredFunction(66.9)
         
     TestItem
      
@@ -89,5 +85,5 @@ defines module net.customer.generic.mix
         rtn := "Some Value "
         dynamicIntDoubler <- () is doubler of Integer as function
         
-        myList <- List() of Float            
+        myMyList <- MyList() of Float            
 //EOF

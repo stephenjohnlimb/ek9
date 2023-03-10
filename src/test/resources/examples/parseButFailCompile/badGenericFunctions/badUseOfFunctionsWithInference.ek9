@@ -1,0 +1,69 @@
+#!ek9
+<!-
+  Just checking if it possible to detect inference with a Generic function, but allow it in a normal function.
+  Also pick it up in Dynamic functions that are within generic functions.
+-!>
+defines module bad.functions.inference.example
+
+  defines function
+
+    AbstractFunction as abstract
+      -> p1 as Integer
+      <- result as Integer?
+
+    PlainFunction()
+      -> arg0 as Integer
+      <- rtn as Integer?
+      //This is allowed because it is not in a Generic function.
+      val <- arg0 * 10
+      rtn: val
+
+      //This below is also OK
+      aFunction <- () is AbstractFunction as pure
+        someValue <- p1 * 6
+        result: someValue
+
+      aResult <- aFunction(21)
+      assert aResult?
+
+    SomeGenericFunction() of type (S, T)
+      -> arg0 as S
+      <- rtn as T?
+
+      //This is not allowed because it is in a Generic function.
+      @Error: SYMBOL_DEFINITION: TYPE_INFERENCE_NOT_SUPPORTED
+      val <- arg0 * 10
+      rtn: val
+
+      //A normal dynamic function - should be ok as there is no inference used
+      fun1 as AbstractFunction := () is AbstractFunction as pure
+        result: p1 * 6
+
+      //If we are explicit abut typing all ok
+      aResult as Integer: fun1(21)
+      assert aResult?
+
+      //Again explicit in the definition of the dynamic function
+      //But not within its body. DO WE ALLOW THIS? NO - for consistency.
+      fun2 as AbstractFunction := () is AbstractFunction as pure
+        @Error: SYMBOL_DEFINITION: TYPE_INFERENCE_NOT_SUPPORTED
+        someValue <- p1 * 6
+        result: someValue
+
+      //If we are explicit abut typing all ok
+      bResult as Integer: fun2(21)
+      assert bResult?
+
+      //Lets try nesting dynamic functions - need to check generic nature can be detected
+      fun3 as AbstractFunction := () is AbstractFunction as pure
+        aVar as Integer: p1 * 4
+
+        //Capture variable into nested function
+        fun4 as AbstractFunction := (aVar) is AbstractFunction as pure
+          @Error: SYMBOL_DEFINITION: TYPE_INFERENCE_NOT_SUPPORTED
+          anotherValue <- aVar * p1
+          result: anotherValue
+
+        result: fun4(90)
+
+//EOF

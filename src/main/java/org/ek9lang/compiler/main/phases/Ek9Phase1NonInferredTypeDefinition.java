@@ -5,13 +5,12 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ek9lang.compiler.errors.CompilationEvent;
-import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.CompilableSource;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
-import org.ek9lang.compiler.main.phases.definition.ResolveDefineExplicitTemplateUseListener;
+import org.ek9lang.compiler.main.phases.definition.ResolveDefineExplicitTypeListener;
 import org.ek9lang.compiler.main.phases.result.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
@@ -38,7 +37,7 @@ import org.ek9lang.core.utils.Holder;
 public class Ek9Phase1NonInferredTypeDefinition
     implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
 
-  private boolean useMultiThreading = true;
+  private final boolean useMultiThreading = true;
   private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
@@ -100,8 +99,8 @@ public class Ek9Phase1NonInferredTypeDefinition
     }
 
     holder.ifPresent(parsedModule -> {
-      ResolveDefineExplicitTemplateUseListener phaseListener =
-          new ResolveDefineExplicitTemplateUseListener(parsedModule);
+      ResolveDefineExplicitTypeListener phaseListener =
+          new ResolveDefineExplicitTypeListener(parsedModule);
       ParseTreeWalker walker = new ParseTreeWalker();
       walker.walk(phaseListener, source.getCompilationUnitContext());
       listener.accept(new CompilationEvent(thisPhase, parsedModule, source));

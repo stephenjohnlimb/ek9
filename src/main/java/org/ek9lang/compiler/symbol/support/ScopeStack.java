@@ -1,8 +1,8 @@
 package org.ek9lang.compiler.symbol.support;
 
-import java.io.Serial;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Optional;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.core.exception.AssertValue;
 
@@ -19,8 +19,6 @@ import org.ek9lang.core.exception.AssertValue;
  * to the scope itself - not any other bit of code.
  */
 public class ScopeStack {
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   private final Deque<IScope> actualStack = new ArrayDeque<>();
 
@@ -64,4 +62,17 @@ public class ScopeStack {
     return actualStack.isEmpty();
   }
 
+  /**
+   * Navigates back up the scope stack to find the first match of the scope type passed in.
+   * This is useful because dynamic classes and functions do not use an enclosing scope of the
+   * scope they are in. They get pulled out to module level (by design).
+   */
+  public Optional<IScope> traverseBackUpStack(final IScope.ScopeType scopeType) {
+    for (IScope scopeForConsideration : actualStack) {
+      if (scopeForConsideration.getScopeType().equals(scopeType)) {
+        return Optional.of(scopeForConsideration);
+      }
+    }
+    return Optional.empty();
+  }
 }

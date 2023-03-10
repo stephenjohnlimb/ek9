@@ -7,12 +7,12 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests bad generic uses of generics with parameteric types.
+ * Just tests functions and inference with generics.
  */
-class BadGenericInferenceFullCompilationTest extends FullCompilationTest {
+class BadGenericFunctionsWithInferenceFullCompilationTest extends FullCompilationTest {
 
-  public BadGenericInferenceFullCompilationTest() {
-    super("/examples/parseButFailCompile/badGenericNesting");
+  public BadGenericFunctionsWithInferenceFullCompilationTest() {
+    super("/examples/parseButFailCompile/badGenericFunctions");
   }
 
   @Test
@@ -24,6 +24,6 @@ class BadGenericInferenceFullCompilationTest extends FullCompilationTest {
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
 
-    assertFalse(program.getParsedModules("bad.inference.example").isEmpty());
+    assertFalse(program.getParsedModules("bad.functions.inference.example").isEmpty());
   }
 }

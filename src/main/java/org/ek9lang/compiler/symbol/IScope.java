@@ -76,6 +76,8 @@ public interface IScope {
 
   Optional<ScopedSymbol> findNearestNonBlockScopeInEnclosingScopes();
 
+  Optional<ScopedSymbol> findNearestDynamicBlockScopeInEnclosingScopes();
+
   /**
    * Typically in a scoped block we can encounter situations (like exceptions) that cause the block
    * to end (terminate) early.
@@ -87,8 +89,11 @@ public interface IScope {
   void setEncounteredExceptionToken(Token encounteredExceptionToken);
 
   /**
-   * Two main type of scope in use a block is just like a set of instruction inside an if block
-   * or a while block whereas an non-block is as the whole class/function/component level.
+   * The main type of scope in use a block is just like a set of instruction inside an if block
+   * or a while block whereas a non-block is as the whole class/function/component level.
+   * A dynamic-block is to de-mark a dynamic class or a dynamic function.
+   * For some operations (especially around generic/template processing) it is important to find the top-most
+   * block all the code has been defined in.
    * So for variable definition it follows that same sort of logic as java not C/C++.
    * You can have fields as variables with a name say 'v1' and parameters and block declarations
    * of something as 'v1'.
@@ -96,6 +101,7 @@ public interface IScope {
    */
   enum ScopeType {
     NON_BLOCK,
+    DYNAMIC_BLOCK,
     BLOCK
   }
 }

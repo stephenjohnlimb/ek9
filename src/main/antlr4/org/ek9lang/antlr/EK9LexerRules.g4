@@ -147,7 +147,19 @@ TimeLiteral
 
 //ISO 8601 i.e P[n]Y[n]M[n]W[n]DT[n]H[n]M[n]S
 DurationLiteral
-    : 'P' ('-'? Digit+ ('Y' | 'M' | 'W' | 'D') )* ('T' ('-'? Digit+ ('H' | 'M' | 'S') )* )?
+    : 'P' DurationDate
+    | 'P' DurationDate DurationTime
+    | 'P' DurationTime
+    ;
+
+fragment
+DurationDate
+    : ('-'? Digit+ ('Y' | 'M' | 'W' | 'D') )+
+    ;
+
+fragment
+DurationTime
+    : 'T' ('-'? Digit+ ('H' | 'M' | 'S') )+
     ;
 
 MillisecondLiteral

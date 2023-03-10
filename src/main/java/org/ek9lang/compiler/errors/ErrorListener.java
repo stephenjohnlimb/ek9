@@ -301,6 +301,7 @@ public class ErrorListener extends BaseErrorListener {
         "type/function is generic but generic parameters and constructor parameters conflict"),
     GENERIC_TYPE_OR_FUNCTION_NOT_RESOLVED(
         "type/function is generic but could not be resolved, use 'define type as' and type inference will work."),
+    TYPE_INFERENCE_NOT_SUPPORTED("type inference is not supported withing generic/template type/functions"),
     GENERIC_TYPE_OR_FUNCTION_NOT_APPLICABLE("type/function is not generic but parameters were supplied"),
     TYPE_REQUIRED_FOR_PROPERTIES(
         "type must be declared for this property - '<-' operator is not supported with complex call"),
@@ -392,6 +393,7 @@ public class ErrorListener extends BaseErrorListener {
     ABSTRACT_BUT_BODY_PROVIDED("defined as abstract but an implementation has been provided"),
     NOT_ABSTRACT_BUT_NO_BODY_PROVIDED("implementation not provided so must be declared as abstract"),
     DYNAMIC_CLASS_CANNOT_BE_ABSTRACT("a dynamic class cannot have abstract methods"),
+    GENERIC_WITH_NAMED_DYNAMIC_CLASS("a named dynamic class cannot be used within a generic type/function"),
     CAPTURED_VARIABLE_MUST_BE_NAMED("variables being captured must be named when not just using identifiers"),
     EITHER_ALL_PARAMETERS_NAMED_OR_NONE("either all variable must be named or none, when passing parameters"),
     GENERIC_FUNCTION_CANNOT_BE_ABSTRACT(

@@ -64,6 +64,12 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   private ParserRuleContext contextForParameterisedType;
 
   /**
+   * For some scoped symbols - dynamic functions and classes it is important to keep a
+   * reference to the outermost enclosing aggregate or function.
+   */
+  private Optional<IScopedSymbol> outerMostTypeOrFunction = Optional.empty();
+
+  /**
    * If we encounter an exception within a scope we need to note the line number.
    */
   private Token encounteredExceptionToken = null;
@@ -122,8 +128,17 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
     newCopy.parameterisedTypes.addAll(parameterisedTypes);
     newCopy.contextForParameterisedType = this.contextForParameterisedType;
     newCopy.encounteredExceptionToken = this.encounteredExceptionToken;
+    getOuterMostTypeOrFunction().ifPresent(newCopy::setOuterMostTypeOrFunction);
 
     return newCopy;
+  }
+
+  public Optional<IScopedSymbol> getOuterMostTypeOrFunction() {
+    return outerMostTypeOrFunction;
+  }
+
+  public void setOuterMostTypeOrFunction(IScopedSymbol outerMostTypeOrFunction) {
+    this.outerMostTypeOrFunction = Optional.of(outerMostTypeOrFunction);
   }
 
   public LocalScope getActualScope() {
@@ -133,6 +148,10 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   @Override
   public IScope.ScopeType getScopeType() {
     return actualScope.getScopeType();
+  }
+
+  public void setScopeType(final IScope.ScopeType scopeType) {
+    actualScope.setScopeType(scopeType);
   }
 
   @Override
@@ -289,6 +308,15 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
       return Optional.of(this);
     }
     return actualScope.findNearestNonBlockScopeInEnclosingScopes();
+  }
+
+  @Override
+  public Optional<ScopedSymbol> findNearestDynamicBlockScopeInEnclosingScopes() {
+    if (getScopeType().equals(ScopeType.DYNAMIC_BLOCK)) {
+      return Optional.of(this);
+    }
+
+    return actualScope.findNearestDynamicBlockScopeInEnclosingScopes();
   }
 
   @Override

@@ -30,16 +30,13 @@ defines module net.customer.inferred
 
     //Generic SomeTestList and lets allow it to be extended - see at end of file.
     SomeTestList of type T as open
-      
-      //This is where we store the T's for our list
-      actualSomeTestList as RawList := RawList()
-      
+
       aTest as T: T()
               
       //Constructor
       SomeTestList()
         -> item as T
-        var <- item
+        var as T: item
 
       get()
         -> index as Integer

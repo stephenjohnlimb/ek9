@@ -5,6 +5,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineExplicitParameterizedType;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineTypeDef;
+import org.ek9lang.compiler.main.rules.CheckNotGenericTypeParameter;
 import org.ek9lang.compiler.symbol.support.ScopeStack;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
 import org.ek9lang.core.exception.AssertValue;
@@ -13,27 +14,35 @@ import org.ek9lang.core.exception.AssertValue;
  * A bit of a long-winded name, but this is really the second pass of the first phase of compilation.
  * The first pass will have defined lots of types, but in the case of explicit (non-inferred uses) of
  * template/generic types - definition might not have been possible during the first pass.
+ * Also the association to types being extended could not be done in the very first pass.
+ * So this pass also hooks up the super types/function - by resolving them.
+ * It is important to do this 'supers' bit now - because the generic types can be referenced in bodies.
+ * It is now a hard fail if explicit type cannot be resolved. Not not inferred types.
  * This is due to definition ordering and also the fact that each file is processed concurrently.
  * So, ordering is not guaranteed, the first pass - just accepts this and resolves/defines what it can.
  * But this second pass in the first phase will need to raise errors if it cannot resolve or define uses
- * of polymorphic parameterization - when it is declared and explicit (not inferred).
+ * of types/polymorphic parameterization - when it is declared and explicit (not inferred).
  * Phase 1 Definition first pass will have defined this or failed and we won't even get this running.
  */
-public class ResolveDefineExplicitTemplateUseListener extends EK9BaseListener {
+public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final SymbolAndScopeManagement symbolAndScopeManagement;
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
   private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
 
+  private final CheckNotGenericTypeParameter checkNotGenericTypeParameter;
+
   /**
    * Still in def phase 1 - but second pass to try and resolve types due to declaration ordering.
    */
-  public ResolveDefineExplicitTemplateUseListener(ParsedModule parsedModule) {
+  public ResolveDefineExplicitTypeListener(ParsedModule parsedModule) {
     //At construction the ScopeStack will push the module scope on to the stack.
     this.symbolAndScopeManagement = new SymbolAndScopeManagement(parsedModule,
         new ScopeStack(parsedModule.getModuleScope()));
     SymbolFactory symbolFactory = new SymbolFactory(parsedModule);
 
     var errorListener = parsedModule.getSource().getErrorListener();
+
+    checkNotGenericTypeParameter = new CheckNotGenericTypeParameter(errorListener);
 
     resolveOrDefineTypeDef =
         new ResolveOrDefineTypeDef(symbolAndScopeManagement, symbolFactory, errorListener, true);
@@ -261,6 +270,15 @@ public class ResolveDefineExplicitTemplateUseListener extends EK9BaseListener {
   public void enterParameterisedType(EK9Parser.ParameterisedTypeContext ctx) {
     //Nothing is done with the return here
     resolveOrDefineExplicitParameterizedType.apply(ctx);
+  }
+
+  @Override
+  public void exitVariableOnlyDeclaration(EK9Parser.VariableOnlyDeclarationContext ctx) {
+    if (ctx.BANG() != null) {
+      checkNotGenericTypeParameter.accept(symbolAndScopeManagement.getRecordedSymbol(ctx));
+    }
+
+    super.exitVariableOnlyDeclaration(ctx);
   }
 }
 

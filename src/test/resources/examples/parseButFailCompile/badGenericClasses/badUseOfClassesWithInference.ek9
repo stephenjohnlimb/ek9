@@ -1,0 +1,98 @@
+#!ek9
+<!-
+  Just checking if it possible to detect inference with a Generic class, but allow it in a normal class.
+  Also pick it up in Dynamic classes that are within generic classes.
+-!>
+defines module bad.classes.inference.example
+
+  defines trait
+    SomeTrait
+      firstName()
+        <- rtn as String?
+      age()
+        <- rtn as Integer?
+
+  defines class
+
+    Calculator of type T
+
+      calculate()
+        -> arg0 as T
+        <- rtn as T?
+
+    AGenericClass of type T
+      item as T?
+
+      default AGenericClass()
+
+      AGenericClass()
+        -> arg0 as T
+        //make a copy
+        item :=: arg0
+
+      //Check the basics
+      someMethod()
+        @Error: SYMBOL_DEFINITION: TYPE_INFERENCE_NOT_SUPPORTED
+        aVal <- 2
+
+      //Check a normal dynamic class that captures variables and uses a trait.
+      traitDynamicClass()
+        aDynamicClass as SomeTrait: (firstName: "Steve", age: 60) of SomeTrait as class
+          firstName()
+            <- rtn as String: firstName
+          age()
+            <- rtn as Integer: age
+
+      //Now a normal extending an existing generic class with a concrete value
+      extendsDynamicClassConcrete()
+        aDynamicClass as Calculator of Integer: (baseValue: 2) extends Calculator of Integer as class
+          calculate()
+            -> arg0 as Integer
+            <- rtn as Integer: baseValue * arg0
+
+      extendsDynamicClassConcreteNotAllowed()
+        @Error: SYMBOL_DEFINITION: TYPE_INFERENCE_NOT_SUPPORTED
+        aDynamicClass <- (baseValue: 2) extends Calculator of Integer as class
+          calculate()
+            -> arg0 as Integer
+            <- rtn as Integer: baseValue * arg0
+
+      extendsDynamicClassConcreteDeeperInferenceNotAllowed()
+        @Error: SYMBOL_DEFINITION: TYPE_INFERENCE_NOT_SUPPORTED
+        aDynamicClass <- (baseValue: 2) extends Calculator of Integer as class
+          calculate()
+            -> arg0 as Integer
+            <- rtn as Integer?
+            @Error: SYMBOL_DEFINITION: TYPE_INFERENCE_NOT_SUPPORTED
+            aCalc <- baseValue * arg0
+            rtn :=: aCalc
+
+      //Here only use T's
+      extendsDynamicClassConceptual()
+        aDynamicClass as Calculator of T: () extends Calculator of T as class
+          calculate()
+            -> arg0 as T
+            <- rtn as T: arg0 * arg0
+
+      extendsDynamicClassConceptualNotAllowed()
+        @Error: SYMBOL_DEFINITION: TYPE_INFERENCE_NOT_SUPPORTED
+        aDynamicClass <- () extends Calculator of T as class
+          calculate()
+            -> arg0 as T
+            <- rtn as T: arg0 * arg0
+
+      anotherMethod()
+        v1 as Integer: 60
+        v2 as String: "Steve"
+
+        //Now a dynamic Tuple type class (named) - this cannot be allowed
+        //Because the generic/template parent will be traversed a number of times
+        //But will be with different parameters hence this named 'ATuple' would get created
+        //multiple times - with potentially different types.
+        @Error: SYMBOL_DEFINITION: GENERIC_WITH_NAMED_DYNAMIC_CLASS
+        values as ATuple: ATuple(firstName: v2, age: v1) as class
+          firstName()
+            <- rtn as String: firstName
+          age()
+            <- rtn as Integer: age
+//EOF

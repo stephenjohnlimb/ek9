@@ -467,7 +467,8 @@ public class SymbolFactory {
   /**
    * Create a new aggregate that represents an EK9 dynamic class.
    */
-  public AggregateWithTraitsSymbol newDynamicClass(EK9Parser.DynamicClassDeclarationContext ctx) {
+  public AggregateWithTraitsSymbol newDynamicClass(final IScopedSymbol enclosingMainTypeOrFunction,
+                                                   EK9Parser.DynamicClassDeclarationContext ctx) {
     //Name is optional - if not present then generate a dynamic value.
     String dynamicClassName = ctx.Identifier() != null
         ? ctx.Identifier().getText()
@@ -475,6 +476,8 @@ public class SymbolFactory {
 
     //Perhaps keep a reference to the scope where this dynamic class was defined.
     AggregateWithTraitsSymbol rtn = newAggregateWithTraitsSymbol(dynamicClassName, ctx.start);
+    rtn.setOuterMostTypeOrFunction(enclosingMainTypeOrFunction);
+    rtn.setScopeType(IScope.ScopeType.DYNAMIC_BLOCK);
     rtn.setReferenced(true);
     return rtn;
   }
@@ -482,14 +485,16 @@ public class SymbolFactory {
   /**
    * Create a new aggregate that represents an EK9 dynamic function.
    */
-  public FunctionSymbol newDynamicFunction(EK9Parser.DynamicFunctionDeclarationContext ctx) {
+  public FunctionSymbol newDynamicFunction(final IScopedSymbol enclosingMainTypeOrFunction,
+                                           EK9Parser.DynamicFunctionDeclarationContext ctx) {
     //As above need to consider how S, T etc would be resolved in later phases.
     var functionName = "_Function_" + UniqueIdGenerator.getNewUniqueId();
     var newFunction = new FunctionSymbol(functionName, parsedModule.getModuleScope());
-
+    newFunction.setOuterMostTypeOrFunction(enclosingMainTypeOrFunction);
     configureSymbol(newFunction, ctx.start);
     newFunction.setModuleScope(parsedModule.getModuleScope());
     newFunction.setGenus(ISymbol.SymbolGenus.FUNCTION);
+    newFunction.setScopeType(IScope.ScopeType.DYNAMIC_BLOCK);
     newFunction.setMarkedPure(ctx.PURE() != null);
     newFunction.setReferenced(true);
 

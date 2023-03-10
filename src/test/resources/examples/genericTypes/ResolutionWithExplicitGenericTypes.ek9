@@ -1,0 +1,90 @@
+#!ek9
+<!-
+  Just checking that generic types get resolved.
+-!>
+defines module general.generic.checks
+
+  defines class
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "ValidGenericUse"
+    ValidGenericUse
+
+      testList()
+        //Note how the phase has to be promoted to EXPLICIT_TYPE_SYMBOL_DEFINITION
+        @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of (ExampleClass)"
+        <- rtn as List of ExampleClass: List()
+
+      testAGenericClass()
+        @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "AGenericClass of (ExampleClass)"
+        <- rtn as AGenericClass of ExampleClass: AGenericClass()
+
+      testMultipleCombination()
+        @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of (AGenericClass of (ExampleClass))"
+        <- rtn as List of AGenericClass of ExampleClass: List()
+
+      @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "AGenericClass of (Integer)"
+      testCalculatorCapability()
+        <- rtn as AGenericClass of Integer: AGenericClass
+
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "AGenericClass"
+    AGenericClass of type T
+
+      item as T?
+      default AGenericClass()
+
+      AGenericClass()
+        -> arg0 as T
+        //make a copy
+        item :=: arg0
+
+      item()
+        <- rtn as T: item
+
+      //Being explicit about the type here
+      validIterator()
+        <- rtn as Iterator of T: Iterator(item)
+
+      //Also being explicit about the type
+      //But could we handle the construction of the Iterator that follows?
+      alsoValidIterator()
+        <- rtn as Iterator of T?
+        rtn: Iterator(item)
+
+      moreExplicitValidIterator()
+        <- rtn as Iterator of T?
+        someVar as Iterator of T: Iterator(item)
+        rtn: someVar
+
+      calculator()
+        <- rtn as SomeGenericFunction of (T, T): SomeGenericFunction
+
+    //Just used as a class that is defined after its use in a generic example above
+    @Resolved: SYMBOL_DEFINITION: TYPE: "ExampleClass"
+    ExampleClass
+      value <- "Steve"
+
+      value()
+        <- rtn as String: value
+
+  defines function
+
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_FUNCTION: "SomeGenericFunction"
+    SomeGenericFunction() of type (S, T)
+      -> arg0 as S
+      <- rtn as T: arg0 * 10
+
+  defines program
+
+    Driver()
+
+      //Just make one of these
+      //So you'd think the act of creating a new ValidGenericUse would then trigger
+      //AGenericClass of Integer - but that is explicit and so will be created early
+      //But that has the effect of needing both:
+      //Iterator of T -> to create Iterator of Integer
+      //SomeGenericFunction of (T, T) -> to create SomeGenericFunction of (Integer, Integer)
+      //For this to work, it is necessary to build a list of dependent generic types/functions when
+      //parsing a generic type/function.
+      //Then when we encounter the need for AGenericClass of Integer - we can create those concrete dependents.
+      example <- ValidGenericUse()
+//EOF

@@ -17,7 +17,7 @@ defines module com.customer.dictionary.example
         this.id :=: id
 
       operator $$ as pure
-        <- rtn as JSON
+        <- rtn as JSON?
 
   defines program
 

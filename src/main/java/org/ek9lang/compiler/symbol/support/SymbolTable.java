@@ -429,6 +429,11 @@ public class SymbolTable implements IScope {
   }
 
   @Override
+  public Optional<ScopedSymbol> findNearestDynamicBlockScopeInEnclosingScopes() {
+    return Optional.empty();
+  }
+
+  @Override
   public String toString() {
     return scopeName;
   }

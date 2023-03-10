@@ -69,6 +69,13 @@ public class SymbolAndScopeManagement {
   }
 
   /**
+   * Navigates back up the scope stack to find the first match of the scope type passed in.
+   */
+  public Optional<IScope> traverseBackUpStack(final IScope.ScopeType scopeType) {
+    return scopeStack.traverseBackUpStack(scopeType);
+  }
+
+  /**
    * To be used for creating the new type that is the result of combining an
    * existing generic type with one or more parameters.
    * This in effect creates a new type. But it may already exist (not an error).

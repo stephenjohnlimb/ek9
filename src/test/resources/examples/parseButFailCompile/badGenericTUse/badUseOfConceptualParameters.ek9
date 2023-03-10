@@ -1,0 +1,93 @@
+#!ek9
+<?-
+  A check to ensure that conceptual types like T, K and V in generic types
+  are not accessible to dynamic classes and functions unless those types are passed in.
+-?>
+defines module bad.use.conceptual.parameters
+
+  defines trait
+    Weighting
+      weight()
+        <- rtn as Integer?
+
+  defines class
+
+    ByTen with trait of Weighting
+      weight()
+        <- rtn <- 10
+
+    BySomeOtherValue with trait of Weighting
+      weight()
+        <- rtn <- 101
+
+  defines function
+
+    GFunction of type P
+      -> arg0 as P
+      <- value as P: arg0
+
+    UsesGFunctionWithInteger as pure abstract
+      -> arg0 as Integer
+      <- result as Integer?
+
+      func <- () is GFunction of Integer as pure
+        val <- arg0 * 5
+        value: val
+      result: func(23)
+
+    GeneralFunction as pure abstract
+      -> arg0 as Integer
+      <- value as Integer?
+
+    AGenericFunction of type (S constrain by Weighting , T)
+      ->
+        arg0 as S
+        arg1 as T
+      <-
+        rtn as T?
+
+      //Because T is generic - there's now way it can be injected vi IOC
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: COMPONENT_INJECTION_NOT_POSSIBLE
+      invalidInjection as T!
+
+      aGeneralFunction as GeneralFunction: () is GeneralFunction as pure
+        //So with a general dynamic function like this, the T in the generic scope is inaccessible
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+        something as T?
+        value: arg0 * 22
+
+      //While it is possible to pass these S and T types in via variables, functionality is limited.
+      //But maybe if the S was a trait/class and had a method like 'weight' that returned a concrete type
+      //There would be some use. This is always the issue in crossing back and forth between
+      //pure generic functionality and concrete operations.
+      bGeneralFunction as GeneralFunction: (weighting: arg0) is GeneralFunction as pure
+        //Now because we've constrained S to be a Weighting we can call the weight method and know the type returned.
+        theWeight as Integer: weighting.weight()
+        value: arg0 * theWeight
+
+      rtn: arg1
+
+    <?-
+      Define another generic function, but it uses another generic function and parameterizes it with
+      one of its conceptual parameters.
+      The problem here is that the dynamic function has been taken out of the scope hierarchy and so
+      as it has moved to module scope level - it cannot 'see' any of the 'types'.
+      Perhaps the dynamic function/type should be able to ask it's outermost scope (if it is generic)
+      to resolve those type parameters (but just those type parameters).
+    -?>
+    //Needs a bit more work! to define and wire in supers
+    <!-
+    AnotherGenericFunction of type (K, V)
+      ->
+        arg0 as K
+      <-
+        result as V?
+
+      aDynamicFunction as GFunction of V?
+
+      aDynamicFunction := () is GFunction of V as pure
+        someVar as V: arg0
+        value: someVar * someVar
+    -!>
+
+//EOF
