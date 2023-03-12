@@ -1,7 +1,9 @@
 package org.ek9lang.compiler.support;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 
@@ -15,7 +17,13 @@ public class DirectivesCompilationPhase implements Function<EK9Parser.DirectiveC
     try {
       return CompilationPhase.valueOf(ctx.directivePart(0).getText());
     } catch (IllegalArgumentException ex) {
-      throw new IllegalArgumentException("Expecting one of: " + Arrays.toString(CompilationPhase.values()));
+      throw new IllegalArgumentException("Expecting one of: " + applicableCompilationPhases());
     }
+  }
+
+  private List<String> applicableCompilationPhases() {
+    Predicate<CompilationPhase> acceptableValues = compilationPhase
+        -> CompilationPhase.PARSING != compilationPhase && CompilationPhase.PREPARE_PARSE != compilationPhase;
+    return Arrays.stream(CompilationPhase.values()).filter(acceptableValues).map(Enum::toString).toList();
   }
 }

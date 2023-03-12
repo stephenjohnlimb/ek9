@@ -23,4 +23,5 @@ public class DirectivesSymbolName implements Function<EK9Parser.DirectiveContext
     }
     return symbolName.substring(1, symbolName.length() - 1);
   }
+
 }

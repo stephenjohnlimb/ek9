@@ -16,11 +16,11 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
 /**
- * Represents the whole program(s) then developer is attempting to create.
- * This is the main route in and holds global symbol tables and references to the compilable source code
+ * Represents the whole program(s) that the developer is attempting to create.
+ * This is the main route in and holds module symbol tables and references to the compilable source code
  * and the resulting parse trees.
  * So access to this object needs to be tightly controlled. This should be done via the SharedThreadContext object.
- * This also acts as a scope to enable global symbols to be defined and resolved (across parsed modules if needs be).
+ * This also acts as a scope to enable symbols to be defined and resolved (across parsed modules if needs be).
  * No longer using a global symbol table, but will use 'implicit' modules a bit like java does.
  * So, will use module name 'org.ek9.lang' as the main implicit module to define build in types/symbols.
  */
@@ -36,6 +36,9 @@ public class CompilableProgram {
    */
   private final Map<CompilableSource, ParsedModule> sourceToParsedModule = new HashMap<>();
 
+  /**
+   * Provides the list of scopes in a single module for a module name.
+   */
   private final Function<String, List<ModuleScope>> getModuleScopes =
       moduleName -> Stream.ofNullable(theParsedModules.get(moduleName))
           .map(ParsedModules::getParsedModules)
@@ -43,6 +46,9 @@ public class CompilableProgram {
           .map(ParsedModule::getModuleScope)
           .toList();
 
+  /**
+   * For a specific source the ParsedModule is returned.
+   */
   public ParsedModule getParsedModuleForCompilableSource(CompilableSource source) {
     AssertValue.checkNotNull("Compilable source cannot be null", source);
     return this.sourceToParsedModule.get(source);
@@ -74,7 +80,7 @@ public class CompilableProgram {
 
   /**
    * If some source has been altered, then its corresponding parsedModule must be removed.
-   * Once it has then been re-parsed it can be added back in.
+   * Once it has, then been parsed it can be added back in.
    *
    * @param parsedModule The existing parsed module to be removed.
    */
@@ -89,6 +95,7 @@ public class CompilableProgram {
 
   /**
    * Provide read only access to the list of modules for a particular moduleName.
+   * Returns an empty list of the module name cannot be located.
    */
   public List<ParsedModule> getParsedModules(String moduleName) {
     var modules = theParsedModules.get(moduleName);
@@ -96,12 +103,16 @@ public class CompilableProgram {
     return modules != null ? modules.getParsedModules() : List.of();
   }
 
+  /**
+   * Provides a list of all the module names in the program.
+   * This can be very long.
+   */
   public List<String> getParsedModuleNames() {
     return theParsedModules.keySet().stream().toList();
   }
 
   /**
-   * Resolve some for of type via a fully qualified search.
+   * Resolve some symbol via a fully qualified search.
    */
   public Optional<ISymbol> resolveByFullyQualifiedSearch(final SymbolSearch search) {
     var moduleName = ISymbol.getModuleNameIfPresent(search.getName());
@@ -125,9 +136,14 @@ public class CompilableProgram {
       //need to define it and return it.
       var module = getModuleScopes.apply(moduleName).get(0);
       module.define(parameterisedSymbol);
+      processParameterisedSymbolPostDefinition(parameterisedSymbol);
       return Optional.of(parameterisedSymbol);
     }
     return resolved;
+  }
+
+  private void processParameterisedSymbolPostDefinition(final ParameterisedSymbol parameterisedSymbol) {
+    //TODO ripple through the type and call out to get all it's dependent types created.
   }
 
   /**

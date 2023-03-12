@@ -15,7 +15,7 @@ import org.ek9lang.compiler.main.phases.result.CompilerReporter;
  * Can be MULTI THREADED.
  * This class just deals with the parsing phase of compilation.
  * It is NOT a parser itself, but is used by the Ek9Compiler to initiate the
- * parsing.
+ * parsing. The Lexer and Parser are held in the CompilableSource.
  */
 public class Ek9Phase0Parsing
     implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {

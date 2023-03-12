@@ -35,6 +35,7 @@ public class GeneralTypeResolver implements Function<SymbolSearchConfiguration, 
 
   @Override
   public Optional<ISymbol> apply(final SymbolSearchConfiguration toResolve) {
+
     var mainSymbol = scopeForResolution.resolve(new AnySymbolSearch(toResolve.mainSymbolName()));
 
     //For non-parametric stuff that's it.

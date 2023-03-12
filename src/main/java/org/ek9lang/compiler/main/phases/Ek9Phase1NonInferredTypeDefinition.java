@@ -20,8 +20,8 @@ import org.ek9lang.core.utils.Holder;
 
 /**
  * Can be MULTI THREADED for developer source, but single threaded for bootstrapping.
- * Goes through the now successfully parse source files and uses
- * a visitor to do the second real pass at building the IR - more explicit type symbol definitions.
+ * Goes through the now successfully parsed source files and uses
+ * a listener to do the second real pass at building the symbols - more explicit type symbol definitions.
  * The first pass 'Ek9Phase1SymbolDefinition' will have defined many symbols, types, functions.
  * But the order may well have resulted in some explicit uses of generic types not being fully resolved
  * in terms of the parameterization used. i.e. 'UseOfBuiltInGenerics4.ek9' shows a class being declared after it has
@@ -32,7 +32,8 @@ import org.ek9lang.core.utils.Holder;
  * NOTE, we are not trying to do the inferred 'polymorphic parameterization' like 'list <- List(2)'.
  * We're only looking to do 'list as List of Integer' and list <- List() of Integer sorts of checks, but with
  * developer created Template types and classes - which can appear in any order and in any file/module.
- * Hence, the need for a second pass.
+ * Hence, the need for a second pass. We also need to start building type hierarchies as these are important for
+ * generic types and parameterised type use.
  */
 public class Ek9Phase1NonInferredTypeDefinition
     implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {

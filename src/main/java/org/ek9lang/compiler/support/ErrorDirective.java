@@ -16,10 +16,8 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
  */
 public class ErrorDirective implements Directive {
   private final CompilationPhase phase;
-
   private final Token directiveToken;
   private final ErrorListener.SemanticClassification classification;
-
   private final int lineNumber;
 
   /**

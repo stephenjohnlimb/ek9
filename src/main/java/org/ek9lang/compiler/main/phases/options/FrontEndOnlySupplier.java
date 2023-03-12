@@ -30,6 +30,7 @@ import org.ek9lang.core.threads.SharedThreadContext;
  * Supplies just the front end of the compiler.
  * This tends to be used for just the bootstrap process for the builtin and maybe
  * pluggable modules that are defined externally.
+ * Could be used in lsp, or we could just create another supplier and the appropriate list of phases.
  */
 public class FrontEndOnlySupplier
     implements Supplier<List<BiFunction<Workspace, CompilerFlags, CompilationPhaseResult>>> {

@@ -18,16 +18,15 @@ public class PartialEk9StringToTypeDef implements Function<String, EK9Parser.Typ
   public EK9Parser.TypeDefContext apply(String typeDefinition) {
     final var sourceName = "in-memory.ek9";
     try (var inputStream = new ByteArrayInputStream(typeDefinition.getBytes(StandardCharsets.UTF_8))) {
+      ErrorListener errorListener = new ErrorListener(sourceName);
       Ek9Lexer lex =
           new Ek9Lexer(CharStreams.fromStream(inputStream), EK9Parser.INDENT, EK9Parser.DEDENT, false);
       lex.setSourceName(sourceName);
       lex.removeErrorListeners();
+      lex.addErrorListener(errorListener);
 
       EK9Parser parser = new EK9Parser(new CommonTokenStream(lex));
       parser.removeErrorListeners();
-
-      ErrorListener errorListener = new ErrorListener(sourceName);
-      lex.addErrorListener(errorListener);
       parser.addErrorListener(errorListener);
 
       return parser.typeDef();

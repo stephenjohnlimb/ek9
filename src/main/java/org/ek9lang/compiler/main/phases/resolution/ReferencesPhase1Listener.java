@@ -20,6 +20,7 @@ import org.ek9lang.core.exception.AssertValue;
  * Antlr listener for the references phase.
  * i.e. check each reference and ensure it resolves, but also check
  * that no named constructs conflict with any named reference.
+ * This is mainly rules and conflicts in different scenarios.
  */
 public class ReferencesPhase1Listener extends EK9BaseListener {
 

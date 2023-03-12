@@ -12,8 +12,14 @@ import org.ek9lang.core.exception.CompilerException;
  * will be multiple parsed modules.
  */
 public class ParsedModules {
+  /**
+   * The name of the module.
+   */
   private final String moduleName;
 
+  /**
+   * The parsedModules that make up the whole module namespace.
+   */
   private final List<ParsedModule> parsedModulesInModule = new ArrayList<>();
 
   public ParsedModules(String moduleName) {
@@ -41,6 +47,9 @@ public class ParsedModules {
     parsedModulesInModule.remove(parsedModule);
   }
 
+  /**
+   * Provides an unmodifiable list of parsed modules.
+   */
   public List<ParsedModule> getParsedModules() {
     return Collections.unmodifiableList(parsedModulesInModule);
   }

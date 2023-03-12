@@ -22,7 +22,7 @@ import org.ek9lang.core.threads.SharedThreadContext;
  * when we visit the context with the visitor.
  * The scopes are critical to being able to check for multiple definitions of
  * the same identity (and type) but also when it comes to resolving names.
- * Importantly because we can define the same module name in more than one
+ * Importantly because we can define the same 'module name' in more than one
  * source file and also because we can 'reference' other modules by name it
  * means we have to be able to resolve names across multiple ParsedModules to
  * find the scope they are in.
@@ -31,7 +31,7 @@ import org.ek9lang.core.threads.SharedThreadContext;
  * have - because these will not have changed. But the identities they reference
  * may now have been removed (if we alter a source file).
  * As there will be very many source files we should only parse them when we
- * really have to.
+ * really have to - the reading and parsing is the most expensive part.
  * But we may still have to re-run the definition and resolving phases for all
  * ParsedModules. Importantly if we have a module that is parsed but is marked
  * as being in error (i.e. duplicate definition or missing reference) we also
@@ -40,7 +40,7 @@ import org.ek9lang.core.threads.SharedThreadContext;
  * definition and resolving if we keep a reference to the compilation unit where we
  * resolved the definition. Clearly when adding new compilation units we may have to
  * complete a resolve again.
- * All access to Global symbol table of anything shared is via SharedThreadContext.
+ * All access to symbol tables of anything shared is via SharedThreadContext.
  * So this will be created on a per source file basis and then can be parsed with a listener
  * or a visitor. An instance of this parsedModule will be given to the visitor/listener
  * then the compilationUnitContext can be set and the scope tree built up.
@@ -50,7 +50,14 @@ import org.ek9lang.core.threads.SharedThreadContext;
  */
 public class ParsedModule implements Module {
 
+  /**
+   * The source file that is parsed module has loaded (or failed to load).
+   */
   private final CompilableSource source;
+
+  /**
+   * The actual whole program, or set of programs that a developer is trying to develop.
+   */
   private final SharedThreadContext<CompilableProgram> compilableProgram;
 
   /**
@@ -58,7 +65,8 @@ public class ParsedModule implements Module {
    * This is where we store the scopes in a map with the contexts
    * We use this for the multiple passes we need to do.
    * But remember there will be other parsed modules with their scopes
-   * and important some with the same module name! so need to go to compilable program to access
+   * and important some with the same module name! so need to go to compilable program to access.
+   * As the 'listener' goes through the ek9 source we register these scopes here.
    */
   protected ParseTreeProperty<IScope> scopes = new ParseTreeProperty<>();
 
@@ -73,10 +81,20 @@ public class ParsedModule implements Module {
    * So we keep the map of the context and the symbol, so we can augment information on the symbol
    * Then when we are ready we can attempt to add the symbols to the correct scopes during a visit
    * But we may find there are duplicate and the like so that is semantic analysis.
+   * So it is probable that something like a class will be both recorded as a symbol and also a scope.
    */
   protected ParseTreeProperty<ISymbol> symbols = new ParseTreeProperty<>();
 
+  /**
+   * The name of the module as defined in the EK9 source code. But remember this same module name
+   * can be used in other 'ParsedModules' any number of source files can make up a 'module' with a
+   * distinct name.
+   */
   private String moduleName;
+
+  /**
+   * Once the source is parsed, this will hold the main entry point into the EK9 source as a parsed structure.
+   */
   private EK9Parser.CompilationUnitContext compilationUnitContext = null;
 
   //We also need to keep a record of the ModuleScope so that when we come to resolve across modules we can
@@ -85,6 +103,8 @@ public class ParsedModule implements Module {
 
   /**
    * Is the parsed module an EK9 implementation or externally linked.
+   * So the built-in EK9 types will be externally linked either java/jar or binary '*.so' for example.
+   * But there is a plugin mechanism - designed to enable third party 'adaptors' and binary linked code.
    */
   private boolean externallyImplemented = false;
 
@@ -103,6 +123,7 @@ public class ParsedModule implements Module {
   }
 
   private void setModuleScope(ModuleScope moduleScope) {
+    AssertValue.checkNotNull("ModuleScope cannot be null", moduleScope);
     this.moduleScope = moduleScope;
   }
 
@@ -159,13 +180,16 @@ public class ParsedModule implements Module {
   }
 
   /**
-   * Provide access to any directives recorded.
+   * Provide access to any directives recorded of a specific type and compilation phase.
    */
   public List<Directive> getDirectives(final DirectiveType type, final CompilationPhase phase) {
     return directives.stream().filter(directive -> directive.type() == type)
         .filter(directive -> directive.isForPhase(phase)).toList();
   }
 
+  /**
+   * Provide access to any directives recorded.
+   */
   public List<Directive> getDirectives(final DirectiveType type) {
     return directives.stream().filter(directive -> directive.type() == type).toList();
   }
@@ -178,6 +202,10 @@ public class ParsedModule implements Module {
     scopes.put(node, withScope);
   }
 
+  /**
+   * Locate and return a recorded scope against part of the parse tree,
+   * this may return null if nothing has been recorded.
+   */
   public IScope getRecordedScope(ParseTree node) {
     return scopes.get(node);
   }
@@ -186,16 +214,21 @@ public class ParsedModule implements Module {
    * Record a particular node context with a particular symbol.
    */
   public void recordSymbol(ParseTree node, ISymbol symbol) {
+    AssertValue.checkNotNull("Node cannot be null", node);
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
 
     //Let the symbol know where it is defined.
     //But it can only be defined in one place - in case of references we record in other locations
-    //but we only want its actual module recorded the first time it is encountered.
+    //We only want its actual module recorded the first time it is encountered.
     symbol.setParsedModule(Optional.of(this));
     symbols.put(node, symbol);
 
   }
 
+  /**
+   * Locate and return a recorded symbol against part of the parse tree,
+   * this may return null if nothing has been recorded.
+   */
   public ISymbol getRecordedSymbol(ParseTree node) {
     return symbols.get(node);
   }
@@ -229,6 +262,7 @@ public class ParsedModule implements Module {
   }
 
   private void setModuleName(String moduleName) {
+    AssertValue.checkNotNull("ModuleName cannot be null", moduleName);
     this.moduleName = moduleName;
   }
 

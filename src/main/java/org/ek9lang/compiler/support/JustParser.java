@@ -13,7 +13,6 @@ import org.ek9lang.compiler.tokenizer.Ek9Lexer;
 import org.ek9lang.core.utils.Logger;
 import org.ek9lang.core.utils.OsSupport;
 
-
 /**
  * For when we just need to read ek9 files and pull out bits and bobs
  * rather than actually compiling.
@@ -31,16 +30,16 @@ public class JustParser {
         return false;
       }
       try (InputStream inputStream = new FileInputStream(sourceFile)) {
+        ErrorListener errorListener = new ErrorListener(sourceFile.getName());
+
         Ek9Lexer lex =
             new Ek9Lexer(CharStreams.fromStream(inputStream), EK9Parser.INDENT, EK9Parser.DEDENT);
         lex.setSourceName(sourceFile.getName());
         lex.removeErrorListeners();
+        lex.addErrorListener(errorListener);
 
         EK9Parser parser = new EK9Parser(new CommonTokenStream(lex));
         parser.removeErrorListeners();
-
-        ErrorListener errorListener = new ErrorListener(sourceFile.getName());
-        lex.addErrorListener(errorListener);
         parser.addErrorListener(errorListener);
 
         CompilationUnitContext context = parser.compilationUnit();
@@ -48,6 +47,7 @@ public class JustParser {
           errorListener.getErrors().forEachRemaining(Logger::error);
           return false;
         }
+
         visitor.visit(context, errorListener);
         if (errorListener.hasErrors()) {
           errorListener.getErrors().forEachRemaining(Logger::error);

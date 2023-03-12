@@ -54,6 +54,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
     //Put is in the same module as where the generic type has been defined.
     //Note that this could and probably will be a system on in many cases List and Optional.
     this.setModuleScope(parameterisableSymbol.getModuleScope());
+    //Assume a TYPE, but see parameterisationComplete - because if any parameters are not concrete this is a TEMPLATE
     super.setCategory(SymbolCategory.TYPE);
 
     setEk9Core(parameterisableSymbol.isEk9Core());
@@ -96,18 +97,29 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 
   /**
    * So once you have created this object and added all the parameters you want to
-   * Call this so that the full name of the concrete parameterised generic type is manifest.
+   * Call this so that the full name of the concrete/conceptual parameterised generic type is manifest.
    */
   private void parameterisationComplete() {
     var numberOfParameters = this.parameterSymbols.size();
     var numberOfAvailableGenericParameters =
         this.parameterisableSymbol.getAnyGenericParameters().size();
 
+    //There should have been a check in the compiler earlier than this but leave this in place for a while.
     if (numberOfParameters != numberOfAvailableGenericParameters) {
       throw new CompilerException("Compiler error mismatch in number of parameters");
     }
+
     super.setName(
         CommonParameterisedTypeDetails.getInternalNameFor(parameterisableSymbol, parameterSymbols));
+
+    var isTemplateType = parameterSymbols.stream().anyMatch(ISymbol::isGenericTypeParameter);
+
+    if(isTemplateType) {
+      super.setCategory(SymbolCategory.TEMPLATE_TYPE);
+    } else {
+      super.setCategory(SymbolCategory.TYPE);
+    }
+    super.setGenus(SymbolGenus.TYPE);
   }
 
   /**

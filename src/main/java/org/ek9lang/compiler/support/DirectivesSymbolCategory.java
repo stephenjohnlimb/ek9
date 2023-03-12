@@ -1,7 +1,9 @@
 package org.ek9lang.compiler.support;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.symbol.ISymbol;
 
@@ -15,7 +17,13 @@ public class DirectivesSymbolCategory implements Function<EK9Parser.DirectiveCon
     try {
       return ISymbol.SymbolCategory.valueOf(ctx.directivePart(1).getText());
     } catch (IllegalArgumentException ex) {
-      throw new IllegalArgumentException("Expecting one of: " + Arrays.toString(ISymbol.SymbolCategory.values()));
+      throw new IllegalArgumentException("Expecting one of: " + applicableSymbolCategories());
     }
+  }
+
+  private List<String> applicableSymbolCategories() {
+    Predicate<ISymbol.SymbolCategory> acceptableValues = symbolCategory
+        -> ISymbol.SymbolCategory.METHOD != symbolCategory && ISymbol.SymbolCategory.CONTROL != symbolCategory;
+    return Arrays.stream(ISymbol.SymbolCategory.values()).filter(acceptableValues).map(Enum::toString).toList();
   }
 }

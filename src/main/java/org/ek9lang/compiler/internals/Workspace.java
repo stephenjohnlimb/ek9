@@ -12,7 +12,7 @@ import org.ek9lang.core.utils.Logger;
 
 /**
  * Designed to represent one or more source files that are part of a workspace.
- * Needs to become thread safe, especially around re-parsing.
+ * Needs to become thread safe, especially around parsing.
  * This is because when a user is typing via lsp mode - this will get triggered over and over.
  */
 public class Workspace {
@@ -44,7 +44,7 @@ public class Workspace {
    */
   public CompilableSource reParseSource(String uri) {
     //Consider a queue of requests per uri as in an interactive mode the same file
-    //will be triggered for re-parsing over and over again. We only need one request to be honoured!
+    //will be triggered for parsing over and over again. We only need one request to be honoured!
 
     Logger.debug("parsing/re-parsing [" + uri + "]");
     CompilableSource compilableSource = ensureCompilableSourceAvailable(uri);
@@ -64,16 +64,16 @@ public class Workspace {
   ParsedModule and IRModule to be added in
   */
 
-  public CompilableSource addSource(File file) {
-    return addSource(file.toPath());
+  public void addSource(File file) {
+    addSource(file.toPath());
   }
 
-  public CompilableSource addSource(Path path) {
-    return addSource(path.toString());
+  public void addSource(Path path) {
+    addSource(path.toString());
   }
 
-  public CompilableSource addSource(String fileName) {
-    return addSource(new CompilableSource(fileName));
+  public void addSource(String fileName) {
+    addSource(new CompilableSource(fileName));
   }
 
   public CompilableSource addSource(CompilableSource source) {
