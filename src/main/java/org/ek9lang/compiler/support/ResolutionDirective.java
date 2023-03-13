@@ -53,8 +53,8 @@ public abstract class ResolutionDirective implements Directive {
     var base = type() + ": " + spec.phase() + ": " + spec.symbolCategory() + ": \"" + spec.symbolName() + "\"";
 
     if (spec.additionalName() != null) {
-      base += ": \"" + spec.additionalName() + "\"";
+      base += ": \"" + getAdditionalName() + "\"";
     }
-    return base + ": Line: " + spec.lineNumber();
+    return base + ": Line: " + getAppliesToLineNumber();
   }
 }

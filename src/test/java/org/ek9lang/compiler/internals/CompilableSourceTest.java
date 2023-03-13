@@ -47,6 +47,19 @@ final class CompilableSourceTest {
     assertFalse(helloWorldSource.isModified());
   }
 
+  /**
+   * Sometimes it is important for the compiler to create synthetic source.
+   * So check the interface works as it should.
+   */
+  @Test
+  void testFakeSourceInterface() {
+    Source source = () -> "SomeFake.ek9";
+
+    assertEquals("SomeFake.ek9", source.getFileName());
+    assertFalse(source.isDev());
+    assertFalse(source.isLib());
+  }
+  
   @Test
   void testEquality() {
     var helloWorldSource1 = validEk9Source.get();

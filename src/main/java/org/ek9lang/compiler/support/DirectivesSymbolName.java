@@ -21,7 +21,11 @@ public class DirectivesSymbolName implements Function<EK9Parser.DirectiveContext
     if (!symbolName.startsWith("\"")) {
       throw new IllegalArgumentException("Expecting quoted symbol name");
     }
-    return symbolName.substring(1, symbolName.length() - 1);
+    var result = symbolName.substring(1, symbolName.length() - 1);
+    if (result.length() == 0) {
+      throw new IllegalArgumentException("Symbol name is empty");
+    }
+    return result;
   }
 
 }

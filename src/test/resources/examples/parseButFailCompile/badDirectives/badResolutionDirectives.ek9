@@ -71,4 +71,67 @@ defines module bad.resolution.directives
         -> arg0 as Integer
         <- rtn as String: ""
 
+    //No such construct as TIP
+    @Resolved: SYMBOL_DEFINITION: TIP: "BType"
+    BType as open
+      default BType()
+
+      someMethod()
+        <- rtn <- 0
+
+    @Implements: SYMBOL_DEFINITION: TYPE: "CType": "SomeGenericType of (Integer, String)"
+    CType extends BType
+      default CType()
+
+      anotherMethod()
+        <- rtn <- false
+
+    //Error in asking for this check.
+    @Implements: SYMBOL_DEFINITION: TYPE: "DType": "DType"
+    DType extends BType
+      default DType()
+
+      anotherMethod()
+        <- rtn <- false
+
+    //Error in asking for this check.
+    @Implements: SYMBOL_DEFINITION: TYPE: "EType": "Carrot"
+    EType extends BType
+      default EType()
+
+      anotherMethod()
+        <- rtn <- false
+
+    @Implements: SYMBOL_DEFINITION: TYPE: "FType": "SomeGenericType of (Integer)"
+    FType extends BType
+      default FType()
+
+      anotherMethod()
+        <- rtn <- false
+
+  defines function
+
+    UnImplementedAbstractFunction() as pure abstract
+      -> arg0 as Integer
+      <- rtn as Integer?
+
+    SomeAbstractFunction() as pure abstract
+      -> arg0 as Integer
+      <- rtn as Integer?
+
+    //Deliberate error CheckFunction does not implement UnImplementedAbstractFunction
+    @Implements: SYMBOL_DEFINITION: FUNCTION: "CheckFunction": "UnImplementedAbstractFunction"
+    CheckFunction extends SomeAbstractFunction as pure
+      -> arg0 as Integer
+      <- rtn as Integer: arg0 * 2
+
+    SomeGenericFunction of type (P, Q)
+      -> arg0 as P
+      <- rtn as Q?
+
+    //Deliberately get the number of parameters incorrect.
+    @Implements: SYMBOL_DEFINITION: FUNCTION: "GeneralFunction": "SomeGenericFunction of (Integer)"
+    GeneralFunction extends SomeAbstractFunction
+      -> arg0 as Integer
+      <- rtn as Integer: 0
 //EOF

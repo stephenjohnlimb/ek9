@@ -38,6 +38,8 @@ public class ImplementsDirectiveListener extends ResolvedDirectiveListener {
     var scope = compilationEvent.parsedModule().getModuleScope();
     JustTypeDef resolver = new JustTypeDef(scope);
 
+    var messagePrefix = "Directive '" + resolutionDirective + "', specifically: '";
+
     try {
       var resolved = resolver.typeDefToSymbol(resolutionDirective.getAdditionalName());
       resolved.ifPresentOrElse(additionalSymbol -> {
@@ -45,17 +47,17 @@ public class ImplementsDirectiveListener extends ResolvedDirectiveListener {
         if (symbol == additionalSymbol) {
           //Cannot extend self!
           errorListener.directiveError(resolutionDirective.getDirectiveToken(),
-              "'" + resolutionDirective.getSymbolName() + "' == '" + resolutionDirective.getAdditionalName() + "'",
+              messagePrefix + resolutionDirective.getSymbolName()
+                  + "' == '" + resolutionDirective.getAdditionalName() + "',",
               ErrorListener.SemanticClassification.CANNOT_EXTEND_IMPLEMENT_ITSELF);
-
         }
         if (!checkHierarchy(symbol, additionalSymbol)) {
           errorListener.directiveError(resolutionDirective.getDirectiveToken(),
-              "'" + resolutionDirective.getAdditionalName() + "'",
+              messagePrefix + resolutionDirective.getAdditionalName() + "',",
               ErrorListener.SemanticClassification.DIRECTIVE_HIERARCHY_NOT_RESOLVED);
         }
       }, () -> errorListener.directiveError(resolutionDirective.getDirectiveToken(),
-          "'" + resolutionDirective.getAdditionalName() + "'",
+          messagePrefix + "'" + resolutionDirective.getAdditionalName() + "'",
           ErrorListener.SemanticClassification.DIRECTIVE_SYMBOL_NOT_RESOLVED));
     } catch (IllegalArgumentException exception) {
       //In the case of directives (as a debugging tool) we may get an exception if the developer

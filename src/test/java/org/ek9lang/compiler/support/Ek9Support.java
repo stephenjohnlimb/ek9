@@ -35,7 +35,8 @@ public class Ek9Support extends AntlrSupport {
 
   @Override
   protected Lexer getLexer(CharStream input, String sourceName) {
-    return new Ek9Lexer(input, EK9Parser.INDENT, EK9Parser.DEDENT).setPrintTokensAsSupplied(false)
+    return new Ek9Lexer(input, EK9Parser.INDENT, EK9Parser.DEDENT)
+        .setPrintTokensAsSupplied(false)
         .setSourceName(sourceName);
   }
 

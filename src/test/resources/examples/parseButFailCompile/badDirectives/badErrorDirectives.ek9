@@ -19,9 +19,14 @@ defines module bad.error.directives
     function3()
       <- rtn <- 0
 
+    //Not a valid phase
+    @Error: NO_SUCH_PHASE: NOT_RESOLVED
+    function4A()
+      <- rtn <- 0
+
     //function4 is valid and so this error should result in a directive error.
     @Error: SYMBOL_DEFINITION: NOT_RESOLVED
-    function4()
+    function4B()
       <- rtn <- 0
 
     //arg0 is a duplicate symbol, but this is checking for NOT_RESOLVED, directive error.
@@ -29,6 +34,5 @@ defines module bad.error.directives
       -> arg0 as Integer
       @Error: SYMBOL_DEFINITION: NOT_RESOLVED
       <- arg0 <- 0
-
 
 //EOF
