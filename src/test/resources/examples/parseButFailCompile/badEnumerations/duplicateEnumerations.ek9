@@ -1,0 +1,14 @@
+#!ek9
+defines module bad.enumerations.check
+
+  //Deliberately add in Hearts twice
+  defines type
+
+    CardSuit as
+      Hearts
+      Diamonds
+      Clubs
+      Spades
+      @Error: SYMBOL_DEFINITION: POSSIBLE_DUPLICATE_ENUMERATED_VALUE
+      Hearts
+//EOF

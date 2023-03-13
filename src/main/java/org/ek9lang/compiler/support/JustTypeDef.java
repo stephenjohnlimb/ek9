@@ -31,7 +31,7 @@ public class JustTypeDef extends EK9BaseVisitor<SymbolSearchConfiguration> {
   public Optional<ISymbol> typeDefToSymbol(final String typeDefinition) {
 
     var context = partialEk9StringToTypeDef.apply(typeDefinition);
-    if (context != null) {
+    if (context != null && (context.identifierReference() != null || context.parameterisedType() != null)) {
       return generalTypeResolver.apply(visit(context));
     }
     return Optional.empty();

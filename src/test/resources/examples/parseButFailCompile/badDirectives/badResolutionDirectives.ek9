@@ -1,0 +1,74 @@
+#!ek9
+defines module bad.resolution.directives
+
+  defines function
+
+    @NotResolved: NO_SUCH_PHASE
+    function1A()
+      <- rtn <- 0
+
+    @Resolved: NO_SUCH_PHASE
+    function1B()
+      <- rtn <- 0
+
+    @NotResolved: SYMBOL_DEFINITION: NO_SUCH_CONSTRUCT
+    function2A()
+      <- rtn <- 0
+
+    @Resolved: SYMBOL_DEFINITION: NO_SUCH_CONSTRUCT
+    function2B()
+      <- rtn <- 0
+
+    @NotResolved: SYMBOL_DEFINITION: FUNCTION: noquotes
+    function3A()
+      <- rtn <- 0
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: noquotes
+    function3B()
+      <- rtn <- 0
+
+    //Error in directive because it will be resolved
+    @NotResolved: SYMBOL_DEFINITION: FUNCTION: "function4A"
+    function4A()
+      <- rtn <- 0
+
+    //Error in directive, while it will be resolved, its a different construct
+    @Resolved: SYMBOL_DEFINITION: TYPE: "function4B"
+    function4B()
+      <- rtn <- 0
+
+    //Error in directive, while it will not be resolved
+    @Resolved: SYMBOL_DEFINITION: TYPE: "noSuchFunction"
+    function5A()
+      <- rtn <- 0
+
+    //Error in directive, no symbol!
+    @Resolved: SYMBOL_DEFINITION: TYPE: ""
+    function5B()
+      <- rtn <- 0
+
+    //Error in directive, no symbol!
+    @NotResolved: SYMBOL_DEFINITION: TYPE: ""
+    function5C()
+      <- rtn <- 0
+
+  defines class
+
+    SomeGenericType of type (S, T) as abstract
+
+      aMethod() as abstract
+        -> arg0 as S
+        <- rtn as T?
+
+    //We only state of (Integer) which is incorrect.
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "SomeGenericType of (Integer)"
+    AType extends SomeGenericType of (Integer, String)
+
+      //A constructor
+      default AType()
+
+      aMethod() as abstract
+        -> arg0 as Integer
+        <- rtn as String: ""
+
+//EOF

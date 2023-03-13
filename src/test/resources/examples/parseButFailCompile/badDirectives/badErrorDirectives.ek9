@@ -1,0 +1,34 @@
+#!ek9
+<?-
+  Designed to incorrectly use error directives to check the incorrect configuratio use is detected.
+-?>
+defines module bad.error.directives
+
+  defines function
+
+    //Missing compiler phase and error type
+    @Error
+    function1()
+      <- rtn <- 0
+
+    @Error: NO_SUCH_PHASE
+    function2()
+      <- rtn <- 0
+
+    @Error: SYMBOL_DEFINITION: NO_SUCH_ERROR
+    function3()
+      <- rtn <- 0
+
+    //function4 is valid and so this error should result in a directive error.
+    @Error: SYMBOL_DEFINITION: NOT_RESOLVED
+    function4()
+      <- rtn <- 0
+
+    //arg0 is a duplicate symbol, but this is checking for NOT_RESOLVED, directive error.
+    function5()
+      -> arg0 as Integer
+      @Error: SYMBOL_DEFINITION: NOT_RESOLVED
+      <- arg0 <- 0
+
+
+//EOF

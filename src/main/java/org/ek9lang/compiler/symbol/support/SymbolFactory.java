@@ -159,7 +159,8 @@ public class SymbolFactory {
       };
     } catch (IllegalArgumentException ex) {
       var errorListener = parsedModule.getSource().getErrorListener();
-      errorListener.semanticError(ctx.start, ex.getMessage(), ErrorListener.SemanticClassification.UNKNOWN_DIRECTIVE);
+      errorListener.semanticError(ctx.start, ex.getMessage()
+          + ",", ErrorListener.SemanticClassification.UNKNOWN_DIRECTIVE);
     }
     return null;
   }

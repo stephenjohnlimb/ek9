@@ -6,7 +6,7 @@ import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.CompilableSource;
 import org.ek9lang.compiler.internals.Workspace;
-import org.ek9lang.compiler.main.phases.options.FrontEndOnlySupplier;
+import org.ek9lang.compiler.main.phases.options.FrontEndSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.core.exception.CompilerException;
 import org.ek9lang.core.threads.SharedThreadContext;
@@ -45,7 +45,7 @@ public class Ek9LanguageBootStrap implements Supplier<SharedThreadContext<Compil
   //This needs more of the compiler phases!
   private void addBuiltInEk9LanguageModules(SharedThreadContext<CompilableProgram> sharedContext) {
 
-    Ek9Compiler compiler = new Ek9Compiler(new FrontEndOnlySupplier(sharedContext, listener, reporter));
+    Ek9Compiler compiler = new Ek9Compiler(new FrontEndSupplier(sharedContext, listener, reporter, false));
     final var sources = sourceSupplier.get();
 
     Workspace workspace = new Workspace();

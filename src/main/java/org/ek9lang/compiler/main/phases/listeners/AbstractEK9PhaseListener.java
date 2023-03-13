@@ -12,11 +12,13 @@ import org.ek9lang.core.exception.AssertValue;
 
 /**
  * The abstract base on most antlr listeners. This class does little except ensure that
- * By the way ANTLR is designed we have to listen to events and push
+ * the way ANTLR is designed we have to listen to events and push
  * our constructed symbols into a stack and also pop them off again.
  * As they are processed we also have to record them in a more permanent manner.
  * So the stack is used to help build the aggregates etc. But in the end
  * they are all 'popped off' - our main permanent holding area is the parsedModule!
+ * But this code does pull symbols into other scopes, and also checks for exception only
+ * paths through code (to a limited static-analysis extent).
  */
 public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
 

@@ -89,7 +89,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
     this.setModuleScope(parameterisableSymbol.getModuleScope());
     var isTemplateFunction = parameterSymbols.stream().anyMatch(ISymbol::isGenericTypeParameter);
 
-    if(isTemplateFunction) {
+    if (isTemplateFunction) {
       super.setCategory(SymbolCategory.TEMPLATE_FUNCTION);
     } else {
       super.setCategory(SymbolCategory.FUNCTION);

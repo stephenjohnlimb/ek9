@@ -114,7 +114,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
 
     var isTemplateType = parameterSymbols.stream().anyMatch(ISymbol::isGenericTypeParameter);
 
-    if(isTemplateType) {
+    if (isTemplateType) {
       super.setCategory(SymbolCategory.TEMPLATE_TYPE);
     } else {
       super.setCategory(SymbolCategory.TYPE);

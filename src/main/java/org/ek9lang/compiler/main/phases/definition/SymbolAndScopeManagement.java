@@ -10,7 +10,6 @@ import org.ek9lang.compiler.symbol.ParameterisedSymbol;
 import org.ek9lang.compiler.symbol.StackConsistencyScope;
 import org.ek9lang.compiler.symbol.support.ScopeStack;
 import org.ek9lang.compiler.symbol.support.SymbolChecker;
-import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
 /**
@@ -88,15 +87,6 @@ public class SymbolAndScopeManagement {
    */
   public Optional<ISymbol> resolveOrDefine(final ParameterisedSymbol parameterisedSymbol) {
     return parsedModule.getModuleScope().resolveOrDefine(parameterisedSymbol);
-  }
-
-  /**
-   * Just uses the current scope on the top of the stack to resolve for the search.
-   * This may not be limited to just that scope - the search could go all the way back up
-   * to the main CompilableProgram and search in other modules.
-   */
-  public Optional<ISymbol> resolve(SymbolSearch search) {
-    return scopeStack.peek().resolve(search);
   }
 
   /**

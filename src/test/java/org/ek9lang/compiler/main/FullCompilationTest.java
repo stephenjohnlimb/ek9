@@ -39,6 +39,10 @@ abstract class FullCompilationTest {
   protected void assertPreConditions(CompilableProgram program) {
   }
 
+  protected boolean errorOnDirectiveErrors() {
+    return true;
+  }
+
   protected abstract void assertFinalResults(final boolean compilationResult,
                                              final int numberOfErrors,
                                              final CompilableProgram program);
@@ -78,12 +82,13 @@ abstract class FullCompilationTest {
     //Now also contains the types and locations of the errors we are looking for.
 
     //Dump all the symbols for all modules.
-
-    if(source.getErrorListener().hasDirectiveErrors()) {
-      System.out.println("Dumping all Symbols from all Modules");
-      showAllSymbolsInAllModules.accept(sharedCompilableProgram);
+    if(errorOnDirectiveErrors()) {
+      if (source.getErrorListener().hasDirectiveErrors()) {
+        System.out.println("Dumping all Symbols from all Modules");
+        showAllSymbolsInAllModules.accept(sharedCompilableProgram);
+      }
+      assertFalse(source.getErrorListener().hasDirectiveErrors(), "There are '@' directives that have failed");
     }
-    assertFalse(source.getErrorListener().hasDirectiveErrors(), "There are '@' directives that have failed");
   }
 
   protected void testToPhase(final CompilationPhase upToPhase) {

@@ -2,7 +2,6 @@ package org.ek9lang.compiler.support;
 
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
-import org.ek9lang.compiler.tokenizer.SyntheticToken;
 
 /**
  * Provides basic interface for the EK9 internal @ type directives.
@@ -35,7 +34,5 @@ public interface Directive {
   /**
    * Provide a token from the source, by default if not possible supply synthetic.
    */
-  default Token getDirectiveToken() {
-    return new SyntheticToken();
-  }
+  Token getDirectiveToken();
 }

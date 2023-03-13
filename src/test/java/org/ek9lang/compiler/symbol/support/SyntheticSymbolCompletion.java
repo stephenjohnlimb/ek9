@@ -20,6 +20,16 @@ public class SyntheticSymbolCompletion implements BiFunction<ISymbol, String, IS
           public String getFileName() {
             return "syntheticSource.ek9";
           }
+
+          @Override
+          public boolean isDev() {
+            return false;
+          }
+
+          @Override
+          public boolean isLib() {
+            return false;
+          }
         };
       }
 

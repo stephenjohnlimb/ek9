@@ -265,7 +265,7 @@ httpVerb
     ;
 
 enumerationDeclaration
-    : (Identifier COMMA? NL+)+
+    : (directive? Identifier COMMA? NL+)+
     ;
 
 constrainDeclaration
