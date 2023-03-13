@@ -1,10 +1,9 @@
 package org.ek9lang.compiler.support;
 
 import java.io.IOException;
-import org.antlr.v4.runtime.CharStream;
+import java.io.InputStream;
 import org.antlr.v4.runtime.Lexer;
-import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.tokenizer.Ek9Lexer;
+import org.ek9lang.compiler.tokenizer.Ek9LexerForInput;
 import org.ek9lang.core.utils.Logger;
 
 /**
@@ -34,8 +33,9 @@ public class Ek9Support extends AntlrSupport {
   }
 
   @Override
-  protected Lexer getLexer(CharStream input, String sourceName) {
-    return new Ek9Lexer(input, EK9Parser.INDENT, EK9Parser.DEDENT)
+  protected Lexer getLexer(InputStream input, String sourceName) {
+    var ek9LexerForInput = new Ek9LexerForInput();
+    return ek9LexerForInput.apply(input)
         .setPrintTokensAsSupplied(false)
         .setSourceName(sourceName);
   }

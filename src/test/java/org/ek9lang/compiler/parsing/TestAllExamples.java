@@ -6,14 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.function.Function;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.tokenizer.DelegatingLexer;
-import org.ek9lang.compiler.tokenizer.Ek9Lexer;
+import org.ek9lang.compiler.tokenizer.Ek9LexerForInput;
 import org.ek9lang.compiler.tokenizer.LexerPlugin;
 import org.ek9lang.compiler.tokenizer.TokenStreamAssessment;
 import org.ek9lang.core.utils.Logger;
@@ -24,6 +23,7 @@ import org.junit.jupiter.api.Test;
  */
 final class TestAllExamples {
 
+  private final Ek9LexerForInput ek9LexerForInput = new Ek9LexerForInput();
   /**
    * Function just to convert File to file name, ready for output.
    */
@@ -37,14 +37,13 @@ final class TestAllExamples {
   private final Function<File, String> readabilityAssessor = ek9SourceFile -> {
     try (var is = new FileInputStream(ek9SourceFile)) {
       ErrorListener errorListener = new ErrorListener(ek9SourceFile.getName());
-      LexerPlugin lexer = getEK9Lexer(CharStreams.fromStream(is));
+      LexerPlugin lexer = getEK9Lexer(is);
       lexer.removeErrorListeners();
       lexer.addErrorListener(errorListener);
 
       String readability = new TokenStreamAssessment().assess(lexer, false);
       return "Readability of " + ek9SourceFile.getName() + " is " + readability;
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       throw new RuntimeException((ex));
     }
   };
@@ -60,7 +59,7 @@ final class TestAllExamples {
         .forEach(System.out::println);
 
     var after = System.currentTimeMillis();
-    System.out.println("Time taken for testValidEK9ExampleSource " + (after-before) + " ms");
+    System.out.println("Time taken for testValidEK9ExampleSource " + (after - before) + " ms");
   }
 
   @Test
@@ -76,7 +75,7 @@ final class TestAllExamples {
     return ek9SourceFile -> {
       try (var is = new FileInputStream(ek9SourceFile)) {
         ErrorListener errorListener = new ErrorListener(ek9SourceFile.getName());
-        LexerPlugin lexer = getEK9Lexer(CharStreams.fromStream(is));
+        LexerPlugin lexer = getEK9Lexer(is);
         lexer.removeErrorListeners();
         lexer.addErrorListener(errorListener);
 
@@ -98,20 +97,18 @@ final class TestAllExamples {
           assertTrue(errorListener.isErrorFree(),
               "Parsing of " + ek9SourceFile.getName() + " failed");
           assertNotNull(context);
-        }
-        else {
+        } else {
           assertFalse(errorListener.isErrorFree(),
               "Parsing of " + ek9SourceFile.getName() + " should have failed");
         }
         return ek9SourceFile;
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
         throw new RuntimeException(ex);
       }
     };
   }
 
-  private LexerPlugin getEK9Lexer(CharStream charStream) {
-    return new DelegatingLexer(new Ek9Lexer(charStream, EK9Parser.INDENT, EK9Parser.DEDENT));
+  private LexerPlugin getEK9Lexer(InputStream inputStream) {
+    return new DelegatingLexer(ek9LexerForInput.apply(inputStream));
   }
 }

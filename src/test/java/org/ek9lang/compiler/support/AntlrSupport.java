@@ -1,7 +1,9 @@
 package org.ek9lang.compiler.support;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
@@ -59,14 +61,14 @@ public abstract class AntlrSupport {
     }
   }
 
-  protected abstract Lexer getLexer(CharStream input, String sourceName);
+  protected abstract Lexer getLexer(InputStream input, String sourceName);
 
   protected abstract String getGrammarName();
 
   private void streamLexerTokensFor(String inputFileName)
       throws IOException, IllegalArgumentException, SecurityException {
     LexerPlugin lexer1 = new DelegatingLexer(
-        (LexerPlugin) getLexer(CharStreams.fromFileName(inputFileName), inputFileName));
+        (LexerPlugin) getLexer(new FileInputStream(inputFileName), inputFileName));
     new TokenStreamAssessment().assess(lexer1, true);
   }
 

@@ -3,13 +3,13 @@ package org.ek9lang.compiler.support;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.antlr.EK9Parser.CompilationUnitContext;
 import org.ek9lang.cli.support.Ek9SourceVisitor;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.tokenizer.Ek9Lexer;
+import org.ek9lang.compiler.tokenizer.Ek9LexerForInput;
 import org.ek9lang.core.utils.Logger;
 import org.ek9lang.core.utils.OsSupport;
 
@@ -19,6 +19,8 @@ import org.ek9lang.core.utils.OsSupport;
  */
 public class JustParser {
   private final OsSupport osSupport = new OsSupport();
+
+  private final Ek9LexerForInput ek9LexerForInput = new Ek9LexerForInput();
 
   /**
    * Read the source file using the visitor supplied.
@@ -32,8 +34,7 @@ public class JustParser {
       try (InputStream inputStream = new FileInputStream(sourceFile)) {
         ErrorListener errorListener = new ErrorListener(sourceFile.getName());
 
-        Ek9Lexer lex =
-            new Ek9Lexer(CharStreams.fromStream(inputStream), EK9Parser.INDENT, EK9Parser.DEDENT);
+        Ek9Lexer lex = ek9LexerForInput.apply(inputStream);
         lex.setSourceName(sourceFile.getName());
         lex.removeErrorListeners();
         lex.addErrorListener(errorListener);

@@ -5,13 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.tokenizer.DelegatingLexer;
-import org.ek9lang.compiler.tokenizer.Ek9Lexer;
 import org.ek9lang.compiler.tokenizer.LexerPlugin;
 import org.ek9lang.compiler.tokenizer.LexingBase;
 import org.ek9lang.core.utils.Logger;
@@ -22,15 +19,16 @@ import org.junit.jupiter.api.Test;
  * Now move beyond lexing, to parsing content.
  */
 public abstract class ParsingBase extends LexingBase {
+
   private final ErrorListener errorListener = new ErrorListener("test");
   private EK9Parser underTest;
 
   @BeforeEach
-  public void loadTokenStreamInParser() throws Exception {
+  public void loadTokenStreamInParser() {
     InputStream inputStream = getClass().getResourceAsStream(getEK9FileName());
     assertNotNull(inputStream, "Read File");
 
-    LexerPlugin lexer = getEK9Lexer(CharStreams.fromStream(inputStream));
+    LexerPlugin lexer = getEK9Lexer(inputStream);
     lexer.removeErrorListeners();
     lexer.addErrorListener(errorListener);
 
@@ -40,8 +38,8 @@ public abstract class ParsingBase extends LexingBase {
   }
 
   @Override
-  protected LexerPlugin getEK9Lexer(CharStream charStream) {
-    return new DelegatingLexer(new Ek9Lexer(charStream, EK9Parser.INDENT, EK9Parser.DEDENT));
+  protected LexerPlugin getEK9Lexer(InputStream inputStream) {
+    return new DelegatingLexer(ek9LexerForInput.apply(inputStream));
   }
 
   @Test

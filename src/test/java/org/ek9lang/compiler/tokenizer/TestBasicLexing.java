@@ -1,7 +1,6 @@
 package org.ek9lang.compiler.tokenizer;
 
-import org.antlr.v4.runtime.CharStream;
-import org.ek9lang.antlr.EK9Parser;
+import java.io.InputStream;
 
 /**
  * Just read a single Hello world EK9 source file and test the lexer.
@@ -13,7 +12,7 @@ final class TestBasicLexing extends LexingBase {
   }
 
   @Override
-  protected LexerPlugin getEK9Lexer(CharStream charStream) {
-    return new DelegatingLexer(new Ek9Lexer(charStream, EK9Parser.INDENT, EK9Parser.DEDENT));
+  protected LexerPlugin getEK9Lexer(InputStream inputStream) {
+    return new DelegatingLexer(ek9LexerForInput.apply(inputStream));
   }
 }

@@ -8,12 +8,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.tokenizer.Ek9Lexer;
+import org.ek9lang.compiler.tokenizer.Ek9LexerForInput;
 import org.ek9lang.compiler.tokenizer.TokenConsumptionListener;
 import org.ek9lang.compiler.tokenizer.TokenResult;
 import org.ek9lang.core.exception.AssertValue;
@@ -27,6 +27,9 @@ import org.ek9lang.core.utils.Digest;
  * generated.
  */
 public final class CompilableSource implements Source, TokenConsumptionListener {
+
+  private final Ek9LexerForInput ek9LexerForInput = new Ek9LexerForInput();
+
   // This is the full path to the filename.
   private final String filename;
 
@@ -245,22 +248,19 @@ public final class CompilableSource implements Source, TokenConsumptionListener 
    * Prepare to parse but with a provided input stream of what to parse.
    */
   public CompilableSource prepareToParse(final InputStream inputStream) {
-    try {
-      //So make a new error listener to get all the errors
-      setErrorListener(new ErrorListener(getGeneralIdentifier()));
-      //we will set the parsed module once parsed.
-      Ek9Lexer lexer = new Ek9Lexer(CharStreams.fromStream(inputStream), EK9Parser.INDENT,
-          EK9Parser.DEDENT).setSourceName(filename);
-      lexer.setTokenListener(this);
-      parser = new EK9Parser(new CommonTokenStream(lexer));
-      lexer.removeErrorListeners();
-      lexer.addErrorListener(errorListener);
-      parser.removeErrorListeners();
-      parser.addErrorListener(errorListener);
-      return this;
-    } catch (Exception ex) {
-      throw new CompilerException("Unable to parse file " + filename, ex);
-    }
+    //So make a new error listener to get all the errors
+    setErrorListener(new ErrorListener(getGeneralIdentifier()));
+
+    Ek9Lexer lexer = ek9LexerForInput.apply(inputStream);
+    //we will set the parsed module once parsed.
+    lexer.setSourceName(filename);
+    lexer.setTokenListener(this);
+    parser = new EK9Parser(new CommonTokenStream(lexer));
+    lexer.removeErrorListeners();
+    lexer.addErrorListener(errorListener);
+    parser.removeErrorListeners();
+    parser.addErrorListener(errorListener);
+    return this;
   }
 
   public CompilableSource completeParsing() {
