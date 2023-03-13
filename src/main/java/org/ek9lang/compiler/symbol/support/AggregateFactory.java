@@ -407,7 +407,6 @@ public class AggregateFactory {
     method.setAccessModifier("public");
     method.setMarkedPure(true);
     method.setOperator(true);
-    method.setVirtual(false);
     return method;
   }
 
@@ -429,7 +428,6 @@ public class AggregateFactory {
     operator.setAccessModifier("public");
     operator.setMarkedPure(isPure);
     operator.setOperator(true);
-    operator.setVirtual(false);
 
     operator.define(paramT);
     //returns the same type as itself

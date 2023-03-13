@@ -57,11 +57,6 @@ public class MethodSymbol extends ScopedSymbol {
   private boolean markedAsDispatcher = false;
 
   /**
-   * We may or may not alter if it was abstract by setting this virtual value.
-   */
-  private boolean virtual = false;
-
-  /**
    * Should this method be cloned during a clone operation like for type defines.
    */
   private boolean markedNoClone = false;
@@ -148,7 +143,6 @@ public class MethodSymbol extends ScopedSymbol {
     newCopy.markedAbstract = this.markedAbstract;
     newCopy.markedPure = this.markedPure;
     newCopy.markedAsDispatcher = this.markedAsDispatcher;
-    newCopy.virtual = this.virtual;
     newCopy.markedNoClone = this.markedNoClone;
     newCopy.synthetic = this.synthetic;
     newCopy.ek9ReturnsThis = this.ek9ReturnsThis;
@@ -230,7 +224,6 @@ public class MethodSymbol extends ScopedSymbol {
     //now this also means a couple of other things
     this.setOverride(true);
     this.setMarkedAbstract(false);
-    this.setVirtual(false);
   }
 
   public boolean isEk9ReturnsThis() {
@@ -269,14 +262,6 @@ public class MethodSymbol extends ScopedSymbol {
 
   public boolean isNotMarkedAbstract() {
     return !markedAbstract;
-  }
-
-  public boolean isVirtual() {
-    return virtual;
-  }
-
-  public void setVirtual(boolean virtual) {
-    this.virtual = virtual;
   }
 
   @Override
@@ -410,12 +395,6 @@ public class MethodSymbol extends ScopedSymbol {
   @Override
   public String toString() {
     StringBuilder buffer = new StringBuilder();
-
-    //for to string we want a bit of extra info here that we don't show end user.
-    //but good for debugging.
-    if (this.virtual) {
-      buffer.append("virtual ");
-    }
 
     buffer.append(getFriendlyName());
 

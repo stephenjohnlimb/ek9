@@ -92,15 +92,6 @@ public interface IAggregateSymbol extends ICanCaptureVariables, IScopedSymbol {
   void setOpenForExtension(boolean open);
 
   /**
-   * Can be mandated to be virtual even if all methods are implemented.
-   *
-   * @return true if forced to be virtual.
-   */
-  boolean isVirtual();
-
-  void setVirtual(boolean virtual);
-
-  /**
    * Resolve for matching methods and add matches to result.
    * Idea is to be able to gather all these up and ensure only one single good result i.e.
    * matching methods does exist and one single method matches best. Else ambiguity or no match.

@@ -250,7 +250,6 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertFalse(toStringOnE.isUsedAsProxyForDelegate());
     assertTrue(toStringOnF.isUsedAsProxyForDelegate());
     assertTrue(toStringOnF.isOverride());
-    assertFalse(toStringOnF.isVirtual());
     assertEquals("theDelegate", toStringOnF.getUsedAsProxyForDelegate());
   }
 
@@ -281,7 +280,6 @@ final class SymbolsTest extends AbstractSymbolTestBase {
         symbolTable.resolve(new TypeSymbolSearch("Boolean")));
 
     assertFalse(comparator.isSynthetic());
-    assertFalse(comparator.isVirtual());
     assertFalse(comparator.isConstructor());
     assertFalse(comparator.isOverride());
     assertFalse(comparator.isPrivate());

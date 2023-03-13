@@ -69,15 +69,6 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, I
   private boolean markedAbstract = false;
 
   /**
-   * Now an aggregate might not have been marked as abstract.
-   * But it might have on inherit some methods that are abstract.
-   * In such cases we force this aggregate to be marked as virtual.
-   * We can then do simple analysis and indicate the aggregate must
-   * be marked as abstract by the developer.
-   */
-  private boolean forceVirtual = false;
-
-  /**
    * Can this aggregate be injected by IOC/DI.
    */
   private boolean injectable = false;
@@ -167,7 +158,6 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, I
 
     newCopy.subAggregateScopedSymbols.addAll(subAggregateScopedSymbols);
     newCopy.markedAbstract = markedAbstract;
-    newCopy.forceVirtual = forceVirtual;
     newCopy.injectable = injectable;
     newCopy.openForExtension = openForExtension;
 
@@ -281,16 +271,6 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, I
 
   public void setMarkedAbstract(boolean markedAbstract) {
     this.markedAbstract = markedAbstract;
-  }
-
-  @Override
-  public boolean isVirtual() {
-    return forceVirtual;
-  }
-
-  @Override
-  public void setVirtual(boolean virtual) {
-    this.forceVirtual = virtual;
   }
 
   @Override
