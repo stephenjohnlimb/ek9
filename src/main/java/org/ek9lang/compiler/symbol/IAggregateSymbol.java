@@ -10,7 +10,7 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 /**
  * Interface for an aggregate, typically a class or something like that.
  */
-public interface IAggregateSymbol extends ICanCaptureVariables, IScopedSymbol {
+public interface IAggregateSymbol extends IScopedSymbol {
   /**
    * The module scope this aggregate has been defined in.
    *
@@ -104,6 +104,7 @@ public interface IAggregateSymbol extends ICanCaptureVariables, IScopedSymbol {
 
   Optional<IAggregateSymbol> getSuperAggregateScopedSymbol();
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   void setSuperAggregateScopedSymbol(Optional<IAggregateSymbol> superAggregateScopedSymbol);
 
   void setSuperAggregateScopedSymbol(IAggregateSymbol superAggregateScopedSymbol);

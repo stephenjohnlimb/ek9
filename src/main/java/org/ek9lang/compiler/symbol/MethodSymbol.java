@@ -104,6 +104,7 @@ public class MethodSymbol extends ScopedSymbol {
   /**
    * Create  new method symbol of a specific name with an enclosing scope (i.e. a class).
    */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public MethodSymbol(String name, Optional<ISymbol> type, IScope enclosingScope) {
     super(name, type, enclosingScope);
     super.setCategory(SymbolCategory.METHOD);
@@ -162,11 +163,11 @@ public class MethodSymbol extends ScopedSymbol {
 
   @Override
   public Optional<ISymbol> resolve(SymbolSearch search) {
-    //This will now also check the returning symbol (if present)
-    if (this.isReturningSymbolPresent() && returningSymbol.getName().equals(search.getName())) {
-      return Optional.of(returningSymbol);
+    var rtn = resolveInThisScopeOnly(search);
+    if (rtn.isEmpty()) {
+      rtn = super.resolve(search);
     }
-    return super.resolve(search);
+    return rtn;
   }
 
   public boolean isSynthetic() {
@@ -374,6 +375,7 @@ public class MethodSymbol extends ScopedSymbol {
     return doGetFriendlyName(super.getName(), this.getType());
   }
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   protected String doGetFriendlyName(String withName, Optional<ISymbol> theType) {
     StringBuilder buffer = new StringBuilder();
     if (this.isOverride()) {
@@ -394,10 +396,6 @@ public class MethodSymbol extends ScopedSymbol {
 
   @Override
   public String toString() {
-    StringBuilder buffer = new StringBuilder();
-
-    buffer.append(getFriendlyName());
-
-    return buffer.toString();
+    return getFriendlyName();
   }
 }

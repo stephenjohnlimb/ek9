@@ -29,6 +29,7 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
     super(name, enclosingScope);
   }
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public AggregateWithTraitsSymbol(String name, Optional<ISymbol> type, IScope enclosingScope) {
     super(name, type, enclosingScope);
   }
@@ -291,7 +292,7 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
    * Look in our traits first then go to the normal AggregateSymbol resolution.
    */
   @Override
-  protected Optional<ISymbol> resolveWithParentScope(SymbolSearch search) {
+  public Optional<ISymbol> resolveWithParentScope(SymbolSearch search) {
     Optional<ISymbol> rtn = resolveInTraits(search);
 
     if (rtn.isEmpty()) {

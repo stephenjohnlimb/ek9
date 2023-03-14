@@ -157,10 +157,10 @@ public class Ek9Lexer extends EK9LexerRules implements LexerPlugin {
       case Identifier, BooleanLiteral, IntegerLiteral, StringLiteral, FloatingPointLiteral,
           CharacterLiteral, TimeLiteral, DateLiteral, DateTimeLiteral, DurationLiteral,
           MillisecondLiteral, RBRACE, RBRACK, RPAREN ->
-        // After any of the tokens above, no regex literal can follow.
+          // After any of the tokens above, no regex literal can follow.
           false;
       default ->
-        // In all other cases, a regex literal _is_ possible.
+          // In all other cases, a regex literal _is_ possible.
           true;
     };
   }

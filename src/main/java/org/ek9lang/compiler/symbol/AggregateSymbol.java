@@ -26,22 +26,22 @@ import org.ek9lang.core.exception.CompilerException;
  * defined in the same module or if another module is drawn in through
  * 'references'.
  * In reality (when creating the Java code) the constants and types can just be
- * public statics on a class. For example module the.mod that defines Constants
+ * public statics on a class. For example module "the.mod" that defines Constants
  * could have a class called the.mod._Constants with public final statics
  * defined.
  * So there are two ways to resolve references first is module scope and second
  * is super class type scope.
  */
-public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, ICanBeGeneric {
-
-  /**
-   * Also keep a back pointer to the direct subclasses.
-   * This is really useful for analysing a class or a trait.
-   */
-  private final List<IAggregateSymbol> subAggregateScopedSymbols = new ArrayList<>();
+public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
 
   //This is the module this aggregate has been defined in.
   private IScope moduleScope;
+
+  /**
+   * Might be null if a base 'class' or 'interface', basically the 'super'.
+   */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+  private Optional<IAggregateSymbol> superAggregateScopedSymbol = Optional.empty();
 
   /**
    * Just used in commented output really - just handy to understand the origin of the aggregate
@@ -50,7 +50,19 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, I
   private String aggregateDescription;
 
   /**
+   * Also keep a back pointer to the direct subclasses.
+   * This is really useful for analysing a class or a trait.
+   */
+  private final List<IAggregateSymbol> subAggregateScopedSymbols = new ArrayList<>();
+
+  /**
    * This is actually a 'T' itself - we will need to know this.
+   * So we use an aggregate symbol to model the 'S' and 'T' conceptual types.
+   * These are 'synthetic' in nature but do have 'synthetic' operators, so that
+   * generic/template classes/functions can 'assume' certain operators and operations.
+   * Only when the generic type is actually parameterised with a 'concrete' type does the
+   * compiler check that the generic class/function that used the operators can be used with
+   * the actual concrete type.
    */
   private boolean genericTypeParameter;
 
@@ -58,10 +70,6 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, I
    * If there is a method that acts as a dispatcher then this aggregate is also a dispatcher.
    */
   private boolean markedAsDispatcher = false;
-  /**
-   * Might always be null if a base 'class' or 'interface'.
-   */
-  private Optional<IAggregateSymbol> superAggregateScopedSymbol = Optional.empty();
 
   /**
    * Was the aggregate marked as abstract in the source code.
@@ -83,43 +91,27 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, I
    * When used in pipeline processing, what is the type this aggregate could
    * support to receive types.
    */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private Optional<String> pipeSinkType = Optional.empty();
 
   /**
    * When used in pipeline processing, what is the type this aggregate could
    * support to create types.
    */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private Optional<String> pipeSourceType = Optional.empty();
-
-  /**
-   * For dynamic classes we can capture variables from the enclosing scope(s) and pull them in
-   * We can then hold and access them in the dynamic class even when the class has moved out of
-   * the original scope. i.e. a sort of closure over a variable - but has to be declared and is
-   * not implicit like java/other languages.
-   */
-  private Optional<LocalScope> capturedVariables = Optional.empty();
-
-  /*
-   * For built-in or reverse engineered aggregates we need to know if "_get()" of object as itself
-   * is supported; so we can create the IR output.
-   * This is typically needed if we want to use these aggregates in pipelines.
-   * Though this will be rationalised with an iterator that just returns an iterator or one item
-   * of itself. getOfSelfSupported = false
-   */
 
   /**
    * A simple straight forward aggregate type, like a class or record.
    */
   public AggregateSymbol(String name, IScope enclosingScope) {
-    super(name, enclosingScope);
-    super.setCategory(SymbolCategory.TYPE);
-    super.setScopeType(ScopeType.NON_BLOCK);
-    super.setProduceFullyQualifiedName(true);
+    this(name, Optional.empty(), enclosingScope);
   }
 
   /**
    * A simple straight forward aggregate type, like a class or record.
    */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public AggregateSymbol(String name, Optional<ISymbol> type, IScope enclosingScope) {
     super(name, type, enclosingScope);
     super.setCategory(SymbolCategory.TYPE);
@@ -165,45 +157,15 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, I
 
     pipeSourceType.ifPresent(s -> newCopy.pipeSourceType = Optional.of(s));
 
-    if (capturedVariables.isPresent()) {
-      LocalScope newCaptureScope = new LocalScope("CaptureScope", getEnclosingScope());
-      capturedVariables.get().cloneIntoLocalScope(newCaptureScope);
-      newCopy.setCapturedVariables(newCaptureScope);
-    }
-
     return newCopy;
   }
 
-  /**
-   * If used in dynamic form, this will return the scope with any dynamic variables
-   * that we captured at definition.
-   *
-   * @return An optional of a scope containing zero or more captured variables.
-   */
   @Override
-  public Optional<LocalScope> getCapturedVariables() {
-    return capturedVariables;
-  }
-
-  /**
-   * When used in a dynamic style aggregate to set the variables that have been captured.
-   *
-   * @param capturedVariables The scope with the captured variables in.
-   */
-  @Override
-  public void setCapturedVariables(LocalScope capturedVariables) {
-    this.capturedVariables = Optional.ofNullable(capturedVariables);
-  }
-
-  /**
-   * Attempt to resolve a named variable but exclude looking any captured variables.
-   *
-   * @param search The symbol search to use to find the variable.
-   * @return An optional match if one is found.
-   */
-  @Override
-  public Optional<ISymbol> resolveExcludingCapturedVariables(SymbolSearch search) {
-    return super.resolveInThisScopeOnly(search);
+  protected Optional<IScope> getAnySuperTypeOrFunction() {
+    if (this.superAggregateScopedSymbol.isPresent()) {
+      return Optional.of(superAggregateScopedSymbol.get());
+    }
+    return Optional.empty();
   }
 
   /**
@@ -236,6 +198,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, I
     return pipeSinkType;
   }
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public void setPipeSinkType(Optional<String> pipeSinkType) {
     this.pipeSinkType = pipeSinkType;
   }
@@ -244,6 +207,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, I
     return pipeSourceType;
   }
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public void setPipeSourceType(Optional<String> pipeSourceType) {
     this.pipeSourceType = pipeSourceType;
   }
@@ -282,7 +246,6 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, I
     this.injectable = injectable;
   }
 
-
   /**
    * Is this aggregate itself a generic type that has been used as a parameter.
    */
@@ -299,13 +262,13 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, I
   }
 
   /**
-   * Parameterize this with an aggregate type.
+   * Make this a template/generic type by adding one or more Parameterised types.
+   * This now becomes a TEMPLATE_TYPE, rather than just a plain TYPE.
    */
   @Override
   public void addParameterisedType(AggregateSymbol parameterisedType) {
     super.addParameterisedType(parameterisedType);
     super.setCategory(SymbolCategory.TEMPLATE_TYPE);
-
   }
 
   public List<IAggregateSymbol> getSubAggregateScopedSymbols() {
@@ -313,7 +276,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, I
   }
 
   /**
-   * We note down any sub types this type is used with.
+   * We note down any subtypes this type is used with.
    */
   public void addSubAggregateScopedSymbol(IAggregateSymbol sub) {
     if (!subAggregateScopedSymbols.contains(sub)) {
@@ -573,59 +536,17 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol, I
     return rtn;
   }
 
-  @Override
-  public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search) {
-    Optional<ISymbol> rtn = super.resolveInThisScopeOnly(search);
-    //But note we limit the search in the captured vars to that scope only.
-    //no looking up the enclosing scopes just the capture scope!
-    if (rtn.isEmpty() && capturedVariables.isPresent()) {
-      rtn = capturedVariables.get().resolveInThisScopeOnly(search);
-    }
-
-    return rtn;
-  }
-
-  /**
-   * Resolve using super aggregate.
-   */
-  protected Optional<ISymbol> resolveWithParentScope(SymbolSearch search) {
-    Optional<ISymbol> rtn = Optional.empty();
-
-    //So we keep going back up the class hierarchy until no more supers then.
-    //When we get to the final aggregate we use the scopedSymbol local and back up to
-    //global symbol table.
-    if (superAggregateScopedSymbol.isPresent()) {
-      rtn = superAggregateScopedSymbol.get().resolve(search);
-    }
-
-    if (rtn.isEmpty()) {
-      rtn = super.resolve(search);
-    }
-
-    return rtn;
-  }
-
   /**
    * So this is where we alter the mechanism of normal symbol resolution.
    */
   @Override
   public Optional<ISymbol> resolve(SymbolSearch search) {
-    Optional<ISymbol> rtn = Optional.empty();
-    //Now if this is a generic type class we might need to resolve the name of the type 'T' or 'S'
-    //or whatever for example
-    if (isGenericInNature() && (search.getSearchType() == null || SymbolCategory.TYPE.equals(search.getSearchType()))) {
-      for (ISymbol parameterisedType : getParameterisedTypes()) {
-        if (parameterisedType.isAssignableTo(search.getAsSymbol())) {
-          rtn = Optional.of(parameterisedType);
-        }
-      }
-    }
+    Optional<ISymbol> rtn = resolveFromParameterisedTypes(search);
 
-    //Now see if it is defined in this aggregate.
     if (rtn.isEmpty()) {
       rtn = resolveInThisScopeOnly(search);
     }
-    //if not then resolve with parent scope which could be super or back up scope tree
+
     if (rtn.isEmpty()) {
       rtn = resolveWithParentScope(search);
     }

@@ -3,7 +3,6 @@ package org.ek9lang.compiler.symbol;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 
 /**
@@ -12,9 +11,19 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
  * way we like i.e. classes.
  * We need to ensure that any functions we extend have the same method signature.
  */
-public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables, ICanBeGeneric {
+public class FunctionSymbol extends MethodSymbol {
+
   //This is the module this function has been defined in.
   private IScope moduleScope;
+
+  /**
+   * To be used when this function extends an abstract function.
+   * So we want the same method signature as the abstract function but this provides the
+   * implementation.
+   * It is sort of object-oriented but for functions.
+   */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+  private Optional<FunctionSymbol> superFunctionSymbol = Optional.empty();
 
   /**
    * For Functions symbols we keep a handle on the context where the returning param (if any)
@@ -24,21 +33,6 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
    * there is only one name for that function just the parameters and returns alter.
    */
   private EK9Parser.ReturningParamContext returningParamContext;
-
-  /**
-   * To be used when this function extends an abstract function.
-   * So we want the same method signature as the abstract function but this provides the
-   * implementation.
-   * It is sort of object-oriented but for functions.
-   */
-  private Optional<FunctionSymbol> superFunctionSymbol = Optional.empty();
-
-  /**
-   * For dynamic functions we can capture variables from the enclosing scope(s) and pull them in.
-   * We can then hold and access them in the dynamic function even when the function has moved
-   * out of the original scope. i.e. a sort of closure over variables.
-   */
-  private Optional<LocalScope> capturedVariables = Optional.empty();
 
   /**
    * Create a new Function Symbol with a specific unique name (in the enclosing scope).
@@ -74,11 +68,6 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
     superFunctionSymbol.ifPresent(
         functionSymbol -> newCopy.superFunctionSymbol = Optional.of(functionSymbol));
 
-    if (capturedVariables.isPresent()) {
-      LocalScope newCaptureScope = new LocalScope("CaptureScope", getEnclosingScope());
-      capturedVariables.get().cloneIntoLocalScope(newCaptureScope);
-      newCopy.setCapturedVariables(newCaptureScope);
-    }
     return newCopy;
   }
 
@@ -89,12 +78,12 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
     if (function == this) {
       return true;
     }
-    if (superFunctionSymbol.isPresent()) {
-      return superFunctionSymbol.get().isImplementingInSomeWay(function);
-    }
-    return false;
+    return superFunctionSymbol.map(functionSymbol -> functionSymbol.isImplementingInSomeWay(function)).orElse(false);
   }
 
+  /**
+   * By adding a parameterised type this Function stops being a FUNCTION and becomes a TEMPLATE_FUNCTION.
+   */
   @Override
   public void addParameterisedType(AggregateSymbol parameterisedType) {
     super.addParameterisedType(parameterisedType);
@@ -117,38 +106,19 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
     this.moduleScope = moduleScope;
   }
 
-  public Optional<LocalScope> getCapturedVariables() {
-    return capturedVariables;
-  }
-
-  /**
-   * It is possible to capture variables in the current scope and pull them into the
-   * function, so they can be used.
-   */
-  public void setCapturedVariables(LocalScope capturedVariables) {
-    setCapturedVariables(Optional.ofNullable(capturedVariables));
-  }
-
-  public void setCapturedVariables(Optional<LocalScope> capturedVariables) {
-    this.capturedVariables = capturedVariables;
-  }
-
-  /**
-   * The variables that have been captured can be given public access if needed.
-   */
-  public void setCapturedVariablesVisibility(final boolean isPublic) {
-    capturedVariables.ifPresent(
-        localScope -> localScope.getSymbolsForThisScope().forEach(symbol -> {
-          if (symbol instanceof VariableSymbol s) {
-            s.setPrivate(!isPublic);
-          }
-        }));
+  @Override
+  protected Optional<IScope> getAnySuperTypeOrFunction() {
+    if (this.superFunctionSymbol.isPresent()) {
+      return Optional.of(superFunctionSymbol.get());
+    }
+    return Optional.empty();
   }
 
   public Optional<FunctionSymbol> getSuperFunctionSymbol() {
     return superFunctionSymbol;
   }
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public void setSuperFunctionSymbol(Optional<FunctionSymbol> superFunctionSymbol) {
     this.superFunctionSymbol = superFunctionSymbol;
   }
@@ -175,13 +145,6 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
         .orElse(-1.0);
   }
 
-  private String getPrivateVariablesForDisplay() {
-    return capturedVariables
-        .map(scope -> "dynamic function"
-            + CommonParameterisedTypeDetails.asCommaSeparated(scope.getSymbolsForThisScope(), true))
-        .orElse(super.getName());
-  }
-
   @Override
   public String getFriendlyScopeName() {
     return getFriendlyName();
@@ -191,8 +154,10 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
   public String getFriendlyName() {
     Optional<ISymbol> returningSymbolType =
         getReturningSymbol() != null ? getReturningSymbol().getType() : Optional.empty();
+    var prefix = getName().isEmpty() ? "dynamic function" : getName();
     var name =
-        doGetFriendlyName(getPrivateVariablesForDisplay(), returningSymbolType) + getAnyGenericParamsAsFriendlyNames();
+        doGetFriendlyName(prefix + getPrivateVariablesForDisplay(), returningSymbolType)
+            + getAnyGenericParamsAsFriendlyNames();
 
     return superFunctionSymbol.map(s -> name + " is " + s.getName()).orElse(name);
   }
@@ -204,65 +169,17 @@ public class FunctionSymbol extends MethodSymbol implements ICanCaptureVariables
   }
 
   @Override
-  public Optional<ISymbol> resolveExcludingCapturedVariables(SymbolSearch search) {
-    return super.resolveInThisScopeOnly(search);
-  }
-
-  @Override
-  public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search) {
-    //first check normally
-    //i.e. the params on the function call and anything declared in the function body
-    Optional<ISymbol> rtn = super.resolveInThisScopeOnly(search);
-    if (rtn.isEmpty() && capturedVariables.isPresent()) {
-      rtn = capturedVariables.get().resolveInThisScopeOnly(search);
-    }
-
-    return rtn;
-  }
-
-  @Override
   public Optional<ISymbol> resolve(SymbolSearch search) {
-    //So a bit complex in how we resolve variables in functions
-    //because we want to be able to resolve parametric types, general types, scope module items
-    //captured variables and method params.
-    //But not stuff from the scope where the function as defined (captured gets passed-in).
-    //But in some cases we need to resolve a generic type like T as it was used in a parent
-    //class or function!
+    Optional<ISymbol> rtn = resolveFromParameterisedTypes(search);
 
-    Optional<ISymbol> rtn = Optional.empty();
-    //Now if this is a generic type class we might need to resolve the name of
-    //the type 'T' or 'S' or whatever for example
-    if (isGenericInNature() && (search.getSearchType() == null || SymbolCategory.TYPE.equals(search.getSearchType()))) {
-      for (ISymbol parameterisedType : getParameterisedTypes()) {
-        if (parameterisedType.isAssignableTo(search.getAsSymbol())) {
-          rtn = Optional.of(parameterisedType);
-        }
-      }
-    }
-
-    //But note we limit the search in the captured vars to that scope only.
-    //No looking up the enclosing scopes just the capture scope!
-    if (rtn.isEmpty() && capturedVariables.isPresent()) {
-      rtn = capturedVariables.get().resolveInThisScopeOnly(search);
-    }
-
-    //Now here we must resolve some things but not others in specific ways
     if (rtn.isEmpty()) {
-      rtn = super.resolveInThisScopeOnly(search); // check for parameters
+      rtn = resolveInThisScopeOnly(search);
     }
 
-    //check for general types
-    if (rtn.isEmpty() && moduleScope != null) {
-      rtn = moduleScope.resolve(search);
-    }
-
-    //only now do we check up the enclosing scope and for a generic function that could have
-    //a generic type defined but that is all we are allowed.
-    //So if we need to resolve stuff in the enclosing scope and that scope is a class of a function
-    //that is generic then S T or whatever well be resolvable; and we need that in this case.
     if (rtn.isEmpty()) {
-      return super.getEnclosingScope().resolve(search);
+      rtn = resolveWithParentScope(search);
     }
+
     return rtn;
   }
 }

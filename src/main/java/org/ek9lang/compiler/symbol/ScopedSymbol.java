@@ -17,6 +17,10 @@ import org.ek9lang.core.exception.AssertValue;
  * Represents a symbol that also has a scope. Typically, this means it can have variables,
  * methods and function declared within it. But also includes block scoped constructs like
  * for loops for example.
+ * It's turning into a bit of a 'bitbucket' because I don't really want duplication at the FunctionSymbol
+ * and AggregateSymbol level. So some things like CaptureVariables are not really applicable (yet).
+ * But I may use them later for other constructs and controls.
+ * I may refactor the generic bits out to a new Symbol type between ScopedSymbol and Symbol
  */
 public class ScopedSymbol extends Symbol implements IScopedSymbol {
 
@@ -30,12 +34,20 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
    * also look to replace these conceptual parameterised type symbols because they would be
    * Item of (K, V) and need to be Item of (String, Float).
    * A good example is Map of (K, V) and MapEntry of(K, V) - when you make a
-   * Map of (String, Floa)> we replace K->String, V->Float but also
+   * Map of (String, Float)> we replace K->String, V->Float but also
    * need to replace MapEntry of(<, V) with MapEntry of(String, Float).
    * YOu could also imagine a situation where you have to replace
    * Something of (Integer, V) with Something of (Integer, Float)!
    */
   private final List<ParameterisedTypeSymbol> parameterisedTypeReferences = new ArrayList<>();
+
+  /**
+   * For dynamic functions/types we can capture variables from the enclosing scope(s) and pull them in.
+   * We can then hold and access them in the dynamic function/type even when the function has moved
+   * out of the original scope. i.e. a sort of closure over variables.
+   */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+  private Optional<LocalScope> capturedVariables = Optional.empty();
 
   /**
    * Also set up the same but for generic functions.
@@ -67,6 +79,7 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
    * For some scoped symbols - dynamic functions and classes it is important to keep a
    * reference to the outermost enclosing aggregate or function.
    */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private Optional<IScopedSymbol> outerMostTypeOrFunction = Optional.empty();
 
   /**
@@ -84,6 +97,7 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
     actualScope = new LocalScope(scopeType, scopeName, enclosingScope);
   }
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public ScopedSymbol(String name, Optional<ISymbol> type, IScope enclosingScope) {
     super(name, type);
     actualScope = new LocalScope(ScopeType.BLOCK, name, enclosingScope);
@@ -92,7 +106,9 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   @Override
   public int hashCode() {
 
-    return Objects.hash(super.hashCode(), actualScope.hashCode(),
+    int captureHash = capturedVariables.map(LocalScope::hashCode).orElse(0);
+
+    return Objects.hash(super.hashCode(), captureHash, actualScope.hashCode(),
         parameterisedTypeReferences.hashCode(), parameterisedFunctionReferences.hashCode(),
         parameterisedTypes.hashCode());
   }
@@ -111,6 +127,12 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
       rtn &= CommonParameterisedTypeDetails
           .doSymbolsMatch(Collections.unmodifiableList(parameterisedTypes),
               Collections.unmodifiableList(scopedSymbol.parameterisedTypes));
+
+      if (capturedVariables.isPresent() && scopedSymbol.capturedVariables.isPresent()) {
+        rtn &= capturedVariables.get().equals(scopedSymbol.capturedVariables.get());
+      } else {
+        rtn &= capturedVariables.isEmpty() && scopedSymbol.capturedVariables.isEmpty();
+      }
     }
     return rtn;
   }
@@ -130,6 +152,11 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
     newCopy.encounteredExceptionToken = this.encounteredExceptionToken;
     getOuterMostTypeOrFunction().ifPresent(newCopy::setOuterMostTypeOrFunction);
 
+    if (capturedVariables.isPresent()) {
+      LocalScope newCaptureScope = new LocalScope("CaptureScope", getEnclosingScope());
+      capturedVariables.get().cloneIntoLocalScope(newCaptureScope);
+      newCopy.setCapturedVariables(newCaptureScope);
+    }
     return newCopy;
   }
 
@@ -139,6 +166,41 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
 
   public void setOuterMostTypeOrFunction(IScopedSymbol outerMostTypeOrFunction) {
     this.outerMostTypeOrFunction = Optional.of(outerMostTypeOrFunction);
+  }
+
+  public Optional<LocalScope> getCapturedVariables() {
+    return capturedVariables;
+  }
+
+  /**
+   * It is possible to capture variables in the current scope and pull them into the
+   * function, so they can be used.
+   */
+  public void setCapturedVariables(LocalScope capturedVariables) {
+    setCapturedVariables(Optional.ofNullable(capturedVariables));
+  }
+
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+  public void setCapturedVariables(Optional<LocalScope> capturedVariables) {
+    this.capturedVariables = capturedVariables;
+  }
+
+  /**
+   * The variables that have been captured can be given public access if needed.
+   */
+  public void setCapturedVariablesVisibility(final boolean isPublic) {
+    capturedVariables.ifPresent(
+        localScope -> localScope.getSymbolsForThisScope().forEach(symbol -> {
+          if (symbol instanceof VariableSymbol s) {
+            s.setPrivate(!isPublic);
+          }
+        }));
+  }
+
+  protected String getPrivateVariablesForDisplay() {
+    return capturedVariables
+        .map(scope -> CommonParameterisedTypeDetails.asCommaSeparated(scope.getSymbolsForThisScope(), true))
+        .orElse("");
   }
 
   public LocalScope getActualScope() {
@@ -223,6 +285,44 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
     return Collections.unmodifiableList(parameterisedTypes);
   }
 
+  /**
+   * Resolve with super type/function or via enclosing scope.
+   */
+  public Optional<ISymbol> resolveWithParentScope(SymbolSearch search) {
+    Optional<ISymbol> rtn = Optional.empty();
+
+    //So we keep going back up the class hierarchy until no more supers then.
+    //When we get to the final aggregate we use the scopedSymbol local and back up to
+    //global symbol table.
+    var theSuper = getAnySuperTypeOrFunction();
+    if (theSuper.isPresent()) {
+      rtn = theSuper.get().resolve(search);
+    }
+
+    if (rtn.isEmpty()) {
+      return getEnclosingScope().resolve(search);
+    }
+
+    return rtn;
+  }
+
+  /**
+   * Used when the type/function is one that is generic/template.
+   * It will have a number of parameterisedTypes, these are 'T' and the like.
+   * The conceptual types.
+   */
+  public Optional<ISymbol> resolveFromParameterisedTypes(final SymbolSearch search) {
+    Optional<ISymbol> rtn = Optional.empty();
+    if (isGenericInNature() && (search.getSearchType() == null || SymbolCategory.TYPE.equals(search.getSearchType()))) {
+      for (ISymbol parameterisedType : getParameterisedTypes()) {
+        if (parameterisedType.isAssignableTo(search.getAsSymbol())) {
+          rtn = Optional.of(parameterisedType);
+        }
+      }
+    }
+    return rtn;
+  }
+
   public ParserRuleContext getContextForParameterisedType() {
     return contextForParameterisedType;
   }
@@ -275,6 +375,10 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
     return actualScope.getEnclosingScope();
   }
 
+  protected Optional<IScope> getAnySuperTypeOrFunction() {
+    return Optional.empty();
+  }
+
   @Override
   public List<ISymbol> getSymbolsForThisScope() {
     return actualScope.getSymbolsForThisScope();
@@ -293,8 +397,17 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   }
 
   @Override
-  public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search) {
+  public Optional<ISymbol> resolveExcludingCapturedVariables(SymbolSearch search) {
     return actualScope.resolveInThisScopeOnly(search);
+  }
+
+  @Override
+  public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search) {
+    Optional<ISymbol> rtn = actualScope.resolveInThisScopeOnly(search);
+    if (rtn.isEmpty() && capturedVariables.isPresent()) {
+      rtn = capturedVariables.get().resolveInThisScopeOnly(search);
+    }
+    return rtn;
   }
 
   @Override
