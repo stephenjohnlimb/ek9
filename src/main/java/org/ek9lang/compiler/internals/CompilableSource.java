@@ -8,17 +8,18 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.tokenizer.Ek9Lexer;
-import org.ek9lang.compiler.tokenizer.Ek9LexerForInput;
+import org.ek9lang.compiler.tokenizer.ParserCreator;
+import org.ek9lang.compiler.tokenizer.ParserSpec;
 import org.ek9lang.compiler.tokenizer.TokenConsumptionListener;
 import org.ek9lang.compiler.tokenizer.TokenResult;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.exception.CompilerException;
 import org.ek9lang.core.utils.Digest;
+import org.ek9lang.core.utils.ExceptionConverter;
+import org.ek9lang.core.utils.Processor;
 
 /**
  * Holds a reference to the name of the file being compiled a checksum of the
@@ -28,7 +29,7 @@ import org.ek9lang.core.utils.Digest;
  */
 public final class CompilableSource implements Source, TokenConsumptionListener {
 
-  private final Ek9LexerForInput ek9LexerForInput = new Ek9LexerForInput();
+  private final ParserCreator parserCreator = new ParserCreator();
 
   // This is the full path to the filename.
   private final String filename;
@@ -226,22 +227,24 @@ public final class CompilableSource implements Source, TokenConsumptionListener 
    * Used in debugging built-in sources.
    */
   public String getSourceAsStringForDebugging() {
-    try (InputStream input = getInputStream()) {
-      return new String(input.readAllBytes());
-    } catch (Exception ex) {
-      throw new CompilerException("Unable load file " + filename, ex);
-    }
+    Processor<String> processor = () -> {
+      try (InputStream input = getInputStream()) {
+        return new String(input.readAllBytes());
+      }
+    };
+    return new ExceptionConverter<String>().apply(processor);
   }
 
   /**
    * Sets up the compilable source to be parsed.
    */
   public CompilableSource prepareToParse() {
-    try (InputStream input = getInputStream()) {
-      return prepareToParse(input);
-    } catch (Exception ex) {
-      throw new CompilerException("Unable to parse file " + filename, ex);
-    }
+    Processor<CompilableSource> processor = () -> {
+      try (InputStream input = getInputStream()) {
+        return prepareToParse(input);
+      }
+    };
+    return new ExceptionConverter<CompilableSource>().apply(processor);
   }
 
   /**
@@ -249,17 +252,11 @@ public final class CompilableSource implements Source, TokenConsumptionListener 
    */
   public CompilableSource prepareToParse(final InputStream inputStream) {
     //So make a new error listener to get all the errors
-    setErrorListener(new ErrorListener(getGeneralIdentifier()));
+    Source src = this::getGeneralIdentifier;
+    setErrorListener(new ErrorListener(src.getFileName()));
+    var spec = new ParserSpec(src, inputStream, errorListener, this);
+    parser = parserCreator.apply(spec);
 
-    Ek9Lexer lexer = ek9LexerForInput.apply(inputStream);
-    //we will set the parsed module once parsed.
-    lexer.setSourceName(filename);
-    lexer.setTokenListener(this);
-    parser = new EK9Parser(new CommonTokenStream(lexer));
-    lexer.removeErrorListeners();
-    lexer.addErrorListener(errorListener);
-    parser.removeErrorListeners();
-    parser.addErrorListener(errorListener);
     return this;
   }
 

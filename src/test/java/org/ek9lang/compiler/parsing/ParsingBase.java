@@ -8,7 +8,6 @@ import java.io.InputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.tokenizer.DelegatingLexer;
 import org.ek9lang.compiler.tokenizer.LexerPlugin;
 import org.ek9lang.compiler.tokenizer.LexingBase;
 import org.ek9lang.core.utils.Logger;
@@ -35,11 +34,6 @@ public abstract class ParsingBase extends LexingBase {
     underTest = new EK9Parser(new CommonTokenStream(lexer));
     underTest.removeErrorListeners();
     underTest.addErrorListener(errorListener);
-  }
-
-  @Override
-  protected LexerPlugin getEK9Lexer(InputStream inputStream) {
-    return new DelegatingLexer(ek9LexerForInput.apply(inputStream));
   }
 
   @Test

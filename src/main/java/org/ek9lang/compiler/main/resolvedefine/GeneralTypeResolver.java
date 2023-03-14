@@ -49,13 +49,14 @@ public class GeneralTypeResolver implements Function<SymbolSearchConfiguration, 
     if (mainSymbol.isPresent()
         && mainSymbol.get().isGenericInNature()
         && parameterizingTypeSymbols.size() == toResolve.parameterizingArguments().size()) {
+      var genericType = mainSymbol.get();
 
-      if (mainSymbol.get() instanceof AggregateSymbol genericAggregateType) {
+      if (genericType instanceof AggregateSymbol genericAggregateType) {
         var theType = createSymbolTypeToFind(genericAggregateType, parameterizingTypeSymbols);
         if (theType != null) {
           return scopeForResolution.resolve(new TypeSymbolSearch(theType.getFullyQualifiedName()));
         }
-      } else if (mainSymbol.get() instanceof FunctionSymbol genericFunction) {
+      } else if (genericType instanceof FunctionSymbol genericFunction) {
         var theFunction = createSymbolTypeToFind(genericFunction, parameterizingTypeSymbols);
         if (theFunction != null) {
           return scopeForResolution.resolve(new FunctionSymbolSearch(theFunction.getFullyQualifiedName()));

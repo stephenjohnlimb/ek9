@@ -13,19 +13,28 @@ public abstract class LexingBase {
 
   protected abstract String getEK9FileName();
 
-  protected abstract LexerPlugin getEK9Lexer(InputStream inputStream);
+
+  protected DelegatingLexer getEK9Lexer(InputStream inputStream) {
+    return new DelegatingLexer(ek9LexerForInput.apply(inputStream));
+  }
+
+
+  protected DelegatingLexer getEK9Lexer() {
+    var fileName = getEK9FileName();
+    ErrorListener errorListener = new ErrorListener(fileName);
+    InputStream inputStream = getClass().getResourceAsStream(fileName);
+    assertNotNull(inputStream);
+    var lexer = getEK9Lexer(inputStream);
+    lexer.removeErrorListeners();
+    lexer.addErrorListener(errorListener);
+
+    return lexer;
+  }
 
   @Test
   public void justLex() {
-    InputStream inputStream = getClass().getResourceAsStream(getEK9FileName());
 
-    assertNotNull(inputStream);
-
-    LexerPlugin lexer = getEK9Lexer(inputStream);
-    lexer.removeErrorListeners();
-    ErrorListener errorListener = new ErrorListener(getEK9FileName());
-
-    lexer.addErrorListener(errorListener);
+    var lexer = getEK9Lexer();
 
     String readability = new TokenStreamAssessment().assess(lexer, false);
     Logger.log("Readability of " + getEK9FileName() + " is " + readability);

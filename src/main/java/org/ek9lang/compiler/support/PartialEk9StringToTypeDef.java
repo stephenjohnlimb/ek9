@@ -1,40 +1,35 @@
 package org.ek9lang.compiler.support;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.tokenizer.Ek9Lexer;
-import org.ek9lang.compiler.tokenizer.Ek9LexerForInput;
+import org.ek9lang.compiler.internals.Source;
+import org.ek9lang.compiler.tokenizer.ParserCreator;
+import org.ek9lang.compiler.tokenizer.ParserSpec;
+import org.ek9lang.core.utils.ExceptionConverter;
+import org.ek9lang.core.utils.Processor;
 
 /**
  * Just processes a bit of some EK9 source for a simple or generic type def, to return the context.
  */
 public class PartialEk9StringToTypeDef implements Function<String, EK9Parser.TypeDefContext> {
 
-  private final Ek9LexerForInput ek9LexerForInput = new Ek9LexerForInput();
+  private final ParserCreator parserCreator = new ParserCreator();
 
   @Override
   public EK9Parser.TypeDefContext apply(String typeDefinition) {
-    final var sourceName = "in-memory.ek9";
-    try (var inputStream = new ByteArrayInputStream(typeDefinition.getBytes(StandardCharsets.UTF_8))) {
-      ErrorListener errorListener = new ErrorListener(sourceName);
-      Ek9Lexer lex = ek9LexerForInput.apply(inputStream);
-      lex.setPrintTokensAsSupplied(false);
-      lex.setSourceName(sourceName);
-      lex.removeErrorListeners();
-      lex.addErrorListener(errorListener);
+    Source src = () -> "in-memory.ek9";
+    Processor<EK9Parser.TypeDefContext> processor = () -> {
+      try (var inputStream = new ByteArrayInputStream(typeDefinition.getBytes(StandardCharsets.UTF_8))) {
+        ErrorListener errorListener = new ErrorListener(src.getFileName());
+        var spec = new ParserSpec(src, inputStream, errorListener, null);
+        var parser = parserCreator.apply(spec);
+        return parser.typeDef();
+      }
+    };
 
-      EK9Parser parser = new EK9Parser(new CommonTokenStream(lex));
-      parser.removeErrorListeners();
-      parser.addErrorListener(errorListener);
-
-      return parser.typeDef();
-    } catch (IOException e) {
-      return null;
-    }
+    return new ExceptionConverter<EK9Parser.TypeDefContext>().apply(processor);
   }
 }

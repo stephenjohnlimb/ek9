@@ -46,6 +46,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
   private List<String> programs;
 
   private ErrorListener errorListener;
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private Optional<PackageDetails> packageDetails;
 
   /**

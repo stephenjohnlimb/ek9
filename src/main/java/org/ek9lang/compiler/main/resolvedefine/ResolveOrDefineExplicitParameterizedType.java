@@ -26,10 +26,11 @@ public class ResolveOrDefineExplicitParameterizedType extends ResolveOrDefineTyp
 
   @Override
   public Optional<ISymbol> apply(EK9Parser.ParameterisedTypeContext ctx) {
-
-    if (ctx == null) {
-      return Optional.empty();
+    Optional<ISymbol> rtn = Optional.empty();
+    
+    if (ctx != null) {
+      rtn = resolveTypeByParameterizedType(ctx);
     }
-    return resolveTypeByParameterizedType(ctx);
+    return rtn;
   }
 }

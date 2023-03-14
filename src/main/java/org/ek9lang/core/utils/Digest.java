@@ -4,14 +4,12 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import org.ek9lang.core.exception.AssertValue;
-import org.ek9lang.core.exception.CompilerException;
 
 /**
  * Wraps the SHA 256 digest and the resulting byte array into objects,
@@ -51,17 +49,19 @@ public final class Digest {
    * Open a file and create a checksum of the contents.
    */
   public static CheckSum digest(File file) {
-    try (InputStream is = new FileInputStream(file)) {
-      MessageDigest digest = getSha256();
-      byte[] buffer = new byte[4096];
-      int amountRead;
-      while ((amountRead = is.read(buffer, 0, 4096)) != -1) {
-        digest.update(buffer, 0, amountRead);
+
+    Processor<CheckSum> processor = () -> {
+      try (InputStream is = new FileInputStream(file)) {
+        MessageDigest digest = getSha256();
+        byte[] buffer = new byte[4096];
+        int amountRead;
+        while ((amountRead = is.read(buffer, 0, 4096)) != -1) {
+          digest.update(buffer, 0, amountRead);
+        }
+        return new CheckSum(digest.digest());
       }
-      return new CheckSum(digest.digest());
-    } catch (IOException e) {
-      throw new CompilerException("Unable to Read file " + file.getAbsolutePath(), e);
-    }
+    };
+    return new ExceptionConverter<CheckSum>().apply(processor);
   }
 
   /**
@@ -135,19 +135,19 @@ public final class Digest {
     /**
      * Just save this digest to a file.
      */
-    public byte[] saveToFile(final File sha256File) {
+    public void saveToFile(final File sha256File) {
 
-      Processor<byte[]> processor = () -> {
+      Processor<Void> processor = () -> {
         try (OutputStream output = new FileOutputStream(sha256File)) {
           //Don't include the file name - because it might be very long, and we need to
           //keep what we have to send short because it is going to use PKI to encrypt it.
           String content = this + " *-\n";
           var rtn = content.getBytes();
           output.write(rtn);
-          return rtn;
+          return null;
         }
       };
-      return run(processor);
+      new ExceptionConverter<Void>().apply(processor);
     }
 
     private byte[] loadFromFile(File sha256File) {
