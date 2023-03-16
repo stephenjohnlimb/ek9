@@ -1,0 +1,28 @@
+#!ek9
+defines module generics.scenario.four
+
+  <?-
+    Example of a generic function.
+  -?>
+  defines function
+
+    <?-
+      A Generic Function with a multiple type parameters.
+      Just does a simple operation and returns a value of a different same generic type.
+    -?>
+    gf of type (A, B, C)
+      ->
+        arg0 as A
+        arg1 as B
+      <-
+        result as C: arg0 + arg1
+
+  defines program
+
+    Driver()
+      g as gf of (Integer, Float, Float): fg()
+
+      addedValue as Float: g(21, 3.66)
+      assert addedValue == 76.86
+
+//EOF

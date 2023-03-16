@@ -324,16 +324,16 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     f1.define(new VariableSymbol("arg1", stringType));
 
     assertNotNull(f1);
-    assertEquals("public Integer <- f1(arg1 as String)", f1.getFriendlyName());
-    assertEquals("public Integer <- f1(arg1 as String)", f1.getFriendlyScopeName());
+    assertEquals("Integer <- f1(arg1 as String)", f1.getFriendlyName());
+    assertEquals("Integer <- f1(arg1 as String)", f1.getFriendlyScopeName());
     //Does not have a super.
     assertTrue(f1.getSuperFunctionSymbol().isEmpty());
 
     var f2 = f1.clone(symbolTable);
     assertNotNull(f2);
     f2.setName("f2");
-    assertEquals("public Integer <- f2(arg1 as String)", f2.getFriendlyName());
-    assertEquals("public Integer <- f2(arg1 as String)", f2.getFriendlyScopeName());
+    assertEquals("Integer <- f2(arg1 as String)", f2.getFriendlyName());
+    assertEquals("Integer <- f2(arg1 as String)", f2.getFriendlyScopeName());
     assertTrue(f2.getSuperFunctionSymbol().isEmpty());
 
     var superF = new FunctionSymbol("superF", symbolTable);
@@ -343,8 +343,8 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     //So this is just a signature
     superF.setMarkedAbstract(true);
     assertNotNull(f2);
-    assertEquals("public Integer <- superF(arg1 as String) as abstract", superF.getFriendlyName());
-    assertEquals("public Integer <- superF(arg1 as String) as abstract",
+    assertEquals("Integer <- superF(arg1 as String) as abstract", superF.getFriendlyName());
+    assertEquals("Integer <- superF(arg1 as String) as abstract",
         superF.getFriendlyScopeName());
     assertTrue(superF.getSuperFunctionSymbol().isEmpty());
 
@@ -354,7 +354,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     f3.setName("f3");
     f3.setSuperFunctionSymbol(Optional.of(superF));
     assertTrue(f3.getSuperFunctionSymbol().isPresent());
-    assertEquals("public Integer <- f3(arg1 as String) is superF", f3.getFriendlyName());
+    assertEquals("Integer <- f3(arg1 as String) is superF", f3.getFriendlyName());
   }
 
   @Test
@@ -375,16 +375,16 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     f1.setCapturedVariablesVisibility(true);
 
     assertEquals(
-        "public Integer <- dynamic function(first as String, second as Integer)(arg1 as String)",
+        "Integer <- dynamic function(first as String, second as Integer)(arg1 as String)",
         f1.getFriendlyScopeName());
     assertEquals(
-        "public Integer <- dynamic function(first as String, second as Integer)(arg1 as String)",
+        "Integer <- dynamic function(first as String, second as Integer)(arg1 as String)",
         f1.getFriendlyName());
 
     //Check the cloning works.
     var f2 = f1.clone(symbolTable);
     assertEquals(
-        "public Integer <- dynamic function(first as String, second as Integer)(arg1 as String)",
+        "Integer <- dynamic function(first as String, second as Integer)(arg1 as String)",
         f2.getFriendlyName());
   }
 
@@ -401,15 +401,15 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertEquals("call1", call1.getFriendlyName());
 
     //Now modify the call1; so it actually references the function we want to call.
-    call1.setResolvedMethodToCall(f1);
-    assertEquals("call1 => public Integer <- f1(arg1 as String)", call1.getFriendlyName());
+    call1.setResolvedSymbolToCall(f1);
+    assertEquals("call1 => Integer <- f1(arg1 as String)", call1.getFriendlyName());
 
     //clone and check the thing to call is still present.
     var call2 = call1.clone(symbolTable);
     call2.setName("call2");
-    assertNotNull(call2.getResolvedMethodToCall());
-    assertEquals("call2 => public Integer <- f1(arg1 as String)", call2.getFriendlyScopeName());
-    assertEquals("call2 => public Integer <- f1(arg1 as String)", call2.getFriendlyName());
+    assertNotNull(call2.getResolvedSymbolToCall());
+    assertEquals("call2 => Integer <- f1(arg1 as String)", call2.getFriendlyScopeName());
+    assertEquals("call2 => Integer <- f1(arg1 as String)", call2.getFriendlyName());
   }
 
   @Test

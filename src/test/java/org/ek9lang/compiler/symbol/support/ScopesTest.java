@@ -86,7 +86,6 @@ final class ScopesTest extends AbstractSymbolTestBase {
     assertTrue(anotherOrgEk9LangInteger.isExactSameType(orgEk9LangInteger));
     //And the other way just to be sure
     assertTrue(orgEk9LangInteger.isExactSameType(anotherOrgEk9LangInteger));
-
   }
 
   @Test
@@ -223,11 +222,19 @@ final class ScopesTest extends AbstractSymbolTestBase {
     symbolTable.define(z);
 
     assertEquals("Zee of type Tee", z.getFriendlyName());
+
+    //Check it is possible resolve 'Tee' from within 'Zee'
+    var resolvedTee = z.resolve(new TypeSymbolSearch("Tee"));
+    assertTrue(resolvedTee.isPresent());
+
     //This would be a concrete Zee with a concrete type of String to replace 'Tee'
     var pTypeSymbol =
         new ParameterisedTypeSymbol(z, symbolTable.resolve(new TypeSymbolSearch("String")),
             symbolTable);
-    assertNotNull(checkScopedSymbol(pTypeSymbol));
+    var clonedPTypeSymbol = checkScopedSymbol(pTypeSymbol);
+    assertNotNull(clonedPTypeSymbol);
+    Logger.log(pTypeSymbol.getFriendlyName());
+    Logger.log(clonedPTypeSymbol.getFriendlyName());
 
     assertEquals("Zee of String", pTypeSymbol.getFriendlyName());
   }
@@ -239,11 +246,15 @@ final class ScopesTest extends AbstractSymbolTestBase {
     symbolTable.define(fun);
 
     //We've not defined the return type of the function
-    assertEquals("public Unknown <- fun() of type Tee", fun.getFriendlyName());
+    assertEquals("Unknown <- fun() of type Tee", fun.getFriendlyName());
+
+    //Check it is possible resolve Tee from within 'fun'
+    var resolvedTee = fun.resolve(new TypeSymbolSearch("Tee"));
+    assertTrue(resolvedTee.isPresent());
 
     fun.setReturningSymbol(
         new VariableSymbol("rtn", symbolTable.resolve(new TypeSymbolSearch("Integer"))));
-    assertEquals("public Integer <- fun() of type Tee", fun.getFriendlyName());
+    assertEquals("Integer <- fun() of type Tee", fun.getFriendlyName());
 
     //This would be a concrete 'fun' with a concrete type of String to replace 'Tee'
     var pFun =
@@ -315,6 +326,8 @@ final class ScopesTest extends AbstractSymbolTestBase {
   private ScopedSymbol checkScopedSymbol(ScopedSymbol scopedSymbol) {
     assertNotNull(scopedSymbol);
 
+    //So all we are doing here - is checking that we can add some sort of 'thing'
+    //Then clone the scoped symbol and ensure the 'thing' we added is also in that.
     scopedSymbol.define(
         new VariableSymbol("check", scopedSymbol.resolve(new TypeSymbolSearch("String"))));
     assertTrue(scopedSymbol.resolve(new SymbolSearch("check")).isPresent());

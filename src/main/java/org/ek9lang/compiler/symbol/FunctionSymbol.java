@@ -3,6 +3,7 @@ package org.ek9lang.compiler.symbol;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 
 /**
@@ -11,10 +12,17 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
  * way we like i.e. classes.
  * We need to ensure that any functions we extend have the same method signature.
  */
-public class FunctionSymbol extends MethodSymbol {
+public class FunctionSymbol extends PossibleGenericSymbol {
 
-  //This is the module this function has been defined in.
-  private IScope moduleScope;
+  /**
+   * Keep separate variable for what we are returning because we need its name and type.
+   */
+  private ISymbol returningSymbol;
+
+  /**
+   * We may be interested to know and may restrict operations if this function is marked as pure.
+   */
+  private boolean markedPure = false;
 
   /**
    * To be used when this function extends an abstract function.
@@ -51,7 +59,7 @@ public class FunctionSymbol extends MethodSymbol {
    */
   public FunctionSymbol(String name, IScope enclosingScope, List<AggregateSymbol> parameterTypes) {
     this(name, enclosingScope);
-    parameterTypes.forEach(this::addParameterisedType);
+    parameterTypes.forEach(this::addParameterType);
   }
 
   @Override
@@ -60,10 +68,15 @@ public class FunctionSymbol extends MethodSymbol {
   }
 
   protected FunctionSymbol cloneIntoFunctionSymbol(FunctionSymbol newCopy) {
-    super.cloneIntoMethodSymbol(newCopy);
-    newCopy.setCategory(SymbolCategory.FUNCTION);
+    super.cloneIntoPossibleGenericSymbol(newCopy);
+    if (isReturningSymbolPresent()) {
+      newCopy.returningSymbol = this.returningSymbol.clone(newCopy);
+    }
+
+    newCopy.markedPure = this.markedPure;
+
+    newCopy.setCategory(this.getCategory());
     newCopy.setProduceFullyQualifiedName(this.getProduceFullyQualifiedName());
-    newCopy.moduleScope = this.moduleScope;
     newCopy.returningParamContext = this.returningParamContext;
     superFunctionSymbol.ifPresent(
         functionSymbol -> newCopy.superFunctionSymbol = Optional.of(functionSymbol));
@@ -85,8 +98,8 @@ public class FunctionSymbol extends MethodSymbol {
    * By adding a parameterised type this Function stops being a FUNCTION and becomes a TEMPLATE_FUNCTION.
    */
   @Override
-  public void addParameterisedType(AggregateSymbol parameterisedType) {
-    super.addParameterisedType(parameterisedType);
+  public void addParameterType(AggregateSymbol parameterType) {
+    super.addParameterType(parameterType);
     super.setCategory(SymbolCategory.TEMPLATE_FUNCTION);
   }
 
@@ -96,14 +109,6 @@ public class FunctionSymbol extends MethodSymbol {
 
   public void setReturningParamContext(EK9Parser.ReturningParamContext returningParamContext) {
     this.returningParamContext = returningParamContext;
-  }
-
-  public IScope getModuleScope() {
-    return moduleScope;
-  }
-
-  public void setModuleScope(IScope moduleScope) {
-    this.moduleScope = moduleScope;
   }
 
   @Override
@@ -123,9 +128,31 @@ public class FunctionSymbol extends MethodSymbol {
     this.superFunctionSymbol = superFunctionSymbol;
   }
 
-  @Override
   public void setReturningSymbol(ISymbol returningSymbol) {
     justSetReturningSymbol(returningSymbol);
+  }
+
+  /**
+   * Some functions have a named return symbol 'like rtn as String' for example.
+   * In other cases a function will not return anything (We use 'Void') in the
+   * case as the 'type'.
+   * So when a Returning Symbol is set we use the type of the returning variable as the type
+   * return on the funtion.
+   */
+  public boolean isReturningSymbolPresent() {
+    return returningSymbol != null;
+  }
+
+  /**
+   * Provide a symbol that is returned from this function.
+   * Note in EK9 this is not just a type but actually a variable symbol (that has a type).
+   */
+  public ISymbol getReturningSymbol() {
+    return returningSymbol;
+  }
+
+  protected void justSetReturningSymbol(ISymbol returningSymbol) {
+    this.returningSymbol = returningSymbol;
   }
 
   @Override
@@ -162,15 +189,39 @@ public class FunctionSymbol extends MethodSymbol {
     return superFunctionSymbol.map(s -> name + " is " + s.getName()).orElse(name);
   }
 
+  protected String doGetFriendlyName(String withName, Optional<ISymbol> theType) {
+    StringBuilder buffer = new StringBuilder();
+
+    buffer.append(getSymbolTypeAsString(theType));
+
+    buffer.append(" <- ").append(withName);
+    buffer.append(CommonParameterisedTypeDetails.asCommaSeparated(getSymbolsForThisScope(), true));
+    if (isMarkedAbstract()) {
+      buffer.append(" as abstract");
+    }
+
+    return buffer.toString();
+  }
+
   @Override
   public Optional<ISymbol> getType() {
     //Treat this as a type. To get result of call need to use:
     return Optional.of(this);
   }
 
+
+  @Override
+  public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search) {
+    //This will now also check the returning symbol (if present)
+    if (this.isReturningSymbolPresent() && returningSymbol.getName().equals(search.getName())) {
+      return Optional.of(returningSymbol);
+    }
+    return super.resolveInThisScopeOnly(search);
+  }
+
   @Override
   public Optional<ISymbol> resolve(SymbolSearch search) {
-    Optional<ISymbol> rtn = resolveFromParameterisedTypes(search);
+    Optional<ISymbol> rtn = resolveFromParameterTypes(search);
 
     if (rtn.isEmpty()) {
       rtn = resolveInThisScopeOnly(search);

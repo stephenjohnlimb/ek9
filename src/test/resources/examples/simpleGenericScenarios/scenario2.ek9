@@ -1,0 +1,34 @@
+#!ek9
+defines module generics.scenario.two
+
+  <?-
+    Example of a generic function.
+  -?>
+  defines function
+
+    <?-
+      A Generic Function with a single type parameter.
+      Just does a simple operation and returns a value of the same generic type.
+    -?>
+    gf of type A
+      ->
+        arg0 as A
+        arg1 as A
+      <-
+        result as A: arg0 + arg1
+
+  defines program
+
+    IntegerDriver()
+      g as gf of Integer: fg()
+
+      addedValue as Integer: g(21)
+      assert addedValue == 42
+
+    StringDriver()
+      g as gf of String: fg()
+
+      addedValue as String: g("Duran")
+      assert addedValue == "DuranDuran"
+
+//EOF

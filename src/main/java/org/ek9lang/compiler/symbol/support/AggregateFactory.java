@@ -11,6 +11,7 @@ import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.MethodSymbol;
 import org.ek9lang.compiler.symbol.ParameterisedSymbol;
+import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
@@ -103,9 +104,8 @@ public class AggregateFactory {
    *
    * @param from The aggregate to get the methods from
    * @param to   The aggregate to add the methods to.
-   * @return The to aggregate but now with the methods added.
    */
-  public IAggregateSymbol addNonAbstractMethods(IAggregateSymbol from, IAggregateSymbol to) {
+  public void addNonAbstractMethods(IAggregateSymbol from, IAggregateSymbol to) {
     for (MethodSymbol method : from.getAllNonAbstractMethods()) {
       method.getType().ifPresentOrElse(methodType -> {
         if (method.isConstructor() && methodType.isExactSameType(from)) {
@@ -125,7 +125,6 @@ public class AggregateFactory {
       });
 
     }
-    return to;
   }
 
   public MethodSymbol cloneMethodWithNewType(MethodSymbol method, IAggregateSymbol to) {
@@ -145,10 +144,12 @@ public class AggregateFactory {
     parameterisedSymbol.getParameterSymbols().forEach(symbol -> {
       if (symbol.isGenericTypeParameter()) {
         List<ISymbol> concreteParameters = concreteSymbol.getParameterSymbols();
-        List<ISymbol> genericParameters = concreteSymbol.getParameterisableSymbol().getParameterisedTypes();
-        for (int i = 0; i < concreteParameters.size(); i++) {
-          if (symbol.isExactSameType(genericParameters.get(i))) {
-            appropriateParams.add(concreteParameters.get(i));
+        if (concreteSymbol.getParameterisableSymbol() instanceof PossibleGenericSymbol genericType) {
+          List<ISymbol> genericParameters = genericType.getParameterTypes();
+          for (int i = 0; i < concreteParameters.size(); i++) {
+            if (symbol.isExactSameType(genericParameters.get(i))) {
+              appropriateParams.add(concreteParameters.get(i));
+            }
           }
         }
       } else {
@@ -178,6 +179,7 @@ public class AggregateFactory {
    * @param t The aggregate type to add the constructor to.
    * @param s The argument - arg with a symbol type to be passed in as a construction parameter.
    */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public MethodSymbol addConstructor(AggregateSymbol t, Optional<ISymbol> s) {
     if (s.isPresent()) {
       return addConstructor(t, s.get());
@@ -313,6 +315,7 @@ public class AggregateFactory {
    * Just add a method to an aggregate with the name and parameters and return type.
    * The methodParameters can be empty if there are none.
    */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public MethodSymbol addPublicMethod(AggregateSymbol clazz, String methodName, List<ISymbol> methodParameters,
                                       Optional<ISymbol> returnType) {
     MethodSymbol method = new MethodSymbol(methodName, clazz);
@@ -356,10 +359,9 @@ public class AggregateFactory {
     addPurePublicPrefixSuffixMethod(clazz, "#>");
   }
 
-  private MethodSymbol addPurePublicPrefixSuffixMethod(IAggregateSymbol clazz, String methodName) {
+  private void addPurePublicPrefixSuffixMethod(IAggregateSymbol clazz, String methodName) {
     var method = createPurePublicPrefixSuffixMethod(clazz, methodName);
     clazz.define(method);
-    return method;
   }
 
   private MethodSymbol createPurePublicPrefixSuffixMethod(IAggregateSymbol clazz, String methodName) {
@@ -369,6 +371,7 @@ public class AggregateFactory {
   /**
    * Adds a form of a comparison operator.
    */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public MethodSymbol addComparatorOperator(IAggregateSymbol clazz, String comparatorType,
                                             Optional<ISymbol> returnType) {
     MethodSymbol operator = createComparatorOperator(clazz, comparatorType, returnType);
@@ -376,6 +379,7 @@ public class AggregateFactory {
     return operator;
   }
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private MethodSymbol createComparatorOperator(IAggregateSymbol clazz, String comparatorType,
                                                 Optional<ISymbol> returnType) {
     MethodSymbol operator = createPurePublicSimpleOperator(clazz, comparatorType, returnType);
@@ -387,6 +391,7 @@ public class AggregateFactory {
    * Adds a simple operator, that is 'pure' (no side effects) and accepts no
    * parameters, but just returns a value.
    */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public MethodSymbol addPurePublicSimpleOperator(IAggregateSymbol clazz, String methodName,
                                                   Optional<ISymbol> returnType) {
     var method = createPurePublicSimpleOperator(clazz, methodName, returnType);
@@ -399,6 +404,7 @@ public class AggregateFactory {
     return createPurePublicSimpleOperator(aggregate, "$$", stringType);
   }
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private MethodSymbol createPurePublicSimpleOperator(IAggregateSymbol clazz, String methodName,
                                                       Optional<ISymbol> returnType) {
     MethodSymbol method = new MethodSymbol(methodName, clazz);
@@ -408,16 +414,6 @@ public class AggregateFactory {
     method.setMarkedPure(true);
     method.setOperator(true);
     return method;
-  }
-
-  /**
-   * Add a normal operator, that accepts a type and the type name of the operator.
-   * Can be pure +/-/* etc or a mutator like *=.
-   */
-  public MethodSymbol addOperator(IAggregateSymbol clazz, String operatorType, boolean isPure) {
-    var operator = createOperator(clazz, operatorType, isPure);
-    clazz.define(operator);
-    return operator;
   }
 
   private MethodSymbol createOperator(IAggregateSymbol clazz, String operatorType, boolean isPure) {

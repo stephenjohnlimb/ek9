@@ -1,0 +1,41 @@
+#!ek9
+defines module generics.scenario.two
+
+  <?-
+    Example of a generic function.
+  -?>
+  defines function
+
+    <?-
+      A dependent function.
+    -?>
+    df of type (X, Y)
+      ->
+        arg0 as X
+        arg1 as Integer
+      <-
+        result as Y: X * arg1
+
+    <?-
+      Check on a dependent function use inside a block.
+    -?>
+    gf of type A
+      ->
+        arg0 as A
+        arg1 as Integer
+      <-
+        result as A?
+      //A bit convoluted.
+      dependentFunction as df of (A, A): df()
+      result :=: dependentFunction(arg0, 10) + arg1
+
+
+  defines program
+
+    Driver()
+      g as gf of Integer: fg()
+
+      addedValue as Integer: g(21, 6)
+      assert addedValue == 216
+
+//EOF

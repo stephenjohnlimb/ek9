@@ -1,0 +1,56 @@
+#!ek9
+<?-
+  Scenario of a dependent type but just within the body of a method,
+  rather than being on the input or return.
+-?>
+defines module generics.scenario.three
+
+  defines class
+
+    <?-
+      This will act as our dependent type in this scenario
+    -?>
+    DT of type X
+      value as X?
+      DT()
+        -> arg0 as X
+        value :=: arg0
+
+      op()
+        -> arg0 as X
+        <- result as X: arg0 * value
+
+    <?-
+      Simple Generic/template class with a single type parameter.
+    -?>
+    GC of type T
+
+      <?-
+        Single operation that uses the conceptual type 'T'
+        as an incoming argument type but another dependent type in the return argument type.
+      -?>
+      operation()
+        -> arg0 as T
+        <- result as T?
+
+        //effectively this would multiple arg0 by itself - via a very convoluted route.
+        dt as DT of T: DT(arg0)
+        result :=: dt.op(arg0)
+
+  <?-
+    Some sample programs that show the use of the generic type.
+    Here we will try inference to see if 'DT of Integer' can be deduced by the compiler.
+  -?>
+  defines program
+
+    IntegerDriver()
+
+      //Not only will this create the 'GC of Integer'
+      //But also the dependent type 'DT of Integer', the compiler should deduce this.
+      g as GC of Integer: GC()
+
+      //This time compiler should infer an Integer.
+      echoedValue <- g.operation(4)
+      assert echoedValue == 16
+
+//EOF

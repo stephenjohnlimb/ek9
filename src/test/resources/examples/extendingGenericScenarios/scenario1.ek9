@@ -1,0 +1,61 @@
+#!ek9
+<?-
+  This is just the case where we have a generic class and extend it (by making it concrete), then use extends.
+  So not a dynamic class - that is later in other scenarios.
+-?>
+defines module generics.scenario.one
+
+  defines class
+
+    <?-
+      Simple Generic/template class with a multiple type parameters.
+    -?>
+    GC of type (K, V)
+      key as K
+      value as V
+
+      GC()
+        ->
+          key as K
+          value as V
+        this.key :=: key
+        this.value :=: value
+
+      <?-
+        Single operation that uses the conceptual type 'K' and 'V'
+        as both an incoming argument type and a return argument type.
+      -?>
+      operation()
+        -> arg0 as K
+        <- result as V: V()
+        if arg0 == key
+          result :=: value
+
+    IntegerStringMapping extends GC of (Integer, String)
+      //Add in another method.
+      name()
+        <- result as String: "Just a single mapping"
+
+  <?-
+    Some sample programs that show the use of the generic type.
+    The code here does not use inference, it is fully explicit.
+  -?>
+  defines program
+
+    Driver()
+
+      //Should be able to access direct - explicit and also by super type (in parameterised form)
+      byExplicitType as IntegerStringMapping: IntegerStringMapping(1, "Steve")
+      bySuperType as GC of (Integer, String): IntegerStringMapping(1, "Steve")
+
+      assert byExplicitType.name() == "Just a single mapping"
+
+      echoedValue1 as String: byExplicitType.operation(1)
+      assert echoedValue1 == "Steve"
+
+      assert bySuperType.name() == "Just a single mapping"
+
+      echoedValue1 as String: bySuperType.operation(1)
+      assert echoedValue1 == "Steve"
+
+//EOF

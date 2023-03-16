@@ -7,7 +7,7 @@ package org.ek9lang.compiler.symbol;
  * We then have to resolve this CallSymbol against a real method symbol.
  */
 public class CallSymbol extends MethodSymbol implements IAssignableSymbol {
-  private MethodSymbol resolvedMethodToCall = null;
+  private ScopedSymbol resolvedSymbolToCall = null;
 
   public CallSymbol(String name, IScope enclosingScope) {
     super(name, enclosingScope);
@@ -20,21 +20,23 @@ public class CallSymbol extends MethodSymbol implements IAssignableSymbol {
 
   protected CallSymbol cloneIntoCallSymbol(CallSymbol newCopy) {
     super.cloneIntoMethodSymbol(newCopy);
-    newCopy.resolvedMethodToCall = resolvedMethodToCall;
+    newCopy.resolvedSymbolToCall = resolvedSymbolToCall;
     return newCopy;
   }
 
-  public MethodSymbol getResolvedMethodToCall() {
-    return resolvedMethodToCall;
+  public ScopedSymbol getResolvedSymbolToCall() {
+    return resolvedSymbolToCall;
   }
 
   /**
    * Set the actual method/function that should be called.
    */
-  public void setResolvedMethodToCall(MethodSymbol resolvedMethodToCall) {
-    this.resolvedMethodToCall = resolvedMethodToCall;
+  public void setResolvedSymbolToCall(ScopedSymbol symbol) {
+    this.resolvedSymbolToCall = symbol;
     //make a note if this method ia actually an operator.
-    this.setOperator(resolvedMethodToCall.isOperator());
+    if (symbol instanceof MethodSymbol method) {
+      this.setOperator(method.isOperator());
+    }
   }
 
   @Override
@@ -44,9 +46,9 @@ public class CallSymbol extends MethodSymbol implements IAssignableSymbol {
 
   @Override
   public String getFriendlyName() {
-    if (resolvedMethodToCall == null) {
+    if (resolvedSymbolToCall == null) {
       return getName();
     }
-    return getName() + " => " + resolvedMethodToCall.getFriendlyName();
+    return getName() + " => " + resolvedSymbolToCall.getFriendlyName();
   }
 }

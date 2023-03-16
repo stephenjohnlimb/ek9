@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.ScopedSymbol;
+import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
 import org.ek9lang.core.utils.Digest;
 
 /**
@@ -26,16 +26,6 @@ public class CommonParameterisedTypeDetails {
    */
   public static String getInternalNameFor(ISymbol parameterisableSymbol,
                                           List<ISymbol> parameterSymbols) {
-    return getEk9InternalNameFor(parameterisableSymbol, parameterSymbols);
-  }
-
-  public static String getInternalNameFor(ISymbol parameterisableSymbol,
-                                          ISymbol parameterSymbol) {
-    return getEk9InternalNameFor(parameterisableSymbol, List.of(parameterSymbol));
-  }
-
-  private static String getEk9InternalNameFor(ISymbol parameterisableSymbol,
-                                              List<ISymbol> parameterSymbols) {
     var toDigest = parameterisableSymbol.getFullyQualifiedName() + parameterSymbols
         .stream()
         .map(ISymbol::getFullyQualifiedName)
@@ -87,14 +77,13 @@ public class CommonParameterisedTypeDetails {
   /**
    * For the type passed in - a T or and S whatever we need to know its index.
    * From this we can look at what this has been parameterised with and use that type.
-   *
-   * @param theType The generic definition parameter i.e S, or T
-   * @return The index or -1 if not found.
+   * If not found returns -1.
    */
-  public static int getIndexOfType(ScopedSymbol parameterisableSymbol, Optional<ISymbol> theType) {
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+  public static int getIndexOfType(PossibleGenericSymbol genericTypeSymbol, Optional<ISymbol> theType) {
     if (theType.isPresent()) {
-      for (int i = 0; i < parameterisableSymbol.getParameterisedTypes().size(); i++) {
-        if (parameterisableSymbol.getParameterisedTypes().get(i).isExactSameType(theType.get())) {
+      for (int i = 0; i < genericTypeSymbol.getParameterTypes().size(); i++) {
+        if (genericTypeSymbol.getParameterTypes().get(i).isExactSameType(theType.get())) {
           return i;
         }
       }

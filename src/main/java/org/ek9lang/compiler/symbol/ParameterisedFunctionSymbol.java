@@ -74,7 +74,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
       //So this might also be considered equivalent
       //But lets check that the parameterised types are a match
       return CommonParameterisedTypeDetails.doSymbolsMatch(parameterSymbols,
-          parameterisableSymbol.getParameterisedTypes());
+          parameterisableSymbol.getParameterTypes());
     }
     return super.isSymbolTypeMatch(symbolType);
   }
@@ -155,7 +155,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
         //2 params S and T
         //But the aggregate we are lookup might just have one the 'T'. So we need to deal with this.
         List<ISymbol> lookupParameterSymbols = new ArrayList<>();
-        for (ISymbol symbol : aggregate.getParameterisedTypes()) {
+        for (ISymbol symbol : aggregate.getParameterTypes()) {
           //So given a T or whatever we need to find which index position it is in
           //Then we can use that same index position to get the equiv symbol from what parameters
           //have been applied.
@@ -227,7 +227,6 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
   public String getFriendlyName() {
     String nameOfFunction = parameterisableSymbol.getName() + getAnyGenericParamsAsFriendlyNames();
     StringBuilder buffer = new StringBuilder();
-    buffer.append(getAccessModifier()).append(" ");
     if (getReturningSymbol() != null) {
       buffer.append(getSymbolTypeAsString(getReturningSymbol().getType()));
     } else {

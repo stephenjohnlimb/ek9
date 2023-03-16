@@ -1,0 +1,51 @@
+#!ek9
+<?-
+  There are lots (and lots) of combinations for generics.
+  The use of standard generics is in genericsUse1,
+  some examples are also in genericTypes.
+
+  This set of 'scenarios' is design to try and capture the essence of use
+  without surrounding boiler plate (actually useful code).
+
+  So these example may look like they don't accomplish much, but they are needed
+  to try and exercise the compiler routines for processing.
+
+  The scenarios focus on the definition of some form of Generic/Template and some
+  simple use, that highlights - what should happen.
+-?>
+defines module generics.scenario.one
+
+  defines class
+
+    <?-
+      Simple Generic/template class with a single type parameter.
+    -?>
+    GC of type T
+
+      <?-
+        Single operation that uses the conceptual type 'T'
+        as both an incoming argument type and a return argument type.
+      -?>
+      operation()
+        -> arg0 as T
+        <- result as T: arg0
+
+  <?-
+    Some sample programs that show the use of the generic type.
+    The code here does not use inference, it is fully explicit.
+  -?>
+  defines program
+
+    IntegerDriver()
+      g as GC of Integer: GC()
+
+      echoedValue as Integer: g.operation(21)
+      assert echoedValue == 21
+
+    StringDriver()
+      g as GC of String: GC()
+
+      echoedValue as String: g.operation("Steve")
+      assert echoedValue == "Steve"
+
+//EOF

@@ -10,7 +10,7 @@ import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.ScopedSymbol;
+import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
 import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
@@ -124,10 +124,10 @@ public abstract class ResolveOrDefineTypes {
             ErrorListener.SemanticClassification.NOT_A_TEMPLATE);
       }
       return Optional.empty();
-    } else if (genericType instanceof ScopedSymbol scopedSymbol) {
+    } else if (genericType instanceof PossibleGenericSymbol genericTypeSymbol) {
       //It is generic in nature, but do the number of parameterizing types and number of types the generic type
       //need match up? Always give an error for this.
-      var acceptsNParameters = scopedSymbol.getAnyGenericParameters().size();
+      var acceptsNParameters = genericTypeSymbol.getAnyGenericParameters().size();
       var providedWithNParameters = parameterizingTypes.size();
       if (acceptsNParameters != providedWithNParameters) {
         errorListener.semanticError(token, "'"

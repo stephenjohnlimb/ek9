@@ -32,10 +32,7 @@ import org.ek9lang.core.exception.CompilerException;
  * So there are two ways to resolve references first is module scope and second
  * is super class type scope.
  */
-public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
-
-  //This is the module this aggregate has been defined in.
-  private IScope moduleScope;
+public class AggregateSymbol extends PossibleGenericSymbol implements IAggregateSymbol {
 
   /**
    * Might be null if a base 'class' or 'interface', basically the 'super'.
@@ -70,11 +67,6 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
    * If there is a method that acts as a dispatcher then this aggregate is also a dispatcher.
    */
   private boolean markedAsDispatcher = false;
-
-  /**
-   * Was the aggregate marked as abstract in the source code.
-   */
-  private boolean markedAbstract = false;
 
   /**
    * Can this aggregate be injected by IOC/DI.
@@ -126,7 +118,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
    */
   public AggregateSymbol(String name, IScope enclosingScope, List<AggregateSymbol> parameterTypes) {
     this(name, enclosingScope);
-    parameterTypes.forEach(this::addParameterisedType);
+    parameterTypes.forEach(this::addParameterType);
   }
 
   @Override
@@ -136,8 +128,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
   }
 
   protected AggregateSymbol cloneIntoAggregateSymbol(AggregateSymbol newCopy) {
-    super.cloneIntoScopeSymbol(newCopy);
-    newCopy.moduleScope = moduleScope;
+    super.cloneIntoPossibleGenericSymbol(newCopy);
     if (aggregateDescription != null) {
       newCopy.aggregateDescription = aggregateDescription;
     }
@@ -149,7 +140,6 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
         aggregateSymbol -> newCopy.superAggregateScopedSymbol = Optional.of(aggregateSymbol));
 
     newCopy.subAggregateScopedSymbols.addAll(subAggregateScopedSymbols);
-    newCopy.markedAbstract = markedAbstract;
     newCopy.injectable = injectable;
     newCopy.openForExtension = openForExtension;
 
@@ -229,15 +219,6 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
   }
 
   @Override
-  public boolean isMarkedAbstract() {
-    return markedAbstract;
-  }
-
-  public void setMarkedAbstract(boolean markedAbstract) {
-    this.markedAbstract = markedAbstract;
-  }
-
-  @Override
   public boolean isInjectable() {
     return injectable;
   }
@@ -266,8 +247,8 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
    * This now becomes a TEMPLATE_TYPE, rather than just a plain TYPE.
    */
   @Override
-  public void addParameterisedType(AggregateSymbol parameterisedType) {
-    super.addParameterisedType(parameterisedType);
+  public void addParameterType(AggregateSymbol parameterType) {
+    super.addParameterType(parameterType);
     super.setCategory(SymbolCategory.TEMPLATE_TYPE);
   }
 
@@ -379,14 +360,6 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
     return rtn;
   }
 
-  public IScope getModuleScope() {
-    return moduleScope;
-  }
-
-  public void setModuleScope(IScope moduleScope) {
-    this.moduleScope = moduleScope;
-  }
-
   @Override
   public boolean isExtensionOfInjectable() {
     if (injectable) {
@@ -431,8 +404,8 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
     }
 
     if (canAssign >= 0.0 && s instanceof AggregateSymbol toCheck) {
-      double parameterisedWeight = checkParameterisedTypesAssignable(getParameterisedTypes(),
-          toCheck.getParameterisedTypes());
+      double parameterisedWeight = checkParameterisedTypesAssignable(getParameterTypes(),
+          toCheck.getParameterTypes());
       canAssign += parameterisedWeight;
     }
 
@@ -454,8 +427,8 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
     }
 
     if (canAssign >= 0.0 && s instanceof AggregateSymbol toCheck) {
-      double parameterisedWeight = checkParameterisedTypesAssignable(getParameterisedTypes(),
-          toCheck.getParameterisedTypes());
+      double parameterisedWeight = checkParameterisedTypesAssignable(getParameterTypes(),
+          toCheck.getParameterTypes());
       canAssign += parameterisedWeight;
     }
 
@@ -541,7 +514,7 @@ public class AggregateSymbol extends ScopedSymbol implements IAggregateSymbol {
    */
   @Override
   public Optional<ISymbol> resolve(SymbolSearch search) {
-    Optional<ISymbol> rtn = resolveFromParameterisedTypes(search);
+    Optional<ISymbol> rtn = resolveFromParameterTypes(search);
 
     if (rtn.isEmpty()) {
       rtn = resolveInThisScopeOnly(search);

@@ -10,7 +10,7 @@ import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.ParameterisedFunctionSymbol;
 import org.ek9lang.compiler.symbol.ParameterisedTypeSymbol;
-import org.ek9lang.compiler.symbol.ScopedSymbol;
+import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbol.support.ParameterizedFunctionCreator;
 import org.ek9lang.compiler.symbol.support.ParameterizedTypeCreator;
 import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
@@ -89,13 +89,14 @@ public class GeneralTypeResolver implements Function<SymbolSearchConfiguration, 
     return parameterizedFunctionCreator.apply(genericFunction, parameterizingTypeSymbols);
   }
 
-  private void checkParameterCount(final ScopedSymbol scopedSymbol, final List<ISymbol> parameterizingTypeSymbols) {
-    var acceptsNParameters = scopedSymbol.getAnyGenericParameters().size();
+  private void checkParameterCount(final PossibleGenericSymbol genericTypeSymbol,
+                                   final List<ISymbol> parameterizingTypeSymbols) {
+    var acceptsNParameters = genericTypeSymbol.getAnyGenericParameters().size();
     var providedWithNParameters = parameterizingTypeSymbols.size();
     if (acceptsNParameters != providedWithNParameters) {
       var msg = "'"
           + providedWithNParameters + "' parameter(s) were supplied but '"
-          + scopedSymbol.getFriendlyName() + "' requires '"
+          + genericTypeSymbol.getFriendlyName() + "' requires '"
           + acceptsNParameters + "' parameter(s):";
       throw new IllegalArgumentException(msg);
     }

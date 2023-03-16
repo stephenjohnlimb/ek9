@@ -100,7 +100,7 @@ public interface IAggregateSymbol extends IScopedSymbol {
 
   Optional<ISymbol> resolveMember(SymbolSearch search);
 
-  List<ISymbol> getParameterisedTypes();
+  List<ISymbol> getParameterTypes();
 
   Optional<IAggregateSymbol> getSuperAggregateScopedSymbol();
 

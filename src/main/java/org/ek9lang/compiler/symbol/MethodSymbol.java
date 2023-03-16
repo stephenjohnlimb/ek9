@@ -49,10 +49,6 @@ public class MethodSymbol extends ScopedSymbol {
    */
   private boolean markedAbstract = false;
 
-  /**
-   * We may be interested to know and may restrict operations if this function is marked as pure.
-   */
-  private boolean markedPure = false;
 
   private boolean markedAsDispatcher = false;
 
@@ -132,7 +128,6 @@ public class MethodSymbol extends ScopedSymbol {
   protected MethodSymbol cloneIntoMethodSymbol(MethodSymbol newCopy) {
     super.cloneIntoScopeSymbol(newCopy);
 
-    newCopy.setSourceToken(getSourceToken());
     if (isReturningSymbolPresent()) {
       newCopy.returningSymbol = this.returningSymbol.clone(newCopy);
     }
@@ -142,7 +137,6 @@ public class MethodSymbol extends ScopedSymbol {
     newCopy.constructor = this.constructor;
     newCopy.operator = this.operator;
     newCopy.markedAbstract = this.markedAbstract;
-    newCopy.markedPure = this.markedPure;
     newCopy.markedAsDispatcher = this.markedAsDispatcher;
     newCopy.markedNoClone = this.markedNoClone;
     newCopy.synthetic = this.synthetic;
@@ -247,9 +241,8 @@ public class MethodSymbol extends ScopedSymbol {
     return markedAsDispatcher;
   }
 
-  public MethodSymbol setMarkedAsDispatcher(boolean markedAsDispatcher) {
+  public void setMarkedAsDispatcher(boolean markedAsDispatcher) {
     this.markedAsDispatcher = markedAsDispatcher;
-    return this;
   }
 
   @Override
@@ -289,11 +282,11 @@ public class MethodSymbol extends ScopedSymbol {
   }
 
   /**
-   * Some methods and functions have a named return symbol 'like rtn as String' for example.
-   * In other cases a method or a function will not return anything (We use 'Void') in the
+   * Some methods have a named return symbol 'like rtn as String' for example.
+   * In other cases a method will not return anything (We use 'Void') in the
    * case as the 'type'.
    * So when a Returning Symbol is set we use the type of the returning variable as the type
-   * return on the function/method.
+   * return on the method.
    */
   public boolean isReturningSymbolPresent() {
     return returningSymbol != null;
@@ -361,13 +354,11 @@ public class MethodSymbol extends ScopedSymbol {
    * method or something.
    *
    * @param params The parameters to pass to the method.
-   * @return this method - used for chaining.
    */
-  public MethodSymbol setMethodParameters(List<ISymbol> params) {
+  public void setMethodParameters(List<ISymbol> params) {
     for (ISymbol param : params) {
       define(param);
     }
-    return this;
   }
 
   @Override

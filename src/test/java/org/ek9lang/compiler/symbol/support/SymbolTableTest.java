@@ -68,12 +68,12 @@ final class SymbolTableTest {
 
     //This turns the functions/aggregates into Template Generic types
     var functionSymbol = new FunctionSymbol("notThisFunction", underTest);
-    functionSymbol.addParameterisedType(
+    functionSymbol.addParameterType(
         new AggregateSymbol("NoneSuch1", underTest));
     underTest.define(functionSymbol);
 
     var aggregateSymbol = new AggregateSymbol("notThisType", underTest);
-    aggregateSymbol.addParameterisedType(
+    aggregateSymbol.addParameterType(
         new AggregateSymbol("NoneSuch2", underTest));
     underTest.define(aggregateSymbol);
 
@@ -296,7 +296,7 @@ final class SymbolTableTest {
 
     //This turns the functions/aggregates into Template Generic types
     var functionSymbol = new FunctionSymbol("function2", underTest);
-    functionSymbol.addParameterisedType(
+    functionSymbol.addParameterType(
         new AggregateSymbol("NoneSuch1", underTest));
     underTest.define(functionSymbol);
 
@@ -435,7 +435,7 @@ final class SymbolTableTest {
     assertFalse(underTest.resolveWithEnclosingScope(new TypeSymbolSearch("global::Float")).isPresent());
 
     AggregateSymbol templateType = new AggregateSymbol("Special", underTest);
-    templateType.addParameterisedType(new AggregateSymbol("T", underTest));
+    templateType.addParameterType(new AggregateSymbol("T", underTest));
     underTest.define(templateType);
 
     var templateTypeSymbolSearch = new TemplateTypeSymbolSearch("global::Special");

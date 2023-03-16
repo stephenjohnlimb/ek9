@@ -90,7 +90,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
       //So this might also be considered equivalent
       //But let's check that the parameterised types are a match
       return CommonParameterisedTypeDetails.doSymbolsMatch(parameterSymbols,
-          parameterisableSymbol.getParameterisedTypes());
+          parameterisableSymbol.getParameterTypes());
     }
     return super.isSymbolTypeMatch(symbolType);
   }
@@ -266,7 +266,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
         //2 params S and T
         //But the aggregate we are lookup might just have one the 'T'. So we need to deal with this.
         List<ISymbol> lookupParameterSymbols = new ArrayList<>();
-        for (ISymbol symbol : aggregate.getParameterisedTypes()) {
+        for (ISymbol symbol : aggregate.getParameterTypes()) {
           //So given a T or whatever we need to find which index position it is in
           //Then we can use that same index position to get the equiv symbol from what parameters
           //have been applied.
@@ -359,8 +359,8 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
    */
   private int getIndexOfType(Optional<ISymbol> theType) {
     if (theType.isPresent()) {
-      for (int i = 0; i < parameterisableSymbol.getParameterisedTypes().size(); i++) {
-        ISymbol paramType = parameterisableSymbol.getParameterisedTypes().get(i);
+      for (int i = 0; i < parameterisableSymbol.getParameterTypes().size(); i++) {
+        ISymbol paramType = parameterisableSymbol.getParameterTypes().get(i);
         if (paramType.isExactSameType(theType.get())) {
           return i;
         }

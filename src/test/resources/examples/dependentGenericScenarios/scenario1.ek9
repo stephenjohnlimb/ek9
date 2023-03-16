@@ -1,0 +1,55 @@
+#!ek9
+<?-
+  This set of examples are designed to show how dependent generic types
+  must also get created when a generic/template is parameterised.
+
+  What this means is, I have a type that accepts parameters as types,
+  like GC of type (R, S) but it uses another type that is also a generic/template.
+
+  So now when a parameterised instance of GC is requested, the compiler must also
+  create the dependent types GC uses but with the correct parameters.
+-?>
+defines module generics.scenario.one
+
+  defines class
+
+    <?-
+      This will act as our dependent type in this scenario
+    -?>
+    DT of type X
+      value as X?
+      DT()
+        -> arg0 as X
+        value :=: arg0
+
+      op()
+        -> arg0 as X
+        <- result as X: arg0 * value
+
+    <?-
+      Simple Generic/template class with a single type parameter.
+    -?>
+    GC of type T
+
+      <?-
+        Single operation that uses the conceptual type 'T'
+        as an incoming argument type but another dependent type in the return argument type.
+      -?>
+      operation()
+        -> arg0 as T
+        <- result as DT of T: DT(arg0)
+
+  <?-
+    Some sample programs that show the use of the generic type.
+    Here we will try inference to see if 'DT of Integer' can be deduced by the compiler.
+  -?>
+  defines program
+
+    IntegerDriver()
+      g as GC of Integer: GC()
+
+      //Compiler should infer 'DT of Integer'
+      echoedValue <- g.operation(2)
+      assert echoedValue.op(21) == 42
+
+//EOF

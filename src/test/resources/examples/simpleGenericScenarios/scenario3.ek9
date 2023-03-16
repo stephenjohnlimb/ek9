@@ -1,0 +1,38 @@
+#!ek9
+<?-
+  This deals with multiple parameter types.
+-?>
+defines module generics.scenario.three
+
+  defines class
+
+    <?-
+      Simple Generic/template class with a multiple type parameters.
+    -?>
+    GC of type (P, Q, R)
+
+      <?-
+        Single operation that uses the conceptual types
+        as both an incoming argument type and a return argument type.
+      -?>
+      operation()
+        ->
+          arg0 as P
+          arg1 as Q
+          arg2 as R
+        <-
+          result as R: arg2 + arg0 * arg1
+
+  <?-
+    Some sample programs that show the use of the generic type.
+    The code here does not use inference, it is fully explicit.
+  -?>
+  defines program
+
+    Driver()
+      g as GC of (Integer, Duration, Date): GC()
+
+      calculatedValue as Date: g.operation(5, P2W, Date().today())
+      assert calculatedValue?
+
+//EOF
