@@ -247,7 +247,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
    * This now becomes a TEMPLATE_TYPE, rather than just a plain TYPE.
    */
   @Override
-  public void addParameterType(AggregateSymbol parameterType) {
+  public void addParameterType(ISymbol parameterType) {
     super.addParameterType(parameterType);
     super.setCategory(SymbolCategory.TEMPLATE_TYPE);
   }
@@ -404,8 +404,8 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     }
 
     if (canAssign >= 0.0 && s instanceof AggregateSymbol toCheck) {
-      double parameterisedWeight = checkParameterisedTypesAssignable(getParameterTypes(),
-          toCheck.getParameterTypes());
+      double parameterisedWeight = checkParameterisedTypesAssignable(getParameterTypesOrArguments(),
+          toCheck.getParameterTypesOrArguments());
       canAssign += parameterisedWeight;
     }
 
@@ -427,8 +427,8 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     }
 
     if (canAssign >= 0.0 && s instanceof AggregateSymbol toCheck) {
-      double parameterisedWeight = checkParameterisedTypesAssignable(getParameterTypes(),
-          toCheck.getParameterTypes());
+      double parameterisedWeight = checkParameterisedTypesAssignable(getParameterTypesOrArguments(),
+          toCheck.getParameterTypesOrArguments());
       canAssign += parameterisedWeight;
     }
 

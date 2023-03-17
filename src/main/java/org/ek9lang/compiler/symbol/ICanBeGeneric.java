@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.symbol;
 
 import java.util.List;
+import java.util.Optional;
 import org.antlr.v4.runtime.ParserRuleContext;
 
 /**
@@ -8,26 +9,21 @@ import org.antlr.v4.runtime.ParserRuleContext;
  */
 public interface ICanBeGeneric extends ISymbol {
 
+  Optional<PossibleGenericSymbol> getGenericType();
+
   /**
-   * Used to keep track of any parameterised types used in a generic type that use some or
+   * Used to keep track of any parameterised types/function used in a generic type that use some or
    * all of the generic parameters.
    */
-  List<ParameterisedTypeSymbol> getParameterisedTypeReferences();
+  List<PossibleGenericSymbol> getParameterisedTypeReferences();
 
-  /**
-   * Keep track of parameterised functions used.
-   */
-  List<ParameterisedFunctionSymbol> getParameterisedFunctionReferences();
+  void addParameterisedTypeReference(PossibleGenericSymbol parameterisedTypeReference);
 
-  void addParameterisedFunctionReference(ParameterisedFunctionSymbol parameterisedFunctionReference);
-
-  void addParameterisedTypeReference(ParameterisedTypeSymbol parameterisedTypeReference);
-
-  void addParameterType(AggregateSymbol parameterisedType);
+  void addParameterType(ISymbol parameterisedType);
 
   List<ISymbol> getAnyGenericParameters();
 
-  List<ISymbol> getParameterTypes();
+  List<ISymbol> getParameterTypesOrArguments();
 
   void setContextForParameterisedType(ParserRuleContext ctx);
 

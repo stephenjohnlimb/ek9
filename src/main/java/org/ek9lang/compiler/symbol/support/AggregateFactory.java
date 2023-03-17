@@ -145,7 +145,7 @@ public class AggregateFactory {
       if (symbol.isGenericTypeParameter()) {
         List<ISymbol> concreteParameters = concreteSymbol.getParameterSymbols();
         if (concreteSymbol.getParameterisableSymbol() instanceof PossibleGenericSymbol genericType) {
-          List<ISymbol> genericParameters = genericType.getParameterTypes();
+          List<ISymbol> genericParameters = genericType.getParameterTypesOrArguments();
           for (int i = 0; i < concreteParameters.size(); i++) {
             if (symbol.isExactSameType(genericParameters.get(i))) {
               appropriateParams.add(concreteParameters.get(i));

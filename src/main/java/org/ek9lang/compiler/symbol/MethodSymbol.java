@@ -386,6 +386,20 @@ public class MethodSymbol extends ScopedSymbol {
   }
 
   @Override
+  public int hashCode() {
+    return getFriendlyName().hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    var rtn = false;
+    if (obj instanceof MethodSymbol symbol) {
+      rtn = getFriendlyName().equals(symbol.getFriendlyName());
+    }
+    return rtn;
+  }
+
+  @Override
   public String toString() {
     return getFriendlyName();
   }

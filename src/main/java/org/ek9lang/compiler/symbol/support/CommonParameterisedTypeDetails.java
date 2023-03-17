@@ -82,8 +82,8 @@ public class CommonParameterisedTypeDetails {
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public static int getIndexOfType(PossibleGenericSymbol genericTypeSymbol, Optional<ISymbol> theType) {
     if (theType.isPresent()) {
-      for (int i = 0; i < genericTypeSymbol.getParameterTypes().size(); i++) {
-        if (genericTypeSymbol.getParameterTypes().get(i).isExactSameType(theType.get())) {
+      for (int i = 0; i < genericTypeSymbol.getParameterTypesOrArguments().size(); i++) {
+        if (genericTypeSymbol.getParameterTypesOrArguments().get(i).isExactSameType(theType.get())) {
           return i;
         }
       }

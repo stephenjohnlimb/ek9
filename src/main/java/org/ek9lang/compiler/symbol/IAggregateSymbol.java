@@ -10,7 +10,7 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 /**
  * Interface for an aggregate, typically a class or something like that.
  */
-public interface IAggregateSymbol extends IScopedSymbol {
+public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
   /**
    * The module scope this aggregate has been defined in.
    *
@@ -99,8 +99,6 @@ public interface IAggregateSymbol extends IScopedSymbol {
   MethodSymbolSearchResult resolveMatchingMethods(MethodSymbolSearch search, MethodSymbolSearchResult result);
 
   Optional<ISymbol> resolveMember(SymbolSearch search);
-
-  List<ISymbol> getParameterTypes();
 
   Optional<IAggregateSymbol> getSuperAggregateScopedSymbol();
 

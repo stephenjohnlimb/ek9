@@ -98,7 +98,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
    * By adding a parameterised type this Function stops being a FUNCTION and becomes a TEMPLATE_FUNCTION.
    */
   @Override
-  public void addParameterType(AggregateSymbol parameterType) {
+  public void addParameterType(ISymbol parameterType) {
     super.addParameterType(parameterType);
     super.setCategory(SymbolCategory.TEMPLATE_FUNCTION);
   }

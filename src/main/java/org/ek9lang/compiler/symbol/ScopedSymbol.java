@@ -19,6 +19,9 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
  */
 public class ScopedSymbol extends Symbol implements IScopedSymbol {
 
+  /**
+   * This is the scope where any symbols actually get defined.
+   */
   private final LocalScope actualScope;
 
   /**
@@ -32,7 +35,6 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private Optional<IScopedSymbol> outerMostTypeOrFunction = Optional.empty();
-
 
   public ScopedSymbol(String name, IScope enclosingScope) {
     super(name);
@@ -61,6 +63,8 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
     var rtn = super.equals(obj);
     if (rtn && obj instanceof ScopedSymbol scopedSymbol) {
       rtn = actualScope.equals(scopedSymbol.actualScope);
+    } else {
+      rtn = false;
     }
     return rtn;
   }

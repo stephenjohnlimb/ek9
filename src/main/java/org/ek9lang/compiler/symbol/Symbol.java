@@ -21,6 +21,7 @@ public class Symbol implements ISymbol {
   private SymbolCategory category = SymbolCategory.VARIABLE;
   private SymbolGenus genus = SymbolGenus.CLASS;
   private String name;
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private Optional<ISymbol> type = Optional.empty();
   private boolean hasBeenSet = false;
   /**
@@ -55,15 +56,19 @@ public class Symbol implements ISymbol {
    */
   private boolean markedPure = false;
   private boolean produceFullyQualifiedName = false;
+
   /**
    * Where this symbol come from - not always set for every symbol.
    */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private Optional<Module> parsedModule = Optional.empty();
 
   public Symbol(String name) {
     this.setName(name);
   }
 
+
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public Symbol(String name, Optional<ISymbol> type) {
     this(name);
     this.setType(type);
@@ -335,6 +340,7 @@ public class Symbol implements ISymbol {
     if (obj instanceof ISymbol symbol) {
       rtn = getFriendlyName().equals(symbol.getFriendlyName());
     }
+
     return rtn;
   }
 
@@ -347,7 +353,8 @@ public class Symbol implements ISymbol {
     return getName();
   }
 
-  protected String getSymbolTypeAsString(Optional<ISymbol> type) {
+  protected String getSymbolTypeAsString(
+      @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<ISymbol> type) {
     final var self = this;
     //The problem of using theType.getFriendlyName is that aggregate has method -> back to same aggregate
     //So not a direct type is the same type - but aggregate -> method -> uses aggregate -> method  ... stack overflow
