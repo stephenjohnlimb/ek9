@@ -1,14 +1,11 @@
-package org.ek9lang.compiler.symbol.support;
+package org.ek9lang.compiler.symbol;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
-import org.ek9lang.compiler.symbol.AggregateSymbol;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.MethodSymbol;
-import org.ek9lang.compiler.symbol.VariableSymbol;
+import org.ek9lang.compiler.symbol.support.TypeCoercions;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -23,7 +20,7 @@ final class TypeCoercionsTest {
     ISymbol typeA = new AggregateSymbol("TypeA", symbolTable);
     ISymbol typeB = new AggregateSymbol("TypeB", symbolTable);
 
-    assertFalse(TypeCoercions.get().isCoercible(Optional.of(typeA), Optional.of(typeB)));
+    Assertions.assertFalse(TypeCoercions.get().isCoercible(Optional.of(typeA), Optional.of(typeB)));
     assertFalse(TypeCoercions.get().isCoercible(Optional.of(typeA), Optional.empty()));
 
     assertFalse(TypeCoercions.get().isCoercible(typeB, typeA));

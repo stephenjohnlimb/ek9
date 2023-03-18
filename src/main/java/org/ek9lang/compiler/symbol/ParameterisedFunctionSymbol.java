@@ -74,7 +74,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
       //So this might also be considered equivalent
       //But lets check that the parameterised types are a match
       return CommonParameterisedTypeDetails.doSymbolsMatch(parameterSymbols,
-          parameterisableSymbol.getParameterTypesOrArguments());
+          parameterisableSymbol.getTypeParameterOrArguments());
     }
     return super.isSymbolTypeMatch(symbolType);
   }
@@ -87,7 +87,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
     super.setName(
         CommonParameterisedTypeDetails.getInternalNameFor(parameterisableSymbol, parameterSymbols));
     this.setModuleScope(parameterisableSymbol.getModuleScope());
-    var isTemplateFunction = parameterSymbols.stream().anyMatch(ISymbol::isGenericTypeParameter);
+    var isTemplateFunction = parameterSymbols.stream().anyMatch(ISymbol::isConceptualTypeParameter);
 
     if (isTemplateFunction) {
       super.setCategory(SymbolCategory.TEMPLATE_FUNCTION);
@@ -155,7 +155,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
         //2 params S and T
         //But the aggregate we are lookup might just have one the 'T'. So we need to deal with this.
         List<ISymbol> lookupParameterSymbols = new ArrayList<>();
-        for (ISymbol symbol : aggregate.getParameterTypesOrArguments()) {
+        for (ISymbol symbol : aggregate.getTypeParameterOrArguments()) {
           //So given a T or whatever we need to find which index position it is in
           //Then we can use that same index position to get the equiv symbol from what parameters
           //have been applied.
@@ -172,7 +172,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
             CommonParameterisedTypeDetails.getInternalNameFor(aggregate, lookupParameterSymbols);
         TypeSymbolSearch search = new TypeSymbolSearch(parameterisedTypeSymbolName);
         return this.resolve(search);
-      } else if (aggregate.isGenericTypeParameter()) {
+      } else if (aggregate.isConceptualTypeParameter()) {
         //So if this is a T or and S or a P for example we need to know
         //What actual symbol to use from the parameterSymbols we have been parameterised with.
         int index =
@@ -192,7 +192,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
         for (ISymbol symbol : asParameterisedTypeSymbol.parameterSymbols) {
           //So lets see might be a K or V for example but we must be able to find that type
           //in this object
-          if (symbol.isGenericTypeParameter()) {
+          if (symbol.isConceptualTypeParameter()) {
             int index = CommonParameterisedTypeDetails.getIndexOfType(parameterisableSymbol,
                 Optional.of(symbol));
             if (index < 0) {

@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.symbol.support;
+package org.ek9lang.compiler.symbol;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -6,11 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
-import org.ek9lang.compiler.symbol.AggregateSymbol;
-import org.ek9lang.compiler.symbol.IScope;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.MethodSymbol;
-import org.ek9lang.compiler.symbol.VariableSymbol;
+import org.ek9lang.compiler.symbol.support.SymbolNameOrFail;
+import org.ek9lang.compiler.symbol.support.SymbolTypeNameOrFail;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.junit.jupiter.api.Test;
@@ -22,6 +19,10 @@ import org.junit.jupiter.api.Test;
  * This is a major test as it tests Symbol tables, variable symbols and method symbols
  */
 final class AggregateSymbolTest {
+
+  final SymbolTypeNameOrFail symbolTypeNameOrFail = new SymbolTypeNameOrFail();
+  final SymbolNameOrFail symbolNameOrFail = new SymbolNameOrFail();
+
   @Test
   void testEmptyAggregate() {
     SymbolTable symbolTable1 = new SymbolTable();
@@ -49,7 +50,7 @@ final class AggregateSymbolTest {
     //Check all that stuck.
     assertCommonPropertiesAfterSetting(underTest);
     assertEquals("Modified", underTest.getName());
-    assertEquals("Modified", underTest.getType().get().getName());
+    assertEquals("Modified", symbolNameOrFail.apply(underTest.getType()));
 
     //Check Original clone has not been affected.
     assertCommonPropertiesWithoutSetting(cloned1);
@@ -60,10 +61,10 @@ final class AggregateSymbolTest {
 
 
     assertEquals("UnderTest", cloned1.getName());
-    assertEquals("UnderTest", cloned1.getType().get().getName());
+    assertEquals("UnderTest", symbolNameOrFail.apply(cloned1.getType()));
 
     assertEquals("Modified", cloned2.getName());
-    assertEquals("Modified", cloned2.getType().get().getName());
+    assertEquals("Modified", symbolNameOrFail.apply(cloned2.getType()));
     assertCommonPropertiesAfterSetting(cloned2);
   }
 
@@ -170,7 +171,7 @@ final class AggregateSymbolTest {
     assertSymbol(resolvedProperty, "prop1", "Integer");
 
     //Now alter prop1 type on the cloned version but original should stay as is.
-    resolvedProperty.get().setType(stringType);
+    resolvedProperty.ifPresent(prop -> prop.setType(stringType));
 
     //Search and find again to check.
     resolvedProperty = underTest.resolveInThisScopeOnly(new SymbolSearch("prop1"));
@@ -181,10 +182,11 @@ final class AggregateSymbolTest {
     assertSymbol(resolvedProperty, "prop1", "String");
   }
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private void assertSymbol(Optional<ISymbol> resolvedSymbol, String expectedName,
                             String expectedTypeName) {
     assertTrue(resolvedSymbol.isPresent());
     assertEquals(expectedName, resolvedSymbol.get().getName());
-    assertEquals(expectedTypeName, resolvedSymbol.get().getType().get().getName());
+    assertEquals(expectedTypeName, symbolTypeNameOrFail.apply(resolvedSymbol));
   }
 }

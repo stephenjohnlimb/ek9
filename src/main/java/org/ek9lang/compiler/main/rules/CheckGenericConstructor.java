@@ -30,7 +30,7 @@ public class CheckGenericConstructor implements BiConsumer<Token, MethodSymbol> 
         && methodSymbol.getParentScope() instanceof IAggregateSymbol aggregateSymbol
         && aggregateSymbol.getCategory().equals(ISymbol.SymbolCategory.TEMPLATE_TYPE)) {
 
-      var numParameterizingTypes = aggregateSymbol.getParameterTypesOrArguments().size();
+      var numParameterizingTypes = aggregateSymbol.getTypeParameterOrArguments().size();
 
       if (numParametersInConstructor != numParameterizingTypes) {
         errorListener.semanticError(token, "",

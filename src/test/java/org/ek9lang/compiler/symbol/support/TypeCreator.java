@@ -2,6 +2,7 @@ package org.ek9lang.compiler.symbol.support;
 
 import java.util.function.BiFunction;
 import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.SymbolTable;
 
 /**
  * Just used in testing to add new named types to a symbol table.

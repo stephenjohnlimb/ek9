@@ -142,10 +142,10 @@ public class AggregateFactory {
 
     List<ISymbol> appropriateParams = new ArrayList<>();
     parameterisedSymbol.getParameterSymbols().forEach(symbol -> {
-      if (symbol.isGenericTypeParameter()) {
+      if (symbol.isConceptualTypeParameter()) {
         List<ISymbol> concreteParameters = concreteSymbol.getParameterSymbols();
         if (concreteSymbol.getParameterisableSymbol() instanceof PossibleGenericSymbol genericType) {
-          List<ISymbol> genericParameters = genericType.getParameterTypesOrArguments();
+          List<ISymbol> genericParameters = genericType.getTypeParameterOrArguments();
           for (int i = 0; i < concreteParameters.size(); i++) {
             if (symbol.isExactSameType(genericParameters.get(i))) {
               appropriateParams.add(concreteParameters.get(i));
@@ -223,7 +223,7 @@ public class AggregateFactory {
    */
   public AggregateSymbol createGenericT(String name, IScope scope) {
     AggregateSymbol t = new AggregateSymbol(name, scope);
-    t.setGenericTypeParameter(true);
+    t.setConceptualTypeParameter(true);
 
     addConstructor(t);
 

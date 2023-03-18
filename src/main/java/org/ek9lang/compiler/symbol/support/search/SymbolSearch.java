@@ -7,8 +7,8 @@ import org.ek9lang.compiler.internals.Module;
 import org.ek9lang.compiler.internals.Source;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.SymbolTable;
 import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
-import org.ek9lang.compiler.symbol.support.SymbolTable;
 import org.ek9lang.core.exception.AssertValue;
 
 /**
@@ -41,6 +41,7 @@ public class SymbolSearch {
   /**
    * Of this Type/Super type or the return type of the function/method.
    */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private Optional<ISymbol> ofTypeOrReturn = Optional.empty();
   /**
    * What type of search is being triggered.
@@ -71,6 +72,7 @@ public class SymbolSearch {
     this.name = name;
   }
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   protected SymbolSearch(String name, Optional<ISymbol> ofTypeOrReturn) {
     this(name);
     AssertValue.checkNotEmpty("Type Or Return Type cannot be empty", ofTypeOrReturn);
@@ -83,8 +85,8 @@ public class SymbolSearch {
     this.ofTypeOrReturn = Optional.of(ofTypeOrReturn);
   }
 
-  protected SymbolSearch cloneIntoSearchSymbol(SymbolSearch symbolSearch) {
-    return symbolSearch.setOfTypeOrReturn(ofTypeOrReturn)
+  protected void cloneIntoSearchSymbol(SymbolSearch symbolSearch) {
+    symbolSearch.setOfTypeOrReturn(ofTypeOrReturn)
         .setParameters(parameters)
         .setLimitToBlocks(limitToBlocks)
         .setSearchType(searchType);
@@ -110,6 +112,7 @@ public class SymbolSearch {
   /**
    * What type of symbol is being searched for or its return type.
    */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public SymbolSearch setOfTypeOrReturn(Optional<ISymbol> ofTypeOrReturn) {
     AssertValue.checkNotNull("ofTypeOrReturn cannot be null for search Symbol", ofTypeOrReturn);
     this.ofTypeOrReturn = ofTypeOrReturn;

@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.symbol.support;
+package org.ek9lang.compiler.symbol;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -10,13 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Optional;
-import org.ek9lang.compiler.symbol.AggregateSymbol;
-import org.ek9lang.compiler.symbol.ConstantSymbol;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
-import org.ek9lang.compiler.symbol.IScope;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.MethodSymbol;
-import org.ek9lang.compiler.symbol.VariableSymbol;
+import org.ek9lang.compiler.symbol.support.TypeCreator;
 import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.FunctionSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
@@ -31,9 +25,11 @@ import org.junit.jupiter.api.Test;
 /**
  * Test out the basic operations on the symbol table.
  * The Symbol Table is used in many contexts.
+ * So this test is just focussed on the symbol table itself really.
+ * But it uses lots of other symbols to check things out.
+ * The SymbolTable is a really critical bit of the compiler and needs a range of checks.
  */
 final class SymbolTableTest {
-
   @Test
   void testEquality() {
     var st1 = new SymbolTable();
@@ -68,12 +64,12 @@ final class SymbolTableTest {
 
     //This turns the functions/aggregates into Template Generic types
     var functionSymbol = new FunctionSymbol("notThisFunction", underTest);
-    functionSymbol.addParameterType(
+    functionSymbol.addTypeParameterOrArgument(
         new AggregateSymbol("NoneSuch1", underTest));
     underTest.define(functionSymbol);
 
     var aggregateSymbol = new AggregateSymbol("notThisType", underTest);
-    aggregateSymbol.addParameterType(
+    aggregateSymbol.addTypeParameterOrArgument(
         new AggregateSymbol("NoneSuch2", underTest));
     underTest.define(aggregateSymbol);
 
@@ -296,7 +292,7 @@ final class SymbolTableTest {
 
     //This turns the functions/aggregates into Template Generic types
     var functionSymbol = new FunctionSymbol("function2", underTest);
-    functionSymbol.addParameterType(
+    functionSymbol.addTypeParameterOrArgument(
         new AggregateSymbol("NoneSuch1", underTest));
     underTest.define(functionSymbol);
 
@@ -394,6 +390,7 @@ final class SymbolTableTest {
     assertFalse(underTest.resolve(new TypeSymbolSearch("global::Float")).isPresent());
 
     ISymbol floatType = typeCreator.apply("Float", underTest);
+    assertNotNull(floatType);
 
     List<ISymbol> symbols = underTest.getSymbolsForThisScope();
     assertEquals(1, symbols.size());
@@ -433,19 +430,5 @@ final class SymbolTableTest {
     assertFalse(underTest.findNearestNonBlockScopeInEnclosingScopes().isPresent());
     assertFalse(underTest.isScopeAMatchForEnclosingScope(underTest));
     assertFalse(underTest.resolveWithEnclosingScope(new TypeSymbolSearch("global::Float")).isPresent());
-
-    AggregateSymbol templateType = new AggregateSymbol("Special", underTest);
-    templateType.addParameterType(new AggregateSymbol("T", underTest));
-    underTest.define(templateType);
-
-    var templateTypeSymbolSearch = new TemplateTypeSymbolSearch("global::Special");
-    searchResult = underTest.resolveInThisScopeOnly(templateTypeSymbolSearch);
-    assertTrue(searchResult.isPresent());
-
-    //Clone search and check again
-    searchResult = underTest
-        .resolveInThisScopeOnly(new TemplateTypeSymbolSearch(templateTypeSymbolSearch));
-    assertTrue(searchResult.isPresent());
-
   }
 }

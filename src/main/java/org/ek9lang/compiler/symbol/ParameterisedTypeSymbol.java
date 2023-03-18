@@ -90,7 +90,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
       //So this might also be considered equivalent
       //But let's check that the parameterised types are a match
       return CommonParameterisedTypeDetails.doSymbolsMatch(parameterSymbols,
-          parameterisableSymbol.getParameterTypesOrArguments());
+          parameterisableSymbol.getTypeParameterOrArguments());
     }
     return super.isSymbolTypeMatch(symbolType);
   }
@@ -112,7 +112,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
     super.setName(
         CommonParameterisedTypeDetails.getInternalNameFor(parameterisableSymbol, parameterSymbols));
 
-    var isTemplateType = parameterSymbols.stream().anyMatch(ISymbol::isGenericTypeParameter);
+    var isTemplateType = parameterSymbols.stream().anyMatch(ISymbol::isConceptualTypeParameter);
 
     if (isTemplateType) {
       super.setCategory(SymbolCategory.TEMPLATE_TYPE);
@@ -266,7 +266,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
         //2 params S and T
         //But the aggregate we are lookup might just have one the 'T'. So we need to deal with this.
         List<ISymbol> lookupParameterSymbols = new ArrayList<>();
-        for (ISymbol symbol : aggregate.getParameterTypesOrArguments()) {
+        for (ISymbol symbol : aggregate.getTypeParameterOrArguments()) {
           //So given a T or whatever we need to find which index position it is in
           //Then we can use that same index position to get the equiv symbol from what parameters
           //have been applied.
@@ -294,7 +294,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
         }
 
         return rtn;
-      } else if (aggregate.isGenericTypeParameter()) {
+      } else if (aggregate.isConceptualTypeParameter()) {
         //So if this is a T or and S or a P for example we need to know
         //What actual symbol to use from the parameterSymbols we have been parameterised with.
         int index = getIndexOfType(typeToResolve);
@@ -315,7 +315,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
         for (ISymbol symbol : asParameterisedTypeSymbol.parameterSymbols) {
           //So lets see might be a K or V for example, but we must be able to find that type
           //in this object
-          if (symbol.isGenericTypeParameter()) {
+          if (symbol.isConceptualTypeParameter()) {
             int index = getIndexOfType(Optional.of(symbol));
             if (index < 0) {
               throw new CompilerException("Unable to find symbol [" + symbol + "]");
@@ -359,8 +359,8 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
    */
   private int getIndexOfType(Optional<ISymbol> theType) {
     if (theType.isPresent()) {
-      for (int i = 0; i < parameterisableSymbol.getParameterTypesOrArguments().size(); i++) {
-        ISymbol paramType = parameterisableSymbol.getParameterTypesOrArguments().get(i);
+      for (int i = 0; i < parameterisableSymbol.getTypeParameterOrArguments().size(); i++) {
+        ISymbol paramType = parameterisableSymbol.getTypeParameterOrArguments().get(i);
         if (paramType.isExactSameType(theType.get())) {
           return i;
         }

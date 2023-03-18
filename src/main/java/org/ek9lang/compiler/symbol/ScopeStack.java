@@ -1,9 +1,8 @@
-package org.ek9lang.compiler.symbol.support;
+package org.ek9lang.compiler.symbol;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Optional;
-import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.core.exception.AssertValue;
 
 /**

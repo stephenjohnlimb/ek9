@@ -7,8 +7,8 @@ import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.IScopedSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.ParameterisedSymbol;
+import org.ek9lang.compiler.symbol.ScopeStack;
 import org.ek9lang.compiler.symbol.StackConsistencyScope;
-import org.ek9lang.compiler.symbol.support.ScopeStack;
 import org.ek9lang.compiler.symbol.support.SymbolChecker;
 import org.ek9lang.core.exception.AssertValue;
 

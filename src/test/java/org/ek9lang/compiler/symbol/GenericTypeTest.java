@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.symbol.support;
+package org.ek9lang.compiler.symbol;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Optional;
-import org.ek9lang.compiler.symbol.ParameterisedTypeSymbol;
+import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import org.ek9lang.compiler.symbol.support.search.TemplateTypeSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.junit.jupiter.api.Assertions;
@@ -41,7 +41,7 @@ final class GenericTypeTest extends AbstractSymbolTestBase {
 
     //Now make sure it is possible to find the correct index of 'Tee'
     //This will be needed when we come to process parameterised types.
-    assertEquals(0, CommonParameterisedTypeDetails.getIndexOfType(z, Optional.of(t)));
+    Assertions.assertEquals(0, CommonParameterisedTypeDetails.getIndexOfType(z, Optional.of(t)));
 
     //Check we CANNOT find this as a type, but only as a template type.
     assertTrue(symbolTable.resolve(new TypeSymbolSearch("Zee")).isEmpty());

@@ -47,7 +47,7 @@ public interface ParameterisedSymbol extends IScopedSymbol {
     //But when given a set of valid parameter are no longer generic aggregates.
     return getParameterSymbols()
         .stream()
-        .map(ISymbol::isGenericTypeParameter)
+        .map(ISymbol::isConceptualTypeParameter)
         .findFirst()
         .orElse(false);
   }

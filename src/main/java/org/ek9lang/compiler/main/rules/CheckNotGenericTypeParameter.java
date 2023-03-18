@@ -22,7 +22,7 @@ public class CheckNotGenericTypeParameter implements Consumer<ISymbol> {
   public void accept(ISymbol variable) {
     if (variable != null && variable.getType().isPresent()) {
       variable.getType().ifPresent(type -> {
-        if (type.isGenericTypeParameter()) {
+        if (type.isConceptualTypeParameter()) {
           errorListener.semanticError(variable.getSourceToken(), "", COMPONENT_INJECTION_NOT_POSSIBLE);
         }
       });

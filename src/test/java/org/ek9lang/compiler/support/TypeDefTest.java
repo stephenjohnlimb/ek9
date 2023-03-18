@@ -11,7 +11,7 @@ import org.ek9lang.compiler.main.Ek9LanguageBootStrap;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineTypeDef;
-import org.ek9lang.compiler.symbol.support.ScopeStack;
+import org.ek9lang.compiler.symbol.ScopeStack;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

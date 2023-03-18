@@ -57,9 +57,9 @@ public class FunctionSymbol extends PossibleGenericSymbol {
    * So the name would be 'List' and the parameterTypes would be a single aggregate of
    * a conceptual T.
    */
-  public FunctionSymbol(String name, IScope enclosingScope, List<AggregateSymbol> parameterTypes) {
+  public FunctionSymbol(String name, IScope enclosingScope, List<AggregateSymbol> typeParameterOrArguments) {
     this(name, enclosingScope);
-    parameterTypes.forEach(this::addParameterType);
+    typeParameterOrArguments.forEach(this::addTypeParameterOrArgument);
   }
 
   @Override
@@ -98,8 +98,8 @@ public class FunctionSymbol extends PossibleGenericSymbol {
    * By adding a parameterised type this Function stops being a FUNCTION and becomes a TEMPLATE_FUNCTION.
    */
   @Override
-  public void addParameterType(ISymbol parameterType) {
-    super.addParameterType(parameterType);
+  public void addTypeParameterOrArgument(ISymbol typeParameterOrArgument) {
+    super.addTypeParameterOrArgument(typeParameterOrArgument);
     super.setCategory(SymbolCategory.TEMPLATE_FUNCTION);
   }
 
@@ -189,6 +189,8 @@ public class FunctionSymbol extends PossibleGenericSymbol {
     return superFunctionSymbol.map(s -> name + " is " + s.getName()).orElse(name);
   }
 
+
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   protected String doGetFriendlyName(String withName, Optional<ISymbol> theType) {
     StringBuilder buffer = new StringBuilder();
 
@@ -219,18 +221,4 @@ public class FunctionSymbol extends PossibleGenericSymbol {
     return super.resolveInThisScopeOnly(search);
   }
 
-  @Override
-  public Optional<ISymbol> resolve(SymbolSearch search) {
-    Optional<ISymbol> rtn = resolveFromParameterTypes(search);
-
-    if (rtn.isEmpty()) {
-      rtn = resolveInThisScopeOnly(search);
-    }
-
-    if (rtn.isEmpty()) {
-      rtn = resolveWithParentScope(search);
-    }
-
-    return rtn;
-  }
 }

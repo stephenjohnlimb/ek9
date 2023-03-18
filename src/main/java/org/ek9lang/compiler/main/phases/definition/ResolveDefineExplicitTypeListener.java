@@ -6,7 +6,7 @@ import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineExplicitParameterizedType;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineTypeDef;
 import org.ek9lang.compiler.main.rules.CheckNotGenericTypeParameter;
-import org.ek9lang.compiler.symbol.support.ScopeStack;
+import org.ek9lang.compiler.symbol.ScopeStack;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
 import org.ek9lang.core.exception.AssertValue;
 

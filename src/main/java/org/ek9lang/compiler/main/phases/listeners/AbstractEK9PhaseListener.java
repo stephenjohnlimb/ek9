@@ -7,7 +7,7 @@ import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbol.IScope;
-import org.ek9lang.compiler.symbol.support.ScopeStack;
+import org.ek9lang.compiler.symbol.ScopeStack;
 import org.ek9lang.core.exception.AssertValue;
 
 /**

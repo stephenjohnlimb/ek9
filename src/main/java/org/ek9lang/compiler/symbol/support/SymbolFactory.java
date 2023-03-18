@@ -249,7 +249,7 @@ public class SymbolFactory {
     var parameterisedSymbols = createAndRegisterParameterisedSymbols(ctx.parameterisedParams(), moduleScope);
     if (!parameterisedSymbols.isEmpty()) {
       //Now need to register against the class we are creating
-      parameterisedSymbols.forEach(newClass::addParameterType);
+      parameterisedSymbols.forEach(newClass::addTypeParameterOrArgument);
       //It is also important to hold on to the context when it comes to template/generic expansion.
       newClass.setContextForParameterisedType(ctx);
     }
@@ -334,7 +334,7 @@ public class SymbolFactory {
     var parameterisedSymbols = createAndRegisterParameterisedSymbols(ctx.parameterisedParams(), moduleScope);
     if (!parameterisedSymbols.isEmpty()) {
       //Now need to register against the class we are creating
-      parameterisedSymbols.forEach(newFunction::addParameterType);
+      parameterisedSymbols.forEach(newFunction::addTypeParameterOrArgument);
       //It is also important to hold on to the context when it comes to template/generic expansion.
       newFunction.setContextForParameterisedType(ctx);
     }

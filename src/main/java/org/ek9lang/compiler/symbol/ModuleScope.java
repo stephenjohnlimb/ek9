@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.symbol.support.SymbolChecker;
-import org.ek9lang.compiler.symbol.support.SymbolTable;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.threads.SharedThreadContext;

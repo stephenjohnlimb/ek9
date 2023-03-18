@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.symbol.support;
+package org.ek9lang.compiler.symbol;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,10 +13,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import org.antlr.v4.runtime.Token;
-import org.ek9lang.compiler.symbol.IScope;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.MethodSymbol;
-import org.ek9lang.compiler.symbol.ScopedSymbol;
+import org.ek9lang.compiler.symbol.support.SymbolMatcher;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;

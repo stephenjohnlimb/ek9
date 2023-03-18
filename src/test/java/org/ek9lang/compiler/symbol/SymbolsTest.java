@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.symbol.support;
+package org.ek9lang.compiler.symbol;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -10,19 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.internals.Module;
 import org.ek9lang.compiler.internals.Source;
-import org.ek9lang.compiler.symbol.AggregateSymbol;
-import org.ek9lang.compiler.symbol.CallSymbol;
-import org.ek9lang.compiler.symbol.ConstantSymbol;
-import org.ek9lang.compiler.symbol.ExpressionSymbol;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
-import org.ek9lang.compiler.symbol.IScope;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.LocalScope;
-import org.ek9lang.compiler.symbol.MethodSymbol;
-import org.ek9lang.compiler.symbol.ParamExpressionSymbol;
-import org.ek9lang.compiler.symbol.StreamPipeLineSymbol;
-import org.ek9lang.compiler.symbol.Symbol;
-import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
@@ -554,7 +541,6 @@ final class SymbolsTest extends AbstractSymbolTestBase {
   }
 
   @Test
-  @SuppressWarnings("java:S5785")
   void testVariableSymbol() {
     IScope symbolTable = new SymbolTable();
     ISymbol integerType = new AggregateSymbol("Integer", symbolTable);
@@ -566,6 +552,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertEquals(v1, v1);
 
     VariableSymbol v1RefNull = null;
+    //noinspection ConstantValue
     assertNotEquals(v1, v1RefNull);
 
     var clone = v1.clone(symbolTable);
@@ -664,7 +651,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertFalse(symbol.isTemplateType());
     assertFalse(symbol.isParameterisedType());
     assertFalse(symbol.isGenericInNature());
-    assertFalse(symbol.isGenericTypeParameter());
+    assertFalse(symbol.isConceptualTypeParameter());
 
   }
 }

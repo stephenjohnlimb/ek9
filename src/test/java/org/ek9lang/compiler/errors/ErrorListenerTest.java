@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
+import org.ek9lang.compiler.symbol.SymbolTable;
 import org.ek9lang.compiler.symbol.VariableSymbol;
-import org.ek9lang.compiler.symbol.support.SymbolTable;
 import org.ek9lang.compiler.symbol.support.search.MatchResult;
 import org.ek9lang.compiler.symbol.support.search.MatchResults;
 import org.junit.jupiter.api.Test;

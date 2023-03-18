@@ -1,7 +1,6 @@
-package org.ek9lang.compiler.symbol.support;
+package org.ek9lang.compiler.symbol;
 
-import org.ek9lang.compiler.symbol.AggregateSymbol;
-import org.ek9lang.compiler.symbol.IScope;
+import org.ek9lang.compiler.symbol.support.AggregateFactory;
 import org.junit.jupiter.api.BeforeEach;
 
 public class AbstractSymbolTestBase {

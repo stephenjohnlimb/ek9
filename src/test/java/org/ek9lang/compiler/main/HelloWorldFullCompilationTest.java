@@ -11,8 +11,8 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.support.PathToSourceFromName;
 import org.ek9lang.compiler.symbol.support.SymbolCheck;
-import org.ek9lang.compiler.testsupport.PathToSourceFromName;
 import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
@@ -93,15 +93,18 @@ class HelloWorldFullCompilationTest {
       assertNotNull(externalReferenceModule);
 
       //Let's check if it is possible to resolve in the correct scope
-      SymbolCheck someExternalVariableChecker = new SymbolCheck(program, someExternal, false, true, ISymbol.SymbolCategory.VARIABLE);
+      SymbolCheck someExternalVariableChecker =
+          new SymbolCheck(program, someExternal, false, true, ISymbol.SymbolCategory.VARIABLE);
       someExternalVariableChecker.accept("helloMessage");
       someExternalVariableChecker.accept("some.external::helloMessage");
 
       //Now lets check for the program itself
-      SymbolCheck introductionTypeChecker = new SymbolCheck(program, introduction, true, true, ISymbol.SymbolCategory.TYPE);
+      SymbolCheck introductionTypeChecker =
+          new SymbolCheck(program, introduction, true, true, ISymbol.SymbolCategory.TYPE);
       introductionTypeChecker.accept("HelloWorld");
 
-      SymbolCheck introductionVariableChecker = new SymbolCheck(program, introduction, false, true, ISymbol.SymbolCategory.VARIABLE);
+      SymbolCheck introductionVariableChecker =
+          new SymbolCheck(program, introduction, false, true, ISymbol.SymbolCategory.VARIABLE);
 
       //Now because we have referenced helloMessage we should be able to resolve it like this.
       introductionVariableChecker.accept("helloMessage");

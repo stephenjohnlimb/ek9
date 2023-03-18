@@ -2,7 +2,6 @@ package org.ek9lang.compiler.symbol;
 
 import java.util.Objects;
 import java.util.Optional;
-import org.ek9lang.compiler.symbol.support.SymbolTable;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;

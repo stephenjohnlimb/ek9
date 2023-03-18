@@ -73,6 +73,7 @@ public interface ISymbol extends ITokenReference {
    *
    * @param parsedModule The parsedModule the symbol was defined in.
    */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   void setParsedModule(Optional<Module> parsedModule);
 
   boolean isDevSource();
@@ -114,7 +115,7 @@ public interface ISymbol extends ITokenReference {
    * In general this is useful when working with Generic classes and needing types like S and T
    * But they can never really be generated.
    */
-  boolean isGenericTypeParameter();
+  boolean isConceptualTypeParameter();
 
   /**
    * This symbol itself can be marked as pure - i.e. an operator with no side effects.
@@ -290,10 +291,12 @@ public interface ISymbol extends ITokenReference {
     return false;
   }
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   default boolean isAssignableTo(Optional<ISymbol> s) {
     return false;
   }
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   default double getAssignableWeightTo(Optional<ISymbol> s) {
     return -1.0;
   }
@@ -358,6 +361,7 @@ public interface ISymbol extends ITokenReference {
     return setType(Optional.ofNullable(type));
   }
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   ISymbol setType(Optional<ISymbol> type);
 
   /**

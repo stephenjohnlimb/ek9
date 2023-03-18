@@ -159,6 +159,6 @@ public abstract class ResolveOrDefineTypes {
   }
 
   private boolean anyTypesExistingGenericTypeParameters(final List<ISymbol> parameterizingTypes) {
-    return parameterizingTypes.stream().anyMatch(ISymbol::isGenericTypeParameter);
+    return parameterizingTypes.stream().anyMatch(ISymbol::isConceptualTypeParameter);
   }
 }

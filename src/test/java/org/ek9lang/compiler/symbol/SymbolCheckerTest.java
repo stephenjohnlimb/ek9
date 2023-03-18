@@ -1,10 +1,13 @@
-package org.ek9lang.compiler.symbol.support;
+package org.ek9lang.compiler.symbol;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.function.BiFunction;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.support.AggregateSymbolCreator;
+import org.ek9lang.compiler.symbol.support.FunctionSymbolCreator;
+import org.ek9lang.compiler.symbol.support.SymbolChecker;
+import org.ek9lang.compiler.symbol.support.VariableSymbolCreator;
 import org.junit.jupiter.api.Test;
 
 class SymbolCheckerTest {

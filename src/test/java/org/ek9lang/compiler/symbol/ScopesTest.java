@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.symbol.support;
+package org.ek9lang.compiler.symbol;
 
 import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_INTEGER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -7,24 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.ek9lang.compiler.symbol.AggregateSymbol;
-import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
-import org.ek9lang.compiler.symbol.CallSymbol;
-import org.ek9lang.compiler.symbol.ControlSymbol;
-import org.ek9lang.compiler.symbol.ForSymbol;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
-import org.ek9lang.compiler.symbol.IScope;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.LocalScope;
-import org.ek9lang.compiler.symbol.MethodSymbol;
-import org.ek9lang.compiler.symbol.ParameterisedFunctionSymbol;
-import org.ek9lang.compiler.symbol.ParameterisedTypeSymbol;
-import org.ek9lang.compiler.symbol.ScopedSymbol;
-import org.ek9lang.compiler.symbol.ServiceOperationSymbol;
-import org.ek9lang.compiler.symbol.StreamCallSymbol;
-import org.ek9lang.compiler.symbol.SwitchSymbol;
-import org.ek9lang.compiler.symbol.TrySymbol;
-import org.ek9lang.compiler.symbol.VariableSymbol;
+import org.ek9lang.compiler.symbol.support.AggregateFactory;
+import org.ek9lang.compiler.symbol.support.TypeCreator;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
@@ -35,7 +19,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Aimed at testing scopes and in some cases scoped symbols.
  * <p>
- * Does not fully test aggregates and the like, just their scoped type natures.
+ * Does not fully test aggregates and the like, just their scoped natures.
  */
 final class ScopesTest extends AbstractSymbolTestBase {
 

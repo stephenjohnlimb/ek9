@@ -255,7 +255,7 @@ public class Symbol implements ISymbol {
    */
   public boolean isExactSameType(ISymbol symbolType) {
     //If this is a T or U or whatever then just use the name as is.
-    if (this.isGenericTypeParameter()) {
+    if (this.isConceptualTypeParameter()) {
       return getName().equals(symbolType.getName());
     }
     return sameCategory(this, symbolType)
@@ -399,7 +399,7 @@ public class Symbol implements ISymbol {
   }
 
   @Override
-  public boolean isGenericTypeParameter() {
+  public boolean isConceptualTypeParameter() {
     return false;
   }
 

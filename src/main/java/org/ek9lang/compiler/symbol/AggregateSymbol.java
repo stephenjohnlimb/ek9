@@ -53,17 +53,6 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   private final List<IAggregateSymbol> subAggregateScopedSymbols = new ArrayList<>();
 
   /**
-   * This is actually a 'T' itself - we will need to know this.
-   * So we use an aggregate symbol to model the 'S' and 'T' conceptual types.
-   * These are 'synthetic' in nature but do have 'synthetic' operators, so that
-   * generic/template classes/functions can 'assume' certain operators and operations.
-   * Only when the generic type is actually parameterised with a 'concrete' type does the
-   * compiler check that the generic class/function that used the operators can be used with
-   * the actual concrete type.
-   */
-  private boolean genericTypeParameter;
-
-  /**
    * If there is a method that acts as a dispatcher then this aggregate is also a dispatcher.
    */
   private boolean markedAsDispatcher = false;
@@ -116,9 +105,9 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
    * So the name would be 'List' and the parameterTypes would be a single aggregate of a
    * conceptual T.
    */
-  public AggregateSymbol(String name, IScope enclosingScope, List<AggregateSymbol> parameterTypes) {
+  public AggregateSymbol(String name, IScope enclosingScope, List<AggregateSymbol> typeParameterOrArguments) {
     this(name, enclosingScope);
-    parameterTypes.forEach(this::addParameterType);
+    typeParameterOrArguments.forEach(this::addTypeParameterOrArgument);
   }
 
   @Override
@@ -133,7 +122,6 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
       newCopy.aggregateDescription = aggregateDescription;
     }
 
-    newCopy.genericTypeParameter = genericTypeParameter;
     newCopy.markedAsDispatcher = markedAsDispatcher;
 
     superAggregateScopedSymbol.ifPresent(
@@ -228,27 +216,12 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   }
 
   /**
-   * Is this aggregate itself a generic type that has been used as a parameter.
-   */
-  @Override
-  public boolean isGenericTypeParameter() {
-    return genericTypeParameter;
-  }
-
-  /**
-   * Set this aggregate to be a generic type parameter.
-   */
-  public void setGenericTypeParameter(boolean genericTypeParameter) {
-    this.genericTypeParameter = genericTypeParameter;
-  }
-
-  /**
    * Make this a template/generic type by adding one or more Parameterised types.
    * This now becomes a TEMPLATE_TYPE, rather than just a plain TYPE.
    */
   @Override
-  public void addParameterType(ISymbol parameterType) {
-    super.addParameterType(parameterType);
+  public void addTypeParameterOrArgument(ISymbol parameterType) {
+    super.addTypeParameterOrArgument(parameterType);
     super.setCategory(SymbolCategory.TEMPLATE_TYPE);
   }
 
@@ -404,8 +377,8 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     }
 
     if (canAssign >= 0.0 && s instanceof AggregateSymbol toCheck) {
-      double parameterisedWeight = checkParameterisedTypesAssignable(getParameterTypesOrArguments(),
-          toCheck.getParameterTypesOrArguments());
+      double parameterisedWeight = checkParameterisedTypesAssignable(getTypeParameterOrArguments(),
+          toCheck.getTypeParameterOrArguments());
       canAssign += parameterisedWeight;
     }
 
@@ -427,8 +400,8 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     }
 
     if (canAssign >= 0.0 && s instanceof AggregateSymbol toCheck) {
-      double parameterisedWeight = checkParameterisedTypesAssignable(getParameterTypesOrArguments(),
-          toCheck.getParameterTypesOrArguments());
+      double parameterisedWeight = checkParameterisedTypesAssignable(getTypeParameterOrArguments(),
+          toCheck.getTypeParameterOrArguments());
       canAssign += parameterisedWeight;
     }
 
@@ -462,7 +435,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   @Override
   public ISymbol setType(Optional<ISymbol> type) {
     //Used when cloning so type can be set if not already populated.
-    if (this.isGenericTypeParameter() && type.isPresent()) {
+    if (this.isConceptualTypeParameter() && type.isPresent()) {
       this.setSuperAggregateScopedSymbol((IAggregateSymbol) type.get());
     } else if (super.getType().isPresent()) {
       throw new CompilerException("You cannot set the type of an aggregate Symbol");
@@ -505,23 +478,6 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     Optional<ISymbol> rtn = resolveInThisScopeOnly(search);
     if (rtn.isEmpty() && superAggregateScopedSymbol.isPresent()) {
       rtn = superAggregateScopedSymbol.get().resolveMember(search);
-    }
-    return rtn;
-  }
-
-  /**
-   * So this is where we alter the mechanism of normal symbol resolution.
-   */
-  @Override
-  public Optional<ISymbol> resolve(SymbolSearch search) {
-    Optional<ISymbol> rtn = resolveFromParameterTypes(search);
-
-    if (rtn.isEmpty()) {
-      rtn = resolveInThisScopeOnly(search);
-    }
-
-    if (rtn.isEmpty()) {
-      rtn = resolveWithParentScope(search);
     }
     return rtn;
   }
