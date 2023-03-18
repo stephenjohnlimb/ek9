@@ -166,6 +166,29 @@ final class ScopesTest extends AbstractSymbolTestBase {
   }
 
   @Test
+  void testScopedSymbolBasics() {
+    var scopedSymbol1 = new ScopedSymbol("scopedSymbol1", symbolTable);
+    var alsoNamedScopedSymbol1 = new ScopedSymbol("scopedSymbol1", symbolTable);
+
+    assertEquals(scopedSymbol1.hashCode(), alsoNamedScopedSymbol1.hashCode());
+    assertEquals(scopedSymbol1, alsoNamedScopedSymbol1);
+
+    //Even though it has the same name, it is a different 'type' of scope.
+    var localScope = new LocalScope("scopedSymbol1", symbolTable);
+    //noinspection AssertBetweenInconvertibleTypes
+    assertNotEquals(scopedSymbol1, localScope);
+
+    assertTrue(scopedSymbol1.getAnySuperTypeOrFunction().isEmpty());
+
+    var results = new MethodSymbolSearchResult();
+    results = scopedSymbol1.resolveMatchingMethods(new MethodSymbolSearch("aMethod"), results);
+    assertTrue(results.isEmpty());
+
+    results = scopedSymbol1.resolveMatchingMethodsInThisScopeOnly(new MethodSymbolSearch("aMethod"), results);
+    assertTrue(results.isEmpty());
+  }
+
+  @Test
   void testFindingAggregateScope() {
     var aggregateScope1 =
         new ScopedSymbol(IScope.ScopeType.NON_BLOCK, "aggregateScope", symbolTable);

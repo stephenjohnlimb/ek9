@@ -24,6 +24,9 @@ final class TypeCoercionsTest {
     assertFalse(TypeCoercions.get().isCoercible(Optional.of(typeA), Optional.empty()));
 
     assertFalse(TypeCoercions.get().isCoercible(typeB, typeA));
+
+    assertTrue(typeA.getAssignableWeightTo(typeB) < -1000.0);
+    assertTrue(typeB.getAssignableWeightTo(typeA) < -1000.0);
   }
 
   @Test
@@ -50,8 +53,10 @@ final class TypeCoercionsTest {
 
     //OK now check it can be coerced
     assertTrue(TypeCoercions.get().isCoercible(typeA, typeB));
+    assertTrue(typeA.getAssignableWeightTo(typeB) > ISymbol.NOT_ASSIGNABLE);
 
     //But only one way
     assertFalse(TypeCoercions.get().isCoercible(typeB, typeA));
+    assertTrue(typeB.getAssignableWeightTo(typeA) < -1000.0);
   }
 }

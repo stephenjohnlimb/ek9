@@ -12,47 +12,92 @@ import org.ek9lang.core.exception.AssertValue;
 
 /**
  * A bit of a beast.
+ * The 'Symbol' can be a type, a function, a variable, a control statement,
+ * i.e. it can be used in a very wide range of contexts.
  * Is extended widely for particular types of symbol.
  */
 public class Symbol implements ISymbol {
-  //Sometimes it is necessary to pick data and hold it in the symbol for later.
+  /**
+   * This is the 'bit bucket' where during the parsing and IR phases
+   * information about the symbol can be augmented.
+   */
   private final Map<String, String> squirrelledAway = new HashMap<>();
-  //This also covers constants - change mutability for those.
+
+  /**
+   * This tells you what nature this symbol has.
+   */
   private SymbolCategory category = SymbolCategory.VARIABLE;
+
+  /**
+   * What sort of ek9 'construct' is this.
+   */
   private SymbolGenus genus = SymbolGenus.CLASS;
+
+  /**
+   * The actual name of the symbol, but can be 'mangled' or conceptual.
+   */
   private String name;
+
+  /**
+   * So for some symbols (some controls) this makes little sense, they cannot have a 'type'.
+   * But a variable call 'x' will have a type - it could be an 'Integer' for example.
+   */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private Optional<ISymbol> type = Optional.empty();
-  private boolean hasBeenSet = false;
+
   /**
-   * Not always set if ek9 core.
-   * But is the token where this symbol was defined.
+   * Is this mutable or not.
+   */
+  private boolean notMutable = false;
+
+  /**
+   * The token where this symbol was defined.
    */
   private Token sourceToken = null;
+
   /**
    * This is the token that initialised the symbol.
    * Typically, ony valid for Variables and expressions.
+   * But if we're talking components, they will get injected with '!'.
+   * So this may just be set when the variable is declared as having an 'injected' assignment.
    */
   private Token initialisedBy = null;
+
   /**
    * Was this symbol referenced.
+   * Typically, for variables, rules may check this - because if not referenced
+   * what's the point. But with IOC and injection this is sometimes more complex to establish.
    */
   private boolean referenced = false;
+
   /**
    * The idea is to assume that symbol cannot be null by default.
    * i.e a variable cannot null or a function/method cannot return a null value
    * If the developer wants to support then ? has to be used to make that explicit.
+   * In an ideal world we would have eradicated 'null', but to support specific concepts like
+   * generics and abstract types - a null value has to be available in someway.
+   * because how to you initialise 'var as T' - where the 'T' is an abstract type that cannot be
+   * instantiated?
    */
   private boolean nullAllowed = false;
-  //For components, we need to know if injection is expected.
+
+  /**
+   * For components, we need to know if injection is expected.
+   */
   private boolean injectionExpected = false;
+
   /**
    * Used to mark a symbol as ek9 core or not.
-   * Normally used to drive the generation of fully qualified names.
    */
   private boolean ek9Core = false;
+
   /**
    * Is this symbol marked as being pure.
+   * The concept of 'pure' is focussed on immutability.
+   * In EK9 there is no 'const', 'final' or anything like that.
+   * The concept is based around 'processing' i.e. a function/method etc
+   * can be marked as 'pure'. Within that 'pure block' there are limits on
+   * variable reassignments.
    */
   private boolean markedPure = false;
   private boolean produceFullyQualifiedName = false;
@@ -84,7 +129,7 @@ public class Symbol implements ISymbol {
     newCopy.setCategory(this.getCategory());
     newCopy.setGenus(this.getGenus());
     newCopy.setName(this.getName());
-    newCopy.hasBeenSet = this.hasBeenSet;
+    newCopy.notMutable = this.notMutable;
     newCopy.setNullAllowed(this.isNullAllowed());
     newCopy.setInjectionExpected(this.isInjectionExpected());
     newCopy.setEk9Core(this.isEk9Core());
@@ -148,12 +193,12 @@ public class Symbol implements ISymbol {
 
   @Override
   public boolean isMutable() {
-    return !hasBeenSet;
+    return !notMutable;
   }
 
   @Override
   public void setNotMutable() {
-    hasBeenSet = true;
+    notMutable = true;
   }
 
   @Override
@@ -278,7 +323,7 @@ public class Symbol implements ISymbol {
 
   @Override
   public double getAssignableWeightTo(Optional<ISymbol> s) {
-    return s.map(this::getAssignableWeightTo).orElse(-1000000.0);
+    return s.map(this::getAssignableWeightTo).orElse(NOT_ASSIGNABLE);
   }
 
   @Override
@@ -304,7 +349,7 @@ public class Symbol implements ISymbol {
 
   @Override
   public double getUnCoercedAssignableWeightTo(ISymbol s) {
-    double canAssign = -1000000.0;
+    double canAssign = NOT_ASSIGNABLE;
     AssertValue.checkNotNull("Symbol cannot be null", s);
 
     if (isExactSameType(s)) {

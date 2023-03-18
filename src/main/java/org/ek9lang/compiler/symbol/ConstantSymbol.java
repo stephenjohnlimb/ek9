@@ -30,6 +30,7 @@ public class ConstantSymbol extends Symbol {
     this(name, Optional.ofNullable(type), false);
   }
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public ConstantSymbol(String name, Optional<ISymbol> type) {
     this(name, type, false);
   }
@@ -37,6 +38,7 @@ public class ConstantSymbol extends Symbol {
   /**
    * Construction of a Constant.
    */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public ConstantSymbol(String name, Optional<ISymbol> type, boolean fromLiteral) {
     super(name, type);
     super.setGenus(SymbolGenus.VALUE);

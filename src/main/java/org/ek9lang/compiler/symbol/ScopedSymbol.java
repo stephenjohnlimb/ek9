@@ -54,7 +54,6 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
 
   @Override
   public int hashCode() {
-
     return Objects.hash(super.hashCode(), actualScope.hashCode());
   }
 

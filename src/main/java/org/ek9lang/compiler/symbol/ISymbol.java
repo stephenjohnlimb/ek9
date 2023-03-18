@@ -8,6 +8,8 @@ import org.ek9lang.compiler.internals.Module;
  */
 public interface ISymbol extends ITokenReference {
 
+  double NOT_ASSIGNABLE = -1000000.0;
+
   /**
    * Symbol names can be fully qualified (i.e. with the module name) or just a name.
    * This method returns the module name if present or "" if not.

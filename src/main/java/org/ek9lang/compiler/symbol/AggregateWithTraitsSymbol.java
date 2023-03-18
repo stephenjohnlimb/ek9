@@ -128,12 +128,12 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
         return 0.05 + canAssign;
       }
     }
-    return -1000000.0;
+    return NOT_ASSIGNABLE;
   }
 
   @Override
   public double getAssignableWeightTo(Optional<ISymbol> s) {
-    return s.map(this::getAssignableWeightTo).orElse(-100000.0);
+    return s.map(this::getAssignableWeightTo).orElse(NOT_ASSIGNABLE);
   }
 
   @Override
@@ -152,7 +152,7 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
         return 0.05 + canAssign;
       }
     }
-    return -1000000.0;
+    return NOT_ASSIGNABLE;
   }
 
   @Override

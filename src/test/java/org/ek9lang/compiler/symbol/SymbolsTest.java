@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.compiler.tokenizer.SyntheticToken;
+import org.ek9lang.core.exception.CompilerException;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -477,6 +479,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
         new VariableSymbol("v1", symbolTable.resolve(new TypeSymbolSearch("String"))));
     assertNotNull(expr2);
 
+    assertThrows(CompilerException.class, expr2::setNotMutable);
   }
 
   private void assertExpressionSymbolValues(ExpressionSymbol expr) {
@@ -555,10 +558,16 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     //noinspection ConstantValue
     assertNotEquals(v1, v1RefNull);
 
-    var clone = v1.clone(symbolTable);
-    assertVariable1(clone);
-    assertEquals(v1, clone);
+    var clone1 = v1.clone(symbolTable);
+    assertVariable1(clone1);
+    assertEquals(v1, clone1);
+    assertEquals(v1.hashCode(), clone1.hashCode());
     assertNotEquals("AString", v1.getFriendlyName());
+
+    var clone2 = v1.clone(symbolTable);
+    clone2.setName("vNot1");
+    assertNotEquals(v1, clone2);
+    assertNotEquals(v1.hashCode(), clone2.hashCode());
 
     VariableSymbol v2 = new VariableSymbol("v2", Optional.of(integerType));
     v2.setInitialisedBy(new SyntheticToken());

@@ -31,6 +31,7 @@ public class VariableSymbol extends Symbol implements IAssignableSymbol {
     this(name, Optional.ofNullable(type));
   }
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public VariableSymbol(String name, Optional<ISymbol> type) {
     super(name, type);
     super.setGenus(SymbolGenus.VALUE);

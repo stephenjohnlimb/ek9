@@ -85,7 +85,7 @@ public interface ParameterisedSymbol extends IScopedSymbol {
       return 0.0;
     }
 
-    return -1000.0;
+    return NOT_ASSIGNABLE;
   }
 
   /**
