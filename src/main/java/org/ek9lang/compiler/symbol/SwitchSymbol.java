@@ -26,4 +26,5 @@ public class SwitchSymbol extends ControlSymbol {
     super.cloneIntoControlSymbol(newCopy);
     return newCopy;
   }
+
 }

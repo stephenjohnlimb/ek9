@@ -30,4 +30,5 @@ public class ControlSymbol extends ScopedSymbol {
     super.cloneIntoScopeSymbol(newCopy);
     return newCopy;
   }
+
 }

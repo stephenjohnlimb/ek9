@@ -20,4 +20,5 @@ public class StreamPipeLineSymbol extends Symbol {
     super.cloneIntoSymbol(newCopy);
     return newCopy;
   }
+
 }

@@ -12,24 +12,71 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
  */
 public class StackConsistencyScope extends LocalScope implements ICanCaptureVariables {
 
-  private Optional<LocalScope> capturedVariables = Optional.empty();
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+  private Optional<IScope> capturedVariables = Optional.empty();
 
   public StackConsistencyScope(IScope enclosingScope) {
     super("StackConsistencyScope", enclosingScope);
   }
 
   @Override
-  public Optional<LocalScope> getCapturedVariables() {
+  public Optional<IScope> getCapturedVariables() {
     return capturedVariables;
   }
 
   @Override
-  public void setCapturedVariables(LocalScope capturedVariables) {
+  public void setCapturedVariables(IScope capturedVariables) {
     this.capturedVariables = Optional.ofNullable(capturedVariables);
+  }
+
+  @Override
+  public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search) {
+    Optional<ISymbol> rtn = super.resolveInThisScopeOnly(search);
+    if (capturedVariables.isPresent()) {
+      rtn = capturedVariables.get().resolveInThisScopeOnly(search);
+    }
+    return rtn;
   }
 
   @Override
   public Optional<ISymbol> resolveExcludingCapturedVariables(SymbolSearch search) {
     return super.resolveInThisScopeOnly(search);
+  }
+
+  @Override
+  public StackConsistencyScope clone(IScope withParentAsAppropriate) {
+    return cloneIntoStackConsistencyScope(
+        new StackConsistencyScope(withParentAsAppropriate));
+  }
+
+  /**
+   * Clones the content of this into the new copy.
+   */
+  public StackConsistencyScope cloneIntoStackConsistencyScope(StackConsistencyScope newCopy) {
+    super.cloneIntoLocalScope(newCopy);
+    if (capturedVariables.isPresent()) {
+      var captured = capturedVariables.get();
+      var cloned = captured.clone(newCopy.getEnclosingScope());
+      newCopy.setCapturedVariables(cloned);
+    }
+    //properties set at construction.
+    return newCopy;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    return (o instanceof StackConsistencyScope that)
+        && super.equals(o)
+        && getCapturedVariables().equals(that.getCapturedVariables());
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + getCapturedVariables().hashCode();
+    return result;
   }
 }

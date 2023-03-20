@@ -485,4 +485,33 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   private String doGetFriendlyName() {
     return super.getFriendlyName() + getAnyGenericParamsAsFriendlyNames();
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    return (o instanceof AggregateSymbol that)
+        && super.equals(o)
+        && isMarkedAsDispatcher() == that.isMarkedAsDispatcher()
+        && isInjectable() == that.isInjectable()
+        && isOpenForExtension() != that.isOpenForExtension()
+        && getSuperAggregateScopedSymbol().equals(that.getSuperAggregateScopedSymbol())
+        && getAggregateDescription().equals(that.getAggregateDescription())
+        && getPipeSinkType().equals(that.getPipeSinkType())
+        && getPipeSourceType().equals(that.getPipeSourceType());
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + getSuperAggregateScopedSymbol().hashCode();
+    result = 31 * result + getAggregateDescription().hashCode();
+    result = 31 * result + (isMarkedAsDispatcher() ? 1 : 0);
+    result = 31 * result + (isInjectable() ? 1 : 0);
+    result = 31 * result + (isOpenForExtension() ? 1 : 0);
+    result = 31 * result + getPipeSinkType().hashCode();
+    result = 31 * result + getPipeSourceType().hashCode();
+    return result;
+  }
 }

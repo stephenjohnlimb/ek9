@@ -12,7 +12,7 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
  */
 public interface IScope {
 
-  Object clone(IScope withParentAsAppropriate);
+  IScope clone(IScope withParentAsAppropriate);
 
   ScopeType getScopeType();
 

@@ -211,7 +211,6 @@ public class FunctionSymbol extends PossibleGenericSymbol {
     return Optional.of(this);
   }
 
-
   @Override
   public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search) {
     //This will now also check the returning symbol (if present)
@@ -221,4 +220,30 @@ public class FunctionSymbol extends PossibleGenericSymbol {
     return super.resolveInThisScopeOnly(search);
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof FunctionSymbol that)) {
+      return false;
+    }
+
+    boolean result = getReturningSymbol() != null ? getReturningSymbol().equals(that.getReturningSymbol()) :
+        that.getReturningSymbol() == null;
+
+    return result
+        && super.equals(o)
+        && isMarkedPure() == that.isMarkedPure()
+        && getSuperFunctionSymbol().equals(that.getSuperFunctionSymbol());
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + (getReturningSymbol() != null ? getReturningSymbol().hashCode() : 0);
+    result = 31 * result + (isMarkedPure() ? 1 : 0);
+    result = 31 * result + getSuperFunctionSymbol().hashCode();
+    return result;
+  }
 }

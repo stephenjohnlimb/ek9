@@ -20,4 +20,5 @@ public class ForSymbol extends ScopedSymbol {
     super.cloneIntoScopeSymbol(newCopy);
     return newCopy;
   }
+
 }

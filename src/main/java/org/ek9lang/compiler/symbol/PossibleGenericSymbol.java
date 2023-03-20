@@ -3,7 +3,6 @@ package org.ek9lang.compiler.symbol;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
@@ -238,31 +237,26 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
   }
 
   @Override
-  public int hashCode() {
-    int genericTypeHash = genericType.map(PossibleGenericSymbol::hashCode).orElse(0);
-    return Objects.hash(super.hashCode(), genericTypeHash,
-        parameterisedTypeReferences.hashCode(), typeParameterOrArguments.hashCode());
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    return (o instanceof PossibleGenericSymbol that)
+        && super.equals(o)
+        && isConceptualTypeParameter() == that.isConceptualTypeParameter()
+        && getGenericType().equals(that.getGenericType())
+        && getTypeParameterOrArguments().equals(that.getTypeParameterOrArguments())
+        && parameterisedTypeReferences.equals(that.parameterisedTypeReferences);
   }
 
   @Override
-  public boolean equals(Object obj) {
-    var rtn = super.equals(obj);
-    if (rtn && obj instanceof PossibleGenericSymbol symbol) {
-      rtn = CommonParameterisedTypeDetails
-          .doSymbolsMatch(Collections.unmodifiableList(parameterisedTypeReferences),
-              Collections.unmodifiableList(symbol.parameterisedTypeReferences));
-      rtn &= CommonParameterisedTypeDetails
-          .doSymbolsMatch(Collections.unmodifiableList(typeParameterOrArguments),
-              Collections.unmodifiableList(symbol.typeParameterOrArguments));
-
-      if (genericType.isPresent() && symbol.genericType.isPresent()) {
-        rtn &= genericType.get().equals(symbol.genericType.get());
-      } else {
-        rtn &= genericType.isEmpty() && symbol.genericType.isEmpty();
-      }
-    } else {
-      rtn = false;
-    }
-    return rtn;
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + getGenericType().hashCode();
+    result = 31 * result + getTypeParameterOrArguments().hashCode();
+    result = 31 * result + parameterisedTypeReferences.hashCode();
+    result = 31 * result + (isConceptualTypeParameter() ? 1 : 0);
+    return result;
   }
 }

@@ -300,4 +300,23 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
     }
     return rtn;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    return (o instanceof AggregateWithTraitsSymbol that)
+        && super.equals(o)
+        && getTraits().equals(that.getTraits())
+        && allowOnly.equals(that.allowOnly);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + getTraits().hashCode();
+    result = 31 * result + allowOnly.hashCode();
+    return result;
+  }
 }

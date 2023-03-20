@@ -6,6 +6,7 @@ import java.util.Optional;
  * Scope for callable methods (operations) that are part of a Service.
  */
 public class ServiceOperationSymbol extends MethodSymbol {
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public ServiceOperationSymbol(String name, Optional<ISymbol> type, IScope enclosingScope) {
     super(name, type, enclosingScope);
   }

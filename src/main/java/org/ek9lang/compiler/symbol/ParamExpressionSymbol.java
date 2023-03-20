@@ -18,9 +18,8 @@ public class ParamExpressionSymbol extends Symbol {
     super(name);
   }
 
-  public ParamExpressionSymbol addParameter(ISymbol symbol) {
+  public void addParameter(ISymbol symbol) {
     params.add(symbol);
-    return this;
   }
 
   @Override
@@ -41,5 +40,22 @@ public class ParamExpressionSymbol extends Symbol {
   @Override
   public String getFriendlyName() {
     return CommonParameterisedTypeDetails.asCommaSeparated(params, true);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    return (o instanceof ParamExpressionSymbol that)
+        && super.equals(o)
+        && params.equals(that.params);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + params.hashCode();
+    return result;
   }
 }

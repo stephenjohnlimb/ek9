@@ -1,18 +1,21 @@
 package org.ek9lang.compiler.symbol;
 
 import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_INTEGER;
+import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_STRING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.symbol.support.AggregateFactory;
 import org.ek9lang.compiler.symbol.support.TypeCreator;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
+import org.ek9lang.core.threads.SharedThreadContext;
 import org.ek9lang.core.utils.Logger;
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +27,22 @@ import org.junit.jupiter.api.Test;
 final class ScopesTest extends AbstractSymbolTestBase {
 
   private final TypeCreator typeCreator = new TypeCreator();
+
+
+  @Test
+  void testSymbolTableEquality() {
+    var aTable = new SymbolTable("ATable");
+    var sameNamedTable = new SymbolTable("ATable");
+
+    assertEquals(aTable, sameNamedTable);
+    //Check for self as well.
+    assertEquals(aTable, aTable);
+
+    //Create a type in one of those tables and check that they are no longer equal.
+    ISymbol stringType = typeCreator.apply("String", aTable);
+    assertNotNull(stringType);
+    assertNotEquals(aTable, sameNamedTable);
+  }
 
   /**
    * Need to test for symbols declared in a module fully qualified and also non fully qualified searches.
@@ -47,7 +66,6 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
     assertEquals("Integer", orgEk9LangInteger.getName());
     assertEquals(EK9_INTEGER, orgEk9LangInteger.getFullyQualifiedName());
-
 
     //Now check that the noModuleInteger is not considered to be the same.
     assertFalse(noModuleInteger.isExactSameType(orgEk9LangInteger));
@@ -79,6 +97,9 @@ final class ScopesTest extends AbstractSymbolTestBase {
     assertNotNull(orgEk9LangInteger);
     assertFalse(ek9LangSymbolTable.resolve(new TypeSymbolSearch("Integer")).isPresent());
     assertTrue(ek9LangSymbolTable.resolve(new TypeSymbolSearch(EK9_INTEGER)).isPresent());
+
+    //Also check non-resolution of type we have not added.
+    assertFalse(ek9LangSymbolTable.resolve(new TypeSymbolSearch(EK9_STRING)).isPresent());
   }
 
   @Test
@@ -88,6 +109,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
     //These will be considered equal
     assertEquals(local1, local2);
+    assertEquals(local1, local1);
     assertEquals(local1.hashCode(), local2.hashCode());
 
     assertNotNull(local1);
@@ -167,11 +189,19 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
   @Test
   void testScopedSymbolBasics() {
+    VariableSymbol v1 =
+        new VariableSymbol("v3", symbolTable.resolve(new TypeSymbolSearch("Integer")));
+
     var scopedSymbol1 = new ScopedSymbol("scopedSymbol1", symbolTable);
     var alsoNamedScopedSymbol1 = new ScopedSymbol("scopedSymbol1", symbolTable);
+    var anotherNamedScopedSymbol1 = new ScopedSymbol("scopedSymbol1", symbolTable);
 
     assertEquals(scopedSymbol1.hashCode(), alsoNamedScopedSymbol1.hashCode());
     assertEquals(scopedSymbol1, alsoNamedScopedSymbol1);
+
+    anotherNamedScopedSymbol1.define(v1);
+    assertNotEquals(scopedSymbol1.hashCode(), anotherNamedScopedSymbol1.hashCode());
+    assertNotEquals(scopedSymbol1, anotherNamedScopedSymbol1);
 
     //Even though it has the same name, it is a different 'type' of scope.
     var localScope = new LocalScope("scopedSymbol1", symbolTable);
@@ -279,6 +309,72 @@ final class ScopesTest extends AbstractSymbolTestBase {
   }
 
   @Test
+  void testStackConsistencyScope() {
+    //Used in the phase listeners when there is a duplicate or some case where it is not possible
+    //to define a scope. We need the scope stack to be coherent and so we put a StackConsistencyScope
+    //on to the scope stack. It's like a bucket to consume all the stuff that should have been put in a scope.
+
+    VariableSymbol v1 =
+        new VariableSymbol("v1", symbolTable.resolve(new TypeSymbolSearch("Integer")));
+    VariableSymbol v2 =
+        new VariableSymbol("v2", symbolTable.resolve(new TypeSymbolSearch("Integer")));
+
+    var cons1 = new StackConsistencyScope(symbolTable);
+    var cons2 = cons1.clone(symbolTable);
+
+    assertEquals(cons1, cons2);
+    assertEquals(cons1.hashCode(), cons2.hashCode());
+    assertEquals(cons1, cons1);
+
+    var captured = new CaptureScopedSymbol("Captured", symbolTable);
+
+    //Check self equals.
+    assertEquals(captured, captured);
+
+    captured.define(v2);
+    cons1.setCapturedVariables(captured);
+    assertTrue(cons1.getCapturedVariables().isPresent());
+    assertTrue(cons2.getCapturedVariables().isEmpty());
+
+    cons1.define(v1);
+
+    var resolvedV1 = cons1.resolveExcludingCapturedVariables(new SymbolSearch("v1"));
+    assertTrue(resolvedV1.isPresent());
+
+    var notResolvedV2 = cons1.resolveExcludingCapturedVariables(new SymbolSearch("v2"));
+    assertTrue(notResolvedV2.isEmpty());
+
+    var resolvedV2 = cons1.resolve(new SymbolSearch("v2"));
+    assertTrue(resolvedV2.isPresent());
+
+    var cloneWithCapture = cons1.clone(symbolTable);
+    assertEquals(cons1, cloneWithCapture);
+
+    var resolvedInCloneV2 = cloneWithCapture.resolve(new SymbolSearch("v2"));
+    assertTrue(resolvedInCloneV2.isPresent());
+
+    var notResolvedInCapture = cloneWithCapture.resolveExcludingCapturedVariables(new SymbolSearch("v2"));
+    assertTrue(notResolvedInCapture.isEmpty());
+  }
+
+  /**
+   * Only a basic check of the module scope.
+   * Rest of tests are via actual parsed ek9 source code (in test scenarios).
+   */
+  @Test
+  void testModuleScope() {
+
+    var sharedThreadContext = new SharedThreadContext<>(new CompilableProgram());
+    ModuleScope scope1 = new ModuleScope("UnderTest", sharedThreadContext);
+    ModuleScope scope2 = new ModuleScope("UnderTest", sharedThreadContext);
+
+    assertEquals(scope1, scope2);
+    assertEquals(scope1.hashCode(), scope2.hashCode());
+    //And self
+    assertEquals(scope1, scope1);
+  }
+
+  @Test
   void testControlSymbolScope() {
     assertNotNull(checkScopedSymbol(new ControlSymbol("Control", symbolTable)));
   }
@@ -287,6 +383,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
   void testScopedSymbolScope() {
     assertNotNull(checkScopedSymbol(
         new ScopedSymbol(IScope.ScopeType.NON_BLOCK, "aggregateScope", symbolTable)));
+
   }
 
   @Test
@@ -332,6 +429,9 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
   private ScopedSymbol checkScopedSymbol(ScopedSymbol scopedSymbol) {
     assertNotNull(scopedSymbol);
+    //basic symbol type check
+    assertFalse(scopedSymbol.isFromLiteral());
+    assertFalse(scopedSymbol.isMarkedAbstract());
 
     //So all we are doing here - is checking that we can add some sort of 'thing'
     //Then clone the scoped symbol and ensure the 'thing' we added is also in that.
@@ -344,4 +444,5 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
     return clonedSymbol;
   }
+
 }

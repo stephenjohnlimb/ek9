@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -31,6 +32,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertFalse(symbol1.isPromotionSupported(symbol2));
   }
 
+  @SuppressWarnings({"SimplifiableAssertion", "EqualsWithItself"})
   @Test
   void testSimpleSymbolEquality() {
     var symbol1 = new Symbol("name");
@@ -42,6 +44,11 @@ final class SymbolsTest extends AbstractSymbolTestBase {
 
     assertNotEquals(symbol1, symbol3);
     assertNotEquals(symbol1.hashCode(), symbol3.hashCode());
+
+    assertTrue(symbol1.equals(symbol2));
+
+    //Also check same object.
+    assertTrue(symbol1.equals(symbol1));
   }
 
   @Test
@@ -303,10 +310,14 @@ final class SymbolsTest extends AbstractSymbolTestBase {
 
   }
 
+  /**
+   * A bit overkill - should be broken up into separate tests.
+   */
   @Test
   void testFunctionProperties() {
     Optional<ISymbol> stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
     Optional<ISymbol> integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
+
     var f1 = new FunctionSymbol("f1", symbolTable);
     f1.setReturningSymbol(new VariableSymbol("rtn", integerType));
     //Now add a parameter.
@@ -318,24 +329,41 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     //Does not have a super.
     assertTrue(f1.getSuperFunctionSymbol().isEmpty());
 
+    //Check self equality
+    assertEquals(f1, f1);
     var f2 = f1.clone(symbolTable);
     assertNotNull(f2);
+    assertEquals(f1, f2);
+    assertEquals(f1.hashCode(), f2.hashCode());
+
     f2.setName("f2");
     assertEquals("Integer <- f2(arg1 as String)", f2.getFriendlyName());
     assertEquals("Integer <- f2(arg1 as String)", f2.getFriendlyScopeName());
     assertTrue(f2.getSuperFunctionSymbol().isEmpty());
 
+    //Lets test a 'super function'
     var superF = new FunctionSymbol("superF", symbolTable);
+    var capturedVars = new CaptureScopedSymbol("Capture", superF);
+    capturedVars.define(new VariableSymbol("capturedVar", stringType));
+    superF.setCapturedVariables(capturedVars);
+
     superF.setReturningSymbol(new VariableSymbol("rtn", integerType));
     //Now add a parameter.
     superF.define(new VariableSymbol("arg1", stringType));
     //So this is just a signature
     superF.setMarkedAbstract(true);
     assertNotNull(f2);
-    assertEquals("Integer <- superF(arg1 as String) as abstract", superF.getFriendlyName());
-    assertEquals("Integer <- superF(arg1 as String) as abstract",
+    assertEquals("Integer <- superF(capturedVar as String)(arg1 as String) as abstract",
+        superF.getFriendlyName());
+    assertEquals("Integer <- superF(capturedVar as String)(arg1 as String) as abstract",
         superF.getFriendlyScopeName());
     assertTrue(superF.getSuperFunctionSymbol().isEmpty());
+
+    var resolvedInSuperFCaptured = superF.resolve(new SymbolSearch("capturedVar"));
+    assertTrue(resolvedInSuperFCaptured.isPresent());
+
+    var notResolvedInSuperFCaptured = superF.resolveExcludingCapturedVariables(new SymbolSearch("capturedVar"));
+    assertTrue(notResolvedInSuperFCaptured.isEmpty());
 
     //Now lets make a function that extends this super function.
     var f3 = f1.clone(symbolTable);
@@ -344,6 +372,29 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     f3.setSuperFunctionSymbol(Optional.of(superF));
     assertTrue(f3.getSuperFunctionSymbol().isPresent());
     assertEquals("Integer <- f3(arg1 as String) is superF", f3.getFriendlyName());
+
+    //Now lets clone that and check it has the super function
+    var f4 = f3.clone(symbolTable);
+    assertNotNull(f4);
+    f4.setName("f4");
+    assertTrue(f4.getSuperFunctionSymbol().isPresent());
+    assertEquals("Integer <- f4(arg1 as String) is superF", f4.getFriendlyName());
+
+    //check itself and then its super
+    assertTrue(f4.isImplementingInSomeWay(f4));
+    assertTrue(f4.isImplementingInSomeWay(superF));
+
+    var theSuper = f4.getAnySuperTypeOrFunction();
+    assertTrue(theSuper.isPresent());
+    assertEquals(theSuper.get(), superF);
+
+    //Check assignability.
+    assertTrue(f4.isAssignableTo(f4));
+    assertTrue(f4.isAssignableTo(superF));
+    assertFalse(superF.isAssignableTo(f4));
+
+    var resolvedInSuperCaptured = f4.resolve(new SymbolSearch("capturedVar"));
+    assertTrue(resolvedInSuperCaptured.isPresent());
   }
 
   @Test
@@ -356,12 +407,25 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     //Now add a parameter.
     f1.define(new VariableSymbol("arg1", stringType));
 
+    var resolvedReturn = f1.resolve(new SymbolSearch("rtn"));
+    assertTrue(resolvedReturn.isPresent());
+
+    var resolvedArg1 = f1.resolve(new SymbolSearch("arg1"));
+    assertTrue(resolvedArg1.isPresent());
+
     //OK now lets set up the captured variables
     LocalScope capturedVariables = new LocalScope(symbolTable);
     capturedVariables.define(new VariableSymbol("first", stringType));
     capturedVariables.define(new VariableSymbol("second", integerType));
     f1.setCapturedVariables(capturedVariables);
     f1.setCapturedVariablesVisibility(true);
+
+    var resolvedFirst = f1.resolve(new SymbolSearch("first"));
+    assertTrue(resolvedFirst.isPresent());
+
+    //Just make sure we don;t resolve stuff that's not there.
+    var notResolvedNonExisting = f1.resolve(new SymbolSearch("notResolvedNonExisting"));
+    assertTrue(notResolvedNonExisting.isEmpty());
 
     assertEquals(
         "Integer <- dynamic function(first as String, second as Integer)(arg1 as String)",
@@ -389,16 +453,42 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     f1.define(new VariableSymbol("arg1", stringType));
     assertEquals("call1", call1.getFriendlyName());
 
+    var clonedCall1 = call1.clone(symbolTable);
+    assertEquals(call1, clonedCall1);
+    assertEquals(call1.hashCode(), clonedCall1.hashCode());
+    //Check self equals
+    assertEquals(call1, call1);
+
     //Now modify the call1; so it actually references the function we want to call.
     call1.setResolvedSymbolToCall(f1);
     assertEquals("call1 => Integer <- f1(arg1 as String)", call1.getFriendlyName());
-
+    assertFalse(call1.isOperator());
     //clone and check the thing to call is still present.
     var call2 = call1.clone(symbolTable);
     call2.setName("call2");
     assertNotNull(call2.getResolvedSymbolToCall());
     assertEquals("call2 => Integer <- f1(arg1 as String)", call2.getFriendlyScopeName());
     assertEquals("call2 => Integer <- f1(arg1 as String)", call2.getFriendlyName());
+
+    var clonedCall2 = call2.clone(symbolTable);
+    assertEquals(call2, clonedCall2);
+
+    //Now check a method
+    var methodCall = new CallSymbol("methodCall", symbolTable);
+    var method = new MethodSymbol("method", symbolTable);
+    method.setOperator(true);
+    methodCall.setResolvedSymbolToCall(method);
+    assertTrue(methodCall.isOperator());
+  }
+
+  @Test
+  void testApplicationAggregate() {
+    AggregateSymbol underTest = createBasicAggregate("UnderTest");
+    underTest.setCategory(ISymbol.SymbolCategory.TYPE);
+    underTest.setGenus(ISymbol.SymbolGenus.GENERAL_APPLICATION);
+
+    assertTrue(underTest.isApplication());
+
   }
 
   @Test
@@ -437,6 +527,62 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertEquals("v1 as UnderTest", v1.getFriendlyName());
   }
 
+  @Test
+  void testMethodSymbols() {
+    //just a place to put methods.
+    AggregateSymbol holderAggregate1 = new AggregateSymbol("Holder1", symbolTable);
+    AggregateSymbol holderAggregate2 = new AggregateSymbol("Holder2", symbolTable);
+
+    var method1 = new MethodSymbol("method1", holderAggregate1);
+    holderAggregate1.define(method1);
+
+    var alsoMethod1 = new MethodSymbol("method1", holderAggregate2);
+    holderAggregate2.define(alsoMethod1);
+
+    assertEquals(method1, alsoMethod1);
+    assertEquals(method1.hashCode(), alsoMethod1.hashCode());
+    //check self
+    //noinspection EqualsWithItself,SimplifiableAssertion
+    assertTrue(method1.equals(method1));
+
+    //Alter alsoMethod1
+    alsoMethod1.setAccessModifier("private");
+    alsoMethod1.setOverride(true);
+    alsoMethod1.setEk9ReturnsThis(true);
+
+    assertNotEquals(method1, alsoMethod1);
+    assertNotEquals(method1.hashCode(), alsoMethod1.hashCode());
+
+    var cloneMethod1 = method1.clone(holderAggregate1);
+    assertEquals(method1, cloneMethod1);
+    assertEquals(method1.hashCode(), cloneMethod1.hashCode());
+
+    //Check signatures.
+    assertTrue(method1.isSignatureMatchTo(cloneMethod1));
+
+    //Now alter cloned method1 signature.
+    var param1 = new VariableSymbol("v1", symbolTable.resolve(new TypeSymbolSearch("String")));
+    cloneMethod1.define(param1);
+    assertFalse(method1.isSignatureMatchTo(cloneMethod1));
+
+    assertTrue(method1.getMethodParameters().isEmpty());
+    assertEquals(1, cloneMethod1.getMethodParameters().size());
+
+    assertFalse(method1.isReturningSymbolPresent());
+    assertFalse(method1.getType().isPresent());
+
+    var rtn = new VariableSymbol("rtn", symbolTable.resolve(new TypeSymbolSearch("Integer")));
+    method1.setReturningSymbol(rtn);
+
+    assertTrue(method1.isReturningSymbolPresent());
+    assertEquals(rtn, method1.getReturningSymbol());
+    assertTrue(method1.getType().isPresent());
+
+    assertEquals("public Integer <- method1()", method1.getFriendlyName());
+    assertEquals("public Unknown <- method1(v1 as String)", cloneMethod1.getFriendlyName());
+    assertEquals("override private Unknown <- method1()", alsoMethod1.getFriendlyName());
+  }
+
   private AggregateSymbol createBasicAggregate(String name) {
     AggregateSymbol rtn = new AggregateSymbol(name, symbolTable);
     //Add some fields/properties.
@@ -458,22 +604,26 @@ final class SymbolsTest extends AbstractSymbolTestBase {
 
   @Test
   void testExpressionSymbol() {
-    var expr = new ExpressionSymbol("Expr");
+    var expr1 = new ExpressionSymbol("Expr");
 
     //Check before we set the type
-    assertEquals("Unknown <- Expr", expr.getFriendlyName());
+    assertEquals("Unknown <- Expr", expr1.getFriendlyName());
 
     //This is the type this expression can return
-    expr.setType(symbolTable.resolve(new TypeSymbolSearch("String")));
-    expr.setPromotionRequired(false);
-    expr.setUseStringOperator(true);
-    assertExpressionSymbolValues(expr);
+    expr1.setType(symbolTable.resolve(new TypeSymbolSearch("String")));
+    expr1.setPromotionRequired(false);
+    expr1.setUseStringOperator(true);
+    assertExpressionSymbolValues(expr1);
 
-    var clone = expr.clone(symbolTable);
+    var clone = expr1.clone(symbolTable);
     assertExpressionSymbolValues(clone);
 
-    assertEquals(expr, clone);
-    assertNotEquals("AString", expr.getFriendlyName());
+    //Check self
+    assertEquals(expr1, expr1);
+    assertEquals(expr1, clone);
+    assertEquals(expr1.hashCode(), clone.hashCode());
+
+    assertNotEquals("AString", expr1.getFriendlyName());
 
     var expr2 = new ExpressionSymbol(
         new VariableSymbol("v1", symbolTable.resolve(new TypeSymbolSearch("String"))));
@@ -493,24 +643,39 @@ final class SymbolsTest extends AbstractSymbolTestBase {
 
   @Test
   void testParamExpressionSymbol() {
-    var expr = new ParamExpressionSymbol("ParamExpr");
+    var expr1 = new ParamExpressionSymbol("ParamExpr");
 
-    expr.addParameter(
+    expr1.addParameter(
         new VariableSymbol("v1", symbolTable.resolve(new TypeSymbolSearch("Integer"))));
     //This is the type this param expression can return
-    expr.setType(symbolTable.resolve(new TypeSymbolSearch("String")));
-    assertTrue(expr.getType().isPresent());
+    expr1.setType(symbolTable.resolve(new TypeSymbolSearch("String")));
 
-    var clone = expr.clone(symbolTable);
+    var expr2 = new ParamExpressionSymbol("ParamExpr");
+
+    expr2.addParameter(
+        new VariableSymbol("v1", symbolTable.resolve(new TypeSymbolSearch("Integer"))));
+    //This is the type this param expression can return
+    expr2.setType(symbolTable.resolve(new TypeSymbolSearch("String")));
+
+    assertTrue(expr1.getType().isPresent());
+    assertTrue(expr2.getType().isPresent());
+
+    //Also check self
+    //noinspection SimplifiableAssertion,EqualsWithItself
+    assertTrue(expr1.equals(expr1));
+    assertEquals(expr1, expr2);
+    assertEquals(expr1.hashCode(), expr2.hashCode());
+
+    var clone = expr1.clone(symbolTable);
     assertTrue(clone.getType().isPresent());
     assertEquals(1, clone.getParameters().size());
     assertEquals("v1", clone.getParameters().get(0).getName());
     assertTrue(clone.getParameters().get(0).getType().isPresent());
     assertEquals("Integer", clone.getParameters().get(0).getType().get().getName());
 
-    assertEquals("(v1 as Integer)", expr.getFriendlyName());
-    assertEquals(expr, clone);
-    assertNotEquals("AString", expr.getFriendlyName());
+    assertEquals("(v1 as Integer)", expr1.getFriendlyName());
+    assertEquals(expr1, clone);
+    assertNotEquals("AString", expr1.getFriendlyName());
   }
 
   @Test
@@ -525,6 +690,62 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertTrue(clone.getType().isPresent());
     assertEquals(expr, clone);
     assertNotEquals("AString", expr.getFriendlyName());
+  }
+
+  /**
+   * Quite a big class in terms of its configuration.
+   * It is the glue between the variable bits of pipeline streaming.
+   */
+  @Test
+  void testStreamCallSymbol() {
+    var integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
+    assert (integerType.isPresent());
+
+    var sCall1 = new StreamCallSymbol("S1", symbolTable);
+    var sCall2 = new StreamCallSymbol("S1", symbolTable);
+    assertEquals(sCall1, sCall2);
+    assertEquals(sCall1.hashCode(), sCall2.hashCode());
+    //and self
+    assertEquals(sCall1, sCall1);
+
+    //Alter the properties - these will be essential when creating 'rules'
+    //for joining bits of a processing pipeline together.
+    sCall1.setConsumesSymbolPromotionRequired(true);
+    sCall1.setSinkInNature(true);
+    sCall1.setCapableOfConsumingAnything(true);
+    sCall1.setDerivesProducesTypeFromConsumesType(true);
+    sCall1.setConsumesSymbolType(integerType.get());
+    assertNotEquals(sCall1, sCall2);
+
+    assertTrue(sCall1.isConsumesSymbolPromotionRequired());
+    assertTrue(sCall1.isSinkInNature());
+    assertTrue(sCall1.isCapableOfConsumingAnything());
+    assertTrue(sCall1.isDerivesProducesTypeFromConsumesType());
+    assertEquals(integerType.get(), sCall1.getConsumesSymbolType());
+    assertNull(sCall1.getProducesSymbolType());
+
+    var cloneOfSCall1 = sCall1.clone(symbolTable);
+    assertTrue(cloneOfSCall1.isConsumesSymbolPromotionRequired());
+    assertTrue(cloneOfSCall1.isSinkInNature());
+    assertTrue(cloneOfSCall1.isCapableOfConsumingAnything());
+    assertTrue(cloneOfSCall1.isDerivesProducesTypeFromConsumesType());
+    assertEquals(integerType.get(), cloneOfSCall1.getConsumesSymbolType());
+    assertNull(cloneOfSCall1.getProducesSymbolType());
+
+    //Now lets check the produces and consumes symbols
+    //This means that once we set the consumes we should se thr produces is the same.
+
+    sCall2.setProducerSymbolTypeSameAsConsumerSymbolType(true);
+    sCall2.setConsumesSymbolType(integerType.get());
+    assertEquals(integerType.get(), sCall2.getConsumesSymbolType());
+
+    var fun1 = new FunctionSymbol("fun1", symbolTable);
+    var sCall3 = new StreamCallSymbol("S3", symbolTable);
+    sCall3.setProducesTypeMustBeAFunction(true);
+    sCall3.setProducerSymbolTypeSameAsConsumerSymbolType(true);
+    sCall3.setConsumesSymbolType(fun1);
+    assertEquals(fun1, sCall3.getConsumesSymbolType());
+    assertEquals(fun1, sCall3.getProducesSymbolType());
   }
 
   @Test
@@ -584,6 +805,8 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     VariableSymbol loopVar = new VariableSymbol("loopVar", Optional.of(integerType));
     loopVar.setLoopVariable(true);
 
+    assertTrue(loopVar.isDeclaredAsConstant());
+
     assertTrue(loopVar.isLoopVariable());
     assertTrue(loopVar.clone(symbolTable).isLoopVariable());
 
@@ -620,6 +843,22 @@ final class SymbolsTest extends AbstractSymbolTestBase {
 
     ConstantSymbol c3 = new ConstantSymbol("1", integerType);
     assertEquals(ISymbol.SymbolGenus.VALUE, c3.getGenus());
+
+    assertFalse(c1.isInjectable());
+    assertFalse(c1.isExtensionOfInjectable());
+    assertFalse(c1.isMarkedAbstract());
+  }
+
+  @Test
+  void testConstantVariations() {
+    IScope symbolTable = new SymbolTable();
+
+    //Create a type an make it a sort of enumeration
+    ISymbol madeUpType1 = new AggregateSymbol("MadeUpType1", symbolTable);
+    madeUpType1.setGenus(ISymbol.SymbolGenus.CLASS_ENUMERATION);
+    ConstantSymbol c1 = new ConstantSymbol("ONE", false);
+    c1.setType(madeUpType1);
+    assertTrue(c1.isDeclaredAsConstant());
   }
 
   private void assertConstant1(ConstantSymbol c) {

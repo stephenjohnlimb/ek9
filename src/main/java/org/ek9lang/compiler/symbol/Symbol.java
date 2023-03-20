@@ -375,18 +375,28 @@ public class Symbol implements ISymbol {
   }
 
   @Override
-  public int hashCode() {
-    return getFriendlyName().hashCode();
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    return (o instanceof Symbol symbol)
+        && notMutable == symbol.notMutable
+        && squirrelledAway.equals(symbol.squirrelledAway)
+        && getCategory() == symbol.getCategory()
+        && getGenus() == symbol.getGenus()
+        && getName().equals(symbol.getName());
   }
 
   @Override
-  public boolean equals(Object obj) {
-    var rtn = false;
-    if (obj instanceof ISymbol symbol) {
-      rtn = getFriendlyName().equals(symbol.getFriendlyName());
-    }
-
-    return rtn;
+  public int hashCode() {
+    int result = squirrelledAway.hashCode();
+    result = 31 * result + getCategory().hashCode();
+    result = 31 * result + getGenus().hashCode();
+    result = 31 * result + getName().hashCode();
+    result = 31 * result + (notMutable ? 1 : 0);
+    result = 31 * result + (getSourceToken() != null ? getSourceToken().hashCode() : 0);
+    result = 31 * result + (isMarkedPure() ? 1 : 0);
+    return result;
   }
 
   @Override

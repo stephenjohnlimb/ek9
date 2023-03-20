@@ -47,17 +47,20 @@ public class ModuleScope extends SymbolTable {
   }
 
   @Override
-  public int hashCode() {
-    return super.hashCode();
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    return (o instanceof ModuleScope that)
+        && super.equals(o)
+        && referencesScope.equals(that.referencesScope);
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    var rtn = false;
-    if (obj instanceof ModuleScope moduleScope) {
-      rtn = getFriendlyScopeName().equals(moduleScope.getFriendlyScopeName());
-    }
-    return rtn;
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + referencesScope.hashCode();
+    return result;
   }
 
   /**

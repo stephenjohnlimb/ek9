@@ -1,7 +1,6 @@
 package org.ek9lang.compiler.symbol;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
@@ -53,22 +52,6 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   }
 
   @Override
-  public int hashCode() {
-    return Objects.hash(super.hashCode(), actualScope.hashCode());
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    var rtn = super.equals(obj);
-    if (rtn && obj instanceof ScopedSymbol scopedSymbol) {
-      rtn = actualScope.equals(scopedSymbol.actualScope);
-    } else {
-      rtn = false;
-    }
-    return rtn;
-  }
-
-  @Override
   public ScopedSymbol clone(IScope withParentAsAppropriate) {
     return cloneIntoScopeSymbol(new ScopedSymbol(this.getName(), withParentAsAppropriate));
   }
@@ -102,7 +85,6 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   public void setScopeType(final IScope.ScopeType scopeType) {
     actualScope.setScopeType(scopeType);
   }
-
 
   /**
    * Resolve with super type/function or via enclosing scope.
@@ -221,5 +203,27 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   @Override
   public boolean isScopeAMatchForEnclosingScope(IScope toCheck) {
     return actualScope.isScopeAMatchForEnclosingScope(toCheck);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof ScopedSymbol)) {
+      return false;
+    }
+    if (!actualScope.equals(((ScopedSymbol) o).actualScope)) {
+      return false;
+    }
+    return super.equals(o);
+  }
+
+  @Override
+  public int hashCode() {
+
+    var result = this.actualScope.hashCode();
+    result = 31 * result + super.hashCode();
+    return result;
   }
 }

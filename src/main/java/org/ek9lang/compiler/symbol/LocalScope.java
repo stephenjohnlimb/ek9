@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.symbol;
 
-import java.util.Objects;
 import java.util.Optional;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
@@ -43,18 +42,20 @@ public class LocalScope extends SymbolTable {
   }
 
   @Override
-  public int hashCode() {
-    return Objects.hash(getFriendlyScopeName().hashCode(), enclosingScope.hashCode());
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    return (o instanceof LocalScope that)
+        && super.equals(o)
+        && getScopeType() == that.getScopeType();
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    var rtn = false;
-    if (obj instanceof LocalScope localScope && super.equals(obj)) {
-      rtn = localScope.getScopeType() == this.scopeType
-          && enclosingScope.equals(localScope.enclosingScope);
-    }
-    return rtn;
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + getScopeType().hashCode();
+    return result;
   }
 
   @Override
@@ -98,14 +99,7 @@ public class LocalScope extends SymbolTable {
    */
   @Override
   public boolean isScopeAMatchForEnclosingScope(IScope toCheck) {
-    boolean rtn = false;
-    if (toCheck != null) {
-      rtn = enclosingScope == toCheck;
-      if (!rtn && toCheck instanceof ScopedSymbol scopedSymbol) {
-        rtn = scopedSymbol.getActualScope() == enclosingScope;
-      }
-    }
-    return rtn;
+    return enclosingScope == toCheck;
   }
 
   /**

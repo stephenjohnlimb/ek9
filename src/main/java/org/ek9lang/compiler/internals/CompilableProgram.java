@@ -156,7 +156,8 @@ public class CompilableProgram {
    */
   public Optional<ISymbol> resolveFromModule(final String moduleName, final SymbolSearch search) {
 
-    return getModuleScopes.apply(moduleName)
+    var moduleScopes = getModuleScopes.apply(moduleName);
+    return moduleScopes
         .stream()
         .map(moduleScope -> moduleScope.resolveInThisScopeOnly(search))
         .filter(Optional::isPresent)

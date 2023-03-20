@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.symbol;
 
-import java.util.Objects;
 import java.util.Optional;
 import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
@@ -27,7 +26,7 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
    * out of the original scope. i.e. a sort of closure over variables.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private Optional<LocalScope> capturedVariables = Optional.empty();
+  private Optional<IScope> capturedVariables = Optional.empty();
 
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -50,9 +49,9 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
     newCopy.markedAbstract = markedAbstract;
 
     if (capturedVariables.isPresent()) {
-      LocalScope newCaptureScope = new LocalScope("CaptureScope", getEnclosingScope());
-      capturedVariables.get().cloneIntoLocalScope(newCaptureScope);
-      newCopy.setCapturedVariables(newCaptureScope);
+      var captured = capturedVariables.get();
+      var cloned = captured.clone(newCopy.getEnclosingScope());
+      newCopy.setCapturedVariables(cloned);
     }
 
     return newCopy;
@@ -75,7 +74,7 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
     this.markedAbstract = markedAbstract;
   }
 
-  public Optional<LocalScope> getCapturedVariables() {
+  public Optional<IScope> getCapturedVariables() {
     return capturedVariables;
   }
 
@@ -83,12 +82,12 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
    * It is possible to capture variables in the current scope and pull them into the
    * function, so they can be used.
    */
-  public void setCapturedVariables(LocalScope capturedVariables) {
+  public void setCapturedVariables(IScope capturedVariables) {
     setCapturedVariables(Optional.ofNullable(capturedVariables));
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public void setCapturedVariables(Optional<LocalScope> capturedVariables) {
+  public void setCapturedVariables(Optional<IScope> capturedVariables) {
     this.capturedVariables = capturedVariables;
   }
 
@@ -125,24 +124,21 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
   }
 
   @Override
-  public int hashCode() {
-    int captureHash = capturedVariables.map(LocalScope::hashCode).orElse(0);
-    return Objects.hash(super.hashCode(), captureHash, Boolean.hashCode(markedAbstract));
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    return (o instanceof CaptureScopedSymbol that)
+        && super.equals(o)
+        && isMarkedAbstract() == that.isMarkedAbstract()
+        && getCapturedVariables().equals(that.getCapturedVariables());
   }
 
   @Override
-  public boolean equals(Object obj) {
-    var rtn = super.equals(obj);
-    if (rtn && obj instanceof CaptureScopedSymbol symbol) {
-      rtn = markedAbstract == symbol.markedAbstract;
-      if (capturedVariables.isPresent() && symbol.capturedVariables.isPresent()) {
-        rtn &= capturedVariables.get().equals(symbol.capturedVariables.get());
-      } else {
-        rtn &= capturedVariables.isEmpty() && symbol.capturedVariables.isEmpty();
-      }
-    } else {
-      rtn = false;
-    }
-    return rtn;
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + (isMarkedAbstract() ? 1 : 0);
+    result = 31 * result + getCapturedVariables().hashCode();
+    return result;
   }
 }

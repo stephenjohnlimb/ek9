@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.symbol;
 
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -42,25 +41,24 @@ public class VariableSymbol extends Symbol implements IAssignableSymbol {
     if (this == o) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    if (!super.equals(o)) {
-      return false;
-    }
-    VariableSymbol that = (VariableSymbol) o;
-    return loopVariable == that.loopVariable
-        && incomingParameter == that.incomingParameter
-        && returningParameter == that.returningParameter
-        && isPrivate == that.isPrivate
-        && isAggregatePropertyField == that.isAggregatePropertyField
-        && getFriendlyName().equals(that.getFriendlyName());
+    return (o instanceof VariableSymbol that)
+        && super.equals(o)
+        && isLoopVariable() == that.isLoopVariable()
+        && isIncomingParameter() == that.isIncomingParameter()
+        && isReturningParameter() == that.isReturningParameter()
+        && isPrivate() == that.isPrivate()
+        && isAggregatePropertyField() == that.isAggregatePropertyField();
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode(), loopVariable, incomingParameter, returningParameter,
-        isPrivate, isAggregatePropertyField);
+    int result = super.hashCode();
+    result = 31 * result + (isLoopVariable() ? 1 : 0);
+    result = 31 * result + (isIncomingParameter() ? 1 : 0);
+    result = 31 * result + (isReturningParameter() ? 1 : 0);
+    result = 31 * result + (isPrivate() ? 1 : 0);
+    result = 31 * result + (isAggregatePropertyField() ? 1 : 0);
+    return result;
   }
 
   @Override

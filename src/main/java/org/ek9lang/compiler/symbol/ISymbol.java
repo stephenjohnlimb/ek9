@@ -203,15 +203,14 @@ public interface ISymbol extends ITokenReference {
       var thisGenus = thisType.get().getGenus();
       //We allow enumerations because there is no :=: operator to modify them
       //We also allow function delegates, but they are also constants.
-      if ((thisGenus != ISymbol.SymbolGenus.CLASS_ENUMERATION)
-          && (thisGenus != ISymbol.SymbolGenus.FUNCTION)
-          && (thisGenus != ISymbol.SymbolGenus.FUNCTION_TRAIT)) {
-        //We allow literals to be utilised in any way.
-        return !this.isFromLiteral();
+      if ((thisGenus == ISymbol.SymbolGenus.CLASS_ENUMERATION)
+          || (thisGenus == ISymbol.SymbolGenus.FUNCTION)
+          || (thisGenus == ISymbol.SymbolGenus.FUNCTION_TRAIT)) {
+        return true;
       }
     }
     //We consider loop variables as constants - EK9 deals with changing the value
-    return this.isLoopVariable();
+    return this.isLoopVariable() || this.isFromLiteral();
   }
 
   default boolean isMethod() {
@@ -285,40 +284,19 @@ public interface ISymbol extends ITokenReference {
    * or whether the code generated will just work because of class inheritance/interface
    * implementation.
    */
-  default boolean isPromotionSupported(ISymbol s) {
-    return false;
-  }
+  boolean isPromotionSupported(ISymbol s);
 
-  default boolean isAssignableTo(ISymbol s) {
-    return false;
-  }
+  boolean isAssignableTo(ISymbol s);
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  default boolean isAssignableTo(Optional<ISymbol> s) {
-    return false;
-  }
+  boolean isAssignableTo(Optional<ISymbol> s);
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  default double getAssignableWeightTo(Optional<ISymbol> s) {
-    return -1.0;
-  }
+  double getAssignableWeightTo(Optional<ISymbol> s);
 
-  default double getAssignableWeightTo(ISymbol s) {
-    return -1.0;
-  }
+  double getAssignableWeightTo(ISymbol s);
 
-  default double getUnCoercedAssignableWeightTo(ISymbol s) {
-    return -1.0;
-  }
-
-  /**
-   * Assuming you've already checked that this isAssignableTo (s)
-   * Then you can call this to check if this ability was dues to coercion.
-   */
-  default boolean isOnlyAssignableByCoercion(ISymbol s) {
-    double uncoercedWeight = getUnCoercedAssignableWeightTo(s);
-    return uncoercedWeight < 0 && isPromotionSupported(s);
-  }
+  double getUnCoercedAssignableWeightTo(ISymbol s);
 
   SymbolGenus getGenus();
 
@@ -332,9 +310,7 @@ public interface ISymbol extends ITokenReference {
    * Defaults to just the name unless overridden.
    * -Useful for generating output where you want to ensure fully qualified names are used.
    */
-  default String getFullyQualifiedName() {
-    return getName();
-  }
+  String getFullyQualifiedName();
 
   /**
    * Provide the name an end user would need to see on the screen. Normally this is just
@@ -344,9 +320,7 @@ public interface ISymbol extends ITokenReference {
    *
    * @return a user presentable of the symbol name.
    */
-  default String getFriendlyName() {
-    return getName();
-  }
+  String getFriendlyName();
 
   /**
    * Provide the internal name of this symbol - not fully qualified in terms of the module it is in.

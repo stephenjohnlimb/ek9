@@ -44,4 +44,48 @@ final class ScopeStackTest {
     assertTrue(underTest.isEmpty());
   }
 
+  /**
+   * Checks the traversal back up the scope stack to find blocks of a particular block type.
+   */
+  @Test
+  void testStackTraversal() {
+    var rootSymbolTable = new SymbolTable();
+    ScopeStack underTest = new ScopeStack(rootSymbolTable);
+
+    //This should find the SymbolTable as a BLOCK.
+    var foundBlock = underTest.traverseBackUpStack(IScope.ScopeType.BLOCK);
+    assertTrue(foundBlock.isPresent());
+
+    var foundNonBlock = underTest.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
+    assertTrue(foundNonBlock.isEmpty());
+
+    var foundDynamicBlock = underTest.traverseBackUpStack(IScope.ScopeType.DYNAMIC_BLOCK);
+    assertTrue(foundDynamicBlock.isEmpty());
+
+    var dynamicBlock = new LocalScope("ADynamicBlock", rootSymbolTable);
+    dynamicBlock.setScopeType(IScope.ScopeType.DYNAMIC_BLOCK);
+
+    underTest.push(dynamicBlock);
+
+    //Now put another block on and see if we can navigate past it.
+    underTest.push(new SymbolTable());
+
+    var foundNonBlock2 = underTest.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
+    assertTrue(foundNonBlock2.isEmpty());
+
+    var foundDynamicBlock2 = underTest.traverseBackUpStack(IScope.ScopeType.DYNAMIC_BLOCK);
+    assertTrue(foundDynamicBlock2.isPresent());
+
+    var nonBlock = new LocalScope("ANonBlock", rootSymbolTable);
+    nonBlock.setScopeType(IScope.ScopeType.NON_BLOCK);
+    underTest.push(nonBlock);
+
+    //Now put another block on and see if we can navigate past it.
+    underTest.push(new SymbolTable());
+    //Now put another block on and see if we can navigate past it.
+    underTest.push(new SymbolTable());
+
+    var foundNonBlock3 = underTest.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
+    assertTrue(foundNonBlock3.isPresent());
+  }
 }

@@ -190,17 +190,22 @@ public class SymbolTable implements IScope {
   }
 
   @Override
-  public int hashCode() {
-    return getFriendlyScopeName().hashCode();
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    return (o instanceof SymbolTable that)
+      && isMarkedPure() == that.isMarkedPure()
+      && orderedSymbols.equals(that.orderedSymbols)
+      && getScopeName().equals(that.getScopeName());
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    var rtn = false;
-    if (obj instanceof IScope scope) {
-      rtn = getFriendlyScopeName().equals(scope.getFriendlyScopeName());
-    }
-    return rtn;
+  public int hashCode() {
+    int result = orderedSymbols.hashCode();
+    result = 31 * result + getScopeName().hashCode();
+    result = 31 * result + (isMarkedPure() ? 1 : 0);
+    return result;
   }
 
   /**
@@ -290,10 +295,11 @@ public class SymbolTable implements IScope {
 
   private Optional<ISymbol> resolveFromSplitSymbolTable(final String symbolName,
                                                         final SymbolSearch search) {
+    Optional<ISymbol> rtn = Optional.empty();
     if (search.getSearchType() != null) {
-      return resolveInThisScopeOnly(getSplitSymbolTable(search.getSearchType()), symbolName, search);
+      rtn = resolveInThisScopeOnly(getSplitSymbolTable(search.getSearchType()), symbolName, search);
     }
-    return Optional.empty();
+    return rtn;
   }
 
   /**

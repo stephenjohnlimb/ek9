@@ -129,5 +129,5 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
 
   String getAggregateDescription();
 
-  ISymbol clone(IScope withParentAsAppropriate);
+  IScopedSymbol clone(IScope withParentAsAppropriate);
 }

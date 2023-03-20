@@ -10,6 +10,7 @@ package org.ek9lang.compiler.symbol;
  * (maybe - depending on the map).
  * Flatten can only accept something is can iterate over and will then product whatever that type
  * is that is provided by the iterator.
+ * This is the 'glue' between streaming commands and functions.
  */
 public class StreamCallSymbol extends MethodSymbol implements IAssignableSymbol {
   //For mid-part of a stream pipeline both of these types will be set.
@@ -18,34 +19,6 @@ public class StreamCallSymbol extends MethodSymbol implements IAssignableSymbol 
 
   //Maybe the match on the '|' pipe requires a promotion.
   private boolean consumesSymbolPromotionRequired = false;
-
-  //Not always set for a main stream head consumes will be null
-  private ISymbol consumesSymbolType = null;
-  //Not always set for a terminal node it does not produce anything.
-  private ISymbol producesSymbolType = null;
-
-  //For head, skip, tail, flatten, call and async - we're not bothered what type we get
-  //indeed this 'command' has no way of knowing what it will/should be passed.
-  //So it does need to be told, so it can also say what it produces.
-  //So I'm expecting the pipeline to go through and tell these type of calls what they will be
-  //consuming.
-  //So that logic will need to also check a couple of things for flatten, call and async as those
-  //do have constraints.
-  private boolean capableOfConsumingAnything = false;
-
-  /**
-   * For flatten the consumes must have an iterator and the call would produce N of the type
-   * the iterator supplies.
-   */
-  private boolean derivesProducesTypeFromConsumesType = false;
-
-  private boolean producesTypeMustBeAFunction = false;
-
-  /**
-   * In the case of something like filter, head, tail, skip whatever is consumed is also
-   * produced (conditionally and maybe in limited volume).
-   */
-  private boolean producerSymbolTypeSameAsConsumerSymbolType = false;
 
   /**
    * Typically used in terminal but also tee.
@@ -57,6 +30,39 @@ public class StreamCallSymbol extends MethodSymbol implements IAssignableSymbol 
    * can reduce the number of map functions required.
    */
   private boolean sinkInNature = false;
+
+  /**
+   * For head, skip, tail, flatten, call and async - we're not bothered what type we get
+   * indeed this 'command' has no way of knowing what it will/should be passed.
+   * So it does need to be told, so it can also say what it produces.
+   * So I'm expecting the pipeline to go through and tell these type of calls what they will be
+   * consuming.
+   * So that logic will need to also check a couple of things for flatten, call and async as those
+   * do have constraints.
+   */
+  private boolean capableOfConsumingAnything = false;
+
+  /**
+   * For flatten the consumes must have an iterator and the call would produce N of the type
+   * the iterator supplies.
+   */
+  private boolean derivesProducesTypeFromConsumesType = false;
+
+  /**
+   * Should the upstream producer be a function or not.
+   */
+  private boolean producesTypeMustBeAFunction = false;
+
+  /**
+   * In the case of something like filter, head, tail, skip whatever is consumed is also
+   * produced (conditionally and maybe in limited volume).
+   */
+  private boolean producerSymbolTypeSameAsConsumerSymbolType = false;
+
+  //Not always set for a main stream head consumes will be null
+  private ISymbol consumesSymbolType = null;
+  //Not always set for a terminal node it does not produce anything.
+  private ISymbol producesSymbolType = null;
 
   public StreamCallSymbol(String name, IScope enclosingScope) {
     super(name, enclosingScope);
@@ -150,5 +156,43 @@ public class StreamCallSymbol extends MethodSymbol implements IAssignableSymbol 
    */
   public void setProducesSymbolType(ISymbol producesSymbolType) {
     this.producesSymbolType = producesSymbolType;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    if ((o instanceof StreamCallSymbol that)
+        && super.equals(o)
+        && isConsumesSymbolPromotionRequired() == that.isConsumesSymbolPromotionRequired()
+        && isCapableOfConsumingAnything() == that.isCapableOfConsumingAnything()
+        && isDerivesProducesTypeFromConsumesType() == that.isDerivesProducesTypeFromConsumesType()
+        && isProducesTypeMustBeAFunction() == that.isProducesTypeMustBeAFunction()
+        && isSinkInNature() == that.isSinkInNature()
+        && producerSymbolTypeSameAsConsumerSymbolType == that.producerSymbolTypeSameAsConsumerSymbolType) {
+      if (getConsumesSymbolType() != null ? !getConsumesSymbolType().equals(that.getConsumesSymbolType()) :
+          that.getConsumesSymbolType() != null) {
+        return false;
+      }
+      return getProducesSymbolType() != null ? getProducesSymbolType().equals(that.getProducesSymbolType()) :
+          that.getProducesSymbolType() == null;
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + (isConsumesSymbolPromotionRequired() ? 1 : 0);
+    result = 31 * result + (getConsumesSymbolType() != null ? getConsumesSymbolType().hashCode() : 0);
+    result = 31 * result + (getProducesSymbolType() != null ? getProducesSymbolType().hashCode() : 0);
+    result = 31 * result + (isCapableOfConsumingAnything() ? 1 : 0);
+    result = 31 * result + (isDerivesProducesTypeFromConsumesType() ? 1 : 0);
+    result = 31 * result + (isProducesTypeMustBeAFunction() ? 1 : 0);
+    result = 31 * result + (producerSymbolTypeSameAsConsumerSymbolType ? 1 : 0);
+    result = 31 * result + (isSinkInNature() ? 1 : 0);
+    return result;
   }
 }

@@ -20,7 +20,7 @@ public interface ParameterisedSymbol extends IScopedSymbol {
 
   //These will need to be implemented in the actual parameterised types/functions
   @Override
-  default ISymbol clone(IScope withParentAsAppropriate) {
+  default IScopedSymbol clone(IScope withParentAsAppropriate) {
     return null;
   }
 
@@ -91,6 +91,7 @@ public interface ParameterisedSymbol extends IScopedSymbol {
   /**
    * Adds parameterising symbol to this object, i.e. parameterises it.
    */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   default ParameterisedSymbol addParameterSymbol(Optional<ISymbol> parameterSymbol) {
     AssertValue.checkNotNull("parameterSymbol cannot be null", parameterSymbol);
     parameterSymbol.ifPresent(this::addParameterSymbol);
@@ -100,10 +101,10 @@ public interface ParameterisedSymbol extends IScopedSymbol {
   /**
    * Adds parameterising symbol to this object, i.e. parameterises it.
    */
-  default ParameterisedSymbol addParameterSymbol(ISymbol parameterSymbol) {
+  default void addParameterSymbol(ISymbol parameterSymbol) {
     AssertValue.checkNotNull("parameterSymbol cannot be null", parameterSymbol);
     getParameterSymbols().add(parameterSymbol);
-    return this;
+
   }
 
   default String optionalParenthesisParameterSymbolsAsCommaSeparated() {

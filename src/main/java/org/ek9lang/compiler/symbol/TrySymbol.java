@@ -22,4 +22,5 @@ public class TrySymbol extends ControlSymbol {
     super.cloneIntoControlSymbol(newCopy);
     return newCopy;
   }
+
 }

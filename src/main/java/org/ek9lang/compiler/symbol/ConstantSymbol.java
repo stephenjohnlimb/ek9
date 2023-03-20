@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.symbol;
 
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -68,17 +67,25 @@ public class ConstantSymbol extends Symbol {
   }
 
   @Override
-  public int hashCode() {
-    return Objects.hash(super.hashCode(), this.literal);
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof ConstantSymbol that)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+
+    return literal == that.literal;
   }
 
   @Override
-  public boolean equals(Object obj) {
-    var rtn = super.equals(obj);
-    if (rtn && obj instanceof ConstantSymbol constant) {
-      rtn = constant.literal == this.literal;
-    }
-    return rtn;
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + (literal ? 1 : 0);
+    return result;
   }
 
   @Override

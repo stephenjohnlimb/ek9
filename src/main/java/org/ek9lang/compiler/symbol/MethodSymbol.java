@@ -386,17 +386,37 @@ public class MethodSymbol extends ScopedSymbol {
   }
 
   @Override
-  public int hashCode() {
-    return getFriendlyName().hashCode();
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    return (o instanceof MethodSymbol that)
+      && super.equals(o)
+        && isOverride() == that.isOverride()
+        && isConstructor() == that.isConstructor()
+        && isOperator() == that.isOperator()
+        && isMarkedAbstract() == that.isMarkedAbstract()
+        && isMarkedAsDispatcher() == that.isMarkedAsDispatcher()
+        && isMarkedNoClone() == that.isMarkedNoClone()
+        && isSynthetic() == that.isSynthetic()
+        && isEk9ReturnsThis() == that.isEk9ReturnsThis()
+        && getAccessModifier().equals(that.getAccessModifier());
   }
 
   @Override
-  public boolean equals(Object obj) {
-    var rtn = false;
-    if (obj instanceof MethodSymbol symbol) {
-      rtn = getFriendlyName().equals(symbol.getFriendlyName());
-    }
-    return rtn;
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + (isOverride() ? 1 : 0);
+    result = 31 * result + (isConstructor() ? 1 : 0);
+    result = 31 * result + (isOperator() ? 1 : 0);
+    result = 31 * result + (isMarkedAbstract() ? 1 : 0);
+    result = 31 * result + (isMarkedAsDispatcher() ? 1 : 0);
+    result = 31 * result + (isMarkedNoClone() ? 1 : 0);
+    result = 31 * result + (isSynthetic() ? 1 : 0);
+    result = 31 * result + (isEk9ReturnsThis() ? 1 : 0);
+    result = 31 * result + getAccessModifier().hashCode();
+    return result;
   }
 
   @Override

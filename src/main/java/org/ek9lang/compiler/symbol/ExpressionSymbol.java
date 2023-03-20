@@ -115,4 +115,25 @@ public class ExpressionSymbol extends Symbol implements IAssignableSymbol {
     super.setSourceToken(sourceToken);
     setInitialisedBy(sourceToken);
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    return (o instanceof ExpressionSymbol that)
+        && super.equals(o)
+        && isPromotionRequired() == that.isPromotionRequired()
+        && isUseStringOperator() == that.isUseStringOperator()
+        && isDeclaredAsConstant() == that.isDeclaredAsConstant();
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + (isPromotionRequired() ? 1 : 0);
+    result = 31 * result + (isUseStringOperator() ? 1 : 0);
+    result = 31 * result + (isDeclaredAsConstant() ? 1 : 0);
+    return result;
+  }
 }

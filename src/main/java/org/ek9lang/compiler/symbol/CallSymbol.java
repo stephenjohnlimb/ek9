@@ -51,4 +51,24 @@ public class CallSymbol extends MethodSymbol implements IAssignableSymbol {
     }
     return getName() + " => " + resolvedSymbolToCall.getFriendlyName();
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    var result = false;
+    if ((o instanceof CallSymbol that) && super.equals(o)) {
+      result = getResolvedSymbolToCall() != null ? getResolvedSymbolToCall().equals(that.getResolvedSymbolToCall()) :
+          that.getResolvedSymbolToCall() == null;
+    }
+    return result;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + (getResolvedSymbolToCall() != null ? getResolvedSymbolToCall().hashCode() : 0);
+    return result;
+  }
 }
