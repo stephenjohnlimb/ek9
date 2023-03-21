@@ -197,7 +197,7 @@ public class AggregateFactory {
   }
 
   public AggregateSymbol createTemplateGenericType(String name, IScope enclosingScope,
-                                                   List<AggregateSymbol> teeSymbols) {
+                                                   List<ISymbol> teeSymbols) {
     return new AggregateSymbol(name, enclosingScope, teeSymbols);
   }
 

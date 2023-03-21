@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbol;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -107,13 +108,19 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
 
   void setSuperAggregateScopedSymbol(IAggregateSymbol superAggregateScopedSymbol);
 
-  List<IAggregateSymbol> getTraits();
+  default List<IAggregateSymbol> getTraits() {
+    return new ArrayList<>();
+  }
 
-  List<AggregateWithTraitsSymbol> getAllExtensionConstrainedTraits();
+  default List<AggregateWithTraitsSymbol> getAllExtensionConstrainedTraits() {
+    return new ArrayList<>();
+  }
 
   List<AggregateWithTraitsSymbol> getAllTraits();
 
-  boolean isExtensionConstrained();
+  default boolean isExtensionConstrained() {
+    return false;
+  }
 
   /**
    * Only really used by aggregates that can have one or more traits.

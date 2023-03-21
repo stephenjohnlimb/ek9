@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.symbol;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -95,7 +96,9 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public AggregateSymbol(String name, Optional<ISymbol> type, IScope enclosingScope) {
     super(name, type, enclosingScope);
+    //But note that - this could become a TEMPLATE_TYPE if parameterized with a type.
     super.setCategory(SymbolCategory.TYPE);
+    //Also note this could become a DYNAMIC_BLOCK if employed as a dynamic class
     super.setScopeType(ScopeType.NON_BLOCK);
     super.setProduceFullyQualifiedName(true);
   }
@@ -105,7 +108,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
    * So the name would be 'List' and the parameterTypes would be a single aggregate of a
    * conceptual T.
    */
-  public AggregateSymbol(String name, IScope enclosingScope, List<AggregateSymbol> typeParameterOrArguments) {
+  public AggregateSymbol(String name, IScope enclosingScope, List<ISymbol> typeParameterOrArguments) {
     this(name, enclosingScope);
     typeParameterOrArguments.forEach(this::addTypeParameterOrArgument);
   }
@@ -127,7 +130,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     superAggregateScopedSymbol.ifPresent(
         aggregateSymbol -> newCopy.superAggregateScopedSymbol = Optional.of(aggregateSymbol));
 
-    newCopy.subAggregateScopedSymbols.addAll(subAggregateScopedSymbols);
+    newCopy.subAggregateScopedSymbols.addAll(getSubAggregateScopedSymbols());
     newCopy.injectable = injectable;
     newCopy.openForExtension = openForExtension;
 
@@ -136,6 +139,15 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     pipeSourceType.ifPresent(s -> newCopy.pipeSourceType = Optional.of(s));
 
     return newCopy;
+  }
+
+  @Override
+  public void setName(String name) {
+    super.setName(name);
+    if (superAggregateScopedSymbol != null) {
+      //Might not be even created yet.
+      superAggregateScopedSymbol.ifPresent(superSymbol -> superSymbol.addSubAggregateScopedSymbol(this));
+    }
   }
 
   @Override
@@ -226,7 +238,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   }
 
   public List<IAggregateSymbol> getSubAggregateScopedSymbols() {
-    return subAggregateScopedSymbols;
+    return Collections.unmodifiableList(subAggregateScopedSymbols);
   }
 
   /**
@@ -278,10 +290,6 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     return rtn;
   }
 
-  public List<ISymbol> getAllPropertyFieldsInThisScopeOnly() {
-    return getSymbolsForThisScope().stream().filter(sym -> !sym.isMethod()).toList();
-  }
-
   @Override
   public List<MethodSymbol> getAllNonAbstractMethodsInThisScopeOnly() {
     return filterMethods(MethodSymbol::isNotMarkedAbstract);
@@ -294,27 +302,11 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
 
   @Override
   public boolean isImplementingInSomeWay(IAggregateSymbol aggregate) {
+    if (this.equals(aggregate)) {
+      return true;
+    }
     return superAggregateScopedSymbol.map(
         aggregateSymbol -> aggregateSymbol.isImplementingInSomeWay(aggregate)).orElse(false);
-  }
-
-
-  @Override
-  public List<AggregateWithTraitsSymbol> getAllExtensionConstrainedTraits() {
-    return new ArrayList<>();
-  }
-
-  @Override
-  public boolean isExtensionConstrained() {
-    return false;
-  }
-
-  /**
-   * Any traits this type has.
-   */
-  @Override
-  public List<IAggregateSymbol> getTraits() {
-    return new ArrayList<>();
   }
 
   @Override
@@ -352,34 +344,6 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
       if (canAssign < 0.0) {
         return canAssign;
       }
-    }
-
-    return canAssign;
-  }
-
-  @Override
-  public double getAssignableWeightTo(ISymbol s) {
-    //Here be dragons - looks simple but there are complexities in here with super
-    //types and generics might not be able to be directly assignable - but not end of the world!
-    //We might get a coercion match so weight might not be 0.0.
-
-    double canAssign = super.getAssignableWeightTo(s);
-
-    //Check if assignable as super
-    if (superAggregateScopedSymbol.isPresent() && canAssign < 0.0) {
-      //now we can check superclass matches. but add some weight because this did not match
-      double weight = superAggregateScopedSymbol.get().getAssignableWeightTo(s);
-      canAssign = 0.05 + weight;
-
-      if (canAssign < 0.0) {
-        return canAssign;
-      }
-    }
-
-    if (canAssign >= 0.0 && s instanceof AggregateSymbol toCheck) {
-      double parameterisedWeight = checkParameterisedTypesAssignable(getTypeParameterOrArguments(),
-          toCheck.getTypeParameterOrArguments());
-      canAssign += parameterisedWeight;
     }
 
     return canAssign;
@@ -474,7 +438,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
    * Just try and resolve a member in this or super scopes.
    */
   public Optional<ISymbol> resolveMember(SymbolSearch search) {
-    //For members; we only look to our aggregate and super (unless we introduce traits later)
+
     Optional<ISymbol> rtn = resolveInThisScopeOnly(search);
     if (rtn.isEmpty() && superAggregateScopedSymbol.isPresent()) {
       rtn = superAggregateScopedSymbol.get().resolveMember(search);
@@ -495,7 +459,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
         && super.equals(o)
         && isMarkedAsDispatcher() == that.isMarkedAsDispatcher()
         && isInjectable() == that.isInjectable()
-        && isOpenForExtension() != that.isOpenForExtension()
+        && isOpenForExtension() == that.isOpenForExtension()
         && getSuperAggregateScopedSymbol().equals(that.getSuperAggregateScopedSymbol())
         && getAggregateDescription().equals(that.getAggregateDescription())
         && getPipeSinkType().equals(that.getPipeSinkType())
