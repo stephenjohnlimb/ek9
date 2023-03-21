@@ -313,16 +313,18 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   public List<AggregateWithTraitsSymbol> getAllTraits() {
     //This has no traits but its super might.
     List<AggregateWithTraitsSymbol> rtn = new ArrayList<>();
-    getSuperAggregateScopedSymbol().ifPresent(theSuper -> {
-      List<AggregateWithTraitsSymbol> superTraits = theSuper.getAllTraits();
-      superTraits.forEach(trait -> {
-        if (!rtn.contains(trait)) {
-          rtn.add(trait);
-        }
-      });
-    });
+    getSuperAggregateScopedSymbol().ifPresent(theSuper -> addTraitsIfNotPresent(rtn, theSuper.getAllTraits()));
 
     return rtn;
+  }
+
+  protected void addTraitsIfNotPresent(List<AggregateWithTraitsSymbol> exiting,
+                                       List<AggregateWithTraitsSymbol> additions) {
+    additions.forEach(trait -> {
+      if (!exiting.contains(trait)) {
+        exiting.add(trait);
+      }
+    });
   }
 
   @Override

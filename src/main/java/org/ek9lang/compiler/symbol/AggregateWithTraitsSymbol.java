@@ -46,13 +46,12 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
   /**
    * mark this aggregate as having additional 'trait'.
    */
-  public AggregateWithTraitsSymbol addTrait(AggregateWithTraitsSymbol traitSymbol) {
+  public void addTrait(AggregateWithTraitsSymbol traitSymbol) {
     AssertValue.checkNotNull("Trait cannot be null", traitSymbol);
     traits.add(traitSymbol);
 
     //Do we want this to be known as a sub aggregate?
     traitSymbol.addSubAggregateScopedSymbol(this);
-    return this;
   }
 
   /**
@@ -70,11 +69,9 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
   /**
    * For use with constraining types to be limited to a declared set.
    */
-  public AggregateWithTraitsSymbol addAllowedExtender(IAggregateSymbol extenderSymbol) {
+  public void addAllowedExtender(IAggregateSymbol extenderSymbol) {
     AssertValue.checkNotNull("AllowedExtender cannot be null", extenderSymbol);
     allowOnly.add(extenderSymbol);
-
-    return this;
   }
 
   public List<IAggregateSymbol> getAllowedExtenders() {
@@ -129,11 +126,6 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
       }
     }
     return NOT_ASSIGNABLE;
-  }
-
-  @Override
-  public double getAssignableWeightTo(Optional<ISymbol> s) {
-    return s.map(this::getAssignableWeightTo).orElse(NOT_ASSIGNABLE);
   }
 
   @Override
@@ -205,24 +197,10 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
     traits.forEach(trait -> {
       if (!rtn.contains(trait)) {
         rtn.add(trait);
-        trait.getAllTraits().forEach(superTrait -> {
-          if (!rtn.contains(superTrait)) {
-            rtn.add(superTrait);
-          }
-        });
+        addTraitsIfNotPresent(rtn, trait.getAllTraits());
       }
     });
-
-    //So this might be a class itself - so go up the supers to get all those traits.
-    getSuperAggregateScopedSymbol().ifPresent(theSuper -> {
-      List<AggregateWithTraitsSymbol> superTraits = theSuper.getAllTraits();
-      superTraits.forEach(trait -> {
-        if (!rtn.contains(trait)) {
-          rtn.add(trait);
-        }
-      });
-    });
-
+    addTraitsIfNotPresent(rtn, super.getAllTraits());
     return rtn;
   }
 
