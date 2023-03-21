@@ -80,7 +80,7 @@ public class AggregateFactory {
   public void addConstructorIfRequired(IAggregateSymbol aggregateSymbol, List<ISymbol> constructorArguments,
                                        boolean synthetic) {
     MethodSymbolSearch symbolSearch = new MethodSymbolSearch(aggregateSymbol.getName());
-    symbolSearch.setParameters(constructorArguments);
+    symbolSearch.setTypeParameters(constructorArguments);
     Optional<ISymbol> resolvedConstructor = aggregateSymbol.resolveMember(symbolSearch);
     if (resolvedConstructor.isEmpty()) {
       MethodSymbol newConstructor = new MethodSymbol(aggregateSymbol.getName(), aggregateSymbol);

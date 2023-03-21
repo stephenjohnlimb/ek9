@@ -55,7 +55,7 @@ public class SymbolMatcher {
     //on the method.
 
     double paramCost =
-        getWeightOfParameterMatch(criteria.getParameters(), methodSymbol.getSymbolsForThisScope());
+        getWeightOfParameterMatch(criteria.getTypeParameters(), methodSymbol.getSymbolsForThisScope());
     if (paramCost < 0.0) {
       return rtn;
     }
@@ -109,6 +109,7 @@ public class SymbolMatcher {
   /**
    * Calculates te weight of matching two symbols, which may or may not be present.
    */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public double getWeightOfMatch(Optional<ISymbol> fromSymbol, Optional<ISymbol> toSymbol) {
     double rtn = -1.0;
 

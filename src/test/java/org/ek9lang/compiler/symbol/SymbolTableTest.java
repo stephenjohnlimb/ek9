@@ -211,8 +211,13 @@ final class SymbolTableTest {
     //So it could now be called as method1(56.9, 22, "steve")
     //Now find it and also fail to find it.
     MethodSymbolSearch symbolSearch = new MethodSymbolSearch(method1);
-    assertEquals(3, symbolSearch.getParameterTypes().size());
-    assertEquals("method1(p1 as Float, p2 as Integer, p3 as String)", symbolSearch.toString());
+    var paramTypes = symbolSearch.getTypeParameters();
+    assertEquals(3, paramTypes.size());
+    assertEquals(floatType, paramTypes.get(0));
+    assertEquals(integerType, paramTypes.get(1));
+    assertEquals(stringType, paramTypes.get(2));
+
+    assertEquals("method1(Float, Integer, String)", symbolSearch.toString());
     Optional<ISymbol> resolvedMethod = globalSymbolTable.resolve(symbolSearch);
     assertTrue(resolvedMethod.isPresent());
 

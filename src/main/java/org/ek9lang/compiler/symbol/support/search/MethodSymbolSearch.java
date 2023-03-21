@@ -21,7 +21,7 @@ public final class MethodSymbolSearch extends SymbolSearch {
    */
   public MethodSymbolSearch(String newName, SymbolSearch from) {
     this(newName);
-    setParameters(from.getParameters());
+    setTypeParameters(from.getTypeParameters());
     if (from.getOfTypeOrReturn().isPresent()) {
       this.setOfTypeOrReturn(from.getOfTypeOrReturn());
     }
@@ -35,7 +35,15 @@ public final class MethodSymbolSearch extends SymbolSearch {
    */
   public MethodSymbolSearch(MethodSymbol methodSymbol) {
     this(methodSymbol.getName());
-    this.setParameters(methodSymbol.getSymbolsForThisScope());
+    var theTypes = methodSymbol
+        .getSymbolsForThisScope()
+        .stream()
+        .map(ISymbol::getType)
+        .filter(Optional::isPresent)
+        .flatMap(Optional::stream)
+        .toList();
+    this.setTypeParameters(theTypes);
+
     //don't set the return type leave that open, so we can handle covariance.
   }
 
@@ -44,6 +52,7 @@ public final class MethodSymbolSearch extends SymbolSearch {
     setSearchType(ISymbol.SymbolCategory.METHOD);
   }
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public MethodSymbolSearch(String name, Optional<ISymbol> ofTypeOrReturn) {
     super(name, ofTypeOrReturn);
     setSearchType(ISymbol.SymbolCategory.METHOD);

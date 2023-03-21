@@ -98,7 +98,7 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
 
   protected PossibleGenericSymbol cloneIntoPossibleGenericSymbol(PossibleGenericSymbol newCopy) {
     super.cloneIntoCaptureScopedSymbol(newCopy);
-    newCopy.parameterisedTypeReferences.addAll(parameterisedTypeReferences);
+    newCopy.parameterisedTypeReferences.addAll(getGenericSymbolReferences());
     newCopy.typeParameterOrArguments.addAll(typeParameterOrArguments);
     newCopy.contextForParameterisedType = this.contextForParameterisedType;
     newCopy.conceptualTypeParameter = conceptualTypeParameter;
@@ -117,9 +117,13 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
     this.genericType = genericType;
   }
 
+  public void setGenericType(PossibleGenericSymbol genericType) {
+    setGenericType(Optional.ofNullable(genericType));
+  }
+
   @Override
   public boolean isGenericInNature() {
-    return !typeParameterOrArguments.isEmpty();
+    return typeParameterOrArguments.stream().anyMatch(ISymbol::isConceptualTypeParameter);
   }
 
   /**
@@ -158,7 +162,14 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
   @Override
   public void addTypeParameterOrArgument(ISymbol typeParameterOrArgument) {
     AssertValue.checkNotNull("TypeParameterOrArgument cannot be null", typeParameterOrArgument);
-    this.typeParameterOrArguments.add(typeParameterOrArgument);
+    typeParameterOrArguments.add(typeParameterOrArgument);
+    if (isGenericInNature()) {
+      if (this.getCategory() == SymbolCategory.FUNCTION) {
+        this.setCategory(SymbolCategory.TEMPLATE_FUNCTION);
+      } else if (this.getCategory() == SymbolCategory.TYPE) {
+        this.setCategory(SymbolCategory.TEMPLATE_TYPE);
+      }
+    }
   }
 
   protected String getAnyGenericParamsAsFriendlyNames() {

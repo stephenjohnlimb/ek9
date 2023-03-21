@@ -25,11 +25,12 @@ public class SymbolSearch {
   private final String name;
 
   /**
-   * Typically if searching for a method this will be zero or more parameters.
+   * Typically if searching for a method this will be zero or more type parameters.
    * But note these are not just a list of types they are the parameters with the type
    * set into that symbol.
    */
-  private final List<ISymbol> parameters = new ArrayList<>();
+  private final List<ISymbol> typeParameters = new ArrayList<>();
+
   /**
    * For variables - esp when checking for duplicates we want to allow
    * for class level variables of a name and allow a local variable to have the same name
@@ -87,7 +88,7 @@ public class SymbolSearch {
 
   protected void cloneIntoSearchSymbol(SymbolSearch symbolSearch) {
     symbolSearch.setOfTypeOrReturn(ofTypeOrReturn)
-        .setParameters(parameters)
+        .setTypeParameters(typeParameters)
         .setLimitToBlocks(limitToBlocks)
         .setSearchType(searchType);
   }
@@ -122,37 +123,27 @@ public class SymbolSearch {
   /**
    * Get the parameters being used in this search.
    */
-  public List<ISymbol> getParameters() {
-    return parameters;
+  public List<ISymbol> getTypeParameters() {
+    return typeParameters;
   }
 
   /**
    * Set any parameters that might be needed as part of this search.
    */
-  public SymbolSearch setParameters(List<ISymbol> parameters) {
-    AssertValue.checkNotNull("parameters cannot be null for search Symbol", parameters);
-    parameters.forEach(this::addParameter);
+  public SymbolSearch setTypeParameters(List<ISymbol> typeParameters) {
+    AssertValue.checkNotNull("parameters cannot be null for search Symbol", typeParameters);
+    typeParameters.forEach(this::addTypeParameter);
     return this;
   }
 
   /**
-   * Get all the types of the parameters being used in this search.
-   */
-  public List<ISymbol> getParameterTypes() {
-    return parameters
-        .stream()
-        .map(ISymbol::getType)
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .toList();
-  }
-
-  /**
    * Add a parameter to the search parameters.
+   * This is the 'type' symbol - i.e. Integer or whatever.
+   * It is not a variable that 'has' a type.
    */
-  public SymbolSearch addParameter(ISymbol parameter) {
+  public SymbolSearch addTypeParameter(ISymbol parameter) {
     AssertValue.checkNotNull("parameter cannot be null for search Symbol", parameter);
-    this.parameters.add(parameter);
+    this.typeParameters.add(parameter);
     return this;
   }
 
@@ -203,7 +194,7 @@ public class SymbolSearch {
     buffer.append(getName());
 
     if (this.searchType == ISymbol.SymbolCategory.METHOD) {
-      buffer.append(CommonParameterisedTypeDetails.asCommaSeparated(parameters, true));
+      buffer.append(CommonParameterisedTypeDetails.asCommaSeparated(typeParameters, true));
     }
 
     return buffer.toString();

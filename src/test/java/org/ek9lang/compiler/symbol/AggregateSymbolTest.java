@@ -107,7 +107,7 @@ final class AggregateSymbolTest {
 
     //Now search and find that method, must add in the param to be able to resolve it.
     Optional<ISymbol> resolvedMethod = underTest.resolveInThisScopeOnly(
-        new MethodSymbolSearch("method1").addParameter(new VariableSymbol("arg1", stringType)));
+        new MethodSymbolSearch("method1").addTypeParameter(new VariableSymbol("arg1", stringType)));
     assertTrue(resolvedMethod.isPresent());
     assertSymbol(resolvedMethod, "method1", "Integer");
 
@@ -115,7 +115,7 @@ final class AggregateSymbolTest {
     AggregateSymbol cloned = underTest.clone(symbolTable);
     assertNotNull(cloned);
     resolvedMethod = cloned.resolveInThisScopeOnly(
-        new MethodSymbolSearch("method1").addParameter(new VariableSymbol("arg1", stringType)));
+        new MethodSymbolSearch("method1").addTypeParameter(new VariableSymbol("arg1", stringType)));
     assertTrue(resolvedMethod.isPresent());
     assertSymbol(resolvedMethod, "method1", "Integer");
 
@@ -126,19 +126,19 @@ final class AggregateSymbolTest {
 
     //Test original is still OK
     resolvedMethod = underTest.resolveInThisScopeOnly(
-        new MethodSymbolSearch("method1").addParameter(new VariableSymbol("arg1", stringType)));
+        new MethodSymbolSearch("method1").addTypeParameter(new VariableSymbol("arg1", stringType)));
     assertTrue(resolvedMethod.isPresent());
     assertSymbol(resolvedMethod, "method1", "Integer");
 
     //Now check cloned one has been altered
     resolvedMethod = cloned.resolveInThisScopeOnly(
-        new MethodSymbolSearch("method1").addParameter(new VariableSymbol("arg1", stringType)));
+        new MethodSymbolSearch("method1").addTypeParameter(new VariableSymbol("arg1", stringType)));
     assertFalse(resolvedMethod.isPresent());
 
     resolvedMethod = cloned.resolveInThisScopeOnly(
         new MethodSymbolSearch("method1")
-            .addParameter(new VariableSymbol("arg1", stringType))
-            .addParameter(new VariableSymbol("arg2", integerType)));
+            .addTypeParameter(new VariableSymbol("arg1", stringType))
+            .addTypeParameter(new VariableSymbol("arg2", integerType)));
     assertTrue(resolvedMethod.isPresent());
     assertSymbol(resolvedMethod, "method1", "String");
 
