@@ -3,7 +3,7 @@ package org.ek9lang.compiler.symbol;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
+import org.ek9lang.compiler.symbol.support.ToCommaSeparated;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 
 /**
@@ -192,12 +192,13 @@ public class FunctionSymbol extends PossibleGenericSymbol {
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   protected String doGetFriendlyName(String withName, Optional<ISymbol> theType) {
+    var toCommaSeparated = new ToCommaSeparated(true);
     StringBuilder buffer = new StringBuilder();
 
     buffer.append(getSymbolTypeAsString(theType));
 
     buffer.append(" <- ").append(withName);
-    buffer.append(CommonParameterisedTypeDetails.asCommaSeparated(getSymbolsForThisScope(), true));
+    buffer.append(toCommaSeparated.apply(getSymbolsForThisScope()));
     if (isMarkedAbstract()) {
       buffer.append(" as abstract");
     }

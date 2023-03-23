@@ -3,7 +3,9 @@ package org.ek9lang.compiler.symbol;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
+import org.ek9lang.compiler.symbol.support.ExactTypeSymbolMatcher;
+import org.ek9lang.compiler.symbol.support.IndexOfType;
+import org.ek9lang.compiler.symbol.support.ToCommaSeparated;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.exception.CompilerException;
@@ -26,6 +28,12 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
   private final List<ISymbol> parameterSymbols = new ArrayList<>();
 
   private boolean variablesAndMethodsHydrated = false;
+
+  private final ExactTypeSymbolMatcher exactTypeSymbolMatcher = new ExactTypeSymbolMatcher();
+
+  private final InternalNameFor internalNameFor = new InternalNameFor();
+
+  private IndexOfType indexOfType = new IndexOfType();
 
   public ParameterisedFunctionSymbol(FunctionSymbol parameterisableSymbol,
                                      Optional<ISymbol> parameterSymbol, IScope enclosingScope) {
@@ -73,8 +81,9 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
     if (parameterisableSymbol.isExactSameType(symbolType)) {
       //So this might also be considered equivalent
       //But lets check that the parameterised types are a match
-      return CommonParameterisedTypeDetails.doSymbolsMatch(parameterSymbols,
+      return exactTypeSymbolMatcher.test(parameterSymbols,
           parameterisableSymbol.getTypeParameterOrArguments());
+
     }
     return super.isSymbolTypeMatch(symbolType);
   }
@@ -84,8 +93,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
    * Call this so that the full name of the concrete parameterised generic type is manifest.
    */
   private void parameterisationComplete() {
-    super.setName(
-        CommonParameterisedTypeDetails.getInternalNameFor(parameterisableSymbol, parameterSymbols));
+    super.setName(internalNameFor.apply(parameterisableSymbol, parameterSymbols));
     this.setModuleScope(parameterisableSymbol.getModuleScope());
     var isTemplateFunction = parameterSymbols.stream().anyMatch(ISymbol::isConceptualTypeParameter);
 
@@ -148,19 +156,18 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
    * @return The new resolved symbol.
    */
   private Optional<ISymbol> resolveWithNewType(Optional<ISymbol> typeToResolve) {
-    if (typeToResolve.isPresent() && typeToResolve.get() instanceof IAggregateSymbol aggregate) {
-      if (aggregate.isTemplateType()) {
+    if (typeToResolve.isPresent() && typeToResolve.get() instanceof PossibleGenericSymbol possibleGenericSymbol) {
+      if (possibleGenericSymbol.isTemplateType()) {
         //So the aggregate here is the generic template definition.
         //We must ensure we marry up the generic parameters here - for example we might have
         //2 params S and T
         //But the aggregate we are lookup might just have one the 'T'. So we need to deal with this.
         List<ISymbol> lookupParameterSymbols = new ArrayList<>();
-        for (ISymbol symbol : aggregate.getTypeParameterOrArguments()) {
+        for (ISymbol symbol : possibleGenericSymbol.getTypeParameterOrArguments()) {
           //So given a T or whatever we need to find which index position it is in
           //Then we can use that same index position to get the equiv symbol from what parameters
           //have been applied.
-          int index = CommonParameterisedTypeDetails.getIndexOfType(parameterisableSymbol,
-              Optional.of(symbol));
+          int index = indexOfType.apply(parameterisableSymbol, symbol);
           if (index < 0) {
             throw new CompilerException("Unable to find symbol [" + symbol + "]");
           }
@@ -168,20 +175,19 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
           lookupParameterSymbols.add(resolvedSymbol);
         }
         //So now we have a generic type and a set of actual parameters we can resolve it!
-        String parameterisedTypeSymbolName =
-            CommonParameterisedTypeDetails.getInternalNameFor(aggregate, lookupParameterSymbols);
+        String parameterisedTypeSymbolName = internalNameFor.apply(possibleGenericSymbol, lookupParameterSymbols);
+
         TypeSymbolSearch search = new TypeSymbolSearch(parameterisedTypeSymbolName);
         return this.resolve(search);
-      } else if (aggregate.isConceptualTypeParameter()) {
+      } else if (possibleGenericSymbol.isConceptualTypeParameter()) {
         //So if this is a T or and S or a P for example we need to know
         //What actual symbol to use from the parameterSymbols we have been parameterised with.
-        int index =
-            CommonParameterisedTypeDetails.getIndexOfType(parameterisableSymbol, typeToResolve);
+        int index = indexOfType.apply(parameterisableSymbol, typeToResolve.get());
         ISymbol resolvedSymbol = parameterSymbols.get(index);
 
         return Optional.of(resolvedSymbol);
-      } else if (aggregate.isGenericInNature()
-          && aggregate instanceof ParameterisedFunctionSymbol asParameterisedTypeSymbol) {
+      } else if (possibleGenericSymbol.isGenericInNature()
+          && possibleGenericSymbol instanceof ParameterisedFunctionSymbol asParameterisedTypeSymbol) {
         //Now this is a  bastard because we need to clone one of these classes we're already in.
         //But it might be a List of T or a real List of Integer for example.
 
@@ -193,8 +199,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
           //So lets see might be a K or V for example but we must be able to find that type
           //in this object
           if (symbol.isConceptualTypeParameter()) {
-            int index = CommonParameterisedTypeDetails.getIndexOfType(parameterisableSymbol,
-                Optional.of(symbol));
+            int index = indexOfType.apply(parameterisableSymbol, symbol);
             if (index < 0) {
               throw new CompilerException("Unable to find symbol [" + symbol + "]");
             }
@@ -207,8 +212,8 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
           }
         }
 
-        String parameterisedTypeSymbolName = CommonParameterisedTypeDetails.getInternalNameFor(
-            asParameterisedTypeSymbol.parameterisableSymbol, lookupParameterSymbols);
+        String parameterisedTypeSymbolName =
+            internalNameFor.apply(asParameterisedTypeSymbol.parameterisableSymbol, lookupParameterSymbols);
         TypeSymbolSearch search = new TypeSymbolSearch(parameterisedTypeSymbolName);
         return this.resolve(search);
       }
@@ -225,6 +230,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
 
   @Override
   public String getFriendlyName() {
+    var toCommaSeparated = new ToCommaSeparated(true);
     String nameOfFunction = parameterisableSymbol.getName() + getAnyGenericParamsAsFriendlyNames();
     StringBuilder buffer = new StringBuilder();
     if (getReturningSymbol() != null) {
@@ -234,7 +240,7 @@ public class ParameterisedFunctionSymbol extends FunctionSymbol implements Param
     }
 
     buffer.append(" <- ").append(nameOfFunction);
-    buffer.append(CommonParameterisedTypeDetails.asCommaSeparated(getSymbolsForThisScope(), true));
+    buffer.append(toCommaSeparated.apply(getSymbolsForThisScope()));
     return buffer.toString();
   }
 }

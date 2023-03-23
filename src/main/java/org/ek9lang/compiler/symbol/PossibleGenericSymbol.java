@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
+import org.ek9lang.compiler.symbol.support.ToCommaSeparated;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
@@ -177,7 +177,8 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
     if (isGenericInNature()) {
       buffer.append(" of type ");
       var params = getTypeParameterOrArguments();
-      buffer.append(CommonParameterisedTypeDetails.asCommaSeparated(params, params.size() > 1));
+      var toCommaSeparated = new ToCommaSeparated(params.size() > 1);
+      buffer.append(toCommaSeparated.apply(params));
     }
     return buffer.toString();
   }
@@ -190,7 +191,6 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
     return typeParameterOrArguments
         .stream()
         .filter(ISymbol::isConceptualTypeParameter)
-        .map(ISymbol.class::cast)
         .toList();
   }
 

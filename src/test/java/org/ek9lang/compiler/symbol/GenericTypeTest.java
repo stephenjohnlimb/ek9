@@ -6,7 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Optional;
-import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
+import org.ek9lang.compiler.symbol.support.ExactTypeSymbolMatcher;
+import org.ek9lang.compiler.symbol.support.IndexOfType;
 import org.ek9lang.compiler.symbol.support.search.TemplateTypeSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.junit.jupiter.api.Assertions;
@@ -23,6 +24,9 @@ import org.junit.jupiter.api.Test;
  * These tests just use a single global symbol table and made up types.
  */
 final class GenericTypeTest extends AbstractSymbolTestBase {
+
+  private final ExactTypeSymbolMatcher exactTypeSymbolMatcher = new ExactTypeSymbolMatcher();
+  private final IndexOfType indexOfType = new IndexOfType();
 
   @Test
   void testTemplateTypeCreation() {
@@ -41,7 +45,7 @@ final class GenericTypeTest extends AbstractSymbolTestBase {
 
     //Now make sure it is possible to find the correct index of 'Tee'
     //This will be needed when we come to process parameterised types.
-    Assertions.assertEquals(0, CommonParameterisedTypeDetails.getIndexOfType(z, Optional.of(t)));
+    Assertions.assertEquals(0, indexOfType.apply(z, t));
 
     //Check we CANNOT find this as a type, but only as a template type.
     assertTrue(symbolTable.resolve(new TypeSymbolSearch("Zee")).isEmpty());
@@ -78,43 +82,36 @@ final class GenericTypeTest extends AbstractSymbolTestBase {
     assertTrue(dateType.isPresent());
     assertTrue(stringType.isPresent());
 
-    assertFalse(CommonParameterisedTypeDetails
-        .doSymbolsMatch(
+    assertFalse(exactTypeSymbolMatcher.test(
             List.of(dateType.get()), null
         )
     );
-    assertFalse(CommonParameterisedTypeDetails
-        .doSymbolsMatch(
+    assertFalse(exactTypeSymbolMatcher.test(
             null, List.of(dateType.get())
         )
     );
 
-    assertFalse(CommonParameterisedTypeDetails
-        .doSymbolsMatch(
+    assertFalse(exactTypeSymbolMatcher.test(
             List.of(dateType.get()), List.of(stringType.get())
         )
     );
 
-    assertFalse(CommonParameterisedTypeDetails
-        .doSymbolsMatch(
+    assertFalse(exactTypeSymbolMatcher.test(
             List.of(dateType.get(), stringType.get()), List.of(stringType.get())
         )
     );
 
-    assertFalse(CommonParameterisedTypeDetails
-        .doSymbolsMatch(
+    assertFalse(exactTypeSymbolMatcher.test(
             List.of(dateType.get(), stringType.get()), List.of(stringType.get(), dateType.get())
         )
     );
 
-    assertTrue(CommonParameterisedTypeDetails
-        .doSymbolsMatch(
+    assertTrue(exactTypeSymbolMatcher.test(
             List.of(dateType.get()), List.of(dateType.get())
         )
     );
 
-    assertTrue(CommonParameterisedTypeDetails
-        .doSymbolsMatch(
+    assertTrue(exactTypeSymbolMatcher.test(
             List.of(stringType.get(), dateType.get()), List.of(stringType.get(), dateType.get())
         )
     );
@@ -150,9 +147,9 @@ final class GenericTypeTest extends AbstractSymbolTestBase {
 
     //Check we can find the types that have been used and cannot find the ones that haven't.
     //So Why does not have a Que.
-    assertEquals(0, CommonParameterisedTypeDetails.getIndexOfType(y, Optional.of(p)));
-    assertEquals(1, CommonParameterisedTypeDetails.getIndexOfType(y, Optional.of(r)));
-    assertEquals(-1, CommonParameterisedTypeDetails.getIndexOfType(y, Optional.of(q)));
+    assertEquals(0, indexOfType.apply(y, p));
+    assertEquals(1, indexOfType.apply(y, r));
+    assertEquals(-1, indexOfType.apply(y, q));
 
     //In Java speak public class Zee<Arr,Que,Pee>
     var z = support.createTemplateGenericType("Zee", symbolTable, List.of(r, q, p));

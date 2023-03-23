@@ -8,7 +8,7 @@ import org.ek9lang.compiler.internals.Source;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.SymbolTable;
-import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
+import org.ek9lang.compiler.symbol.support.ToCommaSeparated;
 import org.ek9lang.core.exception.AssertValue;
 
 /**
@@ -188,13 +188,14 @@ public class SymbolSearch {
 
   @Override
   public String toString() {
+    var toCommaSeparated = new ToCommaSeparated(true);
     StringBuilder buffer = new StringBuilder();
 
     getOfTypeOrReturn().ifPresent(returnType -> buffer.append(returnType.getName()).append(" <- "));
     buffer.append(getName());
 
     if (this.searchType == ISymbol.SymbolCategory.METHOD) {
-      buffer.append(CommonParameterisedTypeDetails.asCommaSeparated(typeParameters, true));
+      buffer.append(toCommaSeparated.apply(typeParameters));
     }
 
     return buffer.toString();

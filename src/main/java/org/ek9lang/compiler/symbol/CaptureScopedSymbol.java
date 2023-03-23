@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.symbol;
 
 import java.util.Optional;
-import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
+import org.ek9lang.compiler.symbol.support.ToCommaSeparated;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 
 /**
@@ -104,8 +104,10 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
   }
 
   protected String getPrivateVariablesForDisplay() {
+    var toCommaSeparated = new ToCommaSeparated(true);
     return capturedVariables
-        .map(scope -> CommonParameterisedTypeDetails.asCommaSeparated(scope.getSymbolsForThisScope(), true))
+        .map(IScope::getSymbolsForThisScope)
+        .map(toCommaSeparated)
         .orElse("");
   }
 

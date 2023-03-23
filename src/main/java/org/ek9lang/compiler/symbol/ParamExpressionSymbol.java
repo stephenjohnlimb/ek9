@@ -3,7 +3,7 @@ package org.ek9lang.compiler.symbol;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
+import org.ek9lang.compiler.symbol.support.ToCommaSeparated;
 
 /**
  * While we don't add these in the scoped structures when compiling.
@@ -39,7 +39,8 @@ public class ParamExpressionSymbol extends Symbol {
 
   @Override
   public String getFriendlyName() {
-    return CommonParameterisedTypeDetails.asCommaSeparated(params, true);
+    var toCommaSeparated = new ToCommaSeparated(true);
+    return toCommaSeparated.apply(params);
   }
 
   @Override

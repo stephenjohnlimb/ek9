@@ -2,7 +2,7 @@ package org.ek9lang.compiler.symbol;
 
 import java.util.List;
 import java.util.Optional;
-import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
+import org.ek9lang.compiler.symbol.support.ToCommaSeparated;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.exception.CompilerException;
 
@@ -107,8 +107,13 @@ public interface ParameterisedSymbol extends IScopedSymbol {
 
   }
 
+  /**
+   * Get the parameters as a comma separated list.
+   */
   default String optionalParenthesisParameterSymbolsAsCommaSeparated() {
     var params = getParameterSymbols();
-    return CommonParameterisedTypeDetails.asCommaSeparated(params, params.size() > 1);
+    var toCommaSeparated = new ToCommaSeparated(params.size() > 1);
+
+    return toCommaSeparated.apply(params);
   }
 }

@@ -2,8 +2,8 @@ package org.ek9lang.compiler.symbol;
 
 import java.util.List;
 import java.util.Optional;
-import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
 import org.ek9lang.compiler.symbol.support.SymbolMatcher;
+import org.ek9lang.compiler.symbol.support.ToCommaSeparated;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 
 /**
@@ -377,8 +377,9 @@ public class MethodSymbol extends ScopedSymbol {
 
     buffer.append(getSymbolTypeAsString(theType));
 
+    final var toCommaSeparated = new ToCommaSeparated(true);
     buffer.append(" <- ").append(withName);
-    buffer.append(CommonParameterisedTypeDetails.asCommaSeparated(getSymbolsForThisScope(), true));
+    buffer.append(toCommaSeparated.apply(getSymbolsForThisScope()));
     if (this.markedAbstract) {
       buffer.append(" as abstract");
     }

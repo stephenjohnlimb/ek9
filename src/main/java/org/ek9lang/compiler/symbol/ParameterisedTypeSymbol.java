@@ -3,7 +3,7 @@ package org.ek9lang.compiler.symbol;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.ek9lang.compiler.symbol.support.CommonParameterisedTypeDetails;
+import org.ek9lang.compiler.symbol.support.ExactTypeSymbolMatcher;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.exception.CompilerException;
@@ -26,6 +26,10 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
   private final List<ISymbol> parameterSymbols = new ArrayList<>();
 
   private boolean variablesAndMethodsHydrated = false;
+
+  private final ExactTypeSymbolMatcher exactTypeSymbolMatcher = new ExactTypeSymbolMatcher();
+
+  private final InternalNameFor internalNameFor = new InternalNameFor();
 
   /**
    * Create a new type that is capable of being parameterised.
@@ -89,8 +93,9 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
     if (parameterisableSymbol.isExactSameType(symbolType)) {
       //So this might also be considered equivalent
       //But let's check that the parameterised types are a match
-      return CommonParameterisedTypeDetails.doSymbolsMatch(parameterSymbols,
+      return exactTypeSymbolMatcher.test(parameterSymbols,
           parameterisableSymbol.getTypeParameterOrArguments());
+
     }
     return super.isSymbolTypeMatch(symbolType);
   }
@@ -109,8 +114,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
       throw new CompilerException("Compiler error mismatch in number of parameters");
     }
 
-    super.setName(
-        CommonParameterisedTypeDetails.getInternalNameFor(parameterisableSymbol, parameterSymbols));
+    super.setName(internalNameFor.apply(parameterisableSymbol, parameterSymbols));
 
     var isTemplateType = parameterSymbols.stream().anyMatch(ISymbol::isConceptualTypeParameter);
 
@@ -281,8 +285,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
           lookupParameterSymbols.add(resolvedSymbol);
         }
         //So now we have a generic type and a set of actual parameters we can resolve it!
-        String parameterisedTypeSymbolName =
-            CommonParameterisedTypeDetails.getInternalNameFor(aggregate, lookupParameterSymbols);
+        String parameterisedTypeSymbolName = internalNameFor.apply(aggregate, lookupParameterSymbols);
         TypeSymbolSearch search = new TypeSymbolSearch(parameterisedTypeSymbolName);
         ResolutionResult rtn = new ResolutionResult();
         rtn.symbol = this.resolve(search);
@@ -329,7 +332,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
           }
         }
 
-        String parameterisedTypeSymbolName = CommonParameterisedTypeDetails.getInternalNameFor(
+        String parameterisedTypeSymbolName = internalNameFor.apply(
             asParameterisedTypeSymbol.parameterisableSymbol, lookupParameterSymbols);
         TypeSymbolSearch search = new TypeSymbolSearch(parameterisedTypeSymbolName);
         ResolutionResult rtn = new ResolutionResult();
