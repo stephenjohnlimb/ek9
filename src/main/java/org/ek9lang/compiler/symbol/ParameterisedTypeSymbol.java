@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.symbol.support.ExactTypeSymbolMatcher;
+import org.ek9lang.compiler.symbol.support.InternalNameFor;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.exception.CompilerException;

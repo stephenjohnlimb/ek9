@@ -1,8 +1,10 @@
-package org.ek9lang.compiler.symbol;
+package org.ek9lang.compiler.symbol.support;
 
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
 import org.ek9lang.core.utils.Digest;
 
 /**

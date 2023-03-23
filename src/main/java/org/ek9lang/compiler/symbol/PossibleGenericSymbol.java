@@ -112,9 +112,18 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
     return genericType;
   }
 
+  /**
+   * Used parameterizing a generic type with type arguments.
+   */
   @SuppressWarnings({"unused", "OptionalUsedAsFieldOrParameterType"})
   public void setGenericType(Optional<PossibleGenericSymbol> genericType) {
     this.genericType = genericType;
+    genericType.ifPresent(theGenericType -> {
+      //Use the same scope, module and source token for this as the generic type.
+      setModuleScope(theGenericType.getModuleScope());
+      setParsedModule(theGenericType.getParsedModule());
+      setSourceToken(theGenericType.getSourceToken());
+    });
   }
 
   public void setGenericType(PossibleGenericSymbol genericType) {
@@ -170,6 +179,14 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
         this.setCategory(SymbolCategory.TEMPLATE_TYPE);
       }
     }
+  }
+
+  @Override
+  public String getFriendlyName() {
+    if (genericType.isPresent()) {
+      return genericType.get().getFriendlyName();
+    }
+    return super.getFriendlyName();
   }
 
   protected String getAnyGenericParamsAsFriendlyNames() {
