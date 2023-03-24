@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import org.ek9lang.compiler.symbol.support.IndexOfType;
 import org.ek9lang.compiler.symbol.support.ParameterizedGenericSymbolCreator;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
@@ -169,6 +168,17 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
   }
 
   @Test
+  void testWithMultipleTypeParameters() {
+    var tripleGenericType = testCreateGenericTypeWithMultipleParameters("TripleType", List.of("Q", "R", "S"));
+    assertNotNull(tripleGenericType);
+    assertEquals(3, tripleGenericType.getAnyConceptualTypeParameters().size());
+
+    var quadGenericType = testCreateGenericTypeWithMultipleParameters("QuadType", List.of("P", "Q", "R", "S"));
+    assertNotNull(quadGenericType);
+    assertEquals(4, quadGenericType.getAnyConceptualTypeParameters().size());
+  }
+
+  @Test
   void testMultipleConceptualTypeParameters() {
     var integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
     assertTrue(integerType.isPresent());
@@ -180,6 +190,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     ParameterizedGenericSymbolCreator creator = new ParameterizedGenericSymbolCreator();
 
     var aGenericType = testCreateGenericTypeWithMultipleParameters("AType", List.of("R", "S"));
+    assertEquals(2, aGenericType.getAnyConceptualTypeParameters().size());
     assertNotNull(aGenericType);
 
     //Now parameterize it with concrete types
