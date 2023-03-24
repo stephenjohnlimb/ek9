@@ -15,6 +15,7 @@ public class AbstractSymbolTestBase {
   public void setupBasicSymbols() {
     symbolTable = new SymbolTable();
     symbolTable.define(new AggregateSymbol("Integer", symbolTable));
+    symbolTable.define(new AggregateSymbol("Float", symbolTable));
     symbolTable.define(new AggregateSymbol("String", symbolTable));
     symbolTable.define(new AggregateSymbol("Boolean", symbolTable));
     symbolTable.define(new AggregateSymbol("Date", symbolTable));

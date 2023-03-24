@@ -322,7 +322,7 @@ public class AggregateFactory {
     method.setParsedModule(clazz.getParsedModule());
     methodParameters.forEach(method::define);
     clazz.define(method);
-    method.setType(returnType);
+    method.setReturningSymbol(new VariableSymbol("rtn", returnType));
     return method;
   }
 

@@ -23,14 +23,6 @@ public class SymbolChecker {
   }
 
   /**
-   * Check if there is a matching variable in the same scope.
-   * Add errors to errorListener if there are.
-   */
-  public boolean errorsIfVariableSymbolAlreadyDefined(IScope inScope, ISymbol symbol) {
-    return errorsIfSymbolAlreadyDefined(inScope, symbol, true);
-  }
-
-  /**
    * Check for exising symbol in the scope.
    * if returns true then errors will have been added to the error listener.
    */
