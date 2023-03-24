@@ -9,6 +9,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 final class DigestTest {
   private static final String testFileName = "assertTest.txt";
   private static final String sha256FileName = "assertTest.sha256";
@@ -73,7 +74,7 @@ final class DigestTest {
   }
 
   @Test
-  @SuppressWarnings("java:S5785")
+  @SuppressWarnings({"java:S5785", "AssertBetweenInconvertibleTypes"})
   void testDigestEmptyFile() throws IOException {
     File newFile = new File(System.getProperty("java.io.tmpdir"), testFileName);
     newFile.createNewFile();
@@ -95,15 +96,13 @@ final class DigestTest {
 
     byte[] validBytes =
         Hex.toByteArray("E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855");
+    //noinspection AssertBetweenInconvertibleTypes
     assertEquals(ckSum1, validBytes);
 
     byte[] inValidBytes =
         Hex.toByteArray("X3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855");
     assertNotEquals(ckSum1, inValidBytes);
-
-    assertNotEquals(ckSum1, new byte[0]);
-
-
+    assertNotEquals(new byte[0], ckSum1);
     assertNotEquals("", ckSum1);
 
     if (newFile.exists()) {

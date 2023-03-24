@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
@@ -516,6 +517,32 @@ public class ErrorListener extends BaseErrorListener {
 
     public boolean isHoldingFuzzySearchResults() {
       return fuzzySearchResults != null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof ErrorDetails that)) {
+        return false;
+      }
+      if (!super.equals(o)) {
+        return false;
+      }
+
+      if (getClassification() != that.getClassification()) {
+        return false;
+      }
+      return Objects.equals(fuzzySearchResults, that.fuzzySearchResults);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = super.hashCode();
+      result = 31 * result + getClassification().hashCode();
+      result = 31 * result + (fuzzySearchResults != null ? fuzzySearchResults.hashCode() : 0);
+      return result;
     }
 
     @Override

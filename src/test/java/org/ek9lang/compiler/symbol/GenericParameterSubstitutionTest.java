@@ -85,6 +85,8 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var arg0 = new VariableSymbol("arg0", integerType);
     var arg1 = new VariableSymbol("arg1", t);
     var arg2 = new VariableSymbol("arg2", stringType);
+    support.addConstructor(aGenericType);
+    support.addConstructor(aGenericType, Optional.of(arg1));
     support.addPublicMethod(aGenericType, "methodOne", List.of(arg0, arg1), Optional.of(t));
     //Now add another method
     support.addPublicMethod(aGenericType, "methodTwo", List.of(arg0, arg1, arg2), Optional.of(t));
@@ -92,20 +94,25 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     support.addPublicMethod(aGenericType, "methodThree", List.of(arg2, arg1, arg0), durationType);
     //Final one
     support.addPublicMethod(aGenericType, "methodFour", List.of(arg1, arg0), durationType);
-    assertEquals(4, aGenericType.getSymbolsForThisScope().size());
+    assertEquals(6, aGenericType.getSymbolsForThisScope().size());
 
     //We can check our symbol search and replace by just using this simple replace on the strings versions.
     var inTemplateForm = getMethodsAsString(aGenericType);
-    var expectedForm = inTemplateForm.replace(" T", " String");
 
     //Now make a parameterised version with a String.
     var aParameterizedStringType = creator.apply(aGenericType, List.of(stringType.get()));
+
     //Check it has no methods yet - we still need to populate them.
     assertEquals(0, aParameterizedStringType.getSymbolsForThisScope().size());
+    var constructorName = aGenericType.getName();
+    var expectedConstructorName = aParameterizedStringType.getName();
+    var expectedForm = inTemplateForm
+        .replace(" T", " String")
+        .replace(constructorName, expectedConstructorName);
 
     var typeSubstitutedParameterisedType = typeSubstitution.apply(aParameterizedStringType);
     assertNotNull(typeSubstitutedParameterisedType);
-    assertEquals(4, typeSubstitutedParameterisedType.getSymbolsForThisScope().size());
+    assertEquals(6, typeSubstitutedParameterisedType.getSymbolsForThisScope().size());
 
     var actualForm = getMethodsAsString(typeSubstitutedParameterisedType);
 

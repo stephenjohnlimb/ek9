@@ -36,7 +36,7 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
     var cloned = cloneInto(toClone, possibleGenericSymbol);
     var typeMapping = getConceptualLookupMapping(possibleGenericSymbol.getTypeParameterOrArguments(),
         theGenericType.get().getAnyConceptualTypeParameters());
-    replaceTypeParametersWithTypeArguments(typeMapping, cloned);
+    replaceTypeParametersWithTypeArguments(possibleGenericSymbol, typeMapping, cloned);
     return possibleGenericSymbol;
   }
 
@@ -44,9 +44,16 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
    * Now we have a mapping of the 'type parameter' to the 'type argument', we can cycle through
    * all the symbols and replace the types are they are encountered on the cloned symbols.
    */
-  private void replaceTypeParametersWithTypeArguments(final Map<ISymbol, ISymbol> typeMapping, List<ISymbol> symbols) {
+  private void replaceTypeParametersWithTypeArguments(final PossibleGenericSymbol possibleGenericSymbol, final Map<ISymbol, ISymbol> typeMapping, List<ISymbol> symbols) {
     symbols.forEach(symbol -> {
       if (symbol instanceof MethodSymbol methodSymbol) {
+        if(methodSymbol.isConstructor()) {
+          //Alter the name of the Method to match the name of the scope (i.e. class)
+          //This is similar to Java where the name of the aggregate indicates a constructor.
+          methodSymbol.setName(possibleGenericSymbol.getName());
+          //Also need to alter the return type as a constructor.
+          methodSymbol.setType(possibleGenericSymbol);
+        }
         methodSymbol.getMethodParameters().forEach(param -> substituteAsAppropriate(typeMapping, param));
       }
       //This will do any return type on the method and just normal values (for a function).

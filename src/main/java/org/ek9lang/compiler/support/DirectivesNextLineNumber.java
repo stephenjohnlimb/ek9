@@ -8,6 +8,7 @@ import org.ek9lang.antlr.EK9Parser;
 /**
  * Finds the next line number from where a directive has been used.
  */
+@SuppressWarnings("java:S4276")
 public class DirectivesNextLineNumber implements Function<EK9Parser.DirectiveContext, Integer> {
   @Override
   public Integer apply(EK9Parser.DirectiveContext ctx) {
