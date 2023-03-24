@@ -37,7 +37,7 @@ public interface ICanBeGeneric extends ISymbol {
 
   void addTypeParameterOrArgument(ISymbol typeParameterOrArgument);
 
-  List<ISymbol> getAnyGenericParameters();
+  List<ISymbol> getAnyConceptualTypeParameters();
 
   List<ISymbol> getTypeParameterOrArguments();
 

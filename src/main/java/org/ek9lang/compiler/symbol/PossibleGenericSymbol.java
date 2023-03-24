@@ -204,7 +204,7 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
    * If this scope has been parameterised, then go through those parameters and
    * return a list of all those that are generic 'T' in nature and not actually concrete types.
    */
-  public List<ISymbol> getAnyGenericParameters() {
+  public List<ISymbol> getAnyConceptualTypeParameters() {
     return typeParameterOrArguments
         .stream()
         .filter(ISymbol::isConceptualTypeParameter)

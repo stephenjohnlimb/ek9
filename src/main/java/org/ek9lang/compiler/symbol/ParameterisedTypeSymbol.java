@@ -108,7 +108,7 @@ public class ParameterisedTypeSymbol extends AggregateSymbol implements Paramete
   private void parameterisationComplete() {
     var numberOfParameters = this.parameterSymbols.size();
     var numberOfAvailableGenericParameters =
-        this.parameterisableSymbol.getAnyGenericParameters().size();
+        this.parameterisableSymbol.getAnyConceptualTypeParameters().size();
 
     //There should have been a check in the compiler earlier than this but leave this in place for a while.
     if (numberOfParameters != numberOfAvailableGenericParameters) {

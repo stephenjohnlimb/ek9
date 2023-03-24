@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import org.ek9lang.compiler.symbol.support.IndexOfType;
 import org.ek9lang.compiler.symbol.support.ParameterizedGenericSymbolCreator;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
@@ -167,6 +168,69 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     assertEquals(parameterizedWithConceptualType.hashCode(), clonedParameterizedWithConceptualType.hashCode());
   }
 
+  @Test
+  void testMultipleConceptualTypeParameters() {
+    var integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
+    assertTrue(integerType.isPresent());
+    var stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
+    assertTrue(stringType.isPresent());
+    var durationType = symbolTable.resolve(new TypeSymbolSearch("Duration"));
+    assertTrue(durationType.isPresent());
+
+    ParameterizedGenericSymbolCreator creator = new ParameterizedGenericSymbolCreator();
+
+    var aGenericType = testCreateGenericTypeWithMultipleParameters("AType", List.of("R", "S"));
+    assertNotNull(aGenericType);
+
+    //Now parameterize it with concrete types
+    var parameterizedType = creator.apply(aGenericType, List.of(integerType.get(), stringType.get()));
+    assertNotNull(parameterizedType);
+    assertEquals(ISymbol.SymbolCategory.TYPE, parameterizedType.getCategory());
+
+    //Now lets try a sort of half way house of parameterizing one concrete and on conceptual.
+    //This simulates doing something within a generic type itself, where:
+    /*
+    AType of type (R, S)
+      ...
+
+    SomeType of type (K, V)
+      ...
+      someMethod()
+        myType as AType of (Integer, V): AType()
+     */
+    //So here we are modelling that use of 'myType' - because while it have been parameterized
+    //It still needs a 'concrete' type to be useful and that can only be done when 'SomeType of type (K, V)'
+    //Is actually employed like: 'someType as SomeType of (Date, Duration)' for example.
+    //As that point 'AType of (Integer, V)' would again be parameterized - but only with 'V' (Duration).
+    //So we'd end up with yet another parameterized type!! AType of (Integer, Duration).
+
+    var v = support.createGenericT("V", symbolTable);
+    //This should still be conceptual!
+    var conceptualParameterizedType = creator.apply(aGenericType, List.of(integerType.get(), v));
+    assertNotNull(conceptualParameterizedType);
+    assertEquals(1, conceptualParameterizedType.getAnyConceptualTypeParameters().size());
+    assertEquals( ISymbol.SymbolCategory.TEMPLATE_TYPE, conceptualParameterizedType.getCategory());
+
+    //So now I'd need to find which conceptual parameter to change - should be the second one
+    //'someType as SomeType of (Date, Duration)' -> 'AType of (Integer, Duration)'
+    int indexOfV = indexFinder.apply(conceptualParameterizedType, v);
+    assertEquals(1, indexOfV);
+
+    //Finally I can create the AType of (Integer, Duration)
+    //This is what the outer type would be passing in/
+    var p = durationType.get();
+    //But now there will only be a need for a single parameter to be defined because 'Integer' is already wired in
+    var integerDurationParameterizedType = creator.apply(conceptualParameterizedType, List.of(p));
+    assertNotNull(integerDurationParameterizedType);
+    //It will now be a property type rather than a template.
+    assertEquals(ISymbol.SymbolCategory.TYPE, integerDurationParameterizedType.getCategory());
+
+    //Summary, the generic type => to a parameterized but still generic type => concrete type
+    //AType of type (R, S) => AType of (Integer, V) => AType of (Integer, Duration)
+    //Now all of the above needs to be wrapped up in to 'function' and also the method population.
+    //HARD - I find this quite hard.
+  }
+
   /**
    * Accepts a generic Type and parameterizes it with a type parameter.
    */
@@ -316,4 +380,23 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     return aGenericType;
   }
 
+  private PossibleGenericSymbol testCreateGenericTypeWithMultipleParameters(final String genericTypeName,
+                                                   final List<String> conceptualTypeParameterNames) {
+    var aGenericType = new PossibleGenericSymbol(genericTypeName, symbolTable);
+    aGenericType.setModuleScope(symbolTable);
+    aGenericType.setCategory(ISymbol.SymbolCategory.TYPE);
+
+    //OK now the multiple type parameters
+    conceptualTypeParameterNames.forEach(typeParameterName -> {
+      var typeParameter = support.createGenericT(typeParameterName, symbolTable);
+      aGenericType.addTypeParameterOrArgument(typeParameter);
+    });
+    //This should now have become a template version
+    assertEquals(ISymbol.SymbolCategory.TEMPLATE_TYPE, aGenericType.getCategory());
+
+    //It might seem strange to do this, but all typeParameters should be conceptual.
+    assertEquals(aGenericType.getAnyConceptualTypeParameters(), aGenericType.getTypeParameterOrArguments());
+
+    return aGenericType;
+  }
 }

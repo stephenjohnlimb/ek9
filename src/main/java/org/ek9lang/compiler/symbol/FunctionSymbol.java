@@ -94,15 +94,6 @@ public class FunctionSymbol extends PossibleGenericSymbol {
     return superFunctionSymbol.map(functionSymbol -> functionSymbol.isImplementingInSomeWay(function)).orElse(false);
   }
 
-  /**
-   * By adding a parameterised type this Function stops being a FUNCTION and becomes a TEMPLATE_FUNCTION.
-   */
-  @Override
-  public void addTypeParameterOrArgument(ISymbol typeParameterOrArgument) {
-    super.addTypeParameterOrArgument(typeParameterOrArgument);
-    super.setCategory(SymbolCategory.TEMPLATE_FUNCTION);
-  }
-
   public EK9Parser.ReturningParamContext getReturningParamContext() {
     return returningParamContext;
   }

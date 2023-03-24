@@ -127,7 +127,7 @@ public abstract class ResolveOrDefineTypes {
     } else if (genericType instanceof PossibleGenericSymbol genericTypeSymbol) {
       //It is generic in nature, but do the number of parameterizing types and number of types the generic type
       //need match up? Always give an error for this.
-      var acceptsNParameters = genericTypeSymbol.getAnyGenericParameters().size();
+      var acceptsNParameters = genericTypeSymbol.getAnyConceptualTypeParameters().size();
       var providedWithNParameters = parameterizingTypes.size();
       if (acceptsNParameters != providedWithNParameters) {
         errorListener.semanticError(token, "'"

@@ -91,7 +91,7 @@ public class GeneralTypeResolver implements Function<SymbolSearchConfiguration, 
 
   private void checkParameterCount(final PossibleGenericSymbol genericTypeSymbol,
                                    final List<ISymbol> parameterizingTypeSymbols) {
-    var acceptsNParameters = genericTypeSymbol.getAnyGenericParameters().size();
+    var acceptsNParameters = genericTypeSymbol.getAnyConceptualTypeParameters().size();
     var providedWithNParameters = parameterizingTypeSymbols.size();
     if (acceptsNParameters != providedWithNParameters) {
       var msg = "'"

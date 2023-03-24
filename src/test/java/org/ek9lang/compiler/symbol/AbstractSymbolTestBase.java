@@ -1,10 +1,14 @@
 package org.ek9lang.compiler.symbol;
 
 import org.ek9lang.compiler.symbol.support.AggregateFactory;
+import org.ek9lang.compiler.symbol.support.IndexOfType;
 import org.junit.jupiter.api.BeforeEach;
 
 public class AbstractSymbolTestBase {
-  protected AggregateFactory support = new AggregateFactory();
+
+  protected final AggregateFactory support = new AggregateFactory();
+  protected final IndexOfType indexFinder = new IndexOfType();
+
   protected IScope symbolTable = new SymbolTable();
 
   @BeforeEach
@@ -15,5 +19,6 @@ public class AbstractSymbolTestBase {
     symbolTable.define(new AggregateSymbol("Boolean", symbolTable));
     symbolTable.define(new AggregateSymbol("Date", symbolTable));
     symbolTable.define(new AggregateSymbol("Void", symbolTable));
+    symbolTable.define(new AggregateSymbol("Duration", symbolTable));
   }
 }

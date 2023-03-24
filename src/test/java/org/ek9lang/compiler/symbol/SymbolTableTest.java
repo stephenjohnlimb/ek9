@@ -297,8 +297,9 @@ final class SymbolTableTest {
 
     //This turns the functions/aggregates into Template Generic types
     var functionSymbol = new FunctionSymbol("function2", underTest);
-    functionSymbol.addTypeParameterOrArgument(
-        new AggregateSymbol("NoneSuch1", underTest));
+    var param = new AggregateSymbol("NoneSuch1", underTest);
+    param.setConceptualTypeParameter(true);
+    functionSymbol.addTypeParameterOrArgument(param);
     underTest.define(functionSymbol);
 
     var templateFunctionSymbolSearch = new TemplateFunctionSymbolSearch("function2");

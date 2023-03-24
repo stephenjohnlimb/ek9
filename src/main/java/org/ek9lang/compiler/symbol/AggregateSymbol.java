@@ -227,16 +227,6 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     this.injectable = injectable;
   }
 
-  /**
-   * Make this a template/generic type by adding one or more Parameterised types.
-   * This now becomes a TEMPLATE_TYPE, rather than just a plain TYPE.
-   */
-  @Override
-  public void addTypeParameterOrArgument(ISymbol parameterType) {
-    super.addTypeParameterOrArgument(parameterType);
-    super.setCategory(SymbolCategory.TEMPLATE_TYPE);
-  }
-
   public List<IAggregateSymbol> getSubAggregateScopedSymbols() {
     return Collections.unmodifiableList(subAggregateScopedSymbols);
   }

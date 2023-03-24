@@ -27,7 +27,7 @@ public class ParameterizedGenericSymbolCreator
     AssertValue.checkNotEmpty("typeArguments cannot be empty", typeArguments);
     AssertValue.checkTrue("possibleGenericSymbol must be generic in nature", possibleGenericSymbol.isGenericInNature());
     AssertValue.checkTrue("type parameters and type arguments must be same size",
-        possibleGenericSymbol.getTypeParameterOrArguments().size() == typeArguments.size());
+        possibleGenericSymbol.getAnyConceptualTypeParameters().size() == typeArguments.size());
 
     PossibleGenericSymbol rtn = null;
 
