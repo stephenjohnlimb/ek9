@@ -96,8 +96,8 @@ public class ModuleScope extends SymbolTable {
   public Optional<ISymbol> resolveOrDefine(final ParameterisedSymbol parameterisedSymbol) {
     Holder<ISymbol> holder = new Holder<>();
     compilableProgramContext.accept(compilableProgram -> {
-      Optional<ISymbol> resolvedOrDefined = compilableProgram.resolveOrDefine(parameterisedSymbol);
-      holder.accept(resolvedOrDefined);
+      var result = compilableProgram.resolveOrDefine(parameterisedSymbol);
+      holder.accept(result.symbol());
     });
     return holder.get();
   }

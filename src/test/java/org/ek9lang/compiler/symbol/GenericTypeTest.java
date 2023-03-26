@@ -92,17 +92,17 @@ final class GenericTypeTest extends AbstractSymbolTestBase {
     );
 
     assertFalse(exactTypeSymbolMatcher.test(
-            List.of(dateType.get()), List.of(stringType.get())
+            List.of(dateType.get()), List.of(ek9String)
         )
     );
 
     assertFalse(exactTypeSymbolMatcher.test(
-            List.of(dateType.get(), stringType.get()), List.of(stringType.get())
+            List.of(dateType.get(), ek9String), List.of(ek9String)
         )
     );
 
     assertFalse(exactTypeSymbolMatcher.test(
-            List.of(dateType.get(), stringType.get()), List.of(stringType.get(), dateType.get())
+            List.of(dateType.get(), ek9String), List.of(ek9String, dateType.get())
         )
     );
 
@@ -112,7 +112,7 @@ final class GenericTypeTest extends AbstractSymbolTestBase {
     );
 
     assertTrue(exactTypeSymbolMatcher.test(
-            List.of(stringType.get(), dateType.get()), List.of(stringType.get(), dateType.get())
+            List.of(ek9String, dateType.get()), List.of(ek9String, dateType.get())
         )
     );
   }
@@ -165,7 +165,7 @@ final class GenericTypeTest extends AbstractSymbolTestBase {
     //but also parameterised types, where some parameters are still generic
     //var testItem = new Zee<String, Integer, Boolean>();
     var theZType = new ParameterisedTypeSymbol(z,
-        List.of(stringType.get(), integerType.get(), booleanType.get()), symbolTable);
+        List.of(ek9String, integerType.get(), booleanType.get()), symbolTable);
     //z -> r, q, p so ZType -> String, Integer, Boolean: Hence r -> String, p -> Boolean, q -> Integer
     symbolTable.define(theZType);
 
@@ -245,7 +245,7 @@ final class GenericTypeTest extends AbstractSymbolTestBase {
     var types = support.getSuitableParameters(stringZeeType, pDash);
 
     assertFalse(types.isEmpty());
-    assertTrue(types.get(0).isExactSameType(stringType.get()));
+    assertTrue(types.get(0).isExactSameType(ek9String));
 
     var concreteTypes = support.getSuitableParameters(stringZeeType, integerZeeType);
 

@@ -191,7 +191,7 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
 
   protected String getAnyGenericParamsAsFriendlyNames() {
     StringBuilder buffer = new StringBuilder();
-    if (isGenericInNature()) {
+    if (!getTypeParameterOrArguments().isEmpty()) {
       buffer.append(" of type ");
       var params = getTypeParameterOrArguments();
       var toCommaSeparated = new ToCommaSeparated(params.size() > 1);

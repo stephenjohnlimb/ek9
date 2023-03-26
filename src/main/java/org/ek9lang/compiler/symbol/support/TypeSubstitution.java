@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.symbol.support;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.UnaryOperator;
@@ -19,6 +18,9 @@ import org.ek9lang.core.exception.AssertValue;
  * This does mutate the 'possibleGenericSymbol' passed in.
  */
 public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
+
+  private final ConceptualLookupMapping conceptualLookupMapping = new ConceptualLookupMapping();
+
   @Override
   //SonarQube does not seem to see the use of isPresent here!
   @SuppressWarnings("java:S3655")
@@ -34,7 +36,7 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
     //This will provide all params in the case of a FunctionSymbol and all Methods and Fields in the case of Aggregates
     var toClone = theGenericType.get().getSymbolsForThisScope();
     var cloned = cloneInto(toClone, possibleGenericSymbol);
-    var typeMapping = getConceptualLookupMapping(possibleGenericSymbol.getTypeParameterOrArguments(),
+    var typeMapping = conceptualLookupMapping.apply(possibleGenericSymbol.getTypeParameterOrArguments(),
         theGenericType.get().getAnyConceptualTypeParameters());
     replaceTypeParametersWithTypeArguments(possibleGenericSymbol, typeMapping, cloned);
     return possibleGenericSymbol;
@@ -44,10 +46,11 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
    * Now we have a mapping of the 'type parameter' to the 'type argument', we can cycle through
    * all the symbols and replace the types are they are encountered on the cloned symbols.
    */
-  private void replaceTypeParametersWithTypeArguments(final PossibleGenericSymbol possibleGenericSymbol, final Map<ISymbol, ISymbol> typeMapping, List<ISymbol> symbols) {
+  private void replaceTypeParametersWithTypeArguments(final PossibleGenericSymbol possibleGenericSymbol,
+                                                      final Map<ISymbol, ISymbol> typeMapping, List<ISymbol> symbols) {
     symbols.forEach(symbol -> {
       if (symbol instanceof MethodSymbol methodSymbol) {
-        if(methodSymbol.isConstructor()) {
+        if (methodSymbol.isConstructor()) {
           //Alter the name of the Method to match the name of the scope (i.e. class)
           //This is similar to Java where the name of the aggregate indicates a constructor.
           methodSymbol.setName(possibleGenericSymbol.getName());
@@ -67,29 +70,6 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
       var toMapTo = typeMapping.get(paramType.get());
       value.setType(toMapTo);
     }
-  }
-
-  /**
-   * You may think why this mapping.
-   * It's because some 'type parameters' in the generic type may be 'concrete' and not 'conceptual'.
-   * i.e. 'type arguments' = [Integer, String, Duration] but
-   * the  'type parameters' = [Float, X, Y, Boolean, Z] - this might be the can in a generic type that also has
-   * a generic type and has been parameterized with a mix of conceptual and concrete arguments.
-   */
-  private Map<ISymbol, ISymbol> getConceptualLookupMapping(final List<ISymbol> typeArguments,
-                                                           final List<ISymbol> typeParameters) {
-    Map<ISymbol, ISymbol> rtn = new HashMap<>();
-    int index = 0;
-    for (ISymbol typeParameter : typeParameters) {
-      var typeArgument = typeArguments.get(index);
-      if (typeParameter.isConceptualTypeParameter()) {
-        rtn.put(typeParameter, typeArgument);
-        index++;
-      }
-    }
-    AssertValue.checkTrue("Number of conceptual types to supplied types must match",
-        index == typeArguments.size());
-    return rtn;
   }
 
   private List<ISymbol> cloneInto(final List<ISymbol> symbols, IScope enclosingScope) {

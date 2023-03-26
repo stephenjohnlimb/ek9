@@ -45,7 +45,7 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
 
     var inTemplateForm = getMethodsAsString(aGenericFunction);
     var expectedForm = inTemplateForm.replace(" T", " String");
-    var aParameterizedStringFunction = creator.apply(aGenericFunction, List.of(stringType.get()));
+    var aParameterizedStringFunction = creator.apply(aGenericFunction, List.of(ek9String));
     //Check it has no parameters yet - we still need to populate them.
     assertEquals(0, aParameterizedStringFunction.getSymbolsForThisScope().size());
 
@@ -100,7 +100,7 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var inTemplateForm = getMethodsAsString(aGenericType);
 
     //Now make a parameterised version with a String.
-    var aParameterizedStringType = creator.apply(aGenericType, List.of(stringType.get()));
+    var aParameterizedStringType = creator.apply(aGenericType, List.of(ek9String));
 
     //Check it has no methods yet - we still need to populate them.
     assertEquals(0, aParameterizedStringType.getSymbolsForThisScope().size());
@@ -184,7 +184,7 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
 
     var aParameterizedStringType =
         creator.apply(aGenericType,
-            List.of(stringType.get(), floatType.get(), booleanType.get(), durationType.get()));
+            List.of(ek9String, ek9Float, booleanType.get(), durationType.get()));
 
     //Check it has no methods yet - we still need to populate them.
     assertEquals(0, aParameterizedStringType.getSymbolsForThisScope().size());
