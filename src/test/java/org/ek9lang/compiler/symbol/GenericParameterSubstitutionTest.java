@@ -7,24 +7,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.ek9lang.compiler.symbol.support.ParameterizedGenericSymbolCreator;
+import org.ek9lang.compiler.internals.ParametricResolveOrDefine;
+import org.ek9lang.compiler.symbol.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.symbol.support.TypeSubstitution;
-import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Testing and checking generic type substitutions.
+ * Checks Function and Aggregate with one and several type parameters and type arguments.
+ * Simple cases, see MoreCompleteGenericSubstitutionTest for more.
+ */
 class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
 
-  private final ParameterizedGenericSymbolCreator creator = new ParameterizedGenericSymbolCreator();
-  private final TypeSubstitution typeSubstitution = new TypeSubstitution();
+  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
 
   @Test
   void testFunctionSingleParameterSubstitution() {
-    var integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
-    assertTrue(integerType.isPresent());
-    var stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
-    assertTrue(stringType.isPresent());
-    var durationType = symbolTable.resolve(new TypeSymbolSearch("Duration"));
-    assertTrue(durationType.isPresent());
+    var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
+    var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine);
 
     var t = support.createGenericT("T", symbolTable);
     assertTrue(t.isConceptualTypeParameter());
@@ -34,43 +34,39 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     aGenericFunction.addTypeParameterOrArgument(t);
 
     //Add multiple parameters to the function
-    var arg0 = new VariableSymbol("arg0", integerType);
+    var arg0 = new VariableSymbol("arg0", ek9Integer);
     var arg1 = new VariableSymbol("arg1", t);
-    var arg2 = new VariableSymbol("arg2", stringType);
+    var arg2 = new VariableSymbol("arg2", ek9String);
     var rtn = new VariableSymbol("rtn", t);
     aGenericFunction.define(arg0);
     aGenericFunction.define(arg1);
     aGenericFunction.define(arg2);
     aGenericFunction.setReturningSymbol(rtn);
 
-    var inTemplateForm = getMethodsAsString(aGenericFunction);
-    var expectedForm = inTemplateForm.replace(" T", " String");
-    var aParameterizedStringFunction = creator.apply(aGenericFunction, List.of(ek9String));
+    var aParameterizedStringFunction = creator.apply(aGenericFunction, List.of(ek9Duration));
     //Check it has no parameters yet - we still need to populate them.
     assertEquals(0, aParameterizedStringFunction.getSymbolsForThisScope().size());
 
+    var expecting = """
+        arg0 as Integer
+        arg1 as Duration
+        arg2 as String""";
+
     var typeSubstitutedParameterisedFunction = typeSubstitution.apply(aParameterizedStringFunction);
+
     assertNotNull(typeSubstitutedParameterisedFunction);
     assertEquals(3, typeSubstitutedParameterisedFunction.getSymbolsForThisScope().size());
 
     var actualForm = getMethodsAsString(typeSubstitutedParameterisedFunction);
 
-    System.out.println("Checking substitution from/to");
-    System.out.println(inTemplateForm);
-    System.out.println("=============================");
-    System.out.println(expectedForm);
-    System.out.println("=============================");
-    assertEquals(expectedForm, actualForm);
+    assertEquals(expecting, actualForm);
   }
 
   @Test
   void testAggregateSingleParameterSubstitution() {
-    var integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
-    assertTrue(integerType.isPresent());
-    var stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
-    assertTrue(stringType.isPresent());
-    var durationType = symbolTable.resolve(new TypeSymbolSearch("Duration"));
-    assertTrue(durationType.isPresent());
+
+    var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
+    var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine);
 
     var t = support.createGenericT("T", symbolTable);
     assertTrue(t.isConceptualTypeParameter());
@@ -82,61 +78,47 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
 
     //So make a method accepts two parameters, one of which is a 'T' and needs substituting.
     //The return also needs substituting.
-    var arg0 = new VariableSymbol("arg0", integerType);
+    var arg0 = new VariableSymbol("arg0", ek9Integer);
     var arg1 = new VariableSymbol("arg1", t);
-    var arg2 = new VariableSymbol("arg2", stringType);
+    var arg2 = new VariableSymbol("arg2", ek9String);
     support.addConstructor(aGenericType);
     support.addConstructor(aGenericType, Optional.of(arg1));
     support.addPublicMethod(aGenericType, "methodOne", List.of(arg0, arg1), Optional.of(t));
     //Now add another method
     support.addPublicMethod(aGenericType, "methodTwo", List.of(arg0, arg1, arg2), Optional.of(t));
     //And another
-    support.addPublicMethod(aGenericType, "methodThree", List.of(arg2, arg1, arg0), durationType);
+    support.addPublicMethod(aGenericType, "methodThree", List.of(arg2, arg1, arg0), Optional.of(ek9Duration));
     //Final one
-    support.addPublicMethod(aGenericType, "methodFour", List.of(arg1, arg0), durationType);
+    support.addPublicMethod(aGenericType, "methodFour", List.of(arg1, arg0), Optional.of(ek9Duration));
     assertEquals(6, aGenericType.getSymbolsForThisScope().size());
-
-    //We can check our symbol search and replace by just using this simple replace on the strings versions.
-    var inTemplateForm = getMethodsAsString(aGenericType);
 
     //Now make a parameterised version with a String.
     var aParameterizedStringType = creator.apply(aGenericType, List.of(ek9String));
 
     //Check it has no methods yet - we still need to populate them.
     assertEquals(0, aParameterizedStringType.getSymbolsForThisScope().size());
-    var constructorName = aGenericType.getName();
-    var expectedConstructorName = aParameterizedStringType.getName();
-    var expectedForm = inTemplateForm
-        .replace(" T", " String")
-        .replace(constructorName, expectedConstructorName);
+
+    var expecting = """
+        public SingleGeneric of type T of type String <- _SingleGeneric_C7B334A5597C3F213CB74D5A0DB330083ECDFEBEF4E2FAA7E85B115448FC645F()
+        public SingleGeneric of type T of type String <- _SingleGeneric_C7B334A5597C3F213CB74D5A0DB330083ECDFEBEF4E2FAA7E85B115448FC645F(arg1 as String)
+        public String <- methodOne(arg0 as Integer, arg1 as String)
+        public String <- methodTwo(arg0 as Integer, arg1 as String, arg2 as String)
+        public Duration <- methodThree(arg2 as String, arg1 as String, arg0 as Integer)
+        public Duration <- methodFour(arg1 as String, arg0 as Integer)""";
 
     var typeSubstitutedParameterisedType = typeSubstitution.apply(aParameterizedStringType);
     assertNotNull(typeSubstitutedParameterisedType);
     assertEquals(6, typeSubstitutedParameterisedType.getSymbolsForThisScope().size());
-
     var actualForm = getMethodsAsString(typeSubstitutedParameterisedType);
 
-    System.out.println("Checking substitution from/to");
-    System.out.println(inTemplateForm);
-    System.out.println("=============================");
-    System.out.println(expectedForm);
-    System.out.println("=============================");
-    assertEquals(expectedForm, actualForm);
+    assertEquals(expecting, actualForm);
   }
 
   @Test
   void testAggregateMultipleParameterSubstitutions() {
-    //But this also includes some concrete types!
-    var integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
-    assertTrue(integerType.isPresent());
-    var stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
-    assertTrue(stringType.isPresent());
-    var durationType = symbolTable.resolve(new TypeSymbolSearch("Duration"));
-    assertTrue(durationType.isPresent());
-    var booleanType = symbolTable.resolve(new TypeSymbolSearch("Boolean"));
-    assertTrue(booleanType.isPresent());
-    var floatType = symbolTable.resolve(new TypeSymbolSearch("Float"));
-    assertTrue(floatType.isPresent());
+
+    var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
+    var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine);
 
     var p = support.createGenericT("P", symbolTable);
     assertTrue(p.isConceptualTypeParameter());
@@ -156,56 +138,42 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var aGenericType = new AggregateSymbol("MultiGeneric", symbolTable);
     aGenericType.setModuleScope(symbolTable);
     aGenericType.addTypeParameterOrArgument(p);
-    aGenericType.addTypeParameterOrArgument(integerType.get());
+    aGenericType.addTypeParameterOrArgument(ek9Integer);
     aGenericType.addTypeParameterOrArgument(q);
-    aGenericType.addTypeParameterOrArgument(booleanType.get());
-    aGenericType.addTypeParameterOrArgument(booleanType.get());
+    aGenericType.addTypeParameterOrArgument(ek9Boolean);
+    aGenericType.addTypeParameterOrArgument(ek9Boolean);
     aGenericType.addTypeParameterOrArgument(r);
     aGenericType.addTypeParameterOrArgument(s);
 
-    var arg0 = new VariableSymbol("arg0", integerType);
+    var arg0 = new VariableSymbol("arg0", ek9Integer);
     var arg1 = new VariableSymbol("arg1", p);
-    var arg2 = new VariableSymbol("arg2", booleanType);
+    var arg2 = new VariableSymbol("arg2", ek9Boolean);
     var arg3 = new VariableSymbol("arg3", q);
     var arg4 = new VariableSymbol("arg4", r);
-    var arg5 = new VariableSymbol("arg5", durationType);
+    var arg5 = new VariableSymbol("arg5", ek9Time);
     support.addPublicMethod(aGenericType, "methodOne", List.of(arg0, arg1, arg2, arg3, arg4, arg5), Optional.of(s));
 
     assertEquals(1, aGenericType.getSymbolsForThisScope().size());
 
-    //We can check our symbol search and replace by just using this simple replace on the strings versions.
-    var inTemplateForm = getMethodsAsString(aGenericType);
-    //A bit of crappy way to do this - but quick and easy - and conceptually easy to understand whats going on.
-    var expectedForm = inTemplateForm
-        .replace(" S", " Duration")
-        .replace(" P", " String")
-        .replace(" Q", " Float")
-        .replace(" R", " Boolean");
-
-    var aParameterizedStringType =
-        creator.apply(aGenericType,
-            List.of(ek9String, ek9Float, booleanType.get(), durationType.get()));
+    var aParameterizedStringType = creator.apply(aGenericType, List.of(ek9String, ek9Float, ek9Boolean, ek9Duration));
 
     //Check it has no methods yet - we still need to populate them.
     assertEquals(0, aParameterizedStringType.getSymbolsForThisScope().size());
+
+    var expecting = """
+        public Duration <- methodOne(arg0 as Integer, arg1 as String, arg2 as Boolean, arg3 as Float, arg4 as Boolean, arg5 as Time)""";
 
     var typeSubstitutedParameterisedType = typeSubstitution.apply(aParameterizedStringType);
     assertNotNull(typeSubstitutedParameterisedType);
     assertEquals(1, typeSubstitutedParameterisedType.getSymbolsForThisScope().size());
 
     var actualForm = getMethodsAsString(typeSubstitutedParameterisedType);
-    System.out.println("Checking substitution from/to");
-    System.out.println(inTemplateForm);
-    System.out.println("=============================");
-    System.out.println(expectedForm);
-    System.out.println("=============================");
 
-    assertEquals(expectedForm, actualForm);
+    assertEquals(expecting, actualForm);
   }
 
   private String getMethodsAsString(final IScopedSymbol scopedSymbol) {
     return scopedSymbol.getSymbolsForThisScope().stream().map(ISymbol::getFriendlyName)
         .collect(Collectors.joining("\n"));
   }
-
 }

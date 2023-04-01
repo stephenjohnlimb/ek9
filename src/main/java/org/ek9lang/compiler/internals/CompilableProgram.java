@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.ModuleScope;
-import org.ek9lang.compiler.symbol.ParameterisedSymbol;
 import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbol.support.AggregateFactory;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
@@ -127,36 +126,16 @@ public class CompilableProgram {
    * So once a List of String has been defined it can be used everywhere as it will be in the
    * org.ek9.lang module.
    */
-  public ResolvedOrDefineResult resolveOrDefine(final ParameterisedSymbol parameterisedSymbol) {
-    var moduleName = ISymbol.getModuleNameIfPresent(parameterisedSymbol.getFullyQualifiedName());
-    var search =
-        new SymbolSearch(parameterisedSymbol.getFullyQualifiedName()).setSearchType(parameterisedSymbol.getCategory());
-
-    var resolved = resolveFromModule(moduleName, search);
-    if (resolved.isEmpty()) {
-      //need to define it and return it.
-      var module = getModuleScopes.apply(moduleName).get(0);
-      module.define(parameterisedSymbol);
-
-      return new ResolvedOrDefineResult(Optional.of(parameterisedSymbol), true);
-    }
-    return new ResolvedOrDefineResult(resolved, false);
-  }
-
-  /**
-   * New method for parameterized generic types. when ParameterisedSymbol is retired.
-   */
   public ResolvedOrDefineResult resolveOrDefine(final PossibleGenericSymbol possibleGenericSymbol) {
     var moduleName = ISymbol.getModuleNameIfPresent(possibleGenericSymbol.getFullyQualifiedName());
-    var search =
-        new SymbolSearch(possibleGenericSymbol.getFullyQualifiedName()).setSearchType(
-            possibleGenericSymbol.getCategory());
+    var search = new SymbolSearch(possibleGenericSymbol);
 
     var resolved = resolveFromModule(moduleName, search);
     if (resolved.isEmpty()) {
       //need to define it and return it.
       var module = getModuleScopes.apply(moduleName).get(0);
       module.define(possibleGenericSymbol);
+
       return new ResolvedOrDefineResult(Optional.of(possibleGenericSymbol), true);
     }
     return new ResolvedOrDefineResult(resolved, false);

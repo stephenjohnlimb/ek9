@@ -16,7 +16,7 @@ public class ResolveOrDefineTypeDef extends ResolveOrDefineTypes
     implements Function<EK9Parser.TypeDefContext, Optional<ISymbol>> {
 
   /**
-   * A bit of a complex function constructor - for a function.
+   * A bit of a complex constructor - for a function.
    */
   public ResolveOrDefineTypeDef(final SymbolAndScopeManagement symbolAndScopeManagement,
                                 final SymbolFactory symbolFactory, final ErrorListener errorListener,

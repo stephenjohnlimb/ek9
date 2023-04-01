@@ -108,6 +108,11 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
   }
 
   @Override
+  public boolean isParameterisedType() {
+    return getGenericType().isPresent();
+  }
+
+  @Override
   public Optional<PossibleGenericSymbol> getGenericType() {
     return genericType;
   }
@@ -157,6 +162,8 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
 
   /**
    * Add a reference to a parameterised function.
+   * I'm still in two minds about adding these references.
+   * Leave as is at the moment, and then see what I think later on.
    */
   public void addGenericSymbolReference(PossibleGenericSymbol genericSymbolReference) {
     //only need to add once but source might have many references to the type.
@@ -173,6 +180,8 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
     AssertValue.checkNotNull("TypeParameterOrArgument cannot be null", typeParameterOrArgument);
     typeParameterOrArguments.add(typeParameterOrArgument);
     if (isGenericInNature()) {
+      //because this is now generic in nature, it will itself become a conceptual type
+      this.setConceptualTypeParameter(true);
       if (this.getCategory() == SymbolCategory.FUNCTION) {
         this.setCategory(SymbolCategory.TEMPLATE_FUNCTION);
       } else if (this.getCategory() == SymbolCategory.TYPE) {

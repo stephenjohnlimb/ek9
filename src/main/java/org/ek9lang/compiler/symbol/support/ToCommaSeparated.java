@@ -22,8 +22,7 @@ public class ToCommaSeparated implements Function<List<ISymbol>, String> {
 
     for (var param : params) {
       var paramType = param.getType();
-      if (paramType.isPresent() && !param.getFullyQualifiedName()
-          .equals(paramType.get().getFullyQualifiedName())) {
+      if (paramType.isPresent()) {
         names.add(param.getFriendlyName());
       } else {
         names.add(param.getName());

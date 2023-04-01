@@ -21,6 +21,8 @@ public class AbstractSymbolTestBase {
   protected ISymbol ek9Void = new AggregateSymbol("Void", global);
   protected ISymbol ek9Duration = new AggregateSymbol("Duration", global);
 
+  protected ISymbol ek9Dimension = new AggregateSymbol("Dimension", global);
+
   protected ISymbol ek9Time = new AggregateSymbol("Time", global);
 
   @BeforeEach
@@ -33,6 +35,7 @@ public class AbstractSymbolTestBase {
     symbolTable.define(ek9Date);
     symbolTable.define(ek9Void);
     symbolTable.define(ek9Duration);
+    symbolTable.define(ek9Dimension);
     symbolTable.define(ek9Time);
   }
 }

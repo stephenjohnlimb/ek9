@@ -303,8 +303,9 @@ public class Symbol implements ISymbol {
     if (this.isConceptualTypeParameter()) {
       return getName().equals(symbolType.getName());
     }
-    return sameCategory(this, symbolType)
-        && getFullyQualifiedName().equals(symbolType.getFullyQualifiedName());
+    var thisFullyQualified = getFullyQualifiedName();
+    var thatFullyQualified = symbolType.getFullyQualifiedName();
+    return sameCategory(this, symbolType) && thisFullyQualified.equals(thatFullyQualified);
   }
 
   private boolean sameCategory(ISymbol c1, ISymbol c2) {
@@ -413,7 +414,7 @@ public class Symbol implements ISymbol {
     final var self = this;
     //The problem of using theType.getFriendlyName is that aggregate has method -> back to same aggregate
     //So not a direct type is the same type - but aggregate -> method -> uses aggregate -> method  ... stack overflow
-    return type.map(theType -> self != theType ? theType.getName() : "").orElse("Unknown");
+    return type.map(theType -> self != theType ? theType.getFriendlyName() : "").orElse("Unknown");
   }
 
   @Override

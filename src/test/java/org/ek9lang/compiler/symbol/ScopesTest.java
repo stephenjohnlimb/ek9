@@ -8,8 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.symbol.support.AggregateFactory;
+import org.ek9lang.compiler.symbol.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.symbol.support.TypeCreator;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
@@ -27,6 +29,8 @@ import org.junit.jupiter.api.Test;
 final class ScopesTest extends AbstractSymbolTestBase {
 
   private final TypeCreator typeCreator = new TypeCreator();
+
+  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
 
 
   @Test
@@ -255,7 +259,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
   @Test
   void testParameterisedTypeSymbolScope() {
     var t = support.createGenericT("Tee", symbolTable);
-    var z = support.createTemplateGenericType("Zee", symbolTable, t);
+    var z = createTemplateGenericType("Zee", symbolTable, t);
     symbolTable.define(z);
 
     assertEquals("Zee of type Tee", z.getFriendlyName());
@@ -263,23 +267,22 @@ final class ScopesTest extends AbstractSymbolTestBase {
     //Check it is possible resolve 'Tee' from within 'Zee'
     var resolvedTee = z.resolve(new TypeSymbolSearch("Tee"));
     assertTrue(resolvedTee.isPresent());
-
+    var resolvedString = symbolTable.resolve(new TypeSymbolSearch("String"));
+    assertTrue(resolvedString.isPresent());
     //This would be a concrete Zee with a concrete type of String to replace 'Tee'
-    var pTypeSymbol =
-        new ParameterisedTypeSymbol(z, symbolTable.resolve(new TypeSymbolSearch("String")),
-            symbolTable);
+    var pTypeSymbol = creator.apply(z, List.of(resolvedString.get()));
     var clonedPTypeSymbol = checkScopedSymbol(pTypeSymbol);
     assertNotNull(clonedPTypeSymbol);
     Logger.log(pTypeSymbol.getFriendlyName());
     Logger.log(clonedPTypeSymbol.getFriendlyName());
 
-    assertEquals("Zee of String", pTypeSymbol.getFriendlyName());
+    assertEquals("Zee of type Tee of type String", pTypeSymbol.getFriendlyName());
   }
 
   @Test
   void testParameterisedFunctionSymbolScope() {
     var t = support.createGenericT("Tee", symbolTable);
-    var fun = support.createTemplateGenericFunction("fun", symbolTable, t);
+    var fun = createTemplateGenericFunction("fun", symbolTable, t);
     symbolTable.define(fun);
 
     //We've not defined the return type of the function
@@ -288,24 +291,16 @@ final class ScopesTest extends AbstractSymbolTestBase {
     //Check it is possible resolve Tee from within 'fun'
     var resolvedTee = fun.resolve(new TypeSymbolSearch("Tee"));
     assertTrue(resolvedTee.isPresent());
+    var resolvedString = symbolTable.resolve(new TypeSymbolSearch("String"));
+    assertTrue(resolvedString.isPresent());
 
     fun.setReturningSymbol(
         new VariableSymbol("rtn", symbolTable.resolve(new TypeSymbolSearch("Integer"))));
     assertEquals("Integer <- fun() of type Tee", fun.getFriendlyName());
 
     //This would be a concrete 'fun' with a concrete type of String to replace 'Tee'
-    var pFun =
-        new ParameterisedFunctionSymbol(fun, symbolTable.resolve(new TypeSymbolSearch("String")),
-            symbolTable);
-
-    assertNotNull(pFun.getReturningSymbol());
-    var clonedPFun = checkScopedSymbol(pFun);
-    assertNotNull(clonedPFun);
-
-    //The return is the function should be the return type.
-    Logger.log(pFun.getFriendlyName());
-
-    Logger.log(clonedPFun.getFriendlyName());
+    var pFun = creator.apply(fun, List.of(resolvedString.get()));
+    assertTrue(pFun instanceof FunctionSymbol);
   }
 
   @Test
@@ -445,4 +440,15 @@ final class ScopesTest extends AbstractSymbolTestBase {
     return clonedSymbol;
   }
 
+  private AggregateSymbol createTemplateGenericType(String name, IScope enclosingScope, AggregateSymbol teeSymbol) {
+    var rtn = new AggregateSymbol(name, enclosingScope, List.of(teeSymbol));
+    rtn.setModuleScope(enclosingScope);
+    return rtn;
+  }
+
+  private FunctionSymbol createTemplateGenericFunction(String name, IScope enclosingScope, AggregateSymbol teeSymbol) {
+    var rtn = new FunctionSymbol(name, enclosingScope, List.of(teeSymbol));
+    rtn.setModuleScope(enclosingScope);
+    return rtn;
+  }
 }

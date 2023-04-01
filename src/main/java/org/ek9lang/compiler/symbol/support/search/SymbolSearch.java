@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.symbol.support.search;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.internals.Module;
@@ -49,6 +50,13 @@ public class SymbolSearch {
    */
   private ISymbol.SymbolCategory searchType = ISymbol.SymbolCategory.VARIABLE;
 
+  private List<ISymbol.SymbolCategory> vetoSearchTypes = new ArrayList<>();
+
+  /**
+   * In some cases its useful to have a symbol as an example to search for.
+   */
+  private ISymbol exampleSymbolToMatch;
+
   /**
    * Clone from Symbol search into a new instance.
    */
@@ -56,6 +64,16 @@ public class SymbolSearch {
     AssertValue.checkNotNull("from cannot be null for search Symbol", from);
     this.name = from.name;
     from.cloneIntoSearchSymbol(this);
+  }
+
+  /**
+   * Use a symbol to populate the search.
+   */
+  public SymbolSearch(final ISymbol exampleSymbolToMatch) {
+    AssertValue.checkNotNull("exampleSymbolToMatch cannot be null for search Symbol", exampleSymbolToMatch);
+    this.name = exampleSymbolToMatch.getFullyQualifiedName();
+    this.searchType = exampleSymbolToMatch.getCategory();
+    this.exampleSymbolToMatch = exampleSymbolToMatch;
   }
 
   /**
@@ -90,7 +108,26 @@ public class SymbolSearch {
     symbolSearch.setOfTypeOrReturn(ofTypeOrReturn)
         .setTypeParameters(typeParameters)
         .setLimitToBlocks(limitToBlocks)
-        .setSearchType(searchType);
+        .setSearchType(searchType)
+        .setExampleSymbolToMatch(exampleSymbolToMatch)
+        .setVetoSearchTypes(vetoSearchTypes);
+  }
+
+  /**
+   * Provide a list of valid search types if multiple supported.
+   */
+  public List<ISymbol.SymbolCategory> getValidSearchTypes() {
+    if (searchType != null) {
+      return List.of(searchType);
+    }
+    return Arrays.stream(ISymbol.SymbolCategory.values())
+        .filter(category -> !vetoSearchTypes.contains(category))
+        .toList();
+  }
+
+  public SymbolSearch setVetoSearchTypes(List<ISymbol.SymbolCategory> vetoSearchTypes) {
+    this.vetoSearchTypes = vetoSearchTypes;
+    return this;
   }
 
   public boolean isLimitToBlocks() {
@@ -99,6 +136,15 @@ public class SymbolSearch {
 
   public SymbolSearch setLimitToBlocks(boolean limitToBlocks) {
     this.limitToBlocks = limitToBlocks;
+    return this;
+  }
+
+  public ISymbol getExampleSymbolToMatch() {
+    return exampleSymbolToMatch;
+  }
+
+  public SymbolSearch setExampleSymbolToMatch(ISymbol exampleSymbolToMatch) {
+    this.exampleSymbolToMatch = exampleSymbolToMatch;
     return this;
   }
 
@@ -160,6 +206,10 @@ public class SymbolSearch {
    * Creates a new Symbol from the name in the search and the module name.
    */
   public Optional<ISymbol> getAsSymbol() {
+
+    if (exampleSymbolToMatch != null) {
+      return Optional.of(exampleSymbolToMatch);
+    }
 
     final var newSymbolModuleName = ISymbol.getModuleNameIfPresent(name);
     final String newSymbolName = ISymbol.getUnqualifiedName(name);

@@ -439,7 +439,9 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   }
 
   private String doGetFriendlyName() {
-    return super.getFriendlyName() + getAnyGenericParamsAsFriendlyNames();
+    var mainName = super.getFriendlyName();
+    var additionalGenerics = getAnyGenericParamsAsFriendlyNames();
+    return mainName + additionalGenerics;
   }
 
   @Override

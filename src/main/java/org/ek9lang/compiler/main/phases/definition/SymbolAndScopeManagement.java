@@ -6,7 +6,7 @@ import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.IScopedSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.ParameterisedSymbol;
+import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbol.ScopeStack;
 import org.ek9lang.compiler.symbol.StackConsistencyScope;
 import org.ek9lang.compiler.symbol.support.SymbolChecker;
@@ -74,18 +74,7 @@ public class SymbolAndScopeManagement {
     return scopeStack.traverseBackUpStack(scopeType);
   }
 
-  /**
-   * To be used for creating the new type that is the result of combining an
-   * existing generic type with one or more parameters.
-   * This in effect creates a new type. But it may already exist (not an error).
-   * So unlike normal definition of names and types we expect that something like
-   * 'List of String' will be used all over the place. So the first use defines this new 'type'
-   * subsequently we need to just resolve that type. Now for code generation there will be two
-   * distinct mechanisms, for built-in/provided generic types we have one use.
-   * But for EK9 source based generic types we actually need to generate source for those, but
-   * using the actual types employed.
-   */
-  public Optional<ISymbol> resolveOrDefine(final ParameterisedSymbol parameterisedSymbol) {
+  public Optional<ISymbol> resolveOrDefine(final PossibleGenericSymbol parameterisedSymbol) {
     return parsedModule.getModuleScope().resolveOrDefine(parameterisedSymbol);
   }
 

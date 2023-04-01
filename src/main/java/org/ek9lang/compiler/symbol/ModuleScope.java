@@ -93,7 +93,7 @@ public class ModuleScope extends SymbolTable {
    * stored in the module space of the Generic Type.
    * So do not assume this new type will reside in this module scope, it most probably won't.
    */
-  public Optional<ISymbol> resolveOrDefine(final ParameterisedSymbol parameterisedSymbol) {
+  public Optional<ISymbol> resolveOrDefine(final PossibleGenericSymbol parameterisedSymbol) {
     Holder<ISymbol> holder = new Holder<>();
     compilableProgramContext.accept(compilableProgram -> {
       var result = compilableProgram.resolveOrDefine(parameterisedSymbol);
@@ -162,6 +162,8 @@ public class ModuleScope extends SymbolTable {
     String searchName = ISymbol.getUnqualifiedName(search.getName());
     var localScopeSearch = new SymbolSearch(ISymbol.makeFullyQualifiedName(getScopeName(), searchName)).setSearchType(
         search.getSearchType());
+
+    localScopeSearch.setExampleSymbolToMatch(search.getExampleSymbolToMatch());
 
     Optional<ISymbol> resolvedSymbol = super.resolveInThisScopeOnly(localScopeSearch);
 

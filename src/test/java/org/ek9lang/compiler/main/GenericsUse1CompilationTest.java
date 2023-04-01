@@ -111,7 +111,7 @@ class GenericsUse1CompilationTest extends FullCompilationTest {
 
   private void assertFSMGenerics(final CompilableProgram program) {
     //So we both use and define some generic type in this module.
-    new SymbolCountCheck(1, "com.utils.fsm.example", 10).test(program);
+    new SymbolCountCheck(1, "com.utils.fsm.example", 11).test(program);
   }
 
   private void assertExpressionDeclarationWithGenerics(final CompilableProgram program) {

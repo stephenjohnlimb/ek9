@@ -4,18 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import org.ek9lang.compiler.symbol.AggregateSymbol;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.ParameterisedFunctionSymbol;
-import org.ek9lang.compiler.symbol.ParameterisedTypeSymbol;
 import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
-import org.ek9lang.compiler.symbol.support.ParameterizedFunctionCreator;
-import org.ek9lang.compiler.symbol.support.ParameterizedTypeCreator;
-import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
-import org.ek9lang.compiler.symbol.support.search.FunctionSymbolSearch;
-import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
+import org.ek9lang.compiler.symbol.support.ParameterizedSymbolCreator;
+import org.ek9lang.compiler.symbol.support.search.AnyTypeSymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 
 /**
  * Used to see if it is possible to resolve types, both simple and parametric.
@@ -29,14 +23,12 @@ public class GeneralTypeResolver implements Function<SymbolSearchConfiguration, 
     this.scopeForResolution = scopeForResolution;
   }
 
-  private final ParameterizedTypeCreator parameterizedTypeCreator = new ParameterizedTypeCreator();
-
-  private final ParameterizedFunctionCreator parameterizedFunctionCreator = new ParameterizedFunctionCreator();
+  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
 
   @Override
   public Optional<ISymbol> apply(final SymbolSearchConfiguration toResolve) {
 
-    var mainSymbol = scopeForResolution.resolve(new AnySymbolSearch(toResolve.mainSymbolName()));
+    var mainSymbol = scopeForResolution.resolve(new AnyTypeSymbolSearch(toResolve.mainSymbolName()));
 
     //For non-parametric stuff that's it.
     if (!toResolve.isParametric()) {
@@ -51,16 +43,9 @@ public class GeneralTypeResolver implements Function<SymbolSearchConfiguration, 
         && parameterizingTypeSymbols.size() == toResolve.parameterizingArguments().size()) {
       var genericType = mainSymbol.get();
 
-      if (genericType instanceof AggregateSymbol genericAggregateType) {
-        var theType = createSymbolTypeToFind(genericAggregateType, parameterizingTypeSymbols);
-        if (theType != null) {
-          return scopeForResolution.resolve(new TypeSymbolSearch(theType.getFullyQualifiedName()));
-        }
-      } else if (genericType instanceof FunctionSymbol genericFunction) {
-        var theFunction = createSymbolTypeToFind(genericFunction, parameterizingTypeSymbols);
-        if (theFunction != null) {
-          return scopeForResolution.resolve(new FunctionSymbolSearch(theFunction.getFullyQualifiedName()));
-        }
+      if (genericType instanceof PossibleGenericSymbol genericSymbol) {
+        var theType = creator.apply(genericSymbol, parameterizingTypeSymbols);
+        return scopeForResolution.resolve(new SymbolSearch(theType));
       }
     }
 
@@ -75,30 +60,5 @@ public class GeneralTypeResolver implements Function<SymbolSearchConfiguration, 
       parameterizingType.ifPresent(parameterizingTypeSymbols::add);
     }
     return parameterizingTypeSymbols;
-  }
-
-  private ParameterisedTypeSymbol createSymbolTypeToFind(final AggregateSymbol genericAggregateType,
-                                                         final List<ISymbol> parameterizingTypeSymbols) {
-    checkParameterCount(genericAggregateType, parameterizingTypeSymbols);
-    return parameterizedTypeCreator.apply(genericAggregateType, parameterizingTypeSymbols);
-  }
-
-  private ParameterisedFunctionSymbol createSymbolTypeToFind(final FunctionSymbol genericFunction,
-                                                             final List<ISymbol> parameterizingTypeSymbols) {
-    checkParameterCount(genericFunction, parameterizingTypeSymbols);
-    return parameterizedFunctionCreator.apply(genericFunction, parameterizingTypeSymbols);
-  }
-
-  private void checkParameterCount(final PossibleGenericSymbol genericTypeSymbol,
-                                   final List<ISymbol> parameterizingTypeSymbols) {
-    var acceptsNParameters = genericTypeSymbol.getAnyConceptualTypeParameters().size();
-    var providedWithNParameters = parameterizingTypeSymbols.size();
-    if (acceptsNParameters != providedWithNParameters) {
-      var msg = "'"
-          + providedWithNParameters + "' parameter(s) were supplied but '"
-          + genericTypeSymbol.getFriendlyName() + "' requires '"
-          + acceptsNParameters + "' parameter(s):";
-      throw new IllegalArgumentException(msg);
-    }
   }
 }

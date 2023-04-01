@@ -5,13 +5,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.MethodSymbol;
-import org.ek9lang.compiler.symbol.ParameterisedSymbol;
-import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
@@ -132,35 +129,6 @@ public class AggregateFactory {
   }
 
   /**
-   * So our parameterisedSymbol could have a mix of real and abstract parameters and the
-   * order could vary.
-   * Our concreteSymbolType will have a set of real concrete parameters,
-   * and we need to know how those map from S->String and T->Integer for example.
-   */
-  public List<ISymbol> getSuitableParameters(ParameterisedSymbol concreteSymbol,
-                                             ParameterisedSymbol parameterisedSymbol) {
-
-    List<ISymbol> appropriateParams = new ArrayList<>();
-    parameterisedSymbol.getParameterSymbols().forEach(symbol -> {
-      if (symbol.isConceptualTypeParameter()) {
-        List<ISymbol> concreteParameters = concreteSymbol.getParameterSymbols();
-        if (concreteSymbol.getParameterisableSymbol() instanceof PossibleGenericSymbol genericType) {
-          List<ISymbol> genericParameters = genericType.getTypeParameterOrArguments();
-          for (int i = 0; i < concreteParameters.size(); i++) {
-            if (symbol.isExactSameType(genericParameters.get(i))) {
-              appropriateParams.add(concreteParameters.get(i));
-            }
-          }
-        }
-      } else {
-        appropriateParams.add(symbol);
-      }
-    });
-
-    return appropriateParams;
-  }
-
-  /**
    * Create a new constructor for the aggregate with no params.
    *
    * @param t The aggregate type to add the constructor to.
@@ -194,19 +162,6 @@ public class AggregateFactory {
     MethodSymbol constructor = addConstructor(t);
     constructor.define(s);
     return constructor;
-  }
-
-  public AggregateSymbol createTemplateGenericType(String name, IScope enclosingScope,
-                                                   List<ISymbol> teeSymbols) {
-    return new AggregateSymbol(name, enclosingScope, teeSymbols);
-  }
-
-  public AggregateSymbol createTemplateGenericType(String name, IScope enclosingScope, AggregateSymbol teeSymbol) {
-    return new AggregateSymbol(name, enclosingScope, List.of(teeSymbol));
-  }
-
-  public FunctionSymbol createTemplateGenericFunction(String name, IScope enclosingScope, AggregateSymbol teeSymbol) {
-    return new FunctionSymbol(name, enclosingScope, List.of(teeSymbol));
   }
 
   /**

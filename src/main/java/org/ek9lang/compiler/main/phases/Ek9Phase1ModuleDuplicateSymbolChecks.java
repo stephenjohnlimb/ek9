@@ -10,6 +10,7 @@ import org.ek9lang.compiler.main.CompilerFlags;
 import org.ek9lang.compiler.main.phases.result.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
+import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.exception.CompilerException;
 import org.ek9lang.core.threads.SharedThreadContext;
@@ -61,14 +62,14 @@ public class Ek9Phase1ModuleDuplicateSymbolChecks
 
       for (var moduleName : program.getParsedModuleNames()) {
         var parsedModules = program.getParsedModules(moduleName);
-        HashSet<String> dupChecks = new HashSet<>();
+        HashSet<ISymbol> dupChecks = new HashSet<>();
         for (var parsedModule : parsedModules) {
           var scope = parsedModule.getModuleScope();
           for (var symbol : scope.getSymbolsForThisScope()) {
-            if (!dupChecks.add(symbol.getName())) {
-              throw new CompilerException("How has a duplicate Symbol got passed the reentrant lock "
+            if (!dupChecks.add(symbol)) {
+              throw new CompilerException("Duplicate Symbol: '" + symbol.getFriendlyName() + "' "
                   + symbol.getSourceToken().getTokenSource().getSourceName()
-                  + "Line " + symbol.getSourceToken().getLine());
+                  + " Line " + symbol.getSourceToken().getLine());
             }
           }
           AssertValue.checkNotNull("ParsedModule must be present for source", parsedModule);

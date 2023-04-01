@@ -48,8 +48,7 @@ import org.ek9lang.compiler.symbol.IScopedSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.LocalScope;
 import org.ek9lang.compiler.symbol.MethodSymbol;
-import org.ek9lang.compiler.symbol.ParameterisedFunctionSymbol;
-import org.ek9lang.compiler.symbol.ParameterisedTypeSymbol;
+import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbol.ServiceOperationSymbol;
 import org.ek9lang.compiler.symbol.StreamCallSymbol;
 import org.ek9lang.compiler.symbol.StreamPipeLineSymbol;
@@ -105,9 +104,11 @@ public class SymbolFactory {
 
   private final DirectivesCompilationPhase directivesCompilationPhase = new DirectivesCompilationPhase();
 
-  private final ParameterizedTypeCreator parameterizedTypeCreator = new ParameterizedTypeCreator();
-
-  private final ParameterizedFunctionCreator parameterizedFunctionCreator = new ParameterizedFunctionCreator();
+  /**
+   * To be used to create parameterised versions of generic types and functions.
+   * Will replace parameterizedTypeCreator and parameterizedFunctionCreator.
+   */
+  private final ParameterizedSymbolCreator parameterizedSymbolCreator = new ParameterizedSymbolCreator();
 
   /**
    * Used for low level additions of methods to aggregates.
@@ -496,22 +497,9 @@ public class SymbolFactory {
     return newFunction;
   }
 
-  /**
-   * Create a new parameterised type, i.e. take a generic type and a type parameter and create
-   * what is in effect a new type out of the two. 'List of String' or 'List of Date' for example.
-   */
-  public ParameterisedTypeSymbol newParameterisedTypeSymbol(final AggregateSymbol genericAggregateType,
-                                                            final List<ISymbol> parameterizingTypes) {
-    return parameterizedTypeCreator.apply(genericAggregateType, parameterizingTypes);
-  }
-
-  /**
-   * Create a new parameterised function, i.e. take a generic function and a type parameter and create
-   * what is in effect a new function out of the two. 'Supplier of String' or 'Consumer of Date' for example.
-   */
-  public ParameterisedFunctionSymbol newParameterisedFunctionSymbol(FunctionSymbol genericFunction,
-                                                                    List<ISymbol> parameterizingTypes) {
-    return parameterizedFunctionCreator.apply(genericFunction, parameterizingTypes);
+  public PossibleGenericSymbol newParameterisedSymbol(final PossibleGenericSymbol genericType,
+                                                      final List<ISymbol> typeArguments) {
+    return parameterizedSymbolCreator.apply(genericType, typeArguments);
   }
 
   /**

@@ -7,12 +7,10 @@ import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
-import org.ek9lang.compiler.symbol.AggregateSymbol;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
-import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.AnyTypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
 /**
@@ -81,7 +79,7 @@ public abstract class ResolveOrDefineTypes {
 
   protected Optional<ISymbol> resolveSimpleTypeByIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
     var ofType = ctx.getText();
-    var resolved = symbolAndScopeManagement.getTopScope().resolve(new AnySymbolSearch(ofType));
+    var resolved = symbolAndScopeManagement.getTopScope().resolve(new AnyTypeSymbolSearch(ofType));
     if (resolved.isEmpty() && errorIfNotDefinedOrResolved) {
       errorListener.semanticError(ctx.start, "",
           ErrorListener.SemanticClassification.TYPE_NOT_RESOLVED);
@@ -118,13 +116,16 @@ public abstract class ResolveOrDefineTypes {
   private Optional<ISymbol> resolveOrDefine(final Token token, final ISymbol genericType,
                                             final List<ISymbol> parameterizingTypes) {
 
-    if (!genericType.isGenericInNature()) {
-      if (errorIfNotDefinedOrResolved) {
-        errorListener.semanticError(token, "cannot be used to parameterize '" + genericType.getFriendlyName() + "':",
-            ErrorListener.SemanticClassification.NOT_A_TEMPLATE);
+    if (genericType instanceof PossibleGenericSymbol genericTypeSymbol) {
+
+      if (!genericType.isGenericInNature()) {
+        if (errorIfNotDefinedOrResolved) {
+          errorListener.semanticError(token, "cannot be used to parameterize '" + genericType.getFriendlyName() + "':",
+              ErrorListener.SemanticClassification.NOT_A_TEMPLATE);
+        }
+        return Optional.empty();
       }
-      return Optional.empty();
-    } else if (genericType instanceof PossibleGenericSymbol genericTypeSymbol) {
+
       //It is generic in nature, but do the number of parameterizing types and number of types the generic type
       //need match up? Always give an error for this.
       var acceptsNParameters = genericTypeSymbol.getAnyConceptualTypeParameters().size();
@@ -137,28 +138,10 @@ public abstract class ResolveOrDefineTypes {
             ErrorListener.SemanticClassification.GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT);
         return Optional.empty();
       }
-    }
 
-    //So are we actually trying to parameterize with non-concrete things.
-    //This can happen when processing a generic class/function, and it returns a BlahBlah of (K, V)
-    //i.e. we are not making a new concrete type: BlahBlah of (Integer, String), but just sticking with conceptual.
-    var usingNonConcreteTypes = anyTypesExistingGenericTypeParameters(parameterizingTypes);
-    if (usingNonConcreteTypes) {
-      return Optional.of(genericType);
-    }
-
-    if (genericType instanceof AggregateSymbol genericAggregateType) {
-      var theType = symbolFactory.newParameterisedTypeSymbol(genericAggregateType, parameterizingTypes);
-      return symbolAndScopeManagement.resolveOrDefine(theType);
-    } else if (genericType instanceof FunctionSymbol genericFunction) {
-      var theType = symbolFactory.newParameterisedFunctionSymbol(genericFunction, parameterizingTypes);
+      var theType = symbolFactory.newParameterisedSymbol(genericTypeSymbol, parameterizingTypes);
       return symbolAndScopeManagement.resolveOrDefine(theType);
     }
-
     return Optional.empty();
-  }
-
-  private boolean anyTypesExistingGenericTypeParameters(final List<ISymbol> parameterizingTypes) {
-    return parameterizingTypes.stream().anyMatch(ISymbol::isConceptualTypeParameter);
   }
 }

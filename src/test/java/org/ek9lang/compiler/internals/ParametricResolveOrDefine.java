@@ -19,8 +19,7 @@ public class ParametricResolveOrDefine implements Function<PossibleGenericSymbol
 
   @Override
   public ResolvedOrDefineResult apply(PossibleGenericSymbol possibleGenericSymbol) {
-    var search = new SymbolSearch(possibleGenericSymbol.getFullyQualifiedName())
-        .setSearchType(possibleGenericSymbol.getCategory());
+    var search = new SymbolSearch(possibleGenericSymbol);
     var resolved = scope.resolve(search);
     if (resolved.isEmpty()) {
       scope.define(possibleGenericSymbol);

@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import org.ek9lang.compiler.symbol.support.ParameterizedGenericSymbolCreator;
+import org.ek9lang.compiler.symbol.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
@@ -187,7 +187,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     var durationType = symbolTable.resolve(new TypeSymbolSearch("Duration"));
     assertTrue(durationType.isPresent());
 
-    ParameterizedGenericSymbolCreator creator = new ParameterizedGenericSymbolCreator();
+    ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
 
     var aGenericType = testCreateGenericTypeWithMultipleParameters("AType", List.of("R", "S"));
     assertEquals(2, aGenericType.getAnyConceptualTypeParameters().size());
@@ -251,7 +251,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
                                                             final ISymbol typeParameter) {
 
     //Now use and tests the creator of parameterized types/functions.
-    ParameterizedGenericSymbolCreator creator = new ParameterizedGenericSymbolCreator();
+    ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
 
     var aParameterizedType = creator.apply(aGenericType, List.of(typeParameter));
 

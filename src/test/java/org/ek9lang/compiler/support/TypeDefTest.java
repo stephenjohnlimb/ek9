@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Optional;
 import org.ek9lang.compiler.internals.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.main.Ek9LanguageBootStrap;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
@@ -34,8 +33,7 @@ class TypeDefTest {
   public TypeDefTest() {
     //OK boot up the ek9 main module scope loaded for testing resolutions.
     final var ek9 = new Ek9LanguageBootStrap(new Ek9BuiltinLangSupplier(), compilationEvent -> {
-    },
-        new CompilerReporter(false));
+    }, new CompilerReporter(false));
 
     final var sharedContext = ek9.get();
 
@@ -108,7 +106,9 @@ class TypeDefTest {
 
     //Now do what the compiler will do and 'resolve or define it'.
     //So as it was not previously resolved - it will now get defined.
-    assertTrue(Optional.of(parameterizedType).map(partialEk9StringToTypeDef).map(resolveOrDefineTypeDef).isPresent());
+    var toTypeDefCtx = partialEk9StringToTypeDef.apply(parameterizedType);
+    var theType = resolveOrDefineTypeDef.apply(toTypeDefCtx);
+    assertTrue(theType.isPresent());
 
     //Now check it can just be resolved.
     var resolved = underTest.typeDefToSymbol(parameterizedType);

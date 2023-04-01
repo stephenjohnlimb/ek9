@@ -14,7 +14,7 @@ import org.ek9lang.core.exception.AssertValue;
  * altered all the 'T', 'K', 'V' - 'type parameters' for each of the 'type arguments'
  * There is a separate function that does that. This is because the timing of when to do that is important.
  */
-public class ParameterizedGenericSymbolCreator
+public class ParameterizedSymbolCreator
     implements BiFunction<PossibleGenericSymbol, List<ISymbol>, PossibleGenericSymbol> {
 
   private final InternalNameFor internalNameFor = new InternalNameFor();
@@ -27,7 +27,7 @@ public class ParameterizedGenericSymbolCreator
     AssertValue.checkNotEmpty("typeArguments cannot be empty", typeArguments);
     AssertValue.checkTrue("possibleGenericSymbol must be generic in nature", possibleGenericSymbol.isGenericInNature());
     AssertValue.checkTrue("type parameters and type arguments must be same size "
-        + possibleGenericSymbol.getAnyConceptualTypeParameters().size() + " and " + typeArguments.size(),
+            + possibleGenericSymbol.getAnyConceptualTypeParameters().size() + " and " + typeArguments.size(),
         possibleGenericSymbol.getAnyConceptualTypeParameters().size() == typeArguments.size());
 
     PossibleGenericSymbol rtn = null;

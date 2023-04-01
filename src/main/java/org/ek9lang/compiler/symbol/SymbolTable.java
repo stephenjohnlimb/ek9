@@ -1,7 +1,6 @@
 package org.ek9lang.compiler.symbol;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -195,15 +194,15 @@ public class SymbolTable implements IScope {
       return true;
     }
     return (o instanceof SymbolTable that)
-      && isMarkedPure() == that.isMarkedPure()
-      && orderedSymbols.equals(that.orderedSymbols)
-      && getScopeName().equals(that.getScopeName());
+        && isMarkedPure() == that.isMarkedPure()
+        && orderedSymbols.equals(that.orderedSymbols)
+        && getScopeName().equals(that.getScopeName());
   }
 
   @Override
   public int hashCode() {
     int result = orderedSymbols.hashCode();
-    result = 31 * result + getScopeName().hashCode();
+    result = 31 * result + scopeName.hashCode();
     result = 31 * result + (isMarkedPure() ? 1 : 0);
     return result;
   }
@@ -332,7 +331,7 @@ public class SymbolTable implements IScope {
     }
 
     //So if search type is not set then that means search all categories!
-    return Arrays.stream(ISymbol.SymbolCategory.values())
+    return search.getValidSearchTypes().stream()
         .map(category -> resolveFromSplitSymbolTable(searchName,
             new SymbolSearch(search).setSearchType(category)))
         .filter(Optional::isPresent)
