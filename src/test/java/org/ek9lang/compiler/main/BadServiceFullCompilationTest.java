@@ -7,7 +7,7 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests bad references usage.
+ * Just tests bad service definition usage.
  */
 class BadServiceFullCompilationTest extends FullCompilationTest {
 
@@ -17,7 +17,7 @@ class BadServiceFullCompilationTest extends FullCompilationTest {
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
+    testToPhase(CompilationPhase.SYMBOL_DEFINITION);
   }
 
   @Override

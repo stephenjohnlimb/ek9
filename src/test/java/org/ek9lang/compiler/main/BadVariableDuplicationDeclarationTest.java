@@ -18,7 +18,7 @@ class BadVariableDuplicationDeclarationTest extends FullCompilationTest {
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
+    testToPhase(CompilationPhase.SYMBOL_DEFINITION);
   }
 
   @Override
