@@ -11,7 +11,7 @@ import java.util.Optional;
 import org.ek9lang.compiler.symbol.support.AggregateFactory;
 import org.ek9lang.compiler.symbol.support.SymbolNameOrFail;
 import org.ek9lang.compiler.symbol.support.SymbolTypeNameOrFail;
-import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.AnyTypeSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
@@ -61,6 +61,10 @@ final class AggregateSymbolTest {
     underTest.setOpenForExtension(true);
     underTest.setPipeSinkType(Optional.of("ASinkType"));
     underTest.setPipeSourceType(Optional.of("ASourceType"));
+
+    assertTrue(underTest.getTraits().isEmpty());
+    assertTrue(underTest.getAllExtensionConstrainedTraits().isEmpty());
+    assertFalse((underTest.isExtensionConstrained()));
 
     //Check all that stuck.
     assertCommonPropertiesAfterSetting(underTest);
@@ -200,7 +204,7 @@ final class AggregateSymbolTest {
     cls1.setSuperAggregateScopedSymbol(aGenericBaseType);
 
     //Is it possible to resolve 'T'? Not sure why we would need to but we should be able to.
-    var resolvedT = cls1.resolve(new AnySymbolSearch("T"));
+    var resolvedT = cls1.resolve(new AnyTypeSymbolSearch("T"));
     assertTrue(resolvedT.isPresent());
     assertEquals(t, resolvedT.get());
   }
@@ -228,7 +232,7 @@ final class AggregateSymbolTest {
     cls1.setSuperAggregateScopedSymbol(parameterisedType1);
 
     //Is it possible to resolve 'T', it should NOT be possible as 'T' is hidden within the parameterised type.
-    var resolvedT = cls1.resolve(new AnySymbolSearch("T"));
+    var resolvedT = cls1.resolve(new AnyTypeSymbolSearch("T"));
     assertFalse(resolvedT.isPresent());
   }
 

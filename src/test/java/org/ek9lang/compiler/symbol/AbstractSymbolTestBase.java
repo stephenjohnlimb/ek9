@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.support.TypeDefResolver;
 import org.ek9lang.compiler.symbol.support.AggregateFactory;
-import org.ek9lang.compiler.symbol.support.IndexOfType;
 import org.junit.jupiter.api.BeforeEach;
 
 public class AbstractSymbolTestBase {
@@ -13,7 +12,6 @@ public class AbstractSymbolTestBase {
   private final SymbolTable global = new SymbolTable();
 
   protected final AggregateFactory support = new AggregateFactory();
-  protected final IndexOfType indexFinder = new IndexOfType();
 
   protected IScope symbolTable = new SymbolTable();
 

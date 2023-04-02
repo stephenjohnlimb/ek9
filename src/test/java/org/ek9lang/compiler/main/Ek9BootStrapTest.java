@@ -16,7 +16,7 @@ import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.support.SimpleResolverForTesting;
 import org.ek9lang.compiler.symbol.support.SymbolCountCheck;
-import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.AnyTypeSymbolSearch;
 import org.ek9lang.core.exception.CompilerException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -59,7 +59,7 @@ class Ek9BootStrapTest {
 
     resolved.ifPresentOrElse(listSymbol -> {
       if (listSymbol instanceof IAggregateSymbol list) {
-        var resolvedT = list.resolve(new AnySymbolSearch("T"));
+        var resolvedT = list.resolve(new AnyTypeSymbolSearch("T"));
         resolvedT.ifPresentOrElse(t -> {}, () -> Assertions.fail("Expecting 'T' to be found"));
       }
     }, () -> Assertions.fail("Expecting 'List' to be found"));

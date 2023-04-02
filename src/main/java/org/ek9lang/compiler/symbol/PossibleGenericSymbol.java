@@ -231,7 +231,7 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
    */
   public Optional<ISymbol> resolveFromParameterTypes(final SymbolSearch search) {
     Optional<ISymbol> rtn = Optional.empty();
-    if (isGenericInNature() && (search.getSearchType() == null || SymbolCategory.TYPE.equals(search.getSearchType()))) {
+    if (isGenericInNature() && (search.isAnyValidTypeSearch())) {
       for (ISymbol parameterType : getTypeParameterOrArguments()) {
         if (parameterType.isAssignableTo(search.getAsSymbol())) {
           rtn = Optional.of(parameterType);

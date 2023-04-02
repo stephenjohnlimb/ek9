@@ -161,9 +161,7 @@ public class ModuleScope extends SymbolTable {
 
     String searchName = ISymbol.getUnqualifiedName(search.getName());
     var localScopeSearch = new SymbolSearch(ISymbol.makeFullyQualifiedName(getScopeName(), searchName)).setSearchType(
-        search.getSearchType());
-
-    localScopeSearch.setExampleSymbolToMatch(search.getExampleSymbolToMatch());
+        search.getSearchType()).setExampleSymbolToMatch(search.getExampleSymbolToMatch());
 
     Optional<ISymbol> resolvedSymbol = super.resolveInThisScopeOnly(localScopeSearch);
 
@@ -186,9 +184,7 @@ public class ModuleScope extends SymbolTable {
 
     //If not the right category then not a match.
     //But a null in the search category means we are happy with just the name match.
-    if (search.getSearchType() != null
-        && resolvedSymbol.isPresent()
-        && !resolvedSymbol.get().getCategory().equals(search.getSearchType())) {
+    if (resolvedSymbol.isPresent() && !search.isCategoryAcceptable(resolvedSymbol.get().getCategory())) {
       resolvedSymbol = Optional.empty();
     }
     return resolvedSymbol;

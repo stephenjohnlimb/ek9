@@ -53,13 +53,23 @@ public class SymbolSearch {
   private List<ISymbol.SymbolCategory> vetoSearchTypes = new ArrayList<>();
 
   /**
-   * In some cases its useful to have a symbol as an example to search for.
+   * In some cases it's useful to have a symbol as an example to search for.
    */
   private ISymbol exampleSymbolToMatch;
 
   /**
+   * These categories are considered viable 'types' to be searched for.
+   */
+  private final List<ISymbol.SymbolCategory> justTypes = List.of(
+      ISymbol.SymbolCategory.TYPE,
+      ISymbol.SymbolCategory.TEMPLATE_TYPE,
+      ISymbol.SymbolCategory.TEMPLATE_FUNCTION,
+      ISymbol.SymbolCategory.FUNCTION);
+
+  /**
    * Clone from Symbol search into a new instance.
    */
+  @SuppressWarnings("CopyConstructorMissesField")
   public SymbolSearch(SymbolSearch from) {
     AssertValue.checkNotNull("from cannot be null for search Symbol", from);
     this.name = from.name;
@@ -114,6 +124,28 @@ public class SymbolSearch {
   }
 
   /**
+   * Uses the search type and any vetos to see if the category passed in is a match on the search.
+   */
+  public boolean isCategoryAcceptable(final ISymbol.SymbolCategory category) {
+    //If a single allowed search type must match
+    if (searchType != null) {
+      return searchType == category;
+    }
+    //Else could be one of the valid searches.
+    return getValidSearchTypes().contains(category);
+  }
+
+  /**
+   * Is this sort of type search, TYPE, FUNCTION or TEMPLATE versions of those.
+   */
+  public boolean isAnyValidTypeSearch() {
+    if (searchType == null) {
+      return justTypes.equals(getValidSearchTypes());
+    }
+    return justTypes.contains(searchType);
+  }
+
+  /**
    * Provide a list of valid search types if multiple supported.
    */
   public List<ISymbol.SymbolCategory> getValidSearchTypes() {
@@ -125,6 +157,7 @@ public class SymbolSearch {
         .toList();
   }
 
+  @SuppressWarnings("UnusedReturnValue")
   public SymbolSearch setVetoSearchTypes(List<ISymbol.SymbolCategory> vetoSearchTypes) {
     this.vetoSearchTypes = vetoSearchTypes;
     return this;

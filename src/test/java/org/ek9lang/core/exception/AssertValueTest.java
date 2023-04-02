@@ -78,6 +78,11 @@ final class AssertValueTest {
   }
 
   @Test
+  void testCheckFalse() {
+    assertThrows(IllegalArgumentException.class, () -> AssertValue.checkFalse("Cannot be false", true));
+  }
+
+  @Test
   void testTrue() {
     AssertValue.checkTrue("Cannot be false", true);
   }

@@ -271,8 +271,8 @@ public class SymbolTable implements IScope {
   @Override
   public MethodSymbolSearchResult resolveMatchingMethodsInThisScopeOnly(
       final MethodSymbolSearch search, MethodSymbolSearchResult result) {
-    var optTable = Optional.ofNullable(getSplitSymbolTable(search.getSearchType()));
-    optTable
+
+    Optional.of(getSplitSymbolTable(ISymbol.SymbolCategory.METHOD))
         .stream()
         .map(table -> getSymbolByName(table, search.getName()))
         .map(methodSymbolCast)
@@ -294,11 +294,9 @@ public class SymbolTable implements IScope {
 
   private Optional<ISymbol> resolveFromSplitSymbolTable(final String symbolName,
                                                         final SymbolSearch search) {
-    Optional<ISymbol> rtn = Optional.empty();
-    if (search.getSearchType() != null) {
-      rtn = resolveInThisScopeOnly(getSplitSymbolTable(search.getSearchType()), symbolName, search);
-    }
-    return rtn;
+    var category = search.getSearchType();
+    AssertValue.checkNotNull("Search type must be explicit", category);
+    return resolveInThisScopeOnly(getSplitSymbolTable(category), symbolName, search);
   }
 
   /**
@@ -326,11 +324,8 @@ public class SymbolTable implements IScope {
     }
 
     String searchName = ISymbol.getUnqualifiedName(search.getName());
-    if (search.getSearchType() != null) {
-      return resolveFromSplitSymbolTable(searchName, search);
-    }
 
-    //So if search type is not set then that means search all categories!
+    //So search the valid categories.
     return search.getValidSearchTypes().stream()
         .map(category -> resolveFromSplitSymbolTable(searchName,
             new SymbolSearch(search).setSearchType(category)))
@@ -413,7 +408,7 @@ public class SymbolTable implements IScope {
 
   /**
    * This class is the root and so there is no enclosing scope.
-   * sub-classes will override to provide the scope that encloses them
+   * subclasses will override to provide the scope that encloses them
    */
   protected Optional<ISymbol> resolveWithEnclosingScope(final SymbolSearch search) {
     AssertValue.checkNotNull("Search must not be null", search);

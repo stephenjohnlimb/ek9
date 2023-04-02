@@ -47,30 +47,24 @@ public class SymbolMatcher {
    */
   private double getWeightOfMethodMatch(SymbolSearch criteria, MethodSymbol methodSymbol) {
     double rtn = -1.0;
-    //name must match fully
-    if (!criteria.getName().equals(methodSymbol.getName())) {
-      return rtn; //so this is no match at all
-    }
 
-    //Now need to check on method parameter symbols and match those against the parameters
-    //on the method.
+    if (criteria.getName().equals(methodSymbol.getName())) {
 
-    double paramCost =
-        getWeightOfParameterMatch(criteria.getTypeParameters(), methodSymbol.getSymbolsForThisScope());
-    if (paramCost < 0.0) {
-      return rtn;
-    }
-
-    //Only check if we have a criteria to match
-    if (criteria.getOfTypeOrReturn().isPresent()) {
-      double rtnCost = getWeightOfMatch(methodSymbol.getType(), criteria.getOfTypeOrReturn());
-      if (rtnCost < 0.0) {
+      //Only check if we have a criteria to match - acts more like a veto.
+      if (criteria.getOfTypeOrReturn().isPresent()
+          && getWeightOfMatch(methodSymbol.getType(), criteria.getOfTypeOrReturn()) < 0.0) {
         return rtn;
       }
+
+      //Now need to check on method parameter symbols and match those against the parameters
+      //on the method.
+      double paramCost =
+          getWeightOfParameterMatch(criteria.getTypeParameters(), methodSymbol.getSymbolsForThisScope());
+      if (paramCost < 0.0) {
+        return rtn;
+      }
+      rtn = 100.0 - paramCost;
     }
-
-    rtn = 100.0 - paramCost;
-
     return rtn;
   }
 

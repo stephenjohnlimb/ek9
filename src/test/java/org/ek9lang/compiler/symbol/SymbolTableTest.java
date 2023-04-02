@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.symbol.support.TypeCreator;
 import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.AnyTypeSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.FunctionSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
@@ -77,12 +78,12 @@ final class SymbolTableTest {
   }
 
   private void assertNotFound(SymbolTable underTest) {
-    assertFalse(underTest.resolve(new AnySymbolSearch("SomeThing")).isPresent());
-    assertFalse(underTest.resolve(new AnySymbolSearch("Fully.Qualified::SomeThing")).isPresent());
+    assertFalse(underTest.resolve(new AnyTypeSymbolSearch("SomeThing")).isPresent());
+    assertFalse(underTest.resolve(new AnyTypeSymbolSearch("Fully.Qualified::SomeThing")).isPresent());
 
     //By specific search types.
-    assertFalse(underTest.resolve(new TypeSymbolSearch("SomeThing")).isPresent());
-    assertFalse(underTest.resolve(new TypeSymbolSearch("Fully.Qualified::SomeThing")).isPresent());
+    assertFalse(underTest.resolve(new AnyTypeSymbolSearch("SomeThing")).isPresent());
+    assertFalse(underTest.resolve(new AnyTypeSymbolSearch("Fully.Qualified::SomeThing")).isPresent());
 
     assertFalse(underTest.resolve(new TemplateTypeSymbolSearch("SomeThing")).isPresent());
     assertFalse(
@@ -420,6 +421,11 @@ final class SymbolTableTest {
 
     //Now search via any search.
     searchResult = underTest.resolve(new AnySymbolSearch("global::Float"));
+    assertTrue(searchResult.isPresent());
+    assertEquals("Float", searchResult.get().getName());
+
+    //And via 'any type' search.
+    searchResult = underTest.resolve(new AnyTypeSymbolSearch("global::Float"));
     assertTrue(searchResult.isPresent());
     assertEquals("Float", searchResult.get().getName());
 

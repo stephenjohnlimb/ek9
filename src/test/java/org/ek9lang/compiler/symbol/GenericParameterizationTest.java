@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.ek9lang.compiler.symbol.support.ParameterizedSymbolCreator;
-import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.AnyTypeSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
@@ -197,12 +197,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     var conceptualParameterizedType = creator.apply(aGenericType, List.of(ek9Integer, v));
     assertNotNull(conceptualParameterizedType);
     assertEquals(1, conceptualParameterizedType.getAnyConceptualTypeParameters().size());
-    assertEquals( ISymbol.SymbolCategory.TEMPLATE_TYPE, conceptualParameterizedType.getCategory());
-
-    //So now I'd need to find which conceptual parameter to change - should be the second one
-    //'someType as SomeType of (Date, Duration)' -> 'AType of (Integer, Duration)'
-    int indexOfV = indexFinder.apply(conceptualParameterizedType, v);
-    assertEquals(1, indexOfV);
+    assertEquals(ISymbol.SymbolCategory.TEMPLATE_TYPE, conceptualParameterizedType.getCategory());
 
     //Finally I can create the AType of (Integer, Duration)
     //This is what the outer type would be passing in/
@@ -246,7 +241,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
 
     //Now lets check that from a parameterised type point of view - 'T' is not visible/resolvable
     //This should be obvious - we don;t want 'conceptual types' bleeding out. So check they don't.
-    var notResolvedT = aParameterizedType.resolve(new AnySymbolSearch(conceptualTypeParameterName));
+    var notResolvedT = aParameterizedType.resolve(new AnyTypeSymbolSearch(conceptualTypeParameterName));
     assertTrue(notResolvedT.isEmpty());
 
     //Now logically at this point you'd be expecting that as AGenericType of type T has a method:
@@ -369,7 +364,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
   }
 
   private PossibleGenericSymbol testCreateGenericTypeWithMultipleParameters(final String genericTypeName,
-                                                   final List<String> conceptualTypeParameterNames) {
+                                                                            final List<String> conceptualTypeParameterNames) {
     var aGenericType = new PossibleGenericSymbol(genericTypeName, symbolTable);
     //When making a new possible generic type - it starts out as non-generic.
     aGenericType.setModuleScope(symbolTable);
