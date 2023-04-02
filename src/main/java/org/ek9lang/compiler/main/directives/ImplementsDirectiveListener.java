@@ -3,8 +3,8 @@ package org.ek9lang.compiler.main.directives;
 import org.ek9lang.compiler.errors.CompilationEvent;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.support.DirectiveType;
-import org.ek9lang.compiler.support.JustTypeDef;
 import org.ek9lang.compiler.support.ResolutionDirective;
+import org.ek9lang.compiler.support.TypeDefResolver;
 import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
@@ -36,7 +36,7 @@ public class ImplementsDirectiveListener extends ResolvedDirectiveListener {
 
     var errorListener = compilationEvent.source().getErrorListener();
     var scope = compilationEvent.parsedModule().getModuleScope();
-    JustTypeDef resolver = new JustTypeDef(scope);
+    TypeDefResolver resolver = new TypeDefResolver(scope);
 
     var messagePrefix = "Directive '" + resolutionDirective + "', specifically: '";
 

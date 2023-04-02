@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.ek9lang.compiler.symbol.support.ParameterizedSymbolCreator;
+import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
@@ -25,11 +26,6 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
    */
   @Test
   void testPossibleGenericSymbolAsType() {
-    var integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
-    assertTrue(integerType.isPresent());
-    var stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
-    assertTrue(stringType.isPresent());
-
     var aGenericType = testCreationOfGenericType("G1", "T");
     assertNotNull(aGenericType);
 
@@ -66,11 +62,6 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
 
   @Test
   void testPossibleGenericSymbolAsFunction() {
-    var integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
-    assertTrue(integerType.isPresent());
-    var stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
-    assertTrue(stringType.isPresent());
-
     var aGenericFunction = testCreationOfGenericFunction("F2", "S");
     assertNotNull(aGenericFunction);
 
@@ -82,14 +73,8 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
    */
   @Test
   void testConcreteParameterizationAsFunction() {
-    var integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
-    assertTrue(integerType.isPresent());
-    var stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
-    assertTrue(stringType.isPresent());
-
     var aGenericType = testCreationOfGenericType("F1", "T");
-
-    var parameterizedWithInteger = testGenericParameterization(aGenericType, "T", integerType.get());
+    var parameterizedWithInteger = testGenericParameterization(aGenericType, "T", ek9Integer);
 
     //let's also check that cloning of parameterized type works.
     var clonedParameterizedWithInteger = parameterizedWithInteger.clone(symbolTable);
@@ -106,11 +91,6 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
    */
   @Test
   void testConcreteParameterizationAsType() {
-    var integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
-    assertTrue(integerType.isPresent());
-    var stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
-    assertTrue(stringType.isPresent());
-
     //Plan to use this as a delegate and see if I can use it to parameterize a generic type.
     FunctionSymbol fn = new FunctionSymbol("someFunction", symbolTable);
     assertNotNull(fn);
@@ -118,7 +98,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
 
     var aGenericType = testCreationOfGenericType("G1", "T");
 
-    var parameterizedWithInteger = testGenericParameterization(aGenericType, "T", integerType.get());
+    var parameterizedWithInteger = testGenericParameterization(aGenericType, "T", ek9Integer);
 
     //let's also check that cloning of parameterized type works.
     var clonedParameterizedWithInteger = parameterizedWithInteger.clone(symbolTable);
@@ -137,7 +117,6 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
   @Test
   void testConceptualParameterizationAsFunction() {
     var p = support.createGenericT("P", symbolTable);
-    assertTrue(p.isConceptualTypeParameter());
 
     var aGenericFunction = testCreationOfGenericFunction("F1", "T");
 
@@ -155,7 +134,6 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
   @Test
   void testConceptualParameterizationAsType() {
     var p = support.createGenericT("P", symbolTable);
-    assertTrue(p.isConceptualTypeParameter());
 
     var aGenericType = testCreationOfGenericType("G1", "T");
 
@@ -180,25 +158,23 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
 
   @Test
   void testMultipleConceptualTypeParameters() {
-    var integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
-    assertTrue(integerType.isPresent());
-    var stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
-    assertTrue(stringType.isPresent());
-    var durationType = symbolTable.resolve(new TypeSymbolSearch("Duration"));
-    assertTrue(durationType.isPresent());
 
     ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
 
     var aGenericType = testCreateGenericTypeWithMultipleParameters("AType", List.of("R", "S"));
     assertEquals(2, aGenericType.getAnyConceptualTypeParameters().size());
     assertNotNull(aGenericType);
+    assertTrue(aGenericType.isGenericInNature());
+    assertTrue(aGenericType.isConceptualTypeParameter());
 
     //Now parameterize it with concrete types
-    var parameterizedType = creator.apply(aGenericType, List.of(integerType.get(), ek9String));
+    var parameterizedType = creator.apply(aGenericType, List.of(ek9Integer, ek9String));
     assertNotNull(parameterizedType);
     assertEquals(ISymbol.SymbolCategory.TYPE, parameterizedType.getCategory());
+    assertFalse(parameterizedType.isGenericInNature());
+    assertFalse(parameterizedType.isConceptualTypeParameter());
 
-    //Now lets try a sort of half way house of parameterizing one concrete and on conceptual.
+    //Now lets try a sort of half way house of parameterizing one concrete and one conceptual.
     //This simulates doing something within a generic type itself, where:
     /*
     AType of type (R, S)
@@ -209,6 +185,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
       someMethod()
         myType as AType of (Integer, V): AType()
      */
+
     //So here we are modelling that use of 'myType' - because while it have been parameterized
     //It still needs a 'concrete' type to be useful and that can only be done when 'SomeType of type (K, V)'
     //Is actually employed like: 'someType as SomeType of (Date, Duration)' for example.
@@ -217,7 +194,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
 
     var v = support.createGenericT("V", symbolTable);
     //This should still be conceptual!
-    var conceptualParameterizedType = creator.apply(aGenericType, List.of(integerType.get(), v));
+    var conceptualParameterizedType = creator.apply(aGenericType, List.of(ek9Integer, v));
     assertNotNull(conceptualParameterizedType);
     assertEquals(1, conceptualParameterizedType.getAnyConceptualTypeParameters().size());
     assertEquals( ISymbol.SymbolCategory.TEMPLATE_TYPE, conceptualParameterizedType.getCategory());
@@ -229,7 +206,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
 
     //Finally I can create the AType of (Integer, Duration)
     //This is what the outer type would be passing in/
-    var p = durationType.get();
+    var p = ek9Duration;
     //But now there will only be a need for a single parameter to be defined because 'Integer' is already wired in
     var integerDurationParameterizedType = creator.apply(conceptualParameterizedType, List.of(p));
     assertNotNull(integerDurationParameterizedType);
@@ -238,22 +215,21 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
 
     //Summary, the generic type => to a parameterized but still generic type => concrete type
     //AType of type (R, S) => AType of (Integer, V) => AType of (Integer, Duration)
-    //Now all of the above needs to be wrapped up in to 'function' and also the method population.
     //HARD - I find this quite hard.
   }
 
   /**
-   * Accepts a generic Type and parameterizes it with a type parameter.
+   * Accepts a generic Type/Function and parameterizes it with a type argument.
    */
   private PossibleGenericSymbol testGenericParameterization(final PossibleGenericSymbol aGenericType,
                                                             @SuppressWarnings("SameParameterValue")
                                                             final String conceptualTypeParameterName,
-                                                            final ISymbol typeParameter) {
+                                                            final ISymbol typeArgument) {
 
     //Now use and tests the creator of parameterized types/functions.
     ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
 
-    var aParameterizedType = creator.apply(aGenericType, List.of(typeParameter));
+    var aParameterizedType = creator.apply(aGenericType, List.of(typeArgument));
 
     //Now if this method was passed in a conceptual type, even the new parameterized type will be generic.
     //I know this sounds strange, but imagine inside a generic type, that uses generic types with T and K and V
@@ -261,15 +237,16 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     //with concrete types will all those dependent generic (and parameterized but still generic) types become truly
     //parameterized with concrete types.
 
-    //Could have been written more concisely - but I want to make it obvious.
-    if (typeParameter.isConceptualTypeParameter()) {
+    //Could have been coded more concisely - but I want to make it obvious.
+    if (typeArgument.isConceptualTypeParameter()) {
       assertTrue(aParameterizedType.isGenericInNature());
     } else {
       assertFalse(aParameterizedType.isGenericInNature());
     }
 
     //Now lets check that from a parameterised type point of view - 'T' is not visible/resolvable
-    var notResolvedT = aParameterizedType.resolve(new TypeSymbolSearch(conceptualTypeParameterName));
+    //This should be obvious - we don;t want 'conceptual types' bleeding out. So check they don't.
+    var notResolvedT = aParameterizedType.resolve(new AnySymbolSearch(conceptualTypeParameterName));
     assertTrue(notResolvedT.isEmpty());
 
     //Now logically at this point you'd be expecting that as AGenericType of type T has a method:
@@ -284,11 +261,11 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     //Well you might think so - I did that first in the prototypes and its bad news I'm afraid.
 
     //If you go down the route above, you end up with loads of circular dependencies and multiple new types needing to
-    //be created - but before a new main type has been recorded. This means a stack overflow.
+    //be created - but need to be created before a new main type has been recorded. This means a stack overflow.
 
     //The best way I could find of doing this, was to:
-    //1. Do as above - create the parameterized type - but leave the 'search and replace of 'T' -> 'Integer'
-    //2. Register that new parameterized type in the appropriate 'module/scope'
+    //1. Do as above - create the parameterized type - but leave the 'search and replace of 'T' -> 'Integer' for later
+    //2. Register that new parameterized type in the appropriate 'module/scope' - even though it incomplete.
     //Do this for all dependent types: see aGenericType.getGenericSymbolReferences()
     //This means all types are registered - but are not fully populated with their parameterized methods
     //3. Now go through all those parameterized types and do the 'T' -> 'Integer' mapping on all the methods.
@@ -322,7 +299,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     assertTrue(resolvedT.isPresent());
     assertEquals(t, resolvedT.get());
 
-    //Check the argument we are about to add to the 'function' cannot be found.
+    //Check the argument we are about to add to the 'function' is not currently present.
     var search = new SymbolSearch("arg1");
     var notResolvedArg = aGenericFunction.resolve(search);
     assertTrue(notResolvedArg.isEmpty());
@@ -394,18 +371,21 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
   private PossibleGenericSymbol testCreateGenericTypeWithMultipleParameters(final String genericTypeName,
                                                    final List<String> conceptualTypeParameterNames) {
     var aGenericType = new PossibleGenericSymbol(genericTypeName, symbolTable);
+    //When making a new possible generic type - it starts out as non-generic.
     aGenericType.setModuleScope(symbolTable);
     aGenericType.setCategory(ISymbol.SymbolCategory.TYPE);
 
-    //OK now the multiple type parameters
+    //OK now the multiple type parameters - this act makes it generic as it now has 'type parameters'.
     conceptualTypeParameterNames.forEach(typeParameterName -> {
       var typeParameter = support.createGenericT(typeParameterName, symbolTable);
       aGenericType.addTypeParameterOrArgument(typeParameter);
     });
-    //This should now have become a template version
+
+    //This should now have become a template version - i.e. it is now generic and can be parameterised with
+    //'type arguments'.
     assertEquals(ISymbol.SymbolCategory.TEMPLATE_TYPE, aGenericType.getCategory());
 
-    //It might seem strange to do this, but all typeParameters should be conceptual.
+    //It might seem strange to do check this, but all typeParameters should be conceptual.
     assertEquals(aGenericType.getAnyConceptualTypeParameters(), aGenericType.getTypeParameterOrArguments());
 
     return aGenericType;

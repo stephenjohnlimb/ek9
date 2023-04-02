@@ -63,6 +63,15 @@ import org.junit.jupiter.api.Test;
  * So this test is the long hand mechanism that the compiler and support components will use.
  * Here I'm just still getting my head around it and ensuring that the building blocks will actually work.
  * There is 'chaining' going on here, dependent references and also partial types that need to be applied.
+ * So we'd expect (in terms of concrete types):
+ * <pre>
+ *   AnotherGeneric of (Float, String)
+ *     SomeGeneric of (Integer, Duration)
+ *     SomeGeneric of (Float, String)
+ *     SomeGeneric of (Integer, String)
+ *   YetAnotherGeneric of (Dimension, Time)
+ * </pre>
+ * Note that only the types using in parameters in or out are created at this point.
  */
 class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
 
@@ -76,7 +85,7 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
   @Test
   void testDependentGenericTypes() {
     //This just simulates the CompilableProgram.
-    ParametricResolveOrDefine parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
+    var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
 
     typeSubstitution = new TypeSubstitution(parametricResolveOrDefine);
 
@@ -117,9 +126,17 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     //We'd also expect 1 method with the right types in there
     assertEquals(1, yetAnotherGenericOfDimensionandTime.getSymbolsForThisScope().size());
 
-    //TODO create a new generic type resolver and add in the assertions.
+    //Conceptual types
+    assertResolution("SomeGeneric", ISymbol.SymbolCategory.TEMPLATE_TYPE);
+    assertResolution("AnotherGeneric", ISymbol.SymbolCategory.TEMPLATE_TYPE);
+    assertResolution("YetAnotherGeneric", ISymbol.SymbolCategory.TEMPLATE_TYPE);
 
-    symbolTable.getSymbolsForThisScope().forEach(System.out::println);
+    //Concrete types
+    assertResolution("SomeGeneric of (Integer, Duration)", ISymbol.SymbolCategory.TYPE);
+    assertResolution("AnotherGeneric of (Float, String)", ISymbol.SymbolCategory.TYPE);
+    assertResolution("SomeGeneric of (Float, String)", ISymbol.SymbolCategory.TYPE);
+    assertResolution("SomeGeneric of (Integer, String)", ISymbol.SymbolCategory.TYPE);
+    assertResolution("YetAnotherGeneric of (Dimension, Time)", ISymbol.SymbolCategory.TYPE);
   }
 
   /**
@@ -139,7 +156,7 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     assertTrue(someGenericOfKandV.isConceptualTypeParameter());
 
     addLookupMethod(someGenericOfKandV);
-
+    symbolTable.define(someGenericOfKandV);
     return someGenericOfKandV;
   }
 
@@ -164,6 +181,7 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     addAnotherMethod(someGenericOfKandV, anotherGenericRandS);
     addConcreteMethod(someGenericOfKandV, anotherGenericRandS);
 
+    symbolTable.define(anotherGenericRandS);
     return anotherGenericRandS;
   }
 
@@ -181,7 +199,7 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     assertTrue(yetAnotherGenericOfXandY.isConceptualTypeParameter());
 
     addYetAnotherMethod(yetAnotherGenericOfXandY, x, y, anotherGenericOfRandS);
-
+    symbolTable.define(yetAnotherGenericOfXandY);
     return yetAnotherGenericOfXandY;
   }
 
@@ -199,6 +217,7 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     yetAnotherMethod.setReturningSymbol(ek9Void);
     yetAnotherGenericOfXandY.define(yetAnotherMethod);
     //Now to simulate parsing the method body and registering the dependent types.
+    //In two minds about doing this via references - so leave out for now.
 
     //'g1 as AnotherGeneric of (Date, Y)'
     //var g1 = creator.apply(anotherGenericOfRandS, List.of(ek9Date, y));
@@ -215,7 +234,8 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     //yetAnotherGenericOfXandY.addGenericSymbolReference(typeSubstitution.apply(g3));
   }
 
-  private PossibleGenericSymbol createAnotherGenericOfFloatandString(final PossibleGenericSymbol anotherGenericOfRandS) {
+  private PossibleGenericSymbol createAnotherGenericOfFloatandString(
+      final PossibleGenericSymbol anotherGenericOfRandS) {
     var parameterizedType = creator.apply(anotherGenericOfRandS, List.of(ek9Float, ek9String));
     var rtn = typeSubstitution.apply(parameterizedType);
 
@@ -225,7 +245,8 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     return rtn;
   }
 
-  private PossibleGenericSymbol createYetAnotherGenericOfDimensionandTime(final PossibleGenericSymbol yetAnotherGenericOfXandY) {
+  private PossibleGenericSymbol createYetAnotherGenericOfDimensionandTime(
+      final PossibleGenericSymbol yetAnotherGenericOfXandY) {
     var parameterizedType = creator.apply(yetAnotherGenericOfXandY, List.of(ek9Dimension, ek9Time));
     var rtn = typeSubstitution.apply(parameterizedType);
 

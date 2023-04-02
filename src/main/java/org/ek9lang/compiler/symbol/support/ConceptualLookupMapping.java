@@ -17,6 +17,9 @@ import org.ek9lang.core.exception.AssertValue;
 public class ConceptualLookupMapping implements BiFunction<List<ISymbol>, List<ISymbol>, Map<ISymbol, ISymbol>> {
   @Override
   public Map<ISymbol, ISymbol> apply(final List<ISymbol> typeArguments, final List<ISymbol> typeParameters) {
+    AssertValue.checkNotNull("TypeParameters cannot null", typeParameters);
+    AssertValue.checkNotNull("TypeArguments cannot null", typeArguments);
+    AssertValue.checkFalse("TypeArguments must be greater than zero", typeArguments.isEmpty());
     Map<ISymbol, ISymbol> rtn = new HashMap<>();
     int index = 0;
     for (ISymbol typeParameter : typeParameters) {
@@ -26,6 +29,7 @@ public class ConceptualLookupMapping implements BiFunction<List<ISymbol>, List<I
         index++;
       }
     }
+    //Post condition check, to help when I mess the compiler up!
     AssertValue.checkTrue("Number of conceptual types to supplied types must match",
         index == typeArguments.size());
     return rtn;

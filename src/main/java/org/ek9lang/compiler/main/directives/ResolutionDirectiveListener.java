@@ -5,8 +5,8 @@ import org.ek9lang.compiler.errors.CompilationEvent;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.support.Directive;
-import org.ek9lang.compiler.support.JustTypeDef;
 import org.ek9lang.compiler.support.ResolutionDirective;
+import org.ek9lang.compiler.support.TypeDefResolver;
 import org.ek9lang.compiler.symbol.ISymbol;
 
 /**
@@ -26,7 +26,7 @@ public abstract class ResolutionDirectiveListener implements CompilationPhaseLis
   protected void processDirectives(final CompilationEvent compilationEvent, List<Directive> directives) {
     var errorListener = compilationEvent.source().getErrorListener();
     var scope = compilationEvent.parsedModule().getModuleScope();
-    JustTypeDef resolver = new JustTypeDef(scope);
+    TypeDefResolver resolver = new TypeDefResolver(scope);
 
     for (var directive : directives) {
       var resolutionDirective = (ResolutionDirective) directive;

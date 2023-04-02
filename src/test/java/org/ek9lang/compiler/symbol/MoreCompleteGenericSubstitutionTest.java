@@ -56,10 +56,10 @@ import org.junit.jupiter.api.Test;
  * But in concrete terms we should get this:
  * <pre>
  *   SingleGeneric of type T of type String
- *   G1 of type P of type String
  *   D1 of type X of type String
  *   D1 of type X of type D1 of type X of type String
  *   G2 of type Q of type String
+ *   G1 of type P of type String
  *   G1 of type P of type G2 of type Q of type String
  *   D1 of type X of type G2 of type Q of type String
  *   D1 of type X of type D1 of type X of type G2 of type Q of type String
@@ -70,6 +70,9 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
 
   private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
 
+  /**
+   * This is the main test in this file, but there are some minor checks as well.
+   */
   @Test
   void testAggregateSingleParameterButWithMultipleGenerics() {
 
@@ -113,7 +116,21 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
     var methodReturnType = method.getType();
     assertTrue(methodReturnType.isPresent());
 
-    //TODO create type resolver that works with PossibleGenericSymbol and check the symbol table has what is expected.
+    //Conceptual
+    assertResolution("D1", ISymbol.SymbolCategory.TEMPLATE_TYPE);
+    assertResolution("G1", ISymbol.SymbolCategory.TEMPLATE_TYPE);
+    assertResolution("G2", ISymbol.SymbolCategory.TEMPLATE_TYPE);
+    assertResolution("SingleGeneric", ISymbol.SymbolCategory.TEMPLATE_TYPE);
+
+    //Concrete
+    assertResolution("D1 of (String)", ISymbol.SymbolCategory.TYPE);
+    assertResolution("D1 of (D1 of (String))", ISymbol.SymbolCategory.TYPE);
+    assertResolution("G2 of (String)", ISymbol.SymbolCategory.TYPE);
+    assertResolution("G1 of (String)", ISymbol.SymbolCategory.TYPE);
+    assertResolution("G1 of (G2 of (String))", ISymbol.SymbolCategory.TYPE);
+    assertResolution("D1 of (G2 of (String))", ISymbol.SymbolCategory.TYPE);
+    assertResolution("D1 of (D1 of (G2 of (String)))", ISymbol.SymbolCategory.TYPE);
+    assertResolution("G2 of (G1 of (String))", ISymbol.SymbolCategory.TYPE);
   }
 
   /**
@@ -140,6 +157,7 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
     assertNotNull(d1OfD1OfStringDash);
     assertEquals(1, d1OfD1OfStringDash.getSymbolsForThisScope().size());
 
+    //Check the friendly naming. Can you call it 'friendly'?
     assertEquals("D1 of type X", d1OfTypeX.getFriendlyName());
     assertEquals("D1 of type X of type String", d1OfStringDash.getFriendlyName());
     assertEquals("D1 of type X of type D1 of type X of type String", d1OfD1OfStringDash.getFriendlyName());

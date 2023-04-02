@@ -27,7 +27,6 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine);
 
     var t = support.createGenericT("T", symbolTable);
-    assertTrue(t.isConceptualTypeParameter());
 
     var aGenericFunction = new FunctionSymbol("SingleGenericFunction", symbolTable);
     aGenericFunction.setModuleScope(symbolTable);
@@ -43,21 +42,26 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     aGenericFunction.define(arg2);
     aGenericFunction.setReturningSymbol(rtn);
 
+    //Here take 'genericType of 'SingleGenericFunction' with 'type parameter' of 'T' and
+    //parameterize it with 'type argument' 'Duration'.
     var aParameterizedStringFunction = creator.apply(aGenericFunction, List.of(ek9Duration));
-    //Check it has no parameters yet - we still need to populate them.
+
+    //Check the function itself has no parameters yet - we still need to populate them.
     assertEquals(0, aParameterizedStringFunction.getSymbolsForThisScope().size());
 
+    //This is now what we'd expect when T -> Duration.
     var expecting = """
         arg0 as Integer
         arg1 as Duration
         arg2 as String""";
 
+    //This type substitution is where the 'magic' happens - it's much more complex than you'd expect.
     var typeSubstitutedParameterisedFunction = typeSubstitution.apply(aParameterizedStringFunction);
 
     assertNotNull(typeSubstitutedParameterisedFunction);
     assertEquals(3, typeSubstitutedParameterisedFunction.getSymbolsForThisScope().size());
 
-    var actualForm = getMethodsAsString(typeSubstitutedParameterisedFunction);
+    var actualForm = getScopeSymbolsAsString(typeSubstitutedParameterisedFunction);
 
     assertEquals(expecting, actualForm);
   }
@@ -109,7 +113,7 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var typeSubstitutedParameterisedType = typeSubstitution.apply(aParameterizedStringType);
     assertNotNull(typeSubstitutedParameterisedType);
     assertEquals(6, typeSubstitutedParameterisedType.getSymbolsForThisScope().size());
-    var actualForm = getMethodsAsString(typeSubstitutedParameterisedType);
+    var actualForm = getScopeSymbolsAsString(typeSubstitutedParameterisedType);
 
     assertEquals(expecting, actualForm);
   }
@@ -167,12 +171,12 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     assertNotNull(typeSubstitutedParameterisedType);
     assertEquals(1, typeSubstitutedParameterisedType.getSymbolsForThisScope().size());
 
-    var actualForm = getMethodsAsString(typeSubstitutedParameterisedType);
+    var actualForm = getScopeSymbolsAsString(typeSubstitutedParameterisedType);
 
     assertEquals(expecting, actualForm);
   }
 
-  private String getMethodsAsString(final IScopedSymbol scopedSymbol) {
+  private String getScopeSymbolsAsString(final IScopedSymbol scopedSymbol) {
     return scopedSymbol.getSymbolsForThisScope().stream().map(ISymbol::getFriendlyName)
         .collect(Collectors.joining("\n"));
   }

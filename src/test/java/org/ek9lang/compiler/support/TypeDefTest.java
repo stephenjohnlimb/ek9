@@ -24,7 +24,7 @@ import org.junit.jupiter.params.provider.CsvSource;
  */
 class TypeDefTest {
 
-  private JustTypeDef underTest;
+  private TypeDefResolver underTest;
 
   private ResolveOrDefineTypeDef resolveOrDefineTypeDef;
 
@@ -44,7 +44,7 @@ class TypeDefTest {
       }
       var errorListener = parsedModule.getSource().getErrorListener();
 
-      this.underTest = new JustTypeDef(parsedModule.getModuleScope());
+      this.underTest = new TypeDefResolver(parsedModule.getModuleScope());
       var symbolAndScopeManagement = new SymbolAndScopeManagement(parsedModule,
           new ScopeStack(parsedModule.getModuleScope()));
 

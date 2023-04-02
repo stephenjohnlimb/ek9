@@ -1,5 +1,9 @@
 package org.ek9lang.compiler.symbol;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.ek9lang.compiler.support.TypeDefResolver;
 import org.ek9lang.compiler.symbol.support.AggregateFactory;
 import org.ek9lang.compiler.symbol.support.IndexOfType;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,5 +41,12 @@ public class AbstractSymbolTestBase {
     symbolTable.define(ek9Duration);
     symbolTable.define(ek9Dimension);
     symbolTable.define(ek9Time);
+  }
+
+  protected void assertResolution(final String typeDefForm, final ISymbol.SymbolCategory expectedCategory) {
+    var typeDefResolver = new TypeDefResolver(symbolTable);
+    var resolved = typeDefResolver.typeDefToSymbol(typeDefForm);
+    assertTrue(resolved.isPresent());
+    assertEquals(expectedCategory, resolved.get().getCategory());
   }
 }

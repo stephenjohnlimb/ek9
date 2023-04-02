@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import org.ek9lang.compiler.support.JustTypeDef;
+import org.ek9lang.compiler.support.TypeDefResolver;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.SymbolTable;
 import org.ek9lang.compiler.symbol.support.AggregateFactory;
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Tests for GeneralTypeResolver in isolation.
- * Also tests JustTypeDef - which is a thin wrapper.
+ * Also tests TypeDefResolver - which is a thin wrapper.
  */
 class GeneralTypeResolverTest {
 
@@ -40,7 +40,7 @@ class GeneralTypeResolverTest {
     var resolved = resolver.apply(new SymbolSearchConfiguration("SomeType"));
     assertTrue(resolved.isPresent());
 
-    JustTypeDef resolveByTypeDef = new JustTypeDef(scope);
+    TypeDefResolver resolveByTypeDef = new TypeDefResolver(scope);
 
     notResolved = resolveByTypeDef.typeDefToSymbol("NonSuch");
     assertFalse(notResolved.isPresent());
@@ -97,7 +97,7 @@ class GeneralTypeResolverTest {
             new SymbolSearchConfiguration("SomeType")));
     assertTrue(parameterizedResolved.isPresent());
 
-    JustTypeDef resolveByTypeDef = new JustTypeDef(scope);
+    TypeDefResolver resolveByTypeDef = new TypeDefResolver(scope);
     resolved = resolveByTypeDef.typeDefToSymbol("SomeGenericType");
     assertTrue(resolved.isPresent());
 

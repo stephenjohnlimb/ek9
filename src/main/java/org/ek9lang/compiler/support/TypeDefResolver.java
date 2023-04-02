@@ -16,12 +16,12 @@ import org.ek9lang.compiler.symbol.ISymbol;
  * a structure and names.
  * Then use a resolver to see if they type or parameterized type exists.
  */
-public class JustTypeDef extends EK9BaseVisitor<SymbolSearchConfiguration> {
+public class TypeDefResolver extends EK9BaseVisitor<SymbolSearchConfiguration> {
   private final GeneralTypeResolver generalTypeResolver;
 
   private final PartialEk9StringToTypeDef partialEk9StringToTypeDef = new PartialEk9StringToTypeDef();
 
-  public JustTypeDef(final IScope scopeForResolution) {
+  public TypeDefResolver(final IScope scopeForResolution) {
     this.generalTypeResolver = new GeneralTypeResolver(scopeForResolution);
   }
 
