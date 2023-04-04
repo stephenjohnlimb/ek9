@@ -1,0 +1,53 @@
+#!ek9
+<?-
+  Examples of traits with good and bad inheritance.
+  So we can check detection and errors.
+  This source uses the @ EK9 directives to check for errors.
+
+  Also altered extending traits with traits, I keep writing extends!
+  So now a trait can be a:
+  'with a trait of'
+  'of'
+  'extends'
+  'is'
+  of one or more other traits.
+  For classes it is always classA extends/is classB ()with trait)? of TraitX, TraitY, TraitZ
+-?>
+defines module bad.inherited.traits
+
+  //Just used to check it is not possible to inherit from a constant
+  defines constant
+    SOME_CONSTANT <- 10
+
+  defines trait
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Trait1"
+    Trait1 as open
+      method1() as abstract
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Trait2"
+    Trait2 as abstract
+      method2() as abstract
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Trait3"
+    Trait3 with trait of Trait1, Trait2
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Trait4"
+    Trait4 of Trait1, Trait2
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Trait5"
+    Trait5 extends Trait4, Trait2
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Trait6"
+    Trait6 is Trait1, Trait4
+
+    //But this will fail because 'NonSuch' will not resolve.
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+    Trait7 of NonSuch
+      method3() as abstract
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    Trait8 of SOME_CONSTANT
+      method4() as abstract
+
+//EOF

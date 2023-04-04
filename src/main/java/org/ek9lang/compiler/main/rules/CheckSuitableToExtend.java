@@ -2,7 +2,7 @@ package org.ek9lang.compiler.main.rules;
 
 import java.util.Optional;
 import java.util.function.Function;
-import org.ek9lang.antlr.EK9Parser;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbol.ISymbol;
@@ -13,30 +13,38 @@ import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
  * This does not include the 'allows only' graph that has to be done one the whole type hierarchy has been]
  * established.
  */
-public class CheckSuitableToExtend implements Function<EK9Parser.TypeDefContext, Optional<ISymbol>> {
+public class CheckSuitableToExtend implements Function<ParserRuleContext, Optional<ISymbol>> {
 
   private final SymbolAndScopeManagement symbolAndScopeManagement;
   private final ISymbol.SymbolGenus genus;
   private final ErrorListener errorListener;
 
+  private final boolean issueErrorIfNotResolved;
+
   /**
    * Checks that the typedef passed in (when resolved) is suitable to be extended from.
    */
   public CheckSuitableToExtend(final SymbolAndScopeManagement symbolAndScopeManagement,
-                               final ErrorListener errorListener, final ISymbol.SymbolGenus genus) {
+                               final ErrorListener errorListener,
+                               final ISymbol.SymbolGenus genus,
+                               final boolean issueErrorIfNotResolved) {
     this.symbolAndScopeManagement = symbolAndScopeManagement;
     this.errorListener = errorListener;
     this.genus = genus;
+    this.issueErrorIfNotResolved = issueErrorIfNotResolved;
   }
 
   @Override
-  public Optional<ISymbol> apply(final EK9Parser.TypeDefContext ctx) {
+  public Optional<ISymbol> apply(final ParserRuleContext ctx) {
     var theTypeDef = symbolAndScopeManagement.getRecordedSymbol(ctx);
     return checkIfValidSuper(ctx, theTypeDef) ? Optional.of(theTypeDef) : Optional.empty();
   }
 
-  private boolean checkIfValidSuper(final EK9Parser.TypeDefContext ctx, final ISymbol proposedSuper) {
+  private boolean checkIfValidSuper(final ParserRuleContext ctx, final ISymbol proposedSuper) {
     if (proposedSuper == null) {
+      if (issueErrorIfNotResolved) {
+        errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.TYPE_NOT_RESOLVED);
+      }
       return false;
     }
 

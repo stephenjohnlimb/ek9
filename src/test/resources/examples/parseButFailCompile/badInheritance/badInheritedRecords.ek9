@@ -24,6 +24,7 @@ defines module bad.inherited.records
       dob <- Date()
 
     //We can extend further because Record2 is 'abstract' that also makes it 'open'
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Record3"
     Record3 is Record2
       postCode <- String()
 

@@ -117,12 +117,13 @@ recordDeclaration
     ;
 
 //Include ABSTRACT and OPEN just for syntax consistency.
+//Added a choice of using extends, is, trait of for extending a trait. I just keep typing 'extends'.
 traitDeclaration
-    : Identifier traitsList? allowingOnly? (AS? (ABSTRACT | OPEN))? aggregateParts?
+    : Identifier ((extendPreamble | traitPreamble) traitsList)? allowingOnly? (AS? (ABSTRACT | OPEN))? aggregateParts?
     ;
 
 classDeclaration
-    : Identifier extendDeclaration? traitsList? (AS? (ABSTRACT | OPEN))? aggregateParts?
+    : Identifier extendDeclaration? (traitPreamble traitsList)? (AS? (ABSTRACT | OPEN))? aggregateParts?
     | Identifier parameterisedParams (AS? (ABSTRACT | OPEN))? aggregateParts
     ;
 
@@ -157,7 +158,7 @@ textBodyDeclaration
 //End of main construct declarations
 
 dynamicClassDeclaration
-    : Identifier? dynamicVariableCapture traitsList (AS? CLASS)? aggregateParts?
+    : Identifier? dynamicVariableCapture traitPreamble traitsList (AS? CLASS)? aggregateParts?
     | Identifier dynamicVariableCapture AS? CLASS aggregateParts
     | Identifier? dynamicVariableCapture (EXTENDS|IS) parameterisedType AS? CLASS aggregateParts?
     ;
@@ -190,7 +191,12 @@ parameterisedDetail
     ;
 
 extendDeclaration
-    : (EXTENDS | IS) typeDef
+    : extendPreamble typeDef
+    ;
+
+extendPreamble
+    : EXTENDS
+    | IS
     ;
 
 allowingOnly
@@ -220,7 +226,11 @@ parameterisedArgs
     ;
 
 traitsList
-    : WITH? TRAIT? OF traitReference (COMMA traitReference)*
+    : traitReference (COMMA traitReference)*
+    ;
+
+traitPreamble
+    : WITH? TRAIT? OF
     ;
 
 traitReference

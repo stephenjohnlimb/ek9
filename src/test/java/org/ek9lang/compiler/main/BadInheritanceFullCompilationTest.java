@@ -26,8 +26,22 @@ class BadInheritanceFullCompilationTest extends FullCompilationTest {
   }
 
   @Override
-  protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
+  protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
+                                    final CompilableProgram program) {
     assertFalse(compilationResult);
+    assertRecords(program);
+    assertTraits(program);
+  }
+
+  private void assertTraits(final CompilableProgram program) {
+    var modules = program.getParsedModules("bad.inherited.traits");
+    assertFalse(modules.isEmpty());
+    SimpleResolverForTesting resolver = new SimpleResolverForTesting(modules.get(0).getModuleScope(), true);
+
+    //TODO check the traits structures.
+  }
+
+  private void assertRecords(final CompilableProgram program) {
     var modules = program.getParsedModules("bad.inherited.records");
     assertFalse(modules.isEmpty());
     SimpleResolverForTesting resolver = new SimpleResolverForTesting(modules.get(0).getModuleScope(), true);
@@ -60,6 +74,6 @@ class BadInheritanceFullCompilationTest extends FullCompilationTest {
   private void assertNoTypeHierarchy(final String typeName, final SimpleResolverForTesting resolver) {
     var record4 = resolver.apply(typeName);
     assertTrue(record4.isPresent());
-    assertFalse(((AggregateSymbol)record4.get()).getSuperAggregateScopedSymbol().isPresent());
+    assertFalse(((AggregateSymbol) record4.get()).getSuperAggregateScopedSymbol().isPresent());
   }
 }
