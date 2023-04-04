@@ -669,7 +669,7 @@ public class ErrorListener extends BaseErrorListener {
         buffer.append(": ");
       }
 
-      if (typeOfError != null) {
+      if (typeOfError != null && typeOfError.length() > 0) {
         buffer.append(typeOfError).append(" ");
       }
 

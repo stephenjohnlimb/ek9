@@ -1,0 +1,46 @@
+#!ek9
+<?-
+  Examples of records with good and bad inheritance.
+  So we can check detection and errors.
+  This source uses the @ EK9 directives to check for errors.
+-?>
+defines module bad.inherited.records
+
+  //Just used to check it is not possible to inherit from a constant
+  defines constant
+    SOME_CONSTANT <- 10
+
+  defines record
+
+    //This will be fine and work
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Record1"
+    Record1 as open
+      firstName <- "Steve"
+      lastName <- "Limb"
+
+    //As will this.
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Record2"
+    Record2 is Record1 as abstract
+      dob <- Date()
+
+    //We can extend further because Record2 is 'abstract' that also makes it 'open'
+    Record3 is Record2
+      postCode <- String()
+
+    //Now because Record2 is not marked as open it cannot be extended
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_OPEN_TO_EXTENSION
+    Record4 is Record3
+      country <- String()
+
+    //But this will fail because 'NonSuch' will not resolve.
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+    Record5 extends NonSuch
+      dob <- Date()
+
+    //But 'SOME_CONSTANT' will resolve but as a 'VALUE' and not as a 'RECORD'
+    //So that makes no sense for a record to extend a value.
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    Record6 extends SOME_CONSTANT
+      dob <- Date()
+
+//EOF

@@ -82,6 +82,12 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
    */
   private boolean conceptualTypeParameter;
 
+  /**
+   * Is this aggregate/function open to be extended.
+   * i.e. is it closed so that it cannot be extended.
+   */
+  private boolean openForExtension = false;
+
   public PossibleGenericSymbol(String name, IScope enclosingScope) {
     super(name, enclosingScope);
   }
@@ -102,6 +108,7 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
     newCopy.typeParameterOrArguments.addAll(typeParameterOrArguments);
     newCopy.contextForParameterisedType = this.contextForParameterisedType;
     newCopy.conceptualTypeParameter = conceptualTypeParameter;
+    newCopy.openForExtension = openForExtension;
     this.genericType.ifPresent(theType -> newCopy.setGenericType(Optional.of(theType)));
 
     return newCopy;
@@ -138,6 +145,14 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
   @Override
   public boolean isGenericInNature() {
     return typeParameterOrArguments.stream().anyMatch(ISymbol::isConceptualTypeParameter);
+  }
+
+  public boolean isOpenForExtension() {
+    return this.openForExtension;
+  }
+
+  public void setOpenForExtension(boolean open) {
+    this.openForExtension = open;
   }
 
   /**

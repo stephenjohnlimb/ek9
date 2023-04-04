@@ -6,6 +6,10 @@ import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineExplicitParameterizedType;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineTypeDef;
 import org.ek9lang.compiler.main.rules.CheckNotGenericTypeParameter;
+import org.ek9lang.compiler.main.rules.CheckSuitableToExtend;
+import org.ek9lang.compiler.symbol.AggregateSymbol;
+import org.ek9lang.compiler.symbol.IAggregateSymbol;
+import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.ScopeStack;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
 import org.ek9lang.core.exception.AssertValue;
@@ -14,7 +18,7 @@ import org.ek9lang.core.exception.AssertValue;
  * A bit of a long-winded name, but this is really the second pass of the first phase of compilation.
  * The first pass will have defined lots of types, but in the case of explicit (non-inferred uses) of
  * template/generic types - definition will not have been possible during the first pass.
- * Also the association to types being extended could not be done in the very first pass.
+ * Also, the association to types being extended could not be done in the very first pass.
  * So this pass also hooks up the super types/function - by resolving them.
  * It is important to do this 'supers' bit now - because the generic types can be referenced in bodies.
  * So as they are explicitly used in terms of 'T', 'K' and 'V' etc in subtypes/functions we need them
@@ -35,6 +39,8 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   private final CheckNotGenericTypeParameter checkNotGenericTypeParameter;
 
+  private final CheckSuitableToExtend checkRecordSuitableToExtend;
+
   /**
    * Still in def phase 1 - but second pass to try and resolve types due to declaration ordering.
    */
@@ -48,13 +54,23 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
     checkNotGenericTypeParameter = new CheckNotGenericTypeParameter(errorListener);
 
+
     resolveOrDefineTypeDef =
         new ResolveOrDefineTypeDef(symbolAndScopeManagement, symbolFactory, errorListener, true);
 
     resolveOrDefineExplicitParameterizedType =
         new ResolveOrDefineExplicitParameterizedType(symbolAndScopeManagement, symbolFactory, errorListener, true);
+
+
+    checkRecordSuitableToExtend =
+        new CheckSuitableToExtend(symbolAndScopeManagement, errorListener, ISymbol.SymbolGenus.RECORD);
   }
 
+  /**
+   * Process a function declaration, so this is at the very top level of construct definition.
+   * This is NOT a dynamic function.
+   * As it is a 'normal' function it cannot extend any other abstract or generic function.
+   */
   @Override
   public void enterFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
     var scope = symbolAndScopeManagement.getRecordedScope(ctx);
@@ -72,13 +88,24 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   @Override
   public void enterRecordDeclaration(EK9Parser.RecordDeclarationContext ctx) {
     var scope = symbolAndScopeManagement.getRecordedScope(ctx);
-    AssertValue.checkNotNull("Record should have been defined", scope);
+
     symbolAndScopeManagement.enterScope(scope);
     super.enterRecordDeclaration(ctx);
   }
 
   @Override
   public void exitRecordDeclaration(EK9Parser.RecordDeclarationContext ctx) {
+    var scope = symbolAndScopeManagement.getRecordedScope(ctx);
+    var recordSymbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    AssertValue.checkNotNull("Record should have been defined as scope", scope);
+    AssertValue.checkNotNull("Record should have been defined as symbol", recordSymbol);
+
+    if (ctx.extendDeclaration() != null) {
+      //Now we'd expect either typeDef to have a symbol on it.
+      //Because we are handling on exit record declaration the typedefs should have been processed.
+      var resolved = checkRecordSuitableToExtend.apply(ctx.extendDeclaration().typeDef());
+      resolved.ifPresent(theSuper -> recordSymbol.setSuperAggregateScopedSymbol((IAggregateSymbol) theSuper));
+    }
     symbolAndScopeManagement.exitScope();
     super.exitRecordDeclaration(ctx);
   }
@@ -267,13 +294,15 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   @Override
   public void enterTypeDef(EK9Parser.TypeDefContext ctx) {
-    resolveOrDefineTypeDef.apply(ctx);
+    var resolved = resolveOrDefineTypeDef.apply(ctx);
+    resolved.ifPresent(symbol -> symbolAndScopeManagement.recordSymbol(symbol, ctx));
   }
 
   @Override
   public void enterParameterisedType(EK9Parser.ParameterisedTypeContext ctx) {
     //Nothing is done with the return here
-    resolveOrDefineExplicitParameterizedType.apply(ctx);
+    var resolved = resolveOrDefineExplicitParameterizedType.apply(ctx);
+    resolved.ifPresent(symbol -> symbolAndScopeManagement.recordSymbol(symbol, ctx));
   }
 
   @Override

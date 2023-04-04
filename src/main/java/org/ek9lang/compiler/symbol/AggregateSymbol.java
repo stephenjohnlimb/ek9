@@ -64,12 +64,6 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   private boolean injectable = false;
 
   /**
-   * Is this aggregate open to be extended.
-   * i.e. is it closed so that not other aggregates can extend it.
-   */
-  private boolean openForExtension = false;
-
-  /**
    * When used in pipeline processing, what is the type this aggregate could
    * support to receive types.
    */
@@ -132,7 +126,6 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
 
     newCopy.subAggregateScopedSymbols.addAll(getSubAggregateScopedSymbols());
     newCopy.injectable = injectable;
-    newCopy.openForExtension = openForExtension;
 
     pipeSinkType.ifPresent(s -> newCopy.pipeSinkType = Optional.of(s));
 
@@ -200,14 +193,6 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public void setPipeSourceType(Optional<String> pipeSourceType) {
     this.pipeSourceType = pipeSourceType;
-  }
-
-  public boolean isOpenForExtension() {
-    return this.openForExtension;
-  }
-
-  public void setOpenForExtension(boolean open) {
-    this.openForExtension = open;
   }
 
   public boolean isMarkedAsDispatcher() {

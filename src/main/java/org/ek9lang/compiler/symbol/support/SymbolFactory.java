@@ -244,8 +244,9 @@ public class SymbolFactory {
     AssertValue.checkNotNull("Failed to locate class name", ctx.Identifier());
     String className = ctx.Identifier().getText();
     final var newClass = newAggregateWithTraitsSymbol(className, ctx.start);
-    newClass.setOpenForExtension(ctx.ABSTRACT() != null);
+    newClass.setOpenForExtension(ctx.ABSTRACT() != null || ctx.OPEN() != null);
     newClass.setGenus(ISymbol.SymbolGenus.CLASS);
+    newClass.setMarkedAbstract(ctx.ABSTRACT() != null);
 
     var parameterisedSymbols = createAndRegisterParameterisedSymbols(ctx.parameterisedParams(), moduleScope);
     if (!parameterisedSymbols.isEmpty()) {
@@ -265,9 +266,9 @@ public class SymbolFactory {
     AssertValue.checkNotNull("Failed to locate component name", ctx.Identifier());
     String componentName = ctx.Identifier().getText();
     var component = newAggregateWithTraitsSymbol(componentName, ctx.start);
-    component.setOpenForExtension(ctx.ABSTRACT() != null);
+    component.setOpenForExtension(ctx.ABSTRACT() != null || ctx.OPEN() != null);
     component.setGenus(ISymbol.SymbolGenus.COMPONENT);
-
+    component.setMarkedAbstract(ctx.ABSTRACT() != null);
     return component;
   }
 
@@ -284,7 +285,10 @@ public class SymbolFactory {
 
     trait.setGenus(ISymbol.SymbolGenus.CLASS_TRAIT);
     //All traits are designed to be open to extending and use/override.
+    //Even though trait can have abstract and open - this is just for syntax consistency
+    //So a developer can write it in the same way as a class or component - but they are all open and abstract.
     trait.setOpenForExtension(true);
+    trait.setMarkedAbstract(true);
 
     return trait;
   }
@@ -298,7 +302,9 @@ public class SymbolFactory {
     String recordName = ctx.Identifier().getText();
     AggregateSymbol newRecord = new AggregateSymbol(recordName, parsedModule.getModuleScope());
     configureAggregate(newRecord, ctx.start);
+    newRecord.setOpenForExtension(ctx.ABSTRACT() != null || ctx.OPEN() != null);
     newRecord.setGenus(ISymbol.SymbolGenus.RECORD);
+    newRecord.setMarkedAbstract(ctx.ABSTRACT() != null);
     return newRecord;
   }
 
@@ -313,6 +319,7 @@ public class SymbolFactory {
     String functionName = ctx.Identifier().getText();
     FunctionSymbol newFunction = new FunctionSymbol(functionName, moduleScope);
     newFunction.setModuleScope(parsedModule.getModuleScope());
+    newFunction.setOpenForExtension(ctx.ABSTRACT() != null);
     configureSymbol(newFunction, ctx.start);
 
     //More like a library - so we mark as referenced.
@@ -329,7 +336,6 @@ public class SymbolFactory {
       newFunction.setGenus(ISymbol.SymbolGenus.FUNCTION);
     } else {
       newFunction.setGenus(ISymbol.SymbolGenus.FUNCTION_TRAIT);
-      newFunction.setMarkedAbstract(true);
     }
 
     var parameterisedSymbols = createAndRegisterParameterisedSymbols(ctx.parameterisedParams(), moduleScope);

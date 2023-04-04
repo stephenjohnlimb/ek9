@@ -116,6 +116,7 @@ recordDeclaration
     : Identifier extendDeclaration? (AS? (ABSTRACT | OPEN))? aggregateParts?
     ;
 
+//Include ABSTRACT and OPEN just for syntax consistency.
 traitDeclaration
     : Identifier traitsList? allowingOnly? (AS? (ABSTRACT | OPEN))? aggregateParts?
     ;
@@ -189,12 +190,7 @@ parameterisedDetail
     ;
 
 extendDeclaration
-    : (EXTENDS | IS) superDeclarationReference
-    ;
-
-superDeclarationReference
-    : identifierReference
-    | parameterisedType
+    : (EXTENDS | IS) typeDef
     ;
 
 allowingOnly
