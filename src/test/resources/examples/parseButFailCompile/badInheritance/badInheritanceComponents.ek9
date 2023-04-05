@@ -55,4 +55,12 @@ defines module bad.inherited.components
     @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
     Component7 extends SomeTrait
 
+    //Try and extend a generic class
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    Component8 extends List
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    Component9 extends List of String
+
 //EOF

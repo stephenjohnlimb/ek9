@@ -54,4 +54,15 @@ defines module bad.inherited.records
     @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
     Record7 extends SomeTrait
       dob <- Date()
+
+    //Now lets try and accidentally extend some generic types.
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    Record8 extends List
+      dob <- Date()
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    Record9 extends List of String
+      dob <- Date()
+
 //EOF

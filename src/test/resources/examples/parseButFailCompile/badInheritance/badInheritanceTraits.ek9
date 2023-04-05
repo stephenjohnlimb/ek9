@@ -62,6 +62,10 @@ defines module bad.inherited.traits
     //But SomeRecord is a 'type' - but of the wrong genus.
     @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
     Trait9 of SomeRecord
-      method4() as abstract
+      method5() as abstract
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    Trait10 of List
+      method6() as abstract
 
 //EOF
