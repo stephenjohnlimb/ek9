@@ -10,6 +10,13 @@ defines module bad.inherited.records
   defines constant
     SOME_CONSTANT <- 10
 
+  //Just used to define a 'type' to check it is rejected as a super for a record.
+  defines trait
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "SomeTrait"
+    SomeTrait
+      aMethod() as abstract
+
   defines record
 
     //This will be fine and work
@@ -39,9 +46,12 @@ defines module bad.inherited.records
       dob <- Date()
 
     //But 'SOME_CONSTANT' will resolve but as a 'VALUE' and not as a 'RECORD'
-    //So that makes no sense for a record to extend a value.
-    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    //Now even though SOME_CONSTANT exists it is 'not a type' and therefore won't be resolved.
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
     Record6 extends SOME_CONSTANT
       dob <- Date()
 
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    Record7 extends SomeTrait
+      dob <- Date()
 //EOF

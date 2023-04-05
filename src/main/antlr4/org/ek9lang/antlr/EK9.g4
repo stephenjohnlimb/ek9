@@ -107,8 +107,9 @@ constantDeclaration
     : Identifier LEFT_ARROW constantInitialiser
     ;
 
+//By adding Open, it means we can define a function with a body, but also override functionality and pass it around.
 functionDeclaration
-    : Identifier (LPAREN RPAREN)? ((EXTENDS|IS) identifierReference (LPAREN RPAREN)?)? AS? PURE? ABSTRACT? NL+ operationDetails
+    : Identifier (LPAREN RPAREN)? (extendPreamble identifierReference (LPAREN RPAREN)?)? AS? PURE? (ABSTRACT | OPEN)? NL+ operationDetails
     | Identifier (LPAREN RPAREN)? parameterisedParams AS? PURE? NL+ operationDetails
     ;
 
@@ -160,12 +161,12 @@ textBodyDeclaration
 dynamicClassDeclaration
     : Identifier? dynamicVariableCapture traitPreamble traitsList (AS? CLASS)? aggregateParts?
     | Identifier dynamicVariableCapture AS? CLASS aggregateParts
-    | Identifier? dynamicVariableCapture (EXTENDS|IS) parameterisedType AS? CLASS aggregateParts?
+    | Identifier? dynamicVariableCapture extendPreamble parameterisedType AS? CLASS aggregateParts?
     ;
 
 dynamicFunctionDeclaration
-    : dynamicVariableCapture (EXTENDS|IS) identifierReference (LPAREN RPAREN)? AS? PURE? FUNCTION? dynamicFunctionBody
-    | dynamicVariableCapture (EXTENDS|IS) parameterisedType AS? PURE? FUNCTION? dynamicFunctionBody?
+    : dynamicVariableCapture extendPreamble identifierReference (LPAREN RPAREN)? AS? PURE? FUNCTION? dynamicFunctionBody
+    | dynamicVariableCapture extendPreamble parameterisedType AS? PURE? FUNCTION? dynamicFunctionBody?
     ;
 
 dynamicFunctionBody
@@ -204,8 +205,8 @@ allowingOnly
     ;
 
 typeDeclaration
-    : Identifier (AS | IS | EXTENDS)? typeDef constrainDeclaration?
-    | Identifier (AS | IS | EXTENDS)? NL+ INDENT NL* enumerationDeclaration DEDENT
+    : Identifier AS? typeDef constrainDeclaration?
+    | Identifier AS? NL+ INDENT NL* enumerationDeclaration DEDENT
     | parameterisedType
     ;
 

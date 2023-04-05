@@ -1,0 +1,58 @@
+#!ek9
+<?-
+  Examples of components with good and bad inheritance.
+  So we can check detection and errors.
+  This source uses the @ EK9 directives to check for errors.
+-?>
+defines module bad.inherited.components
+
+  //Just used to check it is not possible to inherit from a constant
+  defines constant
+    SOME_CONSTANT <- 10
+
+  //Just used to define a 'type' to check it is rejected as a super for a component.
+  @Resolved: SYMBOL_DEFINITION: TYPE: "SomeTrait"
+  defines trait
+    SomeTrait
+      aMethod() as abstract
+
+  defines component
+
+    //First some valid components
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Component1"
+    Component1 as open
+      method1()
+        var <- "Stephen"
+        assert var?
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Component2"
+    Component2 as abstract
+      method2() as abstract
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Component3"
+    Component3 extends Component1
+      override method1()
+        var <- "Steve"
+        assert var?
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Component4"
+    Component4 is Component2
+      override method2()
+        var <- "Steve"
+        assert var?
+
+    //Now for some error conditions.
+
+    //But this will fail because 'NonSuch' will not resolve.
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+    Component5 extends NonSuch
+
+    //SOME_CONSTANT will not be resolved as a 'type' to be used.
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+    Component6 extends SOME_CONSTANT
+
+    //But SomeTrait is a 'type' - but of the wrong genus.
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    Component7 extends SomeTrait
+
+//EOF

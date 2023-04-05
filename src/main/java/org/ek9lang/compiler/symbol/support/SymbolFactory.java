@@ -319,8 +319,9 @@ public class SymbolFactory {
     String functionName = ctx.Identifier().getText();
     FunctionSymbol newFunction = new FunctionSymbol(functionName, moduleScope);
     newFunction.setModuleScope(parsedModule.getModuleScope());
-    newFunction.setOpenForExtension(ctx.ABSTRACT() != null);
+    newFunction.setOpenForExtension(ctx.ABSTRACT() != null || ctx.OPEN() != null);
     configureSymbol(newFunction, ctx.start);
+    newFunction.setMarkedAbstract(ctx.ABSTRACT() != null);
 
     //More like a library - so we mark as referenced.
     newFunction.setReferenced(true);

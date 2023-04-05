@@ -19,6 +19,13 @@ defines module bad.inherited.traits
   defines constant
     SOME_CONSTANT <- 10
 
+  //Just used to define a 'type' to check it is rejected as a super for a trait.
+  defines record
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "SomeRecord"
+    SomeRecord
+      name <- "Steve"
+
   defines trait
 
     @Resolved: SYMBOL_DEFINITION: TYPE: "Trait1"
@@ -29,25 +36,32 @@ defines module bad.inherited.traits
     Trait2 as abstract
       method2() as abstract
 
+    //Note four ways to express traits of traits. all end up being a 'trait of'
     @Resolved: SYMBOL_DEFINITION: TYPE: "Trait3"
     Trait3 with trait of Trait1, Trait2
 
     @Resolved: SYMBOL_DEFINITION: TYPE: "Trait4"
-    Trait4 of Trait1, Trait2
+    Trait4 of Trait2, Trait1
 
     @Resolved: SYMBOL_DEFINITION: TYPE: "Trait5"
-    Trait5 extends Trait4, Trait2
+    Trait5 extends Trait3, Trait1
 
     @Resolved: SYMBOL_DEFINITION: TYPE: "Trait6"
-    Trait6 is Trait1, Trait4
+    Trait6 is Trait4, Trait2
 
     //But this will fail because 'NonSuch' will not resolve.
     @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
     Trait7 of NonSuch
       method3() as abstract
 
-    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    //Now even though SOME_CONSTANT exists it is 'not a type' and therefore won't be resolved.
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
     Trait8 of SOME_CONSTANT
+      method4() as abstract
+
+    //But SomeRecord is a 'type' - but of the wrong genus.
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    Trait9 of SomeRecord
       method4() as abstract
 
 //EOF

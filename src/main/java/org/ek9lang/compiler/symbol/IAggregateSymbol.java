@@ -39,14 +39,14 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
    *
    * @return a list of all the subclasses of this class
    */
-  List<IAggregateSymbol> getSubAggregateScopedSymbols();
+  List<IAggregateSymbol> getSubAggregateSymbols();
 
   /**
    * used to add back pointers to subclasses.
    *
    * @param sub The sub-class to point back to.
    */
-  void addSubAggregateScopedSymbol(IAggregateSymbol sub);
+  void addSubAggregateSymbol(IAggregateSymbol sub);
 
   /**
    * Get all methods marked as abstract in this or any supers.
@@ -88,10 +88,6 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
    */
   String getName();
 
-  boolean isOpenForExtension();
-
-  void setOpenForExtension(boolean open);
-
   /**
    * Resolve for matching methods and add matches to result.
    * Idea is to be able to gather all these up and ensure only one single good result i.e.
@@ -101,12 +97,12 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
 
   Optional<ISymbol> resolveMember(SymbolSearch search);
 
-  Optional<IAggregateSymbol> getSuperAggregateScopedSymbol();
+  Optional<IAggregateSymbol> getSuperAggregateSymbol();
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  void setSuperAggregateScopedSymbol(Optional<IAggregateSymbol> superAggregateScopedSymbol);
+  void setSuperAggregateSymbol(Optional<IAggregateSymbol> superAggregateSymbol);
 
-  void setSuperAggregateScopedSymbol(IAggregateSymbol superAggregateScopedSymbol);
+  void setSuperAggregateSymbol(IAggregateSymbol superAggregateSymbol);
 
   default List<IAggregateSymbol> getTraits() {
     return new ArrayList<>();

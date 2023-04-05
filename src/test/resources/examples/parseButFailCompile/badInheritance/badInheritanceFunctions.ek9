@@ -1,0 +1,63 @@
+#!ek9
+<?-
+  Examples of functions with good and bad inheritance.
+  So we can check detection and errors.
+  This source uses the @ EK9 directives to check for errors.
+-?>
+defines module bad.inherited.functions
+
+  //Just used to check it is not possible to inherit from a constant
+  defines constant
+    SOME_CONSTANT <- 10
+
+  //Just used to define a 'type' to check it is rejected as a super for a function.
+  @Resolved: SYMBOL_DEFINITION: TYPE: "SomeTrait"
+  defines trait
+    SomeTrait
+      aMethod() as abstract
+
+  defines function
+
+    //First some valid functions - here's one with a body but can be extended from and function altered.
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "Function1"
+    Function1 as open
+      -> arg0 as String
+      <- rtn as String: arg0
+
+    //This is a FUNCTION_TRAIT - i.e. an abstract function, so just a signature.
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "Function2"
+    Function2 as abstract
+      -> arg0 as Boolean
+      <- rtn as String?
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "Function3"
+    Function3 extends Function1
+      -> arg0 as String
+      <- rtn as String: "FIXED VALUE"
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "Function4"
+    Function4 is Function2
+      -> arg0 as Boolean
+      <- rtn as String: "NOTHING"
+
+    //Now for some error conditions.
+
+    //But this will fail because 'NonSuch' will not resolve.
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+    Function5 extends NonSuch
+      -> arg0 as String
+      <- rtn as Integer: SOME_CONSTANT
+
+    //SOME_CONSTANT will not be resolved as a 'type' to be used.
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+    Function6 extends SOME_CONSTANT
+      -> arg0 as String
+      <- rtn as Integer: SOME_CONSTANT
+
+    //But SomeTrait is a 'type' - but of the wrong genus.
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    Function7 extends SomeTrait
+      -> arg0 as String
+      <- rtn as Integer: SOME_CONSTANT
+
+//EOF

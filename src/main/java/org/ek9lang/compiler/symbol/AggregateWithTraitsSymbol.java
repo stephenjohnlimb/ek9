@@ -51,7 +51,7 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
     traits.add(traitSymbol);
 
     //Do we want this to be known as a sub aggregate?
-    traitSymbol.addSubAggregateScopedSymbol(this);
+    traitSymbol.addSubAggregateSymbol(this);
   }
 
   /**

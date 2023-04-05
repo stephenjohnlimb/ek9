@@ -27,6 +27,6 @@ class ConstantsCompilationTest extends FullCompilationTest {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
     var moduleName = "net.customer";
-    new SymbolCountCheck(2, moduleName, 25).test(program);
+    new SymbolCountCheck(2, moduleName, 26).test(program);
   }
 }

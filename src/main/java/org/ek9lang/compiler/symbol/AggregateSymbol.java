@@ -15,7 +15,7 @@ import org.ek9lang.core.exception.CompilerException;
  * This is typically a 'class' or an interface type where it can include the definitions of new
  * properties. These can then be made accessible via the symbol table to its
  * methods.
- * But note there is also a single super 'AggregateScopedSymbol' that maps to a
+ * But note there is also a single super 'AggregateSymbol' that maps to a
  * super class so here the resolve can access variables in the super class.
  * i.e. we only support single inheritance - but see AggregateWithTraitsSymbol for 'traits' support.
  * I've also added in a mechanism to parameterize the aggregate like Java generics.
@@ -39,7 +39,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
    * Might be null if a base 'class' or 'interface', basically the 'super'.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private Optional<IAggregateSymbol> superAggregateScopedSymbol = Optional.empty();
+  private Optional<IAggregateSymbol> superAggregateSymbol = Optional.empty();
 
   /**
    * Just used in commented output really - just handy to understand the origin of the aggregate
@@ -51,7 +51,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
    * Also keep a back pointer to the direct subclasses.
    * This is really useful for analysing a class or a trait.
    */
-  private final List<IAggregateSymbol> subAggregateScopedSymbols = new ArrayList<>();
+  private final List<IAggregateSymbol> subAggregateSymbols = new ArrayList<>();
 
   /**
    * If there is a method that acts as a dispatcher then this aggregate is also a dispatcher.
@@ -121,10 +121,10 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
 
     newCopy.markedAsDispatcher = markedAsDispatcher;
 
-    superAggregateScopedSymbol.ifPresent(
-        aggregateSymbol -> newCopy.superAggregateScopedSymbol = Optional.of(aggregateSymbol));
+    superAggregateSymbol.ifPresent(
+        aggregateSymbol -> newCopy.superAggregateSymbol = Optional.of(aggregateSymbol));
 
-    newCopy.subAggregateScopedSymbols.addAll(getSubAggregateScopedSymbols());
+    newCopy.subAggregateSymbols.addAll(getSubAggregateSymbols());
     newCopy.injectable = injectable;
 
     pipeSinkType.ifPresent(s -> newCopy.pipeSinkType = Optional.of(s));
@@ -137,16 +137,16 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   @Override
   public void setName(String name) {
     super.setName(name);
-    if (superAggregateScopedSymbol != null) {
+    if (superAggregateSymbol != null) {
       //Might not be even created yet.
-      superAggregateScopedSymbol.ifPresent(superSymbol -> superSymbol.addSubAggregateScopedSymbol(this));
+      superAggregateSymbol.ifPresent(superSymbol -> superSymbol.addSubAggregateSymbol(this));
     }
   }
 
   @Override
   protected Optional<IScope> getAnySuperTypeOrFunction() {
-    if (this.superAggregateScopedSymbol.isPresent()) {
-      return Optional.of(superAggregateScopedSymbol.get());
+    if (this.superAggregateSymbol.isPresent()) {
+      return Optional.of(superAggregateSymbol.get());
     }
     return Optional.empty();
   }
@@ -212,16 +212,16 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     this.injectable = injectable;
   }
 
-  public List<IAggregateSymbol> getSubAggregateScopedSymbols() {
-    return Collections.unmodifiableList(subAggregateScopedSymbols);
+  public List<IAggregateSymbol> getSubAggregateSymbols() {
+    return Collections.unmodifiableList(subAggregateSymbols);
   }
 
   /**
    * We note down any subtypes this type is used with.
    */
-  public void addSubAggregateScopedSymbol(IAggregateSymbol sub) {
-    if (!subAggregateScopedSymbols.contains(sub)) {
-      subAggregateScopedSymbols.add(sub);
+  public void addSubAggregateSymbol(IAggregateSymbol sub) {
+    if (!subAggregateSymbols.contains(sub)) {
+      subAggregateSymbols.add(sub);
     }
   }
 
@@ -233,7 +233,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   @Override
   public List<MethodSymbol> getAllAbstractMethods() {
     ArrayList<MethodSymbol> rtn = new ArrayList<>();
-    superAggregateScopedSymbol.ifPresent(
+    superAggregateSymbol.ifPresent(
         aggregateSymbol -> rtn.addAll(aggregateSymbol.getAllAbstractMethods()));
 
     rtn.addAll(filterMethods(MethodSymbol::isMarkedAbstract));
@@ -258,7 +258,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   @Override
   public List<MethodSymbol> getAllNonAbstractMethods() {
     ArrayList<MethodSymbol> rtn = new ArrayList<>();
-    superAggregateScopedSymbol.ifPresent(
+    superAggregateSymbol.ifPresent(
         aggregateSymbol -> rtn.addAll(aggregateSymbol.getAllNonAbstractMethods()));
 
     rtn.addAll(getAllNonAbstractMethodsInThisScopeOnly());
@@ -280,7 +280,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     if (this.equals(aggregate)) {
       return true;
     }
-    return superAggregateScopedSymbol.map(
+    return superAggregateSymbol.map(
         aggregateSymbol -> aggregateSymbol.isImplementingInSomeWay(aggregate)).orElse(false);
   }
 
@@ -288,7 +288,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   public List<AggregateWithTraitsSymbol> getAllTraits() {
     //This has no traits but its super might.
     List<AggregateWithTraitsSymbol> rtn = new ArrayList<>();
-    getSuperAggregateScopedSymbol().ifPresent(theSuper -> addTraitsIfNotPresent(rtn, theSuper.getAllTraits()));
+    getSuperAggregateSymbol().ifPresent(theSuper -> addTraitsIfNotPresent(rtn, theSuper.getAllTraits()));
 
     return rtn;
   }
@@ -307,7 +307,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     if (injectable) {
       return true;
     }
-    return superAggregateScopedSymbol.map(ISymbol::isExtensionOfInjectable).orElse(false);
+    return superAggregateSymbol.map(ISymbol::isExtensionOfInjectable).orElse(false);
   }
 
   private double checkParameterisedTypesAssignable(List<ISymbol> listA, List<ISymbol> listB) {
@@ -330,9 +330,9 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   public double getUnCoercedAssignableWeightTo(ISymbol s) {
     double canAssign = super.getUnCoercedAssignableWeightTo(s);
 
-    if (superAggregateScopedSymbol.isPresent() && canAssign < 0.0) {
+    if (superAggregateSymbol.isPresent() && canAssign < 0.0) {
       //now we can check superclass matches. but add some weight because this did not match
-      double weight = superAggregateScopedSymbol.get().getUnCoercedAssignableWeightTo(s);
+      double weight = superAggregateSymbol.get().getUnCoercedAssignableWeightTo(s);
       canAssign = 0.05 + weight;
 
       if (canAssign < 0.0) {
@@ -349,27 +349,27 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     return canAssign;
   }
 
-  public Optional<IAggregateSymbol> getSuperAggregateScopedSymbol() {
-    return superAggregateScopedSymbol;
+  public Optional<IAggregateSymbol> getSuperAggregateSymbol() {
+    return superAggregateSymbol;
   }
 
   /**
    * Set the 'super' of this type.
    */
-  public void setSuperAggregateScopedSymbol(Optional<IAggregateSymbol> superAggregateScopedSymbol) {
-    AssertValue.checkNotNull("Optional superAggregateScopedSymbol cannot be null",
-        superAggregateScopedSymbol);
-    this.superAggregateScopedSymbol = superAggregateScopedSymbol;
-    superAggregateScopedSymbol.ifPresent(
-        aggregateSymbol -> aggregateSymbol.addSubAggregateScopedSymbol(this));
+  public void setSuperAggregateSymbol(Optional<IAggregateSymbol> superAggregateSymbol) {
+    AssertValue.checkNotNull("Optional superAggregateSymbol cannot be null",
+        superAggregateSymbol);
+    this.superAggregateSymbol = superAggregateSymbol;
+    superAggregateSymbol.ifPresent(
+        aggregateSymbol -> aggregateSymbol.addSubAggregateSymbol(this));
   }
 
-  public void setSuperAggregateScopedSymbol(IAggregateSymbol baseSymbol) {
-    setSuperAggregateScopedSymbol(Optional.ofNullable(baseSymbol));
+  public void setSuperAggregateSymbol(IAggregateSymbol baseSymbol) {
+    setSuperAggregateSymbol(Optional.ofNullable(baseSymbol));
   }
 
   public boolean hasImmediateSuper(IAggregateSymbol theSuper) {
-    return superAggregateScopedSymbol.map(
+    return superAggregateSymbol.map(
         aggregateSymbol -> aggregateSymbol.isExactSameType(theSuper)).orElse(false);
   }
 
@@ -377,7 +377,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   public ISymbol setType(Optional<ISymbol> type) {
     //Used when cloning so type can be set if not already populated.
     if (this.isConceptualTypeParameter() && type.isPresent()) {
-      this.setSuperAggregateScopedSymbol((IAggregateSymbol) type.get());
+      this.setSuperAggregateSymbol((IAggregateSymbol) type.get());
     } else if (super.getType().isPresent()) {
       throw new CompilerException("You cannot set the type of an aggregate Symbol");
     }
@@ -399,8 +399,8 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     //So if we have a super then this will bee a peer of anything we already have passed
     //in could be traits/interfaces
 
-    if (superAggregateScopedSymbol.isPresent()) {
-      buildResult = buildResult.mergePeerToNewResult(superAggregateScopedSymbol.get()
+    if (superAggregateSymbol.isPresent()) {
+      buildResult = buildResult.mergePeerToNewResult(superAggregateSymbol.get()
           .resolveMatchingMethods(search, new MethodSymbolSearchResult()));
     }
 
@@ -417,8 +417,8 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   public Optional<ISymbol> resolveMember(SymbolSearch search) {
 
     Optional<ISymbol> rtn = resolveInThisScopeOnly(search);
-    if (rtn.isEmpty() && superAggregateScopedSymbol.isPresent()) {
-      rtn = superAggregateScopedSymbol.get().resolveMember(search);
+    if (rtn.isEmpty() && superAggregateSymbol.isPresent()) {
+      rtn = superAggregateSymbol.get().resolveMember(search);
     }
     return rtn;
   }
@@ -439,7 +439,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
         && isMarkedAsDispatcher() == that.isMarkedAsDispatcher()
         && isInjectable() == that.isInjectable()
         && isOpenForExtension() == that.isOpenForExtension()
-        && getSuperAggregateScopedSymbol().equals(that.getSuperAggregateScopedSymbol())
+        && getSuperAggregateSymbol().equals(that.getSuperAggregateSymbol())
         && getAggregateDescription().equals(that.getAggregateDescription())
         && getPipeSinkType().equals(that.getPipeSinkType())
         && getPipeSourceType().equals(that.getPipeSourceType());
@@ -448,7 +448,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   @Override
   public int hashCode() {
     int result = super.hashCode();
-    result = 31 * result + getSuperAggregateScopedSymbol().hashCode();
+    result = 31 * result + getSuperAggregateSymbol().hashCode();
     result = 31 * result + getAggregateDescription().hashCode();
     result = 31 * result + (isMarkedAsDispatcher() ? 1 : 0);
     result = 31 * result + (isInjectable() ? 1 : 0);

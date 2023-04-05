@@ -119,6 +119,10 @@ public class FunctionSymbol extends PossibleGenericSymbol {
     this.superFunctionSymbol = superFunctionSymbol;
   }
 
+  public void setSuperFunctionSymbol(FunctionSymbol superFunctionSymbol) {
+    setSuperFunctionSymbol(Optional.ofNullable(superFunctionSymbol));
+  }
+
   public void setReturningSymbol(ISymbol returningSymbol) {
     justSetReturningSymbol(returningSymbol);
   }

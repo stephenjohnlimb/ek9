@@ -31,10 +31,13 @@ public abstract class ResolutionDirectiveListener implements CompilationPhaseLis
     for (var directive : directives) {
       var resolutionDirective = (ResolutionDirective) directive;
       try {
-        var resolved = resolver.typeDefToSymbol(resolutionDirective.getSymbolName());
+        var resolved = resolutionDirective.isForVariable()
+            ? scope.resolve(resolutionDirective.getSymbolSearch())
+            : resolver.typeDefToSymbol(resolutionDirective.getSymbolName());
+
         resolved.ifPresentOrElse(symbol -> symbolMatch(compilationEvent, resolutionDirective, symbol),
-            () -> noSymbolMatch(compilationEvent, resolutionDirective)
-        );
+            () -> noSymbolMatch(compilationEvent, resolutionDirective));
+
       } catch (IllegalArgumentException exception) {
         //In the case of directives (as a debugging tool) we may get an exception if the developer
         //incorrectly uses @Resolve @NoResolve with generic types

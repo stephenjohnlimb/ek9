@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.main.phases.definition;
 
+import java.util.List;
 import org.ek9lang.antlr.EK9BaseListener;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.internals.ParsedModule;
@@ -10,6 +11,7 @@ import org.ek9lang.compiler.main.rules.CheckNotGenericTypeParameter;
 import org.ek9lang.compiler.main.rules.CheckSuitableToExtend;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
+import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.ScopeStack;
@@ -44,9 +46,13 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   private final CheckNotGenericTypeParameter checkNotGenericTypeParameter;
 
+  private final CheckSuitableToExtend checkFunctionSuitableToExtend;
+
   private final CheckSuitableToExtend checkRecordSuitableToExtend;
 
   private final CheckSuitableToExtend checkClassTraitSuitableToExtend;
+
+  private final CheckSuitableToExtend checkComponentSuitableToExtend;
 
   /**
    * Still in def phase 1 - but second pass to try and resolve types due to declaration ordering.
@@ -81,11 +87,18 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     resolveOrDefineExplicitParameterizedType =
         new ResolveOrDefineExplicitParameterizedType(symbolAndScopeManagement, symbolFactory, errorListener, true);
 
+    checkFunctionSuitableToExtend =
+        new CheckSuitableToExtend(symbolAndScopeManagement, errorListener,
+            List.of(ISymbol.SymbolGenus.FUNCTION, ISymbol.SymbolGenus.FUNCTION_TRAIT), true);
+
     checkRecordSuitableToExtend =
         new CheckSuitableToExtend(symbolAndScopeManagement, errorListener, ISymbol.SymbolGenus.RECORD, false);
 
     checkClassTraitSuitableToExtend =
         new CheckSuitableToExtend(symbolAndScopeManagement, errorListener, ISymbol.SymbolGenus.CLASS_TRAIT, true);
+
+    checkComponentSuitableToExtend =
+        new CheckSuitableToExtend(symbolAndScopeManagement, errorListener, ISymbol.SymbolGenus.COMPONENT, true);
   }
 
   /**
@@ -103,6 +116,13 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   @Override
   public void exitFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
+    var symbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    AssertValue.checkNotNull("Function should have been defined as symbol", symbol);
+
+    if (ctx.identifierReference() != null) {
+      var resolved = checkFunctionSuitableToExtend.apply(ctx.identifierReference());
+      resolved.ifPresent(theSuper -> symbol.setSuperFunctionSymbol((FunctionSymbol) theSuper));
+    }
     symbolAndScopeManagement.exitScope();
     super.exitFunctionDeclaration(ctx);
   }
@@ -117,14 +137,12 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   @Override
   public void exitRecordDeclaration(EK9Parser.RecordDeclarationContext ctx) {
-    var scope = symbolAndScopeManagement.getRecordedScope(ctx);
     var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    AssertValue.checkNotNull("Record should have been defined as scope", scope);
     AssertValue.checkNotNull("Record should have been defined as symbol", symbol);
 
     if (ctx.extendDeclaration() != null) {
       var resolved = checkRecordSuitableToExtend.apply(ctx.extendDeclaration().typeDef());
-      resolved.ifPresent(theSuper -> symbol.setSuperAggregateScopedSymbol((IAggregateSymbol) theSuper));
+      resolved.ifPresent(theSuper -> symbol.setSuperAggregateSymbol((IAggregateSymbol) theSuper));
     }
     symbolAndScopeManagement.exitScope();
     super.exitRecordDeclaration(ctx);
@@ -140,9 +158,7 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   @Override
   public void exitTraitDeclaration(EK9Parser.TraitDeclarationContext ctx) {
-    var scope = symbolAndScopeManagement.getRecordedScope(ctx);
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    AssertValue.checkNotNull("Trait should have been defined as scope", scope);
     AssertValue.checkNotNull("Trait should have been defined as symbol", symbol);
 
     if (ctx.traitsList() != null) {
@@ -180,6 +196,13 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   @Override
   public void exitComponentDeclaration(EK9Parser.ComponentDeclarationContext ctx) {
+    var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    AssertValue.checkNotNull("Component should have been defined as symbol", symbol);
+
+    if (ctx.extendDeclaration() != null) {
+      var resolved = checkComponentSuitableToExtend.apply(ctx.extendDeclaration().typeDef());
+      resolved.ifPresent(theSuper -> symbol.setSuperAggregateSymbol((IAggregateSymbol) theSuper));
+    }
     symbolAndScopeManagement.exitScope();
     super.exitComponentDeclaration(ctx);
   }

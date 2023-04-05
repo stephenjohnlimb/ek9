@@ -4,7 +4,7 @@ defines module com.customer.services
   defines type
     //Just for strong typing - no constraints
     @Resolved: SYMBOL_DEFINITION: TYPE: "AddressId"
-    AddressId is String
+    AddressId as String
 
   defines record
     @Resolved: SYMBOL_DEFINITION: TYPE: "Address"

@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.main.rules;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -16,28 +18,39 @@ import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
 public class CheckSuitableToExtend implements Function<ParserRuleContext, Optional<ISymbol>> {
 
   private final SymbolAndScopeManagement symbolAndScopeManagement;
-  private final ISymbol.SymbolGenus genus;
+  private final List<ISymbol.SymbolGenus> supportedGenus = new ArrayList<>();
   private final ErrorListener errorListener;
 
   private final boolean issueErrorIfNotResolved;
 
   /**
-   * Checks that the typedef passed in (when resolved) is suitable to be extended from.
+   * Checks that the typedef/identifierReference passed in (when resolved) is suitable to be extended from.
    */
   public CheckSuitableToExtend(final SymbolAndScopeManagement symbolAndScopeManagement,
                                final ErrorListener errorListener,
                                final ISymbol.SymbolGenus genus,
                                final boolean issueErrorIfNotResolved) {
+    this(symbolAndScopeManagement, errorListener, List.of(genus), issueErrorIfNotResolved);
+  }
+
+  /**
+   * Checks that the typedef/identifierReference passed in (when resolved) is suitable to be extended from.
+   * Accepts multiple allowed genus. i.e. FUNCTION and FUNCTION_TRAIT.
+   */
+  public CheckSuitableToExtend(final SymbolAndScopeManagement symbolAndScopeManagement,
+                               final ErrorListener errorListener,
+                               final List<ISymbol.SymbolGenus> genus,
+                               final boolean issueErrorIfNotResolved) {
     this.symbolAndScopeManagement = symbolAndScopeManagement;
     this.errorListener = errorListener;
-    this.genus = genus;
+    supportedGenus.addAll(genus);
     this.issueErrorIfNotResolved = issueErrorIfNotResolved;
   }
 
   @Override
   public Optional<ISymbol> apply(final ParserRuleContext ctx) {
-    var theTypeDef = symbolAndScopeManagement.getRecordedSymbol(ctx);
-    return checkIfValidSuper(ctx, theTypeDef) ? Optional.of(theTypeDef) : Optional.empty();
+    var theType = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    return checkIfValidSuper(ctx, theType) ? Optional.of(theType) : Optional.empty();
   }
 
   private boolean checkIfValidSuper(final ParserRuleContext ctx, final ISymbol proposedSuper) {
@@ -48,8 +61,8 @@ public class CheckSuitableToExtend implements Function<ParserRuleContext, Option
       return false;
     }
 
-    if (proposedSuper.getGenus() != genus) {
-      var msg = "resolved as '" + proposedSuper.getGenus() + "' rather than '" + genus + "':";
+    if (!supportedGenus.contains(proposedSuper.getGenus())) {
+      var msg = "resolved as '" + proposedSuper.getGenus() + "' rather than '" + supportedGenus + "':";
       errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.INCOMPATIBLE_GENUS);
       return false;
     }

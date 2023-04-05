@@ -3,6 +3,7 @@ package org.ek9lang.compiler.support;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 
 /**
  * To be used in EK9 source code to assert that a type can or cannot be resolved.
@@ -46,6 +47,14 @@ public abstract class ResolutionDirective implements Directive {
 
   public String getAdditionalName() {
     return spec.additionalName();
+  }
+
+  public boolean isForVariable() {
+    return ISymbol.SymbolCategory.VARIABLE.equals(getSymbolCategory());
+  }
+
+  public SymbolSearch getSymbolSearch() {
+    return new SymbolSearch(getSymbolName()).setSearchType(getSymbolCategory());
   }
 
   @Override

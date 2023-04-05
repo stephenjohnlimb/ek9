@@ -101,7 +101,7 @@ final class AggregateWithTraitsSymbolTest {
 
     //Now a plain aggregate with the extender as a super.
     var plainAggregate = new AggregateSymbol("PlainAggregate", symbolTable);
-    plainAggregate.setSuperAggregateScopedSymbol(extender);
+    plainAggregate.setSuperAggregateSymbol(extender);
     //While this plain aggregate does not apply the traits, its super 'extender' does.
     assertEquals(3, plainAggregate.getAllTraits().size());
 

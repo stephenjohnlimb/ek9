@@ -75,7 +75,11 @@ defines module net.customer
 
     @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "matchSteves"
     matchSteves <- /[S|s]te(?:ven?|phen)/
-    
+
+    //Explicitly define something and check it cannot be resolved.
+    @NotResolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "match"
+    noMatch <- "No-match"
+
     //A comment
     //And another
 //EOF

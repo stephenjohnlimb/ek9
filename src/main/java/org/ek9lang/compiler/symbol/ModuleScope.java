@@ -160,8 +160,8 @@ public class ModuleScope extends SymbolTable {
     }
 
     String searchName = ISymbol.getUnqualifiedName(search.getName());
-    var localScopeSearch = new SymbolSearch(ISymbol.makeFullyQualifiedName(getScopeName(), searchName)).setSearchType(
-        search.getSearchType()).setExampleSymbolToMatch(search.getExampleSymbolToMatch());
+
+    var localScopeSearch = new SymbolSearch(ISymbol.makeFullyQualifiedName(getScopeName(), searchName), search);
 
     Optional<ISymbol> resolvedSymbol = super.resolveInThisScopeOnly(localScopeSearch);
 
