@@ -80,7 +80,7 @@ defines module com.customer.dynamic
       val3 <- "1234567890123456789012345678901234567890Long"
       assert gt(val3) and not lt(val3)
 
-      lenValidator <- CheckLength(gt, max) of LenValidator as class
+      lenValidator <- CheckLength(gt, max) trait of LenValidator as class
         override validateLength()
           -> p as String
           <- r as Boolean: false
@@ -91,7 +91,7 @@ defines module com.customer.dynamic
       assert not lenValidator.validateLength(val2)
       assert not lenValidator.validateLength(val3)
 
-      checkContent <- CheckCharacter(prohibited) of CharValidator
+      checkContent <- CheckCharacter(prohibited) trait of CharValidator
         override validateCharacters()
           -> p as String
           <- r as Boolean: true
@@ -105,14 +105,14 @@ defines module com.customer.dynamic
       assert checkContent.validateCharacters(val3)
       assert not checkContent.validateCharacters(val4)
 
-      validate1 <- (lenValidator, checkContent) of LenValidator by lenValidator, CharValidator by checkContent
+      validate1 <- (lenValidator, checkContent) trait of LenValidator by lenValidator, CharValidator by checkContent
 
       assert validate1.validateCharacters(val1) and validate1.validateLength(val1)
       assert validate1.validateCharacters(val2) and not validate1.validateLength(val2)
       assert validate1.validateCharacters(val3) and not validate1.validateLength(val3)
       assert not validate1.validateCharacters(val4) and validate1.validateLength(val4)
 
-      validate2 <- (validate1, checkContent) of Validator, LenValidator by validate1, CharValidator by checkContent
+      validate2 <- (validate1, checkContent) trait of Validator, LenValidator by validate1, CharValidator by checkContent
 
       assert validate2.validate(val1)
       assert not validate2.validate(val2)
@@ -121,7 +121,7 @@ defines module com.customer.dynamic
 
       val5 <- "steve"
       
-      validator3 <- (lenValidator) of Validator, LenValidator by lenValidator, CharValidator by charValidator
+      validator3 <- (lenValidator) trait of Validator, LenValidator by lenValidator, CharValidator by charValidator
         charValidator as CharValidator: NoDollarValidator()
         override validate()
           -> p as String
@@ -137,7 +137,7 @@ defines module com.customer.dynamic
             
       val6 <- "steve#host"
             
-      validator4 <- (lenValidator) of Validator, LenValidator by lenValidator, CharValidator
+      validator4 <- (lenValidator) trait of Validator, LenValidator by lenValidator, CharValidator
         notAllowed String: "#"
 
         override validateCharacters()

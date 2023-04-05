@@ -19,6 +19,8 @@ public class ParameterizedSymbolCreator
 
   private final InternalNameFor internalNameFor = new InternalNameFor();
 
+  //Not smart  enought to workout null pointer cannot happen.
+  @SuppressWarnings("java:S2259")
   @Override
   public PossibleGenericSymbol apply(final PossibleGenericSymbol possibleGenericSymbol,
                                      final List<ISymbol> typeArguments) {
@@ -40,8 +42,15 @@ public class ParameterizedSymbolCreator
       rtn = createFunction(possibleGenericSymbol, typeArguments);
     }
 
-    AssertValue.checkNotNull("PossibleGenericSymbol " + possibleGenericSymbol.getCategory() + " does not make sense",
-        rtn);
+    AssertValue.checkNotNull("PossibleGenericSymbol "
+        + possibleGenericSymbol.getCategory()
+        + " does not make sense", rtn);
+
+
+    //Now clone over the abstract/extensibility nature from the generic type
+    rtn.setOpenForExtension(possibleGenericSymbol.isOpenForExtension());
+    rtn.setMarkedAbstract(possibleGenericSymbol.isMarkedAbstract());
+
 
     return rtn;
   }

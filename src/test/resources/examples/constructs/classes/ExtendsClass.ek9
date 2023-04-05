@@ -313,7 +313,7 @@ defines module net.customer
         <- rtn as String := "OK again"        
 
     //We can say Trait3 with trait of Trait1, Trait2 or just
-    Trait3 of Trait1, Trait2 
+    Trait3 with trait of Trait1, Trait2
       //A third trait extending the first two - now we are forced to define the method!
       override method1()
         <- rtn as String := "Or more"

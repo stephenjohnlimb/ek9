@@ -37,7 +37,7 @@ defines module bad.classes.inference.example
 
       //Check a normal dynamic class that captures variables and uses a trait.
       traitDynamicClass()
-        aDynamicClass as SomeTrait: (firstName: "Steve", age: 60) of SomeTrait as class
+        aDynamicClass as SomeTrait: (firstName: "Steve", age: 60) trait of SomeTrait as class
           firstName()
             <- rtn as String: firstName
           age()

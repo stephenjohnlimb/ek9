@@ -122,7 +122,7 @@ defines extern module org.ek9.lang
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_STRING_CLASS = """
 
-    String
+    String as open
       String()
       
       String()
@@ -138,7 +138,7 @@ defines extern module org.ek9.lang
     Void
       Void()
       
-    Bits
+    Bits as open
       Bits()
       
       Bits()
@@ -156,79 +156,79 @@ defines extern module org.ek9.lang
       Character()
         -> arg0 as String
 
-    Integer
+    Integer as open
       Integer()
 
       Integer()
         -> arg0 as String
 
-    Float
+    Float as open
       Float()
 
       Float()
         -> arg0 as String
 
-    Time
+    Time as open
       Time()
 
       Time()
         -> arg0 as String
 
-    Duration
+    Duration as open
       Duration()
 
       Duration()
         -> arg0 as String
 
-    Millisecond
+    Millisecond as open
       Millisecond()
 
       Millisecond()
         -> arg0 as String
 
-    Date
+    Date as open
       Date()
 
       Date()
         -> arg0 as String
 
-    DateTime
+    DateTime as open
       DateTime()
 
       DateTime()
         -> arg0 as String
 
-    Money
+    Money as open
       Money()
 
       Money()
         -> arg0 as String
 
-    Locale
+    Locale as open
       Locale()
 
       Locale()
         -> arg0 as String
 
-    Colour
+    Colour as open
       Colour()
 
       Colour()
         -> arg0 as String
 
-    Dimension
+    Dimension as open
       Dimension()
 
       Dimension()
         -> arg0 as String
 
-    Resolution
+    Resolution as open
       Resolution()
 
       Resolution()
         -> arg0 as String
       
-    Path
+    Path as open
       Path()
 
       Path()
@@ -242,13 +242,13 @@ defines extern module org.ek9.lang
 
     JSONInput as abstract
 
-    RegEx
+    RegEx as open
       RegEx()
 
       RegEx()
         -> arg0 as String
 
-    Exception
+    Exception as open
       Exception()
       
       Exception()
@@ -258,47 +258,47 @@ defines extern module org.ek9.lang
 
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_BUILT_IN_TEMPLATE_FUNCTIONS = """
-    Supplier of type T
+    Supplier of type T as abstract
       <- r as T?
 
-    Consumer of type T
+    Consumer of type T as abstract
       -> t as T
 
-    BiConsumer of type (T, U)
+    BiConsumer of type (T, U) as abstract
       ->
         t as T
         u as U
 
-    UnaryOperator of type T
+    UnaryOperator of type T as abstract
       -> t as T
       <- r as T?
 
-    Function of type (T, R)
+    Function of type (T, R) as abstract
       -> t as T
       <- r as R?
 
-    Predicate of type T
+    Predicate of type T as abstract
       -> t as T
-      <- r as Boolean: Boolean()
+      <- r as Boolean?
 
-    BiPredicate of type (T, U)
+    BiPredicate of type (T, U) as abstract
       ->
         t as T
         u as U
       <-
-        r as Boolean: Boolean()
+        r as Boolean?
 
-    Comparator of type T
+    Comparator of type T as abstract
       ->
         t1 as T
         t2 as T
       <-
-        r as Integer: Integer()
+        r as Integer?
 """;
 
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_BUILT_IN_TEMPLATE_CLASSES = """
-    List of type T
+    List of type T as open
       List()
       
       List()
@@ -310,13 +310,13 @@ defines extern module org.ek9.lang
       Optional()
         -> arg0 as T
 
-    PriorityQueue of type T
+    PriorityQueue of type T as open
       PriorityQueue()
 
       PriorityQueue()
         -> arg0 as T
       
-    Dict of type (K, V)
+    Dict of type (K, V) as open
       Dict()
 
       Dict()
@@ -327,7 +327,7 @@ defines extern module org.ek9.lang
       operator +=
         -> arg as DictEntry of (K, V)
           
-    DictEntry of type (K, V)
+    DictEntry of type (K, V) as open
       DictEntry()
 
       DictEntry()
@@ -335,7 +335,7 @@ defines extern module org.ek9.lang
           k as K
           v as V
 
-    Iterator of type T
+    Iterator of type T as open
       Iterator()
       
       Iterator()
@@ -356,10 +356,10 @@ defines extern module org.ek9.lang
   private static final String DEFINE_STANDARD_FUNCTIONS = """
     SignalHandler() as abstract
       -> value as String
-      <- result as Integer: Integer()
+      <- result as Integer?
 
     <!- By its nature it is abstract -!>
-    MutexKey() of type T
+    MutexKey() of type T as abstract
       -> value as T
 """;
 
@@ -425,11 +425,11 @@ defines extern module org.ek9.lang
 
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_NETWORK_TRAITS = """
-    HTTPRequest
+    HTTPRequest as open
 
-    HTTPResponse
+    HTTPResponse as open
 
-    TCPConnection
+    TCPConnection as open
 """;
 
   @SuppressWarnings({"Indentation"})
@@ -449,13 +449,13 @@ defines extern module org.ek9.lang
 
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_ASPECT_CLASSES = """
-    Aspect
+    Aspect as open
       Aspect()
 
-    JoinPoint
+    JoinPoint as open
       JoinPoint()
 
-    PreparedMetaData
+    PreparedMetaData as open
       PreparedMetaData()
 """;
 

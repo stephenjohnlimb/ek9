@@ -115,7 +115,7 @@ defines module example.networking
         processingServer as TCP
         shutdownCommand as String
       <-
-        rtn as TCPHandler: (controlServer, processingServer, shutdownCommand) of TCPHandler
+        rtn as TCPHandler: (controlServer, processingServer, shutdownCommand) with trait of TCPHandler
           override connected()
             ->
               input as StringInput
@@ -130,7 +130,7 @@ defines module example.networking
                 output.println("Ignoring [" + command + "]")
 
     createHandler()
-      <- rtn as TCPHandler: () of TCPHandler
+      <- rtn as TCPHandler: () with trait of TCPHandler
           override connected()
             ->
               input as StringInput

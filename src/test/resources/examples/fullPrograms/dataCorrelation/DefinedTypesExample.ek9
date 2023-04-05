@@ -185,7 +185,7 @@ defines module worked.example
         verboseMode as Boolean
         debugLevel as Integer
 
-      terminationHandler <- (verboseMode, debugLevel) of SignalHandler
+      terminationHandler <- (verboseMode, debugLevel) trait of SignalHandler
         override handleSignal()
           -> signal as String
           <- rtn as Integer: 1 //Process will exit with code of one
@@ -198,7 +198,7 @@ defines module worked.example
       if terminations not contains "ABRT"
         Stderr().println("ABRT Signal not supported")
 
-      debugHandler <- (verboseMode, debugLevel) of SignalHandler
+      debugHandler <- (verboseMode, debugLevel) trait of SignalHandler
         override handleSignal()
           -> signal as String
           <- rtn as Integer: Integer() //Note the Integer is not set so process will not terminate

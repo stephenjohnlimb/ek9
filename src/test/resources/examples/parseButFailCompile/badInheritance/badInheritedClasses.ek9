@@ -1,10 +1,10 @@
 #!ek9
 <?-
-  Examples of records with good and bad inheritance.
+  Examples of classes with good and bad inheritance.
   So we can check detection and errors.
   This source uses the @ EK9 directives to check for errors.
 -?>
-defines module bad.inherited.records
+defines module bad.inherited.classes
 
   //Just used to check it is not possible to inherit from a constant
   defines constant
@@ -17,52 +17,68 @@ defines module bad.inherited.records
     SomeTrait
       aMethod() as abstract
 
-  defines record
+  defines function
+    GFunction of type (K, V)
+      -> arg0 as K
+      <- rtn as V?
+
+  defines class
 
     //This will be fine and work
-    @Resolved: SYMBOL_DEFINITION: TYPE: "Record1"
-    Record1 as open
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Class1"
+    Class1 as open
       firstName <- "Steve"
       lastName <- "Limb"
 
     //As will this.
-    @Resolved: SYMBOL_DEFINITION: TYPE: "Record2"
-    Record2 is Record1 as abstract
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Class2"
+    Class2 is Class1 as abstract
       dob <- Date()
 
-    //We can extend further because Record2 is 'abstract' that also makes it 'open'
-    @Resolved: SYMBOL_DEFINITION: TYPE: "Record3"
-    Record3 is Record2
+    //We can extend further because Class2 is 'abstract' that also makes it 'open'
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Class3"
+    Class3 extends Class2
       postCode <- String()
 
-    //Now because Record3 is not marked as open it cannot be extended
+    //Now because Class3 is not marked as open it cannot be extended
     @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_OPEN_TO_EXTENSION
-    Record4 is Record3
+    Class4 is Class3
       country <- String()
 
     //But this will fail because 'NonSuch' will not resolve.
     @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
-    Record5 extends NonSuch
+    Class5 extends NonSuch
       dob <- Date()
 
-    //But 'SOME_CONSTANT' will resolve but as a 'VALUE' and not as a 'RECORD'
+    //But 'SOME_CONSTANT' will resolve but as a 'VALUE' and not as a 'CLASS'
     //Now even though SOME_CONSTANT exists it is 'not a type' and therefore won't be resolved.
     @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
-    Record6 extends SOME_CONSTANT
+    Class6 extends SOME_CONSTANT
       dob <- Date()
 
+    //Classes don't extend traits - but they do have 'with trait of'
     @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
-    Record7 extends SomeTrait
+    Class7 extends SomeTrait
+      dob <- Date()
+
+    //This is valid, a class can have a trait
+    Class8 with trait of SomeTrait
+      override aMethod()
+        var <- "Steve"
+        assert var?
+
+    //must be a trait not a class.
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    Class9 with trait of Class1
+      dob <- Date()
+
+    //must be a trait not a class, so still not valid.
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    Class10 extends Class2 with trait of Class1
       dob <- Date()
 
     //Now lets try and accidentally extend some generic types.
+    //TODO
 
-    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
-    Record8 extends List
-      dob <- Date()
-
-    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
-    Record9 extends List of String
-      dob <- Date()
 
 //EOF

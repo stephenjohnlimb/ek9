@@ -21,7 +21,7 @@ defines module com.customer.html
     Site :/site
 
       index() as GET for :/index.html
-        <- response as HTTPResponse: () of HTTPResponse
+        <- response as HTTPResponse: () trait HTTPResponse
           //Normally you'd use a component and inject it (i.e. a singleton with web site within)
           webSite <- WebSite("en")
           etag as String: String()

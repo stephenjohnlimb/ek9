@@ -67,7 +67,7 @@ defines module bad.function.use
       lt <- (max: 40) is discriminator as (rtn: length s < max)
 
       //Lets try a valid dynamic variable capture with a class
-      lenValidator <- (lt, gt) of LenValidator as class
+      lenValidator <- (lt, gt) with trait of LenValidator as class
         override validateLength()
           -> p as String
           <- r as Boolean: false
@@ -82,7 +82,7 @@ defines module bad.function.use
       lenValidator <- (
         lt: (min: minValue()) is discriminator pure (rtn: length s > min),
         gt: (max: 40) is discriminator as (rtn: length s < max)
-        ) of LenValidator as class
+        ) trait of LenValidator as class
         override validateLength()
           -> p as String
           <- r as Boolean: false
@@ -117,7 +117,7 @@ defines module bad.function.use
         //Not named so not OK
         @Error: SYMBOL_DEFINITION: CAPTURED_VARIABLE_MUST_BE_NAMED
         (min: minValue()) is discriminator pure (rtn: length s > min)
-        ) of LenValidator as class
+        ) with trait of LenValidator as class
         override validateLength()
           -> p as String
           <- r as Boolean: false
@@ -136,7 +136,7 @@ defines module bad.function.use
         //Named, but there is a variable of that name, so this is a duplicate within this dynamic function
         @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE_IN_CAPTURE
         lessThan: lt
-        ) of LenValidator as class
+        ) with trait of LenValidator as class
         override validateLength()
           -> p as String
           <- r as Boolean: false
@@ -152,7 +152,7 @@ defines module bad.function.use
       //Only name one named parameter, EK9 mandates either none named or all named.
       //This is to drive consistency
       @Error: SYMBOL_DEFINITION: EITHER_ALL_PARAMETERS_NAMED_OR_NONE
-      lenValidator <- (lessThan: lt, gt) of LenValidator as class
+      lenValidator <- (lessThan: lt, gt) with trait of LenValidator as class
         override validateLength()
           -> p as String
           <- r as Boolean: false

@@ -52,6 +52,8 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   private final CheckSuitableToExtend checkClassTraitSuitableToExtend;
 
+  private final CheckSuitableToExtend checkClassSuitableToExtend;
+
   private final CheckSuitableToExtend checkComponentSuitableToExtend;
 
   /**
@@ -96,6 +98,9 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
     checkClassTraitSuitableToExtend =
         new CheckSuitableToExtend(symbolAndScopeManagement, errorListener, ISymbol.SymbolGenus.CLASS_TRAIT, true);
+
+    checkClassSuitableToExtend =
+        new CheckSuitableToExtend(symbolAndScopeManagement, errorListener, ISymbol.SymbolGenus.CLASS, true);
 
     checkComponentSuitableToExtend =
         new CheckSuitableToExtend(symbolAndScopeManagement, errorListener, ISymbol.SymbolGenus.COMPONENT, true);
@@ -182,6 +187,20 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   @Override
   public void exitClassDeclaration(EK9Parser.ClassDeclarationContext ctx) {
+    var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    AssertValue.checkNotNull("Class should have been defined as symbol", symbol);
+
+    if (ctx.extendDeclaration() != null) {
+      var resolved = checkClassSuitableToExtend.apply(ctx.extendDeclaration().typeDef());
+      resolved.ifPresent(theSuper -> symbol.setSuperAggregateSymbol((IAggregateSymbol) theSuper));
+    }
+
+    if (ctx.traitsList() != null) {
+      ctx.traitsList().traitReference().forEach(traitRef -> {
+        var resolved = checkClassTraitSuitableToExtend.apply(traitRef.identifierReference());
+        resolved.ifPresent(theTrait -> symbol.addTrait((AggregateWithTraitsSymbol) theTrait));
+      });
+    }
     symbolAndScopeManagement.exitScope();
     super.exitClassDeclaration(ctx);
   }

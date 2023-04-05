@@ -110,7 +110,7 @@ constantDeclaration
 //By adding Open, it means we can define a function with a body, but also override functionality and pass it around.
 functionDeclaration
     : Identifier (LPAREN RPAREN)? (extendPreamble identifierReference (LPAREN RPAREN)?)? AS? PURE? (ABSTRACT | OPEN)? NL+ operationDetails
-    | Identifier (LPAREN RPAREN)? parameterisedParams AS? PURE? NL+ operationDetails
+    | Identifier (LPAREN RPAREN)? parameterisedParams AS? PURE? (ABSTRACT | OPEN)? NL+ operationDetails
     ;
 
 recordDeclaration
@@ -231,7 +231,7 @@ traitsList
     ;
 
 traitPreamble
-    : WITH? TRAIT? OF
+    : WITH? TRAIT OF?
     ;
 
 traitReference
