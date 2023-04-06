@@ -77,8 +77,26 @@ defines module bad.inherited.classes
     Class10 extends Class2 with trait of Class1
       dob <- Date()
 
-    //Now lets try and accidentally extend some generic types.
-    //TODO
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    Class11 extends Class2 with trait of List
+      dob <- Date()
+
+    //Example of something valid, can extend 'List' but only when parameterised.
+    Class12 extends List of String
+      dob <- Date()
+
+    //Again this is valid, then throw in one or more traits to implement
+    Class13 extends List of String with trait of SomeTrait
+      override aMethod()
+        var <- "Steve"
+        assert var?
+
+
+    //Now lets try and accidentally extend some generic types but not parameterised.
+    //EK9 does not support extending a generic type, only when it is parameterised
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_CATEGORY
+    Class14 extends List
+      dob <- Date()
 
 
 //EOF

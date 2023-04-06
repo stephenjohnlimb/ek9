@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
@@ -62,15 +63,30 @@ public class CheckSuitableToExtend implements Function<ParserRuleContext, Option
     }
 
     if (!supportedGenus.contains(proposedSuper.getGenus())) {
-      var msg = "resolved as '" + proposedSuper.getGenus() + "' rather than '" + supportedGenus + "':";
+      var msg = "resolved as a '"
+          + proposedSuper.getGenus().getDescription()
+          + "' which is a '"
+          + proposedSuper.getCategory().getDescription()
+          + "' rather than a '"
+          + supportedGenus.stream().map(ISymbol.SymbolGenus::getDescription).collect(Collectors.joining(", "))
+          + "':";
       errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.INCOMPATIBLE_GENUS);
       return false;
     }
 
-    if (proposedSuper instanceof PossibleGenericSymbol aggregateOfFunction
-        && !aggregateOfFunction.isOpenForExtension()) {
-      errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.NOT_OPEN_TO_EXTENSION);
-      return false;
+    if (proposedSuper instanceof PossibleGenericSymbol possibleGenericSymbol) {
+      if (!possibleGenericSymbol.isOpenForExtension()) {
+        errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.NOT_OPEN_TO_EXTENSION);
+        return false;
+      }
+      if (possibleGenericSymbol.isGenericInNature()) {
+        var msg = "is a '"
+            + possibleGenericSymbol.getCategory().getDescription()
+            + "' that has not been parameterised:";
+        errorListener.semanticError(ctx.start, msg,
+            ErrorListener.SemanticClassification.INCOMPATIBLE_CATEGORY);
+        return false;
+      }
     }
     return true;
   }

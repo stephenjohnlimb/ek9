@@ -257,14 +257,6 @@ public interface ISymbol extends ITokenReference {
   }
 
   /**
-   * By default, isExactSameType; but can be used if symbols are a conceptual match
-   * like generics can be.
-   */
-  default boolean isSymbolTypeMatch(ISymbol symbolType) {
-    return isExactSameType(symbolType);
-  }
-
-  /**
    * If is the symbol is an exact match.
    */
   boolean isExactSameType(ISymbol symbolType);
@@ -349,9 +341,34 @@ public interface ISymbol extends ITokenReference {
    * analysis before the IR node generation. We can modify output by using this information.
    */
   enum SymbolGenus {
-    GENERAL_APPLICATION, SERVICE_APPLICATION, COMPONENT, VALUE, CLASS, CLASS_TRAIT,
-    CLASS_CONSTRAINED, CLASS_ENUMERATION, RECORD, TYPE, FUNCTION, FUNCTION_TRAIT, TEXT_BASE, TEXT,
-    SERVICE, PROGRAM, META_DATA
+    GENERAL_APPLICATION("application"),
+    SERVICE_APPLICATION("service application"),
+    COMPONENT("component"),
+    VALUE("value"),
+    CLASS("class"),
+    CLASS_TRAIT("trait"),
+    CLASS_CONSTRAINED("constrained class"),
+    CLASS_ENUMERATION("enumeration"),
+    RECORD("record"),
+    TYPE("type"),
+    FUNCTION("function"),
+    FUNCTION_TRAIT("abstract function"),
+    TEXT_BASE("text base"),
+    TEXT("text"),
+    SERVICE("service"),
+    PROGRAM("program"),
+    META_DATA("meta-data");
+
+    private final String description;
+
+    SymbolGenus(String description) {
+      this.description = description;
+    }
+
+    public String getDescription() {
+      return description;
+    }
+
   }
 
   /**
@@ -362,12 +379,24 @@ public interface ISymbol extends ITokenReference {
    * A control is an example of a switch statement that can return a value - we may add others.
    */
   enum SymbolCategory {
-    TYPE,
-    TEMPLATE_TYPE, //This is a definition of the template once MyTemplate with type of T
+    TYPE("type"),
+    TEMPLATE_TYPE("generic type"), //This is a definition of the template once MyTemplate with type of T
     // is made read as a type MyTemplate of Integer it becomes a TYPE
-    METHOD,
-    TEMPLATE_FUNCTION, // As per the TEMPLATE_TYPE once made concrete becomes a FUNCTION
+    METHOD("method"),
+    TEMPLATE_FUNCTION("generic function"), // As per the TEMPLATE_TYPE once made concrete becomes a FUNCTION
     // when used with concrete parameters - has unique name in the combination.
-    FUNCTION, CONTROL, VARIABLE
+    FUNCTION("function"),
+    CONTROL("control"),
+    VARIABLE("variable");
+
+    private final String description;
+
+    SymbolCategory(String description) {
+      this.description = description;
+    }
+
+    public String getDescription() {
+      return description;
+    }
   }
 }

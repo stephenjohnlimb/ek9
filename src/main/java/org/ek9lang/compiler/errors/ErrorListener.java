@@ -420,6 +420,7 @@ public class ErrorListener extends BaseErrorListener {
     ONLY_CONSTANTS_ALLOWED("only constant values allowed"),
     MUTABLE_NOT_ALLOWED("mutable items not allowed"),
     INCOMPATIBLE_GENUS("incompatible genus"),
+    INCOMPATIBLE_CATEGORY("incompatible category"),
     TRAIT_BY_DELEGATE_FOR_CLASS_ONLY("delegation by a trait is only applicable for classes"),
     ONLY_CONSTRUCTORS_ALLOWED("only constructor methods can be defined in this scope"),
     ONLY_ONE_CONSTRUCTOR_ALLOWED("only a single constructor is allowed in this scope"),

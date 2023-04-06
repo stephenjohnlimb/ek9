@@ -19,7 +19,7 @@ public class ParameterizedSymbolCreator
 
   private final InternalNameFor internalNameFor = new InternalNameFor();
 
-  //Not smart  enought to workout null pointer cannot happen.
+  //Not smart enough to work out null pointer cannot happen.
   @SuppressWarnings("java:S2259")
   @Override
   public PossibleGenericSymbol apply(final PossibleGenericSymbol possibleGenericSymbol,
