@@ -17,7 +17,7 @@ defines module com.customer.just
 
       //negate the returned comparison to change the ordering.
       //Note how t1, t2 and r - are picked up from the definition of Comparator (ek9 built-in)
-      comparator <- () extends Comparator of String as (r: ~(t1 <=> t2))
+      comparator <- () extends Comparator of String as function (r: ~(t1 <=> t2))
 
       qOne <- PriorityQueue("Bill").useComparator(comparator)
 

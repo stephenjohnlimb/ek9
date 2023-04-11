@@ -48,6 +48,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
   public FunctionSymbol(String name, IScope enclosingScope) {
     super(name, enclosingScope);
     super.setCategory(SymbolCategory.FUNCTION);
+    super.setGenus(ISymbol.SymbolGenus.FUNCTION);
     super.setScopeType(ScopeType.NON_BLOCK);
     super.setProduceFullyQualifiedName(true);
   }

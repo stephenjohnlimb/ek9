@@ -18,7 +18,7 @@ defines module bad.inherited.classes
       aMethod() as abstract
 
   defines function
-    GFunction of type (K, V)
+    GFunction of type (K, V) as abstract
       -> arg0 as K
       <- rtn as V?
 
@@ -90,7 +90,6 @@ defines module bad.inherited.classes
       override aMethod()
         var <- "Steve"
         assert var?
-
 
     //Now lets try and accidentally extend some generic types but not parameterised.
     //EK9 does not support extending a generic type, only when it is parameterised

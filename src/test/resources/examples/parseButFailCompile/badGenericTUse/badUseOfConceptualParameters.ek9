@@ -30,7 +30,7 @@ defines module bad.use.conceptual.parameters
       -> arg0 as Integer
       <- result as Integer?
 
-      func <- () is GFunction of Integer as pure
+      func <- () is GFunction of Integer as pure function
         val <- arg0 * 5
         value: val
       result: func(23)

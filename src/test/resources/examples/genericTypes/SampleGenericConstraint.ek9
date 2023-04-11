@@ -64,17 +64,17 @@ defines module com.customer.sample
 
       //Setup some event handlers and an example
       //Process through 'Shape'
-      shapeHandler <- (eventProcessor) is eventHandler of Shape
+      shapeHandler <- (eventProcessor) is eventHandler of Shape as function
         eventProcessor.processShapeEvent(shape)
 
       //Now type safe via generics and direct call to specific method
-      circleHandler <- (eventProcessor) is eventHandler of Circle
+      circleHandler <- (eventProcessor) is eventHandler of Circle as function
         //Note strict typing means method 'roundness' is accessible.
         Stdout().println("Roundness " + $shape.roundness())
         eventProcessor.processCircleEvent(shape)
 
       //While handler is specific to Square can still call via processShapeEvent
-      squareHandler <- (eventProcessor) is eventHandler of Square
+      squareHandler <- (eventProcessor) is eventHandler of Square as function
         eventProcessor.processShapeEvent(shape)
 
       //make some calls on the event handlers
@@ -111,7 +111,7 @@ defines module com.customer.sample
 
       eventProcessor as GenericShapeEventProcessor of Shape: GenericShapeEventProcessor()
 
-      shapeHandler <- (eventProcessor) is eventHandler of Shape
+      shapeHandler <- (eventProcessor) is eventHandler of Shape as function
         eventProcessor.processShapeEvent(shape)
 
       //make some calls on the event handler

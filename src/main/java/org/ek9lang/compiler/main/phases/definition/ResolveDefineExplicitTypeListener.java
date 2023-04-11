@@ -306,6 +306,20 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   @Override
   public void exitDynamicClassDeclaration(EK9Parser.DynamicClassDeclarationContext ctx) {
+    var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    AssertValue.checkNotNull("Dynamic Class should have been defined as symbol", symbol);
+
+    if (ctx.parameterisedType() != null) {
+      var resolved = checkClassSuitableToExtend.apply(ctx.parameterisedType());
+      resolved.ifPresent(theSuper -> symbol.setSuperAggregateSymbol((IAggregateSymbol) theSuper));
+    }
+
+    if (ctx.traitsList() != null) {
+      ctx.traitsList().traitReference().forEach(traitRef -> {
+        var resolved = checkClassTraitSuitableToExtend.apply(traitRef.identifierReference());
+        resolved.ifPresent(theTrait -> symbol.addTrait((AggregateWithTraitsSymbol) theTrait));
+      });
+    }
     symbolAndScopeManagement.exitScope();
     super.exitDynamicClassDeclaration(ctx);
   }
@@ -406,8 +420,6 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
     super.enterParameterisedType(ctx);
   }
-
-
 }
 
 

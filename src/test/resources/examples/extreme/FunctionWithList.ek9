@@ -66,25 +66,25 @@ defines module com.customer.is.handle.layout
       bResult <- someHigher()(34)("Check")("This")("Out")
 
       //Imaging a parameterised generic function and we create a dynamic function from it
-      aFunct <- () extends someGenericFunction of String
+      aFunct <- () extends someGenericFunction of String as function
 
       //Of if it had two params
-      bFunct <- () extends someGenericFunction of (Integer, String)
+      bFunct <- () extends someGenericFunction of (Integer, String) as function
 
       //Maybe one of those was parameterised
-      cFunct <- () extends someGenericFunction of (Integer, Dict of (Date, String))
+      cFunct <- () extends someGenericFunction of (Integer, Dict of (Date, String)) as function
 
       //Or we use directly and call, note the different between this and the next.
-      functResult1 <- () extends someGenericFunction of (Integer, Dict of (Date, String))(val: 56)
+      functResult1 <- () extends someGenericFunction of (Integer, Dict of (Date, String)) as function (val: 56)
 
       //Now we override the implementation with single liner impl
-      dFunct <- () extends someGenericFunction of (Integer, Dict of (Date, String)) (foo <- "BAR")
+      dFunct <- () extends someGenericFunction of (Integer, Dict of (Date, String)) as function (foo <- "BAR")
 
       //Extend generic, override and call.
-      functResult2 <- () extends someGenericFunction of (Integer, Dict of (Date, String)) (foo <- "BAR")(val: 58)
+      functResult2 <- () extends someGenericFunction of (Integer, Dict of (Date, String)) function (foo <- "BAR")(val: 58)
 
       //Now we override the implementation with multiple liner impl
-      eFunct <- () extends someGenericFunction of (Integer, Dict of (Date, String))
+      eFunct <- () extends someGenericFunction of (Integer, Dict of (Date, String)) as function
         foo <- "BAR"
         nice <- "Cool"
 

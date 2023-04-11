@@ -160,7 +160,7 @@ defines module incorrect.generic.uses
 
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "validDynamicFunction"
     validDynamicFunction()
-      listener <- () is AListener of Integer
+      listener <- () is AListener of Integer as function
       listener(1, 2)
 
     //New directives to enable 'requirement' and expectations to be embedded in the source
@@ -169,7 +169,7 @@ defines module incorrect.generic.uses
       //Failure 7
       //Here we are telling the compiler to check we get an error here.
       @Error: SYMBOL_DEFINITION: PARENTHESIS_NOT_REQUIRED
-      listener <- () is AListener() of Integer
+      listener <- () is AListener() of Integer as function
       listener(1, 2)
 
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "validDynamicClass"

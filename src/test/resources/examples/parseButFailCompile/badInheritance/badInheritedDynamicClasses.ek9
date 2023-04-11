@@ -1,0 +1,72 @@
+#!ek9
+<?-
+  Examples of dynamic classes with good and bad inheritance.
+  So we can check detection and errors.
+  This source uses the @ EK9 directives to check for errors.
+-?>
+defines module bad.inherited.dynamicclasses
+
+  //Just used to check it is not possible to inherit from a constant
+  defines constant
+    SOME_CONSTANT <- 10
+
+  //Just used to define a 'type' to check it is rejected as a super for a record.
+  defines trait
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "SomeTrait"
+    SomeTrait
+      aMethod() as abstract
+
+  defines function
+    NFunction as open
+      -> arg0 as Integer
+      <- rtn <- false
+
+    GFunction of type (K, V) as abstract
+      -> arg0 as K
+      <- rtn as V?
+
+  defines class
+
+    //This will be fine and work but we will check it cannot be used to be extended by a dynamic class
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Class1"
+    Class1 as open
+      firstName <- "Steve"
+      lastName <- "Limb"
+
+    //just used as a vehicle for making dynamic classes.
+    DriverClass
+
+      checkValidDynamicClassOfTrait()
+        dynamicClass <- () with trait of SomeTrait as class
+          override aMethod()
+            val <- "Steve"
+            assert val?
+        //Now call the new method
+        dynamicClass.aMethod()
+
+      checkValidDynamicClassOfGenericType()
+        dynamicClass <- () extends List of String as class
+          aMethod()
+            <- rtn <- "Steve"
+        //Now call the new method
+        dynamicClass.aMethod()
+
+      checkAsBadNormalFunctionTrait()
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+        dynamicClass <- () with trait of NFunction as class
+
+      checkAsBadGenericFunctionTrait()
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+        dynamicClass <- () with trait of GFunction as class
+
+      checkAsBadConstantTrait()
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+        dynamicClass <- () with trait of SOME_CONSTANT as class
+
+      //GFunction is a function and not a class, so cannot be extended as a class.
+      checkAsBadParameterizedFunctionTrait()
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+        dynamicClass <- () extends GFunction of(Integer, String) as class
+
+//EOF

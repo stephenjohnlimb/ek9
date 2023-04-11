@@ -92,6 +92,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     super(name, type, enclosingScope);
     //But note that - this could become a TEMPLATE_TYPE if parameterized with a type.
     super.setCategory(SymbolCategory.TYPE);
+    super.setGenus(SymbolGenus.CLASS);
     //Also note this could become a DYNAMIC_BLOCK if employed as a dynamic class
     super.setScopeType(ScopeType.NON_BLOCK);
     super.setProduceFullyQualifiedName(true);

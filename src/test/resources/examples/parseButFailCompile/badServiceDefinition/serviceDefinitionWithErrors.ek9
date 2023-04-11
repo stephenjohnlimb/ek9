@@ -15,7 +15,7 @@ defines module bad.services.use
 
       byId() as GET for :/{address-id}
         -> addressId as AddressId :=: PATH "address-id" //required because different name
-        <- response as HTTPResponse: (addressId) with trait of HTTPResponse by delegate
+        <- response as HTTPResponse: (addressId) trait HTTPResponse by delegate as class
           override content()
             <- rtn as String: getOK()
 
@@ -23,12 +23,12 @@ defines module bad.services.use
       @Error: SYMBOL_DEFINITION: SERVICE_OPERATOR_NOT_SUPPORTED
       operator <~> :/
         -> request as HTTPRequest :=: REQUEST
-        <- response as HTTPResponse: (request) with trait of HTTPResponse by delegate
+        <- response as HTTPResponse: (request) trait HTTPResponse by delegate as class
           override content()
             <- rtn as String: getNotOK()
 
       listAll() :/
-        <- response as HTTPResponse: () with trait of HTTPResponse by delegate
+        <- response as HTTPResponse: () trait HTTPResponse by delegate as class
           override content()
             <- rtn as String: notAllowed()
 

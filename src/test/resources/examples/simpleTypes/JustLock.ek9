@@ -12,29 +12,17 @@ defines module com.lock
       //Item to wrap in a mutex lock so access is restricted
       lockableItem <- createProtectedName()
 
-      //Our key for access also pass in a few parameters needed what access is allowed
-      //We'll just use an anonymous class for this not used anywhere else.
-      accessKey <- (stdout, lockableItem) with trait of MutexKey as class
-        override access()
-          name <- lockableItem.get()          
-          stdout.println("Accessing [" + $name + "]")
-          name :=: "Stephen"
-          assert lockableItem.owner()
+      //As we extend the generic function MutexKey we get its parameters when called.
+      //here we also capture stdout.
+      accessKey <- (stdout) extends MutexKey of String as function
+        stdout.println("Accessing [" + $value + "]")
+        //Now update the value - by copying data into it.
+        value :=: "Stephen"
 
       //Now try access via key and wait on mutex
       lockableItem.enter(accessKey)
-      //Don't think you own the lock here - only owned in access() above
-      assert not lockableItem.owner()
-      
+
       //As there are no other threads access will be granted here
       //If other held the lock this would return false and key.access() would not be called. 
-      assert lockableItem.tryEnter(accessKey)      
-
-      //Attempt access without key - should get exception.
-      try
-        name <- lockableItem.get()
-        stdout.println("Accessing [" + name + "]")
-      catch
-        -> ex as Exception
-        stdout.println("Exception [" + $ex + "]")
+      assert lockableItem.tryEnter(accessKey)
 //EOF

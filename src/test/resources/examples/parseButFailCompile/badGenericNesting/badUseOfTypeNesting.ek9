@@ -40,12 +40,12 @@ defines module bad.inference.example
         rtn: someVar
 
       calculator()
-        <- rtn as SomeGenericFunction of (T, T): () is SomeGenericFunction of (Integer, T) as pure
+        <- rtn as SomeGenericFunction of (T, T): () is SomeGenericFunction of (Integer, T) as pure function
           rtn: T(arg0 * 20)
 
       anotherCalculator()
         <- rtn as SomeGenericFunction of (T, T)?
-        rtn: () is SomeGenericFunction of (Integer, T) as pure (rtn: T(arg0 * 20))
+        rtn: () is SomeGenericFunction of (Integer, T) as pure function (rtn: T(arg0 * 20))
 
       anotherCalculator()
         <- value as SomeGenericFunction of (T, T)?

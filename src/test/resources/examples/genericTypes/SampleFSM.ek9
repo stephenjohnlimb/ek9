@@ -92,7 +92,7 @@ defines module com.utils
     Driver as
     
       //I can add functionality in a block in this listener or just use the default one
-      myListener <- () is FSMListener of Integer
+      myListener <- () is FSMListener of Integer as function
         stdout <- Stdout()
         assert fromState? and toState?
         stdout.println(`Changing from ${fromState} to ${toState}`)
@@ -108,7 +108,7 @@ defines module com.utils
       //Need method resolving to call myMachine.addListener(myListener)
       myMachine.setState(5)
       
-      defaultListener <- () is FSMListener of Float
+      defaultListener <- () is FSMListener of Float as function
       //Not going at add functionality just use default implementation in this listener
       
       //So we can be more explicit if required
@@ -135,7 +135,7 @@ defines module com.utils
       stringMachine <- FSM("Steve")
       //machine <- FSM(2, myListener)
       
-      cardSuitListener <- () is FSMListener of CardSuit
+      cardSuitListener <- () is FSMListener of CardSuit as function
         item <- $fromState + " " + $toState
       
       cardSuitFSM as FSM of CardSuit := FSM()

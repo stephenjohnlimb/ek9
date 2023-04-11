@@ -87,21 +87,21 @@ defines module net.customer.generic.functions
         
         //reads like a book - make me a dynamicFunction which is a function of doubler of Integer(s)
         //You can use 'is' or 'extends'
-        dynamicIntDoubler <- () is doubler of Integer
+        dynamicIntDoubler <- () is doubler of Integer as function
         
         myHandler1 <- () is eventHandler of Date as function
         
-        myHandler2 <- () is eventHandler of Date
+        myHandler2 <- () is eventHandler of Date as function
         
         //Lets see if we can capture item in our generic function.
-        otherHandler1 <- (item) is eventHandler of DateTime
+        otherHandler1 <- (item) is eventHandler of DateTime as function
           assert event?
           rtn: true                      
           if item < 44
             checkDate <- event
         
         //You can use extends if you wish - rather than 'is'.
-        otherHandler2 <- (capturedVar) extends eventHandler of DateTime
+        otherHandler2 <- (capturedVar) extends eventHandler of DateTime as function
           assert event?
           rtn: true
           

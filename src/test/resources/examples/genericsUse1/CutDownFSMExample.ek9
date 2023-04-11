@@ -87,7 +87,7 @@ defines module com.utils.fsm.example
       //Later on we will check the interference mechanism one resolve phase is implemented.
       //Symbol 5 and Symbol 6
       @Resolved: SYMBOL_DEFINITION: FUNCTION: "FSMListener of (Integer)"
-      myListener as FSMListener of Integer: (stdout) is FSMListener of Integer
+      myListener as FSMListener of Integer: (stdout) is FSMListener of Integer as function
         assert fromState? and toState?
         stdout.println(`Changing from ${fromState} to ${toState}`)
 
@@ -102,7 +102,7 @@ defines module com.utils.fsm.example
       //Lets try it with the Cards, long hand again
       //Symbol 8 and Symbol 9
       @Resolved: SYMBOL_DEFINITION: FUNCTION: "FSMListener of (CardSuit)"
-      cardListener as FSMListener of CardSuit: (stdout) is FSMListener of CardSuit
+      cardListener as FSMListener of CardSuit: (stdout) is FSMListener of CardSuit as function
         assert fromState? and toState?
         stdout.println(`Changing from ${fromState} to ${toState}`)
 

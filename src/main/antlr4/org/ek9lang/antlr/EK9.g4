@@ -159,14 +159,14 @@ textBodyDeclaration
 //End of main construct declarations
 
 dynamicClassDeclaration
-    : Identifier? dynamicVariableCapture traitPreamble traitsList (AS? CLASS)? aggregateParts?
+    : Identifier? dynamicVariableCapture traitPreamble traitsList AS? CLASS? aggregateParts?
     | Identifier dynamicVariableCapture AS? CLASS aggregateParts
     | Identifier? dynamicVariableCapture extendPreamble parameterisedType AS? CLASS aggregateParts?
     ;
 
 dynamicFunctionDeclaration
     : dynamicVariableCapture extendPreamble identifierReference (LPAREN RPAREN)? AS? PURE? FUNCTION? dynamicFunctionBody
-    | dynamicVariableCapture extendPreamble parameterisedType AS? PURE? FUNCTION? dynamicFunctionBody?
+    | dynamicVariableCapture extendPreamble parameterisedType AS? PURE? FUNCTION dynamicFunctionBody?
     ;
 
 dynamicFunctionBody

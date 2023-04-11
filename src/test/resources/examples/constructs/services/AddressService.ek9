@@ -88,9 +88,9 @@ defines module com.customer.services
         address as Address
         operation as addressOperation
 
-      accessKey <- (address, lockedAddressSet, operation) with trait of MutexKey
-        override access()
-          operation(lockedAddressSet.get(), address)
+      accessKey <- (address, operation) extends MutexKey of AddressSet as function
+          operation(value, address)
+
       lockedAddressSet.enter(accessKey)
 
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "addressFromJson"
@@ -335,39 +335,39 @@ defines module com.customer.services
       override operator contains
         -> addressId as AddressId
         <- rtn as Boolean: false
-        accessKey <- (addressId, lockedAddressSet, rtn) with trait of MutexKey
-          override access()
-            rtn :=: lockedAddressSet.get() contains addressId          
+        accessKey <- (addressId, rtn) is MutexKey of AddressSet as function
+          rtn :=: value contains addressId
+
         lockedAddressSet.enter(accessKey)
         
       override hash()
         <- rtn as String: String()
-        accessKey <- (rtn, lockedAddressSet) with trait of MutexKey
-          override access()
-            rtn :=: lockedAddressSet.get().hash()            
+        accessKey <- (rtn) is MutexKey of AddressSet as function
+          rtn :=: value.hash()
+
         lockedAddressSet.enter(accessKey)
 
       override hashOfAddress()
         -> id as AddressId
         <- rtn as String: String()
-        accessKey <- (id, rtn, lockedAddressSet) with trait of MutexKey
-          override access()
-            rtn :=: lockedAddressSet.get().hashOfAddress(id)
+        accessKey <- (id, rtn) is MutexKey of AddressSet as function
+          rtn :=: value.hashOfAddress(id)
+
         lockedAddressSet.enter(accessKey)
 
       override byId()
         -> id as AddressId
         <- rtn as Address: Address()
-        accessKey <- (id, rtn, lockedAddressSet) with trait of MutexKey
-          override access()
-            rtn :=: lockedAddressSet.get().byId(id)
+        accessKey <- (id, rtn) is MutexKey of AddressSet as function
+          rtn :=: value.byId(id)
+
         lockedAddressSet.enter(accessKey)
 
       override listAll()
         <- rtn as List of Address: List()
-        accessKey <- (rtn, lockedAddressSet) with trait of MutexKey
-          override access()
-            rtn += lockedAddressSet.get().listAll()
+        accessKey <- (rtn) is MutexKey of AddressSet as function
+          rtn += value.listAll()
+
         lockedAddressSet.enter(accessKey)
 
   defines function

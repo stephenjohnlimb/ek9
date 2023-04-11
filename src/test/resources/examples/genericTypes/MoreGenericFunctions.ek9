@@ -23,7 +23,7 @@ defines module net.customer.more.generic.functions
     Test
       testMethod()
       
-        integerToString <- () is mapFunction of (Integer, String)
+        integerToString <- () is mapFunction of (Integer, String) as function
           rtn: "[" + $item + "]"  
         
         stringVal <- integerToString(1)

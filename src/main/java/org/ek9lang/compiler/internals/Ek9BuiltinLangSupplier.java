@@ -22,7 +22,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 68;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 69;
 
   //Obviously with ek9 the indentation is important.
 
@@ -413,6 +413,13 @@ defines extern module org.ek9.lang
       
       MutexLock()
         -> value as T
+      
+      enter()
+        -> withKey as MutexKey of T
+        
+      tryEnter()
+        -> withKey as MutexKey of T
+        
 """;
 
   @SuppressWarnings({"Indentation"})
