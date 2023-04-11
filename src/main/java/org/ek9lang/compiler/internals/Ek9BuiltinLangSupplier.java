@@ -22,7 +22,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 69;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 70;
 
   //Obviously with ek9 the indentation is important.
 
@@ -310,6 +310,53 @@ defines extern module org.ek9.lang
       Optional()
         -> arg0 as T
 
+    Result of type (O, E)
+      //default constructor without an ok value or an error
+      Result()
+          
+      <?-
+        Use above and call ok with the OK value.
+      -?>
+      ok()
+        -> arg0 as O
+      
+      <?-
+        Get the OK value, if not present Exception, so check.
+      -?>
+      ok()
+        <- rtn as O?
+      
+      <?-
+        Check if the result is Ok or not.
+      -?>
+      isOk()
+        <- rtn as Boolean?
+        
+      <?-
+        Use above and call error with the error value.
+      -?>
+      error()
+        -> arg0 as E
+
+      <?-
+        Get the Error value, if not present Exception, so check.
+      -?>
+      error()
+        <- rtn as E?
+        
+      <?-
+        Check if the result is Error or not.
+      -?>
+      isError()
+        <- rtn as Boolean?
+      
+      <?-
+        Check if this Result has and Ok value or an error - it might have neither.
+        That's not always wrong, there may be no Ok value, but also nothing in error.
+      -?>
+      operator ?
+        rtn as Boolean?
+          
     PriorityQueue of type T as open
       PriorityQueue()
 

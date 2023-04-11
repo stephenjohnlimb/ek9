@@ -5,12 +5,12 @@ defines module net.customer.more.generic.functions
   //generics of generics with more and varied parameters.
   defines function
         
-    mapFunction() of type (S, T)
+    mapFunction() of type (S, T) as open
       -> item as S
       <- rtn as T := T()
       assert item?
     
-    sumFunction() of type S
+    sumFunction() of type S as open
       -> item as List of S
       <- rtn as S := S()
       assert item?

@@ -3,7 +3,7 @@ defines module net.customer.inferred
 
   defines function
 
-    compareFunction() of type T
+    compareFunction() of type T as open
       ->
         item1 as T
         item2 as T

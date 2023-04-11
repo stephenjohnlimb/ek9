@@ -20,7 +20,7 @@ defines module net.customer.generic.mix
     //How do we know we can use those operators? How to we know we can use other methods on T - we need to constrain T to be at least something
     //We know something about. For time being lets just get a parse and production going then see about methods and operators.
     
-    doubler of type T as pure
+    doubler of type T as pure open
       -> param1 as T
       <- retVal as T := param1 + param1
 

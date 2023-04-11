@@ -39,7 +39,6 @@ import org.ek9lang.core.exception.AssertValue;
  */
 public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final SymbolAndScopeManagement symbolAndScopeManagement;
-
   private final ResolveOrDefineIdentifierReference resolveOrDefineIdentifierReference;
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
   private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
@@ -109,7 +108,6 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   /**
    * Process a function declaration, so this is at the very top level of construct definition.
    * This is NOT a dynamic function.
-   * As it is a 'normal' function it cannot extend any other abstract or generic function.
    */
   @Override
   public void enterFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
@@ -124,6 +122,7 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     var symbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Function should have been defined as symbol", symbol);
 
+    //Normal functions can extend other normal functions if open/abstract - this code below checks.
     if (ctx.identifierReference() != null) {
       var resolved = checkFunctionSuitableToExtend.apply(ctx.identifierReference());
       resolved.ifPresent(theSuper -> symbol.setSuperFunctionSymbol((FunctionSymbol) theSuper));
@@ -145,10 +144,12 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Record should have been defined as symbol", symbol);
 
+    //In ek9, records can extend other records if open for extension
     if (ctx.extendDeclaration() != null) {
       var resolved = checkRecordSuitableToExtend.apply(ctx.extendDeclaration().typeDef());
       resolved.ifPresent(theSuper -> symbol.setSuperAggregateSymbol((IAggregateSymbol) theSuper));
     }
+
     symbolAndScopeManagement.exitScope();
     super.exitRecordDeclaration(ctx);
   }
@@ -304,6 +305,11 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     super.enterDynamicClassDeclaration(ctx);
   }
 
+  /**
+   * Dynamic classes can 'extend' a parameterised generic type.
+   * But they can also (separately) implement one or more Traits.
+   * They cannot extend a normal class, this is to promote composition.
+   */
   @Override
   public void exitDynamicClassDeclaration(EK9Parser.DynamicClassDeclarationContext ctx) {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
@@ -332,8 +338,23 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     super.enterDynamicFunctionDeclaration(ctx);
   }
 
+  /**
+   * Dynamic functions can extend open/abstract normal functions, they can also (separately)
+   * extends parameterised generic functions.
+   */
   @Override
   public void exitDynamicFunctionDeclaration(EK9Parser.DynamicFunctionDeclarationContext ctx) {
+    var symbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    AssertValue.checkNotNull("Dynamic Function should have been defined as symbol", symbol);
+
+    if (ctx.identifierReference() != null) {
+      var resolved = checkFunctionSuitableToExtend.apply(ctx.identifierReference());
+      resolved.ifPresent(theSuper -> symbol.setSuperFunctionSymbol((FunctionSymbol) theSuper));
+    } else if (ctx.parameterisedType() != null) {
+      var resolved = checkFunctionSuitableToExtend.apply(ctx.parameterisedType());
+      resolved.ifPresent(theSuper -> symbol.setSuperFunctionSymbol((FunctionSymbol) theSuper));
+    }
+
     symbolAndScopeManagement.exitScope();
     super.exitDynamicFunctionDeclaration(ctx);
   }

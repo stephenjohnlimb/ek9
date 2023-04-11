@@ -27,14 +27,14 @@ defines module net.customer.generic.functions
       assert item?
       iter as Iterator of S: item.iterator()
               
-    eventHandler of type T
+    eventHandler of type T as open
       -> event as T
       <- rtn as Boolean := false
       //Replaces the if and an exception now with an assert.
       assert event?      
       rtn := true
       
-    doubler of type T
+    doubler of type T as open
       -> param as T
       <- retVal as T := param
       

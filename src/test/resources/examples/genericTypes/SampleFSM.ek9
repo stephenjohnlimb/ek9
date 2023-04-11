@@ -42,7 +42,7 @@ defines module com.utils
       Has a default implementation - but now you can override
       Do this by creating a dynamic function and provide the implementation you want  
     -?>
-    FSMListener() of type T
+    FSMListener() of type T as open
       ->
         fromState as T
         toState as T

@@ -60,4 +60,10 @@ defines module bad.inherited.functions
       -> arg0 as String
       <- rtn as Integer: SOME_CONSTANT
 
+    //Not allowed because not abstract or open
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_OPEN_TO_EXTENSION
+    Function8 extends Function3
+      -> arg0 as String
+      <- rtn as String: "FIXED VALUE"
+
 //EOF

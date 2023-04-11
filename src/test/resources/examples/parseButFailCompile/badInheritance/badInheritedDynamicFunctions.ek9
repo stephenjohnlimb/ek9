@@ -1,0 +1,133 @@
+#!ek9
+<?-
+  Examples of dynamic functions with good and bad inheritance.
+  So we can check detection and errors.
+  This source uses the @ EK9 directives to check for errors.
+-?>
+defines module bad.inherited.dynamicfunctions
+
+  //Just used to check it is not possible to inherit from a constant
+  defines constant
+    SOME_CONSTANT <- 10
+
+  //Just used to define a 'type' to check it is rejected as a super for a function.
+  defines trait
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "SomeTrait"
+    SomeTrait
+      aMethod() as abstract
+
+  defines class
+
+    //This will be fine and work but we will check it cannot be used to be extended by a dynamic class
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Class1"
+    Class1 as open
+      firstName <- "Steve"
+      lastName <- "Limb"
+
+    Class2 of type T
+      someField as T?
+
+      Class2()
+        -> arg0 as T
+        someField: arg0
+
+      get()
+        <- rtn as T: someField
+
+  defines function
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "AFunction"
+    AFunction as abstract
+      -> arg0 as Integer
+      <- rtn as Boolean?
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "NFunction"
+    NFunction
+      -> arg0 as Integer
+      <- rtn <- false
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_OPEN_TO_EXTENSION
+    EFunction extends NFunction
+      -> arg0 as Integer
+      <- rtn <- false
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "OFunction"
+    OFunction as open
+      -> arg0 as Integer
+      <- rtn <- false
+
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_FUNCTION: "GFunction"
+    GFunction of type (K, V) as abstract
+      -> arg0 as K
+      <- rtn as V?
+
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_FUNCTION: "HFunction"
+    HFunction of type H
+      -> arg0 as H
+      <- rtn as H: arg0
+
+  defines class
+
+    //just used as a vehicle for making dynamic functions.
+    DriverClass
+
+      validUseOfDynamicFunction()
+        aFunction <- () is AFunction as function
+          rtn: arg0? and arg0 > 0 <- true else false
+
+        oFunction <- () is OFunction as function
+          rtn: arg0? and arg0 > 0 <- true else false
+
+        dict <- Dict(1, "Steve")
+        kvFunction <- (dict) is GFunction of (Integer, String) as function
+          found <- dict.get(arg0)
+          rtn: found? <- found.get() else String()
+
+      invalidUseOfExtendingWhenNotOpen()
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_OPEN_TO_EXTENSION
+        fun <- () is NFunction as function
+          rtn: arg0? and arg0 > 0 <- true else false
+
+      invalidUseOfExtendingWhenVariable()
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+        fun <- () is SOME_CONSTANT as function
+          rtn: arg0? and arg0 > 0 <- true else false
+
+      invalidUseOfExtendingWhenTrait()
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+        fun <- () is SomeTrait as function
+          rtn: arg0? and arg0 > 0 <- true else false
+
+      invalidUseOfExtendingWhenClass()
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+        fun <- () is Class1 as function
+          rtn: arg0? and arg0 > 0 <- true else false
+
+      invalidUseOfExtendingWhenGenericClass()
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+        fun <- () is Class2 of String as function
+          rtn: arg0? and arg0 > 0 <- true else false
+
+      invalidUseOfExtendingWhenGenericClassNotParameterized()
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+        fun <- () is Class2 as function
+          rtn: arg0? and arg0 > 0 <- true else false
+
+      invalidUseOfExtendingWhenNotParameterized()
+        dict <- Dict(1, "Steve")
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_CATEGORY
+        fun <- (dict) is GFunction as function
+          found <- dict.get(arg0)
+          rtn: found? <- found.get() else String()
+
+      useNonOpenGenericFunction()
+        //So you can use a non-open generic function like this.
+        hFun as HFunction of Integer: HFunction()
+        result <- hFun(1)
+        assert result == 1
+
+        //But you cannot use it like this, this is to enable fine grained control on how a generic function/type can be used.
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_OPEN_TO_EXTENSION
+        noFun <- () is HFunction of Integer as function
+          rtn: -arg0
+//EOF

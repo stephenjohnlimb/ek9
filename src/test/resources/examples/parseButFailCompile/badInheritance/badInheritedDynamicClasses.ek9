@@ -10,7 +10,6 @@ defines module bad.inherited.dynamicclasses
   defines constant
     SOME_CONSTANT <- 10
 
-  //Just used to define a 'type' to check it is rejected as a super for a record.
   defines trait
 
     @Resolved: SYMBOL_DEFINITION: TYPE: "SomeTrait"

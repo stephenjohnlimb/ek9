@@ -13,6 +13,10 @@ defines module com.customer.justcat
       <-
         rtn as String: firstPart? and secondPart? <- firstPart + ", " + secondPart : String()
 
+
+    someAbstractImpl as abstract
+      <- rtn as Integer?
+
   //Some examples of the new parser grammar to enable return values from stream pipelines over multiple lines.
   defines class
     @Resolved: SYMBOL_DEFINITION: TYPE: "NameProvider"

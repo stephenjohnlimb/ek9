@@ -22,7 +22,7 @@ defines module bad.use.conceptual.parameters
 
   defines function
 
-    GFunction of type P
+    GFunction of type P as open
       -> arg0 as P
       <- value as P: arg0
 
