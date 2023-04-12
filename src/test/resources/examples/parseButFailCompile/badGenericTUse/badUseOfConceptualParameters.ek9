@@ -46,13 +46,12 @@ defines module bad.use.conceptual.parameters
       <-
         rtn as T?
 
-      //Because T is generic - there's now way it can be injected vi IOC
+      //Because T is generic - there's no way it can be injected vi IOC
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: COMPONENT_INJECTION_NOT_POSSIBLE
       invalidInjection as T!
 
       aGeneralFunction as GeneralFunction: () is GeneralFunction as pure
-        //So with a general dynamic function like this, the T in the generic scope is inaccessible
-        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+        //So with a general dynamic function like this, the T in the generic scope is accessible
         something as T?
         value: arg0 * 22
 

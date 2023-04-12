@@ -56,8 +56,8 @@ defines module bad.inherited.dynamicfunctions
       -> arg0 as Integer
       <- rtn <- false
 
-    @Resolved: SYMBOL_DEFINITION: TEMPLATE_FUNCTION: "GFunction"
-    GFunction of type (K, V) as abstract
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_FUNCTION: "GenFunction"
+    GenFunction of type (K, V) as abstract
       -> arg0 as K
       <- rtn as V?
 
@@ -79,7 +79,7 @@ defines module bad.inherited.dynamicfunctions
           rtn: arg0? and arg0 > 0 <- true else false
 
         dict <- Dict(1, "Steve")
-        kvFunction <- (dict) is GFunction of (Integer, String) as function
+        kvFunction <- (dict) is GenFunction of (Integer, String) as function
           found <- dict.get(arg0)
           rtn: found? <- found.get() else String()
 
@@ -116,7 +116,7 @@ defines module bad.inherited.dynamicfunctions
       invalidUseOfExtendingWhenNotParameterized()
         dict <- Dict(1, "Steve")
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_CATEGORY
-        fun <- (dict) is GFunction as function
+        fun <- (dict) is GenFunction as function
           found <- dict.get(arg0)
           rtn: found? <- found.get() else String()
 

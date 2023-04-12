@@ -79,7 +79,8 @@ public abstract class ResolveOrDefineTypes {
 
   protected Optional<ISymbol> resolveSimpleTypeByIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
     var ofType = ctx.getText();
-    var resolved = symbolAndScopeManagement.getTopScope().resolve(new AnyTypeSymbolSearch(ofType));
+    var scope = symbolAndScopeManagement.getTopScope();
+    var resolved = scope.resolve(new AnyTypeSymbolSearch(ofType));
     if (resolved.isEmpty() && errorIfNotDefinedOrResolved) {
       errorListener.semanticError(ctx.start, "",
           ErrorListener.SemanticClassification.TYPE_NOT_RESOLVED);

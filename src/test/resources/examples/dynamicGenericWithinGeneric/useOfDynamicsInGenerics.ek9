@@ -1,0 +1,49 @@
+#!ek9
+<?-
+  Just check that conceptual types can be resolved within a generic context.
+-?>
+defines module bad.use.dynamics.generics
+
+  defines class
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "AGenericClass"
+    AGenericClass of type (K, V) as open
+      key as K?
+      value as V?
+
+      default AGenericClass()
+
+      AGenericClass()
+        ->
+          key as K
+          value as V
+        this.key :=: key
+        this.value :=: value
+
+      key()
+        <- rtn as K: key
+
+      value()
+        <- rtn as V: value
+
+  defines function
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_FUNCTION: "AGenericFunction"
+    AGenericFunction of type T as open
+      -> arg0 as T
+      <- rtn as T: arg0
+
+  //Now we can try out using the generic types above - but within another generic.
+
+  defines class
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "TestGenericClass"
+    TestGenericClass of type (P, Q)
+
+      //Just create any old method to create dynamic versions of the above function/class in
+      someMethodForDynamicClasses()
+
+        //note type inference not supported within generic types, so long hand.
+        dClass1 as AGenericClass of (P, Q) := () is AGenericClass of (P, Q) as class
+
+      someMethodForDynamicFunctions()
+        dFun1 as AGenericFunction of P := () is AGenericFunction of P as function
+
+//EOF

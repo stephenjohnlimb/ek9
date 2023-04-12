@@ -282,6 +282,14 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
   public Optional<ISymbol> resolve(SymbolSearch search) {
     Optional<ISymbol> rtn = resolveInThisScopeOnly(search);
 
+    //This is the scenario where we have a dynamic class or function being used within
+    // a generic class or function and we need to resolve the types used in that outer type.
+    //i.e. the K, V and T sort of conceptual types.
+    if (rtn.isEmpty() && getScopeType().equals(ScopeType.DYNAMIC_BLOCK)
+        && getOuterMostTypeOrFunction().isPresent() && search.isAnyValidTypeSearch()) {
+      rtn = getOuterMostTypeOrFunction().get().resolve(search);
+    }
+
     if (rtn.isEmpty()) {
       rtn = resolveWithParentScope(search);
     }

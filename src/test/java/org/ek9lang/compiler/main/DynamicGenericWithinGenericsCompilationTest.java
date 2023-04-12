@@ -7,10 +7,10 @@ import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
-class GenericTypesCompilationTest extends FullCompilationTest {
+class DynamicGenericWithinGenericsCompilationTest extends FullCompilationTest {
 
-  public GenericTypesCompilationTest() {
-    super("/examples/genericTypes");
+  public DynamicGenericWithinGenericsCompilationTest() {
+    super("/examples/dynamicGenericWithinGeneric");
   }
 
   @Test

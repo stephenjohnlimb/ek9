@@ -1,0 +1,89 @@
+#!ek9
+<?-
+  Designed to show and check good simple use of dynamic functions and classes when used
+  within generic classes and functions. But also highlight and detect errors.
+
+  This is quite tricky to get your head around as it is only when a generic class or function
+  is actually parameterised does it become clear wheat should result.
+
+  The levels of indirection/abstraction can cause confusion.
+-?>
+defines module bad.use.dynamics.generics
+
+  //First off just create a couple of generic to be used later.
+
+  defines class
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "AGenericClass"
+    AGenericClass of type (K, V) as open
+      key as K?
+      value as V?
+
+      default AGenericClass()
+
+      AGenericClass()
+        ->
+          key as K
+          value as V
+        this.key :=: key
+        this.value :=: value
+
+      key()
+        <- rtn as K: key
+
+      value()
+        <- rtn as V: value
+
+  defines function
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_FUNCTION: "AGenericFunction"
+    AGenericFunction of type T as open
+      -> arg0 as T
+      <- rtn as T: arg0
+
+  //Now we can try out using the generic types above - but within another generic.
+
+  defines class
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "TestGenericClass"
+    TestGenericClass of type (P, Q)
+
+      //Just create any old method to create dynamic versions of the above function/class in
+      someMethodForDynamicClasses()
+
+        //note type inference not supported within generic types, so long hand.
+        dClass1 as AGenericClass of (P, Q) := () is AGenericClass of (P, Q) as class
+
+        dClass2 as AGenericClass of (P, String) := () is AGenericClass of (P, String) as class
+
+        dClass3 as AGenericClass of (Integer, String) := () is AGenericClass of (Integer, String) as class
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+        eClass1 as AGenericClass of (P, Q) := () with trait of AGenericClass as class
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+        eClass2 as AGenericClass of (P, Q) := () with trait of AGenericFunction as class
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+        eClass3 as AGenericClass of (P, Q) := () extends AGenericFunction of P as class
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+        eClass4 as AGenericClass of (P, Q) := () extends AGenericFunction of Integer as class
+
+      someMethodForDynamicFunctions()
+        dFun1 as AGenericFunction of P := () is AGenericFunction of P as function
+
+        dFun2 as AGenericFunction of Integer := () is AGenericFunction of Integer as function
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+        eFun1 as AGenericFunction of P := () is AGenericClass of (P, Q) as function
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+        eFun2 as AGenericFunction of P := () is AGenericClass of (Integer, String) as function
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_CATEGORY
+        eFun3 as AGenericFunction of Integer := () is AGenericFunction as function
+          arg0 as Integer: 0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+        eFun4 as AGenericFunction of P := () is AGenericClass as function
+          arg0 as Integer: 0
+
+//EOF
