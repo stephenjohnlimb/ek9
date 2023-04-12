@@ -97,5 +97,15 @@ defines module bad.inherited.classes
     Class14 extends List
       dob <- Date()
 
+    //Try an extend a generic function (wrong genus) as a class
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    Class15 extends GFunction
+      dob <- Date()
+
+    //Error even when correctly parameterised
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    Class16 extends GFunction of (Integer, String)
+      dob <- Date()
+
 
 //EOF

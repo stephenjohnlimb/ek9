@@ -16,7 +16,30 @@ defines module bad.inherited.functions
     SomeTrait
       aMethod() as abstract
 
+  defines class
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "AGenericClass"
+    AGenericClass of type (K, V)
+      key as K?
+      value as V?
+
+      AGenericClass()
+        ->
+          key as K
+          value as V
+        this.key :=: key
+        this.value :=: value
+
+      key()
+        <- rtn as K: key
+
+      value()
+        <- rtn as V: value
+
   defines function
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_FUNCTION: "GFunction"
+    GFunction of type (K, V) as abstract
+      -> arg0 as K
+      <- rtn as V?
 
     //First some valid functions - here's one with a body but can be extended from and function altered.
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "Function1"
@@ -63,6 +86,18 @@ defines module bad.inherited.functions
     //Not allowed because not abstract or open
     @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_OPEN_TO_EXTENSION
     Function8 extends Function3
+      -> arg0 as String
+      <- rtn as String: "FIXED VALUE"
+
+    //Function cannot extend a generic class
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    Function9 extends AGenericClass
+      -> arg0 as String
+      <- rtn as String: "FIXED VALUE"
+
+    //It is not possible to extends a generic function like this.
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_CATEGORY
+    Function10 extends GFunction
       -> arg0 as String
       <- rtn as String: "FIXED VALUE"
 

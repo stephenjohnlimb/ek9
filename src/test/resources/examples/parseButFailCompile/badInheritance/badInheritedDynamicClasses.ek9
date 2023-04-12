@@ -63,8 +63,7 @@ defines module bad.inherited.dynamicclasses
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
         dynamicClass <- () with trait of SOME_CONSTANT as class
 
-      //GFunction is a function and not a class, so cannot be extended as a class.
-      checkAsBadParameterizedFunctionTrait()
+      checkAsBadParameterizedFunctionExtension()
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
         dynamicClass <- () extends GFunction of(Integer, String) as class
 

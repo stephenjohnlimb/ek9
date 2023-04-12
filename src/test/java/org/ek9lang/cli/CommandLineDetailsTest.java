@@ -112,7 +112,7 @@ final class CommandLineDetailsTest {
   void testDefaultPackageSettings() {
     String sourceName = "TCPExample.ek9";
     //We will copy this into a working directory and process it.
-    sourceFileSupport.copyFileToTestCWD("/examples/fullPrograms/", sourceName);
+    sourceFileSupport.copyFileToTestCWD("/examples/fullPrograms/networking/", sourceName);
 
     //As part of the package mechanism we have defaults when not specified.
     CommandLineDetails underTest = createClassUnderTest();
@@ -185,7 +185,7 @@ final class CommandLineDetailsTest {
   void testHandlingEK9Package() {
     String sourceName = "TCPExample.ek9";
     //We will copy this into a working directory and process it.
-    sourceFileSupport.copyFileToTestCWD("/examples/fullPrograms/", sourceName);
+    sourceFileSupport.copyFileToTestCWD("/examples/fullPrograms/networking/", sourceName);
 
     CommandLineDetails underTest = createClassUnderTest();
     //Now we can put a dummy source file in the simulated/test cwd and then try and process it.

@@ -8,11 +8,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import org.ek9lang.cli.support.Ek9SourceVisitor;
 import org.ek9lang.cli.support.PackageDetails;
 import org.ek9lang.compiler.support.JustParser;
@@ -32,8 +32,7 @@ final class TestPackageParsing {
   private final Function<URL, File> urlToFile = url -> {
     try {
       return new File(url.toURI());
-    }
-    catch (URISyntaxException e) {
+    } catch (URISyntaxException e) {
       throw new RuntimeException(e);
     }
   };
@@ -150,9 +149,8 @@ final class TestPackageParsing {
   @SuppressWarnings("java:S2699")
   void testBadPackages() {
     // A couple of source file with bad packaging in them.
-    List.of("/examples/constructs/packages/BadPackage.ek9",
+    Stream.of("/examples/constructs/packages/BadPackage.ek9",
             "/badExamples/basics/unevenIndentation.ek9")
-        .stream()
         .map(fileForClassPathResource)
         .forEach(checkBadPackage);
   }
@@ -160,11 +158,10 @@ final class TestPackageParsing {
   @Test
   void testPackaging() {
     var toTest = Map.of("/examples/constructs/packages/HandyTools.ek9", validateSmallPackage,
-        "/examples/fullPrograms/TCPExample.ek9", validateFullPackage,
+        "/examples/fullPrograms/networking/TCPExample.ek9", validateFullPackage,
         "/examples/constructs/packages/SinglePackage.ek9", validateSimplePackage);
 
-    toTest.entrySet().stream()
-        .forEach(entry -> processTest(entry.getKey(), entry.getValue()));
+    toTest.forEach(this::processTest);
   }
 
   private void processTest(String resourceName, Consumer<PackageDetails> validator) {
