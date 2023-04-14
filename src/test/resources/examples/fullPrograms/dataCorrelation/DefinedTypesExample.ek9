@@ -10,7 +10,7 @@ defines module worked.example
   defines program
 
     DataCorrelation()
-      -> argv as Strings
+      -> argv as List of String
 
       stdin <- Stdin()
       stdout <- Stdout()
@@ -93,22 +93,22 @@ defines module worked.example
 
     lineValidator() as abstract
       -> line as String
-      <- rtn as Boolean
+      <- rtn as Boolean?
 
     lineToCustomerRecord() as abstract
       -> line as String
-      <- rtn as DictEntry of (String, CustomerRecord)
+      <- rtn as DictEntry of (String, CustomerRecord)?
 
     customerRecordMerger() as abstract
       -> entry as DictEntry of (String, CustomerRecord)
-      <- rtn as String
+      <- rtn as String?
 
     createLineValidator()
       ->
         stderr as Stderr
         debugLevel as Integer
       <-
-        validator as lineValidator
+        validator as lineValidator?
 
       validator: (stderr, debugLevel) is lineValidator
         rtn: line is not empty and #<line != '#'
@@ -120,7 +120,7 @@ defines module worked.example
         stderr as Stderr
         debugLevel as Integer
       <-
-        processor as lineToCustomerRecord
+        processor as lineToCustomerRecord?
 
       processor: (stderr, debugLevel) is lineToCustomerRecord
         rtn: DictEntry()
@@ -185,31 +185,27 @@ defines module worked.example
         verboseMode as Boolean
         debugLevel as Integer
 
-      terminationHandler <- (verboseMode, debugLevel) trait of SignalHandler
-        override handleSignal()
-          -> signal as String
-          <- rtn as Integer: 1 //Process will exit with code of one
-          if verboseMode or debugLevel > 0
-            Stderr().println(`Handled Terminal Signal [${signal}]`)
+      terminationHandler <- (verboseMode, debugLevel) is SignalHandler as function
+        result: 1 //The error code to terminate with
+        if verboseMode or debugLevel > 0
+          Stderr().println(`Handled Terminal Signal [${signal}]`)
 
-      terminations <- Signals().register(Strings("HUP", "ABRT"), terminationHandler)
+      terminations <- Signals().register(["HUP", "ABRT"], terminationHandler)
       if terminations not contains "HUP"
         Stderr().println("HUP Signal not supported")
       if terminations not contains "ABRT"
         Stderr().println("ABRT Signal not supported")
 
-      debugHandler <- (verboseMode, debugLevel) trait of SignalHandler
-        override handleSignal()
-          -> signal as String
-          <- rtn as Integer: Integer() //Note the Integer is not set so process will not terminate
-          if signal == "USR1" and debugLevel < 3
-            debugLevel++
-          else if signal == "USR2" and debugLevel > 0
-            debugLevel--
-          if verboseMode or debugLevel > 0
-            Stderr().println(`Handled Info Signal [${signal}] Debug Level now [${debugLevel}]`)
+      debugHandler <- (verboseMode, debugLevel) is SignalHandler as function
+        result: Integer() //Note the Integer is not set so process will not terminate
+        if signal == "USR1" and debugLevel < 3
+          debugLevel++
+        else if signal == "USR2" and debugLevel > 0
+          debugLevel--
+        if verboseMode or debugLevel > 0
+          Stderr().println(`Handled Info Signal [${signal}] Debug Level now [${debugLevel}]`)
 
-      debugs <- Signals().register(Strings("USR1", "USR2"), debugHandler)
+      debugs <- Signals().register(["USR1", "USR2"], debugHandler)
       if debugs not contains "USR1"
         Stderr().println("USR1 Signal not supported")
       if debugs not contains "USR2"
@@ -238,7 +234,7 @@ defines module worked.example
         debugLevel as Integer
         namedFileContents as Dict of (String, CustomerRecord)
       <-
-        merge as customerRecordMerger
+        merge as customerRecordMerger?
 
       merge: (stderr, debugLevel, namedFileContents) is customerRecordMerger
         rtn: String() //Output will be unset by default and there for not output
@@ -258,10 +254,9 @@ defines module worked.example
     OptionsHandler
 
       processCommandLine()
-        -> argv as Strings
+        -> arguments as List of String
         <- options as Dict of (String, String): Dict()
 
-        arguments <- cat argv | collect as List of String
         getopts <- setupGetOpt(":")
         options := getopts.options(arguments)
 
@@ -354,7 +349,7 @@ defines module worked.example
           stderr as Stderr
           debugLevel as Integer
         <-
-          processor as lineToCustomerRecord
+          processor as lineToCustomerRecord?
 
         processor: (stderr, debugLevel) is lineToCustomerRecord
           splitLine <- line.split(/:/)

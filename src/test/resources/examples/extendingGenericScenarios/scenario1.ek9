@@ -10,9 +10,9 @@ defines module generics.scenario.one
     <?-
       Simple Generic/template class with a multiple type parameters.
     -?>
-    GC of type (K, V)
-      key as K
-      value as V
+    GC of type (K, V) as open
+      key as K?
+      value as V?
 
       GC()
         ->
@@ -55,7 +55,7 @@ defines module generics.scenario.one
 
       assert bySuperType.name() == "Just a single mapping"
 
-      echoedValue1 as String: bySuperType.operation(1)
-      assert echoedValue1 == "Steve"
+      echoedValue2 as String: bySuperType.operation(1)
+      assert echoedValue2 == "Steve"
 
 //EOF

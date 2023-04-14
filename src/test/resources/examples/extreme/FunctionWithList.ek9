@@ -7,16 +7,21 @@ defines module com.customer.is.handle.layout
   //They don't really have usable functionality.
   defines function
 
+    someGenericFunction of type (V, V) as open
+      //No real body here
+      val as Integer: 89
+      assert val?
+
     someHigher()
-      <- rtn as absFunction
+      <- rtn as absFunction: () is absFunction() as function (rtn: p1 + p1)
 
     someFunction
       -> fn as absFunction
-      <- rtn as absFunction     
-      
+      <- rtn as absFunction: fn
+
     absFunction() as abstract
       -> p1 as Integer
-      <- rtn as Integer
+      <- rtn as Integer?
 
     checkDynamicFunction()
       //You cannot directly inline these dynamic functions.
@@ -63,10 +68,10 @@ defines module com.customer.is.handle.layout
       
       //If so you might end up with this, functions returning functions and accepting parameters.
       //Here's a little mind f*ck for you.
-      bResult <- someHigher()(34)("Check")("This")("Out")
+      cResult <- someHigher()(34)("Check")("This")("Out")
 
       //Imaging a parameterised generic function and we create a dynamic function from it
-      aFunct <- () extends someGenericFunction of String as function
+      aFunct <- () extends someGenericFunction of (String, Date) as function
 
       //Of if it had two params
       bFunct <- () extends someGenericFunction of (Integer, String) as function
@@ -124,7 +129,7 @@ defines module com.customer.is.handle.layout
 
     f5()
       -> p1 as String
-      <- rtn as String
+      <- rtn as String?
       aVar <- "Steve"
 
     f6()
@@ -132,7 +137,7 @@ defines module com.customer.is.handle.layout
       <- rtn as String: "Steve"
 
     f7()
-      //Just call f6
+      //Just call
       aVar <- p4("Test")
 
     f8()
@@ -180,7 +185,7 @@ defines module com.customer.is.handle.layout
         values: ["quick", "brown", "fox"]
         )
 
-    fListCall4()
+    fListCall5()
       //named but with declarative type layout but array spread
       result <- fList1(
         focus: 1,
@@ -207,7 +212,7 @@ defines module com.customer.is.handle.layout
     fDictionaryCall2()
       result <- fDictionary1(1, "Steve", {1: "quick", 2: "brown", 3: "fox"})
 
-    fDictionaryCall2()
+    fDictionaryCall3()
       result <- fDictionary1(
         focus: 1,
         name: "Steve",

@@ -9,12 +9,12 @@ import org.ek9lang.compiler.symbol.support.SymbolCountCheck;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just test functions all compile.
+ * Just test references all compile and resolve.
  */
-class FunctionsCompilationTest extends FullCompilationTest {
+class ExamplesConstructsReferencesTest extends FullCompilationTest {
 
-  public FunctionsCompilationTest() {
-    super("/examples/constructs/functions");
+  public ExamplesConstructsReferencesTest() {
+    super("/examples/constructs/references");
   }
 
 
@@ -27,10 +27,12 @@ class FunctionsCompilationTest extends FullCompilationTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
-    new SymbolCountCheck("test.functions", 2).test(program);
-    new SymbolCountCheck("com.customer.just.functions", 24).test(program);
-    new SymbolCountCheck("com.customer.just", 6).test(program);
-    new SymbolCountCheck("net.customer", 5).test(program);
-  }
+    new SymbolCountCheck(2, "net.customer.geometry", 5).test(program);
+    new SymbolCountCheck(2, "net.customer.specials", 5).test(program);
+    new SymbolCountCheck(1, "net.customer.pair.dev", 1).test(program);
+    new SymbolCountCheck(1, "net.customer.pair", 8).test(program);
+    new SymbolCountCheck(2, "net.customer.some", 3).test(program);
+    new SymbolCountCheck(1, "ekopen.std.incs", 1).test(program);
 
+  }
 }

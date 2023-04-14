@@ -22,7 +22,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 70;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 71;
 
   //Obviously with ek9 the indentation is important.
 
@@ -402,7 +402,7 @@ defines extern module org.ek9.lang
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_STANDARD_FUNCTIONS = """
     SignalHandler() as abstract
-      -> value as String
+      -> signal as String
       <- result as Integer?
 
     <!- By its nature it is abstract -!>
@@ -446,12 +446,23 @@ defines extern module org.ek9.lang
     Signals
       Signals()
 
+      <?-
+        Register a handler for one or more signals
+      -?>
+      register()
+        ->
+          signals as List of String
+          handler as SignalHandler
+           
     EnvVars
       EnvVars()
 
-    GetOpt
+    GetOpt of type T
       GetOpt()
 
+      GetOpt()
+        -> value as T
+        
     Version
       Version()
 

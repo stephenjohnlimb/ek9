@@ -12,9 +12,9 @@ import org.junit.jupiter.api.Test;
 /**
  * Just test simple classes all compile.
  */
-class ClassesCompilationTest extends FullCompilationTest {
+class ExamplesConstructsClassesTest extends FullCompilationTest {
 
-  public ClassesCompilationTest() {
+  public ExamplesConstructsClassesTest() {
     super("/examples/constructs/classes");
   }
 

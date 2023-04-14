@@ -41,6 +41,10 @@ defines module net.customer
   //It also includes the ability to use the input text and any reference values.
   //There is no business logic in here only formatting of parameters into text for output.
 
+  defines record
+    Product
+      name <- String()
+
   defines text for "en"
 
     WelcomePageText

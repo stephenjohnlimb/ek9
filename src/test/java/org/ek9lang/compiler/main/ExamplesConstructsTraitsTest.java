@@ -5,17 +5,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
-import org.ek9lang.compiler.symbol.support.SymbolCountCheck;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just test composition compiles.
+ * Just test traits all compile.
  */
-class CompositionCompilationTest extends FullCompilationTest {
+class ExamplesConstructsTraitsTest extends FullCompilationTest {
 
-  public CompositionCompilationTest() {
-    super("/examples/constructs/composition");
+  public ExamplesConstructsTraitsTest() {
+    super("/examples/constructs/traits");
   }
+
 
   @Test
   void testPhaseDevelopment() {
@@ -26,6 +26,5 @@ class CompositionCompilationTest extends FullCompilationTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
-    new SymbolCountCheck("com.customer.just.employees", 17).test(program);
   }
 }

@@ -8,12 +8,12 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just test basics all compile.
+ * Just test simple records all compile.
  */
-class BasicsCompilationTest extends FullCompilationTest {
+class ExamplesConstructsRecordsTest extends FullCompilationTest {
 
-  public BasicsCompilationTest() {
-    super("/examples/basics");
+  public ExamplesConstructsRecordsTest() {
+    super("/examples/constructs/records");
   }
 
 

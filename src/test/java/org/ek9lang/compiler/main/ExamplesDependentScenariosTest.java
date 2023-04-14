@@ -7,14 +7,17 @@ import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
-class DynamicGenericWithinGenericsCompilationTest extends FullCompilationTest {
+/**
+ * Just test dependent generics compile.
+ */
+class ExamplesDependentScenariosTest extends FullCompilationTest {
 
-  public DynamicGenericWithinGenericsCompilationTest() {
-    super("/examples/dynamicGenericWithinGeneric");
+  public ExamplesDependentScenariosTest() {
+    super("/examples/dependentGenericScenarios");
   }
 
   @Test
-  void testPhasedDevelopment() {
+  void testPhaseDevelopment() {
     testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
   }
 

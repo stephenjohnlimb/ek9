@@ -7,18 +7,14 @@ import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
-/**
- * Just test simple records all compile.
- */
-class SimpleRecordsCompilationTest extends FullCompilationTest {
+class ExamplesFullProgramsDataCollelationlTest extends FullCompilationTest {
 
-  public SimpleRecordsCompilationTest() {
-    super("/examples/constructs/records");
+  public ExamplesFullProgramsDataCollelationlTest() {
+    super("/examples/fullPrograms/dataCorrelation");
   }
 
-
   @Test
-  void testPhaseDevelopment() {
+  void testPhasedDevelopment() {
     testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
   }
 

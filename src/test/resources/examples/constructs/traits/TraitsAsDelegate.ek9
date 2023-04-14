@@ -26,7 +26,7 @@ defines module com.customer.delegates
     T1 abstract
       t() abstract
         -> p String
-        <- r String
+        <- r String?
         
       operator ?
         <- rtn Boolean: true
@@ -94,7 +94,7 @@ defines module com.customer.delegates
       Simple main checker program
     -?>
     Checker
-      <- rtn String: "OK"
+      <- rtn <- 0
       
       //Access to Stdout for printing output.
       stdout <- Stdout()

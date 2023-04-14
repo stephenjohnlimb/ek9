@@ -9,12 +9,12 @@ import org.ek9lang.compiler.symbol.support.SymbolCountCheck;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just test methods all compile.
+ * Just test simple services all compile.
  */
-class MethodsCompilationTest extends FullCompilationTest {
+class ExamplesConstructsServicesTest extends FullCompilationTest {
 
-  public MethodsCompilationTest() {
-    super("/examples/constructs/methods");
+  public ExamplesConstructsServicesTest() {
+    super("/examples/constructs/services");
   }
 
 
@@ -27,10 +27,10 @@ class MethodsCompilationTest extends FullCompilationTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
-    new SymbolCountCheck("com.classandfield.resolution", 15).test(program);
 
-    new SymbolCountCheck("com.customer.resolution", 12).test(program);
+    new SymbolCountCheck("com.customer.services", 43).test(program);
+    new SymbolCountCheck("com.customer.webserver", 2).test(program);
+    new SymbolCountCheck("com.customer.html", 3).test(program);
 
-    new SymbolCountCheck("net.customer", 6).test(program);
   }
 }

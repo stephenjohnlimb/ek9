@@ -34,12 +34,12 @@ defines module com.customer.dynamic
     LenValidator
       validateLength() abstract
         -> p as String
-        <- r as Boolean      
+        <- r as Boolean?
     
     CharValidator
       validateCharacters() abstract
         -> p as String
-        <- r as Boolean
+        <- r as Boolean?
         
     Validator with trait of LenValidator, CharValidator
       validate()
@@ -57,7 +57,7 @@ defines module com.customer.dynamic
   
     discriminator as abstract
       -> s as String
-      <- rtn as Boolean
+      <- rtn as Boolean?
   
   defines program
   
@@ -105,19 +105,19 @@ defines module com.customer.dynamic
       assert checkContent.validateCharacters(val3)
       assert not checkContent.validateCharacters(val4)
 
-      validate1 <- (lenValidator, checkContent) trait of LenValidator by lenValidator, CharValidator by checkContent
+      validator1 <- (lenValidator, checkContent) trait of LenValidator by lenValidator, CharValidator by checkContent
 
-      assert validate1.validateCharacters(val1) and validate1.validateLength(val1)
-      assert validate1.validateCharacters(val2) and not validate1.validateLength(val2)
-      assert validate1.validateCharacters(val3) and not validate1.validateLength(val3)
-      assert not validate1.validateCharacters(val4) and validate1.validateLength(val4)
+      assert validator1.validateCharacters(val1) and validator1.validateLength(val1)
+      assert validator1.validateCharacters(val2) and not validator1.validateLength(val2)
+      assert validator1.validateCharacters(val3) and not validator1.validateLength(val3)
+      assert not validator1.validateCharacters(val4) and validator1.validateLength(val4)
 
-      validate2 <- (validate1, checkContent) trait of Validator, LenValidator by validate1, CharValidator by checkContent
+      validator2 <- (validator1, checkContent) trait of Validator, LenValidator by validator1, CharValidator by checkContent
 
-      assert validate2.validate(val1)
-      assert not validate2.validate(val2)
-      assert not validate2.validate(val3)
-      assert not validate2.validate(val4)
+      assert validator2.validate(val1)
+      assert not validator2.validate(val2)
+      assert not validator2.validate(val3)
+      assert not validator2.validate(val4)
 
       val5 <- "steve"
       
