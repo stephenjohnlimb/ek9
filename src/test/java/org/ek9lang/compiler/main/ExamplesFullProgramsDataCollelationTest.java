@@ -7,9 +7,9 @@ import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
-class ExamplesFullProgramsDataCollelationlTest extends FullCompilationTest {
+class ExamplesFullProgramsDataCollelationTest extends FullCompilationTest {
 
-  public ExamplesFullProgramsDataCollelationlTest() {
+  public ExamplesFullProgramsDataCollelationTest() {
     super("/examples/fullPrograms/dataCorrelation");
   }
 

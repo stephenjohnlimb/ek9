@@ -7,17 +7,14 @@ import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
-/**
- * Just test simple types all compile.
- */
-class ExamplesConstructsTypesTest extends FullCompilationTest {
+class ExamplesGenericTypesTest extends FullCompilationTest {
 
-  public ExamplesConstructsTypesTest() {
-    super("/examples/constructs/types");
+  public ExamplesGenericTypesTest() {
+    super("/examples/genericTypes");
   }
 
   @Test
-  void testPhaseDevelopment() {
+  void testPhasedDevelopment() {
     testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
   }
 

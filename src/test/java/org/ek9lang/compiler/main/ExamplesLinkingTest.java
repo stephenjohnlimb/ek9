@@ -7,10 +7,10 @@ import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
-class GenericTypesCompilationTest extends FullCompilationTest {
+class ExamplesLinkingTest extends FullCompilationTest {
 
-  public GenericTypesCompilationTest() {
-    super("/examples/genericTypes");
+  public ExamplesLinkingTest() {
+    super("/examples/linking");
   }
 
   @Test

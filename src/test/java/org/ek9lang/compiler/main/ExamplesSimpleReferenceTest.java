@@ -7,17 +7,14 @@ import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
-/**
- * Just test simple types all compile.
- */
-class ExamplesConstructsTypesTest extends FullCompilationTest {
+class ExamplesSimpleReferenceTest extends FullCompilationTest {
 
-  public ExamplesConstructsTypesTest() {
-    super("/examples/constructs/types");
+  public ExamplesSimpleReferenceTest() {
+    super("/examples/simpleReference");
   }
 
   @Test
-  void testPhaseDevelopment() {
+  void testPhasedDevelopment() {
     testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
   }
 

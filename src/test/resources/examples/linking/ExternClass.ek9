@@ -27,11 +27,11 @@ defines extern module net.customer.assertions
           param2 as String
           param3 as Float
         <-
-          rtn as String
+          rtn as String?
 
       method2()
         -> param1 as String
-        <- rtn as String
+        <- rtn as String?
         
       method3()
 

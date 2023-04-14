@@ -8,11 +8,11 @@ defines module example.networking
         
     UDPPacketHandler() as abstract
       -> incoming as UDPPacket
-      <- outgoing as UDPPacket
+      <- outgoing as UDPPacket?
 
     packetConverter() as abstract
       -> content as String
-      <- outgoing as UDPPacket
+      <- outgoing as UDPPacket?
 
     stringToPacket() is packetConverter
       -> content as String
@@ -80,12 +80,10 @@ defines module example.networking
       udpConnection <- UDP(port, packetSze)
 
       //This time stop server with abort signal not content 'end'.
-      abortHandler <- (udpConnection) trait of SignalHandler as class
-        override handleSignal()
-          -> signal as String
-          <- rtn as Integer: 0
-          Stderr().println("Received abort Signal closing connection")
-          udpConnection.close()
+      abortHandler <- (udpConnection) is SignalHandler as function
+        result: 0
+        Stderr().println("Received abort Signal closing connection")
+        udpConnection.close()
 
       Signals().register(signal, abortHandler)
 

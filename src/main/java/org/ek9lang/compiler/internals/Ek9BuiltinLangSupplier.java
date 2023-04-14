@@ -453,6 +453,14 @@ defines extern module org.ek9.lang
         ->
           signals as List of String
           handler as SignalHandler
+
+      <?-
+        Register a handler for one signal
+      -?>
+      register()
+        ->
+          signal as String
+          handler as SignalHandler
            
     EnvVars
       EnvVars()
@@ -482,7 +490,7 @@ defines extern module org.ek9.lang
 
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_NETWORK_FUNCTIONS = """
-    TCPHandler
+    TCPHandler as open
       ->
         input as StringInput
         output as StringOutput

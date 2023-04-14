@@ -94,10 +94,10 @@ defines module example.networking
 
     processingFunction() as abstract
       -> input as String
-      <- response as String
+      <- response as String?
 
     serverFunction() as abstract
-      <- response as String
+      <- response as String?
 
     serviceConnections()
       ->
@@ -115,27 +115,19 @@ defines module example.networking
         processingServer as TCP
         shutdownCommand as String
       <-
-        rtn as TCPHandler: (controlServer, processingServer, shutdownCommand) with trait of TCPHandler
-          override connected()
-            ->
-              input as StringInput
-              output as StringOutput
-            while input?
-              command <- input.next()
-              if command == shutdownCommand
-                output.println("Shutting down")
-                processingServer.close()
-                controlServer.close()
-              else
-                output.println("Ignoring [" + command + "]")
+        rtn as TCPHandler: (controlServer, processingServer, shutdownCommand) is TCPHandler as function
+          while input?
+            command <- input.next()
+            if command == shutdownCommand
+              output.println("Shutting down")
+              processingServer.close()
+              controlServer.close()
+            else
+              output.println("Ignoring [" + command + "]")
 
     createHandler()
-      <- rtn as TCPHandler: () with trait of TCPHandler
-          override connected()
-            ->
-              input as StringInput
-              output as StringOutput
-            cat input | map toUpperCase > output
+      <- rtn as TCPHandler: () is TCPHandler as function
+          cat input | map toUpperCase > output
 
     toUpperCase()
       -> input as String
@@ -167,22 +159,17 @@ defines module example.networking
       tcpServer <- TCP(4446, 5, 4, true)
 
       if tcpServer?
-        handler <- (tcpServer, stderr) with trait of TCPHandler
-          override connected()
-            ->
-              input as StringInput
-              output as StringOutput
-
-            stderr.println("Connection made")
-            while input?
-              line <- input.next()
-              stderr.println("Received [" + line + "]")
-              output.println(line.trim().upperCase())
-              if line == "end"
-                input.close()
-              if line == "shutdown"
-                tcpServer.close()
-            stderr.println("No more input on connection")
+        handler <- (tcpServer, stderr) extends TCPHandler as function
+          stderr.println("Connection made")
+          while input?
+            line <- input.next()
+            stderr.println("Received [" + line + "]")
+            output.println(line.trim().upperCase())
+            if line == "end"
+              input.close()
+            if line == "shutdown"
+              tcpServer.close()
+          stderr.println("No more input on connection")
 
         stdout.println("Awaiting connections")
         if tcpServer.acceptWith(handler)

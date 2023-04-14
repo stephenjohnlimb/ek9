@@ -21,9 +21,9 @@ import org.junit.jupiter.api.Test;
  * But also that the resulting parameterized symbols also get put into the correct module.
  * This test calls is doing far too much, need to split out to separate tests.
  */
-class GenericsUse1CompilationTest extends FullCompilationTest {
+class ExamplesGenericsUse1Test extends FullCompilationTest {
 
-  public GenericsUse1CompilationTest() {
+  public ExamplesGenericsUse1Test() {
     super("/examples/genericsUse1");
   }
 

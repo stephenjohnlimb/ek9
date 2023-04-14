@@ -8,12 +8,12 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just test simple types all compile.
+ * Just test streams all compile.
  */
-class ExamplesConstructsTypesTest extends FullCompilationTest {
+class ExamplesStreamsTest extends FullCompilationTest {
 
-  public ExamplesConstructsTypesTest() {
-    super("/examples/constructs/types");
+  public ExamplesStreamsTest() {
+    super("/examples/streams");
   }
 
   @Test

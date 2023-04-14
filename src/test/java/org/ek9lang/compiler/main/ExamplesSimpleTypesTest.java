@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Just test simple types all compile.
  */
-class ExamplesConstructsTypesTest extends FullCompilationTest {
+class ExamplesSimpleTypesTest extends FullCompilationTest {
 
-  public ExamplesConstructsTypesTest() {
-    super("/examples/constructs/types");
+  public ExamplesSimpleTypesTest() {
+    super("/examples/simpleTypes");
   }
 
   @Test
