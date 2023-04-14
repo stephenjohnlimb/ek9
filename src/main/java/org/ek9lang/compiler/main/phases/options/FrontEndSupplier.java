@@ -8,13 +8,10 @@ import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
 import org.ek9lang.compiler.main.phases.Ek9Phase0Parsing;
 import org.ek9lang.compiler.main.phases.Ek9Phase1ModuleDuplicateSymbolChecks;
-import org.ek9lang.compiler.main.phases.Ek9Phase1NonInferredTypeDefinition;
+import org.ek9lang.compiler.main.phases.Ek9Phase2NonInferredTypeDefinition;
 import org.ek9lang.compiler.main.phases.Ek9Phase1ReferenceChecks;
 import org.ek9lang.compiler.main.phases.Ek9Phase1SymbolDefinition;
-import org.ek9lang.compiler.main.phases.Ek9Phase1SymbolDuplicationChecks;
-import org.ek9lang.compiler.main.phases.Ek9Phase2TemplateDefinitionAndPartialResolution;
-import org.ek9lang.compiler.main.phases.Ek9Phase3FurtherSymbolDefinitionResolution;
-import org.ek9lang.compiler.main.phases.Ek9Phase4TemplateExpansion;
+import org.ek9lang.compiler.main.phases.Ek9Phase2TypeHierarchyChecks;
 import org.ek9lang.compiler.main.phases.Ek9Phase5SymbolResolution;
 import org.ek9lang.compiler.main.phases.Ek9Phase6PluginResolution;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
@@ -50,11 +47,8 @@ public class FrontEndSupplier extends PhaseSupplier {
         new Ek9Phase1SymbolDefinition(multiThread, compilableProgramAccess, listener, reporter),
         new Ek9Phase1ModuleDuplicateSymbolChecks(compilableProgramAccess, listener, reporter),
         new Ek9Phase1ReferenceChecks(compilableProgramAccess, listener, reporter),
-        new Ek9Phase1SymbolDuplicationChecks(compilableProgramAccess, listener, reporter),
-        new Ek9Phase1NonInferredTypeDefinition(compilableProgramAccess, listener, reporter),
-        new Ek9Phase2TemplateDefinitionAndPartialResolution(compilableProgramAccess, listener, reporter),
-        new Ek9Phase3FurtherSymbolDefinitionResolution(compilableProgramAccess, listener, reporter),
-        new Ek9Phase4TemplateExpansion(compilableProgramAccess, listener, reporter),
+        new Ek9Phase2NonInferredTypeDefinition(compilableProgramAccess, listener, reporter),
+        new Ek9Phase2TypeHierarchyChecks(compilableProgramAccess, listener, reporter),
         new Ek9Phase5SymbolResolution(compilableProgramAccess, listener, reporter),
         new Ek9Phase6PluginResolution(compilableProgramAccess, listener, reporter));
   }

@@ -36,6 +36,10 @@ import org.ek9lang.core.threads.SharedThreadContext;
  * F. call to a variable (C# delegate) that points to a function
  * - with a number of parameters.
  * And probably more by the time we've finished.
+ * This will create new inferred parameterised types as it processes instruction blocks.
+ * This is why return types from expressions are essential, only if you just have the return type 'in time' can
+ * we work out what the generic type is going to be parameterised with. As the next statements and expressions then
+ * may use part of that new object via expressions we have to define then 'just a head' of when they are needed.
  */
 public class Ek9Phase5SymbolResolution implements
     BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
@@ -47,7 +51,7 @@ public class Ek9Phase5SymbolResolution implements
   private static final CompilationPhase thisPhase = CompilationPhase.FULL_RESOLUTION;
 
   /**
-   * Crrate new instance to finally resolve all symbols.
+   * Create new instance to finally resolve all symbols.
    */
   public Ek9Phase5SymbolResolution(SharedThreadContext<CompilableProgram> compilableProgramAccess,
                                    Consumer<CompilationEvent> listener, CompilerReporter reporter) {

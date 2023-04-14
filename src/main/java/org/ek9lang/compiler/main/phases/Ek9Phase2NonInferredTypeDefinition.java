@@ -35,7 +35,7 @@ import org.ek9lang.core.utils.Holder;
  * Hence, the need for a second pass. We also need to start building type hierarchies as these are important for
  * generic types and parameterised type use.
  */
-public class Ek9Phase1NonInferredTypeDefinition
+public class Ek9Phase2NonInferredTypeDefinition
     implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
 
   private final boolean useMultiThreading = true;
@@ -49,7 +49,7 @@ public class Ek9Phase1NonInferredTypeDefinition
   /**
    * Create a new phase 1 second pass template type symbol resolution definition instance.
    */
-  public Ek9Phase1NonInferredTypeDefinition(SharedThreadContext<CompilableProgram> compilableProgramAccess,
+  public Ek9Phase2NonInferredTypeDefinition(SharedThreadContext<CompilableProgram> compilableProgramAccess,
                                             Consumer<CompilationEvent> listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
