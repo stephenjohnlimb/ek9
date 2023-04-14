@@ -42,7 +42,7 @@ import org.junit.jupiter.api.Test;
  * But what has not been prototyped is the full set of phases all joined up to produce a final program.
  * So a very thin slice through the EK9 language - just to support 'Hello World'.
  */
-class HelloWorldFullCompilationTest {
+class HelloWorldTest {
 
   private static final Supplier<SharedThreadContext<CompilableProgram>> sharedContext
       = new CompilableProgramSuitable();
@@ -60,7 +60,7 @@ class HelloWorldFullCompilationTest {
   @Test
   void testHelloWorldPhasedDevelopment() {
     //Just start with the basics and most on to the next phase one implemented.
-    CompilationPhase upToPhase = CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION;
+    CompilationPhase upToPhase = CompilationPhase.TYPE_HIERARCHY_CHECKS;
 
     CompilationPhaseListener listener = compilationEvent -> {
       var source = compilationEvent.source();

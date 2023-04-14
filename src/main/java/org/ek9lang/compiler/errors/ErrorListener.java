@@ -274,6 +274,7 @@ public class ErrorListener extends BaseErrorListener {
     NOT_RESOLVED_FUZZY_MATCH("is the closest match found"),
     NOT_RESOLVED("not resolved"),
     CANNOT_EXTEND_IMPLEMENT_ITSELF("extension/implementation of self is not logical"),
+    CIRCULAR_HIERARCHY_DETECTED("a circular type/function hierarchy has been used"),
     OBJECT_NOT_RESOLVED("object not resolved"),
     FIELD_NOT_RESOLVED("field not resolved"),
     FIELD_OR_VARIABLE_NOT_RESOLVED("field/variable not resolved"),

@@ -1,21 +1,19 @@
 package org.ek9lang.compiler.main;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just test traits all compile.
+ * Just tests circular hierarchies usage.
  */
-class ExamplesConstructsTraitsTest extends FullCompilationTest {
+class BadCircularHierarchiesTest extends FullCompilationTest {
 
-  public ExamplesConstructsTraitsTest() {
-    super("/examples/constructs/traits");
+  public BadCircularHierarchiesTest() {
+    super("/examples/parseButFailCompile/circularHierarchies");
   }
-
 
   @Test
   void testPhaseDevelopment() {
@@ -24,7 +22,7 @@ class ExamplesConstructsTraitsTest extends FullCompilationTest {
 
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
-    assertTrue(compilationResult);
-    assertEquals(0, numberOfErrors);
+    assertFalse(compilationResult);
+    assertFalse(program.getParsedModules("bad.classes.hierarchies").isEmpty());
   }
 }

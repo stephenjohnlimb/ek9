@@ -28,7 +28,7 @@ defines module com.utils.fsm.example
     -?>
     //Symbol 2
     @Resolved: SYMBOL_DEFINITION: TEMPLATE_FUNCTION: "FSMListener"
-    FSMListener() of type T
+    FSMListener() of type T as open
       ->
         fromState as T
         toState as T

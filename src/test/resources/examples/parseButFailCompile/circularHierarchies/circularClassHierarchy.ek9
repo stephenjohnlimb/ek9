@@ -1,0 +1,36 @@
+#!ek9
+<?-
+  Try a couple of circular dependencies with classes, one with a gap and one direct.
+-?>
+defines module bad.classes.hierarchies
+
+  defines class
+
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    C1 is C3 as open
+      field1 <- "Steve"
+
+      default C1()
+
+    C2 is C1 as open
+      field2 <- "Stephen"
+
+      default C2()
+
+    C3 is C2 as open
+      field3 <- "Stephene"
+
+      default C3()
+
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    CA is CB as open
+      field3 <- "Stephene"
+
+      default CA()
+
+    CB is CA as open
+      field4 <- "Steven"
+
+      default CB()
+
+//EOF

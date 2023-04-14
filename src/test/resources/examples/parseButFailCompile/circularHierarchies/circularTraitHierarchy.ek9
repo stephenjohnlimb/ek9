@@ -1,0 +1,40 @@
+#!ek9
+<?-
+  Try a couple of circular dependencies with traits, one with a gap and one direct.
+-?>
+defines module bad.traits.hierarchies
+
+  defines trait
+
+    //But you cannot have indirect loops
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    T1 is T3
+      method1()
+
+    T2 is T1
+      method2()
+
+    T3 is T2
+      method3()
+
+    T4
+      method4()
+
+    T5 is T4
+      method5()
+
+    //So you can incorporate the same trait multiple times
+    T6 with trait of T4, T5
+
+    //You can reference a set of traits that have the same traits
+    T7 with trait of T1, T2, T3
+
+    //Or direct loops
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    TA is TB
+      methodA()
+
+    TB is TA
+      methodB()
+
+//EOF

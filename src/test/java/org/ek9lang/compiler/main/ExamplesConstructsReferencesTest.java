@@ -20,7 +20,7 @@ class ExamplesConstructsReferencesTest extends FullCompilationTest {
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
+    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 
   @Override

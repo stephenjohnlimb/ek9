@@ -1,0 +1,22 @@
+#!ek9
+<?-
+  This circular check also applies to functions
+-?>
+defines module bad.functions.hierarchies
+
+  defines function
+
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    F1 is F3 as open
+      -> arg0 as Integer
+      <- rtn as Integer: arg0
+
+    F2 is F1 as open
+      -> arg0 as Integer
+      <- rtn as Integer: arg0
+
+    F3 is F2 as open
+      -> arg0 as Integer
+      <- rtn as Integer: arg0
+
+//EOF

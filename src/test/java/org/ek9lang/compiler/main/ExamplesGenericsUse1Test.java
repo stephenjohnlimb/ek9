@@ -2,6 +2,7 @@ package org.ek9lang.compiler.main;
 
 import static org.ek9lang.compiler.internals.Ek9BuiltinLangSupplier.NUMBER_OF_EK9_SYMBOLS;
 import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_LANG;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.ek9lang.compiler.internals.CompilableProgram;
@@ -31,7 +32,7 @@ class ExamplesGenericsUse1Test extends FullCompilationTest {
 
   @Test
   void testPhasedDevelopment() {
-    testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
+    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 
   /**
@@ -83,7 +84,7 @@ class ExamplesGenericsUse1Test extends FullCompilationTest {
 
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
-
+    assertTrue(compilationResult);
     //So we now expect more types as this ek9 source uses ek9 built in generic types.
     assertSimpleGenerics(program);
     assertFSMGenerics(program);

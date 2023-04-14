@@ -15,7 +15,7 @@ class ExamplesSimpleReferenceTest extends FullCompilationTest {
 
   @Test
   void testPhasedDevelopment() {
-    testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
+    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 
   @Override
