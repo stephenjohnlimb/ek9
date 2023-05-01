@@ -252,8 +252,18 @@ defines extern module org.ek9.lang
       Exception()
       
       Exception()
-        -> arg0 as String
-                    
+        -> reason as String
+      
+      Exception()
+        ->
+          reason as String
+          exitCode as Integer
+      
+      information()
+        <- rtn as String?
+      
+      exitCode()
+        <- rtn as Integer?
 """;
 
   @SuppressWarnings({"Indentation"})
@@ -355,7 +365,7 @@ defines extern module org.ek9.lang
         That's not always wrong, there may be no Ok value, but also nothing in error.
       -?>
       operator ?
-        rtn as Boolean?
+        <- rtn as Boolean?
           
     PriorityQueue of type T as open
       PriorityQueue()

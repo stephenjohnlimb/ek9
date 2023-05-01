@@ -102,6 +102,7 @@ public interface IScope {
   enum ScopeType {
     NON_BLOCK,
     DYNAMIC_BLOCK,
+    CAPTURE_BLOCK,
     BLOCK
   }
 }

@@ -1,0 +1,43 @@
+#!ek9
+<?-
+  Just ensure the correct use of 'this' and 'super' within functions.
+-?>
+defines module bad.functions.thisandsuper
+
+  defines function
+
+    abstractFunction() as abstract
+      -> arg0 as Integer
+      <- rtn as abstractFunction?
+
+    simpleFunction()
+      //Now allowed so that a function can pass itself elsewhere.
+      selfAsFunction <- this
+      //But must use it in someway - else it's pointless
+      assert selfAsFunction?
+
+    simpleGenericFunction() of type T
+      -> arg0 as T
+      //Also allowed and will be expanded to the parameterised version when parameterised.
+      genericSelfAsFunction as simpleGenericFunction of T: this
+      //But must use it in someway - else it's pointless
+      assert genericSelfAsFunction?
+
+    extendingFunction() is abstractFunction
+      -> arg0 as Integer
+      <- rtn as abstractFunction: this
+
+      //This is not allowed, there is little point in holding the super version.
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_GENUS
+      selfAsSuperOfFunction <- super
+
+    someFunctionWithDynamic()
+      funct <- () is abstractFunction as function
+        //We do allow this here, so that a dynamic function can pass itself around
+        thisDynamicFunction <- this
+        //Written out as two statements just for clarify could just be 'rtn: this'
+        rtn: thisDynamicFunction
+
+      //Just to ensure it is referenced.
+      assert funct?
+//EOF

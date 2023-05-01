@@ -55,7 +55,9 @@ defines module bad.flowcontrol.examples
       //Cannot really iterate
       @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
       for i in 1 ... 10
-        throw Exception("This will always fail")
+        //Example of holding an exception and throwing by variable.
+        ex <- Exception("This will always fail")
+        throw ex
         //Can never get here
         @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE
         assert i?
@@ -206,8 +208,8 @@ defines module bad.flowcontrol.examples
         throw Exception("But with a catch")
       catch
         -> ex as Exception
-        //While this has been cause we now throw another
-        throw Exception("Thrown inside catch")
+        //While this has been cause we now re-throw it.
+        throw ex
 
       //This can never be executed
       @Error: SYMBOL_DEFINITION: STATEMENT_UNREACHABLE

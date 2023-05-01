@@ -105,7 +105,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
 
     assertFalse(s1.isIncomingParameter());
     assertFalse(s1.isReturningParameter());
-    assertFalse(s1.isAggregatePropertyField());
+    assertFalse(s1.isPropertyField());
   }
 
   @Test
@@ -346,7 +346,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
 
     //Lets test a 'super function'
     var superF = new FunctionSymbol("superF", symbolTable);
-    var capturedVars = new CaptureScopedSymbol("Capture", superF);
+    var capturedVars = new CaptureScope(symbolTable);
     capturedVars.define(new VariableSymbol("capturedVar", stringType));
     superF.setCapturedVariables(capturedVars);
 
@@ -356,9 +356,9 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     //So this is just a signature
     superF.setMarkedAbstract(true);
     assertNotNull(f2);
-    assertEquals("Integer <- superF(capturedVar as String)(arg1 as String) as abstract",
+    assertEquals("Integer <- superF(private capturedVar as String)(arg1 as String) as abstract",
         superF.getFriendlyName());
-    assertEquals("Integer <- superF(capturedVar as String)(arg1 as String) as abstract",
+    assertEquals("Integer <- superF(private capturedVar as String)(arg1 as String) as abstract",
         superF.getFriendlyScopeName());
     assertTrue(superF.getSuperFunctionSymbol().isEmpty());
 
@@ -417,7 +417,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertTrue(resolvedArg1.isPresent());
 
     //OK now lets set up the captured variables
-    LocalScope capturedVariables = new LocalScope(symbolTable);
+    var capturedVariables = new CaptureScope(symbolTable);
     capturedVariables.define(new VariableSymbol("first", stringType));
     capturedVariables.define(new VariableSymbol("second", integerType));
     f1.setCapturedVariables(capturedVariables);
@@ -440,7 +440,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     //Check the cloning works.
     var f2 = f1.clone(symbolTable);
     assertEquals(
-        "Integer <- dynamic function(first as String, second as Integer)(arg1 as String)",
+        "Integer <- dynamic function(private first as String, private second as Integer)(arg1 as String)",
         f2.getFriendlyName());
   }
 
@@ -874,7 +874,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
 
   private void assertVariable1(VariableSymbol v) {
     assertJustVariable(v);
-    assertFalse(v.isAggregatePropertyField());
+    assertFalse(v.isPropertyField());
     assertTrue(v.isMutable());
     assertFalse(v.isInitialised());
   }
@@ -882,7 +882,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
   private void assertJustVariable(Symbol symbol) {
     assertNotNull(symbol.getFriendlyName());
     assertFalse(symbol.isIncomingParameter());
-    assertFalse(symbol.isAggregatePropertyField());
+    assertFalse(symbol.isPropertyField());
     assertFalse(symbol.isIncomingParameter());
     assertFalse(symbol.isReturningParameter());
 

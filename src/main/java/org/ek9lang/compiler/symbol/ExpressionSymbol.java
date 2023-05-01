@@ -14,7 +14,7 @@ import org.ek9lang.core.exception.CompilerException;
  * We can then add in explicit IR type conversions if needed.
  * This information will also be used in the semantic analysis phase.
  */
-public class ExpressionSymbol extends Symbol implements IAssignableSymbol {
+public class ExpressionSymbol extends Symbol {
   //So could need to promote to get right type
   private boolean promotionRequired = false;
   //Or maybe just need to call the $ _string() operator (this the returning type has it).
@@ -30,6 +30,7 @@ public class ExpressionSymbol extends Symbol implements IAssignableSymbol {
   public ExpressionSymbol(ISymbol symbol) {
     super(symbol.getName());
     super.setGenus(symbol.getGenus());
+    super.setSourceToken(symbol.getSourceToken());
     setType(symbol.getType());
     setCategory(symbol.getCategory());
     setDeclaredAsConstant(symbol.isDeclaredAsConstant());

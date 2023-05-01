@@ -1,0 +1,10 @@
+#!ek9
+defines module just.forloops.check
+
+  defines program
+
+    ForLoopExample
+      stdout <- Stdout()
+      for i in 1 ... 10
+        stdout.println(`Value [${i}]`)
+//EOF

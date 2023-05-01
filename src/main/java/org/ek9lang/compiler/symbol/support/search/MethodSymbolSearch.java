@@ -1,8 +1,10 @@
 package org.ek9lang.compiler.symbol.support.search;
 
+import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.MethodSymbol;
+import org.ek9lang.compiler.symbol.support.SymbolTypeExtractor;
 
 /**
  * Quite a few option to a method search.
@@ -35,13 +37,7 @@ public final class MethodSymbolSearch extends SymbolSearch {
    */
   public MethodSymbolSearch(MethodSymbol methodSymbol) {
     this(methodSymbol.getName());
-    var theTypes = methodSymbol
-        .getSymbolsForThisScope()
-        .stream()
-        .map(ISymbol::getType)
-        .filter(Optional::isPresent)
-        .flatMap(Optional::stream)
-        .toList();
+    var theTypes = new SymbolTypeExtractor().apply(methodSymbol.getSymbolsForThisScope());
     this.setTypeParameters(theTypes);
 
     //don't set the return type leave that open, so we can handle covariance.
@@ -61,6 +57,12 @@ public final class MethodSymbolSearch extends SymbolSearch {
   public MethodSymbolSearch(String name, ISymbol ofTypeOrReturn) {
     super(name, ofTypeOrReturn);
     setSearchType(ISymbol.SymbolCategory.METHOD);
+  }
+
+  @Override
+  public MethodSymbolSearch setTypeParameters(List<ISymbol> typeParameters) {
+    super.setTypeParameters(typeParameters);
+    return this;
   }
 
   @Override

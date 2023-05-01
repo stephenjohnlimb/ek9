@@ -321,7 +321,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
     assertEquals(cons1.hashCode(), cons2.hashCode());
     assertEquals(cons1, cons1);
 
-    var captured = new CaptureScopedSymbol("Captured", symbolTable);
+    var captured = new CaptureScope(symbolTable);
 
     //Check self equals.
     assertEquals(captured, captured);
@@ -350,6 +350,70 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
     var notResolvedInCapture = cloneWithCapture.resolveExcludingCapturedVariables(new SymbolSearch("v2"));
     assertTrue(notResolvedInCapture.isEmpty());
+  }
+
+  /**
+   * The capture scope is a bit of a strange beast.
+   * In the way it allows resolution from an enclosingScope but conditionally.
+   * So when the parser hits the 'enter' event we allow full resolution from within the capture scope,
+   * but allow it to resolve from the enclosing scope as well. This is how it can resolve basic types and
+   * also variables.
+   * But on the 'exit' event, it closes off access to the enclosing scope, so now only the variables defined
+   * in the capture scope can be resolved.
+   * This means that dynamic functions and classes can employ resolution in the 'side symbol table'
+   * - that is the set of captured variables. But dynamic functions and classes are taken out of the normal
+   * 'enclosing scope' hierarchy and have an enclosing scope at module level.
+   */
+  @Test
+  void testCaptureScope() {
+    //Set up an 'enclosing scope' for the CaptureScope to capture variables from via resolution.
+    VariableSymbol i1 =
+        new VariableSymbol("i1", symbolTable.resolve(new TypeSymbolSearch("Integer")));
+    VariableSymbol s1 =
+        new VariableSymbol("s1", symbolTable.resolve(new TypeSymbolSearch("String")));
+
+    var someEnclosingBlockScope = new LocalScope("SomeBlock", symbolTable);
+    //Now use these variables within the block.
+    someEnclosingBlockScope.define(i1);
+    someEnclosingBlockScope.define(s1);
+
+    var captureScope1 = new CaptureScope(someEnclosingBlockScope);
+    //So this will be empty, but also closed by default.
+    //So in this state it won't even be possible resolve normal types.
+    assertTrue(captureScope1.resolve(new TypeSymbolSearch("Integer")).isEmpty());
+    //It certainly won't be possible to resolve 'i1'.
+    assertTrue(captureScope1.resolve(new SymbolSearch("i1")).isEmpty());
+
+    //Now lets open it up just like the 'enter' event will do and then try again.
+    captureScope1.setOpenToEnclosingScope(true);
+    assertTrue(captureScope1.resolve(new TypeSymbolSearch("Integer")).isPresent());
+    var resolvedI1 = captureScope1.resolve(new SymbolSearch("i1"));
+    assertTrue(resolvedI1.isPresent());
+    var resolvedS1 = captureScope1.resolve(new SymbolSearch("s1"));
+    assertTrue(resolvedS1.isPresent());
+    //But note we have not actually 'captured' the variable yet - yes it was possible to resolve it.
+    //So this is what the event listener must do just before calling this below on the 'exit' event
+
+    //So if the capture was not a 'named' or used the same name capture, just use the same name.
+    var capturedVariableI1 = new VariableSymbol((VariableSymbol)resolvedI1.get());
+    captureScope1.define(capturedVariableI1);
+
+    //But if s1 was a named capture as 'essOne', we'd do this
+    var capturedVariableEssOne = new VariableSymbol("essOne", resolvedS1.get().getType());
+    captureScope1.define(capturedVariableEssOne);
+
+    captureScope1.setOpenToEnclosingScope(false);
+    //Now let's simulate the exit event and the developer accidentally thinking that can reference 's1'
+    assertTrue(captureScope1.resolve(new SymbolSearch("s1")).isEmpty());
+
+    //But as we have now captured 'i1' with a new variable ot the same type it can still be resolved.
+    //But this is really a copy in name of the variable in the outer scope.
+    var resolvedCapturedI1 = captureScope1.resolve(new SymbolSearch("i1"));
+    assertTrue(resolvedCapturedI1.isPresent());
+
+    //But it can be resolved with its new name.
+    var resolvedCapturedEssOne = captureScope1.resolve(new SymbolSearch("essOne"));
+    assertTrue(resolvedCapturedEssOne.isPresent());
   }
 
   /**

@@ -56,7 +56,7 @@ defines module com.customer.exceptions
         this.clock: clock
 
       checkExceptionHandling()
-        -> cat as BigCat
+        -> aCat as BigCat
         <- didProcess as Boolean: false
 
         stdout <- Stdout()
@@ -64,30 +64,31 @@ defines module com.customer.exceptions
 
         try
           if deferProcessing()
-            stdout.println("Deferred until after " + $deferProcessingUntilAfter + " " + $cat + " not processed")
+            stdout.println("Deferred until after " + $deferProcessingUntilAfter + " " + $aCat + " not processed")
           else
-            stdout.println(triggerPossibleException(cat))
+            triggerResult <- triggerPossibleException(aCat)
+            stdout.println(triggerResult)
             didProcess: true
         catch
           -> ex as Exception
           errorMessage <- handleException(ex)
           stderr.println(errorMessage)
         finally
-          stdout.println("Finished checking " + $cat)
+          stdout.println("Finished checking " + $aCat)
 
       triggerPossibleException()
-        -> cat as BigCat
+        -> aCat as BigCat
         <- rtn as String: String()
 
-        switch cat
+        switch aCat
           case BigCat.Lion
-            throw Exception($cat, 1)
+            throw Exception($aCat, 1)
           case BigCat.Tiger
-            throw AnException("Too dangerous", $cat, 2)
+            throw AnException("Too dangerous", $aCat, 2)
           case BigCat.Leopard
-            throw OtherException($cat, clock.dateTime() + PT2H)
+            throw OtherException($aCat, clock.dateTime() + PT2H)
           default
-            rtn: "Success with " + $cat
+            rtn: "Success with " + $aCat
 
       deferProcessing()
         <- rtn as Boolean: deferProcessingUntilAfter? <- deferProcessingUntilAfter > clock.dateTime() else false

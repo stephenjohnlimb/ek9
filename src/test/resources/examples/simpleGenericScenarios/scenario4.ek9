@@ -20,7 +20,7 @@ defines module generics.scenario.four
   defines program
 
     Driver()
-      g as gf of (Integer, Float, Float): fg()
+      g as gf of (Integer, Float, Float): gf()
 
       addedValue as Float: g(21, 3.66)
       assert addedValue == 76.86

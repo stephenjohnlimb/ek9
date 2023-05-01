@@ -44,14 +44,22 @@ class Ek9CompilerTest {
   @MethodSource("allCompilationPhases")
   void testSimpleSuccessfulParsing(final CompilationPhase upToPhase) {
     CompilationPhaseListener listener = compilationEvent -> {
+      var source = compilationEvent.source();
+      var phase = compilationEvent.phase();
+      if (source.getErrorListener().hasErrors()) {
+        System.out.println("Errors  : " + phase + ", source: " + source.getFileName());
+        source.getErrorListener().getErrors().forEachRemaining(System.out::println);
+      }
     };
+
     var sharedCompilableProgram = sharedContext.get();
 
     FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedCompilableProgram,
         listener, new CompilerReporter(true));
 
     var compiler = new Ek9Compiler(allPhases);
-    assertTrue(compiler.compile(validEk9Workspace.get(), new CompilerFlags(upToPhase, true)));
+    var result = compiler.compile(validEk9Workspace.get(), new CompilerFlags(upToPhase, true));
+    assertTrue(result);
 
     sharedCompilableProgram.accept(program -> program.getParsedModuleNames().forEach(System.out::println));
   }

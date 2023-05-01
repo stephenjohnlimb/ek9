@@ -145,6 +145,15 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   }
 
   @Override
+  public void define(ISymbol symbol) {
+    if (symbol instanceof VariableSymbol variableSymbol) {
+      variableSymbol.setAggregatePropertyField(true);
+      variableSymbol.setPrivate(!getGenus().equals(SymbolGenus.RECORD));
+    }
+    super.define(symbol);
+  }
+
+  @Override
   protected Optional<IScope> getAnySuperTypeOrFunction() {
     if (this.superAggregateSymbol.isPresent()) {
       return Optional.of(superAggregateSymbol.get());

@@ -26,11 +26,10 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.UnreachableStatement;
 import org.ek9lang.compiler.internals.ParsedModule;
-import org.ek9lang.compiler.main.phases.listeners.AbstractEK9PhaseListener;
+import org.ek9lang.compiler.main.phases.common.AbstractEK9PhaseListener;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineExplicitParameterizedType;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineTypeDef;
 import org.ek9lang.compiler.main.rules.CheckApplicationUseOnMethodDeclaration;
-import org.ek9lang.compiler.main.rules.CheckAssignment;
 import org.ek9lang.compiler.main.rules.CheckDynamicClassDeclaration;
 import org.ek9lang.compiler.main.rules.CheckDynamicVariableCapture;
 import org.ek9lang.compiler.main.rules.CheckForInvalidParameterisedTypeUse;
@@ -42,10 +41,12 @@ import org.ek9lang.compiler.main.rules.CheckProgramArguments;
 import org.ek9lang.compiler.main.rules.CheckProgramReturns;
 import org.ek9lang.compiler.main.rules.CheckProtectedServiceMethods;
 import org.ek9lang.compiler.main.rules.CheckReturningParam;
+import org.ek9lang.compiler.main.rules.CheckThisAndSuperAssignmentStatement;
 import org.ek9lang.compiler.main.rules.CheckVariableDeclaration;
 import org.ek9lang.compiler.main.rules.CheckVariableOnlyDeclaration;
 import org.ek9lang.compiler.main.rules.CommonMethodChecks;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
+import org.ek9lang.compiler.symbol.CaptureScope;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
 import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
@@ -110,7 +111,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   private final CommonMethodChecks commonMethodChecks;
 
   private final CheckProtectedServiceMethods checkProtectedServiceMethods;
-  private final CheckAssignment checkAssignment;
+  private final CheckThisAndSuperAssignmentStatement checkThisAndSuperAssignmentStatement;
 
   private final CheckVariableOnlyDeclaration checkVariableOnlyDeclaration;
 
@@ -151,7 +152,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     unreachableStatement = new UnreachableStatement(errorListener);
     textLanguageExtraction = new TextLanguageExtraction(errorListener);
     commonMethodChecks = new CommonMethodChecks(errorListener);
-    checkAssignment = new CheckAssignment(errorListener);
+    checkThisAndSuperAssignmentStatement = new CheckThisAndSuperAssignmentStatement(errorListener);
     checkVariableOnlyDeclaration = new CheckVariableOnlyDeclaration(errorListener);
     checkVariableDeclaration = new CheckVariableDeclaration(symbolAndScopeManagement, errorListener);
     checkDynamicClassDeclaration = new CheckDynamicClassDeclaration(symbolAndScopeManagement, errorListener);
@@ -431,12 +432,22 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     checkDynamicVariableCapture.accept(ctx);
 
     if (currentScope instanceof ICanCaptureVariables canCaptureVariables) {
-      final var newScope = symbolFactory.newDynamicVariableCapture(canCaptureVariables);
+      var enclosingBlockScope = symbolAndScopeManagement.traverseBackUpStack(IScope.ScopeType.BLOCK);
+      AssertValue.checkTrue("Compiler error expecting block scope", enclosingBlockScope.isPresent());
+      final var newScope = symbolFactory.newDynamicVariableCapture(canCaptureVariables, enclosingBlockScope.get());
+      newScope.setOpenToEnclosingScope(true);
       symbolAndScopeManagement.enterNewScope(newScope, ctx);
     } else {
       throw new CompilerException("Compiler error looking use dynamic variable but current scope is wrong");
     }
     super.enterDynamicVariableCapture(ctx);
+  }
+
+  @Override
+  public void exitDynamicVariableCapture(EK9Parser.DynamicVariableCaptureContext ctx) {
+    CaptureScope captureScope = (CaptureScope) symbolAndScopeManagement.getTopScope();
+    captureScope.setOpenToEnclosingScope(false);
+    super.exitDynamicVariableCapture(ctx);
   }
 
   @Override
@@ -651,6 +662,12 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   @Override
+  public void enterForStatement(EK9Parser.ForStatementContext ctx) {
+    pushNewForLoopScope(ctx);
+    super.enterForStatement(ctx);
+  }
+
+  @Override
   public void exitForStatement(EK9Parser.ForStatementContext ctx) {
     var scope = symbolAndScopeManagement.getTopScope();
     pullBlockTerminationUp(ctx.block());
@@ -682,7 +699,6 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterForLoop(EK9Parser.ForLoopContext ctx) {
-    pushNewForLoopScope(ctx);
     checkNotABooleanLiteral.accept(ctx.expression());
 
     final var variable = symbolFactory.newLoopVariable(ctx);
@@ -692,7 +708,6 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterForRange(EK9Parser.ForRangeContext ctx) {
-    pushNewForLoopScope(ctx);
     final var variable = symbolFactory.newLoopVariable(ctx);
     checkAndDefineSymbol(variable, ctx, false);
     super.enterForRange(ctx);
@@ -836,14 +851,6 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   @Override
-  public void enterPrimaryReference(EK9Parser.PrimaryReferenceContext ctx) {
-    var symbol = symbolFactory.newGeneralSymbol(ctx.start, ctx.getText());
-    symbolAndScopeManagement.recordSymbol(symbol, ctx);
-
-    super.enterPrimaryReference(ctx);
-  }
-
-  @Override
   public void enterCall(EK9Parser.CallContext ctx) {
     IScope scope = symbolAndScopeManagement.getTopScope();
     var symbol = symbolFactory.newCall(ctx, scope);
@@ -908,7 +915,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     //Now it's not an error if we cannot resolve at this phase - but if these are built in types then we're all good.
     var varType = resolveOrDefineTypeDef.apply(ctx.typeDef());
     variable.setType(varType);
-    checkVariableOnlyDeclaration.accept(ctx);
+    checkVariableOnlyDeclaration.accept(ctx, variable);
     var limitToBlocks = ctx.getParent() instanceof EK9Parser.ArgumentParamContext;
     checkAndDefineSymbol(variable, ctx, limitToBlocks);
     super.enterVariableOnlyDeclaration(ctx);
@@ -961,7 +968,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   @Override
   public void enterAssignmentStatement(EK9Parser.AssignmentStatementContext ctx) {
     //There is nothing to record here, but we do need to plug a rule in
-    checkAssignment.accept(ctx);
+    checkThisAndSuperAssignmentStatement.accept(ctx);
     super.enterAssignmentStatement(ctx);
   }
 

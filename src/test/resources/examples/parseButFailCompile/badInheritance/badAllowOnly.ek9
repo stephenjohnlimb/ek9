@@ -1,0 +1,74 @@
+#!ek9
+<?-
+  Examples of traits with invalid allow only usage.
+-?>
+defines module bad.allowonly.classes
+
+  //Just used to check it is not possible to inherit from a constant
+  defines constant
+    SOME_CONSTANT <- 10
+
+  //Just used to define a 'type' to check it is rejected as a super for a trait.
+  defines record
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "SomeRecord"
+    SomeRecord
+      name <- "Steve"
+
+  defines trait
+
+    //Clearly invalid use of allow only.
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+    Trait1 allow only NON_SUCH
+      method1() as abstract
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+    Trait2 allow only SOME_CONSTANT
+      method1() as abstract
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    Trait3 allow only SomeRecord
+      method1() as abstract
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_CATEGORY
+    Trait4 allow only NotAllowedGenericClass
+      method1() as abstract
+
+    ValidTrait1 allow only Allow1, Allow2
+      method1() as abstract
+
+  defines class
+
+    Allow1 with trait of ValidTrait1
+      override method1()
+        var <- "Some Value"
+        assert var?
+
+    Allow2 with trait of ValidTrait1
+      override method1()
+        var <- "Some Value"
+        assert var?
+
+    //This will be Ok for EXPLICIT_TYPE_SYMBOL_DEFINITION phase but fail in later phase analysis
+    NotAllow1 with trait of ValidTrait1
+      override method1()
+        var <- "Some Value"
+        assert var?
+
+    <?-
+      Outline of a generic 'thing'.
+      Just used for checking extension.
+    -?>
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "NotAllowedGenericClass"
+    NotAllowedGenericClass of type T
+
+      default NotAllowedGenericClass()
+
+      NotAllowedGenericClass()
+        -> arg as T
+        this.item = arg
+
+      getItem()
+        <- rtn as T?
+
+//EOF

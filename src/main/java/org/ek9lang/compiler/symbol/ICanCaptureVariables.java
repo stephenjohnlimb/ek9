@@ -13,14 +13,14 @@ public interface ICanCaptureVariables {
    *
    * @return The scope holding the captured variables.
    */
-  Optional<IScope> getCapturedVariables();
+  Optional<CaptureScope> getCapturedVariables();
 
   /**
    * So that a number of variables can be captured when a new dynamic type is defined.
    *
    * @param capturedVariables The variables to capture.
    */
-  void setCapturedVariables(IScope capturedVariables);
+  void setCapturedVariables(CaptureScope capturedVariables);
 
   /**
    * Try and resolve a symbol but exclude looking in captured variables.

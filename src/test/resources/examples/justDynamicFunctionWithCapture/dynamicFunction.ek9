@@ -1,0 +1,22 @@
+#!ek9
+<?-
+  Check happy path of capture in function.
+-?>
+defines module just.dynamicfunctions.check
+
+  defines function
+
+    baseFunction as abstract
+      -> arg0 as String
+
+    wrapperFunction()
+      checkValue <- "Steve"
+
+      dynamic <- (checkValue) extends baseFunction as function
+        stdout <- Stdout()
+        incomingArgument <- arg0
+        stdout.println(`Check Value is ${checkValue}`)
+        stdout.println(`incoming parameter is ${incomingArgument}`)
+
+      assert dynamic?
+//EOF

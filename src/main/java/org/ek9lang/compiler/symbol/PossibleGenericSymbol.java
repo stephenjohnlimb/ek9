@@ -218,7 +218,7 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
     if (!getTypeParameterOrArguments().isEmpty()) {
       buffer.append(" of type ");
       var params = getTypeParameterOrArguments();
-      var toCommaSeparated = new ToCommaSeparated(params.size() > 1);
+      var toCommaSeparated = new ToCommaSeparated(this, params.size() > 1);
       buffer.append(toCommaSeparated.apply(params));
     }
     return buffer.toString();

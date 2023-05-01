@@ -1,0 +1,20 @@
+#!ek9
+defines module just.names.check
+
+  defines class
+
+    OtherHolder
+      moreNames()
+        <- rtn as NameHolder: NameHolder()
+
+      startValue()
+        <- rtn as Integer: 4
+
+      endValue()
+        <- rtn as Integer: 12
+
+    NameHolder
+      someNames()
+        <- rtn as List of String: ["Alpha", "Beta", "Charlie"]
+
+//EOF

@@ -6,7 +6,7 @@ package org.ek9lang.compiler.symbol;
  * This will be used to build up the sort of call we want to make based on the source .
  * We then have to resolve this CallSymbol against a real method symbol.
  */
-public class CallSymbol extends MethodSymbol implements IAssignableSymbol {
+public class CallSymbol extends MethodSymbol {
   private ScopedSymbol resolvedSymbolToCall = null;
 
   public CallSymbol(String name, IScope enclosingScope) {

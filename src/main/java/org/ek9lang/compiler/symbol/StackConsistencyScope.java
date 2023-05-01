@@ -13,19 +13,19 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 public class StackConsistencyScope extends LocalScope implements ICanCaptureVariables {
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private Optional<IScope> capturedVariables = Optional.empty();
+  private Optional<CaptureScope> capturedVariables = Optional.empty();
 
   public StackConsistencyScope(IScope enclosingScope) {
     super("StackConsistencyScope", enclosingScope);
   }
 
   @Override
-  public Optional<IScope> getCapturedVariables() {
+  public Optional<CaptureScope> getCapturedVariables() {
     return capturedVariables;
   }
 
   @Override
-  public void setCapturedVariables(IScope capturedVariables) {
+  public void setCapturedVariables(CaptureScope capturedVariables) {
     this.capturedVariables = Optional.ofNullable(capturedVariables);
   }
 

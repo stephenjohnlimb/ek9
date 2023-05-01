@@ -1,0 +1,100 @@
+#!ek9
+<?-
+  Idea to show and detect correct and incorrect use of components.
+
+  So the first part sets up some components, applications and programs that will work.
+  Then additional code deliberately sets up and configures stuff in an invalid manner.
+-?>
+defines module bad.components.use
+
+  //Just used to check it is not possible to inherit from a constant
+  defines constant
+    SOME_CONSTANT <- 10
+
+  //Just used to define a 'type' to check it is rejected as a super for a component.
+
+  defines trait
+    @Resolved: SYMBOL_DEFINITION: TYPE: "SomeTrait"
+    SomeTrait
+      aMethod() as abstract
+
+  defines class
+    @Resolved: SYMBOL_DEFINITION: TYPE: "SomeClass"
+    SomeClass as abstract
+      aMethod() as abstract
+
+    @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "SomeGenericClass"
+    SomeGenericClass of type T
+      methodX()
+        -> arg0 as T
+        <- rtn as T: arg0
+
+  defines component
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "BaseConfiguration"
+    BaseConfiguration abstract
+      getFileStoreName() abstract
+        <- rtn as String: String()
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Solution1"
+    Solution1 is BaseConfiguration
+      override getFileStoreName() as
+        <- rtn String: "MainStore"
+
+  defines application
+
+    noAspectApp
+      register Solution1() as BaseConfiguration
+
+    invalidApp1
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+      register Solution1() as SOME_CONSTANT
+
+    invalidApp2
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+      register Solution1() as SomeTrait
+
+    invalidApp3
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+      register Solution1() as SomeClass
+
+    invalidApp4
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+      register Solution1() as SomeGenericClass
+
+    invalidApp5
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+      register Solution1() as NotEvenDefined
+
+  defines program
+
+    Program0 with application of noAspectApp
+      stdout <- Stdout()
+      stdout.println("Program0 functionality")
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+    invalidProgram1 with application of SOME_CONSTANT
+      stdout <- Stdout()
+      stdout.println("invalid functionality")
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    invalidProgram2 with application of SomeTrait
+      stdout <- Stdout()
+      stdout.println("invalid functionality")
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    invalidProgram3 with application of SomeClass
+      stdout <- Stdout()
+      stdout.println("invalid functionality")
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    invalidProgram4 with application of SomeGenericClass
+      stdout <- Stdout()
+      stdout.println("invalid functionality")
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+    invalidProgram5 with application of NotEvenDefined
+      stdout <- Stdout()
+      stdout.println("invalid functionality")
+
+//EOF

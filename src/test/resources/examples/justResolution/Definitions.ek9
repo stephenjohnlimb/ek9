@@ -22,6 +22,7 @@ defines module just.resolution.items
   defines function
     useName()
       name <- NAME
+      assert name?
 
     <?-
       Not only us useName a function - it can be considered as a type as well

@@ -8,9 +8,11 @@ import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineExplicitParameteri
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineIdentifierReference;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineTypeDef;
 import org.ek9lang.compiler.main.rules.CheckNotGenericTypeParameter;
+import org.ek9lang.compiler.main.rules.CheckSuitableGenus;
 import org.ek9lang.compiler.main.rules.CheckSuitableToExtend;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
+import org.ek9lang.compiler.symbol.CaptureScope;
 import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
@@ -54,6 +56,12 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final CheckSuitableToExtend checkClassSuitableToExtend;
 
   private final CheckSuitableToExtend checkComponentSuitableToExtend;
+
+  private final CheckSuitableGenus checkComponentToRegisterAgainst;
+
+  private final CheckSuitableGenus checkAllowedClassSuitableGenus;
+
+  private final CheckSuitableGenus checkApplicationForProgram;
 
   /**
    * Still in def phase 1 - but second pass to try and resolve types due to declaration ordering.
@@ -103,6 +111,16 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
     checkComponentSuitableToExtend =
         new CheckSuitableToExtend(symbolAndScopeManagement, errorListener, ISymbol.SymbolGenus.COMPONENT, true);
+
+    checkComponentToRegisterAgainst =
+        new CheckSuitableGenus(symbolAndScopeManagement, errorListener, ISymbol.SymbolGenus.COMPONENT, false, true);
+
+    checkAllowedClassSuitableGenus =
+        new CheckSuitableGenus(symbolAndScopeManagement, errorListener, ISymbol.SymbolGenus.CLASS, false, true);
+
+    checkApplicationForProgram =
+        new CheckSuitableGenus(symbolAndScopeManagement, errorListener,
+            List.of(ISymbol.SymbolGenus.GENERAL_APPLICATION, ISymbol.SymbolGenus.SERVICE_APPLICATION), false, true);
   }
 
   /**
@@ -171,6 +189,13 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
       ctx.traitsList().traitReference().forEach(traitRef -> {
         var resolved = checkClassTraitSuitableToExtend.apply(traitRef.identifierReference());
         resolved.ifPresent(theTrait -> symbol.addTrait((AggregateWithTraitsSymbol) theTrait));
+      });
+    }
+
+    if (ctx.allowingOnly() != null) {
+      ctx.allowingOnly().identifierReference().forEach(classRef -> {
+        var resolved = checkAllowedClassSuitableGenus.apply(classRef);
+        resolved.ifPresent(theClass -> symbol.addAllowedExtender((IAggregateSymbol) theClass));
       });
     }
 
@@ -361,14 +386,17 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   @Override
   public void enterDynamicVariableCapture(EK9Parser.DynamicVariableCaptureContext ctx) {
-    var scope = symbolAndScopeManagement.getRecordedScope(ctx);
+    CaptureScope scope = (CaptureScope) symbolAndScopeManagement.getRecordedScope(ctx);
     AssertValue.checkNotNull("Dynamic Variable Capture should have been defined", scope);
+    scope.setOpenToEnclosingScope(true);
     symbolAndScopeManagement.enterScope(scope);
     super.enterDynamicVariableCapture(ctx);
   }
 
   @Override
   public void exitDynamicVariableCapture(EK9Parser.DynamicVariableCaptureContext ctx) {
+    CaptureScope scope = (CaptureScope) symbolAndScopeManagement.getRecordedScope(ctx);
+    scope.setOpenToEnclosingScope(false);
     symbolAndScopeManagement.exitScope();
     super.exitDynamicVariableCapture(ctx);
   }
@@ -383,6 +411,9 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   @Override
   public void exitMethodDeclaration(EK9Parser.MethodDeclarationContext ctx) {
+    if (ctx.identifierReference() != null) {
+      checkApplicationForProgram.apply(ctx.identifierReference());
+    }
     symbolAndScopeManagement.exitScope();
     super.exitMethodDeclaration(ctx);
   }
@@ -403,10 +434,39 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   @Override
   public void exitVariableOnlyDeclaration(EK9Parser.VariableOnlyDeclarationContext ctx) {
+    var variableSystem = symbolAndScopeManagement.getRecordedSymbol(ctx);
     if (ctx.BANG() != null) {
-      checkNotGenericTypeParameter.accept(symbolAndScopeManagement.getRecordedSymbol(ctx));
+      checkNotGenericTypeParameter.accept(variableSystem);
     }
+    if (ctx.typeDef() != null) {
+      var theType = symbolAndScopeManagement.getRecordedSymbol(ctx.typeDef());
+      if (theType != null) {
+        variableSystem.setType(theType);
+      }
+    }
+
     super.exitVariableOnlyDeclaration(ctx);
+  }
+
+  @Override
+  public void exitVariableDeclaration(EK9Parser.VariableDeclarationContext ctx) {
+    var variableSystem = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    if (ctx.typeDef() != null) {
+      var theType = symbolAndScopeManagement.getRecordedSymbol(ctx.typeDef());
+      if (theType != null) {
+        variableSystem.setType(theType);
+      }
+    }
+    super.exitVariableDeclaration(ctx);
+  }
+
+  @Override
+  public void exitRegisterStatement(EK9Parser.RegisterStatementContext ctx) {
+    //Don't really do anything with the resolved component at the moment.
+    if (ctx.identifierReference() != null) {
+      checkComponentToRegisterAgainst.apply(ctx.identifierReference());
+    }
+    super.exitRegisterStatement(ctx);
   }
 
   /*

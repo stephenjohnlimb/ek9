@@ -7,11 +7,13 @@ import org.ek9lang.compiler.errors.ErrorListener;
 /**
  * Check an assignment again 'super' use and some operators against 'this' use.
  */
-public class CheckAssignment implements Consumer<EK9Parser.AssignmentStatementContext> {
+public class CheckThisAndSuperAssignmentStatement implements Consumer<EK9Parser.AssignmentStatementContext> {
 
   private final ErrorListener errorListener;
 
-  public CheckAssignment(final ErrorListener errorListener) {
+  private final OperationIsAssignment operationIsAssignment = new OperationIsAssignment();
+
+  public CheckThisAndSuperAssignmentStatement(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 
@@ -25,10 +27,7 @@ public class CheckAssignment implements Consumer<EK9Parser.AssignmentStatementCo
       } else {
         //Basically we allow a sort of assignment that accepts this 'this' has a value but can be mutated.
         //For example the merge operator or, copy (and others) but NOT these below.
-        if (ctx.op.getType() == EK9Parser.ASSIGN
-            || ctx.op.getType() == EK9Parser.ASSIGN2
-            || ctx.op.getType() == EK9Parser.COLON
-            || ctx.op.getType() == EK9Parser.ASSIGN_UNSET) {
+        if (operationIsAssignment.test(ctx.op)) {
           errorListener.semanticError(ctx.primaryReference().start, "'this'",
               ErrorListener.SemanticClassification.USE_OF_THIS_INAPPROPRIATE);
         }

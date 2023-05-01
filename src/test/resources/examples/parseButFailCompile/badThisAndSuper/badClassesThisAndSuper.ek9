@@ -1,0 +1,64 @@
+#!ek9
+defines module bad.classes.thisandsuper
+
+  defines trait
+
+    Trait1
+      methodX()
+        <- rtn as String: "X"
+
+      methodP()
+        <- rtn as String: "P"
+        //Invalid call to super
+        @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_SUPER
+        rtn: super.methodX()
+
+    Trait2 is Trait1
+      methodY()
+        //This is the correct way to address an immediate trait
+        <- rtn as String: Trait1.methodX()
+
+    Trait3 with trait of Trait1
+      methodY()
+        //This super mechanism is not appropriate for traits.
+        @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_SUPER
+        <- rtn as String: super.methodX()
+
+      methodZ()
+        //Not yet detected as an error - but will be when we check on calls.
+        <- rtn as String: Trait2.methodP()
+
+  defines class
+
+    Class1 with trait of Trait1 as open
+      value <- "Steve"
+
+      method1()
+        //This should be a valid use of this.
+        this.value :=: "Stephen"
+
+        //we can also address in this way and call methodX on the trait
+        value: this.methodX()
+
+    Class2 extends Class1
+      override method1()
+        //just call method1() on the suer this is valid
+        super.method1()
+
+    InvalidClass1
+      method1()
+        //This is not valid because there is no super.
+        @Error: FULL_RESOLUTION: AGGREGATE_HAS_NO_SUPER
+        super.method1()
+
+  defines program
+    Prog1
+      dynamicClass <- () with trait of Trait1 as class
+        methodY()
+          //This is OK calling trait method
+          <- rtn as String: this.methodX()
+        methodZ()
+          //This is OK calling trait method - but without this.
+          <- rtn as String: methodX()
+
+//EOF

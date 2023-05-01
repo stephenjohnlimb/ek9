@@ -7,6 +7,17 @@ defines module introduction
 
   defines program
     HelloWorld()
+      //Just for development of phase 3 listeners, explicit via typeDef
+      anotherMessage as String: "Checking type is known without inference"
+
+      //This is also an inferred type - 'List of String' - but in short form.
+      aList <- ["First", "Inferred", "List"]
+
+      assert aList?
+      //But this is inferred, this is the main drive of phase 3 listeners
       stdout <- Stdout()
+
       stdout.println(helloMessage)
+
+      stdout.println(anotherMessage)
 //EOF

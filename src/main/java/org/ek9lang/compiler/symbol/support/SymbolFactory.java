@@ -37,6 +37,7 @@ import org.ek9lang.compiler.support.ResolvedDirective;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbol.CallSymbol;
+import org.ek9lang.compiler.symbol.CaptureScope;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
 import org.ek9lang.compiler.symbol.ExpressionSymbol;
 import org.ek9lang.compiler.symbol.ForSymbol;
@@ -46,7 +47,6 @@ import org.ek9lang.compiler.symbol.ICanCaptureVariables;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.IScopedSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.LocalScope;
 import org.ek9lang.compiler.symbol.MethodSymbol;
 import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbol.ServiceOperationSymbol;
@@ -512,10 +512,10 @@ public class SymbolFactory {
   /**
    * Create a new local scope just for variables to be defined/captured in for dynamic classes/functions.
    */
-  public LocalScope newDynamicVariableCapture(ICanCaptureVariables scope) {
-    //This local scope cannot access anything else in the scope it was defined in.
-    //It is a very isolated scope just for captured variables.
-    final var captureScope = new LocalScope("CaptureScope", parsedModule.getModuleScope());
+  public CaptureScope newDynamicVariableCapture(ICanCaptureVariables scope, final IScope enclosingBlockScope) {
+    //Now we have to jump back the scope stack to find the main enclosing block.
+    //The capture scope will then use this conditionally to resolve items to capture on enter.
+    final var captureScope = new CaptureScope(enclosingBlockScope);
     //Now the dynamic class/function needs to know about this additional scope it may have to resolve variables in.
     scope.setCapturedVariables(captureScope);
 
@@ -747,6 +747,23 @@ public class SymbolFactory {
     Symbol symbol = new Symbol(name);
     configureSymbol(symbol, token);
     return symbol;
+  }
+
+  /**
+   * Create a new expression symbol place holder.
+   * Really just enables the line of code to be captured and the type that the expression returns.
+   */
+  public ExpressionSymbol newExpressionSymbol(final Token token, String name) {
+    ExpressionSymbol symbol = new ExpressionSymbol(name);
+    configureSymbol(symbol, token);
+    return symbol;
+  }
+
+  /**
+   * Create a new expression around a symbol.
+   */
+  public ExpressionSymbol newExpressionSymbol(final ISymbol fromSymbol) {
+    return new ExpressionSymbol(fromSymbol);
   }
 
   /**
@@ -983,6 +1000,9 @@ public class SymbolFactory {
 
   private void configureAggregate(AggregateSymbol aggregate, Token start) {
     aggregate.setModuleScope(parsedModule.getModuleScope());
+    //By their nature they are initialised and do not have to be referenced to be part of a system.
+    aggregate.setInitialisedBy(start);
+    aggregate.setReferenced(true);
     configureSymbol(aggregate, start);
   }
 

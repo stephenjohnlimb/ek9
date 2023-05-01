@@ -11,8 +11,10 @@ import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.errors.ReferenceDoesNotResolve;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.ParsedModule;
+import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.main.rules.CheckForInvalidUseOfReference;
 import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.ScopeStack;
 import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
@@ -26,6 +28,8 @@ public class ReferencesPhase1Listener extends EK9BaseListener {
 
   private final CompilableProgram compilableProgram;
   private final ParsedModule parsedModule;
+
+  private final SymbolAndScopeManagement symbolAndScopeManagement;
   private final CheckForInvalidUseOfReference checkForInvalidUseOfReference;
   private final ReferenceDoesNotResolve referenceDoesNotResolve;
   private final ConstructAndReferenceConflict duplicateSymbolByReference;
@@ -59,6 +63,10 @@ public class ReferencesPhase1Listener extends EK9BaseListener {
 
     this.compilableProgram = compilableProgram;
     this.parsedModule = parsedModule;
+
+    this.symbolAndScopeManagement = new SymbolAndScopeManagement(parsedModule,
+        new ScopeStack(parsedModule.getModuleScope()));
+
     this.checkForInvalidUseOfReference = new CheckForInvalidUseOfReference(parsedModule.getSource().getErrorListener());
     this.duplicateSymbolByReference = new ConstructAndReferenceConflict("reference",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.REFERENCES_CONFLICT);
@@ -282,28 +290,24 @@ public class ReferencesPhase1Listener extends EK9BaseListener {
   private void checkIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx,
                                         final String fullyQualifiedIdentifierReference) {
 
-    //Get the module name and the unqualified name first.
-    final var moduleName = ISymbol.getModuleNameIfPresent(fullyQualifiedIdentifierReference);
+    final var identifierToken = ctx.identifier().start;
+    final var search = new AnySymbolSearch(fullyQualifiedIdentifierReference);
+    final var resolved = symbolAndScopeManagement.getTopScope().resolve(search);
 
-    var identifierToken = ctx.identifier().start;
-    var search = new AnySymbolSearch(fullyQualifiedIdentifierReference);
-    //So lets see if this thing that has been referenced actually exists in the module specified by the developer
-    final var reference = compilableProgram.resolveFromModule(moduleName, search);
-    if (reference.isEmpty()) {
+    if (resolved.isEmpty()) {
       //Not good - it means that during definition time it was not defined in that module. So that's an error.
       referenceDoesNotResolve.accept(identifierToken, fullyQualifiedIdentifierReference);
-      //For debugging lets try again with a break point
-      compilableProgram.resolveFromModule(moduleName, search);
-
     } else {
-      //Ok so we can add this to our set of references in our module.
 
+      //Ok so we can add this to our set of references in our module.
       //But only if we have not already got a reference to it through
       //either this source or another source of this same module namespace
       final var existingReference = compilableProgram.resolveReferenceFromModule(parsedModule.getModuleName(),
           search);
       if (existingReference.isEmpty()) {
-        parsedModule.getModuleScope().defineReference(identifierToken, reference.get());
+        parsedModule.getModuleScope().defineReference(identifierToken, resolved.get());
+        //Record against the correct context.
+        symbolAndScopeManagement.recordSymbol(resolved.get(), ctx);
       } else {
         var originalLocation = compilableProgram.getOriginalReferenceLocation(parsedModule.getModuleName(), search);
         originalLocation.ifPresent(location -> duplicateSymbolByReference.accept(

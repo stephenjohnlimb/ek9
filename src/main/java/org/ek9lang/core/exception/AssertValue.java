@@ -103,6 +103,7 @@ public class AssertValue {
   /**
    * Check item not null and not empty.
    */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public static void checkNotEmpty(String messageIfEmpty, Optional<?> item) {
     checkNotNull(messageIfEmpty, item);
     if (item.isEmpty()) {
@@ -167,5 +168,14 @@ public class AssertValue {
     if (value) {
       throw new IllegalArgumentException(messageIfTrue);
     }
+  }
+
+  /**
+   * Just trigger a direct failure.
+   *
+   * @param withMessage The message to issue.
+   */
+  public static void fail(String withMessage) {
+    throw new IllegalArgumentException(withMessage);
   }
 }

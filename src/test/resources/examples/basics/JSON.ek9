@@ -55,6 +55,10 @@ defines module com.customer.jsonexample
       sumOfProperties <- cat json | collect as Integer
       assert sumOfProperties == 23
 
+      //Just check a normal variable can be interpolated
+      x <- "X"
+      stdout.println(`X is ${x}`)
+
       for j in json.iterator()
         stdout.println(`J is ${j}`)
 

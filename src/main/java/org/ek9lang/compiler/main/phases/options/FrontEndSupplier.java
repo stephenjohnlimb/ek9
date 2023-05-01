@@ -12,7 +12,7 @@ import org.ek9lang.compiler.main.phases.Ek9Phase1ReferenceChecks;
 import org.ek9lang.compiler.main.phases.Ek9Phase1SymbolDefinition;
 import org.ek9lang.compiler.main.phases.Ek9Phase2NonInferredTypeDefinition;
 import org.ek9lang.compiler.main.phases.Ek9Phase2TypeHierarchyChecks;
-import org.ek9lang.compiler.main.phases.Ek9Phase5SymbolResolution;
+import org.ek9lang.compiler.main.phases.Ek9Phase3SymbolResolution;
 import org.ek9lang.compiler.main.phases.Ek9Phase6PluginResolution;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
@@ -47,9 +47,9 @@ public class FrontEndSupplier extends PhaseSupplier {
         new Ek9Phase1SymbolDefinition(multiThread, compilableProgramAccess, listener, reporter),
         new Ek9Phase1ModuleDuplicateSymbolChecks(compilableProgramAccess, listener, reporter),
         new Ek9Phase1ReferenceChecks(compilableProgramAccess, listener, reporter),
-        new Ek9Phase2NonInferredTypeDefinition(compilableProgramAccess, listener, reporter),
+        new Ek9Phase2NonInferredTypeDefinition(multiThread, compilableProgramAccess, listener, reporter),
         new Ek9Phase2TypeHierarchyChecks(compilableProgramAccess, listener, reporter),
-        new Ek9Phase5SymbolResolution(compilableProgramAccess, listener, reporter),
+        new Ek9Phase3SymbolResolution(multiThread, compilableProgramAccess, listener, reporter),
         new Ek9Phase6PluginResolution(compilableProgramAccess, listener, reporter));
   }
 }

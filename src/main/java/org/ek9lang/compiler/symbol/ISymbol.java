@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.symbol;
 
 import java.util.Optional;
+import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.internals.Module;
 
 /**
@@ -158,8 +159,16 @@ public interface ISymbol extends ITokenReference {
 
   boolean isReturningParameter();
 
-  //Special type of variable one that is a property on an aggregate.
-  boolean isAggregatePropertyField();
+  //Special type of variable one that is a property on an aggregate/or capture.
+  boolean isPropertyField();
+
+  Token getInitialisedBy();
+
+  void setInitialisedBy(Token initialisedBy);
+
+  default boolean isInitialised() {
+    return getInitialisedBy() != null;
+  }
 
   default boolean isTemplateType() {
     return getCategory().equals(SymbolCategory.TEMPLATE_TYPE);

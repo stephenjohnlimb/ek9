@@ -1,0 +1,140 @@
+#!ek9
+<?-
+  Design to test and check incorrect use of block variables in terms of ordering etc.
+  Need to check these sort of errors ae raised in the appropriate context.
+  Note that uninitialised return values have to be checked in the IR phase.
+  This is because that dynamic functions and template types/functions can only be check at that point.
+  USED_BEFORE_DEFINED
+  USED_BEFORE_INITIALISED
+  SELF_ASSIGNMENT
+  NOT_REFERENCED
+  NOT_ACCESSIBLE - try and access private variable
+-?>
+defines module bad.blockvariable.uses
+
+  defines class
+    CheckBase as open
+      //So by nature these are a private variables
+      //We reference one but not the other - but private don't have to be referenced
+      //Because we have possible operators that we can default in, like $ and $$ and <=>
+      field1 <- "Steve"
+      field2 <- "Limb"
+
+      someMethod()
+        <- rtn as String: String()
+        //This access to field1 is allowed because in the same class.
+        rtn :=: field1
+
+      default $
+
+    CheckClass is CheckBase
+      anotherField <- 21
+
+      validAccessToConstantDefinedAfterVariable()
+        //Just a quick check to ensure that constants are accessible even when defined after a variable
+        someVar <- V1
+        assert someVar?
+
+      //Now this is not allowed as field1 is in the super and therefore private
+      invalidAccessToSuperPrivate()
+        <- rtn1 as String?
+        @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
+        rtn1: field1
+
+      usedBeforeDefinition()
+        @Error: FULL_RESOLUTION: USED_BEFORE_DEFINED
+        someVar <- AVariableThatHasNotYetBeenDefined
+        assert someVar?
+
+        //Now define the variable - but after the use
+        AVariableThatHasNotYetBeenDefined <- "Now Defined"
+
+      usedBeforeBeingInitialised()
+        uninitializedVar as String?
+
+        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
+        anotherVariable <- uninitializedVar
+
+        //Also this should be an error
+        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
+        yetAnotherVariable as String: uninitializedVar
+
+        //And this
+        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
+        Stdout().println(uninitializedVar)
+
+        //But check that if we initialise it here all is still bad before but OK after
+        uninitializedVar: "Now initialised"
+
+        //So this will now be OK, as it is initialised from above point onwards, but not before.
+        Stdout().println(uninitializedVar)
+
+      returnedBeforeBeingInitialised()
+        <- rtn2 as String?
+        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
+        assert ~rtn2?
+
+        //Now initialise it and it's use will be OK.
+        rtn2 := "SomeValidValue"
+        assert rtn2?
+
+      notUsedInitialised()
+        @Error: FULL_RESOLUTION: NEVER_INITIALISED
+        value1 as String?
+
+        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
+        value2 <- value1
+        assert value2?
+
+      checkRecordCanBeAccessed()
+        rec <- Record2()
+
+        //This should be OK to do - but need to implement in 'ExpressionListener' first
+        //fieldAccess1 <- rec.recField1
+        //fieldAccess2 <- rec.recField2
+
+        assert rec?
+
+      selfAssignmentInField()
+        @Error: FULL_RESOLUTION: SELF_ASSIGNMENT
+        anotherField: anotherField
+
+        //Really a copy over self, but still a self assignment
+        @Error: FULL_RESOLUTION: SELF_ASSIGNMENT
+        anotherField :=: anotherField
+
+      selfAssignmentInBlockVariable()
+        someBlockVariable <- 1
+
+        @Error: FULL_RESOLUTION: SELF_ASSIGNMENT
+        someBlockVariable: someBlockVariable
+
+        //Really a copy over self, but still a self assignment
+        @Error: FULL_RESOLUTION: SELF_ASSIGNMENT
+        someBlockVariable :=: someBlockVariable
+
+      unReferencedBlockVariable()
+        @Error: FULL_RESOLUTION: NOT_REFERENCED
+        someUnReferencedVariable1 <- 1
+
+        @Error: FULL_RESOLUTION: NOT_REFERENCED
+        someUnReferencedVariable2 as String?
+
+        aReferencedVariable <- 2
+        assert aReferencedVariable?
+
+  defines record
+    Record1 as open
+      recField1 <- "Steve"
+
+    Record2 is Record1
+      recField2 <- "Limb"
+
+      //As record fields are public they should be accessible anywhere.
+      operator $
+        <- rtn as String: `${recField1} ${recField2}`
+
+  defines constant
+    V1 <- "VersionOne"
+
+//EOF

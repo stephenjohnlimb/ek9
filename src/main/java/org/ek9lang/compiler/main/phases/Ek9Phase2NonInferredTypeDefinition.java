@@ -38,7 +38,7 @@ import org.ek9lang.core.utils.Holder;
 public class Ek9Phase2NonInferredTypeDefinition
     implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
 
-  private final boolean useMultiThreading = true;
+  private final boolean useMultiThreading;
   private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
@@ -49,8 +49,10 @@ public class Ek9Phase2NonInferredTypeDefinition
   /**
    * Create a new phase 1 second pass template type symbol resolution definition instance.
    */
-  public Ek9Phase2NonInferredTypeDefinition(SharedThreadContext<CompilableProgram> compilableProgramAccess,
+  public Ek9Phase2NonInferredTypeDefinition(final boolean multiThread,
+                                            SharedThreadContext<CompilableProgram> compilableProgramAccess,
                                             Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+    this.useMultiThreading = multiThread;
     this.listener = listener;
     this.reporter = reporter;
     this.compilableProgramAccess = compilableProgramAccess;
@@ -58,8 +60,6 @@ public class Ek9Phase2NonInferredTypeDefinition
 
   @Override
   public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
-
-
     reporter.log(thisPhase);
     final var result = underTakeTypeSymbolResolutionAndDefinition(workspace);
     return new CompilationPhaseResult(thisPhase, result, compilerFlags.getCompileToPhase() == thisPhase);

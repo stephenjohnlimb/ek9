@@ -188,7 +188,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   protected String doGetFriendlyName(String withName, Optional<ISymbol> theType) {
-    var toCommaSeparated = new ToCommaSeparated(true);
+    var toCommaSeparated = new ToCommaSeparated(this, true);
     StringBuilder buffer = new StringBuilder();
 
     buffer.append(getSymbolTypeAsString(theType));

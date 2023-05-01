@@ -26,7 +26,7 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
    * out of the original scope. i.e. a sort of closure over variables.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private Optional<IScope> capturedVariables = Optional.empty();
+  private Optional<CaptureScope> capturedVariables = Optional.empty();
 
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -74,7 +74,7 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
     this.markedAbstract = markedAbstract;
   }
 
-  public Optional<IScope> getCapturedVariables() {
+  public Optional<CaptureScope> getCapturedVariables() {
     return capturedVariables;
   }
 
@@ -82,12 +82,12 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
    * It is possible to capture variables in the current scope and pull them into the
    * function, so they can be used.
    */
-  public void setCapturedVariables(IScope capturedVariables) {
+  public void setCapturedVariables(CaptureScope capturedVariables) {
     setCapturedVariables(Optional.ofNullable(capturedVariables));
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public void setCapturedVariables(Optional<IScope> capturedVariables) {
+  public void setCapturedVariables(Optional<CaptureScope> capturedVariables) {
     this.capturedVariables = capturedVariables;
   }
 
@@ -104,7 +104,7 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
   }
 
   protected String getPrivateVariablesForDisplay() {
-    var toCommaSeparated = new ToCommaSeparated(true);
+    var toCommaSeparated = new ToCommaSeparated(this, true);
     return capturedVariables
         .map(IScope::getSymbolsForThisScope)
         .map(toCommaSeparated)

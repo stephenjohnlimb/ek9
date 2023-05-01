@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.main.phases.listeners;
+package org.ek9lang.compiler.main.phases.common;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9BaseListener;
@@ -265,17 +265,10 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   }
 
   @Override
-  public void exitForLoop(EK9Parser.ForLoopContext ctx) {
+  public void exitForStatement(EK9Parser.ForStatementContext ctx) {
     symbolAndScopeManagement.exitScope();
-    super.exitForLoop(ctx);
+    super.exitForStatement(ctx);
   }
-
-  @Override
-  public void exitForRange(EK9Parser.ForRangeContext ctx) {
-    symbolAndScopeManagement.exitScope();
-    super.exitForRange(ctx);
-  }
-
 
   @Override
   public void exitReturningParam(EK9Parser.ReturningParamContext ctx) {

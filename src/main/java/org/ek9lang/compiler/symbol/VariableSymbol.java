@@ -5,7 +5,7 @@ import java.util.Optional;
 /**
  * Models a variable.
  */
-public class VariableSymbol extends Symbol implements IAssignableSymbol {
+public class VariableSymbol extends Symbol {
   private boolean loopVariable = false;
 
   private boolean incomingParameter = false;
@@ -21,6 +21,12 @@ public class VariableSymbol extends Symbol implements IAssignableSymbol {
   private boolean isPrivate = false;
 
   private boolean isAggregatePropertyField = false;
+
+  @SuppressWarnings("CopyConstructorMissesField")
+  public VariableSymbol(VariableSymbol toCopy) {
+    this(toCopy.getName(), toCopy.getType());
+    this.setInitialisedBy(toCopy.getInitialisedBy());
+  }
 
   public VariableSymbol(String name) {
     this(name, Optional.empty());
@@ -47,7 +53,7 @@ public class VariableSymbol extends Symbol implements IAssignableSymbol {
         && isIncomingParameter() == that.isIncomingParameter()
         && isReturningParameter() == that.isReturningParameter()
         && isPrivate() == that.isPrivate()
-        && isAggregatePropertyField() == that.isAggregatePropertyField();
+        && isPropertyField() == that.isPropertyField();
   }
 
   @Override
@@ -57,7 +63,7 @@ public class VariableSymbol extends Symbol implements IAssignableSymbol {
     result = 31 * result + (isIncomingParameter() ? 1 : 0);
     result = 31 * result + (isReturningParameter() ? 1 : 0);
     result = 31 * result + (isPrivate() ? 1 : 0);
-    result = 31 * result + (isAggregatePropertyField() ? 1 : 0);
+    result = 31 * result + (isPropertyField() ? 1 : 0);
     return result;
   }
 
@@ -77,7 +83,7 @@ public class VariableSymbol extends Symbol implements IAssignableSymbol {
   }
 
   @Override
-  public boolean isAggregatePropertyField() {
+  public boolean isPropertyField() {
     return isAggregatePropertyField;
   }
 

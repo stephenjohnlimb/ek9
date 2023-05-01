@@ -154,10 +154,12 @@ public class Symbol implements ISymbol {
     this.markedPure = markedPure;
   }
 
+  @Override
   public Token getInitialisedBy() {
     return initialisedBy;
   }
 
+  @Override
   public void setInitialisedBy(Token initialisedBy) {
     this.initialisedBy = initialisedBy;
   }
@@ -217,7 +219,7 @@ public class Symbol implements ISymbol {
   }
 
   @Override
-  public boolean isAggregatePropertyField() {
+  public boolean isPropertyField() {
     return false;
   }
 

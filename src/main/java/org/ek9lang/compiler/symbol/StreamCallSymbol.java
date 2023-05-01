@@ -12,7 +12,7 @@ package org.ek9lang.compiler.symbol;
  * is that is provided by the iterator.
  * This is the 'glue' between streaming commands and functions.
  */
-public class StreamCallSymbol extends MethodSymbol implements IAssignableSymbol {
+public class StreamCallSymbol extends MethodSymbol {
   //For mid-part of a stream pipeline both of these types will be set.
   //Not sure about 'tee' it is an anomaly in some ways - consumes yes
   //but also can map to a terminal, but also pass on the type it consumes!

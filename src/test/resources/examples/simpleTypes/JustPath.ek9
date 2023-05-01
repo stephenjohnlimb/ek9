@@ -11,6 +11,22 @@ defines module com.customer.just
     The path starts with $?
   -!>
 
+  defines record
+    CustomerDetail
+      firstName <- String()
+      lastName <- String()
+
+      default CustomerDetail()
+
+      CustomerDetail()
+        ->
+          firstName as String
+          lastname as String
+        this.firstName :=: firstName
+        this.lastName :=: lastName
+
+      default operator $$
+
   defines program
 
     ASimpleSetOfPaths()

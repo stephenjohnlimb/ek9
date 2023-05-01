@@ -1,10 +1,8 @@
 package org.ek9lang.compiler.main.rules;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
@@ -21,10 +19,9 @@ import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
 public class CheckSuitableToExtend implements Function<ParserRuleContext, Optional<ISymbol>> {
 
   private final SymbolAndScopeManagement symbolAndScopeManagement;
-  private final List<ISymbol.SymbolGenus> supportedGenus = new ArrayList<>();
   private final ErrorListener errorListener;
 
-  private final boolean issueErrorIfNotResolved;
+  private final CheckSuitableGenus checkSuitableGenus;
 
   /**
    * Checks that the typedef/identifierReference passed in (when resolved) is suitable to be extended from.
@@ -46,25 +43,20 @@ public class CheckSuitableToExtend implements Function<ParserRuleContext, Option
                                final boolean issueErrorIfNotResolved) {
     this.symbolAndScopeManagement = symbolAndScopeManagement;
     this.errorListener = errorListener;
-    supportedGenus.addAll(genus);
-    this.issueErrorIfNotResolved = issueErrorIfNotResolved;
+    this.checkSuitableGenus =
+        new CheckSuitableGenus(symbolAndScopeManagement, errorListener, genus, true, issueErrorIfNotResolved);
   }
 
   @Override
   public Optional<ISymbol> apply(final ParserRuleContext ctx) {
-    var theType = symbolAndScopeManagement.getRecordedSymbol(ctx);
-    return checkIfValidSuper(ctx, theType) ? Optional.of(theType) : Optional.empty();
+    var rtn = checkSuitableGenus.apply(ctx);
+    if (rtn.isPresent() && checkIfValidSuper(ctx, rtn.get())) {
+      return rtn;
+    }
+    return Optional.empty();
   }
 
   private boolean checkIfValidSuper(final ParserRuleContext ctx, final ISymbol proposedSuper) {
-    if (!checkResolved(ctx, proposedSuper)) {
-      return false;
-    }
-
-    if (!checkGenusOK(ctx, proposedSuper)) {
-      return false;
-    }
-
     if (proposedSuper instanceof PossibleGenericSymbol possibleGenericSymbol) {
       if (!isOpenForExtension(ctx, possibleGenericSymbol)) {
         return false;
@@ -75,31 +67,6 @@ public class CheckSuitableToExtend implements Function<ParserRuleContext, Option
       return isNotGenericInNature(ctx, possibleGenericSymbol);
     }
 
-    return true;
-  }
-
-  private boolean checkResolved(final ParserRuleContext ctx, final ISymbol proposedSuper) {
-    if (proposedSuper == null) {
-      if (issueErrorIfNotResolved) {
-        errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.TYPE_NOT_RESOLVED);
-      }
-      return false;
-    }
-    return true;
-  }
-
-  private boolean checkGenusOK(final ParserRuleContext ctx, final ISymbol proposedSuper) {
-    if (!supportedGenus.contains(proposedSuper.getGenus())) {
-      var msg = "resolved as a '"
-          + proposedSuper.getGenus().getDescription()
-          + "' which is a '"
-          + proposedSuper.getCategory().getDescription()
-          + "' rather than a '"
-          + supportedGenus.stream().map(ISymbol.SymbolGenus::getDescription).collect(Collectors.joining(", "))
-          + "':";
-      errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.INCOMPATIBLE_GENUS);
-      return false;
-    }
     return true;
   }
 

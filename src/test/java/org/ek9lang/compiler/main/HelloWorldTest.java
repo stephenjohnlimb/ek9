@@ -60,7 +60,7 @@ class HelloWorldTest {
   @Test
   void testHelloWorldPhasedDevelopment() {
     //Just start with the basics and most on to the next phase one implemented.
-    CompilationPhase upToPhase = CompilationPhase.TYPE_HIERARCHY_CHECKS;
+    CompilationPhase upToPhase = CompilationPhase.FULL_RESOLUTION;
 
     CompilationPhaseListener listener = compilationEvent -> {
       var source = compilationEvent.source();
