@@ -45,29 +45,30 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
 
     symbolFactory = new SymbolFactory(parsedModule);
 
+    var errorListener = parsedModule.getSource().getErrorListener();
     checkValidThisOrSuper =
-        new CheckValidThisOrSuper(symbolAndScopeManagement, symbolFactory, parsedModule.getSource().getErrorListener());
+        new CheckValidThisOrSuper(symbolAndScopeManagement, symbolFactory, errorListener);
 
     checkValidPrimary
-        = new CheckValidPrimary(symbolAndScopeManagement, parsedModule.getSource().getErrorListener());
+        = new CheckValidPrimary(symbolAndScopeManagement, errorListener);
 
     checkValidIdentifierReference
-        = new CheckValidIdentifierReference(symbolAndScopeManagement, parsedModule.getSource().getErrorListener());
+        = new CheckValidIdentifierReference(symbolAndScopeManagement, errorListener);
 
     checkValidExpression
-        = new CheckValidExpression(symbolAndScopeManagement, symbolFactory, parsedModule.getSource().getErrorListener());
+        = new CheckValidExpression(symbolAndScopeManagement, symbolFactory, errorListener);
 
     checkInstructionBlockVariables =
-        new CheckInstructionBlockVariables(symbolAndScopeManagement, parsedModule.getSource().getErrorListener());
+        new CheckInstructionBlockVariables(symbolAndScopeManagement, errorListener);
 
     checkAssignmentExpression =
         new CheckAssignmentExpression(symbolAndScopeManagement);
 
     checkAssignmentStatement =
-        new CheckAssignmentStatement(symbolAndScopeManagement, parsedModule.getSource().getErrorListener());
+        new CheckAssignmentStatement(symbolAndScopeManagement, errorListener);
 
     checkValidCall =
-        new CheckValidCall(symbolAndScopeManagement, parsedModule.getSource().getErrorListener());
+        new CheckValidCall(symbolAndScopeManagement, errorListener);
   }
 
   @Override
