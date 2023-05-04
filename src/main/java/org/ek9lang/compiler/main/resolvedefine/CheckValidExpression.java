@@ -5,7 +5,6 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
-import org.ek9lang.compiler.symbol.ExpressionSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
@@ -59,7 +58,6 @@ public class CheckValidExpression implements Consumer<EK9Parser.ExpressionContex
     } else if (ctx.call() != null) {
       return symbolAndScopeManagement.getRecordedSymbol(ctx.call());
     } else if (ctx.list() != null) {
-      System.out.println("List to do next");
       return symbolAndScopeManagement.getRecordedSymbol(ctx.list());
     } else if (ctx.expression() != null && !ctx.expression().isEmpty()) {
       System.out.println("Expression to expression(s) next - but need to work out the type");

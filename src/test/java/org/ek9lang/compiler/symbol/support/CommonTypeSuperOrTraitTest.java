@@ -16,10 +16,10 @@ import org.ek9lang.compiler.tokenizer.SyntheticToken;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class CommonSuperOrTraitTest extends AbstractSymbolTestBase {
+class CommonTypeSuperOrTraitTest extends AbstractSymbolTestBase {
 
   private final ErrorListener errorListener = new ErrorListener("test");
-  private final CommonSuperOrTrait underTest = new CommonSuperOrTrait(errorListener);
+  private final CommonTypeSuperOrTrait underTest = new CommonTypeSuperOrTrait(errorListener);
 
   @BeforeEach
   void clearErrors() {
@@ -28,7 +28,7 @@ class CommonSuperOrTraitTest extends AbstractSymbolTestBase {
 
   @Test
   void testEmptyList() {
-    var commonSymbol = underTest.apply(List.of());
+    var commonSymbol = underTest.apply(new SyntheticToken(), List.of());
     assertTrue(commonSymbol.isEmpty());
   }
 
@@ -163,14 +163,14 @@ class CommonSuperOrTraitTest extends AbstractSymbolTestBase {
   }
 
   private void assertNoSymbolDetected(final List<ISymbol> arguments, boolean expectErrors) {
-    var commonSymbol = underTest.apply(arguments);
+    var commonSymbol = underTest.apply(new SyntheticToken(), arguments);
     assertTrue(commonSymbol.isEmpty());
     assertEquals(expectErrors, errorListener.hasErrors());
     //errorListener.getErrors().forEachRemaining(System.out::println);
   }
 
   private void assertSymbolType(final ISymbol symbolType, final List<ISymbol> arguments) {
-    var commonSymbol = underTest.apply(arguments);
+    var commonSymbol = underTest.apply(new SyntheticToken(), arguments);
     assertTrue(commonSymbol.isPresent());
     assertEquals(symbolType, commonSymbol.get());
   }

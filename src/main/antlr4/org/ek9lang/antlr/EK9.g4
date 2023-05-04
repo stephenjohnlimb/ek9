@@ -672,6 +672,7 @@ identifier
     | IS
     | AND
     | OR
+    | ONLY
     | HTTP_QUERY
     | HTTP_PATH
     | HTTP_HEADER

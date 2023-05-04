@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.main.phases.definition;
 
 import java.util.List;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9BaseListener;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.internals.ParsedModule;
@@ -16,6 +17,7 @@ import org.ek9lang.compiler.symbol.CaptureScope;
 import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.MethodSymbol;
 import org.ek9lang.compiler.symbol.ScopeStack;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
 import org.ek9lang.core.exception.AssertValue;
@@ -430,6 +432,24 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   public void exitOperatorDeclaration(EK9Parser.OperatorDeclarationContext ctx) {
     symbolAndScopeManagement.exitScope();
     super.exitOperatorDeclaration(ctx);
+  }
+
+  /**
+   * It's important to reprocess this now, just to ensure that any returning types are defined on methods.
+   * This is because it might not have been possible on the first pass - depending on ordering.
+   * It might still not be set of the type cannot be resolved, but that's OK, other errors will pick that up.
+   */
+  @Override
+  public void exitReturningParam(EK9Parser.ReturningParamContext ctx) {
+    //Now get back to the parent scope, function, method, try, switch etc.
+    super.exitReturningParam(ctx);
+    var currentScope = symbolAndScopeManagement.getTopScope();
+
+    ParseTree child = ctx.variableDeclaration() != null ? ctx.variableDeclaration() : ctx.variableOnlyDeclaration();
+    var symbol = symbolAndScopeManagement.getRecordedSymbol(child);
+    if (currentScope instanceof MethodSymbol methodSymbol) {
+      methodSymbol.setType(symbol.getType());
+    }
   }
 
   @Override

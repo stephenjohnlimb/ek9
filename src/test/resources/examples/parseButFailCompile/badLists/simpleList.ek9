@@ -1,0 +1,91 @@
+#!ek9
+defines module bad.lists.only
+
+  defines function
+
+    <!-
+    someAbstractFunction() as pure abstract
+      -> arg0 as Integer
+      <- rtn as Boolean: false
+
+    <?-
+      Just an example of an explicit list use.
+    -?>
+    WorkingExplicitList()
+      @Resolved: FULL_RESOLUTION: TYPE: "List of (Float)"
+      aList as List of Float: List()
+
+      assert aList?
+
+    <?-
+      A working simple list but inferred by the types.
+    -?>
+    WorkingInferredListOfInteger()
+      @Resolved: FULL_RESOLUTION: TYPE: "List of (Integer)"
+      aList <- [1, 2, 3, 4]
+      assert aList?
+
+    <?-
+      Just try out with dates next.
+    -?>
+    WorkingInferredListOfDate()
+      @Resolved: FULL_RESOLUTION: TYPE: "List of (Date)"
+      aList <- [2023-05-04, 2023-12-22]
+      assert aList?
+
+    <?-
+      Now durations, but use variables this time.
+    -?>
+    WorkingInferredListOfDuration()
+      @Resolved: FULL_RESOLUTION: TYPE: "List of (Duration)"
+      d1 <- PT1H2M3S
+      d2 <- P3DT2H59M18S
+      aList <- [d1, d2]
+      assert aList?
+
+    InvalidTypesListOfDataCombinations()
+      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      aList <- [2023-05-04, 2023]
+      assert aList?
+
+    <?-
+      The inferred type stuff is driven from whatever the type of the
+      first value is.
+      That dictates what the others must be compatible with
+    -?>
+    InvalidMixOfTypes()
+      v1 <- 2023-05-04
+      f1 <- () is someAbstractFunction as pure function
+        rtn: arg0 < 0
+
+      assert v1?
+      assert f1?
+
+      @Error: FULL_RESOLUTION: TYPE_MUST_NOT_BE_FUNCTION
+      aList <- [v1, f1]
+      assert aList?
+
+      //Now try the other way
+      @Error: FULL_RESOLUTION: TYPE_MUST_BE_FUNCTION
+      bList <- [f1, v1]
+      assert bList?
+    -!>
+
+    MaybeAValidMixOfTypes()
+      v1 <- 2.0
+      v2 <- 3
+
+      //Because the first value is a Float, the list will be of Float, but importantly the v2 Integer can be coerced to a Float
+      //So while Float does not 'extend' or have the 'trait' of Integer it can be coerced into one.
+      //Now as ek9 has the promotion operator '#^', it means an ek9 developer can also coerce types in the same way.
+      //But this does mean that the 'variable' itself is not in the list, but a totally new object (the Float version)
+      @Resolved: FULL_RESOLUTION: TYPE: "List of (Float)"
+      aList <- [v1, v2]
+      assert aList?
+
+      //But note this will fail, because while Integers can be coerced to Floats
+      //The converse is not true.
+      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      bList <- [v2, v1]
+      assert bList?
+//EOF

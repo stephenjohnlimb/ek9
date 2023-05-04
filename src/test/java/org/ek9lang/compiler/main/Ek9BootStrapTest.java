@@ -13,10 +13,13 @@ import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.CompilableSource;
 import org.ek9lang.compiler.internals.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
+import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.support.SimpleResolverForTesting;
 import org.ek9lang.compiler.symbol.support.SymbolCountCheck;
 import org.ek9lang.compiler.symbol.support.search.AnyTypeSymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.core.exception.CompilerException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -60,12 +63,26 @@ class Ek9BootStrapTest {
     resolved.ifPresentOrElse(listSymbol -> {
       if (listSymbol instanceof IAggregateSymbol list) {
         var resolvedT = list.resolve(new AnyTypeSymbolSearch("T"));
-        resolvedT.ifPresentOrElse(t -> {}, () -> Assertions.fail("Expecting 'T' to be found"));
+        resolvedT.ifPresentOrElse(t -> {
+        }, () -> Assertions.fail("Expecting 'T' to be found"));
       }
     }, () -> Assertions.fail("Expecting 'List' to be found"));
 
     new SymbolCountCheck(moduleName, NUMBER_OF_EK9_SYMBOLS).test(program);
 
+    var resolvedInteger = resolver.apply("Integer");
+    resolvedInteger.ifPresentOrElse(integerSymbol -> {
+      System.out.println("Resolved [" + integerSymbol.getFriendlyName() + "]");
+      AggregateSymbol asAggregate = (AggregateSymbol) integerSymbol;
+
+      MethodSymbolSearchResult result = new MethodSymbolSearchResult();
+      result = asAggregate.resolveMatchingMethods(new MethodSymbolSearch("#^"), result);
+      if (result.isSingleBestMatchPresent()) {
+        System.out.println("Resolved method [" + result.getSingleBestMatchSymbol() + "]");
+      } else {
+        System.out.println("Unable to resolve method #^");
+      }
+    }, () -> Assertions.fail("Expecting 'Integer' to be found"));
   }
 
   @Test

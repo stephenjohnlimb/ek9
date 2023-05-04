@@ -531,10 +531,12 @@ public class SymbolFactory {
     MethodSymbol method = new MethodSymbol(methodName, scopedSymbol);
 
     configureSymbol(method, ctx.start);
+    var markedPure = ctx.PURE() != null;
 
     method.setOverride(ctx.OVERRIDE() != null);
     method.setMarkedAbstract(ctx.ABSTRACT() != null);
-    method.setMarkedPure(ctx.PURE() != null);
+    method.setMarkedPure(markedPure);
+    method.setOperator(true);
 
     //Set this as default unless we have a returning section
     method.setType(scopedSymbol.resolve(new TypeSymbolSearch(EK9_VOID)));

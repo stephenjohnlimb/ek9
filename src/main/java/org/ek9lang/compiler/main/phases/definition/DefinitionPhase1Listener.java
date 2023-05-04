@@ -858,6 +858,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     super.enterCall(ctx);
   }
 
+
   //For phase 1 no need to process objectAccessExpression, objectAccessStart, objectAccess, objectAccessType
   //But operationCall is processed here
 

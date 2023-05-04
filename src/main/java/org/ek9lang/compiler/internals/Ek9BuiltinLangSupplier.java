@@ -162,6 +162,9 @@ defines extern module org.ek9.lang
       Integer()
         -> arg0 as String
 
+      operator #^ as pure
+        <- rtn as Float?
+        
     Float as open
       Float()
 

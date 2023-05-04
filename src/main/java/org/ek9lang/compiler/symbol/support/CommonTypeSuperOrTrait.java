@@ -3,7 +3,8 @@ package org.ek9lang.compiler.symbol.support;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.BiFunction;
+import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
@@ -24,17 +25,17 @@ import org.ek9lang.compiler.symbol.ISymbol;
  * If there are no common supers then this function will return an empty Optional.
  * This function will issue semantic errors.
  */
-public class CommonSuperOrTrait implements Function<List<ISymbol>, Optional<ISymbol>> {
+public class CommonTypeSuperOrTrait implements BiFunction<Token, List<ISymbol>, Optional<ISymbol>> {
 
   final ErrorListener errorListener;
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
 
-  public CommonSuperOrTrait(final ErrorListener errorListener) {
+  public CommonTypeSuperOrTrait(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 
   @Override
-  public Optional<ISymbol> apply(final List<ISymbol> argumentSymbols) {
+  public Optional<ISymbol> apply(final Token lineToken, final List<ISymbol> argumentSymbols) {
     if (argumentSymbols.isEmpty()) {
       return Optional.empty();
     }
@@ -45,26 +46,31 @@ public class CommonSuperOrTrait implements Function<List<ISymbol>, Optional<ISym
       return Optional.empty();
     }
 
-    return getCommonType(argumentSymbols, argumentTypes);
+    return getCommonType(lineToken, argumentSymbols, argumentTypes);
   }
 
-  private Optional<ISymbol> getCommonType(final List<ISymbol> argumentSymbols,
+  private Optional<ISymbol> getCommonType(final Token lineToken,
+                                          final List<ISymbol> argumentSymbols,
                                           final List<ISymbol> argumentTypes) {
     //But note the ek9 developer could have accidentally mixed vars which were functions and aggregates
     //We have to accept this but detect and issue error.
-    if (canCommonTypeBeDetermined(argumentSymbols, argumentTypes)) {
-      return determineCommonType(argumentSymbols, argumentTypes);
+    if (canCommonTypeBeDetermined(lineToken, argumentSymbols, argumentTypes)) {
+      return determineCommonType(lineToken, argumentSymbols, argumentTypes);
     }
     return Optional.empty();
   }
 
-  private boolean canCommonTypeBeDetermined(final List<ISymbol> argumentSymbols,
+  private boolean canCommonTypeBeDetermined(final Token lineToken,
+                                            final List<ISymbol> argumentSymbols,
                                             final List<ISymbol> argumentTypes) {
-    return (argumentTypes.get(0) instanceof FunctionSymbol && checkFunctionSymbols(argumentSymbols, argumentTypes))
-        || (argumentTypes.get(0) instanceof AggregateSymbol && checkAggregateSymbols(argumentSymbols, argumentTypes));
+    return (argumentTypes.get(0) instanceof FunctionSymbol
+        && checkFunctionSymbols(lineToken, argumentSymbols, argumentTypes))
+        || (argumentTypes.get(0) instanceof AggregateSymbol
+        && checkAggregateSymbols(lineToken, argumentSymbols, argumentTypes));
   }
 
-  private Optional<ISymbol> determineCommonType(final List<ISymbol> argumentSymbols,
+  private Optional<ISymbol> determineCommonType(final Token lineToken,
+                                                final List<ISymbol> argumentSymbols,
                                                 final List<ISymbol> argumentTypes) {
     List<ISymbol> typesToTry = new ArrayList<>();
     getTypesToTry(argumentTypes.get(0), typesToTry);
@@ -74,7 +80,7 @@ public class CommonSuperOrTrait implements Function<List<ISymbol>, Optional<ISym
         return Optional.of(type);
       }
     }
-    emitNoCommonType(argumentSymbols.get(0));
+    emitNoCommonType(lineToken, argumentSymbols.get(0));
     return Optional.empty();
   }
 
@@ -99,46 +105,49 @@ public class CommonSuperOrTrait implements Function<List<ISymbol>, Optional<ISym
     return typeList.stream().filter(fun -> fun.isAssignableTo(typeSymbol)).count() == typeList.size();
   }
 
-  private boolean checkAggregateSymbols(List<ISymbol> argumentSymbols, List<ISymbol> argumentTypes) {
+  private boolean checkAggregateSymbols(final Token lineToken,
+                                        final List<ISymbol> argumentSymbols,
+                                        final List<ISymbol> argumentTypes) {
     int count = 0;
     for (int i = 0; i < argumentTypes.size(); i++) {
       if (argumentTypes.get(i) instanceof AggregateSymbol) {
         count++;
       } else {
-        emitExpectingAggregateError(argumentSymbols.get(i));
+        emitExpectingAggregateError(lineToken, argumentSymbols.get(i));
       }
     }
     return count == argumentSymbols.size();
   }
 
-  private boolean checkFunctionSymbols(final List<ISymbol> argumentSymbols,
+  private boolean checkFunctionSymbols(final Token lineToken,
+                                       final List<ISymbol> argumentSymbols,
                                        final List<ISymbol> argumentTypes) {
     int count = 0;
     for (int i = 0; i < argumentTypes.size(); i++) {
       if (argumentTypes.get(i) instanceof FunctionSymbol) {
         count++;
       } else {
-        emitExpectingFunctionError(argumentSymbols.get(i));
+        emitExpectingFunctionError(lineToken, argumentSymbols.get(i));
       }
     }
     return count == argumentSymbols.size();
   }
 
-  private void emitExpectingFunctionError(final ISymbol argument) {
-    var msg = "Expecting a non-function not '" + argument.getFriendlyName() + "':";
-    errorListener.semanticError(argument.getSourceToken(), msg,
-        ErrorListener.SemanticClassification.TYPE_MUST_NOT_BE_FUNCTION);
-  }
-
-  private void emitExpectingAggregateError(final ISymbol argument) {
+  private void emitExpectingFunctionError(final Token lineToken, final ISymbol argument) {
     var msg = "Expecting a function not '" + argument.getFriendlyName() + "':";
-    errorListener.semanticError(argument.getSourceToken(), msg,
+    errorListener.semanticError(lineToken, msg,
         ErrorListener.SemanticClassification.TYPE_MUST_BE_FUNCTION);
   }
 
-  private void emitNoCommonType(final ISymbol argument) {
+  private void emitExpectingAggregateError(final Token lineToken, final ISymbol argument) {
+    var msg = "Expecting a non-function not '" + argument.getName() + "':";
+    errorListener.semanticError(lineToken, msg,
+        ErrorListener.SemanticClassification.TYPE_MUST_NOT_BE_FUNCTION);
+  }
+
+  private void emitNoCommonType(final Token lineToken, final ISymbol argument) {
     var msg = "With '" + argument.getFriendlyName() + "':";
-    errorListener.semanticError(argument.getSourceToken(), msg,
+    errorListener.semanticError(lineToken, msg,
         ErrorListener.SemanticClassification.UNABLE_TO_DETERMINE_COMMON_TYPE);
   }
 }
