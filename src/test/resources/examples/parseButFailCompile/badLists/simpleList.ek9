@@ -84,7 +84,7 @@ defines module bad.lists.only
       assert aList?
 
       //But note this will fail, because while Integers can be coerced to Floats
-      //The converse is not true however.
+      //The converse is not true however - it not possible to coerce the other way.
       @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
       bList <- [v2, v1]
       assert bList?
