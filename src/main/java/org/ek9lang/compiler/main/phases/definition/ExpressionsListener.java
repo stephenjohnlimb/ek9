@@ -1,10 +1,9 @@
 package org.ek9lang.compiler.main.phases.definition;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.internals.ParsedModule;
+import org.ek9lang.compiler.main.resolvedefine.CheckAndTypeList;
 import org.ek9lang.compiler.main.resolvedefine.CheckAssignmentExpression;
 import org.ek9lang.compiler.main.resolvedefine.CheckAssignmentStatement;
 import org.ek9lang.compiler.main.resolvedefine.CheckInstructionBlockVariables;
@@ -14,11 +13,8 @@ import org.ek9lang.compiler.main.resolvedefine.CheckValidIdentifierReference;
 import org.ek9lang.compiler.main.resolvedefine.CheckValidPrimary;
 import org.ek9lang.compiler.main.resolvedefine.CheckValidThisOrSuper;
 import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
-import org.ek9lang.compiler.symbol.support.CommonTypeSuperOrTrait;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
-import org.ek9lang.compiler.symbol.support.search.TemplateTypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
 /**
@@ -44,6 +40,7 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
 
   private final CheckAssignmentStatement checkAssignmentStatement;
 
+  private final CheckAndTypeList checkAndTypeList;
   private final CheckValidCall checkValidCall;
 
   private final ErrorListener errorListener;
@@ -78,6 +75,9 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
 
     checkValidCall =
         new CheckValidCall(symbolAndScopeManagement, errorListener);
+
+    checkAndTypeList =
+        new CheckAndTypeList(symbolAndScopeManagement, symbolFactory, errorListener);
   }
 
   @Override
@@ -107,44 +107,7 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
 
   @Override
   public void exitList(EK9Parser.ListContext ctx) {
-    //For a List of type to be created, we need the common super/trait to apply
-    var listSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
-    //TODO move to a function.
-    List<ISymbol> argumentSymbols = new ArrayList<>();
-    for (var expr : ctx.expression()) {
-      var exprSymbol = symbolAndScopeManagement.getRecordedSymbol(expr);
-      if (exprSymbol != null) {
-        argumentSymbols.add(exprSymbol);
-      } else {
-        //TODO consider an error here and not type the List.
-        System.out.println("No expression symbol yet");
-      }
-    }
-    if (argumentSymbols.size() == ctx.expression().size()) {
-      CommonTypeSuperOrTrait commonTypeSuperOrTrait = new CommonTypeSuperOrTrait(errorListener);
-      var commonType = commonTypeSuperOrTrait.apply(ctx.start, argumentSymbols);
-      if (commonType.isPresent()) {
-        var listType =
-            symbolAndScopeManagement.getTopScope().resolve(new TemplateTypeSymbolSearch("org.ek9.lang::List"));
-        if (listType.isPresent()) {
-          var theNewListType =
-              symbolFactory.newParameterisedSymbol((PossibleGenericSymbol) listType.get(), List.of(commonType.get()));
-          var resolvedNewType = symbolAndScopeManagement.resolveOrDefine(theNewListType);
-          if (resolvedNewType.isPresent()) {
-            listSymbol.setType(resolvedNewType);
-          } else {
-            System.out.println("Unable to create/resolve List!");
-          }
-        } else {
-          System.out.println("Unable to get List!");
-        }
-
-      } else {
-        //TODO consider an error here and not type the List.
-        System.out.println("No common symbol type");
-      }
-      //Then we got them all.
-    }
+    checkAndTypeList.accept(ctx);
     super.exitList(ctx);
   }
 
