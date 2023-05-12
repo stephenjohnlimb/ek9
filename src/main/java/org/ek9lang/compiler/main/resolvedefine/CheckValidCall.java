@@ -11,10 +11,11 @@ import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbol.CallSymbol;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.MethodSymbol;
 import org.ek9lang.compiler.symbol.ScopedSymbol;
 import org.ek9lang.compiler.symbol.support.SymbolTypeExtractor;
+import org.ek9lang.compiler.symbol.support.search.MethodSearchOnAggregate;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
-import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.core.exception.AssertValue;
 
 /**
@@ -25,6 +26,7 @@ public class CheckValidCall implements Consumer<EK9Parser.CallContext> {
 
   private final ErrorListener errorListener;
 
+  private final ResolveMethodOrError resolveMethodOrError;
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
 
   /**
@@ -34,6 +36,8 @@ public class CheckValidCall implements Consumer<EK9Parser.CallContext> {
                         final ErrorListener errorListener) {
     this.symbolAndScopeManagement = symbolAndScopeManagement;
     this.errorListener = errorListener;
+
+    this.resolveMethodOrError = new ResolveMethodOrError(errorListener);
   }
 
 
@@ -51,24 +55,22 @@ public class CheckValidCall implements Consumer<EK9Parser.CallContext> {
   private ISymbol determineSymbolToRecord(final EK9Parser.CallContext ctx) {
     var existingCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
     if (existingCallSymbol instanceof CallSymbol callSymbol) {
-      if (existingCallSymbol != null) {
-        var toBeCalled = resolveTobeCalled(ctx);
-        if (toBeCalled != null) {
-          callSymbol.setResolvedSymbolToCall(toBeCalled);
-          callSymbol.setType(toBeCalled.getType());
-        }
+      var toBeCalled = resolveToBeCalled(ctx);
+      if (toBeCalled != null) {
+        callSymbol.setResolvedSymbolToCall(toBeCalled);
+        callSymbol.setType(toBeCalled.getType());
         System.out.println(
             "Have an existing call symbol [" + existingCallSymbol + "] [" + existingCallSymbol.getType() + "]");
       }
     } else {
-      AssertValue.fail("ValidateCall expecting a CallSymbol type");
+      AssertValue.fail("Compiler error: ValidateCall expecting a CallSymbol to have been recorded");
     }
 
     return existingCallSymbol;
   }
 
   /**
-   * This is where it is important to resolve something to be called.
+   * This is where it is important to resolve the something to be called.
    * This could be a function, method, Constructor, variable that has a type of (TEMPLATE)_FUNCTION (i.e. a delegate).
    * So we can use any existing context below where those are now resolved.
    * But we also need to apply - the appropriate parameters where appropriate to do the resolution.
@@ -80,7 +82,7 @@ public class CheckValidCall implements Consumer<EK9Parser.CallContext> {
    *     | call paramExpression - a bit weird but supports someHigherFunction()("Call what was returned")
    * </pre>
    */
-  private ScopedSymbol resolveTobeCalled(final EK9Parser.CallContext ctx) {
+  private ScopedSymbol resolveToBeCalled(final EK9Parser.CallContext ctx) {
     ScopedSymbol symbol = null;
     if (ctx.identifierReference() != null) {
       symbol = resolveByIdentifierReference(ctx);
@@ -102,16 +104,15 @@ public class CheckValidCall implements Consumer<EK9Parser.CallContext> {
     var callParams = getParamExpressionSymbols(ctx.paramExpression());
     //function/method/constructor/delegate with optional params
     var callIdentifier = getSymbolFromContext(ctx.identifierReference());
-    System.out.println("The Identifier for the call is " + callIdentifier + " with params " + callParams + " "
-        + callIdentifier.getGenus().getDescription());
-
 
     //TODO more but let's see what happens just for 'class' for now.
+    System.out.println("callIdentifier is [" + callIdentifier + "]");
     if (callIdentifier instanceof IAggregateSymbol aggregate) {
-      var resolved = checkForMethodOnAggregate(aggregate, callIdentifier.getName(), callParams);
+      var resolved = checkForMethodOnAggregate(ctx, aggregate, callIdentifier.getName(), callParams);
       System.out.println("The resolved item is [" + resolved + "]");
-      return (ScopedSymbol) resolved;
+      return resolved;
     }
+
     //So we now have the combinations of what is needed, now it just depends on 'what it is'
     return null;
   }
@@ -150,19 +151,17 @@ public class CheckValidCall implements Consumer<EK9Parser.CallContext> {
         .collect(Collectors.toList());
   }
 
-  private ISymbol checkForMethodOnAggregate(final IAggregateSymbol aggregate,
-                                            final String methodName,
-                                            final List<ISymbol> parameters) {
+  private MethodSymbol checkForMethodOnAggregate(final EK9Parser.CallContext ctx,
+                                                 final IAggregateSymbol aggregate,
+                                                 final String methodName,
+                                                 final List<ISymbol> parameters) {
 
-    //TODO pull out to a function that can do all this and issue correct error messages.
+
     var paramTypes = symbolTypeExtractor.apply(parameters);
     //maybe earlier types were not defined by the ek9 developer so let's not look at it would be misleading.
     if (parameters.size() == paramTypes.size()) {
       var search = new MethodSymbolSearch(methodName).setTypeParameters(paramTypes);
-      var results = aggregate.resolveMatchingMethods(search, new MethodSymbolSearchResult());
-      if (results.isSingleBestMatchPresent() && results.getSingleBestMatchSymbol().isPresent()) {
-        return results.getSingleBestMatchSymbol().get();
-      }
+      return resolveMethodOrError.apply(ctx.start, new MethodSearchOnAggregate(aggregate, search));
     }
     return null;
   }

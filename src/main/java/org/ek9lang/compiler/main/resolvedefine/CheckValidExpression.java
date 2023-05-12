@@ -2,6 +2,7 @@ package org.ek9lang.compiler.main.resolvedefine;
 
 import java.util.function.Consumer;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
@@ -38,6 +39,9 @@ public class CheckValidExpression implements Consumer<EK9Parser.ExpressionContex
     var symbol = determineSymbolToRecord(ctx);
     if (symbol != null) {
       symbolAndScopeManagement.recordSymbol(symbol, ctx);
+      if (symbol.getType().isEmpty()) {
+        emitTypeNotResolvedError(ctx.start, symbol);
+      }
     }
   }
 
@@ -45,7 +49,6 @@ public class CheckValidExpression implements Consumer<EK9Parser.ExpressionContex
    * TODO this will need to be pulled out to separate methods because it will be too much to grok in one go.
    */
   private ISymbol determineSymbolToRecord(final EK9Parser.ExpressionContext ctx) {
-    var currentScope = symbolAndScopeManagement.getTopScope();
     if (ctx.QUESTION() != null) {
       var expressionInQuestion = symbolAndScopeManagement.getRecordedSymbol(ctx.expression(0));
       if (expressionInQuestion != null) {
@@ -61,7 +64,8 @@ public class CheckValidExpression implements Consumer<EK9Parser.ExpressionContex
       return symbolAndScopeManagement.getRecordedSymbol(ctx.list());
     } else if (ctx.expression() != null && !ctx.expression().isEmpty()) {
       System.out.println("Expression to expression(s) next - but need to work out the type");
-      return symbolFactory.newExpressionSymbol(ctx.start, ctx.getText());
+      return symbolFactory.newExpressionSymbol(ctx.start, ctx.getText(), symbolAndScopeManagement.getTopScope().resolve(
+          new TypeSymbolSearch("Boolean")));
     } else if (ctx.objectAccessExpression() != null) {
       System.out.println("Object access expression - but need to work out the type");
       return symbolFactory.newExpressionSymbol(ctx.start, ctx.getText());
@@ -85,5 +89,11 @@ public class CheckValidExpression implements Consumer<EK9Parser.ExpressionContex
     if (resolved != null) {
       thisExpressionSymbol.setType(resolved.getType());
     }
+  }
+
+  private void emitTypeNotResolvedError(final Token lineToken, final ISymbol argument) {
+    var msg = "'" + argument.getName() + "':";
+    errorListener.semanticError(lineToken, msg,
+        ErrorListener.SemanticClassification.TYPE_NOT_RESOLVED);
   }
 }

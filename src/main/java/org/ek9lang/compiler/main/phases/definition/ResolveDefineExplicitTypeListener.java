@@ -8,6 +8,7 @@ import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineExplicitParameterizedType;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineIdentifierReference;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineTypeDef;
+import org.ek9lang.compiler.main.resolvedefine.SyntheticConstructorCreator;
 import org.ek9lang.compiler.main.rules.CheckNotGenericTypeParameter;
 import org.ek9lang.compiler.main.rules.CheckSuitableGenus;
 import org.ek9lang.compiler.main.rules.CheckSuitableToExtend;
@@ -64,6 +65,8 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final CheckSuitableGenus checkAllowedClassSuitableGenus;
 
   private final CheckSuitableGenus checkApplicationForProgram;
+
+  private final SyntheticConstructorCreator syntheticConstructorCreator = new SyntheticConstructorCreator();
 
   /**
    * Still in def phase 1 - but second pass to try and resolve types due to declaration ordering.
@@ -164,6 +167,7 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Record should have been defined as symbol", symbol);
 
+    syntheticConstructorCreator.accept(symbol);
     //In ek9, records can extend other records if open for extension
     if (ctx.extendDeclaration() != null) {
       var resolved = checkRecordSuitableToExtend.apply(ctx.extendDeclaration().typeDef());
@@ -218,6 +222,8 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Class should have been defined as symbol", symbol);
 
+    syntheticConstructorCreator.accept(symbol);
+
     if (ctx.extendDeclaration() != null) {
       var resolved = checkClassSuitableToExtend.apply(ctx.extendDeclaration().typeDef());
       resolved.ifPresent(theSuper -> symbol.setSuperAggregateSymbol((IAggregateSymbol) theSuper));
@@ -246,6 +252,7 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Component should have been defined as symbol", symbol);
 
+    syntheticConstructorCreator.accept(symbol);
     if (ctx.extendDeclaration() != null) {
       var resolved = checkComponentSuitableToExtend.apply(ctx.extendDeclaration().typeDef());
       resolved.ifPresent(theSuper -> symbol.setSuperAggregateSymbol((IAggregateSymbol) theSuper));

@@ -133,7 +133,7 @@ public class MethodSymbolSearchResult {
   /**
    * If there is a single best match for the search; then return it.
    */
-  public Optional<ISymbol> getSingleBestMatchSymbol() {
+  public Optional<MethodSymbol> getSingleBestMatchSymbol() {
     if (isSingleBestMatchPresent()) {
       return Optional.of(results.get(0).getMethodSymbol());
     }

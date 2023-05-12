@@ -6,15 +6,18 @@ import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.resolvedefine.CheckAndTypeList;
 import org.ek9lang.compiler.main.resolvedefine.CheckAssignmentExpression;
 import org.ek9lang.compiler.main.resolvedefine.CheckAssignmentStatement;
+import org.ek9lang.compiler.main.resolvedefine.CheckForRange;
 import org.ek9lang.compiler.main.resolvedefine.CheckInstructionBlockVariables;
+import org.ek9lang.compiler.main.resolvedefine.CheckRange;
+import org.ek9lang.compiler.main.resolvedefine.CheckTypesCompatible;
 import org.ek9lang.compiler.main.resolvedefine.CheckValidCall;
 import org.ek9lang.compiler.main.resolvedefine.CheckValidExpression;
 import org.ek9lang.compiler.main.resolvedefine.CheckValidIdentifierReference;
 import org.ek9lang.compiler.main.resolvedefine.CheckValidPrimary;
 import org.ek9lang.compiler.main.resolvedefine.CheckValidThisOrSuper;
+import org.ek9lang.compiler.main.resolvedefine.ResolveIdentifierOrError;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
-import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
 /**
@@ -43,7 +46,15 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
   private final CheckAndTypeList checkAndTypeList;
   private final CheckValidCall checkValidCall;
 
+  private final CheckRange checkRange;
+
+  private final CheckForRange checkForRange;
+
+  private final CheckTypesCompatible checkTypesCompatible;
+
   private final ErrorListener errorListener;
+  private final ResolveIdentifierOrError resolveIdentifierOrError;
+
 
   protected ExpressionsListener(ParsedModule parsedModule) {
     super(parsedModule);
@@ -78,6 +89,17 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
 
     checkAndTypeList =
         new CheckAndTypeList(symbolAndScopeManagement, symbolFactory, errorListener);
+
+    checkRange =
+        new CheckRange(symbolAndScopeManagement, symbolFactory, errorListener);
+
+    checkForRange =
+        new CheckForRange(symbolAndScopeManagement, errorListener);
+
+    checkTypesCompatible =
+        new CheckTypesCompatible(errorListener);
+
+    resolveIdentifierOrError = new ResolveIdentifierOrError(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -109,6 +131,19 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
   public void exitList(EK9Parser.ListContext ctx) {
     checkAndTypeList.accept(ctx);
     super.exitList(ctx);
+  }
+
+
+  @Override
+  public void exitRange(EK9Parser.RangeContext ctx) {
+    checkRange.accept(ctx);
+    super.exitRange(ctx);
+  }
+
+  @Override
+  public void exitForRange(EK9Parser.ForRangeContext ctx) {
+    checkForRange.accept(ctx);
+    super.exitForRange(ctx);
   }
 
   @Override
@@ -148,16 +183,14 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
     } else if (ctx.identifier() != null) {
       //In this context we can resolve the identifier and record it. - its not an identifierReference but an identifier.
       //This is done to find the compromise of reuse in the grammar. But makes this a bit more inconsistent.
-      var resolvedIdentifier =
-          symbolAndScopeManagement.getTopScope().resolve(new SymbolSearch(ctx.identifier().getText()));
-      if (resolvedIdentifier.isPresent()) {
+
+      var resolved = resolveIdentifierOrError.apply(ctx.identifier());
+
+      if (resolved != null) {
         //Record against both
-        var resolved = resolvedIdentifier.get();
         resolved.setReferenced(true);
         symbolAndScopeManagement.recordSymbol(resolved, ctx.identifier());
         symbolAndScopeManagement.recordSymbol(resolved, ctx);
-      } else {
-        System.out.println("Unable to resolve " + ctx.identifier().getText());
       }
     } else if (ctx.call() != null) {
       var resolved = symbolAndScopeManagement.getRecordedSymbol(ctx.call());
@@ -239,5 +272,4 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
 
     super.exitVariableDeclaration(ctx);
   }
-
 }

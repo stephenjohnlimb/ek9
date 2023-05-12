@@ -1,0 +1,186 @@
+#!ek9
+<?-
+  Check for range loops with various types to check the validation and
+  error detection on using incompatible types.
+-?>
+defines module bad.forloops.check
+
+  defines record
+    //Record but with no operators
+    R0
+      value <- 1
+
+    //Record but only with comparator
+    R1
+      value <- 1
+
+      //Just for now return equals, don't try and compare all fields.
+      operator <=>
+        -> arg0 as R1
+        <- rtn as Integer: 0
+
+    //Now with increment and decrement
+    R2
+      value <- 1
+
+      //Just for now return equals, don't try and compare all fields.
+      operator <=>
+        -> arg0 as R2
+        <- rtn as Integer: 0
+
+      operator ++
+        <- rtn as R2: this
+
+      operator --
+        <- rtn as R2: this
+
+    R3
+      value <- 1
+
+      //Just for now return equals, don't try and compare all fields.
+      operator <=>
+        -> arg0 as R3
+        <- rtn as Integer: 0
+
+      operator +=
+        -> arg0 as R3
+        <- rtn as R3: this
+
+    R4
+      value <- 1
+
+      //Just for now return equals, don't try and compare all fields.
+      operator <=>
+        -> arg0 as R4
+        <- rtn as Integer: 0
+
+      operator +=
+        -> arg0 as Integer
+        <- rtn as R4: this
+
+  defines function
+    f1()
+      -> arg0 as String
+      <- rtn as Boolean: arg0?
+
+  defines program
+
+    BadForLoopIncompatibleTypes1
+      stdout <- Stdout()
+
+      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      for i in 1 ... 'c'
+        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+        stdout.println(`Value [${i}]`)
+
+    BadForLoopIncompatibleTypes2
+      stdout <- Stdout()
+
+      //Because starts with Integer but ends in Float
+      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      for i in 1 ... 5.0 by 1
+        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+        stdout.println(`Value [${i}]`)
+
+    BadForLoopIncompatibleTypes3
+      stdout <- Stdout()
+
+      //Because i as Integer does not have a '+=(Character)' method.
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      for i in 1 ... 5 by 'a'
+        stdout.println(`Value [${i}]`)
+
+    BadForLoopIncompatibleTypes4
+      stdout <- Stdout()
+
+      //Because it is not possible to use a function in someway to increment or decrement a value.
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      for i in 1 ... 5 by f1
+        stdout.println(`Value [${i}]`)
+
+    BadForLoopNoOperators1
+      stdout <- Stdout()
+
+      start <- R0()
+      end <- R0()
+
+      //No comparator
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      for i in start ... end
+        stdout.println(`Value [${i}]`)
+
+    BadForLoopNoOperators2
+      stdout <- Stdout()
+
+      start <- R1()
+      end <- R1()
+
+      //No ++ or -- methods
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      for i in start ... end
+        stdout.println(`Value [${i}]`)
+
+    OKForLoopWithOperators1
+      stdout <- Stdout()
+
+      start <- R2()
+      end <- R2()
+
+      for i in start ... end
+        stdout.println(`Value [${i}]`)
+
+    BadForLoopNoAddToOperators1
+      stdout <- Stdout()
+
+      start <- R2()
+      end <- R2()
+      increment <- R2()
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      for i in start ... end by increment
+        stdout.println(`Value [${i}]`)
+
+    BadForLoopNoAddToOperators2
+      stdout <- Stdout()
+
+      start <- R2()
+      end <- R2()
+      increment <- 1
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      for i in start ... end by increment
+        stdout.println(`Value [${i}]`)
+
+    OKForLoopWithOperators2
+      stdout <- Stdout()
+
+      start <- R3()
+      end <- R3()
+      increment <- R3()
+
+      for i in start ... end by increment
+        stdout.println(`Value [${i}]`)
+
+    BadForLoopNoAddToOperators3
+      stdout <- Stdout()
+
+      start <- R3()
+      end <- R3()
+      increment <- 1
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      for i in start ... end by increment
+        stdout.println(`Value [${i}]`)
+
+    //R4 has a +=(Integer) operator and so this will now work
+    OKForLoopWithOperators3
+      stdout <- Stdout()
+
+      start <- R4()
+      end <- R4()
+      increment <- 1
+
+      for i in start ... end by increment
+        stdout.println(`Value [${i}]`)
+
+//EOF

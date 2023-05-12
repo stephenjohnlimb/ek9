@@ -23,6 +23,6 @@ class ExamplesJustForLoopTest extends FullCompilationTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
-    new SymbolCountCheck("just.forloops.check", 1).test(program);
+    new SymbolCountCheck("just.forloops.check", 4).test(program);
   }
 }

@@ -14,6 +14,10 @@ defines module just.names.check
         <- rtn as Integer: 12
 
     NameHolder
+
+      //Just declare a default constructor but no body.
+      default NameHolder()
+
       someNames()
         <- rtn as List of String: ["Alpha", "Beta", "Charlie"]
 

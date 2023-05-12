@@ -384,12 +384,10 @@ public class SymbolTable implements IScope {
     return switch (searchType) {
       case METHOD:
         var result = findMethod.get();
-
-        //This is ambiguous - i.e. we found more than one method that would match.
-        //so report failed to find, calling code then needs
-        //to do a fuzzy search and report on ambiguities to make developer choose.
-        yield result.isSingleBestMatchPresent() ? result.getSingleBestMatchSymbol() :
-            Optional.empty();
+        if(result.getSingleBestMatchSymbol().isPresent()) {
+          yield Optional.of(result.getSingleBestMatchSymbol().get());
+        }
+        yield Optional.empty();
       case FUNCTION, TEMPLATE_TYPE, TEMPLATE_FUNCTION:
         yield checkAndSelectFirstItem.apply(symbolList);
       case TYPE:

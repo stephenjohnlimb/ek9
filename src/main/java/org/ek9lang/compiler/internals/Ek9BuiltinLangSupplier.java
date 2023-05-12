@@ -127,6 +127,15 @@ defines extern module org.ek9.lang
       
       String()
         -> arg0 as String
+
+      operator <=> as pure
+        -> arg as String
+        <- rtn as Integer?
+
+      operator +=
+        -> arg as String
+        <- rtn as String?
+
 """;
 
   /**
@@ -144,6 +153,10 @@ defines extern module org.ek9.lang
       Bits()
         -> arg0 as String
 
+      operator <=> as pure
+        -> arg as Bits
+        <- rtn as Integer?
+
     Boolean
       Boolean()
 
@@ -156,6 +169,16 @@ defines extern module org.ek9.lang
       Character()
         -> arg0 as String
 
+      operator <=> as pure
+        -> arg as Character
+        <- rtn as Integer?
+
+      operator ++
+        <- rtn as Character?
+
+      operator --
+        <- rtn as Character?
+
     Integer as open
       Integer()
 
@@ -164,12 +187,40 @@ defines extern module org.ek9.lang
 
       operator #^ as pure
         <- rtn as Float?
-        
+      
+      operator <=> as pure
+        -> arg as Integer
+        <- rtn as Integer?
+
+      operator +=
+        -> arg as Integer
+        <- rtn as Integer?
+
+      operator ++
+        <- rtn as Integer?
+
+      operator --
+        <- rtn as Integer?
+          
     Float as open
       Float()
 
       Float()
         -> arg0 as String
+
+      operator <=> as pure
+        -> arg as Float
+        <- rtn as Integer?
+
+      operator +=
+        -> arg as Float
+        <- rtn as Float?
+
+      operator ++
+        <- rtn as Float?
+
+      operator --
+        <- rtn as Float?
 
     Time as open
       Time()
@@ -177,11 +228,39 @@ defines extern module org.ek9.lang
       Time()
         -> arg0 as String
 
+      operator <=> as pure
+        -> arg as Time
+        <- rtn as Integer?
+
+      operator +=
+        -> arg as Duration
+        <- rtn as Time?
+
+      operator ++
+        <- rtn as Time?
+
+      operator --
+        <- rtn as Time?
+
     Duration as open
       Duration()
 
       Duration()
         -> arg0 as String
+
+      operator <=> as pure
+        -> arg as Duration
+        <- rtn as Integer?
+
+      operator +=
+        -> arg as Duration
+        <- rtn as Duration?
+
+      operator ++
+        <- rtn as Duration?
+
+      operator --
+        <- rtn as Duration?
 
     Millisecond as open
       Millisecond()
@@ -189,11 +268,39 @@ defines extern module org.ek9.lang
       Millisecond()
         -> arg0 as String
 
+      operator <=> as pure
+        -> arg as Millisecond
+        <- rtn as Integer?
+
+      operator +=
+        -> arg as Millisecond
+        <- rtn as Millisecond?
+
+      operator ++
+        <- rtn as Millisecond?
+
+      operator --
+        <- rtn as Millisecond?
+
     Date as open
       Date()
 
       Date()
         -> arg0 as String
+
+      operator <=> as pure
+        -> arg as Date
+        <- rtn as Integer?
+
+      operator +=
+        -> arg as Duration
+        <- rtn as Date?
+
+      operator ++
+        <- rtn as Date?
+
+      operator --
+        <- rtn as Date?
 
     DateTime as open
       DateTime()
@@ -201,11 +308,39 @@ defines extern module org.ek9.lang
       DateTime()
         -> arg0 as String
 
+      operator <=> as pure
+        -> arg as DateTime
+        <- rtn as Integer?
+
+      operator +=
+        -> arg as Duration
+        <- rtn as DateTime?
+
+      operator ++
+        <- rtn as DateTime?
+
+      operator --
+        <- rtn as DateTime?
+
     Money as open
       Money()
 
       Money()
         -> arg0 as String
+
+      operator <=> as pure
+        -> arg as Money
+        <- rtn as Integer?
+
+      operator +=
+        -> arg as Money
+        <- rtn as Money?
+
+      operator ++
+        <- rtn as Money?
+
+      operator --
+        <- rtn as Money?
 
     Locale as open
       Locale()
@@ -213,11 +348,23 @@ defines extern module org.ek9.lang
       Locale()
         -> arg0 as String
 
+      operator <=> as pure
+        -> arg as Locale
+        <- rtn as Integer?
+
     Colour as open
       Colour()
 
       Colour()
         -> arg0 as String
+
+      operator <=> as pure
+        -> arg as Colour
+        <- rtn as Integer?
+
+      operator +=
+        -> arg as Colour
+        <- rtn as Colour?
 
     Dimension as open
       Dimension()
@@ -225,11 +372,29 @@ defines extern module org.ek9.lang
       Dimension()
         -> arg0 as String
 
+      operator <=> as pure
+        -> arg as Dimension
+        <- rtn as Integer?
+
+      operator +=
+        -> arg as Dimension
+        <- rtn as Dimension?
+
+      operator ++
+        <- rtn as Dimension?
+
+      operator --
+        <- rtn as Dimension?
+
     Resolution as open
       Resolution()
 
       Resolution()
         -> arg0 as String
+
+      operator <=> as pure
+        -> arg as Resolution
+        <- rtn as Integer?
       
     Path as open
       Path()
@@ -237,11 +402,19 @@ defines extern module org.ek9.lang
       Path()
         -> arg0 as String
 
+      operator <=> as pure
+        -> arg as Path
+        <- rtn as Integer?
+
     JSON
       JSON()
 
       JSON()
         -> arg0 as String
+
+      operator <=> as pure
+        -> arg as JSON
+        <- rtn as Integer?
 
     JSONInput as abstract
 

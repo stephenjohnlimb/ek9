@@ -752,12 +752,23 @@ public class SymbolFactory {
   }
 
   /**
-   * Create a new expression symbol place holder.
+   * Create a new expression symbol place-holder.
    * Really just enables the line of code to be captured and the type that the expression returns.
    */
-  public ExpressionSymbol newExpressionSymbol(final Token token, String name) {
+  public ExpressionSymbol newExpressionSymbol(final Token token, final String name) {
+
+    return newExpressionSymbol(token, name, Optional.empty());
+  }
+
+  /**
+   * Create a new expression symbol place-holder.
+   * Really just enables the line of code to be captured and the type that the expression returns.
+   */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+  public ExpressionSymbol newExpressionSymbol(final Token token, final String name, final Optional<ISymbol> ofType) {
     ExpressionSymbol symbol = new ExpressionSymbol(name);
     configureSymbol(symbol, token);
+    symbol.setType(ofType);
     return symbol;
   }
 

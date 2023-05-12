@@ -3,7 +3,6 @@ defines module bad.lists.only
 
   defines function
 
-    <!-
     someAbstractFunction() as pure abstract
       -> arg0 as Integer
       <- rtn as Boolean: false
@@ -46,6 +45,8 @@ defines module bad.lists.only
     InvalidTypesListOfDataCombinations()
       @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
       aList <- [2023-05-04, 2023]
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
       assert aList?
 
     <?-
@@ -63,15 +64,19 @@ defines module bad.lists.only
 
       @Error: FULL_RESOLUTION: TYPE_MUST_NOT_BE_FUNCTION
       aList <- [v1, f1]
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
       assert aList?
 
       //Now try the other way
       @Error: FULL_RESOLUTION: TYPE_MUST_BE_FUNCTION
       bList <- [f1, v1]
-      assert bList?
-    -!>
 
-    MaybeAValidMixOfTypes()
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert bList?
+
+
+    CoercedValidMixOfTypes()
       v1 <- 2.0
       v2 <- 3
 
@@ -87,5 +92,21 @@ defines module bad.lists.only
       //The converse is not true however - it not possible to coerce the other way.
       @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
       bList <- [v2, v1]
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
       assert bList?
+
+
+    MissingTypeFromEarlierError()
+      v1 <- 2.0
+      v2 <- 3
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      v3 <- someNoneExistentFunction()
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      aList <- [v1, v2, v3]
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert aList?
+
 //EOF
