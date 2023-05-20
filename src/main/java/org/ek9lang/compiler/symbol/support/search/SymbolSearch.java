@@ -172,10 +172,6 @@ public class SymbolSearch {
     return this;
   }
 
-  public ISymbol getExampleSymbolToMatch() {
-    return exampleSymbolToMatch;
-  }
-
   public SymbolSearch setExampleSymbolToMatch(ISymbol exampleSymbolToMatch) {
     this.exampleSymbolToMatch = exampleSymbolToMatch;
     return this;
@@ -223,6 +219,17 @@ public class SymbolSearch {
   public SymbolSearch addTypeParameter(ISymbol parameter) {
     AssertValue.checkNotNull("parameter cannot be null for search Symbol", parameter);
     this.typeParameters.add(parameter);
+    return this;
+  }
+
+  /**
+   * Add a type parameter to the search.
+   */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+  public SymbolSearch addTypeParameter(Optional<ISymbol> parameter) {
+    AssertValue.checkNotNull("parameter cannot be null for search Symbol", parameter);
+    AssertValue.checkTrue("parameter cannot be empty for search Symbol", parameter.isPresent());
+    this.typeParameters.add(parameter.get());
     return this;
   }
 

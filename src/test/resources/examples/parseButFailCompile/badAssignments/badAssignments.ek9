@@ -1,0 +1,83 @@
+#!ek9
+<?-
+  Checks the types during assignments and also assignments during declarations.
+-?>
+defines module bad.assignment.use
+
+  defines function
+
+    okAssignment1()
+      //Integer can be coerced to Flat
+      value as Float: 1
+
+      value: 9.8
+      assert value?
+
+    badAssignment1()
+      value as Integer: 1
+
+      //As it is an Integer, you cannot assign a Float to it.
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      value := 7.0
+      assert value?
+
+    badAssignment2()
+
+      //So it is not possible to check the type compatibility here because the function is not resolved.
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      value as Integer: someUnResolvedFunction()
+
+    //Not really a pure assignment, but the operator has to be checked
+    okPlusAssignment1()
+      value as Integer: 1
+
+      value += 5
+
+      assert value?
+
+    badPlusAssignment1()
+      value as Integer: 1
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      value += 5.0
+
+      assert value?
+
+    okGenericDeclarationAssignment1()
+      value as List of Integer: [1, 2, 3]
+
+      assert value?
+
+    okGenericDeclarationAssignment2()
+      value as List of Integer: List()
+
+      assert value?
+
+    okGenericDeclarationAssignment3()
+      value as List of Integer: List() of Integer
+
+      assert value?
+
+    //TODO some horrid error conditions.
+    badGenericDeclarationAssignment1()
+      //makes no sense
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      value as List of Integer: Optional()
+
+      assert value?
+
+    badGenericDeclarationAssignment2()
+      //also makes no sense
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      value as List of Integer: Optional() of Integer
+
+      assert value?
+
+    badGenericDeclarationAssignment3()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      value as List of Integer: List() of Float
+
+      assert value?
+
+//EOF

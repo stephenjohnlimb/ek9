@@ -52,19 +52,18 @@ public abstract class ResolveOrDefineTypes {
 
   protected Optional<ISymbol> resolveTypeByTypeDef(final EK9Parser.TypeDefContext ctx) {
 
+    Optional<ISymbol> rtn = Optional.empty();
     //The Simple case
     if (ctx.identifierReference() != null) {
-      return resolveSimpleTypeByIdentifierReference(ctx.identifierReference());
-    }
-
-    //The Next most complex - a parameterisedType
-    //either way it's back around the recursion via these methods to this same method with a different typeDef context
-    if (ctx.parameterisedType() != null) {
+      rtn = resolveSimpleTypeByIdentifierReference(ctx.identifierReference());
+    } else if (ctx.parameterisedType() != null) {
+      //The Next most complex - a parameterisedType
+      //either way it's back around the recursion via these methods to this same method with a different typeDef context
       //Now we will attempt a simple resolution of the identifierReference
-      return resolveTypeByParameterizedType(ctx.parameterisedType());
+      rtn = resolveTypeByParameterizedType(ctx.parameterisedType());
     }
 
-    return Optional.empty();
+    return rtn;
   }
 
   protected Optional<ISymbol> resolveTypeByParameterizedType(final EK9Parser.ParameterisedTypeContext ctx) {
@@ -116,33 +115,42 @@ public abstract class ResolveOrDefineTypes {
 
   private Optional<ISymbol> resolveOrDefine(final Token token, final ISymbol genericType,
                                             final List<ISymbol> parameterizingTypes) {
+    Optional<ISymbol> rtn = Optional.empty();
 
     if (genericType instanceof PossibleGenericSymbol genericTypeSymbol) {
-
-      if (!genericType.isGenericInNature()) {
-        if (errorIfNotDefinedOrResolved) {
-          errorListener.semanticError(token, "cannot be used to parameterize '" + genericType.getFriendlyName() + "':",
-              ErrorListener.SemanticClassification.NOT_A_TEMPLATE);
-        }
-        return Optional.empty();
-      }
-
-      //It is generic in nature, but do the number of parameterizing types and number of types the generic type
-      //need match up? Always give an error for this.
-      var acceptsNParameters = genericTypeSymbol.getAnyConceptualTypeParameters().size();
-      var providedWithNParameters = parameterizingTypes.size();
-      if (acceptsNParameters != providedWithNParameters) {
-        errorListener.semanticError(token, "'"
-                + providedWithNParameters + "' parameters were supplied but '"
-                + genericType.getFriendlyName() + "' requires '"
-                + acceptsNParameters + "':",
-            ErrorListener.SemanticClassification.GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT);
-        return Optional.empty();
+      if (errorIfNotGeneric(token, genericType)
+          || errorIfInvalidParameters(token, genericTypeSymbol, parameterizingTypes)) {
+        return rtn;
       }
 
       var theType = symbolFactory.newParameterisedSymbol(genericTypeSymbol, parameterizingTypes);
-      return symbolAndScopeManagement.resolveOrDefine(theType);
+      rtn = symbolAndScopeManagement.resolveOrDefine(theType);
     }
-    return Optional.empty();
+
+    return rtn;
+  }
+
+  private boolean errorIfNotGeneric(final Token token, final ISymbol genericType) {
+    var notGeneric = !genericType.isGenericInNature();
+    if (notGeneric && errorIfNotDefinedOrResolved) {
+      errorListener.semanticError(token, "cannot be used to parameterize '" + genericType.getFriendlyName() + "':",
+          ErrorListener.SemanticClassification.NOT_A_TEMPLATE);
+    }
+    return notGeneric;
+  }
+
+  private boolean errorIfInvalidParameters(final Token token, final PossibleGenericSymbol genericTypeSymbol,
+                                           final List<ISymbol> parameterizingTypes) {
+    var acceptsNParameters = genericTypeSymbol.getAnyConceptualTypeParameters().size();
+    var providedWithNParameters = parameterizingTypes.size();
+    if (acceptsNParameters != providedWithNParameters) {
+      errorListener.semanticError(token, "'"
+              + providedWithNParameters + "' parameters were supplied but '"
+              + genericTypeSymbol.getFriendlyName() + "' requires '"
+              + acceptsNParameters + "':",
+          ErrorListener.SemanticClassification.GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT);
+      return true;
+    }
+    return false;
   }
 }

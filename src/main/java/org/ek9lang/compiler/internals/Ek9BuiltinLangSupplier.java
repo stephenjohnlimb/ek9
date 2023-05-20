@@ -132,6 +132,9 @@ defines extern module org.ek9.lang
         -> arg as String
         <- rtn as Integer?
 
+      operator :=:
+        -> arg as String
+
       operator +=
         -> arg as String
         <- rtn as String?
@@ -157,11 +160,17 @@ defines extern module org.ek9.lang
         -> arg as Bits
         <- rtn as Integer?
 
+      operator :=:
+        -> arg as Bits
+
     Boolean
       Boolean()
 
       Boolean()
         -> arg0 as String
+
+      operator :=:
+        -> arg as Boolean
 
     Character
       Character()
@@ -172,6 +181,9 @@ defines extern module org.ek9.lang
       operator <=> as pure
         -> arg as Character
         <- rtn as Integer?
+
+      operator :=:
+        -> arg as Character
 
       operator ++
         <- rtn as Character?
@@ -191,6 +203,9 @@ defines extern module org.ek9.lang
       operator <=> as pure
         -> arg as Integer
         <- rtn as Integer?
+
+      operator :=:
+        -> arg as Integer
 
       operator +=
         -> arg as Integer
@@ -212,6 +227,9 @@ defines extern module org.ek9.lang
         -> arg as Float
         <- rtn as Integer?
 
+      operator :=:
+        -> arg as Float
+
       operator +=
         -> arg as Float
         <- rtn as Float?
@@ -231,6 +249,9 @@ defines extern module org.ek9.lang
       operator <=> as pure
         -> arg as Time
         <- rtn as Integer?
+
+      operator :=:
+        -> arg as Time
 
       operator +=
         -> arg as Duration
@@ -252,6 +273,9 @@ defines extern module org.ek9.lang
         -> arg as Duration
         <- rtn as Integer?
 
+      operator :=:
+        -> arg as Duration
+
       operator +=
         -> arg as Duration
         <- rtn as Duration?
@@ -271,6 +295,9 @@ defines extern module org.ek9.lang
       operator <=> as pure
         -> arg as Millisecond
         <- rtn as Integer?
+
+      operator :=:
+        -> arg as Millisecond
 
       operator +=
         -> arg as Millisecond
@@ -292,6 +319,9 @@ defines extern module org.ek9.lang
         -> arg as Date
         <- rtn as Integer?
 
+      operator :=:
+        -> arg as Date
+
       operator +=
         -> arg as Duration
         <- rtn as Date?
@@ -311,6 +341,9 @@ defines extern module org.ek9.lang
       operator <=> as pure
         -> arg as DateTime
         <- rtn as Integer?
+
+      operator :=:
+        -> arg as DateTime
 
       operator +=
         -> arg as Duration
@@ -332,6 +365,9 @@ defines extern module org.ek9.lang
         -> arg as Money
         <- rtn as Integer?
 
+      operator :=:
+        -> arg as Money
+
       operator +=
         -> arg as Money
         <- rtn as Money?
@@ -352,6 +388,9 @@ defines extern module org.ek9.lang
         -> arg as Locale
         <- rtn as Integer?
 
+      operator :=:
+        -> arg as Locale
+
     Colour as open
       Colour()
 
@@ -361,6 +400,9 @@ defines extern module org.ek9.lang
       operator <=> as pure
         -> arg as Colour
         <- rtn as Integer?
+
+      operator :=:
+        -> arg as Colour
 
       operator +=
         -> arg as Colour
@@ -375,6 +417,9 @@ defines extern module org.ek9.lang
       operator <=> as pure
         -> arg as Dimension
         <- rtn as Integer?
+
+      operator :=:
+        -> arg as Dimension
 
       operator +=
         -> arg as Dimension
@@ -395,6 +440,9 @@ defines extern module org.ek9.lang
       operator <=> as pure
         -> arg as Resolution
         <- rtn as Integer?
+
+      operator :=:
+        -> arg as Resolution
       
     Path as open
       Path()
@@ -406,6 +454,9 @@ defines extern module org.ek9.lang
         -> arg as Path
         <- rtn as Integer?
 
+      operator :=:
+        -> arg as Path
+
     JSON
       JSON()
 
@@ -416,6 +467,9 @@ defines extern module org.ek9.lang
         -> arg as JSON
         <- rtn as Integer?
 
+      operator :=:
+        -> arg as JSON
+
     JSONInput as abstract
 
     RegEx as open
@@ -423,6 +477,9 @@ defines extern module org.ek9.lang
 
       RegEx()
         -> arg0 as String
+
+      operator :=:
+        -> arg as RegEx
 
     Exception as open
       Exception()

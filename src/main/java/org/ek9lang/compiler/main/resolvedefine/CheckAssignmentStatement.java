@@ -8,8 +8,12 @@ import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.main.rules.OperationIsAssignment;
 import org.ek9lang.compiler.main.rules.RefersToSameSymbol;
+import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.support.search.MethodSearchOnAggregate;
+import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
+import org.ek9lang.core.exception.AssertValue;
 
 /**
  * Used in the full resolution phase to check assignments.
@@ -23,6 +27,10 @@ public class CheckAssignmentStatement implements Consumer<EK9Parser.AssignmentSt
 
   private final RefersToSameSymbol refersToSameSymbol = new RefersToSameSymbol();
 
+  private final CheckTypesCompatible checkTypesCompatible;
+
+  private final ResolveMethodOrError resolveMethodOrError;
+
   /**
    * Check on validity of assignments.
    */
@@ -30,6 +38,9 @@ public class CheckAssignmentStatement implements Consumer<EK9Parser.AssignmentSt
                                   final ErrorListener errorListener) {
     this.symbolAndScopeManagement = symbolAndScopeManagement;
     this.errorListener = errorListener;
+
+    this.checkTypesCompatible = new CheckTypesCompatible(errorListener);
+    this.resolveMethodOrError = new ResolveMethodOrError(errorListener);
   }
 
   @Override
@@ -45,7 +56,7 @@ public class CheckAssignmentStatement implements Consumer<EK9Parser.AssignmentSt
       if (primaryReferenceExpression == null) {
         emitNotResolved(ctx.primaryReference());
       } else {
-        checkNotSelfAssignment(primaryReferenceExpression, ctx.op, expressionSymbol);
+        checkLeftAndRight(primaryReferenceExpression, ctx.op, expressionSymbol);
       }
     } else if (ctx.identifier() != null) {
       var resolved = symbolAndScopeManagement.getTopScope().resolve(new SymbolSearch(ctx.identifier().getText()));
@@ -56,7 +67,7 @@ public class CheckAssignmentStatement implements Consumer<EK9Parser.AssignmentSt
       if (objectAccessExpression == null) {
         emitNotResolved(ctx.objectAccessExpression());
       } else {
-        checkNotSelfAssignment(objectAccessExpression, ctx.op, expressionSymbol);
+        checkLeftAndRight(objectAccessExpression, ctx.op, expressionSymbol);
       }
     }
   }
@@ -82,13 +93,39 @@ public class CheckAssignmentStatement implements Consumer<EK9Parser.AssignmentSt
           ErrorListener.SemanticClassification.USED_BEFORE_INITIALISED);
     }
 
-    checkNotSelfAssignment(leftHandSideSymbol, op, assignmentExpression);
+    checkLeftAndRight(leftHandSideSymbol, op, assignmentExpression);
   }
 
-  private void checkNotSelfAssignment(ISymbol leftHandSideSymbol, final Token op, final ISymbol assignmentExpression) {
-    if (refersToSameSymbol.test(leftHandSideSymbol, assignmentExpression)) {
+  private void checkLeftAndRight(final ISymbol leftHandSideSymbol, final Token op, final ISymbol rightHandSideSymbol) {
+    if (leftHandSideSymbol.getType().isPresent() && rightHandSideSymbol.getType().isPresent()) {
+      checkTypesCompatible(leftHandSideSymbol, op, rightHandSideSymbol);
+      checkNotSelfAssignment(leftHandSideSymbol, op, rightHandSideSymbol);
+    }
+  }
+
+  private void checkTypesCompatible(final ISymbol leftHandSideSymbol, final Token op,
+                                    final ISymbol rightHandSideSymbol) {
+    if (operationIsAssignment.test(op)) {
+      checkTypesCompatible.accept(new TypeCompatibilityData(op, leftHandSideSymbol, rightHandSideSymbol));
+    } else {
+      leftHandSideSymbol.getType().ifPresent(lhsType -> {
+        if (lhsType instanceof IAggregateSymbol aggregate) {
+          //Need to resolve the operation.
+          var search = new MethodSymbolSearch(op.getText()).addTypeParameter(rightHandSideSymbol.getType());
+          MethodSearchOnAggregate searchOnAggregate = new MethodSearchOnAggregate(aggregate, search);
+          resolveMethodOrError.apply(op, searchOnAggregate);
+        } else {
+          AssertValue.fail("Compiler error: expecting an aggregate");
+        }
+      });
+    }
+  }
+
+  private void checkNotSelfAssignment(final ISymbol leftHandSideSymbol, final Token op,
+                                      final ISymbol rightHandSideSymbol) {
+    if (refersToSameSymbol.test(leftHandSideSymbol, rightHandSideSymbol)) {
       var msg = "'" + leftHandSideSymbol.getFriendlyName()
-          + "' and '" + assignmentExpression.getSourceToken().getText() + "' :";
+          + "' and '" + rightHandSideSymbol.getSourceToken().getText() + "' :";
       errorListener.semanticError(op, msg, ErrorListener.SemanticClassification.SELF_ASSIGNMENT);
     }
   }

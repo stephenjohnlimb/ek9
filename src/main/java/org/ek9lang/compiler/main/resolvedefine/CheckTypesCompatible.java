@@ -1,8 +1,7 @@
 package org.ek9lang.compiler.main.resolvedefine;
 
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.symbol.ISymbol;
 
 /**
  * Check that the types of two symbol ar compatible with each other.
@@ -10,7 +9,7 @@ import org.ek9lang.compiler.symbol.ISymbol;
  * compatible means supers or traits are compatible or that the second var type can be
  * coerced to the first.
  */
-public class CheckTypesCompatible implements BiConsumer<ISymbol, ISymbol> {
+public class CheckTypesCompatible implements Consumer<TypeCompatibilityData> {
   private final ErrorListener errorListener;
 
   /**
@@ -21,11 +20,12 @@ public class CheckTypesCompatible implements BiConsumer<ISymbol, ISymbol> {
   }
 
   @Override
-  public void accept(ISymbol o1, ISymbol o2) {
-    if (o1.getType().isPresent() && o2.getType().isPresent()
-        && !o2.getType().get().isAssignableTo(o1.getType())) {
-      var msg = "'" + o1.getFriendlyName() + "' and '" + o2.getFriendlyName() + "':";
-      errorListener.semanticError(o1.getSourceToken(), msg,
+  public void accept(TypeCompatibilityData toCheck) {
+    if (toCheck.lhs() != null && toCheck.rhs() != null
+        && toCheck.lhs().getType().isPresent() && toCheck.rhs().getType().isPresent()
+        && !toCheck.rhs().getType().get().isAssignableTo(toCheck.lhs().getType())) {
+      var msg = "'" + toCheck.lhs().getFriendlyName() + "' and '" + toCheck.rhs().getFriendlyName() + "':";
+      errorListener.semanticError(toCheck.location(), msg,
           ErrorListener.SemanticClassification.INCOMPATIBLE_TYPES);
     } //Else another un typed error will have been issued.
   }

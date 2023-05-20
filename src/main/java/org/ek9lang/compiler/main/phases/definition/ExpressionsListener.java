@@ -9,16 +9,15 @@ import org.ek9lang.compiler.main.resolvedefine.CheckAssignmentStatement;
 import org.ek9lang.compiler.main.resolvedefine.CheckForRange;
 import org.ek9lang.compiler.main.resolvedefine.CheckInstructionBlockVariables;
 import org.ek9lang.compiler.main.resolvedefine.CheckRange;
-import org.ek9lang.compiler.main.resolvedefine.CheckTypesCompatible;
 import org.ek9lang.compiler.main.resolvedefine.CheckValidCall;
 import org.ek9lang.compiler.main.resolvedefine.CheckValidExpression;
 import org.ek9lang.compiler.main.resolvedefine.CheckValidIdentifierReference;
 import org.ek9lang.compiler.main.resolvedefine.CheckValidPrimary;
 import org.ek9lang.compiler.main.resolvedefine.CheckValidThisOrSuper;
+import org.ek9lang.compiler.main.resolvedefine.CheckVariableAssignmentDeclaration;
 import org.ek9lang.compiler.main.resolvedefine.ResolveIdentifierOrError;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
-import org.ek9lang.core.exception.AssertValue;
 
 /**
  * This listener just deals with expressions and the types that result from expressions.
@@ -50,18 +49,16 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
 
   private final CheckForRange checkForRange;
 
-  private final CheckTypesCompatible checkTypesCompatible;
-
-  private final ErrorListener errorListener;
   private final ResolveIdentifierOrError resolveIdentifierOrError;
 
+  private final CheckVariableAssignmentDeclaration checkVariableAssignmentDeclaration;
 
   protected ExpressionsListener(ParsedModule parsedModule) {
     super(parsedModule);
 
     symbolFactory = new SymbolFactory(parsedModule);
 
-    errorListener = parsedModule.getSource().getErrorListener();
+    ErrorListener errorListener = parsedModule.getSource().getErrorListener();
 
     checkValidThisOrSuper =
         new CheckValidThisOrSuper(symbolAndScopeManagement, symbolFactory, errorListener);
@@ -96,10 +93,11 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
     checkForRange =
         new CheckForRange(symbolAndScopeManagement, errorListener);
 
-    checkTypesCompatible =
-        new CheckTypesCompatible(errorListener);
+    resolveIdentifierOrError
+        = new ResolveIdentifierOrError(symbolAndScopeManagement, errorListener);
 
-    resolveIdentifierOrError = new ResolveIdentifierOrError(symbolAndScopeManagement, errorListener);
+    checkVariableAssignmentDeclaration
+        = new CheckVariableAssignmentDeclaration(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -132,7 +130,6 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
     checkAndTypeList.accept(ctx);
     super.exitList(ctx);
   }
-
 
   @Override
   public void exitRange(EK9Parser.RangeContext ctx) {
@@ -236,40 +233,9 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
     }
   }
 
-  //Now a block statement can be a variable declaration, variable only declaration or just a statement
-  //So lets deal with those first, earlier passes may have dealt with all the simple typing.
   @Override
   public void exitVariableDeclaration(EK9Parser.VariableDeclarationContext ctx) {
-    //TODO pull out to function
-    var variable = symbolAndScopeManagement.getRecordedSymbol(ctx);
-    AssertValue.checkNotNull("Expecting a symbol to be present", variable);
-    //Now it should have been typed if it has a typeDef - if not then that's an error in previous phases.
-    //Of an error in this phase.
-    if (ctx.typeDef() != null) {
-      if (variable.getType().isPresent()) {
-        System.out.println("Already typed " + variable.getType().get().getFriendlyName());
-      } else {
-        var theType = symbolAndScopeManagement.getRecordedSymbol(ctx.typeDef());
-        if (theType == null) {
-          System.out.println(ctx.typeDef().getText() + " was not resolved on line: " + ctx.typeDef().start.getLine());
-        } else {
-          variable.setType(theType);
-        }
-      }
-    } else {
-      //This means it's a 'left arrow' inference time! But it might have been typed if it was a built in type.
-      if (variable.getType().isEmpty()) {
-        var assignedFrom = symbolAndScopeManagement.getRecordedSymbol(ctx.assignmentExpression());
-        if (assignedFrom != null && assignedFrom.getType().isPresent()) {
-          variable.setType(assignedFrom.getType());
-        } else {
-          System.out.println(
-              "Still need to provide type for '" + variable.getFriendlyName() + "' " + variable.getSourceToken()
-                  .getLine());
-        }
-      }
-    }
-
+    checkVariableAssignmentDeclaration.accept(ctx);
     super.exitVariableDeclaration(ctx);
   }
 }

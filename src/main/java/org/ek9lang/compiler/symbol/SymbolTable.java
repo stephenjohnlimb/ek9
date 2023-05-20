@@ -384,7 +384,7 @@ public class SymbolTable implements IScope {
     return switch (searchType) {
       case METHOD:
         var result = findMethod.get();
-        if(result.getSingleBestMatchSymbol().isPresent()) {
+        if (result.getSingleBestMatchSymbol().isPresent()) {
           yield Optional.of(result.getSingleBestMatchSymbol().get());
         }
         yield Optional.empty();

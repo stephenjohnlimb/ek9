@@ -183,4 +183,21 @@ defines module bad.forloops.check
       for i in start ... end by increment
         stdout.println(`Value [${i}]`)
 
+    BadForLoopMissingTypes
+      stdout <- Stdout()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      start <- noSuchFunction()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      end <- alsoNoSuchFunction()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      increment <- noIncrementFunction()
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      for i in start ... end by increment
+        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+        stdout.println(`Value [${i}]`)
+
 //EOF
