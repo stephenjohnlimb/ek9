@@ -1,20 +1,21 @@
 package org.ek9lang.compiler.main.resolvedefine;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.CallSymbol;
-import org.ek9lang.compiler.symbol.IAggregateSymbol;
+import org.ek9lang.compiler.symbol.FunctionSymbol;
+import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.MethodSymbol;
 import org.ek9lang.compiler.symbol.ScopedSymbol;
+import org.ek9lang.compiler.symbol.support.SymbolFactory;
 import org.ek9lang.compiler.symbol.support.SymbolTypeExtractor;
-import org.ek9lang.compiler.symbol.support.search.MethodSearchOnAggregate;
+import org.ek9lang.compiler.symbol.support.search.MethodSearchInScope;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
@@ -22,22 +23,35 @@ import org.ek9lang.core.exception.AssertValue;
  * TODO lots of tidying up.
  */
 public class CheckValidCall implements Consumer<EK9Parser.CallContext> {
+
+  private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
+
   private final SymbolAndScopeManagement symbolAndScopeManagement;
 
   private final ErrorListener errorListener;
-
   private final ResolveMethodOrError resolveMethodOrError;
-  private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
+
+  private final ResolveFunctionOrError resolveFunctionOrError;
+
+  private final NewParameterisedType newParameterisedType;
+
+  private final SymbolsFromParamExpression symbolsFromParamExpression;
+
+  private final SymbolFromContextOrError symbolFromContextOrError;
 
   /**
    * Lookup a pre-recorded 'call', now resolve what it is supposed to call and set it's type.
    */
   public CheckValidCall(final SymbolAndScopeManagement symbolAndScopeManagement,
+                        final SymbolFactory symbolFactory,
                         final ErrorListener errorListener) {
     this.symbolAndScopeManagement = symbolAndScopeManagement;
     this.errorListener = errorListener;
-
-    this.resolveMethodOrError = new ResolveMethodOrError(errorListener);
+    this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
+    this.resolveFunctionOrError = new ResolveFunctionOrError(symbolAndScopeManagement, errorListener);
+    this.newParameterisedType = new NewParameterisedType(symbolAndScopeManagement, symbolFactory, errorListener, true);
+    this.symbolsFromParamExpression = new SymbolsFromParamExpression(symbolAndScopeManagement, errorListener);
+    this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
   }
 
 
@@ -58,7 +72,6 @@ public class CheckValidCall implements Consumer<EK9Parser.CallContext> {
       var toBeCalled = resolveToBeCalled(ctx);
       if (toBeCalled != null) {
         callSymbol.setResolvedSymbolToCall(toBeCalled);
-        callSymbol.setType(toBeCalled.getType());
         System.out.println(
             "Have an existing call symbol [" + existingCallSymbol + "] [" + existingCallSymbol.getType() + "]");
       }
@@ -87,11 +100,11 @@ public class CheckValidCall implements Consumer<EK9Parser.CallContext> {
     if (ctx.identifierReference() != null) {
       symbol = resolveByIdentifierReference(ctx);
     } else if (ctx.parameterisedType() != null) {
-      symbol = (ScopedSymbol) getSymbolFromContext(ctx.parameterisedType());
+      symbol = resolveByParameterisedType(ctx);
     } else if (ctx.primaryReference() != null) {
       symbol = resolveByPrimaryReference(ctx);
     } else if (ctx.dynamicFunctionDeclaration() != null) {
-      symbol = (ScopedSymbol) getSymbolFromContext(ctx.dynamicFunctionDeclaration());
+      symbol = resolveByDynamicFunctionDeclaration(ctx);
     } else if (ctx.call() != null) {
       symbol = resolveByCall(ctx);
     } else {
@@ -101,20 +114,48 @@ public class CheckValidCall implements Consumer<EK9Parser.CallContext> {
   }
 
   private ScopedSymbol resolveByIdentifierReference(EK9Parser.CallContext ctx) {
-    var callParams = getParamExpressionSymbols(ctx.paramExpression());
+    //TODO refactor - too complex
+    var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
     //function/method/constructor/delegate with optional params
-    var callIdentifier = getSymbolFromContext(ctx.identifierReference());
+    var callIdentifier = symbolFromContextOrError.apply(ctx.identifierReference());
 
-    //TODO more but let's see what happens just for 'class' for now.
-    System.out.println("callIdentifier is [" + callIdentifier + "]");
-    if (callIdentifier instanceof IAggregateSymbol aggregate) {
-      var resolved = checkForMethodOnAggregate(ctx, aggregate, callIdentifier.getName(), callParams);
-      System.out.println("The resolved item is [" + resolved + "]");
-      return resolved;
+    //TODO more but let's see what happens just for 'class' and 'function' for now.
+    if (callIdentifier instanceof AggregateSymbol aggregate) {
+      if (aggregate.isGenericInNature()) {
+        //So if it is generic but no parameters, just return the generic type.
+        //let any assignments of checks with inference check the type compatibility or alter the type as appropriate.
+        if (callParams.size() == 0) {
+          return aggregate;
+        } else {
+          var genericTypeArguments = this.symbolTypeExtractor.apply(callParams);
+          var details = new ParameterisedTypeData(ctx.start, callIdentifier, genericTypeArguments);
+          var theParameterisedType = newParameterisedType.apply(details);
+          System.out.println("Looks like this aggregate needs to be parameterised " + theParameterisedType);
+          if (theParameterisedType.isPresent()) {
+            return (ScopedSymbol) theParameterisedType.get();
+          }
+        }
+      } else {
+       return checkForMethodOnAggregate(ctx.start, aggregate, callIdentifier.getName(), callParams);
+      }
+    } else if (callIdentifier instanceof FunctionSymbol function) {
+      if (function.isGenericInNature()) {
+        //TODO function call to generic
+      } else {
+        return checkFunctionParameters(ctx.start, function, callParams);
+      }
     }
 
     //So we now have the combinations of what is needed, now it just depends on 'what it is'
     return null;
+  }
+
+  private ScopedSymbol resolveByParameterisedType(EK9Parser.CallContext ctx) {
+    return (ScopedSymbol) symbolFromContextOrError.apply(ctx.parameterisedType());
+  }
+
+  private ScopedSymbol resolveByDynamicFunctionDeclaration(EK9Parser.CallContext ctx) {
+    return (ScopedSymbol) symbolFromContextOrError.apply(ctx.dynamicFunctionDeclaration());
   }
 
   /**
@@ -122,8 +163,9 @@ public class CheckValidCall implements Consumer<EK9Parser.CallContext> {
    * So we're looking for a Constructor on the type or a constructor on the super type.
    */
   private ScopedSymbol resolveByPrimaryReference(EK9Parser.CallContext ctx) {
-    var callParams = getParamExpressionSymbols(ctx.paramExpression());
-    var callIdentifier = getSymbolFromContext(ctx.primaryReference());
+    //TODO sort out
+    var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
+    var callIdentifier = symbolFromContextOrError.apply(ctx.primaryReference());
     return null;
   }
 
@@ -132,45 +174,34 @@ public class CheckValidCall implements Consumer<EK9Parser.CallContext> {
    * We need to check that it is possible to make that call with the parameters provided.
    */
   private ScopedSymbol resolveByCall(EK9Parser.CallContext ctx) {
-    var callParams = getParamExpressionSymbols(ctx.paramExpression());
-    var callIdentifier = getSymbolFromContext(ctx.call());
+    //TODO sort out
+    var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
+    var callIdentifier = symbolFromContextOrError.apply(ctx.call());
 
     return null;
   }
 
-  /**
-   * Go through and get the symbols from the expressions in the parameters.
-   * TODO move out to a separate function.
-   */
-  private List<ISymbol> getParamExpressionSymbols(final EK9Parser.ParamExpressionContext ctx) {
-    return ctx.expressionParam()
-        .stream()
-        .map(expressionParam -> expressionParam.expression())
-        .map(this::getSymbolFromContext)
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList());
+  private ScopedSymbol checkFunctionParameters(Token token, FunctionSymbol function,
+                                               List<ISymbol> parameters) {
+    var paramTypes = symbolTypeExtractor.apply(parameters);
+    //maybe earlier types were not defined by the ek9 developer so let's not look at it would be misleading.
+    if (parameters.size() == paramTypes.size()) {
+      return resolveFunctionOrError.apply(new FunctionCheckData(token, function, paramTypes));
+    }
+    return null;
   }
 
-  private MethodSymbol checkForMethodOnAggregate(final EK9Parser.CallContext ctx,
-                                                 final IAggregateSymbol aggregate,
+  private MethodSymbol checkForMethodOnAggregate(final Token token,
+                                                 final IScope scopeToSearch,
                                                  final String methodName,
                                                  final List<ISymbol> parameters) {
-
 
     var paramTypes = symbolTypeExtractor.apply(parameters);
     //maybe earlier types were not defined by the ek9 developer so let's not look at it would be misleading.
     if (parameters.size() == paramTypes.size()) {
       var search = new MethodSymbolSearch(methodName).setTypeParameters(paramTypes);
-      return resolveMethodOrError.apply(ctx.start, new MethodSearchOnAggregate(aggregate, search));
+      return resolveMethodOrError.apply(token, new MethodSearchInScope(scopeToSearch, search));
     }
     return null;
-  }
-
-  private ISymbol getSymbolFromContext(final ParserRuleContext ctx) {
-    var resolved = symbolAndScopeManagement.getRecordedSymbol(ctx);
-    if (resolved == null) {
-      errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
-    }
-    return resolved;
   }
 }

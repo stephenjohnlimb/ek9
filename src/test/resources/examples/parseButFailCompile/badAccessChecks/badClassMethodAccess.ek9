@@ -1,0 +1,58 @@
+#!ek9
+<?-
+  Examples of good and bad method access on classes.
+-?>
+defines module bad.classmethod.access
+
+  defines class
+
+    C1 as open
+
+      v1 <- 6
+      //Model a function delegate and then check it can/cannot be resolved and accessed
+      //From various different contexts.
+      someDelegate as delegateFunction?
+
+      C1()
+        someDelegate := () is delegateFunction as function (rtn: arg0)
+
+      C1()
+        -> arg0 as C1
+        this()
+        assert arg0?
+
+      //by default public
+      accessMethod1()
+        <- rtn <- 7
+
+      protected accessMethod2()
+        <- rtn as Float: 9.9
+
+      private accessMethod3()
+        -> arg0 as C1
+        <- rtn as Date: 2023-05-24
+
+      checkDelegateFunction()
+        -> arg0 as C1
+        <- rtn as Integer: Integer()
+        if someDelegate?
+          //So looks like a method - but this is a variable that 'is' a function
+          rtn := arg0.someDelegate(21)
+
+  defines function
+
+    delegateFunction as abstract
+      -> arg0 as Integer
+      <- rtn as Integer: arg0
+
+    checkClassAccess1()
+      c1 <- C1()
+      num <- c1.accessMethod1()
+      assert num?
+
+    checkClassAccess2()
+      c1 <- C1()
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      num <- c1.noSuchMethod()
+//EOF

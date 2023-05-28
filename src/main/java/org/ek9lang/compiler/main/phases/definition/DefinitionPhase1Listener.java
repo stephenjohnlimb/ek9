@@ -760,6 +760,8 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
       if (!symbolChecker.errorsIfSymbolAlreadyDefined(currentScope, variableSymbol, true)) {
         if (currentScope instanceof MethodSymbol method) {
           method.setReturningSymbol(variableSymbol);
+        } else if (currentScope instanceof FunctionSymbol function) {
+          function.setReturningSymbol(variableSymbol);
         } else {
           currentScope.define(variableSymbol);
         }

@@ -466,6 +466,9 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     call1.setResolvedSymbolToCall(f1);
     assertEquals("call1 => Integer <- f1(arg1 as String)", call1.getFriendlyName());
     assertFalse(call1.isOperator());
+    //Check return type was pulled through
+    assertEquals(call1.getType(), integerType);
+
     //clone and check the thing to call is still present.
     var call2 = call1.clone(symbolTable);
     call2.setName("call2");
@@ -482,6 +485,8 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     method.setOperator(true);
     methodCall.setResolvedSymbolToCall(method);
     assertTrue(methodCall.isOperator());
+    //So there is no return and hence no return type on the method to be called.
+    assertTrue(methodCall.getType().isEmpty());
   }
 
   @Test
@@ -856,7 +861,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
   void testConstantVariations() {
     IScope symbolTable = new SymbolTable();
 
-    //Create a type an make it a sort of enumeration
+    //Create a type and make it a sort of enumeration
     ISymbol madeUpType1 = new AggregateSymbol("MadeUpType1", symbolTable);
     madeUpType1.setGenus(ISymbol.SymbolGenus.CLASS_ENUMERATION);
     ConstantSymbol c1 = new ConstantSymbol("ONE", false);

@@ -58,7 +58,18 @@ defines module bad.assignment.use
 
       assert value?
 
-    //TODO some horrid error conditions.
+    okGenericDeclarationAssignment4()
+      value as List of Integer: List(1)
+
+      assert value?
+
+    //Now do an inferred example
+    okGenericDeclarationAssignment5()
+      value <- List(1)
+
+      assert value?
+
+    //Some horrid error conditions.
     badGenericDeclarationAssignment1()
       //makes no sense
       @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
@@ -77,6 +88,41 @@ defines module bad.assignment.use
 
       @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
       value as List of Integer: List() of Float
+
+      assert value?
+
+    badInferredGenericDeclaration()
+      //But this makes no sense as it is still generic
+      @Error: FULL_RESOLUTION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED
+      value <- List()
+
+      assert value?
+
+    badGenericDeclarationAssignmentIncorrectTypeParameters1()
+      //Declared as a list of Integer, but type is a List of Float
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      value as List of Integer: List(8.9)
+
+      assert value?
+
+    badGenericDeclarationAssignmentIncorrectTypeParameters2()
+      //Declared as a List of Integer, but type is a List of Float
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      value as List of Integer: [1.9, 2.3, 3.5]
+
+      assert value?
+
+    badGenericDeclarationAssignmentIncorrectTypeParameters3()
+      //Declared as a List of Float, but type is a List of Integer
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      value as List of Float: [1, 2, 3]
+
+      assert value?
+
+    badGenericDeclarationAssignmentTooManyParameters()
+      //Not valid as a Liat only requires a single type parameter.
+      @Error: FULL_RESOLUTION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      value as List of Integer: List(1, 2)
 
       assert value?
 

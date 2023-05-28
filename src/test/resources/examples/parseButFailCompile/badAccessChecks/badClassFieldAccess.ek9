@@ -1,0 +1,94 @@
+#!ek9
+<?-
+  Examples of good and bad field access on classes.
+-?>
+defines module bad.classfield.access
+
+  defines class
+
+    C1 as open
+      someField <- 1
+      anotherField <- "cube"
+
+      default C1()
+
+      C1()
+        -> arg0 as C1
+        assert arg0?
+
+      accessMethod1()
+        <- rtn as Integer: Integer()
+        rtn :=: someField
+
+      accessMethod2()
+        <- rtn as Integer: Integer()
+        rtn :=: this.someField
+
+      accessMethod3()
+        -> arg0 as C1
+        <- rtn as Integer: Integer()
+        //A bit strange to pass a value in and access its inner bits, but possible.
+        rtn :=: arg0.someField
+
+      accessMethod4()
+        -> arg0 as C2
+        <- rtn as Integer: Integer()
+        //So here it is not possible to access prop to the be able to get to 'someField'.
+        @Error: FULL_RESOLUTION:NOT_ACCESSIBLE
+        rtn :=: arg0.prop.someField
+
+    C2
+      prop as C1: C1()
+
+      methodOnAnotherClass()
+        -> arg0 as C1
+        //As someField is private on class C1 access should not be allowed.
+        @Error: FULL_RESOLUTION:NOT_ACCESSIBLE
+        accessNotAllowed <- arg0.someField
+
+      anotherCheckOnAccess()
+        -> arg0 as C2
+        //Now here access to prop is ok, but then the 'someField' on C1 is not accessible.
+        @Error: FULL_RESOLUTION:NOT_ACCESSIBLE
+        alsoNotAllowed <- arg0.prop.someField
+
+      noSuchFieldAccess()
+        -> arg0 as C2
+        //Mistype prop as prp, so not resolved and hence someField type not known and cascade.
+        @Error: FULL_RESOLUTION:NOT_RESOLVED
+        notResolved <- arg0.prp.someField
+
+        @Error: FULL_RESOLUTION:TYPE_NOT_RESOLVED
+        val <- List(notResolved)
+
+    C3 extends C1
+
+      //As they are private is it possible to use the same name for field.
+      someField <- 100.9
+
+      aMethod()
+        check <- someField
+        assert check?
+
+      cannotAccessSuperPrivateField1()
+        @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
+        check <- anotherField
+
+        assert check?
+
+      cannotAccessSuperPrivateField1()
+        @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
+        check <- super.anotherField
+        assert check?
+
+  defines function
+
+    //As above, but this time from a function.
+    checkClassAccess1()
+      c1 <- C1()
+
+      //Check it is not possible to access the fields on a class as they are private
+      @Error: FULL_RESOLUTION:NOT_ACCESSIBLE
+      num <- c1.someField
+      assert num?
+//EOF

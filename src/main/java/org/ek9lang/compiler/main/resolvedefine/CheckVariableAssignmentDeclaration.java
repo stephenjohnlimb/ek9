@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.main.resolvedefine;
 
+import static org.ek9lang.compiler.errors.ErrorListener.SemanticClassification.GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED;
+
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
@@ -16,6 +18,7 @@ public class CheckVariableAssignmentDeclaration implements Consumer<EK9Parser.Va
 
   private final SymbolAndScopeManagement symbolAndScopeManagement;
 
+  private final ErrorListener errorListener;
   private final CheckTypesCompatible checkTypesCompatible;
 
   /**
@@ -24,7 +27,7 @@ public class CheckVariableAssignmentDeclaration implements Consumer<EK9Parser.Va
   public CheckVariableAssignmentDeclaration(final SymbolAndScopeManagement symbolAndScopeManagement,
                                             final ErrorListener errorListener) {
     this.symbolAndScopeManagement = symbolAndScopeManagement;
-
+    this.errorListener = errorListener;
     this.checkTypesCompatible = new CheckTypesCompatible(errorListener);
   }
 
@@ -44,7 +47,7 @@ public class CheckVariableAssignmentDeclaration implements Consumer<EK9Parser.Va
         checkTypeCompatibility(ctx, varSymbol, exprSymbol);
       }
     } else {
-      processInferredType(varSymbol, exprSymbol);
+      processInferredType(ctx, varSymbol, exprSymbol);
     }
   }
 
@@ -111,9 +114,13 @@ public class CheckVariableAssignmentDeclaration implements Consumer<EK9Parser.Va
     checkTypesCompatible.accept(data);
   }
 
-  private void processInferredType(final ISymbol varSymbol, final ISymbol exprSymbol) {
+  private void processInferredType(final EK9Parser.VariableDeclarationContext ctx,
+                                   final ISymbol varSymbol, final ISymbol exprSymbol) {
     if (varSymbol.getType().isEmpty() && exprSymbol != null && exprSymbol.getType().isPresent()) {
       varSymbol.setType(exprSymbol.getType());
+      if (exprSymbol.getType().get().isGenericInNature()) {
+        errorListener.semanticError(ctx.start, "", GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED);
+      }
     }
   }
 }

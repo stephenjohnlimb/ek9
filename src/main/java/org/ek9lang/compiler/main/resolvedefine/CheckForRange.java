@@ -7,7 +7,7 @@ import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.support.search.MethodSearchOnAggregate;
+import org.ek9lang.compiler.symbol.support.search.MethodSearchInScope;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 
 /**
@@ -27,7 +27,7 @@ public class CheckForRange implements Consumer<EK9Parser.ForRangeContext> {
                        final ErrorListener errorListener) {
     this.symbolAndScopeManagement = symbolAndScopeManagement;
     this.resolveIdentifierOrError = new ResolveIdentifierOrError(symbolAndScopeManagement, errorListener);
-    this.resolveMethodOrError = new ResolveMethodOrError(errorListener);
+    this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -61,7 +61,7 @@ public class CheckForRange implements Consumer<EK9Parser.ForRangeContext> {
       //So the comparator should have one parameter of the same type.
       var search = new MethodSymbolSearch("<=>").setTypeParameters(List.of(loopVarType));
       resolveMethodOrError.apply(loopVar.getSourceToken(),
-          new MethodSearchOnAggregate((IAggregateSymbol) loopVarType, search));
+          new MethodSearchInScope((IAggregateSymbol) loopVarType, search));
     });
   }
 
@@ -70,7 +70,7 @@ public class CheckForRange implements Consumer<EK9Parser.ForRangeContext> {
       //So the "+=" should have one parameter of the increment by type.
       var search = new MethodSymbolSearch("+=").setTypeParameters(List.of(incrementByType));
       resolveMethodOrError.apply(loopVar.getSourceToken(),
-          new MethodSearchOnAggregate((IAggregateSymbol) loopVarType, search));
+          new MethodSearchInScope((IAggregateSymbol) loopVarType, search));
     }));
   }
 
@@ -78,7 +78,7 @@ public class CheckForRange implements Consumer<EK9Parser.ForRangeContext> {
     loopVar.getType().ifPresent(loopVarType -> {
       var search = new MethodSymbolSearch(operator);
       resolveMethodOrError.apply(loopVar.getSourceToken(),
-          new MethodSearchOnAggregate((IAggregateSymbol) loopVarType, search));
+          new MethodSearchInScope((IAggregateSymbol) loopVarType, search));
     });
   }
 }

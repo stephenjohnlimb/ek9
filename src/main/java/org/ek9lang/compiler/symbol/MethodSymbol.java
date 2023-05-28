@@ -321,9 +321,8 @@ public class MethodSymbol extends ScopedSymbol {
   public boolean isSignatureMatchTo(MethodSymbol toMethod) {
     List<ISymbol> ourParams = this.getSymbolsForThisScope();
     List<ISymbol> theirParams = toMethod.getSymbolsForThisScope();
-    double weight = matcher.getWeightOfParameterMatch(ourParams, theirParams);
-    //must be exact match
-    if (weight > 0.0 || weight < 0.0) {
+    double weight = matcher.getWeightOfParameterMatch(theirParams, ourParams);
+    if (weight < 0.0) {
       return false;
     }
     weight = matcher.getWeightOfMatch(this.getType(), toMethod.getType());
@@ -338,7 +337,7 @@ public class MethodSymbol extends ScopedSymbol {
    */
   public boolean isParameterSignatureMatchTo(List<ISymbol> params) {
     List<ISymbol> ourParams = this.getSymbolsForThisScope();
-    double weight = matcher.getWeightOfParameterMatch(ourParams, params);
+    double weight = matcher.getWeightOfParameterMatch(params, ourParams);
     return weight >= 0.0;
   }
 

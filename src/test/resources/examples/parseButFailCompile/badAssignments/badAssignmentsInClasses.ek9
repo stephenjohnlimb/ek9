@@ -1,0 +1,65 @@
+#!ek9
+<?-
+  Checks bad assignments in a class
+-?>
+defines module bad.assignments.classes
+
+  defines class
+
+    C1
+      someField <- 1
+
+      default C1()
+
+      C1()
+        -> arg0 as C1
+        assert arg0?
+
+      someMethod1()
+        <- rtn as C1?
+        //We can assign rtn to point to this.
+        rtn := this
+
+      someMethod2()
+        -> arg0 as C1
+        //This is allowed as it means that we copy the values of arg0 over those in this.
+        this :=: arg0
+
+      someMethod3()
+        -> arg0 as C1
+        @Error: FULL_RESOLUTION: NOT_RESOLVED
+        this :=: arg00
+
+      someMethod4()
+        @Error: FULL_RESOLUTION: NEVER_INITIALISED
+        notInitialised as C1?
+
+        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
+        notInitialised :=: this
+
+      someMethod5()
+        notInitialised as C1?
+        //Now try and assign the via the wrong type
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+        notInitialised: 22
+
+      someMethod6()
+        val1 <- 1
+        //Now try self assignment
+        @Error: FULL_RESOLUTION: SELF_ASSIGNMENT
+        val1: val1
+
+        //also considered a self assignment
+        @Error: FULL_RESOLUTION: SELF_ASSIGNMENT
+        val1 :=: val1
+
+      someMethod1()
+        <- rtn as C1?
+        //This is not allowed because rtn has not been initialised
+        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
+        rtn :=: this
+
+      operator :=:
+        -> from as C1
+        //Here would do the copying.
+//EOF

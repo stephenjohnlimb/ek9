@@ -52,7 +52,7 @@ public class SymbolMatcher {
 
       //Only check if we have a criteria to match - acts more like a veto.
       if (criteria.getOfTypeOrReturn().isPresent()
-          && getWeightOfMatch(methodSymbol.getType(), criteria.getOfTypeOrReturn()) < 0.0) {
+          && getWeightOfMatch(criteria.getOfTypeOrReturn(), methodSymbol.getType()) < 0.0) {
         return rtn;
       }
 
@@ -132,7 +132,7 @@ public class SymbolMatcher {
     return costOfMatch;
   }
 
-  private double getCostOfSymbolMatch(ISymbol toMatch, ISymbol thisSymbolType) {
-    return toMatch.getAssignableWeightTo(thisSymbolType);
+  private double getCostOfSymbolMatch(ISymbol from, ISymbol to) {
+    return from.getAssignableWeightTo(to);
   }
 }

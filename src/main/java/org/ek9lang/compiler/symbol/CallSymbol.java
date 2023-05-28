@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.symbol;
 
+import org.ek9lang.compiler.symbol.support.ReturnTypeExtractor;
+
 /**
  * Just re-uses the bulk of method symbol for when we want to make a symbol that is a call
  * to an actual method.
@@ -7,6 +9,8 @@ package org.ek9lang.compiler.symbol;
  * We then have to resolve this CallSymbol against a real method symbol.
  */
 public class CallSymbol extends MethodSymbol {
+
+  private final ReturnTypeExtractor returnTypeExtractor = new ReturnTypeExtractor();
   private ScopedSymbol resolvedSymbolToCall = null;
 
   public CallSymbol(String name, IScope enclosingScope) {
@@ -33,6 +37,9 @@ public class CallSymbol extends MethodSymbol {
    */
   public void setResolvedSymbolToCall(ScopedSymbol symbol) {
     this.resolvedSymbolToCall = symbol;
+
+    this.setType(returnTypeExtractor.apply(symbol));
+
     //make a note if this method ia actually an operator.
     if (symbol instanceof MethodSymbol method) {
       this.setOperator(method.isOperator());

@@ -3,15 +3,12 @@ package org.ek9lang.compiler.main.resolvedefine;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
 import org.ek9lang.compiler.symbol.support.search.AnyTypeSymbolSearch;
-import org.ek9lang.core.exception.AssertValue;
 
 /**
  * This is a sort of hybrid resolver or definer function.
@@ -26,12 +23,7 @@ import org.ek9lang.core.exception.AssertValue;
  * and so this code calls itself quite a bit.
  * But it may get called with parameterization params that are also just parameters lie S and T for example.
  */
-public abstract class ResolveOrDefineTypes {
-
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
-  private final SymbolFactory symbolFactory;
-  private final ErrorListener errorListener;
-  private final boolean errorIfNotDefinedOrResolved;
+public abstract class ResolveOrDefineTypes extends ResolverOrDefiner {
 
   /**
    * A bit of a complex function constructor - for a function.
@@ -40,14 +32,8 @@ public abstract class ResolveOrDefineTypes {
   protected ResolveOrDefineTypes(final SymbolAndScopeManagement symbolAndScopeManagement,
                                  final SymbolFactory symbolFactory, final ErrorListener errorListener,
                                  final boolean errorIfNotDefinedOrResolved) {
-    AssertValue.checkNotNull("symbolAndScopeManagement cannot be null", symbolAndScopeManagement);
-    AssertValue.checkNotNull("symbolFactory cannot be null", symbolFactory);
-    AssertValue.checkNotNull("errorListener cannot be null", errorListener);
 
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
-    this.symbolFactory = symbolFactory;
-    this.errorListener = errorListener;
-    this.errorIfNotDefinedOrResolved = errorIfNotDefinedOrResolved;
+    super(symbolAndScopeManagement, symbolFactory, errorListener, errorIfNotDefinedOrResolved);
   }
 
   protected Optional<ISymbol> resolveTypeByTypeDef(final EK9Parser.TypeDefContext ctx) {
@@ -94,7 +80,9 @@ public abstract class ResolveOrDefineTypes {
     if (ctx.typeDef() != null) {
       var resolvedParameterisedType = resolveTypeByTypeDef(ctx.typeDef());
       if (resolvedParameterisedType.isPresent()) {
-        return resolveOrDefine(ctx.typeDef().start, resolvedGenericType, List.of(resolvedParameterisedType.get()));
+        var toResolveOrDefine = new ParameterisedTypeData(ctx.typeDef().start, resolvedGenericType,
+            List.of(resolvedParameterisedType.get()));
+        return resolveOrDefine(toResolveOrDefine);
       }
     } else if (ctx.parameterisedArgs() != null) {
       //This is for multiple parameterizing parameters.
@@ -107,50 +95,11 @@ public abstract class ResolveOrDefineTypes {
       }
       //Did we resolve them all? Only if we did
       if (genericParameters.size() == ctx.parameterisedArgs().typeDef().size()) {
-        return resolveOrDefine(ctx.parameterisedArgs().start, resolvedGenericType, genericParameters);
+        var toResolveOrDefine =
+            new ParameterisedTypeData(ctx.parameterisedArgs().start, resolvedGenericType, genericParameters);
+        return resolveOrDefine(toResolveOrDefine);
       }
     }
     return Optional.empty();
-  }
-
-  private Optional<ISymbol> resolveOrDefine(final Token token, final ISymbol genericType,
-                                            final List<ISymbol> parameterizingTypes) {
-    Optional<ISymbol> rtn = Optional.empty();
-
-    if (genericType instanceof PossibleGenericSymbol genericTypeSymbol) {
-      if (errorIfNotGeneric(token, genericType)
-          || errorIfInvalidParameters(token, genericTypeSymbol, parameterizingTypes)) {
-        return rtn;
-      }
-
-      var theType = symbolFactory.newParameterisedSymbol(genericTypeSymbol, parameterizingTypes);
-      rtn = symbolAndScopeManagement.resolveOrDefine(theType);
-    }
-
-    return rtn;
-  }
-
-  private boolean errorIfNotGeneric(final Token token, final ISymbol genericType) {
-    var notGeneric = !genericType.isGenericInNature();
-    if (notGeneric && errorIfNotDefinedOrResolved) {
-      errorListener.semanticError(token, "cannot be used to parameterize '" + genericType.getFriendlyName() + "':",
-          ErrorListener.SemanticClassification.NOT_A_TEMPLATE);
-    }
-    return notGeneric;
-  }
-
-  private boolean errorIfInvalidParameters(final Token token, final PossibleGenericSymbol genericTypeSymbol,
-                                           final List<ISymbol> parameterizingTypes) {
-    var acceptsNParameters = genericTypeSymbol.getAnyConceptualTypeParameters().size();
-    var providedWithNParameters = parameterizingTypes.size();
-    if (acceptsNParameters != providedWithNParameters) {
-      errorListener.semanticError(token, "'"
-              + providedWithNParameters + "' parameters were supplied but '"
-              + genericTypeSymbol.getFriendlyName() + "' requires '"
-              + acceptsNParameters + "':",
-          ErrorListener.SemanticClassification.GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT);
-      return true;
-    }
-    return false;
   }
 }

@@ -1,7 +1,6 @@
 package org.ek9lang.compiler.main.resolvedefine;
 
 import java.util.function.Consumer;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
@@ -10,9 +9,8 @@ import org.ek9lang.compiler.main.rules.OperationIsAssignment;
 import org.ek9lang.compiler.main.rules.RefersToSameSymbol;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.support.search.MethodSearchOnAggregate;
+import org.ek9lang.compiler.symbol.support.search.MethodSearchInScope;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
-import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
 /**
@@ -31,6 +29,9 @@ public class CheckAssignmentStatement implements Consumer<EK9Parser.AssignmentSt
 
   private final ResolveMethodOrError resolveMethodOrError;
 
+  private final SymbolFromContextOrError symbolFromContextOrError;
+  private final ResolveIdentifierOrError resolveIdentifierOrError;
+
   /**
    * Check on validity of assignments.
    */
@@ -40,7 +41,11 @@ public class CheckAssignmentStatement implements Consumer<EK9Parser.AssignmentSt
     this.errorListener = errorListener;
 
     this.checkTypesCompatible = new CheckTypesCompatible(errorListener);
-    this.resolveMethodOrError = new ResolveMethodOrError(errorListener);
+    this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
+    this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
+
+    this.resolveIdentifierOrError
+        = new ResolveIdentifierOrError(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -50,47 +55,53 @@ public class CheckAssignmentStatement implements Consumer<EK9Parser.AssignmentSt
     //With operators: ASSIGN|ASSIGN2|COLON|ASSIGN_UNSET|ADD_ASSIGN|SUB_ASSIGN|DIV_ASSIGN|MUL_ASSIGN|MERGE|REPLACE|COPY
     //Right hand side is: assignmentExpression
 
-    var expressionSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx.assignmentExpression());
+    var expressionSymbol = symbolFromContextOrError.apply(ctx.assignmentExpression());
+    if (expressionSymbol == null) {
+      //So not resolved an an error will have been emitted.
+      return;
+    }
     if (ctx.primaryReference() != null) {
-      var primaryReferenceExpression = symbolAndScopeManagement.getRecordedSymbol(ctx.primaryReference());
-      if (primaryReferenceExpression == null) {
-        emitNotResolved(ctx.primaryReference());
-      } else {
-        checkLeftAndRight(primaryReferenceExpression, ctx.op, expressionSymbol);
-      }
+      checkByPrimaryReference(ctx, expressionSymbol);
     } else if (ctx.identifier() != null) {
-      var resolved = symbolAndScopeManagement.getTopScope().resolve(new SymbolSearch(ctx.identifier().getText()));
-      resolved.ifPresentOrElse(identifier -> checkIdentifierAssignment(identifier, ctx.op, expressionSymbol),
-          () -> emitNotResolved(ctx.identifier()));
+      checkByIdentifier(ctx, expressionSymbol);
     } else if (ctx.objectAccessExpression() != null) {
-      var objectAccessExpression = symbolAndScopeManagement.getRecordedSymbol(ctx.objectAccessExpression());
-      if (objectAccessExpression == null) {
-        emitNotResolved(ctx.objectAccessExpression());
-      } else {
-        checkLeftAndRight(objectAccessExpression, ctx.op, expressionSymbol);
-      }
+      checkByObjectAccessExpression(ctx, expressionSymbol);
     }
   }
 
-  private void emitNotResolved(final ParserRuleContext ctx) {
-    errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
+  private void checkByPrimaryReference(final EK9Parser.AssignmentStatementContext ctx, final ISymbol expressionSymbol) {
+    var primaryReferenceExpressionSymbol = symbolFromContextOrError.apply(ctx.primaryReference());
+    if (primaryReferenceExpressionSymbol != null) {
+      checkLeftAndRight(primaryReferenceExpressionSymbol, ctx.op, expressionSymbol);
+    }
+  }
+
+  private void checkByIdentifier(final EK9Parser.AssignmentStatementContext ctx, final ISymbol expressionSymbol) {
+    var identifier = resolveIdentifierOrError.apply(ctx.identifier());
+    if (identifier != null) {
+      checkIdentifierAssignment(identifier, ctx.op, expressionSymbol);
+    }
+  }
+
+  private void checkByObjectAccessExpression(final EK9Parser.AssignmentStatementContext ctx,
+                                             final ISymbol expressionSymbol) {
+    var objectAccessExpressionSymbol = symbolFromContextOrError.apply(ctx.objectAccessExpression());
+    if (objectAccessExpressionSymbol != null) {
+      checkLeftAndRight(objectAccessExpressionSymbol, ctx.op, expressionSymbol);
+    }
   }
 
   private void checkIdentifierAssignment(ISymbol leftHandSideSymbol, final Token op,
                                          final ISymbol assignmentExpression) {
-    if (assignmentExpression == null) {
-      //Could be null if there is an ek9 code developer error.
-      return;
-    }
 
-    if (operationIsAssignment.test(op)) {
-      if (!leftHandSideSymbol.isInitialised()) {
+    if (!leftHandSideSymbol.isInitialised()) {
+      if (operationIsAssignment.test(op)) {
         leftHandSideSymbol.setInitialisedBy(op);
+      } else {
+        //It a deep operation, but this variable has not been initialised.
+        errorListener.semanticError(op, "'" + leftHandSideSymbol.getFriendlyName() + "'",
+            ErrorListener.SemanticClassification.USED_BEFORE_INITIALISED);
       }
-    } else if (!leftHandSideSymbol.isInitialised()) {
-      //It a deep operation, but this variable has not been initialised.
-      errorListener.semanticError(leftHandSideSymbol.getSourceToken(), "",
-          ErrorListener.SemanticClassification.USED_BEFORE_INITIALISED);
     }
 
     checkLeftAndRight(leftHandSideSymbol, op, assignmentExpression);
@@ -112,7 +123,7 @@ public class CheckAssignmentStatement implements Consumer<EK9Parser.AssignmentSt
         if (lhsType instanceof IAggregateSymbol aggregate) {
           //Need to resolve the operation.
           var search = new MethodSymbolSearch(op.getText()).addTypeParameter(rightHandSideSymbol.getType());
-          MethodSearchOnAggregate searchOnAggregate = new MethodSearchOnAggregate(aggregate, search);
+          MethodSearchInScope searchOnAggregate = new MethodSearchInScope(aggregate, search);
           resolveMethodOrError.apply(op, searchOnAggregate);
         } else {
           AssertValue.fail("Compiler error: expecting an aggregate");

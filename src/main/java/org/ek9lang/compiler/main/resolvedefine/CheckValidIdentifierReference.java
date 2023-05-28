@@ -69,11 +69,11 @@ public class CheckValidIdentifierReference
                                                             final ISymbol identifierReference) {
     //Only interested finite range of checks here.
 
-    var initialisedByToken = identifierReference.getInitialisedBy();
+    var token = identifierReference.getInitialisedBy();
 
-    if (!identifierReference.isConstant()
+    if (isIdentifierReferenceToBeChecked(identifierReference)
         && ctx.start.getTokenSource().equals(identifierReference.getSourceToken().getTokenSource())
-        && (initialisedByToken == null || ctx.start.getTokenIndex() <= initialisedByToken.getTokenIndex())) {
+        && (token == null || ctx.start.getTokenIndex() <= token.getTokenIndex())) {
       errorListener.semanticError(ctx.start, errorMessageForIdentifierReference(identifierReference),
           ErrorListener.SemanticClassification.USED_BEFORE_INITIALISED);
     }
@@ -82,13 +82,20 @@ public class CheckValidIdentifierReference
   private void identifierReferenceDefinedBeforeUseCheck(final EK9Parser.IdentifierReferenceContext ctx,
                                                         final ISymbol identifierReference) {
     //Firstly check in the same source - else it means its on a type or constant and that's fine.
-    var sourceToken = identifierReference.getSourceToken();
-    if (!identifierReference.isConstant() && sourceToken != null
-        && ctx.start.getTokenSource().equals(sourceToken.getTokenSource())
-        && ctx.start.getTokenIndex() <= sourceToken.getTokenIndex()) {
+    var token = identifierReference.getSourceToken();
+    if (isIdentifierReferenceToBeChecked(identifierReference)
+        && token != null
+        && ctx.start.getTokenSource().equals(token.getTokenSource())
+        && ctx.start.getTokenIndex() <= token.getTokenIndex()) {
       errorListener.semanticError(ctx.start, errorMessageForIdentifierReference(identifierReference),
           ErrorListener.SemanticClassification.USED_BEFORE_DEFINED);
     }
+  }
+
+  private boolean isIdentifierReferenceToBeChecked(final ISymbol identifierReference) {
+    return !identifierReference.isConstant()
+        && !identifierReference.isPropertyField()
+        && !identifierReference.isIncomingParameter();
   }
 
   private void identifierReferenceAccessCheck(final EK9Parser.IdentifierReferenceContext ctx,

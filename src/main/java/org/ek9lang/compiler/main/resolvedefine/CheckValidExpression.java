@@ -14,7 +14,7 @@ import org.ek9lang.core.exception.AssertValue;
 /**
  * Ensures that 'expression' is now resolved and 'typed' or a not resolved error.
  * This is a beast and will have to delegate parts, as there are just some many types of expression.
- * TODO lot's of splitting of this logic up.
+ * TODO lot's of splitting of this logic up, because this is the 'beast'.
  */
 public class CheckValidExpression implements Consumer<EK9Parser.ExpressionContext> {
 
@@ -63,11 +63,15 @@ public class CheckValidExpression implements Consumer<EK9Parser.ExpressionContex
     } else if (ctx.list() != null) {
       return symbolAndScopeManagement.getRecordedSymbol(ctx.list());
     } else if (ctx.expression() != null && !ctx.expression().isEmpty()) {
+      //TODO implement this.
       System.out.println("Expression to expression(s) next - but need to work out the type");
       return symbolFactory.newExpressionSymbol(ctx.start, ctx.getText(), symbolAndScopeManagement.getTopScope().resolve(
           new TypeSymbolSearch("Boolean")));
     } else if (ctx.objectAccessExpression() != null) {
-      System.out.println("Object access expression - but need to work out the type");
+      var maybeResolved = symbolAndScopeManagement.getRecordedSymbol(ctx.objectAccessExpression());
+      if (maybeResolved != null && maybeResolved.getType().isPresent()) {
+        return symbolFactory.newExpressionSymbol(ctx.start, ctx.getText()).setType(maybeResolved.getType());
+      }
       return symbolFactory.newExpressionSymbol(ctx.start, ctx.getText());
     } else {
       AssertValue.fail(
@@ -92,7 +96,7 @@ public class CheckValidExpression implements Consumer<EK9Parser.ExpressionContex
   }
 
   private void emitTypeNotResolvedError(final Token lineToken, final ISymbol argument) {
-    var msg = "'" + argument.getName() + "':";
+    var msg = "'" + argument.getName() + "' :";
     errorListener.semanticError(lineToken, msg,
         ErrorListener.SemanticClassification.TYPE_NOT_RESOLVED);
   }

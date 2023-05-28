@@ -9,6 +9,7 @@ import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.CommonTypeSuperOrTrait;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
+import org.ek9lang.compiler.symbol.support.search.TemplateTypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
 /**
@@ -18,7 +19,7 @@ public class CheckAndTypeList implements Consumer<EK9Parser.ListContext> {
 
   private final SymbolAndScopeManagement symbolAndScopeManagement;
 
-  private final NewParameterizedSymbolOfType newParameterizedSymbolOfType;
+  private final NewParameterisedType newParameterisedType;
   private final CommonTypeSuperOrTrait commonTypeSuperOrTrait;
 
   /**
@@ -29,14 +30,15 @@ public class CheckAndTypeList implements Consumer<EK9Parser.ListContext> {
                           final ErrorListener errorListener) {
     this.symbolAndScopeManagement = symbolAndScopeManagement;
 
-    this.newParameterizedSymbolOfType =
-        new NewParameterizedSymbolOfType("org.ek9.lang::List", symbolAndScopeManagement, symbolFactory);
+    this.newParameterisedType =
+        new NewParameterisedType(symbolAndScopeManagement, symbolFactory, errorListener, true);
 
     this.commonTypeSuperOrTrait = new CommonTypeSuperOrTrait(errorListener);
   }
 
   @Override
   public void accept(EK9Parser.ListContext ctx) {
+
     var listSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
 
     List<ISymbol> argumentSymbols = new ArrayList<>();
@@ -48,8 +50,13 @@ public class CheckAndTypeList implements Consumer<EK9Parser.ListContext> {
 
     var commonType = commonTypeSuperOrTrait.apply(ctx.start, argumentSymbols);
     commonType.ifPresent(type -> {
-      var resolvedNewType = newParameterizedSymbolOfType.apply(type);
-      listSymbol.setType(resolvedNewType);
+      var resolvedType =
+          symbolAndScopeManagement.getTopScope().resolve(new TemplateTypeSymbolSearch("org.ek9.lang::List"));
+      resolvedType.ifPresent(listType -> {
+        var details = new ParameterisedTypeData(ctx.start, listType, List.of(type));
+        var resolvedNewType = newParameterisedType.resolveOrDefine(details);
+        listSymbol.setType(resolvedNewType);
+      });
     });
   }
 }

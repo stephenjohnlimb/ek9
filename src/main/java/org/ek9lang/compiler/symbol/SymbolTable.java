@@ -286,10 +286,14 @@ public class SymbolTable implements IScope {
    */
   protected MethodSymbolSearchResult resolveForAllMatchingMethodsInEnclosingScope(
       final MethodSymbolSearch search, MethodSymbolSearchResult result) {
-    AssertValue.checkNotNull("Search must not be null", search);
 
     //nothing needed here.
     return result;
+  }
+
+  @Override
+  public Optional<ISymbol> resolveMember(SymbolSearch search) {
+    return this.resolveInThisScopeOnly(search);
   }
 
   private Optional<ISymbol> resolveFromSplitSymbolTable(final String symbolName,

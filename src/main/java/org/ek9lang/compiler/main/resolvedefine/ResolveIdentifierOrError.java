@@ -29,7 +29,7 @@ public class ResolveIdentifierOrError implements Function<EK9Parser.IdentifierCo
   }
 
   @Override
-  public ISymbol apply(EK9Parser.IdentifierContext ctx) {
+  public ISymbol apply(final EK9Parser.IdentifierContext ctx) {
 
     var toResolve = ctx.getText();
     var resolved = symbolAndScopeManagement.getTopScope().resolve(new SymbolSearch(toResolve));

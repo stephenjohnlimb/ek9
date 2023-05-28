@@ -664,6 +664,9 @@ defines extern module org.ek9.lang
     Stdout with trait of StringOutput
       Stdout()
 
+      println() as pure
+        -> arg0 as String
+        
     Stderr with trait of StringOutput
       Stderr()
 

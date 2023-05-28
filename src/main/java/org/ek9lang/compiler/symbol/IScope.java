@@ -68,6 +68,11 @@ public interface IScope {
                                                                  MethodSymbolSearchResult result);
 
   /**
+   * Just resolve on this or supers/traits - but not anything outside of the class hierarchy.
+   */
+  Optional<ISymbol> resolveMember(SymbolSearch search);
+
+  /**
    * Just look in own scope.
    */
   Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search);

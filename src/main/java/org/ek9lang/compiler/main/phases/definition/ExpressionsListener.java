@@ -15,8 +15,12 @@ import org.ek9lang.compiler.main.resolvedefine.CheckValidIdentifierReference;
 import org.ek9lang.compiler.main.resolvedefine.CheckValidPrimary;
 import org.ek9lang.compiler.main.resolvedefine.CheckValidThisOrSuper;
 import org.ek9lang.compiler.main.resolvedefine.CheckVariableAssignmentDeclaration;
+import org.ek9lang.compiler.main.resolvedefine.ResolveFieldOrError;
 import org.ek9lang.compiler.main.resolvedefine.ResolveIdentifierOrError;
+import org.ek9lang.compiler.main.resolvedefine.ResolveOperationCallOrError;
+import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.support.ReturnTypeExtractor;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
 
 /**
@@ -28,6 +32,9 @@ import org.ek9lang.compiler.symbol.support.SymbolFactory;
 public abstract class ExpressionsListener extends ScopeStackConsistencyListener {
 
   protected final SymbolFactory symbolFactory;
+
+  private final ReturnTypeExtractor returnTypeExtractor = new ReturnTypeExtractor();
+
   private final CheckValidThisOrSuper checkValidThisOrSuper;
 
   private final CheckValidPrimary checkValidPrimary;
@@ -52,6 +59,10 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
   private final ResolveIdentifierOrError resolveIdentifierOrError;
 
   private final CheckVariableAssignmentDeclaration checkVariableAssignmentDeclaration;
+
+  private final ResolveFieldOrError resolveFieldOrError;
+
+  private final ResolveOperationCallOrError resolveOperationCallOrError;
 
   protected ExpressionsListener(ParsedModule parsedModule) {
     super(parsedModule);
@@ -82,7 +93,7 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
         new CheckAssignmentStatement(symbolAndScopeManagement, errorListener);
 
     checkValidCall =
-        new CheckValidCall(symbolAndScopeManagement, errorListener);
+        new CheckValidCall(symbolAndScopeManagement, symbolFactory, errorListener);
 
     checkAndTypeList =
         new CheckAndTypeList(symbolAndScopeManagement, symbolFactory, errorListener);
@@ -98,6 +109,12 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
 
     checkVariableAssignmentDeclaration
         = new CheckVariableAssignmentDeclaration(symbolAndScopeManagement, errorListener);
+
+    resolveFieldOrError
+        = new ResolveFieldOrError(symbolAndScopeManagement, errorListener);
+
+    resolveOperationCallOrError
+        = new ResolveOperationCallOrError(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -204,31 +221,50 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
   public void exitObjectAccessExpression(EK9Parser.ObjectAccessExpressionContext ctx) {
     //TODO also pull out to function
 
-    var objectAccessStart = symbolAndScopeManagement.getRecordedSymbol(ctx.objectAccessStart());
-    if (objectAccessStart != null) {
+    var objectAccessStartSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx.objectAccessStart());
+    if (objectAccessStartSymbol != null) {
       //If it is null then there will have already been an error
-      System.out.println("Have objectAccessStart [" + objectAccessStart.getFriendlyName() + "]");
+      System.out.println("Have objectAccessStart [" + objectAccessStartSymbol.getFriendlyName() + "]");
 
       //Now we have to follow the objectAccess and objectAccessType objectAccess?
       //But this has to be driven from here - rather than bottom up, because the context of resolution
       //is driven that way.
-      resolveObjectAccess(ctx.objectAccess(), objectAccessStart);
+      var searchOnThisSymbol = objectAccessStartSymbol;
+      var accessContext = ctx.objectAccess();
+
+      boolean hasMoreInAccessChain;
+      do {
+        //Keep resolving in the chain until end of chain or a failure to resolve.
+        resolveObjectAccess(accessContext, searchOnThisSymbol);
+
+        searchOnThisSymbol = symbolAndScopeManagement.getRecordedSymbol(accessContext);
+        hasMoreInAccessChain = accessContext.objectAccess() != null && searchOnThisSymbol != null;
+        if (hasMoreInAccessChain) {
+          accessContext = accessContext.objectAccess();
+        }
+      } while (hasMoreInAccessChain);
+
+      //Now whatever is left in searchOnThisSymbol is the end of the chain and if not null we record it.
+      if (searchOnThisSymbol != null) {
+        symbolAndScopeManagement.recordSymbol(searchOnThisSymbol, ctx);
+      }
     }
     super.exitObjectAccessExpression(ctx);
   }
 
-  private void resolveObjectAccess(final EK9Parser.ObjectAccessContext ctx, final ISymbol fromThisSymbol) {
+  private void resolveObjectAccess(final EK9Parser.ObjectAccessContext ctx, final ISymbol inThisSymbol) {
     //TODO pull out to function with exitObjectAccessExpression
-    var theType = fromThisSymbol.getType();
+    var theType = inThisSymbol.getType();
     if (theType.isPresent()) {
       if (ctx.objectAccessType().identifier() != null) {
-        var identifier = ctx.objectAccessType().identifier().getText();
-        System.out.println(
-            "It's just a lookup of an identifier [" + identifier + "] on [" + theType.get().getFriendlyName() + "]");
+        var resolved = resolveFieldOrError.apply(ctx.objectAccessType().identifier(), (IScope) theType.get());
+        var typeToRecord = returnTypeExtractor.apply(resolved);
+        typeToRecord.ifPresent(type -> symbolAndScopeManagement.recordSymbol(type, ctx));
       } else if (ctx.objectAccessType().operationCall() != null) {
-        var methodCallText = ctx.objectAccessType().operationCall().getText();
-        System.out.println(
-            "It's just a lookup of a method on [" + methodCallText + "] on [" + theType.get().getFriendlyName() + "]");
+        var resolved =
+            resolveOperationCallOrError.apply(ctx.objectAccessType().operationCall(), (IScope) theType.get());
+        var typeToRecord = returnTypeExtractor.apply(resolved);
+        typeToRecord.ifPresent(type -> symbolAndScopeManagement.recordSymbol(type, ctx));
       }
     }
   }

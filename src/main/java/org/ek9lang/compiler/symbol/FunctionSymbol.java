@@ -3,6 +3,7 @@ package org.ek9lang.compiler.symbol;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.symbol.support.SymbolMatcher;
 import org.ek9lang.compiler.symbol.support.ToCommaSeparated;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 
@@ -13,6 +14,9 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
  * We need to ensure that any functions we extend have the same method signature.
  */
 public class FunctionSymbol extends PossibleGenericSymbol {
+
+  //Just used internally to check for method signature matching
+  private final SymbolMatcher matcher = new SymbolMatcher();
 
   /**
    * Keep separate variable for what we are returning because we need its name and type.
@@ -109,6 +113,20 @@ public class FunctionSymbol extends PossibleGenericSymbol {
       return Optional.of(superFunctionSymbol.get());
     }
     return Optional.empty();
+  }
+
+  /**
+   * Check if the parameter types and return types match.
+   */
+  public boolean isSignatureMatchTo(Optional<ISymbol> theirReturnType, final List<ISymbol> theirParams) {
+    List<ISymbol> ourParams = this.getSymbolsForThisScope();
+    double weight = matcher.getWeightOfParameterMatch(theirParams, ourParams);
+    if (weight < 0.0) {
+      return false;
+    }
+    weight = matcher.getWeightOfMatch(this.getType(), theirReturnType);
+
+    return weight >= 0.0;
   }
 
   public Optional<FunctionSymbol> getSuperFunctionSymbol() {

@@ -363,6 +363,8 @@ public class ErrorListener extends BaseErrorListener {
     FUNCTION_MUST_HAVE_NO_PARAMETERS("function must have no parameters"),
     FUNCTION_MUST_HAVE_SINGLE_PARAMETER("function must have a single parameter"),
     FUNCTION_MUST_HAVE_TWO_PARAMETERS("function must have a two parameters of same type"),
+    FUNCTION_PARAMETER_MISMATCH("parameter mismatch"),
+    NOT_A_FUNCTION_DELEGATE("not a function delegate"),
     PARAMETERS_MUST_BE_OF_SAME_TYPE("parameters must be of the same type"),
     STREAM_TYPE_CANNOT_CONSUME("cannot establish what type can be consumed"),
     STREAM_TYPE_CANNOT_PRODUCE("cannot establish what type can be produced by this"),

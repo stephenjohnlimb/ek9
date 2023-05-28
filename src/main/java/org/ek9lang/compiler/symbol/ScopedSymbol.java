@@ -184,6 +184,11 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   }
 
   @Override
+  public Optional<ISymbol> resolveMember(SymbolSearch search) {
+    return actualScope.resolveMember(search);
+  }
+
+  @Override
   public Optional<ScopedSymbol> findNearestNonBlockScopeInEnclosingScopes() {
     if (getScopeType().equals(ScopeType.NON_BLOCK)) {
       return Optional.of(this);

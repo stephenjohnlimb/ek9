@@ -1,0 +1,76 @@
+#!ek9
+defines module bad.functions.resolution
+
+  defines function
+
+    abstractFunction as abstract
+      -> arg0 as Integer
+      <- rtn as Integer?
+
+    echoFunction() is abstractFunction
+      -> arg0 as Integer
+      <- rtn as Integer: arg0
+
+    floatFunction()
+      -> arg0 as Float
+      <- rtn as Float: arg0
+
+    checkEchoFunction()
+      var <- echoFunction(21)
+      assert var?
+
+    checkFloatFunction1()
+      var <- floatFunction(21.9)
+      assert var?
+
+    checkFloatFunction2()
+      //Note this actually tests a coercion of Integer to Float
+      //So the integer value 21 is coerced to 21.0 and then it can match the function signature.
+      var <- floatFunction(21)
+      assert var?
+
+    checkCoercedReturnType()
+      //Here I am specific about the return but that's a mismatch, but can be coerced
+      aFloatValue as Float := echoFunction(21)
+      assert aFloatValue?
+
+    checkCanHoldFunctionAsDelegate()
+      asDelegate as abstractFunction := echoFunction
+      assert asDelegate?
+
+    checkDeveloperMistakeOfFunctionCall()
+      //So the call is a valid call, but developer thinks they have a delegate.
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      asDelegate as abstractFunction := echoFunction(21)
+      assert asDelegate?
+
+    checkDeveloperMistakeOfValueReturnedFromFunctionCall()
+      //So the name of the function is valid, but it is not used as a call
+      //here we have a reference to the function, but developer mistake thinks it is a call.
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      value as Integer := echoFunction
+      assert value?
+
+    checkBadReturnType()
+      //Here I am specific about the return but that's a mismatch
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      anIntegerValue as Integer := floatFunction(21.9)
+      assert anIntegerValue?
+
+    checkBadCallFunction1()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      var <- noSuchFunction()
+
+    checkBadCallFunction2()
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      var <- echoFunction()
+
+    checkBadCallFunction3()
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      var <- echoFunction(34.5)
+
+    checkBadCallFunction4()
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      var <- echoFunction(3, 5)
+
+//EOF
