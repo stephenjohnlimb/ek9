@@ -136,7 +136,7 @@ public class CheckValidCall implements Consumer<EK9Parser.CallContext> {
           }
         }
       } else {
-       return checkForMethodOnAggregate(ctx.start, aggregate, callIdentifier.getName(), callParams);
+        return checkForMethodOnAggregate(ctx.start, aggregate, callIdentifier.getName(), callParams);
       }
     } else if (callIdentifier instanceof FunctionSymbol function) {
       if (function.isGenericInNature()) {

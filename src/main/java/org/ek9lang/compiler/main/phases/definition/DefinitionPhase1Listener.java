@@ -969,6 +969,23 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   @Override
+  public void exitAggregateProperty(EK9Parser.AggregatePropertyContext ctx) {
+
+    //Record the same symbol at the aggregate property context as well.
+    if (ctx.variableDeclaration() != null) {
+      var field = symbolAndScopeManagement.getRecordedSymbol(ctx.variableDeclaration());
+      if (field != null) {
+        symbolAndScopeManagement.recordSymbol(field, ctx);
+      }
+    } else {
+      var field = symbolAndScopeManagement.getRecordedSymbol(ctx.variableOnlyDeclaration());
+      if (field != null) {
+        symbolAndScopeManagement.recordSymbol(field, ctx);
+      }
+    }
+  }
+
+  @Override
   public void enterAssignmentStatement(EK9Parser.AssignmentStatementContext ctx) {
     //There is nothing to record here, but we do need to plug a rule in
     checkThisAndSuperAssignmentStatement.accept(ctx);

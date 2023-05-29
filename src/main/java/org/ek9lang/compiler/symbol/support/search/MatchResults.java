@@ -63,6 +63,6 @@ public class MatchResults {
 
   @Override
   public String toString() {
-    return list().stream().map(MatchResult::toString).collect(Collectors.joining(", "));
+    return list().stream().map(result -> "'" + result + "'").collect(Collectors.joining(", "));
   }
 }

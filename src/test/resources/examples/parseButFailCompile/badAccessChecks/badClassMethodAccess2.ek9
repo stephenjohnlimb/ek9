@@ -1,9 +1,8 @@
 #!ek9
 <?-
-  Mainly used as a simple work bench to find error conditions.
-  Those conditions are then relocated into other more permanent test locations.
+  Examples of more complex access to methods on classes
 -?>
-defines module bad.generic.constructions
+defines module bad.classmethod.access2
 
   defines class
 

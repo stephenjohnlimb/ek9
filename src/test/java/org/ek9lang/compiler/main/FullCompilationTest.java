@@ -16,6 +16,7 @@ import org.ek9lang.compiler.parsing.WorkSpaceFromResourceDirectoryFiles;
 import org.ek9lang.compiler.support.DirectiveType;
 import org.ek9lang.compiler.symbol.support.ShowAllSymbolsInAllModules;
 import org.ek9lang.core.threads.SharedThreadContext;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * Abstract base for the range of different tests that are needed.
@@ -105,6 +106,10 @@ abstract class FullCompilationTest {
           counter.getAndIncrement();
           System.out.println(error);
         });
+        if(phase != upToPhase) {
+          System.out.println("Had errors before reaching phase: " + upToPhase);
+          Assertions.fail("Test result is not valid");
+        }
       }
 
       if (source.getErrorListener().hasDirectiveErrors()) {

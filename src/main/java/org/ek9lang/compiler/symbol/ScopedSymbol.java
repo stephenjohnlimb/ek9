@@ -162,6 +162,11 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   }
 
   @Override
+  public List<ISymbol> getAllSymbolsMatchingName(final String symbolName) {
+    return actualScope.getAllSymbolsMatchingName(symbolName);
+  }
+
+  @Override
   public MethodSymbolSearchResult resolveMatchingMethods(MethodSymbolSearch search,
                                                          MethodSymbolSearchResult result) {
     return actualScope.resolveMatchingMethods(search, result);

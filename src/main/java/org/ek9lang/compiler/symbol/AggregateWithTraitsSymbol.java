@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.symbol;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
@@ -101,6 +102,18 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
       }
     }
     return rtn;
+  }
+
+  @Override
+  public List<ISymbol> getAllSymbolsMatchingName(final String symbolName) {
+    List<List<ISymbol>> toBeFlattened = new ArrayList<>();
+    toBeFlattened.add(super.getAllSymbolsMatchingName(symbolName));
+    for (AggregateWithTraitsSymbol trait : traits) {
+      toBeFlattened.add(trait.getAllSymbolsMatchingName(symbolName));
+    }
+    return toBeFlattened.stream()
+        .flatMap(Collection::stream)
+        .toList();
   }
 
   @Override

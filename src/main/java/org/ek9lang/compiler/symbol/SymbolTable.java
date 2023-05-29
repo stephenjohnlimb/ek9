@@ -238,6 +238,11 @@ public class SymbolTable implements IScope {
     return Collections.unmodifiableList(orderedSymbols);
   }
 
+  @Override
+  public List<ISymbol> getAllSymbolsMatchingName(final String symbolName) {
+    return orderedSymbols.stream().filter(symbol -> symbol.getName().equals(symbolName)).toList();
+  }
+
   /**
    * Search and resolve from a symbol search.
    */

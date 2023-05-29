@@ -50,6 +50,12 @@ public interface IScope {
   List<ISymbol> getSymbolsForThisScope();
 
   /**
+   * Return a list of all the symbols that match the name.
+   * So for class and traits this must include supers and traits.
+   */
+  List<ISymbol> getAllSymbolsMatchingName(final String symbolName);
+
+  /**
    * Find the nearest symbol of that name up the scope tree.
    */
   Optional<ISymbol> resolve(SymbolSearch search);

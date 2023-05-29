@@ -33,6 +33,7 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
 
   protected final SymbolFactory symbolFactory;
 
+  protected final ErrorListener errorListener;
   private final ReturnTypeExtractor returnTypeExtractor = new ReturnTypeExtractor();
 
   private final CheckValidThisOrSuper checkValidThisOrSuper;
@@ -67,9 +68,9 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
   protected ExpressionsListener(ParsedModule parsedModule) {
     super(parsedModule);
 
-    symbolFactory = new SymbolFactory(parsedModule);
+    this.symbolFactory = new SymbolFactory(parsedModule);
 
-    ErrorListener errorListener = parsedModule.getSource().getErrorListener();
+    this.errorListener = parsedModule.getSource().getErrorListener();
 
     checkValidThisOrSuper =
         new CheckValidThisOrSuper(symbolAndScopeManagement, symbolFactory, errorListener);

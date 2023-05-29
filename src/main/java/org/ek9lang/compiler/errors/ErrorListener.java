@@ -365,6 +365,7 @@ public class ErrorListener extends BaseErrorListener {
     FUNCTION_MUST_HAVE_TWO_PARAMETERS("function must have a two parameters of same type"),
     FUNCTION_PARAMETER_MISMATCH("parameter mismatch"),
     NOT_A_FUNCTION_DELEGATE("not a function delegate"),
+    DELEGATE_AND_METHOD_NAMES_CLASH("use of a delegate and methods of same name"),
     PARAMETERS_MUST_BE_OF_SAME_TYPE("parameters must be of the same type"),
     STREAM_TYPE_CANNOT_CONSUME("cannot establish what type can be consumed"),
     STREAM_TYPE_CANNOT_PRODUCE("cannot establish what type can be produced by this"),
@@ -559,7 +560,7 @@ public class ErrorListener extends BaseErrorListener {
 
       if (fuzzySearchResults != null && fuzzySearchResults.size() > 0) {
         buffer.append(System.lineSeparator());
-        buffer.append("Nearest matches found are: ");
+        buffer.append("Matches found: ");
         buffer.append(fuzzySearchResults.toString());
       }
       return buffer.toString();

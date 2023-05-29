@@ -124,14 +124,14 @@ final class ErrorListenerTest {
 
     results.add(new MatchResult(3, new VariableSymbol("v3", integerType)));
     assertEquals(5, results.size());
-    assertEquals("top as Integer, v2 as Integer, v3 as Integer, v5 as Integer, worst as Integer",
+    assertEquals("'top as Integer', 'v2 as Integer', 'v3 as Integer', 'v5 as Integer', 'worst as Integer'",
         results.toString());
 
     //Now lets check the priority functionality by adding more
     results.add(new MatchResult(1, new VariableSymbol("v1", integerType)));
     results.add(new MatchResult(4, new VariableSymbol("v4", integerType)));
     assertEquals(5, results.size());
-    assertEquals("top as Integer, v1 as Integer, v2 as Integer, v3 as Integer, v4 as Integer",
+    assertEquals("'top as Integer', 'v1 as Integer', 'v2 as Integer', 'v3 as Integer', 'v4 as Integer'",
         results.toString());
 
     var iter = results.iterator();

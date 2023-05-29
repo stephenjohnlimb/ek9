@@ -23,7 +23,8 @@ class BadAccessChecksFullCompilationTest extends FullCompilationTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(program.getParsedModules("bad.classfield.access").isEmpty());
-    assertFalse(program.getParsedModules("bad.classmethod.access").isEmpty());
+    assertFalse(program.getParsedModules("bad.classmethod.access1").isEmpty());
+    assertFalse(program.getParsedModules("bad.classmethod.access2").isEmpty());
     assertFalse(program.getParsedModules("bad.recordfield.access").isEmpty());
   }
 }

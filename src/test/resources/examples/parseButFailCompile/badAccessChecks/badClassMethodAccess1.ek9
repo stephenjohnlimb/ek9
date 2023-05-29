@@ -1,0 +1,65 @@
+#!ek9
+<?-
+  Examples of good and bad method access on classes.
+-?>
+defines module bad.classmethod.access1
+
+  defines class
+
+    C1
+      someDelegate as delegateFunction?
+      someField <- 1
+
+      C1()
+        someDelegate := () is delegateFunction as function (rtn: arg0)
+
+      C1()
+        -> arg0 as C1
+        this()
+        assert arg0?
+
+      accessMethod1()
+        <- rtn <- 0
+
+      checkMethodResolution1()
+        value <- this.accessMethod1()
+        assert value?
+
+      checkDelegateResolution1()
+        //So looks like a method call, but is in fact a call to a function delegate.
+        value <- this.someDelegate(21)
+        assert value?
+
+      checkReferenceToDelegate()
+        //Is it possible to to refer to the delegate
+        value <- someDelegate
+        assert value?
+
+      checkDelegateResolutionBadParameterTypes()
+        @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+        value <- this.someDelegate(21.0)
+
+      checkDelegateResolutionNumberOfParameters()
+        @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+        value <- this.someDelegate(21, 22)
+
+      checkDelegateResolution()
+        //Also looks like a method call, but attempt to call on a value not a delegate
+        @Error: FULL_RESOLUTION: NOT_A_FUNCTION_DELEGATE
+        value <- this.someField(21)
+
+      checkFailedMethodResolutionNoSuchMethod()
+        @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+        value <- this.nonExistingMethod1(21, "Steve")
+
+      checkFailedMethodResolutionInCorrectNumberOfParameters()
+        @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+        value <- this.accessMethod1(21)
+
+  defines function
+
+    delegateFunction as abstract
+      -> arg0 as Integer
+      <- rtn as Integer: arg0
+
+//EOF

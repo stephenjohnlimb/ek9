@@ -2,6 +2,7 @@ package org.ek9lang.compiler.main.phases.definition;
 
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.internals.ParsedModule;
+import org.ek9lang.compiler.main.resolvedefine.CheckPossibleFieldDelegate;
 import org.ek9lang.compiler.main.resolvedefine.DynamicCaptureAndDefinition;
 import org.ek9lang.compiler.symbol.CaptureScope;
 
@@ -12,7 +13,7 @@ import org.ek9lang.compiler.symbol.CaptureScope;
  * work out what the types are (hence previous expressions must now be 'typed').
  * It will also trigger the creations of new parameterised types, from generic types and type arguments,
  * but 'just in time'.
- * Due to the ways tha antlr employer listeners, breaking up the processing of listener events in to
+ * Due to the ways tha antlr employs listeners, breaking up the processing of listener events in to
  * separate listeners in a type hierarchy seems to make most sense.
  * But the bulk of any real actual processing is pulled out to separate functions and classes.
  * So that these large and quite complex 'flows' can just focus on the event cycles and manage the scope stacks.
@@ -20,6 +21,8 @@ import org.ek9lang.compiler.symbol.CaptureScope;
 public class ResolveDefineInferredTypeListener extends ExpressionsListener {
 
   private final DynamicCaptureAndDefinition dynamicCaptureAndDefinition;
+  private final CheckPossibleFieldDelegate checkPossibleFieldDelegate;
+
 
   /**
    * Create a new instance to define or resolve inferred types.
@@ -27,6 +30,8 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
   public ResolveDefineInferredTypeListener(ParsedModule parsedModule) {
     super(parsedModule);
     dynamicCaptureAndDefinition = new DynamicCaptureAndDefinition(symbolAndScopeManagement, symbolFactory);
+
+    checkPossibleFieldDelegate = new CheckPossibleFieldDelegate(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -42,5 +47,13 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
     dynamicCaptureAndDefinition.accept(ctx);
     scope.setOpenToEnclosingScope(false);
     super.exitDynamicVariableCapture(ctx);
+  }
+
+  @Override
+  public void exitAggregateProperty(EK9Parser.AggregatePropertyContext ctx) {
+    var field = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    checkPossibleFieldDelegate.accept(field);
+
+    super.exitAggregateProperty(ctx);
   }
 }
