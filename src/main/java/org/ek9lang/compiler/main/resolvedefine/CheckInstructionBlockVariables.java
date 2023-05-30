@@ -4,23 +4,21 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.ISymbol;
 
 /**
  * Checks that variable only and variable declarations have symbols that have been referenced/initialised.
  */
-public class CheckInstructionBlockVariables implements Consumer<EK9Parser.InstructionBlockContext> {
+public class CheckInstructionBlockVariables extends RuleSupport implements Consumer<EK9Parser.InstructionBlockContext> {
 
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
-  private final ErrorListener errorListener;
 
   /**
    * Check on references to variables in blocks.
    */
   public CheckInstructionBlockVariables(final SymbolAndScopeManagement symbolAndScopeManagement,
                                         final ErrorListener errorListener) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
-    this.errorListener = errorListener;
+    super(symbolAndScopeManagement, errorListener);
   }
 
   @Override

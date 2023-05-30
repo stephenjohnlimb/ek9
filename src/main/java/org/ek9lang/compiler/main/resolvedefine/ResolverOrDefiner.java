@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
@@ -13,23 +14,18 @@ import org.ek9lang.core.exception.AssertValue;
 /**
  * Used as an abstract base for parameterised types.
  */
-public abstract class ResolverOrDefiner {
+public abstract class ResolverOrDefiner extends RuleSupport {
 
-  protected final SymbolAndScopeManagement symbolAndScopeManagement;
   protected final SymbolFactory symbolFactory;
-  protected final ErrorListener errorListener;
   protected final boolean errorIfNotDefinedOrResolved;
 
   protected ResolverOrDefiner(final SymbolAndScopeManagement symbolAndScopeManagement,
                                  final SymbolFactory symbolFactory, final ErrorListener errorListener,
                                  final boolean errorIfNotDefinedOrResolved) {
-    AssertValue.checkNotNull("symbolAndScopeManagement cannot be null", symbolAndScopeManagement);
+    super(symbolAndScopeManagement, errorListener);
     AssertValue.checkNotNull("symbolFactory cannot be null", symbolFactory);
-    AssertValue.checkNotNull("errorListener cannot be null", errorListener);
 
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
     this.symbolFactory = symbolFactory;
-    this.errorListener = errorListener;
     this.errorIfNotDefinedOrResolved = errorIfNotDefinedOrResolved;
   }
 

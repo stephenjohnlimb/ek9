@@ -28,7 +28,7 @@ public class CheckVariableAssignmentDeclaration implements Consumer<EK9Parser.Va
                                             final ErrorListener errorListener) {
     this.symbolAndScopeManagement = symbolAndScopeManagement;
     this.errorListener = errorListener;
-    this.checkTypesCompatible = new CheckTypesCompatible(errorListener);
+    this.checkTypesCompatible = new CheckTypesCompatible(symbolAndScopeManagement, errorListener);
   }
 
   @Override

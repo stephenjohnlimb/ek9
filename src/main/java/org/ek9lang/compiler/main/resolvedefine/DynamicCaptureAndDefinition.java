@@ -2,23 +2,26 @@ package org.ek9lang.compiler.main.resolvedefine;
 
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.CaptureScope;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
 
 /**
  * Resolves the variables to be captured and defines new variable symbols against the appropriate scopes.
  */
-public class DynamicCaptureAndDefinition implements Consumer<EK9Parser.DynamicVariableCaptureContext> {
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
+public class DynamicCaptureAndDefinition extends RuleSupport
+    implements Consumer<EK9Parser.DynamicVariableCaptureContext> {
   private final SymbolFactory symbolFactory;
 
   /**
    * Define new variables in the capture scope as they are resolved.
    */
   public DynamicCaptureAndDefinition(final SymbolAndScopeManagement symbolAndScopeManagement,
+                                     final ErrorListener errorListener,
                                      final SymbolFactory symbolFactory) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
+    super(symbolAndScopeManagement, errorListener);
     this.symbolFactory = symbolFactory;
   }
 

@@ -4,17 +4,14 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 
 /**
  * Used for pure identifier resolution and recording. Rather than identifierReferences.
  */
-public class ResolveIdentifierOrError implements Function<EK9Parser.IdentifierContext, ISymbol> {
-
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
-
-  private final ErrorListener errorListener;
+public class ResolveIdentifierOrError extends RuleSupport implements Function<EK9Parser.IdentifierContext, ISymbol> {
 
   /**
    * Searches for an identifier and issues an error if it is not resolved.
@@ -24,8 +21,7 @@ public class ResolveIdentifierOrError implements Function<EK9Parser.IdentifierCo
    */
   public ResolveIdentifierOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                                   final ErrorListener errorListener) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
-    this.errorListener = errorListener;
+    super(symbolAndScopeManagement, errorListener);
   }
 
   @Override

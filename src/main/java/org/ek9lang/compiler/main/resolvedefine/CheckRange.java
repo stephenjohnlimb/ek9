@@ -6,6 +6,7 @@ import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.CommonTypeSuperOrTrait;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
@@ -15,12 +16,10 @@ import org.ek9lang.compiler.symbol.support.SymbolFactory;
  * Then if types are present on the two parts of the range it will check those types
  * and/or issue errors if they are incompatible.
  */
-public class CheckRange implements Consumer<EK9Parser.RangeContext> {
+public class CheckRange extends RuleSupport implements Consumer<EK9Parser.RangeContext> {
 
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
 
   private final SymbolFactory symbolFactory;
-  private final ErrorListener errorListener;
 
   private final CommonTypeSuperOrTrait commonTypeSuperOrTrait;
 
@@ -30,10 +29,9 @@ public class CheckRange implements Consumer<EK9Parser.RangeContext> {
   public CheckRange(final SymbolAndScopeManagement symbolAndScopeManagement,
                     final SymbolFactory symbolFactory,
                     final ErrorListener errorListener) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
+    super(symbolAndScopeManagement, errorListener);
     this.symbolFactory = symbolFactory;
-    this.errorListener = errorListener;
-
+    
     this.commonTypeSuperOrTrait = new CommonTypeSuperOrTrait(errorListener);
   }
 

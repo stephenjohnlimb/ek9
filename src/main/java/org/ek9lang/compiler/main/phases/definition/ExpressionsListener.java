@@ -88,7 +88,7 @@ public abstract class ExpressionsListener extends ScopeStackConsistencyListener 
         new CheckInstructionBlockVariables(symbolAndScopeManagement, errorListener);
 
     checkAssignmentExpression =
-        new CheckAssignmentExpression(symbolAndScopeManagement);
+        new CheckAssignmentExpression(symbolAndScopeManagement, errorListener);
 
     checkAssignmentStatement =
         new CheckAssignmentStatement(symbolAndScopeManagement, errorListener);

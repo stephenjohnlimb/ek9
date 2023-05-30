@@ -7,6 +7,7 @@ import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.main.rules.OperationIsAssignment;
 import org.ek9lang.compiler.main.rules.RefersToSameSymbol;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.search.MethodSearchInScope;
@@ -16,10 +17,7 @@ import org.ek9lang.core.exception.AssertValue;
 /**
  * Used in the full resolution phase to check assignments.
  */
-public class CheckAssignmentStatement implements Consumer<EK9Parser.AssignmentStatementContext> {
-
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
-  private final ErrorListener errorListener;
+public class CheckAssignmentStatement extends RuleSupport implements Consumer<EK9Parser.AssignmentStatementContext> {
 
   private final OperationIsAssignment operationIsAssignment = new OperationIsAssignment();
 
@@ -37,10 +35,9 @@ public class CheckAssignmentStatement implements Consumer<EK9Parser.AssignmentSt
    */
   public CheckAssignmentStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
                                   final ErrorListener errorListener) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
-    this.errorListener = errorListener;
+    super(symbolAndScopeManagement, errorListener);
 
-    this.checkTypesCompatible = new CheckTypesCompatible(errorListener);
+    this.checkTypesCompatible = new CheckTypesCompatible(symbolAndScopeManagement, errorListener);
     this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
     this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
 

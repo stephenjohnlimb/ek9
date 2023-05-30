@@ -2,7 +2,9 @@ package org.ek9lang.compiler.main.resolvedefine;
 
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.core.exception.AssertValue;
 
@@ -10,16 +12,15 @@ import org.ek9lang.core.exception.AssertValue;
  * Just really pulls up the appropriate symbol from the expression into this context.
  * May add additional check in here in the future.
  */
-public class CheckAssignmentExpression implements Consumer<EK9Parser.AssignmentExpressionContext> {
+public class CheckAssignmentExpression extends RuleSupport implements Consumer<EK9Parser.AssignmentExpressionContext> {
 
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
 
   /**
    * Check on references to variables in blocks.
    */
-  public CheckAssignmentExpression(final SymbolAndScopeManagement symbolAndScopeManagement) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
-
+  public CheckAssignmentExpression(final SymbolAndScopeManagement symbolAndScopeManagement,
+                                   final ErrorListener errorListener) {
+    super(symbolAndScopeManagement, errorListener);
   }
 
   @Override

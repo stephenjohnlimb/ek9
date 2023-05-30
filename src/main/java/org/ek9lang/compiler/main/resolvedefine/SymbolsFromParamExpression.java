@@ -6,6 +6,7 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.ISymbol;
 
 /**
@@ -13,12 +14,14 @@ import org.ek9lang.compiler.symbol.ISymbol;
  * So you may not actually get a symbol for every expression. Check the sizing. But there will be semantic errors
  * emitted.
  */
-public class SymbolsFromParamExpression implements Function<EK9Parser.ParamExpressionContext, List<ISymbol>> {
+public class SymbolsFromParamExpression extends RuleSupport
+    implements Function<EK9Parser.ParamExpressionContext, List<ISymbol>> {
 
   private final SymbolFromContextOrError symbolFromContextOrError;
 
   public SymbolsFromParamExpression(final SymbolAndScopeManagement symbolAndScopeManagement,
                                     final ErrorListener errorListener) {
+    super(symbolAndScopeManagement, errorListener);
     this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
   }
 

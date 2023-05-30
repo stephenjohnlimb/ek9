@@ -162,7 +162,8 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     checkProtectedServiceMethods = new CheckProtectedServiceMethods(errorListener);
     checkNotABooleanLiteral = new CheckNotABooleanLiteral(errorListener);
     checkGenericConstructor = new CheckGenericConstructor(errorListener);
-    checkApplicationUseOnMethodDeclaration = new CheckApplicationUseOnMethodDeclaration(errorListener);
+    checkApplicationUseOnMethodDeclaration =
+        new CheckApplicationUseOnMethodDeclaration(symbolAndScopeManagement, errorListener);
     checkReturningParam = new CheckReturningParam(errorListener);
     checkProgramReturns = new CheckProgramReturns(errorListener);
     checkProgramArguments = new CheckProgramArguments(errorListener);

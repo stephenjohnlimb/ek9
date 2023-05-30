@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.search.MethodSearchInScope;
@@ -14,9 +15,8 @@ import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
  * Pulls the type from the 'range' into the loop variable, so it is correctly typed.
  * Also checks that if the 'by' literal or identifier is used that the type is compatible with the range.
  */
-public class CheckForRange implements Consumer<EK9Parser.ForRangeContext> {
+public class CheckForRange extends RuleSupport implements Consumer<EK9Parser.ForRangeContext> {
 
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
   private final ResolveIdentifierOrError resolveIdentifierOrError;
   private final ResolveMethodOrError resolveMethodOrError;
 
@@ -25,7 +25,7 @@ public class CheckForRange implements Consumer<EK9Parser.ForRangeContext> {
    */
   public CheckForRange(final SymbolAndScopeManagement symbolAndScopeManagement,
                        final ErrorListener errorListener) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
+    super(symbolAndScopeManagement, errorListener);
     this.resolveIdentifierOrError = new ResolveIdentifierOrError(symbolAndScopeManagement, errorListener);
     this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
   }

@@ -5,6 +5,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.core.exception.AssertValue;
 
@@ -12,19 +13,16 @@ import org.ek9lang.core.exception.AssertValue;
  * Ensures that 'primary' is now resolved and 'typed' or a not resolved error.
  * There was a placeholder in for primary, that can now be replaced with the real resolved symbol.
  */
-public class CheckValidPrimary implements Consumer<EK9Parser.PrimaryContext> {
+public class CheckValidPrimary extends RuleSupport implements Consumer<EK9Parser.PrimaryContext> {
 
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
 
-  private final ErrorListener errorListener;
 
   /**
    * Check Primary resolves and attempt to 'type' it.
    */
   public CheckValidPrimary(final SymbolAndScopeManagement symbolAndScopeManagement,
                            final ErrorListener errorListener) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
-    this.errorListener = errorListener;
+    super(symbolAndScopeManagement, errorListener);
   }
 
   @Override

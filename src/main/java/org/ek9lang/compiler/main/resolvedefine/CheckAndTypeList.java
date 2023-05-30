@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.CommonTypeSuperOrTrait;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
@@ -15,9 +16,7 @@ import org.ek9lang.core.exception.AssertValue;
 /**
  * Creates an ek9 list of a specific type if the expressions are typed correctly.
  */
-public class CheckAndTypeList implements Consumer<EK9Parser.ListContext> {
-
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
+public class CheckAndTypeList extends RuleSupport implements Consumer<EK9Parser.ListContext> {
 
   private final NewParameterisedType newParameterisedType;
   private final CommonTypeSuperOrTrait commonTypeSuperOrTrait;
@@ -28,7 +27,7 @@ public class CheckAndTypeList implements Consumer<EK9Parser.ListContext> {
   public CheckAndTypeList(final SymbolAndScopeManagement symbolAndScopeManagement,
                           final SymbolFactory symbolFactory,
                           final ErrorListener errorListener) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
+    super(symbolAndScopeManagement, errorListener);
 
     this.newParameterisedType =
         new NewParameterisedType(symbolAndScopeManagement, symbolFactory, errorListener, true);

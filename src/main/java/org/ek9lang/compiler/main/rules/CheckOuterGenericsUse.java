@@ -4,14 +4,13 @@ import java.util.function.Consumer;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.IScopedSymbol;
 
 /**
  * Only use when code being checked prohibits use in outer generic context.
  */
-public class CheckOuterGenericsUse implements Consumer<Token> {
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
-  private final ErrorListener errorListener;
+public class CheckOuterGenericsUse extends RuleSupport implements Consumer<Token> {
 
   private final ErrorListener.SemanticClassification errorClassification;
 
@@ -22,8 +21,7 @@ public class CheckOuterGenericsUse implements Consumer<Token> {
   public CheckOuterGenericsUse(final SymbolAndScopeManagement symbolAndScopeManagement,
                                final ErrorListener errorListener,
                                final ErrorListener.SemanticClassification errorClassification) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
-    this.errorListener = errorListener;
+    super(symbolAndScopeManagement, errorListener);
     this.errorClassification = errorClassification;
   }
 

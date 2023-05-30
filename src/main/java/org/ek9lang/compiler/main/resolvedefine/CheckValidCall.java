@@ -6,6 +6,7 @@ import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.CallSymbol;
 import org.ek9lang.compiler.symbol.FunctionSymbol;
@@ -22,13 +23,10 @@ import org.ek9lang.core.exception.AssertValue;
 /**
  * TODO lots of tidying up.
  */
-public class CheckValidCall implements Consumer<EK9Parser.CallContext> {
+public class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.CallContext> {
 
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
 
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
-
-  private final ErrorListener errorListener;
   private final ResolveMethodOrError resolveMethodOrError;
 
   private final ResolveFunctionOrError resolveFunctionOrError;
@@ -45,8 +43,7 @@ public class CheckValidCall implements Consumer<EK9Parser.CallContext> {
   public CheckValidCall(final SymbolAndScopeManagement symbolAndScopeManagement,
                         final SymbolFactory symbolFactory,
                         final ErrorListener errorListener) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
-    this.errorListener = errorListener;
+    super(symbolAndScopeManagement, errorListener);
     this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
     this.resolveFunctionOrError = new ResolveFunctionOrError(symbolAndScopeManagement, errorListener);
     this.newParameterisedType = new NewParameterisedType(symbolAndScopeManagement, symbolFactory, errorListener, true);

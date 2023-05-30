@@ -6,6 +6,7 @@ import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
@@ -16,12 +17,10 @@ import org.ek9lang.core.exception.AssertValue;
  * This is a beast and will have to delegate parts, as there are just some many types of expression.
  * TODO lot's of splitting of this logic up, because this is the 'beast'.
  */
-public class CheckValidExpression implements Consumer<EK9Parser.ExpressionContext> {
-
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
+public class CheckValidExpression extends RuleSupport implements Consumer<EK9Parser.ExpressionContext> {
 
   private final SymbolFactory symbolFactory;
-  private final ErrorListener errorListener;
+
 
   /**
    * Check Primary resolves and attempt to 'type' it.
@@ -29,9 +28,8 @@ public class CheckValidExpression implements Consumer<EK9Parser.ExpressionContex
   public CheckValidExpression(final SymbolAndScopeManagement symbolAndScopeManagement,
                               final SymbolFactory symbolFactory,
                               final ErrorListener errorListener) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
+    super(symbolAndScopeManagement, errorListener);
     this.symbolFactory = symbolFactory;
-    this.errorListener = errorListener;
   }
 
   @Override

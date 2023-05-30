@@ -5,6 +5,7 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
@@ -13,20 +14,16 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 /**
  * Ensures that 'identifierReference' is now resolved and hangs together and 'typed' or a not resolved error.
  */
-public class CheckValidIdentifierReference
+public class CheckValidIdentifierReference extends RuleSupport
     implements Function<EK9Parser.IdentifierReferenceContext, Optional<ISymbol>> {
 
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
-
-  private final ErrorListener errorListener;
 
   /**
    * Checks identifier reference now resolves.
    */
   public CheckValidIdentifierReference(final SymbolAndScopeManagement symbolAndScopeManagement,
                                        final ErrorListener errorListener) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
-    this.errorListener = errorListener;
+    super(symbolAndScopeManagement, errorListener);
   }
 
   @Override

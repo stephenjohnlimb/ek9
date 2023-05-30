@@ -4,6 +4,7 @@ import java.util.function.BiFunction;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.MethodSymbol;
 import org.ek9lang.compiler.symbol.support.search.MethodSearchInScope;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
@@ -12,10 +13,8 @@ import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
  * Given a search for a method on an aggregate, this function will try and locate the method.
  * But if not found or ambiguous it will issue errors.
  */
-public class ResolveMethodOrError implements BiFunction<Token, MethodSearchInScope, MethodSymbol> {
+public class ResolveMethodOrError extends RuleSupport implements BiFunction<Token, MethodSearchInScope, MethodSymbol> {
 
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
-  private final ErrorListener errorListener;
   private final MostSpecificScope mostSpecificScope;
   private final CheckAccessToSymbol checkAccessToSymbol;
 
@@ -24,10 +23,9 @@ public class ResolveMethodOrError implements BiFunction<Token, MethodSearchInSco
    */
   public ResolveMethodOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                               final ErrorListener errorListener) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
-    this.errorListener = errorListener;
-    this.mostSpecificScope = new MostSpecificScope(symbolAndScopeManagement);
-    this.checkAccessToSymbol = new CheckAccessToSymbol(errorListener);
+    super(symbolAndScopeManagement, errorListener);
+    this.mostSpecificScope = new MostSpecificScope(symbolAndScopeManagement, errorListener);
+    this.checkAccessToSymbol = new CheckAccessToSymbol(symbolAndScopeManagement, errorListener);
   }
 
   @Override

@@ -6,6 +6,7 @@ import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.ISymbol;
@@ -19,13 +20,10 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 /**
  * Used for resolving operation calls on aggregates.
  */
-public class ResolveOperationCallOrError implements BiFunction<EK9Parser.OperationCallContext, IScope, ISymbol> {
+public class ResolveOperationCallOrError extends RuleSupport
+    implements BiFunction<EK9Parser.OperationCallContext, IScope, ISymbol> {
 
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
-
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
-
-  private final ErrorListener errorListener;
 
   private final ResolveMethodOrError resolveMethodOrError;
 
@@ -38,8 +36,7 @@ public class ResolveOperationCallOrError implements BiFunction<EK9Parser.Operati
    */
   public ResolveOperationCallOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                                      final ErrorListener errorListener) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
-    this.errorListener = errorListener;
+    super(symbolAndScopeManagement, errorListener);
 
     this.symbolsFromParamExpression = new SymbolsFromParamExpression(symbolAndScopeManagement, errorListener);
 

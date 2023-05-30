@@ -2,17 +2,18 @@ package org.ek9lang.compiler.main.resolvedefine;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 
 /**
  * Check that a symbol can be accessed issues error if not possible.
  */
-public class CheckAccessToSymbol implements Consumer<CheckSymbolAccessData> {
+public class CheckAccessToSymbol extends RuleSupport implements Consumer<CheckSymbolAccessData> {
 
-  private final ErrorListener errorListener;
-
-  public CheckAccessToSymbol(final ErrorListener errorListener) {
-    this.errorListener = errorListener;
+  public CheckAccessToSymbol(final SymbolAndScopeManagement symbolAndScopeManagement,
+                             final ErrorListener errorListener) {
+    super(symbolAndScopeManagement, errorListener);
   }
 
   @Override

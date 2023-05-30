@@ -8,16 +8,15 @@ import java.util.stream.Collectors;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.ISymbol;
 
 /**
  * Checks for a type is resolved and is suitable genus and category.
  */
-public class CheckSuitableGenus implements Function<ParserRuleContext, Optional<ISymbol>> {
+public class CheckSuitableGenus extends RuleSupport implements Function<ParserRuleContext, Optional<ISymbol>> {
 
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
   private final List<ISymbol.SymbolGenus> supportedGenus = new ArrayList<>();
-  private final ErrorListener errorListener;
 
   private final boolean issueErrorIfNotResolved;
 
@@ -43,8 +42,7 @@ public class CheckSuitableGenus implements Function<ParserRuleContext, Optional<
                             final List<ISymbol.SymbolGenus> genus,
                             final boolean allowTemplates,
                             final boolean issueErrorIfNotResolved) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
-    this.errorListener = errorListener;
+    super(symbolAndScopeManagement, errorListener);
     this.supportedGenus.addAll(genus);
     this.issueErrorIfNotResolved = issueErrorIfNotResolved;
     this.allowTemplates = allowTemplates;

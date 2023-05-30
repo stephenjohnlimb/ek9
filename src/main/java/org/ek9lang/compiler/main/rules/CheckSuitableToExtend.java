@@ -7,6 +7,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
@@ -16,10 +17,7 @@ import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
  * This does not include the 'allows only' graph that has to be done one the whole type hierarchy has been
  * established.
  */
-public class CheckSuitableToExtend implements Function<ParserRuleContext, Optional<ISymbol>> {
-
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
-  private final ErrorListener errorListener;
+public class CheckSuitableToExtend extends RuleSupport implements Function<ParserRuleContext, Optional<ISymbol>> {
 
   private final CheckSuitableGenus checkSuitableGenus;
 
@@ -41,8 +39,7 @@ public class CheckSuitableToExtend implements Function<ParserRuleContext, Option
                                final ErrorListener errorListener,
                                final List<ISymbol.SymbolGenus> genus,
                                final boolean issueErrorIfNotResolved) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
-    this.errorListener = errorListener;
+    super(symbolAndScopeManagement, errorListener);
     this.checkSuitableGenus =
         new CheckSuitableGenus(symbolAndScopeManagement, errorListener, genus, true, issueErrorIfNotResolved);
   }

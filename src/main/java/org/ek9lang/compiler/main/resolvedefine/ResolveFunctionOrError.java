@@ -3,6 +3,7 @@ package org.ek9lang.compiler.main.resolvedefine;
 import java.util.function.Function;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.support.SymbolTypeExtractor;
 import org.ek9lang.compiler.symbol.support.ToCommaSeparated;
@@ -10,16 +11,14 @@ import org.ek9lang.compiler.symbol.support.ToCommaSeparated;
 /**
  * Check for valid function parameters.
  */
-public class ResolveFunctionOrError implements Function<FunctionCheckData, FunctionSymbol> {
+public class ResolveFunctionOrError extends RuleSupport implements Function<FunctionCheckData, FunctionSymbol> {
 
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
-  private final ErrorListener errorListener;
 
   public ResolveFunctionOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                                 final ErrorListener errorListener) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
-    this.errorListener = errorListener;
+    super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override

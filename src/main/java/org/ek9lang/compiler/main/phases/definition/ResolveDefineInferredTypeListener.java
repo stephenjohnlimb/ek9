@@ -29,7 +29,8 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
    */
   public ResolveDefineInferredTypeListener(ParsedModule parsedModule) {
     super(parsedModule);
-    dynamicCaptureAndDefinition = new DynamicCaptureAndDefinition(symbolAndScopeManagement, symbolFactory);
+    dynamicCaptureAndDefinition =
+        new DynamicCaptureAndDefinition(symbolAndScopeManagement, errorListener, symbolFactory);
 
     checkPossibleFieldDelegate = new CheckPossibleFieldDelegate(symbolAndScopeManagement, errorListener);
   }

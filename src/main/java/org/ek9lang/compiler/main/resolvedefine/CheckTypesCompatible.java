@@ -2,6 +2,8 @@ package org.ek9lang.compiler.main.resolvedefine;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.support.SymbolMatcher;
 
 /**
@@ -10,16 +12,17 @@ import org.ek9lang.compiler.symbol.support.SymbolMatcher;
  * compatible means supers or traits are compatible or that the second var type can be
  * coerced to the first.
  */
-public class CheckTypesCompatible implements Consumer<TypeCompatibilityData> {
-  private final ErrorListener errorListener;
+public class CheckTypesCompatible extends RuleSupport implements Consumer<TypeCompatibilityData> {
 
   private final SymbolMatcher matcher = new SymbolMatcher();
 
   /**
    * Check symbols with types have compatible types.
    */
-  public CheckTypesCompatible(final ErrorListener errorListener) {
-    this.errorListener = errorListener;
+  public CheckTypesCompatible(final SymbolAndScopeManagement symbolAndScopeManagement,
+                              final ErrorListener errorListener) {
+    super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override

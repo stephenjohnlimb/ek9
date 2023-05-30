@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
@@ -20,9 +21,7 @@ import org.ek9lang.compiler.symbol.support.ToCommaSeparated;
  * But allowing applications, functions and programs to refer to themselves might be useful in
  * passing themselves as parameters to other functions in some way
  */
-public class CheckValidThisOrSuper implements Consumer<ParserRuleContext> {
-
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
+public class CheckValidThisOrSuper extends RuleSupport implements Consumer<ParserRuleContext> {
 
   private final SymbolFactory symbolFactory;
   private final List<ISymbol.SymbolGenus> supportedThisAndSuperGenus = List.of(ISymbol.SymbolGenus.CLASS,
@@ -33,8 +32,6 @@ public class CheckValidThisOrSuper implements Consumer<ParserRuleContext> {
           ISymbol.SymbolGenus.TEXT, ISymbol.SymbolGenus.FUNCTION, ISymbol.SymbolGenus.FUNCTION_TRAIT,
           ISymbol.SymbolGenus.GENERAL_APPLICATION, ISymbol.SymbolGenus.CLASS_ENUMERATION,
           ISymbol.SymbolGenus.SERVICE_APPLICATION, ISymbol.SymbolGenus.PROGRAM);
-  private final ErrorListener errorListener;
-
 
   /**
    * Checks that this/super passed in is a suitable genus.
@@ -42,9 +39,8 @@ public class CheckValidThisOrSuper implements Consumer<ParserRuleContext> {
   public CheckValidThisOrSuper(final SymbolAndScopeManagement symbolAndScopeManagement,
                                final SymbolFactory symbolFactory,
                                final ErrorListener errorListener) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
+    super(symbolAndScopeManagement, errorListener);
     this.symbolFactory = symbolFactory;
-    this.errorListener = errorListener;
   }
 
   @Override
