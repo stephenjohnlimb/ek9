@@ -1,0 +1,62 @@
+#!ek9
+<?-
+  Just checks for duplicate methods and access modifiers on traits.
+-?>
+defines module bad.duplicate.traitmethods
+
+  defines trait
+
+    T1
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      duplicateMethod1()
+        -> arg0 as Duration
+        <- rtn as Integer?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      duplicateMethod1()
+        -> arg0 as Duration
+        <- rtn as Integer?
+
+    T2
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      duplicateMethod2()
+        -> arg0 as Time
+        <- rtn <- 1.0
+
+      //Check duplicate methods in same class errors, even with a different return type.
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      duplicateMethod2()
+        -> arg0 as Time
+        <- rtn <- "Different return type"
+
+    <?-
+      So no error here, because while the method names are the same the parameters differ.
+    -?>
+    T3
+      method1()
+        -> arg0 as Integer
+        <- rtn <- 1
+
+      method1()
+        -> arg0 as Float
+        <- rtn <- 1
+
+    T4
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_NOT_REQUIRED_IN_TRAIT
+      private traitsDoNotAllowPrivateMethods()
+        -> arg0 as Integer
+        <- rtn <- 1
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_NOT_REQUIRED_IN_TRAIT
+      protected traitsDoNotAllowProtectedMethods()
+        -> arg0 as Integer
+        <- rtn <- 1
+
+      <?-
+        This is OK, by default it is traitMethodsDoNotRequireToBeMarkedAsPublic
+      -?>
+      traitMethodsDoNotRequireToBeMarkedAsPublic()
+        -> arg0 as Integer
+        <- rtn <- 1
+
+//EOF

@@ -17,7 +17,7 @@ class BadGenericConstructionsFullCompilationTest extends FullCompilationTest {
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
   }
 
   @Override

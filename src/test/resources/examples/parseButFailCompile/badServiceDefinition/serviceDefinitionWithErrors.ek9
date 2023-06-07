@@ -49,7 +49,5 @@ defines module bad.services.use
       getNotOK()
         <- rtn as String: "NOT OK"
 
-      @Error: SYMBOL_DEFINITION: METHOD_MODIFIER_PROTECTED_IN_SERVICE
-      protected notAllowed()
-        <- rtn as String: "Will be caught by compiler"
+      //See other tests for checking protected methods.
 //EOF

@@ -76,7 +76,7 @@ defines module bad.classfield.access
 
         assert check?
 
-      cannotAccessSuperPrivateField1()
+      cannotAccessSuperPrivateField2()
         @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
         check <- super.anotherField
         assert check?

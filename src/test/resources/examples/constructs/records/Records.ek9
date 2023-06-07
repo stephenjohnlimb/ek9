@@ -77,16 +77,6 @@ defines module com.customer.records
         this.lastName: lastName
         this.dateOfBirth: dateOfBirth
 
-      setFirstName()
-        -> newName as String
-        //Don't allow "newName as String?" that way we stop null/uninitialised being passed around.
-        this.firstName :=: newName
-        //So we want to force this - and we want the pain of the if statement - don't make it too easy
-        //we're trying to remove the use of possible null all together.
-        if newName?
-          this.firstName :=: newName
-
-
       operator :=:
         -> item as CustomerDetail
         id :=: item.id

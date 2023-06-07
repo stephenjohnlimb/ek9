@@ -53,7 +53,7 @@ defines module bad.assignments.classes
         @Error: FULL_RESOLUTION: SELF_ASSIGNMENT
         val1 :=: val1
 
-      someMethod1()
+      someMethod7()
         <- rtn as C1?
         //This is not allowed because rtn has not been initialised
         @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED

@@ -1,0 +1,92 @@
+#!ek9
+<?-
+  Duplicate and protected use errors.
+-?>
+defines module bad.duplicate.servicemethods
+
+    defines service
+
+      <?-
+        Just check to duplicate constructors first
+      -?>
+      S1 for :/site1
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        S1()
+          var <- "Steve"
+          assert var?
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        S1()
+          var <- "Steve"
+          assert var?
+
+      <?-
+        Later on add some checks for different methods but to the same uri.
+      -?>
+      S2 for :/site2
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        index() as GET for :/index.html
+          <- response as HTTPResponse: () with trait of HTTPResponse
+            override contentType()
+              <- rtn as String: "text/plain"
+            override content()
+              <- rtn as String: "Hello, World"
+            override status()
+              <- rtn as Integer: 200
+
+        //Now create duplicate web service method
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        index() as GET for :/siteMap.html
+          <- response as HTTPResponse: () with trait of HTTPResponse
+            override contentType()
+              <- rtn as String: "text/plain"
+            override content()
+              <- rtn as String: "Hello, World"
+            override status()
+              <- rtn as Integer: 200
+
+      <?-
+        Now try a mix of duplicate normal methods and web service methods.
+      -?>
+      S3 for :/site3
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        index() as GET for :/index.html
+          <- response as HTTPResponse: () with trait of HTTPResponse
+            override contentType()
+              <- rtn as String: "text/plain"
+            override content()
+              <- rtn as String: "Hello, World"
+            override status()
+              <- rtn as Integer: 200
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        index()
+          <- rtn <- 0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        operator += :/
+          -> request as HTTPRequest :=: REQUEST
+          <- response as HTTPResponse: () with trait of HTTPResponse
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        operator += :/
+          -> request as HTTPRequest :=: REQUEST
+          <- response as HTTPResponse: () with trait of HTTPResponse
+
+      <?-
+        Check for access modifiers on normal non-web service methods.
+      -?>
+      S4 for :/site4
+
+        //This is OK
+        private index1()
+          <- rtn <- 0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_PROTECTED_IN_SERVICE
+        protected index2()
+          <- rtn <- 0
+
+//EOF

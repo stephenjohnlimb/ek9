@@ -1,0 +1,38 @@
+#!ek9
+<?-
+  Check duplicated methods and invalid use of protected modifier in components.
+-?>
+defines module bad.duplicate.componentmethods
+
+
+    defines component
+
+      <?-
+        Just check to duplicate constructors first
+      -?>
+      S1
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        S1()
+          var <- "Steve"
+          assert var?
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        S1()
+          var <- "Steve"
+          assert var?
+
+      <?-
+        Check for access modifiers on methods.
+      -?>
+      S2
+
+        //This is OK
+        private index1()
+          <- rtn <- 0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_PROTECTED_IN_COMPONENT
+        protected index2()
+          <- rtn <- 0
+
+//EOF

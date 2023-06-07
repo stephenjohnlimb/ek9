@@ -747,6 +747,12 @@ defines extern module org.ek9.lang
     HTTPRequest as open
 
     HTTPResponse as open
+      contentType()
+        <- rtn as String: "text/plain"
+      content()
+        <- rtn as String: ""
+      status()
+        <- rtn as Integer: 404
 
     TCPConnection as open
 """;

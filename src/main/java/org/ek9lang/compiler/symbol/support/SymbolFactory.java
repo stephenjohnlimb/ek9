@@ -221,7 +221,7 @@ public class SymbolFactory {
 
     String programName = ctx.identifier().getText();
     AggregateSymbol program = new AggregateSymbol(programName, parsedModule.getModuleScope());
-    configureAggregate(program, ctx.start);
+    configureAggregate(program, ctx.identifier().start);
 
     //It is not necessary to wire in an application configuration to be used.
     //But if present then it will be named here. In the resolve phase we will check it.
@@ -530,7 +530,7 @@ public class SymbolFactory {
     String methodName = ctx.operator().getText();
     MethodSymbol method = new MethodSymbol(methodName, scopedSymbol);
 
-    configureSymbol(method, ctx.start);
+    configureSymbol(method, ctx.operator().start);
     var markedPure = ctx.PURE() != null;
 
     method.setOverride(ctx.OVERRIDE() != null);
@@ -592,7 +592,7 @@ public class SymbolFactory {
 
     MethodSymbol method = new MethodSymbol(methodName, scopedSymbol);
 
-    configureSymbol(method, ctx.start);
+    configureSymbol(method, ctx.identifier().start);
 
     method.setOverride(ctx.OVERRIDE() != null);
     method.setMarkedAbstract(ctx.ABSTRACT() != null);

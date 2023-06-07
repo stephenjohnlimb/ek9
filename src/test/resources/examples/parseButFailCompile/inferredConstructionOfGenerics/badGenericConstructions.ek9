@@ -2,45 +2,21 @@
 <?-
   Mainly used as a simple work bench to find error conditions.
   Those conditions are then relocated into other more permanent test locations.
+
+  //TODO create tests with duplicate class names and then try have have methods and dynamic methods
+  //this will fail in symbol definition, focus on keeping scopes in place.
 -?>
 defines module bad.generic.constructions
 
+  //Just add basic error for now
   defines class
 
-    Base as open
-      private someDelegate()
-        -> arg0 as DateTime
-        <- rtn <- 0
-
-      protected someDelegate()
-        -> arg0 as Duration
-        <- rtn <- 0
-
-    Class1 extends Base
-      @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
-      someDelegate as generalFunction?
+    C1
       someField <- 1
 
-      Class1()
-        someDelegate := () is generalFunction as function (rtn: arg0)
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_OPEN_TO_EXTENSION
+    C2 extends C1
+      anotherField <- "As String"
 
-      Class1()
-        -> arg0 as Class1
-        this()
-        assert arg0?
-
-      someDelegate()
-        -> arg0 as Date
-        <- rtn <- 0
-
-      protected someDelegate()
-        -> arg0 as String
-        <- rtn <- 0
-
-  defines function
-
-    generalFunction as abstract
-      -> arg0 as Integer
-      <- rtn as Integer: arg0
 
 //EOF

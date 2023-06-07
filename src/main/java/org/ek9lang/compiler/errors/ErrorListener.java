@@ -342,6 +342,12 @@ public class ErrorListener extends BaseErrorListener {
     DEFAULT_REQUIRED_IN_SWITCH_EXPRESSION("'default' is required in this switch expression as return is uninitialised"),
     METHOD_MODIFIER_PROTECTED_IN_SERVICE(
         "non web service methods cannot be marked with the 'protected' access modifier"),
+    METHOD_MODIFIER_PROTECTED_IN_COMPONENT(
+        "component methods cannot be marked with the 'protected' access modifier"),
+    METHOD_MODIFIER_NOT_REQUIRED_IN_TRAIT(
+        "trait methods cannot be marked with an access modifier, they are always public"),
+    RECORDS_ONLY_SUPPORT_CONSTRUCTOR_AND_OPERATOR_METHODS(
+        "only constructors and operators methods are supported on records"),
     MUST_BE_DECLARED_AS_POSSIBLE_NULL("declaration must indicate that this can be 'uninitialised'"),
     CAN_BE_ASSIGNED_NULL_VALUE("assignment could result in 'uninitialised', so declaration must support this"),
     DECLARED_AS_NULL_NOT_NEEDED("declaration supporting 'uninitialised' is not needed"),
@@ -454,7 +460,7 @@ public class ErrorListener extends BaseErrorListener {
         "implied operator must be defined when using a generic implementation with a specific type"),
     OPERATOR_AMBIGUOUS("operator ambiguous match"),
     METHOD_AMBIGUOUS("ambiguous match"),
-    METHOD_DUPLICATED("duplicate/ambiguous methods"),
+    METHOD_DUPLICATED("duplicate/ambiguous methods/operations"),
     NOT_IMMEDIATE_TRAIT("not an immediate trait of this context"),
     NOT_IMMEDIATE_SUPER("not an immediate super of this context"),
     NOT_ACCESSIBLE("not accessible from this context"),

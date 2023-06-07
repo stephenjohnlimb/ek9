@@ -37,6 +37,9 @@ public class MatchResult {
 
   @Override
   public String toString() {
-    return symbol.getFriendlyName();
+    if (symbol.getSourceToken() == null) {
+      return symbol.getFriendlyName();
+    }
+    return symbol.getFriendlyName() + " line: " + symbol.getSourceToken().getLine();
   }
 }

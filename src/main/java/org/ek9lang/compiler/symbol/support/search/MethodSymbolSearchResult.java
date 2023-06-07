@@ -198,6 +198,15 @@ public class MethodSymbolSearchResult {
     return buffer.toString();
   }
 
+  /**
+   * Converts the results to a list of match results that are ordered by cost and can be displayed.
+   */
+  public MatchResults toMatchResults() {
+    MatchResults rtn = new MatchResults(results.size());
+    results.forEach(result -> rtn.add(new MatchResult((int) (result.getWeight() * 10), result.getMethodSymbol())));
+    return rtn;
+  }
+
   @Override
   public String toString() {
     StringBuilder buffer = new StringBuilder();

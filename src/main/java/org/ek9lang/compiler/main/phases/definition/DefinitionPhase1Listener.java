@@ -39,7 +39,6 @@ import org.ek9lang.compiler.main.rules.CheckNotABooleanLiteral;
 import org.ek9lang.compiler.main.rules.CheckParamExpressionNamedParameters;
 import org.ek9lang.compiler.main.rules.CheckProgramArguments;
 import org.ek9lang.compiler.main.rules.CheckProgramReturns;
-import org.ek9lang.compiler.main.rules.CheckProtectedServiceMethods;
 import org.ek9lang.compiler.main.rules.CheckReturningParam;
 import org.ek9lang.compiler.main.rules.CheckThisAndSuperAssignmentStatement;
 import org.ek9lang.compiler.main.rules.CheckVariableDeclaration;
@@ -110,7 +109,6 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   private final CommonMethodChecks commonMethodChecks;
 
-  private final CheckProtectedServiceMethods checkProtectedServiceMethods;
   private final CheckThisAndSuperAssignmentStatement checkThisAndSuperAssignmentStatement;
 
   private final CheckVariableOnlyDeclaration checkVariableOnlyDeclaration;
@@ -159,7 +157,6 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     checkDynamicVariableCapture = new CheckDynamicVariableCapture(errorListener);
     checkParamExpressionNamedParameters = new CheckParamExpressionNamedParameters(errorListener);
     checkNormalTermination = new CheckNormalTermination(errorListener);
-    checkProtectedServiceMethods = new CheckProtectedServiceMethods(errorListener);
     checkNotABooleanLiteral = new CheckNotABooleanLiteral(errorListener);
     checkGenericConstructor = new CheckGenericConstructor(errorListener);
     checkApplicationUseOnMethodDeclaration =
@@ -168,7 +165,6 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     checkProgramReturns = new CheckProgramReturns(errorListener);
     checkProgramArguments = new CheckProgramArguments(errorListener);
     checkForInvalidParameterisedTypeUse = new CheckForInvalidParameterisedTypeUse(errorListener);
-
 
     resolveOrDefineTypeDef = new ResolveOrDefineTypeDef(symbolAndScopeManagement, symbolFactory, errorListener, false);
 
@@ -370,16 +366,6 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     final var newTypeSymbol = symbolFactory.newService(ctx);
     checkAndDefineModuleScopedSymbol(newTypeSymbol, ctx);
     super.enterServiceDeclaration(ctx);
-  }
-
-  @Override
-  public void exitServiceDeclaration(EK9Parser.ServiceDeclarationContext ctx) {
-    var aggregateSymbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    if (aggregateSymbol != null) {
-      checkProtectedServiceMethods.accept(aggregateSymbol);
-    }
-
-    super.exitServiceDeclaration(ctx);
   }
 
   @Override

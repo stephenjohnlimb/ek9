@@ -11,6 +11,7 @@ import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.MethodSymbol;
 import org.ek9lang.compiler.symbol.VariableSymbol;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
+import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.CompilerException;
 
@@ -78,8 +79,9 @@ public class AggregateFactory {
                                        boolean synthetic) {
     MethodSymbolSearch symbolSearch = new MethodSymbolSearch(aggregateSymbol.getName());
     symbolSearch.setTypeParameters(constructorArguments);
-    Optional<ISymbol> resolvedConstructor = aggregateSymbol.resolveMember(symbolSearch);
-    if (resolvedConstructor.isEmpty()) {
+    var results = new MethodSymbolSearchResult();
+    var resolvedMethods = aggregateSymbol.resolveMatchingMethodsInThisScopeOnly(symbolSearch, results);
+    if (!resolvedMethods.isSingleBestMatchPresent() && !resolvedMethods.isAmbiguous()) {
       MethodSymbol newConstructor = new MethodSymbol(aggregateSymbol.getName(), aggregateSymbol);
       newConstructor.setConstructor(true);
       newConstructor.setSynthetic(synthetic);

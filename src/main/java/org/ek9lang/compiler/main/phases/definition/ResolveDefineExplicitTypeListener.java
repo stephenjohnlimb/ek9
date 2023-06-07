@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.main.phases.definition;
 
 import java.util.List;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9BaseListener;
 import org.ek9lang.antlr.EK9Parser;
@@ -9,9 +10,11 @@ import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineExplicitParameteri
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineIdentifierReference;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineTypeDef;
 import org.ek9lang.compiler.main.resolvedefine.SyntheticConstructorCreator;
+import org.ek9lang.compiler.main.rules.CheckForDuplicateOperations;
 import org.ek9lang.compiler.main.rules.CheckNotGenericTypeParameter;
 import org.ek9lang.compiler.main.rules.CheckSuitableGenus;
 import org.ek9lang.compiler.main.rules.CheckSuitableToExtend;
+import org.ek9lang.compiler.main.rules.CheckVisibilityOfOperations;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbol.CaptureScope;
@@ -31,7 +34,7 @@ import org.ek9lang.core.exception.AssertValue;
  * Also, the association to types being extended could not be done in the very first pass.
  * So this pass also hooks up the super types/function - by resolving them.
  * It is important to do this 'supers' bit now - because the generic types can be referenced in bodies.
- * So as they are explicitly used in terms of 'T', 'K' and 'V' etc in subtypes/functions we need them
+ * So as they are explicitly used in terms of 'T', 'K' and 'V' etc. in subtypes/functions we need them
  * to be resolvable via the type/function hierarchy.
  * Note, we're not trying to resolve normal variables and parameters in this phase, but parametric types.
  * There's a reason everyone leaves out Generics/Templates - it's really hard.
@@ -48,6 +51,8 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
   private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
 
+  private final CheckVisibilityOfOperations checkVisibilityOfOperations;
+  private final CheckForDuplicateOperations checkForDuplicateOperations;
   private final CheckNotGenericTypeParameter checkNotGenericTypeParameter;
 
   private final CheckSuitableToExtend checkFunctionSuitableToExtend;
@@ -75,11 +80,17 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     //At construction the ScopeStack will push the module scope on to the stack.
     this.symbolAndScopeManagement = new SymbolAndScopeManagement(parsedModule,
         new ScopeStack(parsedModule.getModuleScope()));
-    SymbolFactory symbolFactory = new SymbolFactory(parsedModule);
 
-    var errorListener = parsedModule.getSource().getErrorListener();
+    final var errorListener = parsedModule.getSource().getErrorListener();
 
+    /*
+     * Used for checking duplicate methods but just on the aggregate excluding inheritance (that comes later).
+     */
+    checkForDuplicateOperations = new CheckForDuplicateOperations(symbolAndScopeManagement, errorListener);
+    checkVisibilityOfOperations = new CheckVisibilityOfOperations(symbolAndScopeManagement, errorListener);
     checkNotGenericTypeParameter = new CheckNotGenericTypeParameter(errorListener);
+
+    final SymbolFactory symbolFactory = new SymbolFactory(parsedModule);
 
     /*
      * For identifier references we don't want errors issuing as we may traverse variables.
@@ -167,12 +178,7 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Record should have been defined as symbol", symbol);
 
-    syntheticConstructorCreator.accept(symbol);
-    //In ek9, records can extend other records if open for extension
-    if (ctx.extendDeclaration() != null) {
-      var resolved = checkRecordSuitableToExtend.apply(ctx.extendDeclaration().typeDef());
-      resolved.ifPresent(theSuper -> symbol.setSuperAggregateSymbol((IAggregateSymbol) theSuper));
-    }
+    processExtendableConstruct(ctx.start, symbol, ctx.extendDeclaration(), checkRecordSuitableToExtend);
 
     symbolAndScopeManagement.exitScope();
     super.exitRecordDeclaration(ctx);
@@ -190,6 +196,9 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   public void exitTraitDeclaration(EK9Parser.TraitDeclarationContext ctx) {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Trait should have been defined as symbol", symbol);
+
+    checkVisibilityOfOperations.accept(symbol);
+    checkForDuplicateOperations.accept(ctx.start, symbol);
 
     if (ctx.traitsList() != null) {
       ctx.traitsList().traitReference().forEach(traitRef -> {
@@ -222,12 +231,7 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Class should have been defined as symbol", symbol);
 
-    syntheticConstructorCreator.accept(symbol);
-
-    if (ctx.extendDeclaration() != null) {
-      var resolved = checkClassSuitableToExtend.apply(ctx.extendDeclaration().typeDef());
-      resolved.ifPresent(theSuper -> symbol.setSuperAggregateSymbol((IAggregateSymbol) theSuper));
-    }
+    processExtendableConstruct(ctx.start, symbol, ctx.extendDeclaration(), checkClassSuitableToExtend);
 
     if (ctx.traitsList() != null) {
       ctx.traitsList().traitReference().forEach(traitRef -> {
@@ -252,14 +256,12 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Component should have been defined as symbol", symbol);
 
-    syntheticConstructorCreator.accept(symbol);
-    if (ctx.extendDeclaration() != null) {
-      var resolved = checkComponentSuitableToExtend.apply(ctx.extendDeclaration().typeDef());
-      resolved.ifPresent(theSuper -> symbol.setSuperAggregateSymbol((IAggregateSymbol) theSuper));
-    }
+    processExtendableConstruct(ctx.start, symbol, ctx.extendDeclaration(), checkComponentSuitableToExtend);
+
     symbolAndScopeManagement.exitScope();
     super.exitComponentDeclaration(ctx);
   }
+
 
   @Override
   public void enterTextDeclaration(EK9Parser.TextDeclarationContext ctx) {
@@ -299,6 +301,11 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   @Override
   public void exitServiceDeclaration(EK9Parser.ServiceDeclarationContext ctx) {
+    var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    syntheticConstructorCreator.accept(symbol);
+    checkVisibilityOfOperations.accept(symbol);
+    checkForDuplicateOperations.accept(ctx.start, symbol);
+
     symbolAndScopeManagement.exitScope();
     super.exitServiceDeclaration(ctx);
   }
@@ -348,6 +355,9 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   public void exitDynamicClassDeclaration(EK9Parser.DynamicClassDeclarationContext ctx) {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Dynamic Class should have been defined as symbol", symbol);
+
+    checkVisibilityOfOperations.accept(symbol);
+    checkForDuplicateOperations.accept(ctx.start, symbol);
 
     if (ctx.parameterisedType() != null) {
       var resolved = checkClassSuitableToExtend.apply(ctx.parameterisedType());
@@ -527,6 +537,19 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     resolved.ifPresent(symbol -> symbolAndScopeManagement.recordSymbol(symbol, ctx));
 
     super.enterParameterisedType(ctx);
+  }
+
+  private void processExtendableConstruct(final Token token, final AggregateSymbol symbol,
+                                          final EK9Parser.ExtendDeclarationContext extendDeclaration,
+                                          final CheckSuitableToExtend extendChecker) {
+    syntheticConstructorCreator.accept(symbol);
+    checkVisibilityOfOperations.accept(symbol);
+    checkForDuplicateOperations.accept(token, symbol);
+
+    if (extendDeclaration != null) {
+      var resolved = extendChecker.apply(extendDeclaration.typeDef());
+      resolved.ifPresent(theSuper -> symbol.setSuperAggregateSymbol((IAggregateSymbol) theSuper));
+    }
   }
 }
 

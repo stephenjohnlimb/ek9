@@ -1,0 +1,104 @@
+#!ek9
+<?-
+  Just checks duplicate methods and operators with same name/signatures on classes.
+-?>
+defines module bad.duplicate.classmethods
+
+  defines class
+
+    C1
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      private C1()
+        var <- "Steve"
+        assert var?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      private C1()
+        var <- "Steve"
+        assert var?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      private duplicateMethod1()
+        -> arg0 as Duration
+        <- rtn <- 0
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      private duplicateMethod1()
+        -> arg0 as Duration
+        <- rtn <- 0
+
+    C2
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      protected C2()
+        var <- "Steve"
+        assert var?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      C2()
+        var <- "Steve"
+        assert var?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      protected duplicateMethod2()
+        -> arg0 as Time
+        <- rtn <- 1.0
+
+      //Check duplicate methods in same class errors, even with a different return type.
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      protected duplicateMethod2()
+        -> arg0 as Time
+        <- rtn <- "Different return type"
+
+      //Try out operators as well.
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      operator +=
+        -> arg0 as Integer
+        assert arg0?
+        //Then do what is needed
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      operator +=
+        -> arg0 as Integer
+        assert arg0?
+        //Then do what is needed
+
+    <?-
+      So here check not duplicate, even though coercing is possible.
+      We should resolve to the most specific method when being called.
+    -?>
+    C3
+      protected method1()
+        -> arg0 as Integer
+        <- rtn <- 1
+
+      protected method1()
+        -> arg0 as Float
+        <- rtn <- 1
+
+    //Just abstract with same name/signature
+    AbstractC1 as abstract
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      duplicateMethod3() as abstract
+        -> arg0 as Time
+        <- rtn as Integer?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      duplicateMethod3() as abstract
+        -> arg0 as Time
+        <- rtn as Integer?
+
+    //Mix abstract and concrete with same name/signature
+    AbstractC2 as abstract
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      duplicateMethod4() as abstract
+        -> arg0 as Time
+        <- rtn as Integer?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      duplicateMethod4()
+        -> arg0 as Time
+        <- rtn <- 1
+
+//EOF
