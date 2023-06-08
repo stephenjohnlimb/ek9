@@ -101,4 +101,21 @@ defines module bad.duplicate.classmethods
         -> arg0 as Time
         <- rtn <- 1
 
+    <?-
+      Just check that duplciated methods with dynamic classes, do not cause errors.
+    -?>
+    C4
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      someMethod()
+        -> arg0 as String
+        someHttpResponse <- () with trait of HTTPResponse
+        assert someHttpResponse?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+      someMethod()
+        -> arg0 as String
+        someHttpResponse <- () with trait of HTTPResponse
+        assert someHttpResponse?
+
 //EOF
