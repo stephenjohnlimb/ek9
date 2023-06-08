@@ -10,10 +10,15 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
  * The phase will fail compilation with duplicate errors, but we will have ensured that
  * other symbols and processing has been put somewhere.
  */
-public class StackConsistencyScope extends LocalScope implements ICanCaptureVariables {
+public class StackConsistencyScope extends ScopedSymbol implements ICanCaptureVariables {
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private Optional<CaptureScope> capturedVariables = Optional.empty();
+
+  public StackConsistencyScope(final IScope enclosingScope, final ScopeType scopeType) {
+    super("StackConsistencyScope", enclosingScope);
+    super.setScopeType(scopeType);
+  }
 
   public StackConsistencyScope(IScope enclosingScope) {
     super("StackConsistencyScope", enclosingScope);
@@ -44,6 +49,11 @@ public class StackConsistencyScope extends LocalScope implements ICanCaptureVari
   }
 
   @Override
+  public Optional<ISymbol> resolve(SymbolSearch search) {
+    return this.resolveInThisScopeOnly(search);
+  }
+
+  @Override
   public StackConsistencyScope clone(IScope withParentAsAppropriate) {
     return cloneIntoStackConsistencyScope(
         new StackConsistencyScope(withParentAsAppropriate));
@@ -53,7 +63,7 @@ public class StackConsistencyScope extends LocalScope implements ICanCaptureVari
    * Clones the content of this into the new copy.
    */
   public StackConsistencyScope cloneIntoStackConsistencyScope(StackConsistencyScope newCopy) {
-    super.cloneIntoLocalScope(newCopy);
+    super.cloneIntoScopeSymbol(newCopy);
     if (capturedVariables.isPresent()) {
       var captured = capturedVariables.get();
       var cloned = captured.clone(newCopy.getEnclosingScope());

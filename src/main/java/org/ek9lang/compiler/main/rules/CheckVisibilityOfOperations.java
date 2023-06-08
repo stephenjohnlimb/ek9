@@ -14,6 +14,10 @@ import org.ek9lang.compiler.symbol.MethodSymbol;
  * Does a simple check (excluding any inheritance) for visibility rules on methods/operators on
  * aggregates, such as classes, components, services, traits and dynamic classes.
  * Also limits ability to add methods other than constructors and operators to records.
+ * Classes are not missing, here they just support public, protected and private.
+ * Whereas the other constructs support different variations.
+ * Also note that there is no need to check service web methods or operators as there is now way
+ * in the grammar to express an access modifier.
  */
 public class CheckVisibilityOfOperations extends RuleSupport implements Consumer<IAggregateSymbol> {
 

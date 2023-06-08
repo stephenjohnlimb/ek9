@@ -28,6 +28,5 @@ class BadDuplicateOperationsFullCompilationTest extends FullCompilationTest {
     assertFalse(program.getParsedModules("bad.duplicate.recordmethods").isEmpty());
     assertFalse(program.getParsedModules("bad.duplicate.servicemethods").isEmpty());
     assertFalse(program.getParsedModules("bad.duplicate.componentmethods").isEmpty());
-
   }
 }

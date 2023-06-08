@@ -2,21 +2,15 @@
 <?-
   Mainly used as a simple work bench to find error conditions.
   Those conditions are then relocated into other more permanent test locations.
-
-  //TODO create tests with duplicate class names and then try have have methods and dynamic methods
-  //this will fail in symbol definition, focus on keeping scopes in place.
 -?>
 defines module bad.generic.constructions
 
-  //Just add basic error for now
   defines class
 
     C1
-      someField <- 1
-
-    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_OPEN_TO_EXTENSION
-    C2 extends C1
-      anotherField <- "As String"
-
+      someMethod()
+        -> arg0 as String
+        //Trigger error here for time being var is not referenced anywhere
+        var <- arg0
 
 //EOF

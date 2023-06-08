@@ -121,11 +121,12 @@ public class SymbolAndScopeManagement {
    */
   public void enterModuleScopedSymbol(final IScopedSymbol symbol, final ParseTree node,
                                       final SymbolChecker symbolChecker) {
+    var scopeType = symbol.getScopeType();
     var moduleScope = parsedModule.getModuleScope();
     if (moduleScope.defineOrError(symbol, symbolChecker)) {
       enterNewScopedSymbol(symbol, node);
     } else {
-      recordScopeForStackConsistency(new StackConsistencyScope(moduleScope), node);
+      recordScopeForStackConsistency(new StackConsistencyScope(moduleScope, scopeType), node);
     }
   }
 

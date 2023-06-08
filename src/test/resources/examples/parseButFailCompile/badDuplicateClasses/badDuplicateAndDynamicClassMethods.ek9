@@ -1,0 +1,55 @@
+#!ek9
+<?-
+  //Create tests with duplicate class names and then try have have methods and dynamic methods
+  //this will fail in symbol definition, focus on keeping scopes in place.
+-?>
+defines module bad.duplicate.dynamicclassmethods
+
+  defines class
+
+    <?-
+      Create a couple of duplicate classes, check they are detected
+      But also any errors in methods within those classes are also
+      still processed. Might seem strange, but I need to ensure that
+      'placeholders' are correctly put in place for the duplicate classes.
+      The idea is to process as much code and be accepting of errors and try and continue
+      but to do this all the right contexts need to appear to be in place.
+    -?>
+    C1
+      someMethod()
+        -> arg0 as String
+        assert arg0?
+
+    @Error: SYMBOL_DEFINITION: DUPLICATE_TYPE
+    C1
+      someOtherMethod()
+        -> arg0 as String
+        assert arg0?
+
+    <?-
+      Ok, this this is designed to show how we can use a dynamic class,
+      this has a trait of HTTPResponse and as all methods have implementations
+      i.e. 404 and default content type, we have no need of any override methods.
+
+      The point is that this dynamic class processing does exercise knowledge of the
+      call stack to find outer blocks, classes and the like.
+
+      So what happens if there is a duplicate class! BANG?
+    -?>
+    C2
+      someMethod()
+        -> arg0 as String
+        someHttpResponse <- (arg0) with trait of HTTPResponse
+        assert someHttpResponse?
+
+    <?-
+      So now deliberately duplicate the class and check for errors.
+    -?>
+    @Error: SYMBOL_DEFINITION: DUPLICATE_TYPE
+    C2
+      someMethod()
+        -> arg0 as String
+        someHttpResponse <- () with trait of HTTPResponse
+        assert someHttpResponse?
+
+//EOF
