@@ -23,7 +23,7 @@ class BadGenericTUseFullCompilationTest extends FullCompilationTest {
   @Override
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
-
+    assertFalse(compilationResult);
     assertFalse(program.getParsedModules("bad.use.conceptual.parameters").isEmpty());
   }
 }

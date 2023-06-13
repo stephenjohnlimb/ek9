@@ -68,7 +68,7 @@ defines module com.customer.just
             
     Shape as abstract      
       draw() as abstract
-        <- drawn as Boolean: Boolean()
+        <- drawn as Boolean?
         
     Ellipse extends Shape as open
       override draw()

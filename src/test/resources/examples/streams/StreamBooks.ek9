@@ -59,7 +59,7 @@ defines module com.customer.books
       <?-
         Stop creation of empty Author.
       -?>
-      private Author()
+      default private Author()
 
       id() as pure
         <- rtn as AuthorId: id

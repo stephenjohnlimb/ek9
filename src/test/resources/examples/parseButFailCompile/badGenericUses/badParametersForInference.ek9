@@ -134,6 +134,7 @@ defines module incorrect.generic.uses
         -> arg as T
         this.item = arg
 
+      @Error: SYMBOL_DEFINITION: NOT_ABSTRACT_AND_NO_BODY_PROVIDED
       getItem()
         <- rtn as T?
 

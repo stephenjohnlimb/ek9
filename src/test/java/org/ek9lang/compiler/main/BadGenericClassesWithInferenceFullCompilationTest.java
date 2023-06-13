@@ -23,7 +23,7 @@ class BadGenericClassesWithInferenceFullCompilationTest extends FullCompilationT
   @Override
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
-
+    assertFalse(compilationResult);
     assertFalse(program.getParsedModules("bad.classes.inference.example").isEmpty());
   }
 }

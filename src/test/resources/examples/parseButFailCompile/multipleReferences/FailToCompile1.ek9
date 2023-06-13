@@ -52,9 +52,11 @@ defines module fails.to.compile
     D_CLASS
       signatureMethod
         -> v as Integer
+        assert v?
 
       M_METHOD
         -> v as String
+        assert v?
 
   defines component
     //This will be OK and is used later in the application.
@@ -67,6 +69,7 @@ defines module fails.to.compile
     E_COMPONENT
       signatureMethod
         -> v as Integer
+        assert v?
 
   defines text for "en_GB"
     //First the main block

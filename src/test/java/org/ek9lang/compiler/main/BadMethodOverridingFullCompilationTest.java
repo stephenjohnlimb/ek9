@@ -7,23 +7,24 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests bad generic uses of generics.
+ * Just tests bad examples of overriding methods.
  */
-class BadNoneGenericUsesFullCompilationTest extends FullCompilationTest {
+class BadMethodOverridingFullCompilationTest extends FullCompilationTest {
 
-  public BadNoneGenericUsesFullCompilationTest() {
-    super("/examples/parseButFailCompile/badNoneGenericUses");
+  public BadMethodOverridingFullCompilationTest() {
+    super("/examples/parseButFailCompile/badOverridingMethods");
   }
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
+    testToPhase(CompilationPhase.FULL_RESOLUTION);
   }
 
   @Override
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.use.non.generic").isEmpty());
+    assertFalse(program.getParsedModules("bad.overriding.classmethods1").isEmpty());
+    assertFalse(program.getParsedModules("bad.overriding.traitmethods1").isEmpty());
   }
 }

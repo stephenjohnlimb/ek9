@@ -20,7 +20,7 @@ defines module simple.generics.use.four
         -> arg as T
         this.item = arg
 
-      getItem()
+      getItem() as abstract
         <- rtn as T?
 
     <?-

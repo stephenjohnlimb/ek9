@@ -1,0 +1,78 @@
+#!ek9
+<?-
+  Defines various cases where method either do override or don't override each other.
+  But this is in a traits only context.
+-?>
+defines module bad.overriding.traitmethods1
+
+  defines trait
+
+    <?-
+      See other ek9 tests for checks on not allowing private/protected trait methods.
+    -?>
+    T1
+      //Acceptable - A
+      someMethod()
+        -> arg0 as String
+        <- rtn as String?
+
+    <?-
+      For traits we allow both extends/is to also mean has a trait of.
+      But note, we must specify overrides on the method.
+    -?>
+    T2 extends T1
+      @Error: FULL_RESOLUTION: METHOD_OVERRIDES
+      someMethod()
+        -> arg0 as String
+        <- rtn as String: arg0
+
+    <?-
+      So this means the same as above.
+      But note, we must specify overrides on the method.
+    -?>
+    T3 with trait of T1
+      @Error: FULL_RESOLUTION: METHOD_OVERRIDES
+      someMethod()
+        -> arg0 as String
+        <- rtn as String: arg0
+
+    T2o extends T1
+      override someMethod()
+        -> arg0 as String
+        <- rtn as String: arg0
+
+    T3o with trait of T1
+      override someMethod()
+        -> arg0 as String
+        <- rtn as String: arg0
+
+    <?-
+      Introduce a new trait with same method signature as T1
+    -?>
+    TX1
+      //Acceptable - B
+      someMethod()
+        -> arg0 as String
+        <- rtn as String: arg0
+
+    <?-
+      Introduce another new signature with with also an implementation.
+    -?>
+    TX2
+      //Acceptable - B
+      someMethod()
+        -> arg0 as String
+        <- rtn as String: arg0
+
+    <?-
+      Now we have a trait that has the same signature but defined multiple times,
+      Two are concrete with implementations but the third is the original T1 with is abstract.
+      But this is still just an interface in many ways, only when it is used should we force the
+      ek9 developer to override the 'someMethod' and decide which implementation is to be used.
+      Or should we force it at this point of time, there are two concrete implementation choices
+      available.
+    -?>
+    TConflictingMethods with trait of TX1, TX2, T1
+
+
+//EOF

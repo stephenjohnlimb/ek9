@@ -45,7 +45,7 @@ defines module net.customer
       
       //So no body, just the method signature
       someMethod() abstract
-        <- val Integer: Integer()
+        <- val Integer?
         
     //Lets extend My Item and not implement the abstract method - comment someMethod out to check this. 
     MyImpl is MyItem

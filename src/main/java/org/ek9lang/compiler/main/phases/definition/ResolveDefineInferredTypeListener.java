@@ -2,8 +2,10 @@ package org.ek9lang.compiler.main.phases.definition;
 
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.internals.ParsedModule;
+import org.ek9lang.compiler.main.resolvedefine.CheckMethodOverrides;
 import org.ek9lang.compiler.main.resolvedefine.CheckPossibleFieldDelegate;
 import org.ek9lang.compiler.main.resolvedefine.DynamicCaptureAndDefinition;
+import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbol.CaptureScope;
 
 /**
@@ -23,16 +25,18 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
   private final DynamicCaptureAndDefinition dynamicCaptureAndDefinition;
   private final CheckPossibleFieldDelegate checkPossibleFieldDelegate;
 
+  private final CheckMethodOverrides checkMethodOverrides;
 
   /**
    * Create a new instance to define or resolve inferred types.
    */
   public ResolveDefineInferredTypeListener(ParsedModule parsedModule) {
     super(parsedModule);
-    dynamicCaptureAndDefinition =
+    this.dynamicCaptureAndDefinition =
         new DynamicCaptureAndDefinition(symbolAndScopeManagement, errorListener, symbolFactory);
 
-    checkPossibleFieldDelegate = new CheckPossibleFieldDelegate(symbolAndScopeManagement, errorListener);
+    this.checkPossibleFieldDelegate = new CheckPossibleFieldDelegate(symbolAndScopeManagement, errorListener);
+    this.checkMethodOverrides = new CheckMethodOverrides(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -56,5 +60,20 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
     checkPossibleFieldDelegate.accept(field);
 
     super.exitAggregateProperty(ctx);
+  }
+
+  @Override
+  public void exitClassDeclaration(EK9Parser.ClassDeclarationContext ctx) {
+    var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    checkMethodOverrides.accept(symbol);
+
+    super.exitClassDeclaration(ctx);
+  }
+
+  @Override
+  public void exitTraitDeclaration(EK9Parser.TraitDeclarationContext ctx) {
+    var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    checkMethodOverrides.accept(symbol);
+    super.exitTraitDeclaration(ctx);
   }
 }

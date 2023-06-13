@@ -67,6 +67,9 @@ import org.ek9lang.core.utils.UniqueIdGenerator;
 public class SymbolFactory {
 
   public static final String DEFAULTED = "DEFAULTED";
+
+  public static final String EXTERN = "EXTERN";
+
   public static final String HTTPVERB = "HTTPVERB";
 
   private static final Set<String> streamPartCanConsumeAnything = Set.of("flatten",
@@ -597,6 +600,7 @@ public class SymbolFactory {
     method.setOverride(ctx.OVERRIDE() != null);
     method.setMarkedAbstract(ctx.ABSTRACT() != null);
     method.setMarkedPure(ctx.PURE() != null);
+    method.setMarkedAsDispatcher(ctx.DISPATCHER() != null);
     if (ctx.DEFAULT() != null) {
       method.putSquirrelledData(DEFAULTED, "TRUE");
     }
@@ -1023,7 +1027,7 @@ public class SymbolFactory {
     symbol.setParsedModule(Optional.of(parsedModule));
     symbol.setSourceToken(start);
     if (parsedModule.isExternallyImplemented()) {
-      symbol.putSquirrelledData("EXTERN", "TRUE");
+      symbol.putSquirrelledData(EXTERN, "TRUE");
     }
   }
 

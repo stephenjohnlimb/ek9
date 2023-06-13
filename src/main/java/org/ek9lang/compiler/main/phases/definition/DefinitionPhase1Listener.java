@@ -34,13 +34,16 @@ import org.ek9lang.compiler.main.rules.CheckDynamicClassDeclaration;
 import org.ek9lang.compiler.main.rules.CheckDynamicVariableCapture;
 import org.ek9lang.compiler.main.rules.CheckForInvalidParameterisedTypeUse;
 import org.ek9lang.compiler.main.rules.CheckGenericConstructor;
+import org.ek9lang.compiler.main.rules.CheckNonTraitMethod;
 import org.ek9lang.compiler.main.rules.CheckNormalTermination;
 import org.ek9lang.compiler.main.rules.CheckNotABooleanLiteral;
+import org.ek9lang.compiler.main.rules.CheckNotDispatcherMethod;
 import org.ek9lang.compiler.main.rules.CheckParamExpressionNamedParameters;
 import org.ek9lang.compiler.main.rules.CheckProgramArguments;
 import org.ek9lang.compiler.main.rules.CheckProgramReturns;
 import org.ek9lang.compiler.main.rules.CheckReturningParam;
 import org.ek9lang.compiler.main.rules.CheckThisAndSuperAssignmentStatement;
+import org.ek9lang.compiler.main.rules.CheckTraitMethod;
 import org.ek9lang.compiler.main.rules.CheckVariableDeclaration;
 import org.ek9lang.compiler.main.rules.CheckVariableOnlyDeclaration;
 import org.ek9lang.compiler.main.rules.CommonMethodChecks;
@@ -109,6 +112,12 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   private final CommonMethodChecks commonMethodChecks;
 
+  private final CheckTraitMethod checkTraitMethod;
+
+  private final CheckNonTraitMethod checkNonTraitMethod;
+
+  private final CheckNotDispatcherMethod checkNotDispatcherMethod;
+
   private final CheckThisAndSuperAssignmentStatement checkThisAndSuperAssignmentStatement;
 
   private final CheckVariableOnlyDeclaration checkVariableOnlyDeclaration;
@@ -150,6 +159,9 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     unreachableStatement = new UnreachableStatement(errorListener);
     textLanguageExtraction = new TextLanguageExtraction(errorListener);
     commonMethodChecks = new CommonMethodChecks(errorListener);
+    checkNonTraitMethod = new CheckNonTraitMethod(errorListener);
+    checkTraitMethod = new CheckTraitMethod();
+    checkNotDispatcherMethod = new CheckNotDispatcherMethod(errorListener);
     checkThisAndSuperAssignmentStatement = new CheckThisAndSuperAssignmentStatement(errorListener);
     checkVariableOnlyDeclaration = new CheckVariableOnlyDeclaration(errorListener);
     checkVariableDeclaration = new CheckVariableDeclaration(symbolAndScopeManagement, errorListener);
@@ -255,10 +267,25 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
         checkNormalTermination.accept(ctx.start, method);
         checkGenericConstructor.accept(ctx.start, method);
       }
+
       if (ctx.getParent() instanceof EK9Parser.ProgramBlockContext) {
         checkProgramReturns.accept(ctx.start, method);
         checkProgramArguments.accept(ctx.start, method);
       }
+
+      //If not in a class then method must not be marked as dispatcher.
+      if (!(ctx.getParent().getParent() instanceof EK9Parser.ClassDeclarationContext)) {
+        checkNotDispatcherMethod.accept(method, ctx);
+      }
+
+      if (!(ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext)) {
+        checkNonTraitMethod.accept(method, ctx);
+      }
+
+      if (ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext) {
+        checkTraitMethod.accept(method, ctx);
+      }
+
     }
     super.exitMethodDeclaration(ctx);
   }

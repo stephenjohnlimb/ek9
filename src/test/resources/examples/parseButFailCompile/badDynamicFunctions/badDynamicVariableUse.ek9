@@ -12,7 +12,7 @@ defines module bad.function.use
     LenValidator
       validateLength() as pure abstract
         -> p as String
-        <- r as Boolean: Boolean()
+        <- r as Boolean?
 
   defines function
 

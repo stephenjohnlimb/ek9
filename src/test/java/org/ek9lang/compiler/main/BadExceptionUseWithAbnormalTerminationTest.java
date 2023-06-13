@@ -24,6 +24,7 @@ class BadExceptionUseWithAbnormalTerminationTest extends FullCompilationTest {
 
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
+    assertFalse(compilationResult);
     assertFalse(program.getParsedModules("bad.flowcontrol.examples").isEmpty());
   }
 }

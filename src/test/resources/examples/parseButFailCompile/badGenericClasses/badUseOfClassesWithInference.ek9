@@ -16,6 +16,7 @@ defines module bad.classes.inference.example
 
     Calculator of type T
 
+      @Error: SYMBOL_DEFINITION: NOT_ABSTRACT_AND_NO_BODY_PROVIDED
       calculate()
         -> arg0 as T
         <- rtn as T?

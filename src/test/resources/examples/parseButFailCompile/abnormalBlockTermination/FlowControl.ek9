@@ -22,7 +22,7 @@ defines module bad.flowcontrol.examples
 
     BaseConfiguration abstract
       getFileStoreName() abstract
-        <- rtn as String: String()
+        <- rtn as String?
 
     Solution1 is BaseConfiguration
       override getFileStoreName() as

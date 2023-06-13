@@ -34,7 +34,7 @@ defines module bad.components.use
     @Resolved: SYMBOL_DEFINITION: TYPE: "BaseConfiguration"
     BaseConfiguration abstract
       getFileStoreName() abstract
-        <- rtn as String: String()
+        <- rtn as String?
 
     @Resolved: SYMBOL_DEFINITION: TYPE: "Solution1"
     Solution1 is BaseConfiguration

@@ -69,7 +69,7 @@ defines module bad.resolution.directives
 
       aMethod() as abstract
         -> arg0 as Integer
-        <- rtn as String: ""
+        <- rtn as String?
 
     //No such construct as TIP
     @Resolved: SYMBOL_DEFINITION: TIP: "BType"

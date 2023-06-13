@@ -7,15 +7,13 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests bad program usage.
+ * Just tests bad method usage on a range of constructs.
  */
-class BadProgramsCompilationTest extends FullCompilationTest {
+class BadMethodUseFullCompilationTest extends FullCompilationTest {
 
-
-  public BadProgramsCompilationTest() {
-    super("/examples/parseButFailCompile/badPrograms");
+  public BadMethodUseFullCompilationTest() {
+    super("/examples/parseButFailCompile/badMethodUse");
   }
-
 
   @Test
   void testPhaseDevelopment() {
@@ -25,7 +23,7 @@ class BadProgramsCompilationTest extends FullCompilationTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.program.return").isEmpty());
-    assertFalse(program.getParsedModules("bad.argument.parameters").isEmpty());
+    assertFalse(program.getParsedModules("bad.traits.examples").isEmpty());
+    assertFalse(program.getParsedModules("bad.classes.examples").isEmpty());
   }
 }

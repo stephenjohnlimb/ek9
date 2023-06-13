@@ -65,7 +65,7 @@ defines module com.customer.just.employees
       payroll as IPayrollCalculator?
 
       //You can make a default constructor unavailable if you wish
-      private Employee()
+      default private Employee()
       //No body
 
       //You could just use

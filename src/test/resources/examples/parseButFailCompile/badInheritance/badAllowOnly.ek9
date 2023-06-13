@@ -68,7 +68,7 @@ defines module bad.allowonly.classes
         -> arg as T
         this.item = arg
 
-      getItem()
+      getItem() as abstract
         <- rtn as T?
 
 //EOF

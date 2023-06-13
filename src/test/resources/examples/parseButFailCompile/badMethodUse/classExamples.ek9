@@ -1,0 +1,65 @@
+#!ek9
+defines module bad.classes.examples
+
+  defines class
+
+    C1
+      @Error: SYMBOL_DEFINITION: INVALID_DEFAULT_CONSTRUCTOR
+      default C1()
+        -> arg0 as String
+        <- rtn as String?
+
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      default C1()
+        someVar <- 1
+        assert someVar?
+
+      //Just a normal class method, but with an implementation
+      someMethod1()
+        -> arg0 as String
+        <- rtn as String: arg0
+
+      //A pure interface method, but as this is a class an error is expected
+      @Error: SYMBOL_DEFINITION: NOT_ABSTRACT_AND_NO_BODY_PROVIDED
+      someMethod2()
+        -> arg0 as String
+        <- rtn as String?
+
+      //As above but this time abstract is explicit, as is required in classes
+      someMethod3() as abstract
+        -> arg0 as String
+        <- rtn as String?
+
+      //Ah but this is an error because a body (return) has been provided.
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      someMethod4() as abstract
+        -> arg0 as String
+        <- rtn as String: arg0
+
+      //Again an error because a body has been provided.
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      someMethod5() as abstract
+        -> arg0 as String
+        assert arg0?
+
+      //Also an error because both a return and a body has been provided.
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      someMethod6() as abstract
+        -> arg0 as String
+        <- rtn as String: arg0
+        assert arg0?
+
+      //Also an error because both a return and a body has been provided.
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      someMethod7() as abstract
+        -> arg0 as String
+        <- rtn as String?
+        assert arg0?
+        rtn :=: arg0
+
+      //Now as this is a class, we can use a dispatcher.
+      anotherMethod() as dispatcher
+        -> arg0 as String
+        assert arg0?
+
+//EOF
