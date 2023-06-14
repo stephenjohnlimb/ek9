@@ -1,0 +1,69 @@
+#!ek9
+<?-
+  Almost the same as other tests in this block but with just minor differences.
+  This is because traits, classes, components and services vary slightly (by design) in what
+  they allow and support.
+-?>
+defines module bad.components.examples
+
+  defines component
+
+    Comp1
+      @Error: SYMBOL_DEFINITION: INVALID_DEFAULT_CONSTRUCTOR
+      default Comp1()
+        -> arg0 as String
+        <- rtn as String?
+
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      default Comp1()
+        someVar <- 1
+        assert someVar?
+
+      //Just a normal component method, but with an implementation
+      someMethod1()
+        -> arg0 as String
+        <- rtn as String: arg0
+
+      @Error: SYMBOL_DEFINITION: NOT_ABSTRACT_AND_NO_BODY_PROVIDED
+      someMethod2()
+        -> arg0 as String
+        <- rtn as String?
+
+      //As above but this time abstract is explicit, not difference in functionality to method above
+      someMethod3() as abstract
+        -> arg0 as String
+        <- rtn as String?
+
+      //Ah but this is an error because a body (return) has been provided.
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      someMethod4() as abstract
+        -> arg0 as String
+        <- rtn as String: arg0
+
+      //Again an error because a body has been provided.
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      someMethod5() as abstract
+        -> arg0 as String
+        assert arg0?
+
+      //Also an error because both a return and a body has been provided.
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      someMethod6() as abstract
+        -> arg0 as String
+        <- rtn as String: arg0
+        assert arg0?
+
+      //Also an error because both a return and a body has been provided.
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      someMethod7() as abstract
+        -> arg0 as String
+        <- rtn as String?
+        assert arg0?
+        rtn :=: arg0
+
+      @Error: SYMBOL_DEFINITION: DISPATCH_ONLY_SUPPORTED_IN_CLASSES
+      anotherMethod() as dispatcher
+        -> arg0 as String
+        assert arg0?
+
+//EOF

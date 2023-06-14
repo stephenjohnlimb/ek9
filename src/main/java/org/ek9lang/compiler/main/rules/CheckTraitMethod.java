@@ -11,7 +11,7 @@ public class CheckTraitMethod implements BiConsumer<MethodSymbol, EK9Parser.Meth
 
   private final CheckForBody checkForBody = new CheckForBody();
 
-    @Override
+  @Override
   public void accept(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
 
     final var hasBody = checkForBody.test(ctx);
