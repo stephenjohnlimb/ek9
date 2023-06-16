@@ -1,0 +1,33 @@
+#!ek9
+<?-
+  As services cannot extend other sericves then override and abstract are meaningless.
+  This is the test for that.
+-?>
+defines module bad.services.use
+
+  <?-
+    REST web service.
+  -?>
+  defines service
+
+    Addresses :/addresses/something
+
+      //Valid example
+      byId() as GET for :/{address-id}
+        -> addressId as AddressId :=: PATH "address-id" //required because different name
+        <- response as HTTPResponse: (addressId) trait HTTPResponse by delegate as class
+          override content()
+            <- rtn as String: getOK()
+
+      @Error: SYMBOL_DEFINITION: CANNOT_BE_ABSTRACT
+      someMethod() as abstract
+        -> incomingContent as String
+
+      @Error: SYMBOL_DEFINITION: OVERRIDE_INAPPROPRIATE
+      override anotherInvalidMethod()
+        <- incomingContent as String: "Steve"
+
+      @Error: SYMBOL_DEFINITION: IMPLEMENTATION_MUST_BE_PROVIDED
+      getOK()
+
+//EOF

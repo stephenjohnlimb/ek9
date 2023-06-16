@@ -23,6 +23,7 @@ class BadMethodUseFullCompilationTest extends FullCompilationTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
+    assertFalse(program.getParsedModules("bad.programs.examples").isEmpty());
     assertFalse(program.getParsedModules("bad.traits.examples").isEmpty());
     assertFalse(program.getParsedModules("bad.classes.examples").isEmpty());
     assertFalse(program.getParsedModules("bad.components.examples").isEmpty());

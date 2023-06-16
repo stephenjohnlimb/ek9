@@ -23,12 +23,12 @@ public class CommonMethodChecks implements BiConsumer<MethodSymbol, EK9Parser.Me
   @Override
   public void accept(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
 
-    final var message = "for method '" + method.getName() + "':";
+    final var message = "for method '" + ctx.identifier().getText() + "':";
     final var hasBody = checkForBody.test(ctx);
 
     checkAbstract(method, ctx, hasBody, message);
     checkAccessModifier(method, ctx, message);
-    checkConstructor(method, ctx, message);
+    checkConstructor(method, message);
     checkDefaulted(method, ctx, hasBody, message);
 
   }
@@ -81,18 +81,17 @@ public class CommonMethodChecks implements BiConsumer<MethodSymbol, EK9Parser.Me
   }
 
   private void checkConstructor(final MethodSymbol method,
-                                final EK9Parser.MethodDeclarationContext ctx,
                                 final String errorMessage) {
     if (method.isConstructor()) {
       if (method.isMarkedAbstract()) {
         //Makes no sense
-        errorListener.semanticError(ctx.ABSTRACT().getSymbol(), errorMessage,
+        errorListener.semanticError(method.getSourceToken(), errorMessage,
             ErrorListener.SemanticClassification.ABSTRACT_CONSTRUCTOR);
       }
 
       if (method.isOverride()) {
         //Makes no sense for a constructor to be declared like this.
-        errorListener.semanticError(ctx.OVERRIDE().getSymbol(), errorMessage,
+        errorListener.semanticError(method.getSourceToken(), errorMessage,
             ErrorListener.SemanticClassification.OVERRIDE_CONSTRUCTOR);
       }
     }

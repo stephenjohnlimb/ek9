@@ -32,8 +32,10 @@ import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineTypeDef;
 import org.ek9lang.compiler.main.rules.CheckApplicationUseOnMethodDeclaration;
 import org.ek9lang.compiler.main.rules.CheckDynamicClassDeclaration;
 import org.ek9lang.compiler.main.rules.CheckDynamicVariableCapture;
+import org.ek9lang.compiler.main.rules.CheckForImplementation;
 import org.ek9lang.compiler.main.rules.CheckForInvalidParameterisedTypeUse;
 import org.ek9lang.compiler.main.rules.CheckGenericConstructor;
+import org.ek9lang.compiler.main.rules.CheckNonExtendableMethod;
 import org.ek9lang.compiler.main.rules.CheckNonTraitMethod;
 import org.ek9lang.compiler.main.rules.CheckNormalTermination;
 import org.ek9lang.compiler.main.rules.CheckNotABooleanLiteral;
@@ -116,6 +118,9 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   private final CheckNonTraitMethod checkNonTraitMethod;
 
+  private final CheckNonExtendableMethod checkNonExtendableMethod;
+
+  private final CheckForImplementation checkForImplementation;
   private final CheckNotDispatcherMethod checkNotDispatcherMethod;
 
   private final CheckThisAndSuperAssignmentStatement checkThisAndSuperAssignmentStatement;
@@ -160,7 +165,9 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     textLanguageExtraction = new TextLanguageExtraction(errorListener);
     commonMethodChecks = new CommonMethodChecks(errorListener);
     checkNonTraitMethod = new CheckNonTraitMethod(errorListener);
+    checkNonExtendableMethod = new CheckNonExtendableMethod(errorListener);
     checkTraitMethod = new CheckTraitMethod();
+    checkForImplementation = new CheckForImplementation(errorListener);
     checkNotDispatcherMethod = new CheckNotDispatcherMethod(errorListener);
     checkThisAndSuperAssignmentStatement = new CheckThisAndSuperAssignmentStatement(errorListener);
     checkVariableOnlyDeclaration = new CheckVariableOnlyDeclaration(errorListener);
@@ -261,7 +268,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     var currentScope = symbolAndScopeManagement.getTopScope();
     //Can be null if during definition 'enter' it was a duplicate method
     if (currentScope instanceof MethodSymbol method) {
-      commonMethodChecks.accept(method, ctx);
+
       //Now for constructors - EK9 does not allow only abnormal termination
       if (method.isConstructor()) {
         checkNormalTermination.accept(ctx.start, method);
@@ -271,6 +278,16 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
       if (ctx.getParent() instanceof EK9Parser.ProgramBlockContext) {
         checkProgramReturns.accept(ctx.start, method);
         checkProgramArguments.accept(ctx.start, method);
+        checkNonExtendableMethod.accept(method, ctx);
+      }
+
+      if (ctx.getParent() instanceof EK9Parser.ServiceDeclarationContext) {
+        checkForImplementation.accept(ctx);
+        checkNonExtendableMethod.accept(method, ctx);
+      }
+
+      if (ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext) {
+        checkTraitMethod.accept(method, ctx);
       }
 
       //If not in a class then method must not be marked as dispatcher.
@@ -282,9 +299,9 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
         checkNonTraitMethod.accept(method, ctx);
       }
 
-      if (ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext) {
-        checkTraitMethod.accept(method, ctx);
-      }
+
+
+      commonMethodChecks.accept(method, ctx);
 
     }
     super.exitMethodDeclaration(ctx);
@@ -1173,11 +1190,17 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   private void processProgramDeclaration(EK9Parser.MethodDeclarationContext ctx) {
     var program = symbolFactory.newProgram(ctx);
     checkAndDefineModuleScopedSymbol(program, ctx);
+    checkForImplementation.accept(ctx);
     //Should we now add in a "main program" method to hold the instruction blocks?
     var newMainProgramMethod = symbolFactory.newMethod(ctx, "main", program);
     //But record against the operation details as the Program Aggregate is registered again main ctx
-    //This will also push this method scope on to the stack.
-    symbolAndScopeManagement.defineScopedSymbol(newMainProgramMethod, ctx.operationDetails());
+    //This will also push this method scope on to the stack. But as this is a method the developer
+    //may have use abstract (incorrectly) and left the operation details out.
+    if (ctx.operationDetails() != null) {
+      symbolAndScopeManagement.defineScopedSymbol(newMainProgramMethod, ctx.operationDetails());
+    } else {
+      symbolAndScopeManagement.recordScopeForStackConsistency(new StackConsistencyScope(program), ctx);
+    }
   }
 
   private void pushNewForLoopScope(final ParserRuleContext ctx) {

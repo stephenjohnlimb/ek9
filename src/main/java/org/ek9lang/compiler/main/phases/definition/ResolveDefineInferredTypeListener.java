@@ -5,6 +5,7 @@ import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.resolvedefine.CheckMethodOverrides;
 import org.ek9lang.compiler.main.resolvedefine.CheckPossibleFieldDelegate;
 import org.ek9lang.compiler.main.resolvedefine.DynamicCaptureAndDefinition;
+import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbol.CaptureScope;
 
@@ -75,5 +76,12 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     checkMethodOverrides.accept(symbol);
     super.exitTraitDeclaration(ctx);
+  }
+
+  @Override
+  public void exitComponentDeclaration(EK9Parser.ComponentDeclarationContext ctx) {
+    var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    checkMethodOverrides.accept(symbol);
+    super.exitComponentDeclaration(ctx);
   }
 }

@@ -33,12 +33,12 @@ defines module bad.services.use
             <- rtn as String: notAllowed()
 
       //Not allowed because this is just a normal method and 'correlation' to http is not possible.
-      @Error: SYMBOL_DEFINITION: NOT_ABSTRACT_AND_NO_BODY_PROVIDED
+      @Error: SYMBOL_DEFINITION: IMPLEMENTATION_MUST_BE_PROVIDED
       private someMethod()
         @Error: SYMBOL_DEFINITION: SERVICE_HTTP_ACCESS_NOT_SUPPORTED
         -> incomingContent as String :=: CONTENT
 
-      @Error: SYMBOL_DEFINITION: NOT_ABSTRACT_AND_NO_BODY_PROVIDED
+      @Error: SYMBOL_DEFINITION: IMPLEMENTATION_MUST_BE_PROVIDED
       private anotherInvalidMethod()
         @Error: SYMBOL_DEFINITION: SERVICE_HTTP_ACCESS_NOT_SUPPORTED
         <- incomingContent as String :=: CONTENT

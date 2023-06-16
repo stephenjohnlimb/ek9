@@ -47,6 +47,21 @@ defines module bad.overriding.classmethods1
         <- rtn as String: `[ ${arg0} ]`
 
     <?-
+      Now these are not actually overriding the private method above.
+    -?>
+    C3u extends C1
+      @Error: FULL_RESOLUTION: METHOD_DOES_NOT_OVERRIDE
+      override someMethod()
+        -> arg0 as String
+        <- rtn as String: `[ ${arg0} ]`
+
+    C4u extends C1
+      @Error: FULL_RESOLUTION: METHOD_DOES_NOT_OVERRIDE
+      override protected someMethod()
+        -> arg0 as String
+        <- rtn as String: `[ ${arg0} ]`
+
+    <?-
       Now create another base to extends from but this time it is a protected method.
     -?>
     C5 as open

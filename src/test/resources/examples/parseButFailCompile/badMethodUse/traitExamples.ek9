@@ -4,7 +4,7 @@ defines module bad.traits.examples
   defines trait
 
     T1
-      @Error: SYMBOL_DEFINITION: INVALID_DEFAULT_CONSTRUCTOR
+      @Error: SYMBOL_DEFINITION: ABSTRACT_CONSTRUCTOR
       default T1()
         -> arg0 as String
         <- rtn as String?

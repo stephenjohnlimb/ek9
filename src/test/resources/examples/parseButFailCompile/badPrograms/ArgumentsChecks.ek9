@@ -48,7 +48,7 @@ defines module bad.argument.parameters
       assert v?
 
     //Failure1 - not supported, it's either list all the parameters of have a List of String
-    @Error: SYMBOL_DEFINITION: NOT_ABSTRACT_AND_NO_BODY_PROVIDED
+    @Error: SYMBOL_DEFINITION: IMPLEMENTATION_MUST_BE_PROVIDED
     BadArgumentCombination()
       ->
         arg1 as Integer

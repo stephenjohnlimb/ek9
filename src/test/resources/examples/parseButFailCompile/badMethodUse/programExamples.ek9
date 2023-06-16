@@ -1,0 +1,43 @@
+#!ek9
+defines module bad.programs.examples
+
+  defines program
+
+    <?-
+      Example of a valid program, doesn't do much.
+    -?>
+    Program1()
+      someValue <- 1
+      assert someValue?
+
+    @Error: SYMBOL_DEFINITION: OVERRIDE_INAPPROPRIATE
+    override Program2()
+      someValue <- 1
+      assert someValue?
+
+    @Error: SYMBOL_DEFINITION: CANNOT_BE_ABSTRACT
+    Program3() as abstract
+      someValue <- 1
+      assert someValue?
+
+    @Error: SYMBOL_DEFINITION: IMPLEMENTATION_MUST_BE_PROVIDED
+    Program4()
+
+    @Error: SYMBOL_DEFINITION: IMPLEMENTATION_MUST_BE_PROVIDED
+    Program5() as abstract
+
+    @Error: SYMBOL_DEFINITION: IMPLEMENTATION_MUST_BE_PROVIDED
+    Program6()
+      -> arg0 as String
+
+    @Error: SYMBOL_DEFINITION: IMPLEMENTATION_MUST_BE_PROVIDED
+    Program7()
+      -> arg0 as String
+      <- rtn as Integer?
+
+    //But this should be OK.
+    Program8()
+      -> arg0 as String
+      <- rtn as Integer: 0
+
+//EOF

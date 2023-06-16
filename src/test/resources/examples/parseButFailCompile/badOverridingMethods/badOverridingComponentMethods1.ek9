@@ -1,0 +1,68 @@
+#!ek9
+<?-
+  Defines various cases where method either do override or don't override each other.
+  There are examples of valid situations (which you may think initially should not be valid).
+  But there are other cases that you think will be valid but in ek9 they are not.
+-?>
+defines module bad.overriding.componentmethods1
+
+  defines component
+
+    <?-
+      Firstly, as simple case of one component extending another, but both
+      having private methods with the same signature.
+      This is OK, while it may be slightly misleading for an ek9 developer
+      as the methods are private, this is considered hidden.
+      For example third party libraries may have open classes and those may have
+      private methods, there is another stopping the ek9 developer of using the same
+      method name if they wish (as long as it is private).
+    -?>
+    C1 as open
+      //Acceptable - A
+      private someMethod()
+        -> arg0 as String
+        <- rtn as String: arg0
+
+    C2 extends C1
+      //Acceptable - A
+      private someMethod()
+        -> arg0 as String
+        <- rtn as String: `[ ${arg0} ]`
+
+    <?-
+      I had thought that I would stop this, but if C3 also had traits with
+      methods of the same name/signature, it would have to provide an implementation.
+      So, we allow public/protected methods of same name/signature as the private one in C1.
+    -?>
+    C3 extends C1
+      //Acceptable - B
+      someMethod()
+        -> arg0 as String
+        <- rtn as String: `[ ${arg0} ]`
+
+    <?-
+      Now create another base to extends from but this time it is a public method.
+    -?>
+    C5 as open
+      someMethod()
+        -> arg0 as String
+        <- rtn as String: arg0
+
+    <?-
+      But this must be stopped, cannot obscure something that is not private, with something that is.
+    -?>
+    C6 extends C5
+      @Error: FULL_RESOLUTION: METHOD_ACCESS_MODIFIERS_DIFFER
+      private someMethod()
+        -> arg0 as String
+        <- rtn as String: `[ ${arg0} ]`
+
+    <?-
+      Finally this is acceptable.
+    -?>
+    OkOverrides1 extends C5
+      //Acceptable - C
+      override someMethod()
+        -> arg0 as String
+        <- rtn as String: arg0
+//EOF
