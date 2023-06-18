@@ -12,24 +12,65 @@ import org.antlr.v4.runtime.TokenSource;
  */
 public class SyntheticToken implements Token {
 
-  private String textName = "Synthetic";
-  private int lineNumber = 0;
+  private final String textName;
+  private final int lineNumber;
+
+  private final TokenSource tokenSource;
 
   /**
    * Create a new token with default name of 'Synthetic'.
    */
   public SyntheticToken() {
+    this("Synthetic", 0);
   }
 
   /**
    * Create a new token with a specific name.
    */
   public SyntheticToken(String textName) {
-    this.textName = textName;
+    this(textName, 0);
   }
 
-  public SyntheticToken(String textName, int lineNumber) {
-    this(textName);
+  public SyntheticToken(final String textName, final int lineNumber) {
+    tokenSource = new TokenSource() {
+
+      @Override
+      public Token nextToken() {
+        return null;
+      }
+
+      @Override
+      public int getLine() {
+        return lineNumber;
+      }
+
+      @Override
+      public int getCharPositionInLine() {
+        return 0;
+      }
+
+      @Override
+      public CharStream getInputStream() {
+        return null;
+      }
+
+      @Override
+      public String getSourceName() {
+        return "SyntheticTokenSource";
+      }
+
+      @Override
+      public TokenFactory<?> getTokenFactory() {
+        return null;
+      }
+
+      @Override
+      public void setTokenFactory(TokenFactory<?> factory) {
+        //No op in a synthetic token.
+      }
+    };
+
+    this.textName = textName;
     this.lineNumber = lineNumber;
   }
 
@@ -75,43 +116,7 @@ public class SyntheticToken implements Token {
 
   @Override
   public TokenSource getTokenSource() {
-    return new TokenSource() {
-
-      @Override
-      public Token nextToken() {
-        return null;
-      }
-
-      @Override
-      public int getLine() {
-        return lineNumber;
-      }
-
-      @Override
-      public int getCharPositionInLine() {
-        return 0;
-      }
-
-      @Override
-      public CharStream getInputStream() {
-        return null;
-      }
-
-      @Override
-      public String getSourceName() {
-        return "SyntheticTokenSource";
-      }
-
-      @Override
-      public TokenFactory<?> getTokenFactory() {
-        return null;
-      }
-
-      @Override
-      public void setTokenFactory(TokenFactory<?> factory) {
-        //No op in a synthetic token.
-      }
-    };
+    return tokenSource;
   }
 
   @Override

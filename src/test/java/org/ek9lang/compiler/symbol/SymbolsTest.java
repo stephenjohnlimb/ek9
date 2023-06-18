@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.internals.Module;
 import org.ek9lang.compiler.internals.Source;
+import org.ek9lang.compiler.main.rules.RefersToSameSymbol;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
@@ -77,6 +78,35 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     //Now the idea of a variable inside some sort of generic class/function of type T
     var v1 = new VariableSymbol("v1", t);
     assertEquals("v1 as T", v1.getFriendlyName());
+  }
+
+  @Test
+  void testRefersToSameSymbol() {
+    RefersToSameSymbol underTest = new RefersToSameSymbol();
+
+    var synthToken1 = new SyntheticToken("someSource1.ek9", 21);
+    var synthToken2 = new SyntheticToken("someSource1.ek9", 22);
+    var synthToken3 = new SyntheticToken("someSource2.ek9", 21);
+
+    var symbol1 = new Symbol("Sym", symbolTable.resolve(new TypeSymbolSearch("Integer")));
+    symbol1.setSourceToken(synthToken1);
+
+    var symbol2 = new Symbol("Sym", symbolTable.resolve(new TypeSymbolSearch("Integer")));
+    symbol2.setSourceToken(synthToken1);
+
+    assertTrue(underTest.test(symbol1, symbol2));
+
+    symbol2.setSourceToken(synthToken2);
+    assertFalse(underTest.test(symbol1, symbol2));
+
+    symbol2.setSourceToken(synthToken3);
+    assertFalse(underTest.test(symbol1, symbol2));
+
+    assertFalse(underTest.test(symbol1, null));
+
+    symbol2.setSourceToken(null);
+
+    assertFalse(underTest.test(symbol1, symbol2));
   }
 
   @Test

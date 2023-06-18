@@ -34,21 +34,14 @@ import org.ek9lang.compiler.main.rules.CheckDynamicClassDeclaration;
 import org.ek9lang.compiler.main.rules.CheckDynamicVariableCapture;
 import org.ek9lang.compiler.main.rules.CheckForImplementation;
 import org.ek9lang.compiler.main.rules.CheckForInvalidParameterisedTypeUse;
-import org.ek9lang.compiler.main.rules.CheckGenericConstructor;
-import org.ek9lang.compiler.main.rules.CheckNonExtendableMethod;
-import org.ek9lang.compiler.main.rules.CheckNonTraitMethod;
+import org.ek9lang.compiler.main.rules.CheckMethod;
 import org.ek9lang.compiler.main.rules.CheckNormalTermination;
 import org.ek9lang.compiler.main.rules.CheckNotABooleanLiteral;
-import org.ek9lang.compiler.main.rules.CheckNotDispatcherMethod;
 import org.ek9lang.compiler.main.rules.CheckParamExpressionNamedParameters;
-import org.ek9lang.compiler.main.rules.CheckProgramArguments;
-import org.ek9lang.compiler.main.rules.CheckProgramReturns;
 import org.ek9lang.compiler.main.rules.CheckReturningParam;
 import org.ek9lang.compiler.main.rules.CheckThisAndSuperAssignmentStatement;
-import org.ek9lang.compiler.main.rules.CheckTraitMethod;
 import org.ek9lang.compiler.main.rules.CheckVariableDeclaration;
 import org.ek9lang.compiler.main.rules.CheckVariableOnlyDeclaration;
-import org.ek9lang.compiler.main.rules.CommonMethodChecks;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.CaptureScope;
 import org.ek9lang.compiler.symbol.ConstantSymbol;
@@ -107,49 +100,22 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
    */
   private final TextLanguageExtraction textLanguageExtraction;
 
-  /**
-   * Error if it is possible to detect that a statement is unreachable.
-   */
   private final UnreachableStatement unreachableStatement;
-
-  private final CommonMethodChecks commonMethodChecks;
-
-  private final CheckTraitMethod checkTraitMethod;
-
-  private final CheckNonTraitMethod checkNonTraitMethod;
-
-  private final CheckNonExtendableMethod checkNonExtendableMethod;
-
+  private final CheckMethod checkMethod;
   private final CheckForImplementation checkForImplementation;
-  private final CheckNotDispatcherMethod checkNotDispatcherMethod;
-
   private final CheckThisAndSuperAssignmentStatement checkThisAndSuperAssignmentStatement;
-
   private final CheckVariableOnlyDeclaration checkVariableOnlyDeclaration;
-
   private final CheckVariableDeclaration checkVariableDeclaration;
-
   private final CheckDynamicVariableCapture checkDynamicVariableCapture;
-
   private final CheckDynamicClassDeclaration checkDynamicClassDeclaration;
   private final CheckParamExpressionNamedParameters checkParamExpressionNamedParameters;
-
   private final CheckNormalTermination checkNormalTermination;
-
   private final CheckNotABooleanLiteral checkNotABooleanLiteral;
-
-  private final CheckGenericConstructor checkGenericConstructor;
-
   private final CheckApplicationUseOnMethodDeclaration checkApplicationUseOnMethodDeclaration;
-
   private final CheckReturningParam checkReturningParam;
-  private final CheckProgramReturns checkProgramReturns;
-  private final CheckProgramArguments checkProgramArguments;
-
   private final CheckForInvalidParameterisedTypeUse checkForInvalidParameterisedTypeUse;
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
   private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
-
 
   /**
    * First phase after parsing. Define symbols and infer types where possible.
@@ -163,12 +129,9 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
     unreachableStatement = new UnreachableStatement(errorListener);
     textLanguageExtraction = new TextLanguageExtraction(errorListener);
-    commonMethodChecks = new CommonMethodChecks(errorListener);
-    checkNonTraitMethod = new CheckNonTraitMethod(errorListener);
-    checkNonExtendableMethod = new CheckNonExtendableMethod(errorListener);
-    checkTraitMethod = new CheckTraitMethod();
+    checkMethod = new CheckMethod(symbolAndScopeManagement, errorListener);
     checkForImplementation = new CheckForImplementation(errorListener);
-    checkNotDispatcherMethod = new CheckNotDispatcherMethod(errorListener);
+
     checkThisAndSuperAssignmentStatement = new CheckThisAndSuperAssignmentStatement(errorListener);
     checkVariableOnlyDeclaration = new CheckVariableOnlyDeclaration(errorListener);
     checkVariableDeclaration = new CheckVariableDeclaration(symbolAndScopeManagement, errorListener);
@@ -177,12 +140,11 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     checkParamExpressionNamedParameters = new CheckParamExpressionNamedParameters(errorListener);
     checkNormalTermination = new CheckNormalTermination(errorListener);
     checkNotABooleanLiteral = new CheckNotABooleanLiteral(errorListener);
-    checkGenericConstructor = new CheckGenericConstructor(errorListener);
+
     checkApplicationUseOnMethodDeclaration =
         new CheckApplicationUseOnMethodDeclaration(symbolAndScopeManagement, errorListener);
     checkReturningParam = new CheckReturningParam(errorListener);
-    checkProgramReturns = new CheckProgramReturns(errorListener);
-    checkProgramArguments = new CheckProgramArguments(errorListener);
+
     checkForInvalidParameterisedTypeUse = new CheckForInvalidParameterisedTypeUse(errorListener);
 
     resolveOrDefineTypeDef = new ResolveOrDefineTypeDef(symbolAndScopeManagement, symbolFactory, errorListener, false);
@@ -268,41 +230,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     var currentScope = symbolAndScopeManagement.getTopScope();
     //Can be null if during definition 'enter' it was a duplicate method
     if (currentScope instanceof MethodSymbol method) {
-
-      //Now for constructors - EK9 does not allow only abnormal termination
-      if (method.isConstructor()) {
-        checkNormalTermination.accept(ctx.start, method);
-        checkGenericConstructor.accept(ctx.start, method);
-      }
-
-      if (ctx.getParent() instanceof EK9Parser.ProgramBlockContext) {
-        checkProgramReturns.accept(ctx.start, method);
-        checkProgramArguments.accept(ctx.start, method);
-        checkNonExtendableMethod.accept(method, ctx);
-      }
-
-      if (ctx.getParent() instanceof EK9Parser.ServiceDeclarationContext) {
-        checkForImplementation.accept(ctx);
-        checkNonExtendableMethod.accept(method, ctx);
-      }
-
-      if (ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext) {
-        checkTraitMethod.accept(method, ctx);
-      }
-
-      //If not in a class then method must not be marked as dispatcher.
-      if (!(ctx.getParent().getParent() instanceof EK9Parser.ClassDeclarationContext)) {
-        checkNotDispatcherMethod.accept(method, ctx);
-      }
-
-      if (!(ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext)) {
-        checkNonTraitMethod.accept(method, ctx);
-      }
-
-
-
-      commonMethodChecks.accept(method, ctx);
-
+      checkMethod.accept(method, ctx);
     }
     super.exitMethodDeclaration(ctx);
   }
@@ -318,6 +246,18 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
       symbolAndScopeManagement.recordScopeForStackConsistency(new StackConsistencyScope(currentScope), ctx);
     }
     super.enterOperatorDeclaration(ctx);
+  }
+
+  @Override
+  public void exitOperatorDeclaration(EK9Parser.OperatorDeclarationContext ctx) {
+    var currentScope = symbolAndScopeManagement.getTopScope();
+    //Can be null if during definition 'enter' it was a duplicate operator
+    if (currentScope instanceof MethodSymbol method) {
+      //Yes this is correct an operator is just a method but marked as an operator.
+      //TODO
+    }
+
+    super.exitOperatorDeclaration(ctx);
   }
 
   @Override
@@ -418,6 +358,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     final var newServiceOperationSymbol = symbolFactory.newServiceOperation(ctx, currentScope);
 
     //Do we need to check for duplicates here?
+    //TODO yes check for duplicates
     symbolAndScopeManagement.defineScopedSymbol(newServiceOperationSymbol, ctx);
 
     super.enterServiceOperationDeclaration(ctx);

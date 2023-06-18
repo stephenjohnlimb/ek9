@@ -23,8 +23,6 @@ public class CheckNonTraitMethod implements BiConsumer<MethodSymbol, EK9Parser.M
 
   @Override
   public void accept(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
-
-    final var message = "for method '" + method.getName() + "':";
     final var hasBody = checkForBody.test(ctx);
     final var isVirtual = !method.isMarkedAbstract() && !hasBody;
 
@@ -34,7 +32,7 @@ public class CheckNonTraitMethod implements BiConsumer<MethodSymbol, EK9Parser.M
     var isExternallyImplemented = "TRUE".equals(method.getSquirrelledData(EXTERN));
 
     if (isVirtual && !isDefaultedMethod && !isExternallyImplemented) {
-      errorListener.semanticError(method.getSourceToken(), message,
+      errorListener.semanticError(method.getSourceToken(), "",
           ErrorListener.SemanticClassification.NOT_ABSTRACT_AND_NO_BODY_PROVIDED);
     }
   }

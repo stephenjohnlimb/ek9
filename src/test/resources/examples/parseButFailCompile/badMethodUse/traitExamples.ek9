@@ -5,6 +5,10 @@ defines module bad.traits.examples
 
     T1
       @Error: SYMBOL_DEFINITION: ABSTRACT_CONSTRUCTOR
+      T1()
+        -> arg0 as String
+
+      @Error: SYMBOL_DEFINITION: RETURN_VALUE_NOT_SUPPORTED
       default T1()
         -> arg0 as String
         <- rtn as String?

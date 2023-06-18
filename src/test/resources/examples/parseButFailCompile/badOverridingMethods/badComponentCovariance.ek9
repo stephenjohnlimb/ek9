@@ -1,0 +1,144 @@
+#!ek9
+<?-
+  Test to detect invalid return types via covariance on method with the same signature in components.
+  This is the same as class covariance checks. Just checks that hose same checks are plugged in to component
+  processing.
+-?>
+defines module bad.components.covariance.examples
+
+  <?-
+    Just use these for valid covariance checks.
+  -?>
+  defines record
+
+    R1 as open
+      someField <- "Field1"
+
+    R2 extends R1
+      anotherField <- "Field2"
+
+    <?-
+      Something that is unrelated to R1 or R2.
+      To be used later in tests.
+    -?>
+    R3
+      unrelatedField <- "Field3"
+
+  defines component
+
+    C1 as open
+      someMethod1()
+        -> arg0 as String
+        <- rtn as Float: 1.0
+
+      someMethod2()
+        -> arg0 as String
+        <- rtn as R1: R1()
+
+      someMethod3()
+        -> arg0 as String
+        <- rtn as R1: R1()
+
+      //Something that has no return value to be used in covariance checks later
+      someMethod4()
+        -> arg0 as String
+        assert arg0?
+
+    <?-
+      Extend an override the C1 someMethod1 method but alter the return type
+      so that it incompatible with the class C1
+    -?>
+    C2 extends C1
+      @Error: FULL_RESOLUTION: COVARIANCE_MISMATCH
+      override someMethod1()
+        -> arg0 as String
+        <- rtn as String: "Test"
+
+      <?-
+        just a normal override no covariance issues or use.
+      -?>
+      override someMethod2()
+        -> arg0 as String
+        <- rtn as R1: R1()
+
+      <?-
+        Again override and should be OK because this is valid as it is a 'R1'.
+        But this does not test covariance!
+      -?>
+      override someMethod3()
+        -> arg0 as String
+        <- rtn as R1: R2()
+
+      <?-
+        A valid override of a method
+      -?>
+      override someMethod4()
+        -> arg0 as String
+        assert arg0?
+
+    <?-
+      Now even though an Integer can be coerced to a Float - it is not 'covariant'.
+    -?>
+    C3 extends C1
+      @Error: FULL_RESOLUTION: COVARIANCE_MISMATCH
+      override someMethod1()
+        -> arg0 as String
+        <- rtn as Integer: 1
+
+      <?-
+        Again override and should be OK because this is valid covariance.
+        Note that we have altered the return type.
+      -?>
+      override someMethod2()
+        -> arg0 as String
+        <- rtn as R2: R2()
+
+      <?-
+        But R3 is not a 'R1' and therefore this is not valid covariance.
+      -?>
+      @Error: FULL_RESOLUTION: COVARIANCE_MISMATCH
+      override someMethod3()
+        -> arg0 as String
+        <- rtn as R3: R3()
+
+      <?-
+        Cannot start adding return types when super is not returning anything.
+      -?>
+      @Error: FULL_RESOLUTION: COVARIANCE_MISMATCH
+      override someMethod4()
+        -> arg0 as String
+        <- rtn as R3: R3()
+        assert arg0?
+
+    C4 extends C1
+      <?-
+        Normal valid override
+      -?>
+      override someMethod1()
+        -> arg0 as String
+        <- rtn as Float: 1.0
+
+      <?-
+        Must return a covariant compatible type.
+      -?>
+      @Error: FULL_RESOLUTION: COVARIANCE_MISMATCH
+      override someMethod2()
+        -> arg0 as String
+        assert arg0?
+
+      <?-
+        But Integer '9' is not a 'R1' and therefore this is not valid covariance.
+      -?>
+      @Error: FULL_RESOLUTION: COVARIANCE_MISMATCH
+      override someMethod3()
+        -> arg0 as String
+        <- rtn <- 9
+
+      <?-
+        Another valid override
+      -?>
+      override someMethod4()
+        -> arg0 as String
+        assert arg0?
+
+//EOF

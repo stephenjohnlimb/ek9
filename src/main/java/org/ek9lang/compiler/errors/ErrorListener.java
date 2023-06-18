@@ -405,8 +405,8 @@ public class ErrorListener extends BaseErrorListener {
     DISPATCH_ONLY_SUPPORTED_IN_CLASSES("Dispatch only supported in classes"),
     TRAIT_DELEGATE_NOT_USED("has not been used for any methods as they have been defined"),
     ABSTRACT_BUT_BODY_PROVIDED("defined as default/abstract but an implementation has been provided"),
-    CANNOT_BE_ABSTRACT("this method cannot be abstract"),
-    OVERRIDE_INAPPROPRIATE("this method cannot override any other"),
+    CANNOT_BE_ABSTRACT("cannot be abstract"),
+    OVERRIDE_INAPPROPRIATE("cannot override anything"),
     NOT_ABSTRACT_AND_NO_BODY_PROVIDED("implementation not provided so must be declared as abstract"),
     DYNAMIC_CLASS_CANNOT_BE_ABSTRACT("a dynamic class cannot have abstract methods"),
     GENERIC_WITH_NAMED_DYNAMIC_CLASS("a named dynamic class cannot be used within a generic type/function"),
@@ -488,6 +488,7 @@ public class ErrorListener extends BaseErrorListener {
     NO_MUTATION_IN_PURE_CONTEXT("mutating variables is not allowed when scope is marked as 'pure'"),
     PURE_RETURN_REASSIGNMENT("reassignment of return values is discouraged when scope is marked as 'pure'"),
     COVARIANCE_MISMATCH("return types are incompatible (covariance required)"),
+    RETURN_VALUE_NOT_SUPPORTED("return not required/supported in this context"),
     COMPONENT_INJECTION_IN_PURE("component injection not allowed when scope is marked as 'pure'"),
     COMPONENT_INJECTION_OF_NON_ABSTRACT(
         "dependency injection of a non-abstract component is not allowed, use an abstract base component"),

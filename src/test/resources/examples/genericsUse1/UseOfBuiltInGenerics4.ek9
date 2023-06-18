@@ -11,7 +11,7 @@ defines module simple.generics.use.four
     -?>
     //Symbol 1
     @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "GenericThing"
-    GenericThing of type T
+    GenericThing of type T as open
       item as T?
 
       default GenericThing()

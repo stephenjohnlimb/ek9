@@ -43,4 +43,10 @@ public interface ICanBeGeneric extends ISymbol {
 
   void setContextForParameterisedType(ParserRuleContext ctx);
 
+  /**
+   * Is the symbol open for extension or not.
+   * Typically this means a function is open/abstract and therefore can/must be extended.
+   * The same with classes and components.
+   */
+  boolean isOpenForExtension();
 }

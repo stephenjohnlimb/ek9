@@ -29,5 +29,6 @@ class BadMethodOverridingFullCompilationTest extends FullCompilationTest {
     assertFalse(program.getParsedModules("bad.overriding.traitmethods1").isEmpty());
     assertFalse(program.getParsedModules("bad.traits.covariance.examples").isEmpty());
     assertFalse(program.getParsedModules("bad.classes.covariance.examples").isEmpty());
+    assertFalse(program.getParsedModules("bad.components.covariance.examples").isEmpty());
   }
 }

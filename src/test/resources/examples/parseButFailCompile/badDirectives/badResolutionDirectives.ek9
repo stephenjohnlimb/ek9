@@ -67,9 +67,9 @@ defines module bad.resolution.directives
       //A constructor
       default AType()
 
-      aMethod() as abstract
+      aMethod()
         -> arg0 as Integer
-        <- rtn as String?
+        <- rtn <- ""
 
     //No such construct as TIP
     @Resolved: SYMBOL_DEFINITION: TIP: "BType"

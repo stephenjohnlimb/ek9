@@ -9,7 +9,7 @@ defines module bad.components.examples
   defines component
 
     Comp1
-      @Error: SYMBOL_DEFINITION: INVALID_DEFAULT_CONSTRUCTOR
+      @Error: SYMBOL_DEFINITION: RETURN_VALUE_NOT_SUPPORTED
       default Comp1()
         -> arg0 as String
         <- rtn as String?
@@ -30,6 +30,7 @@ defines module bad.components.examples
         <- rtn as String?
 
       //As above but this time abstract is explicit, not difference in functionality to method above
+      @Error: SYMBOL_DEFINITION: CANNOT_BE_ABSTRACT
       someMethod3() as abstract
         -> arg0 as String
         <- rtn as String?
@@ -65,5 +66,40 @@ defines module bad.components.examples
       anotherMethod() as dispatcher
         -> arg0 as String
         assert arg0?
+
+    Comp2 as open
+
+      //Now this can be abstract as the component is open for extension.
+      //So it is now possible for another component to extend this and provide the implementation.
+      someMethod3B() as abstract
+        -> arg0 as String
+        <- rtn as String?
+
+      //Ah but this is an error because a body (return) has been provided.
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      someMethod4B() as abstract
+        -> arg0 as String
+        <- rtn as String: arg0
+
+      //Again an error because a body has been provided.
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      someMethod5B() as abstract
+        -> arg0 as String
+        assert arg0?
+
+      //Also an error because both a return and a body has been provided.
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      someMethod6B() as abstract
+        -> arg0 as String
+        <- rtn as String: arg0
+        assert arg0?
+
+      //Also an error because both a return and a body has been provided.
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      someMethod7B() as abstract
+        -> arg0 as String
+        <- rtn as String?
+        assert arg0?
+        rtn :=: arg0
 
 //EOF

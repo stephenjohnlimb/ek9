@@ -1,0 +1,43 @@
+#!ek9
+defines module bad.records.examples
+
+  defines record
+
+    R1 as open
+      @Error: SYMBOL_DEFINITION: RETURN_VALUE_NOT_SUPPORTED
+      R1()
+        -> arg0 as Float
+        <- rtn as String?
+
+      @Error: SYMBOL_DEFINITION: INVALID_DEFAULT_CONSTRUCTOR
+      default R1()
+        -> arg0 as String
+
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      default R1()
+        someVar <- 1
+        assert someVar?
+
+      operator $
+        <- rtn <- ""
+
+      operator <=>
+        -> arg0 as R1
+        <- rtn <- 0
+
+    R2 extends R1
+      @Error: SYMBOL_DEFINITION: RETURN_VALUE_NOT_SUPPORTED
+      R2()
+        -> arg0 as Float
+        <- rtn as String?
+
+      @Error: SYMBOL_DEFINITION: INVALID_DEFAULT_CONSTRUCTOR
+      default R2()
+        -> arg0 as String
+
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      default R2()
+        someVar <- 1
+        assert someVar?
+
+//EOF

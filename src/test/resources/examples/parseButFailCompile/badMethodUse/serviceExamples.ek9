@@ -1,6 +1,6 @@
 #!ek9
 <?-
-  As services cannot extend other sericves then override and abstract are meaningless.
+  As services cannot extend other services then override and abstract are meaningless.
   This is the test for that.
 -?>
 defines module bad.services.use

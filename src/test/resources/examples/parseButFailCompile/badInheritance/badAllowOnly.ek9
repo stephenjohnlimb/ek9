@@ -60,7 +60,7 @@ defines module bad.allowonly.classes
       Just used for checking extension.
     -?>
     @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "NotAllowedGenericClass"
-    NotAllowedGenericClass of type T
+    NotAllowedGenericClass of type T as open
 
       default NotAllowedGenericClass()
 

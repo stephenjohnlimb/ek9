@@ -27,5 +27,8 @@ class BadMethodUseFullCompilationTest extends FullCompilationTest {
     assertFalse(program.getParsedModules("bad.traits.examples").isEmpty());
     assertFalse(program.getParsedModules("bad.classes.examples").isEmpty());
     assertFalse(program.getParsedModules("bad.components.examples").isEmpty());
+    assertFalse(program.getParsedModules("bad.records.examples").isEmpty());
+
+    assertFalse(program.getParsedModules("bad.dynamicclasses.examples").isEmpty());
   }
 }

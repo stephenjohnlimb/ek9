@@ -1,0 +1,51 @@
+#!ek9
+defines module bad.dynamicclasses.examples
+
+  defines trait
+
+    T1
+      aMethod()
+        -> arg0 String
+        <- rtn as String: arg0
+
+  defines function
+
+    //First a valid example, the trait actual has an implementation we can in effect
+    //instantiate it as a class like this. No need to add a body or override any methods
+    //See other tests for bad overrides
+    TestFunctionDriver1()
+      dynamic1 <- () with trait of T1
+      assert dynamic1?
+
+    TestFunctionDriver2()
+      dynamic2 <- () with trait of T1
+
+        @Error: SYMBOL_DEFINITION: NOT_ABSTRACT_AND_NO_BODY_PROVIDED
+        bMethod()
+          -> arg0 as String
+          <- rtn as String?
+
+        //So if we follow the instructions to mark this abstract we should now get an error.
+        //In short dynamic methods must be implemented.
+        @Error: SYMBOL_DEFINITION: CANNOT_BE_ABSTRACT
+        cMethod() as abstract
+          -> arg0 as String
+          <- rtn as String?
+
+        //So this will be fine.
+        private dMethod()
+          -> arg0 as String
+          <- rtn <- "OK"
+
+        //Check that it is possible to have a dispatcher in a dynamic class.
+        anotherMethodB() as dispatcher
+          -> arg0 as String
+          assert arg0?
+
+        //End of dynamic class
+
+      //Back to main function body here.
+      assert dynamic2?
+
+
+//EOF
