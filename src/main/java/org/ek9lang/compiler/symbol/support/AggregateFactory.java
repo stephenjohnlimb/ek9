@@ -230,12 +230,14 @@ public class AggregateFactory {
         createPurePublicSimpleOperator(aggregate, "length", integerType),
 
         //First and last
-        createPurePublicPrefixSuffixMethod(aggregate, "#<"), createPurePublicPrefixSuffixMethod(aggregate, "#>"),
+        createPurePublicPrefixSuffixMethod(aggregate, "#<"),
+        createPurePublicPrefixSuffixMethod(aggregate, "#>"),
 
         //negate operator
         createPurePublicPrefixSuffixMethod(aggregate, "~"),
 
-        createPurePublicPrefixSuffixMethod(aggregate, "++"), createPurePublicPrefixSuffixMethod(aggregate, "--"),
+        createPurePublicPrefixSuffixMethod(aggregate, "++"),
+        createPurePublicPrefixSuffixMethod(aggregate, "--"),
 
         //Support automatic opening and closing of 'things'
         createPurePublicSimpleOperator(aggregate, "close", voidType),
@@ -243,19 +245,21 @@ public class AggregateFactory {
         //Other operators
 
         //So for operators these will deal in the same type.
-        createOperator(aggregate, "+", true), createOperator(aggregate, "-", true),
-        createOperator(aggregate, "*", true), createOperator(aggregate, "/", true),
+        createOperator(aggregate, "+", true),
+        createOperator(aggregate, "-", true),
+        createOperator(aggregate, "*", true),
+        createOperator(aggregate, "/", true),
 
         //copy/clone
         createOperator(aggregate, ":=:", true),
 
-        createOperator(aggregate, "|", false), createOperator(aggregate, "+=", false),
-        createOperator(aggregate, "-=", false), createOperator(aggregate, "*=", false),
+        createOperator(aggregate, "|", false),
+        createOperator(aggregate, "+=", false),
+        createOperator(aggregate, "-=", false),
+        createOperator(aggregate, "*=", false),
         createOperator(aggregate, "/=", false),
-
         //merge
         createOperator(aggregate, ":~:", false),
-
         //replace
         createOperator(aggregate, ":^:", false),
 

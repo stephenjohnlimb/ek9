@@ -176,21 +176,21 @@ defines module com.customer.services
     AddressAccess
       operator +=
         -> address as Address
-        <- rtn as AddressAccess?
+        assert address?
         
       operator -=
         -> address as Address
-        <- rtn as AddressAccess?
+        assert address?
 
       //merge with an existing address
       operator :~:
         -> address as Address
-        <- rtn as AddressAccess?
+        assert address?
 
       //replace an existing address
       operator :^:
         -> address as Address
-        <- rtn as AddressAccess?
+        assert address?
         
       operator contains
         -> addressId as AddressId
@@ -220,7 +220,6 @@ defines module com.customer.services
 
       override operator +=
         -> address as Address
-        <- rtn as AddressAccess: this
         assert address?
         
         if this not contains address
@@ -228,7 +227,6 @@ defines module com.customer.services
       
       override operator -=
         -> address as Address
-        <- rtn as AddressAccess: this
         assert address.id?
         
         addresses -= address.id
@@ -237,7 +235,6 @@ defines module com.customer.services
 
       override operator :~:
         -> address as Address
-        <- rtn as AddressAccess: this
         assert address.id?
         //We don't assert whole address because it can be partial
 
@@ -250,7 +247,6 @@ defines module com.customer.services
 
       override operator :^:
         -> address as Address
-        <- rtn as AddressAccess: this
         assert address?
                         
         if this contains address
@@ -299,7 +295,6 @@ defines module com.customer.services
       
       override operator +=
         -> address as Address
-        <- rtn as AddressAccess: this
         
         //You can inline this simple dynamic function if you wish
         //Also used named parameters
@@ -311,14 +306,12 @@ defines module com.customer.services
                   
       override operator -=
         -> address as Address
-        <- rtn as AddressAccess: this
 
         //Or you can inline all on one line.
         safeOperation(lockedAddressSet, address, () is addressOperation (addresses -= address))
 
       override operator :~:
         -> address as Address
-        <- rtn as AddressAccess: this
 
         //Or define a dynamic function and pass in as delegate (my preferred way)
         operation <- () is addressOperation
@@ -327,7 +320,6 @@ defines module com.customer.services
 
       override operator :^:
         -> address as Address
-        <- rtn as AddressAccess: this
         operation <- () is addressOperation
           addresses :^: address
         safeOperation(lockedAddressSet, address, operation)

@@ -1,0 +1,63 @@
+#!ek9
+<?-
+  Because there are so many operators, I've broken examples up into multiple files (even just for classes).
+  Do not check overrides yet, not until the full resolution phase.
+-?>
+defines module bad.classes.operators.examples4
+
+  defines class
+
+    //Some no argument operators, some can return anything, but others specific types.
+    C4
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+      operator #^
+        -> arg0 as Float
+        <- rtn as Float: arg0
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+      operator #^
+        check <- 1
+        assert check?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+      operator $$
+        -> arg0 as Float
+        <- rtn as JSON: JSON()
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_JSON
+      operator $$
+        <- rtn as String: ""
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_STRING
+      operator $
+        <- rtn as Integer: 1
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
+      operator #?
+        <- rtn as Float: 1.0
+
+      //Get first, accepts no parameters can return any type
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+      operator #<
+        someVal <- 1
+        assert someVal?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+      operator #>
+        someVal <- 1
+        assert someVal?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
+      operator abs
+        <- rtn as Float: 2.0
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
+      operator empty
+        <- rtn as Integer: 1
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
+      operator length
+        <- rtn as String: ""
+
+//EOF

@@ -1,0 +1,105 @@
+#!ek9
+<?-
+  Because there are so many operators, I've broken examples up into multiple files (even just for classes).
+  Do not check overrides yet, not until the full resolution phase.
+-?>
+defines module bad.classes.operators.examples2
+
+  defines class
+
+    //Some of the mathematics operators
+    C2
+      //This can mean factorial (mathematics or clear to empty or reset)
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+      operator !
+        -> arg0 as Integer
+        <- rtn as C2: this
+
+      //So you can have factorial or clear but it must return some type
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+      operator !
+        val <- 1
+        assert val?
+
+      //The 'is set' operator
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
+      operator ?
+        <- rtn as Integer: 1
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+      operator ?
+        -> arg0 as C2
+        <- rtn as Integer: 1
+
+      //The not/negate operator
+      //As such it accepts no parameters, but returns the same type as itself
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
+      operator ~
+        <- rtn as Float: 1.0
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+      operator ~
+        -> arg0 as C2
+        <- rtn as C2: arg0
+
+      //The increment operator, this alters its own state and returns itself
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
+      operator ++
+        <- rtn as Float: 1.0
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+      operator ++
+        -> arg0 as C2
+        <- rtn as C2: this
+
+      //The decrement operator, this alters its own state and returns itself
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
+      operator --
+        <- rtn as Integer: 1.0
+
+      //All of these sort of meth operators +, -, *, / and ^ accept one single argument in and return something
+      //But they can be a range of different types, so you could have multiple + operators with different arg types
+      //for example. So they are not restricted to same type
+      operator +
+        -> arg0 as C2
+        <- rtn as Float: 2.0
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+      operator +
+        <- rtn as C2: this
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+      operator +
+        ->
+          arg0 as C2
+          arg1 as C2
+        <- rtn as C2: this
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+      operator +
+        -> arg0 as Float
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+      operator +
+        <- rtn as Date: 2023-06-19
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+      operator -
+        -> arg0 as Date
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+      operator *
+
+      //Cabnot be abstract because this class is not open to extension
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: CANNOT_BE_ABSTRACT
+      operator / as abstract
+        -> arg0 as Float
+        <- rtn as Colour: #FF11DD
+
+      //This is fine
+      operator ^
+        -> arg0 as Integer
+        <- rtn as Float: 45000.00
+
+
+//EOF

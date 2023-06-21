@@ -137,7 +137,6 @@ defines extern module org.ek9.lang
 
       operator +=
         -> arg as String
-        <- rtn as String?
 
 """;
 
@@ -209,7 +208,6 @@ defines extern module org.ek9.lang
 
       operator +=
         -> arg as Integer
-        <- rtn as Integer?
 
       operator ++
         <- rtn as Integer?
@@ -232,7 +230,6 @@ defines extern module org.ek9.lang
 
       operator +=
         -> arg as Float
-        <- rtn as Float?
 
       operator ++
         <- rtn as Float?
@@ -255,7 +252,6 @@ defines extern module org.ek9.lang
 
       operator +=
         -> arg as Duration
-        <- rtn as Time?
 
       operator ++
         <- rtn as Time?
@@ -278,7 +274,6 @@ defines extern module org.ek9.lang
 
       operator +=
         -> arg as Duration
-        <- rtn as Duration?
 
       operator ++
         <- rtn as Duration?
@@ -301,7 +296,6 @@ defines extern module org.ek9.lang
 
       operator +=
         -> arg as Millisecond
-        <- rtn as Millisecond?
 
       operator ++
         <- rtn as Millisecond?
@@ -324,7 +318,6 @@ defines extern module org.ek9.lang
 
       operator +=
         -> arg as Duration
-        <- rtn as Date?
 
       operator ++
         <- rtn as Date?
@@ -347,7 +340,6 @@ defines extern module org.ek9.lang
 
       operator +=
         -> arg as Duration
-        <- rtn as DateTime?
 
       operator ++
         <- rtn as DateTime?
@@ -370,7 +362,6 @@ defines extern module org.ek9.lang
 
       operator +=
         -> arg as Money
-        <- rtn as Money?
 
       operator ++
         <- rtn as Money?
@@ -406,7 +397,6 @@ defines extern module org.ek9.lang
 
       operator +=
         -> arg as Colour
-        <- rtn as Colour?
 
     Dimension as open
       Dimension()
@@ -423,7 +413,6 @@ defines extern module org.ek9.lang
 
       operator +=
         -> arg as Dimension
-        <- rtn as Dimension?
 
       operator ++
         <- rtn as Dimension?

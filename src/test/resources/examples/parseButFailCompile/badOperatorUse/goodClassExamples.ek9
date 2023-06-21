@@ -1,0 +1,233 @@
+#!ek9
+<?-
+  Incorrectly define operators and ensure that the compiler can detect them.
+  Also define correct use of operators and ensure that the compiler does not consider those to be in error.
+
+  Now there are quite a few operators and they have strict syntax and semantics, that's why they are operators and are
+  predefined. While this may be a bit limiting in some ways, it does enable ek9 developers and the compiler to assume/expect
+  specific behaviours. So while not as flexible as something like C++, it does provide a significant advantage over languages that do not
+  have operators as part of the language definition. It's a sort of halfway house but also folds in a bit of 'duck typing', this means that
+  it is not always necessary to define interfaces for everything (for example having a 'close' method, means 'autoclose' when used with try/catch)
+  for example. But this is just a method name, rather than being a specific operator.
+
+  The operators are: >, <, ==, <=, >=, <>, <=>, <~>, !, ?, ~, ++. --, +, -, *, /, ^,
+  Assignment sort of operators are: :~:, :^:, :=:, |, +=. -=, *=, /=, >>, <<
+  Aspects of the object operators are: #^, $$, $, #?, #<, #>
+  They also include: mod, rem, abs, sqrt, contains, matches, empty, length
+-?>
+defines module good.classes.operators.examples
+
+  defines class
+
+    C1
+      operator <
+        -> arg0 as C1
+        <- rtn as Boolean: true
+
+      //You can do this if you wish
+      operator <
+        -> arg0 as Float
+        <- rtn as Boolean: true
+
+      operator >
+        -> arg0 as C1
+        <- rtn as Boolean: true
+
+      operator ==
+        -> arg0 as C1
+        <- rtn as Boolean: true
+
+      //YYou can even do this, if you really wanted to
+      operator ==
+        -> arg0 as Date
+        <- rtn as Boolean: true
+
+      operator <=
+        -> arg0 as C1
+        <- rtn as Boolean: true
+
+      operator >=
+        -> arg0 as C1
+        <- rtn as Boolean: true
+
+      operator <>
+        -> arg0 as C1
+        <- rtn as Boolean: true
+
+      operator <=>
+        -> arg0 as C1
+        <- rtn as Integer: 0
+
+      operator <~>
+        -> arg0 as C1
+        <- rtn as Integer: 0
+
+      //This can mean factorial (mathematics or clear to empty or reset)
+      //As such it accepts no parameters, but can return nothing or anything you like
+      operator !
+        <- rtn as C1: this
+
+      //The 'is set' operator
+      operator ?
+        <- rtn as Boolean: true
+
+      //The not/negate operator
+      //As such it accepts no parameters, but returns the same type as itself
+      operator ~
+        <- rtn as C1: this
+
+      //The increment operator, this alters its own state and returns itself
+      operator ++
+        <- rtn as C1: this
+
+      //The decrement operator, this alters its own state and returns itself
+      operator --
+        <- rtn as C1: this
+
+      //All of these sort of meth operators +, -, *, / and ^ accept one single argument in and return something
+      //But they can be a range of different types, so you could have multiple + operators with different arg types
+      //for example. So they are not restricted to same type
+      operator +
+        -> arg0 as C1
+        <- rtn as C1: this
+
+      //As an example you could do this as well.
+      //just as an example of using different types, clearly this makes little logical sense.
+      operator +
+        -> arg0 as Integer
+        <- rtn as Date: 2023-06-19
+
+      operator -
+        -> arg0 as Date
+        <- rtn as Duration: P6D
+
+      operator *
+        -> arg0 as Float
+        <- rtn as Dimension: 6km
+
+      operator /
+        -> arg0 as Float
+        <- rtn as Colour: #FF11DD
+
+      operator ^
+        -> arg0 as Integer
+        <- rtn as Float: 45000.00
+
+      //Merge from arg0 into this, there is no return here
+      operator :~:
+        -> arg0 as C1
+        assert arg0?
+
+      //Replace everything in this with values from arg0, there is no return here
+      operator :^:
+        -> arg0 as C1
+        assert arg0?
+
+      //Copy from arg0 into this, there is no return here
+      operator :=:
+        -> arg0 as C1
+        assert arg0?
+
+      //Pipe in values from a 'pipeline' can accept any type in, there is nor return here
+      operator |
+        -> arg0 as C1
+        assert arg0?
+
+      //Another valid example of a pipe in
+      operator |
+        -> arg0 as Date
+        assert arg0?
+
+      //These example show how it is possible to accept any type in to do some sort of operation.
+      //Example a addition with assignment, any type can be accepted, there is no return here
+      operator +=
+        -> arg0 as C1
+        assert arg0?
+
+      //Example a subtraction with assignment, any type can be accepted, there is no return here
+      operator -=
+        -> arg0 as C1
+        assert arg0?
+
+      //Example a multiplication with assignment, any type can be accepted, there is no return here
+      operator *=
+        -> arg0 as Integer
+        assert arg0?
+
+      //Example a division with assignment, any type can be accepted, there is no return here
+      operator /=
+        -> arg0 as Duration
+        assert arg0?
+
+      //Accepts no parameters and always returns a type it promotes to, can be any type, but there is only one promotion.
+      operator #^
+        <- rtn as Integer: 0
+
+      //Accepts no parameters and always returns JSON
+      operator $$
+        <- rtn as JSON: JSON()
+
+      //The to-string operator, always returns a String
+      operator $
+        <- rtn as String: ""
+
+      //hash code, accepts no parameters, always returns Integer
+      operator #?
+        <- rtn as Integer: 0
+
+      //Get first, accepts no parameters can return any type
+      operator #<
+        <- rtn as Integer: 0
+
+      //Get last, accepts no parameters can return any type
+      operator #>
+        <- rtn as Integer: 0
+
+      //Absolute, accepts no parameters and must return same type as it is.
+      operator abs
+        <- rtn as C1: this
+
+      //Empty check, accepts no parameters and must return a Boolean
+      operator empty
+        <- rtn as Boolean: true
+
+      //Length/size check, accepts no parameters and must return an Integer
+      operator length
+        <- rtn as Integer: 0
+
+      //Shift right, accepts one parameter and can return any type
+      operator >>
+        -> arg0 as Integer
+        <- rtn as Integer: 0
+
+      //Shift left, accepts one parameter and can return any type
+      operator <<
+        -> arg0 as Integer
+        <- rtn as Integer: 0
+
+      //Modulus, accepts one parameters of any type must return an Integer
+      operator mod
+        -> arg0 as Integer
+        <- rtn as Integer: 0
+
+      //Another example of modulus
+      operator mod
+        -> arg0 as Duration
+        <- rtn as Integer: 0
+
+      //Remainder, accepts one parameters of any type must return an Integer
+      operator rem
+        -> arg0 as Float
+        <- rtn as Integer: 0
+
+      //Contains, accepts one parameters of any type must return a Boolean
+      operator contains
+        -> arg0 as Float
+        <- rtn as Boolean: true
+
+      //Matches, accepts one parameters of any type must return a Boolean
+      operator matches
+        -> arg0 as Float
+        <- rtn as Boolean: true
+
+//EOF

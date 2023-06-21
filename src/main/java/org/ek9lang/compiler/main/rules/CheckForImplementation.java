@@ -18,7 +18,7 @@ public class CheckForImplementation implements Consumer<EK9Parser.MethodDeclarat
 
   @Override
   public void accept(EK9Parser.MethodDeclarationContext ctx) {
-    final var hasBody = checkForBody.test(ctx);
+    final var hasBody = checkForBody.test(ctx.operationDetails());
     final var isVirtual = ctx.ABSTRACT() == null && !hasBody;
 
     if (ctx.operationDetails() == null || isVirtual) {

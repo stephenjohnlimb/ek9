@@ -534,11 +534,19 @@ public class SymbolFactory {
     MethodSymbol method = new MethodSymbol(methodName, scopedSymbol);
 
     configureSymbol(method, ctx.operator().start);
-    var markedPure = ctx.PURE() != null;
 
+    //For operators with arguments, i.e. <, >, <>, etc. the developer really wants to test based on the
+    //actual type being provided not some super. So we use the same dispatcher mechanism in classes that the ek9
+    //developer can express. But here we do it behind the scenes.
+    var hasArguments = ctx.operationDetails() != null && ctx.operationDetails().argumentParam() != null;
+    method.setMarkedAsDispatcher(hasArguments);
+
+    if (ctx.DEFAULT() != null) {
+      method.putSquirrelledData(DEFAULTED, "TRUE");
+    }
     method.setOverride(ctx.OVERRIDE() != null);
     method.setMarkedAbstract(ctx.ABSTRACT() != null);
-    method.setMarkedPure(markedPure);
+    method.setMarkedPure(ctx.PURE() != null);
     method.setOperator(true);
 
     //Set this as default unless we have a returning section

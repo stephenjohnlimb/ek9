@@ -24,7 +24,7 @@ public class CommonMethodChecks implements BiConsumer<MethodSymbol, EK9Parser.Me
   public void accept(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
 
     final var message = "for method '" + ctx.identifier().getText() + "':";
-    final var hasBody = checkForBody.test(ctx);
+    final var hasBody = checkForBody.test(ctx.operationDetails());
 
     checkAbstract(method, ctx, hasBody, message);
     checkAccessModifier(method, ctx, message);

@@ -388,7 +388,6 @@ defines module worked.example
 
       operator :~:
         -> arg as CustomerRecord
-        <- rtn as CustomerRecord: this        
         
         id :=? String(arg.id)
         firstName :=? String(arg.firstName)

@@ -248,17 +248,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     super.enterOperatorDeclaration(ctx);
   }
 
-  @Override
-  public void exitOperatorDeclaration(EK9Parser.OperatorDeclarationContext ctx) {
-    var currentScope = symbolAndScopeManagement.getTopScope();
-    //Can be null if during definition 'enter' it was a duplicate operator
-    if (currentScope instanceof MethodSymbol method) {
-      //Yes this is correct an operator is just a method but marked as an operator.
-      //TODO
-    }
-
-    super.exitOperatorDeclaration(ctx);
-  }
+  //See later phases for checking operators - because type checking is needed.
 
   @Override
   public void enterDefaultOperator(EK9Parser.DefaultOperatorContext ctx) {

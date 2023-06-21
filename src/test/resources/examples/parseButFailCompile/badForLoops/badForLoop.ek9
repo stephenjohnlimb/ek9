@@ -44,7 +44,7 @@ defines module bad.forloops.check
 
       operator +=
         -> arg0 as R3
-        <- rtn as R3: this
+        assert arg0?
 
     R4
       value <- 1
@@ -56,7 +56,7 @@ defines module bad.forloops.check
 
       operator +=
         -> arg0 as Integer
-        <- rtn as R4: this
+        assert arg0?
 
   defines function
     f1()

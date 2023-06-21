@@ -9,9 +9,9 @@ import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.symbol.MethodSymbol;
 
 /**
- * Check non-trait specifics on methods.
+ * Check non-trait specifics on methods/operators.
  */
-public class CheckNonTraitMethod implements BiConsumer<MethodSymbol, EK9Parser.MethodDeclarationContext> {
+public class CheckNonTraitMethod implements BiConsumer<MethodSymbol, EK9Parser.OperationDetailsContext> {
 
   private final CheckForBody checkForBody = new CheckForBody();
 
@@ -22,7 +22,7 @@ public class CheckNonTraitMethod implements BiConsumer<MethodSymbol, EK9Parser.M
   }
 
   @Override
-  public void accept(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
+  public void accept(final MethodSymbol method, final EK9Parser.OperationDetailsContext ctx) {
     final var hasBody = checkForBody.test(ctx);
     final var isVirtual = !method.isMarkedAbstract() && !hasBody;
 

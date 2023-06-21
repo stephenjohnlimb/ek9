@@ -582,6 +582,7 @@ operator
     | QUESTION
     | TILDE
     | NOTEQUAL
+    | NOTEQUAL2
     | CMP
     | FUZ
     | MERGE
@@ -600,14 +601,11 @@ operator
     | SQRT
     | CONTAINS
     | MATCHES
-    | ASSIGN
-    | ASSIGN_UNSET
     | PIPE
     | ADD_ASSIGN
     | SUB_ASSIGN
     | MUL_ASSIGN
     | DIV_ASSIGN
-    | PROMOTE
     | TOJSON
     | DOLLAR
     | PROMOTE
@@ -616,6 +614,8 @@ operator
     | SUFFIX
     | EMPTY
     | LENGTH
+    | SHFTL
+    | SHFTR
     ;
 
 //Now we also add in some words that act as operators in some ways but we want the developer to be able to use them as identifiers.

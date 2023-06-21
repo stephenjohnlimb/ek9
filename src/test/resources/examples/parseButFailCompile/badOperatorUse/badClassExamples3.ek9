@@ -1,0 +1,66 @@
+#!ek9
+<?-
+  Because there are so many operators, I've broken examples up into multiple files (even just for classes).
+  Do not check overrides yet, not until the full resolution phase.
+-?>
+defines module bad.classes.operators.examples3
+
+  defines class
+
+    //Some of mutation operators. These typically accept something in, but never return anything.
+    C3
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+      operator :~:
+        arg <- 1
+        assert arg?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+      operator :~:
+        ->
+          arg0 as C3
+          arg1 as C3
+        assert arg0? and arg1?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+      operator :^:
+
+      //Copy from arg0 into this, there is no return here
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURN_VALUE_NOT_SUPPORTED
+      operator :=:
+        -> arg0 as Float
+        <- rtn as Float: arg0
+        assert arg0?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+      operator |
+        arg <- 1
+        assert arg?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURN_VALUE_NOT_SUPPORTED
+      operator |
+        -> arg0 as Date
+        <- rtn as Date: arg0
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+      operator +=
+        ->
+          arg0 as C3
+          arg1 as Float
+        assert arg0? and arg1?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURN_VALUE_NOT_SUPPORTED
+      operator -=
+        -> arg0 as C3
+        <- rtn as C3: arg0
+        assert arg0?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+      operator *=
+        <- rtn as C3: arg0
+
+      //This will be OK.
+      operator /=
+        -> arg0 as Duration
+        assert arg0?
+
+//EOF

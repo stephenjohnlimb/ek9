@@ -5,7 +5,6 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.ICanBeGeneric;
 import org.ek9lang.compiler.symbol.MethodSymbol;
 
 /**
@@ -17,6 +16,7 @@ public class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol,
   private final CommonMethodChecks commonMethodChecks;
   private final CheckTraitMethod checkTraitMethod;
   private final CheckNonTraitMethod checkNonTraitMethod;
+  private final CheckIfExtendableByContext checkIfExtendableByContext;
   private final CheckNonExtendableMethod checkNonExtendableMethod;
   private final CheckNotDispatcherMethod checkNotDispatcherMethod;
   private final CheckGenericConstructor checkGenericConstructor;
@@ -35,6 +35,7 @@ public class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol,
     super(symbolAndScopeManagement, errorListener);
     commonMethodChecks = new CommonMethodChecks(errorListener);
     checkNonTraitMethod = new CheckNonTraitMethod(errorListener);
+    checkIfExtendableByContext = new CheckIfExtendableByContext(symbolAndScopeManagement, errorListener);
     checkNonExtendableMethod = new CheckNonExtendableMethod(errorListener);
     checkTraitMethod = new CheckTraitMethod();
     checkNotDispatcherMethod = new CheckNotDispatcherMethod(errorListener);
@@ -62,7 +63,7 @@ public class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol,
     }
 
     if (ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext) {
-      checkTraitMethod.accept(method, ctx);
+      checkTraitMethod.accept(method, ctx.operationDetails());
     }
 
     //If not in a class then method must not be marked as dispatcher.
@@ -72,30 +73,12 @@ public class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol,
     }
 
     if (!(ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext)) {
-      checkNonTraitMethod.accept(method, ctx);
+      checkNonTraitMethod.accept(method, ctx.operationDetails());
     }
 
     commonMethodChecks.accept(method, ctx);
 
-    checkIfExtensionIsAllowedByContext(method, ctx);
-
-  }
-
-  private void checkIfExtensionIsAllowedByContext(MethodSymbol method, EK9Parser.MethodDeclarationContext ctx) {
-    var containingConstructCtx = ctx.getParent().getParent();
-    if (containingConstructCtx instanceof EK9Parser.ClassDeclarationContext
-        || containingConstructCtx instanceof EK9Parser.DynamicClassDeclarationContext
-        || containingConstructCtx instanceof EK9Parser.ComponentDeclarationContext) {
-      var parent = symbolAndScopeManagement.getRecordedSymbol(containingConstructCtx);
-      var constructLine = containingConstructCtx.start.getLine();
-      if (parent instanceof ICanBeGeneric possibleGeneric
-          && !possibleGeneric.isOpenForExtension() && method.isMarkedAbstract()) {
-        var message = "containing construct, on line " + constructLine + ", is not open for extension, '"
-            + method.getFriendlyName() + "':";
-        errorListener.semanticError(ctx.ABSTRACT().getSymbol(), message,
-            ErrorListener.SemanticClassification.CANNOT_BE_ABSTRACT);
-      }
-    }
+    checkIfExtendableByContext.accept(method, ctx);
   }
 
   private void checkAsConstructor(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {

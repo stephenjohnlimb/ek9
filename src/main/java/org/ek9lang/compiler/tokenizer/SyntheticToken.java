@@ -31,6 +31,9 @@ public class SyntheticToken implements Token {
     this(textName, 0);
   }
 
+  /**
+   * Create new synthetic token with name and specific line number.
+   */
   public SyntheticToken(final String textName, final int lineNumber) {
     tokenSource = new TokenSource() {
 

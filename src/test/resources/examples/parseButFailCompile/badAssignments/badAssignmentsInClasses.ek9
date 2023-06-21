@@ -61,5 +61,6 @@ defines module bad.assignments.classes
 
       operator :=:
         -> from as C1
+        assert from?
         //Here would do the copying.
 //EOF

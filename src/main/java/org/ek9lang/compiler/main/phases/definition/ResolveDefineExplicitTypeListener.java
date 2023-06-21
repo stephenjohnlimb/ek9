@@ -12,6 +12,7 @@ import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineTypeDef;
 import org.ek9lang.compiler.main.resolvedefine.SyntheticConstructorCreator;
 import org.ek9lang.compiler.main.rules.CheckForDuplicateOperations;
 import org.ek9lang.compiler.main.rules.CheckNotGenericTypeParameter;
+import org.ek9lang.compiler.main.rules.CheckOperator;
 import org.ek9lang.compiler.main.rules.CheckSuitableGenus;
 import org.ek9lang.compiler.main.rules.CheckSuitableToExtend;
 import org.ek9lang.compiler.main.rules.CheckVisibilityOfOperations;
@@ -51,6 +52,7 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
   private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
 
+  private final CheckOperator checkOperator;
   private final CheckVisibilityOfOperations checkVisibilityOfOperations;
   private final CheckForDuplicateOperations checkForDuplicateOperations;
   private final CheckNotGenericTypeParameter checkNotGenericTypeParameter;
@@ -106,6 +108,7 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     resolveOrDefineTypeDef =
         new ResolveOrDefineTypeDef(symbolAndScopeManagement, symbolFactory, errorListener, true);
 
+    checkOperator = new CheckOperator(symbolAndScopeManagement, errorListener);
     /*
      * Again we must have all the building blocks of types, so that parameterised types an be created.
      */
@@ -447,6 +450,13 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   @Override
   public void exitOperatorDeclaration(EK9Parser.OperatorDeclarationContext ctx) {
+    var currentScope = symbolAndScopeManagement.getTopScope();
+    //Can be null if during definition 'enter' it was a duplicate operator
+    if (currentScope instanceof MethodSymbol method) {
+      //Yes this is correct an operator is just a method but marked as an operator.
+      checkOperator.accept(method, ctx);
+    }
+
     symbolAndScopeManagement.exitScope();
     super.exitOperatorDeclaration(ctx);
   }
