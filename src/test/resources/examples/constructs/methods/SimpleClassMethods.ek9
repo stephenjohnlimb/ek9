@@ -240,11 +240,7 @@ defines module net.customer
       tail
         -> numOf as Integer
         <- rtn as Boolean := false
-          
-      contains()
-        -> toCheck as Character
-        <- rtn as Boolean := true
-      
+
       where()
         -> toCheck as Character
         <- rtn as Boolean := true
@@ -260,38 +256,42 @@ defines module net.customer
       operator == as
         -> arg as Class1
         <- rtn as Boolean := true
-                    
-      //So you can omit the 'operator' if you want super terse code.
-      <
+
+      operator <
         -> arg as Class1
         <- rtn as Boolean := true
-      <=
+      operator <=
         -> arg as Class1
         <- rtn as Boolean := true
-      >
+      operator >
         -> arg as Class1
         <- rtn as Boolean := true
-      >=
+      operator >=
         -> arg as Class1
         <- rtn as Boolean := true
-      <=>
+      operator <=>
         -> arg as Class1
         <- rtn as Integer := 0
-      sqrt
+
+      operator contains
+        -> toCheck as Character
+        <- rtn as Boolean := true
+
+      operator sqrt
         <- rtnSqrt as Class1: Class1()
 
-      length
+      operator length
         <- rtn as Integer := 10
       
-      ?
+      operator ?
         <- rtn as Boolean := true
               
       //promote Class1 to a Class2
-      #^
+      operator #^
         <- myPromotion as Class2 := Class2(90.0)
           
       //Return a string representation of this class    
-      $
+      operator $
         <- rtn as String := "OK"
     
     //The second class that we are going to create a new one of and then call its method.

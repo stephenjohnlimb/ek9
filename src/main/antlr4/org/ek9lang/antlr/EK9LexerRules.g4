@@ -56,10 +56,10 @@ WITH : 'with';
 THEN : 'then';
 TRAIT: 'trait';
 OPEN : 'open';
-DECORATION : 'decoration';
 WHEN : 'when';
 REFERENCES: 'references';
 LENGTH : 'length';
+CLOSE: 'close';
 ONLY : 'only';
 BY : 'by';
 

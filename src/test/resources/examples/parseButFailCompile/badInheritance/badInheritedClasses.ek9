@@ -107,5 +107,4 @@ defines module bad.inherited.classes
     Class16 extends GFunction of (Integer, String)
       dob <- Date()
 
-
 //EOF

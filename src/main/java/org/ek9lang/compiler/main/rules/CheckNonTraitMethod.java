@@ -35,5 +35,10 @@ public class CheckNonTraitMethod implements BiConsumer<MethodSymbol, EK9Parser.O
       errorListener.semanticError(method.getSourceToken(), "",
           ErrorListener.SemanticClassification.NOT_ABSTRACT_AND_NO_BODY_PROVIDED);
     }
+
+    if (isDefaultedMethod && method.isMarkedAbstract()) {
+      errorListener.semanticError(method.getSourceToken(), "",
+          ErrorListener.SemanticClassification.DEFAULT_AND_ABSTRACT);
+    }
   }
 }

@@ -156,11 +156,23 @@ defines extern module org.ek9.lang
         -> arg0 as String
 
       operator <=> as pure
-        -> arg as Bits
+        -> arg0 as Bits
         <- rtn as Integer?
 
       operator :=:
-        -> arg as Bits
+        -> arg0 as Bits
+
+      operator and as pure
+        -> arg0 as Bits
+        <- rtn as Bits?
+
+      operator or as pure
+        -> arg0 as Bits
+        <- rtn as Bits?
+
+      operator xor as pure
+        -> arg0 as Bits
+        <- rtn as Bits?
 
     Boolean
       Boolean()
@@ -169,8 +181,20 @@ defines extern module org.ek9.lang
         -> arg0 as String
 
       operator :=:
-        -> arg as Boolean
+        -> arg0 as Boolean
 
+      operator and as pure
+        -> arg0 as Boolean
+        <- rtn as Boolean?
+
+      operator or as pure
+        -> arg0 as Boolean
+        <- rtn as Boolean?
+
+      operator xor as pure
+        -> arg0 as Boolean
+        <- rtn as Boolean?
+        
     Character
       Character()
 

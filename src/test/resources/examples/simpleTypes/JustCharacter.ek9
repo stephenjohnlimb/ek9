@@ -57,9 +57,11 @@ defines module com.customer.justcharacter
       stdout.println("Length of " + $c3 + " is " + $ c3.length())
       
       //You can choose either of these for the hashcode.
+      //This includes string interpolation
       stdout.println("Hashcode of " + $c1 + " is " + $c1.#?())
       stdout.println("Hashcode of " + $c2 + " is " + $ #? c2)
       stdout.println("Hashcode of " + $c3 + " is " + $#?c3)
+      stdout.println(`Hashcode of ${c3} is ${#?c3}`)
       
       s1 <- #^ c1
       stdout.println("As a String " + s1)

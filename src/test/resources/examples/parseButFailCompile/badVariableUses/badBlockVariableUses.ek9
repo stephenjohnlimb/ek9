@@ -25,7 +25,7 @@ defines module bad.blockvariable.uses
         //This access to field1 is allowed because in the same class.
         rtn :=: field1
 
-      default $
+      default operator $
 
     CheckClass is CheckBase
       anotherField <- 21

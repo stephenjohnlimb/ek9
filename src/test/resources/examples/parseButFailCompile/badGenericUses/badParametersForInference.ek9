@@ -104,7 +104,6 @@ defines module incorrect.generic.uses
       @Error: SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
       dict5 <- Dict() of (Integer)
 
-
     //You might this would work but no, cannot infer as too many parameters
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "invalidTooManyParametersInferredType"
     invalidTooManyParametersInferredType()

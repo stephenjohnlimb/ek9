@@ -54,19 +54,19 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\b(mod|rem|sqrt|and|or|xor|abs|not|contain|contains|matches|begins|ends|length|read|write|open|close|override|public|private|protected|return|with|isolated|pure|abstract|dispatcher|only)\b</string>
+			<string>\b(override|public|private|protected|with|isolated|pure|abstract|dispatcher|only)\b</string>
 			<key>name</key>
 			<string>keyword.operator.ek9</string>
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\b(true|false|cat|filter|group|split|call|async|package|map|sort|flatten|uniq|tee|head|tail|skip|join|collect|reduce)\b</string>
+			<string>\b(true|false|cat|filter|group|split|call|async|package|map|sort|flatten|uniq|tee|head|tail|skip|join|collect)\b</string>
 			<key>name</key>
 			<string>keyword.other.ek9</string>
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\b(constant|references|application|program|class|component|validator|procedure|text|model|media|trait|function|type|record|service|decoration|style)\b</string>
+			<string>\b(constant|references|application|program|class|component|text|trait|function|type|record|service)\b</string>
 			<key>name</key>
 			<string>storage.type.ek9</string>
 		</dict>
@@ -78,7 +78,13 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>(\(|\)|:=|::|&lt;&gt;|!=|&lt;~&gt;|\[|\]|\{|\}|&lt;=&gt;|&lt;=|&gt;=|\*=|/=|\+=|-=|=|!|&gt;&gt;|&lt;&lt;|-&gt;|&lt;-|&lt;|&gt;|\?|\+\+|--|\+|-|~|\*|/|\^|#!|#\?|#&lt;|#&gt;|:|\.\.\.|,|\$|\$\$)</string>
+			<string>(\(|\)|:=|::|&lt;&gt;|!=|&lt;~&gt;|\[|\]|\{|\}|&lt;=&gt;|&lt;=|&gt;=|\*=|/=|\+=|-=|=|!|&gt;&gt;|&lt;&lt;|-&gt;|&lt;-|&lt;|&gt;|\?|\+\+|--|\+|-|~|\*|/|\^|#\^|#!|#\?|#&lt;|#&gt;|:|\.\.\.|,|\$|\$\$|\|)</string>
+			<key>name</key>
+			<string>constant.ek9</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(mod|rem|sqrt|and|or|xor|abs|not|contains|matches|empty|length|open|close)\b</string>
 			<key>name</key>
 			<string>constant.ek9</string>
 		</dict>

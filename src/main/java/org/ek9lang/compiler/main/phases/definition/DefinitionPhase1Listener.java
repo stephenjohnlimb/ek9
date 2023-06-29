@@ -1183,12 +1183,20 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
       literalText += ctx.getChild(1).getText();
     }
     ConstantSymbol literal = symbolFactory.newLiteral(start, literalText);
-    var resolvedType = symbolAndScopeManagement.getTopScope().resolve(new TypeSymbolSearch(typeName));
+    var scope = symbolAndScopeManagement.getTopScope();
+    var resolvedType = scope.resolve(new TypeSymbolSearch(typeName));
     var source = literal.getSourceToken().getTokenSource().getSourceName();
     var line = literal.getSourceToken().getTokenSource().getLine();
-    AssertValue.checkTrue(
-        "Type of constant for '" + literal + "' should have resolved in [" + source + "] on line " + line,
-        resolvedType.isPresent());
+    var msg = "Type of constant for '"
+        + literal
+        + "' should have resolved in '"
+        + scope.getFriendlyScopeName()
+        + "' source "
+        + source
+        + " on line "
+        + line;
+
+    AssertValue.checkTrue(msg, resolvedType.isPresent());
     literal.setType(resolvedType);
     symbolAndScopeManagement.enterNewLiteral(literal, ctx);
   }

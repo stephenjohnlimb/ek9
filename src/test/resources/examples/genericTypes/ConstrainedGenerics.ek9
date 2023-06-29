@@ -22,7 +22,10 @@ defines module net.customer.constrained
       get()
         -> index as Integer
         <- rtn as T := T()
-          
+
+      something
+        <- rtn as MyList of T := MyList()
+
       //Add a T to the list.
       operator +
         -> item as T
@@ -32,10 +35,7 @@ defines module net.customer.constrained
           other as T := T()
         else
           check as T := T()
-       
-      something
-        <- rtn as MyList of T := MyList()
-    
+
     //Lets try to define an MyOptional generic class but limit it to a MyList of EmailAddress
     MyOptional of type O constrain by MyList of EmailAddress
       

@@ -7,13 +7,15 @@
   predefined. While this may be a bit limiting in some ways, it does enable ek9 developers and the compiler to assume/expect
   specific behaviours. So while not as flexible as something like C++, it does provide a significant advantage over languages that do not
   have operators as part of the language definition. It's a sort of halfway house but also folds in a bit of 'duck typing', this means that
-  it is not always necessary to define interfaces for everything (for example having a 'close' method, means 'autoclose' when used with try/catch)
-  for example. But this is just a method name, rather than being a specific operator.
+  it is not always necessary to define interfaces for everything (for example having a 'close' operator, means 'auto-close' when used with try/catch)
+  for example. It is now a specific operator, this constrains the use of the name close with specific semantics.
+  I've now also added and,or and xor as operators rather than being sort of built in.
 
   The operators are: >, <, ==, <=, >=, <>, <=>, <~>, !, ?, ~, ++. --, +, -, *, /, ^,
   Assignment sort of operators are: :~:, :^:, :=:, |, +=. -=, *=, /=, >>, <<
   Aspects of the object operators are: #^, $$, $, #?, #<, #>
-  They also include: mod, rem, abs, sqrt, contains, matches, empty, length
+  They also include: and, or, xor, mod, rem, abs, sqrt, close, contains, matches, empty, length
+
 -?>
 defines module good.classes.operators.examples
 
@@ -183,18 +185,6 @@ defines module good.classes.operators.examples
       operator #>
         <- rtn as Integer: 0
 
-      //Absolute, accepts no parameters and must return same type as it is.
-      operator abs
-        <- rtn as C1: this
-
-      //Empty check, accepts no parameters and must return a Boolean
-      operator empty
-        <- rtn as Boolean: true
-
-      //Length/size check, accepts no parameters and must return an Integer
-      operator length
-        <- rtn as Integer: 0
-
       //Shift right, accepts one parameter and can return any type
       operator >>
         -> arg0 as Integer
@@ -202,6 +192,21 @@ defines module good.classes.operators.examples
 
       //Shift left, accepts one parameter and can return any type
       operator <<
+        -> arg0 as Integer
+        <- rtn as Integer: 0
+
+      //AND accepts any type of parameter (just one) and returns any type
+      operator and
+        -> arg0 as Integer
+        <- rtn as Integer: 0
+
+      //OR accepts any type of parameter (just one) and returns any type
+      operator or
+        -> arg0 as Integer
+        <- rtn as Integer: 0
+
+      //XOR accepts any type of parameter (just one) and returns any type
+      operator xor
         -> arg0 as Integer
         <- rtn as Integer: 0
 
@@ -220,6 +225,14 @@ defines module good.classes.operators.examples
         -> arg0 as Float
         <- rtn as Integer: 0
 
+      //Absolute, accepts no parameters and must return same type as it is.
+      operator abs
+        <- rtn as C1: this
+
+      operator close
+        val <- 1
+        assert val?
+
       //Contains, accepts one parameters of any type must return a Boolean
       operator contains
         -> arg0 as Float
@@ -229,5 +242,13 @@ defines module good.classes.operators.examples
       operator matches
         -> arg0 as Float
         <- rtn as Boolean: true
+
+      //Empty check, accepts no parameters and must return a Boolean
+      operator empty
+        <- rtn as Boolean: true
+
+      //Length/size check, accepts no parameters and must return an Integer
+      operator length
+        <- rtn as Integer: 0
 
 //EOF

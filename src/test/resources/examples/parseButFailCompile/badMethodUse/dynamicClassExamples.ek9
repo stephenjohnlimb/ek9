@@ -47,5 +47,4 @@ defines module bad.dynamicclasses.examples
       //Back to main function body here.
       assert dynamic2?
 
-
 //EOF

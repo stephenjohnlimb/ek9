@@ -34,6 +34,46 @@ defines module bad.classes.operators.examples5
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
       operator <<
 
+      //AND accepts any type of parameter (just one) and returns any type
+      //This is OkK, so check variations on other operators.
+      operator and
+        -> arg0 as Float
+        <- rtn as Integer: 0
+
+      //OR accepts any type of parameter (just one) and returns any type
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+      operator or
+        ->
+          arg0 as Integer
+          arg1 as Integer
+        <- rtn as Integer: 0
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+      operator or
+        <- rtn as Integer: 0
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+      operator or
+        -> arg0 as Integer
+        assert arg0?
+
+      //XOR accepts any type of parameter (just one) and returns any type
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+      operator xor
+        ->
+          arg0 as Integer
+          arg1 as String
+        <- rtn as Integer: 0
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+      operator xor
+        <- rtn as Integer: 0
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+      operator xor
+        -> arg0 as Integer
+        assert arg0?
+
       //Modulus, accepts one parameters of any type must return an Integer
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
@@ -85,5 +125,26 @@ defines module bad.classes.operators.examples5
       operator matches
         -> arg0 as Date
         assert arg0?
+
+      //Now some examples of incorrect close operator
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURN_VALUE_NOT_SUPPORTED
+      operator close
+        <- rtn <- true
+        val <- 1
+        assert val?
+
+      //This error will take precedence
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+      operator close
+        -> arg0 as String
+        <- rtn <- true
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+      operator close
+        ->
+          arg0 as String
+          arg1 as Integer
+        <- rtn <- true
 
 //EOF

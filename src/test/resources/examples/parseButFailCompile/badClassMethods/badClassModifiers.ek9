@@ -55,7 +55,7 @@ defines module bad.classmodifier.use
 
       //This is not allowed either, not possible to take a concrete existing method
       //And force it to be abstract when its super was not.
-      @Error: SYMBOL_DEFINITION: ABSTRACT_METHOD_AND_OVERRIDE
+      @Error: SYMBOL_DEFINITION: OVERRIDE_AND_ABSTRACT
       override anotherMethod() as abstract
 
       //This makes no sense on a method as it is for program

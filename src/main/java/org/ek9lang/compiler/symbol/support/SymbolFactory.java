@@ -540,13 +540,14 @@ public class SymbolFactory {
     //developer can express. But here we do it behind the scenes.
     var hasArguments = ctx.operationDetails() != null && ctx.operationDetails().argumentParam() != null;
     method.setMarkedAsDispatcher(hasArguments);
+    method.setOverride(ctx.OVERRIDE() != null);
+    method.setMarkedPure(ctx.PURE() != null);
+    method.setMarkedAbstract(ctx.ABSTRACT() != null);
 
     if (ctx.DEFAULT() != null) {
       method.putSquirrelledData(DEFAULTED, "TRUE");
     }
-    method.setOverride(ctx.OVERRIDE() != null);
-    method.setMarkedAbstract(ctx.ABSTRACT() != null);
-    method.setMarkedPure(ctx.PURE() != null);
+
     method.setOperator(true);
 
     //Set this as default unless we have a returning section

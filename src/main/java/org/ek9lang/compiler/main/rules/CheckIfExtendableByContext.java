@@ -24,7 +24,8 @@ public class CheckIfExtendableByContext extends RuleSupport implements BiConsume
     var containingConstructCtx = ctx.getParent().getParent();
     if (containingConstructCtx instanceof EK9Parser.ClassDeclarationContext
         || containingConstructCtx instanceof EK9Parser.DynamicClassDeclarationContext
-        || containingConstructCtx instanceof EK9Parser.ComponentDeclarationContext) {
+        || containingConstructCtx instanceof EK9Parser.ComponentDeclarationContext
+        || containingConstructCtx instanceof EK9Parser.RecordDeclarationContext) {
       var parent = symbolAndScopeManagement.getRecordedSymbol(containingConstructCtx);
       var constructLine = containingConstructCtx.start.getLine();
       if (parent instanceof ICanBeGeneric possibleGeneric

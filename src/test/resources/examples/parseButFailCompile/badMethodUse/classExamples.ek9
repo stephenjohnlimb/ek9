@@ -1,4 +1,8 @@
 #!ek9
+<?-
+  Also checks that "mod", "rem", "abs", "sqrt", "close", "contains", "matches", "empty", "length" cannot
+  be used as normal method names as they are reserved for operators.
+-?>
 defines module bad.classes.examples
 
   defines class
@@ -133,5 +137,115 @@ defines module bad.classes.examples
       anotherMethodB() as dispatcher
         -> arg0 as String
         assert arg0?
+
+      //Just check the named operators can by use as names (not method by variable names)
+      andMethod()
+        -> and as String
+        assert and?
+
+      orMethod()
+        -> or as String
+        assert or?
+
+      xorMethod()
+        -> xor as String
+        assert xor?
+
+      modMethod()
+        -> mod as String
+        assert mod?
+
+      remMethod()
+        -> rem as String
+        assert rem?
+
+      absMethod()
+        -> abs as String
+        assert abs?
+
+      sqrtMethod()
+        -> sqrt as String
+        assert sqrt?
+
+      closeMethod()
+        -> close as String
+        assert close?
+
+      containsMethod()
+        -> contains as String
+        assert contains?
+
+      matchesMethod()
+        -> matches as String
+        assert matches?
+
+      emptyMethod()
+        -> empty as String
+        assert empty?
+
+      lengthMethod()
+        -> length as String
+        assert length?
+
+      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
+      and
+        val <- 1
+        assert val?
+
+      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
+      or
+        val <- 1
+        assert val?
+
+      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
+      xor
+        val <- 1
+        assert val?
+
+      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
+      mod
+        val <- 1
+        assert val?
+
+      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
+      rem
+        val <- 1
+        assert val?
+
+      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
+      abs
+        val <- 1
+        assert val?
+
+      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
+      sqrt
+        val <- 1
+        assert val?
+
+      //Try and declare a method with the name of an operator
+      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
+      close
+        val <- 1
+        assert val?
+
+      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
+      contains
+        val <- 1
+        assert val?
+
+      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
+      matches
+        val <- 1
+        assert val?
+
+      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
+      empty
+        val <- 1
+        assert val?
+
+      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
+      length
+        val <- 1
+        assert val?
 
 //EOF

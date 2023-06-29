@@ -239,7 +239,7 @@ traitReference
     ;
 
 aggregateParts
-    : NL+ INDENT NL* (directive? aggregateProperty)* (directive? (methodDeclaration | operatorDeclaration))* defaultOperator? DEDENT
+    : NL+ INDENT NL* (directive? aggregateProperty)* (directive? methodDeclaration)* (directive? operatorDeclaration)* defaultOperator? DEDENT
     ;
 
 defaultOperator
@@ -256,11 +256,11 @@ methodDeclaration
     ;
 
 operatorDeclaration
-    : (OVERRIDE | DEFAULT)? OPERATOR? operator AS? PURE? ABSTRACT? NL+ operationDetails?
+    : (OVERRIDE | DEFAULT)? OPERATOR operator AS? PURE? ABSTRACT? NL+ operationDetails?
     ;
 
 serviceOperationDeclaration
-    : ((identifier (LPAREN RPAREN)? (AS? httpVerb)?) | (OPERATOR? operator)) FOR? Uriproto NL+ operationDetails
+    : ((identifier (LPAREN RPAREN)? (AS? httpVerb)?) | (OPERATOR operator)) FOR? Uriproto NL+ operationDetails
     ;
 
 operationDetails
@@ -595,6 +595,10 @@ operator
     | MUL
     | DIV
     | CARET
+    | NOT
+    | AND
+    | OR
+    | XOR
     | MOD
     | REM
     | ABS
@@ -612,6 +616,7 @@ operator
     | HASHCODE
     | PREFIX
     | SUFFIX
+    | CLOSE
     | EMPTY
     | LENGTH
     | SHFTL
@@ -645,13 +650,22 @@ identifier
     | SKIPPING
     | HEAD
     | TAIL
+    | NOT
+    | AND
+    | OR
+    | XOR
+    | MOD
+    | REM
+    | ABS
+    | SQRT
+    | CLOSE
     | CONTAINS
     | MATCHES
+    | EMPTY
+    | LENGTH
     | REGISTER
     | CONSTRAIN
     | ALLOW
-    | EMPTY
-    | LENGTH
     | MODULE
     | REFERENCES
     | CONSTANT
@@ -665,13 +679,10 @@ identifier
     | COMPONENT
     | TRAIT
     | TEXT
-    | DECORATION
     | HANDLE
     | ISOLATED
     | RANGE
     | IS
-    | AND
-    | OR
     | ONLY
     | HTTP_QUERY
     | HTTP_PATH

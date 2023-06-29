@@ -26,8 +26,9 @@ public class CheckOperator extends RuleSupport
   private final CheckTraitMethod checkTraitMethod;
   private final CheckNonTraitMethod checkNonTraitMethod;
   private final CheckIfExtendableByContext checkIfExtendableByContext;
-
+  private final CheckInappropriateBody checkInappropriateBody;
   private final Map<String, Consumer<MethodSymbol>> operatorChecks = new HashMap<>();
+  private final CheckOverrideAndAbstract checkOverrideAndAbstract;
 
   /**
    * Create a new operation checker.
@@ -35,12 +36,13 @@ public class CheckOperator extends RuleSupport
   public CheckOperator(final SymbolAndScopeManagement symbolAndScopeManagement,
                        final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
-
     populateOperatorChecks();
 
     checkNonTraitMethod = new CheckNonTraitMethod(errorListener);
     checkIfExtendableByContext = new CheckIfExtendableByContext(symbolAndScopeManagement, errorListener);
     checkTraitMethod = new CheckTraitMethod();
+    checkInappropriateBody = new CheckInappropriateBody(symbolAndScopeManagement, errorListener);
+    checkOverrideAndAbstract = new CheckOverrideAndAbstract(symbolAndScopeManagement, errorListener);
   }
 
   private void populateOperatorChecks() {
@@ -87,6 +89,7 @@ public class CheckOperator extends RuleSupport
         "#?", this::testAcceptNoArgumentsReturnInteger,
         "#<", this::testAcceptNoArgumentsReturnAnyType,
         "#>", this::testAcceptNoArgumentsReturnAnyType,
+        "not", this::emitBadNotOperator,
         "abs", this::testAcceptNoArgumentsReturnConstructType,
         "empty", this::testAcceptNoArgumentsReturnBoolean,
         "length", this::testAcceptNoArgumentsReturnInteger
@@ -95,10 +98,14 @@ public class CheckOperator extends RuleSupport
     final Map<String, Consumer<MethodSymbol>> oneArgumentWithReturnChecks = Map.of(
         ">>", this::testAcceptOneArgumentsReturnAnyType,
         "<<", this::testAcceptOneArgumentsReturnAnyType,
+        "and", this::testAcceptOneArgumentsReturnAnyType,
+        "or", this::testAcceptOneArgumentsReturnAnyType,
+        "xor", this::testAcceptOneArgumentsReturnAnyType,
         "mod", this::testAcceptOneArgumentsReturnInteger,
         "rem", this::testAcceptOneArgumentsReturnInteger,
         "contains", this::testAcceptOneArgumentsReturnBoolean,
-        "matches", this::testAcceptOneArgumentsReturnBoolean
+        "matches", this::testAcceptOneArgumentsReturnBoolean,
+        "close", this::testAcceptNoArgumentsNoReturn
     );
 
     operatorChecks.putAll(logicalOperatorChecks);
@@ -130,6 +137,8 @@ public class CheckOperator extends RuleSupport
     }
 
     checkIfExtendableByContext.accept(methodSymbol, ctx);
+    checkInappropriateBody.accept(methodSymbol, ctx.operationDetails());
+    checkOverrideAndAbstract.accept(methodSymbol);
   }
 
   private void testAcceptNoArgumentsReturnAnyType(final MethodSymbol methodSymbol) {
@@ -183,6 +192,11 @@ public class CheckOperator extends RuleSupport
 
   private void testAcceptOneArgumentsNoReturn(final MethodSymbol methodSymbol) {
     testSingleArgument(methodSymbol);
+    testNoReturn(methodSymbol);
+  }
+
+  private void testAcceptNoArgumentsNoReturn(final MethodSymbol methodSymbol) {
+    testNoArguments(methodSymbol);
     testNoReturn(methodSymbol);
   }
 
@@ -253,5 +267,10 @@ public class CheckOperator extends RuleSupport
   private void emitBadNotEqualsOperator(final MethodSymbol methodSymbol) {
     errorListener.semanticError(methodSymbol.getSourceToken(), "alternative:",
         ErrorListener.SemanticClassification.BAD_NOT_EQUAL_OPERATOR);
+  }
+
+  private void emitBadNotOperator(final MethodSymbol methodSymbol) {
+    errorListener.semanticError(methodSymbol.getSourceToken(), "alternative:",
+        ErrorListener.SemanticClassification.BAD_NOT_OPERATOR);
   }
 }

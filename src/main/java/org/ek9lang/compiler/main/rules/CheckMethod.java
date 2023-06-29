@@ -25,7 +25,7 @@ public class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol,
   private final CheckForImplementation checkForImplementation;
   private final CheckNormalTermination checkNormalTermination;
   private final CheckNoMethodReturn checkNoMethodReturn;
-
+  private final CheckMethodNotOperatorName checkMethodNotOperatorName;
 
   /**
    * Create a new method checker.
@@ -33,7 +33,7 @@ public class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol,
   public CheckMethod(final SymbolAndScopeManagement symbolAndScopeManagement,
                      final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
-    commonMethodChecks = new CommonMethodChecks(errorListener);
+    commonMethodChecks = new CommonMethodChecks(symbolAndScopeManagement, errorListener);
     checkNonTraitMethod = new CheckNonTraitMethod(errorListener);
     checkIfExtendableByContext = new CheckIfExtendableByContext(symbolAndScopeManagement, errorListener);
     checkNonExtendableMethod = new CheckNonExtendableMethod(errorListener);
@@ -45,6 +45,7 @@ public class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol,
     checkForImplementation = new CheckForImplementation(errorListener);
     checkNormalTermination = new CheckNormalTermination(errorListener);
     checkNoMethodReturn = new CheckNoMethodReturn(symbolAndScopeManagement, errorListener);
+    checkMethodNotOperatorName = new CheckMethodNotOperatorName(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -79,6 +80,8 @@ public class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol,
     commonMethodChecks.accept(method, ctx);
 
     checkIfExtendableByContext.accept(method, ctx);
+
+    checkMethodNotOperatorName.accept(method, ctx);
   }
 
   private void checkAsConstructor(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {

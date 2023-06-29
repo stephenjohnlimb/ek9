@@ -1,0 +1,192 @@
+#!ek9
+<?-
+  Pretty much the same as class operators but with a bit of abstract thrown in.
+-?>
+defines module good.traits.operators.examples
+
+  defines trait
+
+    T1
+      operator <
+        -> arg0 as T1
+        <- rtn as Boolean?
+
+      operator <
+        -> arg0 as Float
+        <- rtn as Boolean?
+
+      operator > as abstract
+        -> arg0 as T1
+        <- rtn as Boolean?
+
+      operator ==
+        -> arg0 as T1
+        <- rtn as Boolean: true
+
+      operator ==
+        -> arg0 as Date
+        <- rtn as Boolean: true
+
+      operator <=
+        -> arg0 as T1
+        <- rtn as Boolean: true
+
+      operator >=
+        -> arg0 as T1
+        <- rtn as Boolean: true
+
+      operator <>
+        -> arg0 as T1
+        <- rtn as Boolean: true
+
+      operator <=>
+        -> arg0 as T1
+        <- rtn as Integer: 0
+
+      operator <~>
+        -> arg0 as T1
+        <- rtn as Integer: 0
+
+      operator !
+        <- rtn as T1: this
+
+      operator ?
+        <- rtn as Boolean: true
+
+      operator ~
+        <- rtn as T1: this
+
+      operator ++
+        <- rtn as T1: this
+
+      operator --
+        <- rtn as T1: this
+
+      operator +
+        -> arg0 as T1
+        <- rtn as T1: this
+
+      operator +
+        -> arg0 as Integer
+        <- rtn as Date: 2023-06-19
+
+      operator -
+        -> arg0 as Date
+        <- rtn as Duration: P6D
+
+      operator *
+        -> arg0 as Float
+        <- rtn as Dimension: 6km
+
+      operator /
+        -> arg0 as Float
+        <- rtn as Colour: #FF11DD
+
+      operator ^
+        -> arg0 as Integer
+        <- rtn as Float: 45000.00
+
+      operator :~:
+        -> arg0 as T1
+        assert arg0?
+
+      operator :^:
+        -> arg0 as T1
+        assert arg0?
+
+      operator :=:
+        -> arg0 as T1
+        assert arg0?
+
+      operator |
+        -> arg0 as T1
+        assert arg0?
+
+      operator |
+        -> arg0 as Date
+        assert arg0?
+
+      operator +=
+        -> arg0 as T1
+        assert arg0?
+
+      operator -=
+        -> arg0 as T1
+        assert arg0?
+
+      operator *=
+        -> arg0 as Integer
+        assert arg0?
+
+      operator /=
+        -> arg0 as Duration
+        assert arg0?
+
+      operator #^
+        <- rtn as Integer: 0
+
+      operator $$
+        <- rtn as JSON: JSON()
+
+      operator $
+        <- rtn as String: ""
+
+      operator #?
+        <- rtn as Integer: 0
+
+      operator #<
+        <- rtn as Integer: 0
+
+      operator #>
+        <- rtn as Integer: 0
+
+      operator >>
+        -> arg0 as Integer
+        <- rtn as Integer: 0
+
+      operator <<
+        -> arg0 as Integer
+        <- rtn as Integer: 0
+
+      operator and
+        -> arg0 as Integer
+        <- rtn as Integer: 0
+
+      operator or
+        -> arg0 as Integer
+        <- rtn as Integer: 0
+
+      operator xor
+        -> arg0 as Integer
+        <- rtn as Integer: 0
+
+      operator mod
+        -> arg0 as Integer
+        <- rtn as Integer: 0
+
+      operator rem
+        -> arg0 as Float
+        <- rtn as Integer: 0
+
+      operator abs
+        <- rtn as T1: this
+
+      operator close
+        val <- 1
+        assert val?
+
+      operator contains
+        -> arg0 as Float
+        <- rtn as Boolean: true
+
+      operator matches
+        -> arg0 as Float
+        <- rtn as Boolean: true
+
+      operator empty
+        <- rtn as Boolean: true
+
+      operator length
+        <- rtn as Integer: 0
+
+//EOF

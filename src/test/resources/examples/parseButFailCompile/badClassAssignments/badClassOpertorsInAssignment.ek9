@@ -10,7 +10,7 @@ defines module bad.classassignment.use
       default C0()
 
       //define the copy operator
-      :=:
+      operator :=:
         -> param as C0
         this.p0 :=: param.p0
 
@@ -56,7 +56,7 @@ defines module bad.classassignment.use
         this :=: param
 
       //define the copy operator
-      :=:
+      operator :=:
         -> param as C3
         this.p1 :=: param.p1
 
@@ -69,7 +69,7 @@ defines module bad.classassignment.use
         this :~: param
 
       //define the merge operator
-      :~:
+      operator :~:
         -> param as C4
         //So if p1 or p2 is unset in this, but param p1/p2 is not then it gets merged in as appropriate
         this.p1 :~: param.p1

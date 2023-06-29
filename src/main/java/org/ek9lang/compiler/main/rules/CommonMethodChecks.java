@@ -5,45 +5,39 @@ import static org.ek9lang.compiler.symbol.support.SymbolFactory.DEFAULTED;
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.MethodSymbol;
 
 /**
  * Check Methods that apply in all method contexts.
  */
-public class CommonMethodChecks implements BiConsumer<MethodSymbol, EK9Parser.MethodDeclarationContext> {
+public class CommonMethodChecks extends RuleSupport
+    implements BiConsumer<MethodSymbol, EK9Parser.MethodDeclarationContext> {
 
-  private final ErrorListener errorListener;
+  private final CheckInappropriateBody checkInappropriateBody;
 
-  private final CheckForBody checkForBody = new CheckForBody();
+  private final CheckOverrideAndAbstract checkOverrideAndAbstract;
 
-  public CommonMethodChecks(final ErrorListener errorListener) {
-    this.errorListener = errorListener;
+  protected CommonMethodChecks(
+      SymbolAndScopeManagement symbolAndScopeManagement,
+      ErrorListener errorListener) {
+    super(symbolAndScopeManagement, errorListener);
+    checkInappropriateBody = new CheckInappropriateBody(symbolAndScopeManagement, errorListener);
+    checkOverrideAndAbstract = new CheckOverrideAndAbstract(symbolAndScopeManagement, errorListener);
   }
+
 
   @Override
   public void accept(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
-
     final var message = "for method '" + ctx.identifier().getText() + "':";
-    final var hasBody = checkForBody.test(ctx.operationDetails());
+    checkInappropriateBody.accept(method, ctx.operationDetails());
+    checkOverrideAndAbstract.accept(method);
 
-    checkAbstract(method, ctx, hasBody, message);
     checkAccessModifier(method, ctx, message);
     checkConstructor(method, message);
-    checkDefaulted(method, ctx, hasBody, message);
+    checkDefaulted(method, ctx, message);
 
-  }
-
-  private void checkAbstract(final MethodSymbol method,
-                             final EK9Parser.MethodDeclarationContext ctx,
-                             final boolean hasBody, final String errorMessage) {
-    //Now we don't check the converse in these common checks.
-    //i.e. not marked as abstract, but without a body provided.
-    //This is done elsewhere because for trait methods we accommodate this.
-
-    if (method.isMarkedAbstract() && hasBody) {
-      errorListener.semanticError(ctx.ABSTRACT().getSymbol(), errorMessage,
-          ErrorListener.SemanticClassification.ABSTRACT_BUT_BODY_PROVIDED);
-    }
   }
 
   private void checkAccessModifier(final MethodSymbol method,
@@ -72,12 +66,6 @@ public class CommonMethodChecks implements BiConsumer<MethodSymbol, EK9Parser.Me
       errorListener.semanticError(ctx.OVERRIDE().getSymbol(), errorMessage,
           ErrorListener.SemanticClassification.METHOD_ACCESS_MODIFIER_PRIVATE_OVERRIDE);
     }
-
-    if (method.isMarkedAbstract() && method.isOverride()) {
-      //This makes no sense to define a method abstract and also say it overrides something.
-      errorListener.semanticError(ctx.OVERRIDE().getSymbol(), errorMessage,
-          ErrorListener.SemanticClassification.ABSTRACT_METHOD_AND_OVERRIDE);
-    }
   }
 
   private void checkConstructor(final MethodSymbol method,
@@ -99,17 +87,11 @@ public class CommonMethodChecks implements BiConsumer<MethodSymbol, EK9Parser.Me
 
   private void checkDefaulted(final MethodSymbol method,
                               final EK9Parser.MethodDeclarationContext ctx,
-                              final boolean hasBody, final String errorMessage) {
-    if ("TRUE".equals(method.getSquirrelledData(DEFAULTED))) {
-      if (method.isConstructor() && !method.getMethodParameters().isEmpty()) {
-        errorListener.semanticError(ctx.DEFAULT().getSymbol(), errorMessage,
-            ErrorListener.SemanticClassification.INVALID_DEFAULT_CONSTRUCTOR);
-      }
-
-      if (hasBody) {
-        errorListener.semanticError(method.getSourceToken(), errorMessage,
-            ErrorListener.SemanticClassification.ABSTRACT_BUT_BODY_PROVIDED);
-      }
+                              final String errorMessage) {
+    var isDefaulted = "TRUE".equals(method.getSquirrelledData(DEFAULTED));
+    if (isDefaulted && method.isConstructor() && !method.getMethodParameters().isEmpty()) {
+      errorListener.semanticError(ctx.DEFAULT().getSymbol(), errorMessage,
+          ErrorListener.SemanticClassification.INVALID_DEFAULT_CONSTRUCTOR);
     }
   }
 }

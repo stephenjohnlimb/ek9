@@ -174,6 +174,21 @@ defines module com.customer.services
 
     @Resolved: SYMBOL_DEFINITION: TYPE: "AddressAccess"
     AddressAccess
+
+      hash()
+        <- rtn as String: String()
+
+      hashOfAddress()
+        -> id as AddressId
+        <- rtn as String: String()
+
+      byId()
+        -> id as AddressId
+        <- rtn as Address?
+
+      listAll()
+        <- rtn as List of Address: List()
+
       operator +=
         -> address as Address
         assert address?
@@ -195,21 +210,7 @@ defines module com.customer.services
       operator contains
         -> addressId as AddressId
         <- rtn as Boolean: Boolean()
-          
-      hash()
-        <- rtn as String: String()
-        
-      hashOfAddress()
-        -> id as AddressId
-        <- rtn as String: String()
-                
-      byId()
-        -> id as AddressId
-        <- rtn as Address?
-        
-      listAll()
-        <- rtn as List of Address: List()
-                                       
+
   defines class
 
     @Resolved: SYMBOL_DEFINITION: TYPE: "AddressSet"
@@ -217,6 +218,34 @@ defines module com.customer.services
       hash as String: HMAC().SHA256(GUID())
       addresses as Dict of (AddressId, Address): Dict()
       hashes as Dict of (AddressId, String): Dict()
+
+      override hash()
+        <- rtn as String: this.hash
+
+      override hashOfAddress()
+        -> id as AddressId
+        <- rtn as String: String(hashes.get(id))
+
+      override byId()
+        -> id as AddressId
+        <- rtn as Address: Address(addresses.get(id))
+
+      override listAll()
+        <- rtn as List of Address: List()
+
+        iter <- addresses.values()
+        cat iter | map with copyAddress > rtn
+
+      private includeAddress()
+        -> address as Address
+
+        copy <- Address(address)
+        addresses += DictEntry(copy.id, copy)
+        hashes += DictEntry(copy.id, HMAC().SHA256(addressToJSON(copy)))
+        updateHash()
+
+      private updateHash()
+        hash :=: HMAC().SHA256(GUID())
 
       override operator +=
         -> address as Address
@@ -260,39 +289,42 @@ defines module com.customer.services
         -> addressId as AddressId
         <- rtn as Boolean: addresses contains addressId      
       
-      override hash()
-        <- rtn as String: this.hash
-
-      override hashOfAddress()
-        -> id as AddressId
-        <- rtn as String: String(hashes.get(id))
-
-      override byId()
-        -> id as AddressId
-        <- rtn as Address: Address(addresses.get(id))
-      
-      override listAll()
-        <- rtn as List of Address: List()
-
-        iter <- addresses.values()
-        cat iter | map with copyAddress > rtn
-
-      private includeAddress()
-        -> address as Address
-                
-        copy <- Address(address)
-        addresses += DictEntry(copy.id, copy)
-        hashes += DictEntry(copy.id, HMAC().SHA256(addressToJSON(copy)))
-        updateHash()
-
-      private updateHash()
-        hash :=: HMAC().SHA256(GUID())
 
     //Example of wrapping shared data set in a mutex lock.
     @Resolved: SYMBOL_DEFINITION: TYPE: "LockableAddressSet"
     LockableAddressSet with trait of AddressAccess
       lockedAddressSet as MutexLock of AddressSet: MutexLock(AddressSet()) 
-      
+
+      override hash()
+        <- rtn as String: String()
+        accessKey <- (rtn) is MutexKey of AddressSet as function
+          rtn :=: value.hash()
+
+        lockedAddressSet.enter(accessKey)
+
+      override hashOfAddress()
+        -> id as AddressId
+        <- rtn as String: String()
+        accessKey <- (id, rtn) is MutexKey of AddressSet as function
+          rtn :=: value.hashOfAddress(id)
+
+        lockedAddressSet.enter(accessKey)
+
+      override byId()
+        -> id as AddressId
+        <- rtn as Address: Address()
+        accessKey <- (id, rtn) is MutexKey of AddressSet as function
+          rtn :=: value.byId(id)
+
+        lockedAddressSet.enter(accessKey)
+
+      override listAll()
+        <- rtn as List of Address: List()
+        accessKey <- (rtn) is MutexKey of AddressSet as function
+          rtn += value.listAll()
+
+        lockedAddressSet.enter(accessKey)
+
       override operator +=
         -> address as Address
         
@@ -332,35 +364,6 @@ defines module com.customer.services
 
         lockedAddressSet.enter(accessKey)
         
-      override hash()
-        <- rtn as String: String()
-        accessKey <- (rtn) is MutexKey of AddressSet as function
-          rtn :=: value.hash()
-
-        lockedAddressSet.enter(accessKey)
-
-      override hashOfAddress()
-        -> id as AddressId
-        <- rtn as String: String()
-        accessKey <- (id, rtn) is MutexKey of AddressSet as function
-          rtn :=: value.hashOfAddress(id)
-
-        lockedAddressSet.enter(accessKey)
-
-      override byId()
-        -> id as AddressId
-        <- rtn as Address: Address()
-        accessKey <- (id, rtn) is MutexKey of AddressSet as function
-          rtn :=: value.byId(id)
-
-        lockedAddressSet.enter(accessKey)
-
-      override listAll()
-        <- rtn as List of Address: List()
-        accessKey <- (rtn) is MutexKey of AddressSet as function
-          rtn += value.listAll()
-
-        lockedAddressSet.enter(accessKey)
 
   defines function
 

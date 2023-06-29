@@ -41,7 +41,10 @@ defines module net.customer.inferred
       get()
         -> index as Integer
         <- rtn as T: T()
-          
+
+      something()
+        <- rtn as SomeTestList of T := SomeTestList()
+
       //Add a T to the list.
       operator +
         -> item as T
@@ -54,9 +57,6 @@ defines module net.customer.inferred
         else
           check as T := T()
 
-      something()
-        <- rtn as SomeTestList of T := SomeTestList()
-             
     //Lets see how we can use those generic types.    
     Class1
 
