@@ -50,7 +50,12 @@ public class StackConsistencyScope extends ScopedSymbol implements ICanCaptureVa
 
   @Override
   public Optional<ISymbol> resolve(SymbolSearch search) {
-    return this.resolveInThisScopeOnly(search);
+    var rtn = this.resolveInThisScopeOnly(search);
+
+    if (rtn.isEmpty()) {
+      rtn = resolveWithParentScope(search);
+    }
+    return rtn;
   }
 
   @Override

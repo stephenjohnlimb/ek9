@@ -1177,14 +1177,20 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   }
 
   private void recordConstant(ParseTree ctx, Token start, String typeName) {
+    var scope = symbolAndScopeManagement.getTopScope();
+
     //Let's account for the optional '-' on some literals
     String literalText = ctx.getChild(0).getText();
     if (ctx.getChildCount() == 2) {
       literalText += ctx.getChild(1).getText();
     }
-    ConstantSymbol literal = symbolFactory.newLiteral(start, literalText);
-    var scope = symbolAndScopeManagement.getTopScope();
+
+    //Now this type should be resolved as it is passed in and is a built-in type.
     var resolvedType = scope.resolve(new TypeSymbolSearch(typeName));
+
+    //Make the literal
+    ConstantSymbol literal = symbolFactory.newLiteral(start, literalText);
+
     var source = literal.getSourceToken().getTokenSource().getSourceName();
     var line = literal.getSourceToken().getTokenSource().getLine();
     var msg = "Type of constant for '"

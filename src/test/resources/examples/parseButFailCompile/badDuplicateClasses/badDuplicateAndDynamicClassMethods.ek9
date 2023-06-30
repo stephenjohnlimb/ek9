@@ -52,4 +52,31 @@ defines module bad.duplicate.dynamicclassmethods
         someHttpResponse <- () with trait of HTTPResponse
         assert someHttpResponse?
 
+    <?-
+      Now a duplicate class, but with a method that returns a built in type.
+      This seemed to cause an issue - for some reason.
+      This was a bug in stack consistency scope - not using super and the module to resolve.
+    -?>
+    C3
+      aSimpleMethod1()
+        -> arg0 as Float
+        <- rtn <- true
+        assert arg0?
+
+    <?-
+      While we know this will fail, we need to ensure as much of the valid code block
+      is parsed and processed - without generating spurious errors.
+      This test focuses on ensuring types of literal are still resolved even when the outer construct
+      is a duplicate. This is what makes a compiler hard - detect an error - but continue on as far as possible
+      Only at the end of a specific phase 'fail' the compilation with one or more errors.
+    -?>
+    @Error: SYMBOL_DEFINITION: DUPLICATE_TYPE
+    C3
+      aSimpleMethod2()
+        -> arg0 as Float
+        <- rtn <- false
+        //So here be explicit about the type ensure it can resolve
+        var1 as Integer := 9
+        //But here use inference and ensure it too can resolve it's type as a literal
+        var2 <- true
 //EOF
