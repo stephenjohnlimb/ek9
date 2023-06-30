@@ -1,0 +1,213 @@
+#!ek9
+<?-
+  //Create tests with duplicate class names.
+  //this will fail in symbol definition, focus on keeping scopes in place.
+  //For duplicate methods - this is checked in later phases.
+-?>
+defines module bad.duplicate.constructs
+
+  defines class
+
+    <?-
+      Create a couple of duplicate classes, check they are detected
+      But also any errors in methods within those classes are also
+      still processed. Might seem strange, but I need to ensure that
+      'placeholders' are correctly put in place for the duplicate classes.
+      The idea is to process as much code and be accepting of errors and try and continue
+      but to do this all the right contexts need to appear to be in place.
+    -?>
+    C1
+      someMethod()
+        -> arg0 as String
+        assert arg0?
+
+    @Error: SYMBOL_DEFINITION: DUPLICATE_TYPE
+    C1
+      someOtherMethod()
+        -> arg0 as String
+        assert arg0?
+
+    <?-
+      Ok, this this is designed to show how we can use a dynamic class,
+      this has a trait of HTTPResponse and as all methods have implementations
+      i.e. 404 and default content type, we have no need of any override methods.
+
+      The point is that this dynamic class processing does exercise knowledge of the
+      call stack to find outer blocks, classes and the like.
+
+      So what happens if there is a duplicate class! BANG?
+    -?>
+    C2
+      someMethod()
+        -> arg0 as String
+        someHttpResponse <- (arg0) with trait of HTTPResponse
+        assert someHttpResponse?
+
+    <?-
+      So now deliberately duplicate the class and check for errors.
+    -?>
+    @Error: SYMBOL_DEFINITION: DUPLICATE_TYPE
+    C2
+      someMethod()
+        -> arg0 as String
+        someHttpResponse <- () with trait of HTTPResponse
+        assert someHttpResponse?
+
+    <?-
+      Now a duplicate class, but with a method that returns a built in type.
+      This seemed to cause an issue - for some reason.
+      This was a bug in stack consistency scope - not using super and the module to resolve.
+    -?>
+    C3
+      aSimpleMethod1()
+        -> arg0 as Float
+        <- rtn <- true
+        assert arg0?
+
+    <?-
+      While we know this will fail, we need to ensure as much of the valid code block
+      is parsed and processed - without generating spurious errors.
+      This test focuses on ensuring types of literal are still resolved even when the outer construct
+      is a duplicate. This is what makes a compiler hard - detect an error - but continue on as far as possible
+      Only at the end of a specific phase 'fail' the compilation with one or more errors.
+    -?>
+    @Error: SYMBOL_DEFINITION: DUPLICATE_TYPE
+    C3
+      aSimpleMethod2()
+        -> arg0 as Float
+        <- rtn <- false
+        //So here be explicit about the type ensure it can resolve
+        var1 as Integer := 9
+        //But here use inference and ensure it too can resolve it's type as a literal
+        var2 <- true
+
+  <?-
+    Also create duplicate traits and check if their names clash with traits and other constructs.
+  -?>
+  defines trait
+    BasicTrait
+      methodA()
+        -> arg0 as String
+        <- rtn as Boolean: arg0?
+
+    @Error: SYMBOL_DEFINITION: DUPLICATE_TYPE
+    BasicTrait
+      methodB()
+        -> arg0 as String
+        <- rtn as Boolean: arg0?
+
+    @Error: SYMBOL_DEFINITION: DUPLICATE_TYPE
+    C1
+      methodB()
+        -> arg0 as String
+        <- rtn as Boolean: arg0?
+
+  defines function
+
+    <?-
+      Create a driver function that creates a 'Tuple', i.e. a dynamic but named class
+    -?>
+    DriverFunction1
+      p1 <- 1
+      p2 <- "Steve"
+
+      dClass1 <- DynamicTuple(p1, p2) with trait of BasicTrait
+        methodA()
+          -> arg0 as String
+          <- rtn as Boolean: arg0?
+      assert dClass1?
+
+      //Now try and do the same, i.e. redefine DynamicTuple
+      @Error: SYMBOL_DEFINITION: DUPLICATE_TYPE
+      dClass2 <- DynamicTuple(p1, p2) with trait of BasicTrait
+        methodA()
+          -> arg0 as String
+          <- rtn as Boolean: arg0?
+      assert dClass2?
+
+    DriverFunction2
+      p1 <- 1
+      p2 <- "Steve"
+
+      //Now also try and redefine C3 as a dynamic class name, where it already exists
+      @Error: SYMBOL_DEFINITION: DUPLICATE_TYPE
+      dClass1 <- C3(p1, p2) with trait of BasicTrait
+        methodA()
+          -> arg0 as String
+          <- rtn as Boolean: arg0?
+      assert dClass1?
+
+    Function1
+      -> arg0 as Float
+      <- rtn <- true
+
+    @Error: SYMBOL_DEFINITION: DUPLICATE_FUNCTION
+    Function1
+      -> arg0 as Float
+      <- rtn <- true
+
+    @Error: SYMBOL_DEFINITION: DUPLICATE_TYPE
+    BasicTrait
+      -> arg0 as Float
+      <- rtn <- true
+
+    @Error: SYMBOL_DEFINITION: DUPLICATE_TYPE
+    C2
+      -> arg0 as Float
+      <- rtn <- true
+
+  <?-
+    Check that components when duplicated are also detected.
+  -?>
+  defines component
+    Comp1
+      someMethod()
+        -> arg0 as String
+        assert arg0?
+
+    @Error: SYMBOL_DEFINITION: DUPLICATE_TYPE
+    Comp1
+      someOtherMethod()
+        -> arg0 as String
+        assert arg0?
+
+    @Error: SYMBOL_DEFINITION: DUPLICATE_TYPE
+    C1
+      someOtherMethod()
+        -> arg0 as String
+        assert arg0?
+
+  <?-
+    Check that Services when duplicated detected.
+  -?>
+  defines service
+    S1 for :/
+      someMethod()
+        -> arg0 as String
+        assert arg0?
+
+    @Error: SYMBOL_DEFINITION: DUPLICATE_TYPE
+    S1 for :/area
+      someOtherMethod()
+        -> arg0 as String
+        assert arg0?
+
+    @Error: SYMBOL_DEFINITION: DUPLICATE_TYPE
+    C1 for :/area2
+      someOtherMethod()
+        -> arg0 as String
+        assert arg0?
+
+    @Error: SYMBOL_DEFINITION: DUPLICATE_TYPE
+    Comp1 for :/area3
+      someOtherMethod()
+        -> arg0 as String
+        assert arg0?
+
+    @Error: SYMBOL_DEFINITION: DUPLICATE_FUNCTION
+    Function1 for :/functionArea
+      someOtherMethod()
+        -> arg0 as String
+        assert arg0?
+
+//EOF

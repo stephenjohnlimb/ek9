@@ -7,12 +7,12 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests duplicate classes with dynamic classes.
+ * Just tests duplicate constructs.
  */
-class BadDuplicateClassesFullCompilationTest extends FullCompilationTest {
+class BadDuplicateConstructsFullCompilationTest extends FullCompilationTest {
 
-  public BadDuplicateClassesFullCompilationTest() {
-    super("/examples/parseButFailCompile/badDuplicateClasses");
+  public BadDuplicateConstructsFullCompilationTest() {
+    super("/examples/parseButFailCompile/badDuplicateConstructs");
   }
 
   @Test
@@ -23,6 +23,6 @@ class BadDuplicateClassesFullCompilationTest extends FullCompilationTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.duplicate.dynamicclassmethods").isEmpty());
+    assertFalse(program.getParsedModules("bad.duplicate.constructs").isEmpty());
   }
 }

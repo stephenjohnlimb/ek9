@@ -347,8 +347,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     var currentScope = symbolAndScopeManagement.getTopScope();
     final var newServiceOperationSymbol = symbolFactory.newServiceOperation(ctx, currentScope);
 
-    //Do we need to check for duplicates here?
-    //TODO yes check for duplicates
+    //Duplicates are checked in later phase (EXPLICIT_TYPE_SYMBOL_DEFINITION).
     symbolAndScopeManagement.defineScopedSymbol(newServiceOperationSymbol, ctx);
 
     super.enterServiceOperationDeclaration(ctx);
