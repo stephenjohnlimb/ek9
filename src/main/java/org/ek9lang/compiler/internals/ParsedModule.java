@@ -3,10 +3,12 @@ package org.ek9lang.compiler.internals;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
+import org.ek9lang.compiler.main.phases.definition.Ek9Types;
 import org.ek9lang.compiler.support.Directive;
 import org.ek9lang.compiler.support.DirectiveType;
 import org.ek9lang.compiler.symbol.IScope;
@@ -108,6 +110,8 @@ public class ParsedModule implements Module {
    */
   private boolean externallyImplemented = false;
 
+  private Ek9Types ek9Types;
+
   /**
    * We may hold Nodes in here - but not sure yet.
    */
@@ -125,6 +129,18 @@ public class ParsedModule implements Module {
   private void setModuleScope(ModuleScope moduleScope) {
     AssertValue.checkNotNull("ModuleScope cannot be null", moduleScope);
     this.moduleScope = moduleScope;
+  }
+
+  /**
+   * If cached ek9 types have been provided, they can be accessed here.
+   */
+  public Ek9Types getEk9Types() {
+    if (ek9Types == null) {
+      AtomicReference<Ek9Types> ref = new AtomicReference<>();
+      compilableProgram.accept(program -> ref.set(program.getEk9Types()));
+      ek9Types = ref.get();
+    }
+    return ek9Types;
   }
 
   public boolean isExternallyImplemented() {

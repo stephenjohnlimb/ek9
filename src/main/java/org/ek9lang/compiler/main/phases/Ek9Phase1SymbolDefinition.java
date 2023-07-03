@@ -9,6 +9,7 @@ import org.ek9lang.compiler.internals.CompilableSource;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
+import org.ek9lang.compiler.main.phases.definition.BuiltInTypeCacheResolver;
 import org.ek9lang.compiler.main.phases.definition.DefinitionPhase1Listener;
 import org.ek9lang.compiler.main.phases.result.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
@@ -93,5 +94,15 @@ public class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, Compiler
     ParseTreeWalker walker = new ParseTreeWalker();
     walker.walk(phaseListener, source.getCompilationUnitContext());
     listener.accept(new CompilationEvent(thisPhase, parsedModule, source));
+
+    /*
+     * Now for the built-in types, we resolve and hold the types and supply to the compilable program.
+     * These can then be passed into ParsedModules as and when requested and then into other components.
+     */
+    if ("org-ek9-lang.ek9".equals(source.getFileName())) {
+      final var builtInTypeCacheResolver = new BuiltInTypeCacheResolver();
+      final var ek9Types = builtInTypeCacheResolver.apply(parsedModule.getModuleScope());
+      compilableProgramAccess.accept(compilableProgram -> compilableProgram.setEk9Types(ek9Types));
+    }
   }
 }

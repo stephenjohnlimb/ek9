@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.main.phases;
 
-import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -16,7 +16,6 @@ import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.core.exception.CompilerException;
 import org.ek9lang.core.threads.SharedThreadContext;
-import org.ek9lang.core.utils.Holder;
 
 /**
  * Can be MULTI THREADED for developer source, but single threaded for bootstrapping.
@@ -91,20 +90,19 @@ public class Ek9Phase2NonInferredTypeDefinition
   private void resolveOrDefineTypeSymbols(CompilableSource source) {
     //First get the parsed module for this source file.
     //This has to be done via a mutable holder through a reentrant lock to the program
-    var holder = new Holder<ParsedModule>();
+    var holder = new AtomicReference<ParsedModule>();
     compilableProgramAccess.accept(
-        program -> holder.accept(Optional.ofNullable(program.getParsedModuleForCompilableSource(source))));
+        program -> holder.set(program.getParsedModuleForCompilableSource(source)));
 
-    if (holder.isEmpty()) {
+    if (holder.get() == null) {
       throw new CompilerException("Compiler error, the parsed module must be present for " + source.getFileName());
-    }
-
-    holder.ifPresent(parsedModule -> {
+    } else {
+      var parsedModule = holder.get();
       ResolveDefineExplicitTypeListener phaseListener =
           new ResolveDefineExplicitTypeListener(parsedModule);
       ParseTreeWalker walker = new ParseTreeWalker();
       walker.walk(phaseListener, source.getCompilationUnitContext());
       listener.accept(new CompilationEvent(thisPhase, parsedModule, source));
-    });
+    }
   }
 }

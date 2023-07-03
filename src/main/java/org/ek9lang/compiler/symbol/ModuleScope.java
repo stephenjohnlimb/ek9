@@ -4,13 +4,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.symbol.support.SymbolChecker;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.threads.SharedThreadContext;
-import org.ek9lang.core.utils.Holder;
 
 /**
  * This is a very special scope, because the same 'module name' can be defined in
@@ -94,10 +94,10 @@ public class ModuleScope extends SymbolTable {
    * So do not assume this new type will reside in this module scope, it most probably won't.
    */
   public Optional<ISymbol> resolveOrDefine(final PossibleGenericSymbol parameterisedSymbol) {
-    Holder<ISymbol> holder = new Holder<>();
+    var holder = new AtomicReference<Optional<ISymbol>>();
     compilableProgramContext.accept(compilableProgram -> {
       var result = compilableProgram.resolveOrDefine(parameterisedSymbol);
-      holder.accept(result.symbol());
+      holder.set(result.symbol());
     });
     return holder.get();
   }
@@ -134,14 +134,14 @@ public class ModuleScope extends SymbolTable {
    * in all the scopes for this module.
    */
   public Optional<ISymbol> resolveInThisModuleOnly(final SymbolSearch search) {
-    Holder<ISymbol> rtn = new Holder<>();
+    var rtn = new AtomicReference<Optional<ISymbol>>();
 
     compilableProgramContext.accept(compilableProgram -> {
       //Try and resolve in this scope name from one of that scopes modules.
-      rtn.accept(compilableProgram.resolveFromModule(getScopeName(), search));
+      rtn.set(compilableProgram.resolveFromModule(getScopeName(), search));
 
-      if (rtn.isEmpty() && !search.isLimitToBlocks()) {
-        rtn.accept(compilableProgram.resolveReferenceFromModule(getScopeName(), search));
+      if (rtn.get().isEmpty() && !search.isLimitToBlocks()) {
+        rtn.set(compilableProgram.resolveReferenceFromModule(getScopeName(), search));
       }
     });
     return rtn.get();
@@ -194,20 +194,20 @@ public class ModuleScope extends SymbolTable {
   protected Optional<ISymbol> resolveWithEnclosingScope(SymbolSearch search) {
     // Need to get result into a variable we can use outside of lambda
     // but we need the lambda to ensure access is thread safe.
-    Holder<ISymbol> rtn = new Holder<>();
+    var rtn = new AtomicReference<Optional<ISymbol>>(Optional.empty());
 
     compilableProgramContext.accept(compilableProgram -> {
       //If it is fully qualified let program scope workout module and resolve it.
       //But if it is this module we will have already search for it.
       var searchModule = ISymbol.getModuleNameIfPresent(search.getName());
       if (ISymbol.isQualifiedName(search.getName()) && !getScopeName().equals(searchModule)) {
-        rtn.accept(compilableProgram.resolveByFullyQualifiedSearch(search));
+        rtn.set(compilableProgram.resolveByFullyQualifiedSearch(search));
       } else {
 
         //Only if we did not find anything and not limited to blocks do we search
-        if (rtn.isEmpty() && !search.isLimitToBlocks()) {
+        if (rtn.get().isEmpty() && !search.isLimitToBlocks()) {
           //Now these will be things like org.ek9.lang and or.ek9.math
-          rtn.accept(compilableProgram.resolveFromImplicitScopes(search));
+          rtn.set(compilableProgram.resolveFromImplicitScopes(search));
         }
       }
     });

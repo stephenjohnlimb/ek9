@@ -13,6 +13,7 @@ import org.ek9lang.compiler.main.resolvedefine.SyntheticConstructorCreator;
 import org.ek9lang.compiler.main.rules.CheckForDuplicateOperations;
 import org.ek9lang.compiler.main.rules.CheckNotGenericTypeParameter;
 import org.ek9lang.compiler.main.rules.CheckOperator;
+import org.ek9lang.compiler.main.rules.CheckServiceOperation;
 import org.ek9lang.compiler.main.rules.CheckSuitableGenus;
 import org.ek9lang.compiler.main.rules.CheckSuitableToExtend;
 import org.ek9lang.compiler.main.rules.CheckVisibilityOfOperations;
@@ -24,6 +25,7 @@ import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.MethodSymbol;
 import org.ek9lang.compiler.symbol.ScopeStack;
+import org.ek9lang.compiler.symbol.ServiceOperationSymbol;
 import org.ek9lang.compiler.symbol.support.SymbolFactory;
 import org.ek9lang.core.exception.AssertValue;
 
@@ -51,29 +53,20 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final ResolveOrDefineIdentifierReference resolveOrDefineIdentifierReference;
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
   private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
-
   private final CheckOperator checkOperator;
+  private final CheckServiceOperation checkServiceOperation;
   private final CheckVisibilityOfOperations checkVisibilityOfOperations;
   private final CheckForDuplicateOperations checkForDuplicateOperations;
   private final CheckNotGenericTypeParameter checkNotGenericTypeParameter;
-
   private final CheckSuitableToExtend checkFunctionSuitableToExtend;
-
   private final CheckSuitableToExtend checkRecordSuitableToExtend;
-
   private final CheckSuitableToExtend checkClassTraitSuitableToExtend;
-
   private final CheckSuitableToExtend checkClassSuitableToExtend;
-
   private final CheckSuitableToExtend checkComponentSuitableToExtend;
-
   private final CheckSuitableGenus checkComponentToRegisterAgainst;
-
   private final CheckSuitableGenus checkAllowedClassSuitableGenus;
-
   private final CheckSuitableGenus checkApplicationForProgram;
-
-  private final SyntheticConstructorCreator syntheticConstructorCreator = new SyntheticConstructorCreator();
+  private final SyntheticConstructorCreator syntheticConstructorCreator;
 
   /**
    * Still in def phase 1 - but second pass to try and resolve types due to declaration ordering.
@@ -82,7 +75,7 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     //At construction the ScopeStack will push the module scope on to the stack.
     this.symbolAndScopeManagement = new SymbolAndScopeManagement(parsedModule,
         new ScopeStack(parsedModule.getModuleScope()));
-
+    this.syntheticConstructorCreator = new SyntheticConstructorCreator(parsedModule.getEk9Types());
     final var errorListener = parsedModule.getSource().getErrorListener();
 
     /*
@@ -109,6 +102,8 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
         new ResolveOrDefineTypeDef(symbolAndScopeManagement, symbolFactory, errorListener, true);
 
     checkOperator = new CheckOperator(symbolAndScopeManagement, errorListener);
+    checkServiceOperation = new CheckServiceOperation(symbolAndScopeManagement, errorListener);
+
     /*
      * Again we must have all the building blocks of types, so that parameterised types an be created.
      */
@@ -323,6 +318,10 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   @Override
   public void exitServiceOperationDeclaration(EK9Parser.ServiceOperationDeclarationContext ctx) {
+    var currentScope = symbolAndScopeManagement.getRecordedScope(ctx);
+    if (currentScope instanceof ServiceOperationSymbol serviceOperation) {
+      checkServiceOperation.accept(serviceOperation, ctx);
+    }
     symbolAndScopeManagement.exitScope();
     super.exitServiceOperationDeclaration(ctx);
   }

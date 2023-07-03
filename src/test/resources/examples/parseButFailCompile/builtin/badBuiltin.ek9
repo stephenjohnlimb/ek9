@@ -2,7 +2,7 @@
 <!-
 Designed for testing of bootstrap loader. check for bad definitions,
 -!>
-defines extern module org.lang.ek9
+defines extern module org.ek9.lang
 
   defines trait
 

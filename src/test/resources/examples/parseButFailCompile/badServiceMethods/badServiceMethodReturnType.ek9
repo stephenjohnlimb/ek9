@@ -1,0 +1,43 @@
+#!ek9
+defines module bad.servicemethod.returntypes
+
+  defines service
+
+    <?-
+      First start off with a basic duplicate method check - done elsewhere
+      but included here just for consistency
+    -?>
+    S1 for :/site1/place1
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        index() as GET for :/index.html
+          <- response as HTTPResponse: () with trait of HTTPResponse
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        index() as GET for :/index.html
+          <- response as HTTPResponse: () with trait of HTTPResponse
+            override contentType()
+              <- rtn as String: "text/plain"
+            override content()
+              <- rtn as String: "Hello, World"
+            override status()
+              <- rtn as Integer: 200
+
+        //Now you might think this would be OK, but services must always return a HTTPResponse.
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_INCOMPATIBLE_RETURN_TYPE
+        checkAccess() as GET for :/someResource.json
+          <- response as Boolean: true
+
+        //Also a service must always have a return and it must be a HTTPResponse
+        //So lets add a test to ensure a missing return is trapped
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_MISSING_RETURN
+        checkAccess() as GET for :/anotherResource.json
+          -> query as String :=: QUERY
+          assert query?
+
+        //Now service methods cannot be abstract or unimplemented so lets check that.
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_WITH_NO_BODY_PROVIDED
+        anotherMethod() as GET for :/yetAnother/path
+          <- response as HTTPResponse?
+
+//EOF

@@ -447,10 +447,11 @@ defines module com.customer.services
       //It is still possible to use dynamic variable capture, like this but see the later code.
       //It used named variables.
       byId() as GET for :/{address-id}
-        -> addressId as AddressId :=: PATH "address-id" //required because different name
+        -> id as String :=: PATH "address-id" //required because different name
         <- response as HTTPResponse?
 
         delegate <- ByETagHTTPResponse(addressId, cacheableHTTPResponse(), false)
+        addressId <- AddressId(id)
         response: (addressId, delegate) with trait of HTTPResponse by delegate
           repository as Repository!
 
@@ -491,8 +492,8 @@ defines module com.customer.services
             
       //A DELETE
       operator -= :/{addressId}
-        -> addressId as AddressId //Assume PATH
-        <- response as HTTPResponse: (addressId: addressId, delegate: ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse(), false)) with trait of HTTPResponse by delegate
+        -> id as String //Assume PATH
+        <- response as HTTPResponse: (addressId: AddressId(id), delegate: ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse(), false)) with trait of HTTPResponse by delegate
             repository as Repository!
 
             override content()
@@ -503,14 +504,15 @@ defines module com.customer.services
                 status(204)
 
       //A PATCH which is a merge
+
       //Note with dynamic variable capture, you can still do it all one one line if you wish.
       operator :~: :/{addressId}
         ->
-          addressId as AddressId //Assume PATH
+          id as String //Assume PATH
           incomingContent as String :=: CONTENT          
         <-
           response as HTTPResponse: (
-            addressId: addressId,
+            addressId: AddressId(id),
             incomingContent: incomingContent,
             delegate: ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())
             ) trait HTTPResponse by delegate
@@ -532,11 +534,11 @@ defines module com.customer.services
       //Now the dynamic variable capture allowed multiple lines and various formatting within the ()
       operator :^: :/{addressId}
         ->
-          id as AddressId //Assume PATH
+          id as String //Assume PATH
           content as String :=: CONTENT
         <-
           response as HTTPResponse: (
-                addressId: id,
+                addressId: AddressId(id),
                 incomingContent: content,
                 delegate: ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())
               ) trait HTTPResponse by delegate

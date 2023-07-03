@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import org.ek9lang.compiler.main.phases.definition.Ek9Types;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.IScope;
@@ -48,10 +49,37 @@ public class AggregateFactory {
   public static final String EK9_FLOAT = EK9_LANG + "::Float";
   public static final String EK9_BOOLEAN = EK9_LANG + "::Boolean";
   public static final String EK9_BITS = EK9_LANG + "::Bits";
+  public static final String EK9_JSON = EK9_LANG + "::JSON";
+  public static final String EK9_HTTP_REQUEST = EK9_LANG + "::HTTPRequest";
+  public static final String EK9_HTTP_RESPONSE = EK9_LANG + "::HTTPResponse";
+  public static final String EK9_EXCEPTION = EK9_LANG + "::Exception";
   public static final String EK9_LIST = EK9_LANG + "::List";
+  public static final String EK9_ITERATOR = EK9_LANG + "::Iterator";
   public static final String EK9_OPTIONAL = EK9_LANG + "::Optional";
   public static final String EK9_DICTIONARY = EK9_LANG + "::Dict";
+  public static final String EK9_DICTIONARY_ENTRY = EK9_LANG + "::DictEntry";
+  public static final String EK9_RESULT = EK9_LANG + "::Result";
+  public static final String EK9_SUPPLIER = EK9_LANG + "::Supplier";
+  public static final String EK9_CONSUMER = EK9_LANG + "::Consumer";
+  public static final String EK9_FUNCTION = EK9_LANG + "::Function";
+  public static final String EK9_UNARY_OPERATOR = EK9_LANG + "::UnaryOperator";
+  public static final String EK9_PREDICATE = EK9_LANG + "::Predicate";
+  public static final String EK9_COMPARATOR = EK9_LANG + "::Comparator";
 
+  /**
+   * Typically used when the module is not a core ek9 module.
+   * This is so we can bootstrap ek9 but then once the types are defined we can use them quickly.
+   * So this can remain null in some situations.
+   */
+  private Ek9Types ek9Types;
+
+  public AggregateFactory() {
+
+  }
+
+  public AggregateFactory(final Ek9Types ek9Types) {
+    this.ek9Types = ek9Types;
+  }
 
   /**
    * Add a synthetic constructor, if a constructor is not present.
@@ -193,9 +221,9 @@ public class AggregateFactory {
    * Does not add them to the aggregate, but does create them with the aggregate as the enclosing scope.
    */
   public List<MethodSymbol> getAllPossibleDefaultOperators(IAggregateSymbol aggregate) {
-    final Optional<ISymbol> integerType = aggregate.resolve(new TypeSymbolSearch(EK9_INTEGER));
-    final Optional<ISymbol> stringType = aggregate.resolve(new TypeSymbolSearch(EK9_STRING));
-    final Optional<ISymbol> booleanType = aggregate.resolve(new TypeSymbolSearch(EK9_BOOLEAN));
+    final Optional<ISymbol> integerType = resolveInteger(aggregate);
+    final Optional<ISymbol> stringType = resolveString(aggregate);
+    final Optional<ISymbol> booleanType = resolveBoolean(aggregate);
 
     return new ArrayList<>(Arrays.asList(
         //isSet
@@ -218,9 +246,9 @@ public class AggregateFactory {
    * This is typically used when creating synthetic 'T' aggregates for generics/templates.
    */
   public List<MethodSymbol> getAllPossibleSyntheticOperators(IAggregateSymbol aggregate) {
-    final Optional<ISymbol> integerType = aggregate.resolve(new TypeSymbolSearch(EK9_INTEGER));
-    final Optional<ISymbol> booleanType = aggregate.resolve(new TypeSymbolSearch(EK9_BOOLEAN));
-    final Optional<ISymbol> voidType = aggregate.resolve(new TypeSymbolSearch(EK9_VOID));
+    final Optional<ISymbol> integerType = resolveInteger(aggregate);
+    final Optional<ISymbol> booleanType = resolveBoolean(aggregate);
+    final Optional<ISymbol> voidType = resolveVoid(aggregate);
 
     var theDefaultOperators = getAllPossibleDefaultOperators(aggregate);
 
@@ -292,9 +320,9 @@ public class AggregateFactory {
    * This allows a developer to use built-in methods on the 'Enumeration' type.
    */
   public void addEnumerationMethods(AggregateSymbol clazz) {
-    final Optional<ISymbol> booleanType = clazz.resolve(new TypeSymbolSearch(EK9_BOOLEAN));
-    final Optional<ISymbol> integerType = clazz.resolve(new TypeSymbolSearch(EK9_INTEGER));
-    final Optional<ISymbol> stringType = clazz.resolve(new TypeSymbolSearch(EK9_STRING));
+    final Optional<ISymbol> booleanType = resolveBoolean(clazz);
+    final Optional<ISymbol> integerType = resolveInteger(clazz);
+    final Optional<ISymbol> stringType = resolveString(clazz);
     //Some reasonable operations
     //compare
     addComparatorOperator(clazz, "<=>", integerType);
@@ -360,8 +388,12 @@ public class AggregateFactory {
     return method;
   }
 
+  /**
+   * Create operator for json.
+   */
   public MethodSymbol createToJsonSimpleOperator(IAggregateSymbol aggregate) {
-    final Optional<ISymbol> stringType = aggregate.resolve(new TypeSymbolSearch(EK9_STRING));
+    final Optional<ISymbol> stringType = resolveString(aggregate);
+    //TODO I think this should be JSON not string.
     return createPurePublicSimpleOperator(aggregate, "$$", stringType);
   }
 
@@ -391,5 +423,45 @@ public class AggregateFactory {
     operator.setType(clazz);
 
     return operator;
+  }
+
+  /**
+   * Resolve Void from cached ek9 types of full scope hierarchy resolution.
+   */
+  public Optional<ISymbol> resolveVoid(final IScope scope) {
+    if (ek9Types != null) {
+      return Optional.of(ek9Types.ek9Void());
+    }
+    return scope.resolve(new TypeSymbolSearch(EK9_VOID));
+  }
+
+  /**
+   * Resolve Boolean from cached ek9 types of full scope hierarchy resolution.
+   */
+  public Optional<ISymbol> resolveBoolean(final IScope scope) {
+    if (ek9Types != null) {
+      return Optional.of(ek9Types.ek9Boolean());
+    }
+    return scope.resolve(new TypeSymbolSearch(EK9_BOOLEAN));
+  }
+
+  /**
+   * Resolve Integer from cached ek9 types of full scope hierarchy resolution.
+   */
+  public Optional<ISymbol> resolveInteger(final IScope scope) {
+    if (ek9Types != null) {
+      return Optional.of(ek9Types.ek9Integer());
+    }
+    return scope.resolve(new TypeSymbolSearch(EK9_INTEGER));
+  }
+
+  /**
+   * Resolve String from cached ek9 types of full scope hierarchy resolution.
+   */
+  public Optional<ISymbol> resolveString(final IScope scope) {
+    if (ek9Types != null) {
+      return Optional.of(ek9Types.ek9String());
+    }
+    return scope.resolve(new TypeSymbolSearch(EK9_STRING));
   }
 }

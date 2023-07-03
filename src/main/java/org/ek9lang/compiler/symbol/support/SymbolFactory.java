@@ -1,8 +1,5 @@
 package org.ek9lang.compiler.symbol.support;
 
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_STRING;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_VOID;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -56,7 +53,6 @@ import org.ek9lang.compiler.symbol.SwitchSymbol;
 import org.ek9lang.compiler.symbol.Symbol;
 import org.ek9lang.compiler.symbol.TrySymbol;
 import org.ek9lang.compiler.symbol.VariableSymbol;
-import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.utils.UniqueIdGenerator;
 
@@ -70,8 +66,14 @@ public class SymbolFactory {
 
   public static final String EXTERN = "EXTERN";
 
+  public static final String HTTPPATH = "PATH";
   public static final String HTTPVERB = "HTTPVERB";
 
+  public static final String HTTPACCESS = "HTTPACCESS";
+
+  public static final String HTTPSOURCE = "HTTPSOURCE";
+
+  public static final String HTTPREQUEST = "REQUEST";
   private static final Set<String> streamPartCanConsumeAnything = Set.of("flatten",
       "call", "async", "skipping", "head", "tail");
 
@@ -116,7 +118,7 @@ public class SymbolFactory {
   /**
    * Used for low level additions of methods to aggregates.
    */
-  private final AggregateFactory aggregateFactory = new AggregateFactory();
+  private final AggregateFactory aggregateFactory;
 
   private final Consumer<Object> checkContextNotNull = ctx -> AssertValue.checkNotNull("CTX cannot be null", ctx);
 
@@ -138,12 +140,14 @@ public class SymbolFactory {
   public SymbolFactory(ParsedModule parsedModule) {
     AssertValue.checkNotNull("Parsed Module cannot be null", parsedModule);
     this.parsedModule = parsedModule;
-    checkSwitch = new CheckSwitch(parsedModule.getSource().getErrorListener());
-    checkTryReturns = new CheckTryReturns(parsedModule.getSource().getErrorListener());
-    checkForInvalidServiceDefinition =
+    this.aggregateFactory = new AggregateFactory(parsedModule.getEk9Types());
+    this.checkSwitch = new CheckSwitch(parsedModule.getSource().getErrorListener());
+    this.checkTryReturns = new CheckTryReturns(parsedModule.getSource().getErrorListener());
+    this.checkForInvalidServiceDefinition =
         new CheckForInvalidServiceDefinition(parsedModule.getSource().getErrorListener());
-    checkForInvalidServiceOperator = new CheckForInvalidServiceOperator(parsedModule.getSource().getErrorListener());
-    checkAppropriateWebVariable = new CheckAppropriateWebVariable(parsedModule.getSource().getErrorListener());
+    this.checkForInvalidServiceOperator =
+        new CheckForInvalidServiceOperator(parsedModule.getSource().getErrorListener());
+    this.checkAppropriateWebVariable = new CheckAppropriateWebVariable(parsedModule.getSource().getErrorListener());
   }
 
   /**
@@ -389,7 +393,7 @@ public class SymbolFactory {
 
     method.setOperator(false);
     //Always returns a String - no need or ability to declare it.
-    method.setType(scope.resolve(new TypeSymbolSearch(EK9_STRING)));
+    method.setType(aggregateFactory.resolveString(scope));
 
     return method;
   }
@@ -551,7 +555,7 @@ public class SymbolFactory {
     method.setOperator(true);
 
     //Set this as default unless we have a returning section
-    method.setType(scopedSymbol.resolve(new TypeSymbolSearch(EK9_VOID)));
+    method.setType(aggregateFactory.resolveVoid(scopedSymbol));
 
     return method;
   }
@@ -628,7 +632,7 @@ public class SymbolFactory {
       method.setType(scopedSymbol);
     } else {
       //Set this as default unless we have a returning section
-      method.setType(scopedSymbol.resolve(new TypeSymbolSearch(EK9_VOID)));
+      method.setType(aggregateFactory.resolveVoid(scopedSymbol));
     }
 
     return method;
@@ -920,7 +924,7 @@ public class SymbolFactory {
     //But also if we had and escaped $ i.e. \$ we can turn that back into a dollar now.
     String literalText = ctx.getChild(0).getText().replace("\"", "\\\"").replace("\\$", "$").replace("\\`", "`");
     ConstantSymbol literal = newLiteral(ctx.start, "\"" + literalText + "\"");
-    literal.setType(scope.resolve(new TypeSymbolSearch(EK9_STRING)));
+    literal.setType(aggregateFactory.resolveString(scope));
 
     return literal;
   }
@@ -957,15 +961,15 @@ public class SymbolFactory {
 
     if (ctx.webVariableCorrelation() != null) {
       //We need to squirrel away the information, so it can be both checked and used elsewhere
-      variable.putSquirrelledData("HTTPACCESS", ctx.webVariableCorrelation().httpAccess().getText());
+      variable.putSquirrelledData(HTTPACCESS, ctx.webVariableCorrelation().httpAccess().getText());
       if (ctx.webVariableCorrelation().stringLit() != null) {
         //Where will this be pulled from
-        variable.putSquirrelledData("HTTPSOURCE", ctx.webVariableCorrelation().stringLit().getText());
+        variable.putSquirrelledData(HTTPSOURCE, ctx.webVariableCorrelation().stringLit().getText());
         //Obviously is httpAccess is HEADER then it must be a valid header name.
         //If httpsAccess is PATH then it must exist in the PATH on the Method
         //These things are checked elsewhere - here we are just gathering info.
       } else {
-        variable.putSquirrelledData("HTTPSOURCE", variable.getName());
+        variable.putSquirrelledData(HTTPSOURCE, variable.getName());
       }
     }
     return variable;
@@ -1069,6 +1073,5 @@ public class SymbolFactory {
     }
     return rtn;
   }
-
 
 }

@@ -104,7 +104,7 @@ public abstract class Eve extends E {
   }
 
   /**
-   * Holder for the version.
+   * The version.
    * Takes a version text for features or plain versions.
    * Both with or without a build number.
    * This then allows the developer to manipulate major, minor, patch and build numbers.

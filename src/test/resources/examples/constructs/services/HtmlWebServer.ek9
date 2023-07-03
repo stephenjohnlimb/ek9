@@ -15,7 +15,7 @@ defines module com.customer.webserver
       //This means we can use expressions in the capture itself and hence can clean up the
       //expression. This small change means that we can remove dummy creation of responses.
       file() as GET for :/{fileName}
-        -> fileName as String
+        -> fileName as String :=: PATH "fileName"
         <- response as HTTPResponse: (
           webServer: this,
           fileName: fileName

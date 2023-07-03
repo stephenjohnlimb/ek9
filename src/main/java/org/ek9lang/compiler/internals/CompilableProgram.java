@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.Token;
+import org.ek9lang.compiler.main.phases.definition.Ek9Types;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.ModuleScope;
 import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
@@ -37,6 +38,14 @@ public class CompilableProgram {
   private final Map<CompilableSource, ParsedModule> sourceToParsedModule = new HashMap<>();
 
   /**
+   * When the built in ek9 bootstrap module is parsed and processed, it will be added here.
+   * This is so that basic built in types (which are immutable) can then be used within the compiler.
+   * This provides quick and programmatic access - while it would be possible to resolve within the
+   * normal scope hierarchy, this is quicker and more obvious within the compiler.
+   */
+  private Ek9Types ek9Types;
+
+  /**
    * Provides the list of scopes in a single module for a module name.
    */
   private final Function<String, List<ModuleScope>> getModuleScopes =
@@ -52,6 +61,14 @@ public class CompilableProgram {
   public ParsedModule getParsedModuleForCompilableSource(CompilableSource source) {
     AssertValue.checkNotNull("Compilable source cannot be null", source);
     return this.sourceToParsedModule.get(source);
+  }
+
+  public Ek9Types getEk9Types() {
+    return ek9Types;
+  }
+
+  public void setEk9Types(Ek9Types ek9Types) {
+    this.ek9Types = ek9Types;
   }
 
   /**

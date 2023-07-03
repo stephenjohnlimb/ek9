@@ -272,7 +272,11 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     //There is returning so use a return of Void, might be null if we had duplicate names.
     if (functionSymbol != null && ctx.operationDetails().returningParam() == null) {
       var simulatedVoid = symbolFactory.newVariable("_rtn", ctx.start, false, false);
-      simulatedVoid.setType(functionSymbol.resolve(new TypeSymbolSearch(EK9_VOID)));
+      if (symbolAndScopeManagement.getEk9Types() != null) {
+        simulatedVoid.setType(symbolAndScopeManagement.getEk9Types().ek9Void());
+      } else {
+        simulatedVoid.setType(functionSymbol.resolve(new TypeSymbolSearch(EK9_VOID)));
+      }
       functionSymbol.setReturningSymbol(simulatedVoid);
     }
     super.exitFunctionDeclaration(ctx);

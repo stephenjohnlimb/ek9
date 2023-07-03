@@ -48,7 +48,7 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\b(try|throw|catch|handle|finally|constrain|range|assert|GET|HEAD|POST|PUT|PATCH|HEADER|PATH|QUERY|BODY)\b</string>
+			<string>\b(try|throw|catch|handle|finally|constrain|range|assert)\b</string>
 			<key>name</key>
 			<string>markup.bold.ek9</string>
 		</dict>
@@ -60,7 +60,13 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\b(true|false|cat|filter|group|split|call|async|package|map|sort|flatten|uniq|tee|head|tail|skip|join|collect)\b</string>
+			<string>\b(cat|filter|group|split|call|async|package|map|sort|flatten|uniq|tee|head|tail|skip|join|collect)\b</string>
+			<key>name</key>
+			<string>keyword.other.ek9</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(GET|HEAD|POST|PUT|PATCH|PATH|HEADER|QUERY|REQUEST|CONTENT|CONTEXT)\b</string>
 			<key>name</key>
 			<string>keyword.other.ek9</string>
 		</dict>
@@ -72,7 +78,13 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\b(Boolean|String|Strings|Integer|Float|Date|Time|DateTime|Font|Colour|Colour|Dimension|RegEx|Duration|Millisecond|Money|Locale|Version|List|Dict|DictEntry|Bits|Map|Optional|Iterator)\b</string>
+			<string>\b(Boolean|Bits|String|Character|Integer|Float|Date|Time|DateTime|Font|Colour|Colour|Dimension|RegEx|Duration|Millisecond|Money|Path|JSON|Locale|Version)\b</string>
+			<key>name</key>
+			<string>storage.type.ek9</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(Exception|List|Dict|DictEntry|Map|Optional|PriorityQueue|Iterator|Result|Clock|StringInput|StringOutput|HTTPRequest|HTTPResponse)\b</string>
 			<key>name</key>
 			<string>storage.type.ek9</string>
 		</dict>
@@ -84,7 +96,7 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\b(mod|rem|sqrt|and|or|xor|abs|not|contains|matches|empty|length|open|close)\b</string>
+			<string>\b(true|false|mod|rem|sqrt|and|or|xor|abs|not|contains|matches|empty|length|open|close)\b</string>
 			<key>name</key>
 			<string>constant.ek9</string>
 		</dict>

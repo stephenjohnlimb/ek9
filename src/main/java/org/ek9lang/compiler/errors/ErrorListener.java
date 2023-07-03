@@ -323,6 +323,7 @@ public class ErrorListener extends BaseErrorListener {
     SERVICE_HTTP_PATH_PARAM_INVALID("HTTP PATH parameter is invalid"),
     SERVICE_HTTP_PATH_ASSUMED_BUT_INVALID("HTTP PATH parameter was assumed, did you mean HEADER, QUERY or BODY?"),
     SERVICE_HTTP_BODY_MAPPING_NOT_ALLOWED("HTTP BODY parameter cannot have a mapping name"),
+    SERVICE_WITH_NO_BODY_PROVIDED("implementation not provided, but services cannot be abstract"),
     SERVICE_INCOMPATIBLE_RETURN_TYPE("Web Service return type must be compatible with HTTPResponse"),
     SERVICE_INCOMPATIBLE_PARAM_TYPE("Web Service parameter type must be Integer, String or HTTPRequest"),
     SERVICE_INCOMPATIBLE_PARAM_TYPE_REQUEST("Web Service parameter type must be HTTPRequest for REQUEST"),

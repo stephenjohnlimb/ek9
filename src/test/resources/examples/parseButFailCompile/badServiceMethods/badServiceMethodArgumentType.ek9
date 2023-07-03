@@ -1,0 +1,62 @@
+#!ek9
+<?-
+  Check the types on incoming arguments, they are limited in what can be mapped from
+  http requests coming in, this is because ek9 actually maps incoming data into types where possible.
+-?>
+defines module bad.servicemethod.argumenttypes
+
+  defines service
+
+    S2 for :/site1/place2
+
+      //This is all OK, GET is inferred and the HTTPResponse is a trait but with all default methods
+      //These are reasonable implementations like 404 etc. So just use an anonymous dynamic class but dont override anything.
+      //Incoming arguments are not mandatory, so this is an working example of that.
+      index() :/index.html
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+      //This too, is a valid working example but with valid incoming arguments.
+      //So this would use the query parameters and try and find "index-number" parameter and map to integer if possible
+      index2() :/index2.html
+        ->
+          queryId as Integer :=: QUERY "index-number"
+          content as String :=: CONTENT
+        <-
+          response as HTTPResponse: () with trait of HTTPResponse
+
+      //As is this, just getting the request directly
+      index3() :/index3.html
+        ->
+          request as HTTPRequest :=: REQUEST
+        <-
+          response as HTTPResponse: () with trait of HTTPResponse
+
+      //Another valid example
+      index4() :/{address-id}
+        -> addressId as Integer :=: PATH "address-id" //required because different name
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+      invalid1() :/invalid1.html
+        ->
+          @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_INCOMPATIBLE_PARAM_TYPE
+          arg0 as Float :=: QUERY "some-param"
+        <-
+          response as HTTPResponse: () with trait of HTTPResponse
+
+      invalid2() :/invalid2.html
+        ->
+          @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_INCOMPATIBLE_PARAM_TYPE_REQUEST
+          arg0 as String :=: REQUEST
+        <-
+          response as HTTPResponse: () with trait of HTTPResponse
+
+      invalid2() :/invalid2.html
+        ->
+          @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_INCOMPATIBLE_PARAM_TYPE_NON_REQUEST
+          arg0 as HTTPRequest :=: QUERY "another-parameter"
+        <-
+          response as HTTPResponse: () with trait of HTTPResponse
+
+//TODO add a test of an argument with a missing correlation.
+//TODO check if it present on the PATH as :/{varName} in the operation if not then valid if it is then squirrel away value.
+//EOF
