@@ -2,7 +2,7 @@
 <?-
   Check the types on incoming arguments, they are limited in what can be mapped from
   http requests coming in, this is because ek9 actually maps incoming data into types where possible.
-  //TODO consider accepting Date, Time, DateTime, Milliseconds, Duration, as parameters.
+  This also checks the URI duplication based on a per verb basis.
 -?>
 defines module bad.servicemethod.argumenttypes
 
@@ -40,7 +40,7 @@ defines module bad.servicemethod.argumenttypes
 
       //Another valid example
       index4() :/{address-id}
-        -> addressId as Integer :=: PATH "address-id" //required because different name
+        -> addressId as Integer :=: PATH "address-id" //required because different name from the variable
         <- response as HTTPResponse: () with trait of HTTPResponse
 
       //Another valid example
@@ -101,7 +101,8 @@ defines module bad.servicemethod.argumenttypes
         <- response as HTTPResponse: () with trait of HTTPResponse
 
       //While not method duplicates as they have different names/signatures - they duplicate on the uri path
-
+      //So the duplicate check is based on the depth of the path and fixed names.
+      //The variable names are in effect converted to {} - as it is the structure that is then a duplicate
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_HTTP_PATH_DUPLICATED
       dup1() :/{validationNumber1}/data.html
         -> validationNumber1 as Integer
@@ -112,19 +113,20 @@ defines module bad.servicemethod.argumenttypes
         -> validationNumber2 as Integer
         <- response as HTTPResponse: () with trait of HTTPResponse
 
-      //But this is not a duplicate, because the verb is different
+      //But this is not a duplicate, because the verb is different  HEAD not GET
       notDup() as HEAD :/{validationNumber3}/data.html
         -> validationNumber3 as Integer
         <- response as HTTPResponse: () with trait of HTTPResponse
 
-      //But this is not a duplicate, because the verb is different
+      //But this is not a duplicate, because again the verb is different, this time POST
       update1() as POST :/{validationNumber4}/data.html
         ->
           validationNumber4 as Integer
           payload as String :=: CONTENT
-        <- response as HTTPResponse: () with trait of HTTPResponse
+        <-
+          response as HTTPResponse: () with trait of HTTPResponse
 
-      //But these do conflict on POST with same number of parameters - even though type order is different.
+      //But these do conflict on POST with same number of parameters - even though type/order is different.
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_HTTP_PATH_DUPLICATED
       update2() as POST :/{updateNo1}/{area1}/data.html
@@ -132,7 +134,8 @@ defines module bad.servicemethod.argumenttypes
           updateNo1 as Integer
           area1 as String
           payload as String :=: CONTENT
-        <- response as HTTPResponse: () with trait of HTTPResponse
+        <-
+          response as HTTPResponse: () with trait of HTTPResponse
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_HTTP_PATH_DUPLICATED
       update3() as POST :/{updateNo51}/{area51}/data.html
@@ -140,6 +143,7 @@ defines module bad.servicemethod.argumenttypes
           updateNo51 as String
           area51 as Integer
           payload as String :=: CONTENT
-        <- response as HTTPResponse: () with trait of HTTPResponse
+        <-
+          response as HTTPResponse: () with trait of HTTPResponse
 
 //EOF
