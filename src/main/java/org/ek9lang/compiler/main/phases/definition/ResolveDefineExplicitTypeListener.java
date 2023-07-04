@@ -10,6 +10,7 @@ import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineExplicitParameteri
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineIdentifierReference;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineTypeDef;
 import org.ek9lang.compiler.main.resolvedefine.SyntheticConstructorCreator;
+import org.ek9lang.compiler.main.rules.CheckDuplicatedServicePaths;
 import org.ek9lang.compiler.main.rules.CheckForDuplicateOperations;
 import org.ek9lang.compiler.main.rules.CheckNotGenericTypeParameter;
 import org.ek9lang.compiler.main.rules.CheckOperator;
@@ -55,6 +56,7 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
   private final CheckOperator checkOperator;
   private final CheckServiceOperation checkServiceOperation;
+  private final CheckDuplicatedServicePaths checkDuplicatedServicePaths;
   private final CheckVisibilityOfOperations checkVisibilityOfOperations;
   private final CheckForDuplicateOperations checkForDuplicateOperations;
   private final CheckNotGenericTypeParameter checkNotGenericTypeParameter;
@@ -103,6 +105,7 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
     checkOperator = new CheckOperator(symbolAndScopeManagement, errorListener);
     checkServiceOperation = new CheckServiceOperation(symbolAndScopeManagement, errorListener);
+    checkDuplicatedServicePaths = new CheckDuplicatedServicePaths(symbolAndScopeManagement, errorListener);
 
     /*
      * Again we must have all the building blocks of types, so that parameterised types an be created.
@@ -303,6 +306,7 @@ public class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     syntheticConstructorCreator.accept(symbol);
     checkVisibilityOfOperations.accept(symbol);
     checkForDuplicateOperations.accept(ctx.start, symbol);
+    checkDuplicatedServicePaths.accept(symbol);
 
     symbolAndScopeManagement.exitScope();
     super.exitServiceDeclaration(ctx);

@@ -17,16 +17,16 @@ defines module bad.servicemethod.returntypes
         index() as GET for :/index.html
           <- response as HTTPResponse: () with trait of HTTPResponse
             override contentType()
-              <- rtn as String: "text/plain"
+              <- rtn <- "text/plain"
             override content()
-              <- rtn as String: "Hello, World"
+              <- rtn <- "Hello, World"
             override status()
-              <- rtn as Integer: 200
+              <- rtn <- 200
 
         //Now you might think this would be OK, but services must always return a HTTPResponse.
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_INCOMPATIBLE_RETURN_TYPE
         checkAccess() as GET for :/someResource.json
-          <- response as Boolean: true
+          <- response <- true
 
         //Also a service must always have a return and it must be a HTTPResponse
         //So lets add a test to ensure a missing return is trapped

@@ -491,7 +491,7 @@ defines module com.customer.services
               <- rtn as Integer: status
             
       //A DELETE
-      operator -= :/{addressId}
+      operator -= :/{id}
         -> id as String //Assume PATH
         <- response as HTTPResponse: (addressId: AddressId(id), delegate: ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse(), false)) with trait of HTTPResponse by delegate
             repository as Repository!
@@ -506,7 +506,7 @@ defines module com.customer.services
       //A PATCH which is a merge
 
       //Note with dynamic variable capture, you can still do it all one one line if you wish.
-      operator :~: :/{addressId}
+      operator :~: :/{id}
         ->
           id as String //Assume PATH
           incomingContent as String :=: CONTENT          
@@ -532,7 +532,7 @@ defines module com.customer.services
 
       //A PUT which is a replace for an existing address
       //Now the dynamic variable capture allowed multiple lines and various formatting within the ()
-      operator :^: :/{addressId}
+      operator :^: :/{id}
         ->
           id as String //Assume PATH
           content as String :=: CONTENT

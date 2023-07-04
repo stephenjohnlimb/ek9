@@ -2,6 +2,7 @@
 <?-
   Check the types on incoming arguments, they are limited in what can be mapped from
   http requests coming in, this is because ek9 actually maps incoming data into types where possible.
+  //TODO consider accepting Date, Time, DateTime, Milliseconds, Duration, as parameters.
 -?>
 defines module bad.servicemethod.argumenttypes
 
@@ -17,9 +18,15 @@ defines module bad.servicemethod.argumenttypes
 
       //This too, is a valid working example but with valid incoming arguments.
       //So this would use the query parameters and try and find "index-number" parameter and map to integer if possible
-      index2() :/index2.html
+      //Note that Float and Money are not supported.
+      index2() :/{index-number}/index2.html
         ->
-          queryId as Integer :=: QUERY "index-number"
+          queryId as Integer :=: PATH "index-number"
+          fromDate as Date :=: QUERY "from"
+          duration as Duration :=: QUERY "duration"
+          timeOut as Millisecond :=: QUERY "time-out"
+          coverEnd as DateTime :=: QUERY "end-date-time"
+          graceTime as Time :=: QUERY "grace-time"
           content as String :=: CONTENT
         <-
           response as HTTPResponse: () with trait of HTTPResponse
@@ -36,6 +43,14 @@ defines module bad.servicemethod.argumenttypes
         -> addressId as Integer :=: PATH "address-id" //required because different name
         <- response as HTTPResponse: () with trait of HTTPResponse
 
+      //Another valid example
+      index5() :/{address-id}/{routeId}
+        ->
+          addressId as Integer :=: PATH "address-id"
+          routeId as String //infer PATH and use same name as argument
+        <-
+          response as HTTPResponse: () with trait of HTTPResponse
+
       invalid1() :/invalid1.html
         ->
           @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_INCOMPATIBLE_PARAM_TYPE
@@ -50,13 +65,81 @@ defines module bad.servicemethod.argumenttypes
         <-
           response as HTTPResponse: () with trait of HTTPResponse
 
-      invalid2() :/invalid2.html
+      invalid3() :/invalid3.html
         ->
           @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_INCOMPATIBLE_PARAM_TYPE_NON_REQUEST
           arg0 as HTTPRequest :=: QUERY "another-parameter"
         <-
           response as HTTPResponse: () with trait of HTTPResponse
 
-//TODO add a test of an argument with a missing correlation.
-//TODO check if it present on the PATH as :/{varName} in the operation if not then valid if it is then squirrel away value.
+      invalid4() :/invalid4.html
+        ->
+          @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_REQUEST_BY_ITSELF
+          arg0 as HTTPRequest :=: REQUEST
+          arg1 as Integer :=: QUERY "some-query"
+        <-
+          response as HTTPResponse: () with trait of HTTPResponse
+
+
+      invalid5() :/{incorrect-name}/invalid5.html
+        ->
+          @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_HTTP_PATH_PARAM_INVALID
+          arg0 as Integer :=: PATH "no-such-path"
+        <-
+          response as HTTPResponse: () with trait of HTTPResponse
+
+      invalid6() :/{non-such}/invalid6.html
+        ->
+          @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_HTTP_PATH_PARAM_INVALID
+          nonSuch as Integer //Assume a PATH variable with name of nonSuch - but missing above i.e. misnamed
+        <-
+          response as HTTPResponse: () with trait of HTTPResponse
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_HTTP_PATH_PARAM_COUNT_INVALID
+      invalid7() :/{validationNumber}/{undefined}/invalid7.html
+        -> validationNumber as Integer
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+      //While not method duplicates as they have different names/signatures - they duplicate on the uri path
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_HTTP_PATH_DUPLICATED
+      dup1() :/{validationNumber1}/data.html
+        -> validationNumber1 as Integer
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_HTTP_PATH_DUPLICATED
+      dup2() :/{validationNumber2}/data.html
+        -> validationNumber2 as Integer
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+      //But this is not a duplicate, because the verb is different
+      notDup() as HEAD :/{validationNumber3}/data.html
+        -> validationNumber3 as Integer
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+      //But this is not a duplicate, because the verb is different
+      update1() as POST :/{validationNumber4}/data.html
+        ->
+          validationNumber4 as Integer
+          payload as String :=: CONTENT
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+      //But these do conflict on POST with same number of parameters - even though type order is different.
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_HTTP_PATH_DUPLICATED
+      update2() as POST :/{updateNo1}/{area1}/data.html
+        ->
+          updateNo1 as Integer
+          area1 as String
+          payload as String :=: CONTENT
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_HTTP_PATH_DUPLICATED
+      update3() as POST :/{updateNo51}/{area51}/data.html
+        ->
+          updateNo51 as String
+          area51 as Integer
+          payload as String :=: CONTENT
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
 //EOF

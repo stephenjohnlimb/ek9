@@ -63,17 +63,13 @@ import org.ek9lang.core.utils.UniqueIdGenerator;
 public class SymbolFactory {
 
   public static final String DEFAULTED = "DEFAULTED";
-
   public static final String EXTERN = "EXTERN";
-
-  public static final String HTTPPATH = "PATH";
-  public static final String HTTPVERB = "HTTPVERB";
-
-  public static final String HTTPACCESS = "HTTPACCESS";
-
-  public static final String HTTPSOURCE = "HTTPSOURCE";
-
-  public static final String HTTPREQUEST = "REQUEST";
+  public static final String URI_PROTO = "URIPROTO";
+  public static final String HTTP_PATH = "PATH";
+  public static final String HTTP_VERB = "HTTPVERB";
+  public static final String HTTP_ACCESS = "HTTPACCESS";
+  public static final String HTTP_SOURCE = "HTTPSOURCE";
+  public static final String HTTP_REQUEST = "REQUEST";
   private static final Set<String> streamPartCanConsumeAnything = Set.of("flatten",
       "call", "async", "skipping", "head", "tail");
 
@@ -435,20 +431,20 @@ public class SymbolFactory {
     serviceOperation.setMarkedPure(false);
     serviceOperation.setOperator(operator);
 
-    serviceOperation.putSquirrelledData("URIPROTO", ctx.Uriproto().getText());
+    serviceOperation.putSquirrelledData(URI_PROTO, ctx.Uriproto().getText());
     //Make some initial assumptions, these can then be overridden
-    serviceOperation.putSquirrelledData(HTTPVERB, "GET");
+    serviceOperation.putSquirrelledData(HTTP_VERB, "GET");
 
     if (ctx.httpVerb() != null) {
       //A specific verb has been declared for use by the developer
       var httpVerb = ctx.httpVerb().getText();
-      serviceOperation.putSquirrelledData(HTTPVERB, httpVerb);
+      serviceOperation.putSquirrelledData(HTTP_VERB, httpVerb);
     }
 
     if (ctx.operator() != null) {
       //Check operator used is valid.
       checkForInvalidServiceOperator.accept(serviceOperation);
-      serviceOperation.putSquirrelledData(HTTPVERB,
+      serviceOperation.putSquirrelledData(HTTP_VERB,
           operatorToHttpVerbMap.getOrDefault(serviceOperation.getName(), ""));
     }
 
@@ -961,15 +957,15 @@ public class SymbolFactory {
 
     if (ctx.webVariableCorrelation() != null) {
       //We need to squirrel away the information, so it can be both checked and used elsewhere
-      variable.putSquirrelledData(HTTPACCESS, ctx.webVariableCorrelation().httpAccess().getText());
+      variable.putSquirrelledData(HTTP_ACCESS, ctx.webVariableCorrelation().httpAccess().getText());
       if (ctx.webVariableCorrelation().stringLit() != null) {
         //Where will this be pulled from
-        variable.putSquirrelledData(HTTPSOURCE, ctx.webVariableCorrelation().stringLit().getText());
+        variable.putSquirrelledData(HTTP_SOURCE, ctx.webVariableCorrelation().stringLit().getText());
         //Obviously is httpAccess is HEADER then it must be a valid header name.
         //If httpsAccess is PATH then it must exist in the PATH on the Method
         //These things are checked elsewhere - here we are just gathering info.
       } else {
-        variable.putSquirrelledData(HTTPSOURCE, variable.getName());
+        variable.putSquirrelledData(HTTP_SOURCE, variable.getName());
       }
     }
     return variable;

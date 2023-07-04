@@ -1,10 +1,11 @@
 package org.ek9lang.compiler.main.rules;
 
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTPACCESS;
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTPPATH;
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTPREQUEST;
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTPSOURCE;
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTPVERB;
+import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTP_ACCESS;
+import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTP_PATH;
+import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTP_REQUEST;
+import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTP_SOURCE;
+import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTP_VERB;
+import static org.ek9lang.compiler.symbol.support.SymbolFactory.URI_PROTO;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
@@ -24,9 +25,12 @@ public class CheckServiceOperation extends RuleSupport
 
   private final CheckForBody checkForBody = new CheckForBody();
 
+  private final CheckPathParameter checkPathParameter;
+
   public CheckServiceOperation(final SymbolAndScopeManagement symbolAndScopeManagement,
                                final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
+    this.checkPathParameter = new CheckPathParameter(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -40,34 +44,51 @@ public class CheckServiceOperation extends RuleSupport
 
   private void testArgumentTypes(final ServiceOperationSymbol operation) {
     AssertValue.checkNotNull("Expecting httpVerb to have been defined for " + operation.getFriendlyName(),
-        operation.getSquirrelledData(HTTPVERB));
+        operation.getSquirrelledData(HTTP_VERB));
 
-    operation.getMethodParameters().forEach(param -> {
-      //If not set assume PATH and the source as the variable name. Later processing will check
-      //PATH exists on the operation. So this is an assumption - that is later checked.
-      //Because even if ek9 developer declared the PATH and the name - we still have to check it.
-      if (param.getSquirrelledData(HTTPACCESS) == null) {
-        param.putSquirrelledData(HTTPACCESS, HTTPPATH);
-      }
-      if (param.getSquirrelledData(HTTPSOURCE) == null) {
-        param.putSquirrelledData(HTTPSOURCE, param.getName());
-      }
+    var uriProto = operation.getSquirrelledData(URI_PROTO);
+    var expectedNumberPathParameters = uriProto.chars().filter(ch -> ch == '{').count();
+    long actualNumberOfPathParameters = 0L;
 
+    for (var param : operation.getMethodParameters()) {
+      defaultPathParameterIfNecessary(param);
+
+      if (checkPathParameter.test(operation, param)) {
+        actualNumberOfPathParameters++;
+      }
       checkServiceOperationType(operation, param);
-    });
+    }
+    testPathParameterCount(operation, expectedNumberPathParameters, actualNumberOfPathParameters);
   }
 
-  private void checkServiceOperationType(ServiceOperationSymbol operation, ISymbol param) {
-    param.getType().ifPresent(paramType -> {
-      //Now ensure is of a suitable type - might support more in future like Date etc
+  private void defaultPathParameterIfNecessary(final ISymbol param) {
+    //If not set assume PATH and the source as the variable name. Later processing will check
+    //PATH exists on the operation. So this is an assumption - that is later checked.
+    //Because even if ek9 developer declared the PATH and the name - we still have to check it.
+    if (param.getSquirrelledData(HTTP_ACCESS) == null) {
+      param.putSquirrelledData(HTTP_ACCESS, HTTP_PATH);
+    }
+    if (param.getSquirrelledData(HTTP_SOURCE) == null) {
+      param.putSquirrelledData(HTTP_SOURCE, param.getName());
+    }
+  }
 
-      if (!paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9HttpRequest())
-          && !paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9Integer())
-          && !paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9String())) {
+  private void checkServiceOperationType(final ServiceOperationSymbol operation, final ISymbol param) {
+
+    param.getType().ifPresent(paramType -> {
+
+      if (!isParameterTypeSupported(paramType)) {
         errorListener.semanticError(param.getSourceToken(), "'" + paramType.getFriendlyName() + "':",
             ErrorListener.SemanticClassification.SERVICE_INCOMPATIBLE_PARAM_TYPE);
       }
-      if (param.getSquirrelledData(HTTPACCESS).equals(HTTPREQUEST)) {
+
+      if (param.getSquirrelledData(HTTP_ACCESS).equals(HTTP_REQUEST)) {
+
+        if (operation.getMethodParameters().size() > 1) {
+          errorListener.semanticError(param.getSourceToken(), "'" + param + "':",
+              ErrorListener.SemanticClassification.SERVICE_REQUEST_BY_ITSELF);
+        }
+
         //Must be HTTPRequest
         if (!paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9HttpRequest())) {
           errorListener.semanticError(param.getSourceToken(), "'" + paramType.getFriendlyName() + "':",
@@ -81,6 +102,17 @@ public class CheckServiceOperation extends RuleSupport
         }
       }
     });
+  }
+
+  private boolean isParameterTypeSupported(final ISymbol paramType) {
+    return paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9HttpRequest())
+        || paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9Integer())
+        || paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9String())
+        || paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9Date())
+        || paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9Time())
+        || paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9DateTime())
+        || paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9Millisecond())
+        || paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9Duration());
   }
 
   private void testReturnTypePresence(final ServiceOperationSymbol operation) {
@@ -107,6 +139,15 @@ public class CheckServiceOperation extends RuleSupport
     if (!checkForBody.test(ctx.operationDetails())) {
       errorListener.semanticError(operation.getSourceToken(), "",
           ErrorListener.SemanticClassification.SERVICE_WITH_NO_BODY_PROVIDED);
+    }
+  }
+
+  private void testPathParameterCount(final ServiceOperationSymbol operation,
+                                      final long expectedNumber,
+                                      final long actualNumber) {
+    if (expectedNumber != actualNumber) {
+      errorListener.semanticError(operation.getSourceToken(), "",
+          ErrorListener.SemanticClassification.SERVICE_HTTP_PATH_PARAM_COUNT_INVALID);
     }
   }
 }
