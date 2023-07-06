@@ -1,0 +1,427 @@
+#!ek9
+<?-
+  Example of bad operators in dynamic classes.
+  It's a bit of a copy paste from normal classes, but I want to be sure that
+  the errors get picked up in dynamic classes and the errors are meaningful.
+-?>
+defines module bad.dynamicclasses.operators.examples
+
+  defines trait
+    T1
+      aMethod()
+        -> arg0 as Integer
+        <- rtn <- true
+
+  defines function
+
+    <?-
+      First a valid example, the trait actual has an implementation we can in effect
+      instantiate it as a class like this. No need to add a body or override any methods
+      See other tests for bad overrides
+    -?>
+    TestFunctionDriver1()
+      dynamic1 <- () with trait of T1
+      assert dynamic1?
+
+    <?-
+      This example has lots of bad operator use in the dynamic class
+    -?>
+
+    TestFunctionDriver2()
+      dynamic2 <- () with trait of T1
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
+        operator <
+          -> arg0 as T1
+          <- rtn as Integer: 0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
+        operator >
+          -> arg0 as T1
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+        operator >
+          <- rtn as Boolean: true
+
+        //Has no argument to check equality against.
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+        operator ==
+          <- rtn as Boolean: true
+
+        //Has too many arguments
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+        operator <=
+          ->
+            arg0 as T1
+            arg1 as T1
+          <- rtn as Boolean: true
+
+        //has no arguments or return
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+        operator >=
+          var <- 1
+          assert var?
+
+        //Should use <> for not equals
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: BAD_NOT_EQUAL_OPERATOR
+        operator !=
+          -> arg0 as T1
+          <- rtn as Boolean: true
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: BAD_NOT_OPERATOR
+        operator not
+          -> arg0 as T1
+          <- rtn as Boolean: true
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+        operator <=>
+          <- rtn as Integer: 0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+        operator <=>
+          ->
+            arg0 as T1
+            arg1 as Float
+          <- rtn as Integer: 0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
+        operator <=>
+          -> arg0 as T1
+          <- rtn as T1: this
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
+        operator <~>
+          -> arg0 as T1
+          <- rtn as Boolean: true
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+        operator !
+          -> arg0 as Integer
+          <- rtn as T1: this
+
+        //So you can have factorial or clear but it must return some type
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+        operator !
+          val <- 1
+          assert val?
+
+        //The 'is set' operator
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
+        operator ?
+          <- rtn as Integer: 1
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+        operator ?
+          -> arg0 as T1
+          <- rtn as Integer: 1
+
+        //The not/negate operator
+        //As such it accepts no parameters, but returns the same type as itself
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
+        operator ~
+          <- rtn as Float: 1.0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+        operator ~
+          -> arg0 as T1
+          <- rtn as T1: arg0
+
+        //The increment operator, this alters its own state and returns itself
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
+        operator ++
+          <- rtn as Float: 1.0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+        operator ++
+          -> arg0 as T1
+          <- rtn as T1: this
+
+        //The decrement operator, this alters its own state and returns itself
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
+        operator --
+          <- rtn as Integer: 1.0
+
+        //All of these sort of meth operators +, -, *, / and ^ accept one single argument in and return something
+        //But they can be a range of different types, so you could have multiple + operators with different arg types
+        //for example. So they are not restricted to same type
+        operator +
+          -> arg0 as T1
+          <- rtn as Float: 2.0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+        operator +
+          <- rtn as T1: this
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+        operator +
+          ->
+            arg0 as T1
+            arg1 as T1
+          <- rtn as T1: this
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+        operator +
+          -> arg0 as Float
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+        operator +
+          <- rtn as Date: 2023-06-19
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+        operator -
+          -> arg0 as Date
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+        operator *
+
+        //Cannot be abstract because this class is not open to extension
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: CANNOT_BE_ABSTRACT
+        operator / as abstract
+          -> arg0 as Float
+          <- rtn as Colour: #FF11DD
+
+        //This is fine
+        operator ^
+          -> arg0 as Integer
+          <- rtn as Float: 45000.00
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+        operator :~:
+          arg <- 1
+          assert arg?
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+        operator :~:
+          ->
+            arg0 as T1
+            arg1 as T1
+          assert arg0? and arg1?
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+        operator :^:
+
+        //Copy from arg0 into this, there is no return here
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURN_VALUE_NOT_SUPPORTED
+        operator :=:
+          -> arg0 as Float
+          <- rtn as Float: arg0
+          assert arg0?
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+        operator |
+          arg <- 1
+          assert arg?
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURN_VALUE_NOT_SUPPORTED
+        operator |
+          -> arg0 as Date
+          <- rtn as Date: arg0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+        operator +=
+          ->
+            arg0 as T1
+            arg1 as Float
+          assert arg0? and arg1?
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURN_VALUE_NOT_SUPPORTED
+        operator -=
+          -> arg0 as T1
+          <- rtn as T1: arg0
+          assert arg0?
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+        operator *=
+          <- rtn as T1: arg0
+
+        //This will be OK.
+        operator /=
+          -> arg0 as Duration
+          assert arg0?
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+        operator #^
+          -> arg0 as Float
+          <- rtn as Float: arg0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+        operator #^
+          check <- 1
+          assert check?
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+        operator $$
+          -> arg0 as Float
+          <- rtn as JSON: JSON()
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_JSON
+        operator $$
+          <- rtn as String: ""
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_STRING
+        operator $
+          <- rtn as Integer: 1
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
+        operator #?
+          <- rtn as Float: 1.0
+
+        //Get first, accepts no parameters can return any type
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+        operator #<
+          someVal <- 1
+          assert someVal?
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+        operator #>
+          someVal <- 1
+          assert someVal?
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
+        operator abs
+          <- rtn as Float: 2.0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
+        operator empty
+          <- rtn as Integer: 1
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
+        operator length
+          <- rtn as String: ""
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+        operator >>
+          ->
+            arg0 as Integer
+            arg1 as Integer
+          <- rtn as Integer: 0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+        operator >>
+          <- rtn as Integer: 0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+        operator >>
+          -> arg0 as Integer
+          assert arg0?
+
+        //Shift left, accepts one Integer parameter and can return any type
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+        operator <<
+
+        //AND accepts any type of parameter (just one) and returns any type
+        //This is OkK, so check variations on other operators.
+        operator and
+          -> arg0 as Float
+          <- rtn as Integer: 0
+
+        //OR accepts any type of parameter (just one) and returns any type
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+        operator or
+          ->
+            arg0 as Integer
+            arg1 as Integer
+          <- rtn as Integer: 0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+        operator or
+          <- rtn as Integer: 0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+        operator or
+          -> arg0 as Integer
+          assert arg0?
+
+        //XOR accepts any type of parameter (just one) and returns any type
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+        operator xor
+          ->
+            arg0 as Integer
+            arg1 as String
+          <- rtn as Integer: 0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+        operator xor
+          <- rtn as Integer: 0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+        operator xor
+          -> arg0 as Integer
+          assert arg0?
+
+        //Modulus, accepts one parameters of any type must return an Integer
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+        operator mod
+          ->
+            arg0 as Integer
+            arg1 as Integer
+          <- rtn as Integer: 0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+        operator mod
+          <- rtn as Integer: 0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
+        operator mod
+          -> arg0 as Date
+          <- rtn as Float: 0.9
+
+        //Another example of modulus - this is a working example
+        operator mod
+          -> arg0 as Duration
+          <- rtn <- 0
+
+        //Remainder, accepts one parameters of any type must return an Integer
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
+        operator rem
+          -> arg0 as Float
+          <- rtn as Date: 2023-06-21
+
+        //Contains, accepts one parameters of any type must return a Boolean
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
+        operator contains
+          -> arg0 as Float
+          <- rtn as Integer: 0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
+        operator contains
+          -> arg0 as Date
+          assert arg0?
+
+        //Matches, accepts one parameters of any type must return a Boolean
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
+        operator matches
+          -> arg0 as Float
+          <- rtn as Integer: 0
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
+        operator matches
+          -> arg0 as Date
+          assert arg0?
+
+        //Now some examples of incorrect close operator
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURN_VALUE_NOT_SUPPORTED
+        operator close
+          <- rtn <- true
+          val <- 1
+          assert val?
+
+        //This error will take precedence
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+        operator close
+          -> arg0 as String
+          <- rtn <- true
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+        operator close
+          ->
+            arg0 as String
+            arg1 as Integer
+          <- rtn <- true
+
+      assert dynamic2?
+//EOF

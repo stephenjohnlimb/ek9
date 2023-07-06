@@ -71,8 +71,9 @@ public class SymbolMatcher {
   /**
    * Calculates the weight of matching these two lists of parameters. This is useful for
    * calculating matches to overloaded methods and coercions.
+   * But if the symbols do not have types then it's an immediate failure to match.
    */
-  public double getWeightOfParameterMatch(List<ISymbol> fromSymbols, List<ISymbol> toSymbols) {
+  public double getWeightOfParameterMatch(final List<ISymbol> fromSymbols, final List<ISymbol> toSymbols) {
     double rtn = -1.0;
 
     int numParams1LookedFor = fromSymbols.size();
@@ -80,6 +81,11 @@ public class SymbolMatcher {
 
     //So this cannot be a match
     if (numParams1LookedFor != numParams2lookedFor) {
+      return rtn;
+    }
+
+    //If any symbols do not have a type (due to ek9 developer mistyping types) then cannot be a match.
+    if (anyUnTyped(fromSymbols) || anyUnTyped(toSymbols)) {
       return rtn;
     }
 
@@ -99,6 +105,10 @@ public class SymbolMatcher {
     }
     rtn = paramCost;
     return rtn;
+  }
+
+  private boolean anyUnTyped(final List<ISymbol> symbols) {
+    return symbols.stream().map(symbol -> symbol.getType().isEmpty()).findFirst().orElse(false);
   }
 
   /**

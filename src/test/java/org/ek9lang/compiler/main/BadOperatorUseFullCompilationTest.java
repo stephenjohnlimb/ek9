@@ -31,6 +31,7 @@ class BadOperatorUseFullCompilationTest extends FullCompilationTest {
     assertFalse(program.getParsedModules("bad.classes.operators.examples3").isEmpty());
     assertFalse(program.getParsedModules("bad.classes.operators.examples4").isEmpty());
     assertFalse(program.getParsedModules("bad.classes.operators.examples5").isEmpty());
+    assertFalse(program.getParsedModules("bad.dynamicclasses.operators.examples").isEmpty());
 
     assertFalse(program.getParsedModules("good.traits.operators.examples").isEmpty());
     assertFalse(program.getParsedModules("bad.traits.operators.examples").isEmpty());

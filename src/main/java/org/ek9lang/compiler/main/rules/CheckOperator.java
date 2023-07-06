@@ -206,7 +206,9 @@ public class CheckOperator extends RuleSupport
     var returnType = testAnyReturnType(methodSymbol);
     returnType.ifPresent(theType -> {
       if (!theType.isExactSameType((ISymbol) parentScope)) {
-        var msg = "'" + theType.getFriendlyName() + "' is not '" + parentScope.getFriendlyScopeName() + "':";
+        var parentTypeName = parentScope.getFriendlyScopeName().startsWith("_Class")
+                ? "DYNAMIC CLASS" : parentScope.getFriendlyScopeName();
+        var msg = "'" + theType.getFriendlyName() + "' is not '" + parentTypeName + "':";
         errorListener.semanticError(methodSymbol.getSourceToken(), msg,
             ErrorListener.SemanticClassification.MUST_RETURN_SAME_TYPE);
       }
