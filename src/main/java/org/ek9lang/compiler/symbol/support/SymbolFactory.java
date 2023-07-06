@@ -65,11 +65,14 @@ public class SymbolFactory {
   public static final String DEFAULTED = "DEFAULTED";
   public static final String EXTERN = "EXTERN";
   public static final String URI_PROTO = "URIPROTO";
+  public static final String HTTP_REQUEST = "REQUEST";
   public static final String HTTP_PATH = "PATH";
+  public static final String HTTP_HEADER = "HEADER";
+  public static final String HTTP_QUERY = "QUERY";
   public static final String HTTP_VERB = "HTTPVERB";
   public static final String HTTP_ACCESS = "HTTPACCESS";
   public static final String HTTP_SOURCE = "HTTPSOURCE";
-  public static final String HTTP_REQUEST = "REQUEST";
+
   private static final Set<String> streamPartCanConsumeAnything = Set.of("flatten",
       "call", "async", "skipping", "head", "tail");
 
@@ -962,10 +965,9 @@ public class SymbolFactory {
         //Where will this be pulled from
         variable.putSquirrelledData(HTTP_SOURCE, ctx.webVariableCorrelation().stringLit().getText());
         //Obviously is httpAccess is HEADER then it must be a valid header name.
-        //If httpsAccess is PATH then it must exist in the PATH on the Method
+        //If httpAccess is PATH then it must exist in the PATH on the Method
+        //And if QUERY then it will have to be one of the query parameters
         //These things are checked elsewhere - here we are just gathering info.
-      } else {
-        variable.putSquirrelledData(HTTP_SOURCE, variable.getName());
       }
     }
     return variable;

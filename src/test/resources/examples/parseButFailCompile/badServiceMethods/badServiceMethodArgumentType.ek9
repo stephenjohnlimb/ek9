@@ -44,12 +44,21 @@ defines module bad.servicemethod.argumenttypes
         <- response as HTTPResponse: () with trait of HTTPResponse
 
       //Another valid example
-      index5() :/{address-id}/{routeId}
+      index5() :/{address-id}/{routeId}/someResource.xml
         ->
           addressId as Integer :=: PATH "address-id"
           routeId as String //infer PATH and use same name as argument
         <-
           response as HTTPResponse: () with trait of HTTPResponse
+
+      //Another valid example
+      index6() :/{addressId}/{routeId}/someResource.json
+        ->
+          addressId as Integer :=: PATH //Again infer name as 'addressId' even if just PATH is provided
+          routeId as String //infer PATH and use same name 'routeId' as argument
+        <-
+          response as HTTPResponse: () with trait of HTTPResponse
+
 
       invalid1() :/invalid1.html
         ->
@@ -99,6 +108,20 @@ defines module bad.servicemethod.argumenttypes
       invalid7() :/{validationNumber}/{undefined}/invalid7.html
         -> validationNumber as Integer
         <- response as HTTPResponse: () with trait of HTTPResponse
+
+      invalid8() :/invalid8.html
+        ->
+          @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_HTTP_PARAM_NEEDS_QUALIFIER
+          arg0 as Integer :=: HEADER
+        <-
+          response as HTTPResponse: () with trait of HTTPResponse
+
+      invalid9() :/invalid9.html
+        ->
+          @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_HTTP_PARAM_QUALIFIER_NOT_ALLOWED
+          arg0 as HTTPRequest :=: REQUEST "not-required"
+        <-
+          response as HTTPResponse: () with trait of HTTPResponse
 
       //While not method duplicates as they have different names/signatures - they duplicate on the uri path
       //So the duplicate check is based on the depth of the path and fixed names.

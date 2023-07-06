@@ -321,6 +321,9 @@ public class ErrorListener extends BaseErrorListener {
     SERVICE_HTTP_HEADER_MISSING("use of HEADER requires valid 'http header' value"),
     SERVICE_HTTP_HEADER_INVALID("HTTP HEADER name is invalid"),
     SERVICE_HTTP_PATH_PARAM_INVALID("HTTP PATH parameter is invalid"),
+    SERVICE_HTTP_PARAM_NEEDS_QUALIFIER("additional name needed for QUERY, HEADER or PATH parameters"),
+    SERVICE_HTTP_PARAM_QUALIFIER_NOT_ALLOWED(
+        "additional name only required for QUERY, HEADER or PATH parameters"),
     SERVICE_HTTP_PATH_DUPLICATED("PATH is duplicated in terms of structure/naming"),
     SERVICE_HTTP_PATH_PARAM_COUNT_INVALID("HTTP PATH variable count and PATH parameter count mismatch"),
     SERVICE_HTTP_PATH_ASSUMED_BUT_INVALID("HTTP PATH parameter was assumed, did you mean HEADER, QUERY or BODY?"),

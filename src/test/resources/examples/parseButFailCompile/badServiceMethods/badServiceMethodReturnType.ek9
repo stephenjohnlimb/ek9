@@ -32,7 +32,7 @@ defines module bad.servicemethod.returntypes
         //So lets add a test to ensure a missing return is trapped
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_MISSING_RETURN
         checkAccess() as GET for :/anotherResource.json
-          -> query as String :=: QUERY
+          -> query as String :=: QUERY "some-param"
           assert query?
 
         //Now service methods cannot be abstract or unimplemented so lets check that.

@@ -24,13 +24,17 @@ public class CheckServiceOperation extends RuleSupport
     implements BiConsumer<ServiceOperationSymbol, EK9Parser.ServiceOperationDeclarationContext> {
 
   private final CheckForBody checkForBody = new CheckForBody();
-
   private final CheckPathParameter checkPathParameter;
+  private final CheckHttpAccess checkHttpAccess;
 
+  /**
+   * Create a new Check Service Operation function.
+   */
   public CheckServiceOperation(final SymbolAndScopeManagement symbolAndScopeManagement,
                                final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
     this.checkPathParameter = new CheckPathParameter(symbolAndScopeManagement, errorListener);
+    this.checkHttpAccess = new CheckHttpAccess(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -56,7 +60,10 @@ public class CheckServiceOperation extends RuleSupport
       if (checkPathParameter.test(operation, param)) {
         actualNumberOfPathParameters++;
       }
+
       checkServiceOperationType(operation, param);
+
+      checkHttpAccess.accept(param);
     }
     testPathParameterCount(operation, expectedNumberPathParameters, actualNumberOfPathParameters);
   }
@@ -68,7 +75,7 @@ public class CheckServiceOperation extends RuleSupport
     if (param.getSquirrelledData(HTTP_ACCESS) == null) {
       param.putSquirrelledData(HTTP_ACCESS, HTTP_PATH);
     }
-    if (param.getSquirrelledData(HTTP_SOURCE) == null) {
+    if (HTTP_PATH.equals(param.getSquirrelledData(HTTP_ACCESS)) && param.getSquirrelledData(HTTP_SOURCE) == null) {
       param.putSquirrelledData(HTTP_SOURCE, param.getName());
     }
   }
