@@ -9,12 +9,12 @@ defines module bad.recordfield.access
     R1 as open
       number <- 1
 
-      operator $
+      operator $ as pure
         //Mistype number
         @Error: FULL_RESOLUTION: NOT_RESOLVED
         <- rtn as String: numbr
 
-      operator $$
+      operator $$ as pure
         <- rtn as JSON: JSON()
         //Check that the ek9 developers confusion around inheritance
         @Error: FULL_RESOLUTION: NOT_RESOLVED
@@ -23,7 +23,7 @@ defines module bad.recordfield.access
     R2 extends R1
       anotherValue <- 90.7
 
-      operator $
+      operator $ as pure
         <- rtn as String: String()
         //Now check it is possible to access anotherValue and number
         check1 <- anotherValue

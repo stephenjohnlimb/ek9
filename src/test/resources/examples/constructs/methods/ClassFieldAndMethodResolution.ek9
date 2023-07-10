@@ -42,13 +42,13 @@ defines module com.classandfield.resolution
       nickName <- String()
       address <- Address()
       
-      operator $ as abstract
+      operator $ as pure abstract
         <- is String?
     
     R2 extends R1
       DOB <- Date()
       
-      override operator $
+      override operator $ as pure
         <- is String: "["
         //So now I also allow super addressing by the type name
         //But only the super - not super super business.
@@ -313,7 +313,7 @@ defines module com.classandfield.resolution
       getAddress()
         <- rtn String: $houseNumber + " " + street + " " + getCity() + " " + getPostCode()
       
-      operator $
+      operator $ as pure
         <- rtn String: getAddress()
   
     UKAddress is Address

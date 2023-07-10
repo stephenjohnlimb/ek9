@@ -26,7 +26,7 @@ defines module com.customer.exceptions
       supportingInformation()
         <- rtn as String: supportingInformation
 
-      override operator $
+      override operator $ as pure
         <- rtn as String: information() + " " + supportingInformation() + " exit code " + $exitCode()
 
     OtherException extends Exception
@@ -42,7 +42,7 @@ defines module com.customer.exceptions
       retryAfter()
         <- rtn as DateTime: retryAfter
 
-      override operator $
+      override operator $ as pure
         <- rtn as String: information() + " retry after " + $retryAfter()
 
     ExceptionExample

@@ -9,7 +9,7 @@ defines module com.customer.streams.collectas
       total as Integer: Integer()
       average as Float: Float()
       
-      operator $
+      operator $ as pure
         <- rtn as String: String()
         
         if total?

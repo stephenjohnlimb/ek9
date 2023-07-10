@@ -31,7 +31,7 @@ defines module com.customer.dynamic.streams.build
       total as Integer: Integer()
       average as Float: Float()
       
-      operator $
+      operator $ as pure
         <- rtn as String: String()
         
         if total?
@@ -60,13 +60,13 @@ defines module com.customer.dynamic.streams.build
         if dateOfBirth?
           dob :=: dateOfBirth
                  
-      operator $
+      operator $ as pure
         <- rtn as String: name + " " + $dob
         
-      operator ?
+      operator ? as pure
         <- rtn as Boolean: name? and dob?
 
-      operator #^
+      operator #^ as pure
         <- rtn as String: $this
       
   defines function

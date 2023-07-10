@@ -82,9 +82,9 @@ defines module com.customer.just.tuples
           name()
             <- rtn as String: firstName
 
-          operator $
+          operator $ as pure
             <- rtn as String: message + firstName + " " + $dob + " " + language
-          operator #^
+          operator #^ as pure
             <- rtn as String: $this
 
         //OK now just add that new tuple into the List of ATuple

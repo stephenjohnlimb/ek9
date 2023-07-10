@@ -11,34 +11,34 @@ defines module bad.classes.operators.examples2
     C2
       //This can mean factorial (mathematics or clear to empty or reset)
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-      operator !
+      operator ! as pure
         -> arg0 as Integer
         <- rtn as C2: this
 
       //So you can have factorial or clear but it must return some type
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-      operator !
+      operator ! as pure
         val <- 1
         assert val?
 
       //The 'is set' operator
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
-      operator ?
+      operator ? as pure
         <- rtn as Integer: 1
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-      operator ?
+      operator ? as pure
         -> arg0 as C2
         <- rtn as Integer: 1
 
       //The not/negate operator
       //As such it accepts no parameters, but returns the same type as itself
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
-      operator ~
+      operator ~ as pure
         <- rtn as Float: 1.0
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-      operator ~
+      operator ~ as pure
         -> arg0 as C2
         <- rtn as C2: arg0
 
@@ -60,23 +60,23 @@ defines module bad.classes.operators.examples2
       //All of these sort of meth operators +, -, *, / and ^ accept one single argument in and return something
       //But they can be a range of different types, so you could have multiple + operators with different arg types
       //for example. So they are not restricted to same type
-      operator +
+      operator + as pure
         -> arg0 as C2
         <- rtn as Float: 2.0
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-      operator +
+      operator + as pure
         <- rtn as C2: this
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-      operator +
+      operator + as pure
         ->
           arg0 as C2
           arg1 as C2
         <- rtn as C2: this
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-      operator +
+      operator + as pure
         -> arg0 as Float
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
@@ -84,20 +84,20 @@ defines module bad.classes.operators.examples2
         <- rtn as Date: 2023-06-19
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-      operator -
+      operator - as pure
         -> arg0 as Date
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-      operator *
+      operator * as pure
 
       //Cannot be abstract because this class is not open to extension
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: CANNOT_BE_ABSTRACT
-      operator / as abstract
+      operator / as pure abstract
         -> arg0 as Float
         <- rtn as Colour: #FF11DD
 
       //This is fine
-      operator ^
+      operator ^ as pure
         -> arg0 as Integer
         <- rtn as Float: 45000.00
 

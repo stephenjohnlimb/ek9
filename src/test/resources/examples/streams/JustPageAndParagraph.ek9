@@ -16,7 +16,7 @@ defines module com.customer.justparagraphs
       name()
         <- rtn as String: name
       
-      operator ?
+      operator ? as pure
         <- rtn as Boolean: name?
       
       //Add this in to collect via piping  
@@ -25,7 +25,7 @@ defines module com.customer.justparagraphs
         if p?
           name :=: p.name()
           
-      operator $
+      operator $ as pure
         <- rtn as String: name
           
     Page

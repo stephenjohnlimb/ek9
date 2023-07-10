@@ -48,71 +48,73 @@ public class CheckOperator extends RuleSupport
   private void populateOperatorChecks() {
 
     final Map<String, Consumer<MethodSymbol>> logicalOperatorChecks = Map.of(
-        "<", this::testAcceptOneArgumentsReturnBoolean,
-        "<=", this::testAcceptOneArgumentsReturnBoolean,
-        ">", this::testAcceptOneArgumentsReturnBoolean,
-        ">=", this::testAcceptOneArgumentsReturnBoolean,
-        "==", this::testAcceptOneArgumentsReturnBoolean,
-        "<>", this::testAcceptOneArgumentsReturnBoolean,
-        "<=>", this::testAcceptOneArgumentsReturnInteger,
-        "<~>", this::testAcceptOneArgumentsReturnInteger,
-        "!=", this::emitBadNotEqualsOperator);
+        "<", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
+        "<=", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
+        ">", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
+        ">=", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
+        "==", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
+        "<>", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
+        "<=>", addPureCheck(this::testAcceptOneArgumentsReturnInteger),
+        "<~>", addPureCheck(this::testAcceptOneArgumentsReturnInteger),
+        "!=", addPureCheck(this::emitBadNotEqualsOperator));
 
     final Map<String, Consumer<MethodSymbol>> simpleOperatorChecks = Map.of(
-        "!", this::testAcceptNoArgumentsReturnAnyType,
-        "?", this::testAcceptNoArgumentsReturnBoolean,
-        "~", this::testAcceptNoArgumentsReturnConstructType,
-        "++", this::testAcceptNoArgumentsReturnConstructType,
-        "--", this::testAcceptNoArgumentsReturnConstructType,
-        "+", this::testAcceptOneArgumentsReturnAnyType,
-        "-", this::testAcceptOneArgumentsReturnAnyType,
-        "*", this::testAcceptOneArgumentsReturnAnyType,
-        "/", this::testAcceptOneArgumentsReturnAnyType,
-        "^", this::testAcceptOneArgumentsReturnAnyType
-    );
-
-    final Map<String, Consumer<MethodSymbol>> mutatorChecks = Map.of(
-        ":~:", this::testAcceptOneArgumentsNoReturn,
-        ":^:", this::testAcceptOneArgumentsNoReturn,
-        ":=:", this::testAcceptOneArgumentsNoReturn,
-        "|", this::testAcceptOneArgumentsNoReturn,
-        "+=", this::testAcceptOneArgumentsNoReturn,
-        "-=", this::testAcceptOneArgumentsNoReturn,
-        "*=", this::testAcceptOneArgumentsNoReturn,
-        "/=", this::testAcceptOneArgumentsNoReturn
+        "sqrt", addPureCheck(this::testAcceptNoArgumentsReturnAnyType),
+        "!", addPureCheck(this::testAcceptNoArgumentsReturnAnyType),
+        "?", addPureCheck(this::testAcceptNoArgumentsReturnBoolean),
+        "~", addPureCheck(this::testAcceptNoArgumentsReturnConstructType),
+        "+", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
+        "-", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
+        "*", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
+        "/", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
+        "^", addPureCheck(this::testAcceptOneArgumentsReturnAnyType)
     );
 
     final Map<String, Consumer<MethodSymbol>> noArgumentWithReturnChecks = Map.of(
-        "#^", this::testAcceptNoArgumentsReturnAnyType,
-        "$$", this::testAcceptNoArgumentsReturnJson,
-        "$", this::testAcceptNoArgumentsReturnString,
-        "#?", this::testAcceptNoArgumentsReturnInteger,
-        "#<", this::testAcceptNoArgumentsReturnAnyType,
-        "#>", this::testAcceptNoArgumentsReturnAnyType,
-        "not", this::emitBadNotOperator,
-        "abs", this::testAcceptNoArgumentsReturnConstructType,
-        "empty", this::testAcceptNoArgumentsReturnBoolean,
-        "length", this::testAcceptNoArgumentsReturnInteger
+        "#^", addPureCheck(this::testAcceptNoArgumentsReturnAnyType),
+        "$$", addPureCheck(this::testAcceptNoArgumentsReturnJson),
+        "$", addPureCheck(this::testAcceptNoArgumentsReturnString),
+        "#?", addPureCheck(this::testAcceptNoArgumentsReturnInteger),
+        "#<", addPureCheck(this::testAcceptNoArgumentsReturnAnyType),
+        "#>", addPureCheck(this::testAcceptNoArgumentsReturnAnyType),
+        "not", addPureCheck(this::emitBadNotOperator),
+        "abs", addPureCheck(this::testAcceptNoArgumentsReturnConstructType),
+        "empty", addPureCheck(this::testAcceptNoArgumentsReturnBoolean),
+        "length", addPureCheck(this::testAcceptNoArgumentsReturnInteger)
     );
 
     final Map<String, Consumer<MethodSymbol>> oneArgumentWithReturnChecks = Map.of(
-        ">>", this::testAcceptOneArgumentsReturnAnyType,
-        "<<", this::testAcceptOneArgumentsReturnAnyType,
-        "and", this::testAcceptOneArgumentsReturnAnyType,
-        "or", this::testAcceptOneArgumentsReturnAnyType,
-        "xor", this::testAcceptOneArgumentsReturnAnyType,
-        "mod", this::testAcceptOneArgumentsReturnInteger,
-        "rem", this::testAcceptOneArgumentsReturnInteger,
-        "contains", this::testAcceptOneArgumentsReturnBoolean,
-        "matches", this::testAcceptOneArgumentsReturnBoolean,
-        "close", this::testAcceptNoArgumentsNoReturn
+        ">>", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
+        "<<", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
+        "and", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
+        "or", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
+        "xor", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
+        "mod", addPureCheck(this::testAcceptOneArgumentsReturnInteger),
+        "rem", addPureCheck(this::testAcceptOneArgumentsReturnInteger),
+        "contains", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
+        "matches", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
+        "close", addPureCheck(this::testAcceptNoArgumentsNoReturn)
     );
 
     operatorChecks.putAll(logicalOperatorChecks);
     operatorChecks.putAll(simpleOperatorChecks);
-    operatorChecks.putAll(mutatorChecks);
     operatorChecks.putAll(noArgumentWithReturnChecks);
     operatorChecks.putAll(oneArgumentWithReturnChecks);
+
+    //Now for each of those operators tag on the is pure check.
+    final Map<String, Consumer<MethodSymbol>> mutatorChecks = Map.of(
+        ":~:", addNonPureCheck(this::testAcceptOneArgumentsNoReturn),
+        ":^:", addNonPureCheck(this::testAcceptOneArgumentsNoReturn),
+        ":=:", addNonPureCheck(this::testAcceptOneArgumentsNoReturn),
+        "|", addNonPureCheck(this::testAcceptOneArgumentsNoReturn),
+        "+=", addNonPureCheck(this::testAcceptOneArgumentsNoReturn),
+        "-=", addNonPureCheck(this::testAcceptOneArgumentsNoReturn),
+        "*=", addNonPureCheck(this::testAcceptOneArgumentsNoReturn),
+        "/=", addNonPureCheck(this::testAcceptOneArgumentsNoReturn),
+        "++", addNonPureCheck(this::testAcceptNoArgumentsReturnConstructType),
+        "--", addNonPureCheck(this::testAcceptNoArgumentsReturnConstructType)
+    );
+    operatorChecks.putAll(mutatorChecks);
   }
 
   @Override
@@ -126,6 +128,7 @@ public class CheckOperator extends RuleSupport
       Consumer<MethodSymbol> noOp = method -> {
       };
       operatorChecks.getOrDefault(ctx.operator().getText(), noOp).accept(methodSymbol);
+
     }
 
     if (ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext) {
@@ -139,6 +142,14 @@ public class CheckOperator extends RuleSupport
     checkIfExtendableByContext.accept(methodSymbol, ctx);
     checkInappropriateBody.accept(methodSymbol, ctx.operationDetails());
     checkOverrideAndAbstract.accept(methodSymbol);
+  }
+
+  private Consumer<MethodSymbol> addPureCheck(final Consumer<MethodSymbol> check) {
+    return check.andThen(this::testPure);
+  }
+
+  private Consumer<MethodSymbol> addNonPureCheck(final Consumer<MethodSymbol> check) {
+    return check.andThen(this::testNotPure);
   }
 
   private void testAcceptNoArgumentsReturnAnyType(final MethodSymbol methodSymbol) {
@@ -200,6 +211,20 @@ public class CheckOperator extends RuleSupport
     testNoReturn(methodSymbol);
   }
 
+  private void testPure(final MethodSymbol methodSymbol) {
+    if (!methodSymbol.isMarkedPure()) {
+      errorListener.semanticError(methodSymbol.getSourceToken(), OPERATOR_SEMANTICS,
+          ErrorListener.SemanticClassification.OPERATOR_MUST_BE_PURE);
+    }
+  }
+
+  private void testNotPure(final MethodSymbol methodSymbol) {
+    if (methodSymbol.isMarkedPure()) {
+      errorListener.semanticError(methodSymbol.getSourceToken(), OPERATOR_SEMANTICS,
+          ErrorListener.SemanticClassification.OPERATOR_CANNOT_BE_PURE);
+    }
+  }
+
   private void testAcceptNoArgumentsReturnConstructType(final MethodSymbol methodSymbol) {
     testNoArguments(methodSymbol);
     var parentScope = methodSymbol.getParentScope();
@@ -207,7 +232,7 @@ public class CheckOperator extends RuleSupport
     returnType.ifPresent(theType -> {
       if (!theType.isExactSameType((ISymbol) parentScope)) {
         var parentTypeName = parentScope.getFriendlyScopeName().startsWith("_Class")
-                ? "DYNAMIC CLASS" : parentScope.getFriendlyScopeName();
+            ? "DYNAMIC CLASS" : parentScope.getFriendlyScopeName();
         var msg = "'" + theType.getFriendlyName() + "' is not '" + parentTypeName + "':";
         errorListener.semanticError(methodSymbol.getSourceToken(), msg,
             ErrorListener.SemanticClassification.MUST_RETURN_SAME_TYPE);

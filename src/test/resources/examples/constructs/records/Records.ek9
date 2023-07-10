@@ -22,16 +22,16 @@ defines module com.customer.records
         assert id?
         this.id: id
 
-      operator $
+      operator $ as pure
         <- rtn as String: $id + " " + $createdAt
-      operator ?
+      operator ? as pure
         <- rtn as Boolean: id?
-      operator ==
+      operator == as pure
         -> item as IdRecord
         <- rtn as Boolean: Boolean()
         if item?
           rtn: item.id == this.id
-      operator <>
+      operator <> as pure
         -> item as IdRecord
         <- rtn as Boolean: not (item == this)
 
@@ -95,7 +95,7 @@ defines module com.customer.records
         if not dateOfBirth?
           dateOfBirth :=: item.dateOfBirth
 
-      operator <~>
+      operator <~> as pure
         -> item as CustomerDetail
         <- rtn as Integer: 0
 
@@ -104,7 +104,7 @@ defines module com.customer.records
         rtn += this.lastName <~> item.lastName
         rtn += this.firstName <~> item.firstName
 
-      operator <=>
+      operator <=> as pure
         -> item as CustomerDetail
         <- rtn as Integer: 0
 
@@ -112,24 +112,24 @@ defines module com.customer.records
         rtn += lastName <=> item.lastName
         rtn += firstName <=> item.firstName
 
-      operator <
+      operator < as pure
         -> item as CustomerDetail
         <- rtn as Boolean: item <=> this < 0
-      operator >
+      operator > as pure
         -> item as CustomerDetail
         <- rtn as Boolean: item <=> this > 0
-      operator <=
+      operator <= as pure
         -> item as CustomerDetail
         <- rtn as Boolean: item <=> this <= 0
-      operator >=
+      operator >= as pure
         -> item as CustomerDetail
         <- rtn as Boolean: item <=> this >= 0
-      operator #^
+      operator #^ as pure
         <- rtn as String: $this
 
-      override operator $
+      override operator $ as pure
         <- rtn as String: $super + " " + firstName + " " + lastName + " " + $dateOfBirth
-      override operator ?
+      override operator ? as pure
         <- rtn as Boolean: super? and firstName? and lastName? and dateOfBirth?
 
   defines program

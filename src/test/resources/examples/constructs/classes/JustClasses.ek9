@@ -45,7 +45,7 @@ defines module com.customer.just
       y()
         <- rtn as Float: y
           
-      operator +
+      operator + as pure
         -> coord as Coordinate
         <- rtn as Coordinate: Coordinate(this.x() + coord.x(), this.y() + coord.y())
       
@@ -54,7 +54,7 @@ defines module com.customer.just
         this.x += coord.x()
         this.y += coord.y()
 
-      operator -
+      operator - as pure
         -> coord as Coordinate
         <- rtn as Coordinate: Coordinate(this.x() - coord.x(), this.y() - coord.y())
       

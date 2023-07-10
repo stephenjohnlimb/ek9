@@ -17,7 +17,7 @@ defines module com.customer.interpolated
         this.firstName :=: firstName
         this.lastName :=: lastName
       
-      operator $
+      operator $ as pure
         <- rtn String: `${firstName} ${lastName}`
   
   defines function

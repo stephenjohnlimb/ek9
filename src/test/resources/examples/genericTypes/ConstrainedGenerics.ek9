@@ -27,7 +27,7 @@ defines module net.customer.constrained
         <- rtn as MyList of T := MyList()
 
       //Add a T to the list.
-      operator +
+      operator + as pure
         -> item as T
         <- rtn as MyList of T := MyList()
           

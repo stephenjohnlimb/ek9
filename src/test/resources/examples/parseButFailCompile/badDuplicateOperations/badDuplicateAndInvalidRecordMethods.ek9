@@ -41,12 +41,12 @@ defines module bad.duplicate.recordmethods
           assert var?
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
-        operator ==
+        operator == as pure
           -> arg0 as R2
           <- rtn as Boolean: true
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
-        operator ==
+        operator == as pure
           -> arg0 as R2
           <- rtn as Boolean: true
 

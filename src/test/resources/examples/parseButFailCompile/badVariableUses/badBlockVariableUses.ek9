@@ -131,7 +131,7 @@ defines module bad.blockvariable.uses
       recField2 <- "Limb"
 
       //As record fields are public they should be accessible anywhere.
-      operator $
+      operator $ as pure
         <- rtn as String: `${recField1} ${recField2}`
 
   defines constant

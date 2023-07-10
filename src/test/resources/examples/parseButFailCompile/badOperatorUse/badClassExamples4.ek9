@@ -11,53 +11,63 @@ defines module bad.classes.operators.examples4
     C4
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-      operator #^
+      operator #^ as pure
         -> arg0 as Float
         <- rtn as Float: arg0
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-      operator #^
+      operator #^ as pure
         check <- 1
         assert check?
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-      operator $$
+      operator $$ as pure
         -> arg0 as Float
         <- rtn as JSON: JSON()
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_JSON
-      operator $$
+      operator $$ as pure
         <- rtn as String: ""
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_STRING
-      operator $
+      operator $ as pure
         <- rtn as Integer: 1
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
-      operator #?
+      operator #? as pure
         <- rtn as Float: 1.0
 
       //Get first, accepts no parameters can return any type
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-      operator #<
+      operator #< as pure
         someVal <- 1
         assert someVal?
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-      operator #>
+      operator #> as pure
         someVal <- 1
         assert someVal?
 
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+      operator sqrt as pure
+        -> arg0 as Float
+        <- rtn as Float: arg0
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+      operator sqrt as pure
+        check <- 1
+        assert check?
+
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
-      operator abs
+      operator abs as pure
         <- rtn as Float: 2.0
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
-      operator empty
+      operator empty as pure
         <- rtn as Integer: 1
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
-      operator length
+      operator length as pure
         <- rtn as String: ""
 
 //EOF

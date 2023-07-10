@@ -9,74 +9,74 @@ defines module bad.abstractuse.example
     C1
       //This is because C1 is not open to extension and a body has been provided - but error not shown
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: CANNOT_BE_ABSTRACT
-      operator < as abstract
+      operator < as pure abstract
         -> arg0 as C1
         <- rtn as Boolean: true
 
       //While this method is abstract C1 is not open or extendable
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: CANNOT_BE_ABSTRACT
-      operator > as abstract
+      operator > as pure abstract
         -> arg0 as C1
         <- rtn as Boolean?
 
-      operator <=>
+      operator <=> as pure
         -> arg0 as C1
         <- rtn as Integer: 0
 
       //So this is OK as it is just a signature and as default is asking the ek9 compiler to implement
       //The ek8 compiler would just use the comparator <=> to accomplish this.
-      default operator >=
+      default operator >= as pure
         -> arg0 as C1
         <- rtn as Boolean?
 
       //But this not OK, because the developer has asked for 'default', but then provided an implementation.
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
-      default operator <=
+      default operator <= as pure
         -> arg0 as C1
         <- rtn as Boolean: false
 
     C2 as abstract
       //This is because that even though C2 is abstract and therefore open to extension a body has been provided.
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
-      operator < as abstract
+      operator < as pure abstract
         -> arg0 as C2
         <- rtn as Boolean: true
 
       //This is ok as C2 is abstract and so is the operator
-      operator > as abstract
+      operator > as pure abstract
         -> arg0 as C2
         <- rtn as Boolean?
 
       //This is not ok as it is not declared abstract
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_ABSTRACT_AND_NO_BODY_PROVIDED
-      operator >=
+      operator >= as pure
         -> arg0 as C2
         <- rtn as Boolean?
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OVERRIDE_AND_ABSTRACT
-      override operator <= as abstract
+      override operator <= as pure abstract
         -> arg0 as C2
         <- rtn as Boolean?
 
     C3 as open
       //This is because that even though C3 is open to be extended a body has been provided.
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
-      operator < as abstract
+      operator < as pure abstract
         -> arg0 as C3
         <- rtn as Boolean: true
 
       //This is not ok as C3 is not abstract, but the error will be picked up in later stages.
-      operator > as abstract
+      operator > as pure abstract
         -> arg0 as C3
         <- rtn as Boolean?
 
       //This is not ok as C3 does not extend anything nor does it have any traits, this will be picked up in later phases.
-      override operator >=
+      override operator >= as pure
         -> arg0 as C3
         <- rtn as Boolean: true
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: DEFAULT_AND_ABSTRACT
-      default operator <= as abstract
+      default operator <= as pure abstract
         -> arg0 as C3
         <- rtn as Boolean?
 
@@ -87,60 +87,60 @@ defines module bad.abstractuse.example
 
     Comp1
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: CANNOT_BE_ABSTRACT
-      operator < as abstract
+      operator < as pure abstract
         -> arg0 as Comp1
         <- rtn as Boolean: true
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: CANNOT_BE_ABSTRACT
-      operator > as abstract
+      operator > as pure abstract
         -> arg0 as Comp1
         <- rtn as Boolean?
 
-      operator <=>
+      operator <=> as pure
         -> arg0 as Comp1
         <- rtn as Integer: 0
 
-      default operator >=
+      default operator >= as pure
         -> arg0 as Comp1
         <- rtn as Boolean?
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
-      default operator <=
+      default operator <= as pure
         -> arg0 as Comp1
         <- rtn as Boolean: false
 
     Comp2 as abstract
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
-      operator < as abstract
+      operator < as pure abstract
         -> arg0 as Comp2
         <- rtn as Boolean: true
 
-      operator > as abstract
+      operator > as pure abstract
         -> arg0 as Comp2
         <- rtn as Boolean?
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_ABSTRACT_AND_NO_BODY_PROVIDED
-      operator >=
+      operator >= as pure
         -> arg0 as Comp2
         <- rtn as Boolean?
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OVERRIDE_AND_ABSTRACT
-      override operator <= as abstract
+      override operator <= as pure abstract
         -> arg0 as Comp2
         <- rtn as Boolean?
 
     Comp3 as open
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
-      operator < as abstract
+      operator < as pure abstract
         -> arg0 as Comp3
         <- rtn as Boolean: true
 
-      operator > as abstract
+      operator > as pure abstract
         -> arg0 as Comp3
         <- rtn as Boolean?
 
       //This is not ok as Comp3 does not extend anything, this will be picked up in later phases.
-      override operator >=
+      override operator >= as pure
         -> arg0 as Comp3
         <- rtn as Boolean: true
 
@@ -151,60 +151,60 @@ defines module bad.abstractuse.example
 
     R1
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: CANNOT_BE_ABSTRACT
-      operator < as abstract
+      operator < as pure abstract
         -> arg0 as R1
         <- rtn as Boolean: true
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: CANNOT_BE_ABSTRACT
-      operator > as abstract
+      operator > as pure abstract
         -> arg0 as R1
         <- rtn as Boolean?
 
-      operator <=>
+      operator <=> as pure
         -> arg0 as R1
         <- rtn as Integer: 0
 
-      default operator >=
+      default operator >= as pure
         -> arg0 as R1
         <- rtn as Boolean?
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
-      default operator <=
+      default operator <= as pure
         -> arg0 as R1
         <- rtn as Boolean: false
 
     R2 as abstract
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
-      operator < as abstract
+      operator < as pure abstract
         -> arg0 as R2
         <- rtn as Boolean: true
 
-      operator > as abstract
+      operator > as pure abstract
         -> arg0 as R2
         <- rtn as Boolean?
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_ABSTRACT_AND_NO_BODY_PROVIDED
-      operator >=
+      operator >= as pure
         -> arg0 as R2
         <- rtn as Boolean?
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OVERRIDE_AND_ABSTRACT
-      override operator <= as abstract
+      override operator <= as pure abstract
         -> arg0 as R2
         <- rtn as Boolean?
 
     R3 as open
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
-      operator < as abstract
+      operator < as pure abstract
         -> arg0 as R3
         <- rtn as Boolean: true
 
-      operator > as abstract
+      operator > as pure abstract
         -> arg0 as R3
         <- rtn as Boolean?
 
       //This is not ok as R3 does not extend anything, this will be picked up in later phases.
-      override operator >=
+      override operator >= as pure
         -> arg0 as R3
         <- rtn as Boolean: true
 
@@ -217,67 +217,67 @@ defines module bad.abstractuse.example
       //So this is a slightly different error, because traits are abstract by nature.
       //So it is abstract even though not explicitly open or abstract
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
-      operator < as abstract
+      operator < as pure abstract
         -> arg0 as T1
         <- rtn as Boolean: true
 
       //Now this can be marked as abstract
-      operator > as abstract
+      operator > as pure abstract
         -> arg0 as T1
         <- rtn as Boolean?
 
-      operator <=>
+      operator <=> as pure
         -> arg0 as T1
         <- rtn as Integer: 0
 
-      default operator >=
+      default operator >= as pure
         -> arg0 as T1
         <- rtn as Boolean?
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
-      default operator <=
+      default operator <= as pure
         -> arg0 as T1
         <- rtn as Boolean: false
 
     T2 as abstract
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
-      operator < as abstract
+      operator < as pure abstract
         -> arg0 as T2
         <- rtn as Boolean: true
 
-      operator > as abstract
+      operator > as pure abstract
         -> arg0 as T2
         <- rtn as Boolean?
 
       //So now this is ok, for traits it is not necessary to state the abstractness.
-      operator >=
+      operator >= as pure
         -> arg0 as T2
         <- rtn as Boolean?
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OVERRIDE_AND_ABSTRACT
-      override operator <= as abstract
+      override operator <= as pure abstract
         -> arg0 as T2
         <- rtn as Boolean?
 
     T3 as open
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
-      operator < as abstract
+      operator < as pure abstract
         -> arg0 as T3
         <- rtn as Boolean: true
 
-      operator > as abstract
+      operator > as pure abstract
         -> arg0 as T3
         <- rtn as Boolean?
 
       //This is not ok as T3 does not extend anything, this will be picked up in later phases.
-      override operator >=
+      override operator >= as pure
         -> arg0 as T3
         <- rtn as Boolean: true
 
       //Now while it has not been explicitly defined as abstract, in a trait this is OK, but it is actually abstract
       //So we must issue an error for this.
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OVERRIDE_AND_ABSTRACT
-      override operator <=
+      override operator <= as pure
         -> arg0 as T2
         <- rtn as Boolean?
 

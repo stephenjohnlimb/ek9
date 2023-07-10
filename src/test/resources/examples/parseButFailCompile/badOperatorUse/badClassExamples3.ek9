@@ -31,6 +31,11 @@ defines module bad.classes.operators.examples3
         <- rtn as Float: arg0
         assert arg0?
 
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OPERATOR_CANNOT_BE_PURE
+      operator :=: as pure
+        -> arg0 as C3
+        assert arg0?
+
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
       operator |
         arg <- 1

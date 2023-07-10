@@ -401,6 +401,8 @@ public class ErrorListener extends BaseErrorListener {
     FUNCTION_MUST_RETURN_SAME_TYPE_AS_INPUT("function must return the same type as the input type"),
     CALL_DOES_NOT_RETURN_ANYTHING("Right hand side does not return a value"),
     CONVERT_CONSTANT_TO_VARIABLE("convert this constant to a variable"),
+    OPERATOR_MUST_BE_PURE("operator must be declared pure"),
+    OPERATOR_CANNOT_BE_PURE("operator must not be declared pure"),
     CONSTANT_PARAM_NEEDS_PURE(
         "use 'pure' modifier with a constant parameter or convert the constant to a variable"),
     DUPLICATE_PROPERTY_FIELD("Property/Field duplicated"),

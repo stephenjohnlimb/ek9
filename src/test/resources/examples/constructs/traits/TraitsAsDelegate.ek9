@@ -16,7 +16,7 @@ defines module com.customer.delegates
         -> p Float
         <- r String: "{" + $p + "}"
         //Could have written `{${p}}` - but I prefer the above.
-      operator ?
+      operator ? as pure
         <- rtn Boolean := true
           
     <?-
@@ -28,7 +28,7 @@ defines module com.customer.delegates
         -> p String
         <- r String?
         
-      operator ?
+      operator ? as pure
         <- rtn Boolean: true
               
   defines class
@@ -83,7 +83,7 @@ defines module com.customer.delegates
         You have to define operator ? because both S1 and T1 have operator ?
         hence it would be ambiguous and compiler would pick that up.
       -?>
-      override operator ?
+      override operator ? as pure
         <- rtn Boolean: delegateT? and delegateS?
           
     //And that it for C3 we delegate of to any sort of T1 and S1 - see below

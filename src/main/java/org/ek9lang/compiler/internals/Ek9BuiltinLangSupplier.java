@@ -610,7 +610,7 @@ defines extern module org.ek9.lang
         Check if this Result has and Ok value or an error - it might have neither.
         That's not always wrong, there may be no Ok value, but also nothing in error.
       -?>
-      operator ?
+      operator ? as pure
         <- rtn as Boolean?
           
     PriorityQueue of type T as open

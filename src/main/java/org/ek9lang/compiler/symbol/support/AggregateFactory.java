@@ -224,21 +224,22 @@ public class AggregateFactory {
     final Optional<ISymbol> integerType = resolveInteger(aggregate);
     final Optional<ISymbol> stringType = resolveString(aggregate);
     final Optional<ISymbol> booleanType = resolveBoolean(aggregate);
+    final Optional<ISymbol> jsonType = resolveJson(aggregate);
 
     return new ArrayList<>(Arrays.asList(
-        //isSet
+        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<", booleanType),
+        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<=", booleanType),
+        createPureAcceptSameTypeOperatorAndReturnType(aggregate, ">", booleanType),
+        createPureAcceptSameTypeOperatorAndReturnType(aggregate, ">=", booleanType),
+        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "==", booleanType),
+        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<>", booleanType),
+        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<=>", integerType),
+
         createPurePublicSimpleOperator(aggregate, "?", booleanType),
-        //Now a _string $ operator
+
         createPurePublicSimpleOperator(aggregate, "$", stringType),
-        //hash code
-        createPurePublicSimpleOperator(aggregate, "#?", integerType),
-
-        createComparatorOperator(aggregate, "==", booleanType), createComparatorOperator(aggregate, "<>", booleanType),
-        createComparatorOperator(aggregate, "<", booleanType), createComparatorOperator(aggregate, "<=", booleanType),
-        createComparatorOperator(aggregate, ">=", booleanType), createComparatorOperator(aggregate, ">", booleanType),
-
-        //compare
-        createComparatorOperator(aggregate, "<=>", integerType)));
+        createPurePublicSimpleOperator(aggregate, "$$", jsonType),
+        createPurePublicSimpleOperator(aggregate, "#?", integerType)));
   }
 
   /**
@@ -252,22 +253,29 @@ public class AggregateFactory {
 
     var theDefaultOperators = getAllPossibleDefaultOperators(aggregate);
 
-    var additionalOperators = new ArrayList<>(Arrays.asList(createToJsonSimpleOperator(aggregate),
+    var additionalOperators = new ArrayList<>(Arrays.asList(
+        createToJsonSimpleOperator(aggregate),
 
+        //First and last
+        createPurePublicReturnSameTypeMethod(aggregate, "#<"),
+        createPurePublicReturnSameTypeMethod(aggregate, "#>"),
+
+        //negate operator
+        createPurePublicReturnSameTypeMethod(aggregate, "~"),
+
+        createPurePublicReturnSameTypeMethod(aggregate, "abs"),
         createPurePublicSimpleOperator(aggregate, "empty", booleanType),
         createPurePublicSimpleOperator(aggregate, "length", integerType),
 
-        //First and last
-        createPurePublicPrefixSuffixMethod(aggregate, "#<"),
-        createPurePublicPrefixSuffixMethod(aggregate, "#>"),
-
-        //negate operator
-        createPurePublicPrefixSuffixMethod(aggregate, "~"),
-
-        createPurePublicPrefixSuffixMethod(aggregate, "++"),
-        createPurePublicPrefixSuffixMethod(aggregate, "--"),
-
-        //Support automatic opening and closing of 'things'
+        createPureAcceptSameTypeOperatorAndReturnType(aggregate, ">>", Optional.of(aggregate)),
+        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<<", Optional.of(aggregate)),
+        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "and", Optional.of(aggregate)),
+        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "or", Optional.of(aggregate)),
+        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "xor", Optional.of(aggregate)),
+        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "mod", integerType),
+        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "rem", integerType),
+        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "contains", booleanType),
+        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "matches", booleanType),
         createPurePublicSimpleOperator(aggregate, "close", voidType),
 
         //Other operators
@@ -278,21 +286,20 @@ public class AggregateFactory {
         createOperator(aggregate, "*", true),
         createOperator(aggregate, "/", true),
 
-        //copy/clone
-        createOperator(aggregate, ":=:", true),
-
+        //Mutator type operators
+        createOperator(aggregate, ":~:", false),
+        createOperator(aggregate, ":^:", false),
+        createOperator(aggregate, ":=:", false),
         createOperator(aggregate, "|", false),
         createOperator(aggregate, "+=", false),
         createOperator(aggregate, "-=", false),
         createOperator(aggregate, "*=", false),
         createOperator(aggregate, "/=", false),
-        //merge
-        createOperator(aggregate, ":~:", false),
-        //replace
-        createOperator(aggregate, ":^:", false),
+        createOperator(aggregate, "++", false),
+        createOperator(aggregate, "--", false),
 
         //fuzzy compare
-        createComparatorOperator(aggregate, "<~>", integerType)));
+        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<~>", integerType)));
 
     List<MethodSymbol> rtn = new ArrayList<>(theDefaultOperators.size() + additionalOperators.size());
     rtn.addAll(theDefaultOperators);
@@ -323,6 +330,7 @@ public class AggregateFactory {
     final Optional<ISymbol> booleanType = resolveBoolean(clazz);
     final Optional<ISymbol> integerType = resolveInteger(clazz);
     final Optional<ISymbol> stringType = resolveString(clazz);
+    final Optional<ISymbol> jsonType = resolveJson(clazz);
     //Some reasonable operations
     //compare
     addComparatorOperator(clazz, "<=>", integerType);
@@ -339,21 +347,21 @@ public class AggregateFactory {
     addPurePublicSimpleOperator(clazz, "$", stringType);
 
     //To JSON operator
-    addPurePublicSimpleOperator(clazz, "$$", stringType);
+    addPurePublicSimpleOperator(clazz, "$$", jsonType);
     //hash code
     addPurePublicSimpleOperator(clazz, "#?", integerType);
 
     //First and last
-    addPurePublicPrefixSuffixMethod(clazz, "#<");
-    addPurePublicPrefixSuffixMethod(clazz, "#>");
+    addPurePublicReturnSameTypeMethod(clazz, "#<");
+    addPurePublicReturnSameTypeMethod(clazz, "#>");
   }
 
-  private void addPurePublicPrefixSuffixMethod(IAggregateSymbol clazz, String methodName) {
-    var method = createPurePublicPrefixSuffixMethod(clazz, methodName);
+  private void addPurePublicReturnSameTypeMethod(IAggregateSymbol clazz, String methodName) {
+    var method = createPurePublicReturnSameTypeMethod(clazz, methodName);
     clazz.define(method);
   }
 
-  private MethodSymbol createPurePublicPrefixSuffixMethod(IAggregateSymbol clazz, String methodName) {
+  private MethodSymbol createPurePublicReturnSameTypeMethod(IAggregateSymbol clazz, String methodName) {
     return createPurePublicSimpleOperator(clazz, methodName, Optional.of(clazz));
   }
 
@@ -363,14 +371,14 @@ public class AggregateFactory {
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public MethodSymbol addComparatorOperator(IAggregateSymbol clazz, String comparatorType,
                                             Optional<ISymbol> returnType) {
-    MethodSymbol operator = createComparatorOperator(clazz, comparatorType, returnType);
+    MethodSymbol operator = createPureAcceptSameTypeOperatorAndReturnType(clazz, comparatorType, returnType);
     clazz.define(operator);
     return operator;
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private MethodSymbol createComparatorOperator(IAggregateSymbol clazz, String comparatorType,
-                                                Optional<ISymbol> returnType) {
+  private MethodSymbol createPureAcceptSameTypeOperatorAndReturnType(IAggregateSymbol clazz, String comparatorType,
+                                                                     Optional<ISymbol> returnType) {
     MethodSymbol operator = createPurePublicSimpleOperator(clazz, comparatorType, returnType);
     operator.define(new VariableSymbol("param", clazz));
     return operator;
@@ -392,9 +400,8 @@ public class AggregateFactory {
    * Create operator for json.
    */
   public MethodSymbol createToJsonSimpleOperator(IAggregateSymbol aggregate) {
-    final Optional<ISymbol> stringType = resolveString(aggregate);
-    //TODO I think this should be JSON not string.
-    return createPurePublicSimpleOperator(aggregate, "$$", stringType);
+    final Optional<ISymbol> jsonType = resolveJson(aggregate);
+    return createPurePublicSimpleOperator(aggregate, "$$", jsonType);
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -463,5 +470,15 @@ public class AggregateFactory {
       return Optional.of(ek9Types.ek9String());
     }
     return scope.resolve(new TypeSymbolSearch(EK9_STRING));
+  }
+
+  /**
+   * Resolve JSON from cached ek9 types of full scope hierarchy resolution.
+   */
+  public Optional<ISymbol> resolveJson(final IScope scope) {
+    if (ek9Types != null) {
+      return Optional.of(ek9Types.ek9Json());
+    }
+    return scope.resolve(new TypeSymbolSearch(EK9_JSON));
   }
 }

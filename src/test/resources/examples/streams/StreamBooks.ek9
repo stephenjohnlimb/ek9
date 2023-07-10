@@ -120,7 +120,7 @@ defines module com.customer.books
       operator #^ as pure
         <- rtn as String: $this
 
-      operator <=>
+      operator <=> as pure
         -> book as Book
         <- rtn as Integer: published() <=> book.published()
 

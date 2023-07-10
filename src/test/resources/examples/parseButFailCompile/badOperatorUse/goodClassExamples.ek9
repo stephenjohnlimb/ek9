@@ -22,60 +22,60 @@ defines module good.classes.operators.examples
   defines class
 
     C1
-      operator <
+      operator < as pure
         -> arg0 as C1
         <- rtn as Boolean: true
 
       //You can do this if you wish
-      operator <
+      operator < as pure
         -> arg0 as Float
         <- rtn as Boolean: true
 
-      operator >
+      operator > as pure
         -> arg0 as C1
         <- rtn as Boolean: true
 
-      operator ==
+      operator == as pure
         -> arg0 as C1
         <- rtn as Boolean: true
 
       //YYou can even do this, if you really wanted to
-      operator ==
+      operator == as pure
         -> arg0 as Date
         <- rtn as Boolean: true
 
-      operator <=
+      operator <= as pure
         -> arg0 as C1
         <- rtn as Boolean: true
 
-      operator >=
+      operator >= as pure
         -> arg0 as C1
         <- rtn as Boolean: true
 
-      operator <>
+      operator <> as pure
         -> arg0 as C1
         <- rtn as Boolean: true
 
-      operator <=>
+      operator <=> as pure
         -> arg0 as C1
         <- rtn as Integer: 0
 
-      operator <~>
+      operator <~> as pure
         -> arg0 as C1
         <- rtn as Integer: 0
 
       //This can mean factorial (mathematics or clear to empty or reset)
       //As such it accepts no parameters, but can return nothing or anything you like
-      operator !
+      operator ! as pure
         <- rtn as C1: this
 
       //The 'is set' operator
-      operator ?
+      operator ? as pure
         <- rtn as Boolean: true
 
       //The not/negate operator
       //As such it accepts no parameters, but returns the same type as itself
-      operator ~
+      operator ~ as pure
         <- rtn as C1: this
 
       //The increment operator, this alters its own state and returns itself
@@ -89,29 +89,29 @@ defines module good.classes.operators.examples
       //All of these sort of meth operators +, -, *, / and ^ accept one single argument in and return something
       //But they can be a range of different types, so you could have multiple + operators with different arg types
       //for example. So they are not restricted to same type
-      operator +
+      operator + as pure
         -> arg0 as C1
         <- rtn as C1: this
 
       //As an example you could do this as well.
       //just as an example of using different types, clearly this makes little logical sense.
-      operator +
+      operator + as pure
         -> arg0 as Integer
         <- rtn as Date: 2023-06-19
 
-      operator -
+      operator - as pure
         -> arg0 as Date
         <- rtn as Duration: P6D
 
-      operator *
+      operator * as pure
         -> arg0 as Float
         <- rtn as Dimension: 6km
 
-      operator /
+      operator / as pure
         -> arg0 as Float
         <- rtn as Colour: #FF11DD
 
-      operator ^
+      operator ^ as pure
         -> arg0 as Integer
         <- rtn as Float: 45000.00
 
@@ -162,93 +162,96 @@ defines module good.classes.operators.examples
         assert arg0?
 
       //Accepts no parameters and always returns a type it promotes to, can be any type, but there is only one promotion.
-      operator #^
+      operator #^ as pure
         <- rtn as Integer: 0
 
       //Accepts no parameters and always returns JSON
-      operator $$
+      operator $$ as pure
         <- rtn as JSON: JSON()
 
       //The to-string operator, always returns a String
-      operator $
+      operator $ as pure
         <- rtn as String: ""
 
       //hash code, accepts no parameters, always returns Integer
-      operator #?
+      operator #? as pure
         <- rtn as Integer: 0
 
       //Get first, accepts no parameters can return any type
-      operator #<
+      operator #< as pure
         <- rtn as Integer: 0
 
       //Get last, accepts no parameters can return any type
-      operator #>
+      operator #> as pure
         <- rtn as Integer: 0
 
       //Shift right, accepts one parameter and can return any type
-      operator >>
+      operator >> as pure
         -> arg0 as Integer
         <- rtn as Integer: 0
 
       //Shift left, accepts one parameter and can return any type
-      operator <<
+      operator << as pure
         -> arg0 as Integer
         <- rtn as Integer: 0
 
       //AND accepts any type of parameter (just one) and returns any type
-      operator and
+      operator and as pure
         -> arg0 as Integer
         <- rtn as Integer: 0
 
       //OR accepts any type of parameter (just one) and returns any type
-      operator or
+      operator or as pure
         -> arg0 as Integer
         <- rtn as Integer: 0
 
       //XOR accepts any type of parameter (just one) and returns any type
-      operator xor
+      operator xor as pure
         -> arg0 as Integer
         <- rtn as Integer: 0
 
       //Modulus, accepts one parameters of any type must return an Integer
-      operator mod
+      operator mod as pure
         -> arg0 as Integer
         <- rtn as Integer: 0
 
       //Another example of modulus
-      operator mod
+      operator mod as pure
         -> arg0 as Duration
         <- rtn as Integer: 0
 
       //Remainder, accepts one parameters of any type must return an Integer
-      operator rem
+      operator rem as pure
         -> arg0 as Float
         <- rtn as Integer: 0
 
       //Absolute, accepts no parameters and must return same type as it is.
-      operator abs
+      operator abs as pure
         <- rtn as C1: this
 
-      operator close
+      operator sqrt as pure
+        <- rtn as C1: this
+
+      operator close as pure
         val <- 1
         assert val?
 
       //Contains, accepts one parameters of any type must return a Boolean
-      operator contains
+      operator contains as pure
         -> arg0 as Float
         <- rtn as Boolean: true
 
       //Matches, accepts one parameters of any type must return a Boolean
-      operator matches
+      operator matches as pure
         -> arg0 as Float
         <- rtn as Boolean: true
 
       //Empty check, accepts no parameters and must return a Boolean
-      operator empty
+      operator empty as pure
         <- rtn as Boolean: true
 
       //Length/size check, accepts no parameters and must return an Integer
-      operator length
+      operator length as pure
         <- rtn as Integer: 0
 
 //EOF

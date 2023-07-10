@@ -383,7 +383,7 @@ defines module worked.example
       dob as String: String()
       lastPurchase as String: String()
 
-      operator ?
+      operator ? as pure
         <- rtn as Boolean: id?
 
       operator :~:
@@ -396,7 +396,7 @@ defines module worked.example
         dob :=? String(arg.dob)
         lastPurchase :=? String(arg.lastPurchase)
 
-      operator $
+      operator $ as pure
         <- rtn as String: cat [id, firstName, lastName, email, dob, lastPurchase]
           | join with outputFormatSeparated
           | collect as String                

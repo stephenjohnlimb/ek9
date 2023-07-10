@@ -248,50 +248,50 @@ defines module net.customer
       //So try some operators - lets see if missing the key word 'operator' without will work
       //Overload the + operator using with and returning - but see later for more terse code.
       //So developer can make judgement on verbosity of the definition.
-      operator +
+      operator + as pure
         -> arg as Class1
         <- rtnOp as Class1 := Class1(arg, arg)        
         //Not really and add here just checking we can do a single line no body on operator
       
-      operator == as
+      operator ==  as pure
         -> arg as Class1
         <- rtn as Boolean := true
 
-      operator <
+      operator < as pure
         -> arg as Class1
         <- rtn as Boolean := true
-      operator <=
+      operator <= as pure
         -> arg as Class1
         <- rtn as Boolean := true
-      operator >
+      operator > as pure
         -> arg as Class1
         <- rtn as Boolean := true
-      operator >=
+      operator >= as pure
         -> arg as Class1
         <- rtn as Boolean := true
-      operator <=>
+      operator <=> as pure
         -> arg as Class1
         <- rtn as Integer := 0
 
-      operator contains
+      operator contains as pure
         -> toCheck as Character
         <- rtn as Boolean := true
 
-      operator sqrt
+      operator sqrt as pure
         <- rtnSqrt as Class1: Class1()
 
-      operator length
+      operator length as pure
         <- rtn as Integer := 10
       
-      operator ?
+      operator ? as pure
         <- rtn as Boolean := true
               
       //promote Class1 to a Class2
-      operator #^
+      operator #^ as pure
         <- myPromotion as Class2 := Class2(90.0)
           
       //Return a string representation of this class    
-      operator $
+      operator $ as pure
         <- rtn as String := "OK"
     
     //The second class that we are going to create a new one of and then call its method.

@@ -49,7 +49,7 @@ defines module com.customer.services
         if address.zipcode?        
           zipcode :=: address.zipcode
         
-      operator ?
+      operator ? as pure
         //street2 is optional and can be omitted
         <- rtn as Boolean: id? and street? and city? and state? and zipcode?                
 
@@ -207,7 +207,7 @@ defines module com.customer.services
         -> address as Address
         assert address?
         
-      operator contains
+      operator contains as pure
         -> addressId as AddressId
         <- rtn as Boolean: Boolean()
 
@@ -281,11 +281,11 @@ defines module com.customer.services
         if this contains address
           includeAddress(address)
       
-      operator contains
+      operator contains as pure
         -> address as Address
         <- rtn as Boolean: this contains address.id      
     
-      override operator contains
+      override operator contains as pure
         -> addressId as AddressId
         <- rtn as Boolean: addresses contains addressId      
       
@@ -356,7 +356,7 @@ defines module com.customer.services
           addresses :^: address
         safeOperation(lockedAddressSet, address, operation)
 
-      override operator contains
+      override operator contains as pure
         -> addressId as AddressId
         <- rtn as Boolean: false
         accessKey <- (addressId, rtn) is MutexKey of AddressSet as function

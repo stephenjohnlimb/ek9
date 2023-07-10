@@ -46,7 +46,7 @@ defines module net.customer.inferred
         <- rtn as SomeTestList of T := SomeTestList()
 
       //Add a T to the list.
-      operator +
+      operator + as pure
         -> item as T
         <- rtn as SomeTestList of T := SomeTestList()
         //Need to be able to say := this - but not quite right yet as types aren't the same!

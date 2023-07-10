@@ -44,10 +44,10 @@ defines module com.customer.just.employees
         this.state :=: state
         this.zipcode :=: zipcode
 
-      operator ?
+      operator ? as pure
         <- rtn as Boolean: street? and city? and state? and zipcode?
 
-      operator $
+      operator $ as pure
         <- rtn as String: String()
         rtn: String(street)
         if street2?
@@ -95,7 +95,7 @@ defines module com.customer.just.employees
       address()
         <- rtn as Address: address
 
-      operator $
+      operator $ as pure
         <- rtn as String: $id + " - " + name
 
     AddressBook

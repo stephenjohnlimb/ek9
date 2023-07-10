@@ -17,13 +17,13 @@ defines module com.customer.resolution
       nickName String: String()
       address Address: Address()
       
-      operator $ as abstract
+      operator $ as pure abstract
         <- is String?
     
     R2 extends R1
       DOB Date: Date()
       
-      override operator $
+      override operator $ as pure
         <- is String := super.firstName        
         is += " "
         is += super.lastName
@@ -228,7 +228,7 @@ defines module com.customer.resolution
       getAddress()
         <- rtn String := $houseNumber + " " + street + " " + getCity() + " " + getPostCode()
       
-      operator $
+      operator $ as pure
         <- rtn String := getAddress()
 
     UKAddress is Address

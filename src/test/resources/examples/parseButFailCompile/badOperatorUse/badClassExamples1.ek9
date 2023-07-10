@@ -10,26 +10,26 @@ defines module bad.classes.operators.examples1
     C1
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
-      operator <
+      operator < as pure
         -> arg0 as C1
         <- rtn as Integer: 0
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
-      operator >
+      operator > as pure
         -> arg0 as C1
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-      operator >
+      operator > as pure
         <- rtn as Boolean: true
 
       //Has no argument to check equality against.
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-      operator ==
+      operator == as pure
         <- rtn as Boolean: true
 
       //Has too many arguments
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-      operator <=
+      operator <= as pure
         ->
           arg0 as C1
           arg1 as C1
@@ -37,39 +37,39 @@ defines module bad.classes.operators.examples1
 
       //has no arguments or return
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-      operator >=
+      operator >= as pure
         var <- 1
         assert var?
 
       //Should use <> for not equals
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: BAD_NOT_EQUAL_OPERATOR
-      operator !=
+      operator != as pure
         -> arg0 as C1
         <- rtn as Boolean: true
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: BAD_NOT_OPERATOR
-      operator not
+      operator not as pure
         -> arg0 as C1
         <- rtn as Boolean: true
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-      operator <=>
+      operator <=> as pure
         <- rtn as Integer: 0
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-      operator <=>
+      operator <=> as pure
         ->
           arg0 as C1
           arg1 as Float
         <- rtn as Integer: 0
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
-      operator <=>
+      operator <=> as pure
         -> arg0 as C1
         <- rtn as C1: this
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
-      operator <~>
+      operator <~> as pure
         -> arg0 as C1
         <- rtn as Boolean: true
 

@@ -8,30 +8,30 @@ defines module bad.components.operators.examples
 
     C2
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-      operator !
+      operator ! as pure
         -> arg0 as Integer
         <- rtn as C2: this
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-      operator !
+      operator ! as pure
         val <- 1
         assert val?
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
-      operator ?
+      operator ? as pure
         <- rtn as Integer: 1
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-      operator ?
+      operator ? as pure
         -> arg0 as C2
         <- rtn as Integer: 1
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
-      operator ~
+      operator ~ as pure
         <- rtn as Float: 1.0
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-      operator ~
+      operator ~ as pure
         -> arg0 as C2
         <- rtn as C2: arg0
 
@@ -48,43 +48,43 @@ defines module bad.components.operators.examples
       operator --
         <- rtn as Integer: 1.0
 
-      operator +
+      operator + as pure
         -> arg0 as C2
         <- rtn as Float: 2.0
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-      operator +
+      operator + as pure
         <- rtn as C2: this
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-      operator +
+      operator + as pure
         ->
           arg0 as C2
           arg1 as C2
         <- rtn as C2: this
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-      operator +
+      operator + as pure
         -> arg0 as Float
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-      operator +
+      operator + as pure
         <- rtn as Date: 2023-06-19
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-      operator -
+      operator - as pure
         -> arg0 as Date
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-      operator *
+      operator * as pure
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: CANNOT_BE_ABSTRACT
-      operator / as abstract
+      operator / as pure abstract
         -> arg0 as Float
         <- rtn as Colour: #FF11DD
 
       //This is fine
-      operator ^
+      operator ^ as pure
         -> arg0 as Integer
         <- rtn as Float: 45000.00
 

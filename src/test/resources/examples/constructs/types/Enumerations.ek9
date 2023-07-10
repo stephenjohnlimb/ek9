@@ -34,13 +34,13 @@ defines module com.customer.enumerations
       rank as CardRank: CardRank()
       suit as CardSuit: CardSuit()
       
-      operator ?
+      operator ? as pure
         <- rtn as Boolean: rank? and suit?
       
-      operator $
+      operator $ as pure
         <- rtn as String: $rank + " of " + $suit
         
-      operator #^
+      operator #^ as pure
         <- rtn as String: $this
                   
   defines function

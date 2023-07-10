@@ -7,53 +7,53 @@ defines module good.traits.operators.examples
   defines trait
 
     T1
-      operator <
+      operator < as pure
         -> arg0 as T1
         <- rtn as Boolean?
 
-      operator <
+      operator < as pure
         -> arg0 as Float
         <- rtn as Boolean?
 
-      operator > as abstract
+      operator > as pure abstract
         -> arg0 as T1
         <- rtn as Boolean?
 
-      operator ==
+      operator == as pure
         -> arg0 as T1
         <- rtn as Boolean: true
 
-      operator ==
+      operator == as pure
         -> arg0 as Date
         <- rtn as Boolean: true
 
-      operator <=
+      operator <= as pure
         -> arg0 as T1
         <- rtn as Boolean: true
 
-      operator >=
+      operator >= as pure
         -> arg0 as T1
         <- rtn as Boolean: true
 
-      operator <>
+      operator <> as pure
         -> arg0 as T1
         <- rtn as Boolean: true
 
-      operator <=>
+      operator <=> as pure
         -> arg0 as T1
         <- rtn as Integer: 0
 
-      operator <~>
+      operator <~> as pure
         -> arg0 as T1
         <- rtn as Integer: 0
 
-      operator !
+      operator ! as pure
         <- rtn as T1: this
 
-      operator ?
+      operator ? as pure
         <- rtn as Boolean: true
 
-      operator ~
+      operator ~ as pure
         <- rtn as T1: this
 
       operator ++
@@ -62,27 +62,27 @@ defines module good.traits.operators.examples
       operator --
         <- rtn as T1: this
 
-      operator +
+      operator + as pure
         -> arg0 as T1
         <- rtn as T1: this
 
-      operator +
+      operator + as pure
         -> arg0 as Integer
         <- rtn as Date: 2023-06-19
 
-      operator -
+      operator - as pure
         -> arg0 as Date
         <- rtn as Duration: P6D
 
-      operator *
+      operator * as pure
         -> arg0 as Float
         <- rtn as Dimension: 6km
 
-      operator /
+      operator / as pure
         -> arg0 as Float
         <- rtn as Colour: #FF11DD
 
-      operator ^
+      operator ^ as pure
         -> arg0 as Integer
         <- rtn as Float: 45000.00
 
@@ -122,71 +122,71 @@ defines module good.traits.operators.examples
         -> arg0 as Duration
         assert arg0?
 
-      operator #^
+      operator #^ as pure
         <- rtn as Integer: 0
 
-      operator $$
+      operator $$ as pure
         <- rtn as JSON: JSON()
 
-      operator $
+      operator $ as pure
         <- rtn as String: ""
 
-      operator #?
+      operator #? as pure
         <- rtn as Integer: 0
 
-      operator #<
+      operator #< as pure
         <- rtn as Integer: 0
 
-      operator #>
+      operator #> as pure
         <- rtn as Integer: 0
 
-      operator >>
+      operator >> as pure
         -> arg0 as Integer
         <- rtn as Integer: 0
 
-      operator <<
+      operator << as pure
         -> arg0 as Integer
         <- rtn as Integer: 0
 
-      operator and
+      operator and as pure
         -> arg0 as Integer
         <- rtn as Integer: 0
 
-      operator or
+      operator or as pure
         -> arg0 as Integer
         <- rtn as Integer: 0
 
-      operator xor
+      operator xor as pure
         -> arg0 as Integer
         <- rtn as Integer: 0
 
-      operator mod
+      operator mod as pure
         -> arg0 as Integer
         <- rtn as Integer: 0
 
-      operator rem
+      operator rem as pure
         -> arg0 as Float
         <- rtn as Integer: 0
 
-      operator abs
+      operator abs as pure
         <- rtn as T1: this
 
-      operator close
+      operator close as pure
         val <- 1
         assert val?
 
-      operator contains
+      operator contains as pure
         -> arg0 as Float
         <- rtn as Boolean: true
 
-      operator matches
+      operator matches as pure
         -> arg0 as Float
         <- rtn as Boolean: true
 
-      operator empty
+      operator empty as pure
         <- rtn as Boolean: true
 
-      operator length
+      operator length as pure
         <- rtn as Integer: 0
 
 //EOF

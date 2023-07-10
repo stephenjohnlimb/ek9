@@ -31,26 +31,26 @@ defines module bad.dynamicclasses.operators.examples
       dynamic2 <- () with trait of T1
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
-        operator <
+        operator < as pure
           -> arg0 as T1
           <- rtn as Integer: 0
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
-        operator >
+        operator > as pure
           -> arg0 as T1
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-        operator >
+        operator > as pure
           <- rtn as Boolean: true
 
         //Has no argument to check equality against.
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-        operator ==
+        operator == as pure
           <- rtn as Boolean: true
 
         //Has too many arguments
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-        operator <=
+        operator <= as pure
           ->
             arg0 as T1
             arg1 as T1
@@ -58,71 +58,71 @@ defines module bad.dynamicclasses.operators.examples
 
         //has no arguments or return
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-        operator >=
+        operator >= as pure
           var <- 1
           assert var?
 
         //Should use <> for not equals
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: BAD_NOT_EQUAL_OPERATOR
-        operator !=
+        operator != as pure
           -> arg0 as T1
           <- rtn as Boolean: true
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: BAD_NOT_OPERATOR
-        operator not
+        operator not as pure
           -> arg0 as T1
           <- rtn as Boolean: true
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-        operator <=>
+        operator <=> as pure
           <- rtn as Integer: 0
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-        operator <=>
+        operator <=> as pure
           ->
             arg0 as T1
             arg1 as Float
           <- rtn as Integer: 0
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
-        operator <=>
+        operator <=> as pure
           -> arg0 as T1
           <- rtn as T1: this
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
-        operator <~>
+        operator <~> as pure
           -> arg0 as T1
           <- rtn as Boolean: true
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-        operator !
+        operator ! as pure
           -> arg0 as Integer
           <- rtn as T1: this
 
         //So you can have factorial or clear but it must return some type
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-        operator !
+        operator ! as pure
           val <- 1
           assert val?
 
         //The 'is set' operator
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
-        operator ?
+        operator ? as pure
           <- rtn as Integer: 1
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-        operator ?
+        operator ? as pure
           -> arg0 as T1
           <- rtn as Integer: 1
 
         //The not/negate operator
         //As such it accepts no parameters, but returns the same type as itself
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
-        operator ~
+        operator ~ as pure
           <- rtn as Float: 1.0
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-        operator ~
+        operator ~ as pure
           -> arg0 as T1
           <- rtn as T1: arg0
 
@@ -144,44 +144,44 @@ defines module bad.dynamicclasses.operators.examples
         //All of these sort of meth operators +, -, *, / and ^ accept one single argument in and return something
         //But they can be a range of different types, so you could have multiple + operators with different arg types
         //for example. So they are not restricted to same type
-        operator +
+        operator + as pure
           -> arg0 as T1
           <- rtn as Float: 2.0
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-        operator +
+        operator + as pure
           <- rtn as T1: this
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-        operator +
+        operator + as pure
           ->
             arg0 as T1
             arg1 as T1
           <- rtn as T1: this
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-        operator +
+        operator + as pure
           -> arg0 as Float
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-        operator +
+        operator + as pure
           <- rtn as Date: 2023-06-19
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-        operator -
+        operator - as pure
           -> arg0 as Date
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-        operator *
+        operator * as pure
 
         //Cannot be abstract because this class is not open to extension
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: CANNOT_BE_ABSTRACT
-        operator / as abstract
+        operator / as pure abstract
           -> arg0 as Float
           <- rtn as Colour: #FF11DD
 
         //This is fine
-        operator ^
+        operator ^ as pure
           -> arg0 as Integer
           <- rtn as Float: 45000.00
 
@@ -240,184 +240,184 @@ defines module bad.dynamicclasses.operators.examples
           assert arg0?
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-        operator #^
+        operator #^ as pure
           -> arg0 as Float
           <- rtn as Float: arg0
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-        operator #^
+        operator #^ as pure
           check <- 1
           assert check?
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-        operator $$
+        operator $$ as pure
           -> arg0 as Float
           <- rtn as JSON: JSON()
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_JSON
-        operator $$
+        operator $$ as pure
           <- rtn as String: ""
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_STRING
-        operator $
+        operator $ as pure
           <- rtn as Integer: 1
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
-        operator #?
+        operator #? as pure
           <- rtn as Float: 1.0
 
         //Get first, accepts no parameters can return any type
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-        operator #<
+        operator #< as pure
           someVal <- 1
           assert someVal?
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-        operator #>
+        operator #> as pure
           someVal <- 1
           assert someVal?
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
-        operator abs
+        operator abs as pure
           <- rtn as Float: 2.0
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
-        operator empty
+        operator empty as pure
           <- rtn as Integer: 1
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
-        operator length
+        operator length as pure
           <- rtn as String: ""
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-        operator >>
+        operator >> as pure
           ->
             arg0 as Integer
             arg1 as Integer
           <- rtn as Integer: 0
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-        operator >>
+        operator >> as pure
           <- rtn as Integer: 0
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-        operator >>
+        operator >> as pure
           -> arg0 as Integer
           assert arg0?
 
         //Shift left, accepts one Integer parameter and can return any type
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-        operator <<
+        operator << as pure
 
         //AND accepts any type of parameter (just one) and returns any type
         //This is OkK, so check variations on other operators.
-        operator and
+        operator and as pure
           -> arg0 as Float
           <- rtn as Integer: 0
 
         //OR accepts any type of parameter (just one) and returns any type
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-        operator or
+        operator or as pure
           ->
             arg0 as Integer
             arg1 as Integer
           <- rtn as Integer: 0
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-        operator or
+        operator or as pure
           <- rtn as Integer: 0
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-        operator or
+        operator or as pure
           -> arg0 as Integer
           assert arg0?
 
         //XOR accepts any type of parameter (just one) and returns any type
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-        operator xor
+        operator xor as pure
           ->
             arg0 as Integer
             arg1 as String
           <- rtn as Integer: 0
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-        operator xor
+        operator xor as pure
           <- rtn as Integer: 0
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-        operator xor
+        operator xor as pure
           -> arg0 as Integer
           assert arg0?
 
         //Modulus, accepts one parameters of any type must return an Integer
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-        operator mod
+        operator mod as pure
           ->
             arg0 as Integer
             arg1 as Integer
           <- rtn as Integer: 0
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
-        operator mod
+        operator mod as pure
           <- rtn as Integer: 0
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
-        operator mod
+        operator mod as pure
           -> arg0 as Date
           <- rtn as Float: 0.9
 
         //Another example of modulus - this is a working example
-        operator mod
+        operator mod as pure
           -> arg0 as Duration
           <- rtn <- 0
 
         //Remainder, accepts one parameters of any type must return an Integer
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
-        operator rem
+        operator rem as pure
           -> arg0 as Float
           <- rtn as Date: 2023-06-21
 
         //Contains, accepts one parameters of any type must return a Boolean
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
-        operator contains
+        operator contains as pure
           -> arg0 as Float
           <- rtn as Integer: 0
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
-        operator contains
+        operator contains as pure
           -> arg0 as Date
           assert arg0?
 
         //Matches, accepts one parameters of any type must return a Boolean
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
-        operator matches
+        operator matches as pure
           -> arg0 as Float
           <- rtn as Integer: 0
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
-        operator matches
+        operator matches as pure
           -> arg0 as Date
           assert arg0?
 
         //Now some examples of incorrect close operator
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURN_VALUE_NOT_SUPPORTED
-        operator close
+        operator close as pure
           <- rtn <- true
           val <- 1
           assert val?
 
         //This error will take precedence
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-        operator close
+        operator close as pure
           -> arg0 as String
           <- rtn <- true
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-        operator close
+        operator close as pure
           ->
             arg0 as String
             arg1 as Integer

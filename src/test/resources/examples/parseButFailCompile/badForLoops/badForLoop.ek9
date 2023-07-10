@@ -15,7 +15,7 @@ defines module bad.forloops.check
       value <- 1
 
       //Just for now return equals, don't try and compare all fields.
-      operator <=>
+      operator <=> as pure
         -> arg0 as R1
         <- rtn as Integer: 0
 
@@ -24,7 +24,7 @@ defines module bad.forloops.check
       value <- 1
 
       //Just for now return equals, don't try and compare all fields.
-      operator <=>
+      operator <=> as pure
         -> arg0 as R2
         <- rtn as Integer: 0
 
@@ -38,7 +38,7 @@ defines module bad.forloops.check
       value <- 1
 
       //Just for now return equals, don't try and compare all fields.
-      operator <=>
+      operator <=> as pure
         -> arg0 as R3
         <- rtn as Integer: 0
 
@@ -50,7 +50,7 @@ defines module bad.forloops.check
       value <- 1
 
       //Just for now return equals, don't try and compare all fields.
-      operator <=>
+      operator <=> as pure
         -> arg0 as R4
         <- rtn as Integer: 0
 
