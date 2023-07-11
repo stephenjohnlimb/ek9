@@ -236,7 +236,6 @@ public class AggregateFactory {
         createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<=>", integerType),
 
         createPurePublicSimpleOperator(aggregate, "?", booleanType),
-
         createPurePublicSimpleOperator(aggregate, "$", stringType),
         createPurePublicSimpleOperator(aggregate, "$$", jsonType),
         createPurePublicSimpleOperator(aggregate, "#?", integerType)));
@@ -249,20 +248,16 @@ public class AggregateFactory {
   public List<MethodSymbol> getAllPossibleSyntheticOperators(IAggregateSymbol aggregate) {
     final Optional<ISymbol> integerType = resolveInteger(aggregate);
     final Optional<ISymbol> booleanType = resolveBoolean(aggregate);
-    final Optional<ISymbol> voidType = resolveVoid(aggregate);
 
     var theDefaultOperators = getAllPossibleDefaultOperators(aggregate);
 
     var additionalOperators = new ArrayList<>(Arrays.asList(
         createToJsonSimpleOperator(aggregate),
 
-        //First and last
+        //Cannot default the promote operator
         createPurePublicReturnSameTypeMethod(aggregate, "#<"),
         createPurePublicReturnSameTypeMethod(aggregate, "#>"),
-
-        //negate operator
         createPurePublicReturnSameTypeMethod(aggregate, "~"),
-
         createPurePublicReturnSameTypeMethod(aggregate, "abs"),
         createPurePublicSimpleOperator(aggregate, "empty", booleanType),
         createPurePublicSimpleOperator(aggregate, "length", integerType),
@@ -276,7 +271,7 @@ public class AggregateFactory {
         createPureAcceptSameTypeOperatorAndReturnType(aggregate, "rem", integerType),
         createPureAcceptSameTypeOperatorAndReturnType(aggregate, "contains", booleanType),
         createPureAcceptSameTypeOperatorAndReturnType(aggregate, "matches", booleanType),
-        createPurePublicSimpleOperator(aggregate, "close", voidType),
+        createPurePublicSimpleOperator(aggregate, "close", Optional.empty()),
 
         //Other operators
 
@@ -407,8 +402,13 @@ public class AggregateFactory {
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private MethodSymbol createPurePublicSimpleOperator(IAggregateSymbol clazz, String methodName,
                                                       Optional<ISymbol> returnType) {
+
     MethodSymbol method = new MethodSymbol(methodName, clazz);
-    method.setReturningSymbol(new VariableSymbol("rtn", returnType));
+    if (returnType.isPresent()) {
+      method.setReturningSymbol(new VariableSymbol("rtn", returnType));
+    } else {
+      method.setType(resolveVoid(clazz));
+    }
     method.setParsedModule(clazz.getParsedModule());
     method.setAccessModifier("public");
     method.setMarkedPure(true);
