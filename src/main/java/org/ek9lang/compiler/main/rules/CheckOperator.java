@@ -124,11 +124,7 @@ public class CheckOperator extends RuleSupport
     var defaulted = "TRUE".equals(methodSymbol.getSquirrelledData(DEFAULTED));
 
     if (!defaulted) {
-      //So not defaulted must check arguments and returns. or a no op.
-      Consumer<MethodSymbol> noOp = method -> {
-      };
-      operatorChecks.getOrDefault(ctx.operator().getText(), noOp).accept(methodSymbol);
-
+      operatorChecks.getOrDefault(ctx.operator().getText(), method -> {}).accept(methodSymbol);
     }
 
     if (ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext) {
