@@ -21,9 +21,9 @@ public class CheckProgramArguments implements BiConsumer<Token, MethodSymbol> {
   @Override
   public void accept(final Token token, final MethodSymbol methodSymbol) {
 
-    int numParameters = methodSymbol.getMethodParameters().size();
+    int numParameters = methodSymbol.getCallParameters().size();
 
-    for (var methodParameter : methodSymbol.getMethodParameters()) {
+    for (var methodParameter : methodSymbol.getCallParameters()) {
       var parameterType = methodParameter.getType();
       if (parameterType.isPresent()) {
         var theType = parameterType.get();

@@ -69,8 +69,10 @@ public class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Ca
       var toBeCalled = resolveToBeCalled(ctx);
       if (toBeCalled != null) {
         callSymbol.setResolvedSymbolToCall(toBeCalled);
+        /*
         System.out.println(
             "Have an existing call symbol [" + existingCallSymbol + "] [" + existingCallSymbol.getType() + "]");
+         */
       }
     } else {
       AssertValue.fail("Compiler error: ValidateCall expecting a CallSymbol to have been recorded");

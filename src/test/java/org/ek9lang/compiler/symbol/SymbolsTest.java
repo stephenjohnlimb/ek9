@@ -346,6 +346,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
   /**
    * A bit overkill - should be broken up into separate tests.
    */
+  @SuppressWarnings("EqualsWithItself")
   @Test
   void testFunctionProperties() {
     Optional<ISymbol> stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
@@ -474,6 +475,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
         f2.getFriendlyName());
   }
 
+  @SuppressWarnings("EqualsWithItself")
   @Test
   void testCallSymbolProperties() {
     Optional<ISymbol> stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
@@ -603,8 +605,8 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     cloneMethod1.define(param1);
     assertFalse(method1.isSignatureMatchTo(cloneMethod1));
 
-    assertTrue(method1.getMethodParameters().isEmpty());
-    assertEquals(1, cloneMethod1.getMethodParameters().size());
+    assertTrue(method1.getCallParameters().isEmpty());
+    assertEquals(1, cloneMethod1.getCallParameters().size());
 
     assertFalse(method1.isReturningSymbolPresent());
     assertFalse(method1.getType().isPresent());
@@ -640,6 +642,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     return rtn;
   }
 
+  @SuppressWarnings("EqualsWithItself")
   @Test
   void testExpressionSymbol() {
     var expr1 = new ExpressionSymbol("Expr");
@@ -734,6 +737,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
    * Quite a big class in terms of its configuration.
    * It is the glue between the variable bits of pipeline streaming.
    */
+  @SuppressWarnings("EqualsWithItself")
   @Test
   void testStreamCallSymbol() {
     var integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
@@ -802,6 +806,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertFalse(shouldNotBeFound.isPresent());
   }
 
+  @SuppressWarnings("EqualsWithItself")
   @Test
   void testVariableSymbol() {
     IScope symbolTable = new SymbolTable();

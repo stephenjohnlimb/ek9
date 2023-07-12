@@ -54,7 +54,7 @@ public class CheckServiceOperation extends RuleSupport
     var expectedNumberPathParameters = uriProto.chars().filter(ch -> ch == '{').count();
     long actualNumberOfPathParameters = 0L;
 
-    for (var param : operation.getMethodParameters()) {
+    for (var param : operation.getCallParameters()) {
       defaultPathParameterIfNecessary(param);
 
       if (checkPathParameter.test(operation, param)) {
@@ -91,7 +91,7 @@ public class CheckServiceOperation extends RuleSupport
 
       if (param.getSquirrelledData(HTTP_ACCESS).equals(HTTP_REQUEST)) {
 
-        if (operation.getMethodParameters().size() > 1) {
+        if (operation.getCallParameters().size() > 1) {
           errorListener.semanticError(param.getSourceToken(), "'" + param + "':",
               ErrorListener.SemanticClassification.SERVICE_REQUEST_BY_ITSELF);
         }

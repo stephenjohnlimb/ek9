@@ -2,12 +2,14 @@ package org.ek9lang.compiler.main.phases.definition;
 
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.internals.ParsedModule;
+import org.ek9lang.compiler.main.resolvedefine.CheckFunctionOverrides;
 import org.ek9lang.compiler.main.resolvedefine.CheckMethodOverrides;
 import org.ek9lang.compiler.main.resolvedefine.CheckPossibleFieldDelegate;
 import org.ek9lang.compiler.main.resolvedefine.DynamicCaptureAndDefinition;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbol.CaptureScope;
+import org.ek9lang.compiler.symbol.FunctionSymbol;
 
 /**
  * This is a really critical point, because this attempts to ensure that ANY expression
@@ -25,8 +27,8 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
 
   private final DynamicCaptureAndDefinition dynamicCaptureAndDefinition;
   private final CheckPossibleFieldDelegate checkPossibleFieldDelegate;
-
   private final CheckMethodOverrides checkMethodOverrides;
+  private final CheckFunctionOverrides checkFunctionOverrides;
 
   /**
    * Create a new instance to define or resolve inferred types.
@@ -38,6 +40,7 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
 
     this.checkPossibleFieldDelegate = new CheckPossibleFieldDelegate(symbolAndScopeManagement, errorListener);
     this.checkMethodOverrides = new CheckMethodOverrides(symbolAndScopeManagement, errorListener);
+    this.checkFunctionOverrides = new CheckFunctionOverrides(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -83,5 +86,12 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
     var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     checkMethodOverrides.accept(symbol);
     super.exitComponentDeclaration(ctx);
+  }
+
+  @Override
+  public void exitFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
+    var symbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    checkFunctionOverrides.accept(symbol);
+    super.exitFunctionDeclaration(ctx);
   }
 }

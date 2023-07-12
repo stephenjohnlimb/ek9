@@ -90,6 +90,13 @@ public class FunctionSymbol extends PossibleGenericSymbol {
   }
 
   /**
+   * Added convenience method to make the parameters a bit more obvious.
+   */
+  public List<ISymbol> getCallParameters() {
+    return super.getSymbolsForThisScope();
+  }
+
+  /**
    * Does this function directly implement or through its hierarch implement the function passed in.
    */
   public boolean isImplementingInSomeWay(final FunctionSymbol function) {

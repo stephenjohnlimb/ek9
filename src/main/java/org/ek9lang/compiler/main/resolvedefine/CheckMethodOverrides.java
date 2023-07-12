@@ -5,21 +5,30 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
+import org.ek9lang.compiler.main.rules.CheckTypeCovariance;
+import org.ek9lang.compiler.main.rules.CovarianceCheckData;
 import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.MethodSymbol;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
-import org.ek9lang.core.exception.AssertValue;
 
 /**
  * Check overrides on methods.
+ * TODO Check the number and compatibility of arguments on methods that are overridden.
  */
 public class CheckMethodOverrides extends RuleSupport implements Consumer<AggregateSymbol> {
+
+  private final CheckTypeCovariance checkTypeCovariance;
+
+  /**
+   * Check various aspects of overriding methods.
+   */
   public CheckMethodOverrides(final SymbolAndScopeManagement symbolAndScopeManagement,
                               final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
+    this.checkTypeCovariance = new CheckTypeCovariance(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -59,7 +68,6 @@ public class CheckMethodOverrides extends RuleSupport implements Consumer<Aggreg
 
   private void checkMethodAccessModifierCompatibility(final MethodSymbol methodSymbol,
                                                       final MethodSymbol matchedMethodSymbol) {
-
     if (!matchedMethodSymbol.isPrivate()
         && !methodSymbol.getAccessModifier().equals(matchedMethodSymbol.getAccessModifier())) {
       var msg = getErrorMessageFor(methodSymbol, matchedMethodSymbol);
@@ -80,35 +88,12 @@ public class CheckMethodOverrides extends RuleSupport implements Consumer<Aggreg
 
   private void checkCovarianceOnMethodReturnTypes(final MethodSymbol methodSymbol,
                                                   final MethodSymbol matchedMethodSymbol) {
-    //So first check they both return 'something' if both nothing - then no covariance to consider.
-    //If one does and one does not - well that's not going to work in terms of covariance.
     var msg = getErrorMessageFor(methodSymbol, matchedMethodSymbol);
 
-    if (methodSymbol.isReturningSymbolPresent() && matchedMethodSymbol.isReturningSymbolPresent()) {
-      //But if they both return something - then lets check the types and see if they are compatible (without coercion).
-      var methodReturnType = methodSymbol.getReturningSymbol().getType();
-      var matchedMethodReturnType = matchedMethodSymbol.getReturningSymbol().getType();
-      //A couple of paranoid checks - while we are still developing.
-      AssertValue.checkTrue("Compiler Error", methodReturnType.isPresent());
-      AssertValue.checkTrue("Compiler Error", matchedMethodReturnType.isPresent());
+    CovarianceCheckData data = new CovarianceCheckData(methodSymbol.getSourceToken(), msg,
+        methodSymbol.getReturningSymbol(), matchedMethodSymbol.getReturningSymbol());
+    checkTypeCovariance.accept(data);
 
-      //Check using no coercion - for compatibility.
-      var assignableWeight = methodReturnType.get().getUnCoercedAssignableWeightTo(matchedMethodReturnType.get());
-      if (assignableWeight < 0.0) {
-        errorListener.semanticError(methodSymbol.getSourceToken(), "incompatible return types; " + msg,
-            ErrorListener.SemanticClassification.COVARIANCE_MISMATCH);
-      }
-
-    } else if (!methodSymbol.isReturningSymbolPresent() && matchedMethodSymbol.isReturningSymbolPresent()) {
-      //Cannot alter return to be Void (nothing)
-      errorListener.semanticError(methodSymbol.getSourceToken(), "missing return type/value; " + msg,
-          ErrorListener.SemanticClassification.COVARIANCE_MISMATCH);
-    } else if (methodSymbol.isReturningSymbolPresent() && !matchedMethodSymbol.isReturningSymbolPresent()) {
-      //Cannot do reverse either if base was Void cannot no add a return type
-      errorListener.semanticError(methodSymbol.getSourceToken(), "unexpected return type/value; " + msg,
-          ErrorListener.SemanticClassification.COVARIANCE_MISMATCH);
-    }
-    //else both not returning a value so nothing to check
   }
 
   private String getErrorMessageFor(final MethodSymbol methodSymbol,

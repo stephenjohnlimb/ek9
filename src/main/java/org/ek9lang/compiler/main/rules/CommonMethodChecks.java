@@ -89,7 +89,7 @@ public class CommonMethodChecks extends RuleSupport
                               final EK9Parser.MethodDeclarationContext ctx,
                               final String errorMessage) {
     var isDefaulted = "TRUE".equals(method.getSquirrelledData(DEFAULTED));
-    if (isDefaulted && method.isConstructor() && !method.getMethodParameters().isEmpty()) {
+    if (isDefaulted && method.isConstructor() && !method.getCallParameters().isEmpty()) {
       errorListener.semanticError(ctx.DEFAULT().getSymbol(), errorMessage,
           ErrorListener.SemanticClassification.INVALID_DEFAULT_CONSTRUCTOR);
     }

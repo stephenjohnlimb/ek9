@@ -133,7 +133,7 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
           //Also need to alter the return type as a constructor.
           methodSymbol.setType(possibleGenericSymbol);
         }
-        methodSymbol.getMethodParameters().forEach(param -> substituteAsAppropriate(typeMapping, param));
+        methodSymbol.getCallParameters().forEach(param -> substituteAsAppropriate(typeMapping, param));
       }
       //This will do any return type on the method and just normal values (for a function).
       substituteAsAppropriate(typeMapping, symbol);

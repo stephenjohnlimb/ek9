@@ -344,7 +344,7 @@ public class MethodSymbol extends ScopedSymbol {
   /**
    * Added convenience method to make the parameters a bit more obvious.
    */
-  public List<ISymbol> getMethodParameters() {
+  public List<ISymbol> getCallParameters() {
     return super.getSymbolsForThisScope();
   }
 
@@ -354,7 +354,7 @@ public class MethodSymbol extends ScopedSymbol {
    *
    * @param params The parameters to pass to the method.
    */
-  public void setMethodParameters(List<ISymbol> params) {
+  public void setCallParameters(List<ISymbol> params) {
     for (ISymbol param : params) {
       define(param);
     }

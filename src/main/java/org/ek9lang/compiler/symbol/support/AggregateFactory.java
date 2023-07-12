@@ -114,7 +114,7 @@ public class AggregateFactory {
       newConstructor.setConstructor(true);
       newConstructor.setSynthetic(synthetic);
       newConstructor.setType(aggregateSymbol);
-      newConstructor.setMethodParameters(constructorArguments);
+      newConstructor.setCallParameters(constructorArguments);
       aggregateSymbol.define(newConstructor);
     }
   }
@@ -137,8 +137,8 @@ public class AggregateFactory {
       method.getType().ifPresentOrElse(methodType -> {
         if (method.isConstructor() && methodType.isExactSameType(from)) {
           MethodSymbol newMethod = new MethodSymbol(to.getName(), Optional.of(to), to).setConstructor(true);
-          List<ISymbol> params = method.getMethodParameters();
-          newMethod.setMethodParameters(params);
+          List<ISymbol> params = method.getCallParameters();
+          newMethod.setCallParameters(params);
           to.define(newMethod);
         } else {
           if (methodType.isExactSameType(from) && !method.isMarkedNoClone()) {

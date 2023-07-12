@@ -65,7 +65,7 @@ public class CheckForDuplicateOperations extends RuleSupport implements BiConsum
                                                          final List<MethodSymbol> methods) {
     var methodNames = methods.stream()
         .filter(method -> !method.isConstructor())
-        .filter(method -> !method.getMethodParameters().isEmpty())
+        .filter(method -> !method.getCallParameters().isEmpty())
         .map(Symbol::getName).toList();
 
     methods.forEach(method -> {
