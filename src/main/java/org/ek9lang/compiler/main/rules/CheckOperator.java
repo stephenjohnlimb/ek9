@@ -25,7 +25,7 @@ public class CheckOperator extends RuleSupport
   private static final String OPERATOR_SEMANTICS = "operator semantics:";
   private final CheckTraitMethod checkTraitMethod;
   private final CheckNonTraitMethod checkNonTraitMethod;
-  private final CheckIfExtendableByContext checkIfExtendableByContext;
+  private final CheckIfContextSupportsAbstractMethod checkIfContextSupportsAbstractMethod;
   private final CheckInappropriateBody checkInappropriateBody;
   private final Map<String, Consumer<MethodSymbol>> operatorChecks = new HashMap<>();
   private final CheckOverrideAndAbstract checkOverrideAndAbstract;
@@ -39,7 +39,8 @@ public class CheckOperator extends RuleSupport
     populateOperatorChecks();
 
     checkNonTraitMethod = new CheckNonTraitMethod(errorListener);
-    checkIfExtendableByContext = new CheckIfExtendableByContext(symbolAndScopeManagement, errorListener);
+    checkIfContextSupportsAbstractMethod =
+        new CheckIfContextSupportsAbstractMethod(symbolAndScopeManagement, errorListener);
     checkTraitMethod = new CheckTraitMethod();
     checkInappropriateBody = new CheckInappropriateBody(symbolAndScopeManagement, errorListener);
     checkOverrideAndAbstract = new CheckOverrideAndAbstract(symbolAndScopeManagement, errorListener);
@@ -135,7 +136,7 @@ public class CheckOperator extends RuleSupport
       checkNonTraitMethod.accept(methodSymbol, ctx.operationDetails());
     }
 
-    checkIfExtendableByContext.accept(methodSymbol, ctx);
+    checkIfContextSupportsAbstractMethod.accept(methodSymbol, ctx);
     checkInappropriateBody.accept(methodSymbol, ctx.operationDetails());
     checkOverrideAndAbstract.accept(methodSymbol);
   }

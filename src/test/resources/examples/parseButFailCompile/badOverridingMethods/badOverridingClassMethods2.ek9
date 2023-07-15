@@ -1,0 +1,30 @@
+#!ek9
+<?-
+  Just focuses on overriding class methods and mixing up the [pure/non-pure]
+-?>
+defines module bad.overriding.classmethods2
+
+  defines class
+    C1 as open
+      default C1()
+
+      aMethod() as pure
+        -> arg0 as Integer
+        <- rtn <- true
+
+      bMethod()
+        -> arg0 as Integer
+        <- rtn <- true
+
+    C2 extends C1
+      @Error: FULL_RESOLUTION: SUPER_IS_PURE
+      override aMethod()
+        -> arg0 as Integer
+        <- rtn <- true
+
+      @Error: FULL_RESOLUTION: SUPER_IS_NOT_PURE
+      override bMethod() as pure
+        -> arg0 as Integer
+        <- rtn <- true
+
+//EOF

@@ -67,9 +67,9 @@ defines module bad.components.examples
         -> arg0 as String
         assert arg0?
 
-    Comp2 as open
+    Comp2 as abstract
 
-      //Now this can be abstract as the component is open for extension.
+      //Now this can be abstract as the component is open for extension by being abstract.
       //So it is now possible for another component to extend this and provide the implementation.
       someMethod3B() as abstract
         -> arg0 as String

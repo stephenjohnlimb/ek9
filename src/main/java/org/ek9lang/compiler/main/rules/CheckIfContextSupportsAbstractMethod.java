@@ -10,12 +10,13 @@ import org.ek9lang.compiler.symbol.ICanBeGeneric;
 import org.ek9lang.compiler.symbol.MethodSymbol;
 
 /**
- * Checks for the containing construct type and whether it is open for extension or not.
+ * Checks for the containing construct type and whether it is marked as abstract or not.
  */
-public class CheckIfExtendableByContext extends RuleSupport implements BiConsumer<MethodSymbol, ParserRuleContext> {
+public class CheckIfContextSupportsAbstractMethod extends RuleSupport
+    implements BiConsumer<MethodSymbol, ParserRuleContext> {
 
-  protected CheckIfExtendableByContext(final SymbolAndScopeManagement symbolAndScopeManagement,
-                                       final ErrorListener errorListener) {
+  protected CheckIfContextSupportsAbstractMethod(final SymbolAndScopeManagement symbolAndScopeManagement,
+                                                 final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
   }
 
@@ -29,8 +30,8 @@ public class CheckIfExtendableByContext extends RuleSupport implements BiConsume
       var parent = symbolAndScopeManagement.getRecordedSymbol(containingConstructCtx);
       var constructLine = containingConstructCtx.start.getLine();
       if (parent instanceof ICanBeGeneric possibleGeneric
-          && !possibleGeneric.isOpenForExtension() && methodSymbol.isMarkedAbstract()) {
-        var message = "containing construct, on line " + constructLine + ", is not open for extension, '"
+          && !possibleGeneric.isMarkedAbstract() && methodSymbol.isMarkedAbstract()) {
+        var message = "containing construct, on line " + constructLine + ", is not marked as abstract, '"
             + methodSymbol.getFriendlyName() + "':";
         errorListener.semanticError(ctx.start, message,
             ErrorListener.SemanticClassification.CANNOT_BE_ABSTRACT);

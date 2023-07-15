@@ -15,6 +15,32 @@ defines module bad.functions.covariance.examples
 
   defines function
 
+    AFunction as open
+      ->
+        arg0 as Integer
+        arg1 as Float
+      <-
+        rtn as Float: arg1
+
+    //TODO note that if you change the dynamic function below to use this
+    //there is an issue that need to ne sorted.
+    //i.e. gFun <- () is AGenericFunction of (Integer, Float) as function
+    //       rtn: 3.0
+    //This fails - look into and resolve.
+    AGenericFunction of type (S, T) as open
+      ->
+        arg0 as S
+        arg1 as T
+      <-
+        rtn as T: arg1
+
+    TestFunction
+      //Test for a dynamic function, the parameters and return are implied and injected
+      //So they cannot/do not need redeclaring.
+      gFun <- () is AFunction as function
+        rtn: 3.0
+      assert gFun?
+
     BaseFunction as abstract
       -> arg0 as T1
       <- rtn as Boolean?

@@ -77,6 +77,13 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
   List<MethodSymbol> getAllNonAbstractMethodsInThisScopeOnly();
 
   /**
+   * Get all methods in this scope only that are abstract.
+   *
+   * @return The list
+   */
+  List<MethodSymbol> getAllAbstractMethodsInThisScopeOnly();
+
+  /**
    * Just access to the properties in this aggregate - no supers.
    *
    * @return The list

@@ -58,8 +58,8 @@ defines module bad.abstractuse.example
         -> arg0 as C2
         <- rtn as Boolean?
 
-    C3 as open
-      //This is because that even though C3 is open to be extended a body has been provided.
+    C3 as abstract
+      //This is because that even though C3 is abstract and open to be extended a body has been provided.
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
       operator < as pure abstract
         -> arg0 as C3
@@ -129,7 +129,7 @@ defines module bad.abstractuse.example
         -> arg0 as Comp2
         <- rtn as Boolean?
 
-    Comp3 as open
+    Comp3 as abstract
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
       operator < as pure abstract
         -> arg0 as Comp3
@@ -193,7 +193,7 @@ defines module bad.abstractuse.example
         -> arg0 as R2
         <- rtn as Boolean?
 
-    R3 as open
+    R3 as abstract
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
       operator < as pure abstract
         -> arg0 as R3

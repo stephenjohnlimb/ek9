@@ -73,19 +73,31 @@ defines module bad.classes.examples
         -> arg0 as String
         assert arg0?
 
-    //Now check again, but with slight difference that this class is open to extension
+    //New class which is open for extension.
+    //But that does not mean that methods can be abstract.
     C2 as open
+      someMethod1()
+        -> arg0 as String
+        <- rtn as String: arg0
+
+      @Error: SYMBOL_DEFINITION: CANNOT_BE_ABSTRACT
+      someMethod3() as abstract
+        -> arg0 as String
+        <- rtn as String?
+
+    //Now check again, but with slight difference that this class is open to extension by being abstract
+    C3 as abstract
       @Error: SYMBOL_DEFINITION: RETURN_VALUE_NOT_SUPPORTED
-      default C2()
+      default C3()
         -> arg0 as String
         <- rtn as String?
 
       @Error: SYMBOL_DEFINITION: INVALID_DEFAULT_CONSTRUCTOR
-      default C2()
+      default C3()
         -> arg0 as Date
 
       @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
-      default C2()
+      default C3()
         someVar <- 1
         assert someVar?
 

@@ -50,13 +50,13 @@ defines module bad.overriding.classmethods1
       Now these are not actually overriding the private method above.
     -?>
     C3u extends C1
-      @Error: FULL_RESOLUTION: METHOD_DOES_NOT_OVERRIDE
+      @Error: FULL_RESOLUTION: DOES_NOT_OVERRIDE
       override someMethod()
         -> arg0 as String
         <- rtn as String: `[ ${arg0} ]`
 
     C4u extends C1
-      @Error: FULL_RESOLUTION: METHOD_DOES_NOT_OVERRIDE
+      @Error: FULL_RESOLUTION: DOES_NOT_OVERRIDE
       override protected someMethod()
         -> arg0 as String
         <- rtn as String: `[ ${arg0} ]`
@@ -167,5 +167,23 @@ defines module bad.overriding.classmethods1
       override someMethod()
         -> arg0 as String
         <- rtn as String: arg0
+
+      //Acceptable - E
+      //This is a totally new method signature, ok name is the same but different parameters.
+      someMethod()
+        ->
+          arg0 as String
+          arg01 as Float
+        <-
+          rtn as String: arg0
+
+      //Acceptable - E
+      //This is a totally new method signature, ok name is the same but different parameters.
+      someMethod()
+        ->
+          arg0 as String
+          arg01 as Integer
+        <-
+          rtn as String: arg0
 
 //EOF

@@ -16,7 +16,7 @@ public class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol,
   private final CommonMethodChecks commonMethodChecks;
   private final CheckTraitMethod checkTraitMethod;
   private final CheckNonTraitMethod checkNonTraitMethod;
-  private final CheckIfExtendableByContext checkIfExtendableByContext;
+  private final CheckIfContextSupportsAbstractMethod checkIfContextSupportsAbstractMethod;
   private final CheckNonExtendableMethod checkNonExtendableMethod;
   private final CheckNotDispatcherMethod checkNotDispatcherMethod;
   private final CheckGenericConstructor checkGenericConstructor;
@@ -35,7 +35,8 @@ public class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol,
     super(symbolAndScopeManagement, errorListener);
     commonMethodChecks = new CommonMethodChecks(symbolAndScopeManagement, errorListener);
     checkNonTraitMethod = new CheckNonTraitMethod(errorListener);
-    checkIfExtendableByContext = new CheckIfExtendableByContext(symbolAndScopeManagement, errorListener);
+    checkIfContextSupportsAbstractMethod =
+        new CheckIfContextSupportsAbstractMethod(symbolAndScopeManagement, errorListener);
     checkNonExtendableMethod = new CheckNonExtendableMethod(errorListener);
     checkTraitMethod = new CheckTraitMethod();
     checkNotDispatcherMethod = new CheckNotDispatcherMethod(errorListener);
@@ -79,7 +80,7 @@ public class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol,
 
     commonMethodChecks.accept(method, ctx);
 
-    checkIfExtendableByContext.accept(method, ctx);
+    checkIfContextSupportsAbstractMethod.accept(method, ctx);
 
     checkMethodNotOperatorName.accept(method, ctx);
   }

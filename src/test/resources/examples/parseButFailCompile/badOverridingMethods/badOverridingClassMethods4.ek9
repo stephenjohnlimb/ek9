@@ -1,0 +1,128 @@
+#!ek9
+<?-
+  Just focuses on overriding class methods and checking if it altering abstract can be detected.
+  For example it is not possible to mask a concrete with something ath matches the same signature that is abstract.
+
+-?>
+defines module bad.overriding.classmethods4
+
+  defines trait
+
+    //Create a trait with one concrete method and some abstract methods/operators
+    T1
+      concreteMethod()
+        -> arg0 as Integer
+        <- rtn as Boolean: arg0?
+
+      tMethod()
+        -> arg0 as Float
+        <- rtn as Boolean?
+
+      operator + as pure
+        -> arg0 as Float
+        <- rtn as Float?
+
+  defines class
+    //This is valid as a method is abstract and so this class is also abstract
+    C1 as abstract
+      default C1()
+
+      aMethod() as abstract
+        -> arg0 as Integer
+        <- rtn as Boolean?
+
+      //A concrete method
+      bMethod()
+        -> arg0 as Integer
+        <- rtn <- true
+
+      //Note that in class, we have to state that this is abstract (unlike traits)
+      operator - as pure abstract
+        -> arg0 as Float
+        <- rtn as Float?
+
+    //This too is valid
+    C2 with trait of T1 as abstract
+      default C2()
+
+    //But this is Ok because it marked as abstract
+    C3 extends C1 as abstract
+      default C3()
+
+    //This is an error, just marking as open is not enough, this is abstract
+    //But it is picked up in the SYMBOL_DEFINITION phase and is checked elsewhere.
+    //So it is commented out here - but left in place to highlight it is not missing
+    <!-
+    C4 as open
+      default C4()
+
+      aMethod() as abstract
+        -> arg0 as Integer
+        <- rtn as Boolean?
+    -!>
+
+    //This is an error, this is abstract because T1.tMethod is abstract
+    @Error: FULL_RESOLUTION: NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT
+    C5 with trait of T1
+      default C5()
+
+    //This is an error, this is abstract because T1.tMethod is abstract and marking as open makes not difference.
+    //So even though the operator is now implemented, this not enough.
+    @Error: FULL_RESOLUTION: NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT
+    C6 with trait of T1 as open
+      default C6()
+
+      override operator + as pure
+        -> arg0 as Float
+        <- rtn as Float: arg0
+
+    //Another error because C1 is abstract and C7 has not implemented and so must also be marked as abstract.
+    @Error: FULL_RESOLUTION: NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT
+    C7 extends C1
+      default C7()
+
+    //So still an error because the operator is still unimplemented.
+    @Error: FULL_RESOLUTION: NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT
+    C8 extends C1
+      default C8()
+
+      //We now override and implement
+      override aMethod()
+        -> arg0 as Integer
+        <- rtn as Boolean: true
+
+    //So still an error because the aMethod is still unimplemented.
+    @Error: FULL_RESOLUTION: NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT
+    C9 extends C1
+      default C9()
+
+      //We now override and implement
+      override operator - as pure
+        -> arg0 as Float
+        <- rtn as Float: 0.0
+
+    //Now this will be OK, as everything is implemented.
+    C10 extends C1
+      default C10()
+
+      override aMethod()
+        -> arg0 as Integer
+        <- rtn as Boolean: true
+
+      override operator - as pure
+        -> arg0 as Float
+        <- rtn as Float: 0.0
+
+    //This is now OK because all abstract method are implemented.
+    C11 with trait of T1
+      default C11()
+
+      override tMethod()
+        -> arg0 as Float
+        <- rtn as Boolean: true
+
+      override operator + as pure
+        -> arg0 as Float
+        <- rtn as Float: arg0
+
+//EOF

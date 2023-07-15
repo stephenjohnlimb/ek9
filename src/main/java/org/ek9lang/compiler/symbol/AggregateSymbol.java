@@ -278,6 +278,11 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     return filterMethods(MethodSymbol::isNotMarkedAbstract);
   }
 
+  @Override
+  public List<MethodSymbol> getAllAbstractMethodsInThisScopeOnly() {
+    return filterMethods(MethodSymbol::isMarkedAbstract);
+  }
+
   private List<MethodSymbol> filterMethods(Predicate<MethodSymbol> predicate) {
     return getSymbolsForThisScope().stream().filter(ISymbol::isMethod).map(MethodSymbol.class::cast).filter(predicate)
         .toList();

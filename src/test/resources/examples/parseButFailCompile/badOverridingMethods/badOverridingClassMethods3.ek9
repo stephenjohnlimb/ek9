@@ -1,0 +1,52 @@
+#!ek9
+<?-
+  Just focuses on overriding class methods and checking if it really have overridden anything.
+-?>
+defines module bad.overriding.classmethods3
+
+  defines class
+    C1 as open
+      default C1()
+
+      aMethod()
+        -> arg0 as Integer
+        <- rtn <- true
+
+    C2 extends C1
+      //missing override
+      @Error: FULL_RESOLUTION: METHOD_OVERRIDES
+      aMethod()
+        -> arg0 as Integer
+        <- rtn <- true
+
+    C3 extends C1 as abstract
+      @Error: FULL_RESOLUTION: METHOD_OVERRIDES
+      aMethod() as abstract
+        -> arg0 as Integer
+        <- rtn as Boolean?
+
+    C4 extends C1 as open
+      //Introduce another method
+      bMethod()
+        -> arg0 as Integer
+        <- rtn <- true
+
+    C5 extends C4
+      //missing override but in super super method
+      @Error: FULL_RESOLUTION: METHOD_OVERRIDES
+      aMethod()
+        -> arg0 as Integer
+        <- rtn <- true
+    
+    C6 extends C1
+      //Say override but not actually overriding
+      //i.e. ek9 developer accidentally failed to refactor correctly.
+      @Error: FULL_RESOLUTION: DOES_NOT_OVERRIDE
+      override aMethod()
+        ->
+          arg0 as Integer
+          arg1 as Float
+        <-
+          rtn <- true
+
+//EOF

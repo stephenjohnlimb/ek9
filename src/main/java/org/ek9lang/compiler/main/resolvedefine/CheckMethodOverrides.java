@@ -13,10 +13,10 @@ import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.MethodSymbol;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
+import org.ek9lang.core.exception.CompilerException;
 
 /**
  * Check overrides on methods.
- * TODO Check the number and compatibility of arguments on methods that are overridden.
  */
 public class CheckMethodOverrides extends RuleSupport implements Consumer<AggregateSymbol> {
 
@@ -33,37 +33,89 @@ public class CheckMethodOverrides extends RuleSupport implements Consumer<Aggreg
 
   @Override
   public void accept(final AggregateSymbol aggregateSymbol) {
-    List<MethodSymbol> symbolsToCheck = aggregateSymbol.getAllNonAbstractMethodsInThisScopeOnly();
-    symbolsToCheck.forEach(methodSymbol -> checkMethodInSuperAndTraits(methodSymbol, aggregateSymbol));
+
+    List<MethodSymbol> nonAbstractMethodsToCheck = aggregateSymbol.getAllNonAbstractMethodsInThisScopeOnly();
+    nonAbstractMethodsToCheck.forEach(methodSymbol -> checkMethodInSuperAndTraits(methodSymbol,
+        aggregateSymbol));
+
+    List<MethodSymbol> abstractMethodsToCheck = aggregateSymbol.getAllAbstractMethodsInThisScopeOnly();
+    abstractMethodsToCheck.forEach(methodSymbol -> checkMethodInSuperAndTraits(methodSymbol, aggregateSymbol));
+
+    if (!aggregateSymbol.isMarkedAbstract()) {
+      checkAbstractness(aggregateSymbol);
+    }
+  }
+
+  /**
+   * Workout if there are abstract methods that have not been implemented.
+   * For a non-abstract type that is an error.
+   */
+  private void checkAbstractness(final AggregateSymbol aggregateSymbol) {
+    //Here we need all the abstract methods to check that they have been override by something non-abstract.
+    final List<MethodSymbol> abstractMethodsToCheck = aggregateSymbol.getAllAbstractMethods();
+
+    abstractMethodsToCheck.forEach(methodSymbol -> {
+      MethodSymbolSearch search = new MethodSymbolSearch(methodSymbol);
+      var result = aggregateSymbol.resolveMatchingMethods(search, new MethodSymbolSearchResult());
+      result.getSingleBestMatchSymbol().ifPresentOrElse(match -> {
+        if (match.isMarkedAbstract()) {
+          var errorMessage = "'" + match.getFriendlyName() + "' but be overridden or '"
+              + aggregateSymbol.getFriendlyName() + "':";
+          errorListener.semanticError(aggregateSymbol.getSourceToken(), errorMessage,
+              ErrorListener.SemanticClassification.NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT);
+        }
+      }, () -> {
+        //So how is this possible? Compiler error!
+        throw new CompilerException("Some how unable to resolve method for [" + methodSymbol.getFriendlyName() + "]");
+      });
+    });
   }
 
   private void checkMethodInSuperAndTraits(final MethodSymbol methodSymbol,
                                            final AggregateSymbol aggregateSymbol) {
-    aggregateSymbol.getSuperAggregateSymbol().ifPresent(theSuper -> checkMethods(methodSymbol, theSuper));
+    aggregateSymbol.getSuperAggregateSymbol().ifPresent(theSuper -> checkMethod(methodSymbol, theSuper));
 
     for (IAggregateSymbol trait : aggregateSymbol.getTraits()) {
-      checkMethods(methodSymbol, trait);
+      checkMethod(methodSymbol, trait);
     }
   }
 
-  private void checkMethods(final MethodSymbol methodSymbol,
-                            final IAggregateSymbol aggregateSymbol) {
+  private void checkMethod(final MethodSymbol methodSymbol,
+                           final IAggregateSymbol superAggregateSymbol) {
     MethodSymbolSearch search = new MethodSymbolSearch(methodSymbol);
 
-    var result = aggregateSymbol.resolveMatchingMethods(search, new MethodSymbolSearchResult());
-    result.getSingleBestMatchSymbol().ifPresent(match -> {
+    var result = superAggregateSymbol.resolveMatchingMethods(search, new MethodSymbolSearchResult());
+    result.getSingleBestMatchSymbol().ifPresentOrElse(match -> {
+      var errorMessage = getErrorMessageFor(methodSymbol, match);
       checkMethodAccessModifierCompatibility(methodSymbol, match);
       //If the super is private then it is not being overridden and so covariance and override does not need checking.
       if (!match.isPrivate()) {
         checkCovarianceOnMethodReturnTypes(methodSymbol, match);
         checkIfOverrideRequired(methodSymbol);
+        checkIfPureIsRequired(errorMessage, methodSymbol, match);
       } else if (methodSymbol.isOverride()) {
-        //It is private as so this method must not use override key word else that too is an error
-        var msg = getErrorMessageFor(methodSymbol, match);
-        errorListener.semanticError(methodSymbol.getSourceToken(), msg,
-            ErrorListener.SemanticClassification.METHOD_DOES_NOT_OVERRIDE);
+        errorListener.semanticError(methodSymbol.getSourceToken(), errorMessage,
+            ErrorListener.SemanticClassification.DOES_NOT_OVERRIDE);
+      }
+    }, () -> {
+      //So there are no methods in the super that match this method, better check it's not been marked as overriding
+      if (methodSymbol.isOverride()) {
+        errorListener.semanticError(methodSymbol.getSourceToken(), "",
+            ErrorListener.SemanticClassification.DOES_NOT_OVERRIDE);
       }
     });
+  }
+
+  private void checkIfPureIsRequired(final String errorMessage,
+                                     final MethodSymbol methodSymbol,
+                                     final MethodSymbol match) {
+    if (methodSymbol.isMarkedPure() && !match.isMarkedPure()) {
+      errorListener.semanticError(methodSymbol.getSourceToken(), errorMessage,
+          ErrorListener.SemanticClassification.SUPER_IS_NOT_PURE);
+    } else if (!methodSymbol.isMarkedPure() && match.isMarkedPure()) {
+      errorListener.semanticError(methodSymbol.getSourceToken(), errorMessage,
+          ErrorListener.SemanticClassification.SUPER_IS_PURE);
+    }
   }
 
   private void checkMethodAccessModifierCompatibility(final MethodSymbol methodSymbol,
@@ -88,12 +140,11 @@ public class CheckMethodOverrides extends RuleSupport implements Consumer<Aggreg
 
   private void checkCovarianceOnMethodReturnTypes(final MethodSymbol methodSymbol,
                                                   final MethodSymbol matchedMethodSymbol) {
-    var msg = getErrorMessageFor(methodSymbol, matchedMethodSymbol);
+    var errorMessage = getErrorMessageFor(methodSymbol, matchedMethodSymbol);
 
-    CovarianceCheckData data = new CovarianceCheckData(methodSymbol.getSourceToken(), msg,
+    CovarianceCheckData data = new CovarianceCheckData(methodSymbol.getSourceToken(), errorMessage,
         methodSymbol.getReturningSymbol(), matchedMethodSymbol.getReturningSymbol());
     checkTypeCovariance.accept(data);
-
   }
 
   private String getErrorMessageFor(final MethodSymbol methodSymbol,
