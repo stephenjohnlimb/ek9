@@ -34,6 +34,7 @@ import org.ek9lang.compiler.main.rules.CheckDynamicClassDeclaration;
 import org.ek9lang.compiler.main.rules.CheckDynamicVariableCapture;
 import org.ek9lang.compiler.main.rules.CheckForImplementation;
 import org.ek9lang.compiler.main.rules.CheckForInvalidParameterisedTypeUse;
+import org.ek9lang.compiler.main.rules.CheckInappropriateFunctionBody;
 import org.ek9lang.compiler.main.rules.CheckMethod;
 import org.ek9lang.compiler.main.rules.CheckNormalTermination;
 import org.ek9lang.compiler.main.rules.CheckNotABooleanLiteral;
@@ -102,6 +103,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   private final UnreachableStatement unreachableStatement;
   private final CheckMethod checkMethod;
+  private final CheckInappropriateFunctionBody checkInappropriateFunctionBody;
   private final CheckForImplementation checkForImplementation;
   private final CheckThisAndSuperAssignmentStatement checkThisAndSuperAssignmentStatement;
   private final CheckVariableOnlyDeclaration checkVariableOnlyDeclaration;
@@ -130,6 +132,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
     unreachableStatement = new UnreachableStatement(errorListener);
     textLanguageExtraction = new TextLanguageExtraction(errorListener);
     checkMethod = new CheckMethod(symbolAndScopeManagement, errorListener);
+    checkInappropriateFunctionBody = new CheckInappropriateFunctionBody(symbolAndScopeManagement, errorListener);
     checkForImplementation = new CheckForImplementation(errorListener);
 
     checkThisAndSuperAssignmentStatement = new CheckThisAndSuperAssignmentStatement(errorListener);
@@ -269,6 +272,11 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   @Override
   public void exitFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
     var functionSymbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+
+    if (functionSymbol != null) {
+      checkInappropriateFunctionBody.accept(functionSymbol, ctx.operationDetails());
+    }
+
     //There is returning so use a return of Void, might be null if we had duplicate names.
     if (functionSymbol != null && ctx.operationDetails().returningParam() == null) {
       var simulatedVoid = symbolFactory.newVariable("_rtn", ctx.start, false, false);

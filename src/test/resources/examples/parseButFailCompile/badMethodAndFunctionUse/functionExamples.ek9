@@ -1,0 +1,76 @@
+#!ek9
+<?-
+  Test for various correct and incorrect definitions of functions.
+  Some abstract some not.
+-?>
+defines module bad.functions.examples
+
+  defines function
+
+    //So this is abstract, but not declared abstract
+    @Error: SYMBOL_DEFINITION: NOT_ABSTRACT_AND_NO_BODY_PROVIDED
+    BadFunction1()
+      -> arg0 as String
+      <- rtn as Boolean?
+
+    //Again still abstract, just making it open is not the same as abstract
+    @Error: SYMBOL_DEFINITION: NOT_ABSTRACT_AND_NO_BODY_PROVIDED
+    BadFunction2() as open
+      -> arg0 as String
+      <- rtn as Boolean?
+
+    //This function is not abstract, it actually has an implementation
+    @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+    BadFunction3() as abstract
+      -> arg0 as String
+      <- rtn <- true
+
+    //As does this.
+    @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+    BadFunction4() as abstract
+      -> arg0 as String
+      <- rtn as Boolean?
+      rtn: true
+
+    OKAbstractFunction1() as abstract
+      -> arg0 as String
+      <- rtn as Boolean?
+
+    OKFunction1()
+      -> arg0 as String
+      <- rtn <- true
+
+    //Again this is abstract but not declared abstract - but template generic
+    @Error: SYMBOL_DEFINITION: NOT_ABSTRACT_AND_NO_BODY_PROVIDED
+    BadGenericFunction1() of type T
+      -> arg0 as T
+      <- rtn as T?
+
+    //Open does not change the fact it is abstract
+    @Error: SYMBOL_DEFINITION: NOT_ABSTRACT_AND_NO_BODY_PROVIDED
+    BadGenericFunction2() of type T as open
+      -> arg0 as T
+      <- rtn as T?
+
+    //This does have an implementation and so it not abstract
+    @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+    BadGenericFunction3() of type T as abstract
+      -> arg0 as T
+      <- rtn as T: arg0
+
+    //As does this
+    @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+    BadGenericFunction4() of type T as abstract
+      -> arg0 as T
+      <- rtn as T?
+      rtn: arg0
+
+    OkAbstractGenericFunction1() of type T as abstract
+      -> arg0 as T
+      <- rtn as T?
+
+    OkGenericFunction1() of type T
+      -> arg0 as T
+      <- rtn as T: arg0
+
+//EOF

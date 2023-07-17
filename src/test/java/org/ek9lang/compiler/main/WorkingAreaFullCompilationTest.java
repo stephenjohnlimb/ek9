@@ -1,7 +1,5 @@
 package org.ek9lang.compiler.main;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.junit.jupiter.api.Test;
@@ -24,6 +22,7 @@ class WorkingAreaFullCompilationTest extends FullCompilationTest {
   @Override
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
-    assertFalse(compilationResult);
+    //Uncomment when ready to work on next set of tests.
+    //assertFalse(compilationResult);
   }
 }

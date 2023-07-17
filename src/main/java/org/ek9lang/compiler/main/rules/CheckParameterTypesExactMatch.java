@@ -34,7 +34,7 @@ public class CheckParameterTypesExactMatch extends RuleSupport implements Consum
       if (fromTypes.size() == data.from().size()
           && toTypes.size() == data.to().size()
           && !typeListComparator.test(fromTypes, toTypes)) {
-        errorListener.semanticError(data.token(), "mismatch in number of parameters; " + data.errorMessage(),
+        errorListener.semanticError(data.token(), "mismatch in parameters; " + data.errorMessage(),
             ErrorListener.SemanticClassification.FUNCTION_SIGNATURE_DOES_NOT_MATCH_SUPER);
       }
     }

@@ -1,0 +1,134 @@
+#!ek9
+<?-
+  Just focuses on overriding
+-?>
+defines module bad.overriding.functions
+
+  defines function
+
+    //First a couple of concrete (non-abstract functions), one plain and one generic.
+
+    //This has to be open to be extended.
+    Function1() as open
+      -> arg0 as String
+      <- rtn <- true
+
+    Function2() as pure open
+      -> arg0 as String
+      <- rtn <- true
+
+    GenericFunction1() of type T as open
+      -> arg0 as T
+      <- rtn as T: arg0
+
+    GenericFunction2() of type T as pure open
+      -> arg0 as T
+      <- rtn as T: arg0
+
+    //And now a couple of abstract ones, again one plan and one generic.
+
+    AbstractFunction1() as abstract
+      -> arg0 as String
+      <- rtn as Boolean?
+
+    GenericAbstractFunction1() of type T as abstract
+      -> arg0 as T
+      <- rtn as T?
+
+    //Now in EK9 it is possible extend a non-generic function with a normal function as below.
+    //But not a generic function!
+
+    ValidFunction1() is Function1
+      -> arg0 as String
+      <- rtn as Boolean: arg0?
+
+    //Will this adds not explicit value, it means that now this function could be named and used
+    //In place of AbstractFunction1. So while I might not like to do this, I could see that it enables decoupling.
+    ValidFunction2() is AbstractFunction1 as abstract
+      -> arg0 as String
+      <- rtn as Boolean?
+
+    @Error: FULL_RESOLUTION: FUNCTION_SIGNATURE_DOES_NOT_MATCH_SUPER
+    InvalidFunction1() is Function1
+      -> arg0 as Integer
+      <- rtn <- true
+
+    @Error: FULL_RESOLUTION: FUNCTION_SIGNATURE_DOES_NOT_MATCH_SUPER
+    InvalidFunction2() is AbstractFunction1
+      -> arg0 as Float
+      <- rtn <- true
+
+    //This is pointless, taking a function and trying to make is abstract
+    @Error: FULL_RESOLUTION: CANNOT_BE_ABSTRACT
+    InvalidFunction3() is Function1 as abstract
+      -> arg0 as String
+      <- rtn as Boolean?
+
+    @Error: FULL_RESOLUTION: SUPER_IS_PURE
+    InvalidFunction4() is Function2
+      -> arg0 as String
+      <- rtn <- true
+
+    @Error: FULL_RESOLUTION: SUPER_IS_NOT_PURE
+    InvalidFunction5() is Function1 as pure
+      -> arg0 as String
+      <- rtn <- true
+
+    //This is valid because even though Function1 is fully implemented, we have to provide a body
+    DynamicFunctionDriver1()
+      dynamicFunction <- () is Function1 as function
+        rtn: false
+      assert dynamicFunction?
+
+    //This is also Ok because - we force a body via the grammar.
+    DynamicFunctionDriver2()
+      dynamicFunction <- () is AbstractFunction1 as function
+        rtn: true
+      assert dynamicFunction?
+
+    //This an is acceptable use is not abstract and is open
+    DynamicFunctionDriver3()
+      dynamicFunction <- () is GenericFunction1 of Float as function
+      assert dynamicFunction?
+
+    DynamicFunctionDriver4()
+      //Just provide some body
+      dynamicFunction <- () is GenericAbstractFunction1 of Float as function (someVal <- 0.0)
+      assert dynamicFunction?
+
+    DynamicFunctionDriver5()
+      //Just provide some body
+      dynamicFunction <- () is GenericAbstractFunction1 of Float as function
+        someVal <- 0.0
+        assert someVal?
+      assert dynamicFunction?
+
+    //Should not be valid because super is abstract and this is still abstract because there is no implementation
+    InvalidDynamicFunctionDriver4()
+      @Error: FULL_RESOLUTION: GENERIC_FUNCTION_IMPLEMENTATION_REQUIRED
+      dynamicFunction <- () is GenericAbstractFunction1 of Float as function
+      assert dynamicFunction?
+
+    InvalidDynamicFunctionDriver5()
+      @Error: FULL_RESOLUTION: SUPER_IS_PURE
+      dynamicFunction <- () is Function2 as function
+        rtn: false
+      assert dynamicFunction?
+
+    InvalidDynamicFunctionDriver6()
+      @Error: FULL_RESOLUTION: SUPER_IS_NOT_PURE
+      dynamicFunction <- () is Function1 as pure function
+        rtn: false
+      assert dynamicFunction?
+
+    InvalidDynamicFunctionDriver7()
+      @Error: FULL_RESOLUTION: SUPER_IS_PURE
+      dynamicFunction <- () is GenericFunction2 of Float as function
+      assert dynamicFunction?
+
+    InvalidDynamicFunctionDriver8()
+      @Error: FULL_RESOLUTION: SUPER_IS_NOT_PURE
+      dynamicFunction <- () is GenericFunction1 of Float as pure function
+      assert dynamicFunction?
+
+//EOF

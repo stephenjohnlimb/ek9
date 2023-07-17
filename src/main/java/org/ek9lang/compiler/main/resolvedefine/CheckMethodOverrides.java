@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.main.resolvedefine;
 
-import java.io.File;
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.errors.ErrorListener;
@@ -11,6 +10,7 @@ import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.IAggregateSymbol;
 import org.ek9lang.compiler.symbol.MethodSymbol;
+import org.ek9lang.compiler.symbol.support.LocationExtractor;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
 import org.ek9lang.core.exception.CompilerException;
@@ -24,6 +24,10 @@ public class CheckMethodOverrides extends RuleSupport implements Consumer<Aggreg
 
   private final ErrorListener.SemanticClassification errorWhenShouldBeMarkedAbstract;
 
+  private final CheckPureModifier checkPureModifier;
+
+  private final LocationExtractor locationExtractor = new LocationExtractor();
+
   /**
    * Check various aspects of overriding methods.
    */
@@ -33,6 +37,7 @@ public class CheckMethodOverrides extends RuleSupport implements Consumer<Aggreg
     super(symbolAndScopeManagement, errorListener);
     this.checkTypeCovariance = new CheckTypeCovariance(symbolAndScopeManagement, errorListener);
     this.errorWhenShouldBeMarkedAbstract = errorWhenShouldBeMarkedAbstract;
+    this.checkPureModifier = new CheckPureModifier(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -94,7 +99,7 @@ public class CheckMethodOverrides extends RuleSupport implements Consumer<Aggreg
       if (!match.isPrivate()) {
         checkCovarianceOnMethodReturnTypes(methodSymbol, match);
         checkIfOverrideRequired(methodSymbol);
-        checkIfPureIsRequired(errorMessage, methodSymbol, match);
+        checkPureModifier.accept(new PureCheckData(errorMessage, match, methodSymbol));
       } else if (methodSymbol.isOverride()) {
         errorListener.semanticError(methodSymbol.getSourceToken(), errorMessage,
             ErrorListener.SemanticClassification.DOES_NOT_OVERRIDE);
@@ -106,18 +111,6 @@ public class CheckMethodOverrides extends RuleSupport implements Consumer<Aggreg
             ErrorListener.SemanticClassification.DOES_NOT_OVERRIDE);
       }
     });
-  }
-
-  private void checkIfPureIsRequired(final String errorMessage,
-                                     final MethodSymbol methodSymbol,
-                                     final MethodSymbol match) {
-    if (methodSymbol.isMarkedPure() && !match.isMarkedPure()) {
-      errorListener.semanticError(methodSymbol.getSourceToken(), errorMessage,
-          ErrorListener.SemanticClassification.SUPER_IS_NOT_PURE);
-    } else if (!methodSymbol.isMarkedPure() && match.isMarkedPure()) {
-      errorListener.semanticError(methodSymbol.getSourceToken(), errorMessage,
-          ErrorListener.SemanticClassification.SUPER_IS_PURE);
-    }
   }
 
   private void checkMethodAccessModifierCompatibility(final MethodSymbol methodSymbol,
@@ -151,9 +144,8 @@ public class CheckMethodOverrides extends RuleSupport implements Consumer<Aggreg
 
   private String getErrorMessageFor(final MethodSymbol methodSymbol,
                                     final MethodSymbol matchedMethodSymbol) {
-    String message = String.format("'%s' on line %d in %s:",
-        matchedMethodSymbol.getFriendlyName(), matchedMethodSymbol.getSourceToken().getLine(),
-        new File(matchedMethodSymbol.getSourceFileLocation()).getName());
+    String message = String.format("'%s' %s:",
+        matchedMethodSymbol.getFriendlyName(), locationExtractor.apply(matchedMethodSymbol));
 
     return "'" + methodSymbol.getFriendlyName() + "' and " + message;
   }

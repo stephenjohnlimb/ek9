@@ -52,7 +52,7 @@ defines module com.customer.classes
 
     BaseFunction as pure abstract
       -> arg0 as String
-      <- rtn as String: arg0
+      <- rtn as String?
 
     //Check this directive works for functions as well
     //@Implements: EXPLICIT_TYPE_SYMBOL_DEFINITION: FUNCTION: "ExtendsFunction": "BaseFunction"

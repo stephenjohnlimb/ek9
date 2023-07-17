@@ -60,6 +60,6 @@ defines module bad.classmethod.access1
 
     delegateFunction as abstract
       -> arg0 as Integer
-      <- rtn as Integer: arg0
+      <- rtn as Integer?
 
 //EOF

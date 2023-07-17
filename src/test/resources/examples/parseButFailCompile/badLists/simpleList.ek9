@@ -5,7 +5,7 @@ defines module bad.lists.only
 
     someAbstractFunction() as pure abstract
       -> arg0 as Integer
-      <- rtn as Boolean: false
+      <- rtn as Boolean?
 
     <?-
       Just an example of an explicit list use.

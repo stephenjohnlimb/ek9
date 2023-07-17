@@ -125,7 +125,7 @@ defines module bad.resolution.directives
       -> arg0 as Integer
       <- rtn as Integer: arg0 * 2
 
-    SomeGenericFunction of type (P, Q)
+    SomeGenericFunction of type (P, Q) as abstract
       -> arg0 as P
       <- rtn as Q?
 

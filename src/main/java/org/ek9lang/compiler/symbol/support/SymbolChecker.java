@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.symbol.support;
 
-import java.io.File;
 import java.util.Map;
 import java.util.Optional;
 import org.ek9lang.compiler.errors.ErrorListener;
@@ -17,6 +16,8 @@ import org.ek9lang.core.exception.AssertValue;
 public class SymbolChecker {
 
   private final ErrorListener errorListener;
+
+  private final LocationExtractor locationExtractor = new LocationExtractor();
 
   public SymbolChecker(ErrorListener errorListener) {
     this.errorListener = errorListener;
@@ -55,9 +56,8 @@ public class SymbolChecker {
     Optional<ISymbol> symbolCheck = inScope.resolve(search);
     if (symbolCheck.isPresent()) {
       ISymbol dup = symbolCheck.get();
-      String message = String.format("'%s' on line %d already defined as %s in %s.",
-          dup.getFriendlyName(), dup.getSourceToken().getLine(), dup.getGenus(),
-          new File(dup.getSourceFileLocation()).getName());
+      String message = String.format("'%s' as %s %s:",
+          dup.getFriendlyName(), dup.getGenus(), locationExtractor.apply(dup));
       errorListener.semanticError(symbol.getSourceToken(), message, classificationError);
       return true;
     }

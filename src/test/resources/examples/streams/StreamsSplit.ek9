@@ -13,12 +13,12 @@ defines module com.customer.streams.splitter
     @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: FUNCTION: "characterFilter"
     characterFilter() as abstract    
       -> ch as Character
-      <- rtn as Boolean: Boolean()
+      <- rtn as Boolean?
 
     @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: FUNCTION: "stringFilter"
     stringFilter() as abstract    
       -> string as String
-      <- rtn as Boolean: Boolean()
+      <- rtn as Boolean?
 
     @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: FUNCTION: "isSet"
     isSet() extends stringFilter()

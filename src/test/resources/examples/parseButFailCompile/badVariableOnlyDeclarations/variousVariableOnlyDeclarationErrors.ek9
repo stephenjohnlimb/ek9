@@ -43,7 +43,7 @@ defines module bad.variableonly.use
 
     //Injection of incoming parameters is not supported.
     //Web correlation not supported here
-    test2()
+    test2() as abstract
       @Error: SYMBOL_DEFINITION: COMPONENT_INJECTION_NOT_POSSIBLE
       -> var as String!
       @Error: SYMBOL_DEFINITION: SERVICE_HTTP_ACCESS_NOT_SUPPORTED

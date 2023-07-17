@@ -47,11 +47,10 @@ public class ParameterizedSymbolCreator
         + possibleGenericSymbol.getCategory()
         + " does not make sense", rtn);
 
-
     //Now clone over the abstract/extensibility nature from the generic type
     rtn.setOpenForExtension(possibleGenericSymbol.isOpenForExtension());
     rtn.setMarkedAbstract(possibleGenericSymbol.isMarkedAbstract());
-
+    rtn.setMarkedPure(possibleGenericSymbol.isMarkedPure());
 
     return rtn;
   }

@@ -77,19 +77,19 @@ defines module com.customer.dynamic.streams.build
     -?>
     idToString() as abstract
       -> id as Integer
-      <- rtn as Optional of String: Optional()
+      <- rtn as Optional of String?
       
     nameToDate() as abstract
       -> name as String
-      <- rtn as Optional of Date: Optional()
+      <- rtn as Optional of Date?
       
     idToAddams() as abstract
       -> id as Integer
-      <- rtn as Optional of Addams: Optional()
+      <- rtn as Optional of Addams?
     
     idToGetAddams() as abstract
       -> id as Integer
-      <- rtn as Optional of getAddams: Optional()
+      <- rtn as Optional of getAddams?
         
     toString
       -> item as Integer

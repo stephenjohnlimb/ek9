@@ -25,7 +25,7 @@ defines module bad.function.use
 
     discriminator() as abstract
       -> s as String
-      <- rtn as Boolean: Boolean()
+      <- rtn as Boolean?
 
     minValue() as pure
       <- rtn as Float: 9

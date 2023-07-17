@@ -24,11 +24,6 @@ public class FunctionSymbol extends PossibleGenericSymbol {
   private ISymbol returningSymbol;
 
   /**
-   * We may be interested to know and may restrict operations if this function is marked as pure.
-   */
-  private boolean markedPure = false;
-
-  /**
    * To be used when this function extends an abstract function.
    * So we want the same method signature as the abstract function but this provides the
    * implementation.
@@ -78,8 +73,6 @@ public class FunctionSymbol extends PossibleGenericSymbol {
       newCopy.returningSymbol = this.returningSymbol.clone(newCopy);
     }
 
-    newCopy.markedPure = this.markedPure;
-
     newCopy.setCategory(this.getCategory());
     newCopy.setProduceFullyQualifiedName(this.getProduceFullyQualifiedName());
     newCopy.returningParamContext = this.returningParamContext;
@@ -125,6 +118,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
   /**
    * Check if the parameter types and return types match.
    */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public boolean isSignatureMatchTo(Optional<ISymbol> theirReturnType, final List<ISymbol> theirParams) {
     List<ISymbol> ourParams = this.getSymbolsForThisScope();
     double weight = matcher.getWeightOfParameterMatch(theirParams, ourParams);
@@ -158,7 +152,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
    * In other cases a function will not return anything (We use 'Void') in the
    * case as the 'type'.
    * So when a Returning Symbol is set we use the type of the returning variable as the type
-   * return on the funtion.
+   * return on the function.
    */
   public boolean isReturningSymbolPresent() {
     return returningSymbol != null;

@@ -429,8 +429,8 @@ public class ErrorListener extends BaseErrorListener {
     GENERIC_WITH_NAMED_DYNAMIC_CLASS("a named dynamic class cannot be used within a generic type/function"),
     CAPTURED_VARIABLE_MUST_BE_NAMED("variables being captured must be named when not just using identifiers"),
     EITHER_ALL_PARAMETERS_NAMED_OR_NONE("either all variable must be named or none, when passing parameters"),
-    GENERIC_FUNCTION_CANNOT_BE_ABSTRACT(
-        "implementation must be provided for generic functions, but can be overridden when used"),
+    GENERIC_FUNCTION_IMPLEMENTATION_REQUIRED(
+        "implementation must be provided for generic functions"),
     NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT("not declared abstract but still has abstract methods/operators"),
     DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS("all abstract methods/operators must be implemented"),
     ABSTRACT_METHOD_NOT_IMPLEMENTED("method is abstract - should be overridden/implemented"),
@@ -486,7 +486,6 @@ public class ErrorListener extends BaseErrorListener {
     NOT_IMMEDIATE_TRAIT("not an immediate trait of this context"),
     NOT_IMMEDIATE_SUPER("not an immediate super of this context"),
     NOT_ACCESSIBLE("not accessible from this context"),
-    MUST_BE_PURE_AS_SUPER_IS_PURE("super is marked as 'pure', this must also be 'pure'"),
     NO_REASSIGNMENT_FROM_CONTEXT_AS_PURE("not re-assignable from this 'pure' context"),
     TYPE_ADDRESS_NOT_SUITABLE("addressing access in this way is not suitable from this context"),
     METHOD_OVERRIDES("as it overrides method of same name/signature in hierarchy"),

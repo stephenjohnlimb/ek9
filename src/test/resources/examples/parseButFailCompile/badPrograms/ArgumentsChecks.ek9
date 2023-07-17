@@ -17,7 +17,7 @@ defines module bad.argument.parameters
 
     someAbstractFunction() as abstract
       -> arg1 as Integer
-      <- result <- 0
+      <- result as Integer?
 
   defines program
 

@@ -8,7 +8,7 @@ defines module net.customer
 
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "abstractFunction"
     abstractFunction() as abstract
-      <- rtn as String: String()
+      <- rtn as String?
         
     //See how we can use 'rtn' from the declaration in the abstract function
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "functionA"

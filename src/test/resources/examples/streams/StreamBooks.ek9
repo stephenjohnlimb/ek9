@@ -163,12 +163,12 @@ defines module com.customer.books
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "differentAuthor"
     differentAuthor() as pure abstract
       -> book as Book
-      <- rtn as Boolean: Boolean()
+      <- rtn as Boolean?
 
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "bookNumberFilter"
     bookNumberFilter() as pure abstract
       -> books as List of Book
-      <- rtn as List of Book: List()
+      <- rtn as List of Book?
 
     <?-
       Higher order function, that uses the switch/given expression.

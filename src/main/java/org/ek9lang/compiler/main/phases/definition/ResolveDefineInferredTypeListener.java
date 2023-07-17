@@ -3,6 +3,7 @@ package org.ek9lang.compiler.main.phases.definition;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.internals.ParsedModule;
+import org.ek9lang.compiler.main.resolvedefine.CheckForDynamicFunction;
 import org.ek9lang.compiler.main.resolvedefine.CheckFunctionOverrides;
 import org.ek9lang.compiler.main.resolvedefine.CheckMethodOverrides;
 import org.ek9lang.compiler.main.resolvedefine.CheckPossibleFieldDelegate;
@@ -29,9 +30,9 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
   private final DynamicCaptureAndDefinition dynamicCaptureAndDefinition;
   private final CheckPossibleFieldDelegate checkPossibleFieldDelegate;
   private final CheckMethodOverrides checkMethodOverrides;
-
   private final CheckMethodOverrides checkDynamicClassMethodOverrides;
   private final CheckFunctionOverrides checkFunctionOverrides;
+  private final CheckForDynamicFunction checkForDynamicFunction;
 
   /**
    * Create a new instance to define or resolve inferred types.
@@ -47,6 +48,7 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
     this.checkDynamicClassMethodOverrides = new CheckMethodOverrides(symbolAndScopeManagement,
         errorListener, ErrorListener.SemanticClassification.DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS);
     this.checkFunctionOverrides = new CheckFunctionOverrides(symbolAndScopeManagement, errorListener);
+    this.checkForDynamicFunction = new CheckForDynamicFunction(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -107,5 +109,11 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
     var symbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     checkFunctionOverrides.accept(symbol);
     super.exitFunctionDeclaration(ctx);
+  }
+
+  @Override
+  public void exitDynamicFunctionDeclaration(EK9Parser.DynamicFunctionDeclarationContext ctx) {
+    checkForDynamicFunction.accept(ctx);
+    super.exitDynamicFunctionDeclaration(ctx);
   }
 }

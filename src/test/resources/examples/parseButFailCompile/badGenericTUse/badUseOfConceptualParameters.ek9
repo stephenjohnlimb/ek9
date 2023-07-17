@@ -26,7 +26,7 @@ defines module bad.use.conceptual.parameters
       -> arg0 as P
       <- value as P: arg0
 
-    UsesGFunctionWithInteger as pure abstract
+    UsesGFunctionWithInteger as pure
       -> arg0 as Integer
       <- result as Integer?
 

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 class BadMethodOverridingFullCompilationTest extends FullCompilationTest {
 
   public BadMethodOverridingFullCompilationTest() {
-    super("/examples/parseButFailCompile/badOverridingMethods");
+    super("/examples/parseButFailCompile/badOverridingMethodsAndFunctions");
   }
 
   @Test
@@ -35,5 +35,6 @@ class BadMethodOverridingFullCompilationTest extends FullCompilationTest {
     assertFalse(program.getParsedModules("bad.classes.covariance.examples").isEmpty());
     assertFalse(program.getParsedModules("bad.components.covariance.examples").isEmpty());
     assertFalse(program.getParsedModules("bad.functions.covariance.examples").isEmpty());
+    assertFalse(program.getParsedModules("bad.overriding.functions").isEmpty());
   }
 }

@@ -137,6 +137,8 @@ public interface ISymbol extends ITokenReference {
 
   void setNotMutable();
 
+  Token getSourceToken();
+
   default String getSourceFileLocation() {
     return getParsedModule().map(module -> module.getSource().getFileName()).orElse("Unknown");
   }
