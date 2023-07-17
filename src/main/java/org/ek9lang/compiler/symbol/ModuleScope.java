@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.symbol.support.SymbolChecker;
+import org.ek9lang.compiler.symbol.support.TypeSubstitution;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.threads.SharedThreadContext;
@@ -94,10 +95,11 @@ public class ModuleScope extends SymbolTable {
    * So do not assume this new type will reside in this module scope, it most probably won't.
    */
   public Optional<ISymbol> resolveOrDefine(final PossibleGenericSymbol parameterisedSymbol) {
-    var holder = new AtomicReference<Optional<ISymbol>>();
+    var holder = new AtomicReference<Optional<ISymbol>>(Optional.empty());
     compilableProgramContext.accept(compilableProgram -> {
-      var result = compilableProgram.resolveOrDefine(parameterisedSymbol);
-      holder.set(result.symbol());
+      var typeSubstitution = new TypeSubstitution(compilableProgram::resolveOrDefine);
+      var populatedTypeWithMethods = typeSubstitution.apply(parameterisedSymbol);
+      holder.set(Optional.of(populatedTypeWithMethods));
     });
     return holder.get();
   }

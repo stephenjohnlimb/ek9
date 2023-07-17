@@ -37,6 +37,7 @@ public class CompilableProgram {
    */
   private final Map<CompilableSource, ParsedModule> sourceToParsedModule = new HashMap<>();
 
+
   /**
    * When the built in ek9 bootstrap module is parsed and processed, it will be added here.
    * This is so that basic built in types (which are immutable) can then be used within the compiler.
@@ -155,7 +156,7 @@ public class CompilableProgram {
 
       return new ResolvedOrDefineResult(Optional.of(possibleGenericSymbol), true);
     }
-    return new ResolvedOrDefineResult(resolved, false);
+    return new ResolvedOrDefineResult(Optional.of((PossibleGenericSymbol) resolved.get()), false);
   }
 
   /**

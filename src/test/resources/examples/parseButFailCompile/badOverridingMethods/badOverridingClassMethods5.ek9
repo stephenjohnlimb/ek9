@@ -1,11 +1,9 @@
 #!ek9
 <?-
-  Just focuses on overriding
+  Just focuses on overriding class methods with dynamic classes and abstract template/generic classes
 -?>
 defines module bad.overriding.classmethods5
 
-  //TODO work on next bit - this has been moved into it correct location.
-  //TODO work on Functions that are abstract that get extended but remain abstract - as that is pointless.
   defines trait
 
     //Create a trait with one concrete method and some abstract methods/operators
@@ -24,6 +22,7 @@ defines module bad.overriding.classmethods5
 
   defines class
 
+    //Used with the following dynamic classes.
     SomeAbstractGeneric of type T as abstract
       absMethod() as abstract
         -> arg0 as T
@@ -50,7 +49,6 @@ defines module bad.overriding.classmethods5
         absMethod()
           -> arg0 as String
           <- rtn <- true
-
       assert failure3?
 
     WorkingDriverFunction()

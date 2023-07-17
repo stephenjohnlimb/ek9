@@ -432,6 +432,7 @@ public class ErrorListener extends BaseErrorListener {
     GENERIC_FUNCTION_CANNOT_BE_ABSTRACT(
         "implementation must be provided for generic functions, but can be overridden when used"),
     NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT("not declared abstract but still has abstract methods/operators"),
+    DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS("all abstract methods/operators must be implemented"),
     ABSTRACT_METHOD_NOT_IMPLEMENTED("method is abstract - should be overridden/implemented"),
     METHOD_NOT_OVERRIDDEN("method must be overridden/implemented"),
     IMPLEMENTATION_MUST_BE_PROVIDED("implementation must be provided"),

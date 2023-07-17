@@ -1,7 +1,7 @@
 #!ek9
 <?-
   Just focuses on overriding class methods and checking if it altering abstract can be detected.
-  For example it is not possible to mask a concrete with something ath matches the same signature that is abstract.
+  For example it is not possible to mask a concrete with something that matches the same signature that is abstract.
 
 -?>
 defines module bad.overriding.classmethods4

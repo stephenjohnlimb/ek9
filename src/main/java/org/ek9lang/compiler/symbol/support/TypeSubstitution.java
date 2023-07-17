@@ -76,20 +76,16 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
     //This is because later stage of the compiler will augment, not just that type but the types it references
     //as type arguments. Indeed, it may itself be a type argument elsewhere.
     var result = resolveOrDefine.apply(parameterisedSymbol);
-    if (!result.newlyDefined()) {
-      return parameterisedSymbol;
+    if (!result.newlyDefined() && result.symbol().isPresent()) {
+      return result.symbol().get();
     }
 
     //So it is newly defined.
     var resultingType = result.symbol();
-    AssertValue.checkTrue("Result must be present",
-        resultingType.isPresent());
-
-    AssertValue.checkTrue("Result must be PossibleGenericSymbol",
-        resultingType.get() instanceof PossibleGenericSymbol);
+    AssertValue.checkTrue("Result must be present", resultingType.isPresent());
 
     //Can safely cast.
-    PossibleGenericSymbol rtnType = (PossibleGenericSymbol) resultingType.get();
+    PossibleGenericSymbol rtnType = resultingType.get();
 
     var symbolsToClone = genericSymbol.getSymbolsForThisScope();
     var clonedSymbols = cloneWithEnclosingScope(symbolsToClone, parameterisedSymbol);
@@ -134,6 +130,9 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
           methodSymbol.setType(possibleGenericSymbol);
         }
         methodSymbol.getCallParameters().forEach(param -> substituteAsAppropriate(typeMapping, param));
+        if (methodSymbol.isReturningSymbolPresent()) {
+          substituteAsAppropriate(typeMapping, methodSymbol.getReturningSymbol());
+        }
       }
       //This will do any return type on the method and just normal values (for a function).
       substituteAsAppropriate(typeMapping, symbol);

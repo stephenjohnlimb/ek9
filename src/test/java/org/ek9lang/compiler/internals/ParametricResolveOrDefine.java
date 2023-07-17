@@ -25,6 +25,6 @@ public class ParametricResolveOrDefine implements Function<PossibleGenericSymbol
       scope.define(possibleGenericSymbol);
       return new ResolvedOrDefineResult(Optional.of(possibleGenericSymbol), true);
     }
-    return new ResolvedOrDefineResult(resolved, false);
+    return new ResolvedOrDefineResult(Optional.of((PossibleGenericSymbol)resolved.get()), false);
   }
 }

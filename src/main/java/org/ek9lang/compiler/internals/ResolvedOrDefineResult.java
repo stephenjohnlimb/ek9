@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.internals;
 
 import java.util.Optional;
-import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
 
 /**
  * Mainly used in the CompilableProgram for resolving or defining a new Parameterized type.
@@ -17,5 +17,5 @@ import org.ek9lang.compiler.symbol.ISymbol;
  * no methods or dependent types populated.
  * It is this latter aspect that must be done - BUT only if the parameterized type is newly defined.
  */
-public record ResolvedOrDefineResult(Optional<ISymbol> symbol, boolean newlyDefined) {
+public record ResolvedOrDefineResult(Optional<PossibleGenericSymbol> symbol, boolean newlyDefined) {
 }

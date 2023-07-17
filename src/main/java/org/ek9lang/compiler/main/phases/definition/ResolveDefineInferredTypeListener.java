@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.main.phases.definition;
 
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.resolvedefine.CheckFunctionOverrides;
 import org.ek9lang.compiler.main.resolvedefine.CheckMethodOverrides;
@@ -28,6 +29,8 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
   private final DynamicCaptureAndDefinition dynamicCaptureAndDefinition;
   private final CheckPossibleFieldDelegate checkPossibleFieldDelegate;
   private final CheckMethodOverrides checkMethodOverrides;
+
+  private final CheckMethodOverrides checkDynamicClassMethodOverrides;
   private final CheckFunctionOverrides checkFunctionOverrides;
 
   /**
@@ -39,7 +42,10 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
         new DynamicCaptureAndDefinition(symbolAndScopeManagement, errorListener, symbolFactory);
 
     this.checkPossibleFieldDelegate = new CheckPossibleFieldDelegate(symbolAndScopeManagement, errorListener);
-    this.checkMethodOverrides = new CheckMethodOverrides(symbolAndScopeManagement, errorListener);
+    this.checkMethodOverrides = new CheckMethodOverrides(symbolAndScopeManagement,
+        errorListener, ErrorListener.SemanticClassification.NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT);
+    this.checkDynamicClassMethodOverrides = new CheckMethodOverrides(symbolAndScopeManagement,
+        errorListener, ErrorListener.SemanticClassification.DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS);
     this.checkFunctionOverrides = new CheckFunctionOverrides(symbolAndScopeManagement, errorListener);
   }
 
@@ -72,6 +78,14 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
     checkMethodOverrides.accept(symbol);
 
     super.exitClassDeclaration(ctx);
+  }
+
+  @Override
+  public void exitDynamicClassDeclaration(EK9Parser.DynamicClassDeclarationContext ctx) {
+    var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    checkDynamicClassMethodOverrides.accept(symbol);
+
+    super.exitDynamicClassDeclaration(ctx);
   }
 
   @Override

@@ -303,7 +303,8 @@ public class MethodSymbol extends ScopedSymbol {
   /**
    * Sets the returning symbol (variable not just type).
    */
-  public void setReturningSymbol(ISymbol returningSymbol) {
+  public void setReturningSymbol(VariableSymbol returningSymbol) {
+    returningSymbol.setReturningParameter(true);
     justSetReturningSymbol(returningSymbol);
     setNullAllowed(returningSymbol.isNullAllowed());
     setType(returningSymbol.getType());

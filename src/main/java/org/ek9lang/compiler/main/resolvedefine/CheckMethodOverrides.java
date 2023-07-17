@@ -22,13 +22,17 @@ public class CheckMethodOverrides extends RuleSupport implements Consumer<Aggreg
 
   private final CheckTypeCovariance checkTypeCovariance;
 
+  private final ErrorListener.SemanticClassification errorWhenShouldBeMarkedAbstract;
+
   /**
    * Check various aspects of overriding methods.
    */
   public CheckMethodOverrides(final SymbolAndScopeManagement symbolAndScopeManagement,
-                              final ErrorListener errorListener) {
+                              final ErrorListener errorListener,
+                              final ErrorListener.SemanticClassification errorWhenShouldBeMarkedAbstract) {
     super(symbolAndScopeManagement, errorListener);
     this.checkTypeCovariance = new CheckTypeCovariance(symbolAndScopeManagement, errorListener);
+    this.errorWhenShouldBeMarkedAbstract = errorWhenShouldBeMarkedAbstract;
   }
 
   @Override
@@ -59,10 +63,8 @@ public class CheckMethodOverrides extends RuleSupport implements Consumer<Aggreg
       var result = aggregateSymbol.resolveMatchingMethods(search, new MethodSymbolSearchResult());
       result.getSingleBestMatchSymbol().ifPresentOrElse(match -> {
         if (match.isMarkedAbstract()) {
-          var errorMessage = "'" + match.getFriendlyName() + "' but be overridden or '"
-              + aggregateSymbol.getFriendlyName() + "':";
-          errorListener.semanticError(aggregateSymbol.getSourceToken(), errorMessage,
-              ErrorListener.SemanticClassification.NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT);
+          var errorMessage = "'" + match.getFriendlyName() + "' not overridden:";
+          errorListener.semanticError(aggregateSymbol.getSourceToken(), errorMessage, errorWhenShouldBeMarkedAbstract);
         }
       }, () -> {
         //So how is this possible? Compiler error!

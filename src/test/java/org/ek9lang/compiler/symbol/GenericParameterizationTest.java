@@ -7,7 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import org.ek9lang.compiler.internals.ParametricResolveOrDefine;
 import org.ek9lang.compiler.symbol.support.ParameterizedSymbolCreator;
+import org.ek9lang.compiler.symbol.support.TypeSubstitution;
 import org.ek9lang.compiler.symbol.support.search.AnyTypeSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
@@ -24,6 +26,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
    * It is quite flexible (complex) in its own right and is a bit of a
    * generic chameleon.
    */
+  @SuppressWarnings("EqualsWithItself")
   @Test
   void testPossibleGenericSymbolAsType() {
     var aGenericType = testCreationOfGenericType("G1", "T");
@@ -58,6 +61,42 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     var clonedGenericType2 = aGenericType.clone(symbolTable);
     assertEquals(aGenericType, clonedGenericType2);
     assertEquals(aGenericType.hashCode(), clonedGenericType2.hashCode());
+  }
+
+  @Test
+  void testAbstractGenericType() {
+
+    var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
+    var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine);
+
+    var aGenericType = creationAbstractGenericType();
+    assertTrue(aGenericType.isMarkedAbstract());
+    assertEquals(1, aGenericType.getSymbolsForThisScope().size());
+    var theMethod = (MethodSymbol)aGenericType.getSymbolsForThisScope().get(0);
+    assertTrue(theMethod.isMarkedAbstract());
+
+    //Now let's use an integer to parameterize this abstract generic class, to give use something that is
+    //type safe as an integer, but it should still be abstract both as class and method level.
+    var parameterizedGenericTypeWithInteger = testGenericParameterization(aGenericType, "T", ek9Integer);
+    assertNotNull(parameterizedGenericTypeWithInteger);
+    assertTrue(parameterizedGenericTypeWithInteger.isMarkedAbstract());
+    assertFalse(parameterizedGenericTypeWithInteger.isGenericInNature());
+
+    //Now trigger the type substitution.
+    var mutatedParameterizedGenericTypeWithInteger = typeSubstitution.apply(parameterizedGenericTypeWithInteger);
+
+    //Now lets get the method - even though it was abstract - it should now be of T -> Integer and still be abstract.
+    assertEquals(1, mutatedParameterizedGenericTypeWithInteger.getSymbolsForThisScope().size());
+    var parameterisedMethod = (MethodSymbol)mutatedParameterizedGenericTypeWithInteger.getSymbolsForThisScope().get(0);
+    assertTrue(parameterisedMethod.isMarkedAbstract());
+
+    assertTrue(parameterisedMethod.getType().isPresent());
+    assertEquals(ek9Integer, parameterisedMethod.getType().get());
+
+    assertTrue(parameterisedMethod.getReturningSymbol().isReturningParameter());
+    assertTrue(parameterisedMethod.getReturningSymbol().getType().isPresent());
+    assertEquals(ek9Integer, parameterisedMethod.getReturningSymbol().getType().get());
+
   }
 
   @Test
@@ -308,6 +347,30 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     assertEquals(arg1, resolvedArg.get());
 
     return aGenericFunction;
+  }
+
+  private PossibleGenericSymbol creationAbstractGenericType() {
+    var t = support.createGenericT("AbsG1", symbolTable);
+    var aGenericType = new PossibleGenericSymbol("T", symbolTable);
+    aGenericType.setModuleScope(symbolTable);
+    aGenericType.setCategory(ISymbol.SymbolCategory.TYPE);
+    aGenericType.addTypeParameterOrArgument(t);
+
+    //Now we want to make this 'abstract' because the method we plan to provide will also be abstract
+    //So what this means is that this generic type can be parameterised with say T -> String
+    //But it still cannot be instantiated as it should be abstract, hence can only be extended from.
+    aGenericType.setMarkedAbstract(true);
+
+    //So now let's add in that abstract method.
+    //Now we will add a method to the generic type it will accept a 'T' and return a 'T'
+    var method = new MethodSymbol("aMethod", aGenericType);
+    method.setMarkedAbstract(true);
+    method.define(new VariableSymbol("arg1", t));
+    method.setReturningSymbol(new VariableSymbol("rtn", t));
+    aGenericType.define(method);
+
+    //OK all done
+    return aGenericType;
   }
 
   /**

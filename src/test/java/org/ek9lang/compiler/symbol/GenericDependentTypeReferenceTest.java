@@ -112,7 +112,7 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     //assertEquals(3, YetAnotherGenericOfXandY.getGenericSymbolReferences().size());
 
     //Now lets make the concrete version using: AnotherGeneric of (Float, String)
-    var anotherGenericOfFloatandString = createAnotherGenericOfFloatandString(AnotherGenericOfRandS);
+    var anotherGenericOfFloatandString = createAnotherGenericOfFloatAndString(AnotherGenericOfRandS);
     assertNotNull(anotherGenericOfFloatandString);
     assertFalse(anotherGenericOfFloatandString.isGenericInNature());
     //We'd also expect 3 methods with the right types in there
@@ -214,7 +214,7 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
                                    final ISymbol x, final ISymbol y,
                                    final PossibleGenericSymbol anotherGenericOfRandS) {
     var yetAnotherMethod = new MethodSymbol("yetAnotherMethod", yetAnotherGenericOfXandY);
-    yetAnotherMethod.setReturningSymbol(ek9Void);
+    yetAnotherMethod.setType(ek9Void);
     yetAnotherGenericOfXandY.define(yetAnotherMethod);
     //Now to simulate parsing the method body and registering the dependent types.
     //In two minds about doing this via references - so leave out for now.
@@ -234,7 +234,7 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     //yetAnotherGenericOfXandY.addGenericSymbolReference(typeSubstitution.apply(g3));
   }
 
-  private PossibleGenericSymbol createAnotherGenericOfFloatandString(
+  private PossibleGenericSymbol createAnotherGenericOfFloatAndString(
       final PossibleGenericSymbol anotherGenericOfRandS) {
     var parameterizedType = creator.apply(anotherGenericOfRandS, List.of(ek9Float, ek9String));
     var rtn = typeSubstitution.apply(parameterizedType);
