@@ -173,6 +173,12 @@ public abstract class ScopeStackConsistencyListener extends AbstractEK9PhaseList
   }
 
   @Override
+  public void enterSingleStatementBlock(EK9Parser.SingleStatementBlockContext ctx) {
+    symbolAndScopeManagement.enterScope(symbolAndScopeManagement.getRecordedScope(ctx));
+    super.enterSingleStatementBlock(ctx);
+  }
+
+  @Override
   public void enterInstructionBlock(EK9Parser.InstructionBlockContext ctx) {
     symbolAndScopeManagement.enterScope(symbolAndScopeManagement.getRecordedScope(ctx));
     super.enterInstructionBlock(ctx);

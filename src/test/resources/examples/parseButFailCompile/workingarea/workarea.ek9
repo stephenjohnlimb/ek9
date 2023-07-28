@@ -1,0 +1,57 @@
+#!ek9
+<?-
+  Record operator covariance (only some operators support this), missing and surplus 'overrides'.
+  Also fix broken overrides with a different argument type, it has to fully match.
+-?>
+defines module bad.reords.covariance.examples
+
+  defines record
+
+    R1 as open
+      operator <=> as pure
+        -> arg0 as R1
+        <- rtn as Integer: 0
+
+      operator + as pure
+        -> arg0 as R1
+        <- rtn as R1: this
+
+      operator - as pure
+        -> arg0 as R1
+        <- rtn as R1: this
+
+    R2 extends R1
+      @Error: FULL_RESOLUTION: METHOD_OVERRIDES
+      operator <=> as pure
+        -> arg0 as R1
+        <- rtn as Integer: 1
+
+      //Now check covariance on record operator.
+      override operator + as pure
+        -> arg0 as R1
+        <- rtn as R2: this
+
+      @Error: FULL_RESOLUTION: COVARIANCE_MISMATCH
+      override operator - as pure
+        -> arg0 as R1
+        <- rtn as Integer: 0
+
+      //Add in an extra 'override'
+      @Error: FULL_RESOLUTION: DOES_NOT_OVERRIDE
+      override operator * as pure
+        -> arg0 as R1
+        <- rtn as Integer: 0
+
+      <!-
+      This is currently wrong it does not override a super
+      It is probably R2 'is an' R1
+      operator <=> as pure
+        -> arg0 as R2
+        <- rtn as Integer: 1
+      -!>
+
+      //Because this works and arg0 is not an R1.
+      operator <=> as pure
+        -> arg0 as Integer
+        <- rtn as Integer: 1
+//EOF

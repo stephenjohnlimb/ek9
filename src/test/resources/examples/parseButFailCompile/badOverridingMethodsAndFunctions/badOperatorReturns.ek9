@@ -1,0 +1,61 @@
+#!ek9
+<?-
+  Just tests different aspects of failing to initialise a return symbol for an operator.
+  But this tests this out on a number of constructs.
+  Only test one operator of each construct type - this should be sufficient.
+-?>
+defines module bad.operator.return
+
+  defines record
+
+    R1
+      operator <=> as pure
+        -> arg0 as R1
+        @Error: FULL_RESOLUTION: NEVER_INITIALISED
+        <- rtn as Integer?
+        assert arg0?
+
+  defines trait
+
+    //Valid example to be used with dynamic class later
+    T0
+      operator <=> as pure
+        -> arg0 as T0
+        <- rtn as Integer: arg0?
+
+    T1
+      operator <=> as pure
+        -> arg0 as T1
+        @Error: FULL_RESOLUTION: NEVER_INITIALISED
+        <- rtn as Integer?
+        assert arg0?
+
+  defines class
+    Class1
+      operator <=> as pure
+        -> arg0 as Class1
+        @Error: FULL_RESOLUTION: NEVER_INITIALISED
+        <- rtn as Integer?
+        assert arg0?
+
+  defines component
+    Component1
+      operator <=> as pure
+        -> arg0 as Component1
+        @Error: FULL_RESOLUTION: NEVER_INITIALISED
+        <- rtn as Integer?
+        assert arg0?
+
+  defines function
+    DriverForDynamicClass()
+      dynamic <- () with trait T0 as class
+        override operator <=> as pure
+          -> arg0 as T0
+          @Error: FULL_RESOLUTION: NEVER_INITIALISED
+          <- rtn as Integer?
+          assert arg0?
+
+      //Just so it is referenced
+      assert dynamic?
+
+//EOF

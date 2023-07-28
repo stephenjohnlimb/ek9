@@ -55,26 +55,29 @@ defines module bad.lists.only
       That dictates what the others must be compatible with
     -?>
     InvalidMixOfTypes()
-      v1 <- 2023-05-04
+      v1 <- false
       f1 <- () is someAbstractFunction as pure function
         rtn: arg0 < 0
+      f2 <- someAbstractFunction
+
+      f3 <- () is someAbstractFunction as pure function (rtn: arg0 < 0)
+
+      //Not sure if I want/should allow this.
+      //v4 <- () is someAbstractFunction as pure function (rtn: arg0 < 0)(76)
 
       assert v1?
       assert f1?
+      assert f2?
+      assert f3?
 
       @Error: FULL_RESOLUTION: TYPE_MUST_NOT_BE_FUNCTION
       aList <- [v1, f1]
 
-      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
-      assert aList?
+      @Error: FULL_RESOLUTION: TYPE_MUST_NOT_BE_FUNCTION
+      bList <- [v1, f2]
 
-      //Now try the other way
-      @Error: FULL_RESOLUTION: TYPE_MUST_BE_FUNCTION
-      bList <- [f1, v1]
-
-      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
-      assert bList?
-
+      @Error: FULL_RESOLUTION: TYPE_MUST_NOT_BE_FUNCTION
+      cList <- [v1, f3]
 
     CoercedValidMixOfTypes()
       v1 <- 2.0
@@ -95,7 +98,6 @@ defines module bad.lists.only
 
       @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
       assert bList?
-
 
     MissingTypeFromEarlierError()
       v1 <- 2.0

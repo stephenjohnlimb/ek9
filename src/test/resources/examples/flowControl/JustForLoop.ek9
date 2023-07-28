@@ -9,6 +9,9 @@ defines module com.customer.just.loops
       -> time as Time
       <- workTime as Boolean: time < 12:00 or time > 14:00
 
+    messagePrefix()
+      <- rtn <- "SomePrefix-"
+
   defines program
     collectionsForLoop()
       stdout <- Stdout()
@@ -16,6 +19,17 @@ defines module com.customer.just.loops
       stdout.println("Strings")      
       for item in ["Alpha", "Beta", "Charlie"]
         stdout.println(item)
+
+      //Now examples with guard, assignment and declaration
+      prefix as String?
+      for prefix ?= messagePrefix() then item in ["Alpha", "Beta", "Charlie"]
+        stdout.println(`${prefix}${item}`)
+
+      for prefix: messagePrefix() then item in ["Alpha", "Beta", "Charlie"]
+        stdout.println(`${prefix}${item}`)
+
+      for newPrefix <- messagePrefix() then item in ["Alpha", "Beta", "Charlie"]
+        stdout.println(`${newPrefix}${item}`)
 
       stdout.println("Characters1")
       //The alternative is when you already have an iterator
@@ -28,7 +42,22 @@ defines module com.customer.just.loops
       while itemIter1.hasNext()
         item <- itemIter1.next()
         stdout.println(item)
-      
+
+      //Now a while with a guard, so reuse the iter from above but reset
+      while itemIter1 ?= moreItems.iterator() then itemIter1.hasNext()
+        item <- itemIter1.next()
+        stdout.println(item)
+
+      //Same again but with an assignment
+      while itemIter1 := moreItems.iterator() then itemIter1.hasNext()
+        item <- itemIter1.next()
+        stdout.println(item)
+
+      //This time declare a new iterator, but with the while loop
+      while itemIterX <- moreItems.iterator() then itemIterX.hasNext()
+        item <- itemIterX.next()
+        stdout.println(item)
+
       stdout.println("Characters do/while")  
       itemIter2 <- moreItems.iterator()
 
@@ -37,7 +66,14 @@ defines module com.customer.just.loops
           item <- itemIter2.next()
           stdout.println(item)  
         while itemIter2.hasNext()
-        
+
+      //The above is a bit clumsy, so lets try this instead
+      //This has the same effect, assuming the iterator came back as unset
+      do itemIter2 ?= moreItems.iterator() then
+        item <- itemIter2.next()
+        stdout.println(item)
+      while itemIter2.hasNext()
+
       //Now a loop withing a loop
       stdout.println("Loop in Loop")  
       for item in moreItems
@@ -76,8 +112,7 @@ defines module com.customer.just.loops
       //Be aware that time loops around.
       for i in start ... end by thirtyMinutes
         stdout.println(`Value [${i}]`)
-    
-    
+
     timePipeLine()
       stdout <- Stdout()
       
@@ -98,5 +133,32 @@ defines module com.customer.just.loops
       moreItems <- ['A', 'B', 'C']
       iter <- moreItems.iterator()
       cat iter > stdout
-          
+
+    <?-
+      Example of how a 'guard' can be used to wrap a for with an 'if not unset'.
+      The same guard logic as used with if, switch, try, do, while can be employed with 'for'.
+    -?>
+    forLoopWithGuard()
+      stdout <- Stdout()
+      prefix as String?
+      for prefix ?= messagePrefix() then i in 1 ... 10
+        stdout.println(`${prefix}${i}`)
+
+    <?-
+      The assignment of a variable but just at the start of a for loop.
+    -?>
+    forLoopWithAssignment()
+      stdout <- Stdout()
+      prefix as String?
+      for prefix: messagePrefix() then i in 1 ... 10
+        stdout.println(`${prefix}${i}`)
+
+    <?-
+      The declaration of a variable but just at the start of a for loop.
+    -?>
+    forLoopWithDeclaration()
+      stdout <- Stdout()
+      for prefix <- messagePrefix() then i in 1 ... 10
+        stdout.println(`${prefix}${i}`)
+
 //EOF

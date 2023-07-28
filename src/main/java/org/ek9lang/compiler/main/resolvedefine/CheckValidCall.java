@@ -66,14 +66,7 @@ public class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Ca
   private ISymbol determineSymbolToRecord(final EK9Parser.CallContext ctx) {
     var existingCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
     if (existingCallSymbol instanceof CallSymbol callSymbol) {
-      var toBeCalled = resolveToBeCalled(ctx);
-      if (toBeCalled != null) {
-        callSymbol.setResolvedSymbolToCall(toBeCalled);
-        /*
-        System.out.println(
-            "Have an existing call symbol [" + existingCallSymbol + "] [" + existingCallSymbol.getType() + "]");
-         */
-      }
+      resolveToBeCalled(callSymbol, ctx);
     } else {
       AssertValue.fail("Compiler error: ValidateCall expecting a CallSymbol to have been recorded");
     }
@@ -94,8 +87,9 @@ public class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Ca
    *     | call paramExpression - a bit weird but supports someHigherFunction()("Call what was returned")
    * </pre>
    */
-  private ScopedSymbol resolveToBeCalled(final EK9Parser.CallContext ctx) {
+  private void resolveToBeCalled(CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
     ScopedSymbol symbol = null;
+    boolean formOfDeclaration = false;
     if (ctx.identifierReference() != null) {
       symbol = resolveByIdentifierReference(ctx);
     } else if (ctx.parameterisedType() != null) {
@@ -104,12 +98,16 @@ public class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Ca
       symbol = resolveByPrimaryReference(ctx);
     } else if (ctx.dynamicFunctionDeclaration() != null) {
       symbol = resolveByDynamicFunctionDeclaration(ctx);
+      formOfDeclaration = true;
     } else if (ctx.call() != null) {
       symbol = resolveByCall(ctx);
     } else {
       AssertValue.fail("Expecting finite set of operations on call " + ctx.start.getLine());
     }
-    return symbol;
+    if (symbol != null) {
+      callSymbol.setFormOfDeclarationCall(formOfDeclaration);
+      callSymbol.setResolvedSymbolToCall(symbol);
+    }
   }
 
   private ScopedSymbol resolveByIdentifierReference(EK9Parser.CallContext ctx) {

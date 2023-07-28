@@ -70,4 +70,75 @@ defines module com.customer.just.switches
 
       stdout.println(resultText)
 
+    <?-
+      Example of declaring a variable and then using a guard.
+      If the guard resulted in 'not set' then resultText would also be not set
+      and the switch would not have even been executed (nor any case functions).
+      Note you can use either 'with' or 'then' to join the guard to the switch variable.
+    -?>
+    switchWithGuard()
+      temperature as Integer?
+      resultText <- switch temperature ?= currentTemperature("GB") with temperature
+        <- result String: String()
+        case 'D'
+          result: "Inappropriate"
+        case matches /[nN]ame/
+          result: `Perfect at ${temperature}`
+        case > "Gandalf"
+          result: "Moderate"
+        case < "Charlie"
+          result: "Very High"
+        default
+          result: "Suitable"
+
+      stdout.println(resultText)
+
+    <?-
+      In this case an assignment is used, this means that 'temperature' could still be unset.
+      But unlike the guard above, the switch still executes, but now the code must be able to deal with unset.
+      This is the 'default' case.
+      Note you can use either 'with' or 'then' to join the assignment to the switch variable.
+    -?>
+    switchWithAssignment()
+      temperature as Integer?
+      resultText <- switch temperature := currentTemperature("GB") with temperature
+        <- result String: String()
+        case 'D'
+          result: "Inappropriate"
+        case matches /[nN]ame/
+          result: `Perfect at ${temperature}`
+        case > "Gandalf"
+          result: "Moderate"
+        case < "Charlie"
+          result: "Very High"
+        default
+          result: "No idea"
+
+      stdout.println(resultText)
+
+    <?-
+      Now in this case, rather than use a guard, it uses a declaration of the new variable.
+      'temperature' is only visible within the switch block.
+      Note you can use either 'with' or 'then' to join the declaration to the switch variable.
+    -?>
+    switchWithDeclaration()
+      resultText <- switch temperature <- currentTemperature("GB") with temperature
+        <- result String: String()
+        case 'D'
+          result: "Inappropriate"
+        case matches /[nN]ame/
+          result: `Perfect at ${temperature}`
+        case > "Gandalf"
+          result: "Moderate"
+        case < "Charlie"
+          result: "Very High"
+        default
+          result: "Suitable"
+
+      stdout.println(resultText)
+
+      //So this means the 'temperature' defined above is now out of scope and so
+      //can be redeclared and used here
+      temperature <- "Som other value"
+      assert temperature?
 //EOF

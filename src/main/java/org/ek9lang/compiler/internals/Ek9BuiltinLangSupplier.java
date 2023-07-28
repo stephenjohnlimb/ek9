@@ -749,7 +749,7 @@ defines extern module org.ek9.lang
 
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_NETWORK_FUNCTIONS = """
-    TCPHandler as open
+    TCPHandler as abstract
       ->
         input as StringInput
         output as StringOutput

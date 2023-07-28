@@ -429,8 +429,7 @@ public class ErrorListener extends BaseErrorListener {
     GENERIC_WITH_NAMED_DYNAMIC_CLASS("a named dynamic class cannot be used within a generic type/function"),
     CAPTURED_VARIABLE_MUST_BE_NAMED("variables being captured must be named when not just using identifiers"),
     EITHER_ALL_PARAMETERS_NAMED_OR_NONE("either all variable must be named or none, when passing parameters"),
-    GENERIC_FUNCTION_IMPLEMENTATION_REQUIRED(
-        "implementation must be provided for generic functions"),
+    GENERIC_FUNCTION_IMPLEMENTATION_REQUIRED("implementation must be provided for generic function"),
     NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT("not declared abstract but still has abstract methods/operators"),
     DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS("all abstract methods/operators must be implemented"),
     ABSTRACT_METHOD_NOT_IMPLEMENTED("method is abstract - should be overridden/implemented"),

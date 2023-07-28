@@ -58,7 +58,7 @@ public class ErrorDirectiveListener implements CompilationPhaseListener {
 
         //Check the type of error against the one expected in the directive
         if (!directive.isForClassification(error.getSemanticClassification())) {
-          var msg = "'" + directive + "' versus '" + error.getSemanticClassification() + "'";
+          var msg = "'" + error.getSemanticClassification() + "' versus '" + directive + "'";
           errorListener.directiveError(directive.getDirectiveToken(), msg,
               ErrorListener.SemanticClassification.DIRECTIVE_WRONG_CLASSIFICATION);
         }

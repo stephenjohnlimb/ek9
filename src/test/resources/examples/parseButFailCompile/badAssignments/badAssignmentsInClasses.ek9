@@ -54,6 +54,7 @@ defines module bad.assignments.classes
         val1 :=: val1
 
       someMethod7()
+        @Error: FULL_RESOLUTION: NEVER_INITIALISED
         <- rtn as C1?
         //This is not allowed because rtn has not been initialised
         @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED

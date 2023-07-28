@@ -108,11 +108,14 @@ constantDeclaration
     ;
 
 //By adding Open, it means we can define a function with a body, but also override functionality and pass it around.
+//None dynamic functions can extend other functions (but not generic ones), generic functions cannot extend anything
+//See dynamic functions for further extending of functionality.
 functionDeclaration
     : Identifier (LPAREN RPAREN)? (extendPreamble identifierReference (LPAREN RPAREN)?)? AS? PURE? (ABSTRACT | OPEN)? NL+ operationDetails
     | Identifier (LPAREN RPAREN)? parameterisedParams AS? PURE? (ABSTRACT | OPEN)? NL+ operationDetails
     ;
 
+//Records can extend other records (if needed).
 recordDeclaration
     : Identifier extendDeclaration? (AS? (ABSTRACT | OPEN))? aggregateParts?
     ;
@@ -123,11 +126,14 @@ traitDeclaration
     : Identifier ((extendPreamble | traitPreamble) traitsList)? allowingOnly? (AS? (ABSTRACT | OPEN))? aggregateParts?
     ;
 
+//Classes can extend other classes (including generic ones), generic classes cannot extend anything.
+//See dynamic classes for further extending classes.
 classDeclaration
     : Identifier extendDeclaration? (traitPreamble traitsList)? (AS? (ABSTRACT | OPEN))? aggregateParts?
     | Identifier parameterisedParams (AS? (ABSTRACT | OPEN))? aggregateParts
     ;
 
+//Components can extend other component, and cannot be polymorphic parametric.
 componentDeclaration
     : Identifier extendDeclaration? (AS? (ABSTRACT | OPEN))? aggregateParts?
     ;
@@ -158,20 +164,26 @@ textBodyDeclaration
 
 //End of main construct declarations
 
+//A dynamic class can only have traits, be 'Tuple' or extend a parameterised generic class.
 dynamicClassDeclaration
     : Identifier? dynamicVariableCapture traitPreamble traitsList AS? CLASS? aggregateParts?
     | Identifier dynamicVariableCapture AS? CLASS aggregateParts
     | Identifier? dynamicVariableCapture extendPreamble parameterisedType AS? CLASS aggregateParts?
     ;
 
+//A dynamic function can extend other functions including parameterised generic functions.
 dynamicFunctionDeclaration
     : dynamicVariableCapture extendPreamble identifierReference (LPAREN RPAREN)? AS? PURE? FUNCTION? dynamicFunctionBody
     | dynamicVariableCapture extendPreamble parameterisedType AS? PURE? FUNCTION dynamicFunctionBody?
     ;
 
 dynamicFunctionBody
-    : LPAREN blockStatement RPAREN
+    : singleStatementBlock
     | block
+    ;
+
+singleStatementBlock
+    : LPAREN blockStatement RPAREN
     ;
 
 constantInitialiser
@@ -335,17 +347,13 @@ statement
     ;
 
 ifStatement
-    : (IF | WHEN) ((assignmentStatement | guardExpression) (WITH|THEN))? control=expression block (NL+ directive? ELSE block)?
-    | (IF | WHEN) ((assignmentStatement | guardExpression) (WITH|THEN))? control=expression block NL+ directive? ELSE ifStatement
-    ;
-
-guardExpression
-    : identifier GUARD expression
+    : (IF | WHEN) preFlowStatement? control=expression block (NL+ directive? ELSE block)?
+    | (IF | WHEN) preFlowStatement? control=expression block NL+ directive? ELSE ifStatement
     ;
 
 whileStatement
-    : WHILE control=expression block
-    | DO block NL+ directive? WHILE control=expression
+    : WHILE preFlowStatement? control=expression block
+    | DO preFlowStatement? block NL+ directive? WHILE control=expression
     ;
 
 forStatement
@@ -353,11 +361,11 @@ forStatement
     ;
 
 forLoop
-    : FOR identifier IN expression
+    : FOR preFlowStatement? identifier IN expression
     ;
 
 forRange
-    : FOR identifier IN range (BY (literal | identifier))?
+    : FOR preFlowStatement? identifier IN range (BY (literal | identifier))?
     ;
 
 assignmentStatement
@@ -423,8 +431,8 @@ call
     ;
 
 tryStatementExpression
-    : TRY NL+ INDENT NL* declareArgumentParam? instructionBlock DEDENT catchStatementExpression? finallyStatementExpression?
-    | TRY NL+ INDENT NL* declareArgumentParam? returningParam instructionBlock? DEDENT catchStatementExpression? finallyStatementExpression?
+    : TRY preFlowStatement? NL+ INDENT NL* declareArgumentParam? instructionBlock DEDENT catchStatementExpression? finallyStatementExpression?
+    | TRY preFlowStatement? NL+ INDENT NL* declareArgumentParam? returningParam instructionBlock? DEDENT catchStatementExpression? finallyStatementExpression?
     ;
 
 catchStatementExpression
@@ -436,7 +444,7 @@ finallyStatementExpression
     ;
 
 switchStatementExpression
-    : (SWITCH|GIVEN) control=expression NL+ INDENT (NL* returningParam)? caseStatement+ (directive? DEFAULT block NL+)?  DEDENT
+    : (SWITCH|GIVEN) preFlowStatement? control=expression NL+ INDENT (NL* returningParam)? caseStatement+ (directive? DEFAULT block NL+)?  DEDENT
     ;
 
 caseStatement
@@ -449,6 +457,14 @@ caseExpression
     | op=(LE | GE | GT | LT) expression
     | MATCHES expression
     | primary
+    ;
+
+preFlowStatement
+    : (variableDeclaration | assignmentStatement | guardExpression) (WITH|THEN)
+    ;
+
+guardExpression
+    : identifier GUARD expression
     ;
 
 stream
@@ -667,6 +683,7 @@ identifier
     | CONSTRAIN
     | ALLOW
     | MODULE
+    | OPERATOR
     | REFERENCES
     | CONSTANT
     | TYPE 

@@ -23,18 +23,18 @@ class ExamplesFlowControlTest extends FullCompilationTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
-    new SymbolCountCheck("com.customer.just.loops", 7).test(program);
+    new SymbolCountCheck("com.customer.just.loops", 11).test(program);
 
-    new SymbolCountCheck("com.customer.just.ifs", 5).test(program);
+    new SymbolCountCheck("com.customer.just.ifs", 6).test(program);
 
-    new SymbolCountCheck("com.customer.just.switches", 3).test(program);
+    new SymbolCountCheck("com.customer.just.switches", 6).test(program);
 
     new SymbolCountCheck("com.customer.just.ternary", 1).test(program);
 
     new SymbolCountCheck("com.customer.loop", 14).test(program);
 
     //Includes a dynamic class
-    new SymbolCountCheck("com.customer.exceptions", 7).test(program);
+    new SymbolCountCheck("com.customer.exceptions", 11).test(program);
 
     new SymbolCountCheck("com.ifelse", 1).test(program);
   }

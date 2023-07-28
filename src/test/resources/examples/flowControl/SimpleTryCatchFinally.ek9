@@ -127,6 +127,16 @@ defines module com.customer.exceptions
         finally
           stdout.println("Automatically closed file if opened")
 
+      demonstrateNamedFileNotFound()
+        -> fileName as String
+
+        mainResults <- try
+          -> input1 <- TextFile(fileName).input()
+          <- rtn as List of String: cat input1 | collect as List of String
+
+        //Let the exceptions fly back - don't handle in here.
+        Stdout().println("main Results [" + $mainResults + "]")
+
       demonstrateFilesNotFound()
 
         mainResults <- try
@@ -136,11 +146,60 @@ defines module com.customer.exceptions
           <-
             rtn as List of String: cat input1, input2 | collect as List of String
 
-
         //Let the exceptions fly back - don't handle in here.
         Stdout().println("main Results [" + $mainResults + "]")
 
+  defines function
+    testFunction()
+      -> arg0 as String
+      <- rtn as String: String()
+
   defines program
+
+    <?-
+      The logic here is that if the 'testFunction' returns something that means that 'someVar' is
+      'unset' then the 'guard' is triggered and the try block never executes - it's like putting
+      an 'if someVar?' around the try, catch, finally block.
+    -?>
+    TryWithGuard()
+      someVar as String?
+      try someVar ?= testFunction("Steve") then
+        example2 <- FileExceptionExample()
+        example2.demonstrateNamedFileNotFound(someVar)
+      catch
+        -> ex as Exception
+        Stderr().println("TryWithGuard: " + $ex)
+
+    <?-
+      This is similar to the above, but is just an assignment, so that 'someVar' can still be 'unset'.
+    -?>
+    TryWithAssignment()
+      someVar as String?
+      try someVar: testFunction("Steve") then
+        example2 <- FileExceptionExample()
+        example2.demonstrateNamedFileNotFound(someVar)
+      catch
+        -> ex as Exception
+        Stderr().println("TryWithAssignment: " + $ex)
+
+    <?-
+      Finally in this case, the variable is declared only in the scope of try/catch/finally and may or may
+      not remain 'unset'. So the try/catch/finally block does execute even if 'someVar' is 'unset'.
+      'someVar' is visible in the try, catch, finally block, but then goes out of scope.
+    -?>
+    TryWithDeclaration()
+
+      try someVar <- testFunction("Steve") then
+        example2 <- FileExceptionExample()
+        example2.demonstrateNamedFileNotFound(someVar)
+      catch
+        -> ex as Exception
+        Stderr().println("TryWithDeclaration: " + $ex)
+
+      //This is a 'different' 'someVar' - the previous one is now out of scope.
+      someVar <- false
+      assert someVar?
+
     TryCatchExample()
       stdout <- Stdout()
       stderr <- Stderr()

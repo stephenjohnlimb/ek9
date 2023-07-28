@@ -3,10 +3,13 @@ package org.ek9lang.compiler.main.phases.definition;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.internals.ParsedModule;
-import org.ek9lang.compiler.main.resolvedefine.CheckForDynamicFunction;
+import org.ek9lang.compiler.main.resolvedefine.AutoMatchSuperFunctionSignature;
+import org.ek9lang.compiler.main.resolvedefine.CheckForDynamicFunctionBody;
 import org.ek9lang.compiler.main.resolvedefine.CheckFunctionOverrides;
 import org.ek9lang.compiler.main.resolvedefine.CheckMethodOverrides;
+import org.ek9lang.compiler.main.resolvedefine.CheckMethodReturn;
 import org.ek9lang.compiler.main.resolvedefine.CheckPossibleFieldDelegate;
+import org.ek9lang.compiler.main.resolvedefine.CheckReturn;
 import org.ek9lang.compiler.main.resolvedefine.DynamicCaptureAndDefinition;
 import org.ek9lang.compiler.symbol.AggregateSymbol;
 import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
@@ -32,7 +35,11 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
   private final CheckMethodOverrides checkMethodOverrides;
   private final CheckMethodOverrides checkDynamicClassMethodOverrides;
   private final CheckFunctionOverrides checkFunctionOverrides;
-  private final CheckForDynamicFunction checkForDynamicFunction;
+  private final AutoMatchSuperFunctionSignature autoMatchSuperFunctionSignature;
+  private final CheckForDynamicFunctionBody checkForDynamicFunctionBody;
+  private final CheckReturn checkDynamicFunctionReturn;
+  private final CheckReturn checkFunctionReturn;
+  private final CheckMethodReturn checkMethodReturn;
 
   /**
    * Create a new instance to define or resolve inferred types.
@@ -48,7 +55,11 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
     this.checkDynamicClassMethodOverrides = new CheckMethodOverrides(symbolAndScopeManagement,
         errorListener, ErrorListener.SemanticClassification.DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS);
     this.checkFunctionOverrides = new CheckFunctionOverrides(symbolAndScopeManagement, errorListener);
-    this.checkForDynamicFunction = new CheckForDynamicFunction(symbolAndScopeManagement, errorListener);
+    this.checkForDynamicFunctionBody = new CheckForDynamicFunctionBody(symbolAndScopeManagement, errorListener);
+    this.autoMatchSuperFunctionSignature = new AutoMatchSuperFunctionSignature(symbolAndScopeManagement, errorListener);
+    this.checkDynamicFunctionReturn = new CheckReturn(true, symbolAndScopeManagement, errorListener);
+    this.checkFunctionReturn = new CheckReturn(false, symbolAndScopeManagement, errorListener);
+    this.checkMethodReturn = new CheckMethodReturn(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -63,6 +74,7 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
     CaptureScope scope = (CaptureScope) symbolAndScopeManagement.getRecordedScope(ctx);
     dynamicCaptureAndDefinition.accept(ctx);
     scope.setOpenToEnclosingScope(false);
+
     super.exitDynamicVariableCapture(ctx);
   }
 
@@ -75,17 +87,23 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
   }
 
   @Override
+  public void exitRecordDeclaration(EK9Parser.RecordDeclarationContext ctx) {
+    var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    checkMethodOverrides.andThen(checkMethodReturn).accept(symbol);
+    super.exitRecordDeclaration(ctx);
+  }
+
+  @Override
   public void exitClassDeclaration(EK9Parser.ClassDeclarationContext ctx) {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    checkMethodOverrides.accept(symbol);
-
+    checkMethodOverrides.andThen(checkMethodReturn).accept(symbol);
     super.exitClassDeclaration(ctx);
   }
 
   @Override
   public void exitDynamicClassDeclaration(EK9Parser.DynamicClassDeclarationContext ctx) {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    checkDynamicClassMethodOverrides.accept(symbol);
+    checkDynamicClassMethodOverrides.andThen(checkMethodReturn).accept(symbol);
 
     super.exitDynamicClassDeclaration(ctx);
   }
@@ -93,27 +111,50 @@ public class ResolveDefineInferredTypeListener extends ExpressionsListener {
   @Override
   public void exitTraitDeclaration(EK9Parser.TraitDeclarationContext ctx) {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    checkMethodOverrides.accept(symbol);
+    checkMethodOverrides.andThen(checkMethodReturn).accept(symbol);
     super.exitTraitDeclaration(ctx);
   }
 
   @Override
   public void exitComponentDeclaration(EK9Parser.ComponentDeclarationContext ctx) {
     var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    checkMethodOverrides.accept(symbol);
+    checkMethodOverrides.andThen(checkMethodReturn).accept(symbol);
     super.exitComponentDeclaration(ctx);
+  }
+
+  @Override
+  public void exitServiceDeclaration(EK9Parser.ServiceDeclarationContext ctx) {
+    var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    checkMethodReturn.accept(symbol);
+    super.exitServiceDeclaration(ctx);
   }
 
   @Override
   public void exitFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
     var symbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     checkFunctionOverrides.accept(symbol);
+    checkFunctionReturn.accept(symbol, symbol.getReturningSymbol());
     super.exitFunctionDeclaration(ctx);
   }
 
   @Override
+  public void enterDynamicFunctionDeclaration(EK9Parser.DynamicFunctionDeclarationContext ctx) {
+    var symbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    //Automatically populate the function signature and return for a dynamic function
+    autoMatchSuperFunctionSignature.accept(symbol);
+    //Now just check it, should be fine - maybe remove in the future.
+    checkFunctionOverrides.accept(symbol);
+
+    super.enterDynamicFunctionDeclaration(ctx);
+  }
+
+  @Override
   public void exitDynamicFunctionDeclaration(EK9Parser.DynamicFunctionDeclarationContext ctx) {
-    checkForDynamicFunction.accept(ctx);
+    var symbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    //But check that if the super had no implementation this dynamic function does.
+    checkForDynamicFunctionBody.accept(ctx);
+    checkDynamicFunctionReturn.accept(symbol, symbol.getReturningSymbol());
+
     super.exitDynamicFunctionDeclaration(ctx);
   }
 }

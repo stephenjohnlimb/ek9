@@ -25,6 +25,7 @@ class BadMethodOverridingFullCompilationTest extends FullCompilationTest {
                                     final CompilableProgram program) {
     assertFalse(compilationResult);
     assertFalse(program.getParsedModules("bad.overriding.componentmethods1").isEmpty());
+    assertFalse(program.getParsedModules("bad.overriding.componentmethods2").isEmpty());
     assertFalse(program.getParsedModules("bad.overriding.classmethods1").isEmpty());
     assertFalse(program.getParsedModules("bad.overriding.classmethods2").isEmpty());
     assertFalse(program.getParsedModules("bad.overriding.classmethods3").isEmpty());

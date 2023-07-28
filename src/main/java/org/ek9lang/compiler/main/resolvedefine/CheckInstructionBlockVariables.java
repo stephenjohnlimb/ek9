@@ -12,6 +12,7 @@ import org.ek9lang.compiler.symbol.ISymbol;
  */
 public class CheckInstructionBlockVariables extends RuleSupport implements Consumer<EK9Parser.InstructionBlockContext> {
 
+  private final Consumer<ISymbol> symbolCheck;
 
   /**
    * Check on references to variables in blocks.
@@ -19,35 +20,20 @@ public class CheckInstructionBlockVariables extends RuleSupport implements Consu
   public CheckInstructionBlockVariables(final SymbolAndScopeManagement symbolAndScopeManagement,
                                         final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
+
+    final var checkInitialised = new CheckInitialised(symbolAndScopeManagement, errorListener);
+    final var checkReferenced = new CheckReferenced(symbolAndScopeManagement, errorListener);
+    this.symbolCheck = checkReferenced.andThen(checkInitialised);
   }
 
   @Override
   public void accept(EK9Parser.InstructionBlockContext ctx) {
     ctx.blockStatement().forEach(blockStatement -> {
       if (blockStatement.variableOnlyDeclaration() != null) {
-        checkSymbol(symbolAndScopeManagement.getRecordedSymbol(blockStatement.variableOnlyDeclaration()));
+        symbolCheck.accept(symbolAndScopeManagement.getRecordedSymbol(blockStatement.variableOnlyDeclaration()));
       } else if (blockStatement.variableDeclaration() != null) {
-        checkSymbol(symbolAndScopeManagement.getRecordedSymbol(blockStatement.variableDeclaration()));
+        symbolCheck.accept(symbolAndScopeManagement.getRecordedSymbol(blockStatement.variableDeclaration()));
       }
     });
-  }
-
-  private void checkSymbol(final ISymbol symbol) {
-    checkReferencedOrError(symbol);
-    checkInitialisedOrError(symbol);
-  }
-
-  private void checkReferencedOrError(final ISymbol symbol) {
-    //Can be null if ek9 developer code in error.
-    if (symbol != null && !symbol.isReferenced()) {
-      errorListener.semanticError(symbol.getSourceToken(), "", ErrorListener.SemanticClassification.NOT_REFERENCED);
-    }
-  }
-
-  private void checkInitialisedOrError(final ISymbol symbol) {
-    //Can be null if ek9 developer code in error.
-    if (symbol != null && !symbol.isInitialised()) {
-      errorListener.semanticError(symbol.getSourceToken(), "", ErrorListener.SemanticClassification.NEVER_INITIALISED);
-    }
   }
 }

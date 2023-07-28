@@ -1,0 +1,29 @@
+#!ek9
+defines module bad.servicemethod.return
+
+  defines service
+
+    <?-
+      First start off with a basic duplicate method check - done elsewhere
+      but included here just for consistency
+    -?>
+    S1 for :/site1/place1
+
+        //A service method bu the return is never initialised.
+        unInitializedReturn() as GET for :/none-initialized/path
+          @Error: FULL_RESOLUTION: NEVER_INITIALISED
+          <- response as HTTPResponse?
+          someVal <- 90
+          assert someVal?
+
+        //A valid example, with just stock default values - 404.
+        someDefaultReturn() as GET for :/some-path
+          <- response as HTTPResponse: () trait of HTTPResponse as class
+
+        //Also check that normal none-service methods require an initialised return.
+        normalMethod()
+          -> arg0 as Integer
+          @Error: FULL_RESOLUTION: NEVER_INITIALISED
+          <- rtn as Boolean?
+          assert arg0?
+//EOF

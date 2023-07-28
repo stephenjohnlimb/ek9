@@ -1,6 +1,15 @@
 #!ek9
 <?-
-  Just focuses on overriding
+  Just focuses on overriding of functions.
+  This is more involved than you might expect, because:
+  1. Abstract
+  2. Generic
+  3. Normal functions
+  4. Dynamic functions
+  5. Pure functions
+  6. Overriding, but signature mismatch
+  7. Inferred parameters and return in dynamic functions
+  8. Ensuring that return symbols are at lease initialised
 -?>
 defines module bad.overriding.functions
 
@@ -25,7 +34,7 @@ defines module bad.overriding.functions
       -> arg0 as T
       <- rtn as T: arg0
 
-    //And now a couple of abstract ones, again one plan and one generic.
+    //And now a couple of abstract ones, again one plain and one generic.
 
     AbstractFunction1() as abstract
       -> arg0 as String
@@ -64,15 +73,33 @@ defines module bad.overriding.functions
       -> arg0 as String
       <- rtn as Boolean?
 
+    InvalidFunction4() is Function1
+      -> arg0 as String
+      @Error: FULL_RESOLUTION: NEVER_INITIALISED
+      <- rtn as Boolean?
+      assert arg0?
+
     @Error: FULL_RESOLUTION: SUPER_IS_PURE
-    InvalidFunction4() is Function2
+    InvalidFunction5() is Function2
       -> arg0 as String
       <- rtn <- true
 
     @Error: FULL_RESOLUTION: SUPER_IS_NOT_PURE
-    InvalidFunction5() is Function1 as pure
+    InvalidFunction6() is Function1 as pure
       -> arg0 as String
       <- rtn <- true
+
+    InValidFunction7() is AbstractFunction1
+      -> arg0 as String
+      @Error: FULL_RESOLUTION: NEVER_INITIALISED
+      <- rtn as Boolean?
+      assert arg0?
+
+    InValidFunction8() is AbstractFunction2
+      -> arg0 as String
+      @Error: FULL_RESOLUTION: NEVER_INITIALISED
+      <- rtn as Boolean?
+      assert arg0?
 
     //This is valid because even though Function1 is fully implemented, we have to provide a body
     DynamicFunctionDriver1()
@@ -92,21 +119,42 @@ defines module bad.overriding.functions
       assert dynamicFunction?
 
     DynamicFunctionDriver4()
-      //Just provide some body
-      dynamicFunction <- () is GenericAbstractFunction1 of Float as function (someVal <- 0.0)
+      //Just provide a body and set the return value
+      dynamicFunction <- () is GenericAbstractFunction1 of Float as function (rtn: 0.0)
       assert dynamicFunction?
 
     DynamicFunctionDriver5()
-      //Just provide some body
+      //Just provide some body, but inside a whole body block (setting the return)
       dynamicFunction <- () is GenericAbstractFunction1 of Float as function
-        someVal <- 0.0
-        assert someVal?
+        rtn: 1.0
+      assert dynamicFunction?
+
+    InvalidDynamicFunctionDriver1()
+      //Even though the error is for the inferred 'rtn' in AbstractFunction1, error is reported here.
+      @Error: FULL_RESOLUTION: NEVER_INITIALISED
+      dynamicFunction <- () is AbstractFunction1 as function
+        assert arg0?
+      assert dynamicFunction?
+
+    InvalidDynamicFunctionDriver2()
+      //Even though the error is for the inferred 'rtn' in AbstractFunction2, error is reported here.
+      //Looks the same as above, but I wanted to check ordering of definition does not affect anything.
+      @Error: FULL_RESOLUTION: NEVER_INITIALISED
+      dynamicFunction <- () is AbstractFunction2 as function
+        assert arg0?
       assert dynamicFunction?
 
     //Should not be valid because super is abstract and this is still abstract because there is no implementation
-    InvalidDynamicFunctionDriver4()
+    InvalidDynamicFunctionDriver3()
       @Error: FULL_RESOLUTION: GENERIC_FUNCTION_IMPLEMENTATION_REQUIRED
       dynamicFunction <- () is GenericAbstractFunction1 of Float as function
+      assert dynamicFunction?
+
+    //Should not be valid because super is abstract and this is still abstract because there is no implementation
+    //Again just want to ensure ordering of definition does not alter processing.
+    InvalidDynamicFunctionDriver4()
+      @Error: FULL_RESOLUTION: GENERIC_FUNCTION_IMPLEMENTATION_REQUIRED
+      dynamicFunction <- () is GenericAbstractFunction2 of Float as function
       assert dynamicFunction?
 
     InvalidDynamicFunctionDriver5()
@@ -130,5 +178,29 @@ defines module bad.overriding.functions
       @Error: FULL_RESOLUTION: SUPER_IS_NOT_PURE
       dynamicFunction <- () is GenericFunction1 of Float as pure function
       assert dynamicFunction?
+
+    InvalidDynamicFunctionDriver9()
+      //Just provide some body, but if the rtn is not set then that's an error
+      @Error: FULL_RESOLUTION: NEVER_INITIALISED
+      dynamicFunction <- () is GenericAbstractFunction1 of Float as function (someVar <- 0.0)
+      assert dynamicFunction?
+
+    InvalidDynamicFunctionDriver10()
+      //Just provide some body, again if the rtn is not set then that's an error
+      @Error: FULL_RESOLUTION: NEVER_INITIALISED
+      dynamicFunction <- () is GenericAbstractFunction1 of Float as function
+        someVal <- 0.0
+        assert someVal?
+      assert dynamicFunction?
+
+    //And now a couple more of abstract functions - just to check ordering does not matter.
+
+    AbstractFunction2() as abstract
+      -> arg0 as String
+      <- rtn as Boolean?
+
+    GenericAbstractFunction2() of type T as abstract
+      -> arg0 as T
+      <- rtn as T?
 
 //EOF

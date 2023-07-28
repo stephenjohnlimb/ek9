@@ -1,0 +1,70 @@
+#!ek9
+<?-
+  Just checks that incoming and returning parameters can be resolved.
+  But this is with dynamic abstract/template/generic functions.
+-?>
+defines module just.dynamicfunctions.resolution
+
+  //Start off with some simple abstract/open functions and extend them dynamically
+  defines function
+    //Just define a simple function, with no parameters
+    FunctionA as abstract
+      <- rtn as Boolean?
+
+    //Now resolve and use FunctionA
+    FunctionB()
+      dynamic <- () is FunctionA as function
+        rtn: true
+      assert dynamic?
+
+    //Another simple function but this time with one parameter
+    //Here this is also checking that incoming parameter arg0 can be resolved.
+    FunctionC as abstract
+      -> arg0 as String
+      <- rtn as Boolean?
+
+    //Really the same as FunctionC, but uses a body to set rtn from arg0
+    FunctionD as open
+      -> arg0 as String
+      <- rtn as Boolean?
+      //This time do the processing in a body - just to check resolution inside a body
+      assert arg0?
+      rtn: true
+
+    //Resolve and us FunctionC/D
+    FunctionE()
+      dynamic1 <- () is FunctionC as function
+        assert arg0?
+        rtn: false
+      assert dynamic1?
+
+      dynamic2 <- () is FunctionD as function
+        assert arg0?
+        rtn: false
+      assert dynamic2?
+
+    TemplateFunctionA of type T as abstract
+      <- rtn as T?
+
+    //Now resolve and use FunctionA
+    CheckTemplateFunctionA()
+      dynamic <- () is TemplateFunctionA of String as function
+        rtn: "Steve"
+      assert dynamic?
+
+    TemplateFunctionD of type (S, T) as open
+      ->
+        arg0 as S
+        arg1 as T
+      <-
+        rtn as T: arg1
+      //This time do the processing in a body - just to check resolution inside a body
+      assert arg0?
+
+    CheckTemplateFunctionD()
+      dynamic <- () is TemplateFunctionD of (Integer, String) as function
+        assert arg0?
+        rtn: "Snakes on a plane"
+      assert dynamic?
+
+//EOF

@@ -1,0 +1,113 @@
+#!ek9
+<?-
+  Just focuses on overriding class methods, but creating errors around return symbol.
+-?>
+defines module bad.overriding.classmethods6
+
+  defines trait
+
+    //Create a trait with one concrete method and some abstract methods/operators
+    T1
+      concreteMethod()
+        -> arg0 as Integer
+        <- rtn as Boolean: arg0?
+
+      tMethod()
+        -> arg0 as Float
+        <- rtn as Boolean?
+
+      operator + as pure
+        -> arg0 as Float
+        <- rtn as Float?
+
+    T2
+      brokenReturn()
+        -> arg0 as Integer
+        @Error: FULL_RESOLUTION: NEVER_INITIALISED
+        <- rtn as Boolean?
+        assert arg0?
+
+  defines class
+
+    //Used with the following dynamic classes.
+    SomeAbstractGeneric of type T as abstract
+      absMethod() as abstract
+        -> arg0 as T
+        <- rtn as Boolean?
+
+    //Again used with the following dynamic classes.
+    SomeGeneric of type T as open
+      absMethod()
+        -> arg0 as T
+        <- rtn as Boolean: arg0?
+
+    //Check a normal class with a trait, but fail to initialise the return.
+    C1 with trait of T1
+      default C1()
+      //Override something that was implemented and had a return, but now don't initialise it.
+      override concreteMethod()
+        -> arg0 as Integer
+        @Error: FULL_RESOLUTION: NEVER_INITIALISED
+        <- rtn as Boolean?
+        assert arg0?
+
+      override tMethod()
+        -> arg0 as Float
+        @Error: FULL_RESOLUTION: NEVER_INITIALISED
+        <- rtn as Boolean?
+        assert arg0?
+
+      override operator + as pure
+        -> arg0 as Float
+        @Error: FULL_RESOLUTION: NEVER_INITIALISED
+        <- rtn as Float?
+        assert arg0?
+
+  defines function
+
+    DriverFunction1()
+      failure1 <- () with trait of T1 as class
+        override tMethod()
+          -> arg0 as Float
+          @Error: FULL_RESOLUTION: NEVER_INITIALISED
+          <- rtn as Boolean?
+          assert arg0?
+
+        override operator + as pure
+          -> arg0 as Float
+          @Error: FULL_RESOLUTION: NEVER_INITIALISED
+          <- rtn as Float?
+          assert arg0?
+
+      assert failure1?
+
+
+    DriverFunction2()
+      //Again while the SomeAbstractGeneric has been parameterised - it is still abstract
+      failure2 <- () extends SomeAbstractGeneric of String as class
+        override absMethod()
+          -> arg0 as String
+          @Error: FULL_RESOLUTION: NEVER_INITIALISED
+          <- rtn as Boolean?
+          assert arg0?
+      assert failure2?
+
+
+    DriverFunction3()
+      //Now take a full generic implementation and override a method but don't set return.
+      failure3 <- () extends SomeGeneric of String as class
+        override absMethod()
+          -> arg0 as String
+          @Error: FULL_RESOLUTION: NEVER_INITIALISED
+          <- rtn as Boolean?
+          assert arg0?
+      assert failure3?
+
+    WorkingDriverFunction()
+      workingDynamicClass <- () extends SomeAbstractGeneric of String as class
+        override absMethod()
+          -> arg0 as String
+          <- rtn <- true
+      assert workingDynamicClass?
+
+//EOF

@@ -92,6 +92,10 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   private final SymbolFactory symbolFactory;
 
   /**
+   * Just used for block scope naming.
+   */
+  private final BlockScopeName blockScopeName = new BlockScopeName();
+  /**
    * Used mainly for checking for duplicate symbols in scopes.
    */
   private final SymbolChecker symbolChecker;
@@ -745,11 +749,19 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   @Override
   public void enterBlock(EK9Parser.BlockContext ctx) {
     IScope scope = symbolAndScopeManagement.getTopScope();
-    var scopeName = "Line-" + ctx.start.getLine() + "-Position-" + ctx.start.getCharPositionInLine();
+    var scopeName = blockScopeName.apply(ctx.start);
     LocalScope instructionBlock = new LocalScope(scopeName, scope);
     symbolAndScopeManagement.enterNewScope(instructionBlock, ctx);
-
     super.enterBlock(ctx);
+  }
+
+  @Override
+  public void enterSingleStatementBlock(EK9Parser.SingleStatementBlockContext ctx) {
+    IScope scope = symbolAndScopeManagement.getTopScope();
+    var scopeName = blockScopeName.apply(ctx.start);
+    LocalScope instructionBlock = new LocalScope(scopeName, scope);
+    symbolAndScopeManagement.enterNewScope(instructionBlock, ctx);
+    super.enterSingleStatementBlock(ctx);
   }
 
   /**
@@ -785,7 +797,7 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   @Override
   public void enterInstructionBlock(EK9Parser.InstructionBlockContext ctx) {
     IScope scope = symbolAndScopeManagement.getTopScope();
-    var scopeName = "Line-" + ctx.start.getLine() + "-Position-" + ctx.start.getCharPositionInLine();
+    var scopeName = blockScopeName.apply(ctx.start);
     LocalScope instructionBlock = new LocalScope(scopeName, scope);
     symbolAndScopeManagement.enterNewScope(instructionBlock, ctx);
     super.enterInstructionBlock(ctx);

@@ -1,0 +1,43 @@
+#!ek9
+<?-
+  Just checks that incoming and returning parameters can be resolved.
+  Also a few little checks on resolving functions.
+  So this is the 'happy path' with simple functions.
+-?>
+defines module just.functions.resolution
+
+  defines function
+    //Just define a simple function, with no parameters
+    FunctionA()
+      <- rtn as Boolean: true
+
+    FunctionA1()
+      <- rtn as Boolean?
+      rtn: true
+
+    //Now resolve and call FunctionA
+    FunctionB()
+      result <- FunctionA()
+      assert result?
+
+    //Another simple function but this time with one parameter
+    //Here this is also checking that incoming parameter arg0 can be resolved.
+    FunctionC()
+      -> arg0 as String
+      <- rtn as Boolean: arg0?
+
+    //Really the same as FunctionC, but uses a body to set rtn from arg0
+    FunctionD()
+      -> arg0 as String
+      <- rtn as Boolean?
+      //This time do the processing in a body - just to check resolution inside a body
+      assert arg0?
+      rtn: true
+
+    //Resolve and call FunctionC/D
+    FunctionE()
+      result1 <- FunctionC("Steve")
+      result2 <- FunctionD(String())
+      assert result1 <> result2
+
+//EOF

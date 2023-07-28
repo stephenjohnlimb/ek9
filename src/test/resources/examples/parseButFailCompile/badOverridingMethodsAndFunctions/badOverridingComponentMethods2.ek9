@@ -1,0 +1,40 @@
+#!ek9
+<?-
+  Defines various cases where components override others and their methods,
+  but don't initialise the the return symbol
+-?>
+defines module bad.overriding.componentmethods2
+
+  defines component
+
+    C1 as abstract
+      method1() as abstract
+        -> arg0 as String
+        <- rtn as Boolean?
+
+    C2 as open
+      method1()
+        -> arg0 as String
+        <- rtn <- true
+
+    Check1 is C1
+      default Check1()
+      override method1()
+        -> arg0 as String
+        @Error: FULL_RESOLUTION: NEVER_INITIALISED
+        <- rtn as Boolean?
+        assert arg0?
+
+    //So extend c2, overriding 'method1' but revert rtn to being unset and fail to initialise it.
+    Check2 is C2
+      default Check2()
+      override method1()
+        -> arg0 as String
+        @Error: FULL_RESOLUTION: NEVER_INITIALISED
+        <- rtn as Boolean?
+        assert arg0?
+        //Now deliberated reference an uninitialized symbol.
+        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
+        assert ~rtn?
+
+//EOF

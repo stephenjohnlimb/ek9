@@ -11,7 +11,7 @@ import org.ek9lang.compiler.symbol.support.LocationExtractor;
 /**
  * Checks if a dynamic function body is needed and provided.
  */
-public class CheckForDynamicFunction extends RuleSupport
+public class CheckForDynamicFunctionBody extends RuleSupport
     implements Consumer<EK9Parser.DynamicFunctionDeclarationContext> {
 
   private final CheckPureModifier checkPureModifier;
@@ -21,8 +21,8 @@ public class CheckForDynamicFunction extends RuleSupport
   /**
    * Create a new function to check dynamic functions.
    */
-  public CheckForDynamicFunction(final SymbolAndScopeManagement symbolAndScopeManagement,
-                                 final ErrorListener errorListener) {
+  public CheckForDynamicFunctionBody(final SymbolAndScopeManagement symbolAndScopeManagement,
+                                     final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
 
     this.checkPureModifier = new CheckPureModifier(symbolAndScopeManagement, errorListener);
@@ -43,6 +43,5 @@ public class CheckForDynamicFunction extends RuleSupport
       }
       checkPureModifier.accept(new PureCheckData("", superFunction, symbol));
     });
-
   }
 }

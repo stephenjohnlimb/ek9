@@ -10,11 +10,25 @@ import org.ek9lang.compiler.symbol.support.ReturnTypeExtractor;
  */
 public class CallSymbol extends MethodSymbol {
 
-  private final ReturnTypeExtractor returnTypeExtractor = new ReturnTypeExtractor();
   private ScopedSymbol resolvedSymbolToCall = null;
+
+  /**
+   * Now dynamic functions are both calls at creation and calls when 'called'.
+   * So while I hate 'exceptions and one offs', functions are both a type and a thing to be called.
+   * We have to ensure we distinguish between the two.
+   */
+  private boolean formOfDeclarationCall = false;
 
   public CallSymbol(String name, IScope enclosingScope) {
     super(name, enclosingScope);
+  }
+
+  public boolean isFormOfDeclarationCall() {
+    return formOfDeclarationCall;
+  }
+
+  public void setFormOfDeclarationCall(boolean formOfDeclarationCall) {
+    this.formOfDeclarationCall = formOfDeclarationCall;
   }
 
   @Override
@@ -25,6 +39,7 @@ public class CallSymbol extends MethodSymbol {
   protected CallSymbol cloneIntoCallSymbol(CallSymbol newCopy) {
     super.cloneIntoMethodSymbol(newCopy);
     newCopy.resolvedSymbolToCall = resolvedSymbolToCall;
+    newCopy.setFormOfDeclarationCall(this.isFormOfDeclarationCall());
     return newCopy;
   }
 
@@ -37,6 +52,7 @@ public class CallSymbol extends MethodSymbol {
    */
   public void setResolvedSymbolToCall(ScopedSymbol symbol) {
     this.resolvedSymbolToCall = symbol;
+    var returnTypeExtractor = new ReturnTypeExtractor(isFormOfDeclarationCall());
 
     this.setType(returnTypeExtractor.apply(symbol));
 

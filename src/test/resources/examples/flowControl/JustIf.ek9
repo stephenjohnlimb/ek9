@@ -45,7 +45,10 @@ defines module com.customer.just.ifs
         suitableValue: "Just Right"
       
       stdout.println(suitableValue)      
-        
+
+    <?-
+      Example of using an assignment before the control.
+    -?>
     assignmentInIf()
       stdout <- Stdout()
               
@@ -62,12 +65,14 @@ defines module com.customer.just.ifs
         stdout.println("Temp of " + $selectedTemperature + " a little warm in the DE")
       else
         stdout.println("Not sure where it might be warm")
-        
+
+    <?-
+      Example of using a guarded assignment before the control.
+    -?>
     guardedAssignmentInIf()
       stdout <- Stdout()
 
-      someIntegerValue <- 42
-      selectedTemperature <- Integer()       
+      selectedTemperature <- Integer()
       
       //Here we use a guarded assignment checks for null and unset and only then does the conditional check
       //Also note we can still use 'if' and rather than 'with' use 'then'
@@ -78,6 +83,23 @@ defines module com.customer.just.ifs
       else if selectedTemperature ?= currentTemperature("GB") with selectedTemperature > 40
         stdout.println("Temp of " + $selectedTemperature + " a little warm in the UK")
       else when selectedTemperature ?= currentTemperature("DE") then selectedTemperature > 40
+        stdout.println("Temp of " + $selectedTemperature + " a little warm in the DE")
+      else
+        stdout.println("Not sure where it might be warm")
+
+    <?-
+      Added ability to do a declaration before the control.
+      The new variable is only visible in the current if/else blocks.
+    -?>
+    declarationInIf()
+      stdout <- Stdout()
+      when selectedTemperature <- currentTemperature("US") with selectedTemperature > 50
+        stdout.println("Temp of " + $selectedTemperature + " a little warm in the US")
+      else when selectedTemperature ?= currentTemperature("US") with selectedTemperature < 50
+        stdout.println("Temp of " + $selectedTemperature + " not too bad in the US")
+      else if selectedTemperature := currentTemperature("GB") with selectedTemperature > 40
+        stdout.println("Temp of " + $selectedTemperature + " a little warm in the UK")
+      else when selectedTemperature: currentTemperature("DE") then selectedTemperature > 40
         stdout.println("Temp of " + $selectedTemperature + " a little warm in the DE")
       else
         stdout.println("Not sure where it might be warm")

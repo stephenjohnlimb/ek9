@@ -23,7 +23,7 @@ defines module bad.recordfield.access
     R2 extends R1
       anotherValue <- 90.7
 
-      operator $ as pure
+      override operator $ as pure
         <- rtn as String: String()
         //Now check it is possible to access anotherValue and number
         check1 <- anotherValue

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import org.ek9lang.compiler.internals.ResolvedOrDefineResult;
+import org.ek9lang.compiler.symbol.FunctionSymbol;
 import org.ek9lang.compiler.symbol.IScope;
 import org.ek9lang.compiler.symbol.ISymbol;
 import org.ek9lang.compiler.symbol.MethodSymbol;
@@ -99,6 +100,14 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
     //Do the business of changing the types.
     replaceTypeParametersWithTypeArguments(rtnType, typeMapping, clonedSymbols);
 
+    if (genericSymbol instanceof FunctionSymbol genericFunctionSymbol
+        && parameterisedSymbol instanceof FunctionSymbol functionSymbol
+        && genericFunctionSymbol.isReturningSymbolPresent()) {
+      var clonedSymbol = genericFunctionSymbol.getReturningSymbol().clone(genericFunctionSymbol);
+      substituteAsAppropriate(typeMapping, clonedSymbol);
+      functionSymbol.setReturningSymbol(clonedSymbol);
+
+    }
     return rtnType;
   }
 
@@ -134,7 +143,6 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
           substituteAsAppropriate(typeMapping, methodSymbol.getReturningSymbol());
         }
       }
-      //This will do any return type on the method and just normal values (for a function).
       substituteAsAppropriate(typeMapping, symbol);
     });
   }

@@ -227,6 +227,17 @@ public class FunctionSymbol extends PossibleGenericSymbol {
     return Optional.of(this);
   }
 
+
+  @Override
+  public ISymbol setType(ISymbol type) {
+    return this;
+  }
+
+  @Override
+  public ISymbol setType(Optional<ISymbol> type) {
+    return this;
+  }
+
   @Override
   public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search) {
     //This will now also check the returning symbol (if present)

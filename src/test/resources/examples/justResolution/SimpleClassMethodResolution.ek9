@@ -1,0 +1,48 @@
+#!ek9
+<?-
+  At this stage of the compiler development I still need to use 'this' to
+  be able to call methods. Shortly (I hope) I'll have completed the 'call' part
+  and be able to just call local methods without using 'this/super'.
+  This mechanism is still valid and I'll need a set of tests for the combinations.
+  I think the rule will be 'find the nearest' call that meets the need or maybe throw
+  it wide open and check if there are ambiguous solutions to call().
+  Here just checking the incoming and returning parameters can be resolved.
+-?>
+defines module just.classes.resolution
+
+  defines class
+    C1
+      //Just define a simple function, with no parameters
+      methodA()
+        <- rtn as Boolean: true
+
+      methodA1()
+        <- rtn as Boolean?
+        rtn: true
+
+      //Now resolve and call A
+      methodB()
+        result <- this.methodA()
+        assert result?
+
+      //Another simple function but this time with one parameter
+      //Here this is also checking that incoming parameter arg0 can be resolved.
+      methodC()
+        -> arg0 as String
+        <- rtn as Boolean: arg0?
+
+      //Really the same as C, but uses a body to set rtn from arg0
+      methodD()
+        -> arg0 as String
+        <- rtn as Boolean?
+        //This time do the processing in a body - just to check resolution inside a body
+        assert arg0?
+        rtn: true
+
+      //Resolve and call C/D
+      methodE()
+        result1 <- this.methodC("Steve")
+        result2 <- this.methodD(String())
+        assert result1 <> result2
+
+//EOF

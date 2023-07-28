@@ -10,6 +10,17 @@ import org.ek9lang.compiler.symbol.MethodSymbol;
  * get the appropriate return type from functions, methods and function delegates and constructors.
  */
 public class ReturnTypeExtractor implements Function<ISymbol, Optional<ISymbol>> {
+
+  private final boolean formOfDeclaration;
+
+  public ReturnTypeExtractor() {
+    this(false);
+  }
+
+  public ReturnTypeExtractor(final boolean formOfDeclaration) {
+    this.formOfDeclaration = formOfDeclaration;
+  }
+
   @Override
   public Optional<ISymbol> apply(ISymbol symbol) {
     if (symbol == null) {
@@ -21,7 +32,9 @@ public class ReturnTypeExtractor implements Function<ISymbol, Optional<ISymbol>>
         return method.getReturningSymbol().getType();
       }
     } else if (symbol instanceof FunctionSymbol function) {
-      if (function.isReturningSymbolPresent()) {
+      if (formOfDeclaration) {
+        return function.getType();
+      } else if (function.isReturningSymbolPresent()) {
         return function.getReturningSymbol().getType();
       }
     } else {

@@ -140,7 +140,7 @@ public class CommonTypeSuperOrTrait implements BiFunction<Token, List<ISymbol>, 
   }
 
   private void emitExpectingAggregateError(final Token lineToken, final ISymbol argument) {
-    var msg = "Expecting a non-function not '" + argument.getName() + "':";
+    var msg = "Expecting a non-function not function '" + argument.getName() + "':";
     errorListener.semanticError(lineToken, msg,
         ErrorListener.SemanticClassification.TYPE_MUST_NOT_BE_FUNCTION);
   }
