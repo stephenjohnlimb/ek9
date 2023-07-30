@@ -6,10 +6,10 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.IAggregateSymbol;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.support.search.MethodSearchInScope;
-import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.search.MethodSearchInScope;
+import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
 
 /**
  * Pulls the type from the 'range' into the loop variable, so it is correctly typed.

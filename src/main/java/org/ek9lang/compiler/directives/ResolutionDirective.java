@@ -2,8 +2,8 @@ package org.ek9lang.compiler.directives;
 
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.search.SymbolSearch;
 
 /**
  * To be used in EK9 source code to assert that a type can or cannot be resolved.

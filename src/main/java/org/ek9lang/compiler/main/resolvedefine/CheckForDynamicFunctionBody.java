@@ -5,8 +5,8 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
-import org.ek9lang.compiler.symbol.support.LocationExtractor;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.support.LocationExtractor;
 
 /**
  * Checks if a dynamic function body is needed and provided.

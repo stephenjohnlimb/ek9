@@ -9,7 +9,7 @@ import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
-import org.ek9lang.compiler.symbol.support.search.MatchResults;
+import org.ek9lang.compiler.symbols.search.MatchResults;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.utils.OsSupport;
 

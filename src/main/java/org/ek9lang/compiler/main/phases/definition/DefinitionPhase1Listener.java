@@ -1,31 +1,31 @@
 package org.ek9lang.compiler.main.phases.definition;
 
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_BITS;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_BOOLEAN;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_CHARACTER;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_COLOUR;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_DATE;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_DATETIME;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_DIMENSION;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_DURATION;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_FLOAT;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_INTEGER;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_MILLISECOND;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_MONEY;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_PATH;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_REGEX;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_RESOLUTION;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_STRING;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_TIME;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_VERSION;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_VOID;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_BITS;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_BOOLEAN;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_CHARACTER;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_COLOUR;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_DATE;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_DATETIME;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_DIMENSION;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_DURATION;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_FLOAT;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_INTEGER;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_MILLISECOND;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_MONEY;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_PATH;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_REGEX;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_RESOLUTION;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_STRING;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_TIME;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_VERSION;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_VOID;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.errors.UnreachableStatement;
-import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.phases.common.AbstractEK9PhaseListener;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineExplicitParameterizedType;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineTypeDef;
@@ -43,23 +43,23 @@ import org.ek9lang.compiler.main.rules.CheckReturningParam;
 import org.ek9lang.compiler.main.rules.CheckThisAndSuperAssignmentStatement;
 import org.ek9lang.compiler.main.rules.CheckVariableDeclaration;
 import org.ek9lang.compiler.main.rules.CheckVariableOnlyDeclaration;
-import org.ek9lang.compiler.symbol.AggregateSymbol;
-import org.ek9lang.compiler.symbol.CaptureScope;
-import org.ek9lang.compiler.symbol.ConstantSymbol;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
-import org.ek9lang.compiler.symbol.IAggregateSymbol;
-import org.ek9lang.compiler.symbol.ICanCaptureVariables;
-import org.ek9lang.compiler.symbol.IScope;
-import org.ek9lang.compiler.symbol.IScopedSymbol;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.LocalScope;
-import org.ek9lang.compiler.symbol.MethodSymbol;
-import org.ek9lang.compiler.symbol.StackConsistencyScope;
-import org.ek9lang.compiler.symbol.VariableSymbol;
-import org.ek9lang.compiler.symbol.support.SymbolChecker;
-import org.ek9lang.compiler.symbol.support.SymbolFactory;
-import org.ek9lang.compiler.symbol.support.TextLanguageExtraction;
-import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.CaptureScope;
+import org.ek9lang.compiler.symbols.ConstantSymbol;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
+import org.ek9lang.compiler.symbols.ICanCaptureVariables;
+import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.symbols.IScopedSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.LocalScope;
+import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.StackConsistencyScope;
+import org.ek9lang.compiler.symbols.VariableSymbol;
+import org.ek9lang.compiler.symbols.search.TypeSymbolSearch;
+import org.ek9lang.compiler.symbols.support.SymbolChecker;
+import org.ek9lang.compiler.symbols.support.SymbolFactory;
+import org.ek9lang.compiler.symbols.support.TextLanguageExtraction;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.exception.CompilerException;
 
@@ -82,15 +82,9 @@ import org.ek9lang.core.exception.CompilerException;
 public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
 
   /**
-   * Used for processing text blocks, so we can hold state of the current language the block is for.
-   */
-  private String currentTextBlockLanguage;
-
-  /**
    * For creating new symbols during definition.
    */
   private final SymbolFactory symbolFactory;
-
   /**
    * Just used for block scope naming.
    */
@@ -99,12 +93,10 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
    * Used mainly for checking for duplicate symbols in scopes.
    */
   private final SymbolChecker symbolChecker;
-
   /**
    * Extractor/checker of the language like 'en_GB'.
    */
   private final TextLanguageExtraction textLanguageExtraction;
-
   private final UnreachableStatement unreachableStatement;
   private final CheckMethod checkMethod;
   private final CheckInappropriateFunctionBody checkInappropriateFunctionBody;
@@ -122,6 +114,10 @@ public class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
   private final CheckForInvalidParameterisedTypeUse checkForInvalidParameterisedTypeUse;
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
   private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
+  /**
+   * Used for processing text blocks, so we can hold state of the current language the block is for.
+   */
+  private String currentTextBlockLanguage;
 
   /**
    * First phase after parsing. Define symbols and infer types where possible.

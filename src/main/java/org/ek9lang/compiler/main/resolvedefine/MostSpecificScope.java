@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.IScope;
+import org.ek9lang.compiler.symbols.IScope;
 
 /**
  * Used when trying to locate the a current class or dynamic class, so as to be able

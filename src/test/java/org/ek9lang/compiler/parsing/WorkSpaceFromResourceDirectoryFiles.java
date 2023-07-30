@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.parsing;
 
 import java.util.function.Function;
-import org.ek9lang.compiler.internals.Workspace;
+import org.ek9lang.compiler.Workspace;
 
 /**
  * Create a loaded workspace with ek9 source files from a resource directory.

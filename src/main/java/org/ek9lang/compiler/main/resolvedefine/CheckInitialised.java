@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * Checks if a symbol has been initialised or not (can be null - no error).

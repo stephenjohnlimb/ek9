@@ -18,7 +18,8 @@ class UnreachableStatementTest {
 
     assertTrue(errorListener.hasErrors());
     var errorDetails = errorListener.getErrors().next();
-    assertEquals("Error   : 'Cause' on line 5 position 0: Unreachable, because of 'Target' on line 10: all paths lead to an Exception",
+    assertEquals(
+        "Error   : 'Cause' on line 5 position 0: Unreachable, because of 'Target' on line 10: all paths lead to an Exception",
         errorDetails.toString());
 
   }

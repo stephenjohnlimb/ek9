@@ -7,12 +7,12 @@ import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.main.rules.CheckTypeCovariance;
 import org.ek9lang.compiler.main.rules.CovarianceCheckData;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.AggregateSymbol;
-import org.ek9lang.compiler.symbol.IAggregateSymbol;
-import org.ek9lang.compiler.symbol.MethodSymbol;
-import org.ek9lang.compiler.symbol.support.LocationExtractor;
-import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
-import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
+import org.ek9lang.compiler.symbols.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.symbols.support.LocationExtractor;
 import org.ek9lang.core.exception.CompilerException;
 
 /**

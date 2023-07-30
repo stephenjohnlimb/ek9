@@ -2,7 +2,7 @@ package org.ek9lang.compiler.directives;
 
 import org.ek9lang.compiler.errors.CompilationEvent;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * Just checks if there are any directives that relate to @Resolved in the parsed module and checks the

@@ -5,13 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
-import org.ek9lang.compiler.internals.CompilableProgram;
-import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.compiler.symbol.support.PathToSourceFromName;
+import org.ek9lang.compiler.symbols.support.PathToSourceFromName;
 import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -39,6 +39,10 @@ class Ek9CompilerTest {
     rtn.addSource(fullPath);
     return rtn;
   };
+
+  private static Stream<CompilationPhase> allCompilationPhases() {
+    return Stream.of(CompilationPhase.values());
+  }
 
   @ParameterizedTest
   @MethodSource("allCompilationPhases")
@@ -73,9 +77,5 @@ class Ek9CompilerTest {
 
     var compiler = new Ek9Compiler(allPhases);
     assertFalse(compiler.compile(inValidEk9Workspace.get(), new CompilerFlags()));
-  }
-
-  private static Stream<CompilationPhase> allCompilationPhases() {
-    return Stream.of(CompilationPhase.values());
   }
 }

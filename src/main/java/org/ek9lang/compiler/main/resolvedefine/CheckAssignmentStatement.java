@@ -8,10 +8,10 @@ import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.main.rules.OperationIsAssignment;
 import org.ek9lang.compiler.main.rules.RefersToSameSymbol;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.IAggregateSymbol;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.support.search.MethodSearchInScope;
-import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.search.MethodSearchInScope;
+import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
 /**

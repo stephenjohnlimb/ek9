@@ -1,19 +1,19 @@
 package org.ek9lang.compiler.main;
 
-import static org.ek9lang.compiler.internals.Ek9BuiltinLangSupplier.NUMBER_OF_EK9_SYMBOLS;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_LANG;
+import static org.ek9lang.compiler.Ek9BuiltinLangSupplier.NUMBER_OF_EK9_SYMBOLS;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_LANG;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import org.ek9lang.compiler.internals.CompilableProgram;
-import org.ek9lang.compiler.internals.CompilableSource;
+import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.main.resolvedefine.SymbolSearchConfiguration;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.support.GenericsSymbolCheck;
-import org.ek9lang.compiler.symbol.support.SymbolCheck;
-import org.ek9lang.compiler.symbol.support.SymbolCountCheck;
-import org.ek9lang.compiler.symbol.support.SymbolSearchMapFunction;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.support.GenericsSymbolCheck;
+import org.ek9lang.compiler.symbols.support.SymbolCheck;
+import org.ek9lang.compiler.symbols.support.SymbolCountCheck;
+import org.ek9lang.compiler.symbols.support.SymbolSearchMapFunction;
 import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
@@ -24,11 +24,11 @@ import org.junit.jupiter.api.Test;
  */
 class ExamplesGenericsUse1Test extends FullCompilationTest {
 
+  private final SymbolSearchMapFunction mapFunction = new SymbolSearchMapFunction();
+
   public ExamplesGenericsUse1Test() {
     super("/examples/genericsUse1");
   }
-
-  private final SymbolSearchMapFunction mapFunction = new SymbolSearchMapFunction();
 
   @Test
   void testPhasedDevelopment() {

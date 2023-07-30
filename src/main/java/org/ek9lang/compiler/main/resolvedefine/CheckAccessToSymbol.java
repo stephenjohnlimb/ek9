@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
+import org.ek9lang.compiler.symbols.search.SymbolSearch;
 
 /**
  * Check that a symbol can be accessed issues error if not possible.

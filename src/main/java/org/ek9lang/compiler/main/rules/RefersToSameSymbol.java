@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.main.rules;
 
 import java.util.function.BiPredicate;
-import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * Rather than just check if the actual ISymbols are the same, this code checks if two

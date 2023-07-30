@@ -7,17 +7,17 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.AggregateSymbol;
-import org.ek9lang.compiler.symbol.CallSymbol;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
-import org.ek9lang.compiler.symbol.IScope;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.MethodSymbol;
-import org.ek9lang.compiler.symbol.ScopedSymbol;
-import org.ek9lang.compiler.symbol.support.SymbolFactory;
-import org.ek9lang.compiler.symbol.support.SymbolTypeExtractor;
-import org.ek9lang.compiler.symbol.support.search.MethodSearchInScope;
-import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.CallSymbol;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.ScopedSymbol;
+import org.ek9lang.compiler.symbols.search.MethodSearchInScope;
+import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
+import org.ek9lang.compiler.symbols.support.SymbolFactory;
+import org.ek9lang.compiler.symbols.support.SymbolTypeExtractor;
 import org.ek9lang.core.exception.AssertValue;
 
 /**

@@ -1,13 +1,13 @@
 package org.ek9lang.compiler.main.rules;
 
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.DEFAULTED;
+import static org.ek9lang.compiler.symbols.support.SymbolFactory.DEFAULTED;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.MethodSymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
  * Checks if the body of a method/operator is appropriate.

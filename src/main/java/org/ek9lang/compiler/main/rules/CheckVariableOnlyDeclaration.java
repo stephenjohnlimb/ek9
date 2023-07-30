@@ -3,7 +3,7 @@ package org.ek9lang.compiler.main.rules;
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.symbol.VariableSymbol;
+import org.ek9lang.compiler.symbols.VariableSymbol;
 
 /**
  * Checks on whether the '?' can be used as a modifier

@@ -3,10 +3,10 @@ package org.ek9lang.compiler.main;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.ek9lang.compiler.internals.CompilableProgram;
+import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
-import org.ek9lang.compiler.symbol.support.SymbolCountCheck;
-import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
+import org.ek9lang.compiler.symbols.search.TypeSymbolSearch;
+import org.ek9lang.compiler.symbols.support.SymbolCountCheck;
 import org.junit.jupiter.api.Test;
 
 /**

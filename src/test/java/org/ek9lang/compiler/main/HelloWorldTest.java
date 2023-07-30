@@ -4,15 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.function.Supplier;
+import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
-import org.ek9lang.compiler.internals.CompilableProgram;
-import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.support.PathToSourceFromName;
-import org.ek9lang.compiler.symbol.support.SymbolCheck;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.support.PathToSourceFromName;
+import org.ek9lang.compiler.symbols.support.SymbolCheck;
 import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 

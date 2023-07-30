@@ -1,16 +1,16 @@
 package org.ek9lang.compiler.main.rules;
 
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTP_ACCESS;
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTP_HEADER;
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTP_PATH;
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTP_QUERY;
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTP_SOURCE;
+import static org.ek9lang.compiler.symbols.support.SymbolFactory.HTTP_ACCESS;
+import static org.ek9lang.compiler.symbols.support.SymbolFactory.HTTP_HEADER;
+import static org.ek9lang.compiler.symbols.support.SymbolFactory.HTTP_PATH;
+import static org.ek9lang.compiler.symbols.support.SymbolFactory.HTTP_QUERY;
+import static org.ek9lang.compiler.symbols.support.SymbolFactory.HTTP_SOURCE;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * Checks HTTP Access for service operations because some require HTTP_SOURCE, but others do not support it.

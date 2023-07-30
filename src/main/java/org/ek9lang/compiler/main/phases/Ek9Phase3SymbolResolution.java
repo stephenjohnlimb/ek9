@@ -4,11 +4,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.CompilableSource;
+import org.ek9lang.compiler.ParsedModule;
+import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.errors.CompilationEvent;
-import org.ek9lang.compiler.internals.CompilableProgram;
-import org.ek9lang.compiler.internals.CompilableSource;
-import org.ek9lang.compiler.internals.ParsedModule;
-import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
 import org.ek9lang.compiler.main.phases.definition.ResolveDefineInferredTypeListener;
 import org.ek9lang.compiler.main.phases.result.CompilableSourceErrorCheck;
@@ -52,13 +52,12 @@ import org.ek9lang.core.threads.SharedThreadContext;
 public class Ek9Phase3SymbolResolution implements
     BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
 
+  private static final CompilationPhase thisPhase = CompilationPhase.FULL_RESOLUTION;
   private final boolean useMultiThreading;
   private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
-
-  private static final CompilationPhase thisPhase = CompilationPhase.FULL_RESOLUTION;
 
   /**
    * Create new instance to finally resolve all symbols, even inferred ones.

@@ -2,7 +2,7 @@ package org.ek9lang.compiler.main.rules;
 
 import java.util.List;
 import org.antlr.v4.runtime.Token;
-import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * Used for checking parameter list types match.

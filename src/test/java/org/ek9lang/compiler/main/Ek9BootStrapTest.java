@@ -1,25 +1,25 @@
 package org.ek9lang.compiler.main;
 
-import static org.ek9lang.compiler.internals.Ek9BuiltinLangSupplier.NUMBER_OF_EK9_SYMBOLS;
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_LANG;
+import static org.ek9lang.compiler.Ek9BuiltinLangSupplier.NUMBER_OF_EK9_SYMBOLS;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_LANG;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
+import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.CompilableSource;
+import org.ek9lang.compiler.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
-import org.ek9lang.compiler.internals.CompilableProgram;
-import org.ek9lang.compiler.internals.CompilableSource;
-import org.ek9lang.compiler.internals.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.compiler.symbol.AggregateSymbol;
-import org.ek9lang.compiler.symbol.IAggregateSymbol;
-import org.ek9lang.compiler.symbol.support.SimpleResolverForTesting;
-import org.ek9lang.compiler.symbol.support.SymbolCountCheck;
-import org.ek9lang.compiler.symbol.support.search.AnyTypeSymbolSearch;
-import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
-import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
+import org.ek9lang.compiler.symbols.search.AnyTypeSymbolSearch;
+import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
+import org.ek9lang.compiler.symbols.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.symbols.support.SimpleResolverForTesting;
+import org.ek9lang.compiler.symbols.support.SymbolCountCheck;
 import org.ek9lang.core.exception.CompilerException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

@@ -5,7 +5,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.MethodSymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
  * Typically used for Constructors, but could be used in other contexts where a method

@@ -4,8 +4,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.support.SymbolFactory;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.support.SymbolFactory;
 
 /**
  * Create a new parameterised symbol from a generic type and a set of type arguments.

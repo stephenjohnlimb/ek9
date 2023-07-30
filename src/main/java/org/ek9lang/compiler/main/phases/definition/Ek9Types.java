@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.main.phases.definition;
 
-import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * Used to cache built in types as they are so frequently used.

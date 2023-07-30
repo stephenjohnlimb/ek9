@@ -1,9 +1,9 @@
 package org.ek9lang.compiler.main.rules;
 
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.EXTERN;
+import static org.ek9lang.compiler.symbols.support.SymbolFactory.EXTERN;
 
 import java.util.function.Predicate;
-import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * Test if a symbol is externally implemented.

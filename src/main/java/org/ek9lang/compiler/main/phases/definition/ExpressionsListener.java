@@ -1,8 +1,8 @@
 package org.ek9lang.compiler.main.phases.definition;
 
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.resolvedefine.CheckAndTypeList;
 import org.ek9lang.compiler.main.resolvedefine.CheckAssignmentExpression;
 import org.ek9lang.compiler.main.resolvedefine.CheckAssignmentStatement;
@@ -18,10 +18,10 @@ import org.ek9lang.compiler.main.resolvedefine.CheckVariableAssignmentDeclaratio
 import org.ek9lang.compiler.main.resolvedefine.ResolveFieldOrError;
 import org.ek9lang.compiler.main.resolvedefine.ResolveIdentifierOrError;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOperationCallOrError;
-import org.ek9lang.compiler.symbol.IScope;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.support.ReturnTypeExtractor;
-import org.ek9lang.compiler.symbol.support.SymbolFactory;
+import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.support.ReturnTypeExtractor;
+import org.ek9lang.compiler.symbols.support.SymbolFactory;
 
 /**
  * This listener just deals with expressions and the types that result from expressions.

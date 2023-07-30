@@ -3,7 +3,7 @@ package org.ek9lang.compiler.main.rules;
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.symbol.VariableSymbol;
+import org.ek9lang.compiler.symbols.VariableSymbol;
 
 /**
  * Limits the use of '<- rtn <- SomeCall()' for returning so that a typeDef has to be provided.

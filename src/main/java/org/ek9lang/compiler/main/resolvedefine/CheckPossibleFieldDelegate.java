@@ -5,10 +5,10 @@ import java.util.function.Consumer;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.support.search.MatchResult;
-import org.ek9lang.compiler.symbol.support.search.MatchResults;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.search.MatchResult;
+import org.ek9lang.compiler.symbols.search.MatchResults;
 
 /**
  * As it is possible to have a field/property on an aggregate that has a type of 'function',

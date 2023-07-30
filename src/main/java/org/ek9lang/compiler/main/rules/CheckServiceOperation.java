@@ -1,19 +1,19 @@
 package org.ek9lang.compiler.main.rules;
 
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTP_ACCESS;
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTP_PATH;
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTP_REQUEST;
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTP_SOURCE;
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTP_VERB;
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.URI_PROTO;
+import static org.ek9lang.compiler.symbols.support.SymbolFactory.HTTP_ACCESS;
+import static org.ek9lang.compiler.symbols.support.SymbolFactory.HTTP_PATH;
+import static org.ek9lang.compiler.symbols.support.SymbolFactory.HTTP_REQUEST;
+import static org.ek9lang.compiler.symbols.support.SymbolFactory.HTTP_SOURCE;
+import static org.ek9lang.compiler.symbols.support.SymbolFactory.HTTP_VERB;
+import static org.ek9lang.compiler.symbols.support.SymbolFactory.URI_PROTO;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.ServiceOperationSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
 import org.ek9lang.core.exception.AssertValue;
 
 /**

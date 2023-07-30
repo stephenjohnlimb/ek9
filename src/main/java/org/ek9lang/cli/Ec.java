@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.ek9lang.cli.support.CompilationContext;
-import org.ek9lang.compiler.internals.Workspace;
+import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.core.exception.AssertValue;

@@ -5,17 +5,17 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9BaseListener;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.errors.ConflictingTokens;
 import org.ek9lang.compiler.errors.ConstructAndReferenceConflict;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.errors.ReferenceDoesNotResolve;
-import org.ek9lang.compiler.internals.CompilableProgram;
-import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.main.rules.CheckForInvalidUseOfReference;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.ScopeStack;
-import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.ScopeStack;
+import org.ek9lang.compiler.symbols.search.AnySymbolSearch;
 import org.ek9lang.core.exception.AssertValue;
 
 /**

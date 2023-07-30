@@ -5,7 +5,7 @@ import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.IScopedSymbol;
+import org.ek9lang.compiler.symbols.IScopedSymbol;
 
 /**
  * Only use when code being checked prohibits use in outer generic context.

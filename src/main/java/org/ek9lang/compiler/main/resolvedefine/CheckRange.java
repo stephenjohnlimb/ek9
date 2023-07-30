@@ -7,9 +7,9 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.support.CommonTypeSuperOrTrait;
-import org.ek9lang.compiler.symbol.support.SymbolFactory;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.support.CommonTypeSuperOrTrait;
+import org.ek9lang.compiler.symbols.support.SymbolFactory;
 
 /**
  * Checks the Range and ensures that there a Symbol recorded against that context.
@@ -31,7 +31,7 @@ public class CheckRange extends RuleSupport implements Consumer<EK9Parser.RangeC
                     final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
     this.symbolFactory = symbolFactory;
-    
+
     this.commonTypeSuperOrTrait = new CommonTypeSuperOrTrait(errorListener);
   }
 

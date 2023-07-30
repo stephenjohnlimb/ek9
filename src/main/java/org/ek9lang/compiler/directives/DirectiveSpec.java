@@ -2,7 +2,7 @@ package org.ek9lang.compiler.directives;
 
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
-import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * Specification of a directive, all the common details used in a range of directives.

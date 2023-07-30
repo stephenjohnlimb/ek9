@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import org.ek9lang.compiler.symbol.IScope;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
-import org.ek9lang.compiler.symbol.support.ParameterizedSymbolCreator;
-import org.ek9lang.compiler.symbol.support.search.AnyTypeSymbolSearch;
-import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
+import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
+import org.ek9lang.compiler.symbols.search.AnyTypeSymbolSearch;
+import org.ek9lang.compiler.symbols.search.SymbolSearch;
+import org.ek9lang.compiler.symbols.support.ParameterizedSymbolCreator;
 
 /**
  * Used to see if it is possible to resolve types, both simple and parametric.
@@ -18,12 +18,11 @@ import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
 public class GeneralTypeResolver implements Function<SymbolSearchConfiguration, Optional<ISymbol>> {
 
   private final IScope scopeForResolution;
+  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
 
   public GeneralTypeResolver(final IScope scopeForResolution) {
     this.scopeForResolution = scopeForResolution;
   }
-
-  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
 
   @Override
   public Optional<ISymbol> apply(final SymbolSearchConfiguration toResolve) {

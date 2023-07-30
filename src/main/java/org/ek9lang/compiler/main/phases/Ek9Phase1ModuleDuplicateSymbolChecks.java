@@ -3,14 +3,14 @@ package org.ek9lang.compiler.main.phases;
 import java.util.HashSet;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.errors.CompilationEvent;
-import org.ek9lang.compiler.internals.CompilableProgram;
-import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
 import org.ek9lang.compiler.main.phases.result.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.exception.AssertValue;
 import org.ek9lang.core.exception.CompilerException;
 import org.ek9lang.core.threads.SharedThreadContext;
@@ -25,11 +25,11 @@ import org.ek9lang.core.threads.SharedThreadContext;
  */
 public class Ek9Phase1ModuleDuplicateSymbolChecks
     implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+  private static final CompilationPhase thisPhase = CompilationPhase.DUPLICATION_CHECK;
   private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
-  private static final CompilationPhase thisPhase = CompilationPhase.DUPLICATION_CHECK;
 
   /**
    * Create a new duplicate checker for modules contained in the compilable program.

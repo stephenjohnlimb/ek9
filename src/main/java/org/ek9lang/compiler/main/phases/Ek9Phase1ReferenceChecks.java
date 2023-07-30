@@ -3,10 +3,10 @@ package org.ek9lang.compiler.main.phases;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.CompilableSource;
+import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.errors.CompilationEvent;
-import org.ek9lang.compiler.internals.CompilableProgram;
-import org.ek9lang.compiler.internals.CompilableSource;
-import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
 import org.ek9lang.compiler.main.phases.resolution.ReferencesPhase1Listener;
 import org.ek9lang.compiler.main.phases.result.CompilableSourceErrorCheck;
@@ -21,12 +21,11 @@ import org.ek9lang.core.threads.SharedThreadContext;
  * com.def.Item in the same module - even though different source files.
  */
 public class Ek9Phase1ReferenceChecks implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+  private static final CompilationPhase thisPhase = CompilationPhase.REFERENCE_CHECKS;
   private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
-
-  private static final CompilationPhase thisPhase = CompilationPhase.REFERENCE_CHECKS;
 
   /**
    * Create a new reference checker for modules contained in the compilable program.

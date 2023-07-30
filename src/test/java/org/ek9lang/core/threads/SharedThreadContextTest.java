@@ -31,9 +31,7 @@ class SharedThreadContextTest {
   @Test
   void testJustReadAccess() {
     final var underTest = new SharedThreadContext<>(new SomeDataAggregate(21));
-    underTest.accept(myAggregate -> {
-      assertEquals(21, myAggregate.getSomeValue());
-    });
+    underTest.accept(myAggregate -> assertEquals(21, myAggregate.getSomeValue()));
   }
 
   @Test
@@ -44,9 +42,7 @@ class SharedThreadContextTest {
       data.setSomeOtherValue(45.77f);
       data.setSomeValue(23);
       //Test we can get the lock when we already have it.
-      underTest.accept(data2 -> {
-        data2.setSomeValue(24);
-      });
+      underTest.accept(data2 -> data2.setSomeValue(24));
     });
 
     underTest.accept(data -> {
@@ -75,20 +71,20 @@ class SharedThreadContextTest {
       someOtherValue = 0.0f;
     }
 
-    public void setSomeValue(int newValue) {
-      this.someValue = newValue;
-    }
-
     public Integer getSomeValue() {
       return this.someValue;
     }
 
-    public void setSomeOtherValue(float newValue) {
-      this.someOtherValue = newValue;
+    public void setSomeValue(int newValue) {
+      this.someValue = newValue;
     }
 
     public Float getSomeOtherValue() {
       return this.someOtherValue;
+    }
+
+    public void setSomeOtherValue(float newValue) {
+      this.someOtherValue = newValue;
     }
   }
 }

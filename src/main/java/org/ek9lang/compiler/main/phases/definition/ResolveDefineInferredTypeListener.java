@@ -1,8 +1,8 @@
 package org.ek9lang.compiler.main.phases.definition;
 
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.resolvedefine.AutoMatchSuperFunctionSignature;
 import org.ek9lang.compiler.main.resolvedefine.CheckForDynamicFunctionBody;
 import org.ek9lang.compiler.main.resolvedefine.CheckFunctionOverrides;
@@ -11,10 +11,10 @@ import org.ek9lang.compiler.main.resolvedefine.CheckMethodReturn;
 import org.ek9lang.compiler.main.resolvedefine.CheckPossibleFieldDelegate;
 import org.ek9lang.compiler.main.resolvedefine.CheckReturn;
 import org.ek9lang.compiler.main.resolvedefine.DynamicCaptureAndDefinition;
-import org.ek9lang.compiler.symbol.AggregateSymbol;
-import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
-import org.ek9lang.compiler.symbol.CaptureScope;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
+import org.ek9lang.compiler.symbols.CaptureScope;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
 
 /**
  * This is a really critical point, because this attempts to ensure that ANY expression

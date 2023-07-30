@@ -13,7 +13,7 @@ public abstract class RuleSupport {
   protected final ErrorListener errorListener;
 
   protected RuleSupport(final SymbolAndScopeManagement symbolAndScopeManagement,
-                     final ErrorListener errorListener) {
+                        final ErrorListener errorListener) {
 
     AssertValue.checkNotNull("symbolAndScopeManagement cannot be null", symbolAndScopeManagement);
     AssertValue.checkNotNull("errorListener cannot be null", errorListener);

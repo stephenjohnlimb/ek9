@@ -3,11 +3,11 @@ package org.ek9lang.compiler.main.phases.common;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9BaseListener;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.internals.ParsedModule;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
-import org.ek9lang.compiler.symbol.IScope;
-import org.ek9lang.compiler.symbol.ScopeStack;
+import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.symbols.ScopeStack;
 import org.ek9lang.core.exception.AssertValue;
 
 /**
@@ -22,9 +22,8 @@ import org.ek9lang.core.exception.AssertValue;
  */
 public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
 
-  private final ParsedModule parsedModule;
-
   protected final SymbolAndScopeManagement symbolAndScopeManagement;
+  private final ParsedModule parsedModule;
 
   protected AbstractEK9PhaseListener(ParsedModule parsedModule) {
     AssertValue.checkNotNull("ParsedModule cannot be null", parsedModule);

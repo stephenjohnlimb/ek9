@@ -3,8 +3,8 @@ package org.ek9lang.compiler.main.resolvedefine;
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.main.phases.definition.Ek9Types;
-import org.ek9lang.compiler.symbol.IAggregateSymbol;
-import org.ek9lang.compiler.symbol.support.AggregateFactory;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
+import org.ek9lang.compiler.symbols.support.AggregateFactory;
 
 /**
  * Some aggregates like classes, components, etc. Can be defined without a constructor.

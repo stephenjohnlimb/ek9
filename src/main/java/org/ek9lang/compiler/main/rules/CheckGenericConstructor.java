@@ -3,9 +3,9 @@ package org.ek9lang.compiler.main.rules;
 import java.util.function.BiConsumer;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.symbol.IAggregateSymbol;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.MethodSymbol;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
  * Checks that a constructor method on a generic aggregate has the same number of

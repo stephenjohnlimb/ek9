@@ -3,11 +3,11 @@ package org.ek9lang.compiler.main.phases;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.CompilableSource;
+import org.ek9lang.compiler.ParsedModule;
+import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.errors.CompilationEvent;
-import org.ek9lang.compiler.internals.CompilableProgram;
-import org.ek9lang.compiler.internals.CompilableSource;
-import org.ek9lang.compiler.internals.ParsedModule;
-import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
 import org.ek9lang.compiler.main.phases.definition.BuiltInTypeCacheResolver;
 import org.ek9lang.compiler.main.phases.definition.DefinitionPhase1Listener;
@@ -25,13 +25,12 @@ import org.ek9lang.core.threads.SharedThreadContext;
  */
 public class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
 
-  private boolean useMultiThreading = true;
+  private static final CompilationPhase thisPhase = CompilationPhase.SYMBOL_DEFINITION;
   private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
-
-  private static final CompilationPhase thisPhase = CompilationPhase.SYMBOL_DEFINITION;
+  private boolean useMultiThreading = true;
 
   /**
    * Create a new phase 1 symbol definition instance.

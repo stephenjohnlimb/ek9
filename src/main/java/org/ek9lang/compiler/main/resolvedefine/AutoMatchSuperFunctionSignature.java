@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
 
 /**
  * The ek9 develop does not need to redeclare incoming or returning parameters for dynamic functions.

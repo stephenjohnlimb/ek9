@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.Iterator;
 import java.util.List;
+import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.internals.CompilableProgram;
-import org.ek9lang.compiler.internals.CompilableSource;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Assertions;
@@ -18,21 +18,18 @@ import org.junit.jupiter.api.Test;
  */
 class BadDirectivesFullCompilationTest extends FullCompilationTest {
 
+  private final List<Integer> badErrorLineNumbers
+      = List.of(10, 14, 18, 23, 28, 36);
+  private final List<Integer> badDirectiveErrorLineNumbers
+      = List.of(10, 14, 18, 23, 28, 35);
+  private final List<Integer> badResolutionLineNumbers
+      = List.of(6, 10, 14, 18, 22, 26, 46, 51, 75);
+  private final List<Integer> badDirectiveResolutionErrorLineNumbers
+      = List.of(31, 36, 41, 64, 82, 90, 98, 105, 123, 133);
+
   public BadDirectivesFullCompilationTest() {
     super("/examples/parseButFailCompile/badDirectives");
   }
-
-  private final List<Integer> badErrorLineNumbers
-      = List.of(10, 14, 18, 23, 28, 36);
-
-  private final List<Integer> badDirectiveErrorLineNumbers
-      = List.of(10, 14, 18, 23, 28, 35);
-
-  private final List<Integer> badResolutionLineNumbers
-      = List.of(6, 10, 14, 18, 22, 26, 46, 51, 75);
-
-  private final List<Integer> badDirectiveResolutionErrorLineNumbers
-      = List.of(31, 36, 41, 64, 82, 90, 98, 105, 123, 133);
 
   @Test
   void testPhaseDevelopment() {

@@ -5,7 +5,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
 
 /**
  * Checks if the body of a function is appropriate.
@@ -16,6 +16,7 @@ public class CheckInappropriateFunctionBody extends RuleSupport implements
 
   private final CheckForBody checkForBody = new CheckForBody();
   private final ExternallyImplemented externallyImplemented = new ExternallyImplemented();
+
   public CheckInappropriateFunctionBody(
       SymbolAndScopeManagement symbolAndScopeManagement,
       ErrorListener errorListener) {

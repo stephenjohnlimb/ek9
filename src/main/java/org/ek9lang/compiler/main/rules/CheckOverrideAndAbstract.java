@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.MethodSymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
  * Checks for both abstract and override. As this makes no sense.

@@ -1,11 +1,11 @@
 package org.ek9lang.compiler.main.rules;
 
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.DEFAULTED;
+import static org.ek9lang.compiler.symbols.support.SymbolFactory.DEFAULTED;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.symbol.MethodSymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
  * Check non-trait specifics on methods/operators.

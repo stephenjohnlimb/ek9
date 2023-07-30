@@ -3,7 +3,7 @@ package org.ek9lang.compiler.main.rules;
 import java.util.function.BiConsumer;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.symbol.IScope;
+import org.ek9lang.compiler.symbols.IScope;
 
 /**
  * Just check is a scope has normal termination.

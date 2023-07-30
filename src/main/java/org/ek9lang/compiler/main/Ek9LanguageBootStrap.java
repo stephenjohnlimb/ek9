@@ -2,10 +2,10 @@ package org.ek9lang.compiler.main;
 
 import java.util.List;
 import java.util.function.Supplier;
+import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.CompilableSource;
+import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
-import org.ek9lang.compiler.internals.CompilableProgram;
-import org.ek9lang.compiler.internals.CompilableSource;
-import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.phases.options.FrontEndSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.core.exception.CompilerException;

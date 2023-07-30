@@ -33,7 +33,7 @@ class FileCacheTest {
       new SourceFileSupport(fileHandling, osSupport);
 
   private final Supplier<Optional<SourceResource>> helloWorldSource = () ->
-      Optional.of(new SourceResource(false,"/examples/basics/",
+      Optional.of(new SourceResource(false, "/examples/basics/",
           "HelloWorld.ek9", "."));
 
   @AfterEach
@@ -157,7 +157,7 @@ class FileCacheTest {
     var justFileNames = identifiedFiles.stream().map(File::getName).toList();
     assertEquals(expectedFiles.size(), justFileNames.size());
 
-    var allPresent = justFileNames.stream().allMatch(justFileNames::contains);
+    var allPresent = justFileNames.containsAll(expectedFiles);
 
     assertTrue(allPresent);
   }

@@ -40,7 +40,7 @@ public final class SourceFileSupport {
     //Now we can put a dummy source file in the simulated/test cwd and then try and process it.
     File cwd = new File(osSupport.getCurrentWorkingDirectory());
     assertTrue(cwd.exists());
-    File directory = directoryNameUnderCWD != "."
+    File directory = !directoryNameUnderCWD.equals(".")
         ? new File(cwd, directoryNameUnderCWD)
         : cwd;
     osSupport.makeDirectoryIfNotExists(directory);
@@ -48,7 +48,7 @@ public final class SourceFileSupport {
     return copyToDirectory(fileToCopy, directory, ek9SourceFileName);
   }
 
-    private File copyToDirectory(File toCopy, File directory, String fileName) {
+  private File copyToDirectory(File toCopy, File directory, String fileName) {
     File aSourceFile = new File(directory, fileName);
     if (!aSourceFile.exists()) {
       assertTrue(fileHandling.copy(new File(toCopy.getParent()), directory, fileName));

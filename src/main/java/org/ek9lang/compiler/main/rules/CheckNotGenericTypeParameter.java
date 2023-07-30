@@ -4,7 +4,7 @@ import static org.ek9lang.compiler.errors.ErrorListener.SemanticClassification.C
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * Checks that the variable supplied (if not null and has a type), does not have a type that

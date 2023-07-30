@@ -5,7 +5,7 @@ import org.ek9lang.compiler.errors.CompilationEvent;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.support.TypeDefResolver;
-import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * For resolved and notResolved directives.

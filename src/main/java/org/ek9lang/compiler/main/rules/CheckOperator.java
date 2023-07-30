@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.main.rules;
 
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.DEFAULTED;
+import static org.ek9lang.compiler.symbols.support.SymbolFactory.DEFAULTED;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,9 +11,9 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.MethodSymbol;
-import org.ek9lang.compiler.symbol.support.search.TypeSymbolSearch;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.search.TypeSymbolSearch;
 
 /**
  * Checks operators from various contexts, typically this is delegated to other functions.
@@ -125,7 +125,8 @@ public class CheckOperator extends RuleSupport
     var defaulted = "TRUE".equals(methodSymbol.getSquirrelledData(DEFAULTED));
 
     if (!defaulted) {
-      operatorChecks.getOrDefault(ctx.operator().getText(), method -> {}).accept(methodSymbol);
+      operatorChecks.getOrDefault(ctx.operator().getText(), method -> {
+      }).accept(methodSymbol);
     }
 
     if (ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext) {

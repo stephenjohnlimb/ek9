@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.main.phases.definition;
 
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.internals.ParsedModule;
+import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.main.phases.common.AbstractEK9PhaseListener;
 
 /**

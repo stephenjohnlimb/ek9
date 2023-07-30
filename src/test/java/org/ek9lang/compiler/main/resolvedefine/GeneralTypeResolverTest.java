@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.ek9lang.compiler.support.TypeDefResolver;
-import org.ek9lang.compiler.symbol.AggregateSymbol;
-import org.ek9lang.compiler.symbol.SymbolTable;
-import org.ek9lang.compiler.symbol.support.AggregateFactory;
-import org.ek9lang.compiler.symbol.support.ParameterizedSymbolCreator;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.SymbolTable;
+import org.ek9lang.compiler.symbols.support.AggregateFactory;
+import org.ek9lang.compiler.symbols.support.ParameterizedSymbolCreator;
 import org.junit.jupiter.api.Test;
 
 /**

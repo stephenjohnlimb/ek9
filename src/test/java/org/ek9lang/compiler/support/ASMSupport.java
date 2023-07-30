@@ -12,13 +12,13 @@ import org.objectweb.asm.util.ASMifier;
 public class ASMSupport {
 
   /**
-  * Prints the ASM source code to generate the given class to the standard output.
-  * Usage: ASMSupport [-nodebug] <binary class name or class file name>
-  * Params:
-  * args – the command line arguments.
-  * Throws:
-  * IOException – if the class cannot be found, or if an IOException occurs.
-  */
+   * Prints the ASM source code to generate the given class to the standard output.
+   * Usage: ASMSupport [-nodebug] <binary class name or class file name>
+   * Params:
+   * args – the command line arguments.
+   * Throws:
+   * IOException – if the class cannot be found, or if an IOException occurs.
+   */
   public static void main(String[] args) throws IOException {
     ASMifier.main(args);
   }

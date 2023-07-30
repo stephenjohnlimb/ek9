@@ -2,14 +2,14 @@ package org.ek9lang.compiler.main.phases.definition;
 
 import java.util.Optional;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.ek9lang.compiler.internals.ParsedModule;
-import org.ek9lang.compiler.symbol.IScope;
-import org.ek9lang.compiler.symbol.IScopedSymbol;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
-import org.ek9lang.compiler.symbol.ScopeStack;
-import org.ek9lang.compiler.symbol.StackConsistencyScope;
-import org.ek9lang.compiler.symbol.support.SymbolChecker;
+import org.ek9lang.compiler.ParsedModule;
+import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.symbols.IScopedSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
+import org.ek9lang.compiler.symbols.ScopeStack;
+import org.ek9lang.compiler.symbols.StackConsistencyScope;
+import org.ek9lang.compiler.symbols.support.SymbolChecker;
 import org.ek9lang.core.exception.AssertValue;
 
 /**

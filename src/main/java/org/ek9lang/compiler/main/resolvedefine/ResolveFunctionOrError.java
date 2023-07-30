@@ -4,9 +4,9 @@ import java.util.function.Function;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
-import org.ek9lang.compiler.symbol.support.SymbolTypeExtractor;
-import org.ek9lang.compiler.symbol.support.ToCommaSeparated;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.support.SymbolTypeExtractor;
+import org.ek9lang.compiler.symbols.support.ToCommaSeparated;
 
 /**
  * Check for valid function parameters.

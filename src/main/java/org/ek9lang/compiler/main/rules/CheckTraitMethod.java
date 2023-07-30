@@ -2,7 +2,7 @@ package org.ek9lang.compiler.main.rules;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.symbol.MethodSymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
  * Check trait specifics on methods/operators, Allowing missing body but marking as abstract.

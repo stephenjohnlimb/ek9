@@ -5,16 +5,16 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.CompilableSource;
+import org.ek9lang.compiler.Workspace;
+import org.ek9lang.compiler.directives.DirectiveType;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
-import org.ek9lang.compiler.internals.CompilableProgram;
-import org.ek9lang.compiler.internals.CompilableSource;
-import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.compiler.parsing.WorkSpaceFromResourceDirectoryFiles;
-import org.ek9lang.compiler.directives.DirectiveType;
-import org.ek9lang.compiler.symbol.support.ShowAllSymbolsInAllModules;
+import org.ek9lang.compiler.symbols.support.ShowAllSymbolsInAllModules;
 import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Assertions;
 
@@ -83,7 +83,7 @@ abstract class FullCompilationTest {
     //Now also contains the types and locations of the errors we are looking for.
 
     //Dump all the symbols for all modules.
-    if(errorOnDirectiveErrors()) {
+    if (errorOnDirectiveErrors()) {
       if (source.getErrorListener().hasDirectiveErrors()) {
         System.out.println("Dumping all Symbols from all Modules");
         showAllSymbolsInAllModules.accept(sharedCompilableProgram);
@@ -106,7 +106,7 @@ abstract class FullCompilationTest {
           counter.getAndIncrement();
           System.out.println(error);
         });
-        if(phase != upToPhase) {
+        if (phase != upToPhase) {
           System.out.println("Had errors before reaching phase: " + upToPhase);
           Assertions.fail("Test result is not valid");
         }

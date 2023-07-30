@@ -6,7 +6,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.exception.AssertValue;
 
 /**
@@ -14,7 +14,6 @@ import org.ek9lang.core.exception.AssertValue;
  * There was a placeholder in for primary, that can now be replaced with the real resolved symbol.
  */
 public class CheckValidPrimary extends RuleSupport implements Consumer<EK9Parser.PrimaryContext> {
-
 
 
   /**

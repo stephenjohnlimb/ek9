@@ -53,9 +53,9 @@ final class CommandLineDetailsTest {
       };
 
   private final Function<String, Function<String, CommandLineDetails>> makeProcess = command ->
-    copyFileToTestCWD
-        .andThen(fileName -> command + " " + fileName)
-        .andThen(processStringCommandLineExpectSuccess);
+      copyFileToTestCWD
+          .andThen(fileName -> command + " " + fileName)
+          .andThen(processStringCommandLineExpectSuccess);
 
   private final Consumer<CommandLineDetails> assertIncrementalCompilation =
       commandLineDetails -> assertTrue(commandLineDetails.isIncrementalCompile());
@@ -406,7 +406,7 @@ final class CommandLineDetailsTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"-IV","-d", "-T wasm"})
+  @ValueSource(strings = {"-IV", "-d", "-T wasm"})
   void testBadCommandLine(String commandOption) {
     String sourceName = "SinglePackage.ek9";
     //We will copy this into a working directory and process it.

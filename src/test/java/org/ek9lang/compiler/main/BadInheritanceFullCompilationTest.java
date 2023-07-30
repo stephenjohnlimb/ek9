@@ -7,15 +7,15 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import java.util.Optional;
-import org.ek9lang.compiler.internals.CompilableProgram;
+import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
-import org.ek9lang.compiler.symbol.AggregateSymbol;
-import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
-import org.ek9lang.compiler.symbol.IAggregateSymbol;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.Symbol;
-import org.ek9lang.compiler.symbol.support.SimpleResolverForTesting;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.Symbol;
+import org.ek9lang.compiler.symbols.support.SimpleResolverForTesting;
 import org.junit.jupiter.api.Test;
 
 /**

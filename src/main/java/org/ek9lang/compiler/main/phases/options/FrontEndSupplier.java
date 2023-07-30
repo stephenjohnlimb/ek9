@@ -2,9 +2,9 @@ package org.ek9lang.compiler.main.phases.options;
 
 import java.util.List;
 import java.util.function.BiFunction;
+import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
-import org.ek9lang.compiler.internals.CompilableProgram;
-import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
 import org.ek9lang.compiler.main.phases.Ek9Phase0Parsing;
 import org.ek9lang.compiler.main.phases.Ek9Phase1ModuleDuplicateSymbolChecks;

@@ -1,14 +1,14 @@
 package org.ek9lang.compiler.main.resolvedefine;
 
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_VOID;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_VOID;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.main.rules.ExternallyImplemented;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.support.LocationExtractor;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.support.LocationExtractor;
 
 /**
  * Checks if the return value (if present) has been initialised.

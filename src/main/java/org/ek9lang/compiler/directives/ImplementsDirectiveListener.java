@@ -3,9 +3,9 @@ package org.ek9lang.compiler.directives;
 import org.ek9lang.compiler.errors.CompilationEvent;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.support.TypeDefResolver;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
-import org.ek9lang.compiler.symbol.IAggregateSymbol;
-import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * Just checks if there are any directives that relate to @Implements in the parsed module and checks the

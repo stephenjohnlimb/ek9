@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.main.rules;
 
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.HTTP_VERB;
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.URI_PROTO;
+import static org.ek9lang.compiler.symbols.support.SymbolFactory.HTTP_VERB;
+import static org.ek9lang.compiler.symbols.support.SymbolFactory.URI_PROTO;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.IAggregateSymbol;
-import org.ek9lang.compiler.symbol.ServiceOperationSymbol;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
+import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
 
 /**
  * Examines all the service operations on a service and looks at the verbs used and the uti proto paths.

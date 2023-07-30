@@ -4,7 +4,7 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
-import org.ek9lang.compiler.internals.Workspace;
+import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.core.exception.AssertValue;

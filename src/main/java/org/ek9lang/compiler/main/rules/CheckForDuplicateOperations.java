@@ -7,11 +7,11 @@ import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.IAggregateSymbol;
-import org.ek9lang.compiler.symbol.MethodSymbol;
-import org.ek9lang.compiler.symbol.Symbol;
-import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearch;
-import org.ek9lang.compiler.symbol.support.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.Symbol;
+import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
+import org.ek9lang.compiler.symbols.search.MethodSymbolSearchResult;
 
 /**
  * Does a simple check (excluding any inheritance) for duplicated operations (methods, operators) on

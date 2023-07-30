@@ -4,8 +4,8 @@ import java.util.function.Consumer;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.support.SymbolTypeExtractor;
-import org.ek9lang.compiler.symbol.support.TypeListComparator;
+import org.ek9lang.compiler.symbols.support.SymbolTypeExtractor;
+import org.ek9lang.compiler.symbols.support.TypeListComparator;
 
 /**
  * Checks the number and types of the two sets of parameter list match exactly.

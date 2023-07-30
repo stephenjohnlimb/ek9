@@ -6,10 +6,10 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.IScope;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.support.search.AnySymbolSearch;
-import org.ek9lang.compiler.symbol.support.search.SymbolSearch;
+import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.search.AnySymbolSearch;
+import org.ek9lang.compiler.symbols.search.SymbolSearch;
 
 /**
  * Ensures that 'identifierReference' is now resolved and hangs together and 'typed' or a not resolved error.

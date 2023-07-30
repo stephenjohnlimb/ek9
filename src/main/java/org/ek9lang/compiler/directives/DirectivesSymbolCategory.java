@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * Just extracts the symbol category or throws an illegal argument exception.

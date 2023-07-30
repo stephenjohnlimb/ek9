@@ -13,7 +13,9 @@ class ExceptionConverterTest {
     var underTest = new ExceptionConverter<Boolean>();
 
     Exception exception = assertThrows(CompilerException.class,
-        () -> underTest.apply(() -> { throw new Exception("A test");}));
+        () -> underTest.apply(() -> {
+          throw new Exception("A test");
+        }));
     assertNotNull(exception);
   }
 }

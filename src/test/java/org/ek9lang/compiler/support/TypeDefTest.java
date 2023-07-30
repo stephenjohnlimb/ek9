@@ -1,17 +1,17 @@
 package org.ek9lang.compiler.support;
 
-import static org.ek9lang.compiler.symbol.support.AggregateFactory.EK9_LANG;
+import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_LANG;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.ek9lang.compiler.internals.Ek9BuiltinLangSupplier;
+import org.ek9lang.compiler.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.main.Ek9LanguageBootStrap;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineTypeDef;
-import org.ek9lang.compiler.symbol.ScopeStack;
-import org.ek9lang.compiler.symbol.support.SymbolFactory;
+import org.ek9lang.compiler.symbols.ScopeStack;
+import org.ek9lang.compiler.symbols.support.SymbolFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,11 +24,9 @@ import org.junit.jupiter.params.provider.CsvSource;
  */
 class TypeDefTest {
 
-  private TypeDefResolver underTest;
-
-  private ResolveOrDefineTypeDef resolveOrDefineTypeDef;
-
   private final PartialEk9StringToTypeDef partialEk9StringToTypeDef = new PartialEk9StringToTypeDef();
+  private TypeDefResolver underTest;
+  private ResolveOrDefineTypeDef resolveOrDefineTypeDef;
 
   public TypeDefTest() {
     //OK boot up the ek9 main module scope loaded for testing resolutions.

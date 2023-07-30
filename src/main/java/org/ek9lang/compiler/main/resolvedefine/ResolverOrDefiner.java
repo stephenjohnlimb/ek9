@@ -6,9 +6,9 @@ import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.ISymbol;
-import org.ek9lang.compiler.symbol.PossibleGenericSymbol;
-import org.ek9lang.compiler.symbol.support.SymbolFactory;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
+import org.ek9lang.compiler.symbols.support.SymbolFactory;
 import org.ek9lang.core.exception.AssertValue;
 
 /**
@@ -20,8 +20,8 @@ public abstract class ResolverOrDefiner extends RuleSupport {
   protected final boolean errorIfNotDefinedOrResolved;
 
   protected ResolverOrDefiner(final SymbolAndScopeManagement symbolAndScopeManagement,
-                                 final SymbolFactory symbolFactory, final ErrorListener errorListener,
-                                 final boolean errorIfNotDefinedOrResolved) {
+                              final SymbolFactory symbolFactory, final ErrorListener errorListener,
+                              final boolean errorIfNotDefinedOrResolved) {
     super(symbolAndScopeManagement, errorListener);
     AssertValue.checkNotNull("symbolFactory cannot be null", symbolFactory);
 

@@ -3,16 +3,15 @@ package org.ek9lang.compiler.main.rules;
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.symbol.ServiceOperationSymbol;
+import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
 
 /**
  * Error when the definition of a service operator is invalid.
  */
 public class CheckForInvalidServiceOperator implements Consumer<ServiceOperationSymbol> {
-  private final ErrorListener errorListener;
-
   private static final List<String> supportedOperators = List.of(
       "+", "+=", "-", "-=", ":^:", ":~:", "?");
+  private final ErrorListener errorListener;
 
   public CheckForInvalidServiceOperator(final ErrorListener errorListener) {
     this.errorListener = errorListener;

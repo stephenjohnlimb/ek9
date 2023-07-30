@@ -9,8 +9,8 @@ import org.ek9lang.compiler.main.rules.CheckTypeCovariance;
 import org.ek9lang.compiler.main.rules.CovarianceCheckData;
 import org.ek9lang.compiler.main.rules.ParametersCheckData;
 import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
-import org.ek9lang.compiler.symbol.support.LocationExtractor;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.support.LocationExtractor;
 
 /**
  * Checks that the function correctly overrides the signature if it has a super.

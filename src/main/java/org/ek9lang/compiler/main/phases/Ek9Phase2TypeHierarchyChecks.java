@@ -4,30 +4,29 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.errors.CompilationEvent;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.internals.CompilableProgram;
-import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
 import org.ek9lang.compiler.main.phases.result.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.compiler.symbol.AggregateSymbol;
-import org.ek9lang.compiler.symbol.AggregateWithTraitsSymbol;
-import org.ek9lang.compiler.symbol.FunctionSymbol;
-import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.threads.SharedThreadContext;
 
 /**
  * SINGLE THREADED - Run across sources to check for types, functions and traits for 'super loops'.
  */
 public class Ek9Phase2TypeHierarchyChecks implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+  private static final CompilationPhase thisPhase = CompilationPhase.TYPE_HIERARCHY_CHECKS;
   private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
-
-  private static final CompilationPhase thisPhase = CompilationPhase.TYPE_HIERARCHY_CHECKS;
 
   /**
    * Create a new instance for checking of type hierarchies.

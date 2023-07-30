@@ -2,7 +2,7 @@ package org.ek9lang.compiler.main.rules;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.symbol.AggregateSymbol;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
 
 /**
  * Error when the definition of a service is invalid.

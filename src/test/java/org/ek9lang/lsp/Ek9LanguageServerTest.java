@@ -43,19 +43,15 @@ import org.junit.jupiter.api.Test;
 
 final class Ek9LanguageServerTest {
 
+  final static String validSource = "SinglePackage.ek9";
+  final static String relativePathToValidSource = "/examples/constructs/packages/";
+  final static String invalidSource = "unevenIndentation.ek9";
+  final static String relativePathToInvalidSource = "/badExamples/basics/";
   private static final OsSupport osSupport = new OsSupport(true);
   private static final FileHandling fileHandling = new FileHandling(osSupport);
   private static final SourceFileSupport sourceFileSupport =
       new SourceFileSupport(fileHandling, osSupport);
-
   final String workspaceDirectory = osSupport.getCurrentWorkingDirectory();
-
-  final static String validSource = "SinglePackage.ek9";
-  final static String relativePathToValidSource = "/examples/constructs/packages/";
-
-  final static String invalidSource = "unevenIndentation.ek9";
-  final static String relativePathToInvalidSource = "/badExamples/basics/";
-
   final Supplier<InitializeParams> initParameters = () -> {
     InitializeParams params = new InitializeParams();
     var uri = new File(workspaceDirectory).toURI().toString();
@@ -94,11 +90,11 @@ final class Ek9LanguageServerTest {
   }
 
   @Test
-  /*
-   * This just checks for word completion of the language.
-   * Later once the parsing and processing is complete it will be possible
-   * to use completion for variable, class, record, method and function names.
-   */
+    /*
+     * This just checks for word completion of the language.
+     * Later once the parsing and processing is complete it will be possible
+     * to use completion for variable, class, record, method and function names.
+     */
   void testLanguageCompletionAndHover() throws ExecutionException, InterruptedException {
     var sourceFile = sourceFileSupport.copyFileToTestCWD(relativePathToValidSource, validSource);
 

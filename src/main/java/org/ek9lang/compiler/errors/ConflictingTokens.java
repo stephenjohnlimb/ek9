@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.errors;
 
 import org.antlr.v4.runtime.Token;
-import org.ek9lang.compiler.symbol.ISymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * Designed to encapsulate the fact that two token are in conflict for a Symbol.
