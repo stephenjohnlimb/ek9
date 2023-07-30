@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.main.directives;
+package org.ek9lang.compiler.directives;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;

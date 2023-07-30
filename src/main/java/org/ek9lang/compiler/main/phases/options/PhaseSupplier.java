@@ -9,7 +9,7 @@ import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.internals.CompilableProgram;
 import org.ek9lang.compiler.internals.Workspace;
 import org.ek9lang.compiler.main.CompilerFlags;
-import org.ek9lang.compiler.main.directives.DirectiveListenerSupplier;
+import org.ek9lang.compiler.directives.DirectiveListenerSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.core.exception.AssertValue;

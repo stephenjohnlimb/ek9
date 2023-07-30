@@ -13,7 +13,7 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.compiler.parsing.WorkSpaceFromResourceDirectoryFiles;
-import org.ek9lang.compiler.support.DirectiveType;
+import org.ek9lang.compiler.directives.DirectiveType;
 import org.ek9lang.compiler.symbol.support.ShowAllSymbolsInAllModules;
 import org.ek9lang.core.threads.SharedThreadContext;
 import org.junit.jupiter.api.Assertions;

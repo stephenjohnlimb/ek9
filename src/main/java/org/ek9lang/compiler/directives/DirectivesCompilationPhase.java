@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.support;
+package org.ek9lang.compiler.directives;
 
 import java.util.Arrays;
 import java.util.List;

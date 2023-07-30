@@ -1,7 +1,6 @@
 package org.ek9lang.compiler.main.rules;
 
 import static org.ek9lang.compiler.symbol.support.SymbolFactory.DEFAULTED;
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.EXTERN;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
@@ -15,6 +14,7 @@ public class CheckNonTraitMethod implements BiConsumer<MethodSymbol, EK9Parser.O
 
   private final CheckForBody checkForBody = new CheckForBody();
 
+  private final ExternallyImplemented externallyImplemented = new ExternallyImplemented();
   private final ErrorListener errorListener;
 
   public CheckNonTraitMethod(final ErrorListener errorListener) {
@@ -29,7 +29,7 @@ public class CheckNonTraitMethod implements BiConsumer<MethodSymbol, EK9Parser.O
     //So for general methods if they are not marked as abstract and have no supplied body
     //Then we must check if it is marked as default or is externally provided.
     var isDefaultedMethod = "TRUE".equals(method.getSquirrelledData(DEFAULTED));
-    var isExternallyImplemented = "TRUE".equals(method.getSquirrelledData(EXTERN));
+    var isExternallyImplemented = externallyImplemented.test(method);
 
     if (isVirtual && !isDefaultedMethod && !isExternallyImplemented) {
       errorListener.semanticError(method.getSourceToken(), "",

@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.main.directives;
+package org.ek9lang.compiler.directives;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -7,9 +7,6 @@ import java.util.Map;
 import org.ek9lang.compiler.errors.CompilationEvent;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.support.Directive;
-import org.ek9lang.compiler.support.DirectiveType;
-import org.ek9lang.compiler.support.ErrorDirective;
 import org.ek9lang.compiler.tokenizer.SyntheticToken;
 
 /**

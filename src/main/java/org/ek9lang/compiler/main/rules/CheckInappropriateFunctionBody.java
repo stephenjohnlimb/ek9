@@ -1,7 +1,5 @@
 package org.ek9lang.compiler.main.rules;
 
-import static org.ek9lang.compiler.symbol.support.SymbolFactory.EXTERN;
-
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
@@ -17,7 +15,7 @@ public class CheckInappropriateFunctionBody extends RuleSupport implements
     BiConsumer<FunctionSymbol, EK9Parser.OperationDetailsContext> {
 
   private final CheckForBody checkForBody = new CheckForBody();
-
+  private final ExternallyImplemented externallyImplemented = new ExternallyImplemented();
   public CheckInappropriateFunctionBody(
       SymbolAndScopeManagement symbolAndScopeManagement,
       ErrorListener errorListener) {
@@ -29,7 +27,7 @@ public class CheckInappropriateFunctionBody extends RuleSupport implements
                      final EK9Parser.OperationDetailsContext ctx) {
     final var hasBody = checkForBody.test(ctx);
     var isAbstract = functionSymbol.isMarkedAbstract();
-    var isExternallyImplemented = "TRUE".equals(functionSymbol.getSquirrelledData(EXTERN));
+    var isExternallyImplemented = externallyImplemented.test(functionSymbol);
 
     if (hasBody && isAbstract) {
       errorListener.semanticError(functionSymbol.getSourceToken(), "",
