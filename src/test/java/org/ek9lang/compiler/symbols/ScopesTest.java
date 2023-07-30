@@ -17,8 +17,8 @@ import org.ek9lang.compiler.symbols.search.TypeSymbolSearch;
 import org.ek9lang.compiler.symbols.support.AggregateFactory;
 import org.ek9lang.compiler.symbols.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.symbols.support.TypeCreator;
-import org.ek9lang.core.SharedThreadContext;
 import org.ek9lang.core.Logger;
+import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
 /**

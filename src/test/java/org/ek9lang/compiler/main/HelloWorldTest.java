@@ -5,13 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.function.Supplier;
 import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.Ek9Compiler;
 import org.ek9lang.compiler.Workspace;
+import org.ek9lang.compiler.config.FullPhaseSupplier;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
-import org.ek9lang.compiler.main.phases.CompilationPhase;
-import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
-import org.ek9lang.compiler.main.phases.result.CompilerReporter;
+import org.ek9lang.compiler.support.CompilerReporter;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.support.PathToSourceFromName;
 import org.ek9lang.compiler.symbols.support.SymbolCheck;

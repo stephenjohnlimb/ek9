@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Optional;
 import org.ek9lang.antlr.EK9BaseVisitor;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.main.resolvedefine.GeneralTypeResolver;
-import org.ek9lang.compiler.main.resolvedefine.SymbolSearchConfiguration;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.support.GeneralTypeResolver;
+import org.ek9lang.compiler.symbols.support.SymbolSearchConfiguration;
 
 /**
  * Pass a string of en ek9 typeDef in and use the

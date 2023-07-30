@@ -1,7 +1,6 @@
 package org.ek9lang.compiler.support;
 
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.core.AssertValue;
 
 /**

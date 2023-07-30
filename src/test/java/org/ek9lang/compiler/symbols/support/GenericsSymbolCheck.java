@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.CompilableProgram;
-import org.ek9lang.compiler.main.resolvedefine.GeneralTypeResolver;
-import org.ek9lang.compiler.main.resolvedefine.SymbolSearchConfiguration;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**

@@ -1,8 +1,8 @@
 package org.ek9lang.compiler.errors;
 
 import org.ek9lang.compiler.CompilableSource;
+import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.ParsedModule;
-import org.ek9lang.compiler.main.phases.CompilationPhase;
 
 /**
  * As and when sources are processed during each phase of the compilation.

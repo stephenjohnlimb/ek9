@@ -7,10 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.Ek9LanguageBootStrap;
-import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
-import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.compiler.main.resolvedefine.ResolveOrDefineTypeDef;
 import org.ek9lang.compiler.symbols.ScopeStack;
+import org.ek9lang.compiler.symbols.support.ResolveOrDefineTypeDef;
 import org.ek9lang.compiler.symbols.support.SymbolFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

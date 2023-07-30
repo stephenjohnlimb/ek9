@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.CompilableProgram;
-import org.ek9lang.compiler.main.phases.CompilationPhase;
+import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;

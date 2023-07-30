@@ -4,7 +4,7 @@ import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_LANG;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.ek9lang.compiler.CompilableProgram;
-import org.ek9lang.compiler.main.phases.CompilationPhase;
+import org.ek9lang.compiler.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
 /**

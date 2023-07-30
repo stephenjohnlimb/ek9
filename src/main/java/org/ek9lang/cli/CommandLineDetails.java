@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.ek9lang.LanguageMetaData;
-import org.ek9lang.compiler.main.phases.CompilationPhase;
+import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.support.JustParser;
 import org.ek9lang.core.ExitException;
 import org.ek9lang.core.FileHandling;

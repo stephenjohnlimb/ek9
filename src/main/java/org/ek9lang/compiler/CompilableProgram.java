@@ -8,7 +8,7 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.Token;
-import org.ek9lang.compiler.main.phases.definition.Ek9Types;
+import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.ModuleScope;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;

@@ -1,7 +1,5 @@
 package org.ek9lang.compiler;
 
-import org.ek9lang.compiler.main.phases.CompilationPhase;
-
 /**
  * Used to drive how the compiler operates.
  * As error message details, future will be to add debug output files for 'edb' the Ek9 Debugger.

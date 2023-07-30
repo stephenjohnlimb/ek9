@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.main.phases.CompilationPhase;
+import org.ek9lang.compiler.CompilationPhase;
 
 /**
  * Just extracts the compilation phase or throws an illegal argument exception.

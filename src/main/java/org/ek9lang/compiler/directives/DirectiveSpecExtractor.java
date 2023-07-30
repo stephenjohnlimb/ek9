@@ -2,7 +2,7 @@ package org.ek9lang.compiler.directives;
 
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.main.phases.CompilationPhase;
+import org.ek9lang.compiler.CompilationPhase;
 
 /**
  * Just extract the spec from the free format data in the directive.
