@@ -15,7 +15,7 @@ import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.compiler.parsing.WorkSpaceFromResourceDirectoryFiles;
 import org.ek9lang.compiler.symbols.support.ShowAllSymbolsInAllModules;
-import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Assertions;
 
 /**

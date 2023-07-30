@@ -2,7 +2,7 @@ package org.ek9lang.compiler.symbols.support;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.CompilableProgram;
-import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.SharedThreadContext;
 
 /**
  * Accesses all the modules and dumps out all the Symbols in each.

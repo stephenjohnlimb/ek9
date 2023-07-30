@@ -20,7 +20,7 @@ import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbols.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbols.support.SimpleResolverForTesting;
 import org.ek9lang.compiler.symbols.support.SymbolCountCheck;
-import org.ek9lang.core.exception.CompilerException;
+import org.ek9lang.core.CompilerException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

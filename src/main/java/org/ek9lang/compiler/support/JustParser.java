@@ -4,15 +4,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.antlr.EK9Parser.CompilationUnitContext;
-import org.ek9lang.cli.support.Ek9SourceVisitor;
+import org.ek9lang.cli.Ek9SourceVisitor;
 import org.ek9lang.compiler.Source;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.tokenizer.ParserCreator;
 import org.ek9lang.compiler.tokenizer.ParserSpec;
-import org.ek9lang.core.utils.ExceptionConverter;
-import org.ek9lang.core.utils.Logger;
-import org.ek9lang.core.utils.OsSupport;
-import org.ek9lang.core.utils.Processor;
+import org.ek9lang.core.ExceptionConverter;
+import org.ek9lang.core.Logger;
+import org.ek9lang.core.OsSupport;
+import org.ek9lang.core.Processor;
 
 /**
  * For when we just need to read ek9 files and pull out bits and bobs

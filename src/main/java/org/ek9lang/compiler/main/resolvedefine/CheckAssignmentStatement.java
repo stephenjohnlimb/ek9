@@ -12,7 +12,7 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.search.MethodSearchInScope;
 import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * Used in the full resolution phase to check assignments.

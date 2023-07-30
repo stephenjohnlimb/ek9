@@ -16,8 +16,8 @@ import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbols.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbols.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.support.SymbolMatcher;
-import org.ek9lang.core.exception.AssertValue;
-import org.ek9lang.core.exception.CompilerException;
+import org.ek9lang.core.AssertValue;
+import org.ek9lang.core.CompilerException;
 
 /**
  * We need to support simple things like classes which are unique per symbol table

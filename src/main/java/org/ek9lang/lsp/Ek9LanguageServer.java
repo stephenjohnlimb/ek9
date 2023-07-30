@@ -15,9 +15,9 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
-import org.ek9lang.core.utils.Glob;
-import org.ek9lang.core.utils.Logger;
-import org.ek9lang.core.utils.OsSupport;
+import org.ek9lang.core.Glob;
+import org.ek9lang.core.Logger;
+import org.ek9lang.core.OsSupport;
 
 /**
  * The Language Server Implementation into the modular EK9 compiler.

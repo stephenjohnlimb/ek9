@@ -6,7 +6,7 @@ import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.search.SymbolSearch;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * General utility class that searches in a scope for a symbol to check for duplicates.

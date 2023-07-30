@@ -3,8 +3,8 @@ package org.ek9lang.compiler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.ek9lang.core.exception.AssertValue;
-import org.ek9lang.core.exception.CompilerException;
+import org.ek9lang.core.AssertValue;
+import org.ek9lang.core.CompilerException;
 
 /**
  * With EK9 it is possible to have multiple source files that are all in the same 'module'.

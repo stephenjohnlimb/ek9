@@ -4,7 +4,7 @@ import java.util.Optional;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * Holds the coercions we can make from and to on types.

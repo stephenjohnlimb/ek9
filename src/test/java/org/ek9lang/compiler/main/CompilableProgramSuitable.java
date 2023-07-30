@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.SharedThreadContext;
 
 /**
  * A simple shared context of a CompilableProgram with the Ek9 language modules already loaded.

@@ -9,7 +9,7 @@ import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbols.support.SymbolFactory;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * Used as an abstract base for parameterised types.

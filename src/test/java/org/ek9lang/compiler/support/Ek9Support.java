@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import org.antlr.v4.runtime.Lexer;
 import org.ek9lang.compiler.tokenizer.Ek9LexerForInput;
-import org.ek9lang.core.utils.Logger;
+import org.ek9lang.core.Logger;
 
 /**
  * Support for the EK9 language based on antlr GUI.

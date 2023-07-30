@@ -1,7 +1,5 @@
 package org.ek9lang.cli;
 
-import org.ek9lang.cli.support.CompilationContext;
-
 /**
  * Print the version number of the package.
  */

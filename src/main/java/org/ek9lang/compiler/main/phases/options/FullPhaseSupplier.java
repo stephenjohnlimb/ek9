@@ -10,7 +10,7 @@ import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.main.CompilerFlags;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.SharedThreadContext;
 
 /**
  * Supplies all the phases for a full compilation from end to end.

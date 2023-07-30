@@ -8,7 +8,7 @@ import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
-import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

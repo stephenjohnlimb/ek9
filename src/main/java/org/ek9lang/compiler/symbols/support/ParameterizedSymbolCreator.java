@@ -6,7 +6,7 @@ import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * This will just create a Aggregate/Function 'parameterized type' of the 'generic type' with the 'type arguments'

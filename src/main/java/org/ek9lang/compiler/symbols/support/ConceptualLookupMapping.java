@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * You may think why this mapping.

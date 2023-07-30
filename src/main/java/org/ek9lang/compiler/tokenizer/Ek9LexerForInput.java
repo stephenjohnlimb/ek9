@@ -5,8 +5,8 @@ import java.util.function.Function;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.core.utils.ExceptionConverter;
-import org.ek9lang.core.utils.Processor;
+import org.ek9lang.core.ExceptionConverter;
+import org.ek9lang.core.Processor;
 
 /**
  * Just wraps up the creation of the EK9Lexer from an inputStream.

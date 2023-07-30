@@ -1,7 +1,6 @@
 package org.ek9lang.cli;
 
-import org.ek9lang.cli.support.CompilationContext;
-import org.ek9lang.core.utils.SigningKeyPair;
+import org.ek9lang.core.SigningKeyPair;
 
 /**
  * Generate signing keys.

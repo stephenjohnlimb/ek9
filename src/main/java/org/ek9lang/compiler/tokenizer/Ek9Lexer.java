@@ -8,7 +8,7 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.ek9lang.antlr.EK9LexerRules;
-import org.ek9lang.core.utils.Logger;
+import org.ek9lang.core.Logger;
 
 /*
  * The MIT License (MIT)

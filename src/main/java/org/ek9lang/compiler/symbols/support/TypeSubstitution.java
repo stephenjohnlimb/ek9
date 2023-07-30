@@ -11,7 +11,7 @@ import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * Accepts an aggregate or a function that has been parameterized with 'type arguments'.

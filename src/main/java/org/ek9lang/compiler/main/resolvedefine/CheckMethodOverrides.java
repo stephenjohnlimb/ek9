@@ -13,7 +13,7 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbols.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbols.support.LocationExtractor;
-import org.ek9lang.core.exception.CompilerException;
+import org.ek9lang.core.CompilerException;
 
 /**
  * Check overrides on methods.

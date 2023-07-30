@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
-import org.ek9lang.core.metrics.Ari;
-import org.ek9lang.core.utils.Logger;
+import org.ek9lang.core.Ari;
+import org.ek9lang.core.Logger;
 
 /**
  * But also to aid in listing out tokens so that when building grammars out of tokens

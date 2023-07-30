@@ -16,7 +16,7 @@ import org.ek9lang.compiler.main.phases.Ek9Phase3SymbolResolution;
 import org.ek9lang.compiler.main.phases.Ek9Phase6PluginResolution;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.SharedThreadContext;
 
 /**
  * Supplies just the front end of the compiler.

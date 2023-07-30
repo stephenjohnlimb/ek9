@@ -28,7 +28,7 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.ScopeStack;
 import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
 import org.ek9lang.compiler.symbols.support.SymbolFactory;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * A bit of a long-winded name, but this is really the second pass of the first phase of compilation.

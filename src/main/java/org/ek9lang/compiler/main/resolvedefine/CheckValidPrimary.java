@@ -7,7 +7,7 @@ import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * Ensures that 'primary' is now resolved and 'typed' or a not resolved error.

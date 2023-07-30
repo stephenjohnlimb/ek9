@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import org.ek9lang.cli.SourceFileSupport;
-import org.ek9lang.core.utils.FileHandling;
-import org.ek9lang.core.utils.OsSupport;
+import org.ek9lang.core.FileHandling;
+import org.ek9lang.core.OsSupport;
 import org.junit.jupiter.api.Test;
 
 final class Ek9SupportTest {

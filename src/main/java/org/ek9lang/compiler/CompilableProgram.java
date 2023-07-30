@@ -14,7 +14,7 @@ import org.ek9lang.compiler.symbols.ModuleScope;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbols.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.support.AggregateFactory;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * Represents the whole program(s) that the developer is attempting to create.

@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.ek9lang.core.utils.OsSupport;
+import org.ek9lang.core.OsSupport;
 
 /**
  * EK9 LSP server launcher. You can run from main below, but it is designed to work with
@@ -56,7 +56,7 @@ public class Server {
 
     //Basically this will cause the to keep listening until it get the shutdown call
     //Then the server will issue System.exit.
-    org.ek9lang.core.utils.Logger.error("EK9 Language Server Listening");
+    org.ek9lang.core.Logger.error("EK9 Language Server Listening");
 
     return startListening;
   }

@@ -8,8 +8,8 @@ import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.main.phases.options.FrontEndSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.core.exception.CompilerException;
-import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.CompilerException;
+import org.ek9lang.core.SharedThreadContext;
 
 /**
  * Loads the language basics into a Compilable Program.

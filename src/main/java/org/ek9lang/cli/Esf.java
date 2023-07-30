@@ -1,7 +1,5 @@
 package org.ek9lang.cli;
 
-import org.ek9lang.cli.support.CompilationContext;
-
 /**
  * Use to explicitly set a feature name on a package.
  */

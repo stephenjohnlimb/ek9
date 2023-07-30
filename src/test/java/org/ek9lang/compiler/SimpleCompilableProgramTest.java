@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.function.Supplier;
-import org.ek9lang.core.exception.CompilerException;
-import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.CompilerException;
+import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
 /**

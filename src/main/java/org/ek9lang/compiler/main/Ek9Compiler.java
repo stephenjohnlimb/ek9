@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * The main EK9 compiler (HERE FOR COMPILER ENTRY).

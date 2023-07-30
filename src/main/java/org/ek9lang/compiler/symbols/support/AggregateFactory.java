@@ -14,7 +14,7 @@ import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbols.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbols.search.TypeSymbolSearch;
-import org.ek9lang.core.exception.CompilerException;
+import org.ek9lang.core.CompilerException;
 
 /**
  * Support for taking one aggregate and manipulating the methods and the like to be applied

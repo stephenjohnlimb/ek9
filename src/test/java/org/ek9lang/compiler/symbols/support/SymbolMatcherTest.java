@@ -8,7 +8,7 @@ import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.main.CompilableProgramSuitable;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.search.TypeSymbolSearch;
-import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

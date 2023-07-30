@@ -14,7 +14,7 @@ import org.ek9lang.compiler.main.phases.definition.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * Check that a service operation complies with ek9 rules or return types etc.

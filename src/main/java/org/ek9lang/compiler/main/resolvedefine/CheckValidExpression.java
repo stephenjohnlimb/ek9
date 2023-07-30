@@ -10,7 +10,7 @@ import org.ek9lang.compiler.support.RuleSupport;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.search.TypeSymbolSearch;
 import org.ek9lang.compiler.symbols.support.SymbolFactory;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * Ensures that 'expression' is now resolved and 'typed' or a not resolved error.

@@ -10,7 +10,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ek9lang.compiler.main.phases.definition.DefinitionPhase1Listener;
 import org.ek9lang.compiler.symbols.search.TypeSymbolSearch;
 import org.ek9lang.compiler.symbols.support.AggregateFactory;
-import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
 /**

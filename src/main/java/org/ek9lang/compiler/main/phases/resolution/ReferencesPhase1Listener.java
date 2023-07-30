@@ -16,7 +16,7 @@ import org.ek9lang.compiler.main.rules.CheckForInvalidUseOfReference;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.ScopeStack;
 import org.ek9lang.compiler.symbols.search.AnySymbolSearch;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * Antlr listener for the references phase.

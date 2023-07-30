@@ -16,7 +16,7 @@ import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.SharedThreadContext;
 
 /**
  * SINGLE THREADED - Run across sources to check for types, functions and traits for 'super loops'.

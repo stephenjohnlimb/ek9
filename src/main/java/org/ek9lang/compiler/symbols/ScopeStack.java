@@ -3,7 +3,7 @@ package org.ek9lang.compiler.symbols;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Optional;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * This stack object is only designed to be used when first parsing.

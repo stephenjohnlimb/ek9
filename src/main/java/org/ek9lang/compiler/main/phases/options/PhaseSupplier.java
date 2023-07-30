@@ -12,8 +12,8 @@ import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.main.CompilerFlags;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.core.exception.AssertValue;
-import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.AssertValue;
+import org.ek9lang.core.SharedThreadContext;
 
 /**
  * Abstract concept of a supplier of phases for a compilation.

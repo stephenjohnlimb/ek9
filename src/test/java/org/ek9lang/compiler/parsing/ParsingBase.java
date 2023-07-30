@@ -10,7 +10,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.tokenizer.LexerPlugin;
 import org.ek9lang.compiler.tokenizer.LexingBase;
-import org.ek9lang.core.utils.Logger;
+import org.ek9lang.core.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

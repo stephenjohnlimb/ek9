@@ -16,7 +16,7 @@ import org.ek9lang.compiler.main.phases.Ek9Phase12PackagingPostProcessing;
 import org.ek9lang.compiler.main.phases.Ek9Phase12PluginLinkage;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.SharedThreadContext;
 
 /**
  * Supplies the compiler phases for the back end. Everything after IR.

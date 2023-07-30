@@ -1,7 +1,6 @@
 package org.ek9lang.cli;
 
 import java.io.File;
-import org.ek9lang.cli.support.CompilationContext;
 
 /**
  * Install a package to your own $HOME/.ek9/lib directory.
@@ -40,7 +39,7 @@ public class Ei extends E {
     log("Copying '" + fileName + "' from '" + fromDir.toString() + "' to '" + destinationDir + "'");
     boolean rtn = getFileHandling().copy(fromDir, destinationDir, fileName);
     if (rtn) {
-      log("" + new File(destinationDir, fileName) + " installed");
+      log(new File(destinationDir, fileName) + " installed");
     }
     return rtn;
   }

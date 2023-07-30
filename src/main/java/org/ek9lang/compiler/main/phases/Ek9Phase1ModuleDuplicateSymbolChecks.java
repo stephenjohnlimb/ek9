@@ -11,9 +11,9 @@ import org.ek9lang.compiler.main.phases.result.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.core.exception.AssertValue;
-import org.ek9lang.core.exception.CompilerException;
-import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.AssertValue;
+import org.ek9lang.core.CompilerException;
+import org.ek9lang.core.SharedThreadContext;
 
 /**
  * Goes through each module name and checks each of the parsedModules in that module name to check

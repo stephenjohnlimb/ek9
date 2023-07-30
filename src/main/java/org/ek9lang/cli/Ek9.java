@@ -3,9 +3,6 @@ package org.ek9lang.cli;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import org.ek9lang.LanguageMetaData;
-import org.ek9lang.cli.support.CompilationContext;
-import org.ek9lang.cli.support.FileCache;
-import org.ek9lang.cli.support.Reporter;
 import org.ek9lang.compiler.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.errors.CompilationEvent;
 import org.ek9lang.compiler.main.Compiler;
@@ -13,9 +10,9 @@ import org.ek9lang.compiler.main.Ek9Compiler;
 import org.ek9lang.compiler.main.Ek9LanguageBootStrap;
 import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.core.utils.FileHandling;
-import org.ek9lang.core.utils.Logger;
-import org.ek9lang.core.utils.OsSupport;
+import org.ek9lang.core.FileHandling;
+import org.ek9lang.core.Logger;
+import org.ek9lang.core.OsSupport;
 import org.ek9lang.lsp.Server;
 
 /**

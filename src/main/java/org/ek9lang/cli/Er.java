@@ -1,9 +1,8 @@
 package org.ek9lang.cli;
 
 import java.util.Objects;
-import org.ek9lang.cli.support.CompilationContext;
-import org.ek9lang.core.utils.Ek9DirectoryStructure;
-import org.ek9lang.core.utils.Logger;
+import org.ek9lang.core.Ek9DirectoryStructure;
+import org.ek9lang.core.Logger;
 
 /**
  * Run the application that has been built or is already built.

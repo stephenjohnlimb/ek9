@@ -7,7 +7,7 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbols.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.search.WeightedMethodSymbolMatch;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * Given some search criteria and a List of Symbols, this class will find the best match.

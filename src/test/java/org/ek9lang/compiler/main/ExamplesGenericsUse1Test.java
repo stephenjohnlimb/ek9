@@ -14,7 +14,7 @@ import org.ek9lang.compiler.symbols.support.GenericsSymbolCheck;
 import org.ek9lang.compiler.symbols.support.SymbolCheck;
 import org.ek9lang.compiler.symbols.support.SymbolCountCheck;
 import org.ek9lang.compiler.symbols.support.SymbolSearchMapFunction;
-import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
 /**

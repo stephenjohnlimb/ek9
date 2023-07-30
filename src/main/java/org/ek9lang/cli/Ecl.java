@@ -1,7 +1,5 @@
 package org.ek9lang.cli;
 
-import org.ek9lang.cli.support.CompilationContext;
-
 /**
  * Clean a project down.
  */

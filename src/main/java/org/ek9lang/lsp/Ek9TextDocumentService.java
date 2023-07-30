@@ -19,7 +19,7 @@ import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.ek9lang.compiler.tokenizer.TokenResult;
-import org.ek9lang.core.utils.Logger;
+import org.ek9lang.core.Logger;
 
 /**
  * Part of the language server functionality.

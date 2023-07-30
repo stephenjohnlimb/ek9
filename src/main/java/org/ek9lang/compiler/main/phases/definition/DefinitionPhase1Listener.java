@@ -60,8 +60,8 @@ import org.ek9lang.compiler.symbols.search.TypeSymbolSearch;
 import org.ek9lang.compiler.symbols.support.SymbolChecker;
 import org.ek9lang.compiler.symbols.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.support.TextLanguageExtraction;
-import org.ek9lang.core.exception.AssertValue;
-import org.ek9lang.core.exception.CompilerException;
+import org.ek9lang.core.AssertValue;
+import org.ek9lang.core.CompilerException;
 
 /**
  * Just go through and define the symbols and scopes putting into the ParsedModule against the appropriate context.

@@ -3,7 +3,7 @@ package org.ek9lang.lsp;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.ek9lang.core.utils.OsSupport;
+import org.ek9lang.core.OsSupport;
 import org.junit.jupiter.api.Test;
 
 final class ServerTest {

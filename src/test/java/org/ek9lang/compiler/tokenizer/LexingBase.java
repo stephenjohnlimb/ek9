@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.InputStream;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.core.utils.Logger;
+import org.ek9lang.core.Logger;
 import org.junit.jupiter.api.Test;
 
 public abstract class LexingBase {

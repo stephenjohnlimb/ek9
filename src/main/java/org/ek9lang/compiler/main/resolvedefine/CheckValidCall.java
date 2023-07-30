@@ -18,7 +18,7 @@ import org.ek9lang.compiler.symbols.search.MethodSearchInScope;
 import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbols.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.support.SymbolTypeExtractor;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * TODO lots of tidying up.

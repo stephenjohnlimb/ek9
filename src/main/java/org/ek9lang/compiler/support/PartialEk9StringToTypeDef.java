@@ -8,8 +8,8 @@ import org.ek9lang.compiler.Source;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.tokenizer.ParserCreator;
 import org.ek9lang.compiler.tokenizer.ParserSpec;
-import org.ek9lang.core.utils.ExceptionConverter;
-import org.ek9lang.core.utils.Processor;
+import org.ek9lang.core.ExceptionConverter;
+import org.ek9lang.core.Processor;
 
 /**
  * Just processes a bit of some EK9 source for a simple or generic type def, to return the context.

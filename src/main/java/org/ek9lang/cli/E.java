@@ -1,10 +1,8 @@
 package org.ek9lang.cli;
 
 import java.io.File;
-import org.ek9lang.cli.support.CompilationContext;
-import org.ek9lang.cli.support.Reporter;
-import org.ek9lang.core.utils.FileHandling;
-import org.ek9lang.core.utils.OsSupport;
+import org.ek9lang.core.FileHandling;
+import org.ek9lang.core.OsSupport;
 
 /**
  * Abstract base for the command line ek9 commands.

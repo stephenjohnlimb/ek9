@@ -17,8 +17,8 @@ import org.ek9lang.compiler.symbols.search.TypeSymbolSearch;
 import org.ek9lang.compiler.symbols.support.AggregateFactory;
 import org.ek9lang.compiler.symbols.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.symbols.support.TypeCreator;
-import org.ek9lang.core.threads.SharedThreadContext;
-import org.ek9lang.core.utils.Logger;
+import org.ek9lang.core.SharedThreadContext;
+import org.ek9lang.core.Logger;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
  * <p>
  * Does not fully test aggregates and the like, just their scoped natures.
  */
-@SuppressWarnings("EqualsWithItself")
 final class ScopesTest extends AbstractSymbolTestBase {
 
   private final TypeCreator typeCreator = new TypeCreator();

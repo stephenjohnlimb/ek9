@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.symbols;
 
 import org.antlr.v4.runtime.Token;
-import org.ek9lang.core.exception.CompilerException;
+import org.ek9lang.core.CompilerException;
 
 /**
  * While we don't add these in the scoped structures when compiling.

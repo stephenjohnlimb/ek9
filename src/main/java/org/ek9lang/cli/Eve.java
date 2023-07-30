@@ -8,10 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.ek9lang.cli.support.CompilationContext;
-import org.ek9lang.core.exception.CompilerException;
-import org.ek9lang.core.utils.ExceptionConverter;
-import org.ek9lang.core.utils.Processor;
+import org.ek9lang.core.CompilerException;
+import org.ek9lang.core.ExceptionConverter;
+import org.ek9lang.core.Processor;
 
 /**
  * Base for the versioning commands.

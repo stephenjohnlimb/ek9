@@ -10,7 +10,7 @@ import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbols.ScopeStack;
 import org.ek9lang.compiler.symbols.StackConsistencyScope;
 import org.ek9lang.compiler.symbols.support.SymbolChecker;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * Used as external helper to record symbols and scopes across the parser.

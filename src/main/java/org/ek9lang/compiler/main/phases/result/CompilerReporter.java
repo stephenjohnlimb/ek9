@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.main.phases.result;
 
-import org.ek9lang.cli.support.Reporter;
+import org.ek9lang.cli.Reporter;
 
 /**
  * Just expends the standard reporter to use the EK9Comp message prefix.

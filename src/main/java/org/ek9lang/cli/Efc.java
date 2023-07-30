@@ -1,7 +1,5 @@
 package org.ek9lang.cli;
 
-import org.ek9lang.cli.support.CompilationContext;
-
 /**
  * Do a full recompile of all sources inside project.
  * Note this triggers a full resolution of dependencies and those too are pulled again

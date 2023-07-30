@@ -5,7 +5,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
-import org.ek9lang.core.utils.Digest;
+import org.ek9lang.core.Digest;
 
 /**
  * Given some sort of generic type a function or a type with a set of 'type parameters',

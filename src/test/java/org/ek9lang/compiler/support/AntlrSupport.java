@@ -17,7 +17,7 @@ import org.antlr.v4.runtime.TokenStream;
 import org.ek9lang.compiler.tokenizer.DelegatingLexer;
 import org.ek9lang.compiler.tokenizer.LexerPlugin;
 import org.ek9lang.compiler.tokenizer.TokenStreamAssessment;
-import org.ek9lang.core.utils.Logger;
+import org.ek9lang.core.Logger;
 
 /**
  * Support of Antlr.

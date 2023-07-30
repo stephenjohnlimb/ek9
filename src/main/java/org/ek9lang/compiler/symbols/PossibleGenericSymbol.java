@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.compiler.symbols.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.support.ToCommaSeparated;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * Added as a common symbol type for both Functions and Aggregates that could possibly be

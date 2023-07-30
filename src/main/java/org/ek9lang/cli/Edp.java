@@ -3,11 +3,7 @@ package org.ek9lang.cli;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.ek9lang.cli.support.CompilationContext;
-import org.ek9lang.cli.support.DependencyNodeFactory;
-import org.ek9lang.core.utils.Logger;
-import org.ek9lang.dependency.DependencyManager;
-import org.ek9lang.dependency.DependencyNode;
+import org.ek9lang.core.Logger;
 
 /**
  * Check and pull all dependencies in.

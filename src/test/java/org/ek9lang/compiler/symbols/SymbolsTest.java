@@ -17,7 +17,7 @@ import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbols.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.search.TypeSymbolSearch;
 import org.ek9lang.compiler.tokenizer.SyntheticToken;
-import org.ek9lang.core.exception.CompilerException;
+import org.ek9lang.core.CompilerException;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -346,7 +346,6 @@ final class SymbolsTest extends AbstractSymbolTestBase {
   /**
    * A bit overkill - should be broken up into separate tests.
    */
-  @SuppressWarnings("EqualsWithItself")
   @Test
   void testFunctionProperties() {
     Optional<ISymbol> stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
@@ -475,7 +474,6 @@ final class SymbolsTest extends AbstractSymbolTestBase {
         f2.getFriendlyName());
   }
 
-  @SuppressWarnings("EqualsWithItself")
   @Test
   void testCallSymbolProperties() {
     Optional<ISymbol> stringType = symbolTable.resolve(new TypeSymbolSearch("String"));
@@ -642,7 +640,6 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     return rtn;
   }
 
-  @SuppressWarnings("EqualsWithItself")
   @Test
   void testExpressionSymbol() {
     var expr1 = new ExpressionSymbol("Expr");
@@ -737,7 +734,6 @@ final class SymbolsTest extends AbstractSymbolTestBase {
    * Quite a big class in terms of its configuration.
    * It is the glue between the variable bits of pipeline streaming.
    */
-  @SuppressWarnings("EqualsWithItself")
   @Test
   void testStreamCallSymbol() {
     var integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
@@ -806,7 +802,6 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertFalse(shouldNotBeFound.isPresent());
   }
 
-  @SuppressWarnings("EqualsWithItself")
   @Test
   void testVariableSymbol() {
     IScope symbolTable = new SymbolTable();

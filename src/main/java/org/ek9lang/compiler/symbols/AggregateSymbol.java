@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbols.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbols.search.SymbolSearch;
-import org.ek9lang.core.exception.AssertValue;
-import org.ek9lang.core.exception.CompilerException;
+import org.ek9lang.core.AssertValue;
+import org.ek9lang.core.CompilerException;
 
 /**
  * This is typically a 'class' or an interface type where it can include the definitions of new

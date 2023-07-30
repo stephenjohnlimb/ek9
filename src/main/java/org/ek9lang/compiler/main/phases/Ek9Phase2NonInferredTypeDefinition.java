@@ -14,8 +14,8 @@ import org.ek9lang.compiler.main.phases.definition.ResolveDefineExplicitTypeList
 import org.ek9lang.compiler.main.phases.result.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
-import org.ek9lang.core.exception.CompilerException;
-import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.CompilerException;
+import org.ek9lang.core.SharedThreadContext;
 
 /**
  * Can be MULTI THREADED for developer source, but single threaded for bootstrapping.

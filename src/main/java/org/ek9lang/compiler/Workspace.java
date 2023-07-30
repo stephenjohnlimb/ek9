@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.core.utils.Logger;
+import org.ek9lang.core.Logger;
 
 /**
  * Designed to represent one or more source files that are part of a workspace.

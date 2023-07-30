@@ -5,9 +5,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
-import org.ek9lang.cli.support.CompilationContext;
-import org.ek9lang.core.utils.Digest;
-import org.ek9lang.core.utils.SigningKeyPair;
+import org.ek9lang.core.Digest;
+import org.ek9lang.core.SigningKeyPair;
 
 /**
  * Deploy a package / all packages inside the project directory.

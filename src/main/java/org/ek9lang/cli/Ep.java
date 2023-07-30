@@ -3,9 +3,8 @@ package org.ek9lang.cli;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
-import org.ek9lang.cli.support.CompilationContext;
-import org.ek9lang.core.utils.Digest;
-import org.ek9lang.core.utils.ZipSet;
+import org.ek9lang.core.Digest;
+import org.ek9lang.core.ZipSet;
 
 /**
  * Do packaging for package / all packages inside the project directory.

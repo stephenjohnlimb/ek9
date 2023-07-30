@@ -6,8 +6,8 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.function.Function;
-import org.ek9lang.core.utils.Glob;
-import org.ek9lang.core.utils.OsSupport;
+import org.ek9lang.core.Glob;
+import org.ek9lang.core.OsSupport;
 
 /**
  * Get a list of source files from a resource directory.

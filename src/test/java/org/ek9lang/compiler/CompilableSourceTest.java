@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import org.ek9lang.compiler.tokenizer.TokenResult;
-import org.ek9lang.core.exception.CompilerException;
+import org.ek9lang.core.CompilerException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -78,7 +78,6 @@ final class CompilableSourceTest {
     assertFalse(source.isLib());
   }
 
-  @SuppressWarnings("EqualsWithItself")
   @Test
   void testEquality() {
     var helloWorldSource1 = validEk9Source.get();

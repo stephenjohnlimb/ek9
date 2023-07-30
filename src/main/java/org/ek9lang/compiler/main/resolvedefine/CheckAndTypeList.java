@@ -11,7 +11,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.search.TemplateTypeSymbolSearch;
 import org.ek9lang.compiler.symbols.support.CommonTypeSuperOrTrait;
 import org.ek9lang.compiler.symbols.support.SymbolFactory;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * Creates an ek9 list of a specific type if the expressions are typed correctly.

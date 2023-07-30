@@ -2,7 +2,6 @@ package org.ek9lang.cli;
 
 import java.util.Map;
 import java.util.function.Consumer;
-import org.ek9lang.cli.support.CompilationContext;
 
 /**
  * Just increments a version number.

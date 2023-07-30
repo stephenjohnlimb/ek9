@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.net.URL;
-import org.ek9lang.core.utils.FileHandling;
-import org.ek9lang.core.utils.OsSupport;
+import org.ek9lang.core.FileHandling;
+import org.ek9lang.core.OsSupport;
 
 public final class SourceFileSupport {
   private final OsSupport osSupport;

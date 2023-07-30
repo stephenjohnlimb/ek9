@@ -13,7 +13,7 @@ import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.support.PathToSourceFromName;
 import org.ek9lang.compiler.symbols.support.SymbolCheck;
-import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
 /**

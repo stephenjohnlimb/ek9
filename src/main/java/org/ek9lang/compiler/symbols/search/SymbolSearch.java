@@ -10,7 +10,7 @@ import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.SymbolTable;
 import org.ek9lang.compiler.symbols.support.ToCommaSeparated;
-import org.ek9lang.core.exception.AssertValue;
+import org.ek9lang.core.AssertValue;
 
 /**
  * To be used to search for symbols in a Symbol table.

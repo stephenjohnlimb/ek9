@@ -12,7 +12,7 @@ import org.ek9lang.compiler.main.phases.CompilationPhase;
 import org.ek9lang.compiler.main.phases.options.FullPhaseSupplier;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;
 import org.ek9lang.compiler.symbols.support.PathToSourceFromName;
-import org.ek9lang.core.threads.SharedThreadContext;
+import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
