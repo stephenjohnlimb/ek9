@@ -1,7 +1,7 @@
 package org.ek9lang.lsp;
 
 
-import org.ek9lang.compiler.main.CompilerFlags;
+import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 
 /**

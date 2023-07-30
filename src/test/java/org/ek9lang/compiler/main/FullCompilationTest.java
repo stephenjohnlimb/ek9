@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
+import org.ek9lang.compiler.CompilerFlags;
+import org.ek9lang.compiler.Ek9Compiler;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.directives.DirectiveType;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;

@@ -5,7 +5,7 @@ import java.util.function.BiFunction;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
-import org.ek9lang.compiler.main.CompilerFlags;
+import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.main.phases.Ek9Phase7IRGeneration;
 import org.ek9lang.compiler.main.phases.Ek9Phase7ProgramWithIR;
 import org.ek9lang.compiler.main.phases.Ek9Phase8IRTemplateGeneration;

@@ -1,6 +1,4 @@
-package org.ek9lang.compiler.main;
-
-import org.ek9lang.compiler.Workspace;
+package org.ek9lang.compiler;
 
 /**
  * Conceptual compiler.

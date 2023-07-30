@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.main;
 
+import org.ek9lang.compiler.Compiler;
+import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.Workspace;
 
 /**

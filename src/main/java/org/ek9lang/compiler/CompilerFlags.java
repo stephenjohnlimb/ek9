@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.main;
+package org.ek9lang.compiler;
 
 import org.ek9lang.compiler.main.phases.CompilationPhase;
 

@@ -35,7 +35,7 @@ So for now the language-server still has to be run with java as a jar. But I'll 
 ### Main Entry Point
 
 The Java source `org.ek9lang.cli.Ek9.java` is the main entry point in and
-`org.ek9lang.compiler.main.Ek9Compiler.java` is where the actual compiler is.
+`org.ek9lang.compiler.Ek9Compiler.java` is where the actual compiler is.
 Though this is split into many 'phases' as the EK9 compile is a multi-pass compiler.
 Some of these phases are single-threaded and some are multi-threaded.
 

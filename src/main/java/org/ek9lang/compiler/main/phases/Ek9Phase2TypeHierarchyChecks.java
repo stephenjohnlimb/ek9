@@ -8,7 +8,7 @@ import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.errors.CompilationEvent;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.main.CompilerFlags;
+import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.main.phases.result.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.main.phases.result.CompilationPhaseResult;
 import org.ek9lang.compiler.main.phases.result.CompilerReporter;

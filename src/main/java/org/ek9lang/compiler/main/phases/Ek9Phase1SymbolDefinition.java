@@ -8,7 +8,7 @@ import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.errors.CompilationEvent;
-import org.ek9lang.compiler.main.CompilerFlags;
+import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.main.phases.definition.BuiltInTypeCacheResolver;
 import org.ek9lang.compiler.main.phases.definition.DefinitionPhase1Listener;
 import org.ek9lang.compiler.main.phases.result.CompilableSourceErrorCheck;
