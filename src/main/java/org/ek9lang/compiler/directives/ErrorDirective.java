@@ -2,7 +2,7 @@ package org.ek9lang.compiler.directives;
 
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 
 /**
  * To be used in EK9 source code to assert that an error will be created.
@@ -12,7 +12,7 @@ import org.ek9lang.compiler.errors.ErrorListener;
  * {@code @Error:} SYMBOL_DEFINITION: RETURNING_REDUNDANT
  *
  * @see CompilationPhase
- * @see org.ek9lang.compiler.errors.ErrorListener.SemanticClassification
+ * @see ErrorListener.SemanticClassification
  */
 public class ErrorDirective implements Directive {
   private final CompilationPhase phase;

@@ -12,8 +12,7 @@ import org.ek9lang.antlr.EK9BaseVisitor;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.antlr.EK9Parser.ModuleDeclarationContext;
 import org.ek9lang.antlr.EK9Parser.ProgramBlockContext;
-import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.errors.ErrorListener.SemanticClassification;
+import org.ek9lang.compiler.common.ErrorListener.SemanticClassification;
 import org.ek9lang.core.Digest;
 
 /**

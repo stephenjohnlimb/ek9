@@ -1,9 +1,9 @@
 package org.ek9lang.compiler.phase2;
 
-import static org.ek9lang.compiler.errors.ErrorListener.SemanticClassification.COMPONENT_INJECTION_NOT_POSSIBLE;
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.COMPONENT_INJECTION_NOT_POSSIBLE;
 
 import java.util.function.Consumer;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**

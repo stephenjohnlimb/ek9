@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_VOID;
 
 import java.util.function.BiConsumer;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.ExternallyImplemented;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;

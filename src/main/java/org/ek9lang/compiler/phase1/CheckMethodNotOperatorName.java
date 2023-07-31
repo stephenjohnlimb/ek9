@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase1;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.MethodSymbol;

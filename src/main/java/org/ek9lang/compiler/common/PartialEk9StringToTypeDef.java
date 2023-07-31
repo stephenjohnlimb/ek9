@@ -5,7 +5,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.Source;
-import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.tokenizer.ParserCreator;
 import org.ek9lang.compiler.tokenizer.ParserSpec;
 import org.ek9lang.core.ExceptionConverter;

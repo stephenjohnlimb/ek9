@@ -2,7 +2,7 @@ package org.ek9lang.compiler.symbols.support;
 
 import java.util.Map;
 import java.util.Optional;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.search.SymbolSearch;

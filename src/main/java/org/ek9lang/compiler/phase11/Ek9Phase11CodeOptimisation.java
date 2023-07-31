@@ -5,8 +5,8 @@ import java.util.function.Consumer;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.Workspace;
-import org.ek9lang.compiler.errors.CompilationEvent;
 import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
+import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilationPhaseResult;
 import org.ek9lang.compiler.common.CompilerReporter;
 

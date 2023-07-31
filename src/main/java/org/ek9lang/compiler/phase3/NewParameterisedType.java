@@ -2,7 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.Optional;
 import java.util.function.Function;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.support.ParameterisedTypeData;

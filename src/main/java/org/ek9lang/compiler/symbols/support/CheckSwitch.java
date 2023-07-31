@@ -2,7 +2,7 @@ package org.ek9lang.compiler.symbols.support;
 
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 
 /**
  * Ensures that a switch is used correctly in or out of an expression.

@@ -1,10 +1,10 @@
 package org.ek9lang.compiler.phase3;
 
-import static org.ek9lang.compiler.errors.ErrorListener.SemanticClassification.GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED;
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED;
 
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;

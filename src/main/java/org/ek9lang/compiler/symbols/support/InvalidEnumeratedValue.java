@@ -1,15 +1,16 @@
-package org.ek9lang.compiler.errors;
+package org.ek9lang.compiler.symbols.support;
 
 import java.util.function.BiConsumer;
 import org.antlr.v4.runtime.Token;
+import org.ek9lang.compiler.common.ErrorListener;
 
 /**
  * Error when the definition of an enumerated values could be invalid.
  */
-public class InvalidEnumeratedValue implements BiConsumer<Token, Token> {
+final class InvalidEnumeratedValue implements BiConsumer<Token, Token> {
   private final ErrorListener errorListener;
 
-  public InvalidEnumeratedValue(final ErrorListener errorListener) {
+  InvalidEnumeratedValue(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 

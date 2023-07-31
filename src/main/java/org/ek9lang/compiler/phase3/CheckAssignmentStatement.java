@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.OperationIsAssignment;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;

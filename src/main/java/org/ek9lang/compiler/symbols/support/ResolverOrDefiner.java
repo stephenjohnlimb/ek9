@@ -3,7 +3,7 @@ package org.ek9lang.compiler.symbols.support;
 import java.util.List;
 import java.util.Optional;
 import org.antlr.v4.runtime.Token;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.ISymbol;

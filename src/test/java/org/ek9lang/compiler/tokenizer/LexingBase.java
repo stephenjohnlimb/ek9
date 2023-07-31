@@ -3,7 +3,7 @@ package org.ek9lang.compiler.tokenizer;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.InputStream;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.core.Logger;
 import org.junit.jupiter.api.Test;
 

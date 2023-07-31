@@ -25,7 +25,6 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
-import org.ek9lang.compiler.errors.UnreachableStatement;
 import org.ek9lang.compiler.common.AbstractEK9PhaseListener;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.CaptureScope;

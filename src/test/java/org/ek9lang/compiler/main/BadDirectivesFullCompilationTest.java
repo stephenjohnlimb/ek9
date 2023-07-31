@@ -7,7 +7,7 @@ import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

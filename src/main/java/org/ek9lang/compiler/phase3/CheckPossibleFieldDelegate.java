@@ -2,7 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.List;
 import java.util.function.Consumer;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.FunctionSymbol;

@@ -2,7 +2,7 @@ package org.ek9lang.compiler.symbols.support;
 
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 
 /**
  * Checks that the use of the variable only if it has a web variable correlation is valid.

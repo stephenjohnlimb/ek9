@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.InputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.tokenizer.LexerPlugin;
 import org.ek9lang.compiler.tokenizer.LexingBase;
 import org.ek9lang.core.Logger;

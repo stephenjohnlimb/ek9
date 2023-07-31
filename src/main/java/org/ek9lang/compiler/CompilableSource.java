@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.tokenizer.ParserCreator;
 import org.ek9lang.compiler.tokenizer.ParserSpec;
 import org.ek9lang.compiler.tokenizer.TokenConsumptionListener;

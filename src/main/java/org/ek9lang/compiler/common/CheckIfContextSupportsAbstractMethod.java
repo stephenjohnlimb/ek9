@@ -3,7 +3,6 @@ package org.ek9lang.compiler.common;
 import java.util.function.BiConsumer;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.symbols.ICanBeGeneric;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 

@@ -4,7 +4,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.ek9lang.antlr.EK9Parser.StringLitContext;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 
 /**
  * Extract the valid language value from the String literal or null and error.

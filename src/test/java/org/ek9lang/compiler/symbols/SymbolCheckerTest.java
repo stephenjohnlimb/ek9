@@ -3,7 +3,7 @@ package org.ek9lang.compiler.symbols;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.function.BiFunction;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.symbols.support.AggregateSymbolCreator;
 import org.ek9lang.compiler.symbols.support.FunctionSymbolCreator;
 import org.ek9lang.compiler.symbols.support.SymbolChecker;

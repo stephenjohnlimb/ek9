@@ -1,7 +1,6 @@
 package org.ek9lang.compiler.common;
 
 import java.util.function.Consumer;
-import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**

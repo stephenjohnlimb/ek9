@@ -2,7 +2,7 @@ package org.ek9lang.compiler.symbols.support;
 
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 
 /**
  * Ensures that a try statement/expression is used correctly in or out of an expression.

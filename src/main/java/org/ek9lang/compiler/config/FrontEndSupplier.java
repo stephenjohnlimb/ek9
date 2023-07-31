@@ -5,7 +5,9 @@ import java.util.function.BiFunction;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.Workspace;
-import org.ek9lang.compiler.errors.CompilationPhaseListener;
+import org.ek9lang.compiler.common.CompilationPhaseListener;
+import org.ek9lang.compiler.common.CompilationPhaseResult;
+import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.phase0.Ek9Phase0Parsing;
 import org.ek9lang.compiler.phase1.Ek9Phase1ModuleDuplicateSymbolChecks;
 import org.ek9lang.compiler.phase1.Ek9Phase1ReferenceChecks;
@@ -14,8 +16,6 @@ import org.ek9lang.compiler.phase2.Ek9Phase2NonInferredTypeDefinition;
 import org.ek9lang.compiler.phase2.Ek9Phase2TypeHierarchyChecks;
 import org.ek9lang.compiler.phase3.Ek9Phase3SymbolResolution;
 import org.ek9lang.compiler.phase6.Ek9Phase6PluginResolution;
-import org.ek9lang.compiler.common.CompilationPhaseResult;
-import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.core.SharedThreadContext;
 
 /**

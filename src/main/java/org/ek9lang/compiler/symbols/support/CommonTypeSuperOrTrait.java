@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import org.antlr.v4.runtime.Token;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;

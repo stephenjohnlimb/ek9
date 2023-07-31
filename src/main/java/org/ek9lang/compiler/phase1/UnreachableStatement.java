@@ -1,18 +1,19 @@
-package org.ek9lang.compiler.errors;
+package org.ek9lang.compiler.phase1;
 
 import java.util.function.BiConsumer;
 import org.antlr.v4.runtime.Token;
+import org.ek9lang.compiler.common.ErrorListener;
 
 /**
  * To be called when an unreachable statement is encountered.
  * The first token is the point that is unreachable, the second token is
  * the cause of why this point is unreachable.
  */
-public class UnreachableStatement implements BiConsumer<Token, Token> {
+final class UnreachableStatement implements BiConsumer<Token, Token> {
 
   private final ErrorListener errorListener;
 
-  public UnreachableStatement(final ErrorListener errorListener) {
+  UnreachableStatement(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 

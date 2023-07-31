@@ -2,9 +2,9 @@ package org.ek9lang.compiler;
 
 import java.util.List;
 import java.util.function.Supplier;
-import org.ek9lang.compiler.config.FrontEndSupplier;
-import org.ek9lang.compiler.errors.CompilationPhaseListener;
+import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilerReporter;
+import org.ek9lang.compiler.config.FrontEndSupplier;
 import org.ek9lang.core.CompilerException;
 import org.ek9lang.core.SharedThreadContext;
 
@@ -20,7 +20,7 @@ public class Ek9LanguageBootStrap implements Supplier<SharedThreadContext<Compil
   private final Supplier<List<CompilableSource>> sourceSupplier;
 
   /**
-   * Create a language boot strap with a set of ek9 language files.
+   * Create a language bootstrap with a set of ek9 language files.
    */
   public Ek9LanguageBootStrap(Supplier<List<CompilableSource>> sourceSupplier, CompilationPhaseListener listener,
                               CompilerReporter reporter) {

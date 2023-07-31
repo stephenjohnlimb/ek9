@@ -1,9 +1,9 @@
 package org.ek9lang.compiler.directives;
 
 import java.util.List;
-import org.ek9lang.compiler.errors.CompilationEvent;
-import org.ek9lang.compiler.errors.CompilationPhaseListener;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.CompilationEvent;
+import org.ek9lang.compiler.common.CompilationPhaseListener;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.TypeDefResolver;
 import org.ek9lang.compiler.symbols.ISymbol;
 

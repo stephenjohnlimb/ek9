@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.errors;
+package org.ek9lang.compiler.common;
 
 import java.util.function.Consumer;
 

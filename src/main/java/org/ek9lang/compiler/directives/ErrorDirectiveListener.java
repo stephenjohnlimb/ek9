@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.ek9lang.compiler.errors.CompilationEvent;
-import org.ek9lang.compiler.errors.CompilationPhaseListener;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.CompilationEvent;
+import org.ek9lang.compiler.common.CompilationPhaseListener;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.tokenizer.SyntheticToken;
 
 /**

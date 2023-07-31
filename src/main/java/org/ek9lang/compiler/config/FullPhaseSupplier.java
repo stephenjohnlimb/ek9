@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.Workspace;
-import org.ek9lang.compiler.errors.CompilationPhaseListener;
+import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilationPhaseResult;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.core.SharedThreadContext;

@@ -2,7 +2,7 @@ package org.ek9lang.compiler.directives;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import org.ek9lang.compiler.errors.CompilationEvent;
+import org.ek9lang.compiler.common.CompilationEvent;
 
 /**
  * Provides the listeners for directive checks.

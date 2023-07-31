@@ -2,7 +2,7 @@ package org.ek9lang.compiler.phase1;
 
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.errors.ErrorListener;
+import org.ek9lang.compiler.common.ErrorListener;
 
 /**
  * Typically used in control expressions to check developer is not doing a while(true).

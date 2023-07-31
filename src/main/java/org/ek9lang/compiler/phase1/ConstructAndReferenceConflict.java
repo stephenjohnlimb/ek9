@@ -1,11 +1,12 @@
-package org.ek9lang.compiler.errors;
+package org.ek9lang.compiler.phase1;
 
 import java.util.function.Consumer;
+import org.ek9lang.compiler.common.ErrorListener;
 
 /**
  * Error if a construct and a reference conflict with each other.
  */
-public class ConstructAndReferenceConflict implements Consumer<ConflictingTokens> {
+final class ConstructAndReferenceConflict implements Consumer<ConflictingTokens> {
   private final String constructType;
   private final ErrorListener errorListener;
   private final ErrorListener.SemanticClassification classification;
@@ -13,9 +14,9 @@ public class ConstructAndReferenceConflict implements Consumer<ConflictingTokens
   /**
    * Create consumer with specific details for the error.
    */
-  public ConstructAndReferenceConflict(final String constructType,
-                                       final ErrorListener errorListener,
-                                       final ErrorListener.SemanticClassification classification) {
+  ConstructAndReferenceConflict(final String constructType,
+                                final ErrorListener errorListener,
+                                final ErrorListener.SemanticClassification classification) {
     this.constructType = constructType;
     this.errorListener = errorListener;
     this.classification = classification;

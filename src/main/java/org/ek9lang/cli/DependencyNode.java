@@ -125,7 +125,7 @@ final class DependencyNode {
    * Reject this dependency and optionally reject any dependencies it pulled in.
    */
   void setRejected(RejectionReason reason, boolean rejected,
-                          boolean alsoRejectDependencies) {
+                   boolean alsoRejectDependencies) {
     this.rejected = rejected;
     this.reason = reason;
     if (alsoRejectDependencies) {
@@ -154,15 +154,6 @@ final class DependencyNode {
   }
 
   @Override
-  public String toString() {
-    var builder = new StringBuilder(getModuleAndVersion());
-    if (rejected) {
-      builder.append(getReason());
-    }
-    return builder.toString();
-  }
-
-  @Override
   public int hashCode() {
     return getModuleAndVersion().hashCode();
   }
@@ -176,12 +167,13 @@ final class DependencyNode {
     return rtn;
   }
 
-  private String getModuleAndVersion() {
-    return String.format("%s-%s", moduleName, version);
-  }
-
-  private String getReason() {
-    return String.format("(%s)", reason);
+  @Override
+  public String toString() {
+    var builder = new StringBuilder(getModuleAndVersion());
+    if (rejected) {
+      builder.append(getReason());
+    }
+    return builder.toString();
   }
 
   private String toString(boolean includeVersion) {
@@ -190,6 +182,16 @@ final class DependencyNode {
     }
     return rejected ? moduleName + getReason() : moduleName;
   }
+
+  private String getModuleAndVersion() {
+    return String.format("%s-%s", moduleName, version);
+  }
+
+  private String getReason() {
+    return String.format("(%s)", reason);
+  }
+
+
 
   /**
    * Why was a dependency rejected.

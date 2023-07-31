@@ -9,8 +9,8 @@ import static org.ek9lang.compiler.symbols.support.SymbolFactory.URI_PROTO;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.common.CheckForBody;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
