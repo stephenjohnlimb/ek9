@@ -8,14 +8,14 @@ import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilationPhaseResult;
 import org.ek9lang.compiler.common.CompilerReporter;
-import org.ek9lang.compiler.phase10.Ek9Phase10CodeGenerationAggregates;
-import org.ek9lang.compiler.phase10.Ek9Phase10CodeGenerationConstants;
-import org.ek9lang.compiler.phase10.Ek9Phase10CodeGenerationFunctions;
-import org.ek9lang.compiler.phase10.Ek9Phase10CodeGenerationPreparation;
-import org.ek9lang.compiler.phase11.Ek9Phase11CodeOptimisation;
-import org.ek9lang.compiler.phase12.Ek9Phase12Packaging;
-import org.ek9lang.compiler.phase12.Ek9Phase12PackagingPostProcessing;
-import org.ek9lang.compiler.phase12.Ek9Phase12PluginLinkage;
+import org.ek9lang.compiler.phase10.CodeGenerationAggregates;
+import org.ek9lang.compiler.phase10.CodeGenerationConstants;
+import org.ek9lang.compiler.phase10.CodeGenerationFunctions;
+import org.ek9lang.compiler.phase10.CodeGenerationPreparation;
+import org.ek9lang.compiler.phase11.CodeOptimisation;
+import org.ek9lang.compiler.phase12.Packaging;
+import org.ek9lang.compiler.phase12.PackagingPostProcessing;
+import org.ek9lang.compiler.phase12.PluginLinkage;
 import org.ek9lang.core.SharedThreadContext;
 
 /**
@@ -35,13 +35,13 @@ public class BackEndSupplier extends PhaseSupplier {
   @Override
   public List<BiFunction<Workspace, CompilerFlags, CompilationPhaseResult>> get() {
     return List.of(
-        new Ek9Phase10CodeGenerationPreparation(listener, reporter),
-        new Ek9Phase10CodeGenerationAggregates(listener, reporter),
-        new Ek9Phase10CodeGenerationConstants(listener, reporter),
-        new Ek9Phase10CodeGenerationFunctions(listener, reporter),
-        new Ek9Phase11CodeOptimisation(listener, reporter),
-        new Ek9Phase12PluginLinkage(listener, reporter),
-        new Ek9Phase12Packaging(listener, reporter),
-        new Ek9Phase12PackagingPostProcessing(listener, reporter));
+        new CodeGenerationPreparation(listener, reporter),
+        new CodeGenerationAggregates(listener, reporter),
+        new CodeGenerationConstants(listener, reporter),
+        new CodeGenerationFunctions(listener, reporter),
+        new CodeOptimisation(listener, reporter),
+        new PluginLinkage(listener, reporter),
+        new Packaging(listener, reporter),
+        new PackagingPostProcessing(listener, reporter));
   }
 }

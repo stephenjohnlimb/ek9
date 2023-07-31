@@ -21,7 +21,7 @@ import org.ek9lang.core.SharedThreadContext;
  * Can be MULTI THREADED for developer source, but single threaded for bootstrapping.
  * Goes through the now successfully parsed source files and uses
  * a listener to do the second real pass at building the symbols - more explicit type symbol definitions.
- * The first pass 'Ek9Phase1SymbolDefinition' will have defined many symbols, types, functions.
+ * The first pass 'SymbolDefinition' will have defined many symbols, types, functions.
  * But the order may well have resulted in some explicit uses of generic types not being fully resolved
  * in terms of the parameterization used. i.e. 'UseOfBuiltInGenerics4.ek9' shows a class being declared after it has
  * been used in conjunctions with a generic/template type.
@@ -34,7 +34,7 @@ import org.ek9lang.core.SharedThreadContext;
  * Hence, the need for a second pass. We also need to start building type hierarchies as these are important for
  * generic types and parameterised type use.
  */
-public final class Ek9Phase2NonInferredTypeDefinition
+public final class NonInferredTypeDefinition
     implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
 
   private static final CompilationPhase thisPhase = CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION;
@@ -47,9 +47,9 @@ public final class Ek9Phase2NonInferredTypeDefinition
   /**
    * Create a new phase 1 second pass template type symbol resolution definition instance.
    */
-  public Ek9Phase2NonInferredTypeDefinition(final boolean multiThread,
-                                            SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                            Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public NonInferredTypeDefinition(final boolean multiThread,
+                                   SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                                   Consumer<CompilationEvent> listener, CompilerReporter reporter) {
     this.useMultiThreading = multiThread;
     this.listener = listener;
     this.reporter = reporter;

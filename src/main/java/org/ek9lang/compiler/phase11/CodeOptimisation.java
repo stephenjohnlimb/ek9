@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.phase10;
+package org.ek9lang.compiler.phase11;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -11,19 +11,18 @@ import org.ek9lang.compiler.common.CompilationPhaseResult;
 import org.ek9lang.compiler.common.CompilerReporter;
 
 /**
- * MULTI THREADED
- * Generate all type of aggregates, typically classes, components, records, etc.
- * See compilationContext.commandLine().targetArchitecture to determine what to prepare to create.
+ * SINGLE THREADED
+ * Optimise the generated code.
+ * See compilationContext.commandLine().targetArchitecture to determine what to prepare to optimise.
  */
-public class Ek9Phase10CodeGenerationAggregates implements
+public class CodeOptimisation implements
     BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
-  private static final CompilationPhase thisPhase = CompilationPhase.CODE_GENERATION_AGGREGATES;
+  private static final CompilationPhase thisPhase = CompilationPhase.CODE_OPTIMISATION;
   private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
-  public Ek9Phase10CodeGenerationAggregates(Consumer<CompilationEvent> listener,
-                                            CompilerReporter reporter) {
+  public CodeOptimisation(Consumer<CompilationEvent> listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
   }
@@ -34,4 +33,5 @@ public class Ek9Phase10CodeGenerationAggregates implements
     return new CompilationPhaseResult(thisPhase, true,
         compilerFlags.getCompileToPhase() == thisPhase);
   }
+
 }

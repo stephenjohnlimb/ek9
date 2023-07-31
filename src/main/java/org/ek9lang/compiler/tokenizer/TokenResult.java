@@ -32,10 +32,6 @@ public class TokenResult {
     return token;
   }
 
-  public int getTokenPositionInLine() {
-    return tokenPositionInLine;
-  }
-
   public boolean isPresent() {
     return token != null;
   }

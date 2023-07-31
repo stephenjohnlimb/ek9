@@ -20,7 +20,7 @@ import org.ek9lang.core.SharedThreadContext;
  * attempt to locate the actual 'shared library' or 'jar' file to ensure for the target architecture
  * compilation and linking can actually be achieved.
  */
-public class Ek9Phase6PluginResolution implements
+public class PluginResolution implements
     BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
   private static final CompilationPhase thisPhase = CompilationPhase.PLUGIN_RESOLUTION;
   private final Consumer<CompilationEvent> listener;
@@ -31,8 +31,8 @@ public class Ek9Phase6PluginResolution implements
   /**
    * Create new instance to resolve plugins for extern packages.
    */
-  public Ek9Phase6PluginResolution(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                   Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public PluginResolution(SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                          Consumer<CompilationEvent> listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
     this.compilableProgramAccess = compilableProgramAccess;

@@ -24,7 +24,7 @@ import org.ek9lang.core.SharedThreadContext;
  * Eventually it will be retired - but during development - it may enable early warning of threading issues.
  * Or other issues. but it's best to catch as early as possible.
  */
-public final class Ek9Phase1ModuleDuplicateSymbolChecks
+public final class ModuleDuplicateSymbolChecks
     implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
   private static final CompilationPhase thisPhase = CompilationPhase.DUPLICATION_CHECK;
   private final Consumer<CompilationEvent> listener;
@@ -35,8 +35,8 @@ public final class Ek9Phase1ModuleDuplicateSymbolChecks
   /**
    * Create a new duplicate checker for modules contained in the compilable program.
    */
-  public Ek9Phase1ModuleDuplicateSymbolChecks(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                              Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public ModuleDuplicateSymbolChecks(SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                                     Consumer<CompilationEvent> listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
     this.compilableProgramAccess = compilableProgramAccess;

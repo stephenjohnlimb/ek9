@@ -49,7 +49,7 @@ import org.ek9lang.core.SharedThreadContext;
  * we work out what the generic type is going to be parameterised with. As the next statements and expressions then
  * may use part of that new object via expressions we have to define then 'just a head' of when they are needed.
  */
-public class Ek9Phase3SymbolResolution implements
+public class SymbolResolution implements
     BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
 
   private static final CompilationPhase thisPhase = CompilationPhase.FULL_RESOLUTION;
@@ -62,9 +62,9 @@ public class Ek9Phase3SymbolResolution implements
   /**
    * Create new instance to finally resolve all symbols, even inferred ones.
    */
-  public Ek9Phase3SymbolResolution(final boolean multiThread,
-                                   SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                   Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public SymbolResolution(final boolean multiThread,
+                          SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                          Consumer<CompilationEvent> listener, CompilerReporter reporter) {
     this.useMultiThreading = multiThread;
     this.listener = listener;
     this.reporter = reporter;

@@ -64,7 +64,7 @@ import org.ek9lang.core.CompilerException;
  * as possible. It could be argued that you should do all the checks once you have an IR.
  * My thought is that as soon as you can detect an error you should report it in the earliest phase as possible.
  */
-final class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
+final class DefinitionListener extends AbstractEK9PhaseListener {
 
   /**
    * For creating new symbols during definition.
@@ -108,7 +108,7 @@ final class DefinitionPhase1Listener extends AbstractEK9PhaseListener {
    * First phase after parsing. Define symbols and infer types where possible.
    * Uses a symbol factory to actually create the appropriate symbols.
    */
-  DefinitionPhase1Listener(ParsedModule parsedModule) {
+  DefinitionListener(ParsedModule parsedModule) {
     super(parsedModule);
     var errorListener = parsedModule.getSource().getErrorListener();
     symbolChecker = new SymbolChecker(errorListener);

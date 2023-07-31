@@ -18,7 +18,7 @@ import org.ek9lang.compiler.common.CompilerReporter;
  * It is NOT a parser itself, but is used by the Ek9Compiler to initiate the
  * parsing. The Lexer and Parser are held in the CompilableSource.
  */
-public final class Ek9Phase0Parsing
+public final class Parsing
     implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
 
   private static final CompilationPhase thisPhase = CompilationPhase.PREPARE_PARSE;
@@ -28,7 +28,7 @@ public final class Ek9Phase0Parsing
   private final RequiredCompilableSourcesForParsing sourcesToBeParsed =
       new RequiredCompilableSourcesForParsing();
 
-  public Ek9Phase0Parsing(Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public Parsing(Consumer<CompilationEvent> listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
   }

@@ -15,7 +15,7 @@ import org.ek9lang.core.Logger;
  * Part of the language server functionality.
  * See WorkspaceService for additional methods we can implement.
  */
-public class Ek9WorkspaceService extends Ek9Service implements WorkspaceService {
+final class Ek9WorkspaceService extends Ek9Service implements WorkspaceService {
 
   private final Workspace ek9WorkSpace = new Workspace();
 
@@ -33,7 +33,7 @@ public class Ek9WorkspaceService extends Ek9Service implements WorkspaceService 
           FileChangeType.Created, reParseSource,
           FileChangeType.Deleted, cleanUpSourceAfterDelete);
 
-  public Ek9WorkspaceService(Ek9LanguageServer languageServer) {
+  Ek9WorkspaceService(Ek9LanguageServer languageServer) {
     super(languageServer);
   }
 
@@ -54,7 +54,7 @@ public class Ek9WorkspaceService extends Ek9Service implements WorkspaceService 
         .forEach(fileEvent -> changeHandlers.get(fileEvent.getType()).accept(fileEvent));
   }
 
-  public Workspace getEk9WorkSpace() {
+  Workspace getEk9WorkSpace() {
     return ek9WorkSpace;
   }
 }

@@ -20,13 +20,13 @@ import org.ek9lang.compiler.common.CompilerReporter;
  * That's what this phase is for, analysing the whole IR and doing any and all final checks before
  * optimisation takes place.
  */
-public class Ek9Phase9IRAnalysis implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+public class IRAnalysis implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
   private static final CompilationPhase thisPhase = CompilationPhase.IR_ANALYSIS;
   private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
-  public Ek9Phase9IRAnalysis(Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public IRAnalysis(Consumer<CompilationEvent> listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
   }

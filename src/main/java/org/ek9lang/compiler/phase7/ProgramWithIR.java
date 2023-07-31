@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.phase10;
+package org.ek9lang.compiler.phase7;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -11,20 +11,15 @@ import org.ek9lang.compiler.common.CompilationPhaseResult;
 import org.ek9lang.compiler.common.CompilerReporter;
 
 /**
- * MULTI THREADED
- * Preparation to generate code. Now this may vary in implementation significantly depending on the
- * target architecture output.
- * See compilationContext.commandLine().targetArchitecture to determine what to prepare to create.
+ * If all has gone well in previous phases, this just adds the IR to the main program(s).
  */
-public class Ek9Phase10CodeGenerationPreparation implements
-    BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
-  private static final CompilationPhase thisPhase = CompilationPhase.CODE_GENERATION_PREPARATION;
+public class ProgramWithIR implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+  private static final CompilationPhase thisPhase = CompilationPhase.PROGRAM_IR_CONFIGURATION;
   private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
-  public Ek9Phase10CodeGenerationPreparation(Consumer<CompilationEvent> listener,
-                                             CompilerReporter reporter) {
+  public ProgramWithIR(Consumer<CompilationEvent> listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
   }

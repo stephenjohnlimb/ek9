@@ -12,25 +12,24 @@ import org.ek9lang.compiler.common.CompilerReporter;
 
 /**
  * SINGLE THREADED
- * Complete any post-processing required. This could involve converting applications to
- * binary executable for example.
+ * If the developer has employed any sort of 'native' plugin, then it will have been referenced
+ * and trusted at earlier phases. PluginResolution will have done some checks. But here we must now
+ * actually check and 'link' what has been referenced to the actual code.
  */
-public class Ek9Phase12PackagingPostProcessing implements
+public class PluginLinkage implements
     BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
-  private static final CompilationPhase thisPhase = CompilationPhase.PACKAGING_POST_PROCESSING;
+  private static final CompilationPhase thisPhase = CompilationPhase.PLUGIN_LINKAGE;
   private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
-  public Ek9Phase12PackagingPostProcessing(Consumer<CompilationEvent> listener,
-                                           CompilerReporter reporter) {
+  public PluginLinkage(Consumer<CompilationEvent> listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
   }
 
   @Override
   public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
-
     return new CompilationPhaseResult(thisPhase, true,
         compilerFlags.getCompileToPhase() == thisPhase);
   }

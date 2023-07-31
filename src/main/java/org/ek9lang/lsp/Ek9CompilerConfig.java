@@ -12,22 +12,22 @@ import org.ek9lang.compiler.CompilerFlags;
  * These settings are really just for general interactive use. The compiler flags
  * can be used in the command line but are also useful via an IDE.
  */
-public class Ek9CompilerConfig extends CompilerFlags {
+final class Ek9CompilerConfig extends CompilerFlags {
   private boolean provideLanguageHoverHelp = true;
 
-  public Ek9CompilerConfig() {
+  Ek9CompilerConfig() {
     this(CompilationPhase.APPLICATION_PACKAGING);
   }
 
-  public Ek9CompilerConfig(CompilationPhase compileToPhase) {
+  Ek9CompilerConfig(CompilationPhase compileToPhase) {
     super(compileToPhase);
   }
 
-  public boolean isProvideLanguageHoverHelp() {
+  boolean isProvideLanguageHoverHelp() {
     return provideLanguageHoverHelp;
   }
 
-  public void setProvideLanguageHoverHelp(boolean provideLanguageHoverHelp) {
+  void setProvideLanguageHoverHelp(boolean provideLanguageHoverHelp) {
     this.provideLanguageHoverHelp = provideLanguageHoverHelp;
   }
 }

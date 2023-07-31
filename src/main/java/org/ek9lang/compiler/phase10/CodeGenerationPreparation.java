@@ -12,18 +12,19 @@ import org.ek9lang.compiler.common.CompilerReporter;
 
 /**
  * MULTI THREADED
- * Generate all functions (including dynamic and templated) that have been defined.
+ * Preparation to generate code. Now this may vary in implementation significantly depending on the
+ * target architecture output.
  * See compilationContext.commandLine().targetArchitecture to determine what to prepare to create.
  */
-public class Ek9Phase10CodeGenerationFunctions implements
+public class CodeGenerationPreparation implements
     BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
-  private static final CompilationPhase thisPhase = CompilationPhase.CODE_GENERATION_FUNCTIONS;
+  private static final CompilationPhase thisPhase = CompilationPhase.CODE_GENERATION_PREPARATION;
   private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
-  public Ek9Phase10CodeGenerationFunctions(Consumer<CompilationEvent> listener,
-                                           CompilerReporter reporter) {
+  public CodeGenerationPreparation(Consumer<CompilationEvent> listener,
+                                   CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
   }

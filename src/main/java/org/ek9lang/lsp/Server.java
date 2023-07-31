@@ -19,7 +19,7 @@ import org.ek9lang.core.OsSupport;
  * This will be mainly for the diagnostics and the like.
  * All of that is wrapped up in the EK9LanguageServer and its components.
  */
-public class Server {
+public final class Server {
 
   /**
    * Main entry point to start and run the language server.

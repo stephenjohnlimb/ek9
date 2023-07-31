@@ -20,14 +20,14 @@ import org.ek9lang.compiler.tokenizer.TokenResult;
  * want the hover/help.
  * This only deals with simple single word completion and simple cases.
  */
-public class Ek9LanguageWords {
+final class Ek9LanguageWords {
   private final Map<String, KeyWordInformation> keywordMap = new HashMap<>();
 
-  public Ek9LanguageWords() {
+  Ek9LanguageWords() {
     setupKeyWords();
   }
 
-  public List<String> getAllKeyWords() {
+  List<String> getAllKeyWords() {
     return keywordMap.keySet().stream().sorted().toList();
   }
 

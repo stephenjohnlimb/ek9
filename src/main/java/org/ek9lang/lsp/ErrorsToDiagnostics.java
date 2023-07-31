@@ -14,12 +14,12 @@ import org.ek9lang.core.Logger;
 /**
  * Convert ErrorListener warnings and errors to LSP Diagnostics.
  */
-public class ErrorsToDiagnostics {
+final class ErrorsToDiagnostics {
 
   /**
    * Used as part of the language server to obtain an empty set of diagnostic information.
    */
-  public PublishDiagnosticsParams getEmptyDiagnostics(String generalIdentifierOfSource) {
+  PublishDiagnosticsParams getEmptyDiagnostics(String generalIdentifierOfSource) {
     PublishDiagnosticsParams rtn = new PublishDiagnosticsParams();
     rtn.setUri(generalIdentifierOfSource);
     rtn.setDiagnostics(new ArrayList<>(0));
@@ -30,7 +30,7 @@ public class ErrorsToDiagnostics {
   /**
    * Used as part of the language server to convert errors in to diagnostic information.
    */
-  public PublishDiagnosticsParams getErrorDiagnostics(ErrorListener errorListener) {
+  PublishDiagnosticsParams getErrorDiagnostics(ErrorListener errorListener) {
     PublishDiagnosticsParams rtn = new PublishDiagnosticsParams();
     rtn.setUri(errorListener.getGeneralIdentifierOfSource());
     List<Diagnostic> diagnostics = new ArrayList<>(0);

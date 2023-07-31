@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.phase7;
+package org.ek9lang.compiler.phase10;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -11,15 +11,19 @@ import org.ek9lang.compiler.common.CompilationPhaseResult;
 import org.ek9lang.compiler.common.CompilerReporter;
 
 /**
- * If all has gone well in previous phases, this just adds the IR to the main program(s).
+ * MULTI THREADED
+ * Generate all constants that have been defined.
+ * See compilationContext.commandLine().targetArchitecture to determine what to prepare to create.
  */
-public class Ek9Phase7ProgramWithIR implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
-  private static final CompilationPhase thisPhase = CompilationPhase.PROGRAM_IR_CONFIGURATION;
+public class CodeGenerationConstants implements
+    BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+  private static final CompilationPhase thisPhase = CompilationPhase.CODE_GENERATION_CONSTANTS;
   private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
-  public Ek9Phase7ProgramWithIR(Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public CodeGenerationConstants(Consumer<CompilationEvent> listener,
+                                 CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
   }

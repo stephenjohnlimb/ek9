@@ -20,7 +20,7 @@ import org.ek9lang.core.SharedThreadContext;
  * We don't want two different files reference com.abc.Item and another file
  * com.def.Item in the same module - even though different source files.
  */
-public final class Ek9Phase1ReferenceChecks implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+public final class ReferenceChecks implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
   private static final CompilationPhase thisPhase = CompilationPhase.REFERENCE_CHECKS;
   private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
@@ -30,8 +30,8 @@ public final class Ek9Phase1ReferenceChecks implements BiFunction<Workspace, Com
   /**
    * Create a new reference checker for modules contained in the compilable program.
    */
-  public Ek9Phase1ReferenceChecks(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                  Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public ReferenceChecks(SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                         Consumer<CompilationEvent> listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
     this.compilableProgramAccess = compilableProgramAccess;

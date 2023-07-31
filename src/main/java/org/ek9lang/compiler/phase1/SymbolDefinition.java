@@ -22,7 +22,7 @@ import org.ek9lang.core.SharedThreadContext;
  * This means identifying types and other symbols.
  * WILL WAIT FOR Java 21 with full virtual Threads.
  */
-public final class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+public final class SymbolDefinition implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
 
   private static final CompilationPhase thisPhase = CompilationPhase.SYMBOL_DEFINITION;
   private final Consumer<CompilationEvent> listener;
@@ -34,15 +34,15 @@ public final class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, Co
   /**
    * Create a new phase 1 symbol definition instance.
    */
-  public Ek9Phase1SymbolDefinition(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                   Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public SymbolDefinition(SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                          Consumer<CompilationEvent> listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
     this.compilableProgramAccess = compilableProgramAccess;
   }
 
-  public Ek9Phase1SymbolDefinition(boolean multiThread, SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                   Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public SymbolDefinition(boolean multiThread, SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                          Consumer<CompilationEvent> listener, CompilerReporter reporter) {
     this(compilableProgramAccess, listener, reporter);
     this.useMultiThreading = multiThread;
   }
@@ -88,7 +88,7 @@ public final class Ek9Phase1SymbolDefinition implements BiFunction<Workspace, Co
     //Otherwise several files in same module will not detect duplicate symbols.
     compilableProgramAccess.accept(compilableProgram -> compilableProgram.add(parsedModule));
 
-    DefinitionPhase1Listener phaseListener = new DefinitionPhase1Listener(parsedModule);
+    DefinitionListener phaseListener = new DefinitionListener(parsedModule);
     ParseTreeWalker walker = new ParseTreeWalker();
     walker.walk(phaseListener, source.getCompilationUnitContext());
     listener.accept(new CompilationEvent(thisPhase, parsedModule, source));

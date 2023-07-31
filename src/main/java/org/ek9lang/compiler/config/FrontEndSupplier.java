@@ -8,14 +8,14 @@ import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilationPhaseResult;
 import org.ek9lang.compiler.common.CompilerReporter;
-import org.ek9lang.compiler.phase0.Ek9Phase0Parsing;
-import org.ek9lang.compiler.phase1.Ek9Phase1ModuleDuplicateSymbolChecks;
-import org.ek9lang.compiler.phase1.Ek9Phase1ReferenceChecks;
-import org.ek9lang.compiler.phase1.Ek9Phase1SymbolDefinition;
-import org.ek9lang.compiler.phase2.Ek9Phase2NonInferredTypeDefinition;
-import org.ek9lang.compiler.phase2.Ek9Phase2TypeHierarchyChecks;
-import org.ek9lang.compiler.phase3.Ek9Phase3SymbolResolution;
-import org.ek9lang.compiler.phase6.Ek9Phase6PluginResolution;
+import org.ek9lang.compiler.phase0.Parsing;
+import org.ek9lang.compiler.phase1.ModuleDuplicateSymbolChecks;
+import org.ek9lang.compiler.phase1.ReferenceChecks;
+import org.ek9lang.compiler.phase1.SymbolDefinition;
+import org.ek9lang.compiler.phase2.NonInferredTypeDefinition;
+import org.ek9lang.compiler.phase2.TypeHierarchyChecks;
+import org.ek9lang.compiler.phase3.SymbolResolution;
+import org.ek9lang.compiler.phase6.PluginResolution;
 import org.ek9lang.core.SharedThreadContext;
 
 /**
@@ -43,13 +43,13 @@ public class FrontEndSupplier extends PhaseSupplier {
   @Override
   public List<BiFunction<Workspace, CompilerFlags, CompilationPhaseResult>> get() {
     return List.of(
-        new Ek9Phase0Parsing(listener, reporter),
-        new Ek9Phase1SymbolDefinition(multiThread, compilableProgramAccess, listener, reporter),
-        new Ek9Phase1ModuleDuplicateSymbolChecks(compilableProgramAccess, listener, reporter),
-        new Ek9Phase1ReferenceChecks(compilableProgramAccess, listener, reporter),
-        new Ek9Phase2NonInferredTypeDefinition(multiThread, compilableProgramAccess, listener, reporter),
-        new Ek9Phase2TypeHierarchyChecks(compilableProgramAccess, listener, reporter),
-        new Ek9Phase3SymbolResolution(multiThread, compilableProgramAccess, listener, reporter),
-        new Ek9Phase6PluginResolution(compilableProgramAccess, listener, reporter));
+        new Parsing(listener, reporter),
+        new SymbolDefinition(multiThread, compilableProgramAccess, listener, reporter),
+        new ModuleDuplicateSymbolChecks(compilableProgramAccess, listener, reporter),
+        new ReferenceChecks(compilableProgramAccess, listener, reporter),
+        new NonInferredTypeDefinition(multiThread, compilableProgramAccess, listener, reporter),
+        new TypeHierarchyChecks(compilableProgramAccess, listener, reporter),
+        new SymbolResolution(multiThread, compilableProgramAccess, listener, reporter),
+        new PluginResolution(compilableProgramAccess, listener, reporter));
   }
 }

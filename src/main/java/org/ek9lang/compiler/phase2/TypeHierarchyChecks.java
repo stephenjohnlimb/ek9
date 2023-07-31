@@ -22,7 +22,7 @@ import org.ek9lang.core.SharedThreadContext;
 /**
  * SINGLE THREADED - Run across sources to check for types, functions and traits for 'super loops'.
  */
-public final class Ek9Phase2TypeHierarchyChecks
+public final class TypeHierarchyChecks
     implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
   private static final CompilationPhase thisPhase = CompilationPhase.TYPE_HIERARCHY_CHECKS;
   private final Consumer<CompilationEvent> listener;
@@ -33,8 +33,8 @@ public final class Ek9Phase2TypeHierarchyChecks
   /**
    * Create a new instance for checking of type hierarchies.
    */
-  public Ek9Phase2TypeHierarchyChecks(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                      Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public TypeHierarchyChecks(SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                             Consumer<CompilationEvent> listener, CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
     this.compilableProgramAccess = compilableProgramAccess;

@@ -12,18 +12,18 @@ import org.ek9lang.compiler.common.CompilerReporter;
 
 /**
  * MULTI THREADED
- * Generate all constants that have been defined.
+ * Generate all type of aggregates, typically classes, components, records, etc.
  * See compilationContext.commandLine().targetArchitecture to determine what to prepare to create.
  */
-public class Ek9Phase10CodeGenerationConstants implements
+public class CodeGenerationAggregates implements
     BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
-  private static final CompilationPhase thisPhase = CompilationPhase.CODE_GENERATION_CONSTANTS;
+  private static final CompilationPhase thisPhase = CompilationPhase.CODE_GENERATION_AGGREGATES;
   private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
-  public Ek9Phase10CodeGenerationConstants(Consumer<CompilationEvent> listener,
-                                           CompilerReporter reporter) {
+  public CodeGenerationAggregates(Consumer<CompilationEvent> listener,
+                                  CompilerReporter reporter) {
     this.listener = listener;
     this.reporter = reporter;
   }

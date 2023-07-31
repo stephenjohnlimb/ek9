@@ -28,7 +28,7 @@ import org.ek9lang.core.Logger;
  * Note there are lots of other methods we will implement in here.
  * Like type hierarchy for example. See TextDocumentService for other methods we can implement.
  */
-public class Ek9TextDocumentService extends Ek9Service implements TextDocumentService {
+final class Ek9TextDocumentService extends Ek9Service implements TextDocumentService {
   private final Ek9LanguageWords languageWords;
   private final Function<String, CompletionItem> newKeyWordCompletionItem = completion -> {
     var languageKeyWord = new CompletionItem(completion);
@@ -36,12 +36,12 @@ public class Ek9TextDocumentService extends Ek9Service implements TextDocumentSe
     return languageKeyWord;
   };
 
-  public Ek9TextDocumentService(Ek9LanguageServer languageServer) {
+  Ek9TextDocumentService(Ek9LanguageServer languageServer) {
     super(languageServer);
     languageWords = new Ek9LanguageWords();
   }
 
-  protected Ek9LanguageWords getLanguageWords() {
+  Ek9LanguageWords getLanguageWords() {
     return languageWords;
   }
 

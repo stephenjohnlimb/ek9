@@ -19,15 +19,15 @@ import org.ek9lang.core.Logger;
 /**
  * Base service for EK9 language compilation.
  */
-public abstract class Ek9Service {
+abstract class Ek9Service {
   private final ErrorsToDiagnostics diagnosticExtractor = new ErrorsToDiagnostics();
   private Ek9LanguageServer languageServer;
 
-  protected Ek9Service() {
+  Ek9Service() {
 
   }
 
-  protected Ek9Service(Ek9LanguageServer languageServer) {
+  Ek9Service(Ek9LanguageServer languageServer) {
     //Keep a reference, so we can access client and send back messages.
     this.languageServer = languageServer;
   }
@@ -96,27 +96,27 @@ public abstract class Ek9Service {
    *
    * @param diagnostics The set of diagnostics to be returned to the user.
    */
-  public void sendDiagnostics(final PublishDiagnosticsParams diagnostics) {
+  void sendDiagnostics(final PublishDiagnosticsParams diagnostics) {
     getLanguageServer().getClient().ifPresent(client -> client.publishDiagnostics(diagnostics));
   }
 
-  public void sendWarningBackToClient(String message) {
+  void sendWarningBackToClient(String message) {
     sendLogMessageBackToClient(new MessageParams(MessageType.Warning, message));
   }
 
-  public void sendErrorBackToClient(String message) {
+  void sendErrorBackToClient(String message) {
     sendLogMessageBackToClient(new MessageParams(MessageType.Error, message));
   }
 
-  public void sendInfoBackToClient(String message) {
+  void sendInfoBackToClient(String message) {
     sendLogMessageBackToClient(new MessageParams(MessageType.Info, message));
   }
 
-  public void sendLogBackToClient(String message) {
+  void sendLogBackToClient(String message) {
     sendLogMessageBackToClient(new MessageParams(MessageType.Log, message));
   }
 
-  private void sendLogMessageBackToClient(MessageParams message) {
+  void sendLogMessageBackToClient(MessageParams message) {
     getLanguageServer().getClient().ifPresent(client -> client.logMessage(message));
   }
 }
