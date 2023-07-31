@@ -11,6 +11,7 @@ import java.util.function.Function;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.common.SourceFileList;
 import org.ek9lang.compiler.tokenizer.DelegatingLexer;
 import org.ek9lang.compiler.tokenizer.Ek9LexerForInput;
 import org.ek9lang.compiler.tokenizer.LexerPlugin;

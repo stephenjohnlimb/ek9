@@ -17,13 +17,13 @@ import org.junit.jupiter.api.Test;
 /**
  * Now move beyond lexing, to parsing content.
  */
-public abstract class ParsingBase extends LexingBase {
+abstract class ParsingBase extends LexingBase {
 
   private final ErrorListener errorListener = new ErrorListener("test");
   private EK9Parser underTest;
 
   @BeforeEach
-  public void loadTokenStreamInParser() {
+  void loadTokenStreamInParser() {
     InputStream inputStream = getClass().getResourceAsStream(getEK9FileName());
     assertNotNull(inputStream, "Read File");
 
@@ -37,7 +37,7 @@ public abstract class ParsingBase extends LexingBase {
   }
 
   @Test
-  public void test() throws Exception {
+  void test() {
     assertNotNull(underTest);
 
     long before = System.currentTimeMillis();

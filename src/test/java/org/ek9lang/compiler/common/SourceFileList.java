@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.phase0;
+package org.ek9lang.compiler.common;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -12,7 +12,7 @@ import org.ek9lang.core.OsSupport;
 /**
  * Get a list of source files from a resource directory.
  */
-public class SourceFileList implements Function<String, List<File>> {
+public final class SourceFileList implements Function<String, List<File>> {
 
   @Override
   public List<File> apply(String fromDirectory) {

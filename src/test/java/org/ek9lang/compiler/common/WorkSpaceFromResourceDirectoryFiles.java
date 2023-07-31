@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.phase0;
+package org.ek9lang.compiler.common;
 
 import java.util.function.Function;
 import org.ek9lang.compiler.Workspace;
@@ -6,7 +6,7 @@ import org.ek9lang.compiler.Workspace;
 /**
  * Create a loaded workspace with ek9 source files from a resource directory.
  */
-public class WorkSpaceFromResourceDirectoryFiles implements Function<String, Workspace> {
+public final class WorkSpaceFromResourceDirectoryFiles implements Function<String, Workspace> {
   private final SourceFileList sourceFileList = new SourceFileList();
 
   @Override

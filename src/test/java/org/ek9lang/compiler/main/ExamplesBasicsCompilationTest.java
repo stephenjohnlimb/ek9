@@ -17,7 +17,6 @@ class ExamplesBasicsCompilationTest extends FullCompilationTest {
     super("/examples/basics");
   }
 
-
   @Test
   void testPhaseDevelopment() {
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);

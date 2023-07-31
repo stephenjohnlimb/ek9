@@ -192,7 +192,6 @@ final class DependencyNode {
   }
 
 
-
   /**
    * Why was a dependency rejected.
    */
