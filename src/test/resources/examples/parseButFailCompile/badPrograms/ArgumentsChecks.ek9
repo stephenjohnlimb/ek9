@@ -74,8 +74,16 @@ defines module bad.argument.parameters
     //Failure 4 - a list but can only be of String
     BadArgumentType3()
       @Error: SYMBOL_DEFINITION: PROGRAM_ARGUMENT_TYPE_INVALID
-      -> argv as List of Integer
+      -> arg as List of Integer
       //Just some body to stop any other compiler errors
       v <- "Steve"
       assert v?
+
+    UnTypedArgument()
+      @Error: SYMBOL_DEFINITION: PROGRAM_ARGUMENT_TYPE_INVALID
+      -> arg as NoSuchType
+      //Just some body to stop any other compiler errors
+      v <- "Steve"
+      assert v?
+
 //EOF

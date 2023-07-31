@@ -17,13 +17,10 @@ public class MethodSymbolSearchResult {
    * but also with class compatibility or parameters and possible coercions.
    */
   private final List<WeightedMethodSymbolMatch> results = new ArrayList<>();
-
   private boolean accessModifierIncompatible = false;
-
   private boolean methodNotMarkedWithOverride = false;
 
   public MethodSymbolSearchResult() {
-
   }
 
   /**

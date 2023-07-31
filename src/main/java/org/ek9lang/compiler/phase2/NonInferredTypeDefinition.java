@@ -14,7 +14,6 @@ import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilationPhaseResult;
 import org.ek9lang.compiler.common.CompilerReporter;
-import org.ek9lang.core.CompilerException;
 import org.ek9lang.core.SharedThreadContext;
 
 /**
@@ -90,13 +89,12 @@ public final class NonInferredTypeDefinition
     //First get the parsed module for this source file.
     //This has to be done via a mutable holder through a reentrant lock to the program
     var holder = new AtomicReference<ParsedModule>();
+    //Only hold the lock for the minimal time.
     compilableProgramAccess.accept(
         program -> holder.set(program.getParsedModuleForCompilableSource(source)));
 
-    if (holder.get() == null) {
-      throw new CompilerException("Compiler error, the parsed module must be present for " + source.getFileName());
-    } else {
-      var parsedModule = holder.get();
+    var parsedModule = holder.get();
+    if (parsedModule != null) {
       ResolveDefineExplicitTypeListener phaseListener =
           new ResolveDefineExplicitTypeListener(parsedModule);
       ParseTreeWalker walker = new ParseTreeWalker();

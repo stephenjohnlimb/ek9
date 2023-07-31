@@ -49,8 +49,9 @@ final class BuiltInTypeCacheResolver implements Function<IScope, Ek9Types> {
 
   @Override
   public Ek9Types apply(final IScope scope) {
+    Ek9Types rtn = null;
     if ("org.ek9.lang".equals(scope.getScopeName())) {
-      return new Ek9Types(
+      rtn = new Ek9Types(
           resolveType(scope, EK9_VOID),
           resolveType(scope, EK9_BOOLEAN),
           resolveType(scope, EK9_INTEGER),
@@ -81,7 +82,7 @@ final class BuiltInTypeCacheResolver implements Function<IScope, Ek9Types> {
           resolveTemplateFunction(scope, EK9_PREDICATE),
           resolveTemplateFunction(scope, EK9_COMPARATOR));
     }
-    return null;
+    return rtn;
   }
 
   @SuppressWarnings("OptionalGetWithoutIsPresent")

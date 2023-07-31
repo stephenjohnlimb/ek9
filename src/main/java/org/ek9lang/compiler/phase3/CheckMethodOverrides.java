@@ -11,7 +11,6 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbols.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbols.support.LocationExtractor;
-import org.ek9lang.core.CompilerException;
 
 /**
  * Check overrides on methods.
@@ -64,14 +63,11 @@ final class CheckMethodOverrides extends RuleSupport implements Consumer<Aggrega
     abstractMethodsToCheck.forEach(methodSymbol -> {
       MethodSymbolSearch search = new MethodSymbolSearch(methodSymbol);
       var result = aggregateSymbol.resolveMatchingMethods(search, new MethodSymbolSearchResult());
-      result.getSingleBestMatchSymbol().ifPresentOrElse(match -> {
+      result.getSingleBestMatchSymbol().ifPresent(match -> {
         if (match.isMarkedAbstract()) {
           var errorMessage = "'" + match.getFriendlyName() + "' not overridden:";
           errorListener.semanticError(aggregateSymbol.getSourceToken(), errorMessage, errorWhenShouldBeMarkedAbstract);
         }
-      }, () -> {
-        //So how is this possible? Compiler error!
-        throw new CompilerException("Some how unable to resolve method for [" + methodSymbol.getFriendlyName() + "]");
       });
     });
   }
