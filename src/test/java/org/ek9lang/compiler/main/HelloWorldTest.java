@@ -9,6 +9,7 @@ import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.Ek9Compiler;
 import org.ek9lang.compiler.Workspace;
+import org.ek9lang.compiler.common.CompilableProgramSuitable;
 import org.ek9lang.compiler.config.FullPhaseSupplier;
 import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilerReporter;

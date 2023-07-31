@@ -8,6 +8,7 @@ import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilationPhase;
+import org.ek9lang.compiler.common.FullCompilationTest;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.support.GenericsSymbolCheck;
 import org.ek9lang.compiler.symbols.support.SymbolCheck;

@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.ek9lang.compiler.CompilableProgram;
-import org.ek9lang.compiler.main.CompilableProgramSuitable;
+import org.ek9lang.compiler.common.CompilableProgramSuitable;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.search.TypeSymbolSearch;
 import org.ek9lang.core.SharedThreadContext;
