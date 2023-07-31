@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.support;
+package org.ek9lang.compiler.common;
 
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.core.AssertValue;

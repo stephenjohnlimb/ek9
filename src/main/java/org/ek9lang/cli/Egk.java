@@ -5,8 +5,8 @@ import org.ek9lang.core.SigningKeyPair;
 /**
  * Generate signing keys.
  */
-public class Egk extends E {
-  public Egk(CompilationContext compilationContext) {
+final class Egk extends E {
+  Egk(CompilationContext compilationContext) {
     super(compilationContext);
   }
 
@@ -15,6 +15,7 @@ public class Egk extends E {
     return "Keys    : ";
   }
 
+  @Override
   protected boolean doRun() {
     if (getFileHandling().isUsersSigningKeyPairPresent()) {
       log("Already present - not regenerating");

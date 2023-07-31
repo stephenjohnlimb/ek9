@@ -14,8 +14,8 @@ import org.ek9lang.compiler.phase11.Ek9Phase11CodeOptimisation;
 import org.ek9lang.compiler.phase12.Ek9Phase12Packaging;
 import org.ek9lang.compiler.phase12.Ek9Phase12PackagingPostProcessing;
 import org.ek9lang.compiler.phase12.Ek9Phase12PluginLinkage;
-import org.ek9lang.compiler.support.CompilationPhaseResult;
-import org.ek9lang.compiler.support.CompilerReporter;
+import org.ek9lang.compiler.common.CompilationPhaseResult;
+import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.core.SharedThreadContext;
 
 /**

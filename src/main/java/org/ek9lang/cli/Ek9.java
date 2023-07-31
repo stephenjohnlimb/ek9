@@ -2,14 +2,14 @@ package org.ek9lang.cli;
 
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
-import org.ek9lang.LanguageMetaData;
 import org.ek9lang.compiler.Compiler;
 import org.ek9lang.compiler.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.Ek9Compiler;
 import org.ek9lang.compiler.Ek9LanguageBootStrap;
+import org.ek9lang.compiler.common.Reporter;
 import org.ek9lang.compiler.config.FullPhaseSupplier;
 import org.ek9lang.compiler.errors.CompilationEvent;
-import org.ek9lang.compiler.support.CompilerReporter;
+import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.Logger;
 import org.ek9lang.core.OsSupport;
@@ -36,7 +36,7 @@ import org.ek9lang.lsp.Server;
  * which to run.
  * Exit code 7 means the ek9 compiler when running as LSP failed.
  */
-public class Ek9 {
+final class Ek9 {
   /**
    * The range of exit codes that EK9 will use.
    */
@@ -49,7 +49,6 @@ public class Ek9 {
   public static final int PROGRAM_NOT_SPECIFIED_EXIT_CODE = 6;
   public static final int LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE = 7;
   private static final LanguageMetaData languageMetaData = new LanguageMetaData("0.0.1-0");
-
 
   /**
    * Creates the compilerContext with the commandLine, and a real compiler.
@@ -74,7 +73,7 @@ public class Ek9 {
   private final CompilationContext compilationContext;
   private final CompilationReporter reporter;
 
-  public Ek9(CompilationContext compilationContext) {
+  Ek9(CompilationContext compilationContext) {
     this.compilationContext = compilationContext;
     this.reporter = new CompilationReporter(compilationContext.commandLine().isVerbose());
   }
@@ -102,12 +101,11 @@ public class Ek9 {
     }
   }
 
-
   /**
    * Run the command line and return the exit code.
    * This can be either the language server or just the command line compiler.
    */
-  public int run() throws InterruptedException {
+  int run() throws InterruptedException {
     //This will cause the application to block and remain running as a language server.
     if (compilationContext.commandLine().isRunEk9AsLanguageServer()) {
       return runAsLanguageServer();

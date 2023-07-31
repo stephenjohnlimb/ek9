@@ -11,8 +11,8 @@ import org.ek9lang.compiler.phase7.Ek9Phase7ProgramWithIR;
 import org.ek9lang.compiler.phase8.Ek9Phase8IRTemplateGeneration;
 import org.ek9lang.compiler.phase9.Ek9Phase9IRAnalysis;
 import org.ek9lang.compiler.phase9.Ek9Phase9IROptimisation;
-import org.ek9lang.compiler.support.CompilationPhaseResult;
-import org.ek9lang.compiler.support.CompilerReporter;
+import org.ek9lang.compiler.common.CompilationPhaseResult;
+import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.core.SharedThreadContext;
 
 /**

@@ -1,7 +1,7 @@
-package org.ek9lang;
+package org.ek9lang.cli;
 
 /**
  * Designed to hold all the global sort of settings for the language and compiler.
  */
-public record LanguageMetaData(String version) {
+record LanguageMetaData(String version) {
 }

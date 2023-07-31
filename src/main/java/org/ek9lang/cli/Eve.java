@@ -15,13 +15,13 @@ import org.ek9lang.core.Processor;
 /**
  * Base for the versioning commands.
  */
-public abstract class Eve extends E {
-  protected Eve(CompilationContext compilationContext) {
+abstract class Eve extends E {
+  Eve(CompilationContext compilationContext) {
     super(compilationContext);
   }
 
   @Override
-  public boolean preConditionCheck() {
+  boolean preConditionCheck() {
     if (compilationContext.commandLine().noPackageIsPresent()) {
       report("File " + compilationContext.commandLine().getSourceFileName()
           + " does not define a package");
@@ -33,7 +33,7 @@ public abstract class Eve extends E {
   /**
    * Just sets the new version into the source file.
    */
-  public boolean setVersionNewNumber(Version newVersion) {
+  boolean setVersionNewNumber(Version newVersion) {
 
     Processor<Boolean> processor = () -> {
       List<String> output = loadAndUpdateVersionFromSourceFile(newVersion);
@@ -108,7 +108,7 @@ public abstract class Eve extends E {
    * Both with or without a build number.
    * This then allows the developer to manipulate major, minor, patch and build numbers.
    */
-  public static class Version {
+  static class Version {
     private static final String MAJOR_MINOR_PATCH_REGEX =
         "(?<major>\\d+)(\\.)(?<minor>\\d+)(\\.)(?<patch>\\d+)";
     private static final String FEATURE_REGEX = "((-)(?<feature>[a-zA-Z]+[a-zA-Z0-9]*))";
@@ -122,7 +122,7 @@ public abstract class Eve extends E {
     /**
      * True if version segment is not major, minor, patch or build.
      */
-    public static boolean isInvalidVersionAddressPart(String versionParam) {
+    static boolean isInvalidVersionAddressPart(String versionParam) {
       return (!versionParam.equals("major")
           && !versionParam.equals("minor")
           && !versionParam.equals("patch")
@@ -132,17 +132,17 @@ public abstract class Eve extends E {
     /**
      * Parse the incoming - but expect no build number.
      */
-    public static Version withNoBuildNumber(String value) {
+    static Version withNoBuildNumber(String value) {
       Matcher m = matcher("^" + MAJOR_MINOR_PATCH_REGEX + FEATURE_REGEX + "?$", value);
       return parse(false, true, m, value);
     }
 
-    public static Version withNoFeatureNoBuildNumber(String value) {
+    static Version withNoFeatureNoBuildNumber(String value) {
       Matcher m = matcher("^" + MAJOR_MINOR_PATCH_REGEX + "$", value);
       return parse(false, false, m, value);
     }
 
-    public static Version withFeatureNoBuildNumber(String value) {
+    static Version withFeatureNoBuildNumber(String value) {
       Matcher m = matcher("^" + MAJOR_MINOR_PATCH_REGEX + FEATURE_REGEX + "$", value);
       return parse(false, true, m, value);
     }
@@ -150,7 +150,7 @@ public abstract class Eve extends E {
     /**
      * Parse the incoming - but expect a build number.
      */
-    public static Version withBuildNumber(String value) {
+    static Version withBuildNumber(String value) {
       Matcher m =
           matcher("^" + MAJOR_MINOR_PATCH_REGEX + FEATURE_REGEX + "?" + BUILD_NO_REGEX + "$",
               value);
@@ -184,7 +184,7 @@ public abstract class Eve extends E {
       return Pattern.compile(pattern).matcher(value);
     }
 
-    public Integer major() {
+    Integer major() {
       return major;
     }
 
@@ -198,7 +198,7 @@ public abstract class Eve extends E {
       buildNumber = 0;
     }
 
-    public Integer minor() {
+    Integer minor() {
       return minor;
     }
 
@@ -206,13 +206,13 @@ public abstract class Eve extends E {
      * Increments the minor part of the version number.
      */
 
-    public void incrementMinor() {
+    void incrementMinor() {
       minor++;
       patch = 0;
       buildNumber = 0;
     }
 
-    public Integer patch() {
+    Integer patch() {
       return patch;
     }
 
@@ -220,23 +220,23 @@ public abstract class Eve extends E {
      * Increments the patch part of the version number.
      */
 
-    public void incrementPatch() {
+    void incrementPatch() {
       patch++;
       buildNumber = 0;
     }
 
-    public String feature() {
+    String feature() {
       return feature;
     }
 
-    public Integer buildNumber() {
+    Integer buildNumber() {
       return buildNumber;
     }
 
     /**
      * Increments the build part of the version number.
      */
-    public void incrementBuildNumber() {
+    void incrementBuildNumber() {
       buildNumber++;
     }
 

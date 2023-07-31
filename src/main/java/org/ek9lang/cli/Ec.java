@@ -17,13 +17,38 @@ import org.ek9lang.core.ZipSet;
  * An abstract base for creating the target artefact.
  * Normally extended by compile commands.
  */
-public abstract class Ec extends E {
+abstract class Ec extends E {
 
   private CompilerFlags compilerFlags = new CompilerFlags(CompilationPhase.APPLICATION_PACKAGING);
 
-  protected Ec(CompilationContext compilationContext) {
+  Ec(CompilationContext compilationContext) {
     super(compilationContext);
     compilerFlags.setVerbose(compilationContext.commandLine().isVerbose());
+  }
+
+  void setDebuggingInstrumentation(boolean debuggingInstrumentation) {
+    compilerFlags.setDebuggingInstrumentation(debuggingInstrumentation);
+  }
+
+  void setDevBuild(boolean devBuild) {
+    compilerFlags.setDevBuild(devBuild);
+    compilationContext.sourceFileCache().setDevBuild(devBuild);
+  }
+
+  void setCheckCompilationOnly(boolean checkCompilationOnly) {
+    compilerFlags.setCheckCompilationOnly(checkCompilationOnly);
+  }
+
+  void setPhaseToCompileTo(CompilationPhase phaseToCompileTo) {
+    compilerFlags.setCompileToPhase(phaseToCompileTo);
+  }
+
+  CompilerFlags getCompilerFlags() {
+    return compilerFlags;
+  }
+
+  void setCompilerFlags(CompilerFlags compilerFlags) {
+    this.compilerFlags = compilerFlags;
   }
 
   protected void prepareCompilation() {
@@ -131,31 +156,6 @@ public abstract class Ec extends E {
     }
 
     return rtn;
-  }
-
-  public void setDebuggingInstrumentation(boolean debuggingInstrumentation) {
-    compilerFlags.setDebuggingInstrumentation(debuggingInstrumentation);
-  }
-
-  public void setDevBuild(boolean devBuild) {
-    compilerFlags.setDevBuild(devBuild);
-    compilationContext.sourceFileCache().setDevBuild(devBuild);
-  }
-
-  public void setCheckCompilationOnly(boolean checkCompilationOnly) {
-    compilerFlags.setCheckCompilationOnly(checkCompilationOnly);
-  }
-
-  public void setPhaseToCompileTo(CompilationPhase phaseToCompileTo) {
-    compilerFlags.setCompileToPhase(phaseToCompileTo);
-  }
-
-  public CompilerFlags getCompilerFlags() {
-    return compilerFlags;
-  }
-
-  public void setCompilerFlags(CompilerFlags compilerFlags) {
-    this.compilerFlags = compilerFlags;
   }
 
   /**

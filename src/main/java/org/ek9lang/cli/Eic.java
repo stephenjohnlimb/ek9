@@ -3,8 +3,8 @@ package org.ek9lang.cli;
 /**
  * Just does an incremental build if possible.
  */
-public class Eic extends Ec {
-  public Eic(CompilationContext compilationContext) {
+final class Eic extends Ec {
+  Eic(CompilationContext compilationContext) {
     super(compilationContext);
   }
 
@@ -13,6 +13,7 @@ public class Eic extends Ec {
     return "Compile : ";
   }
 
+  @Override
   protected boolean doRun() {
     boolean rtn = compilationContext.sourceFileCache().isTargetExecutableArtefactPresent();
     //Check if it even exists - if not then that is a full build that is needed.

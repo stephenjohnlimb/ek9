@@ -2,6 +2,8 @@ package org.ek9lang.cli;
 
 import java.util.Map;
 import java.util.Optional;
+import org.ek9lang.compiler.common.Ek9SourceVisitor;
+import org.ek9lang.compiler.common.Reporter;
 
 /**
  * Just creates DependencyNodes by using a Source Visitor on some EK9 source that has a package
@@ -9,14 +11,14 @@ import java.util.Optional;
  * in the future pull them from remote servers can validate the contents.
  * There's a bit of recursion going on here.
  */
-public class DependencyNodeFactory extends Reporter {
+final class DependencyNodeFactory extends Reporter {
   private final CommandLineDetails commandLine;
   private final PackageResolver packageResolver;
 
   /**
    * Make a new Dependency Node Factory.
    */
-  public DependencyNodeFactory(CommandLineDetails commandLine) {
+  DependencyNodeFactory(CommandLineDetails commandLine) {
     super(commandLine.isVerbose());
     this.commandLine = commandLine;
     packageResolver = new PackageResolver(commandLine);
@@ -27,7 +29,7 @@ public class DependencyNodeFactory extends Reporter {
     return "Resolve : ";
   }
 
-  public Optional<DependencyNode> createFrom(Ek9SourceVisitor visitor) {
+  Optional<DependencyNode> createFrom(Ek9SourceVisitor visitor) {
     return createFrom(null, visitor);
   }
 

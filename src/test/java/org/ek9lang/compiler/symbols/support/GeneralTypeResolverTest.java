@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import org.ek9lang.compiler.support.TypeDefResolver;
+import org.ek9lang.compiler.common.TypeDefResolver;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.SymbolTable;
 import org.junit.jupiter.api.Test;

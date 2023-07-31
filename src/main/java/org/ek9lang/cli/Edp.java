@@ -10,9 +10,9 @@ import org.ek9lang.core.Logger;
  * Now this does a full clean so that all existing artefacts/generated sources and
  * targets are removed.
  */
-public class Edp extends E {
+final class Edp extends E {
 
-  public Edp(CompilationContext compilationContext) {
+  Edp(CompilationContext compilationContext) {
     super(compilationContext);
   }
 
@@ -21,6 +21,7 @@ public class Edp extends E {
     return "Resolve : ";
   }
 
+  @Override
   protected boolean doRun() {
     log("- Clean");
 

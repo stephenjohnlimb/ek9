@@ -6,9 +6,9 @@ import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.errors.CompilationEvent;
-import org.ek9lang.compiler.support.CompilableSourceErrorCheck;
-import org.ek9lang.compiler.support.CompilationPhaseResult;
-import org.ek9lang.compiler.support.CompilerReporter;
+import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
+import org.ek9lang.compiler.common.CompilationPhaseResult;
+import org.ek9lang.compiler.common.CompilerReporter;
 
 /**
  * SINGLE THREADED.

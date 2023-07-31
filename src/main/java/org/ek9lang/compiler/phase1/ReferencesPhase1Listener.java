@@ -11,7 +11,7 @@ import org.ek9lang.compiler.errors.ConflictingTokens;
 import org.ek9lang.compiler.errors.ConstructAndReferenceConflict;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.errors.ReferenceDoesNotResolve;
-import org.ek9lang.compiler.support.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.ScopeStack;
 import org.ek9lang.compiler.symbols.search.AnySymbolSearch;

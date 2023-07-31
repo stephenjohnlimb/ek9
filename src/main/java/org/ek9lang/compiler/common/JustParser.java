@@ -1,10 +1,9 @@
-package org.ek9lang.compiler.support;
+package org.ek9lang.compiler.common;
 
 import java.io.File;
 import java.io.FileInputStream;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.antlr.EK9Parser.CompilationUnitContext;
-import org.ek9lang.cli.Ek9SourceVisitor;
 import org.ek9lang.compiler.Source;
 import org.ek9lang.compiler.errors.ErrorListener;
 import org.ek9lang.compiler.tokenizer.ParserCreator;

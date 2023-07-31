@@ -7,8 +7,8 @@ import org.ek9lang.core.Logger;
 /**
  * Run the application that has been built or is already built.
  */
-public class Er extends E {
-  public Er(CompilationContext compilationContext) {
+class Er extends E {
+  Er(CompilationContext compilationContext) {
     super(compilationContext);
   }
 
@@ -24,6 +24,7 @@ public class Er extends E {
         && super.preConditionCheck();
   }
 
+  @Override
   protected boolean doRun() {
     boolean rtn = true;
 

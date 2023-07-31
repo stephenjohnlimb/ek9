@@ -1,4 +1,4 @@
-package org.ek9lang.cli;
+package org.ek9lang.compiler.common;
 
 import java.util.List;
 import java.util.Map;

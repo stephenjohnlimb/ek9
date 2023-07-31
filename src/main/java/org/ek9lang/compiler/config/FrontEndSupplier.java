@@ -14,8 +14,8 @@ import org.ek9lang.compiler.phase2.Ek9Phase2NonInferredTypeDefinition;
 import org.ek9lang.compiler.phase2.Ek9Phase2TypeHierarchyChecks;
 import org.ek9lang.compiler.phase3.Ek9Phase3SymbolResolution;
 import org.ek9lang.compiler.phase6.Ek9Phase6PluginResolution;
-import org.ek9lang.compiler.support.CompilationPhaseResult;
-import org.ek9lang.compiler.support.CompilerReporter;
+import org.ek9lang.compiler.common.CompilationPhaseResult;
+import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.core.SharedThreadContext;
 
 /**

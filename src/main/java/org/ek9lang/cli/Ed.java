@@ -11,11 +11,11 @@ import org.ek9lang.core.SigningKeyPair;
 /**
  * Deploy a package / all packages inside the project directory.
  */
-public class Ed extends E {
+final class Ed extends E {
 
   private static final String REPO_URL = "repo.ek9lang.org";
 
-  public Ed(CompilationContext compilationContext) {
+  Ed(CompilationContext compilationContext) {
     super(compilationContext);
   }
 
@@ -24,6 +24,7 @@ public class Ed extends E {
     return "Deploy  : ";
   }
 
+  @Override
   protected boolean doRun() {
 
     return Optional.of(new Ep(compilationContext).run()).stream()

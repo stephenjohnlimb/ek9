@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.support;
+package org.ek9lang.compiler.common;
 
 import java.io.IOException;
 import org.objectweb.asm.util.ASMifier;

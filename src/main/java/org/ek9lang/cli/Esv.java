@@ -3,8 +3,8 @@ package org.ek9lang.cli;
 /**
  * Used to explicitly set the version of a package.
  */
-public class Esv extends Eve {
-  public Esv(CompilationContext compilationContext) {
+final class Esv extends Eve {
+  Esv(CompilationContext compilationContext) {
     super(compilationContext);
   }
 
@@ -13,6 +13,7 @@ public class Esv extends Eve {
     return "Version=: ";
   }
 
+  @Override
   protected boolean doRun() {
     String newVersionParameter = compilationContext.commandLine().getOptionParameter("-SV");
     return super.setVersionNewNumber(Version.withNoBuildNumber(newVersionParameter));

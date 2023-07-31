@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.support;
+package org.ek9lang.compiler.common;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;

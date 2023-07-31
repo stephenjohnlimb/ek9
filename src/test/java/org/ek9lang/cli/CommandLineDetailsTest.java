@@ -11,7 +11,6 @@ import java.io.File;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import org.ek9lang.LanguageMetaData;
 import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.OsSupport;
 import org.junit.jupiter.api.AfterEach;
@@ -652,7 +651,7 @@ final class CommandLineDetailsTest {
     assertNotNull(sourceFile);
 
     //Simulate picking up from environment variables.
-    CommandLineDetails.addDefaultSetting("EK9_TARGET", "java");
+    CommandLineDetails.addDefaultSetting();
 
     CommandLineDetails underTest = createClassUnderTest();
     assertEquals(0, underTest.processCommandLine(sourceName));

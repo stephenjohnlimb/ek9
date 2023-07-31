@@ -3,7 +3,7 @@ package org.ek9lang.compiler.symbols;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.ek9lang.compiler.support.TypeDefResolver;
+import org.ek9lang.compiler.common.TypeDefResolver;
 import org.ek9lang.compiler.symbols.support.AggregateFactory;
 import org.junit.jupiter.api.BeforeEach;
 

@@ -3,8 +3,8 @@ package org.ek9lang.cli;
 /**
  * Clean a project down.
  */
-public class Ecl extends E {
-  public Ecl(CompilationContext compilationContext) {
+final class Ecl extends E {
+  Ecl(CompilationContext compilationContext) {
     super(compilationContext);
   }
 
@@ -13,6 +13,7 @@ public class Ecl extends E {
     return "Clean   : ";
   }
 
+  @Override
   protected boolean doRun() {
     getFileHandling().cleanEk9DirectoryStructureFor(
         compilationContext.commandLine().getFullPathToSourceFileName(),

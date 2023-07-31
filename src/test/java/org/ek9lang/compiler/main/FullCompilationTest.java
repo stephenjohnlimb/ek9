@@ -15,7 +15,7 @@ import org.ek9lang.compiler.config.FullPhaseSupplier;
 import org.ek9lang.compiler.directives.DirectiveType;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.parsing.WorkSpaceFromResourceDirectoryFiles;
-import org.ek9lang.compiler.support.CompilerReporter;
+import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.symbols.support.ShowAllSymbolsInAllModules;
 import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Assertions;

@@ -43,10 +43,10 @@ import java.util.function.Predicate;
  * At the end it is possible the developer excluded a set of dependencies that were needed.
  * The compiler will let the developer know because there will be missing symbols.
  */
-public final class DependencyManager {
+final class DependencyManager {
   private final DependencyNode root;
 
-  public DependencyManager(DependencyNode root) {
+  DependencyManager(DependencyNode root) {
     this.root = root;
   }
 
@@ -54,7 +54,7 @@ public final class DependencyManager {
    * Mark modules as rejected if there is a higher version of the same module
    * (that is not marked as rejected).
    */
-  public void rationalise() {
+  void rationalise() {
     listAllModuleNames().forEach(module -> {
       //Now there could be one or more here
       boolean selected = false;
@@ -86,7 +86,7 @@ public final class DependencyManager {
    *
    * @return true is optimisation took place, false if there was nothing to optimise.
    */
-  public boolean optimise(int numberOfOptimiseCalls) {
+  boolean optimise(int numberOfOptimiseCalls) {
     boolean didOptimise = false;
     if (numberOfOptimiseCalls < 100) {
 
@@ -127,7 +127,7 @@ public final class DependencyManager {
    *
    * @return The list of offending nodes.
    */
-  public List<DependencyNode> reportStrictSemanticVersionBreaches() {
+  List<DependencyNode> reportStrictSemanticVersionBreaches() {
     List<DependencyNode> rtn = new ArrayList<>();
     listAllModuleNames().forEach(module -> {
       DependencyNode selected = null;
@@ -148,7 +148,7 @@ public final class DependencyManager {
    *
    * @return The list.
    */
-  public List<DependencyNode> reportRejectedDependencies() {
+  List<DependencyNode> reportRejectedDependencies() {
     return reportFilteredDependencies(DependencyNode::isRejected);
   }
 
@@ -157,24 +157,15 @@ public final class DependencyManager {
    *
    * @return The list.
    */
-  public List<DependencyNode> reportAcceptedDependencies() {
+  List<DependencyNode> reportAcceptedDependencies() {
     return reportFilteredDependencies(dep -> !dep.isRejected());
-  }
-
-  private List<DependencyNode> reportFilteredDependencies(Predicate<DependencyNode> byPredicate) {
-    return listAllModuleNames()
-        .stream()
-        .map(this::findByModuleName)
-        .flatMap(Collection::stream)
-        .filter(byPredicate)
-        .toList();
   }
 
   /**
    * Reject a moduleName dependency if is has been pulled in when is it a dependency of
    * another module.
    */
-  public void reject(String moduleName, String whenDependencyOf) {
+  void reject(String moduleName, String whenDependencyOf) {
     findByModuleName(moduleName)
         .stream()
         .filter(node -> node.isDependencyOf(whenDependencyOf))
@@ -188,7 +179,7 @@ public final class DependencyManager {
    *
    * @return The list of unique module names.
    */
-  public List<String> listAllModuleNames() {
+  List<String> listAllModuleNames() {
     return new HashSet<>(reportAllDependencies()).stream().sorted().toList();
   }
 
@@ -200,11 +191,44 @@ public final class DependencyManager {
    * @param moduleName The module name to search for.
    * @return The list of modules that match (i.e. same module name but maybe multiple versions).
    */
-  public List<DependencyNode> findByModuleName(String moduleName) {
+  List<DependencyNode> findByModuleName(String moduleName) {
     List<DependencyNode> rtn = doFindByModuleName(root, moduleName);
     rtn.sort(
         (DependencyNode o1, DependencyNode o2) -> o1.getVersion().compareTo(o2.getVersion()) * -1);
     return rtn;
+  }
+
+  /**
+   * Reports all the dependencies there are from root.
+   * If root is not set then this is an empty list.
+   *
+   * @return The list of all the dependencies.
+   */
+  List<String> reportAllDependencies() {
+    return root != null ? root.reportAllDependencies() : List.of();
+  }
+
+  /**
+   * Check if there are any circular references and report back up on the
+   * path the dependency was found in.
+   *
+   * @return One or more circular paths in the graph/tree.
+   */
+  List<String> reportCircularDependencies(boolean includeVersion) {
+    return doReportCircularDependencies(this.root, includeVersion);
+  }
+
+  List<String> reportCircularDependencies() {
+    return doReportCircularDependencies(this.root, false);
+  }
+
+  private List<DependencyNode> reportFilteredDependencies(Predicate<DependencyNode> byPredicate) {
+    return listAllModuleNames()
+        .stream()
+        .map(this::findByModuleName)
+        .flatMap(Collection::stream)
+        .filter(byPredicate)
+        .toList();
   }
 
   private List<DependencyNode> doFindByModuleName(DependencyNode from, String moduleName) {
@@ -220,20 +244,6 @@ public final class DependencyManager {
     return rtn;
   }
 
-  /**
-   * Check if there are any circular references and report back up on the
-   * path the dependency was found in.
-   *
-   * @return One or more circular paths in the graph/tree.
-   */
-  public List<String> reportCircularDependencies(boolean includeVersion) {
-    return doReportCircularDependencies(this.root, includeVersion);
-  }
-
-  public List<String> reportCircularDependencies() {
-    return doReportCircularDependencies(this.root, false);
-  }
-
   private List<String> doReportCircularDependencies(DependencyNode from, boolean includeVersion) {
     List<String> rtn = new ArrayList<>();
     if (from != null) {
@@ -245,15 +255,5 @@ public final class DependencyManager {
     }
 
     return rtn;
-  }
-
-  /**
-   * Reports all the dependencies there are from root.
-   * If root is not set then this is an empty list.
-   *
-   * @return The list of all the dependencies.
-   */
-  public List<String> reportAllDependencies() {
-    return root != null ? root.reportAllDependencies() : List.of();
   }
 }

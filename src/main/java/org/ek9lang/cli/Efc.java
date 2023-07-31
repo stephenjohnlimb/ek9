@@ -5,8 +5,8 @@ package org.ek9lang.cli;
  * Note this triggers a full resolution of dependencies and those too are pulled again
  * and recompiled.
  */
-public class Efc extends Ec {
-  public Efc(CompilationContext compilationContext) {
+final class Efc extends Ec {
+  Efc(CompilationContext compilationContext) {
     super(compilationContext);
   }
 
@@ -15,6 +15,7 @@ public class Efc extends Ec {
     return "Compile!: ";
   }
 
+  @Override
   protected boolean doRun() {
     if (!new Edp(compilationContext).run()) {
       return false;

@@ -3,8 +3,8 @@ package org.ek9lang.cli;
 /**
  * Update/Upgrade the Ek9 compiler itself.
  */
-public class Up extends E {
-  public Up(CompilationContext compilationContext) {
+final class Up extends E {
+  Up(CompilationContext compilationContext) {
     super(compilationContext);
   }
 
@@ -13,6 +13,7 @@ public class Up extends E {
     return "Update  : ";
   }
 
+  @Override
   protected boolean doRun() {
     log("Would check compiler version and available version and update.");
     return true;

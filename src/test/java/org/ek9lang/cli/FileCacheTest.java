@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-import org.ek9lang.LanguageMetaData;
 import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.OsSupport;
 import org.junit.jupiter.api.AfterEach;

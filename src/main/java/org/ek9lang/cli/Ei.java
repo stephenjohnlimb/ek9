@@ -5,8 +5,8 @@ import java.io.File;
 /**
  * Install a package to your own $HOME/.ek9/lib directory.
  */
-public class Ei extends E {
-  public Ei(CompilationContext compilationContext) {
+final class Ei extends E {
+  Ei(CompilationContext compilationContext) {
     super(compilationContext);
   }
 
@@ -15,6 +15,7 @@ public class Ei extends E {
     return "Install : ";
   }
 
+  @Override
   protected boolean doRun() {
     log("- Package");
 

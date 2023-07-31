@@ -8,8 +8,8 @@ import static org.ek9lang.compiler.symbols.support.SymbolFactory.HTTP_SOURCE;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.support.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.RuleSupport;
+import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**

@@ -1,6 +1,4 @@
-package org.ek9lang.compiler.support;
-
-import org.ek9lang.cli.Reporter;
+package org.ek9lang.compiler.common;
 
 /**
  * Just expends the standard reporter to use the EK9Comp message prefix.

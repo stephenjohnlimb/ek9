@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.support;
+package org.ek9lang.compiler.common;
 
 import java.util.Optional;
 import org.antlr.v4.runtime.tree.ParseTree;

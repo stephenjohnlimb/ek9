@@ -12,9 +12,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.ek9lang.LanguageMetaData;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.support.JustParser;
+import org.ek9lang.compiler.common.Ek9SourceVisitor;
+import org.ek9lang.compiler.common.JustParser;
+import org.ek9lang.compiler.common.PackageDetails;
 import org.ek9lang.core.ExitException;
 import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.Logger;
@@ -24,7 +25,7 @@ import org.ek9lang.core.OsSupport;
  * Just deals with handling the command line options for the compiler.
  * Quite a beast now, but command line argument handling is always a bit complex.
  */
-public class CommandLineDetails {
+final class CommandLineDetails {
 
   //Clone environment variables in, but also allow use to programmatically alter them.
   private static final Map<String, String> DEFAULTS = new HashMap<>(System.getenv());
@@ -60,22 +61,22 @@ public class CommandLineDetails {
   /**
    * Create a new command line details object.
    */
-  public CommandLineDetails(LanguageMetaData languageMetaData, FileHandling fileHandling,
-                            OsSupport osSupport) {
+  CommandLineDetails(LanguageMetaData languageMetaData, FileHandling fileHandling,
+                     OsSupport osSupport) {
 
     this.languageMetaData = languageMetaData;
     this.fileHandling = fileHandling;
     this.osSupport = osSupport;
   }
 
-  public static void addDefaultSetting(String name, String value) {
-    DEFAULTS.put(name, value);
+  static void addDefaultSetting() {
+    DEFAULTS.put("EK9_TARGET", "java");
   }
 
   /**
    * Just provides the commandline help text.
    */
-  public static String getCommandLineHelp() {
+  static String getCommandLineHelp() {
     return """
         where possible options include:
         \t-V The version of the compiler/runtime
@@ -115,15 +116,15 @@ public class CommandLineDetails {
         """;
   }
 
-  public OsSupport getOsSupport() {
+  OsSupport getOsSupport() {
     return osSupport;
   }
 
-  public FileHandling getFileHandling() {
+  FileHandling getFileHandling() {
     return fileHandling;
   }
 
-  public LanguageMetaData getLanguageMetaData() {
+  LanguageMetaData getLanguageMetaData() {
     return languageMetaData;
   }
 
@@ -131,7 +132,7 @@ public class CommandLineDetails {
    * Process the command line as supplied from main.
    * Expects a single entry in the array.
    */
-  public int processCommandLine(String[] argv) {
+  int processCommandLine(String[] argv) {
     if (argv == null || argv.length == 0) {
       showHelp();
       return Ek9.BAD_COMMANDLINE_EXIT_CODE;
@@ -147,7 +148,7 @@ public class CommandLineDetails {
    * @param commandLine The command line the user or remote system used.
    * @return error code, 0 no error - see EK9.java for the use of other error codes.
    */
-  public int processCommandLine(String commandLine) {
+  int processCommandLine(String commandLine) {
     try {
       if (commandLine == null || commandLine.isEmpty()) {
         showHelp();

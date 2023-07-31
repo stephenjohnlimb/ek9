@@ -4,7 +4,7 @@ import java.util.List;
 import org.ek9lang.compiler.errors.CompilationEvent;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.support.TypeDefResolver;
+import org.ek9lang.compiler.common.TypeDefResolver;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**

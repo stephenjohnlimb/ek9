@@ -17,7 +17,7 @@ import org.ek9lang.core.Glob;
  * This enables us to keep the base set of full files and then provide cut down
  * lists depending on what command is to be used.
  */
-public class FileCache {
+final class FileCache {
   private final CommandLineDetails commandLine;
 
   /**
@@ -29,7 +29,7 @@ public class FileCache {
   /**
    * Create a new FileCache referencing a specific commandLine.
    */
-  public FileCache(CommandLineDetails commandLine) {
+  FileCache(final CommandLineDetails commandLine) {
     this.commandLine = commandLine;
     this.devBuild = commandLine.isDevBuild();
   }
@@ -38,14 +38,14 @@ public class FileCache {
    * Configure to be a development based build, this includes files from the 'dev/'
    * directory then.
    */
-  public void setDevBuild(boolean devBuild) {
+  void setDevBuild(boolean devBuild) {
     this.devBuild = devBuild;
   }
 
   /**
    * true if the target artefact exists - but it maybe out of date.
    */
-  public boolean isTargetExecutableArtefactPresent() {
+  boolean isTargetExecutableArtefactPresent() {
     return getTargetExecutableArtefact().exists();
   }
 
@@ -53,7 +53,7 @@ public class FileCache {
    * true if the target executable exists and is newer than any of the
    * files that would make up this artefact. i.e. compilable ek9 files or other resources.
    */
-  public boolean isTargetExecutableArtefactCurrent() {
+  boolean isTargetExecutableArtefactCurrent() {
     return isTargetExecutableArtefactPresent() && getIncrementalCompilableProjectFiles().isEmpty();
   }
 
@@ -62,13 +62,13 @@ public class FileCache {
    *
    * @return The File reference to the target executable artefact (jar file for java).
    */
-  public File getTargetExecutableArtefact() {
+  File getTargetExecutableArtefact() {
     return commandLine.getFileHandling()
         .getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(),
             commandLine.getTargetArchitecture());
   }
 
-  public void deleteTargetExecutableArtefact() {
+  void deleteTargetExecutableArtefact() {
     commandLine.getFileHandling().deleteFileIfExists(getTargetExecutableArtefact());
   }
 
@@ -77,7 +77,7 @@ public class FileCache {
    * These are typically **.ek9, **.properties, etc.
    * Note uses GLOB format.
    */
-  public List<String> getStandardIncludes() {
+  List<String> getStandardIncludes() {
     return Arrays.asList("**.ek9",
         "**.properties",
         "**.png",
@@ -92,7 +92,7 @@ public class FileCache {
    * These are typically 'dot' directories and files.
    * Note uses GLOB format.
    */
-  public List<String> getStandardExcludes() {
+  List<String> getStandardExcludes() {
     List<String> directoriesToIgnore = Arrays.asList(".ek9/",
         "**.ek9/**",
         ".git",
@@ -113,7 +113,7 @@ public class FileCache {
    * target executable has been created. i.e. what source file has been modified that should
    * trigger a new build.
    */
-  public List<File> getIncrementalFilesPartOfBuild() {
+  List<File> getIncrementalFilesPartOfBuild() {
     File targetArtefact = getTargetExecutableArtefact();
     if (targetArtefact.exists()) {
       return filterListBy(getAllFilesPartOfBuild(),
@@ -127,7 +127,7 @@ public class FileCache {
    * target executable has been created. i.e. what file has been modified that should
    * trigger a new build.
    */
-  public List<File> getIncrementalCompilableProjectFiles() {
+  List<File> getIncrementalCompilableProjectFiles() {
     File targetArtefact = getTargetExecutableArtefact();
     if (targetArtefact.exists()) {
       return filterListBy(getAllCompilableProjectFiles(),
@@ -141,7 +141,7 @@ public class FileCache {
    * This also applies any includes and exclude directives from any 'package' construct.
    * Honours the idea of including or excluding 'dev/' files.
    */
-  public List<File> getAllCompilableProjectFiles() {
+  List<File> getAllCompilableProjectFiles() {
     return filterListBy(getAllFilesPartOfBuild(), file -> file.getPath().endsWith(".ek9"));
   }
 
@@ -150,7 +150,7 @@ public class FileCache {
    * This also applies any includes and exclude directives from any 'package' construct.
    * Honours the idea of including or excluding 'dev/' files.
    */
-  public List<File> getAllNonCompilableProjectFiles() {
+  List<File> getAllNonCompilableProjectFiles() {
     //Now need to filter for files not ending with just only ek9 files
     return filterListBy(getAllFilesPartOfBuild(), file -> !file.getPath().endsWith(".ek9"));
   }
@@ -160,7 +160,7 @@ public class FileCache {
    * If this is a 'dev' build then the 'dev/' directory is also included.
    * This also applies any includes and exclude directives from any 'package' construct.
    */
-  public List<File> getAllFilesPartOfBuild() {
+  List<File> getAllFilesPartOfBuild() {
     if (devBuild) {
       return getPackageFiles();
     }
@@ -175,7 +175,7 @@ public class FileCache {
    * Uses what was specified on the command line and in any 'package' construct
    * to determine which files should be packaged for use.
    */
-  public List<File> getPackageFiles() {
+  List<File> getPackageFiles() {
     if (cachedFileList != null) {
       return cachedFileList;
     }

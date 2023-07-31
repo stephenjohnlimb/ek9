@@ -10,7 +10,7 @@ import org.ek9lang.core.SemanticVersion;
 /**
  * Represents a single dependency by moduleName and version.
  */
-public final class DependencyNode {
+final class DependencyNode {
   private final List<DependencyNode> dependencies = new ArrayList<>();
   //When loading up nodes these are the defined rejections that need to be applied.
   private final Map<String, String> dependencyRejections = new HashMap<>();
@@ -22,7 +22,7 @@ public final class DependencyNode {
   private boolean rejected = false;
   private RejectionReason reason;
 
-  public DependencyNode(String moduleName, String version) {
+  DependencyNode(final String moduleName, final String version) {
     this.moduleName = moduleName;
     this.version = SemanticVersion.of(version);
   }
@@ -33,7 +33,7 @@ public final class DependencyNode {
    * @param dependencyVector - example a.b.c-3.8.3-feature32-90
    * @return A new dependency node.
    */
-  public static DependencyNode of(String dependencyVector) {
+  static DependencyNode of(String dependencyVector) {
     int versionStart = dependencyVector.indexOf('-');
     String moduleName = dependencyVector.substring(0, versionStart);
     String versionPart = dependencyVector.substring(versionStart + 1);
@@ -41,15 +41,15 @@ public final class DependencyNode {
     return new DependencyNode(moduleName, versionPart);
   }
 
-  public void addDependencyRejection(String moduleName, String whenDependencyOf) {
+  void addDependencyRejection(String moduleName, String whenDependencyOf) {
     this.dependencyRejections.put(moduleName, whenDependencyOf);
   }
 
-  public Map<String, String> getDependencyRejections() {
+  Map<String, String> getDependencyRejections() {
     return dependencyRejections;
   }
 
-  public void addDependency(DependencyNode node) {
+  void addDependency(DependencyNode node) {
     node.setParent(this);
     dependencies.add(node);
   }
@@ -57,7 +57,7 @@ public final class DependencyNode {
   /**
    * Check if a dependency.
    */
-  public boolean isDependencyOf(String whenDependencyOf) {
+  boolean isDependencyOf(String whenDependencyOf) {
     DependencyNode d = parent;
     while (d != null) {
       if (d.getModuleName().equals(whenDependencyOf)) {
@@ -71,7 +71,7 @@ public final class DependencyNode {
   /**
    * Get a list of all the dependencies.
    */
-  public List<String> reportAllDependencies() {
+  List<String> reportAllDependencies() {
     List<String> rtn = new ArrayList<>();
     rtn.add(getModuleName());
     dependencies.forEach(dep -> rtn.addAll(dep.reportAllDependencies()));
@@ -82,7 +82,7 @@ public final class DependencyNode {
   /**
    * Find the first circular dependency.
    */
-  public Optional<String> reportCircularDependencies(boolean includeVersion) {
+  Optional<String> reportCircularDependencies(boolean includeVersion) {
     DependencyNode d = parent;
     while (d != null) {
       if (d.isSameModule(this)) {
@@ -97,7 +97,7 @@ public final class DependencyNode {
   /**
    * Show the path through other dependencies to this dependency.
    */
-  public String showPathToDependency(boolean includeVersion) {
+  String showPathToDependency(boolean includeVersion) {
     StringBuilder backTrace = new StringBuilder(toString(includeVersion));
 
     DependencyNode d = parent;
@@ -109,22 +109,22 @@ public final class DependencyNode {
     return backTrace.toString();
   }
 
-  public boolean isParentRejected() {
+  boolean isParentRejected() {
     return parent != null && parent.isRejected();
   }
 
-  public boolean isSameModule(DependencyNode node) {
+  boolean isSameModule(DependencyNode node) {
     return this.moduleName.equals(node.moduleName);
   }
 
-  public boolean isRejected() {
+  boolean isRejected() {
     return rejected;
   }
 
   /**
    * Reject this dependency and optionally reject any dependencies it pulled in.
    */
-  public void setRejected(RejectionReason reason, boolean rejected,
+  void setRejected(RejectionReason reason, boolean rejected,
                           boolean alsoRejectDependencies) {
     this.rejected = rejected;
     this.reason = reason;
@@ -133,32 +133,24 @@ public final class DependencyNode {
     }
   }
 
-  public DependencyNode getParent() {
+  DependencyNode getParent() {
     return parent;
   }
 
-  public void setParent(DependencyNode parent) {
+  void setParent(DependencyNode parent) {
     this.parent = parent;
   }
 
-  public List<DependencyNode> getDependencies() {
+  List<DependencyNode> getDependencies() {
     return dependencies;
   }
 
-  public String getModuleName() {
+  String getModuleName() {
     return moduleName;
   }
 
-  public SemanticVersion getVersion() {
+  SemanticVersion getVersion() {
     return version;
-  }
-
-  private String toString(boolean includeVersion) {
-    if (includeVersion) {
-      return toString();
-    }
-
-    return rejected ? moduleName + getReason() : moduleName;
   }
 
   @Override
@@ -190,6 +182,13 @@ public final class DependencyNode {
 
   private String getReason() {
     return String.format("(%s)", reason);
+  }
+
+  private String toString(boolean includeVersion) {
+    if (includeVersion) {
+      return toString();
+    }
+    return rejected ? moduleName + getReason() : moduleName;
   }
 
   /**

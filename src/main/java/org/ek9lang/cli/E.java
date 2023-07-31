@@ -1,34 +1,22 @@
 package org.ek9lang.cli;
 
 import java.io.File;
+import org.ek9lang.compiler.common.Reporter;
 import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.OsSupport;
 
 /**
  * Abstract base for the command line ek9 commands.
  */
-public abstract class E extends Reporter {
+abstract class E extends Reporter {
   protected final CompilationContext compilationContext;
 
-  protected E(CompilationContext compilationContext) {
+  E(CompilationContext compilationContext) {
     super(compilationContext.commandLine().isVerbose());
     this.compilationContext = compilationContext;
   }
 
-  /**
-   * Provide the report/log message prefix.
-   */
-  protected abstract String messagePrefix();
-
-  protected FileHandling getFileHandling() {
-    return compilationContext.commandLine().getFileHandling();
-  }
-
-  protected OsSupport getOsSupport() {
-    return compilationContext.commandLine().getOsSupport();
-  }
-
-  public boolean run() {
+  boolean run() {
     return preConditionCheck() && doRun() && postConditionCheck();
   }
 
@@ -37,16 +25,27 @@ public abstract class E extends Reporter {
    *
    * @return true if all Ok false if precondition not met.
    */
-  public boolean preConditionCheck() {
+  boolean preConditionCheck() {
     log("Prepare");
     //Ensure the .ek9 directory exists in users home directory.
     getFileHandling().validateHomeEk9Directory(compilationContext.commandLine().targetArchitecture);
     return true;
   }
 
-  public boolean postConditionCheck() {
+  boolean postConditionCheck() {
     log("Complete");
     return true;
+  }
+
+  @Override
+  protected abstract String messagePrefix();
+
+  protected FileHandling getFileHandling() {
+    return compilationContext.commandLine().getFileHandling();
+  }
+
+  protected OsSupport getOsSupport() {
+    return compilationContext.commandLine().getOsSupport();
   }
 
   /**

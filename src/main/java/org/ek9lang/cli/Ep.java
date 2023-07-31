@@ -9,8 +9,8 @@ import org.ek9lang.core.ZipSet;
 /**
  * Do packaging for package / all packages inside the project directory.
  */
-public class Ep extends E {
-  public Ep(CompilationContext compilationContext) {
+final class Ep extends E {
+  Ep(CompilationContext compilationContext) {
     super(compilationContext);
   }
 
@@ -20,7 +20,7 @@ public class Ep extends E {
   }
 
   @Override
-  public boolean preConditionCheck() {
+  boolean preConditionCheck() {
     if (compilationContext.commandLine().noPackageIsPresent()) {
       report("File " + compilationContext.commandLine().getSourceFileName()
           + " does not define a package");
@@ -29,6 +29,7 @@ public class Ep extends E {
     return super.preConditionCheck();
   }
 
+  @Override
   protected boolean doRun() {
     log("- Compile!");
     //Need to ensure a full compile works.

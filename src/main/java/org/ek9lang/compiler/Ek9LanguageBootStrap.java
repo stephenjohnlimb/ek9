@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import org.ek9lang.compiler.config.FrontEndSupplier;
 import org.ek9lang.compiler.errors.CompilationPhaseListener;
-import org.ek9lang.compiler.support.CompilerReporter;
+import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.core.CompilerException;
 import org.ek9lang.core.SharedThreadContext;
 

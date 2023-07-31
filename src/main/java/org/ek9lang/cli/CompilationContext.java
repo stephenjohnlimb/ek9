@@ -5,7 +5,7 @@ import org.ek9lang.compiler.Compiler;
 /**
  * A context to hold all the essential objects needed for compiling.
  */
-public record CompilationContext(CommandLineDetails commandLine,
+record CompilationContext(CommandLineDetails commandLine,
                                  Compiler compiler,
                                  FileCache sourceFileCache) {
 }

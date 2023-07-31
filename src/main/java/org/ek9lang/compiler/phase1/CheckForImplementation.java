@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase1;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.support.CheckForBody;
+import org.ek9lang.compiler.common.CheckForBody;
 
 /**
  * Typically used with programs. cannot be abstract and so must always provide some form of implementation.

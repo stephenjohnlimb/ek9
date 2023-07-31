@@ -2,7 +2,9 @@ package org.ek9lang.cli;
 
 import java.io.File;
 import java.util.Optional;
-import org.ek9lang.compiler.support.JustParser;
+import org.ek9lang.compiler.common.Ek9SourceVisitor;
+import org.ek9lang.compiler.common.JustParser;
+import org.ek9lang.compiler.common.Reporter;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -41,10 +43,10 @@ import org.ek9lang.core.AssertValue;
  * values match.
  * Anyway that's the general idea.
  */
-public class PackageResolver extends Reporter {
+final class PackageResolver extends Reporter {
   private final CommandLineDetails commandLine;
 
-  public PackageResolver(CommandLineDetails commandLine) {
+  PackageResolver(CommandLineDetails commandLine) {
     super(commandLine.isVerbose());
     this.commandLine = commandLine;
   }
@@ -59,7 +61,7 @@ public class PackageResolver extends Reporter {
    * already been resolved and unpacked, it will be returned.
    * But if it needs to be downloaded then it will be pulled down, unpacked and returned.
    */
-  public Optional<Ek9SourceVisitor> resolve(String dependencyVector) {
+  Optional<Ek9SourceVisitor> resolve(String dependencyVector) {
     String zipFileName =
         commandLine.getFileHandling().makePackagedModuleZipFileName(dependencyVector);
     File homeEk9Lib = commandLine.getFileHandling().getUsersHomeEk9LibDirectory();
@@ -92,7 +94,7 @@ public class PackageResolver extends Reporter {
     return Optional.empty();
   }
 
-  private boolean downloadDependency(String dependencyVector) {
+  boolean downloadDependency(String dependencyVector) {
     AssertValue.checkNotNull("DependencyVector cannot be null", dependencyVector);
     //TODO the download part
     return false;

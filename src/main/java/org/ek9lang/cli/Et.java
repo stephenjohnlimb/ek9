@@ -3,8 +3,8 @@ package org.ek9lang.cli;
 /**
  * Run all unit tests inside a project.
  */
-public class Et extends E {
-  public Et(CompilationContext compilationContext) {
+final class Et extends E {
+  Et(CompilationContext compilationContext) {
     super(compilationContext);
   }
 
@@ -13,6 +13,7 @@ public class Et extends E {
     return "Test    : ";
   }
 
+  @Override
   protected boolean doRun() {
     log("Compile!");
 

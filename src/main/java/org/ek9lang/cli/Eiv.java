@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 /**
  * Just increments a version number.
  */
-public class Eiv extends Eve {
+final class Eiv extends Eve {
   /**
    * Rather than use a switch use a map of version vector name to a method call.
    */
@@ -17,7 +17,7 @@ public class Eiv extends Eve {
       "build", Version::incrementBuildNumber
   );
 
-  public Eiv(CompilationContext compilationContext) {
+  Eiv(CompilationContext compilationContext) {
     super(compilationContext);
   }
 
@@ -26,6 +26,7 @@ public class Eiv extends Eve {
     return "Version+: ";
   }
 
+  @Override
   protected boolean doRun() {
     //Need to get from command line.
     String partToIncrement = compilationContext.commandLine().getOptionParameter("-IV");

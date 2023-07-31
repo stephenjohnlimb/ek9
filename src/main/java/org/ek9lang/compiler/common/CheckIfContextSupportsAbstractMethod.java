@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.support;
+package org.ek9lang.compiler.common;
 
 import java.util.function.BiConsumer;
 import org.antlr.v4.runtime.ParserRuleContext;

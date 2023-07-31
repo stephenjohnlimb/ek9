@@ -40,8 +40,8 @@ I'm expecting this next phase to take about another ten years - maybe with some 
 
 ### Supporting tooling
 Having grappled with lexing and parsing issues - I've built on top of Antlr and included:
-- [Ek9Support](src/test/java/org/ek9lang/compiler/support/Ek9Support.java) - this show a graphical AST of an EK9 source file.
-- [ASMSupport](src/test/java/org/ek9lang/compiler/support/ASMSupport.java) - this shows the ASM code (java bytecode) you'd need to write for a class.
+- [Ek9Support](src/test/java/org/ek9lang/compiler/common/Ek9Support.java) - this show a graphical AST of an EK9 source file.
+- [ASMSupport](src/test/java/org/ek9lang/compiler/common/ASMSupport.java) - this shows the ASM code (java bytecode) you'd need to write for a class.
 
 There's also a bit on the [Symbols and Scopes](SCOPESANDSTUFF.md) - I'll probably add a bit more to this as
 I find this area quite confusing (even though I'm writing it - I am a bit beyond my capabilities TBH).

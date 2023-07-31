@@ -4,8 +4,8 @@ import java.util.function.Consumer;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.errors.ErrorListener;
-import org.ek9lang.compiler.support.RuleSupport;
-import org.ek9lang.compiler.support.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.RuleSupport;
+import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
 
