@@ -6,11 +6,11 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
+import org.ek9lang.compiler.CompilationPhaseResult;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.common.CompilationEvent;
-import org.ek9lang.compiler.common.CompilationPhaseResult;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
@@ -49,8 +49,6 @@ public final class TypeHierarchyChecks
 
     return new CompilationPhaseResult(thisPhase, errorFree,
         compilerFlags.getCompileToPhase() == thisPhase);
-
-
   }
 
   private void checkForCircularHierarchies() {

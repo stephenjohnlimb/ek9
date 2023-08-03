@@ -3,8 +3,8 @@ package org.ek9lang.compiler.phase1;
 import java.util.function.BiConsumer;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.symbols.MethodSymbol;
-import org.ek9lang.compiler.symbols.support.AggregateFactory;
 
 /**
  * A program can only return an Integer (exit code).

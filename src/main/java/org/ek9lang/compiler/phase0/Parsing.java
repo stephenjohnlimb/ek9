@@ -1,15 +1,16 @@
 package org.ek9lang.compiler.phase0;
 
+import java.util.Collection;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilationPhase;
+import org.ek9lang.compiler.CompilationPhaseResult;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.common.CompilationEvent;
-import org.ek9lang.compiler.common.CompilationPhaseResult;
 import org.ek9lang.compiler.common.CompilerReporter;
 
 /**
@@ -25,8 +26,10 @@ public final class Parsing
   private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
-  private final RequiredCompilableSourcesForParsing sourcesToBeParsed =
-      new RequiredCompilableSourcesForParsing();
+  private final UnaryOperator<Collection<CompilableSource>> sourcesToBeParsed
+      = compilableSources -> compilableSources.stream()
+      .filter(source -> source.hasNotBeenSuccessfullyParsed() || source.isModified())
+      .toList();
 
   public Parsing(Consumer<CompilationEvent> listener, CompilerReporter reporter) {
     this.listener = listener;
@@ -45,7 +48,7 @@ public final class Parsing
   private CompilationPhaseResult prepare(Workspace workspace, CompilerFlags compilerFlags) {
 
     reporter.log(thisPhase);
-    final var result = underTakeParsing(workspace, CompilableSource::prepareToParse);
+    final var result = underTakeParsingOperation(workspace, CompilableSource::prepareToParse);
 
     return new CompilationPhaseResult(thisPhase, result,
         compilerFlags.getCompileToPhase() == thisPhase);
@@ -53,14 +56,14 @@ public final class Parsing
 
   private CompilationPhaseResult parseSources(Workspace workspace, CompilerFlags compilerFlags) {
     reporter.log(thisPhase);
-    final var result = underTakeParsing(workspace, CompilableSource::completeParsing);
+    final var result = underTakeParsingOperation(workspace, CompilableSource::completeParsing);
 
     return new CompilationPhaseResult(thisPhase, result,
         compilerFlags.getCompileToPhase() == thisPhase);
   }
 
-  private boolean underTakeParsing(Workspace workspace,
-                                   UnaryOperator<CompilableSource> operator) {
+  private boolean underTakeParsingOperation(Workspace workspace,
+                                            UnaryOperator<CompilableSource> operator) {
 
     final var affectedSources = sourcesToBeParsed
         .apply(workspace.getSources())

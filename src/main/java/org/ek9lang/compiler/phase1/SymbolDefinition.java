@@ -6,21 +6,23 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilationPhase;
+import org.ek9lang.compiler.CompilationPhaseResult;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.common.CompilationEvent;
-import org.ek9lang.compiler.common.CompilationPhaseResult;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.core.SharedThreadContext;
 
 /**
  * Can be MULTI THREADED for developer source, but single threaded for bootstrapping.
  * Goes through the now successfully parse source files and uses
- * a visitor to do the first real pass at building the IR - simple Symbol definitions.
+ * a listener to do the first real pass at building the IR - simple Symbol definitions.
  * This means identifying types and other symbols.
  * WILL WAIT FOR Java 21 with full virtual Threads.
+ * Note that most of the real processing is done in the
+ * {@link org.ek9lang.compiler.phase1.DefinitionListener}.
  */
 public final class SymbolDefinition implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
 

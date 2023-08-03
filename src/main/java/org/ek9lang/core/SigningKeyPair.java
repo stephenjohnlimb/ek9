@@ -219,8 +219,7 @@ public final class SigningKeyPair {
   public String getPublicKeyInBase64() {
     return "-----BEGIN PUBLIC KEY-----\n"
         + to64CharacterLines(encoder.encodeToString(pub.getEncoded()))
-        +
-        "-----END PUBLIC KEY-----\n";
+        + "-----END PUBLIC KEY-----\n";
   }
 
   private String to64CharacterLines(String pemText) {

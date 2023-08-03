@@ -8,8 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.ParametricResolveOrDefine;
-import org.ek9lang.compiler.symbols.support.ParameterizedSymbolCreator;
-import org.ek9lang.compiler.symbols.support.TypeSubstitution;
+import org.ek9lang.compiler.support.ParameterizedSymbolCreator;
+import org.ek9lang.compiler.support.TypeSubstitution;
 import org.junit.jupiter.api.Test;
 
 /**

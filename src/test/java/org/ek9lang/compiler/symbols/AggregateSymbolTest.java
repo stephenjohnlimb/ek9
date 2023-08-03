@@ -8,13 +8,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Optional;
-import org.ek9lang.compiler.symbols.search.AnyTypeSymbolSearch;
-import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
-import org.ek9lang.compiler.symbols.search.MethodSymbolSearchResult;
-import org.ek9lang.compiler.symbols.search.SymbolSearch;
-import org.ek9lang.compiler.symbols.support.AggregateFactory;
-import org.ek9lang.compiler.symbols.support.SymbolNameOrFail;
-import org.ek9lang.compiler.symbols.support.SymbolTypeNameOrFail;
+import org.ek9lang.compiler.search.AnyTypeSymbolSearch;
+import org.ek9lang.compiler.search.MethodSymbolSearch;
+import org.ek9lang.compiler.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.search.SymbolSearch;
+import org.ek9lang.compiler.support.AggregateFactory;
+import org.ek9lang.compiler.support.SymbolNameOrFail;
+import org.ek9lang.compiler.support.SymbolTypeNameOrFail;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -27,7 +27,6 @@ final class AggregateSymbolTest {
   final SymbolTypeNameOrFail symbolTypeNameOrFail = new SymbolTypeNameOrFail();
   final SymbolNameOrFail symbolNameOrFail = new SymbolNameOrFail();
 
-  @SuppressWarnings("EqualsWithItself")
   @Test
   void testEmptyAggregate() {
     SymbolTable symbolTable1 = new SymbolTable();

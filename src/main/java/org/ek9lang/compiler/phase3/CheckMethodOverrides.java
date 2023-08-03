@@ -5,12 +5,12 @@ import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.search.MethodSymbolSearch;
+import org.ek9lang.compiler.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.support.LocationExtractor;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
-import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
-import org.ek9lang.compiler.symbols.search.MethodSymbolSearchResult;
-import org.ek9lang.compiler.symbols.support.LocationExtractor;
 
 /**
  * Check overrides on methods.

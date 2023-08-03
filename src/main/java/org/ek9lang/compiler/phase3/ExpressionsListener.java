@@ -4,10 +4,10 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.ScopeStackConsistencyListener;
+import org.ek9lang.compiler.support.ReturnTypeExtractor;
+import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.compiler.symbols.support.ReturnTypeExtractor;
-import org.ek9lang.compiler.symbols.support.SymbolFactory;
 
 /**
  * This listener just deals with expressions and the types that result from expressions.

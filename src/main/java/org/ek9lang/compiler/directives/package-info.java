@@ -19,7 +19,7 @@
  *   defines program
  *
  *     BadForLoopIncompatibleTypes1
- *       stdout <- Stdout()
+ *       stdout &larr; Stdout()
  *
  *       {@code @Error:}:  FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
  *       for i in 1 ... 'c'

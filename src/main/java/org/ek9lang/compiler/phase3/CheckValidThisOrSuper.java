@@ -8,12 +8,12 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.SymbolFactory;
+import org.ek9lang.compiler.support.ToCommaSeparated;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.compiler.symbols.support.SymbolFactory;
-import org.ek9lang.compiler.symbols.support.ToCommaSeparated;
 
 /**
  * Checks and assigns type a 'this' or 'super' symbol, but only if it valid.

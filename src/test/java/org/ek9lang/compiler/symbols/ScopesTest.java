@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.symbols;
 
-import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_INTEGER;
-import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_STRING;
+import static org.ek9lang.compiler.support.AggregateFactory.EK9_INTEGER;
+import static org.ek9lang.compiler.support.AggregateFactory.EK9_STRING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -10,13 +10,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
-import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
-import org.ek9lang.compiler.symbols.search.MethodSymbolSearchResult;
-import org.ek9lang.compiler.symbols.search.SymbolSearch;
-import org.ek9lang.compiler.symbols.search.TypeSymbolSearch;
-import org.ek9lang.compiler.symbols.support.AggregateFactory;
-import org.ek9lang.compiler.symbols.support.ParameterizedSymbolCreator;
-import org.ek9lang.compiler.symbols.support.TypeCreator;
+import org.ek9lang.compiler.search.MethodSymbolSearch;
+import org.ek9lang.compiler.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.search.SymbolSearch;
+import org.ek9lang.compiler.search.TypeSymbolSearch;
+import org.ek9lang.compiler.support.AggregateFactory;
+import org.ek9lang.compiler.support.ParameterizedSymbolCreator;
+import org.ek9lang.compiler.support.TypeCreator;
 import org.ek9lang.core.Logger;
 import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Test;

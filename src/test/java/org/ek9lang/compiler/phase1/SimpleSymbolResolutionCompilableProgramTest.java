@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.phase1;
 
-import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_STRING;
+import static org.ek9lang.compiler.support.AggregateFactory.EK9_STRING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -11,8 +11,8 @@ import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.ParsedModule;
-import org.ek9lang.compiler.symbols.search.TypeSymbolSearch;
-import org.ek9lang.compiler.symbols.support.AggregateFactory;
+import org.ek9lang.compiler.search.TypeSymbolSearch;
+import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 

@@ -13,7 +13,7 @@ public class ASMSupport {
 
   /**
    * Prints the ASM source code to generate the given class to the standard output.
-   * Usage: ASMSupport [-nodebug] <binary class name or class file name>
+   * Usage: ASMSupport [-nodebug] binary class name or class file name
    * Params:
    * args – the command line arguments.
    * Throws:

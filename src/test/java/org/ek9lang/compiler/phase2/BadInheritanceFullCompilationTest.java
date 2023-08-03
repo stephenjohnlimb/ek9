@@ -16,7 +16,7 @@ import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.Symbol;
-import org.ek9lang.compiler.symbols.support.SimpleResolverForTesting;
+import org.ek9lang.compiler.support.SimpleResolverForTesting;
 import org.junit.jupiter.api.Test;
 
 /**

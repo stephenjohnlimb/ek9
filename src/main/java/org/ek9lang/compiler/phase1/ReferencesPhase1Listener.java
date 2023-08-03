@@ -8,10 +8,10 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.common.ScopeStack;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.search.AnySymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.compiler.symbols.ScopeStack;
-import org.ek9lang.compiler.symbols.search.AnySymbolSearch;
 import org.ek9lang.core.AssertValue;
 
 /**

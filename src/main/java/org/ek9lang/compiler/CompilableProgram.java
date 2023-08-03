@@ -8,12 +8,12 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.Token;
+import org.ek9lang.compiler.search.SymbolSearch;
+import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.ModuleScope;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
-import org.ek9lang.compiler.symbols.search.SymbolSearch;
-import org.ek9lang.compiler.symbols.support.AggregateFactory;
 import org.ek9lang.core.AssertValue;
 
 /**

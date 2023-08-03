@@ -4,7 +4,6 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
-import org.ek9lang.compiler.common.CompilationPhaseResult;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.core.AssertValue;
 

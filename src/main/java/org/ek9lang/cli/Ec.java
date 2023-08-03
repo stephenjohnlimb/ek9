@@ -13,7 +13,7 @@ import org.ek9lang.core.Ek9DirectoryStructure;
 import org.ek9lang.core.ZipSet;
 
 /**
- * HERE FOR COMPILER ENTRY.
+ * HERE FOR {@link org.ek9lang.compiler.Ek9Compiler} (COMPILER) ENTRY.
  * An abstract base for creating the target artefact.
  * Normally extended by compile commands.
  */

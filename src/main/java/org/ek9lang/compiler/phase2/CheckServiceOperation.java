@@ -1,11 +1,11 @@
 package org.ek9lang.compiler.phase2;
 
-import static org.ek9lang.compiler.symbols.support.SymbolFactory.HTTP_ACCESS;
-import static org.ek9lang.compiler.symbols.support.SymbolFactory.HTTP_PATH;
-import static org.ek9lang.compiler.symbols.support.SymbolFactory.HTTP_REQUEST;
-import static org.ek9lang.compiler.symbols.support.SymbolFactory.HTTP_SOURCE;
-import static org.ek9lang.compiler.symbols.support.SymbolFactory.HTTP_VERB;
-import static org.ek9lang.compiler.symbols.support.SymbolFactory.URI_PROTO;
+import static org.ek9lang.compiler.support.SymbolFactory.HTTP_ACCESS;
+import static org.ek9lang.compiler.support.SymbolFactory.HTTP_PATH;
+import static org.ek9lang.compiler.support.SymbolFactory.HTTP_REQUEST;
+import static org.ek9lang.compiler.support.SymbolFactory.HTTP_SOURCE;
+import static org.ek9lang.compiler.support.SymbolFactory.HTTP_VERB;
+import static org.ek9lang.compiler.support.SymbolFactory.URI_PROTO;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;

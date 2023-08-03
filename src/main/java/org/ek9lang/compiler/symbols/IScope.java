@@ -3,9 +3,9 @@ package org.ek9lang.compiler.symbols;
 import java.util.List;
 import java.util.Optional;
 import org.antlr.v4.runtime.Token;
-import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
-import org.ek9lang.compiler.symbols.search.MethodSymbolSearchResult;
-import org.ek9lang.compiler.symbols.search.SymbolSearch;
+import org.ek9lang.compiler.search.MethodSymbolSearch;
+import org.ek9lang.compiler.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.search.SymbolSearch;
 
 /**
  * Concept of a scope where functions, methods and variables can be declared.

@@ -8,12 +8,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.ek9lang.compiler.ParametricResolveOrDefine;
-import org.ek9lang.compiler.symbols.search.AnyTypeSymbolSearch;
-import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
-import org.ek9lang.compiler.symbols.search.SymbolSearch;
-import org.ek9lang.compiler.symbols.search.TypeSymbolSearch;
-import org.ek9lang.compiler.symbols.support.ParameterizedSymbolCreator;
-import org.ek9lang.compiler.symbols.support.TypeSubstitution;
+import org.ek9lang.compiler.search.AnyTypeSymbolSearch;
+import org.ek9lang.compiler.search.MethodSymbolSearch;
+import org.ek9lang.compiler.search.SymbolSearch;
+import org.ek9lang.compiler.search.TypeSymbolSearch;
+import org.ek9lang.compiler.support.ParameterizedSymbolCreator;
+import org.ek9lang.compiler.support.TypeSubstitution;
 import org.junit.jupiter.api.Test;
 
 class GenericParameterizationTest extends AbstractSymbolTestBase {

@@ -3,7 +3,7 @@ package org.ek9lang.compiler.symbols;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.ek9lang.compiler.symbols.support.ToCommaSeparated;
+import org.ek9lang.compiler.support.ToCommaSeparated;
 
 /**
  * While we don't add these in the scoped structures when compiling.

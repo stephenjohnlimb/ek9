@@ -5,7 +5,6 @@ import org.ek9lang.antlr.EK9BaseListener;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.symbols.IScope;
-import org.ek9lang.compiler.symbols.ScopeStack;
 import org.ek9lang.core.AssertValue;
 
 /**

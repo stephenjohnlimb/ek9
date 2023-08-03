@@ -9,8 +9,8 @@ import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.SymbolTable;
 import org.ek9lang.compiler.symbols.VariableSymbol;
-import org.ek9lang.compiler.symbols.search.MatchResult;
-import org.ek9lang.compiler.symbols.search.MatchResults;
+import org.ek9lang.compiler.search.MatchResult;
+import org.ek9lang.compiler.search.MatchResults;
 import org.junit.jupiter.api.Test;
 
 /**

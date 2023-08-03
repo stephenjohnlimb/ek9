@@ -5,9 +5,9 @@ import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.search.MethodSearchInScope;
+import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbols.MethodSymbol;
-import org.ek9lang.compiler.symbols.search.MethodSearchInScope;
-import org.ek9lang.compiler.symbols.search.MethodSymbolSearchResult;
 
 /**
  * Given a search for a method on an aggregate, this function will try and locate the method.

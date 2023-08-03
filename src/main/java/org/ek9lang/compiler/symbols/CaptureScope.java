@@ -1,9 +1,9 @@
 package org.ek9lang.compiler.symbols;
 
 import java.util.Optional;
-import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
-import org.ek9lang.compiler.symbols.search.MethodSymbolSearchResult;
-import org.ek9lang.compiler.symbols.search.SymbolSearch;
+import org.ek9lang.compiler.search.MethodSymbolSearch;
+import org.ek9lang.compiler.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.search.SymbolSearch;
 
 /**
  * Used to actually hold the captured symbols.

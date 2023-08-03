@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.symbols;
 
 import java.util.Optional;
-import org.ek9lang.compiler.symbols.search.SymbolSearch;
+import org.ek9lang.compiler.search.SymbolSearch;
 
 /**
  * Interface for dynamic functions and classes so that dynamic variables can be captured.

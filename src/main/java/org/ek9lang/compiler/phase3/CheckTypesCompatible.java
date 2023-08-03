@@ -4,8 +4,8 @@ import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
-import org.ek9lang.compiler.symbols.support.LocationExtractor;
-import org.ek9lang.compiler.symbols.support.SymbolMatcher;
+import org.ek9lang.compiler.support.LocationExtractor;
+import org.ek9lang.compiler.support.SymbolMatcher;
 
 /**
  * Check that the types of two symbol ar compatible with each other.

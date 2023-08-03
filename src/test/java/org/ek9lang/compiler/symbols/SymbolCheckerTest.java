@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.function.BiFunction;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.symbols.support.AggregateSymbolCreator;
-import org.ek9lang.compiler.symbols.support.FunctionSymbolCreator;
-import org.ek9lang.compiler.symbols.support.SymbolChecker;
-import org.ek9lang.compiler.symbols.support.VariableSymbolCreator;
+import org.ek9lang.compiler.support.AggregateSymbolCreator;
+import org.ek9lang.compiler.support.FunctionSymbolCreator;
+import org.ek9lang.compiler.support.SymbolChecker;
+import org.ek9lang.compiler.support.VariableSymbolCreator;
 import org.junit.jupiter.api.Test;
 
 class SymbolCheckerTest {

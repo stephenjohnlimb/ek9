@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Optional;
 import org.ek9lang.antlr.EK9BaseVisitor;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.support.GeneralTypeResolver;
+import org.ek9lang.compiler.support.SymbolSearchConfiguration;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.compiler.symbols.support.GeneralTypeResolver;
-import org.ek9lang.compiler.symbols.support.SymbolSearchConfiguration;
 
 /**
- * Pass a string of en ek9 typeDef in and use the
+ * Pass a string of an ek9 typeDef in and use the
  * EK9 parser to just handle the breaking up of a String of a TypeDef into
  * a structure and names.
  * Then use a resolver to see if they type or parameterized type exists.

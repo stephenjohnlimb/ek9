@@ -6,7 +6,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.symbols.VariableSymbol;
 
 /**
- * Limits the use of '<- rtn <- SomeCall()' for returning so that a typeDef has to be provided.
+ * Limits the use of '&larr; rtn &larr; SomeCall()' for returning so that a typeDef has to be provided.
  * This helps with type resolution - else we end up chasing types everywhere.
  */
 final class CheckReturningParam implements BiConsumer<EK9Parser.ReturningParamContext, VariableSymbol> {

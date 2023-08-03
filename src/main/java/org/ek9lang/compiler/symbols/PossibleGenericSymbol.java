@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.ek9lang.compiler.symbols.search.SymbolSearch;
-import org.ek9lang.compiler.symbols.support.ToCommaSeparated;
+import org.ek9lang.compiler.search.SymbolSearch;
+import org.ek9lang.compiler.support.ToCommaSeparated;
 import org.ek9lang.core.AssertValue;
 
 /**

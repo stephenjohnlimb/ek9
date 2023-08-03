@@ -7,11 +7,11 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.search.TemplateTypeSymbolSearch;
+import org.ek9lang.compiler.support.CommonTypeSuperOrTrait;
+import org.ek9lang.compiler.support.ParameterisedTypeData;
+import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.compiler.symbols.search.TemplateTypeSymbolSearch;
-import org.ek9lang.compiler.symbols.support.CommonTypeSuperOrTrait;
-import org.ek9lang.compiler.symbols.support.ParameterisedTypeData;
-import org.ek9lang.compiler.symbols.support.SymbolFactory;
 import org.ek9lang.core.AssertValue;
 
 /**

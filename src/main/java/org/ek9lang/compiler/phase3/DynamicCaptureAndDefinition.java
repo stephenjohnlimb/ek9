@@ -5,8 +5,8 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.CaptureScope;
-import org.ek9lang.compiler.symbols.support.SymbolFactory;
 
 /**
  * Resolves the variables to be captured and defines new variable symbols against the appropriate scopes.

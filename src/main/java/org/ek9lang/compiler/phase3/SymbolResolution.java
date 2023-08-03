@@ -7,21 +7,24 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilationPhase;
+import org.ek9lang.compiler.CompilationPhaseResult;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.common.CompilationEvent;
-import org.ek9lang.compiler.common.CompilationPhaseResult;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.core.CompilerException;
 import org.ek9lang.core.SharedThreadContext;
 
 /**
+ * <p>
  * MULTI THREADED
  * Now try check that all symbols used have a type. THIS IS MAJOR MILESTONE!
  * Create expression symbols in here; so we can pass the type base and also enable type checking.
  * Do some basic semantic checks in here before developing an IR.
+ * </p>
+ * <p>
  * Doing too much focus on the type resolution only we need to call this many times when there a
  * circular type loops.
  * The main complexity in here is building the return types for expressions and resolving types
@@ -30,6 +33,7 @@ import org.ek9lang.core.SharedThreadContext;
  * in the phases. But process that phase to the end.
  * Note that CallId is particularly complex to deal with all the ways to handle TextForSomething()
  * because it could be.
+ * </p>
  * <pre>
  * A. new instance of class TextForSomething i.e. new TextForSomething()
  * - then we have to check it has a constructor with those arguments.
@@ -43,11 +47,13 @@ import org.ek9lang.core.SharedThreadContext;
  * F. call to a variable (C# delegate) that points to a function
  * - with a number of parameters.
  * </pre>
+ * <p>
  * And probably more by the time we've finished.
  * This will create new inferred parameterised types as it processes instruction blocks.
  * This is why return types from expressions are essential, only if you just have the return type 'in time' can
  * we work out what the generic type is going to be parameterised with. As the next statements and expressions then
  * may use part of that new object via expressions we have to define then 'just a head' of when they are needed.
+ * </p>
  */
 public class SymbolResolution implements
     BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {

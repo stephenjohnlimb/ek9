@@ -3,14 +3,13 @@ package org.ek9lang.compiler.common;
 import java.util.Optional;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.compiler.ParsedModule;
+import org.ek9lang.compiler.support.SymbolChecker;
 import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.IScopedSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
-import org.ek9lang.compiler.symbols.ScopeStack;
 import org.ek9lang.compiler.symbols.StackConsistencyScope;
-import org.ek9lang.compiler.symbols.support.SymbolChecker;
 import org.ek9lang.core.AssertValue;
 
 /**

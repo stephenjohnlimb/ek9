@@ -1,7 +1,7 @@
 package org.ek9lang.compiler;
 
 import static org.ek9lang.compiler.Ek9BuiltinLangSupplier.NUMBER_OF_EK9_SYMBOLS;
-import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_LANG;
+import static org.ek9lang.compiler.support.AggregateFactory.EK9_LANG;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -12,11 +12,11 @@ import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
-import org.ek9lang.compiler.symbols.search.AnyTypeSymbolSearch;
-import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
-import org.ek9lang.compiler.symbols.search.MethodSymbolSearchResult;
-import org.ek9lang.compiler.symbols.support.SimpleResolverForTesting;
-import org.ek9lang.compiler.symbols.support.SymbolCountCheck;
+import org.ek9lang.compiler.search.AnyTypeSymbolSearch;
+import org.ek9lang.compiler.search.MethodSymbolSearch;
+import org.ek9lang.compiler.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.support.SimpleResolverForTesting;
+import org.ek9lang.compiler.support.SymbolCountCheck;
 import org.ek9lang.core.CompilerException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

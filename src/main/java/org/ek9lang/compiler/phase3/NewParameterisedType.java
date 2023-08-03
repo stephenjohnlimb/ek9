@@ -4,10 +4,10 @@ import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.ParameterisedTypeData;
+import org.ek9lang.compiler.support.ResolverOrDefiner;
+import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.compiler.symbols.support.ParameterisedTypeData;
-import org.ek9lang.compiler.symbols.support.ResolverOrDefiner;
-import org.ek9lang.compiler.symbols.support.SymbolFactory;
 
 /**
  * Create a new parameterised symbol from a generic type and a set of type arguments.

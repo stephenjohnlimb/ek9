@@ -2,9 +2,9 @@ package org.ek9lang.compiler.symbols;
 
 import java.util.List;
 import java.util.Optional;
-import org.ek9lang.compiler.symbols.search.SymbolSearch;
-import org.ek9lang.compiler.symbols.support.SymbolMatcher;
-import org.ek9lang.compiler.symbols.support.ToCommaSeparated;
+import org.ek9lang.compiler.search.SymbolSearch;
+import org.ek9lang.compiler.support.SymbolMatcher;
+import org.ek9lang.compiler.support.ToCommaSeparated;
 
 /**
  * Represents some type of method that exists on an aggregate type scope.

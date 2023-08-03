@@ -7,6 +7,11 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.search.MethodSearchInScope;
+import org.ek9lang.compiler.search.MethodSymbolSearch;
+import org.ek9lang.compiler.support.ParameterisedTypeData;
+import org.ek9lang.compiler.support.SymbolFactory;
+import org.ek9lang.compiler.support.SymbolTypeExtractor;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
@@ -14,11 +19,6 @@ import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.ScopedSymbol;
-import org.ek9lang.compiler.symbols.search.MethodSearchInScope;
-import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
-import org.ek9lang.compiler.symbols.support.ParameterisedTypeData;
-import org.ek9lang.compiler.symbols.support.SymbolFactory;
-import org.ek9lang.compiler.symbols.support.SymbolTypeExtractor;
 import org.ek9lang.core.AssertValue;
 
 /**

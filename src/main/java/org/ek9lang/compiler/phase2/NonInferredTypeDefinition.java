@@ -7,31 +7,39 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilationPhase;
+import org.ek9lang.compiler.CompilationPhaseResult;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.common.CompilationEvent;
-import org.ek9lang.compiler.common.CompilationPhaseResult;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.core.SharedThreadContext;
 
 /**
  * Can be MULTI THREADED for developer source, but single threaded for bootstrapping.
+ * <p>
  * Goes through the now successfully parsed source files and uses
  * a listener to do the second real pass at building the symbols - more explicit type symbol definitions.
+ * </p>
+ * <p>
  * The first pass 'SymbolDefinition' will have defined many symbols, types, functions.
  * But the order may well have resulted in some explicit uses of generic types not being fully resolved
  * in terms of the parameterization used. i.e. 'UseOfBuiltInGenerics4.ek9' shows a class being declared after it has
  * been used in conjunctions with a generic/template type.
+ * </p>
+ * <p>
  * So this phase is designed to complete a second pass - but this time as all explicit types should be known
  * (non-inferred use only). The resolver will be configured to emit errors when explicit polymorphic parameterization
  * fails.
- * NOTE, we are not trying to do the inferred 'polymorphic parameterization' like 'list <- List(2)'.
- * We're only looking to do 'list as List of Integer' and list <- List() of Integer sorts of checks, but with
+ * </p>
+ * <p>
+ * NOTE, we are not trying to do the inferred 'polymorphic parameterization' like 'list &larr; List(2)'.
+ * We're only looking to do 'list as List of Integer' and list &larr; List() of Integer sorts of checks, but with
  * developer created Template types and classes - which can appear in any order and in any file/module.
  * Hence, the need for a second pass. We also need to start building type hierarchies as these are important for
  * generic types and parameterised type use.
+ * </p>
  */
 public final class NonInferredTypeDefinition
     implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {

@@ -7,9 +7,9 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.CommonTypeSuperOrTrait;
+import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.compiler.symbols.support.CommonTypeSuperOrTrait;
-import org.ek9lang.compiler.symbols.support.SymbolFactory;
 
 /**
  * Checks the Range and ensures that there a Symbol recorded against that context.

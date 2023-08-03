@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.Module;
-import org.ek9lang.compiler.symbols.support.TypeCoercions;
+import org.ek9lang.compiler.support.TypeCoercions;
 import org.ek9lang.core.AssertValue;
 
 /**

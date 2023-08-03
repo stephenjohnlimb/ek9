@@ -6,7 +6,12 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9BaseListener;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
+import org.ek9lang.compiler.common.ScopeStack;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.ResolveOrDefineExplicitParameterizedType;
+import org.ek9lang.compiler.support.ResolveOrDefineIdentifierReference;
+import org.ek9lang.compiler.support.ResolveOrDefineTypeDef;
+import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.CaptureScope;
@@ -14,32 +19,37 @@ import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
-import org.ek9lang.compiler.symbols.ScopeStack;
 import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
-import org.ek9lang.compiler.symbols.support.ResolveOrDefineExplicitParameterizedType;
-import org.ek9lang.compiler.symbols.support.ResolveOrDefineIdentifierReference;
-import org.ek9lang.compiler.symbols.support.ResolveOrDefineTypeDef;
-import org.ek9lang.compiler.symbols.support.SymbolFactory;
 import org.ek9lang.core.AssertValue;
 
 /**
- * A bit of a long-winded name, but this is really the second pass of the first phase of compilation.
+ * <p>
+ * A bit of a long-winded name, but this is really the second pass of the second phase of compilation.
  * The first pass will have defined lots of types, but in the case of explicit (non-inferred uses) of
  * template/generic types - definition will not have been possible during the first pass.
+ * </p>
+ * <p>
  * At the end of this source file there are basic lookups being done to record symbols against contexts.
  * Also, the association to types being extended could not be done in the very first pass.
  * So this pass also hooks up the super types/function - by resolving them.
+ * </p>
+ * <p>
  * It is important to do this 'supers' bit now - because the generic types can be referenced in bodies.
  * So as they are explicitly used in terms of 'T', 'K' and 'V' etc. in subtypes/functions we need them
  * to be resolvable via the type/function hierarchy.
+ * </p>
+ * <p>
  * Note, we're not trying to resolve normal variables and parameters in this phase, but parametric types.
  * There's a reason everyone leaves out Generics/Templates - it's really hard.
  * It is now a hard fail if explicit type cannot be resolved. Not inferred types - not yet.
  * This is due to definition ordering and also the fact that each file is processed concurrently.
+ * </p>
+ * <p>
  * So, ordering is not guaranteed, the first pass - just accepts this and resolves/defines what it can.
  * But this second pass in the first phase will need to raise errors if it cannot resolve or define uses
  * of types/polymorphic parameterization - when it is declared and explicit (not inferred).
  * Phase 1 Definition first pass will have defined this or failed, and we won't even get this running.
+ * </p>
  */
 public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final SymbolAndScopeManagement symbolAndScopeManagement;

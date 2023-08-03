@@ -10,16 +10,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Optional;
-import org.ek9lang.compiler.symbols.search.AnySymbolSearch;
-import org.ek9lang.compiler.symbols.search.AnyTypeSymbolSearch;
-import org.ek9lang.compiler.symbols.search.FunctionSymbolSearch;
-import org.ek9lang.compiler.symbols.search.MethodSymbolSearch;
-import org.ek9lang.compiler.symbols.search.MethodSymbolSearchResult;
-import org.ek9lang.compiler.symbols.search.SymbolSearch;
-import org.ek9lang.compiler.symbols.search.TemplateFunctionSymbolSearch;
-import org.ek9lang.compiler.symbols.search.TemplateTypeSymbolSearch;
-import org.ek9lang.compiler.symbols.search.TypeSymbolSearch;
-import org.ek9lang.compiler.symbols.support.TypeCreator;
+import org.ek9lang.compiler.search.AnySymbolSearch;
+import org.ek9lang.compiler.search.AnyTypeSymbolSearch;
+import org.ek9lang.compiler.search.FunctionSymbolSearch;
+import org.ek9lang.compiler.search.MethodSymbolSearch;
+import org.ek9lang.compiler.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.search.SymbolSearch;
+import org.ek9lang.compiler.search.TemplateFunctionSymbolSearch;
+import org.ek9lang.compiler.search.TemplateTypeSymbolSearch;
+import org.ek9lang.compiler.search.TypeSymbolSearch;
+import org.ek9lang.compiler.support.TypeCreator;
 import org.ek9lang.compiler.tokenizer.SyntheticToken;
 import org.junit.jupiter.api.Test;
 

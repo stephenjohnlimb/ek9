@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
-import org.ek9lang.compiler.symbols.support.ReturnTypeExtractor;
+import org.ek9lang.compiler.support.ReturnTypeExtractor;
 
 /**
  * Just re-uses the bulk of method symbol for when we want to make a symbol that is a call

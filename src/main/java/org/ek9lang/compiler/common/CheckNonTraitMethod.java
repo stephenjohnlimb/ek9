@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.common;
 
-import static org.ek9lang.compiler.symbols.support.SymbolFactory.DEFAULTED;
+import static org.ek9lang.compiler.support.SymbolFactory.DEFAULTED;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;

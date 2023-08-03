@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.phase2;
 
-import static org.ek9lang.compiler.symbols.support.SymbolFactory.DEFAULTED;
+import static org.ek9lang.compiler.support.SymbolFactory.DEFAULTED;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,9 +16,9 @@ import org.ek9lang.compiler.common.CheckTraitMethod;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
-import org.ek9lang.compiler.symbols.search.TypeSymbolSearch;
 
 /**
  * Checks operators from various contexts, typically this is delegated to other functions.

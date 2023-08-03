@@ -1,15 +1,14 @@
 package org.ek9lang.compiler.common;
 
-import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_LANG;
+import static org.ek9lang.compiler.support.AggregateFactory.EK9_LANG;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.Ek9LanguageBootStrap;
-import org.ek9lang.compiler.symbols.ScopeStack;
-import org.ek9lang.compiler.symbols.support.ResolveOrDefineTypeDef;
-import org.ek9lang.compiler.symbols.support.SymbolFactory;
+import org.ek9lang.compiler.support.ResolveOrDefineTypeDef;
+import org.ek9lang.compiler.support.SymbolFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

@@ -3,7 +3,7 @@ package org.ek9lang.compiler.symbols;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
-import org.ek9lang.compiler.symbols.support.ConceptualLookupMapping;
+import org.ek9lang.compiler.support.ConceptualLookupMapping;
 import org.junit.jupiter.api.Test;
 
 /**

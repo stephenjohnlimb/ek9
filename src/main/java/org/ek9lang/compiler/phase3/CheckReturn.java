@@ -1,14 +1,14 @@
 package org.ek9lang.compiler.phase3;
 
-import static org.ek9lang.compiler.symbols.support.AggregateFactory.EK9_VOID;
+import static org.ek9lang.compiler.support.AggregateFactory.EK9_VOID;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.ExternallyImplemented;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.LocationExtractor;
 import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.compiler.symbols.support.LocationExtractor;
 
 /**
  * Checks if the return value (if present) has been initialised.

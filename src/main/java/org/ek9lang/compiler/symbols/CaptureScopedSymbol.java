@@ -1,8 +1,8 @@
 package org.ek9lang.compiler.symbols;
 
 import java.util.Optional;
-import org.ek9lang.compiler.symbols.search.SymbolSearch;
-import org.ek9lang.compiler.symbols.support.ToCommaSeparated;
+import org.ek9lang.compiler.search.SymbolSearch;
+import org.ek9lang.compiler.support.ToCommaSeparated;
 
 /**
  * Just focuses on the ability to possible capture variables from an enclosing scope.

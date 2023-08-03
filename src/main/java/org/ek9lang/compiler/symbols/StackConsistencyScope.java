@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.symbols;
 
 import java.util.Optional;
-import org.ek9lang.compiler.symbols.search.SymbolSearch;
+import org.ek9lang.compiler.search.SymbolSearch;
 
 /**
  * Used when duplicate symbols are found, where we need to add a placeholder.

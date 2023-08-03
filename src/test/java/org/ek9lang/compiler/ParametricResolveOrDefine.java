@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
-import org.ek9lang.compiler.symbols.search.SymbolSearch;
+import org.ek9lang.compiler.search.SymbolSearch;
 
 /**
  * This is used to simulate the same method in the CompilableProgram.

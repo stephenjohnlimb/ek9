@@ -4,8 +4,8 @@ import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.LocationExtractor;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
-import org.ek9lang.compiler.symbols.support.LocationExtractor;
 
 /**
  * Checks that the function correctly overrides the signature if it has a super.

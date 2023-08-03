@@ -14,8 +14,8 @@ import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.config.FullPhaseSupplier;
 import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.compiler.symbols.support.PathToSourceFromName;
-import org.ek9lang.compiler.symbols.support.SymbolCheck;
+import org.ek9lang.compiler.support.PathToSourceFromName;
+import org.ek9lang.compiler.support.SymbolCheck;
 import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
