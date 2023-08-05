@@ -45,10 +45,9 @@ jobs:
           role-to-assume: arn:aws:iam::332824293200:role/GitHubAction-AssumedRole
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
-      - name: Sts GetCallerIdentity # Just to check login was OK
-        run: |
-          aws sts get-caller-identity
-      - name: Upload Javadoc to EK9 S3 'repo'
+      - name: Upload Site to EK9 S3 'www.ek9lang.org'
+        run: aws s3 sync --quiet target/classes/site s3://www.ek9lang.org/
+      - name: Upload Javadoc to EK9 S3 'repo.ek9lang.org'
         run: aws s3 sync --quiet target/site/apidocs s3://repo.ek9lang.org/apidocs
       - name: Coverage with Maven
         run: mvn verify jacoco:report

@@ -1,0 +1,274 @@
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language</title>
+  <meta name="description" content="A brief outline of the EK9 programming language examples"/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="http://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>About EK9</h1>
+    </header>
+    <p>
+      <a target="_blank" title="Fork EK9 and contribute" href="https://github.com/stephenjohnlimb/ek9">
+        <img alt="GitHub forks" src="https://img.shields.io/github/forks/stephenjohnlimb/ek9?style=social"></a>
+      <a target="_blank" title="follow me on Twitter" href="https://www.twitter.com/stephenjohnlimb">
+        <img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/stephenjohnlimb?label=EK9&style=social"></a>
+    </p>
+    <p>
+      <a target="_blank" title="Fork EK9 and contribute" href="https://github.com/stephenjohnlimb/ek9">Fork/Watch</a>
+      the development of the EK9 compiler on GitHub and for updates follow on
+      <a target="_blank" title="follow me on Twitter" href="https://www.twitter.com/stephenjohnlimb">twitter.</a>
+      There is also <a href="https://blog.ek9.io">Blog</a> on EK9 Language Design and Implementation.
+    </p>
+
+    <h3>The EK9 Language</h3>
+    <p>
+      If you are a developer with a Java, C#, Python, Javascript, Scala or Kotlin background you will be able to
+      pick up EK9 quickly. Many of the ideas in those languages have been incorporated into EK9.
+    </p>
+    <p>
+      EK9 source is made available under the <a href="LICENSE.txt">MIT opensource license</a>.
+    </p>
+    <p>
+      Experienced developers will be probably thinking; <b>"Show me the code; I'll be able to understand it and get going"</b>;
+      so there is a list of <a href="#examples">examples</a> below.
+    </p>
+    <p>
+      Be aware there is some new syntax here that may look <i>alien</i>! You will need to give it time to grow on
+      you, especially parameter passing. If you get stuck then look at sections <a href="structure.html">structure</a>,
+      <a href="basics.html">basics</a> and then <a href="operators.html">operators</a>.
+    </p>
+    <h3>More about the language</h3>
+    <p>
+      The language has been designed for inexperienced developers to get started, but has features suitable for more
+      experienced software engineers. It accomplishes this by providing a range of <b>constructs</b> from the
+      very simple; through to advanced design patterns (built into the language itself).
+    </p>
+    <p>
+      It has been designed to make easy things; 'easy' and harder things; 'structured and coherent'.
+      This approach has been taken to facilitate EK9 language use through a developers career, it not just a teaching language.
+    </p>
+    <p>
+      The layout and syntax has been designed to incorporate visual flow and structure.
+    </p>
+    <p>
+      Take a look in the
+      <a href="introduction.html">introduction</a> or the
+      <a href="introduction.html#new_starters">new starters</a> section for the language rationale. Read the
+      <a href="introduction.html#philosophy">philosophy of EK9</a>if you want to understand why certain
+      capabilities are or are <u>not</u> included.
+    </p>
+    <h3 id="downloads">Downloads</h3>
+    <p>
+      Once you've reviewed the examples below and think this might suit you, dust off your favourite editor and
+      follow these instructions below.
+    </p>
+    <ol>
+      <li>Go to the <a href="https://repo.ek9lang.org">EK9 repository and download</a> the compiler for
+        either macOS, Linux or Windows (they are all free).
+      </li>
+      <li>There is a Textmate bundle that provides some highlighting depending on your preferred editor
+        <a href="https://www.eclipse.org">Eclipse</a> and
+        <a href="https://www.jetbrains.com/idea/download/#section=mac">IntelliJ</a> work quite well
+        with his bundle.
+      </li>
+      <li>
+        If you are interested in the compiler internals, there is
+        <a href="https://repo.ek9lang.org/apidocs/index.html">Javadoc</a> available</li>
+      <li>There is also a vscode plugin <a href="https://github.com/stephenjohnlimb/vscode-ek9-ls">
+        EK9 for vscode GitHub</a>
+      </li>
+      <li>Unpack the EK9 compiler (zip, tar.gz or dmg) in a directory of your choice (but no spaces in directories)</li>
+      <li>Make sure you have a version of Java installed (at least Java 19) - suggest using
+        <a href="https://www.azul.com/downloads/zulu-community/?package=jdk">Azul</a> or
+        <a href="https://www.graalvm.org">Graalvm</a>
+      </li>
+      <li>Make sure the directory you unpacked EK9 in is on your <b>PATH</b></li>
+      <li>Make sure the <b>bin</b> directory you unpacked Java in is on your <b>PATH</b></li>
+      <li>Create a new directory somewhere (no spaces in path) and paste the contents of
+        the <a href="introduction.html#hello_world">Hello World</a> example into a file called <b>helloworld.ek9</b></li>
+      <li>From a command line prompt; type <b>ek9 helloworld.ek9</b></li>
+      <li>If your installation went OK and all your <b>PATH</b> was setup, you will see "Hello, World"</li>
+      <li>That's it you're on your way to using EK9 for development.</li>
+    </ol>
+    <p>
+      EK9 detects source files that need compiling and then runs the one specified. For more details on
+      the compiler read <a href="commandline.html">EK9 command line</a>.
+    </p>
+
+    <h3 id="examples">Now the examples</h3>
+    <p>
+      The examples are embedded in these web pages and discuss how to code in EK9. Read around
+      the edges of the examples if any part of the syntax is unclear. The examples start simple but get
+      quite involved and detailed quite quickly. If you get stuck or confused then look at the previous
+      examples in the list.
+    </p>
+    <p>
+      Less experienced developers should start on the early examples;
+      the examples towards the middle and the end use more advanced software techniques.
+    </p>
+    <p>
+      There are areas of general IT, like regular expressions and web services that you may need to
+      familiarise yourself with; before looking at how they are used in EK9.
+    </p>
+    <h4>Basic examples</h4>
+    <ul>
+      <li><a href="introduction.html#hello_world">Hello, World</a></li>
+      <li><a href="structure.html#constants_example">Declaration of Constants</a> and
+        <a href="structure.html#type">an Enumerated Type</a></li>
+      <li><a href="structure.html#program">Hello, World (and Mars)</a></li>
+      <li><a href="builtInTypes.html#string_example">Working with Strings</a>,
+        <a href="builtInTypes.html#regex_example">Regular Expressions</a>,
+        <a href="builtInTypes.html#time_example">Time</a>,
+        <a href="builtInTypes.html#date_example">Dates</a>,
+        <a href="builtInTypes.html#datetime_example">DateTime</a>,
+        <a href="builtInTypes.html#money_example">Money</a>,
+        <a href="builtInTypes.html#locale_example">Locales</a>,
+        <a href="builtInTypes.html#colour_example">Colour</a>,
+        <a href="builtInTypes.html#dimension_example">Dimensions</a></li>
+      <li><a href="structure.html#record">Records (like a C struct)</a> and
+        <a href="operators.html#record_merge_example">Merging example</a></li>
+      <li><a href="structure.html#function">Functions</a> and
+        <a href="basics.html#pure">Pure Functions</a></li>
+      <li><a href="structure.html#class">Classes (similar to Java, C++, C#)</a></li>
+      <li><a href="dynamicClasses.html#tuple_example">Using a Dynamic Class as a 'tuple'</a></li>
+      <li><a href="classes.html#shape_example">Simple Classes/Function Delegate</a></li>
+      <li><a href="structure.html#trait">Traits (similar Java interfaces or Scala traits)</a></li>
+      <li>Generic/Template <a href="structure.html#generics">Functions</a> and
+        <a href="structure.html#generic_classes">Classes (more like C++/C# than Java)</a></li>
+      <li><a href="structure.html#component">Components</a> and
+        <a href="structure.html#application">Applications (a bit like Java Spring)</a></li>
+      <li><a href="structure.html#text">Text (similar to Java properties with String interpolation)</a></li>
+      <li><a href="introduction.html#web_services">REST Service</a></li>
+    </ul>
+    <h4>Detailed examples</h4>
+    <p>
+      Whilst these example start of quite simply, they get progressively more abstract/sophisticated.
+    </p>
+    <ul>
+      <li><a href="collectionTypes.html#list_example1">Lists of 'things'</a> and
+        <a href="collectionTypes.html#list_example2">Lists of 'functions'</a></li>
+      <li>
+        <a href="streamsAndPipelines.html#streaming_books">Streaming Books</a>
+        Examples:
+        <a href="streamsAndPipelines.html#example1">1</a>,
+        <a href="streamsAndPipelines.html#example2">2</a>,
+        <a href="streamsAndPipelines.html#example3">3</a>,
+        <a href="streamsAndPipelines.html#example4">4</a>,
+        <a href="streamsAndPipelines.html#example5">5</a>,
+        <a href="streamsAndPipelines.html#example6">6</a>,
+        <a href="streamsAndPipelines.html#example7">7</a>,
+        <a href="streamsAndPipelines.html#example8">8</a>,
+        <a href="streamsAndPipelines.html#example9">9</a>,
+        <a href="streamsAndPipelines.html#example10">10</a>,
+        <a href="streamsAndPipelines.html#example11">11</a>,
+        <a href="streamsAndPipelines.html#example12">12</a>
+      </li>
+      <li><a href="collectionTypes.html#optional_example">Optional items</a></li>
+      <li><a href="collectionTypes.html#priority_queue_example">Priority Queues</a></li>
+      <li><a href="collectionTypes.html#dictionary_example">Dictionaries (like a Java Map)</a></li>
+      <li><a href="enumerations.html#example">Enumerations/Simple Type</a></li>
+      <li><a href="records.html#example">Records with Operators </a></li>
+      <li><a href="standardTypes.html#mutex">Mutex Lock/Key</a></li>
+      <li><a href="traits.html#traits_example">Different aspects of traits</a></li>
+      <li><a href="composition.html#composition_example">Using traits for composition</a></li>
+      <li><a href="dynamicClasses.html#composition_example">Dynamic classes with composition</a></li>
+      <li><a href="exceptions.html#example">Exceptions and Dispatcher</a></li>
+    </ul>
+    <h4>Fully worked examples</h4>
+    <ul>
+      <li>CLI program <a href="standardTypes.html#worked_example">requirement</a>:
+        <a href="standardTypes.html#main_program_example">the program</a>,
+        <a href="standardTypes.html#the_functions_example">functions</a>,
+        <a href="standardTypes.html#the_classes_example">classes</a>,
+        <a href="standardTypes.html#the_record_example">and the record</a>.
+      </li>
+      <li>Strong typing and abstraction with
+        <a href="components.html#example">components and reworked composition</a> (long)
+      </li>
+      <li>UDP (Datagrams) programs:
+        <a href="networkTypes.html#udp_server_example1">Server(1)</a>,
+        <a href="networkTypes.html#udp_server_example2">Server(2)</a>,
+        <a href="networkTypes.html#udp_client_example1">Client(1)</a> and
+        <a href="networkTypes.html#udp_client_example2">Client(2)</a>
+      </li>
+      <li>TCP (Sockets) programs:
+        <a href="networkTypes.html#tcp_server_example1">Server(1)</a>,
+        <a href="networkTypes.html#tcp_server_example2">Server(2)</a>,
+        <a href="networkTypes.html#tcp_client_example1">Client(1)</a> and
+        <a href="networkTypes.html#tcp_client_example2">Client(2)</a>
+      </li>
+    </ul>
+  </article>
+</main>
+</body>
+</html>
