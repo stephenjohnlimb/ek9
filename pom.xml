@@ -121,8 +121,9 @@
         </plugin>
 
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.8</version>
+          <version>3.5.0</version>
         </plugin>
 
         <plugin>
@@ -201,8 +202,33 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
+          <header>EK9 compiler internals</header>
+          <doctitle><![CDATA[<a href="https://ek9.io">EK9</a> ${project.name} ${project.version} API. Language details on <a href="https://ek9.io">EK9</a> website]]></doctitle>
+          <bottom><![CDATA[Copyright &#169; {inceptionYear}&#x2013;{currentYear} <a href="https://ek9.io">EK9</a>. All rights reserved.]]></bottom>
+          <keywords>true</keywords>
+          <quiet>true</quiet>
+          <doclint>all,-missing</doclint>
           <source>${java.version}</source>
-          <show>private</show>
+          <release>${java.version}</release>
+          <show>package</show>
+          <groups>
+            <group>
+              <title>Main User Entry Packages</title>
+              <packages>org.ek9lang.cli*:org.ek9lang.lsp*</packages>
+            </group>
+            <group>
+              <title>Front End Packages</title>
+              <packages>org.ek9lang.antlr*:org.ek9lang.compiler.tokenizer*</packages>
+            </group>
+            <group>
+              <title>Common/Utility Packages</title>
+              <packages>org.ek9lang.compiler.common*:org.ek9lang.compiler.search*:org.ek9lang.compiler.directives*:org.ek9lang.compiler.support*:org.ek9lang.core*</packages>
+            </group>
+            <group>
+              <title>Main Compiler</title>
+              <packages>org.ek9lang.compiler*</packages>
+            </group>
+          </groups>
         </configuration>
       </plugin>
 
