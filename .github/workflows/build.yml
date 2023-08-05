@@ -10,6 +10,12 @@ on:
   pull_request:
     paths-ignore:
       - '**.md'
+env:
+  AWS_REGION: "eu-west-2" # The region the AWS access for S3 and most components is
+
+permissions:
+  id-token: write # required for requesting a JWT from AWS
+  contents: read  # required for actions/checkout
 
 jobs:
   build:
@@ -33,6 +39,15 @@ jobs:
         run: mvn --batch-mode --update-snapshots package
       - name: Generate API Documentation
         run: mvn --batch-mode javadoc:javadoc
+      - name:  Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          role-to-assume: arn:aws:iam::332824293200:role/GitHubAction-AssumedRole
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Upload Generated JavaDoc to AWS
+        run: |
+          aws sts get-caller-identity
       - name: Coverage with Maven
         run: mvn verify jacoco:report
       - name: Upload to Codecov
