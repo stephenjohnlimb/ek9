@@ -48,8 +48,8 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
    * also look to replace these conceptual parameterised type symbols because they would be
    * Item of (K, V) and need to be Item of (String, Float).
    * A good example is Map of (K, V) and MapEntry of(K, V) - when you make a
-   * Map of (String, Float)> we replace K->String, V->Float but also
-   * need to replace MapEntry of(<, V) with MapEntry of(String, Float).
+   * Map of (String, Float) we replace K&rarr;String, V&rarr;Float but also
+   * need to replace MapEntry of(K, V) with MapEntry of(String, Float).
    * You could also imagine a situation where you have to replace
    * Something of (Integer, V) with Something of (Integer, Float)!
    */

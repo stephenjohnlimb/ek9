@@ -40,7 +40,7 @@ public class MethodSymbol extends ScopedSymbol {
   private boolean constructor = false;
 
   /**
-   * Is this an operator like := or < etc.
+   * Is this an operator like := or &lt; etc.
    */
   private boolean operator = false;
 
