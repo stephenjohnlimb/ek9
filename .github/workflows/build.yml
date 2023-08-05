@@ -45,9 +45,6 @@ jobs:
           role-to-assume: arn:aws:iam::332824293200:role/GitHubAction-AssumedRole
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
-      - name: Upload Generated JavaDoc to AWS
-        run: |
-          aws sts get-caller-identity
       - name: Coverage with Maven
         run: mvn verify jacoco:report
       - name: Upload to Codecov
