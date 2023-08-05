@@ -1,7 +1,7 @@
 /**
- * <b>A - Start here</b> for the main command-line entry use of the compiler.
+ * <b>A-1 - Start here</b> for the main command-line entry use of the compiler.
  * <p>
- * Designed for the command line interface to the EK9 compiler.
+ * Designed for the command line interface to the EK9 compiler. This will produce final executable code.
  * </p>
  * <p>
  * The class {@link org.ek9lang.cli.Ek9} is the 'main' entry point into the compiler from the command line.
