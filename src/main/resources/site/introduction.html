@@ -1,0 +1,1504 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>An introduction to the EK9 programming language</title>
+  <meta name="description" content="The license and reason for creating EK9 is covered in this
+     introduction to the EK9 programming language."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Introduction to EK9</h1>
+    </header>
+    <p>
+      EK9 is a modern general purpose programming language that fuses
+      <a href="https://en.wikipedia.org/wiki/Object-oriented_programming">Object Oriented</a>
+      and <a href="https://en.wikipedia.org/wiki/Functional_programming">Functional</a> programming techniques
+      with controlled <a href="https://en.wikipedia.org/wiki/Generic_programming">Generic</a>/
+      <a href="https://en.wikipedia.org/wiki/Aspect-oriented_programming">Aspect Oriented Programming (AOP)</a>.
+      It pulls a number of widely used
+      <a href="https://en.wikipedia.org/wiki/Software_design_pattern">design patterns</a> and
+      <i>framework ideas</i> into the language. It provides a modular software ecosystem as part of the
+      compiler/language itself.
+    </p>
+    <p>
+      It provides layered <b>constructs</b> that start very simple but build up to cater for sophisticated
+      software solutions.
+    </p>
+    <p>
+      You may ask; can one single language fuse all those different methodologies together, <b>should</b>
+      they be fused together? Are the compromises that have been made too severe to make any of these techniques
+      truly useful? Mixing what is normally third party libraries and build tools into a single
+      software development platform might be viewed as a backwards step by many.
+    </p>
+    <p>
+      Only time will tell if this approach will be successful.
+    </p>
+    <p>
+      The 'hello world' section below gives you a quick glimpse of the layout.
+    </p>
+    <h4 id="hello_world">Hello, World in EK9</h4>
+    <pre>
+#!ek9
+defines module introduction
+  defines program
+  
+    HelloWorld()
+      stdout &lt;- Stdout()
+      stdout.println("Hello, World")
+//EOF</pre>
+    <p>
+      Lets assume this is stored in a file called <i>helloworld.ek9</i>; we would run that program with the
+      following command:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">$</span>
+          <span class="k">ek9 helloworld.ek9</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="c">On Linux/Unix/MacOS you can use this as well/instead</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">./helloworld.ek9</span>
+          <span class="m">&crarr;</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      As you can see the layout for EK9 is simple and minimal (Python like in many ways), it uses <u>module</u>
+      to represent a name space (<b>introduction</b>) a construct part (<i>program</i>)
+      and then the program itself (<b>HelloWorld</b>) with its <i>body</i>.
+      The <b>&lt;-</b> is a declaration of a variable of a particular (inferred) type
+      (a <i>class</i> called <b>Stdout</b> which can be used to print out Strings).
+    </p>
+
+    <h4 id=main_features>Main Features</h4>
+    <p>
+      Why try EK9? Well most of the features in EK9 you'll find in most other modern languages. But there
+      are a few fairly unique capabilities that you may find compelling. It is really the effect of
+      the syntax/layering and structure in combination that is innovative and different.
+    </p>
+    <h5>General Features</h5>
+    <ul>
+      <li>The language is indentation based (very similar to Python)</li>
+      <li>Design is explicit more like Java/C#/C++/Scala (limited duck typing in places)</li>
+      <li>The layout of 'constructs' in groups is similar to Pascal</li>
+      <li>It's compiled not interpreted</li>
+      <li>Punctuation is kept to a minimum (there is no semi-colon as a statement terminator)</li>
+      <li>Operators and operator overloading (more like C++)</li>
+      <li>Defaulting of operators with a simple directive (similar to Java Lombok)</li>
+      <li>It is <u>very</u> structured, no <b>break, return, continue</b> or <b>GOTO!</b></li>
+      <li>Uses a <b>named</b> return value</li>
+      <li>Dynamic Functions and Classes (similar to Lambdas)</li>
+      <li>Exceptions are <b>Unchecked</b></li>
+      <li>The compiler checks variable use in a manner similar to Golang/Rust</li>
+    </ul>
+    <h5>Specific new Features</h5>
+    <ul>
+      <li>Compiled stream pipelining similar to Unix '|' pipes (in Unix shells).</li>
+      <li>Pragmatic type inference</li>
+      <li>No primitive types - only Objects</li>
+      <li>No global variables</li>
+      <li>No type casting, <i>instanceof</i> - a <b>dispatcher</b> model used instead</li>
+      <li>No <b>null</b> keyword</li>
+      <li>'Unset' safe operators - based on Elvis operator idea</li>
+      <li>Language syntax for <u>design by composition</u> and <u>delegation</u></li>
+      <li>Object/Functional Oriented Programming <b>constructs</b> as peers</li>
+      <li>Abstract Functions enabling Polymorphic use of Functions/Delegates</li>
+      <li>Inversion of Control and Dependency Injection built in (but constrained)</li>
+      <li>Versioning as part of the language.</li>
+      <li>Packaging directives as part of the language</li>
+    </ul>
+    <p>
+      This introduction page is <s>quite</s> very long and full of discussion/rational/logic/licensing if
+      you really just want to get a good look at the language then start with the
+      <a href="index.html#examples">list of examples</a> or
+      sections on <a href="structure.html">structure</a>,
+      <a href="basics.html">basics</a> and then <a href="operators.html">operators</a>.
+    </p>
+    <p>
+      You may consider this manual as a
+      <a target="_blank" title="Stream" href="https://en.wikipedia.org/wiki/Stream_of_consciousness">stream of consciousness</a>;
+      your criticism is accepted. As this is 'open source' please write a better manual to
+      <a target="_blank" title="GitHub" href="https://github.com/stephenjohnlimb/ek9">contribute</a>; it will be gratefully received.
+    </p>
+    <p>
+      There is a <u>significant</u> amount of information in this manual, do not expect to be able to get through
+      it all in one go. It will take time to understand it all.
+      There are examples throughout, but there are also sections that contain code snips to solve general
+      problems in different ways using EK9. You may find a review of these as helpful as reading these pages.
+    </p>
+    <p>
+      The examples do actually work with the current prototype compiler, so the outputs shown are the actual
+      outputs from the example programs. So this is not just theoretical ideas/vapour-ware! But the compiler is
+      incomplete even as a prototype (currently). The first reference implementation of the compiler is now being
+      <a target="_blank" title="GitHub" href="https://github.com/stephenjohnlimb/ek9">developed</a>; so join in on its development.
+    </p>
+    <p>
+      If you are an <b>experienced developer</b> or just want to see what the language is like in more detail;
+      then take a look here <a href="#structure">for new starters</a> and here
+      <a href="#experienced_developers">for more experienced developers</a> to see what EK9 has to offer you.
+      If on the other hand you've read this and want to understand how mature EK9 is in terms of tooling,
+      compilers, IDE and community the look at the <a href="#tooling">tooling</a> section.
+    </p>
+
+    <h3>TL;DR</h3>
+
+    <p>
+      To understand the <a href="#licensing">licensing</a> and current state of
+      <a href="#development">development</a>, jump to those sections or just keep reading.
+    </p>
+    <p>
+      However, if you have just stumbled upon this site and are <b>new to software development</b> and think you
+      might use EK9, there is a brief overview of <a href="#other_languages">other languages</a> you might
+      like to consider.
+      This is not intended to dissuade you from trying EK9, but to help you make an informed decision as to which
+      language might suit you.
+    </p>
+
+    <p>
+      There is a brief outline of other main-stream <a href="#other_languages">current languages</a> that EK9 has
+      taken aspects of design/structure from; each of which are <u>excellent in their own right</u>.
+      Some key aspects of development for any developer will be supporting tools (IDE), ease of syntax, a big library of
+      functions/classes/components and critically wide adoption by many developers with code examples and a
+      supportive and informed developer community.
+    </p>
+    <h4 id="purpose">The purpose of creating EK9</h4>
+    <p>
+      EK9 has been designed from the outset to reduce the amount of boiler-plate code, punctuation (syntax) and
+      provides pragmatic <a target="_blank" title="Type Inference" href="https://en.wikipedia.org/wiki/Type_inference">type inference</a>.
+      It provides a <b>default operator</b> syntax so that many simple operators can be generated by EK9;
+      this reduces the amount of simple boiler-plate code.
+    </p>
+    <p>
+      It borrows constructs and syntax from other languages (<i>layout, functions, classes, etc</i>); so it
+      should feel quite familiar in many ways, but defines it several new concepts.
+      Furthermore, it (re)introduces some older Unix ideas such as streaming/pipelining and <i>limited</i>
+      operator overloading that will be familiar to Unix/Linux and C/C++ developers.
+      If you want to see the main additions over and above other languages then look
+      <a href="#main_additions">here</a>.
+    </p>
+    <p>
+      Like most new languages there is no <u>totally new concept</u> that's going to change the world; but
+      there are more abstractions and improvements.
+    </p>
+    <p>
+      The higher level abstractions such as <i>classes</i>
+      and <i>traits</i> could of course all be implemented in languages like 'C'. <i>Functions</i> could have been
+      implemented in 'assembly' code using <i>subroutines</i>. Furthermore, <i>classes</i> could be implemented as
+      'C' structs with a virtual <i>function</i> table for the <i>methods</i>. <i>Traits/Interfaces</i>
+      are nothing more than <i>abstract classes</i> with no <i>properties</i> and only <i>method</i> signatures.
+    </p>
+    <p>
+      Why create these new <b>constructs</b>, if they could all be defined in other existing ways?
+    </p>
+    <p>
+      Concepts and abstractions <b>are</b> the <b>value</b> being added (not just ease of implementation).
+      See the Java example below - while it only uses a <i>class</i>; it does tell the developer more about how
+      that <i>class</i> is intended to be used (by using Annotations).
+    </p>
+    <p>
+      While the much higher level <b>constructs</b> such as <i>components</i> and
+      <i>Inversion of Control</i> could be seen as being
+      <u>excessive</u> in terms of adding more <u>abstractions</u> - the same could be said of <i>functions</i>,
+      <i>classes</i> and <i>traits</i> (if you are or were a C or assembler programmer).
+    </p>
+    <p>
+      It has been said that 'Library Design <b>is</b> Language Design'. In Java this has been used widely in
+      the form of Annotations and especially by
+      <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/overview.html">'Spring'</a>
+      and to some extent 'project Lombok'.
+    </p>
+    <pre>...
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+
+@Configuration
+@PropertySource (name = "employeeProperties", value = "employee.properties")
+@ConfigurationProperties
+public class EmployeeConfig {
+}
+...</pre>
+    <p>
+      As time goes by; it becomes more obvious that a 'design pattern' such as
+      assembly code <i>subroutines</i> could be formalised into a new language construct and be called a <i>function</i>.
+      C structs and virtual function pointers could be called a <i>class</i>. <i>Abstract classes</i> could
+      be called a <i>Trait/Interface</i> (enabling more flexibility and decoupling in a polymorphic manner).
+      <i>Classes</i> used in specific contexts could become
+      <i>components</i>. Once you have <i>components</i> you may wish to only allow them to be used in a
+      specific way/context (that is not suitable for just <i>classes</i>).
+    </p>
+    <p>
+      If you look at the 'Spring' snip above it becomes quite obvious that there are parts of it that could be
+      pulled right into the language itself. Then the compiler can actually do a lot more to ensure that
+      those concepts are only being used in the right way (at compile time - not just run time).
+    </p>
+    <p>
+      Trying to create a programming language that is easy to read, easy to get started with and that can be used
+      for small, medium, large and very large applications is a
+      <b>challenge</b>. You may view some early examples as being <i>trivial</i> and quite easy to
+      accomplish in many other languages. Please take the
+      time to view more of the examples especially in the <a href="structure.html">structure</a>
+      and <a href="standardTypes.html#worked_example">standard types</a> sections as these start simple;
+      but get progressively more fully featured to show the language capabilities.
+    </p>
+
+    <h5>Why was it created?</h5>
+    <p>
+      Like most programming languages it fills a perceived gap to some extent.
+      It will be obvious from the 'hello world' example that the Unix/C/Java and Python have been a major
+      influence. It was felt that there were
+      features that could be incorporated from other languages; some older ones like Haskell, some newer ones like
+      Swift and some like Java and C# that have proven robust/utilitarian over time.
+      The use of several long-lived design patterns and the adoption
+      and acceptance of <i>HTTP/REST/HTML/CSS/JSON/SQL</i> have also had a major impact on the design.
+    </p>
+    <p>
+      A few languages (Java in particular); have struggled to incorporate new ideas in an
+      elegant manner (opinion), others like Python have not maintained backwards compatibility in every release.
+      This is not intended to be a criticism of either language. It is understandable as once the <u>DNA</u>
+      of a language has been established, additions such as
+      <i>Generics</i> and <i>Functions</i> are never going to be as fully incorporated as they could have been if
+      designed in from the outset.
+    </p>
+    <p>
+      But rather than try to retrofit a number of interesting/powerful concepts into an existing
+      language; experiments (on paper) were tried to see how such diverse and seemingly incompatible concepts
+      could be forged together. It then became obvious that a new language was actually necessary. Some could
+      question the need to forge these ideas together at all - in which case please read the
+      <a href="#other_languages">other languages</a> section as there are many good alternatives to EK9.
+    </p>
+    <p>
+      Specific third party API's and libraries using <u>Annotations</u> can provide some extension to existing
+      languages; but they are all non-standard and not really compiled and checked or checks are delayed
+      until runtime.
+    </p>
+    <p>
+      The outline of drivers above were the main reason for creating EK9 with Templates/Generics and
+      Classes/Functions all baked in right from the start.
+    </p>
+    <h5>The Elephant in the Braces <b>{ }</b></h5>
+    <p>
+      Why was the Python like indentation approach adopted? Rather than the more familiar <b>'{' '}'</b>;
+      as used in C, C++, C#, Java, Javascript, Scala, Dart, Kotlin languages. All of which
+      use this mechanism to define blocks?
+    </p>
+    <p>
+      For the following reason <b>';}});'</b>. Excessive/confusing punctuation! While the Python like format does
+      not suit everyone and there are drawbacks to adopting that layout; the clarity of avoiding too much
+      punctuation especially when mixing <b>{, [</b> and <b>(</b> in combination is worth it.
+      White space is invisible - which has both positive and negative repercussions.
+    </p>
+    <p>
+      Clarity on the eye; is <b>the</b> main reason EK9 follows a
+      similar route to Python/<a href="https://www.cloudbees.com/blog/yaml-tutorial-everything-you-need-get-started/">YAML</a>
+      when it comes to layout.
+    </p>
+    <h4 id="development">The Current Situation in Development of EK9</h4>
+    <p>
+      At this current point in time EK9 would probably <b>not</b> suit a <u>new developer</u>. Tooling and library
+      support is very limited and the community still has to be formed and grow to the level needed.
+      An initial vscode plugin
+      <a href="https://github.com/stephenjohnlimb/vscode-ek9-ls">Language Server Connector</a> is available and
+      does provide some useful functionality. The actual language server front end compiler is in development.
+    </p>
+
+    <p>
+      But if you are an experienced <b>developer</b> or <b>tester</b> and can see the potential here; please
+      continue to read on; and hopefully you will want to get
+      <a href="https://github.com/stephenjohnlimb/ek9">involved</a> and help drive EK9 forward.
+      You may even build significant parts of the tool chain, package manager and standard libraries or really
+      help on testing and documentation.
+    </p>
+    <p>
+      If you are just looking for something <b>new/interesting/challenging</b> or really want to put your stamp
+      on some opensource code and have it used world-wide; then read on and see if this language is something
+      you'd like to use/shape.
+      Maybe you find the structure/layout/syntax in other languages frustrating/limiting; or possibly
+      you think package management with other languages could be enhanced. Perhaps you expect compiler
+      error messages to be much more useful; now you can decide what the error messages should be.
+    </p>
+    <p>
+      Creating a modern language via opensource from scratch is a <u>very long term</u> undertaking but needs
+      more than just coders. Testing and documentation are just as critical as the language, compiler and IDE
+      plug-ins. If you feel these documents that explain EK9 can be improved and made clearer then we really
+      want to hear from you; you can update them with your own contributions. With so many good modern
+      programming languages available now; the bar to creating something new and compelling is really very high.
+      Producing something that is only <u>slightly better</u>; means it just won't make the cut and be adopted.
+    </p>
+    <p>
+      Many languages take decades to establish themselves, some always remain niche. Many however; like C will
+      probably be around forever. Hopefully EK9 will be found useful in some form or other for various
+      developers that find it suitable for the particular development they need to undertake.
+    </p>
+    <p>
+      The creation of something new like this is not aimed at trying to denigrate other languages or frameworks;
+      but is in many ways just <i>another go</i> at trying to evolve programming by adding alternative
+      <b>constructs</b>. It may or may not end up being successful; or it may just find a niche,
+      but it is important that evolution is at <u>least attempted</u>.
+    </p>
+    <p>
+      So come and <a href="https://github.com/stephenjohnlimb/ek9">contribute on github</a>,
+      no matter how small your contribution it will be valued; it will be one more 'brick' in the 'building'.
+    </p>
+    <h4 id="tooling">Current development and tooling</h4>
+    <p>
+      The initial syntax and semantic constructs are complete for EK9 (at least for the first release),
+      there is a <i>grammar</i> for it and also a  <b>compiler</b> that is now in development.
+    </p>
+    <p>
+      So all the code examples you see in these web pages, will compile and will execute to produce the results
+      you would expect (using the old prototype compiler).
+      <b>But</b> the production compiler that is now in development is still incomplete.
+    </p>
+    <p>
+      But importantly; while the prototype compiler generates Java code that is then compiled to produce a runnable
+      application; no decision has yet been taken on whether to create <i>native binaries</i>, <i>wasm</i>,
+      transpile to javascript, use JVM byte code or just continue to generate Java.
+      It could be that MSIL or CIL is produced to run in Microsoft environments. <b>All</b> of these options
+      could be implemented! The EK9 compiler has the concept of a
+      <a href="commandline.html#target_architecture">target architecture</a>.
+    </p>
+    <p>
+      The internal structure of the compiler is such at it creates an <b>IR</b> that can then be
+      used to produce any type of output (even another intermediate form).
+      So if you've always wanted to do the low level code generation such as loop unrolling, register
+      optimisation, built in memory management and all the other things
+      needed in the final stages of compilation to produce a native binary; here is a blank canvas for you but
+      all the colours and brushed are provided.
+    </p>
+    <h5>Timing</h5>
+    <p>
+      So are you wasting your time reading this? Is this document on how to use the language premature?
+    </p>
+    <p>
+      EK9 has been through many phases of definition and redefinition from 2010 onwards in terms
+      of initial concept (all on paper). So if you're looking for something you can use in anger for production
+      delivery now - EK9 is <u>not ready</u>. But if you want to get in on the ground-floor and
+      <a href="https://github.com/stephenjohnlimb/ek9">contribute</a> what you can
+      - then yes this is a very good time to get started.
+    </p>
+    <p>
+      However; it was only in 2018 that the first grammar was actually written and even that has undergone
+      enormous change. But the EK9 language has now <i>found itself</i>. Basically this means that there have
+      been a few decisions taken that constrain, enable, restrict and link programming concepts together
+      (like DNA in a way).
+      This means that at a fundamental level the language has iterated through a number of steps (sometimes
+      retrograde) to find balance.
+    </p>
+    <p>
+      This might all sound a little peculiar, but now is the time to actually <u>define what the language is</u>
+      (and what it is not), before actually looking to move from prototype to production.
+      During this process many features and capabilities have been tried, removed, reintroduced and in some
+      case removed again; in general this is because they created some type of mismatch or contradiction
+      (even though some of those features were <u>really</u> desirable).
+    </p>
+    <p>
+      By documenting this now - <u>after</u> prototyping but <u>before</u> the first reference implementation; a
+      concrete target of what is acceptable as an EK9 source file has been defined. This should mean that the
+      documentation/requirements and real examples of EK9 code are created ahead of the first production
+      release (but let's not delude ourselves this is likely to take a <b>decade</b> or more).
+    </p>
+    <p>
+      In general; it has been noted that information/documentation, support, code examples and community play a
+      much more significant role in language adoption than the nature of the language itself.
+      While it is hoped that developers will find the language <b>compelling/elegant/succinct/powerful and fun</b>;
+      it is accepted and understood that it is really communities that create robust applications
+      and drive widespread adoption. With so many good programming languages developed in the last 10 years
+      alone (and more like <a target="_blank" title="Ecstasy" href="https://xtclang.blogspot.com">Ecstasy</a> in development); the language,
+      runtime and supporting tooling are going to have to be very, very good.
+    </p>
+    <p>
+      I have personally benefited throughout my whole working life from opensource code/tools and operating
+      systems.
+    </p>
+    <p>
+      Having used Pascal, C, C++, ADA, Java, Python, Javascript, KSH, CSH, BASH, Unix, applied many design
+      patterns and used a wide range of API's/Frameworks; I could see clear advantages in one over another in
+      specific areas.
+    </p>
+    <p>
+      But some good ideas had become too complex, ran out of steam, had special cases
+      or forced strange sequences of punctuation that just 'jarred'.
+      This is my attempt to forge several ideas together and contribute something back to opensource.
+    </p>
+    <p>
+      I'm sure there will be some developers that find the whole approach in EK9 'wrong minded', for some it will
+      be too big, for others the layout and syntax just won't feel right.
+      <a href="https://www.goodreads.com/author/quotes/64947.Bjarne_Stroustrup">Bjarne Stroustrup</a>
+      has some comments on languages that are worth reading and there are <a href="#other_languages">other
+      languages</a> available if EK9 does not feel right for you.
+    </p>
+    <h5 id="licensing">Licensing</h5>
+    <p>
+      From the outset it needs to be understood that the EK9 language, the reference implementation of the
+      compiler, tests, documents (such as this site), standard libraries and package manager
+      are all opensource and that <u>no monetary payment will ever be required to access the source code</u>.
+    </p>
+    <p>
+      All contributions are of course subject to copyright (for the author making the contribution). So if you
+      contribute to EK9 in some form or other, your contribution is yours and copyright is yours.
+      Clearly with opensource layer upon layer of contributors modify, improve and augment
+      content, so the final state of any source/test/document is not any single persons copyright, but your
+      changes are.
+    </p>
+    <p>
+      The EK9 language has <a href="TradeMarkCert.pdf">trade mark</a>. This is used to determine what
+      constitutes a valid EK9 source code file; as this has to be controlled and managed for compatibility
+      reasons. Services to provide additional resources, documents, training and building stable releases;
+      can all be commercial and paid for, if there is a market for such activity.
+    </p>
+    <p>
+      This means that other people/companies will be able to run a commercial business based on the labour and
+      effort of all those that have contributed to this opensource language. <b>But</b> copyright/credits must
+      be retained.
+    </p>
+    <p>
+      It is hoped that this approach honours the true nature of opensource development, allows for widespread
+      contributions but also enables a viable and reasonable commercial market to grow and provide value for
+      all (while not always in terms of monetary value).
+    </p>
+    <p>
+      To have wide-spread adoption and hence the biggest impact there is a symbiotic relationship between
+      opensource and commercial activities. As mentioned before I've built my whole career on learning
+      languages and applying those skills working/contracting for companies. Commercial activities are not
+      inherently <b>evil</b> or bad, but they have to be controlled and balanced; but neither do we live in
+      a socialist/communist idealised world (counter to human nature).
+    </p>
+    <p>
+      <u>The <b>MIT</b> license is therefore the right opensource license to adopt.</u>
+    </p>
+    <p>
+      In short; you will always have free access the contributions made to this opensource language with the
+      ability to build it all yourself.
+      EK9 source is made available under the <a href="LICENSE.txt">MIT opensource license</a>.
+    </p>
+
+    <h2 id="structure">EK9 language</h2>
+    <p>
+      EK9 is a compiled language that is strongly typed (there was not an EK1...EK8 and there won't be an EK10).
+    </p>
+    <h4 id="new_starters">New Starters</h4>
+    <p>
+      The section on EK9 programming language
+      <a href="structure.html">structure</a> is a good starting point. EK9 has all the normal constructs and
+      concepts of most <a href="https://en.wikipedia.org/wiki/Imperative_programming">imperative languages</a>
+      this includes <a href="basics.html">basics</a> for variable declarations and how to use code comments.
+    </p>
+    <p>
+      Read the section on basic <a href="builtInTypes.html">types</a> that are included in EK9 (<i>Integers</i>,
+      <i>Strings</i>, etc) this; in conjunction with the section on
+      <a href="operators.html">operators</a> should enable you to complete some basic processing.
+      EK9 supports different types of operators - including a 'fuzzy match'.
+    </p>
+    <p>
+      Look at the <a href="flowControl.html">flow control</a> section to understand how <i>if/else</i>,
+      <i>for/do/while</i> and <i>switch</i> directives work. These are similar to most languages;
+      but they have some very powerful additions out-of the-box (guarded assignments
+      and multiple values in switch). The section on <a href="exceptions.html">exceptions and error handling</a>
+      outlines the general approach for dealing with error conditions and again is similar to other
+      languages with <i>Exceptions</i>. But EK9 has the idea of <b>unset</b> (a bit like an Optional) baked into
+      every type.
+    </p>
+    <p>
+      If you've used other languages like Pascal, C, Java or C# you'll be able to skim read these sections (but
+      take note of the additional features available) and move on to the more interesting constructs such as
+      <a href="records.html">Records</a>, <a href="classes.html">Classes</a>,
+      <a href="functions.html">Functions</a> and <a href="traits.html">Traits</a>.
+      As an experienced developer much of this will be very familiar - maybe not in syntax; but in concept.
+      The same or similar concepts exist in most OO languages.
+      Though you might find <i>first class</i> functions new and refreshing and these have turned out to be
+      essential to unlock other capabilities like <a href="streamsAndPipelines.html">pipeline processing</a>.
+    </p>
+    <p>
+      If you get that far and the syntax layout and approach seems to fit the way you'd like to work, then EK9
+      has <u>much more</u> to offer in the same vein.
+      If the structure and the approach of this language does not feel right for you, take a look at other
+      languages instead.
+    </p>
+    <h4 id="experienced_developers">Experienced Developers</h4>
+    <p>
+      Both <i>functions</i> and <i>classes</i> are treated on an equal footing, they were both built into the
+      language from the outset and complement each other.
+    </p>
+    <p>
+      One of the main features of EK9 is the <b>lack of null</b>.
+      EK9 only uses Objects (not primitives) and any type can have value or can be <b>unset</b>. This means
+      that the value is not actualy valid. So, as an example a <b>Float</b> value divided by zero would result in
+      a value that is <b>unset</b>. Subsequently any use of that <b>unset</b> value would result in the operation
+      result also being <b>unset</b>.
+      EK9 even has specific <a href="operators.html#coalescing">operators</a> that are designed to work with
+      <b>unset</b> values.
+    </p>
+    <p>
+      There are a number of new quite powerful ideas that as an experience developer you may find very useful.
+      These may fill a gap in how you've solved problems in the past.
+      It is in this area EK9 adds more value with <a href="composition.html">extension by composition</a>; this
+      pulls an architectural design approach into the language itself. The effect of this is quite surprising in
+      terms of how you develop reusable elements that can be composed together rather than just relying on
+      <a href="inheritance.html">inheritance</a>. This allows for much more re-use.
+    </p>
+    <p>
+      As a modern language you would expect <a href="inheritance.html">extension through inheritance</a> and EK9
+      does include this, but with EK9 you can also extend <a href="functions.html">functions</a> in a
+      similar manner, indeed you can create an <i>abstract function</i>. With this approach it is possible to
+      define something similar (but not the same) as a <i>lambda</i> with
+      <a href="dynamicClasses.html">dynamic classes</a> and
+      <a href="dynamicFunctions.html">dynamic functions</a>.
+    </p>
+    <p>
+      You can read the section on
+      <a href="#readable_pipeline">readable pipelines</a> and
+      <a href="#obfuscated_pipeline">pipelines if lambdas were used</a> to understand why pure
+      <i>lambdas</i> have <b>not</b> been included in EK9.
+      This is by design, but it is likely to be a capability missed by some developers.
+    </p>
+    <p>
+      Functions can be passed around as variables; <i>delegates</i> as Microsoft would call them. This single
+      idea has enormous implications when combined with <i>classes</i>; as it enables variation in functionality
+      on a per object instances when a <i>method</i> can delegate functionality to a <i>function</i>.
+      This means that to vary functionality in a class it is not always necessary to <i>extend</i> the class,
+      just providing a different delegate <i>function</i> for specific methods means its behaviour can change.
+      This, in combination with <i>traits</i> enables much more flexibility through
+      <a href="composition.html">extension by composition</a>.
+    </p>
+    <p>
+      It is hoped that even the few concepts covered so far will provide experienced developers with additional
+      mechanisms they can use to solve problems in a
+      more elegant, succinct and reusable manner.
+    </p>
+    <h4 id="main_additions">Whetting your appetite for more</h4>
+    <p>
+      While the above capabilities are similar to other languages, the areas below tend to start to
+      diverge into something EK9 specific.
+    </p>
+    <p>
+      The functional design approach of <b>pure</b> (immutability/no side effects) has also been built in to the language
+      right from the start. This means that <b>pure</b> scopes are very limited in assignments and mutations of
+      data. This has enormous implications as it removes the need for explicit immutable data structures and
+      <i>final</i>, <i>const</i> or other keywords.
+    </p>
+    <p>
+      For example the <b>+</B> operator is <b>pure</b> which means its semantics of not being a mutator have to be
+      preserved. Whereas the <b>+=</b> operator is not <b>pure</b> and can/should mutate state.
+    </p>
+    <p>
+      EK9 does include <a href="generics.html">Generic/Template</a> based development see
+      <a href="https://en.wikipedia.org/wiki/Generic_programming">this article</a> for details if you are unsure
+      what these terms mean.
+      There are some limitations on how generics/templated types can be developed, defined and used, again these
+      are pragmatic restrictions designed to limit complexity. Some developers may find this
+      <u>too limiting</u>. But for most developers this should provide a set of capable constructs to write code
+      that can be used with a range of types
+      in a <a target="_blank" title="Parametric Polymorphism" href="https://en.wikipedia.org/wiki/Parametric_polymorphism">parametric polymorphic</a> manner.
+    </p>
+    <p>
+      EK9 comes with a number of generic types out-of-the-box.
+      These are <u>not</u> an after thought, they have been designed in from the outset - in fact
+      the language needs them, they are:
+    </p>
+    <ul>
+      <li><b>Optional</b> - either a single Object held or empty</li>
+      <li><b>List</b> - just a list of objects that are all the same type</li>
+      <li><b>Dict/DictEntry</b> - like Map or Dictionary in other languages</li>
+      <li><b>Iterator</b> - normally used with one of the above to get each element in turn</li>
+      <li><b>PriorityQueue</b> - much like a circular buffer</li>
+    </ul>
+    <h5>Folding design patterns into the language</h5>
+    <p>
+      There will be some developers and programming language theorists that will argue that programming languages
+      should be minimal.
+    </p>
+    <h6>Criticism</h6>
+    <p>
+      Creating a larger set of keywords or concepts will expand the amount a developer
+      needs to learn to be productive.
+      Drawing design patterns and frameworks into
+      the language should <b>not be done</b>; as patterns tend to come in and out of favour (or trend).
+      There is much to be said for this point of view and there are many (most in fact) languages that take
+      this approach. You can use Lisp or Clojure if you prefer to stick with a language with a minimal number of
+      keywords and constructs.
+    </p>
+    <h6>Reasoning</h6>
+    <p>
+      But there are some powerful reasons to go against these recommendations in a controlled and careful manner.
+      See the sections below on the details of which patterns have been included.
+      Please remember it is <b>not compulsory</b> to use these features and capabilities! If you are developing
+      <i>web services</i> for example you are going to have to deal with <u>HTTP verbs</u> so including those in
+      the
+      language itself means that you don't need to learn a third party API. In either case you had to know
+      the <u>verbs</u>. Clearly if you are not developing web services you just don't need to learn the
+      <u>verbs</u> <b>at all</b>.
+    </p>
+    <h5>Dispatcher</h5>
+    <p>
+      These next set of ideas pull design patterns into the language itself.
+      Some of these capabilities do exist in terms of third party API's or techniques,
+      <a href="https://en.wikipedia.org/wiki/Swift_(programming_language)">Swift</a> being an exception in terms
+      of the following <a href="advancedClassMethods.html">dispatch</a> idea - as it does include it.
+    </p>
+    <p>
+      The introduction of a <i>dispatcher</i> method on a <i>class</i> is quite a good way to handle
+      <a href="https://en.wikipedia.org/wiki/Polymorphism_(computer_science)">polymorphic types</a>. In short;
+      you write a single method that is marked as a <u>dispatcher</u> that accepts some <i>base type</i> or
+      <i>trait</i>
+      and then you write multiple methods with the same name but that accept <i>classes</i> that extend the
+      <i>base type</i>. The EK9 code then works out which method is the best match when you actually call
+      the <i>dispatcher</i> method with some parameter.
+    </p>
+    <p>The real advantage of this approach is that it removes the need for any sort of <b>casting</b> or
+      <b>instance of</b> checking.
+      In fact the syntax to <b>cast</b> or determine the <b>type</b> of an <i>Object</i> does not even exist in
+      EK9 and neither does the word <b>null</b>. EK9 provides other mechanisms that mean these concepts/ideas
+      do not need to be used.
+    </p>
+    <p>
+      As you can now see without the <i>dispatcher</i>; EK9 would have been <b>forced</b> to introduce
+      <b>casting</b> and <b>instance of</b>.
+      Without operator overloading and the introduction of <b>? (is set)</b> it would have to use <b>null</b>.
+    </p>
+    <h5>Dependency Injection (DI) and Inversion of Control (IOC)</h5>
+    <p>If you've used <i>Spring</i> in the past or use it now, but feel its gone a little too far from its original
+      idea of <a target="_blank" title="IOC" href="https://en.wikipedia.org/wiki/Inversion_of_control">IOC</a> and
+      <a target="_blank" title="DI" href="https://en.wikipedia.org/wiki/Dependency_injection">Dependency Injection</a> but would
+      like to use it in a more limited and constrained manner; then EK9 has a pragmatic approach with
+      <a href="components.html">components/applications</a>
+      and <a href="dependencyInjection.html">dependency injection</a> which is built in.
+    </p>
+    <p>
+      This is the main reason EK9 does not have any concept of <b>static</b> or <b>global</b> variables, by using
+      IOC/DI there is no need for those two ideas to be introduced. Clearly it is still possible to access
+      a <b>singleton</b> via the DI but it is more loosely bound.
+      This mechanism also complements the <i>constants</i> <b>construct</b> in enabling more complex
+      <i>Object</i> instances to be used throughout the software being developed.
+    </p>
+    <p>
+      EK9 also enables
+      <a target="_blank" title="AOP" href="https://en.wikipedia.org/wiki/Aspect-oriented_programming">Aspect Oriented Programming (AOP)</a>
+      to be used in conjunction with the two concepts above. This has been designed
+      to dovetail in with the <a href="dependencyInjection.html">dependency injection</a> rather than being a
+      separate tool kit. It enables the developer
+      to intercept methods calls made on a <i>component</i> and complete some processing both before and after a
+      <i>method</i> call.
+    </p>
+    <p>
+      None of the above concepts are new - they are all available in different languages/API's and toolkits.
+      EK9 brings them together with a simple syntax and actually compiles the code. By incorporating IOC/DI;
+      EK9 has simplified the nature of variable scope;
+      removing global variables that are very fixed in naming. It is still possible to have a global variable
+      <u>if you have to</u>, but <u>only</u> via IOC.
+    </p>
+    <p>
+      Importantly the IOC and Aspect Oriented language features have been deliberately <u>watered down</u>
+      and have had their scope of applicability constrained. This is designed to prevent overuse.
+      Again; if this capability is too minimal then sticking with languages
+      like Java or Kotlin and using Spring might suit you as a developer more than using EK9.
+    </p>
+    <h5>Defaulting Constructors and Operators</h5>
+    <p>
+      The Java project <a target="_blank" title="Lombok" href="https://projectlombok.org">Lombok</a> adds Annotations so that quite a few methods
+      can be automatically generated.
+      This is quite a nice feature, but when you think about it; both 'Spring' and 'Lombok' are creating an
+      additional <i>programming language</i> on top of Java with <b>Annotations</b>.
+    </p>
+    <p>
+      Creating 'default constructors' and simple methods like 'toString' or 'hashCode' from the fields on the
+      <i>class</i> is not too bad an idea. But lots of <b>getters</b> and <b>setters</b>? Gives the feeling that
+      the <i>class</i> is being used a little like just a DTO.
+    </p>
+    <p>
+      EK9 provides simple syntax for a 'default constructor' and for generation of simple <b>operators</b>.
+      But it won't provide auto-generated <b>getters</b> and <b>setters</b>. Instead, the developer should use
+      the <i>record</i> <b>construct</b> to hold DTO values and compose those with the <i>class</i>, or write the
+      <b>getters</b> and <b>setters</b> if they really want those methods.
+    </p>
+    <p>
+      EK9 does include 'named argument parameters', so that Object construction is a little more clear, but
+      all arguments must be supplied (unlike languages like Python). But you can have multiple constructors,
+      if you have many parameters, then you should probably review your design or introduce
+      <a href="records.html">records</a> to group related data together (or better yet use composition with multiple
+      constructs).
+    </p>
+    <h5>A drunkard's walk?</h5>
+    <p>
+      You may be thinking; "all of the above design patterns; no <b>null</b>; strange syntax and very specific
+      <b>constructs</b> where just a <i>class would do</i>", this is a drunkard's walk? Picking up this and that
+      on the way in an incoherent and haphazard manner. Does it have every 'buzz word', technique and paradigm
+      possible in it?
+    </p>
+    <p>
+      Most large scale software uses many of the above techniques/ideas in some form or other; but it is always
+      implemented in an inconsistent manner or requires so many additional dependencies that take real work to
+      fuse together. Remember if you don't need a capability (like a tool in a tool box) don't use it.
+    </p>
+    <h4>New/revisited concepts</h4>
+    <p>
+      The ideas that follow are a reworking of existing concepts not always found in programming languages
+      directly; but found in Unix/Linux shell environments or third party components and API's.
+    </p>
+    <h5 id="pipeline_processing">Pipeline processing</h5>
+    <p>
+      Many OO API's have introduced the idea of chaining methods, filtering, mapping and reducing with just
+      normal class methods in what's called
+      <a href="https://en.wikipedia.org/wiki/Method_chaining">method chaining</a>
+      or a <a href="https://en.wikipedia.org/wiki/Fluent_interface">fluent interface</a> both of which are
+      <u>similar in concept</u> to the creation by
+      <a href="https://en.wikipedia.org/wiki/Douglas_McIlroy">Douglas McIlroy</a> called a
+      <a href="https://en.wikipedia.org/wiki/Pipeline_(Unix)">pipeline</a>
+      for processing text files on the Unix operating system (really a very clever idea).
+    </p>
+    <p>
+      So the idea of <i>streaming</i> Objects and <i>streaming/piping</i> file contents will be familiar to many
+      developers.
+    </p>
+    <p>
+      EK9 combines both of these concepts and
+      <a href="https://en.wikipedia.org/wiki/Functional_programming">functional</a>
+      programming style together with the <a href="https://wiki.haskell.org/Monad">Monad</a>
+      type <u>concept</u> from the Haskell language.
+    </p>
+    <p>
+      The purpose is to enable a stream of Objects (and Function
+      delegates) to be sent through
+      a notional <i>processing pipeline</i>; whereupon a number of <i>commands</i> (listed below) can be applied
+      in conjunction with (in some cases) a <i>function</i> to control either the flow or to transform
+      the contents or type of Object that continues down the pipeline.
+    </p>
+    <p>
+      The streaming mechanism uses the pipe '<b>|</b>' symbol for joining parts of the pipeline just like Unix;
+      and it includes:
+    </p>
+    <ul>
+      <li><b>filter/select</b> - should item continue along the pipeline?</li>
+      <li><b>map</b> - transform item into an item of a different type.</li>
+      <li><b>sort</b> - order all items with a function and pass along the pipeline.</li>
+      <li><b>group</b> - use a function to group items.</li>
+      <li><b>join</b> - accept two items and join them returning a new item of the same type.</li>
+      <li><b>split</b> - use a function to decide if input has to be split.</li>
+      <li><b>uniq</b> - ensure all items passing through are unique.</li>
+      <li><b>tee</b> - take a side copy of the pipeline into another terminal node.</li>
+      <li><b>head</b> - limit the output to first 'n' items.</li>
+      <li><b>tail</b> - limit the output to the last 'n' items.</li>
+    </ul>
+    <p>But also adds:</p>
+    <ul>
+      <li><b>skip</b> - ignore the first 'n' items and then output all the rest.</li>
+      <li><b>flatten</b> - if the item is some type of collection, this streams out each item in that collection.</li>
+      <li><b>call</b> - if the item in the pipeline is a function - it is called.</li>
+      <li><b>async</b> - if the item in the pipeline is a function it is called asynchronously.</li>
+    </ul>
+    <p>
+      The terminal part of a pipeline can be used to <i>collect</i> the results.
+    </p>
+    <p>
+      If you've ever used Unix/Linux shell commands like '<b>ps -fe | grep mysql</b>' then you will feel right at
+      home with EK9 <b>pipelines</b>.
+    </p>
+    <p>
+      All of the above are described and explained in the section on
+      <a href="streamsAndPipelines.html">Streams/Pipelines</a>; you may find this set
+      of capabilities one of the main reasons to consider EK9. It removes the need for complex nested <i>for</i>
+      loops and iteration over collections (though this can still be done).
+      It presents the processing in a readable format; and it enables re-use of functions that have a
+      simple single testable (and <i>pure</i>) purpose.
+      But best of all it removes the need for endless <i>null</i> checking (idea from Haskell). EK9 does not
+      really use <i>null</i>, it employs the idea of <b>is set</b>; see the section on
+      <a href="operators.html">operators</a> for more details on this.
+    </p>
+    <p>
+      This <i>pipeline</i> processing concept has been introduced to EK9 for a couple of reasons. First, the
+      Unix concept of the pipeline has remained in place since the 1970's; so as a concept
+      it has proven its worth and is very valuable. The syntax is familiar, easy to read and understand; but
+      is also terse and to the point.
+    </p>
+    <p>
+      The <i>functional programming</i> design approach is now once again more accepted in software development
+      (for some it never went away).
+      From the <i>Object-Oriented</i> world; the myriad of different methods put on different API's in other
+      languages to accomplish the same or very similar functionality in terms of
+      Object streaming leads to confusion/repetition/inconsistency and is different from API to API.
+    </p>
+    <p>
+      This is an <b>important</b> point (with which many may disagree) an Object-Oriented technology and
+      technique has been <u>misused</u> to create a functional programming flow. It's like using a
+      screw-driver as a chisel; you can; but why not just use a chisel if that's what's needed?
+    </p>
+    <p>
+      Pulling these ideas in to the language together with the (Haskell concepts of <i>Maybe/Monad</i>) <b>is
+      set</b> nature of Objects and <i>Generics</i>
+      (containers of zero or more Objects) enables a standard syntax to be established.
+      It also promotes re-use of <i>functions</i> as solid testable building blocks.
+    </p>
+    <p>
+      There is no attempt here to state that a more <i>functional</i> approach is better or worse than an
+      <i>Object-Oriented</i> approach; each has strengths
+      and weaknesses. EK9 attempts to enable the developer to use the strength of each approach in
+      coordination/harmony.
+    </p>
+    <h6>Threads</h6>
+    <p>
+      If you are a more experienced developer you may be thinking does EK9 use <b>Threads</b> or
+      <b>Cooperative multi-tasking</b> (like Javascript). EK9 assumes <b>Threaded</b> implementations and
+      as you can see in the above <b>pipeline</b> outline introduces <b>async</b>. This enables multiple
+      functions to be called at the same time (asynchronously).
+    </p>
+    <p>
+      This is not the only place that <b>Threads</b> are alluded to. In the
+      <a href="networkTypes.html#tcp">Network Types</a> section the TCP Server and to some degree the UDP server
+      are designed to accept multiple concurrent clients (as you would expect). The capability
+      of <a href="standardTypes.html#signals">signal handling</a> also implies multi-threading.
+      To support this implied multi-threading EK9 does have
+      a <a href="networkTypes.html#mutex">Mutex Lock</a> built in, should you need to use it
+      (clearly where possible avoid
+      simultaneous access to data structures - as it leads to complexity, defects and performance issues).
+    </p>
+    <p>
+      There are no built in <b>promises</b> or <b>await</b> keywords. If you want to do multiple tasks
+      simultaneously then stream pipelines and <b>async</b> is the only way.
+    </p>
+    <p>
+      Without the idea of <b>Objects</b> and <b>Generics</b> there could be no <b>Lists</b> and without
+      <b>Lists</b>, <b>Functions</b>
+      and <b>is set</b> there could be no <b>Pipelines</b>. Each <b>construct</b> is equally important, but each
+      is used in an appropriate way.
+    </p>
+    <h6 id="streams_preview">Preview</h6>
+    <p>
+      Here is a sneak preview; so you can really see how EK9 has forged Unix pipeline ideas with Functional
+      Programming, Monads and an Object-Oriented approach.
+      In this example <i>cat</i> is the command to start streaming a collection of something,
+      <i>people</i> is a List of Person (Person is a <i>record</i>), <i>lastNameAndDob</i>,
+      <i>lastNameComparison</i> etc are all functions and <i>stdout</i> is an
+      instance of the <i>Stdout</i> class that can be used to print Strings to the terminal output.
+    </p>
+    <h6 id="readable_pipeline">Readable pipeline</h6>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="gr">cat</span>
+          <span class="nv">people</span>
+          <span class="o">|</span>
+          <span class="gr">uniq</span>
+          <span class="gh">by</span>
+          <span class="nv">lastNameAndDob</span>
+          <span class="o">|</span>
+          <span class="gr">sort</span>
+          <span class="gh">with</span>
+          <span class="nv">lastNameComparison</span>
+          <span class="o">|</span>
+          <span class="gr">group</span>
+          <span class="gh">by</span>
+          <span class="nv">personProfession</span>
+          <span class="o">|</span>
+          <span class="gr">sort</span>
+          <span class="gh">by</span>
+          <span class="nv">professionComparison</span>
+          <span class="o">|</span>
+          <span class="gr">map</span>
+          <span class="gh">with</span>
+          <span class="nv">personToString</span>
+          <span class="o">&gt;</span>
+          <span class="nv">stdout</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      This summary should give you some idea of what EK9 has to offer. The syntax above is very simple to
+      understand and the pipeline flow is obvious in terms of readability and concept.
+    </p>
+    <p>
+      There is an alternate layout for longer pipelines which makes the pipeline even easier to read.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="gr">cat</span>
+          <span class="nv">people</span>
+        </li>
+        <li>
+          <span class="o">&nbsp;&nbsp;|</span>
+          <span class="gr">uniq</span>
+          <span class="gh">by</span>
+          <span class="nv">lastNameAndDob</span>
+        </li>
+        <li>
+          <span class="o">&nbsp;&nbsp;|</span>
+          <span class="gr">sort</span>
+          <span class="gh">with</span>
+          <span class="nv">lastNameComparison</span>
+        </li>
+        <li>
+          <span class="o">&nbsp;&nbsp;|</span>
+          <span class="gr">group</span>
+          <span class="gh">by</span>
+          <span class="nv">personProfession</span>
+        </li>
+        <li>
+          <span class="o">&nbsp;&nbsp;|</span>
+          <span class="gr">sort</span>
+          <span class="gh">by</span>
+          <span class="nv">professionComparison</span>
+        </li>
+        <li>
+          <span class="o">&nbsp;&nbsp;|</span>
+          <span class="gr">map</span>
+          <span class="gh">with</span>
+          <span class="nv">personToString</span>
+        </li>
+        <li>
+          <span class="o">&nbsp;&nbsp;&gt;</span>
+          <span class="nv">stdout</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      Readability/Testability is the main reason EK9 does <u>not</u> promote in-line <i>lambdas</i>.
+      The implementation detail of <i>lastNameAndDob</i> is shown below (the '$' is just the operator to
+      return a <i>String</i> version of the variable - the person's last name and date of birth).
+    </p>
+    <p>
+      The <u>column</u> layout (and short line lengths) always makes code easier to read. Albeit at the
+      cost of longer <i>methods</i> and <i>functions</i>.
+    </p>
+
+    <h6>'lastNameAndDob' function implementation</h6>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="gr">$</span>
+          <span class="nv">p.last</span>
+          <span class="gr">+</span>
+          <span class="nv">" "</span>
+          <span class="gr">+</span>
+          <span class="gr">$</span>
+          <span class="nv">p.dob</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      If in-line <i>lambdas</i> had been allowed in the pipeline itself, it would have been necessary to state
+      what the name of the variable being accepted was (in the case above 'p') and some new operator '=&gt;'.
+      So an excerpt of the above example would now read as:
+    </p>
+    <h6 id="obfuscated_pipeline">Obfuscated pipeline (<b><u>not supported</u></b>)</h6>
+    <div class="highlight bad-ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="gr">cat</span>
+          <span class="nv">people</span>
+          <span class="o">|</span>
+          <span class="gr">uniq</span>
+          <span class="gh">by</span>
+          <span class="nv">(p) => </span>
+          <span class="gr">$</span>
+          <span class="nv">p.last</span>
+          <span class="gr">+</span>
+          <span class="nv">" "</span>
+          <span class="gr">+</span>
+          <span class="gr">$</span>
+          <span class="nv">p.dob</span>
+          <span class="o">|</span>
+          <span class="gr">sort</span>
+          <span class="gh">with</span>
+          <span class="nv">lastNameComparison</span>
+          <span class="o">|</span>
+          <span class="gr">group</span>
+          <span class="gh">by</span>
+          <span class="nv">personProfession</span>
+          <span class="o">|</span>
+          <span class="gr">sort</span>
+          <span class="gh">by</span>
+          <span class="nv">professionComparison</span>
+          <span class="o">|</span>
+          <span class="gr">map</span>
+          <span class="gh">with</span>
+          <span class="nv">personToString</span>
+          <span class="o">&gt;</span>
+          <span class="nv">stdout</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      You will probably find you are <i>drawn into</i> the lastNameAndDob implementation part. That
+      <u>distracts</u> you from the overall flow of the pipeline! You then
+      <i>lose your place</i> in what the objective of the pipeline was; due to the distraction.
+    </p>
+    <p>
+      Now could you imagine seeing the full pipeline processing with all those implementation details exposed as
+      in-line <i>lambdas</i>
+      it would be much harder to comprehend, test, maintain and alter, never mind having to include more complex
+      expressions over multiple lines.
+    </p>
+    <p>
+      If each operation required <b>has to be a function</b> - it is now simple to write a unit test to check
+      that function works. If you in-line the functionality in a <i>lambda</i> you cannot test that part in
+      isolation, moreover no inline <i>lambdas</i> is re-usable. In general this leads to <u>copy-paste</u>
+      and lack of maintainability and is not
+      <b><a target="_blank" title="DRY" href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY</a></b>.
+    </p>
+    <p>
+      Hopefully you can see how the concepts of <i>generic</i> collections, <i>record/class</i> objects and
+      <i>functions</i> are combined; where each <b>construct</b> is used to its strength and
+      control/processing is passed between these concepts to create a solution that is <u>readable</u>,
+      <u>re-usable</u>, <u>simple</u>, <u>maintainable</u> and <u>strongly typed</u>.
+    </p>
+    <p>
+      The approach taken in EK9 leads to clarity of the pipeline and function re-use. The additional cost in terms
+      of writing the functions rather than in-line <i>lambdas</i> is <u>acknowledged and accepted</u>.
+    </p>
+    <h5 id="web_services">Web Services</h5>
+    <p>
+      As you would expect EK9 includes standard libraries to make calls to web resources using <b>GET, POST, PUT,
+      PATCH, HEAD</b> and <b>DELETE</b> with just
+      a simple call to a <i>WebResource</i>.
+    </p>
+    <p>
+      But it also has support built into the language to define web services/resources, i.e <b>HTTP</b> end
+      points. In general these sorts of higher level capabilities are provided by third party API's with bespoke
+      <u>Annotations</u>; but <b>HTTP</b> and specifically <b>REST/RESTful</b> web services are here to stay.
+      For more information on REST you can read the original dissertation by
+      <a href="https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm">Roy Thomas Fielding</a>
+      (Dr). It is also possible to use these same web service methods to implement <b>GraphQL</b>.
+    </p>
+    <p>
+      Those technologies that were once just an <u>aside</u> to mainstream programming are now a fundamental
+      building block. EK9 treats them as such and hence pulls them into the language itself.
+      Below is a quick preview of what that syntax looks like. This just shows a simple <b>GET</b>,
+      but the section on <a href="webServices.html">Web Services</a> shows the use of all the <u>verbs</u>. Make
+      sure to read the section on <a href="operators.html">operators</a> first as <b>POST</b> uses <b>+</b>
+      (<b>+=</b> could also be used for POST)
+      to support 'adding' new resources via <b>HTTP/REST/RESTful</b> web services; this fits in with the other
+      Object-Oriented approaches in EK9 to <u>collections</u>.
+    </p>
+    <p>
+      Clearly it is possible to go beyond <b>CRUD</b> (RPC) and implement level 3 REST with <b>HATEOAS</b>,
+      this is driven by actual content. EK9 just provides the basics with respect to HTTP and VERBS.
+    </p>
+    <pre id="web_service_example">
+#!ek9
+defines module introduction
+  defines service
+  
+    //define the service called 'Addresses' and map it to a URI of '/addresses'
+    Addresses :/addresses
+
+      //A GET  
+      listByPostCode() :/{postCode}/
+        -&gt;
+          postCode as String //Now assume PATH PARAM
+          acceptLanguage as String :=: HEADER "Accept-Language"
+        &lt;-
+          response as HttpResponse: () of HTTPResponse
+        //override HTTPResponse body, status and etag to complete processing.
+//EOF</pre>
+    <p>
+      The key concept in REST is the <b>resource</b> with EK9 you can use any type of content you wish and
+      serialise it from any of the
+      EK9 <b>constructs</b>. Typically, this would normally involve <i>records</i> and/or <i>classes</i> as these
+      are <b>constructs</b> that hold state.
+      But it would be quite possible to just employ a <b>String</b> that conformed to a particular layout if that
+      was appropriate (i.e. JSON).
+    </p>
+
+    <h2 id="philosophy">EK9 philosophy (or approach)</h2>
+    <p>
+      The general approach of the development of the EK9 language has been to blend many existing language
+      constructs, concepts, design patterns or even
+      syntax in some cases, in a gentle and cohesive manner.
+      This means that in many cases the EK9 approach to the same sort of language construct is not always as
+      powerful, terse or flexible as in other languages.
+    </p>
+    <p>
+      However when several of these approaches are linked in combination;
+      the overall solution is more explicit, simpler to develop, more powerful overall and re-usable;
+      but importantly it remains readable.
+      So in general the focus has been on trying to make the resulting code
+      <u>reasonably</u> terse, understandable and reusable - over just being quick to implement in the first
+      instance. Long-lived code is <u>always read many more times than it is written</u>.
+    </p>
+    <p>
+      The EK9 language is static/strongly typed; and errs on the side of readability, re-use and <b>composition</b>
+      over terseness. <a href="https://en.wikipedia.org/wiki/List_comprehension">List comprehensions</a> are
+      not included in EK9 for this very reason. The same functionality can be delivered with pipelines.
+    </p>
+    <h6>Lambdas</h6>
+    <p>
+      Another concrete example of this, is the approach to <i>lambdas</i>. EK9 enforces the separation of the
+      mechanism of implementation of the functionality from where and how it is used (i.e. abstraction).
+      So <u>including the details</u> of how to implement the lambda in the same context of <u>where it is
+      used</u> <b>flies</b> in the face of the EK9 approach. You can see the contrast here in the two examples
+      <a href="#readable_pipeline">function pipeline</a> and <a href="#obfuscated_pipeline">in-line lambda
+      pipeline</a>.
+    </p>
+    <p>
+      There is a slight compromise here through the use of abstract functions,
+      see <a href="dynamicFunctions.html#dynamic_function_example">DynamicMathExample2</a> as this does
+      in-line a dynamic function. It has to be a single line function however.
+    </p>
+    <p>
+      In a complex pipeline
+      it is best to be able to focus on the pipeline construct and not be distracted by low level implementation
+      details in the lambda.
+      Something like this simple operation (the proposed lambda) is very likely to be used
+      elsewhere so why not just define a function, so it can be reused.
+      If the operation is more complex; then even more reason write a function to describe what it does and
+      make it testable.
+    </p>
+    <p>
+      It is <u>accepted</u> that in-line <i>lambdas</i> will be missed by some developers. EK9 provides
+      <a href="dynamicFunctions.html">dynamic functions</a>; which are similar to lambdas in some ways.
+      You may ask why make the compromise for single line dynamic functions when they extend abstract functions,
+      well just look at examples
+      <a href="dynamicFunctions.html#dynamic_function_example">DynamicMathExample1 and DynamicMathExample2</a>.
+    </p>
+    <p>
+      Designing a programming language is all about compromises. Through the use of abstract functions
+      and their inferred input and output parameters, the main issue of having to declare incoming and
+      returning parameters is mitigated.
+    </p>
+    <p>
+      But only by writing some code in EK9 and doing the worked examples did it become obvious that this
+      compromised should be accommodated.
+    </p>
+    <h6 id="break_return">Break and Return</h6>
+    <p>
+      EK9 does not use <b>break</b> or <b>return</b> to facilitate flow control. <i>Functions</i> and
+      <i>Methods</i> can return values, but <i>when</i> the return takes place; it is always at the end of the
+      scope block. Loops cannot be curtailed early and <u>broken out of</u>. You may consider this an
+      unnecessary constraint and of course like most things in software design it is subject to much
+      heated debate.
+    </p>
+    <p>
+      The addition of <b>break</b> and <b>return</b> would add to the flow control statements of
+      <b>if/elseif/else</b> and <b>switch</b> and if we also consider <b>try/catch/finally and exceptions</b>
+      as a flow control statement; there are already different ways to control processing flow.
+    </p>
+    <p>
+      The reasoning (which you may not agree with) for omitting those keywords is as follows:<br/>
+      Developers wish to 'return' early is because the coding approach is a 'procedural' one, likewise
+      'breaking' out of a loop early is the same 'procedural/imperative' approach.
+    </p>
+    <p>
+      The biggest disadvantage of this
+      approach is the level of complexity in understanding the flow path through the whole code block
+      (by a human, not a compiler).
+    </p>
+    <p>
+      By including the additional flow control mechanisms; code becomes harder to reason, refactor and modify.
+      In some cases processing logic that is written towards the end of a <i>function</i> or
+      <i>method</i> is no longer executed (because of the early <b>break</b> or <b>return</b>). This means that
+      the developer has a much harder job to understand the flow logic (rather than just with pure structured code
+      <b>if/elseif/else</b> and <b>switch</b> for example).
+    </p>
+    <h6 id="break_return_alternative">Break and Return Alternative</h6>
+    <p>
+      Rather than take a procedural approach with many <b>for loops</b> and <b>if/else</b> logic; EK9 has the
+      concept of <a href="#pipeline_processing">pipeline processing</a>. Pipeline processing is the alternative
+      to using early returns and breaking out of loops. By using combinations of <i>filter</i>, <i>head</i>,
+      <i>tail</i> and <i>skip</i> - there is a standard syntax that means you can accomplish the same outcome;
+      but in a more maintainable, consistent and obvious syntax.
+      Though it is accepted that some developers may find this initially constraining/frustrating. This
+      approach does lead to a larger number of small discrete <i>functions</i>. This promotes <u>re-use</u>
+      and <u>unit testing</u> and by its very nature forces documentation in the form of a function name
+      (ideally a meaningful name).
+    </p>
+
+    <h6>User Interface</h6>
+    <p>
+      Many developers will want to use alternative front end frameworks and not adopt EK9 for front end
+      development.
+      This is the main reason the EK9 language has <a href="#web_services">Web Services</a> built in.
+      Existing front ends can remain as is; and just connect to an EK9 developed <b>microservice</b> using
+      <b>REST</b> or in a <b>RESTful</b> manner. Alternatively you can adopt <b>micro front-ends</b> and blend
+      different technologies for part of a web front end.
+    </p>
+    <p>
+      Front end development is really <b>still</b> in a state of flux, the native UI, mobile devices and WEB are
+      all pulling front end development in different directions (still in 2023). UI development can and probably
+      will remain out-side of the language itself. But through the use of HTTP and <i>Services</i> the language
+      can support the development UI tool kits.
+    </p>
+    <h6>SQL</h6>
+    <p>
+      You may be wondering why (or relieved that) EK9 does not attempt to abstract a data persistence layer.
+      The main reason for this is that data persistence in the form of SQL tables present an inherent
+      <u>mismatch</u> in terms of Objects (EK9 is also not just 'OO' focused).
+      Moreover, with the rise of <b>No SQL</b> databases there are alternative persistence mechanisms with very
+      different semantics and concepts.
+
+      Do <b>not</b> assume that the <i>record</i> <b>construct</b> in EK9 always equates to a <u>record</u> in a
+      database table. It could if that is what the developer intends; but it does not have to be. The <i>record</i>
+      <b>construct</b> can represent any aggregate of data, this could be pulled together from a wide range of
+      sources.
+    </p>
+    <p>
+      With the rise of technologies like <b>GraphQL</b>, <b>micro front-ends</b> and <b>microservices</b>; data
+      can be retrieved from different repositories. So assuming that <b>all</b> data will be held in a single
+      monolithic database is not wise.
+    </p>
+    <p>
+      Experience has shown that introducing something like an abstraction layer for SQL does have immediate
+      benefits; but for larger scale software
+      with a long life-time that incorporates OLTP and BATCH type functions, use of native SQL (or the NoSQL
+      equivalent) is almost always inevitable.
+      This then leads to writing and rewriting the same or similar functionality in both the abstracted form and
+      SQL/NoSQL (not <b><a target="_blank" title="DRY" href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY</a></b>).
+    </p>
+    <p>
+      Moreover it means you cannot use pure SQL/NoSQL resources both written and personnel to improve, optimise
+      and debug database queries. The abstraction layer for database interactions almost always leads to
+      needing to see what SQL/NoSQL the abstract layer generated for debugging or performance issues.
+    </p>
+    <p>
+      Therefore EK9 does <b>not</b> have a <u>hibernate</u> layer. Just as with <b>HTML/CSS</b>; EK9 accepts
+      the fact that most developers
+      will (and will want to) use <b>SQL/NoSQL</b> in the dialect of their choice for the database of their
+      choice.
+    </p>
+    <h6>Libraries</h6>
+    <p>
+      While it is hoped that a very wide range of libraries will be developed for EK9 it is also understood that
+      many systems are being developed as <b>microservices</b>.
+      With each service being written in a language appropriate for the functionality and development team. The
+      enforced creation of very large monolithic applications just to be able to re-use existing libraries is
+      now behind us. EK9 <b>does not</b> define discovery services or even mechanisms to announce the presence
+      of a microservice. This activity is considered to be part of the configuration, management and deployment
+      of software.
+    </p>
+    <p>
+      As EK9 is designed to fit in with other languages and services it is expected that 'DevOps' staff will
+      have their own preferred way to deploy and manage microservices. For example the developer of a
+      microservice could create the service so that is can be <u>command line</u> or <u>environment variable</u>
+      driven, so the port it services can be configured. This gives the 'DevOps' staff a
+      familiar and obvious mechanism to configure and start the microservice. The use of configuration files
+      for a service should only be considered then; if there are many options for configuration.
+    </p>
+    <p>
+      Perhaps a <b>configuration data microservice</b> should be considered, this could provide reference
+      configurations for some microservices and again breaks a single microservice down into two (or more).
+      If the same configuration is applied to all instances of a <u>customer</u>
+      microservice for example, then all instances of the microservice have access to the configuration. This also
+      means that the amount of configuration required to start each instance is minimised.
+    </p>
+    <p>
+      EK9 is <b>not prescriptive</b> on how application/microservice configuration is managed; and importantly it
+      does not introduce yet more diverse concepts and ideas for software deployment and management.
+    </p>
+    <h3>Conclusion</h3>
+    <p>
+      The EK9 language has been developed over a number of years by looking at what techniques/technologies work
+      and what don't. It is hoped that the syntax, mechanisms and layered approach in EK9 will provide
+      developers with a range of different tools. This should enable software to be developed in a
+      flexible, pragmatic, maintainable and clear fashion.
+    </p>
+    <p>
+      Clearly there will be some developers with similar experiences that may have drawn the same
+      conclusions. There will be some that strongly <b>disagree</b> with the direction this language has taken.
+      There is ample choice of language for all, it is best to select one that suits your experience, nature
+      and the project requirements.
+    </p>
+    <p>
+      The very nature of many larger applications is now one of <b>microservices</b>; in some cases running
+      in containers being fronted by caching, load-balancers and façades.
+    </p>
+    <h4>Finally</h4>
+    <p>
+      It is accepted that the EK9 language is <u>big</u> and is someways quite a departure from existing
+      languages. But as stated before, to gain wide-spread adoption it has to provide real and significant
+      benefits in comparison to other languages. It can't be just "a bit easier/better here and there".
+    </p>
+    <p>
+      Most popular languages gain popularity not through syntax, but by solving a major development issue or
+      finding a <b>niche</b>. It's not yet clear how EK9 can gain popularity. Whilst the syntax and constructs
+      do provide developers with ways to express themselves; this is not likely to be sufficient. It really needs
+      a compelling set of API's to be developed that provide value to developers.
+    </p>
+    <p>
+      Hopefully you will notice that the overall layout has a number of general aspects to it.
+    </p>
+    <ul>
+      <li>White space enable grouping focus</li>
+      <li>Most code exists in the first 80/120 characters from the left-hand side of the source</li>
+      <li>Indentation structure make it obvious where the code flow will go</li>
+      <li>It is not <b>textually dense</b> there is lots of white space</li>
+      <li>Exceptions are the <b>only</b> early way out of a code block</li>
+      <li>The &rarr; clearly show processing data flow 'into' something</li>
+      <li>The &larr; clearly shows processing data flow 'out of' something</li>
+      <li>Punctuation is primarily focused around 'operators' <b>not blocks of code</b></li>
+    </ul>
+    <p>
+      Initially when you look at the code examples; it might take you a while to get your
+      'eye in'. Hopefully your brain will suddenly get used to indentation and &rarr; and &larr; and
+      the data processing flow will just visually 'click'.
+    </p>
+    <p>
+      You should find you can 'step back' from the code without reading the words and just 'see' the structure -
+      like focusing on shape of woods rather than each tree.
+      It sounds a bit hippy and new-age, but there has been real focus on creating a syntax and file layout
+      that is pleasing on the eye and aims to make code readable for humans
+      (indentation, columns, structure and direction).
+    </p>
+    <p>There has been a focus on <b>operators</b> as these bring consistent semantic meaning;
+      these concepts are taught in schools from an early age. i.e. the mathematical operators of
+      <b>+/-</b> for example. This solves quite a few <b>naming</b> and <b>semantic</b> issues that lanaguages
+      without operators can suffer from.
+    </p>
+    <h3>Next Steps</h3>
+    <p>
+      Go to the section on <a href="structure.html">structure</a> for much more detail on the <b>constructs</b>
+      outlined above.
+    </p>
+    <h2 id="other_languages">Other Languages</h2>
+    <p>There are many other languages that might be more appropriate for specific programming tasks. So before
+      looking into EK9 its probably worth looking at what sort of target solution you are looking to develop.</p>
+
+    <h3>Compiled to produce native applications</h3>
+    <ul>
+      <li><a href="https://en.wikipedia.org/wiki/The_C_Programming_Language">C</a> - Suitable for low level
+        programming device drivers/operating systems with good performance
+      </li>
+      <li><a href="https://en.wikipedia.org/wiki/C%2B%2B">C++</a> - Similar to C but Object-Oriented in nature,
+        quite a steep learning curve but very capable.
+      </li>
+      <li><a href="https://golang.org">Go (golang)</a> - A modern language with C like aspects; with built-in
+        memory management, again high performance
+      </li>
+      <li><a href="https://en.wikipedia.org/wiki/Rust_(programming_language)">Rust</a> - Similar in some ways to
+        C/C++ and Go but with more of a focus on concurrent programming
+      </li>
+    </ul>
+
+    <h3>Compiled and strongly typed languages that use a runtime</h3>
+    <ul>
+      <li><a href="https://en.wikipedia.org/wiki/Java_(programming_language)">Java</a> - A good Object-Oriented
+        programming language, limited in someways in Functional/Generic aspects.
+      </li>
+      <li><a href="https://en.wikipedia.org/wiki/Scala_(programming_language)">Scala</a> - Builds on top of Java
+        and provides more of a functional programming approach with a more concise syntax.
+      </li>
+      <li><a href="https://en.wikipedia.org/wiki/Kotlin_(programming_language)">Kotlin</a> - Similar (though not
+        in syntax) to Scala; Kotlin really extends Java and can re-use many Java packages
+      </li>
+      <li><a href="https://dart.dev/">Dart</a> - A cross
+        development platform with a very compelling 'Flutter' UI API.
+      </li>
+      <li><a href="https://en.wikipedia.org/wiki/C_Sharp_(programming_language))">C Sharp</a> - A very good
+        Object-Oriented programming language provided by Microsoft
+      </li>
+    </ul>
+    <p>
+      The decisions on whether to use Java/Scala/Kotlin (all of which target a JVM) really comes down to
+      preference and balance - there are really no big issues with selecting any one of those languages.
+    </p>
+    <p>
+      C# on the other hand really is a major decision - you move well into the Microsoft camp with C#, it is a
+      very, very good language and addresses many of the issues that have emerged with use in Java.
+    </p>
+
+    <h3>Other Compiled and strongly typed languages of note</h3>
+    <ul>
+      <li><a href="https://en.wikipedia.org/wiki/Swift_(programming_language)">Swift</a> - Mainly used by Apple
+        developers but supported on other platforms (linux for example) with a very clean and concise syntax.
+      </li>
+    </ul>
+    <h3>Interpreted/Scripted Languages</h3>
+    <ul>
+      <li><a href="https://en.wikipedia.org/wiki/JavaScript">JavaScript</a> - Once mainly used in the browser
+        there is now first class server side support through <a href="https://nodejs.org/en/">NodeJS</a></li>
+      <li><a href="https://www.python.org">Python</a> - A truly inspirational language - that has brought simple
+        easy to read syntax and an extensive set of libraries to development.
+      </li>
+    </ul>
+    <h3>Other Languages worth considering</h3>
+    <ul>
+      <li>Haskell</li>
+      <li>Lisp</li>
+    </ul>
+    <h4>Next Steps</h4>
+    <p>
+      If you'd still like to understand more about EK9 look at section <a href="structure.html">structure</a>
+      next.
+    </p>
+  </article>
+</main>
+</body>
+</html>

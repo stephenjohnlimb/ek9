@@ -1,18 +1,22 @@
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <title>EK9 programming language</title>
   <meta name="description" content="A brief outline of the EK9 programming language examples"/>
   <link rel="stylesheet" media="all" href="style.css"/>
-  <link rel="icon" type="image/png" href="http://www.ek9lang.org/ek9favicon.png"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
   <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+      window.dataLayer = window.dataLayer || [];
 
-  gtag('config', 'G-6GS00TXGVP');
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
 
   </script>
 </head>
@@ -83,23 +87,25 @@
       <a target="_blank" title="follow me on Twitter" href="https://www.twitter.com/stephenjohnlimb">
         <img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/stephenjohnlimb?label=EK9&style=social"></a>
     </p>
+    <h3>EK9 Language Development</h3>
     <p>
       <a target="_blank" title="Fork EK9 and contribute" href="https://github.com/stephenjohnlimb/ek9">Fork/Watch</a>
       the development of the EK9 compiler on GitHub and for updates follow on
       <a target="_blank" title="follow me on Twitter" href="https://www.twitter.com/stephenjohnlimb">twitter.</a>
-      There is also <a href="https://blog.ek9.io">Blog</a> on EK9 Language Design and Implementation.
+      There is also <a target="_blank" title="EK9 Blog" href="https://blog.ek9.io">Blog</a>
+      on EK9 Language Design and Implementation.
       If you want a quick look at the internals of the compiler then look at the
-      <a href="https://repo.ek9lang.org/apidocs/index.html">Javadoc</a>. It's still work in progress, but you should
-      be able to see how it is structured.
+      <a target="_blank" title="Compiler internal documentation" href="https://repo.ek9lang.org/apidocs/index.html">Javadoc</a>.
+      It's still work in progress, but you should be able to see how it is structured.
     </p>
 
-    <h3>The EK9 Language</h3>
+    <h3>The EK9 Language Itself</h3>
     <p>
       If you are a developer with a Java, C#, Python, Javascript, Scala or Kotlin background you will be able to
-      pick up EK9 quickly. Many of the ideas in those languages have been incorporated into EK9.
+      pick up EK9 quickly. Many of the ideas in those languages have been incorporated into EK9, but new ideas added in.
     </p>
     <p>
-      EK9 source is made available under the <a href="LICENSE.txt">MIT opensource license</a>.
+      EK9 source is made available under the <a target="_blank" title="MIT License" href="LICENSE.txt">MIT opensource license</a>.
     </p>
     <p>
       Experienced developers will be probably thinking; <b>"Show me the code; I'll be able to understand it and get going"</b>;
@@ -118,10 +124,11 @@
     </p>
     <p>
       It has been designed to make easy things; 'easy' and harder things; 'structured and coherent'.
-      This approach has been taken to facilitate EK9 language use through a developers career, it not just a teaching language.
+      This approach has been taken to facilitate EK9 language use through a developers career, it is not just a teaching language.
     </p>
     <p>
-      The layout and syntax has been designed to incorporate visual flow and structure.
+      The layout and syntax has been designed to incorporate visual flow and structure. It takes some ideas from existing languages,
+      but also adds in ideas from 'cognitive research' on how humans process textual media.
     </p>
     <p>
       Take a look in the
@@ -146,7 +153,8 @@
       </li>
       <li>
         If you are interested in the compiler internals, there is
-        <a href="https://repo.ek9lang.org/apidocs/index.html">Javadoc</a> available</li>
+        <a href="https://repo.ek9lang.org/apidocs/index.html">Javadoc</a> available
+      </li>
       <li>There is also a vscode plugin <a href="https://github.com/stephenjohnlimb/vscode-ek9-ls">
         EK9 for vscode GitHub</a>
       </li>
@@ -165,7 +173,7 @@
     </ol>
     <p>
       EK9 detects source files that need compiling and then runs the one specified. For more details on
-      the compiler read <a href="commandline.html">EK9 command line</a>.
+      the compiler read <a href="commandline.html">EK9 command line</a> page.
     </p>
 
     <h3 id="examples">Now the examples</h3>

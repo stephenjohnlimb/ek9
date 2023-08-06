@@ -1,0 +1,2513 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language operators</title>
+  <meta name="description" content="The EK9 programming language operators
+    can be implemented in the constructs developed by the programmer."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>EK9 Operators</h1>
+    </header>
+    <p>
+      The section on <a href="basics.html">basics</a> details how to declare variables, add comments and define
+      visibility of <i>functions, methods</i> and fields. It also covers line termination and indentation (code
+      blocks).
+    </p>
+    <p>
+      This section lists all the operators that EK9 supports and details their meaning. There are quite a few
+      examples on both how to use the operators; but also how to override operators in both <i>records</i> and
+      <i>classes</i>. The operators have been grouped to help explain related ideas. In some cases
+      the operator is used in a slightly different way, depending on the types.
+      Other languages may use different operators, so take care. Specifically <b>and/or</b> has meaning as both in
+      terms of a <u>boolean</u> operator but also in terms of a <u>bitwise</u> operator.
+    </p>
+    <h3>The Operators</h3>
+    <ul>
+      <li><a href="#comparison">Comparison</a></li>
+      <li><a href="#assignment">Assignment</a></li>
+      <li><a href="#modification">Modification</a></li>
+      <li><a href="#boolean">Boolean/Bitwise</a></li>
+      <li><a href="#ternary">Ternary</a></li>
+      <li><a href="#coalescing">Coalescing (is set)</a></li>
+      <li><a href="#mathematical">Mathematical</a></li>
+      <li><a href="#functional">Functional</a></li>
+      <li><a href="#pipeline">Pipeline</a></li>
+    </ul>
+    <p>
+      There are quite a few operators, most of which will be obvious, but there are a few new ones.
+      EK9 make heavy use of operators as it improves readability and consistency of code.
+    </p>
+    <h3>Types of Operator</h3>
+    <p>
+      There are three broad types of operator, these are:
+    </p>
+    <ul>
+      <li>Unary operators operate on a single operand (such as result := -a or result := a?).</li>
+      <li>Binary operators operate on two operands (such as result := a + b).</li>
+      <li>Ternary operators operate on three operands (such as result := a == true &larr; b : c).</li>
+      <li>Ternary operators can also be written like this (such as result := a == true &larr; b else c).</li>
+    </ul>
+    <p>
+      A quick note on ternary operators, some developers find these expressions a little confusing and resort to
+      <i>if/else</i> statements, EK9 does have some shortcut syntax that is worth reviewing as it may help.
+      The ternary statement above can be read as:<br/>
+      "If <b>a</b> == <b>true</b> then set <b>result</b> to <b>b</b> else set <b>result</b> to <b>c</b>"
+    </p>
+    <h2 id="what_are_operators">What are Operators</h2>
+    <p>
+      Before we get started on each of the groups/types of operator and their specifics; it is worth understanding
+      what we mean by an <i>operator</i>.
+    </p>
+    <p>
+      The operator is really a shorthand and consistent way of defining a <i>method</i> on an Object - this method
+      can be a symbol or a phrase.
+      The main difference is that the operator looks <u>disconnected</u> from the object itself.
+    </p>
+    <p>
+      This expression <b>result := a + b</b> could be read as <b>result := a.+(b)</b> but the former is much more
+      natural and clearer (unless you like Lisp; then (+ a b) would be clearer for you).
+    </p>
+    <p>
+      As an example, the concept of <u>addition</u> will
+      be familiar to everyone and is normally expressed in mathematical terms as the symbol '<b>+</b>'. Well
+      pretty obvious you may think but there is something that has been misused or confused in many programming languages.
+    </p>
+    <p>
+      In the expression below neither 6 nor 8 is modified.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">6</span>
+          <span class="k">+</span>
+          <span class="m">8</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      This <b>lack of modification</b> is as you would expect in mathematical terms. But some software API's use
+      (misuse) a method called <b>add</b> to add something <u>to a value</u>. So the semantics of <u>addition</u>
+      have been altered.
+      An example of this would be <a href="https://docs.oracle.com/javase/8/docs/api/java/util/List.html">Java List add</a>.
+    </p>
+    <p>
+      The intention here is not to denigrate Java or any other language, but to highlight the value of operators
+      and the retention of semantics (meaning) in conjunction with most peoples <i>long-term memory</i>.
+    </p>
+    <p>
+      To accomplish <u>add something to a value</u> in EK9 you would use the '<b>+=</b>' operator. If you used the
+      '<b>+</b>' then a new <b>List</b> would be provided with the contents of the existing <b>List</b> plus
+      the value. See the example below.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Simple list of string values (note this is shorthand for a List and is not an array)</span>
+        </li>
+        <li>
+          <span class="m">aList</span>
+          <span class="k">&larr; [</span>
+          <span class="m">"A", "B", "C"</span>
+          <span class="k">]</span>
+        </li>
+        <li>
+          <span class="c">//aList remains unmodified as does "D"</span>
+        </li>
+        <li>
+          <span class="m">list2</span>
+          <span class="k">&larr;</span>
+          <span class="m">aList</span>
+          <span class="k">+</span>
+          <span class="m">"D"</span>
+        </li>
+        <li>
+          <span class="c">//Now modify list2 - but note the different operator</span>
+        </li>
+        <li>
+          <span class="m">list2</span>
+          <span class="k">+=</span>
+          <span class="m">"E"</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Create another list to be used.</span>
+        </li>
+        <li>
+          <span class="m">endList</span>
+          <span class="k">&larr; [</span>
+          <span class="m">"X", "Y", "Z"</span>
+          <span class="k">]</span>
+        </li>
+        <li>
+          <span class="c">//Same syntax and semantics, but different parameters</span>
+        </li>
+        <li>
+          <span class="m">finalList</span>
+          <span class="k">&larr;</span>
+          <span class="m">list2</span>
+          <span class="k">+</span>
+          <span class="m">endList</span>
+        </li>
+        <li>
+          <span class="c">//But the result finalList is obvious as ["A", "B", "C", "D", "E", "X", "Y", "Z"]</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      This discussion around the semantics of <b>add</b> might seem petty or trivial, but it is absolutely
+      critical when developing generic <i>functions</i> and <i>classes</i> as '<b>+</b>'
+      really must have the same meaning <u>irrespective of type</u>.
+      It is also important in terms of readability, most people are familiar
+      with basic mathematics and so it is very important to retain the semantics of '<b>+</b>' (add).
+    </p>
+    <p>
+      <b>Being able to read code quickly and immediately see what it accomplishes is very valuable.</b>
+    </p>
+    <p>
+      The example above using the '<b>+</b>' operator with a <u>List</u> and a <u>String</u>, but also with two
+      <u>Lists</u> highlights this point.
+      In both cases it is obvious that the addition of two items will result in a third item containing the
+      contents of both, but the two items being added will remain unaltered.
+    </p>
+    <p>
+      It is also important <b>not</b> to introduce new and possibly misleading methods like 'addTo', 'addInTo',
+      'addAll', 'join', 'joinTogether'. When existing <i>operators</i> like '<b>+</b>' and '<b>+=</b>' can be
+      defined and overridden/overloaded with different parameters, but with the same semantics.
+    </p>
+    <p>
+      There's been quite a bit of thought and research put into this. Employing a developer's <i>long term memory</i>
+      for really fundamental concepts and semantic meaning that common. Employing symbols and ideograms to leverage
+      the visual side of the developers brain and reducing cognitive load.
+    </p>
+    <h5>Focus</h5>
+    <p>
+      It is very easy to become seduced by operators, to override/overload and twist them into contrived meanings.
+      When overriding an operator it is really worth taking the time to ensure it retains its semantics and consistency.
+      But probably more importantly; the simple use of the '<b>+</b>' operator really has triggered quite a lot of processing.
+      In the case of two Lists it may have triggered the creation of a new List and the full traversal of both of the other two Lists
+      to populate the return list. This amount of processing may not be obvious from just using the '<b>+</b>' operator!
+    </p>
+    <p>
+      However; operators have been created <u>to be used and overridden</u>. If you are creating an API that uses
+      <u>imaginary numbers</u> and you want to express <b>addition</b> then overriding the '<b>+</b>' is not only
+      acceptable it is <u><b>strongly encouraged</b></u>. If you are creating some type of <u>collection</u> again using
+      '<b>+</b>' and '<b>+=</b>' to 'add' or 'add to' is <u><b>strongly encouraged</b></u>.
+    </p>
+    <p>
+      Use them in the manner that was intended and when you need to employ your types with generics the solution
+      will be much simpler, if you are from a C++ background this will feel natural - but take care not to misuse operator
+      overriding/overloading.
+    </p>
+    <h4>The Operators themselves</h4>
+    <p>
+      The first group of operators to be described are those that are used for comparison. Most of which will be
+      obvious, but there are a couple that need closer attention (such as the fuzzy match).
+    </p>
+    <h5 id="comparison">Comparison Operators</h5>
+    <p>
+      The first set of operators to be explained are those used in comparisons and checks and return a Boolean.
+    </p>
+    <h6>Symbolic Boolean Operators</h6>
+    <p>
+      Typically used in a <i>if</i> statement the following operators are used to compare the value of two objects
+      and the result will be a <b>Boolean</b> value of true or false (or <b>not set</b> if either a or b are <b>not set</b>).
+    </p>
+    <p>
+      <b>The last point above is important, if operands are unset then the result will be unset.</b>
+    </p>
+    <ul>
+      <li>Less than (a &lt; b)</li>
+      <li>Greater than (a &gt; b)</li>
+      <li>Greater than or equal to (a &gt;= b)</li>
+      <li>Less than or equal to (a &lt;= b)</li>
+      <li>Not equal to (a &lt;&gt; b)</li>
+      <li>Not equal to (a != b) - if syntax is preferred</li>
+      <li>Equal to (a == b)</li>
+      <li>Range (a in 1 ... 10) (a not in 1 ... 10)</li>
+    </ul>
+    <p>
+      Examples of the comparison operators
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">1</span>
+          <span class="k">&lt;</span>
+          <span class="m">2</span>
+          <span class="c">//results in true</span>
+        </li>
+        <li>
+          <span class="m">1</span>
+          <span class="k">&gt;</span>
+          <span class="m">2</span>
+          <span class="c">//results in false</span>
+        </li>
+        <li>
+          <span class="m">3</span>
+          <span class="k">&gt;=</span>
+          <span class="m">2</span>
+          <span class="c">//results in true</span>
+        </li>
+        <li>
+          <span class="m">3</span>
+          <span class="k">&lt;=</span>
+          <span class="m">2</span>
+          <span class="c">//results in false</span>
+        </li>
+        <li>
+          <span class="m">3</span>
+          <span class="k">&lt;&gt;</span>
+          <span class="m">3</span>
+          <span class="c">//results in false</span>
+        </li>
+        <li>
+          <span class="m">3</span>
+          <span class="k">!=</span>
+          <span class="m">3</span>
+          <span class="c">//results in false</span>
+        </li>
+        <li>
+          <span class="m">3</span>
+          <span class="k">==</span>
+          <span class="m">3</span>
+          <span class="c">//results in true</span>
+        </li>
+        <li>
+          <span class="m">3</span>
+          <span class="k">in</span>
+          <span class="m">2</span>
+          <span class="k">...</span>
+          <span class="m">8</span>
+          <span class="c">//results in true</span>
+        </li>
+        <li>
+          <span class="m">6</span>
+          <span class="k">not in</span>
+          <span class="m">2</span>
+          <span class="k">...</span>
+          <span class="m">8</span>
+          <span class="c">//results in false</span>
+        </li>
+
+      </ul>
+    </div>
+    <h6>Comparison Phrase Operators</h6>
+    <p>
+      The following two operators are full words (phrases) rather than symbols that return a <b>Boolean</b>, these
+      are:
+    <ul>
+      <li>Containing (a contains b)</li>
+      <li>Matching (a matches b) - uses regular expressions</li>
+    </ul>
+    <p>
+      Examples of use are:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">"Steve"</span>
+          <span class="k">contains</span>
+          <span class="m">"Te"</span>
+          <span class="c">//results in false</span>
+        </li>
+        <li>
+          <span class="m">"Steve"</span>
+          <span class="k">contains</span>
+          <span class="m">"te"</span>
+          <span class="c">//results in true</span>
+        </li>
+        <li>
+          <span class="m">"Steve"</span>
+          <span class="k">matches</span>
+          <span class="m">/[S|s]te(?:ven?|phen)/</span>
+          <span class="c">//results in true</span>
+        </li>
+        <li>
+          <span class="m">/[S|s]te(?:ven?|phen)/</span>
+          <span class="k">matches</span>
+          <span class="m">"Steve"</span>
+          <span class="c">//also results in true</span>
+        </li>
+      </ul>
+    </div>
+    <h6>Symbolic Comparison Operators</h6>
+    <p>
+      The following two operators use symbols which you may not have seen before; they return an <b>Integer</b>,
+      these are:
+    <ul>
+      <li>Comparison (a &lt;=&gt; b)</li>
+      <li>Fuzzy Match (a &lt;~&gt; b)</li>
+    </ul>
+    <p>
+      Examples of use are:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">"Steve"</span>
+          <span class="k">&lt;=&gt;</span>
+          <span class="m">"Steve"</span>
+          <span class="c">//results in 0</span>
+        </li>
+        <li>
+          <span class="m">"Steve"</span>
+          <span class="k">&lt;~&gt;</span>
+          <span class="m">"Steve"</span>
+          <span class="c">//results in 0</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      While you may think these two operators appear to do the same thing, they are in fact very different in
+      character.
+      The comparison operator '<b>&lt;=&gt;</b>' is intended to do a simple compare and in the case of Strings
+      this would be lexical.
+      For your own <i>records</i> and <i>classes</i> you can implement your own comparison mechanism; but keep to
+      the same semantics.
+    </p>
+    <p>
+      The fuzzy match operator '<b>&lt;~&gt;</b>' is more sophisticated and is a sort of bridge between the
+      comparison operator and regular expressions. Below are a couple of examples and while these examples
+      are given as Strings you can implement your own fuzzy match on your own <i>records</i> and <i>classes</i>.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">"Steve"</span>
+          <span class="k">&lt;=&gt;</span>
+          <span class="m">"steve"</span>
+          <span class="c">//results in 1</span>
+        </li>
+        <li>
+          <span class="m">"Steve"</span>
+          <span class="k">&lt;~&gt;</span>
+          <span class="m">"Steven"</span>
+          <span class="c">//results in 2</span>
+        </li>
+        <li>
+          <span class="m">"Steve"</span>
+          <span class="k">&lt;~&gt;</span>
+          <span class="m">"teve"</span>
+          <span class="c">//results in 1</span>
+        </li>
+        <li>
+          <span class="m">"Steve"</span>
+          <span class="k">&lt;~&gt;</span>
+          <span class="m">"steven"</span>
+          <span class="c">//results in 3</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The idea behind the fuzzy match is to try and find the best sort of match for a particular value. In this
+      case Strings and specifically <b>steve</b> is the best match because just the case of the 's' had to be
+      altered.
+      The String built into EK9 uses a modified <u>Levenshtein</u> algorithm, that weights cases changes,
+      character additions and spans of common sequences slightly differently.
+    </p>
+    <p>
+      For your own aggregate types you could implement any sort of scoring mechanism, this is useful for sparse or
+      incomplete data and especially when accepting user input where the validity or addresses or names could be
+      matched against a range of known valid entries. For example; you would probably weight <u>address</u> fuzzy
+      matching on different levels for country, city, street and house number.
+      A single change of a digit in a house number has less weight than the country being "US" or "UK"
+      for example. For some fuzzy matching you might use the proximity of keys on the keyboard being next to
+      each other to accept 'typos' and find the actual logic word the user meant.
+    </p>
+    <p>
+      The mechanisms you use for your own fuzzy match should however retain the meaning of 'fuzzy'.
+    </p>
+    <p>
+      By creating a fuzzy match on your own developed types you will be able to use and reuse a range of generic
+      <i>functions</i> and <i>classes</i> should they use fuzzy match in their implementation. You could imagine
+      a sorting function that employed the fuzzy comparison to order items, if this were a generic function it could
+      just be re-used with your types if you implemented the fuzzy match operator.
+    </p>
+    <h6>Symbolic Unary Operator</h6>
+    <p>
+      All of the operators shown so far are <i>binary</i> operators; the next operator is a <i>postfix unary</i>
+      operator and is very useful for checking the validity of any value.
+    </p>
+    <ul>
+      <li>Is set (a?)</li>
+    </ul>
+    <p>
+      Examples of use are:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">name1</span>
+          <span class="k">&larr;</span>
+          <span class="m">"Bill"</span>
+        </li>
+        <li>
+          <span class="m">name2</span>
+          <span class="k">&larr;</span>
+          <span class="m">"Ted"</span>
+        </li>
+        <li>
+          <span class="m">name1</span><span class="k">?</span>
+          <span class="c">//results in true</span>
+        </li>
+        <li>&nbsp;</li>
+        <li>
+          <span class="m">name3</span>
+          <span class="k">as</span>
+          <span class="m">String</span>
+        </li>
+        <li>
+          <span class="m">name3</span><span class="k">?</span>
+          <span class="c">//results in false</span>
+        </li>
+        <li>&nbsp;</li>
+        <li>
+          <span class="m">name4</span>
+          <span class="k">&larr;</span>
+          <span class="m">String()</span>
+        </li>
+        <li>
+          <span class="m">name4</span><span class="k">?</span>
+          <span class="c">//results in false</span>
+        </li>
+        <li>&nbsp;</li>
+        <li>
+          <span class="c">//Note the validity of the calculation is been checked here not the actual result.</span>
+        </li>
+        <li>
+          <span class="c">//The use of the '<b>( ... )</b>' is important here. The <b>?</b> applies to the result.</span>
+        </li>
+        <li>&nbsp;</li>
+        <li>
+          <span class="k">(</span><span class="m">name1</span>
+          <span class="k"><</span>
+          <span class="m">name2</span><span class="k">)?</span>
+        </li>
+        <li>
+          <span class="c">//results in true - because the calculation was valid not because Bill is Less than Ted</span>
+        </li>
+        <li>
+          <span class="k">(</span><span class="m">name1</span>
+          <span class="k"><</span>
+          <span class="m">name3</span><span class="k">)?</span>
+        </li>
+        <li>
+          <span class="c">//results in false - because the calculation was <b>invalid</b> name is <b>not set</b></span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The <b>is set</b> operator should always be present in your own implementation of <i>records</i> and <i>classes</i>
+      as it provides a very clear and consistent way to establish whether an object contains valid data or not.
+      It means you can create new instances of Objects without the need to provide any valid data (you may not
+      know the values yet).
+    </p>
+    <p>
+      For example; lets say an <u>Address</u> is an aggregate of several data elements, house number,
+      street, city, country. If you are to ask a user for such information then an <u>Address</u> Object needs to be created
+      to hold it, but initially it will not be valid. Only when the user has provided the information can the <u>Address</u>
+      be checked and only then is it valid (or not if the information is erroneous).
+    </p>
+    <h5 id="assignment">Assignment Operator(s)</h5>
+    <p>
+      This next set of operators are only used in assignment - all three do exactly the same thing and really are
+      just different syntax that is used to support developers from different backgrounds and also enable assignment in
+      different contexts to look or feel more natural.
+    </p>
+    <ul>
+      <li>CSS type assignment style (a: b)</li>
+      <li>HTML/C type assignment style (a = b)</li>
+      <li>Pascal/ADA type assignment style (a := b)</li>
+    </ul>
+    <p>
+      There is also a <u>conditional assignment</u> operator (a :=? b). This operator is different to the three above.
+      It is like a combination of an 'if statement' and an assignment.
+    </p>
+    <p>
+      The assignment only take place if 'a' has no memory allocation or it is <b>un-set</b>.
+    </p>
+    <p>
+      The <a href="basics.html#different_assignments">basics</a> section discusses the reasoning for the three
+      different assignment styles; and they do tend to feel right in different contexts (this is down to personal preference).
+    </p>
+    <p>
+      It is important to note that really it is only a handle that is assigned and not actual data. So using the
+      example of the address previously.
+    </p>
+    <p>
+      As there are no <u>primitives</u> in EK9 even for Integer and Float; it is worth stating again <b>if you
+      alter the value that two or more variables reference; <u>all references will see that change</u></b>. This is
+      not what you will be expecting if you are used to languages that use primitives and not Objects.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">checkAddr</span>
+          <span class="k">as</span>
+          <span class="m">Address</span>
+          <span class="c">//not assigned to anything</span>
+        </li>
+        <li>
+          <span class="m">myAddress</span>
+          <span class="k">&larr;</span>
+          <span class="m">Address()</span>
+          <span class="c">//assigned to a new empty address</span>
+        </li>
+        <li>&nbsp;</li>
+        <li>
+          <span class="m">myAddress.country</span><span class="k">:</span>
+          <span class="m">"UK"</span>
+          <span class="c">//assuming the Address was a record with a country field</span>
+        </li>
+        <li>&nbsp;</li>
+        <li>
+          <span class="m">checkAddr</span>
+          <span class="k">:=</span>
+          <span class="m">myAddress</span>
+        </li>
+        <li>
+          <span class="c">//Both myAddress and checkAddr reference the same address</span>
+        </li>
+        <li>
+          <span class="c">//But the data has <b>not</b> been copied</span>
+        </li>
+        <li>&nbsp;</li>
+        <li>
+          <span class="c">//Change the country in either checkAddr or myAddress and value will alter</span>
+        </li>
+        <li>
+          <span class="m">checkArr.country</span>
+          <span class="k">=</span>
+          <span class="m">"US"</span>
+        </li>
+        <li>
+          <span class="c">//myAddress.country is now also "US"</span>
+        </li>
+        <li>&nbsp;</li>
+        <li>
+          <span class="m">anAddress</span>
+          <span class="k">as</span>
+          <span class="m">Address</span>
+          <span class="c">//not assigned to anything</span>
+        </li>
+        <li>&nbsp;</li>
+        <li>
+          <span class="m">anAddress</span>
+          <span class="k">:=?</span>
+          <span class="m">myAddress</span>
+        </li>
+        <li>
+          <span class="c">//anAddress is only assigned if it was un-set or had no memory allocated; as above.</span>
+        </li>
+        <li>&nbsp;</li>
+        <li>
+          <span class="m">anAddress</span>
+          <span class="k">:=?</span>
+          <span class="m">Address("US")</span>
+        </li>
+        <li>
+          <span class="c">//anAddress would not have been assign above as it already has a valid Address value</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The four different types of assignment operator have been shown in the example above.
+    </p>
+    <p>
+      For any developer with a background of C#/Java this will feel normal and natural. In effect the
+      variables of <b>myAddress</b> and <b>checkAddr</b> are just pointers to a bit of memory that holds the
+      actual Address data. They both point to the same bit of memory for the Address. There are times when you
+      do want a full <u>copy</u> or <u>clone</u> of the data, for that see the next section on modification operators
+      specifically the '<b>:=:</b>' (copy) and '<b>:~:</b>' (merge) operators.
+    </p>
+    <p>
+      There are also times when it is necessary to 'replace' an entry in a collection of some sort, the
+      '<b>:^:</b>' (replace) operator provides a shorthand and standardised naming semantics.
+    </p>
+    <p>
+      The conditional assignment operator (<b>coalescing assignment</b>) is <b>new</b> however and is a nice
+      shorthand for simple <i>if statements followed by assignment</i>.
+    </p>
+    <h5 id="modification">Modification Operators</h5>
+    <p>
+      To be able to alter the contents of a variable (not just the references to the memory location of the
+      variable), there are number of operators that can be used.
+    </p>
+    <ul>
+      <li>Add and assign (a += b)</li>
+      <li>Subtract and assign (a -= b)</li>
+      <li>Multiply by and assign (a *= b)</li>
+      <li>Divide by and assign (a /= b)</li>
+      <li>Increment (a++)</li>
+      <li>Decrement (a--)</li>
+      <li>Copy (a :=: b)</li>
+      <li>Merge (a :~: b)</li>
+      <li>Replace (a :^: b) - normally used with collection</li>
+    </ul>
+    <p>
+      <b>Note:</b> the increment and decrement operators are not <i>prefix/postfix</i> type operations.
+      They <b>just</b> increment and decrement, unlike operations on primitives in C,C++,C# and Java.
+    </p>
+    <p>
+      Here are a number of examples of the above operators to illustrate their functionality.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">aFloat</span>
+          <span class="k">&larr;</span>
+          <span class="m">22.9</span>
+          <span class="c">//Create a new floating point value</span>
+        </li>
+        <li>
+          <span class="m">aFloat</span>
+          <span class="k">+=</span>
+          <span class="m">17.1</span>
+          <span class="c">//Add the value into the variable aFloat</span>
+        </li>
+        <li>
+          <span class="c">//aFloat would now have the value of 40.0</span>
+        </li>
+        <li>&nbsp;</li>
+        <li>
+          <span class="m">aFloat</span>
+          <span class="k">-=</span>
+          <span class="m">7.5</span>
+          <span class="c">//Subtract the value from the variable aFloat</span>
+        </li>
+        <li>
+          <span class="c">//aFloat would now have the value of 32.5</span>
+        </li>
+        <li>&nbsp;</li>
+        <li>
+          <span class="m">aFloat</span>
+          <span class="k">*=</span>
+          <span class="m">3</span>
+          <span class="c">//Multiply aFloat by the value</span>
+        </li>
+        <li>
+          <span class="c">//aFloat would now have the value of 97.5</span>
+        </li>
+        <li>&nbsp;</li>
+        <li>
+          <span class="m">aFloat</span>
+          <span class="k">/=</span>
+          <span class="m">2.5</span>
+          <span class="c">//Divide aFloat by the value</span>
+        </li>
+        <li>
+          <span class="c">//aFloat would now have the value of 39.0</span>
+        </li>
+        <li>&nbsp;</li>
+        <li>
+          <span class="m">aFloat</span><span class="k">++</span>
+          <span class="c">//Increment aFloat by 1.0</span>
+        </li>
+        <li>
+          <span class="c">//aFloat would now have the value of 40.0</span>
+        </li>
+        <li>&nbsp;</li>
+        <li>
+          <span class="m">aFloat</span><span class="k">--</span>
+          <span class="c">//Decrement aFloat by 1.0</span>
+        </li>
+        <li>
+          <span class="c">//aFloat would now have the value of 39.0 again</span>
+        </li>
+        <li>&nbsp;</li>
+        <li>
+          <span class="m">bFloat</span>
+          <span class="k">as</span>
+          <span class="m">Float()</span>
+          <span class="c">//Create a new floating point value but not yet set</span>
+        </li>
+        <li>
+          <span class="m">bFloat</span>
+          <span class="k">:=</span>
+          <span class="m">aFloat</span>
+          <span class="c">//Assign the variable and update</span>
+        </li>
+        <li>
+          <span class="m">aFloat</span><span class="k">++</span>
+          <span class="c">//Increment aFloat by 1.0, but note bFloat will <b>also</b> change</span>
+        </li>
+        <li>&nbsp;</li>
+        <li>
+          <span class="m">cFloat</span>
+          <span class="k">as</span>
+          <span class="m">Float()</span>
+          <span class="c">//Create another new floating point value but not yet set</span>
+        </li>
+        <li>
+          <span class="m">cFloat</span>
+          <span class="k">:=:</span>
+          <span class="m">aFloat</span>
+          <span class="c">//<u>Copy</u> the contents of the variable and update</span>
+        </li>
+        <li>
+          <span class="m">aFloat</span><span class="k">++</span>
+          <span class="c">//Increment aFloat by 1.0, but note cFloat will <b>not</b> change</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The operators above are comparatively simple and are fairly straight forward - but check the <b>copy
+      ':=:'</b> operator as that is quite different in nature.
+    </p>
+    <p>
+      The <b>merge ':~:'</b> operator is similar in many ways to <b>copy ':=:'</b> operator in the fact that it
+      alters the underlying content of the variable. In general the <b>merge ':~:'</b> operator is very useful
+      when used with aggregates.
+      Below is an example of a <i>record</i>; this treats fields that are not <b>set</b> as being suitable for
+      replacement. There is quite a bit going on in this example, it shows a couple of other operators that have
+      not yet need described, but is more fully featured as an example.
+    </p>
+    <pre id="record_merge_example">#!ek9
+defines module introduction
+
+  defines record
+  
+    Person
+      first &lt;- String()
+      last &lt;- String()
+      dob &lt;- Date()
+      profession &lt;- String()
+      
+      //is set
+      operator ?
+        &lt;- rtn Boolean: first? and last? and dob? and profession?
+      
+      //convert to string
+      operator $
+        &lt;- rtn String: first + ", " + last + ", " + $dob + ", " + profession
+      
+      //equality
+      operator ==
+        -&gt; arg as Person
+        &lt;- rtn as Boolean: arg? and first==arg.first and last==arg.last and dob==arg.dob and profession==arg.profession
+      
+      //copy
+      operator :=:
+        -&gt; arg as Person
+        &lt;- rtn as Person: this
+
+        if arg?
+          first :=: arg.first
+          last :=: arg.last
+          dob :=: arg.dob
+          profession :=: arg.profession
+      
+      //merge
+      operator :~:
+        -&gt; arg as Person
+        &lt;- rtn as Person: this
+
+        if arg?
+          if not first?
+            first :=: String(arg.first)
+
+          //Could be written like this with coalescing assignment.
+
+          last :=? String(arg.last)
+          dob :=? Date(arg.dob)
+          profession :=? String(arg.profession)
+          
+  defines program 
+  
+    //quick program to show how operators on Person can be used.
+    PersonMerge()
+      stdout &lt;- Stdout()
+      
+      john &lt;- Person()
+      john.first: "John"
+      john.profession: "IT"
+      
+      smith &lt;- Person()
+      smith.last: "Smith"
+      smith.dob: 1960-01-01
+      
+      //So lets merge these into a new variable
+      smithj &lt;- Person()
+      
+      smithj :~: john
+      smithj :~: smith
+      
+      //Alter first name
+      john.first: "Jon"
+      
+      //Just show the values.
+      stdout.println("[" + $john + "]")
+      stdout.println("[" + $smith + "]")
+      stdout.println("[" + $smithj + "]")
+//EOF          
+</pre>
+    <p>
+      The output would be as follows:
+    </p>
+    <pre>
+[Jon, , 2020-11-03, IT]
+[, Smith, 1960-01-01, ]
+[John, Smith, 1960-01-01, IT]
+</pre>
+    <p>
+      The example above is quite long; but hopefully gives you a much better idea of the operators available and
+      how powerful they can be.
+      Note that because the merge was done before the first name was altered to "Jon" a full deep copy of the
+      value was made.
+    </p>
+    <h5 id="boolean">Boolean (Logical) and Bitwise Operators</h5>
+    <p>
+      This section focuses on a number of operators that are used by two very different types, but the
+      concept and meaning of the operator is broadly the same. Other languages model these operators
+      in different ways. In EK9 the same syntax is used in both contexts.
+    </p>
+    <h6>Boolean (Logical) Operators</h6>
+    <p>
+      The first set of operators are the Logical operators that are used with Boolean values.
+    </p>
+    <ul>
+      <li>Not (a = ~b)</li>
+      <li>Not (a = not b)</li>
+      <li>And (c = a and b)</li>
+      <li>Or (c = a or b)</li>
+      <li>Xor (c = a xor b)</li>
+    </ul>
+    <p>
+      Most of the above operators will be familiar to developers, the '<b>~</b>' and '<b>xor</b>' may not.
+      The '<b>~</b>' is the same as the '<b>not</b>' operator. But not that many languages support
+      the '<b>xor</b>' operator (though it can be quickly implemented with combinations of '<b>and</b>'/'<b>or</b>').
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Simple boolean values</span>
+        </li>
+        <li>
+          <span class="m">a</span>
+          <span class="k">&larr;</span>
+          <span class="m">true</span>
+        </li>
+        <li>
+          <span class="m">b</span>
+          <span class="k">&larr;</span>
+          <span class="m">true</span>
+        </li>
+        <li>
+          <span class="m">c</span>
+          <span class="k">&larr;</span>
+          <span class="m">false</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="c">//Each of the operators</span>
+        </li>
+        <li>
+          <span class="c">//The <b>and</b>/<b>not</b> operator</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">and</span>
+          <span class="m">b</span>
+          <span class="c">//result would be true</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">and</span>
+          <span class="m">c</span>
+          <span class="c">//result would be false</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">and</span>
+          <span class="m">not c</span>
+          <span class="c">//result would be true</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">and</span>
+          <span class="m">~c</span>
+          <span class="c">//result would be true</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="c">//The <b>or</b>/<b>not</b> operator</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">or</span>
+          <span class="m">b</span>
+          <span class="c">//result would be true</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">or</span>
+          <span class="m">c</span>
+          <span class="c">//result would be true</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">not a</span>
+          <span class="k">or</span>
+          <span class="m">c</span>
+          <span class="c">//result would be false</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">~a</span>
+          <span class="k">or</span>
+          <span class="m">c</span>
+          <span class="c">//result would be false</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="c">//The <b>xor</b>/<b>not</b> operator</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">xor</span>
+          <span class="m">b</span>
+          <span class="c">//result would be false</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">xor</span>
+          <span class="m">not b</span>
+          <span class="c">//result would be true</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">xor</span>
+          <span class="m">c</span>
+          <span class="c">//result would be true</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">not a</span>
+          <span class="k">xor</span>
+          <span class="m">c</span>
+          <span class="c">//result would be false</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">~a</span>
+          <span class="k">xor</span>
+          <span class="m">c</span>
+          <span class="c">//result would be false</span>
+        </li>
+      </ul>
+    </div>
+    <h6 id="bitwise">Bitwise Operators</h6>
+    <p>
+      The second set of operators are the bitwise operators that are used with bit(s) values.
+      The look and syntax is the same as the logic operators but there are a couple of
+      additional operators (shift left/right). But critically these work with <i>sets of bits</i> (these are not
+      ints or longs - but are an ordered collection of bits).
+    </p>
+    <ul>
+      <li>Not (a = ~b)</li>
+      <li>Not (a = not b)</li>
+      <li>And (c = a and b)</li>
+      <li>Or (c = a or b)</li>
+      <li>Xor (c = a xor b)</li>
+      <li>Left Shift (c = a &lt;&lt; b)</li>
+      <li>Right Shift (c = a &gt;&gt; b)</li>
+    </ul>
+    <p>
+      Note that the least significant bit is on the right and the most significant bit is on the left as you would expect.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Simple bits values</span>
+        </li>
+        <li>
+          <span class="m">a</span>
+          <span class="k">&larr;</span>
+          <span class="m">0b010011</span>
+        </li>
+        <li>
+          <span class="m">b</span>
+          <span class="k">&larr;</span>
+          <span class="m">0b101010</span>
+        </li>
+        <li>
+          <span class="m">c</span>
+          <span class="k">&larr;</span>
+          <span class="m">0B01010011</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="c">//Each of the operators</span>
+        </li>
+        <li>
+          <span class="c">//The <b>not</b> operator</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">not a</span>
+          <span class="c">//result would be 0b101100</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="c">//The <b>and</b> operator</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">and</span>
+          <span class="m">b</span>
+          <span class="c">//result would be 0b000010</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="c">//The <b>or</b> operator</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">or</span>
+          <span class="m">b</span>
+          <span class="c">//result would be 0b111011</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="c">//The <b>xor</b> operator</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">xor</span>
+          <span class="m">b</span>
+          <span class="c">//result would be 0b111001</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="c">//The <b>&lt;&lt;</b> operator</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">c</span>
+          <span class="k">&lt;&lt;</span>
+          <span class="m">1</span>
+          <span class="c">//result would be 0b010100110</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">c</span>
+          <span class="k">&lt;&lt;</span>
+          <span class="m">2</span>
+          <span class="c">//result would be 0b0101001100</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="c">//The <b>&gt;&gt;</b> operator</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">c</span>
+          <span class="k">&gt;&gt;</span>
+          <span class="m">2</span>
+          <span class="c">//result would be 0b00010100</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The most important point about the bitwise operators is that they operate on <b>sets of bits</b>; these are
+      not longs or ints or any other primitive type.
+      They are only sets of bits that can grow (as you see in the shift left operator). There are more details on
+      the <b>set of bits</b> type in <a href="builtInTypes.html#bits">built-in types</a> and
+      <a href="standardTypes.html">Standard Types</a>.
+      For example; it is possible to join <b>sets of bits</b> and use these with pipeline processing to check
+      specific values in a <b>sets of bits</b>; but you <u>cannot</u> consider them a primitive type nor an
+      <u>array of bits</u> (there are no arrays).
+    </p>
+    <h5 id="ternary">Ternary style Operators</h5>
+    <p>
+      There are a number of ternary operators that have a shorthand, some of which are new. See the example
+      at the end of the section on why these were introduced and what the benefits of using them are.
+    </p>
+    <p>
+      The main ternary operator is shown below first as it will be familiar to many developers:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Setup values</span>
+        </li>
+        <li>
+          <span class="m">bird1</span>
+          <span class="k">as</span>
+          <span class="m">String</span>
+        </li>
+        <li>
+          <span class="m">bird2</span>
+          <span class="k">&larr;</span>
+          <span class="m">"Duck"</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="m">birdA</span>
+          <span class="k">&larr;</span>
+          <span class="m">bird1</span><span class="k">?</span>
+          <span class="k">&larr;</span>
+          <span class="m">bird1</span>
+          <span class="k">:</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="c">//birdA would have the value of "Duck" because 'bird1' is not set</span>
+        </li>
+        <li>
+          <span class="c">//Note this could have been written as</span>
+        </li>
+        <li>
+          <span class="m">birdA</span>
+          <span class="k">:=</span>
+          <span class="m">bird1</span><span class="k">?</span>
+          <span class="k">&larr;</span>
+          <span class="m">bird1</span>
+          <span class="k">else</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="c">//Maybe this is less terse but more readable and obvious.</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="m">bird1</span>
+          <span class="k">:=</span>
+          <span class="m">String()</span>
+        </li>
+        <li>
+          <span class="m">birdA</span>
+          <span class="k">:=</span>
+          <span class="m">bird1</span><span class="k">?</span>
+          <span class="k">&larr;</span>
+          <span class="m">bird1</span>
+          <span class="k">:</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="c">//birdA would <b>still</b> have the value of "Duck" because 'bird1' does not have a meaningful value</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="m">bird1</span>
+          <span class="k">:=</span>
+          <span class="m">"Goose"</span>
+        </li>
+        <li>
+          <span class="m">birdB</span>
+          <span class="k">&larr;</span>
+          <span class="m">bird1</span><span class="k">?</span>
+          <span class="k">&larr;</span>
+          <span class="m">bird1</span>
+          <span class="k">:</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="c">//birdB would now have the value of "Goose" because bird1 <b>is set</b></span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      This is a standard ternary operation; instead of '<b>bird1?</b>' any Boolean expression can be used.
+      As you can see using '<b>else</b>' rather than the '<b>:</b>' makes the ternary operator a little more
+      obvious and readable.
+    </p>
+    <h5 id="coalescing">Coalescing Operators</h5>
+    <p>
+      There are a number of <b>coalescing</b> operators, these work on variables that are <b>not set</b>. These
+      are:
+    </p>
+    <ul>
+      <li>Null Coalescing (c = a ?? b) - note b may not get evaluated <u>if</u> a is not <b>null</b> i.e. has memory allocated</li>
+      <li>Elvis Coalescing (c = a ?: b) - note a and b are evaluated</li>
+      <li>Less than Coalescing (c = a &lt;? b) - note a and b are evaluated</li>
+      <li>Less than or equal to Coalescing (c = a &lt;=? b) - note a and b are evaluated</li>
+      <li>Greater than Coalescing (c = a &gt;? b) - note a and b are evaluated</li>
+      <li>Greater than or equal to Coalescing (c = a &gt;=? b) - note a and b are evaluated</li>
+    </ul>
+    <p>
+      The 'Elvis' operator is a bit special (as you would expect).
+      The Elvis operator does both a null check and an <b>is set</b> check. This is the main difference to the
+      '<b>??</b>' operator which only does a <b>null</b> check.
+    </p>
+    <p>
+      While not a ternary operator; the <i>conditional assignment</i> (<b>:=?</b>) operator 'feels' related.
+      This is similar in some ways to the 'Elvis' operator. This can also be considered to be an
+      assignment coalescing operator. The right-hand side of the assignment is only evaluated if the
+      left-hand side is unset (or has not been allocated storage).
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Setup values</span>
+        </li>
+        <li>
+          <span class="m">bird1</span>
+          <span class="k">as</span>
+          <span class="m">String</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="m">bird1</span>
+          <span class="k">:=?</span>
+          <span class="m">"Goose"</span>
+        </li>
+        <li>
+          <span class="c">//bird1 would have the value of "Goose" because 'bird1' is not set</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="c">//In contrast.</span>
+        </li>
+
+        <li>
+          <span class="m">bird1</span>
+          <span class="k">&larr;</span>
+          <span class="m">"Duck"</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="m">bird1</span>
+          <span class="k">:=?</span>
+          <span class="m">"Goose"</span>
+        </li>
+        <li>
+          <span class="c">//bird1 would have the value of "Duck" because 'bird1' was originally set</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      You maybe thinking why not just use the normal <b>if</b> statements and comparison operators,
+      why add these as well. The normal comparison operators will return an <b>unset</b> value if
+      either of the items being compared are <b>unset</b>.
+      A value with compared to another <b>unset</b> value will result in a meaningless result. These
+      operators accept that either (or both) of the values can be <b>unset</b>.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Initialise values</span>
+        </li>
+        <li>
+          <span class="m">bird1</span>
+          <span class="k">as</span>
+          <span class="m">String</span>
+        </li>
+        <li>
+          <span class="m">bird2</span>
+          <span class="k">&larr;</span>
+          <span class="m">"Duck"</span>
+        </li>
+        <li>
+          <span class="m">birdA</span>
+          <span class="k">&larr;</span>
+          <span class="m">bird1</span>
+          <span class="k">??</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="m">birdA</span>
+          <span class="k">:=</span>
+          <span class="m">bird1</span>
+          <span class="k">&lt;?</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="m">birdA</span>
+          <span class="k">:=</span>
+          <span class="m">bird1</span>
+          <span class="k">&lt;=?</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="m">birdA</span>
+          <span class="k">:=</span>
+          <span class="m">bird1</span>
+          <span class="k">&gt;?</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="m">birdA</span>
+          <span class="k">:=</span>
+          <span class="m">bird1</span>
+          <span class="k">&gt;=?</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="c">//In all above examples birdA would have the value of "Duck" because 'bird1' is not set</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="c">//As you can see bird1 is <u>not less than, equal to or greater than</u> bird2 because bird1 <b>not set</b>.</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="m">birdB</span>
+          <span class="k">&larr;</span>
+          <span class="m">bird1</span>
+          <span class="k">?:</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="c">//birdB would <b>also</b> have the value of "Duck" because 'bird1' is not set</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="m">bird1</span>
+          <span class="k">:=</span>
+          <span class="m">String()</span>
+        </li>
+        <li>
+          <span class="m">birdA</span>
+          <span class="k">:=</span>
+          <span class="m">bird1</span>
+          <span class="k">??</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="c">//birdA would <b>now</b> be <b>un set</b> and not have a meaningful value because it has taken same value as 'bird1'</span>
+        </li>
+        <li>
+          <span class="c">//But importantly bird1 does have memory allocated.</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="m">birdB</span>
+          <span class="k">:=</span>
+          <span class="m">bird1</span>
+          <span class="k">?:</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="c">//birdB would have the value of "Duck" because 'bird1' does not have a meaningful value but does have memory allocated.</span>
+        </li>
+        <li>
+          <span class="c">//this is the main difference between <b>??</b> and <b>?:</b></span>
+        </li>
+        <li>
+          <span class="c">//By the same logic birdB would have the value of "Duck" when the <b>&lt;?, &lt;=?, &gt;?, &gt;=?</b> operators are used.</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="m">bird1</span>
+          <span class="k">:=</span>
+          <span class="m">"Goose"</span>
+        </li>
+        <li>
+          <span class="m">birdC</span>
+          <span class="k">&larr;</span>
+          <span class="m">bird1</span>
+          <span class="k">??</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="c">//birdC would now have the value of "Goose" because bird1 <b>is set</b></span>
+        </li>
+        <li>
+          <span class="m">birdC</span>
+          <span class="k">:=</span>
+          <span class="m">bird1</span>
+          <span class="k">?:</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="c">//birdC would <b>also</b> have the value of "Goose" because bird1 <b>is set</b></span>
+        </li>
+        <li>
+          <span class="m">birdC</span>
+          <span class="k">:=</span>
+          <span class="m">bird1</span>
+          <span class="k">&lt;?</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="c">//birdC would have the value of "Duck"</span>
+        </li>
+        <li>
+          <span class="m">birdC</span>
+          <span class="k">:=</span>
+          <span class="m">bird1</span>
+          <span class="k">&lt;=?</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="c">//birdC would have the value of "Duck"</span>
+        </li>
+        <li>
+          <span class="m">birdC</span>
+          <span class="k">:=</span>
+          <span class="m">bird1</span>
+          <span class="k">&gt;?</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="c">//birdC would have the value of "Goose"</span>
+        </li>
+        <li>
+          <span class="m">birdC</span>
+          <span class="k">:=</span>
+          <span class="m">bird1</span>
+          <span class="k">&gt;=?</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="c">//birdC would have the value of "Goose"</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      As you can see there is a small but important difference between '<b>??</b>' and '<b>?:</b>'. These
+      operators have been introduced to make the processing of variables that have or have not been given
+      a meaningful value easier.
+      They simplify comparisons where some values may not have been <b>set</b>.
+    </p>
+    <p>
+      The operators '<b>&lt;?</b>', '<b>&lt;=?</b>', '<b>&gt;?</b>' and '<b>&gt;=?</b>' follow the same
+      logic as the Elvis operator '<b>?:</b>' (as does the '<b>:=?</b>' operator). They work with variables that have no memory
+      allocated (<b>null</b>) or do have memory allocated but are <b>unset</b>, or do have a meaningful value.
+    </p>
+    <h5 id="assignment_coalescing">Assignment coalescing Operator</h5>
+    <p>
+      So in short; if you want to make an assignment by comparing two variables and take into account that they
+      may not have a meaningful value use '<b>&lt;?</b>', '<b>&lt;=?</b>', '<b>&gt;?</b>' and '<b>&gt;=?</b>' in preference to
+      '<b>&lt;</b>', '<b>&lt;=</b>', '<b>&gt;</b>' and '<b>&gt;=</b>', unless you actually need to retain the fact that
+      the comparison was a meaningless one. If you want only want to assign a variable if it currently is
+      unassigned then use the assignment coalescing operator ('<b>:=?</b>').
+    </p>
+    <p>
+      <b>
+        One of the most important concepts in EK9 is that a variable can exist but not hold a meaningful
+        value.
+      </b>
+      This is really important as most developers would expect the comparison of two values to result in either:
+    </p>
+    <ul>
+      <li>Less than</li>
+      <li>Greater than</li>
+      <li>Equal to</li>
+    </ul>
+    <p>
+      But there is a forth state where either one or both of the values is <b>not set</b>.
+      With standard comparison operators the test becomes meaningless and not valid.
+      These operators support the idea that you may wish to compare values and account for the fact that one or both
+      might not be set. If both do have meaning then the normal comparison operator logic is applied.
+    </p>
+    <p id="contrast_if_else_ternary">
+      These new operators may seem like <u>just yet another thing to learn</u>, but you could just write the following:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Values to work with</span>
+        </li>
+        <li>
+          <span class="m">bird1</span>
+          <span class="k">as</span>
+          <span class="m">String</span>
+        </li>
+        <li>
+          <span class="m">bird2</span>
+          <span class="k">&larr;</span>
+          <span class="m">"Duck"</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Without using new operators</span>
+        </li>
+        <li>
+          <span class="m">birdA</span>
+          <span class="k">&larr;</span>
+          <span class="m">String()</span>
+        </li>
+        <li>
+          <span class="k">if not</span>
+          <span class="m">bird1</span><span class="k">?</span>
+        </li>
+        <li>
+          <span class="m">&nbsp;&nbsp;birdA</span>
+          <span class="k">:=</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          <span class="k">else if not</span>
+          <span class="m">bird2</span><span class="k">?</span>
+        </li>
+        <li>
+          <span class="m">&nbsp;&nbsp;birdA</span>
+          <span class="k">:=</span>
+          <span class="m">bird1</span>
+        </li>
+        <li>
+          <span class="k">else</span>
+        </li>
+        <li>
+          <span class="m">&nbsp;&nbsp;birdA</span>
+          <span class="k">:=</span>
+          <span class="m">bird1</span>
+          <span class="k">&lt;</span>
+          <span class="m">bird2</span>
+          <span class="k">&larr;</span>
+          <span class="m">bird1</span>
+          <span class="k">else</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//With the new operator</span>
+        </li>
+        <li>
+          <span class="m">birdA</span>
+          <span class="k">&larr;</span>
+          <span class="m">bird1</span>
+          <span class="k">&lt;?</span>
+          <span class="m">bird2</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//With the new operator and function calls</span>
+        </li>
+        <li>
+          <span class="m">birdA</span>
+          <span class="k">&larr;</span>
+          <span class="m">functionToGetBird1()</span>
+          <span class="k">&lt;?</span>
+          <span class="m">functionToGetBird2()</span>
+        </li>
+        <li>
+          <span class="c">//Without the new operators, you would want to avoid multiple calls!</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      So these new operators are more than just a <b>null</b> safe version of the normal comparators, they are a mix of the
+      <u>Elvis</u>coalescing operator and comparators/assignment operators. They really reduce the amount of <b>null</b>
+      and <b>if/else</b> code. They also dovetail in with type inference, note how in the example above <i>birdA</i>
+      is declared, type inferred and assigned all in one go.
+    </p>
+    <p>
+      Finally (and this section has been long) imagine if the <i>bird1</i> and <i>bird2</i> had not actually been variables,
+      but instead had been calls to <i>functions</i> or <i>methods</i>. You would now be forced to use additional variables
+      to capture the results of those calls. With the new coalescing operators that is not necessary.
+    </p>
+    <h5 id="mathematical">Mathematical</h5>
+    <p>
+      While these sets of operators are under the section called 'Mathematical' operators; addition '<b>+</b>'
+      and subtraction '<b>-</b>' can and <b>should</b> be used with other <i>types, records</i> and <i>classes</i>.
+      A good example of this would be a collection like a <i>List</i> using '<b>+</b>', '<b>+=</b>', '<b>-</b>', '<b>-=</b>'
+      make sense as it is rational, logical and is semantically correct.
+    </p>
+    <ul>
+      <li>Addition (c = a + b)</li>
+      <li>Subtraction (c = a - b)</li>
+      <li>Multiplication (c = a * b)</li>
+      <li>Division (c = a / b)</li>
+      <li>Factorial (c = a!)</li>
+      <li>Power (c = a ^ b)</li>
+      <li>Modulus (c = a mod b)</li>
+      <li>Remainder (c = a rem b)</li>
+      <li>Absolute (c = abs a)</li>
+      <li>Square root (c = sqrt a)</li>
+    </ul>
+    <p>
+      Examples of these mathematical operators are shown below.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Initialise values</span>
+        </li>
+        <li>
+          <span class="m">a</span>
+          <span class="k">&larr;</span>
+          <span class="m">21.9</span>
+        </li>
+        <li>
+          <span class="m">b</span>
+          <span class="k">&larr;</span>
+          <span class="m">13.6</span>
+        </li>
+        <li>
+          <span class="m">c</span>
+          <span class="k">&larr;</span>
+          <span class="m">Float()</span>
+        </li>
+        <li>
+          <span class="m">d</span>
+          <span class="k">&larr;</span>
+          <span class="m">Float()</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Addition examples</span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">+</span>
+          <span class="m">b</span>
+        </li>
+        <li>
+          <span class="c">//'e' would have the value of 35.5</span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">b</span>
+          <span class="k">+</span>
+          <span class="m">a</span>
+        </li>
+        <li>
+          <span class="c">//'e' would <b>again</b> have the value of 35.5</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//But in these following cases 'c' is <b>not set</b> and so the result is also <b>not set</b></span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">a</span>
+          <span class="k">+</span>
+          <span class="m">c</span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">c</span>
+          <span class="k">+</span>
+          <span class="m">a</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Also in these following cases both 'c' and 'd' are <b>not set</b> and so the result <b>not set</b></span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">c</span>
+          <span class="k">+</span>
+          <span class="m">d</span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">d</span>
+          <span class="k">+</span>
+          <span class="m">c</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Subtraction examples</span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">a</span>
+          <span class="k">-</span>
+          <span class="m">b</span>
+          <span class="c">//'e' = 8.299999999999999</span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">b</span>
+          <span class="k">-</span>
+          <span class="m">a</span>
+          <span class="c">//'e' = -8.299999999999999</span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">a</span>
+          <span class="k">-</span>
+          <span class="m">c</span>
+          <span class="c">//'e' = <b>not set</b></span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">c</span>
+          <span class="k">-</span>
+          <span class="m">a</span>
+          <span class="c">//'e' = <b>not set</b></span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">c</span>
+          <span class="k">-</span>
+          <span class="m">d</span>
+          <span class="c">//'e' = <b>not set</b></span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">d</span>
+          <span class="k">-</span>
+          <span class="m">c</span>
+          <span class="c">//'e' = <b>not set</b></span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Multiplication examples</span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">a</span>
+          <span class="k">*</span>
+          <span class="m">b</span>
+          <span class="c">//'e' = 297.84</span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">b</span>
+          <span class="k">*</span>
+          <span class="m">a</span>
+          <span class="c">//'e' = 297.84</span>
+        </li>
+        <li>
+          <span class="c">//all other combinations involving 'c' or 'd' result in 'e' being <b>not set</b></span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Division examples</span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">a</span>
+          <span class="k">/</span>
+          <span class="m">b</span>
+          <span class="c">//'e' = 1.6102941176470587</span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">b</span>
+          <span class="k">/</span>
+          <span class="m">a</span>
+          <span class="c">//'e' = 0.6210045662100457</span>
+        </li>
+        <li>
+          <span class="c">//all other combinations involving 'c' or 'd' result in 'e' being <b>not set</b></span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Factorial examples</span>
+        </li>
+        <li>
+          <span class="m">alpha</span>
+          <span class="k">&larr;</span>
+          <span class="m">5</span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">alpha</span><span class="k">!</span>
+          <span class="c">//'e' = 120.0</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Power examples</span>
+        </li>
+        <li>
+          <span class="m">beta</span>
+          <span class="k">&larr;</span>
+          <span class="m">5</span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">beta</span>
+          <span class="k">^</span>
+          <span class="m">2</span>
+          <span class="c">//'e' = 25.0</span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">beta</span>
+          <span class="k">^</span>
+          <span class="m">3</span>
+          <span class="c">//'e' = 125.0</span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="m">beta</span>
+          <span class="k">^</span>
+          <span class="m">4.8</span>
+          <span class="c">//'e' = 2264.936448992798</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Modulus and remainder examples</span>
+        </li>
+        <li>
+          <span class="m">charlie</span>
+          <span class="k">&larr;</span>
+          <span class="m">-21</span>
+        </li>
+        <li>
+          <span class="m">f</span>
+          <span class="k">&larr;</span>
+          <span class="m">charlie</span>
+          <span class="k">mod</span>
+          <span class="m">4</span>
+          <span class="c">//'f' = 3 because -21 + 4 x 6 is 3</span>
+        </li>
+        <li>
+          <span class="m">f</span>
+          <span class="k">:=</span>
+          <span class="m">charlie</span>
+          <span class="k">rem</span>
+          <span class="m">4</span>
+          <span class="c">//'f' = -1 because -21 / 4 gives -5 with a remainder of -1</span>
+        </li>
+        <li>
+          <span class="c">//For positive values the results are the same for modulus and remainder</span>
+        </li>
+        <li>
+          <span class="m">delta</span>
+          <span class="k">&larr;</span>
+          <span class="m">21</span>
+        </li>
+        <li>
+          <span class="m">f</span>
+          <span class="k">:=</span>
+          <span class="m">delta</span>
+          <span class="k">mod</span>
+          <span class="m">4</span>
+          <span class="c">//'f' = 1</span>
+        </li>
+        <li>
+          <span class="m">f</span>
+          <span class="k">:=</span>
+          <span class="m">charlie</span>
+          <span class="k">rem</span>
+          <span class="m">4</span>
+          <span class="c">//'f' = 1</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Absolute - abs example</span>
+        </li>
+        <li>
+          <span class="m">f</span>
+          <span class="k">:=</span>
+          <span class="k">abs</span>
+          <span class="m">charlie</span>
+          <span class="c">//'f' = 21</span>
+        </li>
+        <li>
+          <span class="m">f</span>
+          <span class="k">:=</span>
+          <span class="k">abs</span>
+          <span class="m">delta</span>
+          <span class="c">//'f' = 21</span>
+        </li>
+        <li>
+          <span class="m">echo</span>
+          <span class="k">&larr;</span>
+          <span class="m">-23.88</span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="k">abs</span>
+          <span class="m">echo</span>
+          <span class="c">//'e' = 23.88</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Square root - sqrt example</span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="k">sqrt</span>
+          <span class="m">delta</span>
+          <span class="c">//'e' = 4.58257569495584</span>
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="k">sqrt</span>
+          <span class="k">abs</span>
+          <span class="m">echo</span>
+          <span class="c">//'e' = 4.886716689148247</span>
+        </li>
+        <li>
+          <span class="c">//Note the combination of sqrt and abs.</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="m">e</span>
+          <span class="k">:=</span>
+          <span class="k">sqrt</span>
+          <span class="m">echo</span>
+          <span class="c">//'e' = <b>not set</b> cannot sqrt a negative number</span>
+        </li>
+        <li>
+          <span class="c">EK9 does not have imaginary numbers so sqrt of a negative number is not valid</span>
+        </li>
+      </ul>
+    </div>
+
+    <h5 id="functional">Functional</h5>
+    <p>
+      EK9 includes a number of operators that are not found in most other languages. Again these are aimed
+      at encouraging standard naming and also readability. They also model some standard type concepts, like
+      conversion to a <b>String</b>/<b>Hash code</b> and <b>promotion</b> from one type to another
+      (i.e <b>Integer</b> to <b>Float</b>). Another concept that is used quite widely is <u>closing</u>
+      of 'things', such as connections, files, collections or anything where explicit <b>completion of use</b>
+      needs to be de-marked in some way. As you will see in the section on
+      <a href="exceptions.html">Exceptions and Error Handling</a> the use of <b>close</b> with a <i>try</i>
+      block means that resources that have to be managed (opened/closed) can be dealt with in quite a terse
+      and simple manner that is consistent.
+    </p>
+    <p>
+      EK9 also includes an operator to convert built-in type and <i>records/classes</i> to JSON.
+      In the case of <i>records</i> the implementation can be <b>defaulted</b> in most cases.
+      But there are times when it is necessary for you to provide your own implementation.
+    </p>
+    <ul>
+      <li>Empty (b = a is empty)</li>
+      <li>Length (b = length of a)</li>
+      <li>Convert to String (b = $ a)</li>
+      <li>Convert to JSON object (b = $$ a)</li>
+      <li>Hash code (b = #? a )</li>
+      <li>Promote (b = #^ a)</li>
+      <li>Prefix (b = #&lt; a)</li>
+      <li>Suffix (b = #&gt; a)</li>
+    </ul>
+    <p>
+      You may have noticed there are some operators that use some additional wording like
+      <b>is</b> or <b>of</b> these are just a bit of <u>sugar</u> you can omit them if you wish;
+      but sometimes it makes the syntax more readable.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Initialise values</span>
+        </li>
+        <li>
+          <span class="m">anInteger</span>
+          <span class="k">&larr;</span>
+          <span class="m">106</span>
+        </li>
+        <li>
+          <span class="m">aList</span>
+          <span class="k">&larr;</span>
+          <span class="m">["V1", "V2", "V3"]</span>
+          <span class="c">//Remember this is a List not an Array</span>
+        </li>
+        <li>
+          <span class="m">aString</span>
+          <span class="k">&larr;</span>
+          <span class="m">"A-to-Z"</span>
+        </li>
+        <li>
+          <span class="m">money</span>
+          <span class="k">&larr;</span>
+          <span class="m">350.50#USD</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Examples of use with a List of Strings</span>
+        </li>
+        <li>
+          <span class="m">isEmpty</span>
+          <span class="k">&larr;</span>
+          <span class="m">aList</span>
+          <span class="k">is empty</span>
+          <span class="c">//isEmpty will have value of false, because the list is not empty</span>
+        </li>
+        <li>
+          <span class="m">isNotEmpty</span>
+          <span class="k">&larr;</span>
+          <span class="m">aList</span>
+          <span class="k">is not empty</span>
+          <span class="c">//isNotEmpty will have value of true, because the list is not empty</span>
+        </li>
+        <li>
+          <span class="c">//The above could have been written as</span>
+        </li>
+        <li>
+          <span class="m">isNotEmpty</span>
+          <span class="k">&larr;</span>
+          <span class="k">not</span>
+          <span class="m">aList</span>
+          <span class="k">empty</span>
+          <span class="c">//But this reads like Yoda might have said it.</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Length example</span>
+        </li>
+        <li>
+          <span class="m">listLength</span>
+          <span class="k">&larr;</span>
+          <span class="k">length of</span>
+          <span class="m">aList</span>
+          <span class="c">//listLength will be 3</span>
+        </li>
+        <li>
+          <span class="c">//The above could have been written as</span>
+        </li>
+        <li>
+          <span class="m">listLength</span>
+          <span class="k">&larr;</span>
+          <span class="k">length</span>
+          <span class="m">aList</span>
+          <span class="c">//The 'of' is just to add readability</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Convert List to a String and get its length</span>
+        </li>
+        <li>
+          <span class="m">listAsString</span>
+          <span class="k">&larr;</span>
+          <span class="k">$</span>
+          <span class="m">aList</span>
+          <span class="c">//listAsString will be "[V1, V2, V3]"</span>
+        </li>
+        <li>
+          <span class="m">lengthOfListAsString</span>
+          <span class="k">&larr;</span>
+          <span class="k">$</span>
+          <span class="k">length of</span>
+          <span class="k">$</span>
+          <span class="m">aList</span>
+        </li>
+        <li>
+          <span class="c">//lengthOfListAsString will be 12</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Accessing specific items in the List</span>
+        </li>
+        <li>
+          <span class="c">//For the first (prefix) and the last (suffix) can be used</span>
+        </li>
+        <li>
+          <span class="m">v1</span>
+          <span class="k">&larr;</span>
+          <span class="k">#&lt;</span>
+          <span class="m">aList</span>
+          <span class="c">//v1 will be "V1"</span>
+        </li>
+        <li>
+          <span class="m">v3</span>
+          <span class="k">&larr;</span>
+          <span class="k">#&gt;</span>
+          <span class="m">aList</span>
+          <span class="c">//v3 will be "V3"</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Access can be by index value 0 based</span>
+        </li>
+        <li>
+          <span class="m">maybeAString</span>
+          <span class="k">&larr;</span>
+          <span class="m">aList.get</span><span class="k">(</span><span class="m">5</span><span
+            class="k">)</span>
+          <span class="c">//maybeAString will be of type <b>Optional of String</b></span>
+        </li>
+        <li>
+          <span class="c">//The Optional is returned so that if invalid index is passed in a value that is <b>not set</b> can be provided</span>
+        </li>
+        <li>
+          <span class="c">//In this case maybeAString? would be false there are only 3 items in the lit</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//But the pipeline processing is more powerful</span>
+        </li>
+        <li>
+          <span class="m">v2</span>
+          <span class="k">&larr;</span>
+          <span class="k">cat</span>
+          <span class="m">aList</span>
+          <span class="k">| skip</span>
+          <span class="m">1</span>
+          <span class="k">| head</span>
+          <span class="m">1</span>
+          <span class="k">| collect as</span>
+          <span class="m">String</span>
+          <span class="c">//v2 will be "V2"</span>
+        </li>
+        <li>
+          <span class="c">//Pipeline processing is also safe by avoiding indexing</span>
+        </li>
+        <li>
+          <span class="m">nonExistent</span>
+          <span class="k">&larr;</span>
+          <span class="k">cat</span>
+          <span class="m">aList</span>
+          <span class="k">| skip</span>
+          <span class="m">4</span>
+          <span class="k">| head</span>
+          <span class="m">1</span>
+          <span class="k">| collect as</span>
+          <span class="m">String</span>
+        </li>
+        <li>
+          <span class="c">//nonExistent will be <b>not set</b> as there are only 3 Strings in the list</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Same syntax can be used with Strings (or your own records/classes if you provide operators)</span>
+        </li>
+        <li>
+          <span class="m">isEmpty</span>
+          <span class="k">:=</span>
+          <span class="m">aString</span>
+          <span class="k">is empty</span>
+          <span class="c">//isEmpty will have value of false, because the string has a value of "A-to-Z"</span>
+        </li>
+        <li>
+          <span class="m">firstChar</span>
+          <span class="k">&larr;</span>
+          <span class="k">#&lt;</span>
+          <span class="m">aString</span>
+          <span class="c">//firstChar will be 'A'</span>
+        </li>
+        <li>
+          <span class="m">lastChar</span>
+          <span class="k">&larr;</span>
+          <span class="k">#&gt;</span>
+          <span class="m">aString</span>
+          <span class="c">//lastChar will be 'Z'</span>
+        </li>
+        <li>
+          <span class="c">//The important point here is the same syntax but with different types <b>String</b> rather than <b>List</b></span>
+        </li>
+        <li>
+          <span class="c">//Further example shown using Money</span>
+        </li>
+        <li>
+          <span class="m">amount</span>
+          <span class="k">&larr;</span>
+          <span class="k">#&lt;</span>
+          <span class="m">money</span>
+          <span class="c">//amount will be 350.5</span>
+        </li>
+        <li>
+          <span class="m">currency</span>
+          <span class="k">&larr;</span>
+          <span class="k">#&gt;</span>
+          <span class="m">money</span>
+          <span class="c">//currency will be USD</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//The following examples outline hash code and promotion of <i>type</i></span>
+        </li>
+        <li>
+          <span class="m">aFloat</span>
+          <span class="k">&larr;</span>
+          <span class="k">#^</span>
+          <span class="m">anInteger</span>
+          <span class="c">//aFloat will be 106.0 (i.e a floating point number)</span>
+        </li>
+        <li>
+          <span class="c">//With your own records and classes you can provide your own promotions</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="m">hashCode</span>
+          <span class="k">&larr;</span>
+          <span class="k">#?</span>
+          <span class="m">anInteger</span>
+          <span class="c">//hashCode will be 106</span>
+        </li>
+        <li>
+          <span class="m">hashCode</span>
+          <span class="k">:=</span>
+          <span class="k">#?</span>
+          <span class="m">aFloat</span>
+          <span class="c">//hashCode will be 1079672832</span>
+        </li>
+      </ul>
+    </div>
+    <h5 id="pipeline">Pipeline operator</h5>
+    <p>
+      Finally there is one operator that is only used in conjunction with Streams and Pipeline processing and that
+      is the pipe '<b>|</b>' operator. It is an operator that is provided on the built-in types where appropriate
+      (List/Integer/Float for example) to allow for the accumulation of values. But note it can also be overridden
+      in your own <i>Records</i> and <i>Classes</i>.
+    </p>
+    <p>Its semantics are similar to the '<b>+=</b>' operator but with one very <u>significant</u>
+      difference. Whereas the '<b>+=</b>' operator typically does not allow an addition to the value when it
+      itself is <b>unset</b> the '<b>|</b>' operator does. This means that value can transition from being
+      <b>unset</b> to having an initial value when the '<b>|</b>' operator is first called.
+      Subsequent calls to the '<b>|</b>' operator should use the value being passed in to accumulate or replace
+      the current value (depending on the type).
+    </p>
+    <p>
+      See <a href="builtInTypes.html#integer_pipeline">Integer type in a pipeline</a> for an example of this.
+    </p>
+
+    <h3 id="defaults">Defaults</h3>
+    <p>
+      You may be used to your programming language or tool chain (like Java Lombok) providing many of these
+      <i>operators</i> out of the box; this is so you don't have to implement them yourself.
+    </p>
+    <p>
+      EK9 does provide this functionality; but it does so in a layered and controlled manner that applies to
+      <i>records</i> and <i>classes</i> only. See the sections on <a href="records.html">Records</a> and
+      <a href="classes.html">Classes</a> for more details.
+    </p>
+    <p>
+      Simple operators like <b>'$', '#?', '?'</b> can be generated by EK9. It uses the fields/properties
+      held in the record/class and those of any <b>super record/class</b>. Those fields must also have the
+      operators present (else the compiler will issue an error).
+    </p>
+    <p>
+      For <b>records</b>; EK9 can also
+      automatically generate the JSON (<b>$$</b>) operator code by default in most cases.
+    </p>
+    <p>
+      The converse is not always true however, EK9 cannot always create the code to take JSOn and convert
+      back into <i>records</i>. If the records contain fields/properties that are abstract in nature then
+      it falls to the developer to write that code to reconstitute a <i>record</i> from a JSON representation.
+    </p>
+    <p>
+      The Comparison/Equality operators like <b>'==', '&lt;&gt;', '&lt;=&gt;', '&lt;', '&lt;=', '&gt;', &gt;='</b>
+      can be generated by EK9 by looking at each of the fields.
+      This is done primarily through the comparison (<b>'&lt;=&gt;'</b>) operator. If the record/class has a
+      <b>super</b>; this is called first; and only if results in <b>0</b> for comparison are the fields in the
+      current instance evaluated. But if any of the fields of the record/class are <b>unset</b> then the
+      result is also <b>unset</b>.
+      To alter this behaviour, just override the <b>'&lt;=&gt;'</b> operator and provide the implementation you would prefer.
+    </p>
+    <p>
+      The idea of <b>'default operator'</b> is very useful and enables you to provide all the operators in a
+      simple and straightforward manner. But it also enables you to provide a finite list if you wish and provide
+      your own implementations as and when you see fit.
+    </p>
+    <h2>Summary</h2>
+    <p>
+      As you can see there are quite a few operators, most should be fairly obvious; especially the logical and
+      mathematical operators. The others are there to enable you to deal with common operations such as type
+      promotion, hashing and string conversion in a terse/succinct manner.
+    </p>
+    <p>
+      The other main operators are employed to deal with variables which may or may not be <b>set</b>. As
+      mentioned earlier a variable without meaningful data is an important concept and this is why the
+      additional operators have been created.
+    </p>
+    <p>
+      These <b>null safe</b> ternary and assignment coalescing operators may take some getting used to.
+      Just remember if you are checking if a value is being set with an 'if statement';
+      there maybe a built-in operator that can help reduce your code.
+    </p>
+    <h3>Next Steps</h3>
+    <p>
+      There is a bit more detail on operators in the section on <a href="builtInTypes.html">built-in-types</a>.
+      That should be the section you review next, as <a href="structure.html">structure</a> covered the overall
+      layout and <b>constructs</b> and this section covered what type of operators are available.
+    </p>
+  </article>
+</main>
+</body>
+</html>

@@ -1,0 +1,2366 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>The structure of the EK9 programming language</title>
+  <meta name="description" content="The EK9 programming language has a number of constructs to enable
+    developers to start with simple ideas and progress to more sophisticated solutions."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Structure of EK9</h1>
+    </header>
+    <p>An EK9 source code file can have any file name (but cannot contain spaces and <b>must</b> have a file
+      extension of <b>.ek9</b>). The first line must only contain <b>#!ek9</b> this is so that the file can be
+      processed by the compiler. The structure then has the following form:
+    </p>
+    <h3 id="constructs">The Constructs</h3>
+    <ul>
+      <li>
+        <a href="#module">Module</a>
+        <ul>
+          <li><a href="#references">References</a></li>
+          <li><a href="#constant">Constant</a></li>
+          <li><a href="#program">Program</a></li>
+          <li><a href="#type">Type</a></li>
+          <li><a href="#function">Function</a> and <a href="#generic_functions">Generic Functions</a></li>
+          <li><a href="#record">Record</a></li>
+          <li><a href="#class">Class</a> and <a href="#generic_classes">Generic Classes</a></li>
+          <li><a href="#trait">Trait</a></li>
+          <li><a href="#package">Package</a></li>
+
+          <li><a href="#text">Text</a></li>
+          <li><a href="#component">Component</a></li>
+          <li><a href="#application">Application</a></li>
+          <li><a href="#service">Service</a></li>
+        </ul>
+      </li>
+    </ul>
+    <p>
+      As you can see from the above list, there are quite a few <b>constructs</b>. It is <u>not necessary</u> to
+      know them all before getting started.
+    </p>
+    <p>
+      If you are a more senior/experienced developer you will probably want to go through all of these <b>constructs</b>
+      at some point.
+    </p>
+    <p>
+      If you've done some development before at the 'mid' level then
+      just go as far as <a href="#trait">traits</a> and come back to <a href="#generics">generics</a> and the
+      others later.
+    </p>
+    <p>
+      For junior developers or those just starting out, really understand
+      <a href="#program">programs</a> and <a href="#function">functions</a>; then just jump over to <a
+        href="basics.html">basics</a>,
+      <a href="operators.html">operators</a> and <a href="flowControl.html">flow control</a>. Come back to
+      <a href="#record">records</a> and <a href="#class">classes</a> later,
+      you can build up in phases. It would be quite easy to become <u>overwhelmed</u> with lots of new concepts
+      and terminology,
+      you need to pace yourself when learning something new.
+    </p>
+    <p>
+      Remember EK9 is designed to go from small scale applications right up to large scale solutions
+      and as such has incorporated a lot of design patterns/framework ideas/API's into the language itself
+      <b>(it is big)</b>.
+    </p>
+    <p>
+      EK9 is more like a 'tool box'; if you really don't need to use the <u>pliers</u> (<b>components</b>) leave them in
+      the box, but when you do need them they are available.
+    </p>
+    <p>
+      <b>You can just use <i>programs</i> and <i>functions</i> if that's all you need (like 'C'), only use what you need.</b>
+    </p>
+    <p>
+      If you've not seen any EK9 code yet, then take a look here for the <a href="introduction.html#hello_world">hello
+      world</a> example or jump to
+      the <a href="#program">program</a> below.
+    </p>
+    <p>In the end, if you plan to build a <u>full stack application</u> and include <u>microservices</u> you will end
+      up using these same sort of API's and ideas even if you use third
+      party tools/API's or frameworks. But if you just need a quick <i>program</i> to parse a JSON, XML or CSV
+      file then <i>program</i> might be the only <b>construct</b> you need.
+      You might want to structure the <i>program</i> a bit and break it down and use a few <i>functions</i> as
+      well.
+    </p>
+    <p>
+      As you go through these various <b>constructs</b> below; the examples become more and more detailed and more
+      assumptions around software development at an
+      enterprise scale are made. If you are new to these ideas then there are links on this page that reference
+      resources that explain
+      the concepts (like Functional Programming, Object-Oriented Programming, Aspect Oriented Programming,
+      Inversion of Control and Dependency Injection).
+    </p>
+    <p>
+      You should be able to 'stop' at a specific <b>construct</b> and use what you've learned so far. For
+      inexperienced developers - take your time and build your knowledge slowly. For experience developers
+      <b>go for it</b>. This should look like all the techniques you've been using before, but all built into the language.
+    </p>
+    <p>
+      EK9 is designed to enable developers to mix a range of these techniques to suit themselves and find a
+      balance for their team. Each of the above techniques
+      has power and capability, but the <u>blend</u> of techniques employed will depend on the type of software
+      you are developing and the
+      range of skills/experience in the team.
+    </p>
+    <h4>Getting started with EK9 file layout </h4>
+    <h5 id="module">Module</h5>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="nv">#!ek9</span>
+        </li>
+        <li>
+          <span class="k">defines</span> <span class="k">module</span>
+          <span class="nv">introduction</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      <i>Module</i> - is really just a <u>name space</u> for constructs to be held in.
+      The example above uses <b>introduction</b> but it could have been any name including a conceptual hierarchy
+      such as <b>com.system.introduction</b>. If you intend to publish your code to the
+      <a href="https://repo.ek9lang.org">EK9 repository</a> or even make it reusable internally as a versioned
+      release then selecting a suitable <i>module name</i> is
+      important. Take a look at the <a href="#package">package</a> directive to understand this in more detail.
+    </p>
+
+    <p>It is important to note that any number of files can be used for source code and each of those files can use
+      the same module <u>name space</u>;
+      when this is done all <b>constructs</b> defined are visible to each other; as they are in the same <u>name
+        space</u>.
+    </p>
+    <p>
+      There is no linked visibility between <u>name spaces</u> where a conceptual hierarchy naming is employed,
+      they are in effect fully separated. For example <b>com.p1.submodule</b> is fully separate from
+      <b>com.p1</b> even though their base names are the same there is no implied or secret access.
+      The name space must have lower case letters. Each sequence of characters can then be punctuated with a
+      '<b>.</b>'.
+    </p>
+    <p>
+      If you are looking to truly isolate software; then adopt microservices as they can be fully isolated and
+      managed/scaled independently. EK9 does not look to build 'Chinese walls' within a single application through
+      convolutions in 'loaders' or module hierarchies.
+    </p>
+
+    <h5 id="references">References</h5>
+    <p>
+      See the detailed section on <a href="basics.html#references_example">references</a> to understand how to
+      access constructs from other <u>name spaces</u>. If other constructs from other
+      <u>name spaces</u> are to be referenced, then the <b>references</b> must come after the module declaration
+      and before the first construct declaration.
+    </p>
+    <p>
+      When referencing <b>constructs</b> in other modules, the reference must be fully qualified, there are no wildcards!
+      Best practice is to create a source file in your module that references all the other components you wish to
+      access. This may seem like a 'painful' activity if you have many linkages to other modules, <b>it is designed to be
+      'painful'!</b>
+    </p>
+    <p>
+      The point of creating this <u>pain</u> is to try to reduce the linkage between module constructs;
+      to try and encourage encapsulation, information hiding, limit cyclomatic complexity and reduce coupling.
+      If you find you have too many <u>references</u> then look to refactor and start to use <i>components</i>.
+    </p>
+
+    <h5>The Constructs</h5>
+
+    <p>After the <i>module</i> declaration the developer can define a range of different <b>constructs</b>.</p>
+    <p>
+      The term <b>construct</b> is used in <b>EK9</b> to describe a major building block such as a <i>function</i>
+      or a <i>class</i> for example.
+    </p>
+    <p>
+      In general the structure of the file is marked by a <b>defines</b> directive; this indicates what sort of
+      <b>construct</b> declarations will follow. Unlike some languages that
+      require the declaration of the sort of item being declared; EK9
+      now just expects all declarations after this to be of the same sort of <b>construct</b>.
+    </p>
+    <p>
+      This approach is similar to the 'Pascal' programming language, where you create <i>sections</i> of the source
+      file that define <i>constants</i> or <i>functions</i>.
+      EK9 allows definition and repetition of different sequences of
+      <b>constructs</b> in any order. But this would be considered bad 'style'.
+    </p>
+    <h5 id="constant">Constant</h5>
+    <p>
+      While it is not <u>necessary</u> to define <i>constant</i> <b>constructs</b> if none are needed; it is considered
+      good 'style' to define all the <i>constants</i> in a block towards the top of a source file.
+      The main reason for this is convention, driven from other languages that developers have become used to. But it is
+      also useful for other developers to see up front the definition of these <i>constants</i>.
+    </p>
+    <p>
+      <i>Constants</i> can <b>only</b> be basic <i>built-in</i> types. Even if you define your own <i>classes</i> you <b>cannot</b>
+      use them as <i>constants</i>. See
+      <a href="components.html">Components and Applications</a> and <a href="dependencyInjection.html">Dependency
+      Injection</a> to be able to use your own
+      <i>classes</i> in a manner similar to <i>constants</i>.
+    </p>
+    <p>
+      In EK9; the concept of a <i>constant</i> is really preserved for real world primitive ideas such as <u>PI</u>.
+      Furthermore; <i>constants</i> cannot be calculated. If there were two <i>constants</i> of <u>PI</u> and <u>radius</u>
+      it would <b>not</b> be
+      possible to define the third <i>constant</i> of <u>area</u> as <u>PI*radius^2</u> as this involves an
+      expression (you would create a <a href="#function">function</a> to do this).
+      Note that all <i>constants</i> are <i>public</i> in nature (meaning they are openly accessible).
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="nv">#!ek9</span>
+        </li>
+        <li>
+          <span class="k">defines</span> <span class="k">module</span>
+          <span class="nv">introduction</span>
+        </li>
+        <li>
+          <span class="k">&nbsp;&nbsp;defines</span> <span class="k">constant</span>
+        </li>
+      </ul>
+    </div>
+    <p>Once the above <b>constant construct</b> declaration has been made; the developer can then make a number of statements to declare
+      constants, such as:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">PI</span> <span class="mi">&larr;</span> <span class="nv">3.142</span>
+        </li>
+        <li>
+          <span class="m">e</span> <span class="mi">&larr;</span> <span class="nv">2.71828</span>
+        </li>
+      </ul>
+    </div>
+    <p>The &larr; symbol which in EK9 is written with the '<' and '-' characters in combination; it is used to define a new
+      <i>constant</i> and assign it to a value (constants are immutable - i.e. cannot be changed).
+      This also uses <u>type inference</u>, so in the above example
+      the constant <b>PI</b> has the type of <b>Float</b> with a value of 3.142. The same &larr; symbol can also be used with
+      variables (shown later).
+    </p>
+    <p>There is no need for <i>let</i>, <i>def</i>, <i>const</i>, <i>final</i> etc. for <i>constants</i>.</p>
+    <p>
+      Note the indentation below - two spaces; <b>not tabs</b>, configure your editor to expand tabs to spaces.
+      Let's not discuss this further!
+    </p>
+    <h4 id="constants_example">Definition of two constants</h4>
+    <pre>#!ek9
+defines module introduction
+
+  defines constant
+    PI &lt;- 3.142    
+    e &lt;- 2.71828
+//EOF</pre>
+    <p>
+      <br/>
+    </p>
+    <h5 id="type">Type</h5>
+    <p>
+      In addition to <a href="constants.html">constants</a>; <a href="enumerations.html">types</a> can also be
+      defined. The convention is to define the <i>types</i> after the <i>constants</i>.
+    </p>
+    <p>
+      <i>Types</i> have a wider use than just a simple enumeration(shown below); <a href="standardTypes.html">constraints,
+      aliases and generic forward declarations</a> are all declared as a <i>type</i> construct.
+    </p>
+    <p>
+      By using the statement below any number of types can be defined in succession, they do not have to be defined
+      in separate source files (as must be done in Java for example).
+    </p>
+
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">defines</span> <span class="k">type</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      A complete example is given below with the four valid values that the enumerated type can take.
+    </p>
+    <pre id="type_example">#!ek9
+defines module introduction
+
+  defines type
+    CardSuit
+      Hearts
+      Diamonds
+      Clubs
+      Spades
+//EOF</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      While on the surface these enumerated types look <u>very simple</u>
+      (almost primitive and a little like YAML), they enable strong typing much like
+      <a href="enumerations.html">Enumerations</a> in other languages. In the example above a variable of
+      <i>type</i> <b>CardSuit</b> can only be set to one of those values listed.
+    </p>
+    <p>
+      Enumerations also come with a range of built in <a href="operators.html">operators</a> that don't need
+      coding up. For example the <b>$</b>
+      operator that converts the enumeration value to a <b>String</b>. Hearts above would become "Hearts" but now
+      with a type of <b>String</b>.
+      The enumerated types are intentionally very limited, you cannot add <i>methods</i> to them like you can
+      in other languages. To do that you need to use <a href="classes.html">classes</a>.
+    </p>
+    <p>
+      Hopefully by now you will see that EK9 deliberately limits and constrains features and capabilities of specific
+      <b>constructs</b> to encourage the use of a more appropriate <b>construct</b>. Limiting <b>constants</b> to encourage
+      <a href="#component">components</a>, limiting enumerations to encourage <a href="#class">classes</a>, this is a common
+      theme in EK9. If you get to the point where you feel a <b>construct</b> should have a certain capability; but
+      it doesn't, it is probably time to look at an alternative <b>construct</b>.
+    </p>
+
+    <h5 id="program">Program</h5>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">defines</span> <span class="k">program</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The <i>program</i> is the only way of starting any sort of application, you can define any number of <i>programs</i>
+      after the above directive.
+      If you had no need of <i>constants</i> or <i>types</i> you can just use the <i>program</i> <b>construct</b>
+      and then define your <i>program</i>.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">HelloWorld()</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The above looks just like a <i>method</i> or a <i>function</i> and in a way it is just that. The
+      example of 'hello world' was outlined
+      in the <a href="introduction.html#hello_world">introduction</a>. Here it is again but this time there are
+      two <i>programs</i> and a <i>constant</i>.
+      This approach enables a developer to capture all the programs they wish
+      to develop in a coherent manner. Clearly which <i>program</i> you decide to run is up to you when you call
+      it from the command-line.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines constant
+    worldMessage &lt;- "Hello, World"
+    
+  defines program
+    HelloWorld()
+      stdout &lt;- Stdout()
+      stdout.println(worldMessage)
+      
+    HelloMars()
+      stdout &lt;- Stdout()
+      stdout.println("Hello, Mars")
+//EOF</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      Lets assume this is stored in a file called <i>helloworlds.ek9</i> we would run those programs with the
+      following commands (note how it is necessary to specify the <i>program</i> you wish to run):
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">$</span>
+          <span class="k">ek9 helloworlds.ek9 -r HelloWorld</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">ek9 helloworlds.ek9 -r HelloMars</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="c">On Linux/Unix/MacOS you can use this as well/instead</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">./helloworlds.ek9 -r HelloWorld</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">./helloworlds.ek9 -r HelloMars</span>
+          <span class="m">&crarr;</span>
+        </li>
+      </ul>
+    </div>
+    <p>There are more details in the <a href="programs.html">programs</a> section; covering how to pass
+      parameters from the command line into a <i>program</i>.
+    </p>
+    <p>
+      If you'd now like to just try out some programs and add in <i>if/else/switch</i> <a href="flowControl.html">flow
+      control</a> just jump over to that section.
+      You can just code something simple up just in a <i>program</i> if you want to. Then come back and break that
+      functionality down to include <a href="#function">functions</a> if
+      the code gets too long; or you want to re-use parts of the code in other <i>programs</i>.
+    </p>
+    <p>
+      EK9 is designed to be able to do small bits of simple development with ease. There is no need to jump right
+      into <i>classes</i> and <i>generics</i>; if
+      you just need a program to load up a text file and process parts of that text to produce some type of output
+      for example.
+    </p>
+    <h5 id="record">Record</h5>
+    <p>This is the first <b>construct</b> that is an EK9 <a target="_blank" title="Aggregate" href="https://en.wikipedia.org/wiki/Aggregate">aggregate</a>;
+      and it is the simplest.
+      <a target="_blank" title="Tuples" href="https://en.wikipedia.org/wiki/Tuple">Tuples</a> are also  available in EK9, but are called
+      <i>dynamic classes</i>.
+      <div class="highlight ek9-code">
+        <ul class="code-lines">
+          <li>
+            <span class="k">defines</span> <span class="k">record</span>
+          </li>
+        </ul>
+      </div>
+    <p>
+      The <i>record</i> <b>construct</b> is used to define structured data (an aggregate) much like a <i>C
+      struct</i>. All field information held in the record is
+      <i>public</i> see <a href="basics.html#record_visibility">basics</a> for details on <b>visibility</b>. But
+      <i>records</i> can have <i>operators</i>,
+      these are similar to <i>methods</i> but are limited in number and have very specific names/symbols and
+      semantic meaning.
+    </p>
+    <p>
+      Here is an example of a <i>record</i>, this is designed to hold some details about a person. As you would
+      expect there are name details and a date of birth,
+      but also a profession. Don't worry too much about the details of the <i>operator</i> statements they will be
+      explained in the
+      <a href="operators.html">operators</a> section. But an explanation of this and several other elements of
+      syntax is given below (most of which is
+      applicable to other <b>constructs</b>).
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines record
+    Person
+      first String: String()
+      last &lt;- String()
+      dob &lt;- Date()
+      profession &lt;- String()
+      
+      operator ? as pure
+        &lt;- rtn Boolean: first? and last? and dob? and profession?
+      
+      operator $ as pure
+        &lt;- rtn String: first + ", " + last + ", " + $dob + ", " + profession
+      
+      operator == as pure
+        -&gt; arg as Person
+        &lt;- rtn as Boolean?
+        rtn := arg? and first==arg.first and last==arg.last and dob==arg.dob   
+//EOF</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      Let's consider:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">first</span> <span class="nv">String</span>: <span class="nc">String()</span>
+        </li>
+      </ul>
+    </div>
+    <p>A field/property called <b>first</b> is being declared and its type is <b>String</b>. Then a '<b>:</b>' this
+      is one of the assignment operators it is
+      also acceptable to use '<b>=</b>' or '<b>:=</b>', see <a href="operators.html">operators</a> on why there
+      are three different symbols to accomplish the same thing.
+      Finally; there is <b>String()</b>, this creates a new <i>instance</i> of a String Object. But importantly the
+      variable <b>first</b> is <b><u>not</u></b> set to <b>""</b>, it is actually <b>un set</b>; meaning it has memory
+      allocated to the variable but the value is meaningless.
+    </p>
+    <p>
+      So <u>declarations</u> on aggregates in general follow the form of:
+      <b>{variable name}</b> <b>{type name}</b> <i>assignment</i> <b>{initial value}</b>. You can omit <i>assignment</i>
+      <b>{initial value}</b> and leave the
+      field unset - but it is good practice to assign it (even if this value is something that does not yet have
+      meaning - as in the example above).
+    </p>
+    <p>
+      It is also possible to use the shorthand <i>type inferred</i> declaration with a new instance that is <b>un set</b>
+      as shown with properties <b>last, dob</b> and <b>profession</b>. This has the same meaning but is just more terse.
+    </p>
+    <p>
+      So the declaration of 'first' could have taken any of the following forms:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">first</span> <span class="nv">String</span>: <span class="nc">String()</span>
+        </li>
+        <li>
+          <span class="m">first</span> <span class="nv">String</span> := <span class="nc">String()</span>
+        </li>
+        <li>
+          <span class="m">first</span> <span class="nv">String</span> = <span class="nc">String()</span>
+        </li>
+        <li>
+          <span class="m">first</span> &larr; <span class="nc">String()</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The idea of creating a variable or field of a specific type and initialising it to some value that is
+      <b>unspecified</b> (i.e. meaningless) is important in EK9. It means that memory has been allocated to hold
+      a value; but the value is not yet known. EK9 has a number of operators and processes that are designed to work
+      with this idea.
+    </p>
+    <h6 id="record_operators">Operators</h6>
+    <p>
+      Here is just a quick outline of how parameters are <u>received</u> by <i>methods</i> and <i>operators</i>.
+      The declaration below just states that what follows in an operator for checking <u>equality</u>. For anyone
+      familiar with <b>C++</b> this is the same sort of idea.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">operator</span> ==
+        </li>
+      </ul>
+    </div>
+    <h6>Parameters and returns</h6>
+    <p>
+      Following the above the declaration the syntax below is designed to indicate what the incoming parameter is.
+      See <a href="basics.html#parameter_passing">basics</a> on how multiple incoming parameters are declared.
+      Note the use of '-' and '>' to denote the incoming parameter and the
+      fact it is <u>not</u> within any <b>()</b>. This is quite different from most other programming languages.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="nv">&rarr;</span> <span class="m">arg</span>
+          <span class="k">as</span>
+          <span class="nv">Person</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      After the incoming parameter, a return parameter can also be declared.
+      Note that if the processing is simple then the logic can actually be in line just after the declaration of
+      the return variable.
+      Or as in the case of the equality operator above it can be put into the body of the operator, so it could
+      just have been written like this below.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="nv">&larr;</span> <span class="m">rtn</span>
+          <span class="k">as</span>
+          <span class="nv">Boolean</span>:
+          <span class="m">arg</span>?
+          <span class="k">and</span>
+          <span class="m">first</span>
+          ==
+          <span class="m">arg.first</span>
+          <span class="k">and</span>
+          <span class="m">last</span>
+          ==
+          <span class="m">arg.last</span>
+          <span class="k">and</span>
+          <span class="m">dob</span>
+          ==
+          <span class="m">arg.dob</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      As you have seen the &larr; is also used to indicate a <b>return</b> as well as being used to define and
+      assign a new constant/variable. In general; it is used
+      in other contexts (such a ternary expressions) to mean 'coming out of' or 'returning a value'.
+      The general idea of using &rarr; and &larr; is to give a very clear visual idea of data/information flow,
+      either coming in or being returned/assigned from.
+    </p>
+    <p>
+      This visualisation aspect of EK9 is very important. The use of ideograms, indentation, column and nested
+      structures in EK9 have been designed to facilitate spatial processing.
+    </p>
+    <p>
+      Incidentally the above statement also outlines '<b>==</b>' (equality) and a <u>boolean expression</u> using
+      '<b>and</b>' as you can imagine EK9 also
+      supports '<b>or</b>'. It does <u>not</u> use <b>'&&'</b> or <b>'||'</b> in the way Java, C, C# and C++ do.
+      EK9 just uses '<b>and</b>'/'<b>or</b>' even when working with <a href="builtInTypes.html#bits">Bits</a>.
+    </p>
+    <h6>What's the ? for</h6>
+    <p>
+      You might be asking yourself what's the <b>?</b> used for (as in the example below).
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="nv">&larr;</span> <span class="m">rtn</span>
+          <span class="k">as</span>
+          <span class="nv">Boolean</span>:
+          <span class="m">arg</span>?
+          ...
+        </li>
+      </ul>
+    </div>
+    <p>
+      It is the EK9 way of asking is this variable set (<b>is set</b>). In other languages this might be done as a
+      null check. But in EK9 it is possible to have
+      a variable that has either not been allocated any memory to hold a value <b>or</b> it has
+      been allocated the space but that space does not really hold any meaningful value.
+      Here is the declaration of some variables as an example.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">name1</span>
+          <span class="k">as</span>
+          <span class="nv">String?</span>
+        </li>
+        <li>
+          <span class="m">name2</span>
+          <span class="k">as</span>
+          <span class="nv">String</span> :=
+          <span class="nv">String()</span>
+        </li>
+        <li>
+          <span class="m">name3</span>
+          <span class="k">as</span>
+          <span class="nv">String</span> :=
+          <span class="nv">"Some Value"</span>
+        </li>
+        <li>
+          <span class="m">name4</span>
+          <span class="k">as</span>
+          <span class="nv">String</span> :=
+          <span class="nv">String("Some Value")</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">Inferred type declaration</span>
+        </li>
+        <li>
+          <span class="m">name5</span>
+          <span class="k">&larr;</span>
+          <span class="nv">"Some Value"</span>
+        </li>
+        <li>
+          <span class="m">name6</span>
+          <span class="k">&larr;</span>
+          <span class="nv">String()</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The variable <b>name1</b> has not been allocated space to store anything -
+      so <b>name1?</b> will return <b>false</b>. Note that when declaring a variable in this way; it is necessary
+      to be explicit in the fact you as the developer have not initialised it (by using a suffix of <b>?</b>).
+    </p>
+    <p>
+      Variable <b>name2</b> has been allocated space for storage but no meaningful value has been provided;
+      so <b>name2?</b> will again return <b>false</b>.
+    </p>
+    <p>
+      Variables <b>name3/name4</b> have been allocated space and have also been initialised and so both
+      <b>name3?</b> and <b>name4?</b> will return <b>true</b>.
+      There is more detail on this in the <a href="basics.html#objects">basics</a> section.
+    </p>
+    <p>
+      Variable <b>name5?</b> will return <b>true</b>, but <b>name6?</b> will return <b>false</b>.
+    </p>
+    <h6>Type Inference</h6>
+    <p>It was mentioned earlier that EK9 has <i>type inference</i>; but other than <i>constants</i> shown above,
+      no inference has been shown in any of the examples. All the types have been explicitly declared.
+    </p>
+    <p>
+      In EK9, <i>type inference</i> is for the <u>consumer</u> of an API or component, the creator or producer of
+      any component has to be explicit in what types they are using.
+      So as a concrete example of this; the <i>program</i> below shows how a <u>consumer</u> of the record <b>Person</b>
+      can benefit from <i>type inference</i>.
+    </p>
+    <p>
+      The developer creating the component/API always has to <i>go the extra mile</i> when creating something;
+      they have to be explicit in the types that are accepted and those that are returned. The <u>consumer</u> on
+      the other hand gets all the benefit in terms of both
+      functionality provided and <i>type inference</i>. This approach tends to drive more thoughtful API
+      development by more senior developers, whilst providing more junior developers a simpler coding experience.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines program
+  
+    InferenceExample()
+      smithj &lt;- Person()
+      
+      //Different ways of assigning value
+      smithj.first: "John"
+      smithj.last := "Smith"
+      smithj.dob = 1960-01-01
+      smithj.profession: "IT"
+      
+      firstName &lt;- smithj.first
+//EOF</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      The <u>consumer</u> can just use &larr; to declare a new variable '<b>smithj</b>' and assign it a new
+      instance of <b>Person</b>; the type is inferred.
+      The example above also shows the three different ways assignment can be made (to the fields/properties on the <b>Person</b> record),
+      your own personal preference can be employed here as to which appears most readable to you. Section
+      <a href="basics.html#different_assignments">basic assignments</a> contains the
+      reasoning as to why there is alternate syntax for assignment.
+    </p>
+    <p>
+      This could have been defined in the following manner (which is more concise):
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">smithj</span>
+          <span class="nv">&larr;</span>
+          <span class="m">Person</span><span class="k">(</span><span class="nv">"John"</span><span class="k">,</span>
+          <span class="nv">"Smith"</span><span class="k">,</span>
+          <span class="nv">1960-01-01</span><span class="k">,</span>
+          <span class="nv">"IT""</span>
+          <span class="k">)</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      Finally the <b>firstName</b> declaration shows how <i>type inference</i> can be used when accessing part of
+      a structured (aggregate) data type.
+    </p>
+    <p>
+      As an aside, it has been noticed that the simple use of &larr; to both create a variable and have its <i>type</i>
+      inferred leads to less <b>reassignment</b> of
+      existing variables and better naming of variables. This is a welcome side effect assuming that clarity of
+      intention is valued higher that memory allocation and use; which in EK9 it is.
+    </p>
+    <p>
+      This discussion has digressed from being just an explanation of the <i>record</i> construct into
+      <a href="basics.html#declarations">declarations, assignment and type inference</a> because more examples are
+      needed for other <b>constructs</b> so the syntax needed to be at least outlined.
+    </p>
+    <h5 id="class">Class</h5>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">defines</span> <span class="k">class</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The <i>class</i> <b>construct</b> is also used to define structured data (an aggregate) but you <u>can</u>
+      add <i>methods</i> and control
+      their visibility (<i>public</i>, <i>protected</i> and <i>private</i>). Unlike the <i>record</i>, all field
+      information held in the <i>class</i> is
+      <i>private</i>; see <a href="basics.html#class_visibility">basics</a> for details on <b>visibility</b>. There
+      is no concept of <i>protected</i> or any special secret, privileged or <i>friend</i>
+      arrangement with <u>fields/properties</u> on classes. They are all <b>private</b>, <a
+        target="_blank" title="Hiding" href="https://en.wikipedia.org/wiki/Information_hiding">information hiding</a> and
+      <a target="_blank" title="Least Knowledge" href="https://en.wikipedia.org/wiki/Law_of_Demeter">principle of least knowledge</a> are applied here.
+      This also means as a developer when defining any such aggregate the
+      visibility of fields/properties is always decided for you (it is always <u>private</u>).
+    </p>
+    <p>
+      Below is an example of the <i>class</i> construct; some are <i>abstract</i>, some that can be extended,
+      and others that cannot. The Kotlin language has had an influence here on making <i>classes</i> not
+      extendable unless indicated by the <b>open</b> or <b>abstract</b> keyword; and also enforcing
+      <b>override</b> on methods. Some developers may see this as a bad approach
+      (closing classes by default), but it is aimed at driving solutions to use <i>traits</i> and
+      <u>composition</u> more widely rather than just <u>inheritance</u>.
+      The EK9 language has specific syntax support for <u>composition</u>.
+    </p>
+    <pre id="open_classes">#!ek9
+defines module introduction
+
+  defines class
+  
+    //If you say it is abstract then it is by default 'open' so it can be extended
+    Base as abstract
+      singleMethod()
+        &lt;- rtn String
+        
+    //This cannot be extended as it is not 'abstract' nor 'open'
+    Extension1 extends Base
+
+      //declaration and initialisation of a field/property
+      aField as Boolean: true
+      //Inferred type supported for simple unset declarations
+      bField <- String()
+
+      updateAdditionalFields()
+        -> value as String
+        bField :=: value
+
+      otherMethod()
+        &lt;- rtn String: $ aField
+      
+      //must provide this method as Base has declared it but not implemented it.  
+      override singleMethod()
+        &lt;- rtn String: "Steve"
+        
+    //Because this is marked as 'open' it can be used and extended
+    Extension2 extends Base as open
+      override singleMethod()
+        &lt;- rtn String = "Steven"
+        
+    Extension3 extends Extension2
+      override singleMethod()
+        &lt;- rtn String := "Stephen"    
+//EOF</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      Here again you can see the return parameter being declared on a method. Note how the different assignment
+      '<b>:</b>', '<b>=</b>' and '<b>:=</b>'
+      operators have been employed to show what is possible. In general it is best to pick a style for a context
+      and stick with it.
+      For example; maybe '<b>:</b>' should always be used for return parameters, it does look quite terse and
+      simple. But this developer choice.
+    </p>
+    <p>
+      The keyword <b>override</b> must be used when overriding methods, in EK9 all non private methods can be overridden by
+      sub classes but it <b>must</b> be explicit when they are.
+    </p>
+    <p>
+      The sections on <a href="classes.html">classes</a> and <a href="methods.html">methods</a> provide much more
+      detail on concepts such as
+      <i>extends</i>, <i>abstract</i> and <i>open</i>. But with EK9 you can have as many or few classes in a
+      single
+      source file as you like. In general, grouping lots of small simple classes in a single file makes
+      development much easier.
+      But the converse is also true a single file with many large or diverse classes in the same file makes
+      development harder.
+    </p>
+    <p>
+      Good 'style' would dictate that small classes that are in some way related <b>may</b> go into the same file.
+      But if the file gets larger than about 500-1000 lines of code it is probably best to split them up. Remember they can
+      still be all in the same <i>module</i> but in different source files.
+    </p>
+    <p>
+      The big disadvantage of not enforcing a naming convention of same source file name as construct name is
+      navigation, but as developers you can
+      and should come up with reasonable working practices/standards. You can then argue about it (as is our way).
+    </p>
+    <h5>A Non Aggregate Construct</h5>
+    <p>
+      As mentioned before <i>functions</i> are first class <b>constructs</b> in EK9, there are in fact several varieties of
+      <i>function</i>; while they are not strictly <b>aggregates</b>, some types of <i>function</i> can hold state and have
+      variables that live beyond their invocation (a little like a closure).
+    </p>
+    <h5 id="function">Function</h5>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">defines</span> <span class="k">function</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The <i>function</i> construct is used to define an element of code that just performs an operation with
+      optional parameters passed in and out.
+      The concept is similar to a function in the C language, but there are some significant differences.
+      An example is given below:
+    </p>
+    <pre>#!ek9
+defines module introduction
+  defines function
+  
+    //Just a function signature.
+    stringFilter() as abstract    
+      -&gt; string as String
+      &lt;- rtn as Boolean?
+      
+    nonColon() extends stringFilter()
+      -&gt; string as String
+      &lt;- rtn as Boolean: ":" &lt;&gt; string
+        
+    isSet() extends stringFilter()
+      -&gt; string as String
+      &lt;- rtn as Boolean: string?
+        
+  defines program
+  
+    TestFilter()
+      stdout &lt;- Stdout()
+      toTest &lt;- "Steve"
+      
+      if nonColon(toTest)
+        stdout.println(toTest + " does not have a colon")
+      else
+        stdout.println(toTest + " does have a colon")
+      
+      //It is also possible via delegate access
+      acceptable as stringFilter := nonColon
+      if acceptable(toTest)
+        stdout.println(toTest + " does not have a colon")
+      
+      //As a delegate we can swap the function out for another compatible one.
+      acceptable = isSet
+      if not acceptable(toTest)
+        stdout.println("The value toTest is not set")        
+//EOF</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      The example above defines an <i>abstract function</i> signature and also concrete functions that match that
+      signature. It is not always necessary
+      to define the <i>abstract function</i> if you don't need to treat it in a polymorphic manner. The
+      <i>program</i> in the example shows how the <i>function</i> can be used in two different ways.
+    </p>
+    <p>
+      The sections on <a href="functions.html">functions</a> and <a href="dynamicFunctions.html">dynamic functions</a>
+      have a lot more detail on this. <a href="dynamicFunctions.html">Dynamic functions</a> are particularly useful
+      for short simple functions like those above and are in some ways similar to a <b>lambda</b>.
+    </p>
+    <p>
+      The incoming and returning parameters on functions are defined in the same way as those described in the <a
+        href="#record_operators">examples above</a>
+      using the &larr; and &rarr; respectively. But when <u>calling</u> the <i>function</i> (or <i>methods</i> on <i>classes</i>)
+      the parameters are passed inside <b>()</b>.
+    </p>
+    <p>
+      <b>Importantly</b> all parameters are 'passed by reference'. As there are no primitives used in EK9 all
+      data passing is by reference. This means if you want to retain the value passed in; it must be copied.
+      This tends to be more important when initialising aggregates.
+    </p>
+    <p>
+      In the above example the function is called directly and also as a <i>delegate</i>, but note that
+      because there is an <i>abstract</i> function
+      and both of the concrete functions extend it. It is possible to use functions in an Object-Oriented manner.
+      The variable <b>acceptable</b> is
+      of <i>type</i> <b>stringFilter</b> and as such can be set to any type that is compatible with <b>stringFilter</b>.
+      This means that it can be set to
+      <b>nonColon</b> or <b>isSet</b> as both of these <i>functions</i> extend <b>stringFilter</b>. Note
+      '<b>:=</b>' was used in this declaration but
+      '<b>:</b>' or '<b>=</b>' could have been used (if you prefer one of those).
+    </p>
+    <p>
+      Indeed this also enables <a href="https://en.wikipedia.org/wiki/Higher-order_function">higher order
+      functions</a> see section
+      <a href="functions.html">functions</a> for more detail on how these can be used in EK9. The concept of
+      defining and using a <i>function</i> as an Object and then being able to use it in a delegated form is
+      <u>much more</u> powerful than it immediately appears.
+    </p>
+    <p>
+      As stated before; <i>classes</i> and <i>functions</i> are treated on equal footing in EK9; and they have
+      influenced each other during the evolution of the language.
+      <a href="dynamicFunctions.html">Dynamic functions</a> and <a href="dynamicClasses.html">dynamic classes</a>
+      take this even further. But when combined with <a href="composition.html">composition</a> create many more
+      ways to solve problems and facilitate re-use.
+    </p>
+    <p>
+      By providing <u>strong typing</u> and using the concept of <i>abstract functions</i> the simple <i>function</i>
+      has been melded with an object orientated concept to provide type safe flexibility and <i>function</i> polymorphism.
+      This simple concept is essential to a much more powerful functional concept of pipeline processing and lays the
+      fabric of what will be needed later.
+    </p>
+    <h5 id="trait">Trait</h5>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">defines</span> <span class="k">trait</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      A little like a Java Interface with default methods, but more a kin to the idea of a 'Trait' from <b>Scala</b>.
+      Classes exhibit <i>traits</i> or <i>characteristics</i>. For example a Bird class might have the trait of 'Winged',
+      Penguin might also have 'trait' of <i>Swimmer</i>, but not the 'trait' of <i>Fly</i>.
+    </p>
+    <p>
+      The word <b>Trait</b> is a much better <b>construct</b> name to indicate that some Class exhibits some type of
+      behaviour but is not necessary <b>'IS A'</b> type.
+    </p>
+    <p>
+      EK9 has taken the concept of a <b>trait</b> and added mechanisms to restrict and control classes that use it.
+      This idea is quite important, so <i>traits</i> are not just a set of method signatures.
+    </p>
+
+    <p>
+      This example is a little more detailed. It is designed to give you some idea
+      of things that you can do in EK9 not many other languages support. It employs shapes to explain how traits
+      work. A <i>trait</i> is
+      similar to a <i>class</i> in many ways; it can be <i>abstract</i> in the sense it can define <i>method</i>
+      signatures with no body or the <i>methods</i> can
+      have full implementations (bodies). <i>Traits</i> can <u>never be instantiated</u> in their own right
+      (unlike <i>classes</i>); but if the <i>trait</i> has all the methods implemented it is possible to
+      create a dynamic class without the need to provide any additional method implementations.
+      They can also extend other <i>traits</i>.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines trait
+  
+    ShapeLimit allow only Shape, Ellipse, Circle, Rectangle, Square, Triangle
+      printDrawing()
+        -&gt; message as String
+        //method body
+        stdout &lt;- Stdout()
+        stdout.println(message)
+        ...
+</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      The above declaration defines a <i>trait</i> called <b>ShapeLimit</b> it has two main purposes.
+    </p>
+    <ul>
+      <li>
+        Firstly to provide a mechanism that can be used to just print out a message to the <b>Stdout</b>.
+      </li>
+      <li>
+        Secondly; but more importantly it provides a mechanism to limit other <i>traits</i> and <i>classes</i>
+        that are allowed to extend it. This is similar to the concept in Java of
+        <a href="https://openjdk.java.net/jeps/360">sealed classes</a>.
+      </li>
+    </ul>
+      This is done with the following statement:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">ShapeLimit</span>
+          <span class="k">allow</span> <span class="k">only</span>
+          <span class="m">Shape</span>,
+          <span class="m">Ellipse</span>,
+          <span class="m">Circle</span>,
+          <span class="m">Rectangle</span>,
+          <span class="m">Square</span>,
+          <span class="m">Triangle</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      <b>Shape</b> and the other named classes are yet to be defined (see extension to this example later).
+      By using <u>allow only</u>; the types of <i>traits</i> and <i>classes</i> that can extend the <b>ShapeLimit</b>
+      <i>trait</i> are controlled. When you develop a <i>trait</i> if you don't
+      want to limit its use then just omit <u>allow only</u> and anything after it.
+    </p>
+    <p>
+      But there is a slight downside to using this, under normal circumstances the <i>classes</i> that implement the
+      <i>trait</i> 'ShapeLimit' are clearly dependent upon 'ShapeLimit'; but the converse it <b>not</b> true.
+    </p>
+    <p>
+      By using <b>allow only</b> and a list of one or more <i>traits</i> and <i>classes</i> in our definition of
+      'ShapeLimit' we have now created a mutual dependency. Be sure this is really worth doing.
+    </p>
+    <p>
+      Continuing the example with an <i>abstract class</i> <b>Shape</b> and then some concrete <i>classes</i>.
+    </p>
+    <pre>...
+  defines class
+  
+    Shape with trait of ShapeLimit as abstract
+      draw() as abstract
+                  
+    Ellipse extends Shape as open
+      override draw()
+        printDrawing("Ellipse")            
+    
+    Circle is Ellipse
+      override draw()
+        printDrawing("Circle")                
+    
+    Rectangle is Shape
+      override draw()
+        printDrawing("Rectangle")                
+    
+    Triangle is Shape
+      override draw()
+        printDrawing("Triangle")            
+    
+    Square is Shape
+      override draw()
+        printDrawing("Square")        
+//EOF</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      The use of the <b>ShapeLimit</b> <i>trait</i> is explained below.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">Shape</span>
+          <span class="k">with</span> <span class="k">trait</span> <span class="k">of</span>
+          <span class="m">ShapeLimit</span>
+          <span class="k">as</span>
+          <span class="k">abstract</span>
+        </li>
+        <li>
+          <span class="c">//Could have been written in shorthand like this</span>
+        </li>
+        <li>
+          <span class="m">Shape</span>
+          <span class="k">of</span>
+          <span class="m">ShapeLimit</span>
+          <span class="k">abstract</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      This declares a new <i>class</i> that is <b>open</b> (as it is <b>abstract</b>) to be extended by other
+      <i>classes</i>. <b>Shape</b> itself is <i>abstract</i>; meaning that it itself
+      cannot be instantiated (with a statement like <b>Shape()</b>). It also adds a new <i>abstract</i> method
+      called <b>draw()</b> that must be implemented by any
+      non <i>abstract</i> sub <i>class</i>. If you've never developed in an Object Oriented methodology before it
+      might be worth looking at
+      <a target="_blank" title="OOP" href="https://en.wikipedia.org/wiki/Inheritance_(object-oriented_programming)">Wikipedia</a> or other
+      resources first.
+    </p>
+    <p>
+      Incidentally, you may have noticed <b>as</b> is used here and there, this is an optional bit of syntax that
+      sometimes makes the code easier to read. In addition,
+      for extension you can use either <b>extends</b> or <b>is</b> it has the same meaning, but again sometimes
+      make the code more readable.
+    </p>
+    <p>
+      As you can see from the statement below it is also possible to ensure that other <i>classes</i> are
+      <b>open</b>. By default, they are not <b>open</b> and
+      therefore cannot be extended.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">Ellipse</span>
+          <span class="k">is</span> <span class="m">Shape</span> <span class="k">as</span>
+          <span class="k">open</span>
+        </li>
+        <li>
+          <span class="c">//This could have been written like this</span>
+        </li>
+        <li>
+          <span class="m">Ellipse</span>
+          <span class="k">extends</span> <span class="m">Shape</span> <span class="k">as</span>
+          <span class="k">open</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The above full example shows a number of <i>classes</i> in a hierarchy that are being <u>controlled</u> by a
+      <i>trait</i>, the <i>trait</i> itself is providing some
+      functionality in method <b>printDrawing</b> and also <u>constrains</u> and <u>limits</u> what other <i>traits</i>
+      and <i>classes</i> it will allow. If it had
+      also defined an <i>abstract</i> <i>method</i> then it would have also forced concrete <i>classes</i> to
+      implement that method.
+    </p>
+    <p>
+      The <i>trait</i> is really a very <u>controlling</u> and very powerful <b>construct</b>. It has
+      <b>even more</b> capability when used with <a href="dynamicClasses.html#composition_example">composition</a>.
+    </p>
+    <p>
+      <i>Traits</i> really can provide the 'glue' via abstraction to link/control <i>classes</i>
+      together is various ways. So don't think of them as 'inferior' to <i>classes</i> or little more than
+      an <i>abstract class</i>; they are much more than that. The <i>trait</i> has been developed from a very
+      minimal 'protocol' sort of <b>construct</b> and been given significant controlling functionality in its
+      own right.
+    </p>
+
+    <h4>More advanced features/constructs</h4>
+    <p>
+      Depending on your knowledge, experience and use of other languages you may feel that what has been outlined
+      so far is just a merger of ideas
+      and mechanisms from other languages (but with a different syntax).
+      To some extent this is true, but some small amount of additional capability has been added.
+    </p>
+    <p>
+      If on the other hand you are new to software development and all the above concepts are new to you; it would
+      probably be best to spend quite a bit of time
+      using what you've learned so far; as the next sections get more advanced.
+    </p>
+    <h5 id="generics">Generics/Templated types</h5>
+    <p>
+      Generics or <a target="_blank" title="Parametric polymorphism"
+        href="https://en.wikibooks.org/wiki/Introduction_to_Programming_Languages/Parametric_Polymorphism">Parametric
+      polymorphism</a> as it is more formally known, can be applied to both <i>functions</i> and <i>classes</i> in EK9;
+      examples of which are shown below.
+    </p>
+    <h5 id="generic_functions">Generics (Functions)</h5>
+    <p>
+      Generic/Templated programming is the concept of defining some functionality irrespective of <i>type</i>.
+      EK9 has some capabilities in this area and while not being as fully featured as some languages - it does
+      provide some useful functionality.
+    </p>
+    <p>
+      To understand how generic <i>functions</i> can be employed it is necessary to understand <a
+        href="dynamicFunctions.html">dynamic functions</a> these are quickly covered here below in the context
+      of
+      explaining generics.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+  
+    compareFunction() of type T
+      -&gt;
+        item1 as T
+        item2 as T
+      &lt;-
+        rtn as Integer: item1 &lt;=&gt; item2  
+
+  defines program
+  
+    Comparator()
+      stdout &lt;- Stdout()
+      intComparator &lt;- () is compareFunction of Integer as function
+      stringComparator &lt;- () extends compareFunction of String as function
+      
+      intResult &lt;- intComparator(2, 8)
+      stdout.println(`Result of int comparison is ${intResult}`)
+
+      stringResult &lt;- stringComparator("two", "eight")
+      stdout.println(`Result of string comparison is ${stringResult}`)
+
+//EOF</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      There are a few new bits of syntax that have not been covered before.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">compareFunction()</span>
+          <span class="k">of</span> <span class="k">type</span> <span class="m">T</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      <a href="#function"><i>Functions</i></a> have been discussed before but this <i>function</i> has the
+      additional syntax to indicate it uses a <i>type</i> called <b>T</b>.
+      Really <b>T</b> is just a way of stating the fact that a <i>type</i> is going to be referenced later in this
+      <i>function</i> and it refers not to
+      something real like a <b>String</b> but it could be anything at all. You can use any name here <b>S</b>, <b>K</b>,
+      <b>V</b>
+      (convention is a single uppercase character).
+    </p>
+    <p>
+      Then there is the declaration of two incoming parameters notice how the &rarr; is on a line by itself and
+      then the two incoming parameters are
+      indented before being declared - this is how you declare multiple incoming parameters,
+      see <a href="basics.html#parameter_passing">parameter passing</a> for more details.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">item1</span>
+          <span class="k">as</span> <span class="m">T</span>
+        </li>
+        <li>
+          <span class="m">item2</span>
+          <span class="k">as</span> <span class="m">T</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      Within the <i>function</i> body standard <i>operators</i> on the <u>notional</u> type <b>T</b> are assumed.
+      This means all operators can be used with the
+      type <b>T</b>; if and when you actually declare you're are going to use this generic <i>function</i> with a
+      specific <i>type</i> - only then are those
+      <i>operators</i> checked on the <i>type</i> you intend to use.
+    </p>
+    <p>
+      Incidentally the comparison (spaceship) <a href="operators.html#comparison">operator</a> '<b>&lt;=&gt;</b>' is used in the return statement of the
+      function <b>compareFunction</b>:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">rtn</span>
+          <span class="k">as</span>
+          <span class="m">Integer</span><span class="k">:</span>
+          <span class="m">item1</span>
+          <span class="k">&lt;=&gt;</span>
+          <span class="m">item2</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      If you've used languages like C++ or Java where <b>&lt; &gt;</b> are used in generics/templated types;
+      please remember EK9 does not
+      use that syntax. The '<b>&lt;=&gt;</b>' is use to compare to objects (and you can override this operator
+      when defining your own <i>records</i> and
+      <i>classes</i>.
+    </p>
+    <p>
+      In the <i>program</i> example above the generic <i>function</i> is (re)used twice.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">intComparator</span> &larr;
+          <span class="k">() is</span> <span class="m">compareFunction</span>
+          <span class="k">of</span> <span class="k">Integer as function</span>
+        </li>
+        <li>
+          <span class="m">stringComparator</span> &larr;
+          <span class="k">() extends</span> <span class="m">compareFunction</span>
+          <span class="k">of</span> <span class="k">String as function</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The above declaration is just one of the forms of <a href="dynamicFunctions.html">dynamic functions</a>,
+      there are other forms that can be applied
+      to non-generic <i>functions</i>. These declarations are basically stating that you intend to take the
+      generic <i>function</i> <b>compareFunction</b>
+      and use it with an <b>Integer</b> but also a <b>String</b>.
+    </p>
+    <p>
+      In concept it's like taking a prebuilt bit of code as a generic template and saying just replace <b>T</b>
+      with <b>Integer</b> or <b>String</b> then
+      do a quick check to make sure that any operators used are present on the <i>type</i> I've chosen (in this
+      case Integer and String).
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">intResult</span> &larr;
+          <span class="m">intComparator(2, 8)</span>
+        </li>
+        <li>
+          <span class="m">stringResult</span> &larr;
+          <span class="m">stringComparator("two", "eight")</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The two new functions that have now been given a type can be called and are strongly typed, only accepting
+      Integers or Strings respectively.
+    </p>
+    <p>
+      There are ways to constrain <b>T</b> to be limited to specific <i>types</i> and there are more details on
+      generic <i>functions</i> in section
+      <a href="generics.html">generics/templates</a>. But this should give and idea of what the concept is and why
+      it is useful.
+      The same/similar idea is outlined below for generic <i>classes</i>.
+    </p>
+    <h5 id="generic_classes">Generics (Classes)</h5>
+    <p>
+      The example below uses a <a href="https://en.wikipedia.org/wiki/Finite-state_machine">Finite State
+      Machine</a> to show the combination of generic <i>functions</i> and
+      <i>classes</i> and a slightly different use of <a href="dynamicFunctions.html">dynamic functions</a> where
+      the <i>function</i> body is actually overridden.
+      This example is <u>much longer</u> and aims to give you more of a feel of how <i>functions</i>,
+      <i>classes</i> with generics can be used in combination.
+    </p>
+    <p>
+      Please note that in the EK9 language you can reference something like <b>FSM</b> below before it is even
+      defined. This may at first seem strange
+      but EK9 uses a <u>multi-pass</u> mechanism to enable this to happen.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines type
+  
+    FSM of Integer    
+    
+  defines function
+  
+    FSMListener() of type T
+      -&gt;
+        fromState as T
+        toState as T        
+      assert fromState? and toState?
+      
+  defines class
+  
+    FSM of type T
+      currentState as T
+      listener as FSMListener of T      
+      
+      FSM()
+        -&gt; initialState as T          
+        assert initialState?
+        currentState := initialState
+        
+      setState()
+        -> newState as T
+        assert newState?
+        if listener?
+          listener(currentState, newState)
+        currentState := newState   
+      
+      getState()
+        &lt;- rtn as T: currentState       
+      
+      setListener()
+        -&gt; listenerToAdd as FSMListener of T
+        assert listenerToAdd?
+        listener := listenerToAdd
+        
+  defines program
+  
+    Driver as    
+      myListener &lt;- () is FSMListener of Integer as function
+        stdout &lt;- Stdout()
+        assert fromState? and toState?
+        stdout.println(`Changing from ${fromState} to ${toState}`)
+      
+      myMachine &lt;- FSM(2)      
+      myMachine.setListener(myListener)
+      myMachine.setState(5)               
+//EOF</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      There are quite a few new bits of syntax in the example above, these are explained below.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">defines</span> <span class="k">type</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      This was discussed <a href="#type">before</a> when explaining enumerations, but it can also be using in the
+      context to forward declare a generic class being used with a specific type,
+      as below.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">FSM</span> <span class="k">of</span> <span class="k">Integer</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The generic function <b>FSMListener</b> should be obvious if you've read the <a
+        href="#function">previous</a> section. The new concept here
+      is the generic <i>class</i> called <b>FSM</b> of <i>type</i> <b>T</b>. It has a couple of fields/properties
+      (these are <i>private</i>).
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">currentState</span> <span class="k">as</span> <span class="m">T</span>
+        </li>
+        <li>
+          <span class="m">listener </span> <span class="k">as</span> <span class="m">FSMListener</span> <span
+            class="k">of</span> <span class="m">T</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The rest of the <i>methods</i> are fairly obvious and also work with the notional type <b>T</b>.
+      The <b>Driver</b> <i>program</i> then uses a dynamic <i>function</i> to act as a listener. In this case not
+      only does it use the type (<b>Integer</b>)
+      it also <u>overrides</u> the functionality of the generic <i>function</i> <b>FSMListener</b>. This
+      implementation then checks the states are valid and then
+      just prints out the fact that the state is changing from one value to the next.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">myListener </span> &larr; () <span class="k">is</span> <span
+            class="m">FSMListener</span> <span class="k">of</span> <span class="k">Integer as function</span>
+        </li>
+        <li>
+          <span>&nbsp;&nbsp;</span><span class="m">stdout</span> &larr; <span class="m">Stdout()</span>
+        </li>
+        <li>
+          <span>&nbsp;&nbsp;</span><span class="k">assert</span>
+          <span class="m">fromState</span> <span class="k">? and</span>
+          <span class="m">toState</span> <span class="k">?</span>
+        </li>
+        <li>
+          <span>&nbsp;&nbsp;</span><span class="m">stdout.println(</span>
+          <span class="m">`Changing from ${fromState} to ${toState}`</span>
+          <span class="m">)</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      It was not necessary to redeclare the
+      incoming parameters <i>fromState</i> and <i>toState</i> they can just be used when overriding the function body.
+    </p>
+    <p>
+      So there's quite a bit going on here, first a generic <i>function</i> has been defined, then that <i>function</i>
+      has been used in
+      a polymorphic parameterised manner; finally that <i>function</i> has had its functionality overridden like
+      it was an <i>class</i> in an
+      Object-Oriented methodology to provide new functionality.
+    </p>
+    <p>
+      The next interesting part is how the generic <i>class</i> is used with <u>type inference</u>.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">myMachine </span> &larr; <span class="m">FSM(2)</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      Because 'FSM of Integer' was forward declared, EK9 can work out that 'myMachine' is of type 'FSM of Integer'
+      by the fact that the constructor parameter
+      to the FSM is an Integer. Finally the listener is set and then a call to set the state to '5' is made and
+      the listener will be triggered.
+    </p>
+    <p>
+      This is the end of the generic programming section here but there is more detail in section <a
+        href="generics.html">generics/templates</a>.
+    </p>
+    <p>
+      By using the listener approach and a generic finite state machine it is possible to use the same code/logic
+      and listeners in a very re-usable manner.
+      There could be any number of listeners for a range of different types and with dynamic functions you can
+      just provide the functionality you want.
+    </p>
+    <h5 id="component">Component</h5>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">defines</span> <span class="k">component</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      A component is much like a <i>class</i>. Again all fields/properties are private; but significantly
+      <u>all</u> methods are either <b>private</b> or <b>public</b>. The main point of
+      the component is to model something that is a significant concept/singleton in an overall solution and
+      importantly can be <i>injected</i>
+      into other <b>constructs</b> such as <i>classes</i> and <i>functions</i>.
+      The <i>injection</i> part is accomplished through the creation of some form of abstract base component. This
+      is then <b>extended</b> to provide a concrete
+      implementation.
+    </p>
+    <p>
+      <b>Components</b> are designed to provide the developer with a way to limit coupling between modules and
+      sub systems, by providing a more coarse software construct so that implementations details can be encapsulated.
+      So it's important not to let low level details of how the <b>component</b> is implemented 'bleed out'.
+      This is the main reason all Exceptions are <b>unchecked</b> in EK9. Try and hide as much of your implementations
+      behind a component where possible; as it really improves the opportunity to plug in new implementations,
+      refactor and isolate your code.
+    </p>
+    <p>
+      This example below shows three different implementations for a 'Base Configuration'. A good use of this
+      might be during testing or development
+      where you'd like to use one implementation and then another in production. Or maybe you will be planning to
+      transition from one area of storage to another when the next
+      version of this application is deployed. But all the <i>classes</i> and <i>functions</i> need to <b>know</b>
+      what the store is called.
+    </p>
+    <p>
+      It is also possible that you might want to have a range of implementations available and only select the
+      right major <i>component</i>
+      building blocks once the final solution/configuration has been decided upon. This suits companies that build
+      <b>core</b> sets of components and then;
+      in discussion with their client, decide upon the right combination of existing or new components to employ.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines component
+  
+    BaseConfiguration abstract
+      getFileStoreName() abstract
+        &lt;- rtn as String?
+        
+    MainStoreSolution is BaseConfiguration        
+      override getFileStoreName()
+        &lt;- rtn String: "MainStore"
+    
+    SecondaryStoreSolution extends BaseConfiguration
+      override getFileStoreName()
+        &lt;- rtn as String := "SecondaryStore"
+        
+    DefaultStoreSolution extends BaseConfiguration
+      override getFileStoreName()
+        &lt;- rtn as String := "DefaultStore"
+...              
+</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      Obviously there could be any number of <i>methods</i> on the <i>components</i>, <b>load</b>, <b>save</b>
+      etc. But to continue with this example, the appropriate
+      'Base Configuration' needs to be selected and 'wired in'. Normally an application will be made up of many
+      different <i>components</i>. For example here we have the
+      'Base Configuration' for storage, but there could be other components for various 'Service Connectors' or
+      other linkages to other systems that need to be
+      modelled as <i>components</i>.
+      See <a href="#application">application</a> below on how a <i>component</i> is selected for use.
+    </p>
+    <p>
+      There is a more detailed example in the <a href="components.html">components</a> section.
+    </p>
+    <h5 id="application">Application</h5>
+    <p>
+      An <i>application</i> is a configuration of one or more <i>components</i> that have been selected. So it is
+      quite possible/desirable to create a library
+      of <i>classes</i>, <i>functions</i> and <i>traits</i> as parts that <u>could</u> be used. Then to <u>compose</u>
+      some of those parts into <i>components</i>.
+      Now an <i>application</i> can be <u>composed</u> of those <i>components</i>.
+      That too is just added to the library; but is clearly a major and significant item.
+    </p>
+    <p>
+      The focus on <i>components</i> in EK9 is really around fairly large 'lumps' of a system that make use of
+      several <i>classes</i>, <i>functions</i> or other
+      <i>components</i>. An example could be <b>CustomerStorage</b>, this could be designed to deal with all sorts
+      of 'customer' related information. By wrapping this
+      layer up as a <i>component</i> it could be replaced with alternative storage solutions at a later date.
+    </p>
+    <p>
+      Continuing from the example above the code below shows three such <i>applications</i> to demonstrate this
+      idea. Typically an <i>application</i> would
+      register many different <i>components</i> for different parts of the functionality. So App1 and AP2 use
+      'Redis' for caching but App3 employs 'Memcached' (as an example).
+    </p>
+    <p>
+      But please note; the idea is <b>not</b> to build <u><b>very large monolithic applications</b></u>.
+      That will lead to:
+    </p>
+    <ul>
+      <li>Team coordination issues</li>
+      <li>Excessive application size</li>
+      <li>Increased memory foot print</li>
+      <li>Slower startup times</li>
+      <li>Close coupling</li>
+      <li>Dependency conflicts</li>
+      <li>Lack of scalability</li>
+      <li>Much longer build cycles</li>
+      <li>Reduced flexibility in deployment models</li>
+    </ul>
+    <p>
+      Once your software gets passed a certain size (and rules of thumb and experience are needed here), you
+      really have to move to <u>microservices</u> even in a desktop application. If Microsoft can do it
+      with the Language Server Protocol and AWS do it with almost all of their services it clearly has some merit.
+    </p>
+    <p>
+      But you have to <i>architect</i> the solution - and don't leave that too late. I know <i>agile</i>
+      is the 'thing' at present - but you still must plan an overall design and focus on coupling and cohesion.
+    </p>
+    <pre>...
+  defines application
+  
+    AppV1
+      register MainStoreSolution() as BaseConfiguration
+      register RedisCache() as DataCache 
+    
+    App2
+      register SecondaryStoreSolution() as BaseConfiguration
+      register RedisCache() as DataCache
+      
+    App3
+      register DefaultStoreSolution() as BaseConfiguration 
+      register MemCached() as DataCache
+...
+</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      An analogy here would be car manufacturing and use. There will be many parts used across a range of
+      vehicles, those smaller parts (bearings, gears, valves) will be combined to make subsystems
+      (such as the engine or gearbox for example). Then those subsystems are selected to go into a range
+      of different models of car. The cars then are made ready to be shipped to the distributor for sale.
+    </p>
+    <p>
+      Only when the vehicle is sold does the owner drive it away and use it. This is done in EK9 by the
+      <i>program</i> <b>construct</b> which has been
+      outlined before, but now an additional bit of syntax is used to decide which application is employed (much
+      like the selection of car to buy and use).
+    </p>
+    <p>
+      So in the scenario above why have 'MainStoreSolution', 'SecondaryStoreSolution' and 'DefaultStoreSolution' ?
+      As a concrete example of what you may need to do (based on experience): migrate
+      from an existing implementation (say 'MainStoreSolution') to a more high performance implementation (say
+      'SecondaryStoreSolution'). So why have 'DefaultStoreSolution' at all - well maybe
+      you want to <u>hedge your bets</u> and have another solution ready just in case 'SecondaryStoreSolution'
+      does not work out, or perhaps it has a lower cost at runtime.
+    </p>
+    <p>
+      If you are new to development; you may think the above scenario is <u>contrived</u>, if you have any
+      experience you'll know that preparing for this type of issue
+      from the outset in large long-lived software solutions is <u>essential</u>. The larger the software solution
+      the more important this is. This is also one of the
+      main reasons you should consider using <i>components</i> in software that is above a certain size (but don't
+      adopt <i>components</i> too soon or too late).
+    </p>
+    <p>
+      Once you start to feel you have too many components then
+      start thinking of 'microservices'. If you have wrapped your <i>components</i> up nicely; refactoring into
+      'microservice' will be easier. You will see a drop-off in 'snappiness' of the application as you now have
+      to deal with 'marshalling' and network 'latency'. But you'll gain other benefits in terms of software
+      maintainability, development agility and higher scaling/robustness.
+    </p>
+    <p>
+      <i>Components</i> and <i>Packages</i> together with <i>module</i> naming is the key to formalising
+      interfaces that can be turned into 'microservices'. If you always design with these three things in mind
+      then you will have hedged your bets if the software starts to really get large.
+    </p>
+    <p>
+      Another trigger to consider using 'microservices' is team size and autonomy. If part of an application
+      can be isolated and have a separate development/deployment lifecycle you might consider 'microservices'.
+    </p>
+    <p>
+      Returning to the car manufacturing analogy, designing a vehicle to standards (bearing sizes, connectors,
+      wiring capacity) enables alternate/additional
+      components to be used, those bearings with higher performance, more load bearing, higher speeds. Additional
+      electrical loading for
+      navigation, automation and sensors. These new innovations can be incorporated if the initial design
+      'envisages' some future change or improvement.
+    </p>
+    <pre id="application_example">...
+  defines class
+  
+    ConfigHandler
+      //Because BaseConfiguration is an abstract component it will get injected
+      //Note the use of the ! suffix
+      config BaseConfiguration!
+      showConfigDetails()
+        stdout &lt;- Stdout()
+        stdout.println(config.getFileStoreName())
+    
+  defines program
+   
+    v1Program with application of AppV1
+      configHandler &lt;- ConfigHandler()
+      configHandler.showConfigDetails()
+          
+    v2Program with application of AppV2
+      configHandler &lt;- ConfigHandler()
+      configHandler.showConfigDetails()
+      
+    v3Program with application of AppV3
+      configHandler &lt;- ConfigHandler()
+      configHandler.showConfigDetails()
+//EOF</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      So if the EK9 code was stored in a file called
+      <i>configtest.ek9</i> then each of the programs could be executed in the following way.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+
+        <li>
+          <span class="m">$</span>
+          <span class="k">./configtest.ek9 -r v1Program</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">./configtest.ek9 -r v2Program</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">./configtest.ek9 -r v3Program</span>
+          <span class="m">&crarr;</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      Now the user can decide if they will use 'v1Program', 'v2Program' or 'v3Program' with the associated
+      application that goes with that.
+      <b>You may be asking where's the big advantage in all this?</b>
+    </p>
+    <p>
+      Imagine that the 'Base Configuration' needs to be used in more than just the simple <i>class</i> <b>ConfigHandler</b>
+      but needs to be employed
+      in many <i>classes</i> and <i>functions</i>. Now to swap the 'Base Configuration' out normally you'd have to
+      find all the references to say 'MainStoreSolution'
+      and change them all to 'DefaultStoreSolution' (for example). Now all the <i>classes</i> and <i>functions</i>
+      use 'DefaultStoreSolution' but you've had to modify all that code.
+    </p>
+    <p>
+      This is where <u>Inversion of Control</u> comes in. It is the use of 'v3Program' with the configuration of
+      'AppV3' that decides that 'DefaultStoreSolution' <i>component</i>
+      should be used. But all of the <i>classes</i> and <i>functions</i> still need access to this selected
+      configuration; that's where <u>Dependency Injection</u> is
+      employed. By declaring the use of a <i>component</i> 'config BaseConfiguration'; the <b>ConfigHandler</b> is
+      in effect asking for that component to be injected, it
+      has no knowledge of what actual implementation will be provided (it has given away control).
+    </p>
+    <h6>Aspect Oriented Programming</h6>
+    <p>
+      The snip of code below gives you an early view of <a href="dependencyInjection.html">AOP</a> as the <i>application</i>
+      registration of components is also
+      the mechanism that is used to define the <i>aspects</i> that can be intercepted for AOP purposes.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">register</span> <span class="m">MainStoreSolution()</span> <span class="k">as</span>
+          <span class="m">BaseConfiguration</span> <span class="k">with aspect of</span>
+          <span class="m">TimerAspect()</span>,
+          <span class="m">LoggingAspect("DEBUG")</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      In short; the above configuration would wrap the calls that are to be made on the methods of the
+      <i>component</i> 'MainStoreSolution' with specific
+      AOP method calls on <i>classes</i> <b>TimerAspect</b> and <b>LoggingAspect</b> (not shown in detail). This
+      means that every time <i>method</i>
+      <b>getFileStoreName()</b> (or any other methods on that <i>component</i>) get called they are intercepted
+      and <i>methods</i>
+      <b>beforeAdvice()</b> and <b>afterAdvice()</b> are called on the <i>aspects</i> configured.
+    </p>
+    <p>
+      Why do this? In general <i>aspects</i> are really useful for
+      <a href="https://en.wikipedia.org/wiki/Cross-cutting_concern">Cross Cutting Concerns</a>. This means that
+      should you decide your really wanted to
+      log all calls on a component or may be time how long a component took to complete some processing; you can
+      leave the component <b>as is</b> and just use AOP to intercept the called.
+    </p>
+    <p>
+      This is really useful for:
+    </p>
+    <ul>
+      <li>Logging</li>
+      <li>Transaction Management</li>
+      <li>Timing/Performance</li>
+      <li>Security - Limiting Access</li>
+      <li>Caching</li>
+      <li>Monitoring</li>
+    </ul>
+    <p>
+      The biggest advantage of all is that a <i>component</i> does not have any additional logging or other code
+      in it. It only needs to contain
+      the actual functionality needed. Also the logging code itself when written as an <i>aspect class</i> is
+      fully
+      reusable over all components.
+      So you have the advantages of <u>Separation of Concerns</u> and <u>Reuse</u> this leads to more <u>maintainable</u>
+      code.
+    </p>
+    <p>
+      <b>This is getting quite advanced here, the <i>components</i>, <i>applications</i> and <i>aspects</i> are
+        really useful for larger software projects.</b> For simple and small projects they are generally not needed.
+      But once you start to get to any reasonable scale they really become essential.
+    </p>
+    <p>
+      <u>Only use these tools when you need to</u>. Like any technique it's always best to use it in the <u>right
+      context.</u>
+      EK9 is designed to go from very small programs right up to very large scale solutions. This is the main
+      reason these design patterns have been incorporated right into the language (it is hard to develop reliable,
+      reusable and robust software at scale without them).
+    </p>
+    <p>
+      If you find you have a need to wrap logging, transaction boundaries or want to time how long a web service
+      takes from being called to returning a response, then look to <i>components</i> and <i>aspects</i>.
+      You can write one lot of logging code (for example) and just (re)use that over and over again irrespective
+      of the <i>components</i> you are applying it to.
+    </p>
+
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">register</span> <span class="m">SimpleDevelopedSecurityProvider()</span> <span
+            class="k">as isolated</span>
+          <span class="m">SecurityProvider</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      By adopting the <b>DI/IOC</b> approach EK9 enables the developer to define any number of abstract security
+      <b>privileges</b> to be used throughout
+      the application, but importantly it does not link these directly to any sort of real concrete provider. This
+      enables software to be tested and developed
+      without the need for real calls to LDAP (for example) during unit test and automated tests. It also enables
+      a range of error conditions to be tested
+      by using different <u>SecurityProvider</u> implementations.
+    </p>
+
+    <h5 id="text">Text</h5>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">defines</span> <span class="k">text</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      In the previous examples; fixed text in quotes have been used for outputting information. In general many
+      applications need to support several spoken languages. Users are given a number of options for the language
+      that they might like information and messages to be shown in (i.e. a Locale). In the example below set of
+      localised information is bound into a 'text' object called <b>ProductsText</b>. These 'text' objects are
+      similar to <i>classes</i> but with a focus on pure text and support
+      <a href="https://en.wikipedia.org/wiki/String_interpolation">string interpolation</a>, via method calls that
+      can accept parameters.
+    </p>
+    <p>
+      The important point about 'text' objects is that they are compiled, they are not just a set of
+      <u>property</u> files. The parameters and the interpolation of strings using those parameters are checked.
+    </p>
+    <p>
+      This characteristic is very important when creating large applications with a significant amount of text that
+      is to be presented to the end user. If the application is to support multiple spoken languages based on the user
+      preferences it is important to manage and control textual <i>Strings</i>. This is what the <i>text</i>
+      <b>construct</b> is designed for.
+    </p>
+    <pre>
+#!ek9
+defines module introduction
+
+  defines record
+
+    Product
+      name <- String()
+
+  defines text for "en"
+     
+    //Define some text in English and wrap in a 'text' object.
+    ProductsText
+      productsTitle
+        "Products"
+      productFineDetails()
+        "The fine details"
+      share
+        "Share"
+      moreDetailsOn()
+        -> product as Product
+        `More details on ${product.name}`
+        
+  defines program
+  
+    TestText
+      stdout &lt;- Stdout()
+      text &lt;- ProductsText("en")
+      
+      //Details of the Product record omitted for brevity
+      specialProduct &lt;- Product("Special")
+      stdout.println(text.productsTitle())
+      stdout.println(text.moreDetailsOn(specialProduct))
+      
+//EOF</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      The statement below is from the above example, the rest of the 'text' definition should be fairly obvious by
+      now (assuming you've read earlier parts of this page). As text <i>methods</i> only ever return <b>Strings</b>
+      no return value is specified incoming parameters are optional (i.e. you can just have pure text).
+      The <b>()</b> are optional just like they are when defining <i>functions</i> and <i>methods</i>.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">moreDetailsOn()</span>
+        </li>
+        <li>
+          &nbsp;&nbsp;&rarr; <span class="m">product</span> <span class="k">as</span> <span
+            class="m">Product</span>
+        </li>
+        <li>
+          &nbsp;&nbsp;`<span class="m">More details on</span>
+          <span class="k">${</span>
+          <span class="m">product.name</span>
+          <span class="k">}</span>`
+        </li>
+      </ul>
+    </div>
+    <p>
+      In this case the parameter <b>product</b> passed in can be any sort of <i>type</i>, in this case it is a <b>Product</b>
+      which is a <i>record</i>.
+      The field <b>name</b> on the <i>record</i> is public and so it can be directly accessed. Note the '<b>${</b>'
+      this denotes the start of the interpolation, the '<b>}</b>' denotes the end of the interpolation.
+      The entire <b>String</b> is then returned once the interpolation is complete.
+      The Interpolated String starts and ends with a back tick <b>`</b>.
+    </p>
+    <h4 id="package">Package</h4>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">defines</span> <span class="k">package</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The <i>package</i> <b>construct</b> is really key to enabling the use of other "dependencies" (packages),
+      It enables you to decide on what source code to include in the compile and if any version number should
+      be associated with the software you have created. There is much more detail on how to do this in the
+      <a class="reference internal" href="packaging.html">Packaging</a> section.
+    </p>
+    <p>
+      But unlike a lot of other languages that use external packaging and version management; EK9 includes it in the language
+      itself. There is no need for external xml/json/yml files for configuration, just use the language you are writing code in!
+    </p>
+    <h4>Finally edge services</h4>
+    <p>
+      All of the constructs so far have either been normal programming language concepts or design patterns
+      (DI/IOC - Aspects etc). The last two
+      <b>constructs</b> really draw modern web based development into the language itself.
+    </p>
+    <p>
+      As explained in some detail in the <i>applications</i> section - once <i>components</i> get to the point
+      where your application has become sufficiently large - you need to move to 'microservices'. The section
+      that follows provides the elements needed to be able create and use 'microservices'.
+    </p>
+
+    <h5 id="service">Service</h5>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">defines</span> <span class="k">service</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      Web Services were outlined in the <a href="introduction.html#web_services">introduction</a> but there are a
+      some more details here. For full details view the section on <a href="webServices.html">Web Services</a>.
+      This <b>construct</b> is designed to make <i>applications/components</i> accessible via <b>HTTP/REST/RESTful</b>
+      web services. As such it uses Object-Oriented mechanisms that are applicable to limit the amount of new
+      terminology needed by developers. There are some aspects of web services that really cannot and
+      <u>must not</u> be hidden. EK9 does its best to find a balance.
+    </p>
+    <pre>
+#!ek9
+defines module introduction
+
+  defines service
+  
+    Addresses :/addresses
+
+      byId() :/{address-id}
+        -&gt;
+          addressId as String :=: PATH "address-id" //required because different name
+          acceptLanguage as String :=: HEADER "Accept-Language"
+        &lt;-
+          response as HTTPResponse: () of HTTPResponse
+            //Override and implement content() and status() etc
+      
+      listByPostCode() :/{postCode}/
+        -&gt;
+          postCode as String //Now assume PATH PARAM because there is a param
+          acceptLanguage as String :=: HEADER "Accept-Language"
+        &lt;-
+          response as HTTPResponse: () of HTTPResponse
+            //Override and implement content() and status() etc
+      
+      list() :/
+        -&gt;
+          postCode as String :=: QUERY
+          acceptLanguage as String :=: HEADER "Accept-Language"
+        &lt;-
+          response as HTTPResponse: () of HTTPResponse
+            //Override and implement content() and status() etc
+      
+      //Basically a POST    
+      operator + :/
+        -&gt;
+          request as HTTPRequest :=: REQUEST
+          acceptLanguage as String :=: HEADER "Accept-Language"
+        &lt;-
+          response as HTTPResponse: () of HTTPResponse
+            //Override and implement content() and status() etc
+      
+      //A DELETE
+      operator - :/{addressId}
+        -&gt;
+          addressId as String
+          acceptLanguage as String :=: HEADER "Accept-Language"
+        &lt;-
+          response as HTTPResponse: () of HTTPResponse
+            //Override and implement content() and status() etc
+      
+      //PUT
+      operator := :/{addressId}
+        -&gt;
+          addressId as String //assume PATH
+          request as HTTPRequest :=:REQUEST
+          acceptLanguage as String :=: HEADER "Accept-Language"
+        &lt;-
+          response as HTTPResponse: () of HTTPResponse
+            //Override and implement content() and status() etc
+
+      //merge is a PATCH
+      operator :~: :/{addressId}
+        -&gt;
+          addressId as String //assume PATH
+          request as HTTPRequest :=: REQUEST
+          acceptLanguage as String :=: HEADER "Accept-Language"
+        &lt;-
+          response as HTTPResponse: () of HTTPResponse
+            //Override and implement content() and status() etc
+    
+    //Here is customer service (only partial)
+    //But shows verbs 'GET', 'PUT' etc    
+    Customers for :/customers
+
+      //Just get by customer identifier
+      //i.e http(s):somehostorother.com/customers/CUST-ABCD
+      byId() as GET for :/{customerId}
+        -&gt;
+          customerId as String :=: PATH
+          acceptLanguage as Vary :=: HEADER "Accept-Language"
+        &lt;-
+          response as HTTPResponse: () of HTTPResponse
+            //Override and implement content() and status() etc
+      
+      operator := as PUT for :/{customerId}
+        -&gt;
+          customerId as String :=: PATH
+          request as HTTPRequest :=: REQUEST
+          acceptLanguage as Vary :=: HEADER "Accept-Language"
+        &lt;-
+          response as HTTPResponse: () of HTTPResponse
+            //Override and implement content() and status() etc
+            businessProcess as BusinessProcess! // this would get injected as a component
+            //Now use the business process and alter the response.
+  
+  //Application that exposes the web services to be made available.
+  defines service application
+    
+    CustomerAccess
+      //Register the business component (not shown in this example for brevity)
+      register StandardBusinessProcess() as BusinessProcess
+      
+      //Now register the services to be made available.
+      register Customers()
+      register Addresses()
+  
+  //A program that starts up the REST server with the configuration above
+  defines program
+    
+    RestWebApp with application of CustomerAccess
+      stdout &lt;- Stdout()
+      
+      //Run on socket port 9092 for this service.
+      httpServer &lt;- HTTPServer(9092)
+      stdout.println("Now starting REST Services")
+      httpServer.start()
+//EOF</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      The following syntax defines a <i>service</i> that is mapped to a specific URL.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">Addresses</span> <span class="m">:/addresses</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      This ensures that the URL such as <u>https://www.somehost.com/addresses</u> is serviced by <b>Addresses</b>.
+      For web services a key component is <b>caching</b> how long a response should be retained without
+      re-requesting. The <b>HTTPResponse</b> <i>trait</i> must be implemented to send a response back to the caller.
+      This <i>trait</i> has more methods than just <u>content()</u> and <u>status</u>; it also provides key
+      methods to support caching:
+    </p>
+    <ul>
+      <li>age</li>
+      <li>cacheControl</li>
+      <li>date</li>
+      <li>etag</li>
+      <li>expires</li>
+      <li>lastModified</li>
+      <li>pragma</li>
+      <li>refresh</li>
+    </ul>
+    <p>
+      There are other methods, but these above are the key to effective HTTP caching.
+    </p>
+    <p>
+      In general <i>services</i> will/should do very little processing. They should delegate most of the actual
+      processing to a <i>component</i>.
+      In the example show below a 'businessProcess' is injected by <b>DI/IOC</b>.
+      The <b>service</b> layer should really focus on populating the HTTPResponse with sufficient data
+      and specifically concentrate on supporting caching. It must also interrogate the HTTP headers to ensure
+      it processes the request in the 'best way' it can. HTTP headers are full of 'hints' and options; such as
+      <b>Accept-Language</b> etc. These should be used to provide the best type of response possible.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">// This would get injected as a component</span>
+        </li>
+        <li>
+          <span class="m">businessProcess</span> <span class="k">as</span> <span
+            class="m">BusinessProcess</span> <span class="k">!</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The <b>HTTP/REST</b> method below shows how an address can be retrieved via a <b>GET</b>.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">// Here the address-id is a path parameter that the service would use</span>
+        </li>
+        <li>
+          <span class="m">byId()</span> <span class="m">:/<b>{</b>address-id<b>}</b></span>
+        </li>
+        <li>
+          <span class="m">addressId</span>
+          <span class="k">as</span>
+          <span class="m">String</span>
+          <span class="k">:=:</span>
+          <span class="k">PATH</span>
+          <span class="m">"address-id"</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The parameter <b>address-id</b> is not a valid EK9 variable name and indeed HTTP parameters in general are
+      not EK9 variable
+      name compatible. It is therefore necessary to copy (<b>:=:</b>) the HTTP parameter into a valid EK9 <i>method</i>
+      parameter.
+      The location from where the variable is copied can be <b>PATH, HEADER, QUERY, CONTENT</b> or <b>REQUEST</b>.
+    </p>
+
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">// The body in some cases is also required, this is shown below.</span>
+        </li>
+        <li>
+          <span class="m">request</span>
+          <span class="k">as</span>
+          <span class="m">HTTPRequest</span>
+          <span class="k">:=:</span>
+          <span class="k">REQUEST</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The general mechanism in web services is aimed at <b>mapping</b> <u>HTTP parameters</u> into incoming <u><i>method</i>
+      parameters</u> and this includes coercing incoming "String" values into strong <i>types</i>.
+      Again defining the service has the effect of adding a service to a library of functionality, however it is
+      only when those services are <b>registered</b> via an <i>application</i> do those services become effective. Subsequently a
+      <i>program</i> can be used to start and run the <i>application</i> <b>CustomerAccess</b> in this case.
+    </p>
+    <p>
+      The EK9 language does not try to mask or hide the HTTP protocol, but makes mapping the protocols into
+      mechanisms that are similar to EK9 <i>component/class</i> <b>constructs</b>. EK9 then reuses the
+      <i>component</i> and <i>application</i> <b>constructs</b> to deploy the web services defined. It is really
+      aimed at getting the data/process being triggered via <b>REST</b> into strong <i>types</i> as soon as possible
+      and then facilitating the use of <i>components</i> to do the actual processing. In other words the <b>construct</b>
+      is purely designed to be an <u>adapter</u> but with real focus on caching and different representations in responses.
+    </p>
+    <h5>REST/RESTful Summary</h5>
+    <p>
+      The minute you move from a single executable application and employ 'microservices' is the time when you
+      need to have embraced 'devops'. You are now in the realm of the
+      'network engineer'. You really need to leverage <u>http caching</u>, <u>containers</u>, rigorous build
+      pipelines and rolling automated deployments. Ideally you will have already done this with your
+      <b>monolithic</b> application to some degree. But the level of rigor around maintaining public interface
+      compatibility and planning for mass rollouts of new software that breaks that compatibility take
+      coordination and planning. The section on <a href="webService.html">web services</a> discusses this further.
+    </p>
+    <h3>Summary</h3>
+    <p>
+      This section on 'structure' has been designed to give a view of all the <b>constructs</b> that EK9
+      has to offer. Just to recap the main aspects.
+    </p>
+    <ul>
+      <li><a href="#constant">Constants</a> - for fixed real world values</li>
+      <li><a href="#type">Types</a> - short and simple types or constraints on existing types</li>
+      <li><a href="#function">Functions</a> - the smallest unit of processing</li>
+      <li><a href="#record">Records</a> - very simple data aggregate, but with operators</li>
+      <li><a href="#class">Classes</a> - aggregate with data and a range of methods/operators, supporting inheritance/composition</li>
+      <li><a href="#trait">Traits</a> - enables signatures to be established, facilitates composition and control</li>
+      <li><a href="#text">Text</a> - gathers spoken language text with string interpolation support</li>
+      <li><a href="#component">Components</a> - larger compositions of other constructs enabling encapsulation and injection</li>
+      <li><a href="#application">Applications</a> - defines the 'wiring' of a solution at a higher level</li>
+      <li><a href="#service">Services</a> - for RESTful, HTML and other HTTP based interactions</li>
+      <li><a href="#program">Programs</a> - the entry point to run your code</li>
+    </ul>
+    <p>
+      Hopefully you will be interested to learn much more and use EK9; it is a <b>big</b> language. Remember
+      you can use just parts of it if you wish.
+    </p>
+    <h3>Next Steps</h3>
+    <p>
+      To learn more in fine detail on the language itself rather than just its structure; take a look at the
+      <a href="basics.html">basics</a> next. You can use the navigator bar to the left to jump around.
+      Hopefully by now with the few examples given you will have got the gist of EK9. Now for the fine details of
+      variables and control statements.
+    </p>
+  </article>
+</main>
+</body>
+</html>
