@@ -1,0 +1,1153 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Basics of the EK9 programming language</title>
+  <meta name="description" content="The basic syntax used in the EK9 programming language
+    uses indentation as part of its layout and limits punctuation."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>EK9 Basics</h1>
+    </header>
+    <p>
+      Please take a look at the <a href="introduction.html">introduction</a> if you are looking to understand what
+      EK9 is. Review <a href="structure.html">structure</a> for an overview of the file structure and the
+      <b>constructs</b>.
+    </p>
+    <p>
+      This section is mainly about layout, declarations, comments and visibility.
+    </p>
+    <h3 id="started">Getting Started</h3>
+    <ul>
+      <li><a href="#indentation">Indentation</a></li>
+      <li><a href="#line_termination">Line Termination</a></li>
+      <li><a href="#parameter_passing">Parameter Passing</a></li>
+      <li><a href="#operators">Operators</a></li>
+      <li><a href="#objects">Objects and no Primitives</a></li>
+      <li><a href="#auto_boxing">No auto boxing (and why)</a></li>
+      <li><a href="#declarations">Declarations</a></li>
+      <li><a href="#variable_declarations">Variable Declarations</a></li>
+      <li><a href="#different_assignments">Different assignment symbols (and why)</a></li>
+      <li><a href="#type_inference">Type Inference</a></li>
+      <li><a href="#checking_value"><b>Checking if a variable has a value!</b></a></li>
+      <li><a href="#assignment">Assignment</a></li>
+      <li><a href="#one_line_comments">One Line Comments</a></li>
+      <li><a href="#block_comments">Block Comments</a></li>
+      <li><a href="#document_comments">Documentation Comments</a></li>
+      <li><a href="#pure">Pure and re-assignment</a></li>
+      <li><a href="#visibility">Visibility</a></li>
+      <li><a href="#module_visibility">Module Visibility</a></li>
+      <li><a href="#function_visibility">Function Visibility</a></li>
+      <li><a href="#record_visibility">Record Visibility</a></li>
+      <li><a href="#class_visibility">Class Visibility</a></li>
+      <li><a href="#trait_visibility">Trait Visibility</a></li>
+      <li><a href="#component_visibility">Component Visibility</a></li>
+      <li><a href="#parameter_visibility">Parameter access</a></li>
+    </ul>
+
+    <h2>Symbols and Punctuation</h2>
+    <p id="indentation">
+      As mentioned in the <a href="introduction.html">introduction</a> EK9 is indentation based; rather than using
+      <b>'{' and '}'</b> symbols in combination. The <b>'{' and '}'</b> symbols are used for <u>Dictionary</u>
+      (Map) initialisation.
+    </p>
+    <h5 id="line_termination">Line Termination</h5>
+    <p>
+      The <b>;</b> (semi-colon) is <u>not used</u> anywhere at all; <b>not</b> even as a line terminator.
+    </p>
+    <p>
+      The <b>'&lt;' and '&gt;'</b> in combination are only used for <a href="#comments">comments</a> and
+      not for any sort of <u>generics/template</u> declarations.
+    </p>
+    <p>
+      Importantly there are no in-line <u>lambdas</u> as such, so
+      symbol combinations of <b>&rarr;</b> and <b>=&gt;</b> are not used <u>in that context</u>.
+    </p>
+    <h5 id="parameter_passing">Accepting Parameters</h5>
+    <p>
+      The <b>&rarr;</b> symbol is used to denote incoming parameters and the <b>&larr;</b> is used to mean 'coming
+      out of'/'returning a value' or defining, inferring and initialising a constant/variable.
+      See <a href="#variable_declarations">declarations</a> and <a href="#type_inference">type inference</a>.
+      <br/>
+      When calling <i>methods</i> or <i>functions</i> parameters are passed using <b>'(' and ')'</b> (parentheses) as with
+      most programming languages. It is only where parameters are accepted or returned in <i>methods</i> or
+      <i>functions</i> that <b>&rarr;</b> and <b>&larr;</b> are employed.
+    </p>
+    <p>
+      Parameter passing examples.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+    
+    function1()
+      -&gt; n Integer
+      &lt;- sum Integer: 0      
+      ...
+      
+    function2()
+      -&gt;
+        n1 Integer
+        n2 Integer
+      &lt;-
+        sum Integer: 0
+      ...
+//EOF</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      In general if passing in one parameter the single line input (<b>&rarr; n Integer</b>) is preferred (see <b>function1</b> above).
+      Ff there are two or more parameters (see <b>function2</b> above) then they &rarr; should appear on a line by itself and the parameters
+      should appear on consecutive lines but indented.
+    </p>
+    <p>
+      While it is not mandatory; the returning parameter (if any) should follow the same layout as the incoming
+      parameter(s), i.e. single line (<b>function1</b>) or indented form (<b>function2</b>).
+      There can only be zero or one named return parameter multiple return values are <u>not supported</u>.
+      <br/>
+      Though as all parameters are passed by reference it is possible to alter the value of in coming parameters by
+      'copying' data into them. This is a little like 'inout' parameters in some languages.
+    </p>
+    <p>
+      This mechanism of parameter declaration has been taken to force a less dense text approach. It also encourages
+      fewer parameters to be employed.
+    </p>
+    <h5 id="operators">Operators</h5>
+    <p>
+      EK9 uses a range of symbols and symbol combinations for <a href="operators.html">operators</a>. This is
+      intended to drive consistency (use long term memory for ideograms) in common areas such as addition of two
+      items and also addition of an item in to a collection.
+    </p>
+    <p>
+      This is more in line with the C++ and Scala languages;
+      it is a move away from just adding various and inconsistent <i>method</i> names with very different semantics
+      to Object types. Care has to be taken when overriding and using <b>operators</b> as excessive or misleading/
+      inappropriate use can lead to confusion and code that is hard to understand/maintain.
+      <br/>
+      <br/>
+      EK9 enforces both <b>immutability</b> and <b>mutation</b> semantics on <a href="operators.html">operators</a>.
+    </p>
+
+    <h2 id="objects">Objects</h2>
+    <p>
+      There are no <b>primitive</b> types in EK9 - this means that everything is an <u>Object</u>. This is quite
+      an important point because most languages do have primitive types and so when values are passed to
+      <i>methods</i> or <i>functions</i> they are <u>passed by value</u>. In EK9 all values are effectively
+      <u>passed by reference</u>.
+      <br/>
+      <br/>
+      But note EK9 adds the <i>modifier</i> <b>pure</b> which means that <b>mutable</b> data structures can be
+      passed by reference into <i>methods</i> and <i>functions</i>; but when these are marked with the <b>pure</b>
+      modifier even <b>mutable</b> data cannot be modified.
+    </p>
+    <p>
+      So what does this mean? A primitive <b>int</b> or <b>float</b> in most languages always has a value
+      even if it just declared without initialisation (0 and 0.0f respectively).
+      An amount of memory has been allocated to the variable for it to store the value.
+    </p>
+    <p>
+      So this means that a primitive always has memory allocated and there can never be <b>a null pointer</b>
+      issue then? Well you might think that but with languages that support <u>auto boxing</u>
+      (see <a href="https://docs.oracle.com/javase/tutorial/java/data/autoboxing.html">here</a>
+      for what this means) errors can still occur where the Object form of a value is <u>auto boxed</u> into a primitive.
+    </p>
+    <h6 id="auto_boxing">Auto-Boxing (<b><u>not supported</u></b>)</h6>
+    <div class="highlight bad-ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//If auto boxing was supported</span>
+        </li>
+        <li>
+          <span class="c">//primitiveInt would be initialised as 0</span>
+        </li>
+        <li>
+          <span class="m">primitiveInt</span>
+          <span class="k">as int</span>
+        </li>
+        <li>
+          <span class="c">//objectInt would not have any memory allocated to hold its value</span>
+        </li>
+        <li>
+          <span class="m">objectInt</span>
+          <span class="k">as Integer</span>
+        </li>
+        <li>
+          <span class="c">//So what happens here?</span>
+        </li>
+        <li>
+          <span class="m">primitiveInt</span>
+          <span class="k">=</span>
+          <span class="m">objectInt</span>
+        </li>
+        <li>
+          <span class="c">//Some type of null exception will occur</span>
+        </li>
+      </ul>
+    </div>
+    <h4>Consistency</h4>
+    <p>
+      In general when working in an Object-Oriented or Functional Programming model it's best to be consistent.
+      For example all the EK9 collection types work with any type of Object and even functions can be passed as Objects
+      (delegates).
+      This is the main reason EK9 does not have primitives - therefore no <u>auto boxing</u> is ever used and
+      therefore that sort of null pointer error can never occur.
+    </p>
+    <p>
+      The downside is that Objects are much more heavy weight than primitive types, that could easily be
+      implemented in a CPU register. This just means that the code generation phase has to work much harder to produce efficient
+      executable instructions.
+      But from a programmer/developer point of view; there is consistency.
+    </p>
+    <p>
+      Just think in terms of Objects and not low level primitives.
+      There are no <u>arrays</u> but there are <b>Lists</b> and <b>Dictionaries</b> and to access the contents of
+      these you can use <b>Iterators</b> but also Stream pipelines as outlined in the
+      <a href="introduction.html#streams_preview">introduction</a>.
+    </p>
+    <h3 id="declarations">Declarations</h3>
+    <p>
+      The standard approach in EK9 to declare a variable or a constant is to always allocate it some memory so
+      that it always "points somewhere'.
+      This means that a variable (like an Integer) can be declared; but importantly it can be declared as
+      <b>not</b> having any meaningful value.
+    </p>
+    <p>
+      This may seem like a trivial, unimportant or even a nonsensical thing to do, why declare something with no
+      meaningful value? See the example below.
+    </p>
+    <h6 id="variable_declarations">Variable declarations</h6>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Declare an Integer - but with no value yet known.</span>
+        </li>
+        <li>
+          <span class="m">age</span>
+          <span class="k">&larr;</span>
+          <span class="m">Integer()</span>
+        </li>
+        <li>
+          <span class="c">//Declare an Integer - but with a known value from the outset.</span>
+        </li>
+        <li>
+          <span class="m">minimumAge</span>
+          <span class="k">&larr;</span>
+          <span class="m">21</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      In the above example a variable of <i>type</i> Integer has been declared the variable is called <b>age</b>.
+      If we assume the program we are about to write is going to ask the user for their age; then at this point
+      in time we don't yet know what that value will be.
+      <br/>
+      Normally you would have to use a value like <b>-1</b> or some other value to indicate that
+      the value had not yet been set, or if you were to use an Object version, you might have left it as
+      <b>null</b>.
+    </p>
+    <p>
+      With EK9 there is no need for this. Just declare <b>age</b> as above, it has memory allocated but is noted
+      as having <b>no meaningful value</b>.
+      The variable <b>minimumAge</b> is declared and is also known from the outset,
+      importantly the <i>type</i> of <b>minimumAge</b> has been <u>inferred</u> as an Integer.
+    </p>
+    <p>
+      It is also possible to declare the same value as below, if you prefer. In this case you are being
+      explicit as to what the type is.
+      This becomes important when you want a variable to be of a specific type (typically in <i>class,
+      component, trait</i> or <i>function</i> hierarchies).
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Declare an Integer - but with no value yet known.</span>
+        </li>
+        <li>
+          <span class="m">age</span>
+          <span class="k">as</span>
+          <span class="m">Integer</span><span class="k">:</span>
+          <span class="m">Integer()</span>
+        </li>
+        <li>
+          <span class="c">//Or like this.</span>
+        </li>
+        <li>
+          <span class="m">age</span>
+          <span class="k">as</span>
+          <span class="m">Integer</span>
+          <span class="k">=</span>
+          <span class="m">Integer()</span>
+        </li>
+        <li>
+          <span class="c">//Or even like this.</span>
+        </li>
+        <li>
+          <span class="m">age</span>
+          <span class="k">as</span>
+          <span class="m">Integer</span>
+          <span class="k">:=</span>
+          <span class="m">Integer()</span>
+        </li>
+        <li>
+          <span class="c">//Declare an Integer - without type inference</span>
+        </li>
+        <li>
+          <span class="m">minimumAge</span>
+          <span class="k">as</span>
+          <span class="m">Integer</span>
+          <span class="k">:=</span>
+          <span class="m">21</span>
+        </li>
+      </ul>
+    </div>
+
+    <p>
+      It is possible to declare variables like this below, this sort of syntax should really only be used when
+      receiving parameters on <i>methods/functions</i>, it is best avoided when declaring local variables,
+      <i>fields/properties</i> on <i>records</i>, <i>classes</i> and <i>components</i>
+      as it is very likely to lead to some sort of error. An exception would be when you are dealing with
+      an abstract <i>type/trait</i>; as you cannot instantiate an abstract <i>type/trait/class</i>.
+      <br/>
+      EK9 enforces the <b>?</b>suffix for this type of declaration and also checks if the variable is assigned
+      before use.
+    </p>
+
+    <div class="highlight bad-ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Declare an Integer - but no space allocated</span>
+        </li>
+        <li>
+          <span class="m">possibleError</span>
+          <span class="k">as</span>
+          <span class="m">Integer?</span>
+        </li>
+      </ul>
+    </div>
+
+    <p>
+      Why use different ways to declare a variable/parameter you may ask? In short; it is a mix of history, a
+      desire for <u>type inference</u> and <u>polymorphic variables</u>. Always prefer the following forms
+      where possible.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Local variable declaration and initialisation.</span>
+        </li>
+        <li>
+          <span class="m"><i>variableName</i></span>
+          <span class="k">&larr;</span>
+          <span class="m"><i>TypeConstructor()</i></span>
+        </li>
+        <li>
+          <span class="c">//polymorphic variable declaration and initialisation.</span>
+        </li>
+        <li>
+          <span class="m"><i>variableName</i></span>
+          <span class="k">as</span>
+          <span class="m"><i>SuperType</i></span><span class="k">:</span>
+          <span class="m"><i>SubTypeConstructor()</i></span>
+        </li>
+        <li>
+          <span class="c">//Preferred field/property declaration and initialisation.</span>
+        </li>
+        <li>
+          <span class="m"><i>fieldName</i></span>
+          <span class="k">as</span>
+          <span class="m"><i>Type</i></span><span class="k">:</span>
+          <span class="m"><i>TypeConstructor()</i></span>
+        </li>
+      </ul>
+    </div>
+    <h5 id="different_assignments">History</h5>
+    <p>
+      There are programming <b>constructs</b> and technologies such as <b>CSS</b>, <b>JSON</b> where the '<b>:</b>'
+      is used extensively for assignment when data elements are initialised. Not only does this look very clear
+      on the eye it also means that many programmers have become used to this syntax.
+    </p>
+    <p>
+      However <b>HTML</b> uses the '<b>=</b>' for assignment to properties in UI elements and most programming
+      languages use '<b>=</b>' for assignment of variables, so again there will be many programmers that are used to using
+      '<b>=</b>' for assignment.
+    </p>
+    <p>
+      So why add '<b>:=</b>' as well? Both <b>Pascal</b> and <b>ADA</b> use '<b>:=</b>' for assignment (as well as
+      other languages) but more importantly it brings the ability to drive for consistency with other
+      <a href="operators.html">operators</a> listed below.
+      Note that '<b>:=</b>' also looks and <i>feels</i> <u>stronger</u> as an assignment than either '<b>:</b>' or
+      '<b>=</b>' separately. Use the assignment operator you feel most happy with; but try to be consistent.
+    </p>
+    <p>
+      Other types of assignment and equality checks:
+    </p>
+    <ul>
+      <li><b>?=</b> The guarded assignment</li>
+      <li><b>==</b> Test for equality</li>
+      <li><b>&lt;=</b> Less than or equal</li>
+      <li><b>&gt;=</b> Greater than or equal</li>
+      <li><b>&lt;&gt;</b> Not equal to (like SQL not equals)</li>
+      <li><b>!=</b> Also not equals to (like C, C++, Javascript not equals)</li>
+      <li><b>+=</b> Add value and assign to</li>
+      <li><b>-=</b> Subtract value and assign to</li>
+      <li><b>*=</b> Multiply value and assign to</li>
+      <li><b>/=</b> Divide by value and assign to</li>
+    </ul>
+    <p>
+      There are more operators available but those above are involve reference to <b>=</b> either in the form of
+      assignment or in the form of testing equality. So adding in <b>:=</b> does bring some form of two character consistency(in
+      a way). EK9 does provide a range of <a href="operators.html#coalescing">coalescing operators</a> which work well with
+      the <b>'is set'</b> nature of EK9 variables.
+    </p>
+    <h4 id="type_inference">Type Inference</h4>
+    <p>
+      The use of <b>&larr;</b> is the main mechanism to not only declare a variable; but also have its type <u>inferred</u>.
+      As you can see in the example below, the inference mechanism is much more terse, easy to write and understand.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">minimumAge</span>
+          <span class="k">&larr;</span>
+          <span class="m">21</span>
+        </li>
+        <li>
+          <span class="c">//Alternatively - which can be useful</span>
+        </li>
+        <li>
+          <span class="m">minimumAge</span>
+          <span class="k">as</span>
+          <span class="m">Integer</span><span class="k">:</span>
+          <span class="m">21</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      So EK9 uses <u>type inference</u> for the <u>consumer</u> of <i>methods</i>, <i>functions</i> and
+      <i>fields</i> but forces the writer of the <i>records, classes, components, methods</i> and
+      <i>functions</i> to fully declare the fields and parameters. This makes it much quicker
+      and easier for the programmer to determine the <i>types</i> they are dealing with. They also get the speed
+      and clarity of <u>type inference</u> when writing bodies of code, which is where the bulk of code is written.
+    </p>
+    <p>
+      Why not just use <u>type inference</u> everywhere?
+    </p>
+    <p>
+      It was noted when looking at type inference; that while it is possible with a
+      <a target="_blank" title="Full type inference" href="https://en.wikipedia.org/wiki/Hindley%E2%80%93Milner_type_system">Hindley - Milner</a> type
+      inference mechanism to deduce and infer all the types; developers actually needed to quickly see <b>what
+      type</b> they were dealing with. Either in the definition of structured constructs
+      or in the use of such constructs. While modern IDE's can really help in this regard (by showing types via
+      hovers for example) it became very obvious that it was much quicker and easier for a
+      developer to just follow the <i>method call</i> and immediately <b>see</b> what the type was.
+    </p>
+    <h4 id="checking_value">Checking variables</h4>
+    <p>
+      Clearly if it is possible to create/declare a variable and not set it to any meaningful value; there has to
+      be some way to check it.
+      As mentioned before with primitives or Object type in some languages it would be necessary to check for
+      <b>-1 (if that denoted not set)</b> or maybe even check if an object was set to <b>null/nil</b> if the
+      language supported that concept (EK9 does not).
+    </p>
+    <p>EK9 uses the <b>?</b> (is set) operator in the following way.</p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">age</span>
+          <span class="k">&larr;</span>
+          <span class="m">Integer()</span>
+        </li>
+        <li>
+          <span class="k">if</span>
+          <span class="m">age</span><span class="k">?</span>
+        </li>
+        <li>
+          <span class="c">&nbsp;&nbsp;//This block would not be executed</span>
+        </li>
+        <li>
+          <span class="k">else</span>
+        </li>
+        <li>
+          <span class="c">&nbsp;&nbsp;//This block would be the section that is executed</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The good thing about the <b>?</b> operator is that it can be applied to any type of object. EK9
+      also provides a set of <a href="operators.html#ternary">ternary</a> and
+      <a href="operators.html#assignment_coalescing">assignment</a> coalescing operators specifically for
+      dealing with variables that may or may not be meaningful values.
+    </p>
+    <p>
+      When you develop <i>classes</i> or <i>records</i> you can/should override the <b>?</b> operator.
+      This also applies to <i>generics</i> in the following way.
+      While generics have not really been covered yet, they are intrinsic to how EK9 works and the
+      built-in set of generic types really are <u>first class</u> <b>constructs</b> and so are treated on a
+      par with Integers and Strings; for example.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//A simple empty list</span>
+        </li>
+        <li>
+          <span class="m">aList</span>
+          <span class="k">as</span>
+          <span class="m">List</span>
+          <span class="k">of</span>
+          <span class="m">Integer</span>
+          <span class="k">:=</span>
+          <span class="m">List()</span>
+        </li>
+        <li>
+          <span class="k">if</span>
+          <span class="m">aList</span><span class="k">?</span>
+        </li>
+        <li>
+          <span class="c">&nbsp;&nbsp;//Code where aList has some meaningful value/content</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      Incidentally if you have an initial set of values you need in a list then you can use the shorthand below.
+      But there is more on this in the <a href="collectionTypes.html">collection types</a> section.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//A list with some values using the 'list shorthand of' [] - this not an array!</span>
+        </li>
+        <li>
+          <span class="m">bList</span>
+          <span class="k">&larr; [</span>
+          <span class="m">"A", "B", "C"</span>
+          <span class="k">]</span>
+        </li>
+        <li>
+          <span class="k">if</span>
+          <span class="m">bList</span><span class="k">?</span>
+        </li>
+        <li>
+          <span class="c">&nbsp;&nbsp;//This block would be the section that is executed</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      This logic also applies to iterators (another supported generic type). Simple loop example getting each
+      value via an iterator and converts it to a String to be printed on the standard output (console). But see
+      <a href="introduction.html#streams_preview">introduction</a> for alternatives to using <b>Iterators</b>.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">stdout</span>
+          <span class="k">&larr;</span>
+          <span class="m">Stdout()</span>
+        </li>
+        <li>
+          <span class="m">bList</span>
+          <span class="k">&larr; [</span>
+          <span class="m">"A", "B", "C"</span>
+          <span class="k">]</span>
+        </li>
+        <li>
+          <span class="m">iteratorB</span>
+          <span class="k">&larr;</span>
+          <span class="m">bList.iterator()</span>
+        </li>
+        <li>
+          <span class="k">while</span>
+          <span class="m">iteratorB</span><span class="k">?</span>
+        </li>
+        <li>
+          <span class="c">&nbsp;&nbsp;</span><span class="m">stdout.println("Value is ["</span>
+          <span class="k">+</span>
+          <span class="m">iteratorB.next()</span>
+          <span class="k">+</span>
+          <span class="m">"]")</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//The stream pipeline construct is cleaner though</span>
+        </li>
+        <li>
+          <span class="k">cat</span> <span class="m">bList</span> <span class="k">&gt;</span> <span class="m">stdout</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      In summary then; it is always best to declare a variable and assign it some space to hold a value, even if
+      that value is not yet known.
+    </p>
+    <p>
+      Accept, for example that a <b>Boolean</b> can really have three states, <b>true</b>, <b>false</b> and
+      importantly <u><b>not yet known</b></u>.
+    </p>
+    <h3 id="assignment">Assignment</h3>
+    <p>
+      The declarations above really combine the declaration of a variable name, its type (sometimes
+      <u>inferred</u>) and its initial value into a single statement. In general, the creation of the variable
+      and its assignment is always best done in one go like this.
+    </p>
+    <p>
+      With the easy syntax like <b>&larr;</b> makes this approach more likely to be adopted. It also
+      is simpler on the eye to understand (low cognitive load), is less typing and encourages less variable reuse
+      and better variable naming.
+    </p>
+    <p>
+      However there are times when you will already have a variable and just want to assign it a new value. The
+      example below shows
+      that syntax. But review <a href="operators.html#ternary">ternary operators</a> as there is a nice syntax
+      that that makes a single
+      assignment much more obvious.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Declare charges and initialise</span>
+        </li>
+        <li>
+          <span class="m">charges</span>
+          <span class="k">&larr;</span>
+          <span class="m">20.99</span>
+        </li>
+        <li>
+          <span class="c">//Use charges for some processing</span>
+        </li>
+        <li>
+          <span class="c">...</span>
+        </li>
+        <li>
+          <span class="c">//Now set the same variable to a new value</span>
+        </li>
+        <li>
+          <span class="m">charges</span>
+          <span class="k">:=</span>
+          <span class="m">50.99</span>
+        </li>
+        <li>
+          <span class="c">//Use updated charges for some processing</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      Note that the assignment was done using '<b>:=</b>', the assignment could have been done with '<b>:</b>'
+      or '<b>=</b>'. Depending on your point of view, the reassignment of a variable to a new value could be
+      considered quite significant. Indeed, some developers would say you should never reassign a variable.
+      Let's see what that would look like using the other assignment operators.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Declare charges and initialise</span>
+        </li>
+        <li>
+          <span class="m">charges</span>
+          <span class="k">&larr;</span>
+          <span class="m">20.99</span>
+        </li>
+        <li>
+          <span class="c">...</span>
+        </li>
+
+        <li>
+          <span class="m">charges</span><span class="k">:</span>
+          <span class="m">50.99</span>
+        </li>
+        <li>
+          <span class="m">charges</span>
+          <span class="k">=</span>
+          <span class="m">50.99</span>
+        </li>
+        <li>
+          <span class="c">//Using <b>:=</b> 'feels' more significant</span>
+        </li>
+        <li>
+          <span class="m">charges</span>
+          <span class="k">:=</span>
+          <span class="m">50.99</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      EK9 does <u>not stop</u> you reassigning variables <u>unless</u> the block of code you do it in is marked as
+      <b>pure</b>, then only return values can be reassigned. See the section on <a href="#pure">pure</a> for more
+      details.
+      <b>Pure</b> is the main reason EK9 does not use keywords like <i>const</i>, <i>final</i> or <i>static</i>.
+      It's also why it does not have <b>immutable</b> versions of Generic collection types.
+      <b>Pure</b> is a <u>very much stronger</u> concept if developers are looking to embrace immutability in their code.
+    </p>
+    <p>
+      EK9 takes the approach of forcing the whole block (<i>function/method</i>) to be <b>pure</b>.
+      If the developer has concerns in this area they feel strongly
+      about; adopting a more <a target="_blank" title="Pure" href="https://en.wikipedia.org/wiki/Pure_function"><b>pure approach</b></a>
+      is the way to go.
+      <br/>
+      For most developers this may feel a little extreme. But EK9 does mandate <b>pure</b> on some
+      specific operators to preseve semantics.
+    </p>
+
+    <h3 id="comments">Comments</h3>
+    <p>
+      There are four types of comments that available in EK9 source code, these are show below. Please note that
+      the C/C++/C#/Java style of comments <b>/* */</b> are <u>not supported</u>.
+    </p>
+    <h4 id="one_line_comments">One Line Comments</h4>
+    <p>
+      A single line comment is shown below.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//A one line comment</span>
+        </li>
+        <li>
+          <span class="c">variable &larr; 21 //Comments can be at the end of a line if necessary</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The single line comment starts with '//' and continues until the end of the line.
+    </p>
+    <h4 id="block_comments">Block Comments</h4>
+    <p>
+      There are two types of general block comments, which follow the <b>HTML/XML</b> coding standards as shown
+      below.
+    </p>
+
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">&lt;!--</span>
+        </li>
+        <li>
+          <span class="c">&nbsp;&nbsp;These lines will be contained</span>
+        </li>
+        <li>
+          <span class="c">&nbsp;&nbsp;within a comment block.</span>
+        </li>
+        <li>
+          <span class="c">--&gt;</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The block comment below is an alternative and more consistent mark up.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">&lt;!-</span>
+        </li>
+        <li>
+          <span class="c">&nbsp;&nbsp;These lines will be contained</span>
+        </li>
+        <li>
+          <span class="c">&nbsp;&nbsp;within a comment block, just like above.</span>
+        </li>
+        <li>
+          <span class="c">-!&gt;</span>
+        </li>
+      </ul>
+    </div>
+    <h4 id="document_comments">Documentation Comments</h4>
+    <p>
+      This comment type is really only used for documentation comments.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">&lt;?-</span>
+        </li>
+        <li>
+          <span class="c">&nbsp;&nbsp;Just sums the squares of values from 1 to n.</span>
+        </li>
+        <li>
+          <span class="c">-?&gt;</span>
+        </li>
+      </ul>
+    </div>
+
+    <p>
+      EK9 took a different approach to comments from many other languages to encourage the limited use of comments.
+      While this may sound strange, excessive commenting can be misleading and lead to too much visual clutter.
+    </p>
+
+    <h3 id="pure">Pure Keyword</h3>
+    <p>
+      Whilst not a mainstream approach by developers with an Object-Oriented or Procedural background, the concept
+      of <u> not allowing/controlling</u> variable reassignment is really a key element for those with a Functional
+      Programming background. The idea of which is quite attractive in many ways and <u>can</u> lead to code that
+      is much less error-prone.
+    </p>
+    <p>
+      It is not without cost however, sometimes the
+      solution approach you would have traditionally used cannot be applied. Sometimes you will need to rethink
+      your approach
+      to a problem and come up with an alternative solution.
+    </p>
+    <p>
+      Below is an example of a function that has been marked as <b>pure</b>; to a 'purist' functional programmer
+      this would not
+      qualify as being <b>pure</b> as there are a couple of explicit and implicit reassignments.
+    </p>
+    <ul>
+      <li>sum - this is clearly being reassigned - EK9 allows this, as it is a return variable.</li>
+      <li>i - the loop variable is obviously being incremented - EK9 allows this as well.</li>
+    </ul>
+    <pre id="pure_function_example">#!ek9
+defines module introduction
+
+  defines function
+
+    &lt;?-
+      Just sums the squares of values from 1 to n.
+    -?&gt;
+    sumOfSquares() as pure
+      -&gt; n Integer
+      &lt;- sum Integer: 0      
+      for i in 1 ... n
+        sum += i*i
+ 
+    //An alternative solution using stream pipeline
+       
+    &lt;?-
+      Square of val.
+    -?&gt;    
+    square() as pure
+      -&gt; val as Integer
+      &lt;- squared as Integer: val * val
+      
+    streamingSumOfSquares() as pure
+      -&gt; n Integer
+      &lt;- sum Integer: for i in 1 ... n | map with square | collect as Integer
+ 
+//EOF</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      The stream pipeline offers an alternative approach which is more functional in nature.
+    </p>
+    <p>
+      But below, shows the advantage of marking something <b>pure</b>, as the following code would result in a
+      compiler error (because there is an assignment to an incoming parameter variable).
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">...</span>
+        </li>
+        <li>
+          <span class="m">sumOfSquares</span><span class="k">() as pure</span>
+        </li>
+        <li>
+          <span class="k">&nbsp;&nbsp;&rarr;</span><span class="m"> n</span><span class="k"> as Integer</span>
+        </li>
+        <li>
+          <span class="k">&nbsp;&nbsp;&larr;</span>
+          <span class="m">sum</span>
+          <span class="m">Integer</span><span class="k">:</span>
+          <span class="m">0</span>
+        </li>
+        <li>
+          <span class="m">&nbsp;&nbsp;n</span>
+          <span class="k">:=</span>
+          <span class="m">20</span>
+        </li>
+        <li>
+          <span class="k">&nbsp;&nbsp;for</span>
+          <span class="m">i</span>
+          <span class="k">in</span>
+          <span class="m">1</span>
+          <span class="k">...</span>
+          <span class="m">n</span>
+        </li>
+        <li>
+          <span class="c">...</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      It's important to know that <b>pure</b> can only call <b>pure</b>. If you have
+      some existing functionality that is not marked as <b>pure</b> you cannot call it from your <b>pure</b> function!
+      The converse is not true however!
+    </p>
+    <h3 id="visibility">Visibility</h3>
+    <p>
+      In EK9 there are several concepts of visibility that are important to understand, these are outlined below.
+      Each of the different <b>constructs</b> have different capabilities/roles and purpose; as such the level of
+      visibility of fields/properties and methods vary from <b>construct</b> to <b>construct</b>. While this may
+      seem confusing there is a purpose to these different levels of visibility per <b>construct</b>.
+    </p>
+    <h4 id="module_visibility">Module Visibility</h4>
+    <p>
+      All <b>constructs</b> that are defined in a <b>module</b> (i.e. <b>defines module introduction</b>)
+      are all visible to each other so <i>function</i> <b>sumOfSquares</b> (above) would be visible to any other
+      <i>function</i> or <b>construct</b> in the same module.
+    </p>
+    <h5 id="references_example">References</h5>
+    <p>
+      However if you need (and you will) to access <b>constructs</b> from other modules there are two ways you can
+      do this.
+      The first way is shown below; and it is to use a <i>references</i> statement. Here a constant of <b>PI</b> is
+      defined in a module <u>namespace</u> called <b>net.customer.geometry</b>.
+    </p>
+    <pre>#!ek9
+module net.customer.geometry
+  defines constant
+    PI &lt;- 3.142
+//EOF</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      Lets assume that the developer now needs to access PI from another module <u>namespace</u> called
+      <b>com.solutions.areas</b> and want to define a function to calculate the area of a circle.
+    </p>
+    <pre>#!ek9
+module com.solutions.areas
+  references
+    net.customer.geometry::PI
+    
+  defines function
+    areaOfCircle()
+      -&gt; diameter as Float
+      &lt;- result as Float: PI * (diameter/2)^2
+//EOF</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      By using the references statement above the constant <b>PI</b> can be used within the module. The
+      alternative mechanism to use
+      <b>PI</b> is show below.
+    </p>
+    <pre>#!ek9
+module com.solutions.areas
+  defines function
+    areaOfCircle()
+      -&gt; diameter as Float
+      &lt;- result as Float: net.customer.geometry::PI * (diameter/2)^2
+//EOF</pre>
+    <p>
+      <br/>
+    </p>
+    <p>
+      Here the fully qualified name of the constant <b>PI</b> is used. Why have two mechanisms to do that same
+      thing?
+      There are cases (PI would be a bad example) where you have a <b>construct</b> say a function that has the
+      same name but in a different module. You cannot <i>reference</i> it because the names would clash,
+      so the only way to access this is to use the fully qualified name.
+      Clearly this is less convenient (especially if you want to use it in multiple
+      places), so take care in naming of <b>constructs</b>; and also how you link them together.
+    </p>
+    <p>
+      The same syntax is used for <i>components, records, types, traits, classes</i> and <i>functions</i>.
+      But note there are no <u>wildcards</u> you must reference every single <b>construct</b> that you need
+      from other packages. This ensures that you are careful in packaging and re-use; moreover everything can
+      be referenced. There is no mechanism to limit access to items in modules that are defined.
+      This is aimed at simplicity; other languages have mechanisms that enforce hiding of <b>constructs</b>,
+      EK9 does not support this.
+    </p>
+    <p>
+      The main focus of encapsulation in EK9 on a large scale is the <i>component</i>. Other <b>constructs</b> are
+      considered to be <u>building blocks</u> to make the <i>components</i>.
+      Clearly there is nothing stopping developer from using specific <u>namespaces</u> to denote internal <b>constructs</b>
+      that should not be exposed. For example <b>com.geometry.internal</b>, but these are a naming convention and not
+      enforced by the compiler.
+    </p>
+    <h4 id="function_visibility">Function Visibility</h4>
+    <p>
+      Just like <i>constants</i> all <i>functions</i> have public visibility. Again just like constants if
+      they are to be addressed outside the module they are defined in then they must be either <i>referenced</i>
+      or by addressed by their fully qualified name. <b>com.solutions.areas::areaOfCircle</b> in the example of
+      the function outlined above.
+    </p>
+    <p>
+      As an aside, functions must have a unique name within a module. You cannot <u>overload</u> functions with the
+      same names but different parameters (unlike <i>methods</i> on <i>classes</i> that do support this).
+      You can have a function of the same name in a different <i>module</i> <u>namespace</u> however.
+    </p>
+    <h4 id="record_visibility">Record Field Visibility</h4>
+    <p>
+      A <i>Record</i> field/property visibility is always <b>public</b>, this means that when a <i>record</i> variable is
+      accessible all its fields are directly readable and can also be modified. As <i>records</i> only support fields and
+      operators there and there are no <i>methods</i> on <i>records</i> method visibility is not relevant for <i>records</i>.
+      <br/>
+      <br/>
+      But remember it is possible to use <b>pure</b> methods and functions to prevent modification of record fields if desired.
+    </p>
+    <p>
+      Records in EK9 are quite like <b>structs</b> from other languages, but with the addition of operators.
+    </p>
+    <h4 id="class_visibility">Class Field/Method Visibility</h4>
+    <p>
+      A <i>Class</i> field/property visibility is always <b>private</b>, this means that classes that extend super classes <b>do
+      not</b> have any access to fields/properties in their super classes. It is not possible to create a field/property
+      in a class that is <b>protected</b> or <b>public</b>. The <u>inner workings</u> of a class are private to that class. It is
+      possible to make accessor methods to expose such <u>inner workings</u>; clearly this is undesirable from an Object-Oriented
+      encapsulation point of view, but it can be done and the compiler will not stop this.
+    </p>
+    <p>
+      All operators are <b>public</b> and can only be <b>public</b>.
+    </p>
+    <p>
+      Class <i>methods</i> have the most variety of visibility, these values can be one of:
+    </p>
+    <ul>
+      <li><b>private</b> - only accessible within the class defining it.</li>
+      <li><b>protected</b> - accessible to class defining is and all subclasses.</li>
+      <li><b>public</b> - accessible by any caller, this is the default when nothing is specified.</li>
+    </ul>
+    <h4 id="trait_visibility">Trait Method Visibility</h4>
+    <p>
+      Trait method visibility is always <b>public</b> and <i>traits</i> as do not have fields/properties
+      their visibility is not relevant.
+    </p>
+    <h4 id="component_visibility">Component/Field/Method Visibility</h4>
+    <p>
+      Just like <i>classes</i>; <i>component</i> fields/properties are always <b>private</b>.
+      <b>Operators</b> on <i>components</i> are also always <b>public</b>.
+    </p>
+    <p>
+      Component <i>methods</i> have the following visibility:
+    </p>
+    <ul>
+      <li><b>private</b> - only accessible within the class defining it.</li>
+      <li><b>public</b> - accessible by any caller.</li>
+    </ul>
+    <p>
+      There is no concept of <b>protected</b> access in <i>components</i>, they are intended to be <u>composed</u>
+      of other <u>building blocks</u> such as <i>classes, functions</i> and other <i>components</i> and extension
+      should be through composition and not inheritance.
+      If you find yourself needing complex inheritance hierarchies with <i>components</i> you <i>should</i> look
+      to pull that functionality down into <i>classes</i>. Moreover, you should probably consider using some of
+      the <u>composition</u> mechanisms available in <i>classes</i> to make them more reusable.
+    </p>
+    <p>
+      You may consider this advice <u>rather opinionated</u> and in some ways it is. EK9 has many more specific
+      <b>constructs</b> than other languages; these are designed and intended to work in concert with other
+      <b>constructs</b> in specific ways. Go 'with the grain' of this, going against the grain
+      will not result in a good outcome. If you find this approach too constraining/limiting/restrictive or
+      irritating see <a href="introduction.html#other_languages">the other languages</a> section - you may
+      find a language there that you are more suited to.
+    </p>
+    <h4 id="parameter_visibility">Parameter Visibility</h4>
+    <p>
+      Clearly parameters passed in to a <i>function</i> or <i>method</i> must be visible in terms of being read
+      and used, but their reassignment or alteration can be controlled via the use of the <b>pure</b> keyword
+      - see <a href="#pure">the pure modifier</a> for more details.
+    </p>
+    <p>
+      If you recall in the section on <a href="#objects">objects</a>, parameters are always Objects and hence are
+      always passed by reference. This means that it is possible to modify their internal state (subject to
+      <a href="#pure">the pure modifier</a>), hence all parameters can be <u>in out parameters</u>.
+    </p>
+    <p>
+      This has major implications (both good and bad), it means that if you want to return multiple values from a function
+      or method, you can pass parameters that you intend to be modified and updated. But it also
+      means it is possible you may inadvertently modify an incoming parameter that you did not intend to.
+      Another way to return multiple values is to use <a href="dynamicClasses.html">Dynamic Classes</a> in the form of
+      a 'tuple', or even use a record.
+    </p>
+    <p>
+      Just using the '<b>:</b>', '<b>=</b>' or '<b>:=</b>' assignment operators would not modify the internal
+      state of an object as it would just alter the location of where the variable in the <i>function</i> or
+      <i>method</i> would access. The original variable would remain as is. But using an operator (or mutator method)
+      like '<b>+=</b>' or '<b>++</b>' would actually alter the internal state of the variable. In addition the
+      <b>copy</b> operator '<b>:=:</b>' will alter the internal state; as would the <b>merge</b> operator
+      '<b>:~:</b>'.
+    </p>
+    <p>
+      So by adopting an Object only approach and not supporting any pass by value semantics EK9 does open the door
+      to potential errors; but as most real world software always involves complex aggregates rather than just a few primitive types
+      (like int or float) this is an issue that already has to be carefully managed. EK9 provides the <b>pure</b> keyword
+      so that a developer can manage value mutations.
+    </p>
+    <h3>Next Steps</h3>
+    <p>
+      To learn more on the language itself in terms of what operators exist on built-in types and how to provide
+      implementations in your own <i>classes/records</i>; take a look at the <a href="operators.html">operators</a> next.
+    </p>
+  </article>
+</main>
+</body>
+</html>

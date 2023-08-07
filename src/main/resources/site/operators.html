@@ -166,7 +166,7 @@
       and the retention of semantics (meaning) in conjunction with most peoples <i>long-term memory</i>.
     </p>
     <p>
-      To accomplish <u>add something to a value</u> in EK9 you would use the '<b>+=</b>' operator. If you used the
+      To accomplish <u>adding something to a value</u> in EK9 you would use the '<b>+=</b>' operator. If you used the
       '<b>+</b>' then a new <b>List</b> would be provided with the contents of the existing <b>List</b> plus
       the value. See the example below.
     </p>
@@ -256,12 +256,16 @@
     <p>
       It is very easy to become seduced by operators, to override/overload and twist them into contrived meanings.
       When overriding an operator it is really worth taking the time to ensure it retains its semantics and consistency.
-      But probably more importantly; the simple use of the '<b>+</b>' operator really has triggered quite a lot of processing.
-      In the case of two Lists it may have triggered the creation of a new List and the full traversal of both of the other two Lists
+      But probably more importantly; the simple use of the '<b>+</b>' operator really could have triggered quite a lot of processing.
+      In the case of two Lists it <u>may</u> have triggered the creation of a new List and the full traversal of both of the other two Lists
       to populate the return list. This amount of processing may not be obvious from just using the '<b>+</b>' operator!
     </p>
     <p>
-      However; operators have been created <u>to be used and overridden</u>. If you are creating an API that uses
+      Or the processing might have created a list with just references to the two lists, giving the impression of joining them.
+      The implementation detail is not important here, but the semantics are.
+    </p>
+    <p>
+      Operators have been created <u>to be used and overridden</u>. If you are creating an API that uses
       <u>imaginary numbers</u> and you want to express <b>addition</b> then overriding the '<b>+</b>' is not only
       acceptable it is <u><b>strongly encouraged</b></u>. If you are creating some type of <u>collection</u> again using
       '<b>+</b>' and '<b>+=</b>' to 'add' or 'add to' is <u><b>strongly encouraged</b></u>.
@@ -278,7 +282,7 @@
     </p>
     <h5 id="comparison">Comparison Operators</h5>
     <p>
-      The first set of operators to be explained are those used in comparisons and checks and return a Boolean.
+      The first set of operators to be explained are those used in comparisons and checks and return a Boolean value.
     </p>
     <h6>Symbolic Boolean Operators</h6>
     <p>
@@ -405,8 +409,8 @@
     </div>
     <h6>Symbolic Comparison Operators</h6>
     <p>
-      The following two operators use symbols which you may not have seen before; they return an <b>Integer</b>,
-      these are:
+      The following two operators use symbols which you may not have seen before; they return an <b>Integer</b>
+      value, these are:
     <ul>
       <li>Comparison (a &lt;=&gt; b)</li>
       <li>Fuzzy Match (a &lt;~&gt; b)</li>
@@ -475,7 +479,7 @@
       The idea behind the fuzzy match is to try and find the best sort of match for a particular value. In this
       case Strings and specifically <b>steve</b> is the best match because just the case of the 's' had to be
       altered.
-      The String built into EK9 uses a modified <u>Levenshtein</u> algorithm, that weights cases changes,
+      The String built into EK9 uses a modified <u>Levenshtein</u> algorithm, that weights case changes,
       character additions and spans of common sequences slightly differently.
     </p>
     <p>
@@ -577,9 +581,15 @@
     </p>
     <p>
       For example; lets say an <u>Address</u> is an aggregate of several data elements, house number,
-      street, city, country. If you are to ask a user for such information then an <u>Address</u> Object needs to be created
+      street, city and country. If you are to ask a user for such information then an <u>Address</u> Object needs to be created
       to hold it, but initially it will not be valid. Only when the user has provided the information can the <u>Address</u>
       be checked and only then is it valid (or not if the information is erroneous).
+    </p>
+    <p>
+      You may wish to consider using records to gather sets of data and then using those as arguments into classes, where
+      the classes have both data and behaviour. The classes can then validate the records during consttruction.
+      This reduces the number of fields in the class and enables the class to be either fully valid or fully invalid.
+      This more simple approach reduces the number of arguments to a class and removes the need for 'Builders'.
     </p>
     <h5 id="assignment">Assignment Operator(s)</h5>
     <p>
@@ -597,14 +607,15 @@
       It is like a combination of an 'if statement' and an assignment.
     </p>
     <p>
-      The assignment only take place if 'a' has no memory allocation or it is <b>un-set</b>.
+      The assignment only take place if 'a' has no memory allocation or it is <b>un-set</b>. Only if this is the case
+      will the variable 'a' be assigned to point to the same data as 'b'.
     </p>
     <p>
       The <a href="basics.html#different_assignments">basics</a> section discusses the reasoning for the three
       different assignment styles; and they do tend to feel right in different contexts (this is down to personal preference).
     </p>
     <p>
-      It is important to note that really it is only a handle that is assigned and not actual data. So using the
+      It is important to note that really it is only a handle (pointer) that is assigned and not actual data. So using the
       example of the address previously.
     </p>
     <p>
@@ -847,15 +858,15 @@ defines module introduction
       profession &lt;- String()
       
       //is set
-      operator ?
+      operator ? as pure
         &lt;- rtn Boolean: first? and last? and dob? and profession?
       
       //convert to string
-      operator $
+      operator $ as pure
         &lt;- rtn String: first + ", " + last + ", " + $dob + ", " + profession
       
       //equality
-      operator ==
+      operator == as pure
         -&gt; arg as Person
         &lt;- rtn as Boolean: arg? and first==arg.first and last==arg.last and dob==arg.dob and profession==arg.profession
       
@@ -922,6 +933,9 @@ defines module introduction
 [, Smith, 1960-01-01, ]
 [John, Smith, 1960-01-01, IT]
 </pre>
+    <p>
+      <br/>
+    </p>
     <p>
       The example above is quite long; but hopefully gives you a much better idea of the operators available and
       how powerful they can be.
@@ -1347,7 +1361,7 @@ defines module introduction
       are:
     </p>
     <ul>
-      <li>Null Coalescing (c = a ?? b) - note b may not get evaluated <u>if</u> a is not <b>null</b> i.e. has memory allocated</li>
+      <li>Null Coalescing (c = a ?? b) - note b may not get evaluated <u>if</u> a has memory allocated</li>
       <li>Elvis Coalescing (c = a ?: b) - note a and b are evaluated</li>
       <li>Less than Coalescing (c = a &lt;? b) - note a and b are evaluated</li>
       <li>Less than or equal to Coalescing (c = a &lt;=? b) - note a and b are evaluated</li>
@@ -1356,8 +1370,8 @@ defines module introduction
     </ul>
     <p>
       The 'Elvis' operator is a bit special (as you would expect).
-      The Elvis operator does both a null check and an <b>is set</b> check. This is the main difference to the
-      '<b>??</b>' operator which only does a <b>null</b> check.
+      The Elvis operator does both a memory allocation check and an <b>is set</b> check. This is the main difference to the
+      '<b>??</b>' operator which only does a <b>memory allocation</b> check.
     </p>
     <p>
       While not a ternary operator; the <i>conditional assignment</i> (<b>:=?</b>) operator 'feels' related.
@@ -1731,7 +1745,7 @@ defines module introduction
     </div>
     <p>
       So these new operators are more than just a <b>null</b> safe version of the normal comparators, they are a mix of the
-      <u>Elvis</u>coalescing operator and comparators/assignment operators. They really reduce the amount of <b>null</b>
+      <u>Elvis</u> coalescing operator and comparators/assignment operators. They really reduce the amount of <b>null</b>
       and <b>if/else</b> code. They also dovetail in with type inference, note how in the example above <i>birdA</i>
       is declared, type inferred and assigned all in one go.
     </p>
@@ -2467,7 +2481,7 @@ defines module introduction
       automatically generate the JSON (<b>$$</b>) operator code by default in most cases.
     </p>
     <p>
-      The converse is not always true however, EK9 cannot always create the code to take JSOn and convert
+      The converse is not always true however, EK9 cannot always create the code to take JSON and convert
       back into <i>records</i>. If the records contain fields/properties that are abstract in nature then
       it falls to the developer to write that code to reconstitute a <i>record</i> from a JSON representation.
     </p>
