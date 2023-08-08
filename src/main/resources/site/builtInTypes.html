@@ -1,0 +1,2584 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language basic types</title>
+  <meta name="description" content="The EK9 programming language basic types
+    are all Objects; primitive types are not used."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>EK9 Built in Types</h1>
+    </header>
+    <p>
+      EK9 naturally comes with a number of different built-in types, but also a set of
+      <a href="collectionTypes.html">collection types</a>; these have been designed in
+      from the outset and form the core of the language and its features.
+    </p>
+    <h3>The Types</h3>
+    <ul>
+      <li><a href="#boolean">Boolean</a></li>
+      <li><a href="#character">Character</a></li>
+      <li><a href="#string">String</a></li>
+      <li><a href="#integer">Integer</a></li>
+      <li><a href="#float">Float</a></li>
+      <li><a href="#bits">Bits</a></li>
+      <li><a href="#time">Time</a></li>
+      <li><a href="#duration">Duration</a></li>
+      <li><a href="#millisecond">Millisecond</a></li>
+      <li><a href="#date">Date</a></li>
+      <li><a href="#datetime">DateTime</a></li>
+      <li><a href="#money">Money</a></li>
+      <li><a href="#locale">Locale</a></li>
+      <li><a href="#colour">Colour</a></li>
+      <li><a href="#dimension">Dimension</a></li>
+      <li><a href="#path">Path</a></li>
+      <li><a href="#json">JSON (JavaScript Object Notation)</a></li>
+      <li><a href="#regex">RegEx (Regular Expression)</a></li>
+      <li><a href="#collectionTypes">Collection Types</a></li>
+    </ul>
+    <p>
+      There are several predefined classes and types available; these are detailed in sections
+      <a href="collectionTypes.html">collection types</a>, <a href="standardTypes.html">standard types</a>
+      and <a href="networkTypes.html">network types</a> as they are used for specific purposes;
+      these are more like a standard library/API. Whereas the <i>types</i> above are the basic building
+      block types you will need.
+      Most of the names above will be quite obvious and a number of examples of their use are give below.
+    </p>
+    <p>
+      Both <b>String</b> and <b>Bits</b> are also a sort of collection, <b>String</b> can also be viewed as an
+      ordered list of <b>Character</b>s and <b>Bits</b> and order list of <b>Boolean</b>s.
+    </p>
+    <p>
+      All of the <i>types</i> above are Objects, they are not primitive types, and they are all
+      passed by reference and not by value. Please also note that as discussed at length in the
+      <a href="operators.html">operators</a> and <a href="basics.html#objects">basics</a> section a variable
+      of any <i>type</i> can also be allocated space to hold a value (or not), but can also be <b>un set</b>.
+      This means it does have space to hold a value but the value it holds is meaningless. Please also read the
+      <a href="basics.html#declarations">declarations</a> section as this section will be using that terminology.
+    </p>
+    <p>
+      EK9 does not have <b>static</b> methods that are attached to classes; but has a
+      number of mechanisms that facilitate that sort of functionality.
+      The first is the use of <i>functions</i> to return an Object in a specific state, the second
+      is the use of <i>methods</i> on classes that do not alter/mutate the Object they are called on but
+      do return some value.
+      This might seem a little strange, but it removes the fixed and binding nature of <b>static</b>
+      methods on a fixed class, it reduces the need for specific <i>Factory</i> classes to some degree.
+    </p>
+
+    <h3 id="boolean">Boolean</h3>
+    <p>
+      Variables of <i>type</i> <b>Boolean</b> can have the values of:
+    </p>
+    <ul>
+      <li>Unknown <b>not set</b></li>
+      <li>True</li>
+      <li>False</li>
+    </ul>
+    <p>
+      This is very different from most other languages in the sense that most other languages only support
+      <b>true</b> and <b>false</b>.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Declare a Boolean - using type inference but with no value yet known.</span>
+        </li>
+        <li>
+          <span class="m">reviewAccess</span>
+          <span class="k">&larr;</span>
+          <span class="m">Boolean()</span>
+        </li>
+        <li>
+          <span class="c">//Declare a Boolean - with type inference with a known initial value</span>
+        </li>
+        <li>
+          <span class="m">allowModification</span>
+          <span class="k">&larr;</span>
+          <span class="m">false</span>
+        </li>
+        <li>
+          <span class="c">//Declare a Boolean - but with no space allocated to hold the value.</span>
+        </li>
+        <li>
+          <span class="m">provideAccess</span>
+          <span class="k">as</span>
+          <span class="m">Boolean</span>
+        </li>
+        <li>
+          <span class="c">//Declare a Boolean - but with no value yet known.</span>
+        </li>
+        <li>
+          <span class="m">denyAccess</span>
+          <span class="k">as</span>
+          <span class="m">Boolean</span><span class="k">:</span>
+          <span class="m">Boolean()</span>
+        </li>
+        <li>
+          <span class="c">//Declare a Boolean - without type inference</span>
+        </li>
+        <li>
+          <span class="m">allowViewing</span>
+          <span class="k">as</span>
+          <span class="m">Boolean</span>
+          <span class="k">:=</span>
+          <span class="m">true</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      To understand what you can do with the boolean values; review the
+      <a href="operators.html#boolean">operators</a> section.
+      In general, it is best to employ <u>type inference</u> whenever possible.
+      The <b>Boolean</b> is the simplest <i>type</i>.
+    </p>
+    <h3 id="character">Character</h3>
+    <p>
+      Variables of <i>type</i> <b>Character</b> can have the values of:
+    </p>
+    <ul>
+      <li>Unknown <b>not set</b></li>
+      <li>Any Single character value</li>
+      <li>Unicode escape sequence (four value only) ie '\u00E9' for (é)</li>
+    </ul>
+    <p>
+      The above represents a single character, to represent a word or a sentence then use the
+      <a href="#string">String</a> type.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Some examples of using Character, some with type inference</span>
+        </li>
+        <li>
+          <span class="m">c1</span>
+          <span class="k">&larr;</span>
+          <span class="m">Character()</span>
+        </li>
+        <li>
+          <span class="m">c2</span>
+          <span class="k">&larr;</span>
+          <span class="m">'s'</span>
+        </li>
+        <li>
+          <span class="m">c3</span>
+          <span class="k">as</span>
+          <span class="m">Character</span>
+          <span class="k">:=</span>
+          <span class="m">'\u00E9'</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Comparisons</span>
+        </li>
+        <li>
+          <span class="m">c1</span>
+          <span class="k">&lt;</span>
+          <span class="m">c2</span>
+        </li>
+        <li>
+          <span class="m">c1</span>
+          <span class="k">&lt;=</span>
+          <span class="m">c2</span>
+        </li>
+        <li>
+          <span class="m">c1</span>
+          <span class="k">&gt;</span>
+          <span class="m">c2</span>
+        </li>
+        <li>
+          <span class="m">c1</span>
+          <span class="k">&gt;=</span>
+          <span class="m">c2</span>
+        </li>
+        <li>
+          <span class="m">c1</span>
+          <span class="k">==</span>
+          <span class="m">c2</span>
+        </li>
+        <li>
+          <span class="m">c1</span>
+          <span class="k">!=</span>
+          <span class="m">c2</span>
+        </li>
+        <li>
+          <span class="m">c1</span>
+          <span class="k">&lt;&gt;</span>
+          <span class="m">c2</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Other operators</span>
+        </li>
+        <li>
+          <span class="k">length</span>
+          <span class="m">c1</span>
+          <span class="c">//results in <b>not set</b></span>
+        </li>
+        <li>
+          <span class="k">length</span>
+          <span class="m">c2</span>
+          <span class="c">//results in 1</span>
+        </li>
+        <li>
+          <span class="k">length</span>
+          <span class="m">c3</span>
+          <span class="c">//results in 1</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="m">c3</span>.<span class="k">length()</span>
+          <span class="c">//same result (1) - but written in object form</span>
+        </li>
+        <li>
+          <span class="k">#?</span>
+          <span class="m">c3</span>
+          <span class="c">//results in 233 (hashcode method)</span>
+        </li>
+        <li>
+          <span class="m">c3</span>.<span class="k">#?()</span>
+          <span class="c">//same result (233) - but written in object form</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Promotion to String</span>
+        </li>
+        <li>
+          <span class="m">str</span>
+          <span class="k">as</span>
+          <span class="m">String</span>
+          <span class="k">:=</span>
+          <span class="k">#^</span><span class="m">c2</span>
+          <span class="c">//results String of "s"</span>
+        </li>
+        <li>
+          <span class="m">str</span>
+          <span class="k">&larr;</span>
+          <span class="k">#^</span><span class="m">c2</span>
+          <span class="c">//also results String of "s" - uses type inference</span>
+        </li>
+        <li>
+          <span class="m">str</span>
+          <span class="k">&larr;</span>
+          <span class="m">c2</span>.<span class="k">#^()</span>
+          <span class="c">//also results String of "s" - uses type inference and object form</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Standard methods</span>
+        </li>
+        <li>
+          <span class="m">str</span>
+          <span class="k">&larr;</span>
+          <span class="m">c2.upperCase()</span>
+          <span class="c">//results in 'S'</span>
+        </li>
+        <li>
+          <span class="m">str</span>
+          <span class="k">&larr;</span>
+          <span class="m">c2.upperCase().lowerCase()</span>
+          <span class="c">//results in 's'</span>
+        </li>
+      </ul>
+    </div>
+    <h3 id="string">String</h3>
+    <p>
+      Variables of <i>type</i> <b>String</b> can have the values of:
+    </p>
+    <ul>
+      <li>Unknown <b>not set</b></li>
+      <li>Empty value of ""</li>
+      <li>Any number of Characters</li>
+    </ul>
+    <p>
+      The <b>String</b> is used to represent an order sequence of characters. It can be altered
+      and can grow and unlike some languages does not have 'termination' character. It also implements the
+      <a href="operators.html#comparison">comparison</a>
+      and <a href="operators.html#functional">functional</a> operators.
+    </p>
+    <p>
+      But note the important distinction between <b>not set</b> and <b>""</b> an empty String. It also implements
+      the following methods and operators.
+    </p>
+    <ul>
+      <li>empty - is the String empty ie equal to ""</li>
+      <li>length - how many characters does the String have</li>
+      <li>first - get the first character ('<b>#&lt;</b>')</li>
+      <li>last - get the last character ('<b>#&gt;</b>')</li>
+      <li>contains - See <a href="operators.html#comparison">comparison</a> for details</li>
+      <li>matches - See <a href="operators.html#comparison">comparison</a> for details</li>
+      <li>'<b>&lt;=&gt;</b>' - See <a href="operators.html#comparison">comparison</a> for details</li>
+      <li>'<b>&lt;~&gt;</b>' - See <a href="operators.html#comparison">comparison</a> for details</li>
+    </ul>
+    <p>
+      It also adds a few additional methods.
+    </p>
+    <ul>
+      <li>count(Character) - how many times does Character appear in the String</li>
+      <li>clear - Set the String to <b>un set</b></li>
+      <li>'<b>+=</b>' - Add the String, Character or List of Character to the current String</li>
+      <li>'<b>|</b>' - Used with a Pipeline to add a String (even if it is currently <b>un set</b>)</li>
+      <li>trim - Remove white space either side of a String</li>
+      <li>rightPadded- add space to right of string to a length</li>
+      <li>leftPadded - add space to left of string to a length</li>
+      <li>upperCase - uppercase the String</li>
+      <li>lowerCase - lowercase the String</li>
+    </ul>
+    <h4 id="string_literals">String Literals</h4>
+    <p>
+      The String <b>literal</b> can take two forms in EK9; this is to support fixed Strings and also
+      <a href="https://en.wikipedia.org/wiki/String_interpolation">Interpolated Strings</a>.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Declare a fixed String literal</span>
+        </li>
+        <li>
+          <span class="m">language</span>
+          <span class="k">&larr;</span>
+          <span class="m">"EK9"</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Declare a variable to be used in an interpolated String</span>
+        </li>
+        <li>
+          <span class="m">age</span>
+          <span class="k">&larr;</span>
+          <span class="m">30</span>
+        </li>
+        <li>
+          <span class="c">//Use the variable in an interpolated String</span>
+        </li>
+        <li>
+          <span class="m">message</span>
+          <span class="k">&larr;</span>
+          <span class="m">`Your age is ${age}`</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The interpolated String starts and end with a back tick <b>'`'</b>. The sequence <b>'${'</b>
+      indicates that the compiler should now look for a variable/function/method/expression in the
+      scope to execute.
+      This is the same sort of syntax as used in
+      <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals">Javascript</a>.
+      This must return a variable of a type that either is a String, could be coerced to a String or has a '$'
+      String operator on it.
+    <p>
+    <h4>Escapes in String</h4>
+    <p>
+      In a normal String i.e. "A Test" the <b>"</b> character must be escaped: i.e. "A \"Test\"", but
+      back tick <b>'`'</b> and <b>'$'</b> do not need to be escaped.
+    </p>
+    <p>
+      If you have a handful of Strings you need to use in code; then directly defining them in the source code
+      might be done. But for very large text elements or a large number of text elements in different spoken languages
+      consider using the <a href="textProperties.html">text</a> <b>construct</b>. This enables you to separate
+      and format plain text Strings and interpolated Strings in a specific <b>construct</b> away from source code.
+    </p>
+    <p>
+      In an interpolated String the converse of escaping characters is true: i.e. `Your \`salary\` is \$${salary}`.
+    </p>
+    <h4>Interpolation Example</h4>
+    <p>
+      See <a href="textProperties.html">text properties</a> for defining a large number of String text items.
+    </p>
+    <pre id="interpolation_example">#!ek9
+defines module introduction
+
+  defines record
+    Person
+      firstName String: String()
+      lastName String: String()
+      
+      Person()
+        ->
+          firstName String
+          lastName String
+        assert firstName? and lastName?
+        
+        this.firstName :=: firstName
+        this.lastName :=: lastName
+      
+      operator $ as pure
+        <- rtn String: `${firstName} ${lastName}`
+  
+  defines function
+    getAuthor()
+      <- rtn Person: Person("Steve", "Limb")
+                      
+  defines program
+
+    ShowStringInterpolation()
+      stdout <- Stdout()
+            
+      normal <- "With normal double quote \" text"
+      stdout.println("[" + normal + "]")
+
+      var <- 90.9
+      interpolated <- `A tab\t ${var} a " but a back tick \` the dollar have to be escaped \$\nOK?`
+      stdout.println("[" + interpolated + "]")            
+
+      me <- Person("Steve", "Limb")
+      stdout.println(`Author: ${me} or via function: ${getAuthor()}, direct access "${me.firstName}"`)
+//EOF        
+        </pre>
+    <p>
+      This above program produces the following output:
+    </p>
+    <pre>
+[With normal double quote " text]
+[A tab   90.9 a " but a back tick ` the dollar have to be escaped $
+OK?]
+Author: Steve Limb or via function: Steve Limb, direct access "Steve"
+    </pre>
+    <br/>
+    <p>
+      The two specific types of String literal enable a choice of functionality for creating output Strings.
+      They have been designed to be explicitly different: using either <b>"</b> or <b>`</b>. More importantly
+      the variables in interpolated string <b>must</b> always be used with <b>${...}</b> and never just
+      <b>$</b> by itself.
+    </p>
+    <h4>Accessing Characters in a String</h4>
+    <p>
+      If you want to access specific a specific Character or a range of Characters in a String,
+      pipeline processing as shown below.
+    </p>
+    <pre id="string_example">#!ek9
+defines module introduction
+
+  defines function
+
+    isO() as pure
+      -> c as Character
+      <- o as Integer: c == 'o' or c == 'O' &lt- 1 else 0
+        
+  defines program
+      
+    ShowStringType()
+    
+      i1 <- "The Quick Brown Fox"
+      i2 <- "Jumps Over The Lazy Dog"
+      space <- " "      
+      i3 <- String()
+                   
+      hashCode <- #? i1
+      //Hashcode is -732416445      
+      
+      sentence1 <- i1 + " " + i2      
+      //sentence1 is "The Quick Brown Fox Jumps Over The Lazy Dog"      
+      l1 <- length sentence1 //will be 43 
+      l2 <- sentence1.length() //will also be 43 but in object form.
+      
+      oCount <- sentence1.count('o') //will be three as three 'o' in sentence
+      oOCount <- cat sentence1 | map with isO | collect as Integer //will be four as 1 'O' and 3 'o'
+      
+      //Alternative way of joining values
+      
+      parts <- [i1, space, i2]
+      sentence2 <- cat parts | collect as String
+      //sentence2 is "The Quick Brown Fox Jumps Over The Lazy Dog"      
+      
+      //OR
+      sentence3 <- cat [i1, space, i2] | collect as String 
+      //sentence3 is "The Quick Brown Fox Jumps Over The Lazy Dog"
+      
+      //Mechanism to extract parts of a String
+      jumpingBrownFox <- cat sentence2 | skip 10 | head 15 | collect as String
+
+      //jumpingBrownFox is "Brown Fox Jumps"
+      
+      //Note that there is no issue with extending beyond the length of the sentence
+      dog <-  cat sentence2 | skip 40 | head 15 | collect as String
+      //dog is "Dog"
+      
+      //Even this is 'safe' and the result is just <b>not set</b>      
+      nonSuch <-  cat sentence2 | skip 50 | head 5 | collect as String
+      //nonSuch is <b>not set</b>
+//EOF
+</pre>
+    <br/>
+    <p>
+      There are few new and different ideas going on in the example above, the first thing to note
+      are the standard operators and the <u>type inference</u> and also the <b>length</b>
+      operator in 'object form'.
+    </p>
+    <p>
+      But importantly the two mechanisms that can be used to join String together; the standard
+      '<b>+</b>' addition operator, but also the use of a <b>List of String</b> being
+      <i>collected</i> into a single String (with the '<b>|</b>' operator).
+    </p>
+    <p>
+      There is the use of the Stream/Pipeline <b>commands</b> <i>map, skip</i> and <i>head</i>.
+      These are used as there is no way to <u>index</u> <b>Characters</b> on a <b>String</b>.
+      This is by design, this approach is safe in terms of indexing past the end of the actual length as
+      shown in the example above <b>nonSuch</b> just is not set to any value (ie <b>un set</b>).
+    </p>
+
+    <p>
+      As an aside most <u>Object Oriented</u> languages tend to add more methods to Object types for tasks
+      like getting substrings. EK9 does provide some methods on Objects, but mainly focuses on providing
+      tooling to enable you to write your own functions to provide this type of functionality.
+    </p>
+    <p>
+      Clearly very frequent operations such as converting to lower case or upper case should be
+      provided via the Object; but other operations that are less frequent should be developed as a
+      standard library of functions by the developer. This keeps the EK9 standard library smaller,
+      over time the EK9 standard library will increase but in a controlled manner.
+    </p>
+    <h3 id="integer">Integer</h3>
+    <p>
+      Variables of <i>type</i> <b>Integer</b> can have the values of:
+    </p>
+    <ul>
+      <li>Unknown <b>not set</b></li>
+      <li>Negative value up to -9,223,372,036,854,775,808</li>
+      <li>Positive value up to 9,223,372,036,854,775,807</li>
+    </ul>
+    <p>
+      The <a href="operators.html#comparison">comparison</a>,
+      <a href="operators.html#mathematical">mathematical </a>,
+      <a href="operators.html#modification">modification</a> and
+      <a href="operators.html#ternary">ternary</a>
+      operators have been covered in other sections. But here are a couple of examples of operations
+      on Integers for clarity. Note that idea of plus/minus infinity (or NaN) does not exist in EK9,
+      you can make the argument infinity is <u>not known</u>; in EK9 that is represented by <b>un set</b>.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Some examples of using Integer</span>
+        </li>
+        <li>
+          <span class="m">i1</span>
+          <span class="k">&larr;</span>
+          <span class="m">-9223372036854775808</span>
+        </li>
+        <li>
+          <span class="m">hashCode</span>
+          <span class="k">&larr; #?</span>
+          <span class="m">i1</span>
+          <span class="c">//results in -2147483648</span>
+        </li>
+        <li>
+          <span class="m">asFloat</span>
+          <span class="k">&larr; #^</span>
+          <span class="m">i1</span>
+          <span class="c">//promotion to Float results in -9.223372036854776E18</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Division operations with zero</span>
+        </li>
+        <li>
+          <span class="m">nonResult</span>
+          <span class="k">&larr;</span>
+          <span class="m">0</span>
+          <span class="k">/</span>
+          <span class="m">90</span>
+          <span class="c">//result is 0 (zero)</span>
+        </li>
+        <li>
+          <span class="m">nonResult</span>
+          <span class="k">:=</span>
+          <span class="m">90</span>
+          <span class="k">/</span>
+          <span class="m">0</span>
+          <span class="c">//result is <b>un set</b> i.e not known</span>
+        </li>
+        <li>
+          <span class="m">nonResult</span>
+          <span class="k">:=</span>
+          <span class="m">0</span>
+          <span class="k">/</span>
+          <span class="m">0</span>
+          <span class="c">//result is <b>un set</b></span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      There are no unsigned, short, long or other types; <b>Integer</b> is the only type that holds whole numbers.
+    </p>
+    <h4 id="integer_pipeline">Pipeline with Integer result</h4>
+    <p>
+      The accumulation of amounts (Integer/Float values etc.) is quite common; many languages
+      have very distinct syntax for this specific task. EK9 does not have a specific syntax like
+      <u>list comprehensions</u>, but it does have a much more general syntax that is covered in depth in
+      the <a href="streamsAndPipelines.html">Streams/Pipelines</a> section.
+    </p>
+    <p>
+      But as this section describes the use of the Integer type, a short example of how the Integer
+      type can be used in a pipeline is given below.
+      The objective of the code below is two-fold, first to get a list of Integers starting at 1
+      and incrementing by two up to and including 11;
+      secondly to get the total of those values. The example below could have been done with a simple for
+      loop, but it is shown here as a pipeline. The key point in the example is the <b>collect as Integer</b>
+      syntax, you can use your own types here if you wish.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">theValues</span>
+          <span class="k">as</span>
+          <span class="m">List</span>
+          <span class="k">of</span>
+          <span class="m">Integer</span>
+          <span class="k">:=</span>
+          <span class="m">List()</span>
+          <span class="c">//create a list to capture values in</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Simple pipeline processing</span>
+        </li>
+        <li>
+          <span class="m">intSum</span>
+          <span class="k">&larr;</span>
+          <span class="k">for</span>
+          <span class="m">i</span>
+          <span class="k">in</span>
+          <span class="m">1</span>
+          <span class="k">...</span>
+          <span class="m">11</span>
+          <span class="k">by</span>
+          <span class="m">2</span>
+          <span class="k">| tee in</span>
+          <span class="m">theValues</span>
+          <span class="k">| collect as</span>
+          <span class="m">Integer</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//theValues has the following contents [1, 3, 5, 7, 9, 11]</span>
+        </li>
+        <li>
+          <span class="c">//intSum has the value 36</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The first couple of examples here and all the standard operators are probably what you would
+      normally expect with and Integer type. But the last example is probably something very different
+      from what you've seen before. This is discussed in a little more detail here but is much more detail in
+      the <a href="streamsAndPipelines.html">Streams/Pipelines</a> section. In general this
+      pipeline approach enables reuse and collection of objects during the pipeline processing -
+      but in a standard syntax.
+    </p>
+    <p>
+      As an example, later sections will discuss <b>Durations</b> as part of date/time processing,
+      it is possible to use a pipeline like the one above but with durations rather than integers.
+      But the concept of the processing pipeline and accumulations, mapping and <i>tee</i>ing is the
+      same irrespective of <i>type</i>.
+    </p>
+    <p>
+      It is accepted that the syntax is not as <b>terse</b> as list comprehensions.
+    </p>
+    <h3 id="float">Float</h3>
+    <p>
+      Variables of <i>type</i> <b>Float</b> can have the values of:
+    </p>
+    <ul>
+      <li>Unknown <b>not set</b></li>
+      <li>Negative values -4.9E-324 to -1.7976931348623157E308</li>
+      <li>Positive values 4.9E-324 to 1.7976931348623157E308</li>
+    </ul>
+    <p>
+      As with the Integer the <a href="operators.html#comparison">comparison</a>,
+      <a href="operators.html#mathematical">mathematical </a>,
+      <a href="operators.html#modification">modification</a> and <a href="operators.html#ternary">ternary</a>
+      operators have been covered in other sections.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Some examples of using Float</span>
+        </li>
+        <li>
+          <span class="m">i1</span>
+          <span class="k">&larr;</span>
+          <span class="m">-4.9E-324</span>
+        </li>
+        <li>
+          <span class="m">hashCode</span>
+          <span class="k">&larr; #?</span>
+          <span class="m">i1</span>
+          <span class="c">//results in -2147483647</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Division operations with zero</span>
+        </li>
+        <li>
+          <span class="m">nonResult</span>
+          <span class="k">&larr;</span>
+          <span class="m">0.0</span>
+          <span class="k">/</span>
+          <span class="m">90.0</span>
+          <span class="c">//result is 0.0 (zero)</span>
+        </li>
+        <li>
+          <span class="m">nonResult</span>
+          <span class="k">:=</span>
+          <span class="m">90.0</span>
+          <span class="k">/</span>
+          <span class="m">0.0</span>
+          <span class="c">//result is <b>un set</b> i.e not known</span>
+        </li>
+        <li>
+          <span class="m">nonResult</span>
+          <span class="k">:=</span>
+          <span class="m">0.0</span>
+          <span class="k">/</span>
+          <span class="m">0.0</span>
+          <span class="c">//result is <b>un set</b></span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      As you can see the Float has most of the same operators as Integer (except promotion
+      '<b>#^</b>') but has variable precision (minimum and maximum values).
+      Note it too can be used in pipeline processing and can receive Float values.
+    </p>
+    <h3 id="bits">Bits</h3>
+    <p>
+      Variables of <i>type</i> <b>Bits</b> can have the values of:
+    </p>
+    <ul>
+      <li>Unknown <b>not set</b></li>
+      <li>Any number of bits</li>
+    </ul>
+    <p>
+      The <a href="operators.html#bitwise">Bitwise</a> operators have been discussed in the
+      <a href="operators.html#bitwise">operators</a> section.
+      The '<b>+</b>' and '<b>+=</b>' operators are provided to join <b>Bits</b> together
+      as is the '<b>|</b>' operator when used with Streams/Pipelines.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Bits values</span>
+        </li>
+        <li>
+          <span class="m">a</span>
+          <span class="k">&larr;</span>
+          <span class="m">0b010011</span>
+        </li>
+        <li>
+          <span class="m">b</span>
+          <span class="k">&larr;</span>
+          <span class="m">0b101010</span>
+        </li>
+        <li>
+          <span class="m">c</span>
+          <span class="k">&larr;</span>
+          <span class="m">0b010011</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="c">//Equality Operators</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">==</span>
+          <span class="m">b</span>
+          <span class="c">//result would be false</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">&lt;&gt;</span>
+          <span class="m">b</span>
+          <span class="c">//result would be true</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">&lt;</span>
+          <span class="m">b</span>
+          <span class="c">//result would be true</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">&lt;=</span>
+          <span class="m">b</span>
+          <span class="c">//result would be true</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">&gt;</span>
+          <span class="m">b</span>
+          <span class="c">//result would be false</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">&gt;=</span>
+          <span class="m">b</span>
+          <span class="c">//result would be false</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">==</span>
+          <span class="m">c</span>
+          <span class="c">//result would be true</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">!=</span>
+          <span class="m">c</span>
+          <span class="c">//result would be false</span>
+        </li>
+        <li>
+          <span class="m">result</span>
+          <span class="k">&larr;</span>
+          <span class="m">a</span>
+          <span class="k">&lt;&gt;</span>
+          <span class="m">c</span>
+          <span class="c">//result would be false (alternate syntax)</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="c">//Joining/Adding Bits</span>
+        </li>
+        <li>
+          <span class="m">set6</span>
+          <span class="k">&larr;</span>
+          <span class="m">0b010011</span>
+        </li>
+        <li>
+          <span class="m">set7</span>
+          <span class="k">&larr;</span>
+          <span class="m">0b101010</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="m">set6set7</span>
+          <span class="k">&larr;</span>
+          <span class="m">set6</span>
+          <span class="k">+</span>
+          <span class="m">set7</span>
+          <span class="c">//result would be 010011101010</span>
+        </li>
+        <li>
+          <span class="m">set6true</span>
+          <span class="k">&larr;</span>
+          <span class="m">set6</span>
+          <span class="k">+</span>
+          <span class="m">true</span>
+          <span class="c">//result would be 0100111</span>
+        </li>
+        <li>
+          <span class="m">set6false</span>
+          <span class="k">&larr;</span>
+          <span class="m">set6</span>
+          <span class="k">+</span>
+          <span class="m">false</span>
+          <span class="c">//result would be 0100110</span>
+        </li>
+        <li>
+          <span class="m">set6false</span>
+          <span class="k">+=</span>
+          <span class="m">true</span>
+          <span class="c">//set6false would now be 01001101</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Bitwise operations</span>
+        </li>
+        <li>
+          <span class="m">set6</span>
+          <span class="k">&larr;</span>
+          <span class="m">0b010011</span>
+        </li>
+        <li>
+          <span class="m">set7</span>
+          <span class="k">&larr;</span>
+          <span class="m">0b101010</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="m">ored</span>
+          <span class="k">&larr;</span>
+          <span class="m">set6</span>
+          <span class="k">or</span>
+          <span class="m">set7</span>
+          <span class="c">//result would be 0b111011</span>
+        </li>
+        <li>
+          <span class="m">xored</span>
+          <span class="k">&larr;</span>
+          <span class="m">set6</span>
+          <span class="k">xor</span>
+          <span class="m">set7</span>
+          <span class="c">//result would be 0b111001</span>
+        </li>
+        <li>
+          <span class="m">anded</span>
+          <span class="k">&larr;</span>
+          <span class="m">set6</span>
+          <span class="k">and</span>
+          <span class="m">set7</span>
+          <span class="c">//result would be 0b000010</span>
+        </li>
+        <li>
+          <span class="m">notted</span>
+          <span class="k">&larr;</span>
+          <span class="k">~</span><span class="m">set6</span>
+          <span class="c">//result would be 0b101100</span>
+        </li>
+        <li>
+          <span class="m">alsonotted</span>
+          <span class="k">&larr;</span>
+          <span class="k">not</span>
+          <span class="m">set6</span>
+          <span class="c">//result would be 0b101100</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      As you can see in the addition example above, <b>Bits</b> are <b>not</b> treated like numbers.
+    </p>
+    <p>
+      A Stream/Pipeline approach should be taken to access ranges of specific bits from a
+      set of <b>Bits</b> as shown below.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Extracting ranges of Bits</span>
+        </li>
+        <li>
+          <span class="c">//assumes function booleanToBits has been defined</span>
+        </li>
+        <li>
+          <span class="m">partial</span>
+          <span class="k">&larr;</span>
+          <span class="m">set6false</span>
+          <span class="k">| skip</span>
+          <span class="m">3</span>
+          <span class="k">| map</span>
+          <span class="m">booleanToBits</span>
+          <span class="k">| collect as</span>
+          <span class="m">Bits</span>
+        </li>
+        <li>
+          <span class="c">//partial has the value of 0b01001</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      Importantly <b>Bits</b> are read right to left as you would expect the least significant bit is
+      to the right and the most significant bit is to the left. So the streaming of the bits (Boolean values)
+      starts with the least significant bit. Hence, in the example above the "101" is skipped this just leaves
+      the "01001" left. You can use <b>head</b> and <b>tail</b> to further refine your sub-selection.
+    </p>
+    <p>
+      Hopefully you can now start to see that rather than defining an <u>Object</u> specific set of
+      methods on <b>classes</b> to get the result of a sub-selection; the functional methodology here
+      really is repeatable and consistent. So given a <u>page</u> it is feasible to filter and sub-select
+      a number of <u>paragraphs</u> using various criteria.
+    </p>
+    <p>
+      This point is quite important and is in no way aimed at denigrating and Object-Oriented approach,
+      but rather splits development between <u>Object Orientation</u> and a <u>Functional Programming</u>.
+      You may find this difficult at first, but when you think
+      "hey why is there no method on this class to do X", it's probably time to consider a more functional
+      approach to the problem.
+    </p>
+    <p>
+      Over time you will find your <i>classes</i> become smaller/concise, but your library of functions
+      grows and is much more reusable in different contexts.
+    </p>
+    <h3 id="time">Time</h3>
+    <p>
+      Variables of <i>type</i> <b>Time</b> can have the values of:
+    </p>
+    <ul>
+      <li>Unknown <b>not set</b></li>
+      <li>Any valid time of the day</li>
+    </ul>
+    <p>
+      Time represents the concept of the time of day HH:MM or HH:MM:SS. This is in isolation to any
+      particular date. There is a separate type that represents the time of day on a particular date
+      in a particular time zone This is a <a href="#datetime">DateTime</a>.
+    </p>
+    <p>
+      The <a href="operators.html#comparison">comparison</a> and <a href="operators.html#ternary">ternary</a>
+      operators have been covered in other sections. But here are a couple of examples of operations on
+      <b>Time</b> for clarity. <b>Time</b> can also be used with <a href="#duration">Duration</a>.
+      Indeed, it only makes sense to use the '<b>+</b>', '<b>-</b>', '<b>+=</b>' and '<b>-=</b>' operators
+      on <b>Time</b> with a <b>Duration</b>. Moreover, it makes no sense to be able to add, multiply or divide
+      by a <b>Time</b> (though with a Duration this does make sense). But it is logical to be able to
+      subtract one <b>Time</b> from another to get a <b>Duration</b>.
+    </p>
+    <p>
+      Some examples and also a demonstration of the <b>assert</b> key word, very useful for unit
+      testing for pre-conditions / post-conditions.
+    </p>
+    <pre id="time_example">
+#!ek9
+defines module introduction
+
+  defines program
+  
+    ShowTimeType()
+    
+      //These declarations and operations should be obvious by now if you've read the other sections.
+      
+      t1 <- 12:00
+      t2 <- 12:00:01
+      t3 <- 12:00:01
+      t4 <- Time()
+      t5 <- Time(12, 00)
+      t6 <- Time(12, 00, 01)
+            
+      assert t1 &lt;&gt; t2
+      assert t2 == t3     
+
+      assert t1 &lt; t2
+      assert t1 &lt;= t2
+      assert t2 &lt;= t3
+      
+      assert t2 &gt; t1
+      assert t2 &gt;= t1
+      assert t3 &gt;= t2
+      
+      //Check not set
+      assert ~t4? 
+          
+      assert t1 == t5      
+      assert t2 == t6
+
+      //Just create a Time object to get the current time
+      t4a &lt- SystemClock().time() //t4a will be set to current time
+      t4b &lt- t4.startOfDay() //t4b will be set to 00:00:00      
+      t4c <- t4.endOfDay() //t4c will be set to 23:59:59
+      
+      //Now actually alter t4 itself
+      t4.set(SystemClock().time()) //t4 will now be set to the current time
+      assert t4?      
+      t4.setStartOfDay() //Will be set to 00:00:00
+      assert t4?      
+      t4.setEndOfDay() //Will be set to 23:59:59
+      assert t4?
+      
+      //Durations      
+      d1 <- PT1H2M3S //one hour, two minutes and three seconds
+      d2 <- P3DT2H59M18S //three days, two hours, fifty nine minutes and eighteen seconds
+      
+      //Note how only the hours minutes and seconds of 'd2' is used.
+      
+      //Addition operations
+      t4 := t5 + d1
+      assert t4 == 13:02:03      
+      t4 += d2
+      assert t4 == 16:01:21
+      
+      //Subtraction operations
+      t4 := t5 - d1
+      assert t4 == 10:57:57
+      t4 -= d2
+      assert t4 == 07:58:39
+      
+      //Get the Duration between two times
+      d3 &lt- 12:04:09 - 06:15:12
+      assert d3 == PT5H48M57S      
+      
+      //Note the different views of a Duration
+      d4 <- 06:15:12 - 12:04:09
+      assert d4 == PT-6H11M3S
+      assert d4 == PT-5H-48M-57S
+      
+      //Example of building a time from a number of durations
+      durations as List of Duration := [d1, d2]
+      
+      t7 <- cat durations | collect as Time
+      assert t7 == 04:01:21
+      
+      //t7 will default to start of the day plus each of the durations piped in
+      //Note that time will just roll over just after 23:59:59
+      
+      //It is also possible to get the hour, minute and second from a Time
+      second <- t7.second()
+      minute <- t7.minute()
+      hour <- t7.hour()
+      
+      assert 4 == hour
+      assert 1 == minute
+      assert 21 == second
+      
+//EOF</pre>
+    <br/>
+    <h3 id="duration">Duration</h3>
+    <p>
+      Variables of <i>type</i> <b>Duration</b> can have the values of:
+    </p>
+    <ul>
+      <li>Unknown <b>not set</b></li>
+      <li>Any positive duration of time from 1 second to years</li>
+      <li>Any negative duration of time from 1 second to years</li>
+    </ul>
+    <p>
+      The <b>Duration</b> has been shown in the previous example using <b>Time</b>. With
+      <b>Time</b> the duration values of hour, minute and second are really the only relevant ones.
+      But a <b>Duration</b> can also hold years, months and days. Which will be important when the <i>types</i>
+      <a href="#date">Date</a> and <a href="#datetime">DateTime</a> are covered.
+    </p>
+    <p>
+      The format of the duration is as per
+      <a href="https://en.wikipedia.org/wiki/ISO_8601#Durations">ISO 8601 Durations</a>,
+      though fractional values are <u>not supported</u> see <a href="#millisecond">Millisecond</a>
+      on how to work with fractions of a second. Durations take the following format:
+      P[n]Y[n]M[n]W[n]DT[n]H[n]M[n]S.
+    </p>
+    <p>
+      The 'P' denotes a period, then each '[n]' value is then followed by what the field is to be applied.
+      So for example, "P3Y6M4DT12H30M5S" represents a duration of "three years, six months, four days,
+      twelve hours, thirty minutes, and five seconds".
+    </p>
+    <p>
+      It is also possible to use 'W' for weeks in addition to months and days.
+    </p>
+
+    <p>
+      Durations are designed to be used without milliseconds and in some ways anything less than a
+      second is really in a different category of time (as a human would understand). But clearly
+      it is possible to multiply up milliseconds so they become significant (to a human).
+      The Millisecond type and the Duration are designed to work together (but are different).
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Some examples of using Duration</span>
+        </li>
+        <li>
+          <span class="m">d1</span>
+          <span class="k">&larr;</span>
+          <span class="m">PT1H2M3S</span>
+          <span class="c">//results in 1 hour, 2 minutes and 3 seconds</span>
+        </li>
+        <li>
+          <span class="m">d2</span>
+          <span class="k">&larr;</span>
+          <span class="m">P3DT2H59M18S</span>
+          <span class="c">//results in 3 days, 2 hours, 59 minutes and 18 seconds</span>
+        </li>
+        <li>
+          <span class="m">d3</span>
+          <span class="k">&larr;</span>
+          <span class="m">P2Y6W3DT8H5M8S</span>
+          <span class="c">//results in 2 years, 45 days, 8 hours, 5 minutes and 8 seconds</span>
+        </li>
+        <li>
+          <span class="c">//Note that 6 weeks was converted to 42 days and then the additional 3 days are added to that</span>
+        </li>
+        <li>
+          <span class="m">d4</span>
+          <span class="k">&larr;</span>
+          <span class="m">P2Y2M1W3DT8H5M8S</span>
+          <span class="c">//results in 2 years, 2 months, 10 days, 8 hours, 5 minutes and 8 seconds</span>
+        </li>
+        <li>
+          <span class="m">d5</span>
+          <span class="k">&larr;</span>
+          <span class="m">P2W</span>
+          <span class="c">//results in 14 days</span>
+        </li>
+        <li>
+          &nbsp;
+        </li>
+        <li>
+          <span class="c">//Mathematics with durations</span>
+        </li>
+        <li>
+          <span class="m">d6</span>
+          <span class="k">&larr;</span>
+          <span class="m">PT1H2M1S</span>
+        </li>
+        <li>
+          <span class="m">d6a</span>
+          <span class="k">&larr;</span>
+          <span class="m">d6</span>
+          <span class="k">*</span>
+          <span class="m">2</span>
+          <span class="c">//results in PT2H4M2S i.e. twice the duration in d6</span>
+        </li>
+        <li>
+          <span class="m">d6b</span>
+          <span class="k">&larr;</span>
+          <span class="m">d6</span>
+          <span class="k">*</span>
+          <span class="m">8.25</span>
+          <span class="c">//results in PT8H31M38S</span>
+        </li>
+        <li>
+          <span class="m">d6c</span>
+          <span class="k">&larr;</span>
+          <span class="m">d6b</span>
+          <span class="k">/</span>
+          <span class="m">3</span>
+          <span class="c">//results in PT2H50M32S</span>
+        </li>
+        <li>
+          <span class="m">d6d</span>
+          <span class="k">&larr;</span>
+          <span class="m">d6</span>
+          <span class="k">+</span>
+          <span class="m">PT20M</span>
+          <span class="c">//results in PT1H22M1S</span>
+        </li>
+        <li>
+          <span class="m">d6e</span>
+          <span class="k">&larr;</span>
+          <span class="m">d6</span>
+          <span class="k">-</span>
+          <span class="m">PT2M6S</span>
+          <span class="c">//results in PT59M55S</span>
+        </li>
+        <li>
+          <span class="m">d6e</span>
+          <span class="k">+=</span>
+          <span class="m">PT2H5S</span>
+          <span class="c">//results in PT3H</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      As you can see from the examples above; once you have a <b>Duration</b> of any period of
+      time you can use normal mathematics to manipulate that <b>Duration</b>. The <b>Duration</b>
+      has logical and rational mathematics operators; for example it makes no sense to add an
+      <b>Integer</b>, <b>Float</b> or <b>String</b> to a <b>Duration</b>. However, it does make
+      sense to be able to add and subtract a <b>Duration</b>, but also multiply and divide a
+      <b>Duration</b> by an <b>Integer</b> or <b>Float</b>.
+    </p>
+    <p>
+      It is these specific <i>types</i> and your own defined <i>types</i> like <i>records</i>
+      and <i>classes</i> where adding specific <i>operators</i> and overloading those <i>operators</i>
+      with varying (but suitable) <i>types</i> that enable EK9 to remain readable and easy to understand.
+    </p>
+
+    <h3 id="millisecond">Millisecond</h3>
+    <p>
+      Variables of <i>type</i> <b>Millisecond</b> can have the values of:
+    </p>
+    <ul>
+      <li>Unknown <b>not set</b></li>
+      <li>Any valid Integer value</li>
+    </ul>
+    <p>
+      The format of the Millisecond literal is digits'ms' for example 250ms is two hundred and fifty milliseconds.
+      The compiler will check the validity of millisecond literals. You can have any valid integer
+      (positive or negative). So 6000ms is actually 6 seconds. Naturally you can add these types to
+      <b>Durations</b> and if there values result in seconds, minutes or hours etc. then those will be added to the
+      <b>Duration</b>. You can also convert them to a <b>Duration</b> by using the <b>duration()</b> method.
+      The value of the milliseconds will be rounded up to the nearest second where necessary, for example
+      1501ms will round up to two seconds.
+    </p>
+    <p>
+      Naturally the <b>Millisecond</b> type supports many of the normal
+      <a href="operators.html#mathematical">mathematical</a> and
+      <a href="operators.html#comparison">comparison</a> operators and
+      can be promoted to a <b>Duration</b> and also constructed with the <b>Duration</b> type.
+    </p>
+
+    <h3 id="date">Date</h3>
+    <p>
+      Variables of <i>type</i> <b>Date</b> can have the values of:
+    </p>
+    <ul>
+      <li>Unknown <b>not set</b></li>
+      <li>Any valid date</li>
+    </ul>
+    <p>
+      The format of the date literal is YYYY-MM-DD for example 2020-11-18 is the Eighteenth of November 2020.
+      The compiler will check the validity of date literals, so for example declaring a date of '2020-11-31'
+      would not even compile.
+    </p>
+    <p>
+      It is important to note that the <b>Date</b> is not associated with any sort of time zone.
+      It is just a <b>Date</b> so this could be used to hold a date of birth for example.
+      If you need to be exact on the <b>Date</b> then using a <a href="#datetime">DateTime</a> would be more
+      appropriate.
+    </p>
+    <p>
+      The range of operations on <b>Date</b> are very similar to those offered on the <b>Time</b> <i>type</i>;
+      <a href="operators.html#comparison">comparison</a> and <a href="operators.html#ternary">ternary</a> for
+      example.
+      As with <b>Time</b> <a href="#duration">Duration</a> can be used to do calculations,
+      it only makes sense to use the '<b>+</b>', '<b>-</b>', '<b>+=</b>' and '<b>-=</b>' operators on
+      <b>Date</b> with a <b>Duration</b>. Moreover, it makes no sense to be able to add, multiply or divide a
+      <b>Date</b> (though with a Duration this does make sense).
+      But it is logical to be able to subtract one <b>Date</b> from another to get a <b>Duration</b>.
+    </p>
+    <pre id="date_example">#!ek9
+defines module introduction
+
+  defines program
+      
+    ShowDateType()
+            
+      //3rd of October 2020
+      date1 <- 2020-10-03
+      date2 <- 2020-10-04
+      date3 <- 2020-10-04
+      date4 <- Date()
+      date5 <- Date(2020, 10, 03)      
+      date6 <- Date(2020, 10, 04)
+           
+      assert date1 &lt;&gt; date2
+      assert date2 == date3      
+
+      assert date1 &lt; date2
+      assert date1 &lt;= date2
+      assert date2 &lt;= date3
+      
+      assert date2 &gt; date1
+      assert date2 &gt;= date1
+      assert date3 &gt;= date2
+      
+      assert ~date4?
+          
+      assert date1 == date5      
+      assert date2 == date6
+                  
+      date4a <- Date().today()
+      assert date4a?
+      
+      date4.setToday() //Now set to the current date
+      
+      //Durations
+      d1 <- P1Y1M4D //one year, one month and four days
+      d2 <- P4W1DT2H59M18S //twenty nine days, two hours, fifty nine minutes and eighteen seconds
+      
+      //Note how only the days part of 'd2' is used
+      date4 := date5 + d1
+      assert date4 == 2021-11-07
+      
+      date4 += d2
+      assert date4 == 2021-12-06
+      
+      d3 <- date4 - date5
+      assert d3 == P1Y2M3D
+      
+      //Pipeline with durations and dates.
+      durations as List of Duration := [d1, d2]
+      
+      //Because the epoch is 1970-01-01 accumulation starts from that date            
+      date7 <- cat durations | collect as Date
+      assert date7 == 1971-03-06
+      
+      //If you want to accumulate from a specific date you can do this instead
+      date8 <- 0000-01-01
+      cat durations >> date8
+      assert date8 == 0001-03-06
+      
+      dayOfMonth <- date8.day()
+      monthOfYear <- date8.month()
+      year <- date8.year()      
+      dayOfTheWeek <- date8.dayOfWeek()      
+      
+      assert dayOfMonth == 6
+      assert monthOfYear == 3
+      assert year == 1
+      assert dayOfTheWeek == 2
+
+//EOF</pre>
+    <br/>
+    <p>
+      When using <b>Dates</b> and <b>Durations</b> you must take care because transitioning and adding durations
+      to specific points in time and subtracting points in time to recover <b>Durations</b> can lead to some
+      strange effects.
+      For example adding a <b>Duration</b> of a few months and days to date where the span will cover a leap year
+      will result in a new date that takes that particular year (leap) into account.
+    </p>
+    <p>
+      Also the addition of durations uses 30 days per month to when summing up days.
+      This means that adding a number of durations together and then applying that to a date will give one result.
+      Whereas, taking an initial date and adding each duration in turn will give a different date.
+    </p>
+    <p>
+      If you are looking for a final date from a base date when using a number of durations,
+      apply each duration in turn to the base date, rather than summing all the durations and applying that
+      sum of durations to the base date.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Adding Durations to a Base Date</span>
+        </li>
+        <li>
+          <span class="m">date</span>
+          <span class="k">&larr;</span>
+          <span class="m">2019-06-01</span>
+        </li>
+        <li>
+          <span class="c">//Definition of durations omitted</span>
+        </li>
+        <li>
+          <span class="k">cat</span>
+          <span class="m">durations</span>
+          <span class="k">&gt;&gt;</span>
+          <span class="m">date</span>
+        </li>
+        <li>
+          <span class="c">//The Easiest way to move a date on is by a number of durations</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      By using the approach above and number of positive, negative or even empty durations can be
+      applied to a date.
+      The date will just increment by the appropriate amount but take into account the base date
+      it started from and include leap years and the normal variation in the days per month.
+    </p>
+    <h3 id="datetime">DateTime</h3>
+    <p>
+      This is the first built in <i>type</i> that is a sort of <u>aggregate</u>. Whilst this <i>type</i>
+      really holds and instant in time it also has the concept of a timezone. So it relates <b>Date, Time</b>
+      and a timezone together all in one <i>type</i>.
+    </p>
+    <p>
+      Variables of <i>type</i> <b>DateTime</b> can have the values of:
+    </p>
+    <ul>
+      <li>Unknown <b>not set</b></li>
+      <li>Any valid date/time within a time zone</li>
+    </ul>
+    <p>
+      The format of the <b>DateTime</b> literal is YYYY-MM-DDTHH:MM:SS+/-HH:MM for
+      example <b>2020-11-18T13:45:21-01:00</b> is the eighteenth of November 2020
+      @ thirteen forty-five and twenty-one seconds in a time zone offset by minus one hour from UTC.
+      But also note that 'Z' Zulu or GMT/UTC can also be used as a shortcut for <b>+/-00:00</b>
+      as follows <b>2020-11-18T14:45:21Z</b>.
+    </p>
+    <p>
+      Working with <b>Time</b> and <b>Date</b> as separate concepts is quite natural
+      for most developers, but <b>DateTime</b>with timezones sometimes take a bit more thought.
+    </p>
+    <p>
+      For example is <b>2020-11-18T13:45:21-01:00</b> less than or greater than <b>2020-11-18T13:45:21Z</b>?
+      Seeing the "-01:00" may confuse you.
+    </p>
+    <p>
+      It is <b>greater</b>; if you adjust them both to the same time zone by adding/removing
+      the hour and making the same adjustment to the hour of the day is becomes obvious.
+    <p>
+    <p>
+      The range of operations on <b>DateTime</b> are very similar to those offered on the <b>Date</b> and
+      <b>Time</b> <i>types</i>; <a href="operators.html#comparison">comparison</a> and
+      <a href="operators.html#ternary">ternary</a> for example.
+      As with <b>Date</b>; <a href="#duration">Duration</a> can be used to do calculations.
+    </p>
+    <p>
+      The following example with <b>DateTime</b> uses timezones - doing mathematics with dates,
+      times and timezone combinations can be a bit confusing. The main thing to think about here
+      is the same <b>instant</b> in time. i.e. if you are in London what time (and date)
+      will it be right now in New York.
+    </p>
+    <pre id="datetime_example">#!ek9
+defines module introduction
+
+  defines program
+    
+    ShowDateTimeType()
+      
+      //3rd of october 2020 @ 12:00 UTC
+      dateTime1 <- 2020-10-03T12:00:00Z
+      dateTime2 <- 2020-10-04T12:15:00-05:00
+      dateTime3 <- 2020-10-04T12:15:00-05:00
+      dateTime4 <- DateTime()
+      dateTime5 <- DateTime(2020, 10, 03, 12)      
+      dateTime6 <- DateTime(2020, 10, 04, 12, 15)
+                 
+      assert dateTime1 &lt;&gt; dateTime2
+      assert dateTime2 == dateTime3
+
+      assert dateTime1 &lt; dateTime2
+      assert dateTime1 &lt;= dateTime2
+      assert dateTime2 &lt;= dateTime3
+      
+      assert dateTime2 &gt; dateTime1
+      assert dateTime2 &gt;= dateTime1
+      assert dateTime3 &gt;= dateTime2
+      
+      assert ~dateTime4?
+          
+      assert dateTime1 == dateTime5         
+      
+      dateTime4a <- DateTime().today()
+      assert dateTime4a?
+     
+      dateTime4.setToday() //Now set to the current dateTime
+      
+      //Durations
+      d1 <- P1Y1M4D //one year, one month and 4 days
+      d2 <- P4W1DT2H59M18S //twenty nine days, two hours, fifty nine minutes and eighteen seconds
+      
+      dateTime4 := dateTime5 + d1
+      assert dateTime4 == 2021-11-07T12:00:00Z
+      
+      dateTime4 += d2
+      assert dateTime4 == 2021-12-06T14:59:18Z
+      
+      d3 <- dateTime4 - dateTime5
+      assert d3 == P1Y2M9DT2H59M18S
+      
+      d4 <- dateTime2 - dateTime3
+      assert d4 == PT0S
+      
+      //Think carefully about this (focus on the instant)
+      //At ZULU/GMT/UTC what time will it be in the -05:00 time zone?
+      //2020-10-04T12:15:00-05:00
+      //2020-10-04T12:15:00Z
+      d5 <- dateTime3 - dateTime6
+      assert d5 == PT5H
+      
+      d6 <- dateTime3.offSetFromUTC()
+      assert d6 == PT-5H
+      
+      //processing of durations
+      durations as List of Duration := [d1, d2]
+      dateTime7 <- cat durations | collect as DateTime
+      //Because the epoch is 1970-01-01
+      assert dateTime7 == 1971-03-06T02:59:18Z
+      
+      //From a specific date time add on the durations in turn
+      dateTime8 <- 0000-01-01T00:00:00Z
+      cat durations >> dateTime8
+      assert dateTime8 == 0001-03-06T02:59:18Z
+      
+      dayOfMonth <- dateTime8.day()
+      monthOfYear <- dateTime8.month()
+      year <- dateTime8.year()      
+      dayOfTheWeek <- dateTime8.dayOfWeek()      
+      hourOfTheDay <- dateTime8.hour()
+      minuteOfTheHour <- dateTime8.minute()
+      secondOfTheMinute <- dateTime8.second()
+      timeZone <- dateTime8.zone()
+      offset <- dateTime8.offSetFromUTC()
+      
+      assert dayOfMonth == 6
+      assert monthOfYear == 3
+      assert year == 1
+      assert dayOfTheWeek == 2
+      assert hourOfTheDay == 2
+      assert minuteOfTheHour == 59
+      assert secondOfTheMinute == 18
+      assert timeZone == "Z"
+      assert offset == PT0S
+
+//EOF</pre>
+    <br/>
+    <p>
+      The date time example is quite long, but as you can see the ideas are the same; in the sense of
+      using normal mathematical operations as with just <b>Date</b> and <b>Time</b> with <b>Duration</b>.
+      The idea is to try and keep the same semantics irrespective of <i>type</i>, this reduces the
+      <u>surface area</u> of method names and ideas. It also reduces the number of <b>classes</b> involved.
+    </p>
+    <p>
+      So while the EK9 language does have a lot of <i>types</i>, <i>constructs</i> and uses a wide range of
+      <i>operators</i> it does reduce the need for a wide range of <i>method</i> names, helper <i>classes</i>
+      and third party API's.
+    </p>
+    <p>
+      This is a key point if you decide to adopt EK9 - 'go with the grain and flow'.
+      Don't fight against it, it would be better to adopt a different language like C or C# for example.
+    </p>
+
+    <h3 id="money">Money</h3>
+    <p>
+      This is the first built-in <i>type</i> that models an important <u>modern</u> real world concept.
+      You can make the argument that dates, times and timezones are abstract concepts, but <b>Money</b>
+      really is a modern abstract business concept. Many programming languages do not have a built-in type
+      for money, but as EK9 is aimed at a wide range of uses incorporating <b>Money</b> from the
+      outset provides a more rounded language. There are some particularly tricky things to deal with when it
+      comes to money, these are the number of fractional parts (cents, etc.) and the rounding methodology.
+      It is this aspect that means <b>Money</b> is in general more difficult to work with than a <b>DateTime</b>
+      as there is additional variation in <b>Money</b>.
+    </p>
+    <p>
+      Variables of <i>type</i> <b>Money</b> can have the values of:
+    </p>
+    <ul>
+      <li>Unknown <b>not set</b></li>
+      <li>Any valid positive decimal value with a currency</li>
+      <li>Any valid negative decimal value with a currency</li>
+    </ul>
+    <p>
+      The format of the <b>Money</b> literal is D+(.D+)?#SSS where D is any number, it is possible
+      to have an optional point then the fractional part of the amount; this is then always followed
+      by a '<b>#</b>' and then the three digit currency code.
+    </p>
+    <p>
+      So for example the <u>Chilean Unidad de Fomento</u> is a bit special as it has four fractional
+      places i.e. <b>45.9999#CLF</b> and the <u>Iraqi Dinar</u> has three places (45.000#IQD).
+      When displaying these values it is normal to use a <b>Locale</b>. But when coding them use the format
+      above. Currencies like GBP and USD only use two decimal places as do many other currencies,
+      however some like <u>Guinea Franc</u> have none at all.
+    </p>
+    <p>
+      Please note that the mechanism of specifying and checking these values is <u>code</u> and it is not
+      intended to be viewed in this way by end users. The presentation of <b>Money</b> is subject to the
+      <b>Locale</b> you may for example decide that while a currency does have 2 decimal places because
+      of your business application it is not appropriate to display them (for example transaction charges
+      could be a fixed amount of £50 or $75 - so it is not necessary to display the pennies/cents).
+    </p>
+    <p>
+      Examples of the use of <b>Money</b>:
+    </p>
+    <pre id="money_example">#!ek9
+defines module introduction
+
+  defines program
+  
+    ShowMoneyType()
+      
+      tenPounds <- 10#GBP
+      assert tenPounds == 10.00#GBP
+      
+      thirtyDollarsTwentyCents <- 30.2#USD
+      assert thirtyDollarsTwentyCents == 30.20#USD
+            
+      //Mathematical operators
+      nintyNinePoundsFiftyOnePence <- tenPounds + 89.51#GBP
+      assert nintyNinePoundsFiftyOnePence == 99.51#GBP
+      
+      assert tenPounds &lt; nintyNinePoundsFiftyOnePence
+      assert nintyNinePoundsFiftyOnePence &gt; tenPounds
+      assert tenPounds &lt;&gt; nintyNinePoundsFiftyOnePence
+      assert tenPounds &lt;= 10.00#GBP
+      assert tenPounds &gt;= 10.00#GBP
+      
+      //As they are different currencies - operation like this are meaningless
+      //You will have to convert to the same currency to compare or combine them.
+      assert ~(tenPounds != thirtyDollarsTwentyCents)?
+      assert ~(tenPounds == thirtyDollarsTwentyCents)?
+      //The above assertions are checking if the equality test is a valid test, not the result of the equality test.
+      
+      //rounding up for money values 49.755 is 49.76
+      fourtyEightPoundsSeventySixPence <- nintyNinePoundsFiftyOnePence/2
+      assert fourtyEightPoundsSeventySixPence == 49.76#GBP
+      
+      minusFourHundredAndThirtyFivePoundsSixtyPence <- fourtyEightPoundsSeventySixPence * -8.754
+      assert minusFourHundredAndThirtyFivePoundsSixtyPence == -435.60#GBP
+      
+      nineHundredAndThirtyFivePoundsSixtyPence <- 500#GBP - minusFourHundredAndThirtyFivePoundsSixtyPence
+      assert nineHundredAndThirtyFivePoundsSixtyPence == 935.60#GBP
+      
+      variableAmount <- (nineHundredAndThirtyFivePoundsSixtyPence * 3) / 18
+      assert variableAmount == 155.93#GBP
+      
+      multiplier <- nineHundredAndThirtyFivePoundsSixtyPence / variableAmount
+      assert multiplier == 6.0001
+      
+      variableAmount += 4.07#GBP
+      assert variableAmount == 160.00#GBP
+      
+      variableAmount *= 0.666
+      assert variableAmount == 106.56#GBP
+      
+      variableAmount -= 0.56#GBP
+      assert variableAmount == 106.00#GBP
+      
+      variableAmount /= 4
+      assert variableAmount == 26.50#GBP
+      
+      variableAmount := -variableAmount
+      assert variableAmount == -26.50#GBP
+      
+      variableAmount := abs variableAmount
+      assert variableAmount == 26.50#GBP
+      
+      variableAmount := sqrt variableAmount
+      assert variableAmount == 5.15#GBP
+      
+      variableAmount := variableAmount ^ 6
+      assert variableAmount == 18657.07#GBP
+      
+      //Division by zero result is not set
+      variableAmount := variableAmount/0
+      assert ~variableAmount?
+      
+      //Use of two difference currencies together - result is not set
+      variableAmount := tenPounds + thirtyDollarsTwentyCents
+      assert ~variableAmount?
+      
+      //Example if pipeline to add amounts together
+      amounts as List of Money := [tenPounds, nintyNinePoundsFiftyOnePence, fourtyEightPoundsSeventySixPence]
+      total <- cat amounts | collect as Money
+      assert total == 159.27#GBP
+      
+      //Provide the exchange rate and convert to USD
+      totalInUSD <- total.convert(1.32845, "USD")
+      assert totalInUSD == 211.58#USD
+
+//EOF
+</pre>
+    <br/>
+    <p>
+      Hopefully you can see from the above example, working with <b>Money</b> in EK9 is easy and natural.
+      For example divide one amount of money by another, and you get a <b>Float</b> as a result;
+      i.e. how many times does one amount go into another.
+      But divide an amount of money by an <b>Integer</b> or <b>Float</b> and you get <b>Money</b>
+      as a result. If you want to <i>convert</i> an amount of <b>Money</b> into another currency - then
+      just provide the exchange rate you wish to use and the new currency code.
+    </p>
+    <p>
+      But importantly 'Money' is type safe, you cannot add USD values to GBP values for example; the result would be
+      <b>un set</b>!
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//Pipeline could have been written like this</span>
+        </li>
+        <li>
+          <span class="m">total</span>
+          <span class="k">&larr; cat</span>
+          <span class="m">tenPounds, nintyNinePoundsFiftyOnePence, fourtyEightPoundsSeventySixPence</span>
+          <span class="k">| collect as</span>
+          <span class="m">Money</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="c">//Rather than as shown in the example like this</span>
+        </li>
+        <li>
+          <span class="m">amounts</span>
+          <span class="k">as</span>
+          <span class="m">List</span>
+          <span class="k">of</span>
+          <span class="m">Money</span>
+          <span class="k">:= [</span><span class="m">tenPounds, nintyNinePoundsFiftyOnePence,
+            fourtyEightPoundsSeventySixPence</span><span class="k">]</span>
+        </li>
+        <li>
+          <span class="m">total</span>
+          <span class="k">&larr; cat</span>
+          <span class="m">amounts</span>
+          <span class="k">| collect as</span>
+          <span class="m">Money</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      <b>Money</b> like quite a few other <i>types</i> has an <i>iterator()</i> <i>method</i> on it,
+      this allows it to iterate its own value (if it <b> is set</b>). This means that is can be used
+      as a source in a pipeline.
+      The <b>cat</b> pipeline command accepts multiple parameters (comma separated) and so can trigger
+      iteration over all the parameters. <b>String</b> and <b>Bits</b> provide iteration over
+      <b>Characters</b> and <b>Booleans</b> respectively and so cannot do self iteration,
+      to accomplish that with those <i>types</i>use a <b>List</b> or for single values an <b>Optional</b>.
+    </p>
+
+    <h3 id="locale">Locale</h3>
+    <p>
+      EK9 has a mechanism for enabling the developer to output a range of types in <u>localised</u> form.
+      The general form of a locale is {language}_{country}, for example <b>en_GB</b> or <b>de_DE</b>.
+      EK9 supports localisation of the following <i>types</i> out of the box. In some cases
+      (Time, Date, DateTime and Money) there are <u>short, medium, long</u> and <u>full</u>
+      formats available for:
+    </p>
+    <ul>
+      <li>Integer</li>
+      <li>Float</li>
+      <li>Time</li>
+      <li>Date</li>
+      <li>DateTime</li>
+      <li>Money</li>
+    </ul>
+    <p>
+      For additional localisation of 'Text' suitable for output to end users see
+      <a href="textProperties.html">Text Properties</a>. The <i>Locale</i> together with the
+      <i>Text</i> <b>construct</b> provide a very good basis to produce textual output suitable
+      for users in a range of different languages.
+    </p>
+    <p>
+      An example of the formats below is given with a number of sample locales and formats so that
+      difference in output for the same data can be clearly seen.
+    </p>
+    <pre id="locale_example">#!ek9
+defines module introduction
+
+  defines program
+  
+    ShowLocale()
+      
+      enGB <- Locale("en_GB")
+      //Note you can use underscore or dash as the separator.
+      enUS <- Locale("en-US")
+      deutsch <- Locale("de_DE")
+      skSK <- Locale("sk", "SK")
+      
+      i1 <- -92208
+      i2 <- 675807
+         
+      presentation <- enGB.format(i1)
+      assert presentation == "-92,208"
+      presentation := enGB.format(i2)
+      assert presentation == "675,807"
+      
+      presentation := deutsch.format(i1)
+      assert presentation == "-92.208"
+      presentation := deutsch.format(i2)
+      assert presentation == "675.807"
+      
+      presentation := skSK.format(i1)
+      assert presentation == "-92 208"
+      presentation := skSK.format(i2)
+      assert presentation == "675 807"
+      
+      f1 <- -4.9E-22
+      f2 <- -1.797693134862395E12
+      
+      presentation := enGB.format(f1)
+      assert presentation == "-0.00000000000000000000049"
+      presentation := enGB.format(f2)
+      assert presentation == "-1,797,693,134,862.395"
+      
+      //With control over number of decimal places displayed
+      presentation := enGB.format(f1, 22)
+      assert presentation == "-0.0000000000000000000005"
+      presentation := enGB.format(f2, 1)
+      assert presentation == "-1,797,693,134,862.4"
+      
+      presentation := deutsch.format(f1)
+      assert presentation == "-0,00000000000000000000049"      
+      presentation := deutsch.format(f2)
+      assert presentation == "-1.797.693.134.862,395"
+      
+      presentation := skSK.format(f1)
+      assert presentation == "-0,00000000000000000000049"      
+      presentation := skSK.format(f2)
+      assert presentation == "-1 797 693 134 862,395"
+      
+      time1 <- 12:00:01
+      
+      presentation := enGB.shortFormat(time1)
+      assert presentation == "12:00"
+      
+      presentation := deutsch.mediumFormat(time1)
+      assert presentation == "12:00:01"
+      
+      date1 <- 2020-10-03
+      
+      presentation := enGB.shortFormat(date1)
+      assert presentation == "03/10/2020"
+      
+      presentation := enUS.mediumFormat(date1)
+      assert presentation == "Oct 3, 2020"
+      
+      presentation := skSK.longFormat(date1)
+      assert presentation == "3. októbra 2020"
+      
+      presentation := deutsch.fullFormat(date1)
+      assert presentation == "Samstag, 3. Oktober 2020"
+      
+      dateTime1 <- 2020-10-03T12:00:00Z
+      
+      presentation := enUS.shortFormat(dateTime1)
+      assert presentation == "10/3/20, 12:00 PM"
+      
+      presentation := enGB.mediumFormat(dateTime1)
+      assert presentation == "3 Oct 2020, 12:00:00"
+      
+      presentation := deutsch.longFormat(dateTime1)
+      assert presentation == "3. Oktober 2020 um 12:00:00 Z"
+      
+      presentation := skSK.fullFormat(dateTime1)
+      assert presentation == "sobota 3. októbra 2020, 12:00:00 Z"
+      
+      thousandsOfChileanCurrency <- 6798.9288#CLF
+      tenPounds <- 10#GBP
+      thirtyDollarsEightyNineCents <- 30.89#USD
+      
+      presentation := enGB.format(tenPounds)
+      assert presentation == "£10.00"
+      presentation := enGB.format(thirtyDollarsEightyNineCents)
+      assert presentation == "US$30.89"
+      presentation := enGB.format(thousandsOfChileanCurrency)
+      assert presentation == "CLF6,798.9288"
+      
+      presentation := deutsch.format(tenPounds)
+      assert presentation == "10,00 £"
+      presentation := deutsch.format(thirtyDollarsEightyNineCents)
+      assert presentation == "30,89 $"
+      presentation := deutsch.format(thousandsOfChileanCurrency)
+      assert presentation == "6.798,9288 CLF"
+      
+      //Without the currency symbol
+      presentation := deutsch.longFormat(tenPounds)
+      assert presentation == "10,00"
+      
+      presentation := deutsch.longFormat(thirtyDollarsEightyNineCents)
+      assert presentation == "30,89"
+      
+      presentation := deutsch.longFormat(thousandsOfChileanCurrency)
+      assert presentation == "6.798,9288"
+      
+      presentation := skSK.format(tenPounds)
+      assert presentation == "10,00 GBP"
+      presentation := skSK.format(thirtyDollarsEightyNineCents)
+      assert presentation == "30,89 USD"
+      presentation := skSK.format(thousandsOfChileanCurrency)
+      assert presentation == "6 798,9288 CLF"
+      
+      presentation := enGB.mediumFormat(tenPounds)
+      assert presentation == "£10"
+      presentation := enGB.mediumFormat(thirtyDollarsEightyNineCents)
+      assert presentation == "US$31"
+      presentation := enGB.format(thousandsOfChileanCurrency, true, false)
+      assert presentation == "CLF6,799"
+      
+      presentation := enGB.shortFormat(tenPounds)
+      assert presentation == "10"
+      presentation := enGB.shortFormat(thirtyDollarsEightyNineCents)
+      assert presentation == "31"
+      presentation := enGB.format(thousandsOfChileanCurrency, false, false)
+      assert presentation == "6,799"
+
+//EOF</pre>
+    <br/>
+    <p>
+      The example above; albeit quite long should give you a good idea of the range and simplicity of
+      how to localise the output of a range of <i>types</i>. It also shows how the format can be altered
+      for specific types being short, medium, long of full.
+    </p>
+    <h3 id="colour">Colour</h3>
+    <p>
+      The <b>Colour</b> <i>type</i> has a number of features that add quite a bit of value for any
+      developer needing to manipulate colour. These are built right into the type itself as shown in the
+      following example. It is possible to work with the <b>Bits</b> of the <b>Colour</b> alter them and
+      create new colours. But also add/subtract and change transparency/saturation and lightness.
+    </p>
+    <pre id="colour_example">#!ek9
+defines module introduction
+
+  defines program
+    
+    ShowSimpleColour()
+      
+      //Colour can hold RGB or ARGB (i.e with alpha channel)
+      //Here shown with alpha channel fully opaque
+      testColour <- #FF186276
+      testColourAsBits <- testColour.bits()
+      assert testColourAsBits == 0b11111111000110000110001001110110      
+      
+      //Bitwise manipulation and colour recreation from bits
+      modifiedBits <- testColourAsBits and 0b10110111000100000110001010110110
+      modifiedColour <- Colour(modifiedBits)
+      assert modifiedColour == #B7106236
+      assert modifiedBits == 0b10110111000100000110001000110110
+      
+      //Note it is also possible to access the HSL values of the colour
+      assert modifiedColour.hue() == 148
+      assert modifiedColour.saturation() == 71.9298245614035
+      assert modifiedColour.lightness() == 22.35294117647059
+      
+      //Alter the alpha channel to control how transparent/opaque
+      moreOpaqueColour <- modifiedColour.withOpaque(80)
+      assert moreOpaqueColour == #CC106236
+      
+      //It can be made lighter - much lighter in this case
+      lighterColour <- moreOpaqueColour.withLightness(80)
+      assert lighterColour == #CCA7F1CA
+      
+      //Then we can saturate it more
+      moreSaturatedColour <- lighterColour.withSaturation(90)
+      assert moreSaturatedColour == #CC9EFAC9
+            
+      //Remove the Red from this colour
+      lessRedColour <- moreSaturatedColour - #3A0000
+      assert lessRedColour == #CC04FAC9
+      
+      //Add in some blue
+      moreBlueColour <- lessRedColour + #00001D
+      assert moreBlueColour == #CC04FADD
+      
+      //Available in different formats as Strings
+      assert moreBlueColour.RGB() == $#04FADD
+      assert moreBlueColour.RGBA() == $#04FADDCC
+      assert moreBlueColour.ARGB() == $#CC04FADD
+
+//EOF</pre>
+    <br/>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//The actual colours from example above, shown with vertical bar background</span>
+        </li>
+        <li>
+          <span class="c">//To show opaque and transparency</span>
+        </li>
+        <li>
+          <span class="k">#186276FF - testColour</span>
+        </li>
+        <li class="show-lines-background">
+          <div style="background-color:#186276FF; width: 300px;">&nbsp;</div>
+        </li>
+        <li>
+          <span class="k">#106236B7 - modifiedColour</span>
+        </li>
+        <li class="show-lines-background">
+          <div style="background-color:#106236B7; width: 300px;">&nbsp;</div>
+        </li>
+        <li>
+          <span class="k">#106236CC - moreOpaqueColour</span>
+        </li>
+        <li class="show-lines-background">
+          <div style="background-color:#106236CC; width: 300px;">&nbsp;</div>
+        </li>
+        <li>
+          <span class="k">#A7F1CACC - lighterColour</span>
+        </li>
+        <li class="show-lines-background">
+          <div style="background-color:#A7F1CACC; width: 300px;">&nbsp;</div>
+        </li>
+        <li>
+          <span class="k">#9EFAC9CC - moreSaturatedColour</span>
+        </li>
+        <li class="show-lines-background">
+          <div style="background-color:#9EFAC9CC; width: 300px;">&nbsp;</div>
+        </li>
+        <li>
+          <span class="k">#04FAC9CC - lessRedColour</span>
+        </li>
+        <li class="show-lines-background">
+          <div style="background-color:#04FAC9CC; width: 300px;">&nbsp;</div>
+        </li>
+        <li>
+          <span class="k">#04FADDCC - moreBlueColour</span>
+        </li>
+        <li class="show-lines-background">
+          <div style="background-color:#04FADDCC; width: 300px;">&nbsp;</div>
+        </li>
+      </ul>
+    </div>
+    <p>
+      As you can see from the example above EK9 makes working with colours easy and in general developers
+      always need to be able to alter shades and hues of colours programmatically; including lightening and
+      darkening. This is straight forward with the <b>Colour</b> type, get the current <u>Lightness</u> and just
+      multiply it up or down by a factor and make the alteration to get the new <b>Colour</b>.
+    </p>
+    <p>
+      It's quite easy to imagine a <a href="streamsAndPipelines.html">pipeline</a> process taking a stream
+      of <b>Colours</b> and using a range of functions to manipulate those <b>Colours</b> to produce a new
+      set that are darker, lighter or more muted.
+    </p>
+    <h3 id="dimension">Dimension</h3>
+    <p>
+      The <b>Dimension</b> <i>type</i> is a simple aggregate <i>type</i> that enforces the concept of some
+      sort of <u>size</u> in combination with a <u>unit</u> of measurement. The main focus of this <i>type</i>
+      is to make explicit the use and combinations of mathematical calculations. This could have been done
+      by end user developers with a <i>class</i> hierarchy, but EK9 provides a simpler mechanism in the language
+      itself.
+    </p>
+    <p>
+      Inspired by the <b>CSS</b> idea of dimensions this <i>type</i> can employ any of the following units for dimensions.
+    </p>
+    <p>
+      Absolute Lengths (m, km and mile added - not suitable in CSS context)
+    </p>
+    <ul>
+      <li>km - Kilometers</li>
+      <li>m - Meters</li>
+      <li>cm - Centimeters</li>
+      <li>mm - Millimeters</li>
+      <li>mile - Miles</li>
+      <li>in - Inches</li>
+      <li>pc - Picas (1pc = 12 pt)</li>
+      <li>pt - Points (1pt = 1/72 of 1 inch)</li>
+      <li>px - Pixels (1px = 1/96th of 1 inch)</li>
+    </ul>
+    <p>
+      Relative Lengths (really only applicable for screen rendering)
+    </p>
+    <ul>
+      <li>em - Relative to the font-size (2em means 2 times the size of the current font)</li>
+      <li>ex - Relative to the x-height of the current font</li>
+      <li>ch - Relative to the width of the "0" (zero)</li>
+      <li>rem - Relative to font-size of the root element</li>
+      <li>vw - Relative to 1% of the width of the viewport</li>
+      <li>vh - Relative to 1% of the height of the viewport</li>
+      <li>vmin - Relative to 1% of viewport's smaller dimension</li>
+      <li>vmax - Relative to 1% of viewport's larger dimension</li>
+      <li>% - Relative to the parent element</li>
+    </ul>
+    <p>
+      Example of using the <b>Dimension</b> type.
+    </p>
+    <pre id="dimension_example">#!ek9
+defines module introduction
+
+  defines program
+  
+    ShowDimensionType()
+ 
+      dimension1 <- 1cm
+      dimension2 <- 10px
+      dimension3 <- 4.5em
+      dimension4 <- 1.5em
+
+      calc1 <- dimension1 * 2
+      calc2 <- dimension2 / 5
+      calc3 <- dimension3 + 0.6
+      calc4 <- dimension3 + dimension4
+
+      assert calc1 == 2cm
+      assert calc2 == 2px
+      assert calc3 == 5.1em
+      assert calc4 == 6em
+
+      //But if we divide a dimension by another dimension we get just a number
+      calc5 <- dimension3 / dimension4
+      assert calc5 == 3
+      
+      //Normal comparison operators as you would expect
+      assert calc3 < calc4
+
+      //But also the coalescing operators
+      lesser <- calc3 &lt;? calc4
+      assert lesser == calc3      
+
+      calc3 += 0.9
+      assert calc3 == calc4
+
+      calc3++
+      assert calc3 > calc4
+      
+      //Checking the calculation is not actually valid
+      //different types of dimension calc1 is cm and calc2 is px
+      assert not (calc1 <> calc2)?
+
+      //This is a test that the comparison was valid, not the result of the comparison
+      assert (calc3 < calc4)?
+
+      calc6 <- sqrt calc4
+      assert calc6 == 2.449489742783178em
+
+      numberOfKmInMiles <- 1.609344km
+
+      eightMiles <- 8mile
+      inKM <- eightMiles.convert(numberOfKmInMiles)
+      assert inKM == 12.874752km
+
+      assert length inKM == 12.874752
+      returnJourney <- -eightMiles
+      assert abs returnJourney == eightMiles
+
+      squared <- inKM ^ 2
+      assert squared == 165.75923906150402km
+      
+      result <- eightMiles + inKM
+      assert not result?
+
+//EOF</pre>
+    <br/>
+    <p>
+      The <b>Dimension</b> <i>type</i> is designed to help with <u>strong typing</u> and to ensure
+      that only compatible types are used together or are <b>converted</b> through an explicit
+      <i>method</i> call.
+      See <a href="https://en.wikipedia.org/wiki/Mars_Climate_Orbiter">Mars Climate Orbiter</a>
+      as to why this is 'quite important'.
+    </p>
+
+    <h3 id="path">Path</h3>
+    <p>
+      Like <b>JSON</b> (next) the concept of an object/array path is built into the EK9 language.
+      This is because that concept of an object graph with a mix of Maps and Arrays is a very common one.
+    </p>
+
+    <p>
+      Here is an example of how to define a path to be used with an object graph.
+      The literal definition of a <b>path</b> starts with <b>$?</b>, it is then followed
+      by combinations of <i>property</i> or <i>array</i> addressing.
+    </p>
+    <ul>
+      <li>Properties - <b>.property-name</b></li>
+      <li>Arrays - <b>[index]</b></li>
+    </ul>
+
+    <pre>#!ek9
+defines module com.customer.just
+
+  defines program
+
+    ASimpleSetOfPaths()
+      path1 <- $?.some.path.inc[0].array
+      path2 <- $?.another[2][1].multi-dimensional.array.access_value
+
+      simplePath <- $?.aKey
+      firstArrayElement <- $?[0]
+      propertyFromFirstElement <- $?[0].a-field
+
+      //Not to be confused with string conversion
+      anInt <- 90
+      stringRepresentation <- $anInt
+
+      //Or json conversion of a record.
+      me <- CustomerDetail(firstName: "Steve", lastName: "Limb")
+      jsonOfMe <- $$me
+
+  defines record
+
+    CustomerDetail
+      firstName <- String()
+      lastName <- String()
+
+//EOF
+    </pre>
+    <br/>
+    <h3 id="json">JSON</h3>
+    <p>
+      The <b>JSON</b> <i>type</i> is built right into the EK9 language. Is has been designed to support
+      all the normal types that JSON supports, those being:
+    </p>
+    <ul>
+      <li>String - EK9 String</li>
+      <li>Number - EK9 Integer/Float</li>
+      <li>Boolean - EK9 Boolean</li>
+      <li>null - EK9 unset value</li>
+      <li>object - EK9 aggregates/Dict</li>
+      <li>array - EK9 List</li>
+    </ul>
+    <p>
+      Other EK9 types; such as Character, Date, Time, DateTime, Duration, Millisecond, Money, Colour,
+      Dimension and Bits are all converted to the JSON String type.
+    </p>
+    <p>
+      Importantly developers can convert their own data types of <i>records</i> and <i>classes</i> to JSON
+      using the <b>$$</b> JSON operator. But EK9 can provide a default <b>$$</b> operator for records without
+      the developer needing to write any code in most cases.
+    </p>
+    <p>
+      It is also possible convert your <i>records</i> and <i>classes</i> back from JSON by providing:
+    </p>
+    <ul>
+      <li>A constructor that takes a single JSON argument</li>
+      <li>OR, by providing a default constructor and a <b>pipe '|'</b>
+        operator that takes a single JSON argument
+      </li>
+    </ul>
+
+    <h3 id="regex">Regular Expression</h3>
+    <p>
+      The <b>RegEx</b> <i>type</i> is the last of the built-in non-collection types.
+      It is built into the language for the simple reason that
+      <a href="https://en.wikipedia.org/wiki/Regular_expression">regular expressions</a>
+      are so widely used and are so expressive (albeit quite complex).
+    </p>
+    <p>
+      Standard shorthand sequences
+    </p>
+    <ul>
+      <li>. - Any character (may or may not match line terminators)</li>
+      <li>\d - A digit: [0-9]</li>
+      <li>\D - A non-digit: [^0-9]</li>
+      <li>\s - A whitespace character: [ \t\n\x0B\f\r]</li>
+      <li>\S - A non-whitespace character: [^\s]</li>
+      <li>\w - A word character: [a-zA-Z_0-9]</li>
+      <li>\W - A non-word character: [^\w]</li>
+    </ul>
+    <p>
+      Quantifiers
+    </p>
+    <ul>
+      <li>
+        <p>X, once or not at all</p>
+        <ul>
+          <li>X? - Greedy</li>
+          <li>X?? - Reluctant</li>
+          <li>X?+ - Possessive</li>
+        </ul>
+      </li>
+      <li>
+        <p>X, zero or more times</p>
+        <ul>
+          <li>X* - Greedy</li>
+          <li>X*? - Reluctant</li>
+          <li>X*+ - Possessive</li>
+        </ul>
+      </li>
+      <li>
+        <p>X, one or more times</p>
+        <ul>
+          <li>X+ - Greedy</li>
+          <li>X+? - Reluctant</li>
+          <li>X++ - Possessive</li>
+        </ul>
+      </li>
+      <li>
+        <p>X, exactly n times</p>
+        <ul>
+          <li>X{n} - Greedy</li>
+          <li>X{n}? - Reluctant</li>
+          <li>X{n}+ - Possessive</li>
+        </ul>
+      </li>
+      <li>
+        <p>X, at least n times</p>
+        <ul>
+          <li>X{n,} - Greedy</li>
+          <li>X{n,}? - Reluctant</li>
+          <li>X{n,}+ - Possessive</li>
+        </ul>
+      </li>
+      <li>
+        <p>X, at least n times but not more than m times</p>
+        <ul>
+          <li>X{n,m} - Greedy</li>
+          <li>X{n,m}? - Reluctant</li>
+          <li>X{n,m}+ - Possessive</li>
+        </ul>
+      </li>
+    </ul>
+    <p>
+      Boundary Matchers
+    </p>
+    <ul>
+      <li>^ - The beginning of a line</li>
+      <li>$ - The end of a line</li>
+      <li>\b - A word boundary</li>
+      <li>\B - A non-word boundary</li>
+      <li>\A - The beginning of the input</li>
+      <li>\G - The end of the previous match</li>
+      <li>\Z - The end of the input</li>
+      <li>\z - The end of the file</li>
+    </ul>
+    <p>
+      Here is an example of the use of RegEx with <i>match</i>, <i>split</i> and <i>group</i>.
+      The operations can be <b>RegEx</b> or <b>String</b> focussed.
+    </p>
+    <pre id="regex_example">#!ek9
+defines module introduction
+
+  defines program
+
+    ShowRegExType()
+
+      sixEx <- /[a-zA-Z0-9]{6}/
+
+      assert sixEx matches "arun32"
+      assert sixEx not matches "kkvarun32"
+      assert sixEx matches "JA2Uk2"
+      assert sixEx not matches "arun$2"
+
+      regEx <- /[S|s]te(?:ven?|phen)/
+
+      Steve <- "Steve"
+      steve <- "steve"
+
+      Stephen <- "Stephen"
+      stephen <- "stephen"
+
+      Steven <- "Steven"
+      steven <- "steven"
+
+      Stephene <- "Stephene"
+      stephene <- "stephene"
+
+      assert Steve matches regEx and steve matches regEx
+      assert Stephen matches regEx and stephen matches regEx
+      assert Steven matches regEx and steven matches regEx
+
+      assert Stephene not matches regEx
+      assert stephene not matches regEx
+
+      //String and Regex can work either way around
+      assert regEx matches Stephen
+
+      //Examples using escape of '\'
+
+      stockExample <- "This order was placed for QT3000! OK?"
+      groupEx <- /(.*?)(\d+)(.*)/
+      assert groupEx matches stockExample
+
+      fractionExample <- "3/4"
+      fractionEx <- /.*\/.*/
+      assert fractionEx matches fractionExample
+
+      slashEx1 <- /^Some\\Thing$/
+      assert slashEx1 matches "Some\Thing"
+
+      slashEx2 <- /^Some\/Thing$/
+      assert slashEx2 matches "Some/Thing"
+      
+      colonDelimited <- "one:two:three:four:five"      
+      colonRegEx <- /:/
+
+      //You can work with RegEx first or String first
+      whenSplit <- colonDelimited.split(colonRegEx)
+      alsoSplit <- colonRegEx.split(colonDelimited)
+
+      assert $whenSplit == "one,two,three,four,five"
+      assert $alsoSplit == "one,two,three,four,five"
+      assert whenSplit == alsoSplit
+
+      //Check on finding groups
+      extractionCheck <- "This is a sample Text 1234 with numbers in between."
+      extractNumbersEx <- /(.*?)(\d+)(.*)/
+      matchedGroups <- extractionCheck.group(extractNumbersEx)
+      
+      //Note the comma separated items
+      assert $matchedGroups == "This is a sample Text ,1234, with numbers in between."      
+      
+      justTheNumber <- cat matchedGroups | skip 1 | head 1 | collect as String
+      //Convert to an Integer - if possible
+      asAnInteger <- Integer(justTheNumber)
+      assert $justTheNumber == "1234"
+      assert asAnInteger == 1234
+      
+      //Check just the last two (as an example)
+      lastTwo <- cat matchedGroups | tail 2 | collect as List of String
+      assert length lastTwo == 2
+      
+      nonExtractionCheck <- "Another sample but with no numbers in it."
+      matchedGroups := nonExtractionCheck.group(extractNumbersEx)
+      //Expecting this to be unset
+      assert not matchedGroups?
+      
+      //Safe way of accessing some result that might not be set (in this case it is not set)
+      justNotTheNumber <- cat matchedGroups | skip 1 | head 1 | collect as String      
+      assert not justNotTheNumber?
+//EOF</pre>
+    <br/>
+    <p>
+      Another reasonably long example (only touches on how powerful regular expression are though),
+      but hopefully you can see how the direct use of regular expressions in the code reduces the
+      number of <u>escape sequences</u> required.
+    </p>
+    <h3>Summary</h3>
+    <p>
+      EK9 provides a wide range of <b>types</b> built right into the language. By providing types like
+      <i>Time</i>, <i>Date</i>, <i>DateTime</i>, <i>Money</i>, <i>Dimension</i> and <i>Colour</i> EK9
+      enables strong typing and provides consistent and simple semantics.
+    </p>
+    <h4 id="collectionTypes">Next Steps</h4>
+    <p>
+      Many of the examples above have used some form of collection type. These are discussed in more
+      detail in the <a href="collectionTypes.html">collection types</a> section itself.
+    </p>
+  </article>
+</main>
+</body>
+</html>

@@ -1,0 +1,938 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language collection types</title>
+  <meta name="description" content="The EK9 programming language collection types
+    include Lists, Maps(Dictionaries) and Optional types."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Collection Types</h1>
+    </header>
+    <p>
+      This section just focuses on the <i>types</i> that are used as collections; some of which are
+      <i>generic/template</i> types. Collections hold zero or more Objects of the same or compatible
+      <i>type</i>.
+    </p>
+    <h3>The Types</h3>
+    <ul>
+      <li><a href="#list">List</a></li>
+      <li><a href="#optional">Optional</a></li>
+      <li><a href="#priorityQueue">PriorityQueue</a></li>
+      <li><a href="#dict">Dict (Dictionary/Map)</a></li>
+    </ul>
+    <h3>Supporting Types</h3>
+    <ul>
+      <li><a href="#iterator">Iterator</a></li>
+      <li><a href="#dictEntry">DictEntry (Dictionary Entry)</a></li>
+      <li><a href="#string">String</a></li>
+      <li><a href="#result">Result</a></li>
+      <li><a href="#bits">Bits</a></li>
+    </ul>
+    <h3 id="list">List</h3>
+    <p>
+      Some of the examples in section <a href="builtInTypes.html">built-in-types</a> have used the <b>List</b> <i>type</i>.
+      It is quite a simple type to use as it really just holds zero or more <i>Objects</i> of a specific <i>type</i>. It
+      supports the following operations/operators:
+    </p>
+    <ul>
+      <li>empty - is the List empty ie has no contents</li>
+      <li>length - how many items does the List have</li>
+      <li>first - get the first item ('<b>#&lt;</b>')</li>
+      <li>last - get the last item ('<b>#&gt;</b>')</li>
+      <li>clear - remove all items in the List ('<b>!</b>')</li>
+      <li>reverse - reverse the order in the list ('<b>~</b>')</li>
+      <li>contains - See <a href="operators.html#comparison">comparison</a> for details</li>
+      <li>'<b>+</b>' - See <a href="operators.html#mathematical">add</a> for details</li>
+      <li>'<b>+=</b>' - See <a href="operators.html#what_are_operstors">add assignment</a> for details</li>
+      <li>'<b>-</b>' - See <a href="operators.html#mathematical">subtract</a> for details</li>
+      <li>'<b>-=</b>' - See <a href="operators.html#what_are_operstors">subtract assignment</a> for details</li>
+    </ul>
+    <p>
+      You can make a <b>List</b> of any type (and that includes <i>functions</i>), so for example if you
+      had an <i>abstract function</i> for collecting data from a range of different sources, you could create a list
+      of those different functions and then use them via their abstract signature.
+    </p>
+    <p>
+      The example show how Lists can be created - in this case it is just a simple <b>List</b> of <b>Integer</b>.
+      Note there is no need for '<' or '>', just declare a <b>List of <u>X</u></b>, where X is the type.
+      Where the type has two parametric parameters (like <b>Dict</b>), use '(' and ')'
+      i.e. <b>Dict of (<u>S</u>, <u>T</u>)</b> to group the parameters.
+    </p>
+    <pre id="list_example1">#!ek9
+defines module introduction
+
+  defines function
+  
+    toString as pure
+      -> item as Integer
+      <- rtn as String: $item
+      
+    isSet as pure
+      -> item as Integer
+      <- rtn as Boolean: item?
+        
+  defines program
+    
+    ListCreationExample()
+      stdout <- Stdout()
+    
+      //A couple of ways to create and empty List of Integer        
+      aList as List of Integer: List()
+      bList <- List() of Integer
+      
+      //But if you have a value you want to use from the outset then use this mechanism
+      //The compiler can infer the type is a List of Integer from this.
+      cList <- List(1)
+      
+      //If you have a full set of integers you know from the outset then you can use
+      //[...] as a short hand for Lists (but they are not arrays and cannot be indexed with []).
+      l1 as List of Integer: [ 57, 55, 26, 24, 21 ]      
+      
+      //This inferred declaration is preferred and more succinct
+      l2 <- [ 1, 2, 3, 4, 5, 6, 7, Integer() ]
+      
+      //List has a $ operator (i.e. convert to string) and so can just print the contents out.
+      stdout.println("List l1 is " + $l1)
+
+      //You can use interpolated Strings if you wish.
+      stdout.println(`List l2 is ${l2}`)
+      
+      //Clearly if you had many items, the line length would get very long,
+      //so you can declare lists like this. Also very useful if the items in the list have
+      //complex constructors.
+      l3 <- [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        Integer()
+        ]
+      
+      //Again you can just print out like this
+      stdout.println("List l3 is " + $l3)
+      
+      //But the alternative is to use streaming pipelines
+      cat l3 | filter by isSet | map with toString > stdout   
+//EOF</pre>
+    <br/>
+    <p>
+      As you can see there are a number of ways to create <b>Lists</b> and use them.
+      The outputs from the above would be:
+    </p>
+    <ul>
+      <li>List l1 is [57, 55, 26, 24, 21]</li>
+      <li>List l2 is [1, 2, 3, 4, 5, 6, 7, ]</li>
+      <li>List l3 is [1, 2, 3, 4, 5, 6, 7, ]</li>
+      <li>1 2 3 4 5 6 7</li>
+    </ul>
+    <p>
+      Importantly as <b>Integer()</b> was used to populate an entry it is <b>not set</b>.
+      As you can see in l2 and l3 above (trailing ',').
+      If it is important to only process valid values then you can use the stream pipeline processing as shown above.
+      This will drop the final <b>unset</b> value in list <b>l3</b>.
+    </p>
+    <p>
+      The example is quite simple and really just shows the range of different ways that <b>Lists</b> can be declared.
+      The following example is aimed at demonstrating how EK9 functions as <i>delegates</i> that can be treated as Object in a
+      <i>polymorphic</i> manner but in the context of <b>Lists</b> and stream pipelines. It also shows the
+      <a href="records.html">record</a> <b>construct</b>.
+    </p>
+    <pre id="list_example2">#!ek9
+defines module introduction
+
+  defines record
+  
+    //Designed to hold members of the Addams family only
+    Addams
+      name <- String()
+      dob <- Date()
+      
+      //Sample of a developers constructor, other built-in ones get auto generated.
+      Addams()
+        -> dateOfBirth as Date
+        if dateOfBirth?
+          dob :=: dateOfBirth
+                 
+      operator $ as pure
+        <- rtn as String: `${name} ${dob}`
+        
+      operator ? as pure
+        <- rtn as Boolean: name? and dob?
+        
+      operator #^ as pure
+        <- rtn as String: $this
+        
+  defines function
+  
+    //Just convert Addams family member to a String representation
+    addamsToString() as pure
+      -> person as Addams
+      <- rtn as String: `DOB: ${person.dob} Name: ${person.name}`
+          
+    //Polymorphic abstract function for getting Addams family members   
+    getAddams() as pure abstract
+      <- rtn as Addams?
+    
+    //Using the full constructor that is auto generated.  
+    getMorticia() is getAddams as pure
+      <- rtn as Addams: Addams("Morticia", 1965-01-03)      
+    
+    //Use developer defined constructor then set the name
+    getGomez() is getAddams as pure
+      <- rtn as Addams: Addams(1963-06-08)
+      rtn.name: "Gomez"
+      
+  //Concept to hold functions that can get Addams family members
+  //Then when the time is right actually call the function to get the member.
+  defines program
+    
+    ListFunctionIteratorExample()
+      stdout <- Stdout()
+      
+      //Note this is a List of getAddams (function)
+      //EK9 is smart enough to see they both have a common super (function signature)
+      functionList <- [ getGomez, getMorticia ]
+      iter <- functionList.iterator()
+      
+      //A bit long winded - see next stream pipeline example 
+      while iter?
+        fn <- iter.next()
+        //Now make the call and convert the returned value to a String for output
+        stdout.println($fn())
+        //Because Addams has the promote operator #^ to a String we could just do this
+        stdout.println(fn())
+     
+    ListFunctionStreamExample()
+      stdout <- Stdout()
+      
+      //Again a list of functions
+      functionList <- [ getGomez, getMorticia ]
+      
+      //But here we pipe through to 'call' the function and get the return value
+      //We use the fact that promotion can be used to convert to a default String
+      cat functionList | call > stdout
+      
+      //Now if the calls to get members of the Addams family via the function
+      //had to make remote or slow calls, you might be better off calling them concurrently
+      //in an asynchronous manner - note the pipeline will wait until all the calls have completed
+      //But also in this case we want to control to conversion to a String by using a function.
+      cat functionList | async | map with addamsToString > stdout
+
+      //It is also possible to just use this, rather than creating a variable to reference the list
+      cat [ getGomez, getMorticia ] | async | map with addamsToString > stdout
+
+//EOF</pre>
+    <br/>
+    <p>
+      The example above should give you a better idea of how <b>List</b>s can be used. It also shows
+      how to use functions in a polymorphic and Object-Oriented manner via <i>delegates</i>.
+      This means that when used in conjunction with stream pipelines you can defer processing and also
+      call functions asynchronously.
+    </p>
+    <p>
+      The above example is quite important in terms of using EK9 and mixing and matching a functional
+      approach with an Object-Oriented one. Linked with type inference, generics and stream pipelines
+      the processing becomes <u>more</u> declarative in how the processing is accomplished.
+      This can be seen with the two examples above. <u>ListFunctionIteratorExample</u> is more procedural
+      than <u>ListFunctionStreamExample</u>. The development thought process is a little more sophisticated;
+      as is always the case with a declarative approach.
+    </p>
+    <p>
+      Note there are no <b>Promises</b>, <b>awaits</b> and no <i>call back hell</i>.
+    </p>
+    <p>
+      Here are those two example bodies without the comments.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">iter</span>
+          <span class="k">&larr;</span>
+          <span class="m">functionList</span><span class="k">.</span><span class="m">iterator</span><span class="k">()</span>
+        </li>
+        <li>
+          <span class="k">while</span>
+          <span class="m">iter</span>
+          <span class="k">?</span>
+        </li>
+        <li>
+          <span class="m">&nbsp;&nbsp;fn</span>
+          <span class="k">&larr;</span>
+          <span class="m">iter</span><span class="k">.</span><span class="m">next</span><span class="k">()</span>
+        </li>
+        <li>
+          <span class="m">&nbsp;&nbsp;stdout</span><span class="k">.</span><span class="m">println</span><span class="k">(</span><span class="m">fn</span><span
+            class="k">())</span>
+        </li>
+        <li>
+          <span class="c">&nbsp;</span>
+        </li>
+        <li>
+          <span class="k">cat</span>
+          <span class="m">functionList</span>
+          <span class="k">|</span>
+          <span class="k">call</span>
+          <span class="k">|</span>
+          <span class="k">map with</span>
+          <span class="m">addamsToString</span>
+          <span class="k">&gt;</span>
+          <span class="m">stdout</span>
+        </li>
+        <li>
+          <span class="c">&nbsp;</span>
+        </li>
+        <li>
+          <span class="k">cat</span>
+          <span class="m">functionList</span>
+          <span class="k">|</span>
+          <span class="k">call</span>
+          <span class="k">&gt;</span>
+          <span class="m">stdout</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      Clearly the function <b>addamsToString</b> still has to be written (unless we provide the promotion operator),
+      but in keeping with the philosophy outlined in the <a href="introduction.html#philosophy">approach</a>
+      section this overhead is accepted. In this particular case being able to change how the <b>String</b>
+      representation should be output is important in creating maintainable/easy to improve code.
+    </p>
+    <p>
+      As you can see in the example above, there is quite a lot of flexibility on where and how
+      to do the processing, use of <i>operators</i>, <i>functions</i> to alter and transform
+      aggregate object data as it is passed through the processing pipeline.
+    </p>
+    <h3 id="optional">Optional</h3>
+    <p>
+      While it is possible for each type to define <b>isSet</b> via the <b>'?'</b> operator
+      sometimes it is also necessary to wrap an object inside a wrapper that may or may not
+      contain that type of object. This is what <b>Optional</b> is aimed at doing.
+    </p>
+    <p>
+      In the example below; <b>Optional</b> is used with the <b>Integer</b> <i>type</i> but it can
+      be used with any <i>type</i> or even a <i>function</i> delegate or <i>record</i>.
+      The example is designed to show how you can use the Optional in conjunction with other types;
+      and how <b>List</b> and pipeline streams can be used with <u>flatten</u> to extract the values
+      out of the <b>Optional</b> but in a safe manner. Note that while <b>Optional</b> does have a
+      <b>get()</b> method it is <u>not</u> shown in the example, this is to try and encourage the
+      use of the other mechanisms that are much safer than <b>get()</b>. Because if the <b>Optional</b>
+      does not hold a value then an exception will occur. Whereas in the examples below the <u>flatten</u>
+      and <b>iterator()</b> mechanisms are all safe and provide the value from the <b>Optional</b> only if
+      it is held.
+    </p>
+    <p>
+      The concept of <b>Optional</b>, <u>flatten</u> and pipelining is a mix of ideas. Monads
+      from the Haskell programming language, 'pipes' from Unix and other main stream programming languages.
+      EK9 has attempted to blend these ideas together in a pragmatic manner.
+    </p>
+    <pre id="optional_example">#!ek9
+defines module introduction
+
+  defines program
+
+    ShowOptionalType()
+      stdout <- Stdout()
+
+      //Example with a fully qualified declaration
+      maybeInteger as Optional of Integer: Optional()
+
+      //Nothing will be output
+      cat maybeInteger &gt; stdout
+
+      //A type inferred declaration
+      item1 <- Optional(5)
+      cat item1 &gt; stdout
+
+      //two different ways of checking if optional has a value
+      assert item1 is not empty
+      assert item1?
+
+      //read as List of (Optional of Integer)
+      //fully qualified declaration
+      emptyOptionals as List of Optional of Integer: List()
+
+      //type inference mechanism - much more terse
+      aListOfOptionals <- List(maybeInteger)
+      aListOfOptionals += item1
+      aListOfOptionals += Optional(14)
+
+      //But could have been defined like this
+      someOptionals <- [maybeInteger, item1, Optional(14)]
+
+      //Use of flatten to get the items out of the optional
+      cat aListOfOptionals | flatten &gt; stdout
+
+      //Calculate the sum of the integers.
+      sum <- cat aListOfOptionals | flatten | collect as Integer
+      assert sum == 19
+
+      //Also possible to use an iterator if you wish
+      iter <- item1.iterator()
+      while iter is not empty //could have been just 'while iter?'
+        stdout.println("Value [" + $iter.next() + "]")
+
+      //remove the item that was within the optional
+      item1.clear()
+      assert item1 is empty
+      assert not item1?
+//EOF</pre>
+    <br/>
+    <p>
+      The example above (while focusing on Optional) also alludes to the Haskell (monad-ish) <u>flatten</u>
+      and <u>maybe</u> nature of <b>Lists</b> and <b>Optionals</b> by providing a null safe way to pull
+      data out of wrappers like <b>Lists</b> and <b>Optionals</b>. The alternative would be a range of
+      loops and null (<b>isSet</b>) checks. The pipeline approach reduces the cognitive load for the developer.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">sum</span>
+          <span class="k">&larr; cat</span>
+          <span class="m">aListOfOptionals</span><span class="k"> | flatten | collect as </span><span class="m">Integer</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The above snip from the example highlights the power of using the Generic collection types with
+      pipelines and the built-in standard syntax of <i>cat, filter, map, collect</i> etc. In effect the
+      above works as a <b>reduce</b> operation to sum the valid Integers that flow through the pipeline.
+      But takes into account the list could be empty or some of the optionals might not actually hold any values.
+    </p>
+    <h3 id="iterator">Iterator</h3>
+    <p>
+      The previous examples of both <b>List</b> and <b>Optional</b> have shown the <b>Iterator</b>.
+      It is really only useful in being able to provide a mechanism to step through zero or more items
+      held in some type of collection. The main methods are <b>'?'</b> <b>empty()</b> and <b>next()</b>.
+      You can see in the above examples <b>iter?</b> can be used or <b>iter is not empty</b> second is
+      more readable but obviously less terse.
+    </p>
+    <h3 id="bits">Bits</h3>
+    <p>
+      The <b>Bits</b> <i>type</i> has been covered in <a href="builtInTypes.html#bits">built-in-types</a>,
+      it can be viewed as an ordered list of <b>Booleans</b>.
+    </p>
+
+    <h3 id="string">String</h3>
+    <p>
+      The <b>String</b> <i>type</i> has been covered in <a href="builtInTypes.html#string">built-in-types</a>,
+      it can be viewed as an ordered list of <b>Characters</b>.
+    </p>
+
+    <h3 id="result">Result</h3>
+    <p>
+      The <b>Result</b> <i>type</i> is a strong type that is similar to the Optional, but takes two types.
+      The first type is the valid result type and the second type is the error result type.
+      The EK9 Compiler checks the Result ensuring the the EK9 developer has check the resulting values.
+    </p>
+    <h3 id="priorityQueue">PriorityQueue</h3>
+    <p>
+      This is a form of <b>List</b> but can be ordered and can also be finite. Very useful for keeping
+      a list of items in ordered form. If the size is not set then all items added to the queue will remain
+      in the queue. If no ordering is specified then the order is random when accessed (and items will not be in
+      the order they were added).
+    </p>
+    <p>
+      Once the size is set then
+      number of items in the list will remain below or equal to that size. Once again if no ordering is specified
+      then random elements are removed.
+    </p>
+    <p>
+      The real value of this collection is when both size and ordering are
+      specified. Then; as is shown in the example below, a finite number of elements are retained but in the
+      priority order specified.
+    </p>
+    <pre id="priority_queue_example">#!ek9
+defines module introduction
+
+  defines function
+
+   suitableLength() as pure
+      -> value as String
+      <- rtn as Boolean: length of value > 5
+
+  defines class
+
+    StringCompare is Comparator of String
+      override call()
+        ->
+          o1 as String
+          o2 as String
+        <-
+          rtn as Integer: ~(o1 <=> o2)
+
+  defines program
+
+    ShowPriorityQueue()
+
+      qOne <- PriorityQueue("Bill").useComparator(StringCompare())
+
+      qOne += "And"
+      qOne += "Ted"
+      qOne += "Excellent"
+      qOne += "Adventure"
+      qOne += "Outrageous"
+      qOne += "Bogus"
+
+      allEntries <- cat qOne | collect as List of String
+      //Check they are in reverse order by String comparison not order added.
+      assert $allEntries == "[Ted, Outrageous, Excellent, Bogus, Bill, And, Adventure]"
+
+      //Now make the list finite with just 3 entries
+      qOne.setSize(3)
+
+      //Access to a list can be done just like this
+      limitedEntries <- qOne.list()
+      assert $limitedEntries == "[Bill, And, Adventure]"
+
+      //Not sure Missy will make the cut!
+      qOne += "Missy"
+
+      //Get the list again but in reverse order.
+      asList <- ~qOne.list()
+      assert $asList == "[Adventure, And, Bill]" //No 'Missy' did not make it.
+
+      //Use PriorityQueue to collect up and keep ordered as part of pipeline
+      bestTwo as PriorityQueue of String: PriorityQueue().setSize(2).useComparator(StringCompare())
+
+      //Note this uses allEntries again, but filter before queueing
+      cat allEntries | filter by suitableLength > bestTwo
+
+      //Check the string representation or the reverse ordered list.
+      //'Outrageous' qualified in the filter, but was not in the top two when ordered in the queue
+      assert $~bestTwo.list() == "[Adventure, Excellent]"
+
+//EOF</pre>
+    <br/>
+    <p>
+      Clearly the real power of the <b>PriorityQueue</b> comes when you need an ordered list that is
+      finite, especially when processing a large stream of data items. The example above gives a
+      brief view of how the <b>PriorityQueue</b> can be used as the end of a Stream pipeline to
+      gather data in an ordered a finite collection.
+    </p>
+    <p>
+      You could imagine having a number of <b>PriorityQueue</b> objects and need to
+      merge them in some scenarios. Given a <b>List of PriorityQueue of String</b> a simple pipelines
+      with <u>flatten</u> and a final <b>'&gt;'</b> into a suitably sized and order <b>PriorityQueue</b>
+      would be simple and obvious to implement.
+    </p>
+    <p>
+      As an aside, EK9 takes the approach of building small distinct <i>functions</i> and <i>classes</i>
+      so that they can be combined in <i>components</i>, <u>compositions</u> and <u>pipelines</u> to
+      accomplish processing; as opposed to providing many capabilities just within <i>classes</i>.
+    </p>
+    <h3 id="dict">Dict (Dictionary/Map)</h3>
+    <p>
+      There is quite a long example of the use of Dict (Dictionary/Map) and DictEntry below. It also
+      aims to demonstrate how Dictionaries can be used with <i>functions</i> and processing
+      pipelines. It also shows how <a href="dynamicFunctions.html">dynamic functions</a> can be employed.
+    </p>
+    <p>
+      Importantly the <b>Dict</b> is parameterised with two parameters, with Generic/Template <b>functions/classes</b>
+      in EK9 it is necessary to use <b>'(' ')'</b> where more than one parameter is used. This is to ensure that the
+      generic types being specified are not ambiguous.
+    </p>
+    <h4 id="dictEntry">DictEntry (Dictionary Entry)</h4>
+    <p>
+      Example shown below.
+    </p>
+    <pre id="dictionary_example">#!ek9
+defines module introduction
+
+  defines type
+
+    List of getAddams
+    Dict of (Integer, String)
+    Dict of (String, Date)
+    Dict of (Integer, Addams)
+    Dict of (Integer, getAddams)
+
+  defines record
+
+    Addams
+      name <- String()
+      dob <- Date()
+
+      Addams()
+        -> dateOfBirth as Date
+        if dateOfBirth?
+          dob :=: dateOfBirth
+
+      operator $ as pure
+        <- rtn as String: `${name} ${dob}`
+
+      operator ? as pure
+        <- rtn as Boolean: name? and dob?
+
+      operator #^ as pure
+        <- rtn as String: $this
+
+  defines function
+
+    idToString() as pure abstract
+      -> id as Integer
+      <- rtn as Optional of String: Optional()
+
+    nameToDate() as pure abstract
+      -> name as String
+      <- rtn as Optional of Date: Optional()
+
+    idToAddams() as pure abstract
+      -&gt id as Integer
+      <- rtn as Optional of Addams: Optional()
+
+    idToGetAddams() as pure abstract
+      -> id as Integer
+      <- rtn as Optional of getAddams: Optional()
+
+    addamsToString() as pure
+      -> person as Addams
+      <- rtn as String: `DOB: ${person.dob} Name: ${person.name}`
+
+    getAddams() as abstract
+      <- rtn as Addams?
+
+    getMorticia() is getAddams as pure
+      <- rtn as Addams: Addams("Morticia", 1965-01-03)
+
+    getGomez() is getAddams as pure
+      <- rtn as Addams: Addams( "Gomez", 1963-06-08)
+
+    getPugsley() is getAddams as pure
+      <- rtn as Addams: Addams("Pugsley", 1984-10-21)
+
+    getFester() is getAddams
+      <- rtn as Addams: Addams(1960-11-21)
+      rtn.name: "Fester"
+
+    getWednesday() is getAddams
+      <- rtn as Addams: Addams()
+      rtn.name: "Wednesday"
+      rtn.dob: 1998-01-09
+
+  defines program
+
+    ListDictionaryExample()
+      dictionaryExample <- SimpleDictionaryUse()
+      dictionaryExample.showDictionary()
+
+  defines class
+
+    SimpleDictionaryUse
+      private getName()
+        <- name String: "Gomez"
+
+      showDictionary()
+        idNameDictionary <- { 1: getName(), 2: getMorticia().name, 3: "Pugsley", 4: "Fester", 5: "Wednesday" }
+
+        addamsParents <- {
+          getName(): 1963-06-08,
+          getMorticia().name: getMorticia().dob
+          }
+
+        addamsKids <- {
+          "Pugsley": 1984-10-21,
+          "Wednesday": 1998-01-09
+          }
+
+        nameDateDictionary <- addamsParents + addamsKids + DictEntry("Fester", 1960-11-21)
+
+        idRecordDictionary <- {
+          1: getGomez(),
+          2: getMorticia(),
+          3: getPugsley(),
+          4: getFester(),
+          5: getWednesday()
+          }
+
+        idFunctionDictionary <- {
+          1: getGomez,
+          2: getMorticia,
+          3: getPugsley,
+          4: getFester,
+          5: getWednesday
+          }
+
+        results as List of String: List()
+        keyIter <- idNameDictionary.keys()
+        while keyIter is not empty
+          key <- keyIter.next()
+          name <- idNameDictionary.get(key)
+          if name?
+            results += `Key ${key} with name ${name.get()}`
+
+        //Some keys that won't ever be found
+        invalidValues <- [9, 10, 100]
+
+        keys1 <- idNameDictionary.keys()
+        keys2 <- invalidValues.iterator()
+
+        //This is a dynamic function that 'captures' a variable.
+        nameMapping <- (idNameDictionary) is idToString as pure function
+          rtn: idNameDictionary.get(id)
+
+        validValues <- cat keys1, keys2 | map with nameMapping | flatten | collect as List of String
+
+        assert $validValues == "[Gomez, Morticia, Pugsley, Fester, Wednesday]"
+
+        //This is also a dynamic function that 'captures' a variable.
+        dateMapping <- (nameDateDictionary) extends nameToDate
+          rtn: nameDateDictionary.get(name)
+
+        //Now we've used the previous iterator up so need new ones
+        //We can also use the pipeline in column format
+        keys1A <- idNameDictionary.keys()
+        validDates <- cat keys1A
+          | map nameMapping
+          | flatten
+          | map dateMapping
+          | flatten
+          | collect as List of Date
+
+        assert $validDates == "[1963-06-08, 1965-01-03, 1984-10-21, 1960-11-21, 1998-01-09]"
+
+        recordMapping <- (idRecordDictionary) extends idToAddams
+          rtn: idRecordDictionary.get(id)
+
+        //Now we've used the previous iterator up so need new ones
+        keys1B <- idNameDictionary.keys()
+        validAddams <- cat keys1B
+          | map recordMapping
+          | flatten
+          | collect as List of Addams
+          
+        //"[Gomez 1963-06-08, Morticia 1965-01-03, Pugsley 1984-10-21, Fester 1960-11-21, Wednesday 1998-01-09]"
+
+        //Example of an inline dynamic function        
+        //And and example of cat on a call return.
+        addamsFamily <- cat idNameDictionary.keys()
+          | map with (idFunctionDictionary) extends idToGetAddams (rtn: idFunctionDictionary.get(id))
+          | flatten
+          | call
+          | collect as List of Addams
+          
+        //"[Gomez 1963-06-08, Morticia 1965-01-03, Pugsley 1984-10-21, Fester 1960-11-21, Wednesday 1998-01-09]"
+
+        values <- idNameDictionary.values()
+        assert $values == "[Gomez, Morticia, Pugsley, Fester, Wednesday]"
+
+        found <- idFunctionDictionary.get(1)
+        assert found?
+        m <- found.get()
+        assert $m() == "Gomez 1963-06-08"
+//EOF</pre>
+    <br/>
+    <p>
+      Quite a bit of the above example has been used previously; the <b>Addams</b> <i>record</i>
+      and the concept of <i>abstract functions</i>.
+    </p>
+    <p>
+      The snip below from the example shows the shorthand way of defining and populating the dictionary (Dict)
+      entries.
+      This shows a <b>Dict</b> with key of <i>type</i> <b>Integer</b> and value of type <b>String</b>.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">idNameDictionary</span>
+          <span class="k">&larr; {</span>
+          <span class="m">1</span>
+          <span class="k">:</span><span class="m">getName</span><span class="k">(),</span>
+          <span class="m">2</span>
+          <span class="k">:</span><span class="m">getMorticia().name</span><span class="k">,</span>
+          <span class="m">3</span>
+          <span class="k">:</span><span class="m">"Pugsley"</span><span class="k">,</span>
+          <span class="m">4</span>
+          <span class="k">:</span><span class="m">"Fester"</span><span class="k">,</span>
+          <span class="m">5</span>
+          <span class="k">:</span><span class="m">"Wednesday"</span><span class="k"> }</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      Sometimes for longer dictionaries the following layout is more suitable.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">addamsKids</span>
+          <span class="k">&larr; {</span>
+        </li>
+        <li>
+          <span class="m">&nbsp;&nbsp;"Pugsley"</span><span class="k">:</span>
+          <span class="m">1984-10-21</span><span class="k">,</span>
+        </li>
+        <li>
+          <span class="m">&nbsp;&nbsp;"Wednesday"</span><span class="k">:</span>
+          <span class="m">1998-01-09</span>
+        </li>
+        <li>
+          <span class="k">&nbsp;&nbsp;}</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      Dictionaries (Dicts) can be built up in the following manner.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">nameDateDictionary</span>
+          <span class="k">&larr;</span>
+          <span class="m">addamsParents</span>
+          <span class="k">+</span>
+          <span class="m">addamsKids</span>
+          <span class="k">+</span>
+          <span class="m">DictEntry</span><span class="k">(</span><span class="m">"Fester"</span><span class="k">,</span>
+          <span class="m">1960-11-21</span><span class="k">)</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      As you can see from <i>idRecordDictionary</i> and <i>idFunctionDictionary</i> it is possible to have
+      dictionaries that have values of <i>records</i> or even <i>function</i> delegates. It is also possible
+      to iterate over the <i>keys</i> or the <i>values</i> of the dictionary. One of the more interesting parts
+      of the example is how a dictionary is wrapped in a dynamic function, as shown below.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">nameMapping</span>
+          <span class="k">&larr; (</span><span class="m">idNameDictionary</span><span class="k">) is</span>
+          <span class="m">idToString as pure function</span>
+        </li>
+        <li>
+          <span class="m">&nbsp;&nbsp;rtn</span>
+          <span class="k">:</span>
+          <span class="m">idNameDictionary</span><span class="k">.</span><span class="m">get</span><span class="k">(</span><span class="m">id</span><span
+            class="k">)</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      While <a href="dynamicFunctions.html">dynamic functions</a> have not really been covered yet, this above
+      shows how a function can <u>capture</u> variables (a dictionary in this case), and how both the incoming
+      and return variables are <u>implicit</u> and do not need to be declared. This shows the polymorphic
+      nature of <i>functions</i> as this <i>dynamic function</i> <b>extends</b> the <i>type (abstract function)</i>
+      <b>idToString</b>. All the function does is accept the incoming parameter <b>id</b> and look it up in the
+      dictionary.
+    </p>
+    <p>
+      The use of the <i>dynamic function</i> is shown below, here two <i>iterators</i> are used as the source of
+      <b>Integer</b> 'ids'. One source is the iterator of the keys from the dictionary, the second source is
+      an iterator from a <b>List of Integer</b> where no entry in the dictionary exists. This example is
+      designed to highlight the <u>safe</u> way to access and pipeline information. The <u>nameMapping</u>
+      <i>function</i> will return an empty <b>Optional</b>; <i>flatten</i> will check this and ensure no
+      invalid value gets passed through to be <i>collected</i>.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">cat</span>
+          <span class="m">keys1</span><span class="k">,</span>
+          <span class="m">keys2</span>
+          <span class="k">| map with</span>
+          <span class="m">nameMapping</span>
+          <span class="k">| flatten | collect as</span>
+          <span class="m">List</span>
+          <span class="k">of</span>
+          <span class="m">String</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The snip above highlights the reuse and standard patterns that can emerge with pipeline processing. You can
+      see the other pipelines in the example all follow the same pattern only the <i>types</i> and
+      <i>functions</i> employed are different; in the case where <i>function delegates</i> are the <i>type</i>
+      the <i>call</i> or <i>async</i> <b>command</b> can be used to actually execute the <i>function</i> to
+      get the return value.
+    </p>
+    <h3>Summary</h3>
+    <p>
+      As you can see from the examples above; the collection types and stream pipelines when linked with
+      <i>functions</i> create a powerful and consistent combination. The resulting stream pipeline syntax has been
+      designed to be separate for methods on <i>Objects</i> and <i>Collections</i>.
+    </p>
+    <h3>Next Steps</h3>
+    <p>
+      That is the end of the collection types, the next section on
+      <a href="standardTypes.html">Standard Types</a> covers <i>classes</i> that really provide functionality
+      as part of the standard API that comes with EK9. These <i>types</i> are very likely to grow in number
+      and capability as EK9 is developed further.
+    </p>
+  </article>
+</main>
+</body>
+</html>

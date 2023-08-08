@@ -317,9 +317,7 @@ defines module introduction
     PI &lt;- 3.142    
     e &lt;- 2.71828
 //EOF</pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <h5 id="type">Type</h5>
     <p>
       In addition to <a href="constants.html">constants</a>; <a href="enumerations.html">types</a> can also be
@@ -354,9 +352,7 @@ defines module introduction
       Clubs
       Spades
 //EOF</pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       While on the surface these enumerated types look <u>very simple</u>
       (almost primitive and a little like YAML), they enable strong typing much like
@@ -424,9 +420,7 @@ defines module introduction
       stdout &lt;- Stdout()
       stdout.println("Hello, Mars")
 //EOF</pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       Lets assume this is stored in a file called <i>helloworlds.ek9</i> we would run those programs with the
       following commands (note how it is necessary to specify the <i>program</i> you wish to run):
@@ -524,9 +518,7 @@ defines module introduction
         &lt;- rtn as Boolean?
         rtn := arg? and first==arg.first and last==arg.last and dob==arg.dob   
 //EOF</pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       Let's consider:
     </p>
@@ -771,9 +763,7 @@ defines module introduction
       
       firstName &lt;- smithj.first
 //EOF</pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       The <u>consumer</u> can just use &larr; to declare a new variable '<b>smithj</b>' and assign it a new
       instance of <b>Person</b>; the type is inferred.
@@ -881,9 +871,7 @@ defines module introduction
       override singleMethod()
         &lt;- rtn String := "Stephen"    
 //EOF</pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       Here again you can see the return parameter being declared on a method. Note how the different assignment
       '<b>:</b>', '<b>=</b>' and '<b>:=</b>'
@@ -974,9 +962,7 @@ defines module introduction
       if not acceptable(toTest)
         stdout.println("The value toTest is not set")        
 //EOF</pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       The example above defines an <i>abstract function</i> signature and also concrete functions that match that
       signature. It is not always necessary
@@ -1076,9 +1062,7 @@ defines module introduction
         stdout.println(message)
         ...
 </pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       The above declaration defines a <i>trait</i> called <b>ShapeLimit</b> it has two main purposes.
     </p>
@@ -1152,9 +1136,7 @@ defines module introduction
       override draw()
         printDrawing("Square")        
 //EOF</pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       The use of the <b>ShapeLimit</b> <i>trait</i> is explained below.
     </p>
@@ -1293,9 +1275,7 @@ defines module introduction
       stdout.println(`Result of string comparison is ${stringResult}`)
 
 //EOF</pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       There are a few new bits of syntax that have not been covered before.
     </p>
@@ -1484,9 +1464,7 @@ defines module introduction
       myMachine.setListener(myListener)
       myMachine.setState(5)               
 //EOF</pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       There are quite a few new bits of syntax in the example above, these are explained below.
     </p>
@@ -1655,9 +1633,7 @@ defines module introduction
         &lt;- rtn as String := "DefaultStore"
 ...              
 </pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       Obviously there could be any number of <i>methods</i> on the <i>components</i>, <b>load</b>, <b>save</b>
       etc. But to continue with this example, the appropriate
@@ -1733,9 +1709,7 @@ defines module introduction
       register MemCached() as DataCache
 ...
 </pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       An analogy here would be car manufacturing and use. There will be many parts used across a range of
       vehicles, those smaller parts (bearings, gears, valves) will be combined to make subsystems
@@ -1813,9 +1787,7 @@ defines module introduction
       configHandler &lt;- ConfigHandler()
       configHandler.showConfigDetails()
 //EOF</pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       So if the EK9 code was stored in a file called
       <i>configtest.ek9</i> then each of the programs could be executed in the following way.
@@ -2014,9 +1986,7 @@ defines module introduction
       stdout.println(text.moreDetailsOn(specialProduct))
       
 //EOF</pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       The statement below is from the above example, the rest of the 'text' definition should be fairly obvious by
       now (assuming you've read earlier parts of this page). As text <i>methods</i> only ever return <b>Strings</b>
@@ -2211,9 +2181,7 @@ defines module introduction
       stdout.println("Now starting REST Services")
       httpServer.start()
 //EOF</pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       The following syntax defines a <i>service</i> that is mapped to a specific URL.
     </p>

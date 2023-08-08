@@ -167,9 +167,7 @@ defines module introduction
         sum Integer: 0
       ...
 //EOF</pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       In general if passing in one parameter the single line input (<b>&rarr; n Integer</b>) is preferred (see <b>function1</b> above).
       Ff there are two or more parameters (see <b>function2</b> above) then they &rarr; should appear on a line by itself and the parameters
@@ -900,9 +898,7 @@ defines module introduction
       &lt;- sum Integer: for i in 1 ... n | map with square | collect as Integer
  
 //EOF</pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       The stream pipeline offers an alternative approach which is more functional in nature.
     </p>
@@ -975,9 +971,7 @@ module net.customer.geometry
   defines constant
     PI &lt;- 3.142
 //EOF</pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       Lets assume that the developer now needs to access PI from another module <u>namespace</u> called
       <b>com.solutions.areas</b> and want to define a function to calculate the area of a circle.
@@ -992,9 +986,7 @@ module com.solutions.areas
       -&gt; diameter as Float
       &lt;- result as Float: PI * (diameter/2)^2
 //EOF</pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       By using the references statement above the constant <b>PI</b> can be used within the module. The
       alternative mechanism to use
@@ -1007,9 +999,7 @@ module com.solutions.areas
       -&gt; diameter as Float
       &lt;- result as Float: net.customer.geometry::PI * (diameter/2)^2
 //EOF</pre>
-    <p>
-      <br/>
-    </p>
+    <br/>
     <p>
       Here the fully qualified name of the constant <b>PI</b> is used. Why have two mechanisms to do that same
       thing?

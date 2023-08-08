@@ -91,11 +91,11 @@ defines module worked.example
 
   defines function
 
-    lineValidator() as abstract
+    lineValidator() as pure abstract
       -> line as String
       <- rtn as Boolean?
 
-    lineToCustomerRecord() as abstract
+    lineToCustomerRecord() as pure abstract
       -> line as String
       <- rtn as DictEntry of (String, CustomerRecord)?
 
@@ -110,7 +110,7 @@ defines module worked.example
       <-
         validator as lineValidator?
 
-      validator: (stderr, debugLevel) is lineValidator
+      validator: (stderr, debugLevel) is lineValidator as pure function
         rtn: line is not empty and #<line != '#'
         if debugLevel > 1 and not rtn
           stderr.println(`Discarding [${line}]`)
@@ -122,7 +122,7 @@ defines module worked.example
       <-
         processor as lineToCustomerRecord?
 
-      processor: (stderr, debugLevel) is lineToCustomerRecord
+      processor: (stderr, debugLevel) is lineToCustomerRecord as pure function
         rtn: DictEntry()
 
         splitLine <- line.split(/,/)
@@ -145,7 +145,7 @@ defines module worked.example
         if not rtn?
           stderr.println(`Invalid line [${line}]`)
 
-    getAsDateTime()
+    getAsDateTime() as pure
       ->
         id as String
         throwException as Boolean
@@ -162,18 +162,18 @@ defines module worked.example
       else
         Stderr().println(`Id [${id}] Invalid date [${aDateInput}]`)
 
-    validEntry()
+    validEntry() as pure
       -> entry as DictEntry of (String, CustomerRecord)
       <- rtn as Boolean: entry?
 
-    dashSeparated()
+    dashSeparated() as pure
       ->
         firstPart String
         secondPart String
       <-
         rtn as String: firstPart? and secondPart? <- firstPart + "-" + secondPart : String()
 
-    outputFormatSeparated()
+    outputFormatSeparated() as pure
       ->
         firstPart String
         secondPart String
@@ -253,22 +253,22 @@ defines module worked.example
 
     OptionsHandler
 
-      processCommandLine()
+      processCommandLine() as pure
         -> arguments as List of String
-        <- options as Dict of (String, String): Dict()
+        <- options as Dict of (String, String)?
 
         getopts <- setupGetOpt(":")
         options := getopts.options(arguments)
 
       private setupGetOpt()
         -> rqParam as String
-        <- getopts as GetOpt of String: GetOpt(rqParam)
+        <- getopts as GetOpt of String?
 
         supportedOptions <- setupSupportedOptions(rqParam)
         usage <- setupUsage()
-        getopts.pattern(supportedOptions).usage(usage)
+        getopts: GetOpt(String()).make(rqParam, supportedOptions, usage)
 
-      private setupSupportedOptions()
+      private setupSupportedOptions() as pure
         -> rqParam as String
         <- rtn as Dict of (String, String): Dict()
 
@@ -279,7 +279,7 @@ defines module worked.example
           }
         rtn: supportedOptions
 
-      private setupUsage()
+      private setupUsage() as pure
         <- rtn as String: "Invalid option, only those list below are supported:\n"
 
         rtn += "-v, verbose\n"
@@ -295,9 +295,9 @@ defines module worked.example
 
         debugLevel <- cat level | collect as Integer
 
-        rtn := debugLevel >= 0 and debugLevel <= 3 <- debugLevel else 0
+        rtn := debugLevel in 0 ... 3 <- debugLevel else 0
 
-        if verboseMode and debugLevel < 0 or debugLevel > 3
+        if verboseMode and debugLevel not in 0 ... 3
           Stderr().println(`Debug level ${debugLevel} not supported - reverting to debug level '0'`)
 
     NamedFileProcessor
@@ -344,14 +344,14 @@ defines module worked.example
         if not rtn.isFile()
           throw Exception($rtn + " is not a file", 2)
 
-      private createNamedFileLineHandler()
+      private createNamedFileLineHandler() as pure
         ->
           stderr as Stderr
           debugLevel as Integer
         <-
           processor as lineToCustomerRecord?
 
-        processor: (stderr, debugLevel) is lineToCustomerRecord
+        processor: (stderr, debugLevel) is lineToCustomerRecord as pure function
           splitLine <- line.split(/:/)
           if debugLevel == 3
             stderr.println(`About to split line [${line}]`)

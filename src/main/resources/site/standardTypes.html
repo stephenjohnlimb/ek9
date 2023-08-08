@@ -1,0 +1,1579 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language standard types</title>
+  <meta name="description" content="The EK9 programming language standard types
+    include stdin, stdout, stderr and operating system abstractions."/>
+
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>EK9 Standard Types</h1>
+    </header>
+    <p>
+      EK9 has a number of
+      <a href="builtInTypes.html">Built in Types</a> and
+      <a href="collectionTypes.html">Collection Types</a> which are designed to be extended and reused.
+      The Standard Types described below however are more like utility API classes.
+    </p>
+    <h3>The Types</h3>
+    <ul>
+      <li><a href="#stdin">Stdin</a></li>
+      <li><a href="#stdout">Stdout</a></li>
+      <li><a href="#stderr">Stderr</a></li>
+      <li><a href="#textFile">TextFile</a></li>
+      <li><a href="#envVars">EnvVars</a></li>
+      <li><a href="#getOpt">GetOpt</a></li>
+      <li><a href="#fileSystem">FileSystem</a></li>
+      <li><a href="#fileSystemPath">FileSystemPath</a></li>
+      <li><a href="#signals">Signals</a></li>
+      <li><a href="#signalHandler">SignalHandler</a></li>
+      <li><a href="#os">OS</a></li>
+      <li><a href="#mutex">Mutex Lock and Key</a></li>
+    </ul>
+    <p>
+      These types are particularly useful for writing <u>CLI</u> (command line) applications
+      (though can be used in any sort of application). As mentioned in the
+      <a href="introduction.html#purpose">introduction - purpose</a>; EK9 is aimed at at
+      range of different sized applications. The <u>CLI</u> has come back into favour for a variety
+      of reasons having been sidelined in preference to <u>GUI</u> based applications for many years.
+      EK9 has several <i>types</i> and <i>constructs</i> that support the development of <u>CLI</u>
+      applications. The approach is quite Unix/Linux/MacOS based to some degree; especially with Signal handling.
+    </p>
+    <h4>What's needed</h4>
+    <p>
+      To write an effective <u>CLI</u> application it is necessary to understand and embrace
+      <a href="https://en.wikipedia.org/wiki/Standard_streams"><b>stdin, stdout, stderr</b></a>;
+      together with <b>text file</b> processing and <i>command line</i> <b>options</b>.
+    </p>
+    <p>
+      Picking up values from <a href="https://en.wikipedia.org/wiki/Environment_variable">the environment</a>
+      is also quite important for many applications and provides a mechanism to supply runtime
+      configuration (in a limited and controlled manner).
+    </p>
+    <p>
+      Finally dealing with <a href="https://en.wikipedia.org/wiki/Signal_(IPC)">signals</a> (not very viable
+      if you are on a Windows platform,
+      <a href="https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/signal?view=msvc-160">see Windows
+        limited signal support</a>) and setting of
+      <b>exit codes</b> when the application is complete is also critical for <u>shell programming</u>.
+      If you want to write <u>CLI</u> applications that can work in scripts and in conjunction with other
+      <u>CLI</u> applications, setting the <b>exit code</b> is important as it enables script to determine if the
+      processing worked or failed (and how it failed).
+    </p>
+    <p>
+      Some may consider this anachronistic/backwards or retrograde (too Unix?);
+      but for many in 'DevOps' roles 'knocking up a quick script' to accomplish small one off
+      tasks it is essential.
+    </p>
+    <p>
+      But note that you may find existing tooling (if you are on a Unix/Linux platform)
+      can provide 50-60% of the functionality you need. KSH/BASH will get you quite a long way, but can get
+      complex when used at size and as it is interpreted (much like Python); you have to test every path.
+      Use of <b>sed, awk, cut</b> etc are very powerful and capable, use these tools and shell scripting
+      (if you know them) before writing any <b>EK9</b>.
+    </p>
+    <p>
+      Depending on your background (coder first or sys admin first) you might adopt EK9 sooner rather than later.
+      But once you get past a certain size or complexity you actually need a
+      programming language. For very high performance you could use <b>C, GoLang</b> or <b>Rust</b>; for highly
+      mathematical or very scientific functionality maybe use <b>Python</b>.
+    </p>
+    <p>
+      This is not intended to put you off using EK9, but to ensure that you make an informed choice in
+      programming language. But EK9 is designed to be used as an intermediate programming language, while
+      it may not have to same level of performance as C/Golang/Rust; it will be performant.
+    </p>
+    <p>
+      You will find <b>EK9</b> provides you with a very quick, reliable, readable language to create CLI solutions.
+      With <b>EK9</b> the code is strongly typed and compiled; therefore many errors will be found before execution.
+      You will also get much more reuse by using <b>EK9</b>. Remember computer resources are much more
+      powerful/capable/flexible and cheaper in comparison to human resources. Developing something that is
+      <u>good/performant enough</u> in a shorter time with fewer defects <i>can be</i> preferred in many cases.
+      Cloud flexibility in running up powerful servers for one off jobs can make the use other languages viable.
+    </p>
+    <p>
+      Creating the tooling to create an entire cloud infrastructure like the AWS CLI shows
+      the power of adopting the <u>CLI</u> approach. The fact that the <u>CLI</u> approach is still in
+      use 50 years after the creation of the concept; should tell you it is probably here to stay!
+    </p>
+    <p>
+      It is very likely that with any <u>CLI</u> application it will be necessary to read/write and
+      process <b>text files</b> to locate and access these files it is important to understand
+      <i>paths</i>. Unix/Linux/MacOS uses <b>'/'</b> for directories and Windows uses
+      <b>'\'</b>; EK9 helps with the processing of these <i>paths</i> by providing <b>FileSystemPath</b>.
+    </p>
+    <h4 id="worked_example">Worked Example</h4>
+    <p>
+      Unlike some of the other sections prior to this where each <b>type</b> or bit of capability was described
+      in isolation, this section uses a worked example to show how the standard types can be used together.
+    </p>
+    <p>
+      This example has been coded in a single source file. This is quite a short example
+      and none of the code will be reused in other projects; this is the most simple option (for this explanation).
+    </p>
+    <p>
+      The set of utility <i>classes</i> listed above are all demonstrated below in this worked example.
+      The example has quite a simple purpose (and is about 400 lines long).
+      Most of the examples up until this point have been quite short, this example is the first that shows
+      a full application (albeit a very simple one).
+      The basic requirement of the application is as follows:
+    </p>
+    <h5>Main Requirements</h5>
+    <ul>
+      <li>
+        To accept a stream of comma separated String values in via 'Standard Input',
+        the first value of each line is an identifier, the rest are just data items.
+      </li>
+      <li>
+        To open a named file that contains additional information (in colon separated format -
+        but with the same identifier).
+      </li>
+      <li>
+        The application must correlate the two identifiers.
+      </li>
+      <li>
+        If the identifier from the 'Standard Input' is not found in the named file; the identifier or
+        line must be printed out to 'Standard Error'.
+      </li>
+      <li>
+        If the identifier is found then the two records must be merged and output to
+        'Standard Ouput' in comma separated format.
+      </li>
+      <li>
+        Date fields in the incoming data streams are of the form YYYYMMDD and must be converted to
+        iso format 'Zulu' zone. i.e. 20201230 must be converted to 2020-12-30T00:00:00Z i.e.
+        the start of the day on the 30th.
+      </li>
+      <li>
+        The the first line of the output to 'Standard Output' must be a comment
+        (starting with a # character) and must show the name of the user (from the environment)
+        that produced the output and the date and time it was produced.
+      </li>
+      <li>
+        If any of the data in the named file is invalid (or the file cannot be accessed) - The application
+        must print the identifier/line (or name of the file) to 'Standard Error' and exit with
+        an <b>exit code</b> of <b>2</b>.
+      </li>
+      <li>
+        If any of the data from the 'Standard Input' is invalid - The identifier/line
+        must be printed out to 'Standard Error' - but <b>the process must continue</b>.
+      </li>
+    </ul>
+    <p>
+      <u>Note that blank lines or lines starting with a # should be discarded.</u>
+    </p>
+    <h5>Additional Requirements</h5>
+    <ul>
+      <li>
+        The application should accept a command line option of <b>-v</b> for verbose mode.
+      </li>
+      <li>
+        It should be possible to set debug level logging to 'Standard Error'
+        with a range of 1-3, with 0 being no debugging, 1 being minimal debugging information and 3
+        being the maximum. <b>-d 2</b> for example woud be debug level 2.
+      </li>
+      <li>
+        The named file should be supplied using the command line option of <b>-f</b> filename.txt - note that
+        the file name can be a fully qualified path or a relative path to the current working directory (both
+        absolute and relative paths must be supported). Clearly the file must be <b>a file</b> and must also be
+        <b>readable</b>.
+      </li>
+      <li>
+        On starting the application should print the 'process id' to 'Standard Error' if in verbose mode.
+      </li>
+    </ul>
+    <p>
+      For runtime platforms that can fully support signals (MacOS, Unix and all Linux - but not Windows)
+    </p>
+    <ul>
+      <li>
+        It must be possible to alter the debug level <u>while the program is running</u>,
+        this should be done by sending <b>Signals</b> to the running application. Specifically
+        SIGUSR1 to increase debug level and SIGUSR2 to decrease the debug level.
+      </li>
+      <li>
+        Finally it must be possible to terminate the processing early by sending a <b>Signal</b> to the
+        running application (SIGNABRT and SIGHUP). When the application is terminated in this way it
+        must exit with an <b>exit code</b> of <b>1</b>.
+      </li>
+    </ul>
+    <p>
+      Please remember support for Signals varies significantly from operating system to operating system.
+    </p>
+    <h5>Sample Inputs</h5>
+    <p>
+      There are two inputs, the 'Standard Input' and the 'Named File'. Examples shown below.
+    </p>
+    <ul>
+      <li>#Standard Input as follows</li>
+      <li>#id, firstName, lastName, dateOfBirth</li>
+      <li>AB-900011, John, Doe, 19601220</li>
+      <li>#An invalid example - missing first name</li>
+      <li>AB-900012,, Tonks, 19631220</li>
+    </ul>
+    <ul>
+      <li>#Named File Input as follows</li>
+      <li>#id: emailAddress: dateCustomer: dateLastPurchase</li>
+      <li>AB-900011: jdoe@example.com: 20201220: 20210101</li>
+      <li>#An invalid example - dateCustomer not valid</li>
+      <li>AB-900012: tonks@example.com: 2001220: 20210101</li>
+    </ul>
+    <h5>Desired Output</h5>
+    <p>
+      The desired output format is shown below (note dateCustomer is not required):
+    </p>
+    <ul>
+      <li>#Created by S.Limb on 1 Jan 2021, 19:43:21</li>
+      <li>#id, firstName, lastName, emailAddress, dateOfBirth, dateLastPurchase</li>
+      <li>AB-900011, John, Doe, jdoe@example.com, 1960-12-20T00:00:00Z, 2021-01-01T00:00:00Z</li>
+    </ul>
+    <p>
+      The example above is fairly typical of a data migration processing application. There are always times
+      when extracting data, cleaning it up, validating it and/or transforming it is needed. As stated before
+      this could be done in any programming language, but below is a demonstration of how it
+      can be accomplished with EK9.
+    </p>
+    <h4>How the solution is structured</h4>
+    <p>
+      The example below makes use of a number of <b>constructs</b> that are available in EK9.
+      These are:
+    </p>
+    <ul>
+      <li>Functions - abstract, dynamic and standard</li>
+      <li>Records - to hold the structure to output</li>
+      <li>Classes - to handle command line options and named file processing</li>
+      <li>Program - to trigger the whole processing</li>
+      <li>Stream pipelines - to complete the processing</li>
+    </ul>
+    <p>
+      Note that it does not define any:
+    </p>
+    <ul>
+      <li>Constants</li>
+      <li>Types</li>
+      <li>Packages</li>
+      <li>Traits</li>
+      <li>Components</li>
+      <li>Texts</li>
+      <li>Applications</li>
+      <li>Services</li>
+    </ul>
+    <p>
+      Just because EK9 has a rich set of <b>constructs</b> does not mean we <u>have</u> to use them all.
+      Like tools in a tool box or ingredients for cooking - you won't always need to use everything.
+      The example below is coded up in a blend of pragmatic <i>Functional</i> and an <i>Object Oriented</i>
+      techniques.
+    </p>
+    <p>
+      Finally, the standard types listed at the top of this page will be utilised.
+      The example is broken down into sections and each section has an explanation that discusses the design
+      decisions. There are any number of different ways the application <i>could</i> have been designed, from single
+      monolithic program, to just functional or just Object-Oriented (classes).
+    </p>
+    <p>
+      For example; we could have employed an <i>application</i> with the <i>program</i> and a <i>component</i>
+      to hold the OptionsHandler and command line flag and another <i>component</i> to hold the NamedFileProcessor
+      - those <i>components</i> could then have been injected into <i>functions</i>.
+      This would have reduced the parameter passing and employed IOC (inversion of control).
+      See <a href="components.html">Components And Applications</a> for this approach to the same example problem.
+    </p>
+    <p>
+      As with most problems to be solved with software; there are a range of different solutions. These
+      different <u>architectural</u> solutions tend to vary in nature from business area to business area and
+      on the experience of the team members. A solution from a finance team would be different to one from a team
+      with telecommunications or a military software background. Teams with strong mathematics, science will
+      produce solutions in one form and those with engineering backgrounds another. It is hoped that EK9 provides
+      the <b>constructs</b> that allow various <u>solution architectures</u> to be employed.
+    </p>
+    <p>
+      The aim here is <b>not</b> to show <u>the only one right way</u>; as such a way does not exist.
+    </p>
+    <p>
+      Starting at the entry point into the main program:
+    </p>
+    <h5>The Main Program</h5>
+    <pre id="main_program_example">#!ek9
+defines module introduction
+  defines program
+    DataCorrelation()
+      -&gt; argv as List of String
+
+      stdin &lt;- Stdin()
+      stdout &lt;- Stdout()
+      stderr &lt;- Stderr()
+
+      optionsHandler &lt;- OptionsHandler()
+      options &lt;- optionsHandler.processCommandLine(argv)
+      verboseMode &lt;- options contains "-v"
+      debugLevel &lt;- optionsHandler.processDebugLevel(verboseMode, options.get("-d"))
+
+      namedFileContents &lt;- NamedFileProcessor(verboseMode, debugLevel).processNamedFile(options.get("-f"))
+
+      if verboseMode
+        stderr.println(`Process id is ${OS().pid()}`)
+      if verboseMode or debugLevel &gt; 0
+        stderr.println(`Loaded ${length namedFileContents} records from named file`)
+
+      setupSignalHandling(verboseMode, debugLevel)
+
+      validLine &lt;- createLineValidator(stderr, debugLevel)
+      toEntry &lt;- createStdinLineHandler(stderr, debugLevel)
+      byMerging &lt;- createCustomerRecordMerger(stderr, debugLevel, namedFileContents)
+
+      if debugLevel &gt; 1
+        stderr.println("Ready to start processing Standard Input")
+
+      outputHeader(verboseMode, debugLevel, stdout)
+      cat stdin | filter by validLine | map toEntry | filter by validEntry | map byMerging &gt; stdout
+
+      if debugLevel &gt; 1
+        stderr.println("Standard Input processing complete")
+...</pre>
+    <h5>Incoming Parameters</h5>
+    <p>
+      If a <i>program</i> is defined that declares a single incoming parameter of
+      <i>type</i> <b>List of String</b> then the set of command line arguments the user entered will be automatically
+      populated in that object. In this case the name of that object is <b>argv</b> (C tradition).
+      See <a href="programs.html">programs</a> on how EK9 can map command line arguments directly to
+      typed parameters. But in this example we want full control of a range of flexible and optional arguments,
+      and to explain the <b>GetOpt</b> <i>class</i>.
+    </p>
+    <h5 id="stdin">Stdin</h5>
+    <p>
+      To access the 'Standard Input' i.e. the content that is 'piped' into the application just declare a variable
+      of <i>type</i> <b>Stdin</b>. You can use <b>Stdin</b> a bit like an iterator with <b>hasNext()</b> and
+      <b>next()</b>, or as a source for EK9 Stream pipelines as you can see towards the end of the <i>program</i>
+      above.
+    </p>
+    <h5 id="stdout">Stdout</h5>
+    <p>
+      'Standard Out' can again be accessed by declaring a variable of <b>Stdout</b>. You can then use
+      <i>methods</i> like <b>print</b> and <b>println</b> to send <b>String</b> values to the
+      'Standard Out'. In the <i>program</i> above it is just used as a <u>sink</u> at the end of a Stream
+      pipeline.
+    </p>
+    <h5 id="stderr">Stderr</h5>
+    <p>
+      'Standard Error' is almost the same as 'Standard Out' but just sends content to the error channel.
+      In the example above you can see <b>stderr</b> is used quite widely to provide verbose and debug
+      information.
+    </p>
+
+    <h5>The Developed Classes</h5>
+    <p>
+      <b>OptionsHandler</b> is a <i>class</i> that will be shown later; it just deals with handling the
+      options from the command line. It produces a <b>Dictionary</b> of the options.
+    </p>
+    <p>
+      <b>NamedFileProcessor</b> is also a <i>class</i>; it processes the named file and produces a
+      <b>Dictionary</b> of the <b>CustomerRecords</b> (a <i>record</i> shown later).
+    </p>
+    <h5 id="os">OS - Operating System</h5>
+    <p>
+      To obtain the process id of the <i>program</i> to print to 'Standard Error'; the provided <i>class</i>
+      <b>OS</b> and <i>method</i> <b>pid()</b> is used.
+    </p>
+    <h5>Standard Functions</h5>
+    <p>
+      <b>setupSignalHandling</b> is a standard <i>function</i> that registers the signal handlers. The implementation
+      of which is shown later. The other standard function <b>outputHeader</b> just outputs the header (commented csv)
+      - the implementation is also shown later.
+    </p>
+    <h5>Higher Order Functions</h5>
+    <p>
+      There are a number of <a target="_blank" title="High ordered functions" href="https://en.wikipedia.org/wiki/Higher-order_function">higher order</a>
+      <i>functions</i> that are used to create the <i>functions</i>
+      <b>validLine, toEntry, byMerging</b> that are used in the Stream pipeline that processes <u>stdin</u>;
+      see below.
+    </p>
+    <h5>Main Processing Pipeline</h5>
+    <p>
+      The pipeline below is the main driver of processing for the <i>program</i>. There are alternative
+      ways to implement this functionality using <u>for</u>/<u>while</u> loops. But EK9 provides
+      the Stream pipeline <b>construct</b> to be able to join processing steps together in a readable, reusable
+      and testable manner.
+    </p>
+    <p>
+      For some this might be too 'functional', but having used it for a while; it seems
+      to bring clarity to stages of processing that seem to get lost in lots of 'nested loops'.
+      The decision logic that was nested in a loop can be pulled out and used separately (and tested in isolation).
+    </p>
+    <p>
+      Additionally, it is the same <u>pattern of development</u> everywhere (if you use it). To start with
+      it looks a little strange (unless you are from a Unix shell background - then it looks familiar);
+      but after a short while it becomes quite natural to start thinking in the pipeline way.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">cat</span>
+          <span class="m">stdin</span>
+          <span class="k">| filter by</span>
+          <span class="m">validLine</span>
+          <span class="k">| map</span>
+          <span class="m">toEntry</span>
+          <span class="k">| filter by</span>
+          <span class="m">validEntry</span>
+          <span class="k">| map</span>
+          <span class="m">byMerging</span>
+          <span class="k">&gt;</span>
+          <span class="m">stdout</span>
+        </li>
+      </ul>
+    </div>
+    <h5>Cat</h5>
+    <p>
+      The single line above encapsulates the stages of processing the incoming data in a abstract but
+      readable way. <b>cat</b> is the command to <u>catenate</u> some type of collection or iterator.
+      In this case <b>stdin</b> is used as a collection of <b>Strings</b>.
+    </p>
+    <h5>Filter</h5>
+    <p>
+      The first stage of the processing is to <i>filter</i> out any blank empty lines or lines that start with
+      <b>#</b>. The high order <i>function</i> <b>createLineValidator</b> creates the validator <i>function</i>
+      (and is shown later). For now we can just use this in an abstract manner (i.e. just accept for now; that it only allows
+      valid lines through).
+    </p>
+    <h5>Map</h5>
+    <p>
+      The next stage is to accept the incoming <b>String</b> and <i>map</i> it to a
+      <b>DictEntry of (String, CustomerRecord)</b>. The high order <i>function</i> <b>createStdinLineHandler</b>
+      returns a function that is an extension of the <i>abstract</i> <i>function</i> <b>lineToCustomerRecord</b>.
+      This <i>function</i> signature accepts a <b>String</b> and returns a
+      <b>DictEntry of (String, CustomerRecord)</b>. The implementation of <b>createStdinLineHandler</b> is shown
+      later, for now accept it is capable of converting a <b>String</b> to a dictionary entry that has a
+      <b>String</b> as key and a value that is a <b>CustomerRecord</b> (shown later).
+    </p>
+    <h5>Filter</h5>
+    <p>
+      The previous stage will have attempted to convert a <b>String</b> into a valid
+      <b>DictEntry of (String, CustomerRecord)</b> but there might have been something wrong with the data. The
+      requirement was to continue processing but not output invalid data. So this next stage <i>filters</i>
+      out <u>invalid</u> <b>DictEntry of (String, CustomerRecord)</b>s.
+    </p>
+    <h5>Map</h5>
+    <p>
+      The penultimate stage is to map by merging the <b>DictEntry of (String, CustomerRecord)</b> from
+      <b>stdin</b> and those correlated entries from the named file and then produce a valid output
+      <b>String</b>. To accomplish this a mapping <i>function</i> is made by the higher order <i>function</i>
+      <b>createCustomerRecordMerger</b>.
+    </p>
+    <h5>Collect</h5>
+    <p>
+      The final stage is just to send the <b>String</b> created to <b>stdout</b>. If the <b>String</b>
+      is not valid (i.e. <b>not set</b>) then <b>Stdout</b> will just ignore the <b>String</b> and it
+      won't be output.
+    </p>
+    <h5>Discussion</h5>
+    <p>
+      So that's the main part of the program. Why was this approach taken?
+    </p>
+    <ul>
+      <li>Command line parameters are required - so argv as a <b>List of String</b> is needed</li>
+      <li>stdin, stdout and stderr are needed throughout - so declare up front</li>
+      <li>Dealing with the command-line parameters is an ancillary operation - so it is wrapped up into a class</li>
+      <li>Named file process is a defined operation - so it too is wrapped up into a class</li>
+      <li>Signal handing is important but can be completed in a single function - so use a standard function</li>
+      <li>As the main processing will be done via a pipeline all the functionality must be in functions</li>
+      <li>As the functionality in each pipeline function is significant it needs to be encapsulated in a higher order function.</li>
+      <li>Some output strings have been interpolated but could have been pulled out to Text <b>constructs</b>.</li>
+    </ul>
+    <p>
+      As stated before there are different ways to code the requirements. Indeed, first time though only
+      a program was used, then bigger blocks of code were pulled into functions out of the program.
+      Then those functions were broken down creating smaller functions. So all functions and no classes at all.
+    </p>
+    <p>
+      But when those functions were broken down further, it became simpler to pull those functions into <i>classes</i>
+      as <i>methods</i>. These classes are shown later and many of the <i>methods</i> are hidden as <b>private</b>.
+      It is possible to go further and encapsulated some of the classes/data into
+      <i>components</i>.
+    </p>
+    <p>
+      The next phase would be to pull all the output Strings into interpolated Strings and then refactor them into
+      Text blocks. This would then enable the application to be ported to different spoken languages.
+    </p>
+    <h5>Development Process</h5>
+    <p>
+      There is an important point here; 'Just do something, start writing code'. This may be (probably is) counter
+      to what you have been taught (sit there for days designing and procrastinating - do some UML, power points etc).
+    </p>
+    <p>
+      Ideally I'd like to have shown the example driver code (Test Cases) in this example - but it would be too large.
+    </p>
+    <p>
+      But, just do bits you know need doing, come at it from different angles and points of view - then worry
+      about how it will all fit later.
+      Don't be afraid to delete stuff, don't get emotionally attached to code (strangely don't invest too much
+      effort too early).
+      Then when you see complexity or potential reuse; <b>refactor</b>, 'pull apart', encapsulate, use abstractions.
+      In general move 'stuff' about or delete it. Then the solution will drop into place (and you will have enjoyed it).
+    </p>
+    <p>
+      There is a reason EK9 has so many <b>constructs</b>, use them when you 'feel' this time is right
+      (if time is never right; then don't use them!). Fluidity and freedom to relocate processing is why EK9 has
+      evolved in the way it has.
+    </p>
+    <p>
+      Development with EK9 has been designed to be enjoyable and fluid.
+    </p>
+    <h5>The Functions</h5>
+    <pre id="the_functions_example">...
+  defines function
+
+    lineValidator() as pure abstract
+      -&gt; line as String
+      &lt;- rtn as Boolean?
+
+    lineToCustomerRecord() as pure abstract
+      -&gt; line as String
+      &lt;- rtn as DictEntry of (String, CustomerRecord)
+
+    customerRecordMerger() as pure abstract
+      -&gt; entry as DictEntry of (String, CustomerRecord)
+      &lt;- rtn as String?
+
+    createLineValidator() as pure
+      -&gt;
+        stderr as Stderr
+        debugLevel as Integer
+      &lt;-
+        validator as lineValidator
+
+      validator: (stderr, debugLevel) is lineValidator as pure function
+        rtn: line is not empty and #&lt;line != '#'
+        if debugLevel &gt; 1 and not rtn
+          stderr.println("Discarding [" + line + "]")
+
+    createStdinLineHandler() as pure
+      -&gt;
+        stderr as Stderr
+        debugLevel as Integer
+      &lt;-
+        processor as lineToCustomerRecord
+
+      processor: (stderr, debugLevel) is lineToCustomerRecord as pure function
+        rtn: DictEntry()
+
+        splitLine &lt;- line.split(/,/)
+        if debugLevel == 3
+          stderr.println("About to split stdin line [" + line + "]")
+
+        if length of splitLine == 4
+          id &lt;- splitLine.get(0).trim()
+          firstname &lt;- splitLine.get(1).trim()
+          lastname &lt;- splitLine.get(2).trim()
+          dobStr &lt;- splitLine.get(3).trim()
+          if id is not empty and firstname is not empty and lastname is not empty and dobStr is not empty
+            dob &lt;- $getAsDateTime(id, false, dobStr)
+            if dob?
+              entryValue &lt;- CustomerRecord(id, firstname, lastname, String(), dob, String())
+              if debugLevel == 3
+                stderr.println("Line [" + line + "] processed")
+              rtn: DictEntry(id, entryValue)
+
+        if not rtn?
+          stderr.println("Invalid line [" + line + "]")
+
+    getAsDateTime() as pure
+      -&gt;
+        id as String
+        throwException as Boolean
+        aDateInput as String //expecting YYYYMMDD
+      &lt;-
+        rtn as DateTime: DateTime()
+
+      group &lt;- aDateInput.group(/(\d{4})(\d{2})(\d{2})/)
+      if length group == 3
+        dateStr &lt;- cat group | join with dashSeparated | collect as String
+        rtn: DateTime(Date(dateStr))
+      else if throwException
+        throw Exception("Id [" + id + "] Invalid date [" + aDateInput + "]", 2)
+      else
+        Stderr().println("Id [" + id + "] Invalid date [" + aDateInput + "]")
+
+    validEntry() as pure
+      -&gt; entry as DictEntry of (String, CustomerRecord)
+      &lt;- rtn as Boolean: entry?
+
+    dashSeparated() as pure
+      -&gt;
+        firstPart String
+        secondPart String
+      &lt;-
+        rtn as String: firstPart? and secondPart? &lt;- firstPart + "-" + secondPart : String()
+
+    outputFormatSeparated() as pure
+      -&gt;
+        firstPart String
+        secondPart String
+      &lt;-
+        rtn as String: firstPart? and secondPart? &lt;- firstPart + ", " + secondPart : String()
+
+    setupSignalHandling()
+      -&gt;
+        verboseMode as Boolean
+        debugLevel as Integer
+
+      terminationHandler &lt;- (verboseMode, debugLevel) of SignalHandler
+        override handleSignal()
+          -&gt; signal as String
+          &lt;- rtn as Integer: 1 //Process will exit with code of one
+          if verboseMode or debugLevel &gt; 0
+            Stderr().println("Handled Terminal Signal [" + signal + "]")
+
+      terminations &lt;- Signals().register(Strings("HUP", "ABRT"), terminationHandler)
+      if terminations not contains "HUP"
+        Stderr().println("HUP Signal not supported")
+      if terminations not contains "ABRT"
+        Stderr().println("ABRT Signal not supported")
+
+      debugHandler &lt;- (verboseMode, debugLevel) of SignalHandler
+        override handleSignal()
+          -&gt; signal as String
+          &lt;- rtn as Integer: Integer() //Note the Integer is not set so process will not terminate
+          if signal == "USR1" and debugLevel &lt; 3
+            debugLevel++
+          else if signal == "USR2" and debugLevel &gt; 0
+            debugLevel--
+          if verboseMode or debugLevel &gt; 0
+            Stderr().println("Handled Info Signal [" + signal + "] Debug Level now [" + $debugLevel + "]")
+
+      debugs &lt;- Signals().register(Strings("USR1", "USR2"), debugHandler)
+      if debugs not contains "USR1"
+        Stderr().println("USR1 Signal not supported")
+      if debugs not contains "USR2"
+        Stderr().println("USR2 Signal not supported")
+
+    outputHeader()
+      -&gt;
+        verboseMode as Boolean
+        debugLevel as Integer
+        stdout as Stdout
+
+      enGB &lt;- Locale("en_GB")
+      if verboseMode or debugLevel &gt; 2
+        Stderr().println("About to create output header with locale " + $enGB)
+
+      envVars &lt;- EnvVars()
+      user &lt;- envVars contains "USER" &lt;- envVars.get("USER") else envVars.get("USERNAME")
+      dateTime &lt;- enGB.mediumFormat(SystemClock().dateTime())
+
+      stdout.println("#Created by " + user + " on " + dateTime)
+      stdout.println("#id, firstName, lastName, emailAddress, dateOfBirth, dateLastPurchase")
+
+    createCustomerRecordMerger()
+      -&gt;
+        stderr as Stderr
+        debugLevel as Integer
+        namedFileContents as Dict of (String, CustomerRecord)
+      &lt;-
+        merge as customerRecordMerger
+
+      merge: (stderr, debugLevel, namedFileContents) is customerRecordMerger
+        rtn: String() //Output will be unset by default and there for not ouput
+        id &lt;- entry.getKey()
+        if debugLevel == 3
+          stderr.println("Merging id [" + id + "]")
+        if namedFileContents contains id
+          stdinEntry &lt;- entry.getValue()
+          namedFileEntry &lt;- namedFileContents.get(id).get()
+          stdinEntry :~: namedFileEntry
+          rtn := $stdinEntry
+        else
+          stderr.println("Not merging [" + id + "] as named file does not contain id")
+...</pre>
+    <h5>Abstract Functions</h5>
+    <p>
+      Well that's quite a few functions, the first three are just <i>function</i> signatures to be used by
+      dynamic <i>functions</i>. The <b>createLineValidator</b> is the first of the higher order <i>functions</i>
+      that just creates and returns a dynamic <i>function</i> <b>validator</b> which <b>is</b> of <i>type</i>
+      <b>lineValidator</b>. As you can see it just checks if the line is empty or start with <b>#</b>.
+    </p>
+    <p>
+      <b>createStdinLineHandler</b> is really the main high order <i>function</i> that creates the
+      <i>function</i> that parses the incoming line from <u>stdin</u>, it validates the content and creates a
+      <b>CustomerRecord</b> that is added into a <b>DictEntry</b> (which can in turn be further processed).
+      Note that if processing fails an <b>un set</b> <b>DictEntry</b> is returned not a note of the line that
+      failed is output to <u>stderr</u>.
+    </p>
+    <h5 id="envVars">EnvVars</h5>
+    <p>
+      The <i>function</i> <b>outputHeader</b> deals with outputting the header comment and uses a
+      <i>class</i> as shown below. Environment variables are not standard per platform and can be altered
+      and manipulated before your program runs (this can be both good and bad). Note that <b>EnvVars</b>
+      looks an behaves much like a dictionary in many ways (indeed you can call <b>keys()</b> to get the
+      names of all the entries).
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">envVars</span>
+          <span class="k">&larr;</span>
+          <span class="m">EnvVars</span><span class="k">()</span>
+        </li>
+        <li>
+          <span class="m">user</span>
+          <span class="k">&larr;</span>
+          <span class="m">envVars</span>
+          <span class="k">contains</span>
+          <span class="m">"USER"</span>
+          <span class="k">&larr;</span>
+          <span class="m">envVars</span><span class="k">.</span><span class="m">get</span><span class="k">(</span><span class="m">"USER"</span><span
+            class="k">)</span>
+          <span class="k">else</span>
+          <span class="m">envVars</span><span class="k">.</span><span class="m">get</span><span class="k">(</span><span class="m">"USERNAME"</span><span
+            class="k">)</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      Most of the rest of the functions are fairly obvious, but <b>setupSignalHandling</b> and
+      <b>createCustomerRecordMerger</b> need more of an explanation.
+    </p>
+    <h5 id="signals">setupSignalHandling</h5>
+    <p>
+      This <i>function</i> sets up two <b>SignalHandler</b>s the first is one for terminating the application
+      when signals <b>HUP/ABRT</b> are received as that handler returns and <b>Integer</b> value of <b>1</b>
+      it will cause the whole program to exit with a code of <b>1</b>. Remember signal handling is a function
+      of the platform you are running on (Windows has limited support for this).
+    </p>
+    <h5 id="signalHandler">Signal Handler</h5>
+    <p>
+      The second <b>SignalHandler</b> is for non terminating signals of <b>USR1/USR2</b> as you can see they
+      increment and decrement the <b>debugLevel</b>.
+    </p>
+    <p>
+      Now the observant will be asking how can altering the debugLevel like this actually affect the whole
+      application. If you think of <b>debugLevel</b> as a primitive type this approach just won't work.
+      But EK9 only has <b>Objects</b>, so from the main program line:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">debugLevel</span>
+          <span class="k">&larr;</span>
+          <span class="m">optionsHandler</span><span class="k">.</span><span class="m">processDebugLevel</span><span class="k">(...)</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="c">//And is passed in by reference to the function below</span>
+        </li>
+        <li>
+          <span class="m">setupSignalHandling</span><span class="k">(</span><span class="m">verboseMode</span><span class="k">,</span>
+          <span class="m">debugLevel</span><span class="k">)</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="c">//The debugLevel is further 'captured' by the dynamic class implementation of SignalHandler</span>
+        </li>
+        <li>
+          <span class="m">debugHandler</span>
+          <span class="k">&larr;</span>
+          <span class="k">DebugHandler(</span><span class="m">verboseMode</span><span class="k">,</span>
+          <span class="m">debugLevel</span><span class="k">) of</span>
+          <span class="m">SignalHandler</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      Because debugLevel is an Object it is passed by reference everywhere, this means that the debugHandler
+      <i>method</i> <b>handleSignal()</b> and has 'captured' debugLevel it means that all references actually
+      point to the same memory location. Hence debugLevel++ and debugLevel-- will operator on the same value.
+    </p>
+    <p>
+      This is very <u>unlike</u> an <b>int</b> primitive, in addition we are allowing modification of data in
+      various functions (not very <b>pure</b>).
+    </p>
+    <h5>createCustomerRecordMerger</h5>
+    <p>
+      This is the second significant high order <i>function</i>. It
+      serves the purpose of creating the merge <i>function</i> that looks up and correlating <u>ids</u>,
+      merges the two <b>CustomerRecords</b>; one from 'Standard Input'
+      and the other from the 'Named File', both of which are partial. The merge is done via the operator
+      <b>:~:</b>, the conversion to a <b>String</b> is done by the <b>$</b> operator - both on the
+      <b>CustomerRecord</b> <i>record</i> (shown later).
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//The Merge</span>
+        </li>
+        <li>
+          <span class="m">stdinEntry</span>
+          <span class="k">:~:</span>
+          <span class="m">namedFileEntry</span>
+        </li>
+        <li>
+          <span>&nbsp;</span>
+        </li>
+        <li>
+          <span class="c">//The Conversion to a <b>String</b></span>
+        </li>
+        <li>
+          <span class="m">rtn</span>
+          <span class="k">:=</span>
+          <span class="k">$</span><span class="m">stdinEntry</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The <b>namedFileContents</b> object (which is the dictionary of the 'named file' contents) is also 'captured'
+      from the main program down through the high order <i>function</i> <b>createCustomerRecordMerger</b> and
+      into the dynamic <i>function</i> <b>merge as customerRecordMerger</b>.
+    </p>
+    <p>
+      Clearly if you had several applications with a need for dealing with comma separated or colon separated data,
+      you would pull the appropriate abstract and concrete functions into a separate utility <b>module</b> so they
+      could be reused.
+    </p>
+    <p>
+      The same could be said for the signal handing, ideally all your application would use the same signal processing
+      mechanism and so could reused the <i>setupSignalHandling</i> function.
+    </p>
+    <p>
+      By creating a range of reusable and small <i>functions</i> you can build an internal library of small reliable and reusable
+      software 'chunks'.
+    </p>
+    <h5>The Classes</h5>
+    <p>
+      There are only two <i>classes</i> used in this implementation and
+      <b>OptionsHandler</b> is shown below.
+      This <i>class</i> has the responsibility of processing the command line options
+      that the user entered when running the application.
+    </p>
+    <pre id="the_classes_example">...
+  defines class
+
+    OptionsHandler
+
+      processCommandLine() as pure
+        -&gt; arguments as List of String
+        &lt;- options as Dict of (String, String): Dict()
+
+        getopts &lt;- setupGetOpt(":")
+        options := getopts.options(arguments)
+
+      private setupGetOpt() as pure
+        -&gt; rqParam as String
+        &lt;- getopts as GetOpt of String?
+
+        supportedOptions &lt;- setupSupportedOptions(rqParam)
+        usage &lt;- setupUsage()
+        getopts: GetOpt(String()).make(rqParam, supportedOptions, usage)
+
+      private setupSupportedOptions() as pure
+        -&gt; rqParam as String
+        &lt;- rtn as Dict of (String, String): Dict()
+
+        supportedOptions &lt;- {
+          "-v": String(),
+          "-f": rqParam,
+          "-d": rqParam
+          }
+        rtn: supportedOptions
+
+      private setupUsage() as pure
+        &lt;- rtn as String: "Invalid option, only those list below are supported:\n"
+
+        rtn += "-v, verbose\n"
+        rtn += "-f filename, use file of filename (mandatory option)\n"
+        rtn += "-d level, use of debugging"
+
+      processDebugLevel()
+        -&gt;
+          verboseMode as Boolean
+          level as Optional of String
+        &lt;-
+          rtn as Integer: 0 //default to zero
+
+        debugLevel &lt;- cat level | collect as Integer
+
+        rtn := debugLevel in 0 ... 3 &lt;- debugLevel else 0
+
+        if verboseMode and debugLevel not in 0 ... 3
+          Stderr().println("Debug level " + $debugLevel + " not supported - reverting to debug level '0'")
+...</pre>
+    <h5 id="getOpt">GetOpt</h5>
+    <p>
+      The <b>processCommandLine</b> <i>method</i> on the <i>class</i> <b>OptionsHandler</b> uses
+      <i>private methods</i> to setup and configure the <b>GetOpt</b> generic <i>class</i>.
+      Each of the <i>private methods</i>perform a specific task; configuring the supported options and
+      configuring the help text options.
+    </p>
+    <p>
+      The final <i>public method</i>; <b>processDebugLevel</b> is called from the main program to access
+      the debug level option the user entered on the command line (if it was entered). The <u>ternary</u>
+      operator tests the result of <b>cat level | collect as Integer</b> as it may not even be set or it
+      could be less than zero or greater than 3 and ensure it is between 0 and 3.
+    </p>
+    <h5 id="textFile">TextFile</h5>
+    <p>
+      The second <i>class</i> <b>NamedFileProcessor</b> it has the single responsibility of loading the
+      data from the 'named file' into a <b>Dict of (String, CustomerRecord)</b>. But it is much stricter about errors.
+    </p>
+    <pre>...
+    NamedFileProcessor
+      verboseMode as Boolean: false
+      debugLevel as Integer: Integer()
+
+      NamedFileProcessor()
+        -&gt;
+          verboseMode as Boolean
+          debugLevel as Integer
+        this.verboseMode = verboseMode
+        this.debugLevel = debugLevel
+
+      processNamedFile()
+        -&gt; filename as Optional of String
+        &lt;- rtn as Dict of (String, CustomerRecord): Dict()
+
+        stderr &lt;- Stderr()
+        if not filename?
+          throw Exception("Filename of 'named file' is required", 2)
+
+        namedFile &lt;- getNamedFile(filename.get())
+        validLine &lt;- createLineValidator(stderr, debugLevel)
+        toEntry &lt;- createNamedFileLineHandler(stderr, debugLevel)
+
+        if verboseMode or debugLevel &gt; 0
+          stderr.println("About to start processing [" + $namedFile + "]")
+
+        cat namedFile | filter by validLine | map toEntry &gt; rtn
+
+        if debugLevel &gt; 1
+          stderr.println("Processing [" + $namedFile + "] complete")
+
+      private getNamedFile()
+        -&gt; filename as String
+        &lt;- rtn as TextFile: TextFile()
+
+        filePath &lt;- FileSystemPath(filename)
+        rtn := filePath.isAbsolute() &lt;- TextFile(filePath) else TextFile(FileSystem().cwd() + filePath)
+        if not rtn.isReadable()
+          throw Exception($rtn + " is not readable", 2)
+        if not rtn.isFile()
+          throw Exception($rtn + " is not a file", 2)
+
+      private createNamedFileLineHandler() as pure
+        -&gt;
+          stderr as Stderr
+          debugLevel as Integer
+        &lt;-
+          processor as lineToCustomerRecord?
+
+        processor: (stderr, debugLevel) is lineToCustomerRecord as pure function
+          //The regular expression /:/ is significant should it also be a constant?
+          splitLine &lt;- line.split(/:/)
+          if debugLevel == 3
+            stderr.println("About to split line [" + line + "]")
+
+          if length of splitLine != 4
+            throw Exception("Invalid line [" + line + "]", 2)
+          id &lt;- splitLine.get(0).trim()
+          if id is empty
+            throw Exception("Invalid line [" + line + "] empty ID", 2)
+
+          emailAddress &lt;- splitLine.get(1).trim()
+          //A significant regular expression buried deep in processing! maybe use a constant.
+          if emailAddress not matches /[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/
+            throw Exception("Id [" + id + "] Invalid email address [" + emailAddress + "]", 2)
+
+          dateLastPurchase &lt;- $getAsDateTime(id, true, splitLine.get(3).trim())
+
+          entryValue &lt;- CustomerRecord(id, String(), String(), emailAddress, String(), dateLastPurchase)
+          if debugLevel == 3
+            stderr.println("Named file line [" + line + "] processed")
+          rtn: DictEntry(id, entryValue)
+...</pre>
+    <p>
+      Firstly in the public <i>method</i> <b>processNamedFile()</b> a check is made to ensure a file name
+      has been provided. An <b>Exception</b> is thrown with <b>exit code 2</b> if no file name was provided.
+      The next step is to get a <b>TextFile</b> using <i>method</i> <b>getNamedFile()</b>. Then a couple of
+      pipeline functions are created and the main pipeline processing is started.
+    </p>
+    <h5 id="fileSystemPath">private getNamedFile()</h5>
+    <p>
+      This private <i>method</i> firstly creates a <b>FileSystemPath</b> from the <b>String</b> filename. This
+      is followed by a <u>ternary</u> operation to see if the filename is a relative or absolute path to a file.
+      There is then a check on whether the file is readable and actually is a file. Finally the <b>TextFile</b>
+      is returned.
+    </p>
+    <h5 id="fileSystem">Current Working Directory</h5>
+    <p>
+      When processing the path it is important to get the users current working directory, this is done by using
+      the <b>FileSystem</b> <i>class</i>.
+    </p>
+    <h5>createLineValidator</h5>
+    <p>
+      This high order <i>function</i> has already been covered.
+    </p>
+    <h5>createNamedFileLineHandler</h5>
+    <p>
+      This is the high order <i>function/method</i> that creates the <i>function</i> that accepts each line and
+      splits the line by the <b>:</b> separator, it then does some checks on the data and throws
+      <b>Exceptions</b> if any of the data is invalid. It uses the standard <i>function</i> called
+      <b>getAsDateTime</b> to process the date.
+    </p>
+    <h5>Processing Pipeline</h5>
+    <p>
+      As you can see from the processing pipeline below its structure and pattern is almost the same as the
+      main processing pipeline in the main <i>program</i>. In fact it uses the same standard high order
+      <i>function</i> <b>createLineValidator</b> to create the function to validate lines. The main difference
+      in the final part of the processing is just to collect the <b>DictEntry</b> to return variable <b>rtn</b>.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">cat</span>
+          <span class="m">namedFile</span>
+          <span class="k">| filter by</span>
+          <span class="m">validLine</span>
+          <span class="k">| map</span>
+          <span class="m">toEntry</span>
+          <span class="k">&gt;</span>
+          <span class="m">rtn</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      By employing <i>functions</i> rather than just <i>classes</i> it is possible to create much more reuse as shown
+      with the <b>createLineValidator</b> and the <i>abstract function</i> signatures. This also reduces the need for excessive
+      class hierarchies and inheritance. Basically the smaller and tighter the 'chunk' of code and with fewest <i>side effects</i>
+      the more reusable and reliable the code is.
+    </p>
+    <p>
+      As you can see the same pattern of processing can be applied over and over again and the pipeline is
+      simpler to understand and read than using nested loops. The final part of the overall <i>program</i>
+      is the data item that is the main subject of how the pipeline merging and output actually works
+      - the <i>record</i>.
+    </p>
+    <h5 id="customer_record">The Record</h5>
+    <p>
+      The <b>CustomerRecord</b> is mainly used as a data object, but does have a couple of key
+      <i>operators</i> for processing the data it holds.
+    </p>
+    <pre id="the_record_example">...
+  defines record
+
+    CustomerRecord
+      id &lt;- String()
+      firstName &lt;- String()
+      lastName &lt;- String()
+      email &lt;- String()
+      dob &lt;- String()
+      lastPurchase &lt;- String()
+
+      operator ? as pure
+        &lt;- rtn as Boolean: id?
+
+      operator :~:
+        -&gt; arg as CustomerRecord
+        &lt;- rtn as CustomerRecord: this
+        id :=? String(arg.id)
+        firstName :=? String(arg.firstName)
+        lastName :=? String(arg.lastName)
+        email :=? String(arg.email)
+        dob :=? String(arg.dob)
+        lastPurchase :=? String(arg.lastPurchase)
+
+      operator $ as pure
+        &lt;- rtn as String: cat [id, firstName, lastName, email, dob, lastPurchase]
+          | join with outputFormatSeparated
+          | collect as String
+        
+//EOF</pre>
+    <p>
+      The data this <i>record</i> holds is pretty obvious as it is the output data that must be converted to
+      a single comma separated <b>String</b>.
+    </p>
+    <h5>operator ?</h5>
+    <p>
+      The <b>is set</b> operator is used to check if the record is valid for filtering and processing.
+
+    </p>
+    <h5>operator :~:</h5>
+    <p>
+      The <u>merge</u> <i>operator</i> is used to 'merge' the <u>stdin</u> partial <i>record</i> and the
+      <u>named file</u> partial <i>record</i> into one fully populated <i>record</i>.
+      The assignment coalescing operator is used in the merge. This only assigns the property/field if
+      it is currently <b>un set</b>. i.e it coalesces the field and the argument field.
+    </p>
+    <h5>operator $</h5>
+    <p>
+      The <u>string conversion</u> <i>operator</i> takes each of the properties/fields on the <i>record</i>
+      and places then in a <b>List of Strings</b> this is then used in another pipeline to join the fields
+      with a 'comma' and these are collected into a <b>rtn String</b>. This could be written long hand like this.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">fields</span>
+          <span class="k">&larr;</span>
+          <span class="k">[</span><span class="m">id, firstName, lastName, email, dob, lastPurchase</span><span class="k">]</span>
+        </li>
+        <li>
+          <span class="k">cat</span>
+          <span class="m">fields</span>
+          <span class="k">| join with</span>
+          <span class="m">outputFormatSeparated</span>
+          <span class="k">&gt;</span>
+          <span class="m">rtn</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      This final pipeline could have been accomplished by just using the
+      <b>+</b> operator on each of the fields as shown below.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">rtn</span>
+          <span class="k"> := </span>
+          <span class="m">id</span>
+          <span class="k">+</span>
+          <span class="m">", "</span>
+          <span class="k">+</span>
+          <span class="m">firstName</span>
+          <span class="k">+</span>
+          <span class="m">", "</span>
+          <span class="k">+</span>
+          <span class="m">lastName</span>
+          <span class="k">+</span>
+          <span class="m">", "</span>
+          <span class="k">+</span>
+          <span class="m">email</span>
+          <span class="k">+</span>
+          <span class="m">", "</span>
+          <span class="k">+</span>
+          <span class="m">dob</span>
+          <span class="k">+</span>
+          <span class="m">", "</span>
+          <span class="k">+</span>
+          <span class="m">lastPurchase</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The alternative would be to use String interpolation.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">rtn</span>
+          <span class="k"> := </span>
+          <span class="m">`${id}, </span>
+          <span class="m">${firstName}, </span>
+          <span class="m">${lastName}, </span>
+          <span class="m">${email}, </span>
+          <span class="m">${dob}, </span>
+          <span class="m">${lastPurchase}`</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      While the code above is slightly shorter - it is a bit more intricate. If we needed to add more
+      fields or change the order of the fields it much easier and more reliable to just use the <b>List</b>
+      approach. The other advantage is that if the output format needs to be altered it has been encapsulated
+      within a single <i>function</i> <b>outputFormatSeparated</b>.
+    </p>
+    <h4>Summary</h4>
+    <p>
+      This has been a long section, but it has shown a more concrete example of how EK9 can be used.
+      There is little doubt the functionality could have been written in a single <i>program</i> without
+      any other <b>constructs</b>. The code would (and was) much shorter, but decision logic was mixed in with
+      format logic. There was also quite a bit of repetition and duplication.
+    </p>
+    <p>
+      You might argue the above example code is <u>over engineered</u>, depending on your background and
+      experience you may or may not be right. When developing a solution to the problem set out above; you
+      have to find the right balance of <u>engineering</u> to <u>bloat/complexity</u> or just plain 'dirty' code.
+    </p>
+    <p>
+      Those from a functional background would probably argue it is <u>under engineered</u> and should have used
+      much more <b>pure</b> immutability and has missed the opportunity to make it more robust.
+    </p>
+    <h5>Justification of Approach</h5>
+    <p>
+      So as to provide some justification for the approach above it should be obvious that the
+      following are all encapsulated:
+    </p>
+    <ul>
+      <li>Command Line processing</li>
+      <li>Named file processing</li>
+      <li>Signal handling and setup</li>
+      <li>Customer record merging and output formatting</li>
+      <li><b>pure</b> could have been used in many of the <i>functions/methods</i> for immutability</li>
+      <li>Strings could have been refactored out to <b>text constructs</b> to enable spoken language portability</li>
+      <li>String interpolation could have been used more than it has</li>
+      <li>constants could be used for values like the splitting on colon/comma or checking email addresses</li>
+    </ul>
+    <p>
+      So if there were defects or a need to improve/augment the software it would be really obvious where
+      to look in the code. Moreover by breaking a monolithic <u>program</u> into <i>functions</i> and <i>classes</i>
+      it is now possible to make those <b>pure</b> and also refactor them out to separate <b>modules</b> for reuse.
+    </p>
+    <p>It should also be clear that what can be re-used has been re-used</p>
+    <ul>
+      <li>createLineValidator</li>
+      <li>getAsDateTime</li>
+      <li>CustomerRecord</li>
+    </ul>
+    <p>
+      Again if new fields were required or a variation on date formats needed to be accepted it would be obvious
+      where to look.
+    </p>
+    <p>Common Design patterns are used and re-used</p>
+    <ul>
+      <li>cat stdin | filter by validLine | map toEntry | filter by validEntry | map byMerging &gt; stdout</li>
+      <li>dateStr &larr; cat group | join with dashSeparated | collect as String</li>
+      <li>debugLevel &larr; cat level | collect as Integer</li>
+      <li>cat namedFile | filter by validLine | map toEntry &gt; rtn</li>
+      <li>cat fields | join with outputFormatSeparated &gt; rtn</li>
+    </ul>
+    <p>
+      You may or may not like the Stream pipeline approach, but if you needed to alter the processing it would again
+      be simple to look at where and how to alter that processing - rather than looking in deep nested loops.
+    </p>
+    <h5>Sample of the Looping approach</h5>
+    <p>
+      As a <b>contrast</b>; the 'named file processing' could have been implemented directly in the <i>program</i>
+      in the following way.
+      For some developers this may feel more natural (especially if you are from a C or Python background).
+      Personally I find it distracting to have all that low level utility code high up in
+      the main part of the program.
+    </p>
+    <pre>#!ek9
+defines module introduction
+  defines program
+    DataCorrelation()
+      -&gt; argv as Strings
+
+      stdin &lt;- Stdin()
+      stdout &lt;- Stdout()
+      stderr &lt;- Stderr()
+
+      optionsHandler &lt;- OptionsHandler()
+      options &lt;- optionsHandler.processCommandLine(argv)
+      verboseMode &lt;- options contains "-v"
+      debugLevel &lt;- optionsHandler.processDebugLevel(verboseMode, options.get("-d"))
+        
+      //So lets comment out the use of the class and method for processing  
+      //namedFileContents &lt;- NamedFileProcessor(verboseMode, debugLevel).processNamedFile(options.get("-f"))
+      
+      //Now inline all the code that is needed      
+      
+      filename &lt;- options.get("-f")
+      if not filename?
+        throw Exception("Filename of 'named file' is required", 2)
+      filePath &lt;- FileSystemPath(filename.get())
+      namedFile &lt;- filePath.isAbsolute() &lt;- TextFile(filePath) else TextFile(FileSystem().cwd() + filePath)
+      if not namedFile.isReadable()
+        throw Exception($namedFile + " is not readable", 2)
+      if not namedFile.isFile()
+        throw Exception($namedFile + " is not a file", 2)
+      
+      if verboseMode or debugLevel > 0
+        stderr.println("About to start processing [" + $namedFile + "]")
+      
+      namedFileContents as Dict of (String, CustomerRecord): Dict()  
+      try
+        -&gt; input &lt;- namedFile.input()
+        while input?
+          line &lt;- input.next()
+          if line is not empty and #&lt;line != '#'
+            splitLine &lt;- line.split(/:/)
+            if debugLevel == 3
+              stderr.println("About to split line [" + line + "]")
+  
+            if length of splitLine != 4
+              throw Exception("Invalid line [" + line + "]", 2)
+            id &lt;- splitLine.get(0).trim()
+            if id is empty
+              throw Exception("Invalid line [" + line + "] empty ID", 2)
+  
+            emailAddress &lt;- splitLine.get(1).trim()
+            if emailAddress not matches /[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/
+              throw Exception("Id [" + id + "] Invalid email address [" + emailAddress + "]", 2)
+  
+            dateLastPurchase &lt;- $getAsDateTime(id, true, splitLine.get(3).trim())
+  
+            entryValue &lt;- CustomerRecord(id, String(), String(), emailAddress, String(), dateLastPurchase)
+            if debugLevel == 3
+              stderr.println("Named file line [" + line + "] processed")
+              
+            namedFileContents += DictEntry(id, entryValue)            
+            
+          else if debugLevel &gt; 1
+            stderr.println("Discarding [" + line + "]") 
+      
+      //End of inlining the code
+      
+      if verboseMode
+        stderr.println("Process id is [" + $OS().pid() + "]")
+      if verboseMode or debugLevel &gt; 0
+        stderr.println("Loaded " + $ length namedFileContents + " records from named file")
+
+      setupSignalHandling(verboseMode, debugLevel)
+
+      validLine &lt;- createLineValidator(stderr, debugLevel)
+      toEntry &lt;- createStdinLineHandler(stderr, debugLevel)
+      byMerging &lt;- createCustomerRecordMerger(stderr, debugLevel, namedFileContents)
+
+      if debugLevel &gt; 1
+        stderr.println("Ready to start processing Standard Input")
+
+      outputHeader(verboseMode, debugLevel, stdout)
+      cat stdin | filter by validLine | map toEntry | filter by validEntry | map byMerging &gt; stdout
+
+      if debugLevel &gt; 1
+        stderr.println("Standard Input processing complete")       
+...</pre>
+    <p>
+      Now I feel then need to explain the code with comments in the code, whereas before the breaking down into
+      <i>classes</i> and <i>functions</i> gave me the opportunity to create a <u>meaningful name</u> to
+      encapsulate that bit of functionality.
+    </p>
+    <p>
+      As an aside, this above does demonstrate the alternative <u>loop</u> and <u>try with resource</u> approach
+      to handling resources like the <b>TextFile</b> as shown below.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">try</span>
+        </li>
+        <li>
+          <span class="k">&nbsp;&nbsp;&rarr;</span>
+          <span class="m">input</span>
+          <span class="k">&larr;</span>
+          <span class="m">namedFile</span><span class="k">.</span><span class="m">input</span><span class="k">()</span>
+        </li>
+        <li>
+          <span class="k">&nbsp;&nbsp;while</span>
+          <span class="m">input</span><span class="k">?</span>
+        </li>
+        <li>
+          <span class="m">&nbsp;&nbsp;&nbsp;&nbsp;line</span>
+          <span class="k">&larr;</span>
+          <span class="m">input</span><span class="k">.</span><span class="m">next</span><span class="k">()</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      By creating the 'input' within the incoming try parameter by using 'namedFile.input()', the try block will
+      automatically <b>close</b> the input once processing is finished (much like Java does). The input is then used like an
+      iterator to get the next line from the input. For many this will be a very familiar concept
+      (though the syntax is different).
+    </p>
+    <p>
+      Interestingly (having written the same functionality in two different ways) you can see patterns of how to
+      convert the above 'procedural code' into a more 'functional pipeline' (should you want to).
+      Note the check for the line content (shown below).
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">if</span>
+          <span class="m">line</span>
+          <span class="k">is not empty and #&lt;</span>
+          <span class="m">line</span>
+          <span class="k">!=</span>
+          <span class="m">'#'</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      If there is no meaningful 'else' (other than the output to stderr) then it can be pulled into a <i>filter</i>
+      function! You can then see the next bit of the code above just really takes the incoming <b>String</b> and
+      processes and validates its parts before making a partial <b>DictEntry of (String, CustomerRecord)</b>.
+      Look like it <u>maps</u> some <i>type</i> of content into another <i>type</i> - so a <b>map</b> function.
+    </p>
+    <p>
+      An additional class is shown below (not used in the example above) but useful in a range of applications.
+    </p>
+    <h4 id="mutex">Mutex Lock and Key</h4>
+    <p>
+      Really only to be used as a matter of <u>necessity</u> where the application has multiple concurrent
+      <b>Threads</b> running and read/write data must be shared between the threads.
+      Typically this is the case where <b>async</b> is used in <b>pipelines</b>, <a href="networkTypes.html#tcp">TCP</a>,
+      <a href="networkTypes.html#udp">UDP</a> or other HTTP server type <b>constructs</b>. <u>Here be Dragons</u> - as they say.
+    </p>
+    <p>
+      Below is a simple example of the syntax and design pattern to be used with <b>MutexLocks</b>.
+    </p>
+    <pre>#!ek9
+defines module introduction
+  defines function
+
+    createProtectedName()
+      &lt;- lock as MutexLock of String: MutexLock("Steve")
+
+  defines program
+
+    LockExample()
+
+      stdout &lt;- Stdout()
+      lockableItem &lt;- createProtectedName()
+
+      accessKey <- (stdout) extends MutexKey of String as function
+        stdout.println("Accessing [" + $value + "]")
+        //Now update the value - by copying data into it.
+        value :=: "Stephen"
+
+      //Now try access via key and wait on mutex
+      lockableItem.enter(accessKey)
+
+
+      //As there are no other threads access will be granted here
+      //If other held the lock this would return false and key.access() would not be called.
+      assert lockableItem.tryEnter(accessKey)
+
+//EOF</pre>
+    <br/>
+    <p>
+      While on the surface the code above looks fairly straightforward, multi-threaded access to a single data structure
+      is fraught with difficulties and race conditions and even <u>deadlock</u>. Avoid if at all possible. But sometimes
+      you cannot avoid it and this is what the Mutex lock/key are for.
+    </p>
+    <p>
+      I'll say it one last time - rack your brains for a solution that does not involve concurrent access to data structures
+      before going down that solution path.
+    </p>
+    <p>
+      What the EK9 <b>MutexLock</b> gives you has the following characteristics/conditions:
+    </p>
+    <ul>
+      <li>The data structure you are protecting is associated with the lock itself</li>
+      <li>The data held in the lock can only be accessed via <b>get()</b> when the lock is held</li>
+      <li>Block and wait to gain access <b>enter(key)</b> or <b>tryEnter(key)</b> if you don't want to wait</li>
+      <li>Check if the lock is owned so that you can access the data</li>
+      <li>There is a very specific defined scope where you have <b>access</b> to the protected data</li>
+      <li>Do the minimum amount of processing in the <b>access()</b> <i>method</i></li>
+      <li>Avoid calling out of process or long running operations in the <b>enter()</b> <i>method</i></li>
+      <li>The lock is guaranteed to be released at the end of the <b>enter()</b> <i>method</i></li>
+    </ul>
+    <p>
+      You maybe wondering why create such a big object/process around access to data; why not just use
+      <b>synchronized</b> or something like that? Multi-threaded access to shared data is a <b>big deal</b>.
+      So just like doing remote calls to other systems via TCP/UDP/HTTP don't try and hide any of the nasty details;
+      get them out in the open. These are not normal method calls, they are costly/expensive and risky calls that
+      need 'focus'.
+    </p>
+    <p>
+      What the <b>MutexLock</b> does <u>not do</u> is stop a developer taking a reference to the protected item and
+      passing it around to be modified outside of a lock. If and when you build complex data structures like trees
+      of lists you have to be <u>meticulous</u> in copying data and not just holding references. If you hold references
+      and some other part of the application also has a reference to the same data, then that underlying data can be altered
+      without the locks being obtained. This requires <b>extreme</b> <u>discipline</u>. You must <u>give</u> that data to the
+      <b>MutexLock</b> like in the example above with "Steve" and "Stephen", the references to those values are lost to
+      everything but the <b>MutexLock</b>.
+    </p>
+    <p>
+      If you have to have more than one data structure protected by a <b>MutexLock</b> you've just made your life very hard indeed.
+      It is <u>highly likely</u> that over a prolonged period of development with long lived code you will obtain locks in different orders;
+      <u>Deadlock</u> will occur from time to time in a seeming random manner.
+    </p>
+    <p>
+      <b>Avoid MutexLocks of data if at all
+        possible</b>, if you have to use MutexLocks; employ <b>pure</b> with rigour.
+      Your mindset has to see modification of a MutexLocked variable as a <u>very rare</u> and <u>very significant</u> event!
+    </p>
+    <p>
+      When estimating work, multiply your estimate by 2 if you have to do any multi-threaded work. If the data structures are shared now
+      multiply your estimate by 5. If there a multiple data structures being shared multiply by 10 and expect live operational issues.
+      However hard you think the development will be - it will turn out to be much harder to do correctly with multiple threads!
+    </p>
+    <p>
+      <u>If you <b>never</b> use this <i>class</i> consider that a <b>major achievement</b>! You have saved yourself a whole world of hate.</u>
+    </p>
+    <h4>Conclusion</h4>
+    <p>
+      It is hoped that this longer example that does have some meaningful functionality and shows different approaches to
+      development (in general and with EK9 specifically) will provide you with some concrete <u>snips</u> of code.
+      It shows different techniques that you may not have employed before and demonstrates the the EK9 language can be
+      used for <u>CLI</u> development.
+    </p>
+    <h4>Next Steps</h4>
+    <p>If you are interested in networking with EK9 then the next section on
+      <a href="networkTypes.html">network types</a> should be of interest.
+    </p>
+  </article>
+</main>
+</body>
+</html>
