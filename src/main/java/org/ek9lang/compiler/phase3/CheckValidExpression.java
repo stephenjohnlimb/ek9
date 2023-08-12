@@ -60,6 +60,8 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
       return symbolAndScopeManagement.getRecordedSymbol(ctx.call());
     } else if (ctx.list() != null) {
       return symbolAndScopeManagement.getRecordedSymbol(ctx.list());
+    } else if (ctx.dict() != null) {
+      return symbolAndScopeManagement.getRecordedSymbol(ctx.dict());
     } else if (ctx.expression() != null && !ctx.expression().isEmpty()) {
       //TODO implement this.
       System.out.println("Expression to expression(s) next - but need to work out the type");

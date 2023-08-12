@@ -22,7 +22,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 73;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 74;
 
   //Obviously with ek9 the indentation is important.
   @SuppressWarnings({"Indentation"})
@@ -76,6 +76,15 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             String()
               -> arg0 as String
 
+            trim() as pure
+              <- rtn as String: String()
+              
+            upperCase() as pure
+              <- rtn as String: String()
+
+            lowerCase() as pure
+              <- rtn as String: String()
+                                       
             operator <=> as pure
               -> arg as String
               <- rtn as Integer?
@@ -85,7 +94,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator +=
               -> arg as String
-
+              
+            operator + as pure
+              -> arg as String
+              <- rtn as String: String()
       """;
   /**
    * As each type is fleshed out pull it out of the list and create a new full signature.
@@ -595,8 +607,25 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           Clock
 
           StringInput
+            next() as pure
+              <- rtn as String: String()
 
+            hasNext() as pure
+              <- rtn as Boolean: Boolean()
+
+            operator close as pure
+            
+            operator ? as pure
+              <- rtn as Boolean: Boolean()
+          
+          <!-
+            Just added in a body so it is not marked as abstract.
+          -!>
           StringOutput
+            println() as pure
+              -> arg0 as String
+              assert arg0?
+                            
       """;
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_STANDARD_FUNCTIONS = """
@@ -615,15 +644,14 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
           Stdin with trait of StringInput
             Stdin()
+            
+            override operator close as pure
 
           Stdout with trait of StringOutput
-            Stdout()
-
-            println() as pure
-              -> arg0 as String
+            default Stdout()
               
           Stderr with trait of StringOutput
-            Stderr()
+            default Stderr()
 
           TextFile
             TextFile()
@@ -716,19 +744,155 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Integer: 404
 
           TCPConnection as open
+            output() as pure
+              <- rtn as StringOutput?
+              
+            input() as pure
+              <- rtn as StringInput?
       """;
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_NETWORK_CLASSES = """
           UDP
+            default UDP()
+            
             UDP()
+              -> properties as NetworkProperties
+            
+            timeout() as pure
+              -> duration as Millisecond
+              <- rtn as UDP?
+            
+            send()
+              -> packet as UDPPacket
+            
+            hasNext() as pure
+              <- rtn as Boolean: Boolean()
+            
+            <?-
+              Same functionality as receive.
+            -?>
+            next()
+              <- packet as UDPPacket: UDPPacket()
+            
+            receive()
+              <- packet as UDPPacket: UDPPacket()
+            
+            lastErrorMessage() as pure
+              <- rtn as String: String()
+               
+            operator close as pure
 
+            <?-
+              Same functionality as hasNext()
+            -?>
+            operator ? as pure
+              <- rtn as Boolean: Boolean()
+                           
           TCP
+            default TCP()
+            
             TCP()
+              -> properties as NetworkProperties
+              
+            connect()
+              <- rtn as TCPConnection?
+              
+            accept()
+              -> handler as TCPHandler
+
+            lastErrorMessage() as pure
+              <- rtn as String: String()
+               
+            operator close as pure
+
+            operator ? as pure
+              <- rtn as Boolean: Boolean()
+              
       """;
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_NETWORK_RECORDS = """
+          NetworkProperties
+            host as String: String()
+            port as Integer: Integer()
+            packetSize as Integer: Integer()
+            timeout as Millisecond: Millisecond()
+            backlog as Integer: Integer()
+            maxConcurrent as Integer: Integer()
+            localOnly as Boolean: Boolean()
+            
+            default NetworkProperties()
+
+            NetworkProperties()
+              ->
+                duration as Millisecond
+            
+            NetworkProperties()
+              ->
+                host as String
+
+            NetworkProperties()
+              ->
+                host as String
+                port as Integer
+
+            NetworkProperties()
+              ->
+                port as Integer
+
+            NetworkProperties()
+              ->
+                port as Integer
+                packetSize as Integer
+
+            NetworkProperties()
+              ->
+                host as String
+                port as Integer
+                packetSize as Integer
+
+            NetworkProperties()
+              ->
+                host as String
+                port as Integer
+                timeout as Millisecond
+
+            NetworkProperties()
+              ->
+                host as String
+                port as Integer
+                packetSize as Integer
+                timeout as Millisecond
+
+            NetworkProperties()
+              ->
+                port as Integer
+                backlog as Integer
+                maxConcurrent as Integer
+                localOnly as Boolean
+
+            NetworkProperties()
+              ->
+                port as Integer
+                timeout as Millisecond
+                backlog as Integer
+                maxConcurrent as Integer
+                localOnly as Boolean
+                
+            operator $ as pure
+              <- rtn as String: String()
+                                                   
           UDPPacket
+            properties as NetworkProperties: NetworkProperties()
+            content as String: String()
+            
             UDPPacket()
+              ->
+                properties as NetworkProperties
+                content as String
+                
+            operator $ as pure
+              <- rtn as String: String()
+                            
       """;
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_ASPECT_CLASSES = """

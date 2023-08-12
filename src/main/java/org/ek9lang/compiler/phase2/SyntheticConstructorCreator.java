@@ -3,7 +3,6 @@ package org.ek9lang.compiler.phase2;
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.support.AggregateFactory;
-import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 
 /**
@@ -16,8 +15,8 @@ final class SyntheticConstructorCreator implements Consumer<IAggregateSymbol> {
 
   private final AggregateFactory aggregateFactory;
 
-  SyntheticConstructorCreator(final Ek9Types ek9Types) {
-    this.aggregateFactory = new AggregateFactory(ek9Types);
+  SyntheticConstructorCreator(final AggregateFactory aggregateFactory) {
+    this.aggregateFactory = aggregateFactory;
   }
 
   @Override

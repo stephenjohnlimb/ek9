@@ -8,6 +8,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.common.ScopeStack;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.support.ResolveOrDefineExplicitParameterizedType;
 import org.ek9lang.compiler.support.ResolveOrDefineIdentifierReference;
 import org.ek9lang.compiler.support.ResolveOrDefineTypeDef;
@@ -15,6 +16,7 @@ import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.CaptureScope;
+import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -71,6 +73,8 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final CheckSuitableGenus checkAllowedClassSuitableGenus;
   private final CheckSuitableGenus checkApplicationForProgram;
   private final SyntheticConstructorCreator syntheticConstructorCreator;
+  private final AggregateFactory aggregateFactory;
+  private final Ek9Types ek9Types;
 
   /**
    * Still in def phase 1 - but second pass to try and resolve types due to declaration ordering.
@@ -79,7 +83,10 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     //At construction the ScopeStack will push the module scope on to the stack.
     this.symbolAndScopeManagement = new SymbolAndScopeManagement(parsedModule,
         new ScopeStack(parsedModule.getModuleScope()));
-    this.syntheticConstructorCreator = new SyntheticConstructorCreator(parsedModule.getEk9Types());
+    this.ek9Types = parsedModule.getEk9Types();
+    this.aggregateFactory = new AggregateFactory(ek9Types);
+    this.syntheticConstructorCreator = new SyntheticConstructorCreator(aggregateFactory);
+
     final var errorListener = parsedModule.getSource().getErrorListener();
 
     /*
@@ -140,6 +147,14 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     checkApplicationForProgram =
         new CheckSuitableGenus(symbolAndScopeManagement, errorListener,
             List.of(ISymbol.SymbolGenus.GENERAL_APPLICATION, ISymbol.SymbolGenus.SERVICE_APPLICATION), false, true);
+  }
+
+  @Override
+  public void enterEnumerationDeclaration(EK9Parser.EnumerationDeclarationContext ctx) {
+    //Now get the parent enumeration this enumeration items are to be defined in
+    var enumerationSymbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx.parent);
+    aggregateFactory.addSyntheticConstructorIfRequired(enumerationSymbol);
+    aggregateFactory.addConstructor(enumerationSymbol, ek9Types.ek9String());
   }
 
   /**

@@ -37,6 +37,7 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final CheckAssignmentStatement checkAssignmentStatement;
 
   private final CheckAndTypeList checkAndTypeList;
+  private final CheckAndTypeDict checkAndTypeDict;
   private final CheckValidCall checkValidCall;
 
   private final CheckRange checkRange;
@@ -50,6 +51,7 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final ResolveFieldOrError resolveFieldOrError;
 
   private final ResolveOperationCallOrError resolveOperationCallOrError;
+  private final CheckPipelinePart checkPipelinePart;
 
   protected ExpressionsListener(ParsedModule parsedModule) {
     super(parsedModule);
@@ -84,6 +86,12 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
 
     checkAndTypeList =
         new CheckAndTypeList(symbolAndScopeManagement, symbolFactory, errorListener);
+
+    checkAndTypeDict =
+        new CheckAndTypeDict(symbolAndScopeManagement, symbolFactory, errorListener);
+
+    checkPipelinePart =
+        new CheckPipelinePart(symbolAndScopeManagement, errorListener);
 
     checkRange =
         new CheckRange(symbolAndScopeManagement, symbolFactory, errorListener);
@@ -133,6 +141,12 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   public void exitList(EK9Parser.ListContext ctx) {
     checkAndTypeList.accept(ctx);
     super.exitList(ctx);
+  }
+
+  @Override
+  public void exitDict(EK9Parser.DictContext ctx) {
+    checkAndTypeDict.accept(ctx);
+    super.exitDict(ctx);
   }
 
   @Override
@@ -260,5 +274,12 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   public void exitVariableDeclaration(EK9Parser.VariableDeclarationContext ctx) {
     checkVariableAssignmentDeclaration.accept(ctx);
     super.exitVariableDeclaration(ctx);
+  }
+
+  @Override
+  public void exitPipelinePart(EK9Parser.PipelinePartContext ctx) {
+    checkPipelinePart.accept(ctx);
+
+    super.exitPipelinePart(ctx);
   }
 }

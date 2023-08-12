@@ -33,15 +33,22 @@ defines module com.customer.enumerations
     Card
       rank as CardRank: CardRank()
       suit as CardSuit: CardSuit()
-      
+
+      Card()
+        ->
+          rank as CardRank
+          suit as CardSuit
+        this.rank: rank
+        this.suit: suit
+
       operator ? as pure
         <- rtn as Boolean: rank? and suit?
       
       operator $ as pure
-        <- rtn as String: $rank + " of " + $suit
+        <- rtn as String: `${rank} of ${suit}`
         
       operator #^ as pure
-        <- rtn as String: $this
+        <- rtn as String: `${this}`
                   
   defines function
 
@@ -99,13 +106,13 @@ defines module com.customer.enumerations
         message <- switch rank
           <- rtn as String: String()
           case CardRank.Ace
-            rtn: "Wow very lucky " + $rank
+            rtn: `Wow very lucky ${rank}`
           case > CardRank.Ten
-            rtn: "Not too bad " + $rank
+            rtn: `Not too bad ${rank}`
           case > CardRank.Five
-            rtn: "Oh dear me " + $rank
+            rtn: `Oh dear me ${rank}`
           default
-            rtn: "Not so lucky " + $rank
+            rtn: `Not so lucky ${rank}`
         stdout.println(message)
 
     @Resolved: SYMBOL_DEFINITION: TYPE: "DeckOfPlayingCards"

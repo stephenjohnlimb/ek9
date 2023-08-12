@@ -6,16 +6,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.FullCompilationTest;
+import org.ek9lang.compiler.support.SymbolCountCheck;
 import org.junit.jupiter.api.Test;
 
-class ExamplesFullProgramsNetworkingTest extends FullCompilationTest {
+/**
+ * Just test simple generics all compile.
+ */
+class ExamplesConstructsGenericsTest extends FullCompilationTest {
 
-  public ExamplesFullProgramsNetworkingTest() {
-    super("/examples/fullPrograms/networking");
+  public ExamplesConstructsGenericsTest() {
+    super("/examples/constructs/generics");
   }
 
   @Test
-  void testPhasedDevelopment() {
+  void testPhaseDevelopment() {
     testToPhase(CompilationPhase.FULL_RESOLUTION);
   }
 
@@ -23,5 +27,6 @@ class ExamplesFullProgramsNetworkingTest extends FullCompilationTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
+    new SymbolCountCheck("lists.and.dictionaries", 6).test(program);
   }
 }

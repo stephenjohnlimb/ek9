@@ -70,6 +70,7 @@ final class BuiltInTypeCacheResolver implements Function<IScope, Ek9Types> {
           resolveType(scope, EK9_HTTP_RESPONSE),
           resolveType(scope, EK9_EXCEPTION),
           resolveTemplateType(scope, EK9_LIST),
+          resolveTemplateType(scope, EK9_DICTIONARY),
           resolveTemplateType(scope, EK9_ITERATOR),
           resolveTemplateType(scope, EK9_OPTIONAL),
           resolveTemplateType(scope, EK9_DICTIONARY),

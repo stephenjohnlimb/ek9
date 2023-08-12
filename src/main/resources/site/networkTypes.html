@@ -1,0 +1,721 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language network types</title>
+  <meta name="description" content="The EK9 programming language network types
+    include TCP, UDP and HTTP."/>
+
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>EK9 Network Types</h1>
+    </header>
+    <p>
+      These EK9 Network Types are all related to network communications or protocols.
+    </p>
+    <h3>The Types</h3>
+    <ul>
+      <li><a href="#udp">UDP (Datagrams)</a>,
+        <a href="#udp_server_example1">Server(1)</a>,
+        <a href="#udp_server_example2">Server(2)</a>,
+        <a href="#udp_client_example1">Client(1)</a> and
+        <a href="#udp_client_example2">Client(2)</a>
+      </li>
+      <li><a href="#tcp">TCP (Sockets)</a>,
+        <a href="#tcp_server_example1">Server(1)</a>,
+        <a href="#tcp_server_example2">Server(2)</a>,
+        <a href="#tcp_client_example1">Client(1)</a> and
+        <a href="#tcp_client_example2">Client(2)</a>
+      </li>
+    </ul>
+
+    <h4 id="worked_example">Worked Example</h4>
+    <p>
+      For each of the network <i>types</i> above there are examples.
+      There are some explanations of the examples; but assuming you've read many of the
+      other sections on EK9; the syntax and rationale/approach should start to be familiar.
+      If you've not read the other sections on <a href="builtInTypes.html">Built in Types</a>,
+      <a href="collectionTypes.html">Collection Types</a> and
+      <a href="standardTypes.html">Standard Types</a>, you should read those first.
+    </p>
+
+    <h4 id="udp">UDP Examples</h4>
+    <p>
+      There are two server examples and two client examples for
+      <a href="https://en.wikipedia.org/wiki/User_Datagram_Protocol">UDP</a>;
+      each of which shows different ways that UDP could be used. These range from
+      imperative type examples to more functional examples utilising Stream pipelines. The initial
+      packet size of a UDPPacket is 512 bytes, you can alter the size of the packet but this may make it more
+      likely that packets will be dropped by the network. You must remember that UDP packets are not guaranteed to
+      be delivered (this is not an EK9 thing, it is the very nature of UDP).
+      Whilst this may seem strange; it does work well for some types of application that can accept
+      some data loss.
+    </p>
+    <h5 id="udp_server_example1">UDP Server (1)</h5>
+    <p>
+      Below is a simple imperative code style of processing (echoing) UDP messages
+      (until the message 'end' is received). It listens on port 4445 and blocks to
+      <b>receive()</b> packets, it echos the packet back.
+    </p>
+    <pre>#!ek9
+defines module introduction
+  defines program
+    UDPServer1()
+      stdout <- Stdout()
+      udpConnection <- UDP(NetworkProperties(4445))
+
+      while udpConnection?
+        packet <- udpConnection.receive()
+        if packet?
+          if packet.content == "end"
+            endPacket <- UDPPacket(NetworkProperties(packet.host, packet.port), "OK will stop Server")
+            udpConnection.send(endPacket)
+            udpConnection.close()
+          else
+            udpConnection.send(packet)
+
+      stdout.println("UDP Server Complete")
+//EOF</pre>
+    <br/>
+    <p>
+      If you wanted to use the <b>iterator</b> syntax, the code above could have been written as follows:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">while</span>
+          <span class="m">udpConnection</span><span class="k">?</span>
+        </li>
+        <li>
+          <span class="m">&nbsp;&nbsp;</span>
+          <span class="m">packet</span>
+          <span class="k">&larr;</span>
+          <span class="m">udpConnection</span><span class="k">.</span><span class="m">receive</span><span class="k">()</span>
+        </li>
+        <li>...</li>
+        <li>
+          <span class="k">while</span>
+          <span class="m">udpConnection</span><span class="k">.</span><span class="m">hasNext</span><span class="k">()</span>
+        </li>
+        <li>
+          <span class="m">&nbsp;&nbsp;</span>
+          <span class="m">packet</span>
+          <span class="k">&larr;</span>
+          <span class="m">udpConnection</span><span class="k">.</span><span class="m">next</span><span class="k">()</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      If you are from a Java/C/C++/C# or Python background this will probably be the way you would have thought
+      of coding up a simple UDP server. However, there is an alternative approach that those with a more
+      functional background may prefer - take a look you may also find this approach appealing.
+    </p>
+    <h5 id="udp_server_example2">UDP Server (2)</h5>
+    <p>
+      This example has broadly the same functionality as Server (1) above, except that it:
+    </p>
+    <ul>
+      <li>It uses more of a functional code style to service requests.</li>
+      <li>Uses a signal to stop servicing requests rather than some value in the content itself.</li>
+      <li>Accepts command line parameters for: port, packet size and signal to trigger end servicing requests.</li>
+    </ul>
+    <p>
+      As you can see with this example, the EK9 Stream pipeline used to continuously accept incoming UDP packets
+      then pass them through a function (just echos content back) and then send what it echoed back to
+      'Standard Out'.
+    </p>
+    <pre>#!ek9
+defines module introduction
+  defines function
+    UDPPacketHandler() as abstract
+      -> incoming as UDPPacket
+      <- outgoing as UDPPacket?
+
+  defines program
+    UDPServer2()
+      ->
+        port as Integer
+        packetSize as Integer
+        signal as String
+
+      stdout <- Stdout()
+      udpConnection <- UDP(NetworkProperties(port, packetSize))
+
+      //This time stop server with abort signal not content 'end'.
+      abortHandler <- (udpConnection) is SignalHandler as function
+        result: 0
+        stderr <- Stderr()
+        stderr.println("Received abort Signal closing connection")
+        udpConnection.close()
+
+      Signals().register(signal, abortHandler)
+
+      echoFunction <- (udpConnection) is UDPPacketHandler
+        outgoing = incoming
+        udpConnection.send(outgoing)
+
+      cat udpConnection | map by echoFunction > stdout
+      stdout.println("UDP Server Complete")
+
+//EOF</pre>
+    <br/>
+    <p>
+      Clearly there is a bit more code to this example, but then it is doing more.
+      Handling command line parameters (though these could have come from
+      <a href="standardTypes.html#envVars">Environment Variables</a> if you prefer).
+      It also terminates via signal handling rather than message content.
+    </p>
+    <p>
+      Importantly it uses a <i>dynamic function</i> that extends an <i>abstract function</i> to process the
+      incoming packet. With this approach it is quite possible to be able to create any amount of processing
+      both before the packet content is echoed back and after echoing.
+    </p>
+    <p>
+      For example; incoming packets could be filtered before echoing to check for 'band words' and those could
+      be recorded together with the originating hostname/ip. The number of times specific words were sent in
+      could be accumulated and statistics gathered. Content length above a certain size could be ignored and not
+      responded to.
+    </p>
+    <p>
+      In short the functional approach enables more flexibility and future extension, rather than mixing all that
+      varied logic inside the imperative processing loop. But this is an <u>aside</u> to the functionality
+      in the <b>UDP</b> class.
+    </p>
+    <h5 id="udp_client_example1">UDP Client (1)</h5>
+    <p>
+      This example shows how a client using UDP could connect to one of the servers defined above.
+    </p>
+    <pre>#!ek9
+defines module introduction
+  defines program
+    UDPClient1()
+      stdout <- Stdout()
+      stderr <- Stderr()
+
+      try //use a try block with a closable resource, auto close
+        -> client <- UDP(NetworkProperties(250ms))
+
+        packet1 <- UDPPacket(NetworkProperties("localhost", 4445), "A Test")
+        stdout.println(`Sending [${packet1}]`)
+        client.send(packet1)
+        stdout.println("Waiting for response")
+        response1 <- client.receive()
+        if response1?
+          stdout.println(`Received [${response1}]`)
+        else
+          stderr.println(`There was no response [${client.lastErrorMessage()}]`)
+
+        packet2 <- UDPPacket(NetworkProperties("localhost", 4445), "end")
+        stdout.println(`Sending [${packet2}]`)
+        client.send(packet2)
+        stdout.println("Waiting for response")
+        response2 <- client.receive()
+        if response2?
+          stdout.println(`Received [${response2}]`)
+        else
+          stderr.println(`There was no response [${client.lastErrorMessage()}]`)
+
+      stdout.println("UDP Client Complete")
+//EOF</pre>
+    <br/>
+    <p>
+      As you can see this example also uses the <b>UDP</b> network class, but this time no port parameter is
+      given. Also note that the <b>UDP</b> instance is both created and a timeout is set to receive packets.
+      This is done within the incoming <b>try</b> parameter, this means that the resource will be automatically
+      <u>closed</u>.
+    </p>
+    <p>
+      The detail of where to send the content for the UDP message is all bound in the creation of the
+      <b>UDPPacket</b>, this is then sent out via the <b>UDP</b> class.
+    </p>
+    <p>
+      Note that the example above shows that the client is expecting a response, depending on the server logic,
+      this may not always be the case. But this client is expecting some unreliability in message transmission
+      as so has set a timeout of <u>250 milliseconds</u> and does check if the response packet is valid. In the
+      case of not receiving a packet withing the timeout the <b>UDP</b> class will return and empty packet.
+    </p>
+    <p>
+      As you can see the client code above is again quite imperative/procedural in nature.
+    </p>
+    <h5 id="udp_client_example2">UDP Client (2)</h5>
+    <p>
+      This example shows how a client using UDP could connect to one of the servers defined above. But this
+      example is more functional and also processes a number of command line parameters.
+    </p>
+    <pre>#!ek9
+defines module introduction
+  defines type
+    List of String
+
+  defines function
+    packetConverter() as abstract
+      -&gt; content as String
+      &lt;- outgoing as UDPPacket?
+
+  defines program
+    UDPClient2()
+      ->
+        hostname as String
+        port as Integer
+        timeout as Millisecond
+      try
+        -> udpConnection <- UDP(NetworkProperties(timeout))
+
+        //This is the nearest we get to a lambda, inline dynamic function
+        //You must use () for the single line you are allowed.
+        cat ["A Test", "Middle Item", "end" ]
+          | map (hostname, port) extends packetConverter (outgoing: UDPPacket(NetworkProperties(hostname, port), content))
+          > udpConnection
+
+      Stdout().println("UDP Client Complete")
+//EOF</pre>
+    <br/>
+    <p>
+      Just like the second server example this client expects a number of command line parameters, the
+      initial setup of the <b>UDP</b> connection is the same as in the first client example. But this time the
+      messages to be sent are just held in a <b>List of String</b>. These messages are then <b>pipelined</b> via
+      a <i>dynamic function</i> that just wraps them in a <b>UDPPacket</b> with the correct hostname address and port.
+      They are then pushed out via the <b>UDP</b> connection using the <b>&gt;</b> operator.
+    </p>
+    <p>
+      Interestingly the <i>dynamic function</i> is simple and has been inlined. It could have been held as a
+      <i>function delegate</i> or created using a higher level function. Here it has just been inlined.
+    </p>
+    <p>
+      Note in this case, the client is not bothered whether the server responded or not. Because the
+      <b>UDP</b> connection was opened in the <b>try</b> incoming parameter block it will be automatically
+      closed.
+    </p>
+    <p>
+      There is something about the functional approach that is more <i>elegant</i> in my opinion.
+    </p>
+    <h5 id="udp_summary">UDP Summary</h5>
+    <p>
+      As you can see from the above examples you can use a procedural or functional approach to working with <b>UDP</b>.
+      The <b>UDP</b> protocol is quite useful for a range of application as long as you accept its limitations.
+    </p>
+    <h4 id="tcp">TCP Examples</h4>
+    <p>
+      There are a number of examples for
+      <a href="https://en.wikipedia.org/wiki/Transmission_Control_Protocol">TCP</a>
+      (both client and server); each of which shows different ways that TCP could be used.
+      The mechanism for TCP is different from UDP - TCP is connection oriented and more reliable than UDP.
+    </p>
+    <h5 id="tcp_server_example1">TCP Server (1)</h5>
+    <p>
+      The TCP server example below is again written in a procedural manner. The key conceptual difference between
+      UDP and TCP is the connection oriented nature and the need to be able to service multiple client
+      connections at the concurrently.
+    </p>
+    <p>
+      TCP server connections can be fully available on a <u>port</u> via the network or just <u>local</u>
+      (useful for just controlling local applications).
+      The <b>TCP</b> constructor takes a range of parameters to control the <u>back log</u>
+      (the number of connections that are waiting to connect).
+      It also the number of concurrent connections to service at the same time. This is the first time
+      <u>multi-threading</u> has been mentioned.
+    </p>
+    <p>
+      As an aside it is also possible to configure a read timeout on the connection so that if clients are slow in sending data, the connection
+      can be dropped so another client can be serviced.
+    </p>
+    <pre>#!ek9
+defines module introduction
+  defines program  
+    TCPServer1()
+      stdout &lt;- Stdout()
+      stderr &lt;- Stderr()
+      
+      tcpServer &lt;- TCP(4446, 5, 4, true)
+      
+      if tcpServer?
+        handler &lt;- (tcpServer, stderr) with trait of TCPHandler
+          override connected()
+            -&gt;
+              input as StringInput
+              output as StringOutput
+            
+            stderr.println("Connection made")              
+            while input?
+              line &lt;- input.next()
+              stderr.println("Received [" + line + "]")
+              output.println(line.trim().upperCase())
+              if line == "end"
+                input.close()
+              if line == "shutdown"
+                tcpServer.close()
+            stderr.println("No more input on connection")
+            
+        stdout.println("Awaiting connections")        
+        if tcpServer.acceptWith(handler)        
+          stdout.println("TCP Server completed and shutdown")
+        else
+          stderr.println("Was not able to service requests gracefully [" + $tcpServer + "]")
+      else
+        stderr.println("Failed to get TCP server running [" + $tcpServer + "]")
+//EOF</pre>
+    <p>
+      The <b>TCPHandler</b> plays a really important role in processing the actual requests made by
+      TCP clients. The code in this handler will be called by multiple clients at the same time and therefore should not hold <b>state</b> unless
+      it is protected and design to allow multiple (possibly) simultaneous accesses (more on this later).
+    </p>
+    <p>
+      The line <b>tcpServer.acceptWith(handler)</b> puts the software into a mode where it now <b>blocks</b> and waits for clients to initiate
+      a connection (on port 4446 in this example).
+    </p>
+    <p>
+      Once a client does connect; the <b>handler.connected(input, output)</b> is called and the client
+      requests can be serviced by using the <u>input</u> and <u>output</u> as these provide the connection from and to the client.
+      This servicing will continue until the client disconnects (or in the case of this example sends "end").
+    </p>
+    <p>
+      Note that if the client sends "shutdown" in this example that actual server will close is listening port and hence will complete and exit
+      (this would not normally be coded like this - see the next example for an alternative).
+    </p>
+
+    <h5 id="tcp_server_example2">TCP Server (2)</h5>
+    <p>
+    </p>
+    <pre>#!ek9
+defines module introduction
+  defines type
+    List of serverFunction
+    
+  defines function           
+    serviceConnections()
+      -&gt;
+        tcpServer as TCP
+        handler as TCPHandler
+      &lt;-
+        response as String: "TCP Server on " + $tcpServer + " completed and shutdown"      
+      
+      if not tcpServer.acceptWith(handler)        
+        response: "Was not able to service requests gracefully on " + $tcpServer
+
+    createShutdownHandler()
+      -&gt;
+        controlServer as TCP
+        processingServer as TCP
+        shutdownCommand as String
+      &lt;-
+        rtn as TCPHandler
+              
+      rtn: ShutdownHandler(controlServer, processingServer, shutdownCommand) of TCPHandler
+        override connected()
+          -&gt;
+            input as StringInput
+            output as StringOutput
+          while input?
+            command &lt;- input.next()
+            if command == shutdownCommand
+              output.println("Shutting down")
+              processingServer.close()
+              controlServer.close()
+            else
+              output.println("Ignoring [" + command + "]")           
+          
+    createHandler()
+      &lt;- rtn as TCPHandler
+            
+      rtn: CreateHandler() of TCPHandler
+        override connected()
+          -&gt;
+            input as StringInput
+            output as StringOutput
+          cat input | map toUpperCase > output
+
+    toUpperCase()
+      -&gt; input as String
+      &lt;- output as String: input.upperCase()      
+
+    serverFunction() as abstract
+      &lt;- response as String
+
+  defines program
+    TCPServer2()
+      -&gt;
+        processingPort as Integer
+        controlPort as Integer
+        shutdown as String
+        
+      stdout &lt;- Stdout()      
+      processingServer &lt;- TCP(processingPort, 250ms, 2, 4, false)      
+      controlServer &lt;- TCP(controlPort)
+      
+      if controlServer? and processingServer?                  
+        shutdownControl &lt;- (controlServer, processingServer, shutdownCommand) is serverFunction
+          response: serviceConnections(controlServer, createShutdownHandler(controlServer, processingServer, shutdown))
+        
+        processing &lt;- (processingServer) is serverFunction
+          response: serviceConnections(processingServer, createHandler())
+        
+        servers &lt;- [shutdownControl, processing]    
+        cat servers | async > stdout         
+      else
+        Stderr().println("Failed to start servers, control:" + $controlServer + " processing: " + $processingServer)
+//EOF</pre>
+    <p>
+      This server example is much longer, but does a few things that are more realistic for a real application.
+      If you review the <i>program</i> <b>TCPServer2</b>, you can see that again command line parameters are processed.
+    </p>
+    <p>
+      The next thing the <i>program</i> does is create <u>two</u> <b>TCP</b> server connections.
+    </p>
+    <p>
+      The first (<b>processingServer</b>)
+      is a TCP server that processes connections from the network with a read timeout of 250 milliseconds with a backlog of
+      2 connections and concurrent processing for up to 4 clients simultaneously.
+    </p>
+    <p>
+      The second (<b>controlServer</b>) is also a TCP
+      server that only processes local connections to shut the whole application down
+      (much like <a href="http://tomcat.apache.org/">Tomcat</a> works).
+    </p>
+    <p>
+      Following this two <i>dynamic functions</i> (<b>serverFunction</b>) are created that returns <b>serviceConnections</b>.
+      Importantly that function accepts a <b>TCPHandler</b> that can deal with connected clients.
+    </p>
+    <p>
+      Finally the two <b>serverFunction</b>s are added to a <b>List</b>, this list is then used in a Streams <b>pipeline</b>.
+      The important part here is that the <b>pipeline</b> uses the <b>async</b> command to <u>run</u> both of the
+      <b>serverFunction</b>s concurrently. Clearly for this example that is <b><u>critical</u></b>.
+    </p>
+    <p>
+      The program then effectively blocks in the <b>tcpServer.acceptWith(handler)</b> for both TCP servers, as client connections
+      are made the appropriate <b>handler</b> deals with this client communications.
+    </p>
+    <p>
+      The main processing function is implemented in the <b>createHandler</b> <i>function</i>. It simply processes the
+      <b>input</b> content from the client, converts it to upper case and sends that data to the <b>output</b>.
+    </p>
+    <p>
+      The <b>createShutdownHandler</b> <i>function</i> deals with accepting input and checking it is the same as the
+      <u>shutdown</u> command. If the command matches then both of the <b>TCP</b> server sockets are closed.
+      This then causes all processing to be shutdown.
+      It is only at this point the main <b>program</b> line <b>'cat servers | async > stdout'</b> finally completes
+      as those functions return.
+    </p>
+    <p>
+      The important take away from the example above is that network communications (and signal handling) is inherently
+      multi-process/threaded/concurrent in its very essence. EK9 provides a way to set the <u>stage</u> with the provision of
+      handlers and functions and then enables concurrent processing to take place via the <b><u>async</u></b> part of the
+      stream pipeline and deals with all the joining of calls.
+      There is no <u>call back hell</u>, 'multi-tasking' is implied but its implementation is not explicit.
+      So the implementation detail of how the two TCP services are actually managed by EK9 is an implementation detail and not
+      one for the developer.
+    </p>
+    <h5 id="tcp_client_example1">TCP Client (1)</h5>
+    <p>
+      The example below shows a procedural style TCP client application. The connection to the server is just closed at the end of the
+      <b>try</b> block. The server will deal with this by detecting there is no more input and there it will close all its connections
+      to this client.
+    </p>
+    <pre>#!ek9
+defines module introduction
+  defines program
+    TCPClient1()
+      stdout &lt;- Stdout()
+      stderr &lt;- Stderr()
+      
+      tcpClient &lt;- TCP("localhost", 4446)      
+      if tcpClient?
+        stdout.println("Will attempt to connect to server " + $tcpClient)
+        try
+          -&gt; connection &lt;- tcpClient.connect()
+          if connection?            
+            connection.output().println("Short Message")
+            stdout.println("Received response [" + connection.input().next() + "]")
+            //End of the try will just close the connection.            
+          else
+            stderr.println("Failed to connect [" + $tcpClient + "]")
+      else
+        stderr.println("Failed to get TCP client running [" + $tcpClient + "]")
+//EOF</pre>
+    <p>
+      The above example is quite short and to the point, the next client example has a little more functionality.
+    </p>
+    <h5 id="tcp_client_example2">TCP Client (2)</h5>
+    <p>
+      More of a functional approach and is designed to connect to the TCP Server (2) example above, ie connect to both the
+      processing port and the control port to shut the server application down.
+    </p>
+    <pre>#!ek9
+defines module introduction
+  defines type    
+    List of String
+    Optional of TCP
+    
+  defines function  
+    shutdownFunction()
+      -&gt; tcpClient as TCP
+      &lt;- response as String: "Connection failed " + $tcpClient
+      
+      if tcpClient?        
+        try
+          -&gt; connection &lt;- tcpClient.connect()
+          if connection?
+            connection.output().println("SHUTDOWN")
+            response: "Received response [" + connection.input().next() + "] from " + $tcpClient                        
+          else
+            response: "Failed to connect on [" + $tcpClient + "]"
+      else
+        response: "Failed to get TCP client running [" + $tcpClient + "]"
+        
+    processingFunction() as abstract
+      -&gt; input as String
+      &lt;- response as String
+
+  defines program
+    TCPClient2()
+      -&gt;
+        processingPort as Integer
+        controlPort as Integer
+      
+      stdout &lt;- Stdout()                  
+      processingClient &lt;- TCP("localhost", processingPort)
+      
+      if processingClient?
+        try
+          -&gt; connection &lt;- processingClient.connect()
+          
+          sender &lt;- (connection) is processingFunction
+            connection.output().println(input)
+            response: connection.input().next()
+          
+          cat ["one", "two", "Alpha", "Beta", "Zeta", "end", "begin"] | map with sender &gt; stdout          
+                
+      cat Optional(TCP("localhost", controlPort)) | map with shutdownFunction &gt; stdout
+//EOF</pre>
+    <p>
+      There are a couple of interesting ideas in this example, the first is using a <b>sender</b> <i>function</i> to
+      accept incoming <b>String</b> values send them to the processing server and get the server response and send it along a
+      <b>pipeline</b> and in this case to <b>stdout</b>.
+    </p>
+    <p>
+      The second interesting point is to actually send a TCP object through a processing <b>pipeline</b> into a shutdown
+      <i>function</i>; that sends "SHUTDOWN" to that TCP server by connecting, it then sends the result of what happened down the
+      <b>pipeline</b>. This might seem like a strange approach, but it is just another different way of treating Objects and functions
+      in a more functional manner.
+    </p>
+    <h5 id="tcp_summary">TCP Summary</h5>
+    <p>
+      Both client and server <b>TCP</b> connections can be constructed and utility in both a procedural and functional manner.
+      There is a reasonable level of control of the TCP connectivity and the possibility to handle multiple concurrent connections.
+    </p>
+    <h4 id="http">HTTP</h4>
+    <p>
+      EK9 does have <a href="webServices.html">Web Services</a>; these are built on top
+      of the <b>HTTP</b> server.
+      The built-in <b>HTTP</b> server is not designed to be as massively configurable as implementations like
+      <a href="http://tomcat.apache.org/">Tomcat</a>, <a href="https://www.eclipse.org/jetty/">Jetty</a>,
+      <a href="https://www.nginx.com/">NGINX</a> or <a href="https://www.iis.net/">IIS</a>.
+      It is expected that you would front any EK9 web implementation
+      with a caching proxy server and would deploy instances of your application via a range of scalable containers.
+    </p>
+    <p>
+      EK9 <a href="webServices.html">Web Services</a> can serve simple html content; but are really designed
+      to serve dynamic content. It does however have built in logic and types to be able to support full REST
+      services.
+    </p>
+    <p>
+      The built-in types <i>HTTPRequest</i> and <i>HTTPResponse</i> have all the necessary structures to support
+      the REST maturity model up to level 2. To move to level 3 (<b>HATEOAS</b>) the developer must define and provide
+      the content (HAL/ATOM or bespoke). This means that <b>etag</b> and <b>last modified</b> headers are 'baked in'.
+      So verbs like <b>PUT, PATCH</b> and <b>DELETE</b> can be used to EK9 mandates the use of headers to ensure
+      up-to-date versions are being referenced. <a href="https://restfulapi.net/">RESTFULAPI</a> has more details on this
+      if you are new to REST.
+    </p>
+    <h4>Conclusion</h4>
+    <p>
+      EK9 has included networking types in as part of the standard/network API right from the start because they
+      are a key component in any modern programming language. It must be remembered that when developing
+      any sort of networking type application UDP/TCP/HTTP there will be multiple concurrent threads of execution
+      and that networks can and do fail.
+    </p>
+    <p>
+      Designing your applications to be as stateless and pure as possible is recommended. However, there are times
+      when concurrent access to shared data is necessary and EK9 provides a
+      <a href="standardTypes.html#mutex">MutexLock</a> for this situation.
+    </p>
+    <h4>Next Steps</h4>
+    <p>
+      This section has covered a number of <i>programs</i>, but these are explained in more detail in the next
+      section on <a href="programs.html">programs</a>.
+    </p>
+  </article>
+</main>
+</body>
+</html>

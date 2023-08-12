@@ -208,7 +208,9 @@ public class SymbolFactory {
     checkContextNotNull.accept(ctx);
     AggregateSymbol pack = new AggregateSymbol("Package", parsedModule.getModuleScope());
     configureAggregate(pack, ctx.start);
+    //Also add in a default constructor.
     pack.setGenus(ISymbol.SymbolGenus.META_DATA);
+    this.aggregateFactory.addConstructor(pack);
     return pack;
   }
 

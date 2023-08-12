@@ -25,9 +25,11 @@ defines module lists.and.dictionaries
       //Here we are using the inferred Dict of (Integer, String)
       values <- {1: "quick", 2: "brown", 3: "fox"}
       result <- function1(1, "Steve", values)
+      assert result?
 
     functionCall2()
       result <- function1(1, "Steve", {1: "quick", 2: "brown", 3: "fox"})
+      assert result?
 
     <?-
       Use of named parameters makes this code a bit more verbose,
@@ -43,4 +45,21 @@ defines module lists.and.dictionaries
           3: "fox"
           }
         )
+      assert result?
+
+    justCheckInferredDict()
+      @Resolved: FULL_RESOLUTION: TYPE: "Dict of (Character, String)"
+      someDictionary <- { 'A': "Steve", 'B': "Stephen", 'C': "Steven" }
+
+      assert someDictionary?
+
+    justCheckInferredLists()
+      @Resolved: FULL_RESOLUTION: TYPE: "List of (String)"
+      listOfString <- [ "Steve", "Stephen", "Steven"]
+      assert listOfString?
+
+      @Resolved: FULL_RESOLUTION: TYPE: "List of (Date)"
+      someDates <- [ 2018-01-01, 2020-01-01, 2023-08-12]
+      assert someDates?
+
 //EOF

@@ -8,6 +8,7 @@ import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.IScopedSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.ModuleScope;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbols.StackConsistencyScope;
 import org.ek9lang.core.AssertValue;
@@ -50,6 +51,10 @@ public class SymbolAndScopeManagement {
     this.parsedModule = parsedModule;
     this.scopeStack = scopeStack;
     this.ek9Types = parsedModule.getEk9Types();
+  }
+
+  public ModuleScope getModuleScope() {
+    return parsedModule.getModuleScope();
   }
 
   public Ek9Types getEk9Types() {

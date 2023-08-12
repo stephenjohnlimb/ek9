@@ -1,9 +1,6 @@
 #!ek9
 defines module example.networking
 
-  defines type
-    List of String
-    
   defines function
         
     UDPPacketHandler() as abstract
@@ -16,19 +13,19 @@ defines module example.networking
 
     stringToPacket() is packetConverter
       -> content as String
-      <- outgoing as UDPPacket: UDPPacket("localhost", 4445, content)
+      <- outgoing as UDPPacket: UDPPacket(NetworkProperties(host: "localhost", port: 4445), content)
 
   defines program
 
     UDPServer1()
       stdout <- Stdout()
-      udpConnection <- UDP(4445)
+      udpConnection <- UDP(NetworkProperties(port: 4445))
 
       while udpConnection?
         packet <- udpConnection.receive()
         if packet?
-          if packet.content() == "end"
-            endPacket <- UDPPacket(packet.host(), packet.port(), "OK will stop Server")
+          if packet.content == "end"
+            endPacket <- UDPPacket(packet.properties, "OK will stop Server")
             udpConnection.send(endPacket)
             udpConnection.close()
           else
@@ -40,13 +37,13 @@ defines module example.networking
       -> port as Integer
 
       stdout <- Stdout()
-      udpConnection <- UDP(port)
+      udpConnection <- UDP(NetworkProperties(port))
 
       while udpConnection.hasNext()
         packet <- udpConnection.next()
         if packet?
-          if packet.content() == "end"
-            endPacket <- UDPPacket(packet.host(), packet.port(), "OK will stop Server")
+          if packet.content == "end"
+            endPacket <- UDPPacket(packet.properties, "OK will stop Server")
             udpConnection.send(endPacket)
             udpConnection.close()
           else
@@ -56,11 +53,11 @@ defines module example.networking
 
     UDPServer3()
       stdout <- Stdout()
-      udpConnection <- UDP(4445)
+      udpConnection <- UDP(NetworkProperties(port: 4445))
 
       echoFunction <- (udpConnection) is UDPPacketHandler as function
-        if incoming.content() == "end"
-          outgoing = UDPPacket(incoming.host(), incoming.port(), "OK will stop Server")
+        if incoming.content == "end"
+          outgoing = UDPPacket(incoming.properties, "OK will stop Server")
           udpConnection.send(outgoing)
           udpConnection.close()
         else
@@ -73,16 +70,17 @@ defines module example.networking
     UDPServer4()
       ->
         port as Integer
-        packetSze as Integer
+        packetSize as Integer
         signal as String
 
       stdout <- Stdout()
-      udpConnection <- UDP(port, packetSze)
+      udpConnection <- UDP(NetworkProperties(port, packetSize))
 
       //This time stop server with abort signal not content 'end'.
       abortHandler <- (udpConnection) is SignalHandler as function
         result: 0
-        Stderr().println("Received abort Signal closing connection")
+        stderr <- Stderr()
+        stderr.println("Received abort Signal closing connection")
         udpConnection.close()
 
       Signals().register(signal, abortHandler)
@@ -99,27 +97,27 @@ defines module example.networking
       stderr <- Stderr()
 
       try //use a try block with a closable resource, auto close
-        -> client <- UDP().setTimeout(250ms)
+        -> client <- UDP(NetworkProperties(timeout: 250ms))
 
-        packet1 <- UDPPacket("localhost", 4445, "A Test")
-        stdout.println("Sending [" + $packet1 + "]")
+        packet1 <- UDPPacket(NetworkProperties("localhost", 4445), "A Test")
+        stdout.println(`Sending [${packet1}]`)
         client.send(packet1)
         stdout.println("Waiting for response")
         response1 <- client.receive()
         if response1?
-          stdout.println("Received [" + $response1 + "]")
+          stdout.println(`Received [${response1}]`)
         else
-          stderr.println("There was no response [" + client.getLastErrorMessage() + "]")
+          stderr.println(`There was no response [${client.lastErrorMessage()}]`)
 
-        packet2 <- UDPPacket("localhost", 4445, "end")
-        stdout.println("Sending [" + $packet2 + "]")
+        packet2 <- UDPPacket(NetworkProperties(host: "localhost", port: 4445), "end")
+        stdout.println(`Sending [${packet2}]`)
         client.send(packet2)
         stdout.println("Waiting for response")
         response2 <- client.receive()
         if response2?
-          stdout.println("Received [" + $response2 + "]")
+          stdout.println(`Received [${response2}]`)
         else
-          stderr.println("There was no response [" + client.getLastErrorMessage() + "]")
+          stderr.println(`There was no response [${client.lastErrorMessage()}]`)
 
       stdout.println("UDP Client Complete")
 
@@ -127,7 +125,7 @@ defines module example.networking
       stdout <- Stdout()
 
       try
-        -> udpConnection <- UDP().setTimeout(250ms)
+        -> udpConnection <- UDP(NetworkProperties(250ms))
         sendingToServer <- (udpConnection) is UDPPacketHandler as function
           udpConnection.send(incoming)
           outgoing := udpConnection.receive()
@@ -138,7 +136,7 @@ defines module example.networking
 
     UDPClient3()
       try
-        -> udpConnection <- UDP().setTimeout(250ms)
+        -> udpConnection <- UDP(NetworkProperties(250ms))
         //If we don't care about the responses from the server (more UDP ish)
         cat ["A Test", "Middle Item", "end" ] | map stringToPacket > udpConnection
 
@@ -150,12 +148,12 @@ defines module example.networking
         port as Integer
         timeout as Millisecond
       try
-        -> udpConnection <- UDP().setTimeout(timeout)
+        -> udpConnection <- UDP(NetworkProperties(timeout))
 
         //This is the nearest we get to a lambda, inline dynamic function
         //You must use () for the single line you are allowed.
         cat ["A Test", "Middle Item", "end" ]
-          | map (hostname, port) extends packetConverter (outgoing: UDPPacket(hostname, port, content))
+          | map (hostname, port) extends packetConverter (outgoing: UDPPacket(NetworkProperties(hostname, port), content))
           > udpConnection
 
       Stdout().println("UDP Client Complete")

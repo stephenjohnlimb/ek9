@@ -32,7 +32,7 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
 
   private final ResolveFunctionOrError resolveFunctionOrError;
 
-  private final NewParameterisedType newParameterisedType;
+  private final ParameterisedLocator parameterisedLocator;
 
   private final SymbolsFromParamExpression symbolsFromParamExpression;
 
@@ -47,7 +47,7 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
     super(symbolAndScopeManagement, errorListener);
     this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
     this.resolveFunctionOrError = new ResolveFunctionOrError(symbolAndScopeManagement, errorListener);
-    this.newParameterisedType = new NewParameterisedType(symbolAndScopeManagement, symbolFactory, errorListener, true);
+    this.parameterisedLocator = new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
     this.symbolsFromParamExpression = new SymbolsFromParamExpression(symbolAndScopeManagement, errorListener);
     this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
   }
@@ -127,7 +127,7 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
         } else {
           var genericTypeArguments = this.symbolTypeExtractor.apply(callParams);
           var details = new ParameterisedTypeData(ctx.start, callIdentifier, genericTypeArguments);
-          var theParameterisedType = newParameterisedType.apply(details);
+          var theParameterisedType = parameterisedLocator.apply(details);
           System.out.println("Looks like this aggregate needs to be parameterised " + theParameterisedType);
           if (theParameterisedType.isPresent()) {
             return (ScopedSymbol) theParameterisedType.get();
