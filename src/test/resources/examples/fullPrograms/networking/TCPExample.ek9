@@ -123,7 +123,7 @@ defines module example.networking
               processingServer.close()
               controlServer.close()
             else
-              output.println(`Ignoring [" ${command}`)
+              output.println(`Ignoring [${command}]`)
 
     createHandler()
       <- rtn as TCPHandler: () is TCPHandler as function
@@ -142,11 +142,11 @@ defines module example.networking
           -> connection <- tcpClient.connect()
           if connection?
             connection.output().println("SHUTDOWN")
-            response: `Received response [${connection.input().next()} from ${tcpClient}`
+            response: `Received response [${connection.input().next()} from ${tcpClient}]`
           else
             response: `Failed to connect on [${tcpClient}]`
       else
-        response: `Failed to get TCP client running ${tcpClient}]`
+        response: `Failed to get TCP client running [${tcpClient}]`
 
   defines program
 
@@ -187,19 +187,35 @@ defines module example.networking
 
       stdout <- Stdout()
 
-      processingServer <- TCP(NetworkProperties(processingPort, 250ms, 2, 4, false))
-      controlServer <- TCP(NetworkProperties(controlPort))
+      //Alternative layout as there are a number of properties being set.
+      processingServer <- TCP(
+        NetworkProperties(
+          port: processingPort,
+          timeout: 250ms,
+          backlog: 2,
+          maxConcurrent: 4,
+          localOnly: false)
+        )
+
+      controlServer <- TCP(NetworkProperties(port: controlPort, localOnly: true))
 
       if controlServer? and processingServer?
 
         shutdownControl <- (controlServer, processingServer, shutdownCommand) extends serverFunction          
-          response: serviceConnections(controlServer, createShutdownHandler(controlServer, processingServer, shutdownCommand))
+          response: serviceConnections(
+            tcpServer: controlServer,
+            handler: createShutdownHandler(controlServer, processingServer, shutdownCommand)
+          )
 
         processing <- (processingServer) is serverFunction
-          response: serviceConnections(processingServer, createHandler())
+          response: serviceConnections(
+            tcpServer: processingServer,
+            handler: createHandler()
+          )
 
+        //Now run both of those serverFunctions concurrently.
         cat [shutdownControl, processing] | async > stdout
-
+        //Once the serverFunctions both finish this program will finally exit.
       else
         Stderr().println(`Failed to start servers, control: ${controlServer} processing: ${processingServer}`)
 

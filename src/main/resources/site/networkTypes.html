@@ -135,19 +135,20 @@ defines module introduction
   defines program
     UDPServer1()
       stdout <- Stdout()
-      udpConnection <- UDP(NetworkProperties(4445))
+      udpConnection <- UDP(NetworkProperties(port: 4445))
 
       while udpConnection?
         packet <- udpConnection.receive()
         if packet?
           if packet.content == "end"
-            endPacket <- UDPPacket(NetworkProperties(packet.host, packet.port), "OK will stop Server")
+            endPacket <- UDPPacket(packet.properties, "OK will stop Server")
             udpConnection.send(endPacket)
             udpConnection.close()
           else
             udpConnection.send(packet)
 
       stdout.println("UDP Server Complete")
+
 //EOF</pre>
     <br/>
     <p>
@@ -266,7 +267,7 @@ defines module introduction
       stderr <- Stderr()
 
       try //use a try block with a closable resource, auto close
-        -> client <- UDP(NetworkProperties(250ms))
+        -> client <- UDP(NetworkProperties(timeout: 250ms))
 
         packet1 <- UDPPacket(NetworkProperties("localhost", 4445), "A Test")
         stdout.println(`Sending [${packet1}]`)
@@ -278,7 +279,7 @@ defines module introduction
         else
           stderr.println(`There was no response [${client.lastErrorMessage()}]`)
 
-        packet2 <- UDPPacket(NetworkProperties("localhost", 4445), "end")
+        packet2 <- UDPPacket(NetworkProperties(host: "localhost", port: 4445), "end")
         stdout.println(`Sending [${packet2}]`)
         client.send(packet2)
         stdout.println("Waiting for response")
@@ -360,7 +361,8 @@ defines module introduction
       closed.
     </p>
     <p>
-      There is something about the functional approach that is more <i>elegant</i> in my opinion.
+      There is something about the functional approach that is more <i>elegant</i> in my opinion. Though I'm less
+      keen on the inline dynamic function.
     </p>
     <h5 id="udp_summary">UDP Summary</h5>
     <p>
@@ -383,9 +385,9 @@ defines module introduction
     <p>
       TCP server connections can be fully available on a <u>port</u> via the network or just <u>local</u>
       (useful for just controlling local applications).
-      The <b>TCP</b> constructor takes a range of parameters to control the <u>back log</u>
+      The <b>TCP</b> constructor takes a <b>NetworkProperties</b> record which has a range of properties to control the <u>back log</u>
       (the number of connections that are waiting to connect).
-      It also the number of concurrent connections to service at the same time. This is the first time
+      It also can limit the number of concurrent connections to service at the same time. This is the first time
       <u>multi-threading</u> has been mentioned.
     </p>
     <p>
@@ -396,50 +398,67 @@ defines module introduction
 defines module introduction
   defines program  
     TCPServer1()
-      stdout &lt;- Stdout()
-      stderr &lt;- Stderr()
-      
-      tcpServer &lt;- TCP(4446, 5, 4, true)
-      
+      stdout <- Stdout()
+      stderr <- Stderr()
+
+      stdout.println(`Version of program package is ${Package().version}`)
+
+      tcpServer <- TCP(NetworkProperties(4446, 5, 4, true))
+
       if tcpServer?
-        handler &lt;- (tcpServer, stderr) with trait of TCPHandler
-          override connected()
-            -&gt;
-              input as StringInput
-              output as StringOutput
-            
-            stderr.println("Connection made")              
-            while input?
-              line &lt;- input.next()
-              stderr.println("Received [" + line + "]")
-              output.println(line.trim().upperCase())
-              if line == "end"
-                input.close()
-              if line == "shutdown"
-                tcpServer.close()
-            stderr.println("No more input on connection")
-            
-        stdout.println("Awaiting connections")        
-        if tcpServer.acceptWith(handler)        
+        handler <- (tcpServer, stderr) extends TCPHandler as function
+          stderr.println("Connection made")
+          while input?
+            line <- input.next()
+            stderr.println(`Received [${line}]`)
+            output.println(line.trim().upperCase())
+            if line == "end"
+              input.close()
+            if line == "shutdown"
+              tcpServer.close()
+          stderr.println("No more input on connection")
+
+        stdout.println("Awaiting connections")
+        if tcpServer.accept(handler)
           stdout.println("TCP Server completed and shutdown")
         else
-          stderr.println("Was not able to service requests gracefully [" + $tcpServer + "]")
+          stderr.println(`Was not able to service requests gracefully [${tcpServer}]`)
       else
-        stderr.println("Failed to get TCP server running [" + $tcpServer + "]")
+        stderr.println(`Failed to get TCP server running [${tcpServer}]`)
 //EOF</pre>
+    <br/>
+    <p>
+      Note the the TCPHandler is a built-in abstract function with the following signature:
+    </p>
+    <pre>...
+    defines function
+      TCPHandler as abstract
+        ->
+          input as StringInput
+          output as StringOutput
+...
+    </pre>
+    <br/>
+    <p>
+      So when you define your handler, you get the <b>input</b> and <b>output</b> arguments inferred within your function implementation.
+    </p>
     <p>
       The <b>TCPHandler</b> plays a really important role in processing the actual requests made by
       TCP clients. The code in this handler will be called by multiple clients at the same time and therefore should not hold <b>state</b> unless
       it is protected and design to allow multiple (possibly) simultaneous accesses (more on this later).
     </p>
     <p>
-      The line <b>tcpServer.acceptWith(handler)</b> puts the software into a mode where it now <b>blocks</b> and waits for clients to initiate
+      The line <b>tcpServer.accept(handler)</b> puts the software into a mode where it now <b>blocks</b> and waits for clients to initiate
       a connection (on port 4446 in this example).
     </p>
     <p>
-      Once a client does connect; the <b>handler.connected(input, output)</b> is called and the client
+      Once a client does connect; the <b>handler(input, output)</b> is called and the client
       requests can be serviced by using the <u>input</u> and <u>output</u> as these provide the connection from and to the client.
       This servicing will continue until the client disconnects (or in the case of this example sends "end").
+    </p>
+    <p>
+      The important point to note here; is that the <b>tcpServer</b> goes back to listening for more connections while the <b>handler</b>
+      is still running. This is where the multi-threaded nature comes in.
     </p>
     <p>
       Note that if the client sends "shutdown" in this example that actual server will close is listening port and hence will complete and exit
@@ -451,82 +470,99 @@ defines module introduction
     </p>
     <pre>#!ek9
 defines module introduction
-  defines type
-    List of serverFunction
-    
+
   defines function           
     serviceConnections()
-      -&gt;
+      ->
         tcpServer as TCP
         handler as TCPHandler
-      &lt;-
-        response as String: "TCP Server on " + $tcpServer + " completed and shutdown"      
-      
-      if not tcpServer.acceptWith(handler)        
-        response: "Was not able to service requests gracefully on " + $tcpServer
+      <-
+        response as String: `TCP Server on ${tcpServer} completed and shutdown`
 
-    createShutdownHandler()
-      -&gt;
+      if not tcpServer.accept(handler)
+        response: `Was not able to service requests gracefully on ${tcpServer}`
+
+    createShutdownHandler
+      ->
         controlServer as TCP
         processingServer as TCP
         shutdownCommand as String
-      &lt;-
-        rtn as TCPHandler
-              
-      rtn: ShutdownHandler(controlServer, processingServer, shutdownCommand) of TCPHandler
-        override connected()
-          -&gt;
-            input as StringInput
-            output as StringOutput
+      <-
+        rtn as TCPHandler: (controlServer, processingServer, shutdownCommand) is TCPHandler as function
           while input?
-            command &lt;- input.next()
+            command <- input.next()
             if command == shutdownCommand
               output.println("Shutting down")
               processingServer.close()
               controlServer.close()
             else
-              output.println("Ignoring [" + command + "]")           
-          
+              output.println(`Ignoring [${command}]`)
+
     createHandler()
-      &lt;- rtn as TCPHandler
-            
-      rtn: CreateHandler() of TCPHandler
-        override connected()
-          -&gt;
-            input as StringInput
-            output as StringOutput
+      <- rtn as TCPHandler: () is TCPHandler as function
           cat input | map toUpperCase > output
 
     toUpperCase()
-      -&gt; input as String
-      &lt;- output as String: input.upperCase()      
+      -> input as String
+      <- output as String: input.upperCase()
 
-    serverFunction() as abstract
-      &lt;- response as String
+    shutdownFunction()
+      -> tcpClient as TCP
+      <- response as String: `Connection failed ${tcpClient}`
+
+      if tcpClient?
+        try
+          -> connection <- tcpClient.connect()
+          if connection?
+            connection.output().println("SHUTDOWN")
+            response: `Received response [${connection.input().next()} from ${tcpClient}]`
+          else
+            response: `Failed to connect on [${tcpClient}]`
+      else
+        response: `Failed to get TCP client running [${tcpClient}]`
 
   defines program
     TCPServer2()
-      -&gt;
+      ->
         processingPort as Integer
         controlPort as Integer
-        shutdown as String
-        
-      stdout &lt;- Stdout()      
-      processingServer &lt;- TCP(processingPort, 250ms, 2, 4, false)      
-      controlServer &lt;- TCP(controlPort)
-      
-      if controlServer? and processingServer?                  
-        shutdownControl &lt;- (controlServer, processingServer, shutdownCommand) is serverFunction
-          response: serviceConnections(controlServer, createShutdownHandler(controlServer, processingServer, shutdown))
-        
-        processing &lt;- (processingServer) is serverFunction
-          response: serviceConnections(processingServer, createHandler())
-        
-        servers &lt;- [shutdownControl, processing]    
-        cat servers | async > stdout         
+        shutdownCommand as String
+
+      stdout <- Stdout()
+
+      //Alternative layout as there are a number of properties being set.
+      processingServer <- TCP(
+        NetworkProperties(
+          port: processingPort,
+          timeout: 250ms,
+          backlog: 2,
+          maxConcurrent: 4,
+          localOnly: false)
+        )
+
+      controlServer <- TCP(NetworkProperties(port: controlPort, localOnly: true))
+
+      if controlServer? and processingServer?
+
+        shutdownControl <- (controlServer, processingServer, shutdownCommand) extends serverFunction
+          response: serviceConnections(
+            tcpServer: controlServer,
+            handler: createShutdownHandler(controlServer, processingServer, shutdownCommand)
+          )
+
+        processing <- (processingServer) is serverFunction
+          response: serviceConnections(
+            tcpServer: processingServer,
+            handler: createHandler()
+          )
+
+        //Now run both of those serverFunctions concurrently.
+        cat [shutdownControl, processing] | async > stdout
+        //Once the serverFunctions both finish this program will finally exit.
       else
-        Stderr().println("Failed to start servers, control:" + $controlServer + " processing: " + $processingServer)
+        Stderr().println(`Failed to start servers, control: ${controlServer} processing: ${processingServer}`)
 //EOF</pre>
+    <br/>
     <p>
       This server example is much longer, but does a few things that are more realistic for a real application.
       If you review the <i>program</i> <b>TCPServer2</b>, you can see that again command line parameters are processed.
@@ -537,7 +573,8 @@ defines module introduction
     <p>
       The first (<b>processingServer</b>)
       is a TCP server that processes connections from the network with a read timeout of 250 milliseconds with a backlog of
-      2 connections and concurrent processing for up to 4 clients simultaneously.
+      2 connections and concurrent processing for up to 4 clients simultaneously. Note the use of a different layout and
+      named parameters. This makes the configuration a little easier to see with so many parameters.
     </p>
     <p>
       The second (<b>controlServer</b>) is also a TCP
@@ -545,7 +582,7 @@ defines module introduction
       (much like <a href="http://tomcat.apache.org/">Tomcat</a> works).
     </p>
     <p>
-      Following this two <i>dynamic functions</i> (<b>serverFunction</b>) are created that returns <b>serviceConnections</b>.
+      Following this; two <i>dynamic functions</i> (<b>serverFunction</b>) are created that returns <b>serviceConnections</b>.
       Importantly that function accepts a <b>TCPHandler</b> that can deal with connected clients.
     </p>
     <p>
@@ -554,7 +591,7 @@ defines module introduction
       <b>serverFunction</b>s concurrently. Clearly for this example that is <b><u>critical</u></b>.
     </p>
     <p>
-      The program then effectively blocks in the <b>tcpServer.acceptWith(handler)</b> for both TCP servers, as client connections
+      The program then effectively blocks in the <b>tcpServer.accept(handler)</b> for both TCP servers, as client connections
       are made the appropriate <b>handler</b> deals with this client communications.
     </p>
     <p>
@@ -587,23 +624,26 @@ defines module introduction
 defines module introduction
   defines program
     TCPClient1()
-      stdout &lt;- Stdout()
-      stderr &lt;- Stderr()
-      
-      tcpClient &lt;- TCP("localhost", 4446)      
+      stdout <- Stdout()
+      stderr <- Stderr()
+
+      tcpClient <- TCP(NetworkProperties("localhost", 4446))
+
       if tcpClient?
-        stdout.println("Will attempt to connect to server " + $tcpClient)
+        stdout.println(`Will attempt to connect to server ${tcpClient}`)
         try
-          -&gt; connection &lt;- tcpClient.connect()
-          if connection?            
+          -> connection <- tcpClient.connect()
+          if connection?
             connection.output().println("Short Message")
-            stdout.println("Received response [" + connection.input().next() + "]")
-            //End of the try will just close the connection.            
+            stdout.println(`Received response [${connection.input().next()}]`)
+            //End of the try will just close the connection.
           else
-            stderr.println("Failed to connect [" + $tcpClient + "]")
+            stderr.println(`Failed to connect [${tcpClient}]`)
       else
-        stderr.println("Failed to get TCP client running [" + $tcpClient + "]")
+        stderr.println(`Failed to get TCP client running [${tcpClient}]`)
+
 //EOF</pre>
+    <br/>
     <p>
       The above example is quite short and to the point, the next client example has a little more functionality.
     </p>
@@ -614,51 +654,49 @@ defines module introduction
     </p>
     <pre>#!ek9
 defines module introduction
-  defines type    
-    List of String
-    Optional of TCP
-    
+
   defines function  
     shutdownFunction()
-      -&gt; tcpClient as TCP
-      &lt;- response as String: "Connection failed " + $tcpClient
-      
-      if tcpClient?        
+      -> tcpClient as TCP
+      <- response as String: `Connection failed ${tcpClient}`
+
+      if tcpClient?
         try
-          -&gt; connection &lt;- tcpClient.connect()
+          -> connection <- tcpClient.connect()
           if connection?
             connection.output().println("SHUTDOWN")
-            response: "Received response [" + connection.input().next() + "] from " + $tcpClient                        
+            response: `Received response [${connection.input().next()} from ${tcpClient}]`
           else
-            response: "Failed to connect on [" + $tcpClient + "]"
+            response: `Failed to connect on [${tcpClient}]`
       else
-        response: "Failed to get TCP client running [" + $tcpClient + "]"
+        response: `Failed to get TCP client running [${tcpClient}]`
         
     processingFunction() as abstract
-      -&gt; input as String
-      &lt;- response as String
+      -> input as String
+      <- response as String?
 
   defines program
     TCPClient2()
-      -&gt;
+      ->
         processingPort as Integer
         controlPort as Integer
-      
-      stdout &lt;- Stdout()                  
-      processingClient &lt;- TCP("localhost", processingPort)
-      
+
+      stdout <- Stdout()
+      processingClient <- TCP(NetworkProperties("localhost", processingPort))
+
       if processingClient?
         try
-          -&gt; connection &lt;- processingClient.connect()
-          
-          sender &lt;- (connection) is processingFunction
+          -> connection <- processingClient.connect()
+          sender <- (connection) is processingFunction as function
             connection.output().println(input)
             response: connection.input().next()
-          
-          cat ["one", "two", "Alpha", "Beta", "Zeta", "end", "begin"] | map with sender &gt; stdout          
-                
-      cat Optional(TCP("localhost", controlPort)) | map with shutdownFunction &gt; stdout
+
+          cat ["one", "two", "Alpha", "Beta", "Zeta", "end", "begin"] | map with sender > stdout
+
+      cat Optional(TCP(NetworkProperties("localhost", controlPort))) | map with shutdownFunction > stdout
+
 //EOF</pre>
+    <br/>
     <p>
       There are a couple of interesting ideas in this example, the first is using a <b>sender</b> <i>function</i> to
       accept incoming <b>String</b> values send them to the processing server and get the server response and send it along a

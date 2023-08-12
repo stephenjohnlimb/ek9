@@ -846,6 +846,11 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             NetworkProperties()
               ->
+                port as Integer
+                localOnly as Boolean
+                
+            NetworkProperties()
+              ->
                 host as String
                 port as Integer
                 packetSize as Integer
