@@ -1,0 +1,386 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language programs</title>
+  <meta name="description" content="The EK9 programming language programs
+    are the main way to run applications developed in EK9."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Programs in EK9</h1>
+    </header>
+    <p>
+      This section will discuss the <i>program</i> <b>construct</b> in more detail. If you've
+      read several of the other sections you'll already be familiar with <i>programs</i>.
+      The remaining <b>constructs</b> and languages structures are described in order of
+      use/simplicity/sophistication. These are linked the end of each page,
+      but they follow the same ordering as the navigation bar on the left.
+    </p>
+    <p>
+      The <i>program</i>; as you will have deduced from the examples is the only way to run software that is
+      written in EK9. Any number of programs can be defined in an EK9
+      source file; command line parameters can be passed to a <i>program</i> and
+      'Standard Input/Output/Error'
+      (<a href="standardTypes.html#stdin">stdin</a>,
+      <a href="standardTypes.html#stdout">stdout</a> and <a href="standardTypes.html#stderr">stderr</a>) can
+      also be employed.
+    </p>
+    <p>
+      Every EK9 source file has to start with '<b>#!ek9</b>', see the <a href="structure.html">structure</a>
+      for more details. This is so that for systems (like macOS and most Unix/Linux) you can change the
+      <u>execute</u> permission on the EK9 file and then just <b>run it</b>.
+    </p>
+    <p>
+      Assuming you have installed EK9 correctly and the <i>ek9</i> command is on your <b>PATH</b> the program
+      in the file will be executed.
+      But clearly if there is more than one program in a single
+      EK9 source file you will have to state which program you want to run.
+    </p>
+    <h3 id="running">Running a <i>Program</i> from the command line</h3>
+    <p>
+      Whilst there are several examples of how to write <i>programs</i> there has not really been
+      any information on how to run those <i>programs</i> once written.
+      The commands below give you a better idea of what you need to do to run an EK9 program.
+    </p>
+    <p>
+      There are a couple of different ways to run an EK9 <i>program</i> depending on platform and the number of
+      programs in the source file. Just running <i>ek9</i> with no parameters gives you the options available.
+      Please note this is not the full list of options, but just the main ones. See <a href="commandline.html">
+      the EK9 command line</a> for full details.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">$</span>
+          <span class="k">ek9</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li><span class="m">Usage: ek9 &lt;options&gt;</span></li>
+        <li><span class="m">where possible options include:</span></li>
+        <li><span class="m">&nbsp;&nbsp;-V The version of the compiler/runtime</span></li>
+        <li><span class="m">&nbsp;&nbsp;-h Help message</span></li>
+        <li><span class="m">&nbsp;&nbsp;-c Just compile; but don't run</span></li>
+        <li><span class="m">&nbsp;&nbsp;-C Force full recompilation; but don't run</span></li>
+        <li><span class="m">&nbsp;&nbsp;-e &lt;name&gt;=&lt;value&gt; set an environment variable ie. user=Steve or user=\'Steve Limb\' for spaces.</span></li>
+        <li><span class="m">&nbsp;&nbsp;filename.ek9 - the main file to work with</span></li>
+        <li><span class="m">&nbsp;&nbsp;-r Program to run (optional, if EK9 file as more than one)</span></li>
+      </ul>
+    </div>
+    <p>
+      The ordering of the flags is only important after you have specified the filename.ek9. The
+      <b>-r Program</b> must come after the filename. All the other compiler parameter directives must come before the
+      filename. Any parameters you wish to pass to the EK9 program must then follow the <b>-r Program</b>.
+    </p>
+    <p>
+      The main <i>ek9</i> application is quite different to many other languages and development tools in the
+      sense it has <u>knowledge</u> of more than just how to read, process and compile EK9 source files. So it has
+      the <u>feel</u> of an interpreted language like Python in the sense that you can just run an EK9 program
+      as follows:
+    </p>
+    <h4 id="running_example2">Running a <i>Program</i></h4>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">$</span>
+          <span class="k">ek9 helloworld.ek9</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="c">On Linux/Unix/macOS you can use this as well/instead (if the execute bit is set)</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">./helloworld.ek9</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="c">On Linux/Unix/macOS if your path includes the directory where the file is located</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">helloworld.ek9</span>
+          <span class="m">&crarr;</span>
+        </li>
+      </ul>
+    </div>
+    <h4 id="compiling">Compiling a <i>Program</i> / <i>General Code</i></h4>
+    <p>
+      But importantly unlike an interpreted language, EK9 <b>compiles</b> the source code; however once compiled
+      it can then just <b>run</b> the application. So the first time you attempt to run an EK9 program the
+      <i>ek9</i> application will check to see if it needs compiling (if it does, it will compile it, if not
+      it will just run it from what was compiled last time).
+    </p>
+    <p>
+      If you were looking just to trigger a full recompilation of a program but not actually run it,
+      then you can use the following command.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">$</span>
+          <span class="k">ek9 -C helloworld.ek9</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="c">To include debugging information</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">ek9 -Cg helloworld.ek9</span>
+          <span class="m">&crarr;</span>
+        </li>
+      </ul>
+    </div>
+    <h4 id="dependencies">Dependencies</h4>
+    <p>
+      Small <i>programs</i> or utilities can be written without the need for any other
+      third party software components at all. But in general the real power of open source is a
+      vibrant and generous community that writes and makes available small, medium and large
+      <i>packages</i>.
+    </p>
+    <p>
+      In general these valuable contributions are managed externally to the language itself via tooling
+      like <a target="_blank" title="Maven" href="https://search.maven.org">maven</a> or
+      <a target="_blank" title="NPM" href="https://www.npmjs.com/package/js-search">NPM</a>. This typically involves some from of
+      <u>project</u> or <u>package</u> file description in <b>xml</b> or <b>json</b> format.
+    </p>
+    <p>
+      EK9 does not take this approach; see the section on <a href="packaging.html">packaging</a> for
+      more details. EK9 includes the idea of package management and publication right into the language and
+      the compiler command line tool.
+    </p>
+
+    <h4>Hello, World Examples</h4>
+    <p>
+      See the example from <a href="introduction.html#hello_world">hello, world</a>
+      and <a href="structure.html#program">hello worlds</a> for a simple examples
+      of how to write a program and run it.
+    </p>
+
+    <p>
+      The data correlation program shown in the <b>CLI</b>
+      <a href="standardTypes.html#worked_example">worked example</a> (which is quite long) could be
+      run in the following manner.
+      This assumes that the program is stored in a file called <i>correlation.ek9</i>, the <i>named file</i>
+      contents is in a file called <i>namedFile.txt</i> and the data for processing is in a file called
+      <i>stdin.txt</i>.
+    </p>
+    <p>
+      On Windows you would use '<i>type</i>' or '<i>get-content</i>' rather than the Unix/Linux '<i>cat</i>'.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">Windows uses <i>type</i> rather than <i>cat</i></span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">type stdin.txt | ek9 correlation.ek9 -v -d 2 -f namedFile.txt</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="c">On Linux/Unix/macOS you can use this form</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">cat stdin.txt | ./correlation.ek9 -v -d 2 -f namedFile.txt</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="c">Here is another example capturing stderr and stdout</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">cat stdin.txt | ./correlation.ek9 -v -d 2 -f namedFile.txt > results.txt 2>errors.txt</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="c">Or the longer form if you wish.</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">cat stdin.txt | ek9 ./correlation.ek9 -v -d 2 -f namedFile.txt > results.txt 2>errors.txt</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="c">If you wanted to run in verbose, use this command.</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">cat stdin.txt | ek9 -v ./correlation.ek9 -v -d 2 -f namedFile.txt > results.txt 2>errors.txt</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="c">The first -v is for the ek9 application and the second one for the correlation program</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      The example above gives you some idea of how the parameters you defined in your program get passed from
+      the command line into your application. The command lines below give a few more examples.
+    </p>
+    <h4>Running a TCP Server</h4>
+    <p>
+      The code example, <a href="networkTypes.html#tcp_server_example2">TCP Server</a> is a good example
+      of some code that can be started on the command line, or some sort of <u>init</u> script for when a
+      server starts up. Below is the command line that would be used to start it, but also the command line
+      on how a client could connect to it.
+    </p>
+    <p>
+      This assumes the programs described in <a href="networkTypes.html#tcp">TCP Examples</a> are stored in a
+      file called <i>tcp.ek9</i>.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c"><a href="networkTypes.html#tcp_server_example2">Server Code</a></span>
+        </li>
+        <li>
+          <span class="c">Start the Server - <b>&amp;</b> means run in background on Linux/Unix</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">./tcp.ek9 -r TCPServer2 4445 4446 SHUTDOWN &</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="c"><a href="networkTypes.html#tcp_client_example2">Client Code</a></span>
+        </li>
+        <li>
+          <span class="c">Now to run the client</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">./tcp.ek9 -r TCPClient2 4445 4446</span>
+          <span class="m">&crarr;</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      Note the processing port <b>4445</b> and control port <b>4446</b> in the command lines above and the
+      way they are passed into the applications. Because the file <i>tcp.ek9</i> actually contains <b>4</b>
+      programs it is necessary to use the <b>-r</b> flag so that <i>ek9</i> know which of the <i>programs</i>
+      to run.
+    </p>
+    <h3>Programs and Applications</h3>
+    <p>
+      The <i>application</i> <a href="structure.html#application_example">example</a> shows how a program
+      can be configured with a specific <i>application</i> as a configuration.
+    </p>
+    <p>
+      In terms of the command line instructions there is no difference when a <i>program</i> is defined
+      to use an <i>application</i> configuration.
+    </p>
+    <p>
+      So if the EK9 code was stored in a file called
+      <i>configtest.ek9</i> then each of the programs could be executed in the following way.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+
+        <li>
+          <span class="m">$</span>
+          <span class="k">./configtest.ek9 -r v1Program</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">./configtest.ek9 -r v2Program</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">./configtest.ek9 -r v3Program</span>
+          <span class="m">&crarr;</span>
+        </li>
+      </ul>
+    </div>
+    <h4>Summary</h4>
+    <p>
+      This short section on <i>programs</i> should give you a good idea of how to
+      write a program, but more importantly how to <i>compile</i> and <b>run</b> that program.
+      You should now be able to understand how to pass parameters from the command line into
+      the program in a variety of different ways.
+    </p>
+    <h4>Next Steps</h4>
+    <p>
+      The details on <i>packaging</i> and <i>deploying/publishing</i> your code to an
+      <u>artefact server</u> are covered in the section on <a href="packaging.html">packaging</a>.
+    </p>
+    <p>
+      But if you are looking for more details on the <b>constructs</b>, flow control,
+      exception handling and more EK9 specific ideas continue by reading <a href="constants.html">constants</a>.
+    </p>
+  </article>
+</main>
+</body>
+</html>
