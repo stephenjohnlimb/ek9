@@ -77,7 +77,8 @@ defines module com.customer.just.switches
       Note you can use either 'with' or 'then' to join the guard to the switch variable.
     -?>
     switchWithGuard()
-      temperature as Integer?
+      stdout <- Stdout()
+      temperature <- Integer()
       resultText <- switch temperature ?= currentTemperature("GB") with temperature
         <- result String: String()
         case 'D'
@@ -100,7 +101,8 @@ defines module com.customer.just.switches
       Note you can use either 'with' or 'then' to join the assignment to the switch variable.
     -?>
     switchWithAssignment()
-      temperature as Integer?
+      stdout <- Stdout()
+      temperature <- Integer()
       resultText <- switch temperature := currentTemperature("GB") with temperature
         <- result String: String()
         case 'D'
@@ -122,6 +124,7 @@ defines module com.customer.just.switches
       Note you can use either 'with' or 'then' to join the declaration to the switch variable.
     -?>
     switchWithDeclaration()
+      stdout <- Stdout()
       resultText <- switch temperature <- currentTemperature("GB") with temperature
         <- result String: String()
         case 'D'
@@ -139,6 +142,6 @@ defines module com.customer.just.switches
 
       //So this means the 'temperature' defined above is now out of scope and so
       //can be redeclared and used here
-      temperature <- "Som other value"
+      temperature <- "Some other value"
       assert temperature?
 //EOF

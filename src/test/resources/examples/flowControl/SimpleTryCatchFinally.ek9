@@ -13,7 +13,7 @@ defines module com.customer.exceptions
   defines class
 
     AnException extends Exception
-      supportingInformation String: String()
+      supportingInformation <- String()
 
       AnException()
         ->
@@ -27,10 +27,10 @@ defines module com.customer.exceptions
         <- rtn as String: supportingInformation
 
       override operator $ as pure
-        <- rtn as String: information() + " " + supportingInformation() + " exit code " + $exitCode()
+        <- rtn as String: `${information()} ${supportingInformation()} exit code ${exitCode()}`
 
     OtherException extends Exception
-      retryAfter as DateTime: DateTime()
+      retryAfter <- DateTime()
 
       OtherException()
         ->
@@ -47,7 +47,7 @@ defines module com.customer.exceptions
 
     ExceptionExample
       clock as Clock?
-      deferProcessingUntilAfter as DateTime: DateTime()
+      deferProcessingUntilAfter <- DateTime()
 
       default private ExceptionExample()
 
@@ -57,14 +57,14 @@ defines module com.customer.exceptions
 
       checkExceptionHandling()
         -> aCat as BigCat
-        <- didProcess as Boolean: false
+        <- didProcess <- false
 
         stdout <- Stdout()
         stderr <- Stderr()
 
         try
           if deferProcessing()
-            stdout.println("Deferred until after " + $deferProcessingUntilAfter + " " + $aCat + " not processed")
+            stdout.println(`Deferred until after ${deferProcessingUntilAfter} ${aCat} not processed`)
           else
             triggerResult <- triggerPossibleException(aCat)
             stdout.println(triggerResult)
@@ -74,7 +74,7 @@ defines module com.customer.exceptions
           errorMessage <- handleException(ex)
           stderr.println(errorMessage)
         finally
-          stdout.println("Finished checking " + $aCat)
+          stdout.println(`Finished checking ${aCat}`)
 
       triggerPossibleException()
         -> aCat as BigCat
@@ -88,7 +88,7 @@ defines module com.customer.exceptions
           case BigCat.Leopard
             throw OtherException($aCat, clock.dateTime() + PT2H)
           default
-            rtn: "Success with " + $aCat
+            rtn: `Success with ${aCat}`
 
       deferProcessing()
         <- rtn as Boolean: deferProcessingUntilAfter? <- deferProcessingUntilAfter > clock.dateTime() else false
@@ -135,7 +135,7 @@ defines module com.customer.exceptions
           <- rtn as List of String: cat input1 | collect as List of String
 
         //Let the exceptions fly back - don't handle in here.
-        Stdout().println("main Results [" + $mainResults + "]")
+        Stdout().println(`Main Results ${mainResults}]`)
 
       demonstrateFilesNotFound()
 
@@ -147,7 +147,7 @@ defines module com.customer.exceptions
             rtn as List of String: cat input1, input2 | collect as List of String
 
         //Let the exceptions fly back - don't handle in here.
-        Stdout().println("main Results [" + $mainResults + "]")
+        Stdout().println(`Main Results ${mainResults}]`)
 
   defines function
     testFunction()
@@ -194,7 +194,7 @@ defines module com.customer.exceptions
         example2.demonstrateNamedFileNotFound(someVar)
       catch
         -> ex as Exception
-        Stderr().println("TryWithDeclaration: " + $ex)
+        Stderr().println(`TryWithDeclaration: ${ex}`)
 
       //This is a 'different' 'someVar' - the previous one is now out of scope.
       someVar <- false
@@ -219,9 +219,9 @@ defines module com.customer.exceptions
 
       for cat in BigCat
         if example1.checkExceptionHandling(cat)
-          stdout.println("Processing of " + $cat + " was completed")
+          stdout.println(`Processing of ${cat} was completed`)
         else
-          stderr.println("Processing of " + $cat + " was NOT completed")
+          stderr.println(`Processing of ${cat} was NOT completed`)
 
       //just try Lynx again
       assert ~ example1.checkExceptionHandling(BigCat.Lynx)
@@ -238,5 +238,5 @@ defines module com.customer.exceptions
         example2.demonstrateFilesNotFound()
       catch
         -> ex as Exception
-        Stderr().println("TryCatchExample: " + $ex)
+        Stderr().println(`TryCatchExample: ${ex}`)
 //EOF

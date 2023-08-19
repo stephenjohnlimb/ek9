@@ -1,0 +1,371 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language enumerations</title>
+  <meta name="description" content="EK9 programming language enumerations
+    are very simple types, but with many automatic methods/operators provided by default."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Enumerations in EK9</h1>
+    </header>
+    <p>
+      The <b>Enumeration</b> was briefly outlined in the <a href="structure.html#type">structure</a> section.
+      It is shown in more detail here in the form of an example. This shows the <i>operators</i> that
+      are built in to every <i>enumeration</i> as standard.
+    </p>
+    <p>
+      The idea of an <i>enumeration</i> in general is very simple, it is a predefined list of values.
+      EK9 considers the list to be an <i>ordered</i> list, with the value being the order they are defined.
+      Note EK9 does not use the keyword word <i>enumeration</i> or <i>enum</i>; but just considers
+      them to be a simple <b>type</b>.
+    </p>
+    <h3 id="example">Enumeration Example</h3>
+    <p>
+      The example below shows how <i>enumerations</i> can be used and combined with <i>records</i>
+      and <i>functions</i>. It shows all the operators available and how each of the values of and
+      <i>enumeration</i> can be 'streamed'. Importantly it shows how you can obtain an enumerated value
+      from a <i>String</i> (but note if the <i>String</i> does not represent any value the result is
+      <b>unset</b>).
+    </p>
+    <p>
+      The EK9 <b>is Set</b> nature also applies to <i>enumerations</i>, this is quite dissimilar to other
+      programing languages. So in EK9 it is possible to have an enumerated value this is actually <b>none</b>
+      of the valid <i>enumerated</i> values, i.e. it is <b>unset</b>.
+    </p>
+    <pre>#!ek9
+module introduction
+
+  defines type
+
+    CardRank
+      Two
+      Three
+      Four
+      Five
+      Six
+      Seven
+      Eight
+      Nine
+      Ten
+      Jack
+      Queen
+      King
+      Ace
+
+    CardSuit
+      Hearts
+      Diamonds
+      Clubs
+      Spades
+
+  defines record
+
+    Card
+      rank as CardRank: CardRank()
+      suit as CardSuit: CardSuit()
+
+      Card()
+        ->
+          rank as CardRank
+          suit as CardSuit
+        this.rank: rank
+        this.suit: suit
+
+      operator ? as pure
+        <- rtn as Boolean: rank? and suit?
+
+      operator $ as pure
+        <- rtn as String: `${rank} of ${suit}`
+
+      operator #^ as pure
+        <- rtn as String: `${this}`
+
+  defines function
+
+    cardCreator() as abstract
+      -> rank as CardRank
+      <- rtn as Card?
+
+    fullRankCreator()
+      -> suit as CardSuit
+      <- rtn as List of Card: cat CardRank
+        | map with (suit) is cardCreator (rtn: Card(rank, suit))
+        | collect as List of Card
+
+  defines program
+
+    ShowOperators()
+      stdout <- Stdout()
+
+      hearts <- CardSuit.Hearts
+      clubs <- CardSuit.Clubs
+
+      assert hearts != clubs
+
+      assert hearts == #< clubs
+
+      assert CardSuit.Spades == #> clubs
+
+      unknownSuit <- CardSuit()
+
+      assert ~unknownSuit?
+
+      asString <- $hearts
+
+      assert asString == "Hearts"
+
+      assert hearts < clubs
+
+      assert clubs <=> hearts > 0
+
+      invalidSuit <- CardSuit("NonSuch")
+      assert ~invalidSuit?
+
+      validSuit <- CardSuit("Clubs")
+      assert validSuit?
+
+      validRank <- CardRank("Ace")
+      assert validRank?
+
+      for rank in CardRank
+        message <- switch rank
+          <- rtn as String: String()
+          case CardRank.Ace
+            rtn: `Wow very lucky ${rank}`
+          case > CardRank.Ten
+            rtn: `Not too bad ${rank}`
+          case > CardRank.Five
+            rtn: `Oh dear me ${rank}`
+          default
+            rtn: `Not so lucky ${rank}`
+        stdout.println(message)
+
+    DeckOfPlayingCards()
+      stdout <- Stdout()
+
+      //List the four suits
+      stdout.println("Cat Suits")
+      cat CardSuit > stdout
+
+      //List each of the Ranks
+      stdout.println("Cat Ranks")
+      cat CardRank > stdout
+
+      stdout.println("With just a for loop")
+      for suit in CardSuit
+        stdout.println($suit)
+
+      //If you wanted a list of suits
+      suits <- cat CardSuit | collect as List of CardSuit
+
+      stdout.println("Procedural Deck creation")
+      for suit in CardSuit
+        for rank in CardRank
+          stdout.println(Card(rank, suit))
+
+      //Now make a full deck of cards.
+      stdout.println("Functional Deck creation")
+
+      cat CardSuit | map with fullRankCreator | flatten > stdout
+
+//EOF</pre>
+    <br/>
+    <h4>The Enumerations</h4>
+    <p>
+      There are two <i>enumerations</i> defined. This example is based around playing cards.
+      So there is the <u>CardSuit</u> and the <u>CardRank</u>. The values of which are obvious (Aces high).
+      As you can see, they are just a list of values! But in a list under the name of the <i>enumeration</i>.
+    </p>
+    <h4>Using the Enumerations</h4>
+    <p>
+      To represent a playing card, both of the <i>enumerations</i> have been used as fields/properties on a
+      <i>record</i>. To make the <i>record</i> a little more useful; the operators <u>is set</u>,
+      <u>to string</u> and <u>promote</u> have been implemented. A <i>class</i> could have been used for this,
+      but in this example a <i>record</i> will do.
+    </p>
+
+    <h4>Functions</h4>
+    <p>
+      The <i>abstract</i> <i>function</i> <u>cardCreator</u> is used in <u>fullRankCreator</u> as part of
+      the <i>dynamic function</i> <u>deckPopulator</u>. If the use of
+      <a href="functions.html">functions</a> and <a href="dynamicFunctions.html">dynamic functions</a>
+      is not something you've read about yet then jump over to those sections and read up on them.
+      An explanation on how these are used is given in the following paragraphs relating to the
+      <i>program</i> <u>DeckOfPlayingCards</u>.
+    </p>
+    <h4>Operators</h4>
+    <p>
+      All the supported <a href="operators.html">operators</a> on <i>enumerations</i> are shown in
+      <i>program</i> <u>ShowOperators</u>. These are all the sort of operators you would probably
+      expect:
+    </p>
+    <ul>
+      <li>Comparison</li>
+      <li>To string</li>
+      <li>To hash code</li>
+      <li>Is set</li>
+    </ul>
+    <p>
+      But also note the mechanism to obtain an <i>enumerated</i> value from a <i>String</i>.
+    </p>
+    <h4>Enumerated values in a Switch</h4>
+    <p>
+      Many programming languages, just as Java and C# tend to promote the use of methods on <i>enumerations</i>.
+      This is not possible (nor desirable - opinion) in EK9. As previously stated EK9 does not permit
+      <i>methods</i> on <i>enumerations</i>. Instead, it promotes the use of <a href="composition.html">composition</a>,
+      so in the example above you can see the use of a <a href="flowControl.html#switch">switch</a>
+      statement that writes out some appraisal of the card drawn.
+    </p>
+    <p>
+      The EK9 approach is to separate the enumerated value and some sort of business logic (in this case the
+      appraisal of the card drawn). If there needs to be some close binding, then use a <a href="classes.html">class</a>
+      with a property of the <i>enumeration</i> and a <a href="methods.html">method</a> that has the appraisal logic.
+      Alternative maybe one or more <a href="functions.html">functions</a> could be used to make the appraisal.
+      It is also possible to use a combination of a <a href="classes.html">class</a> and a
+      <a href="functions.html">function</a> delegate in combination.
+    </p>
+    <p>
+      If you wished to augment the <i>enumeration</i> with other supporting information (maybe an image in the
+      case of playing cards), then use a <a href="collectionTypes.html#dict">Dictionary</a> with the key being the
+      enumerated value and the value being the image. Again, this approach uses <a href="composition.html">composition</a>,
+      which in general is more flexible in the longer term. You might argue this approach is less Object-Oriented (which it is),
+      but in EK9 you have the choice to use <a href="classes.html">classes</a> or just <u>data structures</u> and
+      <a href="functions.html">functions</a> to operate on them.
+    </p>
+    <p>
+      Have a read of some quotes by <a href="https://www.cs.yale.edu/homes/perlis-alan/quotes.html">Alan Perlis</a>.
+      Specifically "It is better to have 100 functions operate on one data structure than 10 functions on 10 data structures".
+      The point here is that there alternative mechanisms than just Object-Orientation to structure solutions when designing
+      software.
+    </p>
+    <h4>Program DeckOfPlayingCards</h4>
+    <p>
+      This <i>program</i> is designed to highlight how it is possible access all the enumerated values.
+      The first two examples just show how each of the enumerated values of the <u>CardSuit</u>
+      and <u>CardRank</u> can be streamed through a pipeline process, converted to a String and
+      printed to 'stdout'. The third demonstrates how an <i>enumeration</i> can be converted
+      to a 'List of ...', should it be necessary.
+    </p>
+    <p>
+      The final part of the program is a little more involved and interesting. It starts off
+      by showing a double nested loop that creates a <u>Card</u> and prints the details of that
+      <u>Card</u> to stdout. As you can see this is fairly straight forward, using the
+      <i>enumeration</i> <b>type</b> as if it were a collection of values (which in a way it is).
+    </p>
+    <p>
+      The last line of the example shows the same functionality as the previous double nested
+      loop but in a functional manner. The <u>CardSuit</u> being streamed into a <b>map</b> <i>function</i>
+      called <u>fullRankCreator</u>.
+    </p>
+    <p>
+      The <u>fullRankCreator</u> is designed to accept each CardSuit as it is sent into the pipeline.
+      It then creates a <i>dynamic function</i> (a bit like a lambda in some ways). Importantly this
+      <i>dynamic function</i> <u>captures</u> the suit. The other key point here is that the
+      <i>dynamic function</i> actually <b>extends</b> the <i>abstract function</i> <u>cardCreator</u>.
+      Now the <u>fullRankCreator</u> uses the newly created <i>dynamic function</i>
+      by streaming each of the <u>CardRanks</u> into it.
+    </p>
+    <p>
+      The <i>dynamic function</i> uses the captured <u>CardSuit</u> and the streamed <u>CardRank</u> to create
+      a <u>Card</u> <i>record</i>. As the newly created <u>Cards</u> come out of the pipeline they are
+      piped into <b>rtn</b> with is a <i>List of Card</i>.
+    </p>
+    <p>
+      Finally in the program, a <i>List of Card</i> comes out of the pipeline for each <u>CardSuit</u>,
+      but as we really just want all the Cards to be printed to 'stdout', we use <b>flatten</b> to take
+      each card out of the <i>List of Card</i> so they can be sent to 'stdout'.
+      Now as we wrote a <u>promote</u> operator on the <u>Card</u> <i>record</i> that promotes the <u>Card</u>
+      object to a <i>String</i> so it can be just printed.
+    </p>
+    <h3>Summary</h3>
+    <p>
+      Whilst this section is really about <i>enumerations</i> (which are very simple) it seemed more useful
+      to show how <i>enumerations</i> could/should actually be used. Here the contrast between a more functional
+      approach has been taken with streaming pipeline processing, <i>functions</i> and <i>dynamic functions</i>
+      with closure/capture of variables. This can be seen in comparison to the double nested loop of
+      <u>CardSuit</u> and <u>CardRank</u>.
+    </p>
+    <p>
+      If the processing like the above example is simple; then a more procedural approach is probably a better
+      option. With EK9 you have the choice of either styles. But if you find yourself will lots of complex
+      logic deep in nested loops or need to <b>break</b> out of them, then consider a more functional approach.
+      But with EK9 you have a choice of functional and Object-Oriented or a blend of the two.
+    </p>
+    <h4>Next Steps</h4>
+    <p>
+      The next section on <a href="records.html">Records</a> shows the first <u>aggregate</u> type.
+    </p>
+  </article>
+</main>
+</body>
+</html>

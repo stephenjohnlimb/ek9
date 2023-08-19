@@ -19,7 +19,7 @@ defines module com.customer.just.ifs
       valueToTest <- 9
       
       if valueToTest < 10
-        stdout.println("Value " + $valueToTest + " is less than 10")
+        stdout.println(`Value ${valueToTest} is less than 10`)
 
       secondValue <- 21
       specialCondition <- true
@@ -34,9 +34,9 @@ defines module com.customer.just.ifs
 
       //Rather than use the keyword 'if' you can use 'when'
       when valueToTest < 10
-        stdout.println("Value " + $valueToTest + " is less than 10")
+        stdout.println(`Value ${valueToTest} is less than 10`)
         
-      //as you would expect      
+      //As you would expect it is possible to chain if and else statements
       if valueToTest > 9
         suitableValue: "Too High"
       else if valueToTest < 9
@@ -51,24 +51,24 @@ defines module com.customer.just.ifs
     -?>
     assignmentInIf()
       stdout <- Stdout()
-              
+
+      //Note that this value is 'unset' in the sense it has no meaningful value
       selectedTemperature <- Integer()       
        
       //See if we can find some hot temperature somewhere so in the US we have no idea! because value is unset
       when selectedTemperature := currentTemperature("US") with selectedTemperature > 50
-        stdout.println("Temp of " + $selectedTemperature + " a little warm in the US")
+        stdout.println(`Temp of ${selectedTemperature} a little warm in the US`)
       else when selectedTemperature := currentTemperature("US") with selectedTemperature < 50
-        stdout.println("Temp of " + $selectedTemperature + " not too bad in the US")  
+        stdout.println(`Temp of " + ${selectedTemperature} not too bad in the US`)
       else when selectedTemperature := currentTemperature("GB") with selectedTemperature > 40
-        stdout.println("Temp of " + $selectedTemperature + " a little warm in the UK")
+        stdout.println(`Temp of " + ${selectedTemperature} a little warm in the UK`)
       else when selectedTemperature := currentTemperature("DE") with selectedTemperature > 40
-        stdout.println("Temp of " + $selectedTemperature + " a little warm in the DE")
+        stdout.println(`Temp of ${selectedTemperature} a little warm in the DE`)
       else
         stdout.println("Not sure where it might be warm")
 
-    <?-
-      Example of using a guarded assignment before the control.
-    -?>
+
+    //An example of using a guarded assignment before the control.
     guardedAssignmentInIf()
       stdout <- Stdout()
 

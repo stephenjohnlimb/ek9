@@ -1,0 +1,820 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language flow control</title>
+  <meta name="description" content="EK9 programming language flow control
+    has all the normal controls such as if/else/switch/for/do/while but also cat for streaming."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Flow Control in EK9</h1>
+    </header>
+    <p>
+      EK9 has a range of syntax that enables a developer to control the flow of processing.
+      These are broadly what you would expect in a programming language and is similar to most other programming languages.
+      <br/>
+      But there are a couple of additions in EK9 that mean you may not need to use these imperative (traditional) flow control
+      statements quite as much.
+    </p>
+    <h2>The Controls</h2>
+    <p>
+      In general it has been found that adopting a more <i>functional</i> approach to flow control leads to
+      a decrease in developer cognitive load, reduction in code volume, simplicity, flexibility, more reuse and fewer defects.
+      Linked with the new EK9 operators; traditional flow control is needed much less (but in some cases it is
+      still required).
+    </p>
+    <p>
+      The traditional flow control mechanisms available are categorised as follows:
+    </p>
+    <h5>Branching</h5>
+    <ul>
+      <li><a href="#if_elseif_else">If, Else If ,Else</a> - conditional processing based on a boolean expression
+      </li>
+      <li><a href="#switch">Switch</a> - also a sort of conditional processing but based on variable value</li>
+      <li><a href="#try_catch">Try</a> - see <a href="exceptions.html">Exceptions</a> - as the flow control is out
+        of the current scope block (but should be 'exceptional')
+      </li>
+    </ul>
+    <h5>Looping (imperative/procedural)</h5>
+    <ul>
+      <li><a href="#for_loop">For</a> - traditional for loop but with extras like support for
+        collections/iterators
+      </li>
+      <li><a href="#while_loop">While</a> - traditional while loop with boolean control</li>
+      <li><a href="#do_while_loop">Do While</a> - traditional do/while loop with boolean control</li>
+    </ul>
+    <h5>Streaming (more functional)</h5>
+    <p>
+      Most of the above processing can also be implemented using this more functional technique.
+    </p>
+    <ul>
+      <li><a href="#for_stream">For</a> - used with literals to pipe a variable into a stream</li>
+      <li><a href="#cat_stream">Cat</a> - used with a collection to pipe each element into a stream</li>
+    </ul>
+
+    <h3>Control examples</h3>
+    <p>
+      Examples of the different types of flow control are show below in the next sections.
+    </p>
+    <h4 id="if_elseif_else">If, Else If ,Else</h4>
+    <p>
+      A traditional control statement - but review <a href="operators.html#ternary">ternary operators</a> and
+      <a href="operators.html#assignment_coalescing">assignment coalescing</a> first;
+      as you may find that syntax much more appealing and terse in certain situations. See
+      <a href="operators.html#contrast_if_else_ternary">contrast of if/else and ternary operators</a>
+      for common situations and especially for dealing with variables that may be <b>unset</b>.
+    </p>
+    <p>
+      But when you really do need an <i>if</i> statement; EK9 has a number of additional features that give you
+      more control and flexibility. These are shown below.
+    </p>
+    <pre>#!ek9
+defines module introduction
+  defines function
+
+    currentTemperature()
+      -> country as String
+      <- temp as Integer: Integer()
+
+      if country == "GB"
+        temp: 20
+      else if country == "DE"
+        temp = 41
+
+  defines program
+
+    //An example of a normal if statement.
+    simpleIf()
+      stdout <- Stdout()
+
+      suitableValue <- String()
+      valueToTest <- 9
+
+      if valueToTest < 10
+        stdout.println(`Value ${valueToTest} is less than 10`)
+
+      secondValue <- 21
+      specialCondition <- true
+
+      //Shows combination of and and or.
+      if valueToTest < 10 and secondValue > 19 or specialCondition
+        stdout.println("Test OK")
+
+      //Alternate layout if the expression is too long for a single line
+      if valueToTest < 10 and
+      secondValue > 19 or
+      specialCondition
+        stdout.println("Test OK")
+
+      //Rather than use the keyword 'if' you can use 'when' - it has the same meaning
+      when valueToTest < 10
+        stdout.println(`Value ${valueToTest} is less than 10`)
+
+      //As you would expect it is possible to chain if and else statements
+      if valueToTest > 9
+        suitableValue: "Too High"
+      else if valueToTest < 9
+        suitableValue: "Too Low"
+      else
+        suitableValue: "Just Right"
+
+      stdout.println(suitableValue)
+
+    //An example of using an assignment before the control part of the if statement.
+    assignmentInIf()
+      stdout <- Stdout()
+
+      //Note that this value is 'unset' in the sense it has no meaningful value
+      selectedTemperature <- Integer()
+
+      //See if we can find some hot temperature somewhere so in the US we have no idea! because value is unset
+      when selectedTemperature := currentTemperature("US") with selectedTemperature > 50
+        stdout.println(`Temp of ${selectedTemperature} a little warm in the US`)
+      else when selectedTemperature := currentTemperature("US") with selectedTemperature < 50
+        stdout.println(`Temp of " + ${selectedTemperature} not too bad in the US`)
+      else when selectedTemperature := currentTemperature("GB") with selectedTemperature > 40
+        stdout.println(`Temp of " + ${selectedTemperature} a little warm in the UK`)
+      else when selectedTemperature := currentTemperature("DE") with selectedTemperature > 40
+        stdout.println(`Temp of ${selectedTemperature} a little warm in the DE`)
+      else
+        stdout.println("Not sure where it might be warm")
+
+
+    //An example of using a guarded assignment before the control part of the if statement.
+    guardedAssignmentInIf()
+      stdout <- Stdout()
+
+      selectedTemperature <- Integer()
+
+      //Here we use a guarded assignment checks for null and unset and only then does the conditional check
+      //Also note we can still use 'if' and rather than 'with' use 'then'
+      when selectedTemperature ?= currentTemperature("US") with selectedTemperature > 50
+        stdout.println("Temp of " + $selectedTemperature + " a little warm in the US")
+      else when selectedTemperature ?= currentTemperature("US") with selectedTemperature < 50
+        stdout.println("Temp of " + $selectedTemperature + " not too bad in the US")
+      else if selectedTemperature ?= currentTemperature("GB") with selectedTemperature > 40
+        stdout.println("Temp of " + $selectedTemperature + " a little warm in the UK")
+      else when selectedTemperature ?= currentTemperature("DE") then selectedTemperature > 40
+        stdout.println("Temp of " + $selectedTemperature + " a little warm in the DE")
+      else
+        stdout.println("Not sure where it might be warm")
+
+    //An example of declaration before the control.
+    //The new variable is only visible in the current if/else blocks.
+
+    declarationInIf()
+      stdout <- Stdout()
+      //While this may initially look a little strange
+      //It is just a way of declaring a variable for the whole if/else scope block.
+      when selectedTemperature <- currentTemperature("US") with selectedTemperature > 50
+        stdout.println("Temp of " + $selectedTemperature + " a little warm in the US")
+      else when selectedTemperature ?= currentTemperature("US") with selectedTemperature < 50
+        stdout.println("Temp of " + $selectedTemperature + " not too bad in the US")
+      else if selectedTemperature := currentTemperature("GB") with selectedTemperature > 40
+        stdout.println("Temp of " + $selectedTemperature + " a little warm in the UK")
+      else when selectedTemperature: currentTemperature("DE") then selectedTemperature > 40
+        stdout.println("Temp of " + $selectedTemperature + " a little warm in the DE")
+      else
+        stdout.println("Not sure where it might be warm")
+
+//EOF</pre>
+    <p>
+      The main points in the example above are:
+    </p>
+    <ul>
+      <li>The use of <b>when</b> rather than <b>if</b> in some cases - developer choice</li>
+      <li>The use of an assignment <b>:=</b> as part of the <b>if</b> statement</li>
+      <li>The use of the guarded assignment <b>?=</b> as part of the <b>if</b> statement</li>
+      <li>The use of a variable declaration <b>&larr;</b> as part of the <b>if</b> statement</li>
+      <li>The calling of <i>function</i> <u>currentTemperature</u> only when needed in <b>else if</b></li>
+      <li>Ideally all conditions in an <b>if</b> statement are on the same line</li>
+      <li>If multiple lines for <b>if</b> statements are needed then they must align as above.</li>
+    </ul>
+    <p>
+      <b>Note</b> that if there are multiple if/else statements and those have <b>declarations</b> of variables,
+      those variables are then available in other else/if scopes after the declaration (as part of the main if scope block).
+      But sure you want to do this - as it may become confusing or hard to refactor later.
+    </p>
+    <p>
+      Being able to incorporate an assignment within the <b>if</b> or <b>else if</b> really
+      does help to reduce the number of variables that are needed to created and assigned
+      before the <b>if</b> statement block. The guarded assignment is particularly useful as the
+      <i>condition</i> part of the if statement is not evaluated if the guarded assignment resulted in
+      <b>isSet == false</b>.
+    </p>
+    <p>
+      In general, the use of the declaration/assignment or guarded assignment reads better with <b>when</b> rather
+      than <b>if</b>, but this is developer choice. As you can see, the combination of ternary operators and the
+      addition of assignments and guarded assignments really adds quite a lot of functionality to
+      conditional flow control. This is augmented further in the switch statement that follows.
+    </p>
+    <h4 id="switch">Switch</h4>
+    <p>
+      The switch in EK9 is similar in someways to the 'if/else' type flow; but the ordering of cases is important.
+      It also supports multiple and varied matches and can also be used to <b>return</b> as value
+      like an expression. Like the <b>if</b> statement it can also use alternative keywords.
+    </p>
+    <p>
+      There are a few different examples below of the switch statement.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+
+    currentTemperature() as pure
+      -> country as String
+      <- temp as Integer: Integer()
+
+      if country == "GB"
+        temp: 20
+      else if country == "DE"
+        temp = 41
+
+  defines program
+
+    simpleSwitch()
+      stdout <- Stdout()
+      multiplier <- 5
+      //This is what we will use to 'switch on'
+      conditionVariable <- 21
+      //This is what we will vary based on the condition variable
+      resultText <- String()
+
+      switch conditionVariable
+        case < 12
+          resultText: "Moderate"
+        case > 10*multiplier
+          resultText: "Very High"
+        case 25, 26, 27
+          resultText: "Slightly High"
+        case currentTemperature("GB"), 21, 22, 23, 24
+          resultText: "Perfect"
+        default
+          resultText: "Not Suitable"
+
+      stdout.println(resultText)
+
+      //The same switch could have been written using given and when
+      given conditionVariable
+        when < 12
+          resultText: "Moderate"
+        when > 10*multiplier
+          resultText: "Very High"
+        when 25, 26, 27
+          resultText: "Slightly High"
+        when currentTemperature("GB"), 21, 22, 23, 24
+          resultText: "Perfect"
+        default
+          resultText: "Not Suitable"
+
+      stdout.println(resultText)
+
+    //An example of 'returning' a value from a switch statement - so use switch as an expression.
+    returningSwitch()
+      stdout <- Stdout()
+      //This is what we will use to 'switch on'
+      conditionVariable <- "Name"
+      //This is what we will vary based on the condition variable
+
+      resultText <- switch conditionVariable
+        <- result String: String()
+        case 'D'
+          result: "Inappropriate"
+        case matches /[nN]ame/
+          result: "Perfect"
+        case > "Gandalf"
+          result: "Moderate"
+        case < "Charlie"
+          result: "Very High"
+        default
+          result: "Suitable"
+
+      stdout.println(resultText)
+
+    //Again return a value from a switch but this time employ a guarded assignment as well
+    switchWithGuard()
+      stdout <- Stdout()
+      temperature <- Integer()
+      resultText <- switch temperature ?= currentTemperature("GB") with temperature
+        <- result String: String()
+        case 'D'
+          result: "Inappropriate"
+        case matches /[nN]ame/
+          result: `Perfect at ${temperature}`
+        case > "Gandalf"
+          result: "Moderate"
+        case < "Charlie"
+          result: "Very High"
+        default
+          result: "Suitable"
+
+      stdout.println(resultText)
+
+    //Rather than use a guard, this is a pure assignment.
+    switchWithAssignment()
+      stdout <- Stdout()
+      temperature <- Integer()
+      resultText <- switch temperature := currentTemperature("GB") with temperature
+        <- result String: String()
+        case 'D'
+          result: "Inappropriate"
+        case matches /[nN]ame/
+          result: `Perfect at ${temperature}`
+        case > "Gandalf"
+          result: "Moderate"
+        case < "Charlie"
+          result: "Very High"
+        default
+          result: "No idea"
+
+      stdout.println(resultText)
+
+    //Finally rather than declare temperature outside of the switch, it is now declared and
+    //assigned within the switch scope
+    switchWithDeclaration()
+      stdout <- Stdout()
+      resultText <- switch temperature <- currentTemperature("GB") with temperature
+        <- result String: String()
+        case 'D'
+          result: "Inappropriate"
+        case matches /[nN]ame/
+          result: `Perfect at ${temperature}`
+        case > "Gandalf"
+          result: "Moderate"
+        case < "Charlie"
+          result: "Very High"
+        default
+          result: "Suitable"
+
+      stdout.println(resultText)
+
+      //So this means the 'temperature' defined above is now out of scope and so
+      //can be redeclared and used here
+      temperature <- "Some other value and type"
+      assert temperature?
+//EOF</pre>
+    <br/>
+    <p>
+      As you can see rather than just matching absolute single values in the <b>case</b>, EK9
+      supports a wide range of matches. This makes it very important that you present the order
+      correctly, as EK9 will only match the first in the list. It is also <b>very</b> important
+      that when using functions in the match there are no <u>side effects</u> from those functions.
+    </p>
+    <p>
+      The switch in EK9 has been given great power and versatility - take care with it. Elect to do
+      the simplest matching where ever possible.
+    </p>
+    <p>
+      In the <b>returningSwitch</b> example above you can see how the switch is used in an expression
+      that both declares a new variable <b>resultText</b> and initialises it from the <b>return</b>
+      value from the <b>switch</b>.
+    </p>
+    <p>
+      As shown above, it is possible to match <i>String</i> values with both lexical comparison and
+      regular expression matches. Just to reiterate - focus on the ordering of the list in the switch
+      statement. If you've used other languages then the switch statement tends to only match single values.
+      EK9 introduces range matching and while this is more powerful it requires much <u>more focus</u> to get
+      right.
+    </p>
+    <p>
+      One final point, the switches in EK9 <b>must</b> have a <b>default</b> and there is no
+      <u>fall through</u> (and hence no <b>break</b> keyword like in C/C++/C#/Java). The
+      <u>fall through</u> capability is delivered by allowing multiple values per 'case'.
+      The EK9 <i>switch</i> is much more like an <i>if/else</i> chain than a <i>switch</i> from C, C++ or Java.
+    </p>
+    <h4 id="try_catch">Try Catch and Exceptions</h4>
+    <p>
+      Whilst Try, Catch and Exceptions are a form of <u>flow control</u>. The flow control is one
+      of processing an error state. It is not designed and should <b>not</b> be used to control
+      normal flow. In some ways <i>Exceptions</i> are a form of
+      <a target="_blank" title="GOTO" href="https://www.cs.utexas.edu/users/EWD/ewd02xx/EWD215.PDF"><b>GOTO</b></a>
+      statement (as are <b>break</b> and <b>return</b> - but in a slightly more controlled manner).
+      In general, whilst many programming languages have a widespread use of Exceptions; these tend to pervade
+      all API's and force alterations in interfaces.
+      EK9 prefers the use of <b>unSet</b> variables, <b>Result</b> and the careful and selective use of Exceptions.
+      See the section on <a href="exceptions.html">Exceptions/Error Handling</a> for more details.
+    </p>
+    <p>
+      EK9 is in general much less likely to throw an Exception and is more likely to return values that
+      are <b>unSet</b> or a <b>Result</b> type. This means that the caller must be prepared for values that
+      have not been <b>set</b>.
+      This is the general ethos in EK9. Exceptions really should be thrown in <u>exceptional circumstances</u>,
+      and <b>never</b> as a design mechanism for flow control.
+    </p>
+
+    <h4 id="for_loop">For Loops - but with extras</h4>
+    <p>
+      Loops are normally employed when need to perform the same set of operations over some set of data.
+      <br/>
+      There is quite a bit of flexibility with <b>for loops</b>. A key point to note that with EK9, there is no
+      <b>break</b> and no <b>return</b> statement; so you cannot exit for loops early (this is by design). See
+      <a href="introduction.html#break_return">EK9 philosophy</a> for a discussion on the reasoning for this.
+    </p>
+    <p>
+      <b>For</b> loops in EK9 are intended and designed to run from <u>end to end</u>; all the way through,
+      if you are looking to stop processing some way through a loop then consider using a <b>while loop</b>,
+      <a href="#for_stream">streaming for loops</a> or <a href="#cat_stream">streaming collections</a>.
+    </p>
+    <h5>Standard For Loop</h5>
+    <p>
+      The example below shows a standard traditional loop with an integer variable.
+      There are a couple of things to note here:
+    </p>
+    <ul>
+      <li>The loop variable type is inferred</li>
+      <li>The use of <b>'...'</b> indicates an inclusive <i>range</i></li>
+      <li>The incrementer amount can be specified</li>
+      <li>Its use is not limited to Integers, any type with the appropriate <i>operators</i> can be used</li>
+    </ul>
+    <pre>#!ek9
+defines module introduction
+  defines program
+    integerForLoop()
+      stdout <- Stdout()
+      for i in 1 ... 10
+        stdout.println(`Value [${i}]`)
+
+      for i in 1 ... 9 by 2
+        stdout.println(`Value [${i}]`)
+
+//EOF</pre>
+    <br/>
+    <p>
+      Please note the spaces around <b>'...'</b>; these are required.
+    </p>
+    <h5>For Loop with other types</h5>
+    <p>
+      In the above example an Integer was used, these examples below show the <b>for</b> loop has much
+      more flexibility however.
+    </p>
+    <pre>#!ek9
+defines module introduction
+  defines program
+    floatForLoop()
+      stdout <- Stdout()
+
+      //So you could do a calculation to get this value
+      incrementer <- 6.3
+      for i in 8.2 ... 30.0 by incrementer
+        stdout.println(`Value [${i}]`)
+
+      //descending
+      for i in 90.0 ... 70.0 by -5.0
+        stdout.println(`Value [${i}]`)
+
+    timeForLoop()
+      stdout <- Stdout()
+
+      //From 9-5 every half hour
+      start <- Time().startOfDay() + PT9H
+      end <- Time().endOfDay() - PT6H30M
+      thirtyMinutes <- PT30M
+
+      //Be aware that time loops around.
+      for i in start ... end by thirtyMinutes
+        stdout.println(`Value [${i}]`)
+//EOF</pre>
+    <br/>
+    <p>
+      Hopefully now you can see the additional power and flexibility the EK9 <b>for</b> loop has.
+    </p>
+    <ul>
+      <li>It can be used with different types</li>
+      <li>It can be used ascending or descending</li>
+      <li>The loop variable type is inferred and is immutable (developers cannot alter its value directly)</li>
+      <li>Variables can be used for the start and end of the range and also the incrementer</li>
+      <li>By providing your own <b>constructs</b> with the right operators enables them to be used in 'for' loops</li>
+    </ul>
+    <p>
+      This means that it is possible to create collection types and loop of items within those collections. For example
+      a 'document' with 'chapters' and 'chapters' with 'paragraphs'.
+    </p>
+    <h5>For Loop with collections</h5>
+    <p>
+      Unlike some other Object-Oriented languages; EK9 does not attach <b>for loop</b> syntax to <i>Collection</i>
+      objects, nor does it attach <b>stream</b> syntax.
+      <br/>
+      It approaches the traversal of objects held within <i>Collections</i> in <b>two</b> different,
+      but complementary ways. The first of which is shown below and the second is shown in
+      <a href="#cat_stream">streaming collections</a>
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+
+    messagePrefix()
+      <- rtn <- "SomePrefix-"
+
+  defines program
+    collectionsForLoop()
+      stdout <- Stdout()
+
+      stdout.println("Strings")
+      //Note item has its type inferred
+      for item in ["Alpha", "Beta", "Charlie"]
+        stdout.println(item)
+
+      //Now examples with guard, assignment and declaration
+      prefix <- String()
+      //Guarded assignment
+      for prefix ?= messagePrefix() then item in ["Alpha", "Beta", "Charlie"]
+        stdout.println(`${prefix}${item}`)
+
+      //Just an assignment
+      for prefix: messagePrefix() then item in ["Alpha", "Beta", "Charlie"]
+        stdout.println(`${prefix}${item}`)
+
+      //New declaration (newPrefix only available in the for loop scope)
+      for newPrefix <- messagePrefix() then item in ["Alpha", "Beta", "Charlie"]
+        stdout.println(`${newPrefix}${item}`)
+
+      stdout.println("Characters1")
+      //The alternative is when you already have an iterator
+      moreItems <- ['A', 'B', 'C']
+      for item in moreItems.iterator()
+        stdout.println(item)
+//EOF</pre>
+    <br/>
+    <p>
+      As with the <b>if</b> and <b>switch</b> statements it is possible to use various types of guard/assignment/declaration
+      when initialising the <b>for loop</b>.
+    </p>
+    <p>
+      The loop variable's type is inferred from the Collection or Iterator.
+      The <b>for</b> loop on Collections can be used with any <i>type</i> that has an <i>iterator()</i>
+      method that returns an <a href="collectionTypes.html#iterator">Iterator</a> or with an object with type that has
+      two methods below (which is a bit of a 'Duck Type' approach):
+    </p>
+    <ul>
+      <li>hasNext() - returning a Boolean</li>
+      <li>next() - returning a type other than Void</li>
+    </ul>
+    <p>
+      The example above shows a <b>List of String</b> being used in a <b>for</b> loop and also the <i>Iterator</i>
+      from a
+      <b>List of Characters</b>.
+    </p>
+
+    <h4 id="for_stream">Streaming 'For'</h4>
+    <p>
+      There are times when the values generated by a <b>for</b> loop are useful in a processing pipeline. The
+      example below
+      shows this with the addition of some filtering.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+    workHours()
+      -> time as Time
+      <- workTime as Boolean: time < 12:00 or time > 14:00
+
+  defines program
+
+    timePipeLine()
+      stdout <- Stdout()
+
+      //From 9-5 every half hour
+      start <- Time().startOfDay() + PT9H
+      end <- Time().endOfDay() - PT6H30M
+      thirtyMinutes <- PT30M
+
+      for i in start ... end by thirtyMinutes | filter by workHours > stdout
+
+//EOF</pre>
+    <br/>
+    <p>
+      So in the example above, the <b>for</b> loop is used to generate a sequence of times and these are then
+      'piped' into a processing pipeline and processed by the <i>function</i> 'workHours'. The pipeline
+      then looks at the result of the filter and only outputs the time to the next stage of processing if 'true'.
+      Hence, 'stdout' only gets the times that are before 12:00 and after 14:00.
+    </p>
+    <p>
+      Hopefully from this example you can see how the omission of <b>break</b> and <b>return</b> doesn't really
+      present a major issue and how you can un-bundle nested loops (always tricky) into processing pipelines.
+      But it also means that the bit of logic you might have nested in the <b>for</b> loop has been pulled out to
+      a function (that can be tested, re-used and altered with ease).
+    </p>
+    <p>
+      This different syntax and approach does take a little time to get used to. If you notice, where
+      an <b>if</b> statement to determine the work hours, this has been implemented with a simple boolean
+      expression (predicate) in the <i>function</i> 'workHours'.
+      While you may think this a <i>trivial</i> point - after all you still had to write the same
+      boolean expression. You also had to write the <i>function</i> which is much more text than 'if'. The overall
+      approach has moved from being procedural to being more declarative.
+    </p>
+    <p>
+      By using <b>head</b> with the pipeline processing you can cut short the streaming of objects through the pipeline.
+      As soon as <b>head</b> has process the number of objects you requested it will trigger the shutdown of the pipeline.
+      This is very much like <b>break</b> and <b>return</b>. So if; for example you were looking for a particular value in
+      a collection or a generated list, you can use a <b>filter</b> to select the right one; then <b>head</b>
+      to stop processing once one value with that criteria comes through the pipeline. Clearly it may be the case
+      that the value <u>never</u> comes through the pipeline (if the value was not contained).
+    </p>
+    <p>
+      One final point; the Streaming 'For' is the main reason there are no <u>List Comprehensions</u> in EK9.
+      While the syntax in EK9 and the need for <i>functions</i> means more code is required
+      (than List Comprehensions in Python), it makes the code more readable and fits the
+      <a href="introduction.html#break_return">EK9 philosophy</a>.
+    </p>
+    <p>
+      This approach also brings standardisation to functional processing flow. So unlike other languages (such as Java) where specific
+      methods are attached to specific 'Functional types', EK9 has the functional processing syntax built in to the language itself.
+    </p>
+    <h4 id="cat_stream">Streaming Collections</h4>
+    <p>
+      As with the <b>for</b> loop above and the <b>streaming for</b> it is possible to send all the contents of
+      collections through a processing pipeline rather than just looping over them.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines program  
+    collectionsPipeLine()
+      stdout <- Stdout()
+
+      items <- ["Alpha", "Beta", "Charlie"]
+      cat items > stdout
+
+      //The alternative is when you already have an iterator
+      moreItems <- ['A', 'B', 'C']
+      iter <- moreItems.iterator()
+      cat iter > stdout
+
+      //An example of 'teeing' content out of a processing stream
+      capturedValues <- List() of String
+      cat ["Alpha", "Beta", "Charlie"], ["Delta", "Echo"] | tee in capturedValues > stdout
+      assert capturedValues?
+
+//EOF</pre>
+    <br/>
+    <p>
+      By introducing the <b>cat</b> command syntax, EK9 has removed the need to attach <b>for/stream</b> syntax to
+      collection classes themselves. This gives much more flexibility and consistency in developed code.
+      In effect the developer just 'streams' the contents of a collection (or some sort of source, like an
+      iterator) into a processing pipeline.
+    </p>
+    <p>
+      In the example above there is no real processing in the pipeline, the contents are just written to
+      <b>stdout</b>.
+      <br/>
+      But part of the example above shows two 'lists of Strings' being streamed, <b>tee</b> off into a collection to be used
+      later and also streamed to <b>stdout</b>.
+      There is much more detail on pipeline processing in section <a href="streamsAndPipelines.html">Streams/Pipelines</a>.
+    </p>
+    <h3>Simple loops</h3>
+    <p>
+      The final two loop flow control mechanisms are very simple and traditional in approach. They both work on
+      the
+      value of a conditional boolean check.
+    </p>
+    <h4 id="while_loop">Traditional While Loop</h4>
+    <p>
+      A short example of a while loop, iterating over a collection of Characters.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines program
+    collectionsWhileLoop()
+      stdout <- Stdout()
+      
+      moreItems <- ['A', 'B', 'C']
+      itemIter1 <- moreItems.iterator()
+      
+      while itemIter1.hasNext()
+        item <- itemIter1.next()
+        stdout.println(item)      
+//EOF</pre>
+    <br/>
+    <h4 id="do_while_loop">Traditional Do While Loop</h4>
+    <p>
+      This processing is similar to the above except the conditional logic is at the end of the processing block.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines program
+    collectionsDoWhileLoop()
+      stdout <- Stdout()
+      
+      moreItems <- ['A', 'B', 'C']
+      itemIter1 <- moreItems.iterator()
+      
+      //Alternative syntax rather than calling hasNext()
+      if itemIter1?
+        do          
+          stdout.println(itemIter1.next())  
+        while itemIter1?             
+//EOF</pre>
+    <h3>Summary</h3>
+    <p>
+      EK9 has a wide range of flow control features, but it has deliberately excluded some of the more traditional
+      syntax.
+      This is by design, as it is viewed that some of these elements lead to complexity
+      and defects (a bit like <b>GOTO</b>).
+      There are alternative ways to solve the same problems; EK9 encourages a more functional approach.
+    </p>
+    <p>
+      The use of <a href="operators.html#ternary">ternary operators</a> and
+      <a href="operators.html#assignment_coalescing">assignment coalescing</a> should be adopted in place of very simple
+      <b>if/else</b> statements; they are short/succinct and expressive. However, where a range of different
+      <i>methods</i> or <i>functions</i> need evaluation the <u>guarded assignment</u> in conjunction with the
+      <b>if</b> statement can reduce the amount of processing.
+    </p>
+    <p>
+      Finally if you find you need to chain many <b>if else if</b> statements together then the use of a
+      <b>switch</b> statement might be appropriate. Beyond the <b>switch</b> it is sometimes best to adopt a
+      <a href="collectionTypes.html#dict">Dictionary/Map</a> to solve the problem.
+      <br/>While this may seem strange, remember that you can associate a <i>function</i> delegate with a key
+      as part of the dictionary. This means it is possible to lookup a <i>function</i> in a dictionary and then call that <i>function</i>.
+    </p>
+    <p>
+      It is this latter concept, that if you really do have unique values to 'switch' on, then use a
+      <a href="collectionTypes.html#dict">Dictionary/Map</a> - you will probably find it is faster and easier to understand.
+      The use of <b>switch</b> is designed to make chained <b>if/else</b> blocks easier to understand.
+    </p>
+    <h4>Next Steps</h4>
+    <p>
+      The next section on <a href="exceptions.html">Exceptions</a> and <i>try</i> blocks show how error flow
+      control can be implemented.
+    </p>
+  </article>
+</main>
+</body>
+</html>

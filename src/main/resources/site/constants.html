@@ -1,0 +1,312 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language constants</title>
+  <meta name="description" content="EK9 programming language constants
+    are fixed immutable values."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Constants in EK9</h1>
+    </header>
+    <p>
+      The <b>constant</b> is described in this section, these are declarations of the <a href="builtInTypes.html">built
+      in types</a>.
+      They are designed to be very constrained and limited in their use. As with most of EK9; the language has a
+      preconceived idea
+      of how and where each <b>construct</b> can and should be used.
+    </p>
+    <p>
+      As a developer, if you want to make use of the <i>classes</i> or <i>records</i> as single global variables;
+      then you must use <a href="components.html">components</a> and use dependency injection. You cannot use
+      your own defined types as EK9 <i>constants</i> - only the <i>built-in types</i> can be <i>constants</i>.
+    </p>
+    <p>
+      While initially you may find this inconvenient, you will find over time this approach reduces software
+      <a href="https://www.geeksforgeeks.org/software-engineering-coupling-and-cohesion/">coupling</a>. This is
+      because it reduces the direct linkage to a specific <i>class/record/component</i>.
+    </p>
+    <p>
+      The idea of <i>constants</i> in EK9 is really limited to very fixed concepts/values or defaults.
+      <br/>
+      The most important characteristic of the 'constant' is that is is <b>immutable</b>, i.e. it has a constant value
+      that cannot be changed.
+    </p>
+    <p>
+      This means that a constant (or indeed a 'literal' value) can be passed into a function or
+      a method with a specific value; if that method or function is not marked as <b>pure</b> it may alter the
+      value passed in. This will in no way alter the 'literal' or 'constant' that was provided as a parameter.
+      <br/>
+      There will be no 'exception' or 'immutability' error issued at either compile time or runtime. In effect
+      'constant' and 'literal' values are copied as they are passed into a function or method - turning them into
+      variables. This preserves the <b>immutability</b> of the 'constant'/'literal' and the <i>pass by reference</i>
+      nature of arguments for methods and functions.
+    </p>
+    <p>
+      The same logic applies if a 'constant' or a 'literal' value is returned from a method or a function. Its value is
+      copied before the return. This again preserves the <b>immutability</b> of the 'constant'/'literal'.
+    </p>
+    <p>
+      Below are some examples of constants.
+    </p>
+    <h3>Constant Declarations</h3>
+    <pre>#!ek9
+defines module introduction
+
+  defines constant
+
+    limitNumberOfRetries <- true
+
+    updateErrorLog <- false
+
+    delimiter <- ':'
+
+    author <- "Frank Jones"
+
+    maxNumberOfRetries <- 10
+
+    minTemperatureAllowed <- -2
+
+    Pi <- 3.142
+
+    bitMask <- 0b01110001
+
+    noon <- 12:00
+
+    justAfterNoon <- 12:00:01
+
+    //ISO 8601 i.e P[n]Y[n]M[n]DT[n]H[n]M[n]S
+    maxRenewalDuration <- P3Y2M6DT12H15M6S
+
+    twoYears <- P2Y
+
+    twoMonths <- P2M
+
+    minusTwoDays <- P-2D
+
+    twoHours <- PT2H
+
+    minusTwoHours <- PT-2H
+
+    twoMinutes <- PT2M
+
+    timeoutPeriod <- 250ms
+
+    newMillennium <- 2000-01-01
+
+    ek9CreatedDateTime <- 2018-01-31T01:30:00-05:00
+
+    maxPayment <- 300000#USD
+
+    defaultColour <- #AB6F2B
+
+    twoMeters <- 2m
+
+    matchSteves <- /[S|s]te(?:ven?|phen)/
+
+    //A comment
+    //And another
+//EOF</pre>
+
+    <p>
+      Please look in the section on <a href="builtInTypes.html">built in types</a> for details on each of the
+      above
+      types, but as you can see constants can only be <u>literals</u> (this is by design).
+      Constants are designed to be <u>very simple</u> and to be used to hold fixed final constant values.
+    </p>
+    <h3>Use of Constants</h3>
+    <p>
+      If you create another ek9 source file using the same <i>module</i> as the constants; you can just
+      use the constants directly as shown below.
+    </p>
+    <h4>Same Module</h4>
+    <pre>#!ek9
+defines module introduction
+  defines function
+  
+    areaOfCircle()
+      -&gt; diameter as Float
+      &lt;- result as Float: PI * (diameter/2)^2
+        
+    circumferenceOfCircle()
+      -&gt; diameter as Float
+      &lt;- result as Float: PI * diameter
+//EOF</pre>
+    <p>
+      As you can see <u>PI</u> can just be used directly (as you would expect).
+    </p>
+    <h4>Different Module</h4>
+    <p>
+      While not really related directly to <i>constants</i> the examples below give an explanation of how
+      different
+      modules and <b>constructs</b> within those modules can be accessed. But is most likely you will define a
+      range
+      of constants in a <i>module</i> and then use those throughout other <i>modules</i>. There are very
+      significant
+      advantages in doing this to reduce the proliferation and duplication of fixed values.
+      If however you want to use PI from another module you have a couple of options; as shown below.
+    </p>
+    <h5>Option 1</h5>
+    <pre>#!ek9
+defines module introduction.part
+  defines function
+
+    printPI()
+      Stdout().println($introduction::PI)  
+//EOF</pre>
+    <p>
+      The above shows how to directly reference the constant <u>PI</u> from the 'introduction' <i>module</i>;
+      this is done from within the <i>function</i> 'printPI' in the 'introduction.part' <i>module</i>.
+    </p>
+    <h5>Option 2</h5>
+    <p>
+      If you needed to reference <u>PI</u> several times in your module; having to explicitly reference
+      <u>PI</u> by its <i>module</i> would become tedious. Therefore EK9 has the concept of declaring a
+      <a href="basics.html#references_example">reference</a> so that the <i>constant</i> or <i>type</i>
+      can be used directly.
+    </p>
+    <pre>#!ek9
+defines module introduction.part
+  references
+    introduction::PI
+    
+  defines function
+
+    printPI()
+      Stdout().println($PI)  
+//EOF</pre>
+    <p>
+      <br/>TL;DR
+    </p>
+    <h3>Summary</h3>
+    <p>
+      Constants are very simple in EK9, but in general should not be overlooked. By defining a range of constants
+      in your application you get <u>compiler support</u> because if you 'typo' a constant reference the EK9 compiler
+      will spot it. If however you just use fixed values that should be the same throughout your code but 'typo'
+      those then the compiler cannot spot that.
+    </p>
+    <p>
+      As always there is a balance to be found here. Some developers might consider the introduction of a
+      <i>constant</i> for a fixed value that is only used once in a simple <i>program</i> 'over engineering'.
+      Others might consider that values such as a 'delimiter' for file processing (as shown in the example in
+      <a href="standardTypes.html">standard types</a>) are a key part of the solution and as such should be
+      'elevated' and made more prominent.
+    </p>
+    <p>
+      After all, declaring a constant is not <u>just</u> about reuse, they are also fixed and immutable. But
+      probably more important is the fact they are given a 'name'; hopefully a meaningful name.
+      Designing software is also about making the solution obvious to humans, giving constants meaningful names aids this.
+    </p>
+
+    <h4>Balance</h4>
+    <p>
+      If you've worked on and used a range of different languages before, or worked in different industries; you
+      may have noticed some tendencies in different developers.
+    </p>
+    <p>
+      In general they start off simple, but build more and more complex webs of abstractions.
+      This sometimes gets to the point where no one can really 'see the wood for the trees'.
+      Everything becomes a façade or an interface, higher order functions use other higher order
+      functions to create yet more higher order functions (now where was I ?).
+    </p>
+    <p>
+      In short, too many levels of abstraction create cognitive load. Be sure the abstraction is worth creating.
+    </p>
+    <p>
+      While this is not really related directly to <i>constants</i>; <i>constants</i> are <u>one of the starting
+      points</u> for the
+      creation of abstractions. So when a developer looks at some processing - they have to jump over to that <i>constant</i>
+      from where
+      it has been used, you've just caused the developer to take another action. Be sure that is necessary,
+      finding this
+      balance in software development is one of the hardest things to get 'right'.
+    </p>
+    <h3>Conclusion</h3>
+    <p>
+      By using <i>constants</i> in a careful and thoughtful manner you will reduce the number of very simple
+      errors and aid other
+      developers (and yourself) in promoting those significant fixed values to a point in the code where they
+      stand out.
+    </p>
+    <h4>Next Steps</h4>
+    <p>
+      The next section on <a href="flowControl.html">flow control</a> shows the basic control structures that can
+      be used in EK9.
+    </p>
+  </article>
+</main>
+</body>
+</html>

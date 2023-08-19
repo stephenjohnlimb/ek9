@@ -1,0 +1,480 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language exceptions</title>
+  <meta name="description" content="EK9 programming language exceptions
+    are all 'unchecked'. Try can be used as an expression as well as a statement."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Exception Handling in EK9</h1>
+    </header>
+    <p>
+      All Exceptions in EK9 are <b>unchecked</b>, this means they cannot be declared as part of a
+      method or function signature. This keeps signatures clean and stops implementation details leaking
+      out (at least at the point of declaration).
+    </p>
+    <p>
+      The intention is to support Exceptions in 'exceptional' circumstances. As EK9 has support for returning
+      values that are <b>unset</b> and has support for <b>Optional</b>/<b>Result</b>; these facilities reduce
+      the need to use Exceptions to some degree.
+    </p>
+    <p>
+      Unlike some languages that allow different types of Exceptions to be 'caught'; EK9 only supports a
+      single <i>catch/handle</i> statement followed by an optional <i>finally</i> statement. This is a deliberate
+      design decision as it enables more succinct syntax and dovetails in with the
+      <a href="traits.html#dispatcher">dispatcher</a> mechanism.
+    </p>
+    <p>
+      All developer created Exception classes <b>must</b> be derived from the standard <b>Exception</b> class.
+      Exceptions are not intended to be used for <u>normal flow control</u>, there are lots of other flow
+      control mechanisms in EK9. The <b>Exception</b> is designed to be used for 'exception flow control',
+      this means when your normal expected flow cannot be followed due to some extreme circumstance (out of memory,
+      file system full for example).
+    </p>
+    <p>
+      The <a href="traits.html#dispatcher">dispatcher</a> mechanism must be employed to process specific Exceptions.
+      In general, it is best to avoid processing specific <b>Exceptions</b> in some sort of 'case statement'.
+      Where ever possible use polymorphic operators and methods on the Exception class.
+    </p>
+    <p>
+      Where this is not possible, employ the <a href="traits.html#dispatcher">dispatcher</a> to extract the details
+      from the specific Exception. The following example illustrates how this can be done.
+    </p>
+    <p>
+      The example defines a simple enumerated type, two specific developer defined <b>Exceptions</b> that have additional
+      properties and accessor methods. There are also two <i>classes</i> to demonstrate the features of Exceptions
+      and a <i>program</i> as a Driver to trigger the Exceptions.
+    </p>
+    <p>
+      The example is quite long, but is designed to give you a better feel of how exceptions can be employed.
+    </p>
+    <h4 id="example">Example</h4>
+    <pre>#!ek9
+module introduction
+
+  defines type
+
+    BigCat
+      Lion
+      Tiger
+      WildCat
+      Leopard
+      Lynx
+
+  defines class
+
+    AnException extends Exception
+      supportingInformation <- String()
+
+      AnException()
+        ->
+          primaryReason as String
+          supportingInformation as String
+          exitCode as Integer
+        super(primaryReason, exitCode)
+        this.supportingInformation :=: supportingInformation
+
+      supportingInformation()
+        <- rtn as String: supportingInformation
+
+      override operator $ as pure
+        <- rtn as String: `${information()} ${supportingInformation()} exit code ${exitCode()}`
+
+    OtherException extends Exception
+      retryAfter <- DateTime()
+
+      OtherException()
+        ->
+          reason as String
+          retryAfter as DateTime
+        super(reason)
+        this.retryAfter :=: retryAfter
+
+      retryAfter()
+        <- rtn as DateTime: retryAfter
+
+      override operator $ as pure
+        <- rtn as String: information() + " retry after " + $retryAfter()
+
+    ExceptionExample
+      clock as Clock?
+      deferProcessingUntilAfter <- DateTime()
+
+      default private ExceptionExample()
+
+      ExceptionExample()
+        -> clock as Clock
+        this.clock: clock
+
+      checkExceptionHandling()
+        -> aCat as BigCat
+        <- didProcess <- false
+
+        stdout <- Stdout()
+        stderr <- Stderr()
+
+        try
+          if deferProcessing()
+            stdout.println(`Deferred until after ${deferProcessingUntilAfter} ${aCat} not processed`)
+          else
+            triggerResult <- triggerPossibleException(aCat)
+            stdout.println(triggerResult)
+            didProcess: true
+        catch
+          -> ex as Exception
+          errorMessage <- handleException(ex)
+          stderr.println(errorMessage)
+        finally
+          stdout.println(`Finished checking ${aCat}`)
+
+      triggerPossibleException()
+        -> aCat as BigCat
+        <- rtn as String: String()
+
+        switch aCat
+          case BigCat.Lion
+            throw Exception($aCat, 1)
+          case BigCat.Tiger
+            throw AnException("Too dangerous", $aCat, 2)
+          case BigCat.Leopard
+            throw OtherException($aCat, clock.dateTime() + PT2H)
+          default
+            rtn: `Success with ${aCat}`
+
+      deferProcessing()
+        <- rtn as Boolean: deferProcessingUntilAfter? <- deferProcessingUntilAfter > clock.dateTime() else false
+
+      private handleException() as dispatcher
+        -> ex as Exception
+        <- rtn as String: $ex
+
+      private handleException()
+        -> ex as AnException
+        <- rtn as String: $ex
+        if ex.exitCode()?
+          tidyUpReadyForProgramExit()
+
+      private handleException()
+        -> ex as OtherException
+        <- rtn as String: $ex
+        this.deferProcessingUntilAfter: ex.retryAfter()
+
+      private tidyUpReadyForProgramExit()
+        Stdout().println("Would tidy up any state ready for program exit")
+
+    FileExceptionExample
+
+      demonstrateFileNotFound()
+        stdout <- Stdout()
+        stderr <- Stderr()
+
+        try
+          -> input <- TextFile("MightNotExist.txt").input()
+          cat input > stdout
+        //rather than use catch 'handle' can be used
+        handle
+          -> ex as Exception
+          stderr.println($ex)
+        finally
+          stdout.println("Automatically closed file if opened")
+
+      demonstrateNamedFileNotFound()
+        -> fileName as String
+
+        mainResults <- try
+          -> input1 <- TextFile(fileName).input()
+          <- rtn as List of String: cat input1 | collect as List of String
+
+        //Let the exceptions fly back - don't handle in here.
+        Stdout().println(`Main Results ${mainResults}]`)
+
+      demonstrateFilesNotFound()
+
+        mainResults <- try
+          ->
+            input1 <- TextFile("MightNotExist.txt").input()
+            input2 <- TextFile("AlsoMightNotExist.txt").input()
+          <-
+            rtn as List of String: cat input1, input2 | collect as List of String
+
+        //Let the exceptions fly back - don't handle in here.
+        Stdout().println(`Main Results ${mainResults}]`)
+
+  defines program
+
+    TryCatchExample()
+      stdout <- Stdout()
+      stderr <- Stderr()
+
+      //Rather than use SystemClock - simulate one so that date time can be altered.
+      //This is a way of doing a 'Fake'/'Stub'.
+      simulatedClock <- () with trait of Clock as class
+        currentDateTime as DateTime: 1971-02-01T12:00:00Z
+        override dateTime()
+          <- rtn as DateTime: currentDateTime
+
+        setCurrentDateTime()
+          -> newDateTime as DateTime
+          this.currentDateTime = newDateTime
+
+      //use the simulated clock
+      example1 <- ExceptionExample(simulatedClock)
+
+      for cat in BigCat
+        if example1.checkExceptionHandling(cat)
+          stdout.println(`Processing of ${cat} was completed`)
+        else
+          stderr.println(`Processing of ${cat} was NOT completed`)
+
+      //just try Lynx again
+      assert ~ example1.checkExceptionHandling(BigCat.Lynx)
+
+      //alter the time just passed the retry after time.
+      simulatedClock.setCurrentDateTime(simulatedClock.dateTime() + PT2H1M)
+      //Now it should be processed.
+      assert example1.checkExceptionHandling(BigCat.Lynx)
+
+      example2 <- FileExceptionExample()
+      example2.demonstrateFileNotFound()
+
+      try
+        example2.demonstrateFilesNotFound()
+      catch
+        -> ex as Exception
+        Stderr().println(`TryCatchExample: ${ex}`)
+//EOF</pre>
+    <br/>
+    <h4>Results</h4>
+    <p>
+      The results from the example above are show below.
+    </p>
+    <p>
+      With standard output as follows:
+    </p>
+    <pre>
+Finished checking Lion
+Would tidy up any state ready for program exit
+Finished checking Tiger
+Success with WildCat
+Finished checking WildCat
+Processing of WildCat was completed
+Finished checking Leopard
+Processing of Leopard was NOT completed
+Deferred until after 1971-02-01T14:00:00Z Lynx not processed
+Finished checking Lynx
+Deferred until after 1971-02-01T14:00:00Z Lynx not processed
+Finished checking Lynx
+Success with Lynx
+Finished checking Lynx
+Automatically closed file if opened
+        </pre>
+    <br/>
+    <p>
+      With error output as follows:
+    </p>
+    <pre>
+Exception: Lion
+Processing of Lion was NOT completed
+Too dangerous Tiger exit code 2
+Processing of Tiger was NOT completed
+Leopard retry after 1971-02-01T14:00:00Z
+Processing of Lynx was NOT completed
+Exception: File Not Found: MightNotExist.txt
+TryCatchExample: Exception: File Not Found: MightNotExist.txt
+        </pre>
+    <h4>Discussion</h4>
+    <p>
+      While this example is a little contrived, there are a couple of points of interest.
+    </p>
+    <ul>
+      <li>A simulated clock (<i>dynamic class</i>) has been used for testing</li>
+      <li><b>handle</b> can be used in place of <b>catch</b> - they have the same meaning</li>
+      <li>It is possible to just use <b>try</b> without <b>catch/handle</b> or <b>finally</b></li>
+      <li>Both <b>try</b> and <b>catch/handle</b> can be used without <b>finally</b></li>
+      <li><b>Try</b> and <b>finally</b> can be used without <b>catch/handle</b></li>
+      <li>There can only be one <b>catch/handle</b> clause</li>
+      <li><b>Try</b> can be used like an expression to return a value</li>
+      <li>
+        <b>Try</b> can be used with parameters that 'open' resources
+        and will automatically call 'close' on those resources.
+      </li>
+    </ul>
+    <h5 id="dispatcher">Dispatcher</h5>
+    <p>
+      By incorporating the <b>dispatcher</b> mechanism into the EK9 language it has been possible
+      to remove any need for 'casting' and 'instanceof' checking; it also means there is no need to
+      complicate the <b>switch statement</b> with type checks. As shown in the example above,
+      where specific classes have additional methods/information; that information can be accessed.
+      It is possible to extract that information and hold it as <u>state</u> in the <i>class</i>
+      if necessary.
+    </p>
+    <p>
+      The other main point is to ensure that it is not always necessary to access specific <i>class</i>
+      methods if that can be avoided (note the overridden $ operator in the Exceptions <i>classes</i>).
+    </p>
+    <p>
+      Like most other languages that support Exceptions, EK9:
+    </p>
+    <ul>
+      <li>
+        Keeps throwing the Exception up the call stack until it is caught.
+        <b>The main program will exit if it is not caught</b>
+      </li>
+      <li>
+        The <b>Exception</b> <i>class</i> supports holding an 'exit code',
+        if the Exception goes back to the main program the application will exit with that code.
+      </li>
+    </ul>
+    <h3>Summary</h3>
+    <p>
+      While the <b>try</b>, <b>catch</b>, <b>finally</b> and <b>Exception</b> control looks much like those
+      in other languages, EK9 does add quite a few features, but also removes the 'multi-catch' nature and
+      provides the <b>dispatcher</b> instead.
+    </p>
+    <p>
+      This latter restriction forces the specific 'Exception' processing to either be very standard and simple,
+      or to be delegated to <i>class methods</i> via the <b>dispatcher</b>. While this may appear inconvenient, it
+      forces 'separation' of receiving the 'Exception' and dealing with a range of logic of what to do with the
+      fact the 'Exception' has occurred.
+    </p>
+    <p>
+      While not shown in the above example it is also possible to use:
+    </p>
+    <ul>
+      <li>Guarded assignments</li>
+      <li>Assignments</li>
+      <li>Variable declarations</li>
+    </ul>
+    <p>
+      Here are a couple of examples:
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+
+    testFunction()
+      -> arg0 as String
+      <- rtn as String: String()
+
+  defines program
+
+    TryWithGuard()
+      someVar as String?
+      try someVar ?= testFunction("Steve") then
+        example2 <- FileExceptionExample()
+        example2.demonstrateNamedFileNotFound(someVar)
+      catch
+        -> ex as Exception
+        Stderr().println("TryWithGuard: " + $ex)
+
+    TryWithAssignment()
+      someVar as String?
+      try someVar: testFunction("Steve") then
+        example2 <- FileExceptionExample()
+        example2.demonstrateNamedFileNotFound(someVar)
+      catch
+        -> ex as Exception
+        Stderr().println("TryWithAssignment: " + $ex)
+
+    TryWithDeclaration()
+
+      try someVar <- testFunction("Steve") then
+        example2 <- FileExceptionExample()
+        example2.demonstrateNamedFileNotFound(someVar)
+      catch
+        -> ex as Exception
+        Stderr().println(`TryWithDeclaration: ${ex}`)
+
+      //This is a 'different' 'someVar' - the previous one is now out of scope.
+      someVar <- false
+      assert someVar?
+    </pre>
+    <br/>
+    <p>
+      The approach with the assignment/declaration mechanism is the same as that used in <b>if</b>, <b>switch</b> and <b>for</b> flow control
+      elements.
+    </p>
+    <h4>Next Steps</h4>
+    <p>
+      The next section on <a href="enumerations.html">Enumerations</a> shows more of the details of enumerations that
+      have been used in this example.
+    </p>
+  </article>
+</main>
+</body>
+</html>

@@ -1,8 +1,5 @@
 #!ek9
 defines module com.customer.just.loops
-  defines type
-    List of String
-    List of Character
 
   defines function
     workHours()
@@ -21,7 +18,7 @@ defines module com.customer.just.loops
         stdout.println(item)
 
       //Now examples with guard, assignment and declaration
-      prefix as String?
+      prefix <- String()
       for prefix ?= messagePrefix() then item in ["Alpha", "Beta", "Charlie"]
         stdout.println(`${prefix}${item}`)
 
@@ -128,6 +125,9 @@ defines module com.customer.just.loops
 
       items <- ["Alpha", "Beta", "Charlie"]
       cat items > stdout
+
+      capturedValues <- List() of String
+      cat ["Alpha", "Beta", "Charlie"], ["Delta", "Echo"] | tee in capturedValues > stdout
 
       //The alternative is when you already have an iterator
       moreItems <- ['A', 'B', 'C']
