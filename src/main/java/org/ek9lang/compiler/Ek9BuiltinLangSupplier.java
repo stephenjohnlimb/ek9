@@ -605,6 +605,8 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_BUILT_IN_TRAITS = """
           Clock
+            dateTime() as pure
+              <- rtn as DateTime: DateTime()
 
           StringInput
             next() as pure

@@ -7,7 +7,7 @@ defines module com.customer.records
 
   defines function
     defaultDateOfBirth()
-      <- rtn as Date? : Date()
+      <- rtn as Date: Date()
 
   defines record
 
@@ -39,7 +39,7 @@ defines module com.customer.records
     CustomerDetail extends IdRecord
       firstName as String: String()
       lastName as String: String()
-      dateOfBirth as Date? : defaultDateOfBirth()
+      dateOfBirth as Date: defaultDateOfBirth()
 
       CustomerDetail()
         ->

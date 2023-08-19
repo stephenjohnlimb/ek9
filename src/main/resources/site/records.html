@@ -1,0 +1,458 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language records</title>
+  <meta name="description" content="EK9 programming language records
+    are can be used as DTO aggregates, but also can have operators."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Records in EK9</h1>
+    </header>
+    <p>
+      The <b>Record</b> was briefly outlined in the <a href="structure.html#record">record</a> section in
+      'structure'. It is shown in more detail here in the form of an example.
+    </p>
+    <h3>Uses for Records</h3>
+    <p>
+      <i>Records</i> are <b>not</b>:
+    </p>
+    <ul>
+      <li>the same as the Java 14 <u>record</u></li>
+      <li>a representation of a database row (though you could use them like this if you wish)</li>
+      <li>immutable (read only) - the data in EK9 <i>records</i> <b>can</b> be changed</li>
+      <li>able to have additional methods applied to them - though you can/should implement the operators</li>
+      <li>limited - as they can extend other <i>records</i> and can be <b>open</b> for extension</li>
+    </ul>
+    <p>
+      <i>Records</i> <b>are</b>:
+    </p>
+    <ul>
+      <li>really just a 'data transfer object' in some ways</li>
+      <li>able to be defined as being <i>abstract</i></li>
+      <li>quite similar to a 'C' struct - but can have <u>operators</u></li>
+      <li>ideal for passing multiple values in and out of <i>methods</i> and <i>functions</i></li>
+      <li>able to define one or more <i>constructors</i></li>
+    </ul>
+    <h4>Data Transfer Object?</h4>
+    <p>
+      <i>Records</i> can be useful in data processing as shown in the standard types
+      <a href="standardTypes.html#customer_record">worked example</a>. In that example there were
+      two sources of 'customer record' that had to be merged and output. You might argue that the
+      <i>record</i> is like an
+      <a target="_blank" title="Anemic Model" href="https://deviq.com/domain-driven-design/anemic-model">anemic class</a>.
+      In some ways they can be! After all transmission of data structures or their storage in to a database/file
+      means that no 'behaviour' is transmitted or stored.
+    </p>
+    <p>
+      But with EK9; the <i>record</i> is <u>designed</u> to be anemic (or maybe slightly anemic). In general
+      the definition of <i>constructors/operators</i> on a <i>record</i>, does provide behaviour and functionality. But in a
+      very limited and controlled manner. If you need more than this; then use a <i>class</i>.
+    </p>
+    <p>
+      But in EK9 it is not frowned upon or considered poor style to use a 'Data Transfer Object' and
+      'do operations' on its public data with <i>functions</i>. That is what it is <u>for</u>.
+    </p>
+    <p>
+      You may consider altering state variables within a <i>record</i> a <b>dangerous</b> and risky operation, after all
+      <b>mutation</b> of aggregate data should be controlled in some way. This is why many languages have the concept of
+      <b>immutable</b> data structures (to stop such mutation).
+      <br/>
+      EK9 does not have the concept of an <b>immutable</b> or <b>final</b> or <b>const</b> modifier (it does have
+      <a href="constants.html">constants</a> however). EK9 approaches <b>immutability</b> in a different way.
+      <br/>
+      EK9 employs the <a href="basics.html#pure">pure</a> <i>method</i>/<i>function</i> modifier - this indicates that any data
+      passed in to the <i>method</i>/<i>function</i> that is marked as <a href="basics.html#pure">pure</a> cannot be <b>mutated</b>.
+    </p>
+    <p>
+      It is the mechanism of <a href="basics.html#pure">pure</a> that enables any data structure to remain <b>un-mutated</b>. This also
+      encourages the use of <a href="streamsAndPipelines.html">Streams/Pipelines</a> and cloning/copying of data (then altering the new
+      data structure during such processing).
+    </p>
+    <p>
+      "It is better to have 100 functions operate on one data structure than to have 10 functions operate on 10 data structures."
+      - Alan Perlis (SICP Foreword). You may or may not agree with these thoughts and ideas - but they are a
+      valid approach in software development.
+    </p>
+    <p>
+      If you prefer full data encapsulation and a rich object model, use <i>classes</i> and <i>components</i>
+      and leave out <i>records</i>.
+    </p>
+    <h4>The Power of Operators</h4>
+    <p>
+      When you review the example below with the <i>operators</i> that have been defined; you will probably
+      agree that the <i>record</i> is not that 'anemic'. It does provide quite a bit of behaviour in this
+      example. The approach to coding up <i>records</i> and <i>classes</i> with a fairly full set of
+      <i>operators/functionality</i> is still quite popular with developers of some languages like C++,
+      C# and Scala. But as Java has no <i>operators</i> the development of more fully rounded <i>classes</i>
+      has fallen out of favour.
+    </p>
+    <p>
+      For long-lived software; developing a fully rounded set of <i>types</i>, such as <i>records</i>
+      and <i>classes</i> really pays off in the long run. They don't have to be developed in a fully featured
+      manner right from the start. It is sometimes best to take more of a minimalist approach and only define
+      the <i>operators</i> and <i>methods</i> as you need them.
+    </p>
+    <p>
+      For some developers the pleasure of developing a fully rounded <i>type</i> and an associated set of
+      <u>unit tests</u> as examples of how it can be used, gives a sense of achievement. This is particularly the
+      case for more junior developers, where they can be given a straight forward and definitive task by more
+      senior staff/architects.
+    </p>
+    <p>
+      EK9 can provide a number of <b>operators</b> by default with a simple directive:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="c">//EK9 to provide default implementations</span>
+        </li>
+        <li>
+          <span class="k">default</span>
+          <span class="k">operator</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      EK9 can add <b>'$', '$$', '#?', '?'</b> and <b>'==', '&lt;&gt;', '&lt;=&gt;', '&lt;', '&lt;=', '&gt;', &gt;='</b> by using the fields
+      present in the <i>record</i>. But you can also provide your own implementations if you wish and EK9
+      will add in those you did not implement.
+    </p>
+    <h4 id="example">The Example Code</h4>
+    <pre>#!ek9
+defines module introduction
+
+  defines type
+
+    Index as Integer constrain as
+      > 0
+
+  defines function
+
+    defaultDateOfBirth()
+      <- rtn as Date: Date()
+
+  defines record
+
+    IdRecord as abstract
+      //We can support simple inference, but not complex expressions for fields/properties.
+      id <- Index()
+      createdAt as DateTime: SystemClock().dateTime()
+
+      IdRecord()
+        -> id as Index
+        assert id?
+        this.id: id
+
+      operator $ as pure
+        <- rtn as String: $id + " " + $createdAt
+      operator ? as pure
+        <- rtn as Boolean: id?
+      operator == as pure
+        -> item as IdRecord
+        <- rtn as Boolean: Boolean()
+        if item?
+          rtn: item.id == this.id
+      operator <> as pure
+        -> item as IdRecord
+        <- rtn as Boolean: not (item == this)
+
+    CustomerDetail extends IdRecord
+      firstName as String: String()
+      lastName as String: String()
+      dateOfBirth as Date: defaultDateOfBirth()
+
+      CustomerDetail()
+        ->
+          id as Index
+          firstName as String
+          lastName as String
+
+        super(id)
+        assert firstName?
+        assert lastName?
+        this.firstName: firstName
+        this.lastName: lastName
+
+      CustomerDetail()
+        ->
+          id as Index
+          dateOfBirth as Date
+
+        super(id)
+        assert dateOfBirth?
+        this.dateOfBirth: dateOfBirth
+
+      CustomerDetail()
+        ->
+          id as Index
+          firstName as String
+          lastName as String
+          dateOfBirth as Date
+
+        super(id)
+        assert firstName?
+        assert lastName?
+        assert dateOfBirth?
+        this.firstName: firstName
+        this.lastName: lastName
+        this.dateOfBirth: dateOfBirth
+
+      operator :=:
+        -> item as CustomerDetail
+        id :=: item.id
+        firstName :=: item.firstName
+        lastName :=: item.lastName
+        dateOfBirth :=: item.dateOfBirth
+
+      operator :~:
+        -> item as CustomerDetail
+        if not id?
+          id :=: item.id
+        if not firstName?
+          firstName :=: item.firstName
+        if not lastName?
+          lastName :=: item.lastName
+        if not dateOfBirth?
+          dateOfBirth :=: item.dateOfBirth
+
+      operator <~> as pure
+        -> item as CustomerDetail
+        <- rtn as Integer: 0
+
+        //Use a fuzzy match on string version of date of birth first
+        rtn: $this.dateOfBirth <~> $item.dateOfBirth
+        rtn += this.lastName <~> item.lastName
+        rtn += this.firstName <~> item.firstName
+
+      operator <=> as pure
+        -> item as CustomerDetail
+        <- rtn as Integer: 0
+
+        rtn: dateOfBirth <=> item.dateOfBirth
+        rtn += lastName <=> item.lastName
+        rtn += firstName <=> item.firstName
+
+      operator < as pure
+        -> item as CustomerDetail
+        <- rtn as Boolean: item <=> this < 0
+      operator > as pure
+        -> item as CustomerDetail
+        <- rtn as Boolean: item <=> this > 0
+      operator <= as pure
+        -> item as CustomerDetail
+        <- rtn as Boolean: item <=> this <= 0
+      operator >= as pure
+        -> item as CustomerDetail
+        <- rtn as Boolean: item <=> this >= 0
+      operator #^ as pure
+        <- rtn as String: $this
+
+      override operator $ as pure
+        <- rtn as String: $super + " " + firstName + " " + lastName + " " + $dateOfBirth
+      override operator ? as pure
+        <- rtn as Boolean: super? and firstName? and lastName? and dateOfBirth?
+
+  defines program
+
+    ShowCustomerRecords()
+      stdout <- Stdout()
+
+      unknownCustomer <- CustomerDetail()
+      assert ~unknownCustomer?
+
+      try
+        invalidCustomer <- CustomerDetail(Index(-1), "", "", Date())
+      catch
+        -> ex as Exception
+        stdout.println("As expected Index cannot be less than zero " + $ex)
+
+      try
+        invalidCustomer <- CustomerDetail(Index(1), String(), String(), Date())
+      catch
+        -> ex as Exception
+        stdout.println("As expected details must be set " + $ex)
+
+      customer1 <- CustomerDetail(Index(1), "Gomez", "Addams", 1963-06-08)
+      customer2 <- CustomerDetail(Index(2), "Morticia", "Addams", 1965-01-03)
+      customer3 <- CustomerDetail(Index(3), "Pugsley", "Addams", 1984-10-21)
+
+      assert customer1 <> customer2
+
+      stdout.println("Three Addams, " + customer1.firstName + " " + customer2.firstName + " and " + customer3.firstName)
+      //Some Addams we've not see before but born on same day or typo of Gomez?
+      customer4 <- CustomerDetail(Index(4), "Goetez", "Addams", 1963-06-08)
+      comp1 <- customer4 <=> customer1
+      comp2 <- customer4 <=> customer2
+      comp3 <- customer4 <=> customer3
+      stdout.println("Compares [" + $comp1 + " " + $comp2 + " " + $comp3 + "]")
+
+      best <- customer4 <~> customer1 < customer4 <~> customer2 <- customer1 else customer2
+      best: customer4 <~> customer3 < customer4 <~> best <- customer3 else best
+
+      //full copy of the details
+      unknownCustomer :=: best
+      //now while objects differ contents are the same.
+      assert unknownCustomer <=> customer1 == 0
+
+      partialCustomer1 <- CustomerDetail(Index(1), "Gomez", "Addams")
+      partialCustomer2 <- CustomerDetail(Index(1), 1963-06-08)
+      //As both are partial the result will be unset!
+      assert not (partialCustomer1 <=> partialCustomer2)?
+
+      partialCustomer1 :~: partialCustomer2
+      //After merging the two should match Gomez.
+      assert partialCustomer1 <=> customer1 == 0
+//EOF</pre>
+    <br/>
+    <h4>Constraints</h4>
+    <p>
+      The first bit of new syntax is the mechanism EK9 has to limit or <u>constrain</u> a
+      <b>type</b>. Here <i>Index</i> is an <i>Integer</i> but can only have a value greater than
+      zero. The <i>Index</i> <b>type</b> is then used as the <b>type</b> of the 'id' property in the
+      <i>record</i> 'IdRecord'.
+    </p>
+    <p>
+      <i>Index</i> is a new type - it is not interchangeable with an <i>Integer</i> and does not <b>extend</b> and <i>Integer</i>.
+    </p>
+    <h4>The Records</h4>
+    <p>
+      This example shows two <i>records</i>, the 'IdRecord' and 'CustomerDetail'. The 'IdRecord'
+      is straight forward; with just two fields/properties and a number of <i>operators</i>. However,
+      it is <i>abstract</i>; meaning that it cannot be instantiated in of itself.
+    </p>
+    <p>
+      The 'CustomerDetail' <i>record</i> has a number of different constructors and quite a wide range of
+      <i>operators</i>. Read up on <a href="operators.html">operators</a> if any of these are unfamiliar.
+      This record makes good use of the <b>copy</b>, <b>merge</b> and <b>fuzzy match</b> operators but also
+      includes the <b>comparison</b> operators. As you can see there is quite a bit of functionality and behaviour
+      in this <i>record</i>
+    </p>
+    <h4>Using the CustomerDetail record</h4>
+    <p>
+      The <i>program</i> 'ShowCustomerRecords' is a small example to illustrate how the <i>record</i> can
+      be used. Note the fact that the <i>record</i> fields/properties are <u>public</u>.
+    </p>
+    <h5>Exceptions</h5>
+    <p>
+      There are a couple of <b>try/catch</b> blocks shown in the example. The first is to catch the fact that
+      the <i>program</i> tries to create a 'CustomerDetail' object with an id of '-1'. The second
+      <b>try/catch</b> block is to catch the <i>Exception</i> that is thrown in the 'CustomerDetail'
+      constructor when the <b>assert</b> statement is used.
+      It will throw and <i>Exception</i> if the expression in the
+      <b>assertion</b> returns false. So it is very strict and will bring processing to a halt unless the
+      Exceptions are caught.
+    </p>
+    <p>
+      The alternative to using <b>Exceptions</b> is to leave each of the objects <b>unset</b> and handle that
+      aspect in the calling code.
+    </p>
+    <h5>Using the Operators</h5>
+    <p>
+      What follows in the example is a range of different statements involving the <i>operators</i> implemented
+      in the <i>record</i>. The <b>fuzzy match (<~>)</b> is used in conjunction with a <i>ternary</i> operator
+      to find the best match for a 'CustomerDetail' <i>Record</i> (first name - 'Goetez').
+    </p>
+    <p>
+      Finally the <b>merge (:~:)</b> operator is used to merge two partially records together and that is then
+      compared to the 'customer1' (Gomez Addams) <i>record</i>.
+    </p>
+    <h3>Summary</h3>
+    <p>
+      The example above is fairly long and has a couple of bits of syntax not seen before. But hopefully
+      it demonstrates how <i>records</i> can provide quite a significant amount of functionality and are
+      a little more than just simple <u>Data Transfer Objects</u>. By enabling the use of a finite set of
+      <i>operators</i> EK9 gives <i>records</i> a very specific, but valuable role in any solution
+      developed.
+    </p>
+    <p>
+      If you are a more <i>functional</i> programmer, then <i>records</i> and <a href="functions.html">functions</a>
+      are pretty much perfect when linked with the <b>pure</b> key word. For Object-Oriented programmers,
+      maybe the inclusion of <a href="operators.html">operators</a> on a 'DTO' will be useful, but there are
+      <a href="traits.html">traits</a> and <a href="classes.html">classes</a> yet to come.
+    </p>
+    <p>
+      A more functional approach would probably <b>not</b> employ <b>Exceptions</b> and would use the <b>unset</b>
+      nature included in EK9 as these would work well with <a href="streamsAndPipelines.html">Streams/Pipelines</a>.
+    </p>
+    <h4>Next Steps</h4>
+    <p>
+      The next section shows how <a href="functions.html">functions</a> can be both abstract and polymorphic.
+    </p>
+  </article>
+</main>
+</body>
+</html>
