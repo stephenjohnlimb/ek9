@@ -1,0 +1,406 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language traits</title>
+  <meta name="description" content="EK9 programming language traits
+    are designed to be used with classes and facilitate delegation."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Traits in EK9</h1>
+    </header>
+    <p>
+      The <b>trait</b> has been touched on in the <a href="structure.html#trait">structure</a> section. This shows how
+      a <i>trait</i> can be used to control/limit <i>class</i> <u>extension</u>.
+    </p>
+    <h3>Main uses for <i>traits</i></h3>
+    <p>
+      If you are familiar with Java you may consider that <i>traits</i> are just like a <u>Java Interface</u>;
+      there are some similarities but also several features in EK9 where <i>traits</i> play a significantly
+      different role. In fact the <i>trait</i> unlike the <u>Java Interface</u> provides real structural
+      enabling/constraining power.
+      In many ways it provides much more control than a <i>class</i>, but less implementation functionality;
+      and <b>no</b> retained state.
+    </p>
+    <p>
+      Take your time when reading this section and reviewing the example. If you've used other programming
+      languages <b>don't</b> assume that the <i>trait</i> in EK9 is just some minimal cut down
+      <i>abstract class</i> that can be skimmed over.
+    </p>
+    <h4>The main features/characteristics</h4>
+    <ul>
+      <li>Constraining Class Extension</li>
+      <li>Providing a signature interface</li>
+      <li>Trait inheritance</li>
+      <li>Facilitates Composition</li>
+    </ul>
+    <h3 id="traits_example">Traits Example</h3>
+    <p>
+      There are quite a few ideas covered in the following example; these are discussed following the example.
+    </p>
+    <p>
+      The <i>program</i> 'ProcessorTest' below creates a number of 'Processors' and then iterates over those
+      'Processors' and calls <b>process</b> to get a 'ProcessingResponse'. That response is then passed to
+      'ResultBuilder' via the <b>build</b> method to create an output String.
+    </p>
+    <p>
+      There are different 'Processor' <i>classes</i> that exhibit the <i>trait</i> of 'Processor'. This
+      is to demonstrate how different implementations can exhibit the same <i>trait</i> (they all meet the same signature).
+      The 'Processor' <i>trait</i> also inherits from <i>traits</i> 'CostAssessment' and 'Moniterable'. The
+      <i>Method</i> <u>lowCost</u> is declared in both of those <i>traits</i> (to demonstrate a name clash).
+    </p>
+    <p>
+      The 'DelegatingProcessor' shows how <u>composition</u> works. There are also two <i>classes</i> of
+      'StringResponse' and 'StructuredResponse' that both exhibit the <i>trait</i> of 'ProcessingResponse'.
+      This provides a <i>method</i> called 'result()'.
+    </p>
+    <h4>The Example</h4>
+    <pre>#!ek9
+defines module introduction
+
+  defines trait
+
+    CostAssessment
+      lowCost() as pure
+        <- rtn <- true
+
+    Moniterable
+      available() as pure
+        <- rtn <- true
+      lowCost() as pure
+        <- rtn <- false
+
+    Processor with trait of Moniterable, CostAssessment
+      process()
+        <- response as ProcessingResponse?
+
+      override lowCost() as pure
+        <- rtn as Boolean: CostAssessment.lowCost()
+
+    ProcessingResponse allow only StringResponse, StructuredResponse
+      result()
+        <- rtn as String?
+
+  defines class
+
+    StringResponse with trait of ProcessingResponse as open
+      theResponse as String: String()
+
+      StringResponse() as pure
+        -> response as String
+        theResponse :=: response
+
+      StringResponse() as pure
+        this(String())
+
+      override result()
+        <- rtn as String: theResponse
+
+    StructuredResponse is StringResponse
+      contentType as String: String()
+
+      StructuredResponse() as pure
+        ->
+          response as String
+          contentType as String
+        super(response)
+        this.contentType :=: contentType
+
+      StructuredResponse() as pure
+        ->
+          response as String
+        this(response, "text/plain")
+
+      contentType() as pure
+        <- rtn as String: contentType
+
+    SimpleProcessor with trait of Processor
+
+      override process()
+        <- response as ProcessingResponse: StringResponse("Simple Message")
+
+    DelegatingProcessor with trait of Processor by proc
+      proc as Processor?
+
+      DelegatingProcessor() as pure
+        -> processorToUse as Processor
+        proc: processorToUse
+
+      DelegatingProcessor() as pure
+        this(SimpleProcessor())
+
+      override lowCost() as pure
+        <- rtn as Boolean: false
+
+     XMLProcessor with trait of Processor
+      override process()
+        <- response as ProcessingResponse: StructuredResponse("<tag>Simple Message</tag>", "text/xml")
+      override lowCost() as pure
+        <- rtn as Boolean: false
+
+    JSONProcessor with trait of Processor
+      override process()
+        <- response as ProcessingResponse: StructuredResponse(
+          response: `{"name": "John", "age": 31, "city": "New York"}`,
+          contentType: "application/json"
+        )
+
+    ResultBuilder
+
+      build() as dispatcher
+        -> response as ProcessingResponse
+        <- rtn as String: response.result()
+
+      build()
+        -> response as StringResponse
+        <- rtn as String: `"${response.result()}"`
+
+      build()
+        -> response as StructuredResponse
+        <- rtn as String: `${response.contentType()} (( ${response.result()} ))`
+
+  defines program
+
+    ProcessorTest
+      stdout <- Stdout()
+
+      processors <- [ SimpleProcessor(), XMLProcessor(), DelegatingProcessor(JSONProcessor()), JSONProcessor()]
+
+      for processor in processors
+        response <- processor.process()
+        stdout.println(ResultBuilder().build(response))
+
+//EOF</pre>
+    <p>
+      The output of the <i>program</i> above would be:
+    </p>
+    <pre>
+"Simple Message"
+text/xml (( &lt;tag&gt;Simple Message&lt;/tag&gt; ))
+application/json (( {"name": "John", "age": 31, "city": "New York"} ))
+application/json (( {"name": "John", "age": 31, "city": "New York"} ))
+        </pre>
+    <p>
+      The <i>class</i> 'ResultBuilder' is acting as a <u>decorator</u> (design pattern), it has the
+      ability to access the additional method <u>contentType()</u> because the <b>dispatcher</b>
+      has ensured the right <i>method</i> is called with the right <b>type</b> of parameter.
+    </p>
+    <h4>What has been shown in the Example</h4>
+    <p>
+      The example above is quite sophisticated in terms of structure control. Each aspect of <i>traits</i>
+      is discussed below.
+    </p>
+    <h4 id="allow_only">Constraining Extension</h4>
+    <p>
+      As outlined above; a <i>trait</i> can be used to control the degree to which <i>classes</i> may extend the
+      <i>trait</i>. This can be very useful in the development of API's, library classes and sub systems. If the
+      developer needs to ensure that the traits/classes they have developed can be used (but not extended)
+      by users of their API; then applying constraints on a <i>trait</i> provides a flexible way of accomplishing
+      this. EK9 also has the limitation of extending classes by default if they are not <b>open</b>.
+    </p>
+    <p>
+      In some other languages the use of <b>final</b> is the only mechanism to limit extension. Some
+      languages have <b>sealed types</b> similar to this concept.
+    </p>
+    <p>
+      See:
+    </p>
+    <pre>ProcessingResponse allow only StringResponse, StructuredResponse</pre>
+    <h4>Providing a signature interface</h4>
+    <p>
+      This is the traditional use for <u>interfaces/traits</u> it really just consists of a set of <i>method</i>
+      signatures. The <i>trait</i> can then be used in abstract way.
+      Both 'Processor' and 'ProcessingResponse' are really just signatures, although 'ProcessingResponse' also
+      constrains the <i>classes</i> that may use it as a <i>trait</i>.
+    </p>
+    <p>
+      With <i>traits</i>; concrete (non <i>abstract</i>) <i>methods</i> can be implemented (a little like default methods
+      on interfaces in Java). The <i>trait</i> 'Processor' has such a method; <u>lowCost</u> demonstrates this.
+      The <i>class</i> 'XMLProcessor' overrides this method to demonstrate that it is possible alter the
+      implementation if needs be.
+    </p>
+    <h4>Trait inheritance</h4>
+    <p>
+      Inheritance/multiple inheritance of <i>traits</i> is also supported
+      as shown with 'CostAssessment', 'Moniterable' and its use in 'Processor'. However, there is a significant point to
+      note here, where two <i>methods</i> like <u>lowCost</u> conflict - the <i>trait</i> or <i>class</i> where they are
+      used together has to override that method.
+    </p>
+    <p>
+      The resolution of this conflict is shown in the 'Processor' <i>trait</i>. It overrides the <u>lowCost</u> <i>method</i>
+      and then delegates the call to <u>CostAssessment.lowCost()</u> it could have used <u>Moniterable.lowCost()</u> or
+      indeed just used <u>true/false</u>.
+    </p>
+    <h4>Composition</h4>
+    <p>
+      One of the biggest benefits of defining <i>traits</i> in EK9 is the ability to use automatic <u>composition</u>.
+      In the example there are a number of 'Processors' these are aimed to processing data to produce a
+      'ProcessingResponse'. The
+      <b>DelegatingProcessor with trait of Processor by proc</b> demonstrates the use of <u>composition</u>.
+    </p>
+    <p>
+      The <b>by proc</b> syntax is the key part here; this syntax triggers the delegation of the trait methods to the 'proc'
+      private field object. This simple directive means that the class can now direct all calls to that delegate, but can
+      optionally elect to override and provide the method implementations itself.
+      <b>Just take a moment and think about what that means</b>; delegation is now as easy as inheritance!
+      It might not always be appropriate, but now you have a simple syntax option to adopt delegation.
+    </p>
+    <p>
+      As you can see it is not necessary to implement all the <i>methods</i> that 'Processor' defines when
+      using <u>composition</u>.
+      All the other 'Processors' have to implement the <i>abstract methods</i> defined in 'Processor':
+    </p>
+    <ul>
+      <li><b>SimpleProcessor with trait of Processor</b></li>
+      <li><b>XMLProcessor with trait of Processor</b></li>
+      <li><b>JSONProcessor with trait of Processor</b></li>
+    </ul>
+    <p>
+      The additional use of <b>by proc</b> is the mechanism for <u>composition</u>; this expects a
+      Property/Field in the 'DelegatingProcessor' called 'proc' which <b>is of type</b> 'Processor'.
+      Just by using this statement (and creating 'proc' and setting it) all the method calls to
+      the 'DelegatingProcessor' will be automatically routed to that delegate.
+    </p>
+    <p>
+      The construction of the 'DelegateProcessor' with
+      <b>DelegatingProcessor(JSONProcessor())</b>
+      could have been done with an 'XMLProcessor' parameter and the behaviour would have been altered.
+      This is <u>composition</u>; it is way more flexible in many ways than inheritance. It also enforces/
+      reinforces encapsulation and direct re-use.
+    </p>
+    <p>
+      Importantly it is possible to use this with any number of <i>traits</i>;
+      and so compose <i>classes</i> out of a range of other <i>classes</i> with compatible <i>traits</i>;
+      through the use of <u>composition</u>. As <i>classes</i> can exhibit multiple <i>traits</i>;
+      class behaviour can be <u>composed</u> from multiple <i>classes</i>, in a way similar to
+      multiple class inheritance (but much simpler and more maintainable).
+    </p>
+    <p>
+      It is still possible to override the <i>methods</i> for some parts of the 'Processor' signature
+      in the <i>class</i> should you wish to. So in the example above, the <i>method</i> <u>lowCost</u>
+      is not delegated but is re-implemented. But <i>method</i> <u>available</u> has been delegated.
+    </p>
+    <h5>Thoughts</h5>
+    <p>
+      The use of <i>traits</i> provides way more than just a 'set of method signatures'. Yes is can and
+      should be used for that. It has way more power; by facilitating easy delegation and constraining
+      the <i>classes</i> that can use it. It is not just an <b>abstract class</b>!
+    </p>
+    <p>
+      Please take some time to understand the <i>trait</i> because it is quite different to what most other
+      programming languages offer.
+    </p>
+    <h4 id="dispatcher">Dispatcher</h4>
+    <p>
+      While not really related directly to <i>traits</i> the <i>class</i> 'ResultBuilder' has a <i>method</i>
+      called <u>build</u>. That <i>method</i> is marked up as a <b>dispatcher</b>.
+      Interestingly that class has two other <i>methods</i> also called <u>build</u>, but with different
+      parameter types.
+    </p>
+    <p>
+      The important point of the <b>dispatcher</b> syntax is that it removes the need for detecting the
+      types of <i>classes/traits</i>. This is done with the <u>build</u> <i>method</i> and parameter of
+      'ProcessingResponse'. This is just the base <i>trait</i>, but by marking the <u>build</u> <i>method</i>
+      as a <b>dispatcher</b>; EK9 will look at the actual type of Object passed in and then automatically
+      call the appropriate <u>build</u> method. This is covered in more detail in section <a href="advancedClassMethods.html">
+      advanced class methods</a>.
+    </p>
+    <p>
+      This feature removes the need to <u>cast</u> Objects or use any syntax like <u>instanceof</u>, EK9
+      does not support casting or the detection of <b>types</b>. You could view the <i>class</i> 'ResultBuilder'
+      as a sort of 'switch statement for types'. It has a default behaviour, but will attempt to find a <i>method</i>
+      that accepts the type the parameter actually is - rather than just the type that was passed in.
+    </p>
+    <p>
+      The biggest advantage of this approach is the retention of Object-Oriented approach and the avoidance
+      of 'class cast exceptions'. Using 'casting' and 'instanceof' techniques creates <u>brittle</u> code
+      that does not <u>refactor</u> easily.
+    </p>
+    <h3>Summary</h3>
+    <p>
+      <i>Traits</i> can be used in a very sophisticated and flexible manner to provide control and abstraction.
+      They allow Objects to be viewed in different but complementary ways and facilitate design through <u>composition</u>
+      rather than just <u>inheritance</u>.
+    </p>
+    <p>
+      If you ever find you need functionality from one <i>class</i> in another <i>class</i>, don't just think
+      of an inheritance structure as this can be very limiting. Consider <i>traits</i> and <u>composition</u>
+      by refactoring <i>classes</i> into smaller units and extracting method signatures out to <i>traits</i>.
+    </p>
+    <h3>Next Steps</h3>
+    <p>
+      There is more on this subject in the section on <a href="composition.html">composition</a>.
+    </p>
+  </article>
+</main>
+</body>
+</html>

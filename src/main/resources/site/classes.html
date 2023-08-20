@@ -1,0 +1,418 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language classes</title>
+  <meta name="description" content="EK9 programming language classes
+    are the primary object-oriented construct."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Classes in EK9</h1>
+    </header>
+    <p>
+      The <b>Class</b> was briefly outlined in the <a href="structure.html#class">class</a> section in
+      <a href="structure.html">structure</a>. This section details the simple use of classes and inheritance.
+      <a href="generics.html">Generic/Template</a> <i>classes</i> can also be developed but are slightly
+      more complex and so are covered in more detail separately.
+      <i>Classes</i> can also be created by using <a href="dynamicClasses.html"><i>dynamic classes</i></a>;
+      these can provide a lightweight implementation of <a href="traits.html">traits</a>, <i>classes</i>
+      are revisited in that section.
+    </p>
+    <h3>Uses for Classes</h3>
+    <p>
+      A Class in an Object-Oriented language is the main <b>construct</b> of development. In EK9 <i>classes</i>
+      are still important but can be augmented with other <b>constructs</b> such as <i>functions</i>,
+      <i>records</i> and <i>components</i>. They are not designed to be your primary development focus.
+    </p>
+    <p>
+      The main structural parts of a <i>class</i> are:
+    </p>
+    <ul>
+      <li>An optional <b>super</b> <i>class</i>; only single inheritance is supported</li>
+      <li>Optional <i>trait(s)</i></li>
+      <li>Any number of <u>private</u> <u>properties/fields</u> to hold state on the <i>class</i>, though you might delegate this to a <i>record</i></li>
+      <li>Any number of <u>methods</u> that can be <u>public</u>, <u>protected</u> or <u>private</u></li>
+      <li>Implementations of the standard <a href="operators.html">operators</a></li>
+    </ul>
+    <p>
+      The <u>properties/fields</u> are always <u>private</u>. The <u>methods</u> can be overloaded (i.e. take different
+      combinations of parameters) but use the same name.
+    </p>
+    <p>
+      It is possible to create <i>classes</i> that are <i>abstract</i>; i.e. can only be <b>extended</b> and cannot be instantiated
+      directly. Furthermore non <i>abstract classes</i> are by default 'closed' meaning they cannot be extended. If the developer
+      wishes to enable the <i>class</i> to be extended then they must 'open' the class up.
+    </p>
+    <p>
+      This last point will probably polarize developers. The main reason for this it to encourage wider use of
+      <a href="traits.html">traits</a> and <a href="composition.html">composition</a>.
+      This is in contrast to always looking to <a href="inheritance.html">inheritance</a> as the solution.
+      This 'pain' has been deliberately placed here for that reason.
+    </p>
+    <h4 id="shape_example">Shape Example</h4>
+    <p>
+      The example below shows a traditional class hierarchy, there is a mix of <i>abstract</i>, <i>open</i> and <i>closed</i> classes.
+    </p>
+    <p>
+      One of the advantages of creating a class hierarchy like this; is the ability to use the <i>abstract</i>
+      concept of a shape with a <a href="collectionTypes.html">collection</a> and then use that to trigger some
+      processing that is applicable to all <b>sub classes</b> of shape, the same sort of reasoning also applies to
+      <a href="traits.html"><i>traits</i></a>.
+    </p>
+    <p>
+      The <i>program</i> 'DrawShapes' demonstrates two different ways to trigger the drawing of each type of shape.
+      Firstly, note the construction of a <u>List of Shape</u>; EK9 looks at each of the <b>types</b> in the definition
+      of the <i>List</i> and finds the common <b>type</b>, it can then infer what 'shapes' is a list of.
+    </p>
+    <p>
+      In this case it is a <i>List of Shape</i>. This is then used in a <b>for</b> loop and then a processing
+      pipeline to show the two different ways the shapes in the list can be used.
+    </p>
+    <p>
+      The <u>only</u> <i>method</i> is <b>draw</b>, and all this does is print out the
+      fact it would draw the particular shape. If the example was to be extended to actually define widths, heights
+      centre points, then an appropriate class structure would be needed. Indeed, it probably would be the case that
+      while from a mathematical point of view a <i>Square</i> is a <i>Rectangle</i>.
+    </p>
+    <p>
+      It would <b>not</b> be modelled this way as it would mean that <i>methods</i> such as <b>setWidth</b> and
+      <b>setHeight</b> on the <i>Rectangle</i> would be inherited by <i>Square</i> and this would not actually make
+      sense (for a Square). So the expected behaviour of those methods would not really conform to the
+      <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution principle</a>.
+    </p>
+    <p>
+      As mentioned in the <a href="operators.html#defaults">operators</a> section; EK9 can provide one off
+      implementations for some <b>operators</b> when they are not marked abstract and no body/return value is
+      implemented. This is shown below in the <b>Coordinate</b> <i>class</i> together with a default constructor
+      with no body.
+    </p>
+    <p>
+      In this case a default constructor for <b>Coordinate</b> is made publicly available. If the developer
+      wished to prevent default object construction of a <b>Coordinate</b> then the constructor could have
+      been marked as <b>private</b>.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+
+    doDrawing() as abstract
+      -> message as String
+
+    doSimpleDrawing() is doDrawing
+      -> message as String
+      Stdout().println(message.lowerCase())
+
+    doFancyDrawing() extends doDrawing
+      -> message as String
+      Stdout().println(message.upperCase())
+
+    drawShape()
+      -> shape as Shape
+      <- drawn as Bits: Bits(shape.draw())
+
+  defines class
+
+    Coordinate
+      x Float: 0.0
+      y Float: 0.0
+
+      //Sort of lombok like, no implementation needed.
+      default Coordinate()
+
+      //Constructor
+      Coordinate()
+        ->
+          initialX as Float
+          initialY as Float
+
+        x :=: initialX
+        y :=: initialY
+
+      x()
+        <- rtn as Float: x
+
+      y()
+        <- rtn as Float: y
+
+      operator + as pure
+        -> coord as Coordinate
+        <- rtn as Coordinate: Coordinate(this.x() + coord.x(), this.y() + coord.y())
+
+      operator +=
+        -> coord as Coordinate
+        this.x += coord.x()
+        this.y += coord.y()
+
+      operator - as pure
+        -> coord as Coordinate
+        <- rtn as Coordinate: Coordinate(this.x() - coord.x(), this.y() - coord.y())
+
+      operator -=
+        -> coord as Coordinate
+        this.x -= coord.x()
+        this.y -= coord.y()
+
+      //Instruction to add in additional operators where these can be auto generated.
+      default operator
+
+    Shape as abstract
+      draw() as abstract
+        <- drawn as Boolean?
+
+    Ellipse extends Shape as open
+      override draw()
+        <- drawn as Boolean: true
+        doDraw("Draw Ellipse")
+
+      protected doDraw()
+        -> message as String
+        Stdout().println(message)
+
+    Circle is Ellipse
+      override draw()
+        <- drawn as Boolean: true
+        doDraw("Draw Circle")
+
+    Rectangle is Shape
+      shouldDraw as Boolean: true
+
+      Rectangle()
+        -> doDraw as Boolean
+        shouldDraw: doDraw
+
+      override draw()
+        <- drawn as Boolean: shouldDraw
+        if shouldDraw
+          Stdout().println("Draw Rectangle")
+
+    Triangle is Shape
+      override draw()
+        <- drawn as Boolean: true
+        Stdout().println("Draw Triangle")
+
+    Square is Shape
+      drawingFunction as doDrawing?
+      message as String: "Draw Square"
+
+      Square()
+        -> functionToDraw as doDrawing
+        this.drawingFunction = functionToDraw
+
+      override draw()
+        <- drawn as Boolean: true
+        if drawingFunction?
+          drawingFunction(message)
+        else
+          Stdout().println(message)
+
+  defines program
+    DrawShapes()
+      stdout <- Stdout()
+      stdout.println("Will draw shapes")
+
+      shapes <- [
+        Circle(),
+        Square(),
+        Ellipse(),
+        Rectangle(),
+        Triangle(),
+        Square(doSimpleDrawing),
+        Square(doFancyDrawing),
+        Rectangle(false)
+        ]
+
+      //Procedural
+      for shape in shapes
+        shape.draw()
+
+      //Functional
+      drawnShapes <- cat shapes | map with drawShape | collect as Bits
+      stdout.println("Shapes drawn is: " + $drawnShapes)
+
+      //You could have also done this
+      shapeInfo <- cat [
+        Circle(),
+        Square(),
+        Ellipse(),
+        Rectangle(),
+        Triangle(),
+        Square(doSimpleDrawing),
+        Square(doFancyDrawing),
+        Rectangle(false)
+        ]
+        | map with drawShape
+        | collect as Bits
+
+//EOF</pre>
+    <br/>
+    <p>
+      When defining a <i>class</i> that is not <i>abstract</i> it can be made extendable by using the
+      <b>open</b> modifier. See <a href="composition.html#composition_example">composition</a> for <b>open</b>
+      usage specifically for <i>class</i> 'SalaryPolicy' and <a href="structure.html#open_classes">structure</a>.
+    </p>
+    <p>
+      The modifier keyword <b>override</b> must be used Whenever <i>methods</i> in a base <i>class</i> are overridden
+      in a sub <i>class</i> (as in the cases for <u>draw</u> above).
+    </p>
+    <p>
+      By default all <i>methods</i> on <i>classes</i> are <u>public</u> (there is no need to declare them
+      <u>public</u>). In the case of the <b>doDraw</b> <i>method</i> in the example above the modifier
+      keyword <b>protected</b> has been used. This means that only 'Ellipse' and 'Circle' can call that <i>method</i>
+      - it is not publicly available. If there were classes that extended 'Circle' or 'Ellipse' they would have to be
+      marked as <b>open</b> and then those <i>classes</i> could call <b>doDraw</b> indeed they could also <b>override</b>
+      that method.
+    </p>
+    <p>
+      Properties defined on <i>classes</i> are all <u>private</u> and cannot be shared other than though <i>method</i>
+      accessors. The <u>private</u> property/field <b>shouldDraw</b> on in the 'Rectangle' <i>class</i> is only
+      visible in that <i>class</i>.
+    </p>
+    <h4>Constructors</h4>
+    <p>
+      With default constructors (constructors that take no parameters) it is possible to declare the constructor
+      with <b>no body</b> (as shown above with Coordinate). Furthermore, it is possible to make these
+      constructor <b>protected/private</b> rather than just being public.
+    </p>
+    <p>
+      You may wonder why EK9 has this feature; it enables the developer to quickly and easily define and control
+      the visibility of the class default constructor; thereby limiting/controlling its use.
+    </p>
+    <h4>Methods</h4>
+    <p>
+      Some languages support the idea of <b>static methods/variables</b> on the <i>class</i> itself rather than just
+      <i>methods/properties</i> on Object instances. EK9 does <b>not</b> support this. All methods must be on an Object instance,
+      though they do not have to <u>mutate</u> the Object or even use the Object's state. An example of this would be
+      <b>Clock - time() specifically SystemClock().time()</b>. So in EK9 creating an Object instance and using a <i>method</i>
+      like this <u>is acceptable/necessary</u>. In the example of 'Clock' which is a <i>trait</i> alternative implementations
+      to <b>SystemClock</b> can be developed and substituted where necessary (testing for example).
+    </p>
+    <h4>Extending Functionality</h4>
+    <p>
+      Clearly functionality can be added through inheritance. But 'Square' has had functionality and behaviour modified without
+      inheritance. This has been accomplished by using a <i>function</i> delegate. See <a href="traits.html">traits</a> for
+      additional ways to extend functionality without just using inheritance. <u>Composition</u> is a capability built into the
+      EK9 language and this increases reuse and removes the need for <u>multiple class inheritance</u>.
+    </p>
+    <p>
+      The <i>program</i> 'DrawShapes' creates three different instances of 'Square'; one without a delegate and the other two with
+      different delegates. When the <i>method</i> <b>draw</b> is called on 'Square' a check is made to see if a <i>function delegate</i>
+      has been configured. If so the delegate is called, if not the standard functionality is triggered.
+    </p>
+    <p>
+      This is an alternative for altering behaviour without inheritance (EK9 does not support 'mixins'), but EK9 does support
+      <u>delegation</u> to other <u>classes</u> where they are compatible and also <u>function delegates</u>.
+      The only issue with delegation is access to <b>private</b> state variables is not possible.
+      This is actually a good thing as it enforces encapsulation.
+    </p>
+    <h4>Operators</h4>
+    <p>
+      The 'Coordinate' <i>class</i> has been used to demonstrate some the <i>operators</i> that can also be
+      added to <i>classes</i>. All <a href="operators.html">operators</a> can be implemented on <i>classes</i>
+      if necessary.
+    </p>
+    <p>
+      As with <i>records</i>; <i>classes</i> support the <b>default operator</b> syntax; see
+      <a href="operators.html#defaults">operators</a> for more details on this. This capability has been provided
+      so that operators can be provided with a default implementation (if the solution is logical and simple). But,
+      EK9 also enables the developer to override and provide their own implementations of each of the operators
+      as well. If the developer provides their own implementations for some operators; EK9 will add in those
+      <b>operators</b> it can with default implementations if the <b>default operator</b> syntax is used after all
+      operators implementations.
+    </p>
+    <h3>Summary</h3>
+    <p>
+      The example above shows <i>classes</i> and also a
+      <i>function delegate</i>. In general <i>classes</i> should have state and behaviour. If you find
+      your <i>classes</i> seem to only hold state then consider using <i>records</i>, if on the other hand
+      you find you have <i>classes</i> with many <i>methods</i> that don't really relate to that <i>class</i>
+      consider pulling them out to <i>functions</i>. There will be times when you need some functionality that seems to
+      need to be in two different <i>classes</i>. These can make good candidates for a <i>function delegate</i>.
+    </p>
+    <h4>Next Steps</h4>
+    <p>
+      There is much more on <i>classes</i> yet to come in
+      <a href="methods.html">methods</a>,
+      <a href="traits.html">traits</a>,
+      <a href="composition.html">extension by composition</a>,
+      <a href="inheritance.html">inheritance</a>,
+      <a href="dynamicClasses.html">dynamic classes</a> and
+      <a href="advancedClassMethods.html">advanced class methods</a>.
+    </p>
+  </article>
+</main>
+</body>
+</html>

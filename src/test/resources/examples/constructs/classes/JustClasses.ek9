@@ -1,9 +1,6 @@
 #!ek9
 defines module com.customer.just
 
-  defines type
-    List of Shape
-  
   defines function    
           
     doDrawing() as abstract

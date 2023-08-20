@@ -1,0 +1,116 @@
+#!ek9
+defines module com.customer.traits
+
+  defines trait
+
+    CostAssessment
+      lowCost() as pure
+        <- rtn <- true
+        
+    Moniterable
+      available() as pure
+        <- rtn <- true
+      lowCost() as pure
+        <- rtn <- false
+        
+    Processor with trait of Moniterable, CostAssessment
+      process()
+        <- response as ProcessingResponse?
+
+      override lowCost() as pure
+        <- rtn as Boolean: CostAssessment.lowCost()  
+
+    ProcessingResponse allow only StringResponse, StructuredResponse
+      result()
+        <- rtn as String?
+        
+  defines class
+
+    StringResponse with trait of ProcessingResponse as open
+      theResponse as String: String()
+      
+      StringResponse() as pure
+        -> response as String
+        theResponse :=: response
+      
+      StringResponse() as pure
+        this(String())
+          
+      override result()
+        <- rtn as String: theResponse
+    
+    StructuredResponse is StringResponse
+      contentType as String: String()
+      
+      StructuredResponse() as pure
+        ->
+          response as String
+          contentType as String
+        super(response)
+        this.contentType :=: contentType
+      
+      StructuredResponse() as pure
+        ->
+          response as String          
+        this(response, "text/plain")        
+        
+      contentType() as pure
+        <- rtn as String: contentType
+           
+    SimpleProcessor with trait of Processor
+
+      override process()
+        <- response as ProcessingResponse: StringResponse("Simple Message")
+    
+    DelegatingProcessor with trait of Processor by proc
+      proc as Processor?
+      
+      DelegatingProcessor() as pure
+        -> processorToUse as Processor
+        proc: processorToUse
+        
+      DelegatingProcessor() as pure
+        this(SimpleProcessor())
+    
+      override lowCost() as pure
+        <- rtn as Boolean: false
+      
+    XMLProcessor with trait of Processor
+      override process()
+        <- response as ProcessingResponse: StructuredResponse("<tag>Simple Message</tag>", "text/xml")
+      override lowCost() as pure
+        <- rtn as Boolean: false
+        
+    JSONProcessor with trait of Processor
+      override process()
+        <- response as ProcessingResponse: StructuredResponse(
+          response: `{"name": "John", "age": 31, "city": "New York"}`,
+          contentType: "application/json"
+        )
+    
+    ResultBuilder     
+      
+      build() as dispatcher
+        -> response as ProcessingResponse
+        <- rtn as String: response.result()
+        
+      build()
+        -> response as StringResponse
+        <- rtn as String: `"${response.result()}"`
+        
+      build()
+        -> response as StructuredResponse
+        <- rtn as String: `${response.contentType()} (( ${response.result()} ))`
+              
+  defines program
+  
+    ProcessorTest
+      stdout <- Stdout()
+      
+      processors <- [ SimpleProcessor(), XMLProcessor(), DelegatingProcessor(JSONProcessor()), JSONProcessor()] 
+      
+      for processor in processors
+        response <- processor.process()
+        stdout.println(ResultBuilder().build(response))
+                 
+//EOF

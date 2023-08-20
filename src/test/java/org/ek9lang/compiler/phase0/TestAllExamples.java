@@ -52,8 +52,11 @@ final class TestAllExamples {
   @Test
   void testValidEK9ExampleSource() {
     var func = readabilityAssessor.compose(getTestFunction(false));
-
     var before = System.currentTimeMillis();
+
+    //Tried using virtual threads, but parallel stream is just as fast.
+    //Normal stream is 12 seconds, parallelStream 4.5 seconds, virtual thirds direct is 4.7 seconds.
+
     sourceFileList.apply("/examples")
         .parallelStream()
         .map(func)

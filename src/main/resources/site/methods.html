@@ -1,0 +1,178 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language methods</title>
+  <meta name="description" content="EK9 programming language methods
+    are similar to a function but are attached to a data aggregate (like a class)."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Methods in EK9</h1>
+    </header>
+    <p>
+      The <b>method</b> has been touched on in <a href="classes.html">classes</a>,
+      <a href="traits.html">traits</a>,
+      <a href="components.html">components</a> and <a href="services.html">services</a> to some degree.
+      They are only applicable on those <u>aggregate types</u>.
+    </p>
+    <p>
+      The visibility of methods is covered in
+      <a href="basics.html#class_visibility">class method visibility</a>,
+      <a href="basics.html#trait_visibility">trait method visibility</a> and
+      <a href="basics.html#component_visibility">component method visibility</a>,
+    </p>
+    <h4>What are Methods?</h4>
+    <p>
+      They are similar to a <i>function</i>; but one that is bound to some data structure.
+      Methods have direct access to properties/fields that are defined in that data structure.
+    </p>
+    <p>
+      The accessibility of methods on <i>classes</i> can be controlled. This makes classes very
+      useful for information hiding. Methods on traits and components are designed to only be a
+      'public interface'.
+    </p>
+    <p>
+      Unlike some languages where methods have to be declared 'virtual' to enable them to be
+      <b>overridden</b>, in EK9 all <i>methods</i> can be <b>overridden</b> (except private methods).
+    </p>
+    <h4>Mutator Methods</h4>
+    <p>
+      Some methods on an Object will be used to alter the state of the Object; either directly or by
+      triggering some processing. These are called <b>mutator</b> methods. In general <b>mutator</b>
+      methods check the validity of parameters being passed in and alter the internal state held.
+    </p>
+    <p>
+      It is expected that such <b>mutator</b> methods will ensure that the internal state of the Object
+      is always <u>valid</u>. In some cases these methods may make deep copies of parameters passed in,
+      they may also <u>throw exceptions</u>. But importantly they may have <u>side effects</u>;
+      this means they may trigger alterations to overall <i>program</i> state, network traffic or other
+      processing.
+    </p>
+    <h4>Accessor Methods</h4>
+    <p>
+      Unlike <i>records</i>, where the properties/fields are all public; accessor methods are needed
+      to provide external <b>constructs</b> with access to specific data/state held within an Object.
+      Take care in doing this, in some cases you may want to return a copy of the state; so that it cannot be
+      directly altered.
+    </p>
+    <h4>Processing Methods</h4>
+    <p>
+      There are methods (similar to mutators) that trigger a wide range of processing, they may or may
+      not alter the Object state. 'Drawing' would be be a good example; the internal state of the Object
+      itself might not be altered, but processing has taken place using the internal state to affect the
+      internal state of another Object (say a 'Canvas' for drawing).
+    </p>
+    <h4>Utility Methods</h4>
+    <p>
+      There are also methods that are related to a <b>type</b> of Object that could have been implemented
+      just as <i>functions</i>; but are better linked to an Object <b>type</b>. A good example of this would
+      be <b>type - Time</b> and <b>method - startOfDay()</b>.
+    </p>
+    <p>
+      Any sort of <i>function</i> that is very closely associated with a specific type is a candidate as a
+      utility method. But in most cases <i>functions</i> as a standalone <b>construct</b> are more flexible
+      and reduce coupling.
+    </p>
+    <h4>Defining/Using Methods</h4>
+    <p>
+      Methods must be given a name, though that name can be <u>overloaded</u> (i.e. used again) as long as
+      the number or <b>type</b> or parameters is different. This is unlike <i>functions</i> in a particular
+      <i>module</i>. These must always have a unique name (within that module).
+    </p>
+    <p>
+      See <a href="basics.html#parameter_passing">parameter passing</a> for how parameters are defined on methods
+      and also how parameters are passed to methods.
+    </p>
+    <p>
+      Calling methods on Objects from within an Object. By using <b>this</b> and <b>super</b> methods can be
+      called explicitly. This is very important when <u>overriding</u> methods, in the case you still want to
+      trigger the functionality in the <b>super</b>.
+    </p>
+    <p>
+      For explicitly calling <i>methods</i> on <i>traits</i> that an Object implements there is specific syntax,
+      see <a href="traits.html">traits</a> for details on this.
+    </p>
+    <h3>Summary</h3>
+    <p>
+      The example in <a href="standardTypes.html#the_classes_example">OptionsHandler</a> shows a number of
+      <u>public</u> and <u>private</u> methods. In general <i>methods</i> and <i>functions</i> are the
+      primary mechanism to trigger some form of processing; with <i>operators</i> providing very specific
+      and well defined processing.
+    </p>
+    <h3>Next Steps</h3>
+    <p>
+      <a href="traits.html">Traits</a> are closely related to <i>classes</i> and are covered next.
+    </p>
+  </article>
+</main>
+</body>
+</html>
