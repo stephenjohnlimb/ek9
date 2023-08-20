@@ -26,7 +26,7 @@ defines module com.customer.just
       value <- 9
       mathOp <- suitableMathOperation(value)
       calculatedResult <- mathOp(value)
-      stdout.println("The result is " + $ calculatedResult)
+      stdout.println(`The result is ${calculatedResult}`)
 
       //Experiment with many parameters, so we need to employ multiple lines.
       //Note that now it is possible to used named parameters in a capture.
@@ -38,5 +38,5 @@ defines module com.customer.just
 
       additionalCalculation <- inlineFunction(value)
       // 12 + 64 + 90*9
-      stdout.println("The additional result is " + $ additionalCalculation)
+      stdout.println(`The additional result is ${additionalCalculation}`)
 //EOF

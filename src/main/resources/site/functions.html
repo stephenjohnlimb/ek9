@@ -1,0 +1,362 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language functions</title>
+  <meta name="description" content="EK9 programming language functions
+    are the most simple unit of processing in EK9 but can also be abstract and polymorphic."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Functions in EK9</h1>
+    </header>
+    <p>
+      The <b>Function</b> was briefly outlined in the <a href="structure.html#function">function</a> section in
+      <a href="structure.html">structure</a>. It is shown in more detail here.
+    </p>
+    <h3>Uses for Functions</h3>
+    <p>
+      A <i>function</i> is in general a <u>stateless</u> unit of processing. Though with EK9 <i>functions</i> and
+      more specifically <a href="dynamicFunctions.html"><i>dynamic functions</i></a> can be made stateful.
+      In addition, you can develop <a href="generics.html">generic/template</a> <i>functions</i>.
+    </p>
+    <p>
+      The examples of <i>functions</i> detailed here are:
+    </p>
+    <ul>
+      <li>simple</li>
+      <li>abstract (enabling Functional Polymorphism)</li>
+      <li>higher order (functions that return functions)</li>
+    </ul>
+    <p>
+      The creation of a library of functions that are small, specific and compact can really
+      provide a strong 'core' of capability in software development. Prior to the widespread use of
+      Object-Oriented programming, they were the cornerstone of development.
+    </p>
+    <p>
+      If you are from an Object-Oriented background you may find the introduction of <i>functions</i> a little
+      strange at first. Just think of them as a class with one public method. They really solve the issues around
+      trying to decide 'where to put functionality', which can be an issue when only <b>classes</b> can be used.
+    </p>
+    <p>
+      They remove the need for <b>static methods</b> on <i>classes</i>. They enable small discrete 'chunks' of
+      code to find a <u>home</u>; decoupled from any <i>class</i> and housed right into a <i>module</i> as a
+      <u>peer</u> of any <a href="classes.html">class</a> you define.
+    </p>
+    <p>
+      EK9 depends heavily on <i>functions</i> for stream pipelines and also flexible <u>behaviour</u> in
+      objects. You will probably find the <i>functions</i> you do build get heavily used/reused.
+    </p>
+    <p>
+      In general <i>functions</i> tend to be much simpler and constrained than <i>classes</i>, this brings
+      more agility and much easier <u>unit testing</u>. With EK9 development it is recommended to
+      balance a number of <i>functions</i> with a range of <a href="records.html">records</a>, <a href="classes.html">classes</a>,
+      <i>enumerations</i> and <a href="components.html">components</a>; as this can provide a great deal
+      of flexibility in developing solutions.
+    </p>
+    <h4>Simple Functions</h4>
+    <p>
+      These are the basic <i>functions</i>; and are very similar to <i>functions</i> in the 'C' language. They
+      are typically stateless and only process data that is passed in. They may optionally return a value.
+    </p>
+    <p>
+      In general these are <b>pure</b> in nature and only work on the data passed in, return a value and
+      typically have no side effects. These really are the <u>very best functions</u> to have, because they
+      are so simple, testable and predictable (there is just very little to go wrong).
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+    multiplier() as pure
+      <- value as Float: 5.6
+      
+  defines program
+    ShowSimpleFunction()
+      stdout <- Stdout()
+      
+      stdout.println("The multiplier is " + $ multiplier())
+      
+      calculatedResult <- 6 * multiplier()
+      stdout.println(`The result is ${calculatedResult}`)
+//EOF</pre>
+    <br/>
+    <p>
+      The example above shows a very simple <i>function</i> called 'multiplier'. It just returns a fixed value of <b>5.6</b>.
+      That value is then printed out and also used in a simple calculation in the <i>program</i> 'SimpleFunction'.
+      Clearly a <i>constant</i> could have been used here.
+    </p>
+    <h4 id="abstract_functions">Abstract Functions</h4>
+    <p>
+      A <i>function</i> that is defined as being <i>abstract</i> is really just a <u>signature</u> of a
+      <i>function</i>. Unlike <i>methods</i> on <i>classes</i>; <i>function</i> names cannot be
+      <b>overloaded</b>, the names can be used again in different <i>modules</i>. But within a <i>module</i>
+      the name of a <i>function</i> must be unique.
+    </p>
+    <p>
+      The point of the <i>abstract function</i> is to create an abstract concept to enable polymorphism for
+      <i>functions</i>. While useful for simple <i>functions</i>; it is a critical concept for
+      <a href="dynamicFunctions.html">dynamic functions</a>.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+  
+    mathOperation() as pure abstract
+      -> value as Float
+      <- result as Float?
+
+    multiply() is mathOperation as pure
+      -> value as Float
+      <- result as Float: value * 5.6
+      
+  defines program
+    ShowAbstractFunction()
+      stdout <- Stdout()
+      
+      calculatedResult <- multiply(9)
+      stdout.println(`The result is ${calculatedResult}`)
+//EOF</pre>
+    <br/>
+    <p>
+      The example above shows the 'multiply' <i>function</i> that <b>is</b> a 'mathOperation'. The use of the
+      'mathOperation' nature is not actually used in this example. See later examples where it is applied.
+      But this does not change the fact that the code now makes it obvious that 'multiply' is a <b>type</b> of
+      'mathOperation'. These <i>abstract functions</i> are revisited again in
+      <a href="dynamicFunctions.html"><i>dynamic functions</i></a>.
+    </p>
+    <p>
+      The key point here is the introduction of an <i>abstract</i> concept; i.e. the 'mathOperation',
+      that's the value being created. For some programmers the idea of a <b>function</b> having some sort of
+      <b>type</b> may seem strange. I'm not referring to the <b>type</b> the function may return here (i.e.
+      Void or Integer for example), but the actual function itself.
+    </p>
+    <p>
+      You will notice that the key word <b>pure</b> has been used as well, this keyword is important if you
+      are really concerned about immutability. EK9 does not use 'final' or 'const' or anything like that. If
+      you really want to drive immutability then make as much of your code as <b>pure</b> as possible.
+      Never reassign variables, always allocate and initialise in a single step where possible.
+    </p>
+
+    <h4>Higher Order Functions/Function Delegates</h4>
+    <p>
+      This example now makes use of the <i>abstract function</i> 'mathOperation' in the sense that it defines
+      a <i>higher order function</i> 'suitableMathOperation' (i.e. a <i>function</i> that returns a <i>function</i>).
+    </p>
+    <p>
+      The <i>function</i> 'suitableMathOperation' declares a return parameter of 'mathOperation' meaning that it
+      could return any <i>function</i> that meets that <u>signature</u>. In this case it returns 'multiply'.
+      Note it does not <b>call</b> 'multiply' but returns it as a 'delegate'. It could have been configured to
+      return 'heavyMultiply', rather than 'multiply' as both meet the same <u>signature</u>.
+    </p>
+    <p>
+      The <i>program</i> 'ShowHighOrderFunction' calls the <i>higher order function</i> 'suitableMathOperation' and holds the return
+      value as a <i>function delegate</i>. It has no idea what <b>type</b> of 'mathOperation' it has the delegate for.
+      It can then <b>call</b> the delegate (<b>mathOp(9)</b>), to get the calculated result.
+    </p>
+    <p>
+      There is a more practical demonstration of higher order function use in the
+      <a href="standardTypes.html#the_functions_example">fully worked CLI example</a>
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+
+    mathOperation() as pure abstract
+      -> value as Float
+      <- result as Float?
+
+    multiply() is mathOperation as pure
+      -> value as Float
+      <- result as Float: value * 5.6
+
+    heavyMultiply() is mathOperation as pure
+      -> value as Float
+      <- result as Float: value * 7.99
+
+    suitableMathOperation()
+      -> value as Float
+      <- op as mathOperation: value < 21 <- heavyMultiply else multiply
+
+  defines program
+    ShowHighOrderFunction()
+      stdout <- Stdout()
+
+      value <- 9
+      mathOp <- suitableMathOperation(value)
+      calculatedResult <- mathOp(value)
+      stdout.println(`The result is ${calculatedResult}`)
+
+      //Now a dynamic function example.
+      inlineFunction <- (
+        v1: 12,
+        v2: 64,
+        v3: 90
+        ) is mathOperation as (result: v1 + v2 + v3 * value)
+
+      additionalCalculation <- inlineFunction(value)
+      // 12 + 64 + 90*9
+      stdout.println(`The additional result is ${additionalCalculation}`)
+//EOF</pre>
+    <br/>
+    <p>
+      The concept of <i>functions delegates</i> is very powerful. When used in conjunction with other
+      <b>constructs</b> it enables you to alter behaviour on an object by object basis. Rather than just using
+      traditional mechanisms, such as <a href="inheritance.html">inheritance</a>.
+    </p>
+    <p>
+      <i>Higher order functions</i> are most useful when given some sort of discriminator parameter, so that they can
+      alter the actual <i>function</i> returned. But even in the example above it should be obvious that the <i>program</i>
+      'ShowHighOrderFunction' has been decoupled from the actual math operation it will be using; a level of
+      <u>abstraction/decoupling</u> has been added. There is another example of this
+      <a href="collectionTypes.html#list_example2">here</a>, this shows how <i>function</i> delegates can be used
+      with <i>Lists</i> and can also be called via stream pipelines. The use of <i>functions</i> is also
+      shown with <a href="collectionTypes.html#dictionary_example">Dictionaries</a>.
+    </p>
+    <p>
+      But care must be taken with the levels of abstraction being created. There is a fine balance between abstraction and
+      complexity. Most forms of abstraction provide some value but come at the cost of some increase in cognitive loading.<br/>
+      It is important to try and balance those two opposing forces.
+    </p>
+    <p>
+      If there was now a need to alter the multiply functionality; for example if the values was within certain ranges then
+      one multiplier was to be used, but in other ranges another multiplier was to be applied, then this could be altered.
+    </p>
+    <p>
+      The <i>function</i> returned by 'suitableMathOperation' varies based on the value it will be used with.
+      Any sort of discriminator could be used for this capability.
+    </p>
+    <p>
+      A <i>ternary</i> operator is used to check if the value is less than 21. If so it returns
+      'heavyMultiply' otherwise it returns 'multiply'. Because both 'heavyMultiply' and 'multiply' <b>are</b>
+      a 'mathOperation', they are compatible with the return type for 'op'. So here is a case where the
+      effective behaviour of 'suitableMathOperation' has been varied without redefinition/extension etc.
+    </p>
+    <p>
+      Note the use of the ternary operation, these were developed in part to aid in making <b>pure</b> assignments
+      easier to accomplish.
+    </p>
+    <p>
+      The final part of this example shows a <i>dynamic function</i> as a delegate called 'inlineFunction'. This captures
+      a number of values; v1, v2 and v3. It then uses a single inline operation to calculate the result. It too, is a
+      'mathOperation'.
+    </p>
+    <p>
+      Hopefully, if you've read the previous examples; you will start to see how the EK9 syntax with ternary operations
+      and use of &lt;- aid in enabling the developer to quickly see assignments.
+    </p>
+    <h3>Summary</h3>
+    <p>
+      As you can see the power of <i>abstract functions</i> combined with <i>higher order functions</i> gives
+      you a great range of possibilities to alter processing in a very refined and controlled manner.
+    </p>
+    <p>
+      The syntax and even the concept of using a <i>function</i> like it is a variable in one context, but then
+      <b>calling</b> the function via the delegate (variable) may seem quite alien to some developers that have
+      not seen this approach before. But give it time, and you will find the capability quite useful in many
+      situations. Importantly this is <b>type safe</b>.
+    </p>
+    <p>
+      There is more detail on <i>functions</i> in relation to <a href="generics.html">generics/templates</a> and
+      <a href="dynamicFunctions.html">dynamic functions</a>. But they are also shown being used in
+      <a href="classes.html">classes</a> in the form of delegates.
+    </p>
+    <h4>Aside</h4>
+    <p>
+      As a point of interest you maybe thinking; what about writing:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">suitableMathOperation</span><span class="k">(</span><span class="m">value1</span><span class="k">)(</span><span
+            class="m">value2</span>)<span class="k">)</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      After all <b>suitableMathOperation(value1)</b> returns a <i>function delegate</i> and so that just needs
+      a parameter <b>(value2)</b>.<br/>
+      You can write this, but take care because <u>someFunction(value1)(value2)(other)()(paramX)</u> is going to be
+      pretty difficult to understand when you employ many layers of higher functions! You are moving into Lisp
+      territory (death by parentheses)!
+    </p>
+    <h3>Next Steps</h3>
+    <p>
+      Now for all the Object-Oriented programmers; <a href="classes.html">Classes</a>! Though defining concrete
+      functions from an abstract function is Object-Oriented; and there are lots of
+      other OO <b>constructs</b> to come besides <i>classes</i>.
+    </p>
+  </article>
+</main>
+</body>
+</html>
