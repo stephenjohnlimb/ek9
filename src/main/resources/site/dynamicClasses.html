@@ -1,0 +1,454 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language dynamic classes</title>
+  <meta name="description" content="EK9 programming language dynamic classes
+    are similar to anonymous classes, but can also be named or used as Tuples."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Dynamic Classes in EK9</h1>
+    </header>
+    <p>
+      In a similar manner to the <a href="dynamicFunctions.html">dynamic functions</a>; the
+      <i>dynamic class</i> can serve a similar purpose. But unlike
+      <i>dynamic functions</i>; <i>dynamic classes</i> <u>can</u> be 'named' and can be elevated to be
+      fully usable as a <i>class</i> as if it were declared in the class block (when named).
+    </p>
+    <p>
+      If you are familiar with Java you may initially think these are just like
+      <a href="https://docs.oracle.com/javase/tutorial/java/javaOO/anonymousclasses.html">anonymous classes</a>;
+      they <b>can be</b>, but they can also be used in a different way (when named).
+    </p>
+    <p>
+      Initially it may seem a little strange that it is possible to dynamically define a <i>class</i>
+      deep in a function or method body; the example below shows it is very useful. It is important to
+      <b>note</b> that the name of the <i>dynamic class</i> is 'pulled up' to <i>module</i> scope level. So
+      unlike a 'Java inner class' it becomes visible in the <i>module</i>.
+    </p>
+    <p>
+      Dynamic Classes <b>cannot</b> extend an existing <i>class</i> but can use <i>traits</i>. While this might
+      feel like a shortcoming (it has been limited deliberately). This is to promote composition rather than
+      inheritance. Extract a <i>Trait</i> signature from your 'base class' that your class would have extended.
+      Now use <i>traits</i> and delegation to utilise that functionality, also provide/override the
+      methods in your dynamic class. Remember try and go with the flow of this to make the most of the
+      language, if you find it 'too painful' it would probably be best to use an alternative to EK9.
+    </p>
+    <h3>Examples</h3>
+    <p>
+      The function <a href="standardTypes.html#the_functions_example">setupSignalHandling</a> and
+      specifically 'terminationHandler' and 'debugHandler' both define <i>dynamic classes</i>, they
+      capture variables and <b>override</b> <i>methods</i>. But take note that the dynamic classes
+      they create are <b>not named</b>. They are held via an object reference ('terminationHandler'
+      and 'debugHandler').The <i>dynamic class</i> definitions themselves are <b>not reusable</b>;
+      they could have been; if they were <b>named</b>.
+      The <a href="networkTypes.html#tcp_server_example2">TCP Server example</a> shows two
+      <i>dynamic classes</i> with a <i>trait</i> <u>TCPHandler</u>. Both of these classes
+      <b>override</b> the <i>method</i> <u>connected</u> to be able to process the incoming traffic.
+      Again these <i>dynamic classes</i> are un-named. The example later shows a <b>named</b> and reusable
+      <i>class</i>.
+    </p>
+    <p>
+      <a href="standardTypes.html#mutex">The Mutex example</a> also shows how a dynamic class can be
+      employed. It shows the full syntax when creating the <i>dynamic class</i>.
+    </p>
+    <h4 id="tuple_example">Tuple like example</h4>
+    <p>
+      All of the examples linked to above, have demonstrated a fairly simple use of <i>dynamic classes</i>.
+      This next inline example demonstrates the EK9 version of a <b>Tuple</b>. In fact EK9
+      just uses a <i>dynamic class</i> for this but without any <i>traits</i>. The data captured
+      into the Tuple becomes private and only exposed via public methods defined on the <i>class</i>
+    </p>
+    <p>
+      The interesting points to note in the example are; the use of 'ATuple' in functions defined both
+      before and after 'ATuple' is declared; and that 'ATuple' is declared inside a <b>for loop</b>. The
+      other main point is that <i>function</i> 'getATuple' can just declare it returned the 'ATuple' type
+      and then can also create a new instance of 'ATuple' with suitable data (Constructor must still be
+      declared in 'ATuple').
+    </p>
+    <p>
+      This provides a way to define <i>classes</i> in a very dynamic, but <b>type safe</b> manner.
+      If you are not from a dynamic language background; you may find this
+      syntax and arrangement quite strange at first.
+      It does provide for an alternative approach to <i>class/tuple</i> definition. This gives the code
+      a more 'interpreted/dynamic' feel.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+    printer2()
+      -> data as ATuple
+      Stdout().println(`${ data } but I can access ${data.name()} directly if I wish`)
+
+    //Note how we can just use 'ATuple' in a normal way by creating an instance of it.
+    getATuple()
+      <- rtn as ATuple: ATuple("John", 1994-01-01, "English")
+
+  defines program
+    ShowTupleClass()
+
+      stdout <- Stdout()
+
+      name <- "Steve"
+      dateOfBirth <- 1970-01-01
+
+      //Just access a function that returns 'ATuple' - even though 'ATuple' is not defined yet!
+      tuple1 <- getATuple()
+
+      //Lets have an inferred List of 'ATuple' and put the first entry in.
+      tuples <- [tuple1]
+
+      //This is both a declaration of a new type 'ATuple' and the creation of an object of type 'ATuple'
+      //AND also indented is the implementation of 'ATuple'.
+      //Plus we can put this in a loop if we need to 'ATuple' is only defined once!
+      for i in 1 ... 10
+
+        //Make the data up from base information and dynamic content.
+        firstName <- name + "-" + $i
+        dob <- dateOfBirth + Duration(`P${i}M`)
+
+        //define, populate and get an object of that type
+        tuple <- ATuple(name: firstName, dob: dob, language: "English") as class
+
+          //We can also create new properties in the class directly if necessary
+          //Rather than just capture.
+          message as String: "Dynamic: "
+
+          //You can even define a range of different constructors if you wish.
+          //These are not automatically created, developer needs to define the 'interface'
+          //That way if the names of variables captured are refactored/renamed, the rest of the code
+          //using ATuple can stay the same.
+          ATuple()
+            ->
+              name as String
+              dob as Date
+              language as String
+
+            this.name = name
+            this.dob = dob
+            this.language = language
+
+          //Add in methods, hiding internal structure of object or meeting a trait type interface.
+          name()
+            <- rtn as String: firstName
+
+          operator $ as pure
+            <- rtn as String: `${message} ${firstName} ${dob} ${language}`
+          operator #^ as pure
+            <- rtn as String: $this
+
+        //OK now just add that new tuple into the List of ATuple
+        tuples += tuple
+
+      //Display all those tuples.
+      cat tuples > stdout
+
+      //just to demonstrate calling a function that has 'ATuple' as a parameter.
+      printer1(tuple1)
+      printer2(tuple1)
+      printer2(getATuple())
+
+  defines function
+    printer1()
+      -> data as ATuple
+      stdout <- Stdout()
+      stdout.println(`[ ${data} ] but I can access [ ${data.name()} ] directly if I wish`)
+
+//EOF</pre>
+    <br/>
+    <p>
+      The example above demonstrates that it is possible to define <b>all</b> your <i>classes</i> dynamically
+      like this if you wanted to. Coming from a C++, Java or C# background this will probably seem strange,
+      normally <i>classes</i> are a big deal and even need to be in their own files.
+    </p>
+    <p>
+      The nice thing about the approach above, is that data captured is hidden and users of the <i>dynamic class</i>
+      can only use the public <i>methods</i> defined. The methods are all type checked and resolved as you would
+      expect. So refactoring <i>dynamic classes</i> altering <i>method</i> names is safe.
+    </p>
+    <p>
+      This gives the impression of a more dynamic typed language, but is in fact <b>statically typed</b>
+      and checked at compile time. The creation of <i>classes</i> with EK9 is quite fluid and flexible.
+    </p>
+    <p>
+      If you want to use fixed values when capturing and defining the 'tuple', then the names of the parameters being
+      captured but be given. Those names are then the same names that are used as properties in the dynamic class.
+    </p>
+    <h4 id="composition_example">Composition Dynamic Class Example</h4>
+    <p>
+      The section on <a href="composition.html">composition</a> shows how <i>classes</i> and <i>traits</i>
+      can be used in composition. This power is magnified when used with <i>dynamic classes</i> as the following
+      example demonstrates.
+    </p>
+    <p>
+      In fact this example shows how <i>dynamic functions</i> and <i>dynamic classes</i> can be used together.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines trait
+
+    LenValidator
+      validateLength() abstract
+        -> p as String
+        <- r as Boolean?
+
+    CharValidator
+      validateCharacters() abstract
+        -> p as String
+        <- r as Boolean?
+
+    Validator with trait of LenValidator, CharValidator
+      validate()
+        -> p as String
+        <- r as Boolean: validateLength(p) and validateCharacters(p)
+
+  defines class
+
+    NoDollarValidator trait of CharValidator
+      override validateCharacters()
+        -> p as String
+        <- r as Boolean: p? and not p.contains("$")
+
+  defines function
+
+    discriminator as abstract
+      -> s as String
+      <- rtn as Boolean?
+
+  defines program
+
+    Example
+
+      min <- 9
+      max <- 40
+      prohibited <- "@"
+
+      gt <- (min) is discriminator as function
+        rtn: length s > min
+
+      lt <- (max) is discriminator
+        rtn: length s < max
+
+      val1 <- "Some Value"
+      assert gt(val1) and lt(val1)
+      val2 <- "Short"
+      assert not gt(val2) and lt(val2)
+      val3 <- "1234567890123456789012345678901234567890Long"
+      assert gt(val3) and not lt(val3)
+
+      lenValidator <- CheckLength(gt, max) trait of LenValidator as class
+        override validateLength()
+          -> p as String
+          <- r as Boolean: false
+          if p?
+            r := gt(p) and length p < max //So I can just use gt and lt or mix and match
+
+      assert lenValidator.validateLength(val1)
+      assert not lenValidator.validateLength(val2)
+      assert not lenValidator.validateLength(val3)
+
+      checkContent <- CheckCharacter(prohibited) trait of CharValidator
+        override validateCharacters()
+          -> p as String
+          <- r as Boolean: true
+          if p?
+            r: ~p.contains(this.prohibited)
+
+      val4 <- "1234567890@not allowed"
+
+      assert checkContent.validateCharacters(val1)
+      assert checkContent.validateCharacters(val2)
+      assert checkContent.validateCharacters(val3)
+      assert not checkContent.validateCharacters(val4)
+
+      validator1 <- (lenValidator, checkContent) trait of LenValidator by lenValidator, CharValidator by checkContent
+
+      assert validator1.validateCharacters(val1) and validator1.validateLength(val1)
+      assert validator1.validateCharacters(val2) and not validator1.validateLength(val2)
+      assert validator1.validateCharacters(val3) and not validator1.validateLength(val3)
+      assert not validator1.validateCharacters(val4) and validator1.validateLength(val4)
+
+      validator2 <- (validator1, checkContent) trait of Validator, LenValidator by validator1, CharValidator by checkContent
+
+      assert validator2.validate(val1)
+      assert not validator2.validate(val2)
+      assert not validator2.validate(val3)
+      assert not validator2.validate(val4)
+
+      val5 <- "steve"
+
+      validator3 <- (lenValidator) trait of Validator, LenValidator by lenValidator, CharValidator by charValidator
+        charValidator as CharValidator: NoDollarValidator()
+        override validate()
+          -> p as String
+          <- r as Boolean: true
+          if p not matches /[S|s]te(?:ven?|phen)/
+            r: validateLength(p) and validateCharacters(p)
+
+      assert validator3.validate(val1)
+      assert not validator3.validate(val2)
+      assert not validator3.validate(val3)
+      assert validator3.validate(val4)
+      assert validator3.validate(val5)
+
+      val6 <- "steve#host"
+
+      validator4 <- (lenValidator) trait of Validator, LenValidator by lenValidator, CharValidator
+        notAllowed String: "#"
+
+        override validateCharacters()
+          -> p as String
+          <- r as Boolean: false
+          if p?
+            r:= p not contains notAllowed
+
+      assert validator4.validate(val1)
+      assert not validator4.validate(val2)
+      assert not validator4.validate(val3)
+      assert validator4.validate(val4)
+      assert not validator4.validate(val5)
+      assert not validator4.validate(val6)
+//EOF</pre>
+    <br/>
+    <p>
+      There is quite a bit going on in the above example, the first part of the 'Example' <i>program</i>
+      defines two <i>dynamic functions</i> 'gt' and 'lt', these are both <i>functions</i> that extend
+      <i>abstract function</i> 'discriminator'. These are tested and then <u>captured</u> and used in
+      <i>dynamic classes</i>.
+    </p>
+    <h5>Dynamic Classes</h5>
+    <p>
+      The 'CheckLength' <i>dynamic class</i> has a <i>trait</i> of 'LenValidator' and <b>overrides</b>
+      <i>method</i> <b>validateLength</b>. This <i>method</i> uses the captured <i>function</i> 'gt',
+      but just does the 'max' variable as-is. This <i>variable object</i> is held as a
+      <i>class property</i> called 'lenValidator'. This too is used later in composition.
+    </p>
+    <p>
+      A second <i>dynamic class</i> 'CheckCharacter' is used to check the content does not contain
+      a specific prohibited character. This has the <i>trait</i> of 'CharValidator' and <b>overrides</b>
+      <i>method</i> <b>validateCharacters</b>.
+    </p>
+    <p>
+      As both 'CheckLength' and 'CheckCharacter' are <b>named</b> <i>dynamic classes</i> they can be used
+      in other contexts if required (which will include the captured variable they hold).
+    </p>
+    <h5>The Composition</h5>
+    <p>
+      The <i>objects</i> 'validate1' and 'validate2' define new <i>dynamic classes</i> that have
+      <i>traits</i> of 'LenValidator' and 'CharValidator'. The important point to note here that the
+      implementation of <i>methods</i> <b>validateLength</b> and <b>validateCharacters</b> are <b>not</b>
+      reimplemented but are automatically delegated. Note that they are delegated to the <i>variable objects</i>
+      they capture.
+    </p>
+    <p>
+      <i>Object</i> 'validate3' <b>does</b> reimplement <i>method</i> <b>validate</b>, but in this
+      scenario only 'lenValidator' is captured for delegation the 'charValidator' is created as a new property on the
+      <i>dynamic class</i> and uses <i>class</i> 'NoDollarValidator'.
+    </p>
+    <p>
+      Finally <i>object</i> 'validate4' only delegates the length validation to a captured <i>variable objects</i>
+      and then implements <i>method</i> <b>validateCharacters</b> using a property defined in the
+      <i>dynamic class</i> itself.
+    </p>
+    <h3>Summary</h3>
+    <p>
+      The examples above clearly demonstrate that <i>dynamic classes</i> can be very short, flexible and
+      can also be re-used either directly, through <i>high order functions</i> or through composition.
+    </p>
+    <p>
+      The idea of the 'Single Responsibility Principle' and <u>composition</u> is very powerful and flexible in
+      EK9. It reduces the need to use <u>Inheritance</u> as the only mechanism of extensibility. It means
+      smaller more well defined <i>functions, traits</i> and <i>classes</i> can be defined and then
+      <u>composed</u> in a range of different ways.
+    </p>
+    <p>
+      By adopting <u>polymorphism</u> in <i>functions</i> as well as <i>classes</i> and <i>traits</i>; EK9
+      strongly promotes re-use and composition of small well rounded <i>functions/classes</i>. With the syntax
+      to support delegation and <i>dynamic class</i> definition; simple one-liners like:<br/>
+      <b>validate1 &lt;- (lenValidator, checkContent) of LenValidator by lenValidator, CharValidator by checkContent</b><br/>
+      provide a really lightweight declarative mechanism of creating a new <i>class</i> composed of a mix of <i>functions</i>
+      and other <i>classes</i> that implement <i>traits</i>.
+    </p>
+    <h3>Next Steps</h3>
+    <p>
+      The next section is again more functional and details <a href="streamsAndPipelines.html">Stream Pipelines</a>
+      this makes the most of collection and functions to accomplish a range of processing.
+      If you want to stay with <i>class</i> type simple aggregates; take a look at
+      <a href="textProperties.html">Text Properties</a>. These provide a very simple mechanisms to collect all
+      the output text you might want to use in a program or toolkit in one logical place.
+    </p>
+  </article>
+</main>
+</body>
+</html>

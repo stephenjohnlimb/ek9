@@ -1,0 +1,292 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language inheritance</title>
+  <meta name="description" content="EK9 programming language inheritance
+    is supported on classes, components but also on functions."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Inheritance in EK9</h1>
+    </header>
+    <p>
+      There have been several examples of <i>inheritance</i> of various <b>constructs</b> in several of the
+      other sections. See the <a href="index.html#examples">list of examples</a> for details.
+    </p>
+    <p>
+      This section explains the use inheritance and also why other mechanisms are sometimes recommended.
+      The concept of inheritance is an Object-Oriented one; EK9 uses this same concept but with
+      <b>constructs</b> other than just <i>classes</i>. It is the valuable concept of <b>polymorphism</b>
+      that is the vital aspect we are looking to employ; irrespective of the <b>construct</b>.
+    </p>
+    <h3>Constructs that support inheritance</h3>
+    <p>
+      EK9 has a number of <b>constructs</b> that are suitable for particular tasks, many of these support
+      inheritance.
+    </p>
+    <ul>
+      <li><i>records</i> - including <a href="records.html#example">abstract records</a> with single inheritance</li>
+      <li><i>functions</i> - specifically <a href="functions.html#abstract_functions">abstract functions</a> with single inheritance.</li>
+      <li><i>classes</i> - traditionally focused on <a href="classes.html#shape_example">base/abstract classes</a> with single inheritance</li>
+      <li><i>traits</i> - single inheritance and <a href="traits.html#traits_example">multiple inheritance</a></li>
+      <li><i>components</i> - supporting abstract bases and <i>injection</i> with single inheritance</li>
+    </ul>
+    <h4>Rationale</h4>
+    <p>
+      EK9 does have a wide range of <b>constructs</b>; whereas many languages focus on <i>classes</i> or maybe
+      just <i>functions</i> as the primary structural construct. Each of the <b>constructs</b> in EK9 is designed
+      to provide functionality in a specific role. This means that capabilities such as inheritance/composition
+      are used in a very specific manner and for some <b>constructs</b> must be limited (or enhanced).
+    </p>
+    <p>
+      While it is true to say the mechanisms of <b>abstraction</b>, <b>encapsulation</b> and <b>inheritance</b>
+      are important; <u>polymorphism</u> is really is the main power behind Object-Oriented Programming.
+      EK9 applies polymorphism to several <b>constructs</b> in addition to <i>classes</i>; this widens its use.
+    </p>
+    <p>
+      EK9 supports multiple inheritance of <i>traits</i>. This is to facilitate the development of Façades and enable
+      a single class to support both inheritance and automatic delegation to other classes.
+      <br/>
+      <i>Traits</i> are all implicitly <i>abstract</i> and can therefore be extended. Take care here not to
+      use multiple inheritance of <i>traits</i> to build a Façade with too many methods (and coupling).
+      You may find that using <i>components</i> provides a suitable alternative and enables you to <u>compose</u>
+      various implementations and hide the implementation details but expose just enough via the <u>component</u>.
+    </p>
+    <p>
+      <i>Functions</i> can also treated as <u>Objects</u> and can be <i>abstract</i>; this enables them to be used
+      as <i>function delegates</i>; hence they may be used in an interchangeable manner in stream pipelines.
+      They can actually be piped through pipelines and called (asynchronously if required).
+      But importantly they are <u>type safe</u> and can be type checked. Only by having the concept of an
+      <i>abstract function</i> could the actual types of functions being used, altered and varied in a
+      type safe manner.
+    </p>
+    <p>
+      <a href="functions.html">Functions</a> and <a href="dynamicFunctions.html">dynamic functions</a> are
+      <b>not</b> <u>lambdas</u> - they are similar - but they are not (and are not designed to be) true
+      <u>lambdas</u>.
+    </p>
+    <p>
+      <i>Classes</i>, <i>records</i> and <i>components</i> only support single inheritance, but <i>classes</i>
+      can also <u>exhibit</u> multiple <i>traits</i>.
+    </p>
+    <p>
+      Denoting <i>components</i> as a specific <b>construct</b> that support an <i>abstract</i> base, enables
+      <i>components</i> can be injected (see <a href="dependencyInjection">dependency injection</a>).
+      This is not the case with <i>classes</i> or <i>records</i> they cannot be 'injected'.
+    </p>
+    <p>
+      Different constraints and capabilities on the <b>constructs</b> with respect to inheritance <u>enable</u>
+      each <b>construct</b> to fulfil the role it is designed for, rather than attempting to force the
+      <i>class</i> to fit every role.
+    </p>
+    <p>
+      Those with and Object-Oriented background will probably feel at home with
+      <i>traits</i> and <i>classes</i>. Those that have used <u>Spring</u> will probably see where
+      <i>components</i> can fit in. Developers with a more <u>functional</u> background will look to
+      <i>functions/records</i> (and <i>abstract functions</i>) with stream pipelines as their main focus.
+    </p>
+    <p>
+      It is not necessary to use every type of <b>construct</b> in a solution; only use the features and
+      capabilities you need or feel most at home with. For example C programmers may find just using
+      <i>program</i>, <i>function</i> and <i>record</i> feels most natural to start with.
+    </p>
+    <p>
+      With EK9, there are a number of tools (<b>constructs</b>) that are available; adopting a pure Functional,
+      total Object-Oriented or a hybrid approach to development is your choice. For different projects you will
+      probably alter the balance of the range of <b>constructs</b> used.
+    </p>
+    <h4>Extending Functionality</h4>
+    <p>
+      Only if a <b>construct</b> is <i>open</i> or <i>abstract</i> can it be extended but see
+      <a href="traits.html#allow_only">traits</a> as these can provide more fine-grained control.
+    </p>
+    <h4>Overriding Methods</h4>
+    <p>
+      When looking to alter a <i>methods</i> functionality in <i>classes</i>, <i>traits</i> or <i>components</i>;
+      the keyword <b>override</b> must be used. This is covered in more detail in
+      the <a href="methods.html">methods</a> section. Actually the same applies to <i>operators</i> on
+      <i>records</i>, <i>classes</i> and <i>traits</i>. If you are familiar with Kotlin/Java and have used the
+      'Annotations' such as <b>@Override</b> then this concept will be familiar to you.
+    </p>
+    <h3>Additional Examples</h3>
+    <h4>Records</h4>
+    <p>
+      The record <a href="records.html#example">example</a> shows additional
+      properties being added to <i>records</i>, but also uses a wide range of <i>operators</i> including
+      <b>overriding</b> <i>operators</i>.
+    </p>
+    <h4 id="function_example">Functions</h4>
+    <p>
+      Below is an additional example of <i>abstract functions</i>; this highlights how <i>functions</i> can be
+      treated in an Object like manner. Also note this approach is
+      <a href="https://en.wikipedia.org/wiki/SOLID">SOLID</a> even though we are dealing with <i>functions</i>
+      and not <i>classes</i>.
+    </p>
+    <pre>#!ek9
+defines module introduction
+  defines function
+
+    mathOperation() as pure abstract
+      ->
+        x as Float
+        y as Float
+      <-
+        result as Float?
+
+    add() is mathOperation as pure
+      ->
+        x as Float
+        y as Float
+      <-
+        result as Float: x + y
+
+    subtract() is mathOperation as pure
+      ->
+        x as Float
+        y as Float
+      <-
+        result as Float: x - y
+
+    divide() is mathOperation as pure
+      ->
+        x as Float
+        y as Float
+      <-
+        result as Float: x / y
+
+    multiply() is mathOperation as pure
+      ->
+        x as Float
+        y as Float
+      <-
+        result as Float: x * y
+
+  defines program
+
+    MathExample()
+      stdout <- Stdout()
+      stdout.println("Math Operation Example")
+
+      for op in [add, subtract, divide, multiply]
+        stdout.println(`Result: ${op(21, 7)}`)
+
+//EOF</pre>
+    <br/>
+    <p>
+      The above example demonstrates how the arithmetic functions can be defined to meet the same
+      <u>signature</u> (mathOperation); and can be treated in a polymorphic manner. The loop in the 'MathExample'
+      <i>program</i> can call each of the functions without having to be specific as to which <i>function</i>
+      they are. But critically this is type safe and exhibits polymorphism.
+    </p>
+    <p>
+      There are a couple of interesting points to note in this example above:
+    </p>
+    <ul>
+      <li>EK9 detects the super-type of the functions when the list is defined as <b>mathOperation</b></li>
+      <li>The <i>functions</i> are referenced when being added to the list, they are not called</li>
+      <li>The type for the loop variable <b>op</b> is inferred as <b>mathOperation</b></li>
+      <li>The loop variable <b>op</b> is actually immutable - it cannot be altered by the developer manually</li>
+      <li>Within the loop the <b>op</b> is called with the parameters to produce a result</li>
+      <li>String interpolation <b>``</b> has been used and <b>${ }</b> converts the returning Float to a String</li>
+    </ul>
+    <p>
+      One could imagine this type of dynamic capability being used in a wide range of applications that
+      triggers varying functionality in specific circumstances (UI button clicks, for example).
+    </p>
+    <h4>Classes</h4>
+    <p>
+      This <a href="classes.html#shape_example">class example</a> shows
+      several <i>classes</i> being <b>extended</b>, some are <b>open</b> for further extension.
+      This second <a href="traits.html#traits_example">class example</a> shows <i>classes</i> with
+      specific <a href="traits.html">traits</a>. This final <a href="composition.html#composition_example">example</a> shows
+      how class inheritance can actually be avoided through the use of <u>composition</u>.
+    </p>
+    <h4>Traits</h4>
+    <p>
+      This <a href="traits.html#traits_example">example</a> shows <i>traits</i> being used for multiple
+      inheritance and also controlling/limiting how <i>classes</i> can inherit from bases.
+    </p>
+    <h3>Summary</h3>
+    <p>
+      Inheritance is useful in many contexts; EK9 has attempted to limit inheritance in some scenarios and
+      enhance it in others. It has also provided an alternative approach to extending and reusing functionality
+      through <u>composition</u>.
+    </p>
+    <h3>Next Steps</h3>
+    <p>
+      Back to <i>functions</i>, specifically <a href="dynamicFunctions.html">Dynamic Functions</a>; these follow
+      the same thread of inheritance (but inheritance from <i>abstract functions</i> delivering polymorphism).
+    </p>
+  </article>
+</main>
+</body>
+</html>

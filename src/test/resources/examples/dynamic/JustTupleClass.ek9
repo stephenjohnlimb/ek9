@@ -16,18 +16,10 @@
 -!>
 defines module com.customer.just.tuples
 
-  defines type
-    List of ATuple
-
   defines function
     printer2()
       -> data as ATuple
-      //Just to demonstrate the new string interpolation.
-      //Note the used of back ticks ` ` - this is the marker for interpolated strings
-      //variables must be in ${...} always in {} never just $var
       Stdout().println(`${ data } but I can access ${data.name()} directly if I wish`)
-      //Alternative is
-      //Stdout().println(data + " but I can access " + data.name() +" directly if I wish")
 
     //Note how we can just use 'ATuple' in a normal way by creating an instance of it.
     getATuple()
@@ -40,7 +32,6 @@ defines module com.customer.just.tuples
 
       name <- "Steve"
       dateOfBirth <- 1970-01-01
-      language <- "English"
 
       //Just access a function that returns 'ATuple' - even though 'ATuple' is not defined yet!
       tuple1 <- getATuple()
@@ -58,7 +49,7 @@ defines module com.customer.just.tuples
         dob <- dateOfBirth + Duration(`P${i}M`)
 
         //define, populate and get an object of that type
-        tuple <- ATuple(firstName, dob, language) as class
+        tuple <- ATuple(name: firstName, dob: dob, language: "English") as class
 
           //We can also create new properties in the class directly if necessary
           //Rather than just capture.
@@ -74,7 +65,7 @@ defines module com.customer.just.tuples
               dob as Date
               language as String
 
-            this.firstName = name
+            this.name = name
             this.dob = dob
             this.language = language
 
@@ -83,7 +74,7 @@ defines module com.customer.just.tuples
             <- rtn as String: firstName
 
           operator $ as pure
-            <- rtn as String: message + firstName + " " + $dob + " " + language
+            <- rtn as String: `${message} ${firstName} ${dob} ${language}`
           operator #^ as pure
             <- rtn as String: $this
 
@@ -102,6 +93,6 @@ defines module com.customer.just.tuples
     printer1()
       -> data as ATuple
       stdout <- Stdout()
-      stdout.println("[" + data + "] but I can access [" + data.name() +"] directly if I wish")
+      stdout.println(`[ ${data} ] but I can access [ ${data.name()} ] directly if I wish`)
 
 //EOF

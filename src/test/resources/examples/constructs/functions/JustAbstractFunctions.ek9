@@ -1,9 +1,6 @@
 #!ek9
 defines module com.customer.just.functions
 
-  defines type
-    List of mathOperation
-
   defines function
 
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "mathOperation"
@@ -49,7 +46,7 @@ defines module com.customer.just.functions
       stdout.println("Math Operation Example")      
 
       for op in [add, subtract, divide, multiply]
-        stdout.println("Result: " + $op(21, 7))
+        stdout.println(`Result: ${op(21, 7)}`)
         
     DynamicMathExample1()
       stdout <- Stdout()
@@ -74,7 +71,7 @@ defines module com.customer.just.functions
       ops <- [addFunction, subtractFunction, divideFunction, multiplyFunction, specialFunction]
 
       for op in ops
-        stdout.println("Result: " + $op(21, 7))
+        stdout.println(`Result: ${op(21, 7)}`)
 
     DynamicMathExample2()
       stdout <- Stdout()
@@ -91,7 +88,7 @@ defines module com.customer.just.functions
         ]
 
       for op in ops
-        stdout.println("Result: " + $op(21, 7))
+        stdout.println(`Result: ${op(21, 7)}`)
         
     DynamicMathExample3()
       stdout <- Stdout()

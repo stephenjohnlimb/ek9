@@ -1,0 +1,260 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language dynamic functions</title>
+  <meta name="description" content="EK9 programming language dynamic functions
+    are similar to lambdas in other languages, but must extend and abstract base function."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Dynamic Functions in EK9</h1>
+    </header>
+    <p>
+      These are just <a href="functions.html">functions</a>, but rather than being declared in the <i>functions</i>
+      block they can be defined and used in any <b>scope</b>. They are by their nature 'anonymous' but can be
+      referenced as a <i>function delegate</i> and they must always extend an <i>abstract function</i>.
+    </p>
+    <p>
+      The main use of these <i>dynamic functions</i> is to provide a very light weight and easy mechanism to
+      provide specific and varied functionality. You could view these as similar to <u>lambdas</u> in some ways.
+    </p>
+    <p>
+      But there is one significant and valuable difference to normal <i>functions</i>; <i>dynamic functions</i>
+      can (but don't have to) capture variables and can therefore hold state (a little like a closure).
+      This gives them different capabilities to normal <i>functions</i> as demonstrated in the following example.
+    </p>
+    <p>
+      This fact may go against the grain for many with a <u>functional</u> background (you don't have to use them!).
+      They have real power and value when building stream pipelines; using <i>dynamic functions</i> where you
+      want to retain/collate state information as part of pipeline process rather than just depending on a single
+      'reduce' at the end of the pipeline gives you flexibility in processing.
+    </p>
+    <h3 id="dynamic_function_example">Example</h3>
+    <p>
+      This <a href="inheritance.html#function_example">function example</a> shows how standard
+      <i>functions</i> and <i>abstract functions</i> can be implemented. There is also
+      <a href="collectionTypes.html#dictionary_example">an example</a> that shows how <i>dynamic functions</i>
+      can be used in stream pipelines (see 'nameMapping', 'dateMapping', 'recordMapping' and 'functionMapping').
+    </p>
+    <p>
+      The example below highlights how <i>dynamic functions</i> can provide a lightweight alternative to declaring
+      <i>functions</i> in the functions block.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+
+    mathOperation() as pure abstract
+      ->
+        x as Float
+        y as Float
+      <-
+        result as Float?
+
+  defines program
+        
+    DynamicMathExample1()
+      stdout <- Stdout()
+      stdout.println("Math Dynamic Operation Example1")
+      fixedValue <- 9.8
+
+      // is/extends and 'as function' are just syntatic sugar, examples of each
+      // notice how the incoming and returning parameter names are inferred from mathOperation
+
+      addFunction <- () is mathOperation as pure function
+        result: x+y
+
+      subtractFunction <- () extends mathOperation as pure
+        result: x-y
+
+      divideFunction <- () is mathOperation pure
+        result: x/y
+
+      multiplyFunction <- () is mathOperation pure
+        result: x*y
+
+      specialFunction <- (fixedValue) is mathOperation pure
+        result: (x+fixedValue) * y^fixedValue
+
+      // common super of mathOperation is inferred and ops is a 'List of mathOperation'
+      ops <- [addFunction, subtractFunction, divideFunction, multiplyFunction, specialFunction]
+
+      for op in ops
+        stdout.println(`Result: ${op(21, 7)}`)
+
+    DynamicMathExample2()
+      stdout <- Stdout()
+      stdout.println("Math Dynamic Operation Example2")
+      fixedValue <- 9.8
+
+      //Nearest EK9 gets to a lambda - wrap in parenthesis on single line.
+      //Notice the last entry - 'captures' fixedValue and can use it in the function body
+      ops <- [
+        () is mathOperation as pure (result: x+y),
+        () is mathOperation as pure (result: x-y),
+        () is mathOperation as pure (result: x/y),
+        () is mathOperation as pure (result: x*y),
+        (fixedValue) is mathOperation pure (result: (x+fixedValue) * y^fixedValue)
+        ]
+
+      for op in ops
+        stdout.println(`Result: ${op(21, 7)}`)
+
+    DynamicMathExample3()
+      stdout <- Stdout()
+      stdout.println("Math Dynamic Operation Example3")
+      fixedValue <- 9.8
+
+      //Same example but uses an inline list in the for loop.
+      for op in [
+        () is mathOperation as pure (result: x+y),
+        () is mathOperation as pure (result: x-y),
+        () is mathOperation as pure (result: x/y),
+        () is mathOperation as pure (result: x*y),
+        (fixedValue) is mathOperation pure (result: (x+fixedValue) * y^fixedValue)
+        ]
+        stdout.println(`Result: ${op(21, 7)}`)
+//EOF
+        </pre>
+    <p>
+      The code above will produce the following output:
+    </p>
+    <pre>
+Math Dynamic Operation Example1
+Result: 28.0
+Result: 14.0
+Result: 3.0
+Result: 147.0
+Result: 5.895375993827891E9
+Math Dynamic Operation Example2
+Result: 28.0
+Result: 14.0
+Result: 3.0
+Result: 147.0
+Result: 5.895375993827891E9        
+        </pre>
+    <h5>Explanation</h5>
+    <p>
+      The use of <b>pure</b> is useful as it makes it very clear that nothing is 'mutated'. If you are going to use
+      a functional approach or are very keen on immutability the use of <b>pure</b> is essential in EK9.
+    </p>
+    <p>
+      The add, subtract, divide and multiply functions are quite short and to the point, note that the incoming and returning
+      parameters do not need to be declared. They are just assumed. The syntax: <br/>
+      <b>addFunction &lt;- () is mathOperation</b><br/>
+      is just a declaration of a new function delegate 'addFunction' as a <i>function</i> that extends (<b>is a</b>) 'mathOperation'.
+    </p>
+    <p>
+      The suffix syntax of <b>'as function'</b> is optional, 'addFunction' shows this the other functions omit
+      this syntax. This is developer choice, but it is quite obvious that a new <i>dynamic function</i>
+      has been defined because it <b>is</b>/<b>extends</b> 'mathOperation' and that <u>is a function</u>.
+    </p>
+    <p>
+      The 'specialFunction' has a completely different mathematical operation; importantly it <u>captures</u> a variable.
+      The variable must be named; it cannot be a literal such as <b>9.8</b>. It has to be named so that it can be
+      addressed in the function body. Any number of variables can be captured and used in the function body.
+    </p>
+    <p>
+      This is <u>similar</u> (but not the same) to a lambda/closure in many ways, but the 'capturing' of
+      variables is explicit and not automatic like lambdas and closures. This is a deliberate design decision.
+    </p>
+    <h5>Why two ways to define functions?</h5>
+    <p>
+      Some functions are widely useful and should therefore be named and reused. Others really are just useful
+      in a few contexts and can therefore be 'anonymous'. But there are times when you want to hold state in
+      functions or pass them back from higher order functions/classes and pass them around like variables.
+    </p>
+    <p>
+      The approach in EK9 gives maximum flexibility; albeit at the cost of variation in syntax. Initially EK9
+      only had <i>standard functions</i>, then it became obvious that <i>abstract functions</i> were essential.
+      With the introduction of stream pipelines that concept of 'lambda' like lightweight functions
+      were needed, but so as not to distract from the pipeline and encourage reuse - they were designed to be
+      used via <u>delegates</u>. But as a compromise, a single line dynamic function can be wrapped in parentheses.
+    </p>
+    <p>
+      When defining <i>dynamic functions</i> it is best to create them via higher functions and that way they can be unit tested.
+      Clearly for trivial dynamic functions you have to make the call on unit testing!
+    </p>
+    <h3>Next Steps</h3>
+    <p>
+      As you would expect, if there are <i>dynamic functions</i>; there are <a href="dynamicClasses.html">Dynamic Classes</a>.
+      These are sightly different in nature however (with good reason).
+    </p>
+    <p>
+      But the combinations of <i>abstract functions</i>, <i>standard functions</i> and <i>dynamic functions</i> provide
+      a polymorphic and type safe way to implement flexible/reusable functionality.
+    </p>
+  </article>
+</main>
+</body>
+</html>
