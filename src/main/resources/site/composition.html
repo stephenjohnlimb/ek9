@@ -1,0 +1,765 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language composition</title>
+  <meta name="description" content="EK9 programming language composition
+    is supported directly in EK9 with syntax through the use of traits."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Composition in EK9</h1>
+    </header>
+    <p>
+      <b>Composition</b> has been outlined in the <a href="traits.html">traits</a> section in simple form.
+      This section will discuss composition in more detail through an example. You may be thinking why labour
+      this <i>traits</i> and <u>composition</u> stuff so much?
+    </p>
+    <p>
+      See the rationale and logic below as to why there is so much focus on this.
+    </p>
+    <h3>Composition background</h3>
+    <p>
+      In general when Object-Oriented programming first started to gain ground, the movement of defining
+      data structures ('structs in C') and having <i>functions</i> manipulate those 'structs' fell out of use.
+    </p>
+    <p>
+      This was generally considered a <u>good thing</u> by Object-Oriented developers, now <i>classes</i> and <i>class</i>
+      hierarchies became the main driving force. Initially the <i>classes</i> developed were relatively simple to
+      understand. It was not long before very large and deep <i>class</i> hierarchies became common.
+      In many cases with multiple inheritance adding to the complexity.
+    </p>
+    <p>
+      The main reason this 'new OOP' approach was consider a <u>good thing</u> is because it enabled data hiding and limited access
+      to state data (and specifically its mutation). EK9 has the <a href="basics.html#pure">pure</a> mechanism that enables mutable
+      data structures to remain free of <b>mutation</b>. The most important part of the <a href="basics.html#pure">pure</a> approach in
+      EK9 is that it works in a pragmatic way and does not focus on the data structure itself but on the processing.
+      <br/>
+      So for example it is possible in EK9 to pass a set of nested data structures into a <a href="basics.html#pure">pure</a> <i>function</i>
+      and that <i>function</i> can take a reference to some part of that data structure and use values in it (but not mutate it).
+      <br/>
+      However, it is able possible for that same function to take a reference to some part of that same nested data structure, and 'return' an
+      object that references that part of the nested data structure. This then 'returned' object could then be used elsewhere in a 'non-pure'
+      <i>function</i> or <i>method</i>. Now the data value can be <b>mutated</b> if required.
+    </p>
+    <p>
+      With EK9 <i>records</i> and <i>functions</i> you can now use the old approach again; and it's not a
+      bad practice - it's a valid and powerful approach if you wish to adopt a <u>functional</u> development style.
+      <br/>
+      The <a href="basics.html#pure">pure</a> mechanism in EK9 now enables a more refined control to state data. It also removes the need for
+      endless and pointless 'getters' which seem to spread all of 'OOP' code bases.
+    </p>
+    <p>
+      Add into the mix the teaching of Object-Oriented programmers to model 'real life' concepts and the <b>rot</b> set in!
+      Yes a Square 'is a' type of Rectangle mathematically, but that does not mean you can or should model it like that in a
+      <i>class</i> structure.
+    </p>
+    <p>
+      Now throw in the convenience of just wanting some of the same functionality from another class
+      and gaining that functionality through inheritance - and we have massive interdependence and coupling.
+    </p>
+    <p>
+      By providing
+      <b>protected</b> fields/properties; even 'encapsulation' is lost.
+    </p>
+    <p>
+      With Java <i>classes</i>, things became slightly simpler because it did not support multiple inheritance and
+      Java Interfaces only had <i>abstract</i> <i>methods</i> (originally). But again as inheritance was really the main
+      mechanism developers focused on to augment and add functionality; hierarchies became quite deep.
+    </p>
+    <p>
+      You may consider the above statements <u>incorrect, opinionated, invalid or extreme</u>. These are opinions,
+      but the EK9 language has been driven in part by experience of using 'C', Structs - going through the joy
+      and pain of Object-Oriented programming.
+    </p>
+    <p>
+      So why isn't <b>composition</b> more widely used/promoted? It's probably because it has not been made
+      easy enough. Imagine a trait/interface with 20 methods on it; implement a class and provide implementations
+      for all 20 methods. Now imagine wanting to compose that class with another that implements the same
+      trait/interface. You have to write 20 methods that just call <b>delegate.{methodName}</b>!
+    </p>
+    <p>
+      This is what EK9 does for you with the <b>by ...</b> syntax (see later example for details). What this means
+      is that a developer can now create a class that has multiple traits but each of those traits (and all the
+      methods) can be delegated to existing concrete classes that have already been developed. Additionally, if you
+      do what to override a small selection of the methods; you can, and EK9 won't delegate those overridden methods.
+    </p>
+    <h4>Smaller and well-defined functionality</h4>
+    <p>
+      In general the smaller, well-defined and immutable a piece functionality is; the:
+    </p>
+    <ul>
+      <li>more reliable it is</li>
+      <li>easier it can be tested</li>
+      <li>more reusable it is</li>
+      <li>refactoring and improvement is simplified</li>
+    </ul>
+    <p>
+      The <a target="_blank" title="SOLID" href="https://en.wikipedia.org/wiki/SOLID">SOLID</a> principle can be observed and can be followed through the
+      use of <u>composition</u> more easily than just using inheritance.
+    </p>
+    <p>
+      By supporting delegation and multiple inheritance of <i>traits</i>; EK9 enables the developer
+      to <a target="_blank" title="Interface" href="https://en.wikipedia.org/wiki/Interface_segregation_principle">
+      apply the 'I' - interface segregation principle</a> with ease.
+    </p>
+    <p>
+      For example; you can define any number of <i>traits</i>; have a small number of <i>classes</i> that
+      implement those traits. You can then create a trait that <i>extends</i> those traits and a concrete <i>class</i>
+      that then delegates all or some of the implementation to the existing <i>classes</i>.
+    </p>
+    <h5>Functions</h5>
+    <p>
+      A <i>function</i> is probably the smallest and most reusable piece of functionality that could
+      be developed; in general it has no <u>state</u> of its own. With the advent of Object-Oriented
+      programming this very useful and reliable mechanism of development was discarded to some degree. Not so
+      much with C++, but with Java to some extent (being sort of reintroduced in Java 8).
+    </p>
+    <p>
+      With EK9 the <i>function</i> is considered a critical, valuable, reliable, robust and scalable software
+      <b>construct</b>. By employing <i>function</i> delegates; a mechanism of adjusting functionality of
+      <i>classes</i> without sub-classing (inheritance) can be realised. This is shown in
+      <a href="classes.html#shape_example">this example (see Square)</a>.
+    </p>
+    <p>
+      The only disadvantage of using <i>function</i> delegates like this, is that the <i>function</i>
+      does not have direct access to the state of the object. Some developers would see this as an
+      <u>advantage</u> rather than a <u>disadvantage</u>; as it respects encapsulated data and state.
+    </p>
+    <p>
+      If access to state data is required - then an approach is to model all the 'classes' state data in
+      a <i>record</i>. Then if state data access is required in a <i>function</i> the <i>record</i> can be
+      passed into the <a href="basics.html#pure">pure</a> function. This provides direct (but immutable) access
+      to the data. This does break the 'information hiding' aspect of the class however, this may or may not be
+      worthwhile, and it is a matter of judgement.
+    </p>
+    <h5>Small Classes</h5>
+    <p>
+      There is a tendency for developers to create <a target="_blank" title="GOD class" href="https://wiki.c2.com/?GodClass">God classes</a>.
+      These have way too much functionality or manipulate other objects (as if they were C structs; though
+      they go through the motions of Object-Orientation by just using 'getters'/'setters').
+      In general, they tend to be very large, link to many other classes or have very deep hierarchies.
+    </p>
+    <p>
+      Breaking these large classes up into much smaller <i>classes, functions</i> and <i>records</i>
+      and then composing them together behind a <i>class</i> that delegates the call through to each
+      of the smaller classes is a step in the right direction.
+    </p>
+    <p>
+      By creating smaller well-rounded and encapsulated classes; defects and complexity are reduced
+      and reuse is increased. They can more easily follow the
+      <a target="_blank" title="Single Responsibility" href="https://en.wikipedia.org/wiki/Single-responsibility_principle">single responsibility principle</a>.
+    </p>
+    <h5>Façade</h5>
+    <p>
+      The approach of breaking up a large class in to several smaller classes may still require some sort of
+      unifying 'interface' to some degree (take care here not to build a very large 'interface').
+      In most modern languages an <i>interface</i> <b>type</b> would
+      be defined with all (or most) the same methods on the <i>classes</i> re-declared. Furthermore the
+      <i>class</i> that implements the <i>interface</i> must redeclare/implement those methods yet
+      again and must also the call the method on the actual class it will use to provide that functionality.
+    </p>
+    <p>
+      EK9 has a solution to the above through the use of <i>traits</i> as shown in the example below.
+      Specifically the 'Employee' using <i>traits</i> <b>by</b> delegating to a matching Property <i>class</i>.
+    </p>
+    <h4>Inheritance</h4>
+    <p>
+      There is a separate section on <a href="inheritance.html">inheritance</a>. Use of inheritance
+      is still a key technique and useful mechanism.
+      Inheritance to model concepts that are naturally structured, rather than inheritance just because
+      there is similarity in data elements or processing is the most suitable approach to using inheritance.
+    </p>
+    <p>
+      As a short example; consider a <i>class</i> called <u>ExternalAspect</u> that has properties of
+      <u>colour</u> and <u>texture</u>. <u>Human</u>, <u>Bird</u> and <u>Chair</u> all share those
+      properties to some degree. But they <b>are not 'an'</b> <u>ExternalAspect</u>!
+      They could have a property of <u>ExternalAspect</u> however. With real world examples
+      this is sometimes quite obvious, but with more abstract software concepts this become blurred
+      or confused at times.
+    </p>
+    <p>
+      But even with real world examples, it is not always appropriate to make <i>class</i> structures and
+      inheritance follow those concepts too closely. This is sometimes a major source of confusion as there
+      can be a conflict in true reality and what you need to model in software.
+    </p>
+    <h4>Contradictions</h4>
+    <p>
+      There are now some contradictions that must now be addressed.
+    </p>
+    <ul>
+      <li>Large class hierarchies lead to complexity and lack of flexibility</li>
+      <li>Breaking up classes into smaller implementations, creates many classes to be composed</li>
+      <li>Façades can create duplication of method declarations and the interface/implementation duality</li>
+    </ul>
+    <h4>The EK9 Approach</h4>
+    <p>
+      We need the benefits of being able to create small well defined <i>traits/classes</i> <b>and</b> the
+      benefits of the Façade. But we don't want the disadvantages of either
+      (again don't make the Façade too large).
+    </p>
+    <p>
+      <i>Function</i> delegates provide the <b>first</b> part of the solution.
+    </p>
+    <p>
+      <i>Traits</i> provide the <b>second</b> part. The <i>trait</i> provides a simple well-defined
+      public interface that can support default functionality and <i>abstract</i> method signatures.
+    </p>
+    <p>
+      The <b>third</b> part of the solution is to enable multiple inheritance of <i>traits</i>.
+      Façades can now be defined just by creating a new <i>trait</i> that has <i>traits</i> of all the features
+      needed.
+    </p>
+    <p>
+      The <b>fourth</b> and final part of the solution is to incorporate <i>class/object</i> delegation;
+      so that when defining a <i>class</i>; repetition is reduced and calls each
+      and every method that require delegation are automatically undertaken by EK9.
+      But importantly if you do wish to provide a new implementation you can.
+    </p>
+    <p>
+      See the example below, specifically:<br/><br/>
+      <b>Employee with trait of IRole by role, IPayrollCalculator by payroll</b>
+    </p>
+    <p>
+      Employee implements two <i>traits</i> <b>IRole/IPayrollCalculator</b>. But it immediately
+      delegates the implementation to <b>role</b> and <b>payroll</b> field/property objects.
+    </p>
+    <h4>Example</h4>
+    <p>
+      The use of composition is really a design pattern that can be used with any language.
+      The diagrams below are from a
+      <a target="_blank" title="Python Composition" href="https://realpython.com/inheritance-composition-python/">Python example</a>, which
+      was originally taken from a book on C++ design. The site is quite long (but well detailed
+      and interesting). The main points of contrast are shown in two diagrams, one for inheritance and
+      one for composition.
+    </p>
+    <p>
+      The design has remained fairly unaltered in the EK9 implementation, just a few alterations here and there.
+      While the final design might not be perfect or what some OO designers would like, it does provide a good
+      example of the issues and proposes a solution that could be used or refined and improved further.
+    </p>
+    <h5>Inheritance</h5>
+    <img src="ic-class-explosion.jpg" alt="Inheritance" style="width:700px;height:700px;">
+    <p>
+      As you can see the inheritance design is quite complex and has multiple inheritance.
+    </p>
+    <h5>Composition</h5>
+    <img src="ic-policy-based-composition.jpg" alt="Composition" style="width:700px;height:700px;">
+    <p>
+      The composition design is simpler and focuses on composition around the employee. It might have been
+      more appropriate to model 'Employment', 'Employee' and 'Person' rather than just use 'Employee'; but
+      that is a modelling discussion rather than the focus of this; which is <u>composition</u>.
+    </p>
+
+    <h5>Composition as above in EK9</h5>
+    <p>
+      The following example is quite long, this is to ensure that the benefits of the EK9 approach
+      to composition can be seen.
+    </p>
+    <p>
+      The same names for the <b>constructs</b> have been used in the EK9 code example below. This makes
+      the mapping between the composition diagram above and the EK9 code more obvious. Method names have been altered
+      and there is a slight change in the inheritance structure (which is more logical). In all; it is about 250
+      lines of code. The implementation is broadly the same as the Python code, There are several alternatives
+      to the implementation in EK9 (such as using <i>text</i> <b>constructs</b> or <i>components</i>). These
+      have <b>not</b> been done to keep the example a similar to the Python and the point of using composition.
+    </p>
+    <h4 id="composition_example">Composition Example</h4>
+    <pre>#!ek9
+defines module introduction
+
+  defines trait
+
+    IRole
+      performDuties()
+        -> hours as Integer
+        <- activity as String?
+
+    IPayrollCalculator
+      trackWork()
+        -> hours as Integer
+      calculatePayroll()
+        <- amount as Money?
+
+  defines record
+    //Added support for type inference back in for fields/properties
+    //but only is default constructor or a literal
+
+    Address
+      street <- String()
+      street2 <- String()
+      city <- String()
+      state <- String()
+      zipcode <- String()
+
+      //Might allow default with matching number type and name of parameters.
+      Address()
+        ->
+          street as String
+          street2 as String
+          city as String
+          state as String
+          zipcode as String
+        this.street :=: street
+        this.street2 :=: street2
+        this.city :=: city
+        this.state :=: state
+        this.zipcode :=: zipcode
+
+      operator ? as pure
+        <- rtn as Boolean: street? and city? and state? and zipcode?
+
+      operator $ as pure
+        <- rtn as String: String()
+        rtn: String(street)
+        if street2?
+          rtn += "\n" + street2
+        rtn += "\n" + city + " " + state+ " " + zipcode
+
+  defines class
+
+    Employee with trait of IRole by role, IPayrollCalculator by payroll
+      id <- Integer()
+      name <- String()
+      address <- Address()
+      role as IRole?
+      payroll as IPayrollCalculator?
+
+      //You can make a default constructor unavailable if you wish
+      default private Employee()
+      //No body
+
+      //You could just use
+      //default Employee() + the paramaters and the ek9 compiler would do that implementation for you.
+      Employee()
+        ->
+          id as Integer
+          name as String
+          address as Address
+          role as IRole
+          payroll as IPayrollCalculator
+        this.id: id
+        this.name: name
+        this.address: address
+        this.role: role
+        this.payroll: payroll
+
+      work()
+        -> hours as Integer
+
+        stdout <- Stdout()
+        duties <- performDuties(hours)
+        stdout.println(`Employee ${this}:`)
+        stdout.println(` - ${duties}\n`)
+        payroll.trackWork(hours)
+
+      address()
+        <- rtn as Address: address
+
+      operator $ as pure
+        <- rtn as String: $id + " - " + name
+
+    AddressBook
+      employeeAddresses as Dict of (Integer, Address): {
+        1: Address("121 Admin Rd.", String(), "Concord", "NH", "03301"),
+        2: Address("67 Paperwork Ave", String(), "Manchester", "NH", "03101"),
+        3: Address("15 Rose St", "Apt. B-1", "Concord", "NH", "03301"),
+        4: Address("39 Sole St.", String(), "Concord", "NH", "03301"),
+        5: Address("99 Mountain Rd.", String(), "Concord", "NH", "03301")
+        }
+
+      getEmployeeAddress()
+        -> employeeId as Integer
+        <- rtn as Address: Address()
+        address <- employeeAddresses.get(employeeId)
+        assert address?
+        rtn: address.get()
+
+    ProductivitySystem
+      roles as Dict of (String, IRole): {
+        "manager": ManagerRole(),
+        "secretary": SecretaryRole(),
+        "sales": SalesRole(),
+        "factory": FactoryRole()
+        }
+
+      getRole()
+        -> roleId as String
+        <- rtn as IRole?
+        theRole <- roles.get(roleId)
+        assert theRole?
+        rtn: theRole.get()
+
+      track()
+        ->
+          employees as List of Employee
+          hours as Integer
+
+        stdout <- Stdout()
+        stdout.println("Tracking Employee Productivity")
+        stdout.println("==============================")
+        for employee in employees
+          employee.work(hours)
+        stdout.print("\n")
+
+    // Employee roles
+
+    ManagerRole with trait of IRole
+      override performDuties()
+        -> hours as Integer
+        <- activity as String: `screams and yells for ${hours} hours.`
+
+    SecretaryRole with trait of IRole
+      override performDuties()
+        -> hours as Integer
+        <- activity as String: `does paperwork for ${hours} hours.`
+
+    SalesRole with trait of IRole
+      override performDuties()
+        -> hours as Integer
+        <- activity as String: `expends ${hours} hours on the phone.`
+
+    FactoryRole with trait of IRole
+      override performDuties()
+        -> hours as Integer
+        <- activity as String: `manufactures gadgets for ${hours} hours.`
+
+    //Payroll classes
+
+    PayrollSystem
+      employeePolicies as Dict of (Integer, PayrollPolicy): {
+        1: SalaryPolicy(3000#USD),
+        2: SalaryPolicy(1500#USD),
+        3: CommissionPolicy(1000#USD, 100#USD),
+        4: HourlyPolicy(15#USD),
+        5: HourlyPolicy(9#USD)
+        }
+
+      getPolicy()
+        -> employeeId as Integer
+        <- rtn as PayrollPolicy?
+        policy <- employeePolicies.get(employeeId)
+        assert policy?
+        rtn: policy.get()
+
+      calculatePayroll()
+        -> employees as List of Employee
+        stdout <- Stdout()
+        stdout.println("Calculating Payroll")
+        stdout.println("===================")
+        for employee in employees
+          stdout.println(`Payroll for: ${employee}`)
+          stdout.println(`- Check amount: ${employee.calculatePayroll()}`)
+          if employee.address()?
+              stdout.println(`- Sent to:\n${employee.address()}`)
+          stdout.print("\n")
+
+    PayrollPolicy with trait of IPayrollCalculator as abstract
+      hoursWorked as Integer: 0
+
+      override trackWork()
+        -> hours as Integer
+        hoursWorked += hours
+
+      hoursWorked()
+        <- hours as Integer: hoursWorked
+
+    HourlyPolicy extends PayrollPolicy
+      hourRate as Money: Money()
+
+      HourlyPolicy()
+        -> hourRate as Money
+        this.hourRate = hourRate
+
+      override calculatePayroll()
+        <- amount as Money: hourRate * hoursWorked()
+
+    SalaryPolicy extends PayrollPolicy as open
+      weeklySalary as Money: Money()
+
+      SalaryPolicy()
+        -> weeklySalary as Money
+        this.weeklySalary = weeklySalary
+
+      override calculatePayroll()
+        <- amount as Money: weeklySalary
+
+    CommissionPolicy extends SalaryPolicy
+      commissionPerSale as Money: Money()
+
+      CommissionPolicy()
+        ->
+          weeklySalary as Money
+          commissionPerSale as Money
+        super(weeklySalary)
+        this.commissionPerSale = commissionPerSale
+
+      override calculatePayroll()
+        <- amount as Money: super.calculatePayroll()
+        amount += commission()
+
+      private commission()
+        <- amount as Money: commissionPerSale/5.0 * hoursWorked()
+
+    // Part of the driver to create the employees
+
+    EmployeeDatabase
+      productivitySystem as ProductivitySystem: ProductivitySystem()
+      payrollSystem as PayrollSystem: PayrollSystem()
+      addresses as AddressBook: AddressBook()
+
+      employees()
+        <- rtn as List of Employee: List()
+
+        //You can use named variable if you prefer
+        rtn += createEmployee(id: 1, name: "Mary Poppins", theRole: "manager")
+        rtn += createEmployee(2, "John Smith", "secretary")
+        rtn += createEmployee(3, "Kevin Bacon", "sales")
+        rtn += createEmployee(4, "Jane Doe", "factory")
+        rtn += createEmployee(5, "Robin Williams", "secretary")
+
+      private createEmployee()
+        ->
+          id as Integer
+          name as String
+          theRole as String
+        <- //a bit of a mouth full, but you can use named parameters like this if you wish.
+          rtn as Employee: Employee(
+            id: id,
+            name: name,
+            address: addresses.getEmployeeAddress(id),
+            role: productivitySystem.getRole(theRole),
+            payroll: payrollSystem.getPolicy(id)
+            )
+
+  defines program
+
+    Demonstration()
+      productivitySystem <- ProductivitySystem()
+      payrollSystem <- PayrollSystem()
+
+      employeeDatabase <- EmployeeDatabase()
+      employees <- employeeDatabase.employees()
+
+      productivitySystem.track(employees, 40)
+      payrollSystem.calculatePayroll(employees)
+
+//EOF</pre>
+    <br/>
+    <h4>The driver components</h4>
+    <p>
+      The 'Demonstration' <i>program</i>, 'EmployeeDatabase', 'ProductivitySystem' and 'PayrollSystem' <i>classes</i>
+      are really just artefacts that are needed to demonstrate how the solution works. The output is shown below
+      (the same as the Python example - except <i>Money</i> is used and so you see the currency).
+    </p>
+    <h4>The Output</h4>
+    <pre>
+Tracking Employee Productivity
+==============================
+Employee 1 - Mary Poppins:
+ - screams and yells for 40 hours.
+
+Employee 2 - John Smith:
+ - does paperwork for 40 hours.
+
+Employee 3 - Kevin Bacon:
+ - expends 40 hours on the phone.
+
+Employee 4 - Jane Doe:
+ - manufactures gadgets for 40 hours.
+
+Employee 5 - Robin Williams:
+ - does paperwork for 40 hours.
+
+
+Calculating Payroll
+===================
+Payroll for: 1 - Mary Poppins
+- Check amount: 3000.00#USD
+- Sent to:
+121 Admin Rd.
+Concord NH 03301
+
+Payroll for: 2 - John Smith
+- Check amount: 1500.00#USD
+- Sent to:
+67 Paperwork Ave
+Manchester NH 03101
+
+Payroll for: 3 - Kevin Bacon
+- Check amount: 1800.00#USD
+- Sent to:
+15 Rose St
+Apt. B-1
+Concord NH 03301
+
+Payroll for: 4 - Jane Doe
+- Check amount: 600.00#USD
+- Sent to:
+39 Sole St.
+Concord NH 03301
+
+Payroll for: 5 - Robin Williams
+- Check amount: 360.00#USD
+- Sent to:
+99 Mountain Rd.
+Concord NH 03301
+        </pre>
+    <h3>Summary</h3>
+    <p>
+      The key points for this example are:
+    </p>
+    <ul>
+      <li>The <i>trait</i> concept in EK9 facilitates composition</li>
+      <li>It is necessary to actually define the <i>traits</i></li>
+      <li>The abstraction and structure has to be explicit in EK9</li>
+      <li><b>Constructs</b> <i>record</i>, <i>trait</i> and <i>class</i> provide different structure <b>constructs</b></li>
+      <li>'Employee' <i>methods</i> <b>calculatePayroll</b> and <b>performDuties</b> are automatically delegated</li>
+    </ul>
+    <p>
+      The automatic delegation of <i>methods</i> on 'Employee' mean that the <i>methods</i> do not need implementing.
+    </p>
+    <p>
+      While the main purpose of this example is not to compare the EK9 language to Python, it is quite clear
+      that EK9 has been inspired by Python in terms of layout and syntax. But also inspired by Java/C#/Scala
+      and C++ in terms of structure and explicit extension/implementation. It's not enough just to define method signatures
+      that match up, an actual <i>trait</i> must be declared and used. This is a good thing; as it is explicit and type safe
+      (it is not possible to pass the wrong type of object just because the method signatures match!).
+    </p>
+    <h5>SOLID</h5>
+    <p>
+      The <a target="_blank" title="SOLID" href="https://en.wikipedia.org/wiki/SOLID">SOLID</a> principle as been observed quite well in the example.
+    </p>
+    <ul>
+      <li>Single Responsibility - Each Role is isolated, each PayrollPolicy is isolated</li>
+      <li>Open-closed principle - clearly the behaviour in roles and payroll policies can change but modification to their bases is not needed</li>
+      <li>Liskov substitution principle - Any of the roles and payroll policies can be replaced without altering the correctness of the program</li>
+      <li>Interface segregation principle - IRole and IPayrollCalculator are separate interfaces/traits and so are segregated</li>
+      <li>Dependency inversion principle - The Employee class is only aware of IRole and IPayrollCalculator; at construction it is given the implementation it
+        is to use.
+      </li>
+    </ul>
+    <h5>Advantages</h5>
+    <p>
+      Should alterations to any of the implementations referenced above be needed, only a small part of the code
+      would need to be adjusted. The effects of such changes are quite direct and obvious.
+      In short; it is obvious where to look to alter 'manager' pay or 'secretary' activity text.
+    </p>
+    <p>
+      Changes to addresses would be done in the 'Address Book'.
+    </p>
+    <h5>Issues</h5>
+    <p>
+      Output is hardwired to 'Stdout',
+      What about adding new employees? Altering an existing employee job role, adding a new job role? This
+      solution does not address these functions. But more importantly it does not facilitate the development
+      of such functions. It's not obvious where or how they could be implemented.
+    </p>
+    <p>
+      There are also a couple of issues in the code around 'ProductivitySystem'. The 'EmployeeDatabase' is
+      directly coupled to 'ProductivitySystem'. It is also directly coupled to 'PayrollSystem' and 'AddressBook'!
+    </p>
+    <p>
+      The 'ProductivitySystem' seems to have mixed responsibilities. Is it just for tracking productivity; or
+      is it also some type of HR system that is to be used for defining what roles should be available for a
+      notional title? This is very confused and should really be separated out from the 'ProductivitySystem'.
+    </p>
+    <p>
+      The 'AddressBook' is only used by the 'EmployeeDatabase', which is fine in of itself. But this means that
+      it cannot be easily swapped out for some type of database or file or remote service. The 'EmployeeDatabase'
+      is directly linked to this implementation of the 'AddressBook'.
+    </p>
+    <p>
+      This page has now moved into the realm of software design, rather than just the EK9 language.
+      But will be used as an example of how to use other EK9 language features to address the above issues.
+    </p>
+    <p>
+      The intention here is not to criticize the example from the website (thank you, Isaac Rodriguez for taking
+      the time to produce such a good example), but really to show how the EK9
+      language features can be used in different ways. In fact most of the issues raised here were not really the
+      main subject of the website, but are really the 'Driver' infrastructure.
+    </p>
+    <h5>Revisiting</h5>
+    <p>
+      The example above will be revisited in the <a href="components.html">Components</a> section, where it will
+      be refined further. Then in the section on <a href="dependencyInjection.html">dependency injection</a>
+      more alterations and alternatives will be discussed.
+    </p>
+    <h3>Next Steps</h3>
+    <p>
+      The use of <a href="inheritance.html">inheritance</a> is covered in the next section.
+      <a href="components.html">Components</a> will also be of interest; as they too enable composition,
+      but into larger building blocks.
+    </p>
+  </article>
+</main>
+</body>
+</html>

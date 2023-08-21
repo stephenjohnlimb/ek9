@@ -207,6 +207,7 @@ defines module introduction
       override lowCost() as pure
         <- rtn as Boolean: false
 
+    //I've used a slightly different layout here and also used named parameters as an example.
     JSONProcessor with trait of Processor
       override process()
         <- response as ProcessingResponse: StructuredResponse(
@@ -395,6 +396,15 @@ application/json (( {"name": "John", "age": 31, "city": "New York"} ))
       If you ever find you need functionality from one <i>class</i> in another <i>class</i>, don't just think
       of an inheritance structure as this can be very limiting. Consider <i>traits</i> and <u>composition</u>
       by refactoring <i>classes</i> into smaller units and extracting method signatures out to <i>traits</i>.
+    </p>
+    <p>
+      You may find that holding what would have been 'class properties' in a <i>record</i>, then using <i>traits</i>
+      to define <b>control</b> and 'signatures' with a range of <i>classes</i> and <i>dynamic classes</i> an alternative
+      approach to just using <u>inheritance</u>. If you also combine this approach with 'function delegates', you have
+      quite a different way to implement functionality.
+    </p>
+    <p>
+      It may take some time for patterns to emerge that make the most of the delegation facilities in EK9.
     </p>
     <h3>Next Steps</h3>
     <p>

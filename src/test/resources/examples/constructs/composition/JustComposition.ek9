@@ -141,7 +141,7 @@ defines module com.customer.just.employees
           employee.work(hours)
         stdout.print("\n")
 
-    <!- Employee roles -!>
+    // Employee roles
 
     ManagerRole with trait of IRole
       override performDuties()
@@ -163,7 +163,7 @@ defines module com.customer.just.employees
         -> hours as Integer
         <- activity as String: `manufactures gadgets for ${hours} hours.`
 
-    <!- Payroll classes -!>
+    //Payroll classes
 
     PayrollSystem
       employeePolicies as Dict of (Integer, PayrollPolicy): {
@@ -240,7 +240,7 @@ defines module com.customer.just.employees
       private commission()
         <- amount as Money: commissionPerSale/5.0 * hoursWorked()
 
-    <!- Part of the driver to create the employees -!>
+    // Part of the driver to create the employees
 
     EmployeeDatabase
       productivitySystem as ProductivitySystem: ProductivitySystem()
