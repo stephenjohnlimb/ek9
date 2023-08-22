@@ -1,0 +1,111 @@
+#!ek9
+defines module com.customer.properties
+
+  defines program
+    CheckTextAccess
+      stdout <- Stdout()
+
+      lang <- "en_GB"
+      me <- Person("Steve", "Limb")
+      englishWelcome <- WelcomePageText(lang)
+      stdout.println(englishWelcome.mainWelcome())
+      stdout.println(englishWelcome.namedWelcome(me))
+
+      validator <- LanguageValidator(lang)
+      stdout.println(validator.valueTooShort("Some Long Input"))
+
+      deutschWelcome <- WelcomePageText("de")
+      stdout.println(deutschWelcome.mainWelcome())
+      stdout.println(deutschWelcome.namedWelcome(me))
+
+      nonSuchWelcome <- WelcomePageText("none")
+      stdout.println(nonSuchWelcome.mainWelcome())
+      stdout.println(nonSuchWelcome.namedWelcome(me))
+
+  defines record
+    Person
+      firstName String: String()
+      lastName String: String()
+
+      Person()
+        ->
+          firstName String
+          lastName String
+        assert firstName? and lastName?
+
+        this.firstName :=: firstName
+        this.lastName :=: lastName
+
+      operator $ as pure
+        <- rtn String: `${firstName} ${lastName}`
+
+
+    WelcomePageText
+
+      namedWelcome()
+        -> person Person
+        `Welcome ${person.firstName}`
+
+      mainWelcome()
+        "The main difference in processing html if you want to use hardwired content like this.
+You must put it all in quotes.
+As you can see above\nwith welcomeMessage, EK9 will look for variable names,
+but anything in double quotes check tab[\t] is a literal.
+In general you would probably use the 'text' mechanisms described in the section before this."
+
+      endWelcome()
+        `End Message.`
+
+    LanguageValidator
+      valueTooShort()
+        -> input as String
+        //Escape the $ with \$ as it is used for interpolation
+        `The value:
+\$ '${input}'
+you entered is too short.
+This can be multi-lined`
+
+      valueTooLong
+        -> input as String
+        `The value ${input} you entered is too long`
+
+      unknownLanguage
+        ->
+          input as String
+          constraint as String
+        `The value ${input} is not one of ${constraint}`
+
+  defines text for "de"
+
+    WelcomePageText
+      namedWelcome()
+        -> person Person
+        `Willkommen ${person.firstName}`
+
+      mainWelcome()
+        "Der Hauptunterschied bei der Verarbeitung von HTML, wenn Sie fest verdrahteten Inhalt wie diesen verwenden möchten.
+Sie müssen alles in Anführungszeichen setzen.
+Wie Sie oben mit welcomeMessage sehen können, sucht EK9 nach Variablennamen.
+aber alles in doppelten Anführungszeichen ist ein Literal.
+Im Allgemeinen würden Sie wahrscheinlich die im vorherigen Abschnitt beschriebenen 'Text'-Mechanismen verwenden."
+
+      endWelcome()
+        "End Message."
+
+    LanguageValidator
+      valueTooShort()
+        -> input as String
+        `Der eingegebene Wert ${input} ist zu kurz`
+
+      valueTooLong
+        -> input as String
+        `Der von Ihnen eingegebene Wert ${input} ist zu lang`
+
+      unknownLanguage
+        ->
+          input as String
+          constraint as String
+        `Der Wert ${input} gehört nicht zu ${constraint}`
+  defines text for "en_GB"
+
+//EOF

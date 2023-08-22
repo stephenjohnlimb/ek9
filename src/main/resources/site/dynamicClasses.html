@@ -427,15 +427,15 @@ defines module introduction
       can also be re-used either directly, through <i>high order functions</i> or through composition.
     </p>
     <p>
-      The idea of the 'Single Responsibility Principle' and <u>composition</u> is very powerful and flexible in
-      EK9. It reduces the need to use <u>Inheritance</u> as the only mechanism of extensibility. It means
-      smaller more well defined <i>functions, traits</i> and <i>classes</i> can be defined and then
-      <u>composed</u> in a range of different ways.
+      The idea of the 'Single Responsibility Principle' and <u>composition</u> is very powerful/flexible in
+      EK9. It reduces the need to use <u>Inheritance</u> as the only mechanism of behavioural change. It means
+      smaller more well defined <i>functions, traits</i> and <i>classes</i> can be defined (with a single responsibility)
+      and then <u>composed</u> in a range of different ways.
     </p>
     <p>
       By adopting <u>polymorphism</u> in <i>functions</i> as well as <i>classes</i> and <i>traits</i>; EK9
       strongly promotes re-use and composition of small well rounded <i>functions/classes</i>. With the syntax
-      to support delegation and <i>dynamic class</i> definition; simple one-liners like:<br/>
+      to support both inheritance/delegation and <i>dynamic class</i> definition; simple one-liners like:<br/>
       <b>validate1 &lt;- (lenValidator, checkContent) of LenValidator by lenValidator, CharValidator by checkContent</b><br/>
       provide a really lightweight declarative mechanism of creating a new <i>class</i> composed of a mix of <i>functions</i>
       and other <i>classes</i> that implement <i>traits</i>.

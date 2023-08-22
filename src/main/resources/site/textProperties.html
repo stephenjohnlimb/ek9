@@ -1,0 +1,327 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language text</title>
+  <meta name="description" content="EK9 programming language text
+    properties are designed to enable all output text to be used in an abstract manner."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Text Properties in EK9</h1>
+    </header>
+    <p>
+      If you are developing a small application in just a single spoken language; then the use of text
+      properties might not be necessary.
+    </p>
+    <p>
+      But for applications with large amounts of text or text in multiple languages; using the EK9 <i>text</i>
+      <b>construct</b> might be a good idea.
+    </p>
+    <p>
+      Having an entire <b>construct</b> just to hold a number of text 'Strings' might seem a little excessive
+      to some developers. After all; it is possible just to put them in the code, or pull text out of
+      properties files, or a CMS or even a database. All of these approach can work. But EK9 provides
+      a built-in alternative (with compiler and type support).
+    </p>
+    <h3>Benefits of the Text construct</h3>
+    <ul>
+      <li>Separation of large amounts of text from code</li>
+      <li>Encapsulation of text content in specific areas</li>
+      <li>Explicit support for multiple spoken languages</li>
+      <li>Cross checking of <i>text</i> <b>constructs</b> with same name</li>
+      <li>Built in support for String Interpolation using parameters</li>
+      <li>Built in support for multi-line text blocks - retaining formatting</li>
+      <li>Follows the EK9 philosophy of separating definition from use</li>
+      <li>Facilitates language translation by enabling all text to be collocated</li>
+      <li>Provides a 'known' and expected place for output text and content to be located</li>
+    </ul>
+    <h4 id="example">Example</h4>
+    <p>
+      A simple example of how the <i>text</i> <b>construct</b> can be used is shown below.
+    </p>
+    <p>
+      The <b>CheckTextAccess</b> <i>program</i> and <b>Person</b> <i>record</i> are just used to drive the
+      example. There are two main text blocks - one of "en_GB" (English - specifically British English)
+      and the other for "de" (Deutsch).
+    </p>
+    <p>
+      Within the text blocks there are a number of text declarations (which are a little like classes).
+      There are <b>WelcomePageText</b> and <b>LanguageValidator</b> definitions declared for both languages.
+      It is possible to define a declaration for just one language if needs be.
+    </p>
+    <p>
+      These blocks have what look like <i>methods</i> on them (the <b>()</b> is optional). These <i>methods</i>
+      can have input parameters if required. They then just consist of a single <i>String</i>.
+    </p>
+    <p>
+      The <i>String</i> can either be a normal simple <i>String</i> <b>" ... "</b>, or an
+      interpolated <i>String</i> <b>` ... ${...} ...`</b>. It is possible for the String to roll over
+      a number of lines if needed and the formatting will be retained.
+    </p>
+    <p>
+      There is an important point to be made here; if a declaration is made for multiple languages that has the
+      same name then all the <i>methods</i> must be present on both declarations (the compiler checks this).
+      It's almost like the compiler uses the fact the declarations have the same name to build a 'supertype' and
+      then checks that all declarations using that name but with different languages implements all the methods.
+    </p>
+    <p>
+      This latter point is borne of experience of working with 'property files'. It is very easy to add or
+      modify properties for one language but forget some others. Typically, this is only picked up at runtime.
+      With the EK9 language the compiler helps here by checking corresponding methods.
+    </p>
+    <p>
+      So EK9 <b>mandates</b> the same <i>methods</i> (and parameter signatures) on all declarations with the same name.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines program
+
+    CheckTextAccess
+      stdout <- Stdout()
+
+      lang <- "en_GB"
+      me <- Person("Steve", "Limb")
+      englishWelcome <- WelcomePageText(lang)
+      stdout.println(englishWelcome.mainWelcome())
+      stdout.println(englishWelcome.namedWelcome(me))
+
+      validator <- LanguageValidator(lang)
+      stdout.println(validator.valueTooShort("Some Long Input"))
+
+      deutschWelcome <- WelcomePageText("de")
+      stdout.println(deutschWelcome.mainWelcome())
+      stdout.println(deutschWelcome.namedWelcome(me))
+
+      nonSuchWelcome <- WelcomePageText("none")
+      stdout.println(nonSuchWelcome.mainWelcome())
+      stdout.println(nonSuchWelcome.namedWelcome(me))
+
+  defines record
+    Person
+      firstName String: String()
+      lastName String: String()
+
+      Person()
+        ->
+          firstName String
+          lastName String
+        assert firstName? and lastName?
+
+        this.firstName :=: firstName
+        this.lastName :=: lastName
+
+      operator $ as pure
+        <- rtn String: `${firstName} ${lastName}`
+
+    WelcomePageText
+
+      namedWelcome()
+        -> person Person
+        `Welcome ${person.firstName}`
+
+      mainWelcome()
+        "The main difference in processing html if you want to use hardwired content like this.
+You must put it all in quotes.
+As you can see above\nwith welcomeMessage, EK9 will look for variable names,
+but anything in double quotes check tab[\t] is a literal.
+In general you would probably use the 'text' mechanisms described in the section before this."
+
+      endWelcome()
+        `End Message.`
+
+    LanguageValidator
+      valueTooShort()
+        -> input as String
+        //Escape the $ with \$ as it is used for interpolation
+        `The value:
+\$ '${input}'
+you entered is too short.
+This can be multi-lined`
+
+      valueTooLong
+        -> input as String
+        `The value ${input} you entered is too long`
+
+      unknownLanguage
+        ->
+          input as String
+          constraint as String
+        `The value ${input} is not one of ${constraint}`
+
+  defines text for "de"
+
+    WelcomePageText
+      namedWelcome()
+        -> person Person
+        `Willkommen ${person.firstName}`
+
+      mainWelcome()
+        "Der Hauptunterschied bei der Verarbeitung von HTML, wenn Sie fest verdrahteten Inhalt wie diesen verwenden möchten.
+Sie müssen alles in Anführungszeichen setzen.
+Wie Sie oben mit welcomeMessage sehen können, sucht EK9 nach Variablennamen.
+aber alles in doppelten Anführungszeichen ist ein Literal.
+Im Allgemeinen würden Sie wahrscheinlich die im vorherigen Abschnitt beschriebenen 'Text'-Mechanismen verwenden."
+
+      endWelcome()
+        "End Message."
+
+    LanguageValidator
+      valueTooShort()
+        -> input as String
+        `Der eingegebene Wert ${input} ist zu kurz`
+
+      valueTooLong
+        -> input as String
+        `Der von Ihnen eingegebene Wert ${input} ist zu lang`
+
+      unknownLanguage
+        ->
+          input as String
+          constraint as String
+        `Der Wert ${input} gehört nicht zu ${constraint}`
+
+//EOF</pre>
+    <br/>
+    <p>
+      The above example is designed to show a mix of fixed static text, interpolated text and also use of
+      special characters and escape sequences.
+    </p>
+    <p>
+      The program produces the following output:
+    </p>
+    <pre>
+The main difference in processing html if you want to use hardwired content like this.
+You must put it all in quotes.
+As you can see above
+with welcomeMessage, EK9 will look for variable names,
+but anything in double quotes check tab[	] is a literal.
+In general you would probably use the 'text' mechanisms described in the section before this.
+Welcome Steve
+The value:
+$ 'Some Long Input'
+you entered is too short.
+This can be multi-lined
+Der Hauptunterschied bei der Verarbeitung von HTML, wenn Sie fest verdrahteten Inhalt wie diesen verwenden möchten.
+Sie müssen alles in Anführungszeichen setzen.
+Wie Sie oben mit welcomeMessage sehen können, sucht EK9 nach Variablennamen.
+aber alles in doppelten Anführungszeichen ist ein Literal.
+Im Allgemeinen würden Sie wahrscheinlich die im vorherigen Abschnitt beschriebenen 'Text'-Mechanismen verwenden.
+Willkommen Steve
+        </pre>
+    <h3>Summary</h3>
+    <p>
+      As is evident from the example above the main <i>program</i> <b>CheckTextAccess</b> is very simple
+      and clean. It is not cluttered with formatted text. It is also very simple to select the specific
+      set of language resources needed (and exception is thrown at runtime if the language resource does not exist).
+    </p>
+    <p>
+      This comes back to <a target="_blank" title="SOLID" href="https://en.wikipedia.org/wiki/SOLID">SOLID</a>
+      and specifically a <u>separation of concerns</u>.
+    </p>
+    <p>
+      The <i>methods</i> can accept parameters of any <b>type</b> and any number. Those parameters can then
+      be used in formatted interpolated <i>Strings</i>, this enables any resultant <i>String</i> to be created.
+    </p>
+    <p>
+      Once of the most important things with this <i>text</i> <b>construct</b> approach is the ability to
+      quickly and easily unit test all the output text that might be used with an application in isolation.
+    </p>
+    <p>
+      By extracting the text to separate <b>constructs</b> testing is made much easier and real focus can be given
+      to the formatting of text output (not a trivial task for html emails for example).
+    </p>
+    <p>
+      If you had a very large amount of text it would be simple to store them in separate source files but
+      locate them all in the same <i>module</i>. Likewise, if you needed to support a large number of
+      spoken languages, storing each set of <i>text</i> declarations in a separate file would make sense.
+    </p>
+    <p>
+      The EK9 compiler will still check all <b>methods</b> exist across all the languages you plan to support;
+      even if they are stored over several files.
+    </p>
+    <h4>Next Steps</h4>
+    <p>
+      The next set of <b>construct</b> sections focus much more on higher level structural architecture
+      and software design; they take <i>composition</i> much further by introducing
+      on <a href="components.html">components</a>, <a href="dependencyInjection.html">dependency injection</a>
+      and finally <a href="webServices.html">web services</a> which is largest and final architectural construct
+      in EK9.
+    </p>
+  </article>
+</main>
+</body>
+</html>
