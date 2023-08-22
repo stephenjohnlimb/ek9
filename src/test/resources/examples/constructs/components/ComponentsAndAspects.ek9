@@ -93,7 +93,7 @@ defines module com.customer.components
           level as String
           content as String
         //Just use Stdout for logging for this example.
-        stdout.println(level + ": " + content)
+        stdout.println(`${level}: ${content}`)
 
   defines class
 
@@ -112,20 +112,19 @@ defines module com.customer.components
         <- rtn as PreparedMetaData: PreparedMetaData(joinPoint)
         //Will be injected
         logger as ILogger!
-        logger.log(loggingLevel, "Before " + joinPoint.componentName() + " " + joinPoint.methodName())
+        logger.log(loggingLevel, `Before ${joinPoint.componentName()} ${joinPoint.methodName()}`)
 
       override afterAdvice()
         -> preparedMetaData as PreparedMetaData
         joinPoint <- preparedMetaData.joinPoint()
         //Will be injected
         logger as ILogger!
-        logger.log(loggingLevel, "After " + joinPoint.componentName() + " " + joinPoint.methodName())
+        logger.log(loggingLevel, `After ${joinPoint.componentName()} ${joinPoint.methodName()}`)
 
     TimerData extends PreparedMetaData
       before as Millisecond?
 
-      TimerData()
-        assert false
+      default private TimerData()
 
       TimerData()
         ->
@@ -140,8 +139,7 @@ defines module com.customer.components
     TimerAspect extends Aspect
       clock as Clock?
 
-      TimerAspect()
-        assert false
+      default private TimerAspect()
 
       TimerAspect()
         -> clock as Clock
@@ -158,6 +156,6 @@ defines module com.customer.components
         joinPoint <- timerData.joinPoint()
         //Will be injected
         logger as ILogger!
-        logger.log("INFO", $millisecondsTaken + " Milliseconds for " + joinPoint.componentName() + " " + joinPoint.methodName())
+        logger.log("INFO", `${millisecondsTaken} Milliseconds for ${joinPoint.componentName()} ${joinPoint.methodName()}`)
 
 //EOF

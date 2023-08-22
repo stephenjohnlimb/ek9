@@ -1,0 +1,710 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language dependency injection</title>
+  <meta name="description" content="EK9 programming language dependency injection,
+    inversion of control and aspects are enabled through the use of components."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
+
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Dependency Injection in EK9</h1>
+    </header>
+    <p>
+      Dependency Injection and Inversion of Control have been touched on in
+      <a href="components.html">Components and Applications</a>; which includes an example that shows the separation
+      between 'wiring' <i>components</i> and the 'use' of components through an <i>abstract</i> base.
+    </p>
+    <p>
+      The <u>separation</u> of 'what' it to be used by 'when' it is used, is really the main value being
+      provided by inversion of control. Dependency injection is then the mechanics of how that <u>separation</u>
+      is delivered.
+    </p>
+    <h2>Inversion of Control</h2>
+    <p>
+      The <u>inversion</u> part really means that the <i>function/class/method</i> no longer 'decides'
+      what object it is going to create to make a call; control is inverted by either the object being passed to the
+      <i>function/class/method</i> or it being 'injected'. In both cases the <i>function/class/method</i>
+      does not have 'control' of the specific type of object and also is not responsible for creating it.
+    </p>
+    <p>
+      Polymorphism is clearly essential for this mechanism to work.
+    </p>
+    <p>
+      Consider the following snip of code (the full definition is show later in the example); the
+      <b>TimerAspect</b> class does not decide the concrete <b>type</b> of <i>Clock</i> it will be using
+      for timing. In this case the <i>Clock</i> is passed into the constructor method of the <b>TimerAspect</b>.
+    </p>
+    <pre>...
+  defines class
+    TimerAspect extends Aspect
+      clock as Clock?
+
+      default private TimerAspect()
+
+      TimerAspect()
+        -> clock as Clock
+        this.clock: clock
+...
+//EOF</pre>
+    <br/>
+    <p>
+      It is this <i>application</i> <b>'thirdApp'</b> that has the control and decides to use <i>SystemClock</i>.
+      The <b>thirdApp</b> has control, in fact in EK9 it is the <i>application</i>s that are responsible for
+      making the decisions on the wiring of which <i>components</i> to use.
+    </p>
+    <pre>...
+  defines application
+    thirdApp
+      register Solution3() as BaseConfiguration with aspect of TimerAspect(SystemClock())
+...
+//EOF</pre>
+    <br/>
+    <p>
+      But note this is separate to <u>dependency injection</u>, nothing in the above example has been
+      'injected'. Only the control has been inverted.
+    </p>
+    <p>
+      You may consider the <b>'register'</b> syntax of <b>components</b> and <b>aspects</b> to be much more
+      'wordy' than much of the other EK9 syntax see so far. This is by design, the use of components and
+      application should be relatively infrequent in comparison to <b>functions, classes, traits</b> and
+      <b>records</b>. So their should not be a need to create too many of these large and significant
+      <b>constructs</b>.
+    </p>
+    <p>
+      The syntax has been designed to reflect their size and significance.
+    </p>
+    <h2>Dependency Injection</h2>
+    <p>
+      Rather than pass the <i>component</i> into a specific <i>function/class/method</i> or <i>component</i>;
+      it is possible (when using an <i>abstract</i> base <i>component</i>) to have it automatically injected.
+    </p>
+    <p>
+      It is important to use this capability sparingly and with care; as excessive use causes 'hidden' coupling
+      and limits refactoring. It is then very hard to write <b>pure</b> functions and methods.
+    </p>
+    <pre>...
+  defines class
+
+    LoggingAspect extends Aspect
+      loggingLevel as String?
+
+      LoggingAspect() as pure
+        this("WARN")
+
+      LoggingAspect() as pure
+        -> level as String
+        loggingLevel: level
+
+      override beforeAdvice()
+        -> joinPoint as JoinPoint
+        <- rtn as PreparedMetaData: PreparedMetaData(joinPoint)
+        //Will be injected
+        logger as ILogger!
+        logger.log(loggingLevel, `Before ${joinPoint.componentName()} ${joinPoint.methodName()}`)
+
+      override afterAdvice()
+        -> preparedMetaData as PreparedMetaData
+        joinPoint <- preparedMetaData.joinPoint()
+        //Will be injected
+        logger as ILogger!
+        logger.log(loggingLevel, `After ${joinPoint.componentName()} ${joinPoint.methodName()}`)
+
+...
+//EOF</pre>
+    <br/>
+    <p>
+      In the snip above the <i>method</i> <b>beforeAdvice</b> needs to be able to log out messages.
+      So one solution here would have been for the <b>LoggingAspect</b> to retain control and decide on which
+      implementation of <b>ILogger</b> to use.
+    </p>
+    <p>
+      Another alternative would have been to pass an instance of a <b>construct</b> that <i>was</i> an
+      <b>ILogger</b> at the construction of the <b>LoggingAspect</b>.
+    </p>
+    <p>
+      Rather than use either of those solutions; the <b>LoggingAspect</b> just 'expects' an implementation
+      of <b>ILogger</b> to be 'injected'. It can then go on to use the <b>log</b> <i>method</i> via the
+      <b>ILogger</b> abstract <i>component</i>. The key syntax to trigger injection of a <i>component</i>
+      is to use the <b>!</b> symbol after the <b>type</b> when declaring the variable.
+    </p>
+    <p>
+      The following snip shows how a concrete implementation of the <b>ILogger</b> was made available.
+    </p>
+    <pre>...
+  defines application
+
+    firstApp
+      register FileLogger() as ILogger
+      register Solution1() as BaseConfiguration with aspect of TimerAspect(SystemClock()), LoggingAspect("DEBUG")
+
+//EOF</pre>
+    <br/>
+    <p>
+      As the <i>application</i> <b>firstApp</b> registers a new instance of <b>FileLogger</b> as
+      the <b>ILogger</b> this makes it known to EK9 that <b>FileLogger</b> can now be injected in places
+      where <b>ILogger</b> is being used.
+    </p>
+    <p>
+      This is where EK9 will look for those references to <b>ILogger</b> and ensure that the variable
+      declared is set to use the implementation provided (<b>FileLogger</b> in this case).
+    </p>
+    <p>
+      If you've used 'Spring' before in Java, this is like a very cut down version of that (by design).
+      Use this capability sparingly and with care as it can inhibit reuse.
+    </p>
+    <h2>Limitations</h2>
+    <p>
+      Only <i>components</i> can be used for dependency injection. When expecting injection to take place
+      the variable declared must have a <b>type</b> that is an <i>abstract</i> base <i>component</i>.
+    </p>
+    <p>
+      Best practice is to restrict the number of components used and the amount of injection employed.
+      As you can see from the example above <b>logger as ILogger!</b> is hidden inside a method. This makes
+      the whole class much less portable, harder to refactor, less reusable. It also means that <b>pure</b>
+      cannot be employed (there is a very hidden component being injected).
+    </p>
+    <p>
+      Use this mechanism carefully and avoid it by passing in parameters where possible.
+    </p>
+    <h3>So why add this feature?</h3>
+    <p>
+      There are times when major subsystems and components need to be wired together in different ways. The
+      main bulk of code remains the same and access is via <i>traits</i> or <i>abstract</i> bases
+      <i>classes/components</i>. Inversion of Control and Dependency Injection are really useful to solve that
+      problem in specific situations.
+    </p>
+    <p>
+      The other major reason is to facilitate <u>Aspect Oriented Programming</u> (but in a limited way).
+      There are times when it is necessary to deal with issues in software design via what are called
+      'crosscutting concerns'. These typically involve:
+    </p>
+    <ul>
+      <li>Logging</li>
+      <li>Timing of calls</li>
+      <li>Transactional boundaries</li>
+      <li>Permission processing</li>
+    </ul>
+    <p>
+      There are other reasons, but those above are the main ones.
+    </p>
+    <h2>A Scenario</h2>
+    <p>
+      To explain the rationale for including Inversion of Control, Dependency Injection and Aspect Oriented
+      Programming it is necessary to define a scenario.
+    </p>
+    <p>
+      The scenario is; a 'system' is required that has a number of major components, these are as follows:
+    </p>
+    <ul>
+      <li>Client Record System</li>
+      <li>Management Reporting System</li>
+      <li>Product Purchase System</li>
+    </ul>
+    <p>
+      Each of these major <i>components</i> can be constructed from several other <i>components</i>. But
+      (and this is the key point), whenever any type of access to <i>methods</i> on these <i>components</i>
+      takes place; that access must be 'logged'.
+    </p>
+    <p>
+      Moreover during development and also in the 'staging' phase it is also necessary to gather some
+      <u>metrics</u> on how long each <i>method</i> call took when calling <i>component</i> <i>methods</i>
+    </p>
+    <p>
+      For a real solution it would probably be necessary to deal with 'transaction' boundaries and also limit
+      user access via LDAP or something like that. For this scenario focus will be on logging and timing.
+    </p>
+    <p>
+      As you can see - in effect you need to do the 'same thing' in terms of logging/timing on every
+      <i>method</i> call on every <i>component</i>. In general, you are not concerned with the fine details of
+      which <i>methods</i> or the <b>types</b> and values of <u>parameters</u>.
+      This is where 'Aspects' can be used; as you just need to know that the <i>method</i> was called.
+    </p>
+    <p>
+      In other aspect oriented programming solutions a little too much detail is given. While initially
+      this seems like a good idea; it triggers to temptation be developers to alter processing in some way.
+    </p>
+    <p>
+      This leads to defects that are very hard to identify and resolve. EK9 give the developer the minimal
+      information just to be able to know a <b>method</b> was called.
+    </p>
+    <h2>Solutions</h2>
+    <h4>Error Prone and not Scalable</h4>
+    <p>
+      The first solution to this (not really viable) is to ensure that some form of logger and timer is
+      provisioned in some 'base class/component' and so it can then be called manually by the developer
+      when defining a new <i>method</i>. Not really viable as it is error-prone and focuses on <u>Inheritance</u>.
+    </p>
+    <h4>Too manual, but necessary if details are needed</h4>
+    <p>
+      Another solution would be to employ EK9 <i>classes</i> with <i>traits</i> and use delegation. So the
+      new <i>class</i> can deal with the logging/timing and then just call the delegate for the actual processing.
+      This is not too bad an idea, if you really want all the parameter details and are prepared to write lots
+      of boilerplate code.
+    </p>
+    <h4>Using Aspects</h4>
+    <p>
+      This final solution uses 'Aspects' and <i>components</i>, as we are not really bothered about all the
+      actual parameter details on the method calls (just the fact they happened/how long they took). We can use
+      the EK9 solution. This is shown below.
+    </p>
+    <p>
+      To keep the example fairly short a single <i>component</i> that notionally holds a 'FileStoreName' as
+      part of a configuration is used. It is the access to <i>methods</i> on the configuration component that need
+      to be logged and in some cases timed.
+    </p>
+    <h4>Explanation</h4>
+    <p>
+      Three different <b>BaseConfiguration</b> solutions have been provided - typically they might have different
+      performance characteristics, or costs, etc.
+    </p>
+    <p>
+      To use the 'wired' in <b>BaseConfiguration</b> solution; a <i>class</i> <b>ConfigHandler</b> has the
+      dependency injected.
+    </p>
+    <p>
+      A simple <i>function</i> <b>checkConfigHandler</b> is used to create a new instance of the
+      <b>ConfigHandler</b> and call 'showConfigDetails()' so details can be printed out. It is this
+      <i>method</i> that triggers a call to method 'getFileStoreName()' on the <i>component</i> 'wired' in.
+    </p>
+    <h5>The Applications</h5>
+    <p>
+      Four different <i>applications</i> have been defined; these are:
+    </p>
+    <h6>noAspectApp</h6>
+    <pre>...
+    noAspectApp
+      register Solution1() as BaseConfiguration
+...</pre>
+    <br/>
+    <p>
+      This <i>application</i> does not do any logging or timing and uses <b>Solution1</b> as
+      the <b>BaseConfiguration</b>. This <i>application</i> is then used by <i>program</i> <b>Program0</b>.
+      The main point of this is just to check the functionality works! Its output is shown below:
+    </p>
+    <pre>
+Program0 functionality
+Will check config handler to see if file store name is available
+MainStore
+        </pre>
+    <h6>firstApp</h6>
+    <pre>...
+    firstApp
+      register FileLogger() as ILogger
+      register Solution1() as BaseConfiguration with aspect of TimerAspect(SystemClock()), LoggingAspect("DEBUG")
+...</pre>
+    <br/>
+    <p>
+      <b>Solution1</b> is also used; but does use both logging and timing 'Aspects'.
+      These 'Aspects' are described in detail after the example code. Its output is shown below:
+    </p>
+    <pre>
+Program1 functionality
+Will check config handler to see if file store name is available
+DEBUG: Before com.customer.components.Solution1 getFileStoreName
+DEBUG: After com.customer.components.Solution1 getFileStoreName
+INFO: 3ms Milliseconds for com.customer.components.Solution1 getFileStoreName
+MainStore
+        </pre>
+    <h6>secondApp</h6>
+    <pre>...
+    secondApp
+      register FileLogger() as ILogger
+      register Solution2() as BaseConfiguration with aspect of LoggingAspect("WARN")
+...</pre>
+    <br/>
+    <p>
+      <b>Solution2</b> is used in this case and only uses the logging 'Aspect'.
+      Also note how the logging level has been altered to 'WARN', the <b>secondApp</b> took
+      control of this when specifying the construction of the logging 'Aspect'.
+      Its output is shown below:
+    </p>
+    <pre>
+Program2 functionality
+Will check config handler to see if file store name is available
+WARN: Before com.customer.components.Solution2 getFileStoreName
+WARN: After com.customer.components.Solution2 getFileStoreName
+SecondaryStore
+        </pre>
+    <h6>thirdApp</h6>
+    <pre>...
+    thirdApp
+      register FileLogger() as ILogger
+      register Solution3() as BaseConfiguration with aspect of TimerAspect(SystemClock())
+...</pre>
+    <br/>
+    <p>
+      Finally this <i>application</i> uses <b>Solution3</b> and this time only uses the timer 'Aspect'.
+      Its output is shown below:
+    </p>
+    <pre>
+Program3 functionality
+Will check config handler to see if file store name is available
+INFO: 1ms Milliseconds for com.customer.components.Solution3 getFileStoreName
+DefaultStore
+        </pre>
+    <h5>The Programs</h5>
+    <p>
+      Four different <i>programs</i> when linked with the four different applications could have different
+      functionality. If the <i>applications</i> were much larger, different programs might be needed for
+      a range of different tasks (all relating to the same <i>application</i>).
+    </p>
+    <p>
+      This is one of the main points of IOC/DI; separate the 'wiring' of the application and all of its
+      <i>components</i> from the <i>program</i> itself. Split the control.
+    </p>
+    <h3>The full listing</h3>
+    <pre>#!ek9
+defines module introduction
+
+  defines component
+
+    BaseConfiguration abstract
+      getFileStoreName() abstract
+        <- rtn as String?
+
+    Solution1 is BaseConfiguration
+      override getFileStoreName() as
+        <- rtn String: "MainStore"
+
+    Solution2 extends BaseConfiguration
+      override getFileStoreName() as
+        <- rtn as String: "SecondaryStore"
+
+    Solution3 extends BaseConfiguration
+      storeName as String: "DefaultStore"
+
+      override getFileStoreName() as
+        <- rtn as String: storeName
+
+  defines class
+
+    ConfigHandler
+      //This component will get injected
+      config as BaseConfiguration!
+
+      showConfigDetails()
+        stdout <- Stdout()
+        stdout.println(config.getFileStoreName())
+
+  defines function
+
+    checkConfigHandler()
+      stdout <- Stdout()
+      stdout.println("Will check config handler to see if file store name is available")
+      configHandler <- ConfigHandler()
+      configHandler.showConfigDetails()
+
+  defines application
+
+    noAspectApp
+      register Solution1() as BaseConfiguration
+
+    firstApp
+      register FileLogger() as ILogger
+      register Solution1() as BaseConfiguration with aspect of TimerAspect(SystemClock()), LoggingAspect("DEBUG")
+
+    secondApp
+      register FileLogger() as ILogger
+      register Solution2() as BaseConfiguration with aspect of LoggingAspect("WARN")
+
+    thirdApp
+      register FileLogger() as ILogger
+      register Solution3() as BaseConfiguration with aspect of TimerAspect(SystemClock())
+
+  defines program
+
+    Program0 with application of noAspectApp
+      stdout <- Stdout()
+      stdout.println("Program0 functionality")
+      checkConfigHandler()
+
+    Program1 with application of firstApp
+      stdout <- Stdout()
+      stdout.println("Program1 functionality")
+      checkConfigHandler()
+
+    Program2 with application of secondApp
+      stdout <- Stdout()
+      stdout.println("Program2 functionality")
+      checkConfigHandler()
+
+    Program3 with application of thirdApp
+      stdout <- Stdout()
+      stdout.println("Program3 functionality")
+      checkConfigHandler()
+
+  defines component
+
+    ILogger as abstract
+      log() as abstract
+        ->
+          level as String
+          content as String
+
+    FileLogger extends ILogger
+      stdout as Stdout: Stdout()
+      override log() as
+        ->
+          level as String
+          content as String
+        //Just use Stdout for logging for this example.
+        stdout.println(`${level}: ${content}`)
+
+  defines class
+
+    LoggingAspect extends Aspect
+      loggingLevel as String?
+
+      LoggingAspect() as pure
+        this("WARN")
+
+      LoggingAspect() as pure
+        -> level as String
+        loggingLevel: level
+
+      override beforeAdvice()
+        -> joinPoint as JoinPoint
+        <- rtn as PreparedMetaData: PreparedMetaData(joinPoint)
+        //Will be injected
+        logger as ILogger!
+        logger.log(loggingLevel, `Before ${joinPoint.componentName()} ${joinPoint.methodName()}`)
+
+      override afterAdvice()
+        -> preparedMetaData as PreparedMetaData
+        joinPoint <- preparedMetaData.joinPoint()
+        //Will be injected
+        logger as ILogger!
+        logger.log(loggingLevel, `After ${joinPoint.componentName()} ${joinPoint.methodName()}`)
+
+    TimerData extends PreparedMetaData
+      before as Millisecond?
+
+      default private TimerData()
+
+      TimerData()
+        ->
+          millis as Millisecond
+          joinPoint as JoinPoint
+        super(joinPoint)
+        before: millis
+
+      before()
+        <- rtn as Millisecond: before
+
+    TimerAspect extends Aspect
+      clock as Clock?
+
+      default private TimerAspect()
+
+      TimerAspect()
+        -> clock as Clock
+        this.clock: clock
+
+      override beforeAdvice()
+        -> joinPoint as JoinPoint
+        <- rtn as TimerData: TimerData(clock.millisecond(), joinPoint)
+
+      //overload the after method and EK9 will find this method.
+      override afterAdvice()
+        -> timerData as TimerData
+        millisecondsTaken <- clock.millisecond() - timerData.before()
+        joinPoint <- timerData.joinPoint()
+        //Will be injected
+        logger as ILogger!
+        logger.log("INFO", `${millisecondsTaken} Milliseconds for ${joinPoint.componentName()} ${joinPoint.methodName()}`)
+
+//EOF</pre>
+    <br/>
+    <h3>Logging</h3>
+    <p>
+      It would be normal to pull the <b>ILogger</b>, <b>FileLogger</b> and any other logging implementations
+      out to a separate <i>module</i> and source file; as these would be widely reusable. Typically, they would
+      form part of a 'core infrastructure' layer.
+    </p>
+    <h3>Timing/Logging Aspects</h3>
+    <p>
+      As you can see above, there is a dependency in the <b>TimerAspect</b> on <b>ILogger</b> and it expects
+      it to be injected. You may or may not want that! In general the more decoupled things are; the better.
+    </p>
+    <p>
+      So an alternative here would be to develop and number of logger <i>class</i> implementations and then
+      pass those in to a <b>Logger</b> <i>component</i>/'Aspect' or a <b>Timer</b> 'Aspect'. Then when each of
+      those is created in the appropriate <i>application</i> it can be composed with the right implementation.
+    </p>
+    <h3>Aspects</h3>
+    <p>
+      You might be wondering what's all this 'beforeAdvice', 'afterAdvice', 'JoinPoint' and 'PrepareMetaData';
+      there seems to be a lot of jargon going on here! Well there is a lot of jargon in 'Aspect Oriented Programming'!
+    </p>
+    <h4>Advice</h4>
+    <p>
+      Basically; it is the two methods that get called before and after the <i>method</i> on the <i>component</i> we
+      are looking to wrap an 'Aspect' around.
+    </p>
+    <h4>JoinPoint</h4>
+    <p>
+      So just before the <i>component</i> <i>method</i> is called; EK9 creates a 'JoinPoint' object and populates
+      it with the <i>component</i> name and the <i>method</i> name. Then it calls 'beforeAdvice' and passes the
+      'JoinPoint' object in as a parameter. Now over to you; the developer - you can do what you like here!
+      But you must return an Object that is or extends 'PrepareMetaData'. See the <b>TimerData</b> as an example
+      of this. You can squirrel away all sorts of data in that object you return (you might need it in the
+      'afterAdvice').
+    </p>
+    <h4>afterAdvice and PreparedMetaData</h4>
+    <p>
+      When EK9 calls the 'afterAdvice', it will pass back the 'PreparedMetaData' that was returned by the
+      'beforeAdvice'; if you look at the <b>TimerData</b> you can see that you now have access to the millisecond
+      data of when 'beforeAdvice' was called (and also the 'JoinPoint').
+      So in the case of the Timer Aspect it is possible to work out the duration of the call!
+    </p>
+    <h3>Benefits</h3>
+    <p>
+      Once you have defined a set of 'Aspects'; they can be used with <u>any</u> <i>component</i>! Yes they are
+      limited to just textual representations of the <i>component</i> name and <i>method</i> name. It is not
+      possible to <u>filter</u> and say you want some <i>methods</i> and not others (too fragile!). The details
+      of all the parameters are not available to you. But these are reasonable limitations, anything more than
+      this tends to lead to complexity, confusion and brittle code that fails when refactored.
+    </p>
+    <h4>Separation of Concerns</h4>
+    <p>
+      The separation of concerns of functionality from logging and timing is a major benefit. The same 'Aspects'
+      can be used over and over again and a wide range of <i>components</i> and all their <i>methods</i>; none
+      of which need to concern themselves with logging or timing. This leads to clarity and wider reuse/reliability.
+    </p>
+    <p>
+      Clearly in this example, having just one <i>method</i> to log and time is trivial. But if you have thousands
+      of <i>components/methods</i> this approach works quite well.
+    </p>
+    <p>
+      This is also clearly a form of <i>composition</i>.
+    </p>
+    <h4>Inversion of Control</h4>
+    <p>
+      The inversion of control in terms of which <i>component</i> is now extended to include which 'Aspect'
+      (if any) should be applied to that component. This is <u>one</u> of the main reasons the <i>application</i>
+      <b>construct</b> was created.
+    </p>
+    <p>
+      So in the <i>application</i> it is possible to define all the high level <i>components</i> that should be
+      used. When creating those <i>components</i> the appropriate <i>classes</i> and <i>functions</i>
+      can be passed into the <i>components</i> as parameters. Any <i>classes</i> or <i>functions</i> that need
+      access to <i>components</i> can either have the <i>component</i> passed in as a parameter or can use
+      dependency injection.
+    </p>
+    <p>
+      This is a critical point; the <i>application</i> <b>construct</b> is only really aimed at facilitation the
+      high level composition of our solution. You should strive to use inversion of control with <b>constructs</b>
+      by passing in instances at construction. You should only employ <b>dependency injection</b> when you really need to.
+    </p>
+    <h4>Coupling</h4>
+    <p>
+      <i>class</i> <b>ConfigHandler</b> remains unchanged and not linked directly to any concrete implementation.
+    </p>
+    <p>
+      It is easy to alter if/how/where logging is done without needing to alter any code relating to the actual
+      functionality in the <i>components</i>.
+    </p>
+    <h3>Summary</h3>
+    <p>
+      In general it is only when software gets to a certain size that IOC/Di becomes necessary. Employing
+      'Aspects' can be useful in a limited number of scenarios. But when comprehensive logging, security or
+      other 'crosscutting concerns' are critical across a large number of <i>components</i> they really help
+      reduce boilerplate code.
+    </p>
+    <h3>Conclusion</h3>
+    <p>
+      If you've used Spring or 'AspectJ' with the Java language, you'll probably consider what is included in EK9
+      as <u>inadequate</u>. The design of EK9 has been done in such a way as to curtail/reduce the extreme
+      use of IOC/DI and Aspect Oriented programming. Some developers may consider this a bad thing. They
+      may consider that developers should have the freedom to do what they want.
+    </p>
+    <p>
+      You can - but not in EK9; use Java and Spring as this may meet your needs.
+    </p>
+    <p>
+      The EK9 language is opinionated and provides more functionality in some areas and less in others, this is
+      borne of experience and having to deal with nightmares of injection, tight coupling and hidden dependencies.
+    </p>
+    <h4>Next Steps</h4>
+    <p>
+      The next section on <a href="webServices.html">web services</a> is the final <b>construct</b> and dovetails in with
+      <a href="components.html">components/applications</a> and <a href="programs.html">programs</a>.
+    </p>
+  </article>
+</main>
+</body>
+</html>
