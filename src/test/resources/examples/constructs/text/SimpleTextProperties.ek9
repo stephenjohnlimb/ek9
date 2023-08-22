@@ -39,6 +39,7 @@ defines module com.customer.properties
       operator $ as pure
         <- rtn String: `${firstName} ${lastName}`
 
+  defines text for "en_GB"
 
     WelcomePageText
 
@@ -106,6 +107,5 @@ Im Allgemeinen würden Sie wahrscheinlich die im vorherigen Abschnitt beschriebe
           input as String
           constraint as String
         `Der Wert ${input} gehört nicht zu ${constraint}`
-  defines text for "en_GB"
 
 //EOF

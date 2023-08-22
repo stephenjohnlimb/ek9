@@ -1,0 +1,539 @@
+#!ek9
+defines module com.customer.just.employees2
+<?-
+  Now copied from composition and reworked.
+-?>
+  defines type
+
+    EmployeeId as Integer constrain
+      > 0
+
+    Name as String constrain as
+      matches /^[a-zA-Z -]+$/
+
+    RoleName
+      manager
+      secretary
+      sales
+      factory
+
+  defines record
+
+    Address
+      street <- String()
+      street2 <- String()
+      city <- String()
+      state <- String()
+      zipcode <- String()
+
+      operator ? as pure
+        <- rtn as Boolean: street? and city? and state? and zipcode?
+
+      operator $ as pure
+        <- rtn as String: ""
+        rtn += street
+        if street2?
+          rtn += "\n" + street2
+        rtn += "\n" + city + " " + state+ " " + zipcode
+
+  defines trait
+
+    Role
+      performDuties()
+        -> hours as Integer
+        <- activity as String?
+
+      operator ? as pure
+        <- rtn as Boolean: true
+
+    PayrollCalculator
+      resetHoursWorked()
+
+      trackWork()
+        -> hours as Integer
+
+      calculatePayroll()
+        <- amount as Money?
+      
+      operator ? as pure
+        <- rtn as Boolean?
+        
+    RoleDB
+      findRole()
+        -> roleName as RoleName
+        <- rtn as Role?
+    
+    AddressDB
+      findEmployeeAddress()
+        -> employeeId as EmployeeId
+        <- rtn as Address?
+      
+      addEmployeeAddress()
+        ->
+          employeeId as EmployeeId
+          address as Address        
+          
+    PayrollPolicyDB
+      findPayrollPolicy()
+        -> employeeId as EmployeeId
+        <- rtn as PayrollPolicy?
+      
+      addPayrollPolicy()
+        ->
+          employeeId as EmployeeId
+          payrollPolicy as PayrollPolicy
+              
+    EmployeeDB
+      employed()
+        <- employedStaff as List of Employment?
+
+      changeRole()
+        ->
+          employeeId as EmployeeId
+          newRole as RoleName
+
+      addEmployee()
+        ->
+          person as Person
+          role as RoleName
+          payrollPolicy as PayrollPolicy
+
+  defines class   
+            
+    PayrollPolicy with trait of PayrollCalculator as abstract
+      hoursWorked <- 0
+
+      override resetHoursWorked()
+        hoursWorked = 0
+
+      override trackWork()
+        -> hours as Integer
+        hoursWorked += hours
+
+      hoursWorked()
+        <- hours as Integer: hoursWorked
+
+      override operator ? as pure
+        <- rtn as Boolean: hoursWorked?
+
+    HourlyPolicy extends PayrollPolicy
+      hourRate <- Money()
+
+      HourlyPolicy()
+        -> hourRate as Money
+        this.hourRate = hourRate
+
+      override calculatePayroll()
+        <- amount as Money: hourRate * hoursWorked()
+
+    SalaryPolicy extends PayrollPolicy as open
+      weeklySalary <- Money()
+
+      SalaryPolicy()
+        -> weeklySalary as Money
+        this.weeklySalary = weeklySalary
+
+      override calculatePayroll()
+        <- amount as Money: weeklySalary
+
+    CommissionPolicy extends SalaryPolicy
+      commissionPerSale <- Money()
+
+      CommissionPolicy()
+        ->
+          weeklySalary as Money
+          commissionPerSale as Money
+        super(weeklySalary)
+        this.commissionPerSale = commissionPerSale
+
+      override calculatePayroll()
+        <- amount as Money: super.calculatePayroll() + commission()
+
+      private commission()
+        <- amount as Money: commissionPerSale/5.0 * hoursWorked()
+
+    ManagerRole with trait of Role
+      override performDuties()
+        -> hours as Integer
+        <- activity as String: "screams and yells for " + $hours + " hours."
+
+    SecretaryRole with trait of Role
+      override performDuties()
+        -> hours as Integer
+        <- activity as String: "does paperwork for " + $hours + " hours."
+
+    SalesRole with trait of Role
+      override performDuties()
+        -> hours as Integer
+        <- activity as String: "expends " + $hours + " hours on the phone."
+
+    FactoryRole with trait of Role
+      override performDuties()
+        -> hours as Integer
+        <- activity as String: "manufactures gadgets for " + $hours + " hours."
+
+    Person
+      name <- Name()
+      address <- Address()
+
+      Person()
+        ->
+          name as Name
+          address as Address
+        this.name: name
+        this.address: address
+
+      name()
+        <- rtn as Name: name
+
+      address()
+        <- rtn as Address: address
+
+      operator ? as pure
+        <- rtn as Boolean: name? and address?
+
+      operator $ as pure
+        <- rtn as String: name
+
+    Employee
+      id <- EmployeeId()
+      person <- Person()
+
+      Employee()
+        ->
+          id as EmployeeId
+          person as Person
+        assert id? and person?
+        this.id: id
+        this.person: person
+
+      id()
+        <- rtn as EmployeeId: id
+        
+      person()
+        <- rtn as Person: person
+
+      operator ? as pure
+        <- rtn as Boolean: id? and person?
+        
+      operator $ as pure
+        <- rtn as String: $id + " - " + $person
+
+    Employment with trait of Role by role, PayrollCalculator by payroll
+      employee <- Employee()
+      role as Role?
+      payroll as PayrollCalculator?
+
+      Employment()
+        ->
+          employee as Employee
+          role as Role
+          payroll as PayrollCalculator
+        assert employee? and role? and payroll?  
+        this.employee: employee
+        this.role: role
+        this.payroll: payroll
+
+      changeRole()
+        -> newRole as Role
+        role: newRole
+
+      work()
+        -> amountWorked as Duration
+        <- dutiesPerformed as String: String()
+        //Note that duration is converted to hours from this point on.
+        assert amountWorked.hours() >= 0
+        
+        dutiesPerformed: performDuties(amountWorked.hours())
+        payroll.trackWork(amountWorked.hours())
+
+      employeeAddress()
+        <- rtn as Address: employee.person().address()
+        
+      employee()
+        <- rtn as Employee: employee
+      
+      override operator ? as pure
+        <- rtn as Boolean: role? and payroll?
+          
+      operator $ as pure
+        <- rtn as String: $employee
+
+    InMemoryRoleDB with trait of RoleDB
+      roles as Dict of (RoleName, Role): {
+        RoleName.manager: ManagerRole(),
+        RoleName.secretary: SecretaryRole(),
+        RoleName.sales: SalesRole(),
+        RoleName.factory: FactoryRole()
+        }
+
+      override findRole()
+        -> roleName as RoleName
+        <- rtn as Role?
+        theRole <- roles.get(roleName)
+        assert theRole?
+        rtn: theRole.get()
+
+    InMemoryAddressDB with trait of AddressDB
+      employeeAddresses as Dict of (EmployeeId, Address): {
+        EmployeeId(1): Address("121 Admin Rd.", String(), "Concord", "NH", "03301"),
+        EmployeeId(2): Address("67 Paperwork Ave", String(), "Manchester", "NH", "03101"),
+        EmployeeId(3): Address("15 Rose St", "Apt. B-1", "Concord", "NH", "03301"),
+        EmployeeId(4): Address("39 Sole St.", String(), "Concord", "NH", "03301"),
+        EmployeeId(5): Address("99 Mountain Rd.", String(), "Concord", "NH", "03301")
+        }
+        
+      override findEmployeeAddress()
+        -> employeeId as EmployeeId
+        <- rtn as Address: Address()
+        address <- employeeAddresses.get(employeeId)
+        assert address?
+        rtn: address.get()
+      
+      override addEmployeeAddress()
+        ->
+          employeeId as EmployeeId
+          address as Address
+        employeeAddresses += DictEntry(employeeId, address)
+    
+    InMemoryPayrollPolicyDB with trait of PayrollPolicyDB
+      employeePayrollPolicies as Dict of (EmployeeId, PayrollPolicy): {
+        EmployeeId(1): SalaryPolicy(3000#USD),
+        EmployeeId(2): SalaryPolicy(1500#USD),
+        EmployeeId(3): CommissionPolicy(1000#USD, 100#USD),
+        EmployeeId(4): HourlyPolicy(15#USD),
+        EmployeeId(5): HourlyPolicy(9#USD)
+        }
+        
+      override findPayrollPolicy()
+        -> employeeId as EmployeeId
+        <- rtn as PayrollPolicy?
+        policy <- employeePayrollPolicies.get(employeeId)
+        assert policy?
+        rtn: policy.get()
+      
+      override addPayrollPolicy()
+        ->
+          employeeId as EmployeeId
+          payrollPolicy as PayrollPolicy
+        employeePayrollPolicies += DictEntry(employeeId, payrollPolicy)
+                                   
+    InMemoryEmployeeDB with trait of EmployeeDB, RoleDB by roleDB, AddressDB by addressDB, PayrollPolicyDB by payrollPolicyDB
+      roleDB as RoleDB?
+      addressDB as AddressDB?
+      payrollPolicyDB as PayrollPolicyDB?
+      
+      employedStaff as Dict of (EmployeeId, Employment): Dict()
+      nextEmployeeId as EmployeeId: EmployeeId(6)
+
+      private InMemoryEmployeeDB()
+        assert not true
+      
+      InMemoryEmployeeDB()
+        ->
+          roleDB as RoleDB
+          addressDB as AddressDB
+          payrollPolicyDB as PayrollPolicyDB
+        this.roleDB: roleDB
+        this.addressDB: addressDB
+        this.payrollPolicyDB: payrollPolicyDB        
+        populateEmployedStaff()
+        
+      private populateEmployedStaff()
+        createEmployment(EmployeeId(1), Name("Mary Poppins"), RoleName.manager)
+        createEmployment(EmployeeId(2), Name("John Smith"), RoleName.secretary)
+        createEmployment(EmployeeId(3), Name("Kevin Bacon"), RoleName.sales)
+        createEmployment(EmployeeId(4), Name("Jane Doe"), RoleName.factory)
+        createEmployment(EmployeeId(5), Name("Robin Williams"), RoleName.secretary)
+        
+      override employed()
+        <- staff as List of Employment: List()
+        values <- this.employedStaff.values()
+        cat values > staff
+
+      override changeRole()
+        ->
+          employeeId as EmployeeId
+          newRole as RoleName
+        employment <- this.employedStaff.get(employeeId)        
+        role <- findRole(newRole)        
+        assert employment? and role?
+        employment.get().changeRole(role)
+
+      override addEmployee()
+        ->
+          person as Person
+          role as RoleName
+          payrollPolicy as PayrollPolicy
+        newEmployeeId <- nextEmployeeId()        
+
+        addEmployeeAddress(newEmployeeId, person.address())
+        addPayrollPolicy(newEmployeeId, payrollPolicy)
+        
+        employment <- Employment(Employee(newEmployeeId, person), findRole(role), payrollPolicy)
+        addEmployment(employment)
+
+      private nextEmployeeId()
+        <- id as EmployeeId: EmployeeId()        
+        id :=: nextEmployeeId
+        nextEmployeeId++
+        
+      private createEmployment()
+        ->
+          id as EmployeeId
+          name as Name
+          theRole as RoleName        
+        address <- findEmployeeAddress(id)
+        employeeRole <- findRole(theRole)
+        payrollPolicy <- findPayrollPolicy(id)
+        addEmployment(Employment(Employee(id, Person(name, address)), employeeRole, payrollPolicy))
+
+      private addEmployment()
+        -> employment as Employment
+        employedStaff += DictEntry(employment.employee().id(), employment)
+          
+    ProductivitySystem with trait of StringOutput by output
+      output as StringOutput?
+
+      private ProductivitySystem()
+        assert not true
+        
+      ProductivitySystem()
+        -> output as StringOutput
+        this.output: output
+
+      track()
+        ->
+          employed as List of Employment
+          amountWorked as Duration
+        println("Tracking Employee Productivity")
+        println("==============================")
+        for employment in employed
+          dutiesPerformed <- employment.work(amountWorked)
+          println("Employee " + $employment + ": ")
+          println(" - " + dutiesPerformed)
+          println("")
+        println("")
+
+    PayrollSystem with trait of StringOutput by output
+      output as StringOutput?
+
+      private PayrollSystem()
+        assert not true
+        
+      PayrollSystem()
+        -> output as StringOutput
+        this.output: output
+
+      calculatePayroll()
+        -> employed as List of Employment
+        println("Calculating Payroll")
+        println("===================")
+        for employment in employed
+          println("Payroll for: " + $employment)
+          println("- Check amount: " + $employment.calculatePayroll())
+          if employment.employeeAddress()?
+              println("- Sent to:")
+              println($employment.employeeAddress())
+          println("")
+
+  defines component
+
+    OutputInterface as abstract
+      output()
+        <- outputTo as StringOutput: Stdout()
+
+    StdoutInterface is OutputInterface
+
+    StderrInterface is OutputInterface
+      override output()
+        <- outputTo as StringOutput: Stderr()
+
+    HRSystem as abstract
+      newWorkingWeek() as abstract
+
+      calculatePayroll() as abstract
+        -> outputInterface as OutputInterface
+
+      trackWork() as abstract
+        ->
+          outputInterface as OutputInterface
+          amountWorked as Duration
+
+      changeRole() as abstract
+        ->
+          employeeId as EmployeeId
+          newRole as RoleName
+
+      newStarter() as abstract
+        ->
+          person as Person
+          role as RoleName
+          payrollPolicy as PayrollPolicy
+
+    SimpleHRSystem is HRSystem
+      employeeDb as EmployeeDB?
+
+      SimpleHRSystem()
+        assert not true
+        
+      SimpleHRSystem()
+        -> employeeDb as EmployeeDB
+        this.employeeDb: employeeDb
+
+      override newWorkingWeek()
+        employed <- employeeDb.employed()
+        for employment in employed
+          employment.resetHoursWorked()
+
+      override calculatePayroll()
+        -> outputInterface as OutputInterface
+        payrollSystem <- PayrollSystem(outputInterface.output())
+        payrollSystem.calculatePayroll(employeeDb.employed())
+
+      override trackWork()
+        ->
+          outputInterface as OutputInterface
+          amountWorked as Duration
+        productivitySystem <- ProductivitySystem(outputInterface.output())
+        productivitySystem.track(employeeDb.employed(), amountWorked)
+
+      override changeRole()
+        ->
+          employeeId as EmployeeId
+          newRole as RoleName
+        assert employeeId? and newRole?        
+        employeeDb.changeRole(employeeId, newRole)
+
+      override newStarter()
+        ->
+          person as Person
+          role as RoleName
+          payrollPolicy as PayrollPolicy
+        assert person? and role? and payrollPolicy?
+        employeeDb.addEmployee(person, role, payrollPolicy)
+
+  defines application
+
+    //Separation of what components/classes to use rather than what to do with them
+    DemoApp    
+      employeeDb <- InMemoryEmployeeDB(InMemoryRoleDB(), InMemoryAddressDB(), InMemoryPayrollPolicyDB())
+
+      register SimpleHRSystem(employeeDb) as HRSystem
+      register StdoutInterface() as OutputInterface
+
+  defines program
+  
+    //Separation of what functionality to provide with configuration supplied.
+    Demonstration() with application of DemoApp
+      hrSystem as HRSystem!
+      outputInterface as OutputInterface!
+
+      hrSystem.trackWork(outputInterface, PT40H)
+      hrSystem.calculatePayroll(outputInterface)
+
+      hrSystem.newWorkingWeek()
+      //Short week.
+      hrSystem.trackWork(outputInterface, PT32H)
+      hrSystem.calculatePayroll(outputInterface)
+//EOF
