@@ -1,0 +1,1188 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language stream pipelines</title>
+  <meta name="description" content="EK9 programming language stream pipelines
+    are similar to Unix/Linux pipelines but for use withing the EK9 language."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Streams and Pipelines in EK9</h1>
+    </header>
+    <p>
+      This <b>pipelining</b> concept has been touched upon in the <a href="introduction.html#pipeline_processing">Introduction</a>,
+      please read that section first as this section has much more detail.
+    </p>
+    <h2>Concept</h2>
+    <p>
+      The concept of a pipeline process is present in the Unix shell and also programming languages
+      with chained methods (like filter, map and reduce). In the EK9 language the idea is to 'stream'
+      zero or more <b>Objects</b> through a notional sequence of commands.
+    </p>
+    <p>
+      During the streaming, some commands may be configured to prevent further passage of <b>Objects</b>
+      that have specific properties or characteristics.
+    </p>
+    <p>
+      But importantly as an <b>Object</b> passes through these commands; it can also be
+      'transformed' into a different type. This may mean the data held is enriched; or simplified.
+    </p>
+    <p>
+      Finally the <b>Objects</b> (if any) emerging from the pipeline can be used in some way.
+    </p>
+    <p>
+      So there are three discrete phases to this streaming:
+    </p>
+    <ul>
+      <li>Catenate a source of Objects</li>
+      <li>The processing pipeline itself; with commands and functions</li>
+      <li>The collection or reduction of the Objects as the exit they pipeline</li>
+    </ul>
+
+    <h3>Starting the stream</h3>
+    <p>
+      The EK9 language has two different ways to catenate Objects.
+    </p>
+    <ul>
+      <li>
+        <b>cat</b> - which is short for catenate. This is used with collections, iterators and 'sources'
+        of <b>Objects</b>. See <a href="flowControl.html#cat_stream">cat flow control</a> for details.
+      </li>
+      <li>
+        <b>for</b> - loop. Specifically the 'range' for loop. See the
+        <a href="flowControl.html#for_stream">for range flow control</a> for details.
+      </li>
+    </ul>
+    <p>
+      Just these two mechanisms are all that is needed to start a Stream pipeline. Any type of
+      <b>Object</b> can be sent through the pipeline, this includes <i>function delegates</i>. This is
+      very <b>important</b> if you wish to do any sort of 'asynchronous' processing.
+    </p>
+
+    <h3>Pipeline processing</h3>
+    <p>
+      The streaming mechanism uses the pipe '<b>|</b>' symbol for joining parts of the pipeline just like Unix;
+      and it includes:
+    </p>
+    <ul>
+      <li>filter/select - should an item continue along the pipeline.</li>
+      <li>map - transform an item into an item of a different type.</li>
+      <li>sort - order all items with a function and pass along the pipeline.</li>
+      <li>group - use a function to group items.</li>
+      <li>join - accept two items and join them returning a new item of the same type.</li>
+      <li>split - use a function to decide if input has to be split.</li>
+      <li>uniq - ensure all items passing through are unique.</li>
+      <li>tee - take a side copy of the pipeline into another terminal node.</li>
+      <li>head - limit the output to first 'n' items.</li>
+      <li>tail - limit the output to the last 'n' items.</li>
+    </ul>
+    <p>But also adds:</p>
+    <ul>
+      <li>skip - ignore the first 'n' items and then output all the rest.</li>
+      <li>flatten - if the item is some type of collection, this streams each item out from that collection.</li>
+      <li>call - if the item in the pipeline is a function - it is called.</li>
+      <li>async - if the item in the pipeline is a function it is called asynchronously.</li>
+    </ul>
+    <h3>Collection or Reduction</h3>
+    <p>
+      At the end of the pipeline zero or more <b>Objects</b> will flow out. A decision of what to
+      do with these <b>Objects</b> must be taken. You can do one of three things with them.
+    </p>
+    <ul>
+      <li>Direct them into a 'sink' of Objects (which could be an existing collection or an output) - use <b>'&gt;'</b></li>
+      <li>Append them to an existing collection - use <b>'&gt;&gt;'</b></li>
+      <li>Collect them into a new <b>Collection</b> or <b>Object</b> - using <b>'| collect as'</b></li>
+    </ul>
+    <p>
+      When you are developing your own <i>records</i> and <i>classes</i> you can provide your own
+      <b>'|'</b> operator implementation and then your types can be used as the terminal ('collector'/'sink')
+      in a stream pipeline.
+    </p>
+    <p>
+      If you are familiar with Unix/Linux this type of syntax will be second nature to you.
+    </p>
+    <h3 id="examples">Examples</h3>
+    <p>
+      So as to aid understanding; there are a number of inline examples below.
+      Following each of these there is an explanation of how the code works.
+    </p>
+    <p>
+      There are some examples elsewhere on this site that show
+      <a href="standardTypes.html#the_functions_example">join</a>,
+      <a href="collectionTypes.html#list_example2">call</a> and
+      <a href="networkTypes.html#tcp_server_example2">async</a>.
+      The <b>'&gt;&gt;'</b> is shown in <a href="builtInTypes.html#date_example">the duration/date example</a>.
+    </p>
+    <p>
+      For a 'reducing' or 'accumulating' example; see
+      <a href="builtinTypes.html#integer_pipeline">Integer pipeline</a>.
+    </p>
+    <p>
+      If you have a need to stream <b>Objects</b> through a pipeline and then at the final stage
+      only keep the final <b>N</b> of them based on some weighting criteria; then consider using a
+      <a href="collectionTypes.html#priorityQueue">priority queue</a> configured to a finite size.
+    </p>
+    <h4 id="streaming_books">The Preamble and setup</h4>
+    <p>
+      The source code below uses an example of 'Books' and 'Authors' and demonstrates the rest of
+      the stream pipeline commands. It introduces the concept of a library of books that have been published.
+      It then uses the stream pipeline functionality to extract information about the books.
+      The first few examples are trivial; but the latter build up quite a significant processing pipeline.
+    </p>
+    <p>
+      The same setup EK9 source code will be used for all the examples, it is shown here once for brevity.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines type
+
+    AuthorId as Integer constrain
+      > 0
+
+    Age as Integer constrain
+      > 0
+
+    Name as String constrain as
+      matches /^[a-zA-Z -]+$/
+
+    BookTitle as String constrain as
+      matches /^[a-zA-Z0-9 -+]+$/
+
+    BookFilterSelection
+      SkipTwo
+      JustFirst
+      JustLast
+
+  defines class
+
+    Author
+      id as AuthorId?
+      age as Age?
+      firstname as Name?
+      surname as Name?
+
+      Author() as pure
+        ->
+          id as AuthorId
+          age as Age
+          firstname as Name
+          surname as Name
+        assert id? and age? and firstname? and surname?
+        this.id: AuthorId(id)
+        this.age: Age(age)
+        this.firstname: Name(firstname)
+        this.surname: Name(surname)
+
+      Author() as pure
+        -> author as Author
+        this(author.id(), author.age(), author.firstname(), author.surname())
+
+      default private Author()
+
+      id() as pure
+        <- rtn as AuthorId: id
+
+      age() as pure
+        <- rtn as Age: age
+
+      firstname() as pure
+        <- rtn as Name: firstname
+
+      surname() as pure
+        <- rtn as Name: surname
+
+      operator #? as pure
+        <- rtn as Integer: #?id
+
+      operator $ as pure
+        <- rtn as String: `Author: ${firstname} ${surname}, Age: ${age}`
+
+      operator ? as pure
+        <- rtn as Boolean: age? and firstname? and surname?
+
+      operator :=:
+        -> author as Author
+        id :=: author.id()
+        age :=: author.age()
+        firstname :=: author.firstname()
+        surname :=: author.surname()
+
+    Book
+      title as BookTitle?
+      author as Author?
+      published as Date?
+
+      Book() as pure
+        ->
+          title as BookTitle
+          author as Author
+          published as Date
+        assert title? and author? and published?
+        this.title: BookTitle(title)
+        this.author: Author(author)
+        this.published: Date(published)
+
+      author() as pure
+        <- rtn as Author: author
+
+      published() as pure
+        <- rtn as Date: published
+
+      operator $ as pure
+        <- rtn as String: `Title: ${title}, ${author}, Published: ${published}`
+
+      operator #? as pure
+        <- rtn as Integer: #? $this
+
+      operator #^ as pure
+        <- rtn as String: $this
+
+      operator <=> as pure
+        -> book as Book
+        <- rtn as Integer: published() <=> book.published()
+
+    Library
+      //These are made up books and Age is when the author wrote the book
+      //There are no books on EK9 yet!
+      books as List of Book: [
+        Book(BookTitle("Java"), Author(AuthorId(1), Age(50), Name("John"), Name("Doe")), 1998-01-01),
+        Book(BookTitle("C++"), Author(AuthorId(1), Age(42), Name("John"), Name("Doe")), 1990-01-07),
+        Book(BookTitle("Scala"), Author(AuthorId(1), Age(67), Name("John"), Name("Doe")), 2015-03-02),
+        Book(BookTitle("Python"), Author(AuthorId(1), Age(62), Name("John"), Name("Doe")), 2010-12-02),
+        Book(BookTitle("HTML"), Author(AuthorId(2),Age(58), Name("Mark"), Name("Pickford")), 2008-07-02),
+        Book(BookTitle("CSS"), Author(AuthorId(4), Age(51), Name("Mark"), Name("Keely")), 2008-04-02),
+        Book(BookTitle("ADA"), Author(AuthorId(5), Age(44), Name("Ada"), Name("Lovelace")), 1988-01-02),
+        Book(BookTitle("Dart"), Author(AuthorId(6), Age(47), Name("Peter"), Name("Dove")), 2020-01-02),
+        Book(BookTitle("C#"), Author(AuthorId(7), Age(60), Name("William"), Name("Fence")), 2012-10-02),
+        Book(BookTitle("Javascript"), Author(AuthorId(3), Age(52), Name("James"), Name("Pickford")), 2008-03-02),
+        Book(BookTitle("C"), Author(AuthorId(1), Age(42), Name("John"), Name("Doe")), 1990-01-07),
+        Book(BookTitle("C++"), Author(AuthorId(7), Age(38), Name("William"), Name("Fence")), 1990-04-02),
+        Book(BookTitle("C"), Author(AuthorId(7), Age(38), Name("William"), Name("Fence")), 1990-04-14),
+        Book(BookTitle("Haskell"), Author(AuthorId(7), Age(30), Name("William"), Name("Fence")), 1982-04-14),
+        Book(BookTitle("Lisp"), Author(AuthorId(7), Age(25), Name("William"), Name("Fence")), 1977-09-24)
+        ]
+
+      books() as pure
+        <- rtn as List of Book: books
+ ...</pre>
+    <br/>
+    <h4>The Model</h4>
+    <p>
+      The model is quite simple, a few <i>types</i>, a couple of <i>classes</i> for Books, Authors
+      and the Library. As this is a stream pipeline example and more <u>functional</u> the <b>pure</b>
+      key word has been used to highlight immutability (actually it's more than a highlight - the compiler
+      enforces it). Strictly speaking <b>clones/copies</b> of properties should have been taken
+      when returning values with accessor methods.
+      As this would then prevent any alterations being made to Objects provided or returned.
+    </p>
+    <h3>The Programs</h3>
+    <p>
+      The first program is the most simple and just outputs all the books to 'Standard Out'
+    </p>
+    <h4 id="example1">Program 1</h4>
+    <pre>...
+  defines program
+
+    JustCatBooks()
+      stdout <- Stdout()
+      library <- Library()
+
+      cat library.books() > stdout
+//EOF</pre>
+    <br/>
+    <p>
+      The output of the above program is as follows:
+    </p>
+    <pre>
+Title: Java, Author: John Doe Age: 50 Published: 1998-01-01
+Title: C++, Author: John Doe Age: 42 Published: 1990-01-07
+Title: Scala, Author: John Doe Age: 67 Published: 2015-03-02
+Title: Python, Author: John Doe Age: 62 Published: 2010-12-02
+Title: HTML, Author: Mark Pickford Age: 58 Published: 2008-07-02
+Title: CSS, Author: Mark Keely Age: 51 Published: 2008-04-02
+Title: ADA, Author: Ada Lovelace Age: 44 Published: 1988-01-02
+Title: Dart, Author: Peter Dove Age: 47 Published: 2020-01-02
+Title: C#, Author: William Fence Age: 60 Published: 2012-10-02
+Title: Javascript, Author: James Pickford Age: 52 Published: 2008-03-02
+Title: C, Author: John Doe Age: 42 Published: 1990-01-07
+Title: C++, Author: William Fence Age: 38 Published: 1990-04-02
+Title: C, Author: William Fence Age: 38 Published: 1990-04-14
+Title: Haskell, Author: William Fence Age: 30 Published: 1982-04-14
+Title: Lisp, Author: William Fence Age: 25 Published: 1977-09-24</pre>
+    <br/>
+    <p>
+      The output is unsurprising, as no real processing has taken place. Note by
+      providing the <b>'#^'</b> (promote) operator on the Book class; Objects of
+      type <b>Book</b> can be sent straight to stdout as they get converted (promoted)
+      to a <b>String</b>.
+    </p>
+    <h4 id="example2">Program 2</h4>
+    <p>
+      This program just sorts the Books by Author ID and outputs all the books to 'Standard Out'
+    </p>
+    <p>
+      The use of <u>sort</u> is the first example of a stream pipeline command,
+      it takes a single parameter. This parameter is the name of a <i>function</i>. It could have been
+      anything that provided a <i>function</i>; this includes a call to a higher order <i>function</i>.
+      It could also be a <i>dynamic function</i>. In this case a simple <b>pure</b> <i>function</i> has been used.
+    </p>
+    <p>
+      By building a <u>library</u> of short <b>pure</b> <i>functions</i> together with a set of
+      <i>records</i>, <i>traits</i> and <i>classes</i> you can optimise your code reuse and importantly
+      create a set of <u>unit tests</u> and examples of how they can be used.
+    </p>
+    <pre>...
+  defines function
+
+    comparingAuthor() as pure
+      ->
+        book1 as Book
+        book2 as Book
+      <-
+        rtn as Integer: book1.author().id() <=> book2.author().id()
+
+  defines program
+
+    SortBooksByAuthor()
+      stdout <- Stdout()
+      library <- Library()
+
+      cat library.books() | sort by comparingAuthor > stdout
+//EOF</pre>
+    <br/>
+    <p>
+      The output of the program is as follows
+    </p>
+    <pre>
+Title: Java, Author: John Doe Age: 50 Published: 1998-01-01
+Title: C++, Author: John Doe Age: 42 Published: 1990-01-07
+Title: Scala, Author: John Doe Age: 67 Published: 2015-03-02
+Title: Python, Author: John Doe Age: 62 Published: 2010-12-02
+Title: C, Author: John Doe Age: 42 Published: 1990-01-07
+Title: HTML, Author: Mark Pickford Age: 58 Published: 2008-07-02
+Title: Javascript, Author: James Pickford Age: 52 Published: 2008-03-02
+Title: CSS, Author: Mark Keely Age: 51 Published: 2008-04-02
+Title: ADA, Author: Ada Lovelace Age: 44 Published: 1988-01-02
+Title: Dart, Author: Peter Dove Age: 47 Published: 2020-01-02
+Title: C#, Author: William Fence Age: 60 Published: 2012-10-02
+Title: C++, Author: William Fence Age: 38 Published: 1990-04-02
+Title: C, Author: William Fence Age: 38 Published: 1990-04-14
+Title: Haskell, Author: William Fence Age: 30 Published: 1982-04-14
+Title: Lisp, Author: William Fence Age: 25 Published: 1977-09-24</pre>
+    <br/>
+    <p>
+      The output is ordered as you would expect by Author ID.
+    </p>
+    <h4 id="example3">Program 3</h4>
+    <p>
+      John Doe has two books published on the same date (1990-01-07), this next example now
+      groups books by the same author if they were published on the same date. Note
+      it does not yet order the books by an author <b>and</b> by published date (that is yet to come).
+    </p>
+    <pre>...
+  defines function
+
+    dateBookPublished() as pure
+      -> book as Book
+      <- rtn as Date: book.published()
+
+  defines program
+
+    GroupBooksByPublishedDate()
+      stdout <- Stdout()
+      books <- Library().books()
+      cat books | sort by comparingAuthor | group by dateBookPublished > stdout
+//EOF</pre>
+    <br/>
+    <p>
+      The output of the program is as follows
+    </p>
+    <pre>
+Title: Java, Author: John Doe Age: 50 Published: 1998-01-01
+Title: C++, Author: John Doe Age: 42 Published: 1990-01-07
+Title: C, Author: John Doe Age: 42 Published: 1990-01-07
+Title: Scala, Author: John Doe Age: 67 Published: 2015-03-02
+Title: Python, Author: John Doe Age: 62 Published: 2010-12-02
+Title: HTML, Author: Mark Pickford Age: 58 Published: 2008-07-02
+Title: Javascript, Author: James Pickford Age: 52 Published: 2008-03-02
+Title: CSS, Author: Mark Keely Age: 51 Published: 2008-04-02
+Title: ADA, Author: Ada Lovelace Age: 44 Published: 1988-01-02
+Title: Dart, Author: Peter Dove Age: 47 Published: 2020-01-02
+Title: C#, Author: William Fence Age: 60 Published: 2012-10-02
+Title: C++, Author: William Fence Age: 38 Published: 1990-04-02
+Title: C, Author: William Fence Age: 38 Published: 1990-04-14
+Title: Haskell, Author: William Fence Age: 30 Published: 1982-04-14
+Title: Lisp, Author: William Fence Age: 25 Published: 1977-09-24</pre>
+    <br/>
+    <p>
+      Now the books by John Doe are grouped together for example.
+    </p>
+    <h4 id="example4">Program 4</h4>
+    <p>
+      This example program now orders the books by their published date, but leaves them
+      ordered by author.
+    </p>
+    <pre>...
+  defines function
+
+    differentAuthor() as pure abstract
+      -> book as Book
+      <- rtn as Boolean?
+      
+    getAuthorChange() as pure
+      <- authorChanged as differentAuthor?
+      //Create a variable that is unset to be captured in the delegate function below
+      byId <- AuthorId()
+      authorChanged: (byId) is differentAuthor()
+        // Hold state of the the author id and update
+        rtn: byId? and byId != book.author().id()        
+        byId: book.author().id()
+
+    compareDatePublished() as pure
+      ->
+        book1 as Book
+        book2 as Book
+      <-
+        rtn as Integer: book1.published() <=> book2.published()
+
+    orderOnPublishedDate() as pure
+      -> books as List of Book
+      <- rtn as List of Book: cat books | sort by compareDatePublished | collect as List of Book
+
+  defines program
+    ProcessByAuthor()
+      stdout <- Stdout()
+      books <- Library().books()
+      authorId <- getAuthorChange()
+
+      cat books
+        | sort by comparingAuthor
+        | split by authorId
+        | map by orderOnPublishedDate
+        | flatten
+        > stdout
+//EOF</pre>
+    <br/>
+    <p>
+      Now this is a little more interesting!<br/>Again the list is ordered by Author ID first. But then the
+      stream is <b>split</b> into Lists of Books by each specific author.
+    </p>
+    <p>
+      The <i>function delegate</i> <b>authorId</b> is provided by the higher order <i>function</i>
+      <b>getAuthorChange</b>. This higher order <i>function</i> creates a 'stateful' <i>dynamic function</i>
+      that can track the Author ID as each Book streams through the function (hence it is important that the
+      books are in Author order). It is <b>not pure</b> as it holds state that is altered. If you're struggling
+      with this code take a look back at <a href="dynamicFunctions.html">Dynamic Functions</a>.
+    </p>
+    <p>
+      For some programmers this approach may seem strange, using loops and a state variable might be more obvious.
+      All the function does is return a boolean true/false if the Author ID has changed, that it. The Stream
+      pipeline deals with creating and sending lists as the output of the <b>split</b> command.
+    </p>
+    <p>
+      So in someways <b>split</b> acts like <b>map</b> and turns a stream of 'Books' (in this case) into a stream
+      of 'List of Book', but based on the Author ID changing.
+    </p>
+    <p>
+      The next command in the pipeline is <b>map</b>, this uses a function <b>orderOnPublishedDate</b>. Note here
+      that the Object being streamed through the pipeline has now become a 'List of Book', <b>not</b> just 'Book'.
+      So <i>function</i> <b>orderOnPublishedDate</b> accepts a 'List of Book', it too now uses a Stream pipeline
+      to order that list. It returns a totally new list (but ordered), here you can see <b>collect as</b> being
+      used - which is a stream pipeline terminal command.
+    </p>
+    <p>
+      Now we need a stream of 'Book' again and <b>not</b> a stream of 'List of Book', so just use the
+      <b>flatten</b> (thank you
+      <a href="https://www.irif.fr/~mellies/mpri/mpri-ens/articles/moggi-computational-lambda-calculus-and-monads.pdf">origin?</a>)
+      to take the contents of each List and output the Books in sequence. Note that <b>flatten</b> can be used with
+      <i>Optional</i> and <i>Result</i> as well.
+    </p>
+    <p>
+      One of the issues with Stream pipelines (and chaining methods in other languages) is 'knowing' what the
+      <b>type</b> is at any point along the pipeline; as this <b>type</b> an be altered during processing.
+      EK9 makes this easy because of <u>strong and explicit typing</u> of <i>functions</i> and <i>methods</i>.
+    </p>
+    <p>
+      For example:
+    </p>
+    <ul>
+      <li><b>sort</b> never alters the type; so whatever the sort function uses for parameters <b>is</b> the
+        pipeline <b>type</b>.
+      </li>
+      <li><b>split</b> always produces a 'List' of the current pipeline type.</li>
+      <li><b>map</b> is
+        the key command, this is where types can be transformed. Look at the input <b>type</b> and the output
+        <b>type</b> on the function being used.
+      </li>
+      <li><b>flatten</b> just take something like a 'List of Book' and outputs 'Book'
+        as the pipeline type (i.e. each Book in that List).
+      </li>
+    </ul>
+    <h5>Summary</h5>
+    <p>
+      This processing has been somewhat more sophisticated, but each <i>function</i> as a single simple purpose
+      and they can and will be reused (and can be tested in isolation). Importantly the stream pipeline itself
+      remains very readable, succinct and easy to understand. But there's no doubt this approach takes more
+      <u>thought</u> to design and implement than an imperative loop with state variables!
+    </p>
+    <p>
+      The output of the program is as follows
+    </p>
+    <pre>
+Title: C++, Author: John Doe Age: 42 Published: 1990-01-07
+Title: C, Author: John Doe Age: 42 Published: 1990-01-07
+Title: Java, Author: John Doe Age: 50 Published: 1998-01-01
+Title: Python, Author: John Doe Age: 62 Published: 2010-12-02
+Title: Scala, Author: John Doe Age: 67 Published: 2015-03-02
+Title: HTML, Author: Mark Pickford Age: 58 Published: 2008-07-02
+Title: Javascript, Author: James Pickford Age: 52 Published: 2008-03-02
+Title: CSS, Author: Mark Keely Age: 51 Published: 2008-04-02
+Title: ADA, Author: Ada Lovelace Age: 44 Published: 1988-01-02
+Title: Dart, Author: Peter Dove Age: 47 Published: 2020-01-02
+Title: Lisp, Author: William Fence Age: 25 Published: 1977-09-24
+Title: Haskell, Author: William Fence Age: 30 Published: 1982-04-14
+Title: C++, Author: William Fence Age: 38 Published: 1990-04-02
+Title: C, Author: William Fence Age: 38 Published: 1990-04-14
+Title: C#, Author: William Fence Age: 60 Published: 2012-10-02</pre>
+    <br/>
+    <p>
+      As you can see the list of books is now in both author order and book publish date order (for that author).
+    </p>
+    <h4 id="example5">Program 5</h4>
+    <p>
+      This example builds on the last one, but limits the output to authors with three or more books.
+    </p>
+    <pre>...
+  defines function
+
+    sufficientBooks() as pure
+      -> books as List of Book
+      <- rtn as Boolean: length books >= 3
+
+  defines program
+
+    ProcessByAuthorWithThreeOrMoreBooks()
+      stdout <- Stdout()
+      books <- Library().books()
+
+      authorId <- getAuthorChange()
+
+      cat books
+        | sort by comparingAuthor
+        | split by authorId
+        | select with sufficientBooks
+        | map by orderOnPublishedDate
+        | flatten
+        > stdout
+//EOF</pre>
+    <br/>
+    <p>
+      Because the pipeline has now become quite long, the alternative vertical layout
+      has been employed. In general vertical layouts make code much more readable (though increase page length!).
+    </p>
+    <p>
+      This example uses the <b>filter/select</b> command to only allow a 'List of Book' where there are
+      three or more books in the list.
+      <br/>
+      You might argue that the 'predicate' of 'sufficient number of books' is just
+      really an 'if statement' or a 'lambda'. But the point in EK9 is to capture business logic, by having a function
+      called 'sufficientBooks' this is explicit.
+    </p>
+    <p>
+      The output of the program is as follows
+    </p>
+    <pre>
+Title: C++, Author: John Doe Age: 42 Published: 1990-01-07
+Title: C, Author: John Doe Age: 42 Published: 1990-01-07
+Title: Java, Author: John Doe Age: 50 Published: 1998-01-01
+Title: Python, Author: John Doe Age: 62 Published: 2010-12-02
+Title: Scala, Author: John Doe Age: 67 Published: 2015-03-02
+Title: Lisp, Author: William Fence Age: 25 Published: 1977-09-24
+Title: Haskell, Author: William Fence Age: 30 Published: 1982-04-14
+Title: C++, Author: William Fence Age: 38 Published: 1990-04-02
+Title: C, Author: William Fence Age: 38 Published: 1990-04-14
+Title: C#, Author: William Fence Age: 60 Published: 2012-10-02</pre>
+    <br/>
+    <h4 id="example6">Program 6</h4>
+    <p>
+      Again this example builds on the last, but just omits the first two books by authors that have three or more books published.
+    </p>
+    <pre>...
+  defines function
+  
+    bookNumberFilter() as pure abstract
+      -> books as List of Book
+      <- rtn as List of Book?
+       
+  defines program
+
+    ProcessByAuthorWithThreeOrMoreBooksIgnoreFirstTwo()
+      stdout <- Stdout()
+      books <- Library().books()
+
+      excludingFirstTwoBooks <- () is bookNumberFilter as pure function
+        rtn: cat books | skip 2 | collect as List of Book
+
+      //This is the preferred EK9 way of processing
+      cat books
+        | sort by compareAuthor
+        | split by authorId
+        | select with sufficientBooks
+        | map by orderOnPublishedDate
+        | map by excludingFirstTwoBooks
+        | flatten
+        > stdout
+
+      //This shows an 'inline dynamic function'
+      //I find this hard to read, and it has less possible reuse
+      //plus it's now less clear what the 'skip' is for and why it is used.
+      cat books
+        | sort by comparingAuthor
+        | split by getAuthorChange()
+        | select with sufficientBooks
+        | map by orderOnPublishedDate
+        | map by () is bookNumberFilter as pure (rtn: cat books | skip 2 | collect as List of Book)
+        | flatten
+        > stdout
+//EOF</pre>
+    <br/>
+    <p>
+      The output of the program is as follows (for both examples above)
+    </p>
+    <pre>
+Title: Java, Author: John Doe Age: 50 Published: 1998-01-01
+Title: Python, Author: John Doe Age: 62 Published: 2010-12-02
+Title: Scala, Author: John Doe Age: 67 Published: 2015-03-02
+Title: C++, Author: William Fence Age: 38 Published: 1990-04-02
+Title: C, Author: William Fence Age: 38 Published: 1990-04-14
+Title: C#, Author: William Fence Age: 60 Published: 2012-10-02</pre>
+    <br/>
+    <p>
+      The following two examples follow in the same theme, by showing just the first and just the last book by the
+      author with three or more books. By introducing the <i>abstract function</i> <b>bookNumberFilter</b> the
+      <i>dynamic function</i> <b>excludingFirstTwoBooks</b> can be introduced.
+    </p>
+    <p>
+      The <i>dynamic function</i> <b>excludingFirstTwoBooks</b> could have been written as a standard <i>function</i>.
+      Alternatively the <i>dynamic function</i> could have been returned through the use of a <i>higher function</i>.
+    </p>
+    <h4 id="example7">Program 7</h4>
+    <pre>...
+  defines program
+
+    ProcessByAuthorWithThreeOrMoreBooksJustFirst()
+      stdout <- Stdout()
+      books <- Library().books()
+
+      //Note rather than say head 1 - it is possible to just use 'head' by itself.
+      authorId <- getAuthorChange()
+      firstBook <- () is bookNumberFilter as pure function
+        rtn: cat books | head | collect as List of Book
+
+      cat books
+        | sort by comparingAuthor
+        | split by authorId
+        | select with sufficientBooks
+        | map by orderOnPublishedDate
+        | map with firstBook
+        | flatten
+        > stdout
+//EOF</pre>
+    <br/>
+    <p>
+      The output of the program is as follows
+    </p>
+    <pre>
+Title: C++, Author: John Doe Age: 42 Published: 1990-01-07
+Title: Lisp, Author: William Fence Age: 25 Published: 1977-09-24</pre>
+    <br/>
+    <h4 id="example8">Program 8</h4>
+    <pre>...
+  defines program
+
+    ProcessByAuthorWithThreeOrMoreBooksJustLast()
+      stdout <- Stdout()
+      books <- Library().books()
+
+      //As with 'head' if you only want the last one - just use 'tail' without any number.
+      authorId <- getAuthorChange()
+      lastBook <- () is bookNumberFilter as pure function
+        rtn:  cat books | tail | collect as List of Book
+
+      cat books
+        | sort by comparingAuthor
+        | split by authorId
+        | select with sufficientBooks
+        | map by orderOnPublishedDate
+        | map with lastBook
+        | flatten
+        > stdout
+//EOF</pre>
+    <br/>
+    <p>
+      The output of the program is as follows
+    </p>
+    <pre>
+Title: Scala, Author: John Doe Age: 67 Published: 2015-03-02
+Title: C#, Author: William Fence Age: 60 Published: 2012-10-02</pre>
+    <br/>
+    <h4>Reuse</h4>
+    <p>
+      If you have a range of requirements that need different views/summaries or filters on a set of data;
+      the development of a number of reusable <i>functions</i> as above demonstrates how you can maximize code reuse.
+    </p>
+    <p>
+      While it is possible to use an imperative 'loop' style with loop variables and intermediate collections built up
+      during processing, none of this tends to be reusable as it is nested in the loops and is conditioned.
+    </p>
+    <p>
+      Clearly if you only have a single simple requirement to access the latest book published by author <b>ID=1</b>
+      you might be tempted by a simple loop. In general (depending on the longevity of the software) it almost
+      inevitable additional queries will be required.
+      By adopting the Stream pipeline approach early you may have to write slightly more code, but then it will be
+      obvious how to extend it and more importantly reuse what you've already written. Moreover the <u>design pattern</u>
+      is a known one rather than being some form of <b>while</b>, <b>do-while</b> or <b>iterator</b> loop.
+      A short example of this is shown <a href="#procedural_approach">later</a>.
+    </p>
+    <h4 id="example9">Program 9</h4>
+    <p>
+      Below is an example of using an enumeration and a higher order function; this returns a function based on the
+      enumeration value.
+    </p>
+    <pre>...
+  defines type
+
+    BookFilterSelection
+      SkipTwo
+      JustFirst
+      JustLast
+        
+  defines function
+
+    suitableBookFilter() as pure
+      -> selection as BookFilterSelection
+      <- bookFilter as bookNumberFilter: given selection
+        <- theFilter as bookNumberFilter: () is bookNumberFilter pure (rtn: books) //i.e. nothing filtered
+        when BookFilterSelection.SkipTwo
+          theFilter: () is bookNumberFilter pure (rtn: cat books | skip 2 | collect as List of Book)
+        when BookFilterSelection.JustFirst
+          theFilter: () is bookNumberFilter pure (rtn: cat books | head 1 | collect as List of Book)
+        when BookFilterSelection.JustLast
+          theFilter: () is bookNumberFilter pure (rtn: cat books | tail 1 | collect as List of Book)
+
+  defines program
+  
+    ProcessByAuthorUsingHigherOrderFunction()
+      stdout <- Stdout()
+      library <- Library()
+
+      stdout.println("Omit first two books where author has three or more books")
+      excludingFirstTwoBooks <- suitableBookFilter(BookFilterSelection.SkipTwo)
+      cat library.books()
+        | sort by comparingAuthor
+        | split by getAuthorChange()
+        | select with sufficientBooks
+        | map by orderOnPublishedDate
+        | map with excludingFirstTwoBooks
+        | flatten
+        > stdout
+
+      stdout.println("First book where author has three or more books")
+      cat library.books()
+        | sort by comparingAuthor
+        | split by getAuthorChange()
+        | select with sufficientBooks
+        | map by orderOnPublishedDate
+        | map with suitableBookFilter(BookFilterSelection.JustFirst)
+        | flatten
+        > stdout
+
+      stdout.println("Last book where author has three or more books")
+      lastBook <- suitableBookFilter(BookFilterSelection.JustLast)
+      cat library.books()
+        | sort by comparingAuthor
+        | split by getAuthorChange()
+        | select with sufficientBooks
+        | map by orderOnPublishedDate
+        | map with lastBook
+        | flatten
+        > stdout
+//EOF</pre>
+    <br/>
+    <p>
+      The example above just shows how an enumeration can be used with a higher order function to 'switch' on the
+      enumeration to return an appropriate <i>dynamic function</i>. From this example it's quite easy to see how
+      the above pipeline code can be refactored again, so that it too can be wrapped into a function.
+    </p>
+    <h4 id="example10">Program 10</h4>
+    <p>
+      This program is a simple refactoring of the one above, to highlight functional composition and how useful
+      <b>strong typing</b> of functions and <b>higher order functions</b> can be.
+    </p>
+    <pre>...
+  defines function
+
+    filterBooksToOutput()
+      ->
+        books as List of Book
+        filterSelection as BookFilterSelection
+        output as StringOutput
+
+      authorId <- getAuthorChange()
+      theBookFilter <- suitableBookFilter(filterSelection)
+      cat books
+        | sort by comparingAuthor
+        | split by authorId
+        | select with sufficientBooks
+        | map by orderOnPublishedDate
+        | map with theBookFilter
+        | flatten
+        > output
+
+  defines program
+
+    ProcessByAuthorUsingParameterisedFunction()
+      stdout <- Stdout()
+      books <- Library().books()
+
+      stdout.println("Omit first two books where author has three or more books")
+      filterBooksToOutput(books, BookFilterSelection.SkipTwo, stdout)
+      
+      stdout.println("First book where author has three or more books")
+      filterBooksToOutput(books, BookFilterSelection.JustFirst, stdout)
+           
+      stdout.println("Last book where author has three or more books")      
+      filterBooksToOutput(books, BookFilterSelection.JustLast, stdout)
+//EOF</pre>
+    <br/>
+    <p>
+      By mixing in simple (enumerated)
+      <b>types</b> and the <i>switch expression</i> it is possible to see how a range of different solutions can be
+      structured with a number of small reusable <i>functions</i>.
+    </p>
+    <p>
+      When linked with the <u>polymorphism</u> of <i>traits, classes</i> and importantly <i>functions</i> the whole
+      solution is more flexible and fungible in terms of which actual filter functions are used and also where results are output.
+    </p>
+    <p>
+      By taking the time to create <i>abstract functions</i>, <b>simple types</b> and <i>records</i> with a select number
+      of <i>operators</i> refactoring and functional composition is much easier.
+    </p>
+    <p>
+      The output is as you would expect; the same as the previous example.
+    </p>
+    <pre>
+Omit first two books where author has three or more books
+Title: Java, Author: John Doe Age: 50 Published: 1998-01-01
+Title: Python, Author: John Doe Age: 62 Published: 2010-12-02
+Title: Scala, Author: John Doe Age: 67 Published: 2015-03-02
+Title: C++, Author: William Fence Age: 38 Published: 1990-04-02
+Title: C, Author: William Fence Age: 38 Published: 1990-04-14
+Title: C#, Author: William Fence Age: 60 Published: 2012-10-02
+First book where author has three or more books
+Title: C++, Author: John Doe Age: 42 Published: 1990-01-07
+Title: Lisp, Author: William Fence Age: 25 Published: 1977-09-24
+Last book where author has three or more books
+Title: Scala, Author: John Doe Age: 67 Published: 2015-03-02
+Title: C#, Author: William Fence Age: 60 Published: 2012-10-02</pre>
+    <br/>
+    <h4 id="example11">Program 11</h4>
+    <p>
+      This example is slightly different and demonstrates how parts of the processing pipeline can
+      be <u>tee'd</u> off and saved to be used later. It also demonstrates how streamed items can be
+      removed if duplicated by some key or other (in this case the publication date is used).
+    </p>
+    <pre>...
+  defines function
+
+    bookSigningEvent() as pure
+      -> book as Book
+      <- rtn as String: `Date: ${book.published()}`
+
+  defines program
+
+    UniquePublishingDatesFromAuthorWithThreeOrMoreBooks()
+      stdout <- Stdout()
+      library <- Library()
+
+      authorId <- getAuthorChange()
+      authorsBooks as List of Book: List()
+
+      booksByEachAuthor as List of List of Book: List()
+
+      stdout.println("Unique signing events on day of publication by authors with three or more books.")
+
+      cat library.books()
+        | sort by comparingAuthor
+        | split by authorId
+        | tee in booksByEachAuthor
+        | filter by sufficientBooks
+        | map by orderOnPublishedDate
+        | flatten
+        | tee in authorsBooks
+        | uniq by dateBookPublished
+        | sort by compareDatePublished
+        | map with bookSigningEvent
+        > stdout
+
+      stdout.println("Books From author with three or more books")
+      cat authorsBooks > stdout
+
+      stdout.println("There are " + $ length booksByEachAuthor + " authors in total with any number of books")
+//EOF</pre>
+    <br/>
+    <p>
+      The output of the program is as follows
+    </p>
+    <pre>
+Unique signing events on day of publication by authors with three or more books.
+Date: 1977-09-24
+Date: 1982-04-14
+Date: 1990-01-07
+Date: 1990-04-02
+Date: 1990-04-14
+Date: 1998-01-01
+Date: 2010-12-02
+Date: 2012-10-02
+Date: 2015-03-02
+Books From author with three or more books
+Title: C++, Author: John Doe Age: 42 Published: 1990-01-07
+Title: C, Author: John Doe Age: 42 Published: 1990-01-07
+Title: Java, Author: John Doe Age: 50 Published: 1998-01-01
+Title: Python, Author: John Doe Age: 62 Published: 2010-12-02
+Title: Scala, Author: John Doe Age: 67 Published: 2015-03-02
+Title: Lisp, Author: William Fence Age: 25 Published: 1977-09-24
+Title: Haskell, Author: William Fence Age: 30 Published: 1982-04-14
+Title: C++, Author: William Fence Age: 38 Published: 1990-04-02
+Title: C, Author: William Fence Age: 38 Published: 1990-04-14
+Title: C#, Author: William Fence Age: 60 Published: 2012-10-02
+There are 7 authors in total with any number of books</pre>
+    <br/>
+    <p>
+      The interesting part in the example above is the multiple use of the <b>tee</b> command to take
+      contents as they stream through the pipeline to be processed and store them in separate collections.
+    </p>
+    <p>
+      Limiting the output by the use of the <b>uniq</b> command on a specific field (in this case the
+      <i>function</i> <b>dateBookPublished</b> uses the date the book was published as the uniqueness key).
+    </p>
+    <h4 id="example12">Program 12 (<b>The Final Example</b>)</h4>
+    <p>
+      This example is totally different, it only uses book authors where their age is 50 or over
+      (at the time of writing the book). It then ensures that the author is only included once, finally
+      it sorts the authors by surname (and first name if their surname is the same) and outputs that name.
+    </p>
+    <pre>...
+  defines function
+
+    bookAuthor() as pure
+      -> book as Book
+      <- author as Author: book.author()
+
+    acceptableAuthorAge() as pure
+      -> author as Author
+      <- rtn as Boolean: author.age() >= Age(50)
+
+    authorName() as pure
+      -> author as Author
+      <- rtn as Name: `${author.firstname()} ${author.surname()}`
+
+    theAuthorId() as pure
+      -> author as Author
+      <- rtn as AuthorId: author.id()
+
+    comparingAuthorName() as pure
+      ->
+        author1 as Author
+        author2 as Author
+      <-
+        rtn as Integer: author1.surname() <=> author2.surname()
+      if rtn == 0
+        rtn: author1.firstname() <=> author2.firstname()
+
+  defines program
+
+    LibraryExample()
+      stdout <- Stdout()
+      books <- Library().books()
+
+      cat books
+        | map with bookAuthor
+        | select by acceptableAuthorAge
+        | uniq by theAuthorId
+        | sort by comparingAuthorName
+        | map with authorName
+        > stdout
+//EOF</pre>
+    <br/>
+    <p>
+      The output of the program is as follows
+    </p>
+    <pre>
+John Doe
+William Fence
+Mark Keely
+James Pickford
+Mark Pickford</pre>
+    <br/>
+    <h3>Summary</h3>
+    <p>
+      The Stream pipeline functionality takes the most <u>functional</u> approach to software development,
+      but when used with <i>functions</i>, <i>traits</i>, <i>records</i>, <i>classes</i> and
+      collections removes the need for deep and layered nested loops with stateful variables.
+    </p>
+    <p>
+      It can also be tolerant of missing data if needs be. While not shown in these examples, if the
+      published data had been <b>unset</b> there would have been <b>no</b> <u>null pointer exceptions</u>.
+    </p>
+    <p>
+      It can take some time for developers with an imperative or Object-Oriented background to become used
+      to this approach. With many OO languages now including 'chained'/'fluent' API's; maybe the clean
+      simple and composable syntax in EK9 should be easier to understand and adopt. The syntax has been
+      chosen to be very similar to the Unix/Linux shell 'pipe' approach as the concept is so similar.
+    </p>
+    <p>
+      There is little doubt that this same functionality could have been written with <u>much less code</u>
+      using an imperative style. EK9 does support this; but in general the smaller, more rounded and documented
+      the components developed; then more reliable/reusable and easier to understand the code is over the longer term.
+    </p>
+    <p>
+      But probably more importantly - the <u>design pattern</u> is a standard one; it leaps off the page as to what
+      is being done. This is very unlike nested arbitrary loops, these tend to need more time to 'grok'. Each time
+      similar functionality is needed it can and probably will be implemented in slightly different ways
+      (this can lead to confusion and defects).
+    </p>
+    <p>
+      In fact here is a partial procedural/imperative implementation without the author name sorting as a contrast.
+    </p>
+    <pre id="procedural_approach">...
+  defines program
+    ImperativeLibraryExample()
+      stdout <- Stdout()
+      library <- Library()
+
+      uniqueAuthors as Dict of (AuthorId, Author): Dict()
+
+      for book in library.books()
+        author <- book.author()
+        if author.age() >= 50
+          if uniqueAuthors not contains author.id()
+            uniqueAuthors += DictEntry(author.id(), author)
+
+      for author in uniqueAuthors.values()
+        stdout.println(author.firstname() + " " + author.surname())
+//EOF</pre>
+    <br/>
+    <p>
+      The <b>uniq</b> processing has been achieved through the use of a <b>Dictionary/Map</b>,
+      but it could have been done with a <b>List</b>.<br/>
+      Here is the output (note authors names are not sorted)
+    </p>
+    <pre>
+John Doe
+Mark Pickford
+James Pickford
+Mark Keely
+William Fence        
+    </pre>
+    <p>
+      The code is somewhat shorter (albeit without any sorting of author names) and for one-off short simple
+      processing maybe it is a better approach. But the minute you then need to make a few alterations here and there;
+      the stream pipeline approach become much easier to alter change and manipulate.
+    </p>
+    <h3>Conclusion</h3>
+    <p>
+      Hopefully these stream pipelines will give a developer a set of flexible and standardised tools to process
+      collections of Objects in a flexible and clear manner. This more functional approach has much to be said for it as it
+      reduces the number of <i>methods</i> needed on <i>classes</i> and provides for much more reuse of code.
+    </p>
+    <p>
+      But in general a more functional approach take quite a bit more thought and sometimes more code than an imperative
+      approach. But when reviewing the code the functional approach tends to just leap of the page at you; as to how it works.
+    </p>
+    <p>
+      But with EK9 you now have a choice in your development approach.
+    </p>
+    <h3>Next Steps</h3>
+    <p>
+      <a href="advancedClassMethods.html">Advanced class methods</a> is covered in the next section.
+      This is not related to streaming pipeline but is related to <a href="classes.html">Classes</a>.
+    </p>
+  </article>
+</main>
+</body>
+</html>

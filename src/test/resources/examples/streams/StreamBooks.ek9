@@ -341,8 +341,13 @@ defines module com.customer.books
     ProcessByAuthor()
       stdout <- Stdout()
       books <- Library().books()
-
-      cat books | sort by comparingAuthor | split by getAuthorChange() | map by orderOnPublishedDate | flatten > stdout
+      authorId <- getAuthorChange()
+      cat books
+        | sort by comparingAuthor
+        | split by authorId
+        | map by orderOnPublishedDate
+        | flatten
+        > stdout
 
     ProcessByAuthorWithThreeOrMoreBooks()
       stdout <- Stdout()
@@ -350,7 +355,13 @@ defines module com.customer.books
 
       authorId <- getAuthorChange()
 
-      cat books | sort by comparingAuthor | split by authorId | select with sufficientBooks | map by orderOnPublishedDate | flatten > stdout
+      cat books
+        | sort by comparingAuthor
+        | split by authorId
+        | select with sufficientBooks
+        | map by orderOnPublishedDate
+        | flatten
+        > stdout
 
     ProcessByAuthorWithThreeOrMoreBooksIgnoreFirstTwo()
       stdout <- Stdout()
@@ -422,7 +433,6 @@ defines module com.customer.books
         > stdout
       
       stdout.println("First book where author has three or more books")
-
       cat library.books()
         | sort by comparingAuthor
         | split by getAuthorChange()
@@ -445,15 +455,16 @@ defines module com.customer.books
         
     ProcessByAuthorUsingParameterisedFunction()
       stdout <- Stdout()
-              
+      books <- Library().books()
+
       stdout.println("Omit first two books where author has three or more books")
-      filterBooksToOutput(Library().books(), BookFilterSelection.SkipTwo, stdout)
+      filterBooksToOutput(books, BookFilterSelection.SkipTwo, stdout)
       
       stdout.println("First book where author has three or more books")
-      filterBooksToOutput(Library().books(), BookFilterSelection.JustFirst, stdout)
+      filterBooksToOutput(books, BookFilterSelection.JustFirst, stdout)
            
       stdout.println("Last book where author has three or more books")      
-      filterBooksToOutput(Library().books(), BookFilterSelection.JustLast, stdout)      
+      filterBooksToOutput(books, BookFilterSelection.JustLast, stdout)
       
     UniquePublishingDatesFromAuthorWithThreeOrMoreBooks()
       stdout <- Stdout()
