@@ -1,9 +1,6 @@
 #!ek9
 defines module net.customer.shapes
- 
-  defines type
-    List of Shape
-     
+
   defines trait
   
     T1 allow only Square

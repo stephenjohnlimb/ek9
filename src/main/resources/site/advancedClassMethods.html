@@ -1,0 +1,604 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language dispatcher</title>
+  <meta name="description" content="EK9 programming language dispatcher
+    removes the need for casting and instanceof type detection."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Advanced Class Methods in EK9</h1>
+    </header>
+    <p>
+      Some examples of the advanced class methods have already been shown elsewhere. This section
+      will cover those ideas in more detail and highlight the compromises you will have to make to use them.
+    </p>
+    <p>
+      Really the advanced methods revolve around the <b>dispatcher</b> concept. This simple idea promotes the use of
+      the Object-Oriented approach - specifically polymorphism. It removes the need for <u>casting</u> and detection of
+      types through <u>instanceof</u>. It also removes the need for any <u>switch</u> on <b>types</b>.
+    </p>
+    <h4>Why no <b>casting</b> or <b>instanceof</b></h4>
+    <p>
+      The converse question is - why does a developer ever need to 'know' what type they are dealing with? If an API
+      returns a <b>type</b>; be it a <i>class, record, trait</i> or even a <i>dynamic function</i> - that's the only thing
+      the developer of that API wanted you to know. The details of what that <b>type</b> actually is, should be hidden as
+      that was the developers intent.
+    </p>
+    <p>
+      Adding casting and instanceof makes code brittle and goes against the general concept of information hiding
+      and polymorphism. So when using API's it's best to avoid any attempt to get the actual <b>type</b> involved,
+      where possible.
+    </p>
+    <h3>Designing your own API's</h3>
+    <p>
+      But there are times when you want to design an API's and use <b>types</b> in specific ways.
+    </p>
+    <h4>Double Dispatch</h4>
+    <p>
+      To avoid casting and instanceof a
+      <a target="_blank" title="Double Dispatch" href="https://refactoring.guru/design-patterns/visitor-double-dispatch">double dispatch</a>
+      approach can be taken.
+    </p>
+    <h3><b>Dispatcher</b> keyword on methods</h3>
+    <p>
+      There are times when it is necessary to be able to process information where a more detailed knowledge of
+      a <b>type</b> is required, as with the <b>'double dispatch'</b> approach.
+    </p>
+    <p>
+      EK9 has a <b>dispatcher</b> keyword and concept just for this.
+      There is an <a href="exceptions.html#example">example</a> used with <i>Exceptions</i>; this includes a short
+      <a href="exceptions.html#dispatcher">discussion</a> of how this is used. The key part in this example is the method
+      <b>'private handleException() as dispatcher'</b>.
+    </p>
+    <p>
+      A second <a href="traits.html#traits_example">example</a> what also has a short
+      <a href="traits.html#dispatcher">discussion</a> shows a similar approach but this time not using Exceptions.
+      See <b>'build() as dispatcher'</b> specifically in the example.
+    </p>
+    <h3>Relating two types</h3>
+    <p>
+      While the <b>'double dispatch'</b> design pattern and the <b>dispatcher</b> keyword for <b>types</b> is really useful;
+      the main power of the <b>dispatcher</b> keyword really comes into its own when there a need to relate two <b>types</b>
+      together.
+    </p>
+    <p>
+      The following example is quite long and has two uses of <b>dispatcher</b>. The first is just a simple
+      decorator type method, but the second is more interesting; it is aimed at demonstrating how it is possible
+      to calculate the intersection between two shapes.
+    </p>
+    <p>
+      Given a number of Shapes; Ellipse, Circle, Square, Rectangle and Triangle - obtain the intersection between
+      any two! Clearly to be able to calculate the intersection it is important to know the exact <b>type</b> of
+      the two shapes involved.
+    </p>
+    <p>
+      This is where <b>'double dispatch'</b> would come in handy, the EK9 language also supports <b>dispatcher</b>
+      on methods with one or two parameters. But importantly it can also detect any ambiguities at compile time,
+      it does this by looking at the class hierarchies and traits used.
+    </p>
+    <h3 id="dispatcher">Example of Dispatcher</h3>
+    <pre>#!ek9
+defines module introduction
+ 
+  defines trait
+
+    T1 allow only Square
+      specialMessage() as pure
+        <- rtn as String: "T1"
+    T2
+      simpleMessage() as pure
+        <- rtn as String: "T2"
+
+  defines function
+
+    intersectSquares() as pure
+      ->
+        s1 as Square
+        s2 as Square
+      <-
+        intersection as Intersection: LinesIntersection("Line Intersection two squares (by function)")
+
+    intersectSquareAndRectangle() as pure
+      ->
+        s1 as Square
+        s2 as Rectangle
+      <-
+        intersection as Intersection: LinesIntersection("Line Intersection of a Square and Rectangle (by function)")
+
+  defines class
+
+    Coordinate
+      x Float?
+      y Float?
+
+      //Constructor
+      Coordinate() as pure
+        this(0.0, 0.0)
+
+      //Constructor
+      Coordinate() as pure
+        ->
+          initialX as Float
+          initialY as Float
+
+        assert initialX? and initialY?
+        x: Float(initialX)
+        y: Float(initialY)
+
+      x() as pure
+        <- rtn as Float: Float(x)
+      y() as pure
+        <- rtn as Float: Float(y)
+
+      operator $ as pure
+        <- rtn as String: $x + ", " + $y
+      operator #^ as pure
+        <- rtn as String: $this
+
+    //Used for different types of intersection
+
+    Intersection as open
+      message as String?
+      stdout as Stdout: Stdout()
+      startPoint Coordinate: Coordinate(0.0, 0.0)
+
+      Intersection() as pure
+        -> message as String
+        this.message: String(message)
+
+      render()
+        stdout.println(message)
+
+      //... Other methods
+
+    ArcIntersection is Intersection
+      endPoint Coordinate: Coordinate()
+      centrePoint Coordinate: Coordinate()
+
+      ArcIntersection()
+        -> message as String
+        super(message)
+
+      //... Other methods
+
+    LinesIntersection is Intersection
+      endPoint Coordinate: Coordinate()
+      end2Point Coordinate: Coordinate()
+
+      LinesIntersection
+        -> message as String
+        super(message)
+
+      //... Other methods
+
+    Shape as abstract
+      stdout as Stdout: Stdout()
+
+      draw() as abstract
+
+      protected draw()
+        -> message as String
+        stdout.println("DRAW: " + message)
+
+    Ellipse extends Shape as open
+      override draw()
+        draw("Ellipse")
+
+    Circle is Ellipse
+      override draw()
+        draw("Circle")
+
+    Rectangle is Shape
+      override draw()
+        draw("Rectangle")
+
+    Triangle is Shape
+      override draw()
+        draw("Triangle")
+
+    Square is Shape with trait of T1, T2
+      override draw()
+        draw("Square " + T1.specialMessage() + " " + T2.simpleMessage())
+
+    BaseIntersector as abstract
+      intersect() as pure abstract
+        ->
+          s1 as Shape
+          s2 as Shape
+        <-
+          intersection as Intersection?
+
+      intersect() as pure
+        ->
+          s1 as Circle
+          s2 as Circle
+        <-
+          intersection as Intersection: ArcIntersection("Arc Intersection two circles")
+
+      intersect() as pure
+        ->
+          s1 as Circle
+          s2 as Ellipse
+        <-
+          intersection as Intersection: ArcIntersection("Arc Intersection circle and ellipse")
+
+      intersect() as pure
+        ->
+          s1 as Ellipse
+          s2 as Circle
+        <-
+          intersection as Intersection: ArcIntersection("Arc Intersection ellipse and circle")
+
+      intersect() as pure
+        ->
+          s1 as Circle
+          s2 as Rectangle
+        <-
+          intersection as Intersection: ArcIntersection("Arc Intersection circle and rectangle")
+
+      intersect() as pure
+        ->
+          s1 as Rectangle
+          s2 as Circle
+        <-
+          intersection as Intersection: ArcIntersection("Arc Intersection rectangle and circle")
+
+      intersect() as pure
+        ->
+          s1 as Circle
+          s2 as Square
+        <-
+          intersection as Intersection: ArcIntersection("Arc Intersection circle and square")
+
+      intersect() as pure
+        ->
+          s1 as Square
+          s2 as Circle
+        <-
+          intersection as Intersection: ArcIntersection("Arc Intersection squares and circle")
+
+      intersect() as pure
+        ->
+          s1 as Rectangle
+          s2 as Rectangle
+        <-
+          intersection as Intersection: LinesIntersection("Line Intersection two rectangles")
+
+    SpecialIntersector extends BaseIntersector as abstract
+      //Adding another method with additional types of shapes
+      //But still this is an abstract class
+
+      intersect() as pure
+        ->
+          s1 as Ellipse
+          s2 as Triangle
+        <-
+          intersection as Intersection: LinesIntersection("Line Intersection ellipse and rectangle")
+
+      intersect() as pure
+        ->
+          s1 as Circle
+          s2 as Triangle
+        <-
+          intersection as Intersection: LinesIntersection("Line Intersection circle and triangle")
+
+      intersect() as pure
+        ->
+          s1 as Triangle
+          s2 as Triangle
+        <-
+          intersection as Intersection: LinesIntersection("Line Intersection two triangles")
+
+      //Methods that just delegate to functions for the calculations.
+      intersect() as pure
+        ->
+          s1 as Square
+          s2 as Square
+        <-
+          intersection as Intersection: intersectSquares(s1, s2)
+
+      intersect() as pure
+        ->
+          s1 as Square
+          s2 as Rectangle
+        <-
+          intersection as Intersection: intersectSquareAndRectangle(s1, s2)
+
+      intersect() as pure
+        ->
+          s1 as Rectangle
+          s2 as Square
+        <-
+          intersection as Intersection: intersectSquareAndRectangle(s2, s1)
+
+    //Finally make a concrete one - override the base intersect method that was abstract and mark it as a dispatcher
+    Intersector extends SpecialIntersector
+      override intersect() as pure dispatcher
+        ->
+          s1 as Shape
+          s2 as Shape
+        <-
+          intersection as Intersection: Intersection("Intersection just two shapes!")
+
+    Renderer
+
+      //entry point for rendering via defining the dispatcher - this will find all sub type methods can call render
+      render() as dispatcher
+        -> s as Shape
+        s.draw()
+
+      //Just use default method for Circle and Ellipse, but others does something slight different
+
+      render()
+        -> s as Triangle
+        s.draw()
+        Stdout().println("Did draw triangle")
+
+      render()
+        -> s as Rectangle
+        Stdout().println("Will Draw Rectangle")
+        s.draw()
+
+      render()
+        -> s as T1
+        Stdout().println("Drawing: " + s.specialMessage())
+
+      render()
+        -> s as T2
+        Stdout().println("Drawing: " + s.simpleMessage())
+
+      //With Square also implementing T1 and T2 you have to add this in. Which is correct else ambiguous.
+      render()
+        -> s as Square
+        Stdout().println("Before Square")
+        s.draw()
+        Stdout().println("After Square")
+
+      render()
+        -> i as Intersection
+        i.render()
+
+  defines program
+    testShapes()
+      //Would really need actual details of what the circles and triangles were.
+      //But this is just to show how dipatcher would work.
+      firstShapes <- [ Circle(), Ellipse(), Rectangle(), Square(), Triangle() ]
+      secondShapes <- [ Circle(), Ellipse(), Rectangle(), Square(), Triangle() ]
+
+      intersector <- Intersector()
+      renderer <- Renderer()
+
+      //Simple imperative loop this time rather than stream pipeline.
+      for s1 in firstShapes
+        for s2 in secondShapes
+          renderer.render(s1)
+          renderer.render(s2)
+          intersection <- intersector.intersect(s1, s2)
+          renderer.render(intersection)
+//EOF</pre>
+    <br/>
+    <p>
+      The output of the program above would be as follows:
+    </p>
+    <pre>
+DRAW: Circle
+DRAW: Circle
+Arc Intersection two circles
+DRAW: Circle
+DRAW: Ellipse
+Arc Intersection circle and ellipse
+DRAW: Circle
+Will Draw Rectangle
+DRAW: Rectangle
+Arc Intersection circle and rectangle
+DRAW: Circle
+Before Square
+DRAW: Square T1 T2
+After Square
+Arc Intersection circle and square
+DRAW: Circle
+DRAW: Triangle
+Did draw triangle
+Line Intersection circle and triangle
+DRAW: Ellipse
+DRAW: Circle
+Arc Intersection ellipse and circle
+DRAW: Ellipse
+DRAW: Ellipse
+Intersection just two shapes!
+DRAW: Ellipse
+Will Draw Rectangle
+DRAW: Rectangle
+Intersection just two shapes!
+DRAW: Ellipse
+Before Square
+DRAW: Square T1 T2
+After Square
+Intersection just two shapes!
+DRAW: Ellipse
+DRAW: Triangle
+Did draw triangle
+Line Intersection ellipse and rectangle
+Will Draw Rectangle
+DRAW: Rectangle
+DRAW: Circle
+Arc Intersection rectangle and circle
+Will Draw Rectangle
+DRAW: Rectangle
+DRAW: Ellipse
+Intersection just two shapes!
+Will Draw Rectangle
+DRAW: Rectangle
+Will Draw Rectangle
+DRAW: Rectangle
+Line Intersection two rectangles
+Will Draw Rectangle
+DRAW: Rectangle
+Before Square
+DRAW: Square T1 T2
+After Square
+Line Intersection of a Square and Rectangle (by function)
+Will Draw Rectangle
+DRAW: Rectangle
+DRAW: Triangle
+Did draw triangle
+Intersection just two shapes!
+Before Square
+DRAW: Square T1 T2
+After Square
+DRAW: Circle
+Arc Intersection squares and circle
+Before Square
+DRAW: Square T1 T2
+After Square
+DRAW: Ellipse
+Intersection just two shapes!
+Before Square
+DRAW: Square T1 T2
+After Square
+Will Draw Rectangle
+DRAW: Rectangle
+Line Intersection of a Square and Rectangle (by function)
+Before Square
+DRAW: Square T1 T2
+After Square
+Before Square
+DRAW: Square T1 T2
+After Square
+Line Intersection two squares (by function)
+Before Square
+DRAW: Square T1 T2
+After Square
+DRAW: Triangle
+Did draw triangle
+Intersection just two shapes!
+DRAW: Triangle
+Did draw triangle
+DRAW: Circle
+Intersection just two shapes!
+DRAW: Triangle
+Did draw triangle
+DRAW: Ellipse
+Intersection just two shapes!
+DRAW: Triangle
+Did draw triangle
+Will Draw Rectangle
+DRAW: Rectangle
+Intersection just two shapes!
+DRAW: Triangle
+Did draw triangle
+Before Square
+DRAW: Square T1 T2
+After Square
+Intersection just two shapes!
+DRAW: Triangle
+Did draw triangle
+DRAW: Triangle
+Did draw triangle
+Line Intersection two triangles</pre>
+    <br/>
+    <h3>Summary</h3>
+    <p>
+      While the example code and the output are both <u>long</u>, it is aimed at highlighting the EK9 feature to be able to
+      provide the developer with details of what actual classes are involved without the need for <b>casting</b> or
+      <b>instanceof</b>. But it also highlights how <i>methods</i> can and should delegate to <i>functions</i>
+      where possible. This is because the <i>function</i> is really the smallest most isolated element to encapsulate functionality.
+    </p>
+    <p>
+      There are actually two example of <b>dispatcher</b> in the sample above; the first is just a simple single parameter
+      <b>dispatcher</b> on the <i>Renderer</i>. In general these <b>dispatcher</b> methods do a little processing and the
+      delegate through to the actual shape to trigger normal processing.
+    </p>
+    <p>
+      But the second example (on the <i>Intersector</i>) deals with the thorny issue of relating two <i>classes</i> by their
+      actual type together.
+      In general; it is necessary deal with this <b>N<sup>2</sup></b> problem of relating two type together in a very
+      methodical manner. This is what the EK9 language provides the framework for.
+    </p>
+    <p>
+      For <u>Shapes</u> this would involve trying to work out common denominators in intersections, then creating either
+      a common set of <i>methods</i> or better <i>functions</i> that solve the intersection problem and reusing by altering
+      the order of parameters passed in to each of the <b>dispatcher</b> <i>methods</i>.
+    </p>
+    <h3>Next Steps</h3>
+    <p>
+      <a href="generics.html">Generics/Templates</a> is covered in the next section, this is much more advanced.
+    </p>
+  </article>
+</main>
+</body>
+</html>

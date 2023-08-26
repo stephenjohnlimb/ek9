@@ -1,0 +1,527 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language generics</title>
+  <meta name="description" content="EK9 programming language generics
+    facilitate type parameterization."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Generics/Templates in EK9</h1>
+    </header>
+    <p>
+      Many of the examples have used the built-in <a href="collectionTypes.html">collections</a>;
+      like <b>List</b> or <b>Dict</b>; these are <u>Generic/Template</u> classes that can be parameterised
+      with another type.
+      <br/>
+      This is parametric polymorphism.
+    </p>
+    <p>
+      There have also been examples of the definition of new <a href="structure.html#generics">generic</a> types.
+      These show how both generic <i>classes</i> and generic <i>functions</i> can be developed and used.
+    </p>
+    <p>
+      There is inline example at the end of this section, it shows how generics can be used in different
+      ways and how the <b>types</b> used to parameterize a generic <b>type</b> can be controlled.
+      The benefits of this control (<b>constraint</b>) are then discussed.
+    </p>
+    <p>
+      Before that however; it is necessary to discuss the way EK9 deals with generics/templated <b>types</b>.
+    </p>
+    <h2>Type Creation</h2>
+    <p>
+      When instantiating a new Object of a generic <i>class</i> and parameterizing it with one or more
+      <b>types</b>; a new <b>type</b> is created (in effect).
+      There are some implications around this, that might not be obvious.
+    </p>
+    <p>
+      i.e. Just declaring: <b>List of Person</b> (where Person is an <b>existing type</b>), has actually created
+      a new <b>type</b>; the 'List of Person' <b>type</b>!
+    </p>
+    <p>
+      As an example consider an <i>abstract</i> base <i>class</i> of <b>Shape</b> and two <i>classes</i> that
+      extend it, <b>Circle</b> and <b>Square</b>.
+    </p>
+    <p>
+      Now declare to use of <b>'List of Shape'</b>, a <b>'List of Circle'</b> and a <b>'List of Square'</b>.
+      Three new <b>types</b> have been created, because you have declared their use somewhere.
+    </p>
+    <p>
+      It should come as no surprise that you can:
+    </p>
+    <ul>
+      <li>Add a <b>Circle</b> to a <b>'List of Circle'</b> but not a <b>'List of Square'</b>,</li>
+      <li>Also, you can add a <b>Square</b> to a <b>'List of Square'</b> but not a <b>'List of Circle'</b>,</li>
+      <li>
+        Adding both <b>Circles</b> and <b>Squares</b> to an instance that is a
+        <b>'List of Shape'</b> will also be clearly acceptable; they both extend <b>Shape</b>.
+      </li>
+
+    </ul>
+    <p>
+      OK, all obvious and understandable. But what about passing the <b>'List of Shape'</b> as a
+      parameter?<br/>
+      More interestingly: "can a <b>'List of Circle'</b> be considered to be <b>'List of Shape'</b>"?
+    </p>
+    <p>
+      Well an Object that has the type <b>'List of Shape'</b> can be passed about as a parameter.
+      So that answers the first question, but the second question has an answer you may not be expecting!
+    </p>
+    <h2>A 'List of Circle' is <b>not</b> a 'List of Shape'!</h2>
+    <p>
+      But wait a 'Circle' extends 'Shape' so a 'Circle' is a 'Shape'. So surely this can't be right!
+    </p>
+    <p>
+      If EK9 did allow this, then a <b>'List of Circle'</b> could be passed as a parameter where a
+      <b>'List of Shape'</b> was needed. Then it would be possible to add 'Squares' to it!
+    </p>
+    <p>
+      This is not what we want! So just because the generic type is parameterised with <b>types</b> that
+      are compatible (in a polymorphic manner) it does not follow that the newly created <b>types</b> from
+      parameterizing a generic <b>type</b> are compatible (polymorphic).
+    </p>
+    <h3>Separate Types</h3>
+    <p>
+      When generic types are parameterised with <b>types</b>; they define a new <b>type</b> and that new
+      <b>type</b> does not have any sort of type hierarchy; i.e. it does not extend any other <b>type</b>.
+    </p>
+    <p>
+      This point is important as it means that a <i>class</i> with two methods with the same name but different
+      generic parameters is possible (this is unlike Java! There is <b>no</b> type erasure in EK9). i.e.
+    </p>
+    <pre>...
+  defines class
+    SimpleExample as abstract
+      assimilate() as pure abstract
+        -> items as List of Shape
+        <- rtn as Shape
+
+      assimilate() as pure abstract
+        -> items as List of Circle
+        <- rtn as Shape
+
+      assimilate() as pure abstract
+        -> items as List of Square
+        <- rtn as Shape
+...</pre>
+    <br/>
+    <p>
+      In the short snip above, the <i>method</i> <b>assimilate</b> is 'overloaded' and this is possible
+      because each of the parameters is truly a different <b>type</b>. While this might not be that surprising
+      it is one of the limitations of Java with 'type erasure'. This is one of the reasons EK9 creates new types
+      when generic types are parameterized.
+    </p>
+    <p>
+      There is polymorphic compatibility between the <b>type</b> 'Shape', 'Circle' and 'Square'; but this
+      should not lead you to believe that when an 'Optional', 'List', 'Dict' or any other generic type is parameterised with any of
+      the above <b>types</b>, the resulting <b>types</b> will be compatible! <b>They won't</b>.
+    </p>
+    <h2>Constraining/Widening</h2>
+    <p>
+      The example below aims to show the benefits of <u>constraining</u> the parameterizing <b>type</b> that can be
+      used with a generic <b>type</b>. While the word 'constrain' appears to be a limiting feature; which it is some ways.
+      It actually enables more functionality in other ways.
+      <br/>
+      A reasonable analogy would be to consider an 'area'
+      made from a 'width' and a 'height'. To keep the same 'area' but increase the 'width' you must reduce the
+      'height'. By constraining the parameterizing <b>type</b> the 'width' is reduced, but to keep the same 'area',
+      the 'length' is increased (this means that now it is possible to use <i>methods</i> on the <b>type</b>).
+    </p>
+    <p>
+      Without constraining the parameterizing <b>type</b> 'T'; the generic <i>function</i> or <i>class</i> can
+      only make a certain number of assumptions about <b>type</b> 'T'. In EK9 those assumptions are the
+      provision of all the standard <a href="operators.html">operators</a>. This is another one of the reasons
+      EK9 defines so many specific operators.
+    </p>
+    <h4>Operators</h4>
+    <p>
+      The developer creating a generic <i>function</i> or <i>class</i> can assume that when their generic
+      code is used and parameterised with a specific <b>type</b>; that the <b>type</b> will provide all the
+      operators they have used in their generic code. <b>If this is not the case</b>; then the compiler will
+      fail to compile the code where the parameterization took place. The developer must now augment the
+      <b>type</b> they intend to parameterize the generic code with, to include those <i>operators</i>.
+      This was <u>one</u> of the reasons <i>operators</i> were included in EK9.
+    </p>
+    <pre>...
+  defines function
+    eventHandler of type T
+      -> shape as T
+      assert shape?
+      //any other 'operator' on T can be used
+...</pre>
+    <br/>
+    <p>
+      So any generic code is limited to <u>only</u> use the standard set of <i>operators</i>! That might
+      be a little too limiting; if you want to do anything beyond just 'collections' you need to call
+      <i>methods</i>. This is the main reason EK9 allows the <b>constraining</b> of parameterized <b>types</b>.
+    </p>
+    <h4>Methods</h4>
+    <p>
+      It may be that the generic code needs to call some <i>methods</i> on the conceptual <b>type</b> 'T'!
+      This can be done, but at a price! The price is that the generic code has to be constrained in some way
+      to only work with <b>types</b> that have those methods! So in some ways the code in now <u>less generic</u>
+      (i.e. it cannot be parameterised by 'any' <b>type</b>).
+      But the upside is that additional <i>methods</i> can be called and functionality can be delivered.
+    </p>
+    <p>
+      All this is effort/compromise is to retain compile time 'type safety'.
+    </p>
+    <pre>...
+  defines function
+    eventHandler of type T constrain by Shape
+      -> shape as T
+      assert shape?
+      assert shape.description() != ""
+      //any other 'method' on Shape can be used
+... </pre>
+    <p>
+      The second snip above limits the eventHandler; so that it can only be used with
+      'Shape' and its subclasses. So it is slightly less generic, but now specific <i>methods</i>
+      on 'Shape' can be called!
+    </p>
+    <h2>The Example</h2>
+    <p>
+      This same setup EK9 source code will be used for all the examples, it is shown here once for brevity.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+
+    //Generic function - now open so can be extended once parameterized.
+    eventHandler of type T constrain by Shape as open
+      -> shape as T
+      assert shape?
+      //Now it is possible access the 'description' method if needs be.
+      assert shape.description()?
+
+  defines class
+
+    Text
+      value as String?
+
+      default private Text()
+
+      Text() as pure
+        -> content as String
+        value: String(content)
+
+      value() as pure
+        <- rtn as String: String(value)
+
+    Shape as abstract
+      shapeInfo as String?
+
+      private Shape()
+        assert false
+
+      Shape() as pure
+        -> info as String
+        shapeInfo: String(info)
+
+      description() as pure
+        <- rtn as String: String(shapeInfo)
+
+      operator ? as pure
+        <- rtn as Boolean: shapeInfo?
+
+    Circle is Shape
+      Circle() as pure
+        super("Circle")
+
+      roundness() as pure
+        <- rtn as Float: 0.0
+
+    Square is Shape
+      Square() as pure
+        super("Square")
+... </pre>
+    <br/>
+    <p>
+      The code above defines a number of simple <i>classes</i> around 'Shape' and also
+      one called 'Text'; it is not part of that <i>class</i> hierarchy. The 'Text' <i>class</i>
+      is only used in the following part of the example to highlight the <u>constraint</u>
+      applied to <b>eventHandler</b>.
+    </p>
+    <p>
+      The <b>eventHandler</b> is a generic <i>function</i>; but in this case it has been <u>constrained</u>
+      to work with 'Shape'. Through the use of <i>traits</i> it is possible to constrain generic
+      <i>functions</i> and <i>classes</i> to work with a wide range of <b>types</b> as long as they conform to
+      a specific <i>trait</i>.
+    </p>
+    <h3>Example 1</h3>
+    <p>
+      The example code below uses the <i>functions</i> and <i>classes</i> defined above to show how a
+      <i>dynamic function</i> can be refined from generic <i>functions</i>. In this case the
+      generic <i>function</i> <b>eventHandler</b> is extended.
+    </p>
+    <p>
+      The <b>textHandler</b> below is commented out as an example of how the 'constrain' mechanism is
+      enforced by the compiler. The other 'handlers' <b>shapeHandler</b>, <b>circleHandler</b> and
+      <b>squareHandler</b> can all be defined without error (unlike the <b>textHandler</b>).
+    </p>
+    <p>
+      A <b>ShapeEventProcessor</b> <i>class</i> (which is defined a little later) is 'captured' as
+      a variable in the <i>dynamic functions</i>. This is to highlight the type safety and strong
+      typing with generics. It also highlights how it is possible to move from a generic type 'T' to
+      the actual <b>type</b> that has been used in parameterization.
+    </p>
+    <p>
+      The <b>shapeHandler</b> <i>dynamic function</i> is a function delegate; it results from the
+      parameterization of the generic <i>function</i> <b>eventHandler</b> and the <b>type</b> 'Shape'.
+      It is possible to redefine the function body as shown below; where the shape is passed through
+      to the eventProcessor (the captured variable), by using <i>method</i> 'processShapeEvent'.
+    </p>
+    <p>
+      If the functionality in the generic <i>function</i> is all that is needed; then it is not necessary to
+      provide a new function body. i.e. <b>shapeHandler &lt;- (eventProcessor) is eventHandler of Shape</b> would
+      have sufficed by itself.
+    </p>
+    <pre>...
+  defines program
+
+    ExampleDriver1()
+      stdout <- Stdout()
+      stdout.println("Driver for generic event handler")
+      eventProcessor <- ShapeEventProcessor()
+
+      //This is not allowed because eventHandler is constrained to Shape
+      //textHandler <- (eventProcessor) is eventHandler of Text
+
+      //Setup some event handlers and an example
+      //Process through 'Shape'
+      shapeHandler <- (eventProcessor) is eventHandler of Shape as function
+        eventProcessor.processShapeEvent(shape)
+
+      //Now type safe via generics and direct call to specific method
+      circleHandler <- (eventProcessor) is eventHandler of Circle as function
+        //Note strict typing means method 'roundness' is accessible.
+        Stdout().println("Roundness " + $shape.roundness())
+        eventProcessor.processCircleEvent(shape)
+
+      //While handler is specific to Square can still call via processShapeEvent
+      squareHandler <- (eventProcessor) is eventHandler of Square as function
+        eventProcessor.processShapeEvent(shape)
+
+      //make some calls on the event handlers
+      shapeHandler(Circle())
+      shapeHandler(Square())
+
+      circleHandler(Circle())
+      squareHandler(Square())
+
+      //Will not compile - which is correct!
+      //circleHandler(Square())
+      //squareHandler(Circle())
+...</pre>
+    <br/>
+    <p>
+      The <b>circleHandler</b> and <b>squareHandler</b> have been created to again demonstrate strong
+      <b>typing</b>. As shown above <b>shapeHandler</b> can be used with anything that is compatible with
+      'Shape'. When incompatible <b>types</b> are used with the other handlers, the compiler will issue errors.
+    </p>
+    <p>
+      The <b>ShapeEventProcessor</b> is now shown below.
+    </p>
+    <pre>...
+  defines class
+    //non-generic processor
+    ShapeEventProcessor
+      stdout as Stdout: Stdout()
+
+      processShapeEvent()
+        -> shape as Shape
+        assert shape?
+        stdout.println("Processed shape [" + shape.description() + "]")
+
+      processCircleEvent()
+        -> circle as Circle
+        assert circle?
+        stdout.println("Processed circle [" + circle.description() + " roundness " + $circle.roundness() + "]")
+... </pre>
+    <br/>
+    <p>
+      The <b>shapeHandler</b> can only call the <i>method</i> 'processShapeEvent' as it only has access to
+      the 'Shape' type. Whereas the <b>circleHandler</b> has access to the 'Circle' <b>type</b> and so can
+      access <i>methods</i> on the 'Circle' and call <i>method</i> 'processCircleEvent'.
+    </p>
+    <p>
+      The output of the ExampleDriver1 <i>program</i> is shown below:
+    </p>
+    <pre>
+Driver for generic event handler
+Processed shape [Circle]
+Processed shape [Square]
+Roundness 0.0
+Processed circle [Circle roundness 0.0]
+Processed shape [Square]</pre>
+    <br/>
+    <p>
+      The different event handlers have been defined to demonstrate type safety and flexibility.
+    </p>
+    <h3>Example 2</h3>
+    <p>
+      This second example is simpler in many ways and redefines <b>ShapeEventProcessor</b> to be
+      just generic.
+    </p>
+    <pre>...
+  defines program
+
+     ExampleDriver2()
+      stdout <- Stdout()
+      stdout.println("Driver for generic event handler and generic processor")
+
+      eventProcessor as GenericShapeEventProcessor of Shape: GenericShapeEventProcessor()
+
+      shapeHandler <- (eventProcessor) is eventHandler of Shape as function
+        eventProcessor.processShapeEvent(shape)
+
+      //make some calls on the event handler
+      shapeHandler(Circle())
+      shapeHandler(Square())
+
+  defines class
+
+    GenericShapeEventProcessor of type T constrain by Shape
+      stdout as Stdout: Stdout()
+
+      processShapeEvent()
+        -> shape as T
+        assert shape?
+        stdout.println("Processed shape [" + shape.description() + "]")
+... </pre>
+    <br/>
+    <p>
+      The output of ExampleDriver2 is shown below:
+    </p>
+    <pre>
+Driver for generic event handler and generic processor
+Processed shape [Circle]
+Processed shape [Square]</pre>
+    <br/>
+    <p>
+      Probably the most significant part of this example is the definition and use of the generic <i>class</i>
+      <b>GenericShapeEventProcessor</b>.
+    </p>
+    <p>
+      The line:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">eventProcessor</span>
+          <span class="k">as</span>
+          <span class="m">GenericShapeEventProcessor</span>
+          <span class="k">of</span>
+          <span class="m">Shape</span>
+          <span class="k">:</span>
+          <span class="m">GenericShapeEventProcessor()</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      <b>GenericShapeEventProcessor</b> parameterizes <b>GenericShapeEventProcessor</b> with <b>type</b> 'Shape' and declares a variable
+      of that resulting <b>type</b> and initialises it with a new instance.
+    </p>
+    <p>
+      As in the previous example this <b>eventProcessor</b> is captured by the <i>dynamic function</i>
+      <b>shapeHandler</b> and used in the function body.
+    </p>
+    <h3>Conclusion</h3>
+    <p>
+      Generics/Templates (Parametric polymorphism) provides a sophisticated mechanism to create the same
+      set of code instructions on a per <b>type</b> basis. They are ideal for 'collections' but also
+      for generic processing irrespective of <b>type</b>. Where <b>type</b> does become important;
+      they can be made 'less generic'.
+    </p>
+    <p>
+      Importantly they are 'type safe'; meaning that a 'List of Circle' can only contain Objects that
+      are compatible with the 'Circle' <b>type</b>.
+    </p>
+    <p>
+      Writing Generic/Templated code a quite a bit more complex than standard code. It takes quite a bt of time
+      and focus.
+    </p>
+    <h4>Next Steps</h4>
+    <p>
+      The next section on <a href="textProperties.html">Text Properties</a> is a little lighter.
+      It just enables the encapsulation of 'text' and String interpolation in a form
+      similar to 'property files', but with compiler support.
+    </p>
+  </article>
+</main>
+</body>
+</html>

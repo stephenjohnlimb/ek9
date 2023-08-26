@@ -3,20 +3,18 @@ defines module com.customer.sample
 
   defines function
 
-    //Generic function - now open so can be extended once paramterized.
+    //Generic function - now open so can be extended once parameterized.
     eventHandler of type T constrain by Shape as open
       -> shape as T
       assert shape?
-      //Not it is possible access the 'description' method
-      //If needs be.
+      //Now it is possible access the 'description' method if needs be.
       assert shape.description()?
 
   defines class
     Text
       value as String?
 
-      private Text()
-        assert false
+      default private Text()
 
       Text() as pure
         -> content as String
@@ -59,7 +57,7 @@ defines module com.customer.sample
       stdout.println("Driver for generic event handler")
       eventProcessor <- ShapeEventProcessor()
 
-      //This is not allowed because eventHandler is constrained to shapes
+      //This is not allowed because eventHandler is constrained to Shape
       //textHandler <- (eventProcessor) is eventHandler of Text
 
       //Setup some event handlers and an example
