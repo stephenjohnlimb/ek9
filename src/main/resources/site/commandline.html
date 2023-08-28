@@ -1,0 +1,413 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language command line</title>
+  <meta name="description" content="EK9 programming language command line
+    has a range of options beyond just compilation, including packaging, versions and publishing."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Command Line in EK9</h1>
+    </header>
+    <p>
+      This last section will discuss the <i>command line</i> <b>options</b> of the reference implementation of
+      the compiler.
+    </p>
+    <p>
+      From a command prompt; just type <b>ek9 someSource.ek9</b> for source to be compiled and executed.
+      If all you have is a single source file and want to execute it - that's it!<br/>
+    </p>
+    <p>
+      Actually the EK9 compiler can do quite a bit more than just compile source code. Read
+      the section on <a href="packaging.html">packaging</a> for when you have a few sources files or thousands.
+    </p>
+    <h3>Is it a build system then?</h3>
+    <p>
+      Not quite; is probably the right answer. If you are doing a pure EK9 development then it will get you
+      quite a long way. It is designed to be used by other build systems to fit into a larger build pipeline.
+      For simple small/medium development it will probably suffice.
+    </p>
+    <h3>Can it be used with other build systems</h3>
+    <p>
+      The EK9 compiler has been designed to be usable in modern build pipelines either from other software like
+    </p>
+    <ul>
+      <li><a target="_blank" title="GitHub Actions" href="https://github.com/features/actions">GitHub Actions</a>,</li>
+      <li><a target="_blank" title="AWS code pipeline" href="https://aws.amazon.com/codepipeline/">AWS</a>,</li>
+      <li><a target="_blank" title="Azure code pipeline" href="https://azure.microsoft.com/en-gb/services/devops/pipelines/">Azure</a>.</li>
+    </ul>
+
+    <p>
+      So it has a number of options that don't actually compile code, but facilitate versioning and packaging.
+    </p>
+    <p>
+      When used with the <b>'-ls'</b> flag it can also be used as a
+      <a target="_blank" title="LSP" href="https://microsoft.github.io/language-server-protocol/">language server</a> with code editors like
+      IntelliJ, Vim, Eclipse and VSCode. There is an extension for
+      <a target="_blank" title="EK9 for VSCode" href="https://github.com/stephenjohnlimb/vscode-ek9-ls">VSCode</a> that can use EK9 in this mode, it
+      also includes syntax highlighting and code snippets.
+    </p>
+    <h3>Why add all those options in?</h3>
+    <p>
+      Please read the <a href="introduction.html">introduction</a> for the logic of this. These are the basic
+      operations you need to be able to produce and manage modern software.
+      <br/>
+      Developing software now goes way beyond just compilation. The very nature of software delivery has undergone
+      enormous change. Building very large <i>monolithic</i> applications <u>must be avoided</u> if possible.
+    </p>
+    <p>
+      Packaging, version management and deployment provision are all critical aspects of creating modular
+      software now.
+      But also linking parts together as separate runnable modules with very specific and defined interfaces is
+      the way forward.
+    </p>
+    <h3>Command line application</h3>
+    <p>
+      The reference implementation of the compiler has a wide range of options for very specific purposes, these
+      are detailed below. To just run a <i>program</i> and have it automatically compiled see
+      <a href="programs.html#running_example2">running programs</a>.
+    </p>
+    <p>
+      By just running the <i>ek9</i> (with no source file) like this below you will see the following options.
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">$</span>
+          <span class="k">ek9</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li><span class="m">Usage: ek9 &lt;options&gt;</span></li>
+        <li><span class="m">where possible options include:</span></li>
+        <li><span class="m">&nbsp;&nbsp;...</span></li>
+        <li><span class="m">&nbsp;&nbsp;filename.ek9 - the main file to work with</span></li>
+        <li><span class="m">&nbsp;&nbsp;-r Program to run (if EK9 file as more than one)</span></li>
+      </ul>
+    </div>
+    <h3>Options</h3>
+    <p>
+      There are a number of options that are related and these are explained in relation to each other.
+    </p>
+    <h5>General</h5>
+    <p>
+      <b>-v</b> This just output lots of information relating to what the compiler is doing.
+    </p>
+    <p>
+      <b>-V</b> This just shows the version number of the compiler itself.
+    </p>
+    <p>
+      <b>-h</b> A general help message for all the options available.
+    </p>
+    <p>
+      <b>-e &lt;name&gt;=&lt;value&gt;</b> Define an environment variable,<br/>
+      for example <b>user=Steve</b>,<br/>
+      or <b>user=\'Steve Limb\'</b> if you must have spaces.
+    </p>
+    <p id="target_architecture">
+      <b>-T</b> target architecture - defaults to 'java' if not specified (but see <b>EK9_TARGET</b> below) -
+      actually Java the only architecture supported at present!
+    </p>
+    <p>
+      Also the environment variable <b>EK9_TARGET</b> can be used in place of <b>-T</b>. The <b>-T</b>
+      optional will override the environment variable <b>EK9_TARGET</b> if used. This environment variable
+      has been introduced so that it is not necessary to provide the command line parameter all the time.
+    </p>
+    <h4>Language Server</h4>
+    <p>
+      The compiler can be used just as a 'language server', in this mode it does not produce
+      an executable as an output; but it does complete the 'front end' phase of compilation and provides diagnostics.
+    </p>
+    <p>
+      There is an <a target="_blank" title="EK9 for VSCode" href="https://github.com/stephenjohnlimb/vscode-ek9-ls">EK9 VSCode Extension</a>
+      available as opensource, once development is complete this will be published.
+    </p>
+    <p>
+      <b>-ls</b> Use compiler as a 'Language Server' only with stdin/stdout as the protocol channel.
+    </p>
+    <p>
+      <b>-lsh</b> This flag will configure the EK9 language server so that it provides additional EK9 language hover help.
+      This includes hover help for 'operators' such as <b>':=</b> for example. So is very useful when first using EK9,
+      the hover help also includes hyperlinks to the appropriate sections on this site.
+    </p>
+    <h4>Compilation</h4>
+    <p>
+      There are a number of different options to control compilation, this gives quite fine-grained control
+      over full builds versus incremental builds. What constitutes the source files is described in
+      <a href="packaging.html#single_file">small applications</a>,
+      <a href="packaging.html#list_of_files">medium applications</a>,
+      <a href="packaging.html#all_files">large applications</a> and
+      <a href="packaging.html#libraries">use of libraries</a>.
+    </p>
+    <p>
+      <b>-c</b> Incremental compile; but don't run. Only source files that have changed get recompiled.
+    </p>
+    <p>
+      <b>-cg</b> As above; incremental compile but with debugging information.
+    </p>
+    <p>
+      <b>-cd</b> As above; incremental compile but with all <b>dev code</b> and debugging information.
+    </p>
+    <p>
+      <b>-Cl</b> Clean all, including dependencies.
+    </p>
+    <p>
+      <b>-C</b> Full recompile; but don't run. All source files are recompiled even if they have not changed.
+    </p>
+    <p>
+      <b>-Cg</b> As above; full recompile but with debugging information.
+    </p>
+    <p>
+      <b>-Cd</b> As above; full recompile but with all <b>dev code</b> and debugging information.
+    </p>
+    <h5>Dev Code</h5>
+    <p>
+      The idea of <b>dev code</b> is the concept of defining some source code that is not really part of your
+      program/application or library; but is <u>code used as an example or for testing</u>.
+      <br/>
+      It can be more than just unit test code, it could be a set of worked examples, templates, <u>how-tos</u>.
+    </p>
+    <p>
+      Basically it can be anything that another developer might find useful that is not part of the main functionality
+      your software provides. So by default a user of your library (if that's what you are creating) would not use any of the
+      code in your <b>/dev</b> directory in production use. But would really value real examples and tests that
+      you have provided to show how your library can and should be used.
+    </p>
+    <p>
+      So it's best to make these <b>/dev</b> code examples short, tight to the point and easy to <u>snip</u> to
+      enable the developer using your library to take that snip and rework it into their application.
+    </p>
+    <p>
+      So rather than the developer searching the internet for examples of how to use the library, include real
+      examples and tests to show and help that developer get going.
+    </p>
+    <p>
+      Integration/Unit tests, any <i>programs</i> that start with 'test' in the <b>/dev</b> directory or
+      subdirectories are considered integration/unit tests (see <b>-t</b> optional later).
+    </p>
+    <h4>Dependencies</h4>
+    <p>
+      <b>-Dp</b> Resolve all dependencies, this triggers <b>-Cl</b> clean all first. If you have altered the EK9 source
+      file that contains the <i>package</i> <b>construct</b> and altered the dependencies this will be
+      automatically run. As you can see it will trigger a <b>Clean</b> and that will mean a full recompilation
+      will also be required.
+    </p>
+    <p>
+      The resolved dependencies will be pulled down from <b>repo.ek9lang.org</b> validated and put in your
+      <b>$HOME/.ek9/lib</b> directory and unpacked. So if you wanted to look at the examples, snips or tests
+      the developer of that dependency provided then just look in your library! You can then lift some of those
+      examples or snips from the dependency <b>/dev</b> directory into your own code and try them out.
+    </p>
+    <h4>Packaging</h4>
+    <p>
+      The packaging of the software for some form of reuse does not mean the software has to be 'open source'
+      You can package your modules and re-use them all internally to your organisation, or even just on your own
+      PC!
+    </p>
+    <p>
+      <b>-P</b> Package ready for deployment to artefact server/library.<br/>
+      You decide if the software is fit to package. I'd suggest a range of <u>unit tests</u> in the <b>/dev</b>
+      area of your project.
+    </p>
+    <p>
+      <b>-I</b> Install packaged software to your local library ($HOME/.ek9/lib).
+    </p>
+    <p>
+      <b>-Gk</b> Generate signing keys for deploying packages to an artefact server -
+      only needed if publishing to a remote server.
+    </p>
+    <p>
+      <b>-D</b> Deploy packaged software to an artefact server, this triggers -P packaging first and
+      -Gk if necessary. Note you will need to have an account on the remote server and also have your
+      <i>$HOME/.ek9/config</i> and <i>$HOME/.ek9/credentials</i> setup for your package to be deployed.
+    </p>
+    <h4>Version Numbers</h4>
+    <p>
+      So that you can include <a href="packaging.html#version_numbering">versioning</a>
+      into your other processes, such as creating new branches in your
+      source code repository, triggering new builds of the software - EK9 has a number of commands to help
+      alter the version number for you. The <a href="packaging.html">package</a> <b>construct</b> is essential
+      for managing versioning of EK9 software.
+    </p>
+    <p>
+      <b>-IV</b> [major|minor|patch|build] - increment part of the release vector. EK9 will work out the next
+      value to be used. You just decide it is major, minor, patch or just the build number to increment.
+    </p>
+    <p>
+      <b>-SV</b> major.minor.patch - force setting to specific value i.e 6.8.1-0 (always zeros build on setting).
+      Useful when you want to create a new branch in your source code repository and need to ensure your code
+      uses the same numbering.
+    </p>
+    <p>
+      <b>-SF</b> major.minor.patch-feature - force setting to specific value for <b>features</b>
+      i.e 6.8.0-specials-0 (always zeros build on setting). As above but useful for feature branches.
+    </p>
+    <p>
+      <b>-PV</b> print out the current version i.e 6.8.1-0 or 6.8.0-specials-0 for a feature. Saves you having to
+      <b>grep</b> it out!
+    </p>
+    <h5 id="features">Features</h5>
+    <p>
+      While <b>features</b> are not a unique concept to EK9 and are used very widely with <b>git</b>
+      repositories - but they probably are worth a quick mention.
+    </p>
+    <p>
+      As outlined in <a href="packaging.html#version_numbering">versioning</a> any release of software must
+      have a unique version number. However, there are times when a large team need to work on the next release.
+      Now the tricky bit, different groups of developers will form to work on a <u>feature</u> together.
+      But there may be several <u>features</u> planned for this next release, and they all need to be worked
+      on concurrently but with some form of isolation from each other.
+    </p>
+    <p>
+      This is where a new set of feature branches are created, each group then work on their features in a sort
+      of semi isolated manner. All striving to get their features ready for the next main build. During this time
+      all the members of the team working on a <u>feature</u> work on the same code (git enables this).
+      But critically they also need to run full automated builds and tests of their group effort. In some cases
+      they may even need to deploy their <u>feature</u> and demonstrate it to end users, product owners or parts
+      of the testing team (or even marketing departments).
+    </p>
+    <p>
+      That software needs a version number so that any issues, new ideas, defects or alterations can be made.
+      Importantly it must include some name that the teams understand i.e. <b>the feature</b>. That is why
+      EK9 has a special locations in the version numbering for a <u>feature name</u>.
+    </p>
+    <p>
+      Some features never see the light of day, others are fit for purpose and get folded back into the main
+      development branch. Others need more work and don't quite make the 'cut' for the next major version to be
+      delivered; hence they have to go into another release scheduled later. Sometimes features are merged and
+      refined further by merging <b>git feature branches</b>. EK9 supports this by enabling the version number
+      to be manipulated in a controlled manner.
+    </p>
+    <h4>Finally the 'run' options</h4>
+    <p>
+      These are really the options you care about, running your software. By default, if no options are given then
+      <b>-r</b> (run) is assumed. But importantly if the source code has not been compiled yet; the EK9 compiler
+      will trigger a full build - including resolving dependencies. This means you can just write (or download)
+      some EK9 source and then 'run it'. First time though it will be checked and compiled, subsequently if
+      nothing has been altered it will just be 'run' without recompiling.
+    </p>
+    <p>
+      <b>-t</b> Runs all unit tests that have been found, this triggers -Cd full compile first. To define tests
+      store them in the <b>/dev</b> directory just by the main source file you reference. EK9 will find all the
+      code in the <b>/dev</b> directory and compile that as well as your main source. It will then find all
+      <i>programs</i> that start with 'test' (just in the /dev and subdirectories) and run them all.
+      For Java guys this is a bit like junit. The programs cannot have any command line parameters.
+    </p>
+    <p>
+      <b>-d port</b> Run in debug mode (requires debugging information to have been compiled in). The use of
+      <b>edb</b> the EK9 debugger will be covered once developed.
+    </p>
+    <p>
+      <b>-r</b> Run in normal mode (assumed if no other option provided).
+    </p>
+    <h3>Summary</h3>
+    <p>
+      There are quite a few options available with the EK9 <b>CLI</b> but in general if you just want to
+      write some source and run it - very few options are actually needed. On Linux/macOS platforms just change
+      the execute bit of your source file (<b>chmod u+x someSource.ek9</b>) and then just run it
+      (<b>./someSource.ek9</b>) as long as you installed the EK9 <b>CLI</b> correctly the code will get compiled
+      and run. On Windows you need to just type <b>ek9 someSource.ek9</b> for it to get compiled and executed.
+    </p>
+    <h3>Conclusion</h3>
+    <p>
+      Well if you got this far, <b>well done!</b> Because this is the last section.
+    </p>
+    <p>
+      What's been attempted with EK9 is to bridge the gap between pure software development with a compiled language
+      and the packaging, releasing and publishing of software. But doing it in a way that employs a fairly simple language
+      structure that easy to read/write, but is performant and has a range of sophisticated software engineering design
+      patterns built in.
+    </p>
+    <p>
+      This is ambitious, difficult (technically) and very hard in terms of building the necessary human ecosystem that is
+      essential to make a programming language successful.
+    </p>
+    <p>
+      The reason the EK9 language is so large is because it incorporates language structure, new constructs,
+      design patterns, API's, versioning, building, packaging and deployment. But hopefully you will find it
+      can provide value for you as a developer; in layers as you need them.
+    </p>
+    <p>
+      Only time will tell if <u>we</u> can succeed. But thank you for taking the time to read these documents.
+    </p>
+    <h4>Next Steps</h4>
+    <p>
+      Jump back to the main page and <a href="index.html#downloads">download</a> the compiler and some examples
+      and get started.
+    </p>
+  </article>
+</main>
+</body>
+</html>
