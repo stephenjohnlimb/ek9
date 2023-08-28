@@ -5,7 +5,7 @@
   <meta name="description" content="EK9 programming language command line
     has a range of options beyond just compilation, including packaging, versions and publishing."/>
   <link rel="stylesheet" media="all" href="style.css"/>
-  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <link rel="icon" type="image/png" href="ek9favicon.png"/>
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
   <script>
@@ -202,7 +202,7 @@
       This includes hover help for 'operators' such as <b>':=</b> for example. So is very useful when first using EK9,
       the hover help also includes hyperlinks to the appropriate sections on this site.
     </p>
-    <h4>Compilation</h4>
+    <h4 id="compilation">Compilation</h4>
     <p>
       There are a number of different options to control compilation, this gives quite fine-grained control
       over full builds versus incremental builds. What constitutes the source files is described in
@@ -257,7 +257,7 @@
       Integration/Unit tests, any <i>programs</i> that start with 'test' in the <b>/dev</b> directory or
       subdirectories are considered integration/unit tests (see <b>-t</b> optional later).
     </p>
-    <h4>Dependencies</h4>
+    <h4 id="dependencies">Dependencies</h4>
     <p>
       <b>-Dp</b> Resolve all dependencies, this triggers <b>-Cl</b> clean all first. If you have altered the EK9 source
       file that contains the <i>package</i> <b>construct</b> and altered the dependencies this will be
@@ -270,7 +270,7 @@
       the developer of that dependency provided then just look in your library! You can then lift some of those
       examples or snips from the dependency <b>/dev</b> directory into your own code and try them out.
     </p>
-    <h4>Packaging</h4>
+    <h4 id="publishing">Packaging</h4>
     <p>
       The packaging of the software for some form of reuse does not mean the software has to be 'open source'
       You can package your modules and re-use them all internally to your organisation, or even just on your own
