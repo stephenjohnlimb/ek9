@@ -464,7 +464,11 @@ defines module com.customer.services
       //A POST
       operator += :/
         -> request as HTTPRequest :=: REQUEST          
-        <- response as HTTPResponse: (request: request, nonCacheable: plainNonCacheableHTTPResponse()) with trait of HTTPResponse by nonCacheable
+        <- response as HTTPResponse: (
+            request: request,
+            nonCacheable: plainNonCacheableHTTPResponse()
+          ) with trait of HTTPResponse by nonCacheable
+
             repository as Repository!
             address as Address: Address()
             status as Integer: 201
@@ -493,7 +497,15 @@ defines module com.customer.services
       //A DELETE
       operator -= :/{id}
         -> id as String //Assume PATH
-        <- response as HTTPResponse: (addressId: AddressId(id), delegate: ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse(), false)) with trait of HTTPResponse by delegate
+        <- response as HTTPResponse: (
+            addressId: AddressId(id),
+            delegate: ByETagHTTPResponse(
+              addressId,
+              plainNonCacheableHTTPResponse(),
+              false
+            )
+          ) with trait of HTTPResponse by delegate
+
             repository as Repository!
 
             override content()
@@ -512,9 +524,9 @@ defines module com.customer.services
           incomingContent as String :=: CONTENT          
         <-
           response as HTTPResponse: (
-            addressId: AddressId(id),
-            incomingContent: incomingContent,
-            delegate: ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())
+              addressId: AddressId(id),
+              incomingContent: incomingContent,
+              delegate: ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())
             ) trait HTTPResponse by delegate
             repository as Repository!
 
@@ -561,7 +573,10 @@ defines module com.customer.services
       //So now, we can do a simpler one liner, define the name of the property and use an expression
       //to set it up, then use the 'by' on a trait to delegate as much or as little as we want to it.
       listAll() :/
-        <- response as HTTPResponse: (cacheable: cacheableHTTPResponse()) with trait of HTTPResponse by cacheable
+        <- response as HTTPResponse: (
+            cacheable: cacheableHTTPResponse()
+          ) with trait of HTTPResponse by cacheable
+
           repository as Repository!
           
           override etag()
