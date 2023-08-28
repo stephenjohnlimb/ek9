@@ -1,0 +1,560 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language packaging</title>
+  <meta name="description" content="EK9 programming language packaging
+    is built into the language to enable software built, packaging and publishing."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Packaging in EK9</h1>
+    </header>
+    <p>
+      This section will discuss the <i>package</i> <b>construct</b> in more detail.
+    </p>
+    <p>
+      The <i>package</i> construct is a flexible and gradual way to control what your programs will consist of.
+      It is a little like the <b>pom.xml</b> in <b>maven</b>, but with a more gradual approach to creating a
+      <u>project model</u>.
+      <br/>
+      It does not matter if you don't know what a <b>pom</b> is or the <b>npm</b> -
+      <b>package.json</b>. In short they are both mechanisms to help with packaging your software in some form or other,
+      and also pulling in other packages you may need..
+    </p>
+    <h3>The problem we are attempting to solve</h3>
+    <p>
+      If you've only ever done small scale development or very limited applications/system utilities you're
+      probably wondering what problem we are attempting to solve here with <i>packages</i>. In fact if you are
+      still only doing small scale local development just for yourself - you don't even need to use packages.
+    </p>
+    <h4>What makes up your whole program</h4>
+    <p>
+      The first issue <i>package</i> aims to solve, is the way to describe what source files should be
+      included for compilation. Clearly with EK9 it is possible to put all your source in one
+      file and just compile that.
+    </p>
+    <p>
+      If you've looked at the examples, you can see you can actually get quite a long way with that approach.
+      But in time you will probably want to break the code up in to several files. Hopefully you will use different
+      <i>module</i> <b>name spaces</b> to give the code more structure.
+      <br/>
+      This is a matter of taste, practice, experience, tooling - it's very easy to go from one extreme to another.
+    </p>
+    <h4>Which files to compile</h4>
+    <p>
+      So now we have our <u>first issue</u>, which files do we need to compile?
+    </p>
+    <p>
+      Depending on your approach to software development; you may start of with a 'grand plan' and fill in the
+      blanks (i.e. you see the big picture and do lots of structure up front).
+      <br/>
+      Alternatively you may just 'start coding' and see where it takes you! With the EK9 language you can take either approach.
+    </p>
+    <p>
+      Personally I prefer the latter, creating prototypes, pulling bits from here and there, refactoring, duplicating and then
+      resolving duplications. So I tend to take a very dynamic and fluid approach to development and like to
+      develop 'unit tests' to exercise the code written (sometimes before it is written).
+      The EK9 <i>package</i> has been developed in a staged manner to support this approach.
+    </p>
+    <p id="single_file">
+      By default the EK9 compiler will <b>just compile the single file</b> you gave it on the command like.
+      Normally this will have at least one program you want to run - but not always.
+    </p>
+    <p>
+      But if there are multiple files that are needed. This is where the <i>package</i> <b>construct</b> starts to be useful.
+      It enables the developer to 'list' the files they want to compile, as shown below.
+    </p>
+    <h5 id="list_of_files">Define the list of files to be compiled</h5>
+    <p>
+      Assumes the content below is stored in a file called <i>ConstantRef1.ek9</i>. This is a bit like a
+      'Makefile' used by other languages like 'C' and 'C++' for example.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines package
+
+    description <- "Example of different constants in different modules."
+
+    //We only want this file and these three to be compiled up.
+    includeFiles <- [
+      "ConstantRef2.ek9",
+      "ConstantRef3.ek9",
+      "ConstantRef4.ek9"
+      ]
+      ...
+//EOF</pre>
+    <br/>
+    <p>
+      Now for projects that require just a few source files this approach is quite suitable, it has enabled
+      the developer to take a simple application with one source file, refactor it (over a period of time).
+      Adding features and capabilities and then break those features and capabilities up and use a small number
+      of related source files. This approach might work for a handful of source files, but it soon becomes a
+      burden to remember to add in the new source code files you have created.
+    </p>
+    <p>
+      This approach is really aimed at small utility programs and tools that are really just a bit too big
+      for a single source file. Maybe there are some reusable elements needed by several little utilities and
+      some <b>constructs</b> need to be shared.
+    </p>
+    <h5 id="all_files">Just include all EK9 source files</h5>
+    <p>
+      Once your project gets to a certain size, you will probably have it all in a directory on the filesystem
+      that is dedicated just to that project. Smaller separate applications might have all been stored together
+      but were actually separate and shared very little. But now you've reached the point where you want a
+      dedicated directory for all the related source code. Moreover you want subdirectories for specific
+      code that are best stored near each other.
+    </p>
+    <p>
+      You now need to make a slight modification to your <i>package</i> construct. You will be relieved to know
+      that you can stop listing all the source files now in the <i>includeFiles</i> directive. Now you can just
+      write the following:
+    </p>
+    <pre>#!ek9
+defines module introduction
+  defines package
+
+    description <- "Example of different constants in different modules."
+
+    //No need for includeFiles for source code anymore.
+    applyStandardIncludes <- true
+    ...
+//EOF</pre>
+    <br/>
+    <p>
+      This single directive above means that any and all files that have the <b>.ek9</b> file suffix
+      will now be included in the compilation build. This applies to the current directory where the source file
+      with the <i>package</i> directive is and all sub directories (though not quite true) it will exclude all
+      files in sub directories of <b>/dev</b> unless the type of compilation is a <b>development</b> build.
+      The different types of build will be discussed later.
+    </p>
+    <p>
+      You may ask, why not just do this as the default. The main reason is 'different use cases'.
+      Sometimes you just want to knock up a quick utility (maybe a single source file). Why mess about
+      with <i>package</i> when a simple <i>program</i> and a couple of <i>functions</i> are all that is
+      needed? See <a href="introduction.html#purpose">EK9 purpose</a> for more details on this reasoning,
+      EK9 is trying to make easy things 'easy' and hard things possible and 'fairly easy'.
+    </p>
+    <p>
+      This 'directory' based approach with <u>special</u> named subdirectories is more the like 'maven' or
+      'gradle' approach. At this point all your code only uses the standard libraries shipped with EK9 and as such
+      has no external 'dependencies'. Those 'dependencies' and 'libraries' are the subject of the next paragraph.
+    </p>
+    <h4 id="libraries">What about libraries</h4>
+    <p>
+      This is the <u>second issue</u> developers face; in general you won't want or need to write all the code for your
+      application yourself or even with your team. You will probably find someone else has written code
+      that you would find useful. That code will most probably have been made available by that developer
+      (or developers) in the <a target="_blank" title="Code Repository" href="https://repo.ek9lang.org">EK9 repository</a>.
+    </p>
+    <p>
+      Conversely, maybe you've developed a number of <b>constructs</b> and what to package those up as a
+      reusable library and make that available either within your own development group/company or to everyone
+      via opensource.
+    </p>
+    <p>
+      You must now update your <i>package</i> directive again to state what libraries (dependencies) you need
+      included in your project.
+    </p>
+    <p>
+      Now if the developers of those dependencies are the sort of developers that
+      really want you to use their packages - they will have probably provided lots of sample code in the
+      <b>/dev</b> directory. Take a look in your library <b>$HOME/.ek9/lib/{package-name}/dev</b>. There should be some
+      good examples of how the developer intended you to use the package they have provided.
+      <br/>
+      You'd expect quite a few tests and examples to be located in the <b>dev/</b> directory with lots of documentation in
+      the source code. These examples and snippets should really help you get started with how you use that library.
+    </p>
+    <h5>Defining dependencies</h5>
+    <pre>#!ek9
+defines module introduction
+
+  defines package
+
+    description <- "Example of different constants in different modules."
+
+    //No need for includeFiles for source code anymore.
+    applyStandardIncludes <- true
+
+    deps <- {
+      "ekopen.network.support.utils": "1.6.1-9",
+      "ekopen.net.handy.tools": "3.2.1-0"
+      }
+      ...
+//EOF</pre>
+    <br/>
+    <p>
+      In the above example we have declared that our project has two dependencies. Also note that
+      we have declared the specific version of the dependency. EK9 will also bring in any
+      <i>transitive dependencies</i>. EK9 is very strict on both dependency naming and
+      version numbering.
+      <br/>
+      There is more in the dependency naming and the version numbering in later paragraphs.
+    </p>
+    <h3>Dependencies and Libraries</h3>
+    <p>
+      If you want to use or publish packages of <b>constructs</b> then the issue of version numbering and
+      dependency naming has to be addressed.
+    </p>
+    <h4 id="dep_name_version">Dependency Naming and Version Numbers</h4>
+    <p>
+      There are two main spaces for deploying modules in the EK9 repository.
+    </p>
+    <h5>Wild West</h5>
+    <p>
+      The naming of public modules in the 'ekopen' space is a 'free for all', first come first served, no
+      corporates that can't mix it with freelance devs. No legal cases, no complaints, whoever gets there first
+      gets the name space. But they must have a depth of at least four parts
+      i.e <b>ekopen.network.support.utils</b>. The developer that issues the first package to
+      <b>ekopen.network.support</b> then controls all the final module names under that space. They can publish
+      and deploy as many modules under that space as they like and only they can do this.
+    </p>
+    <h5>Civilisation</h5>
+    <p>
+      This is the naming of public modules where there is a link to a controlled <b>DNS domain</b>.
+      This is controlled so that individuals or corporate entities can publish packages with their associated
+      name. For example only the entity that controls the <i>ek9lang.org</i> domain name can publish a package like
+      <b>org.ek9lang.core.functions</b>. The mechanism of domain validation is a standard one.
+      The developer wishing to publish to a controlled space like this has to create a suitable TXT DNS entry.
+      The EK9 repository will then check that and that developer will be able publish to that name space.
+    </p>
+
+    <h4>In Summary</h4>
+    <p>
+      If you are or represent a corporate entity stay in <i>Civilisation</i>, do not stray into the
+      <i>Wild West</i>. In <i>Civilisation</i> you will be able to retain control of your corporate brand naming
+      and main package names and module names. If you are a developer in the <i>Wild West</i> and like the
+      free for all - then don't complain about naming clashes - that's what it is like. If you don't like it;
+      register a DNS domain with some provider and use <i>Civilisation</i>.
+    </p>
+
+    <h4 id="version_numbering">Version Numbering</h4>
+    <p>
+      Version number are the <u>third issue</u> developers face; EK9 uses a form of strict <u>Semantic Versioning</u> as follows:
+    </p>
+    <ul>
+      <li><b>MAJOR.MINOR.PATCH-BUILD</b></li>
+      <li>For features <b>MAJOR.MINOR.PATCH-FEATURE-BUILD</b></li>
+    </ul>
+    <p>
+      There are no other
+      supported variations. See <a href="commandline.html#features">features</a> for more information on why
+      you might want a <u>feature name</u> in your version number.
+    </p>
+    <ul>
+      <li>Each time an attempt is made to build a version the build number is incremented</li>
+      <li>Each time a new patch is released for a MAJOR.MINOR version the patch number is incremented</li>
+      <li>Each time a new minor version is released for a MAJOR version the minor number is incremented</li>
+      <li>Each time a change is made to the public interface of the package the major number is incremented</li>
+    </ul>
+    <h5>The Public Interface</h5>
+    <p>
+      All constructs defined in the packaged module name <b>are</b> the public interface. So as an example:
+      Using <b>ekopen.net.handy.tools</b> in the example above, if <i>class</i> <b>CRC</b> and <i>function</i>
+      <b>reverse</b> were defined in <i>module</i> <b>ekopen.net.handy.tools</b>; then they would <b>be</b>
+      the <u>public interface</u>.
+      <br/>
+      If you wished to retain the same <b>major</b> version number - <u>it is not possible</u> to alter these
+      constructs or their parameters in any way. Moreover no other <b>non public interface</b> <i>constructs</i> can be
+      used as parameters into or out of that public interface. Any transitive dependencies that the
+      module pulled in must also be major version compatible.
+    </p>
+    <p>
+      This may appear overly strict or draconian, but it is necessary to ensure dependency consistency. A developer
+      needs to be assured that version <b>4.5.6-21</b> can be used in place of <b>4.4.1-9</b> and that not only
+      will the public code interface be the same but also the transitive dependencies will also remain major version
+      compatible.
+    </p>
+    <p>
+      So in summary:
+    </p>
+    <ul>
+      <li>The <b>build number</b> changes just when builds fail and you need to fix up a few minor things before
+        the next patch release can go out
+      </li>
+      <li>A new <b>patch number</b> when a bug has been found and fixed
+      </li>
+      <li>A new <b>minor release number</b> when you add capabilities but the public interfaces (and transitive dependencies) have remained
+        the same (i.e. better performance, alternative algorithm, newly implemented functionality that was stubbed
+        in previous release (even though public interface was there)
+      </li>
+      <li>
+        Finally, the <b>major version number</b> is incremented when there are alterations to public interface
+        or use of transitive dependencies are altered (from their current major release number)
+      </li>
+    </ul>
+    <p>
+    </p>
+    <h3 id="dep_exclusions">Dependency Exclusions</h3>
+    <p>
+      There will come a time when a <i>transitive dependency</i> (the <u>fourth issue</u> developers face) is pulled in
+      and it has known defects; you need to avoid that specific buggy version. You can use the directive below to be explicit about excluding a
+      dependency when it has been pulled in.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines package
+
+    description <- "Example of different constants in different modules."
+
+    //No need for includeFiles for source code anymore.
+    applyStandardIncludes <- true
+
+    deps <- {
+      "ekopen.network.support.utils": "1.6.1-9",
+      "ekopen.net.handy.tools": "3.2.1-0"
+      }
+
+    excludeDeps <- {
+      "ekopen.some.bad.dependency.pack": "ekopen.org.supertools.util"
+      }
+      ...
+//EOF</pre>
+    <br/>
+    <p>
+      As you can see above the directive is very simple, it is just a dictionary (map) of dependency names. The
+      above statement means: "exclude dependency 'ekopen.some.bad.dependency.pack' when it has been pulled in as
+      a transitive dependency from 'ekopen.org.supertools.util'". It does not have to be a direct transitive
+      dependency it could be a dependency of a dependency etc.
+    </p>
+
+    <h3 id="my_version">Version Numbers for the module and program you are developing</h3>
+    <p>
+      In general, if/when the software you are developing has become more than just a bit of tooling for yourself; and
+      other users are now using it you will probably want to give your software a <b>version number</b>.
+    </p>
+    <p>
+      This becomes critical for managing releases/defect/improvements - your customers or people that just use
+      your software will want to know <i>when's the next release</i>. Will version x.y.z have this feature or
+      that feature.
+      <br/>
+      The <b>version</b> directive is now added to the package declaration, but you should probably align this with
+      some sort of source code repository like <a target="_blank" title="GIT" href="https://git-scm.com">git</a> or something like that.
+    </p>
+    <p>
+      Now add in your <b>version</b> number, as shown below we've decided this version is <b>2.3.14-0</b>. Now each time
+      you build, patch, make minor improvements or major improvements you must alter the release number.
+      <br/>
+      But don't worry the EK9 compiler can be used to automate that - so there is no need to do it by hand.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines package
+
+    version <- 2.3.14-0
+
+    description <- "Example of different constants in different modules."
+
+    //No need for includeFiles for source code anymore.
+    applyStandardIncludes <- true
+
+    deps <- {
+      "ekopen.network.support.utils": "1.6.1-9",
+      "ekopen.net.handy.tools": "3.2.1-0"
+      }
+
+    excludeDeps <- {
+      "ekopen.some.bad.dependency.pack": "ekopen.org.supertools.util"
+      }
+      ...
+//EOF</pre>
+    <br/>
+    <p>
+      Now maybe you're thinking it's going to be a pain altering that version number all the time. EK9 has a mechanism
+      to deal with that for you. Once you've put a version number in the EK9 compiler can alter that for you as part
+      of a <u>build pipeline</u>.
+      <br/>
+      In general when you get to the point of supplying your software to others, you need
+      a reliable/repeatable and controlled build mechanism (rather than just building it on your local PC!).
+    </p>
+    <p>
+      By using something like
+      <a target="_blank" title="GitHub Actions" href="https://github.com/features/actions">GitHub Actions</a>,
+      <a target="_blank" title="AWS code pipeline" href="https://aws.amazon.com/codepipeline/">AWS</a>,
+      <a target="_blank" title="Azure code pipeline" href="https://azure.microsoft.com/en-gb/services/devops/pipelines/">Azure</a>
+      or <a target="_blank" title="Jenkins" href="https://www.eclipse.org/hudson/">Hudson/Jenkins</a> you can define phases of a build - and this
+      can include alterations to the version being built. See the <a href="commandline.html">command line</a> for
+      details on the command line options for updating the version number.
+    </p>
+
+    <h3 id="publishing">Publishing an open source module</h3>
+    <p>
+      You may feel that the code you've developed, either just a range of <i>functions</i>, <i>classes</i>
+      or other <b>constructs</b> could be useful to other people. You may already have a git repository with
+      the code on and may other developers have contributed to that. Now you want to make specific versions
+      available via the EK9 repository.
+    </p>
+    <p>
+      As mentioned earlier - decide <b>Wild West</b> or <b>Civilisation</b> and name your module accordingly.
+      But now we need to add a couple more directives (as well as naming the module to be unique).
+    </p>
+    <pre>#!ek9
+defines module ekopen.math.simple.constants
+
+  defines package
+
+    publicAccess <- true
+
+    version <- 2.3.14-0
+
+    description <- "Example of different constants in different modules."
+
+    tags <- [
+      "mathematics",
+      "constants",
+      ]
+
+    license <- "MIT"
+
+    applyStandardIncludes <- true
+
+    includeFiles <- [
+      "License.txt",
+      "Copyright.txt",
+      "Authors.txt"
+      ]
+
+    //certain files like .gitignore we don't want to package
+    applyStandardExcludes <- true
+
+    deps <- {
+      "ekopen.network.support.utils": "1.6.1-9",
+      "ekopen.net.handy.tools": "3.2.1-0"
+      }
+
+    excludeDeps<- {
+      "ekopen.some.bad.dependency.pack": "ekopen.org.supertools.util"
+      }
+      ...
+//EOF</pre>
+    <br/>
+    <p>
+      By adding in the <b>tags</b> the packaged module will be searchable (the <u>fifth issue developers face</u> - how to easily find useful stuff)
+      and by adding <b>publicAccess</b> it has been made public to the open source community.
+      We've also stated what license the software is. By using the directive <b>applyStandardExcludes</b> we can exclude
+      specific files. You will probably have noticed the the <b>includeFiles</b> has been reintroduced; this in conjunction with
+      <b>applyStandardIncludes</b> will ensure that all <b>ek9</b> source code in addition to those three files
+      all get packaged.
+    </p>
+    <p>
+      By changing the name of the module to <b>ekopen.math.simple.constants</b>
+      (assuming <b>ekopen.math.simple</b> is still available) the software <u>can</u> now be packaged and uploaded
+      to the EK9 repository. As the developer(s) that now own <b>ekopen.math.simple</b> you can publish any
+      number of packages to under that structure. No other developers can publish with that module naming.
+    </p>
+    <p>
+      It's the same process if you use and control a domain name, only your development team can publish to
+      that module name.
+    </p>
+    <p>
+      <b>Importantly</b> once a version of a module is published - that's it; it cannot be retracted/deleted or
+      altered (other than publishing a new version). Others may now have referenced it and if you could retract
+      the software you would break their builds.
+    </p>
+    <h4>How to publish</h4>
+    <ul>
+      <li>First, follow the steps above to get your code to the point where it <u>could</u> be published</li>
+      <li>Check with the EK9 repository to make sure that module name is available still</li>
+      <li>Signup for an account with the EK9 repository, save your credentials</li>
+      <li>Use the <i>ek9</i> <a href="commandline.html#publishing">command line</a> compiler tool to publish.</li>
+    </ul>
+    <p>
+      Publishing to a EK9 public repository is not instant - the content being published must be scanned for viruses
+      and also ensure it means the minimum standards (i.e. size, minimal/acceptable profanities). Note that when they
+      are published the EK9 server will also compile them to check they will actually compile.
+    </p>
+    <p>
+      There are a number of stages and steps the 'repository' will take to ensure that the code provided is safe and meets
+      and number of basic standards.
+    </p>
+
+    <h3>Summary</h3>
+    <p>
+      Hopefully you will have seen how you can easily progress from small programs in single EK9 source files,
+      through to medium, large and very large suites of software. These start of simply; but can have dependencies
+      added and can themselves be wrapped up and published. Each aspect of this just requires the progression of
+      augmenting the <i>package</i> <b>construct</b> with a little more detail as your applications/projects
+      grow for small simple programs through to large modules/applications.
+    </p>
+    <h3>Final Steps!</h3>
+    <p>
+      The final section is on the <a href="commandline.html#publishing">command line</a> compiler tool.
+    </p>
+  </article>
+</main>
+</body>
+</html>
