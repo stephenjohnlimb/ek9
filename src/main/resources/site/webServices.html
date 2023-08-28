@@ -1,0 +1,1149 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language web services</title>
+  <meta name="description" content="EK9 programming language web services
+    are built into the language to facilitate HTML/REST interactions."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="https://www.ek9lang.org/ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2023 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>Web Services in EK9</h1>
+    </header>
+    <p>
+      This is the <u>final section</u> on <b>constructs</b>, the sections after this are related to
+      <a href="packaging.html">packaging</a> and the <a href="commandline.html">compiler command line arguments</a>.
+      Web Services are deployed in conjunction with; and by <i>Applications</i> and <i>Programs</i> as shown in
+      the <a href="introduction.html#web_services">introduction</a> and <a href="structure.html#service">structure</a>
+      sections.
+    </p>
+    <p>
+      These web services can be used for just rendering static/dynamic websites, or they can be used for
+      microservices. The <b>HTTPServer</b> <i>class</i> is used in both cases as is the use of the
+      <i>service</i> <b>construct</b>.
+    </p>
+    <p>
+      In its simplest form; it is possible to serve just pure file content. By using <i>text</i> <b>constructs</b>
+      a simple templating solution (similar to
+      <a target="_blank" title="Velocity Templates" href="https://velocity.apache.org/engine/1.7/user-guide.html">velocity templates</a>)
+      can be implemented. Web services in EK9 are also aimed at providing full support for REST.
+      <br/>
+      But there is nothing to prevent developer creating full web UI tool kits.
+    </p>
+    <p>
+      The examples in this section show:
+    </p>
+    <ul>
+      <li>Simple static html content served from in memory content</li>
+      <li>A web server that just serves static file content</li>
+      <li>Finally a simple REST (RPC) <b>CRUD</b> microservice.</li>
+    </ul>
+    <p>
+      Clearly it is possible to move beyond <b>CRUD</b> implementations and use GraphQL, HATEOAS with HAL/ATOM
+      or a bespoke link content solution.
+    </p>
+    <p>
+      But as the focus of this documentation is just to show the mechanisms and APIs built into EK9
+      a simple <b>CRUD</b> application will suffice.
+      <br/>
+      This final example does deal with caching, etags and concurrency.
+      So while the first two examples are short; the last example is quite long. It highlights
+      different language mechanisms (composition and a blend of dynamic functions and classes)
+      that can be used in EK9.
+    </p>
+    <p>
+      There is also a section on interaction with the developed web service, which is also quite long. This
+      aims to highlight the general value of caching, pre-condition checks and general CRUD (RPC) type
+      web service interactions.
+    </p>
+    <h3>Immutable software versus mutable configuration</h3>
+    <p>
+      You might argue that serving 'in memory' static content from an application is not really
+      viable for anything in production; databases and various other 'stores' should be used to store
+      this configuration data in isolation.<br/>
+      Wide spread use of 'docker' and automated CI/CD development cycles; means the speed and control of
+      deploying fully tested and version controlled microservices is just as easy as it is to update
+      configuration.
+    </p>
+    <p>
+      For example this site is actually fully deployed in an automated way when the main repository is built and that
+      build is successful, as is the
+      <a target="_blank" title="EK9 Compiler Javadoc" href="https://repo.ek9lang.org/apidocs/index.html">Javadoc</a>.
+      <br/>
+      What this means is that deployment is full and complete (in terms of built artifacts) via a CI/CD pipeline. In this
+      case  <a target="_blank" title="Github actions" href="https://github.com/stephenjohnlimb/ek9/actions">GitHub</a>
+      actions are used.
+    </p>
+    <p>
+      If organisations have comprehensive CI/CD pipelines with automated tests, they can and do deploy services to live
+      multiple times per day. If this is the case then change is simple and quick to do a new deployment.
+    </p>
+    <p>
+      As the move towards 'immutable' infrastructure has progressed, applications have also become 'immutable'.
+      This now means that unchanging configuration data and fixed information can be bound into
+      an application.
+      <br/>
+      This one of the main reasons EK9 has the <i>text</i> <b>construct</b>. It is designed
+      to facilitate the notional separation of data from code; whilst still allowing it to be bound into a
+      version controlled release of an application. If you accept and value the use of 'caching'; then you
+      already have 'immutable' configuration data (at least for the period of a cache lifetime).
+    </p>
+    <p>
+      If you prefer the older approach of putting everything (including immutable data) into a database of some sort;
+      then you can continue to do that with EK9. But it could be argued that only truly mutable data should be stored that way.
+      Clearly the <b>CRUD</b> example shown later <u>should</u> store the data in some sort of
+      resilient data store and <b>not</b> use a simple in memory model. But the focus of these examples is
+      Web Services not resilient data storage.
+    </p>
+    <p>
+      It really comes down to the confidence in automated testing, the speed of builds and the rapidity and automation in
+      deploying new software. In general, it probably boils down to 'fear' and 'blame' if we're being honest. Some
+      see updates to configuration data as somehow less risky than deploying a new version of software.
+      <br/>
+      In some cases it may be <u>more risky</u> as there can be fewer controls in place.
+    </p>
+    <p>
+      As an aside, with technologies like 'cloud formation' and 'terraform', you could take the approach of
+      having all the following in a single source repository:
+    </p>
+    <ul>
+      <li>Your code for the application being deployed</li>
+      <li>The 'AWS' or 'Azure' or 'GCP etc. terraform code</li>
+      <li>All the 'Unit Tests'</li>
+      <li>All the 'Component Tests'</li>
+      <li>Any stubs, fakes, mocks or mock services</li>
+      <li>Any 'web service' contracts</li>
+      <li>One or more links to predefined configurations</li>
+    </ul>
+    <p>
+      This approach then enables full deployments to be automated. Clearly 'secrets', like keys,
+      passwords, certificates etc. have to be externalised and provisioned separately.
+      <br/>
+      But this does allow development teams to actually run the whole of the service under development,
+      and in a wide range of different scenarios.
+    </p>
+    <h3>Verbs and HTTP Headers</h3>
+    <p>
+      EK9 web services really focuses on caching support and operations like
+      <b>GET</b>, <b>POST</b>, <b>PUT</b>, <b>PATCH</b> and <b>DELETE</b>. EK9 enforces stale content checking and
+      promotes the use of <b>etag</b> in preference to <b>last modified</b> header use.
+    </p>
+    <p>
+      If any of these terms are unfamiliar to you, please read up or refresh your knowledge of
+      HTTP protocols and REST web services in general as this document assumes prior knowledge.
+    </p>
+    <h3>The Examples</h3>
+    <p>
+      The examples below only focus on the <i>service</i> <b>construct</b> the <i>application</i>
+      and <i>program</i> have been covered <a href="structure.html#service">elsewhere</a>.
+    </p>
+    <h4>Static HTML content </h4>
+    <p>
+      The following example shows the <i>text</i> <b>construct</b> being used to return some simple HTML content.
+      The important part here is the fact that the content is served from <b>site/index.html</b> via the
+      <b>GET</b> verb.
+    </p>
+    <p>
+      The other important areas to focus on are the setting of the <b>etag</b>, <b>status</b>, <b>content</b>,
+      <b>contentType</b> and finally but importantly the <b>cacheControl</b>.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines text for "en"
+
+    WebSite
+      index()
+        `&#60;html&#62;
+&#60;head&#62;
+    &#60;meta charset="UTF-8"/&#62;
+&#60;/head&#62;
+&#60;body&#62;
+  &#60;p>Hello&#62;, World&#60;/p&#62;
+&#60;/body&#62;
+&#60;/html&#62;`
+
+  defines service
+
+    Site :/site
+
+      index() as GET for :/index.html
+        <- response as HTTPResponse: () with trait HTTPResponse
+          //Normally you'd use a component and inject it (i.e. a singleton with web site within)
+          webSite <- WebSite("en")
+          etag as String: String()
+
+          override etag()
+            <- rtn as String: String()
+            etag :=? HMAC().SHA256(content())
+            rtn :=: etag
+
+          override cacheControl()
+            <- rtn as String: "public,max-age=3600,must-revalidate"
+          override contentType()
+            <- rtn as String: "text/html"
+          override contentLanguage()
+            <- rtn as String: "en"
+          override content()
+            <- rtn as String: webSite.index()
+          override status()
+            <- rtn as Integer: 200
+...
+</pre>
+    <br/>
+    <h5>What's being shown</h5>
+    <p>
+      Even when dealing with just a simple HTML page; it is really important to focus on HTTP technology
+      and techniques. There is a lot of
+      capability in the HTTP protocol. The EK9 <i>service</i> <b>construct</b> has been created with the
+      singular purpose of being <b>the place</b> to put all that code. It is shown 'long hand' above.
+    </p>
+    <p>
+      This means the <i>service</i> <b>construct</b> is the place to coordinate dealing with content negotiation,
+      'varies', 'mime types' and data formats.
+      But most importantly the <b>response</b> should always be a 'dynamic' class that has the trait
+      of <b>HTTPResponse</b>. This is really important as it is possible with EK9 to avoid doing any real
+      hard processing to get content if you use the <b>etag</b> or <b>lastModified</b> <i>methods</i> correctly.
+      If you also set the <b>cacheControl</b> then it is possible your code won't even get called
+      (once supplied the first time)!
+    </p>
+    <p>
+      The EK9 HTTP Server deals with the remote client (or hopefully the intermediate proxy you put in front
+      of the EK9 server). It calls on your response, and firstly it only gets the <b>etag</b>
+      or <b>lastModified</b>, then it checks if the calling system has passed any headers through.
+      If the headers are present then the EK9 HTTP server may respond with a 'not modified', if this is the
+      case then the call to <b>content()</b> is <u>never made</u>. This is the most expensive call as it will trigger
+      your business processing (which could access many Objects, Databases or other services).
+    </p>
+    <p>
+      In the example above, the code is trivial; it just gets content from a <i>text</i> Object in memory.
+      But by providing the additional <b>cacheControl</b> directives; a caching proxy like <b>squid</b> would
+      not even make any call at all to your service if the cached content was still in date. But better than that
+      even when it is out of date, the squid proxy would use the <b>etag</b> as part of a request header. The EK9
+      server will then just response with a 'not modified' if your code returns the same <b>etag</b> value.
+    </p>
+    <p>
+      Having a quick and 'cheap' way for getting a resources <b>etag</b> or <b>lastModified</b> value is
+      important.<br/>
+      It's hard to overstate how good the HTTP protocol is, it's also quite common to see it severely under
+      utilised.
+    </p>
+    <h4>Software development versus solution deployment</h4>
+    <p>
+      These next few paragraphs are an aside from EK9 and Web Services and are a more general observation
+      (which you may or may not find you agree with).
+    </p>
+    <p>
+      There was a time when a software developer would understand the full end to end processing of an application.
+      This would also include the physical hardware, the networking and even where the database (if used) was installed
+      on the disks (the speed of the disks). But as each area has come more specialised, software development
+      has become fragmented (front-end, back-end, DBA, DBD, network engineer, security specialist). Then drawing
+      all that together is your Enterprise Architect! These statements are not intended to be
+      offensive (and your experiences may be very different). But hopefully you can see this point being made.
+    </p>
+    <p>
+      In short; as a <u>pure</u> software developer (coder) you may not even know about caching proxies like <b>squid</b>.
+      When there is a performance problem with 'your' application; you decide it needs more hardware,
+      CPU's or the database needs more memory etc. Maybe it even needs re-designing! Maybe the DBD needs to take
+      a look at the database design and 'do some magic'.
+    </p>
+    <h5>The Experts</h5>
+    <p>
+      You'll probably find (if you work for an organisation - rather that just starting out developing software);
+      there are a number of 'Characters', there is some sort of 'pecking order' or companies have specific histories
+      with specific technologies or vendors. In short techie politics or just plain office politics.
+      What I'm saying is that most organisations are truly <u>dysfunctional</u>, have
+      <u>distorted</u> views, are technologically <u>out of balance</u> and are <u>mismanaged</u>.
+    </p>
+    <p>
+      But you still have to develop software in that environment (if you want to be paid) - but let's just be
+      honest that's what it is like.
+    </p>
+    <p>
+      Why is this being discussed here and now! It's because we've left the safe realm of just coding
+      (where we can argue about indentation and the merits of 'for loops'). We're
+      now in the realm of where that coded software fits in a wider solution. It is now starting to show
+      its characteristics for function/performance and reliability. It is no longer just visible to the
+      software developers that created it (with the appropriate indentation after much debate).
+    </p>
+    <p> If you are an expert with a hammer (all things look like nails) - lets pick on DBD's -
+      'your database needs <u>views</u> layering on it'!
+    </p>
+    <p>
+      Now lets pick on Unix/Linux/Windows Guru - 'you need OS version X with hyper something or other'.
+    </p>
+    <p>
+      Or maybe the Java/Spring master - 'Ah Spring boot will solve your problems'.
+    </p>
+    <p>
+      Lets not even start on Docker and Kubernetes guys, they'll build you a home crafted lumpy 'EJB' container.
+      (Maybe that's being a bit harsh).
+    </p>
+    <p>
+      Finally the front end guys - we need to reinvent the UI framework wheel again!
+    </p>
+    <p>
+      The point being made here; is that each one of those experts may or may not have point. What they offer
+      really may be of value (or it may not). Now the politics - it's very hard to get people to be objective
+      about the issues faced and accept their solution might not be applicable. Depending on the force of
+      character, the technological history or just poor management - you'll get certain solutions promoted/over
+      what might be the most appropriate one. Everyone wants to reinvent the wheel
+      (a bit rich from someone developing a new language; I know!).
+    </p>
+    <p>
+      See this
+      <a href="https://medium.com/@tiagao/what-nasa-and-richard-feynman-knew-about-product-leadership-57cfae62de1c">article</a>
+      about the schisms inside organisations.
+    </p>
+    <p>
+      But in general the most robust/reliable/cost-effective software is software that does not get written!
+    </p>
+    <p>
+      That's probably not what you want to hear; as the developer of a new language (EK9) it's not what I want
+      to say! But I have to be honest - even if it means not writing any new code in a new wonderful language (EK9).
+    </p>
+    <ul>
+      <li>Write the minimal amount of code</li>
+      <li>Avoid calling that code as much as possible</li>
+      <li>Go back to first principles when you have any sort of issue</li>
+      <li>Ask the un-askable questions.</li>
+      <li>Be honest (especially with your self)</li>
+    </ul>
+    <p>
+      Anyway back to something techie - let's forget all that politics stuff and bury our heads back in the
+      sand (interesting technology) - see be honest - that's what you and I both wanted at this point.
+    </p>
+    <h5>Networking/Caching</h5>
+    <p>
+      If you can get some sort of fast cache to supply the content your code provides that is cheaper;
+      supports a higher volume of concurrent calls and is reasonably current, then do just that.
+      There are times when you can't, but when you can; <b>do</b>.
+    </p>
+    <p>
+      If you focus on caching and can accept there is always some time when the user is looking at stale
+      information then you can take the load of your application with something like <b>nginx</b> or
+      <b>squid</b> for example. Take care with your responses and 'varies'. However, if and when you really depend
+      on caching to save load there are some downsides.
+    </p>
+    <p>
+      If your systems are restarted for some reason and your caches are 'cold', all requests will be directed to
+      your origin server (i.e. your code). So suddenly your code and the machines running it gets the full force
+      of what that cache has been saving you from. BANG! most likely the machine will fall over.
+    </p>
+    <p>
+      So when you are at the extremes of loading and are using caching to really help, when you restart systems you
+      must have operational procedures that ensure that the initial load is throttled in some way. This then enables
+      all your caches to warm up. The alternative is to keep your system offline to the full load that is going to be
+      applied; simulate calls through via your own scripts, this then warms all the caches.
+    </p>
+    <p>
+      The main point I'm attempting to make here is that 'devops' does actually mean something. If you are developing
+      code and are also operating that code, you need to move out of your comfort zone and embrace 'operations',
+      'infrastructure', 'networking' and appliances (like caching software).
+    </p>
+    <p>
+      The paragraphs above are why the web service examples and the <b>HTTPResponse</b> look quite verbose.
+      This is by design, EK9 does not try and hide the HTTP protocol away, it draws it right out, so you can master
+      it and provide sophisticated and performant solutions. The examples could have been written more like little
+      'Hello, World' examples. Then I could claim; I can do a web service in EK9 is 10 lines of code. But this rather
+      misses the point of the examples, and why and how web services add quite a lot of functionality, but also
+      complexity. Just look at the number of variation of HTTP headers and response codes and the different 'verbs'.
+    </p>
+    <h4>A mini Web Server</h4>
+    <p>
+      The following example shows a really cut down web server, this application just serves text file content.
+    </p>
+    <pre>#!ek9
+defines module introduction
+  defines service
+    WebServer :/website
+
+      documentRoot()
+        &lt;- rtn as FileSystemPath: FileSystemPath(EnvVars().get("DOCUMENT_ROOT"))
+        if not rtn?
+          throw Exception("Invalid Document Root")
+
+      file() as GET for :/{fileName}
+        -&gt; fileName as String
+        &lt;- response as HTTPResponse
+
+        webServer &lt;- this
+        response: (webServer, fileName) with trait of HTTPResponse
+          lastModified as DateTime: DateTime()
+
+          private lastModifiedOfTextFile()
+            &lt;- rtn as DateTime: DateTime()
+            file &lt;- textFile()
+            if not file.isReadable()
+              Stdout().println(`${file} is not readable`)
+            if not file.isFile()
+              Stdout().println(`${file} is not a file`)
+            rtn :=: file.lastModified()
+
+          private textFile()
+            &lt;- rtn as TextFile: TextFile(webServer.documentRoot() + FileSystemPath(fileName))
+
+          override lastModified()
+            &lt;- rtn as DateTime: DateTime()
+            lastModified :=? lastModifiedOfTextFile()
+            rtn :=: lastModified
+
+          override cacheControl()
+            &lt;- rtn as String: "public,max-age=3600,must-revalidate"
+          override contentType()
+            &lt;- rtn as String: "text/html"
+          override contentLanguage()
+            &lt;- rtn as String: "en"
+          override status()
+            &lt;- rtn as Integer: lastModified? &lt;- 200:404
+
+          override content()
+            &lt;- rtn as String: String()
+            if lastModified?
+              cat textFile() > rtn
+...
+</pre>
+    <p>
+      There are a some points of interest in this example.
+    </p>
+    <ul>
+      <li>The location where files are served from is set from an environment variable (DOCUMENT_ROOT)</li>
+      <li>The service <b>WebServer</b> serves from 'website/'</li>
+      <li>The service accepts a 'placeholder' path variable on an end point called 'file'</li>
+      <li>The anonymous dynamic class captures the WebServer instance and the fileName</li>
+      <li>This service uses <b>lastModified</b> rather than <b>etag</b> for caching support</li>
+      <li>The caching directive <b>public,max-age=3600,must-revalidate</b> really helps offload high volume calls</li>
+      <li>The anonymous dynamic class has a number of utility methods: <b>lastModifiedOfTextFile()/textFile()</b></li>
+      <li>The standard EK9 file handling is used to locate the file</li>
+      <li>A stream pipeline is used to read the contents of the file into a String to be returned</li>
+      <li>HTTP status of 200 or 404 is given based on whether <b>lastModified</b> is <b>set</b> or not</li>
+    </ul>
+    <p>
+      You may be wondering why do all this processing inside a dynamic class that has a trait of HTTPResponse.
+      There are a couple of reasons for this:
+    </p>
+    <ul>
+      <li>As mentioned before: delayed processing</li>
+      <li>Thread safety: there will be multiple client calls coming into the <b>file()</b> method in the 'WebServer' instance</li>
+      <li>State can be held in each response (<b>lastModified/fileName</b> for example).</li>
+      <li>As you will see in later examples; it is possible to use composition for common aspects of the response.</li>
+    </ul>
+    <h4 id="address_web_service_example">A <b>CRUD</b> type Server</h4>
+    <p>
+      This next example is much longer, it is based around a repository for postal Addresses. The definition of
+      the <b>Address</b> <i>record</i> and its marshalling to and from JSON is also included
+      (currently EK9 does not have native support built-in for JSON).
+    </p>
+    <p>
+      Etags and HTTP verbs: POST (C), GET (R), PUT (U), DELETE (D) and PATCH (merge) are covered. But attention is
+      also paid to concurrency issues through the use of a mutex lock. This has been done through an example that shows
+      how to take an unsafe (in terms of concurrency) collection and make it safe for multiple threads to access.
+    </p>
+    <p>
+      The approach of this code example has been to show a blend of functional and Object-Oriented approaches with
+      a focus on <b>composition</b>. The <b>composition</b> approach has been extensively using in creating the
+      <b>HTTPResponse</b>.
+    </p>
+    <p>
+      Some web service 'methods' have been left as 'long hand' so that it is more directly obvious what the processing is.
+      But where the processing is so similar additional <i>classes</i> and <i>functions</i> have been composed in different
+      ways to deliver the functionality.
+    </p>
+    <p>
+      The HTTP response codes '404' etc. have not been hidden, nor have they been abstracted to constants. They have been
+      left as is. So '404' could have been abstracted to a constant of NOT_FOUND (but this adds little other
+      than code length for this example).
+    </p>
+    <h5>The internal model</h5>
+    <p>
+      The first part (and bulk) of the code just sets up the data structures and <b>constructs</b> needed for the example.
+      The second part will focus on just the web services aspects.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines type
+    //Just for strong typing - no constraints
+    AddressId is String
+
+  defines record
+    Address
+      id as AddressId: AddressId()
+      street as String: String()
+      street2 as String: String()
+      city as String: String()
+      state as String: String()
+      zipcode as String: String()
+
+      Address()
+        -&gt; from as Address
+        this :=: from
+
+      Address()
+        -&gt; from as Optional of Address
+        if from?
+          this :=: from.get()          
+      
+      //Copy
+      operator :=:
+        -&gt; from as Address
+        id :=: from.id
+        street :=: from.street
+        street2 :=: from.street2
+        city :=: from.city
+        state :=: from.state
+        zipcode :=: from.zipcode
+
+      //Merge only if incoming address parts are set
+      operator :~:
+        -&gt; address as Address        
+        if address.street?
+          street :=: address.street
+        if address.street2?
+          street2 :=: address.street2
+        if address.city?
+          city :=: address.city
+        if address.state?
+          state :=: address.state  
+        if address.zipcode?        
+          zipcode :=: address.zipcode
+        
+      operator ?
+        //street2 is optional and can be omitted
+        &lt;- rtn as Boolean: id? and street? and city? and state? and zipcode?                
+
+  defines text for "en"
+    AddressToOutputFormat
+      
+      toJSON()
+        -&gt; address as Address
+        `{
+"address":
+    {
+    "id": "${address.id}",
+    "street": "${address.street}",
+    ${optionalJSON("street2", address.street2)}
+    "city": "${address.city}",
+    "state": "${address.state}",
+    "zipcode": "${address.zipcode}"
+    }
+}`
+  
+  defines function
+
+    //Used for specific operations to be applied to a set of addresses
+    addressOperation() as abstract
+      -&gt;
+        addresses as AddressAccess
+        address as Address          
+
+    //deals with wrapping the operation in the calls to deal with mutex lock.
+    safeOperation()
+      -&gt;
+        lockedAddressSet as MutexLock of AddressSet
+        address as Address
+        operation as addressOperation
+
+      accessKey &lt;- (address, lockedAddressSet, operation) of MutexKey
+        override access()
+          operation(lockedAddressSet.get(), address)
+      lockedAddressSet.enter(accessKey)
+                      
+    addressFromJson()
+      -&gt; addressInJSONFormat as String
+      &lt;- rtn as Address: Address()
+
+      addressParts &lt;- addressDictionaryFromJSON(addressInJSONFormat)
+      rtn.id: AddressId(addressParts.get("id"))
+      rtn.street: String(addressParts.get("street"))
+      rtn.street2: String(addressParts.get("street2"))
+      rtn.city: String(addressParts.get("city"))
+      rtn.state: String(addressParts.get("state"))
+      rtn.zipcode: String(addressParts.get("zipcode"))
+
+    &lt;?-
+      Until we have a more general JSON parser
+      a bespoke parser is needed for this demonstration
+    -?&gt;
+    addressDictionaryFromJSON()
+      -&gt; json as String
+      &lt;- rtn as Dict of (String, String): Dict()
+      stdout &lt;- Stdout()
+      //Just pull out the address bits from within {}'s using a regex
+      extractAddressPartsEx &lt;- /\{\s+"address":\s+\{\s+([^}]*?)\s+\}\s+\}/
+      //Now break into lines based on commas
+      addressItems &lt;- json.group(extractAddressPartsEx).first().split(/,/)
+      //Map to a dictionary and return.
+      rtn: cat addressItems | map with toDictEntry | collect as Dict of (String, String)      
+
+    toDictEntry()
+      -&gt; line as String
+      &lt;- rtn as DictEntry of (String, String): DictEntry()
+      keyValues &lt;- line.trim().split(/:/)
+      rtn: DictEntry(keyValues.first().trim().trim('"'), keyValues.last().trim().trim('"'))
+
+    copyAddress()
+      -&gt; from as Address
+      &lt;- to as Address: Address(from)
+    
+    commaSeparated()
+      -&gt;
+        firstPart String
+        secondPart String
+      &lt;-
+        rtn as String: firstPart? and secondPart? &lt;- firstPart + "," + secondPart : String()
+
+    addressToJSON()
+      -&gt; address as Address
+      &lt;- addressAsString as String: AddressToOutputFormat("en").toJSON(address)
+
+    addressListToJSON()
+      -&gt; addresses as List of Address
+      &lt;- listAsString as String
+
+      body &lt;- cat addresses | map with addressToJSON | join with commaSeparated | collect as String
+      listAsString := `[ ${body} ]`
+
+    optionalJSON()
+      -&gt;
+        name as String
+        value as String
+      &lt;-
+        rtn as String: value? &lt;- `"${name}": "${value}",` else String()
+
+  defines trait
+    AddressAccess
+      operator +=
+        -&gt; address as Address
+        &lt;- rtn as AddressAccess
+        
+      operator -=
+        -&gt; address as Address
+        &lt;- rtn as AddressAccess
+
+      //merge with an existing address
+      operator :~:
+        -&gt; address as Address
+        &lt;- rtn as AddressAccess
+
+      //replace an existing address
+      operator :^:
+        -&gt; address as Address
+        &lt;- rtn as AddressAccess
+        
+      operator contains
+        -&gt; addressId as AddressId
+        &lt;- rtn as Boolean
+          
+      hash()
+        &lt;- rtn as String
+        
+      hashOfAddress()
+        -&gt; id as AddressId
+        &lt;- rtn as String
+                
+      byId()
+        -&gt; id as AddressId
+        &lt;- rtn as Address
+        
+      listAll()
+        &lt;- rtn as List of Address
+                                       
+  defines class
+    AddressSet with trait of AddressAccess
+      hash as String: HMAC().SHA256(GUID())
+      addresses as Dict of (AddressId, Address): Dict()
+      hashes as Dict of (AddressId, String): Dict()
+
+      override operator +=
+        -&gt; address as Address
+        &lt;- rtn as AddressAccess: this
+        assert address?
+        
+        if this not contains address
+          includeAddress(address)
+      
+      override operator -=
+        -&gt; address as Address
+        &lt;- rtn as AddressAccess: this
+        assert address.id?
+        
+        addresses -= address.id
+        hashes -= address.id
+        updateHash()      
+
+      override operator :~:
+        -&gt; address as Address
+        &lt;- rtn as AddressAccess: this
+        assert address.id?
+        //We don't assert whole address because it can be partial
+
+        currentAddress &lt;- addresses.get(address.id)
+        if currentAddress?
+          //make a new copy and then merge the two.
+          updatedAddress &lt;- Address(currentAddress)
+          updatedAddress :~: address
+          includeAddress(updatedAddress)
+
+      override operator :^:
+        -&gt; address as Address
+        &lt;- rtn as AddressAccess: this
+        assert address?
+                        
+        if this contains address
+          includeAddress(address)
+      
+      operator contains
+        -&gt; address as Address
+        &lt;- rtn as Boolean: this contains address.id      
+    
+      override operator contains
+        -&gt; addressId as AddressId
+        &lt;- rtn as Boolean: addresses contains addressId      
+      
+      override hash()
+        &lt;- rtn as String: this.hash
+
+      override hashOfAddress()
+        -&gt; id as AddressId
+        &lt;- rtn as String: String(hashes.get(id))
+
+      override byId()
+        -&gt; id as AddressId
+        &lt;- rtn as Address: Address(addresses.get(id))
+      
+      override listAll()
+        &lt;- rtn as List of Address: List()
+
+        iter &lt;- addresses.values()
+        cat iter | map with copyAddress &gt; rtn
+
+      private includeAddress()
+        -&gt; address as Address
+                
+        copy &lt;- Address(address)
+        addresses += DictEntry(copy.id, copy)
+        hashes += DictEntry(copy.id, HMAC().SHA256(addressToJSON(copy)))
+        updateHash()
+
+      private updateHash()
+        hash :=: HMAC().SHA256(GUID())
+
+    //Example of wrapping shared data set in a mutex lock.
+    LockableAddressSet with trait of AddressAccess
+      lockedAddressSet as MutexLock of AddressSet: MutexLock(AddressSet()) 
+      
+      override operator +=
+        -&gt; address as Address
+        &lt;- rtn as AddressAccess: this
+        
+        //You can inline this simple dynamic function if you wish
+        //Also used named parameters
+        safeOperation(
+          lockedAddressSet: lockedAddressSet,
+          address: address,
+          operation: () is addressOperation (addresses += address)
+          )
+                  
+      override operator -=
+        -&gt; address as Address
+        &lt;- rtn as AddressAccess: this
+
+        //Or you can inline all on one line.
+        safeOperation(lockedAddressSet, address, () is addressOperation (addresses -= address))
+
+      override operator :~:
+        -&gt; address as Address
+        &lt;- rtn as AddressAccess: this
+
+        //Or define a dynamic function and pass in as delegate (my preferred way)
+        operation &lt;- () is addressOperation
+          addresses :~: address
+        safeOperation(lockedAddressSet, address, operation)        
+
+      override operator :^:
+        -&gt; address as Address
+        &lt;- rtn as AddressAccess: this
+        operation &lt;- () is addressOperation
+          addresses :^: address
+        safeOperation(lockedAddressSet, address, operation)
+
+      override operator contains
+        -&gt; addressId as AddressId
+        &lt;- rtn as Boolean: false
+        accessKey &lt;- (addressId, lockedAddressSet, rtn) of MutexKey
+          override access()
+            rtn :=: lockedAddressSet.get() contains addressId          
+        lockedAddressSet.enter(accessKey)
+        
+      override hash()
+        &lt;- rtn as String: String()
+        accessKey &lt;- (rtn, lockedAddressSet) of MutexKey
+          override access()
+            rtn :=: lockedAddressSet.get().hash()            
+        lockedAddressSet.enter(accessKey)
+
+      override hashOfAddress()
+        -&gt; id as AddressId
+        &lt;- rtn as String: String()
+        accessKey &lt;- (id, rtn, lockedAddressSet) of MutexKey
+          override access()
+            rtn :=: lockedAddressSet.get().hashOfAddress(id)
+        lockedAddressSet.enter(accessKey)
+
+      override byId()
+        -&gt; id as AddressId
+        &lt;- rtn as Address: Address()
+        accessKey &lt;- (id, rtn, lockedAddressSet) of MutexKey
+          override access()
+            rtn :=: lockedAddressSet.get().byId(id)
+        lockedAddressSet.enter(accessKey)
+
+      override listAll()
+        &lt;- rtn as List of Address: List()
+        accessKey &lt;- (rtn, lockedAddressSet) of MutexKey
+          override access()
+            rtn += lockedAddressSet.get().listAll()
+        lockedAddressSet.enter(accessKey)
+
+  defines function
+    plainNonCacheableHTTPResponse()
+      &lt;- rtn as HTTPResponse
+      rtn: () of HTTPResponse
+        override cacheControl()
+          &lt;- rtn as String: "no-store,max-age=0"
+        override contentType()
+          &lt;- rtn as String: "text/plain"
+        override contentLanguage()
+          &lt;- rtn as String: "en"
+
+    cacheableHTTPResponse()
+      &lt;- rtn as HTTPResponse
+      rtn: () of HTTPResponse
+        override cacheControl()
+          &lt;- rtn as String: "public,max-age=5,must-revalidate"
+        override contentType()
+          &lt;- rtn as String: "application/json"
+        override contentLanguage()
+          &lt;- rtn as String: "en"
+
+  defines class
+
+    ByETagHTTPResponse with trait of HTTPResponse by delegate
+      repository as Repository!
+
+      delegate as HTTPResponse?
+      addressId as AddressId?
+      provideContentLocation as Boolean?
+
+      status as Integer: 200
+      etagOfAddress as String: String()
+      
+      private ByETagHTTPResponse()
+        assert false
+        
+      ByETagHTTPResponse()
+        -&gt;
+          addressId as AddressId
+          delegate as HTTPResponse
+          provideContentLocation as Boolean
+        assert addressId? and delegate? and provideContentLocation?
+
+        this.addressId: addressId
+        this.provideContentLocation: provideContentLocation
+        this.delegate: delegate
+
+      ByETagHTTPResponse()
+        -&gt;
+          addressId as AddressId
+          delegate as HTTPResponse
+        this(addressId, delegate, true)
+        
+      override etag()
+        &lt;- rtn as String: String()
+        //Only call if un-set.
+        etagOfAddress :=? repository.addresses().hashOfAddress(addressId)            
+        rtn :=: etagOfAddress
+        if ~etagOfAddress?
+          status: 404
+
+      override status()
+        -&gt; newStatus as Integer
+        status :=: newStatus
+      override status()
+        &lt;- rtn as Integer: status
+      override contentLocation()
+        &lt;- rtn as String: status &lt; 400 and provideContentLocation &lt;- `/addresses/${addressId}` else String()
+    
+...</pre>
+    <p>
+      The code above shows a mix of EK9 <b>constructs</b>, these are used to hold a set of Addresses ()<b>record</b>) in memory, but
+      limit access via a mutex lock. The use of <i>dynamic functions</i> as delegates has been employed for this.
+    <p>
+    <p>
+      By extracting <i>AddressAccess</i> out to a <i>trait</i> <b>construct</b> two implementations can be defined. The first is
+      the actual address storage and the second is just a simple thread safe wrapper.
+    </p>
+    <p>
+      The next and final part covers the service definition. This shows the use of the caching <i>HTTPResponse</i> implementations.
+    </p>
+    <pre>...
+  &lt;?-
+    REST web service.    
+  -?&gt;
+  defines service
+    //The Name of the and the uri it is mapped to
+    Addresses :/addresses
+
+      byId() as GET for :/{address-id}
+        -&gt; addressId as AddressId :=: PATH "address-id" //required because different name
+        &lt;- response as HTTPResponse
+
+        delegate &lt;- ByETagHTTPResponse(addressId, cacheableHTTPResponse(), false)
+        response: (addressId, delegate) of HTTPResponse by delegate
+          repository as Repository!
+
+          override content()
+            &lt;- rtn as String: String()
+            if delegate.status() &lt;&gt; 404
+              rtn: addressToJSON(repository.addresses().byId(addressId))
+              status(200)
+
+      //A POST
+      operator += :/
+        -&gt; request as HTTPRequest :=: REQUEST          
+        &lt;- response as HTTPResponse
+        
+        nonCacheable &lt;- plainNonCacheableHTTPResponse()
+        
+        response: (request, nonCacheable) of HTTPResponse by nonCacheable
+          repository as Repository!
+          address as Address: Address()
+          status as Integer: 201
+
+          override content()
+            &lt;- rtn as String: String()            
+            address: addressFromJson(request.content())
+            //But the server sets the ID!
+            if address.id?
+              status := 422 //unprocessable entity
+              rtn: "Do not supply ID in Address, server will set this"
+            else
+              address.id: AddressId(GUID())
+              if ~address?
+                status := 422 //unprocessable entity
+              else if repository.addresses() contains address.id
+                status := 409 //conflict
+              else            
+                repository.addresses() += address
+          
+          override contentLocation()
+            &lt;- rtn as String: status == 201 &lt;- `/addresses/${address.id}` else String()
+          override status()
+            &lt;- rtn as Integer: status  
+            
+      //A DELETE
+      operator -= :/{addressId}
+        -&gt; addressId as AddressId //Assume PATH
+        &lt;- response as HTTPResponse
+                
+        delegate &lt;- ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse(), false)
+        response: (addressId, delegate) of HTTPResponse by delegate
+          repository as Repository!
+                    
+          override content()
+            &lt;- rtn as String: String()
+            //Only if the etag was found can we delete it!
+            if delegate.status() &lt;&gt; 404
+              repository.addresses() -= repository.addresses().byId(addressId)
+              status(204)
+
+      //A PATCH which is a merge
+      operator :~: :/{addressId}
+        -&gt;
+          addressId as AddressId //Assume PATH
+          incomingContent as String :=: CONTENT          
+        &lt;-
+          response as HTTPResponse
+        
+        delegate &lt;- ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())
+        
+        response: (addressId, incomingContent, delegate) of HTTPResponse by delegate
+          repository as Repository!
+
+          override content()
+            &lt;- rtn as String: String()
+            if delegate.status() &lt;&gt; 404
+              address &lt;- addressFromJson(incomingContent)
+              if ~address.id?
+                status(422) //unprocessable entity
+              else if address.id &lt;&gt; addressId
+                status(400) //the id on the url is not the same as the id in the body content
+              else
+                repository.addresses() :~: address
+                status(204)
+
+      //A PUT which is a replace for an existing address
+      operator :^: :/{addressId}
+        -&gt;
+          addressId as AddressId //Assume PATH
+          incomingContent as String :=: CONTENT          
+        &lt;-
+          response as HTTPResponse
+        
+        delegate &lt;- ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())
+
+        response: (addressId, incomingContent, delegate) of HTTPResponse by delegate
+          repository as Repository!
+ 
+          override content()
+            &lt;- rtn as String: String()
+            if delegate.status() &lt;&gt; 404
+              address &lt;- addressFromJson(incomingContent)
+              if ~address?
+                status(422) //unprocessable entity
+              else if address.id &lt;&gt; addressId
+                status(400) //the id on the url is not the same as the value in the body content
+              else
+                repository.addresses() :^: address
+                status(204)
+
+      listAll() :/
+        &lt;- response as HTTPResponse
+
+        cacheable &lt;- cacheableHTTPResponse()
+        response: (cacheable) of HTTPResponse by cacheable
+          repository as Repository!
+          
+          override etag()
+            &lt;- rtn as String: repository.addresses().hash()
+          override content()
+            &lt;- rtn as String: addressListToJSON(repository.addresses().listAll())
+
+  defines component
+    Repository as abstract
+     
+      addresses() as abstract
+        &lt;- rtn as AddressAccess     
+      
+    InMemoryRepository extends Repository
+      addresses as AddressAccess: LockableAddressSet()
+            
+      InMemoryRepository()
+        addresses += Address(AddressId(GUID()), "121 Admin Rd.", String(), "Concord", "NH", "03301")
+        addresses += Address(AddressId(GUID()), "67 Paperwork Ave", String(), "Manchester", "NH", "03101")
+        addresses += Address(AddressId(GUID()), "15 Rose St", "Apt. B-1", "Concord", "NH", "03301")
+        addresses += Address(AddressId(GUID()), "39 Sole St.", String(), "Concord", "NH", "03301")
+        addresses += Address(AddressId(GUID()), "99 Mountain Rd.", String(), "Concord", "NH", "03301")     
+                       
+      override addresses()
+        &lt;- rtn as AddressAccess: addresses       
+
+  defines application
+    AccessPoint
+      //We could register other services and components here
+      
+      register InMemoryRepository() as Repository
+      register Addresses()
+    
+//EOF</pre>
+    <h4>Summary</h4>
+    <p>
+      The HTTP Server built into EK9 is not designed to be the highest performance, the most configurable nor
+      the most flexible. It is designed to <u>get out of the way</u>. This should enable you as the developer to focus
+      on the services you offer, the data formats needed and caching support.
+    </p>
+    <p>
+      If you want high performance, use caching (i.e. hardly call the origin server at all). Even with dynamic data
+      and short cache life times; this can be done with <b>must-revalidate</b>. Use multiple instances via docker
+      and Kubernetes for example.
+    </p>
+    <p>
+      You cannot really do web services without focusing on caching, HTTP response codes and concurrent access to data.
+    </p>
+
+    <h4>Next Steps</h4>
+    <p>
+      The details on <i>packaging</i> and <i>deploying/publishing</i> your code to an
+      <u>artefact server</u> are covered in the next section on <a href="packaging.html">packaging</a>.
+    </p>
+    <p>
+      But if you are looking for more details on the command line parameters see the
+      <a href="commandline.html">command line</a> section.
+    </p>
+  </article>
+</main>
+</body>
+</html>

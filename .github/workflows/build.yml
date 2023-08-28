@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - releases/*
     paths-ignore:
       - '**.md'
   pull_request:
@@ -49,6 +48,8 @@ jobs:
         run: aws s3 sync --quiet target/classes/site s3://www.ek9lang.org/
       - name: Upload Javadoc to EK9 S3 'repo.ek9lang.org'
         run: aws s3 sync --quiet target/site/apidocs s3://repo.ek9lang.org/apidocs
+      - name: Upload repo site
+        run: aws s3 sync --quite target/classes/repo s3://repo.ek9lang.org/
       - name: Coverage with Maven
         run: mvn verify jacoco:report
       - name: Upload to Codecov
