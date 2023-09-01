@@ -445,6 +445,8 @@ public class ErrorListener extends BaseErrorListener {
     MISSING_ITERATE_METHOD("does not have iterate method"),
     ITERATE_METHOD_MUST_RETURN_ITERATOR("iterate method must return an Iterator"),
     AGGREGATE_HAS_NO_SUPER("but has no 'super'"),
+    THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR("'this' and 'super' calls can only be used in constructors"),
+    INAPPROPRIATE_USE_OF_THIS("inappropriate use of 'this'"),
     INAPPROPRIATE_USE_OF_SUPER("inappropriate use of 'super'"),
     INVALID_LITERAL("invalid literal"),
     INVALID_LITERAL_MUST_BE_GREATER_THAN_ZERO("must be integer value greater than zero"),

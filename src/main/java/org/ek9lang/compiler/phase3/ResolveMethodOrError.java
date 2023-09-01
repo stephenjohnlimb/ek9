@@ -10,8 +10,8 @@ import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
- * Given a search for a method on an aggregate, this function will try and locate the method.
- * But if not found or ambiguous it will issue errors.
+ * Given a search for a method from an aggregate - and include supers/traits etc,
+ * this function will try and locate the method. But if not found or ambiguous it will issue errors.
  */
 final class ResolveMethodOrError extends RuleSupport implements BiFunction<Token, MethodSearchInScope, MethodSymbol> {
 
@@ -30,8 +30,6 @@ final class ResolveMethodOrError extends RuleSupport implements BiFunction<Token
 
   @Override
   public MethodSymbol apply(final Token token, final MethodSearchInScope searchOnAggregate) {
-
-    //TODO check context of where requesting from and also check private,protected,public
 
     var accessFromScope = mostSpecificScope.get();
 

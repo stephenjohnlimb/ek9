@@ -18,38 +18,23 @@ import org.ek9lang.compiler.symbols.ISymbol;
 abstract class ExpressionsListener extends ScopeStackConsistencyListener {
 
   protected final SymbolFactory symbolFactory;
-
   protected final ErrorListener errorListener;
   private final ReturnTypeExtractor returnTypeExtractor = new ReturnTypeExtractor();
-
   private final CheckValidThisOrSuper checkValidThisOrSuper;
-
   private final CheckValidPrimary checkValidPrimary;
-
   private final CheckValidIdentifierReference checkValidIdentifierReference;
-
   private final CheckValidExpression checkValidExpression;
-
   private final CheckInstructionBlockVariables checkInstructionBlockVariables;
-
   private final CheckAssignmentExpression checkAssignmentExpression;
-
   private final CheckAssignmentStatement checkAssignmentStatement;
-
   private final CheckAndTypeList checkAndTypeList;
   private final CheckAndTypeDict checkAndTypeDict;
   private final CheckValidCall checkValidCall;
-
   private final CheckRange checkRange;
-
   private final CheckForRange checkForRange;
-
   private final ResolveIdentifierOrError resolveIdentifierOrError;
-
   private final CheckVariableAssignmentDeclaration checkVariableAssignmentDeclaration;
-
   private final ResolveFieldOrError resolveFieldOrError;
-
   private final ResolveOperationCallOrError resolveOperationCallOrError;
   private final CheckPipelinePart checkPipelinePart;
 

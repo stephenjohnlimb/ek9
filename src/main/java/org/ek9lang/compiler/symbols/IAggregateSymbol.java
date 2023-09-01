@@ -111,6 +111,8 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
 
   void setSuperAggregateSymbol(IAggregateSymbol superAggregateSymbol);
 
+  boolean isInAggregateHierarchy(IAggregateSymbol theAggregateToCheck);
+
   default List<IAggregateSymbol> getTraits() {
     return new ArrayList<>();
   }

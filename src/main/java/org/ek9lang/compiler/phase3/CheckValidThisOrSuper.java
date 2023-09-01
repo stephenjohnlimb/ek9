@@ -19,7 +19,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * Checks and assigns type a 'this' or 'super' symbol, but only if it valid.
  * For example, you cannot use super in a function - that makes no sense.
  * But allowing applications, functions and programs to refer to themselves might be useful in
- * passing themselves as parameters to other functions in some way
+ * passing themselves as parameters to other functions in some way.
  */
 final class CheckValidThisOrSuper extends RuleSupport implements Consumer<ParserRuleContext> {
 
@@ -147,7 +147,7 @@ final class CheckValidThisOrSuper extends RuleSupport implements Consumer<Parser
 
   private String getSymbolErrorWithName(final ISymbol symbol) {
     return getSymbolErrorDetails(symbol)
-        + " with name '"
+        + " '"
         + symbol.getFriendlyName()
         + "'";
   }

@@ -1,0 +1,72 @@
+#!ek9
+<?-
+  Some examples of the 'call' that can be used in EK9.
+  Some positive examples and also some negative failure examples.
+  This mainly focuses on the use of this() and super()
+-?>
+defines module bad.callthisandsuper.classmethod.access1
+
+  defines function
+
+    checkCreationOfGenericType()
+      <- rtn <- false
+
+      acceptable <- List() of String
+      assert acceptable?
+
+      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_THIS
+      result1 <- this()
+
+      //check inside a block as well.
+      if rtn == false
+        @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_THIS
+        result2 <- this()
+
+
+      //This is detected by CheckValidThisOrSuper
+      //Which is mainly focussed on the use of this and super outside of calls.
+      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_SUPER
+      result3 <- super()
+
+      //See badParametersForInference.ek9 for a test for this below that is detected in SYMBOL_DEFINITION
+      //unacceptable <- List of String
+
+  defines class
+    C1 as open
+      C1()
+        //Is it possible to call a super here? Even though there isn't one
+        @Error: FULL_RESOLUTION: AGGREGATE_HAS_NO_SUPER
+        super()
+
+      C1()
+        -> arg0 as String
+        //Is it possible to call constructor here, should be fine
+        this()
+
+      someMethod1()
+        @Error: FULL_RESOLUTION: THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR
+        val <- this()
+
+      someMethod2()
+        @Error: FULL_RESOLUTION: AGGREGATE_HAS_NO_SUPER
+        val <- super()
+
+    C2 extends C1
+      C2()
+        //Now it does have a super so should be able to call it
+        super()
+
+      C2()
+        -> arg0 as String
+        //Is it possible to call own constructor here
+        this()
+
+      someMethod3()
+        @Error: FULL_RESOLUTION: THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR
+        val <- this()
+
+      someMethod4()
+        @Error: FULL_RESOLUTION: THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR
+        val <- super()
+
+//EOF

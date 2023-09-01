@@ -1,6 +1,7 @@
 #!ek9
 <?-
-  Examples of more complex access to methods on classes
+  Examples of more complex access to methods on classes.
+  But directly accessed via 'this.'
 -?>
 defines module bad.classmethod.access2
 

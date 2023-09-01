@@ -52,9 +52,9 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
     this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
   }
 
-
   @Override
   public void accept(final EK9Parser.CallContext ctx) {
+
     var symbol = determineSymbolToRecord(ctx);
     if (symbol != null) {
       symbolAndScopeManagement.recordSymbol(symbol, ctx);
@@ -142,6 +142,10 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
       } else {
         return checkFunctionParameters(ctx.start, function, callParams);
       }
+    } else if (callIdentifier instanceof MethodSymbol method) {
+      return checkForMethodOnAggregate(ctx.start, method.getParentScope(), callIdentifier.getName(), callParams);
+    } else {
+      //TODO!
     }
 
     //So we now have the combinations of what is needed, now it just depends on 'what it is'
@@ -149,6 +153,8 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
   }
 
   private ScopedSymbol resolveByParameterisedType(EK9Parser.CallContext ctx) {
+    //TODO check that List() of String and not List of String is used in this context.
+    //We are making a call to 'new' a List of String type - the () is important.
     return (ScopedSymbol) symbolFromContextOrError.apply(ctx.parameterisedType());
   }
 
@@ -161,9 +167,47 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
    * So we're looking for a Constructor on the type or a constructor on the super type.
    */
   private ScopedSymbol resolveByPrimaryReference(EK9Parser.CallContext ctx) {
-    //TODO sort out
-    var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
-    var callIdentifier = symbolFromContextOrError.apply(ctx.primaryReference());
+    //TODO sort out and refactor to separate Function
+    var thisOrSuper = ctx.primaryReference().getText();
+    //Really I now want to traverse back up stack to find if this is being used within a method!
+    var methodAndAggregate = symbolAndScopeManagement.traverseBackUpStackToEnclosingMethod();
+    if (methodAndAggregate.isPresent()) {
+      var method = methodAndAggregate.get().methodSymbol();
+      var aggregate = methodAndAggregate.get().aggregateSymbol();
+      if (!method.isConstructor()) {
+        errorListener.semanticError(ctx.start, "",
+            ErrorListener.SemanticClassification.THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR);
+      } else {
+        var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
+
+        if ("this".equals(thisOrSuper)) {
+          //Then the name of the constructor is known to be the parent aggregate name.
+          var returnMethod = checkForMethodOnAggregate(ctx.start, aggregate, aggregate.getName(), callParams);
+          if (returnMethod != null) {
+            //Just for completeness
+            symbolAndScopeManagement.recordSymbol(returnMethod, ctx.primaryReference());
+          }
+          return returnMethod;
+        } else {
+          var superAggregate = aggregate.getSuperAggregateSymbol();
+          if (superAggregate.isPresent()) {
+            var returnMethod =
+                checkForMethodOnAggregate(ctx.start, superAggregate.get(), superAggregate.get().getName(), callParams);
+            if (returnMethod != null) {
+              //Just for completeness
+              symbolAndScopeManagement.recordSymbol(returnMethod, ctx.primaryReference());
+            }
+            return returnMethod;
+          }
+        }
+      }
+    } else {
+      if ("this".equals(thisOrSuper)) {
+        errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.INAPPROPRIATE_USE_OF_THIS);
+      } else {
+        errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.INAPPROPRIATE_USE_OF_SUPER);
+      }
+    }
     return null;
   }
 

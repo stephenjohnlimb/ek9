@@ -1,57 +1,23 @@
 #!ek9
 <?-
-  Record operator covariance (only some operators support this), missing and surplus 'overrides'.
-  Also fix broken overrides with a different argument type, it has to fully match.
+  Some more examples of the 'call' that can be used in EK9.
+  Ready to develop and test more 'call' scenarios.
 -?>
-defines module bad.reords.covariance.examples
+defines module bad.call.examples1
 
-  defines record
+  defines class
+    C1 as open
 
-    R1 as open
-      operator <=> as pure
-        -> arg0 as R1
-        <- rtn as Integer: 0
+      //Will use this to check that it can be referenced from C1, but not from extending class
+      //As it is marked as private
+      default private C1()
 
-      operator + as pure
-        -> arg0 as R1
-        <- rtn as R1: this
+    //A test class to check if methods can be resolved in its super.
+    C2 extends C1
+      C2()
+        //Now it does have a super and the C1() method does exist but it is private
+        //So this should not be allowed and result in an error
+        @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
+        super()
 
-      operator - as pure
-        -> arg0 as R1
-        <- rtn as R1: this
-
-    R2 extends R1
-      @Error: FULL_RESOLUTION: METHOD_OVERRIDES
-      operator <=> as pure
-        -> arg0 as R1
-        <- rtn as Integer: 1
-
-      //Now check covariance on record operator.
-      override operator + as pure
-        -> arg0 as R1
-        <- rtn as R2: this
-
-      @Error: FULL_RESOLUTION: COVARIANCE_MISMATCH
-      override operator - as pure
-        -> arg0 as R1
-        <- rtn as Integer: 0
-
-      //Add in an extra 'override'
-      @Error: FULL_RESOLUTION: DOES_NOT_OVERRIDE
-      override operator * as pure
-        -> arg0 as R1
-        <- rtn as Integer: 0
-
-      <!-
-      This is currently wrong it does not override a super
-      It is probably R2 'is an' R1
-      operator <=> as pure
-        -> arg0 as R2
-        <- rtn as Integer: 1
-      -!>
-
-      //Because this works and arg0 is not an R1.
-      operator <=> as pure
-        -> arg0 as Integer
-        <- rtn as Integer: 1
 //EOF

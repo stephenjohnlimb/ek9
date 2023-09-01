@@ -1,0 +1,166 @@
+#!ek9
+<?-
+  Some examples of the 'call' that can be used in EK9.
+  Some positive examples and also some negative failure examples.
+  This revolves around checking method resolution and access from different contexts.
+-?>
+defines module bad.classmethod.access3
+
+  defines function
+
+    //Just used to check that a function of this name can be resolved.
+    someBasicOperation()
+      <- rtn <- false
+
+  defines class
+    C1 as open
+
+      //Will use this to check that it can be referenced from C1, but not from extending class
+      //As it is marked as private
+      default private C1()
+
+      C1()
+        -> arg0 as String
+        //Is it possible to call constructor here, should be fine - even though private.
+        //As it is on the same class
+        this()
+
+        //Should also be able to call own private and protected methods
+        someValueFromProtectedMethod <- protMethod()
+        assert someValueFromProtectedMethod?
+
+        someValueFromPrivateMethod <- privMethod()
+        assert someValueFromPrivateMethod?
+
+        //Also should be able correctly resolve functions - not on this aggregate class.
+        someValueFromFunction <- someBasicOperation()
+        assert someValueFromFunction?
+
+      //Just used to test private methods
+      private privMethod()
+        <- rtn <- true
+
+      //Just used to test protected methods
+      protected protMethod()
+        <- rtn <- true
+
+      //Used to chack access and resolution to public methods
+      someMethod()
+        <- rtn <- true
+        //Just provide a basic body
+        someVar <- 23
+        assert someVar?
+
+      //Now overload the method name, different signature - to check access.
+      someMethod()
+        -> arg0 as String
+        <- rtn as Boolean: arg0?
+
+      //Now a method that tests if a function that does exist cannot be resolved if incorrect params are used.
+      methodToCheckFailureToResolveFunctionWithInvalidParameters()
+        //This should fail - while the function name is valid the parameters don't match
+        @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+        someValueFromFunction <- someBasicOperation(false, "Steve")
+
+        //Because the above fails then the type of the variable cannot be known.
+        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+        assert someValueFromFunction?
+
+    //A test class to check if methods can be resolved in its super.
+    C2 extends C1
+      C2()
+        //Now it does have a super and the C1() method does exist but it is private
+        //So this should not be allowed and result in an error
+        @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
+        super()
+
+      C2()
+        -> arg0 as String
+        //Is it possible because that method on C1 is public
+        super(arg0)
+
+      //Check access to both overloaded 'someMethod' methods from this subclass.
+      checkAccessToSomeMethodInSuper()
+        //We should also be able to resolve a method without needing to state 'this.'
+        result1A <- this.someMethod()
+        assert result1A?
+        result1B <- this.someMethod("Steve")
+        assert result1B?
+
+        //So this has the same meaning and functionality, just does not use 'this.'
+        result2A <- someMethod()
+        assert result2A?
+        result2B <- someMethod("Steve")
+        assert result2B?
+
+      //Now even though the methods are public and should be resolvable, we pass incorrect parameters in.
+      checkFailureToResolveMethodByIncompatibleParameters()
+        @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+        result1 <- this.someMethod(false)
+
+        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+        assert result1?
+
+        //So this has the same meaning and functionality, just does not use 'this.'
+        @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+        result2 <- someMethod(true)
+
+        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+        assert result2?
+
+      //Ensure that access to private methods in the class super is not allowed.
+      checkAccessToPrivateMethodInSuper()
+        @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
+        someValueFromPrivateMethod <- privMethod()
+        assert someValueFromPrivateMethod?
+
+      //Ensure that access to protected methods in the class super IS allowed
+      checkAccessToProtectedMethodInSuper()
+        someValueFromProtectedMethod <- protMethod()
+        assert someValueFromProtectedMethod?
+
+    //Now we need to check that methods on C1 that are private and protected are not accessible
+    //From a context that is not related to C1.
+    UnrelatedToC1
+
+      default UnrelatedToC1()
+
+      testPublicAccessViaC2()
+        -> arg0 as C2
+        result1A <- arg0.someMethod()
+        assert result1A?
+        result1B <- arg0.someMethod("Steve")
+        assert result1B?
+
+      testProtectedAccessViaC2()
+        -> arg0 as C2
+        @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
+        result1A <- arg0.protMethod()
+        assert result1A?
+
+      testPrivateAccessViaC2()
+        -> arg0 as C2
+        @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
+        result1A <- arg0.privMethod()
+        assert result1A?
+
+      testPublicAccessViaC1()
+        -> arg0 as C1
+        result1A <- arg0.someMethod()
+        assert result1A?
+        result1B <- arg0.someMethod("Steve")
+        assert result1B?
+
+      testProtectedAccessViaC1()
+        -> arg0 as C1
+        @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
+        result1A <- arg0.protMethod()
+        assert result1A?
+
+      testPrivateAccessViaC1()
+        -> arg0 as C1
+        @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
+        result1A <- arg0.privMethod()
+        assert result1A?
+
+//EOF

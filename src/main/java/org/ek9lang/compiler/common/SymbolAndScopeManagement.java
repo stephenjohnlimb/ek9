@@ -5,6 +5,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.support.SymbolChecker;
 import org.ek9lang.compiler.symbols.Ek9Types;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.IScopedSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -88,6 +89,22 @@ public class SymbolAndScopeManagement {
    */
   public Optional<IScope> traverseBackUpStack(final IScope.ScopeType scopeType) {
     return scopeStack.traverseBackUpStack(scopeType);
+  }
+
+  /**
+   * Traversed back up the scope stack to try and locate the enclosing method (if there is one).
+   * Clearly the scope might not be within a method and so Optional.empty will result.
+   *
+   * @return The method and aggregate information if a method was located.
+   */
+  public Optional<MethodAndAggregateData> traverseBackUpStackToEnclosingMethod() {
+    var maybeMethod = scopeStack.traverseBackUpStackToEnclosingMethod();
+    if (maybeMethod.isPresent()) {
+      var method = maybeMethod.get();
+      var aggregate = (IAggregateSymbol) method.getParentScope();
+      return Optional.of(new MethodAndAggregateData(method, aggregate));
+    }
+    return Optional.empty();
   }
 
   public Optional<ISymbol> resolveOrDefine(final PossibleGenericSymbol parameterisedSymbol) {

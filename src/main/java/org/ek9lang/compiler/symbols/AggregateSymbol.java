@@ -380,6 +380,28 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     return superAggregateSymbol.map(aggregateSymbol -> aggregateSymbol.isExactSameType(theSuper)).orElse(false);
   }
 
+
+  /**
+   * Does the aggregate passed in exist in this type hierarchy.
+   * This does include a check that this is the same aggregate.
+   */
+  @Override
+  public boolean isInAggregateHierarchy(IAggregateSymbol theAggregateToCheck) {
+    if (this.isExactSameType(theAggregateToCheck)) {
+      return true;
+    }
+
+    if (superAggregateSymbol.isEmpty()) {
+      return false;
+    }
+
+    if (!hasImmediateSuper(theAggregateToCheck)) {
+      return superAggregateSymbol.get().isInAggregateHierarchy(theAggregateToCheck);
+    }
+
+    return true;
+  }
+
   @Override
   public ISymbol setType(Optional<ISymbol> type) {
     //Used when cloning so type can be set if not already populated.

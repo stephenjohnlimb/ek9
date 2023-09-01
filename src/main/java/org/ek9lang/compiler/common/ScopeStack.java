@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Optional;
 import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -71,6 +72,21 @@ public class ScopeStack {
     for (IScope scopeForConsideration : actualStack) {
       if (scopeForConsideration.getScopeType().equals(scopeType)) {
         return Optional.of(scopeForConsideration);
+      }
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * Navigate back up the scope stack to find the first enclosing method (there may not be one).
+   * So if this were called in a function or an application for example - there will not be an enclosing method.
+   *
+   * @return The Optional method located.
+   */
+  public Optional<MethodSymbol> traverseBackUpStackToEnclosingMethod() {
+    for (IScope scopeForConsideration : actualStack) {
+      if (scopeForConsideration instanceof MethodSymbol methodSymbol) {
+        return Optional.of(methodSymbol);
       }
     }
     return Optional.empty();
