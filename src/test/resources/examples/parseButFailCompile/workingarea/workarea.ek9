@@ -5,19 +5,30 @@
 -?>
 defines module bad.call.examples1
 
+  defines function
+    SomeFunction()
+      <- rtn <- true
+
+    AnotherFunction()
+      -> arg0 as String
+      <- rtn as Boolean: arg0?
+
+    HigherFunctionOne()
+      <- rtn as SomeFunction: SomeFunction
+
+    HigherFunctionTwo()
+      <- rtn as AnotherFunction: AnotherFunction
+
   defines class
-    C1 as open
+    C1
 
-      //Will use this to check that it can be referenced from C1, but not from extending class
-      //As it is marked as private
-      default private C1()
+      testHigherFunctionOneA()
+        delegate1A <- HigherFunctionOne()
+        assert delegate1A?
 
-    //A test class to check if methods can be resolved in its super.
-    C2 extends C1
-      C2()
-        //Now it does have a super and the C1() method does exist but it is private
-        //So this should not be allowed and result in an error
-        @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
-        super()
+        //So if that worked then I should be able to 'call' that delegate1A - because it will be SomeFunction
+        result1A <- delegate1A()
+        assert result1A?
+
 
 //EOF

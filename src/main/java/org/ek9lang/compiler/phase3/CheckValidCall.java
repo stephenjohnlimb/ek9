@@ -32,6 +32,8 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
 
   private final ResolveFunctionOrError resolveFunctionOrError;
 
+  private final ResolveThisSuperOrError resolveThisSuperOrError;
+
   private final ParameterisedLocator parameterisedLocator;
 
   private final SymbolsFromParamExpression symbolsFromParamExpression;
@@ -47,6 +49,7 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
     super(symbolAndScopeManagement, errorListener);
     this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
     this.resolveFunctionOrError = new ResolveFunctionOrError(symbolAndScopeManagement, errorListener);
+    this.resolveThisSuperOrError = new ResolveThisSuperOrError(symbolAndScopeManagement, errorListener);
     this.parameterisedLocator = new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
     this.symbolsFromParamExpression = new SymbolsFromParamExpression(symbolAndScopeManagement, errorListener);
     this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
@@ -105,6 +108,8 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
     } else {
       AssertValue.fail("Expecting finite set of operations on call " + ctx.start.getLine());
     }
+    //If the ek9 source code was not correct, it is possible that we cannot resolve what the call is for
+    //So we leave the call symbol as is - with an unresolved 'thing' it should have been calling.
     if (symbol != null) {
       callSymbol.setFormOfDeclarationCall(formOfDeclaration);
       callSymbol.setResolvedSymbolToCall(symbol);
@@ -152,12 +157,16 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
     return null;
   }
 
+  /**
+   * Resolve the instantiation of a generic types that has been parameterized.
+   */
   private ScopedSymbol resolveByParameterisedType(EK9Parser.CallContext ctx) {
-    //TODO check that List() of String and not List of String is used in this context.
-    //We are making a call to 'new' a List of String type - the () is important.
     return (ScopedSymbol) symbolFromContextOrError.apply(ctx.parameterisedType());
   }
 
+  /**
+   * Resolve the dynamic function from the context.
+   */
   private ScopedSymbol resolveByDynamicFunctionDeclaration(EK9Parser.CallContext ctx) {
     return (ScopedSymbol) symbolFromContextOrError.apply(ctx.dynamicFunctionDeclaration());
   }
@@ -167,48 +176,7 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
    * So we're looking for a Constructor on the type or a constructor on the super type.
    */
   private ScopedSymbol resolveByPrimaryReference(EK9Parser.CallContext ctx) {
-    //TODO sort out and refactor to separate Function
-    var thisOrSuper = ctx.primaryReference().getText();
-    //Really I now want to traverse back up stack to find if this is being used within a method!
-    var methodAndAggregate = symbolAndScopeManagement.traverseBackUpStackToEnclosingMethod();
-    if (methodAndAggregate.isPresent()) {
-      var method = methodAndAggregate.get().methodSymbol();
-      var aggregate = methodAndAggregate.get().aggregateSymbol();
-      if (!method.isConstructor()) {
-        errorListener.semanticError(ctx.start, "",
-            ErrorListener.SemanticClassification.THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR);
-      } else {
-        var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
-
-        if ("this".equals(thisOrSuper)) {
-          //Then the name of the constructor is known to be the parent aggregate name.
-          var returnMethod = checkForMethodOnAggregate(ctx.start, aggregate, aggregate.getName(), callParams);
-          if (returnMethod != null) {
-            //Just for completeness
-            symbolAndScopeManagement.recordSymbol(returnMethod, ctx.primaryReference());
-          }
-          return returnMethod;
-        } else {
-          var superAggregate = aggregate.getSuperAggregateSymbol();
-          if (superAggregate.isPresent()) {
-            var returnMethod =
-                checkForMethodOnAggregate(ctx.start, superAggregate.get(), superAggregate.get().getName(), callParams);
-            if (returnMethod != null) {
-              //Just for completeness
-              symbolAndScopeManagement.recordSymbol(returnMethod, ctx.primaryReference());
-            }
-            return returnMethod;
-          }
-        }
-      }
-    } else {
-      if ("this".equals(thisOrSuper)) {
-        errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.INAPPROPRIATE_USE_OF_THIS);
-      } else {
-        errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.INAPPROPRIATE_USE_OF_SUPER);
-      }
-    }
-    return null;
+    return resolveThisSuperOrError.apply(ctx);
   }
 
   /**
@@ -219,6 +187,12 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
     //TODO sort out
     var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
     var callIdentifier = symbolFromContextOrError.apply(ctx.call());
+    //Check if the actual call was resolved, then we can get it and see if it will accept these callParameters.
+    if (callIdentifier != null) {
+      System.out.println("Resolved callIdentifier as [" + callIdentifier.getFriendlyName() + "]");
+    } else {
+      System.out.println("callIdentifier is null for [" + ctx.getText() + "]");
+    }
 
     return null;
   }
