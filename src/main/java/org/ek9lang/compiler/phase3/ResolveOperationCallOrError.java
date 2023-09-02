@@ -11,25 +11,20 @@ import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.SymbolTypeExtractor;
-import org.ek9lang.compiler.support.ToCommaSeparated;
-import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
- * Used for resolving operation calls on aggregates.
+ * Used for resolving operation calls on aggregates, which can include properties that are delegates to functions.
  */
 final class ResolveOperationCallOrError extends RuleSupport
     implements BiFunction<EK9Parser.OperationCallContext, IScope, ISymbol> {
 
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
-
   private final ResolveMethodOrError resolveMethodOrError;
-
-
   private final SymbolsFromParamExpression symbolsFromParamExpression;
-  private final ResolveFunctionOrError resolveFunctionOrError;
+  private final CheckValidFunctionDelegateOrError checkValidFunctionDelegateOrError;
 
   /**
    * Create a new operation resolver.
@@ -38,10 +33,12 @@ final class ResolveOperationCallOrError extends RuleSupport
                               final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
 
-    this.symbolsFromParamExpression = new SymbolsFromParamExpression(symbolAndScopeManagement, errorListener);
-
-    this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
-    this.resolveFunctionOrError = new ResolveFunctionOrError(symbolAndScopeManagement, errorListener);
+    this.symbolsFromParamExpression =
+        new SymbolsFromParamExpression(symbolAndScopeManagement, errorListener);
+    this.checkValidFunctionDelegateOrError =
+        new CheckValidFunctionDelegateOrError(symbolAndScopeManagement, errorListener);
+    this.resolveMethodOrError =
+        new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -56,7 +53,8 @@ final class ResolveOperationCallOrError extends RuleSupport
     if (initialCheck.isEmpty()) {
       return resolveAsMethod(ctx, scopeToResolveIn, methodOrDelegateName, callParams);
     }
-    return resolveAsDelegateToFunction(ctx, initialCheck.get(), callParams);
+    return checkValidFunctionDelegateOrError.apply(
+        new DelegateFunctionCheckData(ctx.start, initialCheck.get(), callParams));
   }
 
   private ISymbol resolveAsMethod(final EK9Parser.OperationCallContext ctx,
@@ -84,35 +82,6 @@ final class ResolveOperationCallOrError extends RuleSupport
     if (parameters.size() == paramTypes.size()) {
       var search = new MethodSymbolSearch(methodName).setTypeParameters(paramTypes);
       return resolveMethodOrError.apply(token, new MethodSearchInScope(scopeToSearch, search));
-    }
-    return null;
-  }
-
-  private FunctionSymbol resolveAsDelegateToFunction(EK9Parser.OperationCallContext ctx, ISymbol delegateSymbol,
-                                                     List<ISymbol> callParams) {
-
-    if (delegateSymbol.getType().isPresent() && delegateSymbol.getType().get() instanceof FunctionSymbol function) {
-      return checkFunctionParameters(ctx.start, function, callParams);
-    } else {
-      var params = new ToCommaSeparated(true).apply(callParams);
-      var msg = "'"
-          + delegateSymbol.getFriendlyName()
-          + "' used with supplied arguments '"
-          + params
-          + "':";
-      errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.NOT_A_FUNCTION_DELEGATE);
-    }
-
-    return null;
-  }
-
-  private FunctionSymbol checkFunctionParameters(Token token, FunctionSymbol function,
-                                                 List<ISymbol> parameters) {
-
-    var paramTypes = symbolTypeExtractor.apply(parameters);
-    //maybe earlier types were not defined by the ek9 developer so let's not look at it would be misleading.
-    if (parameters.size() == paramTypes.size()) {
-      return resolveFunctionOrError.apply(new FunctionCheckData(token, function, paramTypes));
     }
     return null;
   }

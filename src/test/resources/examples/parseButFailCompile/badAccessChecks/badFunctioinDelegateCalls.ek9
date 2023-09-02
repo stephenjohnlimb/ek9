@@ -1,9 +1,9 @@
 #!ek9
 <?-
-  Some more examples of the 'call' that can be used in EK9.
-  Ready to develop and test more 'call' scenarios.
+  Test for resolving and calling function delegates - which look like methods.
+  This includes quite a few of different error conditions.
 -?>
-defines module bad.call.examples1
+defines module bad.functiondelegates.examples
 
   defines function
     SomeFunction()

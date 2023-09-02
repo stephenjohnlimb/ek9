@@ -55,7 +55,7 @@ import org.ek9lang.core.SharedThreadContext;
  * may use part of that new object via expressions we have to define then 'just a head' of when they are needed.
  * </p>
  */
-public class SymbolResolution implements
+public final class SymbolResolution implements
     BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
 
   private static final CompilationPhase thisPhase = CompilationPhase.FULL_RESOLUTION;

@@ -19,6 +19,7 @@ import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.ScopedSymbol;
+import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -39,6 +40,7 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
   private final SymbolsFromParamExpression symbolsFromParamExpression;
 
   private final SymbolFromContextOrError symbolFromContextOrError;
+  private final CheckValidFunctionDelegateOrError checkValidFunctionDelegateOrError;
 
   /**
    * Lookup a pre-recorded 'call', now resolve what it is supposed to call and set it's type.
@@ -47,35 +49,30 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
                  final SymbolFactory symbolFactory,
                  final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
-    this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
-    this.resolveFunctionOrError = new ResolveFunctionOrError(symbolAndScopeManagement, errorListener);
-    this.resolveThisSuperOrError = new ResolveThisSuperOrError(symbolAndScopeManagement, errorListener);
-    this.parameterisedLocator = new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
-    this.symbolsFromParamExpression = new SymbolsFromParamExpression(symbolAndScopeManagement, errorListener);
-    this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
+    this.resolveMethodOrError = 
+        new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
+    this.resolveFunctionOrError =
+        new ResolveFunctionOrError(symbolAndScopeManagement, errorListener);
+    this.resolveThisSuperOrError =
+        new ResolveThisSuperOrError(symbolAndScopeManagement, errorListener);
+    this.parameterisedLocator = 
+        new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
+    this.symbolsFromParamExpression = 
+        new SymbolsFromParamExpression(symbolAndScopeManagement, errorListener);
+    this.symbolFromContextOrError =
+        new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
+    this.checkValidFunctionDelegateOrError =
+        new CheckValidFunctionDelegateOrError(symbolAndScopeManagement, errorListener);
   }
 
   @Override
   public void accept(final EK9Parser.CallContext ctx) {
-
-    var symbol = determineSymbolToRecord(ctx);
-    if (symbol != null) {
-      symbolAndScopeManagement.recordSymbol(symbol, ctx);
-    }
-  }
-
-  /**
-   * Gets the appropriate symbol to register against this context.
-   */
-  private ISymbol determineSymbolToRecord(final EK9Parser.CallContext ctx) {
     var existingCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
     if (existingCallSymbol instanceof CallSymbol callSymbol) {
       resolveToBeCalled(callSymbol, ctx);
     } else {
       AssertValue.fail("Compiler error: ValidateCall expecting a CallSymbol to have been recorded");
     }
-
-    return existingCallSymbol;
   }
 
   /**
@@ -127,7 +124,7 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
       if (aggregate.isGenericInNature()) {
         //So if it is generic but no parameters, just return the generic type.
         //let any assignments of checks with inference check the type compatibility or alter the type as appropriate.
-        if (callParams.size() == 0) {
+        if (callParams.isEmpty()) {
           return aggregate;
         } else {
           var genericTypeArguments = this.symbolTypeExtractor.apply(callParams);
@@ -149,8 +146,13 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
       }
     } else if (callIdentifier instanceof MethodSymbol method) {
       return checkForMethodOnAggregate(ctx.start, method.getParentScope(), callIdentifier.getName(), callParams);
+    } else if (callIdentifier instanceof VariableSymbol variable) {
+      return checkValidFunctionDelegateOrError.apply(new DelegateFunctionCheckData(ctx.start, variable, callParams));
+      //While this does not seem to make sense, it is possible to have a variable that is a delegate to a function
     } else {
-      //TODO!
+      //Could just be a 'call' to something that is not resolved!
+      //TODO! Consider another error - here - but we may already have one.
+      //System.out.println("Not sure what it is [" + callIdentifier + "] [" + ctx.getText() + "] ");
     }
 
     //So we now have the combinations of what is needed, now it just depends on 'what it is'
