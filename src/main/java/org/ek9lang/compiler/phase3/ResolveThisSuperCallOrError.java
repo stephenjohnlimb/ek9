@@ -20,13 +20,13 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  * For example 'this()' or 'super()', but can include parameters.
  * This will also look at the context of where the call is made from as well as the parameter compatibility.
  */
-final class ResolveThisSuperOrError extends RuleSupport implements Function<EK9Parser.CallContext, MethodSymbol> {
+final class ResolveThisSuperCallOrError extends RuleSupport implements Function<EK9Parser.CallContext, MethodSymbol> {
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
   private final ResolveMethodOrError resolveMethodOrError;
   private final SymbolsFromParamExpression symbolsFromParamExpression;
 
-  ResolveThisSuperOrError(SymbolAndScopeManagement symbolAndScopeManagement,
-                                    ErrorListener errorListener) {
+  ResolveThisSuperCallOrError(SymbolAndScopeManagement symbolAndScopeManagement,
+                              ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
 
     this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);

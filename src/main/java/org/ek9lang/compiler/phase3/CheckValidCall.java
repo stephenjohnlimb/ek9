@@ -1,68 +1,48 @@
 package org.ek9lang.compiler.phase3;
 
-import java.util.List;
 import java.util.function.Consumer;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
-import org.ek9lang.compiler.search.MethodSearchInScope;
-import org.ek9lang.compiler.search.MethodSymbolSearch;
-import org.ek9lang.compiler.support.ParameterisedTypeData;
 import org.ek9lang.compiler.support.SymbolFactory;
-import org.ek9lang.compiler.support.SymbolTypeExtractor;
-import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.CallSymbol;
-import org.ek9lang.compiler.symbols.FunctionSymbol;
-import org.ek9lang.compiler.symbols.IScope;
-import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.ScopedSymbol;
-import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.core.AssertValue;
 
 /**
  * TODO lots of tidying up.
+ * Designed to deal with this following part of the EK9 grammar:
+ * <pre>
+ *     identifierReference paramExpression - function/method/constructor/delegate with optional params
+ *     | parameterisedType - the parameterization of a generic type, ie List of String for example
+ *     | primaryReference paramExpression - this or super
+ *     | dynamicFunctionDeclaration
+ *     | call paramExpression - a bit weird but supports someHigherFunction()("Call what was returned")
+ * </pre>
  */
 final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.CallContext> {
 
-  private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
-
-  private final ResolveMethodOrError resolveMethodOrError;
-
-  private final ResolveFunctionOrError resolveFunctionOrError;
-
-  private final ResolveThisSuperOrError resolveThisSuperOrError;
-
-  private final ParameterisedLocator parameterisedLocator;
-
+  private final ResolveThisSuperCallOrError resolveThisSuperCallOrError;
+  private final ResolveIdentifierReferenceCallOrError resolveIdentifierReferenceCallOrError;
   private final SymbolsFromParamExpression symbolsFromParamExpression;
-
   private final SymbolFromContextOrError symbolFromContextOrError;
-  private final CheckValidFunctionDelegateOrError checkValidFunctionDelegateOrError;
 
   /**
-   * Lookup a pre-recorded 'call', now resolve what it is supposed to call and set it's type.
+   * Lookup a pre-recorded 'call', now resolve what it is supposed to call and set its type.
    */
   CheckValidCall(final SymbolAndScopeManagement symbolAndScopeManagement,
                  final SymbolFactory symbolFactory,
                  final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
-    this.resolveMethodOrError = 
-        new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
-    this.resolveFunctionOrError =
-        new ResolveFunctionOrError(symbolAndScopeManagement, errorListener);
-    this.resolveThisSuperOrError =
-        new ResolveThisSuperOrError(symbolAndScopeManagement, errorListener);
-    this.parameterisedLocator = 
-        new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
-    this.symbolsFromParamExpression = 
+    this.resolveThisSuperCallOrError =
+        new ResolveThisSuperCallOrError(symbolAndScopeManagement, errorListener);
+    this.resolveIdentifierReferenceCallOrError =
+        new ResolveIdentifierReferenceCallOrError(symbolAndScopeManagement, symbolFactory, errorListener);
+    this.symbolsFromParamExpression =
         new SymbolsFromParamExpression(symbolAndScopeManagement, errorListener);
     this.symbolFromContextOrError =
         new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
-    this.checkValidFunctionDelegateOrError =
-        new CheckValidFunctionDelegateOrError(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -71,6 +51,7 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
     if (existingCallSymbol instanceof CallSymbol callSymbol) {
       resolveToBeCalled(callSymbol, ctx);
     } else {
+      //So this is a full hard stop, compiler error in itself.
       AssertValue.fail("Compiler error: ValidateCall expecting a CallSymbol to have been recorded");
     }
   }
@@ -80,13 +61,6 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
    * This could be a function, method, Constructor, variable that has a type of (TEMPLATE)_FUNCTION (i.e. a delegate).
    * So we can use any existing context below where those are now resolved.
    * But we also need to apply - the appropriate parameters where appropriate to do the resolution.
-   * <pre>
-   *     identifierReference paramExpression - function/method/constructor/delegate with optional params
-   *     | parameterisedType - the parameterization of a generic type, ie List of String for example
-   *     | primaryReference paramExpression - this or super
-   *     | dynamicFunctionDeclaration
-   *     | call paramExpression - a bit weird but supports someHigherFunction()("Call what was returned")
-   * </pre>
    */
   private void resolveToBeCalled(CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
     ScopedSymbol symbol = null;
@@ -113,54 +87,24 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
     }
   }
 
+  /**
+   * This can be quite a few different 'types' of identifierReference.
+   * So the processing in here is quite detailed with quite a few combinations and paths.
+   */
   private ScopedSymbol resolveByIdentifierReference(EK9Parser.CallContext ctx) {
-    //TODO refactor - too complex
-    var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
-    //function/method/constructor/delegate with optional params
-    var callIdentifier = symbolFromContextOrError.apply(ctx.identifierReference());
-
-    //TODO more but let's see what happens just for 'class' and 'function' for now.
-    if (callIdentifier instanceof AggregateSymbol aggregate) {
-      if (aggregate.isGenericInNature()) {
-        //So if it is generic but no parameters, just return the generic type.
-        //let any assignments of checks with inference check the type compatibility or alter the type as appropriate.
-        if (callParams.isEmpty()) {
-          return aggregate;
-        } else {
-          var genericTypeArguments = this.symbolTypeExtractor.apply(callParams);
-          var details = new ParameterisedTypeData(ctx.start, callIdentifier, genericTypeArguments);
-          var theParameterisedType = parameterisedLocator.apply(details);
-          System.out.println("Looks like this aggregate needs to be parameterised " + theParameterisedType);
-          if (theParameterisedType.isPresent()) {
-            return (ScopedSymbol) theParameterisedType.get();
-          }
-        }
-      } else {
-        return checkForMethodOnAggregate(ctx.start, aggregate, callIdentifier.getName(), callParams);
-      }
-    } else if (callIdentifier instanceof FunctionSymbol function) {
-      if (function.isGenericInNature()) {
-        //TODO function call to generic
-      } else {
-        return checkFunctionParameters(ctx.start, function, callParams);
-      }
-    } else if (callIdentifier instanceof MethodSymbol method) {
-      return checkForMethodOnAggregate(ctx.start, method.getParentScope(), callIdentifier.getName(), callParams);
-    } else if (callIdentifier instanceof VariableSymbol variable) {
-      return checkValidFunctionDelegateOrError.apply(new DelegateFunctionCheckData(ctx.start, variable, callParams));
-      //While this does not seem to make sense, it is possible to have a variable that is a delegate to a function
-    } else {
-      //Could just be a 'call' to something that is not resolved!
-      //TODO! Consider another error - here - but we may already have one.
-      //System.out.println("Not sure what it is [" + callIdentifier + "] [" + ctx.getText() + "] ");
-    }
-
-    //So we now have the combinations of what is needed, now it just depends on 'what it is'
-    return null;
+    return resolveIdentifierReferenceCallOrError.apply(ctx);
   }
 
   /**
-   * Resolve the instantiation of a generic types that has been parameterized.
+   * Resolve the instantiation of a generic type that has been parameterized.
+   * This is simple as it will have already been recorded against that context.
+   * Moreover, previous stages will have checked that this is the instantiation form.
+   * <pre>
+   *   //So this type of usage
+   *   someVar <- List() of String
+   *
+   *   //Rather than just 'List of String' // note the omission of '()'
+   * </pre>
    */
   private ScopedSymbol resolveByParameterisedType(EK9Parser.CallContext ctx) {
     return (ScopedSymbol) symbolFromContextOrError.apply(ctx.parameterisedType());
@@ -178,7 +122,7 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
    * So we're looking for a Constructor on the type or a constructor on the super type.
    */
   private ScopedSymbol resolveByPrimaryReference(EK9Parser.CallContext ctx) {
-    return resolveThisSuperOrError.apply(ctx);
+    return resolveThisSuperCallOrError.apply(ctx);
   }
 
   /**
@@ -196,30 +140,6 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
       System.out.println("callIdentifier is null for [" + ctx.getText() + "]");
     }
 
-    return null;
-  }
-
-  private ScopedSymbol checkFunctionParameters(Token token, FunctionSymbol function,
-                                               List<ISymbol> parameters) {
-    var paramTypes = symbolTypeExtractor.apply(parameters);
-    //maybe earlier types were not defined by the ek9 developer so let's not look at it would be misleading.
-    if (parameters.size() == paramTypes.size()) {
-      return resolveFunctionOrError.apply(new FunctionCheckData(token, function, paramTypes));
-    }
-    return null;
-  }
-
-  private MethodSymbol checkForMethodOnAggregate(final Token token,
-                                                 final IScope scopeToSearch,
-                                                 final String methodName,
-                                                 final List<ISymbol> parameters) {
-
-    var paramTypes = symbolTypeExtractor.apply(parameters);
-    //maybe earlier types were not defined by the ek9 developer so let's not look at it would be misleading.
-    if (parameters.size() == paramTypes.size()) {
-      var search = new MethodSymbolSearch(methodName).setTypeParameters(paramTypes);
-      return resolveMethodOrError.apply(token, new MethodSearchInScope(scopeToSearch, search));
-    }
     return null;
   }
 }
