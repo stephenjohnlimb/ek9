@@ -30,6 +30,7 @@ class BadAccessChecksFullCompilationTest extends FullCompilationTest {
     assertFalse(program.getParsedModules("bad.classmethod.access2").isEmpty());
     assertFalse(program.getParsedModules("bad.classmethod.access3").isEmpty());
     assertFalse(program.getParsedModules("bad.functiondelegates.examples").isEmpty());
+    assertFalse(program.getParsedModules("bad.higherfunctionandmethodcalls.examples").isEmpty());
     assertFalse(program.getParsedModules("bad.recordfield.access").isEmpty());
   }
 }

@@ -11,8 +11,7 @@ import org.ek9lang.compiler.symbols.ScopedSymbol;
 import org.ek9lang.core.AssertValue;
 
 /**
- * TODO lots of tidying up.
- * Designed to deal with this following part of the EK9 grammar:
+ * Designed to deal with this following part of the EK9 grammar.
  * <pre>
  *     identifierReference paramExpression - function/method/constructor/delegate with optional params
  *     | parameterisedType - the parameterization of a generic type, ie List of String for example
@@ -27,6 +26,7 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
   private final ResolveIdentifierReferenceCallOrError resolveIdentifierReferenceCallOrError;
   private final SymbolsFromParamExpression symbolsFromParamExpression;
   private final SymbolFromContextOrError symbolFromContextOrError;
+  private final CheckValidFunctionDelegateOrError checkValidFunctionDelegateOrError;
 
   /**
    * Lookup a pre-recorded 'call', now resolve what it is supposed to call and set its type.
@@ -43,6 +43,8 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
         new SymbolsFromParamExpression(symbolAndScopeManagement, errorListener);
     this.symbolFromContextOrError =
         new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
+    this.checkValidFunctionDelegateOrError =
+        new CheckValidFunctionDelegateOrError(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -65,12 +67,16 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
   private void resolveToBeCalled(CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
     ScopedSymbol symbol = null;
     boolean formOfDeclaration = false;
+    boolean forceVoidReturnType = false;
     if (ctx.identifierReference() != null) {
       symbol = resolveByIdentifierReference(ctx);
     } else if (ctx.parameterisedType() != null) {
       symbol = resolveByParameterisedType(ctx);
     } else if (ctx.primaryReference() != null) {
       symbol = resolveByPrimaryReference(ctx);
+      //We force void here, because the constructor will return the type it is constructing
+      //But when used via a 'call' like 'this()' or 'super()' we want to ensure it can only be used without assignment.
+      forceVoidReturnType = true;
     } else if (ctx.dynamicFunctionDeclaration() != null) {
       symbol = resolveByDynamicFunctionDeclaration(ctx);
       formOfDeclaration = true;
@@ -84,6 +90,9 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
     if (symbol != null) {
       callSymbol.setFormOfDeclarationCall(formOfDeclaration);
       callSymbol.setResolvedSymbolToCall(symbol);
+      if (forceVoidReturnType) {
+        callSymbol.setType(symbolAndScopeManagement.getEk9Types().ek9Void());
+      }
     }
   }
 
@@ -128,18 +137,18 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
   /**
    * Now we'd be getting something back from another call.
    * We need to check that it is possible to make that call with the parameters provided.
+   * Caters for 'straightToResult1 <- HigherFunctionOne()("Steve")'
+   * i.e. where you call a higher function/method and it returns a function and you call that.
    */
   private ScopedSymbol resolveByCall(EK9Parser.CallContext ctx) {
-    //TODO sort out
     var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
     var callIdentifier = symbolFromContextOrError.apply(ctx.call());
-    //Check if the actual call was resolved, then we can get it and see if it will accept these callParameters.
     if (callIdentifier != null) {
-      System.out.println("Resolved callIdentifier as [" + callIdentifier.getFriendlyName() + "]");
+      return checkValidFunctionDelegateOrError.apply(
+          new DelegateFunctionCheckData(ctx.call().start, callIdentifier, callParams));
     } else {
-      System.out.println("callIdentifier is null for [" + ctx.getText() + "]");
+      AssertValue.fail("Expecting call to be at least present" + ctx.start.getLine());
     }
-
     return null;
   }
 }

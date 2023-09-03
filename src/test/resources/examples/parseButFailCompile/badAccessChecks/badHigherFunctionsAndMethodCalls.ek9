@@ -3,7 +3,7 @@
   Some more examples of the 'call' that can be used in EK9.
   Ready to develop and test more 'call' scenarios.
 -?>
-defines module bad.call.examples1
+defines module bad.higherfunctionandmethodcalls.examples
 
   defines function
     TheFunction()

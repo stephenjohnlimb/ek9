@@ -53,7 +53,6 @@ public class CallSymbol extends MethodSymbol {
   public void setResolvedSymbolToCall(ScopedSymbol symbol) {
     this.resolvedSymbolToCall = symbol;
     var returnTypeExtractor = new ReturnTypeExtractor(isFormOfDeclarationCall());
-
     this.setType(returnTypeExtractor.apply(symbol));
 
     //make a note if this method ia actually an operator.

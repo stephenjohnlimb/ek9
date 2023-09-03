@@ -28,6 +28,16 @@ final class CheckAssignmentExpression extends RuleSupport implements Consumer<EK
     var symbol = determineSymbolToRecord(ctx);
     if (symbol != null) {
       symbolAndScopeManagement.recordSymbol(symbol, ctx);
+      if (symbol.getType().isEmpty()) {
+        errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.TYPE_NOT_RESOLVED);
+      } else {
+        //Now issue error if returning a type of VOID, cause that means the call is not really returning
+        //anything that can be assigned or used in any way.
+        var type = symbol.getType().get();
+        if (type.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Void())) {
+          errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.RETURN_TYPE_VOID_MEANINGLESS);
+        }
+      }
     }
   }
 
