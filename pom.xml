@@ -211,6 +211,7 @@
           <doclint>all,-missing</doclint>
           <source>${java.version}</source>
           <release>${java.version}</release>
+          <additionalOptions>${jvm.options}</additionalOptions>
           <show>package</show>
           <groups>
             <group>
