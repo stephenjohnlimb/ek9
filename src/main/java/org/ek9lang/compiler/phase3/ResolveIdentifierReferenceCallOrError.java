@@ -19,6 +19,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.ScopedSymbol;
 import org.ek9lang.compiler.symbols.VariableSymbol;
+import org.ek9lang.core.AssertValue;
 
 /**
  * Locate a possible call to an identifierReference, so some sort of call.
@@ -55,53 +56,75 @@ final class ResolveIdentifierReferenceCallOrError extends RuleSupport
 
   @Override
   public ScopedSymbol apply(final EK9Parser.CallContext ctx) {
-    //TODO refactor - too complex
     var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
-    //function/method/constructor/delegate with optional params
     var callIdentifier = symbolFromContextOrError.apply(ctx.identifierReference());
 
-    //TODO more but let's see what happens just for 'class' and 'function' for now.
-    if (callIdentifier instanceof AggregateSymbol aggregate) {
-      if (aggregate.isGenericInNature()) {
-        //So if it is generic but no parameters, just return the generic type.
-        //let any assignments of checks with inference check the type compatibility or alter the type as appropriate.
-        if (callParams.isEmpty()) {
-          return aggregate;
-        } else {
-          var genericTypeArguments = this.symbolTypeExtractor.apply(callParams);
-          var details = new ParameterisedTypeData(ctx.start, callIdentifier, genericTypeArguments);
-          var theParameterisedType = parameterisedLocator.apply(details);
-          System.out.println("Looks like this aggregate needs to be parameterised " + theParameterisedType);
-          if (theParameterisedType.isPresent()) {
-            return (ScopedSymbol) theParameterisedType.get();
-          }
-        }
-      } else {
-        return checkForMethodOnAggregate(ctx.start, aggregate, callIdentifier.getName(), callParams);
+    return switch (callIdentifier) {
+      case AggregateSymbol aggregate ->
+          checkAggregate(ctx, aggregate, callIdentifier, callParams);
+      case FunctionSymbol function ->
+          checkFunction(ctx, function, callIdentifier, callParams);
+      case MethodSymbol method ->
+          checkForMethodOnAggregate(ctx.start, method.getParentScope(), callIdentifier.getName(), callParams);
+      case VariableSymbol variable ->
+          checkValidFunctionDelegateOrError.apply(new DelegateFunctionCheckData(ctx.start, variable, callParams));
+      case null ->
+          null;
+      default -> {
+        AssertValue.fail("Compiler error: Not expecting " + ctx.getText());
+        yield null;
       }
-    } else if (callIdentifier instanceof FunctionSymbol function) {
-      if (function.isGenericInNature()) {
-        //TODO function call to generic
-      } else {
-        return checkFunctionParameters(ctx.start, function, callParams);
-      }
-    } else if (callIdentifier instanceof MethodSymbol method) {
-      return checkForMethodOnAggregate(ctx.start, method.getParentScope(), callIdentifier.getName(), callParams);
-    } else if (callIdentifier instanceof VariableSymbol variable) {
-      return checkValidFunctionDelegateOrError.apply(new DelegateFunctionCheckData(ctx.start, variable, callParams));
-      //While this does not seem to make sense, it is possible to have a variable that is a delegate to a function
-    } else {
-      //Could just be a 'call' to something that is not resolved!
-      //TODO! Consider another error - here - but we may already have one.
-      //System.out.println("Not sure what it is [" + callIdentifier + "] [" + ctx.getText() + "] ");
-    }
+    };
+  }
 
-    //So we now have the combinations of what is needed, now it just depends on 'what it is'
+  private ScopedSymbol checkAggregate(final EK9Parser.CallContext ctx,
+                                      final AggregateSymbol aggregate,
+                                      final ISymbol callIdentifier,
+                                      final List<ISymbol> callArguments) {
+    if (aggregate.isGenericInNature()) {
+      //So if it is generic but no parameters, just return the generic type.
+      //let any assignments of checks with inference check the type compatibility or alter the type as appropriate.
+
+      if (callArguments.isEmpty()) {
+        //This enables: 'aList as List of Float: List()'
+        //But requires that assignment alters the 'call' type and invocation.
+        return aggregate;
+      } else {
+        return checkGenericConstructionOrInvocation(ctx.start, callIdentifier, callArguments);
+      }
+    }
+    //It's just a simple call to a constructor.
+    return checkForMethodOnAggregate(ctx.start, aggregate, callIdentifier.getName(), callArguments);
+  }
+
+  private ScopedSymbol checkFunction(final EK9Parser.CallContext ctx,
+                                     final FunctionSymbol function,
+                                     final ISymbol callIdentifier,
+                                     final List<ISymbol> callArguments) {
+    if (function.isGenericInNature()) {
+      return checkGenericConstructionOrInvocation(ctx.start, callIdentifier, callArguments);
+    }
+    return checkFunctionParameters(ctx.start, function, callArguments);
+  }
+
+  private ScopedSymbol checkGenericConstructionOrInvocation(final Token token,
+                                                            final ISymbol genericSymbol,
+                                                            final List<ISymbol> parameters) {
+    var genericTypeArguments = symbolTypeExtractor.apply(parameters);
+    //maybe earlier types were not defined by the ek9 developer so let's not look at it would be misleading.
+    if (parameters.size() == genericTypeArguments.size()) {
+      var theParameterisedType
+          = parameterisedLocator.apply(new ParameterisedTypeData(token, genericSymbol, genericTypeArguments));
+      if (theParameterisedType.isPresent()) {
+        return (ScopedSymbol) theParameterisedType.get();
+      }
+    }
     return null;
   }
 
-  private ScopedSymbol checkFunctionParameters(Token token, FunctionSymbol function,
-                                               List<ISymbol> parameters) {
+  private ScopedSymbol checkFunctionParameters(final Token token,
+                                               final FunctionSymbol function,
+                                               final List<ISymbol> parameters) {
     var paramTypes = symbolTypeExtractor.apply(parameters);
     //maybe earlier types were not defined by the ek9 developer so let's not look at it would be misleading.
     if (parameters.size() == paramTypes.size()) {
@@ -109,7 +132,6 @@ final class ResolveIdentifierReferenceCallOrError extends RuleSupport
     }
     return null;
   }
-
 
   private MethodSymbol checkForMethodOnAggregate(final Token token,
                                                  final IScope aggregate,

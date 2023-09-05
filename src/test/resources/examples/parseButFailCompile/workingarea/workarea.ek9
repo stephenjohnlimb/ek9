@@ -1,110 +1,17 @@
 #!ek9
 <?-
-  Some more examples of the 'call' that can be used in EK9.
-  Ready to develop and test more 'call' scenarios.
+  Examples of multiple 'calls' to a range of constructs to test the
+  identifierReference instantiation with generics, classes components, types enumerations, records, etc.
 -?>
 defines module bad.call.examples1
 
   defines function
-    TheFunction()
-      -> arg0 as String
-      <- rtn as Boolean: arg0?
 
-    HigherFunctionOne()
-      <- rtn as TheFunction: TheFunction
+    PlaceHolderForNextTests()
+      @Error: FULL_RESOLUTION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED
+      result5A <- List()
 
-    //Used in a negative test to check it cannot be used as a higher function
-    //as it does not return anything at all
-    JustAFunction1()
-      -> arg0 as String
-      assert arg0?
+      assert result5A?
 
-    //Used in a negative test to check it cannot be used as a higher function
-    //as it just returns a boolean - which is not a function that can be called.
-    JustAFunction2()
-      -> arg0 as String
-      <- rtn as Boolean: arg0?
-
-  defines class
-
-    C1
-
-      default private C1()
-
-      C1()
-        -> arg0 as String
-        //Now you can do this
-        this()
-
-        //But not this - even though a this is a constructor, access is via 'this' not 'this()'.
-        @Error: FULL_RESOLUTION: RETURN_TYPE_VOID_MEANINGLESS
-        varAssigned <- this()
-
-      //The same as the function - but this time via a method
-      higherMethodFunction()
-        <- rtn as TheFunction: TheFunction
-
-      testHigherFunctionOneA()
-        delegate <- HigherFunctionOne()
-        assert delegate?
-
-        //So if that worked then I should be able to 'call' that delegate1A - because it will be SomeFunction
-        result <- delegate("Steve")
-        assert result?
-
-      testHigherMethodFunctionOneA()
-        delegate <- higherMethodFunction()
-        assert delegate?
-
-        //So if that worked then I should be able to 'call' that delegate1A - because it will be SomeFunction
-        result <- delegate("Steve")
-        assert result?
-
-      //Check to see if is is possible to make a call without using a delegate variable.
-      testFunctionCallCall()
-        straightToResult1 <- HigherFunctionOne()("Steve")
-        assert straightToResult1?
-
-      //Same as above but just via a method as the 'higher function'
-      testMethodFunctionCallCall()
-        straightToResult2 <- higherMethodFunction()("Steve")
-        assert straightToResult2?
-
-      testCallCallWithWrongParameters()
-        @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
-        failedResult1 <- HigherFunctionOne()(false, "Steve")
-
-        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
-        assert failedResult1?
-
-      noSuchCallCall()
-        @Error: FULL_RESOLUTION: NOT_RESOLVED
-        failedResult2 <- SoSuchFunction()("Steve")
-
-        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
-        assert failedResult2?
-
-      testNotHigherFunction1()
-        //TODO consider an error here if the return type is Void.
-        @Error: FULL_RESOLUTION: RETURN_TYPE_VOID_MEANINGLESS
-        notActuallyADelegate1 <- JustAFunction1("Steve")
-        assert notActuallyADelegate1?
-
-        @Error: FULL_RESOLUTION: NOT_A_FUNCTION_DELEGATE
-        cannotBeAValidResult1 <- notActuallyADelegate1()
-
-        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
-        assert cannotBeAValidResult1?
-
-      testNotHigherFunction2()
-        //Now this returns a Boolean, but still not a function that can be called.
-        notActuallyADelegate2 <- JustAFunction2("Steve")
-        assert notActuallyADelegate2?
-
-        @Error: FULL_RESOLUTION: NOT_A_FUNCTION_DELEGATE
-        cannotBeAValidResult2 <- notActuallyADelegate2()
-
-        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
-        assert cannotBeAValidResult2?
 
 //EOF

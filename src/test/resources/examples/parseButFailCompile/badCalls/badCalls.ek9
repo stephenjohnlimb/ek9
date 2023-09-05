@@ -1,0 +1,73 @@
+#!ek9
+<?-
+  Just some bad function call examples and also a few built in generic type calls.
+-?>
+defines module bad.functioncall.examples1
+
+  defines function
+    PlainFunction()
+      -> arg0 as String
+      <- rtn as Boolean: arg0?
+
+    GenericFunction of type (S, T)
+      ->
+        arg0 as S
+        arg1 as T
+      <-
+        rtn as Boolean: true
+
+    TestNonGenericFunction()
+      result1 <- PlainFunction("Steve")
+      assert result1?
+
+    TestGenericFunction()
+
+      //Not currently work but should do
+      result1 <- GenericFunction("Steve", 21)
+      assert result1?
+
+    TestGenericAggregate()
+      result3 <- List("Steve")
+      assert result3?
+
+    TestInvalidGenericFunctionUse1()
+
+      //Detect this is as being generic but omit polymorphic parameters and ensure we get an error
+      @Error: FULL_RESOLUTION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      result4A <- GenericFunction()
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result4A?
+
+    TestInvalidGenericFunctionUse2()
+
+      //Incorrect number of polymorphic arguments (too few)
+      @Error: FULL_RESOLUTION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      result4B <- GenericFunction("Steve")
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result4B?
+
+    TestInvalidGenericFunctionUse3()
+
+      //Incorrect number of polymorphic arguments (too many)
+      @Error: FULL_RESOLUTION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      result4C <- GenericFunction("Steve", "Stephen", false)
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result4C?
+
+    TestInvalidGenericAggregateUse1()
+      @Error: FULL_RESOLUTION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED
+      result5A <- List()
+
+      assert result5A?
+
+    TestInvalidGenericAggregateUse2()
+      @Error: FULL_RESOLUTION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      result5B <- List("Too", "Many", "Params")
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result5B?
+
+//EOF

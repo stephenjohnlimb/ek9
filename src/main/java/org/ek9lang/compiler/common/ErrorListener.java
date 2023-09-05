@@ -307,7 +307,7 @@ public class ErrorListener extends BaseErrorListener {
         "type/function is generic but generic parameters and constructor parameters conflict"),
     GENERIC_TYPE_OR_FUNCTION_NOT_RESOLVED(
         "type/function is generic but could not be resolved, use 'define type as' and type inference will work."),
-    TYPE_INFERENCE_NOT_SUPPORTED("type inference is not supported withing generic/template type/functions"),
+    TYPE_INFERENCE_NOT_SUPPORTED("type inference is not supported within generic/template type/functions"),
     GENERIC_TYPE_OR_FUNCTION_NOT_APPLICABLE("type/function is not generic but parameters were supplied"),
     TYPE_REQUIRED_FOR_PROPERTIES(
         "type must be declared for this property - '<-' operator is not supported with complex call"),
