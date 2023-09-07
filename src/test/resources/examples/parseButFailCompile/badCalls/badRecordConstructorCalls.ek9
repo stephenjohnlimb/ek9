@@ -4,7 +4,6 @@
 -?>
 defines module bad.recordcalls.examples1
 
-  //Some examples of creating a new 'constrained' type or just a sort of alias.
   defines record
 
     R1

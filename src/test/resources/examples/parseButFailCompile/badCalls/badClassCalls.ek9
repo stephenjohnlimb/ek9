@@ -65,5 +65,5 @@ defines module bad.classcalls.examples1
 
       @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
       assert c1A.<>(c1B)
-
+      
 //EOF
