@@ -1,13 +1,10 @@
 #!ek9
 <?-
-  Examples of multiple 'calls' to a range of constructs to test the
-  identifierReference instantiation with generics, classes, components, records, etc.
-
-  In this case just checking classes can be created.
+  In this case just checking text methods can be created.
 -?>
-defines module bad.classcalls.examples1
+defines module bad.componentcalls.examples1
 
-  defines class
+  defines component
 
     C1
       default private C1()

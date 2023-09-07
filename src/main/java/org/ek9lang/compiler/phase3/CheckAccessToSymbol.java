@@ -51,15 +51,23 @@ final class CheckAccessToSymbol extends RuleSupport implements Consumer<CheckSym
   }
 
   private void checkProtectedAccess(final String errorMsgBase, final CheckSymbolAccessData checkSymbolAccessData) {
-
-    if (checkSymbolAccessData.fromScope() instanceof IAggregateSymbol calledFromAggregate
-        && checkSymbolAccessData.inScope() instanceof IAggregateSymbol resolvedInAggregate
-        && !calledFromAggregate.isInAggregateHierarchy(resolvedInAggregate)) {
-
-      //This will be OK as long as the fromScope and the inScope are in the same hierarchy.
-      var msg = "access from '" + checkSymbolAccessData.fromScope().getFriendlyScopeName() + "' to " + errorMsgBase;
-      errorListener.semanticError(checkSymbolAccessData.token(), msg,
-          ErrorListener.SemanticClassification.NOT_ACCESSIBLE);
+    //Need to deal with calls from outside of aggregates
+    if (checkSymbolAccessData.fromScope() instanceof IAggregateSymbol calledFromAggregate) {
+      if (checkSymbolAccessData.inScope() instanceof IAggregateSymbol resolvedInAggregate
+          && !calledFromAggregate.isInAggregateHierarchy(resolvedInAggregate)) {
+        //This will be OK as long as the fromScope and the inScope are in the same hierarchy.
+        emitNoAccessToProtectedMethod(errorMsgBase, checkSymbolAccessData);
+      }
+    } else {
+      //Not even from with any sort of aggregate (so a function).
+      emitNoAccessToProtectedMethod(errorMsgBase, checkSymbolAccessData);
     }
+  }
+
+  private void emitNoAccessToProtectedMethod(final String errorMsgBase,
+                                             final CheckSymbolAccessData checkSymbolAccessData) {
+    var msg = "access from '" + checkSymbolAccessData.fromScope().getFriendlyScopeName() + "' to " + errorMsgBase;
+    errorListener.semanticError(checkSymbolAccessData.token(), msg,
+        ErrorListener.SemanticClassification.NOT_ACCESSIBLE);
   }
 }

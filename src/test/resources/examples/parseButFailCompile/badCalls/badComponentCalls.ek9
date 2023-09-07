@@ -1,10 +1,10 @@
 #!ek9
 <?-
-  In this case just checking classes can be created.
+  In this case just checking components can be created (much the same as classes).
 -?>
-defines module bad.classcalls.examples1
+defines module bad.componentcalls.examples1
 
-  defines class
+  defines component
 
     C1
       default private C1()
@@ -19,10 +19,6 @@ defines module bad.classcalls.examples1
         assert arg0?
 
       private somePrivateMethod()
-        -> arg0 as String
-        assert arg0?
-
-      protected someProtectedMethod()
         -> arg0 as String
         assert arg0?
 
@@ -61,11 +57,6 @@ defines module bad.classcalls.examples1
       @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
       c1.somePrivateMethod("Steve")
 
-    TestInvalidC1ProtectedMethodCall()
-      c1 <- C1("Steve")
-      @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
-      c1.someProtectedMethod("Steve")
-
     TestInvalidC1MethodCall()
       c1 <- C1("Steve")
       @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
@@ -80,5 +71,5 @@ defines module bad.classcalls.examples1
 
       @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
       assert c1A.<>(c1B)
-      
+
 //EOF
