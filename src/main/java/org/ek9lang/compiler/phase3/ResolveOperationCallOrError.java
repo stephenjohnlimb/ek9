@@ -46,7 +46,7 @@ final class ResolveOperationCallOrError extends RuleSupport
 
     //Get the params and extract the types
     var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
-    var methodOrDelegateName = ctx.identifier().getText();
+    var methodOrDelegateName = ctx.operator() != null ? ctx.operator().getText() : ctx.identifier().getText();
 
     //Firstly just see if we can match a variable - for a delegate match
     var initialCheck = scopeToResolveIn.resolveMember(new SymbolSearch(methodOrDelegateName));

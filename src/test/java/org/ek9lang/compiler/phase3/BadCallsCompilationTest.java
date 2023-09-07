@@ -27,5 +27,6 @@ class BadCallsCompilationTest extends FullCompilationTest {
     assertFalse(program.getParsedModules("bad.functioncall.examples1").isEmpty());
     assertFalse(program.getParsedModules("bad.enumeratedtypecall.examples1").isEmpty());
     assertFalse(program.getParsedModules("bad.constrainedtypecall.examples1").isEmpty());
+    assertFalse(program.getParsedModules("bad.recordcalls.examples1").isEmpty());
   }
 }

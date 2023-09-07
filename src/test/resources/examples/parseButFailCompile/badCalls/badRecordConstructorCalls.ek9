@@ -1,0 +1,72 @@
+#!ek9
+<?-
+  In this case just checking records can be created.
+-?>
+defines module bad.recordcalls.examples1
+
+  //Some examples of creating a new 'constrained' type or just a sort of alias.
+  defines record
+
+    R1
+      default private R1()
+
+      R1()
+        -> arg0 as String
+        this()
+        assert arg0?
+
+      operator <> as pure
+        -> arg0 as R1
+        <- rtn <- true
+
+      //Just check that we can overload operators with different types.
+      operator <> as pure
+        -> arg0 as Integer
+        <- rtn <- true
+
+  defines function
+
+    TestPublicR1Construction()
+      r1 <- R1("Steve")
+      assert r1?
+
+    TestMissingOperator()
+      r1A <- R1("Steve")
+      assert r1A?
+
+      r1B <- R1("Stephen")
+      assert r1B?
+
+      //Make the operator calls in the method type style for testing 'calls'
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      assert not r1A.==(r1B)
+
+      //But this will be resolved OK, as that operator exists
+      assert r1A.<>(r1B)
+
+      //But while <> operator does exist, it does not exist for String type arguments.
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      assert r1A.<>("Steve")
+
+      //Operator does exist for Integer
+      assert r1A.<>(2)
+
+      //But not for Floats
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      assert r1A.<>(2.3)
+
+    TestPrivateR1Construction()
+
+      @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
+      error1 <- R1()
+      assert error1?
+
+    TestNoSuchR1Constructor()
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      error2 <- R1(false)
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert error2?
+
+//EOF

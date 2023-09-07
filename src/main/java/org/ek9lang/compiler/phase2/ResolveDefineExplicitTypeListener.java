@@ -153,7 +153,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   public void exitTypeDeclaration(EK9Parser.TypeDeclarationContext ctx) {
     var aggregateSymbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     //Might be null if name if the name is duplicated.
-    if(aggregateSymbol != null) {
+    if (aggregateSymbol != null) {
       aggregateFactory.addSyntheticConstructorIfRequired(aggregateSymbol);
       aggregateFactory.addConstructor(aggregateSymbol, aggregateSymbol);
       if (ctx.typeDef() == null) {

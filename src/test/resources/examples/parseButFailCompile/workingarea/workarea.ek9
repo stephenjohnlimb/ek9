@@ -1,78 +1,40 @@
 #!ek9
 <?-
   Examples of multiple 'calls' to a range of constructs to test the
-  identifierReference instantiation with generics, classes components, types enumerations, records, etc.
+  identifierReference instantiation with generics, classes components, records, etc.
 
-  In this case just checking that Constrained types can be used and resolved.
+  In this case just checking records can be created.
 -?>
-defines module bad.enumerationandtype.examples1
+defines module bad.recordcalls.examples1
 
   //Some examples of creating a new 'constrained' type or just a sort of alias.
-  defines type
+  defines record
 
-    Index as Integer constrain as
-      > 0
+    R1
+      default private R1()
 
-    //Stronger typing for use just in a database (for example).
-    //This also demonstrates that it is possible to further 'alias' from an already defined type.
-    DBIndex as Index
-
-    LimitedColor as Colour constrain as
-      (#0099CC or #9900CC or == #CC0099) and <> #CC0011
+      R1()
+        -> arg0 as String
+        this()
+        assert arg0?
 
   defines function
 
-    TestValidIndexCall1()
-      emptyIndex1 <- Index()
-      assert not emptyIndex1?
+    TestPublicR1Construction()
+      r1 <- R1("Steve")
+      assert r1?
 
-    TestValidIndexCall2A()
-      index2A <- Index(2)
-      assert index2A?
+    TestPrivateR1Construction()
 
-    TestValidIndexCall2B()
-      index2B <- Index(3)
-      assert index2B?
+      @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
+      error1 <- R1()
+      assert error1?
 
-      index2C <- Index(index2B)
-      assert index2C
-
-    //So if you want to construct from a String, it is necessary to go 'via' and Integer
-    TestValidIndexCall2D()
-      index2D <- Index(Integer("3"))
-      assert index2D?
-
-    TestValidDBIndexCall()
-      dbIndex <- DBIndex(Index(3))
-      assert dbIndex?
-
-    TestValidLimitedColour()
-      validColour <- LimitedColor(#AAFFBB)
-      assert validColour?
-
-    TestValidUnknownLimitedColour()
-      unsetColour <- LimitedColor()
-      assert not unsetColour?
-
-    TestValidLimitedColourViaStringAndColour()
-      strangeColour <- LimitedColor(Colour("#33AACC"))
-      assert strangeColour?
-
-    //As index is a 'constrained/alias' of an Integer - then it cannot be constructed with Strings or other types
-    TestInvalidIndexCall1()
-
+    TestNoSuchR1Constructor()
       @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
-      invalidIndex <- Index("3")
+      error2 <- R1(false)
 
       @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
-      assert not invalidIndex?
-
-    TestInValidLimitedColour()
-
-      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
-      invalidColour <- LimitedColor("#33AACC")
-
-      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
-      assert invalidColour?
+      assert error2?
 
 //EOF
