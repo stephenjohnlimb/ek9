@@ -174,10 +174,22 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Character?
 
           Integer as open
+            <?-
+              Just an unset Integer
+            -?>
             Integer()
 
+            <?-
+              Parse a String as an Integer, unset if not parsable.
+            -?>
             Integer()
               -> arg0 as String
+          
+            <?-
+              Copy construction from parameter passed in
+            -?>
+            Integer()
+              -> arg0 as Integer
 
             operator #^ as pure
               <- rtn as Float?
@@ -522,7 +534,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as List of T?
 
             operator +=
-              -> arg as T              
+              -> arg as T
               
           Optional of type T
             Optional()

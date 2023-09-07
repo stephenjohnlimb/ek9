@@ -1,0 +1,46 @@
+#!ek9
+<?-
+  In this case just checking that Enumeration types can be used and resolved.
+-?>
+defines module bad.enumeratedtypecall.examples1
+
+  defines type
+    CardSuit
+      Hearts
+      Diamonds
+      Clubs
+      Spades
+
+  defines function
+
+    TestValidEmptyCardSuitCall()
+      emptySuit1 <- CardSuit()
+      assert not emptySuit1?
+
+    TestValidCardSuitCall1()
+      hearts <- CardSuit("Hearts")
+      assert hearts?
+
+    TestValidCardSuitCall2()
+      hearts <- CardSuit("Hearts")
+      copyOfHearts <- CardSuit(hearts)
+      assert copyOfHearts?
+
+    TestValidCardSuitCallButWithInvalidString()
+      emptySuit2 <- CardSuit("No-Such-Suit")
+      assert emptySuit2?
+
+    TestInvalidCardSuitCall1()
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      emptySuit3 <- CardSuit(true)
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert emptySuit3?
+
+    TestInvalidCardSuitCall2()
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      emptySuit4 <- CardSuit(666)
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert emptySuit4?
+//EOF

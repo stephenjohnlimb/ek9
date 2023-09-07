@@ -1,11 +1,8 @@
 #!ek9
 <?-
-  Examples of multiple 'calls' to a range of constructs to test the
-  identifierReference instantiation with generics, classes components, types enumerations, records, etc.
-
   In this case just checking that Constrained types can be used and resolved.
 -?>
-defines module bad.enumerationandtype.examples1
+defines module bad.constrainedtypecall.examples1
 
   //Some examples of creating a new 'constrained' type or just a sort of alias.
   defines type

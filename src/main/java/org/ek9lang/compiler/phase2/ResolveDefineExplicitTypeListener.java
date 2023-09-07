@@ -150,11 +150,25 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   }
 
   @Override
-  public void enterEnumerationDeclaration(EK9Parser.EnumerationDeclarationContext ctx) {
-    //Now get the parent enumeration this enumeration items are to be defined in
-    var enumerationSymbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx.parent);
-    aggregateFactory.addSyntheticConstructorIfRequired(enumerationSymbol);
-    aggregateFactory.addConstructor(enumerationSymbol, ek9Types.ek9String());
+  public void exitTypeDeclaration(EK9Parser.TypeDeclarationContext ctx) {
+    var aggregateSymbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    //Might be null if name if the name is duplicated.
+    if(aggregateSymbol != null) {
+      aggregateFactory.addSyntheticConstructorIfRequired(aggregateSymbol);
+      aggregateFactory.addConstructor(aggregateSymbol, aggregateSymbol);
+      if (ctx.typeDef() == null) {
+        //For enumerations we allow creation via String.
+        aggregateFactory.addConstructor(aggregateSymbol, ek9Types.ek9String());
+      } else {
+        var theContainedType = symbolAndScopeManagement.getRecordedSymbol(ctx.typeDef());
+        if (theContainedType != null) {
+          //Add a constructor of the type being constrained.
+          aggregateFactory.addConstructor(aggregateSymbol, theContainedType);
+        }
+        //else we should already get an error for this missing type.
+      }
+    }
+    super.exitTypeDeclaration(ctx);
   }
 
   /**

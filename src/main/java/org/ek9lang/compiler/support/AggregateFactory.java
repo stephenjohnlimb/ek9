@@ -321,34 +321,35 @@ public class AggregateFactory {
    * Adds all the appropriate methods for a type that is an 'Enumeration'.
    * This allows a developer to use built-in methods on the 'Enumeration' type.
    */
-  public void addEnumerationMethods(AggregateSymbol clazz) {
-    final Optional<ISymbol> booleanType = resolveBoolean(clazz);
-    final Optional<ISymbol> integerType = resolveInteger(clazz);
-    final Optional<ISymbol> stringType = resolveString(clazz);
-    final Optional<ISymbol> jsonType = resolveJson(clazz);
+  public void addEnumerationMethods(AggregateSymbol enumerationSymbol) {
+    final Optional<ISymbol> booleanType = resolveBoolean(enumerationSymbol);
+    final Optional<ISymbol> integerType = resolveInteger(enumerationSymbol);
+    final Optional<ISymbol> stringType = resolveString(enumerationSymbol);
+    final Optional<ISymbol> jsonType = resolveJson(enumerationSymbol);
+
     //Some reasonable operations
     //compare
-    addComparatorOperator(clazz, "<=>", integerType);
-    addComparatorOperator(clazz, "==", booleanType);
-    addComparatorOperator(clazz, "<>", booleanType);
-    addComparatorOperator(clazz, "<", booleanType);
-    addComparatorOperator(clazz, ">", booleanType);
-    addComparatorOperator(clazz, "<=", booleanType);
-    addComparatorOperator(clazz, ">=", booleanType);
+    addComparatorOperator(enumerationSymbol, "<=>", integerType);
+    addComparatorOperator(enumerationSymbol, "==", booleanType);
+    addComparatorOperator(enumerationSymbol, "<>", booleanType);
+    addComparatorOperator(enumerationSymbol, "<", booleanType);
+    addComparatorOperator(enumerationSymbol, ">", booleanType);
+    addComparatorOperator(enumerationSymbol, "<=", booleanType);
+    addComparatorOperator(enumerationSymbol, ">=", booleanType);
 
     //isSet
-    addPurePublicSimpleOperator(clazz, "?", booleanType);
+    addPurePublicSimpleOperator(enumerationSymbol, "?", booleanType);
     //Now a _string $ operator
-    addPurePublicSimpleOperator(clazz, "$", stringType);
+    addPurePublicSimpleOperator(enumerationSymbol, "$", stringType);
 
     //To JSON operator
-    addPurePublicSimpleOperator(clazz, "$$", jsonType);
+    addPurePublicSimpleOperator(enumerationSymbol, "$$", jsonType);
     //hash code
-    addPurePublicSimpleOperator(clazz, "#?", integerType);
+    addPurePublicSimpleOperator(enumerationSymbol, "#?", integerType);
 
     //First and last
-    addPurePublicReturnSameTypeMethod(clazz, "#<");
-    addPurePublicReturnSameTypeMethod(clazz, "#>");
+    addPurePublicReturnSameTypeMethod(enumerationSymbol, "#<");
+    addPurePublicReturnSameTypeMethod(enumerationSymbol, "#>");
   }
 
   private void addPurePublicReturnSameTypeMethod(IAggregateSymbol clazz, String methodName) {
