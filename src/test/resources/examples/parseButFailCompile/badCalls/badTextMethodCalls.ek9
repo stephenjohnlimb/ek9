@@ -1,7 +1,6 @@
 #!ek9
 <?-
   In this case just checking text methods can be created.
-  Now update to check that all methods are checked in a hierarchies tests.
 -?>
 defines module bad.textcalls.examples1
 

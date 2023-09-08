@@ -305,7 +305,8 @@ public class SymbolTable implements IScope {
                                                         final SymbolSearch search) {
     var category = search.getSearchType();
     AssertValue.checkNotNull("Search type must be explicit", category);
-    return resolveInThisScopeOnly(getSplitSymbolTable(category), symbolName, search);
+    var resolved = resolveInThisScopeOnly(getSplitSymbolTable(category), symbolName, search);
+    return resolved;
   }
 
   /**

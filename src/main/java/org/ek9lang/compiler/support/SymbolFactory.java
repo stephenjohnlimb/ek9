@@ -25,6 +25,9 @@ import org.ek9lang.compiler.directives.ErrorDirective;
 import org.ek9lang.compiler.directives.ImplementsDirective;
 import org.ek9lang.compiler.directives.NotResolvedDirective;
 import org.ek9lang.compiler.directives.ResolvedDirective;
+import org.ek9lang.compiler.search.MethodSymbolSearch;
+import org.ek9lang.compiler.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.CallSymbol;
@@ -48,6 +51,7 @@ import org.ek9lang.compiler.symbols.Symbol;
 import org.ek9lang.compiler.symbols.TrySymbol;
 import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.core.AssertValue;
+import org.ek9lang.core.CompilerException;
 import org.ek9lang.core.UniqueIdGenerator;
 
 /**
@@ -357,19 +361,40 @@ public class SymbolFactory {
 
   /**
    * Create a new aggregate that represents EK9 text construct.
+   * Note that this also creates a common base for all text with the same name.
+   * It ensures that all methods are added to that common base.
+   * Then we can check if all those methods on the common base are also defined in each and every concrete language
+   * text aggregate.
    */
   public AggregateSymbol newText(EK9Parser.TextDeclarationContext ctx, String forLanguage) {
     //an error will have been created for the developer as language does not conform.
     if (forLanguage != null) {
-      String textName = ctx.Identifier().getText() + "_" + forLanguage;
+      var baseName = ctx.Identifier().getText();
+      Optional<ISymbol> base = parsedModule.getModuleScope().resolve(new TypeSymbolSearch(baseName));
+
+      if (base.isEmpty()) {
+
+        var textBase = new AggregateSymbol(baseName, parsedModule.getModuleScope());
+        configureAggregate(textBase, ctx.start);
+        textBase.setGenus(ISymbol.SymbolGenus.TEXT);
+        parsedModule.getModuleScope().define(textBase);
+        aggregateFactory.addConstructor(textBase, aggregateFactory.resolveString(parsedModule.getModuleScope()));
+        base = Optional.of(textBase);
+      }
+
+      String textName = baseName + "_" + forLanguage;
       AggregateSymbol text = new AggregateSymbol(textName, parsedModule.getModuleScope());
       configureAggregate(text, ctx.start);
       text.setGenus(ISymbol.SymbolGenus.TEXT);
-      text.putSquirrelledData("LANG", forLanguage);
+      //Now ensure it is set up as the 'super'.
+      text.setSuperAggregateSymbol((IAggregateSymbol) base.get());
 
+      //Store both the language this is for and the base name, this will be useful later
+      text.putSquirrelledData("LANG", forLanguage);
+      text.putSquirrelledData("BASE_NAME", baseName);
       return text;
     }
-    //return a place holder
+    //return a place holder so error handling can continue
     return new AggregateSymbol(ctx.Identifier().getText(), parsedModule.getModuleScope());
   }
 
@@ -378,15 +403,42 @@ public class SymbolFactory {
    */
   public MethodSymbol newTextBody(EK9Parser.TextBodyDeclarationContext ctx, IScope scope) {
     String methodName = ctx.Identifier().getText();
+    return makeTextBodyMethod(methodName, ctx.start, scope);
+  }
+
+  /**
+   * Ensures that any method in a specific text block is always added to the base text for that component.
+   */
+  public void ensureTextBodyIsInSuper(final MethodSymbol textMethodSymbol) {
+    var scope = textMethodSymbol.getParentScope();
+    if (scope instanceof IAggregateSymbol textDeclaration
+        && textDeclaration.getSuperAggregateSymbol().isPresent()) {
+
+      var textBase = textDeclaration.getSuperAggregateSymbol().get();
+      var results = textBase.resolveMatchingMethodsInThisScopeOnly(new MethodSymbolSearch(textMethodSymbol),
+          new MethodSymbolSearchResult());
+
+      if (results.isEmpty()) {
+        var textBaseMethod = textMethodSymbol.clone(textBase);
+        textBaseMethod.setOverride(false);
+        textBase.define(textMethodSymbol);
+      }
+    } else {
+      throw new CompilerException("Only expecting text body to be using within a textDeclaration scope with a super");
+    }
+  }
+
+  private MethodSymbol makeTextBodyMethod(final String methodName,
+                                          final Token token,
+                                          final IScope scope) {
 
     MethodSymbol method = new MethodSymbol(methodName, scope);
-    configureSymbol(method, ctx.start);
-
+    configureSymbol(method, token);
     method.setOverride(true);
     method.setMarkedAbstract(false);
     method.setMarkedPure(true);
-
     method.setOperator(false);
+
     //Always returns a String - no need or ability to declare it.
     method.setType(aggregateFactory.resolveString(scope));
 

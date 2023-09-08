@@ -333,6 +333,17 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   }
 
   @Override
+  public void exitTextBodyDeclaration(EK9Parser.TextBodyDeclarationContext ctx) {
+    //We have to do this on the exit side, so that the whole method body params are defined
+    //That way it can be cloned and added to the conceptual base.
+    var textMethodSymbol = (MethodSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    if (textMethodSymbol != null) {
+      symbolFactory.ensureTextBodyIsInSuper(textMethodSymbol);
+    }
+    super.exitTextBodyDeclaration(ctx);
+  }
+
+  @Override
   public void enterServiceDeclaration(EK9Parser.ServiceDeclarationContext ctx) {
     final var newTypeSymbol = symbolFactory.newService(ctx);
     checkAndDefineModuleScopedSymbol(newTypeSymbol, ctx);

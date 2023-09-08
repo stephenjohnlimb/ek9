@@ -30,5 +30,6 @@ class BadCallsCompilationTest extends FullCompilationTest {
     assertFalse(program.getParsedModules("bad.recordcalls.examples1").isEmpty());
     assertFalse(program.getParsedModules("bad.classcalls.examples1").isEmpty());
     assertFalse(program.getParsedModules("bad.componentcalls.examples1").isEmpty());
+    assertFalse(program.getParsedModules("bad.textcalls.examples1").isEmpty());
   }
 }

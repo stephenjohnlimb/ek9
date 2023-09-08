@@ -29,9 +29,11 @@ class ExamplesConstructsServicesTest extends FullCompilationTest {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
 
-    new SymbolCountCheck("com.customer.services", 43).test(program);
+    //We expect an additional aggregate because we create an aggregate for the base TextAggregate.
+
+    new SymbolCountCheck("com.customer.services", 44).test(program);
     new SymbolCountCheck("com.customer.webserver", 2).test(program);
-    new SymbolCountCheck("com.customer.html", 3).test(program);
+    new SymbolCountCheck("com.customer.html", 4).test(program);
 
   }
 }
