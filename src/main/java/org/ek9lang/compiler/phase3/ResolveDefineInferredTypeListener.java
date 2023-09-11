@@ -38,6 +38,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   private final CheckReturn checkDynamicFunctionReturn;
   private final CheckReturn checkFunctionReturn;
   private final CheckMethodReturn checkMethodReturn;
+  private final CheckAllTextBodiesPresent checkAllTextBodiesPresent;
 
   /**
    * Create a new instance to define or resolve inferred types.
@@ -58,6 +59,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     this.checkDynamicFunctionReturn = new CheckReturn(true, symbolAndScopeManagement, errorListener);
     this.checkFunctionReturn = new CheckReturn(false, symbolAndScopeManagement, errorListener);
     this.checkMethodReturn = new CheckMethodReturn(symbolAndScopeManagement, errorListener);
+    this.checkAllTextBodiesPresent = new CheckAllTextBodiesPresent(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -154,5 +156,18 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     checkDynamicFunctionReturn.accept(symbol, symbol.getReturningSymbol());
 
     super.exitDynamicFunctionDeclaration(ctx);
+  }
+
+  @Override
+  public void exitTextDeclaration(EK9Parser.TextDeclarationContext ctx) {
+    //At this point, all the text declarations and their text bodies will have been defined.
+    //But also the 'super' with all the methods will have also been defined.
+    //This is the point where we can check that this specific text declaration has all the same methods as the super.
+    var textAggregate = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    if (textAggregate != null) {
+      //Only check if valid - might have been a duplicate.
+      checkAllTextBodiesPresent.accept(textAggregate);
+    }
+    super.exitTextDeclaration(ctx);
   }
 }

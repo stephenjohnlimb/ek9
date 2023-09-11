@@ -434,6 +434,7 @@ public class ErrorListener extends BaseErrorListener {
     NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT("not declared abstract but still has abstract methods/operators"),
     DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS("all abstract methods/operators must be implemented"),
     ABSTRACT_METHOD_NOT_IMPLEMENTED("method is abstract - should be overridden/implemented"),
+    TEXT_METHOD_MISSING("text method missing for language variant"),
     METHOD_NOT_OVERRIDDEN("method must be overridden/implemented"),
     IMPLEMENTATION_MUST_BE_PROVIDED("implementation must be provided"),
     PARAMETER_MISMATCH("parameter mismatch"),

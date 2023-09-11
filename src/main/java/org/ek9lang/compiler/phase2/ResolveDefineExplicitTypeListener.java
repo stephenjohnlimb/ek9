@@ -294,7 +294,6 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     super.exitComponentDeclaration(ctx);
   }
 
-
   @Override
   public void enterTextDeclaration(EK9Parser.TextDeclarationContext ctx) {
     var scope = symbolAndScopeManagement.getRecordedScope(ctx);

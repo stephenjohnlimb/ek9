@@ -267,6 +267,10 @@ public class MethodSymbol extends ScopedSymbol {
     return constructor;
   }
 
+  public boolean isNotConstructor() {
+    return !isConstructor();
+  }
+
   public MethodSymbol setConstructor(boolean constructor) {
     this.constructor = constructor;
     return this;

@@ -3,7 +3,7 @@
   In this case just checking text methods can be created.
   Now update to check that all methods are checked in a hierarchies tests.
 -?>
-defines module bad.textcalls.examples1
+defines module bad.missingtextmethods.examples1
 
   defines record
     Person
@@ -21,52 +21,24 @@ defines module bad.textcalls.examples1
 
   defines text for "en_GB"
 
+    //This text type has a missing method, that is present in the "de version"
+    @Error: FULL_RESOLUTION: TEXT_METHOD_MISSING
     WelcomePageText
 
       namedWelcome()
-        -> person Person
+        -> person as Person
         `Welcome ${person.firstName}`
 
   defines text for "de"
 
     WelcomePageText
       namedWelcome()
-        -> person Person
+        -> person as Person
         `Willkommen ${person.firstName}`
 
-  defines function
+      //Deliberately add method here but not for en_GB
+      namedWelcome()
+        -> name as String
+        `Willkommen ${name}`
 
-    TestEnglishWelcome()
-      lang <- "en_GB"
-      me <- Person("Steve", "Limb")
-
-      englishWelcome <- WelcomePageText(lang)
-      welcomeMe <- englishWelcome.namedWelcome(me)
-      assert welcomeMe?
-
-    TestDeutschWelcome()
-      lang <- "de"
-      me <- Person("Steve", "Limb")
-
-      deutschWelcome <- WelcomePageText(lang)
-      welcomeMe <- deutschWelcome.namedWelcome(me)
-      assert welcomeMe?
-
-    //While not a compile time error, this would have to be a runtime error.
-    TestNoSuchLanguageWelcome()
-      lang <- "none"
-      me <- Person("Steve", "Limb")
-
-      wouldBeEmptyWelcome <- WelcomePageText(lang)
-      wouldBeEmptyWelcomeMe <- wouldBeEmptyWelcome.namedWelcome(me)
-      assert not wouldBeEmptyWelcomeMe?
-
-    TestInvalidMethodNameCall()
-      englishWelcome <- WelcomePageText("en")
-
-      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
-      welcomeMe <- englishWelcome.noSuchMethod(Person("Steve", "Limb"))
-
-      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
-      assert welcomeMe?
 //EOF
