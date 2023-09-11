@@ -90,7 +90,7 @@ serviceBlock
     ;
 
 applicationBlock
-    : DEFINES appType=(PROGRAM | SERVICE)? APPLICATION NL+ INDENT NL* (directive? applicationDeclaration NL+)+ DEDENT
+    : DEFINES APPLICATION NL+ INDENT NL* (directive? applicationDeclaration NL+)+ DEDENT
     ;
 
 functionBlock

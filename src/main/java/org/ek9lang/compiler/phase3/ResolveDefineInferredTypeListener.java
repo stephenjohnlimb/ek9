@@ -40,6 +40,8 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   private final CheckMethodReturn checkMethodReturn;
   private final CheckAllTextBodiesPresent checkAllTextBodiesPresent;
 
+  private final CheckServiceRegistration checkServiceRegistration;
+
   /**
    * Create a new instance to define or resolve inferred types.
    */
@@ -60,6 +62,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     this.checkFunctionReturn = new CheckReturn(false, symbolAndScopeManagement, errorListener);
     this.checkMethodReturn = new CheckMethodReturn(symbolAndScopeManagement, errorListener);
     this.checkAllTextBodiesPresent = new CheckAllTextBodiesPresent(symbolAndScopeManagement, errorListener);
+    this.checkServiceRegistration = new CheckServiceRegistration(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -169,5 +172,11 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
       checkAllTextBodiesPresent.accept(textAggregate);
     }
     super.exitTextDeclaration(ctx);
+  }
+
+  @Override
+  public void exitRegisterStatement(EK9Parser.RegisterStatementContext ctx) {
+    checkServiceRegistration.accept(ctx);
+    super.exitRegisterStatement(ctx);
   }
 }

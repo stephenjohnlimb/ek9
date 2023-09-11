@@ -13,6 +13,7 @@ public enum DirectiveType {
   Resolved,
   Implements,
   NotResolved,
+  Genus,
   Symbols,
   Compiler,
   Instrument

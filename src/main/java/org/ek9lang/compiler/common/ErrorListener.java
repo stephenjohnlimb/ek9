@@ -269,6 +269,8 @@ public class ErrorListener extends BaseErrorListener {
     DIRECTIVE_SYMBOL_NOT_RESOLVED("symbol not resolved"),
     DIRECTIVE_HIERARCHY_NOT_RESOLVED("symbol hierarchy not in place"),
     DIRECTIVE_SYMBOL_CATEGORY_MISMATCH("symbol category mismatched"),
+    DIRECTIVE_SYMBOL_GENUS_MISMATCH("symbol genus mismatched"),
+    DIRECTIVE_SYMBOL_NO_SUCH_GENUS("genus does not exist"),
     DIRECTIVE_SYMBOL_FOUND_UNEXPECTED_SYMBOL("unexpected symbol resolved"),
     DIRECTIVE_ERROR_MISMATCH("count does not match"),
     NOT_RESOLVED_FUZZY_MATCH("is the closest match found"),

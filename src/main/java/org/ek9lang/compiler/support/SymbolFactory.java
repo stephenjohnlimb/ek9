@@ -22,6 +22,7 @@ import org.ek9lang.compiler.directives.DirectiveType;
 import org.ek9lang.compiler.directives.DirectivesCompilationPhase;
 import org.ek9lang.compiler.directives.DirectivesNextLineNumber;
 import org.ek9lang.compiler.directives.ErrorDirective;
+import org.ek9lang.compiler.directives.GenusDirective;
 import org.ek9lang.compiler.directives.ImplementsDirective;
 import org.ek9lang.compiler.directives.NotResolvedDirective;
 import org.ek9lang.compiler.directives.ResolvedDirective;
@@ -159,6 +160,7 @@ public class SymbolFactory {
         case Resolved -> newResolutionDirective(ctx, true);
         case Implements -> newImplementsDirective(ctx);
         case NotResolved -> newResolutionDirective(ctx, false);
+        case Genus -> newGenusDirective(ctx);
         case Symbols, Compiler, Instrument ->
             throw new IllegalArgumentException("Unsupported '@" + nameOfDirective + "':");
       };
@@ -203,6 +205,11 @@ public class SymbolFactory {
       return new ResolvedDirective(spec);
     }
     return new NotResolvedDirective(spec);
+  }
+
+  private Directive newGenusDirective(final EK9Parser.DirectiveContext ctx) {
+    var spec = directiveSpecExtractor.apply(ctx);
+    return new GenusDirective(spec);
   }
 
   /**
@@ -510,13 +517,7 @@ public class SymbolFactory {
     AggregateSymbol application = new AggregateSymbol(applicationName, parsedModule.getModuleScope());
     configureAggregate(application, ctx.start);
 
-    //By default a general program application
     application.setGenus(ISymbol.SymbolGenus.GENERAL_APPLICATION);
-    EK9Parser.ApplicationBlockContext applicationBlockContext = (EK9Parser.ApplicationBlockContext) ctx.getParent();
-
-    if (applicationBlockContext.appType != null && applicationBlockContext.appType.getType() == EK9Parser.SERVICE) {
-      application.setGenus(ISymbol.SymbolGenus.SERVICE_APPLICATION);
-    }
 
     return application;
   }

@@ -613,6 +613,8 @@ defines module com.customer.services
       //We could register other services and components here
       
       register InMemoryRepository() as Repository
+      //It is possible that if 'services' are registered then EK9 will 'know'
+      //that this application is a HTTP serving service and more than just a program.
       register Addresses()
     
   defines program

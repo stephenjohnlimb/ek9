@@ -11,5 +11,6 @@ public record DirectiveSpec(Token token,
                             CompilationPhase phase,
                             ISymbol.SymbolCategory symbolCategory,
                             String symbolName,
-                            String additionalName, int lineNumber) {
+                            String additionalName,
+                            int lineNumber) {
 }

@@ -13,6 +13,7 @@ public class DirectiveListenerSupplier implements Supplier<Consumer<CompilationE
     return new ErrorDirectiveListener()
         .andThen(new ResolvedDirectiveListener())
         .andThen(new NotResolvedDirectiveListener())
-        .andThen(new ImplementsDirectiveListener());
+        .andThen(new ImplementsDirectiveListener())
+        .andThen(new GenusDirectiveListener());
   }
 }

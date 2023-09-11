@@ -69,7 +69,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final CheckSuitableToExtend checkClassTraitSuitableToExtend;
   private final CheckSuitableToExtend checkClassSuitableToExtend;
   private final CheckSuitableToExtend checkComponentSuitableToExtend;
-  private final CheckSuitableGenus checkComponentToRegisterAgainst;
+  private final CheckSuitableGenus checkRegisterGenusValid;
   private final CheckSuitableGenus checkAllowedClassSuitableGenus;
   private final CheckSuitableGenus checkApplicationForProgram;
   private final SyntheticConstructorCreator syntheticConstructorCreator;
@@ -138,7 +138,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     checkComponentSuitableToExtend =
         new CheckSuitableToExtend(symbolAndScopeManagement, errorListener, ISymbol.SymbolGenus.COMPONENT, true);
 
-    checkComponentToRegisterAgainst =
+    checkRegisterGenusValid =
         new CheckSuitableGenus(symbolAndScopeManagement, errorListener, ISymbol.SymbolGenus.COMPONENT, false, true);
 
     checkAllowedClassSuitableGenus =
@@ -542,10 +542,13 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   @Override
   public void exitRegisterStatement(EK9Parser.RegisterStatementContext ctx) {
-    //Don't really do anything with the resolved component at the moment.
+    //If there are any services registered then the application genus is modified from
+    //being a GENERAL_APPLICATION to a SERVICE_APPLICATION.
     if (ctx.identifierReference() != null) {
-      checkComponentToRegisterAgainst.apply(ctx.identifierReference());
+      //Then it's component registration
+      checkRegisterGenusValid.apply(ctx.identifierReference());
     }
+    //Else it is probably a service which is dealt with in the next phase.
     super.exitRegisterStatement(ctx);
   }
 
