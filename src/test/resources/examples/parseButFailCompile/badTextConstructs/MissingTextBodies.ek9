@@ -1,0 +1,44 @@
+#!ek9
+<?-
+  In this case just checking text methods can be created.
+  Now update to check that all methods are checked in a hierarchies tests.
+-?>
+defines module bad.missingtextmethods.examples1
+
+  defines record
+    Person
+      firstName <- String()
+      lastName <- String()
+
+      Person() as pure
+        ->
+          firstName String
+          lastName String
+        assert firstName? and lastName?
+
+        this.firstName :=: firstName
+        this.lastName :=: lastName
+
+  defines text for "en_GB"
+
+    //This text type has a missing method, that is present in the "de version"
+    @Error: FULL_RESOLUTION: TEXT_METHOD_MISSING
+    WelcomePageText
+
+      namedWelcome()
+        -> person as Person
+        `Welcome ${person.firstName}`
+
+  defines text for "de"
+
+    WelcomePageText
+      namedWelcome()
+        -> person as Person
+        `Willkommen ${person.firstName}`
+
+      //Deliberately add method here but not for en_GB
+      namedWelcome()
+        -> name as String
+        `Willkommen ${name}`
+
+//EOF
