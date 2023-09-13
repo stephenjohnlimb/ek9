@@ -1,7 +1,6 @@
 package org.ek9lang.compiler.support;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
@@ -73,11 +72,14 @@ public class AggregateFactory {
    */
   private Ek9Types ek9Types;
 
-  public AggregateFactory() {
+  private final OperatorFactory operatorFactory;
 
+  public AggregateFactory() {
+    operatorFactory = new OperatorFactory(this);
   }
 
   public AggregateFactory(final Ek9Types ek9Types) {
+    this();
     this.ek9Types = ek9Types;
   }
 
@@ -221,24 +223,7 @@ public class AggregateFactory {
    * Does not add them to the aggregate, but does create them with the aggregate as the enclosing scope.
    */
   public List<MethodSymbol> getAllPossibleDefaultOperators(IAggregateSymbol aggregate) {
-    final Optional<ISymbol> integerType = resolveInteger(aggregate);
-    final Optional<ISymbol> stringType = resolveString(aggregate);
-    final Optional<ISymbol> booleanType = resolveBoolean(aggregate);
-    final Optional<ISymbol> jsonType = resolveJson(aggregate);
-
-    return new ArrayList<>(Arrays.asList(
-        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<", booleanType),
-        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<=", booleanType),
-        createPureAcceptSameTypeOperatorAndReturnType(aggregate, ">", booleanType),
-        createPureAcceptSameTypeOperatorAndReturnType(aggregate, ">=", booleanType),
-        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "==", booleanType),
-        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<>", booleanType),
-        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<=>", integerType),
-
-        createPurePublicSimpleOperator(aggregate, "?", booleanType),
-        createPurePublicSimpleOperator(aggregate, "$", stringType),
-        createPurePublicSimpleOperator(aggregate, "$$", jsonType),
-        createPurePublicSimpleOperator(aggregate, "#?", integerType)));
+    return operatorFactory.getAllPossibleDefaultOperators(aggregate);
   }
 
   /**
@@ -246,60 +231,7 @@ public class AggregateFactory {
    * This is typically used when creating synthetic 'T' aggregates for generics/templates.
    */
   public List<MethodSymbol> getAllPossibleSyntheticOperators(IAggregateSymbol aggregate) {
-    final Optional<ISymbol> integerType = resolveInteger(aggregate);
-    final Optional<ISymbol> booleanType = resolveBoolean(aggregate);
-
-    var theDefaultOperators = getAllPossibleDefaultOperators(aggregate);
-
-    var additionalOperators = new ArrayList<>(Arrays.asList(
-        createToJsonSimpleOperator(aggregate),
-
-        //Cannot default the promote operator
-        createPurePublicReturnSameTypeMethod(aggregate, "#<"),
-        createPurePublicReturnSameTypeMethod(aggregate, "#>"),
-        createPurePublicReturnSameTypeMethod(aggregate, "~"),
-        createPurePublicReturnSameTypeMethod(aggregate, "abs"),
-        createPurePublicSimpleOperator(aggregate, "empty", booleanType),
-        createPurePublicSimpleOperator(aggregate, "length", integerType),
-
-        createPureAcceptSameTypeOperatorAndReturnType(aggregate, ">>", Optional.of(aggregate)),
-        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<<", Optional.of(aggregate)),
-        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "and", Optional.of(aggregate)),
-        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "or", Optional.of(aggregate)),
-        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "xor", Optional.of(aggregate)),
-        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "mod", integerType),
-        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "rem", integerType),
-        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "contains", booleanType),
-        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "matches", booleanType),
-        createPurePublicSimpleOperator(aggregate, "close", Optional.empty()),
-
-        //Other operators
-
-        //So for operators these will deal in the same type.
-        createOperator(aggregate, "+", true),
-        createOperator(aggregate, "-", true),
-        createOperator(aggregate, "*", true),
-        createOperator(aggregate, "/", true),
-
-        //Mutator type operators
-        createOperator(aggregate, ":~:", false),
-        createOperator(aggregate, ":^:", false),
-        createOperator(aggregate, ":=:", false),
-        createOperator(aggregate, "|", false),
-        createOperator(aggregate, "+=", false),
-        createOperator(aggregate, "-=", false),
-        createOperator(aggregate, "*=", false),
-        createOperator(aggregate, "/=", false),
-        createOperator(aggregate, "++", false),
-        createOperator(aggregate, "--", false),
-
-        //fuzzy compare
-        createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<~>", integerType)));
-
-    List<MethodSymbol> rtn = new ArrayList<>(theDefaultOperators.size() + additionalOperators.size());
-    rtn.addAll(theDefaultOperators);
-    rtn.addAll(additionalOperators);
-    return rtn;
+    return operatorFactory.getAllPossibleSyntheticOperators(aggregate);
   }
 
   /**
@@ -322,42 +254,15 @@ public class AggregateFactory {
    * This allows a developer to use built-in methods on the 'Enumeration' type.
    */
   public void addEnumerationMethods(AggregateSymbol enumerationSymbol) {
-    final Optional<ISymbol> booleanType = resolveBoolean(enumerationSymbol);
-    final Optional<ISymbol> integerType = resolveInteger(enumerationSymbol);
-    final Optional<ISymbol> stringType = resolveString(enumerationSymbol);
-    final Optional<ISymbol> jsonType = resolveJson(enumerationSymbol);
-
-    //Some reasonable operations
-    //compare
-    addComparatorOperator(enumerationSymbol, "<=>", integerType);
-    addComparatorOperator(enumerationSymbol, "==", booleanType);
-    addComparatorOperator(enumerationSymbol, "<>", booleanType);
-    addComparatorOperator(enumerationSymbol, "<", booleanType);
-    addComparatorOperator(enumerationSymbol, ">", booleanType);
-    addComparatorOperator(enumerationSymbol, "<=", booleanType);
-    addComparatorOperator(enumerationSymbol, ">=", booleanType);
-
-    //isSet
-    addPurePublicSimpleOperator(enumerationSymbol, "?", booleanType);
-    //Now a _string $ operator
-    addPurePublicSimpleOperator(enumerationSymbol, "$", stringType);
-
-    //To JSON operator
-    addPurePublicSimpleOperator(enumerationSymbol, "$$", jsonType);
-    //hash code
-    addPurePublicSimpleOperator(enumerationSymbol, "#?", integerType);
-
-    //First and last
-    addPurePublicReturnSameTypeMethod(enumerationSymbol, "#<");
-    addPurePublicReturnSameTypeMethod(enumerationSymbol, "#>");
+    operatorFactory.addEnumerationMethods(enumerationSymbol);
   }
 
-  private void addPurePublicReturnSameTypeMethod(IAggregateSymbol clazz, String methodName) {
+  public void addPurePublicReturnSameTypeMethod(IAggregateSymbol clazz, String methodName) {
     var method = createPurePublicReturnSameTypeMethod(clazz, methodName);
     clazz.define(method);
   }
 
-  private MethodSymbol createPurePublicReturnSameTypeMethod(IAggregateSymbol clazz, String methodName) {
+  public MethodSymbol createPurePublicReturnSameTypeMethod(IAggregateSymbol clazz, String methodName) {
     return createPurePublicSimpleOperator(clazz, methodName, Optional.of(clazz));
   }
 
@@ -372,9 +277,13 @@ public class AggregateFactory {
     return operator;
   }
 
+
+  /**
+   * Creates a pure method with an argument the same as the main type.
+   */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private MethodSymbol createPureAcceptSameTypeOperatorAndReturnType(IAggregateSymbol clazz, String comparatorType,
-                                                                     Optional<ISymbol> returnType) {
+  public MethodSymbol createPureAcceptSameTypeOperatorAndReturnType(IAggregateSymbol clazz, String comparatorType,
+                                                                    Optional<ISymbol> returnType) {
     MethodSymbol operator = createPurePublicSimpleOperator(clazz, comparatorType, returnType);
     operator.define(new VariableSymbol("param", clazz));
     return operator;
@@ -400,9 +309,12 @@ public class AggregateFactory {
     return createPurePublicSimpleOperator(aggregate, "$$", jsonType);
   }
 
+  /**
+   * Just creates a public operator with the name specified.
+   */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private MethodSymbol createPurePublicSimpleOperator(IAggregateSymbol clazz, String methodName,
-                                                      Optional<ISymbol> returnType) {
+  public MethodSymbol createPurePublicSimpleOperator(IAggregateSymbol clazz, String methodName,
+                                                     Optional<ISymbol> returnType) {
 
     MethodSymbol method = new MethodSymbol(methodName, clazz);
     if (returnType.isPresent()) {
@@ -417,7 +329,10 @@ public class AggregateFactory {
     return method;
   }
 
-  private MethodSymbol createOperator(IAggregateSymbol clazz, String operatorType, boolean isPure) {
+  /**
+   * Create an operator of the name supplied.
+   */
+  public MethodSymbol createOperator(IAggregateSymbol clazz, String operatorType, boolean isPure) {
     VariableSymbol paramT = new VariableSymbol("param", clazz);
 
     MethodSymbol operator = new MethodSymbol(operatorType, clazz);
@@ -482,4 +397,5 @@ public class AggregateFactory {
     }
     return scope.resolve(new TypeSymbolSearch(EK9_JSON));
   }
+
 }

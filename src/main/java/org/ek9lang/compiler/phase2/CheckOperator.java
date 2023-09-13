@@ -32,7 +32,7 @@ final class CheckOperator extends RuleSupport
   private final CheckNonTraitMethod checkNonTraitMethod;
   private final CheckIfContextSupportsAbstractMethod checkIfContextSupportsAbstractMethod;
   private final CheckInappropriateBody checkInappropriateBody;
-  private final Map<String, Consumer<MethodSymbol>> operatorChecks = new HashMap<>();
+  private final Map<String, Consumer<MethodSymbol>> operatorChecks;
   private final CheckOverrideAndAbstract checkOverrideAndAbstract;
 
   /**
@@ -41,7 +41,7 @@ final class CheckOperator extends RuleSupport
   CheckOperator(final SymbolAndScopeManagement symbolAndScopeManagement,
                 final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
-    populateOperatorChecks();
+    this.operatorChecks = populateOperatorChecks();
 
     checkNonTraitMethod = new CheckNonTraitMethod(errorListener);
     checkIfContextSupportsAbstractMethod =
@@ -51,8 +51,33 @@ final class CheckOperator extends RuleSupport
     checkOverrideAndAbstract = new CheckOverrideAndAbstract(symbolAndScopeManagement, errorListener);
   }
 
-  private void populateOperatorChecks() {
+  @Override
+  public void accept(final MethodSymbol methodSymbol, final EK9Parser.OperatorDeclarationContext ctx) {
 
+    //Operator can be defaulted and so compiler will create implementation
+    var defaulted = "TRUE".equals(methodSymbol.getSquirrelledData(DEFAULTED));
+
+    if (!defaulted) {
+      operatorChecks.getOrDefault(ctx.operator().getText(), method -> {
+      }).accept(methodSymbol);
+    }
+
+    if (ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext) {
+      checkTraitMethod.accept(methodSymbol, ctx.operationDetails());
+    }
+
+    if (!(ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext)) {
+      checkNonTraitMethod.accept(methodSymbol, ctx.operationDetails());
+    }
+
+    checkIfContextSupportsAbstractMethod.accept(methodSymbol, ctx);
+    checkInappropriateBody.accept(methodSymbol, ctx.operationDetails());
+    checkOverrideAndAbstract.accept(methodSymbol);
+  }
+
+  private Map<String, Consumer<MethodSymbol>> populateOperatorChecks() {
+
+    Map<String, Consumer<MethodSymbol>> rtn = new HashMap<>();
     final Map<String, Consumer<MethodSymbol>> logicalOperatorChecks = Map.of(
         "<", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
         "<=", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
@@ -102,10 +127,10 @@ final class CheckOperator extends RuleSupport
         "close", addPureCheck(this::testAcceptNoArgumentsNoReturn)
     );
 
-    operatorChecks.putAll(logicalOperatorChecks);
-    operatorChecks.putAll(simpleOperatorChecks);
-    operatorChecks.putAll(noArgumentWithReturnChecks);
-    operatorChecks.putAll(oneArgumentWithReturnChecks);
+    rtn.putAll(logicalOperatorChecks);
+    rtn.putAll(simpleOperatorChecks);
+    rtn.putAll(noArgumentWithReturnChecks);
+    rtn.putAll(oneArgumentWithReturnChecks);
 
     //Now for each of those operators tag on the is pure check.
     final Map<String, Consumer<MethodSymbol>> mutatorChecks = Map.of(
@@ -120,31 +145,8 @@ final class CheckOperator extends RuleSupport
         "++", addNonPureCheck(this::testAcceptNoArgumentsReturnConstructType),
         "--", addNonPureCheck(this::testAcceptNoArgumentsReturnConstructType)
     );
-    operatorChecks.putAll(mutatorChecks);
-  }
-
-  @Override
-  public void accept(final MethodSymbol methodSymbol, final EK9Parser.OperatorDeclarationContext ctx) {
-
-    //Operator can be defaulted and so compiler will create implementation
-    var defaulted = "TRUE".equals(methodSymbol.getSquirrelledData(DEFAULTED));
-
-    if (!defaulted) {
-      operatorChecks.getOrDefault(ctx.operator().getText(), method -> {
-      }).accept(methodSymbol);
-    }
-
-    if (ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext) {
-      checkTraitMethod.accept(methodSymbol, ctx.operationDetails());
-    }
-
-    if (!(ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext)) {
-      checkNonTraitMethod.accept(methodSymbol, ctx.operationDetails());
-    }
-
-    checkIfContextSupportsAbstractMethod.accept(methodSymbol, ctx);
-    checkInappropriateBody.accept(methodSymbol, ctx.operationDetails());
-    checkOverrideAndAbstract.accept(methodSymbol);
+    rtn.putAll(mutatorChecks);
+    return rtn;
   }
 
   private Consumer<MethodSymbol> addPureCheck(final Consumer<MethodSymbol> check) {
@@ -197,7 +199,6 @@ final class CheckOperator extends RuleSupport
   private void testReturnIsInteger(MethodSymbol methodSymbol) {
     testReturnType(methodSymbol, "Integer", ErrorListener.SemanticClassification.MUST_RETURN_INTEGER);
   }
-
 
   private void testAcceptOneArgumentsReturnAnyType(final MethodSymbol methodSymbol) {
     testSingleArgument(methodSymbol);

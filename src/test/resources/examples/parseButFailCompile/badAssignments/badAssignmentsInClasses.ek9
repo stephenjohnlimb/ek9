@@ -31,7 +31,7 @@ defines module bad.assignments.classes
         this :=: arg00
 
       someMethod4()
-        @Error: FULL_RESOLUTION: NEVER_INITIALISED
+        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
         notInitialised as C1?
 
         @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
@@ -54,11 +54,14 @@ defines module bad.assignments.classes
         val1 :=: val1
 
       someMethod7()
-        @Error: FULL_RESOLUTION: NEVER_INITIALISED
+        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
         <- rtn as C1?
         //This is not allowed because rtn has not been initialised
         @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
         rtn :=: this
+
+      operator ? as pure
+        <- rtn <- true
 
       operator :=:
         -> from as C1

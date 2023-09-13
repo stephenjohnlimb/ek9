@@ -1,0 +1,138 @@
+package org.ek9lang.compiler.phase2;
+
+import java.util.List;
+import java.util.function.BiConsumer;
+import org.antlr.v4.runtime.Token;
+import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.common.RuleSupport;
+import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.AggregateFactory;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.VariableSymbol;
+
+/**
+ * For Constrained Types, focus on checking it is possible to constrain the type and if so then
+ * clones the appropriate methods/operators over and alters the types as appropriate.
+ */
+class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<AggregateSymbol, ISymbol> {
+  final AggregateFactory aggregateFactory;
+
+  //These are a method names where we can alter the incoming argument type.
+  final List<String> methodNameWithAlterableArgumentTypes =
+      List.of(":=:", ":^:", ":~:", "matches", "contains", "and", "or", "xor",
+          "<", "<=", ">", ">=", "==", "<>", "<=>", "<~>");
+
+  //These are the method names where we can alter the return type - methods are those with one incoming argument
+  final List<String> methodNameWithAlterableReturnTypes =
+      List.of("+", "-", "*", "/", "^", ">>", "<<", "and", "or", "xor");
+
+  //These are the method names of methods with no input arguments where we must not alter the return type.
+  final List<String> methodNamesWithNonAlterableReturnTypes =
+      List.of("length", "abs", "#?");
+
+  CheckAndPopulateConstrainedType(final SymbolAndScopeManagement symbolAndScopeManagement,
+                                  final AggregateFactory aggregateFactory,
+                                  final ErrorListener errorListener) {
+    super(symbolAndScopeManagement, errorListener);
+    this.aggregateFactory = aggregateFactory;
+  }
+
+  @Override
+  public void accept(AggregateSymbol newType, final ISymbol constrainedType) {
+    if (constrainedType == null) {
+      //Already will have detected and emitted type not resolved.
+      return;
+    }
+    var isBoolean = constrainedType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Boolean());
+    var isJson = constrainedType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Json());
+    var isType = constrainedType.getCategory().equals(ISymbol.SymbolCategory.TYPE);
+
+    if (!isType || isBoolean || isJson) {
+      emitCannotConstrainTypeError(newType.getSourceToken(), constrainedType);
+      return;
+    }
+    //Now we can safely cast and clone over the methods
+    cloneMethodsAndOperators(newType, (AggregateSymbol) constrainedType);
+
+  }
+
+  private void cloneMethodsAndOperators(AggregateSymbol newType, final AggregateSymbol constrainedType) {
+
+    aggregateFactory.addConstructor(newType, constrainedType);
+    var candidates =
+        constrainedType.getAllNonAbstractMethods().stream().filter(MethodSymbol::isNotConstructor).toList();
+    for (var method : candidates) {
+      if (method.isOperator()) {
+        if (method.getCallParameters().isEmpty()) {
+          //Then it is a no argument operator and will have a return
+          newType.define(processNoArgOperator(method, newType, constrainedType));
+        } else {
+          //It is an operator that takes arguments and may also have a return
+          newType.define(processArgOperator(method, newType, constrainedType));
+        }
+
+      } else {
+        //For non operators - just clone method and leave type as they are.
+        var clonedMethod = method.clone(newType);
+        newType.define(clonedMethod);
+      }
+    }
+  }
+
+  private ISymbol processNoArgOperator(final MethodSymbol method, AggregateSymbol newType,
+                                       final AggregateSymbol constrainedType) {
+    var clonedMethod = method.clone(newType);
+    if (!methodNamesWithNonAlterableReturnTypes.contains(clonedMethod.getName())) {
+      adjustReturnType(clonedMethod, newType, constrainedType);
+    }
+    return clonedMethod;
+  }
+
+  private ISymbol processArgOperator(final MethodSymbol method, AggregateSymbol newType,
+                                     final AggregateSymbol constrainedType) {
+
+    var clonedMethod = method.clone(newType);
+
+    //Now we always alter any types in the input if they match the constrained type
+    if (methodNameWithAlterableReturnTypes.contains(clonedMethod.getName())) {
+      adjustReturnType(clonedMethod, newType, constrainedType);
+    }
+    if (methodNameWithAlterableArgumentTypes.contains(clonedMethod.getName())) {
+      adjustArgumentType(clonedMethod, newType, constrainedType);
+    }
+
+    return clonedMethod;
+  }
+
+  private void adjustArgumentType(MethodSymbol clonedMethod,
+                                  final AggregateSymbol newType,
+                                  final AggregateSymbol constrainedType) {
+    for (var argument : clonedMethod.getCallParameters()) {
+      if (argument.getType().isPresent() && argument.getType().get().isExactSameType(constrainedType)) {
+        argument.setType(newType);
+      }
+    }
+  }
+
+  private void adjustReturnType(MethodSymbol clonedMethod,
+                                final AggregateSymbol newType,
+                                final AggregateSymbol constrainedType) {
+    if (clonedMethod.isReturningSymbolPresent() && clonedMethod.getReturningSymbol().getType().isPresent()) {
+      var currentType = clonedMethod.getReturningSymbol().getType().get();
+      if (currentType.isExactSameType(constrainedType)) {
+        var returningSymbol = (VariableSymbol) clonedMethod.getReturningSymbol();
+        returningSymbol.setType(newType);
+        clonedMethod.setReturningSymbol(returningSymbol);
+      }
+    }
+  }
+
+  private void emitCannotConstrainTypeError(final Token lineToken, final ISymbol argument) {
+    argument.getType().ifPresent(argType -> {
+      var msg = "'" + argument.getFriendlyName() + "' is a '" + argType.getCategory() + "':";
+      errorListener.semanticError(lineToken, msg, ErrorListener.SemanticClassification.TYPE_CANNOT_BE_CONSTRAINED);
+    });
+  }
+}

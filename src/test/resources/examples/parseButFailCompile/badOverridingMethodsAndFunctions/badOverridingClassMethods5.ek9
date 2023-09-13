@@ -27,6 +27,8 @@ defines module bad.overriding.classmethods5
       absMethod() as abstract
         -> arg0 as T
         <- rtn as Boolean?
+      operator ? as pure
+        <- rtn as Boolean: true
 
   defines function
 

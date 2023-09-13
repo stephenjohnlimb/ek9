@@ -75,7 +75,7 @@ defines module bad.overriding.functions
 
     InvalidFunction4() is Function1
       -> arg0 as String
-      @Error: FULL_RESOLUTION: NEVER_INITIALISED
+      @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
       <- rtn as Boolean?
       assert arg0?
 
@@ -91,13 +91,13 @@ defines module bad.overriding.functions
 
     InValidFunction7() is AbstractFunction1
       -> arg0 as String
-      @Error: FULL_RESOLUTION: NEVER_INITIALISED
+      @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
       <- rtn as Boolean?
       assert arg0?
 
     InValidFunction8() is AbstractFunction2
       -> arg0 as String
-      @Error: FULL_RESOLUTION: NEVER_INITIALISED
+      @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
       <- rtn as Boolean?
       assert arg0?
 
@@ -131,7 +131,7 @@ defines module bad.overriding.functions
 
     InvalidDynamicFunctionDriver1()
       //Even though the error is for the inferred 'rtn' in AbstractFunction1, error is reported here.
-      @Error: FULL_RESOLUTION: NEVER_INITIALISED
+      @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
       dynamicFunction <- () is AbstractFunction1 as function
         assert arg0?
       assert dynamicFunction?
@@ -139,7 +139,7 @@ defines module bad.overriding.functions
     InvalidDynamicFunctionDriver2()
       //Even though the error is for the inferred 'rtn' in AbstractFunction2, error is reported here.
       //Looks the same as above, but I wanted to check ordering of definition does not affect anything.
-      @Error: FULL_RESOLUTION: NEVER_INITIALISED
+      @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
       dynamicFunction <- () is AbstractFunction2 as function
         assert arg0?
       assert dynamicFunction?
@@ -181,13 +181,13 @@ defines module bad.overriding.functions
 
     InvalidDynamicFunctionDriver9()
       //Just provide some body, but if the rtn is not set then that's an error
-      @Error: FULL_RESOLUTION: NEVER_INITIALISED
+      @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
       dynamicFunction <- () is GenericAbstractFunction1 of Float as function (someVar <- 0.0)
       assert dynamicFunction?
 
     InvalidDynamicFunctionDriver10()
       //Just provide some body, again if the rtn is not set then that's an error
-      @Error: FULL_RESOLUTION: NEVER_INITIALISED
+      @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
       dynamicFunction <- () is GenericAbstractFunction1 of Float as function
         someVal <- 0.0
         assert someVal?

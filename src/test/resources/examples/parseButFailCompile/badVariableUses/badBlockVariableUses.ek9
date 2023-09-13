@@ -70,6 +70,7 @@ defines module bad.blockvariable.uses
         Stdout().println(uninitializedVar)
 
       returnedBeforeBeingInitialised()
+        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
         <- rtn2 as String?
         @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
         assert ~rtn2?
@@ -79,7 +80,7 @@ defines module bad.blockvariable.uses
         assert rtn2?
 
       notUsedInitialised()
-        @Error: FULL_RESOLUTION: NEVER_INITIALISED
+        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
         value1 as String?
 
         @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
@@ -129,6 +130,9 @@ defines module bad.blockvariable.uses
 
     Record2 is Record1
       recField2 <- "Limb"
+
+      operator ? as pure
+        <- rtn <- true
 
       //As record fields are public they should be accessible anywhere.
       operator $ as pure

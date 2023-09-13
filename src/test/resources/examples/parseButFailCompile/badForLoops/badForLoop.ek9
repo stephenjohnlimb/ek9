@@ -34,8 +34,14 @@ defines module bad.forloops.check
       operator --
         <- rtn as R2: this
 
+      operator ? as pure
+        <- rtn <- true
+
     R3
       value <- 1
+
+      operator ? as pure
+        <- rtn <- true
 
       //Just for now return equals, don't try and compare all fields.
       operator <=> as pure

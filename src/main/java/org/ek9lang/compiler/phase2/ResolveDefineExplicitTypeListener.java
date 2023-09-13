@@ -73,6 +73,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final CheckSuitableGenus checkAllowedClassSuitableGenus;
   private final CheckSuitableGenus checkApplicationForProgram;
   private final SyntheticConstructorCreator syntheticConstructorCreator;
+  private final CheckAndPopulateConstrainedType checkAndPopulateConstrainedType;
   private final AggregateFactory aggregateFactory;
   private final Ek9Types ek9Types;
 
@@ -87,66 +88,49 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     this.aggregateFactory = new AggregateFactory(ek9Types);
     this.syntheticConstructorCreator = new SyntheticConstructorCreator(aggregateFactory);
 
-    final var errorListener = parsedModule.getSource().getErrorListener();
+    final var errorListener =
+        parsedModule.getSource().getErrorListener();
+    final SymbolFactory symbolFactory =
+        new SymbolFactory(parsedModule);
 
-    /*
-     * Used for checking duplicate methods but just on the aggregate excluding inheritance (that comes later).
-     */
-    checkForDuplicateOperations = new CheckForDuplicateOperations(symbolAndScopeManagement, errorListener);
-    checkVisibilityOfOperations = new CheckVisibilityOfOperations(symbolAndScopeManagement, errorListener);
-    checkNotGenericTypeParameter = new CheckNotGenericTypeParameter(errorListener);
-
-    final SymbolFactory symbolFactory = new SymbolFactory(parsedModule);
-
-    /*
-     * For identifier references we don't want errors issuing as we may traverse variables.
-     * This phase is focussed on types.
-     */
-    resolveOrDefineIdentifierReference =
+    this.checkForDuplicateOperations =
+        new CheckForDuplicateOperations(symbolAndScopeManagement, errorListener);
+    this.checkVisibilityOfOperations =
+        new CheckVisibilityOfOperations(symbolAndScopeManagement, errorListener);
+    this.checkNotGenericTypeParameter =
+        new CheckNotGenericTypeParameter(errorListener);
+    this.resolveOrDefineIdentifierReference =
         new ResolveOrDefineIdentifierReference(symbolAndScopeManagement, symbolFactory, errorListener, false);
-
-    /*
-     * But for type defs, we do want errors because all types must be defined at this point in the phases
-     * of compilation.
-     */
-    resolveOrDefineTypeDef =
+    this.resolveOrDefineTypeDef =
         new ResolveOrDefineTypeDef(symbolAndScopeManagement, symbolFactory, errorListener, true);
-
-    checkOperator = new CheckOperator(symbolAndScopeManagement, errorListener);
-    checkServiceOperation = new CheckServiceOperation(symbolAndScopeManagement, errorListener);
-    checkDuplicatedServicePaths = new CheckDuplicatedServicePaths(symbolAndScopeManagement, errorListener);
-
-    /*
-     * Again we must have all the building blocks of types, so that parameterised types an be created.
-     */
-    resolveOrDefineExplicitParameterizedType =
+    this.checkOperator =
+        new CheckOperator(symbolAndScopeManagement, errorListener);
+    this.checkServiceOperation =
+        new CheckServiceOperation(symbolAndScopeManagement, errorListener);
+    this.checkDuplicatedServicePaths =
+        new CheckDuplicatedServicePaths(symbolAndScopeManagement, errorListener);
+    this.resolveOrDefineExplicitParameterizedType =
         new ResolveOrDefineExplicitParameterizedType(symbolAndScopeManagement, symbolFactory, errorListener, true);
-
-    checkFunctionSuitableToExtend =
+    this.checkFunctionSuitableToExtend =
         new CheckSuitableToExtend(symbolAndScopeManagement, errorListener,
             List.of(ISymbol.SymbolGenus.FUNCTION, ISymbol.SymbolGenus.FUNCTION_TRAIT), true);
-
-    checkRecordSuitableToExtend =
+    this.checkRecordSuitableToExtend =
         new CheckSuitableToExtend(symbolAndScopeManagement, errorListener, ISymbol.SymbolGenus.RECORD, false);
-
-    checkClassTraitSuitableToExtend =
+    this.checkClassTraitSuitableToExtend =
         new CheckSuitableToExtend(symbolAndScopeManagement, errorListener, ISymbol.SymbolGenus.CLASS_TRAIT, true);
-
-    checkClassSuitableToExtend =
+    this.checkClassSuitableToExtend =
         new CheckSuitableToExtend(symbolAndScopeManagement, errorListener, ISymbol.SymbolGenus.CLASS, true);
-
-    checkComponentSuitableToExtend =
+    this.checkComponentSuitableToExtend =
         new CheckSuitableToExtend(symbolAndScopeManagement, errorListener, ISymbol.SymbolGenus.COMPONENT, true);
-
-    checkRegisterGenusValid =
+    this.checkRegisterGenusValid =
         new CheckSuitableGenus(symbolAndScopeManagement, errorListener, ISymbol.SymbolGenus.COMPONENT, false, true);
-
-    checkAllowedClassSuitableGenus =
+    this.checkAllowedClassSuitableGenus =
         new CheckSuitableGenus(symbolAndScopeManagement, errorListener, ISymbol.SymbolGenus.CLASS, false, true);
-
-    checkApplicationForProgram =
+    this.checkApplicationForProgram =
         new CheckSuitableGenus(symbolAndScopeManagement, errorListener,
             List.of(ISymbol.SymbolGenus.GENERAL_APPLICATION, ISymbol.SymbolGenus.SERVICE_APPLICATION), false, true);
+    this.checkAndPopulateConstrainedType =
+        new CheckAndPopulateConstrainedType(symbolAndScopeManagement, aggregateFactory, errorListener);
   }
 
   @Override
@@ -161,10 +145,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
         aggregateFactory.addConstructor(aggregateSymbol, ek9Types.ek9String());
       } else {
         var theContainedType = symbolAndScopeManagement.getRecordedSymbol(ctx.typeDef());
-        if (theContainedType != null) {
-          //Add a constructor of the type being constrained.
-          aggregateFactory.addConstructor(aggregateSymbol, theContainedType);
-        }
+        checkAndPopulateConstrainedType.accept(aggregateSymbol, theContainedType);
         //else we should already get an error for this missing type.
       }
     }

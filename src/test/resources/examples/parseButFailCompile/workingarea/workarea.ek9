@@ -1,92 +1,13 @@
 #!ek9
 <?-
-  In this case just applications cannot just be created.
-  They have to be used in conjunction with an Program (only).
+  Checking ready for next checks.
 -?>
-defines module bad.applicationcalls.examples1
+defines module bad.workspace.examples1
 
   defines function
-    NotAllowed()
+    FunctionA()
       <- rtn <- true
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      fail <- Missing()
 
-    AbstractFunction() as abstract
-      -> arg0 as String
-      <- rtn as Boolean?
-
-  defines class
-    C1
-      default C1()
-
-  defines record
-    R1
-      default R1()
-
-  //define a service that can be registered.
-  defines service
-
-    //Just want to define a service.
-    SomeWebService :/some-service
-
-      index() :/index
-        <- rtn as HTTPResponse: () with trait of HTTPResponse
-
-  defines application
-    //Now lets register that service, even though theres not much in there.
-    //Then we can check that it has the right genus.
-
-    @Genus: FULL_RESOLUTION: TYPE: "ServiceApplication": "SERVICE_APPLICATION"
-    ServiceApplication
-
-      //This is OK to be registered.
-      register SomeWebService()
-
-      //But none of these are.
-
-      @Error: FULL_RESOLUTION: INCOMPATIBLE_GENUS
-      register NotAllowed()
-
-      @Error: FULL_RESOLUTION: INCOMPATIBLE_GENUS
-      register C1()
-
-      @Error: FULL_RESOLUTION: INCOMPATIBLE_GENUS
-      register R1()
-
-      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_THIS
-      register this()
-
-      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_SUPER
-      register super()
-
-      @Error: FULL_RESOLUTION: INCOMPATIBLE_GENUS
-      register () is AbstractFunction as function (rtn: true)
-
-  defines program
-
-    //This will start the program, get the application an all its components and services ready
-    //Then just keep running as it is 'Service' application because it has registered one or more services.
-    ServiceProgram with application of ServiceApplication
-      stdout <- Stdout()
-      stdout.println("Starting ServiceApplication")
-
-    AnotherProgram
-
-      //EK9 developers do not create 'applications' like this, it is done as above.
-      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
-      app <- ServiceApplication()
-
-      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
-      assert app?
-
-    YetAnotherProgram
-
-      //EK9 developers, the program is the entry point for the OS to start the application.
-      //There should be virtually no code in the 'program' if you want to 'test' it.
-      //Push all the code into Services and components and test those.
-      //The write Test programs in the 'dev' part of the project and EK9 will run all those
-      //A little like junit does.
-      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
-      otherProg <- AnotherProgram()
-
-      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
-      assert otherProg?
 //EOF

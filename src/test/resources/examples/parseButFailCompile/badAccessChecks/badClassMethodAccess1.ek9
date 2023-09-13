@@ -57,6 +57,9 @@ defines module bad.classmethod.access1
         @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
         value <- this.accessMethod1(21)
 
+      operator ? as pure
+        <- rtn <- true
+
   defines function
 
     delegateFunction as abstract

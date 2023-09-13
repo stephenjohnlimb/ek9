@@ -21,7 +21,6 @@ import org.ek9lang.core.AssertValue;
  * </pre>
  */
 final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.CallContext> {
-
   private final ResolveThisSuperCallOrError resolveThisSuperCallOrError;
   private final ResolveIdentifierReferenceCallOrError resolveIdentifierReferenceCallOrError;
   private final SymbolsFromParamExpression symbolsFromParamExpression;

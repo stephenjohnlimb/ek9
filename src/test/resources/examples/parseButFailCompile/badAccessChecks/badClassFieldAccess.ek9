@@ -37,6 +37,9 @@ defines module bad.classfield.access
         @Error: FULL_RESOLUTION:NOT_ACCESSIBLE
         rtn :=: arg0.prop.someField
 
+      operator ? as pure
+        <- rtn <- true
+
     C2
       prop as C1: C1()
 
@@ -60,6 +63,9 @@ defines module bad.classfield.access
 
         @Error: FULL_RESOLUTION:TYPE_NOT_RESOLVED
         val <- List(notResolved)
+
+      operator ? as pure
+        <- rtn <- true
 
     C3 extends C1
 

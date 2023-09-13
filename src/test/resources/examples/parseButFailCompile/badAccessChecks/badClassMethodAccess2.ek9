@@ -37,6 +37,9 @@ defines module bad.classmethod.access2
         -> arg0 as String
         <- rtn <- 0
 
+      operator ? as pure
+        <- rtn <- true
+
   defines function
 
     generalFunction as abstract

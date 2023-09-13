@@ -21,6 +21,7 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
 
   private final SymbolFactory symbolFactory;
 
+  private final CheckIsSet checkIsSet;
 
   /**
    * Check Primary resolves and attempt to 'type' it.
@@ -30,6 +31,7 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
                        final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
     this.symbolFactory = symbolFactory;
+    this.checkIsSet = new CheckIsSet(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -48,12 +50,7 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
    */
   private ISymbol determineSymbolToRecord(final EK9Parser.ExpressionContext ctx) {
     if (ctx.QUESTION() != null) {
-      var expressionInQuestion = symbolAndScopeManagement.getRecordedSymbol(ctx.expression(0));
-      if (expressionInQuestion != null) {
-        expressionInQuestion.setReferenced(true);
-        symbolFactory.newExpressionSymbol(expressionInQuestion).setType(symbolAndScopeManagement.getTopScope().resolve(
-            new TypeSymbolSearch("Boolean")));
-      }
+      return checkAndProcessIsSet(ctx);
     } else if (ctx.primary() != null) {
       return symbolAndScopeManagement.getRecordedSymbol(ctx.primary());
     } else if (ctx.call() != null) {
@@ -77,6 +74,16 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
       AssertValue.fail(
           "Expecting finite set of operations for expression [" + ctx.getText() + "] line: " + ctx.start.getLine());
     }
+    return null;
+  }
+
+  private ISymbol checkAndProcessIsSet(final EK9Parser.ExpressionContext ctx) {
+    var expressionInQuestion = symbolAndScopeManagement.getRecordedSymbol(ctx.expression(0));
+    if (checkIsSet.test(expressionInQuestion)) {
+      return symbolFactory.newExpressionSymbol(expressionInQuestion)
+          .setType(symbolAndScopeManagement.getEk9Types().ek9Boolean());
+    }
+
     return null;
   }
 

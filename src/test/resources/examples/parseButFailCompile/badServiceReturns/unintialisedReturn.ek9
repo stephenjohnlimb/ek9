@@ -11,7 +11,7 @@ defines module bad.servicemethod.return
 
         //A service method bu the return is never initialised.
         unInitializedReturn() as GET for :/none-initialized/path
-          @Error: FULL_RESOLUTION: NEVER_INITIALISED
+          @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
           <- response as HTTPResponse?
           someVal <- 90
           assert someVal?
@@ -23,7 +23,7 @@ defines module bad.servicemethod.return
         //Also check that normal none-service methods require an initialised return.
         normalMethod()
           -> arg0 as Integer
-          @Error: FULL_RESOLUTION: NEVER_INITIALISED
+          @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
           <- rtn as Boolean?
           assert arg0?
 //EOF

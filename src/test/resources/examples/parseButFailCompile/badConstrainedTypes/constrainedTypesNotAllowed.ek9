@@ -1,0 +1,35 @@
+#!ek9
+<?-
+  Checking constraints.
+  Note that there are other checks later on, that actually check that the constraining
+  mechanisms (operators) use are actually present on the constrained type.
+-?>
+defines module bad.constrainedtype.examples1
+
+  defines function
+    FunctionA()
+      <- rtn <- true
+
+  defines record
+    R1
+      default R1()
+
+  defines type
+    Index as Integer
+
+    Name as String
+
+    //We will allow aliasing or typing of other constructs
+    ValidOther as R1
+
+    //But not functions and selected other classes.
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_CANNOT_BE_CONSTRAINED
+    Other1 as FunctionA
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_CANNOT_BE_CONSTRAINED
+    Other2 as Boolean
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_CANNOT_BE_CONSTRAINED
+    Other3 as JSON
+//EOF

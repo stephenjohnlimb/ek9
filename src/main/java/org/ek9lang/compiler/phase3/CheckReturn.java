@@ -50,11 +50,11 @@ final class CheckReturn extends RuleSupport implements BiConsumer<ISymbol, ISymb
             + "' "
             + locationExtractor.apply(returnSymbol) + ":";
         errorListener.semanticError(parentSymbol.getSourceToken(), msg,
-            ErrorListener.SemanticClassification.NEVER_INITIALISED);
+            ErrorListener.SemanticClassification.NOT_INITIALISED_BEFORE_USE);
       } else {
         var msg = "'" + returnSymbol.getFriendlyName() + "'";
         errorListener.semanticError(returnSymbol.getSourceToken(), msg,
-            ErrorListener.SemanticClassification.NEVER_INITIALISED);
+            ErrorListener.SemanticClassification.NOT_INITIALISED_BEFORE_USE);
       }
     }
   }

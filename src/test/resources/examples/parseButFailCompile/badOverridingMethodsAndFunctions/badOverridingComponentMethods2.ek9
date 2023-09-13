@@ -21,7 +21,7 @@ defines module bad.overriding.componentmethods2
       default Check1()
       override method1()
         -> arg0 as String
-        @Error: FULL_RESOLUTION: NEVER_INITIALISED
+        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
         <- rtn as Boolean?
         assert arg0?
 
@@ -30,7 +30,7 @@ defines module bad.overriding.componentmethods2
       default Check2()
       override method1()
         -> arg0 as String
-        @Error: FULL_RESOLUTION: NEVER_INITIALISED
+        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
         <- rtn as Boolean?
         assert arg0?
         //Now deliberated reference an uninitialized symbol.

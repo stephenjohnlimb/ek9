@@ -20,7 +20,8 @@ final class CheckInitialised extends RuleSupport implements Consumer<ISymbol> {
   public void accept(ISymbol symbol) {
     //Can be null if ek9 developer code in error.
     if (symbol != null && !symbol.isInitialised()) {
-      errorListener.semanticError(symbol.getSourceToken(), "", ErrorListener.SemanticClassification.NEVER_INITIALISED);
+      errorListener.semanticError(symbol.getSourceToken(), "",
+          ErrorListener.SemanticClassification.NOT_INITIALISED_BEFORE_USE);
     }
   }
 }
