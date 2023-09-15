@@ -42,6 +42,8 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
 
   private final CheckServiceRegistration checkServiceRegistration;
 
+  private final CheckTypeConstraint checkTypeConstraint;
+
   /**
    * Create a new instance to define or resolve inferred types.
    */
@@ -63,6 +65,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     this.checkMethodReturn = new CheckMethodReturn(symbolAndScopeManagement, errorListener);
     this.checkAllTextBodiesPresent = new CheckAllTextBodiesPresent(symbolAndScopeManagement, errorListener);
     this.checkServiceRegistration = new CheckServiceRegistration(symbolAndScopeManagement, errorListener);
+    this.checkTypeConstraint = new CheckTypeConstraint(symbolAndScopeManagement, symbolFactory, errorListener);
   }
 
   @Override
@@ -172,6 +175,18 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
       checkAllTextBodiesPresent.accept(textAggregate);
     }
     super.exitTextDeclaration(ctx);
+  }
+
+  @Override
+  public void exitTypeDeclaration(EK9Parser.TypeDeclarationContext ctx) {
+    var aggregateSymbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    if (aggregateSymbol != null && ctx.constrainDeclaration() != null) {
+      //Then it is constrained type, so we need to check that the appropriate operators
+      //used in these constraints actually exist.
+      checkTypeConstraint.accept(aggregateSymbol, ctx.constrainDeclaration());
+
+    }
+    super.exitTypeDeclaration(ctx);
   }
 
   @Override

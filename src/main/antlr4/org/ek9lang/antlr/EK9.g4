@@ -291,11 +291,11 @@ constrainDeclaration
     : CONSTRAIN (BY|AS)? NL+ INDENT constrainType NL+ DEDENT
     ;
 
+//When a literal by itself - short hand for equals.
 constrainType
-    : literal #literalConstrainType
-    | op=(GT | GE | LT | LE | EQUAL | NOTEQUAL | NOTEQUAL2 | MATCHES) literal #unaryConstrainType
-    | constrainType op=(AND | OR) constrainType #booleanConstrainType
-    | LPAREN constrainType RPAREN #groupConstrainType
+    : directive? op=(GT | GE | LT | LE | EQUAL | NOTEQUAL | NOTEQUAL2 | MATCHES | CONTAINS)? literal
+    | constrainType op=(AND | OR) constrainType
+    | LPAREN constrainType RPAREN
     ;
 
 httpAccess

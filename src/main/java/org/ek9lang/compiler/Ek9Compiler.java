@@ -44,6 +44,8 @@ public class Ek9Compiler implements Compiler {
 
     //Get all the phases and process in turn, if phase fails then stop (false)
     //If the phase was the final one required, then also stop (but true).
+    var rtn = true;
+    long start = System.nanoTime();
     for (var phase : compilationPhaseSupplier.get()) {
       long before = System.nanoTime();
 
@@ -51,14 +53,19 @@ public class Ek9Compiler implements Compiler {
       var phaseResult = phase.apply(workspace, flags);
 
       long after = System.nanoTime();
-      reporter.log(String.format("%s duration %s ns; success %b",
-          phaseResult.phase(), format.format(after - before), phaseResult.phaseSuccess()));
+      reporter.log(String.format("%s duration %s ms; success %b",
+          phaseResult.phase(), format.format((after - before) / 1000000.0), phaseResult.phaseSuccess()));
       if (!phaseResult.phaseSuccess()) {
-        return false;
-      } else if (phaseResult.phaseMatch()) {
+        rtn = false;
+      }
+
+      if (!phaseResult.phaseSuccess() || phaseResult.phaseMatch()) {
         break;
       }
     }
-    return true;
+    long end = System.nanoTime();
+    reporter.log(String.format("Total duration (excluding bootstrap) %s ms; success %b",
+        format.format((end - start) / 1000000.0), rtn));
+    return rtn;
   }
 }

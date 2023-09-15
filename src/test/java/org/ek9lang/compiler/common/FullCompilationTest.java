@@ -93,8 +93,8 @@ public abstract class FullCompilationTest {
 
   protected void testToPhase(final CompilationPhase upToPhase) {
     //Just start with the basics and most on to the next phase one implemented.
-    var sharedCompilableProgram = sharedContext.get();
 
+    var sharedCompilableProgram = sharedContext.get();
     AtomicInteger counter = new AtomicInteger(0);
     CompilationPhaseListener listener = compilationEvent -> {
       var source = compilationEvent.source();

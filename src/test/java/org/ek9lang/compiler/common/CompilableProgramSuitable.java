@@ -12,8 +12,12 @@ import org.ek9lang.core.SharedThreadContext;
  * Does not employ any phase listeners or verbose compilation reporting.
  */
 public class CompilableProgramSuitable implements Supplier<SharedThreadContext<CompilableProgram>> {
+  //TODO consider caching/cloning the CompilableProgram that just has ek9 basics in it.
+  //TODO then rather than parse all the EK9 source over and over for tests just copy the data structure.
+  //TODO for tests this gets called 100 times, so we're parsing the same build in ek9 source 100 times!
   @Override
   public SharedThreadContext<CompilableProgram> get() {
+
     Ek9LanguageBootStrap bootStrap =
         new Ek9LanguageBootStrap(new Ek9BuiltinLangSupplier(), compilationEvent -> {
           var source = compilationEvent.source();
@@ -28,6 +32,11 @@ public class CompilableProgramSuitable implements Supplier<SharedThreadContext<C
           }
         }, new CompilerReporter(false));
 
-    return bootStrap.get();
+    var before = System.currentTimeMillis();
+    var rtn = bootStrap.get();
+    var after = System.currentTimeMillis();
+
+    System.err.println("Bootstrap duration " + (after - before) + " ms");
+    return rtn;
   }
 }

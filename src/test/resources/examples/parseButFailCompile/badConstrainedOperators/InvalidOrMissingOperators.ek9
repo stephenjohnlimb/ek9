@@ -1,0 +1,119 @@
+#!ek9
+<?-
+  Checking ready for next checks.
+-?>
+defines module bad.constrainedtypeoperators.examples1
+
+  //Will be used in testing, some method implementation commented out
+  //because I've not implemented this part of expression processing yet.
+  defines record
+    R1
+      property1 <- String()
+      property2 <- Integer()
+
+      default R1()
+
+      operator <=> as pure
+        -> arg as R1
+        <- rtn as Integer: 0
+
+      operator <=> as pure
+        -> arg1 as String
+        <- rtn as Integer: 0 //$this <=> arg1
+
+      //define the operator so this record can be compared to a String
+      //Then it is possible to use it as a constrained type
+      operator == as pure
+        -> arg1 as String
+        <- rtn as Boolean: true // this <=> arg1 == 0
+
+      operator <> as pure
+        -> arg1 as String
+        <- rtn as Boolean: true // this <=> arg1 <> 0
+
+      operator $ as pure
+        <- rtn as String: String() //property1? and property2? <- `${property1} ${property2}` else String()
+
+  defines type
+
+    //First a number of valid examples, with groups and/or logic
+    //These prove that the types in use have valid and viable operators.
+    DBIndex as Integer constrain as
+      > 0
+
+    OtherIndex as Integer constrain as
+      > 0 and < 100
+
+    //Because this is in braces, you can layout out how you like.
+    StrangeIndex as Integer constrain as
+      (
+        (> 21 and <= 56)
+          or
+        (>=90 and <= 450)
+          or
+        contains 66
+          or
+        == 5000
+      )
+
+    //A bit pointless as couple just be a constant, but possible so here it is.
+    FixedColour as Colour constrain as
+      #AA11CC
+
+    Color as Colour constrain as
+      (#0099CC or #9900CC or == #CC0099) and <> #CC0011
+
+    DrivingAge as Integer constrain as
+      >= 16 and (<= 100 or == 89)
+
+    //Adjust for inflation as and when you see fit!
+    Salary as Money constrain as
+      >= 10000#GBP and <= 120000#GBP
+
+    //So any name - but not mine!
+    Name as String constrain as
+      matches /^[a-zA-Z -]+$/ and <> "Steve"
+
+    //Now while this is a Float, because Integer can be promoted to a Float we can use it like this.
+    ValidFloatUseViaCoercion as Float constrain as
+      > 21 and < 45.99
+
+    ValidR1Constraint1 as R1 constrain as
+      != "Steve Limb"
+
+    //As above but use alternative not equals operator
+    ValidR1Constraint2 as R1 constrain as
+      <> "Steve Limb"
+
+    //OK now some bad uses, there is no matches operator on Integer
+    InvalidIntegerUse as Integer constrain as
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      matches 21
+
+    //This is not valid because these operators are not present on R1
+
+    InvalidR1Constraint1 as R1 constrain as
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      < "Stephen"
+
+    InvalidR1Constraint2 as R1 constrain as
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      <= "Stephen"
+
+    InvalidR1Constraint3 as R1 constrain as
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      > "Stephen"
+
+    InvalidR1Constraint4 as R1 constrain as
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      >= "Stephen"
+
+    InvalidR1Constraint5 as R1 constrain as
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      contains "Stephen"
+
+    InvalidR1Constraint6 as R1 constrain as
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      matches "Stephen"
+
+//EOF

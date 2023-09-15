@@ -22,7 +22,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 75;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 79;
 
   //Obviously with ek9 the indentation is important.
   @SuppressWarnings({"Indentation"})
@@ -85,22 +85,89 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             lowerCase() as pure
               <- rtn as String: String()
 
-            operator ? as pure
+            operator < as pure
+              -> arg as String
+              <- rtn as Boolean?
+
+            operator <= as pure
+              -> arg as String
+              <- rtn as Boolean?
+
+            operator > as pure
+              -> arg as String
+              <- rtn as Boolean?
+
+            operator >= as pure
+              -> arg as String
+              <- rtn as Boolean?
+
+            operator == as pure
+              -> arg as String
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as String
               <- rtn as Boolean?
 
             operator <=> as pure
               -> arg as String
               <- rtn as Integer?
 
+            operator <~> as pure
+              -> arg as String
+              <- rtn as Integer?
+
+            operator ? as pure
+              <- rtn as Boolean?
+
+            operator + as pure
+              -> arg as String
+              <- rtn as String?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator #< as pure
+              <- rtn as Character?
+              
+            operator #> as pure
+              <- rtn as Character?
+
+            operator empty as pure
+              <- rtn as Boolean?
+
+            operator length as pure
+              <- rtn as Integer?
+
+            operator :~:
+              -> arg as String
+
+            operator :^:
+              -> arg as String
+              
             operator :=:
+              -> arg as String
+
+            operator |
               -> arg as String
 
             operator +=
               -> arg as String
-              
-            operator + as pure
+
+            operator contains as pure
               -> arg as String
-              <- rtn as String: String()
+              <- rtn as Boolean?
+
+            operator matches as pure
+              -> arg as RegEx
+              <- rtn as Boolean?
+
       """;
   /**
    * As each type is fleshed out pull it out of the list and create a new full signature.
@@ -117,27 +184,110 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Bits()
               -> arg0 as String
 
+            operator < as pure
+              -> arg as Bits
+              <- rtn as Boolean?
+
+            operator <= as pure
+              -> arg as Bits
+              <- rtn as Boolean?
+
+            operator > as pure
+              -> arg as Bits
+              <- rtn as Boolean?
+
+            operator >= as pure
+              -> arg as Bits
+              <- rtn as Boolean?
+
+            operator == as pure
+              -> arg as Bits
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as Bits
+              <- rtn as Boolean?
+            
+            operator <=> as pure
+              -> arg as Bits
+              <- rtn as Integer?
+
+            operator <~> as pure
+              -> arg as Bits
+              <- rtn as Integer?
+
             operator ? as pure
               <- rtn as Boolean?
 
-            operator <=> as pure
-              -> arg0 as Bits
+            operator ~ as pure
+              <- rtn as Bits?
+
+            operator + as pure
+              -> arg as Bits
+              <- rtn as Bits?
+
+            operator - as pure
+              -> arg as Bits
+              <- rtn as Bits?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
               <- rtn as Integer?
 
-            operator :=:
-              -> arg0 as Bits
+            operator #< as pure
+              <- rtn as Boolean?
+              
+            operator #> as pure
+              <- rtn as Boolean?
+
+            operator empty as pure
+              <- rtn as Boolean?
+
+            operator length as pure
+              <- rtn as Integer?
+
+            operator >> as pure
+              -> arg as Bits
+              <- rtn as Bits?
+
+            operator << as pure
+              -> arg as Bits
+              <- rtn as Bits?
 
             operator and as pure
-              -> arg0 as Bits
+              -> arg as Bits
               <- rtn as Bits?
 
             operator or as pure
-              -> arg0 as Bits
+              -> arg as Bits
               <- rtn as Bits?
 
             operator xor as pure
-              -> arg0 as Bits
+              -> arg as Bits
               <- rtn as Bits?
+
+            operator :~:
+              -> arg as Bits
+
+            operator :^:
+              -> arg as Bits
+              
+            operator :=:
+              -> arg as Bits
+
+            operator |
+              -> arg as Bits
+
+            operator +=
+              -> arg as Bits
+
+            operator -=
+              -> arg as Bits
 
           Boolean
             Boolean()
@@ -145,23 +295,60 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Boolean()
               -> arg0 as String
 
+            operator == as pure
+              -> arg as Boolean
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as Boolean
+              <- rtn as Boolean?
+            
+            operator <=> as pure
+              -> arg as Boolean
+              <- rtn as Integer?
+
+            operator <~> as pure
+              -> arg as Boolean
+              <- rtn as Integer?
+
             operator ? as pure
               <- rtn as Boolean?
 
-            operator :=:
-              -> arg0 as Boolean
+            operator ~ as pure
+              <- rtn as Boolean?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
 
             operator and as pure
-              -> arg0 as Boolean
+              -> arg as Boolean
               <- rtn as Boolean?
 
             operator or as pure
-              -> arg0 as Boolean
+              -> arg as Boolean
               <- rtn as Boolean?
 
             operator xor as pure
-              -> arg0 as Boolean
+              -> arg as Boolean
               <- rtn as Boolean?
+
+            operator :~:
+              -> arg as Boolean
+
+            operator :^:
+              -> arg as Boolean
+              
+            operator :=:
+              -> arg as Boolean
+
+            operator |
+              -> arg as Boolean
               
           Character
             Character()
@@ -169,14 +356,74 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Character()
               -> arg0 as String
 
-            operator ? as pure
+            operator < as pure
+              -> arg as Character
               <- rtn as Boolean?
 
+            operator <= as pure
+              -> arg as Character
+              <- rtn as Boolean?
+
+            operator > as pure
+              -> arg as Character
+              <- rtn as Boolean?
+
+            operator >= as pure
+              -> arg as Character
+              <- rtn as Boolean?
+
+            operator == as pure
+              -> arg as Character
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as Character
+              <- rtn as Boolean?
+            
             operator <=> as pure
               -> arg as Character
               <- rtn as Integer?
 
+            operator <~> as pure
+              -> arg as Character
+              <- rtn as Integer?
+
+            operator ? as pure
+              <- rtn as Boolean?
+
+            operator #^ as pure
+              <- rtn as String?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator length as pure
+              <- rtn as Integer?
+
+            operator >> as pure
+              -> arg as Character
+              <- rtn as Character?
+
+            operator << as pure
+              -> arg as Character
+              <- rtn as Character?
+
+            operator :~:
+              -> arg as Character
+
+            operator :^:
+              -> arg as Character
+              
             operator :=:
+              -> arg as Character
+
+            operator |
               -> arg as Character
 
             operator ++
@@ -326,10 +573,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Integer
               <- rtn as Boolean?
 
-            operator matches as pure
-              -> arg as Integer
-              <- rtn as Boolean?
-
             operator :~:
               -> arg as Integer
 
@@ -366,17 +609,113 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Float()
               -> arg0 as String
 
-            operator ? as pure
+            operator < as pure
+              -> arg as Float
+              <- rtn as Boolean?
+
+            operator <= as pure
+              -> arg as Float
+              <- rtn as Boolean?
+
+            operator > as pure
+              -> arg as Float
+              <- rtn as Boolean?
+
+            operator >= as pure
+              -> arg as Float
+              <- rtn as Boolean?
+
+            operator == as pure
+              -> arg as Float
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as Float
               <- rtn as Boolean?
 
             operator <=> as pure
               -> arg as Float
               <- rtn as Integer?
 
+            operator <~> as pure
+              -> arg as Float
+              <- rtn as Integer?
+
+            operator sqrt as pure
+              <- rtn as Float?
+
+            operator ? as pure
+              <- rtn as Boolean?
+
+            operator ~ as pure
+              <- rtn as Float?
+
+            operator + as pure
+              -> arg as Float
+              <- rtn as Float?
+
+            operator - as pure
+              -> arg as Float
+              <- rtn as Float?
+
+            operator * as pure
+              -> arg as Float
+              <- rtn as Float?
+
+            operator / as pure
+              -> arg as Float
+              <- rtn as Float?
+
+            operator ^ as pure
+              -> arg as Float
+              <- rtn as Float?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator #< as pure
+              <- rtn as Integer?
+              
+            operator #> as pure
+              <- rtn as Integer?
+
+            operator abs as pure
+              <- rtn as Float?
+
+            operator empty as pure
+              <- rtn as Boolean?
+
+            operator length as pure
+              <- rtn as Integer?
+
+            operator :~:
+              -> arg as Float
+
+            operator :^:
+              -> arg as Float
+              
             operator :=:
               -> arg as Float
 
+            operator |
+              -> arg as Float
+
             operator +=
+              -> arg as Float
+
+            operator -=
+              -> arg as Float
+
+            operator *=
+              -> arg as Float
+
+            operator /=
               -> arg as Float
 
             operator ++
@@ -391,24 +730,81 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Time()
               -> arg0 as String
 
-            operator ? as pure
+            operator < as pure
+              -> arg as Time
+              <- rtn as Boolean?
+
+            operator <= as pure
+              -> arg as Time
+              <- rtn as Boolean?
+
+            operator > as pure
+              -> arg as Time
+              <- rtn as Boolean?
+
+            operator >= as pure
+              -> arg as Time
+              <- rtn as Boolean?
+
+            operator == as pure
+              -> arg as Time
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as Time
               <- rtn as Boolean?
 
             operator <=> as pure
               -> arg as Time
               <- rtn as Integer?
 
+            operator <~> as pure
+              -> arg as Time
+              <- rtn as Integer?
+
+            operator ? as pure
+              <- rtn as Boolean?
+
+            operator + as pure
+              -> arg as Duration
+              <- rtn as Time?
+
+            operator - as pure
+              -> arg as Duration
+              <- rtn as Time?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator #< as pure
+              <- rtn as Integer?
+              
+            operator #> as pure
+              <- rtn as Integer?
+
+            operator :~:
+              -> arg as Time
+
+            operator :^:
+              -> arg as Time
+              
             operator :=:
+              -> arg as Time
+
+            operator |
               -> arg as Time
 
             operator +=
               -> arg as Duration
 
-            operator ++
-              <- rtn as Time?
-
-            operator --
-              <- rtn as Time?
+            operator -=
+              -> arg as Duration
 
           Duration as open
             Duration()
@@ -416,24 +812,100 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Duration()
               -> arg0 as String
 
-            operator ? as pure
+            operator < as pure
+              -> arg as Duration
               <- rtn as Boolean?
 
+            operator <= as pure
+              -> arg as Duration
+              <- rtn as Boolean?
+
+            operator > as pure
+              -> arg as Duration
+              <- rtn as Boolean?
+
+            operator >= as pure
+              -> arg as Duration
+              <- rtn as Boolean?
+
+            operator == as pure
+              -> arg as Duration
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as Duration
+              <- rtn as Boolean?
+            
             operator <=> as pure
               -> arg as Duration
               <- rtn as Integer?
 
+            operator <~> as pure
+              -> arg as Duration
+              <- rtn as Integer?
+
+            operator ? as pure
+              <- rtn as Boolean?
+
+            operator + as pure
+              -> arg as Duration
+              <- rtn as Duration?
+
+            operator - as pure
+              -> arg as Duration
+              <- rtn as Duration?
+
+            operator * as pure
+              -> arg as Integer
+              <- rtn as Duration?
+
+            operator / as pure
+              -> arg as Integer
+              <- rtn as Duration?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator abs as pure
+              <- rtn as Duration?
+
+            operator mod as pure
+              -> arg as Duration
+              <- rtn as Integer?
+
+            operator rem as pure
+              -> arg as Duration
+              <- rtn as Integer?
+
+            operator :~:
+              -> arg as Duration
+
+            operator :^:
+              -> arg as Duration
+              
             operator :=:
+              -> arg as Duration
+
+            operator |
               -> arg as Duration
 
             operator +=
               -> arg as Duration
 
-            operator ++
-              <- rtn as Duration?
+            operator -=
+              -> arg as Duration
 
-            operator --
-              <- rtn as Duration?
+            operator *=
+              -> arg as Integer
+
+            operator /=
+              -> arg as Integer
 
           Millisecond as open
             Millisecond()
@@ -441,18 +913,120 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Millisecond()
               -> arg0 as String
 
-            operator ? as pure
+            operator < as pure
+              -> arg as Millisecond
               <- rtn as Boolean?
 
+            operator <= as pure
+              -> arg as Millisecond
+              <- rtn as Boolean?
+
+            operator > as pure
+              -> arg as Millisecond
+              <- rtn as Boolean?
+
+            operator >= as pure
+              -> arg as Millisecond
+              <- rtn as Boolean?
+
+            operator == as pure
+              -> arg as Millisecond
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as Millisecond
+              <- rtn as Boolean?
+            
             operator <=> as pure
               -> arg as Millisecond
               <- rtn as Integer?
 
+            operator <~> as pure
+              -> arg as Millisecond
+              <- rtn as Integer?
+
+            operator sqrt as pure
+              <- rtn as Float?
+
+            operator ? as pure
+              <- rtn as Boolean?
+
+            operator + as pure
+              -> arg as Millisecond
+              <- rtn as Millisecond?
+
+            operator - as pure
+              -> arg as Millisecond
+              <- rtn as Millisecond?
+
+            operator * as pure
+              -> arg as Integer
+              <- rtn as Millisecond?
+
+            operator / as pure
+              -> arg as Integer
+              <- rtn as Millisecond?
+
+            operator #^ as pure
+              <- rtn as Duration?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator #< as pure
+              <- rtn as Integer?
+              
+            operator #> as pure
+              <- rtn as Integer?
+
+            operator abs as pure
+              <- rtn as Millisecond?
+
+            operator >> as pure
+              -> arg as Millisecond
+              <- rtn as Millisecond?
+
+            operator << as pure
+              -> arg as Millisecond
+              <- rtn as Millisecond?
+
+            operator mod as pure
+              -> arg as Millisecond
+              <- rtn as Integer?
+
+            operator rem as pure
+              -> arg as Millisecond
+              <- rtn as Integer?
+
+            operator :~:
+              -> arg as Millisecond
+
+            operator :^:
+              -> arg as Millisecond
+              
             operator :=:
+              -> arg as Millisecond
+
+            operator |
               -> arg as Millisecond
 
             operator +=
               -> arg as Millisecond
+
+            operator -=
+              -> arg as Millisecond
+
+            operator *=
+              -> arg as Integer
+
+            operator /=
+              -> arg as Integer
 
             operator ++
               <- rtn as Millisecond?
@@ -466,17 +1040,91 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Date()
               -> arg0 as String
 
-            operator ? as pure
+            operator < as pure
+              -> arg as Date
+              <- rtn as Boolean?
+
+            operator <= as pure
+              -> arg as Date
+              <- rtn as Boolean?
+
+            operator > as pure
+              -> arg as Date
+              <- rtn as Boolean?
+
+            operator >= as pure
+              -> arg as Date
+              <- rtn as Boolean?
+
+            operator == as pure
+              -> arg as Date
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as Date
               <- rtn as Boolean?
 
             operator <=> as pure
               -> arg as Date
               <- rtn as Integer?
 
+            operator <~> as pure
+              -> arg as Date
+              <- rtn as Integer?
+
+            operator ? as pure
+              <- rtn as Boolean?
+
+            operator + as pure
+              -> arg as Duration
+              <- rtn as Date?
+
+            operator - as pure
+              -> arg as Duration
+              <- rtn as Date?
+
+            operator #^ as pure
+              <- rtn as DateTime?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator #< as pure
+              <- rtn as Integer?
+              
+            operator #> as pure
+              <- rtn as Integer?
+
+            operator >> as pure
+              -> arg as Date
+              <- rtn as Date?
+
+            operator << as pure
+              -> arg as Date
+              <- rtn as Date?
+
+            operator :~:
+              -> arg as Date
+
+            operator :^:
+              -> arg as Date
+              
             operator :=:
               -> arg as Date
 
+            operator |
+              -> arg as Date
+
             operator +=
+              -> arg as Duration
+
+            operator -=
               -> arg as Duration
 
             operator ++
@@ -491,17 +1139,88 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             DateTime()
               -> arg0 as String
 
-            operator ? as pure
+            operator < as pure
+              -> arg as DateTime
+              <- rtn as Boolean?
+
+            operator <= as pure
+              -> arg as DateTime
+              <- rtn as Boolean?
+
+            operator > as pure
+              -> arg as DateTime
+              <- rtn as Boolean?
+
+            operator >= as pure
+              -> arg as DateTime
+              <- rtn as Boolean?
+
+            operator == as pure
+              -> arg as DateTime
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as DateTime
               <- rtn as Boolean?
 
             operator <=> as pure
               -> arg as DateTime
               <- rtn as Integer?
 
+            operator <~> as pure
+              -> arg as DateTime
+              <- rtn as Integer?
+
+            operator ? as pure
+              <- rtn as Boolean?
+
+            operator + as pure
+              -> arg as Duration
+              <- rtn as DateTime?
+
+            operator - as pure
+              -> arg as Duration
+              <- rtn as DateTime?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator #< as pure
+              <- rtn as Integer?
+              
+            operator #> as pure
+              <- rtn as Integer?
+
+            operator >> as pure
+              -> arg as DateTime
+              <- rtn as DateTime?
+
+            operator << as pure
+              -> arg as DateTime
+              <- rtn as DateTime?
+
+            operator :~:
+              -> arg as DateTime
+
+            operator :^:
+              -> arg as DateTime
+              
             operator :=:
               -> arg as DateTime
 
+            operator |
+              -> arg as DateTime
+
             operator +=
+              -> arg as Duration
+
+            operator -=
               -> arg as Duration
 
             operator ++
@@ -516,18 +1235,117 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Money()
               -> arg0 as String
 
-            operator ? as pure
+            operator < as pure
+              -> arg as Money
+              <- rtn as Boolean?
+
+            operator <= as pure
+              -> arg as Money
+              <- rtn as Boolean?
+
+            operator > as pure
+              -> arg as Money
+              <- rtn as Boolean?
+
+            operator >= as pure
+              -> arg as Money
+              <- rtn as Boolean?
+
+            operator == as pure
+              -> arg as Money
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as Money
               <- rtn as Boolean?
 
             operator <=> as pure
               -> arg as Money
               <- rtn as Integer?
 
+            operator <~> as pure
+              -> arg as Money
+              <- rtn as Integer?
+
+            operator sqrt as pure
+              <- rtn as Money?
+
+            operator ? as pure
+              <- rtn as Boolean?
+
+            operator + as pure
+              -> arg as Money
+              <- rtn as Money?
+
+            operator - as pure
+              -> arg as Money
+              <- rtn as Money?
+
+            operator * as pure
+              -> arg as Integer
+              <- rtn as Money?
+
+            operator / as pure
+              -> arg as Integer
+              <- rtn as Money?
+
+            operator / as pure
+              -> arg as Money
+              <- rtn as Float?
+
+            operator ^ as pure
+              -> arg as Integer
+              <- rtn as Money?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator #< as pure
+              <- rtn as Float?
+              
+            operator #> as pure
+              <- rtn as String?
+
+            operator abs as pure
+              <- rtn as Money?
+
+            operator mod as pure
+              -> arg as Money
+              <- rtn as Integer?
+
+            operator rem as pure
+              -> arg as Money
+              <- rtn as Integer?
+
+            operator :~:
+              -> arg as Money
+
+            operator :^:
+              -> arg as Money
+              
             operator :=:
+              -> arg as Money
+
+            operator |
               -> arg as Money
 
             operator +=
               -> arg as Money
+
+            operator -=
+              -> arg as Money
+
+            operator *=
+              -> arg as Integer
+
+            operator /=
+              -> arg as Integer
 
             operator ++
               <- rtn as Money?
@@ -541,14 +1359,62 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Locale()
               -> arg0 as String
 
-            operator ? as pure
+            operator == as pure
+              -> arg as Locale
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as Locale
               <- rtn as Boolean?
 
             operator <=> as pure
               -> arg as Locale
               <- rtn as Integer?
 
+            operator <~> as pure
+              -> arg as Locale
+              <- rtn as Integer?
+
+            operator ? as pure
+              <- rtn as Boolean?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator #< as pure
+              <- rtn as Locale?
+              
+            operator #> as pure
+              <- rtn as Locale?
+
+            operator contains as pure
+              -> arg as Locale
+              <- rtn as Boolean?
+
+            operator matches as pure
+              -> arg as Locale
+              <- rtn as Boolean?
+
+            operator matches as pure
+              -> arg as RegEx
+              <- rtn as Boolean?
+
+            operator :~:
+              -> arg as Locale
+
+            operator :^:
+              -> arg as Locale
+              
             operator :=:
+              -> arg as Locale
+
+            operator |
               -> arg as Locale
 
           Colour as open
@@ -557,17 +1423,89 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Colour()
               -> arg0 as String
 
-            operator ? as pure
+            operator < as pure
+              -> arg as Colour
+              <- rtn as Boolean?
+
+            operator <= as pure
+              -> arg as Colour
+              <- rtn as Boolean?
+
+            operator > as pure
+              -> arg as Colour
+              <- rtn as Boolean?
+
+            operator >= as pure
+              -> arg as Colour
+              <- rtn as Boolean?
+
+            operator == as pure
+              -> arg as Colour
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as Colour
               <- rtn as Boolean?
 
             operator <=> as pure
               -> arg as Colour
               <- rtn as Integer?
 
+            operator <~> as pure
+              -> arg as Colour
+              <- rtn as Integer?
+
+            operator ? as pure
+              <- rtn as Boolean?
+
+            operator ~ as pure
+              <- rtn as Colour?
+
+            operator + as pure
+              -> arg as Colour
+              <- rtn as Colour?
+
+            operator - as pure
+              -> arg as Colour
+              <- rtn as Colour?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator and as pure
+              -> arg as Colour
+              <- rtn as Colour?
+
+            operator or as pure
+              -> arg as Colour
+              <- rtn as Colour?
+
+            operator xor as pure
+              -> arg as Colour
+              <- rtn as Colour?
+
+            operator :~:
+              -> arg as Colour
+
+            operator :^:
+              -> arg as Colour
+              
             operator :=:
               -> arg as Colour
 
+            operator |
+              -> arg as Colour
+
             operator +=
+              -> arg as Colour
+
+            operator -=
               -> arg as Colour
 
           Dimension as open
@@ -576,18 +1514,127 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Dimension()
               -> arg0 as String
 
-            operator ? as pure
+            operator < as pure
+              -> arg as Dimension
+              <- rtn as Boolean?
+
+            operator <= as pure
+              -> arg as Dimension
+              <- rtn as Boolean?
+
+            operator > as pure
+              -> arg as Dimension
+              <- rtn as Boolean?
+
+            operator >= as pure
+              -> arg as Dimension
+              <- rtn as Boolean?
+
+            operator == as pure
+              -> arg as Dimension
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as Dimension
               <- rtn as Boolean?
 
             operator <=> as pure
               -> arg as Dimension
               <- rtn as Integer?
 
+            operator <~> as pure
+              -> arg as Dimension
+              <- rtn as Integer?
+
+            operator sqrt as pure
+              <- rtn as Dimension?
+
+            operator ? as pure
+              <- rtn as Boolean?
+
+            operator + as pure
+              -> arg as Dimension
+              <- rtn as Dimension?
+
+            operator - as pure
+              -> arg as Dimension
+              <- rtn as Dimension?
+
+            operator * as pure
+              -> arg as Integer
+              <- rtn as Dimension?
+
+            operator * as pure
+              -> arg as Float
+              <- rtn as Dimension?
+
+            operator / as pure
+              -> arg as Integer
+              <- rtn as Dimension?
+
+            operator / as pure
+              -> arg as Float
+              <- rtn as Dimension?
+
+            operator ^ as pure
+              -> arg as Integer
+              <- rtn as Dimension?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator #< as pure
+              <- rtn as Float?
+              
+            operator #> as pure
+              <- rtn as String?
+
+            operator abs as pure
+              <- rtn as Dimension?
+
+            operator mod as pure
+              -> arg as Dimension
+              <- rtn as Integer?
+
+            operator rem as pure
+              -> arg as Dimension
+              <- rtn as Integer?
+
+            operator :~:
+              -> arg as Dimension
+
+            operator :^:
+              -> arg as Dimension
+              
             operator :=:
+              -> arg as Dimension
+
+            operator |
               -> arg as Dimension
 
             operator +=
               -> arg as Dimension
+
+            operator -=
+              -> arg as Dimension
+
+            operator *=
+              -> arg as Integer
+
+            operator *=
+              -> arg as Float
+
+            operator /=
+              -> arg as Integer
+
+            operator /=
+              -> arg as Float
 
             operator ++
               <- rtn as Dimension?
@@ -601,31 +1648,223 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Resolution()
               -> arg0 as String
 
-            operator ? as pure
+            operator < as pure
+              -> arg as Resolution
+              <- rtn as Boolean?
+
+            operator <= as pure
+              -> arg as Resolution
+              <- rtn as Boolean?
+
+            operator > as pure
+              -> arg as Resolution
+              <- rtn as Boolean?
+
+            operator >= as pure
+              -> arg as Resolution
+              <- rtn as Boolean?
+
+            operator == as pure
+              -> arg as Resolution
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as Resolution
               <- rtn as Boolean?
 
             operator <=> as pure
               -> arg as Resolution
               <- rtn as Integer?
 
+            operator <~> as pure
+              -> arg as Resolution
+              <- rtn as Integer?
+
+            operator sqrt as pure
+              <- rtn as Resolution?
+
+            operator ? as pure
+              <- rtn as Boolean?
+
+            operator + as pure
+              -> arg as Resolution
+              <- rtn as Resolution?
+
+            operator - as pure
+              -> arg as Resolution
+              <- rtn as Resolution?
+
+            operator * as pure
+              -> arg as Integer
+              <- rtn as Resolution?
+
+            operator * as pure
+              -> arg as Float
+              <- rtn as Resolution?
+
+            operator / as pure
+              -> arg as Integer
+              <- rtn as Resolution?
+
+            operator / as pure
+              -> arg as Float
+              <- rtn as Resolution?
+
+            operator ^ as pure
+              -> arg as Integer
+              <- rtn as Resolution?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator #< as pure
+              <- rtn as Float?
+              
+            operator #> as pure
+              <- rtn as String?
+
+            operator abs as pure
+              <- rtn as Resolution?
+
+            operator mod as pure
+              -> arg as Resolution
+              <- rtn as Integer?
+
+            operator rem as pure
+              -> arg as Resolution
+              <- rtn as Integer?
+
+            operator :~:
+              -> arg as Resolution
+
+            operator :^:
+              -> arg as Resolution
+              
             operator :=:
               -> arg as Resolution
-            
+
+            operator |
+              -> arg as Resolution
+
+            operator +=
+              -> arg as Resolution
+
+            operator -=
+              -> arg as Resolution
+
+            operator *=
+              -> arg as Integer
+
+            operator *=
+              -> arg as Float
+
+            operator /=
+              -> arg as Integer
+
+            operator /=
+              -> arg as Float
+
+            operator ++
+              <- rtn as Resolution?
+
+            operator --
+              <- rtn as Resolution?
+           
           Path as open
             Path()
 
             Path()
               -> arg0 as String
 
-            operator ? as pure
+            operator == as pure
+              -> arg as Path
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as Path
               <- rtn as Boolean?
 
             operator <=> as pure
               -> arg as Path
               <- rtn as Integer?
 
+            operator <~> as pure
+              -> arg as Path
+              <- rtn as Integer?
+
+            operator ? as pure
+              <- rtn as Boolean?
+
+            operator + as pure
+              -> arg as Path
+              <- rtn as Path?
+
+            operator + as pure
+              -> arg as String
+              <- rtn as Path?
+
+            operator + as pure
+              -> arg as Character
+              <- rtn as Path?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator #< as pure
+              <- rtn as String?
+              
+            operator #> as pure
+              <- rtn as String?
+
+            operator empty as pure
+              <- rtn as Boolean?
+
+            operator length as pure
+              <- rtn as Integer?
+
+            operator contains as pure
+              -> arg as Path
+              <- rtn as Boolean?
+
+            operator matches as pure
+              -> arg as RegEx
+              <- rtn as Boolean?
+
+            operator :~:
+              -> arg as Path
+
+            operator :^:
+              -> arg as Path
+              
             operator :=:
               -> arg as Path
+
+            operator |
+              -> arg as Path
+
+            operator +=
+              -> arg as Path
+
+            operator +=
+              -> arg as String
+
+            operator *=
+              -> arg as Path
+
+            operator +=
+              -> arg as Character
 
           JSON
             JSON()
@@ -633,14 +1872,54 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             JSON()
               -> arg0 as String
 
-            operator ? as pure
+            operator == as pure
+              -> arg as JSON
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as JSON
               <- rtn as Boolean?
 
             operator <=> as pure
               -> arg as JSON
               <- rtn as Integer?
 
+            operator <~> as pure
+              -> arg as JSON
+              <- rtn as Integer?
+
+            operator ? as pure
+              <- rtn as Boolean?
+
+            operator #^ as pure
+              <- rtn as String?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator empty as pure
+              <- rtn as Boolean?
+
+            operator length as pure
+              <- rtn as Integer?
+
+            operator contains as pure
+              -> arg as JSON
+              <- rtn as Boolean?
+
+            operator :~:
+              -> arg as JSON
+
+            operator :^:
+              -> arg as JSON
+              
             operator :=:
+              -> arg as JSON
+
+            operator |
               -> arg as JSON
 
           JSONInput as abstract
@@ -651,11 +1930,88 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             RegEx()
               -> arg0 as String
 
+
+            operator == as pure
+              -> arg as RegEx
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as RegEx
+              <- rtn as Boolean?
+
+            operator <=> as pure
+              -> arg as RegEx
+              <- rtn as Integer?
+
+            operator <~> as pure
+              -> arg as RegEx
+              <- rtn as Integer?
+
             operator ? as pure
               <- rtn as Boolean?
 
+            operator + as pure
+              -> arg as RegEx
+              <- rtn as RegEx?
+
+            operator + as pure
+              -> arg as String
+              <- rtn as RegEx?
+
+            operator + as pure
+              -> arg as Character
+              <- rtn as RegEx?
+
+            operator #^ as pure
+              <- rtn as String?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator empty as pure
+              <- rtn as Boolean?
+
+            operator length as pure
+              <- rtn as Integer?
+
+            operator matches as pure
+              -> arg as String
+              <- rtn as Boolean?
+
+            operator matches as pure
+              -> arg as Path
+              <- rtn as Boolean?
+
+            operator matches as pure
+              -> arg as Locale
+              <- rtn as Boolean?
+
+            operator :~:
+              -> arg as RegEx
+
+            operator :^:
+              -> arg as RegEx
+              
             operator :=:
               -> arg as RegEx
+
+            operator |
+              -> arg as RegEx
+
+            operator +=
+              -> arg as RegEx
+
+            operator +=
+              -> arg as String
+
+            operator +=
+              -> arg as Character
 
           Exception as open
             Exception()
@@ -677,6 +2033,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator ? as pure
               <- rtn as Boolean?
 
+            operator $ as pure
+              <- rtn as String?
+                          
       """;
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_BUILT_IN_TEMPLATE_FUNCTIONS = """
@@ -725,15 +2084,67 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             List()
               -> arg0 as T
 
+            operator == as pure
+              -> arg as List of T
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as List of T
+              <- rtn as Boolean?
+
             operator ? as pure
               <- rtn as Boolean?
 
             operator + as pure
-              -> arg as T
+              -> arg as List of T
               <- rtn as List of T?
 
-            operator +=
+            operator - as pure
+              -> arg as List of T
+              <- rtn as List of T?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator #< as pure
+              <- rtn as T?
+              
+            operator #> as pure
+              <- rtn as T?
+
+            operator empty as pure
+              <- rtn as Boolean?
+
+            operator length as pure
+              <- rtn as Integer?
+
+            operator contains as pure
               -> arg as T
+              <- rtn as Boolean?
+
+            operator :~:
+              -> arg as List of T
+
+            operator :^:
+              -> arg as List of T
+              
+            operator :=:
+              -> arg as List of T
+
+            operator |
+              -> arg as List of T
+
+            operator +=
+              -> arg as List of T
+
+            operator -=
+              -> arg as List of T
               
           Optional of type T
             Optional()
@@ -741,8 +2152,49 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Optional()
               -> arg0 as T
 
+            operator == as pure
+              -> arg as Optional of T
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as Optional of T
+              <- rtn as Boolean?
+
+            operator <=> as pure
+              -> arg as Optional of T
+              <- rtn as Integer?
+
             operator ? as pure
               <- rtn as Boolean?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator empty as pure
+              <- rtn as Boolean?
+
+
+            operator contains as pure
+              -> arg as T
+              <- rtn as Boolean?
+
+            operator :~:
+              -> arg as Optional of T
+
+            operator :^:
+              -> arg as Optional of T
+              
+            operator :=:
+              -> arg as Optional of T
+
+            operator |
+              -> arg as T
 
           Result of type (O, E)
             //default constructor without an ok value or an error
@@ -784,12 +2236,54 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             isError()
               <- rtn as Boolean?
             
+            operator == as pure
+              -> arg as Result of (O, E)
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as Result of (O, E)
+              <- rtn as Boolean?
+
             <?-
               Check if this Result has and Ok value or an error - it might have neither.
               That's not always wrong, there may be no Ok value, but also nothing in error.
             -?>
             operator ? as pure
               <- rtn as Boolean?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator #< as pure
+              <- rtn as O?
+              
+            operator #> as pure
+              <- rtn as E?
+
+            operator empty as pure
+              <- rtn as Boolean?
+
+            operator contains as pure
+              -> arg as O
+              <- rtn as Boolean?
+
+            operator :~:
+              -> arg as Result of (O, E)
+
+            operator :^:
+              -> arg as Result of (O, E)
+              
+            operator :=:
+              -> arg as Result of (O, E)
+
+            operator |
+              -> arg as O
                 
           PriorityQueue of type T as open
             PriorityQueue()
@@ -797,8 +2291,60 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             PriorityQueue()
               -> arg0 as T
 
+            operator == as pure
+              -> arg as PriorityQueue of T
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as PriorityQueue of T
+              <- rtn as Boolean?
+
             operator ? as pure
               <- rtn as Boolean?
+
+            operator + as pure
+              -> arg as T
+              <- rtn as PriorityQueue of T?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator #< as pure
+              <- rtn as T?
+              
+            operator #> as pure
+              <- rtn as T?
+
+            operator empty as pure
+              <- rtn as Boolean?
+
+            operator length as pure
+              <- rtn as Integer?
+
+            operator contains as pure
+              -> arg as T
+              <- rtn as Boolean?
+
+            operator :~:
+              -> arg as PriorityQueue of T
+
+            operator :^:
+              -> arg as PriorityQueue of T
+              
+            operator :=:
+              -> arg as PriorityQueue of T
+
+            operator |
+              -> arg as T
+
+            operator +=
+              -> arg as T
             
           Dict of type (K, V) as open
             Dict()
@@ -808,11 +2354,67 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
                 k as K
                 v as V
 
+            operator == as pure
+              -> arg as Dict of (K, V)
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as Dict of (K, V)
+              <- rtn as Boolean?
+
             operator ? as pure
               <- rtn as Boolean?
-                
-            operator +=
+
+            operator + as pure
+              -> arg as Dict of (K, V)
+              <- rtn as Dict of (K, V)?
+
+            operator - as pure
+              -> arg as Dict of (K, V)
+              <- rtn as Dict of (K, V)?
+
+            operator $$ as pure
+              <- rtn as JSON?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator #< as pure
+              <- rtn as DictEntry of (K, V)?
+              
+            operator #> as pure
+              <- rtn as DictEntry of (K, V)?
+
+            operator empty as pure
+              <- rtn as Boolean?
+
+            operator length as pure
+              <- rtn as Integer?
+
+            operator contains as pure
+              -> arg as K
+              <- rtn as Boolean?
+
+            operator :~:
+              -> arg as Dict of (K, V)
+
+            operator :^:
+              -> arg as Dict of (K, V)
+              
+            operator :=:
+              -> arg as Dict of (K, V)
+
+            operator |
               -> arg as DictEntry of (K, V)
+
+            operator +=
+              -> arg as Dict of (K, V)
+
+            operator -=
+              -> arg as Dict of (K, V)
                 
           DictEntry of type (K, V) as open
             DictEntry()

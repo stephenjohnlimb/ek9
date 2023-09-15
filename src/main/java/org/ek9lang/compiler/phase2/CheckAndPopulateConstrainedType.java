@@ -19,13 +19,16 @@ import org.ek9lang.compiler.symbols.VariableSymbol;
 class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<AggregateSymbol, ISymbol> {
   final AggregateFactory aggregateFactory;
 
+  final List<String> methodNamesToAlsoRetrainOldSignature =
+      List.of("matches", "contains", "<", "<=", ">", ">=", "==", "<>");
+
   //These are a method names where we can alter the incoming argument type.
-  final List<String> methodNameWithAlterableArgumentTypes =
+  final List<String> methodNamesWithAlterableArgumentTypes =
       List.of(":=:", ":^:", ":~:", "matches", "contains", "and", "or", "xor",
           "<", "<=", ">", ">=", "==", "<>", "<=>", "<~>");
 
   //These are the method names where we can alter the return type - methods are those with one incoming argument
-  final List<String> methodNameWithAlterableReturnTypes =
+  final List<String> methodNamesWithAlterableReturnTypes =
       List.of("+", "-", "*", "/", "^", ">>", "<<", "and", "or", "xor");
 
   //These are the method names of methods with no input arguments where we must not alter the return type.
@@ -67,10 +70,10 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
       if (method.isOperator()) {
         if (method.getCallParameters().isEmpty()) {
           //Then it is a no argument operator and will have a return
-          newType.define(processNoArgOperator(method, newType, constrainedType));
+          processNoArgOperator(method, newType, constrainedType);
         } else {
           //It is an operator that takes arguments and may also have a return
-          newType.define(processArgOperator(method, newType, constrainedType));
+          processArgOperator(method, newType, constrainedType);
         }
 
       } else {
@@ -81,39 +84,48 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
     }
   }
 
-  private ISymbol processNoArgOperator(final MethodSymbol method, AggregateSymbol newType,
-                                       final AggregateSymbol constrainedType) {
+  private void processNoArgOperator(final MethodSymbol method, AggregateSymbol newType,
+                                    final AggregateSymbol constrainedType) {
     var clonedMethod = method.clone(newType);
     if (!methodNamesWithNonAlterableReturnTypes.contains(clonedMethod.getName())) {
       adjustReturnType(clonedMethod, newType, constrainedType);
     }
-    return clonedMethod;
+    newType.define(clonedMethod);
   }
 
-  private ISymbol processArgOperator(final MethodSymbol method, AggregateSymbol newType,
-                                     final AggregateSymbol constrainedType) {
+  private void processArgOperator(final MethodSymbol method, AggregateSymbol newType,
+                                  final AggregateSymbol constrainedType) {
 
     var clonedMethod = method.clone(newType);
 
     //Now we always alter any types in the input if they match the constrained type
-    if (methodNameWithAlterableReturnTypes.contains(clonedMethod.getName())) {
+    if (methodNamesWithAlterableReturnTypes.contains(clonedMethod.getName())) {
       adjustReturnType(clonedMethod, newType, constrainedType);
     }
-    if (methodNameWithAlterableArgumentTypes.contains(clonedMethod.getName())) {
-      adjustArgumentType(clonedMethod, newType, constrainedType);
+
+    if (methodNamesWithAlterableArgumentTypes.contains(clonedMethod.getName())) {
+      var typeAdjusted = adjustArgumentType(clonedMethod, newType, constrainedType);
+      //For some specific methods we duplicate the method but with the old type
+      //This is useful for constrained types.
+      if (typeAdjusted && methodNamesToAlsoRetrainOldSignature.contains(method.getName())) {
+        newType.define(method.clone(newType));
+      }
     }
 
-    return clonedMethod;
+    newType.define(clonedMethod);
   }
 
-  private void adjustArgumentType(MethodSymbol clonedMethod,
-                                  final AggregateSymbol newType,
-                                  final AggregateSymbol constrainedType) {
+  private boolean adjustArgumentType(MethodSymbol clonedMethod,
+                                     final AggregateSymbol newType,
+                                     final AggregateSymbol constrainedType) {
+    var rtn = false;
     for (var argument : clonedMethod.getCallParameters()) {
       if (argument.getType().isPresent() && argument.getType().get().isExactSameType(constrainedType)) {
+        rtn = true;
         argument.setType(newType);
       }
     }
+    return rtn;
   }
 
   private void adjustReturnType(MethodSymbol clonedMethod,
