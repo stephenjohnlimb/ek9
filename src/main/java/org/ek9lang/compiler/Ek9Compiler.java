@@ -66,6 +66,20 @@ public class Ek9Compiler implements Compiler {
     long end = System.nanoTime();
     reporter.log(String.format("Total duration (excluding bootstrap) %s ms; success %b",
         format.format((end - start) / 1000000.0), rtn));
+    reporter.log(getStatistics());
     return rtn;
+  }
+
+  private String getStatistics() {
+    var runtime = Runtime.getRuntime();
+
+    NumberFormat format = NumberFormat.getInstance();
+    var total = runtime.totalMemory();
+    var freeMemory = runtime.freeMemory();
+    var used = format.format((total - freeMemory) /(1024 * 1024));
+    var totalMemory = format.format(total/(1024*1024));
+    var numCpus = runtime.availableProcessors();
+
+    return String.format("Memory used %s MB of %s MB with %d CPUs", used, totalMemory, numCpus);
   }
 }

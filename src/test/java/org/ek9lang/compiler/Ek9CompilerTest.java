@@ -60,7 +60,7 @@ class Ek9CompilerTest {
         listener, new CompilerReporter(false));
 
     var compiler = new Ek9Compiler(allPhases);
-    var result = compiler.compile(validEk9Workspace.get(), new CompilerFlags(upToPhase, false));
+    var result = compiler.compile(validEk9Workspace.get(), new CompilerFlags(upToPhase, true));
     assertTrue(result);
   }
 

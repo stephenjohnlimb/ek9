@@ -128,7 +128,7 @@ public abstract class FullCompilationTest {
     sharedCompilableProgram.accept(this::assertPreConditions);
 
     //If you want to see the timing of each of the phases then set verbose to true.
-    var compilationResult = compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, false));
+    var compilationResult = compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, true));
 
     sharedCompilableProgram.accept(program -> checkFinalResults(compilationResult, counter.get(), program));
   }
