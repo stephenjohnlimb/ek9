@@ -18,6 +18,7 @@ import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.support.SimpleResolverForTesting;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 import org.ek9lang.core.CompilerException;
+import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -43,6 +44,28 @@ class Ek9BootStrapTest {
         -> assertEquals(1, compilableProgram.getParsedModules(EK9_LANG).size()));
 
     sharedContext.accept(this::assertEk9);
+
+    assertSerialisation(sharedContext);
+  }
+
+  /**
+   * Checks that a fully populated compilable program with basic ek9 built-in symbols can be serialised.
+   */
+  private void assertSerialisation(final SharedThreadContext<CompilableProgram> sharedContext) {
+    //So serialise a program and then deserialize it.
+    var serializer = new Serializer();
+    var deserializer = new DeSerializer();
+
+    var start = System.currentTimeMillis();
+    var justTheBytes = serializer.apply(sharedContext);
+    var afterSerialize = System.currentTimeMillis();
+    //OK now lets try and reload it.
+
+    var reloadedProgram = deserializer.apply(justTheBytes);
+    var afterDeserialize = System.currentTimeMillis();
+    reloadedProgram.accept(this::assertEk9);
+
+    System.out.printf("Serialize CompilableProgram took %d ms, Deserialize took %d ms\n", (afterSerialize-start), (afterDeserialize-afterSerialize));
   }
 
   private void assertEk9(final CompilableProgram program) {
@@ -69,15 +92,12 @@ class Ek9BootStrapTest {
 
     var resolvedInteger = resolver.apply("Integer");
     resolvedInteger.ifPresentOrElse(integerSymbol -> {
-      System.out.println("Resolved [" + integerSymbol.getFriendlyName() + "]");
       AggregateSymbol asAggregate = (AggregateSymbol) integerSymbol;
 
       MethodSymbolSearchResult result = new MethodSymbolSearchResult();
       result = asAggregate.resolveMatchingMethods(new MethodSymbolSearch("#^"), result);
-      if (result.isSingleBestMatchPresent()) {
-        System.out.println("Resolved method [" + result.getSingleBestMatchSymbol() + "]");
-      } else {
-        System.out.println("Unable to resolve method #^");
+      if (!result.isSingleBestMatchPresent()) {
+        Assertions.fail("Expecting method 'Integer.#^()' to be found");
       }
     }, () -> Assertions.fail("Expecting 'Integer' to be found"));
   }

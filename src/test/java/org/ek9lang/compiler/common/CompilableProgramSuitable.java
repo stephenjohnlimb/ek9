@@ -2,8 +2,10 @@ package org.ek9lang.compiler.common;
 
 import java.util.function.Supplier;
 import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.DeSerializer;
 import org.ek9lang.compiler.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.Ek9LanguageBootStrap;
+import org.ek9lang.compiler.Serializer;
 import org.ek9lang.core.SharedThreadContext;
 
 /**
@@ -15,9 +17,34 @@ public class CompilableProgramSuitable implements Supplier<SharedThreadContext<C
   //TODO consider caching/cloning the CompilableProgram that just has ek9 basics in it.
   //TODO then rather than parse all the EK9 source over and over for tests just copy the data structure.
   //TODO for tests this gets called 100 times, so we're parsing the same build in ek9 source 100 times!
+
+  private static byte[] serializedCompiler;
+
+
   @Override
   public SharedThreadContext<CompilableProgram> get() {
+    return getCompiler();
+  }
 
+  /**
+   * Makes the compiler if a serialized version is not available.
+   * Otherwise, it just deserialized the byte serialized version.
+   * @return a compilable program.
+   */
+  private static synchronized SharedThreadContext<CompilableProgram> getCompiler() {
+
+    if(serializedCompiler == null) {
+      var serializer = new Serializer();
+      var rtn = makeCompiler();
+      serializedCompiler = serializer.apply(rtn);
+      return rtn;
+    }
+
+    var deserializer = new DeSerializer();
+    return deserializer.apply(serializedCompiler);
+  }
+
+  private static SharedThreadContext<CompilableProgram> makeCompiler() {
     Ek9LanguageBootStrap bootStrap =
         new Ek9LanguageBootStrap(new Ek9BuiltinLangSupplier(), compilationEvent -> {
           var source = compilationEvent.source();
@@ -40,4 +67,6 @@ public class CompilableProgramSuitable implements Supplier<SharedThreadContext<C
     System.err.printf("Thread: %s, Bootstrap duration %d ms", threadName, (after - before));
     return rtn;
   }
+
+
 }
