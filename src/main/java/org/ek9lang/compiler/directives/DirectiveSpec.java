@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.directives;
 
-import java.io.Serializable;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
@@ -13,6 +12,5 @@ public record DirectiveSpec(IToken token,
                             ISymbol.SymbolCategory symbolCategory,
                             String symbolName,
                             String additionalName,
-                            int lineNumber) implements Serializable {
-  static final long serialVersionUID = 1L;
+                            int lineNumber) {
 }

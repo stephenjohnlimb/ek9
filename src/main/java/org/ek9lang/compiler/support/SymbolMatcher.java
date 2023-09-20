@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.support;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
@@ -14,8 +15,8 @@ import org.ek9lang.core.AssertValue;
  * The main reason for this is to avoid method name mangling and incorporate coercion,
  * and interface/super type matches.
  */
-public class SymbolMatcher {
-
+public class SymbolMatcher implements Serializable {
+  static final long serialVersionUID = 1L;
 
   /**
    * Match the search criteria against one or more symbol methods.

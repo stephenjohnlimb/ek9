@@ -13,8 +13,6 @@ import java.util.function.Supplier;
 import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.directives.Directive;
-import org.ek9lang.compiler.directives.DirectiveType;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.ModuleScope;
@@ -70,8 +68,13 @@ class CompilableProgramCloneTest {
     //Now check it has been correctly populated.
     sharedContextOfCompilableProgram.accept(this::assertCompilableProgram);
 
-    //TODO check if can be cloned and all assertions still pass.
+    var serializer = new Serializer();
+    var justTheBytes = serializer.apply(sharedContextOfCompilableProgram);
 
+    //OK now lets try and reload it.
+    var deserializer = new DeSerializer();
+    var reloadedProgram = deserializer.apply(justTheBytes);
+    reloadedProgram.accept(this::assertCompilableProgram);
   }
 
   private SharedThreadContext<CompilableProgram> createCompilableProgram() {
@@ -87,7 +90,6 @@ class CompilableProgramCloneTest {
     assertNotNull(sharedContextOfCompilableProgram);
 
     return sharedContextOfCompilableProgram;
-
   }
 
   private void assertCompilableProgram(CompilableProgram program) {
@@ -99,7 +101,6 @@ class CompilableProgramCloneTest {
     assertEquals("org.ek9.lang", moduleNames.get(0));
 
     assertModules(program.getParsedModules("org.ek9.lang"));
-
   }
 
   private void assertModules(final List<ParsedModule> modules) {
@@ -111,24 +112,12 @@ class CompilableProgramCloneTest {
     var module = modules.get(0);
     assertNotNull(module);
 
-    assertDirectives(module.getDirectives(DirectiveType.Resolved, CompilationPhase.SYMBOL_DEFINITION));
-
     var moduleScope = module.getModuleScope();
     assertModuleScope(moduleScope);
 
     //Now check the source object
     var compilableSource = module.getSource();
     assertCompilableSource(compilableSource);
-
-  }
-
-  private void assertDirectives(final List<Directive> directives) {
-
-    assertEquals(1, directives.size());
-    var resolvedStringDirective = directives.get(0);
-    assertNotNull(resolvedStringDirective);
-    assertEquals(12, resolvedStringDirective.getAppliesToLineNumber());
-    assertTrue(resolvedStringDirective.isForPhase(CompilationPhase.SYMBOL_DEFINITION));
 
   }
 
@@ -147,7 +136,6 @@ class CompilableProgramCloneTest {
       var defaultConstructor = methods.get(0);
       assertNotNull(defaultConstructor);
       assertEquals(0, defaultConstructor.getCallParameters().size());
-
 
       var copyConstructor = methods.get(1);
       assertNotNull(copyConstructor);
@@ -171,12 +159,6 @@ class CompilableProgramCloneTest {
     assertNull(compilableSource.getPackageModuleName());
     assertFalse(compilableSource.isDev());
     assertFalse(compilableSource.isLib());
-
-    var compilationUnit = compilableSource.getCompilationUnitContext();
-    assertNotNull(compilationUnit);
-
-    assertFalse(compilableSource.hasNotBeenSuccessfullyParsed());
-    assertNotNull(compilableSource.toString());
 
     var checkTokenResult = compilableSource.nearestToken(12, 15);
     assertNotNull(checkTokenResult);

@@ -88,31 +88,7 @@ public class SymbolTable implements IScope {
    * But also keep an ordered list - useful for ordered parameters.
    */
   private final List<ISymbol> orderedSymbols = new ArrayList<>();
-  private final transient SymbolMatcher matcher = new SymbolMatcher();
-
-  /**
-   * Function to work with MethodSymbols here rather than just ISymbols.
-   */
-  private final transient Function<List<ISymbol>, List<MethodSymbol>> methodSymbolCast = list -> list
-      .stream()
-      .filter(MethodSymbol.class::isInstance)
-      .map(MethodSymbol.class::cast).toList();
-  /**
-   * Function to check there is one and only one item in a symbol list and then to return that item.
-   */
-  private final transient Function<List<ISymbol>, Optional<ISymbol>> checkAndSelectFirstItem = symbols -> {
-    AssertValue.checkRange("Expecting a Single result in the symbol table", symbols.size(), 1, 1);
-    return Optional.of(symbols.get(0));
-  };
-  /**
-   * Simple BI Function to see if two ISymbols contained within Optionals are assignable.
-   * i.e. is the 'from' assignable to the 'to'?
-   */
-  private final transient BiPredicate<Optional<ISymbol>, Optional<ISymbol>> isAssignable =
-      (to, from) -> from
-          .stream()
-          .map(toSet -> toSet.isAssignableTo(to))
-          .findFirst().orElse(false);
+  private final SymbolMatcher matcher = new SymbolMatcher();
 
   private String scopeName = "global";
 
@@ -282,6 +258,11 @@ public class SymbolTable implements IScope {
   public MethodSymbolSearchResult resolveMatchingMethodsInThisScopeOnly(
       final MethodSymbolSearch search, MethodSymbolSearchResult result) {
 
+    final Function<List<ISymbol>, List<MethodSymbol>> methodSymbolCast = list -> list
+        .stream()
+        .filter(MethodSymbol.class::isInstance)
+        .map(MethodSymbol.class::cast).toList();
+
     Optional.of(getSplitSymbolTable(ISymbol.SymbolCategory.METHOD))
         .stream()
         .map(table -> getSymbolByName(table, search.getName()))
@@ -371,6 +352,22 @@ public class SymbolTable implements IScope {
 
     // I've pulled out common code to in-method functions, so I can capture incoming parameters
     // and re-use the code.
+
+    final Function<List<ISymbol>, List<MethodSymbol>> methodSymbolCast = list -> list
+        .stream()
+        .filter(MethodSymbol.class::isInstance)
+        .map(MethodSymbol.class::cast).toList();
+
+    final Function<List<ISymbol>, Optional<ISymbol>> checkAndSelectFirstItem = symbols -> {
+      AssertValue.checkRange("Expecting a Single result in the symbol table", symbols.size(), 1, 1);
+      return Optional.of(symbols.get(0));
+    };
+
+    final BiPredicate<Optional<ISymbol>, Optional<ISymbol>> isAssignable =
+        (to, from) -> from
+            .stream()
+            .map(toSet -> toSet.isAssignableTo(to))
+            .findFirst().orElse(false);
 
     final Predicate<Optional<ISymbol>> canBeAssigned = toCheck -> {
       final Optional<ISymbol> searchSymbol = search.getAsSymbol();

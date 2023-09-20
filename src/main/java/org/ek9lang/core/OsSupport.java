@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
@@ -15,7 +16,8 @@ import java.util.Optional;
 /**
  * Operating System support and generic stuff for directories and files.
  */
-public final class OsSupport {
+public final class OsSupport implements Serializable {
+  static final long serialVersionUID = 1L;
 
   /**
    * When is stub mode the users home directory and current working directory are altered.

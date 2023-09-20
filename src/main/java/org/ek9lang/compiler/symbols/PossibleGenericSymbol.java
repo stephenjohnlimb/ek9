@@ -118,13 +118,12 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
   @SuppressWarnings({"unused", "OptionalUsedAsFieldOrParameterType"})
   public void setGenericType(Optional<PossibleGenericSymbol> genericType) {
     genericType.ifPresentOrElse(theGenericType -> {
-          this.genericType = theGenericType;
-          //Use the same scope, module and source token for this as the generic type.
-          setModuleScope(theGenericType.getModuleScope());
-          setParsedModule(theGenericType.getParsedModule());
-          setSourceToken(theGenericType.getSourceToken());
-        },
-        () -> this.genericType = null);
+      this.genericType = theGenericType;
+      //Use the same scope, module and source token for this as the generic type.
+      setModuleScope(theGenericType.getModuleScope());
+      setParsedModule(theGenericType.getParsedModule());
+      setSourceToken(theGenericType.getSourceToken());
+    }, () -> this.genericType = null);
   }
 
   public void setGenericType(PossibleGenericSymbol genericType) {
@@ -218,10 +217,7 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
    * return a list of all those that are generic 'T' in nature and not actually concrete types.
    */
   public List<ISymbol> getAnyConceptualTypeParameters() {
-    return typeParameterOrArguments
-        .stream()
-        .filter(ISymbol::isConceptualTypeParameter)
-        .toList();
+    return typeParameterOrArguments.stream().filter(ISymbol::isConceptualTypeParameter).toList();
   }
 
   public List<ISymbol> getTypeParameterOrArguments() {
@@ -266,8 +262,8 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
     //This is the scenario where we have a dynamic class or function being used within
     // a generic class or function and we need to resolve the types used in that outer type.
     //i.e. the K, V and T sort of conceptual types.
-    if (rtn.isEmpty() && getScopeType().equals(ScopeType.DYNAMIC_BLOCK)
-        && getOuterMostTypeOrFunction().isPresent() && search.isAnyValidTypeSearch()) {
+    if (rtn.isEmpty() && getScopeType().equals(ScopeType.DYNAMIC_BLOCK) && getOuterMostTypeOrFunction().isPresent()
+        && search.isAnyValidTypeSearch()) {
       rtn = getOuterMostTypeOrFunction().get().resolve(search);
     }
 
@@ -283,11 +279,9 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
       return true;
     }
 
-    return (o instanceof PossibleGenericSymbol that)
-        && super.equals(o)
-        && isConceptualTypeParameter() == that.isConceptualTypeParameter()
-        && getGenericType().equals(that.getGenericType())
-        && getTypeParameterOrArguments().equals(that.getTypeParameterOrArguments())
+    return (o instanceof PossibleGenericSymbol that) && super.equals(o)
+        && isConceptualTypeParameter() == that.isConceptualTypeParameter() && getGenericType().equals(
+        that.getGenericType()) && getTypeParameterOrArguments().equals(that.getTypeParameterOrArguments())
         && parameterisedTypeReferences.equals(that.parameterisedTypeReferences);
   }
 

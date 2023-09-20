@@ -19,7 +19,8 @@ public class MethodSymbol extends ScopedSymbol {
   static final long serialVersionUID = 1L;
 
   //Just used internally to check for method signature matching
-  private final transient SymbolMatcher matcher = new SymbolMatcher();
+  //But has to be lazily created for serialisation.
+  private final SymbolMatcher matcher = new SymbolMatcher();
 
   /**
    * Keep separate variable for what we are returning because we need its name and type.
@@ -106,6 +107,10 @@ public class MethodSymbol extends ScopedSymbol {
     super(name, type, enclosingScope);
     super.setCategory(SymbolCategory.METHOD);
     super.setGenus(SymbolGenus.VALUE);
+  }
+
+  private SymbolMatcher getSymbolMatcher() {
+    return matcher;
   }
 
   /**
@@ -327,11 +332,11 @@ public class MethodSymbol extends ScopedSymbol {
   public boolean isSignatureMatchTo(MethodSymbol toMethod) {
     List<ISymbol> ourParams = this.getSymbolsForThisScope();
     List<ISymbol> theirParams = toMethod.getSymbolsForThisScope();
-    double weight = matcher.getWeightOfParameterMatch(theirParams, ourParams);
+    double weight = getSymbolMatcher().getWeightOfParameterMatch(theirParams, ourParams);
     if (weight < 0.0) {
       return false;
     }
-    weight = matcher.getWeightOfMatch(this.getType(), toMethod.getType());
+    weight = getSymbolMatcher().getWeightOfMatch(this.getType(), toMethod.getType());
 
     return weight >= 0.0;
   }
@@ -343,7 +348,7 @@ public class MethodSymbol extends ScopedSymbol {
    */
   public boolean isParameterSignatureMatchTo(List<ISymbol> params) {
     List<ISymbol> ourParams = this.getSymbolsForThisScope();
-    double weight = matcher.getWeightOfParameterMatch(params, ourParams);
+    double weight = getSymbolMatcher().getWeightOfParameterMatch(params, ourParams);
     return weight >= 0.0;
   }
 

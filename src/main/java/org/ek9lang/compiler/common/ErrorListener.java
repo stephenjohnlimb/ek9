@@ -32,7 +32,7 @@ import org.ek9lang.core.OsSupport;
 public class ErrorListener extends BaseErrorListener implements Serializable {
   static final long serialVersionUID = 1L;
 
-  private final transient OsSupport osSupport = new OsSupport();
+  private final OsSupport osSupport = new OsSupport();
   private final String generalIdentifierOfSource;
   private boolean exceptionOnAmbiguity = false;
   private boolean exceptionOnContextSensitive = false;

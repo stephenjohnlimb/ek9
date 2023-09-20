@@ -15,8 +15,6 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * @see ErrorListener.SemanticClassification
  */
 public class ErrorDirective implements Directive {
-  static final long serialVersionUID = 1L;
-
   private final CompilationPhase phase;
   private final IToken directiveToken;
   private final ErrorListener.SemanticClassification classification;

@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.directives;
 
-import java.io.Serializable;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.tokenizer.IToken;
 
@@ -16,7 +15,7 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * //@Symbols: SYMBOL_DEFINITION: TYPE: 11
  * //@Symbols: SYMBOL_DEFINITION: TEMPLATE_FUNCTION: 2
  */
-public interface Directive extends Serializable {
+public interface Directive {
   /**
    * What s the type of the directive.
    */

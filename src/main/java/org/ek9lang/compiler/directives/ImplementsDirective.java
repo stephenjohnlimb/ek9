@@ -9,7 +9,6 @@ package org.ek9lang.compiler.directives;
  * //@Implements: EXPLICIT_TYPE_SYMBOL_DEFINITION: FUNCTION: "SomeFunction": "SomeAbstractFunction"
  */
 public class ImplementsDirective extends ResolutionDirective {
-  static final long serialVersionUID = 1L;
 
   public ImplementsDirective(final DirectiveSpec spec) {
     super(spec);

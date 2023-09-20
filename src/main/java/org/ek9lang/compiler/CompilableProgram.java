@@ -43,12 +43,7 @@ public class CompilableProgram implements Serializable {
   /**
    * Provides the list of scopes in a single module for a module name.
    */
-  private final transient Function<String, List<ModuleScope>> getModuleScopes =
-      moduleName -> Stream.ofNullable(theParsedModules.get(moduleName))
-          .map(ParsedModules::getParsedModules)
-          .flatMap(List::stream)
-          .map(ParsedModule::getModuleScope)
-          .toList();
+  private transient Function<String, List<ModuleScope>> getModuleScopes;
 
   /**
    * When the built-in ek9 bootstrap module is parsed and processed, it will be added here.
@@ -72,6 +67,17 @@ public class CompilableProgram implements Serializable {
 
   public void setEk9Types(Ek9Types ek9Types) {
     this.ek9Types = ek9Types;
+  }
+
+  private Function<String, List<ModuleScope>> getModuleScopesFunction() {
+    if (getModuleScopes == null) {
+      getModuleScopes = moduleName -> Stream.ofNullable(theParsedModules.get(moduleName))
+          .map(ParsedModules::getParsedModules)
+          .flatMap(List::stream)
+          .map(ParsedModule::getModuleScope)
+          .toList();
+    }
+    return getModuleScopes;
   }
 
   /**
@@ -153,7 +159,7 @@ public class CompilableProgram implements Serializable {
     var resolved = resolveFromModule(moduleName, search);
     if (resolved.isEmpty()) {
       //need to define it and return it.
-      var module = getModuleScopes.apply(moduleName).get(0);
+      var module = getModuleScopesFunction().apply(moduleName).get(0);
       module.define(possibleGenericSymbol);
 
       return new ResolvedOrDefineResult(Optional.of(possibleGenericSymbol), true);
@@ -171,7 +177,7 @@ public class CompilableProgram implements Serializable {
    */
   public Optional<ISymbol> resolveFromModule(final String moduleName, final SymbolSearch search) {
 
-    var moduleScopes = getModuleScopes.apply(moduleName);
+    var moduleScopes = getModuleScopesFunction().apply(moduleName);
     return moduleScopes
         .stream()
         .map(moduleScope -> moduleScope.resolveInThisScopeOnly(search))
@@ -185,7 +191,7 @@ public class CompilableProgram implements Serializable {
    * Locates the token when the first reference was established.
    */
   public Optional<IToken> getOriginalReferenceLocation(final String moduleName, final SymbolSearch search) {
-    return getModuleScopes.apply(moduleName)
+    return getModuleScopesFunction().apply(moduleName)
         .stream()
         .map(moduleScope -> moduleScope.getOriginalReferenceLocation(search))
         .filter(Optional::isPresent)
@@ -199,7 +205,7 @@ public class CompilableProgram implements Serializable {
    */
   public Optional<ISymbol> resolveReferenceFromModule(final String moduleName, final SymbolSearch search) {
 
-    return getModuleScopes.apply(moduleName)
+    return getModuleScopesFunction().apply(moduleName)
         .stream()
         .map(moduleScope -> moduleScope.resolveReferenceInThisScopeOnly(search))
         .filter(Optional::isPresent)

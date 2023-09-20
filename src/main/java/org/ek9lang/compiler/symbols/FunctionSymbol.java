@@ -16,7 +16,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
   static final long serialVersionUID = 1L;
 
   //Just used internally to check for method signature matching
-  private final transient SymbolMatcher matcher = new SymbolMatcher();
+  private final SymbolMatcher matcher = new SymbolMatcher();
 
   /**
    * Keep separate variable for what we are returning because we need its name and type.

@@ -5,7 +5,6 @@ package org.ek9lang.compiler.directives;
  * //@Genus: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "SomeService": SERVICE_APPLICATION
  */
 public class GenusDirective extends ResolutionDirective {
-  static final long serialVersionUID = 1L;
 
   public GenusDirective(final DirectiveSpec spec) {
     super(spec);

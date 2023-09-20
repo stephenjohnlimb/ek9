@@ -65,7 +65,7 @@ public class ParsedModule implements Module, Serializable {
    * This data is transient for compilation process Listeners and Visitors.
    * After the processing the module scope will contain the Symbols and basic interface structures needed.
    */
-  private final transient ParsedModuleTransientData transientData = new ParsedModuleTransientData();
+  private transient ParsedModuleTransientData transientData;
 
   /**
    * The name of the module as defined in the EK9 source code. But remember this same module name
@@ -156,6 +156,13 @@ public class ParsedModule implements Module, Serializable {
     return source.equals(compilableSource);
   }
 
+  private ParsedModuleTransientData getParsedModuleTransientData() {
+    if (this.transientData == null) {
+      transientData = new ParsedModuleTransientData();
+    }
+    return transientData;
+  }
+
   /**
    * When processing EK9 source code the developer now has some ability to use
    * '@directives'. These are aimed at code compilation, instrumentation and error checking.
@@ -166,7 +173,7 @@ public class ParsedModule implements Module, Serializable {
    */
   public void recordDirective(final Directive directive) {
     AssertValue.checkNotNull("Directive cannot be null", directive);
-    transientData.recordDirective(directive);
+    getParsedModuleTransientData().recordDirective(directive);
   }
 
   /**
@@ -175,7 +182,7 @@ public class ParsedModule implements Module, Serializable {
   public List<Directive> getDirectives(final DirectiveType type, final CompilationPhase phase) {
     AssertValue.checkNotNull("DirectiveType cannot be null", type);
     AssertValue.checkNotNull("Phase cannot be null", phase);
-    return transientData.getDirectives(type, phase);
+    return getParsedModuleTransientData().getDirectives(type, phase);
   }
 
   /**
@@ -183,7 +190,7 @@ public class ParsedModule implements Module, Serializable {
    */
   public List<Directive> getDirectives(final DirectiveType type) {
     AssertValue.checkNotNull("DirectiveType cannot be null", type);
-    return transientData.getDirectives(type);
+    return getParsedModuleTransientData().getDirectives(type);
   }
 
   /**
@@ -192,7 +199,7 @@ public class ParsedModule implements Module, Serializable {
   public void recordScope(ParseTree node, IScope withScope) {
     AssertValue.checkNotNull(PARSE_TREE_ERROR_TEXT, node);
     AssertValue.checkNotNull("WithScope cannot be null", withScope);
-    transientData.recordScope(node, withScope);
+    getParsedModuleTransientData().recordScope(node, withScope);
   }
 
   /**
@@ -201,7 +208,7 @@ public class ParsedModule implements Module, Serializable {
    */
   public IScope getRecordedScope(ParseTree node) {
     AssertValue.checkNotNull(PARSE_TREE_ERROR_TEXT, node);
-    return transientData.getRecordedScope(node);
+    return getParsedModuleTransientData().getRecordedScope(node);
   }
 
   /**
@@ -211,7 +218,7 @@ public class ParsedModule implements Module, Serializable {
     AssertValue.checkNotNull(PARSE_TREE_ERROR_TEXT, node);
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
 
-    transientData.recordSymbol(node, symbol, this);
+    getParsedModuleTransientData().recordSymbol(node, symbol, this);
   }
 
   /**
@@ -220,7 +227,7 @@ public class ParsedModule implements Module, Serializable {
    */
   public ISymbol getRecordedSymbol(ParseTree node) {
     AssertValue.checkNotNull(PARSE_TREE_ERROR_TEXT, node);
-    return transientData.getRecordedSymbol(node);
+    return getParsedModuleTransientData().getRecordedSymbol(node);
   }
 
   @Override

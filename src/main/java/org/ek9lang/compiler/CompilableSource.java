@@ -35,8 +35,6 @@ import org.ek9lang.core.Processor;
  */
 public final class CompilableSource implements Source, Serializable, TokenConsumptionListener {
 
-  private final transient ParserCreator parserCreator = new ParserCreator();
-
   // This is the full path to the filename.
   private String filename;
 
@@ -289,7 +287,7 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
     Source src = this::getGeneralIdentifier;
     initialiseErrorListener();
     var spec = new ParserSpec(src, inputStream, errorListener, this);
-    parser = parserCreator.apply(spec);
+    parser = new ParserCreator().apply(spec);
 
     return this;
   }
