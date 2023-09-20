@@ -8,6 +8,7 @@ import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
  * Used for resolving and recoding of fields on specific types.
@@ -46,7 +47,8 @@ final class ResolveFieldOrError extends RuleSupport
 
     var identifierSymbol = resolved.get();
     var checkingData =
-        new CheckSymbolAccessData(ctx.start, accessFromScope, scopeToResolveIn, identifier, identifierSymbol);
+        new CheckSymbolAccessData(new Ek9Token(ctx.start), accessFromScope, scopeToResolveIn, identifier,
+            identifierSymbol);
 
     checkAccessToSymbol.accept(checkingData);
 

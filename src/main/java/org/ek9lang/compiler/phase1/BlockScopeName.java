@@ -1,19 +1,19 @@
 package org.ek9lang.compiler.phase1;
 
 import java.util.function.Function;
-import org.antlr.v4.runtime.Token;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * Creates a suitable scope name for a token position.
  */
-final class BlockScopeName implements Function<Token, String> {
+final class BlockScopeName implements Function<IToken, String> {
 
   BlockScopeName() {
 
   }
 
   @Override
-  public String apply(final Token token) {
+  public String apply(final IToken token) {
     return "Line-" + token.getLine() + "-Position-" + token.getCharPositionInLine();
   }
 }

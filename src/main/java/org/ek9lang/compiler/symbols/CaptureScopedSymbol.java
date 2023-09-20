@@ -9,6 +9,7 @@ import org.ek9lang.compiler.support.ToCommaSeparated;
  * This is primarily used for dynamic functions and classes.
  */
 public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVariables {
+  static final long serialVersionUID = 1L;
 
   /**
    * This is the module this function has been defined in.
@@ -25,8 +26,7 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
    * We can then hold and access them in the dynamic function/type even when the function has moved
    * out of the original scope. i.e. a sort of closure over variables.
    */
-  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private Optional<CaptureScope> capturedVariables = Optional.empty();
+  private CaptureScope capturedVariables;
 
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -48,8 +48,8 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
     newCopy.moduleScope = moduleScope;
     newCopy.markedAbstract = markedAbstract;
 
-    if (capturedVariables.isPresent()) {
-      var captured = capturedVariables.get();
+    if (getCapturedVariables().isPresent()) {
+      var captured = getCapturedVariables().get();
       var cloned = captured.clone(newCopy.getEnclosingScope());
       newCopy.setCapturedVariables(cloned);
     }
@@ -75,7 +75,7 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
   }
 
   public Optional<CaptureScope> getCapturedVariables() {
-    return capturedVariables;
+    return Optional.ofNullable(capturedVariables);
   }
 
   /**
@@ -88,14 +88,15 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public void setCapturedVariables(Optional<CaptureScope> capturedVariables) {
-    this.capturedVariables = capturedVariables;
+    capturedVariables.ifPresentOrElse(vars -> this.capturedVariables = vars, () -> this.capturedVariables = null);
+
   }
 
   /**
    * The variables that have been captured can be given public access if needed.
    */
   public void setCapturedVariablesVisibility(final boolean isPublic) {
-    capturedVariables.ifPresent(
+    getCapturedVariables().ifPresent(
         localScope -> localScope.getSymbolsForThisScope().forEach(symbol -> {
           if (symbol instanceof VariableSymbol s) {
             s.setPrivate(!isPublic);
@@ -105,7 +106,7 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
 
   protected String getPrivateVariablesForDisplay() {
     var toCommaSeparated = new ToCommaSeparated(this, true);
-    return capturedVariables
+    return getCapturedVariables()
         .map(IScope::getSymbolsForThisScope)
         .map(toCommaSeparated)
         .orElse("");
@@ -119,8 +120,8 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
   @Override
   public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search) {
     Optional<ISymbol> rtn = super.resolveInThisScopeOnly(search);
-    if (rtn.isEmpty() && capturedVariables.isPresent()) {
-      rtn = capturedVariables.get().resolveInThisScopeOnly(search);
+    if (rtn.isEmpty() && getCapturedVariables().isPresent()) {
+      rtn = getCapturedVariables().get().resolveInThisScopeOnly(search);
     }
     return rtn;
   }

@@ -2,7 +2,6 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.Optional;
 import java.util.function.BiConsumer;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
@@ -12,6 +11,8 @@ import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * Checks that any recursive type constraints on a type are valid.
@@ -56,7 +57,7 @@ final class CheckTypeConstraint extends RuleSupport
       if (ctx.constrainType().size() == 1) {
         rtn = processConstrainType(aggregateSymbol, ctx.constrainType(0));
       } else {
-        rtn = processConstrainType(aggregateSymbol, ctx.constrainType(0), ctx.op, ctx.constrainType(1));
+        rtn = processConstrainType(aggregateSymbol, ctx.constrainType(0), new Ek9Token(ctx.op), ctx.constrainType(1));
       }
       //Then it is either an 'and,or' or a grouped version
     } else {
@@ -68,7 +69,7 @@ final class CheckTypeConstraint extends RuleSupport
 
   private Optional<ISymbol> processConstrainType(final AggregateSymbol aggregateSymbol,
                                                  final EK9Parser.ConstrainTypeContext ctx1,
-                                                 final Token operationToken,
+                                                 final IToken operationToken,
                                                  final EK9Parser.ConstrainTypeContext ctx2) {
     var first = processConstrainType(aggregateSymbol, ctx1);
     var second = processConstrainType(aggregateSymbol, ctx2);
@@ -102,7 +103,7 @@ final class CheckTypeConstraint extends RuleSupport
 
   private Optional<ISymbol> resolveOrError(final AggregateSymbol aggregateSymbol,
                                            final MethodSymbolSearch search,
-                                           final Token token) {
+                                           final IToken token) {
 
     var msgStart = "Looking on '" + aggregateSymbol.getFriendlyName() + "' for operator " + search;
     var results = aggregateSymbol.resolveMatchingMethodsInThisScopeOnly(search, new MethodSymbolSearchResult());

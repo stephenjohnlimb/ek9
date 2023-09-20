@@ -1,7 +1,6 @@
 package org.ek9lang.compiler.phase1;
 
 import java.util.function.Consumer;
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9BaseListener;
 import org.ek9lang.antlr.EK9Parser;
@@ -12,6 +11,8 @@ import org.ek9lang.compiler.common.ScopeStack;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.AnySymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -194,7 +195,8 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
 
   @Override
   public void enterParameterisedDetail(EK9Parser.ParameterisedDetailContext ctx) {
-    processSymbolAndReferenceClash(ctx.Identifier().getText(), ctx.start, parameterisedDetailAndReferenceConflict);
+    processSymbolAndReferenceClash(ctx.Identifier().getText(), new Ek9Token(ctx.start),
+        parameterisedDetailAndReferenceConflict);
     super.enterParameterisedDetail(ctx);
   }
 
@@ -247,7 +249,7 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
     processSymbolAndReferenceClash(symbol.getName(), symbol.getSourceToken(), errorConsumer);
   }
 
-  private void processSymbolAndReferenceClash(final String unqualifiedName, final Token token,
+  private void processSymbolAndReferenceClash(final String unqualifiedName, final IToken token,
                                               final Consumer<ConflictingTokens> errorConsumer) {
     var search = new AnySymbolSearch(ISymbol.getUnqualifiedName(unqualifiedName));
 
@@ -286,7 +288,7 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
   private void checkIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx,
                                         final String fullyQualifiedIdentifierReference) {
 
-    final var identifierToken = ctx.identifier().start;
+    final var identifierToken = new Ek9Token(ctx.identifier().start);
     final var search = new AnySymbolSearch(fullyQualifiedIdentifierReference);
     final var resolved = symbolAndScopeManagement.getTopScope().resolve(search);
 

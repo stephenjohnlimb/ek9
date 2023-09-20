@@ -1,17 +1,17 @@
 package org.ek9lang.compiler.phase1;
 
 import java.util.function.BiConsumer;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * Checks that a constructor method on a generic aggregate has the same number of
  * parameters as the types being used in the generic type. This enables type inference.
  */
-final class CheckGenericConstructor implements BiConsumer<Token, MethodSymbol> {
+final class CheckGenericConstructor implements BiConsumer<IToken, MethodSymbol> {
   private final ErrorListener errorListener;
 
   CheckGenericConstructor(final ErrorListener errorListener) {
@@ -19,7 +19,7 @@ final class CheckGenericConstructor implements BiConsumer<Token, MethodSymbol> {
   }
 
   @Override
-  public void accept(Token token, MethodSymbol methodSymbol) {
+  public void accept(IToken token, MethodSymbol methodSymbol) {
     var numParametersInConstructor = methodSymbol.getSymbolsForThisScope().size();
 
     //We must check the parameters in the constructor tie up with the parameter numbers for creation

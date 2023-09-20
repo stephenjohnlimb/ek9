@@ -2,15 +2,14 @@ package org.ek9lang.compiler.tokenizer;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 
 /**
  * Typically used for locating the nearest token to some position in a source code file.
  */
 public class TokenResult {
-  private Token token;
-  private List<Token> tokensInLine = new ArrayList<>();
+  private IToken token;
+  private List<IToken> tokensInLine = new ArrayList<>();
   private int tokenPositionInLine = -1;
 
   /**
@@ -22,13 +21,13 @@ public class TokenResult {
   /**
    * Create a valid token result with the token its position and the other surrounding tokens.
    */
-  public TokenResult(Token token, List<Token> tokensInLine, int positionInLine) {
+  public TokenResult(IToken token, List<IToken> tokensInLine, int positionInLine) {
     this.token = token;
     this.tokenPositionInLine = positionInLine;
     this.tokensInLine = tokensInLine;
   }
 
-  public Token getToken() {
+  public IToken getToken() {
     return token;
   }
 

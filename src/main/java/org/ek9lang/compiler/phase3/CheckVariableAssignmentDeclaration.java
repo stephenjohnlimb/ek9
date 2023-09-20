@@ -8,6 +8,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 
 
@@ -110,7 +111,7 @@ final class CheckVariableAssignmentDeclaration implements Consumer<EK9Parser.Var
   private void checkTypeCompatibility(final EK9Parser.VariableDeclarationContext ctx,
                                       final ISymbol varSymbol,
                                       final ISymbol exprSymbol) {
-    var data = new TypeCompatibilityData(ctx.start, varSymbol, exprSymbol);
+    var data = new TypeCompatibilityData(new Ek9Token(ctx.start), varSymbol, exprSymbol);
     checkTypesCompatible.accept(data);
   }
 

@@ -7,6 +7,8 @@ package org.ek9lang.compiler.symbols;
  * objects that can be linked.
  */
 public class StreamPipeLineSymbol extends Symbol {
+  static final long serialVersionUID = 1L;
+
   public StreamPipeLineSymbol(String name) {
     super(name);
   }

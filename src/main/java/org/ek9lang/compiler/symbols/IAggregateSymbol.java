@@ -3,7 +3,6 @@ package org.ek9lang.compiler.symbols;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.search.SymbolSearch;
@@ -12,12 +11,6 @@ import org.ek9lang.compiler.search.SymbolSearch;
  * Interface for an aggregate, typically a class or something like that.
  */
 public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
-  /**
-   * The module scope this aggregate has been defined in.
-   *
-   * @return The module scope.
-   */
-  IScope getModuleScope();
 
   /**
    * What sort of scope is this aggregate.
@@ -133,11 +126,6 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
    * So can either be implementing directly, super, super - super or traits and supe traits.
    */
   boolean isImplementingInSomeWay(IAggregateSymbol aggregate);
-
-  /**
-   * Used when a symbol can be defined as a generic/parameterised type.
-   */
-  ParserRuleContext getContextForParameterisedType();
 
   String getAggregateDescription();
 

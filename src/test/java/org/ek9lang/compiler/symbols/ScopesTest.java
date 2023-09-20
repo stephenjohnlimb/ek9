@@ -32,7 +32,6 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
   private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
 
-
   @Test
   void testSymbolTableEquality() {
     var aTable = new SymbolTable("ATable");
@@ -174,7 +173,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
   @Test
   void testNamedScope() {
-    //It's not really an aggregate scope but let;s test that type of setting.
+    //It's not really an aggregate scope but let's test that type of setting.
     VariableSymbol v1 =
         new VariableSymbol("v3", symbolTable.resolve(new TypeSymbolSearch("Integer")));
 
@@ -306,7 +305,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
   @Test
   void testStackConsistencyScope() {
     //Used in the phase listeners when there is a duplicate or some case where it is not possible
-    //to define a scope. We need the scope stack to be coherent and so we put a StackConsistencyScope
+    //to define a scope. We need the scope stack to be coherent, and so we put a StackConsistencyScope
     //on to the scope stack. It's like a bucket to consume all the stuff that should have been put in a scope.
 
     VariableSymbol v1 =
@@ -423,6 +422,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
   @Test
   void testModuleScope() {
 
+    //Don;t actually parse anything here, just need these to be able to create the ModuleScopes.
     var sharedThreadContext = new SharedThreadContext<>(new CompilableProgram());
     ModuleScope scope1 = new ModuleScope("UnderTest", sharedThreadContext);
     ModuleScope scope2 = new ModuleScope("UnderTest", sharedThreadContext);

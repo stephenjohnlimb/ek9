@@ -12,6 +12,8 @@ import org.ek9lang.compiler.support.ToCommaSeparated;
  * For this call we need the order list of parameters specifically the types of those parameters.
  */
 public class ParamExpressionSymbol extends Symbol {
+  static final long serialVersionUID = 1L;
+
   private final List<ISymbol> params = new ArrayList<>();
 
   public ParamExpressionSymbol(String name) {

@@ -3,16 +3,19 @@ package org.ek9lang.cli;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
+import static org.junit.jupiter.api.parallel.ResourceAccessMode.READ_WRITE;
 
 import java.io.File;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.OsSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ResourceLock;
 
 /**
  * Test that the fileCache pulls in just what's needed based on EK9 package, dev, etc.
@@ -21,6 +24,9 @@ import org.junit.jupiter.api.Test;
  * This is so we can add them to a workspace.
  * Quite tricky, when you include dev builds, packages, named source, and default includes.
  */
+//Specific tests that manipulate files and specifics in ek9 must not run in parallel.
+@Execution(SAME_THREAD)
+@ResourceLock(value = "file_access", mode = READ_WRITE)
 class FileCacheTest {
   private final LanguageMetaData languageMetaData = new LanguageMetaData("0.0.1-0");
   private final OsSupport osSupport = new OsSupport(true);
@@ -28,9 +34,9 @@ class FileCacheTest {
   private final SourceFileSupport sourceFileSupport =
       new SourceFileSupport(fileHandling, osSupport);
 
-  private final Supplier<Optional<SourceResource>> helloWorldSource = () ->
-      Optional.of(new SourceResource(false, "/examples/basics/",
-          "HelloWorld.ek9", "."));
+  private final Supplier<SourceResource> helloWorldSource = () ->
+      new SourceResource(false, "/examples/basics/",
+          "HelloWorld.ek9", ".");
 
   @AfterEach
   void tidyUp() {
@@ -71,7 +77,7 @@ class FileCacheTest {
     var ek9SourceFilename = "PairPackage.ek9";
 
     testSourceFilesIdentified("-c", new SourceResource(resourceDirectory, ek9SourceFilename,
-        List.of("Pair1.ek9", "Pair2.ek9", "Pair3.ek9"), "."), Optional.empty());
+        List.of("Pair1.ek9", "Pair2.ek9", "Pair3.ek9"), "."), null);
   }
 
   /**
@@ -85,7 +91,7 @@ class FileCacheTest {
 
     testSourceFilesIdentified("-c", new SourceResource(resourceDirectory, ek9SourceFilename,
             List.of("Pair1.ek9", "Pair2.ek9", "Pair3.ek9"), "."),
-        Optional.of(new SourceResource(false, resourceDirectory, "DevPair.ek9", "dev")));
+        new SourceResource(false, resourceDirectory, "DevPair.ek9", "dev"));
   }
 
   /**
@@ -98,11 +104,11 @@ class FileCacheTest {
 
     testSourceFilesIdentified("-cd", new SourceResource(resourceDirectory, ek9SourceFilename,
             List.of("Pair1.ek9", "Pair2.ek9", "Pair3.ek9"), "."),
-        Optional.of(new SourceResource(true, resourceDirectory, "DevPair.ek9", "dev")));
+        new SourceResource(true, resourceDirectory, "DevPair.ek9", "dev"));
   }
 
   void testSourceFilesIdentified(final String compilerFlag, final SourceResource resource,
-                                 final Optional<SourceResource> addition) {
+                                 final SourceResource additionalResource) {
     //Make up a command line.
     String[] command =
         new String[] {String.format("%s %s ", compilerFlag, resource.ek9SourceFilename)};
@@ -115,9 +121,8 @@ class FileCacheTest {
     fullList.forEach(sourceFile -> assertNotNull(
         sourceFileSupport.copyFileToTestCWD(resource.resourceDirectory, sourceFile)));
 
-    if (addition.isPresent()) {
+    if (additionalResource != null) {
       //Note we also copy in a rogue file that should not be found
-      var additionalResource = addition.get();
       assertNotNull(
           sourceFileSupport.copyFileToTestDirectoryUnderCWD(additionalResource.resourceDirectory,
               additionalResource.ek9SourceFilename, additionalResource.relativeDirectory));

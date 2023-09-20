@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
+import static org.junit.jupiter.api.parallel.ResourceAccessMode.READ_WRITE;
 
 import java.io.File;
 import java.util.Optional;
@@ -15,6 +17,8 @@ import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.OsSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -26,6 +30,9 @@ import org.junit.jupiter.params.provider.ValueSource;
  * <p>
  * So if there are issues, always add another test.
  */
+//Specific tests that manipulate files and specifics in ek9 must not run in parallel.
+@Execution(SAME_THREAD)
+@ResourceLock(value="file_access", mode=READ_WRITE)
 final class CommandLineDetailsTest {
   private final LanguageMetaData languageMetaData = new LanguageMetaData("0.0.1-0");
   private final OsSupport osSupport = new OsSupport(true);

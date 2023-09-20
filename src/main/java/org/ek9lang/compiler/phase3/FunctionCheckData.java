@@ -1,12 +1,12 @@
 package org.ek9lang.compiler.phase3;
 
 import java.util.List;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * To be used when checking if a function can accept a set of call arguments.
  */
-record FunctionCheckData(Token token, FunctionSymbol function, List<ISymbol> callArgumentTypes) {
+record FunctionCheckData(IToken token, FunctionSymbol function, List<ISymbol> callArgumentTypes) {
 }

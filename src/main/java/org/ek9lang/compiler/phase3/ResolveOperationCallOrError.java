@@ -2,7 +2,6 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.List;
 import java.util.function.BiFunction;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
@@ -14,6 +13,8 @@ import org.ek9lang.compiler.support.SymbolTypeExtractor;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * Used for resolving operation calls on aggregates, which can include properties that are delegates to functions.
@@ -54,14 +55,14 @@ final class ResolveOperationCallOrError extends RuleSupport
       return resolveAsMethod(ctx, scopeToResolveIn, methodOrDelegateName, callParams);
     }
     return checkValidFunctionDelegateOrError.apply(
-        new DelegateFunctionCheckData(ctx.start, initialCheck.get(), callParams));
+        new DelegateFunctionCheckData(new Ek9Token(ctx.start), initialCheck.get(), callParams));
   }
 
   private ISymbol resolveAsMethod(final EK9Parser.OperationCallContext ctx,
                                   final IScope scopeToResolveIn,
                                   final String methodName,
                                   final List<ISymbol> callParams) {
-    var resolvedMethod = checkForMethodOnAggregate(ctx.start, scopeToResolveIn, methodName, callParams);
+    var resolvedMethod = checkForMethodOnAggregate(new Ek9Token(ctx.start), scopeToResolveIn, methodName, callParams);
     if (resolvedMethod == null) {
       var msg = "'" + methodName + "':";
       errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.METHOD_NOT_RESOLVED);
@@ -72,7 +73,7 @@ final class ResolveOperationCallOrError extends RuleSupport
     return resolvedMethod;
   }
 
-  private MethodSymbol checkForMethodOnAggregate(final Token token,
+  private MethodSymbol checkForMethodOnAggregate(final IToken token,
                                                  final IScope scopeToSearch,
                                                  final String methodName,
                                                  final List<ISymbol> parameters) {

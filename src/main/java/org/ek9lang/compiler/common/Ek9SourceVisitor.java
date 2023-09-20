@@ -13,6 +13,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.antlr.EK9Parser.ModuleDeclarationContext;
 import org.ek9lang.antlr.EK9Parser.ProgramBlockContext;
 import org.ek9lang.compiler.common.ErrorListener.SemanticClassification;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.Digest;
 
 /**
@@ -134,7 +135,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
             .accept(vd.assignmentExpression()));
 
     if (!foundDescription) {
-      errorListener.semanticError(ctx.start,
+      errorListener.semanticError(new Ek9Token(ctx.start),
           "Package: property 'description' is mandatory if a package is declared.",
           SemanticClassification.NOT_RESOLVED);
     }

@@ -2,7 +2,6 @@ package org.ek9lang.compiler.symbols;
 
 import java.util.List;
 import java.util.Optional;
-import org.antlr.v4.runtime.ParserRuleContext;
 
 /**
  * Really a Marker interface for generic classes and generic functions.
@@ -40,8 +39,6 @@ public interface ICanBeGeneric extends ISymbol {
   List<ISymbol> getAnyConceptualTypeParameters();
 
   List<ISymbol> getTypeParameterOrArguments();
-
-  void setContextForParameterisedType(ParserRuleContext ctx);
 
   /**
    * Is the symbol open for extension or not.

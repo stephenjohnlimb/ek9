@@ -10,6 +10,7 @@ import org.ek9lang.compiler.search.AnySymbolSearch;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
  * Ensures that 'identifierReference' is now resolved and hangs together and 'typed' or a not resolved error.
@@ -65,12 +66,12 @@ final class CheckValidIdentifierReference extends RuleSupport
   private void identifierReferenceInitialisedBeforeUseCheck(final EK9Parser.IdentifierReferenceContext ctx,
                                                             final ISymbol identifierReference) {
     //Only interested finite range of checks here.
-
+    var startToken = new Ek9Token(ctx.start);
     var token = identifierReference.getInitialisedBy();
 
     if (isIdentifierReferenceToBeChecked(identifierReference)
-        && ctx.start.getTokenSource().equals(identifierReference.getSourceToken().getTokenSource())
-        && (token == null || ctx.start.getTokenIndex() <= token.getTokenIndex())) {
+        && startToken.getSourceName().equals(identifierReference.getSourceToken().getSourceName())
+        && (token == null || startToken.getTokenIndex() <= token.getTokenIndex())) {
       errorListener.semanticError(ctx.start, errorMessageForIdentifierReference(identifierReference),
           ErrorListener.SemanticClassification.USED_BEFORE_INITIALISED);
     }
@@ -79,11 +80,12 @@ final class CheckValidIdentifierReference extends RuleSupport
   private void identifierReferenceDefinedBeforeUseCheck(final EK9Parser.IdentifierReferenceContext ctx,
                                                         final ISymbol identifierReference) {
     //Firstly check in the same source - else it means its on a type or constant and that's fine.
+    var startToken = new Ek9Token(ctx.start);
     var token = identifierReference.getSourceToken();
     if (isIdentifierReferenceToBeChecked(identifierReference)
         && token != null
-        && ctx.start.getTokenSource().equals(token.getTokenSource())
-        && ctx.start.getTokenIndex() <= token.getTokenIndex()) {
+        && startToken.getSourceName().equals(token.getSourceName())
+        && startToken.getTokenIndex() <= token.getTokenIndex()) {
       errorListener.semanticError(ctx.start, errorMessageForIdentifierReference(identifierReference),
           ErrorListener.SemanticClassification.USED_BEFORE_DEFINED);
     }

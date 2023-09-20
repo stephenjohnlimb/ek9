@@ -13,6 +13,7 @@ import org.ek9lang.core.AssertValue;
  * An aggregate, but one that can have zero or more traits (like interfaces).
  */
 public class AggregateWithTraitsSymbol extends AggregateSymbol {
+  static final long serialVersionUID = 1L;
 
   /**
    * The range of traits this aggregate extends/implements.

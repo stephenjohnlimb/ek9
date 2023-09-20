@@ -11,8 +11,8 @@ public class RefersToSameSymbol implements BiPredicate<ISymbol, ISymbol> {
   @Override
   public boolean test(final ISymbol s1, final ISymbol s2) {
     if (s1 != null && s2 != null && s1.getSourceToken() != null && s2.getSourceToken() != null) {
-      var tok1 = s1.getSourceToken().getTokenSource();
-      var tok2 = s2.getSourceToken().getTokenSource();
+      var tok1 = s1.getSourceToken();
+      var tok2 = s2.getSourceToken();
       var tok1Index = s1.getSourceToken().getTokenIndex();
       var tok2Index = s2.getSourceToken().getTokenIndex();
       return tok1.equals(tok2) && tok1Index == tok2Index;

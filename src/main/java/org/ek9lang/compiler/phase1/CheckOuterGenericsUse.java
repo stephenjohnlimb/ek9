@@ -1,16 +1,16 @@
 package org.ek9lang.compiler.phase1;
 
 import java.util.function.Consumer;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.IScopedSymbol;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * Only use when code being checked prohibits use in outer generic context.
  */
-final class CheckOuterGenericsUse extends RuleSupport implements Consumer<Token> {
+final class CheckOuterGenericsUse extends RuleSupport implements Consumer<IToken> {
 
   private final ErrorListener.SemanticClassification errorClassification;
 
@@ -26,7 +26,7 @@ final class CheckOuterGenericsUse extends RuleSupport implements Consumer<Token>
   }
 
   @Override
-  public void accept(Token token) {
+  public void accept(IToken token) {
     var currentScope = symbolAndScopeManagement.getTopScope();
 
     //Might not be in any sort of dynamic scope at all - but check
@@ -40,7 +40,7 @@ final class CheckOuterGenericsUse extends RuleSupport implements Consumer<Token>
     });
   }
 
-  private void errorIfGenericInNature(final Token token, final IScopedSymbol scope) {
+  private void errorIfGenericInNature(final IToken token, final IScopedSymbol scope) {
     if (scope.isGenericInNature()) {
       errorListener.semanticError(token, "", errorClassification);
     }

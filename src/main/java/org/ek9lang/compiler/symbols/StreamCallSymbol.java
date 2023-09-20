@@ -13,6 +13,8 @@ package org.ek9lang.compiler.symbols;
  * This is the 'glue' between streaming commands and functions.
  */
 public class StreamCallSymbol extends MethodSymbol {
+  static final long serialVersionUID = 1L;
+
   //For mid-part of a stream pipeline both of these types will be set.
   //Not sure about 'tee' it is an anomaly in some ways - consumes yes
   //but also can map to a terminal, but also pass on the type it consumes!

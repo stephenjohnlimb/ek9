@@ -2,7 +2,6 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.List;
 import java.util.function.Function;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
@@ -19,6 +18,8 @@ import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.ScopedSymbol;
 import org.ek9lang.compiler.symbols.VariableSymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -58,18 +59,15 @@ final class ResolveIdentifierReferenceCallOrError extends RuleSupport
   public ScopedSymbol apply(final EK9Parser.CallContext ctx) {
     var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
     var callIdentifier = symbolFromContextOrError.apply(ctx.identifierReference());
-
+    var startToken = new Ek9Token(ctx.start);
     return switch (callIdentifier) {
-      case AggregateSymbol aggregate ->
-          checkAggregate(ctx, aggregate, callIdentifier, callParams);
-      case FunctionSymbol function ->
-          checkFunction(ctx, function, callIdentifier, callParams);
+      case AggregateSymbol aggregate -> checkAggregate(startToken, aggregate, callIdentifier, callParams);
+      case FunctionSymbol function -> checkFunction(startToken, function, callIdentifier, callParams);
       case MethodSymbol method ->
-          checkForMethodOnAggregate(ctx.start, method.getParentScope(), callIdentifier.getName(), callParams);
+          checkForMethodOnAggregate(startToken, method.getParentScope(), callIdentifier.getName(), callParams);
       case VariableSymbol variable ->
-          checkValidFunctionDelegateOrError.apply(new DelegateFunctionCheckData(ctx.start, variable, callParams));
-      case null ->
-          null;
+          checkValidFunctionDelegateOrError.apply(new DelegateFunctionCheckData(startToken, variable, callParams));
+      case null -> null;
       default -> {
         AssertValue.fail("Compiler error: Not expecting " + ctx.getText());
         yield null;
@@ -77,7 +75,7 @@ final class ResolveIdentifierReferenceCallOrError extends RuleSupport
     };
   }
 
-  private ScopedSymbol checkAggregate(final EK9Parser.CallContext ctx,
+  private ScopedSymbol checkAggregate(final IToken token,
                                       final AggregateSymbol aggregate,
                                       final ISymbol callIdentifier,
                                       final List<ISymbol> callArguments) {
@@ -90,24 +88,24 @@ final class ResolveIdentifierReferenceCallOrError extends RuleSupport
         //But requires that assignment alters the 'call' type and invocation.
         return aggregate;
       } else {
-        return checkGenericConstructionOrInvocation(ctx.start, callIdentifier, callArguments);
+        return checkGenericConstructionOrInvocation(token, callIdentifier, callArguments);
       }
     }
     //It's just a simple call to a constructor.
-    return checkForMethodOnAggregate(ctx.start, aggregate, callIdentifier.getName(), callArguments);
+    return checkForMethodOnAggregate(token, aggregate, callIdentifier.getName(), callArguments);
   }
 
-  private ScopedSymbol checkFunction(final EK9Parser.CallContext ctx,
+  private ScopedSymbol checkFunction(final IToken token,
                                      final FunctionSymbol function,
                                      final ISymbol callIdentifier,
                                      final List<ISymbol> callArguments) {
     if (function.isGenericInNature()) {
-      return checkGenericConstructionOrInvocation(ctx.start, callIdentifier, callArguments);
+      return checkGenericConstructionOrInvocation(token, callIdentifier, callArguments);
     }
-    return checkFunctionParameters(ctx.start, function, callArguments);
+    return checkFunctionParameters(token, function, callArguments);
   }
 
-  private ScopedSymbol checkGenericConstructionOrInvocation(final Token token,
+  private ScopedSymbol checkGenericConstructionOrInvocation(final IToken token,
                                                             final ISymbol genericSymbol,
                                                             final List<ISymbol> parameters) {
     var genericTypeArguments = symbolTypeExtractor.apply(parameters);
@@ -122,7 +120,7 @@ final class ResolveIdentifierReferenceCallOrError extends RuleSupport
     return null;
   }
 
-  private ScopedSymbol checkFunctionParameters(final Token token,
+  private ScopedSymbol checkFunctionParameters(final IToken token,
                                                final FunctionSymbol function,
                                                final List<ISymbol> parameters) {
     var paramTypes = symbolTypeExtractor.apply(parameters);
@@ -133,7 +131,7 @@ final class ResolveIdentifierReferenceCallOrError extends RuleSupport
     return null;
   }
 
-  private MethodSymbol checkForMethodOnAggregate(final Token token,
+  private MethodSymbol checkForMethodOnAggregate(final IToken token,
                                                  final IScope aggregate,
                                                  final String methodName,
                                                  final List<ISymbol> parameters) {

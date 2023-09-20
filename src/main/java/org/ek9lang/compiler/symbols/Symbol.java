@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.Module;
 import org.ek9lang.compiler.support.TypeCoercions;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -17,6 +17,8 @@ import org.ek9lang.core.AssertValue;
  * Is extended widely for particular types of symbol.
  */
 public class Symbol implements ISymbol {
+  static final long serialVersionUID = 1L;
+
   /**
    * This is the 'bit bucket' where during the parsing and IR phases
    * information about the symbol can be augmented.
@@ -42,8 +44,7 @@ public class Symbol implements ISymbol {
    * So for some symbols (some controls) this makes little sense, they cannot have a 'type'.
    * But a variable call 'x' will have a type - it could be an 'Integer' for example.
    */
-  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private Optional<ISymbol> type = Optional.empty();
+  private ISymbol type;
 
   /**
    * Is this mutable or not.
@@ -53,7 +54,7 @@ public class Symbol implements ISymbol {
   /**
    * The token where this symbol was defined.
    */
-  private Token sourceToken = null;
+  private IToken sourceToken = null;
 
   /**
    * This is the token that initialised the symbol.
@@ -61,7 +62,7 @@ public class Symbol implements ISymbol {
    * But if we're talking components, they will get injected with '!'.
    * So this may just be set when the variable is declared as having an 'injected' assignment.
    */
-  private Token initialisedBy = null;
+  private IToken initialisedBy = null;
 
   /**
    * Was this symbol referenced.
@@ -104,14 +105,14 @@ public class Symbol implements ISymbol {
 
   /**
    * Where this symbol come from - not always set for every symbol.
+   * Try to remove this, squirrel data where possible and move
+   * Also try using source file name from tokenSource.
    */
-  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private Optional<Module> parsedModule = Optional.empty();
+  private Module parsedModule;
 
   public Symbol(String name) {
     this.setName(name);
   }
-
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public Symbol(String name, Optional<ISymbol> type) {
@@ -135,7 +136,7 @@ public class Symbol implements ISymbol {
     newCopy.setEk9Core(this.isEk9Core());
     newCopy.setMarkedPure(this.isMarkedPure());
     newCopy.setProduceFullyQualifiedName(this.getProduceFullyQualifiedName());
-    parsedModule.ifPresent(newCopy::doSetModule);
+    newCopy.doSetModule(parsedModule);
     newCopy.setSourceToken(this.getSourceToken());
     newCopy.squirrelledAway.putAll(this.squirrelledAway);
     newCopy.setReferenced(this.isReferenced());
@@ -152,16 +153,6 @@ public class Symbol implements ISymbol {
 
   public void setMarkedPure(boolean markedPure) {
     this.markedPure = markedPure;
-  }
-
-  @Override
-  public Token getInitialisedBy() {
-    return initialisedBy;
-  }
-
-  @Override
-  public void setInitialisedBy(Token initialisedBy) {
-    this.initialisedBy = initialisedBy;
   }
 
   public boolean isReferenced() {
@@ -253,11 +244,13 @@ public class Symbol implements ISymbol {
   }
 
   public boolean isDevSource() {
-    return parsedModule.map(m -> m.getSource().isDev()).orElse(false);
+    //Consider squirreling dev at construction.
+    return getParsedModule().map(m -> m.getSource().isDev()).orElse(false);
   }
 
   public boolean isLibSource() {
-    return parsedModule.map(m -> m.getSource().isLib()).orElse(false);
+    //Consider squirreling scopeName at construction.
+    return getParsedModule().map(m -> m.getSource().isLib()).orElse(false);
   }
 
   public boolean getProduceFullyQualifiedName() {
@@ -268,16 +261,27 @@ public class Symbol implements ISymbol {
     this.produceFullyQualifiedName = produceFullyQualifiedName;
   }
 
-  public Token getSourceToken() {
+
+  public IToken getSourceToken() {
     return sourceToken;
   }
 
-  public void setSourceToken(Token sourceToken) {
+  public void setSourceToken(IToken sourceToken) {
     this.sourceToken = sourceToken;
   }
 
+  @Override
+  public IToken getInitialisedBy() {
+    return initialisedBy;
+  }
+
+  @Override
+  public void setInitialisedBy(IToken initialisedBy) {
+    this.initialisedBy = initialisedBy;
+  }
+
   public Optional<Module> getParsedModule() {
-    return parsedModule;
+    return Optional.ofNullable(parsedModule);
   }
 
   public void setParsedModule(Optional<Module> module) {
@@ -285,16 +289,19 @@ public class Symbol implements ISymbol {
   }
 
   private void doSetModule(Module module) {
-    if (parsedModule.isEmpty()) {
-      parsedModule = Optional.of(module);
+    if (parsedModule == null) {
+      parsedModule = module;
     }
-    this.setEk9Core(module.isEk9Core());
+    if (parsedModule != null) {
+      this.setEk9Core(parsedModule.isEk9Core());
+    }
   }
 
   @Override
   public String getFullyQualifiedName() {
     String rtn = getName();
-    return parsedModule.map(m -> ISymbol.makeFullyQualifiedName(m.getScopeName(), rtn)).orElse(rtn);
+    //Consider squirreling scopeName at construction.
+    return getParsedModule().map(m -> ISymbol.makeFullyQualifiedName(m.getScopeName(), rtn)).orElse(rtn);
   }
 
   /**
@@ -348,7 +355,6 @@ public class Symbol implements ISymbol {
     }
     return rtn;
   }
-
 
   @Override
   public double getUnCoercedAssignableWeightTo(ISymbol s) {
@@ -436,13 +442,13 @@ public class Symbol implements ISymbol {
 
   @Override
   public Optional<ISymbol> getType() {
-    return type;
+    return Optional.ofNullable(type);
   }
 
   @Override
   public ISymbol setType(Optional<ISymbol> type) {
     AssertValue.checkNotNull("SymbolType cannot be null", type);
-    this.type = type;
+    type.ifPresentOrElse(newType -> this.type = newType, () -> this.type = null);
     return this;
   }
 

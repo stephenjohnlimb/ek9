@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.ToCommaSeparated;
 import org.ek9lang.core.AssertValue;
@@ -20,6 +19,7 @@ import org.ek9lang.core.AssertValue;
  * It's hard to get your (mine) head around all this.
  */
 public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBeGeneric {
+  static final long serialVersionUID = 1L;
 
   /**
    * If this were the 'generic type':
@@ -58,15 +58,8 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
    * This is the optional reference to a 'generic type' (could be a class or a function).
    * That 'generic type' will have its own 'type parameters'. i.e. the 'K', "V' or 'T' things.
    */
-  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private Optional<PossibleGenericSymbol> genericType = Optional.empty();
-  /**
-   * Used for parameterised generic types/functions so that we can hang on to the context for
-   * phase IR generation
-   * We really do use the code as a template and so need to visit and generate Nodes multiple
-   * times but alter the type of S and T for the concrete types provided.
-   */
-  private ParserRuleContext contextForParameterisedType;
+  private PossibleGenericSymbol genericType;
+
   /**
    * This is actually a 'T' itself - we will need to know this.
    * So we use an aggregate symbol to model the 'S' and 'T' conceptual types.
@@ -102,10 +95,9 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
     super.cloneIntoCaptureScopedSymbol(newCopy);
     newCopy.parameterisedTypeReferences.addAll(getGenericSymbolReferences());
     newCopy.typeParameterOrArguments.addAll(typeParameterOrArguments);
-    newCopy.contextForParameterisedType = this.contextForParameterisedType;
     newCopy.conceptualTypeParameter = conceptualTypeParameter;
     newCopy.openForExtension = openForExtension;
-    this.genericType.ifPresent(theType -> newCopy.setGenericType(Optional.of(theType)));
+    this.getGenericType().ifPresent(theType -> newCopy.setGenericType(Optional.of(theType)));
 
     return newCopy;
   }
@@ -117,7 +109,7 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
 
   @Override
   public Optional<PossibleGenericSymbol> getGenericType() {
-    return genericType;
+    return Optional.ofNullable(genericType);
   }
 
   /**
@@ -125,13 +117,14 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
    */
   @SuppressWarnings({"unused", "OptionalUsedAsFieldOrParameterType"})
   public void setGenericType(Optional<PossibleGenericSymbol> genericType) {
-    this.genericType = genericType;
-    genericType.ifPresent(theGenericType -> {
-      //Use the same scope, module and source token for this as the generic type.
-      setModuleScope(theGenericType.getModuleScope());
-      setParsedModule(theGenericType.getParsedModule());
-      setSourceToken(theGenericType.getSourceToken());
-    });
+    genericType.ifPresentOrElse(theGenericType -> {
+          this.genericType = theGenericType;
+          //Use the same scope, module and source token for this as the generic type.
+          setModuleScope(theGenericType.getModuleScope());
+          setParsedModule(theGenericType.getParsedModule());
+          setSourceToken(theGenericType.getSourceToken());
+        },
+        () -> this.genericType = null);
   }
 
   public void setGenericType(PossibleGenericSymbol genericType) {
@@ -203,8 +196,8 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
 
   @Override
   public String getFriendlyName() {
-    if (genericType.isPresent()) {
-      return genericType.get().getFriendlyName();
+    if (getGenericType().isPresent()) {
+      return getGenericType().get().getFriendlyName();
     }
     return super.getFriendlyName();
   }
@@ -250,14 +243,6 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
       }
     }
     return rtn;
-  }
-
-  public ParserRuleContext getContextForParameterisedType() {
-    return contextForParameterisedType;
-  }
-
-  public void setContextForParameterisedType(ParserRuleContext ctx) {
-    this.contextForParameterisedType = ctx;
   }
 
   @Override

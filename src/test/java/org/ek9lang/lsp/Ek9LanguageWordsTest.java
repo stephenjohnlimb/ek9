@@ -9,8 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import org.antlr.v4.runtime.Token;
-import org.ek9lang.compiler.tokenizer.SyntheticToken;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.compiler.tokenizer.TokenResult;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,7 +20,7 @@ final class Ek9LanguageWordsTest {
   private final Ek9LanguageWords underTest = new Ek9LanguageWords();
 
   private final Function<String, TokenResult> keyWordToTokenResult = keyWord -> {
-    Token synthetic = new SyntheticToken(keyWord);
+    var synthetic = new Ek9Token(keyWord);
     return new TokenResult(synthetic, List.of(synthetic), 0);
   };
 
@@ -60,8 +59,8 @@ final class Ek9LanguageWordsTest {
         .map(keyWordToTokenResult)
         .map(underTest::fuzzyMatch)
         .stream()
-        .flatMap(Collection::stream)
-        .count();
+        .mapToLong(Collection::size)
+        .sum();
     //We may or may not have any fuzzy matches in a context.
     assertTrue(numFound >= 0);
 

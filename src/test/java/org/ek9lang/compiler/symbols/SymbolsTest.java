@@ -16,7 +16,7 @@ import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.support.RefersToSameSymbol;
-import org.ek9lang.compiler.tokenizer.SyntheticToken;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.CompilerException;
 import org.junit.jupiter.api.Test;
 
@@ -84,9 +84,9 @@ final class SymbolsTest extends AbstractSymbolTestBase {
   void testRefersToSameSymbol() {
     RefersToSameSymbol underTest = new RefersToSameSymbol();
 
-    var synthToken1 = new SyntheticToken("someSource1.ek9", 21);
-    var synthToken2 = new SyntheticToken("someSource1.ek9", 22);
-    var synthToken3 = new SyntheticToken("someSource2.ek9", 21);
+    var synthToken1 = new Ek9Token("someSource1.ek9", 21);
+    var synthToken2 = new Ek9Token("someSource1.ek9", 22);
+    var synthToken3 = new Ek9Token("someSource2.ek9", 21);
 
     var symbol1 = new Symbol("Sym", symbolTable.resolve(new TypeSymbolSearch("Integer")));
     symbol1.setSourceToken(synthToken1);
@@ -183,8 +183,8 @@ final class SymbolsTest extends AbstractSymbolTestBase {
   @Test
   void testSymbolCloning() {
     var symbol = new Symbol("Sym", symbolTable.resolve(new TypeSymbolSearch("Integer")));
-    symbol.setSourceToken(new SyntheticToken());
-    symbol.setInitialisedBy(new SyntheticToken());
+    symbol.setSourceToken(new Ek9Token());
+    symbol.setInitialisedBy(new Ek9Token());
     symbol.setReferenced(true);
     symbol.putSquirrelledData("key1", "value1");
     symbol.putSquirrelledData("key2", "\"value2\"");
@@ -829,7 +829,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertNotEquals(v1.hashCode(), clone2.hashCode());
 
     VariableSymbol v2 = new VariableSymbol("v2", Optional.of(integerType));
-    v2.setInitialisedBy(new SyntheticToken());
+    v2.setInitialisedBy(new Ek9Token());
     v2.setIncomingParameter(true);
 
     assertTrue(v2.isInitialised());

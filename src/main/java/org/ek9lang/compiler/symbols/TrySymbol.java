@@ -9,6 +9,8 @@ package org.ek9lang.compiler.symbols;
  * variable.
  */
 public class TrySymbol extends ControlSymbol {
+  static final long serialVersionUID = 1L;
+
   public TrySymbol(IScope enclosingScope) {
     super("Try", enclosingScope);
   }

@@ -7,7 +7,7 @@ import java.util.Map;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.tokenizer.SyntheticToken;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
  * Just checks if there are any directives that relate to errors in the parsed module and tallies those up
@@ -37,7 +37,7 @@ public class ErrorDirectiveListener implements CompilationPhaseListener {
 
     if (directiveLineNumberLookup.size() != errorLineNumberLookup.size()) {
       var msg = directiveLineNumberLookup.size() + " directives vs " + errorLineNumberLookup.size() + " errors,";
-      errorListener.directiveError(new SyntheticToken("Directives vs Errors"), msg,
+      errorListener.directiveError(new Ek9Token("Directives vs Errors"), msg,
           ErrorListener.SemanticClassification.DIRECTIVE_ERROR_MISMATCH);
     }
 
@@ -68,7 +68,7 @@ public class ErrorDirectiveListener implements CompilationPhaseListener {
     for (var errorLineNumber : errorLineNumbers) {
       var error = errorLineNumberLookup.get(errorLineNumber);
       var msg = "as line: " + error.getLineNumber() + " has error: '" + error.getSemanticClassification() + "'";
-      errorListener.directiveError(new SyntheticToken("Expecting @Error directive"), msg,
+      errorListener.directiveError(new Ek9Token("Expecting @Error directive"), msg,
           ErrorListener.SemanticClassification.DIRECTIVE_MISSING);
     }
   }

@@ -6,6 +6,8 @@ import java.util.Optional;
  * Scope for callable methods (operations) that are part of a Service.
  */
 public class ServiceOperationSymbol extends MethodSymbol {
+  static final long serialVersionUID = 1L;
+
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public ServiceOperationSymbol(String name, Optional<ISymbol> type, IScope enclosingScope) {
     super(name, type, enclosingScope);

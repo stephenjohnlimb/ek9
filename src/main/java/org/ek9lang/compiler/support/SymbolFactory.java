@@ -51,6 +51,8 @@ import org.ek9lang.compiler.symbols.SwitchSymbol;
 import org.ek9lang.compiler.symbols.Symbol;
 import org.ek9lang.compiler.symbols.TrySymbol;
 import org.ek9lang.compiler.symbols.VariableSymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 import org.ek9lang.core.UniqueIdGenerator;
@@ -189,7 +191,7 @@ public class SymbolFactory {
           ErrorListener.SemanticClassification.values()));
     }
 
-    return new ErrorDirective(ctx.start, compilerPhase, errorClassification, applyToLine);
+    return new ErrorDirective(new Ek9Token(ctx.start), compilerPhase, errorClassification, applyToLine);
   }
 
   private Directive newImplementsDirective(EK9Parser.DirectiveContext ctx) {
@@ -218,7 +220,7 @@ public class SymbolFactory {
   public AggregateSymbol newPackage(EK9Parser.PackageBlockContext ctx) {
     checkContextNotNull.accept(ctx);
     AggregateSymbol pack = new AggregateSymbol("Package", parsedModule.getModuleScope());
-    configureAggregate(pack, ctx.start);
+    configureAggregate(pack, new Ek9Token(ctx.start));
     //Also add in a default constructor.
     pack.setGenus(ISymbol.SymbolGenus.META_DATA);
     this.aggregateFactory.addConstructor(pack);
@@ -234,7 +236,7 @@ public class SymbolFactory {
 
     String programName = ctx.identifier().getText();
     AggregateSymbol program = new AggregateSymbol(programName, parsedModule.getModuleScope());
-    configureAggregate(program, ctx.identifier().start);
+    configureAggregate(program, new Ek9Token(ctx.identifier().start));
 
     //It is not necessary to wire in an application configuration to be used.
     //But if present then it will be named here. In the resolve phase we will check it.
@@ -256,7 +258,7 @@ public class SymbolFactory {
     checkContextNotNull.accept(ctx);
     AssertValue.checkNotNull("Failed to locate class name", ctx.Identifier());
     String className = ctx.Identifier().getText();
-    final var newClass = newAggregateWithTraitsSymbol(className, ctx.start);
+    final var newClass = newAggregateWithTraitsSymbol(className, new Ek9Token(ctx.start));
     newClass.setOpenForExtension(ctx.ABSTRACT() != null || ctx.OPEN() != null);
     newClass.setGenus(ISymbol.SymbolGenus.CLASS);
     newClass.setMarkedAbstract(ctx.ABSTRACT() != null);
@@ -265,8 +267,7 @@ public class SymbolFactory {
     if (!parameterisedSymbols.isEmpty()) {
       //Now need to register against the class we are creating
       parameterisedSymbols.forEach(newClass::addTypeParameterOrArgument);
-      //It is also important to hold on to the context when it comes to template/generic expansion.
-      newClass.setContextForParameterisedType(ctx);
+
     }
     return newClass;
   }
@@ -278,7 +279,7 @@ public class SymbolFactory {
     checkContextNotNull.accept(ctx);
     AssertValue.checkNotNull("Failed to locate component name", ctx.Identifier());
     String componentName = ctx.Identifier().getText();
-    var component = newAggregateWithTraitsSymbol(componentName, ctx.start);
+    var component = newAggregateWithTraitsSymbol(componentName, new Ek9Token(ctx.start));
     component.setOpenForExtension(ctx.ABSTRACT() != null || ctx.OPEN() != null);
     component.setGenus(ISymbol.SymbolGenus.COMPONENT);
     component.setMarkedAbstract(ctx.ABSTRACT() != null);
@@ -293,8 +294,8 @@ public class SymbolFactory {
     AssertValue.checkNotNull("Failed to locate trait name", ctx.Identifier());
 
     String traitName = ctx.Identifier().getText();
-    AggregateWithTraitsSymbol trait = newAggregateWithTraitsSymbol(traitName, ctx.start);
-    configureAggregate(trait, ctx.start);
+    AggregateWithTraitsSymbol trait = newAggregateWithTraitsSymbol(traitName, new Ek9Token(ctx.start));
+    configureAggregate(trait, new Ek9Token(ctx.start));
 
     trait.setGenus(ISymbol.SymbolGenus.CLASS_TRAIT);
     //All traits are designed to be open to extending and use/override.
@@ -314,7 +315,7 @@ public class SymbolFactory {
     AssertValue.checkNotNull("Failed to locate record name", ctx.Identifier());
     String recordName = ctx.Identifier().getText();
     AggregateSymbol newRecord = new AggregateSymbol(recordName, parsedModule.getModuleScope());
-    configureAggregate(newRecord, ctx.start);
+    configureAggregate(newRecord, new Ek9Token(ctx.start));
     newRecord.setOpenForExtension(ctx.ABSTRACT() != null || ctx.OPEN() != null);
     newRecord.setGenus(ISymbol.SymbolGenus.RECORD);
     newRecord.setMarkedAbstract(ctx.ABSTRACT() != null);
@@ -333,7 +334,7 @@ public class SymbolFactory {
     FunctionSymbol newFunction = new FunctionSymbol(functionName, moduleScope);
     newFunction.setModuleScope(parsedModule.getModuleScope());
     newFunction.setOpenForExtension(ctx.ABSTRACT() != null || ctx.OPEN() != null);
-    configureSymbol(newFunction, ctx.start);
+    configureSymbol(newFunction, new Ek9Token(ctx.start));
     newFunction.setMarkedAbstract(ctx.ABSTRACT() != null);
 
     //More like a library - so we mark as referenced.
@@ -356,12 +357,7 @@ public class SymbolFactory {
     if (!parameterisedSymbols.isEmpty()) {
       //Now need to register against the class we are creating
       parameterisedSymbols.forEach(newFunction::addTypeParameterOrArgument);
-      //It is also important to hold on to the context when it comes to template/generic expansion.
-      newFunction.setContextForParameterisedType(ctx);
     }
-
-    //make a note of this - could be null
-    newFunction.setReturningParamContext(ctx.operationDetails().returningParam());
 
     return newFunction;
   }
@@ -382,7 +378,7 @@ public class SymbolFactory {
       if (base.isEmpty()) {
 
         var textBase = new AggregateSymbol(baseName, parsedModule.getModuleScope());
-        configureAggregate(textBase, ctx.start);
+        configureAggregate(textBase, new Ek9Token(ctx.start));
         textBase.setGenus(ISymbol.SymbolGenus.TEXT);
         parsedModule.getModuleScope().define(textBase);
         aggregateFactory.addConstructor(textBase, aggregateFactory.resolveString(parsedModule.getModuleScope()));
@@ -391,7 +387,7 @@ public class SymbolFactory {
 
       String textName = baseName + "_" + forLanguage;
       AggregateSymbol text = new AggregateSymbol(textName, parsedModule.getModuleScope());
-      configureAggregate(text, ctx.start);
+      configureAggregate(text, new Ek9Token(ctx.start));
       text.setGenus(ISymbol.SymbolGenus.TEXT);
       //Now ensure it is set up as the 'super'.
       text.setSuperAggregateSymbol((IAggregateSymbol) base.get());
@@ -410,7 +406,7 @@ public class SymbolFactory {
    */
   public MethodSymbol newTextBody(EK9Parser.TextBodyDeclarationContext ctx, IScope scope) {
     String methodName = ctx.Identifier().getText();
-    return makeTextBodyMethod(methodName, ctx.start, scope);
+    return makeTextBodyMethod(methodName, new Ek9Token(ctx.start), scope);
   }
 
   /**
@@ -436,7 +432,7 @@ public class SymbolFactory {
   }
 
   private MethodSymbol makeTextBodyMethod(final String methodName,
-                                          final Token token,
+                                          final IToken token,
                                           final IScope scope) {
 
     MethodSymbol method = new MethodSymbol(methodName, scope);
@@ -458,7 +454,7 @@ public class SymbolFactory {
   public AggregateSymbol newService(EK9Parser.ServiceDeclarationContext ctx) {
     String serviceName = ctx.Identifier().getText();
     AggregateSymbol service = new AggregateSymbol(serviceName, parsedModule.getModuleScope());
-    configureAggregate(service, ctx.start);
+    configureAggregate(service, new Ek9Token(ctx.start));
     service.setGenus(ISymbol.SymbolGenus.SERVICE);
 
     var uri = ctx.Uriproto().getText();
@@ -482,7 +478,7 @@ public class SymbolFactory {
     }
 
     ServiceOperationSymbol serviceOperation = new ServiceOperationSymbol(methodName, scope);
-    configureSymbol(serviceOperation, ctx.start);
+    configureSymbol(serviceOperation, new Ek9Token(ctx.start));
 
     serviceOperation.setOverride(false);
     serviceOperation.setMarkedAbstract(false);
@@ -515,7 +511,7 @@ public class SymbolFactory {
   public AggregateSymbol newApplication(EK9Parser.ApplicationDeclarationContext ctx) {
     String applicationName = ctx.Identifier().getText();
     AggregateSymbol application = new AggregateSymbol(applicationName, parsedModule.getModuleScope());
-    configureAggregate(application, ctx.start);
+    configureAggregate(application, new Ek9Token(ctx.start));
 
     application.setGenus(ISymbol.SymbolGenus.GENERAL_APPLICATION);
 
@@ -533,7 +529,7 @@ public class SymbolFactory {
         : "_Class_" + UniqueIdGenerator.getNewUniqueId();
 
     //Perhaps keep a reference to the scope where this dynamic class was defined.
-    AggregateWithTraitsSymbol rtn = newAggregateWithTraitsSymbol(dynamicClassName, ctx.start);
+    AggregateWithTraitsSymbol rtn = newAggregateWithTraitsSymbol(dynamicClassName, new Ek9Token(ctx.start));
     rtn.setOuterMostTypeOrFunction(enclosingMainTypeOrFunction);
     rtn.setScopeType(IScope.ScopeType.DYNAMIC_BLOCK);
     rtn.setReferenced(true);
@@ -549,7 +545,7 @@ public class SymbolFactory {
     var functionName = "_Function_" + UniqueIdGenerator.getNewUniqueId();
     var newFunction = new FunctionSymbol(functionName, parsedModule.getModuleScope());
     newFunction.setOuterMostTypeOrFunction(enclosingMainTypeOrFunction);
-    configureSymbol(newFunction, ctx.start);
+    configureSymbol(newFunction, new Ek9Token(ctx.start));
     newFunction.setModuleScope(parsedModule.getModuleScope());
     newFunction.setGenus(ISymbol.SymbolGenus.FUNCTION);
     newFunction.setScopeType(IScope.ScopeType.DYNAMIC_BLOCK);
@@ -585,7 +581,7 @@ public class SymbolFactory {
     String methodName = ctx.operator().getText();
     MethodSymbol method = new MethodSymbol(methodName, scopedSymbol);
 
-    configureSymbol(method, ctx.operator().start);
+    configureSymbol(method, new Ek9Token(ctx.operator().start));
 
     //For operators with arguments, i.e. <, >, <>, etc. the developer really wants to test based on the
     //actual type being provided not some super. So we use the same dispatcher mechanism in classes that the ek9
@@ -615,6 +611,7 @@ public class SymbolFactory {
    * So here this method just uses the raw name of the method.
    */
   public void addMissingDefaultOperators(EK9Parser.DefaultOperatorContext ctx, IAggregateSymbol aggregate) {
+    var startToken = new Ek9Token(ctx.start);
     var existingMethodNames = aggregate.getAllNonAbstractMethods()
         .stream()
         .map(ISymbol::getName)
@@ -622,7 +619,7 @@ public class SymbolFactory {
 
     for (MethodSymbol operator : aggregateFactory.getAllPossibleDefaultOperators(aggregate)) {
       if (!existingMethodNames.contains(operator.getName())) {
-        operator.setSourceToken(ctx.start);
+        operator.setSourceToken(startToken);
         operator.putSquirrelledData(DEFAULTED, "TRUE");
         //Now we can add that operator in.
         aggregate.define(operator);
@@ -632,7 +629,7 @@ public class SymbolFactory {
     //For records also add in the to JSON operator if not present.
     if (aggregate.getGenus() == ISymbol.SymbolGenus.RECORD && !existingMethodNames.contains("$$")) {
       var jsonOperator = aggregateFactory.createToJsonSimpleOperator(aggregate);
-      jsonOperator.setSourceToken(ctx.start);
+      jsonOperator.setSourceToken(startToken);
       jsonOperator.putSquirrelledData(DEFAULTED, "TRUE");
       //Now we can add that operator in.
       aggregate.define(jsonOperator);
@@ -656,7 +653,7 @@ public class SymbolFactory {
 
     MethodSymbol method = new MethodSymbol(methodName, scopedSymbol);
 
-    configureSymbol(method, ctx.identifier().start);
+    configureSymbol(method, new Ek9Token(ctx.identifier().start));
 
     method.setOverride(ctx.OVERRIDE() != null);
     method.setMarkedAbstract(ctx.ABSTRACT() != null);
@@ -692,7 +689,7 @@ public class SymbolFactory {
   public AggregateSymbol newType(EK9Parser.TypeDeclarationContext ctx) {
     String newTypeName = ctx.Identifier().getText();
     AggregateSymbol clazz = new AggregateSymbol(newTypeName, parsedModule.getModuleScope());
-    configureAggregate(clazz, ctx.start);
+    configureAggregate(clazz, new Ek9Token(ctx.start));
 
     if (ctx.typeDef() != null) {
       clazz.setGenus(ISymbol.SymbolGenus.CLASS_CONSTRAINED);
@@ -723,19 +720,20 @@ public class SymbolFactory {
         addEnumeratedValue(identifier, enumerationSymbol);
       } else {
         new InvalidEnumeratedValue(parsedModule.getSource().getErrorListener())
-            .accept(identifier.getSymbol(), existing);
+            .accept(new Ek9Token(identifier.getSymbol()), existing);
       }
     });
   }
 
   private void addEnumeratedValue(TerminalNode ctx, AggregateSymbol inEnumeration) {
     ConstantSymbol symbol = new ConstantSymbol(ctx.getText());
-    configureSymbol(symbol, ctx.getSymbol());
+    var startToken = new Ek9Token(ctx.getSymbol());
+    configureSymbol(symbol, startToken);
     symbol.setNotMutable();
     //The nature of an enumeration is to define possible values
     //These do not have to be referenced to be valuable. So mark referenced.
     symbol.setNullAllowed(false);
-    symbol.setInitialisedBy(ctx.getSymbol());
+    symbol.setInitialisedBy(startToken);
     symbol.setReferenced(true);
     symbol.setType(inEnumeration);
     inEnumeration.define(symbol);
@@ -746,7 +744,7 @@ public class SymbolFactory {
    */
   public StreamPipeLineSymbol newStream(EK9Parser.StreamContext ctx) {
     StreamPipeLineSymbol pipeLine = new StreamPipeLineSymbol("stream");
-    configureSymbol(pipeLine, ctx.start);
+    configureSymbol(pipeLine, new Ek9Token(ctx.start));
     pipeLine.setReferenced(true);
     pipeLine.setNotMutable();
     return pipeLine;
@@ -757,7 +755,7 @@ public class SymbolFactory {
    */
   public StreamCallSymbol newStreamCat(EK9Parser.StreamCatContext ctx, IScope scope) {
     StreamCallSymbol call = new StreamCallSymbol("cat", scope);
-    configureStreamCallSymbol(call, ctx.start);
+    configureStreamCallSymbol(call, new Ek9Token(ctx.start));
     return call;
   }
 
@@ -766,7 +764,7 @@ public class SymbolFactory {
    */
   public StreamCallSymbol newStreamFor(EK9Parser.StreamForContext ctx, IScope scope) {
     StreamCallSymbol call = new StreamCallSymbol("for", scope);
-    configureStreamCallSymbol(call, ctx.start);
+    configureStreamCallSymbol(call, new Ek9Token(ctx.start));
     return call;
   }
 
@@ -776,7 +774,7 @@ public class SymbolFactory {
   public StreamCallSymbol newStreamPart(EK9Parser.StreamPartContext ctx, IScope scope) {
     final var operation = ctx.op.getText();
     StreamCallSymbol call = new StreamCallSymbol(operation, scope);
-    configureStreamCallSymbol(call, ctx.start);
+    configureStreamCallSymbol(call, new Ek9Token(ctx.start));
 
     //It is necessary to correctly configure the stream part for later processing.
     //This enables type inference and also other logic checks.
@@ -796,12 +794,12 @@ public class SymbolFactory {
   public StreamCallSymbol newStreamTermination(EK9Parser.StreamTerminationContext ctx, IScope scope) {
     final var operation = ctx.op.getText();
     StreamCallSymbol call = new StreamCallSymbol(operation, scope);
-    configureStreamCallSymbol(call, ctx.start);
+    configureStreamCallSymbol(call, new Ek9Token(ctx.start));
     call.setSinkInNature(true);
     return call;
   }
 
-  private void configureStreamCallSymbol(final StreamCallSymbol call, final Token token) {
+  private void configureStreamCallSymbol(final StreamCallSymbol call, final IToken token) {
     configureSymbol(call, token);
     call.setReferenced(true);
     call.setNotMutable();
@@ -810,7 +808,7 @@ public class SymbolFactory {
   /**
    * Just for general symbols, like references.
    */
-  public Symbol newGeneralSymbol(final Token token, String name) {
+  public Symbol newGeneralSymbol(final IToken token, String name) {
     Symbol symbol = new Symbol(name);
     configureSymbol(symbol, token);
     return symbol;
@@ -820,7 +818,7 @@ public class SymbolFactory {
    * Create a new expression symbol place-holder.
    * Really just enables the line of code to be captured and the type that the expression returns.
    */
-  public ExpressionSymbol newExpressionSymbol(final Token token, final String name) {
+  public ExpressionSymbol newExpressionSymbol(final IToken token, final String name) {
 
     return newExpressionSymbol(token, name, Optional.empty());
   }
@@ -830,7 +828,7 @@ public class SymbolFactory {
    * Really just enables the line of code to be captured and the type that the expression returns.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public ExpressionSymbol newExpressionSymbol(final Token token, final String name, final Optional<ISymbol> ofType) {
+  public ExpressionSymbol newExpressionSymbol(final IToken token, final String name, final Optional<ISymbol> ofType) {
     ExpressionSymbol symbol = new ExpressionSymbol(name);
     configureSymbol(symbol, token);
     symbol.setType(ofType);
@@ -849,9 +847,10 @@ public class SymbolFactory {
    */
   public CallSymbol newCall(EK9Parser.CallContext ctx, IScope scope) {
     var symbol = new CallSymbol(ctx.getText(), scope);
-    configureSymbol(symbol, ctx.start);
+    var startToken = new Ek9Token(ctx.start);
+    configureSymbol(symbol, startToken);
 
-    symbol.setInitialisedBy(ctx.start);
+    symbol.setInitialisedBy(startToken);
 
     return symbol;
   }
@@ -861,9 +860,10 @@ public class SymbolFactory {
    */
   public CallSymbol newList(EK9Parser.ListContext ctx, IScope scope) {
     var symbol = new CallSymbol("List", scope);
-    configureSymbol(symbol, ctx.start);
+    var startToken = new Ek9Token(ctx.start);
+    configureSymbol(symbol, startToken);
 
-    symbol.setInitialisedBy(ctx.start);
+    symbol.setInitialisedBy(startToken);
 
     return symbol;
   }
@@ -873,9 +873,10 @@ public class SymbolFactory {
    */
   public CallSymbol newDict(EK9Parser.DictContext ctx, IScope scope) {
     var symbol = new CallSymbol("Dict", scope);
-    configureSymbol(symbol, ctx.start);
+    var startToken = new Ek9Token(ctx.start);
+    configureSymbol(symbol, startToken);
 
-    symbol.setInitialisedBy(ctx.start);
+    symbol.setInitialisedBy(startToken);
 
     return symbol;
   }
@@ -885,9 +886,10 @@ public class SymbolFactory {
    */
   public CallSymbol newDictEntry(EK9Parser.InitValuePairContext ctx, IScope scope) {
     var symbol = new CallSymbol("DictEntry", scope);
-    configureSymbol(symbol, ctx.start);
+    var startToken = new Ek9Token(ctx.start);
+    configureSymbol(symbol, startToken);
 
-    symbol.setInitialisedBy(ctx.start);
+    symbol.setInitialisedBy(startToken);
 
     return symbol;
   }
@@ -900,9 +902,10 @@ public class SymbolFactory {
 
     var callName = ctx.operator() != null ? ctx.operator().getText() : ctx.identifier().getText();
     var symbol = new CallSymbol(callName, scope);
-    configureSymbol(symbol, ctx.start);
+    var startToken = new Ek9Token(ctx.start);
+    configureSymbol(symbol, startToken);
     symbol.setOperator(ctx.operator() != null);
-    symbol.setInitialisedBy(ctx.start);
+    symbol.setInitialisedBy(startToken);
 
     return symbol;
   }
@@ -912,7 +915,8 @@ public class SymbolFactory {
    */
   public SwitchSymbol newSwitch(EK9Parser.SwitchStatementExpressionContext ctx, IScope scope) {
     SwitchSymbol switchSymbol = new SwitchSymbol(scope);
-    configureSymbol(switchSymbol, ctx.start);
+    var startToken = new Ek9Token(ctx.start);
+    configureSymbol(switchSymbol, startToken);
     checkSwitch.accept(ctx);
     return switchSymbol;
   }
@@ -922,7 +926,8 @@ public class SymbolFactory {
    */
   public TrySymbol newTry(EK9Parser.TryStatementExpressionContext ctx, IScope scope) {
     TrySymbol trySymbol = new TrySymbol(scope);
-    configureSymbol(trySymbol, ctx.start);
+    var startToken = new Ek9Token(ctx.start);
+    configureSymbol(trySymbol, startToken);
     checkTryReturns.accept(ctx);
     return trySymbol;
   }
@@ -932,7 +937,8 @@ public class SymbolFactory {
    */
   public ForSymbol newForLoop(ParserRuleContext ctx, IScope scope) {
     var forLoop = new ForSymbol(scope);
-    configureSymbol(forLoop, ctx.start);
+    var startToken = new Ek9Token(ctx.start);
+    configureSymbol(forLoop, startToken);
     return forLoop;
   }
 
@@ -958,7 +964,7 @@ public class SymbolFactory {
     var variable = newVariable(identifier, false, false);
     //Make note is a loop variable and EK9 will initialise it, developer cannot mutate it.
     variable.setLoopVariable(true);
-    variable.setInitialisedBy(identifier.start);
+    variable.setInitialisedBy(new Ek9Token(identifier.start));
     variable.setNotMutable();
     return variable;
   }
@@ -971,7 +977,7 @@ public class SymbolFactory {
     //if interpolated string had a " in now needs to be escaped because we will wrapping ""
     //But also if we had and escaped $ i.e. \$ we can turn that back into a dollar now.
     String literalText = ctx.getChild(0).getText().replace("\"", "\\\"").replace("\\$", "$").replace("\\`", "`");
-    ConstantSymbol literal = newLiteral(ctx.start, "\"" + literalText + "\"");
+    ConstantSymbol literal = newLiteral(new Ek9Token(ctx.start), "\"" + literalText + "\"");
     literal.setType(aggregateFactory.resolveString(scope));
 
     return literal;
@@ -982,7 +988,7 @@ public class SymbolFactory {
    */
   public ExpressionSymbol newInterpolatedExpressionPart(final EK9Parser.StringPartContext ctx) {
     ExpressionSymbol expressionSymbol = new ExpressionSymbol(ctx.getText());
-    configureSymbol(expressionSymbol, ctx.start);
+    configureSymbol(expressionSymbol, new Ek9Token(ctx.start));
 
     return expressionSymbol;
   }
@@ -992,7 +998,7 @@ public class SymbolFactory {
    */
   public ConstantSymbol newConstant(EK9Parser.ConstantDeclarationContext ctx) {
     ConstantSymbol constant = new ConstantSymbol(ctx.Identifier().getText(), false);
-    configureSymbol(constant, ctx.start);
+    configureSymbol(constant, new Ek9Token(ctx.start));
 
     return constant;
   }
@@ -1034,7 +1040,7 @@ public class SymbolFactory {
   /**
    * Crrate new variable typically when looking to create simulated variable.
    */
-  public VariableSymbol newVariable(final String name, final Token token,
+  public VariableSymbol newVariable(final String name, final IToken token,
                                     final boolean nullAllowed, final boolean injectionExpected) {
     AssertValue.checkNotNull("Failed to locate variable name", name);
     VariableSymbol variable = new VariableSymbol(name);
@@ -1048,14 +1054,14 @@ public class SymbolFactory {
   public VariableSymbol newVariable(final EK9Parser.IdentifierContext identifier,
                                     final boolean nullAllowed, final boolean injectionExpected) {
     AssertValue.checkNotNull("Failed to locate variable name", identifier);
-    return newVariable(identifier.getText(), identifier.start, nullAllowed, injectionExpected);
+    return newVariable(identifier.getText(), new Ek9Token(identifier.start), nullAllowed, injectionExpected);
   }
 
 
   /**
    * Create a new aggregate that represents an EK9 literal value.
    */
-  public ConstantSymbol newLiteral(Token start, String name) {
+  public ConstantSymbol newLiteral(IToken start, String name) {
     AssertValue.checkNotNull("Start token cannot be null", start);
     AssertValue.checkNotNull("Name cannot be null", name);
 
@@ -1067,7 +1073,7 @@ public class SymbolFactory {
     return literal;
   }
 
-  private AggregateWithTraitsSymbol newAggregateWithTraitsSymbol(String className, Token start) {
+  private AggregateWithTraitsSymbol newAggregateWithTraitsSymbol(String className, IToken start) {
     var scope = parsedModule.getModuleScope();
     AggregateWithTraitsSymbol clazz = new AggregateWithTraitsSymbol(className, scope);
     configureAggregate(clazz, start);
@@ -1075,7 +1081,7 @@ public class SymbolFactory {
     return clazz;
   }
 
-  private void configureAggregate(AggregateSymbol aggregate, Token start) {
+  private void configureAggregate(AggregateSymbol aggregate, IToken start) {
     aggregate.setModuleScope(parsedModule.getModuleScope());
     //By their nature they are initialised and do not have to be referenced to be part of a system.
     aggregate.setInitialisedBy(start);
@@ -1083,7 +1089,7 @@ public class SymbolFactory {
     configureSymbol(aggregate, start);
   }
 
-  private void configureSymbol(ISymbol symbol, Token start) {
+  private void configureSymbol(ISymbol symbol, IToken start) {
     symbol.setParsedModule(Optional.of(parsedModule));
     symbol.setSourceToken(start);
     if (parsedModule.isExternallyImplemented()) {
@@ -1120,5 +1126,4 @@ public class SymbolFactory {
     }
     return rtn;
   }
-
 }

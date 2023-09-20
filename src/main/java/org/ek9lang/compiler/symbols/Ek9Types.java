@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serializable;
+
 /**
  * Used to cache built in types as they are so frequently used.
  */
@@ -32,5 +34,6 @@ public record Ek9Types(ISymbol ek9Void,
                        ISymbol ek9Function,
                        ISymbol ek9UnaryOperator,
                        ISymbol ek9Predicate,
-                       ISymbol ek9Comparator) {
+                       ISymbol ek9Comparator) implements Serializable {
+  static final long serialVersionUID = 1L;
 }

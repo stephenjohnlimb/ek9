@@ -11,6 +11,7 @@ import org.ek9lang.compiler.support.CommonTypeSuperOrTrait;
 import org.ek9lang.compiler.support.ParameterisedTypeData;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -35,14 +36,15 @@ final class CheckAndTypeList extends RuleSupport implements Consumer<EK9Parser.L
 
   @Override
   public void accept(EK9Parser.ListContext ctx) {
+    var startToken = new Ek9Token(ctx.start);
     final var listCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
 
     //Access the generic List type - this has been pre-located for quicker use.
     final var listType = symbolAndScopeManagement.getEk9Types().ek9List();
-    final var commonType = commonTypeSuperOrTrait.apply(ctx.start, getListArgumentsAsSymbols(ctx));
+    final var commonType = commonTypeSuperOrTrait.apply(startToken, getListArgumentsAsSymbols(ctx));
     //If no common type can be found then error will have been emitted
     commonType.ifPresent(type -> {
-      final var typeData = new ParameterisedTypeData(ctx.start, listType, List.of(type));
+      final var typeData = new ParameterisedTypeData(startToken, listType, List.of(type));
       final var resolvedNewType = parameterisedLocator.resolveOrDefine(typeData);
       listCallSymbol.setType(resolvedNewType);
     });

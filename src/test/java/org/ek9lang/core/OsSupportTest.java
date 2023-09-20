@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
+import static org.junit.jupiter.api.parallel.ResourceAccessMode.READ_WRITE;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +16,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ResourceLock;
 
+//Specific tests that manipulate files and specifics in ek9 must not run in parallel.
+@Execution(SAME_THREAD)
+@ResourceLock(value="file_access", mode=READ_WRITE)
 final class OsSupportTest {
   OsSupport underTest = new OsSupport();
 

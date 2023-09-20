@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
-import org.antlr.v4.runtime.Token;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.CompilerException;
 
 /**
@@ -15,6 +15,8 @@ import org.ek9lang.core.CompilerException;
  * This information will also be used in the semantic analysis phase.
  */
 public class ExpressionSymbol extends Symbol {
+  static final long serialVersionUID = 1L;
+
   //So could need to promote to get right type
   private boolean promotionRequired = false;
   //Or maybe just need to call the $ _string() operator (this the returning type has it).
@@ -109,7 +111,7 @@ public class ExpressionSymbol extends Symbol {
   }
 
   @Override
-  public void setSourceToken(Token sourceToken) {
+  public void setSourceToken(IToken sourceToken) {
     //This is also where this expression is initialised.
     //If the items making the expression have not been initialised that has to be checked
     //when the expression gets created.

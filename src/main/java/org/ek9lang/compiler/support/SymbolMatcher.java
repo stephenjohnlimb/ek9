@@ -16,6 +16,7 @@ import org.ek9lang.core.AssertValue;
  */
 public class SymbolMatcher {
 
+
   /**
    * Match the search criteria against one or more symbol methods.
    * We use a weighting algorithm to try and find the best match where there are methods of

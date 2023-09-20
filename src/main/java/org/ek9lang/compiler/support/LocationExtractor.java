@@ -11,7 +11,8 @@ import org.ek9lang.compiler.symbols.ISymbol;
 public class LocationExtractor implements Function<ISymbol, String> {
   @Override
   public String apply(ISymbol symbol) {
-    var fileName = new File(symbol.getSourceFileLocation()).getName();
-    return String.format("on line %s in '%s'", symbol.getSourceToken().getLine(), fileName);
+    var token = symbol.getSourceToken();
+    var fileName = new File(token.getSourceName()).getName();
+    return String.format("on line %s in '%s'", token.getLine(), fileName);
   }
 }

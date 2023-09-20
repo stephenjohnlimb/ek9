@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.common;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,6 +11,8 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.search.MatchResults;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.OsSupport;
 
@@ -26,8 +29,10 @@ import org.ek9lang.core.OsSupport;
  * This is not designed to be thread safe, only one thread should be parsing/processing
  * a source or one a specific phase.
  */
-public class ErrorListener extends BaseErrorListener {
-  private final OsSupport osSupport = new OsSupport();
+public class ErrorListener extends BaseErrorListener implements Serializable {
+  static final long serialVersionUID = 1L;
+
+  private final transient OsSupport osSupport = new OsSupport();
   private final String generalIdentifierOfSource;
   private boolean exceptionOnAmbiguity = false;
   private boolean exceptionOnContextSensitive = false;
@@ -63,9 +68,9 @@ public class ErrorListener extends BaseErrorListener {
   /**
    * Get the filename (but not full path) of the source file.
    */
-  public String getShortNameOfSourceFile(final Token token) {
+  public String getShortNameOfSourceFile(final IToken token) {
     AssertValue.checkNotNull("Token cannot be null", token);
-    return osSupport.getFileNameWithoutPath(token.getTokenSource().getSourceName());
+    return osSupport.getFileNameWithoutPath(token.getSourceName());
   }
 
   public boolean isExceptionOnAmbiguity() {
@@ -127,21 +132,25 @@ public class ErrorListener extends BaseErrorListener {
     return warnings.isEmpty();
   }
 
-  public void raiseReturningRedundant(Token token, String msg) {
+  public void raiseReturningRedundant(IToken token, String msg) {
     semanticError(token, msg, SemanticClassification.RETURNING_REDUNDANT);
   }
 
-  public void raiseReturningRequired(Token token, String msg) {
+  public void raiseReturningRequired(IToken token, String msg) {
     semanticError(token, msg, SemanticClassification.RETURNING_REQUIRED);
   }
 
-  public void semanticError(Token offendingToken, String msg, SemanticClassification classification,
+  public void semanticError(IToken offendingToken, String msg, SemanticClassification classification,
                             MatchResults results) {
     addErrorDetails(createSemanticError(offendingToken, msg, classification).setFuzzySearchResults(results));
   }
 
-  public void semanticError(Token offendingToken, String msg, SemanticClassification classification) {
+  public void semanticError(IToken offendingToken, String msg, SemanticClassification classification) {
     addErrorDetails(createSemanticError(offendingToken, msg, classification));
+  }
+
+  public void semanticError(Token offendingToken, String msg, SemanticClassification classification) {
+    addErrorDetails(createSemanticError(new Ek9Token(offendingToken), msg, classification));
   }
 
   /**
@@ -149,9 +158,9 @@ public class ErrorListener extends BaseErrorListener {
    * against an actual compiler error - we can raise this specific type of error to indicate something
    * that the EK9 developer was checking for (via a directive) is in error.
    */
-  public void directiveError(final Token offendingToken, final String msg,
+  public void directiveError(final IToken offendingToken, final String msg,
                              final SemanticClassification classification) {
-    String shortFileName = osSupport.getFileNameWithoutPath(offendingToken.getTokenSource().getSourceName());
+    String shortFileName = osSupport.getFileNameWithoutPath(offendingToken.getSourceName());
     int tokenLength = offendingToken.getText().length();
 
     var error = new ErrorDetails(ErrorClassification.DIRECTIVE_ERROR, offendingToken.getText(), shortFileName,
@@ -164,7 +173,7 @@ public class ErrorListener extends BaseErrorListener {
   /**
    * Issue a semantic warning.
    */
-  public void semanticWarning(Token offendingToken, String msg, SemanticClassification classification) {
+  public void semanticWarning(IToken offendingToken, String msg, SemanticClassification classification) {
     ErrorDetails warning;
     if (offendingToken == null) {
       warning = new ErrorDetails(ErrorClassification.SEMANTIC_WARNING, "Unknown Text", null, 0, 0, 1, msg);
@@ -179,13 +188,13 @@ public class ErrorListener extends BaseErrorListener {
     }
   }
 
-  private ErrorDetails createSemanticError(Token offendingToken, String msg, SemanticClassification classification) {
+  private ErrorDetails createSemanticError(IToken offendingToken, String msg, SemanticClassification classification) {
     ErrorDetails error;
 
     if (offendingToken == null) {
       error = new ErrorDetails(ErrorClassification.SEMANTIC_ERROR, "Unknown Location", "unknown", 0, 0, 1, msg);
     } else {
-      String shortFileName = osSupport.getFileNameWithoutPath(offendingToken.getTokenSource().getSourceName());
+      String shortFileName = osSupport.getFileNameWithoutPath(offendingToken.getSourceName());
       int tokenLength = offendingToken.getText().length();
       error = new ErrorDetails(ErrorClassification.SEMANTIC_ERROR, offendingToken.getText(), shortFileName,
           offendingToken.getLine(), offendingToken.getCharPositionInLine(), tokenLength, msg);
@@ -211,7 +220,7 @@ public class ErrorListener extends BaseErrorListener {
       reason = e.getClass().getSimpleName();
     }
 
-    if (offendingSymbol instanceof Token offender) {
+    if (offendingSymbol instanceof IToken offender) {
       int tokenLength = offender.getText().length();
       error = new ErrorDetails(ErrorClassification.SYNTAX_ERROR, offender.getText(), null, line, charPositionInLine,
           tokenLength, reason);
@@ -538,9 +547,11 @@ public class ErrorListener extends BaseErrorListener {
   /**
    * The details of an error, position, etc.
    */
-  public static class ErrorDetails extends Details implements CompilationIssue {
+  public static class ErrorDetails extends Details implements CompilationIssue, Serializable {
+    static final long serialVersionUID = 1L;
+
     private final ErrorClassification classification;
-    private MatchResults fuzzySearchResults;
+    private transient MatchResults fuzzySearchResults;
 
     private ErrorDetails(ErrorClassification classification, String likelyOffendingSymbol, String shortFileName,
                          int lineNumber, int characterNumber, int tokenLength, String typeOfError) {
@@ -607,7 +618,9 @@ public class ErrorListener extends BaseErrorListener {
   /**
    * Fine detail of the error.
    */
-  public abstract static class Details implements CompilationIssue {
+  public abstract static class Details implements CompilationIssue, Serializable {
+
+    static final long serialVersionUID = 1L;
 
     /**
      * Not always set.
@@ -624,6 +637,8 @@ public class ErrorListener extends BaseErrorListener {
 
     //Only used with semantic errors.
     private SemanticClassification semanticClassification;
+
+    //Required for deserialization.
 
     private Details(String likelyOffendingSymbol, String shortFileName, int lineNumber, int characterNumber,
                     int tokenLength, String typeOfError) {

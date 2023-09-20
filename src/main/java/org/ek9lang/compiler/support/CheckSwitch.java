@@ -3,6 +3,7 @@ package org.ek9lang.compiler.support;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
  * Ensures that a switch is used correctly in or out of an expression.
@@ -17,7 +18,7 @@ public class CheckSwitch extends CheckReturns implements Consumer<EK9Parser.Swit
   @Override
   public void accept(EK9Parser.SwitchStatementExpressionContext ctx) {
     boolean isStatement = ctx.parent instanceof EK9Parser.StatementContext;
-    check(isStatement, ctx.start, ctx.returningParam());
+    check(isStatement, new Ek9Token(ctx.start), ctx.returningParam());
     checkDefault(isStatement, ctx);
   }
 

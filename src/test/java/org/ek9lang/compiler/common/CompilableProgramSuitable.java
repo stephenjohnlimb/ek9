@@ -36,7 +36,8 @@ public class CompilableProgramSuitable implements Supplier<SharedThreadContext<C
     var rtn = bootStrap.get();
     var after = System.currentTimeMillis();
 
-    System.err.println("Bootstrap duration " + (after - before) + " ms");
+    var threadName = Thread.currentThread().getName();
+    System.err.printf("Thread: %s, Bootstrap duration %d ms", threadName, (after - before));
     return rtn;
   }
 }

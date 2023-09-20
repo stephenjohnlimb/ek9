@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
+import static org.junit.jupiter.api.parallel.ResourceAccessMode.READ_WRITE;
 
 import java.io.File;
 import java.util.List;
@@ -40,7 +42,13 @@ import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.OsSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ResourceLock;
 
+//Because this depends on specific files existing and different tests add and remove them.
+//Specific tests that manipulate files and specifics in ek9 must not run in parallel.
+@Execution(SAME_THREAD)
+@ResourceLock(value="file_access", mode=READ_WRITE)
 final class Ek9LanguageServerTest {
 
   final static String validSource = "SinglePackage.ek9";
@@ -242,9 +250,9 @@ final class Ek9LanguageServerTest {
 
   private static class SimulatedLspClient implements LanguageClient {
 
-    private Optional<PublishDiagnosticsParams> lastDiagnostics = Optional.empty();
+    private PublishDiagnosticsParams lastDiagnostics;
 
-    private Optional<MessageParams> lastMessage = Optional.empty();
+    private MessageParams lastMessage;
 
     @Override
     public void telemetryEvent(Object object) {
@@ -253,11 +261,11 @@ final class Ek9LanguageServerTest {
 
     @Override
     public void publishDiagnostics(PublishDiagnosticsParams diagnostics) {
-      lastDiagnostics = Optional.of(diagnostics);
+      lastDiagnostics = diagnostics;
     }
 
     public Optional<PublishDiagnosticsParams> getLastDiagnostics() {
-      return lastDiagnostics;
+      return Optional.ofNullable(lastDiagnostics);
     }
 
     @Override
@@ -267,7 +275,7 @@ final class Ek9LanguageServerTest {
     }
 
     public Optional<MessageParams> getLastMessage() {
-      return lastMessage;
+      return Optional.ofNullable(lastMessage);
     }
 
     @Override
@@ -278,7 +286,7 @@ final class Ek9LanguageServerTest {
 
     @Override
     public void logMessage(MessageParams message) {
-      lastMessage = Optional.of(message);
+      lastMessage = message;
     }
   }
 

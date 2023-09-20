@@ -1,8 +1,8 @@
 package org.ek9lang.compiler.directives;
 
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * To be used in EK9 source code to assert that an error will be created.
@@ -15,15 +15,17 @@ import org.ek9lang.compiler.common.ErrorListener;
  * @see ErrorListener.SemanticClassification
  */
 public class ErrorDirective implements Directive {
+  static final long serialVersionUID = 1L;
+
   private final CompilationPhase phase;
-  private final Token directiveToken;
+  private final IToken directiveToken;
   private final ErrorListener.SemanticClassification classification;
   private final int lineNumber;
 
   /**
    * A new error style directive.
    */
-  public ErrorDirective(final Token token, final CompilationPhase phase,
+  public ErrorDirective(final IToken token, final CompilationPhase phase,
                         final ErrorListener.SemanticClassification classification,
                         final int lineNumber) {
     this.directiveToken = token;
@@ -51,7 +53,7 @@ public class ErrorDirective implements Directive {
   }
 
   @Override
-  public Token getDirectiveToken() {
+  public IToken getDirectiveToken() {
     return directiveToken;
   }
 

@@ -1,7 +1,6 @@
 package org.ek9lang.compiler.phase3;
 
 import java.util.function.Consumer;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.OperationIsAssignment;
@@ -12,6 +11,8 @@ import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.support.RefersToSameSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -69,14 +70,14 @@ final class CheckAssignmentStatement extends RuleSupport implements Consumer<EK9
   private void checkByPrimaryReference(final EK9Parser.AssignmentStatementContext ctx, final ISymbol expressionSymbol) {
     var primaryReferenceExpressionSymbol = symbolFromContextOrError.apply(ctx.primaryReference());
     if (primaryReferenceExpressionSymbol != null) {
-      checkLeftAndRight(primaryReferenceExpressionSymbol, ctx.op, expressionSymbol);
+      checkLeftAndRight(primaryReferenceExpressionSymbol, new Ek9Token(ctx.op), expressionSymbol);
     }
   }
 
   private void checkByIdentifier(final EK9Parser.AssignmentStatementContext ctx, final ISymbol expressionSymbol) {
     var identifier = resolveIdentifierOrError.apply(ctx.identifier());
     if (identifier != null) {
-      checkIdentifierAssignment(identifier, ctx.op, expressionSymbol);
+      checkIdentifierAssignment(identifier, new Ek9Token(ctx.op), expressionSymbol);
     }
   }
 
@@ -84,11 +85,11 @@ final class CheckAssignmentStatement extends RuleSupport implements Consumer<EK9
                                              final ISymbol expressionSymbol) {
     var objectAccessExpressionSymbol = symbolFromContextOrError.apply(ctx.objectAccessExpression());
     if (objectAccessExpressionSymbol != null) {
-      checkLeftAndRight(objectAccessExpressionSymbol, ctx.op, expressionSymbol);
+      checkLeftAndRight(objectAccessExpressionSymbol, new Ek9Token(ctx.op), expressionSymbol);
     }
   }
 
-  private void checkIdentifierAssignment(ISymbol leftHandSideSymbol, final Token op,
+  private void checkIdentifierAssignment(ISymbol leftHandSideSymbol, final IToken op,
                                          final ISymbol assignmentExpression) {
 
     if (!leftHandSideSymbol.isInitialised()) {
@@ -104,14 +105,14 @@ final class CheckAssignmentStatement extends RuleSupport implements Consumer<EK9
     checkLeftAndRight(leftHandSideSymbol, op, assignmentExpression);
   }
 
-  private void checkLeftAndRight(final ISymbol leftHandSideSymbol, final Token op, final ISymbol rightHandSideSymbol) {
+  private void checkLeftAndRight(final ISymbol leftHandSideSymbol, final IToken op, final ISymbol rightHandSideSymbol) {
     if (leftHandSideSymbol.getType().isPresent() && rightHandSideSymbol.getType().isPresent()) {
       checkTypesCompatible(leftHandSideSymbol, op, rightHandSideSymbol);
       checkNotSelfAssignment(leftHandSideSymbol, op, rightHandSideSymbol);
     }
   }
 
-  private void checkTypesCompatible(final ISymbol leftHandSideSymbol, final Token op,
+  private void checkTypesCompatible(final ISymbol leftHandSideSymbol, final IToken op,
                                     final ISymbol rightHandSideSymbol) {
     if (operationIsAssignment.test(op)) {
       checkTypesCompatible.accept(new TypeCompatibilityData(op, leftHandSideSymbol, rightHandSideSymbol));
@@ -129,7 +130,7 @@ final class CheckAssignmentStatement extends RuleSupport implements Consumer<EK9
     }
   }
 
-  private void checkNotSelfAssignment(final ISymbol leftHandSideSymbol, final Token op,
+  private void checkNotSelfAssignment(final ISymbol leftHandSideSymbol, final IToken op,
                                       final ISymbol rightHandSideSymbol) {
     if (refersToSameSymbol.test(leftHandSideSymbol, rightHandSideSymbol)) {
       var msg = "'" + leftHandSideSymbol.getFriendlyName()

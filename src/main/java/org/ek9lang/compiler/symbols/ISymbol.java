@@ -1,13 +1,14 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serializable;
 import java.util.Optional;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.Module;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * Represents the concept of what functionality a Symbol should have.
  */
-public interface ISymbol extends ITokenReference {
+public interface ISymbol extends ITokenReference, Serializable {
 
   double NOT_ASSIGNABLE = -1000000.0;
 
@@ -137,10 +138,14 @@ public interface ISymbol extends ITokenReference {
 
   void setNotMutable();
 
-  Token getSourceToken();
+  IToken getSourceToken();
 
-  default String getSourceFileLocation() {
-    return getParsedModule().map(module -> module.getSource().getFileName()).orElse("Unknown");
+  IToken getInitialisedBy();
+
+  void setInitialisedBy(IToken initialisedBy);
+
+  default boolean isInitialised() {
+    return getInitialisedBy() != null;
   }
 
   default boolean isPrivate() {
@@ -164,13 +169,6 @@ public interface ISymbol extends ITokenReference {
   //Special type of variable one that is a property on an aggregate/or capture.
   boolean isPropertyField();
 
-  Token getInitialisedBy();
-
-  void setInitialisedBy(Token initialisedBy);
-
-  default boolean isInitialised() {
-    return getInitialisedBy() != null;
-  }
 
   default boolean isTemplateType() {
     return getCategory().equals(SymbolCategory.TEMPLATE_TYPE);

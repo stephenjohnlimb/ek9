@@ -1,7 +1,6 @@
 package org.ek9lang.compiler.phase2;
 
 import java.util.List;
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9BaseListener;
 import org.ek9lang.antlr.EK9Parser;
@@ -22,6 +21,8 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -191,7 +192,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Record should have been defined as symbol", symbol);
 
-    processExtendableConstruct(ctx.start, symbol, ctx.extendDeclaration(), checkRecordSuitableToExtend);
+    processExtendableConstruct(new Ek9Token(ctx.start), symbol, ctx.extendDeclaration(), checkRecordSuitableToExtend);
 
     symbolAndScopeManagement.exitScope();
     super.exitRecordDeclaration(ctx);
@@ -211,7 +212,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     AssertValue.checkNotNull("Trait should have been defined as symbol", symbol);
 
     checkVisibilityOfOperations.accept(symbol);
-    checkForDuplicateOperations.accept(ctx.start, symbol);
+    checkForDuplicateOperations.accept(new Ek9Token(ctx.start), symbol);
 
     if (ctx.traitsList() != null) {
       ctx.traitsList().traitReference().forEach(traitRef -> {
@@ -244,7 +245,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Class should have been defined as symbol", symbol);
 
-    processExtendableConstruct(ctx.start, symbol, ctx.extendDeclaration(), checkClassSuitableToExtend);
+    processExtendableConstruct(new Ek9Token(ctx.start), symbol, ctx.extendDeclaration(), checkClassSuitableToExtend);
 
     if (ctx.traitsList() != null) {
       ctx.traitsList().traitReference().forEach(traitRef -> {
@@ -269,7 +270,8 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Component should have been defined as symbol", symbol);
 
-    processExtendableConstruct(ctx.start, symbol, ctx.extendDeclaration(), checkComponentSuitableToExtend);
+    processExtendableConstruct(new Ek9Token(ctx.start), symbol, ctx.extendDeclaration(),
+        checkComponentSuitableToExtend);
 
     symbolAndScopeManagement.exitScope();
     super.exitComponentDeclaration(ctx);
@@ -316,7 +318,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     syntheticConstructorCreator.accept(symbol);
     checkVisibilityOfOperations.accept(symbol);
-    checkForDuplicateOperations.accept(ctx.start, symbol);
+    checkForDuplicateOperations.accept(new Ek9Token(ctx.start), symbol);
     checkDuplicatedServicePaths.accept(symbol);
 
     symbolAndScopeManagement.exitScope();
@@ -374,7 +376,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     AssertValue.checkNotNull("Dynamic Class should have been defined as symbol", symbol);
 
     checkVisibilityOfOperations.accept(symbol);
-    checkForDuplicateOperations.accept(ctx.start, symbol);
+    checkForDuplicateOperations.accept(new Ek9Token(ctx.start), symbol);
 
     if (ctx.parameterisedType() != null) {
       var resolved = checkClassSuitableToExtend.apply(ctx.parameterisedType());
@@ -566,7 +568,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     super.enterParameterisedType(ctx);
   }
 
-  private void processExtendableConstruct(final Token token, final AggregateSymbol symbol,
+  private void processExtendableConstruct(final IToken token, final AggregateSymbol symbol,
                                           final EK9Parser.ExtendDeclarationContext extendDeclaration,
                                           final CheckSuitableToExtend extendChecker) {
     syntheticConstructorCreator.accept(symbol);

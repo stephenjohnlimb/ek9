@@ -12,6 +12,7 @@ import org.ek9lang.core.AssertValue;
  * or aggregate (class, component, etc.).
  */
 public class LocalScope extends SymbolTable {
+  static final long serialVersionUID = 1L;
 
   private final IScope enclosingScope;
   private IScope.ScopeType scopeType = IScope.ScopeType.BLOCK;

@@ -2,10 +2,10 @@ package org.ek9lang.compiler.symbols;
 
 import java.util.List;
 import java.util.Optional;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.search.SymbolSearch;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * Represents a symbol that also has a scope. Typically, this means it can have variables,
@@ -17,6 +17,7 @@ import org.ek9lang.compiler.search.SymbolSearch;
  * I may refactor the generic bits out to a new Symbol type between ScopedSymbol and Symbol
  */
 public class ScopedSymbol extends Symbol implements IScopedSymbol {
+  static final long serialVersionUID = 1L;
 
   /**
    * This is the scope where any symbols actually get defined.
@@ -26,14 +27,13 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   /**
    * If we encounter an exception within a scope we need to note the line number.
    */
-  private Token encounteredExceptionToken = null;
+  private IToken encounteredExceptionToken = null;
 
   /**
    * For some scoped symbols - dynamic functions and classes it is important to keep a
    * reference to the outermost enclosing aggregate or function.
    */
-  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private Optional<IScopedSymbol> outerMostTypeOrFunction = Optional.empty();
+  private IScopedSymbol outerMostTypeOrFunction;
 
   public ScopedSymbol(String name, IScope enclosingScope) {
     super(name);
@@ -66,11 +66,11 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   }
 
   public Optional<IScopedSymbol> getOuterMostTypeOrFunction() {
-    return outerMostTypeOrFunction;
+    return Optional.ofNullable(outerMostTypeOrFunction);
   }
 
   public void setOuterMostTypeOrFunction(IScopedSymbol outerMostTypeOrFunction) {
-    this.outerMostTypeOrFunction = Optional.of(outerMostTypeOrFunction);
+    this.outerMostTypeOrFunction = outerMostTypeOrFunction;
   }
 
   public LocalScope getActualScope() {
@@ -124,12 +124,12 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   }
 
   @Override
-  public Token getEncounteredExceptionToken() {
+  public IToken getEncounteredExceptionToken() {
     return encounteredExceptionToken;
   }
 
   @Override
-  public void setEncounteredExceptionToken(Token encounteredExceptionToken) {
+  public void setEncounteredExceptionToken(IToken encounteredExceptionToken) {
     this.encounteredExceptionToken = encounteredExceptionToken;
   }
 

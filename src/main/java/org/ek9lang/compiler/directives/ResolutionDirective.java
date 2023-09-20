@@ -1,9 +1,9 @@
 package org.ek9lang.compiler.directives;
 
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * To be used in EK9 source code to assert that a type can or cannot be resolved.
@@ -28,7 +28,7 @@ public abstract class ResolutionDirective implements Directive {
   }
 
   @Override
-  public Token getDirectiveToken() {
+  public IToken getDirectiveToken() {
     return spec.token();
   }
 

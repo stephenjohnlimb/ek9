@@ -5,6 +5,7 @@ package org.ek9lang.compiler.symbols;
  * The for loop can be used to iterator over a collection or increment/decrement over a range.
  */
 public class ForSymbol extends ScopedSymbol {
+  static final long serialVersionUID = 1L;
 
   public ForSymbol(IScope enclosingScope) {
     super("For", enclosingScope);

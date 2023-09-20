@@ -1,13 +1,13 @@
 package org.ek9lang.compiler.phase1;
 
 import java.util.function.BiConsumer;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * Error when a reference is made, but it cannot be resolved.
  */
-final class ReferenceDoesNotResolve implements BiConsumer<Token, String> {
+final class ReferenceDoesNotResolve implements BiConsumer<IToken, String> {
   private final ErrorListener errorListener;
 
   ReferenceDoesNotResolve(final ErrorListener errorListener) {
@@ -15,7 +15,7 @@ final class ReferenceDoesNotResolve implements BiConsumer<Token, String> {
   }
 
   @Override
-  public void accept(Token token, String fullyQualifiedIdentifier) {
+  public void accept(IToken token, String fullyQualifiedIdentifier) {
     errorListener.semanticError(token, "'" + fullyQualifiedIdentifier + "'",
         ErrorListener.SemanticClassification.REFERENCE_DOES_NOT_RESOLVED);
   }

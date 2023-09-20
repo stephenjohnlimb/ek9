@@ -13,6 +13,8 @@ package org.ek9lang.compiler.symbols;
  * variable to set the result to.
  */
 public class SwitchSymbol extends ControlSymbol {
+  static final long serialVersionUID = 1L;
+
   public SwitchSymbol(IScope enclosingScope) {
     super("Switch", enclosingScope);
   }

@@ -1,0 +1,21 @@
+#!ek9
+<!-
+  Designed for testing of bootstrap loader.
+  Check for ability to define something simple and clone the setup as is.
+  So, we'd old expect one type (String of genus CLASS) to be held in this situation.
+-!>
+defines extern module org.ek9.lang
+
+  defines class
+    //Just add this in to check if directives are picked up in test.
+    @Resolved: SYMBOL_DEFINITION: TYPE: "String"
+    String as open
+
+      //Basic constructor
+      String()
+
+      //Copy style constructor
+      String()
+        -> arg0 as String
+
+//EOF

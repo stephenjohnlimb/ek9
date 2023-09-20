@@ -14,6 +14,7 @@ import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
  * Checks and assigns type a 'this' or 'super' symbol, but only if it valid.
@@ -65,7 +66,7 @@ final class CheckValidThisOrSuper extends RuleSupport implements Consumer<Parser
   private void createAndRecordThisOrSuper(final ParserRuleContext ctx, final ISymbol theType) {
     if (theType != null) {
       //Then it is valid to be created and recorded.
-      var symbol = symbolFactory.newGeneralSymbol(ctx.start, ctx.getText());
+      var symbol = symbolFactory.newGeneralSymbol(new Ek9Token(ctx.start), ctx.getText());
       symbol.setInitialisedBy(theType.getInitialisedBy());
       symbol.setReferenced(true);
       symbol.setType(theType);

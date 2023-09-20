@@ -16,8 +16,10 @@ import org.ek9lang.compiler.support.ToCommaSeparated;
  * defined as one of the 'operators' such as '+' or '$' for example.
  */
 public class MethodSymbol extends ScopedSymbol {
+  static final long serialVersionUID = 1L;
+
   //Just used internally to check for method signature matching
-  private final SymbolMatcher matcher = new SymbolMatcher();
+  private final transient SymbolMatcher matcher = new SymbolMatcher();
 
   /**
    * Keep separate variable for what we are returning because we need its name and type.
@@ -48,7 +50,6 @@ public class MethodSymbol extends ScopedSymbol {
    * Was it marked abstract in the source code.
    */
   private boolean markedAbstract = false;
-
 
   private boolean markedAsDispatcher = false;
 

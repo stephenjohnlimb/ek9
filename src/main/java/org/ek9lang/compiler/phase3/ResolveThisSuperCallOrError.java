@@ -14,6 +14,7 @@ import org.ek9lang.compiler.support.SymbolTypeExtractor;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
  * Just focus on resolving 'this' or 'super' in respect to a 'call'.
@@ -90,7 +91,7 @@ final class ResolveThisSuperCallOrError extends RuleSupport implements Function<
     //So if they are not present then there would have been other errors. There is no way can resolve the method.
     if (parameters.size() == paramTypes.size()) {
       var search = new MethodSymbolSearch(methodName).setTypeParameters(paramTypes);
-      return resolveMethodOrError.apply(token, new MethodSearchInScope(aggregate, search));
+      return resolveMethodOrError.apply(new Ek9Token(token), new MethodSearchInScope(aggregate, search));
     }
     return null;
   }

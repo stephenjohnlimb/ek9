@@ -8,6 +8,7 @@ import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.ScopedSymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -144,7 +145,7 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
     var callIdentifier = symbolFromContextOrError.apply(ctx.call());
     if (callIdentifier != null) {
       return checkValidFunctionDelegateOrError.apply(
-          new DelegateFunctionCheckData(ctx.call().start, callIdentifier, callParams));
+          new DelegateFunctionCheckData(new Ek9Token(ctx.call().start), callIdentifier, callParams));
     } else {
       AssertValue.fail("Expecting call to be at least present" + ctx.start.getLine());
     }

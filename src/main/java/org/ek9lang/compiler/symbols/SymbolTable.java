@@ -11,11 +11,11 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.SymbolMatcher;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
@@ -74,6 +74,9 @@ import org.ek9lang.core.CompilerException;
  * </pre>
  */
 public class SymbolTable implements IScope {
+
+  static final long serialVersionUID = 1L;
+
   /**
    * We now store the symbols in separate areas for quick access.
    * It might seem strange but for some symbols like methods we have a single name
@@ -85,18 +88,19 @@ public class SymbolTable implements IScope {
    * But also keep an ordered list - useful for ordered parameters.
    */
   private final List<ISymbol> orderedSymbols = new ArrayList<>();
-  private final SymbolMatcher matcher = new SymbolMatcher();
+  private final transient SymbolMatcher matcher = new SymbolMatcher();
+
   /**
    * Function to work with MethodSymbols here rather than just ISymbols.
    */
-  private final Function<List<ISymbol>, List<MethodSymbol>> methodSymbolCast = list -> list
+  private final transient Function<List<ISymbol>, List<MethodSymbol>> methodSymbolCast = list -> list
       .stream()
       .filter(MethodSymbol.class::isInstance)
       .map(MethodSymbol.class::cast).toList();
   /**
    * Function to check there is one and only one item in a symbol list and then to return that item.
    */
-  private final Function<List<ISymbol>, Optional<ISymbol>> checkAndSelectFirstItem = symbols -> {
+  private final transient Function<List<ISymbol>, Optional<ISymbol>> checkAndSelectFirstItem = symbols -> {
     AssertValue.checkRange("Expecting a Single result in the symbol table", symbols.size(), 1, 1);
     return Optional.of(symbols.get(0));
   };
@@ -104,7 +108,7 @@ public class SymbolTable implements IScope {
    * Simple BI Function to see if two ISymbols contained within Optionals are assignable.
    * i.e. is the 'from' assignable to the 'to'?
    */
-  private final BiPredicate<Optional<ISymbol>, Optional<ISymbol>> isAssignable =
+  private final transient BiPredicate<Optional<ISymbol>, Optional<ISymbol>> isAssignable =
       (to, from) -> from
           .stream()
           .map(toSet -> toSet.isAssignableTo(to))
@@ -116,10 +120,11 @@ public class SymbolTable implements IScope {
    * Is this scope marked as pure, so that mutations cannot be undertaken.
    */
   private boolean markedPure = false;
+
   /**
    * If we encounter an exception within a scope we need to note the line number.
    */
-  private Token encounteredExceptionToken = null;
+  private IToken encounteredExceptionToken = null;
 
   public SymbolTable(String scopeName) {
     this.scopeName = scopeName;
@@ -149,12 +154,12 @@ public class SymbolTable implements IScope {
   }
 
   @Override
-  public Token getEncounteredExceptionToken() {
+  public IToken getEncounteredExceptionToken() {
     return encounteredExceptionToken;
   }
 
   @Override
-  public void setEncounteredExceptionToken(final Token encounteredExceptionToken) {
+  public void setEncounteredExceptionToken(final IToken encounteredExceptionToken) {
     this.encounteredExceptionToken = encounteredExceptionToken;
   }
 
@@ -305,8 +310,7 @@ public class SymbolTable implements IScope {
                                                         final SymbolSearch search) {
     var category = search.getSearchType();
     AssertValue.checkNotNull("Search type must be explicit", category);
-    var resolved = resolveInThisScopeOnly(getSplitSymbolTable(category), symbolName, search);
-    return resolved;
+    return resolveInThisScopeOnly(getSplitSymbolTable(category), symbolName, search);
   }
 
   /**

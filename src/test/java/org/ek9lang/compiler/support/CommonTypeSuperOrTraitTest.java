@@ -12,7 +12,7 @@ import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.Symbol;
-import org.ek9lang.compiler.tokenizer.SyntheticToken;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,39 +28,39 @@ class CommonTypeSuperOrTraitTest extends AbstractSymbolTestBase {
 
   @Test
   void testEmptyList() {
-    var commonSymbol = underTest.apply(new SyntheticToken(), List.of());
+    var commonSymbol = underTest.apply(new Ek9Token(), List.of());
     assertTrue(commonSymbol.isEmpty());
   }
 
   @Test
   void testUntypedTyped() {
     var sym1 = new Symbol("Sym1");
-    sym1.setSourceToken(new SyntheticToken());
+    sym1.setSourceToken(new Ek9Token());
     assertNoSymbolDetected(List.of(sym1), false);
   }
 
   @Test
   void testIncompatibleTypes() {
     var sym1 = new Symbol("Sym1", Optional.of(ek9Integer));
-    sym1.setSourceToken(new SyntheticToken());
+    sym1.setSourceToken(new Ek9Token());
     var sym2 = new Symbol("Sym2", Optional.of(ek9String));
-    sym2.setSourceToken(new SyntheticToken());
+    sym2.setSourceToken(new Ek9Token());
     assertNoSymbolDetected(List.of(sym1, sym2), true);
   }
 
   @Test
   void testListWithOneVariable() {
     var symbol = new Symbol("Sym", Optional.of(ek9Integer));
-    symbol.setSourceToken(new SyntheticToken());
+    symbol.setSourceToken(new Ek9Token());
     assertSymbolType(ek9Integer, List.of(symbol));
   }
 
   @Test
   void testListWithMultipleVariables() {
     var sym1 = new Symbol("Sym1", Optional.of(ek9Integer));
-    sym1.setSourceToken(new SyntheticToken());
+    sym1.setSourceToken(new Ek9Token());
     var sym2 = new Symbol("Sym2", Optional.of(ek9Integer));
-    sym2.setSourceToken(new SyntheticToken());
+    sym2.setSourceToken(new Ek9Token());
     assertSymbolType(ek9Integer, List.of(sym1, sym2));
   }
 
@@ -73,9 +73,9 @@ class CommonTypeSuperOrTraitTest extends AbstractSymbolTestBase {
     agg2.setSuperAggregateSymbol(base);
 
     var sym1 = new Symbol("Sym1", Optional.of(agg1));
-    sym1.setSourceToken(new SyntheticToken());
+    sym1.setSourceToken(new Ek9Token());
     var sym2 = new Symbol("Sym2", Optional.of(agg2));
-    sym2.setSourceToken(new SyntheticToken());
+    sym2.setSourceToken(new Ek9Token());
     assertSymbolType(base, List.of(sym1, sym2));
   }
 
@@ -88,9 +88,9 @@ class CommonTypeSuperOrTraitTest extends AbstractSymbolTestBase {
     agg2.addTrait(base);
 
     var sym1 = new Symbol("Sym1", Optional.of(agg1));
-    sym1.setSourceToken(new SyntheticToken());
+    sym1.setSourceToken(new Ek9Token());
     var sym2 = new Symbol("Sym2", Optional.of(agg2));
-    sym2.setSourceToken(new SyntheticToken());
+    sym2.setSourceToken(new Ek9Token());
     assertSymbolType(base, List.of(sym1, sym2));
   }
 
@@ -102,9 +102,9 @@ class CommonTypeSuperOrTraitTest extends AbstractSymbolTestBase {
     var agg2 = new AggregateSymbol("agg2", symbolTable);
 
     var sym1 = new Symbol("Sym1", Optional.of(agg1));
-    sym1.setSourceToken(new SyntheticToken());
+    sym1.setSourceToken(new Ek9Token());
     var sym2 = new Symbol("Sym2", Optional.of(agg2));
-    sym2.setSourceToken(new SyntheticToken());
+    sym2.setSourceToken(new Ek9Token());
     assertNoSymbolDetected(List.of(sym1, sym2), true);
   }
 
@@ -112,9 +112,9 @@ class CommonTypeSuperOrTraitTest extends AbstractSymbolTestBase {
   void testListWithMultipleVariablesUsingFunctionAsType() {
     var f1 = new FunctionSymbol("f1", symbolTable);
     var sym1 = new Symbol("Sym1", Optional.of(f1));
-    sym1.setSourceToken(new SyntheticToken());
+    sym1.setSourceToken(new Ek9Token());
     var sym2 = new Symbol("Sym2", Optional.of(f1));
-    sym2.setSourceToken(new SyntheticToken());
+    sym2.setSourceToken(new Ek9Token());
     assertSymbolType(f1, List.of(sym1, sym2));
   }
 
@@ -124,9 +124,9 @@ class CommonTypeSuperOrTraitTest extends AbstractSymbolTestBase {
     var agg1 = new AggregateSymbol("agg1", symbolTable);
 
     var sym1 = new Symbol("Sym1", Optional.of(f1));
-    sym1.setSourceToken(new SyntheticToken());
+    sym1.setSourceToken(new Ek9Token());
     var sym2 = new Symbol("Sym2", Optional.of(agg1));
-    sym2.setSourceToken(new SyntheticToken());
+    sym2.setSourceToken(new Ek9Token());
 
     //Check Both ways
     assertNoSymbolDetected(List.of(sym1, sym2), true);
@@ -142,9 +142,9 @@ class CommonTypeSuperOrTraitTest extends AbstractSymbolTestBase {
     f2.setSuperFunctionSymbol(base);
 
     var sym1 = new Symbol("Sym1", Optional.of(f1));
-    sym1.setSourceToken(new SyntheticToken());
+    sym1.setSourceToken(new Ek9Token());
     var sym2 = new Symbol("Sym2", Optional.of(f2));
-    sym2.setSourceToken(new SyntheticToken());
+    sym2.setSourceToken(new Ek9Token());
     assertSymbolType(base, List.of(sym1, sym2));
   }
 
@@ -156,21 +156,21 @@ class CommonTypeSuperOrTraitTest extends AbstractSymbolTestBase {
     var f2 = new FunctionSymbol("f2", symbolTable);
 
     var sym1 = new Symbol("Sym1", Optional.of(f1));
-    sym1.setSourceToken(new SyntheticToken());
+    sym1.setSourceToken(new Ek9Token());
     var sym2 = new Symbol("Sym2", Optional.of(f2));
-    sym2.setSourceToken(new SyntheticToken());
+    sym2.setSourceToken(new Ek9Token());
     assertNoSymbolDetected(List.of(sym1, sym2), true);
   }
 
   private void assertNoSymbolDetected(final List<ISymbol> arguments, boolean expectErrors) {
-    var commonSymbol = underTest.apply(new SyntheticToken(), arguments);
+    var commonSymbol = underTest.apply(new Ek9Token(), arguments);
     assertTrue(commonSymbol.isEmpty());
     assertEquals(expectErrors, errorListener.hasErrors());
     //errorListener.getErrors().forEachRemaining(System.out::println);
   }
 
   private void assertSymbolType(final ISymbol symbolType, final List<ISymbol> arguments) {
-    var commonSymbol = underTest.apply(new SyntheticToken(), arguments);
+    var commonSymbol = underTest.apply(new Ek9Token(), arguments);
     assertTrue(commonSymbol.isPresent());
     assertEquals(symbolType, commonSymbol.get());
   }

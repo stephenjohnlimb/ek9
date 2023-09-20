@@ -2,7 +2,6 @@ package org.ek9lang.compiler.symbols;
 
 import java.util.List;
 import java.util.Optional;
-import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.SymbolMatcher;
 import org.ek9lang.compiler.support.ToCommaSeparated;
@@ -14,9 +13,10 @@ import org.ek9lang.compiler.support.ToCommaSeparated;
  * We need to ensure that any functions we extend have the same method signature.
  */
 public class FunctionSymbol extends PossibleGenericSymbol {
+  static final long serialVersionUID = 1L;
 
   //Just used internally to check for method signature matching
-  private final SymbolMatcher matcher = new SymbolMatcher();
+  private final transient SymbolMatcher matcher = new SymbolMatcher();
 
   /**
    * Keep separate variable for what we are returning because we need its name and type.
@@ -29,17 +29,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
    * implementation.
    * It is sort of object-oriented but for functions.
    */
-  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private Optional<FunctionSymbol> superFunctionSymbol = Optional.empty();
-
-  /**
-   * For Functions symbols we keep a handle on the context where the returning param (if any)
-   * was defined. We do this because with functions we allow the function name to be defined
-   * when implementing an abstract function without the need to refine all the parameter and returns.
-   * Clearly this would not make sense for methods where you have overloading but for functions
-   * there is only one name for that function just the parameters and returns alter.
-   */
-  private EK9Parser.ReturningParamContext returningParamContext;
+  private FunctionSymbol superFunctionSymbol;
 
   /**
    * Create a new Function Symbol with a specific unique name (in the enclosing scope).
@@ -75,9 +65,8 @@ public class FunctionSymbol extends PossibleGenericSymbol {
 
     newCopy.setCategory(this.getCategory());
     newCopy.setProduceFullyQualifiedName(this.getProduceFullyQualifiedName());
-    newCopy.returningParamContext = this.returningParamContext;
-    superFunctionSymbol.ifPresent(
-        functionSymbol -> newCopy.superFunctionSymbol = Optional.of(functionSymbol));
+    getSuperFunctionSymbol().ifPresent(
+        functionSymbol -> newCopy.superFunctionSymbol = functionSymbol);
 
     return newCopy;
   }
@@ -96,23 +85,13 @@ public class FunctionSymbol extends PossibleGenericSymbol {
     if (function == this) {
       return true;
     }
-    return superFunctionSymbol.map(functionSymbol -> functionSymbol.isImplementingInSomeWay(function)).orElse(false);
-  }
-
-  public EK9Parser.ReturningParamContext getReturningParamContext() {
-    return returningParamContext;
-  }
-
-  public void setReturningParamContext(EK9Parser.ReturningParamContext returningParamContext) {
-    this.returningParamContext = returningParamContext;
+    return getSuperFunctionSymbol().map(functionSymbol -> functionSymbol.isImplementingInSomeWay(function))
+        .orElse(false);
   }
 
   @Override
   protected Optional<IScope> getAnySuperTypeOrFunction() {
-    if (this.superFunctionSymbol.isPresent()) {
-      return Optional.of(superFunctionSymbol.get());
-    }
-    return Optional.empty();
+    return Optional.ofNullable(superFunctionSymbol);
   }
 
   /**
@@ -131,16 +110,17 @@ public class FunctionSymbol extends PossibleGenericSymbol {
   }
 
   public Optional<FunctionSymbol> getSuperFunctionSymbol() {
-    return superFunctionSymbol;
+    return Optional.ofNullable(superFunctionSymbol);
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public void setSuperFunctionSymbol(Optional<FunctionSymbol> superFunctionSymbol) {
-    this.superFunctionSymbol = superFunctionSymbol;
+    superFunctionSymbol.ifPresentOrElse(superFunction -> this.superFunctionSymbol = superFunction,
+        () -> this.superFunctionSymbol = null);
   }
 
   public void setSuperFunctionSymbol(FunctionSymbol superFunctionSymbol) {
-    setSuperFunctionSymbol(Optional.ofNullable(superFunctionSymbol));
+    this.superFunctionSymbol = superFunctionSymbol;
   }
 
   /**
@@ -183,7 +163,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
     }
 
     //now we can check superclass matches. but add some weight because this did not match
-    return superFunctionSymbol.map(value -> 0.05 + value.getUnCoercedAssignableWeightTo(s))
+    return getSuperFunctionSymbol().map(value -> 0.05 + value.getUnCoercedAssignableWeightTo(s))
         .orElse(-1.0);
   }
 
@@ -201,7 +181,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
         doGetFriendlyName(prefix + getPrivateVariablesForDisplay(), returningSymbolType)
             + getAnyGenericParamsAsFriendlyNames();
 
-    return superFunctionSymbol.map(s -> name + " is " + s.getName()).orElse(name);
+    return getSuperFunctionSymbol().map(s -> name + " is " + s.getName()).orElse(name);
   }
 
 

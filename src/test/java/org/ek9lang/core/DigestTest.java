@@ -3,13 +3,20 @@ package org.ek9lang.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
+import static org.junit.jupiter.api.parallel.ResourceAccessMode.READ_WRITE;
 
 import java.io.File;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ResourceLock;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
+//Specific tests that manipulate files and specifics in ek9 must not run in parallel.
+@Execution(SAME_THREAD)
+@ResourceLock(value="file_access", mode=READ_WRITE)
 final class DigestTest {
   private static final String testFileName = "assertTest.txt";
   private static final String sha256FileName = "assertTest.sha256";

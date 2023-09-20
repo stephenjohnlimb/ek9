@@ -1,5 +1,6 @@
 package org.ek9lang.compiler;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,13 +8,13 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.ModuleScope;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -25,7 +26,9 @@ import org.ek9lang.core.AssertValue;
  * No longer using a global symbol table, but will use 'implicit' modules a bit like java does.
  * So, will use module name 'org.ek9.lang' as the main implicit module to define build in types/symbols.
  */
-public class CompilableProgram {
+public class CompilableProgram implements Serializable {
+
+  static final long serialVersionUID = 1L;
 
   /**
    * For developer defined modules. Quick access via module name into the parsedModules that are recorded.
@@ -36,17 +39,19 @@ public class CompilableProgram {
    * It is important to maintain a quick mapping from source to parsed module.
    */
   private final Map<CompilableSource, ParsedModule> sourceToParsedModule = new HashMap<>();
+
   /**
    * Provides the list of scopes in a single module for a module name.
    */
-  private final Function<String, List<ModuleScope>> getModuleScopes =
+  private final transient Function<String, List<ModuleScope>> getModuleScopes =
       moduleName -> Stream.ofNullable(theParsedModules.get(moduleName))
           .map(ParsedModules::getParsedModules)
           .flatMap(List::stream)
           .map(ParsedModule::getModuleScope)
           .toList();
+
   /**
-   * When the built in ek9 bootstrap module is parsed and processed, it will be added here.
+   * When the built-in ek9 bootstrap module is parsed and processed, it will be added here.
    * This is so that basic built in types (which are immutable) can then be used within the compiler.
    * This provides quick and programmatic access - while it would be possible to resolve within the
    * normal scope hierarchy, this is quicker and more obvious within the compiler.
@@ -179,7 +184,7 @@ public class CompilableProgram {
   /**
    * Locates the token when the first reference was established.
    */
-  public Optional<Token> getOriginalReferenceLocation(final String moduleName, final SymbolSearch search) {
+  public Optional<IToken> getOriginalReferenceLocation(final String moduleName, final SymbolSearch search) {
     return getModuleScopes.apply(moduleName)
         .stream()
         .map(moduleScope -> moduleScope.getOriginalReferenceLocation(search))

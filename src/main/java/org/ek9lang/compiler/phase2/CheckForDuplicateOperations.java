@@ -3,7 +3,6 @@ package org.ek9lang.compiler.phase2;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
@@ -12,6 +11,7 @@ import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.Symbol;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * Does a simple check (excluding any inheritance) for duplicated operations (methods, operators) on
@@ -19,7 +19,7 @@ import org.ek9lang.compiler.symbols.Symbol;
  * This is the first of such checks, in later phases inheritance of methods with invalid return types
  * and also unimplemented abstract methods will be checked (by other checkers).
  */
-final class CheckForDuplicateOperations extends RuleSupport implements BiConsumer<Token, IAggregateSymbol> {
+final class CheckForDuplicateOperations extends RuleSupport implements BiConsumer<IToken, IAggregateSymbol> {
   /**
    * Create a new operations checker an aggregates.
    */
@@ -29,7 +29,7 @@ final class CheckForDuplicateOperations extends RuleSupport implements BiConsume
   }
 
   @Override
-  public void accept(final Token errorLocationToken, final IAggregateSymbol aggregate) {
+  public void accept(final IToken errorLocationToken, final IAggregateSymbol aggregate) {
     if (aggregate.isGenericInNature()) {
       checkForDuplicatedNoneOverloadableMethods(errorLocationToken, aggregate, aggregate.getAllNonAbstractMethods());
       checkForDuplicatedNoneOverloadableMethods(errorLocationToken, aggregate, aggregate.getAllAbstractMethods());
@@ -39,7 +39,7 @@ final class CheckForDuplicateOperations extends RuleSupport implements BiConsume
     }
   }
 
-  private void checkForDuplicatedOverloadableMethods(final Token errorLocationToken, final IAggregateSymbol aggregate,
+  private void checkForDuplicatedOverloadableMethods(final IToken errorLocationToken, final IAggregateSymbol aggregate,
                                                      final List<MethodSymbol> methods) {
     methods.forEach(method -> {
       MethodSymbolSearchResult results = new MethodSymbolSearchResult();
@@ -59,7 +59,7 @@ final class CheckForDuplicateOperations extends RuleSupport implements BiConsume
    * U -> Integer and V -> Integer - now we have two methods with the same signatures.
    * So the solution is to stop method overloading where any types of parameters used.
    */
-  private void checkForDuplicatedNoneOverloadableMethods(final Token errorLocationToken,
+  private void checkForDuplicatedNoneOverloadableMethods(final IToken errorLocationToken,
                                                          final IAggregateSymbol aggregate,
                                                          final List<MethodSymbol> methods) {
     var methodNames = methods.stream()
@@ -77,7 +77,7 @@ final class CheckForDuplicateOperations extends RuleSupport implements BiConsume
     });
   }
 
-  private void emitErrors(final Token errorLocationToken,
+  private void emitErrors(final IToken errorLocationToken,
                           final IAggregateSymbol aggregate,
                           final MethodSymbol method,
                           final ErrorListener.SemanticClassification classification) {

@@ -2,7 +2,6 @@ package org.ek9lang.compiler.phase2;
 
 import java.util.List;
 import java.util.function.BiConsumer;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
@@ -11,6 +10,7 @@ import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.VariableSymbol;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * For Constrained Types, focus on checking it is possible to constrain the type and if so then
@@ -141,7 +141,7 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
     }
   }
 
-  private void emitCannotConstrainTypeError(final Token lineToken, final ISymbol argument) {
+  private void emitCannotConstrainTypeError(final IToken lineToken, final ISymbol argument) {
     argument.getType().ifPresent(argType -> {
       var msg = "'" + argument.getFriendlyName() + "' is a '" + argType.getCategory() + "':";
       errorListener.semanticError(lineToken, msg, ErrorListener.SemanticClassification.TYPE_CANNOT_BE_CONSTRAINED);

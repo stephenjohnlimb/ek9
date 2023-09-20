@@ -5,6 +5,7 @@ import org.ek9lang.antlr.EK9BaseListener;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -48,7 +49,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
 
     //So no none exception paths.
     if (!noneExceptionPathPossible) {
-      thisSwitchScope.setEncounteredExceptionToken(ctx.start);
+      thisSwitchScope.setEncounteredExceptionToken(new Ek9Token(ctx.start));
     }
   }
 
@@ -77,7 +78,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
 
     //So no none exception paths.
     if (!noneExceptionPathPossible) {
-      thisTryScope.setEncounteredExceptionToken(ctx.start);
+      thisTryScope.setEncounteredExceptionToken(new Ek9Token(ctx.start));
     }
   }
 
@@ -90,14 +91,14 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
       var elseBlock = symbolAndScopeManagement.getRecordedScope(ifCtx.block(1));
       if (!ifBlock.isTerminatedNormally() && !elseBlock.isTerminatedNormally()) {
         //Not really cause by a single Exception but all paths.
-        thisIfScope.setEncounteredExceptionToken(ifCtx.start);
+        thisIfScope.setEncounteredExceptionToken(new Ek9Token(ifCtx.start));
       }
     } else if (ifCtx.ifStatement() != null) {
       //then it is a chained if else if...
       var ifElseBlock = symbolAndScopeManagement.getRecordedScope(ifCtx.ifStatement());
       if (!ifBlock.isTerminatedNormally() && !ifElseBlock.isTerminatedNormally()) {
         //Not really cause by a single Exception but all paths.
-        thisIfScope.setEncounteredExceptionToken(ifCtx.start);
+        thisIfScope.setEncounteredExceptionToken(new Ek9Token(ifCtx.start));
       }
     }
     //If it was just an if then - it may or may not terminate normally

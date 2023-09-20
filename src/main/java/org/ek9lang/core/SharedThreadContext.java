@@ -1,5 +1,6 @@
 package org.ek9lang.core;
 
+import java.io.Serializable;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
@@ -12,7 +13,8 @@ import java.util.function.Consumer;
  * object with your own consumer, and you'll get data back (don't hold references to it).
  * Keep it protected within this context.
  */
-public class SharedThreadContext<T> implements Consumer<Consumer<T>> {
+public class SharedThreadContext<T extends Serializable> implements Consumer<Consumer<T>>, Serializable {
+  static final long serialVersionUID = 1L;
   private final ReentrantLock lock = new ReentrantLock();
   private final T protectedData;
 
@@ -36,7 +38,6 @@ public class SharedThreadContext<T> implements Consumer<Consumer<T>> {
       consumer.accept(protectedData);
     } finally {
       lock.unlock();
-
     }
   }
 }

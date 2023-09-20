@@ -2,7 +2,6 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.List;
 import java.util.function.Function;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
@@ -10,6 +9,7 @@ import org.ek9lang.compiler.support.SymbolTypeExtractor;
 import org.ek9lang.compiler.support.ToCommaSeparated;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * Check is the data passed in enabled a delegate function to be resolved and if so return that Function.
@@ -54,7 +54,7 @@ final class CheckValidFunctionDelegateOrError extends RuleSupport implements
     return null;
   }
 
-  private FunctionSymbol checkFunctionParameters(Token token, FunctionSymbol function,
+  private FunctionSymbol checkFunctionParameters(IToken token, FunctionSymbol function,
                                                  List<ISymbol> parameters) {
 
     var paramTypes = symbolTypeExtractor.apply(parameters);

@@ -9,6 +9,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
  * Checks methods from various contexts, typically this is delegated to other functions.
@@ -89,14 +90,16 @@ final class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol, 
   }
 
   private void checkAsConstructor(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
-    checkNormalTermination.accept(ctx.start, method);
-    checkGenericConstructor.accept(ctx.start, method);
+    var startToken = new Ek9Token(ctx.start);
+    checkNormalTermination.accept(startToken, method);
+    checkGenericConstructor.accept(startToken, method);
     checkNoMethodReturn.accept(method, ctx);
   }
 
   private void checkAsProgram(MethodSymbol method, EK9Parser.MethodDeclarationContext ctx) {
-    checkProgramReturns.accept(ctx.start, method);
-    checkProgramArguments.accept(ctx.start, method);
+    var startToken = new Ek9Token(ctx.start);
+    checkProgramReturns.accept(startToken, method);
+    checkProgramArguments.accept(startToken, method);
     checkNonExtendableMethod.accept(method, ctx);
   }
 

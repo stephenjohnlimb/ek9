@@ -5,12 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.antlr.v4.runtime.Token;
+import org.ek9lang.compiler.search.MatchResult;
+import org.ek9lang.compiler.search.MatchResults;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.SymbolTable;
 import org.ek9lang.compiler.symbols.VariableSymbol;
-import org.ek9lang.compiler.search.MatchResult;
-import org.ek9lang.compiler.search.MatchResults;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -77,7 +78,8 @@ final class ErrorListenerTest {
   @Test
   void testSemanticErrorCreationNoToken() {
     ErrorListener underTest = new ErrorListener("test");
-    underTest.semanticError(null, "Test", ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
+    IToken token = createSyntheticToken();
+    underTest.semanticError(token, "Test", ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
     assertInError(underTest);
   }
 
@@ -191,7 +193,7 @@ final class ErrorListenerTest {
     underTest.setExceptionOnFullContext(true);
     assertTrue(underTest.isExceptionOnFullContext());
 
-    Token token = createSyntheticToken();
+    IToken token = createSyntheticToken();
     underTest.raiseReturningRedundant(token, "Test Message");
 
     //Should now be in error
@@ -218,7 +220,7 @@ final class ErrorListenerTest {
 
   }
 
-  private Token createSyntheticToken() {
-    return new org.ek9lang.compiler.tokenizer.SyntheticToken();
+  private IToken createSyntheticToken() {
+    return new Ek9Token("test", 0);
   }
 }

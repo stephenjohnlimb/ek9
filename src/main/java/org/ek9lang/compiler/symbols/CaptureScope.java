@@ -15,6 +15,7 @@ import org.ek9lang.compiler.search.SymbolSearch;
  * look outside to the enclosing scope.
  */
 public class CaptureScope extends LocalScope {
+  static final long serialVersionUID = 1L;
   private boolean openToEnclosingScope = false;
 
   public CaptureScope(IScope enclosingScope) {

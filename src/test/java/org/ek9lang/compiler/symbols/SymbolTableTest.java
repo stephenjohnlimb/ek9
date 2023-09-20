@@ -20,7 +20,7 @@ import org.ek9lang.compiler.search.TemplateFunctionSymbolSearch;
 import org.ek9lang.compiler.search.TemplateTypeSymbolSearch;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.support.TypeCreator;
-import org.ek9lang.compiler.tokenizer.SyntheticToken;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -110,7 +110,7 @@ final class SymbolTableTest {
     SymbolTable underTest = new SymbolTable();
     assertNull(underTest.getEncounteredExceptionToken());
 
-    underTest.setEncounteredExceptionToken(new SyntheticToken());
+    underTest.setEncounteredExceptionToken(new Ek9Token());
     assertNotNull(underTest.getEncounteredExceptionToken());
   }
 

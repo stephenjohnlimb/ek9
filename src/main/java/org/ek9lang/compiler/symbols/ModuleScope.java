@@ -5,11 +5,11 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.SymbolChecker;
 import org.ek9lang.compiler.support.TypeSubstitution;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.SharedThreadContext;
 
@@ -26,8 +26,9 @@ import org.ek9lang.core.SharedThreadContext;
  * And 'resolveWithEnclosingScope' -> delegates to 'program' 'resolveFromImplicitScopes' (org.ek9.lang etc.).
  */
 public class ModuleScope extends SymbolTable {
+  static final long serialVersionUID = 1L;
 
-  private final SharedThreadContext<CompilableProgram> compilableProgramContext;
+  private final SharedThreadContext<CompilableProgram> compilableProgram;
 
   /**
    * This is where we store the references to other module symbols but as a shorthand.
@@ -40,11 +41,24 @@ public class ModuleScope extends SymbolTable {
    * This enables the compiler to give better error messages, indicating where a reference was first successful.
    * So if there are duplicates of clashes, it can report where the first reference was.
    */
-  private final Map<String, Token> originalReferenceResolution = new TreeMap<>();
+  private final Map<String, IToken> originalReferenceResolution = new TreeMap<>();
 
-  public ModuleScope(String scopeName, SharedThreadContext<CompilableProgram> context) {
+  /**
+   * Create a new ModuleScope with a specific name and reference to the compilable program it is part of.
+   */
+  public ModuleScope(String scopeName, SharedThreadContext<CompilableProgram> program) {
     super(scopeName);
-    this.compilableProgramContext = context;
+    AssertValue.checkNotNull("CompilableProgram cannot be null", program);
+    this.compilableProgram = program;
+  }
+
+  /**
+   * Create a clone of this ModuleScope.
+   */
+  public ModuleScope clone(SharedThreadContext<CompilableProgram> newContext) {
+    ModuleScope cloned = new ModuleScope(this.getScopeName(), newContext);
+    cloneIntoSymbolTable(this, this);
+    return cloned;
   }
 
   @Override
@@ -68,7 +82,7 @@ public class ModuleScope extends SymbolTable {
    * Add a reference to another construct in another module, so it can be used in shorthand form
    * in this module.
    */
-  public void defineReference(final Token token, final ISymbol symbol) {
+  public void defineReference(final IToken token, final ISymbol symbol) {
     AssertValue.checkNotNull("Token cannot be null", token);
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
 
@@ -81,7 +95,7 @@ public class ModuleScope extends SymbolTable {
   /**
    * Returns the original location a reference was made (if present).
    */
-  public Optional<Token> getOriginalReferenceLocation(SymbolSearch search) {
+  public Optional<IToken> getOriginalReferenceLocation(SymbolSearch search) {
     var shortName = ISymbol.getUnqualifiedName(search.getName());
     return Optional.ofNullable(originalReferenceResolution.get(shortName));
   }
@@ -96,8 +110,8 @@ public class ModuleScope extends SymbolTable {
    */
   public Optional<ISymbol> resolveOrDefine(final PossibleGenericSymbol parameterisedSymbol) {
     var holder = new AtomicReference<Optional<ISymbol>>(Optional.empty());
-    compilableProgramContext.accept(compilableProgram -> {
-      var typeSubstitution = new TypeSubstitution(compilableProgram::resolveOrDefine);
+    compilableProgram.accept(program -> {
+      var typeSubstitution = new TypeSubstitution(program::resolveOrDefine);
       var populatedTypeWithMethods = typeSubstitution.apply(parameterisedSymbol);
       holder.set(Optional.of(populatedTypeWithMethods));
     });
@@ -114,7 +128,7 @@ public class ModuleScope extends SymbolTable {
     AtomicBoolean rtn = new AtomicBoolean(true);
 
     //Must own the lock to be able to check for and define symbol
-    compilableProgramContext.accept(compilableProgram -> {
+    compilableProgram.accept(program -> {
       var errors = symbolChecker.errorsIfSymbolAlreadyDefined(this, symbol, false);
       if (!errors) {
         define(symbol);
@@ -138,12 +152,12 @@ public class ModuleScope extends SymbolTable {
   public Optional<ISymbol> resolveInThisModuleOnly(final SymbolSearch search) {
     var rtn = new AtomicReference<Optional<ISymbol>>();
 
-    compilableProgramContext.accept(compilableProgram -> {
+    compilableProgram.accept(program -> {
       //Try and resolve in this scope name from one of that scopes modules.
-      rtn.set(compilableProgram.resolveFromModule(getScopeName(), search));
+      rtn.set(program.resolveFromModule(getScopeName(), search));
 
       if (rtn.get().isEmpty() && !search.isLimitToBlocks()) {
-        rtn.set(compilableProgram.resolveReferenceFromModule(getScopeName(), search));
+        rtn.set(program.resolveReferenceFromModule(getScopeName(), search));
       }
     });
     return rtn.get();
@@ -195,21 +209,21 @@ public class ModuleScope extends SymbolTable {
   @Override
   protected Optional<ISymbol> resolveWithEnclosingScope(SymbolSearch search) {
     // Need to get result into a variable we can use outside of lambda
-    // but we need the lambda to ensure access is thread safe.
+    // but, we need the lambda to ensure access is thread safe.
     var rtn = new AtomicReference<Optional<ISymbol>>(Optional.empty());
 
-    compilableProgramContext.accept(compilableProgram -> {
+    compilableProgram.accept(program -> {
       //If it is fully qualified let program scope workout module and resolve it.
       //But if it is this module we will have already search for it.
       var searchModule = ISymbol.getModuleNameIfPresent(search.getName());
       if (ISymbol.isQualifiedName(search.getName()) && !getScopeName().equals(searchModule)) {
-        rtn.set(compilableProgram.resolveByFullyQualifiedSearch(search));
+        rtn.set(program.resolveByFullyQualifiedSearch(search));
       } else {
 
         //Only if we did not find anything and not limited to blocks do we search
         if (rtn.get().isEmpty() && !search.isLimitToBlocks()) {
           //Now these will be things like org.ek9.lang and or.ek9.math
-          rtn.set(compilableProgram.resolveFromImplicitScopes(search));
+          rtn.set(program.resolveFromImplicitScopes(search));
         }
       }
     });

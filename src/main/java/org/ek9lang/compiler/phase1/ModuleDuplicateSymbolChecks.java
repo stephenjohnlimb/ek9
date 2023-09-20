@@ -2,14 +2,12 @@ package org.ek9lang.compiler.phase1;
 
 import java.util.HashSet;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.CompilationPhaseResult;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
-import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
@@ -27,7 +25,6 @@ import org.ek9lang.core.SharedThreadContext;
 public final class ModuleDuplicateSymbolChecks
     implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
   private static final CompilationPhase thisPhase = CompilationPhase.DUPLICATION_CHECK;
-  private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
@@ -36,8 +33,7 @@ public final class ModuleDuplicateSymbolChecks
    * Create a new duplicate checker for modules contained in the compilable program.
    */
   public ModuleDuplicateSymbolChecks(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                     Consumer<CompilationEvent> listener, CompilerReporter reporter) {
-    this.listener = listener;
+                                     CompilerReporter reporter) {
     this.reporter = reporter;
     this.compilableProgramAccess = compilableProgramAccess;
   }
@@ -69,7 +65,7 @@ public final class ModuleDuplicateSymbolChecks
           for (var symbol : scope.getSymbolsForThisScope()) {
             if (!dupChecks.add(symbol)) {
               throw new CompilerException("Duplicate Symbol: '" + symbol.getFriendlyName() + "' "
-                  + symbol.getSourceToken().getTokenSource().getSourceName()
+                  + symbol.getSourceToken().getSourceName()
                   + " Line " + symbol.getSourceToken().getLine());
             }
           }

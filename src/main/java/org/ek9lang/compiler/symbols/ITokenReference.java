@@ -1,12 +1,13 @@
 package org.ek9lang.compiler.symbols;
 
-import org.antlr.v4.runtime.Token;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * Used in various ways to hold a token from the parse, so we can reference back to source code.
  */
 public interface ITokenReference {
-  Token getSourceToken();
+  IToken getSourceToken();
 
-  void setSourceToken(Token sourceToken);
+  void setSourceToken(IToken sourceToken);
+
 }

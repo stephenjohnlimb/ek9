@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.tokenizer.SyntheticToken;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.junit.jupiter.api.Test;
 
 class UnreachableStatementTest {
@@ -15,7 +15,7 @@ class UnreachableStatementTest {
 
     var underTest = new UnreachableStatement(errorListener);
 
-    underTest.accept(new SyntheticToken("Cause", 5), new SyntheticToken("Target", 10));
+    underTest.accept(new Ek9Token("Cause", 5), new Ek9Token("Target", 10));
 
     assertTrue(errorListener.hasErrors());
     var errorDetails = errorListener.getErrors().next();

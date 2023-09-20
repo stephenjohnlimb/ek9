@@ -8,6 +8,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.AnyTypeSymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
  * This is a sort of hybrid resolver or definer function.
@@ -79,7 +80,7 @@ public abstract class ResolveOrDefineTypes extends ResolverOrDefiner {
     if (ctx.typeDef() != null) {
       var resolvedParameterisedType = resolveTypeByTypeDef(ctx.typeDef());
       if (resolvedParameterisedType.isPresent()) {
-        var toResolveOrDefine = new ParameterisedTypeData(ctx.typeDef().start, resolvedGenericType,
+        var toResolveOrDefine = new ParameterisedTypeData(new Ek9Token(ctx.typeDef().start), resolvedGenericType,
             List.of(resolvedParameterisedType.get()));
         return resolveOrDefine(toResolveOrDefine);
       }
@@ -95,7 +96,8 @@ public abstract class ResolveOrDefineTypes extends ResolverOrDefiner {
       //Did we resolve them all? Only if we did
       if (genericParameters.size() == ctx.parameterisedArgs().typeDef().size()) {
         var toResolveOrDefine =
-            new ParameterisedTypeData(ctx.parameterisedArgs().start, resolvedGenericType, genericParameters);
+            new ParameterisedTypeData(new Ek9Token(ctx.parameterisedArgs().start), resolvedGenericType,
+                genericParameters);
         return resolveOrDefine(toResolveOrDefine);
       }
     }

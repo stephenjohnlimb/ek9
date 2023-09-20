@@ -3,6 +3,7 @@ package org.ek9lang.compiler.directives;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.CompilationPhase;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
  * Just extract the spec from the free format data in the directive.
@@ -32,6 +33,6 @@ public class DirectiveSpecExtractor implements Function<EK9Parser.DirectiveConte
 
     String additionalName = numParams == 4 ? directivesAdditionalSymbolName.apply(ctx) : null;
 
-    return new DirectiveSpec(ctx.start, compilerPhase, category, symbolName, additionalName, applyToLine);
+    return new DirectiveSpec(new Ek9Token(ctx.start), compilerPhase, category, symbolName, additionalName, applyToLine);
   }
 }

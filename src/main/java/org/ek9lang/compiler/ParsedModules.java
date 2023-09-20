@@ -1,5 +1,6 @@
 package org.ek9lang.compiler;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,7 +12,9 @@ import org.ek9lang.core.CompilerException;
  * This object represents that concept. So the module name is always the same but there can and
  * will be multiple parsed modules.
  */
-public class ParsedModules {
+public class ParsedModules implements Serializable {
+  static final long serialVersionUID = 1L;
+
   /**
    * The name of the module.
    */

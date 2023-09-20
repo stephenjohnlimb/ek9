@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
  * Checks that a dynamic class does not used naming when used inside a generic type/function.
@@ -23,7 +24,7 @@ final class CheckDynamicClassDeclaration implements Consumer<EK9Parser.DynamicCl
   public void accept(final EK9Parser.DynamicClassDeclarationContext ctx) {
 
     if (ctx.Identifier() != null) {
-      checkOuterGenericsUse.accept(ctx.start);
+      checkOuterGenericsUse.accept(new Ek9Token(ctx.start));
     }
   }
 }

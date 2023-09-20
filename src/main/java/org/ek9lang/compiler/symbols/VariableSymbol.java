@@ -6,6 +6,8 @@ import java.util.Optional;
  * Models a variable.
  */
 public class VariableSymbol extends Symbol {
+  static final long serialVersionUID = 1L;
+
   private boolean loopVariable = false;
 
   private boolean incomingParameter = false;

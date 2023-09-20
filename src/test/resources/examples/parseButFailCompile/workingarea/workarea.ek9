@@ -4,11 +4,13 @@
 -?>
 defines module bad.workspace.examples1
 
+  defines class
+    Simple
+      usedBeforeBeingInitialised()
+        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+        uninitializedVar as String?
 
-  defines type
-
-    InvalidFloatUse as Float constrain as
-      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
-      contains 21
+        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
+        anotherVariable <- uninitializedVar
 
 //EOF

@@ -11,9 +11,9 @@ import org.ek9lang.compiler.search.SymbolSearch;
  * other symbols and processing has been put somewhere.
  */
 public class StackConsistencyScope extends ScopedSymbol implements ICanCaptureVariables {
+  static final long serialVersionUID = 1L;
 
-  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private Optional<CaptureScope> capturedVariables = Optional.empty();
+  private CaptureScope capturedVariables;
 
   public StackConsistencyScope(final IScope enclosingScope, final ScopeType scopeType) {
     super("StackConsistencyScope", enclosingScope);
@@ -26,19 +26,19 @@ public class StackConsistencyScope extends ScopedSymbol implements ICanCaptureVa
 
   @Override
   public Optional<CaptureScope> getCapturedVariables() {
-    return capturedVariables;
+    return Optional.ofNullable(capturedVariables);
   }
 
   @Override
   public void setCapturedVariables(CaptureScope capturedVariables) {
-    this.capturedVariables = Optional.ofNullable(capturedVariables);
+    this.capturedVariables = capturedVariables;
   }
 
   @Override
   public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search) {
     Optional<ISymbol> rtn = super.resolveInThisScopeOnly(search);
-    if (capturedVariables.isPresent()) {
-      rtn = capturedVariables.get().resolveInThisScopeOnly(search);
+    if (getCapturedVariables().isPresent()) {
+      rtn = getCapturedVariables().get().resolveInThisScopeOnly(search);
     }
     return rtn;
   }
@@ -69,8 +69,8 @@ public class StackConsistencyScope extends ScopedSymbol implements ICanCaptureVa
    */
   public StackConsistencyScope cloneIntoStackConsistencyScope(StackConsistencyScope newCopy) {
     super.cloneIntoScopeSymbol(newCopy);
-    if (capturedVariables.isPresent()) {
-      var captured = capturedVariables.get();
+    if (getCapturedVariables().isPresent()) {
+      var captured = getCapturedVariables().get();
       var cloned = captured.clone(newCopy.getEnclosingScope());
       newCopy.setCapturedVariables(cloned);
     }

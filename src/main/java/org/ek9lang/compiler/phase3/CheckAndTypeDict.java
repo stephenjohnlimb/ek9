@@ -11,6 +11,7 @@ import org.ek9lang.compiler.support.CommonTypeSuperOrTrait;
 import org.ek9lang.compiler.support.ParameterisedTypeData;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -40,6 +41,7 @@ final class CheckAndTypeDict extends RuleSupport implements Consumer<EK9Parser.D
 
   @Override
   public void accept(EK9Parser.DictContext ctx) {
+    var startToken = new Ek9Token(ctx.start);
     final var dictCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
 
     //Access the generic Dict type - this has been pre-located for quicker use.
@@ -47,11 +49,12 @@ final class CheckAndTypeDict extends RuleSupport implements Consumer<EK9Parser.D
     final var keyArgumentSymbols = getDictArgumentsAsSymbols(ctx, 0);
     final var valueArgumentSymbols = getDictArgumentsAsSymbols(ctx, 1);
 
-    final var commonKeyType = commonTypeSuperOrTrait.apply(ctx.start, keyArgumentSymbols);
-    final var commonValueType = commonTypeSuperOrTrait.apply(ctx.start, valueArgumentSymbols);
+    final var commonKeyType = commonTypeSuperOrTrait.apply(startToken, keyArgumentSymbols);
+    final var commonValueType = commonTypeSuperOrTrait.apply(startToken, valueArgumentSymbols);
 
     if (commonKeyType.isPresent() && commonValueType.isPresent()) {
-      var details = new ParameterisedTypeData(ctx.start, dictType, List.of(commonKeyType.get(), commonValueType.get()));
+      var details =
+          new ParameterisedTypeData(startToken, dictType, List.of(commonKeyType.get(), commonValueType.get()));
       var resolvedNewType = parameterisedLocator.resolveOrDefine(details);
       dictCallSymbol.setType(resolvedNewType);
     }

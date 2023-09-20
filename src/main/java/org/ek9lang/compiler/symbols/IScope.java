@@ -1,16 +1,17 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.search.SymbolSearch;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * Concept of a scope where functions, methods and variables can be declared.
  */
-public interface IScope {
+public interface IScope extends Serializable {
 
   IScope clone(IScope withParentAsAppropriate);
 
@@ -95,9 +96,9 @@ public interface IScope {
    */
   boolean isTerminatedNormally();
 
-  Token getEncounteredExceptionToken();
+  IToken getEncounteredExceptionToken();
 
-  void setEncounteredExceptionToken(Token encounteredExceptionToken);
+  void setEncounteredExceptionToken(IToken encounteredExceptionToken);
 
   /**
    * The main type of scope in use a block is just like a set of instruction inside an if block

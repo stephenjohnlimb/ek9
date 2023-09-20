@@ -45,6 +45,7 @@ import org.ek9lang.compiler.symbols.LocalScope;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.StackConsistencyScope;
 import org.ek9lang.compiler.symbols.VariableSymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
@@ -264,7 +265,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     //There is returning so use a return of Void, might be null if we had duplicate names.
     if (functionSymbol != null && ctx.operationDetails().returningParam() == null) {
-      var simulatedVoid = symbolFactory.newVariable("_rtn", ctx.start, false, false);
+      var simulatedVoid = symbolFactory.newVariable("_rtn", new Ek9Token(ctx.start), false, false);
       if (symbolAndScopeManagement.getEk9Types() != null) {
         simulatedVoid.setType(symbolAndScopeManagement.getEk9Types().ek9Void());
       } else {
@@ -531,7 +532,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
       pullSwitchCaseDefaultUp(ctx);
 
       if (ctx.returningParam() != null) {
-        checkNormalTermination.accept(ctx.returningParam().LEFT_ARROW().getSymbol(), thisSwitchScope);
+        var token = new Ek9Token(ctx.returningParam().LEFT_ARROW().getSymbol());
+        checkNormalTermination.accept(token, thisSwitchScope);
       }
       //It is not an error at this point, but in a wider set of statements could be
     }
@@ -571,7 +573,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
       pullTryCatchFinallyUp(ctx);
 
       if (ctx.returningParam() != null) {
-        checkNormalTermination.accept(ctx.returningParam().LEFT_ARROW().getSymbol(), thisTryScope);
+        var token = new Ek9Token(ctx.returningParam().LEFT_ARROW().getSymbol());
+        checkNormalTermination.accept(token, thisTryScope);
       }
     }
     //It is not an error at this point, but in a wider set of statements could be
@@ -624,7 +627,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     IScope currentScope = symbolAndScopeManagement.getTopScope();
 
     if (currentScope.isTerminatedNormally()) {
-      currentScope.setEncounteredExceptionToken(ctx.getStart());
+      currentScope.setEncounteredExceptionToken(new Ek9Token(ctx.getStart()));
     }
 
     super.enterThrowStatement(ctx);
@@ -642,7 +645,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     pullBlockTerminationUp(ctx.block());
 
     if (!scope.isTerminatedNormally()) {
-      unreachableStatement.accept(ctx.start, scope.getEncounteredExceptionToken());
+      unreachableStatement.accept(new Ek9Token(ctx.start), scope.getEncounteredExceptionToken());
     }
 
     super.exitForStatement(ctx);
@@ -660,7 +663,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     pullBlockTerminationUp(ctx.block());
 
     if (!scope.isTerminatedNormally()) {
-      unreachableStatement.accept(ctx.start, scope.getEncounteredExceptionToken());
+      unreachableStatement.accept(new Ek9Token(ctx.start), scope.getEncounteredExceptionToken());
     }
 
     super.exitWhileStatement(ctx);
@@ -741,7 +744,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterBlock(EK9Parser.BlockContext ctx) {
     IScope scope = symbolAndScopeManagement.getTopScope();
-    var scopeName = blockScopeName.apply(ctx.start);
+    var scopeName = blockScopeName.apply(new Ek9Token(ctx.start));
     LocalScope instructionBlock = new LocalScope(scopeName, scope);
     symbolAndScopeManagement.enterNewScope(instructionBlock, ctx);
     super.enterBlock(ctx);
@@ -750,7 +753,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterSingleStatementBlock(EK9Parser.SingleStatementBlockContext ctx) {
     IScope scope = symbolAndScopeManagement.getTopScope();
-    var scopeName = blockScopeName.apply(ctx.start);
+    var scopeName = blockScopeName.apply(new Ek9Token(ctx.start));
     LocalScope instructionBlock = new LocalScope(scopeName, scope);
     symbolAndScopeManagement.enterNewScope(instructionBlock, ctx);
     super.enterSingleStatementBlock(ctx);
@@ -769,7 +772,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     }
     if (ctx.returningParam() != null && ctx.instructionBlock() != null) {
       var instructionBlockScope = symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock());
-      checkNormalTermination.accept(ctx.returningParam().LEFT_ARROW().getSymbol(), instructionBlockScope);
+      var token = new Ek9Token(ctx.returningParam().LEFT_ARROW().getSymbol());
+      checkNormalTermination.accept(token, instructionBlockScope);
     }
 
     super.exitOperationDetails(ctx);
@@ -789,7 +793,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterInstructionBlock(EK9Parser.InstructionBlockContext ctx) {
     IScope scope = symbolAndScopeManagement.getTopScope();
-    var scopeName = blockScopeName.apply(ctx.start);
+    var scopeName = blockScopeName.apply(new Ek9Token(ctx.start));
     LocalScope instructionBlock = new LocalScope(scopeName, scope);
     symbolAndScopeManagement.enterNewScope(instructionBlock, ctx);
     super.enterInstructionBlock(ctx);
@@ -810,7 +814,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     IScope scope = symbolAndScopeManagement.getTopScope();
     if (!scope.isTerminatedNormally()) {
-      unreachableStatement.accept(ctx.start, scope.getEncounteredExceptionToken());
+      unreachableStatement.accept(new Ek9Token(ctx.start), scope.getEncounteredExceptionToken());
     }
 
     super.enterBlockStatement(ctx);
@@ -824,7 +828,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   public void enterRegisterStatement(EK9Parser.RegisterStatementContext ctx) {
     IScope scope = symbolAndScopeManagement.getTopScope();
     if (!scope.isTerminatedNormally()) {
-      unreachableStatement.accept(ctx.start, scope.getEncounteredExceptionToken());
+      unreachableStatement.accept(new Ek9Token(ctx.start), scope.getEncounteredExceptionToken());
     }
     super.enterRegisterStatement(ctx);
   }
@@ -926,7 +930,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     VariableSymbol variable = (VariableSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     //Might not have been registered if detected as a duplicate.
     if (variable != null) {
-      variable.setInitialisedBy(ctx.assignmentExpression().start);
+      variable.setInitialisedBy(new Ek9Token(ctx.assignmentExpression().start));
       //Now it's not an error if we cannot resolve at this phase - but if these are built in types then we're all good.
       //But parameterised types cannot be resolved at all yet.
       //Nor can we resolve types through expressions.
@@ -1204,10 +1208,10 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     var resolvedType = scope.resolve(new TypeSymbolSearch(typeName));
 
     //Make the literal
-    ConstantSymbol literal = symbolFactory.newLiteral(start, literalText);
+    ConstantSymbol literal = symbolFactory.newLiteral(new Ek9Token(start), literalText);
 
-    var source = literal.getSourceToken().getTokenSource().getSourceName();
-    var line = literal.getSourceToken().getTokenSource().getLine();
+    var source = literal.getSourceToken().getSourceName();
+    var line = literal.getSourceToken().getLine();
     var msg = "Type of constant for '"
         + literal
         + "' should have resolved in '"

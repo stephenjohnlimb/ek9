@@ -1,8 +1,6 @@
 package org.ek9lang.compiler.phase3;
 
 import java.util.function.Consumer;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
@@ -10,6 +8,8 @@ import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -40,7 +40,7 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
     if (symbol != null) {
       symbolAndScopeManagement.recordSymbol(symbol, ctx);
       if (symbol.getType().isEmpty()) {
-        emitTypeNotResolvedError(ctx.start, symbol);
+        emitTypeNotResolvedError(new Ek9Token(ctx.start), symbol);
       }
     }
   }
@@ -49,6 +49,7 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
    * TODO this will need to be pulled out to separate methods because it will be too much to grok in one go.
    */
   private ISymbol determineSymbolToRecord(final EK9Parser.ExpressionContext ctx) {
+    var startToken = new Ek9Token(ctx.start);
     if (ctx.QUESTION() != null) {
       return checkAndProcessIsSet(ctx);
     } else if (ctx.primary() != null) {
@@ -62,14 +63,15 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
     } else if (ctx.expression() != null && !ctx.expression().isEmpty()) {
       //TODO implement this.
       System.out.println("Expression to expression(s) next - but need to work out the type");
-      return symbolFactory.newExpressionSymbol(ctx.start, ctx.getText(), symbolAndScopeManagement.getTopScope().resolve(
-          new TypeSymbolSearch("Boolean")));
+      return symbolFactory.newExpressionSymbol(startToken, ctx.getText(),
+          symbolAndScopeManagement.getTopScope().resolve(
+              new TypeSymbolSearch("Boolean")));
     } else if (ctx.objectAccessExpression() != null) {
       var maybeResolved = symbolAndScopeManagement.getRecordedSymbol(ctx.objectAccessExpression());
       if (maybeResolved != null && maybeResolved.getType().isPresent()) {
-        return symbolFactory.newExpressionSymbol(ctx.start, ctx.getText()).setType(maybeResolved.getType());
+        return symbolFactory.newExpressionSymbol(startToken, ctx.getText()).setType(maybeResolved.getType());
       }
-      return symbolFactory.newExpressionSymbol(ctx.start, ctx.getText());
+      return symbolFactory.newExpressionSymbol(startToken, ctx.getText());
     } else {
       AssertValue.fail(
           "Expecting finite set of operations for expression [" + ctx.getText() + "] line: " + ctx.start.getLine());
@@ -87,22 +89,7 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
     return null;
   }
 
-  private void setFromExpressions(final EK9Parser.ExpressionContext ctx, ISymbol thisExpressionSymbol) {
-    if (ctx.expression().size() > 1) {
-      //TODO lots of working out what the type will be depending on the expression.
-    } else {
-      setTypeFromSymbol(ctx.expression(0), thisExpressionSymbol);
-    }
-  }
-
-  private void setTypeFromSymbol(final ParserRuleContext ctx, ISymbol thisExpressionSymbol) {
-    var resolved = symbolAndScopeManagement.getRecordedSymbol(ctx);
-    if (resolved != null) {
-      thisExpressionSymbol.setType(resolved.getType());
-    }
-  }
-
-  private void emitTypeNotResolvedError(final Token lineToken, final ISymbol argument) {
+  private void emitTypeNotResolvedError(final IToken lineToken, final ISymbol argument) {
     var msg = "'" + argument.getName() + "' :";
     errorListener.semanticError(lineToken, msg,
         ErrorListener.SemanticClassification.TYPE_NOT_RESOLVED);

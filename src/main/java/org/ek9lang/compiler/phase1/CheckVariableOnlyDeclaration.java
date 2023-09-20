@@ -4,6 +4,7 @@ import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.symbols.VariableSymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
  * Checks on whether the '?' can be used as a modifier
@@ -50,7 +51,7 @@ final class CheckVariableOnlyDeclaration implements
     }
     if (ctx.BANG() != null) {
       //Then it is to be injected to mark as initialised = by self through injection
-      variableSymbol.setInitialisedBy(ctx.start);
+      variableSymbol.setInitialisedBy(new Ek9Token(ctx.start));
     }
   }
 
@@ -65,7 +66,7 @@ final class CheckVariableOnlyDeclaration implements
     //So mark up and the check on passing in guff (uninitialised values) is a check in the calling block.
     //As an incoming parameter it is assumed it will have been initialised to something.
     variableSymbol.setIncomingParameter(true);
-    variableSymbol.setInitialisedBy(ctx.start);
+    variableSymbol.setInitialisedBy(new Ek9Token(ctx.start));
   }
 
   private void checkReturningParam(final EK9Parser.VariableOnlyDeclarationContext ctx, VariableSymbol variableSymbol) {

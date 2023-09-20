@@ -10,6 +10,7 @@ package org.ek9lang.compiler.symbols;
  * to supply the outer variable to set the result to.
  */
 public class ControlSymbol extends ScopedSymbol {
+  static final long serialVersionUID = 1L;
 
   /**
    * Create a new Control Symbol.

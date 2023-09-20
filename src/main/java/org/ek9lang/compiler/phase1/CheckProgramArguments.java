@@ -1,15 +1,15 @@
 package org.ek9lang.compiler.phase1;
 
 import java.util.function.BiConsumer;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.support.ProgramArgumentPredicate;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * A program can only accept specific types of arguments to it.
  */
-final class CheckProgramArguments implements BiConsumer<Token, MethodSymbol> {
+final class CheckProgramArguments implements BiConsumer<IToken, MethodSymbol> {
 
   private final ProgramArgumentPredicate typePredicate = new ProgramArgumentPredicate();
   private final ErrorListener errorListener;
@@ -19,7 +19,7 @@ final class CheckProgramArguments implements BiConsumer<Token, MethodSymbol> {
   }
 
   @Override
-  public void accept(final Token token, final MethodSymbol methodSymbol) {
+  public void accept(final IToken token, final MethodSymbol methodSymbol) {
 
     int numParameters = methodSymbol.getCallParameters().size();
 

@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
+import static org.junit.jupiter.api.parallel.ResourceAccessMode.READ_WRITE;
 
 import java.io.File;
 import java.net.URL;
@@ -15,6 +17,8 @@ import org.ek9lang.core.OsSupport;
 import org.ek9lang.core.SigningKeyPair;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -24,6 +28,9 @@ import org.junit.jupiter.params.provider.ValueSource;
  * Only design to test valid command line instructions.
  * See CommandLineDetailsTest of invalid combinations.
  */
+//Specific tests that manipulate files and specifics in ek9 must not run in parallel.
+@Execution(SAME_THREAD)
+@ResourceLock(value="file_access", mode=READ_WRITE)
 final class EK9Test {
   private final LanguageMetaData languageMetaData = new LanguageMetaData("0.0.1-0");
   private final OsSupport osSupport = new OsSupport(true);

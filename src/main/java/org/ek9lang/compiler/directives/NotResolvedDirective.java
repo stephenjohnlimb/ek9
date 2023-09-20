@@ -5,6 +5,7 @@ package org.ek9lang.compiler.directives;
  * //@NotResolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of Integer"
  */
 public class NotResolvedDirective extends ResolutionDirective {
+  static final long serialVersionUID = 1L;
 
   public NotResolvedDirective(final DirectiveSpec spec) {
     super(spec);

@@ -5,6 +5,7 @@ package org.ek9lang.compiler.directives;
  * //@Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TEMPLATE_TYPE: "List"
  */
 public class ResolvedDirective extends ResolutionDirective {
+  static final long serialVersionUID = 1L;
 
   public ResolvedDirective(final DirectiveSpec spec) {
     super(spec);

@@ -2,12 +2,12 @@ package org.ek9lang.compiler.support;
 
 import java.util.List;
 import java.util.Optional;
-import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -47,7 +47,7 @@ public abstract class ResolverOrDefiner extends RuleSupport {
     return rtn;
   }
 
-  private boolean errorIfNotGeneric(final Token token, final ISymbol genericType) {
+  private boolean errorIfNotGeneric(final IToken token, final ISymbol genericType) {
     var notGeneric = !genericType.isGenericInNature();
     if (notGeneric && errorIfNotDefinedOrResolved) {
       errorListener.semanticError(token, "cannot be used to parameterize '" + genericType.getFriendlyName() + "':",
@@ -56,7 +56,7 @@ public abstract class ResolverOrDefiner extends RuleSupport {
     return notGeneric;
   }
 
-  private boolean errorIfInvalidParameters(final Token token, final PossibleGenericSymbol genericTypeSymbol,
+  private boolean errorIfInvalidParameters(final IToken token, final PossibleGenericSymbol genericTypeSymbol,
                                            final List<ISymbol> parameterizingTypes) {
     var acceptsNParameters = genericTypeSymbol.getAnyConceptualTypeParameters().size();
     var providedWithNParameters = parameterizingTypes.size();

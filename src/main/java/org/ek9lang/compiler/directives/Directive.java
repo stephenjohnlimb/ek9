@@ -1,7 +1,8 @@
 package org.ek9lang.compiler.directives;
 
-import org.antlr.v4.runtime.Token;
+import java.io.Serializable;
 import org.ek9lang.compiler.CompilationPhase;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * Provides basic interface for the EK9 internal @ type directives.
@@ -15,7 +16,7 @@ import org.ek9lang.compiler.CompilationPhase;
  * //@Symbols: SYMBOL_DEFINITION: TYPE: 11
  * //@Symbols: SYMBOL_DEFINITION: TEMPLATE_FUNCTION: 2
  */
-public interface Directive {
+public interface Directive extends Serializable {
   /**
    * What s the type of the directive.
    */
@@ -34,5 +35,5 @@ public interface Directive {
   /**
    * Provide a token from the source, by default if not possible supply synthetic.
    */
-  Token getDirectiveToken();
+  IToken getDirectiveToken();
 }
