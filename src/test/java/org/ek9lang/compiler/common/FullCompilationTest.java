@@ -122,12 +122,13 @@ public abstract class FullCompilationTest {
     };
 
     FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedCompilableProgram,
-        listener, new CompilerReporter(true));
+        listener, new CompilerReporter(false));
 
     var compiler = new Ek9Compiler(allPhases);
     sharedCompilableProgram.accept(this::assertPreConditions);
 
-    var compilationResult = compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, true));
+    //If you want to see the timing of each of the phases then set verbose to true.
+    var compilationResult = compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, false));
 
     sharedCompilableProgram.accept(program -> checkFinalResults(compilationResult, counter.get(), program));
   }

@@ -36,7 +36,7 @@ class Ek9BootStrapTest {
   @Test
   void testBasicBootStrap() {
 
-    final var underTest = new Ek9LanguageBootStrap(sourceSupplier, listener.get(), new CompilerReporter(true));
+    final var underTest = new Ek9LanguageBootStrap(sourceSupplier, listener.get(), new CompilerReporter(false));
 
     final var sharedContext = underTest.get();
 
@@ -108,7 +108,7 @@ class Ek9BootStrapTest {
         () -> List.of(new CompilableSource(Objects.requireNonNull(getClass().getResource(
             "/examples/parseButFailCompile/builtin/badBuiltin.ek9")).getPath()));
 
-    final var underTest = new Ek9LanguageBootStrap(sourceSupplier, listener.get(), new CompilerReporter(true));
+    final var underTest = new Ek9LanguageBootStrap(sourceSupplier, listener.get(), new CompilerReporter(false));
 
     assertThrows(CompilerException.class, underTest::get);
   }

@@ -57,13 +57,11 @@ class Ek9CompilerTest {
     var sharedCompilableProgram = sharedContext.get();
 
     FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedCompilableProgram,
-        listener, new CompilerReporter(true));
+        listener, new CompilerReporter(false));
 
     var compiler = new Ek9Compiler(allPhases);
-    var result = compiler.compile(validEk9Workspace.get(), new CompilerFlags(upToPhase, true));
+    var result = compiler.compile(validEk9Workspace.get(), new CompilerFlags(upToPhase, false));
     assertTrue(result);
-
-    sharedCompilableProgram.accept(program -> program.getParsedModuleNames().forEach(System.out::println));
   }
 
   @Test
@@ -71,7 +69,7 @@ class Ek9CompilerTest {
     CompilationPhaseListener listener = compilationEvent -> {
     };
     FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedContext.get(),
-        listener, new CompilerReporter(true));
+        listener, new CompilerReporter(false));
 
     var compiler = new Ek9Compiler(allPhases);
     assertFalse(compiler.compile(inValidEk9Workspace.get(), new CompilerFlags()));

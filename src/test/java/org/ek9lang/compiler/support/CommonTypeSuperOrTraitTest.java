@@ -166,7 +166,6 @@ class CommonTypeSuperOrTraitTest extends AbstractSymbolTestBase {
     var commonSymbol = underTest.apply(new Ek9Token(), arguments);
     assertTrue(commonSymbol.isEmpty());
     assertEquals(expectErrors, errorListener.hasErrors());
-    //errorListener.getErrors().forEachRemaining(System.out::println);
   }
 
   private void assertSymbolType(final ISymbol symbolType, final List<ISymbol> arguments) {

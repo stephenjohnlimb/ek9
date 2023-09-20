@@ -14,12 +14,8 @@ import org.ek9lang.core.SharedThreadContext;
  * Does not employ any phase listeners or verbose compilation reporting.
  */
 public class CompilableProgramSuitable implements Supplier<SharedThreadContext<CompilableProgram>> {
-  //TODO consider caching/cloning the CompilableProgram that just has ek9 basics in it.
-  //TODO then rather than parse all the EK9 source over and over for tests just copy the data structure.
-  //TODO for tests this gets called 100 times, so we're parsing the same build in ek9 source 100 times!
-
+  //In memory cache of the compiler with ek9 symbols built in.
   private static byte[] serializedCompiler;
-
 
   @Override
   public SharedThreadContext<CompilableProgram> get() {
@@ -29,11 +25,12 @@ public class CompilableProgramSuitable implements Supplier<SharedThreadContext<C
   /**
    * Makes the compiler if a serialized version is not available.
    * Otherwise, it just deserialized the byte serialized version.
+   *
    * @return a compilable program.
    */
   private static synchronized SharedThreadContext<CompilableProgram> getCompiler() {
 
-    if(serializedCompiler == null) {
+    if (serializedCompiler == null) {
       var serializer = new Serializer();
       var rtn = makeCompiler();
       serializedCompiler = serializer.apply(rtn);
@@ -59,14 +56,7 @@ public class CompilableProgramSuitable implements Supplier<SharedThreadContext<C
           }
         }, new CompilerReporter(false));
 
-    var before = System.currentTimeMillis();
-    var rtn = bootStrap.get();
-    var after = System.currentTimeMillis();
-
-    var threadName = Thread.currentThread().getName();
-    System.err.printf("Thread: %s, Bootstrap duration %d ms", threadName, (after - before));
-    return rtn;
+    return bootStrap.get();
   }
-
 
 }

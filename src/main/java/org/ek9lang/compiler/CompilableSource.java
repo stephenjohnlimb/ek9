@@ -36,7 +36,7 @@ import org.ek9lang.core.Processor;
 public final class CompilableSource implements Source, Serializable, TokenConsumptionListener {
 
   // This is the full path to the filename.
-  private String filename;
+  private final String filename;
 
   /**
    * For some resources like builtin.ek9 inside the jar we load from an inputStream.
@@ -68,13 +68,6 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
   private transient EK9Parser.CompilationUnitContext compilationUnitContext = null;
 
   /**
-   * Only use via cloning.
-   */
-  private CompilableSource() {
-
-  }
-
-  /**
    * Create compilable source for a specific filename.
    */
   public CompilableSource(String filename) {
@@ -93,28 +86,6 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
     this.filename = filename;
     this.inputStream = inputStream;
     resetDetails();
-  }
-
-  /**
-   * Clone this compilable source.
-   */
-  @SuppressWarnings({"java:S2975", "java:S1182"})
-  public CompilableSource clone() {
-    CompilableSource cloned = new CompilableSource();
-    cloned.filename = this.filename;
-    cloned.inputStream = this.inputStream;
-    cloned.checkSum = this.checkSum;
-    cloned.dev = this.dev;
-    cloned.packageModuleName = this.packageModuleName;
-    cloned.lib = this.lib;
-    cloned.lastModified = this.lastModified;
-    cloned.parser = this.parser;
-    cloned.compilationUnitContext = this.compilationUnitContext;
-    cloned.resetTokens();
-    cloned.tokens.putAll(this.tokens);
-    cloned.initialiseErrorListener();
-
-    return cloned;
   }
 
   /**

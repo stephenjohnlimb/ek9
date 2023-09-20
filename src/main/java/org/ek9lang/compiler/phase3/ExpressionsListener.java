@@ -210,7 +210,6 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
     var objectAccessStartSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx.objectAccessStart());
     if (objectAccessStartSymbol != null) {
       //If it is null then there will have already been an error
-      System.out.println("Have objectAccessStart [" + objectAccessStartSymbol.getFriendlyName() + "]");
 
       //Now we have to follow the objectAccess and objectAccessType objectAccess?
       //But this has to be driven from here - rather than bottom up, because the context of resolution
