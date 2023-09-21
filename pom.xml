@@ -239,6 +239,18 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <argLine>${jvm.options}</argLine>
+            <properties>
+              <configurationParameters>
+                # Copied junit-platform.properties over to enable maven concurrent junit.
+                junit.jupiter.execution.parallel.enabled = true
+                junit.jupiter.execution.parallel.mode.default = concurrent
+                junit.jupiter.execution.parallel.mode.classes.default = concurrent
+
+                # This seems quicker than the dynamic approach
+                junit.jupiter.execution.parallel.config.strategy = fixed
+                junit.jupiter.execution.parallel.config.fixed.parallelism = 8
+              </configurationParameters>
+            </properties>
         </configuration>
       </plugin>
 
