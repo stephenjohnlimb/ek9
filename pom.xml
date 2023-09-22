@@ -19,7 +19,7 @@
     <!-- By adding enable-preview the jacoco code coverage fails -->
     <jvm.options>--enable-preview</jvm.options>
 
-    <java.version>19</java.version>
+    <java.version>21</java.version>
     <junit.version>5.8.2</junit.version>
     <jacoco.version>0.8.8</jacoco.version>
 
