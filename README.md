@@ -15,7 +15,7 @@ language will be like once the first reference implementation of the compiler is
 
 ### Java and binaries
 The base version of Java for this project is now Java 19. I'm planning to use the lightweight threading mechanism in
-Java 19 to make the compiler as multithreaded as possible (I mean how hard can it be!).
+Java 21 to make the compiler as multithreaded as possible (I mean how hard can it be!).
 
 I've also taken a look at [Graalvm](https://www.graalvm.org) to see if I can create a native application from the
 Java compiler. My main reason for doing this - is general interest. But a native application should also start and
