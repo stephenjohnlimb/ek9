@@ -14,7 +14,7 @@ Lots of [worked examples](https://www.ek9lang.org/index.html#examples) have been
 language will be like once the first reference implementation of the compiler is complete.
 
 ### Java and binaries
-The base version of Java for this project is now Java 19. I'm planning to use the lightweight threading mechanism in
+The base version of Java for this project is now Java 21. I'm now using the lightweight threading mechanism in
 Java 21 to make the compiler as multithreaded as possible (I mean how hard can it be!).
 
 I've also taken a look at [Graalvm](https://www.graalvm.org) to see if I can create a native application from the
@@ -38,6 +38,7 @@ The Java source `org.ek9lang.cli.Ek9.java` is the main entry point in and
 `org.ek9lang.compiler.Ek9Compiler.java` is where the actual compiler is.
 Though this is split into many 'phases' as the EK9 compile is a multi-pass compiler.
 Some of these phases are single-threaded and some are multi-threaded.
+See [JavaDoc](https://repo.ek9lang.org/apidocs/0.0.1-SNAPSHOT/index.html) for detils on the layout.
 
 ### Blog
 If you want to see why specific decisions have been made on the details of the language then you can follow the [EK9 blog](https://blog.ek9.io/).
@@ -129,7 +130,7 @@ together and there aren't that many inconsistencies.
 If you take a look at any of the examples in the [web site](https://www.ek9lang.org/index.html#examples)
 or from the [examples source](https://github.com/stephenjohnlimb/ek9/tree/main/src/test/resources/examples); you can draw your own
 conclusions. Is it the language I set out to design; - probably not! It is the one I iterated to
-by trying to balance feature X over feature Y. It does need more contributions from other people now though.
+by trying to balance feature X over feature Y.
 
 In my opinion it feels 'light', 'scripty', 'dynamic', 'balanced', 'coherent' and 'symmetrical'. It is not 'dense' in
 terms of source code line length, program flow is very easy to comprehend. The EK9 language it is opinionated and
