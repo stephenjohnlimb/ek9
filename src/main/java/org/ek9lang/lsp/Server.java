@@ -26,7 +26,8 @@ public final class Server {
    */
   @SuppressWarnings("java:S106")
   public static void main(String[] args) throws ExecutionException, InterruptedException {
-    var startListening = runEk9LanguageServer(new OsSupport(), System.in, System.out, true);
+    var startListening = runEk9LanguageServer(new OsSupport(), System.in, System.out,
+        true, true);
     //Will cause main thread to block until control-C ends program.
     startListening.get();
   }
@@ -36,7 +37,11 @@ public final class Server {
    */
   public static Future<Void> runEk9LanguageServer(final OsSupport osSupport, final InputStream in,
                                                   final OutputStream out,
-                                                  final boolean provideLanguageHoverHelp) {
+                                                  final boolean provideLanguageHoverHelp,
+                                                  final boolean enableDebug) {
+    //Only if required do we output all the debug messages in the LSP when processing.
+    org.ek9lang.core.Logger.enableDebug(enableDebug);
+
     //Switch off any logging as we are using stdin/stdout for protocol exchange
     LogManager.getLogManager().reset();
     Logger globalLogger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);

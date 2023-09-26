@@ -20,7 +20,8 @@ final class ServerTest {
   void startAndStopServer() throws InterruptedException {
 
     var osSupport = new OsSupport(true);
-    var languageServer = Server.runEk9LanguageServer(osSupport, System.in, System.out, true);
+    var languageServer = Server.runEk9LanguageServer(osSupport, System.in,
+        System.out, true, true);
 
     assertFalse(languageServer.isDone());
     assertFalse(languageServer.isCancelled());

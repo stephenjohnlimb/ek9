@@ -9,20 +9,39 @@ package org.ek9lang.core;
 @SuppressWarnings("java:S106")
 public class Logger {
 
+  private static boolean debugEnabled = false;
+
   private Logger() {
 
   }
 
-  public static void debug(Object content) {
-    System.err.println("DEBUG: " + content);
+  public static void enableDebug(boolean enabled) {
+    debugEnabled = enabled;
   }
 
+  /**
+   * Conditionally output debug information to stderr.
+   */
+  public static void debug(Object content) {
+    if (debugEnabled) {
+      System.err.println("DEBUG: " + content);
+    }
+  }
+
+  /**
+   * Logs output to stdout.
+   */
   public static void log(String content) {
     System.out.println(content);
   }
 
-  public static void logf(String format, Object... args) {
-    System.out.printf(format, args);
+  /**
+   * Conditionally output debug information to stderr, using printf format.
+   */
+  public static void debugf(String format, Object... args) {
+    if (debugEnabled) {
+      System.err.printf(format, args);
+    }
   }
 
   public static void error(Object content) {

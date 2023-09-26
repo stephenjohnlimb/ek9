@@ -8,7 +8,8 @@ import java.util.function.Supplier;
 /**
  * Just loads the ek9 language builtin ek9 source code and supplies it as Compilable Source.
  * I had intended to use a resource with the source code in. But when I tried a native build
- * with 'native-image --no-fallback -jar ek9.jar' and ran the executable I got a nullPointer.
+ * with 'native-image --no-fallback -jar ek9c-jar-with-dependencies.jar' and ran the executable
+ * I got a nullPointer.
  * So I guessed it with the resource loading
  * 'Ek9BuiltinLangSupplier.class.getResource("/builtin/org/ek9/lang/builtin.ek9")'.
  * Now I just hold the text as static strings and build up the source. May stick with this!

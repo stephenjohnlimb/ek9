@@ -125,10 +125,11 @@ final class Ek9 {
   private int runAsLanguageServer() throws InterruptedException {
     reporter.report("EK9 running as LSP languageHelp=" + compilationContext.commandLine()
         .isEk9LanguageServerHelpEnabled());
+    var enableDebugOutput = compilationContext.commandLine().isDebugVerbose();
     var startListening =
         Server.runEk9LanguageServer(compilationContext.commandLine().getOsSupport(), System.in,
             System.out,
-            compilationContext.commandLine().isEk9LanguageServerHelpEnabled());
+            compilationContext.commandLine().isEk9LanguageServerHelpEnabled(), enableDebugOutput);
 
     try {
       startListening.get();

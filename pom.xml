@@ -53,6 +53,13 @@
       <version>${lsp4j.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.eclipse.lsp4j</groupId>
+      <artifactId>org.eclipse.lsp4j.debug</artifactId>
+      <version>${lsp4j.version}</version>
+      <scope>test</scope>
+    </dependency>
+
     <!-- For the Java byte code generator output (Java target) -->
     <dependency>
       <groupId>org.ow2.asm</groupId>

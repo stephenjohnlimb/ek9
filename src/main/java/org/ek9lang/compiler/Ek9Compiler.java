@@ -76,8 +76,8 @@ public class Ek9Compiler implements Compiler {
     NumberFormat format = NumberFormat.getInstance();
     var total = runtime.totalMemory();
     var freeMemory = runtime.freeMemory();
-    var used = format.format((total - freeMemory) /(1024 * 1024));
-    var totalMemory = format.format(total/(1024*1024));
+    var used = format.format((total - freeMemory) / (1024 * 1024));
+    var totalMemory = format.format(total / (1024 * 1024));
     var numCpus = runtime.availableProcessors();
 
     return String.format("Memory used %s MB of %s MB with %d CPUs", used, totalMemory, numCpus);

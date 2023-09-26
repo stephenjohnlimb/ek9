@@ -115,10 +115,10 @@ public class Ek9Lexer extends EK9LexerRules implements LexerPlugin {
       Token rtn = this.pendingTokens.pollFirst();
 
       if (printTokensAsSupplied && rtn != null) {
-        Logger.log("Supplying token [" + rtn.getText() + "]");
+        Logger.debug("Supplying token [" + rtn.getText() + "]");
         if (!_modeStack.isEmpty()) {
           int currentMode = _modeStack.peek();
-          Logger.log("in mode [" + currentMode + "]");
+          Logger.debug("in mode [" + currentMode + "]");
         }
 
       }
@@ -206,7 +206,7 @@ public class Ek9Lexer extends EK9LexerRules implements LexerPlugin {
   private void checkStartOfInput(Token curToken) {
     if (indentLengths.isEmpty()) {
       indentLengths.push(0); // initialize the stack with default 0 indentation length
-      if (_input.getText(new Interval(0, 0)).trim().length() == 0) {
+      if (_input.getText(new Interval(0, 0)).trim().isEmpty()) {
         this.insertLeadingTokens(curToken.getType(), curToken.getStartIndex());
       }
     }

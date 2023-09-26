@@ -107,6 +107,7 @@ final class CommandLineDetails {
         \t-PV print out the current version i.e 6.8.1-0 or 6.8.0-specials-0 for a feature.
         \t-Up Check for newer version of ek9 and upgrade if available.
         \t-v Verbose mode
+        \t-dv Debug mode - produces internal debug information during compilation
         \t-t Runs all unit tests that have been found, this triggers -Cd full compile first
         \t-d port Run in debug mode (requires debugging information - on a port)
         \t-e <name>=<value> set environment variable i.e. user=Steve or user='Steve Limb' for spaces
@@ -696,7 +697,7 @@ final class CommandLineDetails {
   }
 
   private boolean isModifierParam(String param) {
-    return Set.of("-V", "-h", "-v", "-ls", "-lsh").contains(param);
+    return Set.of("-V", "-h", "-v", "-dv", "-ls", "-lsh").contains(param);
   }
 
   public boolean isDebuggingInstrumentation() {
@@ -755,6 +756,10 @@ final class CommandLineDetails {
 
   public boolean isVerbose() {
     return isOptionPresentInAppParameters(Set.of("-v"));
+  }
+
+  public boolean isDebugVerbose() {
+    return isOptionPresentInAppParameters(Set.of("-dv"));
   }
 
   public boolean isDeveloperManagementOption() {

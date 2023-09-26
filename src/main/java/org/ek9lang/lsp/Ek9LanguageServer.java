@@ -8,12 +8,12 @@ import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
+import org.eclipse.lsp4j.MessageParams;
+import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.eclipse.lsp4j.services.LanguageClientAware;
-import org.eclipse.lsp4j.services.LanguageServer;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.core.Glob;
 import org.ek9lang.core.Logger;
@@ -23,7 +23,7 @@ import org.ek9lang.core.OsSupport;
  * The Language Server Implementation into the modular EK9 compiler.
  */
 final class Ek9LanguageServer extends Ek9Service
-    implements LanguageServer, LanguageClientAware {
+    implements IEk9LanguageServer {
 
   private final OsSupport osSupport;
   private final Ek9CompilerConfig compilerConfig;
@@ -50,31 +50,42 @@ final class Ek9LanguageServer extends Ek9Service
 
   @Override
   public void connect(LanguageClient client) {
+    if (client != null) {
+      Logger.debug("EK9: connect from client");
+      client.showMessage(new MessageParams(MessageType.Info, "Welcome to Ek9"));
+    } else {
+      Logger.debug("EK9: Client connect but client was null");
+    }
     this.client = client;
   }
 
   @Override
   public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
     final InitializeResult initializeResult = new InitializeResult(new ServerCapabilities());
+    Logger.debug("EK9: initialize");
 
-    List<WorkspaceFolder> folders = params.getWorkspaceFolders();
-    if (folders != null) {
-      folders.forEach(folder -> {
-        Path path = getPath(folder.getUri());
+    if (params != null) {
+      List<WorkspaceFolder> folders = params.getWorkspaceFolders();
+      if (folders != null) {
+        folders.forEach(folder -> {
+          Path path = getPath(folder.getUri());
 
-        Glob searchCondition = new Glob("**.ek9");
-        List<File> fileList = osSupport.getFilesRecursivelyFrom(path.toFile(), searchCondition);
-        Logger.debug("Found " + fileList.size() + " files");
-        fileList.forEach(file -> {
-          //Use new JDK19 virtual threads for this.
-          try {
-            var compilableSource = getWorkspace().reParseSource(file.toPath());
-            reportOnCompiledSource(compilableSource.getErrorListener());
-          } catch (RuntimeException rex) {
-            Logger.error("Failed to load and parse " + file.toString());
-          }
+          Glob searchCondition = new Glob("**.ek9");
+          List<File> fileList = osSupport.getFilesRecursivelyFrom(path.toFile(), searchCondition);
+          Logger.debug("EK9: Found " + fileList.size() + " files");
+          fileList.forEach(file -> {
+            //Use new JDK19 virtual threads for this.
+            try {
+              var compilableSource = getWorkspace().reParseSource(file.toPath());
+              reportOnCompiledSource(compilableSource.getErrorListener());
+            } catch (RuntimeException rex) {
+              Logger.error("EK9: Failed to load and parse " + file.toString());
+            }
+          });
         });
-      });
+      }
+    } else {
+      Logger.debug("EK9: Initialised with no parameters");
     }
 
     // We have to have full documents
@@ -103,22 +114,26 @@ final class Ek9LanguageServer extends Ek9Service
 
   @Override
   public CompletableFuture<Object> shutdown() {
+    Logger.debug("EK9: Shutdown");
     errorCode = 0;
     return null;
   }
 
   @Override
   public void exit() {
+    Logger.debug("EK9: Exit");
     System.exit(errorCode);
   }
 
   @Override
   public Ek9TextDocumentService getTextDocumentService() {
+    Logger.debug("EK9: getTextDocumentService");
     return textDocumentService;
   }
 
   @Override
   public Ek9WorkspaceService getWorkspaceService() {
+    Logger.debug("EK9: getWorkspaceService");
     return workspaceService;
   }
 }

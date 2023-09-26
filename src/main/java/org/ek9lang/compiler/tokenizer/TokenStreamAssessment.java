@@ -24,7 +24,7 @@ public class TokenStreamAssessment {
    */
   public String assess(LexerPlugin lexer, boolean printTokens) {
     if (printTokens) {
-      Logger.log("\n[TOKENS]");
+      Logger.debug("\n[TOKENS]");
     }
     return doAssessment(lexer, printTokens);
   }
@@ -40,7 +40,7 @@ public class TokenStreamAssessment {
       final String symbolicContent =
           getSymbolicContent(lexer.getSymbolicName(t.getType()), literalContent);
       if (printTokens) {
-        Logger.logf("  %-20s '%s'%n", symbolicContent, literalContent);
+        Logger.debugf("  %-20s '%s'%n", symbolicContent, literalContent);
       }
 
       doAssessTokenContent(symbolicContent, literalContent, counters);
