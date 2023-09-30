@@ -88,6 +88,8 @@ defines module bad.higherfunctionandmethodcalls.examples
         //TODO consider an error here if the return type is Void.
         @Error: FULL_RESOLUTION: RETURN_TYPE_VOID_MEANINGLESS
         notActuallyADelegate1 <- JustAFunction1("Steve")
+
+        @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
         assert notActuallyADelegate1?
 
         @Error: FULL_RESOLUTION: NOT_A_FUNCTION_DELEGATE

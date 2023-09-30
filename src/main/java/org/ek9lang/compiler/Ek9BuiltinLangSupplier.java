@@ -2695,6 +2695,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               
             accept()
               -> handler as TCPHandler
+              <- rtn as Boolean: Boolean()
 
             lastErrorMessage() as pure
               <- rtn as String: String()

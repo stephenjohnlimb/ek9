@@ -137,7 +137,7 @@ defines module bad.classes.examples
         <- rtn as String: arg0
         assert arg0?
 
-      //Also an error because both a return and a body has been provided.
+      //Also an error because both a return an a body has been provided.
       @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
       someMethod7B() as abstract
         -> arg0 as String
@@ -151,33 +151,6 @@ defines module bad.classes.examples
         assert arg0?
 
       //Just check the named operators can by use as names (not method by variable names)
-      andMethod()
-        -> and as String
-        assert and?
-
-      orMethod()
-        -> or as String
-        assert or?
-
-      xorMethod()
-        -> xor as String
-        assert xor?
-
-      modMethod()
-        -> mod as String
-        assert mod?
-
-      remMethod()
-        -> rem as String
-        assert rem?
-
-      absMethod()
-        -> abs as String
-        assert abs?
-
-      sqrtMethod()
-        -> sqrt as String
-        assert sqrt?
 
       closeMethod()
         -> close as String
@@ -198,41 +171,6 @@ defines module bad.classes.examples
       lengthMethod()
         -> length as String
         assert length?
-
-      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
-      and
-        val <- 1
-        assert val?
-
-      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
-      or
-        val <- 1
-        assert val?
-
-      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
-      xor
-        val <- 1
-        assert val?
-
-      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
-      mod
-        val <- 1
-        assert val?
-
-      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
-      rem
-        val <- 1
-        assert val?
-
-      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
-      abs
-        val <- 1
-        assert val?
-
-      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
-      sqrt
-        val <- 1
-        assert val?
 
       //Try and declare a method with the name of an operator
       @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD

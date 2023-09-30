@@ -1,16 +1,60 @@
 #!ek9
 <?-
-  Checking ready for next checks.
+  Checks that when default operators syntax is used, the system generated operators can be
+  found. Also check that when it is not use and an operator is not defined they cannot be found.
 -?>
-defines module bad.workspace.examples1
+defines module bad.defaultoperators.examples
 
-  defines class
-    Simple
-      usedBeforeBeingInitialised()
-        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
-        uninitializedVar as String?
+  defines function
 
-        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
-        anotherVariable <- uninitializedVar
+    CheckMissingComparator()
+      r1 <- R1()
+      assert r1?
+
+      r2 <- R1("Steve")
+      assert r2?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      comparisonResult <- r1 <=> r2
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert comparisonResult?
+
+  defines record
+    R1
+      property1 <- String()
+
+      default R1()
+
+      R1()
+        -> arg0 as String
+        property1 :=: arg0
+
+      //We will define this operator
+      operator ? as pure
+        <- rtn as Boolean: property1?
+
+      //Looks like for records I auto add all the operators.
+      //default operator
+
+    //Just temp to see what's going wrong
+    Person
+      firstName <- String()
+      lastName <- String()
+
+      Person() as pure
+        ->
+          firstName String
+          lastName String
+
+        assert firstName?
+
+        someVar <- firstName
+        assert someVar?
+
+        assert firstName? and lastName?
+
+        this.firstName :=: firstName
+        this.lastName :=: lastName
 
 //EOF

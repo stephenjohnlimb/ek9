@@ -16,6 +16,10 @@ defines module bad.overriding.classmethods5
         -> arg0 as Float
         <- rtn as Boolean?
 
+      //To be able to use 'failure1 <- () with trait of T1 as class' need to define the ? operator.
+      operator ? as pure
+        <- rtn as Boolean: true
+
       operator + as pure
         -> arg0 as Float
         <- rtn as Float?

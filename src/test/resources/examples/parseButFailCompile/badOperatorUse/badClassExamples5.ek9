@@ -11,6 +11,11 @@ defines module bad.classes.operators.examples5
     //some can return anything, but others specific types.
     C5
 
+      //This is not a promotion
+      operator #^ as pure
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_NOT_RETURN_SAME_TYPE
+        <- rtn as C5: this
+
       //Shift right, accepts one Integer parameter and can return any type
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS

@@ -384,18 +384,19 @@ throwStatement
     : THROW (call | identifierReference)
     ;
 
+//The order here is important, order of precedence for processing
 expression
-    : expression QUESTION
-    | TOJSON expression
-    | DOLLAR expression
-    | PROMOTE expression
-    | LENGTH OF? expression
-    | PREFIX expression
-    | SUFFIX expression
-    | HASHCODE expression
+    : expression op=QUESTION
+    | op=TOJSON expression
+    | op=DOLLAR expression
+    | op=PROMOTE expression
+    | op=LENGTH OF? expression
+    | op=PREFIX expression
+    | op=SUFFIX expression
+    | op=HASHCODE expression
     | ONLY expression
-    | ABS OF? expression
-    | SQRT OF? expression
+    | op=ABS OF? expression
+    | op=SQRT OF? expression
     | <assoc=right> control=expression LEFT_ARROW left=expression (COLON|ELSE) right=expression
     | <assoc=right> left=expression op=(CHECK | ELVIS) right=expression
     | <assoc=right> left=expression op=(TERNARY_LE | TERNARY_GE | TERNARY_GT | TERNARY_LT) right=expression
@@ -404,10 +405,10 @@ expression
     | objectAccessExpression
     | list
     | dict
-    | SUB expression
+    | op=SUB expression
     | expression op=(INC | DEC | BANG)
-    | expression IS? NOT? EMPTY
-    | (NOT | TILDE) expression
+    | expression IS? neg=NOT? op=EMPTY
+    | op=(NOT | TILDE) expression
     | left=expression op=(SHFTL | SHFTR) right=expression
     | left=expression op=CARET right=expression
     | left=expression op=(DIV | MUL | MOD | REM ) right=expression
@@ -415,11 +416,11 @@ expression
     | left=expression op=(CMP | FUZ) NL? right=expression
     | left=expression op=(LE | GE | GT | LT) NL? right=expression
     | left=expression op=(EQUAL | NOTEQUAL | NOTEQUAL2) NL? right=expression
-    | left=expression NOT? MATCHES right=expression
-    | left=expression NOT? CONTAINS right=expression
-    | left=expression IS? NOT? IN right=expression
+    | left=expression neg=NOT? op=MATCHES right=expression
+    | left=expression neg=NOT? op=CONTAINS right=expression
+    | left=expression IS? neg=NOT? IN right=expression
     | left=expression op=(AND | OR | XOR) NL? right=expression
-    | identifier NOT? IN range
+    | identifier neg=NOT? IN range
     ;
 
 call
@@ -666,14 +667,6 @@ identifier
     | SKIPPING
     | HEAD
     | TAIL
-    | NOT
-    | AND
-    | OR
-    | XOR
-    | MOD
-    | REM
-    | ABS
-    | SQRT
     | CLOSE
     | CONTAINS
     | MATCHES

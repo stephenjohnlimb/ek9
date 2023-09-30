@@ -17,8 +17,10 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * Checks operators from various contexts, typically this is delegated to other functions.
@@ -94,15 +96,15 @@ final class CheckOperator extends RuleSupport
         "!", addPureCheck(this::testAcceptNoArgumentsReturnAnyType),
         "?", addPureCheck(this::testAcceptNoArgumentsReturnBoolean),
         "~", addPureCheck(this::testAcceptNoArgumentsReturnConstructType),
+        "-", addPureCheck(this::testMinusOperator),
         "+", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
-        "-", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
         "*", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
         "/", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
         "^", addPureCheck(this::testAcceptOneArgumentsReturnAnyType)
     );
 
     final Map<String, Consumer<MethodSymbol>> noArgumentWithReturnChecks = Map.of(
-        "#^", addPureCheck(this::testAcceptNoArgumentsReturnAnyType),
+        "#^", addPureCheck(this::testAcceptNoArgumentsReturnAnyTypeOtherThanSelf),
         "$$", addPureCheck(this::testAcceptNoArgumentsReturnJson),
         "$", addPureCheck(this::testAcceptNoArgumentsReturnString),
         "#?", addPureCheck(this::testAcceptNoArgumentsReturnInteger),
@@ -149,12 +151,32 @@ final class CheckOperator extends RuleSupport
     return rtn;
   }
 
+  private void testMinusOperator(final MethodSymbol methodSymbol) {
+    if (methodSymbol.getCallParameters().isEmpty()) {
+      testAcceptNoArgumentsReturnConstructType(methodSymbol);
+    } else {
+      testAcceptOneArgumentsReturnAnyType(methodSymbol);
+    }
+  }
+
   private Consumer<MethodSymbol> addPureCheck(final Consumer<MethodSymbol> check) {
     return check.andThen(this::testPure);
   }
 
   private Consumer<MethodSymbol> addNonPureCheck(final Consumer<MethodSymbol> check) {
     return check.andThen(this::testNotPure);
+  }
+
+  private void testAcceptNoArgumentsReturnAnyTypeOtherThanSelf(final MethodSymbol methodSymbol) {
+    testNoArguments(methodSymbol);
+    var returnType = testAnyReturnType(methodSymbol);
+
+    returnType.ifPresent(theType -> {
+      if (methodSymbol.getParentScope() instanceof AggregateSymbol parentAggregate) {
+        var errorToken = methodSymbol.getReturningSymbol().getSourceToken();
+        testNotSameType(errorToken, parentAggregate, theType);
+      }
+    });
   }
 
   private void testAcceptNoArgumentsReturnAnyType(final MethodSymbol methodSymbol) {
@@ -213,6 +235,13 @@ final class CheckOperator extends RuleSupport
   private void testAcceptNoArgumentsNoReturn(final MethodSymbol methodSymbol) {
     testNoArguments(methodSymbol);
     testNoReturn(methodSymbol);
+  }
+
+  private void testNotSameType(final IToken token, final ISymbol s1, final ISymbol s2) {
+    if (s1.isExactSameType(s2)) {
+      errorListener.semanticError(token, OPERATOR_SEMANTICS,
+          ErrorListener.SemanticClassification.MUST_NOT_RETURN_SAME_TYPE);
+    }
   }
 
   private void testPure(final MethodSymbol methodSymbol) {

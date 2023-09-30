@@ -8,8 +8,6 @@ import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
-import org.eclipse.lsp4j.MessageParams;
-import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.WorkspaceFolder;
@@ -52,7 +50,6 @@ final class Ek9LanguageServer extends Ek9Service
   public void connect(LanguageClient client) {
     if (client != null) {
       Logger.debug("EK9: connect from client");
-      client.showMessage(new MessageParams(MessageType.Info, "Welcome to Ek9"));
     } else {
       Logger.debug("EK9: Client connect but client was null");
     }
@@ -74,7 +71,7 @@ final class Ek9LanguageServer extends Ek9Service
           List<File> fileList = osSupport.getFilesRecursivelyFrom(path.toFile(), searchCondition);
           Logger.debug("EK9: Found " + fileList.size() + " files");
           fileList.forEach(file -> {
-            //Use new JDK19 virtual threads for this.
+            //Use new JDK21 virtual threads for this.
             try {
               var compilableSource = getWorkspace().reParseSource(file.toPath());
               reportOnCompiledSource(compilableSource.getErrorListener());

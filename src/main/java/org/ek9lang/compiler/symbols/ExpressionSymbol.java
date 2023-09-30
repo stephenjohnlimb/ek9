@@ -15,7 +15,7 @@ import org.ek9lang.core.CompilerException;
  * This information will also be used in the semantic analysis phase.
  */
 public class ExpressionSymbol extends Symbol {
-  static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
   //So could need to promote to get right type
   private boolean promotionRequired = false;
@@ -31,11 +31,16 @@ public class ExpressionSymbol extends Symbol {
    */
   public ExpressionSymbol(ISymbol symbol) {
     super(symbol.getName());
+
     super.setGenus(symbol.getGenus());
-    super.setSourceToken(symbol.getSourceToken());
+    //Also it will be the same type and category.
     setType(symbol.getType());
     setCategory(symbol.getCategory());
+
+    //Need to clone over the initialised and constant ness
+    setSourceToken(symbol.getSourceToken());
     setDeclaredAsConstant(symbol.isDeclaredAsConstant());
+
   }
 
   public ExpressionSymbol(String name) {
@@ -50,10 +55,13 @@ public class ExpressionSymbol extends Symbol {
 
   protected ExpressionSymbol cloneIntoExpressionSymbol(ExpressionSymbol newCopy) {
     super.cloneIntoSymbol(newCopy);
-    newCopy.promotionRequired = promotionRequired;
-    newCopy.useStringOperator = useStringOperator;
+
+    newCopy.setPromotionRequired(isPromotionRequired());
+    newCopy.setUseStringOperator(isUseStringOperator());
+
     newCopy.setSourceToken(getSourceToken());
     newCopy.setDeclaredAsConstant(isDeclaredAsConstant());
+
     return newCopy;
   }
 

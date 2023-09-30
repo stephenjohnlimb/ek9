@@ -1,0 +1,91 @@
+#!ek9
+<?-
+  Check for missing operators with some expressions.
+  Also show correct usage as an example.
+-?>
+defines module missing.operators.examples
+
+  defines function
+
+    CheckAnd()
+      v1 <- "Steve"
+      v2 <- "Limb"
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      v3 <- noSuchCall()
+
+      assert v1?
+      assert v2?
+
+      assert v1? and v2?
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert v1? and v3?
+
+    CheckMatches()
+      name <- "Steve"
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      v3 <- noSuchCall()
+
+      regEx <- /[S|s]te(?:ven?|phen)/
+
+      //It is possible to do this either way around
+      assert name matches regEx
+      assert regEx matches name
+
+      //Also with a literal
+      assert "Stephen" matches regEx
+      assert regEx matches "Stephen"
+
+      assert "Stephen" matches /[S|s]te(?:ven?|phen)/
+      assert /[S|s]te(?:ven?|phen)/ matches "Stephen"
+
+      //Just check error cascade
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert regEx matches v3
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert v3 matches regEx
+
+    CheckNotMatches()
+      name <- "Steve"
+      regEx <- /[S|s]te(?:ven?|phen)/
+
+      //Try using the infix use of not.
+      assert name not matches regEx
+
+      //Rather than
+      assert ~ (name matches regEx)
+
+      //OR this:
+      //Nww stopped allowing operator to also be identifiers
+      //because this would be ambiguous, it is not on the expression
+      //or it is a function called not, or even a method called not
+      assert not (name matches regEx)
+
+    CheckInappropriateUse()
+      name <- "Steve"
+
+      //The #< gives the first character on a String
+      //But Character don;t have the not operator.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert not (#< name)
+
+      //But you could do this
+      assert (#< name)?
+      //Or this
+      assert not (#< name)?
+      //Or even this
+      assert ~(#< name)?
+
+      //This also makes no sense
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert (#< name) matches (#> name)
+
+      //But this does
+      assert (#< name) == (#> name)
+
+      //This is the same as above
+      assert #< name == #> name
+
+//EOF

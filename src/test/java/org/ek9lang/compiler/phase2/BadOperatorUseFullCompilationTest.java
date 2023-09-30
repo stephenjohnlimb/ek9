@@ -44,6 +44,8 @@ class BadOperatorUseFullCompilationTest extends FullCompilationTest {
     assertFalse(program.getParsedModules("bad.records.operators.examples").isEmpty());
 
     assertFalse(program.getParsedModules("bad.abstractuse.example").isEmpty());
+    assertFalse(program.getParsedModules("bad.defaultoperators.examples").isEmpty());
+    assertFalse(program.getParsedModules("missing.operators.examples").isEmpty());
 
   }
 }

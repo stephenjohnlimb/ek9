@@ -5,12 +5,13 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
-import org.ek9lang.compiler.search.TypeSymbolSearch;
+import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
+import org.ek9lang.core.CompilerException;
 
 /**
  * Ensures that 'expression' is now resolved and 'typed' or a not resolved error.
@@ -20,8 +21,9 @@ import org.ek9lang.core.AssertValue;
 final class CheckValidExpression extends RuleSupport implements Consumer<EK9Parser.ExpressionContext> {
 
   private final SymbolFactory symbolFactory;
-
   private final CheckIsSet checkIsSet;
+  private final CheckForOperator checkForOperator;
+  private final MethodSymbolSearchForExpression methodSymbolSearchForExpression;
 
   /**
    * Check Primary resolves and attempt to 'type' it.
@@ -32,6 +34,8 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
     super(symbolAndScopeManagement, errorListener);
     this.symbolFactory = symbolFactory;
     this.checkIsSet = new CheckIsSet(symbolAndScopeManagement, errorListener);
+    this.checkForOperator = new CheckForOperator(symbolAndScopeManagement, errorListener);
+    this.methodSymbolSearchForExpression = new MethodSymbolSearchForExpression(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -50,8 +54,10 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
    */
   private ISymbol determineSymbolToRecord(final EK9Parser.ExpressionContext ctx) {
     var startToken = new Ek9Token(ctx.start);
-    if (ctx.QUESTION() != null) {
-      return checkAndProcessIsSet(ctx);
+
+    if (ctx.op != null) {
+      //This deals with quite a few states - basicallt anything with an operator with 1 or two expressions.
+      return checkOperation(ctx);
     } else if (ctx.primary() != null) {
       return symbolAndScopeManagement.getRecordedSymbol(ctx.primary());
     } else if (ctx.call() != null) {
@@ -61,11 +67,7 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
     } else if (ctx.dict() != null) {
       return symbolAndScopeManagement.getRecordedSymbol(ctx.dict());
     } else if (ctx.expression() != null && !ctx.expression().isEmpty()) {
-      //TODO implement this.
-      System.out.println("Expression to expression(s) next - but need to work out the type");
-      return symbolFactory.newExpressionSymbol(startToken, ctx.getText(),
-          symbolAndScopeManagement.getTopScope().resolve(
-              new TypeSymbolSearch("Boolean")));
+      throw new CompilerException("Expecting to remove this");
     } else if (ctx.objectAccessExpression() != null) {
       var maybeResolved = symbolAndScopeManagement.getRecordedSymbol(ctx.objectAccessExpression());
       if (maybeResolved != null && maybeResolved.getType().isPresent()) {
@@ -79,9 +81,43 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
     return null;
   }
 
+  private ISymbol checkOperation(EK9Parser.ExpressionContext ctx) {
+    //Special case for isSet because it can be used against a function delegate as well.
+    if (ctx.QUESTION() != null) {
+      return checkAndProcessIsSet(ctx);
+    } else if (!ctx.expression().isEmpty()) {
+      //Could be one expression (unary) or have two expressions.
+      //This case only looks for operators on some form of aggregate.
+      var search = methodSymbolSearchForExpression.apply(ctx);
+      var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx.expression(0));
+      var located = checkForOperator.apply(new CheckOperatorData(symbol, new Ek9Token(ctx.op), search));
+      if (located.isPresent()) {
+        var expr = symbolFactory.newExpressionSymbol(located.get()).setType(located);
+        //Mow there could be a negation inside the expression (to make the syntax nicer)
+        if (ctx.neg != null) {
+          return checkAndProcessNotOperation(new Ek9Token(ctx.neg), expr);
+        }
+        return expr;
+      }
+    } else {
+      throw new CompilerException("Operation must have at least one expression.");
+    }
+    return null;
+  }
+
+  private ISymbol checkAndProcessNotOperation(final IToken notOpToken, final ISymbol exprSymbol) {
+    var search = new MethodSymbolSearch("~")
+        .setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Boolean());
+    var located = checkForOperator.apply(new CheckOperatorData(exprSymbol, notOpToken, search));
+    if (located.isPresent()) {
+      return symbolFactory.newExpressionSymbol(located.get()).setType(located);
+    }
+    return null;
+  }
+
   private ISymbol checkAndProcessIsSet(final EK9Parser.ExpressionContext ctx) {
     var expressionInQuestion = symbolAndScopeManagement.getRecordedSymbol(ctx.expression(0));
-    if (checkIsSet.test(expressionInQuestion)) {
+    if (checkIsSet.test(new Ek9Token(ctx.op), expressionInQuestion)) {
       return symbolFactory.newExpressionSymbol(expressionInQuestion)
           .setType(symbolAndScopeManagement.getEk9Types().ek9Boolean());
     }

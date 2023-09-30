@@ -1,5 +1,5 @@
 #!ek9
-defines module lists.and.dictionaries
+defines module lists.plus.dictionaries
 
   <?-
     A demonstration of lists and dictionaries.

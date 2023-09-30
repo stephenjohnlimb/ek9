@@ -86,6 +86,8 @@ public class OperatorFactory {
         aggregateFactory.createPurePublicReturnSameTypeMethod(aggregate, "#>"),
         aggregateFactory.createPurePublicReturnSameTypeMethod(aggregate, "~"),
         aggregateFactory.createPurePublicReturnSameTypeMethod(aggregate, "abs"),
+        //This is the unary minus
+        aggregateFactory.createPurePublicReturnSameTypeMethod(aggregate, "-"),
         aggregateFactory.createPurePublicSimpleOperator(aggregate, "empty", booleanType),
         aggregateFactory.createPurePublicSimpleOperator(aggregate, "length", integerType),
 

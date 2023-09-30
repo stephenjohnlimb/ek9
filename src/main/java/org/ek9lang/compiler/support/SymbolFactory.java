@@ -625,15 +625,6 @@ public class SymbolFactory {
         aggregate.define(operator);
       }
     }
-
-    //For records also add in the to JSON operator if not present.
-    if (aggregate.getGenus() == ISymbol.SymbolGenus.RECORD && !existingMethodNames.contains("$$")) {
-      var jsonOperator = aggregateFactory.createToJsonSimpleOperator(aggregate);
-      jsonOperator.setSourceToken(startToken);
-      jsonOperator.putSquirrelledData(DEFAULTED, "TRUE");
-      //Now we can add that operator in.
-      aggregate.define(jsonOperator);
-    }
   }
 
   /**
@@ -1067,6 +1058,7 @@ public class SymbolFactory {
 
     ConstantSymbol literal = new ConstantSymbol(name, true);
     configureSymbol(literal, start);
+    literal.setInitialisedBy(start);
     //You cannot set this to any other value.
     literal.setNotMutable();
 

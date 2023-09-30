@@ -1,0 +1,8 @@
+#!ek9
+<?-
+  Because there are so many operators, I've broken examples up into multiple files (even just for classes).
+  Do not check overrides yet, not until the full resolution phase.
+-?>
+defines module bad.defaultoperators.examples
+
+//EOF

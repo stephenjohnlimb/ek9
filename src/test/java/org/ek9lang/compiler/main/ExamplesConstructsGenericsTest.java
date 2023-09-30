@@ -27,6 +27,6 @@ class ExamplesConstructsGenericsTest extends FullCompilationTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
-    new SymbolCountCheck("lists.and.dictionaries", 6).test(program);
+    new SymbolCountCheck("lists.plus.dictionaries", 6).test(program);
   }
 }

@@ -30,7 +30,7 @@ import org.ek9lang.core.OsSupport;
  * a source or one a specific phase.
  */
 public class ErrorListener extends BaseErrorListener implements Serializable {
-  static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
   private final OsSupport osSupport = new OsSupport();
   private final String generalIdentifierOfSource;
@@ -355,6 +355,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     RETURNING_REDUNDANT("returning block is redundant for a standard switch/try"),
     RETURNING_MISSING("returning variable and type missing"),
     MUST_RETURN_SAME_TYPE("returning type must same as the construct type"),
+    MUST_NOT_RETURN_SAME_TYPE("returning type must not be same for promotion"),
     METHOD_ACCESS_MODIFIER_PRIVATE_OVERRIDE("remove 'override' with use of 'private' access modifier"),
     OVERRIDE_AND_ABSTRACT("'override' of a method/operator and 'abstract' (no implementation) is not logical"),
     DEFAULT_AND_ABSTRACT("'default' of an operator and 'abstract' is not logical"),
@@ -548,7 +549,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
    * The details of an error, position, etc.
    */
   public static class ErrorDetails extends Details implements CompilationIssue, Serializable {
-    static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     private final ErrorClassification classification;
     private transient MatchResults fuzzySearchResults;
@@ -620,7 +621,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
    */
   public abstract static class Details implements CompilationIssue, Serializable {
 
-    static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Not always set.
@@ -730,7 +731,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
         buffer.append(": ");
       }
 
-      if (typeOfError != null && typeOfError.length() > 0) {
+      if (typeOfError != null && !typeOfError.isEmpty()) {
         buffer.append(typeOfError).append(" ");
       }
 
