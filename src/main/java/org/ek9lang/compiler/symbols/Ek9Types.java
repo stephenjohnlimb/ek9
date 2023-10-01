@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -35,5 +36,6 @@ public record Ek9Types(ISymbol ek9Void,
                        ISymbol ek9UnaryOperator,
                        ISymbol ek9Predicate,
                        ISymbol ek9Comparator) implements Serializable {
-  static final long serialVersionUID = 1L;
+  @Serial
+  private static final long serialVersionUID = 1L;
 }

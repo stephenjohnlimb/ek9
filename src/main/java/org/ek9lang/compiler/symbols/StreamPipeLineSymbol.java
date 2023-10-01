@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
+
 /**
  * Intended to model the pipeline flow in a streaming of cat or for loop though | and map etc.
  * So really all we're trying to do in the symbol modelling is ensuring that the piping with the
@@ -7,7 +9,9 @@ package org.ek9lang.compiler.symbols;
  * objects that can be linked.
  */
 public class StreamPipeLineSymbol extends Symbol {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   public StreamPipeLineSymbol(String name) {
     super(name);

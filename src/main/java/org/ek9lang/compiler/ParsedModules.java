@@ -1,5 +1,6 @@
 package org.ek9lang.compiler;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,7 +14,9 @@ import org.ek9lang.core.CompilerException;
  * will be multiple parsed modules.
  */
 public class ParsedModules implements Serializable {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * The name of the module.

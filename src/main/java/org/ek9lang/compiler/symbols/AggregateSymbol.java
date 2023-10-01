@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,7 +39,8 @@ import org.ek9lang.core.CompilerException;
  */
 public class AggregateSymbol extends PossibleGenericSymbol implements IAggregateSymbol, Serializable {
 
-  static final long serialVersionUID = 1L;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * Also keep a back pointer to the direct subclasses.

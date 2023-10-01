@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
 import java.util.Optional;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.ToCommaSeparated;
@@ -9,7 +10,9 @@ import org.ek9lang.compiler.support.ToCommaSeparated;
  * This is primarily used for dynamic functions and classes.
  */
 public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVariables {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * This is the module this function has been defined in.

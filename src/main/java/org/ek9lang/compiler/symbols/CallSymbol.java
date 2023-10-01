@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
 import org.ek9lang.compiler.support.ReturnTypeExtractor;
 
 /**
@@ -9,7 +10,9 @@ import org.ek9lang.compiler.support.ReturnTypeExtractor;
  * We then have to resolve this CallSymbol against a real method symbol.
  */
 public class CallSymbol extends MethodSymbol {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private ScopedSymbol resolvedSymbolToCall = null;
 

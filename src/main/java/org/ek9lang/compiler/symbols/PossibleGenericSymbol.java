@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +20,9 @@ import org.ek9lang.core.AssertValue;
  * It's hard to get your (mine) head around all this.
  */
 public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBeGeneric {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * If this were the 'generic type':

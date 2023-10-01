@@ -1,5 +1,6 @@
 package org.ek9lang.compiler;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +29,8 @@ import org.ek9lang.core.AssertValue;
  */
 public class CompilableProgram implements Serializable {
 
-  static final long serialVersionUID = 1L;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * For developer defined modules. Quick access via module name into the parsedModules that are recorded.

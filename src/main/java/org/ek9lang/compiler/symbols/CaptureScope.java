@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
 import java.util.Optional;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
@@ -15,7 +16,10 @@ import org.ek9lang.compiler.search.SymbolSearch;
  * look outside to the enclosing scope.
  */
 public class CaptureScope extends LocalScope {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   private boolean openToEnclosingScope = false;
 
   public CaptureScope(IScope enclosingScope) {

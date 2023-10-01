@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.search.SymbolSearch;
@@ -13,7 +14,9 @@ import org.ek9lang.compiler.support.ToCommaSeparated;
  * We need to ensure that any functions we extend have the same method signature.
  */
 public class FunctionSymbol extends PossibleGenericSymbol {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   //Just used internally to check for method signature matching
   private final SymbolMatcher matcher = new SymbolMatcher();

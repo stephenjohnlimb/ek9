@@ -1,8 +1,7 @@
 package org.ek9lang.lsp;
 
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.eclipse.lsp4j.MessageParams;
@@ -66,8 +65,8 @@ abstract class Ek9Service {
   protected Path getPath(String uri) {
     Path path = null;
     try {
-      path = Paths.get(new URL(uri).toURI());
-    } catch (URISyntaxException | MalformedURLException e) {
+      path = Paths.get(new URI(uri));
+    } catch (URISyntaxException e) {
       //Consume leave as null
     }
 

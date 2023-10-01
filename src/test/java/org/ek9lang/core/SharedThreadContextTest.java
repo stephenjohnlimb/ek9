@@ -3,6 +3,7 @@ package org.ek9lang.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
@@ -61,7 +62,10 @@ class SharedThreadContextTest {
    * This is just used for testing the shared context concept.
    */
   static class SomeDataAggregate implements Serializable {
-    static final long serialVersionUID = 1L;
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private Integer someValue;
     private Float someOtherValue;
 

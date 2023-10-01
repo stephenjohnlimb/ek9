@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -17,7 +18,9 @@ import org.ek9lang.core.AssertValue;
  * Is extended widely for particular types of symbol.
  */
 public class Symbol implements ISymbol {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * This is the 'bit bucket' where during the parsing and IR phases
@@ -411,7 +414,7 @@ public class Symbol implements ISymbol {
   @Override
   public String getFriendlyName() {
     String theType = getSymbolTypeAsString(this.getType());
-    if (theType.length() > 0) {
+    if (!theType.isEmpty()) {
       return getName() + " as " + theType;
     }
     return getName();

@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
@@ -17,7 +18,9 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * I may refactor the generic bits out to a new Symbol type between ScopedSymbol and Symbol
  */
 public class ScopedSymbol extends Symbol implements IScopedSymbol {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * This is the scope where any symbols actually get defined.

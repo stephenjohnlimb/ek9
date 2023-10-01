@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
 import java.util.Optional;
 
 /**
@@ -7,7 +8,9 @@ import java.util.Optional;
  * For example PI = 3.242 would be a constant.
  */
 public class ConstantSymbol extends Symbol {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * Is this constant defined as a literal.

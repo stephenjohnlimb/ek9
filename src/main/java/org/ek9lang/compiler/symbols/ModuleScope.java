@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -26,7 +27,9 @@ import org.ek9lang.core.SharedThreadContext;
  * And 'resolveWithEnclosingScope' -> delegates to 'program' 'resolveFromImplicitScopes' (org.ek9.lang etc.).
  */
 public class ModuleScope extends SymbolTable {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final SharedThreadContext<CompilableProgram> compilableProgram;
 

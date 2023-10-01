@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serial;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -16,7 +17,9 @@ import java.util.Arrays;
  * so we can deal with check objects rather than raw bytes.
  */
 public final class Digest implements Serializable {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private Digest() {
     //Just to stop instantiation.
@@ -80,7 +83,9 @@ public final class Digest implements Serializable {
    * A Checksum.
    */
   public static final class CheckSum implements Serializable {
-    static final long serialVersionUID = 1L;
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final byte[] theCheckSum;
 

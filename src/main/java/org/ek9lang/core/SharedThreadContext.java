@@ -1,5 +1,6 @@
 package org.ek9lang.core;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -14,8 +15,12 @@ import java.util.function.Consumer;
  * Keep it protected within this context.
  */
 public class SharedThreadContext<T extends Serializable> implements Consumer<Consumer<T>>, Serializable {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   private final ReentrantLock lock = new ReentrantLock();
+
   private final T protectedData;
 
   /**

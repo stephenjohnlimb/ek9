@@ -1,5 +1,6 @@
 package org.ek9lang.compiler;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -48,7 +49,9 @@ import org.ek9lang.core.SharedThreadContext;
  * contexts and scopes into the ParseTreeProperty scopes object.
  */
 public class ParsedModule implements Module, Serializable {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private static final String PARSE_TREE_ERROR_TEXT = "ParseTree cannot be null";
   /**

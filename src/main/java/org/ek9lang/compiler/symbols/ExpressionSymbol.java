@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
 import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.CompilerException;
 
@@ -15,6 +16,8 @@ import org.ek9lang.core.CompilerException;
  * This information will also be used in the semantic analysis phase.
  */
 public class ExpressionSymbol extends Symbol {
+
+  @Serial
   private static final long serialVersionUID = 1L;
 
   //So could need to promote to get right type

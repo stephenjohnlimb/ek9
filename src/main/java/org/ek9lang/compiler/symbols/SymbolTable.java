@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -75,7 +76,8 @@ import org.ek9lang.core.CompilerException;
  */
 public class SymbolTable implements IScope {
 
-  static final long serialVersionUID = 1L;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * We now store the symbols in separate areas for quick access.

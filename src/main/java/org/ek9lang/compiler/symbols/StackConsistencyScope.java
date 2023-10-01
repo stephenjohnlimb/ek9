@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
 import java.util.Optional;
 import org.ek9lang.compiler.search.SymbolSearch;
 
@@ -11,7 +12,9 @@ import org.ek9lang.compiler.search.SymbolSearch;
  * other symbols and processing has been put somewhere.
  */
 public class StackConsistencyScope extends ScopedSymbol implements ICanCaptureVariables {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private CaptureScope capturedVariables;
 

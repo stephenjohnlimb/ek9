@@ -1,12 +1,15 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
 import java.util.Optional;
 
 /**
  * Models a variable.
  */
 public class VariableSymbol extends Symbol {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private boolean loopVariable = false;
 

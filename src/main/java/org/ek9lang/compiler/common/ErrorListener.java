@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.common;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +31,8 @@ import org.ek9lang.core.OsSupport;
  * a source or one a specific phase.
  */
 public class ErrorListener extends BaseErrorListener implements Serializable {
+
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private final OsSupport osSupport = new OsSupport();
@@ -549,6 +552,8 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
    * The details of an error, position, etc.
    */
   public static class ErrorDetails extends Details implements CompilationIssue, Serializable {
+
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final ErrorClassification classification;
@@ -621,6 +626,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
    */
   public abstract static class Details implements CompilationIssue, Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.search.SymbolSearch;
@@ -16,7 +17,9 @@ import org.ek9lang.compiler.support.ToCommaSeparated;
  * defined as one of the 'operators' such as '+' or '$' for example.
  */
 public class MethodSymbol extends ScopedSymbol {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   //Just used internally to check for method signature matching
   //But has to be lazily created for serialisation.

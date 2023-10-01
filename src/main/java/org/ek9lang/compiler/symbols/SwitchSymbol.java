@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
+
 /**
  * EK9 switch statement - this can effectively return a value if it is configured with returning
  * part.
@@ -13,7 +15,9 @@ package org.ek9lang.compiler.symbols;
  * variable to set the result to.
  */
 public class SwitchSymbol extends ControlSymbol {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   public SwitchSymbol(IScope enclosingScope) {
     super("Switch", enclosingScope);

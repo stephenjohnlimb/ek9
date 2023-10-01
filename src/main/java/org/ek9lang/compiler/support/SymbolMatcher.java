@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.support;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +17,9 @@ import org.ek9lang.core.AssertValue;
  * and interface/super type matches.
  */
 public class SymbolMatcher implements Serializable {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * Match the search criteria against one or more symbol methods.

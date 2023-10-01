@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,7 +13,9 @@ import org.ek9lang.compiler.support.ToCommaSeparated;
  * For this call we need the order list of parameters specifically the types of those parameters.
  */
 public class ParamExpressionSymbol extends Symbol {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final List<ISymbol> params = new ArrayList<>();
 

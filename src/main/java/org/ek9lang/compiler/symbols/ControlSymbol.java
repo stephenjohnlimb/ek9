@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
+
 /**
  * EK9 switch/try control type symbol - this can effectively return a value if it is configured
  * with returning part.
@@ -10,7 +12,9 @@ package org.ek9lang.compiler.symbols;
  * to supply the outer variable to set the result to.
  */
 public class ControlSymbol extends ScopedSymbol {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * Create a new Control Symbol.

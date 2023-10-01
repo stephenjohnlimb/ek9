@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
+
 /**
  * EK9 try statement - this can effectively return a value if it is configured with returning part.
  * When generating out put we need this to create its own block so variables inside are hidden
@@ -9,7 +11,9 @@ package org.ek9lang.compiler.symbols;
  * variable.
  */
 public class TrySymbol extends ControlSymbol {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   public TrySymbol(IScope enclosingScope) {
     super("Try", enclosingScope);

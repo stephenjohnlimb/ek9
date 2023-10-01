@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
+
 /**
  * Just re-uses the bulk of method symbol. This is only used in part of the stream pipeline.
  * We need additional information surrounding the type that can be accepted and the type that
@@ -13,7 +15,9 @@ package org.ek9lang.compiler.symbols;
  * This is the 'glue' between streaming commands and functions.
  */
 public class StreamCallSymbol extends MethodSymbol {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   //For mid-part of a stream pipeline both of these types will be set.
   //Not sure about 'tee' it is an anomaly in some ways - consumes yes

@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.symbols;
 
+import java.io.Serial;
 import java.util.Optional;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
@@ -12,7 +13,9 @@ import org.ek9lang.core.AssertValue;
  * or aggregate (class, component, etc.).
  */
 public class LocalScope extends SymbolTable {
-  static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final IScope enclosingScope;
   private IScope.ScopeType scopeType = IScope.ScopeType.BLOCK;
