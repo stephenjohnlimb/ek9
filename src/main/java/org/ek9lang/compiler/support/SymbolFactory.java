@@ -617,9 +617,20 @@ public class SymbolFactory {
         .map(ISymbol::getName)
         .toList();
 
+    Consumer<ISymbol> initialise = symbol -> {
+      symbol.setSourceToken(startToken);
+      symbol.setInitialisedBy(startToken);
+    };
+
     for (MethodSymbol operator : aggregateFactory.getAllPossibleDefaultOperators(aggregate)) {
       if (!existingMethodNames.contains(operator.getName())) {
-        operator.setSourceToken(startToken);
+        initialise.accept(operator);
+        operator.getCallParameters().forEach(initialise);
+        if (operator.isReturningSymbolPresent()) {
+          initialise.accept(operator.getReturningSymbol());
+        }
+        //Now if this has params or a return value we must also set that source token and
+        //the fact it has been initialised - by the very line startToken - because our compiler will generate.
         operator.putSquirrelledData(DEFAULTED, "TRUE");
         //Now we can add that operator in.
         aggregate.define(operator);

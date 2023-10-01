@@ -4,7 +4,7 @@
   But this tests this out on a number of constructs.
   Only test one operator of each construct type - this should be sufficient.
 -?>
-defines module bad.operator.return
+defines module bad.operators.return
 
   defines record
 

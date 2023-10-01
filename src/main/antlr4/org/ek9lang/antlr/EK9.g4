@@ -676,7 +676,6 @@ identifier
     | CONSTRAIN
     | ALLOW
     | MODULE
-    | OPERATOR
     | REFERENCES
     | CONSTANT
     | TYPE 

@@ -1,9 +1,37 @@
 #!ek9
 <?-
   Checks that when default operators syntax is used, the system generated operators can be
-  found. Also check that when it is not use and an operator is not defined they cannot be found.
+  found. Also check that when it is not used, and an operator is not defined they cannot be found.
+
+  The idea with 'default' is to enable the word 'default' as a way to get the compiler to actually
+  generate implementations (if it is possible). So for example:
+
+  default operator $$
+
+  Note that no arguments, pure or return type are needed. The EK9 compiler will work all that out
+  based on the name of the operator.
+
+  Also when used like this (without a specific operator - after all the other operators have been defined):
+
+  default operator
+
+  The EK9 compiler will workout all the 'missing' operators (i.e. they ones not yet defined).
+
+  But here's the catch, it might not always be possible for the EK9 compiler to generate a
+  default implementation. For example operator $$ (the to JSON) is only possible if all fields
+  and all super classes also have a '$$' implementation.
+  Likewise less than, greater than, less than or equal, greater than or equal to, equals and not equals
+  are require the 'comparison' operator to have been defined or for the EK9 compiler to be able to automatically
+  implement the comparison (<=>) operator if all fields and supers have the comparison operator.
+
+  In the case of super (comparison) the result from that takes precedence over any comparisons of fields in the
+  current type. Only if super.<=>(arg) returns in zerp (i.e. equals) are the fields in the current type then used.
+  Then they are applied in the order declared.
+
+  If yu need different behaviour - then write the comparison (<=>) operator yourself, and do not rely on the default
+  behaviour.
 -?>
-defines module bad.defaultoperators.examples
+defines module bad.defaultoperators.record.examples
 
   defines function
 
@@ -17,6 +45,7 @@ defines module bad.defaultoperators.examples
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       comparisonResult <- r1 <=> r2
 
+      //This then causes the type of this to be unknown.
       @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
       assert comparisonResult?
 
@@ -30,31 +59,18 @@ defines module bad.defaultoperators.examples
         -> arg0 as String
         property1 :=: arg0
 
-      //We will define this operator
+      //We will define/implement this operator
       operator ? as pure
         <- rtn as Boolean: property1?
 
-      //Looks like for records I auto add all the operators.
-      //default operator
+      //But that's it - we don't implement other operators
+      //So function CheckMissingComparator detects that fact with an error.
 
-    //Just temp to see what's going wrong
-    Person
-      firstName <- String()
-      lastName <- String()
+    R2
+      property1 <- String()
 
-      Person() as pure
-        ->
-          firstName String
-          lastName String
+      default R2()
 
-        assert firstName?
-
-        someVar <- firstName
-        assert someVar?
-
-        assert firstName? and lastName?
-
-        this.firstName :=: firstName
-        this.lastName :=: lastName
+      default operator
 
 //EOF
