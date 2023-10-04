@@ -227,10 +227,14 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterOperatorDeclaration(EK9Parser.OperatorDeclarationContext ctx) {
     var currentScope = symbolAndScopeManagement.getTopScope();
-    if (currentScope instanceof IScopedSymbol scopedSymbol) {
-      final var newTypeSymbol = symbolFactory.newOperator(ctx, scopedSymbol);
+    MethodSymbol newOperator = null;
+    if (currentScope instanceof IAggregateSymbol aggregate) {
+      newOperator = symbolFactory.newOperator(ctx, aggregate);
+    }
+
+    if (newOperator != null) {
       //Can define directly because overloaded methods are allowed.
-      symbolAndScopeManagement.defineScopedSymbol(newTypeSymbol, ctx);
+      symbolAndScopeManagement.defineScopedSymbol(newOperator, ctx);
     } else {
       symbolAndScopeManagement.recordScopeForStackConsistency(new StackConsistencyScope(currentScope), ctx);
     }
@@ -242,9 +246,15 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterDefaultOperator(EK9Parser.DefaultOperatorContext ctx) {
     var currentScope = symbolAndScopeManagement.getTopScope();
+    boolean applied = false;
     if (currentScope instanceof IAggregateSymbol aggregate) {
-      symbolFactory.addMissingDefaultOperators(ctx, aggregate);
+      applied = symbolFactory.addMissingDefaultOperators(ctx, aggregate);
     }
+
+    if (!applied) {
+      symbolAndScopeManagement.recordScopeForStackConsistency(new StackConsistencyScope(currentScope), ctx);
+    }
+
     super.enterDefaultOperator(ctx);
   }
 

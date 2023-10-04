@@ -255,7 +255,7 @@ aggregateParts
     ;
 
 defaultOperator
-    : DEFAULT OPERATOR NL+
+    : directive? DEFAULT OPERATOR NL+
     ;
 
 aggregateProperty

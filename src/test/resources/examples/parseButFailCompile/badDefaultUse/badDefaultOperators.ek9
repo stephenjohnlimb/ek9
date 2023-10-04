@@ -2,7 +2,7 @@
 <?-
   Checks for early misuse of default operators.
 -?>
-defines module earlybad.defaultoperators.record.examples
+defines module earlybad.defaultoperators.examples
 
   defines record
     R1

@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.support;
 
+import static org.ek9lang.compiler.support.SymbolFactory.DEFAULTED;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -52,24 +54,48 @@ public class OperatorFactory {
   }
 
   List<MethodSymbol> getAllPossibleDefaultOperators(IAggregateSymbol aggregate) {
+
+    return new ArrayList<>(Arrays.asList(
+        getDefaultOperator(aggregate, "<"),
+        getDefaultOperator(aggregate, "<="),
+        getDefaultOperator(aggregate, ">"),
+        getDefaultOperator(aggregate, ">="),
+        getDefaultOperator(aggregate, "=="),
+        getDefaultOperator(aggregate, "<>"),
+        getDefaultOperator(aggregate, "<=>"),
+        getDefaultOperator(aggregate, "?"),
+        getDefaultOperator(aggregate, "$"),
+        getDefaultOperator(aggregate, "$$"),
+        getDefaultOperator(aggregate, "#?")
+    ));
+  }
+
+  MethodSymbol getDefaultOperator(final IAggregateSymbol aggregate, final String operator) {
     final Optional<ISymbol> integerType = aggregateFactory.resolveInteger(aggregate);
     final Optional<ISymbol> stringType = aggregateFactory.resolveString(aggregate);
     final Optional<ISymbol> booleanType = aggregateFactory.resolveBoolean(aggregate);
     final Optional<ISymbol> jsonType = aggregateFactory.resolveJson(aggregate);
 
-    return new ArrayList<>(Arrays.asList(
-        aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<", booleanType),
-        aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<=", booleanType),
-        aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, ">", booleanType),
-        aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, ">=", booleanType),
-        aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "==", booleanType),
-        aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<>", booleanType),
-        aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<=>", integerType),
-
-        aggregateFactory.createPurePublicSimpleOperator(aggregate, "?", booleanType),
-        aggregateFactory.createPurePublicSimpleOperator(aggregate, "$", stringType),
-        aggregateFactory.createPurePublicSimpleOperator(aggregate, "$$", jsonType),
-        aggregateFactory.createPurePublicSimpleOperator(aggregate, "#?", integerType)));
+    final var rtn = switch (operator) {
+      case "<", "<=", ">", ">=", "==", "<>":
+        yield aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, operator, booleanType);
+      case "<=>":
+        yield aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, operator, integerType);
+      case "?":
+        yield aggregateFactory.createPurePublicSimpleOperator(aggregate, operator, booleanType);
+      case "$":
+        yield aggregateFactory.createPurePublicSimpleOperator(aggregate, operator, stringType);
+      case "$$":
+        yield aggregateFactory.createPurePublicSimpleOperator(aggregate, operator, jsonType);
+      case "#?":
+        yield aggregateFactory.createPurePublicSimpleOperator(aggregate, operator, integerType);
+      default:
+        yield null;
+    };
+    if (rtn != null) {
+      rtn.putSquirrelledData(DEFAULTED, "TRUE");
+    }
+    return rtn;
   }
 
   List<MethodSymbol> getAllPossibleSyntheticOperators(IAggregateSymbol aggregate) {

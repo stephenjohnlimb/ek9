@@ -322,7 +322,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertTrue(comparator.isSignatureMatchTo(comparator));
     assertTrue(comparator.isConstant());
     assertFalse(comparator.isMarkedAbstract());
-    assertFalse(comparator.isMarkedAsDispatcher());
+    assertTrue(comparator.isMarkedAsDispatcher());
 
     assertTrue(comparator.isSignatureMatchTo(comparator));
     assertTrue(comparator.isParameterSignatureMatchTo(List.of(e)));

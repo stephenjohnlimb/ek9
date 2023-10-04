@@ -19,7 +19,7 @@ class WorkingAreaFullCompilationTest extends FullCompilationTest {
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.SYMBOL_DEFINITION);
   }
 
   @Override

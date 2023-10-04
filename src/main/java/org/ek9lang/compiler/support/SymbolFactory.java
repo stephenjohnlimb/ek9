@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.support;
 
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.DEFAULT_AND_TRAIT;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -134,6 +136,8 @@ public class SymbolFactory {
 
   private final DirectiveSpecExtractor directiveSpecExtractor = new DirectiveSpecExtractor();
 
+  private final CheckAndPopulateOperator checkAndPopulateOperator;
+
   /**
    * Create a new symbol factory for use with the parsedModule.
    */
@@ -148,6 +152,8 @@ public class SymbolFactory {
     this.checkForInvalidServiceOperator =
         new CheckForInvalidServiceOperator(parsedModule.getSource().getErrorListener());
     this.checkAppropriateWebVariable = new CheckAppropriateWebVariable(parsedModule.getSource().getErrorListener());
+    this.checkAndPopulateOperator =
+        new CheckAndPopulateOperator(aggregateFactory, parsedModule.getSource().getErrorListener());
   }
 
   /**
@@ -577,31 +583,17 @@ public class SymbolFactory {
   /**
    * Create a new aggregate that represents an EK9 operator, uses a method for this.
    */
-  public MethodSymbol newOperator(EK9Parser.OperatorDeclarationContext ctx, IScopedSymbol scopedSymbol) {
-    String methodName = ctx.operator().getText();
-    MethodSymbol method = new MethodSymbol(methodName, scopedSymbol);
+  public MethodSymbol newOperator(final EK9Parser.OperatorDeclarationContext ctx, final IAggregateSymbol aggregate) {
 
-    configureSymbol(method, new Ek9Token(ctx.operator().start));
-
-    //For operators with arguments, i.e. <, >, <>, etc. the developer really wants to test based on the
-    //actual type being provided not some super. So we use the same dispatcher mechanism in classes that the ek9
-    //developer can express. But here we do it behind the scenes.
-    var hasArguments = ctx.operationDetails() != null && ctx.operationDetails().argumentParam() != null;
-    method.setMarkedAsDispatcher(hasArguments);
-    method.setOverride(ctx.OVERRIDE() != null);
-    method.setMarkedPure(ctx.PURE() != null);
-    method.setMarkedAbstract(ctx.ABSTRACT() != null);
-
-    if (ctx.DEFAULT() != null) {
-      method.putSquirrelledData(DEFAULTED, "TRUE");
+    var operator = checkAndPopulateOperator.apply(ctx, aggregate);
+    //Might be null if not a valid use of operator.
+    if (operator != null) {
+      var startToken = new Ek9Token(ctx.operator().start);
+      var methodInitializer = getDefaultOperatorSymbolInitializer(getDefaultOperatorInitialiser(startToken));
+      methodInitializer.accept(operator);
     }
 
-    method.setOperator(true);
-
-    //Set this as default unless we have a returning section
-    method.setType(aggregateFactory.resolveVoid(scopedSymbol));
-
-    return method;
+    return operator;
   }
 
   /**
@@ -610,36 +602,35 @@ public class SymbolFactory {
    * But as it is used in very early phase of compilation not all types will be known.
    * So here this method just uses the raw name of the method.
    */
-  public void addMissingDefaultOperators(EK9Parser.DefaultOperatorContext ctx, IAggregateSymbol aggregate) {
-    var startToken = new Ek9Token(ctx.start);
+  public boolean addMissingDefaultOperators(EK9Parser.DefaultOperatorContext ctx, IAggregateSymbol aggregate) {
+    var startToken = new Ek9Token(ctx.DEFAULT().getSymbol());
+
+    if (aggregate.getGenus().equals(ISymbol.SymbolGenus.CLASS_TRAIT)) {
+      var msg = "wrt to type: '" + aggregate.getFriendlyName() + "':";
+      var errorListener = parsedModule.getSource().getErrorListener();
+      errorListener.semanticError(startToken, msg, DEFAULT_AND_TRAIT);
+      return false;
+    }
+
     var existingMethodNames = aggregate.getAllNonAbstractMethods()
         .stream()
         .map(ISymbol::getName)
         .toList();
 
-    Consumer<ISymbol> initialise = symbol -> {
-      symbol.setSourceToken(startToken);
-      symbol.setInitialisedBy(startToken);
-    };
+    var methodInitializer = getDefaultOperatorSymbolInitializer(getDefaultOperatorInitialiser(startToken));
 
     for (MethodSymbol operator : aggregateFactory.getAllPossibleDefaultOperators(aggregate)) {
       if (!existingMethodNames.contains(operator.getName())) {
-        initialise.accept(operator);
-        operator.getCallParameters().forEach(initialise);
-        if (operator.isReturningSymbolPresent()) {
-          initialise.accept(operator.getReturningSymbol());
-        }
-        //Now if this has params or a return value we must also set that source token and
-        //the fact it has been initialised - by the very line startToken - because our compiler will generate.
-        operator.putSquirrelledData(DEFAULTED, "TRUE");
+        methodInitializer.accept(operator);
         //Now we can add that operator in.
         aggregate.define(operator);
       }
     }
+    return true;
   }
 
   /**
-   * Create a new aggregate that represents an EK9 class/component method.
+   * Create a new method that represents an EK9 class/component method.
    */
   public MethodSymbol newMethod(EK9Parser.MethodDeclarationContext ctx, IScopedSymbol scopedSymbol) {
     //So now we should have an aggregate we are adding this method into.
@@ -1090,6 +1081,24 @@ public class SymbolFactory {
     aggregate.setInitialisedBy(start);
     aggregate.setReferenced(true);
     configureSymbol(aggregate, start);
+  }
+
+  private Consumer<MethodSymbol> getDefaultOperatorSymbolInitializer(final Consumer<ISymbol> initialise) {
+    return operator -> {
+      initialise.accept(operator);
+      operator.getCallParameters().forEach(initialise);
+      if (operator.isReturningSymbolPresent()) {
+        initialise.accept(operator.getReturningSymbol());
+      }
+    };
+  }
+
+  private Consumer<ISymbol> getDefaultOperatorInitialiser(final IToken startToken) {
+    return symbol -> {
+      symbol.setSourceToken(startToken);
+      symbol.setInitialisedBy(startToken);
+      configureSymbol(symbol, startToken);
+    };
   }
 
   private void configureSymbol(ISymbol symbol, IToken start) {

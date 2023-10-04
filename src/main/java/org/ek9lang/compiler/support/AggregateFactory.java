@@ -227,6 +227,14 @@ public class AggregateFactory {
   }
 
   /**
+   * If the operator provided can be defaulted then a Method symbol with the correct dignature will
+   * be returned. Otherwise, the return Optional will be empty (normally indicating an error).
+   */
+  public Optional<MethodSymbol> getDefaultOperator(final IAggregateSymbol aggregate, final String operator) {
+    return Optional.ofNullable(operatorFactory.getDefaultOperator(aggregate, operator));
+  }
+
+  /**
    * Provides a list of all possible synthetic operators, this includes the possible default operators.
    * This is typically used when creating synthetic 'T' aggregates for generics/templates.
    */
@@ -285,6 +293,8 @@ public class AggregateFactory {
   public MethodSymbol createPureAcceptSameTypeOperatorAndReturnType(IAggregateSymbol clazz, String comparatorType,
                                                                     Optional<ISymbol> returnType) {
     MethodSymbol operator = createPurePublicSimpleOperator(clazz, comparatorType, returnType);
+    //Always enable as a dispatcher, so that most specific type can be used.
+    operator.setMarkedAsDispatcher(true);
     operator.define(new VariableSymbol("param", clazz));
     return operator;
   }
