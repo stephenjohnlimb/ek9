@@ -45,8 +45,8 @@ final class CheckForOperator extends RuleSupport implements Function<CheckOperat
       var bestMatch = results.getSingleBestMatchSymbol();
       if (bestMatch.isEmpty()) {
         var location = locationExtractor.apply(aggregate);
-        var msg = "with '" + symbol.getFriendlyName() + "' and type '"
-            + aggregate.getName() + "' " + location + "':";
+        var msg = "use of '" + search + "' on '"
+            + symbol.getFriendlyName() + "', type defined " + location + ":";
 
         errorListener.semanticError(checkOperatorData.operatorUseToken(), msg,
             ErrorListener.SemanticClassification.OPERATOR_NOT_DEFINED);

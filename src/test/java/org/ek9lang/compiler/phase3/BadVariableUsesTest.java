@@ -8,7 +8,8 @@ import org.ek9lang.compiler.common.FullCompilationTest;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests bad variable usage, like use before definition, not initialised etc.
+ * Tests bad variable usage, like use before definition, not initialised etc.
+ * Now also check for duplicated properties fields in record hierarchy.
  */
 class BadVariableUsesTest extends FullCompilationTest {
 
@@ -25,5 +26,6 @@ class BadVariableUsesTest extends FullCompilationTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
     assertFalse(program.getParsedModules("bad.blockvariable.uses").isEmpty());
+    assertFalse(program.getParsedModules("bad.duplicateproperties.uses").isEmpty());
   }
 }

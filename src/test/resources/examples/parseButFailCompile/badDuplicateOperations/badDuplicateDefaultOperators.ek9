@@ -1,0 +1,52 @@
+#!ek9
+<?-
+  Just checking duplicated operators
+-?>
+defines module bad.duplicate.recordoperators
+
+    defines record
+      //Some obvious duplications
+      R1
+        someField <- 1
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        operator == as pure
+          -> arg0 as R1
+          <- rtn as Boolean: true
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        operator == as pure
+          -> arg0 as R1
+          <- rtn as Boolean: true
+
+      //An equally obvious duplication
+      R2
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        default operator ==
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        default operator ==
+
+      //A duplication because explicit and then defaulted.
+      R3A
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        operator == as pure
+          -> arg0 as R3A
+          <- rtn as Boolean: true
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        default operator ==
+
+      //A duplication because defaulted and then explicit.
+      R3B
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        default operator ==
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
+        operator == as pure
+          -> arg0 as R3B
+          <- rtn as Boolean: true
+
+//EOF

@@ -95,6 +95,9 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
    */
   MethodSymbolSearchResult resolveMatchingMethods(MethodSymbolSearch search, MethodSymbolSearchResult result);
 
+  /**
+   * Just try and resolve a member in this or super scopes.
+   */
   Optional<ISymbol> resolveMember(SymbolSearch search);
 
   Optional<IAggregateSymbol> getSuperAggregateSymbol();

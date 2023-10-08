@@ -1,0 +1,25 @@
+#!ek9
+<?-
+  Design to test and check duplicate properties/fields.
+-?>
+defines module bad.duplicateproperties.uses
+
+  defines record
+    RBase1 as open
+      prop1 <- String()
+      prop3 <- Date()
+
+    RExtension1 extends RBase1
+      @Error: FULL_RESOLUTION: DUPLICATE_PROPERTY_FIELD
+      prop3 <- String()
+
+
+    RExtension2 extends RBase1
+      @Error: FULL_RESOLUTION: DUPLICATE_PROPERTY_FIELD
+      prop1 <- String()
+
+      @Error: FULL_RESOLUTION: DUPLICATE_PROPERTY_FIELD
+      prop3 <- Time()
+
+
+//EOF

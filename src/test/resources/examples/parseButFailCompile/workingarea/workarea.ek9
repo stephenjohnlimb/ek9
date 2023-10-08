@@ -1,134 +1,184 @@
 #!ek9
 <?-
-  Checks for early misuse of default operators.
+  Just checking record operators work correctly and can be resolved OK.
+  But also looks to detect if it actually possible to implement the defaulted operators.
+  To be able to implement default operators it is necessary to have some properties
+  that can be used in that implementation.
+  With 'extends' it is also necessary that the super type has the required operators.
 -?>
-defines module earlybad.defaultoperators.record.examples
+defines module bad.defaulted.recordoperators
+
+  defines function
+    //Designed just to check all the default operators can be used.
+    CheckR0DefaultOperators()
+      val1 <- R0()
+      assert val1?
+
+      val2 <- R0()
+      assert val2?
+
+      //As prop1 in R0 is never set all these checks result in an unset value
+      //But just trying to ensure that all the operators can be resolved!
+      assert ~(val1 < val2)?
+      assert ~(val1 <= val2)?
+      assert ~(val1 > val2)?
+      assert ~(val1 >= val2)?
+      assert ~(val1 == val2)?
+      assert ~(val1 <> val2)?
+      assert ~(val1 <=> val2 == 0)?
+
+      assert ~($ val1)?
+      assert ~($$ val1)?
+      assert ~(#? val1)?
+
+    //Designed just to check some specific the default operators can be used.
+    CheckR0ADefaultOperators()
+      val1 <- R0A()
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert val1?
+
+      val2 <- R0A()
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert val2?
+
+      assert ~(val1 == val2)?
+
+      //But we've also added in a 'String version'
+      assert ~(val1 == "Steve")?
+
+      //But not added one for Date, so here we expect an error
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(val1 == 2023-10-05)
+
+      //The rest should result in an error.
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(val1 < val2)?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(val1 <= val2)?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(val1 > val2)?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(val1 >= val2)?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(val1 <> val2)?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(val1 <=> val2 == 0)?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~($ val1)?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~($$ val1)?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(#? val1)?
+
+    CheckR0BDefaultOperators()
+      val1 <- R0B()
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert val1?
+
+      val2 <- R0B()
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert val2?
+
+      assert ~(val1 == val2)?
+
+      //But we've also added in a 'String version'
+      assert ~(val1 == "Steve")?
+
+      //And also a 'Date version'
+      assert ~(val1 == 2023-10-05)
+
+      //The rest should result in an error. Just show one or two here.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(val1 < val2)?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(val1 > val2)?
 
   defines record
-    R1
-      property1 <- String()
 
-      default R1()
+    //Should not result in duplication, because 'default operator' by itself should 'fill in the blanks'.
+    R0
+      prop1 <- String()
+      prop2 <- Date()
 
-      //Test explicit definition and also defaulting
-      operator >= as pure
-        -> arg0 as R1
-        <- rtn as Boolean: true
-
-      //At this phase we dont detect duplicates.
-      default operator >=
-
-      //Now check the other way around
-
-      default operator >
-
-      //At this phase we dont detect duplicates.
-      operator > as pure
-        -> arg0 as R1
-        <- rtn as Boolean: true
-
-      @Error: SYMBOL_DEFINITION: DEFAULT_WITH_OPERATOR_SIGNATURE
-      default operator <= as pure
-        -> arg0 as R1
-        <- rtn as Boolean: false
-
-      //We will state we want it defaulting, but then provide an implementation.
-      //This is an error in understanding what 'default' means.
-      @Error: SYMBOL_DEFINITION: DEFAULT_WITH_OPERATOR_SIGNATURE
-      default operator ? as pure
-        <- rtn as Boolean: property1?
-
-      //It is possible for EK9 to fill in the rest of the operators
-      default operator
-
-  defines trait
-
-    T1
-
-      //Now this can be marked as abstract
-      operator > as pure abstract
-        -> arg0 as T1
-        <- rtn as Boolean?
-
-      //Also an implementation can be provided on a trait.
-      operator <=> as pure
-        -> arg0 as T1
-        <- rtn as Integer: 0
-
-      //But it is not possible to default operators on a trait
-      @Error: SYMBOL_DEFINITION: DEFAULT_AND_TRAIT
-      default operator >=
-
-      @Error: SYMBOL_DEFINITION: DEFAULT_AND_TRAIT
-      default operator <= as pure
-        -> arg0 as T1
-        <- rtn as Boolean: false
-
-      //Not possible for EK9 compiler to fill in defaults
-      @Error: SYMBOL_DEFINITION: DEFAULT_AND_TRAIT
-      default operator
-
-  defines class
-
-    C1
-
-      //This is fine
-      operator <=> as pure
-        -> arg0 as C1
-        <- rtn as Integer: 0
-
-      @Error: SYMBOL_DEFINITION: DEFAULT_WITH_OPERATOR_SIGNATURE
-      default operator >= as pure
-        -> arg0 as C1
-        <- rtn as Boolean?
-
-      @Error: SYMBOL_DEFINITION: DEFAULT_WITH_OPERATOR_SIGNATURE
-      default operator > as pure
-
-      @Error: SYMBOL_DEFINITION: DEFAULT_WITH_OPERATOR_SIGNATURE
-      default operator <= as pure
-        -> arg0 as C1
-
-      @Error: SYMBOL_DEFINITION: DEFAULT_WITH_OPERATOR_SIGNATURE
-      default operator < as pure abstract
-        -> arg0 as C1
-        <- rtn as Boolean?
-
-      @Error: SYMBOL_DEFINITION: DEFAULT_WITH_OPERATOR_SIGNATURE
-      default operator <> as pure
-        -> arg0 as C1
-        <- rtn as Boolean?
-        rtn: true
-
-      default operator
-
-  defines component
-
-    Comp1
-
-      //This is OK
-      operator <=> as pure
-        -> arg0 as Comp1
-        <- rtn as Integer: 0
-
-      //Test the various scenarios where modifiers and parts of a signature have been added
-      @Error: SYMBOL_DEFINITION: DEFAULT_WITH_OPERATOR_SIGNATURE
-      default operator > as pure
-
-      @Error: SYMBOL_DEFINITION: DEFAULT_WITH_OPERATOR_SIGNATURE
-      default operator >= as pure abstract
-
-      @Error: SYMBOL_DEFINITION: DEFAULT_WITH_OPERATOR_SIGNATURE
-      default operator < as abstract
-
-      @Error: SYMBOL_DEFINITION: DEFAULT_WITH_OPERATOR_SIGNATURE
+      //So the default implementation would use the '<=>' on the above properties
+      //But it can only do that if the types have '<=>'.
       default operator ==
-        -> arg0 as Comp1
 
-      @Error: SYMBOL_DEFINITION: DEFAULT_WITH_OPERATOR_SIGNATURE
-      default operator <>
-        -> arg0 as Comp1
-        <- rtn as Boolean: false
-
+      //The default implementations will delegate to use the same/appropriate methods as on
+      //each of the properties - take in in order of definition.
       default operator
+
+    //Also not duplicate because the arg0 type is different not a R0A, so a different signature.
+    R0A
+      prop1 <- String()
+
+      default operator ==
+
+      operator == as pure
+        -> arg0 as String
+        <- rtn as Boolean: true
+
+    //Maybe not a good idea to use this approach in real code, but it's not a duplicate method
+    //as the signatures are different. So there are three equality checks here.
+    R0B
+      prop1 <- String()
+
+      operator == as pure
+        -> arg0 as String
+        <- rtn as Boolean: true
+
+      default operator ==
+
+      operator == as pure
+        -> arg0 as Date
+        <- rtn as Boolean: true
+
+    //Now lets check extending with defaulting, does the Ek9 compiler does not issue errors
+    //when it defaults in operators that are overrides.
+
+    RBase1 as open
+      prop1 <- String()
+      prop2 <- Date()
+
+      //Will use the appropriate operators on properties to implement.
+      default operator
+
+    RExtension1 extends RBase1
+      prop3 <- String()
+
+      //Will first use the super version of each method, then
+      //will use the appropriate operators on properties to implement.
+      default operator
+
+    RExtension2 extends RBase1
+      prop3 <- Time()
+
+      //Will first use the super version of each method, then
+      //will use the appropriate operators on properties to implement.
+      default operator
+
+    //So while Ok in of itself, if extended and default operator is used
+    //that extension needs specific super methods to be able to provide that default.
+    //TODO add in error here and then implement.
+    MinimalBase1 as open
+      prop1 <- String()
+
+    InvalidExtension is MinimalBase1
+      prop2 <- String()
+      default operator
+
 //EOF

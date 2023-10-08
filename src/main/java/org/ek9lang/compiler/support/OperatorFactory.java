@@ -93,7 +93,9 @@ public class OperatorFactory {
         yield null;
     };
     if (rtn != null) {
+      //It has been default and is a synthetic method (i.e. not one defined explicitly by the developer)
       rtn.putSquirrelledData(DEFAULTED, "TRUE");
+      rtn.setSynthetic(true);
     }
     return rtn;
   }
