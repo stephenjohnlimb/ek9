@@ -22,11 +22,11 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * This is done by checking if any super has a suitable or compatible operators and also that
  * any properties/fields also have a suitable operator.
  * <br/>
- * All the equality checks really reply on a comparator (<=>) operator.
+ * All the equality checks really reply on a comparator (&lt;=&gt;) operator.
  * These are the operators that can be defaulted.
  * <pre>
- * "<", "<=", ">", ">=", "==", "<>":
- * "<=>":
+ * "&lt;", "&lt;=", "&gt;", "&gt;=", "==", "&lt;&gt;":
+ * "&lt;=&gt;":
  * "?":
  * "$":
  * "$$":
