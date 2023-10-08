@@ -43,6 +43,8 @@ defines module bad.defaulted.recordoperators
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       assert val2?
 
+      assert ~(val1 <=> val2 == 0)?
+
       assert ~(val1 == val2)?
 
       //But we've also added in a 'String version'
@@ -68,9 +70,6 @@ defines module bad.defaulted.recordoperators
 
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       assert ~(val1 <> val2)?
-
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
-      assert ~(val1 <=> val2 == 0)?
 
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       assert ~($ val1)?
@@ -126,6 +125,8 @@ defines module bad.defaulted.recordoperators
     R0A
       prop1 <- String()
 
+      default operator <=>
+
       default operator ==
 
       operator == as pure
@@ -141,6 +142,7 @@ defines module bad.defaulted.recordoperators
         -> arg0 as String
         <- rtn as Boolean: true
 
+      default operator <=>
       default operator ==
 
       operator == as pure
@@ -171,14 +173,63 @@ defines module bad.defaulted.recordoperators
       //will use the appropriate operators on properties to implement.
       default operator
 
+    SomeRecord1
+      prop1 <- Time()
+
+      //But note - no operators. See how it is used later
+
+    //Here we are stating we want the < operator.
+    //The defaulting mechanism requires that <=> either be provided or also defaulted.
+    SomeRecord2
+      prop1 <- Time()
+
+      @Error: FULL_RESOLUTION: MISSING_OPERATOR_IN_THIS
+      default operator <
+
+    //Now the above will work because we've asked for <=>
+    SomeRecord3
+      prop1 <- Time()
+
+      default operator <
+
+      default operator <=>
+
+    //But you could have done this as well, i.e. coded it yourself
+    SomeRecord4
+      prop1 <- Time()
+
+      default operator <
+
+      operator <=> as pure
+        -> arg0 as SomeRecord4
+        <- rtn as Integer: prop1 <=> arg0.prop1
+
     //So while Ok in of itself, if extended and default operator is used
     //that extension needs specific super methods to be able to provide that default.
     //TODO add in error here and then implement.
     MinimalBase1 as open
       prop1 <- String()
 
-    InvalidExtension is MinimalBase1
+    //Here it is not possible to default operators because that defaulting depends on super
+    //having the appropriate operators. There'll be a single error displayed here, but all
+    //default operators will be checked, so if you fix one, you then see the next error.
+    Invalid1 is MinimalBase1
       prop2 <- String()
+
+      @Error: FULL_RESOLUTION: MISSING_OPERATOR_IN_SUPER
+      default operator
+
+    Invalid2 is MinimalBase1
+      prop2 <- String()
+
+      @Error: FULL_RESOLUTION: MISSING_OPERATOR_IN_SUPER
+      default operator ?
+
+    //And in this example, SomeRecord does not have the appropriate operators.
+    Invalid3
+      prop1 <- SomeRecord1()
+
+      @Error: FULL_RESOLUTION: MISSING_OPERATOR_IN_PROPERTY_TYPE
       default operator
 
 //EOF

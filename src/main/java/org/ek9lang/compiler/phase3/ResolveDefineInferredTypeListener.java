@@ -31,6 +31,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   private final DynamicCaptureAndDefinition dynamicCaptureAndDefinition;
   private final CheckPossibleFieldDelegate checkPossibleFieldDelegate;
   private final CheckPropertyNames checkPropertyNames;
+  private final CheckDefaultOperators checkDefaultOperators;
   private final CheckMethodOverrides checkMethodOverrides;
   private final CheckMethodOverrides checkDynamicClassMethodOverrides;
   private final CheckFunctionOverrides checkFunctionOverrides;
@@ -55,6 +56,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
 
     this.checkPossibleFieldDelegate = new CheckPossibleFieldDelegate(symbolAndScopeManagement, errorListener);
     this.checkPropertyNames = new CheckPropertyNames(symbolAndScopeManagement, errorListener);
+    this.checkDefaultOperators = new CheckDefaultOperators(symbolAndScopeManagement, errorListener);
     this.checkMethodOverrides = new CheckMethodOverrides(symbolAndScopeManagement,
         errorListener, ErrorListener.SemanticClassification.NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT);
     this.checkDynamicClassMethodOverrides = new CheckMethodOverrides(symbolAndScopeManagement,
@@ -97,21 +99,25 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   @Override
   public void exitRecordDeclaration(EK9Parser.RecordDeclarationContext ctx) {
     var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    checkPropertyNames.andThen(checkMethodOverrides).andThen(checkMethodReturn).accept(symbol);
+    checkDefaultOperators
+        .andThen(checkPropertyNames)
+        .andThen(checkMethodOverrides)
+        .andThen(checkMethodReturn)
+        .accept(symbol);
     super.exitRecordDeclaration(ctx);
   }
 
   @Override
   public void exitClassDeclaration(EK9Parser.ClassDeclarationContext ctx) {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    checkMethodOverrides.andThen(checkMethodReturn).accept(symbol);
+    checkDefaultOperators.andThen(checkMethodOverrides).andThen(checkMethodReturn).accept(symbol);
     super.exitClassDeclaration(ctx);
   }
 
   @Override
   public void exitDynamicClassDeclaration(EK9Parser.DynamicClassDeclarationContext ctx) {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    checkDynamicClassMethodOverrides.andThen(checkMethodReturn).accept(symbol);
+    checkDefaultOperators.andThen(checkDynamicClassMethodOverrides).andThen(checkMethodReturn).accept(symbol);
 
     super.exitDynamicClassDeclaration(ctx);
   }
@@ -126,7 +132,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   @Override
   public void exitComponentDeclaration(EK9Parser.ComponentDeclarationContext ctx) {
     var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    checkMethodOverrides.andThen(checkMethodReturn).accept(symbol);
+    checkDefaultOperators.andThen(checkMethodOverrides).andThen(checkMethodReturn).accept(symbol);
     super.exitComponentDeclaration(ctx);
   }
 

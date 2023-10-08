@@ -56,13 +56,13 @@ public class OperatorFactory {
   List<MethodSymbol> getAllPossibleDefaultOperators(IAggregateSymbol aggregate) {
 
     return new ArrayList<>(Arrays.asList(
+        getDefaultOperator(aggregate, "<=>"),
+        getDefaultOperator(aggregate, "=="),
+        getDefaultOperator(aggregate, "<>"),
         getDefaultOperator(aggregate, "<"),
         getDefaultOperator(aggregate, "<="),
         getDefaultOperator(aggregate, ">"),
         getDefaultOperator(aggregate, ">="),
-        getDefaultOperator(aggregate, "=="),
-        getDefaultOperator(aggregate, "<>"),
-        getDefaultOperator(aggregate, "<=>"),
         getDefaultOperator(aggregate, "?"),
         getDefaultOperator(aggregate, "$"),
         getDefaultOperator(aggregate, "$$"),

@@ -27,6 +27,29 @@ defines module earlybad.defaultoperators.examples
         -> arg0 as R1
         <- rtn as Boolean: true
 
+      //Quick check to ensure operators that cannot be defaulted result in an error.
+      //There are more operators than this that cannot be defaulted.
+      @Error: SYMBOL_DEFINITION: OPERATOR_DEFAULT_NOT_SUPPORTED
+      default operator #<
+
+      @Error: SYMBOL_DEFINITION: OPERATOR_DEFAULT_NOT_SUPPORTED
+      default operator #>
+
+      @Error: SYMBOL_DEFINITION: OPERATOR_DEFAULT_NOT_SUPPORTED
+      default operator empty
+
+      @Error: SYMBOL_DEFINITION: OPERATOR_DEFAULT_NOT_SUPPORTED
+      default operator contains
+
+      @Error: SYMBOL_DEFINITION: OPERATOR_DEFAULT_NOT_SUPPORTED
+      default operator and
+
+      @Error: SYMBOL_DEFINITION: OPERATOR_DEFAULT_NOT_SUPPORTED
+      default operator or
+
+      @Error: SYMBOL_DEFINITION: OPERATOR_DEFAULT_NOT_SUPPORTED
+      default operator xor
+
       @Error: SYMBOL_DEFINITION: DEFAULT_WITH_OPERATOR_SIGNATURE
       default operator <= as pure
         -> arg0 as R1
