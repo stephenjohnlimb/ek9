@@ -36,6 +36,8 @@ final class ResolveIdentifierReferenceCallOrError extends RuleSupport
   private final CheckValidFunctionDelegateOrError checkValidFunctionDelegateOrError;
   private final ResolveFunctionOrError resolveFunctionOrError;
 
+  private final CheckNotAbstractOrError checkNotAbstractOrError;
+
   ResolveIdentifierReferenceCallOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                                         final SymbolFactory symbolFactory,
                                         final ErrorListener errorListener) {
@@ -53,6 +55,8 @@ final class ResolveIdentifierReferenceCallOrError extends RuleSupport
         new CheckValidFunctionDelegateOrError(symbolAndScopeManagement, errorListener);
     this.resolveFunctionOrError =
         new ResolveFunctionOrError(symbolAndScopeManagement, errorListener);
+    this.checkNotAbstractOrError =
+        new CheckNotAbstractOrError(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -79,6 +83,9 @@ final class ResolveIdentifierReferenceCallOrError extends RuleSupport
                                       final AggregateSymbol aggregate,
                                       final ISymbol callIdentifier,
                                       final List<ISymbol> callArguments) {
+
+    checkNotAbstractOrError.accept(token, callIdentifier);
+
     if (aggregate.isGenericInNature()) {
       //So if it is generic but no parameters, just return the generic type.
       //let any assignments of checks with inference check the type compatibility or alter the type as appropriate.
@@ -91,7 +98,7 @@ final class ResolveIdentifierReferenceCallOrError extends RuleSupport
         return checkGenericConstructionOrInvocation(token, callIdentifier, callArguments);
       }
     }
-    //It's just a simple call to a constructor.
+    //It's just a simple call to a constructor, but what if it's an abstract type.
     return checkForMethodOnAggregate(token, aggregate, callIdentifier.getName(), callArguments);
   }
 
@@ -99,6 +106,9 @@ final class ResolveIdentifierReferenceCallOrError extends RuleSupport
                                      final FunctionSymbol function,
                                      final ISymbol callIdentifier,
                                      final List<ISymbol> callArguments) {
+
+    checkNotAbstractOrError.accept(token, callIdentifier);
+
     if (function.isGenericInNature()) {
       return checkGenericConstructionOrInvocation(token, callIdentifier, callArguments);
     }

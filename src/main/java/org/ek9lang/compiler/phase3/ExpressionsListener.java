@@ -6,7 +6,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.ScopeStackConsistencyListener;
 import org.ek9lang.compiler.support.ReturnTypeExtractor;
 import org.ek9lang.compiler.support.SymbolFactory;
-import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
@@ -240,14 +240,14 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private void resolveObjectAccess(final EK9Parser.ObjectAccessContext ctx, final ISymbol inThisSymbol) {
     //TODO pull out to function with exitObjectAccessExpression
     var theType = inThisSymbol.getType();
-    if (theType.isPresent()) {
+    if (theType.isPresent() && theType.get() instanceof IAggregateSymbol aggregate) {
       if (ctx.objectAccessType().identifier() != null) {
-        var resolved = resolveFieldOrError.apply(ctx.objectAccessType().identifier(), (IScope) theType.get());
+        var resolved = resolveFieldOrError.apply(ctx.objectAccessType().identifier(), aggregate);
         var typeToRecord = returnTypeExtractor.apply(resolved);
         typeToRecord.ifPresent(type -> symbolAndScopeManagement.recordSymbol(type, ctx));
       } else if (ctx.objectAccessType().operationCall() != null) {
         var resolved =
-            resolveOperationCallOrError.apply(ctx.objectAccessType().operationCall(), (IScope) theType.get());
+            resolveOperationCallOrError.apply(ctx.objectAccessType().operationCall(), aggregate);
         var typeToRecord = returnTypeExtractor.apply(resolved);
         typeToRecord.ifPresent(type -> symbolAndScopeManagement.recordSymbol(type, ctx));
       }

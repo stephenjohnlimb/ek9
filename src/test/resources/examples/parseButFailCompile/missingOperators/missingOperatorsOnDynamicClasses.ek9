@@ -1,7 +1,7 @@
 #!ek9
 <?-
   Checks that when operators are defined in a base or a trait and are then 'defaulted'
-  the whole solution hangs together.
+  the whole solution hangs together. Includes tests on dynamic classes.
 -?>
 defines module bad.overridden.classoperators
 

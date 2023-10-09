@@ -28,7 +28,7 @@ public class CheckIfContextSupportsAbstractMethod extends RuleSupport
       var constructLine = containingConstructCtx.start.getLine();
       if (parent instanceof ICanBeGeneric possibleGeneric
           && !possibleGeneric.isMarkedAbstract() && methodSymbol.isMarkedAbstract()) {
-        var message = "containing construct, on line " + constructLine + ", is not marked as abstract, '"
+        var message = "is abstract, but construct on line " + constructLine + " is not marked as abstract, '"
             + methodSymbol.getFriendlyName() + "':";
         errorListener.semanticError(ctx.start, message,
             ErrorListener.SemanticClassification.CANNOT_BE_ABSTRACT);

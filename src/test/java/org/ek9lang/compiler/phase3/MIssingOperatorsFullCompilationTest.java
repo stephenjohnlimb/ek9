@@ -26,5 +26,6 @@ class MIssingOperatorsFullCompilationTest extends FullCompilationTest {
     assertFalse(compilationResult);
     assertFalse(program.getParsedModules("bad.defaulted.recordoperators").isEmpty());
     assertFalse(program.getParsedModules("bad.defaulted.classoperators").isEmpty());
+    assertFalse(program.getParsedModules("bad.overridden.classoperators").isEmpty());
   }
 }

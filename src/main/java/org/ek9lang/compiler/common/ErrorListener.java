@@ -447,6 +447,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     TRAIT_DELEGATE_NOT_USED("has not been used for any methods as they have been defined"),
     ABSTRACT_BUT_BODY_PROVIDED("defined as default/abstract but an implementation has been provided"),
     CANNOT_BE_ABSTRACT("cannot be abstract"),
+    CANNOT_CALL_ABSTRACT_TYPE("cannot make a call on an abstract function/type directly"),
     OVERRIDE_INAPPROPRIATE("cannot override anything"),
     NOT_ABSTRACT_AND_NO_BODY_PROVIDED("implementation not provided so must be declared as abstract"),
     DYNAMIC_CLASS_CANNOT_BE_ABSTRACT("a dynamic class cannot have abstract methods"),

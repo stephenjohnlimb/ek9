@@ -10,6 +10,8 @@ import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.SymbolTypeExtractor;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -20,12 +22,14 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * Used for resolving operation calls on aggregates, which can include properties that are delegates to functions.
  */
 final class ResolveOperationCallOrError extends RuleSupport
-    implements BiFunction<EK9Parser.OperationCallContext, IScope, ISymbol> {
+    implements BiFunction<EK9Parser.OperationCallContext, IAggregateSymbol, ISymbol> {
 
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
   private final ResolveMethodOrError resolveMethodOrError;
   private final SymbolsFromParamExpression symbolsFromParamExpression;
   private final CheckValidFunctionDelegateOrError checkValidFunctionDelegateOrError;
+  private final MostSpecificScope mostSpecificScope;
+  private final CheckAccessToSymbol checkAccessToSymbol;
 
   /**
    * Create a new operation resolver.
@@ -40,22 +44,44 @@ final class ResolveOperationCallOrError extends RuleSupport
         new CheckValidFunctionDelegateOrError(symbolAndScopeManagement, errorListener);
     this.resolveMethodOrError =
         new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
+    this.mostSpecificScope =
+        new MostSpecificScope(symbolAndScopeManagement, errorListener);
+    this.checkAccessToSymbol =
+        new CheckAccessToSymbol(symbolAndScopeManagement, errorListener);
   }
 
   @Override
-  public ISymbol apply(final EK9Parser.OperationCallContext ctx, final IScope scopeToResolveIn) {
+  public ISymbol apply(final EK9Parser.OperationCallContext ctx, final IAggregateSymbol aggregate) {
 
+    var startToken = new Ek9Token(ctx.start);
     //Get the params and extract the types
     var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
     var methodOrDelegateName = ctx.operator() != null ? ctx.operator().getText() : ctx.identifier().getText();
 
-    //Firstly just see if we can match a variable - for a delegate match
-    var initialCheck = scopeToResolveIn.resolveMember(new SymbolSearch(methodOrDelegateName));
-    if (initialCheck.isEmpty()) {
-      return resolveAsMethod(ctx, scopeToResolveIn, methodOrDelegateName, callParams);
+    //For records the properties are publicly available, but when they are function delegates they 'look' like methods.
+    //But the same is true when accessing delegates via 'this' when part of the class itself
+    var resolved = attemptDelegateResolution(startToken, aggregate, methodOrDelegateName);
+    if (resolved != null) {
+      //Now check if the parameters align.
+      return checkValidFunctionDelegateOrError.apply(new DelegateFunctionCheckData(startToken, resolved, callParams));
     }
-    return checkValidFunctionDelegateOrError.apply(
-        new DelegateFunctionCheckData(new Ek9Token(ctx.start), initialCheck.get(), callParams));
+    return resolveAsMethod(ctx, aggregate, methodOrDelegateName, callParams);
+  }
+
+  private ISymbol attemptDelegateResolution(final IToken startToken, final IAggregateSymbol aggregate,
+                                            final String delegateName) {
+    var accessFromScope = mostSpecificScope.get();
+    var resolutionAttempt = aggregate.resolveMember(new SymbolSearch(delegateName));
+    //So only if resolved and is actually a delegate, do we check access and return it.
+    if (resolutionAttempt.isPresent()
+        && resolutionAttempt.get().getType().isPresent()
+        && resolutionAttempt.get().getType().get() instanceof FunctionSymbol) {
+      var resolved = resolutionAttempt.get();
+      checkAccessToSymbol.accept(
+          new CheckSymbolAccessData(startToken, accessFromScope, aggregate, delegateName, resolved));
+      return resolved;
+    }
+    return null;
   }
 
   private ISymbol resolveAsMethod(final EK9Parser.OperationCallContext ctx,

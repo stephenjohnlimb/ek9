@@ -46,7 +46,8 @@ defines module bad.classmethod.access1
 
       checkDelegateResolution()
         //Also looks like a method call, but attempt to call on a value not a delegate
-        @Error: FULL_RESOLUTION: NOT_A_FUNCTION_DELEGATE
+        //So EK9 would have detected this and then looked for a method with the same name.
+        @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
         value <- this.someField(21)
 
       checkFailedMethodResolutionNoSuchMethod()

@@ -1,0 +1,37 @@
+#!ek9
+<?-
+  Checks that it is not possible to call abstract type directly.
+-?>
+defines module bad.abstractcalls.examples1
+
+  defines function
+
+    SomeThingNotCallable() as abstract
+      -> arg0 as String
+      <- rtn as String?
+
+    CheckCannotCallAbstractFunction()
+      @Error: FULL_RESOLUTION: CANNOT_CALL_ABSTRACT_TYPE
+      result <- SomeThingNotCallable("Steve")
+      assert result?
+
+    HigherFunction()
+      <- rtn as SomeThingNotCallable?
+      rtn: () is SomeThingNotCallable as function (rtn: arg0)
+
+    CheckCanCallViaHigherFunction()
+      someDelegate <- HigherFunction()
+      result <- someDelegate("Steve")
+      assert result?
+
+    CheckT1Operator()
+      @Error: FULL_RESOLUTION: CANNOT_CALL_ABSTRACT_TYPE
+      c1 <- C1()
+
+
+  defines class
+
+    C1 as abstract
+      operator $$ as pure
+        <- rtn as JSON: JSON()
+//EOF

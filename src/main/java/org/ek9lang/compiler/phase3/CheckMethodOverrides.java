@@ -65,7 +65,8 @@ final class CheckMethodOverrides extends RuleSupport implements Consumer<Aggrega
       var result = aggregateSymbol.resolveMatchingMethods(search, new MethodSymbolSearchResult());
       result.getSingleBestMatchSymbol().ifPresent(match -> {
         if (match.isMarkedAbstract()) {
-          var errorMessage = "'" + match.getFriendlyName() + "' not overridden:";
+          var location = locationExtractor.apply(match);
+          var errorMessage = "'" + match.getFriendlyName() + "' " + location + " not overridden:";
           errorListener.semanticError(aggregateSymbol.getSourceToken(), errorMessage, errorWhenShouldBeMarkedAbstract);
         }
       });
