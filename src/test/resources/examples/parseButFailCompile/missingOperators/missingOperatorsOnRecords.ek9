@@ -1,0 +1,227 @@
+#!ek9
+<?-
+  Just checking record operators work correctly and can be resolved OK.
+  But also looks to detect if it actually possible to implement the defaulted operators.
+  To be able to implement default operators it is necessary to have some properties
+  that can be used in that implementation.
+  With 'extends' it is also necessary that the super type has the required operators.
+-?>
+defines module bad.defaulted.recordoperators
+
+  defines function
+
+    //Designed just to check all the default operators can be used.
+    CheckR0DefaultOperators()
+
+      //To be used in the tests
+      val1 <- R0()
+      val2 <- R0()
+
+      //As prop1 in R0 is never set all these checks result in an unset value
+      //But just trying to ensure that all the operators can be resolved!
+      assert ~(val1 < val2)?
+      assert ~(val1 <= val2)?
+      assert ~(val1 > val2)?
+      assert ~(val1 >= val2)?
+      assert ~(val1 == val2)?
+      assert ~(val1 <> val2)?
+      assert ~(val1 <=> val2 == 0)?
+
+      assert ~val1?
+      assert ~($ val1)?
+      assert ~($$ val1)?
+      assert ~(#? val1)?
+
+    //Designed just to check some specific default operators can be used.
+    CheckR0ADefaultOperators()
+
+      //Again just used for the tests, but now there are specific operators in play
+      val1 <- R0A()
+      val2 <- R0A()
+
+      assert ~(val1 <=> val2 == 0)?
+      assert ~(val1 == val2)?
+      //But we've also added in a 'String version' or equals
+      assert ~(val1 == "Steve")?
+
+      //But not added an '==' for Date, so here we expect an error
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(val1 == 2023-10-05)
+
+      //The rest should result in an error, as the operators are not defined.
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(val1 < val2)?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(val1 <= val2)?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(val1 > val2)?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(val1 >= val2)?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(val1 <> val2)?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~val1?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~($ val1)?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~($$ val1)?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(#? val1)?
+
+    CheckR0BDefaultOperators()
+      val1 <- R0B()
+      val2 <- R0B()
+
+      assert ~(val1 == val2)?
+
+      //But we've also added in a 'String version'
+      assert ~(val1 == "Steve")?
+
+      //And also a 'Date version'
+      assert ~(val1 == 2023-10-05)
+
+      //The rest should result in an error. Just show one or two here.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(val1 < val2)?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert ~(val1 > val2)?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert val1?
+
+  defines record
+
+    //Should not result in duplication or '==', because 'default operator' by itself should 'fill in the blanks'.
+    R0
+      prop1 <- String()
+      prop2 <- List() of String
+
+      //So the default implementation would use the '<=>' on the above properties
+      //But it can only do that if the types have '<=>'.
+      default operator ==
+
+      //The default implementations will delegate to use the same/appropriate methods as on
+      //each of the properties - take in in order of definition.
+      default operator
+
+    //Also not duplicate because the arg0 type is different not a R0A, so a different signature.
+    R0A
+      prop1 <- String()
+
+      default operator <=>
+
+      default operator ==
+
+      operator == as pure
+        -> arg0 as String
+        <- rtn as Boolean: true
+
+    //Maybe not a good idea to use this approach in real code, but it's not a duplicate method
+    //as the signatures are different. So there are three equality checks here.
+    R0B
+      prop1 <- String()
+
+      operator == as pure
+        -> arg0 as String
+        <- rtn as Boolean: true
+
+      default operator <=>
+      default operator ==
+
+      operator == as pure
+        -> arg0 as Date
+        <- rtn as Boolean: true
+
+    //Now lets check extending with defaulting, does the Ek9 compiler does not issue errors
+    //when it defaults in operators that are overrides.
+
+    RBase1 as open
+      prop1 <- String()
+      prop2 <- Date()
+
+      //Will use the appropriate operators on properties to implement.
+      default operator
+
+    RExtension1 extends RBase1
+      prop3 <- String()
+
+      //Will first use the super version of each method, then
+      //will use the appropriate operators on properties to implement.
+      default operator
+
+    RExtension2 extends RBase1
+      prop3 <- Time()
+
+      //Will first use the super version of each method, then
+      //will use the appropriate operators on properties to implement.
+      default operator
+
+    SomeRecord1
+      prop1 <- Time()
+
+      //But note - no operators. See how it is used later
+
+    //Here we are stating we want the < operator.
+    //The defaulting mechanism requires that <=> either be provided or also defaulted.
+    SomeRecord2
+      prop1 <- Time()
+
+      @Error: FULL_RESOLUTION: MISSING_OPERATOR_IN_THIS
+      default operator <
+
+    //Now the above will work because we've asked for <=>
+    SomeRecord3
+      prop1 <- Time()
+
+      default operator <
+
+      default operator <=>
+
+    //But you could have done this as well, i.e. coded it yourself
+    SomeRecord4
+      prop1 <- Time()
+
+      default operator <
+
+      operator <=> as pure
+        -> arg0 as SomeRecord4
+        <- rtn as Integer: prop1 <=> arg0.prop1
+
+    //So while Ok in of itself, if extended and default operator is used
+    //that extension needs specific super methods to be able to provide that default.
+    MinimalBase1 as open
+      prop1 <- String()
+
+    //Here it is not possible to default operators because that defaulting depends on super
+    //having the appropriate operators. There'll be a single error displayed here, but all
+    //default operators will be checked, so if you fix one, you then see the next error.
+    Invalid1 is MinimalBase1
+      prop2 <- String()
+
+      @Error: FULL_RESOLUTION: MISSING_OPERATOR_IN_SUPER
+      default operator
+
+    Invalid2 is MinimalBase1
+      prop2 <- String()
+
+      @Error: FULL_RESOLUTION: MISSING_OPERATOR_IN_SUPER
+      default operator ?
+
+    //And in this example, SomeRecord does not have the appropriate operators.
+    Invalid3
+      prop1 <- SomeRecord1()
+
+      @Error: FULL_RESOLUTION: MISSING_OPERATOR_IN_PROPERTY_TYPE
+      default operator
+
+//EOF

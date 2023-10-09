@@ -429,6 +429,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     CONSTANT_PARAM_NEEDS_PURE(
         "use 'pure' modifier with a constant parameter or convert the constant to a variable"),
     DUPLICATE_PROPERTY_FIELD("Property/Field duplicated"),
+    CANNOT_SUPPORT_TO_JSON_DUPLICATE_PROPERTY_FIELD("Property/Field duplicated, $$ (JSON) operator not supported"),
     METHOD_DUPLICATED("duplicate/ambiguous methods/operations"),
     DUPLICATE_VARIABLE("Variable/Constant duplicated"),
     DUPLICATE_VARIABLE_IN_CAPTURE("variable name duplicated, resulting in multiple fields of same name"),

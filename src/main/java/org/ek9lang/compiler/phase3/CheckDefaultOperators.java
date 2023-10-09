@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.phase3;
 
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.CANNOT_SUPPORT_TO_JSON_DUPLICATE_PROPERTY_FIELD;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.MISSING_OPERATOR_IN_PROPERTY_TYPE;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.MISSING_OPERATOR_IN_SUPER;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.MISSING_OPERATOR_IN_THIS;
@@ -35,9 +36,12 @@ import org.ek9lang.compiler.tokenizer.IToken;
  */
 final class CheckDefaultOperators extends RuleSupport implements Consumer<AggregateSymbol> {
   private final RetrieveDefaultedOperators retrieveDefaultedOperators = new RetrieveDefaultedOperators();
+  private final CheckPropertyNames checkPropertyNames;
 
   CheckDefaultOperators(final SymbolAndScopeManagement symbolAndScopeManagement, final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
+    this.checkPropertyNames = new CheckPropertyNames(symbolAndScopeManagement, errorListener,
+        CANNOT_SUPPORT_TO_JSON_DUPLICATE_PROPERTY_FIELD);
   }
 
   @Override
@@ -50,6 +54,7 @@ final class CheckDefaultOperators extends RuleSupport implements Consumer<Aggreg
     //This deals with all the no param operators.
     checkUnaryOperators(aggregateSymbol, operators);
 
+    checkToJsonSupportableIfRequired(aggregateSymbol, operators);
   }
 
   private void checkComparator(final AggregateSymbol aggregateSymbol, final List<MethodSymbol> operators) {
@@ -68,9 +73,12 @@ final class CheckDefaultOperators extends RuleSupport implements Consumer<Aggreg
 
   private void checkUnaryOperators(final AggregateSymbol aggregateSymbol, final List<MethodSymbol> operators) {
 
+    //Get all the properties on this aggregate, we will need to check them for each operator.
     var properties = aggregateSymbol.getProperties();
+
     operators.stream().filter(this::isNotASortOfComparisonOperator).forEach(operator -> {
-      //First if there is a super check it has the operator
+
+      //First if there is a super check it has the same operator - it must
       aggregateSymbol.getSuperAggregateSymbol()
           .ifPresent(superAggregate -> checkForOperatorOrError(superAggregate, operator));
 
@@ -80,14 +88,22 @@ final class CheckDefaultOperators extends RuleSupport implements Consumer<Aggreg
     });
   }
 
+  private void checkToJsonSupportableIfRequired(AggregateSymbol aggregateSymbol, List<MethodSymbol> operators) {
+    //Only is to JSOn is required.
+    operators
+        .stream()
+        .filter(operator -> "$$".equals(operator.getName()))
+        .findFirst()
+        .ifPresent(toJSON -> checkPropertyNames.accept(aggregateSymbol));
+  }
+
   private void checkForOperatorOrError(final IAggregateSymbol aggregate,
                                        final ISymbol property,
                                        final MethodSymbol operator) {
     var search = new MethodSymbolSearch(operator);
 
     if (aggregate.resolveInThisScopeOnly(search).isEmpty()) {
-      var msg = "Relating to '" + property.getFriendlyName() + "', requires operator '" + search + "':";
-
+      var msg = "Relating to '" + property.getFriendlyName() + "', it requires operator '" + search + "':";
       errorListener.semanticError(operator.getSourceToken(), msg, MISSING_OPERATOR_IN_PROPERTY_TYPE);
     }
   }
@@ -132,7 +148,6 @@ final class CheckDefaultOperators extends RuleSupport implements Consumer<Aggreg
                                    final ErrorListener.SemanticClassification errorClassification) {
 
     var msg = "Relating to '" + aggregateSymbol.getFriendlyName() + "' requires operator '" + operatorSearch + "':";
-
     errorListener.semanticError(sourceToken, msg, errorClassification);
   }
 }

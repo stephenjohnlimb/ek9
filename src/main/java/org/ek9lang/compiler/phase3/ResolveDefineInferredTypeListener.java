@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.phase3;
 
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.DUPLICATE_PROPERTY_FIELD;
+
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.common.ErrorListener;
@@ -55,7 +57,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
         new DynamicCaptureAndDefinition(symbolAndScopeManagement, errorListener, symbolFactory);
 
     this.checkPossibleFieldDelegate = new CheckPossibleFieldDelegate(symbolAndScopeManagement, errorListener);
-    this.checkPropertyNames = new CheckPropertyNames(symbolAndScopeManagement, errorListener);
+    this.checkPropertyNames = new CheckPropertyNames(symbolAndScopeManagement, errorListener, DUPLICATE_PROPERTY_FIELD);
     this.checkDefaultOperators = new CheckDefaultOperators(symbolAndScopeManagement, errorListener);
     this.checkMethodOverrides = new CheckMethodOverrides(symbolAndScopeManagement,
         errorListener, ErrorListener.SemanticClassification.NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT);

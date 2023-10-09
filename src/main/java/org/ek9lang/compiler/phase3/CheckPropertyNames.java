@@ -1,7 +1,5 @@
 package org.ek9lang.compiler.phase3;
 
-import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.DUPLICATE_PROPERTY_FIELD;
-
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
@@ -16,14 +14,18 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * duplicated. In short in a record inheritance hierarchy the properties become flattened.
  * <br/>
  * This is unlike classes/components where all properties are always private and so can have
- * the same name.
+ * the same name. But this is complicated with the JSON operator.
  */
 final class CheckPropertyNames extends RuleSupport implements Consumer<AggregateSymbol> {
   private final LocationExtractor locationExtractor = new LocationExtractor();
 
-  CheckPropertyNames(SymbolAndScopeManagement symbolAndScopeManagement,
-                     ErrorListener errorListener) {
+  private final ErrorListener.SemanticClassification errorClassification;
+
+  CheckPropertyNames(final SymbolAndScopeManagement symbolAndScopeManagement,
+                     final ErrorListener errorListener,
+                     final ErrorListener.SemanticClassification errorClassification) {
     super(symbolAndScopeManagement, errorListener);
+    this.errorClassification = errorClassification;
   }
 
   @Override
@@ -53,6 +55,6 @@ final class CheckPropertyNames extends RuleSupport implements Consumer<Aggregate
         + location
         + ":";
 
-    errorListener.semanticError(property.getSourceToken(), msg, DUPLICATE_PROPERTY_FIELD);
+    errorListener.semanticError(property.getSourceToken(), msg, errorClassification);
   }
 }
