@@ -101,7 +101,7 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
    * So the processing in here is quite detailed with quite a few combinations and paths.
    */
   private ScopedSymbol resolveByIdentifierReference(EK9Parser.CallContext ctx) {
-    return resolveIdentifierReferenceCallOrError.apply(ctx);
+    return  resolveIdentifierReferenceCallOrError.apply(ctx);
   }
 
   /**

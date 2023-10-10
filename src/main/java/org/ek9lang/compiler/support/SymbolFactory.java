@@ -1120,8 +1120,9 @@ public class SymbolFactory {
         //cookie cutting time.
         //getText(i) gives us the parameter name we just us 'T' here to denote a generic param
 
+        var startToken = new Ek9Token(detail.Identifier().getSymbol());
         AggregateSymbol t = aggregateFactory.createGenericT(detail.Identifier().getText(), scope);
-
+        t.setSourceToken(startToken);
         //Now going forward we also have constraints of those type S extends String etc.
         //So after phase 1 - but before phase 5 (resolve) we will need to revisit this to ensure we have
         //applied any super class to these 'T's

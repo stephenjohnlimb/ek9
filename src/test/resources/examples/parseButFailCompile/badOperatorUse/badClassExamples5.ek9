@@ -29,11 +29,6 @@ defines module bad.classes.operators.examples5
       operator >> as pure
         <- rtn as Integer: 0
 
-      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
-      operator >> as pure
-        -> arg0 as Integer
-        assert arg0?
-
       //Shift left, accepts one Integer parameter and can return any type
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
@@ -97,11 +92,6 @@ defines module bad.classes.operators.examples5
         -> arg0 as Date
         <- rtn as Float: 0.9
 
-      //Another example of modulus - this is a working example
-      operator mod as pure
-        -> arg0 as Duration
-        <- rtn <- 0
-
       //Remainder, accepts one parameters of any type must return an Integer
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
@@ -120,21 +110,11 @@ defines module bad.classes.operators.examples5
         -> arg0 as Date
         assert arg0?
 
-      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OPERATOR_MUST_BE_PURE
-      operator contains
-        -> arg0 as Float
-        <- rtn as Boolean: true
-
       //Matches, accepts one parameters of any type must return a Boolean
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
       operator matches as pure
         -> arg0 as Float
         <- rtn as Integer: 0
-
-      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
-      operator matches as pure
-        -> arg0 as Date
-        assert arg0?
 
       //Now some examples of incorrect close operator
 
@@ -156,5 +136,26 @@ defines module bad.classes.operators.examples5
           arg0 as String
           arg1 as Integer
         <- rtn <- true
+
+    C6
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RETURNING_MISSING
+      operator >> as pure
+        -> arg0 as Integer
+        assert arg0?
+
+      //Another example of modulus - this is a working example
+      operator mod as pure
+        -> arg0 as Duration
+        <- rtn <- 0
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
+      operator matches as pure
+        -> arg0 as Date
+        assert arg0?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OPERATOR_MUST_BE_PURE
+      operator contains
+        -> arg0 as Float
+        <- rtn as Boolean: true
 
 //EOF

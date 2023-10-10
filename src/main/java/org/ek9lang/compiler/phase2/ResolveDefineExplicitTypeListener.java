@@ -8,6 +8,7 @@ import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.common.ScopeStack;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.AggregateFactory;
+import org.ek9lang.compiler.support.CheckForDuplicateOperations;
 import org.ek9lang.compiler.support.ResolveOrDefineExplicitParameterizedType;
 import org.ek9lang.compiler.support.ResolveOrDefineIdentifierReference;
 import org.ek9lang.compiler.support.ResolveOrDefineTypeDef;

@@ -6,6 +6,7 @@ defines module bad.duplicate.traitmethods
 
   defines trait
 
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
     T1
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
       duplicateMethod1()
@@ -17,6 +18,7 @@ defines module bad.duplicate.traitmethods
         -> arg0 as Duration
         <- rtn as Integer?
 
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
     T2
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
       duplicateMethod2()

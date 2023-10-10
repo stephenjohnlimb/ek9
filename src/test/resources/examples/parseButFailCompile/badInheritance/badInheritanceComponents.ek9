@@ -57,7 +57,7 @@ defines module bad.inherited.components
 
     //Try and extend a generic class
 
-    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
     Component8 extends List
 
     @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS

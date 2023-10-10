@@ -1,143 +1,135 @@
 #!ek9
 <?-
-  Checks that when operators are defined in a base or a trait and are then 'defaulted'
-  the whole solution hangs together.
+  Adding in some tests that cause duplicate methods in generic types.
+  This is very complex when taking dependent types into account as well.
+
+  This means we can only detect them when they are parameterised.
+
+  TODO add in checks on typedef (maybe) to see if identifierReference is actually a generic type - that is missing parameterizing.
 -?>
-defines module bad.overridden.classoperators
-
-  defines function
-
-    CheckC4Operator()
-      c4 <- C4()
-
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
-      assert c4?
-
-      //So even though we cannot instantiate a 'C1' we can still continue to try and compile
-      //Hence we can check for this method, so the operator $ is present on trait T1 and hence in C1
-      result <- $c4
-      assert result?
-
-      json <- $$c4
-      assert json?
-
-      //The <=> operator has not be defined on C4 or T1
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
-      assert c4 <=> "Nothing" <> 0
-
-      //Now pass a C4 in but as just a T1
-      CheckT1Operator(c4)
-
-    CheckT1Operator()
-      -> arg0 as T1
-
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
-      assert arg0?
-
-      result <- $arg0
-      assert result?
-
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
-      json <- $$arg0
-
-      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
-      assert json?
-
-    CheckDynamic1Class()
-      //There are tests for this already - but just highlight in this test context
-      @Error: FULL_RESOLUTION: DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS
-      dynamic1 <- () with trait of T1 as class
-
-    CheckDynamic2Class()
-      //This is what is needed
-      name <- "Steve"
-      dynamic2 <- (name) with trait of T1 as class
-        name()
-          <- rtn as String: name
-        default operator $
-
-      result <- $dynamic2
-      assert result?
-
-      //Note that dynamic2 has a trait of T1 and so can be passed into this method
-      CheckT1Operator(dynamic2)
-
-      //There are also other tests that check this but just another in context example
-      @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
-      failedCheckName <- dynamic2.name
-      assert failedCheckName?
-
-      //This is how it must be done, via tha accessor method.
-      checkName <- dynamic2.name()
-      assert checkName?
-
-    CheckDynamic3Class()
-      //Or you could have done this as well
-      dynamic3 <- () with trait of T1 as class
-        default operator
-
-      result <- $dynamic3
-      assert result?
-
-      //Note that dynamic3 has a trait of T1 and so can be passed into this method
-      CheckT1Operator(dynamic3)
-
-  defines trait
-
-    T1
-      operator $ as pure abstract
-        <- rtn as String?
+defines module bad.duplicate.genericclassmethods
 
   defines class
 
-    //C1 has to be abstract because $ operator is abstract
-    C1 with trait of T1 as abstract
-      operator $$ as pure
-        <- rtn as JSON: JSON()
+    G1 of type T
 
-    //This is caused by the trait T1 and its abstract operator $
-    @Error: FULL_RESOLUTION: NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT
-    C2 with trait of T1
+      methodA()
+        -> arg0 as String
+        <- rtn as Boolean: true
 
-      //So this is not abstract and so you may accidentally think C2 is not abstract.
-      operator #? as pure
-        <- rtn as Integer: 0
+      methodA()
+        -> arg0 as Float
+        <- rtn as Boolean: true
 
-    C3 with trait of T1
+      //TODO error here just returning a G1, rather than and G1 of T
+      //So some 'as' something must detect if we're missing 'of T'.
+      operator + as pure
+        -> arg0 as Integer
+        <- rtn as G1 of T: this
 
-      operator $$ as pure
-        <- rtn as JSON: JSON()
+      operator + as pure
+        -> arg0 as Float
+        <- rtn as G1 of T: this
 
-      operator #? as pure
-        <- rtn as Integer: 0
+      default operator ?
 
-      //So have a go at implementing - but miss override key modifier by accident
-      @Error: FULL_RESOLUTION: METHOD_OVERRIDES
-      operator $ as pure
-        <- rtn as String: String()
+    //Create a generic type that accepts two parameterizing arguments.
+    //Now add in two overloaded methods that by themselves are fine.
+    //But as and when we parameterize this polymorphic type may or may not work.
+    //If used with G2 of (Integer, String), we'll be fine, but
+    //if used with G2 as (Integer, Integer), then we will have duplicate methods.
+    G2 of type (K, V)
+      k as K?
+      v as V?
 
-    C4 with trait of T1
+      G2()
+        ->
+          k as K
+          v as V
 
-      operator $$ as pure
-        <- rtn as JSON: JSON()
+        this.k: k
+        this.v: v
 
-      operator #? as pure
-        <- rtn as Integer: 0
+      //@Error: FULL_RESOLUTION: METHOD_DUPLICATED
+      set()
+        -> k as K
+        this.k: k
 
-      //Finally get it right
-      override operator $ as pure
-        <- rtn as String: String()
+      //@Error: FULL_RESOLUTION: METHOD_DUPLICATED
+      set()
+        -> v as V
+        this.v: v
 
-    //Now we can define some concrete operator implementations.
-    //But also override the $ operator from T1 - but with a default implementation
-    C5 with trait of T1
+      get()
+        <- rtn as DependentForG2 of (K, V): DependentForG2(k, v)
 
-      operator $$ as pure
-        <- rtn as JSON: JSON()
+      default operator ?
 
-      operator #? as pure
-        <- rtn as Integer: 0
+    //Added this and two set methods to check we can detect duplicates on a dependent type.
+    DependentForG2 of type (K, V)
+      k as K?
+      v as V?
 
-      default operator $
+      DependentForG2()
+        ->
+          k as K
+          v as V
+        this.k: k
+        this.v: v
+
+      set()
+        -> k as K
+        this.k: k
+
+      set()
+        -> v as V
+        this.v: v
+
+      getK()
+        <- rtn as K: k
+
+      getV()
+        <- rtn as V: v
+
+  defines function
+
+    JustToFail()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      var <- NoSuch()
+
+    CheckExplicitParameterizedG1()
+      var as G1 of Integer: G1()
+      assert var?
+
+    CheckInferredParameterizedG1()
+      var <- G1(42)
+      assert var?
+
+    CheckExplicitParameterizedG2()
+      var as G2 of (Integer, String): G2()
+      assert var?
+
+    CheckInferredParameterizedG2()
+      //This is fine and will not result in duplicate methods in G2.
+      var <- G2(21, "Steve")
+      assert var?
+
+    CheckInferredParameterizedG2SameType()
+
+      //The inferred use of G2 will cause method duplication in G2 'set' operations.
+      //Those are highlighted as being in error, but are only an error, because two integers are used.
+      //So this tends to mean that the use of the generic/template type could be written better or that it is not
+      //really designed to work with two types that are the same.
+      //@Error: FULL_RESOLUTION: METHOD_DUPLICATED
+      var <- G2(21, 42)
+      assert var?
+
+    //TODO at this point need to check for method duplication
+    //TODO set(K) and set(V), both map to set(Integer), set(Integer)
+    CheckExplicitParameterizedG2SameType()
+      //@Error: FULL_RESOLUTION: METHOD_DUPLICATED
+      var as G2 of (Integer, Integer): G2()
+      assert var?
 
 //EOF

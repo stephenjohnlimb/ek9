@@ -121,8 +121,8 @@ final class ResolveIdentifierReferenceCallOrError extends RuleSupport
     var genericTypeArguments = symbolTypeExtractor.apply(parameters);
     //maybe earlier types were not defined by the ek9 developer so let's not look at it would be misleading.
     if (parameters.size() == genericTypeArguments.size()) {
-      var theParameterisedType
-          = parameterisedLocator.apply(new ParameterisedTypeData(token, genericSymbol, genericTypeArguments));
+      var theParameterisedType =
+          parameterisedLocator.apply(new ParameterisedTypeData(token, genericSymbol, genericTypeArguments));
       if (theParameterisedType.isPresent()) {
         return (ScopedSymbol) theParameterisedType.get();
       }

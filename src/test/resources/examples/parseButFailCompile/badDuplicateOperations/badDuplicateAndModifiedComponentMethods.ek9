@@ -10,6 +10,7 @@ defines module bad.duplicate.componentmethods
       <?-
         Just check to duplicate constructors first
       -?>
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
       S1
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED

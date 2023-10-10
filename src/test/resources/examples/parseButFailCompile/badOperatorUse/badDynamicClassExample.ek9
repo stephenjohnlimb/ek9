@@ -28,6 +28,9 @@ defines module bad.dynamicclasses.operators.examples
     -?>
 
     TestFunctionDriver2()
+
+      //Also has lots of examples of methods that cause some to be duplicated.
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
       dynamic2 <- () with trait of T1
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN

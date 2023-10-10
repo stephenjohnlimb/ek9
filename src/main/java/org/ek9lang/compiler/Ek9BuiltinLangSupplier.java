@@ -23,7 +23,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 79;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 80;
 
   //Obviously with ek9 the indentation is important.
   @SuppressWarnings({"Indentation"})
@@ -125,6 +125,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as String
               <- rtn as String?
 
+            operator + as pure
+              -> arg as Character
+              <- rtn as String?
+
             operator $$ as pure
               <- rtn as JSON?
 
@@ -160,6 +164,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator +=
               -> arg as String
+
+            operator +=
+              -> arg as Character
 
             operator contains as pure
               -> arg as String
@@ -227,6 +234,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Bits
               <- rtn as Bits?
 
+            operator + as pure
+              -> arg as Boolean
+              <- rtn as Bits?
+
             operator - as pure
               -> arg as Bits
               <- rtn as Bits?
@@ -286,6 +297,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator +=
               -> arg as Bits
+
+            operator +=
+              -> arg as Boolean
 
             operator -=
               -> arg as Bits
@@ -1931,7 +1945,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             RegEx()
               -> arg0 as String
 
-
             operator == as pure
               -> arg as RegEx
               <- rtn as Boolean?
@@ -2100,8 +2113,16 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as List of T
               <- rtn as List of T?
 
+            operator + as pure
+              -> arg as T
+              <- rtn as List of T?
+
             operator - as pure
               -> arg as List of T
+              <- rtn as List of T?
+
+            operator - as pure
+              -> arg as T
               <- rtn as List of T?
 
             operator $$ as pure
@@ -2144,8 +2165,14 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator +=
               -> arg as List of T
 
+            operator +=
+              -> arg as T
+              
             operator -=
               -> arg as List of T
+
+            operator -=
+              -> arg as T
               
           Optional of type T
             Optional()
@@ -2179,7 +2206,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator empty as pure
               <- rtn as Boolean?
-
 
             operator contains as pure
               -> arg as T
@@ -2346,6 +2372,17 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator +=
               -> arg as T
+
+          DictEntry of type (K, V) as open
+            DictEntry()
+
+            DictEntry()
+              ->
+                k as K
+                v as V
+
+            operator ? as pure
+              <- rtn as Boolean?
             
           Dict of type (K, V) as open
             Dict()
@@ -2370,6 +2407,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Dict of (K, V)
               <- rtn as Dict of (K, V)?
 
+            operator + as pure
+              -> arg as DictEntry of (K, V)
+              <- rtn as Dict of (K, V)?
+              
             operator - as pure
               -> arg as Dict of (K, V)
               <- rtn as Dict of (K, V)?
@@ -2414,20 +2455,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator +=
               -> arg as Dict of (K, V)
 
+            operator +=
+              -> arg as DictEntry of (K, V)
+              
             operator -=
               -> arg as Dict of (K, V)
                 
-          DictEntry of type (K, V) as open
-            DictEntry()
-
-            DictEntry()
-              ->
-                k as K
-                v as V
-
-            operator ? as pure
-              <- rtn as Boolean?
-
           Iterator of type T as open
             Iterator()
             

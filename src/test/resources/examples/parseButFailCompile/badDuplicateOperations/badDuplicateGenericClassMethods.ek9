@@ -1,28 +1,28 @@
 #!ek9
+<?-
+  Now looking to support method overloading on generic types.
+  TODO add in tests that will fail.
+-?>
 defines module bad.duplicate.genericclassmethods
 
   defines class
 
     G1 of type T
 
-      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OVERLOADING_NOT_SUPPORTED
       methodA()
         -> arg0 as String
         <- rtn as Boolean: true
 
-      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OVERLOADING_NOT_SUPPORTED
       methodA()
         -> arg0 as Float
         <- rtn as Boolean: true
 
-      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OVERLOADING_NOT_SUPPORTED
       operator + as pure
         -> arg0 as Integer
-        <- rtn as G1: this
+        <- rtn as G1 of T: this
 
-      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OVERLOADING_NOT_SUPPORTED
       operator + as pure
         -> arg0 as Float
-        <- rtn as G1: this
+        <- rtn as G1 of T: this
 
 //EOF

@@ -57,6 +57,7 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
    * Something of (Integer, V) with Something of (Integer, Float)!
    */
   private final List<PossibleGenericSymbol> parameterisedTypeReferences = new ArrayList<>();
+
   /**
    * This is the optional reference to a 'generic type' (could be a class or a function).
    * That 'generic type' will have its own 'type parameters'. i.e. the 'K', "V' or 'T' things.

@@ -6,6 +6,7 @@ defines module bad.duplicate.recordmethods
 
     defines record
 
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
       R1
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
@@ -18,6 +19,7 @@ defines module bad.duplicate.recordmethods
           var <- "Steve"
           assert var?
 
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
       R2
         someField <- 1
         //Can have a public no arg constructor

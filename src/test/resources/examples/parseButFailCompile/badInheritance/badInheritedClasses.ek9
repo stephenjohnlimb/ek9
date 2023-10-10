@@ -93,12 +93,12 @@ defines module bad.inherited.classes
 
     //Now lets try and accidentally extend some generic types but not parameterised.
     //EK9 does not support extending a generic type, only when it is parameterised
-    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_CATEGORY
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
     Class14 extends List
       dob <- Date()
 
-    //Try an extend a generic function (wrong genus) as a class
-    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    //Try an extend a generic function (wrong genus) as a class and not parameterized
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
     Class15 extends GFunction
       dob <- Date()
 

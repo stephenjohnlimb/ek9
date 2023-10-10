@@ -6,6 +6,8 @@ defines module bad.duplicate.classmethods
 
   defines class
 
+    //Also mark the class itself as having duplications and being the source of those duplications.
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
     C1
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
@@ -28,6 +30,7 @@ defines module bad.duplicate.classmethods
         -> arg0 as Duration
         <- rtn <- 0
 
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
     C2
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
@@ -78,6 +81,7 @@ defines module bad.duplicate.classmethods
         <- rtn <- 1
 
     //Just abstract with same name/signature
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
     AbstractC1 as abstract
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
       duplicateMethod3() as abstract
@@ -90,6 +94,7 @@ defines module bad.duplicate.classmethods
         <- rtn as Integer?
 
     //Mix abstract and concrete with same name/signature
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
     AbstractC2 as abstract
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
       duplicateMethod4() as abstract
@@ -102,8 +107,9 @@ defines module bad.duplicate.classmethods
         <- rtn <- 1
 
     <?-
-      Just check that duplciated methods with dynamic classes, do not cause errors.
+      Just check that duplicated methods with dynamic classes, do not cause errors.
     -?>
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
     C4
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED

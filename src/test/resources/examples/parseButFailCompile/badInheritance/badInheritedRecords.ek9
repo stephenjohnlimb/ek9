@@ -57,7 +57,7 @@ defines module bad.inherited.records
 
     //Now lets try and accidentally extend some generic types.
 
-    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
     Record8 extends List
       dob <- Date()
 

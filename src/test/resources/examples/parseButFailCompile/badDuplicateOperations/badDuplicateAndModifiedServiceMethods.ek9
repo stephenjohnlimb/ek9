@@ -9,6 +9,7 @@ defines module bad.duplicate.servicemethods
       <?-
         Just check to duplicate constructors first
       -?>
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
       S1 for :/site1
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
@@ -24,6 +25,7 @@ defines module bad.duplicate.servicemethods
       <?-
         Later on add some checks for different methods but to the same uri.
       -?>
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
       S2 for :/site2
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
@@ -50,6 +52,7 @@ defines module bad.duplicate.servicemethods
       <?-
         Now try a mix of duplicate normal methods and web service methods.
       -?>
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
       S3 for :/site3
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED

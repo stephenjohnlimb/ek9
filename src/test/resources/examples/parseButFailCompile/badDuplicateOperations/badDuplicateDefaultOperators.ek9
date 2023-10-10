@@ -6,6 +6,7 @@ defines module bad.duplicate.recordoperators
 
     defines record
       //Some obvious duplications
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
       R1
         someField <- 1
 
@@ -20,6 +21,7 @@ defines module bad.duplicate.recordoperators
           <- rtn as Boolean: true
 
       //An equally obvious duplication
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
       R2
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
         default operator ==
@@ -28,6 +30,7 @@ defines module bad.duplicate.recordoperators
         default operator ==
 
       //A duplication because explicit and then defaulted.
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
       R3A
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
@@ -39,6 +42,7 @@ defines module bad.duplicate.recordoperators
         default operator ==
 
       //A duplication because defaulted and then explicit.
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
       R3B
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED

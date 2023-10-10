@@ -43,9 +43,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   private final CheckReturn checkFunctionReturn;
   private final CheckMethodReturn checkMethodReturn;
   private final CheckAllTextBodiesPresent checkAllTextBodiesPresent;
-
   private final CheckServiceRegistration checkServiceRegistration;
-
   private final CheckTypeConstraint checkTypeConstraint;
 
   /**

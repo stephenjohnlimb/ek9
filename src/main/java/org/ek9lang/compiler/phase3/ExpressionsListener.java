@@ -16,7 +16,6 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * Now some of this may feel upside down, processing on 'exit' and from the 'bottom up'.
  */
 abstract class ExpressionsListener extends ScopeStackConsistencyListener {
-
   protected final SymbolFactory symbolFactory;
   protected final ErrorListener errorListener;
   private final ReturnTypeExtractor returnTypeExtractor = new ReturnTypeExtractor();

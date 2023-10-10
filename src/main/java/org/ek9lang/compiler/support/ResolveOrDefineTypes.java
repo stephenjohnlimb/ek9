@@ -8,6 +8,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.AnyTypeSymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
@@ -25,6 +26,7 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  */
 public abstract class ResolveOrDefineTypes extends ResolverOrDefiner {
 
+
   /**
    * A bit of a complex function constructor - for a function.
    * But then this is a bit of a beast of a function.
@@ -39,9 +41,17 @@ public abstract class ResolveOrDefineTypes extends ResolverOrDefiner {
   protected Optional<ISymbol> resolveTypeByTypeDef(final EK9Parser.TypeDefContext ctx) {
 
     Optional<ISymbol> rtn = Optional.empty();
-    //The Simple case
+    //The Simple case (ish), but need to check that the type returned is not a template/generic type
+    //because no parameters have been supplied. If this is the case then error and no-resolution (i.e. return empty).
     if (ctx.identifierReference() != null) {
       rtn = resolveSimpleTypeByIdentifierReference(ctx.identifierReference());
+      if (rtn.isPresent() && rtn.get() instanceof PossibleGenericSymbol maybeGenericType
+          && maybeGenericType.isGenericInNature()) {
+        errorListener.semanticError(ctx.start, "'" + maybeGenericType.getFriendlyName() + "':",
+            ErrorListener.SemanticClassification.TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION);
+        return Optional.empty();
+      }
+
     } else if (ctx.parameterisedType() != null) {
       //The Next most complex - a parameterisedType
       //either way it's back around the recursion via these methods to this same method with a different typeDef context
@@ -53,7 +63,7 @@ public abstract class ResolveOrDefineTypes extends ResolverOrDefiner {
   }
 
   protected Optional<ISymbol> resolveTypeByParameterizedType(final EK9Parser.ParameterisedTypeContext ctx) {
-    var resolvedGenericType = resolveSimpleTypeByIdentifierReference(ctx.identifierReference());
+    var resolvedGenericType = resolveTypeByIdentifierReference(ctx.identifierReference());
 
     if (resolvedGenericType.isPresent()) {
       //So as that resolved lets now get any parameterizing parameters.
@@ -62,7 +72,7 @@ public abstract class ResolveOrDefineTypes extends ResolverOrDefiner {
     return Optional.empty();
   }
 
-  protected Optional<ISymbol> resolveSimpleTypeByIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
+  protected Optional<ISymbol> resolveTypeByIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
     var ofType = ctx.getText();
     var scope = symbolAndScopeManagement.getTopScope();
     var resolved = scope.resolve(new AnyTypeSymbolSearch(ofType));
@@ -71,6 +81,10 @@ public abstract class ResolveOrDefineTypes extends ResolverOrDefiner {
           ErrorListener.SemanticClassification.TYPE_NOT_RESOLVED);
     }
     return resolved;
+  }
+
+  protected Optional<ISymbol> resolveSimpleTypeByIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
+    return resolveTypeByIdentifierReference(ctx);
   }
 
   private Optional<ISymbol> resolveSimpleTypeByIdentifierReference(final ISymbol resolvedGenericType,

@@ -44,8 +44,7 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
   @Override
   public PossibleGenericSymbol apply(final PossibleGenericSymbol parameterisedSymbol) {
     //mainly just preconditions
-    AssertValue.checkNotNull("parameterisedSymbol cannot be null",
-        parameterisedSymbol);
+    AssertValue.checkNotNull("parameterisedSymbol cannot be null", parameterisedSymbol);
     AssertValue.checkFalse("parameterisedSymbol does not have any type arguments",
         parameterisedSymbol.getTypeParameterOrArguments().isEmpty());
 
@@ -108,6 +107,13 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
       functionSymbol.setReturningSymbol(clonedSymbol);
 
     }
+    /*
+    if(rtnType != null) {
+      //Note that need to decide on how to manage references/dependencies on other generic types.
+      //Then to trigger the creation and paramterisation of those.
+      System.out.println("Could do duplication check on [" + rtnType.getFriendlyName() + "]");
+    }
+    */
     return rtnType;
   }
 
@@ -170,7 +176,8 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
     //because this could be a 'D1 of type (X, Y, Z) of type (P, Date, G2 of (P, P))
 
     var theGenericType = forType.getGenericType();
-    AssertValue.checkTrue("Must have a generic type", theGenericType.isPresent());
+    AssertValue.checkTrue("Must have a generic type for [" + forType.getFriendlyName() + "]",
+        theGenericType.isPresent());
 
     var genericType = theGenericType.get();
 

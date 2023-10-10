@@ -7,6 +7,7 @@ defines module bad.servicemethod.returntypes
       First start off with a basic duplicate method check - done elsewhere
       but included here just for consistency
     -?>
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
     S1 for :/site1/place1
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED

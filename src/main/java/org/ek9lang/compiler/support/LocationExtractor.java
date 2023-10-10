@@ -12,6 +12,7 @@ public class LocationExtractor implements Function<ISymbol, String> {
   @Override
   public String apply(ISymbol symbol) {
     var token = symbol.getSourceToken();
+
     var fileName = new File(token.getSourceName()).getName();
     return String.format("on line %s in '%s'", token.getLine(), fileName);
   }
