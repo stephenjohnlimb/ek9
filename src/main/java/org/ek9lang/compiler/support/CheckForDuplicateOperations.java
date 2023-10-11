@@ -3,8 +3,6 @@ package org.ek9lang.compiler.support;
 import java.util.List;
 import java.util.function.BiConsumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
@@ -18,13 +16,15 @@ import org.ek9lang.core.CompilerException;
  * This is the first of such checks, in later phases inheritance of methods with invalid return types
  * and also unimplemented abstract methods will be checked (by other checkers).
  */
-public final class CheckForDuplicateOperations extends RuleSupport implements BiConsumer<IToken, IAggregateSymbol> {
+public final class CheckForDuplicateOperations implements BiConsumer<IToken, IAggregateSymbol> {
+
+  private final ErrorListener errorListener;
+
   /**
    * Create a new operations checker an aggregates.
    */
-  public CheckForDuplicateOperations(final SymbolAndScopeManagement symbolAndScopeManagement,
-                                     final ErrorListener errorListener) {
-    super(symbolAndScopeManagement, errorListener);
+  public CheckForDuplicateOperations(final ErrorListener errorListener) {
+    this.errorListener = errorListener;
   }
 
   @Override
@@ -65,13 +65,14 @@ public final class CheckForDuplicateOperations extends RuleSupport implements Bi
     var msg = "Originating from line: "
         + errorLocationToken.getLine() + " and relating to '"
         + aggregate.getFriendlyName()
-        + "', " + operation + ": '"
+        + "', "
+        + operation + ": '"
         + method.getFriendlyName()
         + "':";
 
     errorListener.semanticError(method.getSourceToken(), msg, ErrorListener.SemanticClassification.METHOD_DUPLICATED);
 
-    errorListener.semanticError(errorLocationToken, "Source of duplication: ",
+    errorListener.semanticError(errorLocationToken, "Source of duplication:",
         ErrorListener.SemanticClassification.METHOD_DUPLICATED);
   }
 }

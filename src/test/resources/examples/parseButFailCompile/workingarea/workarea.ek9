@@ -23,6 +23,7 @@ defines module bad.duplicate.genericclassmethods
 
       //TODO error here just returning a G1, rather than and G1 of T
       //So some 'as' something must detect if we're missing 'of T'.
+      //TODO this new test needs to be in an earlier phase.
       operator + as pure
         -> arg0 as Integer
         <- rtn as G1 of T: this
@@ -38,6 +39,7 @@ defines module bad.duplicate.genericclassmethods
     //But as and when we parameterize this polymorphic type may or may not work.
     //If used with G2 of (Integer, String), we'll be fine, but
     //if used with G2 as (Integer, Integer), then we will have duplicate methods.
+    @Error: FULL_RESOLUTION: METHOD_DUPLICATED
     G2 of type (K, V)
       k as K?
       v as V?
@@ -47,15 +49,24 @@ defines module bad.duplicate.genericclassmethods
           k as K
           v as V
 
-        this.k: k
-        this.v: v
+        //Just try using a hidden internal implementation of a dependent generic type
+        //this is something that does not appear in any method interface
+        //Within generics/templates we have to be explicit about types for now.
+        somethingInternal as InternalDependentForG2 of (K, V): InternalDependentForG2(k, v)
 
-      //@Error: FULL_RESOLUTION: METHOD_DUPLICATED
+        //Does not really do anything, just want to check the types align.
+        s as K: somethingInternal.getS()
+        t as V: somethingInternal.getT()
+
+        this.k: s
+        this.v: t
+
+      @Error: FULL_RESOLUTION: METHOD_DUPLICATED
       set()
         -> k as K
         this.k: k
 
-      //@Error: FULL_RESOLUTION: METHOD_DUPLICATED
+      @Error: FULL_RESOLUTION: METHOD_DUPLICATED
       set()
         -> v as V
         this.v: v
@@ -66,6 +77,7 @@ defines module bad.duplicate.genericclassmethods
       default operator ?
 
     //Added this and two set methods to check we can detect duplicates on a dependent type.
+    @Error: FULL_RESOLUTION: METHOD_DUPLICATED
     DependentForG2 of type (K, V)
       k as K?
       v as V?
@@ -77,10 +89,12 @@ defines module bad.duplicate.genericclassmethods
         this.k: k
         this.v: v
 
+      @Error: FULL_RESOLUTION: METHOD_DUPLICATED
       set()
         -> k as K
         this.k: k
 
+      @Error: FULL_RESOLUTION: METHOD_DUPLICATED
       set()
         -> v as V
         this.v: v
@@ -91,8 +105,25 @@ defines module bad.duplicate.genericclassmethods
       getV()
         <- rtn as V: v
 
+    InternalDependentForG2 of type (S, T)
+      s as S?
+      t as T?
+
+      InternalDependentForG2()
+        ->
+          s as S
+          t as T
+        this.s: s
+        this.t: t
+
+      getS()
+        <- rtn as S: s
+      getT()
+        <- rtn as T: t
+
   defines function
 
+    //Just temporary to cause a known failure.
     JustToFail()
 
       @Error: FULL_RESOLUTION: NOT_RESOLVED
@@ -121,14 +152,14 @@ defines module bad.duplicate.genericclassmethods
       //Those are highlighted as being in error, but are only an error, because two integers are used.
       //So this tends to mean that the use of the generic/template type could be written better or that it is not
       //really designed to work with two types that are the same.
-      //@Error: FULL_RESOLUTION: METHOD_DUPLICATED
-      var <- G2(21, 42)
+      //Again here this is actually the source of the error: @Error: FULL_RESOLUTION: METHOD_DUPLICATED
+      var <- G2(String, String)
       assert var?
 
     //TODO at this point need to check for method duplication
     //TODO set(K) and set(V), both map to set(Integer), set(Integer)
     CheckExplicitParameterizedG2SameType()
-      //@Error: FULL_RESOLUTION: METHOD_DUPLICATED
+      //This really where I want the error: @Error: FULL_RESOLUTION: METHOD_DUPLICATED
       var as G2 of (Integer, Integer): G2()
       assert var?
 

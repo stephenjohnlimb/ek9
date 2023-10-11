@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.ek9lang.compiler.ParametricResolveOrDefine;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.support.TypeSubstitution;
 import org.junit.jupiter.api.Test;
@@ -21,10 +22,11 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
 
   private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
 
+  private final ErrorListener errorListener = new ErrorListener("test");
   @Test
   void testFunctionSingleParameterSubstitution() {
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
-    var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine);
+    var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
 
     var t = support.createGenericT("T", symbolTable);
 
@@ -70,7 +72,7 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
   void testAggregateSingleParameterSubstitution() {
 
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
-    var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine);
+    var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
 
     var t = support.createGenericT("T", symbolTable);
     assertTrue(t.isConceptualTypeParameter());
@@ -122,7 +124,7 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
   void testAggregateMultipleParameterSubstitutions() {
 
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
-    var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine);
+    var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
 
     var p = support.createGenericT("P", symbolTable);
     assertTrue(p.isConceptualTypeParameter());

@@ -56,7 +56,7 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
     var startToken = new Ek9Token(ctx.start);
 
     if (ctx.op != null) {
-      //This deals with quite a few states - basicallt anything with an operator with 1 or two expressions.
+      //This deals with quite a few states - basically anything with an operator with 1 or two expressions.
       return checkOperation(ctx);
     } else if (ctx.primary() != null) {
       return symbolAndScopeManagement.getRecordedSymbol(ctx.primary());

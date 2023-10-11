@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.ParametricResolveOrDefine;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.support.TypeSubstitution;
 import org.junit.jupiter.api.Test;
@@ -70,6 +71,7 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
 
   private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
 
+  private final ErrorListener errorListener = new ErrorListener("test");
   /**
    * This is the main test in this file, but there are some minor checks as well.
    */
@@ -77,7 +79,7 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
   void testAggregateSingleParameterButWithMultipleGenerics() {
 
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
-    var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine);
+    var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
 
     //'D1 of type X'
     var d1OfTypeX = createD1OfTypeX();
@@ -139,7 +141,7 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
   @Test
   void testD1OfTypeX() {
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
-    var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine);
+    var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
     var d1OfTypeX = createD1OfTypeX();
     assertEquals(1, d1OfTypeX.getSymbolsForThisScope().size());
     //Now make a parameterized version
@@ -185,7 +187,7 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
   @Test
   void testG1OfTypeP() {
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
-    var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine);
+    var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
 
     var d1OfTypeX = createD1OfTypeX();
     assertTrue(d1OfTypeX.isGenericInNature());

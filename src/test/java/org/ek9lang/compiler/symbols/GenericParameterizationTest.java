@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.ek9lang.compiler.ParametricResolveOrDefine;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.search.AnyTypeSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.SymbolSearch;
@@ -26,7 +27,6 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
    * It is quite flexible (complex) in its own right and is a bit of a
    * generic chameleon.
    */
-  @SuppressWarnings("EqualsWithItself")
   @Test
   void testPossibleGenericSymbolAsType() {
     var aGenericType = testCreationOfGenericType("G1", "T");
@@ -55,9 +55,9 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     //AGenericType has used 'Dep1' but had actually given it a concrete parameter like 'Date' or 'Integer'
     //That is NOT a 'dependent' generic type, so we would not add it as a reference.
 
-    //Now as we've altered aGenericType lets equality again
-    assertNotEquals(aGenericType, clonedGenericType1);
-    assertNotEquals(aGenericType.hashCode(), clonedGenericType1.hashCode());
+    //Now as we've altered aGenericType lets equality again, we consider these the same now.
+    assertEquals(aGenericType, clonedGenericType1);
+    assertEquals(aGenericType.hashCode(), clonedGenericType1.hashCode());
     var clonedGenericType2 = aGenericType.clone(symbolTable);
     assertEquals(aGenericType, clonedGenericType2);
     assertEquals(aGenericType.hashCode(), clonedGenericType2.hashCode());
@@ -67,7 +67,8 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
   void testAbstractGenericType() {
 
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
-    var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine);
+    ErrorListener errorListener = new ErrorListener("test");
+    var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
 
     var aGenericType = creationAbstractGenericType();
     assertTrue(aGenericType.isMarkedAbstract());

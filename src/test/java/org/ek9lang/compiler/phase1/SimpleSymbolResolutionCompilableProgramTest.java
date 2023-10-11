@@ -9,6 +9,9 @@ import java.util.function.Supplier;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
+import org.ek9lang.compiler.CompilationData;
+import org.ek9lang.compiler.CompilationPhase;
+import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
@@ -51,6 +54,7 @@ class SimpleSymbolResolutionCompilableProgramTest {
 
       //Add that module in before walking.
       sharedThreadContext.accept(compilableProgram -> {
+        compilableProgram.setCompilationData(new CompilationData(CompilationPhase.SYMBOL_DEFINITION, new CompilerFlags()));
         compilableProgram.add(module);
         assertEquals(1, compilableProgram.getParsedModules(module.getModuleName()).size());
       });

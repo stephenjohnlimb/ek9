@@ -1,13 +1,12 @@
 package org.ek9lang.compiler.phase1;
 
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.CompilationPhaseResult;
 import org.ek9lang.compiler.CompilerFlags;
+import org.ek9lang.compiler.CompilerPhase;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.common.CompilationEvent;
@@ -20,11 +19,8 @@ import org.ek9lang.core.SharedThreadContext;
  * We don't want two different files reference com.abc.Item and another file
  * com.def.Item in the same module - even though different source files.
  */
-public final class ReferenceChecks implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+public final class ReferenceChecks extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.REFERENCE_CHECKS;
-  private final Consumer<CompilationEvent> listener;
-  private final CompilerReporter reporter;
-  private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
   /**
@@ -32,23 +28,18 @@ public final class ReferenceChecks implements BiFunction<Workspace, CompilerFlag
    */
   public ReferenceChecks(SharedThreadContext<CompilableProgram> compilableProgramAccess,
                          Consumer<CompilationEvent> listener, CompilerReporter reporter) {
-    this.listener = listener;
-    this.reporter = reporter;
-    this.compilableProgramAccess = compilableProgramAccess;
+
+    super(thisPhase, compilableProgramAccess, listener, reporter);
   }
 
   @Override
-  public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
+  public boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
 
-    reporter.log(thisPhase);
     workspace
         .getSources()
         .forEach(this::resolveReferencedSymbols);
 
-    var errorFree = !sourceHaveErrors.test(workspace.getSources());
-
-    return new CompilationPhaseResult(thisPhase, errorFree,
-        compilerFlags.getCompileToPhase() == thisPhase);
+    return !sourceHaveErrors.test(workspace.getSources());
   }
 
   /**

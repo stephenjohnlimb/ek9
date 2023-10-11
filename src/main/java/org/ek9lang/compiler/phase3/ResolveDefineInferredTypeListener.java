@@ -9,6 +9,8 @@ import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.CaptureScope;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
+import org.ek9lang.core.CompilerException;
 
 /**
  * <p>
@@ -70,6 +72,20 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     this.checkAllTextBodiesPresent = new CheckAllTextBodiesPresent(symbolAndScopeManagement, errorListener);
     this.checkServiceRegistration = new CheckServiceRegistration(symbolAndScopeManagement, errorListener);
     this.checkTypeConstraint = new CheckTypeConstraint(symbolAndScopeManagement, symbolFactory, errorListener);
+  }
+
+  @Override
+  public void enterParameterisedType(EK9Parser.ParameterisedTypeContext ctx) {
+    //So finally at this point - as a parameterized type is explicitly encountered
+    //WE MUST re-resolve it and in this FULL_COMPILATION phase it will then get all it's types
+    //substituted - unless they have already been substituted.
+    var theType = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    if (theType != null && theType.isParameterisedType()) {
+      symbolAndScopeManagement.resolveOrDefine((PossibleGenericSymbol) theType, errorListener);
+    } else {
+      throw new CompilerException("Expecting parameterised type to exist.");
+    }
+    super.enterParameterisedType(ctx);
   }
 
   @Override
@@ -154,6 +170,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   @Override
   public void enterDynamicFunctionDeclaration(EK9Parser.DynamicFunctionDeclarationContext ctx) {
     var symbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+
     //Automatically populate the function signature and return for a dynamic function
     autoMatchSuperFunctionSignature.accept(symbol);
     //Now just check it, should be fine - maybe remove in the future.

@@ -1,14 +1,13 @@
 package org.ek9lang.compiler.phase3;
 
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.CompilationPhaseResult;
 import org.ek9lang.compiler.CompilerFlags;
+import org.ek9lang.compiler.CompilerPhase;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
@@ -55,14 +54,10 @@ import org.ek9lang.core.SharedThreadContext;
  * may use part of that new object via expressions we have to define then 'just a head' of when they are needed.
  * </p>
  */
-public final class SymbolResolution implements
-    BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+public final class SymbolResolution extends CompilerPhase {
 
   private static final CompilationPhase thisPhase = CompilationPhase.FULL_RESOLUTION;
   private final boolean useMultiThreading;
-  private final Consumer<CompilationEvent> listener;
-  private final CompilerReporter reporter;
-  private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
   /**
@@ -71,17 +66,14 @@ public final class SymbolResolution implements
   public SymbolResolution(final boolean multiThread,
                           SharedThreadContext<CompilableProgram> compilableProgramAccess,
                           Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+    super(thisPhase, compilableProgramAccess, listener, reporter);
     this.useMultiThreading = multiThread;
-    this.listener = listener;
-    this.reporter = reporter;
-    this.compilableProgramAccess = compilableProgramAccess;
   }
 
   @Override
-  public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
-    reporter.log(thisPhase);
-    final var result = underTakeTypeSymbolResolutionAndDefinition(workspace);
-    return new CompilationPhaseResult(thisPhase, result, compilerFlags.getCompileToPhase() == thisPhase);
+  public boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
+
+    return underTakeTypeSymbolResolutionAndDefinition(workspace);
   }
 
   private boolean underTakeTypeSymbolResolutionAndDefinition(Workspace workspace) {
@@ -108,7 +100,8 @@ public final class SymbolResolution implements
     //This has to be done via a mutable holder through a reentrant lock to the program
     var holder = new AtomicReference<ParsedModule>();
     compilableProgramAccess.accept(
-        program -> holder.set(program.getParsedModuleForCompilableSource(source)));
+        program -> holder.set(program.getParsedModuleForCompilableSource(source))
+    );
 
     if (holder.get() == null) {
       throw new CompilerException("Compiler error, the parsed module must be present for " + source.getFileName());

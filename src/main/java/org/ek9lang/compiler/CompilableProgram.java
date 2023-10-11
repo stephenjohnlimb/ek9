@@ -47,6 +47,8 @@ public class CompilableProgram implements Serializable {
    */
   private transient Function<String, List<ModuleScope>> getModuleScopes;
 
+  private transient CompilationData compilationData;
+
   /**
    * When the built-in ek9 bootstrap module is parsed and processed, it will be added here.
    * This is so that basic built in types (which are immutable) can then be used within the compiler.
@@ -65,6 +67,14 @@ public class CompilableProgram implements Serializable {
 
   public Ek9Types getEk9Types() {
     return ek9Types;
+  }
+
+  public CompilationData getCompilationData() {
+    return compilationData;
+  }
+
+  public void setCompilationData(CompilationData compilationData) {
+    this.compilationData = compilationData;
   }
 
   public void setEk9Types(Ek9Types ek9Types) {

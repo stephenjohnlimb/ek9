@@ -19,8 +19,10 @@ import org.ek9lang.compiler.symbols.CaptureScope;
 import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
+import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.compiler.tokenizer.IToken;
@@ -96,7 +98,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
         new SymbolFactory(parsedModule);
 
     this.checkForDuplicateOperations =
-        new CheckForDuplicateOperations(symbolAndScopeManagement, errorListener);
+        new CheckForDuplicateOperations(errorListener);
     this.checkVisibilityOfOperations =
         new CheckVisibilityOfOperations(symbolAndScopeManagement, errorListener);
     this.checkNotGenericTypeParameter =
@@ -254,6 +256,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
         resolved.ifPresent(theTrait -> symbol.addTrait((AggregateWithTraitsSymbol) theTrait));
       });
     }
+
     symbolAndScopeManagement.exitScope();
     super.exitClassDeclaration(ctx);
   }
@@ -534,6 +537,28 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     }
     //Else it is probably a service which is dealt with in the next phase.
     super.exitRegisterStatement(ctx);
+  }
+
+  @Override
+  public void exitTypeDef(EK9Parser.TypeDefContext ctx) {
+    var enclosingMainTypeOrFunction = symbolAndScopeManagement.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
+    //TODO move into a function
+    //First find the main enclosing block nd see if it generic in nature
+    //Then see if the type definition is also generic in nature - this mean it will need parameters
+    //So we be able record this fact and then later when the main outer generic type is parameterised
+    //we can also parameterize these as well.
+    enclosingMainTypeOrFunction.ifPresent(enclosingScope -> {
+      if (enclosingScope instanceof PossibleGenericSymbol possibleGenericParent
+          && possibleGenericParent.isGenericInNature()) {
+        var typeDef = symbolAndScopeManagement.getRecordedSymbol(ctx);
+        if (typeDef instanceof PossibleGenericSymbol possibleGenericDependent
+            && possibleGenericDependent.isGenericInNature()) {
+          possibleGenericParent.addGenericSymbolReference(possibleGenericDependent);
+        }
+      }
+    });
+
+    super.exitTypeDef(ctx);
   }
 
   /*

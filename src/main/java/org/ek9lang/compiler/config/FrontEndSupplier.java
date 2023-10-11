@@ -45,7 +45,7 @@ public class FrontEndSupplier extends PhaseSupplier {
     return List.of(
         new Parsing(listener, reporter),
         new SymbolDefinition(multiThread, compilableProgramAccess, listener, reporter),
-        new ModuleDuplicateSymbolChecks(compilableProgramAccess, reporter),
+        new ModuleDuplicateSymbolChecks(compilableProgramAccess, listener, reporter),
         new ReferenceChecks(compilableProgramAccess, listener, reporter),
         new NonInferredTypeDefinition(multiThread, compilableProgramAccess, listener, reporter),
         new TypeHierarchyChecks(compilableProgramAccess, listener, reporter),

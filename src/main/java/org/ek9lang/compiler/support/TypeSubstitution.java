@@ -1,17 +1,22 @@
 package org.ek9lang.compiler.support;
 
+import static org.ek9lang.compiler.support.SymbolFactory.SUBSTITUTED;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import org.ek9lang.compiler.ResolvedOrDefineResult;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.core.AssertValue;
+import org.ek9lang.core.CompilerException;
 
 /**
  * Accepts an aggregate or a function that has been parameterized with 'type arguments'.
@@ -20,6 +25,11 @@ import org.ek9lang.core.AssertValue;
  * 'generic type' and clones the method or parameter (in case of a function) and the associated
  * returns if there are any. It then replaces the 'T' with the appropriate 'type argument'.
  * This does mutate the 'possibleGenericSymbol' passed in.
+ * <br/>
+ * There is recursion and generics being replaced in here. VERY HARD.
+ * This now only gets called the thr FULL_RESOLUTION phase, prior to the Parameterized types are just
+ * a placeholder. Empty of methods, but do have references to the type they are a parameterization of
+ * and also dependent generic types.
  */
 public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
 
@@ -30,14 +40,21 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
    */
   private final ConceptualLookupMapping conceptualLookupMapping = new ConceptualLookupMapping();
 
+  private final CheckForDuplicateOperationsOnGeneric checkForDuplicateOperationsOnGeneric;
+
   /**
    * When cloning types if we encounter a cloned PossibleGenericSymbol must check if already held and use
    * that, or it must be defined so that it can be used through the application.
    */
   private final Function<PossibleGenericSymbol, ResolvedOrDefineResult> resolveOrDefine;
 
-  public TypeSubstitution(final Function<PossibleGenericSymbol, ResolvedOrDefineResult> resolveOrDefine) {
+  /**
+   * Construct a type substitutor.
+   */
+  public TypeSubstitution(final Function<PossibleGenericSymbol, ResolvedOrDefineResult> resolveOrDefine,
+                          final ErrorListener errorListener) {
     AssertValue.checkNotNull("resolveOrDefine cannot be null", resolveOrDefine);
+    this.checkForDuplicateOperationsOnGeneric = new CheckForDuplicateOperationsOnGeneric(errorListener);
     this.resolveOrDefine = resolveOrDefine;
   }
 
@@ -71,32 +88,38 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
   private PossibleGenericSymbol doApply(final PossibleGenericSymbol parameterisedSymbol,
                                         final PossibleGenericSymbol genericSymbol) {
 
-    //This is how new types get recorded or if they exist already we just reuse them.
-    //So this is important, if we have already created one of these it MUST be reused
-    //This is because later stage of the compiler will augment, not just that type but the types it references
-    //as type arguments. Indeed, it may itself be a type argument elsewhere.
+    //This is the bit that either creates a new parameterised type or returns once previously created.
     var result = resolveOrDefine.apply(parameterisedSymbol);
-    if (!result.newlyDefined() && result.symbol().isPresent()) {
-      return result.symbol().get();
-    }
 
-    //So it is newly defined.
     var resultingType = result.symbol();
     AssertValue.checkTrue("Result must be present", resultingType.isPresent());
-
-    //Can safely cast.
     PossibleGenericSymbol rtnType = resultingType.get();
 
-    var symbolsToClone = genericSymbol.getSymbolsForThisScope();
-    var clonedSymbols = cloneWithEnclosingScope(symbolsToClone, parameterisedSymbol);
+    boolean alreadySubstituted = "TRUE".equals(rtnType.getSquirrelledData(SUBSTITUTED));
+    //Now mark it early as substituted - because this is recursive and will come back into this function!
+    if (!alreadySubstituted) {
+      rtnType.putSquirrelledData(SUBSTITUTED, "TRUE");
+    }
+
+    if (alreadySubstituted) {
+      return rtnType;
+    }
+
+    //I never see this message - maybe I need some more tests to explore this.
+    if (genericSymbol.isParameterisedType() && !"TRUE".equals(genericSymbol.getSquirrelledData(SUBSTITUTED))) {
+      throw new CompilerException("Now you have a test that shows that even the generic type needs to be substituted");
+
+    }
+
     //Now get the mapping of 'T' or whatever to actual parameters.
-    var typeMapping = conceptualLookupMapping.apply(parameterisedSymbol.getTypeParameterOrArguments(),
+    var typeMapping = conceptualLookupMapping.apply(rtnType.getTypeParameterOrArguments(),
         genericSymbol.getAnyConceptualTypeParameters());
 
-    //Still unsure about references - maybe too early in processing
     processAnyReferences(genericSymbol, typeMapping);
 
-    //Do the business of changing the types.
+    //Otherwise do the business of changing the types.
+    var symbolsToClone = genericSymbol.getSymbolsForThisScope();
+    var clonedSymbols = cloneWithEnclosingScope(symbolsToClone, rtnType);
     replaceTypeParametersWithTypeArguments(rtnType, typeMapping, clonedSymbols);
 
     if (genericSymbol instanceof FunctionSymbol genericFunctionSymbol
@@ -105,16 +128,14 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
       var clonedSymbol = genericFunctionSymbol.getReturningSymbol().clone(genericFunctionSymbol);
       substituteAsAppropriate(typeMapping, clonedSymbol);
       functionSymbol.setReturningSymbol(clonedSymbol);
+    }
 
+    if (rtnType instanceof IAggregateSymbol aggregate) {
+      checkForDuplicateOperationsOnGeneric.accept(rtnType.getSourceToken(), aggregate);
     }
-    /*
-    if(rtnType != null) {
-      //Note that need to decide on how to manage references/dependencies on other generic types.
-      //Then to trigger the creation and paramterisation of those.
-      System.out.println("Could do duplication check on [" + rtnType.getFriendlyName() + "]");
-    }
-    */
+
     return rtnType;
+
   }
 
   private void processAnyReferences(final PossibleGenericSymbol genericSymbol,

@@ -1,13 +1,14 @@
 package org.ek9lang.compiler.phase1;
 
 import java.util.HashSet;
-import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.CompilationPhaseResult;
 import org.ek9lang.compiler.CompilerFlags;
+import org.ek9lang.compiler.CompilerPhase;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
+import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
@@ -22,33 +23,24 @@ import org.ek9lang.core.SharedThreadContext;
  * Eventually it will be retired - but during development - it may enable early warning of threading issues.
  * Or other issues. but it's best to catch as early as possible.
  */
-public final class ModuleDuplicateSymbolChecks
-    implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+public final class ModuleDuplicateSymbolChecks extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.DUPLICATION_CHECK;
-  private final CompilerReporter reporter;
-  private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
   /**
    * Create a new duplicate checker for modules contained in the compilable program.
    */
   public ModuleDuplicateSymbolChecks(SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                                     Consumer<CompilationEvent> listener,
                                      CompilerReporter reporter) {
-    this.reporter = reporter;
-    this.compilableProgramAccess = compilableProgramAccess;
+    super(thisPhase, compilableProgramAccess, listener, reporter);
   }
 
   @Override
-  public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
-    reporter.log(thisPhase);
-
+  public boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
     //This will check and add any errors to the appropriate module source error listener.
     checkForDuplicateSymbols();
-
-    var errorFree = !sourceHaveErrors.test(workspace.getSources());
-
-    return new CompilationPhaseResult(thisPhase, errorFree,
-        compilerFlags.getCompileToPhase() == thisPhase);
+    return !sourceHaveErrors.test(workspace.getSources());
   }
 
   /**

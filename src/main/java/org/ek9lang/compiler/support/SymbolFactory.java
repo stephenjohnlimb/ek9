@@ -65,6 +65,7 @@ import org.ek9lang.core.UniqueIdGenerator;
  */
 public class SymbolFactory {
 
+  public static final String SUBSTITUTED = "SUBSTITUTED";
   public static final String DEFAULTED = "DEFAULTED";
   public static final String EXTERN = "EXTERN";
   public static final String URI_PROTO = "URIPROTO";

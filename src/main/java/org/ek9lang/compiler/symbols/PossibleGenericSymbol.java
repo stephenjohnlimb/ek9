@@ -285,8 +285,7 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
 
     return (o instanceof PossibleGenericSymbol that) && super.equals(o)
         && isConceptualTypeParameter() == that.isConceptualTypeParameter() && getGenericType().equals(
-        that.getGenericType()) && getTypeParameterOrArguments().equals(that.getTypeParameterOrArguments())
-        && parameterisedTypeReferences.equals(that.parameterisedTypeReferences);
+        that.getGenericType()) && getTypeParameterOrArguments().equals(that.getTypeParameterOrArguments());
   }
 
   @Override
@@ -294,7 +293,6 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
     int result = super.hashCode();
     result = 31 * result + getGenericType().hashCode();
     result = 31 * result + getTypeParameterOrArguments().hashCode();
-    result = 31 * result + parameterisedTypeReferences.hashCode();
     result = 31 * result + (isConceptualTypeParameter() ? 1 : 0);
     return result;
   }

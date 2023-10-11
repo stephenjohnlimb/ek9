@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.ek9lang.compiler.ParametricResolveOrDefine;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.support.TypeSubstitution;
@@ -87,7 +88,8 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     //This just simulates the CompilableProgram.
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
 
-    typeSubstitution = new TypeSubstitution(parametricResolveOrDefine);
+    ErrorListener errorListener = new ErrorListener("test");
+    typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
 
     //make the generics outlines in the ek9 source snip above.
     var SomeGenericOfKandV = createSomeGenericOfKandV();

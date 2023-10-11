@@ -1,14 +1,13 @@
 package org.ek9lang.compiler.phase2;
 
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.CompilationPhaseResult;
 import org.ek9lang.compiler.CompilerFlags;
+import org.ek9lang.compiler.CompilerPhase;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
@@ -41,14 +40,11 @@ import org.ek9lang.core.SharedThreadContext;
  * generic types and parameterised type use.
  * </p>
  */
-public final class NonInferredTypeDefinition
-    implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+public final class NonInferredTypeDefinition extends CompilerPhase {
 
   private static final CompilationPhase thisPhase = CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION;
   private final boolean useMultiThreading;
-  private final Consumer<CompilationEvent> listener;
-  private final CompilerReporter reporter;
-  private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
+
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
   /**
@@ -57,17 +53,13 @@ public final class NonInferredTypeDefinition
   public NonInferredTypeDefinition(final boolean multiThread,
                                    SharedThreadContext<CompilableProgram> compilableProgramAccess,
                                    Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+    super(thisPhase, compilableProgramAccess, listener, reporter);
     this.useMultiThreading = multiThread;
-    this.listener = listener;
-    this.reporter = reporter;
-    this.compilableProgramAccess = compilableProgramAccess;
   }
 
   @Override
-  public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
-    reporter.log(thisPhase);
-    final var result = underTakeTypeSymbolResolutionAndDefinition(workspace);
-    return new CompilationPhaseResult(thisPhase, result, compilerFlags.getCompileToPhase() == thisPhase);
+  public boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
+    return underTakeTypeSymbolResolutionAndDefinition(workspace);
   }
 
   private boolean underTakeTypeSymbolResolutionAndDefinition(Workspace workspace) {

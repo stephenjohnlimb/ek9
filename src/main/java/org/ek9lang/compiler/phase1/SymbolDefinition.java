@@ -1,13 +1,12 @@
 package org.ek9lang.compiler.phase1;
 
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.CompilationPhaseResult;
 import org.ek9lang.compiler.CompilerFlags;
+import org.ek9lang.compiler.CompilerPhase;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
@@ -24,12 +23,9 @@ import org.ek9lang.core.SharedThreadContext;
  * Note that most of the real processing is done in the
  * {@link org.ek9lang.compiler.phase1.DefinitionListener}.
  */
-public final class SymbolDefinition implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
+public final class SymbolDefinition extends CompilerPhase {
 
   private static final CompilationPhase thisPhase = CompilationPhase.SYMBOL_DEFINITION;
-  private final Consumer<CompilationEvent> listener;
-  private final CompilerReporter reporter;
-  private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
   private boolean useMultiThreading = true;
 
@@ -38,9 +34,7 @@ public final class SymbolDefinition implements BiFunction<Workspace, CompilerFla
    */
   public SymbolDefinition(SharedThreadContext<CompilableProgram> compilableProgramAccess,
                           Consumer<CompilationEvent> listener, CompilerReporter reporter) {
-    this.listener = listener;
-    this.reporter = reporter;
-    this.compilableProgramAccess = compilableProgramAccess;
+    super(thisPhase, compilableProgramAccess, listener, reporter);
   }
 
   public SymbolDefinition(boolean multiThread, SharedThreadContext<CompilableProgram> compilableProgramAccess,
@@ -50,11 +44,8 @@ public final class SymbolDefinition implements BiFunction<Workspace, CompilerFla
   }
 
   @Override
-  public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
-
-    reporter.log(thisPhase);
-    final var result = underTakeSymbolDefinition(workspace);
-    return new CompilationPhaseResult(thisPhase, result, compilerFlags.getCompileToPhase() == thisPhase);
+  public boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
+    return underTakeSymbolDefinition(workspace);
   }
 
   private boolean underTakeSymbolDefinition(Workspace workspace) {

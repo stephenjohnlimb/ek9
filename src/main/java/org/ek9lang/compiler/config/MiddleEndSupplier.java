@@ -35,10 +35,10 @@ public class MiddleEndSupplier extends PhaseSupplier {
 
     //Yes the notorious 'middle-end' - build the intermediate representation, analyse and optimise.
     return List.of(
-        new IRGeneration(listener, reporter),
-        new ProgramWithIR(listener, reporter),
-        new TemplateGeneration(listener, reporter),
-        new IRAnalysis(listener, reporter),
-        new IROptimisation(listener, reporter));
+        new IRGeneration(compilableProgramAccess, listener, reporter),
+        new ProgramWithIR(compilableProgramAccess, listener, reporter),
+        new TemplateGeneration(compilableProgramAccess, listener, reporter),
+        new IRAnalysis(compilableProgramAccess, listener, reporter),
+        new IROptimisation(compilableProgramAccess, listener, reporter));
   }
 }

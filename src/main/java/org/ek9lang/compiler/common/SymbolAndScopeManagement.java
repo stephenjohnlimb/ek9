@@ -107,8 +107,9 @@ public class SymbolAndScopeManagement {
     return Optional.empty();
   }
 
-  public Optional<ISymbol> resolveOrDefine(final PossibleGenericSymbol parameterisedSymbol) {
-    return parsedModule.getModuleScope().resolveOrDefine(parameterisedSymbol);
+  public Optional<ISymbol> resolveOrDefine(final PossibleGenericSymbol parameterisedSymbol,
+                                           final ErrorListener errorListener) {
+    return parsedModule.getModuleScope().resolveOrDefine(parameterisedSymbol, errorListener);
   }
 
   /**

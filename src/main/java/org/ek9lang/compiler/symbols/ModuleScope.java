@@ -7,6 +7,8 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.CompilationPhase;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.SymbolChecker;
 import org.ek9lang.compiler.support.TypeSubstitution;
@@ -111,12 +113,19 @@ public class ModuleScope extends SymbolTable {
    * stored in the module space of the Generic Type.
    * So do not assume this new type will reside in this module scope, it most probably won't.
    */
-  public Optional<ISymbol> resolveOrDefine(final PossibleGenericSymbol parameterisedSymbol) {
+  public Optional<ISymbol> resolveOrDefine(final PossibleGenericSymbol parameterisedSymbol,
+                                           final ErrorListener errorListener) {
     var holder = new AtomicReference<Optional<ISymbol>>(Optional.empty());
     compilableProgram.accept(program -> {
-      var typeSubstitution = new TypeSubstitution(program::resolveOrDefine);
-      var populatedTypeWithMethods = typeSubstitution.apply(parameterisedSymbol);
-      holder.set(Optional.of(populatedTypeWithMethods));
+      var shouldCompleteSubstitution = program.getCompilationData().phase() == CompilationPhase.FULL_RESOLUTION;
+      if (!shouldCompleteSubstitution) {
+        var returnSymbol = program.resolveOrDefine(parameterisedSymbol);
+        returnSymbol.symbol().ifPresent(symbol -> holder.set(Optional.of(symbol)));
+      } else {
+        var typeSubstitution = new TypeSubstitution(program::resolveOrDefine, errorListener);
+        var populatedTypeWithMethods = typeSubstitution.apply(parameterisedSymbol);
+        holder.set(Optional.of(populatedTypeWithMethods));
+      }
     });
     return holder.get();
   }

@@ -2,8 +2,6 @@ package org.ek9lang.compiler.support;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
 
@@ -14,19 +12,16 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * Also the generic type could have methods that work with S, T, K, V - but those now map all to
  * a single real concrete type the methods could be duplicate.
  */
-public final class CheckForDuplicateOperationsOnGeneric extends RuleSupport
-    implements BiConsumer<IToken, IAggregateSymbol> {
+public final class CheckForDuplicateOperationsOnGeneric implements BiConsumer<IToken, IAggregateSymbol> {
 
   private final CheckForDuplicateOperations checkForDuplicateOperations;
 
   /**
    * Create a new operations checker for parameterised aggregates.
    */
-  public CheckForDuplicateOperationsOnGeneric(final SymbolAndScopeManagement symbolAndScopeManagement,
-                                              final ErrorListener errorListener) {
-    super(symbolAndScopeManagement, errorListener);
+  public CheckForDuplicateOperationsOnGeneric(final ErrorListener errorListener) {
     this.checkForDuplicateOperations =
-        new CheckForDuplicateOperations(symbolAndScopeManagement, errorListener);
+        new CheckForDuplicateOperations(errorListener);
   }
 
   @Override

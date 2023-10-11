@@ -35,13 +35,13 @@ public class BackEndSupplier extends PhaseSupplier {
   @Override
   public List<BiFunction<Workspace, CompilerFlags, CompilationPhaseResult>> get() {
     return List.of(
-        new CodeGenerationPreparation(listener, reporter),
-        new CodeGenerationAggregates(listener, reporter),
-        new CodeGenerationConstants(listener, reporter),
-        new CodeGenerationFunctions(listener, reporter),
-        new CodeOptimisation(listener, reporter),
-        new PluginLinkage(listener, reporter),
-        new Packaging(listener, reporter),
-        new PackagingPostProcessing(listener, reporter));
+        new CodeGenerationPreparation(compilableProgramAccess, listener, reporter),
+        new CodeGenerationAggregates(compilableProgramAccess, listener, reporter),
+        new CodeGenerationConstants(compilableProgramAccess, listener, reporter),
+        new CodeGenerationFunctions(compilableProgramAccess, listener, reporter),
+        new CodeOptimisation(compilableProgramAccess, listener, reporter),
+        new PluginLinkage(compilableProgramAccess, listener, reporter),
+        new Packaging(compilableProgramAccess, listener, reporter),
+        new PackagingPostProcessing(compilableProgramAccess, listener, reporter));
   }
 }
