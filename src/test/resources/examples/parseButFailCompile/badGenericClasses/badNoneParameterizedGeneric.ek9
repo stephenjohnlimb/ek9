@@ -1,0 +1,67 @@
+#!ek9
+<?-
+  Checks for bad Generic type parameterization.
+  Note the order of the classes and functions.
+  In this order the bad parameterization can be detected early.
+
+  See other tests that pickup the same error but in a later phase (explicit type phase).
+-?>
+defines module bad.genericnotparameterised.example
+
+  defines class
+
+    C1 of type T
+      prop1 as T?
+      C1()
+        -> arg T
+        prop1: arg
+
+      get()
+        @Error: SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
+        <- rtn as C1: this
+
+      getOk()
+        <- rtn as C1 of T: this
+
+      getProp()
+        <- rtn as T: prop1
+
+    C2
+      @Error: SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
+      prop1 as C1
+
+      default C2()
+
+      get()
+        @Error: SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
+        <- rtn as C1: prop1
+
+      check1()
+        @Error: SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
+        -> arg as C1
+        @Error: SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
+        <- rtn as C1: arg
+        assert arg?
+
+      check2()
+        @Error: SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+        -> arg as C1 of (String, Integer)
+        @Error: SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+        <- rtn as C1 of (String, String, Float): arg
+        assert arg?
+
+  defines function
+
+    ValidParameterization()
+      @Error: SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      -> arg as C1 of (String, Integer)
+      assert arg?
+
+    InvalidParameterization()
+      @Error: SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
+      -> arg as C1
+      @Error: SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
+      <- rtn as C1: arg
+      assert arg?
+
+//EOF

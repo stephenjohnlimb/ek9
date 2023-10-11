@@ -26,5 +26,6 @@ class BadGenericClassesWithInferenceFullCompilationTest extends FullCompilationT
                                     final CompilableProgram program) {
     assertFalse(compilationResult);
     assertFalse(program.getParsedModules("bad.classes.inference.example").isEmpty());
+    assertFalse(program.getParsedModules("bad.genericnotparameterised.example").isEmpty());
   }
 }

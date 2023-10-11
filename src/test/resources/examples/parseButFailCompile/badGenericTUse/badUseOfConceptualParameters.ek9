@@ -5,12 +5,32 @@
 -?>
 defines module bad.use.conceptual.parameters
 
+  defines function
+
+    ValidParameterization()
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      -> arg as C1 of (String, Integer)
+      assert arg?
+
+    InvalidParameterization()
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
+      -> arg as C1
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
+      <- rtn as C1: arg
+      assert arg?
+
   defines trait
     Weighting
       weight()
         <- rtn as Integer?
 
   defines class
+
+    C1 of type T
+      prop1 as T?
+      C1()
+        -> arg T
+        prop1: arg
 
     ByTen with trait of Weighting
       weight()
@@ -74,8 +94,7 @@ defines module bad.use.conceptual.parameters
       Perhaps the dynamic function/type should be able to ask it's outermost scope (if it is generic)
       to resolve those type parameters (but just those type parameters).
     -?>
-    //Needs a bit more work! to define and wire in supers
-    <!-
+
     AnotherGenericFunction of type (K, V)
       ->
         arg0 as K
@@ -84,9 +103,9 @@ defines module bad.use.conceptual.parameters
 
       aDynamicFunction as GFunction of V?
 
-      aDynamicFunction := () is GFunction of V as pure
+      aDynamicFunction := () is GFunction of V as pure function
         someVar as V: arg0
         value: someVar * someVar
-    -!>
+
 
 //EOF
