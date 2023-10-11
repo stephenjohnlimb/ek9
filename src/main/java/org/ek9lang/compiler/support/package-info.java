@@ -28,7 +28,8 @@
  * <p>
  * The method
  * {@link org.ek9lang.compiler.symbols.ModuleScope#resolveOrDefine(
- * org.ek9lang.compiler.symbols.PossibleGenericSymbol)}
+ * org.ek9lang.compiler.symbols.PossibleGenericSymbol,
+ * org.ek9lang.compiler.common.ErrorListener)}
  * calls into
  * the {@link org.ek9lang.compiler.CompilableProgram#resolveOrDefine(
  * org.ek9lang.compiler.symbols.PossibleGenericSymbol)}
@@ -51,7 +52,7 @@
  * <p>
  *   So when we want to 'define or lookup' a parameterized polymorphic type if that type exists in the
  *   appropriate module we just want to reference it. So if the type does exist then we're all good and
- *   {@link org.ek9lang.compiler.ResolvedOrDefineResult} is returned with the symbol and a flag stateing that it is
+ *   {@link org.ek9lang.compiler.ResolvedOrDefineResult} is returned with the symbol and a flag stating that it is
  *   <b>not</b> newly defined.
  * </p>
  * <p>
@@ -62,6 +63,10 @@
  *   This is done in {@link org.ek9lang.compiler.support.TypeSubstitution}
  *   (it is called by {@link org.ek9lang.compiler.symbols.ModuleScope} and it checks if the type is newly defined
  *   or not, if not then it goes about the task of parameterizing it.
+ * </p>
+ * <p>
+ *   The Type Substitution is now driven from the phase of compilation, so the Parameterized Types stay as skeletons
+ *   for much longer. Only at full resolution are they expanded.
  * </p>
  * <p>
  *   <b>But</b> there's a wrinkle, what if during that parameterization process more parameterized types are needed?
