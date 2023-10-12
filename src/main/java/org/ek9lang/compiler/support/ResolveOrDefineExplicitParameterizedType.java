@@ -6,6 +6,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
  * The bulk of the processing is in the abstract base.
@@ -28,7 +29,7 @@ public class ResolveOrDefineExplicitParameterizedType extends ResolveOrDefineTyp
     Optional<ISymbol> rtn = Optional.empty();
 
     if (ctx != null) {
-      rtn = resolveTypeByParameterizedType(ctx);
+      rtn = resolveTypeByParameterizedType(new Ek9Token(ctx.start), ctx);
     }
     return rtn;
   }

@@ -6,10 +6,14 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
  * The bulk of the processing is in the abstract base.
  * This just defines the entry point for typedef context.
+ * So this is the main 'way in' from a bit of EK9 code that triggered a typeDef resolution.
+ * This seems obvious. But the nature of a typeDef in terms of generics is recursive.
+ * So while this is the main way in, it can and does trigger multiple recursive calls to resolveTypeByTypeDef.
  */
 public class ResolveOrDefineTypeDef extends ResolveOrDefineTypes
     implements Function<EK9Parser.TypeDefContext, Optional<ISymbol>> {
@@ -29,6 +33,6 @@ public class ResolveOrDefineTypeDef extends ResolveOrDefineTypes
     if (ctx == null) {
       return Optional.empty();
     }
-    return resolveTypeByTypeDef(ctx);
+    return resolveTypeByTypeDef(new Ek9Token(ctx.start), ctx);
   }
 }

@@ -70,9 +70,21 @@ public final class CheckForDuplicateOperations implements BiConsumer<IToken, IAg
         + method.getFriendlyName()
         + "':";
 
-    errorListener.semanticError(method.getSourceToken(), msg, ErrorListener.SemanticClassification.METHOD_DUPLICATED);
+    final var errorType = ErrorListener.SemanticClassification.METHOD_DUPLICATED;
 
-    errorListener.semanticError(errorLocationToken, "Source of duplication:",
-        ErrorListener.SemanticClassification.METHOD_DUPLICATED);
+    //When defining any parameterised types that have duplicate methods it is not actually the
+    //Generic type that is totally the cause (maybe those could be written with less chance of having duplicate
+    //methods - but that is an EK9 developer choice). It is the point where the parameterization takes place that
+    //actually trigger the method signature duplication. So the developer need to know:
+    //First what is the trigger point for the duplication, then which methods are duplicated and which class those
+    //are in.
+    var initializedByToken = aggregate.getInitialisedBy();
+    if (initializedByToken != null) {
+      errorListener.semanticError(initializedByToken, "Parameterization caused method signatures to be duplicated:",
+          errorType);
+    }
+    errorListener.semanticError(errorLocationToken, "Is a source of method duplication:", errorType);
+    errorListener.semanticError(method.getSourceToken(), msg, errorType);
+
   }
 }

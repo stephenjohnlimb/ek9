@@ -9,7 +9,7 @@ import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.AnyTypeSymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
-import org.ek9lang.compiler.tokenizer.Ek9Token;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * This is a sort of hybrid resolver or definer function.
@@ -38,7 +38,7 @@ public abstract class ResolveOrDefineTypes extends ResolverOrDefiner {
     super(symbolAndScopeManagement, symbolFactory, errorListener, errorIfNotDefinedOrResolved);
   }
 
-  protected Optional<ISymbol> resolveTypeByTypeDef(final EK9Parser.TypeDefContext ctx) {
+  protected Optional<ISymbol> resolveTypeByTypeDef(final IToken triggerToken, final EK9Parser.TypeDefContext ctx) {
 
     Optional<ISymbol> rtn = Optional.empty();
     //The Simple case (ish), but need to check that the type returned is not a template/generic type
@@ -56,18 +56,19 @@ public abstract class ResolveOrDefineTypes extends ResolverOrDefiner {
       //The Next most complex - a parameterisedType
       //either way it's back around the recursion via these methods to this same method with a different typeDef context
       //Now we will attempt a simple resolution of the identifierReference
-      rtn = resolveTypeByParameterizedType(ctx.parameterisedType());
+      rtn = resolveTypeByParameterizedType(triggerToken, ctx.parameterisedType());
     }
 
     return rtn;
   }
 
-  protected Optional<ISymbol> resolveTypeByParameterizedType(final EK9Parser.ParameterisedTypeContext ctx) {
+  protected Optional<ISymbol> resolveTypeByParameterizedType(final IToken triggerToken,
+                                                             final EK9Parser.ParameterisedTypeContext ctx) {
     var resolvedGenericType = resolveTypeByIdentifierReference(ctx.identifierReference());
 
     if (resolvedGenericType.isPresent()) {
       //So as that resolved lets now get any parameterizing parameters.
-      return resolveSimpleTypeByIdentifierReference(resolvedGenericType.get(), ctx);
+      return resolveSimpleTypeByIdentifierReference(triggerToken, resolvedGenericType.get(), ctx);
     }
     return Optional.empty();
   }
@@ -87,14 +88,15 @@ public abstract class ResolveOrDefineTypes extends ResolverOrDefiner {
     return resolveTypeByIdentifierReference(ctx);
   }
 
-  private Optional<ISymbol> resolveSimpleTypeByIdentifierReference(final ISymbol resolvedGenericType,
+  private Optional<ISymbol> resolveSimpleTypeByIdentifierReference(final IToken triggerToken,
+                                                                   final ISymbol resolvedGenericType,
                                                                    final EK9Parser.ParameterisedTypeContext ctx) {
     //So trigger the recursive call back to the top most method.
     //This is just a single parameterizing parameter.
     if (ctx.typeDef() != null) {
-      var resolvedParameterisedType = resolveTypeByTypeDef(ctx.typeDef());
+      var resolvedParameterisedType = resolveTypeByTypeDef(triggerToken, ctx.typeDef());
       if (resolvedParameterisedType.isPresent()) {
-        var toResolveOrDefine = new ParameterisedTypeData(new Ek9Token(ctx.typeDef().start), resolvedGenericType,
+        var toResolveOrDefine = new ParameterisedTypeData(triggerToken, resolvedGenericType,
             List.of(resolvedParameterisedType.get()));
         return resolveOrDefine(toResolveOrDefine);
       }
@@ -104,13 +106,13 @@ public abstract class ResolveOrDefineTypes extends ResolverOrDefiner {
       var genericParameters = new ArrayList<ISymbol>();
       for (var typeDefCtx : ctx.parameterisedArgs().typeDef()) {
         //Multiple recursive calls back around the loop.
-        var resolved = resolveTypeByTypeDef(typeDefCtx);
+        var resolved = resolveTypeByTypeDef(triggerToken, typeDefCtx);
         resolved.ifPresent(genericParameters::add);
       }
       //Did we resolve them all? Only if we did
       if (genericParameters.size() == ctx.parameterisedArgs().typeDef().size()) {
         var toResolveOrDefine =
-            new ParameterisedTypeData(new Ek9Token(ctx.parameterisedArgs().start), resolvedGenericType,
+            new ParameterisedTypeData(triggerToken, resolvedGenericType,
                 genericParameters);
         return resolveOrDefine(toResolveOrDefine);
       }

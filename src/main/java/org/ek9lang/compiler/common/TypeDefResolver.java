@@ -40,7 +40,7 @@ public class TypeDefResolver extends EK9BaseVisitor<SymbolSearchConfiguration> {
 
   /**
    * This is really the main entry point to build a structure of SymbolSearchConfiguration
-   * that is based on the structure in the ek9 parse tree from typDef.
+   * that is based on the structure in the ek9 parse tree from typeDef.
    */
   @Override
   public SymbolSearchConfiguration visitTypeDef(EK9Parser.TypeDefContext ctx) {

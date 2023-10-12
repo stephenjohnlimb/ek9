@@ -168,14 +168,14 @@ defines module bad.generic.constructions
       //Those are highlighted as being in error, but are only an error, because two integers are used.
       //So this tends to mean that the use of the generic/template type could be written better or that it is not
       //really designed to work with two types that are the same.
-      //Again here this is actually the source of the error: @Error: FULL_RESOLUTION: METHOD_DUPLICATED
+      @Error: FULL_RESOLUTION: METHOD_DUPLICATED
       var <- G2(String, String)
       assert var?
 
     //TODO at this point need to check for method duplication
     //TODO set(K) and set(V), both map to set(Integer), set(Integer)
     CheckExplicitParameterizedG2SameType()
-      //This really where I want the error: @Error: FULL_RESOLUTION: METHOD_DUPLICATED
+      @Error: FULL_RESOLUTION: METHOD_DUPLICATED
       var as G2 of (Integer, Integer): G2()
       assert var?
 

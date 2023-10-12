@@ -41,6 +41,7 @@ public abstract class ResolverOrDefiner extends RuleSupport {
       }
 
       var theType = symbolFactory.newParameterisedSymbol(genericTypeSymbol, details.typeArguments());
+      theType.setInitialisedBy(details.location());
       rtn = symbolAndScopeManagement.resolveOrDefine(theType, errorListener);
     }
     return rtn;

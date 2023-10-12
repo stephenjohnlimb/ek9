@@ -15,6 +15,7 @@ import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
@@ -115,18 +116,21 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
     var typeMapping = conceptualLookupMapping.apply(rtnType.getTypeParameterOrArguments(),
         genericSymbol.getAnyConceptualTypeParameters());
 
-    processAnyReferences(genericSymbol, typeMapping);
+    //Need to pass in the initial trigger for the generation of this parameterized type, as that will be the
+    //same trigger for any dependent types.
+    var triggeredByToken = rtnType.getInitialisedBy();
+    processAnyReferences(triggeredByToken, genericSymbol, typeMapping);
 
     //Otherwise do the business of changing the types.
     var symbolsToClone = genericSymbol.getSymbolsForThisScope();
     var clonedSymbols = cloneWithEnclosingScope(symbolsToClone, rtnType);
-    replaceTypeParametersWithTypeArguments(rtnType, typeMapping, clonedSymbols);
+    replaceTypeParametersWithTypeArguments(triggeredByToken, rtnType, typeMapping, clonedSymbols);
 
     if (genericSymbol instanceof FunctionSymbol genericFunctionSymbol
         && parameterisedSymbol instanceof FunctionSymbol functionSymbol
         && genericFunctionSymbol.isReturningSymbolPresent()) {
       var clonedSymbol = genericFunctionSymbol.getReturningSymbol().clone(genericFunctionSymbol);
-      substituteAsAppropriate(typeMapping, clonedSymbol);
+      substituteAsAppropriate(triggeredByToken, typeMapping, clonedSymbol);
       functionSymbol.setReturningSymbol(clonedSymbol);
     }
 
@@ -138,11 +142,11 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
 
   }
 
-  private void processAnyReferences(final PossibleGenericSymbol genericSymbol,
+  private void processAnyReferences(final IToken triggeredByToken, final PossibleGenericSymbol genericSymbol,
                                     final Map<ISymbol, ISymbol> typeMapping) {
     if (!genericSymbol.getGenericSymbolReferences().isEmpty()) {
       for (var genericSymbolReference : genericSymbol.getGenericSymbolReferences()) {
-        var newType = getReplacementType(typeMapping, genericSymbolReference);
+        var newType = getReplacementType(triggeredByToken, typeMapping, genericSymbolReference);
         AssertValue.checkNotNull("Expecting new type to be created", newType);
       }
     }
@@ -154,7 +158,8 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
    * But beware there could and probably will be generics of generics or generics, and we have to replace the
    * types to create new parameterised types as we go.
    */
-  private void replaceTypeParametersWithTypeArguments(final PossibleGenericSymbol possibleGenericSymbol,
+  private void replaceTypeParametersWithTypeArguments(final IToken triggeredByToken,
+                                                      final PossibleGenericSymbol possibleGenericSymbol,
                                                       final Map<ISymbol, ISymbol> typeMapping, List<ISymbol> symbols) {
     symbols.forEach(symbol -> {
       if (symbol instanceof MethodSymbol methodSymbol) {
@@ -165,31 +170,37 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
           //Also need to alter the return type as a constructor.
           methodSymbol.setType(possibleGenericSymbol);
         }
-        methodSymbol.getCallParameters().forEach(param -> substituteAsAppropriate(typeMapping, param));
+        methodSymbol.getCallParameters().forEach(
+            param -> substituteAsAppropriate(triggeredByToken, typeMapping, param)
+        );
         if (methodSymbol.isReturningSymbolPresent()) {
-          substituteAsAppropriate(typeMapping, methodSymbol.getReturningSymbol());
+          substituteAsAppropriate(triggeredByToken, typeMapping, methodSymbol.getReturningSymbol());
         }
       }
-      substituteAsAppropriate(typeMapping, symbol);
+      substituteAsAppropriate(triggeredByToken, typeMapping, symbol);
     });
   }
 
-  private void substituteAsAppropriate(final Map<ISymbol, ISymbol> typeMapping, ISymbol value) {
+  private void substituteAsAppropriate(final IToken triggeredByToken,
+                                       final Map<ISymbol, ISymbol> typeMapping,
+                                       ISymbol value) {
     var paramType = value.getType();
-    paramType.ifPresent(type -> value.setType(getReplacementTypeAsAppropriate(typeMapping, type)));
+    paramType.ifPresent(type -> value.setType(getReplacementTypeAsAppropriate(triggeredByToken, typeMapping, type)));
   }
 
-  private ISymbol getReplacementTypeAsAppropriate(final Map<ISymbol, ISymbol> typeMapping, ISymbol forType) {
+  private ISymbol getReplacementTypeAsAppropriate(final IToken triggeredByToken,
+                                                  final Map<ISymbol, ISymbol> typeMapping, ISymbol forType) {
     //Have to be aware some types might be generic, others are just simple.
     if (forType instanceof PossibleGenericSymbol couldBeGeneric && couldBeGeneric.isGenericInNature()) {
-      return getReplacementType(typeMapping, couldBeGeneric);
+      return getReplacementType(triggeredByToken, typeMapping, couldBeGeneric);
     } else if (typeMapping.containsKey(forType)) {
       return typeMapping.get(forType);
     }
     return forType;
   }
 
-  private ISymbol getReplacementType(final Map<ISymbol, ISymbol> typeMapping,
+  private ISymbol getReplacementType(final IToken triggeredByToken,
+                                     final Map<ISymbol, ISymbol> typeMapping,
                                      final PossibleGenericSymbol forType) {
 
     //This is a scenario where we have 'D1 of type X of type P' i.e. conceptual.
@@ -204,13 +215,15 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
 
     var newTypeArguments = new ArrayList<ISymbol>();
     for (var typeArgument : forType.getTypeParameterOrArguments()) {
-      var replacementType = getReplacementTypeAsAppropriate(typeMapping, typeArgument);
+      var replacementType = getReplacementTypeAsAppropriate(triggeredByToken, typeMapping, typeArgument);
       newTypeArguments.add(replacementType);
     }
     //OK, so now we may have a new set of type arguments so as we are in 'generic world' we need to resolve or define.
-    //So first create the outline
+    //So first create the outline - this is just an outline. If the type already exists then it will be returned
+    //Otherwise this outline will be used - the fleshed out later.
 
     var possibleNewParameterisedType = creator.apply(genericType, newTypeArguments);
+    possibleNewParameterisedType.setInitialisedBy(triggeredByToken);
     return this.apply(possibleNewParameterisedType);
   }
 

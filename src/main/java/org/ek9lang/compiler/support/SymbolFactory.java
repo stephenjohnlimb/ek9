@@ -341,11 +341,14 @@ public class SymbolFactory {
     FunctionSymbol newFunction = new FunctionSymbol(functionName, moduleScope);
     newFunction.setModuleScope(parsedModule.getModuleScope());
     newFunction.setOpenForExtension(ctx.ABSTRACT() != null || ctx.OPEN() != null);
-    configureSymbol(newFunction, new Ek9Token(ctx.start));
     newFunction.setMarkedAbstract(ctx.ABSTRACT() != null);
 
     //More like a library - so we mark as referenced.
     newFunction.setReferenced(true);
+    var start = new Ek9Token(ctx.start);
+    newFunction.setInitialisedBy(start);
+    configureSymbol(newFunction, start);
+
     //A function can be both pure and abstract - in this case it is establishing a 'contract' that the
     //implementation must also be pure!
     //This is so that uses of abstract concepts can be used to ensure that there are no side effects.
