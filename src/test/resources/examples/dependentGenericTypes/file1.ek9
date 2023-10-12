@@ -1,0 +1,86 @@
+#!ek9
+<?-
+  Defines a mutual dependent Generic type scenario.
+  Then have driver functions that check Parameterized are created, but also appropriate dependent types
+  are also created.
+-?>
+defines module dependent.generic.types
+
+  //Dues to a quirk in the @Resolved directive, it needs a following statement hence 'assert true'
+  defines function
+    //Just checks that as full resolution these template/generic types can be resolved.
+    CheckGenericTypesExist()
+
+      @Resolved: FULL_RESOLUTION: TEMPLATE_TYPE: "G1"
+      assert true
+
+      @Resolved: FULL_RESOLUTION: TEMPLATE_TYPE: "G2"
+      assert true
+
+    CheckParameterizedTypes()
+
+      CreateExplicitParameterizedTypes()
+      //Now check that the types exist.
+      //This is the important point, while creation of "G2 of (Date, String)"
+      //The creation of dependent type  "G1 of (Date, String)" was implied and done by the compiler.
+      @Resolved: FULL_RESOLUTION: TYPE: "G2 of (Date, String)"
+      assert true
+      @Resolved: FULL_RESOLUTION: TYPE: "G1 of (Date, String)"
+      assert true
+
+      //Now also note that we explicitly created "G1 of (Integer, Duration)" this time
+      //And G2 is also dependent on G1 - i.e. they are dependent types of each other.
+      @Resolved: FULL_RESOLUTION: TYPE: "G1 of (Integer, Duration)"
+      assert true
+      @Resolved: FULL_RESOLUTION: TYPE: "G2 of (Integer, Duration)"
+      assert true
+
+      //Now inferred parameterization, so here we pass real values in and let the EK9 compiler workout the types
+      //Then apply those types to create a Parameterized Generic type with those type arguments.
+      //The same approach has been taken with dependent type as above.
+      CreateInferredParameterizedTypes(2023-10-10T12:00:00Z, 100#GBP)
+      @Resolved: FULL_RESOLUTION: TYPE: "G2 of (DateTime, Money)"
+      assert true
+      @Resolved: FULL_RESOLUTION: TYPE: "G1 of (DateTime, Money)"
+      assert true
+
+      @Resolved: FULL_RESOLUTION: TYPE: "G1 of (Money, DateTime)"
+      assert true
+      @Resolved: FULL_RESOLUTION: TYPE: "G2 of (Money, DateTime)"
+      assert true
+
+    CreateExplicitParameterizedTypes()
+      check1 as G2 of (Date, String): G2()
+      assert check1?
+
+      check2 as G1 of (Integer, Duration): G1()
+      assert check2?
+
+    CreateInferredParameterizedTypes()
+      ->
+        arg0 as DateTime
+        arg1 as Money
+
+      check1 <- G2(arg0, arg1)
+      assert check1?
+
+      //Swap the types over and use G1
+      check2 <- G1(arg1, arg0)
+      assert check2?
+
+  defines class
+    G1 of type (K, V)
+      //Create a property of another Generic type defined in same namespace but different file
+      //But note that it has a link back to this generic type.
+      prop1 as G2 of (K, V)?
+
+      default G1()
+
+      setProp()
+        -> arg as G2 of (K, V)
+        prop1: arg
+
+      operator ? as pure
+        <- rtn as Boolean: prop1?
+
+//EOF

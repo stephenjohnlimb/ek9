@@ -1,10 +1,11 @@
 #!ek9
 <?-
   workbench.
+  Next focus on Generic Functions.assert Then move ExamplesDependentScenariosTest to FULL_RESOLUTION
 -?>
-defines module bad.workbench
-  defines function
-    JustFail()
-      assert nothing?
+defines module just.workbench
 
+  defines function
+    CheckFailure()
+      assert nothing?
 //EOF

@@ -8,7 +8,6 @@ import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
-import org.ek9lang.core.CompilerException;
 
 /**
  * Does a simple check (excluding any inheritance) for duplicated operations (methods, operators) on
@@ -42,17 +41,10 @@ public final class CheckForDuplicateOperations implements BiConsumer<IToken, IAg
         MethodSymbolSearchResult results = new MethodSymbolSearchResult();
         var search = new MethodSymbolSearch(method);
         var matching = aggregate.resolveMatchingMethods(search, results);
-        if (matching.isEmpty()) {
-          //paranoid check - this indicates some earlier stage is in error.
-          throw new CompilerException("Expecting to be able to find a method ["
-              + search
-              + "] that is known to exist on ["
-              + aggregate.getFriendlyName()
-              + "] in "
-              + aggregate.getSourceToken().getSourceName());
-        } else if (!matching.isSingleBestMatchPresent()) {
+        if (!matching.isEmpty() && !matching.isSingleBestMatchPresent()) {
           emitErrors(errorLocationToken, aggregate, method);
         }
+        //But if it was empty that just indicates that some type parameters could not be resolved.
       }
     });
   }

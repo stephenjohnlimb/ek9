@@ -353,8 +353,7 @@ public class AggregateFactory {
 
     operator.define(paramT);
     //returns the same type as itself
-    operator.setType(clazz);
-
+    operator.setReturningSymbol(new VariableSymbol("rtn", clazz));
     return operator;
   }
 

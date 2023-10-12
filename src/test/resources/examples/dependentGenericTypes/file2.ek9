@@ -1,0 +1,27 @@
+#!ek9
+<?-
+  Designed to demonstrate, two separate files in the namespace and interdependencies
+  between the two in term of both normal function calls and also dependent generic types.
+  See file2.ek9 for all the test code.
+-?>
+defines module dependent.generic.types
+
+  defines function
+    CallCheckers()
+      CheckGenericTypesExist()
+      CheckParameterizedTypes()
+
+  defines class
+    G2 of type (P, Q)
+      //Now link back to the other generic type
+      prop1 as G1 of (P, Q)?
+
+      default G2()
+
+      setProp()
+        -> arg as G1 of (P, Q)
+        prop1: arg
+
+      operator ? as pure
+        <- rtn as Boolean: prop1?
+//EOF
