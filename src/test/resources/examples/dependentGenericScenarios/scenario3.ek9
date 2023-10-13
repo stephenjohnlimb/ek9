@@ -14,7 +14,7 @@ defines module generics.scenario.three
       value as X?
       DT()
         -> arg0 as X
-        value :=: arg0
+        value: arg0
 
       op()
         -> arg0 as X
@@ -35,7 +35,7 @@ defines module generics.scenario.three
 
         //effectively this would multiple arg0 by itself - via a very convoluted route.
         dt as DT of T: DT(arg0)
-        result :=: dt.op(arg0)
+        result: dt.op(arg0)
 
   <?-
     Some sample programs that show the use of the generic type.

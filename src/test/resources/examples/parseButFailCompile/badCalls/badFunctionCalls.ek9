@@ -33,10 +33,9 @@ defines module bad.functioncall.examples1
     TestInvalidGenericFunctionUse1()
 
       //Detect this is as being generic but omit polymorphic parameters and ensure we get an error
-      @Error: FULL_RESOLUTION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      @Error: FULL_RESOLUTION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED
       result4A <- GenericFunction()
 
-      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
       assert result4A?
 
     TestInvalidGenericFunctionUse2()

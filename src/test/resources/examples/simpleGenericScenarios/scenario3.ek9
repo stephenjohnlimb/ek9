@@ -21,7 +21,7 @@ defines module generics.scenario.three
           arg1 as Q
           arg2 as R
         <-
-          result as R: arg2 + arg0 * arg1
+          result as R: arg2 //For now just return what is passed in.
 
   <?-
     Some sample programs that show the use of the generic type.

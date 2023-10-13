@@ -19,7 +19,7 @@ class ExamplesDependentScenariosTest extends FullCompilationTest {
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
+    testToPhase(CompilationPhase.FULL_RESOLUTION);
   }
 
   @Override

@@ -1,0 +1,63 @@
+#!ek9
+<?-
+  Demonstrate how to (and not to) use generic types in parameterization.
+-?>
+defines module generic.parameterization
+
+  defines function
+
+    TestGenericClassExplicitParameterization()
+      checkClass1 as GenericClass of Integer: GenericClass()
+      assert checkClass1?
+
+    TestBadGenericClassParameterization()
+      //But this would fail at SYMBOL_DEFINITION level - as shown in other tests.
+      //fails as GenericClass: GenericClass()
+
+      //As would this (but at the full resolution phase):
+      @Error: FULL_RESOLUTION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED
+      classFails <- GenericClass()
+
+    TestGenericFunctionParameterization()
+
+      //Example of three different ways of parameterizing a function and creating a new instance
+      //Followed by a use (call) of that newly parameterized function.
+      checkFunction1 as GenericFunction1 of Integer: GenericFunction1()
+      assert checkFunction1?
+
+      result1 as Integer := checkFunction1(23)
+      assert result1?
+
+      checkFunction2 as GenericFunction1 of Integer: GenericFunction1() of Integer
+      assert checkFunction2?
+
+      result2 as Integer := checkFunction2(29)
+      assert result2?
+
+      checkFunction3 <- GenericFunction1() of Integer
+      assert checkFunction3?
+
+      result3 as Integer := checkFunction3(290)
+      assert result3?
+
+    TestBadGenericFunctionParameterization()
+      //But this would fail at EXPLICIT_TYPE_SYMBOL_DEFINITION level - as shown in other tests.
+      //fails as GenericFunction1: GenericFunction1()
+
+      //As would this (but at the full resolution phase):
+      @Error: FULL_RESOLUTION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED
+      functionFails <- GenericFunction1()
+
+    //Very basic generic function that just echos argument back.
+    GenericFunction1() of type T
+      -> arg0 as T
+      <- rtn as T: arg0
+
+  defines class
+
+    GenericClass of type T
+      default GenericClass()
+      operator ? as pure
+        <- rtn as Boolean: true
+
+//EOF

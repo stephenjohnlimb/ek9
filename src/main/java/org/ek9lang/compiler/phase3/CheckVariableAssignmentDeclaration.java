@@ -82,7 +82,8 @@ final class CheckVariableAssignmentDeclaration implements Consumer<EK9Parser.Var
 
     //We must now consider this situation: "someVar List of Integer := List()"
     //In this situation we want to alter the type on the rhs to be 'List of Integer' not just 'List of T'.
-
+    //This also applies to generic functions. It gives the ability to construct a type on the rhs of an expression
+    //using just the generic type, but if the lhs is fully expressed we want to infer the lhs fully.
     if (lhsType instanceof PossibleGenericSymbol lhsMaybeParameterisedType
         && lhsMaybeParameterisedType.isParameterisedType()) {
       lhsMaybeParameterisedType.getGenericType().ifPresent(theGenericType -> {

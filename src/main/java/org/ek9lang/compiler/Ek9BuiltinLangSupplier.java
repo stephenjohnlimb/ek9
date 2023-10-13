@@ -1055,6 +1055,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Date()
               -> arg0 as String
 
+            today() as pure
+              <- rtn as Date?
+              
             operator < as pure
               -> arg as Date
               <- rtn as Boolean?
@@ -1154,6 +1157,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             DateTime()
               -> arg0 as String
 
+            now() as pure
+              <- rtn as DateTime?
+              
             operator < as pure
               -> arg as DateTime
               <- rtn as Boolean?

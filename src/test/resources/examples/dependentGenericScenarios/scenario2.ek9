@@ -2,19 +2,23 @@
 defines module generics.scenario.two
 
   <?-
-    Example of a generic function.
+    Example of generic functions.
   -?>
   defines function
 
     <?-
       A dependent function.
+      The idea in this example is to use a generic function within another generic function.
+      So it gets parameterized with the one or more of the conceptual parameters as the containing function.
+      Then when the containing generic function is parameterized with arguments, this causes the dependent function
+      to be parameterized (with those arguments) as well.
     -?>
     df of type (X, Y)
       ->
         arg0 as X
-        arg1 as Integer
+        arg1 as Y
       <-
-        result as Y: X * arg1
+        result as Y: arg1
 
     <?-
       Check on a dependent function use inside a block.
@@ -27,15 +31,24 @@ defines module generics.scenario.two
         result as A?
       //A bit convoluted.
       dependentFunction as df of (A, A): df()
-      result :=: dependentFunction(arg0, 10) + arg1
-
+      //Looks like this still needs to be parameterized because A is 'conceptual'
+      //And in none generic code this would be right, within a generic context this is fine
+      //It would expand into a fully Parameterized type and be fine.
+      //See resolveToBeCalled in CheckValidCall - if all arguments of parameterization are real or the
+      //same as those in the enclosing generic context then it does not need further parametrization.
+      //HARD, very HARD.
+      result: dependentFunction(arg0, arg0)
 
   defines program
 
     Driver()
-      g as gf of Integer: fg()
+      //So parameterize gf with argument Integer - to get a new parameterized function 'g'
+      g as gf of Integer: gf()
 
-      addedValue as Integer: g(21, 6)
-      assert addedValue == 216
+      //Now make a call on the new function 'g', passing arguments of the correct type.
+      result <- g(21, 6)
+
+      //As the functionality in df is very simple - this should be the result.
+      assert result == 6
 
 //EOF

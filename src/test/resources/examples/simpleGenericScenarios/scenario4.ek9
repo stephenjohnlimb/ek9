@@ -14,15 +14,17 @@ defines module generics.scenario.four
       ->
         arg0 as A
         arg1 as B
+        arg2 as C
       <-
-        result as C: arg0 + arg1
+        result as C: arg2
 
   defines program
 
     Driver()
       g as gf of (Integer, Float, Float): gf()
 
-      addedValue as Float: g(21, 3.66)
-      assert addedValue == 76.86
+      //Not concerned with actual values here just checking types.
+      result as Float: g(21, 3.66, 0.00)
+      assert result == 76.86
 
 //EOF

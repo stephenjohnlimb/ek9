@@ -110,7 +110,13 @@ final class ResolveIdentifierReferenceCallOrError extends RuleSupport
     checkNotAbstractOrError.accept(token, callIdentifier);
 
     if (function.isGenericInNature()) {
-      return checkGenericConstructionOrInvocation(token, callIdentifier, callArguments);
+      if (callArguments.isEmpty()) {
+        //This enables: 'checkFunction1 as GenericFunction1 of Integer: GenericFunction1()'
+        //But requires that assignment alters the 'call' type and invocation.
+        return function;
+      } else {
+        return checkGenericConstructionOrInvocation(token, callIdentifier, callArguments);
+      }
     }
     return checkFunctionParameters(token, function, callArguments);
   }

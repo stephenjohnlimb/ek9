@@ -7,6 +7,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.common.ScopeStack;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.AccessGenericInGeneric;
 import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.support.CheckForDuplicateOperations;
 import org.ek9lang.compiler.support.ResolveOrDefineExplicitParameterizedType;
@@ -19,10 +20,8 @@ import org.ek9lang.compiler.symbols.CaptureScope;
 import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
-import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
-import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.compiler.tokenizer.IToken;
@@ -78,6 +77,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final CheckSuitableGenus checkApplicationForProgram;
   private final SyntheticConstructorCreator syntheticConstructorCreator;
   private final CheckAndPopulateConstrainedType checkAndPopulateConstrainedType;
+  private final AccessGenericInGeneric accessGenericInGeneric;
   private final AggregateFactory aggregateFactory;
   private final Ek9Types ek9Types;
 
@@ -135,6 +135,8 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
             List.of(ISymbol.SymbolGenus.GENERAL_APPLICATION, ISymbol.SymbolGenus.SERVICE_APPLICATION), false, true);
     this.checkAndPopulateConstrainedType =
         new CheckAndPopulateConstrainedType(symbolAndScopeManagement, aggregateFactory, errorListener);
+    this.accessGenericInGeneric =
+        new AccessGenericInGeneric(symbolAndScopeManagement);
   }
 
   @Override
@@ -541,22 +543,9 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   @Override
   public void exitTypeDef(EK9Parser.TypeDefContext ctx) {
-    var enclosingMainTypeOrFunction = symbolAndScopeManagement.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
-    //TODO move into a function
-    //First find the main enclosing block nd see if it generic in nature
-    //Then see if the type definition is also generic in nature - this mean it will need parameters
-    //So we be able record this fact and then later when the main outer generic type is parameterised
-    //we can also parameterize these as well.
-    enclosingMainTypeOrFunction.ifPresent(enclosingScope -> {
-      if (enclosingScope instanceof PossibleGenericSymbol possibleGenericParent
-          && possibleGenericParent.isGenericInNature()) {
-        var typeDef = symbolAndScopeManagement.getRecordedSymbol(ctx);
-        if (typeDef instanceof PossibleGenericSymbol possibleGenericDependent
-            && possibleGenericDependent.isGenericInNature()) {
-          possibleGenericParent.addGenericSymbolReference(possibleGenericDependent);
-        }
-      }
-    });
+
+    var genericSymbols = accessGenericInGeneric.apply(symbolAndScopeManagement.getRecordedSymbol(ctx));
+    genericSymbols.ifPresent(genericData -> genericData.parent().addGenericSymbolReference(genericData.dependent()));
 
     super.exitTypeDef(ctx);
   }

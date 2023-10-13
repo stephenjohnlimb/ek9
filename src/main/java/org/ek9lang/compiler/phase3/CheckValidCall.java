@@ -5,6 +5,8 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.AccessGenericInGeneric;
+import org.ek9lang.compiler.support.CheckParameterizationComplete;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.ScopedSymbol;
@@ -22,11 +24,14 @@ import org.ek9lang.core.AssertValue;
  * </pre>
  */
 final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.CallContext> {
+
+  private final CheckParameterizationComplete checkParameterizationComplete = new CheckParameterizationComplete();
   private final ResolveThisSuperCallOrError resolveThisSuperCallOrError;
   private final ResolveIdentifierReferenceCallOrError resolveIdentifierReferenceCallOrError;
   private final SymbolsFromParamExpression symbolsFromParamExpression;
   private final SymbolFromContextOrError symbolFromContextOrError;
   private final CheckValidFunctionDelegateOrError checkValidFunctionDelegateOrError;
+  private final AccessGenericInGeneric accessGenericInGeneric;
 
   /**
    * Lookup a pre-recorded 'call', now resolve what it is supposed to call and set its type.
@@ -45,6 +50,8 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
         new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
     this.checkValidFunctionDelegateOrError =
         new CheckValidFunctionDelegateOrError(symbolAndScopeManagement, errorListener);
+    this.accessGenericInGeneric =
+        new AccessGenericInGeneric(symbolAndScopeManagement);
   }
 
   @Override
@@ -63,6 +70,9 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
    * This could be a function, method, Constructor, variable that has a type of (TEMPLATE)_FUNCTION (i.e. a delegate).
    * So we can use any existing context below where those are now resolved.
    * But we also need to apply - the appropriate parameters where appropriate to do the resolution.
+   * <br/>
+   * There are some tricky bits around detecting dynamicFunction calls, and Generics initialisations.
+   * This is especially true around generics within generics.
    */
   private void resolveToBeCalled(CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
     ScopedSymbol symbol = null;
@@ -70,8 +80,24 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
     boolean forceVoidReturnType = false;
     if (ctx.identifierReference() != null) {
       symbol = resolveByIdentifierReference(ctx);
+      //Now this is where the developer has written 'l as List of String : List()'
+      //Or fun as SomeFunction of Integer: SomeFunction().
+      if (symbol != null) {
+        //We must also cater for generics within generics.
+        //Just checking isGenericInNature is not enough when used within a generic type.
+        var genericInGenericData = accessGenericInGeneric.apply(symbol);
+        if (genericInGenericData.isPresent()) {
+          formOfDeclaration = !checkParameterizationComplete.test(genericInGenericData.get());
+        } else {
+          formOfDeclaration = symbol.isGenericInNature();
+        }
+      }
     } else if (ctx.parameterisedType() != null) {
       symbol = resolveByParameterisedType(ctx);
+      if (symbol != null) {
+        formOfDeclaration = true;
+      }
+
     } else if (ctx.primaryReference() != null) {
       symbol = resolveByPrimaryReference(ctx);
       //We force void here, because the constructor will return the type it is constructing
@@ -101,7 +127,7 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
    * So the processing in here is quite detailed with quite a few combinations and paths.
    */
   private ScopedSymbol resolveByIdentifierReference(EK9Parser.CallContext ctx) {
-    return  resolveIdentifierReferenceCallOrError.apply(ctx);
+    return resolveIdentifierReferenceCallOrError.apply(ctx);
   }
 
   /**

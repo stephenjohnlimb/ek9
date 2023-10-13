@@ -20,7 +20,7 @@ defines module generics.scenario.one
       value as X?
       DT()
         -> arg0 as X
-        value :=: arg0
+        value: arg0
 
       op()
         -> arg0 as X

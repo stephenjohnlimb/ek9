@@ -22,13 +22,13 @@ defines module generics.scenario.two
     IntegerDriver()
       g as gf of Integer: gf()
 
-      addedValue as Integer: g(21)
-      assert addedValue == 42
+      addedValue as Integer: g(21, 42)
+      assert addedValue == 63
 
     StringDriver()
       g as gf of String: gf()
 
-      addedValue as String: g("Duran")
+      addedValue as String: g("Duran", "Duran")
       assert addedValue == "DuranDuran"
 
 //EOF
