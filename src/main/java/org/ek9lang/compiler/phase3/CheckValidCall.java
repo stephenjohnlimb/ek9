@@ -75,50 +75,18 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
    * This is especially true around generics within generics.
    */
   private void resolveToBeCalled(CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
-    ScopedSymbol symbol = null;
-    boolean formOfDeclaration = false;
-    boolean forceVoidReturnType = false;
     if (ctx.identifierReference() != null) {
-      symbol = resolveByIdentifierReference(ctx);
-      //Now this is where the developer has written 'l as List of String : List()'
-      //Or fun as SomeFunction of Integer: SomeFunction().
-      if (symbol != null) {
-        //We must also cater for generics within generics.
-        //Just checking isGenericInNature is not enough when used within a generic type.
-        var genericInGenericData = accessGenericInGeneric.apply(symbol);
-        if (genericInGenericData.isPresent()) {
-          formOfDeclaration = !checkParameterizationComplete.test(genericInGenericData.get());
-        } else {
-          formOfDeclaration = symbol.isGenericInNature();
-        }
-      }
+      resolveByIdentifierReference(callSymbol, ctx);
     } else if (ctx.parameterisedType() != null) {
-      symbol = resolveByParameterisedType(ctx);
-      if (symbol != null) {
-        formOfDeclaration = true;
-      }
-
+      resolveByParameterisedType(callSymbol, ctx);
     } else if (ctx.primaryReference() != null) {
-      symbol = resolveByPrimaryReference(ctx);
-      //We force void here, because the constructor will return the type it is constructing
-      //But when used via a 'call' like 'this()' or 'super()' we want to ensure it can only be used without assignment.
-      forceVoidReturnType = true;
+      resolveByPrimaryReference(callSymbol, ctx);
     } else if (ctx.dynamicFunctionDeclaration() != null) {
-      symbol = resolveByDynamicFunctionDeclaration(ctx);
-      formOfDeclaration = true;
+      resolveByDynamicFunctionDeclaration(callSymbol, ctx);
     } else if (ctx.call() != null) {
-      symbol = resolveByCall(ctx);
+      resolveByCall(callSymbol, ctx);
     } else {
       AssertValue.fail("Expecting finite set of operations on call " + ctx.start.getLine());
-    }
-    //If the ek9 source code was not correct, it is possible that we cannot resolve what the call is for
-    //So we leave the call symbol as is - with an unresolved 'thing' it should have been calling.
-    if (symbol != null) {
-      callSymbol.setFormOfDeclarationCall(formOfDeclaration);
-      callSymbol.setResolvedSymbolToCall(symbol);
-      if (forceVoidReturnType) {
-        callSymbol.setType(symbolAndScopeManagement.getEk9Types().ek9Void());
-      }
     }
   }
 
@@ -126,8 +94,21 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
    * This can be quite a few different 'types' of identifierReference.
    * So the processing in here is quite detailed with quite a few combinations and paths.
    */
-  private ScopedSymbol resolveByIdentifierReference(EK9Parser.CallContext ctx) {
-    return resolveIdentifierReferenceCallOrError.apply(ctx);
+  private void resolveByIdentifierReference(CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
+    var symbol = resolveIdentifierReferenceCallOrError.apply(ctx);
+    //Now this is where the developer has written 'l as List of String : List()'
+    //Or fun as SomeFunction of Integer: SomeFunction().
+    if (symbol != null) {
+      //We must also cater for generics within generics.
+      //Just checking isGenericInNature is not enough when used within a generic type.
+      var genericInGenericData = accessGenericInGeneric.apply(symbol);
+      if (genericInGenericData.isPresent()) {
+        callSymbol.setFormOfDeclarationCall(!checkParameterizationComplete.test(genericInGenericData.get()));
+      } else {
+        callSymbol.setFormOfDeclarationCall(symbol.isGenericInNature());
+      }
+      callSymbol.setResolvedSymbolToCall(symbol);
+    }
   }
 
   /**
@@ -141,40 +122,57 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
    *   //Rather than just 'List of String' // note the omission of '()'
    * </pre>
    */
-  private ScopedSymbol resolveByParameterisedType(EK9Parser.CallContext ctx) {
-    return (ScopedSymbol) symbolFromContextOrError.apply(ctx.parameterisedType());
+  private void resolveByParameterisedType(CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
+
+    var symbol = (ScopedSymbol) symbolFromContextOrError.apply(ctx.parameterisedType());
+    if (symbol != null) {
+      callSymbol.setFormOfDeclarationCall(true);
+      callSymbol.setResolvedSymbolToCall(symbol);
+    }
   }
 
   /**
    * Resolve the dynamic function from the context.
    */
-  private ScopedSymbol resolveByDynamicFunctionDeclaration(EK9Parser.CallContext ctx) {
-    return (ScopedSymbol) symbolFromContextOrError.apply(ctx.dynamicFunctionDeclaration());
+  private void resolveByDynamicFunctionDeclaration(CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
+    var symbol = (ScopedSymbol) symbolFromContextOrError.apply(ctx.dynamicFunctionDeclaration());
+    if (symbol != null) {
+      callSymbol.setFormOfDeclarationCall(true);
+      callSymbol.setResolvedSymbolToCall(symbol);
+    }
   }
 
   /**
    * This can only be 'this' or 'super'.
    * So we're looking for a Constructor on the type or a constructor on the super type.
    */
-  private ScopedSymbol resolveByPrimaryReference(EK9Parser.CallContext ctx) {
-    return resolveThisSuperCallOrError.apply(ctx);
+  private void resolveByPrimaryReference(CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
+    //We force void here, because the constructor will return the type it is constructing
+    //But when used via a 'call' like 'this()' or 'super()' we want to ensure it can only be used without assignment.
+    var symbol = resolveThisSuperCallOrError.apply(ctx);
+    if (symbol != null) {
+      callSymbol.setResolvedSymbolToCall(symbol);
+      callSymbol.setType(symbolAndScopeManagement.getEk9Types().ek9Void());
+    }
   }
 
   /**
    * Now we'd be getting something back from another call.
    * We need to check that it is possible to make that call with the parameters provided.
    * Caters for 'straightToResult1 <- HigherFunctionOne()("Steve")'
-   * i.e. where you call a higher function/method and it returns a function and you call that.
+   * i.e. where you call a higher function/method, and it returns a function, and you call that.
    */
-  private ScopedSymbol resolveByCall(EK9Parser.CallContext ctx) {
+  private void resolveByCall(CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
     var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
     var callIdentifier = symbolFromContextOrError.apply(ctx.call());
     if (callIdentifier != null) {
-      return checkValidFunctionDelegateOrError.apply(
+      var symbol = checkValidFunctionDelegateOrError.apply(
           new DelegateFunctionCheckData(new Ek9Token(ctx.call().start), callIdentifier, callParams));
+      if (symbol != null) {
+        callSymbol.setResolvedSymbolToCall(symbol);
+      }
     } else {
       AssertValue.fail("Expecting call to be at least present" + ctx.start.getLine());
     }
-    return null;
   }
 }
