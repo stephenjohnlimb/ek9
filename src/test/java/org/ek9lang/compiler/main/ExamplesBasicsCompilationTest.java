@@ -5,15 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.FullCompilationTest;
+import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
 /**
  * Just test basics all compile.
  */
-class ExamplesBasicsCompilationTest extends FullCompilationTest {
+class ExamplesBasicsTest extends PhasesTest {
 
-  public ExamplesBasicsCompilationTest() {
+  public ExamplesBasicsTest() {
     super("/examples/basics");
   }
 

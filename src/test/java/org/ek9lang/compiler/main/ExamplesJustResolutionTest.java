@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.FullCompilationTest;
+import org.ek9lang.compiler.common.PhasesTest;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
  * There's a bit more to this than you'd think because of dynamic classes/functions and also
  * template/genetic types being employed in dynamic classes/functions.
  */
-class ExamplesJustResolutionTest extends FullCompilationTest {
+class ExamplesJustResolutionTest extends PhasesTest {
 
   public ExamplesJustResolutionTest() {
     super("/examples/justResolution");

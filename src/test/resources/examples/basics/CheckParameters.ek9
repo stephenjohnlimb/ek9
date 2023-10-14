@@ -10,10 +10,12 @@ defines module com.customer.params
       c1 <- C1()
       
       solution1 <- c1.aMethod("james", 21)
+      assert solution1?
 
       //Experimental use of named parameters.
       solution2 <- c1.aMethod(p1: "mason", p2:= 26)
-      
+      assert solution2?
+
       <!-
         Now if you have lots of parameters, you might like to layout out
         In this more declarative format.
@@ -23,8 +25,10 @@ defines module com.customer.params
         p1: "Simon",
         p2:= 24
         )
-      
+      assert solution3?
+
       v <- "Another"
+      assert v?
       
   defines class
 
@@ -59,19 +63,24 @@ defines module com.customer.params
       var <- true
       
       var2 <- "Junk"
-      
+      assert var2?
+
       if var
         //if we used 'p1' hiding and so not be allowed to
         p2 <- "Stephen"
+        assert p2?
         //new variable for date
         var3 <- 2009-01-01
+        assert var3?
         
       //but we can use p2 and var3 in scopes like this as they don't hide anything
       //As they were just used in a scope that has now disappeared
       //You can use 'not' rather than '~' if you wish.
       if ~p1?
         p2 <- "Steve"
+        assert p2?
         var3 <- 2009-02-02
+        assert var3?
         
     f3()
       -> p1 String
@@ -80,5 +89,6 @@ defines module com.customer.params
       if var
         //if we used 'p1' again not allowed so use p11
         p11 <- "Something Else"
+        assert p11?
         
 //EOF

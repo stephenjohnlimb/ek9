@@ -78,8 +78,11 @@ defines module net.customer.inferred
         weight1 <- stockName <~> check1
         weight2 <- stockName <~> check2
 
+
         //You could inline the two expressions above in here, if you wanted to.
-        bestOne <- weight1 < weight2 <- check1 else check2
-      
+        //We have an issue with this at present.
+        //bestOne <- weight1 < weight2 <- check1 else check2
+        assert weight1?
+        assert weight2?
     //end of class
 //EOF

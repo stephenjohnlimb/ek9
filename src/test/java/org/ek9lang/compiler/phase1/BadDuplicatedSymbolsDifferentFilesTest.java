@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.FullCompilationTest;
+import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
  * For this test we don't use @directives -cause the multi-thread nature of N files means you cannot
  * guarantee the order of failure.
  */
-class BadDuplicatedSymbolsDifferentFilesTest extends FullCompilationTest {
+class BadDuplicatedSymbolsDifferentFilesTest extends PhasesTest {
 
   public BadDuplicatedSymbolsDifferentFilesTest() {
     super("/examples/parseButFailCompile/duplicatedInDifferentFiles");

@@ -397,9 +397,7 @@ expression
     | ONLY expression
     | op=ABS OF? expression
     | op=SQRT OF? expression
-    | <assoc=right> control=expression LEFT_ARROW left=expression (COLON|ELSE) right=expression
-    | <assoc=right> left=expression op=(CHECK | ELVIS) right=expression
-    | <assoc=right> left=expression op=(TERNARY_LE | TERNARY_GE | TERNARY_GT | TERNARY_LT) right=expression
+    | <assoc=right> left=expression coalescing=(CHECK | ELVIS) right=expression
     | primary
     | call
     | objectAccessExpression
@@ -416,11 +414,13 @@ expression
     | left=expression op=(CMP | FUZ) NL? right=expression
     | left=expression op=(LE | GE | GT | LT) NL? right=expression
     | left=expression op=(EQUAL | NOTEQUAL | NOTEQUAL2) NL? right=expression
+    | <assoc=right> left=expression coalescing_equality=(COALESCE_LE | COALESCE_GE | COALESCE_GT | COALESCE_LT) right=expression
     | left=expression neg=NOT? op=MATCHES right=expression
     | left=expression neg=NOT? op=CONTAINS right=expression
     | left=expression IS? neg=NOT? IN right=expression
     | left=expression op=(AND | OR | XOR) NL? right=expression
     | identifier neg=NOT? IN range
+    | <assoc=right> control=expression LEFT_ARROW left=expression (COLON|ELSE) right=expression
     ;
 
 call

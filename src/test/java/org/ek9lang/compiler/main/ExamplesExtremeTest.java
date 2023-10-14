@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.FullCompilationTest;
+import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
-class ExamplesExtremeTest extends FullCompilationTest {
+class ExamplesExtremeTest extends PhasesTest {
 
   public ExamplesExtremeTest() {
     super("/examples/extreme");

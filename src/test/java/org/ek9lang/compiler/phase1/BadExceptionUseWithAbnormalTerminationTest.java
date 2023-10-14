@@ -4,14 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.FullCompilationTest;
+import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
 /**
  * Just tests bad use of exceptions, which can only cause block abnormal termination.
  * This is a simple early static check.
  */
-class BadExceptionUseWithAbnormalTerminationTest extends FullCompilationTest {
+class BadExceptionUseWithAbnormalTerminationTest extends PhasesTest {
 
 
   public BadExceptionUseWithAbnormalTerminationTest() {

@@ -10,8 +10,10 @@ defines module net.customer.coercions
         //So start off with an int an use as a float without explicit conversion
         testInteger <- 1
         testFloat as Float := testInteger
-        
+        assert testFloat?
+
         //Now a character we promote to a String.
         testCharacter <- 's'
         testString as String := testCharacter
+        assert testString?
 //EOF   

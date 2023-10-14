@@ -5,14 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.FullCompilationTest;
+import org.ek9lang.compiler.common.PhasesTest;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 import org.junit.jupiter.api.Test;
 
 /**
  * Just test streams all compile.
  */
-class ExamplesStreamsTest extends FullCompilationTest {
+class ExamplesStreamsTest extends PhasesTest {
 
   public ExamplesStreamsTest() {
     super("/examples/streams");

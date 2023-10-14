@@ -1,0 +1,82 @@
+#!ek9
+<?-
+  Focus on just simple ternaries without complexities.
+-?>
+defines module just.ternary
+
+  defines function
+
+    //Used as part of a test expression later
+    JustBooleanResult()
+      -> arg0 as Integer
+      <- rtn as Boolean: arg0?
+
+    AlsoJustBooleanResult()
+      -> arg0 as Integer
+      <- rtn as Boolean: ~arg0?
+
+    TestTernary1()
+      stockName <- "Stephen"
+      check1 <- "Steve"
+      check2 <- "Steven"
+
+      //fuzzy matching
+      weight1 <- stockName <~> check1
+      weight2 <- stockName <~> check2
+
+      //You could inline the two expressions above in here, if you wanted to.
+      //We have an issue with this at present.
+      bestOne <- weight1 < weight2 <- check1 else check2
+
+      assert bestOne?
+
+    TestTernary2()
+      var <- 6
+
+      validResult <- JustBooleanResult(var) <- 'A' else 'B'
+      assert validResult?
+
+    TestTernary3()
+      validResult <- 1 < 2 <- AlsoJustBooleanResult(21) : JustBooleanResult(5)
+      assert validResult?
+
+    TestBadTernary1()
+      //The first expression 'less than' is fine as it results in Boolean
+      //But the types of either of the possibilities are not compatible.
+      //So what type would 'notReallyValid'? The EK9 developer needs to have some guarantees here
+      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      notReallyValid <- 1 < 2 <- "String" else 67.0
+
+    TestBadTernary2()
+      //While var++ is an expression it does not result in a Boolean
+      var <- 9
+      @Error: FULL_RESOLUTION: MUST_RESULT_IN_A_BOOLEAN
+      notReallyValid <- var++ <- "String1" else "String2"
+
+      assert notReallyValid?
+
+    TestBadTernary3()
+      //Lets check no existent value
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      notReallyValid <- nonSuch <- "String1" else "String2"
+
+      assert notReallyValid?
+
+    TestBadTernary4()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      notReallyValid <- 1 < 2 <- "String" else noSuchFunction()
+
+    TestBadTernary5()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      notReallyValid <- 1 < 2 <- noSuchFunction() : JustBooleanResult(5)
+
+    TestBadTernary6()
+      //Add in too many arguments, so function is valid but not with these arguments.
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      validResult <- 1 < 2 <- AlsoJustBooleanResult(21, 22) : JustBooleanResult(5)
+
+    TestBadTernary7()
+      //Add in too many arguments, so function is valid but not with these arguments.
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      validResult <- 1 < 2 <- AlsoJustBooleanResult(21) : JustBooleanResult()
+//EOF

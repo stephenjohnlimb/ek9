@@ -8,7 +8,7 @@ import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.FullCompilationTest;
+import org.ek9lang.compiler.common.PhasesTest;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.support.GenericsSymbolCheck;
 import org.ek9lang.compiler.support.SymbolCheck;
@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
  * But also that the resulting parameterized symbols also get put into the correct module.
  * This test calls is doing far too much, need to split out to separate tests.
  */
-class ExamplesGenericsUse1Test extends FullCompilationTest {
+class ExamplesGenericsUse1Test extends PhasesTest {
 
   private final SymbolSearchMapFunction mapFunction = new SymbolSearchMapFunction();
 

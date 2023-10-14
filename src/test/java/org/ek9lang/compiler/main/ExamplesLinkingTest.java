@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.FullCompilationTest;
+import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
-class ExamplesLinkingTest extends FullCompilationTest {
+class ExamplesLinkingTest extends PhasesTest {
 
   public ExamplesLinkingTest() {
     super("/examples/linking");

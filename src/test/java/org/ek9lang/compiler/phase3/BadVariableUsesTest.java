@@ -4,14 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.FullCompilationTest;
+import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
 /**
  * Tests bad variable usage, like use before definition, not initialised etc.
  * Now also check for duplicated properties fields in record hierarchy.
  */
-class BadVariableUsesTest extends FullCompilationTest {
+class BadVariableUsesTest extends PhasesTest {
 
   public BadVariableUsesTest() {
     super("/examples/parseButFailCompile/badVariableUses");

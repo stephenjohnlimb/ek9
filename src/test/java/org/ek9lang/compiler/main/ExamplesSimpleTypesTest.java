@@ -5,13 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.FullCompilationTest;
+import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
 /**
  * Just test simple types all compile.
  */
-class ExamplesSimpleTypesTest extends FullCompilationTest {
+class ExamplesSimpleTypesTest extends PhasesTest {
 
   public ExamplesSimpleTypesTest() {
     super("/examples/simpleTypes");

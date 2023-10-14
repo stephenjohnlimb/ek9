@@ -5,14 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.FullCompilationTest;
+import org.ek9lang.compiler.common.PhasesTest;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 import org.junit.jupiter.api.Test;
 
 /**
  * Just test functions all compile.
  */
-class ExamplesConstructsFunctionsTest extends FullCompilationTest {
+class ExamplesConstructsFunctionsTest extends PhasesTest {
 
   public ExamplesConstructsFunctionsTest() {
     super("/examples/constructs/functions");

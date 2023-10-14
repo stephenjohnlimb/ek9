@@ -1,8 +1,18 @@
 #!ek9
-defines module just.workbench
+<?-
+  Next Elvis and simple Coalescing.
+-?>
+defines module just.workspace
 
   defines function
+
     JustFail()
-      assert nothing?
+      assert failure
+
+      //Example of null coalescing
+      //coalesce <- $ ($weight1 ?? $weight2)
+
+      //Example of elvis
+      //elvis <- $ ($weight1 ?: $weight2)
 
 //EOF

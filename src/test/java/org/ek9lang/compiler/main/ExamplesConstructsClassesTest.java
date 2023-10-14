@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.FullCompilationTest;
+import org.ek9lang.compiler.common.PhasesTest;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Just test simple classes all compile.
  */
-class ExamplesConstructsClassesTest extends FullCompilationTest {
+class ExamplesConstructsClassesTest extends PhasesTest {
 
   public ExamplesConstructsClassesTest() {
     super("/examples/constructs/classes");

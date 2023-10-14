@@ -5,14 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.FullCompilationTest;
+import org.ek9lang.compiler.common.PhasesTest;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 import org.junit.jupiter.api.Test;
 
 /**
  * Just test references all compile and resolve.
  */
-class ExamplesConstructsReferencesTest extends FullCompilationTest {
+class ExamplesConstructsReferencesTest extends PhasesTest {
 
   public ExamplesConstructsReferencesTest() {
     super("/examples/constructs/references");

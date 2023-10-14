@@ -506,10 +506,10 @@ QUESTION : '?'; // used in syntax and as an operator for isSet
 CHECK : '??'; //null coalescing
 ELVIS: '?:'; //null and isSet coalescing
 GUARD : '?='; // a special type of assign that also checks if null on assignment used in if statements
-TERNARY_LT : '<?'; //ternary operator
-TERNARY_LE : '<=?'; //ternary operator
-TERNARY_GT : '>?'; //ternary operator
-TERNARY_GE : '>=?'; //ternary operator
+COALESCE_LT : '<?'; //coalescing LT operator
+COALESCE_LE : '<=?'; //coalescing LTE operator
+COALESCE_GT : '>?'; //coalescing GT operator
+COALESCE_GE : '>=?'; //coalescing GTE operator
 ASSIGN_UNSET : ':=?'; //Assign to the left hand side if left handside is null or unset
 COLON : ':';
 EQUAL : '==';

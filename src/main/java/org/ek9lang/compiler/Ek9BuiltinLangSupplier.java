@@ -1577,6 +1577,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Dimension
               <- rtn as Dimension?
 
+            operator + as pure
+              -> arg as Float
+              <- rtn as Dimension?
+
             operator - as pure
               -> arg as Dimension
               <- rtn as Dimension?
@@ -1892,6 +1896,11 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             JSON()
               -> arg0 as String
+            
+            JSON()
+              ->
+                key as String
+                value as JSON
 
             operator == as pure
               -> arg as JSON

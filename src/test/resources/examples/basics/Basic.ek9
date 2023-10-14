@@ -62,19 +62,27 @@ defines module net.customer.extend
       //Can we also support negative dimensions?
       dim1 <- -3.5em
       dim2 <- dim1 + 1.5
+      //Just so it is referenced.
+      assert dim2?
+
       dim3 <- dim1 + 1
       
       //use prefix and suffix aka first last
       theSize <- #<dim3
+      assert theSize?
+
       theType <- #>dim3
-      
+      assert theType?
+
       //Do we get built in promotion? I think you find you do.
       aFloat Float := 1
-      
+      assert aFloat?
+
       bFloat Float := anInt
-      
+      assert bFloat?
+
       anotherInt <- anInt
-      
+
       anotherInt += 10
       
       <!-
@@ -95,16 +103,22 @@ defines module net.customer.extend
       //You can get the prefix or suffix 240 and dpi
       //Any type of object can be configured with the prefix and suffix operator
       resSize <- #<res1
+      assert resSize?
+
       resType <- #>res1
-      
+      assert resType?
+
       //Get hash code! Yes the nice clear operator 'what is the hashcode' #?
       colourCode <- #? #0099CC
-      
+      assert colourCode?
+
       colour1 <- #0099CC
-      
+      assert colour1?
+
       //Can we use the type we have redefined from Colour?
       c1 Color := Color(#0099CC)
-      
+      assert c1?
+
       //Rather than do this 'c2 Color'
       //you are better of doing this c2 <- Color()
       //It's still undefined but not null!
@@ -125,15 +139,20 @@ defines module net.customer.extend
       
       //Use the suffix operator to get the currency.
       moneyCurrency <- #> money1      
-       
+      assert moneyCurrency?
+
       money2 <- 400#GBP
-      
+
       money3 <- -5000#GBP
+
+      assert money2 <> money3
 
       //Lets try a new path literal - use like jsonPath
       aPath <- $?.some.path.inc[0].array
 
       bPath <- $?.another[0][9].multi-named.array
+
+      assert aPath != bPath
 
       regEx <- /[S|s]te(?:ven?|phen)/
 
@@ -152,6 +171,9 @@ defines module net.customer.extend
       assert Steve matches regEx and steve matches regEx
       assert Stephen matches regEx and stephen matches regEx
       assert Steven matches regEx and steven matches regEx
+
+      //Can also negate and switch the String and RegEx around
+      assert Stephene not matches regEx and regEx not matches stephene
 
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "verySimple"
     verySimple()

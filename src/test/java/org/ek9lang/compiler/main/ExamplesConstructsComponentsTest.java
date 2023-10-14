@@ -5,14 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.FullCompilationTest;
+import org.ek9lang.compiler.common.PhasesTest;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 import org.junit.jupiter.api.Test;
 
 /**
  * Just test simple components all compile.
  */
-class ExamplesConstructsComponentsTest extends FullCompilationTest {
+class ExamplesConstructsComponentsTest extends PhasesTest {
 
   public ExamplesConstructsComponentsTest() {
     super("/examples/constructs/components");
