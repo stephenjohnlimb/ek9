@@ -11,6 +11,7 @@ defines module just.ternary
       -> arg0 as Integer
       <- rtn as Boolean: arg0?
 
+    //As above
     AlsoJustBooleanResult()
       -> arg0 as Integer
       <- rtn as Boolean: ~arg0?
@@ -25,10 +26,16 @@ defines module just.ternary
       weight2 <- stockName <~> check2
 
       //You could inline the two expressions above in here, if you wanted to.
-      //We have an issue with this at present.
       bestOne <- weight1 < weight2 <- check1 else check2
-
       assert bestOne?
+
+      //i.e. like this, but this is a bit harder to read
+      tooComplex <- stockName <~> check1 < stockName <~> check2 <- check1 : check2
+      assert tooComplex?
+
+      //Maybe grouping might make it more readable
+      lessComplex <- (stockName <~> check1) < (stockName <~> check2) <- check1 : check2
+      assert lessComplex?
 
     TestTernary2()
       var <- 6
@@ -60,6 +67,7 @@ defines module just.ternary
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       notReallyValid <- nonSuch <- "String1" else "String2"
 
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
       assert notReallyValid?
 
     TestBadTernary4()

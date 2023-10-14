@@ -73,8 +73,7 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
     } else if (ctx.ONLY() != null) {
       throw new CompilerException("TODO: implement 'only' expression " + ctx.start + " text [" + ctx.getText() + "]");
     } else if (ctx.coalescing != null) {
-      throw new CompilerException(
-          "TODO: implement 'coalescing' expression " + ctx.start + " text [" + ctx.getText() + "]");
+      return checkCoalescing(ctx);
     } else if (ctx.coalescing_equality != null) {
       throw new CompilerException(
           "TODO: implement 'coalescing_equality' expression " + ctx.start + " text [" + ctx.getText() + "]");
@@ -98,8 +97,7 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
       return checkTernary(ctx);
     } else if (ctx.expression() != null && !ctx.expression().isEmpty()) {
       throw new CompilerException("Expecting to remove this line " + ctx.start + " text [" + ctx.getText() + "]");
-    }
-    else {
+    } else {
       AssertValue.fail(
           "Expecting finite set of operations for expression [" + ctx.getText() + "] line: " + ctx.start.getLine());
     }
@@ -115,9 +113,10 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
       //This case only looks for operators on some form of aggregate.
       var search = methodSymbolSearchForExpression.apply(ctx);
       var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx.expression(0));
-      var located = checkForOperator.apply(new CheckOperatorData(symbol, new Ek9Token(ctx.op), search));
+      var opToken = new Ek9Token(ctx.op);
+      var located = checkForOperator.apply(new CheckOperatorData(symbol, opToken, search));
       if (located.isPresent()) {
-        var expr = symbolFactory.newExpressionSymbol(symbol).setType(located);
+        var expr = symbolFactory.newExpressionSymbol(opToken, symbol.getName(), located);
         //Mow there could be a negation inside the expression (to make the syntax nicer)
         if (ctx.neg != null) {
           return checkAndProcessNotOperation(new Ek9Token(ctx.neg), expr);
@@ -149,12 +148,37 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
     var left = symbolAndScopeManagement.getRecordedSymbol(ctx.left);
     var right = symbolAndScopeManagement.getRecordedSymbol(ctx.right);
 
-    //So do the checks, this will result in errors being emitted if the values are not acceptable.
-    checkTypeIsBoolean.accept(start, control);
-    var commonType = commonTypeSuperOrTrait.apply(new Ek9Token(ctx.LEFT_ARROW().getSymbol()), List.of(left, right));
-    if (commonType.isPresent()) {
-      //We can make an expression that models this and the correct return type.
-      return symbolFactory.newExpressionSymbol(start, ctx.getText(), commonType);
+    if (control != null && left != null && right != null) {
+      //So do the checks, this will result in errors being emitted if the values are not acceptable.
+      checkTypeIsBoolean.accept(start, control);
+      var commonType = commonTypeSuperOrTrait.apply(new Ek9Token(ctx.LEFT_ARROW().getSymbol()), List.of(left, right));
+      if (commonType.isPresent()) {
+        //We can make an expression that models this and the correct return type.
+        return symbolFactory.newExpressionSymbol(start, ctx.getText(), commonType);
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * This covers the null coalescing and the 'Elvis' operator.
+   * Basically just need to ensure types are compatible and that the is-set '?'
+   * operator exists on that type.
+   * <br/>
+   * It will be up to the code generation part to generate the null check (for ??) and the
+   * isSet code for both '??' and '?:'.
+   */
+  private ISymbol checkCoalescing(final EK9Parser.ExpressionContext ctx) {
+    var opToken = new Ek9Token(ctx.coalescing);
+
+    var left = symbolAndScopeManagement.getRecordedSymbol(ctx.left);
+    var right = symbolAndScopeManagement.getRecordedSymbol(ctx.right);
+    if (left != null && right != null) {
+      var commonType = commonTypeSuperOrTrait.apply(opToken, List.of(left, right));
+      if (commonType.isPresent() && checkIsSet.test(opToken, commonType.get())) {
+        return symbolFactory.newExpressionSymbol(opToken, ctx.getText(), commonType);
+      }
     }
     return null;
   }
@@ -171,8 +195,9 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
 
   private ISymbol checkAndProcessIsSet(final EK9Parser.ExpressionContext ctx) {
     var expressionInQuestion = symbolAndScopeManagement.getRecordedSymbol(ctx.expression(0));
-    if (checkIsSet.test(new Ek9Token(ctx.op), expressionInQuestion)) {
-      return symbolFactory.newExpressionSymbol(expressionInQuestion)
+    var opToken = new Ek9Token(ctx.op);
+    if (checkIsSet.test(opToken, expressionInQuestion)) {
+      return symbolFactory.newExpressionSymbol(opToken, expressionInQuestion.getName())
           .setType(symbolAndScopeManagement.getEk9Types().ek9Boolean());
     }
 

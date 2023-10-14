@@ -16,7 +16,6 @@ import org.ek9lang.compiler.tokenizer.IToken;
 class CheckIsSet extends RuleSupport implements BiPredicate<IToken, ISymbol> {
   private final SymbolTypeOrError symbolTypeOrError;
   private final CheckInitialised checkInitialised;
-
   private final CheckForOperator checkForOperator;
 
   CheckIsSet(final SymbolAndScopeManagement symbolAndScopeManagement,

@@ -1,18 +1,52 @@
 #!ek9
 <?-
-  Next Elvis and simple Coalescing.
+  Next equality Coalescing.
+
 -?>
 defines module just.workspace
 
+  defines trait
+
+    SomethingCommon
+
+      operator ? as pure abstract
+        <- rtn as Boolean?
+      operator $ as pure abstract
+        <- rtn as String?
+      operator <=> as pure
+        -> argo as SomethingCommon
+        <- rtn as Integer: 0
+
+  defines class
+    C1
+      default C1()
+      //But miss off the isSet operator '<=>', this means it cannot be used with
+      //'<?', <=?, '>?' or '>=?'
+      //Note that we also miss the to string '$' operator, this causes the expression not to be resolved.
+
+    C2 with trait of SomethingCommon
+      override operator ? as pure
+        <- rtn as Boolean: true
+      override operator $ as pure
+        <- rtn as String: "C2"
+
+    C3 with trait of SomethingCommon
+      override operator ? as pure
+        <- rtn as Boolean: false
+      override operator $ as pure
+        <- rtn as String: "C3"
+
   defines function
 
-    JustFail()
-      assert failure
+    CheckMethod()
+      -> arg0 as SomethingCommon
+      <- rtn as Boolean: arg0?
 
-      //Example of null coalescing
-      //coalesce <- $ ($weight1 ?? $weight2)
+    TestLessThanCoalescing1()
+      weight1 as String!
+      weight2 as String: "Steve"
 
-      //Example of elvis
-      //elvis <- $ ($weight1 ?: $weight2)
+      //safeLessThan <- weight1 <? weight2
+      assert safeLessThan?
 
 //EOF

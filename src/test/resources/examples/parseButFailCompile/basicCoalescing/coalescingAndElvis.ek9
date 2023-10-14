@@ -1,0 +1,146 @@
+#!ek9
+<?-
+  Next Elvis and simple Coalescing.
+
+  Example of null coalescing
+  coalesce <- weight1 ?? weight2
+
+  Example of elvis
+  elvis <- weight1 ?: weight2
+
+  This uses the injection '!' mechanism to leave a variable unset (as no injection takes place).
+  This is an obvious disadvantage of even using injection. We cannot tell until runtime if a value
+  has been initialised.
+
+  These tests focus on the null coalescing checks and just do one or two of the Elis because it's
+  the same code (not very black box I know).
+-?>
+defines module coalescing.elvis
+
+  defines trait
+
+    SomethingCommon
+
+      operator ? as pure abstract
+        <- rtn as Boolean?
+      operator $ as pure abstract
+        <- rtn as String?
+
+  defines class
+    C1
+      default C1()
+      //But miss off the isSet operator '?', this means it cannot be used with '??' or '?:'
+      //Note that we also miss the to string '$' operator, this causes the expression not to be resolved.
+
+    C2 with trait of SomethingCommon
+      override operator ? as pure
+        <- rtn as Boolean: true
+      override operator $ as pure
+        <- rtn as String: "C2"
+
+    C3 with trait of SomethingCommon
+      override operator ? as pure
+        <- rtn as Boolean: false
+      override operator $ as pure
+        <- rtn as String: "C3"
+
+  defines function
+
+    CheckMethod()
+      -> arg0 as SomethingCommon
+      <- rtn as Boolean: arg0?
+
+    TestNullCoalescing1()
+      weight1 as String!
+      weight2 as String: "Steve"
+
+      //Example of null coalescing
+      coalesce <- $ ($weight1 ?? $weight2)
+      assert coalesce?
+
+    TestNullCoalescing2()
+      weight1 as C2!
+      weight2 as C3: C3
+
+      coalesced <- weight1 ?? weight2
+
+      //This will prove that result is the right type.
+      result <- CheckMethod(coalesced)
+      assert result?
+
+    TestElvis1()
+      weight1 as String!
+      weight2 as String: "Steve"
+
+      //Example of Elvis
+      coalesce <- $ ($weight1 ?: $weight2)
+      assert coalesce?
+
+    TestElvis2()
+      weight1 as C2!
+      weight2 as C3: C3
+
+      coalesced <- weight1 ?: weight2
+
+      //This will prove that result is the right type.
+      result <- CheckMethod(coalesced)
+      assert result?
+
+    //Check missing to String $ operator and its cascading effect
+    TestBadNullCoalescing1()
+      weight1 as C1!
+      weight2 as C1: C1()
+
+      //Will detect the $ operator is missing.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      coalesce <- $ ($weight1 ?? $weight2)
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert coalesce?
+
+    TestBadNullCoalescing2()
+      weight1 as C1!
+      weight2 as C1: C1()
+
+      //Will detect the ? operator is missing.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      coalesce <- weight1 ?? weight2
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert coalesce?
+
+    TestBadNullCoalescing3()
+      weight1 as Integer!
+      weight2 as Float: Float()
+
+      //Will detect the types are not compatible (coercion is not applied here)
+      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      coalesce <- weight1 ?? weight2
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert coalesce?
+
+    TestBadNullCoalescing4()
+      weight1 as C2!
+      weight2 as C3: C3
+
+      //Example of null coalescing, this will detect the common type
+      //So the coalescing bit works just checking the resulting types
+      //But when converted to String not compatible with method.
+      coalesced <- $ (weight1 ?? weight2)
+
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckMethod(coalesced)
+
+    TestBadElvis1()
+      weight1 as Integer!
+      weight2 as Float: Float()
+
+      //Will detect the types are not compatible (coercion is not applied here)
+      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      elvis <- weight1 ?: weight2
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert elvis?
+
+//EOF
