@@ -2,7 +2,6 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.LocationExtractor;
 import org.ek9lang.compiler.support.SymbolMatcher;
@@ -13,11 +12,9 @@ import org.ek9lang.compiler.support.SymbolMatcher;
  * compatible means supers or traits are compatible or that the second var type can be
  * coerced to the first.
  */
-final class CheckTypesCompatible extends RuleSupport implements Consumer<
+final class CheckTypesCompatible extends TypedSymbolAccess implements Consumer<
     TypeCompatibilityData> {
-
   private final SymbolMatcher matcher = new SymbolMatcher();
-
   private final LocationExtractor locationExtractor = new LocationExtractor();
 
   /**
@@ -30,7 +27,7 @@ final class CheckTypesCompatible extends RuleSupport implements Consumer<
   }
 
   @Override
-  public void accept(TypeCompatibilityData toCheck) {
+  public void accept(final TypeCompatibilityData toCheck) {
     if (toCheck.lhs() != null
         && toCheck.rhs() != null
         && toCheck.lhs().getType().isPresent()

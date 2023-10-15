@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.function.BiFunction;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
@@ -21,9 +20,8 @@ import org.ek9lang.compiler.tokenizer.IToken;
 /**
  * Used for resolving operation calls on aggregates, which can include properties that are delegates to functions.
  */
-final class ResolveOperationCallOrError extends RuleSupport
+final class ResolveOperationCallOrError extends TypedSymbolAccess
     implements BiFunction<EK9Parser.OperationCallContext, IAggregateSymbol, ISymbol> {
-
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
   private final ResolveMethodOrError resolveMethodOrError;
   private final SymbolsFromParamExpression symbolsFromParamExpression;
@@ -45,7 +43,7 @@ final class ResolveOperationCallOrError extends RuleSupport
     this.resolveMethodOrError =
         new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
     this.mostSpecificScope =
-        new MostSpecificScope(symbolAndScopeManagement, errorListener);
+        new MostSpecificScope(symbolAndScopeManagement);
     this.checkAccessToSymbol =
         new CheckAccessToSymbol(symbolAndScopeManagement, errorListener);
   }
@@ -95,7 +93,7 @@ final class ResolveOperationCallOrError extends RuleSupport
       return null;
     }
     resolvedMethod.setReferenced(true);
-    symbolAndScopeManagement.recordSymbol(resolvedMethod, ctx);
+    recordATypedSymbol(resolvedMethod, ctx);
     return resolvedMethod;
   }
 

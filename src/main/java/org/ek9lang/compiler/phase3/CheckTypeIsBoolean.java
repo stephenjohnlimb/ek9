@@ -4,7 +4,6 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.M
 
 import java.util.function.BiConsumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
@@ -12,7 +11,7 @@ import org.ek9lang.compiler.tokenizer.IToken;
 /**
  * Just checks the symbol has a type of Boolean, can be used in control statements.
  */
-public class CheckTypeIsBoolean extends RuleSupport implements BiConsumer<IToken, ISymbol> {
+public class CheckTypeIsBoolean extends TypedSymbolAccess implements BiConsumer<IToken, ISymbol> {
   protected CheckTypeIsBoolean(SymbolAndScopeManagement symbolAndScopeManagement,
                                ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);

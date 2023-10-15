@@ -2,7 +2,6 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.LocationExtractor;
@@ -16,7 +15,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * This is unlike classes/components where all properties are always private and so can have
  * the same name. But this is complicated with the JSON operator.
  */
-final class CheckPropertyNames extends RuleSupport implements Consumer<AggregateSymbol> {
+final class CheckPropertyNames extends TypedSymbolAccess implements Consumer<AggregateSymbol> {
   private final LocationExtractor locationExtractor = new LocationExtractor();
 
   private final ErrorListener.SemanticClassification errorClassification;

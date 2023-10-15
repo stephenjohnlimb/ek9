@@ -2,7 +2,6 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.function.BiFunction;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
@@ -13,8 +12,8 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * Given a search for a method from an aggregate - and include supers/traits etc,
  * this function will try and locate the method. But if not found or ambiguous it will issue errors.
  */
-final class ResolveMethodOrError extends RuleSupport implements BiFunction<IToken, MethodSearchInScope, MethodSymbol> {
-
+final class ResolveMethodOrError extends TypedSymbolAccess
+    implements BiFunction<IToken, MethodSearchInScope, MethodSymbol> {
   private final MostSpecificScope mostSpecificScope;
   private final CheckAccessToSymbol checkAccessToSymbol;
 
@@ -24,7 +23,7 @@ final class ResolveMethodOrError extends RuleSupport implements BiFunction<IToke
   ResolveMethodOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                        final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
-    this.mostSpecificScope = new MostSpecificScope(symbolAndScopeManagement, errorListener);
+    this.mostSpecificScope = new MostSpecificScope(symbolAndScopeManagement);
     this.checkAccessToSymbol = new CheckAccessToSymbol(symbolAndScopeManagement, errorListener);
   }
 

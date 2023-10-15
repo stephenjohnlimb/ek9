@@ -3,7 +3,6 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.BiFunction;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.IScope;
@@ -15,11 +14,9 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  * This takes into account field visibility and where access is being made from.
  * So it will work on a range of aggregates, records, classes, components, etc.
  */
-final class ResolveFieldOrError extends RuleSupport
+final class ResolveFieldOrError extends TypedSymbolAccess
     implements BiFunction<EK9Parser.IdentifierContext, IScope, ISymbol> {
-
   private final MostSpecificScope mostSpecificScope;
-
   private final CheckAccessToSymbol checkAccessToSymbol;
 
   /**
@@ -29,7 +26,7 @@ final class ResolveFieldOrError extends RuleSupport
                       final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
 
-    this.mostSpecificScope = new MostSpecificScope(symbolAndScopeManagement, errorListener);
+    this.mostSpecificScope = new MostSpecificScope(symbolAndScopeManagement);
     this.checkAccessToSymbol = new CheckAccessToSymbol(symbolAndScopeManagement, errorListener);
   }
 
@@ -53,7 +50,7 @@ final class ResolveFieldOrError extends RuleSupport
     checkAccessToSymbol.accept(checkingData);
 
     identifierSymbol.setReferenced(true);
-    symbolAndScopeManagement.recordSymbol(identifierSymbol, ctx);
+    recordATypedSymbol(identifierSymbol, ctx);
     return identifierSymbol;
   }
 }

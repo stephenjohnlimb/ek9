@@ -2,7 +2,6 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 
@@ -11,7 +10,7 @@ import org.ek9lang.compiler.symbols.FunctionSymbol;
  * They are inferred for the developer - this is that 'inference'.
  * In short the compiler - uses the same symbols from the super class for incoming and returning parameters.
  */
-final class AutoMatchSuperFunctionSignature extends RuleSupport implements Consumer<FunctionSymbol> {
+final class AutoMatchSuperFunctionSignature extends TypedSymbolAccess implements Consumer<FunctionSymbol> {
   AutoMatchSuperFunctionSignature(final SymbolAndScopeManagement symbolAndScopeManagement,
                                   final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);

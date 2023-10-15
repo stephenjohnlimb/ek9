@@ -3,7 +3,6 @@ package org.ek9lang.compiler.phase3;
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.SymbolTypeExtractor;
 import org.ek9lang.compiler.support.ToCommaSeparated;
@@ -14,9 +13,8 @@ import org.ek9lang.compiler.tokenizer.IToken;
 /**
  * Check is the data passed in enabled a delegate function to be resolved and if so return that Function.
  */
-final class CheckValidFunctionDelegateOrError extends RuleSupport implements
+final class CheckValidFunctionDelegateOrError extends TypedSymbolAccess implements
     Function<DelegateFunctionCheckData, FunctionSymbol> {
-
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
   private final ResolveFunctionOrError resolveFunctionOrError;
 
@@ -54,8 +52,8 @@ final class CheckValidFunctionDelegateOrError extends RuleSupport implements
     return null;
   }
 
-  private FunctionSymbol checkFunctionParameters(IToken token, FunctionSymbol function,
-                                                 List<ISymbol> parameters) {
+  private FunctionSymbol checkFunctionParameters(final IToken token, final FunctionSymbol function,
+                                                 final List<ISymbol> parameters) {
 
     var paramTypes = symbolTypeExtractor.apply(parameters);
     //maybe earlier types were not defined by the ek9 developer so let's not look at it would be misleading.

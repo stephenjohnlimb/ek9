@@ -2,7 +2,6 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 
 /**
@@ -10,7 +9,7 @@ import org.ek9lang.compiler.common.SymbolAndScopeManagement;
  * Emits errors if they are not compatible.
  * This is a check that excludes coercion of types.
  */
-final class CheckTypeCovariance extends RuleSupport implements Consumer<CovarianceCheckData> {
+final class CheckTypeCovariance extends TypedSymbolAccess implements Consumer<CovarianceCheckData> {
   CheckTypeCovariance(final SymbolAndScopeManagement symbolAndScopeManagement,
                       final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);

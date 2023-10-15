@@ -2,7 +2,6 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.SymbolTypeExtractor;
 import org.ek9lang.compiler.support.TypeListComparator;
@@ -10,8 +9,7 @@ import org.ek9lang.compiler.support.TypeListComparator;
 /**
  * Checks the number and types of the two sets of parameter list match exactly.
  */
-final class CheckParameterTypesExactMatch extends RuleSupport implements Consumer<ParametersCheckData> {
-
+final class CheckParameterTypesExactMatch extends TypedSymbolAccess implements Consumer<ParametersCheckData> {
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
   private final TypeListComparator typeListComparator = new TypeListComparator();
 

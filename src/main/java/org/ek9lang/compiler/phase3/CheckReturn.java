@@ -5,7 +5,6 @@ import static org.ek9lang.compiler.support.AggregateFactory.EK9_VOID;
 import java.util.function.BiConsumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.ExternallyImplemented;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.LocationExtractor;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -14,13 +13,13 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * Checks if the return value (if present) has been initialised.
  * This takes into account extern, abstract and the like,
  */
-final class CheckReturn extends RuleSupport implements BiConsumer<ISymbol, ISymbol> {
+final class CheckReturn extends TypedSymbolAccess implements BiConsumer<ISymbol, ISymbol> {
   private final LocationExtractor locationExtractor = new LocationExtractor();
-
   private final ExternallyImplemented externallyImplemented = new ExternallyImplemented();
   private final boolean forDynamicFunction;
 
-  CheckReturn(final boolean forDynamicFunction, final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckReturn(final boolean forDynamicFunction,
+              final SymbolAndScopeManagement symbolAndScopeManagement,
               final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
     this.forDynamicFunction = forDynamicFunction;

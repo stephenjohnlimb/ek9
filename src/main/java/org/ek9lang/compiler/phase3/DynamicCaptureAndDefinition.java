@@ -3,7 +3,6 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.CaptureScope;
@@ -12,7 +11,7 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
 /**
  * Resolves the variables to be captured and defines new variable symbols against the appropriate scopes.
  */
-final class DynamicCaptureAndDefinition extends RuleSupport
+final class DynamicCaptureAndDefinition extends TypedSymbolAccess
     implements Consumer<EK9Parser.DynamicVariableCaptureContext> {
   private final SymbolFactory symbolFactory;
 
@@ -40,10 +39,9 @@ final class DynamicCaptureAndDefinition extends RuleSupport
         if (param.identifier() != null) {
           variableName = param.identifier().getText();
         }
-        var resolvedCapture = symbolAndScopeManagement.getRecordedSymbol(param.expression());
+        var resolvedCapture = getRecordedAndTypedSymbol(param.expression());
         if (resolvedCapture != null) {
           //Might have had resolution issues earlier so might not be set.
-          //Not sure about how we will deal with functions passed as variables - maybe use the type.
           var newCapturedSymbol = symbolFactory.newVariable(variableName, new Ek9Token(param.start), false, false);
           newCapturedSymbol.setType(resolvedCapture.getType());
           newCapturedSymbol.setInitialisedBy(resolvedCapture.getInitialisedBy());

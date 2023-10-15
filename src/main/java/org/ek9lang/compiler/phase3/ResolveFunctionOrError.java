@@ -2,7 +2,6 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.function.Function;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.SymbolTypeExtractor;
 import org.ek9lang.compiler.support.ToCommaSeparated;
@@ -11,7 +10,7 @@ import org.ek9lang.compiler.symbols.FunctionSymbol;
 /**
  * Check for valid function parameters.
  */
-final class ResolveFunctionOrError extends RuleSupport implements Function<FunctionCheckData, FunctionSymbol> {
+final class ResolveFunctionOrError extends TypedSymbolAccess implements Function<FunctionCheckData, FunctionSymbol> {
 
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
 

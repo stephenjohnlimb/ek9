@@ -3,7 +3,6 @@ package org.ek9lang.compiler.phase3;
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MatchResult;
 import org.ek9lang.compiler.search.MatchResults;
@@ -20,8 +19,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * This could lead to a case where two separate components like a trait and a class could not be used together.
  * The answer would be to employ delegation rather than use inheritance.
  */
-final class CheckPossibleFieldDelegate extends RuleSupport implements Consumer<ISymbol> {
-
+final class CheckPossibleFieldDelegate extends TypedSymbolAccess implements Consumer<ISymbol> {
   private final MostSpecificScope mostSpecificScope;
 
   /**
@@ -30,12 +28,12 @@ final class CheckPossibleFieldDelegate extends RuleSupport implements Consumer<I
   CheckPossibleFieldDelegate(final SymbolAndScopeManagement symbolAndScopeManagement,
                              final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
-    this.mostSpecificScope = new MostSpecificScope(symbolAndScopeManagement, errorListener);
+    this.mostSpecificScope = new MostSpecificScope(symbolAndScopeManagement);
 
   }
 
   @Override
-  public void accept(ISymbol fieldSymbol) {
+  public void accept(final ISymbol fieldSymbol) {
     if (fieldSymbol != null
         && fieldSymbol.getType().isPresent()
         && fieldSymbol.getType().get() instanceof FunctionSymbol) {

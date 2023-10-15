@@ -2,7 +2,6 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.LocationExtractor;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
@@ -10,13 +9,11 @@ import org.ek9lang.compiler.symbols.FunctionSymbol;
 /**
  * Checks that the function correctly overrides the signature if it has a super.
  */
-final class CheckFunctionOverrides extends RuleSupport implements Consumer<FunctionSymbol> {
+final class CheckFunctionOverrides extends TypedSymbolAccess implements Consumer<FunctionSymbol> {
   private final CheckParameterTypesExactMatch checkParameterTypesExactMatch;
   private final CheckTypeCovariance checkTypeCovariance;
-
   private final CheckFunctionAbstractness checkFunctionAbstractness;
   private final CheckPureModifier checkPureModifier;
-
   private final LocationExtractor locationExtractor = new LocationExtractor();
 
   /**

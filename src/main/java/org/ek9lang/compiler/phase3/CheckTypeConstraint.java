@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
@@ -18,7 +17,7 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * Checks that any recursive type constraints on a type are valid.
  * Note that this consumer does have side effects in terms of recording expressions against nodes.
  */
-final class CheckTypeConstraint extends RuleSupport
+final class CheckTypeConstraint extends TypedSymbolAccess
     implements BiConsumer<AggregateSymbol, EK9Parser.ConstrainDeclarationContext> {
   private final SymbolFactory symbolFactory;
 
@@ -34,7 +33,7 @@ final class CheckTypeConstraint extends RuleSupport
                      final EK9Parser.ConstrainDeclarationContext ctx) {
 
     var possibleExpression = processConstrainType(aggregateSymbol, ctx.constrainType());
-    possibleExpression.ifPresent(expression -> symbolAndScopeManagement.recordSymbol(expression, ctx));
+    possibleExpression.ifPresent(expression -> recordATypedSymbol(expression, ctx));
   }
 
   //Note this can be called recursively.
@@ -63,7 +62,7 @@ final class CheckTypeConstraint extends RuleSupport
     } else {
       rtn = processLiteralConstrainType(aggregateSymbol, ctx);
     }
-    rtn.ifPresent(expression -> symbolAndScopeManagement.recordSymbol(expression, ctx));
+    rtn.ifPresent(expression -> recordATypedSymbol(expression, ctx));
     return rtn;
   }
 
@@ -93,7 +92,7 @@ final class CheckTypeConstraint extends RuleSupport
         operator = "<>";
       }
     }
-    var literalSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx.literal());
+    var literalSymbol = getRecordedAndTypedSymbol(ctx.literal());
     if (literalSymbol != null) {
       var search = new MethodSymbolSearch(operator).addTypeParameter(literalSymbol.getType());
       return resolveOrError(aggregateSymbol, search, literalSymbol.getSourceToken());

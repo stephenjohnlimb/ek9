@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -12,7 +11,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
 /**
  * Used for resolving a function (by just name) or a variable that is a function delegate.
  */
-final class ResolveFunctionOrDelegateByNameOrError extends RuleSupport
+final class ResolveFunctionOrDelegateByNameOrError extends TypedSymbolAccess
     implements Consumer<EK9Parser.IdentifierContext> {
 
   /**
@@ -42,7 +41,7 @@ final class ResolveFunctionOrDelegateByNameOrError extends RuleSupport
 
     var symbol = resolved.get();
     symbol.setReferenced(true);
-    symbolAndScopeManagement.recordSymbol(symbol, ctx);
+    recordATypedSymbol(symbol, ctx);
   }
 
   private Optional<ISymbol> testForFunctionDelegate(final String name) {

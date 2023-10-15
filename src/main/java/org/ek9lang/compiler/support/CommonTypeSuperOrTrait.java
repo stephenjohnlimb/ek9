@@ -26,7 +26,6 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * This function will issue semantic errors.
  */
 public class CommonTypeSuperOrTrait implements BiFunction<IToken, List<ISymbol>, Optional<ISymbol>> {
-
   final ErrorListener errorListener;
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
 

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.CommonTypeSuperOrTrait;
 import org.ek9lang.compiler.support.ParameterisedTypeData;
@@ -17,8 +16,7 @@ import org.ek9lang.core.AssertValue;
 /**
  * Creates an ek9 list of a specific type if the expressions are typed correctly.
  */
-final class CheckAndTypeList extends RuleSupport implements Consumer<EK9Parser.ListContext> {
-
+final class CheckAndTypeList extends TypedSymbolAccess implements Consumer<EK9Parser.ListContext> {
   private final ParameterisedLocator parameterisedLocator;
   private final CommonTypeSuperOrTrait commonTypeSuperOrTrait;
 
@@ -35,8 +33,10 @@ final class CheckAndTypeList extends RuleSupport implements Consumer<EK9Parser.L
   }
 
   @Override
-  public void accept(EK9Parser.ListContext ctx) {
+  public void accept(final EK9Parser.ListContext ctx) {
     var startToken = new Ek9Token(ctx.start);
+    //Here just like the dictionary - we need the untyped symbol.
+    //The task of this code it to provide typing via parameterization.
     final var listCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
 
     //Access the generic List type - this has been pre-located for quicker use.
@@ -54,7 +54,7 @@ final class CheckAndTypeList extends RuleSupport implements Consumer<EK9Parser.L
     //Maybe move this to a functional stream once all the code is developed.
     List<ISymbol> argumentSymbols = new ArrayList<>();
     for (var expr : ctx.expression()) {
-      var exprSymbol = symbolAndScopeManagement.getRecordedSymbol(expr);
+      var exprSymbol = getRecordedAndTypedSymbol(expr);
       AssertValue.checkNotNull("Compiler error, No expression symbol - missing expression processing?", exprSymbol);
       argumentSymbols.add(exprSymbol);
     }

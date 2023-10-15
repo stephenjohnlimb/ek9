@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.AnySymbolSearch;
 import org.ek9lang.compiler.search.SymbolSearch;
@@ -15,7 +14,7 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
 /**
  * Ensures that 'identifierReference' is now resolved and hangs together and 'typed' or a not resolved error.
  */
-final class CheckValidIdentifierReference extends RuleSupport
+final class CheckValidIdentifierReference extends TypedSymbolAccess
     implements Function<EK9Parser.IdentifierReferenceContext, Optional<ISymbol>> {
 
 
@@ -29,7 +28,7 @@ final class CheckValidIdentifierReference extends RuleSupport
 
   @Override
   public Optional<ISymbol> apply(final EK9Parser.IdentifierReferenceContext ctx) {
-    var identifierReference = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    var identifierReference = getRecordedAndTypedSymbol(ctx);
 
     if (identifierReference == null) {
       //This has not yet been resolved.
@@ -38,7 +37,7 @@ final class CheckValidIdentifierReference extends RuleSupport
       var resolved = currentScope.resolve(new AnySymbolSearch(ctx.getText()));
       if (resolved.isPresent()) {
         identifierReference = resolved.get();
-        symbolAndScopeManagement.recordSymbol(identifierReference, ctx);
+        recordATypedSymbol(identifierReference, ctx);
       } else {
         errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
       }

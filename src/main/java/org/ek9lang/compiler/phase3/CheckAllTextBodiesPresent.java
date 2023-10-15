@@ -3,7 +3,6 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
@@ -13,7 +12,7 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 /**
  * Checks that all the text bodies that are on the super are also present in the language variant.
  */
-final class CheckAllTextBodiesPresent extends RuleSupport implements Consumer<AggregateSymbol> {
+final class CheckAllTextBodiesPresent extends TypedSymbolAccess implements Consumer<AggregateSymbol> {
 
   /**
    * Check various aspects of overriding methods.

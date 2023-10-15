@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.support.ToCommaSeparated;
@@ -22,7 +21,7 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  * But allowing applications, functions and programs to refer to themselves might be useful in
  * passing themselves as parameters to other functions in some way.
  */
-final class CheckValidThisOrSuper extends RuleSupport implements Consumer<ParserRuleContext> {
+final class CheckValidThisOrSuper extends TypedSymbolAccess implements Consumer<ParserRuleContext> {
 
   private final SymbolFactory symbolFactory;
   private final List<ISymbol.SymbolGenus> supportedThisAndSuperGenus = List.of(ISymbol.SymbolGenus.CLASS,
@@ -70,7 +69,7 @@ final class CheckValidThisOrSuper extends RuleSupport implements Consumer<Parser
       symbol.setInitialisedBy(theType.getInitialisedBy());
       symbol.setReferenced(true);
       symbol.setType(theType);
-      symbolAndScopeManagement.recordSymbol(symbol, ctx);
+      recordATypedSymbol(symbol, ctx);
     }
   }
 

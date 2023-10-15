@@ -14,12 +14,14 @@ import org.ek9lang.core.AssertValue;
 
 /**
  * Checks on the assignment during a declaration.
+ * <pre>
+ *   identifier AS? typeDef QUESTION? (ASSIGN | ASSIGN2 | COLON | MERGE) assignmentExpression
+ *   identifier LEFT_ARROW assignmentExpression
+ * </pre>
  */
-final class CheckVariableAssignmentDeclaration implements Consumer<EK9Parser.VariableDeclarationContext> {
+final class CheckVariableAssignmentDeclaration extends TypedSymbolAccess
+    implements Consumer<EK9Parser.VariableDeclarationContext> {
 
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
-
-  private final ErrorListener errorListener;
   private final CheckTypesCompatible checkTypesCompatible;
 
   /**
@@ -27,13 +29,16 @@ final class CheckVariableAssignmentDeclaration implements Consumer<EK9Parser.Var
    */
   CheckVariableAssignmentDeclaration(final SymbolAndScopeManagement symbolAndScopeManagement,
                                      final ErrorListener errorListener) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
-    this.errorListener = errorListener;
+    super(symbolAndScopeManagement, errorListener);
     this.checkTypesCompatible = new CheckTypesCompatible(symbolAndScopeManagement, errorListener);
   }
 
   @Override
   public void accept(final EK9Parser.VariableDeclarationContext ctx) {
+
+    //Note that we use the untyped check to access the symbols
+    //This is because for assignments we can use explicit or inferred type (see grammar).
+
     var varSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Expecting a variable symbol to be present Line: "
         + ctx.start.getLine(), varSymbol);
@@ -71,7 +76,6 @@ final class CheckVariableAssignmentDeclaration implements Consumer<EK9Parser.Var
       return false;
     }
 
-    //Once expressions are done might be able to remove this null check.
     if (exprSymbol != null && exprSymbol.getType().isPresent() && varSymbol.getType().isPresent()) {
       checkAndUpdateIfLhsIsParameterised(varSymbol.getType().get(), exprSymbol, exprSymbol.getType().get());
     }

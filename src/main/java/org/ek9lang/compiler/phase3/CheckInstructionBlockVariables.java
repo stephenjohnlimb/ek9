@@ -3,14 +3,14 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * Checks that variable only and variable declarations have symbols that have been referenced/initialised.
  */
-final class CheckInstructionBlockVariables extends RuleSupport implements Consumer<EK9Parser.InstructionBlockContext> {
+final class CheckInstructionBlockVariables extends TypedSymbolAccess
+    implements Consumer<EK9Parser.InstructionBlockContext> {
 
   private final Consumer<ISymbol> symbolCheck;
 
@@ -27,12 +27,12 @@ final class CheckInstructionBlockVariables extends RuleSupport implements Consum
   }
 
   @Override
-  public void accept(EK9Parser.InstructionBlockContext ctx) {
+  public void accept(final EK9Parser.InstructionBlockContext ctx) {
     ctx.blockStatement().forEach(blockStatement -> {
       if (blockStatement.variableOnlyDeclaration() != null) {
-        symbolCheck.accept(symbolAndScopeManagement.getRecordedSymbol(blockStatement.variableOnlyDeclaration()));
+        symbolCheck.accept(getRecordedAndTypedSymbol(blockStatement.variableOnlyDeclaration()));
       } else if (blockStatement.variableDeclaration() != null) {
-        symbolCheck.accept(symbolAndScopeManagement.getRecordedSymbol(blockStatement.variableDeclaration()));
+        symbolCheck.accept(getRecordedAndTypedSymbol(blockStatement.variableDeclaration()));
       }
     });
   }

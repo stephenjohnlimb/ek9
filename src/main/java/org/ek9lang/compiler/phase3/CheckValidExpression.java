@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.support.CommonTypeSuperOrTrait;
@@ -20,14 +19,13 @@ import org.ek9lang.core.CompilerException;
  * This is a beast and will have to delegate parts, as there are just some many types of expression.
  * TODO lot's of splitting of this logic up, because this is the 'beast'.
  */
-final class CheckValidExpression extends RuleSupport implements Consumer<EK9Parser.ExpressionContext> {
+final class CheckValidExpression extends TypedSymbolAccess implements Consumer<EK9Parser.ExpressionContext> {
 
   private final SymbolFactory symbolFactory;
   private final CheckIsSet checkIsSet;
   private final CheckForComparator checkForComparator;
   private final CheckForOperator checkForOperator;
   private final MethodSymbolSearchForExpression methodSymbolSearchForExpression;
-
   private final CheckTypeIsBoolean checkTypeIsBoolean;
   private final CommonTypeSuperOrTrait commonTypeSuperOrTrait;
 
@@ -79,19 +77,19 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
     } else if (ctx.coalescing_equality != null) {
       return checkCoalescingEquality(ctx);
     } else if (ctx.primary() != null) {
-      return symbolAndScopeManagement.getRecordedSymbol(ctx.primary());
+      return getRecordedAndTypedSymbol(ctx.primary());
     } else if (ctx.call() != null) {
-      return symbolAndScopeManagement.getRecordedSymbol(ctx.call());
+      return getRecordedAndTypedSymbol(ctx.call());
     } else if (ctx.objectAccessExpression() != null) {
-      var maybeResolved = symbolAndScopeManagement.getRecordedSymbol(ctx.objectAccessExpression());
+      var maybeResolved = getRecordedAndTypedSymbol(ctx.objectAccessExpression());
       if (maybeResolved != null && maybeResolved.getType().isPresent()) {
         return symbolFactory.newExpressionSymbol(startToken, ctx.getText()).setType(maybeResolved.getType());
       }
       return symbolFactory.newExpressionSymbol(startToken, ctx.getText());
     } else if (ctx.list() != null) {
-      return symbolAndScopeManagement.getRecordedSymbol(ctx.list());
+      return getRecordedAndTypedSymbol(ctx.list());
     } else if (ctx.dict() != null) {
-      return symbolAndScopeManagement.getRecordedSymbol(ctx.dict());
+      return getRecordedAndTypedSymbol(ctx.dict());
     } else if (ctx.IN() != null) {
       throw new CompilerException("TODO: implement both in expressions " + ctx.start + " text [" + ctx.getText() + "]");
     } else if (ctx.control != null) {
@@ -113,7 +111,7 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
       //Could be one expression (unary) or have two expressions.
       //This case only looks for operators on some form of aggregate.
       var search = methodSymbolSearchForExpression.apply(ctx);
-      var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx.expression(0));
+      var symbol = getRecordedAndTypedSymbol(ctx.expression(0));
       var opToken = new Ek9Token(ctx.op);
       var located = checkForOperator.apply(new CheckOperatorData(symbol, opToken, search));
       if (located.isPresent()) {
@@ -145,9 +143,9 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
     var start = new Ek9Token(ctx.start);
 
     //First lets gather the 'expressions' because if they are not there then there's little we can do here.
-    var control = symbolAndScopeManagement.getRecordedSymbol(ctx.control);
-    var left = symbolAndScopeManagement.getRecordedSymbol(ctx.left);
-    var right = symbolAndScopeManagement.getRecordedSymbol(ctx.right);
+    var control = getRecordedAndTypedSymbol(ctx.control);
+    var left = getRecordedAndTypedSymbol(ctx.left);
+    var right = getRecordedAndTypedSymbol(ctx.right);
 
     if (control != null && left != null && right != null) {
       //So do the checks, this will result in errors being emitted if the values are not acceptable.
@@ -173,8 +171,8 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
   private ISymbol checkCoalescing(final EK9Parser.ExpressionContext ctx) {
     var opToken = new Ek9Token(ctx.coalescing);
 
-    var left = symbolAndScopeManagement.getRecordedSymbol(ctx.left);
-    var right = symbolAndScopeManagement.getRecordedSymbol(ctx.right);
+    var left = getRecordedAndTypedSymbol(ctx.left);
+    var right = getRecordedAndTypedSymbol(ctx.right);
     if (left != null && right != null) {
       var commonType = commonTypeSuperOrTrait.apply(opToken, List.of(left, right));
       if (commonType.isPresent() && checkIsSet.test(opToken, commonType.get())) {
@@ -201,8 +199,8 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
    */
   private ISymbol checkCoalescingEquality(EK9Parser.ExpressionContext ctx) {
     var opToken = new Ek9Token(ctx.coalescing_equality);
-    var left = symbolAndScopeManagement.getRecordedSymbol(ctx.left);
-    var right = symbolAndScopeManagement.getRecordedSymbol(ctx.right);
+    var left = getRecordedAndTypedSymbol(ctx.left);
+    var right = getRecordedAndTypedSymbol(ctx.right);
     if (left != null && right != null) {
       var commonType = commonTypeSuperOrTrait.apply(opToken, List.of(left, right));
       if (commonType.isPresent() && checkForComparator.test(opToken, commonType.get())) {
@@ -223,7 +221,7 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
   }
 
   private ISymbol checkAndProcessIsSet(final EK9Parser.ExpressionContext ctx) {
-    var expressionInQuestion = symbolAndScopeManagement.getRecordedSymbol(ctx.expression(0));
+    var expressionInQuestion = getRecordedAndTypedSymbol(ctx.expression(0));
     var opToken = new Ek9Token(ctx.op);
     if (checkIsSet.test(opToken, expressionInQuestion)) {
       return symbolFactory.newExpressionSymbol(opToken, expressionInQuestion.getName())

@@ -3,7 +3,6 @@ package org.ek9lang.compiler.phase3;
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
@@ -15,14 +14,10 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 /**
  * Check overrides on methods.
  */
-final class CheckMethodOverrides extends RuleSupport implements Consumer<AggregateSymbol> {
-
+final class CheckMethodOverrides extends TypedSymbolAccess implements Consumer<AggregateSymbol> {
   private final CheckTypeCovariance checkTypeCovariance;
-
   private final ErrorListener.SemanticClassification errorWhenShouldBeMarkedAbstract;
-
   private final CheckPureModifier checkPureModifier;
-
   private final LocationExtractor locationExtractor = new LocationExtractor();
 
   /**

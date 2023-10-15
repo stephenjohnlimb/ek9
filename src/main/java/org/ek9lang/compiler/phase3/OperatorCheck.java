@@ -3,7 +3,6 @@ package org.ek9lang.compiler.phase3;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -12,15 +11,14 @@ import org.ek9lang.compiler.tokenizer.IToken;
 /**
  * Provides a common set of operations for checking operators.
  */
-abstract class OperatorCheck extends RuleSupport implements BiPredicate<IToken, ISymbol> {
-  private final SymbolTypeOrError symbolTypeOrError;
+abstract class OperatorCheck extends TypedSymbolAccess implements BiPredicate<IToken, ISymbol> {
+  private final SymbolTypeOrEmpty symbolTypeOrEmpty = new SymbolTypeOrEmpty();
   private final CheckInitialised checkInitialised;
   private final CheckForOperator checkForOperator;
 
   protected OperatorCheck(SymbolAndScopeManagement symbolAndScopeManagement,
                           ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
-    this.symbolTypeOrError = new SymbolTypeOrError(symbolAndScopeManagement, errorListener);
     this.checkInitialised = new CheckInitialised(symbolAndScopeManagement, errorListener);
     this.checkForOperator = new CheckForOperator(symbolAndScopeManagement, errorListener);
   }
@@ -30,10 +28,14 @@ abstract class OperatorCheck extends RuleSupport implements BiPredicate<IToken, 
   protected Optional<ISymbol> getSymbolType(final ISymbol symbol) {
     checkInitialised.accept(symbol);
     //Get the underlying type or emit error and return false.
-    var symbolType = symbolTypeOrError.apply(symbol);
-    if(symbolType.isPresent()) {
-      return Optional.of(symbolType.get());
+    var symbolType = symbolTypeOrEmpty.apply(symbol);
+
+    //Need an ISymbol here to return not a PossibleGenericSymbol
+    if (symbolType.isPresent()) {
+      var value = symbolType.get();
+      return Optional.of(value);
     }
+
     return Optional.empty();
   }
 

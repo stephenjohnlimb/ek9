@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
@@ -26,7 +25,7 @@ import org.ek9lang.core.AssertValue;
  * Locate a possible call to an identifierReference, so some sort of call.
  * But this also checks the parameters that are to be passed as arguments, to check that the call is possible.
  */
-final class ResolveIdentifierReferenceCallOrError extends RuleSupport
+final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
     implements Function<EK9Parser.CallContext, ScopedSymbol> {
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
   private final ResolveMethodOrError resolveMethodOrError;

@@ -8,7 +8,6 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.M
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.SymbolSearch;
@@ -34,7 +33,7 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * "#?":
  * </pre>
  */
-final class CheckDefaultOperators extends RuleSupport implements Consumer<AggregateSymbol> {
+final class CheckDefaultOperators extends TypedSymbolAccess implements Consumer<AggregateSymbol> {
   private final RetrieveDefaultedOperators retrieveDefaultedOperators = new RetrieveDefaultedOperators();
   private final CheckPropertyNames checkPropertyNames;
 
@@ -88,7 +87,8 @@ final class CheckDefaultOperators extends RuleSupport implements Consumer<Aggreg
     });
   }
 
-  private void checkToJsonSupportableIfRequired(AggregateSymbol aggregateSymbol, List<MethodSymbol> operators) {
+  private void checkToJsonSupportableIfRequired(final AggregateSymbol aggregateSymbol,
+                                                final List<MethodSymbol> operators) {
     //Only is to JSOn is required.
     operators
         .stream()

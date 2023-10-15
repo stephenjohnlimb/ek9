@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
@@ -15,8 +14,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * Pulls the type from the 'range' into the loop variable, so it is correctly typed.
  * Also checks that if the 'by' literal or identifier is used that the type is compatible with the range.
  */
-final class CheckForRange extends RuleSupport implements Consumer<EK9Parser.ForRangeContext> {
-
+final class CheckForRange extends TypedSymbolAccess implements Consumer<EK9Parser.ForRangeContext> {
   private final ResolveIdentifierOrError resolveIdentifierOrError;
   private final ResolveMethodOrError resolveMethodOrError;
 
@@ -31,9 +29,15 @@ final class CheckForRange extends RuleSupport implements Consumer<EK9Parser.ForR
   }
 
   @Override
-  public void accept(EK9Parser.ForRangeContext ctx) {
+  public void accept(final EK9Parser.ForRangeContext ctx) {
+
+    //First get the range expression as this will tell us the type for the loop variable
+    var rangeExpr = getRecordedAndTypedSymbol(ctx.range());
+
+    //Note the different call here, we accept that the loop variable will not yet have been 'typed'
+    //So now we can set that type on the loop variable.
     var loopVar = symbolAndScopeManagement.getRecordedSymbol(ctx);
-    var rangeExpr = symbolAndScopeManagement.getRecordedSymbol(ctx.range());
+
     //Now use the type if it has been set
     loopVar.setType(rangeExpr.getType());
 
@@ -42,7 +46,7 @@ final class CheckForRange extends RuleSupport implements Consumer<EK9Parser.ForR
     //Now just check the type of the 'by' part.
     if (ctx.BY() != null) {
       if (ctx.literal() != null) {
-        var literal = symbolAndScopeManagement.getRecordedSymbol(ctx.literal());
+        var literal = getRecordedAndTypedSymbol(ctx.literal());
         checkPlusEqualsOperator(loopVar, literal);
       } else {
         var resolved = resolveIdentifierOrError.apply(ctx.identifier(1));

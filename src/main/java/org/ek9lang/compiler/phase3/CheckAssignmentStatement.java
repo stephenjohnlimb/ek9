@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.OperationIsAssignment;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
@@ -18,16 +17,12 @@ import org.ek9lang.core.AssertValue;
 /**
  * Used in the full resolution phase to check assignments.
  */
-final class CheckAssignmentStatement extends RuleSupport implements Consumer<EK9Parser.AssignmentStatementContext> {
-
+final class CheckAssignmentStatement extends TypedSymbolAccess
+    implements Consumer<EK9Parser.AssignmentStatementContext> {
   private final OperationIsAssignment operationIsAssignment = new OperationIsAssignment();
-
   private final RefersToSameSymbol refersToSameSymbol = new RefersToSameSymbol();
-
   private final CheckTypesCompatible checkTypesCompatible;
-
   private final ResolveMethodOrError resolveMethodOrError;
-
   private final SymbolFromContextOrError symbolFromContextOrError;
   private final ResolveIdentifierOrError resolveIdentifierOrError;
 
@@ -47,7 +42,7 @@ final class CheckAssignmentStatement extends RuleSupport implements Consumer<EK9
   }
 
   @Override
-  public void accept(EK9Parser.AssignmentStatementContext ctx) {
+  public void accept(final EK9Parser.AssignmentStatementContext ctx) {
     //Note that primaryReference is 'this and 'super'.
     //Has to deal with left hand side: primaryReference | identifier | objectAccessExpression
     //With operators: ASSIGN|ASSIGN2|COLON|ASSIGN_UNSET|ADD_ASSIGN|SUB_ASSIGN|DIV_ASSIGN|MUL_ASSIGN|MERGE|REPLACE|COPY

@@ -129,7 +129,7 @@ public class SymbolAndScopeManagement {
     return parsedModule.getRecordedScope(node);
   }
 
-  public void recordSymbol(ISymbol symbol, ParseTree node) {
+  public void recordSymbol(final ISymbol symbol, final ParseTree node) {
     parsedModule.recordSymbol(node, symbol);
   }
 

@@ -2,7 +2,6 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.AnySymbolSearch;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
@@ -10,7 +9,7 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 /**
  * Check that a symbol can be accessed issues error if not possible.
  */
-final class CheckAccessToSymbol extends RuleSupport implements Consumer<CheckSymbolAccessData> {
+final class CheckAccessToSymbol extends TypedSymbolAccess implements Consumer<CheckSymbolAccessData> {
 
   CheckAccessToSymbol(final SymbolAndScopeManagement symbolAndScopeManagement,
                       final ErrorListener errorListener) {

@@ -3,7 +3,6 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.AccessGenericInGeneric;
 import org.ek9lang.compiler.support.CheckParameterizationComplete;
@@ -15,6 +14,8 @@ import org.ek9lang.core.AssertValue;
 
 /**
  * Designed to deal with this following part of the EK9 grammar.
+ * This is one of the trickiest bits, because we want a simple syntax for the EK9 developer.
+ * But it means that something(...) could mean quite a few things.
  * <pre>
  *     identifierReference paramExpression - function/method/constructor/delegate with optional params
  *     | parameterisedType - the parameterization of a generic type, ie List of String for example
@@ -23,8 +24,7 @@ import org.ek9lang.core.AssertValue;
  *     | call paramExpression - a bit weird but supports someHigherFunction()("Call what was returned")
  * </pre>
  */
-final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.CallContext> {
-
+final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Parser.CallContext> {
   private final CheckParameterizationComplete checkParameterizationComplete = new CheckParameterizationComplete();
   private final ResolveThisSuperCallOrError resolveThisSuperCallOrError;
   private final ResolveIdentifierReferenceCallOrError resolveIdentifierReferenceCallOrError;
@@ -56,6 +56,8 @@ final class CheckValidCall extends RuleSupport implements Consumer<EK9Parser.Cal
 
   @Override
   public void accept(final EK9Parser.CallContext ctx) {
+    //Note that we make an untyped check to get the call - because until we resolve
+    //the thing we're going to call we won't know that type this existingCallSymbol is.
     var existingCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
     if (existingCallSymbol instanceof CallSymbol callSymbol) {
       resolveToBeCalled(callSymbol, ctx);

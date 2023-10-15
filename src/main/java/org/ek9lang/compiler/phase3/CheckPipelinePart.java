@@ -3,15 +3,13 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.core.CompilerException;
 
 /**
  * Check the stream pipeline part.
  */
-final class CheckPipelinePart extends RuleSupport implements Consumer<EK9Parser.PipelinePartContext> {
-
+final class CheckPipelinePart extends TypedSymbolAccess implements Consumer<EK9Parser.PipelinePartContext> {
   private final ResolveFunctionOrDelegateByNameOrError resolveFunctionOrDelegateByNameOrError;
 
   /**
@@ -35,7 +33,7 @@ final class CheckPipelinePart extends RuleSupport implements Consumer<EK9Parser.
     } else if (ctx.objectAccessExpression() != null) {
       throw new CompilerException("objectAccessExpression() not implemented in " + this.getClass().getName());
     } else if (ctx.call() != null) {
-      var resolvedCall = symbolAndScopeManagement.getRecordedSymbol(ctx.call());
+      var resolvedCall = getRecordedAndTypedSymbol(ctx.call());
       if (resolvedCall == null) {
         errorListener.semanticError(ctx.call().start, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
       }

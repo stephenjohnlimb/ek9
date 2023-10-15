@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
@@ -13,8 +12,7 @@ import org.ek9lang.core.AssertValue;
  * Ensures that 'primary' is now resolved and 'typed' or a not resolved error.
  * There was a placeholder in for primary, that can now be replaced with the real resolved symbol.
  */
-final class CheckValidPrimary extends RuleSupport implements Consumer<EK9Parser.PrimaryContext> {
-
+final class CheckValidPrimary extends TypedSymbolAccess implements Consumer<EK9Parser.PrimaryContext> {
 
   /**
    * Check Primary resolves and attempt to 'type' it.
@@ -28,7 +26,7 @@ final class CheckValidPrimary extends RuleSupport implements Consumer<EK9Parser.
   public void accept(final EK9Parser.PrimaryContext ctx) {
     var symbol = determineSymbolToRecord(ctx);
     if (symbol != null) {
-      symbolAndScopeManagement.recordSymbol(symbol, ctx);
+      recordATypedSymbol(symbol, ctx);
     }
   }
 
@@ -52,7 +50,7 @@ final class CheckValidPrimary extends RuleSupport implements Consumer<EK9Parser.
   }
 
   private ISymbol getSymbolFromContext(final ParserRuleContext ctx) {
-    var resolved = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    var resolved = getRecordedAndTypedSymbol(ctx);
     if (resolved == null) {
       errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
     }

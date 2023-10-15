@@ -3,7 +3,6 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -11,7 +10,8 @@ import org.ek9lang.compiler.symbols.ISymbol;
 /**
  * Used for pure identifier resolution and recording. Rather than identifierReferences.
  */
-final class ResolveIdentifierOrError extends RuleSupport implements Function<EK9Parser.IdentifierContext, ISymbol> {
+final class ResolveIdentifierOrError extends TypedSymbolAccess
+    implements Function<EK9Parser.IdentifierContext, ISymbol> {
 
   /**
    * Searches for an identifier and issues an error if it is not resolved.
@@ -36,7 +36,7 @@ final class ResolveIdentifierOrError extends RuleSupport implements Function<EK9
     }
     var identifierSymbol = resolved.get();
     identifierSymbol.setReferenced(true);
-    symbolAndScopeManagement.recordSymbol(identifierSymbol, ctx);
+    recordATypedSymbol(identifierSymbol, ctx);
     return identifierSymbol;
   }
 }

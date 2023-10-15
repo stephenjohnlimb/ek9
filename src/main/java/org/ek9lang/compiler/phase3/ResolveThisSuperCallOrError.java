@@ -6,7 +6,6 @@ import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.MethodAndAggregateData;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
@@ -21,7 +20,8 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  * For example 'this()' or 'super()', but can include parameters.
  * This will also look at the context of where the call is made from as well as the parameter compatibility.
  */
-final class ResolveThisSuperCallOrError extends RuleSupport implements Function<EK9Parser.CallContext, MethodSymbol> {
+final class ResolveThisSuperCallOrError extends TypedSymbolAccess
+    implements Function<EK9Parser.CallContext, MethodSymbol> {
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
   private final ResolveMethodOrError resolveMethodOrError;
   private final SymbolsFromParamExpression symbolsFromParamExpression;
@@ -76,7 +76,7 @@ final class ResolveThisSuperCallOrError extends RuleSupport implements Function<
     var returnMethod = checkForMethodOnAggregate(ctx.start, aggregate, aggregate.getName(), callParams);
     if (returnMethod != null) {
       //Just for completeness record against the context, this is the earliest this could have been done.
-      symbolAndScopeManagement.recordSymbol(returnMethod, ctx.primaryReference());
+      recordATypedSymbol(returnMethod, ctx.primaryReference());
     }
     return returnMethod;
   }

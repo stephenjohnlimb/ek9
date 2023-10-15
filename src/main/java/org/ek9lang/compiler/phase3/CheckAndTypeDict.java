@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.CommonTypeSuperOrTrait;
 import org.ek9lang.compiler.support.ParameterisedTypeData;
@@ -18,8 +17,7 @@ import org.ek9lang.core.AssertValue;
  * Creates an ek9 Dict (Dictionary/Map) of a specific types if the expressions are typed correctly.
  * This is designed for inferred types.
  */
-final class CheckAndTypeDict extends RuleSupport implements Consumer<EK9Parser.DictContext> {
-
+final class CheckAndTypeDict extends TypedSymbolAccess implements Consumer<EK9Parser.DictContext> {
   private final ParameterisedLocator parameterisedLocator;
   private final CommonTypeSuperOrTrait commonTypeSuperOrTrait;
 
@@ -40,8 +38,11 @@ final class CheckAndTypeDict extends RuleSupport implements Consumer<EK9Parser.D
   }
 
   @Override
-  public void accept(EK9Parser.DictContext ctx) {
+  public void accept(final EK9Parser.DictContext ctx) {
     var startToken = new Ek9Token(ctx.start);
+
+    //Now we need to get the symbol - but do not expect it to be typed yet.
+    //That's the point of this code! See the last part of this method.
     final var dictCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
 
     //Access the generic Dict type - this has been pre-located for quicker use.
@@ -56,14 +57,16 @@ final class CheckAndTypeDict extends RuleSupport implements Consumer<EK9Parser.D
       var details =
           new ParameterisedTypeData(startToken, dictType, List.of(commonKeyType.get(), commonValueType.get()));
       var resolvedNewType = parameterisedLocator.resolveOrDefine(details);
+
       dictCallSymbol.setType(resolvedNewType);
     }
   }
 
-  private List<ISymbol> getDictArgumentsAsSymbols(final EK9Parser.DictContext ctx, int expressionIndex) {
+  private List<ISymbol> getDictArgumentsAsSymbols(final EK9Parser.DictContext ctx, final int expressionIndex) {
     List<ISymbol> argumentSymbols = new ArrayList<>();
     for (var initValuePair : ctx.initValuePair()) {
-      var exprSymbol = symbolAndScopeManagement.getRecordedSymbol(initValuePair.expression(expressionIndex));
+      //But these symbols must have been typed!
+      var exprSymbol = getRecordedAndTypedSymbol(initValuePair.expression(expressionIndex));
       AssertValue.checkNotNull("Compiler error, No initValuePair symbol - missing expression processing?", exprSymbol);
       argumentSymbols.add(exprSymbol);
     }
