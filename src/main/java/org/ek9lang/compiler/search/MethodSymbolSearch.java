@@ -72,6 +72,12 @@ public final class MethodSymbolSearch extends SymbolSearch {
   }
 
   @Override
+  public MethodSymbolSearch addTypeParameter(ISymbol parameter) {
+    super.addTypeParameter(parameter);
+    return this;
+  }
+
+  @Override
   public MethodSymbolSearch setOfTypeOrReturn(Optional<ISymbol> ofTypeOrReturn) {
     super.setOfTypeOrReturn(ofTypeOrReturn);
     return this;

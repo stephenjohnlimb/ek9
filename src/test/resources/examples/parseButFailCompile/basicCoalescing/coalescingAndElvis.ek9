@@ -32,6 +32,18 @@ defines module coalescing.elvis
       //But miss off the isSet operator '?', this means it cannot be used with '??' or '?:'
       //Note that we also miss the to string '$' operator, this causes the expression not to be resolved.
 
+    //As above but this is a generic type.
+    GC1 of type T
+      default GC1()
+
+    //Here is another Generic type but this time has the operators needed.
+    GC2 of type T
+      default GC2()
+      operator ? as pure
+        <- rtn as Boolean: false
+      operator $ as pure
+        <- rtn as String: "C3"
+
     C2 with trait of SomethingCommon
       override operator ? as pure
         <- rtn as Boolean: true
@@ -50,6 +62,10 @@ defines module coalescing.elvis
       -> arg0 as SomethingCommon
       <- rtn as Boolean: arg0?
 
+    CheckMethodWithGenerics()
+      -> arg0 as GC2 of String
+      <- rtn as Boolean: arg0?
+
     TestNullCoalescing1()
       weight1 as String!
       weight2 as String: "Steve"
@@ -66,6 +82,16 @@ defines module coalescing.elvis
 
       //This will prove that result is the right type.
       result <- CheckMethod(coalesced)
+      assert result?
+
+    TestGenericNullCoalescing1()
+      weight1 as GC2 of String!
+      weight2 as GC2 of String: GC2()
+
+      coalesce <- weight1 ?? weight2
+
+      //This will prove that result is the right type.
+      result <- CheckMethodWithGenerics(coalesce)
       assert result?
 
     TestElvis1()
@@ -101,6 +127,17 @@ defines module coalescing.elvis
     TestBadNullCoalescing2()
       weight1 as C1!
       weight2 as C1: C1()
+
+      //Will detect the ? operator is missing.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      coalesce <- weight1 ?? weight2
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert coalesce?
+
+    TestBadGenericNullCoalescing1()
+      weight1 as GC1 of String!
+      weight2 as GC1 of String: GC1()
 
       //Will detect the ? operator is missing.
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED

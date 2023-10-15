@@ -7,7 +7,6 @@ import org.ek9lang.core.AssertValue;
  */
 public abstract class RuleSupport {
   protected final SymbolAndScopeManagement symbolAndScopeManagement;
-
   protected final ErrorListener errorListener;
 
   protected RuleSupport(final SymbolAndScopeManagement symbolAndScopeManagement,

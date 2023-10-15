@@ -1,0 +1,141 @@
+#!ek9
+<?-
+  Equality Coalescing, with a mix of valid and in valid scenarios and generic/non-generic types with and
+  without the appropriate operators.
+-?>
+defines module equality.coalescing
+
+  defines trait
+
+    SomethingCommon
+
+      operator ? as pure abstract
+        <- rtn as Boolean?
+      operator $ as pure abstract
+        <- rtn as String?
+      operator <=> as pure
+        -> argo as SomethingCommon
+        <- rtn as Integer: 0
+
+  defines class
+    C1
+      default C1()
+      //But miss off the isSet operator '<=>', this means it cannot be used with
+      //'<?', <=?, '>?' or '>=?'
+      //Note that we also miss the to string '$' operator, this causes the expression not to be resolved.
+
+    //As above but this is a generic type.
+    GC1 of type T
+      default GC1()
+
+    //Here is another Generic type but this time has the operators needed.
+    GC2 of type T
+      default GC2()
+      operator ? as pure
+        <- rtn as Boolean: false
+      operator $ as pure
+        <- rtn as String: "C3"
+      operator <=> as pure
+        -> argo as GC2 of T
+        <- rtn as Integer: 0
+
+    C2 with trait of SomethingCommon
+      override operator ? as pure
+        <- rtn as Boolean: true
+      override operator $ as pure
+        <- rtn as String: "C2"
+
+    C3 with trait of SomethingCommon
+      override operator ? as pure
+        <- rtn as Boolean: false
+      override operator $ as pure
+        <- rtn as String: "C3"
+
+  defines function
+
+    CheckMethod()
+      -> arg0 as SomethingCommon
+      <- rtn as Boolean: arg0?
+
+    CheckC2Method()
+      -> arg0 as C2
+      <- rtn as Boolean: arg0?
+
+    CheckC3Method()
+      -> arg0 as C3
+      <- rtn as Boolean: arg0?
+
+    CheckGC2Method()
+      -> arg0 as GC2 of String
+      <- rtn as Boolean: arg0?
+
+    TestLessThanCoalescing1()
+      weight1 as String!
+      weight2 as String: "Steve"
+
+      safeLessThan <- weight1 <? weight2
+      assert safeLessThan?
+
+    TestGenericLessThanCoalescing1()
+      weight1 as GC2 of String!
+      weight2 as GC2 of String: GC2()
+
+      safeLessThan <- weight1 <? weight2
+      result <- CheckGC2Method(safeLessThan)
+      assert result?
+
+    TestGreaterThanCoalescing1()
+      weight1 as C2!
+      weight2 as C3: C3()
+
+      safeGreaterThan <- weight1 >? weight2
+      assert safeGreaterThan?
+
+      //Just check that type is correct
+      result <- CheckMethod(safeGreaterThan)
+      assert result?
+
+      //But these won't work, we only have a 'SomethingCommon' type
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      resultC2 <- CheckC2Method(safeGreaterThan)
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert resultC2?
+
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      resultC3 <- CheckC3Method(safeGreaterThan)
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert resultC3?
+
+    TestBadLessThanCoalescing1()
+      weight1 as C1!
+      weight2 as C1: C1()
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      safeLessThan <- weight1 <? weight2
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert safeLessThan?
+
+    TestBadGenericLessThanCoalescing1()
+      weight1 as GC1 of Integer!
+      weight2 as GC1 of Integer: GC1()
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      safeLessThan <- weight1 <? weight2
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert safeLessThan?
+
+    TestGreaterThanOrEqualToCoalescing1()
+      weight1 as C1!
+      weight2 as C1: C1()
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      safeGreaterThanOrEqualTo <- $weight1 <? $weight2
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert safeGreaterThanOrEqualTo?
+
+//EOF

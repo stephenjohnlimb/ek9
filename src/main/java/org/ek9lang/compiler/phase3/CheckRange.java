@@ -45,6 +45,8 @@ final class CheckRange extends RuleSupport implements Consumer<EK9Parser.RangeCo
     var fromExpr = symbolAndScopeManagement.getRecordedSymbol(ctx.expression(0));
     var toExpr = symbolAndScopeManagement.getRecordedSymbol(ctx.expression(1));
 
+    //TODO write a tet for range and then use SymbolTypeOrError to emit errors.
+
     if (fromExpr != null && toExpr != null) {
       if (fromExpr.getType().isEmpty()) {
         emitTypeNotResolvedError(fromExpr.getSourceToken(), fromExpr);
@@ -60,7 +62,6 @@ final class CheckRange extends RuleSupport implements Consumer<EK9Parser.RangeCo
 
   private void emitTypeNotResolvedError(final IToken lineToken, final ISymbol argument) {
     var msg = "'" + argument.getName() + "':";
-    errorListener.semanticError(lineToken, msg,
-        ErrorListener.SemanticClassification.TYPE_NOT_RESOLVED);
+    errorListener.semanticError(lineToken, msg, ErrorListener.SemanticClassification.TYPE_NOT_RESOLVED);
   }
 }

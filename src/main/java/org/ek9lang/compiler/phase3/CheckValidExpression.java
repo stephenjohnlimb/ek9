@@ -24,6 +24,7 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
 
   private final SymbolFactory symbolFactory;
   private final CheckIsSet checkIsSet;
+  private final CheckForComparator checkForComparator;
   private final CheckForOperator checkForOperator;
   private final MethodSymbolSearchForExpression methodSymbolSearchForExpression;
 
@@ -39,6 +40,7 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
     super(symbolAndScopeManagement, errorListener);
     this.symbolFactory = symbolFactory;
     this.checkIsSet = new CheckIsSet(symbolAndScopeManagement, errorListener);
+    this.checkForComparator = new CheckForComparator(symbolAndScopeManagement, errorListener);
     this.checkForOperator = new CheckForOperator(symbolAndScopeManagement, errorListener);
     this.methodSymbolSearchForExpression = new MethodSymbolSearchForExpression(symbolAndScopeManagement, errorListener);
     this.checkTypeIsBoolean = new CheckTypeIsBoolean(symbolAndScopeManagement, errorListener);
@@ -75,8 +77,7 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
     } else if (ctx.coalescing != null) {
       return checkCoalescing(ctx);
     } else if (ctx.coalescing_equality != null) {
-      throw new CompilerException(
-          "TODO: implement 'coalescing_equality' expression " + ctx.start + " text [" + ctx.getText() + "]");
+      return checkCoalescingEquality(ctx);
     } else if (ctx.primary() != null) {
       return symbolAndScopeManagement.getRecordedSymbol(ctx.primary());
     } else if (ctx.call() != null) {
@@ -177,6 +178,34 @@ final class CheckValidExpression extends RuleSupport implements Consumer<EK9Pars
     if (left != null && right != null) {
       var commonType = commonTypeSuperOrTrait.apply(opToken, List.of(left, right));
       if (commonType.isPresent() && checkIsSet.test(opToken, commonType.get())) {
+        return symbolFactory.newExpressionSymbol(opToken, ctx.getText(), commonType);
+      }
+    }
+    return null;
+  }
+
+  /**
+   * This is the case where we have null safe equality coalescing test operators.
+   * &lt;?, &lt;=?, &gt;? and &gt;=? - This idea of these is to be able to
+   * check if one or both of the expressions is unset. If both are 'set' then
+   * it is just a normal operation. But if either is unset then the set value is the
+   * one used. This is useful because with normal equality operators
+   * (&lt;, &lt;=, &gt; and &gt;=) if either side is unset then the resulting Boolean is unset.
+   * <br/>
+   * So this case is very useful when you want to accept just the set one or the one that
+   * meets the test.
+   * <br/> So the result here is NOT a Boolean but the value that is
+   * 'less than', 'less than or equal to', 'greater than' or 'greater than or equal to'.
+   * <br/>
+   * In effect this is like an assignment, combined if/else, null check and equality check all in one.
+   */
+  private ISymbol checkCoalescingEquality(EK9Parser.ExpressionContext ctx) {
+    var opToken = new Ek9Token(ctx.coalescing_equality);
+    var left = symbolAndScopeManagement.getRecordedSymbol(ctx.left);
+    var right = symbolAndScopeManagement.getRecordedSymbol(ctx.right);
+    if (left != null && right != null) {
+      var commonType = commonTypeSuperOrTrait.apply(opToken, List.of(left, right));
+      if (commonType.isPresent() && checkForComparator.test(opToken, commonType.get())) {
         return symbolFactory.newExpressionSymbol(opToken, ctx.getText(), commonType);
       }
     }
