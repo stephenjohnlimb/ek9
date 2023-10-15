@@ -1,7 +1,10 @@
 package org.ek9lang.compiler.phase3;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
@@ -28,12 +31,16 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
   private final MethodSymbolSearchForExpression methodSymbolSearchForExpression;
   private final CheckTypeIsBoolean checkTypeIsBoolean;
   private final CommonTypeSuperOrTrait commonTypeSuperOrTrait;
+  private final AccessLeftAndRight accessLeftAndRight;
+  private final SymbolFromContextOrError symbolFromContextOrError;
+
+  private final Function<Optional<ExprLeftAndRightData>, List<ISymbol>> toList =
+      exprLeftAndRightData -> exprLeftAndRightData.map(data -> List.of(data.left(), data.right())).orElse(List.of());
 
   /**
    * Check Primary resolves and attempt to 'type' it.
    */
-  CheckValidExpression(final SymbolAndScopeManagement symbolAndScopeManagement,
-                       final SymbolFactory symbolFactory,
+  CheckValidExpression(final SymbolAndScopeManagement symbolAndScopeManagement, final SymbolFactory symbolFactory,
                        final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
     this.symbolFactory = symbolFactory;
@@ -43,6 +50,8 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     this.methodSymbolSearchForExpression = new MethodSymbolSearchForExpression(symbolAndScopeManagement, errorListener);
     this.checkTypeIsBoolean = new CheckTypeIsBoolean(symbolAndScopeManagement, errorListener);
     this.commonTypeSuperOrTrait = new CommonTypeSuperOrTrait(errorListener);
+    this.accessLeftAndRight = new AccessLeftAndRight(symbolAndScopeManagement, errorListener);
+    this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -77,21 +86,21 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     } else if (ctx.coalescing_equality != null) {
       return checkCoalescingEquality(ctx);
     } else if (ctx.primary() != null) {
-      return getRecordedAndTypedSymbol(ctx.primary());
+      return symbolFromContextOrError.apply(ctx.primary());
     } else if (ctx.call() != null) {
-      return getRecordedAndTypedSymbol(ctx.call());
+      return symbolFromContextOrError.apply(ctx.call());
     } else if (ctx.objectAccessExpression() != null) {
-      var maybeResolved = getRecordedAndTypedSymbol(ctx.objectAccessExpression());
+      var maybeResolved = symbolFromContextOrError.apply(ctx.objectAccessExpression());
       if (maybeResolved != null && maybeResolved.getType().isPresent()) {
         return symbolFactory.newExpressionSymbol(startToken, ctx.getText()).setType(maybeResolved.getType());
       }
       return symbolFactory.newExpressionSymbol(startToken, ctx.getText());
     } else if (ctx.list() != null) {
-      return getRecordedAndTypedSymbol(ctx.list());
+      return symbolFromContextOrError.apply(ctx.list());
     } else if (ctx.dict() != null) {
-      return getRecordedAndTypedSymbol(ctx.dict());
+      return symbolFromContextOrError.apply(ctx.dict());
     } else if (ctx.IN() != null) {
-      throw new CompilerException("TODO: implement both in expressions " + ctx.start + " text [" + ctx.getText() + "]");
+      return checkInCollectionOrRange(ctx);
     } else if (ctx.control != null) {
       return checkTernary(ctx);
     } else if (ctx.expression() != null && !ctx.expression().isEmpty()) {
@@ -111,7 +120,7 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
       //Could be one expression (unary) or have two expressions.
       //This case only looks for operators on some form of aggregate.
       var search = methodSymbolSearchForExpression.apply(ctx);
-      var symbol = getRecordedAndTypedSymbol(ctx.expression(0));
+      var symbol = symbolFromContextOrError.apply(ctx.expression(0));
       var opToken = new Ek9Token(ctx.op);
       var located = checkForOperator.apply(new CheckOperatorData(symbol, opToken, search));
       if (located.isPresent()) {
@@ -143,14 +152,12 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     var start = new Ek9Token(ctx.start);
 
     //First lets gather the 'expressions' because if they are not there then there's little we can do here.
-    var control = getRecordedAndTypedSymbol(ctx.control);
-    var left = getRecordedAndTypedSymbol(ctx.left);
-    var right = getRecordedAndTypedSymbol(ctx.right);
-
-    if (control != null && left != null && right != null) {
+    var control = symbolFromContextOrError.apply(ctx.control);
+    var leftAndRight = toList.apply(accessLeftAndRight.apply(ctx));
+    if (control != null && !leftAndRight.isEmpty()) {
       //So do the checks, this will result in errors being emitted if the values are not acceptable.
       checkTypeIsBoolean.accept(start, control);
-      var commonType = commonTypeSuperOrTrait.apply(new Ek9Token(ctx.LEFT_ARROW().getSymbol()), List.of(left, right));
+      var commonType = commonTypeSuperOrTrait.apply(new Ek9Token(ctx.LEFT_ARROW().getSymbol()), leftAndRight);
       if (commonType.isPresent()) {
         //We can make an expression that models this and the correct return type.
         return symbolFactory.newExpressionSymbol(start, ctx.getText(), commonType);
@@ -170,16 +177,7 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
    */
   private ISymbol checkCoalescing(final EK9Parser.ExpressionContext ctx) {
     var opToken = new Ek9Token(ctx.coalescing);
-
-    var left = getRecordedAndTypedSymbol(ctx.left);
-    var right = getRecordedAndTypedSymbol(ctx.right);
-    if (left != null && right != null) {
-      var commonType = commonTypeSuperOrTrait.apply(opToken, List.of(left, right));
-      if (commonType.isPresent() && checkIsSet.test(opToken, commonType.get())) {
-        return symbolFactory.newExpressionSymbol(opToken, ctx.getText(), commonType);
-      }
-    }
-    return null;
+    return expressionForOperation(opToken, checkIsSet, ctx);
   }
 
   /**
@@ -199,20 +197,82 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
    */
   private ISymbol checkCoalescingEquality(EK9Parser.ExpressionContext ctx) {
     var opToken = new Ek9Token(ctx.coalescing_equality);
-    var left = getRecordedAndTypedSymbol(ctx.left);
-    var right = getRecordedAndTypedSymbol(ctx.right);
-    if (left != null && right != null) {
-      var commonType = commonTypeSuperOrTrait.apply(opToken, List.of(left, right));
-      if (commonType.isPresent() && checkForComparator.test(opToken, commonType.get())) {
+    return expressionForOperation(opToken, checkForComparator, ctx);
+  }
+
+  private ISymbol expressionForOperation(final IToken opToken, final BiPredicate<IToken, ISymbol> predicate,
+                                         final EK9Parser.ExpressionContext ctx) {
+    var leftAndRight = toList.apply(accessLeftAndRight.apply(ctx));
+    if (!leftAndRight.isEmpty()) {
+      var commonType = commonTypeSuperOrTrait.apply(opToken, leftAndRight);
+      if (commonType.isPresent() && predicate.test(opToken, commonType.get())) {
         return symbolFactory.newExpressionSymbol(opToken, ctx.getText(), commonType);
       }
     }
     return null;
   }
 
+  /**
+   * Deals with both of these expressions.
+   *
+   * <pre>
+   *   identifier neg=NOT? IN range
+   *   left=expression IS? neg=NOT? IN right=expression
+   * </pre>
+   */
+  private ISymbol checkInCollectionOrRange(final EK9Parser.ExpressionContext ctx) {
+    if (ctx.range() != null) {
+      return checkWithinRange(ctx);
+    }
+    return checkContains(ctx);
+  }
+
+  private ISymbol checkWithinRange(EK9Parser.ExpressionContext ctx) {
+    var opToken = new Ek9Token(ctx.IN().getSymbol());
+    var expr = symbolFromContextOrError.apply(ctx.expression(0));
+    var range = symbolFromContextOrError.apply(ctx.range());
+    if (expr != null && range != null && expr.getType().isPresent() && range.getType().isPresent()) {
+      //This just comes down to the range type having a comparator that accepts the expr type
+      var search = new MethodSymbolSearch("<=>").addTypeParameter(expr.getType())
+          .setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Integer());
+
+      //TODO refactor out common code.
+      var located = checkForOperator.apply(new CheckOperatorData(range, opToken, search));
+      if (located.isPresent()) {
+        var returnExpr = symbolFactory.newExpressionSymbol(opToken, opToken.getText(), located);
+        if (ctx.neg != null) {
+          return checkAndProcessNotOperation(new Ek9Token(ctx.neg), returnExpr);
+        }
+        return returnExpr;
+      }
+    }
+    return null;
+  }
+
+  private ISymbol checkContains(EK9Parser.ExpressionContext ctx) {
+    var opToken = new Ek9Token(ctx.IN().getSymbol());
+    var leftAndRight = accessLeftAndRight.apply(ctx);
+    if (leftAndRight.isPresent()) {
+      //This just comes down to right having the 'contains' that accepts the left type
+      var search = new MethodSymbolSearch("contains").addTypeParameter(leftAndRight.get().left().getType())
+          .setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Boolean());
+
+      //TODO there is more common code here.
+      var located = checkForOperator.apply(new CheckOperatorData(leftAndRight.get().right(), opToken, search));
+      if (located.isPresent()) {
+        var returnExpr = symbolFactory.newExpressionSymbol(opToken, opToken.getText(), located);
+        if (ctx.neg != null) {
+          return checkAndProcessNotOperation(new Ek9Token(ctx.neg), returnExpr);
+        }
+        return returnExpr;
+      }
+    }
+
+    return null;
+  }
+
   private ISymbol checkAndProcessNotOperation(final IToken notOpToken, final ISymbol exprSymbol) {
-    var search = new MethodSymbolSearch("~")
-        .setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Boolean());
+    var search = new MethodSymbolSearch("~").setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Boolean());
     var located = checkForOperator.apply(new CheckOperatorData(exprSymbol, notOpToken, search));
     if (located.isPresent()) {
       return symbolFactory.newExpressionSymbol(notOpToken, exprSymbol.getName(), located);
@@ -221,7 +281,7 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
   }
 
   private ISymbol checkAndProcessIsSet(final EK9Parser.ExpressionContext ctx) {
-    var expressionInQuestion = getRecordedAndTypedSymbol(ctx.expression(0));
+    var expressionInQuestion = symbolFromContextOrError.apply(ctx.expression(0));
     var opToken = new Ek9Token(ctx.op);
     if (checkIsSet.test(opToken, expressionInQuestion)) {
       return symbolFactory.newExpressionSymbol(opToken, expressionInQuestion.getName())
@@ -233,7 +293,6 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
 
   private void emitTypeNotResolvedError(final IToken lineToken, final ISymbol argument) {
     var msg = "'" + argument.getName() + "' :";
-    errorListener.semanticError(lineToken, msg,
-        ErrorListener.SemanticClassification.TYPE_NOT_RESOLVED);
+    errorListener.semanticError(lineToken, msg, ErrorListener.SemanticClassification.TYPE_NOT_RESOLVED);
   }
 }

@@ -16,6 +16,7 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  */
 final class CheckRange extends TypedSymbolAccess implements Consumer<EK9Parser.RangeContext> {
   private final SymbolFactory symbolFactory;
+  private final SymbolFromContextOrError symbolFromContextOrError;
   private final CommonTypeSuperOrTrait commonTypeSuperOrTrait;
 
   /**
@@ -26,7 +27,7 @@ final class CheckRange extends TypedSymbolAccess implements Consumer<EK9Parser.R
              final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
     this.symbolFactory = symbolFactory;
-
+    this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
     this.commonTypeSuperOrTrait = new CommonTypeSuperOrTrait(errorListener);
   }
 
@@ -37,10 +38,8 @@ final class CheckRange extends TypedSymbolAccess implements Consumer<EK9Parser.R
     var rangeExpr = symbolFactory.newExpressionSymbol(startToken, ctx.getText());
     symbolAndScopeManagement.recordSymbol(rangeExpr, ctx);
 
-    var fromExpr = getRecordedAndTypedSymbol(ctx.expression(0));
-    var toExpr = getRecordedAndTypedSymbol(ctx.expression(1));
-
-    //TODO write a test for range - as one is missing.
+    var fromExpr = symbolFromContextOrError.apply(ctx.expression(0));
+    var toExpr = symbolFromContextOrError.apply(ctx.expression(1));
 
     if (fromExpr != null && toExpr != null) {
       var commonType = commonTypeSuperOrTrait.apply(startToken, List.of(fromExpr, toExpr));

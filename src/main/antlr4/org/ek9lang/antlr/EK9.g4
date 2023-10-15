@@ -419,7 +419,7 @@ expression
     | left=expression neg=NOT? op=CONTAINS right=expression
     | left=expression IS? neg=NOT? IN right=expression
     | left=expression op=(AND | OR | XOR) NL? right=expression
-    | identifier neg=NOT? IN range
+    | expression neg=NOT? IN range
     | <assoc=right> control=expression LEFT_ARROW left=expression (COLON|ELSE) right=expression
     ;
 

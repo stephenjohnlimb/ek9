@@ -12,11 +12,13 @@ import org.ek9lang.compiler.search.MethodSymbolSearch;
 final class MethodSymbolSearchForExpression extends TypedSymbolAccess
     implements Function<EK9Parser.ExpressionContext, MethodSymbolSearch> {
   private final OperatorText operatorText = new OperatorText();
+  private final SymbolFromContextOrError symbolFromContextOrError;
 
   MethodSymbolSearchForExpression(
-      SymbolAndScopeManagement symbolAndScopeManagement,
-      ErrorListener errorListener) {
+      final SymbolAndScopeManagement symbolAndScopeManagement,
+      final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
+    this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -25,7 +27,7 @@ final class MethodSymbolSearchForExpression extends TypedSymbolAccess
     var searchMethodName = operatorText.apply(ctx);
     var search = new MethodSymbolSearch(searchMethodName);
     if (ctx.expression().size() == 2) {
-      var param = getRecordedAndTypedSymbol(ctx.expression(1));
+      var param = symbolFromContextOrError.apply(ctx.expression(1));
       if (param != null && param.getType().isPresent()) {
         search.addTypeParameter(param.getType());
       } else {

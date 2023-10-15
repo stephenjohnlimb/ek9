@@ -45,7 +45,7 @@ final class CheckForOperator extends TypedSymbolAccess implements Function<Check
       if (bestMatch.isEmpty()) {
         var location = locationExtractor.apply(aggregate);
         var msg = "operator '" + search + "' is required on '"
-            + symbol.getFriendlyName() + "', type defined " + location + ":";
+            + symbol.getFriendlyName() + "', type first established " + location + ":";
 
         errorListener.semanticError(checkOperatorData.operatorUseToken(), msg,
             ErrorListener.SemanticClassification.OPERATOR_NOT_DEFINED);
