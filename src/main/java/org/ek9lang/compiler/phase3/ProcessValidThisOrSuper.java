@@ -21,7 +21,7 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  * But allowing applications, functions and programs to refer to themselves might be useful in
  * passing themselves as parameters to other functions in some way.
  */
-final class CheckValidThisOrSuper extends TypedSymbolAccess implements Consumer<ParserRuleContext> {
+final class ProcessValidThisOrSuper extends TypedSymbolAccess implements Consumer<ParserRuleContext> {
 
   private final SymbolFactory symbolFactory;
   private final List<ISymbol.SymbolGenus> supportedThisAndSuperGenus = List.of(ISymbol.SymbolGenus.CLASS,
@@ -36,9 +36,9 @@ final class CheckValidThisOrSuper extends TypedSymbolAccess implements Consumer<
   /**
    * Checks that this/super passed in is a suitable genus.
    */
-  CheckValidThisOrSuper(final SymbolAndScopeManagement symbolAndScopeManagement,
-                        final SymbolFactory symbolFactory,
-                        final ErrorListener errorListener) {
+  ProcessValidThisOrSuper(final SymbolAndScopeManagement symbolAndScopeManagement,
+                          final SymbolFactory symbolFactory,
+                          final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
     this.symbolFactory = symbolFactory;
   }

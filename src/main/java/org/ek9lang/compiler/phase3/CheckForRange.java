@@ -15,7 +15,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * Also checks that if the 'by' literal or identifier is used that the type is compatible with the range.
  */
 final class CheckForRange extends TypedSymbolAccess implements Consumer<EK9Parser.ForRangeContext> {
-  private final ResolveIdentifierOrError resolveIdentifierOrError;
+  private final ProcessIdentifierOrError processIdentifierOrError;
   private final ResolveMethodOrError resolveMethodOrError;
 
   /**
@@ -24,7 +24,7 @@ final class CheckForRange extends TypedSymbolAccess implements Consumer<EK9Parse
   CheckForRange(final SymbolAndScopeManagement symbolAndScopeManagement,
                 final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
-    this.resolveIdentifierOrError = new ResolveIdentifierOrError(symbolAndScopeManagement, errorListener);
+    this.processIdentifierOrError = new ProcessIdentifierOrError(symbolAndScopeManagement, errorListener);
     this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
   }
 
@@ -49,7 +49,7 @@ final class CheckForRange extends TypedSymbolAccess implements Consumer<EK9Parse
         var literal = getRecordedAndTypedSymbol(ctx.literal());
         checkPlusEqualsOperator(loopVar, literal);
       } else {
-        var resolved = resolveIdentifierOrError.apply(ctx.identifier(1));
+        var resolved = processIdentifierOrError.apply(ctx.identifier(1));
         if (resolved != null) {
           checkPlusEqualsOperator(loopVar, resolved);
         }

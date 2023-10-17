@@ -10,4 +10,25 @@ defines module just.workspace
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       assert failure
 
+    TestSimpleAssignment1()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      var1 as String?
+
+      //This is an assignment and not a reference (use)
+      var1: "Steve"
+
+    TestSimpleAssignment2()
+
+      var1 as String?
+      var1: "Steve"
+      //Now it's been referenced (used).
+      assert var1?
+
+
+    TestSimpleAssignmentViaParameter()
+      -> var1 as String
+
+      var1: "Steve"
+
 //EOF

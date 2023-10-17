@@ -14,21 +14,20 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 
 /**
- * Creates an ek9 list of a specific type if the expressions are typed correctly.
+ * Creates/Updates an ek9 list of a specific type if the expressions are typed correctly.
  */
-final class CheckAndTypeList extends TypedSymbolAccess implements Consumer<EK9Parser.ListContext> {
+final class ProcessAndTypeList extends TypedSymbolAccess implements Consumer<EK9Parser.ListContext> {
   private final ParameterisedLocator parameterisedLocator;
   private final CommonTypeSuperOrTrait commonTypeSuperOrTrait;
 
   /**
    * Create a new consumer to handle Lists in the form of '[X, Y, Z]'.
    */
-  CheckAndTypeList(final SymbolAndScopeManagement symbolAndScopeManagement, final SymbolFactory symbolFactory,
-                   final ErrorListener errorListener) {
+  ProcessAndTypeList(final SymbolAndScopeManagement symbolAndScopeManagement, final SymbolFactory symbolFactory,
+                     final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
 
     this.parameterisedLocator = new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
-
     this.commonTypeSuperOrTrait = new CommonTypeSuperOrTrait(errorListener);
   }
 

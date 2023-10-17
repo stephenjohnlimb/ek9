@@ -528,7 +528,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     USED_BEFORE_INITIALISED("used before being initialised"),
     NOT_INITIALISED_BEFORE_USE("not initialised before use"),
     SELF_ASSIGNMENT("self assignment"),
-    NOT_REFERENCED("is not referenced anywhere"),
+    NOT_REFERENCED("is not referenced anywhere, or not referenced after assignment"),
     LIKELY_DEFECT("likely defect"),
     NO_PURE_PROPERTY_REASSIGNMENT(
         "properties cannot be reassigned when scope is marked as 'pure', but you can"

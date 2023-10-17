@@ -17,13 +17,13 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * Checks that any recursive type constraints on a type are valid.
  * Note that this consumer does have side effects in terms of recording expressions against nodes.
  */
-final class CheckTypeConstraint extends TypedSymbolAccess
+final class ProcessTypeConstraint extends TypedSymbolAccess
     implements BiConsumer<AggregateSymbol, EK9Parser.ConstrainDeclarationContext> {
   private final SymbolFactory symbolFactory;
 
-  CheckTypeConstraint(final SymbolAndScopeManagement symbolAndScopeManagement,
-                      final SymbolFactory symbolFactory,
-                      final ErrorListener errorListener) {
+  ProcessTypeConstraint(final SymbolAndScopeManagement symbolAndScopeManagement,
+                        final SymbolFactory symbolFactory,
+                        final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
     this.symbolFactory = symbolFactory;
   }

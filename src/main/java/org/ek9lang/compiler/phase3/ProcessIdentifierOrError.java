@@ -10,7 +10,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
 /**
  * Used for pure identifier resolution and recording. Rather than identifierReferences.
  */
-final class ResolveIdentifierOrError extends TypedSymbolAccess
+final class ProcessIdentifierOrError extends TypedSymbolAccess
     implements Function<EK9Parser.IdentifierContext, ISymbol> {
 
   /**
@@ -19,7 +19,7 @@ final class ResolveIdentifierOrError extends TypedSymbolAccess
    * identifiers can be optional in some contexts (like named argument when calling methods and functions).
    * Also in dynamic classes and functions with variable capture.
    */
-  ResolveIdentifierOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessIdentifierOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                            final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
   }

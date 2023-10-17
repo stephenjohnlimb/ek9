@@ -114,6 +114,9 @@ defines module bad.blockvariable.uses
         @Error: FULL_RESOLUTION: SELF_ASSIGNMENT
         someBlockVariable :=: someBlockVariable
 
+        //Just ensure we use the variable - else we get another error.
+        assert someBlockVariable?
+
       unReferencedBlockVariable()
         @Error: FULL_RESOLUTION: NOT_REFERENCED
         someUnReferencedVariable1 <- 1

@@ -14,10 +14,10 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 
 /**
- * Creates an ek9 Dict (Dictionary/Map) of a specific types if the expressions are typed correctly.
+ * Creates/Updates an ek9 Dict (Dictionary/Map) of a specific types if the expressions are typed correctly.
  * This is designed for inferred types.
  */
-final class CheckAndTypeDict extends TypedSymbolAccess implements Consumer<EK9Parser.DictContext> {
+final class ProcessAndTypeDict extends TypedSymbolAccess implements Consumer<EK9Parser.DictContext> {
   private final ParameterisedLocator parameterisedLocator;
   private final CommonTypeSuperOrTrait commonTypeSuperOrTrait;
 
@@ -26,9 +26,9 @@ final class CheckAndTypeDict extends TypedSymbolAccess implements Consumer<EK9Pa
    * So A , B and C must be of the same or compatible type (between each other).
    * And X, Y, Z must also be of the same or compatible type (between each other).
    */
-  CheckAndTypeDict(final SymbolAndScopeManagement symbolAndScopeManagement,
-                   final SymbolFactory symbolFactory,
-                   final ErrorListener errorListener) {
+  ProcessAndTypeDict(final SymbolAndScopeManagement symbolAndScopeManagement,
+                     final SymbolFactory symbolFactory,
+                     final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
 
     this.parameterisedLocator =
@@ -56,9 +56,7 @@ final class CheckAndTypeDict extends TypedSymbolAccess implements Consumer<EK9Pa
     if (commonKeyType.isPresent() && commonValueType.isPresent()) {
       var details =
           new ParameterisedTypeData(startToken, dictType, List.of(commonKeyType.get(), commonValueType.get()));
-      var resolvedNewType = parameterisedLocator.resolveOrDefine(details);
-
-      dictCallSymbol.setType(resolvedNewType);
+      dictCallSymbol.setType(parameterisedLocator.resolveOrDefine(details));
     }
   }
 

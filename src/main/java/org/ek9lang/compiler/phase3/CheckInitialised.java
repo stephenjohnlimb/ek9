@@ -6,7 +6,7 @@ import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
- * Checks if a symbol has been initialised or not (can be null - no error).
+ * Checks if a symbol has been initialised or not (symbol passed in can be null - no error).
  */
 final class CheckInitialised extends TypedSymbolAccess implements Consumer<ISymbol> {
 

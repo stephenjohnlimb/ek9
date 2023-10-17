@@ -84,7 +84,7 @@ defines module net.customer.extend
       anotherInt <- anInt
 
       anotherInt += 10
-      
+
       <!-
         Three different ways of saying assign
         because we need to handle this type of assignment is css and html.
@@ -95,7 +95,10 @@ defines module net.customer.extend
       anotherInt: 25
       
       anotherInt = 45
-      
+
+      //Ensure we reference it after modification
+      assert anotherInt?
+
       //Try out some new types here.
       
       res1 <- 240dpi
@@ -125,7 +128,9 @@ defines module net.customer.extend
       c2 <- Color()
       
       c2 := Color(#0099CC)
-      
+
+      assert c2?
+
       money1 <- 300.00#GBP
       //lets get hashcode of that variable
       moneyHashCode <- #? money1

@@ -89,7 +89,7 @@ final class CheckDefaultOperators extends TypedSymbolAccess implements Consumer<
 
   private void checkToJsonSupportableIfRequired(final AggregateSymbol aggregateSymbol,
                                                 final List<MethodSymbol> operators) {
-    //Only is to JSOn is required.
+    //Only is to JSON is required.
     operators
         .stream()
         .filter(operator -> "$$".equals(operator.getName()))

@@ -17,7 +17,6 @@ import org.ek9lang.compiler.symbols.ISymbol;
  */
 final class CheckPropertyNames extends TypedSymbolAccess implements Consumer<AggregateSymbol> {
   private final LocationExtractor locationExtractor = new LocationExtractor();
-
   private final ErrorListener.SemanticClassification errorClassification;
 
   CheckPropertyNames(final SymbolAndScopeManagement symbolAndScopeManagement,

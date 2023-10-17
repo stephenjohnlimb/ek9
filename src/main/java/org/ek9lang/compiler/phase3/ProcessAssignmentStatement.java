@@ -17,28 +17,28 @@ import org.ek9lang.core.AssertValue;
 /**
  * Used in the full resolution phase to check assignments.
  */
-final class CheckAssignmentStatement extends TypedSymbolAccess
+final class ProcessAssignmentStatement extends TypedSymbolAccess
     implements Consumer<EK9Parser.AssignmentStatementContext> {
   private final OperationIsAssignment operationIsAssignment = new OperationIsAssignment();
   private final RefersToSameSymbol refersToSameSymbol = new RefersToSameSymbol();
   private final CheckTypesCompatible checkTypesCompatible;
   private final ResolveMethodOrError resolveMethodOrError;
   private final SymbolFromContextOrError symbolFromContextOrError;
-  private final ResolveIdentifierOrError resolveIdentifierOrError;
+  private final ProcessIdentifierOrError processIdentifierOrError;
 
   /**
    * Check on validity of assignments.
    */
-  CheckAssignmentStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
-                           final ErrorListener errorListener) {
+  ProcessAssignmentStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
+                             final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
 
     this.checkTypesCompatible = new CheckTypesCompatible(symbolAndScopeManagement, errorListener);
     this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
     this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
 
-    this.resolveIdentifierOrError
-        = new ResolveIdentifierOrError(symbolAndScopeManagement, errorListener);
+    this.processIdentifierOrError
+        = new ProcessIdentifierOrError(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -59,6 +59,8 @@ final class CheckAssignmentStatement extends TypedSymbolAccess
       checkByIdentifier(ctx, expressionSymbol);
     } else if (ctx.objectAccessExpression() != null) {
       checkByObjectAccessExpression(ctx, expressionSymbol);
+    } else {
+      AssertValue.fail("Expecting finite set of operations on assignment " + ctx.start.getLine());
     }
   }
 
@@ -70,8 +72,14 @@ final class CheckAssignmentStatement extends TypedSymbolAccess
   }
 
   private void checkByIdentifier(final EK9Parser.AssignmentStatementContext ctx, final ISymbol expressionSymbol) {
-    var identifier = resolveIdentifierOrError.apply(ctx.identifier());
+    var identifier = processIdentifierOrError.apply(ctx.identifier());
     if (identifier != null) {
+      if (!identifier.isIncomingParameter()) {
+        //If we're in a block and we do some form of assignment, reset referenced because otherwise whats the point.
+        //There is no use after the assignment, but in the case of an incoming param we could just be altering the
+        //value '+=' for example.
+        identifier.setReferenced(false);
+      }
       checkIdentifierAssignment(identifier, new Ek9Token(ctx.op), expressionSymbol);
     }
   }
@@ -86,7 +94,6 @@ final class CheckAssignmentStatement extends TypedSymbolAccess
 
   private void checkIdentifierAssignment(ISymbol leftHandSideSymbol, final IToken op,
                                          final ISymbol assignmentExpression) {
-
     if (!leftHandSideSymbol.isInitialised()) {
       if (operationIsAssignment.test(op)) {
         leftHandSideSymbol.setInitialisedBy(op);
@@ -110,6 +117,7 @@ final class CheckAssignmentStatement extends TypedSymbolAccess
   private void checkTypesCompatible(final ISymbol leftHandSideSymbol, final IToken op,
                                     final ISymbol rightHandSideSymbol) {
     if (operationIsAssignment.test(op)) {
+      //TODO if the :=? must check that the '?' isSet operator is on the left handside.
       checkTypesCompatible.accept(new TypeCompatibilityData(op, leftHandSideSymbol, rightHandSideSymbol));
     } else {
       leftHandSideSymbol.getType().ifPresent(lhsType -> {

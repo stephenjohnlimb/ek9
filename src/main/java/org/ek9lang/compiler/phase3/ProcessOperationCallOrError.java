@@ -20,7 +20,7 @@ import org.ek9lang.compiler.tokenizer.IToken;
 /**
  * Used for resolving operation calls on aggregates, which can include properties that are delegates to functions.
  */
-final class ResolveOperationCallOrError extends TypedSymbolAccess
+final class ProcessOperationCallOrError extends TypedSymbolAccess
     implements BiFunction<EK9Parser.OperationCallContext, IAggregateSymbol, ISymbol> {
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
   private final ResolveMethodOrError resolveMethodOrError;
@@ -32,7 +32,7 @@ final class ResolveOperationCallOrError extends TypedSymbolAccess
   /**
    * Create a new operation resolver.
    */
-  ResolveOperationCallOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessOperationCallOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                               final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
 

@@ -14,7 +14,7 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  * Then if types are present on the two parts of the range it will check those types
  * and/or issue errors if they are incompatible.
  */
-final class CheckRange extends TypedSymbolAccess implements Consumer<EK9Parser.RangeContext> {
+final class ProcessRange extends TypedSymbolAccess implements Consumer<EK9Parser.RangeContext> {
   private final SymbolFactory symbolFactory;
   private final SymbolFromContextOrError symbolFromContextOrError;
   private final CommonTypeSuperOrTrait commonTypeSuperOrTrait;
@@ -22,9 +22,9 @@ final class CheckRange extends TypedSymbolAccess implements Consumer<EK9Parser.R
   /**
    * Check range expressions and record an expression for the type.
    */
-  CheckRange(final SymbolAndScopeManagement symbolAndScopeManagement,
-             final SymbolFactory symbolFactory,
-             final ErrorListener errorListener) {
+  ProcessRange(final SymbolAndScopeManagement symbolAndScopeManagement,
+               final SymbolFactory symbolFactory,
+               final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
     this.symbolFactory = symbolFactory;
     this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
@@ -34,9 +34,7 @@ final class CheckRange extends TypedSymbolAccess implements Consumer<EK9Parser.R
   @Override
   public void accept(EK9Parser.RangeContext ctx) {
     var startToken = new Ek9Token(ctx.start);
-    //Add one in and hopefully 'type it'.
     var rangeExpr = symbolFactory.newExpressionSymbol(startToken, ctx.getText());
-    symbolAndScopeManagement.recordSymbol(rangeExpr, ctx);
 
     var fromExpr = symbolFromContextOrError.apply(ctx.expression(0));
     var toExpr = symbolFromContextOrError.apply(ctx.expression(1));
@@ -45,5 +43,7 @@ final class CheckRange extends TypedSymbolAccess implements Consumer<EK9Parser.R
       var commonType = commonTypeSuperOrTrait.apply(startToken, List.of(fromExpr, toExpr));
       rangeExpr.setType(commonType);
     } //Otherwise there would have been unresolved errors earlier.
+    //record and if not typed there will be an error emitted.
+    recordATypedSymbol(rangeExpr, ctx);
   }
 }

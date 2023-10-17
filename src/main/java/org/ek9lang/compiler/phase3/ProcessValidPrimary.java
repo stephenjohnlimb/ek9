@@ -12,13 +12,13 @@ import org.ek9lang.core.AssertValue;
  * Ensures that 'primary' is now resolved and 'typed' or a not resolved error.
  * There was a placeholder in for primary, that can now be replaced with the real resolved symbol.
  */
-final class CheckValidPrimary extends TypedSymbolAccess implements Consumer<EK9Parser.PrimaryContext> {
+final class ProcessValidPrimary extends TypedSymbolAccess implements Consumer<EK9Parser.PrimaryContext> {
 
   /**
    * Check Primary resolves and attempt to 'type' it.
    */
-  CheckValidPrimary(final SymbolAndScopeManagement symbolAndScopeManagement,
-                    final ErrorListener errorListener) {
+  ProcessValidPrimary(final SymbolAndScopeManagement symbolAndScopeManagement,
+                      final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
   }
 

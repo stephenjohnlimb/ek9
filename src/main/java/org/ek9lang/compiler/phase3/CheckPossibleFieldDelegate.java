@@ -29,7 +29,6 @@ final class CheckPossibleFieldDelegate extends TypedSymbolAccess implements Cons
                              final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
     this.mostSpecificScope = new MostSpecificScope(symbolAndScopeManagement);
-
   }
 
   @Override
@@ -45,7 +44,7 @@ final class CheckPossibleFieldDelegate extends TypedSymbolAccess implements Cons
       var possibleNameClash = fieldSymbol.getName();
       var scopeToCheckIn = mostSpecificScope.get();
       var matchingSymbols = scopeToCheckIn.getAllSymbolsMatchingName(possibleNameClash);
-      //If there are no clashed then this will just contain the one symbol of the field.
+      //If there are no clashes then this will just contain the one symbol of the field.
       if (matchingSymbols.size() != 1) {
         var msg = "";
         var matches = toMatchResults(fieldSymbol, matchingSymbols);

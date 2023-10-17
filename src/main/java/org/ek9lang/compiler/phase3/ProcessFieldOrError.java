@@ -14,7 +14,7 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  * This takes into account field visibility and where access is being made from.
  * So it will work on a range of aggregates, records, classes, components, etc.
  */
-final class ResolveFieldOrError extends TypedSymbolAccess
+final class ProcessFieldOrError extends TypedSymbolAccess
     implements BiFunction<EK9Parser.IdentifierContext, IScope, ISymbol> {
   private final MostSpecificScope mostSpecificScope;
   private final CheckAccessToSymbol checkAccessToSymbol;
@@ -22,7 +22,7 @@ final class ResolveFieldOrError extends TypedSymbolAccess
   /**
    * Create a new field resolver.
    */
-  ResolveFieldOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessFieldOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                       final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
 

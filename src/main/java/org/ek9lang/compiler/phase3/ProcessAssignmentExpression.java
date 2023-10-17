@@ -11,20 +11,20 @@ import org.ek9lang.core.AssertValue;
  * Just really pulls up the appropriate symbol from the expression into this context.
  * May add additional check in here in the future.
  */
-final class CheckAssignmentExpression extends TypedSymbolAccess
+final class ProcessAssignmentExpression extends TypedSymbolAccess
     implements Consumer<EK9Parser.AssignmentExpressionContext> {
 
   /**
    * Check on references to variables in blocks.
    */
-  CheckAssignmentExpression(final SymbolAndScopeManagement symbolAndScopeManagement,
-                            final ErrorListener errorListener) {
+  ProcessAssignmentExpression(final SymbolAndScopeManagement symbolAndScopeManagement,
+                              final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
   }
 
   @Override
   public void accept(final EK9Parser.AssignmentExpressionContext ctx) {
-    var symbol = determineSymbolToRecord(ctx);
+    var symbol = processExpression(ctx);
     if (symbol != null) {
       recordATypedSymbol(symbol, ctx);
       symbol.getType().ifPresent(type -> {
@@ -36,7 +36,7 @@ final class CheckAssignmentExpression extends TypedSymbolAccess
     }
   }
 
-  private ISymbol determineSymbolToRecord(final EK9Parser.AssignmentExpressionContext ctx) {
+  private ISymbol processExpression(final EK9Parser.AssignmentExpressionContext ctx) {
     ISymbol symbol = null;
     if (ctx.expression() != null) {
       symbol = getRecordedAndTypedSymbol(ctx.expression());

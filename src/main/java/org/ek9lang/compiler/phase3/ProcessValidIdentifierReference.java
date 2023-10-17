@@ -14,15 +14,15 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
 /**
  * Ensures that 'identifierReference' is now resolved and hangs together and 'typed' or a not resolved error.
  */
-final class CheckValidIdentifierReference extends TypedSymbolAccess
+final class ProcessValidIdentifierReference extends TypedSymbolAccess
     implements Function<EK9Parser.IdentifierReferenceContext, Optional<ISymbol>> {
 
 
   /**
    * Checks identifier reference now resolves.
    */
-  CheckValidIdentifierReference(final SymbolAndScopeManagement symbolAndScopeManagement,
-                                final ErrorListener errorListener) {
+  ProcessValidIdentifierReference(final SymbolAndScopeManagement symbolAndScopeManagement,
+                                  final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
   }
 

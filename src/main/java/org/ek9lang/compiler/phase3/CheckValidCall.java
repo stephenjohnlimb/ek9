@@ -26,7 +26,7 @@ import org.ek9lang.core.AssertValue;
  */
 final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Parser.CallContext> {
   private final CheckParameterizationComplete checkParameterizationComplete = new CheckParameterizationComplete();
-  private final ResolveThisSuperCallOrError resolveThisSuperCallOrError;
+  private final ProcessThisSuperCallOrError processThisSuperCallOrError;
   private final ResolveIdentifierReferenceCallOrError resolveIdentifierReferenceCallOrError;
   private final SymbolsFromParamExpression symbolsFromParamExpression;
   private final SymbolFromContextOrError symbolFromContextOrError;
@@ -40,8 +40,8 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
                  final SymbolFactory symbolFactory,
                  final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
-    this.resolveThisSuperCallOrError =
-        new ResolveThisSuperCallOrError(symbolAndScopeManagement, errorListener);
+    this.processThisSuperCallOrError =
+        new ProcessThisSuperCallOrError(symbolAndScopeManagement, errorListener);
     this.resolveIdentifierReferenceCallOrError =
         new ResolveIdentifierReferenceCallOrError(symbolAndScopeManagement, symbolFactory, errorListener);
     this.symbolsFromParamExpression =
@@ -151,7 +151,7 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
   private void resolveByPrimaryReference(CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
     //We force void here, because the constructor will return the type it is constructing
     //But when used via a 'call' like 'this()' or 'super()' we want to ensure it can only be used without assignment.
-    var symbol = resolveThisSuperCallOrError.apply(ctx);
+    var symbol = processThisSuperCallOrError.apply(ctx);
     if (symbol != null) {
       callSymbol.setResolvedSymbolToCall(symbol);
       callSymbol.setType(symbolAndScopeManagement.getEk9Types().ek9Void());

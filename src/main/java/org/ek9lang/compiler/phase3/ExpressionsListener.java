@@ -19,22 +19,22 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   protected final SymbolFactory symbolFactory;
   protected final ErrorListener errorListener;
   private final ReturnTypeExtractor returnTypeExtractor = new ReturnTypeExtractor();
-  private final CheckValidThisOrSuper checkValidThisOrSuper;
-  private final CheckValidPrimary checkValidPrimary;
-  private final CheckValidIdentifierReference checkValidIdentifierReference;
+  private final ProcessValidThisOrSuper processValidThisOrSuper;
+  private final ProcessValidPrimary processValidPrimary;
+  private final ProcessValidIdentifierReference processValidIdentifierReference;
   private final CheckValidExpression checkValidExpression;
   private final CheckInstructionBlockVariables checkInstructionBlockVariables;
-  private final CheckAssignmentExpression checkAssignmentExpression;
-  private final CheckAssignmentStatement checkAssignmentStatement;
-  private final CheckAndTypeList checkAndTypeList;
-  private final CheckAndTypeDict checkAndTypeDict;
+  private final ProcessAssignmentExpression processAssignmentExpression;
+  private final ProcessAssignmentStatement processAssignmentStatement;
+  private final ProcessAndTypeList processAndTypeList;
+  private final ProcessAndTypeDict processAndTypeDict;
   private final CheckValidCall checkValidCall;
-  private final CheckRange checkRange;
+  private final ProcessRange processRange;
   private final CheckForRange checkForRange;
-  private final ResolveIdentifierOrError resolveIdentifierOrError;
+  private final ProcessIdentifierOrError processIdentifierOrError;
   private final CheckVariableAssignmentDeclaration checkVariableAssignmentDeclaration;
-  private final ResolveFieldOrError resolveFieldOrError;
-  private final ResolveOperationCallOrError resolveOperationCallOrError;
+  private final ProcessFieldOrError processFieldOrError;
+  private final ProcessOperationCallOrError processOperationCallOrError;
   private final CheckPipelinePart checkPipelinePart;
 
   protected ExpressionsListener(ParsedModule parsedModule) {
@@ -44,14 +44,14 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
 
     this.errorListener = parsedModule.getSource().getErrorListener();
 
-    checkValidThisOrSuper =
-        new CheckValidThisOrSuper(symbolAndScopeManagement, symbolFactory, errorListener);
+    processValidThisOrSuper =
+        new ProcessValidThisOrSuper(symbolAndScopeManagement, symbolFactory, errorListener);
 
-    checkValidPrimary
-        = new CheckValidPrimary(symbolAndScopeManagement, errorListener);
+    processValidPrimary
+        = new ProcessValidPrimary(symbolAndScopeManagement, errorListener);
 
-    checkValidIdentifierReference
-        = new CheckValidIdentifierReference(symbolAndScopeManagement, errorListener);
+    processValidIdentifierReference
+        = new ProcessValidIdentifierReference(symbolAndScopeManagement, errorListener);
 
     checkValidExpression
         = new CheckValidExpression(symbolAndScopeManagement, symbolFactory, errorListener);
@@ -59,59 +59,59 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
     checkInstructionBlockVariables =
         new CheckInstructionBlockVariables(symbolAndScopeManagement, errorListener);
 
-    checkAssignmentExpression =
-        new CheckAssignmentExpression(symbolAndScopeManagement, errorListener);
+    processAssignmentExpression =
+        new ProcessAssignmentExpression(symbolAndScopeManagement, errorListener);
 
-    checkAssignmentStatement =
-        new CheckAssignmentStatement(symbolAndScopeManagement, errorListener);
+    processAssignmentStatement =
+        new ProcessAssignmentStatement(symbolAndScopeManagement, errorListener);
 
     checkValidCall =
         new CheckValidCall(symbolAndScopeManagement, symbolFactory, errorListener);
 
-    checkAndTypeList =
-        new CheckAndTypeList(symbolAndScopeManagement, symbolFactory, errorListener);
+    processAndTypeList =
+        new ProcessAndTypeList(symbolAndScopeManagement, symbolFactory, errorListener);
 
-    checkAndTypeDict =
-        new CheckAndTypeDict(symbolAndScopeManagement, symbolFactory, errorListener);
+    processAndTypeDict =
+        new ProcessAndTypeDict(symbolAndScopeManagement, symbolFactory, errorListener);
 
     checkPipelinePart =
         new CheckPipelinePart(symbolAndScopeManagement, errorListener);
 
-    checkRange =
-        new CheckRange(symbolAndScopeManagement, symbolFactory, errorListener);
+    processRange =
+        new ProcessRange(symbolAndScopeManagement, symbolFactory, errorListener);
 
     checkForRange =
         new CheckForRange(symbolAndScopeManagement, errorListener);
 
-    resolveIdentifierOrError
-        = new ResolveIdentifierOrError(symbolAndScopeManagement, errorListener);
+    processIdentifierOrError
+        = new ProcessIdentifierOrError(symbolAndScopeManagement, errorListener);
 
     checkVariableAssignmentDeclaration
         = new CheckVariableAssignmentDeclaration(symbolAndScopeManagement, errorListener);
 
-    resolveFieldOrError
-        = new ResolveFieldOrError(symbolAndScopeManagement, errorListener);
+    processFieldOrError
+        = new ProcessFieldOrError(symbolAndScopeManagement, errorListener);
 
-    resolveOperationCallOrError
-        = new ResolveOperationCallOrError(symbolAndScopeManagement, errorListener);
+    processOperationCallOrError
+        = new ProcessOperationCallOrError(symbolAndScopeManagement, errorListener);
   }
 
   @Override
   public void exitIdentifierReference(EK9Parser.IdentifierReferenceContext ctx) {
-    checkValidIdentifierReference.apply(ctx);
+    processValidIdentifierReference.apply(ctx);
     super.exitIdentifierReference(ctx);
   }
 
   @Override
   public void exitPrimaryReference(EK9Parser.PrimaryReferenceContext ctx) {
     //Here we are modelling 'this' or 'super', idea is to set type or issue errors.
-    checkValidThisOrSuper.accept(ctx);
+    processValidThisOrSuper.accept(ctx);
     super.exitPrimaryReference(ctx);
   }
 
   @Override
   public void exitPrimary(EK9Parser.PrimaryContext ctx) {
-    checkValidPrimary.accept(ctx);
+    processValidPrimary.accept(ctx);
     super.exitPrimary(ctx);
   }
 
@@ -123,19 +123,19 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
 
   @Override
   public void exitList(EK9Parser.ListContext ctx) {
-    checkAndTypeList.accept(ctx);
+    processAndTypeList.accept(ctx);
     super.exitList(ctx);
   }
 
   @Override
   public void exitDict(EK9Parser.DictContext ctx) {
-    checkAndTypeDict.accept(ctx);
+    processAndTypeDict.accept(ctx);
     super.exitDict(ctx);
   }
 
   @Override
   public void exitRange(EK9Parser.RangeContext ctx) {
-    checkRange.accept(ctx);
+    processRange.accept(ctx);
     super.exitRange(ctx);
   }
 
@@ -153,14 +153,14 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
 
   @Override
   public void exitAssignmentExpression(EK9Parser.AssignmentExpressionContext ctx) {
-    checkAssignmentExpression.accept(ctx);
+    processAssignmentExpression.accept(ctx);
 
     super.exitAssignmentExpression(ctx);
   }
 
   @Override
   public void exitAssignmentStatement(EK9Parser.AssignmentStatementContext ctx) {
-    checkAssignmentStatement.accept(ctx);
+    processAssignmentStatement.accept(ctx);
     super.exitAssignmentStatement(ctx);
   }
 
@@ -183,7 +183,7 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
       //In this context we can resolve the identifier and record it. - its not an identifierReference but an identifier.
       //This is done to find the compromise of reuse in the grammar. But makes this a bit more inconsistent.
 
-      var resolved = resolveIdentifierOrError.apply(ctx.identifier());
+      var resolved = processIdentifierOrError.apply(ctx.identifier());
 
       if (resolved != null) {
         //Record against both
@@ -241,12 +241,12 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
     var theType = inThisSymbol.getType();
     if (theType.isPresent() && theType.get() instanceof IAggregateSymbol aggregate) {
       if (ctx.objectAccessType().identifier() != null) {
-        var resolved = resolveFieldOrError.apply(ctx.objectAccessType().identifier(), aggregate);
+        var resolved = processFieldOrError.apply(ctx.objectAccessType().identifier(), aggregate);
         var typeToRecord = returnTypeExtractor.apply(resolved);
         typeToRecord.ifPresent(type -> symbolAndScopeManagement.recordSymbol(type, ctx));
       } else if (ctx.objectAccessType().operationCall() != null) {
         var resolved =
-            resolveOperationCallOrError.apply(ctx.objectAccessType().operationCall(), aggregate);
+            processOperationCallOrError.apply(ctx.objectAccessType().operationCall(), aggregate);
         var typeToRecord = returnTypeExtractor.apply(resolved);
         typeToRecord.ifPresent(type -> symbolAndScopeManagement.recordSymbol(type, ctx));
       }

@@ -20,13 +20,13 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  * For example 'this()' or 'super()', but can include parameters.
  * This will also look at the context of where the call is made from as well as the parameter compatibility.
  */
-final class ResolveThisSuperCallOrError extends TypedSymbolAccess
+final class ProcessThisSuperCallOrError extends TypedSymbolAccess
     implements Function<EK9Parser.CallContext, MethodSymbol> {
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
   private final ResolveMethodOrError resolveMethodOrError;
   private final SymbolsFromParamExpression symbolsFromParamExpression;
 
-  ResolveThisSuperCallOrError(SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessThisSuperCallOrError(SymbolAndScopeManagement symbolAndScopeManagement,
                               ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
 

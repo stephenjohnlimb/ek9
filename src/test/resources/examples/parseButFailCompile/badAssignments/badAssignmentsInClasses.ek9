@@ -37,11 +37,16 @@ defines module bad.assignments.classes
         @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
         notInitialised :=: this
 
+        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
+        assert notInitialised?
+
       someMethod5()
         notInitialised as C1?
         //Now try and assign the via the wrong type
         @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
         notInitialised: 22
+
+        assert notInitialised?
 
       someMethod6()
         val1 <- 1
@@ -52,6 +57,8 @@ defines module bad.assignments.classes
         //also considered a self assignment
         @Error: FULL_RESOLUTION: SELF_ASSIGNMENT
         val1 :=: val1
+
+        assert val1?
 
       someMethod7()
         @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
