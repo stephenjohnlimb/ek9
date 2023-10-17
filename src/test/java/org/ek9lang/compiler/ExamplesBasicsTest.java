@@ -17,8 +17,7 @@ class ExamplesBasicsTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
-    //TODO move to full resolution.
-    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
+    testToPhase(CompilationPhase.FULL_RESOLUTION);
   }
 
   @Override

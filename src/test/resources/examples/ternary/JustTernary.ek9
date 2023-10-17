@@ -5,9 +5,10 @@ defines module com.customer.just.ternary
     
       stdout <- Stdout()
       
-      stdout.println("Bird1 not set at all")
+      stdout.println("Bird1 not set at all, set for injection but nothing injected")
       
-      bird1 <- String()
+      bird1 as String!
+
       bird2 <- "Duck"
       birdA <- bird1? <- bird1 : bird2
       stdout.println("birdA [" + birdA + "]")

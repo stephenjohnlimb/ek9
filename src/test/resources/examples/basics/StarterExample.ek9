@@ -40,10 +40,12 @@ defines module com.customer.starter.example
       For this example it just calculates volume of a sphere
       It's all done in the return on a single line.
       But note for parameters EK9 does need the type to be specified in the declaration.
+      Also see how the Float part of the dimension is extracted as the 'prefix' i.e. the Float part.
+      This also demonstrates operator precedence.
     -?>
     volumeOfSphere()
       -> radius as Dimension
-      <- volume as Float: 4 * Pi/3 * Float(radius)^3
+      <- volume as Float: 4 * Pi/3 * #<radius^3
         
     <?-
       Another example of a function but this time has a function body.
@@ -161,6 +163,6 @@ defines module com.customer.starter.example
       //So now with that short explanation you should be able to read the expression.
       //The brackets should now help.
       checkMatch <- (stockName <~> (maybeEmpty ?: candidate1) < stockName <~> candidate2) <- maybeEmpty ?: candidate1 : candidate2
-
+      assert checkMatch?
 
 //EOF

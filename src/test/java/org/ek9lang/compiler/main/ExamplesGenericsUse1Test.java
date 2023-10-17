@@ -33,6 +33,8 @@ class ExamplesGenericsUse1Test extends PhasesTest {
 
   @Test
   void testPhasedDevelopment() {
+    //TODO fix up code there is a stack overflow here hashCode again.
+    //TODO Plus there are some other EK9 code mistakes.
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 

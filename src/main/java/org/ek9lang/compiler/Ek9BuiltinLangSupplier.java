@@ -525,6 +525,22 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Integer
               <- rtn as Integer?
 
+            operator + as pure
+              -> arg as Float
+              <- rtn as Float?
+
+            operator - as pure
+              -> arg as Float
+              <- rtn as Float?
+
+            operator * as pure
+              -> arg as Float
+              <- rtn as Integer?
+
+            operator / as pure
+              -> arg as Float
+              <- rtn as Integer?
+
             operator ^ as pure
               -> arg as Integer
               <- rtn as Integer?

@@ -1,0 +1,144 @@
+#!ek9
+<?-
+  Next expression range usage.
+
+  identifier neg=NOT? IN range
+
+  There is also another use of 'IN'
+  left=expression IS? neg=NOT? IN right=expression
+  This requires that the right.type has a contains method that accepts left.type are a parameter and returns a Boolean.
+
+  So this is like result <- someVariable in 21 ... 600
+  i.e. Is 'someVariable' greater than or equal to 21 and is 'someVariable' less than or equal to 600
+  Basically we just need to:
+  1. Check that the types on the range expressions are the same.
+  2. Ensure there is a comparator on the someVariable.type that accepts the expression.type
+
+  The 'NOT' part is just an inversion of that result - still just a Boolean.
+
+-?>
+defines module bad.range.collections
+
+  defines class
+    C1
+      default C1()
+      //But miss out any operators.
+
+  defines function
+    JustFail()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert failure
+
+    CheckSimpleIntegerRange()
+      var <- 16
+      result <- var in 10 ... 30
+      assert result
+
+    CheckBadSimpleIntegerRange1()
+      //Miss out declaring var
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      result <- var in 10 ... 30
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result
+
+    CheckBadSimpleIntegerRange2()
+      var <- 16
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      result <- var in 10 ... nonSuchUpperBound()
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result
+
+    CheckBadSimpleIntegerRange3()
+      var <- 16
+
+      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      result <- var in 10 ... JustFail()
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result
+
+    CheckBadSimpleIntegerRange4()
+      var <- 16
+
+      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      result <- var in JustFail() ... 200
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result
+
+    CheckBadSimpleIntegerRange5()
+      var <- 16
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      result <- var in C1() ... C1()
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result
+
+    CheckBadSimpleIntegerRange6()
+      var <- C1()
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      result <- var in 10 ... 30
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result
+
+    CheckValueInCollection()
+      list <- ["Steve", "Stephen"]
+
+      result1 <- "Stephen" is in list
+      assert result1
+
+      result2 <- "James" is not in list
+      assert result2
+
+      //Now you could also write
+      result3 <- list contains "Stephen"
+      assert result3
+
+      //And
+      result4 <- list not contains "James"
+      assert result4
+
+    CheckBadValueInCollection1()
+      //Omit declaring the list
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      result1 <- "Stephen" is in list
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result1
+
+    CheckBadValueInCollection2()
+      list <- ["Steve", "Stephen"]
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      result1 <- noVar is in list
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result1
+
+    CheckBadValueInCollection3()
+      list <- [C1()]
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      result1 <- noVar is in list
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result1
+
+    CheckBadValueInCollection4()
+      list <- [C1()]
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      result1 <- "Steve" is in list
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result1
+
+//EOF

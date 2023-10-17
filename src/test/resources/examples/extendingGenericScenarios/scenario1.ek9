@@ -18,8 +18,12 @@ defines module generics.scenario.one
         ->
           key as K
           value as V
+        //TODO detect this as an error, because key and value are not set
         this.key :=: key
         this.value :=: value
+
+      name()
+        <- result as V: value
 
       <?-
         Single operation that uses the conceptual type 'K' and 'V'
@@ -32,8 +36,15 @@ defines module generics.scenario.one
           result :=: value
 
     IntegerStringMapping extends GC of (Integer, String)
-      //Add in another method.
-      name()
+
+      IntegerStringMapping()
+        ->
+          arg0 as Integer
+          arg1 as String
+        super(arg0, arg1)
+
+      //Override the generic method.
+      override name()
         <- result as String: "Just a single mapping"
 
   <?-

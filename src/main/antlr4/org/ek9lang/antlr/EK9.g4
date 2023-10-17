@@ -394,7 +394,6 @@ expression
     | op=PREFIX expression
     | op=SUFFIX expression
     | op=HASHCODE expression
-    | ONLY expression
     | op=ABS OF? expression
     | op=SQRT OF? expression
     | <assoc=right> left=expression coalescing=(CHECK | ELVIS) right=expression

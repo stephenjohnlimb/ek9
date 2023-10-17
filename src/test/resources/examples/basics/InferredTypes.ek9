@@ -24,8 +24,9 @@ defines module net.customer.inferred
       methodA()
         <- rtn as String := "Default Value"
         
-        v1 as Float := 56 + 34.0
-        
+        v1 as Float := 34.0 + 56
+        assert v1?
+
         //You can also do this - NICE! all result in correct output of Integer limbLength1 = String._of("Limb")._len();
         //infer type for variables
         //just look at all that sugar! too much? all do the same thing but gets more terse!
@@ -33,41 +34,60 @@ defines module net.customer.inferred
         //It's all the same output - but as developers in EK9 you can decide on the level of verbosity!
         
         limbLength1 as Integer := length of "Limb"
+        assert limbLength1?
+
         limbLength3 as Integer := length "Limb"
+        assert limbLength3?
+
         limbLength4 Integer := length "Limb"
+        assert limbLength4?
+
         limbLength5 Integer: length "Limb"
+        assert limbLength5?
+
         limbLength6 Integer = length "Limb"
+        assert limbLength6?
+
         limbLength7 <- length "Limb"
-        
+        assert limbLength7?
+
         //Shortest possible way of defining a variable and infer the type.
         justLimb <- "Limb"
         justLength <- length justLimb
         
         check <- rtn?
+        assert check
+
         //So what type is check? Yes a boolean! we're just checking if rtn is not null and is set.
         
         //Whats the hashcode of "Limb" - but you can implement that operator on any class/record!
         //# hash and ? 'what is'
         hashcode <- #?"Limb"
-        
+        assert hashcode?
+
         //Now lets say I want a String version of the length
         strLen1 <- $justLength
-        
+        assert strLen1?
+
         //Or like this - yes $ is an operator and it works with operator precedence so I can use a space!
         strLen2 <- $ length "Limb"
-        
+        assert strLen2?
+
         //So what do I mean here convert the length of the string strLen1 to a string and add "Limb"
         strLen3 <- $ length strLen1 + "Limb"
- 
+        assert strLen3?
+
         //So what do I mean here convert the length of the strLen1 when "Limb" is added to a string
         strLen4 <- $ length (strLen1 + "Limb")
- 
+        assert strLen4?
+
         //You get my drift in terms of operations. No need for the space - but this looks like you are asking for a string version of length!
         strLen5 <- $ length ("Limb" + $length strLen1)
-        
+        assert strLen5?
+
         //So maybe this would be nicer with write and read
         strLen6 <- $ length ("Limb" + $(length strLen1))
-        
+        assert strLen6?
         rtn := "Steve"
         
         stockName <- "Stephen"
@@ -81,8 +101,8 @@ defines module net.customer.inferred
 
         //You could inline the two expressions above in here, if you wanted to.
         //We have an issue with this at present.
-        //bestOne <- weight1 < weight2 <- check1 else check2
-        assert weight1?
-        assert weight2?
+        bestOne <- weight1 < weight2 <- check1 else check2
+        assert bestOne?
+
     //end of class
 //EOF

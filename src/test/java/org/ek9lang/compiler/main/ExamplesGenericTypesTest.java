@@ -16,6 +16,9 @@ class ExamplesGenericTypesTest extends PhasesTest {
 
   @Test
   void testPhasedDevelopment() {
+    //TODO fix up code there is a stack overflow here hashCode again.
+    //TODO Plus there are some other EK9 code mistakes.
+    //Also some missing methods in stock EK9 lib
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 
