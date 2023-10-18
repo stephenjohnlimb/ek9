@@ -107,6 +107,10 @@ public class SymbolAndScopeManagement {
     return Optional.empty();
   }
 
+  public Optional<IScopedSymbol> traverseBackUpStackToMethodOrFunction() {
+    return scopeStack.traverseBackUpStackToMethodOrFunction();
+  }
+
   public Optional<ISymbol> resolveOrDefine(final PossibleGenericSymbol parameterisedSymbol,
                                            final ErrorListener errorListener) {
     return parsedModule.getModuleScope().resolveOrDefine(parameterisedSymbol, errorListener);

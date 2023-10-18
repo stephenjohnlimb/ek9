@@ -3,7 +3,9 @@ package org.ek9lang.compiler.common;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Optional;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.symbols.IScopedSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.core.AssertValue;
 
@@ -74,6 +76,22 @@ public class ScopeStack {
         return Optional.of(scopeForConsideration);
       }
     }
+    return Optional.empty();
+  }
+
+  /**
+   * Locates the outer function or method (if possible, not always possible Applications for example).
+   */
+  public Optional<IScopedSymbol> traverseBackUpStackToMethodOrFunction() {
+    for (IScope scopeForConsideration : actualStack) {
+      if (scopeForConsideration instanceof MethodSymbol methodSymbol) {
+        return Optional.of(methodSymbol);
+      }
+      if (scopeForConsideration instanceof FunctionSymbol functionSymbol) {
+        return Optional.of(functionSymbol);
+      }
+    }
+
     return Optional.empty();
   }
 

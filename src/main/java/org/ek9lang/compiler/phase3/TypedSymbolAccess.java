@@ -4,6 +4,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
@@ -17,9 +18,20 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * symbol != null &amp;&amp; symbol.getType.isPresent() then it can continue with its processing.
  */
 public class TypedSymbolAccess extends RuleSupport {
-  protected TypedSymbolAccess(SymbolAndScopeManagement symbolAndScopeManagement,
-                              ErrorListener errorListener) {
+  protected TypedSymbolAccess(final SymbolAndScopeManagement symbolAndScopeManagement,
+                              final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
+  }
+
+  /**
+   * Uses the SymbolAndScopeManagement to get the main processing scope a method or a function.
+   * Then checks it that is marked as pure or not.
+   *
+   * @return true if pure, false if mutable.
+   */
+  protected boolean isProcessingScopePure() {
+    var scope = symbolAndScopeManagement.traverseBackUpStackToMethodOrFunction();
+    return scope.map(IScope::isMarkedPure).orElse(false);
   }
 
   /**

@@ -31,6 +31,7 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final CheckForRange checkForRange;
   private final ProcessIdentifierOrError processIdentifierOrError;
   private final CheckVariableAssignmentDeclaration checkVariableAssignmentDeclaration;
+  private final CheckVariableOnlyDeclaration checkVariableOnlyDeclaration;
   private final ProcessFieldOrError processFieldOrError;
   private final ProcessOperationCallOrError processOperationCallOrError;
   private final CheckPipelinePart checkPipelinePart;
@@ -86,6 +87,9 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
 
     checkVariableAssignmentDeclaration
         = new CheckVariableAssignmentDeclaration(symbolAndScopeManagement, errorListener);
+
+    checkVariableOnlyDeclaration
+        = new CheckVariableOnlyDeclaration(symbolAndScopeManagement, errorListener);
 
     processFieldOrError
         = new ProcessFieldOrError(symbolAndScopeManagement, errorListener);
@@ -261,7 +265,7 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
 
   @Override
   public void exitVariableOnlyDeclaration(EK9Parser.VariableOnlyDeclarationContext ctx) {
-    //Now at this point we should know all the types and can therefore complete checks for injection
+    checkVariableOnlyDeclaration.accept(ctx);
     super.exitVariableOnlyDeclaration(ctx);
   }
 

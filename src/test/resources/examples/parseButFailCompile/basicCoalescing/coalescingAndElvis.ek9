@@ -67,7 +67,7 @@ defines module coalescing.elvis
       <- rtn as Boolean: arg0?
 
     TestNullCoalescing1()
-      weight1 as String!
+      -> weight1 as String
       weight2 as String: "Steve"
 
       //Example of null coalescing
@@ -75,7 +75,7 @@ defines module coalescing.elvis
       assert coalesce?
 
     TestNullCoalescing2()
-      weight1 as C2!
+      -> weight1 as C2
       weight2 as C3: C3
 
       coalesced <- weight1 ?? weight2
@@ -85,7 +85,7 @@ defines module coalescing.elvis
       assert result?
 
     TestGenericNullCoalescing1()
-      weight1 as GC2 of String!
+      -> weight1 as GC2 of String
       weight2 as GC2 of String: GC2()
 
       coalesce <- weight1 ?? weight2
@@ -95,7 +95,7 @@ defines module coalescing.elvis
       assert result?
 
     TestElvis1()
-      weight1 as String!
+      -> weight1 as String
       weight2 as String: "Steve"
 
       //Example of Elvis
@@ -103,7 +103,7 @@ defines module coalescing.elvis
       assert coalesce?
 
     TestElvis2()
-      weight1 as C2!
+      -> weight1 as C2
       weight2 as C3: C3
 
       coalesced <- weight1 ?: weight2
@@ -114,7 +114,7 @@ defines module coalescing.elvis
 
     //Check missing to String $ operator and its cascading effect
     TestBadNullCoalescing1()
-      weight1 as C1!
+      -> weight1 as C1
       weight2 as C1: C1()
 
       //Will detect the $ operator is missing.
@@ -125,7 +125,7 @@ defines module coalescing.elvis
       assert coalesce?
 
     TestBadNullCoalescing2()
-      weight1 as C1!
+      -> weight1 as C1
       weight2 as C1: C1()
 
       //Will detect the ? operator is missing.
@@ -136,7 +136,7 @@ defines module coalescing.elvis
       assert coalesce?
 
     TestBadGenericNullCoalescing1()
-      weight1 as GC1 of String!
+      -> weight1 as GC1 of String
       weight2 as GC1 of String: GC1()
 
       //Will detect the ? operator is missing.
@@ -147,7 +147,7 @@ defines module coalescing.elvis
       assert coalesce?
 
     TestBadNullCoalescing3()
-      weight1 as Integer!
+      -> weight1 as Integer
       weight2 as Float: Float()
 
       //Will detect the types are not compatible (coercion is not applied here)
@@ -158,7 +158,7 @@ defines module coalescing.elvis
       assert coalesce?
 
     TestBadNullCoalescing4()
-      weight1 as C2!
+      -> weight1 as C2
       weight2 as C3: C3
 
       //Example of null coalescing, this will detect the common type
@@ -170,7 +170,7 @@ defines module coalescing.elvis
       CheckMethod(coalesced)
 
     TestBadElvis1()
-      weight1 as Integer!
+      -> weight1 as Integer
       weight2 as Float: Float()
 
       //Will detect the types are not compatible (coercion is not applied here)

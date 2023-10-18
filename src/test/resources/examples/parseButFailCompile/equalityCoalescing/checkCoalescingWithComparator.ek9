@@ -70,14 +70,14 @@ defines module equality.coalescing
       <- rtn as Boolean: arg0?
 
     TestLessThanCoalescing1()
-      weight1 as String!
+      -> weight1 as String
       weight2 as String: "Steve"
 
       safeLessThan <- weight1 <? weight2
       assert safeLessThan?
 
     TestGenericLessThanCoalescing1()
-      weight1 as GC2 of String!
+      -> weight1 as GC2 of String
       weight2 as GC2 of String: GC2()
 
       safeLessThan <- weight1 <? weight2
@@ -85,7 +85,7 @@ defines module equality.coalescing
       assert result?
 
     TestGreaterThanCoalescing1()
-      weight1 as C2!
+      -> weight1 as C2
       weight2 as C3: C3()
 
       safeGreaterThan <- weight1 >? weight2
@@ -109,7 +109,7 @@ defines module equality.coalescing
       assert resultC3?
 
     TestBadLessThanCoalescing1()
-      weight1 as C1!
+      -> weight1 as C1
       weight2 as C1: C1()
 
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
@@ -119,7 +119,7 @@ defines module equality.coalescing
       assert safeLessThan?
 
     TestBadGenericLessThanCoalescing1()
-      weight1 as GC1 of Integer!
+      -> weight1 as GC1 of Integer
       weight2 as GC1 of Integer: GC1()
 
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
@@ -129,7 +129,7 @@ defines module equality.coalescing
       assert safeLessThan?
 
     TestGreaterThanOrEqualToCoalescing1()
-      weight1 as C1!
+      -> weight1 as C1
       weight2 as C1: C1()
 
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
