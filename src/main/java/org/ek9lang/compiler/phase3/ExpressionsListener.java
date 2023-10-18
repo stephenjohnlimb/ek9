@@ -4,7 +4,6 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.ScopeStackConsistencyListener;
-import org.ek9lang.compiler.support.ReturnTypeExtractor;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -18,7 +17,6 @@ import org.ek9lang.compiler.symbols.ISymbol;
 abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   protected final SymbolFactory symbolFactory;
   protected final ErrorListener errorListener;
-  private final ReturnTypeExtractor returnTypeExtractor = new ReturnTypeExtractor();
   private final ProcessValidThisOrSuper processValidThisOrSuper;
   private final ProcessValidPrimary processValidPrimary;
   private final ProcessValidIdentifierReference processValidIdentifierReference;
@@ -242,13 +240,15 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
     if (theType.isPresent() && theType.get() instanceof IAggregateSymbol aggregate) {
       if (ctx.objectAccessType().identifier() != null) {
         var resolved = processFieldOrError.apply(ctx.objectAccessType().identifier(), aggregate);
-        var typeToRecord = returnTypeExtractor.apply(resolved);
-        typeToRecord.ifPresent(type -> symbolAndScopeManagement.recordSymbol(type, ctx));
+        if (resolved != null) {
+          symbolAndScopeManagement.recordSymbol(resolved, ctx);
+        }
       } else if (ctx.objectAccessType().operationCall() != null) {
         var resolved =
             processOperationCallOrError.apply(ctx.objectAccessType().operationCall(), aggregate);
-        var typeToRecord = returnTypeExtractor.apply(resolved);
-        typeToRecord.ifPresent(type -> symbolAndScopeManagement.recordSymbol(type, ctx));
+        if (resolved != null) {
+          symbolAndScopeManagement.recordSymbol(resolved, ctx);
+        }
       }
     }
   }
@@ -257,6 +257,12 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   public void exitVariableDeclaration(EK9Parser.VariableDeclarationContext ctx) {
     checkVariableAssignmentDeclaration.accept(ctx);
     super.exitVariableDeclaration(ctx);
+  }
+
+  @Override
+  public void exitVariableOnlyDeclaration(EK9Parser.VariableOnlyDeclarationContext ctx) {
+    //Now at this point we should know all the types and can therefore complete checks for injection
+    super.exitVariableOnlyDeclaration(ctx);
   }
 
   @Override

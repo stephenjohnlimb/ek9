@@ -535,6 +535,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
             + " copy/merge/replace (:=:, :~:, :^:)"),
     NO_PURE_VARIABLE_REASSIGNMENT("variables cannot be reassigned when scope is marked as 'pure'"),
     NO_PURE_REASSIGNMENT("reassignment not allowed when scope is marked as 'pure'"),
+    NO_INCOMING_ARGUMENT_REASSIGNMENT("reassignment not allowed of an incoming argument/parameter"),
     NO_MUTATION_IN_PURE_CONTEXT("mutating variables is not allowed when scope is marked as 'pure'"),
     PURE_RETURN_REASSIGNMENT("reassignment of return values is discouraged when scope is marked as 'pure'"),
     COVARIANCE_MISMATCH("return types are incompatible (covariance required)"),
@@ -543,6 +544,8 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     COMPONENT_INJECTION_OF_NON_ABSTRACT(
         "dependency injection of a non-abstract component is not allowed, use an abstract base component"),
     COMPONENT_INJECTION_NOT_POSSIBLE("dependency injection is not allowed"),
+    REASSIGNMENT_OF_INJECTED_COMPONENT(
+        "direct reassignment of an injected component is not allowed, use ':=?' for conditional reassignment"),
     NOT_INITIALISED_IN_ANY_WAY("not marked for injection nor initialised"),
     COMPONENT_NOT_MARKED_FOR_INJECTION("component not marked for injection"),
     USE_OF_NULLABLE_NOT_POSSIBLE("use of nullable is meaningless here"),

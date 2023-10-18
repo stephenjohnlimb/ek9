@@ -1,34 +1,43 @@
 #!ek9
 <?-
-  Next...
+  Next bad injections.
 
 -?>
 defines module just.workspace
+
+  defines class
+    C1
+      prop1 as String: String()
+      default C1()
+
+      checkAccess()
+        this.prop1: "Steve"
+
+  defines component
+
+    Base as abstract
+      default Base()
+
+      aMethod() as abstract
+        -> arg0 as String
+        <- rtn as Boolean?
+
+    Comp1 extends Base as abstract
+      default Comp1()
+
+      operator ? as pure
+        <- rtn <- true
+
+    Comp2 extends Comp1
+      default Comp2()
+
+      override aMethod()
+        -> arg0 as String
+        <- rtn as Boolean: arg0?
 
   defines function
     JustFail()
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       assert failure
-
-    TestSimpleAssignment1()
-
-      @Error: FULL_RESOLUTION: NOT_REFERENCED
-      var1 as String?
-
-      //This is an assignment and not a reference (use)
-      var1: "Steve"
-
-    TestSimpleAssignment2()
-
-      var1 as String?
-      var1: "Steve"
-      //Now it's been referenced (used).
-      assert var1?
-
-
-    TestSimpleAssignmentViaParameter()
-      -> var1 as String
-
-      var1: "Steve"
 
 //EOF

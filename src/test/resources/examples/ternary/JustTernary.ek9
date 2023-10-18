@@ -1,13 +1,14 @@
 #!ek9
 defines module com.customer.just.ternary
   defines program
+
+    //Pass bird1 in which may or may not be set.
     ShowTernaryOperators()
+      -> arg0 as String
     
       stdout <- Stdout()
-      
-      stdout.println("Bird1 not set at all, set for injection but nothing injected")
-      
-      bird1 as String!
+
+      bird1 <- arg0
 
       bird2 <- "Duck"
       birdA <- bird1? <- bird1 : bird2
@@ -57,7 +58,8 @@ defines module com.customer.just.ternary
       assert birdA == "Duck"
       
       stdout.println("Bird1 as unset String")
-      
+
+
       bird1: String()
       birdA := bird1? <- bird1 : bird2
       stdout.println("birdA [" + birdA + "]")

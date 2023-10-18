@@ -1127,6 +1127,7 @@ public class SymbolFactory {
         var startToken = new Ek9Token(detail.Identifier().getSymbol());
         AggregateSymbol t = aggregateFactory.createGenericT(detail.Identifier().getText(), scope);
         t.setSourceToken(startToken);
+        t.setReferenced(true);
         //Now going forward we also have constraints of those type S extends String etc.
         //So after phase 1 - but before phase 5 (resolve) we will need to revisit this to ensure we have
         //applied any super class to these 'T's

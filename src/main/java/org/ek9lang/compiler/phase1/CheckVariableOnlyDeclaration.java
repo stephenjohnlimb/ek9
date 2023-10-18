@@ -56,10 +56,7 @@ final class CheckVariableOnlyDeclaration implements
   }
 
   private void checkArgumentParam(final EK9Parser.VariableOnlyDeclarationContext ctx, VariableSymbol variableSymbol) {
-    if (ctx.BANG() != null) {
-      errorListener.semanticError(ctx.start, "",
-          ErrorListener.SemanticClassification.COMPONENT_INJECTION_NOT_POSSIBLE);
-    }
+
     if (ctx.QUESTION() != null) {
       errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.DECLARED_AS_NULL_NOT_NEEDED);
     }

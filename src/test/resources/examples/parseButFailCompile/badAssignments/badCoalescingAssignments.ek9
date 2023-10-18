@@ -1,0 +1,136 @@
+#!ek9
+<?-
+  Checks various tye of assignment - including coalescing.
+-?>
+defines module bad.coalescing.assignments
+
+  defines class
+    C1
+      prop1 as String: String()
+      default C1()
+
+      checkAccess()
+        this.prop1: "Steve"
+
+  defines component
+
+    Base as abstract
+      default Base()
+
+      aMethod() as abstract
+        -> arg0 as String
+        <- rtn as Boolean?
+
+    Comp1 extends Base as abstract
+      default Comp1()
+
+      operator ? as pure
+        <- rtn <- true
+
+    Comp2 extends Comp1
+      default Comp2()
+
+      override aMethod()
+        -> arg0 as String
+        <- rtn as Boolean: arg0?
+
+  defines function
+    JustFail()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert failure
+
+    TestSimpleAssignment1()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      var1 as String?
+
+      //This is an assignment and not a reference (use)
+      var1: "Steve"
+
+    TestSimpleAssignment2()
+
+      var1 as String?
+      var1: "Steve"
+      //Now it's been referenced (used).
+      assert var1?
+
+    TestSimpleAssignment3()
+
+      //Expect injection - but it never comes!
+      var1 as Comp1!
+
+      //Hey we've marked this for injection, you cannot just reassign like this use :=?
+      //i.e. a conditional reassignment (only if null/unset)
+      @Error: FULL_RESOLUTION: REASSIGNMENT_OF_INJECTED_COMPONENT
+      var1: Comp2()
+      //Now it's been referenced (used).
+      assert var1?
+
+    TestSimpleAssignment4()
+
+      //Expect injection - but it never comes!
+      var1 as Base!
+
+      //Now we want a conditional reassignment but there is no '?' operator on Base
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      var1 :=? Comp2()
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert var1?
+
+    TestSimpleAssignmentViaParameter1()
+      -> var1 as String
+      //You cannot do this - use the conditional assignment
+      @Error: FULL_RESOLUTION: NO_INCOMING_ARGUMENT_REASSIGNMENT
+      var1: "Steve"
+
+    TestSimpleAssignmentViaParameter2()
+      -> var1 as String
+
+      //But you can do this
+      var1 :=? "Steve"
+
+
+    TestCoalescingAssignment1()
+      //Created, given memory but left 'unset'
+      someVar <- String()
+
+      //In this case the variable will be assigned because it is unset.
+      someVar :=? "Steve"
+
+      assert someVar == "Steve"
+
+    TestCoalescingAssignment2()
+      //So obviously not set
+      someVar as String?
+
+      //In this case the variable will be assigned because it is unset.
+      someVar :=? "Steve"
+
+      assert someVar == "Steve"
+
+    TestCoalescingAssignment3()
+      //Maybe not set
+      someVar as Comp1!
+
+      //In this case the variable will be assigned because it might be unset.
+      //This could be good as a fallback for no injection - i.e. a default. Safer than a null pointer?
+      someVar :=? Comp2
+
+      assert someVar?
+
+    TestBadCoalescingAssignment2()
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      aC1 <- C1()
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      aC1 :=? C1()
+
+    TestBadCoalescingAssignment3()
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      aC1 as C1?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      aC1 :=? C1()
+
+//EOF

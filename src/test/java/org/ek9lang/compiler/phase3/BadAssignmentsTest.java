@@ -25,5 +25,7 @@ class BadAssignmentsTest extends PhasesTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
     assertFalse(program.getParsedModules("bad.assignment.use").isEmpty());
+    assertFalse(program.getParsedModules("bad.assignments.classes").isEmpty());
+    assertFalse(program.getParsedModules("bad.coalescing.assignments").isEmpty());
   }
 }

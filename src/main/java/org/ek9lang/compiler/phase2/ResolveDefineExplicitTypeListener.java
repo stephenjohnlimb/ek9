@@ -503,15 +503,14 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   @Override
   public void exitVariableOnlyDeclaration(EK9Parser.VariableOnlyDeclarationContext ctx) {
-    var variableSystem = symbolAndScopeManagement.getRecordedSymbol(ctx);
-    if (ctx.BANG() != null) {
-      checkNotGenericTypeParameter.accept(variableSystem);
+    var variableSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    var theType = symbolAndScopeManagement.getRecordedSymbol(ctx.typeDef());
+    if (theType != null) {
+      variableSymbol.setType(theType);
     }
-    if (ctx.typeDef() != null) {
-      var theType = symbolAndScopeManagement.getRecordedSymbol(ctx.typeDef());
-      if (theType != null) {
-        variableSystem.setType(theType);
-      }
+
+    if (ctx.BANG() != null) {
+      checkNotGenericTypeParameter.accept(variableSymbol);
     }
 
     super.exitVariableOnlyDeclaration(ctx);

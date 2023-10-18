@@ -20,7 +20,6 @@ final class SymbolTypeOrEmpty implements Function<ISymbol, Optional<PossibleGene
     }
 
     if (symbol.getType().isPresent() && symbol.getType().get() instanceof PossibleGenericSymbol typeSymbol) {
-      symbol.setReferenced(true);
       return Optional.of(typeSymbol);
     }
     return Optional.empty();

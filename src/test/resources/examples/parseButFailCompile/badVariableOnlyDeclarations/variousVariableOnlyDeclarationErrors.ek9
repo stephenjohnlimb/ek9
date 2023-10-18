@@ -41,11 +41,9 @@ defines module bad.variableonly.use
       //Expect to be injected - this is OK.
       v4 as Component1!
 
-    //Injection of incoming parameters is not supported.
     //Web correlation not supported here
     test2() as abstract
-      @Error: SYMBOL_DEFINITION: COMPONENT_INJECTION_NOT_POSSIBLE
-      -> var as String!
+      -> var as String
       @Error: SYMBOL_DEFINITION: SERVICE_HTTP_ACCESS_NOT_SUPPORTED
       <- rtn as String :=: CONTENT
 //EOF

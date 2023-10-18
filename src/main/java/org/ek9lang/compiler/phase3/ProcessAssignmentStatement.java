@@ -25,6 +25,7 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
   private final ResolveMethodOrError resolveMethodOrError;
   private final SymbolFromContextOrError symbolFromContextOrError;
   private final ProcessIdentifierOrError processIdentifierOrError;
+  private final CheckAssignment checkAssignment;
 
   /**
    * Check on validity of assignments.
@@ -33,12 +34,16 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
                              final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
 
-    this.checkTypesCompatible = new CheckTypesCompatible(symbolAndScopeManagement, errorListener);
-    this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
-    this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
-
+    this.checkTypesCompatible
+        = new CheckTypesCompatible(symbolAndScopeManagement, errorListener);
+    this.resolveMethodOrError
+        = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
+    this.symbolFromContextOrError
+        = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
     this.processIdentifierOrError
         = new ProcessIdentifierOrError(symbolAndScopeManagement, errorListener);
+    this.checkAssignment
+        = new CheckAssignment(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -50,7 +55,7 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
 
     var expressionSymbol = symbolFromContextOrError.apply(ctx.assignmentExpression());
     if (expressionSymbol == null) {
-      //So not resolved an an error will have been emitted.
+      //So not resolved and an error will have been emitted.
       return;
     }
     if (ctx.primaryReference() != null) {
@@ -74,10 +79,10 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
   private void checkByIdentifier(final EK9Parser.AssignmentStatementContext ctx, final ISymbol expressionSymbol) {
     var identifier = processIdentifierOrError.apply(ctx.identifier());
     if (identifier != null) {
-      if (!identifier.isIncomingParameter()) {
+      if (!identifier.isIncomingParameter() && !identifier.isPropertyField()) {
         //If we're in a block and we do some form of assignment, reset referenced because otherwise whats the point.
         //There is no use after the assignment, but in the case of an incoming param we could just be altering the
-        //value '+=' for example.
+        //value '+=' for example. For properties we have no idea on ordering of calls.
         identifier.setReferenced(false);
       }
       checkIdentifierAssignment(identifier, new Ek9Token(ctx.op), expressionSymbol);
@@ -117,7 +122,7 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
   private void checkTypesCompatible(final ISymbol leftHandSideSymbol, final IToken op,
                                     final ISymbol rightHandSideSymbol) {
     if (operationIsAssignment.test(op)) {
-      //TODO if the :=? must check that the '?' isSet operator is on the left handside.
+      checkAssignment.accept(op, leftHandSideSymbol);
       checkTypesCompatible.accept(new TypeCompatibilityData(op, leftHandSideSymbol, rightHandSideSymbol));
     } else {
       leftHandSideSymbol.getType().ifPresent(lhsType -> {
