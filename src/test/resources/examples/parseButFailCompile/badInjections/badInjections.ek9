@@ -1,0 +1,122 @@
+#!ek9
+<?-
+  Next bad injections (and there are lots).
+
+-?>
+defines module bad.injection.examples
+
+  defines component
+
+    Base as abstract
+      default Base()
+
+      aMethod() as abstract
+        -> arg0 as String
+        <- rtn as Boolean?
+
+    Comp1 extends Base as abstract
+      default Comp1()
+
+      operator ? as pure
+        <- rtn <- true
+
+    Comp2 extends Comp1
+      default Comp2()
+
+      override aMethod()
+        -> arg0 as String
+        <- rtn as Boolean: arg0?
+
+    DefaultComp extends Comp1
+      default DefaultComp()
+
+      override aMethod()
+        -> arg0 as String
+        <- rtn as Boolean: arg0?
+
+  defines function
+    JustFail()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert failure
+
+    AcceptableInjection()
+      //So this is the injection
+      injected as Comp1!
+
+      //Now you could check it has been injected with this
+      assert injected?
+
+      //or you could do this, just to cover the case where if not injected you want to ensure a default is used
+      //So this means if not injected (i.e. still null) assign it to a new instance of DefaultComp.
+      injected :=? DefaultComp()
+
+      //Now just ensure it is referenced after a potential assignment (else why did we reassign it)
+      assert injected?
+
+    TryToDirectlyReassignInjectedComponent()
+      //So this is the injection
+      injected as Comp1!
+
+      //But cannot do this - directly reassign use :=? to only assign if null.
+      @Error: FULL_RESOLUTION: REASSIGNMENT_OF_INJECTED_COMPONENT
+      injected := DefaultComp()
+
+      //Now just ensure it is referenced after a potential assignment (else why did we reassign it)
+      assert injected?
+
+    TryToInjectNonComponent()
+      //This won't work because it's not a component
+      @Error: FULL_RESOLUTION: COMPONENT_INJECTION_NOT_POSSIBLE
+      injected as String!
+
+      assert injected?
+
+    TryToInjectNonAbstractComponent()
+      //This won't work because it's not abstract (but it is component)
+      @Error: FULL_RESOLUTION: COMPONENT_INJECTION_OF_NON_ABSTRACT
+      injected as Comp2!
+
+      assert injected?
+
+    TryToInjectInComingParameter()
+      @Error: FULL_RESOLUTION: COMPONENT_INJECTION_NOT_POSSIBLE
+      -> injected as Comp1!
+      assert injected?
+
+    TryToInjectReturningParameter()
+      @Error: FULL_RESOLUTION: COMPONENT_INJECTION_NOT_POSSIBLE
+      <- injected as Comp1!
+      var1 <- "Steve"
+      injected.aMethod(var1)
+
+    TryToInjectInPure() as pure
+      @Error: FULL_RESOLUTION: COMPONENT_INJECTION_IN_PURE
+      injected as Comp1!
+      assert injected?
+
+      //Lets just check in a nested inner scope
+      var <- true
+      if var
+        @Error: FULL_RESOLUTION: COMPONENT_INJECTION_IN_PURE
+        injection2 as Comp1!
+        assert injection2?
+
+  defines class
+    C1
+      default C1()
+
+      checkAcceptableInjection()
+        injected as Comp1!
+        assert injected?
+        result <- injected.aMethod("Steve")
+        assert result?
+
+      checkNotAcceptableInjection() as pure
+        @Error: FULL_RESOLUTION: COMPONENT_INJECTION_IN_PURE
+        injected as Comp1!
+        assert injected?
+
+        result <- injected.aMethod("Steve")
+        assert result?
+
+//EOF

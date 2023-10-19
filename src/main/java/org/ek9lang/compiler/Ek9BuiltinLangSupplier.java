@@ -2223,6 +2223,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Optional of T
               <- rtn as Integer?
 
+            <?-
+              Does this optional have a valid value in it.
+            -?>
             operator ? as pure
               <- rtn as Boolean?
 
@@ -2257,13 +2260,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           Result of type (O, E)
             //default constructor without an ok value or an error
             Result()
-                
-            <?-
-              Use above and call ok with the OK value.
-            -?>
-            ok()
-              -> arg0 as O
-            
+                            
             <?-
               Get the OK value, if not present Exception, so check.
             -?>
@@ -2276,12 +2273,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             isOk()
               <- rtn as Boolean?
               
-            <?-
-              Use above and call error with the error value.
-            -?>
-            error()
-              -> arg0 as E
-
             <?-
               Get the Error value, if not present Exception, so check.
             -?>
@@ -2303,8 +2294,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Boolean?
 
             <?-
-              Check if this Result has and Ok value or an error - it might have neither.
-              That's not always wrong, there may be no Ok value, but also nothing in error.
+              Check if this Result has no error - it might have neither.
             -?>
             operator ? as pure
               <- rtn as Boolean?
