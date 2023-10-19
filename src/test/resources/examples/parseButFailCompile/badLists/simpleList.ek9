@@ -53,17 +53,19 @@ defines module bad.lists.only
       The inferred type stuff is driven from whatever the type of the
       first value is.
       That dictates what the others must be compatible with
+      Note that because the implementation is pure we must use the :=? operator.
     -?>
     InvalidMixOfTypes()
       v1 <- false
       f1 <- () is someAbstractFunction as pure function
-        rtn: arg0 < 0
+        rtn :=? arg0 < 0
       f2 <- someAbstractFunction
 
-      f3 <- () is someAbstractFunction as pure function (rtn: arg0 < 0)
+      f3 <- () is someAbstractFunction as pure function (rtn :=? arg0 < 0)
 
-      //Not sure if I want/should allow this.
-      //v4 <- () is someAbstractFunction as pure function (rtn: arg0 < 0)(76)
+      //Not sure if I want/should allow this. We're moving in to Lisp here.
+      v4 <- () is someAbstractFunction as pure function (rtn :=? arg0 < 0)(76)
+      assert v4?
 
       assert v1?
       assert f1?

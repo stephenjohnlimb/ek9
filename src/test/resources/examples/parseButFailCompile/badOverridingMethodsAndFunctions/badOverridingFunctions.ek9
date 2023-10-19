@@ -166,7 +166,7 @@ defines module bad.overriding.functions
     InvalidDynamicFunctionDriver6()
       @Error: FULL_RESOLUTION: SUPER_IS_NOT_PURE
       dynamicFunction <- () is Function1 as pure function
-        rtn: false
+        rtn :=? false
       assert dynamicFunction?
 
     InvalidDynamicFunctionDriver7()

@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.phase3;
 
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.NO_INCOMING_ARGUMENT_REASSIGNMENT;
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.NO_PURE_REASSIGNMENT;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.REASSIGNMENT_OF_INJECTED_COMPONENT;
 
 import java.util.function.BiConsumer;
@@ -39,6 +40,10 @@ final class CheckAssignment extends TypedSymbolAccess implements BiConsumer<ITok
       if (leftHandSideSymbol.isIncomingParameter()) {
         errorListener.semanticError(op, "'" + leftHandSideSymbol.getFriendlyName() + "':",
             NO_INCOMING_ARGUMENT_REASSIGNMENT);
+      }
+      if (isProcessingScopePure()) {
+        errorListener.semanticError(op, "'" + leftHandSideSymbol.getFriendlyName() + "':",
+            NO_PURE_REASSIGNMENT);
       }
     }
   }

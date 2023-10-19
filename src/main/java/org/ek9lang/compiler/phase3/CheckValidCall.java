@@ -110,6 +110,7 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
         callSymbol.setFormOfDeclarationCall(symbol.isGenericInNature());
       }
       callSymbol.setResolvedSymbolToCall(symbol);
+      callSymbol.setMarkedPure(symbol.isMarkedPure());
     }
   }
 
@@ -130,6 +131,7 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
     if (symbol != null) {
       callSymbol.setFormOfDeclarationCall(true);
       callSymbol.setResolvedSymbolToCall(symbol);
+      callSymbol.setMarkedPure(symbol.isMarkedPure());
     }
   }
 
@@ -141,6 +143,7 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
     if (symbol != null) {
       callSymbol.setFormOfDeclarationCall(true);
       callSymbol.setResolvedSymbolToCall(symbol);
+      callSymbol.setMarkedPure(symbol.isMarkedPure());
     }
   }
 
@@ -155,6 +158,7 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
     if (symbol != null) {
       callSymbol.setResolvedSymbolToCall(symbol);
       callSymbol.setType(symbolAndScopeManagement.getEk9Types().ek9Void());
+      callSymbol.setMarkedPure(symbol.isMarkedPure());
     }
   }
 
@@ -172,6 +176,7 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
           new DelegateFunctionCheckData(new Ek9Token(ctx.call().start), callIdentifier, callParams));
       if (symbol != null) {
         callSymbol.setResolvedSymbolToCall(symbol);
+        callSymbol.setMarkedPure(symbol.isMarkedPure());
       }
     } else {
       AssertValue.fail("Expecting call to be at least present" + ctx.start.getLine());

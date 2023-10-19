@@ -72,9 +72,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   private static final String DEFINE_STRING_CLASS = """
 
           String as open
-            String()
+            String() as pure
             
-            String()
+            String() as pure
               -> arg0 as String
 
             trim() as pure
@@ -184,12 +184,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   private static final String DEFINE_BUILT_IN_TYPE_CLASSES = """
 
           Void
-            Void()
+            Void() as pure
             
           Bits as open
-            Bits()
+            Bits() as pure
             
-            Bits()
+            Bits() as pure
               -> arg0 as String
 
             operator < as pure
@@ -305,9 +305,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Bits
 
           Boolean
-            Boolean()
+            Boolean() as pure
 
-            Boolean()
+            Boolean() as pure
               -> arg0 as String
 
             operator == as pure
@@ -366,9 +366,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Boolean
               
           Character
-            Character()
+            Character() as pure
 
-            Character()
+            Character() as pure
               -> arg0 as String
 
             operator < as pure
@@ -451,18 +451,18 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             <?-
               Just an unset Integer
             -?>
-            Integer()
+            Integer() as pure
 
             <?-
               Parse a String as an Integer, unset if not parsable.
             -?>
-            Integer()
+            Integer() as pure
               -> arg0 as String
           
             <?-
               Copy construction from parameter passed in
             -?>
-            Integer()
+            Integer() as pure
               -> arg0 as Integer
 
             operator < as pure
@@ -635,9 +635,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Integer?
               
           Float as open
-            Float()
+            Float() as pure
 
-            Float()
+            Float() as pure
               -> arg0 as String
 
             operator < as pure
@@ -756,9 +756,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Float?
 
           Time as open
-            Time()
+            Time() as pure
 
-            Time()
+            Time() as pure
               -> arg0 as String
 
             operator < as pure
@@ -838,9 +838,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Duration
 
           Duration as open
-            Duration()
+            Duration() as pure
 
-            Duration()
+            Duration() as pure
               -> arg0 as String
 
             operator < as pure
@@ -939,9 +939,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Integer
 
           Millisecond as open
-            Millisecond()
+            Millisecond() as pure
 
-            Millisecond()
+            Millisecond() as pure
               -> arg0 as String
 
             operator < as pure
@@ -1066,9 +1066,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Millisecond?
 
           Date as open
-            Date()
+            Date() as pure
 
-            Date()
+            Date() as pure
               -> arg0 as String
 
             today() as pure
@@ -1168,9 +1168,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Date?
 
           DateTime as open
-            DateTime()
+            DateTime() as pure
 
-            DateTime()
+            DateTime() as pure
               -> arg0 as String
 
             now() as pure
@@ -1267,9 +1267,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as DateTime?
 
           Money as open
-            Money()
+            Money() as pure
 
-            Money()
+            Money() as pure
               -> arg0 as String
 
             operator < as pure
@@ -1391,9 +1391,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Money?
 
           Locale as open
-            Locale()
+            Locale() as pure
 
-            Locale()
+            Locale() as pure
               -> arg0 as String
 
             operator == as pure
@@ -1455,9 +1455,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Locale
 
           Colour as open
-            Colour()
+            Colour() as pure
 
-            Colour()
+            Colour() as pure
               -> arg0 as String
 
             operator < as pure
@@ -1546,9 +1546,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Colour
 
           Dimension as open
-            Dimension()
+            Dimension() as pure
 
-            Dimension()
+            Dimension() as pure
               -> arg0 as String
 
             operator < as pure
@@ -1684,9 +1684,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Dimension?
 
           Resolution as open
-            Resolution()
+            Resolution() as pure
 
-            Resolution()
+            Resolution() as pure
               -> arg0 as String
 
             operator < as pure
@@ -1818,9 +1818,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Resolution?
            
           Path as open
-            Path()
+            Path() as pure
 
-            Path()
+            Path() as pure
               -> arg0 as String
 
             operator == as pure
@@ -1908,12 +1908,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Character
 
           JSON
-            JSON()
+            JSON() as pure
 
-            JSON()
+            JSON() as pure
               -> arg0 as String
             
-            JSON()
+            JSON() as pure
               ->
                 key as String
                 value as JSON
@@ -1971,9 +1971,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           JSONInput as abstract
 
           RegEx as open
-            RegEx()
+            RegEx() as pure
 
-            RegEx()
+            RegEx() as pure
               -> arg0 as String
 
             operator == as pure
@@ -2059,12 +2059,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Character
 
           Exception as open
-            Exception()
+            Exception() as pure
             
-            Exception()
+            Exception() as pure
               -> reason as String
             
-            Exception()
+            Exception() as pure
               ->
                 reason as String
                 exitCode as Integer
@@ -2095,26 +2095,26 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               t as T
               u as U
 
-          UnaryOperator of type T as abstract
+          UnaryOperator of type T as pure abstract
             -> t as T
             <- r as T?
 
-          Function of type (T, R) as abstract
+          Function of type (T, R) as pure abstract
             -> t as T
             <- r as R?
 
-          Predicate of type T as abstract
+          Predicate of type T as pure abstract
             -> t as T
             <- r as Boolean?
 
-          BiPredicate of type (T, U) as abstract
+          BiPredicate of type (T, U) as pure abstract
             ->
               t as T
               u as U
             <-
               r as Boolean?
 
-          Comparator of type T as abstract
+          Comparator of type T as pure abstract
             ->
               t1 as T
               t2 as T
@@ -2124,9 +2124,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_BUILT_IN_TEMPLATE_CLASSES = """
           List of type T as open
-            List()
+            List() as pure
             
-            List()
+            List() as pure
               -> arg0 as T
 
             operator == as pure
@@ -2206,9 +2206,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as T
               
           Optional of type T
-            Optional()
+            Optional() as pure
             
-            Optional()
+            Optional() as pure
               -> arg0 as T
 
             operator == as pure
@@ -2259,8 +2259,13 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
           Result of type (O, E)
             //default constructor without an ok value or an error
-            Result()
-                            
+            Result() as pure
+
+            Result() as pure
+              ->
+                ok as O
+                error as E
+
             <?-
               Get the OK value, if not present Exception, so check.
             -?>
@@ -2395,9 +2400,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as T
 
           DictEntry of type (K, V) as open
-            DictEntry()
+            DictEntry() as pure
 
-            DictEntry()
+            DictEntry() as pure
               ->
                 k as K
                 v as V
@@ -2406,9 +2411,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Boolean?
             
           Dict of type (K, V) as open
-            Dict()
+            Dict() as pure
 
-            Dict()
+            Dict() as pure
               ->
                 k as K
                 v as V
@@ -2483,9 +2488,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Dict of (K, V)
                 
           Iterator of type T as open
-            Iterator()
+            Iterator() as pure
             
-            Iterator()
+            Iterator() as pure
               -> arg0 as T
 
             operator ? as pure
@@ -2538,13 +2543,13 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_STANDARD_CLASSES = """
           SystemClock with trait of Clock
-            SystemClock()
+            SystemClock() as pure
             
             override operator ? as pure
               <- rtn as Boolean?
 
           Stdin with trait of StringInput
-            Stdin()
+            Stdin() as pure
             
             override operator close as pure
 
@@ -2552,56 +2557,56 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Boolean?
 
           Stdout with trait of StringOutput
-            default Stdout()
+            Stdout() as pure
 
             override operator ? as pure
               <- rtn as Boolean?
               
           Stderr with trait of StringOutput
-            default Stderr()
+            Stderr() as pure
 
             override operator ? as pure
               <- rtn as Boolean?
 
           TextFile
-            TextFile()
+            TextFile() as pure
 
             operator ? as pure
               <- rtn as Boolean?
 
           FileSystem
-            FileSystem()
+            FileSystem() as pure
 
             operator ? as pure
               <- rtn as Boolean?
 
           FileSystemPath
-            FileSystemPath()
+            FileSystemPath() as pure
 
             operator ? as pure
               <- rtn as Boolean?
 
           <!- Operating System -!>
           OS
-            OS()
+            OS() as pure
 
             operator ? as pure
               <- rtn as Boolean?
 
           GUID
-            GUID()
+            GUID() as pure
 
             operator ? as pure
               <- rtn as Boolean?
 
           HMAC
-            HMAC()
+            HMAC() as pure
 
             operator ? as pure
               <- rtn as Boolean?
 
           Signals
-            Signals()
+            Signals() as pure
 
             <?-
               Register a handler for one or more signals
@@ -2623,15 +2628,15 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Boolean?
                  
           EnvVars
-            EnvVars()
+            EnvVars() as pure
 
             operator ? as pure
               <- rtn as Boolean?
 
           GetOpt of type T
-            GetOpt()
+            GetOpt() as pure
 
-            GetOpt()
+            GetOpt() as pure
               -> value as T
               
             make() as pure
@@ -2646,15 +2651,15 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Boolean?
                 
           Version
-            Version()
+            Version() as pure
 
             operator ? as pure
               <- rtn as Boolean?
 
           MutexLock of type T
-            MutexLock()
+            MutexLock() as pure
             
-            MutexLock()
+            MutexLock() as pure
               -> value as T
             
             enter()
@@ -2703,9 +2708,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_NETWORK_CLASSES = """
           UDP
-            default UDP()
+            UDP() as pure
             
-            UDP()
+            UDP() as pure
               -> properties as NetworkProperties
             
             timeout() as pure
@@ -2739,9 +2744,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Boolean: Boolean()
                            
           TCP
-            default TCP()
+            TCP() as pure
             
-            TCP()
+            TCP() as pure
               -> properties as NetworkProperties
               
             connect()
@@ -2771,62 +2776,62 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             maxConcurrent as Integer: Integer()
             localOnly as Boolean: Boolean()
             
-            default NetworkProperties()
+            NetworkProperties() as pure
 
-            NetworkProperties()
+            NetworkProperties() as pure
               ->
                 duration as Millisecond
             
-            NetworkProperties()
+            NetworkProperties() as pure
               ->
                 host as String
 
-            NetworkProperties()
+            NetworkProperties() as pure
               ->
                 host as String
                 port as Integer
 
-            NetworkProperties()
+            NetworkProperties() as pure
               ->
                 port as Integer
 
-            NetworkProperties()
+            NetworkProperties() as pure
               ->
                 port as Integer
                 packetSize as Integer
 
-            NetworkProperties()
+            NetworkProperties() as pure
               ->
                 port as Integer
                 localOnly as Boolean
                 
-            NetworkProperties()
+            NetworkProperties() as pure
               ->
                 host as String
                 port as Integer
                 packetSize as Integer
 
-            NetworkProperties()
+            NetworkProperties() as pure
               ->
                 host as String
                 port as Integer
                 timeout as Millisecond
 
-            NetworkProperties()
+            NetworkProperties() as pure
               ->
                 host as String
                 port as Integer
                 packetSize as Integer
                 timeout as Millisecond
 
-            NetworkProperties()
+            NetworkProperties() as pure
               ->
                 port as Integer
                 backlog as Integer
                 maxConcurrent as Integer
                 localOnly as Boolean
 
-            NetworkProperties()
+            NetworkProperties() as pure
               ->
                 port as Integer
                 timeout as Millisecond
@@ -2844,7 +2849,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             properties as NetworkProperties: NetworkProperties()
             content as String: String()
             
-            UDPPacket()
+            UDPPacket() as pure
               ->
                 properties as NetworkProperties
                 content as String
@@ -2859,19 +2864,19 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_ASPECT_CLASSES = """
           Aspect as open
-            Aspect()
+            Aspect() as pure
 
             operator ? as pure
               <- rtn as Boolean: Boolean()
 
           JoinPoint as open
-            JoinPoint()
+            JoinPoint() as pure
 
             operator ? as pure
               <- rtn as Boolean: Boolean()
 
           PreparedMetaData as open
-            PreparedMetaData()
+            PreparedMetaData() as pure
 
             operator ? as pure
               <- rtn as Boolean: Boolean()

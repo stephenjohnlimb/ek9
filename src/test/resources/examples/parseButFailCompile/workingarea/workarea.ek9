@@ -6,9 +6,100 @@
 -?>
 defines module just.workspace
 
+  defines class
+    C1
+      prop1 as String?
+      prop2 <- "Steve"
+
+      C1() as pure
+        ->
+          arg0 as String
+          arg1 as String
+
+        prop1 :=? arg0
+
+        //So if a constructor is marked as pure use the :=? to assign
+        //But this means you cannot have default values really.
+        //Well you can but use multiple constructors
+        @Error: FULL_RESOLUTION: NO_PURE_REASSIGNMENT
+        prop2 := arg1
+
+      operator ? as pure
+        <- rtn as Boolean: prop1? and prop2?
+
+    <?-
+      An example of pure constructors, by their very nature they have to mutate the state
+      to initialise it. So this is the compromise.
+      Create your properties in an unset form and then use the ':=?' operator to conditionally
+      set them.
+      Use multiple constructors, some with fixed values to provide defaults if you need them.
+    -?>
+    C2
+      prop1 <- String()
+      prop2 <- Integer()
+
+      C2() as pure
+        ->
+          arg0 as String
+          arg1 as Integer
+        prop1 :=? arg0
+        prop2 :=? arg1
+
+      C2() as pure
+        -> arg0 as String
+        this(arg0, 21)
+
+      operator ? as pure
+        <- rtn as Boolean: prop1? and prop2?
 
   defines function
     JustFail()
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       assert failure
+
+    ReassignmentInPure() as pure
+      -> arg0 as String
+      //We do allow a null check reassignment - even in pure
+      arg0 :=? "Stephen"
+
+      var1 <- String()
+
+      //This sort of reassignment is allowed and would work as var1 is unset
+      var1 :=? "Steve"
+
+      var2 <- "Ted"
+
+      //While you can express this, it would not alter the variable because it is actually set
+      //But you won;t get a compiler warning.
+      var2 :=? "Bill"
+
+      assert var1? and var2?
+
+    //While not a pure thing, it shows you cannot directly just reassign to an incoming parameter.
+    NotAllowedDirectReassignmentOfArgument1()
+      -> arg0 as Integer
+      @Error: FULL_RESOLUTION: NO_INCOMING_ARGUMENT_REASSIGNMENT
+      arg0: 21
+
+    //While not a pure thing, it shows you cannot directly just reassign to an incoming parameter.
+    NotAllowedDirectReassignmentOfArgument2() as pure
+      -> arg0 as Integer
+      @Error: FULL_RESOLUTION: NO_INCOMING_ARGUMENT_REASSIGNMENT
+      arg0: 21
+
+    NotAllowedDirectReassignmentOfVariableInPure() as pure
+      var1 <- "Steve"
+
+      //This is no1 allowed in pure (any of the direct assignments)
+      //But :=? is allowed see tests above
+      @Error: FULL_RESOLUTION: NO_PURE_REASSIGNMENT
+      var1: "Stephen"
+
+      @Error: FULL_RESOLUTION: NO_PURE_REASSIGNMENT
+      var1 = "Stephen"
+
+      @Error: FULL_RESOLUTION: NO_PURE_REASSIGNMENT
+      var1 := "Stephen"
+
+      assert var1?
 //EOF
