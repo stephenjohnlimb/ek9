@@ -24,7 +24,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
   /**
    * Keep separate variable for what we are returning because we need its name and type.
    */
-  private ISymbol returningSymbol;
+  private VariableSymbol returningSymbol;
 
   /**
    * To be used when this function extends an abstract function.
@@ -141,15 +141,16 @@ public class FunctionSymbol extends PossibleGenericSymbol {
    * Provide a symbol that is returned from this function.
    * Note in EK9 this is not just a type but actually a variable symbol (that has a type).
    */
-  public ISymbol getReturningSymbol() {
+  public VariableSymbol getReturningSymbol() {
     return returningSymbol;
   }
 
-  public void setReturningSymbol(ISymbol returningSymbol) {
+  public void setReturningSymbol(VariableSymbol returningSymbol) {
+    returningSymbol.setReturningParameter(true);
     justSetReturningSymbol(returningSymbol);
   }
 
-  protected void justSetReturningSymbol(ISymbol returningSymbol) {
+  protected void justSetReturningSymbol(VariableSymbol returningSymbol) {
     this.returningSymbol = returningSymbol;
   }
 

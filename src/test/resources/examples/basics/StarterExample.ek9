@@ -43,7 +43,7 @@ defines module com.customer.starter.example
       Also see how the Float part of the dimension is extracted as the 'prefix' i.e. the Float part.
       This also demonstrates operator precedence.
     -?>
-    volumeOfSphere()
+    volumeOfSphere() as pure
       -> radius as Dimension
       <- volume as Float: 4 * Pi/3 * #<radius^3
         
@@ -52,14 +52,15 @@ defines module com.customer.starter.example
       Plus you can see two incoming parameters.
       You can omit the 'as' if you wish when declaring variables.
     -?>
-    getMessage()
+    getMessage() as pure
       ->
         firstPart String
         secondPart String
       <-
-        welcome as String := firstPart
-      welcome += " " + secondPart + ", volume of earth is "
-      welcome += $volumeOfSphere(EarthsRadius)
+        welcome as String?
+
+      volume <- volumeOfSphere(EarthsRadius)
+      welcome :=? `${firstPart} ${secondPart}, volume of earth is ${volume}`
 
   <?-
     Example of a Class, this just uses the functions above

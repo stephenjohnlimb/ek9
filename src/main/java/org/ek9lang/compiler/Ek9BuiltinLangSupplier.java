@@ -78,13 +78,13 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg0 as String
 
             trim() as pure
-              <- rtn as String: String()
+              <- rtn as String?
               
             upperCase() as pure
-              <- rtn as String: String()
+              <- rtn as String?
 
             lowerCase() as pure
-              <- rtn as String: String()
+              <- rtn as String?
 
             operator < as pure
               -> arg as String
@@ -2339,9 +2339,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as O
                 
           PriorityQueue of type T as open
-            PriorityQueue()
+            PriorityQueue() as pure
 
-            PriorityQueue()
+            PriorityQueue() as pure
               -> arg0 as T
 
             operator == as pure
@@ -2501,22 +2501,22 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   private static final String DEFINE_BUILT_IN_TRAITS = """
           Clock
             dateTime() as pure
-              <- rtn as DateTime: DateTime()
+              <- rtn as DateTime :=? DateTime()
 
             operator ? as pure
-              <- rtn as Boolean: Boolean()
+              <- rtn as Boolean :=? Boolean()
 
           StringInput
             next() as pure
-              <- rtn as String: String()
+              <- rtn as String :=? String()
 
             hasNext() as pure
-              <- rtn as Boolean: Boolean()
+              <- rtn as Boolean :=? Boolean()
 
             operator close as pure
             
             operator ? as pure
-              <- rtn as Boolean: Boolean()
+              <- rtn as Boolean :=? Boolean()
           
           <!-
             Just added in a body so it is not marked as abstract.
@@ -2692,7 +2692,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Integer: 404
 
             operator ? as pure
-              <- rtn as Boolean: Boolean()
+              <- rtn as Boolean :=? Boolean()
 
           TCPConnection as open
             output() as pure
@@ -2702,7 +2702,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as StringInput?
 
             operator ? as pure
-              <- rtn as Boolean: Boolean()
+              <- rtn as Boolean :=? Boolean()
 
       """;
   @SuppressWarnings({"Indentation"})
@@ -2721,19 +2721,19 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> packet as UDPPacket
             
             hasNext() as pure
-              <- rtn as Boolean: Boolean()
+              <- rtn as Boolean?
             
             <?-
               Same functionality as receive.
             -?>
             next()
-              <- packet as UDPPacket: UDPPacket()
+              <- packet as UDPPacket?
             
             receive()
-              <- packet as UDPPacket: UDPPacket()
+              <- packet as UDPPacket?
             
             lastErrorMessage() as pure
-              <- rtn as String: String()
+              <- rtn as String?
                
             operator close as pure
 
@@ -2741,7 +2741,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               Same functionality as hasNext()
             -?>
             operator ? as pure
-              <- rtn as Boolean: Boolean()
+              <- rtn as Boolean?
                            
           TCP
             TCP() as pure
@@ -2754,15 +2754,15 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               
             accept()
               -> handler as TCPHandler
-              <- rtn as Boolean: Boolean()
+              <- rtn as Boolean?
 
             lastErrorMessage() as pure
-              <- rtn as String: String()
+              <- rtn as String?
                
             operator close as pure
 
             operator ? as pure
-              <- rtn as Boolean: Boolean()
+              <- rtn as Boolean?
               
       """;
   @SuppressWarnings({"Indentation"})
@@ -2840,14 +2840,16 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
                 localOnly as Boolean
 
             operator ? as pure
-              <- rtn as Boolean: Boolean()
+              <- rtn as Boolean?
                 
             operator $ as pure
-              <- rtn as String: String()
+              <- rtn as String?
                                                    
           UDPPacket
             properties as NetworkProperties: NetworkProperties()
-            content as String: String()
+            content as String?
+            
+            UDPPacket() as pure
             
             UDPPacket() as pure
               ->
@@ -2855,10 +2857,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
                 content as String
 
             operator ? as pure
-              <- rtn as Boolean: Boolean()
+              <- rtn as Boolean?
                 
             operator $ as pure
-              <- rtn as String: String()
+              <- rtn as String?
                             
       """;
   @SuppressWarnings({"Indentation"})
@@ -2867,19 +2869,19 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Aspect() as pure
 
             operator ? as pure
-              <- rtn as Boolean: Boolean()
+              <- rtn as Boolean?
 
           JoinPoint as open
             JoinPoint() as pure
 
             operator ? as pure
-              <- rtn as Boolean: Boolean()
+              <- rtn as Boolean?
 
           PreparedMetaData as open
             PreparedMetaData() as pure
 
             operator ? as pure
-              <- rtn as Boolean: Boolean()
+              <- rtn as Boolean?
 
       """;
   @SuppressWarnings({"Indentation"})

@@ -14,17 +14,20 @@ import org.ek9lang.core.AssertValue;
 final class ProcessAssignmentExpression extends TypedSymbolAccess
     implements Consumer<EK9Parser.AssignmentExpressionContext> {
 
+  private final CheckCallContext checkCallContext;
+
   /**
    * Check on references to variables in blocks.
    */
   ProcessAssignmentExpression(final SymbolAndScopeManagement symbolAndScopeManagement,
                               final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
+    this.checkCallContext = new CheckCallContext(symbolAndScopeManagement, errorListener);
   }
 
   @Override
   public void accept(final EK9Parser.AssignmentExpressionContext ctx) {
-    var symbol = processExpression(ctx);
+    var symbol = doProcess(ctx);
     if (symbol != null) {
       recordATypedSymbol(symbol, ctx);
       symbol.getType().ifPresent(type -> {
@@ -36,16 +39,18 @@ final class ProcessAssignmentExpression extends TypedSymbolAccess
     }
   }
 
-  private ISymbol processExpression(final EK9Parser.AssignmentExpressionContext ctx) {
+  private ISymbol doProcess(final EK9Parser.AssignmentExpressionContext ctx) {
     ISymbol symbol = null;
     if (ctx.expression() != null) {
       symbol = getRecordedAndTypedSymbol(ctx.expression());
+      //checkCallContext.accept(symbol);
     } else if (ctx.switchStatementExpression() != null) {
       symbol = getRecordedAndTypedSymbol(ctx.switchStatementExpression());
     } else if (ctx.tryStatementExpression() != null) {
       symbol = getRecordedAndTypedSymbol(ctx.tryStatementExpression());
     } else if (ctx.dynamicClassDeclaration() != null) {
       symbol = getRecordedAndTypedSymbol(ctx.dynamicClassDeclaration());
+      //checkCallContext.accept(symbol);
     } else if (ctx.stream() != null) {
       symbol = getRecordedAndTypedSymbol(ctx.stream());
     } else {

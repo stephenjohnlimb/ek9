@@ -523,6 +523,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     FUNCTION_SIGNATURE_DOES_NOT_MATCH_SUPER("function signature does not match 'super' function"),
     SUPER_IS_PURE("'pure' in super requires 'pure' for this definition"),
     SUPER_IS_NOT_PURE("'super is not 'pure', requires this definition not to be marked as 'pure'"),
+    MIX_OF_PURE_AND_NOT_PURE_CONSTRUCTORS("if any constructor is marked pure, all constructors must be pure"),
     SWITCH_REQUIRES_EQUALS("switch statement requires type to have '=' operator"),
     USED_BEFORE_DEFINED("used before definition"),
     USED_BEFORE_INITIALISED("used before being initialised"),
@@ -549,7 +550,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     NOT_INITIALISED_IN_ANY_WAY("not marked for injection nor initialised"),
     COMPONENT_NOT_MARKED_FOR_INJECTION("component not marked for injection"),
     USE_OF_NULLABLE_NOT_POSSIBLE("use of nullable is meaningless here"),
-    NONE_PURE_CALL_IN_PURE_SCOPE("is not marked 'pure' call in a scope that is marked as 'pure'"),
+    NONE_PURE_CALL_IN_PURE_SCOPE("is not marked 'pure', but call is made in a scope that is marked as 'pure'"),
     DEFAULT_VALUE_SHOULD_BE_PROVIDED("A Default value should be provided"),
     INVALID_VALUE("Invalid value"),
     DEFAULT_VALUE_WILL_NOT_BE_USED("A Default value will not be used in this context (abstract function/method)");

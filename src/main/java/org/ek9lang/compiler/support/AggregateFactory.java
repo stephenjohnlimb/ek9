@@ -103,7 +103,7 @@ public class AggregateFactory {
   }
 
   /**
-   * Add a new constructor if not present, maybe marked as synthetic.
+   * Add a new constructor if not present, marked as synthetic.
    */
   public void addConstructorIfRequired(IAggregateSymbol aggregateSymbol, List<ISymbol> constructorArguments,
                                        boolean synthetic) {
@@ -112,8 +112,18 @@ public class AggregateFactory {
     var results = new MethodSymbolSearchResult();
     var resolvedMethods = aggregateSymbol.resolveMatchingMethodsInThisScopeOnly(symbolSearch, results);
     if (!resolvedMethods.isSingleBestMatchPresent() && !resolvedMethods.isAmbiguous()) {
+      //If there are other constructors defined and we provide a built-in one then we need to ensure we make it
+      //pure if any of the others are pure.
+      var needsPure = aggregateSymbol.getAllNonAbstractMethodsInThisScopeOnly()
+          .stream()
+          .filter(MethodSymbol::isConstructor)
+          .anyMatch(MethodSymbol::isMarkedPure);
+
       MethodSymbol newConstructor = new MethodSymbol(aggregateSymbol.getName(), aggregateSymbol);
+      newConstructor.setMarkedPure(needsPure);
       newConstructor.setConstructor(true);
+      newConstructor.setInitialisedBy(aggregateSymbol.getSourceToken());
+      newConstructor.setSourceToken(aggregateSymbol.getSourceToken());
       newConstructor.setSynthetic(synthetic);
       newConstructor.setType(aggregateSymbol);
       newConstructor.setCallParameters(constructorArguments);

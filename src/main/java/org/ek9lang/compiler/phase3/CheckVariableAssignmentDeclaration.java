@@ -15,7 +15,7 @@ import org.ek9lang.core.AssertValue;
 /**
  * Checks on the assignment during a declaration.
  * <pre>
- *   identifier AS? typeDef QUESTION? (ASSIGN | ASSIGN2 | COLON | MERGE) assignmentExpression
+ *   identifier AS? typeDef QUESTION? (ASSIGN | ASSIGN2 | COLON | MERGE | ASSIGN_UNSET) assignmentExpression
  *   identifier LEFT_ARROW assignmentExpression
  * </pre>
  */
@@ -23,6 +23,7 @@ final class CheckVariableAssignmentDeclaration extends TypedSymbolAccess
     implements Consumer<EK9Parser.VariableDeclarationContext> {
 
   private final CheckTypesCompatible checkTypesCompatible;
+  private final CheckAssignment checkAssignment;
 
   /**
    * Create a new checker of variable assignments when variables are being declared.
@@ -31,6 +32,7 @@ final class CheckVariableAssignmentDeclaration extends TypedSymbolAccess
                                      final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
     this.checkTypesCompatible = new CheckTypesCompatible(symbolAndScopeManagement, errorListener);
+    this.checkAssignment = new CheckAssignment(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -52,6 +54,7 @@ final class CheckVariableAssignmentDeclaration extends TypedSymbolAccess
       if (processTypeDefUse(ctx, varSymbol, exprSymbol)) {
         checkTypeCompatibility(ctx, varSymbol, exprSymbol);
       }
+      checkAssignment.accept(new Ek9Token(ctx.op), varSymbol);
     } else {
       processInferredType(ctx, varSymbol, exprSymbol);
     }

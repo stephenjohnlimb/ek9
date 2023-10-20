@@ -327,7 +327,7 @@ webVariableCorrelation
     ;
 
 variableDeclaration
-    : identifier AS? typeDef QUESTION? (ASSIGN | ASSIGN2 | COLON | MERGE) assignmentExpression
+    : identifier AS? typeDef QUESTION? op=(ASSIGN | ASSIGN2 | COLON | MERGE | ASSIGN_UNSET) assignmentExpression
     | identifier LEFT_ARROW assignmentExpression
     ;
 

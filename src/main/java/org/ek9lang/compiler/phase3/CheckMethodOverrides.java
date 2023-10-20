@@ -39,11 +39,40 @@ final class CheckMethodOverrides extends TypedSymbolAccess implements Consumer<A
     nonAbstractMethodsToCheck.forEach(methodSymbol -> checkMethodInSuperAndTraits(methodSymbol,
         aggregateSymbol));
 
+    checkPureAndConstructorsIsConsistent(nonAbstractMethodsToCheck);
+
     List<MethodSymbol> abstractMethodsToCheck = aggregateSymbol.getAllAbstractMethodsInThisScopeOnly();
     abstractMethodsToCheck.forEach(methodSymbol -> checkMethodInSuperAndTraits(methodSymbol, aggregateSymbol));
 
     if (!aggregateSymbol.isMarkedAbstract()) {
       checkAbstractness(aggregateSymbol);
+    }
+  }
+
+  /**
+   * If there is one constructor marked as pure then all must be pared as pure.
+   */
+  private void checkPureAndConstructorsIsConsistent(List<MethodSymbol> methodsToCheck) {
+    var numberOfConstructors = methodsToCheck
+        .stream()
+        .filter(MethodSymbol::isConstructor)
+        .count();
+    var numberNotMarkedPure = methodsToCheck
+        .stream()
+        .filter(MethodSymbol::isConstructor)
+        .filter(MethodSymbol::isNotMarkedPure)
+        .count();
+
+    //This means that one or more must be marked pure.
+    if (numberOfConstructors != numberNotMarkedPure && numberNotMarkedPure != 0) {
+      methodsToCheck
+          .stream()
+          .filter(MethodSymbol::isConstructor)
+          .filter(MethodSymbol::isNotMarkedPure)
+          .forEach(
+              nonPureConstructor -> errorListener.semanticError(nonPureConstructor.getSourceToken(), "",
+                  ErrorListener.SemanticClassification.MIX_OF_PURE_AND_NOT_PURE_CONSTRUCTORS)
+          );
     }
   }
 

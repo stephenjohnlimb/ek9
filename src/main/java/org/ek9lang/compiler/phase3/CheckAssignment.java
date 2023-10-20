@@ -25,7 +25,11 @@ final class CheckAssignment extends TypedSymbolAccess implements BiConsumer<ITok
   }
 
   @Override
-  public void accept(final IToken op, ISymbol leftHandSideSymbol) {
+  public void accept(final IToken op, final ISymbol leftHandSideSymbol) {
+    if (leftHandSideSymbol == null) {
+      //may not have resolved properly - so other errors would be emitted.
+      return;
+    }
     //This is the apply the null/isSet coalescing operator. To apply that it is necessary that operator '?' isSet exists
     if (":=?".equals(op.getText())) {
       checkIsSet.test(op, leftHandSideSymbol);
@@ -41,10 +45,25 @@ final class CheckAssignment extends TypedSymbolAccess implements BiConsumer<ITok
         errorListener.semanticError(op, "'" + leftHandSideSymbol.getFriendlyName() + "':",
             NO_INCOMING_ARGUMENT_REASSIGNMENT);
       }
-      if (isProcessingScopePure()) {
+
+      if (isPureReassignmentDisallowed(op, leftHandSideSymbol)) {
         errorListener.semanticError(op, "'" + leftHandSideSymbol.getFriendlyName() + "':",
             NO_PURE_REASSIGNMENT);
       }
     }
+  }
+
+  /**
+   * Now for any returning variable, we do have to let it be assigned at declaration (if specified).
+   * But subsequent assignments can only be :=?. So in general you'd expect a pure function/method
+   * to leave it as uninitialised and then only use the :=? once to set it.
+   */
+  private boolean isPureReassignmentDisallowed(final IToken op, final ISymbol leftHandSideSymbol) {
+    if (leftHandSideSymbol.isReturningParameter() && leftHandSideSymbol.isInitialised()
+        && leftHandSideSymbol.getSourceToken().getLine() == op.getLine()) {
+      //Not disallowed irrespective of pure scope, as it is the first direct initialisation.
+      return false;
+    }
+    return isProcessingScopePure();
   }
 }
