@@ -692,6 +692,7 @@ identifier
     | RANGE
     | IS
     | ONLY
+    | PURE
     | HTTP_QUERY
     | HTTP_PATH
     | HTTP_HEADER
