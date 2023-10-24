@@ -28,6 +28,7 @@ final class ProcessOperationCallOrError extends TypedSymbolAccess
   private final CheckValidFunctionDelegateOrError checkValidFunctionDelegateOrError;
   private final MostSpecificScope mostSpecificScope;
   private final CheckAccessToSymbol checkAccessToSymbol;
+  private final CheckPureContext checkPureContext;
 
   /**
    * Create a new operation resolver.
@@ -46,12 +47,25 @@ final class ProcessOperationCallOrError extends TypedSymbolAccess
         new MostSpecificScope(symbolAndScopeManagement);
     this.checkAccessToSymbol =
         new CheckAccessToSymbol(symbolAndScopeManagement, errorListener);
+    this.checkPureContext =
+        new CheckPureContext(symbolAndScopeManagement, errorListener);
   }
 
   @Override
   public ISymbol apply(final EK9Parser.OperationCallContext ctx, final IAggregateSymbol aggregate) {
-
     var startToken = new Ek9Token(ctx.start);
+    var symbol = doProcess(startToken, ctx, aggregate);
+    if (symbol != null) {
+      checkPureContext.accept(startToken, symbol);
+    }
+    return symbol;
+  }
+
+  private ISymbol doProcess(final IToken startToken,
+                            final EK9Parser.OperationCallContext ctx,
+                            final IAggregateSymbol aggregate) {
+
+
     //Get the params and extract the types
     var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
     var methodOrDelegateName = ctx.operator() != null ? ctx.operator().getText() : ctx.identifier().getText();

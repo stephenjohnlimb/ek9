@@ -17,6 +17,10 @@ defines module bad.injection.examples
     Comp1 extends Base as abstract
       default Comp1()
 
+      aPureMethod() as pure
+        -> arg0 as String
+        <- rtn <- true
+
       operator ? as pure
         <- rtn <- true
 
@@ -112,11 +116,18 @@ defines module bad.injection.examples
         assert result?
 
       checkNotAcceptableInjection() as pure
+        //Not possible inject inside a pure method, you'd need to pass component in as a parameter.
         @Error: FULL_RESOLUTION: COMPONENT_INJECTION_IN_PURE
         injected as Comp1!
         assert injected?
 
-        result <- injected.aMethod("Steve")
-        assert result?
+        //Also not acceptable - this method is not marked as pure
+        @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+        result1 <- injected.aMethod("Steve")
+        assert result1?
+
+        //If it had been possible to inject this would have been OK
+        result2 <- injected.aPureMethod("Steve")
+        assert result2?
 
 //EOF

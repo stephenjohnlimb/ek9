@@ -16,8 +16,8 @@ defines module bad.missingtextmethods.examples1
           lastName String
         assert firstName? and lastName?
 
-        this.firstName :=: firstName
-        this.lastName :=: lastName
+        this.firstName :=? String(firstName)
+        this.lastName :=? String(lastName)
 
   defines text for "en_GB"
 

@@ -208,8 +208,8 @@ defines module bad.pure.scenarios1
       //This should be OK because its pure
       result1 <- dynamicClass.simpleMethod("TEST")
 
-      //But this is not OK a pure method, needs more work
-      //@Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      //But this is not OK a pure method.
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
       result2 <- dynamicClass.anotherMethod()
 
       assert result1? and result2?

@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.phase3;
 
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.NO_MUTATION_IN_PURE_CONTEXT;
+
 import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.compiler.common.ErrorListener;
@@ -8,6 +10,8 @@ import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.support.LocationExtractor;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.CompilerException;
 
 /**
@@ -51,8 +55,19 @@ final class CheckForOperator extends TypedSymbolAccess implements Function<Check
             ErrorListener.SemanticClassification.OPERATOR_NOT_DEFINED);
         return Optional.empty();
       }
-      return bestMatch.get().getReturningSymbol().getType();
+      var operator = bestMatch.get();
+      //Now it depends where this operator is called and if it is pure or not.
+      checkPureAccess(checkOperatorData.operatorUseToken(), operator);
+      return operator.getReturningSymbol().getType();
     }
     throw new CompilerException("Not expecting type to be " + symbolType);
+  }
+
+  private void checkPureAccess(final IToken operatorUseToken, final MethodSymbol operator) {
+
+    if (!operator.isMarkedPure() && isProcessingScopePure()) {
+      errorListener.semanticError(operatorUseToken, "'" + operator.getFriendlyName() + "':",
+          NO_MUTATION_IN_PURE_CONTEXT);
+    }
   }
 }

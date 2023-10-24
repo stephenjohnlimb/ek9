@@ -140,6 +140,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     resolveOrDefineExplicitParameterizedType =
         new ResolveOrDefineExplicitParameterizedType(symbolAndScopeManagement, symbolFactory, errorListener, false);
+
   }
 
   // Now we hook into the ANTLR listener events - lots of them!
@@ -977,7 +978,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   }
 
   @Override
-  public void enterAssignmentStatement(EK9Parser.AssignmentStatementContext ctx) {
+  public void exitAssignmentStatement(EK9Parser.AssignmentStatementContext ctx) {
     //There is nothing to record here, but we do need to plug a rule in
     checkThisAndSuperAssignmentStatement.accept(ctx);
     super.enterAssignmentStatement(ctx);

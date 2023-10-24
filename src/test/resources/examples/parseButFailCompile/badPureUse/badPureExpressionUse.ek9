@@ -1,0 +1,201 @@
+#!ek9
+<?-
+  Tests for calling operators within a pure context.
+  See other tests for general operator calls, outside of a pure context.
+-?>
+defines module bad.pure.expressions
+
+  defines class
+    C1
+      default C1 as pure
+
+      pureMethod() as pure
+        <- rtn <- true
+
+      nonPureMethod()
+        <- rtn <- false
+
+      operator ? as pure
+        <- rtn <- true
+
+  defines function
+
+    NonPureFunction()
+      <- rtn as C1: C1()
+      var1 <- 1
+      assert var1?
+
+    PureFunction() as pure
+      <- rtn as C1: C1()
+      var1 <- 1
+      assert var1?
+
+    <?-
+      Check each non-pure operator withing a pure context.
+      These are just statements (but statements that mutate variables)
+    -?>
+    CheckNonPureStatementOperatorsInPure1() as pure
+      //As statements
+
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      NonPureFunction()
+
+      PureFunction()
+
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      NonPureFunction().pureMethod()
+
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      NonPureFunction().nonPureMethod()
+
+      PureFunction().pureMethod()
+
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      PureFunction().nonPureMethod()
+
+    <?-
+      Check each operator withing a pure context.
+      These are expressions (i.e. they have a result).
+      There is no logic processing in these expressions, just to check operators in a pure context
+      Don't infer meaning in the tests.
+    -?>
+    CheckOperatorsInPure2() as pure
+
+      var1 <- 1
+
+      //While looks similar to above, this actually increments var1 and makes var2 the same value.
+      @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
+      var2 <- var1++
+
+      @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
+      var3 <- var1--
+
+      //Should be fine does not mutate var1 - but returns a new instance of the negative value
+      var4 <- -var1
+      assert var4?
+
+      //Now work way down expression grammar
+
+      //Also the basic unary operators first
+      assert ($$ var1)? //to json
+      assert ($ var1)? //to string
+      assert (#^ var1)? //promote to float
+      assert (length of var1)?
+      assert (#< 500#GBP) //Use money because has two parts
+      assert (#> 500#GBP) //prefix and suffix
+      assert (#? var1)? //Hash code
+      assert (abs var4)?
+      assert (sqrt var1)?
+
+      //Coalescing
+      var5 <- var1 ?? var2
+      assert var5?
+      var6 <- var1 ?: var2
+      assert var6?
+
+      //This is now a call in an expression context, not a statement context
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      var7 <- NonPureFunction()
+      assert var7?
+
+      var8 <- PureFunction()
+      assert var8?
+
+      //Also some basic objectAccessExpression examples - see other tests for more combinations.
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      var9 <- NonPureFunction().pureMethod()
+      assert var9?
+
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      var10 <- NonPureFunction().nonPureMethod()
+      assert var10?
+
+      var11 <- PureFunction().pureMethod()
+      assert var11?
+
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      var12 <- PureFunction().nonPureMethod()
+      assert var12?
+
+      //Now on to other parts of expression, should be able to create these inside pure context.
+
+      list <- [1, 2, 3]
+      assert list?
+
+      dict <- {1: "Steve", 2: "Ruth"}
+      assert dict?
+
+      var13 <- ["Steve", "Stephen"] is not empty
+      assert var13
+
+      var14 <- not var13
+      assert var14
+
+      var15 <- 3^3 //3 cubed
+      assert var15?
+
+      var16 <- 21/3 * (-10 mod 3) * (-10 rem 3)
+      assert var16?
+
+      var17 <- 21/3 - 6 + -10 mod 3
+      assert var17?
+
+      var18 <- 0b101010 << 2 and 0b111010 >> 3
+      assert var18?
+
+      var19 <- "Stephen" <=> "Steve"
+      assert var19 <> 0
+
+      var20 <- "Stephen" <~> "Stephan"
+      assert var20 <> 0
+
+      var21 <- 21 < 12 and 21 <= 21 and 21 > 7 and 21 >= 21
+      assert var21
+
+      var22 <- 21 != 10 or 21 <> 10 or 21 == 6
+      assert var22
+
+      var23 <- var21 <? var22
+      assert var23
+
+      var24 <- var21 <=? var22
+      assert var24
+
+      var25 <- var21 >? var22
+      assert var25
+
+      var26 <- var21 >=? var22
+      assert var26
+
+      var27 <- "Stephen" not matches /^.*X.*$/
+      assert var27
+
+      var28 <- [1, 2, 3] not contains 4
+      assert var28
+
+      var29 <- 4 is not in [1, 2, 3]
+      assert var29
+
+      b1 <- true
+      b2 <- false
+      b3 <- true
+
+      var30 <- b1 and b3
+      assert var30
+
+      var31 <- b1 or b2
+      assert var31
+
+      var32 <- b1 xor b3
+      assert not var32
+
+      var33 <- 21 is not in 1 ... 19
+      assert var33
+
+      var34 <- var33 <- var31 else var30
+      assert var34
+
+      //That's all the operators in an expression checked.
+      //See other tests for mutation operators.
+
+//EOF

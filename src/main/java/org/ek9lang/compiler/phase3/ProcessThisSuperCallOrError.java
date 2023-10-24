@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.phase3;
 
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.THIS_AND_SUPER_MUST_BE_FIRST_IN_CONSTRUCTOR;
+
 import java.util.List;
 import java.util.function.Function;
 import org.antlr.v4.runtime.Token;
@@ -38,6 +40,7 @@ final class ProcessThisSuperCallOrError extends TypedSymbolAccess
   public MethodSymbol apply(final EK9Parser.CallContext ctx) {
     var methodAndAggregate = symbolAndScopeManagement.traverseBackUpStackToEnclosingMethod();
     if (methodAndAggregate.isPresent()) {
+      checkThisOrSuperStatementPosition(ctx, methodAndAggregate.get());
       return resolveMethodSymbol(ctx, methodAndAggregate.get());
     } else {
       if (ctx.primaryReference().THIS() != null) {
@@ -47,6 +50,32 @@ final class ProcessThisSuperCallOrError extends TypedSymbolAccess
       }
     }
     return null;
+  }
+
+  /**
+   * It's important that the use of this() or super() is the first statement in a constructor.
+   * That's what this code does, unfortunately it has to use the grammar structure to work that out.
+   * I never really like doing this because its fragile, but in this case I cannot see another way of doing it.
+   */
+  private void checkThisOrSuperStatementPosition(final EK9Parser.CallContext ctx,
+                                                 final MethodAndAggregateData methodAndAggregateData) {
+    if (methodAndAggregateData.methodSymbol().isConstructor()) {
+      //I don't really like using the grammar structure like this it s bit fragile.
+      var maybeBlockStatement = ctx.getParent().getParent();
+      if (maybeBlockStatement instanceof EK9Parser.BlockStatementContext callBlockStatement) {
+        //Then it is at least a statement
+        var maybeOperationsDetails = ctx.getParent().getParent().getParent().getParent();
+        if (maybeOperationsDetails instanceof EK9Parser.OperationDetailsContext details) {
+          var firstBlockStatementContext = details.instructionBlock().blockStatement().get(0);
+
+          if (firstBlockStatementContext != callBlockStatement) {
+            errorListener.semanticError(ctx.start, "", THIS_AND_SUPER_MUST_BE_FIRST_IN_CONSTRUCTOR);
+          }
+        } else {
+          errorListener.semanticError(ctx.start, "", THIS_AND_SUPER_MUST_BE_FIRST_IN_CONSTRUCTOR);
+        }
+      }
+    }
   }
 
   private MethodSymbol resolveMethodSymbol(final EK9Parser.CallContext ctx,

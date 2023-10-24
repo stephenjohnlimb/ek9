@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.tokenizer;
 
+import java.util.Objects;
 import org.antlr.v4.runtime.Token;
 
 /**
@@ -8,16 +9,11 @@ import org.antlr.v4.runtime.Token;
  * in the actual source code input.
  */
 public class Ek9Token implements IToken {
-
   private final int type;
-
   private final String textName;
   private final int lineNumber;
-
   private final String sourceName;
-
   private final int charPositionInLine;
-
   private final int tokenIndex;
 
   /**
@@ -99,5 +95,44 @@ public class Ek9Token implements IToken {
   @Override
   public int getTokenIndex() {
     return tokenIndex;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Ek9Token ek9Token)) {
+      return false;
+    }
+
+    if (getType() != ek9Token.getType()) {
+      return false;
+    }
+    if (lineNumber != ek9Token.lineNumber) {
+      return false;
+    }
+    if (getCharPositionInLine() != ek9Token.getCharPositionInLine()) {
+      return false;
+    }
+    if (getTokenIndex() != ek9Token.getTokenIndex()) {
+      return false;
+    }
+    if (!Objects.equals(textName, ek9Token.textName)) {
+      return false;
+    }
+    return getSourceName() != null ? getSourceName().equals(ek9Token.getSourceName()) :
+        ek9Token.getSourceName() == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = getType();
+    result = 31 * result + (textName != null ? textName.hashCode() : 0);
+    result = 31 * result + lineNumber;
+    result = 31 * result + (getSourceName() != null ? getSourceName().hashCode() : 0);
+    result = 31 * result + getCharPositionInLine();
+    result = 31 * result + getTokenIndex();
+    return result;
   }
 }

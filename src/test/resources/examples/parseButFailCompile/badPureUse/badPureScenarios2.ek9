@@ -1,0 +1,339 @@
+#!ek9
+<?-
+  Tests for calling operators within a pure context.
+  See other tests for general operator calls, outside of a pure context.
+
+  This is a bit of a massive set of tests, maybe break down and reorganise.
+-?>
+defines module bad.pure.scenarios2
+
+  defines record
+    R1
+      value <- "Steve"
+      default R1() as pure
+
+  defines class
+    C0 as open
+      propA <- Integer()
+      propB as String?
+      propC as String?
+      propD as String?
+
+      C0() as pure
+        var1 <- true
+        assert var1?
+
+      C0() as pure
+        -> arg0 as C0
+        //Just check we can call this on the first statement
+        this()
+
+        @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+        aCheck <- this().checkMethod()
+
+        //Allow self mutation during construction, i.e. call to none pure method.
+        //The copy, merge and replace.
+        this :=: arg0
+
+        this :~: arg0
+
+        this :^: arg0
+
+        //It is possible to use null coalescing assignment here.
+        propA :=? 22
+
+        //Also allow mutation of own property Fields in constructor
+        propA += 90
+
+        //Also allow mutation of own property Fields in constructor
+        this.propA += 91
+
+        //But not this way
+        @Error: FULL_RESOLUTION: NO_PURE_REASSIGNMENT
+        propA: 90
+
+        propB :=? "Steve"
+
+        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
+        propC :=: "Steve"
+
+        @Error: FULL_RESOLUTION: NO_PURE_REASSIGNMENT
+        propD := "Steve"
+
+        r1 <- R1()
+
+        @Error: FULL_RESOLUTION: NO_PURE_REASSIGNMENT
+        r1.value: "James"
+
+        //While this is a field/property - it is not a property on this type
+        @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
+        r1.value += "Brown"
+
+        someVal <- String()
+        notInitVar as String?
+
+        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+        alsoNotInitialised as String?
+
+        //Now do a deep copy into it
+        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
+        someVal :=: notInitVar
+
+        //try again but both sides not initialised
+        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
+        alsoNotInitialised :=: notInitVar
+
+        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
+        alsoNotInitialised :=: "Steve"
+
+        //Because the above had errors, this is still not initialised
+        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
+        assert ~alsoNotInitialised?
+
+        //Now use the pure allowed null assignment coalescing operator
+        notInitVar :=? "Steve"
+
+        //As this is a pure context you cannot do a deep copy.
+        @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
+        someVal :=: notInitVar
+
+        assert someVal?
+
+        var <- 90
+        //But you cannot mutate variables in general only this.
+        @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
+        var :=: 88
+
+        assert var?
+
+        //This makes no sense because there is no super.
+        @Error: FULL_RESOLUTION: AGGREGATE_HAS_NO_SUPER
+        super :=: arg0
+
+        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+        assert aCheck?
+
+      badMethod2()
+        <- rtn <- false
+        @Error: FULL_RESOLUTION: THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR
+        aCheck <- this().checkMethod()
+
+      checkMethod()
+        <- rtn <- true
+
+      checkMethod2()
+        <- rtn <- true
+        @Error: FULL_RESOLUTION: THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR
+        this()
+
+      checkMethod3()
+        <- rtn <- true
+        @Error: FULL_RESOLUTION: AGGREGATE_HAS_NO_SUPER
+        super()
+
+      operator :=:
+        -> arg0 as C0
+        if arg0?
+          this.propA :=: arg0.propA
+
+      operator :~:
+        -> arg0 as C0
+        if arg0?
+          this.propA :~: arg0.propA
+
+      operator :^:
+        -> arg0 as C0
+        if arg0?
+          this.propA :^: arg0.propA
+
+      operator ? as pure
+        <- rtn as Boolean: propA?
+
+    C1 extends C0
+
+      prop1 <- String()
+
+      C1() as pure
+        -> arg0 as C1
+        //Some comment, but we can call super() here
+        super(arg0)
+
+        //TODO need to stop these must be the first statement
+        @Error: FULL_RESOLUTION: THIS_AND_SUPER_MUST_BE_FIRST_IN_CONSTRUCTOR
+        super(arg0)
+
+        //TODO need to stop these or this must be the first statement.
+        @Error: FULL_RESOLUTION: THIS_AND_SUPER_MUST_BE_FIRST_IN_CONSTRUCTOR
+        this()
+
+        //Allow self mutation during construction, i.e call to none pure method.
+        this :=: arg0
+
+        //Just check we can do this as well
+        this.prop1 :=? "Steve"
+
+        //lets also try in a nested block.
+        if this.prop1 == "Steve"
+          @Error: FULL_RESOLUTION: THIS_AND_SUPER_MUST_BE_FIRST_IN_CONSTRUCTOR
+          this()
+
+        theThis <- this
+        assert theThis?
+
+      badMethod1()
+        <- rtn <- false
+
+        @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_SUPER
+        theSuper <- super
+
+        @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_SUPER
+        theSuper := super
+
+        assert theSuper?
+
+        @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_SUPER
+        this.callMethod(super)
+
+        //But this is fine because 'this' is a 'C1 extends C0'
+        this.callMethod(this)
+
+      callMethod()
+        -> arg0 as C0
+        assert C0
+
+      anotherMethod()
+        <- rtn <- false
+
+        @Error: FULL_RESOLUTION: THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR
+        super().checkMethod()
+
+        aCheck <- super.checkMethod()
+        assert aCheck?
+
+      override operator :=:
+        -> arg0 as C1
+        super :=: arg0
+        if arg0?
+          this.prop1 :=: arg0.prop1
+
+      override operator ? as pure
+        <- rtn as Boolean: prop1?
+
+  defines function
+
+    CheckWhyThisCanBeUsed() as pure
+      -> arg0 as Boolean
+      //Use of this and super is allowed in certain ways even in functions and applications
+      //for example
+      someHolderMaybeToBePassedAbout <- this
+      assert someHolderMaybeToBePassedAbout?
+
+      //It does not have a super function so this should be an error, and you can't use super like this anywhere
+      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_SUPER
+      orIfItHadASuper <- super
+
+      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_SUPER
+      super.noSuchMethod(21)
+
+      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_SUPER
+      super :=: 22
+
+      //What happens if make a call to self (this), well it's not allowed, use a delegate (see below).
+      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_THIS
+      this()
+
+      //But you could call a delegate (if you pass the right arguments)
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      someHolderMaybeToBePassedAbout()
+
+      //Like this
+      someHolderMaybeToBePassedAbout(true)
+
+      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_THIS
+      this :~: 21
+
+    <?-
+      Check mutating operators.
+    -?>
+    CheckMutatingOperatorsInPure1() as pure
+      <- rtn as Boolean: Boolean()
+      //Check unset assignment of return value
+      rtn :=? true
+
+      //But this is not allowed in pure even for return variables.
+      //The idea is leave it unset and then use :=? once to assign it.
+      //this can be done in switch or if/else or ternaries.
+      @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
+      rtn :=: false
+
+      var1 <- 1
+
+      @Error: FULL_RESOLUTION: NO_PURE_REASSIGNMENT
+      var1: 21
+      assert var1?
+
+      @Error: FULL_RESOLUTION: NO_PURE_REASSIGNMENT
+      var1 = 21
+      assert var1?
+
+      @Error: FULL_RESOLUTION: NO_PURE_REASSIGNMENT
+      var1 := 21
+      assert var1?
+
+      @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
+      var1 :~: 21
+      assert var1?
+
+      @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
+      var1 :^: 21
+      assert var1?
+
+      @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
+      var1 :=: 21
+      assert var1?
+
+      @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
+      var1 += 21
+      assert var1?
+
+      @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
+      var1 += 10
+      assert var1?
+
+      @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
+      var1 *= 2
+      assert var1?
+
+      @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
+      var1 /= 8
+      assert var1?
+
+    CheckMutatingOperatorsInPure2() as pure
+      -> incomingVar as Integer
+
+      var1 <- 1
+
+      //Call the increment operator (not pure and it mutates the state)
+      @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
+      var1++
+
+      //Likewise decrement operator (not pure and it mutates the state)
+      @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
+      var1--
+
+      assert var1?
+
+      //Now as an expression
+      @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
+      var2 <- var1++
+
+      @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
+      var3 <- var1--
+
+      assert var2? and var3?
+
+      //This coalescing operator is allowed even on incoming parameters.
+      incomingVar :=? 21
+      assert incomingVar?
+
+//EOF

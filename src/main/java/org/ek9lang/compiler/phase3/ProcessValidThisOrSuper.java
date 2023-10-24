@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.SymbolFactory;
@@ -17,14 +18,14 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
  * Checks and assigns type a 'this' or 'super' symbol, but only if it valid.
- * For example, you cannot use super in a function - that makes no sense.
  * But allowing applications, functions and programs to refer to themselves might be useful in
  * passing themselves as parameters to other functions in some way.
  */
-final class ProcessValidThisOrSuper extends TypedSymbolAccess implements Consumer<ParserRuleContext> {
+final class ProcessValidThisOrSuper extends TypedSymbolAccess implements Consumer<EK9Parser.PrimaryReferenceContext> {
 
   private final SymbolFactory symbolFactory;
-  private final List<ISymbol.SymbolGenus> supportedThisAndSuperGenus = List.of(ISymbol.SymbolGenus.CLASS,
+  private final List<ISymbol.SymbolGenus> supportedThisAndSuperGenus = List.of(
+      ISymbol.SymbolGenus.CLASS,
       ISymbol.SymbolGenus.COMPONENT, ISymbol.SymbolGenus.RECORD);
 
   private final List<ISymbol.SymbolGenus> supportedThisOnlyGenus =
@@ -44,7 +45,7 @@ final class ProcessValidThisOrSuper extends TypedSymbolAccess implements Consume
   }
 
   @Override
-  public void accept(final ParserRuleContext ctx) {
+  public void accept(final EK9Parser.PrimaryReferenceContext ctx) {
 
     //First check if in a dynamic scope - that is what 'this' would apply to.
     var appropriateScope = symbolAndScopeManagement.getTopScope().findNearestDynamicBlockScopeInEnclosingScopes();
@@ -83,16 +84,16 @@ final class ProcessValidThisOrSuper extends TypedSymbolAccess implements Consume
   }
 
   private ISymbol checkSuperUsage(final ParserRuleContext ctx, final ISymbol basicType) {
+
+    //This is the only happy route to use 'super'.
     if (basicType instanceof IAggregateSymbol asAggregate && asAggregate.getSuperAggregateSymbol().isPresent()) {
       return asAggregate.getSuperAggregateSymbol().get();
     }
 
-    //The rest are just more specific types of errors to be reported.
+    //So the rest of this block is just about trying to emit the most appropriate error message.
     if (basicType instanceof FunctionSymbol asFunction && asFunction.getSuperFunctionSymbol().isPresent()) {
-      //Do not allow use of super in functions.
       var superType = asFunction.getSuperFunctionSymbol().get();
       emitGenusErrorForSymbol(ctx, superType);
-
     } else if (supportedThisOnlyGenus.contains(basicType.getGenus())) {
       if (basicType.getGenus().equals(ISymbol.SymbolGenus.CLASS_TRAIT)) {
         //It can be a bit misleading for traits - because they really have traits of traits and not a single super.

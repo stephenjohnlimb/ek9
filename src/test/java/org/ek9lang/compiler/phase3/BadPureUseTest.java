@@ -25,5 +25,7 @@ class BadPureUseTest extends PhasesTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
     assertFalse(program.getParsedModules("bad.pure.scenarios1").isEmpty());
+    assertFalse(program.getParsedModules("bad.pure.scenarios2").isEmpty());
+    assertFalse(program.getParsedModules("bad.pure.expressions").isEmpty());
   }
 }

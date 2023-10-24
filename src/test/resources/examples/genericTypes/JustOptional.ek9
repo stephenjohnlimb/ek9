@@ -49,8 +49,6 @@ defines module com.customer.just
         stdout.println("Value [" + $iter.next() + "]")
 
       item1.clear()
-      //Note you can now also use ! to clear
-      item1!
       assert item1 is empty
       assert not item1?
 //EOF

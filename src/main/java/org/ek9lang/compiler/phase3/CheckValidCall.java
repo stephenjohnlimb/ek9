@@ -32,7 +32,7 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
   private final SymbolFromContextOrError symbolFromContextOrError;
   private final CheckValidFunctionDelegateOrError checkValidFunctionDelegateOrError;
   private final AccessGenericInGeneric accessGenericInGeneric;
-  private final CheckCallContext checkCallContext;
+  private final CheckPureContext checkPureContext;
 
   /**
    * Lookup a pre-recorded 'call', now resolve what it is supposed to call and set its type.
@@ -53,8 +53,8 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
         new CheckValidFunctionDelegateOrError(symbolAndScopeManagement, errorListener);
     this.accessGenericInGeneric =
         new AccessGenericInGeneric(symbolAndScopeManagement);
-    this.checkCallContext =
-        new CheckCallContext(symbolAndScopeManagement, errorListener);
+    this.checkPureContext =
+        new CheckPureContext(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -114,7 +114,7 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
       }
       callSymbol.setResolvedSymbolToCall(symbol);
       callSymbol.setMarkedPure(symbol.isMarkedPure());
-      checkCallContext.accept(callSymbol);
+      checkPureContext.accept(callSymbol.getSourceToken(), callSymbol);
     }
   }
 
@@ -136,7 +136,7 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
       callSymbol.setFormOfDeclarationCall(true);
       callSymbol.setResolvedSymbolToCall(symbol);
       callSymbol.setMarkedPure(symbol.isMarkedPure());
-      checkCallContext.accept(callSymbol);
+      checkPureContext.accept(callSymbol.getSourceToken(), callSymbol);
     }
   }
 
@@ -149,7 +149,7 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
       callSymbol.setFormOfDeclarationCall(true);
       callSymbol.setResolvedSymbolToCall(symbol);
       callSymbol.setMarkedPure(symbol.isMarkedPure());
-      checkCallContext.accept(callSymbol);
+      checkPureContext.accept(callSymbol.getSourceToken(), callSymbol);
     }
   }
 
@@ -165,7 +165,7 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
       callSymbol.setResolvedSymbolToCall(symbol);
       callSymbol.setType(symbolAndScopeManagement.getEk9Types().ek9Void());
       callSymbol.setMarkedPure(symbol.isMarkedPure());
-      checkCallContext.accept(callSymbol);
+      checkPureContext.accept(callSymbol.getSourceToken(), callSymbol);
     }
   }
 
@@ -184,7 +184,7 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
       if (symbol != null) {
         callSymbol.setResolvedSymbolToCall(symbol);
         callSymbol.setMarkedPure(symbol.isMarkedPure());
-        checkCallContext.accept(callSymbol);
+        checkPureContext.accept(callSymbol.getSourceToken(), callSymbol);
       }
     } else {
       AssertValue.fail("Expecting call to be at least present" + ctx.start.getLine());

@@ -27,6 +27,7 @@ abstract class OperatorCheck extends TypedSymbolAccess implements BiPredicate<IT
 
   protected Optional<ISymbol> getSymbolType(final ISymbol symbol) {
     checkInitialised.accept(symbol);
+
     //Get the underlying type or emit error and return false.
     var symbolType = symbolTypeOrEmpty.apply(symbol);
 

@@ -5,8 +5,6 @@ import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.ScopeStackConsistencyListener;
 import org.ek9lang.compiler.support.SymbolFactory;
-import org.ek9lang.compiler.symbols.IAggregateSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * This listener just deals with expressions and the types that result from expressions.
@@ -20,6 +18,7 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final ProcessValidThisOrSuper processValidThisOrSuper;
   private final ProcessValidPrimary processValidPrimary;
   private final ProcessValidIdentifierReference processValidIdentifierReference;
+  private final CheckValidStatement checkValidStatement;
   private final CheckValidExpression checkValidExpression;
   private final CheckInstructionBlockVariables checkInstructionBlockVariables;
   private final ProcessAssignmentExpression processAssignmentExpression;
@@ -29,12 +28,13 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final CheckValidCall checkValidCall;
   private final ProcessRange processRange;
   private final CheckForRange checkForRange;
-  private final ProcessIdentifierOrError processIdentifierOrError;
-  private final CheckVariableAssignmentDeclaration checkVariableAssignmentDeclaration;
+
+  private final CheckVariableAssignment checkVariableAssignment;
   private final CheckVariableOnlyDeclaration checkVariableOnlyDeclaration;
-  private final ProcessFieldOrError processFieldOrError;
-  private final ProcessOperationCallOrError processOperationCallOrError;
+
   private final CheckPipelinePart checkPipelinePart;
+  private final ProcessObjectAccessStartOrError processObjectAccessStartOrError;
+  private final ProcessObjectAccessExpressionOrError processObjectAccessExpressionOrError;
 
   protected ExpressionsListener(ParsedModule parsedModule) {
     super(parsedModule);
@@ -43,59 +43,41 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
 
     this.errorListener = parsedModule.getSource().getErrorListener();
 
-    processValidThisOrSuper =
-        new ProcessValidThisOrSuper(symbolAndScopeManagement, symbolFactory, errorListener);
+    this.processValidThisOrSuper = new ProcessValidThisOrSuper(symbolAndScopeManagement, symbolFactory, errorListener);
 
-    processValidPrimary
-        = new ProcessValidPrimary(symbolAndScopeManagement, errorListener);
+    this.processValidPrimary = new ProcessValidPrimary(symbolAndScopeManagement, errorListener);
 
-    processValidIdentifierReference
-        = new ProcessValidIdentifierReference(symbolAndScopeManagement, errorListener);
+    this.processValidIdentifierReference = new ProcessValidIdentifierReference(symbolAndScopeManagement, errorListener);
 
-    checkValidExpression
-        = new CheckValidExpression(symbolAndScopeManagement, symbolFactory, errorListener);
+    this.checkValidStatement = new CheckValidStatement(symbolAndScopeManagement, errorListener);
 
-    checkInstructionBlockVariables =
-        new CheckInstructionBlockVariables(symbolAndScopeManagement, errorListener);
+    this.checkValidExpression = new CheckValidExpression(symbolAndScopeManagement, symbolFactory, errorListener);
 
-    processAssignmentExpression =
-        new ProcessAssignmentExpression(symbolAndScopeManagement, errorListener);
+    this.checkInstructionBlockVariables = new CheckInstructionBlockVariables(symbolAndScopeManagement, errorListener);
 
-    processAssignmentStatement =
-        new ProcessAssignmentStatement(symbolAndScopeManagement, errorListener);
+    this.processAssignmentExpression = new ProcessAssignmentExpression(symbolAndScopeManagement, errorListener);
 
-    checkValidCall =
-        new CheckValidCall(symbolAndScopeManagement, symbolFactory, errorListener);
+    this.processAssignmentStatement = new ProcessAssignmentStatement(symbolAndScopeManagement, errorListener);
 
-    processAndTypeList =
-        new ProcessAndTypeList(symbolAndScopeManagement, symbolFactory, errorListener);
+    this.checkValidCall = new CheckValidCall(symbolAndScopeManagement, symbolFactory, errorListener);
 
-    processAndTypeDict =
-        new ProcessAndTypeDict(symbolAndScopeManagement, symbolFactory, errorListener);
+    this.processAndTypeList = new ProcessAndTypeList(symbolAndScopeManagement, symbolFactory, errorListener);
 
-    checkPipelinePart =
-        new CheckPipelinePart(symbolAndScopeManagement, errorListener);
+    this.processAndTypeDict = new ProcessAndTypeDict(symbolAndScopeManagement, symbolFactory, errorListener);
 
-    processRange =
-        new ProcessRange(symbolAndScopeManagement, symbolFactory, errorListener);
+    this.checkPipelinePart = new CheckPipelinePart(symbolAndScopeManagement, errorListener);
 
-    checkForRange =
-        new CheckForRange(symbolAndScopeManagement, errorListener);
+    this.processRange = new ProcessRange(symbolAndScopeManagement, symbolFactory, errorListener);
 
-    processIdentifierOrError
-        = new ProcessIdentifierOrError(symbolAndScopeManagement, errorListener);
+    this.checkForRange = new CheckForRange(symbolAndScopeManagement, errorListener);
 
-    checkVariableAssignmentDeclaration
-        = new CheckVariableAssignmentDeclaration(symbolAndScopeManagement, errorListener);
+    this.checkVariableAssignment = new CheckVariableAssignment(symbolAndScopeManagement, errorListener);
 
-    checkVariableOnlyDeclaration
-        = new CheckVariableOnlyDeclaration(symbolAndScopeManagement, errorListener);
+    this.checkVariableOnlyDeclaration = new CheckVariableOnlyDeclaration(symbolAndScopeManagement, errorListener);
 
-    processFieldOrError
-        = new ProcessFieldOrError(symbolAndScopeManagement, errorListener);
-
-    processOperationCallOrError
-        = new ProcessOperationCallOrError(symbolAndScopeManagement, errorListener);
+    this.processObjectAccessStartOrError = new ProcessObjectAccessStartOrError(symbolAndScopeManagement, errorListener);
+    this.processObjectAccessExpressionOrError =
+        new ProcessObjectAccessExpressionOrError(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -148,6 +130,12 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   }
 
   @Override
+  public void exitStatement(EK9Parser.StatementContext ctx) {
+    checkValidStatement.accept(ctx);
+    super.exitStatement(ctx);
+  }
+
+  @Override
   public void exitExpression(EK9Parser.ExpressionContext ctx) {
     checkValidExpression.accept(ctx);
     super.exitExpression(ctx);
@@ -156,7 +144,6 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   @Override
   public void exitAssignmentExpression(EK9Parser.AssignmentExpressionContext ctx) {
     processAssignmentExpression.accept(ctx);
-
     super.exitAssignmentExpression(ctx);
   }
 
@@ -173,93 +160,20 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   }
 
   @Override
+  public void exitObjectAccessExpression(EK9Parser.ObjectAccessExpressionContext ctx) {
+    processObjectAccessExpressionOrError.accept(ctx);
+    super.exitObjectAccessExpression(ctx);
+  }
+
+  @Override
   public void exitObjectAccessStart(EK9Parser.ObjectAccessStartContext ctx) {
-    //TODO pull out to function
-    //primaryReference | identifier | call
-    if (ctx.primaryReference() != null) {
-      var resolved = symbolAndScopeManagement.getRecordedSymbol(ctx.primaryReference());
-      if (resolved != null) {
-        symbolAndScopeManagement.recordSymbol(resolved, ctx);
-      }
-    } else if (ctx.identifier() != null) {
-      //In this context we can resolve the identifier and record it. - its not an identifierReference but an identifier.
-      //This is done to find the compromise of reuse in the grammar. But makes this a bit more inconsistent.
-
-      var resolved = processIdentifierOrError.apply(ctx.identifier());
-
-      if (resolved != null) {
-        //Record against both
-        resolved.setReferenced(true);
-        symbolAndScopeManagement.recordSymbol(resolved, ctx.identifier());
-        symbolAndScopeManagement.recordSymbol(resolved, ctx);
-      }
-    } else if (ctx.call() != null) {
-      var resolved = symbolAndScopeManagement.getRecordedSymbol(ctx.call());
-      if (resolved != null) {
-        symbolAndScopeManagement.recordSymbol(resolved, ctx);
-      } else {
-        System.out.println("ctx call is not recorded " + ctx.call().getText());
-      }
-    }
+    processObjectAccessStartOrError.accept(ctx);
     super.exitObjectAccessStart(ctx);
   }
 
   @Override
-  public void exitObjectAccessExpression(EK9Parser.ObjectAccessExpressionContext ctx) {
-    //TODO also pull out to function
-
-    var objectAccessStartSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx.objectAccessStart());
-    if (objectAccessStartSymbol != null) {
-      //If it is null then there will have already been an error
-
-      //Now we have to follow the objectAccess and objectAccessType objectAccess?
-      //But this has to be driven from here - rather than bottom up, because the context of resolution
-      //is driven that way.
-      var searchOnThisSymbol = objectAccessStartSymbol;
-      var accessContext = ctx.objectAccess();
-
-      boolean hasMoreInAccessChain;
-      do {
-        //Keep resolving in the chain until end of chain or a failure to resolve.
-        resolveObjectAccess(accessContext, searchOnThisSymbol);
-
-        searchOnThisSymbol = symbolAndScopeManagement.getRecordedSymbol(accessContext);
-        hasMoreInAccessChain = accessContext.objectAccess() != null && searchOnThisSymbol != null;
-        if (hasMoreInAccessChain) {
-          accessContext = accessContext.objectAccess();
-        }
-      } while (hasMoreInAccessChain);
-
-      //Now whatever is left in searchOnThisSymbol is the end of the chain and if not null we record it.
-      if (searchOnThisSymbol != null) {
-        symbolAndScopeManagement.recordSymbol(searchOnThisSymbol, ctx);
-      }
-    }
-    super.exitObjectAccessExpression(ctx);
-  }
-
-  private void resolveObjectAccess(final EK9Parser.ObjectAccessContext ctx, final ISymbol inThisSymbol) {
-    //TODO pull out to function with exitObjectAccessExpression
-    var theType = inThisSymbol.getType();
-    if (theType.isPresent() && theType.get() instanceof IAggregateSymbol aggregate) {
-      if (ctx.objectAccessType().identifier() != null) {
-        var resolved = processFieldOrError.apply(ctx.objectAccessType().identifier(), aggregate);
-        if (resolved != null) {
-          symbolAndScopeManagement.recordSymbol(resolved, ctx);
-        }
-      } else if (ctx.objectAccessType().operationCall() != null) {
-        var resolved =
-            processOperationCallOrError.apply(ctx.objectAccessType().operationCall(), aggregate);
-        if (resolved != null) {
-          symbolAndScopeManagement.recordSymbol(resolved, ctx);
-        }
-      }
-    }
-  }
-
-  @Override
   public void exitVariableDeclaration(EK9Parser.VariableDeclarationContext ctx) {
-    checkVariableAssignmentDeclaration.accept(ctx);
+    checkVariableAssignment.accept(ctx);
     super.exitVariableDeclaration(ctx);
   }
 

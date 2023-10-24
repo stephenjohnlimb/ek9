@@ -34,7 +34,6 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
-
   private final OsSupport osSupport = new OsSupport();
   private final String generalIdentifierOfSource;
   private boolean exceptionOnAmbiguity = false;
@@ -326,8 +325,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     GENERIC_TYPE_OR_FUNCTION_NOT_APPLICABLE("type/function is not generic but parameters were supplied"),
     TYPE_REQUIRED_FOR_PROPERTIES(
         "type must be declared for this property - '<-' operator is not supported with complex call"),
-    USE_OF_SUPER_INAPPROPRIATE("cannot be used here (but 'this' has support for :=:, :~:, +=, -=, /= and *=)"),
-    USE_OF_THIS_INAPPROPRIATE("can be used with :=:, :~:, +=, -=, /= and *=. But not direct assignment"),
+    USE_OF_THIS_OR_SUPER_INAPPROPRIATE("can be used with :=:, :~:, +=, -=, /= and *=. But not direct assignment"),
     INVALID_TEXT_INTERPOLATION("interpolated text is invalid - check balanced ${}"),
     DURATION_NOT_FULLY_SPECIFIED("duration is not fully specified expecting P[n]Y[n]M[n]W[n]DT[n]H[n]M[n]S"),
     SERVICE_URI_WITH_VARS_NOT_SUPPORTED("URI with place holder variable not supported in this context"),
@@ -472,7 +470,9 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     MISSING_ITERATE_METHOD("does not have iterate method"),
     ITERATE_METHOD_MUST_RETURN_ITERATOR("iterate method must return an Iterator"),
     AGGREGATE_HAS_NO_SUPER("but has no 'super'"),
-    THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR("'this' and 'super' calls can only be used in constructors"),
+    THIS_AND_SUPER_MUST_BE_FIRST_IN_CONSTRUCTOR("'this()' and 'super()' must be the first statement in a constructor"),
+    THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR(
+        "'this()' and 'super()' can only be used in constructors, did you mean 'this.' or 'super.'"),
     INAPPROPRIATE_USE_OF_THIS("inappropriate use of 'this'"),
     INAPPROPRIATE_USE_OF_SUPER("inappropriate use of 'super'"),
     INVALID_LITERAL("invalid literal"),
@@ -531,14 +531,9 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     SELF_ASSIGNMENT("self assignment"),
     NOT_REFERENCED("is not referenced anywhere, or not referenced after assignment"),
     LIKELY_DEFECT("likely defect"),
-    NO_PURE_PROPERTY_REASSIGNMENT(
-        "properties cannot be reassigned when scope is marked as 'pure', but you can"
-            + " copy/merge/replace (:=:, :~:, :^:)"),
-    NO_PURE_VARIABLE_REASSIGNMENT("variables cannot be reassigned when scope is marked as 'pure'"),
-    NO_PURE_REASSIGNMENT("reassignment not allowed when scope is marked as 'pure'"),
+    NO_PURE_REASSIGNMENT("reassignment not allowed when scope is marked as 'pure' (':=?' is supported)"),
     NO_INCOMING_ARGUMENT_REASSIGNMENT("reassignment not allowed of an incoming argument/parameter"),
     NO_MUTATION_IN_PURE_CONTEXT("mutating variables is not allowed when scope is marked as 'pure'"),
-    PURE_RETURN_REASSIGNMENT("reassignment of return values is discouraged when scope is marked as 'pure'"),
     COVARIANCE_MISMATCH("return types are incompatible (covariance required)"),
     RETURN_VALUE_NOT_SUPPORTED("return not required/supported in this context"),
     COMPONENT_INJECTION_IN_PURE("component injection not allowed when scope is marked as 'pure'"),

@@ -19,7 +19,7 @@ import org.ek9lang.core.AssertValue;
  *   identifier LEFT_ARROW assignmentExpression
  * </pre>
  */
-final class CheckVariableAssignmentDeclaration extends TypedSymbolAccess
+final class CheckVariableAssignment extends TypedSymbolAccess
     implements Consumer<EK9Parser.VariableDeclarationContext> {
 
   private final CheckTypesCompatible checkTypesCompatible;
@@ -28,8 +28,8 @@ final class CheckVariableAssignmentDeclaration extends TypedSymbolAccess
   /**
    * Create a new checker of variable assignments when variables are being declared.
    */
-  CheckVariableAssignmentDeclaration(final SymbolAndScopeManagement symbolAndScopeManagement,
-                                     final ErrorListener errorListener) {
+  CheckVariableAssignment(final SymbolAndScopeManagement symbolAndScopeManagement,
+                          final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
     this.checkTypesCompatible = new CheckTypesCompatible(symbolAndScopeManagement, errorListener);
     this.checkAssignment = new CheckAssignment(symbolAndScopeManagement, errorListener);

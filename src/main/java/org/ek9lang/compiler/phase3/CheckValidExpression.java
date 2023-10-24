@@ -83,7 +83,7 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     } else if (ctx.coalescing_equality != null) {
       return processCoalescingEquality(ctx);
     } else if (ctx.primary() != null) {
-      return symbolFromContextOrError.apply(ctx.primary());
+      return processPrimary(ctx);
     } else if (ctx.call() != null) {
       return symbolFromContextOrError.apply(ctx.call());
     } else if (ctx.objectAccessExpression() != null) {
@@ -101,6 +101,16 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
           "Expecting finite set of operations for expression [" + ctx.getText() + "] line: " + ctx.start.getLine());
     }
     return null;
+  }
+
+  private ISymbol processPrimary(EK9Parser.ExpressionContext ctx) {
+
+    //Note it can be used in calls (but again within constraints), but this is use of 'super' like this.
+    if (ctx.primary().primaryReference() != null && ctx.primary().primaryReference().SUPER() != null) {
+      errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.INAPPROPRIATE_USE_OF_SUPER);
+    }
+
+    return symbolFromContextOrError.apply(ctx.primary());
   }
 
   private ISymbol processObjectAccessExpression(EK9Parser.ExpressionContext ctx) {
@@ -229,8 +239,13 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
       //This just comes down to the range type having a comparator that accepts the expr type
       var search = new MethodSymbolSearch("<=>").addTypeParameter(expr.getType())
           .setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Integer());
-
-      return processExpressionFromOperatorData(ctx, new CheckOperatorData(range, opToken, search));
+      var data = new CheckOperatorData(range, opToken, search);
+      var locatedReturningType = checkForOperator.apply(data);
+      if (locatedReturningType.isPresent()) {
+        var rtnType = Optional.of(symbolAndScopeManagement.getEk9Types().ek9Boolean());
+        var returnExpr = symbolFactory.newExpressionSymbol(data.operatorUseToken(), data.symbol().getName(), rtnType);
+        return processNegationIfRequired(ctx, returnExpr);
+      }
     }
     return null;
   }
@@ -242,7 +257,6 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
       //This just comes down to right having the 'contains' that accepts the left type
       var search = new MethodSymbolSearch("contains").addTypeParameter(leftAndRight.get().left().getType())
           .setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Boolean());
-
       return processExpressionFromOperatorData(ctx, new CheckOperatorData(leftAndRight.get().right(), opToken, search));
     }
     return null;
@@ -250,9 +264,10 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
 
   private ISymbol processExpressionFromOperatorData(final EK9Parser.ExpressionContext ctx,
                                                     final CheckOperatorData data) {
-    var located = checkForOperator.apply(data);
-    if (located.isPresent()) {
-      var expr = symbolFactory.newExpressionSymbol(data.operatorUseToken(), data.symbol().getName(), located);
+    var locatedReturningType = checkForOperator.apply(data);
+    if (locatedReturningType.isPresent()) {
+      var expr =
+          symbolFactory.newExpressionSymbol(data.operatorUseToken(), data.symbol().getName(), locatedReturningType);
       return processNegationIfRequired(ctx, expr);
     }
     return null;

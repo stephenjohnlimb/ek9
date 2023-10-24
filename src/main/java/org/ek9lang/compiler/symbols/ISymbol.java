@@ -44,7 +44,7 @@ public interface ISymbol extends ITokenReference, Serializable {
    */
   static String makeFullyQualifiedName(String scopeName, String symbolName) {
     //In come cases (mainly testing) we may have an empty scope name.
-    if (isQualifiedName(symbolName) || scopeName.equals("")) {
+    if (isQualifiedName(symbolName) || scopeName.isEmpty()) {
       return symbolName;
     }
     return scopeName + "::" + symbolName;
@@ -168,7 +168,6 @@ public interface ISymbol extends ITokenReference, Serializable {
 
   //Special type of variable one that is a property on an aggregate/or capture.
   boolean isPropertyField();
-
 
   default boolean isTemplateType() {
     return getCategory().equals(SymbolCategory.TEMPLATE_TYPE);

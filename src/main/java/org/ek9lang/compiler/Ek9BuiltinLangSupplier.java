@@ -264,11 +264,11 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Integer?
 
             operator >> as pure
-              -> arg as Bits
+              -> arg as Integer
               <- rtn as Bits?
 
             operator << as pure
-              -> arg as Bits
+              -> arg as Integer
               <- rtn as Bits?
 
             operator and as pure
@@ -421,14 +421,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator length as pure
               <- rtn as Integer?
 
-            operator >> as pure
-              -> arg as Character
-              <- rtn as Character?
-
-            operator << as pure
-              -> arg as Character
-              <- rtn as Character?
-
             operator :~:
               -> arg as Character
 
@@ -517,6 +509,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Integer
               <- rtn as Integer?
 
+            operator - as pure
+              <- rtn as Integer?
+              
             operator * as pure
               -> arg as Integer
               <- rtn as Integer?
@@ -532,7 +527,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator - as pure
               -> arg as Float
               <- rtn as Float?
-
+              
             operator * as pure
               -> arg as Float
               <- rtn as Integer?
@@ -570,14 +565,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Boolean?
 
             operator length as pure
-              <- rtn as Integer?
-
-            operator >> as pure
-              -> arg as Integer
-              <- rtn as Integer?
-
-            operator << as pure
-              -> arg as Integer
               <- rtn as Integer?
 
             operator and as pure
@@ -686,9 +673,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Float?
 
             operator - as pure
-              -> arg as Float
               <- rtn as Float?
 
+            operator - as pure
+              -> arg as Float
+              <- rtn as Float?
+              
             operator * as pure
               -> arg as Float
               <- rtn as Float?
@@ -804,6 +794,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Duration
               <- rtn as Time?
 
+            operator - as pure
+              <- rtn as Time?
+              
             operator $$ as pure
               <- rtn as JSON?
 
@@ -883,9 +876,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Duration?
 
             operator - as pure
-              -> arg as Duration
               <- rtn as Duration?
 
+            operator - as pure
+              -> arg as Duration
+              <- rtn as Duration?
+              
             operator * as pure
               -> arg as Integer
               <- rtn as Duration?
@@ -987,6 +983,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Millisecond?
 
             operator - as pure
+              <- rtn as Millisecond?
+
+            operator - as pure
               -> arg as Millisecond
               <- rtn as Millisecond?
 
@@ -1017,14 +1016,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Integer?
 
             operator abs as pure
-              <- rtn as Millisecond?
-
-            operator >> as pure
-              -> arg as Millisecond
-              <- rtn as Millisecond?
-
-            operator << as pure
-              -> arg as Millisecond
               <- rtn as Millisecond?
 
             operator mod as pure
@@ -1135,14 +1126,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator #> as pure
               <- rtn as Integer?
 
-            operator >> as pure
-              -> arg as Date
-              <- rtn as Date?
-
-            operator << as pure
-              -> arg as Date
-              <- rtn as Date?
-
             operator :~:
               -> arg as Date
 
@@ -1234,14 +1217,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator #> as pure
               <- rtn as Integer?
 
-            operator >> as pure
-              -> arg as DateTime
-              <- rtn as DateTime?
-
-            operator << as pure
-              -> arg as DateTime
-              <- rtn as DateTime?
-
             operator :~:
               -> arg as DateTime
 
@@ -1314,6 +1289,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Money
               <- rtn as Money?
 
+            operator - as pure
+              <- rtn as Money?
+              
             operator - as pure
               -> arg as Money
               <- rtn as Money?
@@ -1592,9 +1570,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator + as pure
               -> arg as Dimension
               <- rtn as Dimension?
-
+              
             operator + as pure
               -> arg as Float
+              <- rtn as Dimension?
+
+            operator - as pure
               <- rtn as Dimension?
 
             operator - as pure

@@ -337,7 +337,7 @@ statement
     | forStatement
     | assertStatement
     | assignmentStatement
-    | expression op=(INC | DEC | BANG)
+    | expression op=(INC | DEC)
     | call
     | stream
     | objectAccessExpression
@@ -386,7 +386,9 @@ throwStatement
 
 //The order here is important, order of precedence for processing
 expression
-    : expression op=QUESTION
+    : expression op=(INC | DEC | BANG)
+    | op=SUB expression
+    | expression op=QUESTION
     | op=TOJSON expression
     | op=DOLLAR expression
     | op=PROMOTE expression
@@ -402,14 +404,12 @@ expression
     | objectAccessExpression
     | list
     | dict
-    | op=SUB expression
-    | expression op=(INC | DEC | BANG)
     | expression IS? neg=NOT? op=EMPTY
     | op=(NOT | TILDE) expression
-    | left=expression op=(SHFTL | SHFTR) right=expression
     | left=expression op=CARET right=expression
-    | left=expression op=(DIV | MUL | MOD | REM ) right=expression
+    | left=expression op=(DIV | MUL | MOD | REM ) NL? right=expression
     | left=expression op=(ADD | SUB) NL? right=expression
+    | left=expression op=(SHFTL | SHFTR) right=expression
     | left=expression op=(CMP | FUZ) NL? right=expression
     | left=expression op=(LE | GE | GT | LT) NL? right=expression
     | left=expression op=(EQUAL | NOTEQUAL | NOTEQUAL2) NL? right=expression
@@ -417,8 +417,8 @@ expression
     | left=expression neg=NOT? op=MATCHES right=expression
     | left=expression neg=NOT? op=CONTAINS right=expression
     | left=expression IS? neg=NOT? IN right=expression
-    | left=expression op=(AND | OR | XOR) NL? right=expression
-    | expression neg=NOT? IN range
+    | left=expression op=(AND | XOR | OR) NL? right=expression
+    | expression IS? neg=NOT? IN range
     | <assoc=right> control=expression LEFT_ARROW left=expression (COLON|ELSE) right=expression
     ;
 
