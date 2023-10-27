@@ -5,6 +5,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
 
@@ -27,6 +28,15 @@ class CheckIsSet extends OperatorCheck implements BiPredicate<IToken, ISymbol> {
     }
 
     if (symbolType.get() instanceof FunctionSymbol) {
+      return true;
+    }
+
+    //Also cater for an aggregate type that is 'text', it does not have operators but can be checked with
+    //? and :=? operators and so when doing an implementation it will just be a null pointer check.
+    //Clearly when we come to do the code generation - we will check if the '?' does actually exist because it may not.
+    if (symbolType.get() instanceof IAggregateSymbol aggregate
+        && (aggregate.getGenus() == ISymbol.SymbolGenus.TEXT
+        || aggregate.getGenus() == ISymbol.SymbolGenus.TEXT_BASE)) {
       return true;
     }
 

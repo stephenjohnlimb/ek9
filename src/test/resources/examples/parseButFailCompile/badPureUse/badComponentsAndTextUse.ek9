@@ -1,0 +1,141 @@
+#!ek9
+<?-
+  Tests for calling operators within a pure context.
+  See other tests for general operator calls, outside of a pure context.
+
+  This test focus on the use of text object and components.
+-?>
+defines module bad.pure.text.components
+
+  defines text for "en"
+
+    <?-
+      While not explicitly defines as 'pure', the very nature of the 'text' construct is to be immutable.
+      It must produce string (text), it can accept arguments and have parameters. But it has no ability to
+      mutate them.
+    -?>
+    WelcomePageText
+      mainWelcome()
+        "The main difference in processing html if you want to use hardwired content like this
+          You must put it all in quotes.
+          As you can see above with welcomeMessage, EK9 will look for variable names,
+          but anything in double quotes is a literal.
+          In general you would probably use the 'text' mechanisms described in the section before this."
+
+      attemptAtMutationCheck()
+        -> arg0 as Integer
+        @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
+        `Value is ${arg0++}`
+
+      simpleComputationCheck()
+        ->
+          arg0 as Integer
+          arg1 as Integer
+        //But it is possible to complete complex operations (if they are pure)
+        `Sum is ${arg0 + arg1}`
+
+      pureFunctionCallCheck()
+        -> arg0 as Integer
+        `Value is ${aPureFunction(arg0)}`
+
+      nonPureFunctionCallCheck()
+        -> arg0 as Integer
+        @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+        `Value is ${aNonPureFunction(arg0)}`
+
+  defines function
+
+    aNonPureFunction()
+      -> arg0 as Integer
+      <- rtn as Boolean: (arg0 + 1)?
+
+    aPureFunction() as pure
+      -> arg0 as Integer
+      <- rtn as Boolean: arg0?
+
+    somePureFunction() as pure abstract
+      -> arg0 as String
+      <- pureRtn as WelcomePageText?
+
+    HigherOrderCreatePureFunction() as pure
+      <- rtn as somePureFunction: () is somePureFunction as pure function (pureRtn:=? WelcomePageText("en"))
+
+  defines component
+
+    Base as abstract
+
+      getDelegate() as pure abstract
+        <- rtn as somePureFunction?
+
+      nonPureGetDelegate() as abstract
+        <- rtn as somePureFunction?
+
+      operator ? as pure
+        <- rtn <- true
+
+    Comp1 extends Base
+      value <- "Steve"
+
+      //This has been checked in records, but lets just check same in components.
+      functionPureA as somePureFunction: HigherOrderCreatePureFunction()
+
+      default Comp1() as pure
+
+      override getDelegate() as pure
+        <- rtn as somePureFunction: functionPureA
+
+      <?-
+        Just need a non pure method (even though it could be pure), to test access.
+      -?>
+      override nonPureGetDelegate()
+        <- rtn as somePureFunction: HigherOrderCreatePureFunction()
+
+      override operator ? as pure
+        @Error: FULL_RESOLUTION: NOT_RESOLVED
+        <- rtn as Boolean: justBroken()
+
+  defines application
+    ExampleApplication
+      register Comp1() as Base
+
+  defines program
+    Program with application of ExampleApplication
+
+      //Get the base of whatever has been injected
+      expectComp1 as Base!
+
+      //Now call a processing function passing in the 'Base' that has been configured.
+      pureProgramFunction(expectComp1)
+
+  defines function
+
+    pureProgramFunction() as pure
+      -> arg0 as Base
+      assert arg0?
+
+      //As this is not pure it will not be allowed, but this time a component.
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      arg0.nonPureGetDelegate()
+
+      //Now lets try calling methods on the component
+      fun1 <- arg0.getDelegate()
+      assert fun1?
+
+      //Now call the function to get the text object back.
+      text1 <- fun1("Steve")
+
+      //Note WelcomePageText does not have the '?' operator - but it's baked into EK9 for text objects!
+      assert text1?
+
+      //Now lets make some calls to that text object
+      stringValue1 <- text1.mainWelcome()
+      assert stringValue1?
+
+      //Now get the parameters wrong
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      text1.simpleComputationCheck()
+
+      stringValue2 <- text1.simpleComputationCheck(12, 99)
+      assert stringValue2?
+
+//EOF

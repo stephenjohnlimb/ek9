@@ -32,7 +32,7 @@ final class CheckVariableAssignment extends TypedSymbolAccess
                           final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
     this.checkTypesCompatible = new CheckTypesCompatible(symbolAndScopeManagement, errorListener);
-    this.checkAssignment = new CheckAssignment(symbolAndScopeManagement, errorListener);
+    this.checkAssignment = new CheckAssignment(symbolAndScopeManagement, errorListener, true);
   }
 
   @Override

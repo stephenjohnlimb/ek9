@@ -160,17 +160,17 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   }
 
   @Override
-  public void exitObjectAccessExpression(EK9Parser.ObjectAccessExpressionContext ctx) {
-    processObjectAccessExpressionOrError.accept(ctx);
-    super.exitObjectAccessExpression(ctx);
-  }
-
-  @Override
   public void exitObjectAccessStart(EK9Parser.ObjectAccessStartContext ctx) {
     processObjectAccessStartOrError.accept(ctx);
     super.exitObjectAccessStart(ctx);
   }
 
+  @Override
+  public void exitObjectAccessExpression(EK9Parser.ObjectAccessExpressionContext ctx) {
+    processObjectAccessExpressionOrError.accept(ctx);
+    super.exitObjectAccessExpression(ctx);
+  }
+  
   @Override
   public void exitVariableDeclaration(EK9Parser.VariableDeclarationContext ctx) {
     checkVariableAssignment.accept(ctx);

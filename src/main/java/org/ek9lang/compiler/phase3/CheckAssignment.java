@@ -15,11 +15,13 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * Applies rules and emits error as appropriate.
  */
 final class CheckAssignment extends TypedSymbolAccess implements BiConsumer<IToken, ISymbol> {
+  private final boolean isDeclaration;
   private final CheckIsSet checkIsSet;
 
   CheckAssignment(SymbolAndScopeManagement symbolAndScopeManagement,
-                  ErrorListener errorListener) {
+                  ErrorListener errorListener, boolean isDeclaration) {
     super(symbolAndScopeManagement, errorListener);
+    this.isDeclaration = isDeclaration;
     this.checkIsSet
         = new CheckIsSet(symbolAndScopeManagement, errorListener);
   }
@@ -45,8 +47,8 @@ final class CheckAssignment extends TypedSymbolAccess implements BiConsumer<ITok
         errorListener.semanticError(op, "'" + leftHandSideSymbol.getFriendlyName() + "':",
             NO_INCOMING_ARGUMENT_REASSIGNMENT);
       }
-
-      if (isPureReassignmentDisallowed(op, leftHandSideSymbol)) {
+      //If it is a declaration then it is not a reassignment - but an initial assignment.
+      if (!isDeclaration && isPureReassignmentDisallowed(op, leftHandSideSymbol)) {
         errorListener.semanticError(op, "'" + leftHandSideSymbol.getFriendlyName() + "':",
             NO_PURE_REASSIGNMENT);
       }

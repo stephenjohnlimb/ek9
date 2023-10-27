@@ -159,7 +159,7 @@ aspectDeclaration
     ;
 
 textBodyDeclaration
-    : Identifier (LPAREN RPAREN)? NL+ INDENT NL* argumentParam? stringLit NL+ DEDENT
+    : Identifier (LPAREN RPAREN)? NL+ INDENT NL* argumentParam? directive? stringLit NL+ DEDENT
     ;
 
 //End of main construct declarations

@@ -4,8 +4,10 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.core.CompilerException;
 
 /**
  * This is the second part of the method/function chaining resolution and can be recursive via objectAccess.
@@ -69,18 +71,38 @@ final class ProcessObjectAccessExpressionOrError extends TypedSymbolAccess
   }
 
   private void resolveObjectAccess(final EK9Parser.ObjectAccessContext ctx, final ISymbol inThisSymbol) {
-    var theType = inThisSymbol.getType();
-    if (theType.isPresent() && theType.get() instanceof IAggregateSymbol aggregate) {
-      if (ctx.objectAccessType().identifier() != null) {
-        var resolved = processFieldOrError.apply(ctx.objectAccessType().identifier(), aggregate);
-        if (resolved != null) {
-          recordATypedSymbol(resolved, ctx);
+
+    inThisSymbol.getType().ifPresent(type -> {
+      if (type instanceof IAggregateSymbol aggregate) {
+        if (ctx.objectAccessType().identifier() != null) {
+          processIdentifierUse(ctx, aggregate);
+        } else {
+          processOperationCallUse(ctx, aggregate);
         }
-      } else if (ctx.objectAccessType().operationCall() != null) {
-        var resolved = processOperationCallOrError.apply(ctx.objectAccessType().operationCall(), aggregate);
-        if (resolved != null) {
-          recordATypedSymbol(resolved, ctx);
-        }
+      }
+    });
+  }
+
+  private void processIdentifierUse(final EK9Parser.ObjectAccessContext ctx, final IAggregateSymbol aggregate) {
+    var resolved = processFieldOrError.apply(ctx.objectAccessType().identifier(), aggregate);
+    if (resolved != null) {
+      //For completeness record against the identifier as well
+      recordATypedSymbol(resolved, ctx.objectAccessType().identifier());
+      //Now also record the same call against the ctx.
+      recordATypedSymbol(resolved, ctx);
+    }
+  }
+
+  private void processOperationCallUse(final EK9Parser.ObjectAccessContext ctx, final IAggregateSymbol aggregate) {
+    var resolved = processOperationCallOrError.apply(ctx.objectAccessType().operationCall(), aggregate);
+    if (resolved != null) {
+      var existingCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx.objectAccessType().operationCall());
+      if (existingCallSymbol instanceof CallSymbol callSymbol) {
+        callSymbol.setResolvedSymbolToCall(resolved);
+        //Now also record the same call against the ctx.
+        recordATypedSymbol(existingCallSymbol, ctx);
+      } else {
+        throw new CompilerException("Expecting a callSymbol 'receptacle' to be present");
       }
     }
   }

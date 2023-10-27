@@ -113,7 +113,6 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
         callSymbol.setFormOfDeclarationCall(symbol.isGenericInNature());
       }
       callSymbol.setResolvedSymbolToCall(symbol);
-      callSymbol.setMarkedPure(symbol.isMarkedPure());
       checkPureContext.accept(callSymbol.getSourceToken(), callSymbol);
     }
   }
@@ -135,7 +134,6 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
     if (symbol != null) {
       callSymbol.setFormOfDeclarationCall(true);
       callSymbol.setResolvedSymbolToCall(symbol);
-      callSymbol.setMarkedPure(symbol.isMarkedPure());
       checkPureContext.accept(callSymbol.getSourceToken(), callSymbol);
     }
   }
@@ -148,7 +146,12 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
     if (symbol != null) {
       callSymbol.setFormOfDeclarationCall(true);
       callSymbol.setResolvedSymbolToCall(symbol);
-      callSymbol.setMarkedPure(symbol.isMarkedPure());
+      //Now this is a declaration (creation) of a dynamic function - it is not the calling of the dynamic function.
+      //So do we consider the creation of a dynamic function pure? It does not really have any side effects.
+      //Moreover, it cannot have any side effects, can it? The capture of variables and their calls is done before the
+      //dynamic function is created and the values passed in and referenced.
+      //Always consider this pure - as it is just creating a new function - but not actually calling it.
+      callSymbol.setMarkedPure(true);
       checkPureContext.accept(callSymbol.getSourceToken(), callSymbol);
     }
   }
@@ -164,7 +167,6 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
     if (symbol != null) {
       callSymbol.setResolvedSymbolToCall(symbol);
       callSymbol.setType(symbolAndScopeManagement.getEk9Types().ek9Void());
-      callSymbol.setMarkedPure(symbol.isMarkedPure());
       checkPureContext.accept(callSymbol.getSourceToken(), callSymbol);
     }
   }
@@ -183,7 +185,6 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
           new DelegateFunctionCheckData(new Ek9Token(ctx.call().start), callIdentifier, callParams));
       if (symbol != null) {
         callSymbol.setResolvedSymbolToCall(symbol);
-        callSymbol.setMarkedPure(symbol.isMarkedPure());
         checkPureContext.accept(callSymbol.getSourceToken(), callSymbol);
       }
     } else {

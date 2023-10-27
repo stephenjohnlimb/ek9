@@ -17,7 +17,6 @@ final class ResolveFunctionOrError extends TypedSymbolAccess implements Function
   ResolveFunctionOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                          final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
-
   }
 
   @Override

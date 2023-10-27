@@ -1,0 +1,146 @@
+#!ek9
+<?-
+  Tests for calling operators within a pure context.
+  See other tests for general operator calls, outside of a pure context.
+
+  Creates delegates to pure functions and a non-pure functions.
+  Checks access to delegates from pure and non-pure contexts.
+  TODO also have a pure/non pure delegate as property and check via method/delegate chain
+
+  Its almost like the access to a delegate needs to check the underlying 'function type' to see if it is pure.
+-?>
+defines module bad.pure.delegate.scenarios1
+
+  defines function
+
+    somePureFunction() as pure abstract
+      -> arg0 as String
+      <- pureRtn as Boolean?
+
+    someNonPureFunction() as abstract
+      -> arg0 as String
+      <- nonPureRtn as Boolean?
+
+    HigherOrderCreatePureFunction() as pure
+      <- rtn as somePureFunction?
+      rtn:=? () is somePureFunction as pure function (pureRtn:=? true)
+
+    HigherOrderNonPureCreatePureFunction()
+      <- rtn as somePureFunction?
+      rtn:=? () is somePureFunction as pure function (pureRtn:=? true)
+
+    HigherOrderCreateNonPureFunction() as pure
+      <- rtn as someNonPureFunction?
+      rtn:=? () is someNonPureFunction as function (nonPureRtn:=? true)
+
+    HigherOrderNonPureCreateNonPureFunction()
+      <- rtn as someNonPureFunction?
+      rtn:=? () is someNonPureFunction as function (nonPureRtn:=? true)
+
+    TestDelegateCallsViaPropertyInNonPure()
+
+      r1 <- R1()
+      assert r1?
+
+      //Mistype functionPureA as FunctionPureA.
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      result1 <- r1.FunctionPureA("Steve")
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result1?
+
+      //Now pass the wrong parameters
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      result2 <- r1.functionPureA("Steve", 1234)
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result2?
+
+      //Now make the right calls!
+      validResultA <- r1.functionPureA("Steve")
+      assert validResultA?
+
+      validResultB <- r1.functionPureB("Steve")
+      assert validResultB?
+
+      validResultC <- r1.functionNonPureC("Steve")
+      assert validResultC?
+
+      validResultD <- r1.functionNonPureD("Steve")
+      assert validResultD?
+
+    TestDelegateCallsViaPropertyInPure() as pure
+
+      r1 <- R1()
+      assert r1?
+
+      //Now make the right calls! But hey some are delegates that point to non-pure functions.
+      validResultA <- r1.functionPureA("Steve")
+      assert validResultA?
+
+      validResultB <- r1.functionPureB("Steve")
+      assert validResultB?
+
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      validResultC <- r1.functionNonPureC("Steve")
+      assert validResultC?
+
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      validResultD <- r1.functionNonPureD("Steve")
+      assert validResultD?
+
+  defines record
+
+    <?-
+      Tests the scenario where the constructor is pure and hence that 'purity' also applies to
+      declaration of and initialisation of properties.
+    -?>
+    R1
+      value <- "Steve"
+      //Set up to properties that are function delegates, one pure and one non-pure.
+      //But what if these calls are non-pure, in effect if there is a pure constructor then
+      //we must consider this area as part of a pure constructor and apply the same rules.
+      functionPureA as somePureFunction: HigherOrderCreatePureFunction()
+
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      functionPureB as somePureFunction: HigherOrderNonPureCreatePureFunction()
+
+      functionNonPureC as someNonPureFunction: HigherOrderCreateNonPureFunction()
+
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      functionNonPureD as someNonPureFunction: HigherOrderNonPureCreateNonPureFunction()
+
+      R1() as pure
+        //Now lets initialise in a constructor - as an example - rather than in declaration
+        //Clearly pointless here - because they we're set up earlier in declaration.
+        functionPureA :=? HigherOrderCreatePureFunction()
+
+        @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+        functionPureB :=? HigherOrderNonPureCreatePureFunction()
+
+        functionNonPureC :=? HigherOrderCreateNonPureFunction()
+
+        @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+        functionNonPureD :=? HigherOrderNonPureCreateNonPureFunction()
+
+      operator ? as pure
+        @Error: FULL_RESOLUTION: NOT_RESOLVED
+        <- rtn as Boolean: justBroken()
+
+    <?-
+      Really the same as above but not pure! So we can just call and function or method pure or non-pure.
+    -?>
+    R2
+      value <- "Steve"
+      functionPureA as somePureFunction: HigherOrderCreatePureFunction()
+      functionPureB as somePureFunction: HigherOrderNonPureCreatePureFunction()
+      functionNonPureC as someNonPureFunction: HigherOrderCreateNonPureFunction()
+      functionNonPureD as someNonPureFunction: HigherOrderNonPureCreateNonPureFunction()
+
+      R2()
+        //Now lets initialise in a constructor - as an example - rather than in declaration
+        //Clearly pointless here - because they we're set up earlier in declaration.
+        functionPureA :=? HigherOrderCreatePureFunction()
+        functionPureB :=? HigherOrderNonPureCreatePureFunction()
+        functionNonPureC :=? HigherOrderCreateNonPureFunction()
+        functionNonPureD :=? HigherOrderNonPureCreateNonPureFunction()
+
+//EOF

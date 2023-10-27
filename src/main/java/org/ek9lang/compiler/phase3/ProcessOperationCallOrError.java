@@ -14,6 +14,7 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.ScopedSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.compiler.tokenizer.IToken;
 
@@ -21,7 +22,7 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * Used for resolving operation calls on aggregates, which can include properties that are delegates to functions.
  */
 final class ProcessOperationCallOrError extends TypedSymbolAccess
-    implements BiFunction<EK9Parser.OperationCallContext, IAggregateSymbol, ISymbol> {
+    implements BiFunction<EK9Parser.OperationCallContext, IAggregateSymbol, ScopedSymbol> {
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
   private final ResolveMethodOrError resolveMethodOrError;
   private final SymbolsFromParamExpression symbolsFromParamExpression;
@@ -52,7 +53,7 @@ final class ProcessOperationCallOrError extends TypedSymbolAccess
   }
 
   @Override
-  public ISymbol apply(final EK9Parser.OperationCallContext ctx, final IAggregateSymbol aggregate) {
+  public ScopedSymbol apply(final EK9Parser.OperationCallContext ctx, final IAggregateSymbol aggregate) {
     var startToken = new Ek9Token(ctx.start);
     var symbol = doProcess(startToken, ctx, aggregate);
     if (symbol != null) {
@@ -61,7 +62,7 @@ final class ProcessOperationCallOrError extends TypedSymbolAccess
     return symbol;
   }
 
-  private ISymbol doProcess(final IToken startToken,
+  private ScopedSymbol doProcess(final IToken startToken,
                             final EK9Parser.OperationCallContext ctx,
                             final IAggregateSymbol aggregate) {
 
@@ -74,7 +75,8 @@ final class ProcessOperationCallOrError extends TypedSymbolAccess
     //But the same is true when accessing delegates via 'this' when part of the class itself
     var resolved = attemptDelegateResolution(startToken, aggregate, methodOrDelegateName);
     if (resolved != null) {
-      //Now check if the parameters align.
+      //Now check if the parameters align. But also need to wrap this into a Call object
+      //Also should it be recorded against the context.
       return checkValidFunctionDelegateOrError.apply(new DelegateFunctionCheckData(startToken, resolved, callParams));
     }
     return resolveAsMethod(ctx, aggregate, methodOrDelegateName, callParams);
@@ -96,7 +98,7 @@ final class ProcessOperationCallOrError extends TypedSymbolAccess
     return null;
   }
 
-  private ISymbol resolveAsMethod(final EK9Parser.OperationCallContext ctx,
+  private ScopedSymbol resolveAsMethod(final EK9Parser.OperationCallContext ctx,
                                   final IScope scopeToResolveIn,
                                   final String methodName,
                                   final List<ISymbol> callParams) {
@@ -107,7 +109,6 @@ final class ProcessOperationCallOrError extends TypedSymbolAccess
       return null;
     }
     resolvedMethod.setReferenced(true);
-    recordATypedSymbol(resolvedMethod, ctx);
     return resolvedMethod;
   }
 

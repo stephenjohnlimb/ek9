@@ -47,7 +47,7 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
     this.processIdentifierOrError
         = new ProcessIdentifierOrError(symbolAndScopeManagement, errorListener);
     this.checkAssignment
-        = new CheckAssignment(symbolAndScopeManagement, errorListener);
+        = new CheckAssignment(symbolAndScopeManagement, errorListener, false);
   }
 
   @Override

@@ -1,24 +1,11 @@
 #!ek9
 <?-
-  Tests for calling operators within a pure context.
-  See other tests for general operator calls, outside of a pure context.
-
-  TODO below in another test that checks access via records, classes in simple and chained ways.
-  TODO create a delegate to a pure function and a non-pure function.
-  TODO access that delegate from pure and non-pure context
-  TODO also have a pure/non pure delegate as property and check via method/delegate chain
-  TODO from pure and non-pure context.
-
-  Its almost like the access to a delegate needs to check the underlying 'function type' to see if it is pure.
+  Workpad
 -?>
 defines module just.workspace
 
-  defines record
-    R1
-      value <- "Steve"
-      default R1() as pure
-
-      operator ? as pure
-        <- rtn as Boolean: justBroken()
+  defines function
+    Broken()
+      assert nothing()
 
 //EOF

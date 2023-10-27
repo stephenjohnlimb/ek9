@@ -1,0 +1,62 @@
+#!ek9
+<?-
+  Check var declaration to expression that is not pure.
+-?>
+defines module bad.pure.declarations
+
+  defines record
+    R1
+      value <- "Steve"
+      default R1() as pure
+
+      operator ? as pure
+        @Error: FULL_RESOLUTION: NOT_RESOLVED
+        <- rtn as Boolean: justBroken()
+
+  defines function
+
+    PureFunction() as pure
+      -> arg0 as String
+      <- rtn as Boolean: arg0?
+
+    NonPureFunction()
+      -> arg0 as String
+      <- rtn as Boolean: arg0?
+
+    TestPureFunction() as pure
+      var1 <- PureFunction("Steve")
+
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      var2 <- NonPureFunction("Steve")
+
+      assert var1? and var2?
+
+      //While you can declare like this
+      var3 as Boolean: PureFunction("Steve")
+
+      //You cannot reassign in pure.
+      @Error: FULL_RESOLUTION: NO_PURE_REASSIGNMENT
+      var3: PureFunction("Steve")
+
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      var4 as Boolean: NonPureFunction("Steve")
+
+      var5 as Boolean:=? PureFunction("Steve")
+
+      assert var3? and var4? and var5?
+
+    TestNonPureFunction()
+      //Same operations as above but this time non-pure so all allowed.
+      var1 <- PureFunction("Steve")
+      var2 <- NonPureFunction("Steve")
+
+      assert var1? and var2?
+
+      var3 as Boolean: PureFunction("Steve")
+      var3: PureFunction("Stephen")
+      var4 as Boolean: NonPureFunction("Steve")
+      var5 as Boolean:=? PureFunction("Steve")
+
+      assert var3? and var4? and var5?
+
+//EOF

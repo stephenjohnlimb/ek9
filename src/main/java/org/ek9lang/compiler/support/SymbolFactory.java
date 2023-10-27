@@ -391,7 +391,10 @@ public class SymbolFactory {
         configureAggregate(textBase, new Ek9Token(ctx.start));
         textBase.setGenus(ISymbol.SymbolGenus.TEXT);
         parsedModule.getModuleScope().define(textBase);
-        aggregateFactory.addConstructor(textBase, aggregateFactory.resolveString(parsedModule.getModuleScope()));
+        var constructor = aggregateFactory
+            .addConstructor(textBase, aggregateFactory.resolveString(parsedModule.getModuleScope()));
+        //Text can never mutate anything as construction.
+        constructor.setMarkedPure(true);
         base = Optional.of(textBase);
       }
 

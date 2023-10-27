@@ -166,8 +166,43 @@ defines module bad.pure.scenarios1
 
     HigherPureFunctionFour() as pure
       <- rtn as SomeNonPureFunction?
-      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      //Now you might think this should be an error, but it's not.
+      //This code does not 'call' the 'SomeNonPureFunction' - it just creates a new
+      //dynamic function that is a 'SomeNonPureFunction' - so the creation activity itself is pure.
       rtn :=? () is SomeNonPureFunction as function (rtn :=? "Steve")
+
+      //But you can't do this (in this pure context)
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      result <- rtn(22)
+      assert result?
+
+      //Does this make sense, creating a non pure dynamic function is itself 'pure'
+      //But then calling what has just been created (the non-pure function) in a pure context is not allow.
+      //See example of use below.
+
+    ExampleOfCallingHigherFunctionFour()
+      aFunction <- HigherPureFunctionFour()
+      result <- aFunction(22)
+      assert result?
+
+    //But this time - while you can call the higher function to get a function - you are not allowed to call it.
+    AnotherExampleOfCallingHigherFunctionFour() as pure
+      aFunction <- HigherPureFunctionFour()
+
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      result <- aFunction(22)
+      assert result?
+
+    JustForCompleteness1()
+      //Yes, just call directly with no delegate being created.
+      result <- HigherPureFunctionFour()(22)
+      assert result?
+
+    JustForCompleteness2() as pure
+      //Yes, just call directly with no delegate being created. But bang the create is allowed but call is not allowed.
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      result <- HigherPureFunctionFour()(22)
+      assert result?
 
     HigherNonPureFunctionOne()
       <- rtn as SomePureFunction?

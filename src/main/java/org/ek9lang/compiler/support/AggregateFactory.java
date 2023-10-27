@@ -3,6 +3,7 @@ package org.ek9lang.compiler.support;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.ek9lang.compiler.common.AggregateHasPureConstruction;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
@@ -26,7 +27,6 @@ import org.ek9lang.core.CompilerException;
  * This is a factory of sorts, not in the pure OO sense; but still a factory.
  */
 public class AggregateFactory {
-
   public static final String EK9_LANG = "org.ek9.lang";
   public static final String EK9_MATH = "org.ek9.math";
   public static final String EK9_PATH = EK9_LANG + "::Path";
@@ -74,6 +74,8 @@ public class AggregateFactory {
 
   private final OperatorFactory operatorFactory;
 
+  private final AggregateHasPureConstruction aggregateHasPureConstruction = new AggregateHasPureConstruction();
+
   public AggregateFactory() {
     operatorFactory = new OperatorFactory(this);
   }
@@ -114,10 +116,7 @@ public class AggregateFactory {
     if (!resolvedMethods.isSingleBestMatchPresent() && !resolvedMethods.isAmbiguous()) {
       //If there are other constructors defined and we provide a built-in one then we need to ensure we make it
       //pure if any of the others are pure.
-      var needsPure = aggregateSymbol.getAllNonAbstractMethodsInThisScopeOnly()
-          .stream()
-          .filter(MethodSymbol::isConstructor)
-          .anyMatch(MethodSymbol::isMarkedPure);
+      var needsPure = aggregateHasPureConstruction.test(aggregateSymbol);
 
       MethodSymbol newConstructor = new MethodSymbol(aggregateSymbol.getName(), aggregateSymbol);
       newConstructor.setMarkedPure(needsPure);

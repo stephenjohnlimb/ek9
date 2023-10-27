@@ -1,0 +1,149 @@
+#!ek9
+<?-
+  Tests for calling operators within a pure context.
+
+  Checks for delegate call and chained delegate and call method calls in pure and non-pure contexts.
+-?>
+defines module bad.pure.delegate.scenarios2
+
+  defines function
+
+    TestDelegateCallsViaPropertyInNonPure()
+
+      r1 <- R1()
+      assert r1?
+
+      //Just get a handle to the the function, but don't call yet
+      //Because this is a record we can just directly access the propety.
+      fun <- r1.functionPureA
+
+      //Now make the call, which will now call r1.functionPureA
+      validC1A <- fun("Steve")
+      assert CheckArgumentTypeAsC1(validC1A)
+
+      //In this example - we've just called the delegate directly.
+      validC1B <- r1.functionPureA("Steve")
+      assert CheckArgumentTypeAsC1(validC1B)
+
+      //That function delegate actually returns an object that 'is' of type C1 (class)
+      //So now call the pure method and then later call the non-pure method.
+      result1 <- validC1B.aPureMethod()
+      assert CheckArgumentTypeAsBoolean(result1)
+
+      result2 <- validC1B.aNonPureMethod()
+      assert CheckArgumentTypeAsBoolean(result2)
+
+      //Now miss out the middle variable and chain the calls all together
+      //So looks like method calls, but the middle one is actually a function delegate.
+      //This gives the impression of methods even on a record, but they are function delegates.
+      result3 <- r1.functionPureA("Steve").aPureMethod()
+      assert CheckArgumentTypeAsBoolean(result3)
+
+      result4 <- r1.functionPureA("Steve").aNonPureMethod()
+      assert CheckArgumentTypeAsBoolean(result4)
+
+    //Now the same as above but in a pure function!
+    TestDelegateCallsViaPropertyInPure() as pure
+
+      r1 <- R1()
+      assert r1?
+
+      //So this will be fine because it is pure
+      fun <- r1.functionPureA
+
+      //Now make the call on the delegate, which is also fine.
+      validC1A <- fun("Steve")
+      assert CheckArgumentTypeAsC1(validC1A)
+
+      //Now make the calls direct, which is still fine as they are all pure.
+      validC1B <- r1.functionPureA("Steve")
+      assert CheckArgumentTypeAsC1(validC1B)
+
+      //And even on the C1 object this method is pure, so all good.
+      result1 <- validC1B.aPureMethod()
+      assert CheckArgumentTypeAsBoolean(result1)
+
+      //But this is not allowed as it is not pure.
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      result2 <- validC1B.aNonPureMethod()
+      assert CheckArgumentTypeAsBoolean(result2)
+
+      //Again we're Ok because the chain is all pure delegates and methods.
+      result3 <- r1.functionPureA("Steve").aPureMethod()
+      assert CheckArgumentTypeAsBoolean(result3)
+
+      //But this is not allowed, because while the function delegate is pure the C1 method call is not.
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      result4 <- r1.functionPureA("Steve").aNonPureMethod()
+      assert CheckArgumentTypeAsBoolean(result4)
+
+    TestDirectCallsInNonPure()
+      c1 <- C1()
+      resultC1A <- c1.aPureMethod()
+      assert resultC1A
+
+      resultC1B <- c1.aNonPureMethod()
+      assert resultC1B
+
+    TestHigherOrderDirectly()
+      fun <- HigherOrderCreatePureFunction()
+      validC1 <- fun("Steve")
+      assert CheckArgumentTypeAsC1(validC1)
+
+    TestDirectCallsInPure() as pure
+      c1 <- C1()
+      resultC1A <- c1.aPureMethod()
+      assert resultC1A
+
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      resultC1B <- c1.aNonPureMethod()
+      assert resultC1B
+
+    somePureFunction() as pure abstract
+      -> arg0 as String
+      <- pureRtn as C1?
+
+    HigherOrderCreatePureFunction() as pure
+      <- rtn as somePureFunction: () is somePureFunction as pure function (pureRtn:=? C1())
+
+    CheckArgumentTypeAsBoolean() as pure
+      -> arg0 as Boolean
+      <- rtn as Boolean: arg0?
+
+    CheckArgumentTypeAsC1() as pure
+      -> arg0 as C1
+      <- rtn as Boolean: arg0?
+
+  defines class
+    C1
+      default C1() as pure
+
+      aPureMethod() as pure
+        <- rtn <- true
+
+      aNonPureMethod()
+        <- rtn <- false
+
+      operator ? as pure
+        <- rtn <- true
+
+  defines record
+
+    <?-
+      Tests the scenario where the constructor is pure and hence that 'purity' also applies to
+      declaration of and initialisation of properties.
+    -?>
+    R1
+      value <- "Steve"
+      //Set up to properties that are function delegates, one pure and one non-pure.
+      //But what if these calls are non-pure, in effect if there is a pure constructor then
+      //we must consider this area as part of a pure constructor and apply the same rules.
+      functionPureA as somePureFunction: HigherOrderCreatePureFunction()
+
+      default R1() as pure
+
+      operator ? as pure
+        @Error: FULL_RESOLUTION: NOT_RESOLVED
+        <- rtn as Boolean: justBroken()
+
+//EOF

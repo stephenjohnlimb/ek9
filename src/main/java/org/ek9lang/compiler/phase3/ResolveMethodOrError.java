@@ -1,10 +1,13 @@
 package org.ek9lang.compiler.phase3;
 
+import java.util.List;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
 
@@ -47,9 +50,31 @@ final class ResolveMethodOrError extends TypedSymbolAccess
           + results.getAmbiguousMethodParameters();
       errorListener.semanticError(token, msg, ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
     } else if (results.isEmpty()) {
-      var msg = msgStart + "'" + searchOnAggregate.search().toString() + "':";
+      var msg = msgStart + "'" + searchOnAggregate.search().toString();
+      var nearMatches = getPossibleMatchingMethods(searchOnAggregate);
+      if (nearMatches.isEmpty()) {
+        msg += "':";
+      } else {
+        msg += "', parameter mismatch. Possible method(s) ";
+        msg += methodsToPresentation(nearMatches);
+        msg += ":";
+      }
       errorListener.semanticError(token, msg, ErrorListener.SemanticClassification.METHOD_NOT_RESOLVED);
     }
     return null;
+  }
+
+  private String methodsToPresentation(List<MethodSymbol> methods) {
+    return methods.stream().map(ISymbol::getFriendlyName).collect(Collectors.joining(","));
+  }
+
+  private List<MethodSymbol> getPossibleMatchingMethods(final MethodSearchInScope searchOnAggregate) {
+    var toSearch = searchOnAggregate.scopeToSearch();
+    var nearMatches = toSearch.getAllSymbolsMatchingName(searchOnAggregate.search().getName());
+    return nearMatches
+        .stream()
+        .filter(ISymbol::isMethod)
+        .map(MethodSymbol.class::cast)
+        .toList();
   }
 }

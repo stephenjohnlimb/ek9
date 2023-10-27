@@ -27,5 +27,9 @@ class BadPureUseTest extends PhasesTest {
     assertFalse(program.getParsedModules("bad.pure.scenarios1").isEmpty());
     assertFalse(program.getParsedModules("bad.pure.scenarios2").isEmpty());
     assertFalse(program.getParsedModules("bad.pure.expressions").isEmpty());
+    assertFalse(program.getParsedModules("bad.pure.declarations").isEmpty());
+    assertFalse(program.getParsedModules("bad.pure.delegate.scenarios1").isEmpty());
+    assertFalse(program.getParsedModules("bad.pure.delegate.scenarios2").isEmpty());
+    assertFalse(program.getParsedModules("bad.pure.text.components").isEmpty());
   }
 }
