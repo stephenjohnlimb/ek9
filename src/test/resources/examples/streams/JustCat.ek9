@@ -2,11 +2,11 @@
 defines module com.customer.justcat
 
   defines function
-    someNames()
+    SomeNames()
       @Resolved: SYMBOL_DEFINITION: TYPE: "List of (String)"
       <- rtn as List of String: ["Some", "Words", "From", "Function"]
 
-    outputFormatSeparated()
+    OutputFormatSeparated()
       ->
         firstPart String
         secondPart String
@@ -25,19 +25,19 @@ defines module com.customer.justcat
         <- rtn as List of String: ["Some", "Words", "From", "Class", "Method"]
 
       cattyCat1()
-        <- rtn as String: cat ["Some", "Words", "From", "Class", "Method"] | join with outputFormatSeparated | collect as String
+        <- rtn as String: cat ["Some", "Words", "From", "Class", "Method"] | join with OutputFormatSeparated | collect as String
         
       cattyCat2()
-        <- rtn as String: cat someNames() | join with outputFormatSeparated | collect as String
+        <- rtn as String: cat someNames() | join with OutputFormatSeparated | collect as String
       
       cattyCat3()
         <- rtn as String: cat ["Some", "Words", "From", "Class", "Method"]
-          | join with outputFormatSeparated
+          | join with OutputFormatSeparated
           | collect as String
         
       cattyCat4()
         <- rtn as String: cat someNames()
-          | join with outputFormatSeparated
+          | join with OutputFormatSeparated
           | collect as String    
         
   defines program
@@ -78,7 +78,7 @@ defines module com.customer.justcat
       cat ["Some", "Words", "For", "Listing"] > stdout
 
       //Fails in two ways type of _vFirst_1 and ._init(...not fully qualified function call)
-      cat someNames() > stdout
+      cat SomeNames() > stdout
 
       //This fails at generation - source symbol null
       cat NameProvider().someNames() > stdout

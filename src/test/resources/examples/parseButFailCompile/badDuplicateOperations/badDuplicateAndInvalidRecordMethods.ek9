@@ -37,8 +37,14 @@ defines module bad.duplicate.recordmethods
           -> arg0 as Integer
           this.someField :=: arg0
 
-        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RECORDS_ONLY_SUPPORT_CONSTRUCTOR_AND_OPERATOR_METHODS
+        //Would lead to confusion because this type already exists.
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: DUPLICATE_TYPE
         private R1()
+          var <- "Steve"
+          assert var?
+
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RECORDS_ONLY_SUPPORT_CONSTRUCTOR_AND_OPERATOR_METHODS
+        private anotherMethodName()
           var <- "Steve"
           assert var?
 

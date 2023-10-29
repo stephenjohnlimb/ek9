@@ -232,13 +232,13 @@ defines module bad.variable.duplications
 
     //Failure22 - expect this incoming param to be detected as existing function - which is detected.
     invalidDuplicateVariableClashWithFunction1()
-      @Error: SYMBOL_DEFINITION: DUPLICATE_FUNCTION
+      @Error: SYMBOL_DEFINITION: DUPLICATE_NAME
       -> functionThatIsOK as String
       <- rtn as Integer: 1
 
     //Failure23 - expect this returning param to be detected as existing function - which is detected.
     invalidDuplicateVariableClashWithFunction2()
-      @Error: SYMBOL_DEFINITION: DUPLICATE_FUNCTION
+      @Error: SYMBOL_DEFINITION: DUPLICATE_NAME
       <- functionThatIsOK as String: "Not OK"
 
 //EOF

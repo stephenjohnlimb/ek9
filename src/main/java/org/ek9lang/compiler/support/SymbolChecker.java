@@ -1,7 +1,5 @@
 package org.ek9lang.compiler.support;
 
-import java.util.Map;
-import java.util.Optional;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.IScope;
@@ -15,12 +13,10 @@ import org.ek9lang.core.AssertValue;
  */
 public class SymbolChecker {
 
-  private final ErrorListener errorListener;
-
-  private final LocationExtractor locationExtractor = new LocationExtractor();
+  private final NameCollisionChecker nameCollisionChecker;
 
   public SymbolChecker(ErrorListener errorListener) {
-    this.errorListener = errorListener;
+    this.nameCollisionChecker = new NameCollisionChecker(errorListener);
   }
 
   /**
@@ -31,36 +27,11 @@ public class SymbolChecker {
     AssertValue.checkNotNull("Scope cannot be null", inScope);
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
 
-    var searches = Map
-        .of(ISymbol.SymbolCategory.FUNCTION, ErrorListener.SemanticClassification.DUPLICATE_FUNCTION,
-            ISymbol.SymbolCategory.TYPE, ErrorListener.SemanticClassification.DUPLICATE_TYPE,
-            ISymbol.SymbolCategory.TEMPLATE_FUNCTION, ErrorListener.SemanticClassification.DUPLICATE_FUNCTION,
-            ISymbol.SymbolCategory.TEMPLATE_TYPE, ErrorListener.SemanticClassification.DUPLICATE_TYPE
-        );
-
-    for (var entry : searches.entrySet()) {
-      var search = new SymbolSearch(symbol.getFullyQualifiedName()).setSearchType(entry.getKey());
-      if (errorsIfResolved(inScope, symbol, search, entry.getValue())) {
-        return true;
-      }
+    if (!nameCollisionChecker.errorsWhenNamesCollide(inScope, symbol)) {
+      return nameCollisionChecker.errorsIfResolved(inScope, symbol,
+          new SymbolSearch(symbol.getName()).setLimitToBlocks(limitVarSearchToBlockScope),
+          ErrorListener.SemanticClassification.DUPLICATE_VARIABLE);
     }
-    //Need to do variables separate only use name not fully qualified name
-    return errorsIfResolved(inScope, symbol,
-        new SymbolSearch(symbol.getName()).setLimitToBlocks(limitVarSearchToBlockScope),
-        ErrorListener.SemanticClassification.DUPLICATE_VARIABLE);
-  }
-
-  private boolean errorsIfResolved(IScope inScope, ISymbol symbol, SymbolSearch search,
-                                   ErrorListener.SemanticClassification classificationError) {
-
-    Optional<ISymbol> symbolCheck = inScope.resolve(search);
-    if (symbolCheck.isPresent()) {
-      ISymbol dup = symbolCheck.get();
-      String message = String.format("'%s' as %s %s:",
-          dup.getFriendlyName(), dup.getGenus(), locationExtractor.apply(dup));
-      errorListener.semanticError(symbol.getSourceToken(), message, classificationError);
-      return true;
-    }
-    return false;
+    return true;
   }
 }

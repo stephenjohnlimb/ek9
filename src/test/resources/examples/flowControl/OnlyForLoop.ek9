@@ -8,10 +8,10 @@ defines module com.customer.loop
     names() is nameProvider
       <- rtn as List of String: ["Alpha", "Beta", "Charlie"]
 
-    startValue()
+    StartValue()
       <- rtn as Integer: 3
       
-    endValue()
+    EndValue()
       <- rtn as Integer: 9
         
   defines class
@@ -58,12 +58,12 @@ defines module com.customer.loop
     TestRangeLoopByFunctionCall()
       stdout <- Stdout()
       
-      for i in startValue() ... endValue()
+      for i in StartValue() ... EndValue()
         stdout.println("Value [" + $i + "]")
 
       stdout.println("Descending")
 
-      for i in endValue() ... startValue() by -1
+      for i in EndValue() ... StartValue() by -1
         stdout.println("Value [" + $i + "]")
 
     TestRangeLoopByClassMethodCall()

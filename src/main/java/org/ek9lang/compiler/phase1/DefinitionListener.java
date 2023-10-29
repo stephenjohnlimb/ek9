@@ -911,7 +911,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     var varType = resolveOrDefineTypeDef.apply(ctx.typeDef());
     variable.setType(varType);
     checkVariableOnlyDeclaration.accept(ctx, variable);
-    var limitToBlocks = ctx.getParent() instanceof EK9Parser.ArgumentParamContext;
+    var limitToBlocks = variable.isIncomingParameter() || variable.isPropertyField();
     checkAndDefineSymbol(variable, ctx, limitToBlocks);
     super.enterVariableOnlyDeclaration(ctx);
   }

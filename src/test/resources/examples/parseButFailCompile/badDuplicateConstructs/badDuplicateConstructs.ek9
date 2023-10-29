@@ -141,7 +141,7 @@ defines module bad.duplicate.constructs
       -> arg0 as Float
       <- rtn <- true
 
-    @Error: SYMBOL_DEFINITION: DUPLICATE_FUNCTION
+    @Error: SYMBOL_DEFINITION: DUPLICATE_NAME
     Function1
       -> arg0 as Float
       <- rtn <- true
@@ -204,7 +204,7 @@ defines module bad.duplicate.constructs
         -> arg0 as String
         assert arg0?
 
-    @Error: SYMBOL_DEFINITION: DUPLICATE_FUNCTION
+    @Error: SYMBOL_DEFINITION: DUPLICATE_NAME
     Function1 for :/functionArea
       someOtherMethod()
         -> arg0 as String

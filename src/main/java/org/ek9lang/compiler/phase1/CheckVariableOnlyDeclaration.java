@@ -37,6 +37,11 @@ final class CheckVariableOnlyDeclaration implements
 
   private void checkBlockAndAggregateProperty(final EK9Parser.VariableOnlyDeclarationContext ctx,
                                               VariableSymbol variableSymbol) {
+
+    if (ctx.getParent() instanceof EK9Parser.AggregatePropertyContext) {
+      variableSymbol.setAggregatePropertyField(true);
+    }
+
     //So for aggregateProperty and Block statements
     if (ctx.webVariableCorrelation() != null) {
       errorListener.semanticError(ctx.start, "",

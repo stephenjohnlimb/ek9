@@ -20,9 +20,8 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  * Ensures that 'identifierReference' is now resolved and hangs together and 'typed' or a not resolved error.
  * Note that while the identifierReference may get resolved also see ResolveIdentifierReferenceCallOrError.
  * This is because the context of the identifierReference may mean that it is important to 're-resolve it.
- * Indeed for overloaded methods it probably will end up resolving to a different method.
+ * Indeed, for overloaded methods it probably will end up resolving to a different method.
  * The same applies to it resolving to a function or even a function delegate.
- * <p>
  * {@link org.ek9lang.compiler.phase3.CheckValidCall}
  * {@link org.ek9lang.compiler.phase3.ResolveIdentifierReferenceCallOrError}
  */

@@ -432,7 +432,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     DUPLICATE_VARIABLE("Variable/Constant duplicated"),
     DUPLICATE_VARIABLE_IN_CAPTURE("variable name duplicated, resulting in multiple fields of same name"),
     OVERLOADING_NOT_SUPPORTED("Method/Operator overloading not supported in Template Class"),
-    DUPLICATE_FUNCTION("Function/Type duplicated"),
+    DUPLICATE_NAME("Variable/Function/Type duplicated, likely to lead to confusion"),
     POSSIBLE_DUPLICATE_ENUMERATED_VALUE("are duplicated values (or are too similar, likely to be confusing)"),
     EXCEPTION_ONLY_SINGLE_PARAMETER("Exception handling is for a single parameter only"),
     DUPLICATE_TYPE("Type/Function duplicated"),

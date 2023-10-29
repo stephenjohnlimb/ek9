@@ -1,0 +1,39 @@
+#!ek9
+<?-
+  Just check that potentially confusing name collisions can be detected.
+-?>
+defines module bad.name.collisions
+
+
+  defines class
+    C1
+      //This property collides with function of the same name (but not the method on this class)
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: DUPLICATE_NAME
+      broken as String?
+      notBroken as String?
+
+      C1()
+        -> arg0 as String
+        this.broken: arg0
+        this.notBroken: arg0
+
+      //Designed to be confused with function 'Broken' the function. But is allowed by the compiler.
+      Broken()
+        <- rtn <- true
+
+      //This also collides with the function (that follows)
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: DUPLICATE_NAME
+      broken()
+        <- rtn <- true
+
+      //Just to demonstrate you can have a method and a property of the same name.
+      notBroken()
+        <- rtn <- true
+
+  defines function
+
+    broken()
+      var <- 3
+      assert var?
+
+//EOF

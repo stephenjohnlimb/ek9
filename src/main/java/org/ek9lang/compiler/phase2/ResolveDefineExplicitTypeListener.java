@@ -10,6 +10,7 @@ import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.AccessGenericInGeneric;
 import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.support.CheckForDuplicateOperations;
+import org.ek9lang.compiler.support.NameCollisionChecker;
 import org.ek9lang.compiler.support.ResolveOrDefineExplicitParameterizedType;
 import org.ek9lang.compiler.support.ResolveOrDefineIdentifierReference;
 import org.ek9lang.compiler.support.ResolveOrDefineTypeDef;
@@ -77,6 +78,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final CheckSuitableGenus checkApplicationForProgram;
   private final SyntheticConstructorCreator syntheticConstructorCreator;
   private final CheckAndPopulateConstrainedType checkAndPopulateConstrainedType;
+  private final NameCollisionChecker nameCollisionChecker;
   private final AccessGenericInGeneric accessGenericInGeneric;
   private final AggregateFactory aggregateFactory;
   private final Ek9Types ek9Types;
@@ -137,6 +139,8 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
         new CheckAndPopulateConstrainedType(symbolAndScopeManagement, aggregateFactory, errorListener);
     this.accessGenericInGeneric =
         new AccessGenericInGeneric(symbolAndScopeManagement);
+    this.nameCollisionChecker =
+        new NameCollisionChecker(errorListener);
   }
 
   @Override
@@ -450,6 +454,15 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     var scope = symbolAndScopeManagement.getRecordedScope(ctx);
     AssertValue.checkNotNull("Method should have been defined", scope);
     symbolAndScopeManagement.enterScope(scope);
+    var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    //This can be other types i.e. aggregate in case of Programs for example.
+    if (symbol instanceof MethodSymbol methodSymbol && !methodSymbol.isConstructor()) {
+      //Now this was not called in the first phase, and we only call it for non-constructors
+      //(because they must have same name as a type)
+      nameCollisionChecker.errorsWhenNamesCollide(symbolAndScopeManagement.getTopScope(), methodSymbol);
+
+    }
+
     super.enterMethodDeclaration(ctx);
   }
 
@@ -459,6 +472,8 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
       checkApplicationForProgram.apply(ctx.identifierReference());
     }
     symbolAndScopeManagement.exitScope();
+
+
     super.exitMethodDeclaration(ctx);
   }
 
@@ -513,18 +528,23 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
       checkNotGenericTypeParameter.accept(variableSymbol);
     }
 
+    //While there is a check in phase one, this causes an ordering issue. So we run this in this phase.
+    nameCollisionChecker.errorsWhenNamesCollide(symbolAndScopeManagement.getTopScope(), variableSymbol);
+
     super.exitVariableOnlyDeclaration(ctx);
   }
 
   @Override
   public void exitVariableDeclaration(EK9Parser.VariableDeclarationContext ctx) {
-    var variableSystem = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    var variableSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
     if (ctx.typeDef() != null) {
       var theType = symbolAndScopeManagement.getRecordedSymbol(ctx.typeDef());
       if (theType != null) {
-        variableSystem.setType(theType);
+        variableSymbol.setType(theType);
       }
     }
+    //While there is a check in phase one, this causes an ordering issue. So we run this in this phase.
+    nameCollisionChecker.errorsWhenNamesCollide(symbolAndScopeManagement.getTopScope(), variableSymbol);
     super.exitVariableDeclaration(ctx);
   }
 
