@@ -30,7 +30,6 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
   private final ResolveMethodOrError resolveMethodOrError;
   private final SymbolsFromParamExpression symbolsFromParamExpression;
-  private final SymbolFromContextOrError symbolFromContextOrError;
   private final ParameterisedLocator parameterisedLocator;
   private final CheckValidFunctionDelegateOrError checkValidFunctionDelegateOrError;
   private final ResolveFunctionOrError resolveFunctionOrError;
@@ -46,8 +45,6 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
         new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
     this.symbolsFromParamExpression =
         new SymbolsFromParamExpression(symbolAndScopeManagement, errorListener);
-    this.symbolFromContextOrError =
-        new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
     this.parameterisedLocator =
         new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
     this.checkValidFunctionDelegateOrError =
@@ -61,7 +58,8 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
   @Override
   public ScopedSymbol apply(final EK9Parser.CallContext ctx) {
     var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
-    var callIdentifier = symbolFromContextOrError.apply(ctx.identifierReference());
+    //This might not be resolved yet for methods for example.
+    var callIdentifier = symbolAndScopeManagement.getRecordedSymbol(ctx.identifierReference());
     var startToken = new Ek9Token(ctx.start);
     return switch (callIdentifier) {
       case AggregateSymbol aggregate -> checkAggregate(startToken, aggregate, callIdentifier, callParams);
@@ -70,7 +68,10 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
           checkForMethodOnAggregate(startToken, method.getParentScope(), callIdentifier.getName(), callParams);
       case VariableSymbol variable ->
           checkValidFunctionDelegateOrError.apply(new DelegateFunctionCheckData(startToken, variable, callParams));
-      case null -> null;
+      case null -> {
+        errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
+        yield null;
+      }
       default -> {
         AssertValue.fail("Compiler error: Not expecting " + ctx.getText());
         yield null;

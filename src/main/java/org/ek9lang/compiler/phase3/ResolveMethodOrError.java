@@ -7,6 +7,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.search.PossibleMatchingMethods;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
@@ -17,6 +18,7 @@ import org.ek9lang.compiler.tokenizer.IToken;
  */
 final class ResolveMethodOrError extends TypedSymbolAccess
     implements BiFunction<IToken, MethodSearchInScope, MethodSymbol> {
+  private final PossibleMatchingMethods possibleMatchingMethods = new PossibleMatchingMethods();
   private final MostSpecificScope mostSpecificScope;
   private final CheckAccessToSymbol checkAccessToSymbol;
 
@@ -51,7 +53,7 @@ final class ResolveMethodOrError extends TypedSymbolAccess
       errorListener.semanticError(token, msg, ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
     } else if (results.isEmpty()) {
       var msg = msgStart + "'" + searchOnAggregate.search().toString();
-      var nearMatches = getPossibleMatchingMethods(searchOnAggregate);
+      var nearMatches = possibleMatchingMethods.apply(searchOnAggregate);
       if (nearMatches.isEmpty()) {
         msg += "':";
       } else {
@@ -66,15 +68,5 @@ final class ResolveMethodOrError extends TypedSymbolAccess
 
   private String methodsToPresentation(List<MethodSymbol> methods) {
     return methods.stream().map(ISymbol::getFriendlyName).collect(Collectors.joining(","));
-  }
-
-  private List<MethodSymbol> getPossibleMatchingMethods(final MethodSearchInScope searchOnAggregate) {
-    var toSearch = searchOnAggregate.scopeToSearch();
-    var nearMatches = toSearch.getAllSymbolsMatchingName(searchOnAggregate.search().getName());
-    return nearMatches
-        .stream()
-        .filter(ISymbol::isMethod)
-        .map(MethodSymbol.class::cast)
-        .toList();
   }
 }

@@ -1,11 +1,16 @@
 package org.ek9lang.compiler.phase3;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.AnySymbolSearch;
+import org.ek9lang.compiler.search.MethodSearchInScope;
+import org.ek9lang.compiler.search.MethodSymbolSearch;
+import org.ek9lang.compiler.search.PossibleMatchingMethods;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -13,10 +18,19 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
  * Ensures that 'identifierReference' is now resolved and hangs together and 'typed' or a not resolved error.
+ * Note that while the identifierReference may get resolved also see ResolveIdentifierReferenceCallOrError.
+ * This is because the context of the identifierReference may mean that it is important to 're-resolve it.
+ * Indeed for overloaded methods it probably will end up resolving to a different method.
+ * The same applies to it resolving to a function or even a function delegate.
+ * <p>
+ * {@link org.ek9lang.compiler.phase3.CheckValidCall}
+ * {@link org.ek9lang.compiler.phase3.ResolveIdentifierReferenceCallOrError}
  */
 final class ProcessValidIdentifierReference extends TypedSymbolAccess
     implements Function<EK9Parser.IdentifierReferenceContext, Optional<ISymbol>> {
 
+  private final MostSpecificScope mostSpecificScope;
+  private final PossibleMatchingMethods possibleMatchingMethods = new PossibleMatchingMethods();
 
   /**
    * Checks identifier reference now resolves.
@@ -24,28 +38,56 @@ final class ProcessValidIdentifierReference extends TypedSymbolAccess
   ProcessValidIdentifierReference(final SymbolAndScopeManagement symbolAndScopeManagement,
                                   final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
+    this.mostSpecificScope = new MostSpecificScope(symbolAndScopeManagement);
   }
 
   @Override
   public Optional<ISymbol> apply(final EK9Parser.IdentifierReferenceContext ctx) {
-    var identifierReference = getRecordedAndTypedSymbol(ctx);
-
-    if (identifierReference == null) {
-      //This has not yet been resolved.
-      //We now must resolve this, it's an error and compilation cannot continue if not resolved.
-      var currentScope = symbolAndScopeManagement.getTopScope();
-      var resolved = currentScope.resolve(new AnySymbolSearch(ctx.getText()));
-      if (resolved.isPresent()) {
-        identifierReference = resolved.get();
-        recordATypedSymbol(identifierReference, ctx);
-      } else {
-        errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
-      }
-    }
+    var identifierReference = resolveIdentifierReference(ctx);
+    //Above will issue errors if needs be
     if (identifierReference != null) {
       identifierReferenceChecks(ctx, identifierReference);
     }
     return Optional.ofNullable(identifierReference);
+  }
+
+  private ISymbol resolveIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
+    //Order of resolution attempts.
+    List<Function<EK9Parser.IdentifierReferenceContext, ISymbol>> resolvers = List.of(
+        symbolAndScopeManagement::getRecordedSymbol,
+        this::tryToResolveViaCurrentScope,
+        this::tryToResolveViaNearestBlockScope
+    );
+
+    //Try each until a resolved or null if not resolved.
+    return resolvers
+        .stream()
+        .map(resolver -> resolver.apply(ctx))
+        .filter(Objects::nonNull)
+        .findFirst()
+        .orElse(null);
+  }
+
+  private ISymbol tryToResolveViaCurrentScope(final EK9Parser.IdentifierReferenceContext ctx) {
+    var currentScope = symbolAndScopeManagement.getTopScope();
+    var resolved = currentScope.resolve(new AnySymbolSearch(ctx.getText()));
+    resolved.ifPresent(identifierReference -> recordATypedSymbol(identifierReference, ctx));
+    return resolved.orElse(null);
+  }
+
+  private ISymbol tryToResolveViaNearestBlockScope(final EK9Parser.IdentifierReferenceContext ctx) {
+    var scope = mostSpecificScope.get();
+    var searchDetails = new MethodSearchInScope(scope, new MethodSymbolSearch(ctx.getText()));
+    //At this point with method overload there could be multiple with the right name.
+    //Just use the first for the time being, but ResolveIdentifierReferenceCallOrError will do the
+    //check by resolving with the name of this method and the correct parameters.
+    var possibleMethods = possibleMatchingMethods.apply(searchDetails);
+    if (possibleMethods.isEmpty()) {
+      return null;
+    }
+    var identifierReference = possibleMethods.get(0);
+    recordATypedSymbol(identifierReference, ctx);
+    return identifierReference;
   }
 
   /**

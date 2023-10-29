@@ -1,0 +1,44 @@
+#!ek9
+<?-
+  Just a simple demonstration of most resolution working fine, except for one call.
+  This really focuses on calls from within a class - where it is not really a chained or explicit
+  call on a known type. But is more of a 'given the context' type call.
+-?>
+defines module bad.simple.resolution
+
+  defines class
+    B1 as open
+      default B1()
+
+      aBaseMethod()
+        -> arg0 as String
+        <- rtn as Boolean: arg0?
+
+    C1 extends B1
+      default C1()
+
+      method1()
+        <- rtn as Boolean?
+        rtn: method2(21)
+
+      method2()
+        -> arg0 as Integer
+        <- rtn as Boolean: aBaseMethod($arg0)
+
+      <?-
+        Also make sure it is possible to resolve a function
+      -?>
+      method3()
+        -> arg0 as Integer
+        <- rtn as Boolean: AFunction(arg0)
+
+  defines function
+    Broken()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert nothing()
+
+    AFunction()
+      -> arg0 as Integer
+      <- rtn as Boolean: arg0?
+
+//EOF
