@@ -19,8 +19,8 @@ final class ParameterisedLocator extends ResolverOrDefiner
    * Create a new Function that can define or resolve a specific generic type with a single type parameter.
    */
   ParameterisedLocator(final SymbolAndScopeManagement symbolAndScopeManagement,
-                              final SymbolFactory symbolFactory, final ErrorListener errorListener,
-                              final boolean errorIfNotDefinedOrResolved) {
+                       final SymbolFactory symbolFactory, final ErrorListener errorListener,
+                       final boolean errorIfNotDefinedOrResolved) {
     super(symbolAndScopeManagement, symbolFactory, errorListener, errorIfNotDefinedOrResolved);
   }
 

@@ -11,6 +11,7 @@ import org.ek9lang.compiler.support.ParameterisedTypeData;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.support.SymbolTypeExtractor;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.ConstantSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -68,12 +69,18 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
           checkForMethodOnAggregate(startToken, method.getParentScope(), callIdentifier.getName(), callParams);
       case VariableSymbol variable ->
           checkValidFunctionDelegateOrError.apply(new DelegateFunctionCheckData(startToken, variable, callParams));
+      case ConstantSymbol constantSymbol -> {
+        errorListener.semanticError(ctx.start, "'" + constantSymbol + "' is a constant:",
+            ErrorListener.SemanticClassification.TYPE_MUST_BE_FUNCTION);
+        yield null;
+      }
       case null -> {
         errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
         yield null;
       }
       default -> {
-        AssertValue.fail("Compiler error: Not expecting " + ctx.getText());
+        AssertValue.fail(
+            "Compiler error: Not expecting " + ctx.getText() + " as [" + callIdentifier.getFriendlyName() + "]");
         yield null;
       }
     };

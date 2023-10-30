@@ -2,7 +2,7 @@
 <?-
   Workpad, next bit.
   No need to check for duplicated types, because badDuplicateConstructs.ek9 has that covered in SYMBOL_DEFINITION.
-  Also there are checks on methods and variables both colliding with function names.
+  Also there are checks on methods and variables both colliding with function names in EXPLICIT_TYPE_SYMBOL_DEFINITION.
 
   This just needs to focus on resolution from within a class.
   So now the only thing is to be able to resolve if it is:
@@ -12,18 +12,12 @@
   4. method on super
   5. method on trait.
 
-  But there is no no ambiguity as to weather is it a function - because that would be an error detected earlier (as a name collision)
+  But there is now no ambiguity as to whether is it a function - because that would be an error detected earlier (as a name collision)
 -?>
 defines module just.workspace
 
 
-  defines class
-    C1
-      default C1()
-
   defines function
-    abstractFunction as abstract
-      <- rtn as Boolean?
 
     Broken()
       @Error: FULL_RESOLUTION: NOT_RESOLVED

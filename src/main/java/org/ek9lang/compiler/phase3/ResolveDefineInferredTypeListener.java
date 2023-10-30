@@ -33,7 +33,6 @@ import org.ek9lang.core.CompilerException;
 final class ResolveDefineInferredTypeListener extends ExpressionsListener {
 
   private final DynamicCaptureAndDefinition dynamicCaptureAndDefinition;
-  private final CheckPossibleFieldDelegate checkPossibleFieldDelegate;
   private final CheckPropertyNames checkPropertyNames;
   private final CheckDefaultOperators checkDefaultOperators;
   private final CheckMethodOverrides checkMethodOverrides;
@@ -56,7 +55,6 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     this.dynamicCaptureAndDefinition =
         new DynamicCaptureAndDefinition(symbolAndScopeManagement, errorListener, symbolFactory);
 
-    this.checkPossibleFieldDelegate = new CheckPossibleFieldDelegate(symbolAndScopeManagement, errorListener);
     this.checkPropertyNames = new CheckPropertyNames(symbolAndScopeManagement, errorListener, DUPLICATE_PROPERTY_FIELD);
     this.checkDefaultOperators = new CheckDefaultOperators(symbolAndScopeManagement, errorListener);
     this.checkMethodOverrides = new CheckMethodOverrides(symbolAndScopeManagement,
@@ -102,14 +100,6 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     scope.setOpenToEnclosingScope(false);
 
     super.exitDynamicVariableCapture(ctx);
-  }
-
-  @Override
-  public void exitAggregateProperty(EK9Parser.AggregatePropertyContext ctx) {
-    var field = symbolAndScopeManagement.getRecordedSymbol(ctx);
-    checkPossibleFieldDelegate.accept(field);
-
-    super.exitAggregateProperty(ctx);
   }
 
   @Override

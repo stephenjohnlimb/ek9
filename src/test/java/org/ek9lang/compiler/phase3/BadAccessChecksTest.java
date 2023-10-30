@@ -32,5 +32,6 @@ class BadAccessChecksTest extends PhasesTest {
     assertFalse(program.getParsedModules("bad.functiondelegates.examples").isEmpty());
     assertFalse(program.getParsedModules("bad.higherfunctionandmethodcalls.examples").isEmpty());
     assertFalse(program.getParsedModules("bad.recordfield.access").isEmpty());
+    assertFalse(program.getParsedModules("bad.delegate.name.clashes").isEmpty());
   }
 }

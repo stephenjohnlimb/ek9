@@ -24,6 +24,7 @@ final class CheckVariableAssignment extends TypedSymbolAccess
 
   private final CheckTypesCompatible checkTypesCompatible;
   private final CheckAssignment checkAssignment;
+  private final CheckPossibleDelegate checkPossibleDelegate;
 
   /**
    * Create a new checker of variable assignments when variables are being declared.
@@ -33,6 +34,7 @@ final class CheckVariableAssignment extends TypedSymbolAccess
     super(symbolAndScopeManagement, errorListener);
     this.checkTypesCompatible = new CheckTypesCompatible(symbolAndScopeManagement, errorListener);
     this.checkAssignment = new CheckAssignment(symbolAndScopeManagement, errorListener, true);
+    this.checkPossibleDelegate = new CheckPossibleDelegate(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -58,6 +60,8 @@ final class CheckVariableAssignment extends TypedSymbolAccess
     } else {
       processInferredType(ctx, varSymbol, exprSymbol);
     }
+
+    checkPossibleDelegate.accept(varSymbol);
   }
 
   /**

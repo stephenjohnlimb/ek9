@@ -28,7 +28,6 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final CheckValidCall checkValidCall;
   private final ProcessRange processRange;
   private final CheckForRange checkForRange;
-
   private final CheckVariableAssignment checkVariableAssignment;
   private final CheckVariableOnlyDeclaration checkVariableOnlyDeclaration;
 
@@ -170,7 +169,7 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
     processObjectAccessExpressionOrError.accept(ctx);
     super.exitObjectAccessExpression(ctx);
   }
-  
+
   @Override
   public void exitVariableDeclaration(EK9Parser.VariableDeclarationContext ctx) {
     checkVariableAssignment.accept(ctx);

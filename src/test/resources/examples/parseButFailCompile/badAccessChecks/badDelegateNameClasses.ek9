@@ -1,0 +1,147 @@
+#!ek9
+<?-
+  No need to check for duplicated types, because badDuplicateConstructs.ek9 has that covered in SYMBOL_DEFINITION.
+  Also there are checks on methods and variables both colliding with function names in EXPLICIT_TYPE_SYMBOL_DEFINITION.
+
+  Added in functionality to prevent delegates getting confused with methods.
+-?>
+defines module bad.delegate.name.clashes
+
+  defines constant
+    AnIntegerConstant <- 90
+
+
+  defines class
+
+    <?-
+      Example of a class with delegate and being passed delegate in.
+      Also calls the delegate (as parameter) and calls the field version of the delegate.
+    -?>
+    C0
+      aDelegate as abstractFunction?
+
+      C0()
+        -> aDelegate as abstractFunction
+        this.aDelegate: aDelegate
+
+      generalMethod()
+        -> aDelegate as abstractFunction
+        result1 <- aDelegate()
+        result2 <- this.aDelegate()
+        assert result1 and result2
+
+    <?-
+      Again nothing wrong with this class and method.
+    -?>
+    C1 as open
+      aDelegate()
+        <- rtn <- false
+
+    <?-
+      But this is fine as a field because it is not a function delegate.
+      Even though there is a method of the same name.
+    -?>
+    C2 extends C1
+      aDelegate as String?
+
+    <?-
+      But just extending C1 and adding in a delegate of same name causes and error.
+    -?>
+    C3 extends C1
+      @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+      aDelegate as abstractFunction?
+
+    <?-
+      Starts out the same as above, but just adding a method to it
+      causes errors as now it is ambiguous. You get the errors in all the locations,
+      except the method. That is just referenced in the error.
+    -?>
+    C4
+      @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+      aDelegate as abstractFunction?
+
+      C4()
+        @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+        -> aDelegate as abstractFunction
+        this.aDelegate: aDelegate
+
+      generalMethod()
+        @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+        -> aDelegate as abstractFunction
+        result <- aDelegate()
+        assert result
+
+      aDelegate()
+        <- rtn <- false
+
+    C5
+      var <- "Steve"
+      @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+      aDelegate as abstractFunction?
+
+      C5()
+        -> arg0 as abstractFunction
+        aDelegate: arg0
+
+      checkIncompatibleTypes()
+        //Lets check the resolution and the fact the wrong type can be detected.
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+        wrongType as String: AnIntegerConstant
+
+      checkCompatibleTypes()
+        rightType as Integer: AnIntegerConstant
+        assert rightType?
+
+      checkTryCallingConstantAsAFunction()
+        //Lets check the resolution and the fact the wrong it's not a function or a method.
+        @Error: FULL_RESOLUTION: TYPE_MUST_BE_FUNCTION
+        wrongType as String: AnIntegerConstant()
+
+      checkTryCallingVariableAsAFunction()
+        //Now it is possible to use variables as delegates, but this is just a variable of type String and not a function delegate.
+        @Error: FULL_RESOLUTION: NOT_A_FUNCTION_DELEGATE
+        wrongType as String: var()
+
+      checkTryCallingAFunctionDelegate()
+        stringType as String?
+
+        //This is not actually calling the function delegate.
+        //By adding the 'aDelegate' methods below, the delegate is hidden and an error now issued.
+        //So the resolution has jumped to the method.
+        stringType: aDelegate()
+        assert stringType?
+
+        //Now make the call but with what would be the right return type for the delegate.
+        //But is now the wrong type because the methods below have been added.
+        booleanType as Boolean?
+
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+        booleanType: aDelegate()
+        assert booleanType?
+
+      //Another quick check on resolution.
+      method1()
+        <- rtn as Boolean?
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+        rtn: aDelegate()
+
+      //Now just to confuse things lets add methods also called 'aDelegate'
+
+      aDelegate()
+        <- rtn <- "Steve"
+
+      aDelegate()
+        -> arg0 as Integer
+        <- rtn <- "Stephen"
+
+
+  defines function
+
+    abstractFunction as abstract
+      <- rtn as Boolean?
+
+    Broken()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert nothing()
+
+//EOF

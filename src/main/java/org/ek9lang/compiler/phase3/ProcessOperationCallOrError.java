@@ -63,8 +63,8 @@ final class ProcessOperationCallOrError extends TypedSymbolAccess
   }
 
   private ScopedSymbol doProcess(final IToken startToken,
-                            final EK9Parser.OperationCallContext ctx,
-                            final IAggregateSymbol aggregate) {
+                                 final EK9Parser.OperationCallContext ctx,
+                                 final IAggregateSymbol aggregate) {
 
 
     //Get the params and extract the types
@@ -99,9 +99,9 @@ final class ProcessOperationCallOrError extends TypedSymbolAccess
   }
 
   private ScopedSymbol resolveAsMethod(final EK9Parser.OperationCallContext ctx,
-                                  final IScope scopeToResolveIn,
-                                  final String methodName,
-                                  final List<ISymbol> callParams) {
+                                       final IScope scopeToResolveIn,
+                                       final String methodName,
+                                       final List<ISymbol> callParams) {
     var resolvedMethod = checkForMethodOnAggregate(new Ek9Token(ctx.start), scopeToResolveIn, methodName, callParams);
     if (resolvedMethod == null) {
       var msg = "'" + methodName + "':";

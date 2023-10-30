@@ -16,9 +16,12 @@ import org.ek9lang.compiler.symbols.ISymbol;
  */
 final class CheckVariableOnlyDeclaration extends TypedSymbolAccess
     implements Consumer<EK9Parser.VariableOnlyDeclarationContext> {
+  private final CheckPossibleDelegate checkPossibleDelegate;
+
   CheckVariableOnlyDeclaration(SymbolAndScopeManagement symbolAndScopeManagement,
                                ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
+    this.checkPossibleDelegate = new CheckPossibleDelegate(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -27,6 +30,7 @@ final class CheckVariableOnlyDeclaration extends TypedSymbolAccess
     var symbol = getRecordedAndTypedSymbol(ctx);
     if (symbol != null && symbol.getType().isPresent()) {
       checkVariable(ctx, symbol, symbol.getType().get());
+      checkPossibleDelegate.accept(symbol);
     }
   }
 

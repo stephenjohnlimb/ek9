@@ -40,9 +40,9 @@ final class CheckTypesCompatible extends TypedSymbolAccess implements Consumer<
 
       var weightOfMatch = matcher.getWeightOfMatch(fromType, toType);
       if (weightOfMatch < 0.0) {
-        var msg = "'" + toCheck.rhs().getFriendlyName() + "' and '"
-            + toCheck.lhs().getFriendlyName() + "' "
-            + position + ":";
+        var msg = "'" + toCheck.lhs().getFriendlyName() + "' "
+            + position + " and '"
+            + toCheck.rhs().getFriendlyName() + "':";
         errorListener.semanticError(toCheck.location(), msg,
             ErrorListener.SemanticClassification.INCOMPATIBLE_TYPES);
       }

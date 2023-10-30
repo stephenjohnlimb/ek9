@@ -40,6 +40,16 @@ defines module bad.classmethod.access2
       operator ? as pure
         <- rtn <- true
 
+    Class2 extends Base
+      Class2()
+        @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+        someDelegate <- () is generalFunction as function (rtn: arg0)
+        assert someDelegate?
+
+      someDelegate()
+        -> arg0 as Date
+        <- rtn <- 0
+
   defines function
 
     generalFunction as abstract
