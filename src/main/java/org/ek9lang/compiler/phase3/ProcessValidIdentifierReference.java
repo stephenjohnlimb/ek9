@@ -52,10 +52,12 @@ final class ProcessValidIdentifierReference extends TypedSymbolAccess
 
   private ISymbol resolveIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
     //Order of resolution attempts.
+    //See if already resolved, else try and resolve in current scope (this will escalate out to cover types)
+    //If still not located then try and find at least one method with that name.
     List<Function<EK9Parser.IdentifierReferenceContext, ISymbol>> resolvers = List.of(
         symbolAndScopeManagement::getRecordedSymbol,
         this::tryToResolveViaCurrentScope,
-        this::tryToResolveViaNearestBlockScope
+        this::tryToResolveMethodByNameInNearestBlockScope
     );
 
     //Try each until a resolved or null if not resolved.
@@ -74,7 +76,7 @@ final class ProcessValidIdentifierReference extends TypedSymbolAccess
     return resolved.orElse(null);
   }
 
-  private ISymbol tryToResolveViaNearestBlockScope(final EK9Parser.IdentifierReferenceContext ctx) {
+  private ISymbol tryToResolveMethodByNameInNearestBlockScope(final EK9Parser.IdentifierReferenceContext ctx) {
     var scope = mostSpecificScope.get();
     var searchDetails = new MethodSearchInScope(scope, new MethodSymbolSearch(ctx.getText()));
     //At this point with method overload there could be multiple with the right name.

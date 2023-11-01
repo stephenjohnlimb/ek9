@@ -27,5 +27,6 @@ class BadCallResolutionTest extends PhasesTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
     assertFalse(program.getParsedModules("bad.simple.resolution").isEmpty());
+    assertFalse(program.getParsedModules("bad.detailed.resolution").isEmpty());
   }
 }

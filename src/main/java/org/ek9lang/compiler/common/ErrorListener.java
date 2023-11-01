@@ -435,7 +435,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     DUPLICATE_NAME("Variable/Function/Type duplicated, likely to lead to confusion"),
     POSSIBLE_DUPLICATE_ENUMERATED_VALUE("are duplicated values (or are too similar, likely to be confusing)"),
     EXCEPTION_ONLY_SINGLE_PARAMETER("Exception handling is for a single parameter only"),
-    DUPLICATE_TYPE("Type/Function duplicated"),
+    DUPLICATE_TYPE("Type/Function name duplicated"),
     DUPLICATE_SYMBOL("Symbol duplicated"),
     INVALID_SYMBOL_BY_REFERENCE("invalid reference naming; module scope name missing"),
     CONSTRUCT_REFERENCE_CONFLICT("conflicts with a reference"),

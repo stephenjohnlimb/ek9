@@ -1,0 +1,351 @@
+#!ek9
+<?-
+  No need to check for duplicated types, because badDuplicateConstructs.ek9 has that covered in SYMBOL_DEFINITION.
+  Also there are checks on methods and variables both colliding with function names in EXPLICIT_TYPE_SYMBOL_DEFINITION.
+
+  This is a bit repetitive - but needs to check classes, supers and traits in combination with named variables and delegates.
+
+  This just needs to focus on resolution from within a class.
+  So now the only thing is to be able to resolve if it is:
+  1. function delegate local variable
+  2. function delegate as a property
+  3. method on this class
+  4. method on super
+  5. method on trait.
+
+  But there is now no ambiguity as to whether is it a function - because that would be an error detected earlier (as a name collision)
+-?>
+defines module bad.detailed.resolution
+
+  defines function
+
+    SomeFunction() as abstract
+      <- rtn as Integer?
+
+  defines trait
+    ATrait
+      method2()
+        -> arg0 as Integer
+        <- rtn <- true
+
+
+  defines class
+    Base as open
+      method2()
+        -> arg0 as Integer
+        <- rtn <- true
+
+    C1A
+      method1()
+        <- rtn as Boolean?
+
+        //Create just a normal variable
+        method2 <- 66
+
+        //But try and call it like a delegate and fail
+        @Error: FULL_RESOLUTION: NOT_A_FUNCTION_DELEGATE
+        rtn: method2(21)
+
+    C2A
+      //Create just a normal variable but as a property
+      method2 <- 66
+
+      method1()
+        <- rtn as Boolean?
+
+        //But try and call property like a delegate and fail
+        @Error: FULL_RESOLUTION: NOT_A_FUNCTION_DELEGATE
+        rtn: method2(21)
+
+    C3A
+      //Now its not just a variable but a delegate
+      method2 as SomeFunction?
+
+      C3A()
+        -> arg0 as SomeFunction
+        this.method2: arg0
+
+      method1()
+        <- rtn as Boolean?
+
+        //Now it really is a function delegate, but we pass the wrong parameters (not also has the wrong return type - see next test)
+        @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+        rtn: method2(21)
+
+    C4A
+      method2 as SomeFunction?
+
+      C4A()
+        -> arg0 as SomeFunction
+        this.method2: arg0
+
+      method1()
+        <- rtn as Boolean?
+
+        //Now it really is a function delegate, we pass in no parameters, so that is correct, but the return type is wrong.
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+        rtn: method2()
+
+    C5A
+      method1()
+        <- rtn as Boolean?
+
+        //Create a local function delegate and try and use that.
+        method2 as SomeFunction: () is SomeFunction as function (rtn: 22)
+        //Now it really is a function delegate, we pass in no parameters, so that is correct, but the return type is wrong.
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+        rtn: method2()
+
+    C6A
+      method2 as SomeFunction?
+
+      C6A()
+        -> arg0 as SomeFunction
+        this.method2: arg0
+
+      method1()
+        <- rtn as Integer?
+
+        //Finally this will be OK.
+        rtn: method2()
+
+    C7A
+
+      method1()
+        <- rtn as Integer?
+
+        //This time also make a local delegate and then call it.
+        method2 <- () is SomeFunction as function (rtn: 22)
+
+        //Finally this will be OK.
+        rtn: method2()
+
+    C8A
+      method1()
+        <- rtn as Integer?
+
+        //This time also make a local delegate and then call it.
+        @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+        method2 <- () is SomeFunction as function (rtn: 22)
+
+        //But it resolves the dynamic function above and NOT method below - hence the error as it is ambiguous
+        rtn: method2()
+
+      method2()
+        <- rtn <- false
+
+    <?-
+      Now extend a base that has method2 defined.
+      Notice how, the EK9 compiler detects method2 is not actually a function delegate.
+      Also it detects there is a method2 available.
+      Now it can resolve that method.
+    -?>
+    C1B extends Base
+      method1()
+        <- rtn as Boolean?
+
+        //Create just a normal variable
+        method2 <- 66
+
+        //While you might pick this up in a code review, the compiler does not stop you doing this.
+        rtn: method2(21)
+
+    C2B extends Base
+      //Create just a normal variable but as a property
+      method2 <- 66
+
+      method1()
+        <- rtn as Boolean?
+        //Again this is fine - not nice code - but fine.
+        rtn: method2(21)
+
+    C3B extends Base
+      @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+      method2 as SomeFunction?
+
+      C3B()
+        -> arg0 as SomeFunction
+        this.method2: arg0
+
+      method1()
+        <- rtn as Boolean?
+
+        //Even though that method exists, the delegate is resolved first and that does not take parameters
+        @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+        rtn: method2(21)
+
+    C4B extends Base
+      //Create just a normal variable but as a property
+      @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+      method2 as SomeFunction?
+
+      C4B()
+        -> arg0 as SomeFunction
+        this.method2: arg0
+
+      method1()
+        <- rtn as Boolean?
+
+        //Now it really is a function delegate, we pass in no parameters, so that is correct, but the return type is wrong.
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+        rtn: method2()
+
+    C5B extends Base
+      method1()
+        <- rtn as Boolean?
+
+        //Create a local function delegate and try and use that. but it clashes with the method in the Base.
+        @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+        method2 as SomeFunction: () is SomeFunction as function (rtn: 22)
+
+        //Now it really is a function delegate, we pass in no parameters, so that is correct, but the return type is wrong.
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+        rtn: method2()
+
+    C6B extends Base
+      @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+      method2 as SomeFunction?
+
+      C6B()
+        -> arg0 as SomeFunction
+        this.method2: arg0
+
+      method1()
+        <- rtn as Integer?
+
+        //Won't compile due to error above and so cannot be called.
+        rtn: method2()
+
+    C7B extends Base
+
+      method1()
+        <- rtn as Integer?
+
+        //This time also make a local delegate and then call it, but again clashes with the same name in the Base
+        @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+        method2 <- () is SomeFunction as function (rtn: 22)
+
+        //Finally this will be OK, as it in effect is resolved from above rather than the base method.
+        rtn: method2()
+
+    C8B extends Base
+      method1()
+        <- rtn as Integer?
+
+        //This time also make a local delegate and then call it.
+        //This clashes with both the name in the Base and the method2 below
+        @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+        method2 <- () is SomeFunction as function (rtn: 22)
+
+        //Finally this will be OK. But not is resolves the dynamic function above and NOT method below
+        rtn: method2()
+
+      method2()
+        <- rtn <- false
+
+    C1C with trait of ATrait
+      method1()
+        <- rtn as Boolean?
+
+        //Create just a normal variable
+        method2 <- 66
+
+        //While you might pick this up in a code review, the compiler does not stop you doing this.
+        rtn: method2(21)
+
+    C2C with trait of ATrait
+      //Create just a normal variable but as a property
+      method2 <- 66
+
+      method1()
+        <- rtn as Boolean?
+        //Again this is fine - not nice code - but fine.
+        rtn: method2(21)
+
+    C3C trait ATrait
+      @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+      method2 as SomeFunction?
+
+      C3C()
+        -> arg0 as SomeFunction
+        this.method2: arg0
+
+      method1()
+        <- rtn as Boolean?
+
+        //Even though that method exists, the delegate is resolved first and that does not take parameters
+        @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+        rtn: method2(21)
+
+    C4C trait of ATrait
+      //Create just a normal variable but as a property
+      @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+      method2 as SomeFunction?
+
+      C4C()
+        -> arg0 as SomeFunction
+        this.method2: arg0
+
+      method1()
+        <- rtn as Boolean?
+
+        //Now it really is a function delegate, we pass in no parameters, so that is correct, but the return type is wrong.
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+        rtn: method2()
+
+    C5C trait of ATrait
+      method1()
+        <- rtn as Boolean?
+
+        //Create a local function delegate and try and use that. but it clashes with the method in the trait.
+        @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+        method2 as SomeFunction: () is SomeFunction as function (rtn: 22)
+
+        //Now it really is a function delegate, we pass in no parameters, so that is correct, but the return type is wrong.
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+        rtn: method2()
+
+    C6C trait of ATrait
+      @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+      method2 as SomeFunction?
+
+      C6C()
+        -> arg0 as SomeFunction
+        this.method2: arg0
+
+      method1()
+        <- rtn as Integer?
+
+        //Won't compile due to error above and so cannot be called.
+        rtn: method2()
+
+    C7C trait of ATrait
+      @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+      method2 as SomeFunction?
+
+      C7C()
+        -> arg0 as SomeFunction
+        this.method2: arg0
+
+      method1()
+        <- rtn as Integer?
+
+        //Won't compile due to error above and so cannot be called.
+        rtn: method2()
+
+    C8C with trait of ATrait
+      method1()
+        <- rtn as Integer?
+
+        //This time also make a local delegate and then call it.
+        //This clashes with both the name in the Base and the method2 below
+        @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
+        method2 <- () is SomeFunction as function (rtn: 22)
+
+        //Finally this will be OK. But not is resolves the dynamic function above and NOT method below
+        rtn: method2()
+
+      method2()
+        <- rtn <- false
+
+//EOF

@@ -7,6 +7,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
+import org.ek9lang.compiler.search.PossibleMatchingMethods;
 import org.ek9lang.compiler.support.ParameterisedTypeData;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.support.SymbolTypeExtractor;
@@ -29,6 +30,8 @@ import org.ek9lang.core.AssertValue;
 final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
     implements Function<EK9Parser.CallContext, ScopedSymbol> {
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
+  private final PossibleMatchingMethods possibleMatchingMethods = new PossibleMatchingMethods();
+  private final MostSpecificScope mostSpecificScope;
   private final ResolveMethodOrError resolveMethodOrError;
   private final SymbolsFromParamExpression symbolsFromParamExpression;
   private final ParameterisedLocator parameterisedLocator;
@@ -42,6 +45,8 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
                                         final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
 
+    this.mostSpecificScope =
+        new MostSpecificScope(symbolAndScopeManagement);
     this.resolveMethodOrError =
         new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
     this.symbolsFromParamExpression =
@@ -68,7 +73,7 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
       case MethodSymbol method ->
           checkForMethodOnAggregate(startToken, method.getParentScope(), callIdentifier.getName(), callParams);
       case VariableSymbol variable ->
-          checkValidFunctionDelegateOrError.apply(new DelegateFunctionCheckData(startToken, variable, callParams));
+          checkForDelegateOrSearchForMethod(startToken, ctx.identifierReference(), variable, callParams);
       case ConstantSymbol constantSymbol -> {
         errorListener.semanticError(ctx.start, "'" + constantSymbol + "' is a constant:",
             ErrorListener.SemanticClassification.TYPE_MUST_BE_FUNCTION);
@@ -84,6 +89,30 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
         yield null;
       }
     };
+  }
+
+  private ScopedSymbol checkForDelegateOrSearchForMethod(final Ek9Token startToken,
+                                                         final EK9Parser.IdentifierReferenceContext ctx,
+                                                         final VariableSymbol variable,
+                                                         final List<ISymbol> callParams) {
+    //Do a quick check (no errors) to see if there is a method that may match
+    var scope = mostSpecificScope.get();
+    var searchDetails = new MethodSearchInScope(scope, new MethodSymbolSearch(variable.getName()));
+    var possibleMethods = possibleMatchingMethods.apply(searchDetails);
+
+    //If the nearest identifier during normal resolution is a variable we may check if it is a suitable delegate
+    if (possibleMethods.isEmpty()
+        || variable.getType().isPresent() && variable.getType().get() instanceof FunctionSymbol) {
+      return checkValidFunctionDelegateOrError.apply(new DelegateFunctionCheckData(startToken, variable, callParams));
+    }
+
+    //Or just try and resolve a method with that name.
+    var resolvedMethod = checkForMethodOnAggregate(startToken, scope, variable.getName(), callParams);
+    if (resolvedMethod != null) {
+      //We now update the recorded system for this identifier reference.
+      recordATypedSymbol(resolvedMethod, ctx);
+    }
+    return resolvedMethod;
   }
 
   private ScopedSymbol checkAggregate(final IToken token,

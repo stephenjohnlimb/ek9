@@ -41,13 +41,21 @@ final class CheckPossibleDelegate extends TypedSymbolAccess implements Consumer<
       var possibleNameClash = symbol.getName();
       var scopeToCheckIn = mostSpecificScope.get();
       var matchingSymbols = scopeToCheckIn.getAllSymbolsMatchingName(possibleNameClash);
-      if (matchingSymbols.size() > 1) {
+      if (hasClashingSymbolNames(matchingSymbols, symbol)) {
         var msg = "";
         var matches = toMatchResults(symbol, matchingSymbols);
         errorListener.semanticError(symbol.getSourceToken(), msg,
             ErrorListener.SemanticClassification.DELEGATE_AND_METHOD_NAMES_CLASH, matches);
       }
     }
+  }
+
+  private boolean hasClashingSymbolNames(final List<ISymbol> symbols, final ISymbol toExclude) {
+    //We do allow an incoming parameter to be the same name as a method. At the moment!
+    if (!toExclude.isIncomingParameter()) {
+      return symbols.stream().anyMatch(symbol -> !symbol.equals(toExclude));
+    }
+    return symbols.size() > 1;
   }
 
   private MatchResults toMatchResults(final ISymbol symbol, final List<ISymbol> otherMatches) {

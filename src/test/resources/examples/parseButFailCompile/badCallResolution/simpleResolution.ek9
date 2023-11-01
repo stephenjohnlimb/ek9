@@ -1,6 +1,6 @@
 #!ek9
 <?-
-  Just a simple demonstration of most resolution working fine, except for one call.
+  Just a simple demonstration of most resolution working fine, except for one call, that is design not to resolve.
   This really focuses on calls from within a class - where it is not really a chained or explicit
   call on a known type. But is more of a 'given the context' type call.
 -?>
