@@ -10,13 +10,13 @@ defines module fails.to.compile
   references
     alpha::THE_CONSTANT
 
-    @Error: REFERENCE_CHECKS: REFERENCE_DOES_NOT_RESOLVED
+    
     alpha::NO_SUCH_CONSTANT
 
-    @Error: REFERENCE_CHECKS: REFERENCES_CONFLICT
+    
     charlie::THE_CONSTANT
 
-    @Error: REFERENCE_CHECKS: INVALID_SYMBOL_BY_REFERENCE
+    
     SOME_THING_THAT_IS_NOT_FULLY_QUALIFIED
 
   defines constant

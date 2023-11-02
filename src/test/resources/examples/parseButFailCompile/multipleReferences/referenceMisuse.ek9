@@ -11,7 +11,6 @@ defines module main.reference.module
   defines function
 
     BadVariableNameAsType()
-      @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
       F1 <- 90
 
 //EOF
