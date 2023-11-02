@@ -33,8 +33,7 @@ class ExamplesGenericsUse1Test extends PhasesTest {
 
   @Test
   void testPhasedDevelopment() {
-    //TODO fix up code there is a stack overflow here hashCode again.
-    //TODO Plus there are some other EK9 code mistakes.
+    //TODO fix up code enumerated type not resolving correctly
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 
@@ -115,7 +114,7 @@ class ExamplesGenericsUse1Test extends PhasesTest {
 
   private void assertFSMGenerics(final CompilableProgram program) {
     //So we both use and define some generic type in this module.
-    new SymbolCountCheck(1, "com.utils.fsm.example", 11).test(program);
+    new SymbolCountCheck(1, "com.utils.fsm.example", 12).test(program);
   }
 
   private void assertExpressionDeclarationWithGenerics(final CompilableProgram program) {

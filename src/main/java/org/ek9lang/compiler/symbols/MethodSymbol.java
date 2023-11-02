@@ -420,7 +420,9 @@ public class MethodSymbol extends ScopedSymbol {
 
   @Override
   public int hashCode() {
-    int result = super.hashCode();
+    //Altered to use hashcode of friendly name, because otherwise if the method had parameters
+    //That we the same type as the aggregate the method was on, then we'd get an endless loop of calling hash code.
+    int result = getFriendlyName().hashCode();
     result = 31 * result + (isOverride() ? 1 : 0);
     result = 31 * result + (isConstructor() ? 1 : 0);
     result = 31 * result + (isOperator() ? 1 : 0);

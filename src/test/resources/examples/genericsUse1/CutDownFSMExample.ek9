@@ -56,6 +56,8 @@ defines module com.utils.fsm.example
 
         assert initialState?
         currentState := initialState
+        //Also initialise the listener to a basic function just in case setListener is never called.
+        listener: () is FSMListener of T as function (assert fromState? and toState?)
 
       setState()
         -> newState as T
@@ -106,11 +108,13 @@ defines module com.utils.fsm.example
         assert fromState? and toState?
         stdout.println(`Changing from ${fromState} to ${toState}`)
 
+      assert cardListener?
+
       //Symbol 10 - eventually we'll get to 'cardMachine <- FSM(CardSuit.Clubs)'
       @Resolved: SYMBOL_DEFINITION: TYPE: "FSM of (CardSuit)"
       cardMachine as FSM of CardSuit: FSM(CardSuit.Clubs)
       //Again a few interactions
-      cardMachine.setListener(myListener)
+      cardMachine.setListener(cardListener)
       cardMachine.setState(CardSuit.Hearts)
 
 //EOF

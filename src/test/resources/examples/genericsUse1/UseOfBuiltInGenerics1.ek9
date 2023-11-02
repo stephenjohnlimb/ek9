@@ -19,7 +19,7 @@ defines module simple.generics.use.one
 
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "AlsoJustOptional"
     AlsoJustOptional()
-      <- rtn as Optional of String?
+      <- rtn as Optional of String: Optional()
       v1 <- "Steve"
       assert v1?
 

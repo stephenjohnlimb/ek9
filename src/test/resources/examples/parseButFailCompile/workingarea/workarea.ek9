@@ -8,10 +8,26 @@
 -?>
 defines module just.workspace
 
+  defines type
+    <?-
+      Lets just define a simple enumerated type and use the finite state machine with that.
+    -?>
+    //Symbol 1
+    @Resolved: SYMBOL_DEFINITION: TYPE: "CardSuit"
+    CardSuit as
+      Hearts
+      Diamonds
+      Clubs
+      Spades
+
   defines function
 
     Broken()
-      assert var?
+
+      //Need to sort out resolution and include a TYPE here somewhere because we know it defined and exists.
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      listOfSuits as List of CardSuit: List(CardSuit.Hearts)
+
 
 
 //EOF
