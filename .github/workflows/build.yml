@@ -39,7 +39,7 @@ jobs:
       - name: Generate API Documentation
         run: mvn --batch-mode javadoc:javadoc
       - name: AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::332824293200:role/GitHubAction-AssumedRole
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
@@ -50,11 +50,3 @@ jobs:
         run: aws s3 sync --quiet target/site/apidocs s3://repo.ek9lang.org/apidocs
       - name: Upload repo site
         run: aws s3 sync --quiet target/classes/repo s3://repo.ek9lang.org/
-      - name: Coverage with Maven
-        run: mvn clean verify jacoco:report
-      - name: Upload to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./target/site/jacoco/jacoco.xml
-          flags: unittests
