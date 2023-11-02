@@ -211,7 +211,8 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <header>EK9 compiler internals</header>
-          <doctitle><![CDATA[<a href="https://ek9.io">EK9</a> ${project.name} ${project.version} API. Language details on <a href="https://ek9.io">EK9</a> website]]></doctitle>
+          <doctitle>
+            <![CDATA[<a href="https://ek9.io">EK9</a> ${project.name} ${project.version} API. Language details on <a href="https://ek9.io">EK9</a> website]]></doctitle>
           <bottom><![CDATA[Copyright &#169; {inceptionYear}&#x2013;{currentYear} <a href="https://ek9.io">EK9</a>. All rights reserved.]]></bottom>
           <keywords>true</keywords>
           <quiet>true</quiet>
@@ -232,7 +233,9 @@
             </group>
             <group>
               <title>Common/Utility Packages</title>
-              <packages>org.ek9lang.compiler.common*:org.ek9lang.compiler.search*:org.ek9lang.compiler.directives*:org.ek9lang.compiler.support*:org.ek9lang.core*</packages>
+              <packages>
+                org.ek9lang.compiler.common*:org.ek9lang.compiler.search*:org.ek9lang.compiler.directives*:org.ek9lang.compiler.support*:org.ek9lang.core*
+              </packages>
             </group>
             <group>
               <title>Main Compiler</title>
@@ -246,19 +249,19 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <argLine>${jvm.options} ${surefire.memory}</argLine>
-            <properties>
-              <configurationParameters>
-                # Copied junit-platform.properties over to enable maven concurrent junit.
-                junit.jupiter.execution.parallel.enabled = true
-                junit.jupiter.execution.parallel.mode.default = concurrent
-                junit.jupiter.execution.parallel.mode.classes.default = concurrent
+          <argLine>@{argLine} ${jvm.options} ${surefire.memory}</argLine>
+          <properties>
+            <configurationParameters>
+              # Copied junit-platform.properties over to enable maven concurrent junit.
+              junit.jupiter.execution.parallel.enabled = true
+              junit.jupiter.execution.parallel.mode.default = concurrent
+              junit.jupiter.execution.parallel.mode.classes.default = concurrent
 
-                # This seems quicker than the dynamic approach
-                junit.jupiter.execution.parallel.config.strategy = fixed
-                junit.jupiter.execution.parallel.config.fixed.parallelism = 8
-              </configurationParameters>
-            </properties>
+              # This seems quicker than the dynamic approach
+              junit.jupiter.execution.parallel.config.strategy = fixed
+              junit.jupiter.execution.parallel.config.fixed.parallelism = 8
+            </configurationParameters>
+          </properties>
         </configuration>
       </plugin>
 

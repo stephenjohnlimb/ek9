@@ -51,7 +51,7 @@ jobs:
       - name: Upload repo site
         run: aws s3 sync --quiet target/classes/repo s3://repo.ek9lang.org/
       - name: Coverage with Maven
-        run: mvn verify jacoco:report
+        run: mvn clean verify jacoco:report
       - name: Upload to Codecov
         uses: codecov/codecov-action@v3
         with:
