@@ -139,7 +139,7 @@ componentDeclaration
     ;
 
 textDeclaration
-    : Identifier AS? NL+ INDENT NL* (textBodyDeclaration NL+)+ DEDENT
+    : Identifier AS? NL+ INDENT NL* (directive? textBodyDeclaration NL+)+ DEDENT
     ;
 
 serviceDeclaration

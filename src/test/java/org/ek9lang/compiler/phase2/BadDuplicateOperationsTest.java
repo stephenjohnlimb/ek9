@@ -30,7 +30,8 @@ class BadDuplicateOperationsTest extends PhasesTest {
     assertFalse(program.getParsedModules("bad.duplicate.servicemethods").isEmpty());
     assertFalse(program.getParsedModules("bad.duplicate.componentmethods").isEmpty());
     assertFalse(program.getParsedModules("bad.duplicate.recordoperators").isEmpty());
-    assertFalse(program.getParsedModules("bad.name.collisions").isEmpty());
+    assertFalse(program.getParsedModules("bad.name.collisions1").isEmpty());
+    assertFalse(program.getParsedModules("bad.name.collisions2").isEmpty());
 
   }
 }

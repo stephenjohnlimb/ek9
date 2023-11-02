@@ -16,7 +16,7 @@ public class SymbolChecker {
   private final NameCollisionChecker nameCollisionChecker;
 
   public SymbolChecker(ErrorListener errorListener) {
-    this.nameCollisionChecker = new NameCollisionChecker(errorListener);
+    this.nameCollisionChecker = new NameCollisionChecker(errorListener, true);
   }
 
   /**
@@ -27,7 +27,7 @@ public class SymbolChecker {
     AssertValue.checkNotNull("Scope cannot be null", inScope);
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
 
-    if (!nameCollisionChecker.errorsWhenNamesCollide(inScope, symbol)) {
+    if (!nameCollisionChecker.test(inScope, symbol)) {
       return nameCollisionChecker.errorsIfResolved(inScope, symbol,
           new SymbolSearch(symbol.getName()).setLimitToBlocks(limitVarSearchToBlockScope),
           ErrorListener.SemanticClassification.DUPLICATE_VARIABLE);

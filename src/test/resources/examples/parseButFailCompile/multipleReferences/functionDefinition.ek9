@@ -1,0 +1,12 @@
+#!ek9
+<?-
+  Just defines a simple function in a specific workspace
+-?>
+defines module another.reference.module
+
+  defines function
+    F1()
+      -> arg0 as Integer
+      <- rtn as Boolean: arg0?
+
+//EOF

@@ -10,7 +10,9 @@
 defines module fails.to.compile
 
   references
+    @Error: REFERENCE_CHECKS: REFERENCES_CONFLICT
     alpha::THE_CONSTANT
+
     alpha::A_FUNCTION
     alpha::B_RECORD
     alpha::C_TRAIT
@@ -29,31 +31,39 @@ defines module fails.to.compile
     alpha::O_TEXT_BODY
     alpha::P_FOR_LOOP
     alpha::Q_FOR_RANGE
+
+    @Error: REFERENCE_CHECKS: REFERENCES_CONFLICT
     beta::THE_CONSTANT
 
   defines constant
+    @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
     THE_CONSTANT <- "BROKEN"
 
   defines function
+    @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
     A_FUNCTION
       -> p as Integer
       <- r as String: "Nothing"
 
   defines record
+    @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
     B_RECORD
       val <- "aValue"
 
   defines trait
+    @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
     C_TRAIT
       signatureMethod
         -> v as Integer
 
   defines class
+    @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
     D_CLASS
       signatureMethod
         -> v as Integer
         assert v?
 
+      @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
       M_METHOD
         -> v as String
         assert v?
@@ -66,6 +76,7 @@ defines module fails.to.compile
     //This will be used also in the application
     StdoutInterface is OutputInterface
 
+    @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
     E_COMPONENT
       signatureMethod
         -> v as Integer
@@ -73,21 +84,29 @@ defines module fails.to.compile
 
   defines text for "en_GB"
     //First the main block
+    @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
     F_TEXT
+
       //Now the individual text items
+      @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
       O_TEXT_BODY()
         -> v as Integer
         `Number ${v} has entered the room`
 
   defines service
+    @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
     G_SERVICE :/site
+
+      @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
       L_SERVICE_OPERATION() as GET for :/index.html
         <- response as HTTPResponse: () with trait of HTTPResponse
 
+      @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
       N_SERVICE_METHOD()
         <- r as String: "value"
 
   defines application
+    @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
     H_APPLICATION
       register StdoutInterface() as OutputInterface
 
@@ -105,6 +124,7 @@ defines module fails.to.compile
           <- rtn as String: `${firstName} ${lastName}`
 
       //Create a dynamic class with these two properties.
+      @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
       tuple <- I_DYNAMIC_CLASS(firstName, lastName) as class
         name()
           <- rtn as String: `${firstName} ${lastName}`
@@ -117,21 +137,27 @@ defines module fails.to.compile
         v <- i
 
       //Now conflicting wth references
+      @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
       for P_FOR_LOOP in someList
         v <- P_FOR_LOOP
 
+      @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
       for Q_FOR_RANGE in 1 ... 10
         v <- Q_FOR_RANGE
 
   defines type
     //Just use an enumeration for this duplicate name.
+    @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
     J_TYPE
       V1
       V2
 
   defines function
     SimpleTest()
+      @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
       K_VARIABLE_1 as Integer?
+
+      @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
       K_VARIABLE_2 <- "Some Value"
 
 //EOF

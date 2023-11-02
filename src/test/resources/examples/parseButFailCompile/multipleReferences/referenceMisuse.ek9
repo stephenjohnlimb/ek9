@@ -1,0 +1,17 @@
+#!ek9
+<?-
+  A module that uses a reference in another module
+  but also tries to define a variable that clashes with the function name.
+-?>
+defines module main.reference.module
+
+  references
+    another.reference.module::F1
+
+  defines function
+
+    BadVariableNameAsType()
+      @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
+      F1 <- 90
+
+//EOF

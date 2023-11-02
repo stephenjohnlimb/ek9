@@ -2,7 +2,7 @@
 <?-
   Just check that potentially confusing name collisions can be detected.
 -?>
-defines module bad.name.collisions
+defines module bad.name.collisions1
 
 
   defines class

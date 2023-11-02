@@ -6,6 +6,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MatchResult;
 import org.ek9lang.compiler.search.MatchResults;
+import org.ek9lang.compiler.support.MostSpecificScope;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 

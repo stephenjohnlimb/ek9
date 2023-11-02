@@ -1,0 +1,56 @@
+#!ek9
+<?-
+  Some languages allow the reuse of type names, but not EK9.
+  Check using variable names that class with types.
+  Also check use of variable names as a type.
+  probably covered elsewhere but just check.
+-?>
+defines module bad.name.collisions2
+
+  defines function
+
+    //Expect errors
+    BadVariableNameAsType()
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: DUPLICATE_TYPE
+      String <- 99
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: DUPLICATE_TYPE
+      List <- 222
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: DUPLICATE_NAME
+      Broken <- 22
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: DUPLICATE_TYPE
+      C1 <- 33
+
+      someVar <- 111
+
+      //try an use a variable as type (and fail with type resolved)
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+      anotherVariable as someVar?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+      someList as List of someVar?
+
+    Broken()
+      var <- 11
+      assert var?
+
+  defines class
+    C1
+      default C1()
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: DUPLICATE_TYPE
+      String()
+        -> arg0 as Integer
+        <- rtn as Boolean: arg0?
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: DUPLICATE_NAME
+      Broken()
+        -> arg0 as Integer
+        <- rtn as Boolean: arg0?
+
+      default operator ?
+
+//EOF

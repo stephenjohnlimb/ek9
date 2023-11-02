@@ -10,6 +10,7 @@ import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.AccessGenericInGeneric;
 import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.support.CheckForDuplicateOperations;
+import org.ek9lang.compiler.support.MostSpecificScope;
 import org.ek9lang.compiler.support.NameCollisionChecker;
 import org.ek9lang.compiler.support.ResolveOrDefineExplicitParameterizedType;
 import org.ek9lang.compiler.support.ResolveOrDefineIdentifierReference;
@@ -78,6 +79,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final CheckSuitableGenus checkApplicationForProgram;
   private final SyntheticConstructorCreator syntheticConstructorCreator;
   private final CheckAndPopulateConstrainedType checkAndPopulateConstrainedType;
+  private final MostSpecificScope mostSpecificScope;
   private final NameCollisionChecker nameCollisionChecker;
   private final AccessGenericInGeneric accessGenericInGeneric;
   private final AggregateFactory aggregateFactory;
@@ -139,8 +141,10 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
         new CheckAndPopulateConstrainedType(symbolAndScopeManagement, aggregateFactory, errorListener);
     this.accessGenericInGeneric =
         new AccessGenericInGeneric(symbolAndScopeManagement);
+    this.mostSpecificScope =
+        new MostSpecificScope(symbolAndScopeManagement);
     this.nameCollisionChecker =
-        new NameCollisionChecker(errorListener);
+        new NameCollisionChecker(errorListener, false);
   }
 
   @Override
@@ -459,8 +463,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     if (symbol instanceof MethodSymbol methodSymbol && !methodSymbol.isConstructor()) {
       //Now this was not called in the first phase, and we only call it for non-constructors
       //(because they must have same name as a type)
-      nameCollisionChecker.errorsWhenNamesCollide(symbolAndScopeManagement.getTopScope(), methodSymbol);
-
+      nameCollisionChecker.test(mostSpecificScope.get(), methodSymbol);
     }
 
     super.enterMethodDeclaration(ctx);
@@ -529,7 +532,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     }
 
     //While there is a check in phase one, this causes an ordering issue. So we run this in this phase.
-    nameCollisionChecker.errorsWhenNamesCollide(symbolAndScopeManagement.getTopScope(), variableSymbol);
+    nameCollisionChecker.test(mostSpecificScope.get(), variableSymbol);
 
     super.exitVariableOnlyDeclaration(ctx);
   }
@@ -544,7 +547,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
       }
     }
     //While there is a check in phase one, this causes an ordering issue. So we run this in this phase.
-    nameCollisionChecker.errorsWhenNamesCollide(symbolAndScopeManagement.getTopScope(), variableSymbol);
+    nameCollisionChecker.test(mostSpecificScope.get(), variableSymbol);
     super.exitVariableDeclaration(ctx);
   }
 

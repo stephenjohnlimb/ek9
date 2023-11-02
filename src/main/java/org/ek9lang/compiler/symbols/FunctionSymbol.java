@@ -225,7 +225,9 @@ public class FunctionSymbol extends PossibleGenericSymbol {
   @Override
   public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search) {
     //This will now also check the returning symbol (if present)
-    if (this.isReturningSymbolPresent() && returningSymbol.getName().equals(search.getName())) {
+    if (this.isReturningSymbolPresent()
+        && returningSymbol.getName().equals(search.getName())
+        && search.isCategoryAcceptable(returningSymbol.getCategory())) {
       return Optional.of(returningSymbol);
     }
     return super.resolveInThisScopeOnly(search);

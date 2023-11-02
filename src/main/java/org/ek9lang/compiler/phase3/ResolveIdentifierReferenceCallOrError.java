@@ -8,6 +8,7 @@ import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.PossibleMatchingMethods;
+import org.ek9lang.compiler.support.MostSpecificScope;
 import org.ek9lang.compiler.support.ParameterisedTypeData;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.support.SymbolTypeExtractor;

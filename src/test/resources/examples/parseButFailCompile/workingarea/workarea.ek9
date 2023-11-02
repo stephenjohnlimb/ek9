@@ -9,9 +9,9 @@
 defines module just.workspace
 
   defines function
+
     Broken()
-      @Error: FULL_RESOLUTION: NOT_RESOLVED
-      assert nothing()
+      assert var?
 
 
 //EOF

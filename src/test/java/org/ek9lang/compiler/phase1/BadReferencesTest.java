@@ -28,9 +28,11 @@ class BadReferencesTest extends PhasesTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertEquals(24, numberOfErrors);
+    assertEquals(25, numberOfErrors);
     assertFalse(program.getParsedModules("alpha").isEmpty());
     assertFalse(program.getParsedModules("beta").isEmpty());
     assertFalse(program.getParsedModules("fails.to.compile").isEmpty());
+    assertFalse(program.getParsedModules("another.reference.module").isEmpty());
+    assertFalse(program.getParsedModules("main.reference.module").isEmpty());
   }
 }
