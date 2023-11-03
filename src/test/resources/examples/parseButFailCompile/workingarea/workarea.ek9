@@ -2,108 +2,11 @@
 <?-
   Workpad, next bit.
 
-  Check using variable names that class with types.
-  Also check use of variable names as a type.
-  probably covered elsewhere but just check.
 -?>
 defines module just.workspace
 
-  defines constant
-    NAME <- "STEVE"
-    NUMBERS <- 1
-    DATE <- 2023-11-03
-
-  defines type
-    <?-
-      Lets just define a simple enumerated type and use the finite state machine with that.
-    -?>
-    //Symbol 1
-    @Resolved: SYMBOL_DEFINITION: TYPE: "CardSuit"
-    CardSuit as
-      Hearts
-      Diamonds
-      Clubs
-      Spades
-
   defines function
-
-    CheckEnumerationResolved()
-
-      suit1 as CardSuit: CardSuit()
-      assert CheckArgumentType(suit1)?
-
-      suit2 <- CardSuit.Hearts
-      assert CheckArgumentType(suit2)?
-
-      listOfSuits as List of CardSuit: List(CardSuit.Hearts)
-      assert listOfSuits?
-
-    CheckNoMutationOfConstant()
-      //mutation to a varibale is fine.
-      var <- 1
-      var++
-      var--
-      var += 6
+    Failure()
       assert var?
-
-      //But not
-      @Error: FULL_RESOLUTION: NOT_MUTABLE
-      NUMBERS++
-
-      @Error: FULL_RESOLUTION: NOT_MUTABLE
-      NUMBERS--
-
-      @Error: FULL_RESOLUTION: NOT_MUTABLE
-      NUMBERS += 6
-
-      @Error: FULL_RESOLUTION: NOT_MUTABLE
-      DATE += P2D
-
-    CheckNoAssignmentToConstant()
-
-      //This should not be allowed
-      @Error: FULL_RESOLUTION: NOT_MUTABLE
-      NAME: "Stephen"
-
-      //Does not make sense because as a constant it always set.
-      @Error: FULL_RESOLUTION: NOT_MUTABLE
-      NAME :=? "James"
-
-      @Error: FULL_RESOLUTION: NOT_MUTABLE
-      NAME :=: "James"
-
-      @Error: FULL_RESOLUTION: NOT_MUTABLE
-      NAME :~: "James"
-
-      @Error: FULL_RESOLUTION: NOT_MUTABLE
-      NAME :^: "James"
-
-      @Error: FULL_RESOLUTION: NOT_MUTABLE
-      NAME += "Snake"
-
-    CheckNoAssignmentToEnumeratedValue()
-      suit1 as CardSuit: CardSuit()
-
-      //This should not be allowed
-      @Error: FULL_RESOLUTION: NOT_MUTABLE
-      CardSuit.Hearts: suit1
-
-      //This is allowed though for constant like this it does not make any sense
-      @Error: FULL_RESOLUTION: NOT_MUTABLE
-      CardSuit.Hearts :=? suit1
-
-      //Copy into not allowed
-      @Error: FULL_RESOLUTION: NOT_MUTABLE
-      CardSuit.Hearts :=: suit1
-
-      @Error: FULL_RESOLUTION: NOT_MUTABLE
-      CardSuit.Hearts :~: suit1
-
-      @Error: FULL_RESOLUTION: NOT_MUTABLE
-      CardSuit.Hearts :^: suit1
-
-    CheckArgumentType()
-      -> arg0 as CardSuit
-      <- rtn as Boolean: arg0 == CardSuit.Clubs
 
 //EOF

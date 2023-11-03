@@ -1,0 +1,224 @@
+#!ek9
+<?-
+  Checks for mutability of constants and enumerated values.
+-?>
+defines module bad.mutations
+
+  defines constant
+    NAME <- "STEVE"
+    NUMBERS <- 1
+    DATE <- 2023-11-03
+
+  defines record
+    R1
+      name <- String()
+
+      default operator ?
+
+  defines class
+    C1
+      value <- 10
+      someMethod()
+        <- rtn as Integer: value
+
+      //Accepts no parameters and returns nothing. Just a 'procedure'.
+      anotherMethod()
+        var <- 88
+        assert var?
+
+  defines type
+
+    <?-
+      Lets just define a simple enumerated type and use the finite state machine with that.
+    -?>
+    //Symbol 1
+    @Resolved: SYMBOL_DEFINITION: TYPE: "CardSuit"
+    CardSuit as
+      Hearts
+      Diamonds
+      Clubs
+      Spades
+
+  defines function
+
+    UsesOfVariablesAndConstants()
+
+      //First a variable
+      date <- 2023-11-03
+      SomethingToThingAbout(date)
+      //Now date would be mutated by 2 days, because arguments are passed by reference.
+
+      //So what do you expect to happen here?
+      SomethingToThingAbout(2023-11-03)
+      //does it mean that 2023-11-03 is now 2023-11-05?
+      //No it means when we pass a constant into a method/function as an argument - we clone it
+      //This is when we are implementing the generation of code.
+
+      //The same applies here, as this too is a constant and immutable
+      SomethingToThingAbout(DATE)
+
+      //But if the method/function were 'pure' then we could avoid the cloning, but could not mutate it in the body!
+
+    SomethingToThingAbout()
+      -> arg0 as Date
+      arg0 += P2D
+
+    CheckReturns()
+      //OK so what's special here, nothing, we get a variable returned and mutate it
+      date1 <- AnotherThingToThinkAbout1()
+      date1 += P2D
+      assert date1?
+
+      //Ah but what about now a literal (constant) is returned, we cannot mutate constants.
+      //So the ek9 compiler will clone the constant and turn it into a variable on return.
+      date2 <- AnotherThingToThinkAbout2()
+      date2 += P2D
+      assert date2?
+
+      //This time it is constant that is returned and again turned into a variable byt the compiler
+      date3 <- AnotherThingToThinkAbout3()
+      date3 += P2D
+      assert date3?
+
+    AnotherThingToThinkAbout1()
+      <- rtn as Date?
+      date <- Date("2023-11-03")
+      rtn: date
+
+    AnotherThingToThinkAbout2()
+      <- rtn as Date: 2023-11-03
+
+    AnotherThingToThinkAbout3()
+      <- rtn as Date: DATE
+
+    GetANumber()
+      <- rtn as R1: R1()
+
+    CheckRecordObjectChainIsUsable()
+      GetANumber().name := "Steve"
+
+    CheckClassObjectChainAccess()
+      -> arg0 as C1
+
+      //While seemingly strange, this method returns a reference to a property in an instance of a class
+      //So that means it could be possible to mutate that value with the += operator.
+      //In languages like java it would be arg0.someMethod().add(1) for example
+      arg0.someMethod() += 1
+
+    CheckClassObjectChainAccessNoReturn()
+      -> arg0 as C1
+
+      //So everything is accessible, but this method has not return value.
+      //So the operation is not possible and the operator is not found.
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      arg0.anotherMethod() += 1
+
+    CheckEnumerationResolved()
+
+      suit1 as CardSuit: CardSuit()
+      assert CheckArgumentType(suit1)?
+
+      suit2 <- CardSuit.Hearts
+      assert CheckArgumentType(suit2)?
+
+      listOfSuits as List of CardSuit: List(CardSuit.Hearts)
+
+      //Check mutation is OK.
+      listOfSuits += CardSuit.Clubs
+
+      assert listOfSuits?
+
+    CheckCanReturnChangedWithoutError1()
+      <- rtn as List of CardSuit: List()
+      //Just checking it is possible just to mutate a return variable and not have to use it within the function.
+      rtn += CardSuit.Clubs
+
+    CheckCanReturnChangedWithoutError2()
+      <- rtn as List of CardSuit?
+      //Again just checking as above, but in a different way.
+      //Note that when 'constants' are added to lists or used as parameters or returns they need to be cloned (by the compiler).
+      listOfSuits as List of CardSuit: List(CardSuit.Hearts)
+      listOfSuits += CardSuit.Clubs
+
+      //In effect the compiler will do this for the developer.
+      listOfSuits += CardSuit(CardSuit.Diamonds)
+      rtn: listOfSuits
+
+    CheckMutationOfVariableIsOK()
+      //mutation to a variable is fine.
+      var <- 1
+      var++
+      var--
+      var += 6
+      assert var?
+
+      date <- 2023-11-03
+      date += P2D
+      assert date?
+
+
+    CheckNoMutationOfConstant()
+
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      NUMBERS++
+
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      NUMBERS--
+
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      NUMBERS += 6
+
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      DATE += P2D
+
+    CheckNoAssignmentToConstant()
+
+      //This should not be allowed
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      NAME: "Stephen"
+
+      //Does not make sense because as a constant it always set.
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      NAME :=? "James"
+
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      NAME :=: "James"
+
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      NAME :~: "James"
+
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      NAME :^: "James"
+
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      NAME += "Snake"
+
+    CheckNoAssignmentToEnumeratedValue()
+      suit1 as CardSuit: CardSuit()
+
+      //This should not be allowed
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CardSuit.Hearts: suit1
+
+      //This is allowed though for constant like this it does not make any sense
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CardSuit.Hearts :=? suit1
+
+      //Copy into not allowed
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CardSuit.Hearts :=: suit1
+
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CardSuit.Hearts :~: suit1
+
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CardSuit.Hearts :^: suit1
+
+    <?-
+      Just used to check argument types above
+    -?>
+    CheckArgumentType()
+      -> arg0 as CardSuit
+      <- rtn as Boolean: arg0 == CardSuit.Clubs
+
+//EOF
