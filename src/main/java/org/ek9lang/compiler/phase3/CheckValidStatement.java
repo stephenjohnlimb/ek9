@@ -12,20 +12,25 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  */
 final class CheckValidStatement extends TypedSymbolAccess implements Consumer<EK9Parser.StatementContext> {
   private final CheckForOperator checkForOperator;
+  private final CheckMutableOrError checkMutableOrError;
 
   CheckValidStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
                       final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
     this.checkForOperator = new CheckForOperator(symbolAndScopeManagement, errorListener);
+    this.checkMutableOrError = new CheckMutableOrError(errorListener);
   }
 
   @Override
   public void accept(final EK9Parser.StatementContext statementContext) {
-    if (statementContext.expression() != null) {
-      var exprSymbol = getRecordedAndTypedSymbol(statementContext.expression());
+    if (statementContext.identifierReference() != null) {
+      var exprSymbol = getRecordedAndTypedSymbol(statementContext.identifierReference());
       if (exprSymbol != null) {
         exprSymbol.getType().ifPresent(exprType -> {
           var op = new Ek9Token(statementContext.op);
+
+          checkMutableOrError.accept(op, exprSymbol);
+
           var search = new MethodSymbolSearch(op.getText());
           checkForOperator.apply(new CheckOperatorData(exprSymbol, op, search));
         });

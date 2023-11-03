@@ -337,7 +337,7 @@ statement
     | forStatement
     | assertStatement
     | assignmentStatement
-    | expression op=(INC | DEC)
+    | identifierReference op=(INC | DEC)
     | call
     | stream
     | objectAccessExpression

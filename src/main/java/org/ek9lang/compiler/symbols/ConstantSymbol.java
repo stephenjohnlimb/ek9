@@ -47,6 +47,7 @@ public class ConstantSymbol extends Symbol {
     super.setGenus(SymbolGenus.VALUE);
     this.literal = fromLiteral;
     super.setProduceFullyQualifiedName(!fromLiteral);
+
   }
 
   @Override

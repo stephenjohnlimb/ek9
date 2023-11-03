@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.CompilerException;
 
 /**
@@ -13,11 +14,13 @@ import org.ek9lang.core.CompilerException;
 final class ProcessObjectAccessStartOrError extends TypedSymbolAccess
     implements Consumer<EK9Parser.ObjectAccessStartContext> {
   private final ProcessIdentifierOrError processIdentifierOrError;
+  private final EnumerationLocator enumerationLocator;
 
   ProcessObjectAccessStartOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                                   final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
     this.processIdentifierOrError = new ProcessIdentifierOrError(symbolAndScopeManagement, errorListener);
+    this.enumerationLocator = new EnumerationLocator(symbolAndScopeManagement);
   }
 
   @Override
@@ -31,8 +34,8 @@ final class ProcessObjectAccessStartOrError extends TypedSymbolAccess
     } else if (ctx.identifier() != null) {
       //In this context we can resolve the identifier and record it. - its not an identifierReference but an identifier.
       //This is done to find the compromise of reuse in the grammar. But makes this a bit more inconsistent.
-
-      var resolved = processIdentifierOrError.apply(ctx.identifier());
+      //But it means that we need some more complex logic here to check the identifier reference use.
+      var resolved = resolveByIdentifier(ctx.identifier());
 
       if (resolved != null) {
         //Record against both
@@ -48,5 +51,10 @@ final class ProcessObjectAccessStartOrError extends TypedSymbolAccess
         throw new CompilerException("ctx call is not recorded " + ctx.call().getText());
       }
     }
+  }
+
+  private ISymbol resolveByIdentifier(final EK9Parser.IdentifierContext ctx) {
+    var possibleEnumeratedType = enumerationLocator.apply(ctx.getText());
+    return possibleEnumeratedType.orElseGet(() -> processIdentifierOrError.apply(ctx));
   }
 }

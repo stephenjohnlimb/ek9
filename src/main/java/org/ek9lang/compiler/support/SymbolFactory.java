@@ -997,9 +997,11 @@ public class SymbolFactory {
    * Create a new constant as declared in the constants section.
    */
   public ConstantSymbol newConstant(EK9Parser.ConstantDeclarationContext ctx) {
+    var start = new Ek9Token(ctx.start);
     ConstantSymbol constant = new ConstantSymbol(ctx.Identifier().getText(), false);
-    configureSymbol(constant, new Ek9Token(ctx.start));
-
+    configureSymbol(constant, start);
+    constant.setInitialisedBy(start);
+    constant.setNotMutable();
     return constant;
   }
 

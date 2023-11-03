@@ -30,6 +30,7 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
   private final SymbolFromContextOrError symbolFromContextOrError;
   private final ProcessIdentifierOrError processIdentifierOrError;
   private final CheckAssignment checkAssignment;
+  private final CheckMutableOrError checkMutableOrError;
 
   /**
    * Check on validity of assignments.
@@ -48,6 +49,8 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
         = new ProcessIdentifierOrError(symbolAndScopeManagement, errorListener);
     this.checkAssignment
         = new CheckAssignment(symbolAndScopeManagement, errorListener, false);
+    this.checkMutableOrError
+        = new CheckMutableOrError(errorListener);
   }
 
   @Override
@@ -85,7 +88,7 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
     var identifier = processIdentifierOrError.apply(ctx.identifier());
     if (identifier != null) {
       if (!identifier.isIncomingParameter() && !identifier.isPropertyField()) {
-        //If we're in a block and we do some form of assignment, reset referenced because otherwise whats the point.
+        //If we're in a block, and we do some form of assignment, reset referenced because otherwise whats the point.
         //There is no use after the assignment, but in the case of an incoming param we could just be altering the
         //value '+=' for example. For properties, we have no idea on ordering of calls.
         identifier.setReferenced(false);
@@ -122,7 +125,7 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
                                  final IToken op,
                                  final ISymbol rightHandSideSymbol) {
     if (leftHandSideSymbol.getType().isPresent() && rightHandSideSymbol.getType().isPresent()) {
-
+      checkMutableOrError.accept(op, leftHandSideSymbol);
       checkTypesCompatible(isAssigningToThis, leftHandSideSymbol, op, rightHandSideSymbol);
       checkNotSelfAssignment(leftHandSideSymbol, op, rightHandSideSymbol);
 
