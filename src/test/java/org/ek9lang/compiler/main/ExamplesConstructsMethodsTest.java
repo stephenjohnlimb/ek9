@@ -21,6 +21,7 @@ class ExamplesConstructsMethodsTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
+    //TODO mainly focus on referencing variables and alter code to cater for pure.
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 

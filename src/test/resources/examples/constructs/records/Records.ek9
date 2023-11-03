@@ -30,7 +30,7 @@ defines module com.customer.records
         -> item as IdRecord
         <- rtn as Boolean: Boolean()
         if item?
-          rtn: item.id == this.id
+          rtn:=? item.id == this.id
       operator <> as pure
         -> item as IdRecord
         <- rtn as Boolean: not (item == this)
@@ -100,17 +100,17 @@ defines module com.customer.records
         <- rtn as Integer: 0
 
         //Use a fuzzy match on string version of date of birth first
-        rtn: $this.dateOfBirth <~> $item.dateOfBirth
-        rtn += this.lastName <~> item.lastName
-        rtn += this.firstName <~> item.firstName
+        rtn:=? ($this.dateOfBirth <~> $item.dateOfBirth) +
+        (this.lastName <~> item.lastName) +
+        (this.firstName <~> item.firstName)
 
       operator <=> as pure
         -> item as CustomerDetail
         <- rtn as Integer: 0
 
-        rtn: dateOfBirth <=> item.dateOfBirth
-        rtn += lastName <=> item.lastName
-        rtn += firstName <=> item.firstName
+        rtn:=? (dateOfBirth <=> item.dateOfBirth) +
+        (lastName <=> item.lastName) +
+        (firstName <=> item.firstName)
 
       operator < as pure
         -> item as CustomerDetail
@@ -128,9 +128,9 @@ defines module com.customer.records
         <- rtn as String: $this
 
       override operator $ as pure
-        <- rtn as String: $super + " " + firstName + " " + lastName + " " + $dateOfBirth
+        <- rtn as String: super.$() + " " + firstName + " " + lastName + " " + $dateOfBirth
       override operator ? as pure
-        <- rtn as Boolean: super? and firstName? and lastName? and dateOfBirth?
+        <- rtn as Boolean: super.?() and firstName? and lastName? and dateOfBirth?
 
   defines program
     ShowCustomerRecords()
@@ -141,12 +141,14 @@ defines module com.customer.records
 
       try
         invalidCustomer <- CustomerDetail(Index(-1), "", "", Date())
+        assert ~invalidCustomer?
       catch
         -> ex as Exception
         stdout.println("As expected Index cannot be less than zero " + $ex)
 
       try
         invalidCustomer <- CustomerDetail(Index(1), String(), String(), Date())
+        assert ~invalidCustomer?
       catch
         -> ex as Exception
         stdout.println("As expected details must be set " + $ex)

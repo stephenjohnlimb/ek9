@@ -22,4 +22,6 @@ defines module net.customer.some
         s1Result2 <- SpecialFunction("Now Working")
         
         s1Results3 <- SpecialFunction("WORKING")
+
+        assert s1Result? and s1Result2? and s1Results3?
 //EOF

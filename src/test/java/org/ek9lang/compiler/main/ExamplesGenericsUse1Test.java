@@ -33,8 +33,7 @@ class ExamplesGenericsUse1Test extends PhasesTest {
 
   @Test
   void testPhasedDevelopment() {
-    //TODO fix up code enumerated type not resolving correctly
-    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
+    testToPhase(CompilationPhase.FULL_RESOLUTION);
   }
 
   /**

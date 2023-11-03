@@ -28,6 +28,8 @@ defines module net.customer.some
         
         //How about this? Yes that will also work.
         very <- net.customer.pair::SpecialClass()
+
+        assert somewhat? and myPi? and myE? and very?
       
       testReferencedFunctionMethod()
         //delegate to an imported referenced Function?
@@ -38,4 +40,6 @@ defines module net.customer.some
         directResult <- SpecialFunction("Very")
         
         specialFunction as SpecialFunction := SpecialFunction
+
+        assert s1? and s1Result? and directResult? and specialFunction?
 //EOF

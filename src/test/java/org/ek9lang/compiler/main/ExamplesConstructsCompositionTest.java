@@ -20,6 +20,7 @@ class ExamplesConstructsCompositionTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
+    //TODO needs a review and some more methods adding to EK9 lib code.
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 

@@ -20,6 +20,7 @@ class ExamplesConstructsComponentsTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
+    //TODO revisit example with a fresh eye access and use, plus some missing methods.
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 

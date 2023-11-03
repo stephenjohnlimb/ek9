@@ -19,6 +19,7 @@ class ExamplesSimpleTypesTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
+    //TODO quite a few errors in the example and some missing lib methods.
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 

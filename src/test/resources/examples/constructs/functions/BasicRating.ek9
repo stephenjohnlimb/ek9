@@ -16,25 +16,25 @@ defines module some.source.code
       <- rtn as String: given percentage
         <- rating as String: String()
         when <= 0.0
-          rating: "0000000000"
+          rating:=? "0000000000"
         when <= 0.1
-          rating: "*000000000"
+          rating:=? "*000000000"
         when <= 0.2
-          rating: "**00000000"
+          rating:=? "**00000000"
         when <= 0.3
-          rating: "***0000000"
+          rating:=? "***0000000"
         when <= 0.4
-          rating: "****000000"
+          rating:=? "****000000"
         when <= 0.5
-          rating: "*****00000"
+          rating:=? "*****00000"
         when <= 0.6
-          rating: "******0000"
+          rating:=? "******0000"
         when <= 0.7
-          rating: "*******000"
+          rating:=? "*******000"
         when <= 0.8
-          rating: "********00"
+          rating:=? "********00"
         when <= 0.9
-          rating: "*********0"
+          rating:=? "*********0"
         default
-          rating: "**********"
+          rating:=? "**********"
 //EOF

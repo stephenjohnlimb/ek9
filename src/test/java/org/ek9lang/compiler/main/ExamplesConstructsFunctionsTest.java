@@ -21,6 +21,8 @@ class ExamplesConstructsFunctionsTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
+    //TODO something wrong with functions
+    //TODO need switch and flow control implementing.
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 

@@ -71,10 +71,10 @@ defines module com.customer.just.tuples
 
           //Add in methods, hiding internal structure of object or meeting a trait type interface.
           name()
-            <- rtn as String: firstName
+            <- rtn as String: name
 
           operator $ as pure
-            <- rtn as String: `${message} ${firstName} ${dob} ${language}`
+            <- rtn as String: `${message} ${name} ${dob} ${language}`
           operator #^ as pure
             <- rtn as String: $this
 

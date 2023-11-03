@@ -36,6 +36,8 @@ defines module net.customer.pair
   
     SpecialClass
       mySpecial Integer: 10
+
+      default operator ?
       
     SlightlySpecial
       myVar Integer: 9
@@ -51,4 +53,7 @@ defines module net.customer.pair
         someVar <- "Steve"
         directResult <- SpecialFunction("Very")
 
+        assert s1Result? and s2Result? and someVar? and directResult?
+
+      default operator ?
 //EOF
