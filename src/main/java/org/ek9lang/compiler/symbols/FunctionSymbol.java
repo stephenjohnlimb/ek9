@@ -32,7 +32,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
    * implementation.
    * It is sort of object-oriented but for functions.
    */
-  private FunctionSymbol superFunctionSymbol;
+  private FunctionSymbol superFunction;
 
   /**
    * Create a new Function Symbol with a specific unique name (in the enclosing scope).
@@ -68,8 +68,8 @@ public class FunctionSymbol extends PossibleGenericSymbol {
 
     newCopy.setCategory(this.getCategory());
     newCopy.setProduceFullyQualifiedName(this.getProduceFullyQualifiedName());
-    getSuperFunctionSymbol().ifPresent(
-        functionSymbol -> newCopy.superFunctionSymbol = functionSymbol);
+    getSuperFunction().ifPresent(
+        functionSymbol -> newCopy.superFunction = functionSymbol);
 
     return newCopy;
   }
@@ -88,13 +88,13 @@ public class FunctionSymbol extends PossibleGenericSymbol {
     if (function == this) {
       return true;
     }
-    return getSuperFunctionSymbol().map(functionSymbol -> functionSymbol.isImplementingInSomeWay(function))
+    return getSuperFunction().map(functionSymbol -> functionSymbol.isImplementingInSomeWay(function))
         .orElse(false);
   }
 
   @Override
   protected Optional<IScope> getAnySuperTypeOrFunction() {
-    return Optional.ofNullable(superFunctionSymbol);
+    return Optional.ofNullable(superFunction);
   }
 
   /**
@@ -112,18 +112,18 @@ public class FunctionSymbol extends PossibleGenericSymbol {
     return weight >= 0.0;
   }
 
-  public Optional<FunctionSymbol> getSuperFunctionSymbol() {
-    return Optional.ofNullable(superFunctionSymbol);
+  public Optional<FunctionSymbol> getSuperFunction() {
+    return Optional.ofNullable(superFunction);
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public void setSuperFunctionSymbol(Optional<FunctionSymbol> superFunctionSymbol) {
-    superFunctionSymbol.ifPresentOrElse(superFunction -> this.superFunctionSymbol = superFunction,
-        () -> this.superFunctionSymbol = null);
+  public void setSuperFunction(Optional<FunctionSymbol> superFunctionSymbol) {
+    superFunctionSymbol.ifPresentOrElse(theSuperFunction -> this.superFunction = theSuperFunction,
+        () -> this.superFunction = null);
   }
 
-  public void setSuperFunctionSymbol(FunctionSymbol superFunctionSymbol) {
-    this.superFunctionSymbol = superFunctionSymbol;
+  public void setSuperFunction(FunctionSymbol superFunctionSymbol) {
+    this.superFunction = superFunctionSymbol;
   }
 
   /**
@@ -167,7 +167,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
     }
 
     //now we can check superclass matches. but add some weight because this did not match
-    return getSuperFunctionSymbol().map(value -> 0.05 + value.getUnCoercedAssignableWeightTo(s))
+    return getSuperFunction().map(value -> 0.05 + value.getUnCoercedAssignableWeightTo(s))
         .orElse(-1.0);
   }
 
@@ -185,7 +185,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
         doGetFriendlyName(prefix + getPrivateVariablesForDisplay(), returningSymbolType)
             + getAnyGenericParamsAsFriendlyNames();
 
-    return getSuperFunctionSymbol().map(s -> name + " is " + s.getName()).orElse(name);
+    return getSuperFunction().map(s -> name + " is " + s.getName()).orElse(name);
   }
 
 
@@ -248,7 +248,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
     return result
         && super.equals(o)
         && isMarkedPure() == that.isMarkedPure()
-        && getSuperFunctionSymbol().equals(that.getSuperFunctionSymbol());
+        && getSuperFunction().equals(that.getSuperFunction());
   }
 
   @Override
@@ -256,7 +256,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
     int result = super.hashCode();
     result = 31 * result + (getReturningSymbol() != null ? getReturningSymbol().hashCode() : 0);
     result = 31 * result + (isMarkedPure() ? 1 : 0);
-    result = 31 * result + getSuperFunctionSymbol().hashCode();
+    result = 31 * result + getSuperFunction().hashCode();
     return result;
   }
 }

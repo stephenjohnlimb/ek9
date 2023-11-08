@@ -19,7 +19,7 @@ final class CheckFunctionAbstractness extends TypedSymbolAccess implements Consu
   public void accept(final FunctionSymbol functionSymbol) {
     //Only worth checking if abstract.
     if (functionSymbol.isMarkedAbstract()) {
-      functionSymbol.getSuperFunctionSymbol().ifPresent(superFunction -> {
+      functionSymbol.getSuperFunction().ifPresent(superFunction -> {
         if (!superFunction.isMarkedAbstract()) {
           var errorMessage = "pointless abstract function extending '" + superFunction.getFriendlyName() + "':";
           errorListener.semanticError(functionSymbol.getSourceToken(), errorMessage,

@@ -1,0 +1,61 @@
+#!ek9
+<?-
+  A more sophisticated and complex use of multiple traits and
+  ensuring that circular references are NOT detected - as they are not present.
+-?>
+defines module more.complex.trait.use
+
+  <?-
+    For this example the definition of traits are in an arbitrary order.
+  -?>
+  defines trait
+
+    Complex1 with trait of Extender, Composite1, Composite2
+      complex1Method()
+        <- rtn <- true
+
+    Composite1 with trait of TA, TB
+      composite1Method()
+        <- rtn <- true
+
+    TA with trait of BaseTrait
+      taMethod()
+        <- rtn <- true
+
+    Extender with trait of BaseTrait
+      extenderMethod()
+        <- rtn <- true
+
+    TB with trait of BaseTrait
+      tbMethod()
+        <- rtn <- true
+
+    BaseTrait
+      baseTraitMethod()
+        <- rtn <- true
+
+    TC with trait of BaseTrait
+      tcMethod()
+        <- rtn <- true
+
+    Composite2 with trait of TB, TC
+      composite1Method()
+        <- rtn <- true
+
+    Complex2 with trait of Composite1, Composite2
+      complex2Method()
+        <- rtn <- true
+
+    <?-
+      Just included to ensure that directives get enabled and fully checked.
+    -?>
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    Broken1 with trait of Broken2
+      broken1Method()
+        <- rtn <- true
+
+    Broken2 with trait of Broken1
+      broken2Method()
+        <- rtn <- true
+
+//EOF

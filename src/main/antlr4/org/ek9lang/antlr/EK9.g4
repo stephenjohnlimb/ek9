@@ -31,7 +31,7 @@ directivePart
     ;
 
 moduleDeclaration
-    : directive? DEFINES EXTERN? MODULE dottedName NL+ (INDENT NL* (directive? referencesBlock NL+)? (directive? moduleBlock NL+)+ DEDENT)?
+    : directive? DEFINES EXTERN? MODULE dottedName NL+ (INDENT NL* (directive? referencesBlock NL+)? (directive? moduleBlock NL+)* DEDENT)?
     ;
 
 moduleBlock
@@ -240,6 +240,7 @@ parameterisedArgs
 
 traitsList
     : traitReference (COMMA traitReference)*
+    | LPAREN traitReference (COMMA traitReference)* RPAREN
     ;
 
 traitPreamble
@@ -691,6 +692,7 @@ identifier
     | ISOLATED
     | RANGE
     | IS
+    | BY
     | ONLY
     | PURE
     | HTTP_QUERY

@@ -186,7 +186,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     //Normal functions can extend other normal functions if open/abstract - this code below checks.
     if (ctx.identifierReference() != null) {
       var resolved = checkFunctionSuitableToExtend.apply(ctx.identifierReference());
-      resolved.ifPresent(theSuper -> symbol.setSuperFunctionSymbol((FunctionSymbol) theSuper));
+      resolved.ifPresent(theSuper -> symbol.setSuperFunction((FunctionSymbol) theSuper));
     }
     symbolAndScopeManagement.exitScope();
     super.exitFunctionDeclaration(ctx);
@@ -394,7 +394,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
     if (ctx.parameterisedType() != null) {
       var resolved = checkClassSuitableToExtend.apply(ctx.parameterisedType());
-      resolved.ifPresent(theSuper -> symbol.setSuperAggregateSymbol((IAggregateSymbol) theSuper));
+      resolved.ifPresent(theSuper -> symbol.setSuperAggregate((IAggregateSymbol) theSuper));
     }
 
     if (ctx.traitsList() != null) {
@@ -426,10 +426,10 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
     if (ctx.identifierReference() != null) {
       var resolved = checkFunctionSuitableToExtend.apply(ctx.identifierReference());
-      resolved.ifPresent(theSuper -> symbol.setSuperFunctionSymbol((FunctionSymbol) theSuper));
+      resolved.ifPresent(theSuper -> symbol.setSuperFunction((FunctionSymbol) theSuper));
     } else if (ctx.parameterisedType() != null) {
       var resolved = checkFunctionSuitableToExtend.apply(ctx.parameterisedType());
-      resolved.ifPresent(theSuper -> symbol.setSuperFunctionSymbol((FunctionSymbol) theSuper));
+      resolved.ifPresent(theSuper -> symbol.setSuperFunction((FunctionSymbol) theSuper));
     }
 
     symbolAndScopeManagement.exitScope();
@@ -614,7 +614,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
     if (extendDeclaration != null) {
       var resolved = extendChecker.apply(extendDeclaration.typeDef());
-      resolved.ifPresent(theSuper -> symbol.setSuperAggregateSymbol((IAggregateSymbol) theSuper));
+      resolved.ifPresent(theSuper -> symbol.setSuperAggregate((IAggregateSymbol) theSuper));
     }
   }
 }

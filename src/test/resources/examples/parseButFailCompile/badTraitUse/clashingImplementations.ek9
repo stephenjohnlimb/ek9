@@ -1,0 +1,97 @@
+#!ek9
+defines module clashing.implementations
+
+  defines trait
+
+    <?-
+      T1 and T2 are design to demonstrate the need to force an implementation when a trait has an implemented method.
+      Where to two traits are then used in combination
+    -?>
+    T1
+      clash()
+        <- rtn <- true
+
+    T2
+      clash()
+        <- rtn <- false
+
+  defines class
+
+    <?-
+      Also use this base to clash with traits later on.
+    -?>
+    Base as open
+      clash()
+        <- rtn <- false
+
+      default operator ?
+
+    <?-
+      Ensure this raises an error and forces the implementation of clash() method.
+    -?>
+    @Error: FULL_RESOLUTION: METHODS_CONFLICT
+    BrokenClass1 with trait T1, T2
+      default BrokenClass1()
+
+      someMethod()
+        <- rtn <- true
+      default operator ?
+
+
+    @Error: FULL_RESOLUTION: METHODS_CONFLICT
+    BrokenClass2 extends Base with trait T1
+      default BrokenClass2()
+
+      someMethod()
+        <- rtn <- true
+      default operator ?
+
+    @Error: FULL_RESOLUTION: METHODS_CONFLICT
+    BrokenClass3 extends Base with trait T1, T2
+      default BrokenClass3()
+
+      someMethod()
+        <- rtn <- true
+      default operator ?
+
+
+    @Error: FULL_RESOLUTION: METHODS_CONFLICT
+    BrokenClass4 extends Base with trait clashing.implementations::T1, T2
+      default BrokenClass4()
+
+      someMethod()
+        <- rtn <- true
+      default operator ?
+
+    <?-
+      Ensure this does not raise an error.
+    -?>
+    WorkingClass1 with trait T1, T2
+      default WorkingClass1()
+
+      <?-
+        So now if we override - we are forced to provide a solution.
+        This now means that 'clash' no longer conflicts
+      -?>
+      override clash()
+        <- rtn <- true
+
+      default operator ?
+
+    WorkingClass2 is Base with trait T1
+      default WorkingClass2()
+
+      override clash()
+        <- rtn <- true
+
+      default operator ?
+
+    WorkingClass3 is Base with trait T1, T2
+      default WorkingClass3()
+
+      override clash()
+        <- rtn <- true
+
+      default operator ?
+
+//EOF

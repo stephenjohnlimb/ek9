@@ -8,12 +8,12 @@ import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests circular hierarchies usage.
+ * Just tests trait usage with multiple references to same trait.
  */
-class BadCircularHierarchiesTest extends PhasesTest {
+class BadDuplicatedTraitReferencesTest extends PhasesTest {
 
-  public BadCircularHierarchiesTest() {
-    super("/examples/parseButFailCompile/circularHierarchies");
+  public BadDuplicatedTraitReferencesTest() {
+    super("/examples/parseButFailCompile/duplicateTraitUse");
   }
 
   @Test
@@ -24,8 +24,6 @@ class BadCircularHierarchiesTest extends PhasesTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.classes.hierarchies").isEmpty());
-    assertFalse(program.getParsedModules("multiple.trait.use").isEmpty());
-    assertFalse(program.getParsedModules("more.complex.trait.use").isEmpty());
+    assertFalse(program.getParsedModules("bad.trait.use").isEmpty());
   }
 }

@@ -30,7 +30,7 @@ final class CheckPropertyNames extends TypedSymbolAccess implements Consumer<Agg
   public void accept(final AggregateSymbol aggregateSymbol) {
 
     //Only if it has a super, there won't be duplicates on the same aggregate.
-    aggregateSymbol.getSuperAggregateSymbol().ifPresent(
+    aggregateSymbol.getSuperAggregate().ifPresent(
         superAggregate -> aggregateSymbol.getProperties().forEach(
             property -> superAggregate.resolveMember(new SymbolSearch(property.getName())
             ).ifPresent(

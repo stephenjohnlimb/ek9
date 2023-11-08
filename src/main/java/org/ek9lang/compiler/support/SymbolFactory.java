@@ -403,7 +403,7 @@ public class SymbolFactory {
       configureAggregate(text, new Ek9Token(ctx.start));
       text.setGenus(ISymbol.SymbolGenus.TEXT);
       //Now ensure it is set up as the 'super'.
-      text.setSuperAggregateSymbol((IAggregateSymbol) base.get());
+      text.setSuperAggregate((IAggregateSymbol) base.get());
 
       //Store both the language this is for and the base name, this will be useful later
       text.putSquirrelledData("LANG", forLanguage);
@@ -428,9 +428,9 @@ public class SymbolFactory {
   public void ensureTextBodyIsInSuper(final MethodSymbol textMethodSymbol) {
     var scope = textMethodSymbol.getParentScope();
     if (scope instanceof IAggregateSymbol textDeclaration
-        && textDeclaration.getSuperAggregateSymbol().isPresent()) {
+        && textDeclaration.getSuperAggregate().isPresent()) {
 
-      var textBase = textDeclaration.getSuperAggregateSymbol().get();
+      var textBase = textDeclaration.getSuperAggregate().get();
       var results = textBase.resolveMatchingMethodsInThisScopeOnly(new MethodSymbolSearch(textMethodSymbol),
           new MethodSymbolSearchResult());
 

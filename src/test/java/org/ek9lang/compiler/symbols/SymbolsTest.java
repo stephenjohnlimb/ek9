@@ -360,7 +360,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertEquals("Integer <- f1(arg1 as String)", f1.getFriendlyName());
     assertEquals("Integer <- f1(arg1 as String)", f1.getFriendlyScopeName());
     //Does not have a super.
-    assertTrue(f1.getSuperFunctionSymbol().isEmpty());
+    assertTrue(f1.getSuperFunction().isEmpty());
 
     //Check self equality
     assertEquals(f1, f1);
@@ -372,7 +372,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     f2.setName("f2");
     assertEquals("Integer <- f2(arg1 as String)", f2.getFriendlyName());
     assertEquals("Integer <- f2(arg1 as String)", f2.getFriendlyScopeName());
-    assertTrue(f2.getSuperFunctionSymbol().isEmpty());
+    assertTrue(f2.getSuperFunction().isEmpty());
 
     //Lets test a 'super function'
     var superF = new FunctionSymbol("superF", symbolTable);
@@ -390,7 +390,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
         superF.getFriendlyName());
     assertEquals("Integer <- superF(private capturedVar as String)(arg1 as String) as abstract",
         superF.getFriendlyScopeName());
-    assertTrue(superF.getSuperFunctionSymbol().isEmpty());
+    assertTrue(superF.getSuperFunction().isEmpty());
 
     var resolvedInSuperFCaptured = superF.resolve(new SymbolSearch("capturedVar"));
     assertTrue(resolvedInSuperFCaptured.isPresent());
@@ -402,15 +402,15 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     var f3 = f1.clone(symbolTable);
     assertNotNull(f3);
     f3.setName("f3");
-    f3.setSuperFunctionSymbol(Optional.of(superF));
-    assertTrue(f3.getSuperFunctionSymbol().isPresent());
+    f3.setSuperFunction(Optional.of(superF));
+    assertTrue(f3.getSuperFunction().isPresent());
     assertEquals("Integer <- f3(arg1 as String) is superF", f3.getFriendlyName());
 
     //Now lets clone that and check it has the super function
     var f4 = f3.clone(symbolTable);
     assertNotNull(f4);
     f4.setName("f4");
-    assertTrue(f4.getSuperFunctionSymbol().isPresent());
+    assertTrue(f4.getSuperFunction().isPresent());
     assertEquals("Integer <- f4(arg1 as String) is superF", f4.getFriendlyName());
 
     //check itself and then its super

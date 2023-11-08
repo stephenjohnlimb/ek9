@@ -1,0 +1,121 @@
+#!ek9
+<?-
+  Check implementation of classes with traits.
+  i.e. a class that has traits but delegates the methods to an instance variable.
+
+  I've added a couple of extra methods on these validators, not really needed bu I want to test a few things.
+  That is some trait methods that conflict (i.e. validate) and some that don't.
+-?>
+defines module missing.trait.implementations1
+
+  references
+    trait.test.support::StringValidator
+    trait.test.support::LengthValidator
+    trait.test.support::LimitedWordValidator
+    trait.test.support::Validate
+    trait.test.support::FlexibleLengthValidator
+    trait.test.support::WordValidator
+
+  <?-
+    Now some concrete classes that use the above traits.
+  -?>
+  defines class
+
+    <?-
+      Call example that shows how multiple traits can be employed and how to implement (within the class)
+    -?>
+    ClassMultipleTraits1 with trait of LengthValidator, LimitedWordValidator
+
+      override validate()
+        -> arg0 as String
+        <- rtn as Boolean: length arg0 <= minLength() or prohibitedWords() contains arg0
+
+      override minLength()
+        <- rtn as Integer: 10
+
+      override prohibitedWords()
+        <- rtn as List of String: ["BAD", "WORD"]
+
+      default operator ?
+
+    <?-
+      Now validate will only call LimitedWordValidator, is this really what we want?
+      Or do we want to force an implementation, force an implementation.
+    -?>
+    @Error: FULL_RESOLUTION: METHODS_CONFLICT
+    ClassMultipleTraits2 with trait of LengthValidator, LimitedWordValidator
+
+      override minLength()
+        <- rtn as Integer: 10
+
+      override prohibitedWords()
+        <- rtn as List of String: ["BAD", "WORD"]
+
+  defines function
+
+    <?-
+      Miss out implementing methods to check detection of such errors.
+    -?>
+    BadDynamicLengthValidator1()
+
+      @Error: FULL_RESOLUTION: DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS
+      specificValidator <- () with trait of LengthValidator
+
+      result <- Validate("Steve", specificValidator)
+      assert result?
+
+    <?-
+      Miss out implementing methods. Implemented one but validate is missing.
+    -?>
+    BadDynamicLengthValidator2()
+      @Error: FULL_RESOLUTION: DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS
+      specificValidator <- () with trait of LengthValidator
+        override minLength()
+          <- rtn as Integer: 10
+
+        //Quick check that we get an error for stating that we are overriding a method
+        //that we are not actually overriding, typical when refactoring (that's why override is mandatory to catch these).
+        @Error: FULL_RESOLUTION: DOES_NOT_OVERRIDE
+        override minLen()
+          <- rtn <- false
+
+      result <- Validate("Steve", specificValidator)
+      assert result?
+
+    <?-
+      Finally implement the methods needed.
+    -?>
+    OKDynamicLengthValidator1()
+      specificValidator <- () with trait of LengthValidator
+        override validate()
+          -> arg0 as String
+          <- rtn as Boolean: length arg0 <= minLength()
+
+        override minLength()
+          <- rtn as Integer: 10
+
+      result <- Validate("Steve", specificValidator)
+      assert result?
+
+    <?-
+      Now show multiple traits and all the required methods implemented.
+    -?>
+    OKWithMultipleTraits()
+      specificValidator <- () with trait of LengthValidator, LimitedWordValidator
+
+        override validate()
+          -> arg0 as String
+          <- rtn as Boolean: length arg0 <= minLength() or prohibitedWords() contains arg0
+
+        override minLength()
+          <- rtn as Integer: 10
+
+        override prohibitedWords()
+          <- rtn as List of String: ["BAD", "WORD"]
+
+        default operator ?
+
+      result <- Validate("Steve", specificValidator)
+      assert result?
+
+//EOF

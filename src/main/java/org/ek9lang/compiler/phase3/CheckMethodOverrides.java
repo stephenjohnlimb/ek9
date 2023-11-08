@@ -19,6 +19,8 @@ final class CheckMethodOverrides extends TypedSymbolAccess implements Consumer<A
   private final ErrorListener.SemanticClassification errorWhenShouldBeMarkedAbstract;
   private final CheckPureModifier checkPureModifier;
   private final LocationExtractor locationExtractor = new LocationExtractor();
+  private final CheckIfAbstractMethodsImplemented checkIfAbstractMethodsImplemented
+      = new CheckIfAbstractMethodsImplemented();
 
   /**
    * Check various aspects of overriding methods.
@@ -81,37 +83,53 @@ final class CheckMethodOverrides extends TypedSymbolAccess implements Consumer<A
    * For a non-abstract type that is an error.
    */
   private void checkAbstractness(final AggregateSymbol aggregateSymbol) {
-    //Here we need all the abstract methods to check that they have been override by something non-abstract.
-    final List<MethodSymbol> abstractMethodsToCheck = aggregateSymbol.getAllAbstractMethods();
 
-    abstractMethodsToCheck.forEach(methodSymbol -> {
-      MethodSymbolSearch search = new MethodSymbolSearch(methodSymbol);
-      var result = aggregateSymbol.resolveMatchingMethods(search, new MethodSymbolSearchResult());
-      result.getSingleBestMatchSymbol().ifPresent(match -> {
-        if (match.isMarkedAbstract()) {
-          var location = locationExtractor.apply(match);
-          var errorMessage = "'" + match.getFriendlyName() + "' " + location + " not overridden:";
-          errorListener.semanticError(aggregateSymbol.getSourceToken(), errorMessage, errorWhenShouldBeMarkedAbstract);
-        }
-      });
-    });
+    Consumer<MethodSymbol> actionToTake = match -> {
+      if (match.isMarkedAbstract()) {
+        var location = locationExtractor.apply(match);
+        var errorMessage = "'" + match.getFriendlyName() + "' " + location + " not overridden:";
+        errorListener.semanticError(aggregateSymbol.getSourceToken(), errorMessage, errorWhenShouldBeMarkedAbstract);
+      }
+    };
+
+    checkIfAbstractMethodsImplemented.accept(aggregateSymbol, actionToTake);
+
   }
 
   private void checkMethodInSuperAndTraits(final MethodSymbol methodSymbol,
                                            final AggregateSymbol aggregateSymbol) {
-    aggregateSymbol.getSuperAggregateSymbol().ifPresent(theSuper -> checkMethod(methodSymbol, theSuper));
 
-    for (IAggregateSymbol trait : aggregateSymbol.getTraits()) {
-      checkMethod(methodSymbol, trait);
+    boolean methodFound = aggregateSymbol
+        .getSuperAggregate()
+        .filter(theSuper -> checkMethod(methodSymbol, theSuper))
+        .isPresent();
+
+    if (!methodFound) {
+      methodFound = aggregateSymbol
+          .getTraits()
+          .stream()
+          .anyMatch(trait -> checkMethod(methodSymbol, trait));
     }
+
+    if (!methodFound && methodSymbol.isOverride()) {
+      errorListener.semanticError(methodSymbol.getSourceToken(), "",
+          ErrorListener.SemanticClassification.DOES_NOT_OVERRIDE);
+    }
+
   }
 
-  private void checkMethod(final MethodSymbol methodSymbol,
-                           final IAggregateSymbol superAggregateSymbol) {
+  /**
+   * Checks is the aggregate has the method, if it does then check override is specified.
+   * But if not found in the aggregate no error is issued.
+   * This is left to the calling method, because it is important to check supers and aggregates
+   * and only of nothing found maybe issue error.
+   */
+  private boolean checkMethod(final MethodSymbol methodSymbol,
+                              final IAggregateSymbol superAggregateSymbol) {
     MethodSymbolSearch search = new MethodSymbolSearch(methodSymbol);
 
     var result = superAggregateSymbol.resolveMatchingMethods(search, new MethodSymbolSearchResult());
-    result.getSingleBestMatchSymbol().ifPresentOrElse(match -> {
+    result.getSingleBestMatchSymbol().ifPresent(match -> {
       var errorMessage = getErrorMessageFor(methodSymbol, match);
       checkMethodAccessModifierCompatibility(methodSymbol, match);
       //If the super is private then it is not being overridden and so covariance and override does not need checking.
@@ -123,13 +141,8 @@ final class CheckMethodOverrides extends TypedSymbolAccess implements Consumer<A
         errorListener.semanticError(methodSymbol.getSourceToken(), errorMessage,
             ErrorListener.SemanticClassification.DOES_NOT_OVERRIDE);
       }
-    }, () -> {
-      //So there are no methods in the super that match this method, better check it's not been marked as overriding
-      if (methodSymbol.isOverride()) {
-        errorListener.semanticError(methodSymbol.getSourceToken(), "",
-            ErrorListener.SemanticClassification.DOES_NOT_OVERRIDE);
-      }
     });
+    return result.getSingleBestMatchSymbol().isPresent();
   }
 
   private void checkMethodAccessModifierCompatibility(final MethodSymbol methodSymbol,

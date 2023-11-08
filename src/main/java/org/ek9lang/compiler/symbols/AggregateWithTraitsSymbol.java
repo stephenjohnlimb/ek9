@@ -221,6 +221,13 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
     return rtn;
   }
 
+  @Override
+  public List<MethodSymbol> getAllMethods() {
+    List<MethodSymbol> rtn = super.getAllMethods();
+    traits.forEach(trait -> rtn.addAll(trait.getAllMethods()));
+    return rtn;
+  }
+
   /**
    * Gets all abstract methods in this aggregate and any super classes.
    *

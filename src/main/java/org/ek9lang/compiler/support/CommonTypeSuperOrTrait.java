@@ -88,11 +88,11 @@ public class CommonTypeSuperOrTrait implements BiFunction<IToken, List<ISymbol>,
       return;
     }
     addToTypes.add(symbolType);
-    if (symbolType instanceof FunctionSymbol functionSymbol && functionSymbol.getSuperFunctionSymbol().isPresent()) {
-      getTypesToTry(functionSymbol.getSuperFunctionSymbol().get(), addToTypes);
+    if (symbolType instanceof FunctionSymbol functionSymbol && functionSymbol.getSuperFunction().isPresent()) {
+      getTypesToTry(functionSymbol.getSuperFunction().get(), addToTypes);
     } else if (symbolType instanceof AggregateSymbol aggregateSymbol) {
-      if (aggregateSymbol.getSuperAggregateSymbol().isPresent()) {
-        getTypesToTry(aggregateSymbol.getSuperAggregateSymbol().get(), addToTypes);
+      if (aggregateSymbol.getSuperAggregate().isPresent()) {
+        getTypesToTry(aggregateSymbol.getSuperAggregate().get(), addToTypes);
       }
       if (aggregateSymbol instanceof AggregateWithTraitsSymbol aggregateWithTraitsSymbol) {
         aggregateWithTraitsSymbol.getAllTraits().forEach(symbol -> getTypesToTry(symbol, addToTypes));

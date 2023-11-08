@@ -1,0 +1,39 @@
+#!ek9
+<?-
+  Simple check to ensure that a trait name is not duplicates in a single 'with trait of'.
+  Note it is possible for the same trait to be included multiple times via hierarchy.
+  TODO also include a test where FQN is used in a mix of FQN and non-FQN.
+-?>
+defines module bad.trait.use
+
+  defines trait
+
+    T1
+      method1()
+        <- rtn <- true
+
+    T2
+      method2()
+        <- rtn <- true
+
+    @Error: TYPE_HIERARCHY_CHECKS: DUPLICATE_TRAIT_REFERENCE
+    DuplicatedReferences1 with trait of T1, T2, T1
+      method3()
+        <- rtn <- true
+
+    @Error: TYPE_HIERARCHY_CHECKS: DUPLICATE_TRAIT_REFERENCE
+    DuplicatedReferences2 with trait of bad.trait.use::T1, T2, bad.trait.use::T1
+      method3()
+        <- rtn <- true
+
+    @Error: TYPE_HIERARCHY_CHECKS: DUPLICATE_TRAIT_REFERENCE
+    DuplicatedReferences3 with trait of bad.trait.use::T1, T2, T1
+      method3()
+        <- rtn <- true
+
+    @Error: TYPE_HIERARCHY_CHECKS: DUPLICATE_TRAIT_REFERENCE
+    DuplicatedReferences4 with trait of T1, T2, T1, T2, T1
+      method3()
+        <- rtn <- true
+
+//EOF

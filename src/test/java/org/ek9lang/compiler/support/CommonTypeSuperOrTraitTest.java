@@ -68,9 +68,9 @@ class CommonTypeSuperOrTraitTest extends AbstractSymbolTestBase {
   void testListWithMultipleVariablesUsingCommonSuperAggregateAsType() {
     var base = new AggregateSymbol("base", symbolTable);
     var agg1 = new AggregateSymbol("agg1", symbolTable);
-    agg1.setSuperAggregateSymbol(base);
+    agg1.setSuperAggregate(base);
     var agg2 = new AggregateSymbol("agg2", symbolTable);
-    agg2.setSuperAggregateSymbol(base);
+    agg2.setSuperAggregate(base);
 
     var sym1 = new Symbol("Sym1", Optional.of(agg1));
     sym1.setSourceToken(new Ek9Token());
@@ -98,7 +98,7 @@ class CommonTypeSuperOrTraitTest extends AbstractSymbolTestBase {
   void testListWithMultipleVariablesUsingNoCommonSuperAggregateAsType() {
     var base = new AggregateSymbol("base", symbolTable);
     var agg1 = new AggregateSymbol("agg1", symbolTable);
-    agg1.setSuperAggregateSymbol(base);
+    agg1.setSuperAggregate(base);
     var agg2 = new AggregateSymbol("agg2", symbolTable);
 
     var sym1 = new Symbol("Sym1", Optional.of(agg1));
@@ -137,9 +137,9 @@ class CommonTypeSuperOrTraitTest extends AbstractSymbolTestBase {
   void testListWithMultipleVariablesUsingCommonSuperFunctionAsType() {
     var base = new FunctionSymbol("base", symbolTable);
     var f1 = new FunctionSymbol("f1", symbolTable);
-    f1.setSuperFunctionSymbol(base);
+    f1.setSuperFunction(base);
     var f2 = new FunctionSymbol("f2", symbolTable);
-    f2.setSuperFunctionSymbol(base);
+    f2.setSuperFunction(base);
 
     var sym1 = new Symbol("Sym1", Optional.of(f1));
     sym1.setSourceToken(new Ek9Token());
@@ -152,7 +152,7 @@ class CommonTypeSuperOrTraitTest extends AbstractSymbolTestBase {
   void testListWithMultipleVariablesUsingNoCommonSuperFunctionAsType() {
     var base = new FunctionSymbol("base", symbolTable);
     var f1 = new FunctionSymbol("f1", symbolTable);
-    f1.setSuperFunctionSymbol(base);
+    f1.setSuperFunction(base);
     var f2 = new FunctionSymbol("f2", symbolTable);
 
     var sym1 = new Symbol("Sym1", Optional.of(f1));

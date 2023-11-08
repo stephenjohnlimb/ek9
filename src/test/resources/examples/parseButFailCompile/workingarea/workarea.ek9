@@ -1,12 +1,14 @@
 #!ek9
 <?-
-  Workpad, next bit.
+  Workspace.
+
+  Now try traits by but with invalid variables, either missing or incorrect type.
 
 -?>
 defines module just.workspace
 
   defines function
-    Failure()
-      assert var?
-
+    JustTriggerDirectiveProcessing()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert nothing
 //EOF

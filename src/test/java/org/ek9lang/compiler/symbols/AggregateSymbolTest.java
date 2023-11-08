@@ -126,7 +126,7 @@ final class AggregateSymbolTest {
     AggregateSymbol cls1 = new AggregateSymbol("cls1", symbolTable);
     assertFalse(cls1.isExtensionOfInjectable());
 
-    cls1.setSuperAggregateSymbol(base1);
+    cls1.setSuperAggregate(base1);
     assertTrue(cls1.isExtensionOfInjectable());
 
     //Now add another constructor - but for cls1 this time.
@@ -201,7 +201,7 @@ final class AggregateSymbolTest {
 
     //Now make a plain aggregate and extend from the generic base.
     AggregateSymbol cls1 = new AggregateSymbol("cls1", symbolTable);
-    cls1.setSuperAggregateSymbol(aGenericBaseType);
+    cls1.setSuperAggregate(aGenericBaseType);
 
     //Is it possible to resolve 'T'? Not sure why we would need to but we should be able to.
     var resolvedT = cls1.resolve(new AnyTypeSymbolSearch("T"));
@@ -229,7 +229,7 @@ final class AggregateSymbolTest {
 
     //Now make a plain aggregate and extend from the generic base.
     AggregateSymbol cls1 = new AggregateSymbol("cls1", symbolTable);
-    cls1.setSuperAggregateSymbol(parameterisedType1);
+    cls1.setSuperAggregate(parameterisedType1);
 
     //Is it possible to resolve 'T', it should NOT be possible as 'T' is hidden within the parameterised type.
     var resolvedT = cls1.resolve(new AnyTypeSymbolSearch("T"));
@@ -271,7 +271,7 @@ final class AggregateSymbolTest {
 
     //Now make a sub class of base1.
     AggregateSymbol cls1 = new AggregateSymbol("cls1", symbolTable);
-    cls1.setSuperAggregateSymbol(base1);
+    cls1.setSuperAggregate(base1);
     //Note that this does not pull out properties from super!
     assertEquals(0, cls1.getProperties().size());
 
@@ -304,7 +304,7 @@ final class AggregateSymbolTest {
     assertFalse(cls1.hasImmediateSuper(base1));
 
     //This should have two effects, setting the super in cls1 and adding a sub to base1
-    cls1.setSuperAggregateSymbol(base1);
+    cls1.setSuperAggregate(base1);
 
     assertTrue(cls1.isImplementingInSomeWay(base1));
     assertTrue(cls1.hasImmediateSuper(base1));
@@ -332,7 +332,7 @@ final class AggregateSymbolTest {
 
     //Now lets add another sub of the base
     AggregateSymbol cls2 = new AggregateSymbol("cls2", symbolTable1);
-    cls2.setSuperAggregateSymbol(base1);
+    cls2.setSuperAggregate(base1);
     theSuper = cls2.getAnySuperTypeOrFunction();
     assertTrue(theSuper.isPresent());
     assertEquals(base1, theSuper.get());

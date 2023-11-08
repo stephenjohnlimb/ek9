@@ -30,7 +30,7 @@ final class CheckForDynamicFunctionBody extends TypedSymbolAccess
     var symbol = (FunctionSymbol) getRecordedAndTypedSymbol(ctx);
     var noBodyProvided = ctx.dynamicFunctionBody() == null;
 
-    symbol.getSuperFunctionSymbol().ifPresent(superFunction -> {
+    symbol.getSuperFunction().ifPresent(superFunction -> {
       if (superFunction.isMarkedAbstract() && noBodyProvided) {
         var errorMessage = "function defined "
             + locationExtractor.apply(symbol)

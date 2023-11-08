@@ -41,6 +41,14 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
    */
   void addSubAggregateSymbol(IAggregateSymbol sub);
 
+
+  /**
+   * Get all methods on this and any supers or traits.
+   *
+   * @return the list
+   */
+  List<MethodSymbol> getAllMethods();
+
   /**
    * Get all methods marked as abstract in this or any supers.
    *
@@ -61,6 +69,11 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
    * @return The list of constructors
    */
   List<MethodSymbol> getConstructors();
+
+  /**
+   * All methods abstract and non-abstract in this scope.
+   */
+  List<MethodSymbol> getAllMethodInThisScopeOnly();
 
   /**
    * Get all methods in this scope only that are not abstract.
@@ -100,12 +113,12 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
    */
   Optional<ISymbol> resolveMember(SymbolSearch search);
 
-  Optional<IAggregateSymbol> getSuperAggregateSymbol();
+  Optional<IAggregateSymbol> getSuperAggregate();
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  void setSuperAggregateSymbol(Optional<IAggregateSymbol> superAggregateSymbol);
+  void setSuperAggregate(Optional<IAggregateSymbol> superAggregate);
 
-  void setSuperAggregateSymbol(IAggregateSymbol superAggregateSymbol);
+  void setSuperAggregate(IAggregateSymbol superAggregateSymbol);
 
   boolean isInAggregateHierarchy(IAggregateSymbol theAggregateToCheck);
 

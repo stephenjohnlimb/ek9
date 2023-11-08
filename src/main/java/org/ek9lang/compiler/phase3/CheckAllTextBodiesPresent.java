@@ -25,7 +25,7 @@ final class CheckAllTextBodiesPresent extends TypedSymbolAccess implements Consu
   @Override
   public void accept(final AggregateSymbol aggregateSymbol) {
 
-    aggregateSymbol.getSuperAggregateSymbol().ifPresent(supperTextAggregate -> {
+    aggregateSymbol.getSuperAggregate().ifPresent(supperTextAggregate -> {
 
       Predicate<MethodSymbol> isMethodMissing = methodToCheck ->
           aggregateSymbol.resolveMatchingMethodsInThisScopeOnly(new MethodSymbolSearch(methodToCheck),

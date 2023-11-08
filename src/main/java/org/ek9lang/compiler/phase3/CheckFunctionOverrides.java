@@ -31,7 +31,7 @@ final class CheckFunctionOverrides extends TypedSymbolAccess implements Consumer
   @Override
   public void accept(final FunctionSymbol functionSymbol) {
     //Only if there is a super function, do we execute this.
-    functionSymbol.getSuperFunctionSymbol().ifPresent(superFunction -> {
+    functionSymbol.getSuperFunction().ifPresent(superFunction -> {
       var errorMessage = getErrorMessageFor(functionSymbol, superFunction);
 
       var paramData = new ParametersCheckData(functionSymbol.getSourceToken(), errorMessage,

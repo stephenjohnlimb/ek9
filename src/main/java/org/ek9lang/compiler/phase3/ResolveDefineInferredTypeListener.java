@@ -37,6 +37,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   private final CheckDefaultOperators checkDefaultOperators;
   private final CheckMethodOverrides checkMethodOverrides;
   private final CheckMethodOverrides checkDynamicClassMethodOverrides;
+  private final CheckConflictingMethods checkConflictingMethods;
   private final CheckFunctionOverrides checkFunctionOverrides;
   private final AutoMatchSuperFunctionSignature autoMatchSuperFunctionSignature;
   private final CheckForDynamicFunctionBody checkForDynamicFunctionBody;
@@ -46,6 +47,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   private final CheckAllTextBodiesPresent checkAllTextBodiesPresent;
   private final CheckServiceRegistration checkServiceRegistration;
   private final ProcessTypeConstraint processTypeConstraint;
+  private final AugmentAggregateWithTraitMethods augmentAggregateWithTraitMethods;
 
   /**
    * Create a new instance to define or resolve inferred types.
@@ -61,6 +63,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
         errorListener, ErrorListener.SemanticClassification.NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT);
     this.checkDynamicClassMethodOverrides = new CheckMethodOverrides(symbolAndScopeManagement,
         errorListener, ErrorListener.SemanticClassification.DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS);
+    this.checkConflictingMethods = new CheckConflictingMethods(symbolAndScopeManagement, errorListener);
     this.checkFunctionOverrides = new CheckFunctionOverrides(symbolAndScopeManagement, errorListener);
     this.checkForDynamicFunctionBody = new CheckForDynamicFunctionBody(symbolAndScopeManagement, errorListener);
     this.autoMatchSuperFunctionSignature = new AutoMatchSuperFunctionSignature(symbolAndScopeManagement, errorListener);
@@ -70,6 +73,8 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     this.checkAllTextBodiesPresent = new CheckAllTextBodiesPresent(symbolAndScopeManagement, errorListener);
     this.checkServiceRegistration = new CheckServiceRegistration(symbolAndScopeManagement, errorListener);
     this.processTypeConstraint = new ProcessTypeConstraint(symbolAndScopeManagement, symbolFactory, errorListener);
+    this.augmentAggregateWithTraitMethods =
+        new AugmentAggregateWithTraitMethods(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -114,24 +119,63 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   }
 
   @Override
+  public void enterClassDeclaration(EK9Parser.ClassDeclarationContext ctx) {
+    var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    //Now we may modify this class definition if it uses 'traits by'
+    //We do this in the entry, because on exit (below) we will check all abstract methods implemented.
+    if (checkConflictingMethods.test(symbol)) {
+      augmentAggregateWithTraitMethods.accept(ctx.traitsList(), symbol);
+    }
+    super.enterClassDeclaration(ctx);
+  }
+
+  @Override
   public void exitClassDeclaration(EK9Parser.ClassDeclarationContext ctx) {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    checkDefaultOperators.andThen(checkMethodOverrides).andThen(checkMethodReturn).accept(symbol);
+    checkDefaultOperators
+        .andThen(checkMethodOverrides)
+        .andThen(checkMethodReturn)
+        .accept(symbol);
     super.exitClassDeclaration(ctx);
+  }
+
+  @Override
+  public void enterDynamicClassDeclaration(EK9Parser.DynamicClassDeclarationContext ctx) {
+    var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+
+    //Now we may modify this class definition if it uses 'traits by'
+    //We do this in the entry, because on exit (below) we will check all abstract methods implemented.
+    if (checkConflictingMethods.test(symbol)) {
+      augmentAggregateWithTraitMethods.accept(ctx.traitsList(), symbol);
+    }
+
+    super.enterDynamicClassDeclaration(ctx);
   }
 
   @Override
   public void exitDynamicClassDeclaration(EK9Parser.DynamicClassDeclarationContext ctx) {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    checkDefaultOperators.andThen(checkDynamicClassMethodOverrides).andThen(checkMethodReturn).accept(symbol);
+    checkDefaultOperators
+        .andThen(checkDynamicClassMethodOverrides)
+        .andThen(checkMethodReturn)
+        .accept(symbol);
 
     super.exitDynamicClassDeclaration(ctx);
   }
 
   @Override
+  public void enterTraitDeclaration(EK9Parser.TraitDeclarationContext ctx) {
+    var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    checkConflictingMethods.test(symbol);
+    super.enterTraitDeclaration(ctx);
+  }
+
+  @Override
   public void exitTraitDeclaration(EK9Parser.TraitDeclarationContext ctx) {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    checkMethodOverrides.andThen(checkMethodReturn).accept(symbol);
+    checkMethodOverrides
+        .andThen(checkMethodReturn)
+        .accept(symbol);
     super.exitTraitDeclaration(ctx);
   }
 

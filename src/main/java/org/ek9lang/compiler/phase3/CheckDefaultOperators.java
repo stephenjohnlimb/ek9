@@ -64,7 +64,7 @@ final class CheckDefaultOperators extends TypedSymbolAccess implements Consumer<
     requiresComparator.ifPresent(method -> {
       checkForComparatorOrError(aggregateSymbol, method.getSourceToken(), MISSING_OPERATOR_IN_THIS);
 
-      aggregateSymbol.getSuperAggregateSymbol().ifPresent(
+      aggregateSymbol.getSuperAggregate().ifPresent(
           superAggregate -> checkForComparatorOrError(superAggregate, method.getSourceToken(),
               MISSING_OPERATOR_IN_SUPER));
     });
@@ -78,12 +78,13 @@ final class CheckDefaultOperators extends TypedSymbolAccess implements Consumer<
     operators.stream().filter(this::isNotASortOfComparisonOperator).forEach(operator -> {
 
       //First if there is a super check it has the same operator - it must
-      aggregateSymbol.getSuperAggregateSymbol()
-          .ifPresent(superAggregate -> checkForOperatorOrError(superAggregate, operator));
+      aggregateSymbol.getSuperAggregate()
+          .ifPresent(superAggregate -> checkForOperatorOnPropertyTypeOrError(superAggregate, operator));
 
       //Now check each of the properties on this aggregate also has the operator.
       properties.forEach(property -> property.getType()
-          .ifPresent(propertyType -> checkForOperatorOrError((IAggregateSymbol) propertyType, property, operator)));
+          .ifPresent(propertyType -> checkForOperatorOnPropertyTypeOrError((IAggregateSymbol) propertyType, property,
+              operator)));
     });
   }
 
@@ -97,19 +98,19 @@ final class CheckDefaultOperators extends TypedSymbolAccess implements Consumer<
         .ifPresent(toJSON -> checkPropertyNames.accept(aggregateSymbol));
   }
 
-  private void checkForOperatorOrError(final IAggregateSymbol aggregate,
-                                       final ISymbol property,
-                                       final MethodSymbol operator) {
+  private void checkForOperatorOnPropertyTypeOrError(final IAggregateSymbol aggregate,
+                                                     final ISymbol property,
+                                                     final MethodSymbol operator) {
     var search = new MethodSymbolSearch(operator);
 
-    if (aggregate.resolveInThisScopeOnly(search).isEmpty()) {
+    if (aggregate.resolve(search).isEmpty()) {
       var msg = "Relating to '" + property.getFriendlyName() + "', it requires operator '" + search + "':";
       errorListener.semanticError(operator.getSourceToken(), msg, MISSING_OPERATOR_IN_PROPERTY_TYPE);
     }
   }
 
-  private void checkForOperatorOrError(final IAggregateSymbol aggregate,
-                                       final MethodSymbol operator) {
+  private void checkForOperatorOnPropertyTypeOrError(final IAggregateSymbol aggregate,
+                                                     final MethodSymbol operator) {
     var search = new MethodSymbolSearch(operator);
 
     if (aggregate.resolveInThisScopeOnly(search).isEmpty()) {

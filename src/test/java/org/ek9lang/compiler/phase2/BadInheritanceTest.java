@@ -170,7 +170,7 @@ class BadInheritanceTest extends PhasesTest {
                                                                 final String expectName) {
     assertTrue(type.isPresent());
     assertEquals(expectName, type.get().getName());
-    return type.get().getSuperAggregateSymbol();
+    return type.get().getSuperAggregate();
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -178,7 +178,7 @@ class BadInheritanceTest extends PhasesTest {
                                                              final String expectName) {
     assertTrue(type.isPresent());
     assertEquals(expectName, type.get().getName());
-    return type.get().getSuperFunctionSymbol();
+    return type.get().getSuperFunction();
   }
 
   private void assertNoTypeHierarchy(final String typeName, final SimpleResolverForTesting resolver) {
@@ -189,9 +189,9 @@ class BadInheritanceTest extends PhasesTest {
   private void assertNoTypeHierarchy(final Optional<ISymbol> type) {
     assertTrue(type.isPresent());
     if (type.get() instanceof AggregateSymbol aggregate) {
-      assertFalse(aggregate.getSuperAggregateSymbol().isPresent());
+      assertFalse(aggregate.getSuperAggregate().isPresent());
     } else if (type.get() instanceof FunctionSymbol function) {
-      assertFalse(function.getSuperFunctionSymbol().isPresent());
+      assertFalse(function.getSuperFunction().isPresent());
     }
   }
 
@@ -199,13 +199,13 @@ class BadInheritanceTest extends PhasesTest {
   private void assertNoAggregateHierarchy(final Optional<IAggregateSymbol> type, final String expectName) {
     assertTrue(type.isPresent());
     assertEquals(expectName, type.get().getName());
-    assertFalse(type.get().getSuperAggregateSymbol().isPresent());
+    assertFalse(type.get().getSuperAggregate().isPresent());
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private void assertNoFunctionHierarchy(final Optional<FunctionSymbol> type, final String expectName) {
     assertTrue(type.isPresent());
     assertEquals(expectName, type.get().getName());
-    assertFalse(type.get().getSuperFunctionSymbol().isPresent());
+    assertFalse(type.get().getSuperFunction().isPresent());
   }
 }

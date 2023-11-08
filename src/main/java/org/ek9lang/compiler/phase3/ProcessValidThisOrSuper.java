@@ -86,13 +86,13 @@ final class ProcessValidThisOrSuper extends TypedSymbolAccess implements Consume
   private ISymbol checkSuperUsage(final ParserRuleContext ctx, final ISymbol basicType) {
 
     //This is the only happy route to use 'super'.
-    if (basicType instanceof IAggregateSymbol asAggregate && asAggregate.getSuperAggregateSymbol().isPresent()) {
-      return asAggregate.getSuperAggregateSymbol().get();
+    if (basicType instanceof IAggregateSymbol asAggregate && asAggregate.getSuperAggregate().isPresent()) {
+      return asAggregate.getSuperAggregate().get();
     }
 
     //So the rest of this block is just about trying to emit the most appropriate error message.
-    if (basicType instanceof FunctionSymbol asFunction && asFunction.getSuperFunctionSymbol().isPresent()) {
-      var superType = asFunction.getSuperFunctionSymbol().get();
+    if (basicType instanceof FunctionSymbol asFunction && asFunction.getSuperFunction().isPresent()) {
+      var superType = asFunction.getSuperFunction().get();
       emitGenusErrorForSymbol(ctx, superType);
     } else if (supportedThisOnlyGenus.contains(basicType.getGenus())) {
       if (basicType.getGenus().equals(ISymbol.SymbolGenus.CLASS_TRAIT)) {

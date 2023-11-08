@@ -18,7 +18,7 @@ final class AutoMatchSuperFunctionSignature extends TypedSymbolAccess implements
 
   @Override
   public void accept(FunctionSymbol functionSymbol) {
-    functionSymbol.getSuperFunctionSymbol().ifPresent(superFunction -> {
+    functionSymbol.getSuperFunction().ifPresent(superFunction -> {
       superFunction.getSymbolsForThisScope().forEach(param -> functionSymbol.define(param.clone(functionSymbol)));
       if (superFunction.isReturningSymbolPresent()) {
         var clonedReturnSymbol = superFunction.getReturningSymbol().clone(functionSymbol);

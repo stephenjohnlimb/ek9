@@ -87,7 +87,7 @@ final class ProcessThisSuperCallOrError extends TypedSymbolAccess
       if (ctx.primaryReference().THIS() != null) {
         return resolveAndRecordIfPossible(ctx, aggregate, callParams);
       } else {
-        var superAggregate = aggregate.getSuperAggregateSymbol();
+        var superAggregate = aggregate.getSuperAggregate();
         if (superAggregate.isPresent()) {
           return resolveAndRecordIfPossible(ctx, superAggregate.get(), callParams);
         }

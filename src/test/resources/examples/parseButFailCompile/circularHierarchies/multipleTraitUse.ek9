@@ -1,0 +1,55 @@
+#!ek9
+defines module multiple.trait.use
+
+  defines trait
+
+    Validator
+      validate()
+        <- rtn as Boolean?
+
+    Validator1 with trait of Validator
+
+      someMethod() as abstract
+        <- rtn as Integer?
+
+    Validator2 with trait of Validator
+
+      override validate()
+        <- rtn <- true
+
+    Validator3 with trait of Validator2
+
+      override validate()
+        <- rtn <- false
+
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    Validator4 with trait of Validator8
+
+      override validate()
+        <- rtn <- false
+
+    Validator8 with trait of Validator5
+
+      override validate()
+        <- rtn <- false
+
+    Validator5 with trait of Validator4
+
+      override validate()
+        <- rtn <- false
+
+
+  defines class
+
+    <?-
+      Try and detect circular dependencies.
+    -?>
+    ClassMultipleTraits with trait of Validator1, Validator5, Validator8
+
+      override validate()
+        <- rtn <- true
+
+      override someMethod()
+        <- rtn <- 1
+
+//EOF

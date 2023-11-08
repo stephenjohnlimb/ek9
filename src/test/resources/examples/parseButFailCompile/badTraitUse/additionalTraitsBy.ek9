@@ -1,0 +1,157 @@
+#!ek9
+<?-
+
+  Designed to show combinations of traits concrete classes and delegation.
+  With a mix of classes and dynamic classes.
+
+-?>
+defines module additional.traits.by
+
+  <?-
+    Model the concept of a couple of validators.
+  -?>
+  defines trait
+
+    BasicValidator
+
+      simpleValidation()
+        -> arg0 as String
+        <- rtn as Boolean: arg0?
+
+      additionalSimpleMethod() as abstract
+        <- rtn as Boolean?
+
+    FullValidator
+
+      fullValidation()
+        -> arg0 as String
+        <- rtn as Boolean: arg0?
+
+      additionalFullMethod() as abstract
+        <- rtn as Boolean?
+
+    <?-
+      Just ued to detect methods that have not been implemented.
+    -?>
+    JustAbstract
+      aMethod() as abstract
+        <- rtn as Boolean?
+
+    <?-
+      Check that is is possible to use default implementations.
+    -?>
+    JustConcrete
+      bMethod()
+        <- rtn <- true
+
+  <?-
+    make a couple of concrete implementations of the above.
+  -?>
+  defines class
+
+    ConcreteBasicValidator with trait of BasicValidator
+      override additionalSimpleMethod()
+        <- rtn <- true
+
+    ConcreteFullValidator with trait of FullValidator
+      override additionalFullMethod()
+        <- rtn <- true
+
+    <?-
+      Now rather than inheritance use delegation.
+      The logic and rationale here is that if we can use these implementations of
+      basic and full - then it must be possible to instantiate them.
+      Therefore any methods that are abstract in the traits MUST have been implemented.
+      If that is the case then the ek9 compiler can 'add in synthetic methods' so we don;t get errors.
+      Also it must 'know' which delegate to use for each specific method.
+      Hence the reason for forcing the ek9 developer to choose when method names/signatures conflict.
+    -?>
+    CompositeClass with trait of BasicValidator by basic, FullValidator by full
+      //Note these could have been passed in at construction.
+      basic as BasicValidator: ConcreteBasicValidator()
+      full as FullValidator: ConcreteFullValidator()
+
+      totalValidation()
+        -> arg0 as String
+        <- rtn as Boolean: simpleValidation(arg0) and fullValidation(arg0)
+
+    //Just checking that if a trait is used but 'by' is not supplied and there are abstract methods we get an error.
+    @Error: FULL_RESOLUTION: NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT
+    BrokenComposite with trait of BasicValidator by basic, FullValidator by full, JustAbstract
+      basic as BasicValidator?
+      full as FullValidator?
+
+      BrokenComposite()
+        ->
+          basic as BasicValidator
+          full as FullValidator
+        this.basic: basic
+        this.full: full
+
+    //Demonstration that some parts can be delegated to instance variables, while others use concrete trait method
+    MixedComposite with trait of BasicValidator by basic, FullValidator by full, JustConcrete
+      basic as BasicValidator?
+      full as FullValidator?
+
+      MixedComposite()
+        ->
+          basic as BasicValidator
+          full as FullValidator
+        this.basic: basic
+        this.full: full
+
+  defines function
+
+    DemonstrateCompositeClassUseViaDelegation()
+      composite <- CompositeClass()
+
+      //Now call each of the methods
+      assert composite.simpleValidation("Steve")
+      assert composite.additionalSimpleMethod()
+
+      assert composite.fullValidation("Steve")
+      assert composite.additionalFullMethod()
+
+      //Finally call the additional method added
+      assert composite.totalValidation("Steve")
+
+    <?-
+      The alternative by using dynamic classes. Same behaviour.
+    -?>
+    DemonstrationViaDynamicClass()
+      basic <- ConcreteBasicValidator()
+      full <- ConcreteFullValidator()
+
+      dynamicComposite <- (basic, full) with trait of BasicValidator by basic, FullValidator by full
+        totalValidation()
+          -> arg0 as String
+          <- rtn as Boolean: simpleValidation(arg0) and fullValidation(arg0)
+
+      //Now call each of the methods
+      assert dynamicComposite.simpleValidation("Steve")
+      assert dynamicComposite.additionalSimpleMethod()
+
+      assert dynamicComposite.fullValidation("Steve")
+      assert dynamicComposite.additionalFullMethod()
+
+      //Finally call the additional method added
+      assert dynamicComposite.totalValidation("Steve")
+
+    AnotherDemonstrationOfADynamicClass()
+      basic <- ConcreteBasicValidator()
+      full <- ConcreteFullValidator()
+
+      //This time don't bother with an additional method, now it's just a one liner.
+      dynamicMixedComposite <- (basic, full) with trait of BasicValidator by basic, FullValidator by full, JustConcrete
+
+      //Now call each of the methods
+      assert dynamicMixedComposite.simpleValidation("Steve")
+      assert dynamicMixedComposite.additionalSimpleMethod()
+
+      assert dynamicMixedComposite.fullValidation("Steve")
+      assert dynamicMixedComposite.additionalFullMethod()
+
+    JustTriggerDirectiveProcessing()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert nothing
+//EOF

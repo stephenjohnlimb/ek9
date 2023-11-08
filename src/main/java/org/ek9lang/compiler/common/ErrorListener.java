@@ -360,6 +360,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     OVERRIDE_AND_ABSTRACT("'override' of a method/operator and 'abstract' (no implementation) is not logical"),
     DEFAULT_AND_ABSTRACT("'default' of an operator and 'abstract' is not logical"),
     DEFAULT_AND_TRAIT("'default' of operators on a trait is not supported"),
+    DUPLICATE_TRAIT_REFERENCE("same trait referenced multiple times"),
     MISSING_OPERATOR_IN_THIS("'default' of operators requires this type to have appropriate operator"),
     MISSING_OPERATOR_IN_SUPER("'default' of operators requires super to have appropriate operator"),
     MISSING_OPERATOR_IN_PROPERTY_TYPE("'default' of operators requires property/field to have appropriate operator"),
@@ -383,6 +384,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     DECLARED_AS_NULL_NOT_NEEDED("declaration supporting 'uninitialised' is not needed"),
     METHOD_ACCESS_MODIFIER_DEFAULT(
         "access modifier is not needed here - methods are 'public' by default"),
+    METHODS_CONFLICT("conflicting methods to be resolved"),
     ACCESS_MODIFIER_INAPPROPRIATE("access modifier inappropriate here"),
     APPLICATION_SELECTION_INVALID("application selection not allowed in this context"),
     STATEMENT_UNREACHABLE("all paths lead to an Exception"),

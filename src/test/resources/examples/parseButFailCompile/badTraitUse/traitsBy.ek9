@@ -1,0 +1,110 @@
+#!ek9
+<?-
+  Checks that using the trait 'by' in dynamic and normal class use works OK.
+  The basic idea of the 'by' syntax and semantics in ek9 it to enable delegation.
+
+  So a class can be denoted to have trait A but rather than have to implement any abstract methods
+  defined in that trait, it can elect to use an object that already implements those methods.
+
+  This gives the class the opportunity to only override specific methods itself and then delegate the remaining
+  to the object it has been provided with in the 'by' syntax.
+
+  By doing this it makes delegation just as easy as inheritance, but without all the downsides of inheritance.
+  This promotes the use of design by traits (interfaces) and encourages small self contained implementations.
+
+  TODO fix these example as there should not be any errors.
+-?>
+defines module mix.traits.implementation
+
+  <?-
+    'import' or 'reference' these traits so they can be used within this module.
+  -?>
+  references
+    trait.test.support::StringValidator
+    trait.test.support::LengthValidator
+    trait.test.support::LimitedWordValidator
+    trait.test.support::Validate
+    trait.test.support::FlexibleLengthValidator
+    trait.test.support::WordValidator
+
+
+  defines class
+
+    <?-
+      Example of alternative layout for long or lots of traits.
+      But because both validators have clashing methods, we will get an error.
+    -?>
+    @Error: FULL_RESOLUTION: METHODS_CONFLICT
+    ClassDelegatingMultipleTraits with trait of (
+      LengthValidator by lenValidator,
+      LimitedWordValidator by wordValidator
+      )
+
+      lenValidator as LengthValidator?
+      wordValidator as LimitedWordValidator?
+
+      ClassDelegatingMultipleTraits()
+        ->
+          lenValidator as LengthValidator
+          wordValidator as LimitedWordValidator
+        this.lenValidator: lenValidator
+        this.wordValidator: wordValidator
+
+      default operator ?
+
+    SomeBase as abstract
+      validate() as abstract
+        -> arg0 as String
+        <- rtn as Boolean?
+
+    @Error: FULL_RESOLUTION: METHODS_CONFLICT
+    ClassWithAbstractSuperAndDelegation extends SomeBase with trait of LengthValidator by lenValidator
+      lenValidator as LengthValidator?
+
+      ClassWithSuperAndDelegation()
+        -> lenValidator as LengthValidator
+        this.lenValidator: lenValidator
+
+    SomeConcreteBase as open
+      validate()
+        -> arg0 as String
+        <- rtn <- true
+
+    @Error: FULL_RESOLUTION: METHODS_CONFLICT
+    ClassWithConcreteSuperAndDelegation extends SomeConcreteBase with trait of LengthValidator by lenValidator
+      lenValidator as LengthValidator?
+
+      ClassWithConcreteSuperAndDelegation()
+        -> lenValidator as LengthValidator
+        this.lenValidator: lenValidator
+
+  defines function
+
+    <?-
+      Now this is where ek9 has delegation built in, this allows for composition.
+      So create a length validator and then capture it and use it.
+      Only really useful when you want to employ multiple traits.
+    -?>
+    OKDynamicValidator1()
+
+      lenValidator <- FlexibleLengthValidator()
+      wordValidator <- WordValidator()
+
+      //Still get errors here because of conflicting validate methods
+      //Because this is a bit long then we can use the parenthesis layout to make it a bit more readable.
+      @Error: FULL_RESOLUTION: METHODS_CONFLICT
+      specificValidator <- (lenValidator, wordValidator) with trait of (
+        LengthValidator by lenValidator,
+        LimitedWordValidator by wordValidator
+        )
+
+      result <- Validate("Steve", specificValidator)
+      assert result?
+
+  defines function
+
+    JustTriggerDirectiveProcessing()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert nothing
+
+//EOF

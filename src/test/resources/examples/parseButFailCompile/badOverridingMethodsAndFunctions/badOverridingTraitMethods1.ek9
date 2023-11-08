@@ -65,6 +65,15 @@ defines module bad.overriding.traitmethods1
         <- rtn as String: arg0
 
     <?-
+      Introduce another new signature but this time abstract
+    -?>
+    TX3
+      someMethod() as abstract
+        -> arg0 as String
+        <- rtn as String?
+
+
+    <?-
       Now we have a trait that has the same signature but defined multiple times,
       Two are concrete with implementations but the third is the original T1 with is abstract.
       But this is still just an interface in many ways, only when it is used should we force the
@@ -73,6 +82,21 @@ defines module bad.overriding.traitmethods1
       available.
       TODO detect and add errors in here.
     -?>
-    TConflictingMethods with trait of TX1, TX2, T1
+    @Error: FULL_RESOLUTION: METHODS_CONFLICT
+    TConflictingMethods1 with trait of TX1, TX2, T1
+
+    <?-
+      Issue with missing implementation on TX3
+    -?>
+    @Error: FULL_RESOLUTION: METHODS_CONFLICT
+    TConflictingMethods2 with trait of TX1, TX3
+
+    <?-
+      This is how you solve the above issue.
+    -?>
+    ResolvedConflictingMethods with trait of TX1, TX2, T1
+      override someMethod()
+        -> arg0 as String
+        <- rtn as String: "Resolved"
 
 //EOF

@@ -7,6 +7,7 @@ import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.CompilerPhase;
+import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.common.CompilationEvent;
@@ -20,6 +21,10 @@ import org.ek9lang.core.SharedThreadContext;
 
 /**
  * SINGLE THREADED - Run across sources to check for types, functions and traits for 'super loops'.
+ * This is a bit nasty, basically there is a need to follow supers all the way back.
+ * For aggregates this is just 'getSuperAggregateSymbol' for functions 'getSuperFunctionSymbol'.
+ * But for traits - you need to get all it's traits.
+ * But note that it is important not to flip between an aggregate hierarchy and a trait one.
  */
 public final class TypeHierarchyChecks extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.TYPE_HIERARCHY_CHECKS;
@@ -35,14 +40,13 @@ public final class TypeHierarchyChecks extends CompilerPhase {
 
   @Override
   public boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
-    checkForCircularHierarchies();
+    checkHierarchies();
 
     return !sourceHaveErrors.test(workspace.getSources());
   }
 
-  private void checkForCircularHierarchies() {
+  private void checkHierarchies() {
     compilableProgramAccess.accept(program -> {
-
       //Memoization, only check if not already checked (else On2 or worse).
       HashMap<String, ISymbol> processedSymbols = new HashMap<>();
 
@@ -50,23 +54,44 @@ public final class TypeHierarchyChecks extends CompilerPhase {
         var parsedModules = program.getParsedModules(moduleName);
 
         for (var parsedModule : parsedModules) {
-          var scope = parsedModule.getModuleScope();
-          for (var symbol : scope.getSymbolsForThisScope()) {
-            var errorListener = parsedModule.getSource().getErrorListener();
-            checkForCircularLoops(errorListener, processedSymbols, new HashSet<>(), symbol);
-          }
+          checkParsedModule(parsedModule, processedSymbols);
           listener.accept(new CompilationEvent(thisPhase, parsedModule, parsedModule.getSource()));
         }
       }
     });
   }
 
+  private void checkParsedModule(final ParsedModule parsedModule, HashMap<String, ISymbol> processedSymbols) {
+    var errorListener = parsedModule.getSource().getErrorListener();
+    var checkNoDuplicatedTraits = new CheckNoDuplicatedTraits(errorListener);
+    var scope = parsedModule.getModuleScope();
+
+    for (var symbol : scope.getSymbolsForThisScope()) {
+      checkForLoops(errorListener, processedSymbols, symbol);
+      checkForDuplicateTraits(checkNoDuplicatedTraits, symbol);
+    }
+  }
+
+  private void checkForLoops(ErrorListener errorListener,
+                             HashMap<String, ISymbol> processedSymbols,
+                             final ISymbol symbol) {
+    var classTraitHierarchy = symbol.getGenus().equals(ISymbol.SymbolGenus.CLASS_TRAIT);
+    checkForCircularLoops(errorListener, processedSymbols, new HashSet<>(), symbol, classTraitHierarchy);
+  }
+
+  private void checkForDuplicateTraits(final CheckNoDuplicatedTraits checker, final ISymbol symbol) {
+    if (symbol instanceof AggregateWithTraitsSymbol aggregate) {
+      checker.accept(aggregate);
+    }
+  }
+
   private void checkForCircularLoops(ErrorListener errorListener,
                                      HashMap<String, ISymbol> processedSymbols,
                                      HashSet<String> symbolsEncountered,
-                                     final ISymbol maybeHasASuper) {
-    var fullyQualifiedName = maybeHasASuper.getFullyQualifiedName();
+                                     final ISymbol maybeHasASuper,
+                                     final boolean classTraitHierarchy) {
 
+    var fullyQualifiedName = maybeHasASuper.getFullyQualifiedName();
     if (symbolsEncountered.contains(fullyQualifiedName)) {
       //Well looks like within this hierarchy we've already encountered this symbol.
       var msg = "with genus '" + maybeHasASuper.getGenus().getDescription() + "' is invalid:";
@@ -84,19 +109,27 @@ public final class TypeHierarchyChecks extends CompilerPhase {
     processedSymbols.put(fullyQualifiedName, maybeHasASuper);
     symbolsEncountered.add(fullyQualifiedName);
 
-    if (maybeHasASuper instanceof AggregateWithTraitsSymbol aggregateWithTraits) {
+    if (classTraitHierarchy && maybeHasASuper instanceof AggregateWithTraitsSymbol aggregateWithTraits) {
+
       aggregateWithTraits.getTraits()
-          .forEach(trait -> checkForCircularLoops(errorListener, processedSymbols, symbolsEncountered, trait));
+          .forEach(trait -> {
+            //Now for each trait we need to copy the symbolsEncountered upto this point as we need to check up 'paths'
+            //Rather than the across - this is because that unlike aggregates/functions that can only have one super
+            //traits in effect can encounter the same trait. But here we only want to ensure we do not encounter the
+            //same trait in a single path from an end trait right back up the path to the base trait, if we do there
+            //is a loop.
+            var pathSymbolsEncountered = new HashSet<>(symbolsEncountered);
+            checkForCircularLoops(errorListener, processedSymbols, pathSymbolsEncountered, trait, true);
+          });
+      return;
     }
 
-    if (maybeHasASuper instanceof AggregateSymbol aggregate
-        && aggregate.getSuperAggregateSymbol().isPresent()) {
+    if (maybeHasASuper instanceof AggregateSymbol aggregate && aggregate.getSuperAggregate().isPresent()) {
       checkForCircularLoops(errorListener, processedSymbols, symbolsEncountered,
-          aggregate.getSuperAggregateSymbol().get());
-    } else if (maybeHasASuper instanceof FunctionSymbol function
-        && function.getSuperFunctionSymbol().isPresent()) {
+          aggregate.getSuperAggregate().get(), classTraitHierarchy);
+    } else if (maybeHasASuper instanceof FunctionSymbol function && function.getSuperFunction().isPresent()) {
       checkForCircularLoops(errorListener, processedSymbols, symbolsEncountered,
-          function.getSuperFunctionSymbol().get());
+          function.getSuperFunction().get(), classTraitHierarchy);
     }
     //else it cannot have a super. So that's it.
   }

@@ -30,7 +30,6 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final CheckForRange checkForRange;
   private final CheckVariableAssignment checkVariableAssignment;
   private final CheckVariableOnlyDeclaration checkVariableOnlyDeclaration;
-
   private final CheckPipelinePart checkPipelinePart;
   private final ProcessObjectAccessStartOrError processObjectAccessStartOrError;
   private final ProcessObjectAccessExpressionOrError processObjectAccessExpressionOrError;
@@ -83,6 +82,15 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   public void exitIdentifierReference(EK9Parser.IdentifierReferenceContext ctx) {
     processValidIdentifierReference.apply(ctx);
     super.exitIdentifierReference(ctx);
+  }
+
+  @Override
+  public void exitTraitReference(EK9Parser.TraitReferenceContext ctx) {
+    var traitReference = symbolAndScopeManagement.getRecordedSymbol(ctx.identifierReference());
+    if (traitReference != null) {
+      symbolAndScopeManagement.recordSymbol(traitReference, ctx);
+    }
+    super.exitTraitReference(ctx);
   }
 
   @Override

@@ -100,6 +100,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   private final CheckForInvalidParameterisedTypeUse checkForInvalidParameterisedTypeUse;
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
   private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
+
   /**
    * Used for processing text blocks, so we can hold state of the current language the block is for.
    */
@@ -140,7 +141,6 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     resolveOrDefineExplicitParameterizedType =
         new ResolveOrDefineExplicitParameterizedType(symbolAndScopeManagement, symbolFactory, errorListener, false);
-
   }
 
   // Now we hook into the ANTLR listener events - lots of them!

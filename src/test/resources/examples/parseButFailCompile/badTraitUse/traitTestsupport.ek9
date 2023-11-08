@@ -1,0 +1,86 @@
+#!ek9
+<?-
+  Just used as a common set of working traits and functions to support tests.
+-?>
+defines module trait.test.support
+
+  defines trait
+
+    <?-
+      Idea is to extend the concept to validate specific length validation on a String.
+      return true it valid, else false if not valid.
+    -?>
+    LengthValidator with trait of StringValidator
+
+      minLength() as abstract
+        <- rtn as Integer?
+
+    <?-
+      Additional validation concept of check for prohibited words.
+      But this now provides a default implementation.
+    -?>
+    LimitedWordValidator with trait of StringValidator
+
+      override validate()
+        -> arg0 as String
+        <- rtn as Boolean: prohibitedWords() contains arg0
+
+      prohibitedWords() as abstract
+        <- rtn as List of String?
+
+    <?-
+      Just the concept of a validator for strings.
+    -?>
+    StringValidator
+      validate() as abstract
+        -> arg0 as String
+        <- rtn as Boolean?
+
+      operator ? as pure
+        <- rtn <- true
+
+  defines function
+
+    <?-
+      Simple function to call validation of a string.
+      Just used to check type compatibility.
+    -?>
+    Validate()
+      ->
+        value as String
+        validator as StringValidator
+      <-
+        rtn as Boolean: validator.validate(value)
+
+  defines class
+
+    <?-
+      By default this uses 5 as the minimum length for validation.
+      But this can be altered at construction time,
+    -?>
+    FlexibleLengthValidator with trait of LengthValidator
+      minLength <- 5
+
+      default FlexibleLengthValidator()
+
+      FlexibleLengthValidator()
+        -> minLength as Integer
+        assert minLength > 0
+
+        this.minLength :=: minLength
+
+      override validate()
+        -> arg0 as String
+        <- rtn as Boolean: length arg0 <= minLength
+
+      override minLength()
+        <- rtn as Integer: Integer(minLength)
+
+    <?-
+      Just two prohibited words in this validator.
+    -?>
+    WordValidator with trait of LimitedWordValidator
+      override prohibitedWords()
+        <- rtn as List of String: ["BAD", "WORD"]
+
+//EOF
