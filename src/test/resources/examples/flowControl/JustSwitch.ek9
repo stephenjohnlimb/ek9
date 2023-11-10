@@ -12,6 +12,33 @@ defines module com.customer.just.switches
         temp = 41
         
   defines program
+
+    booleanSwitch()
+      conditionVariable <- true
+
+      //This is the reason that an ifExpression is not needed.
+      //You get the same effect with this mechanism
+      resultValue <- given conditionVariable
+        <- result String: String()
+        when true
+          result: "Steve"
+        default
+          //Just put some statements in here to demo block use.
+          var1 <- "something"
+          var2 <- "somethingElse"
+          assert var1? and var2?
+          result: "Stephen"
+
+      assert resultValue?
+
+      //The alternative for such a simple block above is a ternary
+      //So only use the above if you have multiple block statements.
+      //But if you have lots of block statement - use a function and just call that.
+
+      //Here is a simple ternary
+      resultValue2 <- conditionVariable <- "Steve" else "Stephen"
+      assert resultValue2?
+
     simpleSwitch()
       stdout <- Stdout()
       multiplier <- 5

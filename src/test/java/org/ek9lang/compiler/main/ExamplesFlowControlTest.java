@@ -28,7 +28,7 @@ class ExamplesFlowControlTest extends PhasesTest {
 
     new SymbolCountCheck("com.customer.just.ifs", 6).test(program);
 
-    new SymbolCountCheck("com.customer.just.switches", 6).test(program);
+    new SymbolCountCheck("com.customer.just.switches", 7).test(program);
 
     new SymbolCountCheck("com.customer.loop", 14).test(program);
 
