@@ -3,7 +3,7 @@
   Workspace.
 
 -?>
-defines module just.workspace
+defines module trait.with.trait.by
 
   defines trait
     T1
@@ -20,10 +20,6 @@ defines module just.workspace
 
   defines function
     Broken()
-      with <- 22
-      by <- "Steve"
-      assert with? and by?
-
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       assert missing
 

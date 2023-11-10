@@ -37,7 +37,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   private final CheckDefaultOperators checkDefaultOperators;
   private final CheckMethodOverrides checkMethodOverrides;
   private final CheckMethodOverrides checkDynamicClassMethodOverrides;
-  private final CheckConflictingMethods checkConflictingMethods;
+  private final CheckConflictingMethods checkNoConflictingMethods;
   private final CheckFunctionOverrides checkFunctionOverrides;
   private final AutoMatchSuperFunctionSignature autoMatchSuperFunctionSignature;
   private final CheckForDynamicFunctionBody checkForDynamicFunctionBody;
@@ -48,6 +48,8 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   private final CheckServiceRegistration checkServiceRegistration;
   private final ProcessTypeConstraint processTypeConstraint;
   private final AugmentAggregateWithTraitMethods augmentAggregateWithTraitMethods;
+  private final ResolveByTraitVariables resolveByTraitVariables;
+  private final CheckNoTraitByVariables checkNoTraitByVariablesOrError;
 
   /**
    * Create a new instance to define or resolve inferred types.
@@ -63,7 +65,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
         errorListener, ErrorListener.SemanticClassification.NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT);
     this.checkDynamicClassMethodOverrides = new CheckMethodOverrides(symbolAndScopeManagement,
         errorListener, ErrorListener.SemanticClassification.DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS);
-    this.checkConflictingMethods = new CheckConflictingMethods(symbolAndScopeManagement, errorListener);
+    this.checkNoConflictingMethods = new CheckConflictingMethods(symbolAndScopeManagement, errorListener);
     this.checkFunctionOverrides = new CheckFunctionOverrides(symbolAndScopeManagement, errorListener);
     this.checkForDynamicFunctionBody = new CheckForDynamicFunctionBody(symbolAndScopeManagement, errorListener);
     this.autoMatchSuperFunctionSignature = new AutoMatchSuperFunctionSignature(symbolAndScopeManagement, errorListener);
@@ -75,6 +77,10 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     this.processTypeConstraint = new ProcessTypeConstraint(symbolAndScopeManagement, symbolFactory, errorListener);
     this.augmentAggregateWithTraitMethods =
         new AugmentAggregateWithTraitMethods(symbolAndScopeManagement, errorListener);
+    this.resolveByTraitVariables =
+        new ResolveByTraitVariables(symbolAndScopeManagement, errorListener);
+    this.checkNoTraitByVariablesOrError =
+        new CheckNoTraitByVariables(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -123,7 +129,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     //Now we may modify this class definition if it uses 'traits by'
     //We do this in the entry, because on exit (below) we will check all abstract methods implemented.
-    if (checkConflictingMethods.test(symbol)) {
+    if (checkNoConflictingMethods.test(symbol)) {
       augmentAggregateWithTraitMethods.accept(ctx.traitsList(), symbol);
     }
     super.enterClassDeclaration(ctx);
@@ -136,6 +142,8 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
         .andThen(checkMethodOverrides)
         .andThen(checkMethodReturn)
         .accept(symbol);
+
+    resolveByTraitVariables.accept(ctx.traitsList(), symbol);
     super.exitClassDeclaration(ctx);
   }
 
@@ -145,7 +153,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
 
     //Now we may modify this class definition if it uses 'traits by'
     //We do this in the entry, because on exit (below) we will check all abstract methods implemented.
-    if (checkConflictingMethods.test(symbol)) {
+    if (checkNoConflictingMethods.test(symbol)) {
       augmentAggregateWithTraitMethods.accept(ctx.traitsList(), symbol);
     }
 
@@ -160,13 +168,16 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
         .andThen(checkMethodReturn)
         .accept(symbol);
 
+    resolveByTraitVariables.accept(ctx.traitsList(), symbol);
+
     super.exitDynamicClassDeclaration(ctx);
   }
 
   @Override
   public void enterTraitDeclaration(EK9Parser.TraitDeclarationContext ctx) {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    checkConflictingMethods.test(symbol);
+    checkNoConflictingMethods.test(symbol);
+    checkNoTraitByVariablesOrError.accept(ctx.traitsList(), symbol);
     super.enterTraitDeclaration(ctx);
   }
 

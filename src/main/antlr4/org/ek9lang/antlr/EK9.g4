@@ -693,6 +693,7 @@ identifier
     | RANGE
     | IS
     | BY
+    | WITH
     | ONLY
     | PURE
     | HTTP_QUERY

@@ -1,0 +1,152 @@
+#!ek9
+<?-
+
+  Now try traits by but with invalid variables, either missing or incorrect types.
+
+-?>
+defines module bad.trait.by.variables
+
+  <?-
+    First off a couple of simple traits that have implementations.
+  -?>
+  defines trait
+
+    T1
+      methodOne()
+        <- rtn <- true
+    T2
+      methodTwo()
+        <- rtn <- "Steve"
+
+  <?-
+    A couple of minimal classes that just use those traits.
+    Also a couple that override the method on the traits.
+  -?>
+  defines class
+
+    TC1 with trait of T1
+
+    TC1A with trait of T1
+      override methodOne()
+        <- rtn <- false
+
+    TC2 with trait of T2
+
+    TC2A with trait of T2
+      override methodTwo()
+        <- rtn <- "Stephen"
+
+    <?-
+      Now just a composite that again just uses the trait implementations.
+    -?>
+    Composite with trait of T1, T2
+
+    <?-
+      Now one that delegates the implementation to properties that meet the same interface.
+    -?>
+    CompositeWithDelegation1 with trait of T1 by t1, T2 by t2
+      t1 as T1?
+      t2 as T2?
+
+      CompositeWithDelegation1()
+        ->
+          t1 as T1
+          t2 as T2
+        this.t1: t1
+        this.t2: t2
+
+    <?-
+      Just a quick check of using some key words also as variables.
+      Not very nice 'by by' or 'by with' but technically possible.
+    -?>
+    CompositeWithDelegation2 with trait of T1 by by, T2 by with
+      by as T1?
+      with as T2?
+
+      CompositeWithDelegation2()
+        ->
+          t1 as T1
+          t2 as T2
+        this.by: t1
+        this.with: t2
+
+    <?-
+      So far so good, but now some errors
+    -?>
+    @Error: FULL_RESOLUTION: NOT_RESOLVED
+    BrokenCompositeWithDelegation1 with trait of T1 by noSuchT1, T2 by t2
+      t1 as T1?
+      t2 as T2?
+
+    @Error: FULL_RESOLUTION: NOT_RESOLVED
+    BrokenCompositeWithDelegation2 with trait of T1 by t1, T2 by t2
+      t2 as T2?
+
+    @Error: FULL_RESOLUTION: NOT_RESOLVED
+    BrokenCompositeWithDelegation3 with trait of T1 by t1, T2 by t2
+
+    @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+    BrokenCompositeWithDelegation4 with trait of T1 by t1, T2 by t2
+      t1 as Integer?
+      t2 as T2?
+
+  defines function
+
+    DynamicCompositeDemonstration1()
+
+      c <- () with trait of T1, T2
+      assert c.methodOne() and c.methodTwo()?
+
+    DynamicCompositeWithDelegationDemonstration1()
+      t1 <- TC1()
+      t2 <- TC2()
+
+      c <- (t1, t2) with trait of T1 by t1, T2 by t2
+        additionalMethod()
+          var <- "Steve"
+          assert var?
+          //Should also be able to do this
+          assert t1.methodOne()
+          //And this
+          assert t2.methodTwo()?
+
+
+      assert c.methodOne() and c.methodTwo()?
+
+    BrokenDynamicCompositeWithDelegationDemonstration1()
+      t1 <- TC1()
+      t2 <- TC2()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      c <- (t1, t2) with trait of T1 by noSuchT1, T2 by t2
+      assert c.methodOne() and c.methodTwo()?
+
+    BrokenDynamicCompositeWithDelegationDemonstration2()
+
+      t1 <- TC1()
+      assert t1.methodOne()
+
+      t2 <- TC2()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      c <- (t2) with trait of T1 by t1, T2 by t2
+        additionalMethod()
+          var <- "Steve"
+          assert var?
+          //Should not be able to do this, just checking it does not find outter scope if not captured
+          @Error: FULL_RESOLUTION: NOT_RESOLVED
+          assert t1.methodOne()
+          //But this is OK
+          assert t2.methodTwo()?
+
+      assert c.methodOne() and c.methodTwo()?
+
+    BrokenDynamicCompositeWithDelegationDemonstration3()
+      t1 <- Integer()
+      t2 <- TC2()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      c <- (t1, t2) with trait of T1 by t1, T2 by t2
+      assert c.methodOne() and c.methodTwo()?
+
+//EOF

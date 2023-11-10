@@ -28,5 +28,7 @@ class BadTraitUseTest extends PhasesTest {
     assertFalse(program.getParsedModules("mix.traits.implementation").isEmpty());
     assertFalse(program.getParsedModules("clashing.implementations").isEmpty());
     assertFalse(program.getParsedModules("additional.traits.by").isEmpty());
+    assertFalse(program.getParsedModules("bad.trait.by.variables").isEmpty());
+    assertFalse(program.getParsedModules("trait.with.trait.by").isEmpty());
   }
 }

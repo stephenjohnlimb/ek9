@@ -361,6 +361,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     DEFAULT_AND_ABSTRACT("'default' of an operator and 'abstract' is not logical"),
     DEFAULT_AND_TRAIT("'default' of operators on a trait is not supported"),
     DUPLICATE_TRAIT_REFERENCE("same trait referenced multiple times"),
+    TRAIT_BY_IDENTIFIER_NOT_SUPPORTED("'by' variable is not supported on a trait only on a class"),
     MISSING_OPERATOR_IN_THIS("'default' of operators requires this type to have appropriate operator"),
     MISSING_OPERATOR_IN_SUPER("'default' of operators requires super to have appropriate operator"),
     MISSING_OPERATOR_IN_PROPERTY_TYPE("'default' of operators requires property/field to have appropriate operator"),

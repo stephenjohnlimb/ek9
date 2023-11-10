@@ -20,6 +20,7 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  * The solution is to raise an error and get the ek9 developer to create a new method in the
  * aggregate that is using the super/traits and then pick the implementation they want or define a
  * totally new one.
+ * Returns true if there are no conflicting methods.
  */
 final class CheckConflictingMethods extends TypedSymbolAccess implements Predicate<AggregateSymbol> {
   CheckConflictingMethods(SymbolAndScopeManagement symbolAndScopeManagement,
@@ -77,18 +78,20 @@ final class CheckConflictingMethods extends TypedSymbolAccess implements Predica
   private List<MethodSymbol> methodsNotDefinedInList(final List<MethodSymbol> defined,
                                                      final IAggregateSymbol aggregate) {
     var methodsToCheck = aggregate.getAllMethods();
-    return methodsToCheck
-        .stream()
+    return methodsToCheck.stream()
         .filter(method -> methodNotPresent(defined, method))
         .toList();
   }
 
   private boolean methodNotPresent(final List<MethodSymbol> defined, final MethodSymbol checkMethod) {
-    return defined.stream().noneMatch(method -> methodsMatch(method, checkMethod));
+    return defined.stream()
+        .noneMatch(method -> methodsMatch(method, checkMethod));
   }
 
   private List<MethodSymbol> matchingMethods(final List<MethodSymbol> defined, final MethodSymbol checkMethod) {
-    return defined.stream().filter(method -> methodsMatch(method, checkMethod)).toList();
+    return defined.stream()
+        .filter(method -> methodsMatch(method, checkMethod))
+        .toList();
   }
 
   private boolean methodsMatch(final MethodSymbol m1, final MethodSymbol m2) {
