@@ -104,7 +104,7 @@ final class ProcessTypeConstraint extends TypedSymbolAccess
                                            final MethodSymbolSearch search,
                                            final IToken token) {
 
-    var msgStart = "Looking on '" + aggregateSymbol.getFriendlyName() + "' for operator " + search;
+    var msgStart = "Looking on '" + aggregateSymbol.getFriendlyName() + "' for operator ";
     var results = aggregateSymbol.resolveMatchingMethodsInThisScopeOnly(search, new MethodSymbolSearchResult());
     if (results.isAmbiguous()) {
       var msg = msgStart + "'"

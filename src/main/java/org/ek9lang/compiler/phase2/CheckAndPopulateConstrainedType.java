@@ -48,17 +48,21 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
       //Already will have detected and emitted type not resolved.
       return;
     }
+
     var isBoolean = constrainedType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Boolean());
     var isJson = constrainedType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Json());
     var isType = constrainedType.getCategory().equals(ISymbol.SymbolCategory.TYPE);
-
-    if (!isType || isBoolean || isJson) {
+    var isAcceptableGenus = constrainedType.getGenus().equals(ISymbol.SymbolGenus.CLASS)
+        || constrainedType.getGenus().equals(ISymbol.SymbolGenus.CLASS_CONSTRAINED)
+        || constrainedType.getGenus().equals(ISymbol.SymbolGenus.CLASS_ENUMERATION)
+        || constrainedType.getGenus().equals(ISymbol.SymbolGenus.RECORD);
+    var isAbstract = constrainedType.isMarkedAbstract();
+    if (!isType || !isAcceptableGenus || isAbstract || isBoolean || isJson) {
       emitCannotConstrainTypeError(newType.getSourceToken(), constrainedType);
       return;
     }
     //Now we can safely cast and clone over the methods
     cloneMethodsAndOperators(newType, (AggregateSymbol) constrainedType);
-
   }
 
   private void cloneMethodsAndOperators(AggregateSymbol newType, final AggregateSymbol constrainedType) {
@@ -143,7 +147,7 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
 
   private void emitCannotConstrainTypeError(final IToken lineToken, final ISymbol argument) {
     argument.getType().ifPresent(argType -> {
-      var msg = "'" + argument.getFriendlyName() + "' is a '" + argType.getCategory() + "':";
+      var msg = "'" + argument.getFriendlyName() + "' is a '" + argType.getCategory() + "/" + argType.getGenus() + "':";
       errorListener.semanticError(lineToken, msg, ErrorListener.SemanticClassification.TYPE_CANNOT_BE_CONSTRAINED);
     });
   }

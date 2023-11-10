@@ -27,6 +27,7 @@ import org.ek9lang.core.CompilerException;
  * This is a factory of sorts, not in the pure OO sense; but still a factory.
  */
 public class AggregateFactory {
+  private static final String PARAM = "param";
   public static final String EK9_LANG = "org.ek9.lang";
   public static final String EK9_MATH = "org.ek9.math";
   public static final String EK9_PATH = EK9_LANG + "::Path";
@@ -100,21 +101,23 @@ public class AggregateFactory {
   /**
    * Add a synthetic constructor, if a constructor is not present.
    */
-  public void addSyntheticConstructorIfRequired(IAggregateSymbol aggregateSymbol, List<ISymbol> constructorArguments) {
+  public void addSyntheticConstructorIfRequired(IAggregateSymbol aggregateSymbol,
+                                                final List<ISymbol> constructorArguments) {
     addConstructorIfRequired(aggregateSymbol, constructorArguments, true);
   }
 
   /**
    * Add a new constructor if not present, marked as synthetic.
    */
-  public void addConstructorIfRequired(IAggregateSymbol aggregateSymbol, List<ISymbol> constructorArguments,
-                                       boolean synthetic) {
+  public void addConstructorIfRequired(IAggregateSymbol aggregateSymbol,
+                                       final List<ISymbol> constructorArguments,
+                                       final boolean synthetic) {
     MethodSymbolSearch symbolSearch = new MethodSymbolSearch(aggregateSymbol.getName());
     symbolSearch.setTypeParameters(constructorArguments);
     var results = new MethodSymbolSearchResult();
     var resolvedMethods = aggregateSymbol.resolveMatchingMethodsInThisScopeOnly(symbolSearch, results);
     if (!resolvedMethods.isSingleBestMatchPresent() && !resolvedMethods.isAmbiguous()) {
-      //If there are other constructors defined and we provide a built-in one then we need to ensure we make it
+      //If there are other constructors defined, and we provide a built-in one then we need to ensure we make it
       //pure if any of the others are pure.
       var needsPure = aggregateHasPureConstruction.test(aggregateSymbol);
 
@@ -143,7 +146,7 @@ public class AggregateFactory {
    * @param from The aggregate to get the methods from
    * @param to   The aggregate to add the methods to.
    */
-  public void addNonAbstractMethods(IAggregateSymbol from, IAggregateSymbol to) {
+  public void addNonAbstractMethods(final IAggregateSymbol from, IAggregateSymbol to) {
     for (MethodSymbol method : from.getAllNonAbstractMethods()) {
       method.getType().ifPresentOrElse(methodType -> {
         if (method.isConstructor() && methodType.isExactSameType(from)) {
@@ -165,7 +168,7 @@ public class AggregateFactory {
     }
   }
 
-  public MethodSymbol cloneMethodWithNewType(MethodSymbol method, IAggregateSymbol to) {
+  public MethodSymbol cloneMethodWithNewType(final MethodSymbol method, final IAggregateSymbol to) {
     return method.clone(to, to);
   }
 
@@ -189,7 +192,7 @@ public class AggregateFactory {
    * @param s The argument - arg with a symbol type to be passed in as a construction parameter.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public MethodSymbol addConstructor(AggregateSymbol t, Optional<ISymbol> s) {
+  public MethodSymbol addConstructor(AggregateSymbol t, final Optional<ISymbol> s) {
     if (s.isPresent()) {
       return addConstructor(t, s.get());
     }
@@ -199,7 +202,7 @@ public class AggregateFactory {
   /**
    * Add a constructor to the type aggregate with a particular parameter.
    */
-  public MethodSymbol addConstructor(AggregateSymbol t, ISymbol s) {
+  public MethodSymbol addConstructor(AggregateSymbol t, final ISymbol s) {
     MethodSymbol constructor = addConstructor(t);
     constructor.define(s);
     return constructor;
@@ -217,7 +220,7 @@ public class AggregateFactory {
    * @param name  - The name of the generic type parameter
    * @param scope - The scope it should go in.
    */
-  public AggregateSymbol createGenericT(String name, IScope scope) {
+  public AggregateSymbol createGenericT(final String name, final IScope scope) {
     AggregateSymbol t = new AggregateSymbol(name, scope);
     t.setConceptualTypeParameter(true);
 
@@ -231,7 +234,7 @@ public class AggregateFactory {
    * Provides all the possible default operators.
    * Does not add them to the aggregate, but does create them with the aggregate as the enclosing scope.
    */
-  public List<MethodSymbol> getAllPossibleDefaultOperators(IAggregateSymbol aggregate) {
+  public List<MethodSymbol> getAllPossibleDefaultOperators(final IAggregateSymbol aggregate) {
     return operatorFactory.getAllPossibleDefaultOperators(aggregate);
   }
 
@@ -247,7 +250,7 @@ public class AggregateFactory {
    * Provides a list of all possible synthetic operators, this includes the possible default operators.
    * This is typically used when creating synthetic 'T' aggregates for generics/templates.
    */
-  public List<MethodSymbol> getAllPossibleSyntheticOperators(IAggregateSymbol aggregate) {
+  public List<MethodSymbol> getAllPossibleSyntheticOperators(final IAggregateSymbol aggregate) {
     return operatorFactory.getAllPossibleSyntheticOperators(aggregate);
   }
 
@@ -256,8 +259,10 @@ public class AggregateFactory {
    * The methodParameters can be empty if there are none.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public MethodSymbol addPublicMethod(AggregateSymbol clazz, String methodName, List<ISymbol> methodParameters,
-                                      Optional<ISymbol> returnType) {
+  public MethodSymbol addPublicMethod(AggregateSymbol clazz,
+                                      final String methodName,
+                                      final List<ISymbol> methodParameters,
+                                      final Optional<ISymbol> returnType) {
     MethodSymbol method = new MethodSymbol(methodName, clazz);
     method.setParsedModule(clazz.getParsedModule());
     methodParameters.forEach(method::define);
@@ -274,12 +279,12 @@ public class AggregateFactory {
     operatorFactory.addEnumerationMethods(enumerationSymbol);
   }
 
-  public void addPurePublicReturnSameTypeMethod(IAggregateSymbol clazz, String methodName) {
+  public void addPurePublicReturnSameTypeMethod(IAggregateSymbol clazz, final String methodName) {
     var method = createPurePublicReturnSameTypeMethod(clazz, methodName);
     clazz.define(method);
   }
 
-  public MethodSymbol createPurePublicReturnSameTypeMethod(IAggregateSymbol clazz, String methodName) {
+  public MethodSymbol createPurePublicReturnSameTypeMethod(IAggregateSymbol clazz, final String methodName) {
     return createPurePublicSimpleOperator(clazz, methodName, Optional.of(clazz));
   }
 
@@ -287,24 +292,54 @@ public class AggregateFactory {
    * Adds a form of a comparison operator.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public MethodSymbol addComparatorOperator(IAggregateSymbol clazz, String comparatorType,
-                                            Optional<ISymbol> returnType) {
+  public MethodSymbol addComparatorOperator(IAggregateSymbol clazz,
+                                            final IAggregateSymbol arg0,
+                                            final String comparatorType,
+                                            final Optional<ISymbol> returnType) {
+    MethodSymbol operator = createPureAcceptArgumentOperatorAndReturnType(clazz, arg0, comparatorType, returnType);
+    clazz.define(operator);
+    return operator;
+  }
+
+  /**
+   * Adds a form of a comparison operator.
+   */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+  public MethodSymbol addComparatorOperator(IAggregateSymbol clazz, final String comparatorType,
+                                            final Optional<ISymbol> returnType) {
     MethodSymbol operator = createPureAcceptSameTypeOperatorAndReturnType(clazz, comparatorType, returnType);
     clazz.define(operator);
     return operator;
   }
 
-
   /**
    * Creates a pure method with an argument the same as the main type.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public MethodSymbol createPureAcceptSameTypeOperatorAndReturnType(IAggregateSymbol clazz, String comparatorType,
-                                                                    Optional<ISymbol> returnType) {
+  public MethodSymbol createPureAcceptSameTypeOperatorAndReturnType(IAggregateSymbol clazz,
+                                                                    final String comparatorType,
+                                                                    final Optional<ISymbol> returnType) {
     MethodSymbol operator = createPurePublicSimpleOperator(clazz, comparatorType, returnType);
     //Always enable as a dispatcher, so that most specific type can be used.
     operator.setMarkedAsDispatcher(true);
-    operator.define(new VariableSymbol("param", clazz));
+    operator.define(new VariableSymbol(PARAM, clazz));
+    return operator;
+  }
+
+
+
+  /**
+   * Creates a pure method with an argument of a different type as the main type.
+   */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+  public MethodSymbol createPureAcceptArgumentOperatorAndReturnType(IAggregateSymbol clazz,
+                                                                    final IAggregateSymbol arg0,
+                                                                    final String comparatorType,
+                                                                    final Optional<ISymbol> returnType) {
+    MethodSymbol operator = createPurePublicSimpleOperator(clazz, comparatorType, returnType);
+    //Always enable as a dispatcher, so that most specific type can be used.
+    operator.setMarkedAsDispatcher(true);
+    operator.define(new VariableSymbol(PARAM, arg0));
     return operator;
   }
 
@@ -313,8 +348,9 @@ public class AggregateFactory {
    * parameters, but just returns a value.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public MethodSymbol addPurePublicSimpleOperator(IAggregateSymbol clazz, String methodName,
-                                                  Optional<ISymbol> returnType) {
+  public MethodSymbol addPurePublicSimpleOperator(IAggregateSymbol clazz,
+                                                  final String methodName,
+                                                  final Optional<ISymbol> returnType) {
     var method = createPurePublicSimpleOperator(clazz, methodName, returnType);
     clazz.define(method);
     return method;
@@ -323,7 +359,7 @@ public class AggregateFactory {
   /**
    * Create operator for json.
    */
-  public MethodSymbol createToJsonSimpleOperator(IAggregateSymbol aggregate) {
+  public MethodSymbol createToJsonSimpleOperator(final IAggregateSymbol aggregate) {
     final Optional<ISymbol> jsonType = resolveJson(aggregate);
     return createPurePublicSimpleOperator(aggregate, "$$", jsonType);
   }
@@ -332,8 +368,9 @@ public class AggregateFactory {
    * Just creates a public operator with the name specified.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public MethodSymbol createPurePublicSimpleOperator(IAggregateSymbol clazz, String methodName,
-                                                     Optional<ISymbol> returnType) {
+  public MethodSymbol createPurePublicSimpleOperator(final IAggregateSymbol clazz,
+                                                     final String methodName,
+                                                     final Optional<ISymbol> returnType) {
 
     MethodSymbol method = new MethodSymbol(methodName, clazz);
     if (returnType.isPresent()) {
@@ -351,8 +388,10 @@ public class AggregateFactory {
   /**
    * Create an operator of the name supplied.
    */
-  public MethodSymbol createOperator(IAggregateSymbol clazz, String operatorType, boolean isPure) {
-    VariableSymbol paramT = new VariableSymbol("param", clazz);
+  public MethodSymbol createOperator(final IAggregateSymbol clazz,
+                                     final String operatorType,
+                                     final boolean isPure) {
+    VariableSymbol paramT = new VariableSymbol(PARAM, clazz);
 
     MethodSymbol operator = new MethodSymbol(operatorType, clazz);
     operator.setParsedModule(clazz.getParsedModule());

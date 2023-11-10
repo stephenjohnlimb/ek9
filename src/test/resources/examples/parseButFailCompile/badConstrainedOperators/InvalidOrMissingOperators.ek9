@@ -116,4 +116,12 @@ defines module bad.constrainedtypeoperators.examples1
       @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
       matches "Stephen"
 
+    Broken1 as Integer constrain as
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      "Steve"
+
+    Broken2 as Integer constrain as
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      18 or > "Steve" or 6
+
 //EOF

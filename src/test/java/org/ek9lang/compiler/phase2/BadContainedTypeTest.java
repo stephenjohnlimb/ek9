@@ -25,5 +25,6 @@ class BadContainedTypeTest extends PhasesTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
     assertFalse(program.getParsedModules("bad.constrainedtype.examples1").isEmpty());
+    assertFalse(program.getParsedModules("bad.constrainedtype.examples2").isEmpty());
   }
 }

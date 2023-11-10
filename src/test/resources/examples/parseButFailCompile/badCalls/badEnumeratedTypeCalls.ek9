@@ -11,7 +11,33 @@ defines module bad.enumeratedtypecall.examples1
       Clubs
       Spades
 
+    //Note if you want to constrain an enumeration, you can just use the 'String' form of the enumeration value.
+    RedCardSuit as CardSuit constrain as
+      "Hearts" or "Diamonds"
+
+    BlackCardSuit as CardSuit constrain as
+      "Clubs" or "Spades"
+
   defines function
+
+    TestCardSuitCompatibility()
+      redSuit <- RedCardSuit()
+      blackSuit <- BlackCardSuit()
+
+      //These are NOT sub-types - they are totally disconnected from what they constrain
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      generalSuit1 as CardSuit: redSuit
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      generalSuit2 as CardSuit: blackSuit
+
+      assert generalSuit1? and generalSuit2?
+
+      //It is also not possible to do this:
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      blackSuit := CardSuit()
+      assert blackSuit?
 
     TestValidEmptyCardSuitCall()
       emptySuit1 <- CardSuit()

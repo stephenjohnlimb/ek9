@@ -1,0 +1,32 @@
+#!ek9
+<?-
+  Bad constrain by
+-?>
+defines module bad.constrainedtype.examples2
+
+  defines trait
+    <?-
+      To be used in tests that prove traits cannot be used as a constratined type.
+    -?>
+    T1
+      operator == as pure
+        -> argo as String
+        <- rtn <- true
+
+  defines class
+    C1 as abstract
+      operator == as pure
+        -> argo as String
+        <- rtn <- true
+
+  defines type
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_CANNOT_BE_CONSTRAINED
+    Broken1 as T1 constrain as
+      "Steve" or "Stephen"
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_CANNOT_BE_CONSTRAINED
+    Broken2 as C1 constrain as
+      "Steve" or "Stephen"
+
+//EOF

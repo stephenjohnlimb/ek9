@@ -28,8 +28,9 @@ public class OperatorFactory {
     final Optional<ISymbol> stringType = aggregateFactory.resolveString(enumerationSymbol);
     final Optional<ISymbol> jsonType = aggregateFactory.resolveJson(enumerationSymbol);
 
+
     //Some reasonable operations
-    //compare
+
     aggregateFactory.addComparatorOperator(enumerationSymbol, "<=>", integerType);
     aggregateFactory.addComparatorOperator(enumerationSymbol, "==", booleanType);
     aggregateFactory.addComparatorOperator(enumerationSymbol, "<>", booleanType);
@@ -37,6 +38,20 @@ public class OperatorFactory {
     aggregateFactory.addComparatorOperator(enumerationSymbol, ">", booleanType);
     aggregateFactory.addComparatorOperator(enumerationSymbol, "<=", booleanType);
     aggregateFactory.addComparatorOperator(enumerationSymbol, ">=", booleanType);
+
+    //For enumerations we provide implementations for comparisons against strings as well.
+    //We can convert to the enumeration and then just compare.
+    stringType.ifPresent(string -> {
+      var argType = (IAggregateSymbol) string;
+      aggregateFactory.addComparatorOperator(enumerationSymbol, argType, "<=>", integerType);
+      aggregateFactory.addComparatorOperator(enumerationSymbol, argType, "==", booleanType);
+      aggregateFactory.addComparatorOperator(enumerationSymbol, argType, "<>", booleanType);
+      aggregateFactory.addComparatorOperator(enumerationSymbol, argType, "<", booleanType);
+      aggregateFactory.addComparatorOperator(enumerationSymbol, argType, ">", booleanType);
+      aggregateFactory.addComparatorOperator(enumerationSymbol, argType, "<=", booleanType);
+      aggregateFactory.addComparatorOperator(enumerationSymbol, argType, ">=", booleanType);
+    });
+
 
     //isSet
     aggregateFactory.addPurePublicSimpleOperator(enumerationSymbol, "?", booleanType);
@@ -53,7 +68,7 @@ public class OperatorFactory {
     aggregateFactory.addPurePublicReturnSameTypeMethod(enumerationSymbol, "#>");
   }
 
-  List<MethodSymbol> getAllPossibleDefaultOperators(IAggregateSymbol aggregate) {
+  List<MethodSymbol> getAllPossibleDefaultOperators(final IAggregateSymbol aggregate) {
 
     return new ArrayList<>(Arrays.asList(
         getDefaultOperator(aggregate, "<=>"),
@@ -100,7 +115,7 @@ public class OperatorFactory {
     return rtn;
   }
 
-  List<MethodSymbol> getAllPossibleSyntheticOperators(IAggregateSymbol aggregate) {
+  List<MethodSymbol> getAllPossibleSyntheticOperators(final IAggregateSymbol aggregate) {
     final Optional<ISymbol> integerType = aggregateFactory.resolveInteger(aggregate);
     final Optional<ISymbol> booleanType = aggregateFactory.resolveBoolean(aggregate);
 

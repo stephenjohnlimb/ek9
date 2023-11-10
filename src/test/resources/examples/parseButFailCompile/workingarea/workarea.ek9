@@ -5,24 +5,8 @@
 -?>
 defines module just.workspace
 
-  defines trait
-    T1
-      methodOne()
-        <- rtn <- true
-
-    T2
-      methodTwo()
-        <- rtn <- false
-
-    //This makes no sense, traits have no properties to be able to implement by.
-    @Error: FULL_RESOLUTION: TRAIT_BY_IDENTIFIER_NOT_SUPPORTED
-    Composite with trait of T1 by t1, T2
-
   defines function
     Broken()
-      with <- 22
-      by <- "Steve"
-      assert with? and by?
 
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       assert missing
