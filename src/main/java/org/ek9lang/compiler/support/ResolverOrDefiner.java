@@ -35,6 +35,7 @@ public abstract class ResolverOrDefiner extends RuleSupport {
     Optional<ISymbol> rtn = Optional.empty();
 
     if (details.genericTypeSymbol() instanceof PossibleGenericSymbol genericTypeSymbol) {
+
       if (errorIfNotGeneric(details.location(), genericTypeSymbol)
           || errorIfInvalidParameters(details.location(), genericTypeSymbol, details.typeArguments())) {
         return rtn;

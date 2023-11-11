@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.phase3;
 
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.NO_MUTATION_IN_PURE_CONTEXT;
+import static org.ek9lang.compiler.support.SymbolFactory.ACCESSED;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -56,6 +57,7 @@ final class CheckForOperator extends TypedSymbolAccess implements Function<Check
         return Optional.empty();
       }
       var operator = bestMatch.get();
+      noteOperatorAccessedIfConceptualType(aggregate, operator);
       //Now it depends where this operator is called and if it is pure or not.
       checkPureAccess(checkOperatorData.operatorUseToken(), operator);
       return operator.getReturningSymbol().getType();
@@ -68,6 +70,16 @@ final class CheckForOperator extends TypedSymbolAccess implements Function<Check
     if (!operator.isMarkedPure() && isProcessingScopePure()) {
       errorListener.semanticError(operatorUseToken, "'" + operator.getFriendlyName() + "':",
           NO_MUTATION_IN_PURE_CONTEXT);
+    }
+  }
+
+  private void noteOperatorAccessedIfConceptualType(final IAggregateSymbol aggregate, MethodSymbol operator) {
+    if (aggregate.isConceptualTypeParameter()) {
+      //We need to know if an operator has been used when employed in a 'T' in the generic type
+      //This is needed later so that when a generic type is parameterised we can check each of the
+      //types and see which operators have been accessed, then we can ensure the argument to the
+      //parameterization has that operator.
+      operator.putSquirrelledData(ACCESSED, "TRUE");
     }
   }
 }

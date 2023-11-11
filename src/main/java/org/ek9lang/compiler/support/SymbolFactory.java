@@ -66,6 +66,7 @@ import org.ek9lang.core.UniqueIdGenerator;
 public class SymbolFactory {
 
   public static final String SUBSTITUTED = "SUBSTITUTED";
+  public static final String ACCESSED = "ACCESSED";
   public static final String DEFAULTED = "DEFAULTED";
   public static final String EXTERN = "EXTERN";
   public static final String URI_PROTO = "URIPROTO";
@@ -1125,7 +1126,7 @@ public class SymbolFactory {
       for (int i = 0; i < ctx.parameterisedDetail().size(); i++) {
         EK9Parser.ParameterisedDetailContext detail = ctx.parameterisedDetail(i);
         //Then this is a generic type class we simulate and add the S, T, U whatever into the class scope it is
-        //a simulated type we have no real idea what it could be but it is a template parameter to be replace at
+        //a simulated type we have no real idea what it could be, but it is a template parameter to be replace at
         //cookie cutting time.
         //getText(i) gives us the parameter name we just us 'T' here to denote a generic param
 
@@ -1142,7 +1143,7 @@ public class SymbolFactory {
       //Now we have simulated S, T, P etc - what about adding additional constructors - we have the default
       //This would mean that we could do new T() and new T(an S) or new S(a T) etc. so just a single param
       //type constructor.
-      //Otherwise it get too hard on ordering.
+      //Otherwise, it get too hard on ordering.
 
       //Add other synthetic constructors now we have all the S, T, P etc.
       rtn.forEach(t -> rtn.forEach(s -> aggregateFactory.addConstructor(t, new VariableSymbol("arg", s))));

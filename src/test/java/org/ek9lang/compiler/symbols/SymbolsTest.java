@@ -71,6 +71,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
   void testCreateGenericTypeT() {
     AggregateSymbol t = support.createGenericT("T", symbolTable);
     assertNotNull(t);
+    support.addAllSyntheticOperators(t);
     assertFalse(t.getSymbolsForThisScope().isEmpty());
 
     assertEquals("T", t.getFriendlyName());

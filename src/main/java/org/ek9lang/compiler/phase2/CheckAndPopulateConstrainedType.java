@@ -57,10 +57,12 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
         || constrainedType.getGenus().equals(ISymbol.SymbolGenus.CLASS_ENUMERATION)
         || constrainedType.getGenus().equals(ISymbol.SymbolGenus.RECORD);
     var isAbstract = constrainedType.isMarkedAbstract();
+
     if (!isType || !isAcceptableGenus || isAbstract || isBoolean || isJson) {
       emitCannotConstrainTypeError(newType.getSourceToken(), constrainedType);
       return;
     }
+
     //Now we can safely cast and clone over the methods
     cloneMethodsAndOperators(newType, (AggregateSymbol) constrainedType);
   }

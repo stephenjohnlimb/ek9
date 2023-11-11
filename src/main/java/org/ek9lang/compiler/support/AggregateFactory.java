@@ -177,7 +177,7 @@ public class AggregateFactory {
    *
    * @param t The aggregate type to add the constructor to.
    */
-  public MethodSymbol addConstructor(AggregateSymbol t) {
+  public MethodSymbol addConstructor(IAggregateSymbol t) {
     MethodSymbol constructor = new MethodSymbol(t.getName(), t);
     constructor.setConstructor(true);
     constructor.setType(t);
@@ -223,11 +223,27 @@ public class AggregateFactory {
   public AggregateSymbol createGenericT(final String name, final IScope scope) {
     AggregateSymbol t = new AggregateSymbol(name, scope);
     t.setConceptualTypeParameter(true);
-
-    addConstructor(t);
-
-    getAllPossibleSyntheticOperators(t).forEach(t::define);
+    //Do not add any methods yet - wait until later phases.
     return t;
+  }
+
+  /**
+   * This is the idea where a 'T' is constrained to only be a type or a subtype of that type.
+   */
+  public void updateToConstrainBy(IAggregateSymbol t, final IAggregateSymbol constrainingType) {
+
+    //So firstly lets try making the T a subtype of the constraining type
+    t.setSuperAggregate(constrainingType);
+    //Now whatever constructors the constraining type has we will clone and add those in.
+    //This should enable construction with the same arguments (if there are constructors)
+    //This can then just be implemented as a direct call to the super.
+    constrainingType.getAllNonAbstractMethodsInThisScopeOnly().stream()
+        .filter(MethodSymbol::isConstructor)
+        .forEach(constructor -> {
+          var clonedConstructor = constructor.clone(t);
+          clonedConstructor.setName(t.getName());
+          t.define(clonedConstructor);
+        });
   }
 
   /**
@@ -244,6 +260,11 @@ public class AggregateFactory {
    */
   public Optional<MethodSymbol> getDefaultOperator(final IAggregateSymbol aggregate, final String operator) {
     return Optional.ofNullable(operatorFactory.getDefaultOperator(aggregate, operator));
+  }
+
+  public void addAllSyntheticOperators(IAggregateSymbol t) {
+    addConstructor(t);
+    getAllPossibleSyntheticOperators(t).forEach(t::define);
   }
 
   /**
@@ -454,5 +475,4 @@ public class AggregateFactory {
     }
     return scope.resolve(new TypeSymbolSearch(EK9_JSON));
   }
-
 }

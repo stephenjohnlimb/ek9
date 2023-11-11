@@ -64,6 +64,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
   private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
   private final CheckOperator checkOperator;
+  private final SetupGenericT setupGenericT;
   private final CheckServiceOperation checkServiceOperation;
   private final CheckDuplicatedServicePaths checkDuplicatedServicePaths;
   private final CheckVisibilityOfOperations checkVisibilityOfOperations;
@@ -113,6 +114,8 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
         new ResolveOrDefineTypeDef(symbolAndScopeManagement, symbolFactory, errorListener, true);
     this.checkOperator =
         new CheckOperator(symbolAndScopeManagement, errorListener);
+    this.setupGenericT =
+        new SetupGenericT(symbolAndScopeManagement, aggregateFactory, errorListener);
     this.checkServiceOperation =
         new CheckServiceOperation(symbolAndScopeManagement, errorListener);
     this.checkDuplicatedServicePaths =
@@ -561,6 +564,17 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     }
     //Else it is probably a service which is dealt with in the next phase.
     super.exitRegisterStatement(ctx);
+  }
+
+  /**
+   * Now at this point even parametric polymorphic types should be resolved.
+   * Not by inference, but in explicit form. Which is all we need to populate the 'T'
+   * in the case of them being constrained.
+   */
+  @Override
+  public void exitParameterisedDetail(EK9Parser.ParameterisedDetailContext ctx) {
+    setupGenericT.accept(ctx);
+    super.exitParameterisedDetail(ctx);
   }
 
   @Override

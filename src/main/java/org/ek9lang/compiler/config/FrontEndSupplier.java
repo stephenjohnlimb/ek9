@@ -15,6 +15,7 @@ import org.ek9lang.compiler.phase1.SymbolDefinition;
 import org.ek9lang.compiler.phase2.NonInferredTypeDefinition;
 import org.ek9lang.compiler.phase2.TypeHierarchyChecks;
 import org.ek9lang.compiler.phase3.SymbolResolution;
+import org.ek9lang.compiler.phase4.PostSymbolResolutionChecks;
 import org.ek9lang.compiler.phase6.PluginResolution;
 import org.ek9lang.core.SharedThreadContext;
 
@@ -50,6 +51,7 @@ public class FrontEndSupplier extends PhaseSupplier {
         new NonInferredTypeDefinition(multiThread, compilableProgramAccess, listener, reporter),
         new TypeHierarchyChecks(compilableProgramAccess, listener, reporter),
         new SymbolResolution(multiThread, compilableProgramAccess, listener, reporter),
+        new PostSymbolResolutionChecks(compilableProgramAccess, listener, reporter),
         new PluginResolution(compilableProgramAccess, listener, reporter));
   }
 }

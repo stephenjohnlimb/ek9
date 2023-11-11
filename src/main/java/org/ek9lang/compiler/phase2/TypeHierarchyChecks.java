@@ -23,7 +23,7 @@ import org.ek9lang.core.SharedThreadContext;
  * SINGLE THREADED - Run across sources to check for types, functions and traits for 'super loops'.
  * This is a bit nasty, basically there is a need to follow supers all the way back.
  * For aggregates this is just 'getSuperAggregateSymbol' for functions 'getSuperFunctionSymbol'.
- * But for traits - you need to get all it's traits.
+ * But for traits - you need to get all its traits.
  * But note that it is important not to flip between an aggregate hierarchy and a trait one.
  */
 public final class TypeHierarchyChecks extends CompilerPhase {
