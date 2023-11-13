@@ -6,6 +6,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.AggregateFactory;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.core.CompilerException;
 
@@ -17,6 +18,7 @@ import org.ek9lang.core.CompilerException;
  */
 final class SetupGenericT implements Consumer<EK9Parser.ParameterisedDetailContext> {
 
+  private final SupportsBeingConstrainingType supportsBeingConstrainingType = new SupportsBeingConstrainingType();
   private final SymbolAndScopeManagement symbolAndScopeManagement;
   private final AggregateFactory aggregateFactory;
   private final ErrorListener errorListener;
@@ -33,7 +35,7 @@ final class SetupGenericT implements Consumer<EK9Parser.ParameterisedDetailConte
   @Override
   public void accept(final EK9Parser.ParameterisedDetailContext ctx) {
     var t = symbolAndScopeManagement.getRecordedSymbol(ctx);
-    if (t instanceof IAggregateSymbol aggregateT) {
+    if (t instanceof AggregateSymbol aggregateT) {
 
       //So it is not constrained an is just a 'T'
       if (ctx.typeDef() == null) {
@@ -43,17 +45,28 @@ final class SetupGenericT implements Consumer<EK9Parser.ParameterisedDetailConte
             .ifPresent(constrainingType -> aggregateFactory.updateToConstrainBy(aggregateT, constrainingType));
       }
     } else {
-      //What about if 't' is actually a Function.
-      throw new CompilerException("Failed to get [" + ctx.Identifier().getText() + "] not expecting this");
+
+      throw new CompilerException("Failed to get [" + ctx.Identifier().getText() + "] not expecting this [" + t + "]");
     }
   }
 
   private Optional<IAggregateSymbol> getConstrainingTypeOrError(final EK9Parser.TypeDefContext ctx) {
     var theConstrainingType = symbolAndScopeManagement.getRecordedSymbol(ctx);
-    if (theConstrainingType instanceof IAggregateSymbol aggregate) {
-      return Optional.of(aggregate);
+
+    if (theConstrainingType == null) {
+      errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
+    } else if (!supportsBeingConstrainingType.test(theConstrainingType)) {
+      var msg = "'"
+          + theConstrainingType.getFriendlyName()
+          + "' of '" + theConstrainingType.getCategory()
+          + "/" + theConstrainingType.getGenus()
+          + "':";
+      errorListener.semanticError(ctx.start, msg,
+          ErrorListener.SemanticClassification.CONSTRAINED_FUNCTIONS_NOT_SUPPORTED);
+    } else {
+      return Optional.of((IAggregateSymbol) theConstrainingType);
     }
-    errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
+
     return Optional.empty();
   }
 }

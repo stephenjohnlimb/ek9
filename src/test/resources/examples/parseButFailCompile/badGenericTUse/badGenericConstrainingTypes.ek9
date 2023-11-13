@@ -1,0 +1,214 @@
+#!ek9
+<?-
+  Workspace.
+
+  test trying to constrain with the wrong or missing types.
+
+-?>
+defines module bad.generic.constraining.types
+
+  defines constant
+    NAME <- "Steve"
+
+  defines function
+
+    CheckFunction()
+      -> arg0 as String
+      <- rtn <- true
+
+    AbstractFunction() as abstract
+      -> arg0 as String
+      <- rtn as Boolean?
+
+  defines trait
+
+    T1
+      check()
+        -> arg0 as String
+        <- rtn <- true
+
+    T2 with trait of T1
+      override check()
+        -> arg0 as String
+        <- rtn <- false
+
+  defines component
+    Comp1 as open
+      check()
+        -> arg0 as String
+        <- rtn <- true
+
+    Comp2 extends Comp1
+      override check()
+        -> arg0 as String
+        <- rtn <- false
+
+  defines record
+    R1 as open
+      value1 <- true
+
+    R2 extends R1
+      value2 <- true
+
+  defines text for "en"
+    SomeText
+      value()
+        "A Value"
+
+  defines class
+
+    C0 as abstract
+      check() as abstract
+        -> arg0 as String
+        <- rtn as Boolean?
+
+    C1 is C0 as open
+      override check()
+        -> arg0 as String
+        <- rtn <- true
+
+    C2 extends C1
+      override check()
+        -> arg0 as String
+        <- rtn <- false
+
+    <?-
+      Check that it is not possible to constrain by a function.
+    -?>
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: CONSTRAINED_FUNCTIONS_NOT_SUPPORTED
+    BadGeneric1 of type T constrain by CheckFunction
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: true
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: CONSTRAINED_FUNCTIONS_NOT_SUPPORTED
+    BadGeneric2 of type T constrain by AbstractFunction
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: true
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+    BadGeneric3 of type T constrain by NAME
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: true
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+    BadGeneric4 of type T constrain by NoSuchType
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: true
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: CONSTRAINED_FUNCTIONS_NOT_SUPPORTED
+    BadGeneric5 of type T constrain by SomeText
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: true
+
+    <?-
+      Check it is possible to constrain by a trait
+    -?>
+    OKGeneric1 of type T constrain by T1
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: true
+
+    <?-
+      Check it is possible to constrain by a component
+    -?>
+    OKGeneric2 of type T constrain by Comp1
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: true
+
+    <?-
+      Check it is possible to constrain by a record
+    -?>
+    OKGeneric3 of type T constrain by R1
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: true
+
+    <?-
+      Check it is possible to constrain by a class
+    -?>
+    OKGeneric4 of type T constrain by C0
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: true
+
+
+  defines function
+
+    <?-
+      While there is no actual error on this function,
+      the BadGeneric1 will have an error and so this will not be possible.
+    -?>
+    Demo1()
+      demo <- BadGeneric1() of CheckFunction
+      result <- demo.check(CheckFunction)
+      assert result
+
+    <?-
+      Now check that it is possible to use the constrained generic with a class that has
+      a trait of T1, either directly or indirectly.
+    -?>
+    Demo2()
+      demo <- OKGeneric1() of T1
+
+      dynamicT1 <- () with trait of T1
+      dynamicT2 <- () with trait of T2
+
+      result1 <- demo.check(dynamicT1)
+      assert result1
+
+      result2 <- demo.check(dynamicT2)
+      assert result2
+
+    <?-
+      Check that is it possible to use a constrained generic class with a Component.
+    -?>
+    Demo3()
+      demo <- OKGeneric2() of Comp1
+
+      comp1 <- Comp1()
+      comp2 <- Comp2()
+
+      result1 <- demo.check(comp1)
+      assert result1
+
+      result2 <- demo.check(comp2)
+      assert result2
+
+    <?-
+      Check that is it possible to use a constrained generic class with a Record
+    -?>
+    Demo4()
+      demo <- OKGeneric3() of R1
+
+      r1 <- R1()
+      r2 <- R2()
+
+      result1 <- demo.check(r1)
+      assert result1
+
+      result2 <- demo.check(r2)
+      assert result2
+
+    <?-
+      Check that is it possible to use a constrained generic class with a Class
+    -?>
+    Demo5()
+      demo <- OKGeneric4() of C0
+
+      c1 <- C1()
+      c2 <- C2()
+
+      result1 <- demo.check(c1)
+      assert result1
+
+      result2 <- demo.check(c2)
+      assert result2
+
+//EOF
+

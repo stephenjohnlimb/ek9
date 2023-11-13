@@ -570,6 +570,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
    * Now at this point even parametric polymorphic types should be resolved.
    * Not by inference, but in explicit form. Which is all we need to populate the 'T'
    * in the case of them being constrained.
+   * TODO need to move this into Function and Class exit Declarations so any constraint type can be checked.
    */
   @Override
   public void exitParameterisedDetail(EK9Parser.ParameterisedDetailContext ctx) {

@@ -1,0 +1,235 @@
+#!ek9
+<?-
+  Some examples of generic constraints. But next phase is needed to detect some errors.
+-?>
+defines module bad.generic.class.constraints
+
+  defines class
+
+    <?-
+      A totally un-constrained generic type where T could be anything (as long as it has the ? operator)
+    -?>
+    UnConstrainedGenericClass of type T
+      default UnConstrainedGenericClass()
+
+      check() as pure
+        -> arg0 as T
+        <- rtn as Boolean: arg0?
+
+    <?-
+      Used as a base without the ? operator.
+    -?>
+    C0 as open
+      property1 <- Integer()
+      C0()
+        -> arg0 as Integer
+        this.property1 :=: arg0
+
+      getProperty1() as pure
+        <- rtn as Integer: Integer(property1)
+
+    <?-
+      Extends the base, adds ? operator
+    -?>
+    C0A extends C0
+      C0A()
+        -> arg0 as Integer
+        super(arg0)
+
+      operator ? as pure
+        <- rtn as Boolean: getProperty1()?
+
+    <?-
+      A separate example including the ? operator.
+    -?>
+    C1 as open
+      property1 <- Integer()
+      C1()
+        -> arg0 as Integer
+        this.property1 :=: arg0
+
+      getProperty1() as pure
+        <- rtn as Integer: Integer(property1)
+
+      default operator ?
+
+    <?-
+      Extend C1 and add in an additional method to check access.
+    -?>
+    C1A extends C1
+      C1A()
+        -> arg0 as Integer
+        super(arg0)
+
+      getDoubleValue()
+        <- rtn as Integer: getProperty1() * 2
+
+    <?-
+      Just a demonstration of the fact that while operators can be used in generics, methods cannot, unless T is constrained.
+      But note that the checking that the actual type when this generic type is parameterised.
+    -?>
+    BrokenUnConstrainedGenericClass of type T
+      default BrokenUnConstrainedGenericClass()
+
+      //In this case there is no way getProperty1 can be used.
+      check()
+        -> arg0 as T
+        @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+        <- rtn as Boolean: arg0.getProperty1()?
+
+    <?-
+      Now the type T has been constrained the rules are much stricter and only methods and operators from the
+      constraining type can be used (even when defining the generic type).
+    -?>
+    BrokenConstrainedGenericClass of type T constrain by C0
+      default ConstrainedGenericClass()
+
+      //Now because we have constrained to C0, we can be assured of the methods and operators available
+      //But note that C0 does not have the '?' operator and so this fails.
+      check()
+        -> arg0 as T
+        @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+        <- rtn as Boolean: arg0?
+
+    <?-
+      Now create a generic type that limits use to classes that are a C0A or extend a C0A.
+    -?>
+    ConstrainedGenericClassCOA of type T constrain by C0A
+      default ConstrainedGenericClassC0A()
+
+      //But this will now be OK because it has the operator ?
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: arg0?
+
+    <?-
+      But now you can see it is possible to call the getProperty1 method because it is constraint to be a C0.
+      Or could be a class that extends a C0.
+    -?>
+    ConstrainedGenericClass2 of type T constrain by C0
+      default ConstrainedGenericClass2()
+
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: arg0.getProperty1()?
+
+    <?-
+      Yes another constrained generic type to a C1 or a type that extends a C1.
+    -?>
+    ConstrainedGenericClassC1 of type T constrain by C1
+      default ConstrainedGenericClassC1()
+
+      //But this will now be OK because it has the operator '?'
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: arg0?
+
+  <?-
+    Now some example functions that use the classes defined above.
+  -?>
+  defines function
+
+    <?-
+      Just use UnConstrainedGenericClass with an Integer type.
+    -?>
+    UnConstrainedGenericClassWithIntegerDemo1()
+      demo as UnConstrainedGenericClass of Integer: UnConstrainedGenericClass()
+      result <- demo.check(22)
+      assert result
+
+    UnConstrainedGenericClassWithIntegerDemo2()
+      //Note that you can pass in a value here, the value does not have to be used in the generic type
+      //But can be used as a 'prototype' type so that the generic type can be inferred.
+      demo <- UnConstrainedGenericClass(Integer())
+      result <- demo.check(22)
+      assert result
+
+    <?-
+      Now use C0 - note that the next phase will detect an error here because of missing '?' operator.
+    -?>
+    UnConstrainedGenericClassDemo2()
+      demo as UnConstrainedGenericClass of C0: UnConstrainedGenericClass()
+
+      //Cannot pass an Integer in needs to be a C0
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      result <- demo.check(22)
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result
+
+    <?-
+      Now use C0 - note that the next phase will detect an error here because of missing '?' operator.
+    -?>
+    UnConstrainedGenericClassDemo3()
+      //This will pass in this phase but fail in the next phase.
+      demo as UnConstrainedGenericClass of C0: UnConstrainedGenericClass()
+
+      //But this now would be OK.
+      result <- demo.check(C0(22))
+      assert result
+
+    <?-
+      Now use C0 - note that the next phase will detect an error here because of missing '?' operator.
+    -?>
+    ConstrainedGenericClassCOADemo4()
+      //This too will pass in this phase, but fail in the next
+      demo as ConstrainedGenericClassCOA of C0: ConstrainedGenericClassCOA()
+
+      result <- demo.check(C0(22))
+      assert result
+
+    <?-
+      Construction will be fine, but it is not possible to use a 'C0' with it.
+    -?>
+    ConstrainedGenericClassCOADemo5()
+      //This will be fine
+      demo as ConstrainedGenericClassCOA of C0A: ConstrainedGenericClassCOA()
+
+      //But this will not because the type is incorrect
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      result <- demo.check(C0(22))
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result
+
+    <?-
+      All will be OK on this generic class use.
+    -?>
+    ConstrainedGenericClassCOADemo6()
+      //This will be fine
+      demo as ConstrainedGenericClassCOA of C0A: ConstrainedGenericClassCOA()
+
+      result <- demo.check(C0A(22))
+      assert result
+
+    <?-
+      More interesting a generic class constrained by C1, but used with a C1 and a C1A class.
+    -?>
+    ConstrainedGenericClassC1Demo7()
+      demo as ConstrainedGenericClassC1 of C1: ConstrainedGenericClassC1()
+
+      //Check can be used with a C1 and a C1A
+      result1 <- demo.check(C1(22))
+      assert result1
+
+      result2 <- demo.check(C1A(22))
+      assert result2
+
+    <?-
+      Now try with a tighter constraint and check C1 cannot be used with it.
+    -?>
+    ConstrainedGenericClassC1Demo8()
+      demo as ConstrainedGenericClassC1 of C1A: ConstrainedGenericClassC1()
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      result1 <- demo.check(C1(22))
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert result1
+
+      //But this will still be OK
+      result2 <- demo.check(C1A(22))
+      assert result2
+
+//EOF
+

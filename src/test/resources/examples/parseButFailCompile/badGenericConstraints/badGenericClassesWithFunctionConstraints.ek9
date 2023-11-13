@@ -1,0 +1,62 @@
+#!ek9
+defines module bad.generic.class.function.constraints
+
+  defines class
+
+    <?-
+      A totally un-constrained generic type where T could be anything (as long as it has the ? operator).
+      So pretty much a normal generic type. But in this case I plan to use T with a function.
+    -?>
+    UnConstrained of type T
+      default UnConstrained()
+
+      check() as pure
+        -> arg0 as T
+        <- rtn as Boolean: arg0?
+
+      //But this you cannot do, you cannot use T as both a possible aggregate and a possible function delegate.
+      call() as pure
+        ->
+          arg0 as T
+          arg1 as String
+        @Error: FULL_RESOLUTION: NOT_A_FUNCTION_DELEGATE
+        <- rtn as Boolean: arg0(arg1)
+
+
+  defines function
+
+    <?-
+      Function can be used directly or as a signature for polymorphism.
+    -?>
+    SomeFunction() as open
+      -> arg0 as String
+      <- rtn as Boolean: arg0?
+
+    <?-
+      Extend SomeFunction and alter implementation.
+    -?>
+    AnotherFunction is SomeFunction
+      -> arg0 as String
+      <- rtn as Boolean: true
+
+    <?-
+      Higher order function that returns 'SomeFunction', but actually gives a Function that extends 'SomeFunction'.
+    -?>
+    getSomeFunction()
+      <- rtn as SomeFunction: AnotherFunction
+
+    <?-
+      Now strangely this will work, because a Function can be checked for non-nullness with a build in operator of ?
+      So it really only makes sense to have generics that are collections that can hold things like functions.
+      Unlike classes where it is possible to undertaken operations using the 'T'.
+    -?>
+    UseOfGenericClassWithFunctionDemo1()
+      demo as UnConstrained of SomeFunction: UnConstrained()
+
+      result1 <- demo.check(SomeFunction)
+      assert result1
+
+      //Call a higher function to return a function.
+      result2 <- demo.check(getSomeFunction())
+      assert result2
+//EOF

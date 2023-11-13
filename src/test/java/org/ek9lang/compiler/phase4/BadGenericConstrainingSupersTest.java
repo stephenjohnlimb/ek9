@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.phase2;
+package org.ek9lang.compiler.phase4;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -8,24 +8,24 @@ import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests generics and detection of T and other conceptual types.
+ * Just tests generic classes with constraints.
  */
-class BadGenericTUseTest extends PhasesTest {
+class BadGenericConstrainingSupersTest extends PhasesTest {
 
-  public BadGenericTUseTest() {
-    super("/examples/parseButFailCompile/badGenericTUse");
+  public BadGenericConstrainingSupersTest() {
+    super("/examples/parseButFailCompile/badGenericSupersUse");
   }
 
   @Test
+  //TODO change to POST_RESOLUTION_CHECKS
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
+    testToPhase(CompilationPhase.FULL_RESOLUTION);
   }
 
   @Override
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.use.conceptual.parameters").isEmpty());
-    assertFalse(program.getParsedModules("bad.generic.constraining.types").isEmpty());
+    assertFalse(program.getParsedModules("bad.constraining.supers").isEmpty());
   }
 }

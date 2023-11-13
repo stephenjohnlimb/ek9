@@ -1,0 +1,100 @@
+#!ek9
+<?-
+ Checks for missing operators and bad constrain use in terms of type restrictions.
+
+-?>
+defines module bad.constraining.supers
+
+  defines function
+    TODO()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert fixMe
+
+  defines class
+
+    <?-
+      A totally un-constrained generic type where T could be anything (as long as it has the ? operator)
+    -?>
+    UnConstrainedGenericClass of type T
+      default UnConstrainedGenericClass()
+
+      check() as pure
+        -> arg0 as T
+        <- rtn as Boolean: arg0?
+
+    ConstrainedGenericClass of type T constrain by C1
+      default ConstrainedGenericClass()
+
+      check() as pure
+        -> arg0 as T
+        <- rtn as Integer: arg0.getProperty1()
+
+    <?-
+      Used as a base without the ? operator.
+    -?>
+    C0 as open
+      property1 <- Integer()
+      C0()
+        -> arg0 as Integer
+        this.property1 :=: arg0
+
+      getProperty1() as pure
+        <- rtn as Integer: Integer(property1)
+
+    <?-
+      A separate example including the ? operator.
+    -?>
+    C1 as open
+      property1 <- Integer()
+      C1()
+        -> arg0 as Integer
+        this.property1 :=: arg0
+
+      getProperty1() as pure
+        <- rtn as Integer: Integer(property1)
+
+      default operator ?
+
+  defines function
+
+    <?-
+      Expect to fail because no '?' operator
+    -?>
+    UnConstrainedGenericClassDemo1()
+
+      @Error: POST_RESOLUTION_CHECKS: OPERATOR_NOT_DEFINED
+      demo as UnConstrainedGenericClass of C0: UnConstrainedGenericClass()
+
+      result <- demo.check(C0(22))
+      assert result
+
+    <?-
+      Will be acceptable.
+    -?>
+    UnConstrainedGenericClassDemo2()
+      demo as UnConstrainedGenericClass of C1: UnConstrainedGenericClass()
+
+      result <- demo.check(C1(22))
+      assert result
+
+    <?-
+      Expect to fail as constrained to a C1.
+    -?>
+    ConstrainedGenericClassDemo1()
+      @Error: POST_RESOLUTION_CHECKS: INCOMPATIBLE_TYPES
+      demo as ConstrainedGenericClass of C0: ConstrainedGenericClass()
+
+      result <- demo.check(C0(22))
+      assert result
+
+    <?-
+      Will be acceptable.
+    -?>
+    ConstrainedGenericClassDemo2()
+      demo as ConstrainedGenericClass of C1: ConstrainedGenericClass()
+
+      result <- demo.check(C1(22))
+      assert result
+
+//EOF
+
