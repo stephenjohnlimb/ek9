@@ -32,5 +32,6 @@ class BadCallsTest extends PhasesTest {
     assertFalse(program.getParsedModules("bad.componentcalls.examples1").isEmpty());
     assertFalse(program.getParsedModules("bad.textcalls.examples1").isEmpty());
     assertFalse(program.getParsedModules("bad.abstractcalls.examples1").isEmpty());
+    assertFalse(program.getParsedModules("bad.abstractuse.examples1").isEmpty());
   }
 }

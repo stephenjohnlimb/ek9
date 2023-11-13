@@ -1,6 +1,15 @@
 #!ek9
 defines module bad.classmodifier.use
 
+  defines trait
+    T1
+      @Error: SYMBOL_DEFINITION: TRAITS_DO_NOT_HAVE_CONSTRUCTORS
+      T1()
+
+      method()
+        -> arg0 as String
+        <- rtn as Boolean: arg0?
+
   defines class
 
     //Valid class used as a base class

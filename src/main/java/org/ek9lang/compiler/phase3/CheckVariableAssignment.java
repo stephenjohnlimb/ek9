@@ -53,9 +53,9 @@ final class CheckVariableAssignment extends TypedSymbolAccess
     //Now it should have been typed if it has a typeDef - if not then that's an error in previous phases.
     //So we just accept that previous errors will have been reported.
     if (ctx.typeDef() != null) {
-      if (processTypeDefUse(ctx, varSymbol, exprSymbol)) {
-        checkTypeCompatibility(ctx, varSymbol, exprSymbol);
-      }
+      processTypeDefUse(ctx, varSymbol, exprSymbol);
+      checkTypeCompatibility(ctx, varSymbol, exprSymbol);
+
       checkAssignment.accept(new Ek9Token(ctx.op), varSymbol);
     } else {
       processInferredType(ctx, varSymbol, exprSymbol);
@@ -66,11 +66,10 @@ final class CheckVariableAssignment extends TypedSymbolAccess
 
   /**
    * So if not already typed and the typedef is recorded then we can use that type.
-   * True if type compatibility check is still required.
    */
-  private boolean processTypeDefUse(final EK9Parser.VariableDeclarationContext ctx,
-                                    final ISymbol varSymbol,
-                                    final ISymbol exprSymbol) {
+  private void processTypeDefUse(final EK9Parser.VariableDeclarationContext ctx,
+                                 final ISymbol varSymbol,
+                                 final ISymbol exprSymbol) {
 
     if (varSymbol.getType().isEmpty()) {
       var theType = symbolAndScopeManagement.getRecordedSymbol(ctx.typeDef());
@@ -80,13 +79,12 @@ final class CheckVariableAssignment extends TypedSymbolAccess
     }
 
     if (areTheSameType(varSymbol, exprSymbol)) {
-      return false;
+      return;
     }
 
     if (exprSymbol != null && exprSymbol.getType().isPresent() && varSymbol.getType().isPresent()) {
       checkAndUpdateIfLhsIsParameterised(varSymbol.getType().get(), exprSymbol, exprSymbol.getType().get());
     }
-    return true;
   }
 
   private void checkAndUpdateIfLhsIsParameterised(ISymbol lhsType, ISymbol rhs, ISymbol rhsType) {

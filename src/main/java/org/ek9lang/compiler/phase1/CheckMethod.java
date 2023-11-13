@@ -42,7 +42,7 @@ final class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol, 
     checkIfContextSupportsAbstractMethod =
         new CheckIfContextSupportsAbstractMethod(symbolAndScopeManagement, errorListener);
     checkNonExtendableMethod = new CheckNonExtendableMethod(errorListener);
-    checkTraitMethod = new CheckTraitMethod();
+    checkTraitMethod = new CheckTraitMethod(errorListener);
     checkNotDispatcherMethod = new CheckNotDispatcherMethod(errorListener);
     checkGenericConstructor = new CheckGenericConstructor(errorListener);
     checkProgramReturns = new CheckProgramReturns(errorListener);

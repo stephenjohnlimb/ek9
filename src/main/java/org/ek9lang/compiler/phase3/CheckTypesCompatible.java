@@ -5,12 +5,14 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.LocationExtractor;
 import org.ek9lang.compiler.support.SymbolMatcher;
+import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * Check that the types of two symbol ar compatible with each other.
  * Or an error is emitted.
  * compatible means supers or traits are compatible or that the second var type can be
  * coerced to the first.
+ * Note this also checks for abstract functions being on the right handside.
  */
 final class CheckTypesCompatible extends TypedSymbolAccess implements Consumer<
     TypeCompatibilityData> {
@@ -32,20 +34,35 @@ final class CheckTypesCompatible extends TypedSymbolAccess implements Consumer<
         && toCheck.rhs() != null
         && toCheck.lhs().getType().isPresent()
         && toCheck.rhs().getType().isPresent()) {
-
-      var fromType = toCheck.rhs().getType();
-      var toType = toCheck.lhs().getType();
-
-      var position = locationExtractor.apply(toCheck.lhs());
-
-      var weightOfMatch = matcher.getWeightOfMatch(fromType, toType);
-      if (weightOfMatch < 0.0) {
-        var msg = "'" + toCheck.lhs().getFriendlyName() + "' "
-            + position + " and '"
-            + toCheck.rhs().getFriendlyName() + "':";
-        errorListener.semanticError(toCheck.location(), msg,
-            ErrorListener.SemanticClassification.INCOMPATIBLE_TYPES);
-      }
+      checkRhsIsNotAbstractFunction(toCheck);
+      checkWeightOfMatch(toCheck);
     }
   }
+
+  private void checkRhsIsNotAbstractFunction(final TypeCompatibilityData toCheck) {
+    //This should not be allowed, because you cannot call an abstract function.
+    //So it is important to stop one being assigned anywhere.
+    if (toCheck.rhs().getGenus().equals(ISymbol.SymbolGenus.FUNCTION_TRAIT)) {
+      errorListener.semanticError(toCheck.location(), "'" + toCheck.rhs().getFriendlyName() + "':",
+          ErrorListener.SemanticClassification.BAD_ABSTRACT_FUNCTION_USE);
+    }
+  }
+
+  private void checkWeightOfMatch(final TypeCompatibilityData toCheck) {
+    var fromType = toCheck.rhs().getType();
+    var toType = toCheck.lhs().getType();
+
+    var position = locationExtractor.apply(toCheck.lhs());
+
+    var weightOfMatch = matcher.getWeightOfMatch(fromType, toType);
+    if (weightOfMatch < 0.0) {
+      var msg = "'" + toCheck.lhs().getFriendlyName() + "' "
+          + position + " and '"
+          + toCheck.rhs().getFriendlyName() + "':";
+      errorListener.semanticError(toCheck.location(), msg,
+          ErrorListener.SemanticClassification.INCOMPATIBLE_TYPES);
+    }
+  }
+
+
 }

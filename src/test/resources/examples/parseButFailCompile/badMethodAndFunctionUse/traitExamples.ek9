@@ -4,7 +4,7 @@ defines module bad.traits.examples
   defines trait
 
     T1
-      @Error: SYMBOL_DEFINITION: ABSTRACT_CONSTRUCTOR
+      @Error: SYMBOL_DEFINITION: TRAITS_DO_NOT_HAVE_CONSTRUCTORS
       T1()
         -> arg0 as String
 
@@ -14,7 +14,7 @@ defines module bad.traits.examples
         <- rtn as String?
 
       @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
-      default T1()
+      abstractMethod() as abstract
         someVar <- 1
         assert someVar?
 

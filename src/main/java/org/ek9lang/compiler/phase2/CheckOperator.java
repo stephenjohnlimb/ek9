@@ -48,7 +48,7 @@ final class CheckOperator extends RuleSupport
     checkNonTraitMethod = new CheckNonTraitMethod(errorListener);
     checkIfContextSupportsAbstractMethod =
         new CheckIfContextSupportsAbstractMethod(symbolAndScopeManagement, errorListener);
-    checkTraitMethod = new CheckTraitMethod();
+    checkTraitMethod = new CheckTraitMethod(errorListener);
     checkInappropriateBody = new CheckInappropriateBody(symbolAndScopeManagement, errorListener);
     checkOverrideAndAbstract = new CheckOverrideAndAbstract(symbolAndScopeManagement, errorListener);
   }

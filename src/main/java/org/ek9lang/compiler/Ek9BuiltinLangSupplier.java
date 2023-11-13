@@ -188,6 +188,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             
           Bits as open
             Bits() as pure
+
+            Bits() as pure
+              -> arg0 as Bits
             
             Bits() as pure
               -> arg0 as String
@@ -306,6 +309,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
           Boolean
             Boolean() as pure
+
+            Boolean() as pure
+              -> arg0 as Boolean
 
             Boolean() as pure
               -> arg0 as String
@@ -625,6 +631,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Float() as pure
 
             Float() as pure
+              -> arg0 as Float
+
+            Float() as pure
               -> arg0 as String
 
             operator < as pure
@@ -749,6 +758,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Time() as pure
 
             Time() as pure
+              -> arg0 as Time
+
+            Time() as pure
               -> arg0 as String
 
             operator < as pure
@@ -832,6 +844,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
           Duration as open
             Duration() as pure
+
+            Duration() as pure
+              -> arg0 as Duration
 
             Duration() as pure
               -> arg0 as String
@@ -936,6 +951,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
           Millisecond as open
             Millisecond() as pure
+
+            Millisecond() as pure
+              -> arg0 as Millisecond
 
             Millisecond() as pure
               -> arg0 as String
@@ -1060,6 +1078,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Date() as pure
 
             Date() as pure
+              -> arg0 as Date
+
+            Date() as pure
               -> arg0 as String
 
             today() as pure
@@ -1154,6 +1175,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             DateTime() as pure
 
             DateTime() as pure
+              -> arg0 as DateTime
+
+            DateTime() as pure
               -> arg0 as String
 
             now() as pure
@@ -1243,6 +1267,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
           Money as open
             Money() as pure
+
+            Money() as pure
+              -> arg0 as Money
 
             Money() as pure
               -> arg0 as String
@@ -1372,6 +1399,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Locale() as pure
 
             Locale() as pure
+              -> arg0 as Locale
+
+            Locale() as pure
               -> arg0 as String
 
             operator == as pure
@@ -1434,6 +1464,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
           Colour as open
             Colour() as pure
+
+            Colour() as pure
+              -> arg0 as Colour
 
             Colour() as pure
               -> arg0 as String
@@ -1525,6 +1558,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
           Dimension as open
             Dimension() as pure
+
+            Dimension() as pure
+              -> arg0 as Dimension
 
             Dimension() as pure
               -> arg0 as String
@@ -1668,6 +1704,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Resolution() as pure
 
             Resolution() as pure
+              -> arg0 as Resolution
+
+            Resolution() as pure
               -> arg0 as String
 
             operator < as pure
@@ -1802,6 +1841,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Path() as pure
 
             Path() as pure
+              -> arg0 as Path
+
+            Path() as pure
               -> arg0 as String
 
             operator == as pure
@@ -1892,6 +1934,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             JSON() as pure
 
             JSON() as pure
+              -> arg0 as JSON
+
+            JSON() as pure
               -> arg0 as String
             
             JSON() as pure
@@ -1953,6 +1998,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
           RegEx as open
             RegEx() as pure
+
+            RegEx() as pure
+              -> arg0 as RegEx
 
             RegEx() as pure
               -> arg0 as String
@@ -2041,6 +2089,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
           Exception as open
             Exception() as pure
+
+            Exception() as pure
+              -> reason as Exception
             
             Exception() as pure
               -> reason as String
@@ -2280,7 +2331,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Boolean?
 
             <?-
-              Check if this Result has no error - it might have neither.
+              Check if this Result has no value and no error.
             -?>
             operator ? as pure
               <- rtn as Boolean?

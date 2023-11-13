@@ -2,12 +2,11 @@
 <?-
   Workspace.
 
-  test trying to constrain with the wrong or missing types.
+  Next try generic functions and constrain the types but to aggregate types.
 
 -?>
 defines module just.workspace
 
-  defines function
     Broken()
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       assert nothing
