@@ -636,7 +636,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
 
     support.addConstructor(rtn);
     //Add another constructor that takes a String as an argument
-    MethodSymbol constructor2 = support.addConstructor(rtn, stringType);
+    MethodSymbol constructor2 = support.addConstructor(rtn, new VariableSymbol("arg", stringType.get()));
     assertNotNull(constructor2);
     return rtn;
   }

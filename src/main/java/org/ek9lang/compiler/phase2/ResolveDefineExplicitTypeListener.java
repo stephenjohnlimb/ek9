@@ -25,6 +25,7 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
+import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
@@ -156,10 +157,10 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     //Might be null if name if the name is duplicated.
     if (aggregateSymbol != null) {
       aggregateFactory.addSyntheticConstructorIfRequired(aggregateSymbol);
-      aggregateFactory.addConstructor(aggregateSymbol, aggregateSymbol);
+      aggregateFactory.addConstructor(aggregateSymbol, new VariableSymbol("arg", aggregateSymbol));
       if (ctx.typeDef() == null) {
         //For enumerations we allow creation via String.
-        aggregateFactory.addConstructor(aggregateSymbol, ek9Types.ek9String());
+        aggregateFactory.addConstructor(aggregateSymbol, new VariableSymbol("arg", ek9Types.ek9String()));
       } else {
         var theContainedType = symbolAndScopeManagement.getRecordedSymbol(ctx.typeDef());
         checkAndPopulateConstrainedType.accept(aggregateSymbol, theContainedType);
@@ -571,6 +572,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
    * Not by inference, but in explicit form. Which is all we need to populate the 'T'
    * in the case of them being constrained.
    * TODO need to move this into Function and Class exit Declarations so any constraint type can be checked.
+   * TODO consider checking in next phase across all Parameterized types because there is a cascade.
    */
   @Override
   public void exitParameterisedDetail(EK9Parser.ParameterisedDetailContext ctx) {

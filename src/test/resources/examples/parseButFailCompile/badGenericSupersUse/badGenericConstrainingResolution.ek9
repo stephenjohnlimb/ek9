@@ -1,0 +1,219 @@
+#!ek9
+<?-
+  Try to use the wrong types in some cases and valid ones in others.
+  This is a post resolution check.
+-?>
+defines module bad.generic.constraining.resolution
+
+  defines type
+    Color as Colour
+
+    Limited as
+      Value1,
+      Value2
+
+  defines function
+
+    CheckFunction()
+      -> arg0 as String
+      <- rtn <- true
+
+    AbstractFunction() as abstract
+      -> arg0 as String
+      <- rtn as Boolean?
+
+  defines trait
+
+    T1
+      check()
+        -> arg0 as String
+        <- rtn <- true
+
+    T2 with trait of T1
+      override check()
+        -> arg0 as String
+        <- rtn <- false
+
+  defines component
+    Comp1 as open
+      check()
+        -> arg0 as String
+        <- rtn <- true
+
+    Comp2 extends Comp1
+      override check()
+        -> arg0 as String
+        <- rtn <- false
+
+  defines record
+    R1 as open
+      value1 <- true
+
+    R2 extends R1
+      value2 <- true
+
+  defines text for "en"
+    SomeText
+      value()
+        "A Value"
+
+  defines class
+
+    C0 as abstract
+      check() as abstract
+        -> arg0 as String
+        <- rtn as Boolean?
+
+    C1 is C0 as open
+      override check()
+        -> arg0 as String
+        <- rtn <- true
+
+    C2 extends C1
+      override check()
+        -> arg0 as String
+        <- rtn <- false
+
+    <?-
+      Check it is possible to constrain by a trait
+    -?>
+    OKGeneric1 of type T constrain by T1
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: true
+      default operator ?
+
+    <?-
+      Check it is possible to constrain by a component
+    -?>
+    OKGeneric2 of type T constrain by Comp1
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: true
+      default operator ?
+
+    <?-
+      Check it is possible to constrain by a record
+    -?>
+    OKGeneric3 of type T constrain by R1
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: true
+      default operator ?
+
+    <?-
+      Check it is possible to constrain by a class
+    -?>
+    OKGeneric4 of type T constrain by C0
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: true
+      default operator ?
+
+    <?-
+      Check it is possible to constrain by a 'type'
+    -?>
+    OKGeneric5 of type T constrain by Color
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: true
+      default operator ?
+
+    OKGeneric6 of type T constrain by Limited
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: true
+      default operator ?
+
+  defines function
+
+    <?-
+      Now check that it is possible to use the constrained generic with a class that has
+      a trait of T1, either directly or indirectly.
+    -?>
+    Demo1()
+      demo <- OKGeneric1() of T1
+
+      dynamicT1 <- () with trait of T1
+      dynamicT2 <- () with trait of T2
+        override check()
+          -> arg0 as String
+          <- rtn <- false
+
+      result1 <- demo.check(dynamicT1)
+      assert result1
+
+      result2 <- demo.check(dynamicT2)
+      assert result2
+
+    <?-
+      Check that is it not possible to use a constrained generic class with with the wrong trait
+    -?>
+    Demo2()
+      @Error: POST_RESOLUTION_CHECKS: INCOMPATIBLE_TYPES
+      demo <- OKGeneric1() of T2
+      assert demo?
+
+    <?-
+      Check that is it not possible to use a constrained generic class with the wrong genus (Record in this case)
+    -?>
+    Demo3()
+      @Error: POST_RESOLUTION_CHECKS: INCOMPATIBLE_TYPES
+      demo <- OKGeneric2() of R1
+      assert demo?
+
+    <?-
+      Check that is it not possible to use a constrained generic class with wrong genus.
+    -?>
+    Demo4()
+      @Error: POST_RESOLUTION_CHECKS: INCOMPATIBLE_TYPES
+      demo <- OKGeneric3() of Comp1
+      assert demo?
+
+    <?-
+      Check that is it possible to use a constrained generic class with a Class
+    -?>
+    Demo5()
+      demo <- OKGeneric4() of C0
+
+      c1 <- C1()
+      c2 <- C2()
+
+      result1 <- demo.check(c1)
+      assert result1
+
+      result2 <- demo.check(c2)
+      assert result2
+
+    <?-
+      Check that is it possible to use a constrained generic class with a Class
+    -?>
+    Demo6()
+      demo <- OKGeneric5() of Color
+
+      c1 <- Color()
+      c2 <- Color()
+
+      result1 <- demo.check(c1)
+      assert result1
+
+      result2 <- demo.check(c2)
+      assert result2
+
+    <?-
+      @Error: POST_RESOLUTION_CHECKS: INCOMPATIBLE_TYPES
+    -?>
+    Demo7()
+      demo <- OKGeneric6() of Limited
+
+      l1 <- Limited.Value1
+      l2 <- Limited.Value2
+
+      result1 <- demo.check(l1)
+      assert result1
+
+      result2 <- demo.check(l2)
+      assert result2
+
+//EOF
+

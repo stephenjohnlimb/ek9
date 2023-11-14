@@ -69,7 +69,7 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
 
   private void cloneMethodsAndOperators(AggregateSymbol newType, final AggregateSymbol constrainedType) {
 
-    aggregateFactory.addConstructor(newType, constrainedType);
+    aggregateFactory.addConstructor(newType, new VariableSymbol("arg", constrainedType));
     var candidates =
         constrainedType.getAllNonAbstractMethods().stream().filter(MethodSymbol::isNotConstructor).toList();
     for (var method : candidates) {

@@ -45,7 +45,6 @@ final class SetupGenericT implements Consumer<EK9Parser.ParameterisedDetailConte
             .ifPresent(constrainingType -> aggregateFactory.updateToConstrainBy(aggregateT, constrainingType));
       }
     } else {
-
       throw new CompilerException("Failed to get [" + ctx.Identifier().getText() + "] not expecting this [" + t + "]");
     }
   }

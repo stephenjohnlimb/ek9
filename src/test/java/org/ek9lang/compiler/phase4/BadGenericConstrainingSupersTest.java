@@ -27,5 +27,6 @@ class BadGenericConstrainingSupersTest extends PhasesTest {
                                     final CompilableProgram program) {
     assertFalse(compilationResult);
     assertFalse(program.getParsedModules("bad.constraining.supers").isEmpty());
+    assertFalse(program.getParsedModules("bad.generic.constraining.resolution").isEmpty());
   }
 }

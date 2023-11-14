@@ -232,7 +232,7 @@ public class AggregateFactory {
    */
   public void updateToConstrainBy(IAggregateSymbol t, final IAggregateSymbol constrainingType) {
 
-    //So firstly lets try making the T a subtype of the constraining type
+    //So firstly lets make the T a subtype of the constraining type
     t.setSuperAggregate(constrainingType);
     //Now whatever constructors the constraining type has we will clone and add those in.
     //This should enable construction with the same arguments (if there are constructors)
@@ -346,7 +346,6 @@ public class AggregateFactory {
     operator.define(new VariableSymbol(PARAM, clazz));
     return operator;
   }
-
 
 
   /**

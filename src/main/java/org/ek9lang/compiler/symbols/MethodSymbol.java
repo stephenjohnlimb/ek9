@@ -136,11 +136,16 @@ public class MethodSymbol extends ScopedSymbol {
 
   protected MethodSymbol cloneIntoMethodSymbol(MethodSymbol newCopy) {
     super.cloneIntoScopeSymbol(newCopy);
+    return copyMethodProperties(newCopy);
+  }
 
+  /**
+   * Just copies the properties over.
+   */
+  public MethodSymbol copyMethodProperties(MethodSymbol newCopy) {
     if (isReturningSymbolPresent()) {
       newCopy.returningSymbol = this.returningSymbol.clone(newCopy);
     }
-
     newCopy.override = this.override;
     newCopy.accessModifier = this.accessModifier;
     newCopy.constructor = this.constructor;

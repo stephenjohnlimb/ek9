@@ -129,6 +129,13 @@ public class Symbol implements ISymbol {
   }
 
   protected Symbol cloneIntoSymbol(Symbol newCopy) {
+    return copySymbolProperties(newCopy);
+  }
+
+  /**
+   * Just copies the properties over.
+   */
+  public Symbol copySymbolProperties(Symbol newCopy) {
     newCopy.setInitialisedBy(this.getInitialisedBy());
     newCopy.setCategory(this.getCategory());
     newCopy.setGenus(this.getGenus());

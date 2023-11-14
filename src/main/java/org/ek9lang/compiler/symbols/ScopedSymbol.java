@@ -62,6 +62,14 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   protected ScopedSymbol cloneIntoScopeSymbol(ScopedSymbol newCopy) {
     cloneIntoSymbol(newCopy);
     actualScope.cloneIntoLocalScope(newCopy.actualScope);
+    return copyScopedSymbolProperties(newCopy);
+  }
+
+
+  /**
+   * Just copies the properties over.
+   */
+  public ScopedSymbol copyScopedSymbolProperties(ScopedSymbol newCopy) {
     newCopy.encounteredExceptionToken = this.encounteredExceptionToken;
     getOuterMostTypeOrFunction().ifPresent(newCopy::setOuterMostTypeOrFunction);
 

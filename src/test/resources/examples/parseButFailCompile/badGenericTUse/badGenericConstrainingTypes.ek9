@@ -1,14 +1,22 @@
 #!ek9
 <?-
-  Workspace.
-
-  test trying to constrain with the wrong or missing types.
-
+  Test trying to constrain with the wrong or missing types.
 -?>
 defines module bad.generic.constraining.types
 
   defines constant
     NAME <- "Steve"
+
+  defines type
+    <?-
+      American spelling but same functionality.
+      But note they are separate types!
+    -?>
+    Color as Colour
+
+    Limited as
+      Value1,
+      Value2
 
   defines function
 
@@ -137,78 +145,18 @@ defines module bad.generic.constraining.types
         -> arg0 as T
         <- rtn as Boolean: true
 
-
-  defines function
-
     <?-
-      While there is no actual error on this function,
-      the BadGeneric1 will have an error and so this will not be possible.
+      Check it is possible to constrain by a 'type'
     -?>
-    Demo1()
-      demo <- BadGeneric1() of CheckFunction
-      result <- demo.check(CheckFunction)
-      assert result
+    OKGeneric5 of type T constrain by Color
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: true
 
-    <?-
-      Now check that it is possible to use the constrained generic with a class that has
-      a trait of T1, either directly or indirectly.
-    -?>
-    Demo2()
-      demo <- OKGeneric1() of T1
-
-      dynamicT1 <- () with trait of T1
-      dynamicT2 <- () with trait of T2
-
-      result1 <- demo.check(dynamicT1)
-      assert result1
-
-      result2 <- demo.check(dynamicT2)
-      assert result2
-
-    <?-
-      Check that is it possible to use a constrained generic class with a Component.
-    -?>
-    Demo3()
-      demo <- OKGeneric2() of Comp1
-
-      comp1 <- Comp1()
-      comp2 <- Comp2()
-
-      result1 <- demo.check(comp1)
-      assert result1
-
-      result2 <- demo.check(comp2)
-      assert result2
-
-    <?-
-      Check that is it possible to use a constrained generic class with a Record
-    -?>
-    Demo4()
-      demo <- OKGeneric3() of R1
-
-      r1 <- R1()
-      r2 <- R2()
-
-      result1 <- demo.check(r1)
-      assert result1
-
-      result2 <- demo.check(r2)
-      assert result2
-
-    <?-
-      Check that is it possible to use a constrained generic class with a Class
-    -?>
-    Demo5()
-      demo <- OKGeneric4() of C0
-
-      c1 <- C1()
-      c2 <- C2()
-
-      result1 <- demo.check(c1)
-      assert result1
-
-      result2 <- demo.check(c2)
-      assert result2
+    OKGeneric6 of type T constrain by Limited
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: true
 
 //EOF
 

@@ -86,6 +86,7 @@ public class SymbolTable implements IScope {
    */
   private final Map<ISymbol.SymbolCategory, Map<String, List<ISymbol>>> splitSymbols =
       new EnumMap<>(ISymbol.SymbolCategory.class);
+
   /**
    * But also keep an ordered list - useful for ordered parameters.
    */
