@@ -45,6 +45,10 @@ defines module bad.abstractuse.examples1
       -> arg0 as String
       <- rtn as Boolean?
 
+    ConcreteFunction is SomeAbstractFunction
+      -> arg0 as String
+      <- rtn as Boolean: true
+
     CheckNoInstantiationOfTrait()
       @Error: FULL_RESOLUTION: CANNOT_CALL_ABSTRACT_TYPE
       check <- T1()
@@ -92,6 +96,11 @@ defines module bad.abstractuse.examples1
       delegate := SomeAbstractFunction
       result3 <- delegate("Steve")
       assert ~result3?
+
+      //But you can do this, because it is not abstract and can therefore be called.
+      delegate := ConcreteFunction
+      result4 <- delegate("Steve")
+      assert ~result4?
 
     Broken()
       @Error: FULL_RESOLUTION: NOT_RESOLVED
