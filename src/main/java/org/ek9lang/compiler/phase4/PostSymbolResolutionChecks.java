@@ -5,9 +5,13 @@ import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.CompilerPhase;
+import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.Workspace;
+import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilerReporter;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.core.SharedThreadContext;
 
 /**
@@ -18,9 +22,13 @@ import org.ek9lang.core.SharedThreadContext;
  * But there could be several other post resolution checks if required.
  * Ideally most checks will have been done as early as possible, but as EK9 is quite
  * dynamic and has inference it means that not all checks can be completed until now.
+ * It's a bit of brain fuzzer - because it relates to generics and type of types.
+ * This class just deals with traversing the compilable program and all the modules,
+ * then it calls the ParameterisedTypeChecker to check each in turn.
  */
 public class PostSymbolResolutionChecks extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.POST_RESOLUTION_CHECKS;
+  private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
   /**
    * Create new instance to check everything is logical and cohesive.
@@ -33,6 +41,35 @@ public class PostSymbolResolutionChecks extends CompilerPhase {
   @Override
   public boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
 
-    return true;
+    checkParameterisedTypes();
+    return !sourceHaveErrors.test(workspace.getSources());
+
   }
+
+  private void checkParameterisedTypes() {
+
+    compilableProgramAccess.accept(program -> {
+      for (var moduleName : program.getParsedModuleNames()) {
+        var parsedModules = program.getParsedModules(moduleName);
+
+        for (var parsedModule : parsedModules) {
+          checkParameterisedTypesInModule(parsedModule);
+          listener.accept(new CompilationEvent(thisPhase, parsedModule, parsedModule.getSource()));
+        }
+      }
+    });
+
+  }
+
+  private void checkParameterisedTypesInModule(final ParsedModule parsedModule) {
+    final var errorListener = parsedModule.getSource().getErrorListener();
+    final ParameterisedTypeChecker parameterisedTypeChecker = new ParameterisedTypeChecker(errorListener);
+
+    final var scope = parsedModule.getModuleScope();
+    scope.getSymbolsForThisScope().stream()
+        .filter(ISymbol::isParameterisedType)
+        .map(PossibleGenericSymbol.class::cast)
+        .forEach(parameterisedTypeChecker);
+  }
+
 }

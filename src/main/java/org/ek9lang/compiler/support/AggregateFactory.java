@@ -242,6 +242,7 @@ public class AggregateFactory {
         .forEach(constructor -> {
           var clonedConstructor = constructor.clone(t);
           clonedConstructor.setName(t.getName());
+          clonedConstructor.setSourceToken(t.getSourceToken());
           t.define(clonedConstructor);
         });
   }
@@ -255,23 +256,35 @@ public class AggregateFactory {
   }
 
   /**
-   * If the operator provided can be defaulted then a Method symbol with the correct dignature will
+   * If the operator provided can be defaulted then a Method symbol with the correct signature will
    * be returned. Otherwise, the return Optional will be empty (normally indicating an error).
    */
   public Optional<MethodSymbol> getDefaultOperator(final IAggregateSymbol aggregate, final String operator) {
     return Optional.ofNullable(operatorFactory.getDefaultOperator(aggregate, operator));
   }
 
+  /**
+   * Add all possible synthetic operators to the aggregate.
+   * This is useful for creation conceptual types like 'T'.
+   * Because the semantics of the operators is fixed and known it means it is possible
+   * to write code in a generic class that uses these operator.
+   * Only when the generic type is parameterized with types are the operators on those types checked for existence.
+   * If not present then errors of emitted.
+   */
   public void addAllSyntheticOperators(IAggregateSymbol t) {
-    addConstructor(t);
-    getAllPossibleSyntheticOperators(t).forEach(t::define);
+    var constructorMethod = addConstructor(t);
+    constructorMethod.setSourceToken(t.getSourceToken());
+    getAllPossibleSyntheticOperators(t).forEach(method -> {
+      method.setSourceToken(t.getSourceToken());
+      t.define(method);
+    });
   }
 
   /**
    * Provides a list of all possible synthetic operators, this includes the possible default operators.
    * This is typically used when creating synthetic 'T' aggregates for generics/templates.
    */
-  public List<MethodSymbol> getAllPossibleSyntheticOperators(final IAggregateSymbol aggregate) {
+  private List<MethodSymbol> getAllPossibleSyntheticOperators(final IAggregateSymbol aggregate) {
     return operatorFactory.getAllPossibleSyntheticOperators(aggregate);
   }
 

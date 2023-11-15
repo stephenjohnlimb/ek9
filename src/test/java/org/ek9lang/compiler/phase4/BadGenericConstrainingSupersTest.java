@@ -17,9 +17,8 @@ class BadGenericConstrainingSupersTest extends PhasesTest {
   }
 
   @Test
-  //TODO change to POST_RESOLUTION_CHECKS
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.POST_RESOLUTION_CHECKS);
   }
 
   @Override
@@ -27,6 +26,7 @@ class BadGenericConstrainingSupersTest extends PhasesTest {
                                     final CompilableProgram program) {
     assertFalse(compilationResult);
     assertFalse(program.getParsedModules("bad.constraining.supers").isEmpty());
-    assertFalse(program.getParsedModules("bad.generic.constraining.resolution").isEmpty());
+    assertFalse(program.getParsedModules("bad.generic.constraining.resolution1").isEmpty());
+    assertFalse(program.getParsedModules("bad.generic.constraining.resolution2").isEmpty());
   }
 }

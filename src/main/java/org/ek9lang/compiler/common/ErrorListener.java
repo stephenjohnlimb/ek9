@@ -468,6 +468,10 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     PARAMETER_MISMATCH("parameter mismatch"),
     UNABLE_TO_FIND_PIPE_FOR_TYPE("unable to find a '|' pipe method for type"),
     INCOMPATIBLE_TYPES("types are not compatible with each other"),
+    CONSTRUCTOR_USED_ON_ABSTRACT_TYPE("use of a constructor directly on an abstract type is not permitted."),
+    CONSTRUCTOR_WITH_FUNCTION_IN_GENERIC(
+        "use of a constructor in a generic/template that uses a function is not supported"),
+    FUNCTION_USED_IN_GENERIC("functions can be used in generics/templates but only '?' is supported"),
     INCOMPATIBLE_TYPES_BUT_CONSTRUCTOR_EXISTS(
         "- constructor would be appropriate: direct type usage is not appropriate in this context"),
     NOT_IN_AN_AGGREGATE_TYPE("not contained within an aggregate type (class/component/etc)"),

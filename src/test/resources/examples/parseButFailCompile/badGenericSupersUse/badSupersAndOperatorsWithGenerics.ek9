@@ -5,11 +5,6 @@
 -?>
 defines module bad.constraining.supers
 
-  defines function
-    TODO()
-      @Error: FULL_RESOLUTION: NOT_RESOLVED
-      assert fixMe
-
   defines class
 
     <?-

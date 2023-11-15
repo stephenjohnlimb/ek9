@@ -73,12 +73,14 @@ final class CheckForOperator extends TypedSymbolAccess implements Function<Check
     }
   }
 
+  /**
+   * We need to know if an operator has been used when employed in a 'T' in the generic type
+   * This is needed later so that when a generic type is parameterised we can check each of the
+   * types and see which operators have been accessed, then we can ensure the argument to the
+   * parameterization has that operator.
+   */
   private void noteOperatorAccessedIfConceptualType(final IAggregateSymbol aggregate, MethodSymbol operator) {
     if (aggregate.isConceptualTypeParameter()) {
-      //We need to know if an operator has been used when employed in a 'T' in the generic type
-      //This is needed later so that when a generic type is parameterised we can check each of the
-      //types and see which operators have been accessed, then we can ensure the argument to the
-      //parameterization has that operator.
       operator.putSquirrelledData(ACCESSED, "TRUE");
     }
   }

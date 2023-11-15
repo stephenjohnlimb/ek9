@@ -1,0 +1,226 @@
+#!ek9
+<?-
+  More checks on constraining generics.
+-?>
+defines module bad.generic.constraining.resolution2
+
+  defines function
+    CheckFunction()
+      -> arg0 as Integer
+      <- rtn as Boolean: arg0 > 21
+
+  defines trait
+    T1
+      check()
+        -> arg0 as Date
+        <- rtn as Boolean: arg0?
+
+      operator ? as pure
+        <- rtn <- true
+
+  defines type
+
+    <?-
+      American spelling but same functionality.
+      But note they are separate types!
+    -?>
+    Color as Colour
+
+    LimitedColor as Color constrain as
+      (#0099CC or #9900CC or == #CC0099)
+
+  defines class
+
+    C1NoComparator
+      value <- String()
+      default C1NoComparator()
+
+      value()
+        <- rtn as String: String(value)
+
+      //Miss out the comparator operator
+      default operator ?
+
+    WithTrait with trait of T1
+      someMethod()
+        -> arg0 as Time
+        <- rtn as Boolean: arg0?
+
+    AbstractWithTrait with trait of T1 as abstract
+      default AbstractWithTrait()
+
+      someMethod()
+        -> arg0 as Time
+        <- rtn as Boolean: arg0?
+
+      default operator <=>
+
+    ConcreteWithTrait is AbstractWithTrait
+
+    <?-
+      A Generic type that 'appears' to accept any type.
+      But when/if the ek9 developer uses any of the standard operators these
+      can be used when defining the generic/template.
+      BUT, yes BUT - when the generic type is actually parameterized the compiler checks
+      if the type being used to parameterize the generic type actually has those operators.
+      This can be done because the semantics of operators are known - and return types are known.
+    -?>
+    UnconstrainedGeneric1 of type T
+      check()
+        ->
+          arg0 as T
+          arg1 as T
+        <-
+          rtn as Integer: arg0 <=> arg1
+
+      createNew()
+        <- rtn as T: T()
+
+    <?-
+      This generic type can work with types and functions.
+      Because it only uses the is-set operator '?'.
+      With functions generic types are limited to only being useful as some type of container.
+      i.e. Like a List or an Optional for example.
+    -?>
+    UnconstrainedGeneric2 of type T
+      check()
+        ->
+          arg0 as T
+          arg1 as T
+        <-
+          rtn as Boolean: arg0? and arg1?
+
+    <?-
+      This just uses the comparator operator, not the new instance constructor.
+    -?>
+    UnconstrainedGeneric3 of type T
+      check()
+        ->
+          arg0 as T
+          arg1 as T
+        <-
+          rtn as Integer: arg0 <=> arg1
+
+    <?-
+      A Generic type, but one that can only accept Color or subtypes of Color.
+    -?>
+    ConstrainedGeneric of type T constrain by Color
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: true
+      default operator ?
+
+  defines function
+
+    ExampleOfValidTypeUse1()
+      demo <- ConstrainedGeneric() of Color
+      assert demo?
+
+    ExampleOfValidTypeUse2()
+      demo <- UnconstrainedGeneric1() of Integer
+      result <- demo.check(7, 7)
+      assert result == 0
+
+    ExampleOfValidTypeUse3()
+      t1 <- () with trait of T1
+      t2 <- () with trait of T1
+      demo <- UnconstrainedGeneric2() of T1
+      result <- demo.check(t1, t2)
+      assert result
+
+    ExampleOfValidTypeUse4()
+      t1 <- WithTrait()
+      t2 <- WithTrait()
+      demo <- UnconstrainedGeneric2() of T1
+      result <- demo.check(t1, t2)
+      assert result
+
+    <?-
+      This is a valid use of a function with a generic type.
+    -?>
+    ExampleOfValidTypeUse5()
+      demo <- UnconstrainedGeneric2() of CheckFunction
+      result <- demo.check(CheckFunction, CheckFunction)
+      assert result
+
+    <?-
+      Just to clearly show that Color is NOT a Colour.
+    -?>
+    ExampleOfInvalidTypeUse1()
+      @Error: POST_RESOLUTION_CHECKS: INCOMPATIBLE_TYPES
+      demo <- ConstrainedGeneric() of Colour
+      assert demo?
+
+    <?-
+      Just to clearly show that LimitedColor is NOT a Color.
+    -?>
+    ExampleOfInvalidTypeUse2()
+      @Error: POST_RESOLUTION_CHECKS: INCOMPATIBLE_TYPES
+      demo <- ConstrainedGeneric() of LimitedColor
+      assert demo?
+
+    <?-
+      Just to clearly show that OKGeneric5 cannot be used with anything other than a Color
+    -?>
+    ExampleOfInvalidTypeUse3()
+      @Error: POST_RESOLUTION_CHECKS: INCOMPATIBLE_TYPES
+      demo <- ConstrainedGeneric() of Integer
+      assert demo?
+
+    <?-
+      While you can use unconstrained generic types with a Function.
+      They can only realistically be 'container type generics'.
+      This generic type assumes the possibility of a constructor.
+    -?>
+    ExampleOfInvalidTypeUse4()
+      @Error: POST_RESOLUTION_CHECKS: CONSTRUCTOR_WITH_FUNCTION_IN_GENERIC
+      demo <- UnconstrainedGeneric1() of CheckFunction
+      result <- demo.check(CheckFunction, CheckFunction)
+      assert result == 0
+
+    <?-
+      Should be just the comparator issue with a function.
+      This generic type assumes the ability to use a comparator, not valid if the type is a function.
+    -?>
+    ExampleOfInvalidTypeUse5()
+      @Error: POST_RESOLUTION_CHECKS: FUNCTION_USED_IN_GENERIC
+      demo <- UnconstrainedGeneric3() of CheckFunction
+      result <- demo.check(CheckFunction, CheckFunction)
+      assert result == 0
+
+    <?-
+      While you can use unconstrained generic types with a Trait.
+      They can not have constructors, this generic type assumes a constructor.
+    -?>
+    ExampleOfInvalidTypeUse6()
+      @Error: POST_RESOLUTION_CHECKS: NOT_RESOLVED
+      demo <- UnconstrainedGeneric1() of T1
+      toCheck <- WithTrait()
+      result <- demo.check(toCheck, toCheck)
+      assert result == 0
+
+    <?-
+      While this can be constructed, it does not have the comparison operator.
+      This generic type assumes the comparator operator and 'WithTrait' does not have it.
+    -?>
+    ExampleOfInvalidTypeUse7()
+      @Error: POST_RESOLUTION_CHECKS: OPERATOR_NOT_DEFINED
+      demo <- UnconstrainedGeneric1() of WithTrait
+      toCheck <- WithTrait()
+      result <- demo.check(toCheck, toCheck)
+      assert result == 0
+
+    <?-
+      This class does have the comparison operator, but is abstract and so cannot be constructed.
+      So the class does have a constructor (so it can be called by subclasses during their construction).
+      But the class itself is abstract and so cannot be constructed in of itself.
+    -?>
+    ExampleOfInvalidTypeUse8()
+      @Error: POST_RESOLUTION_CHECKS: CONSTRUCTOR_USED_ON_ABSTRACT_TYPE
+      demo <- UnconstrainedGeneric1() of AbstractWithTrait
+      toCheck <- ConcreteWithTrait()
+      result <- demo.check(toCheck, toCheck)
+      assert result == 0
+
+//EOF
+

@@ -3,7 +3,7 @@
   Try to use the wrong types in some cases and valid ones in others.
   This is a post resolution check.
 -?>
-defines module bad.generic.constraining.resolution
+defines module bad.generic.constraining.resolution1
 
   defines type
     Color as Colour
@@ -33,6 +33,11 @@ defines module bad.generic.constraining.resolution
       override check()
         -> arg0 as String
         <- rtn <- false
+
+    T3
+      check()
+        -> arg0 as String
+        <- rtn <- true
 
   defines component
     Comp1 as open
@@ -147,17 +152,25 @@ defines module bad.generic.constraining.resolution
       assert result2
 
     <?-
-      Check that is it not possible to use a constrained generic class with with the wrong trait
+      While OKGeneric1 is constrained to T1, a T2 has a trait of T1.
+      So this is OK.
     -?>
     Demo2()
-      @Error: POST_RESOLUTION_CHECKS: INCOMPATIBLE_TYPES
       demo <- OKGeneric1() of T2
+      assert demo?
+
+    <?-
+      Check that is it not possible to use a constrained generic class with with the wrong trait
+    -?>
+    Demo3()
+      @Error: POST_RESOLUTION_CHECKS: INCOMPATIBLE_TYPES
+      demo <- OKGeneric1() of T3
       assert demo?
 
     <?-
       Check that is it not possible to use a constrained generic class with the wrong genus (Record in this case)
     -?>
-    Demo3()
+    Demo4()
       @Error: POST_RESOLUTION_CHECKS: INCOMPATIBLE_TYPES
       demo <- OKGeneric2() of R1
       assert demo?
@@ -165,7 +178,7 @@ defines module bad.generic.constraining.resolution
     <?-
       Check that is it not possible to use a constrained generic class with wrong genus.
     -?>
-    Demo4()
+    Demo5()
       @Error: POST_RESOLUTION_CHECKS: INCOMPATIBLE_TYPES
       demo <- OKGeneric3() of Comp1
       assert demo?
@@ -173,7 +186,7 @@ defines module bad.generic.constraining.resolution
     <?-
       Check that is it possible to use a constrained generic class with a Class
     -?>
-    Demo5()
+    Demo6()
       demo <- OKGeneric4() of C0
 
       c1 <- C1()
@@ -188,7 +201,7 @@ defines module bad.generic.constraining.resolution
     <?-
       Check that is it possible to use a constrained generic class with a Class
     -?>
-    Demo6()
+    Demo7()
       demo <- OKGeneric5() of Color
 
       c1 <- Color()
@@ -201,9 +214,9 @@ defines module bad.generic.constraining.resolution
       assert result2
 
     <?-
-      @Error: POST_RESOLUTION_CHECKS: INCOMPATIBLE_TYPES
+      Check all Ok with an enumerated type.
     -?>
-    Demo7()
+    Demo8()
       demo <- OKGeneric6() of Limited
 
       l1 <- Limited.Value1

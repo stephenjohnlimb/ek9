@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.phase3;
 
+import static org.ek9lang.compiler.support.SymbolFactory.ACCESSED;
+
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
@@ -15,7 +17,7 @@ import org.ek9lang.compiler.support.SymbolTypeExtractor;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.ConstantSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
-import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.ScopedSymbol;
@@ -72,7 +74,8 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
       case AggregateSymbol aggregate -> checkAggregate(startToken, aggregate, callIdentifier, callParams);
       case FunctionSymbol function -> checkFunction(startToken, function, callIdentifier, callParams);
       case MethodSymbol method ->
-          checkForMethodOnAggregate(startToken, method.getParentScope(), callIdentifier.getName(), callParams);
+          checkForMethodOnAggregate(startToken, (IAggregateSymbol) method.getParentScope(), callIdentifier.getName(),
+              callParams);
       case VariableSymbol variable ->
           checkForDelegateOrSearchForMethod(startToken, ctx.identifierReference(), variable, callParams);
       case ConstantSymbol constantSymbol -> {
@@ -108,7 +111,8 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
     }
 
     //Or just try and resolve a method with that name.
-    var resolvedMethod = checkForMethodOnAggregate(startToken, scope, variable.getName(), callParams);
+    var resolvedMethod =
+        checkForMethodOnAggregate(startToken, (IAggregateSymbol) scope, variable.getName(), callParams);
     if (resolvedMethod != null) {
       //We now update the recorded system for this identifier reference.
       recordATypedSymbol(resolvedMethod, ctx);
@@ -185,7 +189,7 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
   }
 
   private MethodSymbol checkForMethodOnAggregate(final IToken token,
-                                                 final IScope aggregate,
+                                                 final IAggregateSymbol aggregate,
                                                  final String methodName,
                                                  final List<ISymbol> parameters) {
 
@@ -194,7 +198,11 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
     //So if they are not present then there would have been other errors. There is no way can resolve the method.
     if (parameters.size() == paramTypes.size()) {
       var search = new MethodSymbolSearch(methodName).setTypeParameters(paramTypes);
-      return resolveMethodOrError.apply(token, new MethodSearchInScope(aggregate, search));
+      var resolved = resolveMethodOrError.apply(token, new MethodSearchInScope(aggregate, search));
+      if (resolved != null && aggregate.isConceptualTypeParameter()) {
+        resolved.putSquirrelledData(ACCESSED, "TRUE");
+      }
+      return resolved;
     }
     return null;
   }

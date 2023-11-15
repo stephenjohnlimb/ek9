@@ -2,60 +2,15 @@
 <?-
   Workspace.
 
-  Next try generic functions and constrain the types but to aggregate types.
-
 -?>
 defines module just.workspace
 
-  defines type
-    <?-
-      American spelling but same functionality.
-      But note they are separate types!
-    -?>
-    Color as Colour
-
-    LimitedColor as Color constrain as
-      (#0099CC or #9900CC or == #CC0099)
-
-  defines class
-
-
-    OKGeneric5 of type T constrain by Color
-      check()
-        -> arg0 as T
-        <- rtn as Boolean: true
-      default operator ?
-
   defines function
-
-    ExampleOfValidTypeUse()
-      demo <- OKGeneric5() of Color
-      assert demo?
-
-    <?-
-      Just to clearly show that Color is NOT a Colour.
-    -?>
-    ExampleOfInvalidTypeUse1()
-      demo <- OKGeneric5() of Colour
-      assert demo?
-
-    <?-
-      Just to clearly show that LimitedColor is NOT a Color.
-    -?>
-    ExampleOfInvalidTypeUse2()
-      demo <- OKGeneric5() of LimitedColor
-      assert demo?
-
-    <?-
-      Just to clearly show that OKGeneric5 cannot be used with anything other than a Color
-    -?>
-    ExampleOfInvalidTypeUse3()
-      demo <- OKGeneric5() of Integer
-      assert demo?
-
-    Broken()
+    CheckFunction()
       @Error: FULL_RESOLUTION: NOT_RESOLVED
-      assert nothing
+      assert broken
+
+
 
 //EOF
 
