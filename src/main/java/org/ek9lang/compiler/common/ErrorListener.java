@@ -366,6 +366,8 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     MISSING_OPERATOR_IN_THIS("'default' of operators requires this type to have appropriate operator"),
     MISSING_OPERATOR_IN_SUPER("'default' of operators requires super to have appropriate operator"),
     MISSING_OPERATOR_IN_PROPERTY_TYPE("'default' of operators requires property/field to have appropriate operator"),
+    FUNCTION_DELEGATE_WITH_DEFAULT_OPERATORS(
+        "'default' of operators can only support '?' operator with function delegate fields"),
     OPERATOR_DEFAULT_NOT_SUPPORTED("'default' is not supported on this operator"),
     DEFAULT_WITH_OPERATOR_SIGNATURE("'default' with an operator must not have signature or body"),
     ABSTRACT_CONSTRUCTOR("'abstract' modifier on a constructor is not logical"),

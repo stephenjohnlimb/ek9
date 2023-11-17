@@ -1,0 +1,51 @@
+#!ek9
+<?-
+  Check that when a constrained generic is employed in conjunction with a record and a
+  function delegate - the delegate function can still be called.
+-?>
+defines module bad.functiondelegate.byrecord
+
+  defines function
+    <?-
+      The abstract conceptual test function to be used as a delegate.
+    -?>
+    TestFunction as abstract
+      -> arg0 as String
+      <- rtn as Boolean?
+
+    <?-
+      A concrete implementation of the above abstract function.
+    -?>
+    TestFunction1() is TestFunction
+      -> arg0 as String
+      <- rtn as Boolean: arg0?
+
+  defines record
+    <?-
+      The record that will use the delegate and be the constraining type in the generic.
+    -?>
+    R1
+      delegate as TestFunction?
+
+      R1()
+        -> arg0 as TestFunction
+        this.delegate: arg0
+
+      default operator ?
+
+  defines class
+
+    ConstrainedGeneric of type T constrain by R1
+
+      checkAccess()
+        ->
+          arg0 as T
+          arg1 as String
+        <- rtn as Boolean: Boolean()
+
+        //Now lets see if it is possible to both resolve and call the delegate.
+        //This looks and feels like a method call on the type, but is in fact a function call via the
+        //delegate
+        rtn: arg0.delegate(arg1)
+
+//EOF

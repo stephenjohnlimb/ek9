@@ -10,7 +10,5 @@ defines module just.workspace
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       assert broken
 
-
-
 //EOF
 

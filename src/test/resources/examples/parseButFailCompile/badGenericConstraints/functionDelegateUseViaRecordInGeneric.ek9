@@ -1,0 +1,108 @@
+#!ek9
+<?-
+
+  Checks the scenario where a record has a function delegate as a field and then is used to constrain a generic.
+
+-?>
+defines module functiondelegate.inrecord.withgeneric
+
+  defines function
+    <?-
+      The abstract conceptual test function to be used as a delegate.
+    -?>
+    TestFunction as abstract
+      -> arg0 as String
+      <- rtn as Boolean?
+
+    <?-
+      A concrete implementation of the above abstract function.
+    -?>
+    TestFunction1() is TestFunction
+      -> arg0 as String
+      <- rtn as Boolean: arg0?
+
+  defines record
+
+    <?-
+      The record that will use the delegate and be the constraining type in the generic.
+    -?>
+    R1
+      delegate as TestFunction?
+
+      R1()
+        -> arg0 as TestFunction
+        this.delegate: arg0
+
+      default operator ?
+
+      @Error: FULL_RESOLUTION: FUNCTION_DELEGATE_WITH_DEFAULT_OPERATORS
+      default operator <=>
+
+    <?-
+      The record that will use the delegate and be the constraining type in the generic.
+    -?>
+    R2 as open
+      delegate as TestFunction?
+
+      R2()
+        -> arg0 as TestFunction
+        this.delegate: arg0
+
+      default operator ?
+
+    <?-
+      Extend the functionality by adding another delegate.
+    -?>
+    R3 is R2
+      anotherDelegate as TestFunction?
+
+      R3()
+        ->
+          arg0 as TestFunction
+          arg1 as TestFunction
+        super(arg0)
+        this.anotherDelegate: arg1
+
+      default operator ?
+
+  defines class
+    <?-
+      Nothing wrong with the generic class, but the record R1 cannot be used.
+      due to issues above.
+    -?>
+    G1 of type T constrain by R1
+      check()
+        ->
+          arg0 as T
+          arg1 as String
+        <-
+          rtn as Boolean: arg0.delegate(arg1)
+
+    G2 of type T constrain by R2
+      check()
+        ->
+          arg0 as T
+          arg1 as String
+        <-
+          rtn as Boolean: arg0.delegate(arg1)
+
+  defines function
+    DemoOfWorkingGeneric()
+
+      //First create the checker by using
+      checker <- G2() of R2
+
+      //Now trigger that generic method
+      result1 <- checker.check(R2(TestFunction1), "Steve")
+      assert result1
+
+      //As a demo, lets create a dynamic function that implements the abstract function.
+      dynamic <- () is TestFunction (rtn: arg0?)
+
+      //But we can also to an R3 (only the R3 delegate will be called).
+      r3 <- R3(TestFunction1, dynamic)
+      result2 <- checker.check(r3, "Steve")
+      assert result2
+
+//EOF
+

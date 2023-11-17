@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.phase3;
 
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.CANNOT_SUPPORT_TO_JSON_DUPLICATE_PROPERTY_FIELD;
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.FUNCTION_DELEGATE_WITH_DEFAULT_OPERATORS;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.MISSING_OPERATOR_IN_PROPERTY_TYPE;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.MISSING_OPERATOR_IN_SUPER;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.MISSING_OPERATOR_IN_THIS;
@@ -12,6 +13,7 @@ import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -47,6 +49,8 @@ final class CheckDefaultOperators extends TypedSymbolAccess implements Consumer<
   public void accept(final AggregateSymbol aggregateSymbol) {
     var operators = retrieveDefaultedOperators.apply(aggregateSymbol);
 
+    checkIfPropertiesAreDelegates(aggregateSymbol, operators);
+
     //This will deal with all the less than, equal not equal greater than etc.
     checkComparator(aggregateSymbol, operators);
 
@@ -54,6 +58,22 @@ final class CheckDefaultOperators extends TypedSymbolAccess implements Consumer<
     checkUnaryOperators(aggregateSymbol, operators);
 
     checkToJsonSupportableIfRequired(aggregateSymbol, operators);
+  }
+
+  private void checkIfPropertiesAreDelegates(final AggregateSymbol aggregateSymbol,
+                                             final List<MethodSymbol> operators) {
+
+
+    final Consumer<ISymbol> propertyOperatorError = property -> operators.stream()
+        .filter(operator -> !"?".equals(operator.getName()))
+        .forEach(operator -> errorListener.semanticError(operator.getSourceToken(), "",
+            FUNCTION_DELEGATE_WITH_DEFAULT_OPERATORS));
+
+    aggregateSymbol.getProperties().stream()
+        .filter(property -> property.getType().isPresent())
+        .filter(property -> property.getType().get() instanceof FunctionSymbol)
+        .forEach(propertyOperatorError);
+
   }
 
   private void checkComparator(final AggregateSymbol aggregateSymbol, final List<MethodSymbol> operators) {
@@ -83,19 +103,26 @@ final class CheckDefaultOperators extends TypedSymbolAccess implements Consumer<
 
       //Now check each of the properties on this aggregate also has the operator.
       properties.forEach(property -> property.getType()
-          .ifPresent(propertyType -> checkForOperatorOnPropertyTypeOrError((IAggregateSymbol) propertyType, property,
+          .ifPresent(propertyType -> checkForOperatorOnPropertyTypeOrError(propertyType, property,
               operator)));
     });
   }
 
-  private void checkToJsonSupportableIfRequired(final AggregateSymbol aggregateSymbol,
-                                                final List<MethodSymbol> operators) {
-    //Only is to JSON is required.
-    operators
-        .stream()
-        .filter(operator -> "$$".equals(operator.getName()))
-        .findFirst()
-        .ifPresent(toJSON -> checkPropertyNames.accept(aggregateSymbol));
+  private void checkForOperatorOnPropertyTypeOrError(final ISymbol type,
+                                                     final ISymbol property,
+                                                     final MethodSymbol operator) {
+    if (type instanceof IAggregateSymbol aggregate) {
+      checkForOperatorOnPropertyTypeOrError(aggregate, property, operator);
+    }
+  }
+
+  private void checkForOperatorOnPropertyTypeOrError(final IAggregateSymbol aggregate,
+                                                     final MethodSymbol operator) {
+    var search = new MethodSymbolSearch(operator);
+
+    if (aggregate.resolveInThisScopeOnly(search).isEmpty()) {
+      emitMissingOperator(aggregate, operator.getSourceToken(), search, MISSING_OPERATOR_IN_SUPER);
+    }
   }
 
   private void checkForOperatorOnPropertyTypeOrError(final IAggregateSymbol aggregate,
@@ -109,13 +136,14 @@ final class CheckDefaultOperators extends TypedSymbolAccess implements Consumer<
     }
   }
 
-  private void checkForOperatorOnPropertyTypeOrError(final IAggregateSymbol aggregate,
-                                                     final MethodSymbol operator) {
-    var search = new MethodSymbolSearch(operator);
-
-    if (aggregate.resolveInThisScopeOnly(search).isEmpty()) {
-      emitMissingOperator(aggregate, operator.getSourceToken(), search, MISSING_OPERATOR_IN_SUPER);
-    }
+  private void checkToJsonSupportableIfRequired(final AggregateSymbol aggregateSymbol,
+                                                final List<MethodSymbol> operators) {
+    //Only is to JSON is required.
+    operators
+        .stream()
+        .filter(operator -> "$$".equals(operator.getName()))
+        .findFirst()
+        .ifPresent(toJSON -> checkPropertyNames.accept(aggregateSymbol));
   }
 
   private boolean isNotASortOfComparisonOperator(final MethodSymbol operator) {

@@ -27,5 +27,6 @@ class BadGenericConstraintsTest extends PhasesTest {
     assertFalse(compilationResult);
     assertFalse(program.getParsedModules("bad.generic.class.constraints").isEmpty());
     assertFalse(program.getParsedModules("bad.generic.class.function.constraints").isEmpty());
+    assertFalse(program.getParsedModules("functiondelegate.inrecord.withgeneric").isEmpty());
   }
 }
