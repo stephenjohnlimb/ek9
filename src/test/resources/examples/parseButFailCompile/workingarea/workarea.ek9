@@ -1,14 +1,14 @@
 #!ek9
 <?-
+
   Workspace.
 
 -?>
 defines module just.workspace
 
   defines function
-    CheckFunction()
+    Broken()
       @Error: FULL_RESOLUTION: NOT_RESOLVED
-      assert broken
-
+      assert nothing
 //EOF
 

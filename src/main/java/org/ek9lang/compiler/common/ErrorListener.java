@@ -496,6 +496,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     TRAIT_BY_DELEGATE_FOR_CLASS_ONLY("delegation by a trait is only applicable for classes"),
     ONLY_CONSTRUCTORS_ALLOWED("only constructor methods can be defined in this scope"),
     ONLY_ONE_CONSTRUCTOR_ALLOWED("only a single constructor is allowed in this scope"),
+    CONSTRAINED_TYPE_CONSTRUCTOR_MISSING("constraining type constructors must exist on parameterizing type"),
     CLASS_IS_NOT_ALLOWED_IN_THIS_CONTEXT("not allowed in this context"),
     NOT_OPEN_TO_EXTENSION("not open to be extended"),
     TEMPLATE_TYPES_NOT_EXTENSIBLE("Template/Generic types cannot be extended"),

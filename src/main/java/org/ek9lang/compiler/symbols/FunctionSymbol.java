@@ -180,7 +180,8 @@ public class FunctionSymbol extends PossibleGenericSymbol {
   public String getFriendlyName() {
     Optional<ISymbol> returningSymbolType =
         getReturningSymbol() != null ? getReturningSymbol().getType() : Optional.empty();
-    var prefix = getName().isEmpty() ? "dynamic function" : getName();
+    var mainName = getGenericType().isPresent() ? getGenericType().get().getName() : getName();
+    var prefix = mainName.isEmpty() ? "dynamic function" : mainName;
     var name =
         doGetFriendlyName(prefix + getPrivateVariablesForDisplay(), returningSymbolType)
             + getAnyGenericParamsAsFriendlyNames();
@@ -210,7 +211,6 @@ public class FunctionSymbol extends PossibleGenericSymbol {
     //Treat this as a type. To get result of call need to use:
     return Optional.of(this);
   }
-
 
   @Override
   public ISymbol setType(ISymbol type) {

@@ -243,6 +243,7 @@ public class AggregateFactory {
           var clonedConstructor = constructor.clone(t);
           clonedConstructor.setName(t.getName());
           clonedConstructor.setSourceToken(t.getSourceToken());
+          clonedConstructor.setType(t);
           t.define(clonedConstructor);
         });
   }

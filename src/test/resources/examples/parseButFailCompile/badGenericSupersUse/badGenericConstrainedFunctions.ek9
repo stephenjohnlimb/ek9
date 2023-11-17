@@ -1,0 +1,193 @@
+#!ek9
+<?-
+
+  Tests for generic/template functions, these using functions and types. Both constrained and unconstrained.
+  Very similar in many ways to generic/template classes.
+  But also checks if abstract types can/cannot be used.
+
+-?>
+defines module bad.generic.constraining.resolution3
+
+  defines record
+
+    <?-
+      For use later on, to trigger missing '+' operator.
+    -?>
+    R1
+      value <- 1
+
+    <?-
+      Used for valid calls and also as a base for constraining.
+      Has the '+' operator.§
+    -?>
+    R2 as open
+      value as Integer?
+
+      R2() as pure
+        value :=? 1
+
+      R2() as pure
+        -> arg0 as Integer
+        value :=? Integer(arg0)
+
+      R2() as pure
+        -> arg0 as R2
+        value :=? Integer(arg0.value)
+
+      operator + as pure
+        -> arg0 as R2
+        <- rtn as R2: R2(value + arg0.value)
+
+      default operator ?
+
+    <?-
+      Used later to demonstrate that with constrained types you must provide all the
+      constructors that existing on the constraining type on the parameterizing type.
+    -?>
+    R3 is R2
+      anotherValue as Integer?
+
+      R3() as pure
+        value :=? 1
+
+      R3() as pure
+        -> arg0 as Integer
+        super(arg0)
+
+      R3() as pure
+        ->
+          arg0 as Integer
+          arg1 as Integer
+        super(arg0)
+        anotherValue :=? Integer(arg1)
+
+      override operator + as pure
+        -> arg0 as R3
+        <- rtn as R3: R3(value + arg0.value, anotherValue + arg0.anotherValue)
+
+      default operator ?
+
+    <?-
+      Finally this type does have all the constructors and operators to be used with the geneeric function.
+    -?>
+    R4 is R2
+      anotherValue as Integer?
+
+      R4() as pure
+        value :=? 1
+
+      R4() as pure
+        -> arg0 as Integer
+        super(arg0)
+
+      R4() as pure
+        -> arg0 as R2
+        super(arg0)
+
+      R4() as pure
+        ->
+          arg0 as Integer
+          arg1 as Integer
+        super(arg0)
+        anotherValue :=? Integer(arg1)
+
+      override operator + as pure
+        -> arg0 as R4
+        <- rtn as R4: R4(value + arg0.value, anotherValue + arg0.anotherValue)
+
+      default operator ?
+
+  defines function
+
+    AbstractFunction() as abstract
+      -> arg0 as String
+      <- rtn as Boolean?
+
+    ConcreteFunction is AbstractFunction
+      -> arg0 as String
+      <- rtn <- true
+
+    <?-
+      This is a simple demonstration on an unconstrained generic/template function
+      that uses the addition operator.
+      Note that it is only when it is actually used with a type do the operators and constructors get checked.
+    -?>
+    GF1 of type T
+      ->
+        arg0 as T
+        arg1 as T
+      <-
+        rtn as T: arg0 + arg1
+
+    GF2 of type T constrain by R2
+      ->
+        arg0 as T
+        arg1 as T
+      <-
+        rtn as T: T(arg0 + arg1) //Note have to use a constructor here.
+
+    <?-
+      A little pointless, but shows you can create a generic function to
+      return a function if it is 'set'.
+    -?>
+    GF3 of type T
+      ->
+        arg0 as T
+        arg1 as T
+      <- rtn as T: arg0? <- arg0 : arg1
+
+    <?-
+      Now GF1 is fine as a generic/template type, but assumes the '+' operator.
+      In this example GF1 has been parameterized with R1 which does not have the '+' operator.
+      Hence there is an error.
+    -?>
+    MissingAdditionOperator()
+      @Error: POST_RESOLUTION_CHECKS: OPERATOR_NOT_DEFINED
+      gf1 <- GF1() of R1
+      assert gf1?
+
+    WithAdditionOperator()
+      gf1 <- GF1() of R2
+      assert gf1?
+
+      //Now it is possible to call it.
+      result <- gf1(R2(3), R2(9))
+      assert result?
+
+    WithAdditionOperatorAndR2()
+      gf2 <- GF2() of R2
+      assert gf2?
+
+      //Now it is possible to call it.
+      result <- gf2(R2(3), R2(9))
+      assert result?
+
+    WithAdditionOperatorAndR3()
+      @Error: POST_RESOLUTION_CHECKS: CONSTRAINED_TYPE_CONSTRUCTOR_MISSING
+      gf2 <- GF2() of R3
+      assert gf2?
+
+    WithAdditionOperatorAndR4()
+      gf2 <- GF2() of R4
+      assert gf2?
+
+      //Now it is possible to call it.
+      result <- gf2(R4(3, 8), R4(9, 8))
+      assert result?
+
+    GF1CannotBeUsedWithFunctions()
+      @Error: POST_RESOLUTION_CHECKS: FUNCTION_USED_IN_GENERIC
+      gf1 <- GF1() of AbstractFunction
+      assert gf1?
+
+    GF3CanBeUsedWithFunctions()
+      -> possiblyUnSetFunction as AbstractFunction
+
+      gf3 <- GF3() of AbstractFunction
+
+      //Use a normal function and a dynamic function here in this example.
+      func <- gf3(possiblyUnSetFunction, () is AbstractFunction (rtn: false))
+      assert func?
+
+//EOF
+

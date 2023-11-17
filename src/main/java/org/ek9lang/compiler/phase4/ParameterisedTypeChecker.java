@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.phase4;
 
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.CONSTRAINED_TYPE_CONSTRUCTOR_MISSING;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.CONSTRUCTOR_USED_ON_ABSTRACT_TYPE;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.CONSTRUCTOR_WITH_FUNCTION_IN_GENERIC;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.FUNCTION_USED_IN_GENERIC;
@@ -59,7 +60,7 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
                                          final IAggregateSymbol aggregateT) {
 
     aggregateT.getSuperAggregate().ifPresentOrElse(
-        constrainedTType -> assignableOrError(typeTuple, constrainedTType),
+        constrainedTType -> compatibleTypeOrError(typeTuple, constrainedTType),
         () -> accessedMethodsExistOrError(typeTuple, aggregateT));
 
   }
@@ -126,7 +127,7 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
         () -> {
           var classification = method.isConstructor() ? NOT_RESOLVED : OPERATOR_NOT_DEFINED;
           var msg = "'" + method.getFriendlyName() + "' " + "is used in '"
-              + typeTuple.genericType.getFriendlyName() + "' "
+              + typeTuple.genericType.getFriendlyName() + "', "
               + "but '" + methodSearch + "' is not defined in '" + typeTuple.typeArgumentForT + "':";
 
           errorListener.semanticError(typeTuple.possibleGenericSymbol.getInitialisedBy(), msg, classification);
@@ -138,9 +139,15 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
    * For parameterised types don't use the source location because that is the generic type.
    * For this scenario we need to use the location where this parameterised type was first initialised.
    * That way we get an error on the line where the first use of this parameterization was made.
+   * While we do need to check it is assignable, we also must mandate that the constructors on the
+   * constraining type are also present on the parameterizing type.
    */
-  private void assignableOrError(final TypeTuple typeTuple,
-                                 final ISymbol constrainedTType) {
+  private void compatibleTypeOrError(final TypeTuple typeTuple,
+                                     final ISymbol constrainedTType) {
+
+    if (typeTuple.typeArgumentForT.isExactSameType(constrainedTType)) {
+      return;
+    }
 
     if (!typeTuple.typeArgumentForT.isAssignableTo(constrainedTType)) {
       var msg = "wrt '" + typeTuple.genericType.getFriendlyName()
@@ -148,8 +155,33 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
           + "' and '" + typeTuple.typeArgumentForT.getFriendlyName() + "':";
 
       errorListener.semanticError(typeTuple.possibleGenericSymbol.getInitialisedBy(), msg, INCOMPATIBLE_TYPES);
+    } else {
+      minimalMatchingConstructorsOrError(typeTuple, constrainedTType);
     }
 
+  }
+
+  private void minimalMatchingConstructorsOrError(final TypeTuple typeTuple, final ISymbol constrainedTType) {
+    //Only check if an aggregate, not applicable to functions.
+    if (constrainedTType instanceof IAggregateSymbol constrainingAggregate
+        && typeTuple.typeArgumentForT instanceof IAggregateSymbol typeArgumentAggregate) {
+      var searches = constrainingAggregate.getAllNonAbstractMethodsInThisScopeOnly().stream()
+          .filter(MethodSymbol::isConstructor)
+          .map(method -> new MethodSymbolSearch(typeTuple.typeArgumentForT.getName(), method))
+          .toList();
+
+      //Now have a list of searches, need to ensure they exist on the typeTuple.typeArgumentForT
+      searches.forEach(search -> {
+        var resolved = typeArgumentAggregate.resolveInThisScopeOnly(search);
+        if (resolved.isEmpty()) {
+          var msg = "wrt constraining type '" + constrainedTType.getFriendlyName()
+              + "' and parameterizing type '" + typeTuple.typeArgumentForT.getFriendlyName() + "',"
+              + " constructor '" + search + "' is required:";
+          errorListener.semanticError(typeTuple.possibleGenericSymbol.getInitialisedBy(), msg,
+              CONSTRAINED_TYPE_CONSTRUCTOR_MISSING);
+        }
+      });
+    }
   }
 
   /**

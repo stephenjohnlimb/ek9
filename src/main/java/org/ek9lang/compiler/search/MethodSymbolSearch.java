@@ -43,6 +43,20 @@ public final class MethodSymbolSearch extends SymbolSearch {
     //don't set the return type leave that open, so we can handle covariance.
   }
 
+  /**
+   * Create a method search given a method symbol, but used a new method name.§
+   * But this does not set the expected type.
+   * This is very useful for finding overridden methods where the returning type is different
+   * but compatible.
+   */
+  public MethodSymbolSearch(String newName, MethodSymbol methodSymbol) {
+    this(newName);
+    var theTypes = new SymbolTypeExtractor().apply(methodSymbol.getSymbolsForThisScope());
+    this.setTypeParameters(theTypes);
+
+    //don't set the return type leave that open, so we can handle covariance.
+  }
+
   public MethodSymbolSearch(String name) {
     super(name);
     setSearchType(ISymbol.SymbolCategory.METHOD);

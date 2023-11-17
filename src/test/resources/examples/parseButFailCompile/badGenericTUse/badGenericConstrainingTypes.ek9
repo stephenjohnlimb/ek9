@@ -158,5 +158,10 @@ defines module bad.generic.constraining.types
         -> arg0 as T
         <- rtn as Boolean: true
 
+    OKGeneric7 of type T constrain by Limited
+      check()
+        -> arg0 as T
+        <- rtn as T: T(Limited.Value1)
+
 //EOF
 
