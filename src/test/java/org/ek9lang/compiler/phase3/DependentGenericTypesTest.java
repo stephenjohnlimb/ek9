@@ -1,8 +1,8 @@
 package org.ek9lang.compiler.phase3;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
@@ -14,7 +14,8 @@ import org.junit.jupiter.api.Test;
 class DependentGenericTypesTest extends PhasesTest {
 
   public DependentGenericTypesTest() {
-    super("/examples/dependentGenericTypes");
+    super("/examples/dependentGenericTypes",
+        List.of("dependent.generic.types"));
   }
 
   @Test
@@ -26,6 +27,5 @@ class DependentGenericTypesTest extends PhasesTest {
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
     assertTrue(compilationResult);
-    assertFalse(program.getParsedModules("dependent.generic.types").isEmpty());
   }
 }

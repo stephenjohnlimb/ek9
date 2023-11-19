@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
@@ -13,7 +14,14 @@ import org.junit.jupiter.api.Test;
 class BadPureUseTest extends PhasesTest {
 
   public BadPureUseTest() {
-    super("/examples/parseButFailCompile/badPureUse");
+    super("/examples/parseButFailCompile/badPureUse",
+        List.of("bad.pure.scenarios1",
+            "bad.pure.scenarios2",
+            "bad.pure.expressions",
+            "bad.pure.declarations",
+            "bad.pure.delegate.scenarios1",
+            "bad.pure.delegate.scenarios2",
+            "bad.pure.text.components"));
   }
 
   @Test
@@ -24,12 +32,6 @@ class BadPureUseTest extends PhasesTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.pure.scenarios1").isEmpty());
-    assertFalse(program.getParsedModules("bad.pure.scenarios2").isEmpty());
-    assertFalse(program.getParsedModules("bad.pure.expressions").isEmpty());
-    assertFalse(program.getParsedModules("bad.pure.declarations").isEmpty());
-    assertFalse(program.getParsedModules("bad.pure.delegate.scenarios1").isEmpty());
-    assertFalse(program.getParsedModules("bad.pure.delegate.scenarios2").isEmpty());
-    assertFalse(program.getParsedModules("bad.pure.text.components").isEmpty());
+
   }
 }

@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
@@ -13,7 +14,8 @@ import org.junit.jupiter.api.Test;
 class BadAssignmentsTest extends PhasesTest {
 
   public BadAssignmentsTest() {
-    super("/examples/parseButFailCompile/badAssignments");
+    super("/examples/parseButFailCompile/badAssignments",
+        List.of("bad.assignment.use", "bad.assignments.classes", "bad.coalescing.assignments"));
   }
 
   @Test
@@ -24,8 +26,5 @@ class BadAssignmentsTest extends PhasesTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.assignment.use").isEmpty());
-    assertFalse(program.getParsedModules("bad.assignments.classes").isEmpty());
-    assertFalse(program.getParsedModules("bad.coalescing.assignments").isEmpty());
   }
 }

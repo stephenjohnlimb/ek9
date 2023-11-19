@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
@@ -15,7 +16,8 @@ import org.junit.jupiter.api.Test;
 class BadCallResolutionTest extends PhasesTest {
 
   public BadCallResolutionTest() {
-    super("/examples/parseButFailCompile/badCallResolution");
+    super("/examples/parseButFailCompile/badCallResolution",
+        List.of("bad.simple.resolution", "bad.detailed.resolution"));
   }
 
   @Test
@@ -26,7 +28,6 @@ class BadCallResolutionTest extends PhasesTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.simple.resolution").isEmpty());
-    assertFalse(program.getParsedModules("bad.detailed.resolution").isEmpty());
+
   }
 }

@@ -3,6 +3,7 @@ package org.ek9lang.compiler.phase1;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
@@ -16,7 +17,8 @@ import org.junit.jupiter.api.Test;
 class BadDuplicatedSymbolsDifferentFilesTest extends PhasesTest {
 
   public BadDuplicatedSymbolsDifferentFilesTest() {
-    super("/examples/parseButFailCompile/duplicatedInDifferentFiles");
+    super("/examples/parseButFailCompile/duplicatedInDifferentFiles",
+        List.of("duplications"));
   }
 
   @Test
@@ -28,6 +30,5 @@ class BadDuplicatedSymbolsDifferentFilesTest extends PhasesTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
     assertEquals(3, numberOfErrors);
-    assertFalse(program.getParsedModules("duplications").isEmpty());
   }
 }

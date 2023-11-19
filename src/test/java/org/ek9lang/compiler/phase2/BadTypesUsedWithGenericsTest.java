@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase2;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
@@ -14,7 +15,8 @@ class BadTypesUsedWithGenericsTest extends PhasesTest {
 
 
   public BadTypesUsedWithGenericsTest() {
-    super("/examples/parseButFailCompile/unresolvedTypeWithGenerics");
+    super("/examples/parseButFailCompile/unresolvedTypeWithGenerics",
+        List.of("bad.generics.use.types"));
   }
 
 
@@ -26,6 +28,5 @@ class BadTypesUsedWithGenericsTest extends PhasesTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.generics.use.types").isEmpty());
   }
 }

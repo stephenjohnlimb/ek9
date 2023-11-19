@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase1;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
@@ -14,7 +15,8 @@ class BadProgramsTest extends PhasesTest {
 
 
   public BadProgramsTest() {
-    super("/examples/parseButFailCompile/badPrograms");
+    super("/examples/parseButFailCompile/badPrograms",
+        List.of("bad.program.return", "bad.argument.parameters"));
   }
 
 
@@ -26,7 +28,5 @@ class BadProgramsTest extends PhasesTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.program.return").isEmpty());
-    assertFalse(program.getParsedModules("bad.argument.parameters").isEmpty());
   }
 }

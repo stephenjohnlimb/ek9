@@ -28,8 +28,15 @@ public abstract class PhasesTest {
 
   private final ShowAllSymbolsInAllModules showAllSymbolsInAllModules = new ShowAllSymbolsInAllModules();
 
+  private final List<String> expectedModules;
+
   public PhasesTest(final String fromResourcesDirectory) {
+    this(fromResourcesDirectory, List.of());
+  }
+
+  public PhasesTest(final String fromResourcesDirectory, final List<String> expectedModules) {
     var workspaceLoader = new WorkSpaceFromResourceDirectoryFiles();
+    this.expectedModules = expectedModules;
     ek9Workspace = workspaceLoader.apply(fromResourcesDirectory);
   }
 
@@ -64,6 +71,10 @@ public abstract class PhasesTest {
     if (hasErrorDirective) {
       assertFalse(compilationResult, "Expecting error directives presence to cause compilation failure");
     }
+
+    //If modules have been supplied then check they are present and not empty
+    expectedModules.forEach(moduleName -> assertFalse(program.getParsedModules(moduleName).isEmpty()));
+
     assertFinalResults(compilationResult, numberOfErrors, program);
   }
 

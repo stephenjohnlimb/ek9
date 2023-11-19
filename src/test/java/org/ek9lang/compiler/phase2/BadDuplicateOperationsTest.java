@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase2;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
@@ -13,7 +14,15 @@ import org.junit.jupiter.api.Test;
 class BadDuplicateOperationsTest extends PhasesTest {
 
   public BadDuplicateOperationsTest() {
-    super("/examples/parseButFailCompile/badDuplicateOperations");
+    super("/examples/parseButFailCompile/badDuplicateOperations",
+        List.of("bad.duplicate.classmethods",
+            "bad.duplicate.traitmethods",
+            "bad.duplicate.recordmethods",
+            "bad.duplicate.servicemethods",
+            "bad.duplicate.componentmethods",
+            "bad.duplicate.recordoperators",
+            "bad.name.collisions1",
+            "bad.name.collisions2"));
   }
 
   @Test
@@ -24,14 +33,7 @@ class BadDuplicateOperationsTest extends PhasesTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.duplicate.classmethods").isEmpty());
-    assertFalse(program.getParsedModules("bad.duplicate.traitmethods").isEmpty());
-    assertFalse(program.getParsedModules("bad.duplicate.recordmethods").isEmpty());
-    assertFalse(program.getParsedModules("bad.duplicate.servicemethods").isEmpty());
-    assertFalse(program.getParsedModules("bad.duplicate.componentmethods").isEmpty());
-    assertFalse(program.getParsedModules("bad.duplicate.recordoperators").isEmpty());
-    assertFalse(program.getParsedModules("bad.name.collisions1").isEmpty());
-    assertFalse(program.getParsedModules("bad.name.collisions2").isEmpty());
+
 
   }
 }

@@ -3,6 +3,7 @@ package org.ek9lang.compiler.phase1;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
@@ -16,7 +17,8 @@ import org.junit.jupiter.api.Test;
 class BadReferencesTest extends PhasesTest {
 
   public BadReferencesTest() {
-    super("/examples/parseButFailCompile/multipleReferences");
+    super("/examples/parseButFailCompile/multipleReferences",
+        List.of("alpha", "beta", "fails.to.compile", "another.reference.module", "main.reference.module"));
   }
 
 
@@ -29,10 +31,5 @@ class BadReferencesTest extends PhasesTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
     assertEquals(25, numberOfErrors);
-    assertFalse(program.getParsedModules("alpha").isEmpty());
-    assertFalse(program.getParsedModules("beta").isEmpty());
-    assertFalse(program.getParsedModules("fails.to.compile").isEmpty());
-    assertFalse(program.getParsedModules("another.reference.module").isEmpty());
-    assertFalse(program.getParsedModules("main.reference.module").isEmpty());
   }
 }

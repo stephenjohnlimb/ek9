@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
@@ -13,7 +14,8 @@ import org.junit.jupiter.api.Test;
 class MIssingOperatorsTest extends PhasesTest {
 
   public MIssingOperatorsTest() {
-    super("/examples/parseButFailCompile/missingOperators");
+    super("/examples/parseButFailCompile/missingOperators",
+        List.of("bad.defaulted.recordoperators", "bad.defaulted.classoperators", "bad.overridden.classoperators"));
   }
 
   @Test
@@ -24,8 +26,5 @@ class MIssingOperatorsTest extends PhasesTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.defaulted.recordoperators").isEmpty());
-    assertFalse(program.getParsedModules("bad.defaulted.classoperators").isEmpty());
-    assertFalse(program.getParsedModules("bad.overridden.classoperators").isEmpty());
   }
 }

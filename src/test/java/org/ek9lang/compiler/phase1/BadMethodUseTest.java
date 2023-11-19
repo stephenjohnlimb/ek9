@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase1;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
@@ -13,7 +14,14 @@ import org.junit.jupiter.api.Test;
 class BadMethodUseTest extends PhasesTest {
 
   public BadMethodUseTest() {
-    super("/examples/parseButFailCompile/badMethodAndFunctionUse");
+    super("/examples/parseButFailCompile/badMethodAndFunctionUse",
+        List.of("bad.programs.examples",
+            "bad.traits.examples",
+            "bad.classes.examples",
+            "bad.components.examples",
+            "bad.records.examples",
+            "bad.functions.examples",
+            "bad.dynamicclasses.examples"));
   }
 
   @Test
@@ -24,12 +32,5 @@ class BadMethodUseTest extends PhasesTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.programs.examples").isEmpty());
-    assertFalse(program.getParsedModules("bad.traits.examples").isEmpty());
-    assertFalse(program.getParsedModules("bad.classes.examples").isEmpty());
-    assertFalse(program.getParsedModules("bad.components.examples").isEmpty());
-    assertFalse(program.getParsedModules("bad.records.examples").isEmpty());
-    assertFalse(program.getParsedModules("bad.functions.examples").isEmpty());
-    assertFalse(program.getParsedModules("bad.dynamicclasses.examples").isEmpty());
   }
 }

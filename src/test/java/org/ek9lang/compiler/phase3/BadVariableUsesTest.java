@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
@@ -14,7 +15,8 @@ import org.junit.jupiter.api.Test;
 class BadVariableUsesTest extends PhasesTest {
 
   public BadVariableUsesTest() {
-    super("/examples/parseButFailCompile/badVariableUses");
+    super("/examples/parseButFailCompile/badVariableUses",
+        List.of("bad.blockvariable.uses", "bad.duplicateproperties.uses"));
   }
 
   @Test
@@ -25,7 +27,5 @@ class BadVariableUsesTest extends PhasesTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.blockvariable.uses").isEmpty());
-    assertFalse(program.getParsedModules("bad.duplicateproperties.uses").isEmpty());
   }
 }

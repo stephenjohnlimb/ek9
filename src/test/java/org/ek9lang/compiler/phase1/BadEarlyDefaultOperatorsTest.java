@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase1;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
@@ -13,7 +14,8 @@ import org.junit.jupiter.api.Test;
 class BadEarlyDefaultOperatorsTest extends PhasesTest {
 
   public BadEarlyDefaultOperatorsTest() {
-    super("/examples/parseButFailCompile/badDefaultUse");
+    super("/examples/parseButFailCompile/badDefaultUse",
+        List.of("earlybad.defaultoperators.examples"));
   }
 
   @Test
@@ -24,6 +26,5 @@ class BadEarlyDefaultOperatorsTest extends PhasesTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("earlybad.defaultoperators.examples").isEmpty());
   }
 }

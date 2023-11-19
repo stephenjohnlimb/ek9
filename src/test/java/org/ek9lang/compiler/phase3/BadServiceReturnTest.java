@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
@@ -13,7 +14,8 @@ import org.junit.jupiter.api.Test;
 class BadServiceReturnTest extends PhasesTest {
 
   public BadServiceReturnTest() {
-    super("/examples/parseButFailCompile/badServiceReturns");
+    super("/examples/parseButFailCompile/badServiceReturns",
+        List.of("bad.servicemethod.return"));
   }
 
   @Test
@@ -24,6 +26,5 @@ class BadServiceReturnTest extends PhasesTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.servicemethod.return").isEmpty());
   }
 }

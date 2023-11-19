@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
@@ -13,7 +14,8 @@ import org.junit.jupiter.api.Test;
 class BadRangeCollectionUsesTest extends PhasesTest {
 
   public BadRangeCollectionUsesTest() {
-    super("/examples/parseButFailCompile/badInExpressions");
+    super("/examples/parseButFailCompile/badInExpressions",
+        List.of("bad.range.collections"));
   }
 
   @Test
@@ -24,6 +26,5 @@ class BadRangeCollectionUsesTest extends PhasesTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.range.collections").isEmpty());
   }
 }

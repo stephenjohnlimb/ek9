@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase4;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
@@ -13,7 +14,12 @@ import org.junit.jupiter.api.Test;
 class BadGenericConstrainingSupersTest extends PhasesTest {
 
   public BadGenericConstrainingSupersTest() {
-    super("/examples/parseButFailCompile/badGenericSupersUse");
+    super("/examples/parseButFailCompile/badGenericSupersUse",
+        List.of("bad.constraining.supers",
+            "bad.generic.constraining.resolution1",
+            "bad.generic.constraining.resolution2",
+            "bad.generic.constraining.resolution3",
+            "bad.functiondelegate.byrecord"));
   }
 
   @Test
@@ -25,10 +31,5 @@ class BadGenericConstrainingSupersTest extends PhasesTest {
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.constraining.supers").isEmpty());
-    assertFalse(program.getParsedModules("bad.generic.constraining.resolution1").isEmpty());
-    assertFalse(program.getParsedModules("bad.generic.constraining.resolution2").isEmpty());
-    assertFalse(program.getParsedModules("bad.generic.constraining.resolution3").isEmpty());
-    assertFalse(program.getParsedModules("bad.functiondelegate.byrecord").isEmpty());
   }
 }

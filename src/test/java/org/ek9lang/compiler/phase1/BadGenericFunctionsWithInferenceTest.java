@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase1;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
@@ -13,7 +14,8 @@ import org.junit.jupiter.api.Test;
 class BadGenericFunctionsWithInferenceTest extends PhasesTest {
 
   public BadGenericFunctionsWithInferenceTest() {
-    super("/examples/parseButFailCompile/badGenericFunctions");
+    super("/examples/parseButFailCompile/badGenericFunctions",
+        List.of("bad.functions.inference.example"));
   }
 
   @Test
@@ -25,6 +27,5 @@ class BadGenericFunctionsWithInferenceTest extends PhasesTest {
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.functions.inference.example").isEmpty());
   }
 }

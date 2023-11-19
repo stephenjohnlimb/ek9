@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase2;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
@@ -14,7 +15,8 @@ class BadApplicationsAndComponentTest extends PhasesTest {
 
 
   public BadApplicationsAndComponentTest() {
-    super("/examples/parseButFailCompile/badApplicationsAndComponents");
+    super("/examples/parseButFailCompile/badApplicationsAndComponents",
+        List.of("bad.components.use"));
   }
 
   @Test
@@ -25,6 +27,5 @@ class BadApplicationsAndComponentTest extends PhasesTest {
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
-    assertFalse(program.getParsedModules("bad.components.use").isEmpty());
   }
 }
