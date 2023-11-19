@@ -25,5 +25,6 @@ class BadFunctionResolutionTest extends PhasesTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
     assertFalse(program.getParsedModules("bad.functions.resolution").isEmpty());
+    assertFalse(program.getParsedModules("auto.function.checks").isEmpty());
   }
 }

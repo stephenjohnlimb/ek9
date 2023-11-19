@@ -37,11 +37,6 @@ public class SymbolAndScopeManagement {
   private final ScopeStack scopeStack;
 
   /**
-   * Cached built in types, resolved early and held because they are used so frequently.
-   */
-  private final Ek9Types ek9Types;
-
-  /**
    * Create a new instance for symbol and scope management.
    * If these types are not resolved then OK with a big exception and stop processing (so suppress get warning).
    */
@@ -51,7 +46,6 @@ public class SymbolAndScopeManagement {
 
     this.parsedModule = parsedModule;
     this.scopeStack = scopeStack;
-    this.ek9Types = parsedModule.getEk9Types();
   }
 
   public ModuleScope getModuleScope() {
@@ -59,7 +53,7 @@ public class SymbolAndScopeManagement {
   }
 
   public Ek9Types getEk9Types() {
-    return ek9Types;
+    return parsedModule.getEk9Types();
   }
 
   /**

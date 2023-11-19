@@ -405,14 +405,14 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     f3.setName("f3");
     f3.setSuperFunction(Optional.of(superF));
     assertTrue(f3.getSuperFunction().isPresent());
-    assertEquals("Integer <- f3(arg1 as String) is superF", f3.getFriendlyName());
+    assertEquals("Integer <- f3(arg1 as String)", f3.getFriendlyName());
 
     //Now lets clone that and check it has the super function
     var f4 = f3.clone(symbolTable);
     assertNotNull(f4);
     f4.setName("f4");
     assertTrue(f4.getSuperFunction().isPresent());
-    assertEquals("Integer <- f4(arg1 as String) is superF", f4.getFriendlyName());
+    assertEquals("Integer <- f4(arg1 as String)", f4.getFriendlyName());
 
     //check itself and then its super
     assertTrue(f4.isImplementingInSomeWay(f4));

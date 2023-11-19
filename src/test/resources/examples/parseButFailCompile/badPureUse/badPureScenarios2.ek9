@@ -229,13 +229,13 @@ defines module bad.pure.scenarios2
       assert someHolderMaybeToBePassedAbout?
 
       //It does not have a super function so this should be an error, and you can't use super like this anywhere
-      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_SUPER
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_GENUS
       orIfItHadASuper <- super
 
-      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_SUPER
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_GENUS
       super.noSuchMethod(21)
 
-      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_SUPER
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_GENUS
       super :=: 22
 
       //What happens if make a call to self (this), well it's not allowed, use a delegate (see below).

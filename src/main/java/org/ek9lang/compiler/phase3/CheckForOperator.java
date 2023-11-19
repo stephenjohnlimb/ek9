@@ -13,7 +13,6 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
-import org.ek9lang.core.CompilerException;
 
 /**
  * To be used with operators on aggregates (except for the is-set ? operator, that has to deal with functions).
@@ -36,33 +35,35 @@ final class CheckForOperator extends TypedSymbolAccess implements Function<Check
     var symbol = checkOperatorData.symbol();
     checkInitialised.accept(symbol);
 
+    Optional<ISymbol> rtn = Optional.empty();
+
     //Get the underlying type or emit error and return false.
     //If the search is null it means that other errors would have been issued and no method lookup was possible.
     var symbolType = symbolTypeOrEmpty.apply(symbol);
-    if (symbolType.isEmpty() || checkOperatorData.search() == null) {
-      return Optional.empty();
-    }
-
-    if (symbolType.get() instanceof IAggregateSymbol aggregate) {
+    if (symbolType.isPresent() && checkOperatorData.search() != null
+        && symbolType.get() instanceof IAggregateSymbol aggregate) {
       var search = checkOperatorData.search();
       var results = aggregate.resolveMatchingMethods(search, new MethodSymbolSearchResult());
       var bestMatch = results.getSingleBestMatchSymbol();
-      if (bestMatch.isEmpty()) {
-        var location = locationExtractor.apply(aggregate);
-        var msg = "operator '" + search + "' is required on '"
-            + symbol.getFriendlyName() + "', type first established " + location + ":";
-
-        errorListener.semanticError(checkOperatorData.operatorUseToken(), msg,
-            ErrorListener.SemanticClassification.OPERATOR_NOT_DEFINED);
-        return Optional.empty();
+      if (bestMatch.isPresent()) {
+        var operator = bestMatch.get();
+        noteOperatorAccessedIfConceptualType(aggregate, operator);
+        //Now it depends where this operator is called and if it is pure or not.
+        checkPureAccess(checkOperatorData.operatorUseToken(), operator);
+        rtn = operator.getReturningSymbol().getType();
+      } else {
+        emitOperatorNotDefined(aggregate, checkOperatorData);
       }
-      var operator = bestMatch.get();
-      noteOperatorAccessedIfConceptualType(aggregate, operator);
-      //Now it depends where this operator is called and if it is pure or not.
-      checkPureAccess(checkOperatorData.operatorUseToken(), operator);
-      return operator.getReturningSymbol().getType();
     }
-    throw new CompilerException("Not expecting type to be " + symbolType);
+    return rtn;
+  }
+
+  private void emitOperatorNotDefined(final IAggregateSymbol aggregate, final CheckOperatorData checkOperatorData) {
+    var location = locationExtractor.apply(aggregate);
+    var msg = "operator '" + checkOperatorData.search() + "' is required on '"
+        + checkOperatorData.symbol().getFriendlyName() + "', type first established " + location + ":";
+    errorListener.semanticError(checkOperatorData.operatorUseToken(), msg,
+        ErrorListener.SemanticClassification.OPERATOR_NOT_DEFINED);
   }
 
   private void checkPureAccess(final IToken operatorUseToken, final MethodSymbol operator) {

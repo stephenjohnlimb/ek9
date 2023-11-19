@@ -204,6 +204,33 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     super.exitServiceDeclaration(ctx);
   }
 
+  /**
+   * IMPORTANT, because we automatically make supers of functions that meet specific signatures
+   * (where they don't have a super) it means that behind the scenes we alter a function to have a
+   * parameterised generic super function. But the initial (phase 3) creation does not fully populate
+   * all the types. (This is because we want to support inference in other areas).
+   * But it also means that the call to expand the arguments and types is done in two stages).
+   * Normally the second stage is done in the FULL_RESOLUTION when part of source that defines a parameterised
+   * type is processed again. But because these parameterised types are synthetically created it is important to
+   * expand them in on function entry. Because on exit there will be argument checks.
+   *
+   * @param ctx the parse tree
+   */
+  @Override
+  public void enterFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
+
+    var symbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+
+    symbol.getSuperFunction().ifPresent(theSuper -> {
+      if (theSuper.isParameterisedType()) {
+        theSuper.setMarkedPure(symbol.isMarkedPure());
+        symbolAndScopeManagement.resolveOrDefine(theSuper, errorListener);
+      }
+    });
+
+    super.enterFunctionDeclaration(ctx);
+  }
+
   @Override
   public void exitFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
     var symbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);

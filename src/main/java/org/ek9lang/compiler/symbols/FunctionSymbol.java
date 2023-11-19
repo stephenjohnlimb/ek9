@@ -182,11 +182,8 @@ public class FunctionSymbol extends PossibleGenericSymbol {
         getReturningSymbol() != null ? getReturningSymbol().getType() : Optional.empty();
     var mainName = getGenericType().isPresent() ? getGenericType().get().getName() : getName();
     var prefix = mainName.isEmpty() ? "dynamic function" : mainName;
-    var name =
-        doGetFriendlyName(prefix + getPrivateVariablesForDisplay(), returningSymbolType)
+    return doGetFriendlyName(prefix + getPrivateVariablesForDisplay(), returningSymbolType)
             + getAnyGenericParamsAsFriendlyNames();
-
-    return getSuperFunction().map(s -> name + " is " + s.getName()).orElse(name);
   }
 
 

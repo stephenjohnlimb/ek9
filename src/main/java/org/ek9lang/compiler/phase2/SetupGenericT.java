@@ -8,7 +8,6 @@ import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
-import org.ek9lang.core.CompilerException;
 
 /**
  * The Generic T used in parametric types will exist but won't have any methods on yet.
@@ -44,8 +43,6 @@ final class SetupGenericT implements Consumer<EK9Parser.ParameterisedDetailConte
         getConstrainingTypeOrError(ctx.typeDef())
             .ifPresent(constrainingType -> aggregateFactory.updateToConstrainBy(aggregateT, constrainingType));
       }
-    } else {
-      throw new CompilerException("Failed to get [" + ctx.Identifier().getText() + "] not expecting this [" + t + "]");
     }
   }
 

@@ -1,0 +1,277 @@
+#!ek9
+<?-
+
+  The main purpose of this test is to ensure that the EK9 compiler
+  can create super functions for Suppliers, Consumers, Predicates, Functions and Comparators.
+  The idea is that the semantics of the above are known and so the compiler will create
+  synthetic 'super functions' of a generic nature where the signatures match.
+
+-?>
+defines module auto.function.checks
+
+  defines function
+
+    <?-
+      A basic functions that extend a base.
+      This is just to check that that no matter where in the function super
+      hierarchy the 'Supplier' is created.
+    -?>
+    SomeBase() as abstract
+      <- rtn as String?
+
+    <?-
+      A concrete version of the above.
+      Will be used later to check that it is a 'Supplier of String'.
+      This is because it has a super of 'SomeBase' and that has a 'super function' added to it
+      by the EK9 compiler and that 'super function' is a 'Supplier of String'.
+
+      'ConcreteSupplier' => 'SomeBase' => 'Supplier of String'
+    -?>
+    ConcreteSupplier() is SomeBase
+      <- rtn <- "Stephen"
+
+    //Lots of functions that meet the different EK signatures in different ways.
+
+    CouldBeASupplier()
+      <- rtn <- "Steve"
+
+    CouldBeAPureSupplier() as pure
+      <- rtn <- "Steve"
+
+    CouldBeAConsumer()
+      -> arg0 as Integer
+      assert arg0?
+
+    CouldBeAPureConsumer() as pure
+      -> arg0 as Integer
+      assert arg0?
+
+    CouldBeABiConsumer()
+      ->
+        arg0 as Integer
+        arg1 as Date
+      assert arg0? and arg1?
+
+    CouldBeAPureBiConsumer() as pure
+      ->
+        arg0 as Integer
+        arg1 as Date
+      assert arg0? and arg1?
+
+    <?-
+      A unary operator must have same types in and returned and also must be pure.
+    -?>
+    CouldBeAUnaryOperator() as pure
+      -> arg0 as String
+      <- rtn as String: arg0.lowerCase()
+
+    <?-
+      While this has the same functionality as above, importantly it is not marked as pure.
+      For this reason it does not meet the requirements for being an EK9 unary operator.
+      It maybe that the ek9 developer actually needs this function to complete a range of actions that are not pure.
+      There is nothing wrong in that, but it is not semantically an EK9 UnaryOperator in that case.
+    -?>
+    CannotBeAUnaryOperator()
+      -> arg0 as String
+      <- rtn as String: arg0.lowerCase()
+
+    <?-
+      Single type in and different type (other than Boolean) in the return, and is marked pure. This is an EK9 Function.
+    -?>
+    CouldBeAFunction() as pure
+      -> arg0 as String
+      <- rtn as Integer: length arg0
+
+    <?-
+      As above but not pure and hence not an EK9 Function
+    -?>
+    CannotBeAFunction()
+      -> arg0 as String
+      <- rtn as Integer: length arg0
+
+    <?-
+      Single type in and Boolean type in the return, and is marked pure. This is an EK9 Predicate.
+    -?>
+    CouldBeAPredicate() as pure
+      -> arg0 as String
+      <- rtn as Boolean: arg0?
+
+    <?-
+      As above but not pure and hence not an EK9 Predicate
+    -?>
+    CannotBeAPredicate()
+      -> arg0 as String
+      <- rtn as Boolean: arg0?
+
+    <?-
+      Two arguments of same type in, Integer return and marked pure - this is a Comparator.
+    -?>
+    CouldBeAComparator() as pure
+      ->
+        arg0 as String
+        arg1 as String
+      <-
+        rtn as Integer: arg0 <=> arg1
+
+    <?-
+      As above but not pure and hence not an EK9 Comparator
+    -?>
+    CannotBeAComparator()
+      ->
+        arg0 as String
+        arg1 as String
+      <-
+        rtn as Integer: arg0 <=> arg1
+
+    <?-
+      Two arguments in, Any type. Return Boolean and marked pure - this is a BiPredicate.
+    -?>
+    CouldBeABiPredicate() as pure
+      ->
+        arg0 as String
+        arg1 as Integer
+      <-
+        rtn as Boolean: length arg0 > arg1
+
+    <?-
+      As above but not pure and hence not an EK9 BiPredicate
+    -?>
+    CannotBeABiPredicate()
+      ->
+        arg0 as String
+        arg1 as Integer
+      <-
+        rtn as Boolean: length arg0 > arg1
+
+    <?-
+      Two arguments in, Any type. Return (other than Boolean or Integer) and marked pure - this is a BiFunction.
+    -?>
+    CouldBeABiFunction() as pure
+      ->
+        arg0 as String
+        arg1 as Integer
+      <-
+        rtn as String: arg0 + $arg1
+
+    <?-
+      As above but not pure and hence not an EK9 BiFunction
+    -?>
+    CannotBeABiFunction()
+      ->
+        arg0 as String
+        arg1 as Integer
+      <-
+        rtn as String: arg0 + $arg1
+
+    <?-
+      Now some functions that are used to ensure we have actually
+      extended (behind the scenes).
+      So these are used later in the driver functions, this checks that the right/wrong types are detected.
+    -?>
+    CheckSupplierOfString()
+      -> arg0 as Supplier of String
+      assert arg0?
+
+    CheckConsumerOfInteger()
+      -> arg0 as Consumer of Integer
+      assert arg0?
+
+    CheckBiConsumerOfIntegerAndDate()
+      -> arg0 as BiConsumer of (Integer, Date)
+      assert arg0?
+
+    CheckUnaryOperatorOfString()
+      -> arg0 as UnaryOperator of String
+      assert arg0?
+
+    CheckFunctionOfStringInteger()
+      -> arg0 as Function of (String, Integer)
+      assert arg0?
+
+    CheckPredicateOfString()
+      -> arg0 as Predicate of String
+      assert arg0?
+
+    CheckComparatorOfString()
+      -> arg0 as Comparator of String
+      assert arg0?
+
+    CheckBiFunctionOfStringIntegerString()
+      -> arg0 as BiFunction of (String, Integer, String)
+      assert arg0?
+
+    CheckBiPredicateOfStringInteger()
+      -> arg0 as BiPredicate of (String, Integer)
+      assert arg0?
+
+    //Now the drivers that use the 'Checker' functions with the various functions.
+    //This is to ensure that the right types have been added (or not added as the case maybe)
+
+    <?-
+      Checks Supplier, Consumer and BiConsumer.
+    -?>
+    TestSuppliersAndConsumers()
+      CheckSupplierOfString(CouldBeASupplier)
+      CheckSupplierOfString(CouldBeAPureSupplier)
+
+      //Specifically check this as it has an abstract super and the super of that should be a Supplier.
+      CheckSupplierOfString(ConcreteSupplier)
+
+      CheckConsumerOfInteger(CouldBeAConsumer)
+      CheckConsumerOfInteger(CouldBeAPureConsumer)
+
+      CheckBiConsumerOfIntegerAndDate(CouldBeABiConsumer)
+      CheckBiConsumerOfIntegerAndDate(CouldBeAPureBiConsumer)
+
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckSupplierOfString(CouldBeAConsumer)
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckSupplierOfString(CouldBeAConsumer)
+
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckConsumerOfInteger(CouldBeASupplier)
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckConsumerOfInteger(CouldBeAPureSupplier)
+
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckConsumerOfInteger(CouldBeABiConsumer)
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckConsumerOfInteger(CouldBeAPureBiConsumer)
+
+    <?-
+      Checks the UnaryOperator, Function, Predicate and Comparator.
+      This includes the 'Bi' versions of Predicate and Function.
+    -?>
+    CheckUnaryFunctionAndPredicate()
+      CheckUnaryOperatorOfString(CouldBeAUnaryOperator)
+
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckUnaryOperatorOfString(CannotBeAUnaryOperator)
+
+      CheckFunctionOfStringInteger(CouldBeAFunction)
+
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckFunctionOfStringInteger(CannotBeAFunction)
+
+      CheckPredicateOfString(CouldBeAPredicate)
+
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckPredicateOfString(CannotBeAPredicate)
+
+      CheckComparatorOfString(CouldBeAComparator)
+
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckComparatorOfString(CannotBeAComparator)
+
+      CheckBiFunctionOfStringIntegerString(CouldBeABiFunction)
+
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckBiFunctionOfStringIntegerString(CannotBeABiFunction)
+
+      CheckBiPredicateOfStringInteger(CouldBeABiPredicate)
+
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckBiPredicateOfStringInteger(CannotBeABiPredicate)
+
+//EOF
+

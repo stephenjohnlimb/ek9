@@ -23,7 +23,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 80;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 82;
 
   //Obviously with ek9 the indentation is important.
   @SuppressWarnings({"Indentation"})
@@ -2135,6 +2135,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             -> t as T
             <- r as R?
 
+          BiFunction of type (T, U, R) as pure abstract
+            ->
+              t as T
+              u as U
+            <- r as R?
+          
           Predicate of type T as pure abstract
             -> t as T
             <- r as Boolean?

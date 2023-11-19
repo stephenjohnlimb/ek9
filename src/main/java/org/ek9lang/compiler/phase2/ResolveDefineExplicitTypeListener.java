@@ -63,6 +63,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final SymbolAndScopeManagement symbolAndScopeManagement;
   private final ResolveOrDefineIdentifierReference resolveOrDefineIdentifierReference;
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
+  private final SynthesizeSuperFunction synthesizeSuperFunction;
   private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
   private final CheckOperator checkOperator;
   private final SetupGenericT setupGenericT;
@@ -87,8 +88,10 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final AggregateFactory aggregateFactory;
   private final Ek9Types ek9Types;
 
+
   /**
-   * Still in def phase 1 - but second pass to try and resolve types due to declaration ordering.
+   * Still defining some stuff here, but also resolving where possible.
+   * This second pass to try and resolve types due to declaration ordering.
    */
   ResolveDefineExplicitTypeListener(ParsedModule parsedModule) {
     //At construction the ScopeStack will push the module scope on to the stack.
@@ -113,6 +116,8 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
         new ResolveOrDefineIdentifierReference(symbolAndScopeManagement, symbolFactory, errorListener, false);
     this.resolveOrDefineTypeDef =
         new ResolveOrDefineTypeDef(symbolAndScopeManagement, symbolFactory, errorListener, true);
+    this.synthesizeSuperFunction =
+        new SynthesizeSuperFunction(symbolAndScopeManagement, symbolFactory, errorListener);
     this.checkOperator =
         new CheckOperator(symbolAndScopeManagement, errorListener);
     this.setupGenericT =
@@ -159,7 +164,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
       aggregateFactory.addSyntheticConstructorIfRequired(aggregateSymbol);
       aggregateFactory.addConstructor(aggregateSymbol, new VariableSymbol("arg", aggregateSymbol));
       if (ctx.typeDef() == null) {
-        //For enumerations we allow creation via String.
+        //For an enumeration we allow creation via String.
         aggregateFactory.addConstructor(aggregateSymbol, new VariableSymbol("arg", ek9Types.ek9String()));
       } else {
         var theContainedType = symbolAndScopeManagement.getRecordedSymbol(ctx.typeDef());
@@ -191,6 +196,8 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     if (ctx.identifierReference() != null) {
       var resolved = checkFunctionSuitableToExtend.apply(ctx.identifierReference());
       resolved.ifPresent(theSuper -> symbol.setSuperFunction((FunctionSymbol) theSuper));
+    } else if (!symbol.isGenericInNature()) {
+      synthesizeSuperFunction.accept(symbol);
     }
     symbolAndScopeManagement.exitScope();
     super.exitFunctionDeclaration(ctx);
@@ -571,8 +578,6 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
    * Now at this point even parametric polymorphic types should be resolved.
    * Not by inference, but in explicit form. Which is all we need to populate the 'T'
    * in the case of them being constrained.
-   * TODO need to move this into Function and Class exit Declarations so any constraint type can be checked.
-   * TODO consider checking in next phase across all Parameterized types because there is a cascade.
    */
   @Override
   public void exitParameterisedDetail(EK9Parser.ParameterisedDetailContext ctx) {

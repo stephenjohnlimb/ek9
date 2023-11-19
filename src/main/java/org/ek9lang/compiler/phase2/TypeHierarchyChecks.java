@@ -24,7 +24,7 @@ import org.ek9lang.core.SharedThreadContext;
  * This is a bit nasty, basically there is a need to follow supers all the way back.
  * For aggregates this is just 'getSuperAggregateSymbol' for functions 'getSuperFunctionSymbol'.
  * But for traits - you need to get all its traits.
- * But note that it is important not to flip between an aggregate hierarchy and a trait one.
+ * But note that it is important to flip between an aggregate hierarchy and a trait one.
  */
 public final class TypeHierarchyChecks extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.TYPE_HIERARCHY_CHECKS;

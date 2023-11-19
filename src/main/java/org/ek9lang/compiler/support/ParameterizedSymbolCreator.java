@@ -10,7 +10,7 @@ import org.ek9lang.core.AssertValue;
 
 /**
  * This will just create a Aggregate/Function 'parameterized type' of the 'generic type' with the 'type arguments'
- * But note it will have not - repeat not have - traversed the 'generic type' and cloned over the methods and
+ * But note it will have not - repeat NOT have - traversed the 'generic type' and cloned over the methods and
  * altered all the 'T', 'K', 'V' - 'type parameters' for each of the 'type arguments'
  * There is a separate function (TypeSubstitution) that does that.
  * This is because the timing of when to do that is important.
