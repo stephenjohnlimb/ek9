@@ -102,13 +102,13 @@ class ExamplesGenericsUse1Test extends PhasesTest {
     var functionChecker = new GenericsSymbolCheck(program, EK9_LANG, true, ISymbol.SymbolCategory.FUNCTION);
     functionChecker.accept(new SymbolSearchConfiguration("Supplier", mapFunction.apply(List.of("Integer"))));
 
-    var numberOfAdditionalSymbols = 9;
+    var numberOfAdditionalSymbols = 10;
     new SymbolCountCheck(EK9_LANG, NUMBER_OF_EK9_SYMBOLS + numberOfAdditionalSymbols).test(program);
   }
 
   private void assertSimpleGenerics(final CompilableProgram program) {
     //See @ directive check in EK9 source.
-    new SymbolCountCheck(2, "simple.generics.use.one", 6).test(program);
+    new SymbolCountCheck(2, "simple.generics.use.one", 7).test(program);
   }
 
   private void assertFSMGenerics(final CompilableProgram program) {

@@ -2525,14 +2525,20 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator -=
               -> arg as Dict of (K, V)
                 
-          Iterator of type T as open
+          Iterator of type T as abstract
             Iterator() as pure
             
             Iterator() as pure
               -> arg0 as T
 
-            operator ? as pure
+            hasNext() as pure abstract
               <- rtn as Boolean?
+              
+            next() as abstract
+              <- rtn as T?
+              
+            operator ? as pure
+              <- rtn as Boolean: hasNext()
 
       """;
   @SuppressWarnings({"Indentation"})

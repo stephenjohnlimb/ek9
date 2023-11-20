@@ -15,8 +15,8 @@ defines module simple.generics.use.one
       assert param1?
 
     ADictionary()
-      @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "Iterator of (Integer)"
-      <- rtn as Iterator of Integer: Iterator()
+      @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of (Integer)"
+      <- rtn as List of Integer: List()
 
       @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "Dict of (Integer, String)"
       aDictionary as Dict of (Integer, String): Dict()
@@ -25,6 +25,19 @@ defines module simple.generics.use.one
       newEntry as DictEntry of (Integer, String): DictEntry(1, "Steve")
       aDictionary += newEntry
 
+      <?-
+        Obviously not a very useful iterator, just looking to ensure Iterator of Integer is defined and can be resolved.
+      -?>
+      @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "Iterator of (Integer)"
+      anIterator <- () is Iterator of Integer as class
+        value <- Integer()
+        override hasNext() as pure
+          <- rtn as Boolean: value?
+
+        override next()
+          <- rtn as Integer: value
+
+      assert anIterator?
       assert aDictionary?
 
 //EOF
