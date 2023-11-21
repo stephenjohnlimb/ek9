@@ -33,6 +33,7 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final CheckPipelinePart checkPipelinePart;
   private final ProcessObjectAccessStartOrError processObjectAccessStartOrError;
   private final ProcessObjectAccessExpressionOrError processObjectAccessExpressionOrError;
+  private final ProcessGuardExpression processGuardExpression;
 
   protected ExpressionsListener(ParsedModule parsedModule) {
     super(parsedModule);
@@ -76,6 +77,7 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
     this.processObjectAccessStartOrError = new ProcessObjectAccessStartOrError(symbolAndScopeManagement, errorListener);
     this.processObjectAccessExpressionOrError =
         new ProcessObjectAccessExpressionOrError(symbolAndScopeManagement, errorListener);
+    this.processGuardExpression = new ProcessGuardExpression(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -152,6 +154,12 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   public void exitAssignmentExpression(EK9Parser.AssignmentExpressionContext ctx) {
     processAssignmentExpression.accept(ctx);
     super.exitAssignmentExpression(ctx);
+  }
+
+  @Override
+  public void exitGuardExpression(EK9Parser.GuardExpressionContext ctx) {
+    processGuardExpression.accept(ctx);
+    super.exitGuardExpression(ctx);
   }
 
   @Override

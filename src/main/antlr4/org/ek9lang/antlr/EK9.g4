@@ -375,6 +375,7 @@ assignmentStatement
 
 assignmentExpression
     : expression
+    | guardExpression
     | switchStatementExpression
     | tryStatementExpression
     | dynamicClassDeclaration
@@ -465,7 +466,7 @@ preFlowStatement
     ;
 
 guardExpression
-    : identifier GUARD expression
+    : identifier op=GUARD expression
     ;
 
 stream

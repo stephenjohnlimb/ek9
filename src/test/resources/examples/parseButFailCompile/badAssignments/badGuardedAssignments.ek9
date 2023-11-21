@@ -1,0 +1,50 @@
+#!ek9
+<?-
+  So what is a guard expression.
+  Well first don't confuse ':=?' with '?='
+  There are question marks and equal signs involved they both deal with 'is-set'.
+  The key difference is:
+  someValue :=? 66 // means that if someValue is currently unset then assign it the value of 66
+  result <- someValue ?= Integer() // means that if the act of assigning someValue to a value (integer in this case)
+  means that someValue is unset then set result to false, otherwise set it to true.
+-?>
+defines module bad.guardassignment.use
+
+  defines function
+
+    CheckGuardExpression()
+      var as Integer?
+
+      didGetSet <- var ?= 45
+      assert didGetSet? and var?
+
+    GuardWithIncorrectType()
+      var as Integer?
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      didGetSet <- var ?= "Steve"
+      assert didGetSet? and var?
+
+    GuardWithUnsetValue()
+      var as Integer?
+      @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+      var2 as Integer?
+
+      @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
+      didGetSet <- var ?= var2
+      assert didGetSet? and var?
+
+    GuardWithUnResolved()
+      @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+      var as Integer?
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      didGetSet <- var ?= expectNotResolved
+      @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
+      assert didGetSet? and var?
+
+    Broken()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert Nothing
+//EOF
+

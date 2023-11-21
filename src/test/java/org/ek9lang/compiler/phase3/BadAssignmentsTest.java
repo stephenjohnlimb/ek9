@@ -15,7 +15,8 @@ class BadAssignmentsTest extends PhasesTest {
 
   public BadAssignmentsTest() {
     super("/examples/parseButFailCompile/badAssignments",
-        List.of("bad.assignment.use", "bad.assignments.classes", "bad.coalescing.assignments"));
+        List.of("bad.assignment.use", "bad.assignments.classes",
+            "bad.coalescing.assignments", "bad.guardassignment.use"));
   }
 
   @Test

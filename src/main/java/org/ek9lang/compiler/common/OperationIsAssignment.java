@@ -13,6 +13,7 @@ public class OperationIsAssignment implements Predicate<IToken> {
     return op.getType() == EK9Parser.ASSIGN
         || op.getType() == EK9Parser.ASSIGN2
         || op.getType() == EK9Parser.COLON
-        || op.getType() == EK9Parser.ASSIGN_UNSET;
+        || op.getType() == EK9Parser.ASSIGN_UNSET
+        || op.getType() == EK9Parser.GUARD;
   }
 }

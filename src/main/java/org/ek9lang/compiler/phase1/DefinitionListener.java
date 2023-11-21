@@ -20,6 +20,7 @@ import static org.ek9lang.compiler.support.AggregateFactory.EK9_TIME;
 import static org.ek9lang.compiler.support.AggregateFactory.EK9_VERSION;
 import static org.ek9lang.compiler.support.AggregateFactory.EK9_VOID;
 
+import java.util.Optional;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -975,6 +976,34 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
         symbolAndScopeManagement.recordSymbol(field, ctx);
       }
     }
+  }
+
+  /**
+   * <pre>
+   *   preFlowStatement
+   *     : (variableDeclaration | assignmentStatement | guardExpression) (WITH|THEN)
+   *     ;
+   * </pre>
+   * The declarations and assignments are always true, but the guard may result in an 'un-set' value.
+   * In that case the result would be false. But in all cases just a boolean.
+   */
+  @Override
+  public void exitPreFlowStatement(EK9Parser.PreFlowStatementContext ctx) {
+    //This always results in a boolean.
+    var expr = symbolFactory.newExpressionSymbol(new Ek9Token(ctx.start), ctx.getText(),
+        Optional.of(symbolAndScopeManagement.getEk9Types().ek9Boolean()));
+    symbolAndScopeManagement.recordSymbol(expr, ctx);
+    super.exitPreFlowStatement(ctx);
+  }
+
+  @Override
+  public void exitGuardExpression(EK9Parser.GuardExpressionContext ctx) {
+    //Checkin of the types in the guard assignment is done later - but this results in
+    //and expression with a boolean return type.
+    var expr = symbolFactory.newExpressionSymbol(new Ek9Token(ctx.start), ctx.getText(),
+        Optional.of(symbolAndScopeManagement.getEk9Types().ek9Boolean()));
+    symbolAndScopeManagement.recordSymbol(expr, ctx);
+    super.exitGuardExpression(ctx);
   }
 
   @Override
