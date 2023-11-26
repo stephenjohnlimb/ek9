@@ -126,7 +126,7 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
   public EK9Parser.CompilationUnitContext getCompilationUnitContext() {
     if (hasNotBeenSuccessfullyParsed()) {
       throw new CompilerException(
-          "Need to call prepareToParse before accessing compilation unit");
+          "Need to call prepareToParse before accessing compilation unit for [" + filename + "]");
     }
     return compilationUnitContext;
   }

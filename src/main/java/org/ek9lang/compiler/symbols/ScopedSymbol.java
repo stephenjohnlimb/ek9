@@ -162,8 +162,9 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   public void define(ISymbol symbol) {
     actualScope.define(symbol);
   }
-
-  protected IScope getEnclosingScope() {
+  
+  @Override
+  public IScope getEnclosingScope() {
     return actualScope.getEnclosingScope();
   }
 

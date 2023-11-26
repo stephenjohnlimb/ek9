@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.phase1;
 
+import static org.ek9lang.compiler.support.SymbolFactory.UNINITIALISED_AT_DECLARATION;
+
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
@@ -32,15 +34,15 @@ final class CheckVariableOnlyDeclaration implements
       checkReturningParam(ctx, variableSymbol);
     } else {
       checkBlockAndAggregateProperty(ctx, variableSymbol);
+      if (!variableSymbol.isPropertyField() && ctx.QUESTION() != null) {
+        //Make a note that this variable was not initialed when it was declared.
+        variableSymbol.putSquirrelledData(UNINITIALISED_AT_DECLARATION, "TRUE");
+      }
     }
   }
 
   private void checkBlockAndAggregateProperty(final EK9Parser.VariableOnlyDeclarationContext ctx,
                                               VariableSymbol variableSymbol) {
-
-    if (ctx.getParent() instanceof EK9Parser.AggregatePropertyContext) {
-      variableSymbol.setAggregatePropertyField(true);
-    }
 
     //So for aggregateProperty and Block statements
     if (ctx.webVariableCorrelation() != null) {
@@ -54,6 +56,11 @@ final class CheckVariableOnlyDeclaration implements
       errorListener.semanticError(ctx.start, "variable",
           ErrorListener.SemanticClassification.NOT_INITIALISED_IN_ANY_WAY);
     }
+
+    if (ctx.getParent() instanceof EK9Parser.AggregatePropertyContext) {
+      variableSymbol.setAggregatePropertyField(true);
+    }
+
     if (ctx.BANG() != null) {
       //Then it is to be injected to mark as initialised = by self through injection
       variableSymbol.setInitialisedBy(new Ek9Token(ctx.start));

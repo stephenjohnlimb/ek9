@@ -19,6 +19,8 @@ public interface IScope extends Serializable {
 
   String getScopeName();
 
+  IScope getEnclosingScope();
+
   /**
    * Useful for printing out errors and information.
    * The scope name might be a complex generated name used internally a bit like symbol names are.

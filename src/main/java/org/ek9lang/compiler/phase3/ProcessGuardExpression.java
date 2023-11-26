@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
-import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 
@@ -41,18 +41,21 @@ final class ProcessGuardExpression extends TypedSymbolAccess
       return;
     }
     if (ctx.identifier() != null) {
-      checkByIdentifier(ctx, expressionSymbol);
+      var data = new TypeCompatibilityData(new Ek9Token(ctx.op),
+          processIdentifierOrError.apply(ctx.identifier()), expressionSymbol);
+      processByIdentifier(data);
     } else {
       AssertValue.fail("Expecting finite set of operations on assignment " + ctx.start.getLine());
     }
   }
 
-  private void checkByIdentifier(final EK9Parser.GuardExpressionContext ctx, final ISymbol expressionSymbol) {
-    var identifier = processIdentifierOrError.apply(ctx.identifier());
-    if (identifier != null) {
-      var data = new AssignmentData(false,
-          new TypeCompatibilityData(new Ek9Token(ctx.op), identifier, expressionSymbol));
-
+  private void processByIdentifier(final TypeCompatibilityData typeData) {
+    if (typeData.lhs() != null) {
+      var data = new AssignmentData(false, typeData);
+      //Make a note that an assignment has taken place
+      if (typeData.lhs() instanceof VariableSymbol variable) {
+        symbolAndScopeManagement.recordAssignmentToIdentifierSymbol(typeData.location(), variable);
+      }
       processIdentifierAssignment.accept(data);
     }
   }

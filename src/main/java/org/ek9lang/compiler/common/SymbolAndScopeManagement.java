@@ -12,6 +12,8 @@ import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.ModuleScope;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbols.StackConsistencyScope;
+import org.ek9lang.compiler.symbols.VariableSymbol;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -31,6 +33,8 @@ import org.ek9lang.core.AssertValue;
  * All would be lost! - But for the fact that the scope was registered against a ParseTree node in the
  * ParsedModule. Hence, it lives on - with all the sub scopes and symbols.
  * This information in the ParsedModule will be enriched further in additional and different passes.
+ * <br/>
+ * Now also uses a transient stack to assess whether variables in instruction blocks has been initialised.
  */
 public class SymbolAndScopeManagement {
   private final ParsedModule parsedModule;
@@ -54,6 +58,10 @@ public class SymbolAndScopeManagement {
 
   public Ek9Types getEk9Types() {
     return parsedModule.getEk9Types();
+  }
+
+  public void recordAssignmentToIdentifierSymbol(final IToken assignmentOp, final VariableSymbol identifierSymbol) {
+    //TODO
   }
 
   /**

@@ -113,6 +113,11 @@ public class SymbolTable implements IScope {
   }
 
   @Override
+  public IScope getEnclosingScope() {
+    return null;
+  }
+
+  @Override
   public String getFriendlyScopeName() {
     return getScopeName();
   }

@@ -18,6 +18,7 @@ public enum CompilationPhase {
   TYPE_HIERARCHY_CHECKS("Type Hierarchy Checking"),
   FULL_RESOLUTION("Third Pass to Define and Resolve Inferred Types and Template Types"),
   POST_RESOLUTION_CHECKS("Forth Pass to Check Symbols and Template Types"),
+  PRE_IR_CHECKS("Fifth Pass to Check Code Flow"),
   PLUGIN_RESOLUTION("Resolving Plugin Points"),
   SIMPLE_IR_GENERATION("Generating IR for Simple Constructs"),
   PROGRAM_IR_CONFIGURATION("Add IR to compilable program"),

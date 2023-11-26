@@ -86,6 +86,7 @@ public class LocalScope extends SymbolTable {
     this.scopeType = scopeType;
   }
 
+  @Override
   public IScope getEnclosingScope() {
     return enclosingScope;
   }

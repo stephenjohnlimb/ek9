@@ -7,7 +7,7 @@ import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
- * Checks that variable only and variable declarations have symbols that have been referenced/initialised.
+ * Checks that variable only and variable declarations have symbols that have been referenced.
  * This is a bit like 'golang', it is considered an error if accessed before initialising or if not used.
  * There are a couple of exceptions around 'injection' as that can only really be detected at runtime (hence avoid).
  */

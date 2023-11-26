@@ -18,7 +18,6 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
     implements Consumer<EK9Parser.AssignmentStatementContext> {
   private final SymbolFromContextOrError symbolFromContextOrError;
   private final ProcessIdentifierOrError processIdentifierOrError;
-
   private final CheckLhsAndRhsAssignment checkLeftAndRight;
   private final ProcessIdentifierAssignment processIdentifierAssignment;
 
@@ -51,17 +50,18 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
       return;
     }
     if (ctx.primaryReference() != null) {
-      checkByPrimaryReference(ctx, expressionSymbol);
+      processByPrimaryReference(ctx, expressionSymbol);
     } else if (ctx.identifier() != null) {
-      checkByIdentifier(ctx, expressionSymbol);
+      processByIdentifier(ctx, expressionSymbol);
     } else if (ctx.objectAccessExpression() != null) {
-      checkByObjectAccessExpression(ctx, expressionSymbol);
+      processByObjectAccessExpression(ctx, expressionSymbol);
     } else {
       AssertValue.fail("Expecting finite set of operations on assignment " + ctx.start.getLine());
     }
   }
 
-  private void checkByPrimaryReference(final EK9Parser.AssignmentStatementContext ctx, final ISymbol expressionSymbol) {
+  private void processByPrimaryReference(final EK9Parser.AssignmentStatementContext ctx,
+                                         final ISymbol expressionSymbol) {
     var primaryReferenceExpressionSymbol = symbolFromContextOrError.apply(ctx.primaryReference());
     if (primaryReferenceExpressionSymbol != null) {
       var isAssigningToThis = ctx.primaryReference().THIS() != null;
@@ -72,23 +72,22 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
     }
   }
 
-  private void checkByIdentifier(final EK9Parser.AssignmentStatementContext ctx, final ISymbol expressionSymbol) {
+  private void processByIdentifier(final EK9Parser.AssignmentStatementContext ctx, final ISymbol expressionSymbol) {
     var identifier = processIdentifierOrError.apply(ctx.identifier());
     if (identifier != null) {
-      var data = new AssignmentData(false,
-          new TypeCompatibilityData(new Ek9Token(ctx.op), identifier, expressionSymbol));
-
+      var op = new Ek9Token(ctx.op);
+      var typeData = new TypeCompatibilityData(op, identifier, expressionSymbol);
+      var data = new AssignmentData(false, typeData);
       processIdentifierAssignment.accept(data);
     }
   }
 
-  private void checkByObjectAccessExpression(final EK9Parser.AssignmentStatementContext ctx,
-                                             final ISymbol expressionSymbol) {
+  private void processByObjectAccessExpression(final EK9Parser.AssignmentStatementContext ctx,
+                                               final ISymbol expressionSymbol) {
     var objectAccessExpressionSymbol = symbolFromContextOrError.apply(ctx.objectAccessExpression());
     if (objectAccessExpressionSymbol != null) {
-      var data =
-          new AssignmentData(false,
-              new TypeCompatibilityData(new Ek9Token(ctx.op), objectAccessExpressionSymbol, expressionSymbol));
+      var data = new AssignmentData(false,
+          new TypeCompatibilityData(new Ek9Token(ctx.op), objectAccessExpressionSymbol, expressionSymbol));
       checkLeftAndRight.accept(data);
     }
   }

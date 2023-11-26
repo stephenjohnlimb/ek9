@@ -505,8 +505,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterIfStatement(EK9Parser.IfStatementContext ctx) {
     IScope outerScope = symbolAndScopeManagement.getTopScope();
-    var catchScope = new LocalScope("If-line-" + ctx.start.getTokenSource().getLine(), outerScope);
-    symbolAndScopeManagement.enterNewScope(catchScope, ctx);
+    var ifScope = new LocalScope("If-line-" + ctx.start.getLine(), outerScope);
+    symbolAndScopeManagement.enterNewScope(ifScope, ctx);
     checkNotABooleanLiteral.accept(ctx.control);
     super.enterIfStatement(ctx);
   }

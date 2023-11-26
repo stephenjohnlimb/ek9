@@ -65,6 +65,7 @@ import org.ek9lang.core.UniqueIdGenerator;
  */
 public class SymbolFactory {
 
+  public static final String UNINITIALISED_AT_DECLARATION = "UNINITIALISED";
   public static final String SUBSTITUTED = "SUBSTITUTED";
   public static final String ACCESSED = "ACCESSED";
   public static final String DEFAULTED = "DEFAULTED";
