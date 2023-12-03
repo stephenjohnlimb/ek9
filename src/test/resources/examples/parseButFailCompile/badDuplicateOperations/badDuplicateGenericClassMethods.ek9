@@ -1,7 +1,6 @@
 #!ek9
 <?-
   Now looking to support method overloading on generic types.
-  TODO add in tests that will fail.
 -?>
 defines module bad.duplicate.genericclassmethods
 

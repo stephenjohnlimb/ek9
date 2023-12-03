@@ -23,9 +23,7 @@ final class CheckInstructionBlockVariables extends TypedSymbolAccess
                                  final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
 
-    final var checkInitialised = new CheckInitialised(symbolAndScopeManagement, errorListener);
-    final var checkReferenced = new CheckReferenced(symbolAndScopeManagement, errorListener);
-    this.symbolCheck = checkReferenced.andThen(checkInitialised);
+    this.symbolCheck = new CheckReferenced(symbolAndScopeManagement, errorListener);
   }
 
   @Override

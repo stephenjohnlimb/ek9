@@ -6,6 +6,9 @@
   The idea is that the semantics of the above are known and so the compiler will create
   synthetic 'super functions' of a generic nature where the signatures match.
 
+  Now Suppliers/Consumers and BiConsumers are pure by default. So only pure functions that meet
+  the semantics will have those generic function types auto applied as supers.
+
 -?>
 defines module auto.function.checks
 
@@ -31,6 +34,7 @@ defines module auto.function.checks
       <- rtn <- "Stephen"
 
     //Lots of functions that meet the different EK signatures in different ways.
+    //But note that only those that are pure get the auto appropriate super applied.
 
     CouldBeASupplier()
       <- rtn <- "Steve"
@@ -211,15 +215,19 @@ defines module auto.function.checks
       Checks Supplier, Consumer and BiConsumer.
     -?>
     TestSuppliersAndConsumers()
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
       CheckSupplierOfString(CouldBeASupplier)
       CheckSupplierOfString(CouldBeAPureSupplier)
 
       //Specifically check this as it has an abstract super and the super of that should be a Supplier.
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
       CheckSupplierOfString(ConcreteSupplier)
 
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
       CheckConsumerOfInteger(CouldBeAConsumer)
       CheckConsumerOfInteger(CouldBeAPureConsumer)
 
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
       CheckBiConsumerOfIntegerAndDate(CouldBeABiConsumer)
       CheckBiConsumerOfIntegerAndDate(CouldBeAPureBiConsumer)
 

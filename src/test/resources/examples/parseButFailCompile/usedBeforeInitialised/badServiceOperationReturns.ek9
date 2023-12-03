@@ -1,0 +1,51 @@
+#!ek9
+<?-
+  Checks the return as part of a service declaration.
+-?>
+defines module bad.serviceoperation.return
+
+
+
+  defines function
+    Broken()
+      var as Integer?
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      var :=: 6
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert var?
+
+  defines service
+
+    BasicService :/basic
+      index() as GET for :/index.html
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- response as HTTPResponse?
+        justForABody <- 1
+        assert justForABody?
+
+      details() as GET for :/details.html
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- response as HTTPResponse?
+
+        justForABody as Integer?
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        assert justForABody?
+
+      nearlyWorking() as GET for :/almost.html
+        <- response as HTTPResponse?
+        response: () with trait HTTPResponse
+
+        justForABody as Integer?
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        assert justForABody?
+
+      working1() as GET for :/working1.html
+        <- response as HTTPResponse?
+        response: () with trait HTTPResponse
+
+      working2() as GET for :/working2.html
+        <- response as HTTPResponse: () with trait HTTPResponse
+
+//EOF
+

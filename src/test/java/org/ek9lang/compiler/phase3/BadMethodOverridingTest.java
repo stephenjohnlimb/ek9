@@ -16,7 +16,6 @@ class BadMethodOverridingTest extends PhasesTest {
   public BadMethodOverridingTest() {
     super("/examples/parseButFailCompile/badOverridingMethodsAndFunctions",
         List.of("bad.overriding.componentmethods1",
-            "bad.overriding.componentmethods2",
             "bad.overriding.classmethods1",
             "bad.overriding.classmethods2",
             "bad.overriding.classmethods3",

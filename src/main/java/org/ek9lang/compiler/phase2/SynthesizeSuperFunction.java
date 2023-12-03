@@ -20,7 +20,7 @@ import org.ek9lang.core.CompilerException;
  * i.e. is it really a Supplier of T and Consumer of T, etc.
  * <br/>
  * The reason for this, is that it enables just functions to be defined but then accept them via their
- * generic function signature. Less coding for the EK9 developer.
+ * generic function signature. Less coding for the EK9 developer. But all function style templates are 'pure'.
  */
 final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
   private final SymbolAndScopeManagement symbolAndScopeManagement;
@@ -39,13 +39,9 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
   public void accept(FunctionSymbol function) {
 
     //Should not really get called if already has a super.
-    if (function.getSuperFunction().isEmpty() && checkParametersHaveTypes(function)) {
-      //These can apply irrespective of purity.
+    if (function.getSuperFunction().isEmpty() && checkParametersHaveTypes(function) && function.isMarkedPure()) {
       trySuppliersAndConsumers(function);
-      //Now the super function may have been set, so check and if marked pure then see if these match
-      if (function.getSuperFunction().isEmpty() && function.isMarkedPure()) {
-        tryPredicatesAndFunctions(function);
-      }
+      tryPredicatesAndFunctions(function);
     }
 
   }

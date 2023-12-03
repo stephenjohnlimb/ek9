@@ -119,26 +119,6 @@ defines module bad.pure.scenarios1
       @Error: FULL_RESOLUTION: NO_PURE_REASSIGNMENT
       rtn: true
 
-    UnsetFunctionAndNeverSet() as pure
-      -> arg0 as String
-      @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
-      <- rtn as Boolean? //In pure this would be the norm, then assign based on logic
-
-      var <- "Steve"
-      assert var?
-
-      //But what about the unset rtn? You'd get that error above NOT_INITIALISED_BEFORE_USE.
-      //The idea is to cater for unset and even uninitialised, but ensure those cannot escape
-      //Below is a test that shows they errors you would get
-
-    CheckCallWithUninitialised()
-      @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
-      someVar as String?
-
-      @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
-      result <- UnsetFunctionButSetInBody(someVar)
-      assert result?
-
     FailingFunctionOnAssignment() as pure
       <- expectFailure as String: "Should Fail"
 

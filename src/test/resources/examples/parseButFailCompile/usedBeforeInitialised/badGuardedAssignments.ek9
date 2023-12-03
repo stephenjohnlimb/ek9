@@ -1,0 +1,26 @@
+#!ek9
+<?-
+  Just checks that guards are checked for initialisation.
+-?>
+defines module bad.guardassignment.uninitialised.use
+
+  defines function
+
+    GuardWithUnsetValue()
+      var as Integer?
+      var2 as Integer?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      didGetSet <- var ?= var2
+      assert didGetSet? and var?
+
+    GuardWithUnResolved()
+      var as Integer?
+      var2 as Integer?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      didGetSet <- var ?= var2
+
+      assert didGetSet? and var?
+//EOF
+

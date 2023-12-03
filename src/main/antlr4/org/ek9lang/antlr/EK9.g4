@@ -348,9 +348,13 @@ statement
     ;
 
 ifStatement
-    : (IF | WHEN) preFlowStatement? control=expression block (NL+ directive? ELSE block)?
-    | (IF | WHEN) preFlowStatement? control=expression block NL+ directive? ELSE ifStatement
-    ;
+    : ifControlBlock (NL+ directive? ELSE ifControlBlock)* elseOnlyBlock?;
+
+ifControlBlock
+    : (IF | WHEN) preFlowAndControl block ;
+
+elseOnlyBlock
+    : NL+ directive? ELSE block;
 
 whileStatement
     : WHILE preFlowStatement? control=expression block
@@ -446,7 +450,7 @@ finallyStatementExpression
     ;
 
 switchStatementExpression
-    : (SWITCH|GIVEN) preFlowStatement? control=expression NL+ INDENT (NL* returningParam)? caseStatement+ (directive? DEFAULT block NL+)?  DEDENT
+    : (SWITCH|GIVEN) preFlowAndControl NL+ INDENT (NL* returningParam)? caseStatement+ (directive? DEFAULT block NL+)?  DEDENT
     ;
 
 caseStatement
@@ -460,6 +464,9 @@ caseExpression
     | MATCHES expression
     | primary
     ;
+
+preFlowAndControl
+    : preFlowStatement? control=expression;
 
 preFlowStatement
     : (variableDeclaration | assignmentStatement | guardExpression) (WITH|THEN)

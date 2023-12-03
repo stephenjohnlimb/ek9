@@ -20,6 +20,7 @@ class BadThisAndSuperTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
+    //Need to fix up code resolution and move to FULL_RESOLUTION
     testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
   }
 

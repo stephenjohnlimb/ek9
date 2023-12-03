@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.SymbolSearch;
-import org.ek9lang.compiler.support.LocationExtractor;
+import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 
@@ -16,7 +16,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * the same name. But this is complicated with the JSON operator.
  */
 final class CheckPropertyNames extends TypedSymbolAccess implements Consumer<AggregateSymbol> {
-  private final LocationExtractor locationExtractor = new LocationExtractor();
+  private final LocationExtractorFromSymbol locationExtractorFromSymbol = new LocationExtractorFromSymbol();
   private final ErrorListener.SemanticClassification errorClassification;
 
   CheckPropertyNames(final SymbolAndScopeManagement symbolAndScopeManagement,
@@ -43,7 +43,7 @@ final class CheckPropertyNames extends TypedSymbolAccess implements Consumer<Agg
   private void emitDuplicatePropertyByName(final AggregateSymbol aggregateSymbol,
                                            final ISymbol property,
                                            final ISymbol duplicateProperty) {
-    var location = locationExtractor.apply(duplicateProperty);
+    var location = locationExtractorFromSymbol.apply(duplicateProperty);
 
     var msg = "Relating to '"
         + aggregateSymbol.getFriendlyName()

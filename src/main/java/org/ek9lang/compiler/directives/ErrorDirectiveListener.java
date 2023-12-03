@@ -7,6 +7,7 @@ import java.util.Map;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.support.LocationExtractorFromToken;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
@@ -14,6 +15,8 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  * with any errors held for the phase of compilation.
  */
 public class ErrorDirectiveListener implements CompilationPhaseListener {
+  private final LocationExtractorFromToken locationExtractorFromToken = new LocationExtractorFromToken();
+
   @Override
   public void accept(CompilationEvent compilationEvent) {
     //Will be null until fully parsed.
@@ -44,9 +47,10 @@ public class ErrorDirectiveListener implements CompilationPhaseListener {
     var directiveLineNumbers = directiveLineNumberLookup.keySet().stream().sorted().toList();
     for (var directiveLineNumber : directiveLineNumbers) {
       var directive = (ErrorDirective) directiveLineNumberLookup.get(directiveLineNumber);
+      var location = locationExtractorFromToken.apply(directive.getDirectiveToken());
       var error = errorLineNumberLookup.get(directiveLineNumber);
       if (error == null) {
-        var msg = "'" + directive.getClassification() + "' for line: " + directiveLineNumber;
+        var msg = "'" + directive.getClassification() + "' : " + location;
         errorListener.directiveError(directive.getDirectiveToken(), msg,
             ErrorListener.SemanticClassification.ERROR_MISSING);
       } else {
@@ -55,7 +59,7 @@ public class ErrorDirectiveListener implements CompilationPhaseListener {
 
         //Check the type of error against the one expected in the directive
         if (!directive.isForClassification(error.getSemanticClassification())) {
-          var msg = "'" + error.getSemanticClassification() + "' versus '" + directive + "'";
+          var msg = "'" + error.getSemanticClassification() + "' versus '" + directive + "': " + location;
           errorListener.directiveError(directive.getDirectiveToken(), msg,
               ErrorListener.SemanticClassification.DIRECTIVE_WRONG_CLASSIFICATION);
         }

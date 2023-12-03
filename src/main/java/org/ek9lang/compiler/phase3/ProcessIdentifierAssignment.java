@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.OperationIsAssignment;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
-import org.ek9lang.compiler.symbols.VariableSymbol;
 
 /**
  * Deals with the checking and setting initialised of the identifier (as appropriate).
@@ -22,7 +21,6 @@ final class ProcessIdentifierAssignment extends TypedSymbolAccess implements Con
   @Override
   public void accept(final AssignmentData data) {
     processAssignment(data);
-    recordAssignment(data.typeData());
   }
 
   private void processAssignment(final AssignmentData data) {
@@ -33,22 +31,9 @@ final class ProcessIdentifierAssignment extends TypedSymbolAccess implements Con
       data.typeData().lhs().setReferenced(false);
     }
 
-    if (!data.typeData().lhs().isInitialised()) {
-      if (operationIsAssignment.test(data.typeData().location())) {
-        data.typeData().lhs().setInitialisedBy(data.typeData().location());
-      } else {
-        //It a deep operation, but this variable has not been initialised.
-        errorListener.semanticError(data.typeData().location(), "'" + data.typeData().lhs().getFriendlyName() + "'",
-            ErrorListener.SemanticClassification.USED_BEFORE_INITIALISED);
-      }
+    if (!data.typeData().lhs().isInitialised() && operationIsAssignment.test(data.typeData().location())) {
+      data.typeData().lhs().setInitialisedBy(data.typeData().location());
     }
     checkLeftAndRight.accept(data);
-  }
-
-  private void recordAssignment(final TypeCompatibilityData typeData) {
-    if (typeData.lhs() != null && typeData.lhs() instanceof VariableSymbol variable) {
-      symbolAndScopeManagement.recordAssignmentToIdentifierSymbol(typeData.location(), variable);
-    }
-
   }
 }

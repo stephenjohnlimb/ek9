@@ -1,6 +1,6 @@
 #!ek9
 <?-
-  Test to detect invalid return types via covariance on funtions with the same signature.
+  Test to detect invalid return types via covariance on functions with the same signature.
 -?>
 defines module bad.functions.covariance.examples
 
@@ -28,11 +28,16 @@ defines module bad.functions.covariance.examples
       <-
         rtn as Float: arg1
 
-    //TODO note that if you change the dynamic function below to use this
-    //there is an issue that need to ne sorted.
-    //i.e. gFun <- () is AGenericFunction of (Integer, Float) as function
-    //       rtn: 3.0
-    //This fails - look into and resolve.
+    BFunction()
+      gFun <- () is AGenericFunction of (Integer, Float) as function
+        rtn: 3.0
+
+      assert gFun?
+
+    CFunction()
+      gFun <- () is AGenericFunction of (Integer, Float) as function (rtn: 3.0)
+      assert gFun?
+
     AGenericFunction of type (S, T) as open
       ->
         arg0 as S

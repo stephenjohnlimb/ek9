@@ -1,0 +1,51 @@
+#!ek9
+<?-
+  Checks dynamic functions where returning variable is not initialised.
+-?>
+defines module bad.uninitialised.functionparts
+
+  defines function
+
+    AbstractFunction1() as abstract
+      -> arg0 as String
+      <- rtn as Boolean?
+
+    GenericAbstractFunction1() of type T as abstract
+      -> arg0 as T
+      <- rtn as T?
+
+
+    InvalidDynamicFunctionDriver1()
+      //Even though the error is for the inferred 'rtn' in AbstractFunction1, error is reported here.
+      @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+      dynamicFunction <- () is AbstractFunction1 as function
+        assert arg0?
+      assert dynamicFunction?
+
+    InvalidDynamicFunctionDriver2()
+      //Even though the error is for the inferred 'rtn' in AbstractFunction2, error is reported here.
+      //Looks the same as above, but I wanted to check ordering of definition does not affect anything.
+      @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+      dynamicFunction <- () is AbstractFunction2 as function
+        assert arg0?
+      assert dynamicFunction?
+
+    InvalidDynamicFunctionDriver9()
+      //Just provide some body, but if the rtn is not set then that's an error
+      @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+      dynamicFunction <- () is GenericAbstractFunction1 of Float as function (someVar <- 0.0)
+      assert dynamicFunction?
+
+    InvalidDynamicFunctionDriver10()
+      //Just provide some body, again if the rtn is not set then that's an error
+      @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+      dynamicFunction <- () is GenericAbstractFunction1 of Float as function
+        someVal <- 0.0
+        assert someVal?
+      assert dynamicFunction?
+
+    AbstractFunction2() as abstract
+      -> arg0 as String
+      <- rtn as Boolean?
+
+//EOF

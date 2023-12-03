@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.common;
 
+import java.util.List;
 import java.util.Optional;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.compiler.ParsedModule;
@@ -12,8 +13,6 @@ import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.ModuleScope;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbols.StackConsistencyScope;
-import org.ek9lang.compiler.symbols.VariableSymbol;
-import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -40,6 +39,8 @@ public class SymbolAndScopeManagement {
   private final ParsedModule parsedModule;
   private final ScopeStack scopeStack;
 
+  private CodeFlowMap codeFlowMap;
+
   /**
    * Create a new instance for symbol and scope management.
    * If these types are not resolved then OK with a big exception and stop processing (so suppress get warning).
@@ -50,6 +51,8 @@ public class SymbolAndScopeManagement {
 
     this.parsedModule = parsedModule;
     this.scopeStack = scopeStack;
+
+    resetCodeFlowAnalysis();
   }
 
   public ModuleScope getModuleScope() {
@@ -60,8 +63,51 @@ public class SymbolAndScopeManagement {
     return parsedModule.getEk9Types();
   }
 
-  public void recordAssignmentToIdentifierSymbol(final IToken assignmentOp, final VariableSymbol identifierSymbol) {
-    //TODO
+  public void resetCodeFlowAnalysis() {
+    codeFlowMap = new CodeFlowMap();
+  }
+
+  public List<ISymbol> getUninitialisedVariablesInCurrentScope() {
+    return getUninitialisedVariables(this.getTopScope());
+  }
+
+  public List<ISymbol> getUninitialisedVariables(final IScope inScope) {
+    return codeFlowMap.getUninitialisedVariables(inScope);
+  }
+
+  public boolean isVariableInitialised(final ISymbol identifierSymbol, final IScope inScope) {
+    return codeFlowMap.isVariableInitialised(identifierSymbol, inScope);
+  }
+
+  public boolean isVariableInitialised(final ISymbol identifierSymbol) {
+    return codeFlowMap.isVariableInitialised(identifierSymbol, this.getTopScope());
+  }
+
+  /**
+   * Records a variable against the appropriate scope.
+   */
+  public void recordSymbolDeclaration(final ISymbol identifierSymbol) {
+    if (identifierSymbol.isReturningParameter()) {
+      //Record against the outer scope, so it can be located.
+      recordSymbolDeclaration(identifierSymbol, this.getTopScope().getEnclosingScope());
+    } else {
+      recordSymbolDeclaration(identifierSymbol, this.getTopScope());
+    }
+  }
+
+  /**
+   * Record variable declaration against a specific scope.
+   */
+  public void recordSymbolDeclaration(final ISymbol identifierSymbol, final IScope inScope) {
+    codeFlowMap.recordSymbol(identifierSymbol, inScope);
+  }
+
+  public void recordSymbolAssignment(final ISymbol identifierSymbol) {
+    codeFlowMap.recordSymbolAssignment(identifierSymbol, this.getTopScope());
+  }
+
+  public void markSymbolAsInitialised(final ISymbol identifierSymbol, final IScope inScope) {
+    codeFlowMap.markSymbolAsInitialised(identifierSymbol, inScope);
   }
 
   /**
@@ -140,7 +186,7 @@ public class SymbolAndScopeManagement {
   }
 
   /**
-   * For literals we only record in the parsedModule.
+   * For literals, we only record in the parsedModule.
    */
   public void enterNewLiteral(ISymbol symbol, ParseTree node) {
     recordSymbol(symbol, node);

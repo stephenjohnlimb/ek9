@@ -1,0 +1,101 @@
+#!ek9
+<?-
+  Checks for return value initialisation when not initialised at declaration.
+  Uses a mix of methods and operators on classes to check this.
+  There is a separate set of tests for function return values.
+-?>
+defines module badclass.method.initialisations
+
+  defines class
+
+    <?-
+      Check a range of different scenarios, some Ok and some bad
+    -?>
+    BasicClass
+      operator < as pure
+        -> arg0 BasicClass
+        <- rtn as Boolean: true
+
+      operator <= as pure
+        -> arg0 BasicClass
+        <- rtn as Boolean?
+        rtn :=? false
+
+      operator > as pure
+        -> arg0 BasicClass
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- rtn as Boolean?
+
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        assert rtn?
+
+      operator >= as pure
+        -> arg0 BasicClass
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- rtn as Boolean?
+        //Provide a body but miss setting the return value.
+        var <- 1
+        assert var?
+
+      operator == as pure
+        -> arg0 BasicClass
+        <- rtn <- true
+
+      operator <> as pure
+        -> arg0 BasicClass
+        <- rtn <- false
+
+        var as Integer?
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        assert var?
+
+    VariableInitialisationChecks
+      method1()
+        anInt as Integer?
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        assert anInt?
+
+      method2()
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- anInt as Integer?
+
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        anInt :=: 56
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        assert anInt?
+
+      <?-
+        This method is fine as it initialised this value directly
+      -?>
+      method3()
+        <- anInt as Integer?
+        anInt: 56
+
+      <?-
+        This method is fine as it initialised this value.
+        But this time it uses the assign if null mechanism that is promoted.
+      -?>
+      method4() as pure
+        <- anInt as Integer?
+        anInt :=? 56
+
+      //Do operators
+      operator == as pure
+        -> arg0 VariableInitialisationChecks
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- rtn as Boolean?
+
+        //But don't set rtn and ensure there is an error
+        someUnrelatedVariable <- 1
+        assert someUnrelatedVariable?
+
+      operator <> as pure
+        -> arg0 VariableInitialisationChecks
+        <- rtn <- false
+        someUnrelatedVariable as Integer?
+
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        assert someUnrelatedVariable?
+
+//EOF
+

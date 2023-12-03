@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
-import org.ek9lang.compiler.support.LocationExtractor;
+import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.support.SymbolMatcher;
 import org.ek9lang.compiler.symbols.ISymbol;
 
@@ -17,7 +17,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
 final class CheckTypesCompatible extends TypedSymbolAccess implements Consumer<
     TypeCompatibilityData> {
   private final SymbolMatcher matcher = new SymbolMatcher();
-  private final LocationExtractor locationExtractor = new LocationExtractor();
+  private final LocationExtractorFromSymbol locationExtractorFromSymbol = new LocationExtractorFromSymbol();
 
   /**
    * Check symbols with types have compatible types.
@@ -52,7 +52,7 @@ final class CheckTypesCompatible extends TypedSymbolAccess implements Consumer<
     var fromType = toCheck.rhs().getType();
     var toType = toCheck.lhs().getType();
 
-    var position = locationExtractor.apply(toCheck.lhs());
+    var position = locationExtractorFromSymbol.apply(toCheck.lhs());
 
     var weightOfMatch = matcher.getWeightOfMatch(fromType, toType);
     if (weightOfMatch < 0.0) {

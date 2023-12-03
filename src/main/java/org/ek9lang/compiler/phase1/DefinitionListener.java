@@ -156,7 +156,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     AssertValue.checkNotEmpty("Module Name must be defined", moduleName);
     AssertValue.checkTrue("Module Name mismatch", moduleName.equals(getParsedModule().getModuleName()));
 
-    //Take not at module level if implementation is external - we'd expect no bodies.
+    //Take note at module level if implementation is external - we'd expect no bodies.
     getParsedModule().setExternallyImplemented(ctx.EXTERN() != null);
   }
 
@@ -507,7 +507,10 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     IScope outerScope = symbolAndScopeManagement.getTopScope();
     var ifScope = new LocalScope("If-line-" + ctx.start.getLine(), outerScope);
     symbolAndScopeManagement.enterNewScope(ifScope, ctx);
-    checkNotABooleanLiteral.accept(ctx.control);
+    ctx.ifControlBlock().stream()
+        .map(ifBlock -> ifBlock.preFlowAndControl().control)
+        .forEach(checkNotABooleanLiteral);
+
     super.enterIfStatement(ctx);
   }
 
@@ -533,7 +536,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     var currentScope = symbolAndScopeManagement.getTopScope();
     final var newSwitchSymbol = symbolFactory.newSwitch(ctx, currentScope);
     symbolAndScopeManagement.enterNewScopedSymbol(newSwitchSymbol, ctx);
-    checkNotABooleanLiteral.accept(ctx.control);
+    checkNotABooleanLiteral.accept(ctx.preFlowAndControl().control);
     super.enterSwitchStatementExpression(ctx);
   }
 
@@ -576,7 +579,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
    * A bit complex, because we need to check for normal termination on the
    * try instructions, the catch and the finally blocks.
    * Only if there is a returning variable is this an error.
-   * But we do need to pull the termination status up in to the parent set of instructions.]
+   * But we do need to pull the termination status up in to the parent set of instructions.
    */
   @Override
   public void exitTryStatementExpression(EK9Parser.TryStatementExpressionContext ctx) {

@@ -80,7 +80,6 @@ defines module bad.overriding.traitmethods1
       ek9 developer to override the 'someMethod' and decide which implementation is to be used.
       Or should we force it at this point of time, there are two concrete implementation choices
       available.
-      TODO detect and add errors in here.
     -?>
     @Error: FULL_RESOLUTION: METHODS_CONFLICT
     TConflictingMethods1 with trait of TX1, TX2, T1

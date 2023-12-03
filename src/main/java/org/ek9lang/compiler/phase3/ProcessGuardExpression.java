@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
-import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 
@@ -52,10 +51,6 @@ final class ProcessGuardExpression extends TypedSymbolAccess
   private void processByIdentifier(final TypeCompatibilityData typeData) {
     if (typeData.lhs() != null) {
       var data = new AssignmentData(false, typeData);
-      //Make a note that an assignment has taken place
-      if (typeData.lhs() instanceof VariableSymbol variable) {
-        symbolAndScopeManagement.recordAssignmentToIdentifierSymbol(typeData.location(), variable);
-      }
       processIdentifierAssignment.accept(data);
     }
   }

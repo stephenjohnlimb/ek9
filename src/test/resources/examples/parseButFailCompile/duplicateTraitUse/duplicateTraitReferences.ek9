@@ -2,7 +2,6 @@
 <?-
   Simple check to ensure that a trait name is not duplicates in a single 'with trait of'.
   Note it is possible for the same trait to be included multiple times via hierarchy.
-  TODO also include a test where FQN is used in a mix of FQN and non-FQN.
 -?>
 defines module bad.trait.use
 

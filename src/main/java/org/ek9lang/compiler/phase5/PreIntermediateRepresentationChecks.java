@@ -51,8 +51,8 @@ public class PreIntermediateRepresentationChecks extends CompilerPhase {
       throw new CompilerException("Compiler error, the parsed module must be present for " + source.getFileName());
     } else {
       var parsedModule = holder.get();
-      PostSymbolResolutionListener phaseListener =
-          new PostSymbolResolutionListener(parsedModule);
+      PreIRCheckListener phaseListener =
+          new PreIRCheckListener(parsedModule);
       ParseTreeWalker walker = new ParseTreeWalker();
       walker.walk(phaseListener, source.getCompilationUnitContext());
       listener.accept(new CompilationEvent(thisPhase, parsedModule, source));

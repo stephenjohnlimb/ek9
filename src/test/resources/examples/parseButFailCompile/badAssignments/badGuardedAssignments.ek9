@@ -25,24 +25,6 @@ defines module bad.guardassignment.use
       didGetSet <- var ?= "Steve"
       assert didGetSet? and var?
 
-    GuardWithUnsetValue()
-      var as Integer?
-      @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
-      var2 as Integer?
-
-      @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
-      didGetSet <- var ?= var2
-      assert didGetSet? and var?
-
-    GuardWithUnResolved()
-      @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
-      var as Integer?
-
-      @Error: FULL_RESOLUTION: NOT_RESOLVED
-      didGetSet <- var ?= expectNotResolved
-      @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
-      assert didGetSet? and var?
-
     Broken()
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       assert Nothing

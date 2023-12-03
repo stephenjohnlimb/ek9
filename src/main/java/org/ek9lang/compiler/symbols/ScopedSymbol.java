@@ -249,6 +249,7 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   public int hashCode() {
 
     var result = this.actualScope.hashCode();
+    result = 31 * result + (getSourceToken() != null ? getSourceToken().hashCode() : 0);
     result = 31 * result + super.hashCode();
     return result;
   }

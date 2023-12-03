@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
-import org.ek9lang.compiler.support.LocationExtractor;
+import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -23,7 +23,7 @@ import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
  * Does the detailed for of checking a specific possible generic symbol.
  */
 final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> {
-  private final LocationExtractor locationExtractor = new LocationExtractor();
+  private final LocationExtractorFromSymbol locationExtractorFromSymbol = new LocationExtractorFromSymbol();
   private final ErrorListener errorListener;
 
   ParameterisedTypeChecker(final ErrorListener errorListener) {
@@ -92,7 +92,7 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
 
   private void checkFunctionUseOrError(final TypeTuple typeTuple, final MethodSymbol method) {
 
-    var location = locationExtractor.apply(method);
+    var location = locationExtractorFromSymbol.apply(method);
     var msg = "'" + method.getFriendlyName() + "' " + location + ":";
     if (method.isConstructor()) {
       errorListener.semanticError(typeTuple.possibleGenericSymbol.getInitialisedBy(), msg,
@@ -115,7 +115,7 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
               && resolvedMethodSymbol.isConstructor()
               && typeTuple.typeArgumentForT.isMarkedAbstract()) {
 
-            var location = locationExtractor.apply(resolvedSymbol);
+            var location = locationExtractorFromSymbol.apply(resolvedSymbol);
             var msg = "'" + resolvedSymbol.getFriendlyName() + "' "
                 + location + " cannot be used with '"
                 + typeTuple.typeArgumentForT.getFriendlyName() + "':";

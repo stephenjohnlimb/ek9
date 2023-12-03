@@ -23,7 +23,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 82;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 81;
 
   //Obviously with ek9 the indentation is important.
   @SuppressWarnings({"Indentation"})
@@ -2116,13 +2116,13 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
       """;
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_BUILT_IN_TEMPLATE_FUNCTIONS = """
-          Supplier of type T as abstract
+          Supplier of type T as pure abstract
             <- r as T?
 
-          Consumer of type T as abstract
+          Consumer of type T as pure abstract
             -> t as T
 
-          BiConsumer of type (T, U) as abstract
+          BiConsumer of type (T, U) as pure abstract
             ->
               t as T
               u as U
@@ -2337,7 +2337,8 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Boolean?
 
             <?-
-              Check if this Result has no value and no error.
+              Check if this Result has no value AND no error.
+              i.e. it is totally empty.
             -?>
             operator ? as pure
               <- rtn as Boolean?

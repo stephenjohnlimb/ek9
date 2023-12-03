@@ -1,7 +1,7 @@
 #!ek9
 <?-
   Defines various cases where components override others and their methods,
-  but don't initialise the the return symbol
+  but don't initialise the return symbol
 -?>
 defines module bad.overriding.componentmethods2
 
@@ -21,7 +21,7 @@ defines module bad.overriding.componentmethods2
       default Check1()
       override method1()
         -> arg0 as String
-        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
         <- rtn as Boolean?
         assert arg0?
 
@@ -30,11 +30,11 @@ defines module bad.overriding.componentmethods2
       default Check2()
       override method1()
         -> arg0 as String
-        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
         <- rtn as Boolean?
         assert arg0?
         //Now deliberated reference an uninitialized symbol.
-        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
         assert ~rtn?
 
 //EOF

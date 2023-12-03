@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
-import org.ek9lang.compiler.support.LocationExtractor;
+import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 
 /**
@@ -14,7 +14,7 @@ final class CheckFunctionOverrides extends TypedSymbolAccess implements Consumer
   private final CheckTypeCovariance checkTypeCovariance;
   private final CheckFunctionAbstractness checkFunctionAbstractness;
   private final CheckPureModifier checkPureModifier;
-  private final LocationExtractor locationExtractor = new LocationExtractor();
+  private final LocationExtractorFromSymbol locationExtractorFromSymbol = new LocationExtractorFromSymbol();
 
   /**
    * Create a new function to check overriding of super (method parameters and covariance returns).
@@ -49,7 +49,7 @@ final class CheckFunctionOverrides extends TypedSymbolAccess implements Consumer
   private String getErrorMessageFor(final FunctionSymbol functionSymbol,
                                     final FunctionSymbol matchedFunctionSymbol) {
     String message = String.format("'%s' %s:",
-        matchedFunctionSymbol.getFriendlyName(), locationExtractor.apply(matchedFunctionSymbol));
+        matchedFunctionSymbol.getFriendlyName(), locationExtractorFromSymbol.apply(matchedFunctionSymbol));
 
     return "'" + functionSymbol.getFriendlyName() + "' and " + message;
   }

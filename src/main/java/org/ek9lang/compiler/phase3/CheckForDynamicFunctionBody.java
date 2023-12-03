@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
-import org.ek9lang.compiler.support.LocationExtractor;
+import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 
 /**
@@ -13,7 +13,7 @@ import org.ek9lang.compiler.symbols.FunctionSymbol;
 final class CheckForDynamicFunctionBody extends TypedSymbolAccess
     implements Consumer<EK9Parser.DynamicFunctionDeclarationContext> {
   private final CheckPureModifier checkPureModifier;
-  private final LocationExtractor locationExtractor = new LocationExtractor();
+  private final LocationExtractorFromSymbol locationExtractorFromSymbol = new LocationExtractorFromSymbol();
 
   /**
    * Create a new function to check dynamic functions.
@@ -33,7 +33,7 @@ final class CheckForDynamicFunctionBody extends TypedSymbolAccess
     symbol.getSuperFunction().ifPresent(superFunction -> {
       if (superFunction.isMarkedAbstract() && noBodyProvided) {
         var errorMessage = "function defined "
-            + locationExtractor.apply(symbol)
+            + locationExtractorFromSymbol.apply(symbol)
             + " is abstract:";
         errorListener.semanticError(symbol.getSourceToken(), errorMessage,
             ErrorListener.SemanticClassification.GENERIC_FUNCTION_IMPLEMENTATION_REQUIRED);

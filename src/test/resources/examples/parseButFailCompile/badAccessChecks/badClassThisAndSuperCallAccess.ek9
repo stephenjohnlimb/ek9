@@ -25,7 +25,7 @@ defines module bad.callthisandsuper.classmethod.access1
 
       //This is detected by CheckValidThisOrSuper
       //Which is mainly focussed on the use of this and super outside of calls.
-      @Error: FULL_RESOLUTION: INCOMPATIBLE_GENUS
+      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_SUPER
       result3 <- super()
 
       //See badParametersForInference.ek9 for a test for this below that is detected in SYMBOL_DEFINITION

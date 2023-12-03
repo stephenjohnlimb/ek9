@@ -8,7 +8,7 @@ import java.util.function.Function;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
-import org.ek9lang.compiler.support.LocationExtractor;
+import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -19,21 +19,18 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * This function attempts to locate the method on the aggregate and returns the type of the return variable or empty.
  */
 final class CheckForOperator extends TypedSymbolAccess implements Function<CheckOperatorData, Optional<ISymbol>> {
-  private final LocationExtractor locationExtractor = new LocationExtractor();
+  private final LocationExtractorFromSymbol locationExtractorFromSymbol = new LocationExtractorFromSymbol();
   private final SymbolTypeOrEmpty symbolTypeOrEmpty = new SymbolTypeOrEmpty();
-  private final CheckInitialised checkInitialised;
 
   CheckForOperator(final SymbolAndScopeManagement symbolAndScopeManagement,
                    final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
 
-    this.checkInitialised = new CheckInitialised(symbolAndScopeManagement, errorListener);
   }
 
   @Override
   public Optional<ISymbol> apply(final CheckOperatorData checkOperatorData) {
     var symbol = checkOperatorData.symbol();
-    checkInitialised.accept(symbol);
 
     Optional<ISymbol> rtn = Optional.empty();
 
@@ -59,7 +56,7 @@ final class CheckForOperator extends TypedSymbolAccess implements Function<Check
   }
 
   private void emitOperatorNotDefined(final IAggregateSymbol aggregate, final CheckOperatorData checkOperatorData) {
-    var location = locationExtractor.apply(aggregate);
+    var location = locationExtractorFromSymbol.apply(aggregate);
     var msg = "operator '" + checkOperatorData.search() + "' is required on '"
         + checkOperatorData.symbol().getFriendlyName() + "', type first established " + location + ":";
     errorListener.semanticError(checkOperatorData.operatorUseToken(), msg,

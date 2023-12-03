@@ -16,7 +16,6 @@ defines module bad.pure.scenarios2
     C0 as open
       propA <- Integer()
       propB as String?
-      propC as String?
       propD as String?
 
       C0() as pure
@@ -54,9 +53,6 @@ defines module bad.pure.scenarios2
 
         propB :=? "Steve"
 
-        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
-        propC :=: "Steve"
-
         @Error: FULL_RESOLUTION: NO_PURE_REASSIGNMENT
         propD := "Steve"
 
@@ -71,24 +67,6 @@ defines module bad.pure.scenarios2
 
         someVal <- String()
         notInitVar as String?
-
-        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
-        alsoNotInitialised as String?
-
-        //Now do a deep copy into it
-        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
-        someVal :=: notInitVar
-
-        //try again but both sides not initialised
-        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
-        alsoNotInitialised :=: notInitVar
-
-        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
-        alsoNotInitialised :=: "Steve"
-
-        //Because the above had errors, this is still not initialised
-        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
-        assert ~alsoNotInitialised?
 
         //Now use the pure allowed null assignment coalescing operator
         notInitVar :=? "Steve"

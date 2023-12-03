@@ -143,6 +143,7 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
   @Override
   public int hashCode() {
     int result = super.hashCode();
+    result = 31 * result + (getSourceToken() != null ? getSourceToken().hashCode() : 0);
     result = 31 * result + (isMarkedAbstract() ? 1 : 0);
     result = 31 * result + getCapturedVariables().hashCode();
     return result;

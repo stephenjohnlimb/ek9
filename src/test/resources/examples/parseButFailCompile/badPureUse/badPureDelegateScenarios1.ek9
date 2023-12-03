@@ -5,7 +5,6 @@
 
   Creates delegates to pure functions and a non-pure functions.
   Checks access to delegates from pure and non-pure contexts.
-  TODO also have a pure/non pure delegate as property and check via method/delegate chain
 
   Its almost like the access to a delegate needs to check the underlying 'function type' to see if it is pure.
 -?>
@@ -23,19 +22,19 @@ defines module bad.pure.delegate.scenarios1
 
     HigherOrderCreatePureFunction() as pure
       <- rtn as somePureFunction?
-      rtn:=? () is somePureFunction as pure function (pureRtn:=? true)
+      rtn :=? () is somePureFunction as pure function (pureRtn:=? true)
 
     HigherOrderNonPureCreatePureFunction()
       <- rtn as somePureFunction?
-      rtn:=? () is somePureFunction as pure function (pureRtn:=? true)
+      rtn :=? () is somePureFunction as pure function (pureRtn:=? true)
 
     HigherOrderCreateNonPureFunction() as pure
       <- rtn as someNonPureFunction?
-      rtn:=? () is someNonPureFunction as function (nonPureRtn:=? true)
+      rtn :=? () is someNonPureFunction as function (nonPureRtn:=? true)
 
     HigherOrderNonPureCreateNonPureFunction()
       <- rtn as someNonPureFunction?
-      rtn:=? () is someNonPureFunction as function (nonPureRtn:=? true)
+      rtn :=? () is someNonPureFunction as function (nonPureRtn:=? true)
 
     TestDelegateCallsViaPropertyInNonPure()
 

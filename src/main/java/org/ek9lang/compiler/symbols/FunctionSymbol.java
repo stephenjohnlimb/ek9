@@ -251,6 +251,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
   @Override
   public int hashCode() {
     int result = super.hashCode();
+    result = 31 * result + (getSourceToken() != null ? getSourceToken().hashCode() : 0);
     result = 31 * result + (getReturningSymbol() != null ? getReturningSymbol().hashCode() : 0);
     result = 31 * result + (isMarkedPure() ? 1 : 0);
     result = 31 * result + getSuperFunction().hashCode();

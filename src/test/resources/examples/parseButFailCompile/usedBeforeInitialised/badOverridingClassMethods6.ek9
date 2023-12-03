@@ -4,6 +4,7 @@
 -?>
 defines module bad.overriding.classmethods6
 
+
   defines trait
 
     //Create a trait with one concrete method and some abstract methods/operators
@@ -26,7 +27,7 @@ defines module bad.overriding.classmethods6
     T2
       brokenReturn()
         -> arg0 as Integer
-        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
         <- rtn as Boolean?
         assert arg0?
 
@@ -59,19 +60,19 @@ defines module bad.overriding.classmethods6
       //Override something that was implemented and had a return, but now don't initialise it.
       override concreteMethod()
         -> arg0 as Integer
-        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
         <- rtn as Boolean?
         assert arg0?
 
       override tMethod()
         -> arg0 as Float
-        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
         <- rtn as Boolean?
         assert arg0?
 
       override operator + as pure
         -> arg0 as Float
-        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
         <- rtn as Float?
         assert arg0?
 
@@ -81,13 +82,13 @@ defines module bad.overriding.classmethods6
       failure1 <- () with trait of T1 as class
         override tMethod()
           -> arg0 as Float
-          @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+          @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
           <- rtn as Boolean?
           assert arg0?
 
         override operator + as pure
           -> arg0 as Float
-          @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+          @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
           <- rtn as Float?
           assert arg0?
 
@@ -99,7 +100,7 @@ defines module bad.overriding.classmethods6
       failure2 <- () extends SomeAbstractGeneric of String as class
         override absMethod()
           -> arg0 as String
-          @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+          @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
           <- rtn as Boolean?
           assert arg0?
       assert failure2?
@@ -110,7 +111,7 @@ defines module bad.overriding.classmethods6
       failure3 <- () extends SomeGeneric of String as class
         override absMethod()
           -> arg0 as String
-          @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+          @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
           <- rtn as Boolean?
           assert arg0?
       assert failure3?

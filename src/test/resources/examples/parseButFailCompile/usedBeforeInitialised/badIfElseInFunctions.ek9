@@ -1,0 +1,365 @@
+#!ek9
+<?-
+
+  Check if else in functions and function returns.
+  Various scenarios for referencing uninitialised variables.
+  But also scenarios where all paths lead to an initialised variable,
+  where that initialisation must be pulled up in to outer scopes.
+  QUITE HARD. see CodeFlowMap.java for this processing.
+
+-?>
+defines module badifelse.functions
+
+  defines function
+
+    SimpleAssignment()
+      anInt as Integer?
+
+      //Check when it cannot possibly have been initialised.
+      //We deem this an error, because it's obviously not set.
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert anInt?
+
+      //Now it is fully assigned and so can be checked without error.
+      anInt: 22
+      assert anInt?
+
+    DeepAssignment()
+      anInt as Integer?
+
+      //As anInt has not been initialised - it has no memory to do a deep copy into.
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      anInt :=: 32
+
+      //Now it is fully assigned and so can be checked without error.
+      anInt: 22
+      assert anInt?
+
+    ConditionalAssignment1()
+      varAsTrue <- true
+      anInt as Integer?
+
+      if varAsTrue
+        unUsedValue <- 34
+        value <- 33
+        anInt: value
+
+        //anInt has been assigned in this if block.
+        assert unUsedValue? and anInt?
+
+      //Should be an error here - because not initialised in every path
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert anInt?
+
+    ConditionalAssignment2()
+      varAsTrue <- true
+      anInt as Integer?
+
+      if varAsTrue
+        unUsedValue <- 34
+        value <- 33
+        anInt: value
+        assert unUsedValue? and anInt?
+      else
+        unUsedValue <- 36
+        value <- 35
+        anInt: value
+        assert unUsedValue? and anInt?
+
+      //Not an error here - because initialised in both paths of if/else
+      assert anInt?
+
+    ConditionalAssignment3()
+      varAsTrue <- true
+      varAsFalse <- false
+      anInt as Integer?
+
+      if varAsTrue
+        unUsedValue <- 34
+        value <- 33
+        anInt: value
+        assert unUsedValue? and anInt?
+      else if not varAsFalse
+        unUsedValue <- 36
+        value <- 35
+        anInt: value
+        assert unUsedValue? and anInt?
+      else
+        unUsedValue <- 39
+        value <- 40
+        anInt: value
+        assert unUsedValue? and anInt?
+
+      //So this is always initialised.
+      assert anInt?
+
+    ConditionalAssignment4()
+      varAsTrue <- true
+      varAsFalse <- false
+      anInt as Integer?
+
+      if varAsTrue
+        unUsedValue <- 34
+        value <- 33
+        anInt: value
+        assert unUsedValue? and anInt?
+      else if not varAsFalse
+        unUsedValue <- 36
+        value <- 35
+        anInt: value
+        assert unUsedValue? and anInt?
+
+      //So this still maybe uninitialised, because there was no else - so conditions may not be triggered.
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert anInt?
+
+    ConditionalAssignment5()
+      varAsTrue <- true
+      anInt as Integer?
+
+      if anInt ?= 22 with varAsTrue
+        unUsedValue <- 34
+        //Note that guard above has ensured that anInt has been initialised
+        assert unUsedValue? and anInt?
+
+      //That guard also means that this is also initialised.
+      assert anInt?
+
+    ConditionalAssignment6()
+      varAsTrue <- true
+      anInt as Integer?
+
+      if varAsTrue
+        aValue <- 34
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        assert aValue? and anInt?
+        if aValue > 536
+          @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+          assert anInt?
+          value <- 33
+          anInt: value
+          assert anInt?
+
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        assert aValue? and anInt?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert anInt?
+
+    <?-
+      Function with a return variable.
+    -?>
+    ConditionalAssignment7()
+      @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+      <- anInt as Integer?
+      varAsTrue <- true
+
+      if varAsTrue
+        value <- 33
+        anInt: value
+        assert anInt?
+      else
+        value <- 35
+        //A deep assignment of data but to a variable not initialised
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        anInt :=: value
+
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        assert anInt?
+
+      //So not all paths initialised
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert anInt?
+
+    <?-
+      Function with a return variable.
+    -?>
+    ConditionalAssignment8()
+      <- anInt as Integer?
+      //Now will be initialised
+      anInt: 33
+      assert anInt?
+
+    <?-
+      Function with a return variable.
+    -?>
+    ConditionalAssignment9()
+      @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+      <- anInt as Integer?
+      //Just provide a body - but forget to initialise anInt
+      someVar <- 21
+      assert someVar?
+
+    <?-
+      Check the idea that a nested if - that might not access anInt at all.
+      So checking that all paths can include a middle path with no reference to anInt.
+    -?>
+    ConditionalAssignment10()
+      missingMiddle <- true
+      varAsTrue <- true
+      anInt as Integer?
+
+      if missingMiddle
+        //In this case this scope does not access or set anInt
+        //But both paths inside this scope do
+        anyVar <- 55
+        assert anyVar?
+
+        if varAsTrue
+          anInt: 33
+          assert anInt?
+        else
+          anInt: 34
+          assert anInt?
+      else
+        //Now this other part of the if/else does set anInt so in effect both paths now have.
+        anInt:555
+
+      //So do not expect an uninitialised here
+      assert anInt?
+
+    ConditionalAssignment11()
+      missingMiddle <- true
+      varAsTrue <- true
+      anInt as Integer?
+
+      if missingMiddle
+        //In this case this scope does not access or set anInt
+        //But both paths inside this scope do
+        anyVar <- 55
+        assert anyVar?
+
+        if varAsTrue
+          unUsedValue <- 34
+          value <- 33
+          anInt: value
+          assert unUsedValue? and anInt?
+        else
+          unUsedValue <- 36
+          @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+          assert unUsedValue? and anInt?
+
+      else
+        //Now this other part of the if/else does set anInt but only part of the other path se it.
+        anInt:555
+
+      //So do expect an uninitialised here
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert anInt?
+
+    ConditionalAssignment12()
+      varAsTrue <- true
+      anInt as Integer?
+
+      if anInt ?= 33 then varAsTrue
+        unUsedValue <- 34
+        //also expect anInt to be initialised here due to preflow guard.
+        assert unUsedValue? and anInt?
+      else
+        anInt:44
+        assert anInt?
+
+      //So expect this to now be initialised
+      assert anInt?
+
+    ConditionalAssignment13()
+      varAsTrue <- true
+      varAsFalse <- false
+      anInt as Integer?
+
+      //What this means is that anInt is actually assigned - not just for the if - but at main scope level
+      if anInt ?= 33 then varAsTrue
+        unUsedValue <- 34
+        //also expect anInt to be initialised here due to preflow guard.
+        assert unUsedValue? and anInt?
+      else if not varAsFalse
+        //Expect it is initialised here due to the guard
+        assert anInt?
+        anInt:44
+        assert anInt?
+      else
+        //Expect it is initialised here due to the guard
+        assert anInt?
+        anInt:45
+        assert anInt?
+
+      //So expect this to now be initialised
+      assert anInt?
+
+    ConditionalAssignment14()
+      varAsTrue <- true
+      varAsFalse <- false
+      anInt as Integer?
+
+      if varAsTrue
+        unUsedValue <- 34
+        //expect An int not to have been set here
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        assert unUsedValue? and anInt?
+      else if anInt ?= 33  then not varAsFalse
+        //Expect it is initialised here
+        assert anInt?
+      else
+        //And also here because of the guard just above
+        assert anInt?
+
+      //So expect this not to be initialised because the main if path does not set it.
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert anInt?
+
+    ConditionalAssignment15()
+      <- anInt as Integer?
+      varAsTrue <- true
+      varAsFalse <- false
+
+      if varAsTrue
+        unUsedValue <- 34
+        //expect An int not to have been set here and it's clear it has not been set
+        //So there is no point in calling the 'is-set' '?' operator.
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        assert unUsedValue? and anInt?
+        anInt:33
+        //But now it is
+        assert anInt?
+      else if anInt ?= 33 then not varAsFalse
+        //Expect it is initialised here, due to guard
+        assert anInt?
+      else
+        //But it will also be initialised here due to previous guard
+        assert anInt?
+
+      //So expect this to be initialised because all paths set it.
+      assert anInt?
+
+    ConditionalAssignment16()
+      @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+      <- anInt as Integer?
+      varAsTrue <- true
+      varAsFalse <- false
+
+      if varAsTrue
+        unUsedValue <- 34
+        //expect An int not to have been set here and it's clear it has not been set
+        //So using a deep copy into something that is not initialised is not allowed
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        anInt :=: 33
+        assert unUsedValue?
+
+        //Still not initialised
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        assert anInt?
+      else if anInt ?= 33 then not varAsFalse
+        //Expect it is initialised here, due to guard
+        //So a deep copy is fine
+        anInt :=: 33
+      else
+        //But it will also be initialised here due to previous guard
+        assert anInt?
+
+      //So expect not to be initialised because the main if varAsTru path did not actually initialise it.
+      //Importantly we 'know that' at compile time
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert anInt?
+
+//EOF
+

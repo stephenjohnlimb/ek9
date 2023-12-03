@@ -6,7 +6,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
-import org.ek9lang.compiler.support.LocationExtractor;
+import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -18,7 +18,7 @@ final class CheckMethodOverrides extends TypedSymbolAccess implements Consumer<A
   private final CheckTypeCovariance checkTypeCovariance;
   private final ErrorListener.SemanticClassification errorWhenShouldBeMarkedAbstract;
   private final CheckPureModifier checkPureModifier;
-  private final LocationExtractor locationExtractor = new LocationExtractor();
+  private final LocationExtractorFromSymbol locationExtractorFromSymbol = new LocationExtractorFromSymbol();
   private final CheckIfAbstractMethodsImplemented checkIfAbstractMethodsImplemented
       = new CheckIfAbstractMethodsImplemented();
 
@@ -86,7 +86,7 @@ final class CheckMethodOverrides extends TypedSymbolAccess implements Consumer<A
 
     Consumer<MethodSymbol> actionToTake = match -> {
       if (match.isMarkedAbstract()) {
-        var location = locationExtractor.apply(match);
+        var location = locationExtractorFromSymbol.apply(match);
         var errorMessage = "'" + match.getFriendlyName() + "' " + location + " not overridden:";
         errorListener.semanticError(aggregateSymbol.getSourceToken(), errorMessage, errorWhenShouldBeMarkedAbstract);
       }
@@ -177,7 +177,7 @@ final class CheckMethodOverrides extends TypedSymbolAccess implements Consumer<A
   private String getErrorMessageFor(final MethodSymbol methodSymbol,
                                     final MethodSymbol matchedMethodSymbol) {
     String message = String.format("'%s' %s:",
-        matchedMethodSymbol.getFriendlyName(), locationExtractor.apply(matchedMethodSymbol));
+        matchedMethodSymbol.getFriendlyName(), locationExtractorFromSymbol.apply(matchedMethodSymbol));
 
     return "'" + methodSymbol.getFriendlyName() + "' and " + message;
   }

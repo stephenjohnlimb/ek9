@@ -2,110 +2,57 @@
 <?-
 
   Workspace. Work in progress for the PRE_IR_CHECKS errors.
-
+  Also check unset properties in a generic context.
 -?>
 defines module just.workspace
 
   defines function
 
-    SimpleAssignment()
+    ConditionalAssignment10()
+      missingMiddle <- true
+      varAsTrue <- true
       anInt as Integer?
-      assignedAtDeclaration <- 1
 
-      anInt: 22
+      if missingMiddle
+        //In this case this scope does not access or set anInt
+        //But both paths inside this scope do
+        anyVar <- 55
+        assert anyVar?
+
+        if varAsTrue
+          anInt: 33
+          assert anInt?
+        else
+          anInt: 34
+          assert anInt?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
       assert anInt?
 
-      //Now try reassignment, which is Ok to do
-      assignedAtDeclaration: 56
-      assert assignedAtDeclaration?
-
+  <!-
   defines class
 
-    C1
-      assignmentInMethod()
-        anInt as Integer?
-        assignedAtDeclaration <- 1
+    //Note that we could error is the type is non-abstract and could have been initialised.
+    //i.e. with prop1 <- String() - so if the type has a default constructor for example.
+    C0
+      prop1 as String?
+      prop2 as String?
 
-        anInt: 22
-        assert anInt?
+      method1()
+        -> arg0 as String
+        //Expect an error here because prop1 has never been initialised anywhere
+        prop1 :=: arg0
 
-        //Now try reassignment, which is Ok to do
-        assignedAtDeclaration: 56
-        assert assignedAtDeclaration?
+      method2()
+        -> arg0 as String
+        prop2: arg0
 
-    <!-
-    ConditionalAssignment1()
-      varAsTrue <- true
-      anInt as Integer?
-
-      anInt: 22
-
-      if varAsTrue
-        unUsedValue <- 34
-        value <- 33
-        anInt: value
-
-        assert unUsedValue?
-
-      assert anInt?
-
-    ConditionalAssignment2()
-      varAsTrue <- true
-      anInt as Integer?
-
-      anInt: 22
-
-      if varAsTrue
-        unUsedValue <- 34
-        value <- 33
-        anInt: value
-        assert unUsedValue?
-      else
-        unUsedValue <- 36
-        value <- 35
-        anInt: value
-        assert unUsedValue?
-
-      assert anInt?
-
-    ConditionalAssignment3()
-      varAsTrue <- true
-      varAsFalse <- false
-      anInt as Integer?
-
-      anInt: 22
-
-      if varAsTrue
-        unUsedValue <- 34
-        value <- 33
-        anInt: value
-        assert unUsedValue?
-      else if not varAsFalse
-        unUsedValue <- 36
-        value <- 35
-        anInt: value
-        assert unUsedValue?
-      else
-        unUsedValue <- 39
-        value <- 40
-        anInt: value
-        assert unUsedValue?
-
-      assert anInt?
-
-    ConditionalAssignment4()
-      varAsTrue <- true
-      anInt as Integer?
-      anInt: 22
-
-      if anInt ?= 22 with varAsTrue
-        unUsedValue <- 34
-        value <- 33
-        anInt: value
-        assert unUsedValue?
-
-      assert anInt?
-    -!>
+      method3()
+        -> arg0 as String
+        //Now this 'may be ok' but will depend if method2 was called before.
+        //So we cannot easily detect this
+        prop2 :=: arg0
+  -!>
 
 //EOF
 

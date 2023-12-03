@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.main;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
@@ -26,6 +26,6 @@ class WorkingAreaTest extends PhasesTest {
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
     //Uncomment when ready to work on next set of tests.
-    assertTrue(compilationResult);
+    assertFalse(compilationResult);
   }
 }

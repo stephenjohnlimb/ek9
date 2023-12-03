@@ -34,10 +34,6 @@ final class CheckVariableOnlyDeclaration implements
       checkReturningParam(ctx, variableSymbol);
     } else {
       checkBlockAndAggregateProperty(ctx, variableSymbol);
-      if (!variableSymbol.isPropertyField() && ctx.QUESTION() != null) {
-        //Make a note that this variable was not initialed when it was declared.
-        variableSymbol.putSquirrelledData(UNINITIALISED_AT_DECLARATION, "TRUE");
-      }
     }
   }
 
@@ -65,6 +61,8 @@ final class CheckVariableOnlyDeclaration implements
       //Then it is to be injected to mark as initialised = by self through injection
       variableSymbol.setInitialisedBy(new Ek9Token(ctx.start));
     }
+
+    markAsUninitialisedAsAppropriate(ctx, variableSymbol);
   }
 
   private void checkArgumentParam(final EK9Parser.VariableOnlyDeclarationContext ctx, VariableSymbol variableSymbol) {
@@ -92,5 +90,14 @@ final class CheckVariableOnlyDeclaration implements
     }
     variableSymbol.setReturningParameter(true);
     //But for returning it is up to the method/function to ensure initialisation.
+    markAsUninitialisedAsAppropriate(ctx, variableSymbol);
+  }
+
+  private void markAsUninitialisedAsAppropriate(final EK9Parser.VariableOnlyDeclarationContext ctx,
+                                                VariableSymbol variableSymbol) {
+    if (!variableSymbol.isPropertyField() && ctx.QUESTION() != null) {
+      //Make a note that this variable was not initialed when it was declared.
+      variableSymbol.putSquirrelledData(UNINITIALISED_AT_DECLARATION, "TRUE");
+    }
   }
 }

@@ -12,7 +12,6 @@
   By doing this it makes delegation just as easy as inheritance, but without all the downsides of inheritance.
   This promotes the use of design by traits (interfaces) and encourages small self contained implementations.
 
-  TODO fix these example as there should not be any errors.
 -?>
 defines module mix.traits.implementation
 

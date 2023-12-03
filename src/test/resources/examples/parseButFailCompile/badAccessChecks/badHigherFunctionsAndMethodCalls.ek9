@@ -85,7 +85,6 @@ defines module bad.higherfunctionandmethodcalls.examples
         assert failedResult2?
 
       testNotHigherFunction1()
-        //TODO consider an error here if the return type is Void.
         @Error: FULL_RESOLUTION: RETURN_TYPE_VOID_MEANINGLESS
         notActuallyADelegate1 <- JustAFunction1("Steve")
 

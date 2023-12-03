@@ -14,7 +14,7 @@ defines module bad.operators.return
 
       operator <=> as pure
         -> arg0 as R1
-        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
         <- rtn as Integer?
         assert arg0?
 
@@ -35,7 +35,7 @@ defines module bad.operators.return
 
       operator <=> as pure
         -> arg0 as T1
-        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
         <- rtn as Integer?
         assert arg0?
 
@@ -47,7 +47,7 @@ defines module bad.operators.return
 
       operator <=> as pure
         -> arg0 as Class1
-        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
         <- rtn as Integer?
         assert arg0?
 
@@ -58,7 +58,7 @@ defines module bad.operators.return
 
       operator <=> as pure
         -> arg0 as Component1
-        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
         <- rtn as Integer?
         assert arg0?
 
@@ -67,7 +67,7 @@ defines module bad.operators.return
       dynamic <- () with trait T0 as class
         override operator <=> as pure
           -> arg0 as T0
-          @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
+          @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
           <- rtn as Integer?
           assert arg0?
 

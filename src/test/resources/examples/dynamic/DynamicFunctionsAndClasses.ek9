@@ -41,10 +41,10 @@ defines module com.customer.dynamic
         -> p as String
         <- r as Boolean?
         
-    Validator with trait of LenValidator, CharValidator
+    Validator
       validate()
         -> p as String
-        <- r as Boolean: validateLength(p) and validateCharacters(p)
+        <- r as Boolean?
 
   defines class
   
@@ -113,6 +113,9 @@ defines module com.customer.dynamic
       assert not validator1.validateCharacters(val4) and validator1.validateLength(val4)
 
       validator2 <- (validator1, checkContent) trait of Validator, LenValidator by validator1, CharValidator by checkContent
+        override validate()
+          -> p as String
+          <- r as Boolean: validateLength(p) and validateCharacters(p)
 
       assert validator2.validate(val1)
       assert not validator2.validate(val2)
@@ -139,6 +142,10 @@ defines module com.customer.dynamic
             
       validator4 <- (lenValidator) trait of Validator, LenValidator by lenValidator, CharValidator
         notAllowed String: "#"
+
+        override validate()
+          -> p as String
+          <- r as Boolean: validateLength(p) and validateCharacters(p)
 
         override validateCharacters()
           -> p as String

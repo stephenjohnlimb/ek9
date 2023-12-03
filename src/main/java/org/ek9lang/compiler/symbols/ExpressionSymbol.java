@@ -145,6 +145,7 @@ public class ExpressionSymbol extends Symbol {
   @Override
   public int hashCode() {
     int result = super.hashCode();
+    result = 31 * result + (getSourceToken() != null ? getSourceToken().hashCode() : 0);
     result = 31 * result + (isPromotionRequired() ? 1 : 0);
     result = 31 * result + (isUseStringOperator() ? 1 : 0);
     result = 31 * result + (isDeclaredAsConstant() ? 1 : 0);

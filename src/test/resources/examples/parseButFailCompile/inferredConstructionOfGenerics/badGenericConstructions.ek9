@@ -172,8 +172,6 @@ defines module bad.generic.constructions
       var <- G2(String, String)
       assert var?
 
-    //TODO at this point need to check for method duplication
-    //TODO set(K) and set(V), both map to set(Integer), set(Integer)
     CheckExplicitParameterizedG2SameType()
       @Error: FULL_RESOLUTION: METHOD_DUPLICATED
       var as G2 of (Integer, Integer): G2()

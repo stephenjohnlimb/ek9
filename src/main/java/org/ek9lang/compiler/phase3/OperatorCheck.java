@@ -13,20 +13,18 @@ import org.ek9lang.compiler.tokenizer.IToken;
  */
 abstract class OperatorCheck extends TypedSymbolAccess implements BiPredicate<IToken, ISymbol> {
   private final SymbolTypeOrEmpty symbolTypeOrEmpty = new SymbolTypeOrEmpty();
-  private final CheckInitialised checkInitialised;
+
   private final CheckForOperator checkForOperator;
 
   protected OperatorCheck(SymbolAndScopeManagement symbolAndScopeManagement,
                           ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
-    this.checkInitialised = new CheckInitialised(symbolAndScopeManagement, errorListener);
     this.checkForOperator = new CheckForOperator(symbolAndScopeManagement, errorListener);
   }
 
   protected abstract MethodSymbolSearch getMethodSymbolSearch(final ISymbol symbolType);
 
   protected Optional<ISymbol> getSymbolType(final ISymbol symbol) {
-    checkInitialised.accept(symbol);
 
     //Get the underlying type or emit error and return false.
     var symbolType = symbolTypeOrEmpty.apply(symbol);

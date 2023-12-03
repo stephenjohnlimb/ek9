@@ -1061,7 +1061,6 @@ public class SymbolFactory {
     return newVariable(identifier.getText(), new Ek9Token(identifier.start), nullAllowed, injectionExpected);
   }
 
-
   /**
    * Create a new aggregate that represents an EK9 literal value.
    */

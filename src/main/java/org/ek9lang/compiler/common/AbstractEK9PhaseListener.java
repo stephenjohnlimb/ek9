@@ -58,7 +58,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
     var noneExceptionPathPossible = true;
     IScope thisTryScope = symbolAndScopeManagement.getTopScope();
 
-    //So may get an exception in the block so it does not terminate normally
+    //So may get an exception in the block, so it does not terminate normally
     if (ctx.instructionBlock() != null) {
       noneExceptionPathPossible =
           symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock()).isTerminatedNormally();
@@ -82,27 +82,26 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
     }
   }
 
-  protected void pullIfElseTerminationUp(final EK9Parser.IfStatementContext ifCtx) {
-    IScope thisIfScope = symbolAndScopeManagement.getTopScope();
-    var ifBlock = symbolAndScopeManagement.getRecordedScope(ifCtx.block(0));
+  protected void pullIfElseTerminationUp(final EK9Parser.IfStatementContext ctx) {
 
-    if (ifCtx.block().size() == 2) {
-      //then it is just an if/else
-      var elseBlock = symbolAndScopeManagement.getRecordedScope(ifCtx.block(1));
-      if (!ifBlock.isTerminatedNormally() && !elseBlock.isTerminatedNormally()) {
-        //Not really cause by a single Exception but all paths.
-        thisIfScope.setEncounteredExceptionToken(new Ek9Token(ifCtx.start));
-      }
-    } else if (ifCtx.ifStatement() != null) {
-      //then it is a chained if else if...
-      var ifElseBlock = symbolAndScopeManagement.getRecordedScope(ifCtx.ifStatement());
-      if (!ifBlock.isTerminatedNormally() && !ifElseBlock.isTerminatedNormally()) {
-        //Not really cause by a single Exception but all paths.
-        thisIfScope.setEncounteredExceptionToken(new Ek9Token(ifCtx.start));
+    if (ctx.elseOnlyBlock() == null) {
+      //If it was just an if then - it may or may not terminate normally
+      return;
+    }
+    IScope thisIfScope = symbolAndScopeManagement.getTopScope();
+
+    //First check the else block for termination, then do all the 'if parts'.
+    var abnormal = !symbolAndScopeManagement.getRecordedScope(ctx.elseOnlyBlock().block()).isTerminatedNormally();
+
+    if (abnormal) {
+      boolean normal = ctx.ifControlBlock().stream()
+          .map(ifPart -> symbolAndScopeManagement.getRecordedScope(ifPart.block()))
+          .map(IScope::isTerminatedNormally)
+          .findAny().orElse(false);
+      if (!normal) {
+        thisIfScope.setEncounteredExceptionToken(new Ek9Token(ctx.start));
       }
     }
-    //If it was just an if then - it may or may not terminate normally
-
   }
 
   protected void pullBlockTerminationUp(final ParseTree node) {

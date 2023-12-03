@@ -19,8 +19,7 @@ class ExamplesDynamicTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
-    //TODO implement the trait 'by' so that methods that are implemented in the 'by' are made synthetic in the class.
-    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
+    testToPhase(CompilationPhase.FULL_RESOLUTION);
   }
 
   @Override

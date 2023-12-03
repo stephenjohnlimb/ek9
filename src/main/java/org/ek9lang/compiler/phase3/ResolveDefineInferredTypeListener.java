@@ -9,6 +9,7 @@ import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.CaptureScope;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.core.CompilerException;
 
@@ -41,9 +42,6 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   private final CheckFunctionOverrides checkFunctionOverrides;
   private final AutoMatchSuperFunctionSignature autoMatchSuperFunctionSignature;
   private final CheckForDynamicFunctionBody checkForDynamicFunctionBody;
-  private final CheckReturn checkDynamicFunctionReturn;
-  private final CheckReturn checkFunctionReturn;
-  private final CheckMethodReturn checkMethodReturn;
   private final CheckAllTextBodiesPresent checkAllTextBodiesPresent;
   private final CheckServiceRegistration checkServiceRegistration;
   private final ProcessTypeConstraint processTypeConstraint;
@@ -69,9 +67,6 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     this.checkFunctionOverrides = new CheckFunctionOverrides(symbolAndScopeManagement, errorListener);
     this.checkForDynamicFunctionBody = new CheckForDynamicFunctionBody(symbolAndScopeManagement, errorListener);
     this.autoMatchSuperFunctionSignature = new AutoMatchSuperFunctionSignature(symbolAndScopeManagement, errorListener);
-    this.checkDynamicFunctionReturn = new CheckReturn(true, symbolAndScopeManagement, errorListener);
-    this.checkFunctionReturn = new CheckReturn(false, symbolAndScopeManagement, errorListener);
-    this.checkMethodReturn = new CheckMethodReturn(symbolAndScopeManagement, errorListener);
     this.checkAllTextBodiesPresent = new CheckAllTextBodiesPresent(symbolAndScopeManagement, errorListener);
     this.checkServiceRegistration = new CheckServiceRegistration(symbolAndScopeManagement, errorListener);
     this.processTypeConstraint = new ProcessTypeConstraint(symbolAndScopeManagement, symbolFactory, errorListener);
@@ -89,13 +84,14 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     //WE MUST re-resolve it and in this FULL_COMPILATION phase it will then get all it's types
     //substituted - unless they have already been substituted.
     var theType = symbolAndScopeManagement.getRecordedSymbol(ctx);
-    if (theType != null && theType.isParameterisedType()) {
-      symbolAndScopeManagement.resolveOrDefine((PossibleGenericSymbol) theType, errorListener);
+    if (theType instanceof PossibleGenericSymbol possibleGenericSymbol) {
+      reResolveParameterisedType(possibleGenericSymbol);
     } else {
       throw new CompilerException("Expecting parameterised type to exist.");
     }
     super.enterParameterisedType(ctx);
   }
+
 
   @Override
   public void enterDynamicVariableCapture(EK9Parser.DynamicVariableCaptureContext ctx) {
@@ -119,7 +115,6 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     checkDefaultOperators
         .andThen(checkPropertyNames)
         .andThen(checkMethodOverrides)
-        .andThen(checkMethodReturn)
         .accept(symbol);
     super.exitRecordDeclaration(ctx);
   }
@@ -127,6 +122,8 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   @Override
   public void enterClassDeclaration(EK9Parser.ClassDeclarationContext ctx) {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    symbol.getSuperAggregate().ifPresent(this::reResolveParameterisedType);
+
     //Now we may modify this class definition if it uses 'traits by'
     //We do this in the entry, because on exit (below) we will check all abstract methods implemented.
     if (checkNoConflictingMethods.test(symbol)) {
@@ -140,7 +137,6 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     checkDefaultOperators
         .andThen(checkMethodOverrides)
-        .andThen(checkMethodReturn)
         .accept(symbol);
 
     resolveByTraitVariables.accept(ctx.traitsList(), symbol);
@@ -150,6 +146,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   @Override
   public void enterDynamicClassDeclaration(EK9Parser.DynamicClassDeclarationContext ctx) {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    symbol.getSuperAggregate().ifPresent(this::reResolveParameterisedType);
 
     //Now we may modify this class definition if it uses 'traits by'
     //We do this in the entry, because on exit (below) we will check all abstract methods implemented.
@@ -165,7 +162,6 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     checkDefaultOperators
         .andThen(checkDynamicClassMethodOverrides)
-        .andThen(checkMethodReturn)
         .accept(symbol);
 
     resolveByTraitVariables.accept(ctx.traitsList(), symbol);
@@ -184,24 +180,15 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   @Override
   public void exitTraitDeclaration(EK9Parser.TraitDeclarationContext ctx) {
     var symbol = (AggregateWithTraitsSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    checkMethodOverrides
-        .andThen(checkMethodReturn)
-        .accept(symbol);
+    checkMethodOverrides.accept(symbol);
     super.exitTraitDeclaration(ctx);
   }
 
   @Override
   public void exitComponentDeclaration(EK9Parser.ComponentDeclarationContext ctx) {
     var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    checkDefaultOperators.andThen(checkMethodOverrides).andThen(checkMethodReturn).accept(symbol);
+    checkDefaultOperators.andThen(checkMethodOverrides).accept(symbol);
     super.exitComponentDeclaration(ctx);
-  }
-
-  @Override
-  public void exitServiceDeclaration(EK9Parser.ServiceDeclarationContext ctx) {
-    var symbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    checkMethodReturn.accept(symbol);
-    super.exitServiceDeclaration(ctx);
   }
 
   /**
@@ -209,7 +196,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
    * (where they don't have a super) it means that behind the scenes we alter a function to have a
    * parameterised generic super function. But the initial (phase 3) creation does not fully populate
    * all the types. (This is because we want to support inference in other areas).
-   * But it also means that the call to expand the arguments and types is done in two stages).
+   * But it also means that the call to expand the arguments and types is done in two stages.
    * Normally the second stage is done in the FULL_RESOLUTION when part of source that defines a parameterised
    * type is processed again. But because these parameterised types are synthetically created it is important to
    * expand them in on function entry. Because on exit there will be argument checks.
@@ -220,13 +207,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   public void enterFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
 
     var symbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-
-    symbol.getSuperFunction().ifPresent(theSuper -> {
-      if (theSuper.isParameterisedType()) {
-        theSuper.setMarkedPure(symbol.isMarkedPure());
-        symbolAndScopeManagement.resolveOrDefine(theSuper, errorListener);
-      }
-    });
+    symbol.getSuperFunction().ifPresent(this::reResolveParameterisedType);
 
     super.enterFunctionDeclaration(ctx);
   }
@@ -235,13 +216,13 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   public void exitFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
     var symbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     checkFunctionOverrides.accept(symbol);
-    checkFunctionReturn.accept(symbol, symbol.getReturningSymbol());
     super.exitFunctionDeclaration(ctx);
   }
 
   @Override
   public void enterDynamicFunctionDeclaration(EK9Parser.DynamicFunctionDeclarationContext ctx) {
     var symbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    symbol.getSuperFunction().ifPresent(this::reResolveParameterisedType);
 
     //Automatically populate the function signature and return for a dynamic function
     autoMatchSuperFunctionSignature.accept(symbol);
@@ -253,10 +234,8 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
 
   @Override
   public void exitDynamicFunctionDeclaration(EK9Parser.DynamicFunctionDeclarationContext ctx) {
-    var symbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     //But check that if the super had no implementation this dynamic function does.
     checkForDynamicFunctionBody.accept(ctx);
-    checkDynamicFunctionReturn.accept(symbol, symbol.getReturningSymbol());
 
     super.exitDynamicFunctionDeclaration(ctx);
   }
@@ -290,5 +269,11 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   public void exitRegisterStatement(EK9Parser.RegisterStatementContext ctx) {
     checkServiceRegistration.accept(ctx);
     super.exitRegisterStatement(ctx);
+  }
+
+  private void reResolveParameterisedType(final ISymbol symbol) {
+    if (symbol instanceof PossibleGenericSymbol possibleGenericSymbol && possibleGenericSymbol.isParameterisedType()) {
+      symbolAndScopeManagement.resolveOrDefine(possibleGenericSymbol, errorListener);
+    }
   }
 }

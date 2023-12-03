@@ -102,21 +102,6 @@ final class ProcessValidIdentifierReference extends TypedSymbolAccess
     if (identifierReference.isVariable()) {
       identifierReferenceAccessCheck(ctx, identifierReference);
       identifierReferenceDefinedBeforeUseCheck(ctx, identifierReference);
-      identifierReferenceInitialisedBeforeUseCheck(ctx, identifierReference);
-    }
-  }
-
-  private void identifierReferenceInitialisedBeforeUseCheck(final EK9Parser.IdentifierReferenceContext ctx,
-                                                            final ISymbol identifierReference) {
-    //Only interested finite range of checks here.
-    var startToken = new Ek9Token(ctx.start);
-    var token = identifierReference.getInitialisedBy();
-
-    if (isIdentifierReferenceToBeChecked(identifierReference)
-        && startToken.getSourceName().equals(identifierReference.getSourceToken().getSourceName())
-        && (token == null || startToken.getTokenIndex() <= token.getTokenIndex())) {
-      errorListener.semanticError(ctx.start, errorMessageForIdentifierReference(identifierReference),
-          ErrorListener.SemanticClassification.USED_BEFORE_INITIALISED);
     }
   }
 

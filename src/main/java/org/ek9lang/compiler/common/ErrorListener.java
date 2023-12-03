@@ -539,6 +539,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     SWITCH_REQUIRES_EQUALS("switch statement requires type to have '=' operator"),
     USED_BEFORE_DEFINED("used before definition"),
     USED_BEFORE_INITIALISED("used before being initialised"),
+    RETURN_NOT_ALWAYS_INITIALISED("return value is not always initialised"),
     NOT_INITIALISED_BEFORE_USE("is not initialised before use"),
     SELF_ASSIGNMENT("self assignment"),
     NOT_REFERENCED("is not referenced anywhere, or not referenced after assignment"),

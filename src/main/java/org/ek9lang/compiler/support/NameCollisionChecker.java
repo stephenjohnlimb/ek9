@@ -17,7 +17,7 @@ public class NameCollisionChecker implements BiPredicate<IScope, ISymbol> {
   private final boolean useQualifiedName;
   private final ErrorListener errorListener;
 
-  private final LocationExtractor locationExtractor = new LocationExtractor();
+  private final LocationExtractorFromSymbol locationExtractorFromSymbol = new LocationExtractorFromSymbol();
 
   public NameCollisionChecker(final ErrorListener errorListener, final boolean useQualifiedName) {
     this.errorListener = errorListener;
@@ -64,7 +64,7 @@ public class NameCollisionChecker implements BiPredicate<IScope, ISymbol> {
       ISymbol dup = symbolCheck.get();
       if (dup != symbol) {
         String message = String.format("'%s' as %s %s:",
-            dup.getFriendlyName(), dup.getGenus(), locationExtractor.apply(dup));
+            dup.getFriendlyName(), dup.getGenus(), locationExtractorFromSymbol.apply(dup));
         errorListener.semanticError(symbol.getSourceToken(), message, classificationError);
         return true;
       }

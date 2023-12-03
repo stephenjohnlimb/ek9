@@ -89,6 +89,7 @@ public class ConstantSymbol extends Symbol {
   @Override
   public int hashCode() {
     int result = super.hashCode();
+    result = 31 * result + (getSourceToken() != null ? getSourceToken().hashCode() : 0);
     result = 31 * result + (literal ? 1 : 0);
     return result;
   }

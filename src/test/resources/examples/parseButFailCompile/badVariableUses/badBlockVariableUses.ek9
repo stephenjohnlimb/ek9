@@ -5,7 +5,6 @@
   Note that uninitialised return values have to be checked in the IR phase.
   This is because that dynamic functions and template types/functions can only be check at that point.
   USED_BEFORE_DEFINED
-  USED_BEFORE_INITIALISED
   SELF_ASSIGNMENT
   NOT_REFERENCED
   NOT_ACCESSIBLE - try and access private variable
@@ -48,44 +47,6 @@ defines module bad.blockvariable.uses
 
         //Now define the variable - but after the use
         AVariableThatHasNotYetBeenDefined <- "Now Defined"
-
-      usedBeforeBeingInitialised()
-        uninitializedVar as String?
-
-        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
-        anotherVariable <- uninitializedVar
-
-        //Also this should be an error
-        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
-        yetAnotherVariable as String: uninitializedVar
-
-        //And this
-        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
-        Stdout().println(uninitializedVar)
-
-        //But check that if we initialise it here all is still bad before but OK after
-        uninitializedVar: "Now initialised"
-
-        //So this will now be OK, as it is initialised from above point onwards, but not before.
-        Stdout().println(uninitializedVar)
-
-      returnedBeforeBeingInitialised()
-        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
-        <- rtn2 as String?
-        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
-        assert ~rtn2?
-
-        //Now initialise it and it's use will be OK.
-        rtn2 := "SomeValidValue"
-        assert rtn2?
-
-      notUsedInitialised()
-        @Error: FULL_RESOLUTION: NOT_INITIALISED_BEFORE_USE
-        value1 as String?
-
-        @Error: FULL_RESOLUTION: USED_BEFORE_INITIALISED
-        value2 <- value1
-        assert value2?
 
       checkRecordCanBeAccessed()
         rec <- Record2()

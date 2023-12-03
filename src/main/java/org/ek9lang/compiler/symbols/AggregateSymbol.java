@@ -496,6 +496,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   @Override
   public int hashCode() {
     int result = super.hashCode();
+    result = 31 * result + (getSourceToken() != null ? getSourceToken().hashCode() : 0);
     result = 31 * result + getSuperAggregate().hashCode();
     result = 31 * result + getAggregateDescription().hashCode();
     result = 31 * result + (isMarkedAsDispatcher() ? 1 : 0);
