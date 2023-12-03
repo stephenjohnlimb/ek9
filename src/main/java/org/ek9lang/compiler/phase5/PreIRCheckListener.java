@@ -101,8 +101,16 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
 
 
     super.exitTryStatementExpression(ctx);
+
   }
 
+  /**
+   * On enter dynamic function need to record any return symbol, because we won't parse the text as it is inferred.
+   * The on exit still need to do the same return processing to see if the rtn has been initialised.
+   * But again cannot depend on source structure because the return is inferred and also the error has to
+   * appear on the dynamic function declaration because there will be not '&lt;-' to report the error on.
+   * Downside of having dynamic function infer arguments and returns, but worth it for the terseness.
+   */
   @Override
   public void enterDynamicFunctionDeclaration(EK9Parser.DynamicFunctionDeclarationContext ctx) {
     processDynamicFunctionDeclarationEntry.accept(ctx);
@@ -115,14 +123,6 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
 
     super.exitDynamicFunctionDeclaration(ctx);
   }
-
-  /**
-   * On enter dynamic function need to record any return symbol, because we won't parse the text as it is inferred.
-   * The on exit still need to do the same return processing to see if the rtn has been initialised.
-   * But again cannot depend on source structure because the return is inferred and also the error has to
-   * appear on the dynamic function declaration because there will be not '<-' to report the error on.
-   * Downside of having dynamic function infer arguments and returns, but worth it for the terseness.
-   */
 
   @Override
   public void exitFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
