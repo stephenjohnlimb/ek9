@@ -2,7 +2,6 @@ package org.ek9lang.compiler.phase5;
 
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
-import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.ScopeStackConsistencyListener;
 
 /**
@@ -11,7 +10,6 @@ import org.ek9lang.compiler.common.ScopeStackConsistencyListener;
  * But may extend to other forms of checks. For example booleans set to literals and never altered and used in an 'if'.
  */
 final class PreIRCheckListener extends ScopeStackConsistencyListener {
-  private final ErrorListener errorListener;
   private final ProcessVariableOnlyDeclaration processVariableOnlyDeclaration;
   private final ProcessAssignmentStatement processAssignmentStatement;
   private final ProcessGuardExpression processGuardExpression;
@@ -23,10 +21,11 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
   private final ProcessServiceOperationDeclaration processServiceOperationDeclaration;
   private final ProcessDynamicFunctionDeclarationEntry processDynamicFunctionDeclarationEntry;
   private final ProcessDynamicFunctionDeclarationExit processDynamicFunctionDeclarationExit;
+  private final ProcessIdentifierAsProperty processIdentifierAsProperty;
 
   PreIRCheckListener(ParsedModule parsedModule) {
     super(parsedModule);
-    this.errorListener = parsedModule.getSource().getErrorListener();
+    final var errorListener = parsedModule.getSource().getErrorListener();
     this.processVariableOnlyDeclaration =
         new ProcessVariableOnlyDeclaration(symbolAndScopeManagement, errorListener);
     this.processAssignmentStatement =
@@ -49,6 +48,8 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
         new ProcessDynamicFunctionDeclarationEntry(symbolAndScopeManagement, errorListener);
     this.processDynamicFunctionDeclarationExit =
         new ProcessDynamicFunctionDeclarationExit(symbolAndScopeManagement, errorListener);
+    this.processIdentifierAsProperty =
+        new ProcessIdentifierAsProperty(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -70,8 +71,16 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
   }
 
   @Override
+  public void enterIdentifier(EK9Parser.IdentifierContext ctx) {
+    //If may or may not be an aggregate property but this consumer will determine that.
+    processIdentifierAsProperty.accept(ctx);
+    super.enterIdentifier(ctx);
+  }
+
+  @Override
   public void exitIdentifierReference(EK9Parser.IdentifierReferenceContext ctx) {
     processIdentifierReference.accept(ctx);
+
     super.exitIdentifierReference(ctx);
   }
 

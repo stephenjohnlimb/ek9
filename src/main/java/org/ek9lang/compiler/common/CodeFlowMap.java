@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -19,71 +20,77 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * <br/>
  * This approach has been taken to ensure that memory is not excessively used and the scope/symbol concepts
  * are not mixed with what is in effect a sort of interpreter assessment.
+ * In addition, the nature of these checks means that it is sort of necessary to almost interpret and hold state
+ * for variables the flow is followed through the code block.
  * <br/>
  * While the initial reason for this was assessment of variables being initialised or not within branching
  * structures. It will probably also be useful for the checking of Optional (is-set) and Result ('ok'/'error').
  * It may even be extendable to assess if conditionals are always true/false and for assessing cyclo metric complexity.
  */
-public class CodeFlowMap {
-
-  private static final String INITIALISED = "INITIALISED";
+class CodeFlowMap implements CodeFlowAnalyzer {
 
   private final Map<IScope, Map<ISymbol, SymbolAccess>> accessMap = new HashMap<>();
 
-  private final UninitialisedVariableToBeChecked uninitialisedVariableToBeChecked =
-      new UninitialisedVariableToBeChecked();
+  private final Predicate<ISymbol> isVariableToBeChecked;
+
+  private final Predicate<SymbolAccess> meetsCriteria;
+
+  private final Consumer<SymbolAccess> markAsMeetingCriteria;
+
+  protected CodeFlowMap(final Predicate<ISymbol> isVariableToBeChecked,
+                        final Predicate<SymbolAccess> meetsCriteria,
+                        final Consumer<SymbolAccess> markAsMeetingCriteria) {
+    this.isVariableToBeChecked = isVariableToBeChecked;
+    this.meetsCriteria = meetsCriteria;
+    this.markAsMeetingCriteria = markAsMeetingCriteria;
+
+  }
 
   /**
-   * Just provide a list of variables that have not been marked as initialised in the scope.
+   * Just provide a list of variables that have not been marked as meeting acceptable criteria in the scope.
    */
-  public List<ISymbol> getUninitialisedVariables(IScope inScope) {
+  @Override
+  public List<ISymbol> getSymbolsNotMeetingAcceptableCriteria(IScope inScope) {
 
     var access = accessMap.getOrDefault(inScope, new HashMap<>());
     return access.keySet().stream()
-        .filter(variable -> !access.get(variable).metaData.contains(INITIALISED))
+        .filter(variable -> !meetsCriteria.test(access.get(variable)))
         .toList();
   }
 
   /**
-   * Check if a variable was initialised at this point in the ek9 code structure.
+   * Check if a variable meets the criteria of being acceptable.
    */
-  public boolean isVariableInitialised(final ISymbol identifierSymbol, final IScope inScope) {
-    if (uninitialisedVariableToBeChecked.test(identifierSymbol)) {
+  @Override
+  public boolean doesSymbolMeetAcceptableCriteria(final ISymbol identifierSymbol, final IScope inScope) {
+    if (isVariableToBeChecked.test(identifierSymbol)) {
       var symbolAccess = getSymbolAccessForVariable(identifierSymbol, inScope);
-      return symbolAccess.metaData.contains(INITIALISED);
+      return meetsCriteria.test(symbolAccess);
     }
     return false;
   }
 
   /**
-   * Records a symbol against the specific scope if it was not initialised at declaration.
+   * Records a symbol against the specific scope if it a variable to be analysed.
    */
+  @Override
   public void recordSymbol(final ISymbol identifierSymbol, final IScope inScope) {
 
-    if (uninitialisedVariableToBeChecked.test(identifierSymbol)) {
+    if (isVariableToBeChecked.test(identifierSymbol)) {
       getOrCreateSymbolAccess(identifierSymbol, inScope);
     }
 
   }
 
   /**
-   * Notes that a symbol was assigned in a particular scope.
+   * Ensures that an identifier symbol is now marked as meeting the criteria of being acceptable.
    */
-  public void recordSymbolAssignment(final ISymbol identifierSymbol,
-                                     final IScope inScope) {
+  @Override
+  public void markSymbolAsMeetingAcceptableCriteria(final ISymbol identifierSymbol, final IScope inScope) {
 
-    markSymbolAsInitialised(identifierSymbol, inScope);
-
-  }
-
-  /**
-   * Ensures that an identifier symbol is now marked initialised within a specific scope.
-   */
-  public void markSymbolAsInitialised(final ISymbol identifierSymbol, final IScope inScope) {
-
-    if (uninitialisedVariableToBeChecked.test(identifierSymbol)) {
+    if (isVariableToBeChecked.test(identifierSymbol)) {
       var access = getOrCreateSymbolAccess(identifierSymbol, inScope);
-      access.get(identifierSymbol).metaData().add(INITIALISED);
+      markAsMeetingCriteria.accept(access.get(identifierSymbol));
     }
 
   }
@@ -136,7 +143,7 @@ public class CodeFlowMap {
     //So we have to make the entry if not present for scope or variable and then copy of the values from the
     //enclosing scope - this scope may then mutate them or add to them - but we don't want to affect the enclosing scope
     var map = getOrCreateSymbolAccess(identifierSymbol, fromScope);
-    map.get(identifierSymbol).metaData.addAll(toReturn.metaData);
+    map.get(identifierSymbol).metaData().addAll(toReturn.metaData());
     return toReturn;
 
   }
@@ -155,10 +162,6 @@ public class CodeFlowMap {
 
     accessMap.put(inScope, access);
     return access;
-
-  }
-
-  private record SymbolAccess(Set<String> metaData) {
 
   }
 }

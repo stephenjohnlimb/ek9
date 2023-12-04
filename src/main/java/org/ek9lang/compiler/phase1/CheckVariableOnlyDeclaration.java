@@ -95,7 +95,7 @@ final class CheckVariableOnlyDeclaration implements
 
   private void markAsUninitialisedAsAppropriate(final EK9Parser.VariableOnlyDeclarationContext ctx,
                                                 VariableSymbol variableSymbol) {
-    if (!variableSymbol.isPropertyField() && ctx.QUESTION() != null) {
+    if (ctx.QUESTION() != null) {
       //Make a note that this variable was not initialed when it was declared.
       variableSymbol.putSquirrelledData(UNINITIALISED_AT_DECLARATION, "TRUE");
     }

@@ -47,6 +47,11 @@ final class ProcessValidIdentifierReference extends TypedSymbolAccess
     //Above will issue errors if needs be
     if (identifierReference != null) {
       identifierReferenceChecks(ctx, identifierReference);
+      //Note that we must also record this against the underlying identifier as well
+      var identifierSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx.identifier());
+      if (identifierSymbol == null) {
+        symbolAndScopeManagement.recordSymbol(identifierReference, ctx.identifier());
+      }
     }
     return Optional.ofNullable(identifierReference);
   }

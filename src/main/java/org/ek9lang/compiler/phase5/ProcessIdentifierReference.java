@@ -22,8 +22,8 @@ final class ProcessIdentifierReference extends TypedSymbolAccess
 
   @Override
   public void accept(final EK9Parser.IdentifierReferenceContext ctx) {
-
     var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+
     if (uninitialisedVariableToBeChecked.test(symbol)) {
       var initialised = symbolAndScopeManagement.isVariableInitialised(symbol);
       if (!initialised) {

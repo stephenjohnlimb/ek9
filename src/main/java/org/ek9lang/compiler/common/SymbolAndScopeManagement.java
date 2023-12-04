@@ -38,8 +38,8 @@ import org.ek9lang.core.AssertValue;
 public class SymbolAndScopeManagement {
   private final ParsedModule parsedModule;
   private final ScopeStack scopeStack;
-
-  private CodeFlowMap codeFlowMap;
+  private final CodeFlowAnalyzer uninitialisedVariableAnalyzer = new UninitialisedVariableAnalyzer();
+  private final CodeFlowAnalyzer unSafePropertyAccessAnalyzer = new UnSafePropertyAccessAnalyzer();
 
   /**
    * Create a new instance for symbol and scope management.
@@ -51,8 +51,6 @@ public class SymbolAndScopeManagement {
 
     this.parsedModule = parsedModule;
     this.scopeStack = scopeStack;
-
-    resetCodeFlowAnalysis();
   }
 
   public ModuleScope getModuleScope() {
@@ -63,24 +61,23 @@ public class SymbolAndScopeManagement {
     return parsedModule.getEk9Types();
   }
 
-  public void resetCodeFlowAnalysis() {
-    codeFlowMap = new CodeFlowMap();
-  }
-
-  public List<ISymbol> getUninitialisedVariablesInCurrentScope() {
-    return getUninitialisedVariables(this.getTopScope());
+  /**
+   * Provide access to the set of code flow analyzers being used for flow analysis.
+   */
+  public List<CodeFlowAnalyzer> getCodeFlowAnalyzers() {
+    return List.of(uninitialisedVariableAnalyzer, unSafePropertyAccessAnalyzer);
   }
 
   public List<ISymbol> getUninitialisedVariables(final IScope inScope) {
-    return codeFlowMap.getUninitialisedVariables(inScope);
+    return uninitialisedVariableAnalyzer.getSymbolsNotMeetingAcceptableCriteria(inScope);
   }
 
   public boolean isVariableInitialised(final ISymbol identifierSymbol, final IScope inScope) {
-    return codeFlowMap.isVariableInitialised(identifierSymbol, inScope);
+    return uninitialisedVariableAnalyzer.doesSymbolMeetAcceptableCriteria(identifierSymbol, inScope);
   }
 
   public boolean isVariableInitialised(final ISymbol identifierSymbol) {
-    return codeFlowMap.isVariableInitialised(identifierSymbol, this.getTopScope());
+    return uninitialisedVariableAnalyzer.doesSymbolMeetAcceptableCriteria(identifierSymbol, this.getTopScope());
   }
 
   /**
@@ -99,15 +96,23 @@ public class SymbolAndScopeManagement {
    * Record variable declaration against a specific scope.
    */
   public void recordSymbolDeclaration(final ISymbol identifierSymbol, final IScope inScope) {
-    codeFlowMap.recordSymbol(identifierSymbol, inScope);
+    uninitialisedVariableAnalyzer.recordSymbol(identifierSymbol, inScope);
   }
 
   public void recordSymbolAssignment(final ISymbol identifierSymbol) {
-    codeFlowMap.recordSymbolAssignment(identifierSymbol, this.getTopScope());
+    markSymbolAsInitialised(identifierSymbol, this.getTopScope());
   }
 
   public void markSymbolAsInitialised(final ISymbol identifierSymbol, final IScope inScope) {
-    codeFlowMap.markSymbolAsInitialised(identifierSymbol, inScope);
+    uninitialisedVariableAnalyzer.markSymbolAsMeetingAcceptableCriteria(identifierSymbol, inScope);
+  }
+
+  public void markSymbolAccessSafe(final ISymbol identifierSymbol, final IScope inScope) {
+    unSafePropertyAccessAnalyzer.markSymbolAsMeetingAcceptableCriteria(identifierSymbol, inScope);
+  }
+
+  public boolean isSymbolAccessSafe(final ISymbol identifierSymbol, final IScope inScope) {
+    return unSafePropertyAccessAnalyzer.doesSymbolMeetAcceptableCriteria(identifierSymbol, inScope);
   }
 
   /**

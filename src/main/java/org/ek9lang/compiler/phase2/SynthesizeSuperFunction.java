@@ -38,10 +38,14 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
   @Override
   public void accept(FunctionSymbol function) {
 
-    //Should not really get called if already has a super.
-    if (function.getSuperFunction().isEmpty() && checkParametersHaveTypes(function) && function.isMarkedPure()) {
-      trySuppliersAndConsumers(function);
-      tryPredicatesAndFunctions(function);
+    //Should get called if already has a super.
+    if (function.getSuperFunction().isEmpty() && checkParametersHaveTypes(function)) {
+      if (function.isMarkedPure()) {
+        trySuppliersAndConsumers(function);
+        tryPredicatesAndFunctions(function);
+      } else {
+        tryProducersAnAccessors(function);
+      }
     }
 
   }
@@ -82,6 +86,32 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
     //Or a BiConsumer
     if (function.getCallParameters().size() == 2 && !isUsableReturnTypePresent(function)) {
       processParameterisedType(function, "org.ek9.lang::BiConsumer", types);
+    }
+
+  }
+
+  private void tryProducersAnAccessors(FunctionSymbol function) {
+
+    //Check if candidate could be a producer
+    if (function.getCallParameters().isEmpty() && isUsableReturnTypePresent(function)) {
+      function.getReturningSymbol().getType().ifPresent(
+          t -> processParameterisedType(function, "org.ek9.lang::Producer", List.of(t))
+      );
+      return;
+    }
+
+    //The argument types will be needed by both of these super options.
+    var types = symbolTypeExtractor.apply(function.getCallParameters());
+
+    //Now look to see if this could be aa Accessor
+    if (function.getCallParameters().size() == 1 && !isUsableReturnTypePresent(function)) {
+      processParameterisedType(function, "org.ek9.lang::Acceptor", types);
+      return;
+    }
+
+    //Or a BiAccessor
+    if (function.getCallParameters().size() == 2 && !isUsableReturnTypePresent(function)) {
+      processParameterisedType(function, "org.ek9.lang::BiAcceptor", types);
     }
 
   }

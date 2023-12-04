@@ -3,12 +3,15 @@
 
   The main purpose of this test is to ensure that the EK9 compiler
   can create super functions for Suppliers, Consumers, Predicates, Functions and Comparators.
+  Now also added none pure variants called Producer and Accessor (for Supplier and Consumer).
   The idea is that the semantics of the above are known and so the compiler will create
   synthetic 'super functions' of a generic nature where the signatures match.
 
   Now Suppliers/Consumers and BiConsumers are pure by default. So only pure functions that meet
   the semantics will have those generic function types auto applied as supers.
+  For none pure versions use Producer, Acceptor and BiAcceptor.
 
+  TODO add in tests and also check variable names and comments.
 -?>
 defines module auto.function.checks
 
@@ -24,39 +27,45 @@ defines module auto.function.checks
 
     <?-
       A concrete version of the above.
-      Will be used later to check that it is a 'Supplier of String'.
+      Will be used later to check that it is a 'Producer of String'.
       This is because it has a super of 'SomeBase' and that has a 'super function' added to it
-      by the EK9 compiler and that 'super function' is a 'Supplier of String'.
+      by the EK9 compiler and that 'super function' is a 'Producer of String'.
 
-      'ConcreteSupplier' => 'SomeBase' => 'Supplier of String'
+      'ConcreteProducer' => 'SomeBase' => 'Producer of String'
     -?>
-    ConcreteSupplier() is SomeBase
+    ConcreteProducer() is SomeBase
       <- rtn <- "Stephen"
 
     //Lots of functions that meet the different EK signatures in different ways.
     //But note that only those that are pure get the auto appropriate super applied.
 
-    CouldBeASupplier()
+    CouldBeAProducer()
       <- rtn <- "Steve"
 
-    CouldBeAPureSupplier() as pure
+    <?-
+      So while the signature is the same, this is 'pure' - hence a Supplier.
+    -?>
+    CouldBeASupplier() as pure
       <- rtn <- "Steve"
 
-    CouldBeAConsumer()
+    <?-
+      So if not pure it is down as an Acceptor, if pure it would be a Consumer.
+    -?>
+    CouldBeAnAcceptor()
       -> arg0 as Integer
       assert arg0?
 
-    CouldBeAPureConsumer() as pure
+    CouldBeAConsumer() as pure
       -> arg0 as Integer
       assert arg0?
 
-    CouldBeABiConsumer()
+    CouldBeABiAcceptor()
       ->
         arg0 as Integer
         arg1 as Date
       assert arg0? and arg1?
 
-    CouldBeAPureBiConsumer() as pure
+    CouldBeABiConsumer() as pure
       ->
         arg0 as Integer
         arg1 as Date
@@ -176,12 +185,24 @@ defines module auto.function.checks
       -> arg0 as Supplier of String
       assert arg0?
 
+    CheckProducerOfString()
+      -> arg0 as Producer of String
+      assert arg0?
+
     CheckConsumerOfInteger()
       -> arg0 as Consumer of Integer
       assert arg0?
 
+    CheckAcceptorOfInteger()
+      -> arg0 as Acceptor of Integer
+      assert arg0?
+
     CheckBiConsumerOfIntegerAndDate()
       -> arg0 as BiConsumer of (Integer, Date)
+      assert arg0?
+
+    CheckBiAcceptorOfIntegerAndDate()
+      -> arg0 as BiAcceptor of (Integer, Date)
       assert arg0?
 
     CheckUnaryOperatorOfString()
@@ -213,38 +234,62 @@ defines module auto.function.checks
 
     <?-
       Checks Supplier, Consumer and BiConsumer.
+      Now also check Producers, Acceptors and BiAcceptors
     -?>
-    TestSuppliersAndConsumers()
+    TestSuppliersProducersAndConsumersAcceptors()
+      //Check the auto application of super functions being a Supplier/Producer
       @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckSupplierOfString(CouldBeAProducer)
       CheckSupplierOfString(CouldBeASupplier)
-      CheckSupplierOfString(CouldBeAPureSupplier)
+
+      CheckProducerOfString(CouldBeAProducer)
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckProducerOfString(CouldBeASupplier)
 
       //Specifically check this as it has an abstract super and the super of that should be a Supplier.
       @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
-      CheckSupplierOfString(ConcreteSupplier)
+      CheckSupplierOfString(ConcreteProducer)
 
       @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckConsumerOfInteger(CouldBeAnAcceptor)
       CheckConsumerOfInteger(CouldBeAConsumer)
-      CheckConsumerOfInteger(CouldBeAPureConsumer)
+
+      CheckAcceptorOfInteger(CouldBeAnAcceptor)
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckAcceptorOfInteger(CouldBeAConsumer)
 
       @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckBiConsumerOfIntegerAndDate(CouldBeABiAcceptor)
       CheckBiConsumerOfIntegerAndDate(CouldBeABiConsumer)
-      CheckBiConsumerOfIntegerAndDate(CouldBeAPureBiConsumer)
+
+      CheckBiAcceptorOfIntegerAndDate(CouldBeABiAcceptor)
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckBiAcceptorOfIntegerAndDate(CouldBeABiConsumer)
 
       @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
-      CheckSupplierOfString(CouldBeAConsumer)
+      CheckSupplierOfString(CouldBeAnAcceptor)
       @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
       CheckSupplierOfString(CouldBeAConsumer)
 
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckProducerOfString(CouldBeAnAcceptor)
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckProducerOfString(CouldBeAConsumer)
+
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckConsumerOfInteger(CouldBeAProducer)
       @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
       CheckConsumerOfInteger(CouldBeASupplier)
-      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
-      CheckConsumerOfInteger(CouldBeAPureSupplier)
 
       @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
-      CheckConsumerOfInteger(CouldBeABiConsumer)
+      CheckAcceptorOfInteger(CouldBeAProducer)
       @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
-      CheckConsumerOfInteger(CouldBeAPureBiConsumer)
+      CheckAcceptorOfInteger(CouldBeASupplier)
+
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckConsumerOfInteger(CouldBeABiAcceptor)
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckConsumerOfInteger(CouldBeABiConsumer)
 
     <?-
       Checks the UnaryOperator, Function, Predicate and Comparator.

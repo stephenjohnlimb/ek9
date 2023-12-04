@@ -23,7 +23,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 81;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 85;
 
   //Obviously with ek9 the indentation is important.
   @SuppressWarnings({"Indentation"})
@@ -2119,10 +2119,21 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           Supplier of type T as pure abstract
             <- r as T?
 
+          Producer of type T as abstract
+            <- r as T?
+
           Consumer of type T as pure abstract
             -> t as T
 
           BiConsumer of type (T, U) as pure abstract
+            ->
+              t as T
+              u as U
+
+          Acceptor of type T as abstract
+            -> t as T
+
+          BiAcceptor of type (T, U) as abstract
             ->
               t as T
               u as U
@@ -2892,7 +2903,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
                                                    
           UDPPacket
             properties as NetworkProperties: NetworkProperties()
-            content as String?
+            content as String: String()
             
             UDPPacket() as pure
             
