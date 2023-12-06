@@ -460,8 +460,7 @@ caseStatement
 caseExpression
     : call
     | objectAccessExpression
-    | op=(LE | GE | GT | LT) expression
-    | MATCHES expression
+    | op=(EQUAL | LE | GE | GT | LT | NOTEQUAL | NOTEQUAL2 | MATCHES | CONTAINS) expression
     | primary
     ;
 

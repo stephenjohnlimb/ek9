@@ -2,18 +2,27 @@
 defines module com.customer.just.switches
 
   defines function
+
+    <?-
+      Function to be used later in switch statements.
+      Also an example of a pure function that has strict assignment rules
+      this also demonstrates how the 'if/else' check for all paths resulting
+      in values being initialised.
+    -?>
     currentTemperature() as pure
       -> country as String
-      <- temp as Integer: Integer()
-      
+      <- temp as Integer?
+
       if country == "GB"
-        temp: 20
+        temp :=? 20
       else if country == "DE"
-        temp = 41
-        
+        temp :=? 41
+      else
+        temp :=? 31
+
   defines program
 
-    booleanSwitch()
+    ABooleanSwitchExample()
       conditionVariable <- true
 
       //This is the reason that an ifExpression is not needed.
@@ -31,6 +40,18 @@ defines module com.customer.just.switches
 
       assert resultValue?
 
+    AnotherBooleanSwitchExample()
+      conditionVariable <- true
+
+      //This is the reason that an ifExpression is not needed.
+      //Note that as this returns a value 'default' can be omitted.
+      resultValue <- given conditionVariable
+        <- result String: String()
+        when true
+          result: "Steve"
+
+      assert resultValue?
+
       //The alternative for such a simple block above is a ternary
       //So only use the above if you have multiple block statements.
       //But if you have lots of block statement - use a function and just call that.
@@ -39,11 +60,12 @@ defines module com.customer.just.switches
       resultValue2 <- conditionVariable <- "Steve" else "Stephen"
       assert resultValue2?
 
-    simpleSwitch()
+    ASimpleSwitch()
       stdout <- Stdout()
       multiplier <- 5
       //This is what we will use to 'switch on'
       conditionVariable <- 21
+
       //This is what we will vary based on the condition variable
       resultText <- String()
 
@@ -76,11 +98,10 @@ defines module com.customer.just.switches
 
       stdout.println(resultText)
 
-    returningSwitch()
+    AReturningSwitch()
       stdout <- Stdout()
       //This is what we will use to 'switch on'
       conditionVariable <- "Name"
-      //This is what we will vary based on the condition variable
 
       resultText <- switch conditionVariable
         <- result String: String()
@@ -99,25 +120,24 @@ defines module com.customer.just.switches
 
     <?-
       Example of declaring a variable and then using a guard.
-      If the guard resulted in 'not set' then resultText would also be not set
+      If the guard resulted in 'not set' then resultText would also be not set (because result is an unset String)
       and the switch would not have even been executed (nor any case functions).
       Note you can use either 'with' or 'then' to join the guard to the switch variable.
     -?>
-    switchWithGuard()
+    ASwitchWithGuard()
       stdout <- Stdout()
       temperature <- Integer()
+      multiplier <- 5
       resultText <- switch temperature ?= currentTemperature("GB") with temperature
         <- result String: String()
-        case 'D'
-          result: "Inappropriate"
-        case matches /[nN]ame/
-          result: `Perfect at ${temperature}`
-        case > "Gandalf"
+        case < 12
           result: "Moderate"
-        case < "Charlie"
+        case > 10*multiplier
           result: "Very High"
-        default
-          result: "Suitable"
+        case 25, 26, 27
+          result: "Slightly High"
+        case 21, 22, 23, 24
+          result: "Perfect"
 
       stdout.println(resultText)
 
@@ -127,21 +147,20 @@ defines module com.customer.just.switches
       This is the 'default' case.
       Note you can use either 'with' or 'then' to join the assignment to the switch variable.
     -?>
-    switchWithAssignment()
+    ASwitchWithAssignment()
+      -> multiplier as Integer
       stdout <- Stdout()
       temperature <- Integer()
       resultText <- switch temperature := currentTemperature("GB") with temperature
         <- result String: String()
-        case 'D'
-          result: "Inappropriate"
-        case matches /[nN]ame/
-          result: `Perfect at ${temperature}`
-        case > "Gandalf"
+        case < 12
           result: "Moderate"
-        case < "Charlie"
+        case > 10*multiplier
           result: "Very High"
-        default
-          result: "No idea"
+        case 25, 26, 27
+          result: "Slightly High"
+        case 21, 22, 23, 24
+          result: "Perfect"
 
       stdout.println(resultText)
 
@@ -151,19 +170,18 @@ defines module com.customer.just.switches
       Note you can use either 'with' or 'then' to join the declaration to the switch variable.
     -?>
     switchWithDeclaration()
+      -> multiplier as Integer
       stdout <- Stdout()
       resultText <- switch temperature <- currentTemperature("GB") with temperature
         <- result String: String()
-        case 'D'
-          result: "Inappropriate"
-        case matches /[nN]ame/
-          result: `Perfect at ${temperature}`
-        case > "Gandalf"
+        case < 12
           result: "Moderate"
-        case < "Charlie"
+        case > 10*multiplier
           result: "Very High"
-        default
-          result: "Suitable"
+        case 25, 26, 27
+          result: "Slightly High"
+        case 21, 22, 23, 24
+          result: "Perfect"
 
       stdout.println(resultText)
 
@@ -171,4 +189,5 @@ defines module com.customer.just.switches
       //can be redeclared and used here
       temperature <- "Some other value"
       assert temperature?
+
 //EOF

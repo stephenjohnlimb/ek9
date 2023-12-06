@@ -1,0 +1,88 @@
+#!ek9
+<?-
+  Now try switches with some missing or typo'd variable names.
+-?>
+defines module bad.switchtypes2
+
+  defines function
+
+    <?-
+      Function to be used later in switch statements.
+      Also an example of a pure function that has strict assignment rules
+      this also demonstrates how the 'if/else' check for all paths resulting
+      in values being initialised.
+    -?>
+    currentTemperature() as pure
+      -> country as String
+      <- temp as Integer?
+
+      if country == "GB"
+        temp :=? 20
+      else if country == "DE"
+        temp :=? 41
+      else
+        temp :=? 31
+
+  defines program
+
+    ASimpleSwitch()
+      conditionVariable <- 21
+      resultText <- String()
+
+      //Add in the typo for the function call and check it is detected.
+      switch conditionVariable
+        @Error: FULL_RESOLUTION: NOT_RESOLVED
+        case currentemperature("GB"), 21, 22, 23, 24
+          resultText: "Perfect"
+        default
+          resultText: "Not Suitable"
+
+      assert resultText?
+
+    AReturningSwitch()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      conditionVariable <- "Name"
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      resultText <- switch conditionvariable
+        <- result String: String()
+        case > "Gandalf"
+          result: "Moderate"
+
+      assert resultText?
+
+    ASwitchWithGuard()
+      temperature <- Integer()
+
+      //Typo temperature here
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      resultText <- switch temerature ?= currentTemperature("GB") with temperature
+        <- result String: String()
+        case < 12
+          result: "Moderate"
+
+      assert resultText?
+
+    ASwitchWithAssignment()
+      temperature <- Integer()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      resultText <- switch temperature := currentemperature("GB") with temperature
+        <- result String: String()
+        @Error: FULL_RESOLUTION: NOT_RESOLVED
+        case > 10*multiplier
+          result: "Very High"
+
+      assert resultText?
+
+    switchWithDeclaration()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      resultText <- switch temperature <- currentTemperature("GB") with temperatur
+        <- result String: String()
+        case < 12
+          result: "Moderate"
+
+      assert resultText?
+
+//EOF
+

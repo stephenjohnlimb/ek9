@@ -1,0 +1,70 @@
+#!ek9
+<?-
+  Switch statements with invalid variable type checks.
+-?>
+defines module bad.switchtypes1
+
+  defines function
+    someCall()
+      <- rtn <- 32
+
+    someCallWrongType()
+      <- rtn <- true
+
+  defines program
+
+    ASimpleSwitch()
+      stdout <- Stdout()
+      multiplier <- 5
+      anotherMultiplier <- 8.33
+
+      //This is what we will use to 'switch on'
+      conditionVariable <- 21
+
+      //This is what we will vary based on the condition variable
+      resultText <- String()
+
+      switch conditionVariable
+        @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+        case "wrongType"
+          resultText: "Should be Compiler error"
+        @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+        case matches 100
+          resultText: "Also should be Compiler error"
+        @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+        case == 10.0
+          resultText: "Again should be Compiler error"
+        @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+        case <> 2009-12-01
+          resultText: "A Date - another Compiler error"
+        @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+        case <> 32ms, matches 25
+          resultText: "Errors here, just show first Compiler error"
+        @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+        case == 10*anotherMultiplier
+          resultText: "Errors here, due to a Float"
+        @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+        case == anotherMultiplier*78
+          resultText: "Errors here, due to a Float"
+        @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+        case someCallWrongType()
+          resultText: "Errors here, due to a Boolean return"
+        case contains 13
+          resultText: "Nice"
+        case < 12
+          resultText: "Moderate"
+        case > 10*multiplier
+          resultText: "Very High"
+        case 25, 26, 27
+          resultText: "Slightly High"
+        case 21, 22, 23, 24
+          resultText: "Perfect"
+        case someCall()
+          resultText: "From A Call"
+        default
+          resultText: "Not Suitable"
+
+      stdout.println(resultText)
+
+//EOF
+

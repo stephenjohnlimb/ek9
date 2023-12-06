@@ -1,0 +1,138 @@
+#!ek9
+<?-
+
+  Mainly focussed on unset properties.
+  With properties declared this way 'prop1 as String?' and various methods
+  that may or may not initialise the values, it is important that each method access
+  check that a value is set or initialises it in someway before using it.
+
+-?>
+defines module badclass.property.initialisations
+
+  defines class
+
+    //Note that we could avoid this type of error, as is the type is non-abstract and could have been initialised.
+    //i.e. with prop1 <- String() - so if the type has a default constructor for example.
+    //But with abstract types held it is not always possible.
+    C0
+      @Error: PRE_IR_CHECKS: NEVER_INITIALISED
+      prop1 as String?
+      prop2 as String?
+
+      method1()
+        -> arg0 as String
+        //Expect an error here because prop1 has never been initialised anywhere and no check has taken place
+        @Error: PRE_IR_CHECKS: NOT_INITIALISED_BEFORE_USE
+        prop1 :=: arg0
+
+      method2()
+        -> arg0 as String
+        //This is fine because it is just a normal assignment
+        prop2: arg0
+
+      method3()
+        -> arg0 as String
+        //Now this 'may be ok' but will depend if method2 was called before.
+        //So we cannot easily detect this, so we must enforce a check before doing this.
+        @Error: PRE_IR_CHECKS: NOT_INITIALISED_BEFORE_USE
+        prop2 :=: arg0
+
+      method4()
+        -> arg0 as String
+        //So this would be OK, now there is a check to ensure it is set in some way
+        //Now it can be copied over.
+        if prop2?
+          prop2 :=: arg0
+
+      method5()
+        -> arg0 as String
+        //So this would be OK, again checked so could be copied over
+        if prop2?
+          prop2 :=: arg0
+        else
+          //This statement would be OK, because the check on the first if is always executed
+          prop2 :~: "ven"
+
+      method6()
+        -> arg0 as String
+        asTrue <- true
+
+        if asTrue
+          //So this is a valid assignment, so even if never initialised, this would check and only assign if unset.
+          prop2 :=? arg0
+        else if prop2?
+          //Any as this is checked above then this deep copy will be fine
+          prop2 :=: arg0
+        else
+          //This statement would also be OK because the 'if prop2?' above
+          prop2 :~: "ven"
+
+        //Now note that because all paths above did check prop2 or ensured it was safe this is safe.
+        prop2 :~: "Other"
+
+      method7()
+        -> arg0 as String
+        asTrue <- true
+        asFalse <- false
+
+        if asTrue
+          //So this is a valid assignment, so even if never initialised, this would check and only assign if unset.
+          prop2 :=? arg0
+        else if not asFalse
+          //So not checked in here so error
+          @Error: PRE_IR_CHECKS: NOT_INITIALISED_BEFORE_USE
+          prop2 :=: arg0
+        else
+          //Assignment is OK
+          prop2: "ven"
+
+        //Now not all paths have made prop2 safe to access.
+        @Error: PRE_IR_CHECKS: NOT_INITIALISED_BEFORE_USE
+        prop2 :~: "Other"
+
+      method8()
+        -> arg0 as String
+        //So this would also be OK, assign and then deep copy
+        prop2: String()
+        prop2 :=: arg0
+
+      method9()
+        -> arg0 as String
+        //So this would also be OK, conditional assign and then deep copy
+        prop2 :=? String()
+        prop2 :=: arg0
+
+      method10()
+        -> arg0 as String
+        //So this would also be OK, guarded assignment
+        didAssign <- prop2 ?= String()
+        prop2 :=: arg0
+
+        assert didAssign?
+
+      <?-
+        An alternative approach to deal with unset properties with complex if else is
+        to just do a check and then pass that into a method.
+      -?>
+      moreSafeApproach1()
+        -> arg0 as String
+        if prop2? and arg0?
+          deepCopy(prop2, arg0)
+
+      <?-
+        Another alternative approach to deal with unset properties with complex if else is
+        to just do a guard assignment and then pass that into a method.
+      -?>
+      moreSafeApproach2()
+        -> arg0 as String
+        if prop2 ?= String() then arg0?
+          deepCopy(prop2, arg0)
+
+      deepCopy()
+        ->
+          to as String
+          from as String
+        to :=: from
+
+//EOF
+

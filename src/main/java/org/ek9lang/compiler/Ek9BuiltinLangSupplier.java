@@ -536,11 +536,11 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               
             operator * as pure
               -> arg as Float
-              <- rtn as Integer?
+              <- rtn as Float?
 
             operator / as pure
               -> arg as Float
-              <- rtn as Integer?
+              <- rtn as Float?
 
             operator ^ as pure
               -> arg as Integer

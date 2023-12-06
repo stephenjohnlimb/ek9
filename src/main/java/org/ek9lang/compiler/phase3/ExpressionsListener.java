@@ -34,50 +34,76 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final ProcessObjectAccessStartOrError processObjectAccessStartOrError;
   private final ProcessObjectAccessExpressionOrError processObjectAccessExpressionOrError;
   private final ProcessGuardExpression processGuardExpression;
+  private final ProcessSwitchStatementExpression processSwitchStatementExpression;
+  private final ProcessCaseExpression processCaseExpression;
 
   protected ExpressionsListener(ParsedModule parsedModule) {
     super(parsedModule);
 
-    this.symbolFactory = new SymbolFactory(parsedModule);
+    this.symbolFactory =
+        new SymbolFactory(parsedModule);
 
-    this.errorListener = parsedModule.getSource().getErrorListener();
+    this.errorListener =
+        parsedModule.getSource().getErrorListener();
 
-    this.processValidThisOrSuper = new ProcessValidThisOrSuper(symbolAndScopeManagement, symbolFactory, errorListener);
+    this.processValidThisOrSuper =
+        new ProcessValidThisOrSuper(symbolAndScopeManagement, symbolFactory, errorListener);
 
-    this.processValidPrimary = new ProcessValidPrimary(symbolAndScopeManagement, errorListener);
+    this.processValidPrimary =
+        new ProcessValidPrimary(symbolAndScopeManagement, errorListener);
 
-    this.processValidIdentifierReference = new ProcessValidIdentifierReference(symbolAndScopeManagement, errorListener);
+    this.processValidIdentifierReference =
+        new ProcessValidIdentifierReference(symbolAndScopeManagement, errorListener);
 
-    this.checkValidStatement = new CheckValidStatement(symbolAndScopeManagement, errorListener);
+    this.checkValidStatement =
+        new CheckValidStatement(symbolAndScopeManagement, errorListener);
 
-    this.checkValidExpression = new CheckValidExpression(symbolAndScopeManagement, symbolFactory, errorListener);
+    this.checkValidExpression =
+        new CheckValidExpression(symbolAndScopeManagement, symbolFactory, errorListener);
 
-    this.checkInstructionBlockVariables = new CheckInstructionBlockVariables(symbolAndScopeManagement, errorListener);
+    this.checkInstructionBlockVariables =
+        new CheckInstructionBlockVariables(symbolAndScopeManagement, errorListener);
 
-    this.processAssignmentExpression = new ProcessAssignmentExpression(symbolAndScopeManagement, errorListener);
+    this.processAssignmentExpression =
+        new ProcessAssignmentExpression(symbolAndScopeManagement, errorListener);
 
-    this.processAssignmentStatement = new ProcessAssignmentStatement(symbolAndScopeManagement, errorListener);
+    this.processAssignmentStatement =
+        new ProcessAssignmentStatement(symbolAndScopeManagement, errorListener);
 
-    this.checkValidCall = new CheckValidCall(symbolAndScopeManagement, symbolFactory, errorListener);
+    this.checkValidCall =
+        new CheckValidCall(symbolAndScopeManagement, symbolFactory, errorListener);
 
-    this.processAndTypeList = new ProcessAndTypeList(symbolAndScopeManagement, symbolFactory, errorListener);
+    this.processAndTypeList =
+        new ProcessAndTypeList(symbolAndScopeManagement, symbolFactory, errorListener);
 
-    this.processAndTypeDict = new ProcessAndTypeDict(symbolAndScopeManagement, symbolFactory, errorListener);
+    this.processAndTypeDict =
+        new ProcessAndTypeDict(symbolAndScopeManagement, symbolFactory, errorListener);
 
-    this.checkPipelinePart = new CheckPipelinePart(symbolAndScopeManagement, errorListener);
+    this.checkPipelinePart =
+        new CheckPipelinePart(symbolAndScopeManagement, errorListener);
 
-    this.processRange = new ProcessRange(symbolAndScopeManagement, symbolFactory, errorListener);
+    this.processRange =
+        new ProcessRange(symbolAndScopeManagement, symbolFactory, errorListener);
 
-    this.checkForRange = new CheckForRange(symbolAndScopeManagement, errorListener);
+    this.checkForRange =
+        new CheckForRange(symbolAndScopeManagement, errorListener);
 
-    this.checkVariableAssignment = new CheckVariableAssignment(symbolAndScopeManagement, errorListener);
+    this.checkVariableAssignment =
+        new CheckVariableAssignment(symbolAndScopeManagement, errorListener);
 
-    this.checkVariableOnlyDeclaration = new CheckVariableOnlyDeclaration(symbolAndScopeManagement, errorListener);
+    this.checkVariableOnlyDeclaration =
+        new CheckVariableOnlyDeclaration(symbolAndScopeManagement, errorListener);
 
-    this.processObjectAccessStartOrError = new ProcessObjectAccessStartOrError(symbolAndScopeManagement, errorListener);
+    this.processObjectAccessStartOrError =
+        new ProcessObjectAccessStartOrError(symbolAndScopeManagement, errorListener);
     this.processObjectAccessExpressionOrError =
         new ProcessObjectAccessExpressionOrError(symbolAndScopeManagement, errorListener);
-    this.processGuardExpression = new ProcessGuardExpression(symbolAndScopeManagement, errorListener);
+    this.processGuardExpression =
+        new ProcessGuardExpression(symbolAndScopeManagement, errorListener);
+    this.processSwitchStatementExpression =
+        new ProcessSwitchStatementExpression(symbolAndScopeManagement, errorListener);
+    this.processCaseExpression =
+        new ProcessCaseExpression(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -166,6 +192,18 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   public void exitAssignmentStatement(EK9Parser.AssignmentStatementContext ctx) {
     processAssignmentStatement.accept(ctx);
     super.exitAssignmentStatement(ctx);
+  }
+
+  @Override
+  public void exitSwitchStatementExpression(EK9Parser.SwitchStatementExpressionContext ctx) {
+    processSwitchStatementExpression.accept(ctx);
+    super.exitSwitchStatementExpression(ctx);
+  }
+
+  @Override
+  public void exitCaseExpression(EK9Parser.CaseExpressionContext ctx) {
+    processCaseExpression.accept(ctx);
+    super.exitCaseExpression(ctx);
   }
 
   @Override

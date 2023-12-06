@@ -64,6 +64,7 @@ class CodeFlowMap implements CodeFlowAnalyzer {
   @Override
   public boolean doesSymbolMeetAcceptableCriteria(final ISymbol identifierSymbol, final IScope inScope) {
     if (isVariableToBeChecked.test(identifierSymbol)) {
+      ensureEnclosingScopeHasVariable(identifierSymbol, inScope);
       var symbolAccess = getSymbolAccessForVariable(identifierSymbol, inScope);
       return meetsCriteria.test(symbolAccess);
     }
@@ -77,6 +78,7 @@ class CodeFlowMap implements CodeFlowAnalyzer {
   public void recordSymbol(final ISymbol identifierSymbol, final IScope inScope) {
 
     if (isVariableToBeChecked.test(identifierSymbol)) {
+      ensureEnclosingScopeHasVariable(identifierSymbol, inScope);
       getOrCreateSymbolAccess(identifierSymbol, inScope);
     }
 
@@ -89,6 +91,7 @@ class CodeFlowMap implements CodeFlowAnalyzer {
   public void markSymbolAsMeetingAcceptableCriteria(final ISymbol identifierSymbol, final IScope inScope) {
 
     if (isVariableToBeChecked.test(identifierSymbol)) {
+      ensureEnclosingScopeHasVariable(identifierSymbol, inScope);
       var access = getOrCreateSymbolAccess(identifierSymbol, inScope);
       markAsMeetingCriteria.accept(access.get(identifierSymbol));
     }
@@ -108,8 +111,6 @@ class CodeFlowMap implements CodeFlowAnalyzer {
     if (enclosingScope.resolve(new SymbolSearch(identifierSymbol.getName())).isEmpty()) {
       return;
     }
-
-    //This is broken variables being pushed up to far - must stay within method/function.
     getSymbolAccessForVariable(identifierSymbol, enclosingScope);
   }
 

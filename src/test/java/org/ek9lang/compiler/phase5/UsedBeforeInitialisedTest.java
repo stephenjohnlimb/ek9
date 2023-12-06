@@ -24,6 +24,7 @@ class UsedBeforeInitialisedTest extends PhasesTest {
   public UsedBeforeInitialisedTest() {
     super("/examples/parseButFailCompile/usedBeforeInitialised",
         List.of("badifelse.functions", "badclass.method.initialisations",
+            "badclass.property.initialisations",
             "bad.operators.return", "bad.serviceoperation.return",
             "bad.overriding.classmethods6", "bad.guardassignment.uninitialised.use",
             "bad.uninitialised.functionparts",
