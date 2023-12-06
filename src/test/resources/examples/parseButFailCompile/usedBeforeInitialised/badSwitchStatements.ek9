@@ -1,0 +1,238 @@
+#!ek9
+<?-
+
+  Just like the if/else initialisation scenario - this deals  with switch statements.
+
+  //The default is optional in the case where there is a returning value (expression).
+  (SWITCH|GIVEN) preFlowAndControl NL+ INDENT (NL* returningParam)? caseStatement+ (directive? DEFAULT block NL+)?
+
+  So, if there is a preflow assignment - then that assignment means that the variable is now initialised for all
+  parts of the switch and that the assignment is pushed up to the enclosing scope level.
+
+  As with functions, any returning variable must also be set in every case and the default block if it was declared in
+  an un-initialised form.
+
+  Also see badSwitchReturns.ek9 for very early checks on default values (so not tested in this phase).
+
+-?>
+defines module badswitch.initialisations
+
+  defines function
+
+    getValueFunction() as pure
+      <- rtn <- 22
+
+    SimpleSwitch1
+      conditionalValue <- 40
+      var as Integer?
+
+      switch conditionalValue
+        case < 24
+          var: 21
+        default
+          blockValue <- 9
+          assert blockValue?
+          //But don't set var!
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert var?
+
+    SimpleSwitch2
+      conditionalValue <- 40
+      var as Integer?
+
+      switch conditionalValue
+        case < 24
+          blockValue <- 9
+          assert blockValue?
+          //But don't set var!
+        default
+          var: 21
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert var?
+
+    SimpleSwitch3
+      conditionalValue <- 40
+      var as Integer?
+
+      switch conditionalValue
+        case < 24
+          var: 21
+        default
+          var: 22
+
+      //But now all paths initialised var. So this is fine.
+      assert var?
+
+
+    SimpleSwitch4
+      conditionalValue <- 40
+      var as Integer?
+
+      //Now because this initialises var - there is no need to worry about initialisation in case blocks.
+      switch var ?= 22 with conditionalValue
+        case < 24
+          blockValue <- 9
+          assert blockValue?
+          //But don't set var!
+        default
+          blockValue <- 10
+          assert blockValue?
+          //But don't set var!
+
+      //Now because of the pre-flow guard, var is initialised.
+      assert var?
+
+    SimpleSwitch5
+      conditionalValue <- 40
+      var as Integer?
+
+      //Now because this initialises var - there is no need to worry about initialisation in case blocks.
+      switch var: 22 with conditionalValue
+        case < 24
+          blockValue <- 9
+          assert blockValue?
+          //But don't set var!
+        default
+          blockValue <- 10
+          assert blockValue?
+          //But don't set var!
+
+      assert var?
+
+    ReturningSwitch1
+      conditionalValue <- 40
+
+      returningValue <- switch conditionalValue
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- rtn1 as Integer?
+        case < 24
+          blockValue <- 9
+          assert blockValue?
+          //But don't set rtn1!
+        default
+          blockValue <- 10
+          assert blockValue?
+          //But don't set rtn1!
+
+      assert returningValue?
+
+
+    ReturningSwitch2
+      conditionalValue <- 40
+
+      returningValue <- switch conditionalValue
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- rtn2 as Integer?
+        case < 24
+          rtn2: 66
+        default
+          blockValue <- 10
+          assert blockValue?
+          //But don't set rtn2!
+
+      assert returningValue?
+
+
+    ReturningSwitch3
+      conditionalValue <- 40
+
+      returningValue <- switch conditionalValue
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- rtn3 as Integer?
+        case < 24
+          blockValue <- 10
+          assert blockValue?
+          //But don't set rtn3!
+        default
+          rtn3: 66
+
+      assert returningValue?
+
+    ReturningSwitch4
+      conditionalValue <- 40
+
+      returningValue <- switch conditionalValue
+        <- rtn4 as Integer?
+        case < 24
+          rtn4: 66
+        default
+          rtn4: 67
+
+      assert returningValue?
+
+
+    <!-
+      In this example a new variable 'var' is created in the scope of the switch.
+      Then it is used to initialise the 'rtn5' value.
+      Note that rtn5 and var can be used withing these scopes, but then go out of scope.
+    -!>
+    ReturningSwitch5
+      conditionalValue <- 40
+
+      returningValue <- switch var <- getValueFunction() with conditionalValue
+        <- rtn5 as Integer: var
+        case < 24
+          blockValue <- 10
+          assert blockValue? and rtn5? and var?
+        default
+          blockValue <- 11
+          assert blockValue? and rtn5? and var?
+
+      //Just to demonstrate that both rtn5 and var are enclosed in scopes above that are now ended.
+      rtn5 <- 2009-10-10
+      var <- "Steve"
+      assert returningValue? and var? and rtn5?
+
+    <?-
+      Shows a slightly different scenario, one with a variable declaration,
+      a conditional check, then a simple switch expression that uses a specific value by default
+      then a couple of simple cases to alter that value.
+    -?>
+    ReturningSwitch6
+      conditionalValue <- 40
+
+      returningValue <- switch var <- getValueFunction() with conditionalValue
+        <- rtn6 as Integer: var
+        case < 24
+          rtn6: 99
+        case < 30
+          rtn6: 101
+
+      assert returningValue?
+
+    <?-
+      Could equally have done this.
+    -?>
+    ReturningSwitch7
+      conditionalValue <- 40
+
+      returningValue <- switch conditionalValue
+        <- rtn7 as Integer: getValueFunction()
+        case < 24
+          rtn7: 99
+        case < 30
+          rtn7: 101
+
+      assert returningValue?
+
+    <?-
+      But the pure variant has to be different to stop direct reassignment.
+    -?>
+    ReturningSwitch8 as pure
+      conditionalValue <- 40
+
+      returningValue <- switch conditionalValue
+        <- rtn8 as Integer?
+        case < 24
+          rtn8 :=? 99
+        case < 30
+          rtn8 :=? 101
+        default
+          rtn8 :=? getValueFunction()
+
+      assert returningValue?
+
+//EOF
+

@@ -15,6 +15,7 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
   private final ProcessGuardExpression processGuardExpression;
   private final ProcessIdentifierReference processIdentifierReference;
   private final ProcessIfStatement processIfStatement;
+  private final ProcessSwitchStatement processSwitchStatement;
   private final ProcessFunctionDeclaration processFunctionDeclaration;
   private final ProcessMethodDeclaration processMethodDeclaration;
   private final ProcessOperatorDeclaration processOperatorDeclaration;
@@ -36,6 +37,8 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
         new ProcessIdentifierReference(symbolAndScopeManagement, errorListener);
     this.processIfStatement =
         new ProcessIfStatement(symbolAndScopeManagement, errorListener);
+    this.processSwitchStatement =
+        new ProcessSwitchStatement(symbolAndScopeManagement, errorListener);
     this.processFunctionDeclaration =
         new ProcessFunctionDeclaration(symbolAndScopeManagement, errorListener);
     this.processMethodDeclaration =
@@ -93,10 +96,8 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
 
   @Override
   public void exitSwitchStatementExpression(EK9Parser.SwitchStatementExpressionContext ctx) {
-    //TODO need to look at preflow guard - if it was used and check if variable was set in there.
-
-    //TODO Also need to check every case and default for variables to ensure initialised (if every path is)
     super.exitSwitchStatementExpression(ctx);
+    processSwitchStatement.accept(ctx);
   }
 
   @Override

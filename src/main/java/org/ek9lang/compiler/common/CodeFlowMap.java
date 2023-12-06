@@ -68,7 +68,8 @@ class CodeFlowMap implements CodeFlowAnalyzer {
       var symbolAccess = getSymbolAccessForVariable(identifierSymbol, inScope);
       return meetsCriteria.test(symbolAccess);
     }
-    return false;
+    //IF it not even to be tested then it is ok
+    return true;
   }
 
   /**

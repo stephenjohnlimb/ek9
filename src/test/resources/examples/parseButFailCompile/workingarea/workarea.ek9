@@ -1,24 +1,13 @@
 #!ek9
 <?-
-
-  Just like the if/else initialisation scenario - this deals  with switch statements.
-
-  //While it looks like the default is optional, this is so that the compiler can provide a better error message.
-  (SWITCH|GIVEN) preFlowAndControl NL+ INDENT (NL* returningParam)? caseStatement+ (directive? DEFAULT block NL+)?
-
-  So, if there is a preflow assignment - then that assignment means that the variable is now initialised for all
-  parts of the switch and that the assignment is pushed up to the enclosing scope level.
-
-  As with functions, any returning variable must also be set in every case and the default block if it was declared in
-  an un initialised form.
-
-  Also see badSwitchReturns.ek9 for very early checks on default values (so not tested in this phase).
-
-  TODO implement switches before trying to detect errors in them?
+  TODO try catch finally blocks.
 -?>
 defines module just.workspace
 
   defines function
+
+    getValueFunction() as pure
+      <- rtn <- 22
 
     SimpleAssignment()
       anInt as Integer?

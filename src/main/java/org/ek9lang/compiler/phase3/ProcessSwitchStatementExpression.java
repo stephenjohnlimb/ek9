@@ -63,7 +63,7 @@ final class ProcessSwitchStatementExpression extends TypedSymbolAccess
     //Assume an equality check - unless an operator has been employed.
     var caseVariable = getRecordedAndTypedSymbol(ctx);
     //If it is null or untyped then we'd get errors by the call above.
-    if (caseVariable != null) {
+    if (caseVariable != null && caseVariable.getType().isPresent()) {
       final var operator = ctx.op != null ? new Ek9Token(ctx.op.getText()) : new Ek9Token("==");
 
       controlSymbol.getType().ifPresent(controlType -> {

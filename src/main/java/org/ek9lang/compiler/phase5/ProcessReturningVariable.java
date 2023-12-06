@@ -26,7 +26,7 @@ final class ProcessReturningVariable extends TypedSymbolAccess
       if (ctx.instructionBlock() != null) {
         updateReturningSymbol(ctx, variable, mainScope);
       }
-      checkInitialisedOrError(ctx, variable, mainScope);
+      checkInitialisedOrError(ctx.returningParam(), variable, mainScope);
     });
   }
 
@@ -43,12 +43,12 @@ final class ProcessReturningVariable extends TypedSymbolAccess
 
   }
 
-  private void checkInitialisedOrError(final EK9Parser.OperationDetailsContext ctx,
+  private void checkInitialisedOrError(final EK9Parser.ReturningParamContext ctx,
                                        final ISymbol variable,
                                        final IScope scope) {
 
     if (!symbolAndScopeManagement.isVariableInitialised(variable, scope)) {
-      errorListener.semanticError(ctx.returningParam().LEFT_ARROW().getSymbol(),
+      errorListener.semanticError(ctx.LEFT_ARROW().getSymbol(),
           "'" + variable.getName() + "':", RETURN_NOT_ALWAYS_INITIALISED);
     }
   }

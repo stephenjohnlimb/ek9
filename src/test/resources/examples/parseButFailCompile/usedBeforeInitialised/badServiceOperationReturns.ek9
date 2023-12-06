@@ -4,8 +4,6 @@
 -?>
 defines module bad.serviceoperation.return
 
-
-
   defines function
     Broken()
       var as Integer?

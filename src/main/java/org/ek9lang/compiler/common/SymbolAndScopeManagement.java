@@ -77,7 +77,7 @@ public class SymbolAndScopeManagement {
   }
 
   public boolean isVariableInitialised(final ISymbol identifierSymbol) {
-    return uninitialisedVariableAnalyzer.doesSymbolMeetAcceptableCriteria(identifierSymbol, this.getTopScope());
+    return isVariableInitialised(identifierSymbol, this.getTopScope());
   }
 
   /**
