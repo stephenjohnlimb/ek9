@@ -125,7 +125,11 @@ final class CheckOperator extends RuleSupport
         "mod", addPureCheck(this::testAcceptOneArgumentsReturnInteger),
         "rem", addPureCheck(this::testAcceptOneArgumentsReturnInteger),
         "contains", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
-        "matches", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
+        "matches", addPureCheck(this::testAcceptOneArgumentsReturnBoolean)
+    );
+
+    final Map<String, Consumer<MethodSymbol>> noArgumentNoReturn = Map.of(
+        "open", addPureCheck(this::testAcceptNoArgumentsReturnAnyType),
         "close", addPureCheck(this::testAcceptNoArgumentsNoReturn)
     );
 
@@ -133,6 +137,7 @@ final class CheckOperator extends RuleSupport
     rtn.putAll(simpleOperatorChecks);
     rtn.putAll(noArgumentWithReturnChecks);
     rtn.putAll(oneArgumentWithReturnChecks);
+    rtn.putAll(noArgumentNoReturn);
 
     //Now for each of those operators tag on the is pure check.
     final Map<String, Consumer<MethodSymbol>> mutatorChecks = Map.of(

@@ -10,7 +10,7 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
  * Just checks that named operator methods:
- * mod, rem, abs, sqrt, close, contains, matches, empty, length
+ * mod, rem, abs, sqrt, open, close, contains, matches, empty, length
  * are not being used as just method names.
  * They are reserved for operators and the semantics that go with those operators.
  * While they could be used with different arguments/parameters - this might be confusing.
@@ -19,7 +19,7 @@ final class CheckMethodNotOperatorName extends RuleSupport
     implements BiConsumer<MethodSymbol, EK9Parser.MethodDeclarationContext> {
 
   private final Set<String> namedOperators = Set.of(
-      "and", "or", "xor", "mod", "rem", "abs", "sqrt", "close", "contains", "matches", "empty", "length");
+      "and", "or", "xor", "mod", "rem", "abs", "sqrt", "open", "close", "contains", "matches", "empty", "length");
 
   CheckMethodNotOperatorName(final SymbolAndScopeManagement symbolAndScopeManagement,
                              final ErrorListener errorListener) {

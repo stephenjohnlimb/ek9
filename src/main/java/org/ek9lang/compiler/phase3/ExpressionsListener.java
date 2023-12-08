@@ -35,7 +35,9 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final ProcessObjectAccessExpressionOrError processObjectAccessExpressionOrError;
   private final ProcessGuardExpression processGuardExpression;
   private final ProcessSwitchStatementExpression processSwitchStatementExpression;
+  private final ProcessTryStatementExpression processTryStatementExpression;
   private final ProcessCaseExpression processCaseExpression;
+  private final CheckThrowStatementOrError checkThrowStatementOrError;
 
   protected ExpressionsListener(ParsedModule parsedModule) {
     super(parsedModule);
@@ -104,6 +106,10 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
         new ProcessSwitchStatementExpression(symbolAndScopeManagement, errorListener);
     this.processCaseExpression =
         new ProcessCaseExpression(symbolAndScopeManagement, errorListener);
+    this.processTryStatementExpression =
+        new ProcessTryStatementExpression(symbolAndScopeManagement, errorListener);
+    this.checkThrowStatementOrError =
+        new CheckThrowStatementOrError(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -201,9 +207,21 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   }
 
   @Override
+  public void exitThrowStatement(EK9Parser.ThrowStatementContext ctx) {
+    checkThrowStatementOrError.accept(ctx);
+    super.exitThrowStatement(ctx);
+  }
+
+  @Override
   public void exitCaseExpression(EK9Parser.CaseExpressionContext ctx) {
     processCaseExpression.accept(ctx);
     super.exitCaseExpression(ctx);
+  }
+
+  @Override
+  public void exitTryStatementExpression(EK9Parser.TryStatementExpressionContext ctx) {
+    processTryStatementExpression.accept(ctx);
+    super.exitTryStatementExpression(ctx);
   }
 
   @Override

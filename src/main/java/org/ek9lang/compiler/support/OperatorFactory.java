@@ -143,6 +143,7 @@ public class OperatorFactory {
         aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "rem", integerType),
         aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "contains", booleanType),
         aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "matches", booleanType),
+        aggregateFactory.createPurePublicSimpleOperator(aggregate, "open", Optional.empty()),
         aggregateFactory.createPurePublicSimpleOperator(aggregate, "close", Optional.empty()),
 
         //Other operators

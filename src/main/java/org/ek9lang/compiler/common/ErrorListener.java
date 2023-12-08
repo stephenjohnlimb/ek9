@@ -400,6 +400,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     TYPE_IS_NOT_INJECTABLE("type is not an injectable component"),
     TYPE_IS_NOT_ASPECT("type is not an aspect"),
     TYPE_MUST_EXTEND_EXCEPTION("type must be of Exception type"),
+    SINGLE_EXCEPTION_ONLY("only a single Exception is supported"),
     TYPE_MUST_BE_FUNCTION("type must be a function or delegate"),
     TYPE_MUST_NOT_BE_FUNCTION("type must not be a function"),
     PARAM_MUST_BE_VARIABLE("parameter must be a variable"),

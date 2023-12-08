@@ -130,7 +130,6 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
   @Override
   public void exitDynamicFunctionDeclaration(EK9Parser.DynamicFunctionDeclarationContext ctx) {
     processDynamicFunctionDeclarationExit.accept(ctx);
-
     super.exitDynamicFunctionDeclaration(ctx);
   }
 

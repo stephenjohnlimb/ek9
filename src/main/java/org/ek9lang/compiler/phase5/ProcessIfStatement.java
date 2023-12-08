@@ -27,9 +27,48 @@ final class ProcessIfStatement extends TypedSymbolAccess implements Consumer<EK9
   public void accept(final EK9Parser.IfStatementContext ctx) {
     var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
 
-    //So lets check to see if a variable was initialised in the first guard (only the first guard though).
-    analyzers.forEach(analyzer -> processPossibleFirstIfGuardInitialisation(analyzer, ctx));
+    if (isGuardExpressionPresent(ctx)) {
+      processGuardInitialisation(analyzers, ctx);
+    }
 
+    processBlocks(analyzers, ctx);
+
+  }
+
+  private boolean isGuardExpressionPresent(final EK9Parser.IfStatementContext ctx) {
+
+    return ctx.ifControlBlock().get(0).preFlowAndControl() != null
+        && ctx.ifControlBlock().get(0).preFlowAndControl().preFlowStatement() != null
+        && ctx.ifControlBlock().get(0).preFlowAndControl().preFlowStatement().guardExpression() != null;
+
+  }
+
+  private void processGuardInitialisation(final List<CodeFlowAnalyzer> analyzers,
+                                          final EK9Parser.IfStatementContext ctx) {
+
+    analyzers.forEach(analyzer -> processGuardInitialisation(analyzer, ctx));
+
+  }
+
+  /**
+   * Now when the first 'if' has a guard it is 'always' executed and so may initialise a variable.
+   */
+  private void processGuardInitialisation(final CodeFlowAnalyzer analyzer,
+                                          final EK9Parser.IfStatementContext ctx) {
+
+    var variable = symbolAndScopeManagement.getRecordedSymbol(
+        ctx.ifControlBlock().get(0).preFlowAndControl().preFlowStatement().guardExpression().identifier());
+    var scope = symbolAndScopeManagement.getRecordedScope(ctx);
+
+    boolean initialised = analyzer.doesSymbolMeetAcceptableCriteria(variable, scope);
+    if (initialised) {
+      final var outerScope = symbolAndScopeManagement.getTopScope();
+      analyzer.markSymbolAsMeetingAcceptableCriteria(variable, outerScope);
+    }
+
+  }
+
+  private void processBlocks(final List<CodeFlowAnalyzer> analyzers, final EK9Parser.IfStatementContext ctx) {
     if (ctx.elseOnlyBlock() == null) {
       //Then only an 'if' or a set of 'ifs' may/may not have set any of the variable criteria.
       //So we cannot modify the outer scope variables, so we're done
@@ -55,29 +94,6 @@ final class ProcessIfStatement extends TypedSymbolAccess implements Consumer<EK9
         analyzer.markSymbolAsMeetingAcceptableCriteria(variable, outerScope);
       }
     }
-  }
-
-  /**
-   * Now when the first 'if' has a guard it is 'always' executed and so may initialise a variable.
-   */
-  private void processPossibleFirstIfGuardInitialisation(final CodeFlowAnalyzer analyzer,
-                                                         final EK9Parser.IfStatementContext ctx) {
-
-    if (ctx.ifControlBlock().get(0).preFlowAndControl() != null
-        && ctx.ifControlBlock().get(0).preFlowAndControl().preFlowStatement() != null
-        && ctx.ifControlBlock().get(0).preFlowAndControl().preFlowStatement().guardExpression() != null) {
-
-      var variable = symbolAndScopeManagement.getRecordedSymbol(
-          ctx.ifControlBlock().get(0).preFlowAndControl().preFlowStatement().guardExpression().identifier());
-      var scope = symbolAndScopeManagement.getRecordedScope(ctx);
-
-      boolean initialised = analyzer.doesSymbolMeetAcceptableCriteria(variable, scope);
-      if (initialised) {
-        final var outerScope = symbolAndScopeManagement.getTopScope();
-        analyzer.markSymbolAsMeetingAcceptableCriteria(variable, outerScope);
-      }
-    }
-
   }
 
   private boolean isVariableInitialisedInEveryScope(final CodeFlowAnalyzer analyzer,

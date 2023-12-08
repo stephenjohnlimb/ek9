@@ -436,9 +436,10 @@ call
     | call paramExpression
     ;
 
+//Now allow the keyword function to be used instead of try, seems to fit better in some scenarios.
 tryStatementExpression
-    : TRY preFlowStatement? NL+ INDENT NL* declareArgumentParam? instructionBlock DEDENT catchStatementExpression? finallyStatementExpression?
-    | TRY preFlowStatement? NL+ INDENT NL* declareArgumentParam? returningParam instructionBlock? DEDENT catchStatementExpression? finallyStatementExpression?
+    : (TRY|FUNCTION) preFlowStatement? NL+ INDENT NL* declareArgumentParam? instructionBlock DEDENT catchStatementExpression? finallyStatementExpression?
+    | (TRY|FUNCTION) preFlowStatement? NL+ INDENT NL* declareArgumentParam? returningParam instructionBlock? DEDENT catchStatementExpression? finallyStatementExpression?
     ;
 
 catchStatementExpression
@@ -468,7 +469,7 @@ preFlowAndControl
     : preFlowStatement? control=expression;
 
 preFlowStatement
-    : (variableDeclaration | assignmentStatement | guardExpression) (WITH|THEN)
+    : (variableDeclaration | assignmentStatement | guardExpression) (WITH|THEN)?
     ;
 
 guardExpression
@@ -640,6 +641,7 @@ operator
     | HASHCODE
     | PREFIX
     | SUFFIX
+    | OPEN
     | CLOSE
     | EMPTY
     | LENGTH
@@ -702,6 +704,7 @@ identifier
     | BY
     | WITH
     | ONLY
+    | OPEN
     | PURE
     | HTTP_QUERY
     | HTTP_PATH

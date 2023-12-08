@@ -361,5 +361,33 @@ defines module badifelse.functions
       @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
       assert anInt?
 
+    <?-
+      This is a bit tricky because it looks like anInt is initialised in every path.
+      Which is actually is, so irrespective of whether or not the 'initialisedByGuard ?= 33' is
+      successful or not all paths cause anInt to be initialised.
+    -?>
+    ConditionalAssignment17()
+      varAsTrue <- true
+      varAsFalse <- false
+      initialisedByGuard as Integer?
+      anInt as Integer?
+
+
+      if initialisedByGuard ?= 33 then varAsTrue
+        unUsedValue <- 34
+        //So now initialise with what was initialised by the guard (if it was!)
+        anInt: initialisedByGuard
+        assert unUsedValue? and anInt?
+      else if not varAsFalse
+        anInt:44
+        assert anInt?
+      else
+        anInt:45
+        assert anInt?
+
+      //This is because the guard is a conditional on another variable,
+      //but as all paths do initialise anInt - it's still OK.
+      assert anInt?
+
 //EOF
 

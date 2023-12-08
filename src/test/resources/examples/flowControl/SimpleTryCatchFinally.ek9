@@ -163,7 +163,7 @@ defines module com.customer.exceptions
     -?>
     TryWithGuard()
       someVar as String?
-      try someVar ?= testFunction("Steve") then
+      try someVar ?= testFunction("Steve")
         example2 <- FileExceptionExample()
         example2.demonstrateNamedFileNotFound(someVar)
       catch
@@ -175,7 +175,7 @@ defines module com.customer.exceptions
     -?>
     TryWithAssignment()
       someVar as String?
-      try someVar: testFunction("Steve") then
+      try someVar: testFunction("Steve")
         example2 <- FileExceptionExample()
         example2.demonstrateNamedFileNotFound(someVar)
       catch
@@ -189,7 +189,7 @@ defines module com.customer.exceptions
     -?>
     TryWithDeclaration()
 
-      try someVar <- testFunction("Steve") then
+      try someVar <- testFunction("Steve")
         example2 <- FileExceptionExample()
         example2.demonstrateNamedFileNotFound(someVar)
       catch

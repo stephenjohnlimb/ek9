@@ -101,6 +101,23 @@ defines module badswitch.initialisations
 
       assert var?
 
+    <?-
+      A little like the if/else guard combination, this has a guard on an unrelated variable.
+      This makes the first block conditional. But in all paths the var does get set.
+    -?>
+    SimpleSwitch6
+      conditionalValue <- 40
+      initialisedByGuard as Integer?
+      var as Integer?
+
+      switch initialisedByGuard: 22 with conditionalValue
+        case < 24
+          var: initialisedByGuard
+        default
+          var: 23
+
+      assert var?
+
     ReturningSwitch1
       conditionalValue <- 40
 

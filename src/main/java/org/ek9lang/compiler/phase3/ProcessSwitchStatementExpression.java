@@ -12,38 +12,29 @@ import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.SwitchSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
+/**
+ * Deals with checking if the switch can be used as an expression and whether
+ * the variable being switched on has the appropriate operators to meet the case criteria.
+ */
 final class ProcessSwitchStatementExpression extends TypedSymbolAccess
     implements Consumer<EK9Parser.SwitchStatementExpressionContext> {
+
+  private final SetTypeFromReturningParam setTypeFromReturningParam;
+
   ProcessSwitchStatementExpression(SymbolAndScopeManagement symbolAndScopeManagement,
                                    ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
+    this.setTypeFromReturningParam = new SetTypeFromReturningParam(symbolAndScopeManagement, errorListener);
   }
 
   @Override
   public void accept(final EK9Parser.SwitchStatementExpressionContext ctx) {
 
     var switchExpression = (SwitchSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    processReturnTypes(switchExpression, ctx);
+    setTypeFromReturningParam.accept(switchExpression, ctx.returningParam());
     processSwitchCases(ctx);
-
   }
 
-  private void processReturnTypes(final SwitchSymbol switchExpression,
-                                  final EK9Parser.SwitchStatementExpressionContext ctx) {
-
-    //At this point the idea of the SwitchExpression exists, but as it can be used to return values
-    //It may or may not need to have a 'type'.
-    if (ctx.returningParam() != null) {
-      var returning = getRecordedAndTypedSymbol(ctx.returningParam());
-      if (returning != null) {
-        switchExpression.setType(returning.getType());
-      }
-    } else {
-      //Else it is a void return so lets update it to be that.
-      switchExpression.setType(symbolAndScopeManagement.getEk9Types().ek9Void());
-    }
-
-  }
 
   /**
    * Checks the cases in terms of types and operators.
