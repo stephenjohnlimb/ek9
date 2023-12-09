@@ -649,39 +649,39 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   }
 
   @Override
-  public void enterForStatement(EK9Parser.ForStatementContext ctx) {
+  public void enterForStatementExpression(EK9Parser.ForStatementExpressionContext ctx) {
     pushNewForLoopScope(ctx);
-    super.enterForStatement(ctx);
+    super.enterForStatementExpression(ctx);
   }
 
   @Override
-  public void exitForStatement(EK9Parser.ForStatementContext ctx) {
+  public void exitForStatementExpression(EK9Parser.ForStatementExpressionContext ctx) {
     var scope = symbolAndScopeManagement.getTopScope();
-    pullBlockTerminationUp(ctx.block());
+    pullBlockTerminationUp(ctx.instructionBlock());
 
     if (!scope.isTerminatedNormally()) {
       unreachableStatement.accept(new Ek9Token(ctx.start), scope.getEncounteredExceptionToken());
     }
 
-    super.exitForStatement(ctx);
+    super.exitForStatementExpression(ctx);
   }
 
   @Override
-  public void enterWhileStatement(EK9Parser.WhileStatementContext ctx) {
+  public void enterWhileStatementExpression(EK9Parser.WhileStatementExpressionContext ctx) {
     checkNotABooleanLiteral.accept(ctx.control);
-    super.enterWhileStatement(ctx);
+    super.enterWhileStatementExpression(ctx);
   }
 
   @Override
-  public void exitWhileStatement(EK9Parser.WhileStatementContext ctx) {
+  public void exitWhileStatementExpression(EK9Parser.WhileStatementExpressionContext ctx) {
     var scope = symbolAndScopeManagement.getTopScope();
-    pullBlockTerminationUp(ctx.block());
+    pullBlockTerminationUp(ctx.instructionBlock());
 
     if (!scope.isTerminatedNormally()) {
       unreachableStatement.accept(new Ek9Token(ctx.start), scope.getEncounteredExceptionToken());
     }
 
-    super.exitWhileStatement(ctx);
+    super.exitWhileStatementExpression(ctx);
   }
 
   @Override

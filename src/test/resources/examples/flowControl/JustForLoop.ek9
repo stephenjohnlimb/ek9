@@ -161,4 +161,37 @@ defines module com.customer.just.loops
       for prefix <- messagePrefix() then i in 1 ... 10
         stdout.println(`${prefix}${i}`)
 
+    <?-
+      Now see how the new for 'expression' looks.
+      It looks and feels nice.
+      //TODO add some tests on missing rtn in expression use
+      //Also adding a return in a normal statement is pointless / like switch/try
+    -?>
+    forLoopAsExpression()
+      result <- for i in 1 ... 10
+        <- rtn <- 0
+        rtn += i
+      assert result?
+
+    <?-
+      Here is the while loop as an expression that can return a value.
+    -?>
+    whileLoopAsExpression()
+      result <- while check <- false then not check
+        <- rtn <- 0
+        rtn++
+        check: rtn == 10
+      assert result?
+
+    <?-
+      Here is the do/while loop as an expression that can return a value.
+    -?>
+    doLoopAsExpression()
+      result <- do check <- false
+        <- rtn <- 0
+        rtn++
+        check: rtn == 10
+      while not check
+
+      assert result?
 //EOF

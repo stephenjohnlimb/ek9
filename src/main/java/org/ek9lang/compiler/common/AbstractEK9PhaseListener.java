@@ -261,9 +261,9 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   }
 
   @Override
-  public void exitForStatement(EK9Parser.ForStatementContext ctx) {
+  public void exitForStatementExpression(EK9Parser.ForStatementExpressionContext ctx) {
     symbolAndScopeManagement.exitScope();
-    super.exitForStatement(ctx);
+    super.exitForStatementExpression(ctx);
   }
 
   @Override

@@ -24,7 +24,7 @@ class ExamplesFlowControlTest extends PhasesTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
-    new SymbolCountCheck("com.customer.just.loops", 11).test(program);
+    new SymbolCountCheck("com.customer.just.loops", 14).test(program);
 
     new SymbolCountCheck("com.customer.just.ifs", 6).test(program);
 

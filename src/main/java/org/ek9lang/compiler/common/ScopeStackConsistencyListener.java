@@ -136,9 +136,9 @@ public abstract class ScopeStackConsistencyListener extends AbstractEK9PhaseList
   }
 
   @Override
-  public void enterForStatement(EK9Parser.ForStatementContext ctx) {
+  public void enterForStatementExpression(EK9Parser.ForStatementExpressionContext ctx) {
     symbolAndScopeManagement.enterScope(symbolAndScopeManagement.getRecordedScope(ctx));
-    super.enterForStatement(ctx);
+    super.enterForStatementExpression(ctx);
   }
 
   @Override

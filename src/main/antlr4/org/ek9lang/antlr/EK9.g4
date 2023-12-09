@@ -334,8 +334,8 @@ variableDeclaration
 
 statement
     : ifStatement
-    | whileStatement
-    | forStatement
+    | whileStatementExpression
+    | forStatementExpression
     | assertStatement
     | assignmentStatement
     | identifierReference op=(INC | DEC)
@@ -356,13 +356,13 @@ ifControlBlock
 elseOnlyBlock
     : NL+ directive? ELSE block;
 
-whileStatement
-    : WHILE preFlowStatement? control=expression block
-    | DO preFlowStatement? block NL+ directive? WHILE control=expression
+whileStatementExpression
+    : WHILE preFlowStatement? control=expression NL+ INDENT (NL* returningParam)? NL* instructionBlock DEDENT
+    | DO preFlowStatement? NL+ INDENT (NL* returningParam)? NL* instructionBlock DEDENT NL+ directive? WHILE control=expression
     ;
 
-forStatement
-    : (forLoop | forRange) block
+forStatementExpression
+    : (forLoop | forRange) NL+ INDENT (NL* returningParam)? NL* instructionBlock DEDENT
     ;
 
 forLoop
@@ -380,6 +380,8 @@ assignmentStatement
 assignmentExpression
     : expression
     | guardExpression
+    | whileStatementExpression
+    | forStatementExpression
     | switchStatementExpression
     | tryStatementExpression
     | dynamicClassDeclaration
