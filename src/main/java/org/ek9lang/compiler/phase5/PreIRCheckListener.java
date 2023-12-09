@@ -114,6 +114,22 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
 
   }
 
+  @Override
+  public void exitForStatementExpression(EK9Parser.ForStatementExpressionContext ctx) {
+    //TODO need to look at preflow guard - if it was used and check if variable was set in there.
+    //TODO remember flow may not go through the loop at all
+    super.exitForStatementExpression(ctx);
+  }
+
+  @Override
+  public void exitWhileStatementExpression(EK9Parser.WhileStatementExpressionContext ctx) {
+    //TODO need to look at preflow guard - if it was used and check if variable was set in there.
+    //TODO remember flow may not go through the loop at all for the while.
+    //TODO but it always goes through once for the 'do'.
+
+    super.exitWhileStatementExpression(ctx);
+  }
+
   /**
    * On enter dynamic function need to record any return symbol, because we won't parse the text as it is inferred.
    * The on exit still need to do the same return processing to see if the rtn has been initialised.
