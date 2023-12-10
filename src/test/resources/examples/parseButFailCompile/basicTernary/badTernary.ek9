@@ -57,7 +57,7 @@ defines module just.ternary
     TestBadTernary2()
       //While var++ is an expression it does not result in a Boolean
       var <- 9
-      @Error: FULL_RESOLUTION: MUST_RESULT_IN_A_BOOLEAN
+      @Error: FULL_RESOLUTION: MUST_BE_A_BOOLEAN
       notReallyValid <- var++ <- "String1" else "String2"
 
       assert notReallyValid?

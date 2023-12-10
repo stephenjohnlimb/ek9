@@ -12,11 +12,13 @@ import org.ek9lang.compiler.symbols.WhileSymbol;
 final class ProcessWhileStatementExpression extends TypedSymbolAccess
     implements Consumer<EK9Parser.WhileStatementExpressionContext> {
   private final SetTypeFromReturningParam setTypeFromReturningParam;
+  private final CheckControlIsBooleanOrError checkControlIsBooleanOrError;
 
   ProcessWhileStatementExpression(SymbolAndScopeManagement symbolAndScopeManagement,
                                   ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
     this.setTypeFromReturningParam = new SetTypeFromReturningParam(symbolAndScopeManagement, errorListener);
+    this.checkControlIsBooleanOrError = new CheckControlIsBooleanOrError(symbolAndScopeManagement, errorListener);
   }
 
   @Override
@@ -24,6 +26,7 @@ final class ProcessWhileStatementExpression extends TypedSymbolAccess
 
     var whileExpression = (WhileSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     setTypeFromReturningParam.accept(whileExpression, ctx.returningParam());
+    checkControlIsBooleanOrError.accept(ctx.control);
   }
 
 }

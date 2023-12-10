@@ -34,6 +34,7 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final ProcessObjectAccessStartOrError processObjectAccessStartOrError;
   private final ProcessObjectAccessExpressionOrError processObjectAccessExpressionOrError;
   private final ProcessGuardExpression processGuardExpression;
+  private final ProcessIfStatement processIfStatement;
   private final ProcessForStatementExpression processForStatementExpression;
   private final ProcessWhileStatementExpression processWhileStatementExpression;
   private final ProcessWhileControlVariable processWhileControlVariable;
@@ -105,6 +106,8 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
         new ProcessObjectAccessExpressionOrError(symbolAndScopeManagement, errorListener);
     this.processGuardExpression =
         new ProcessGuardExpression(symbolAndScopeManagement, errorListener);
+    this.processIfStatement =
+        new ProcessIfStatement(symbolAndScopeManagement, errorListener);
     this.processForStatementExpression =
         new ProcessForStatementExpression(symbolAndScopeManagement, errorListener);
     this.processWhileStatementExpression =
@@ -198,15 +201,21 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   }
 
   @Override
-  public void exitGuardExpression(EK9Parser.GuardExpressionContext ctx) {
-    processGuardExpression.accept(ctx);
-    super.exitGuardExpression(ctx);
-  }
-
-  @Override
   public void exitAssignmentStatement(EK9Parser.AssignmentStatementContext ctx) {
     processAssignmentStatement.accept(ctx);
     super.exitAssignmentStatement(ctx);
+  }
+
+  @Override
+  public void exitIfStatement(EK9Parser.IfStatementContext ctx) {
+    processIfStatement.accept(ctx);
+    super.exitIfStatement(ctx);
+  }
+
+  @Override
+  public void exitGuardExpression(EK9Parser.GuardExpressionContext ctx) {
+    processGuardExpression.accept(ctx);
+    super.exitGuardExpression(ctx);
   }
 
   @Override

@@ -19,5 +19,46 @@ defines module just.workspace
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       assert notDefined?
 
+    IfWithNoneBooleanControl()
+
+      stringControl <- "Not Allowed"
+      dateControl <- 2009-10-10
+
+      @Error: FULL_RESOLUTION: MUST_BE_A_BOOLEAN
+      if stringControl
+        var <- "Check1"
+        assert var?
+      @Error: FULL_RESOLUTION: MUST_BE_A_BOOLEAN
+      else if dateControl
+        var <- "Check2"
+        assert var?
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      else if nonSuch
+        var <- "Check3"
+        assert var?
+      else
+        var <- "Check4"
+        assert var?
+
+    WhileWithNonBooleanControl()
+      stringControl <- "Not Allowed"
+      value <- 0
+
+      @Error: FULL_RESOLUTION: MUST_BE_A_BOOLEAN
+      while stringControl
+        value++
+      assert value?
+
+    DoWhileWithNonBooleanControl()
+      stringControl <- "Not Allowed"
+      value <- 0
+
+      do
+        value++
+      @Error: FULL_RESOLUTION: MUST_BE_A_BOOLEAN
+      while stringControl
+
+      assert value?
+
 //EOF
 

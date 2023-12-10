@@ -27,7 +27,7 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
   private final CheckForComparator checkForComparator;
   private final CheckForOperator checkForOperator;
   private final MethodSymbolSearchForExpression methodSymbolSearchForExpression;
-  private final CheckTypeIsBoolean checkTypeIsBoolean;
+  private final CheckControlIsBooleanOrError checkControlIsBooleanOrError;
   private final CommonTypeSuperOrTrait commonTypeSuperOrTrait;
   private final AccessLeftAndRight accessLeftAndRight;
   private final SymbolFromContextOrError symbolFromContextOrError;
@@ -46,7 +46,7 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     this.checkForComparator = new CheckForComparator(symbolAndScopeManagement, errorListener);
     this.checkForOperator = new CheckForOperator(symbolAndScopeManagement, errorListener);
     this.methodSymbolSearchForExpression = new MethodSymbolSearchForExpression(symbolAndScopeManagement, errorListener);
-    this.checkTypeIsBoolean = new CheckTypeIsBoolean(symbolAndScopeManagement, errorListener);
+    this.checkControlIsBooleanOrError = new CheckControlIsBooleanOrError(symbolAndScopeManagement, errorListener);
     this.commonTypeSuperOrTrait = new CommonTypeSuperOrTrait(errorListener);
     this.accessLeftAndRight = new AccessLeftAndRight(symbolAndScopeManagement, errorListener);
     this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
@@ -161,7 +161,7 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     var leftAndRight = toList.apply(accessLeftAndRight.apply(ctx));
     if (control != null && !leftAndRight.isEmpty()) {
       //So do the checks, this will result in errors being emitted if the values are not acceptable.
-      checkTypeIsBoolean.accept(start, control);
+      checkControlIsBooleanOrError.accept(ctx.control);
       var commonType = commonTypeSuperOrTrait.apply(new Ek9Token(ctx.LEFT_ARROW().getSymbol()), leftAndRight);
       if (commonType.isPresent()) {
         //We can make an expression that models this and the correct return type.
