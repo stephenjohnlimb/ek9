@@ -1,0 +1,183 @@
+#!ek9
+<?-
+  Simple examples of expressions via constructs that are not normally expressions.
+  So simple cases of switch, try, for-loop, do-while and while.
+  Traditionally these are not expressions but with EK9 they can be.
+  So this is a simple set of examples that demonstrate this.
+-?>
+defines module just.various.loops
+
+  defines function
+
+    ForLoopStatement()
+      for i in 0 ... 10
+        assert i?
+
+    ForLoopExpression()
+      result <- for i in 0 ... 10
+        <- rtn as Integer: 0
+        rtn++
+
+      //Make sure that the result is resolved and typed.
+      assert result?
+
+    WhileLoopStatement()
+      continue <- true
+      total <- 0
+
+      //Nice check for unreferenced after assignment.
+      //Because the code ordering, looks like continue is assigned but then not checked.
+      //But it is because it is in a loop.
+      while continue
+        total++
+        continue: total < 11
+
+    <?-
+      Check that a public property on a record coule also be used.
+    -?>
+    WhileLoopStatementUsingRecordProperty()
+      total <- 0
+
+      while r1 <- R1() then r1.continue
+        total++
+        r1.continue: total < 11
+
+    <?-
+      This now combines both a control variable and the value being mutated into the
+      while 'scope', this makes it much more compact and obvious.
+      Furthermore, it turns the while loop into an expression, providing the return value.
+      In short it pulls the variables that were in the outer scope into thi while self
+      contained scope. It makes the code more obvious, the mutating value 'rtn' is no
+      initialised in the '<- rtn <- 0' syntax, mutated in the loop.
+    -?>
+    WhileLoopExpression()
+
+      result <- while continue <- true then continue
+        <- rtn <- 0
+        continue: rtn++ < 11
+
+      //Ensure valid an has type
+      assert result?
+
+    DoWhileLoopStatement()
+      continue <- true
+      total <- 0
+
+      do
+        total++
+        continue: total < 10
+      while continue
+
+    <?-
+      This do/while, draws the control variable into the do scope via 'preflow'.
+      So in this case it is a declaration of the control variable 'continue'.
+    -?>
+    DoWhileLoopStatementWithDeclaration()
+      total <- 0
+
+      do continue <- true
+        continue: total++ < 10
+      while continue
+
+    <?-
+      This do/while expression, draws the control variable into the do scope via 'preflow'.
+      It now also draws the variable being mutated into the scope and turns this
+      do/while into an expression - returning the mutated value as the result.
+    -?>
+    DoWhileLoopExpression()
+
+      result <- do continue <- true
+        <- rtn <- 0
+        continue: rtn++ < 10
+      while continue
+
+      assert result?
+
+    SwitchStatement()
+      value <- 211
+      message <- String()
+      switch value
+        case < 200
+          message: "Low"
+        case > 220
+          message: "High"
+        default
+          message: "Ideal"
+
+      assert message?
+
+    <?-
+      Turns the switch statement into an expression.
+      But this can be tidied up further (see next example).
+    -?>
+    SwitchExpression1()
+      value <- 211
+
+      result <- switch value
+        <- rtn <- ""
+        case < 200
+          rtn: "Low"
+        case > 220
+          rtn: "High"
+        default
+          rtn: "Ideal"
+
+      assert result?
+
+    <?-
+      Turns the switch statement into an expression.
+      But this has been tidied up further, removed redundant 'default'.
+    -?>
+    SwitchExpression2()
+      value <- 211
+
+      result <- switch value
+        <- rtn <- "Ideal"
+        case < 200
+          rtn: "Low"
+        case > 220
+          rtn: "High"
+
+      assert result?
+
+    TryCatchFinallyStatement()
+
+      message <- String
+      try
+        message: "Normal Processing Block"
+      catch
+        -> ex as Exception
+        message: ex.reason()
+      finally
+        message += " Finally concluded"
+
+      assert message?
+
+    <?-
+      Takes the previous try/catch/finally and turns it into an expression.
+    -?>
+    TryCatchFinallyExpression()
+
+      result <- try
+        <- rtn <- ""
+        rtn: "Normal Processing Block"
+      catch
+        -> ex as Exception
+        rtn: ex.reason()
+      finally
+        rtn += " Finally concluded"
+
+      assert result?
+
+    JustFail()
+      notInitialised as String?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert notInitialised?
+
+  defines record
+    R1
+      continue <- true
+
+//EOF
+

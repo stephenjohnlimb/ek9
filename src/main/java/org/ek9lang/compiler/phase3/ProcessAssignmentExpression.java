@@ -41,6 +41,10 @@ final class ProcessAssignmentExpression extends TypedSymbolAccess
     ISymbol symbol = null;
     if (ctx.expression() != null) {
       symbol = getRecordedAndTypedSymbol(ctx.expression());
+    } else if (ctx.forStatementExpression() != null) {
+      symbol = getRecordedAndTypedSymbol(ctx.forStatementExpression());
+    } else if (ctx.whileStatementExpression() != null) {
+      symbol = getRecordedAndTypedSymbol(ctx.whileStatementExpression());
     } else if (ctx.switchStatementExpression() != null) {
       symbol = getRecordedAndTypedSymbol(ctx.switchStatementExpression());
     } else if (ctx.tryStatementExpression() != null) {

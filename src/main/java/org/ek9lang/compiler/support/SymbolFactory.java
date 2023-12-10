@@ -53,6 +53,7 @@ import org.ek9lang.compiler.symbols.SwitchSymbol;
 import org.ek9lang.compiler.symbols.Symbol;
 import org.ek9lang.compiler.symbols.TrySymbol;
 import org.ek9lang.compiler.symbols.VariableSymbol;
+import org.ek9lang.compiler.symbols.WhileSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
@@ -66,6 +67,7 @@ import org.ek9lang.core.UniqueIdGenerator;
 public class SymbolFactory {
 
   public static final String UNINITIALISED_AT_DECLARATION = "UNINITIALISED";
+  public static final String NO_REFERENCED_RESET = "NO_REFERENCED_RESET";
   public static final String SUBSTITUTED = "SUBSTITUTED";
   public static final String ACCESSED = "ACCESSED";
   public static final String DEFAULTED = "DEFAULTED";
@@ -945,6 +947,16 @@ public class SymbolFactory {
   }
 
   /**
+   * Create a new while or do/while scoped symbol.
+   */
+  public WhileSymbol newWhileLoop(EK9Parser.WhileStatementExpressionContext ctx, IScope scope) {
+    var whileLoop = new WhileSymbol(scope, ctx.DO() != null);
+    var startToken = new Ek9Token(ctx.start);
+    configureSymbol(whileLoop, startToken);
+    return whileLoop;
+  }
+
+  /**
    * Create a new aggregate that represents an EK9 loop variable.
    */
   public VariableSymbol newLoopVariable(EK9Parser.ForLoopContext ctx) {
@@ -1150,4 +1162,5 @@ public class SymbolFactory {
     }
     return rtn;
   }
+
 }

@@ -142,6 +142,12 @@ public abstract class ScopeStackConsistencyListener extends AbstractEK9PhaseList
   }
 
   @Override
+  public void enterWhileStatementExpression(EK9Parser.WhileStatementExpressionContext ctx) {
+    symbolAndScopeManagement.enterScope(symbolAndScopeManagement.getRecordedScope(ctx));
+    super.enterWhileStatementExpression(ctx);
+  }
+
+  @Override
   public void enterReturningParam(EK9Parser.ReturningParamContext ctx) {
     symbolAndScopeManagement.enterScope(symbolAndScopeManagement.getRecordedScope(ctx));
     super.enterReturningParam(ctx);

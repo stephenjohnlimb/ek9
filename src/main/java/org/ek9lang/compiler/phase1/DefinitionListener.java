@@ -21,7 +21,6 @@ import static org.ek9lang.compiler.support.AggregateFactory.EK9_VERSION;
 import static org.ek9lang.compiler.support.AggregateFactory.EK9_VOID;
 
 import java.util.Optional;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9Parser;
@@ -650,7 +649,9 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterForStatementExpression(EK9Parser.ForStatementExpressionContext ctx) {
-    pushNewForLoopScope(ctx);
+    var currentScope = symbolAndScopeManagement.getTopScope();
+    final var newForSymbol = symbolFactory.newForLoop(ctx, currentScope);
+    symbolAndScopeManagement.enterNewScopedSymbol(newForSymbol, ctx);
     super.enterForStatementExpression(ctx);
   }
 
@@ -668,6 +669,11 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterWhileStatementExpression(EK9Parser.WhileStatementExpressionContext ctx) {
+    var currentScope = symbolAndScopeManagement.getTopScope();
+    final var newWhileSymbol = symbolFactory.newWhileLoop(ctx, currentScope);
+    symbolAndScopeManagement.enterNewScopedSymbol(newWhileSymbol, ctx);
+
+    //EK9 does not allow a literal true in a while.
     checkNotABooleanLiteral.accept(ctx.control);
     super.enterWhileStatementExpression(ctx);
   }
@@ -1194,12 +1200,6 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     } else {
       symbolAndScopeManagement.recordScopeForStackConsistency(new StackConsistencyScope(program), ctx);
     }
-  }
-
-  private void pushNewForLoopScope(final ParserRuleContext ctx) {
-    IScope scope = symbolAndScopeManagement.getTopScope();
-    var forBlock = symbolFactory.newForLoop(ctx, scope);
-    symbolAndScopeManagement.enterNewScope(forBlock, ctx);
   }
 
   /**

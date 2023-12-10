@@ -267,6 +267,12 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   }
 
   @Override
+  public void exitWhileStatementExpression(EK9Parser.WhileStatementExpressionContext ctx) {
+    symbolAndScopeManagement.exitScope();
+    super.exitWhileStatementExpression(ctx);
+  }
+
+  @Override
   public void exitReturningParam(EK9Parser.ReturningParamContext ctx) {
     symbolAndScopeManagement.exitScope();
     super.exitReturningParam(ctx);

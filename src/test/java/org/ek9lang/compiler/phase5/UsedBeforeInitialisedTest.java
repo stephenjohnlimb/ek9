@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
  * So to cater for this, it is essential that the compiler does everything it can to ensure
  * that variables that start out un initialised, are always initialised before they are used.
  * This is non-trivial, and quite expensive to do in processing terms.
+ * TODO add tests for try/for/while/do/while epressions with bad rtn being uninitialised.
  */
 class UsedBeforeInitialisedTest extends PhasesTest {
 

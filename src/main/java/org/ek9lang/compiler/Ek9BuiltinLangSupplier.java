@@ -2101,7 +2101,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
                 reason as String
                 exitCode as Integer
             
-            information()
+            reason()
               <- rtn as String?
             
             exitCode()

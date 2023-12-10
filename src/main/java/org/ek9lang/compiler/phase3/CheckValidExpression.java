@@ -127,6 +127,7 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     if (ctx.QUESTION() != null) {
       return checkAndProcessIsSet(ctx);
     } else if (!ctx.expression().isEmpty()) {
+
       //Could be one expression (unary) or have two expressions.
       //This case only looks for operators on some form of aggregate.
       var opToken = new Ek9Token(ctx.op);

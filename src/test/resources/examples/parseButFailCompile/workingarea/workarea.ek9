@@ -4,13 +4,20 @@
   So simple cases of switch, try, for-loop, do-while and while.
   Traditionally these are not expressions but with EK9 they can be.
   So this is a simple set of examples that demonstrate this.
+
+  Also need uninitialised returns for try expressions for expressions and while do/while expressions.
+  //TODO add these to usedBeforeInitialised tests.
+
+  //TODO check control is a Boolean / also do this for 'if' statements. Do this at full resolution (new test)
 -?>
 defines module just.workspace
 
   defines function
+
     JustFail()
+
       @Error: FULL_RESOLUTION: NOT_RESOLVED
-      assert NotResolved
+      assert notDefined?
 
 //EOF
 

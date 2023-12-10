@@ -34,6 +34,9 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final ProcessObjectAccessStartOrError processObjectAccessStartOrError;
   private final ProcessObjectAccessExpressionOrError processObjectAccessExpressionOrError;
   private final ProcessGuardExpression processGuardExpression;
+  private final ProcessForStatementExpression processForStatementExpression;
+  private final ProcessWhileStatementExpression processWhileStatementExpression;
+  private final ProcessWhileControlVariable processWhileControlVariable;
   private final ProcessSwitchStatementExpression processSwitchStatementExpression;
   private final ProcessTryStatementExpression processTryStatementExpression;
   private final ProcessCaseExpression processCaseExpression;
@@ -102,6 +105,12 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
         new ProcessObjectAccessExpressionOrError(symbolAndScopeManagement, errorListener);
     this.processGuardExpression =
         new ProcessGuardExpression(symbolAndScopeManagement, errorListener);
+    this.processForStatementExpression =
+        new ProcessForStatementExpression(symbolAndScopeManagement, errorListener);
+    this.processWhileStatementExpression =
+        new ProcessWhileStatementExpression(symbolAndScopeManagement, errorListener);
+    this.processWhileControlVariable =
+        new ProcessWhileControlVariable(symbolAndScopeManagement, errorListener);
     this.processSwitchStatementExpression =
         new ProcessSwitchStatementExpression(symbolAndScopeManagement, errorListener);
     this.processCaseExpression =
@@ -198,6 +207,25 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   public void exitAssignmentStatement(EK9Parser.AssignmentStatementContext ctx) {
     processAssignmentStatement.accept(ctx);
     super.exitAssignmentStatement(ctx);
+  }
+
+  @Override
+  public void exitForStatementExpression(EK9Parser.ForStatementExpressionContext ctx) {
+    processForStatementExpression.accept(ctx);
+    super.exitForStatementExpression(ctx);
+  }
+
+  @Override
+  public void enterWhileStatementExpression(EK9Parser.WhileStatementExpressionContext ctx) {
+    //Now here it is important to check the while 'control' variable.
+    processWhileControlVariable.accept(ctx);
+    super.enterWhileStatementExpression(ctx);
+  }
+
+  @Override
+  public void exitWhileStatementExpression(EK9Parser.WhileStatementExpressionContext ctx) {
+    processWhileStatementExpression.accept(ctx);
+    super.exitWhileStatementExpression(ctx);
   }
 
   @Override
