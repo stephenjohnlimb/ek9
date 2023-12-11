@@ -1,64 +1,19 @@
 #!ek9
 <?-
-  Simple examples of expressions via constructs that are not normally expressions.
-  So simple cases of switch, try, for-loop, do-while and while.
-  Traditionally these are not expressions but with EK9 they can be.
-  So this is a simple set of examples that demonstrate this.
 
   Also need uninitialised returns for try expressions for expressions and while do/while expressions.
   //TODO add these to usedBeforeInitialised tests.
 
-  //TODO check control is a Boolean / also do this for 'if' statements. Do this at full resolution (new test)
 -?>
 defines module just.workspace
 
   defines function
 
     JustFail()
+      notInitialised as String?
 
-      @Error: FULL_RESOLUTION: NOT_RESOLVED
-      assert notDefined?
-
-    IfWithNoneBooleanControl()
-
-      stringControl <- "Not Allowed"
-      dateControl <- 2009-10-10
-
-      @Error: FULL_RESOLUTION: MUST_BE_A_BOOLEAN
-      if stringControl
-        var <- "Check1"
-        assert var?
-      @Error: FULL_RESOLUTION: MUST_BE_A_BOOLEAN
-      else if dateControl
-        var <- "Check2"
-        assert var?
-      @Error: FULL_RESOLUTION: NOT_RESOLVED
-      else if nonSuch
-        var <- "Check3"
-        assert var?
-      else
-        var <- "Check4"
-        assert var?
-
-    WhileWithNonBooleanControl()
-      stringControl <- "Not Allowed"
-      value <- 0
-
-      @Error: FULL_RESOLUTION: MUST_BE_A_BOOLEAN
-      while stringControl
-        value++
-      assert value?
-
-    DoWhileWithNonBooleanControl()
-      stringControl <- "Not Allowed"
-      value <- 0
-
-      do
-        value++
-      @Error: FULL_RESOLUTION: MUST_BE_A_BOOLEAN
-      while stringControl
-
-      assert value?
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert notInitialised?
 
 //EOF
 

@@ -15,7 +15,7 @@ class BadFlowControlTest extends PhasesTest {
 
   public BadFlowControlTest() {
     super("/examples/parseButFailCompile/badFlowControl",
-        List.of("bad.switchtypes1", "bad.switchtypes2"));
+        List.of("bad.switchtypes1", "bad.switchtypes2", "bad.control.types"));
   }
 
   @Test

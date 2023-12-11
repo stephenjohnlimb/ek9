@@ -1,0 +1,68 @@
+#!ek9
+<?-
+  Checks that the control type in if/while/do-while/ternaries is compatible with the boolean type.
+-?>
+defines module bad.control.types
+
+  defines function
+
+    JustFail()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert notDefined?
+
+    TernaryWithNonBooleanControl()
+      stringControl <- "Not Allowed"
+
+      @Error: FULL_RESOLUTION: MUST_BE_A_BOOLEAN
+      result1 <- stringControl <- "A" else "B"
+      assert result1?
+
+      //THis is acceptable
+      booleanControl <- true
+      result2 <- booleanControl <- "A" else "B"
+      assert result2?
+
+    IfWithNonBooleanControl()
+
+      stringControl <- "Not Allowed"
+      dateControl <- 2009-10-10
+
+      @Error: FULL_RESOLUTION: MUST_BE_A_BOOLEAN
+      if stringControl
+        var <- "Check1"
+        assert var?
+      @Error: FULL_RESOLUTION: MUST_BE_A_BOOLEAN
+      else if dateControl
+        var <- "Check2"
+        assert var?
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      else if nonSuch
+        var <- "Check3"
+        assert var?
+      else
+        var <- "Check4"
+        assert var?
+
+    WhileWithNonBooleanControl()
+      stringControl <- "Not Allowed"
+      value <- 0
+
+      @Error: FULL_RESOLUTION: MUST_BE_A_BOOLEAN
+      while stringControl
+        value++
+      assert value?
+
+    DoWhileWithNonBooleanControl()
+      stringControl <- "Not Allowed"
+      value <- 0
+
+      do
+        value++
+      @Error: FULL_RESOLUTION: MUST_BE_A_BOOLEAN
+      while stringControl
+
+      assert value?
+
+//EOF
+
