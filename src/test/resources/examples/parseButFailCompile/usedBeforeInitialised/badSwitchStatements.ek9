@@ -6,11 +6,15 @@
   //The default is optional in the case where there is a returning value (expression).
   (SWITCH|GIVEN) preFlowAndControl NL+ INDENT (NL* returningParam)? caseStatement+ (directive? DEFAULT block NL+)?
 
-  So, if there is a preflow assignment - then that assignment means that the variable is now initialised for all
-  parts of the switch and that the assignment is pushed up to the enclosing scope level.
+  So, if there is a preflow assignment - then that assignment means that the variable (in the preflow) is now initialised for all
+  parts of the switch and that the assignment is pushed up to the enclosing scope level. But any other variables may not be
+  even if all cases and the default initialise those variables. This is because the preflow may return false and the whole switch
+  may not execute.
 
   As with functions, any returning variable must also be set in every case and the default block if it was declared in
   an un-initialised form.
+
+  There are quite a few tests in here, because this is quite sophisticated a check given the structure and flexibility of 'switch'.
 
   Also see badSwitchReturns.ek9 for very early checks on default values (so not tested in this phase).
 
@@ -19,9 +23,15 @@ defines module badswitch.initialisations
 
   defines function
 
+    <?-
+      Just a handy utility function.
+    -?>
     getValueFunction() as pure
       <- rtn <- 22
 
+    <?-
+      Test var not initialised in call cases in this case the default does not set var.
+    -?>
     SimpleSwitch1
       conditionalValue <- 40
       var as Integer?
@@ -37,6 +47,9 @@ defines module badswitch.initialisations
       @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
       assert var?
 
+    <?-
+      Test var not initialised in call cases in this case - just the case, default does set it.
+    -?>
     SimpleSwitch2
       conditionalValue <- 40
       var as Integer?
@@ -52,6 +65,9 @@ defines module badswitch.initialisations
       @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
       assert var?
 
+    <?-
+      Test var is initialised in all paths.
+    -?>
     SimpleSwitch3
       conditionalValue <- 40
       var as Integer?
@@ -65,13 +81,15 @@ defines module badswitch.initialisations
       //But now all paths initialised var. So this is fine.
       assert var?
 
-
+    <?-
+      Test the var is known to have been initialised - due to the 'preflow', even though no case or default set it.
+    -?>
     SimpleSwitch4
       conditionalValue <- 40
       var as Integer?
 
       //Now because this initialises var - there is no need to worry about initialisation in case blocks.
-      switch var ?= 22 with conditionalValue
+      switch var ?= getValueFunction() with conditionalValue
         case < 24
           blockValue <- 9
           assert blockValue?
@@ -84,12 +102,15 @@ defines module badswitch.initialisations
       //Now because of the pre-flow guard, var is initialised.
       assert var?
 
+    <?-
+      As above but this time the 'preflow' is just an assignment, rather than a guarded assignment.
+    -?>
     SimpleSwitch5
       conditionalValue <- 40
       var as Integer?
 
       //Now because this initialises var - there is no need to worry about initialisation in case blocks.
-      switch var: 22 with conditionalValue
+      switch var: getValueFunction() with conditionalValue
         case < 24
           blockValue <- 9
           assert blockValue?
@@ -103,22 +124,34 @@ defines module badswitch.initialisations
 
     <?-
       A little like the if/else guard combination, this has a guard on an unrelated variable.
-      This makes the first block conditional. But in all paths the var does get set.
+      This makes the whole switch conditional! So even though var does get set in all paths, the
+      whole switch may not have executed if initialisedByGuard remains unset
+      (i.e. if getValueFunction() returned an unset Integer!).
+      ?= means assign the variable to the result of the call (getValueFunction()) and if it is not 'set' i.e. '?' is true
+      only then go on to do the switch evaluation.
     -?>
-    SimpleSwitch6
+    SwitchButPreFlowOnUnrelatedVariable
       conditionalValue <- 40
       initialisedByGuard as Integer?
       var as Integer?
 
-      switch initialisedByGuard: 22 with conditionalValue
+      switch initialisedByGuard ?= getValueFunction() with conditionalValue
         case < 24
           var: initialisedByGuard
         default
           var: 23
 
+      //This will have been initialised.
+      assert initialisedByGuard?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
       assert var?
 
-    ReturningSwitch1
+
+    <?-
+      In this example none of the paths in the switch initialise the return variable.
+    -?>
+    SwitchExpression1
       conditionalValue <- 40
 
       returningValue <- switch conditionalValue
@@ -135,8 +168,10 @@ defines module badswitch.initialisations
 
       assert returningValue?
 
-
-    ReturningSwitch2
+    <?-
+      Only one of the paths initialises the return variable.
+    -?>
+    SwitchExpression2
       conditionalValue <- 40
 
       returningValue <- switch conditionalValue
@@ -151,8 +186,10 @@ defines module badswitch.initialisations
 
       assert returningValue?
 
-
-    ReturningSwitch3
+    <?-
+      This time it is the default that initialises the return variable, but not the cases.
+    -?>
+    SwitchExpression3
       conditionalValue <- 40
 
       returningValue <- switch conditionalValue
@@ -167,25 +204,30 @@ defines module badswitch.initialisations
 
       assert returningValue?
 
-    ReturningSwitch4
+    <?-
+      This time all paths set the return variable.
+      So we're all good.
+    -?>
+    SwitchExpression4
       conditionalValue <- 40
 
       returningValue <- switch conditionalValue
         <- rtn4 as Integer?
-        case < 24
+        case < 14
           rtn4: 66
+        case < 24
+          rtn4: 69
         default
           rtn4: 67
 
       assert returningValue?
 
-
     <!-
       In this example a new variable 'var' is created in the scope of the switch.
       Then it is used to initialise the 'rtn5' value.
-      Note that rtn5 and var can be used withing these scopes, but then go out of scope.
+      Note that rtn5 and var can be used within these scopes, but then go out of scope.
     -!>
-    ReturningSwitch5
+    SwitchExpression5
       conditionalValue <- 40
 
       returningValue <- switch var <- getValueFunction() with conditionalValue
@@ -198,6 +240,7 @@ defines module badswitch.initialisations
           assert blockValue? and rtn5? and var?
 
       //Just to demonstrate that both rtn5 and var are enclosed in scopes above that are now ended.
+      //This is done be re-declaring variables of the same name.
       rtn5 <- 2009-10-10
       var <- "Steve"
       assert returningValue? and var? and rtn5?
@@ -207,7 +250,7 @@ defines module badswitch.initialisations
       a conditional check, then a simple switch expression that uses a specific value by default
       then a couple of simple cases to alter that value.
     -?>
-    ReturningSwitch6
+    SwitchExpression6
       conditionalValue <- 40
 
       returningValue <- switch var <- getValueFunction() with conditionalValue
@@ -222,7 +265,7 @@ defines module badswitch.initialisations
     <?-
       Could equally have done this.
     -?>
-    ReturningSwitch7
+    SwitchExpression7
       conditionalValue <- 40
 
       returningValue <- switch conditionalValue
@@ -251,5 +294,55 @@ defines module badswitch.initialisations
 
       assert returningValue?
 
+    SwitchExpressionButPreFlowOnUnrelatedVariable1
+      conditionalValue <- 40
+      initialisedByGuard <- Integer()
+      var as Integer?
+
+      returningValue <- switch initialisedByGuard ?= getValueFunction() with conditionalValue
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- rtn666 as Integer?
+        case < 24
+          var: initialisedByGuard
+          rtn666: initialisedByGuard
+        case < 30
+          var: initialisedByGuard
+          //but forget rtn
+        default
+          var: initialisedByGuard
+          //but forget rtn
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert var?
+
+      assert returningValue?
+
+    <?-
+      While you may think that 'rtn666' is always set; as it is in each case and the default, but
+      as there is a guard, the whole switch may not execute, so this means that the 'rtn666' value
+      would have been left uninitialised.
+      It is always best to initialise the variables where ever is practical.
+    -?>
+    SwitchExpressionButPreFlowOnUnrelatedVariable2
+      conditionalValue <- 40
+      initialisedByGuard <- Integer()
+      var as Integer?
+
+      returningValue <- switch initialisedByGuard ?= getValueFunction() with conditionalValue
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- rtn666 as Integer?
+        case < 24
+          var: initialisedByGuard
+          rtn666: initialisedByGuard
+        case < 30
+          var: initialisedByGuard
+          rtn666: var
+        default
+          rtn666: 666
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert var?
+
+      assert returningValue?
 //EOF
 

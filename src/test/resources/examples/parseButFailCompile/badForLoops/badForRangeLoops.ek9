@@ -3,7 +3,7 @@
   Check for range loops with various types to check the validation and
   error detection on using incompatible types.
 -?>
-defines module bad.forloops.check
+defines module bad.forrangeloops.check
 
   defines record
     //Record but with no operators

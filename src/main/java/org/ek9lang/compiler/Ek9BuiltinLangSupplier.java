@@ -23,7 +23,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 85;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 89;
 
   //Obviously with ek9 the indentation is important.
   @SuppressWarnings({"Indentation"})
@@ -86,6 +86,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             lowerCase() as pure
               <- rtn as String?
 
+            iterator() as pure
+              <- rtn as Iterator of Character?
+              
             operator < as pure
               -> arg as String
               <- rtn as Boolean?
@@ -194,6 +197,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             
             Bits() as pure
               -> arg0 as String
+
+            iterator() as pure
+              <- rtn as Iterator of Boolean?
 
             operator < as pure
               -> arg as Bits
@@ -2178,6 +2184,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             List() as pure
               -> arg0 as T
 
+            iterator() as pure
+              <- rtn as Iterator of T?
+              
             operator == as pure
               -> arg as List of T
               <- rtn as Boolean?
@@ -2259,6 +2268,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             
             Optional() as pure
               -> arg0 as T
+
+            iterator() as pure
+              <- rtn as Iterator of T?
 
             operator == as pure
               -> arg as Optional of T
@@ -2394,6 +2406,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             PriorityQueue() as pure
               -> arg0 as T
 
+            iterator() as pure
+              <- rtn as Iterator of T?
+
             operator == as pure
               -> arg as PriorityQueue of T
               <- rtn as Boolean?
@@ -2467,6 +2482,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               ->
                 k as K
                 v as V
+
+            iterator() as pure
+              <- rtn as DictEntry of (K, V)?
 
             operator == as pure
               -> arg as Dict of (K, V)

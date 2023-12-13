@@ -479,7 +479,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
         "- constructor would be appropriate: direct type usage is not appropriate in this context"),
     NOT_IN_AN_AGGREGATE_TYPE("not contained within an aggregate type (class/component/etc)"),
     IS_NOT_AN_AGGREGATE_TYPE("not an aggregate type"),
-    MISSING_ITERATE_METHOD("does not have iterate method"),
+    MISSING_ITERATE_METHOD("it does not have compatible iterator() - hasNext()/next() methods"),
     ITERATE_METHOD_MUST_RETURN_ITERATOR("iterate method must return an Iterator"),
     AGGREGATE_HAS_NO_SUPER("but has no 'super'"),
     THIS_AND_SUPER_MUST_BE_FIRST_IN_CONSTRUCTOR("'this()' and 'super()' must be the first statement in a constructor"),

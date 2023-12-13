@@ -27,7 +27,8 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final ProcessAndTypeDict processAndTypeDict;
   private final CheckValidCall checkValidCall;
   private final ProcessRange processRange;
-  private final CheckForRange checkForRange;
+  private final ProcessForLoop processForLoop;
+  private final ProcessForRange processForRange;
   private final CheckVariableAssignment checkVariableAssignment;
   private final CheckVariableOnlyDeclaration checkVariableOnlyDeclaration;
   private final CheckPipelinePart checkPipelinePart;
@@ -91,8 +92,11 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
     this.processRange =
         new ProcessRange(symbolAndScopeManagement, symbolFactory, errorListener);
 
-    this.checkForRange =
-        new CheckForRange(symbolAndScopeManagement, errorListener);
+    this.processForLoop =
+        new ProcessForLoop(symbolAndScopeManagement, errorListener);
+
+    this.processForRange =
+        new ProcessForRange(symbolAndScopeManagement, errorListener);
 
     this.checkVariableAssignment =
         new CheckVariableAssignment(symbolAndScopeManagement, errorListener);
@@ -177,8 +181,14 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   }
 
   @Override
+  public void exitForLoop(EK9Parser.ForLoopContext ctx) {
+    processForLoop.accept(ctx);
+    super.exitForLoop(ctx);
+  }
+
+  @Override
   public void exitForRange(EK9Parser.ForRangeContext ctx) {
-    checkForRange.accept(ctx);
+    processForRange.accept(ctx);
     super.exitForRange(ctx);
   }
 

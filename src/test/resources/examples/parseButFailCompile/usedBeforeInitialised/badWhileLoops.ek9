@@ -1,0 +1,220 @@
+#!ek9
+<?-
+  Examples of uninitialised variables or returns that are not initialised in:
+  while, do/while.
+-?>
+defines module badwhile.initialisations
+
+  defines function
+
+    getValueFunction() as pure
+      <- rtn <- 22
+
+    <?-
+      As this while uses a conditional value 'conditionToContinue' there is no
+      guarantee it will be true, it might be false or it might even be 'unset'.
+      So in this case, there is no knowing if 'checkValue' is true/false/unset.
+      Hence if it was not true, 'someUnsetVariable' would never be initialised.
+    -?>
+    WhileLoopStatement()
+      -> checkValue as Boolean
+      //Not allowed to directly reassign an incoming value, so make instance and use that initial value
+      conditionToContinue <- Boolean(checkValue)
+      total <- 0
+      someUnsetVariable as Integer?
+
+      while conditionToContinue
+        conditionToContinue: total < 11
+        someUnsetVariable: total++
+
+      assert total?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert someUnsetVariable?
+
+    <?-
+      Again as this is a while loop, there is no guarantee it will run through
+      so someUnsetVariable may actually remain uninitialised.
+    -?>
+    WhileLoopExpression1()
+      -> checkValue as Boolean
+      conditionToContinue <- Boolean(checkValue)
+      someUnsetVariable as Integer?
+
+      result <- while conditionToContinue
+        <- total <- 0
+        conditionToContinue: total < 11
+        someUnsetVariable: total++
+
+      assert result?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert someUnsetVariable?
+
+
+    <?-
+      In this scenario, the return 'total' is not initialised at declaration.
+      In fact it never gets set in the loop and hence always remains un-initialised.
+    -?>
+    WhileLoopExpression2()
+      -> checkValue as Boolean
+      conditionToContinue <- Boolean(checkValue)
+
+      result <- while conditionToContinue
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- total as Integer?
+        someUnrelatedValue <- 0
+        conditionToContinue: someUnrelatedValue < 11
+        if conditionToContinue
+          total: someUnrelatedValue
+        //But forget to set total in any other case
+
+      assert result?
+
+    <?-
+      While total is set and it looks like 'someUnsetVariable' is always set, the guard makes the
+      whole while conditional. Meaning that it is possible 'someUnsetVariable' is never set.
+      But even in this situation the return 'total' is set and is used to populate 'result' -
+      but it will still only have the value of '0', i.e. its initial value.
+    -?>
+    WhileLoopExpression3()
+      -> checkValue as Boolean
+      conditionToContinue as Boolean?
+      someUnsetVariable as Integer?
+
+      result <- while conditionToContinue ?=  Boolean(checkValue) then conditionToContinue
+        <- total <- 0
+        conditionToContinue: total < 11
+        someUnsetVariable: total++
+
+      assert result?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert someUnsetVariable?
+
+    <?-
+      Because there is a guard and also the return is uninitialised, this means that the
+      'while' might not run and because of that the return 'total' would be uninitialised.
+      But the 'someUnsetVariable' is always initialised now because it is used in the guard.
+    -?>
+    WhileLoopExpression4()
+      -> checkValue as Boolean
+      conditionToContinue <- Boolean(checkValue)
+      someUnsetVariable as Integer?
+
+      result <- while someUnsetVariable ?= getValueFunction() then conditionToContinue
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- total as Integer?
+        conditionToContinue: someUnsetVariable < 11
+        total: someUnsetVariable++
+
+      assert result?
+      assert someUnsetVariable?
+
+    <?-
+      This time the loop is traversed at least once (because it is a do while, rather than a while).
+      Hence 'someUnsetVariable' will now be initialised first time through.
+      Note as we're really dealing with Objects here 'someUnsetVariable' could just have been
+      assigned to point to 'total'. 'someUnsetVariable as Integer: total' - then as total incremented the
+      same underlying object would also have that value.
+    -?>
+    DoWhileLoopStatement()
+      -> checkValue as Boolean
+      conditionToContinue <- Boolean(checkValue)
+      total <- 0
+      someUnsetVariable as Integer?
+
+      do
+        conditionToContinue: total++ < 10
+        someUnsetVariable: total
+      while conditionToContinue
+
+      assert total?
+      assert someUnsetVariable?
+
+    DoWhileLoopExpression1()
+      -> checkValue as Boolean
+      conditionToContinue <- Boolean(checkValue)
+      someUnsetVariable as Integer?
+
+      result <- do
+        <- total <- 0
+        conditionToContinue: total++ < 10
+        someUnsetVariable: total
+      while conditionToContinue
+
+      assert result?
+      assert someUnsetVariable?
+
+    <?-
+      The return 'total' is declared as uninitialised and is never initialised.
+    -?>
+    DoWhileLoopExpression2()
+      -> checkValue as Boolean
+      conditionToContinue <- Boolean(checkValue)
+      someUnsetVariable as Integer?
+
+      result <- do
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- total as Integer?
+        someUnrelatedValue <- 0
+        conditionToContinue: someUnrelatedValue < 11
+        someUnsetVariable: someUnrelatedValue++
+        //Forget to set total
+
+      while conditionToContinue
+
+      assert result?
+      assert someUnsetVariable?
+
+    <?-
+      Now 'someUnsetVariable' looks like is is always initialised in a do/while, but because
+      of the guard condition it may remain uninitialised.
+    -?>
+    DoWhileLoopExpression3()
+      -> checkValue as Boolean
+      conditionToContinue <- Boolean(checkValue)
+      someUnsetVariable as Integer?
+
+      result <- do conditionToContinue ?= Boolean(checkValue)
+        <- total <- 0
+        conditionToContinue: total++ < 10
+        someUnsetVariable: total
+      while conditionToContinue
+
+      //Typically we'd expect this to have the value from the return 'total' - but its initial value.
+      //But it would have been initialised (just unset).
+      assert result?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert someUnsetVariable?
+
+    <?-
+      While it does look like the total is always initialised, in fact if
+      getValueFunction() returns an unset Integer value, to loop would not execute.
+      But we still have 'result' to provide a value for and that value is the value from the return 'total'.
+      So in the situation with a guard and an uninitialised return - we must always say that it is not initialised.
+      This then forces the EK9 developer to provide an initial return value that can always be used.
+      Same applies for switch or anything with a preflow guard capability being used as expression with a return.
+      But 'someUnsetVariable' is always initialised because it is in the guard and hence always called.
+    -?>
+    DoWhileLoopExpression4()
+      -> checkValue as Boolean
+      conditionToContinue <- Boolean(checkValue)
+      someUnsetVariable as Integer?
+      otherVariable <- 0
+
+      result <- do someUnsetVariable ?= getValueFunction()
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- total as Integer?
+
+        conditionToContinue: otherVariable++ < 10
+        someUnsetVariable: otherVariable
+        total: otherVariable
+      while conditionToContinue
+
+      assert result?
+      assert someUnsetVariable?
+
+//EOF
+

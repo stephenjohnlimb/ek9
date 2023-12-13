@@ -1,9 +1,7 @@
 #!ek9
 <?-
-
-  Also need uninitialised returns for try expressions for expressions and while do/while expressions.
-  //TODO add these to usedBeforeInitialised tests.
-
+  Examples of uninitialised variables or returns that are not initialised in:
+  for loops.
 -?>
 defines module just.workspace
 

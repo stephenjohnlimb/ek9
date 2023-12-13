@@ -14,15 +14,15 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * Pulls the type from the 'range' into the loop variable, so it is correctly typed.
  * Also checks that if the 'by' literal or identifier is used that the type is compatible with the range.
  */
-final class CheckForRange extends TypedSymbolAccess implements Consumer<EK9Parser.ForRangeContext> {
+final class ProcessForRange extends TypedSymbolAccess implements Consumer<EK9Parser.ForRangeContext> {
   private final ProcessIdentifierOrError processIdentifierOrError;
   private final ResolveMethodOrError resolveMethodOrError;
 
   /**
    * Check range expressions and record an expression for the type.
    */
-  CheckForRange(final SymbolAndScopeManagement symbolAndScopeManagement,
-                final ErrorListener errorListener) {
+  ProcessForRange(final SymbolAndScopeManagement symbolAndScopeManagement,
+                  final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
     this.processIdentifierOrError = new ProcessIdentifierOrError(symbolAndScopeManagement, errorListener);
     this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);

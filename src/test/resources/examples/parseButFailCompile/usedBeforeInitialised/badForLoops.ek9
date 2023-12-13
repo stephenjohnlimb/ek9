@@ -1,0 +1,136 @@
+#!ek9
+<?-
+  Examples of uninitialised variables or returns that are not initialised in:
+  for loops.
+-?>
+defines module badfor.initialisations
+
+  defines function
+
+    ForLoopStatement1()
+      ->
+        start as Integer
+        end as Integer
+      someUnsetVariable as Integer?
+
+      for i in start ... end
+        someUnsetVariable: i
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert someUnsetVariable?
+
+    ForLoopStatement2()
+      -> values as List of Integer
+      someUnsetVariable as Integer?
+
+      for value in values
+        someUnsetVariable: value
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert someUnsetVariable?
+
+    <?-
+      A simple loop, with type inference in the list definition.
+      Then further type inference in the loop variable.
+      But all the values can be seen here in this example.
+      But even so, the EK9 compiler is not quite intelligent enough (yet)
+      to workout that someUnsetVariable is guaranteed to be set.
+    -?>
+    ForLoopStatement3()
+      someUnsetVariable as Integer?
+      for value in [1, 2, 3, 4]
+        assert value?
+        someUnsetVariable: value
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert someUnsetVariable?
+
+    <?-
+      Example of using a preflow declaration, a bit pointless, but just checking resolution.
+      But there is no guarantee that 'someUnsetVariable' would ever be set.
+    -?>
+    ForLoopStatement4()
+      someUnsetVariable as Integer?
+      for values <- getValues() then value in values
+        assert value?
+        someUnsetVariable: value
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert someUnsetVariable?
+
+    <?-
+      Example of using a preflow guard, has a bit more of a point, as it stops the loop if values is unset.
+    -?>
+    ForLoopStatement5()
+      someUnsetVariable as Integer?
+      values as List of Integer?
+      for values ?= getValues() then value in values
+        someUnsetVariable: value
+
+      assert values?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert someUnsetVariable?
+
+    <?-
+      Now in the same way EK9 allows switch/try/while and do-while to be expressions,
+      the same applied to for loops. This means you keep the 'total' variable within the
+      scope of the 'for'. Again need to accept that 'someUnsetVariable' is still unset
+    -?>
+    ForLoopExpression1()
+      someUnsetVariable as Integer?
+
+      result <- for value in [1, 2, 3, 4]
+        <- total <- 0
+        total += value
+        someUnsetVariable: total
+
+      assert result?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert someUnsetVariable?
+
+    <?-
+      There is a preflow guard here, this make little different to variables in the loop.
+      But it does mean that accumulator is initialised. But it also means that the loop is now conditional
+      and so 'total' may remain uninitialised (even though the loop does set it).
+      This is because the guard may stop the loop from executing at all.
+    -?>
+    ForLoopExpression2()
+      accumulator as Integer?
+
+      result <- for accumulator ?= getValueFunction() then value in getValues()
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- total as Integer?
+        accumulator += value
+        total: accumulator
+      assert result?
+
+    <?-
+      But in this case it is not initialised and in fact is never initialised.
+    -?>
+    ForLoopExpression3()
+
+      accumulator <- 0
+      result <- for value in getValues()
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- total as Integer?
+        accumulator += value
+        //Forget to set 'total'
+
+      assert result? and accumulator?
+
+    JustFail()
+      notInitialised as String?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert notInitialised?
+
+    getValueFunction() as pure
+      <- rtn <- 22
+
+    getValues() as pure
+      <- rtn as List of Integer: [1, 2, 3, 4]
+
+//EOF
+

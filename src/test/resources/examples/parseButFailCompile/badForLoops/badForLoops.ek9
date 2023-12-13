@@ -1,0 +1,203 @@
+#!ek9
+<?-
+  Examples of uninitialised variables or returns that are not initialised in:
+  for loops.
+-?>
+defines module bad.forloops.check
+
+  defines class
+
+    <?-
+      Design for testing loops, this is only a partial match for 'duck-type' iteration.
+    -?>
+    C1
+      hasNext()
+        <- rtn <- false
+
+    <?-
+      Again only a partial match on 'duck typing' for iteration.
+    -?>
+    C2
+      next()
+        <- rtn as String: String()
+
+    <?-
+      This is a full match for a 'duck=type' iterator.
+    -?>
+    C3
+      hasNext()
+        <- rtn <- false
+      next()
+        <- rtn as String: String()
+
+    <?-
+      While this looks like it matches, the hasNext must return a Boolean
+    -?>
+    C4
+      hasNext()
+        <- rtn <- "SomeString"
+      next()
+        <- rtn as String: String()
+
+    <?-
+      While this looks like it matches, the next method does not return anything.
+    -?>
+    C5
+      hasNext()
+        <- rtn <- false
+      next()
+        someBlockVarButNoReturn <- 1
+        assert someBlockVarButNoReturn?
+
+  defines function
+
+    getValues() as pure
+      <- rtn as List of Integer: [1, 2, 3, 4]
+
+    <?-
+      A simple loop, with type inference in the list definition.
+      Then further type inference in the loop variable.
+      So for this to work it is necessary to check the type can be
+      iterated over and then to determine the type of that iteration.
+    -?>
+    ForLoopStatement1()
+      for value in [1, 2, 3, 4]
+        assert value?
+
+    <?-
+      While you might not think this would work, it does because
+      there is an iterate method on String - resulting in an Iteration of Characters.
+    -?>
+    ForLoopStatement2()
+      for value in "Steve"
+        assert value?
+
+    <?-
+      This is valid for iteration via 'duck-typing' of hasNext() and next()
+    -?>
+    ForLoopStatement3()
+      for value in C3()
+        assert value?
+
+    <?-
+      Example of using a preflow declaration, a bit pointless, but just checking resolution.
+    -?>
+    ForLoopStatement4()
+      for values <- getValues() then value in values
+        assert value?
+
+    <?-
+      Example of using a preflow guard, has a bit more of a point, as it stops the loop if values is unset.
+    -?>
+    ForLoopStatement5()
+      values as List of Integer?
+      for values ?= getValues() then value in values
+        assert value?
+
+    <?-
+      Now in the same way EK9 allows switch/try/while and do-while to be expressions,
+      the same applied to for loops. This means you keep the 'total' variable within the
+      scope of the 'for'.
+    -?>
+    ForLoopExpression1()
+      result <- for value in [1, 2, 3, 4]
+        <- total <- 0
+        total += value
+
+      assert result?
+
+    <?-
+      This for loop expression, demonstrates how the values to be iterated over
+      can also be kept within the for scope as well as the 'total' variable.
+    -?>
+    ForLoopExpression2()
+
+      result <- for values <- getValues() then value in values
+        <- total <- 0
+        total += value
+
+      assert result?
+
+    <?-
+      But Integer cannot be iterated over.
+    -?>
+    InvalidForLoop1()
+      @Error: FULL_RESOLUTION: MISSING_ITERATE_METHOD
+      for value in 34
+        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+        assert value?
+
+    <?-
+      This demonstrates the classes can be used with \duck-typing' but the methods have to match.
+    -?>
+    InvalidForLoop2()
+      @Error: FULL_RESOLUTION: MISSING_ITERATE_METHOD
+      for value in C1()
+        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+        assert value?
+
+    <?-
+      This demonstrates the classes can be used with \duck-typing' but the methods have to match.
+    -?>
+    InvalidForLoop3()
+      @Error: FULL_RESOLUTION: MISSING_ITERATE_METHOD
+      for value in C2()
+        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+        assert value?
+
+    <?-
+      This demonstrates the classes can be used with \duck-typing' but the methods have to match.
+    -?>
+    InvalidForLoop4()
+      @Error: FULL_RESOLUTION: MISSING_ITERATE_METHOD
+      for value in C4()
+        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+        assert value?
+
+    <?-
+      This demonstrates the classes can be used with \duck-typing' but the methods have to match.
+    -?>
+    InvalidForLoop5()
+      @Error: FULL_RESOLUTION: MISSING_ITERATE_METHOD
+      for value in C5()
+        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+        assert value?
+
+
+    <!-
+    JustFail()
+      notInitialised as String?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert notInitialised?
+
+    getValueFunction() as pure
+      <- rtn <- 22
+
+    ForStatement1()
+      ->
+        start as Integer
+        end as Integer
+      someUnsetVariable as Integer?
+
+      for i in start ... end
+        someUnsetVariable: i
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert someUnsetVariable?
+
+
+
+    ForStatement2()
+      -> values as List of Integer
+      someUnsetVariable as Integer?
+
+      for value in values
+        someUnsetVariable: value
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert someUnsetVariable?
+    -!>
+
+//EOF
+

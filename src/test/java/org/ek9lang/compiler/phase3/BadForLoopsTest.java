@@ -15,7 +15,7 @@ class BadForLoopsTest extends PhasesTest {
 
   public BadForLoopsTest() {
     super("/examples/parseButFailCompile/badForLoops",
-        List.of("bad.forloops.check"));
+        List.of("bad.forloops.check", "bad.forrangeloops.check"));
   }
 
   @Test

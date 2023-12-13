@@ -1,0 +1,329 @@
+#!ek9
+<?-
+  Check Try/Catch/Finally with uninitialised variables.
+-?>
+defines module badtry.initialisations
+
+  defines function
+
+    JustFail()
+      notInitialised as String?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert notInitialised?
+
+
+    TryStatement1()
+      var as Integer?
+
+      try
+        var: 222
+
+      assert var?
+
+    <?-
+      Example of leaving var unset because the catch must also set var for
+      all paths to ensure it is set.
+    -?>
+    TryCatchStatement1()
+      var as Integer?
+
+      try
+        var: 222
+      catch
+        -> ex as Exception
+        someBlockVar <- 6
+        assert someBlockVar?
+        //But don't set var and leave uninitialized
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert var?
+
+    <?-
+      This time both the try and the catch, set var - so all should be fine.
+    -?>
+    TryCatchStatement2()
+      var as Integer?
+
+      try
+        var: 222
+      catch
+        -> ex as Exception
+        var: 123
+
+      assert var?
+
+
+    <?-
+      Now only the finally sets the value, so again should be ok.
+    -?>
+    TryFinallyStatement1()
+      var as Integer?
+
+      try
+        value <- 222
+        assert value?
+      finally
+        var: 123
+
+      assert var?
+
+
+    <?-
+      Just check that setting in the try and the finally work in combination.
+    -?>
+    TryFinallyStatement2()
+      var as Integer?
+
+      try
+        var: 222
+      finally
+        var: 123
+
+      assert var?
+
+    <?-
+      Just check that setting in the try, catch and the finally work in combination.
+    -?>
+    TryCatchFinallyStatement1()
+      var as Integer?
+
+      try
+        var: 222
+      catch
+        -> ex as Exception
+        var: 321
+      finally
+        var: 123
+
+      assert var?
+
+    <?-
+      Now the var is initialised irrespective (may still be un-set - but is initialised).
+      Even though it is never set in try/catch or finally.
+    -?>
+    TryStatement2()
+      var as Integer?
+
+      try var ?= getValueFunction()
+        someBlockVar <- 123
+        assert someBlockVar?
+
+      assert var?
+
+    <?-
+      Example of guard assignment setting var.
+    -?>
+    TryCatchStatement3()
+      var as Integer?
+
+      try var ?= getValueFunction()
+        var: 222
+      catch
+        -> ex as Exception
+        someBlockVar <- 6
+        assert someBlockVar?
+        //But don't set var - but it is initialised in the guard at the top.
+
+      assert var?
+
+    TryFinallyStatement3()
+      var as Integer?
+
+      try var ?= getValueFunction()
+        value <- 222
+        assert value?
+      finally
+        someBlockVar <- 6
+        assert someBlockVar?
+
+      assert var?
+
+    <?-
+      In this scenario, there is a guard based on an unconnected variable.
+      So this means that if the result of the 'getValueFunction()' call resulted in
+      'unconnectedVar' being initialised but still unset then the whole try/catch/finally would not
+      be executed.
+    -?>
+    TryStatement3()
+      unconnectedVar <- 1
+      var as Integer?
+
+      try unconnectedVar ?= getValueFunction()
+        var: unconnectedVar
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert var?
+
+    <?-
+      Again an unconnected variable, this means that var may never be set
+      based on the result of 'unconnectedVar' bieng set or unset.
+    -?>
+    TryCatchStatement4()
+      unconnectedVar <- 1
+      var as Integer?
+
+      try unconnectedVar ?= getValueFunction()
+        var: 222
+      catch
+        -> ex as Exception
+        var: unconnectedVar
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert var?
+
+    TryFinallyStatement4()
+      unconnectedVar <- 1
+      var as Integer?
+
+      try unconnectedVar ?= getValueFunction()
+        var: 222
+      finally
+        var: unconnectedVar
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert var?
+
+    TryExpression1()
+      var as Integer?
+
+      result <- try
+        <- rtn as Integer?
+        var: 222
+        rtn: var
+
+      assert var?
+      assert result?
+
+    TryCatchExpression1()
+      var as Integer?
+
+      result <- try
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- rtn as Integer?
+        var: 222
+        rtn: var
+      catch
+        -> ex as Exception
+        someBlockVar <- 6
+        assert someBlockVar?
+        //But don't set var and leave uninitialized
+        //Also r=leave rtn uninitialized
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert var?
+
+      assert result?
+
+    TryCatchFinallyExpression1()
+      var as Integer?
+
+      result <- try
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- rtn as Integer?
+        var: 222
+      catch
+        -> ex as Exception
+        var: 321
+        rtn: var
+      finally
+        var: 123
+
+      assert var? and result?
+
+    TryCatchFinallyExpression2()
+      var as Integer?
+
+      result <- try
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- rtn as Integer?
+        var: 222
+        rtn: var
+      catch
+        -> ex as Exception
+        var: 321
+
+      finally
+        var: 123
+
+      assert var? and result?
+
+    TryCatchFinallyExpression3()
+      var as Integer?
+
+      result <- try
+        <- rtn as Integer?
+        var: 222
+        rtn: var
+      catch
+        -> ex as Exception
+        var: 321
+        rtn: var
+      finally
+        var: 123
+
+      assert var? and result?
+
+    TryCatchFinallyExpression4()
+      var as Integer?
+
+      result <- try
+        <- rtn as Integer?
+        var: 222
+      catch
+        -> ex as Exception
+        var: 321
+      finally
+        var: 123
+        rtn: var
+
+      assert var? and result?
+
+    <?-
+      Now because a guard is introduced here, it means that the whole try might not
+      get executed, this means that var might still be uninitialized and also the 'rtn' value
+      might not above been initialised.
+    -?>
+    TryCatchWithGuardExpression1()
+      var as Integer?
+      unrelatedValue as Integer?
+
+      result <- try unrelatedValue ?= getValueFunction()
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- rtn as Integer?
+        var: unrelatedValue
+        rtn: var
+      catch
+        -> ex as Exception
+        var: unrelatedValue
+        rtn: var
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert var?
+
+      assert result?
+
+    <?-
+      While there is still a guard here the, return value is now initialised.
+    -?>
+    TryCatchWithGuardExpression2()
+      var as Integer?
+      unrelatedValue as Integer?
+
+      result <- try unrelatedValue ?= getValueFunction()
+        <- rtn as Integer: unrelatedValue
+        var: unrelatedValue
+      catch
+        -> ex as Exception
+        var: unrelatedValue
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert var?
+
+      assert result?
+
+    getValueFunction() as pure
+      <- rtn <- 22
+
+//EOF
+

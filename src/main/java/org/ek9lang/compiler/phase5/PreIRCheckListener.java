@@ -16,6 +16,9 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
   private final ProcessIdentifierReference processIdentifierReference;
   private final ProcessIfStatement processIfStatement;
   private final ProcessSwitchStatement processSwitchStatement;
+  private final ProcessTryStatement processTryStatement;
+  private final ProcessForStatement processForStatement;
+  private final ProcessWhileStatement processWhileStatement;
   private final ProcessFunctionDeclaration processFunctionDeclaration;
   private final ProcessMethodDeclaration processMethodDeclaration;
   private final ProcessOperatorDeclaration processOperatorDeclaration;
@@ -39,6 +42,12 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
         new ProcessIfStatement(symbolAndScopeManagement, errorListener);
     this.processSwitchStatement =
         new ProcessSwitchStatement(symbolAndScopeManagement, errorListener);
+    this.processForStatement =
+        new ProcessForStatement(symbolAndScopeManagement, errorListener);
+    this.processTryStatement =
+        new ProcessTryStatement(symbolAndScopeManagement, errorListener);
+    this.processWhileStatement =
+        new ProcessWhileStatement(symbolAndScopeManagement, errorListener);
     this.processFunctionDeclaration =
         new ProcessFunctionDeclaration(symbolAndScopeManagement, errorListener);
     this.processMethodDeclaration =
@@ -83,7 +92,6 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
   @Override
   public void exitIdentifierReference(EK9Parser.IdentifierReferenceContext ctx) {
     processIdentifierReference.accept(ctx);
-
     super.exitIdentifierReference(ctx);
   }
 
@@ -102,32 +110,20 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
 
   @Override
   public void exitTryStatementExpression(EK9Parser.TryStatementExpressionContext ctx) {
-    //This is for each variable at this scope, once we know it is initialised in preflow all good.
-    //So this below is a cascade of more checks but once we know it's assigned that's it.
-    //TODO need to look at preflow guard - if it was used and check if variable was set in there.
-    //TODO then check the finally
-    //TODO need to check main try body
-    //TODO check the catch body
-
-
     super.exitTryStatementExpression(ctx);
-
+    processTryStatement.accept(ctx);
   }
 
   @Override
   public void exitForStatementExpression(EK9Parser.ForStatementExpressionContext ctx) {
-    //TODO need to look at preflow guard - if it was used and check if variable was set in there.
-    //TODO remember flow may not go through the loop at all
     super.exitForStatementExpression(ctx);
+    processForStatement.accept(ctx);
   }
 
   @Override
   public void exitWhileStatementExpression(EK9Parser.WhileStatementExpressionContext ctx) {
-    //TODO need to look at preflow guard - if it was used and check if variable was set in there.
-    //TODO remember flow may not go through the loop at all for the while.
-    //TODO but it always goes through once for the 'do'.
-
     super.exitWhileStatementExpression(ctx);
+    processWhileStatement.accept(ctx);
   }
 
   /**
