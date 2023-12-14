@@ -334,17 +334,17 @@ variableDeclaration
 
 statement
     : ifStatement
-    | whileStatementExpression
-    | forStatementExpression
     | assertStatement
     | assignmentStatement
     | identifierReference op=(INC | DEC)
     | call
-    | stream
+    | throwStatement
     | objectAccessExpression
     | switchStatementExpression
     | tryStatementExpression
-    | throwStatement
+    | whileStatementExpression
+    | forStatementExpression
+    | stream
     ;
 
 ifStatement
@@ -380,11 +380,11 @@ assignmentStatement
 assignmentExpression
     : expression
     | guardExpression
-    | whileStatementExpression
-    | forStatementExpression
+    | dynamicClassDeclaration
     | switchStatementExpression
     | tryStatementExpression
-    | dynamicClassDeclaration
+    | whileStatementExpression
+    | forStatementExpression
     | stream
     ;
 
@@ -493,6 +493,7 @@ streamFor
 
 //Note that sort and unique can just use comparator and hashcode - respectively if present.
 //Also skip, head and tail now default to 1 is nothing is specified.
+//Added extra optional pipelinePart to tee, to enable a transform after tee but before store/use.
 streamPart
     : PIPE op=FILTER (WITH | BY)? pipelinePart
     | PIPE op=SELECT (WITH | BY)? pipelinePart
@@ -502,7 +503,7 @@ streamPart
     | PIPE op=JOIN (WITH | BY)? pipelinePart
     | PIPE op=SPLIT (WITH | BY)? pipelinePart
     | PIPE op=UNIQ ((WITH | BY)? pipelinePart)?
-    | PIPE op=TEE (WITH | BY | IN)? pipelinePart
+    | PIPE op=TEE ((WITH | BY)? pipelinePart THEN)? (WITH | BY | IN)? pipelinePart
     | PIPE op=FLATTEN
     | PIPE op=CALL
     | PIPE op=ASYNC

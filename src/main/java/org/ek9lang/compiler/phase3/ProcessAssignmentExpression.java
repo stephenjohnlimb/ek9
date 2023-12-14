@@ -41,20 +41,20 @@ final class ProcessAssignmentExpression extends TypedSymbolAccess
     ISymbol symbol = null;
     if (ctx.expression() != null) {
       symbol = getRecordedAndTypedSymbol(ctx.expression());
-    } else if (ctx.forStatementExpression() != null) {
-      symbol = getRecordedAndTypedSymbol(ctx.forStatementExpression());
-    } else if (ctx.whileStatementExpression() != null) {
-      symbol = getRecordedAndTypedSymbol(ctx.whileStatementExpression());
+    } else if (ctx.guardExpression() != null) {
+      symbol = getRecordedAndTypedSymbol(ctx.guardExpression());
+    } else if (ctx.dynamicClassDeclaration() != null) {
+      symbol = getRecordedAndTypedSymbol(ctx.dynamicClassDeclaration());
     } else if (ctx.switchStatementExpression() != null) {
       symbol = getRecordedAndTypedSymbol(ctx.switchStatementExpression());
     } else if (ctx.tryStatementExpression() != null) {
       symbol = getRecordedAndTypedSymbol(ctx.tryStatementExpression());
-    } else if (ctx.dynamicClassDeclaration() != null) {
-      symbol = getRecordedAndTypedSymbol(ctx.dynamicClassDeclaration());
+    } else if (ctx.whileStatementExpression() != null) {
+      symbol = getRecordedAndTypedSymbol(ctx.whileStatementExpression());
+    } else if (ctx.forStatementExpression() != null) {
+      symbol = getRecordedAndTypedSymbol(ctx.forStatementExpression());
     } else if (ctx.stream() != null) {
       symbol = getRecordedAndTypedSymbol(ctx.stream());
-    } else if (ctx.guardExpression() != null) {
-      symbol = getRecordedAndTypedSymbol(ctx.guardExpression());
     } else {
       AssertValue.fail("Expecting finite set of operations for assignment expression");
     }
