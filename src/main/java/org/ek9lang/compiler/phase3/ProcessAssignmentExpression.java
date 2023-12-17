@@ -53,8 +53,8 @@ final class ProcessAssignmentExpression extends TypedSymbolAccess
       symbol = getRecordedAndTypedSymbol(ctx.whileStatementExpression());
     } else if (ctx.forStatementExpression() != null) {
       symbol = getRecordedAndTypedSymbol(ctx.forStatementExpression());
-    } else if (ctx.stream() != null) {
-      symbol = getRecordedAndTypedSymbol(ctx.stream());
+    } else if (ctx.streamExpression() != null) {
+      symbol = getRecordedAndTypedSymbol(ctx.streamExpression());
     } else {
       AssertValue.fail("Expecting finite set of operations for assignment expression");
     }

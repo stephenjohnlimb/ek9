@@ -344,7 +344,7 @@ statement
     | tryStatementExpression
     | whileStatementExpression
     | forStatementExpression
-    | stream
+    | streamStatement
     ;
 
 ifStatement
@@ -385,7 +385,7 @@ assignmentExpression
     | tryStatementExpression
     | whileStatementExpression
     | forStatementExpression
-    | stream
+    | streamExpression
     ;
 
 throwStatement
@@ -478,9 +478,19 @@ guardExpression
     : identifier op=GUARD expression
     ;
 
-stream
-    : (streamCat | streamFor) streamPart* streamTermination
-    | (streamCat | streamFor) NL+ INDENT NL* (streamPart NL+)+ streamTermination NL+ DEDENT
+streamStatement
+    : streamSource streamPart* streamStatementTermination
+    | streamSource NL+ INDENT NL* (streamPart NL+)+ streamStatementTermination NL+ DEDENT
+    ;
+
+streamExpression
+    : streamSource streamPart* streamExpressionTermination
+    | streamSource NL+ INDENT NL* (streamPart NL+)+ streamExpressionTermination NL+ DEDENT
+    ;
+
+streamSource
+    : streamCat
+    | streamFor
     ;
 
 streamCat
@@ -512,10 +522,12 @@ streamPart
     | PIPE op=TAIL ((BY | OF | ONLY)? (pipelinePart | integerLit))?
     ;
 
-streamTermination
-    : op=GT pipelinePart
-    | op=SHFTR pipelinePart
-    | PIPE op=COLLECT AS typeDef
+streamStatementTermination
+    : op=(GT | SHFTR) pipelinePart
+    ;
+
+streamExpressionTermination
+    : PIPE op=COLLECT AS typeDef
     ;
 
 pipelinePart

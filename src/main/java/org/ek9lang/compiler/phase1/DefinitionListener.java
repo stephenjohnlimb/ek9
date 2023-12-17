@@ -453,10 +453,17 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   }
 
   @Override
-  public void enterStream(EK9Parser.StreamContext ctx) {
+  public void enterStreamStatement(EK9Parser.StreamStatementContext ctx) {
     final var newTypeSymbol = symbolFactory.newStream(ctx);
     symbolAndScopeManagement.recordSymbol(newTypeSymbol, ctx);
-    super.enterStream(ctx);
+    super.enterStreamStatement(ctx);
+  }
+
+  @Override
+  public void enterStreamExpression(EK9Parser.StreamExpressionContext ctx) {
+    final var newTypeSymbol = symbolFactory.newStream(ctx);
+    symbolAndScopeManagement.recordSymbol(newTypeSymbol, ctx);
+    super.enterStreamExpression(ctx);
   }
 
   @Override
@@ -485,14 +492,24 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   }
 
   @Override
-  public void enterStreamTermination(EK9Parser.StreamTerminationContext ctx) {
+  public void enterStreamStatementTermination(EK9Parser.StreamStatementTerminationContext ctx) {
     var currentScope = symbolAndScopeManagement.getTopScope();
-    final var newStreamPartSymbol = symbolFactory.newStreamTermination(ctx, currentScope);
+    final var operation = ctx.op.getText();
+    final var newStreamPartSymbol = symbolFactory.newStreamTermination(ctx, operation, currentScope);
     symbolAndScopeManagement.recordSymbol(newStreamPartSymbol, ctx);
 
-    super.enterStreamTermination(ctx);
+    super.enterStreamStatementTermination(ctx);
   }
 
+  @Override
+  public void enterStreamExpressionTermination(EK9Parser.StreamExpressionTerminationContext ctx) {
+    var currentScope = symbolAndScopeManagement.getTopScope();
+    final var operation = ctx.op.getText();
+    final var newStreamPartSymbol = symbolFactory.newStreamTermination(ctx, operation, currentScope);
+    symbolAndScopeManagement.recordSymbol(newStreamPartSymbol, ctx);
+
+    super.enterStreamExpressionTermination(ctx);
+  }
 
   /**
    * Need to create a local scope for the if statement so that it is possible to detect

@@ -746,7 +746,7 @@ public class SymbolFactory {
   /**
    * Create a new symbol that represents an EK9 concept of a stream pipeline.
    */
-  public StreamPipeLineSymbol newStream(EK9Parser.StreamContext ctx) {
+  public StreamPipeLineSymbol newStream(ParserRuleContext ctx) {
     StreamPipeLineSymbol pipeLine = new StreamPipeLineSymbol("stream");
     configureSymbol(pipeLine, new Ek9Token(ctx.start));
     pipeLine.setReferenced(true);
@@ -795,8 +795,8 @@ public class SymbolFactory {
   /**
    * Create a new symbol that represents an EK9 terminal part of a stream pipeline.
    */
-  public StreamCallSymbol newStreamTermination(EK9Parser.StreamTerminationContext ctx, IScope scope) {
-    final var operation = ctx.op.getText();
+  public StreamCallSymbol newStreamTermination(final ParserRuleContext ctx, final String operation,
+                                               final IScope scope) {
     StreamCallSymbol call = new StreamCallSymbol(operation, scope);
     configureStreamCallSymbol(call, new Ek9Token(ctx.start));
     call.setSinkInNature(true);
