@@ -1,17 +1,31 @@
 #!ek9
 <?-
-  Examples of uninitialised variables or returns that are not initialised in:
-  for loops.
+  Starting work on the mammoth task of streams.
+  These are the main parts, note the statement does not return anything (i.e. must end in an output to something)
+  But the expression does 'return something', could be a collection, or in a reduction just an instance of type.
+  Main two constructions: streamStatement, streamExpression:
+  Both begin with: streamSource - which can be one of either: streamCat, streamFor:
+  Stream statements then have: streamPart(s)/streamStatementTermination - pipelinePart
+  But Stream expressions have streamPart(s) - pipelinePart and finally: streamExpressionTermination
+
+  The main phased approach in the definition phase is to build the 'structure' of the pipeline.
+  The next phase (in order) is to workout the types, this can only be completed during phase 3 dues to type inference.
+  The tricky bit is ensuring that the types that flow through the pipeline align with outputs to inputs.
+  This is made more complex by some pipeline parts being able to accept 'anything' and output the same type.
+
+  So the processing is sort of strict at the start and the end (in terms of types) and also strict when any functions are employed.
+  But more flexible for things like 'skipping', 'head', 'tail' for example.
+  Then for some operations like 'flatten', there has to be some way to 'iterate' over the type to get the 'flattened values'.
+  Other operations like 'uniq' will require operators on the type - like 'hashCode' for example.
+
+  So, this is pretty complex stuff.
 -?>
 defines module just.workspace
 
   defines function
 
     JustFail()
-      notInitialised as String?
-
-      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
-      assert notInitialised?
+      assert notDefined?
 
 //EOF
 

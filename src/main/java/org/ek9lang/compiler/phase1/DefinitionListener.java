@@ -454,39 +454,46 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterStreamStatement(EK9Parser.StreamStatementContext ctx) {
-    final var newTypeSymbol = symbolFactory.newStream(ctx);
-    symbolAndScopeManagement.recordSymbol(newTypeSymbol, ctx);
+    final var streamSymbol = symbolFactory.newStream(ctx);
+    symbolAndScopeManagement.recordSymbol(streamSymbol, ctx);
     super.enterStreamStatement(ctx);
   }
 
   @Override
   public void enterStreamExpression(EK9Parser.StreamExpressionContext ctx) {
-    final var newTypeSymbol = symbolFactory.newStream(ctx);
-    symbolAndScopeManagement.recordSymbol(newTypeSymbol, ctx);
+    final var streamSymbol = symbolFactory.newStream(ctx);
+    symbolAndScopeManagement.recordSymbol(streamSymbol, ctx);
     super.enterStreamExpression(ctx);
+  }
+
+  @Override
+  public void enterStreamSource(EK9Parser.StreamSourceContext ctx) {
+    final var exprSymbol = symbolFactory.newExpressionSymbol(new Ek9Token(ctx.start), "stream");
+    symbolAndScopeManagement.recordSymbol(exprSymbol, ctx);
+    super.enterStreamSource(ctx);
   }
 
   @Override
   public void enterStreamCat(EK9Parser.StreamCatContext ctx) {
     var currentScope = symbolAndScopeManagement.getTopScope();
-    final var newTypeSymbol = symbolFactory.newStreamCat(ctx, currentScope);
-    symbolAndScopeManagement.recordSymbol(newTypeSymbol, ctx);
+    final var streamCatSymbol = symbolFactory.newStreamCat(ctx, currentScope);
+    symbolAndScopeManagement.recordSymbol(streamCatSymbol, ctx);
     super.enterStreamCat(ctx);
   }
 
   @Override
   public void enterStreamFor(EK9Parser.StreamForContext ctx) {
     var currentScope = symbolAndScopeManagement.getTopScope();
-    final var newTypeSymbol = symbolFactory.newStreamFor(ctx, currentScope);
-    symbolAndScopeManagement.recordSymbol(newTypeSymbol, ctx);
+    final var streamForSymbol = symbolFactory.newStreamFor(ctx, currentScope);
+    symbolAndScopeManagement.recordSymbol(streamForSymbol, ctx);
     super.enterStreamFor(ctx);
   }
 
   @Override
   public void enterStreamPart(EK9Parser.StreamPartContext ctx) {
     var currentScope = symbolAndScopeManagement.getTopScope();
-    final var newStreamPartSymbol = symbolFactory.newStreamPart(ctx, currentScope);
-    symbolAndScopeManagement.recordSymbol(newStreamPartSymbol, ctx);
+    final var streamPartSymbol = symbolFactory.newStreamPart(ctx, currentScope);
+    symbolAndScopeManagement.recordSymbol(streamPartSymbol, ctx);
 
     super.enterStreamPart(ctx);
   }
@@ -495,8 +502,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   public void enterStreamStatementTermination(EK9Parser.StreamStatementTerminationContext ctx) {
     var currentScope = symbolAndScopeManagement.getTopScope();
     final var operation = ctx.op.getText();
-    final var newStreamPartSymbol = symbolFactory.newStreamTermination(ctx, operation, currentScope);
-    symbolAndScopeManagement.recordSymbol(newStreamPartSymbol, ctx);
+    final var terminationSymbol = symbolFactory.newStreamTermination(ctx, operation, currentScope);
+    symbolAndScopeManagement.recordSymbol(terminationSymbol, ctx);
 
     super.enterStreamStatementTermination(ctx);
   }
@@ -505,10 +512,18 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   public void enterStreamExpressionTermination(EK9Parser.StreamExpressionTerminationContext ctx) {
     var currentScope = symbolAndScopeManagement.getTopScope();
     final var operation = ctx.op.getText();
-    final var newStreamPartSymbol = symbolFactory.newStreamTermination(ctx, operation, currentScope);
-    symbolAndScopeManagement.recordSymbol(newStreamPartSymbol, ctx);
+    final var terminationSymbol = symbolFactory.newStreamTermination(ctx, operation, currentScope);
+    symbolAndScopeManagement.recordSymbol(terminationSymbol, ctx);
 
     super.enterStreamExpressionTermination(ctx);
+  }
+
+  @Override
+  public void enterPipelinePart(EK9Parser.PipelinePartContext ctx) {
+    final var exprSymbol = symbolFactory.newExpressionSymbol(new Ek9Token(ctx.start), "pipeline");
+    symbolAndScopeManagement.recordSymbol(exprSymbol, ctx);
+
+    super.enterPipelinePart(ctx);
   }
 
   /**
