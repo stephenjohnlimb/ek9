@@ -19,6 +19,7 @@
   Other operations like 'uniq' will require operators on the type - like 'hashCode' for example.
 
   So, this is pretty complex stuff.
+
 -?>
 defines module just.workspace
 
@@ -26,6 +27,10 @@ defines module just.workspace
 
     JustFail()
       assert notDefined?
+
+    SimpleStream()
+      stdout <- Stdout()
+      cat [1, 2, 3] > stdout
 
 //EOF
 

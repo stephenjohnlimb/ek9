@@ -335,18 +335,27 @@ public class MethodSymbol extends ScopedSymbol {
   /**
    * Does the signature of this method match that of the method passed in.
    * Not the name of the method just the signature of the parameter types
-   * and special treatment for the return type - this can be coerced back or be a super type
+   * and special treatment for the return type - this can be coerced back or be a super type.
+   * This also takes into account polymorphism and promotions.
    */
   public boolean isSignatureMatchTo(MethodSymbol toMethod) {
-    List<ISymbol> ourParams = this.getSymbolsForThisScope();
-    List<ISymbol> theirParams = toMethod.getSymbolsForThisScope();
-    double weight = getSymbolMatcher().getWeightOfParameterMatch(theirParams, ourParams);
+    double weight = getWeightOfParameterMatches(toMethod.getSymbolsForThisScope(), getSymbolsForThisScope());
     if (weight < 0.0) {
       return false;
     }
-    weight = getSymbolMatcher().getWeightOfMatch(this.getType(), toMethod.getType());
+    weight += getSymbolMatcher().getWeightOfMatch(this.getType(), toMethod.getType());
 
     return weight >= 0.0;
+  }
+
+  /**
+   * This method just checks that the signature has exactly the same types as parameters.
+   * So this is 'exact' in addition it does not check the return type at all, nor the method name.
+   * It just focuses on the number order and type of the parameters matching.
+   */
+  public boolean isExactSignatureMatchTo(MethodSymbol toMethod) {
+    double weight = getWeightOfParameterMatches(toMethod.getSymbolsForThisScope(), getSymbolsForThisScope());
+    return Math.abs(weight) < 1e-6;
   }
 
   /**
@@ -355,9 +364,11 @@ public class MethodSymbol extends ScopedSymbol {
    * But this takes into account polymorphism and promotions.
    */
   public boolean isParameterSignatureMatchTo(List<ISymbol> params) {
-    List<ISymbol> ourParams = this.getSymbolsForThisScope();
-    double weight = getSymbolMatcher().getWeightOfParameterMatch(params, ourParams);
-    return weight >= 0.0;
+    return getWeightOfParameterMatches(params, getSymbolsForThisScope()) >= 0.0;
+  }
+
+  private double getWeightOfParameterMatches(final List<ISymbol> fromSymbols, final List<ISymbol> toSymbols) {
+    return getSymbolMatcher().getWeightOfParameterMatch(fromSymbols, toSymbols);
   }
 
   /**

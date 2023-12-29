@@ -1,0 +1,44 @@
+#!ek9
+<?-
+  Defines various cases where method either do override or don't override each other.
+  But this is in a traits only context.
+  Note found a defect in resolving methods that coule have parameters promoted.
+  For example JSON can be promoted to a String, so when I added pipe methods like this below
+  there was an error (incorrectly). Hence this test.
+-?>
+defines module bad.overriding.traitmethods2
+
+  defines trait
+
+    SomePipes
+
+      operator |
+        -> arg0 as String
+        assert arg0?
+
+      operator |
+        -> arg0 as JSON
+        assert arg0?
+
+    MorePipes
+
+      operator |
+        -> arg0 as JSON
+        assert arg0?
+
+  defines class
+
+    //Expect an error here because operator | is now implemented in both traits.
+    //So which to pick - compiler forces ek9 developer to override (see C2 below)
+    @Error: FULL_RESOLUTION: METHODS_CONFLICT
+    C1 with trait of SomePipes, MorePipes
+      default C1()
+
+    C2 with trait of SomePipes, MorePipes
+      default C2()
+
+      override operator |
+        -> arg0 as JSON
+        assert arg0?
+
+//EOF

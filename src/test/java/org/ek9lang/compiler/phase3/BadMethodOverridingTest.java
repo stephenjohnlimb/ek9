@@ -22,6 +22,7 @@ class BadMethodOverridingTest extends PhasesTest {
             "bad.overriding.classmethods4",
             "bad.overriding.classmethods5",
             "bad.overriding.traitmethods1",
+            "bad.overriding.traitmethods2",
             "bad.traits.covariance.examples",
             "bad.classes.covariance.examples",
             "bad.components.covariance.examples",

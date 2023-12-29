@@ -95,6 +95,6 @@ final class CheckConflictingMethods extends TypedSymbolAccess implements Predica
   }
 
   private boolean methodsMatch(final MethodSymbol m1, final MethodSymbol m2) {
-    return m1.getName().equals(m2.getName()) && m1.isSignatureMatchTo(m2);
+    return m1.getName().equals(m2.getName()) && m1.isExactSignatureMatchTo(m2);
   }
 }

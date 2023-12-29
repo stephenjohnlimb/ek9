@@ -23,7 +23,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 89;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 90;
 
   //Obviously with ek9 the indentation is important.
   @SuppressWarnings({"Indentation"})
@@ -2602,7 +2602,90 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator ? as pure
               <- rtn as Boolean?
-                            
+          
+          PipedOutput
+          
+            operator |
+              -> arg0 as String
+              assert arg0?
+              
+            operator |
+              -> arg0 as Bits
+              assert arg0?
+
+            operator |
+              -> arg0 as Boolean
+              assert arg0?
+
+            operator |
+              -> arg0 as Character
+              assert arg0?
+
+            operator |
+              -> arg0 as Integer
+              assert arg0?
+
+            operator |
+              -> arg0 as Float
+              assert arg0?
+
+            operator |
+              -> arg0 as Time
+              assert arg0?
+
+            operator |
+              -> arg0 as Duration
+              assert arg0?
+
+            operator |
+              -> arg0 as Millisecond
+              assert arg0?
+
+            operator |
+              -> arg0 as Date
+              assert arg0?
+
+            operator |
+              -> arg0 as DateTime
+              assert arg0?
+
+            operator |
+              -> arg0 as Money
+              assert arg0?
+
+            operator |
+              -> arg0 as Locale
+              assert arg0?
+
+            operator |
+              -> arg0 as Colour
+              assert arg0?
+
+            operator |
+              -> arg0 as Dimension
+              assert arg0?
+
+            operator |
+              -> arg0 as Resolution
+              assert arg0?
+
+            operator |
+              -> arg0 as Path
+              assert arg0?
+
+            operator |
+              -> arg0 as JSON
+              assert arg0?
+
+            operator |
+              -> arg0 as RegEx
+              assert arg0?
+
+            operator |
+              -> arg0 as Exception
+              assert arg0?
+
+             
       """;
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_STANDARD_FUNCTIONS = """
@@ -2630,13 +2713,13 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             override operator ? as pure
               <- rtn as Boolean?
 
-          Stdout with trait of StringOutput
+          Stdout with trait of StringOutput, PipedOutput
             Stdout() as pure
 
             override operator ? as pure
               <- rtn as Boolean?
               
-          Stderr with trait of StringOutput
+          Stderr with trait of StringOutput, PipedOutput
             Stderr() as pure
 
             override operator ? as pure
