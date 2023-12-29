@@ -1,13 +1,9 @@
 package org.ek9lang.compiler.support;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.symbols.AggregateSymbol;
-import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
-import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
 
@@ -26,11 +22,12 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * This function will issue semantic errors.
  */
 public class CommonTypeSuperOrTrait implements BiFunction<IToken, List<ISymbol>, Optional<ISymbol>> {
-  final ErrorListener errorListener;
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
 
+  private final CommonTypeOrError commonTypeOrError;
+
   public CommonTypeSuperOrTrait(final ErrorListener errorListener) {
-    this.errorListener = errorListener;
+    this.commonTypeOrError = new CommonTypeOrError(errorListener);
   }
 
   @Override
@@ -45,108 +42,7 @@ public class CommonTypeSuperOrTrait implements BiFunction<IToken, List<ISymbol>,
       return Optional.empty();
     }
 
-    return getCommonType(lineToken, argumentSymbols, argumentTypes);
-  }
-
-  private Optional<ISymbol> getCommonType(final IToken lineToken,
-                                          final List<ISymbol> argumentSymbols,
-                                          final List<ISymbol> argumentTypes) {
-    //But note the ek9 developer could have accidentally mixed vars which were functions and aggregates
-    //We have to accept this but detect and issue error.
-    if (canCommonTypeBeDetermined(lineToken, argumentSymbols, argumentTypes)) {
-      return determineCommonType(lineToken, argumentSymbols, argumentTypes);
-    }
-    return Optional.empty();
-  }
-
-  private boolean canCommonTypeBeDetermined(final IToken lineToken,
-                                            final List<ISymbol> argumentSymbols,
-                                            final List<ISymbol> argumentTypes) {
-    return (argumentTypes.get(0) instanceof FunctionSymbol
-        && checkFunctionSymbols(lineToken, argumentSymbols, argumentTypes))
-        || (argumentTypes.get(0) instanceof AggregateSymbol
-        && checkAggregateSymbols(lineToken, argumentSymbols, argumentTypes));
-  }
-
-  private Optional<ISymbol> determineCommonType(final IToken lineToken,
-                                                final List<ISymbol> argumentSymbols,
-                                                final List<ISymbol> argumentTypes) {
-    List<ISymbol> typesToTry = new ArrayList<>();
-    getTypesToTry(argumentTypes.get(0), typesToTry);
-
-    for (var type : typesToTry) {
-      if (allAssignableTo(type, argumentTypes)) {
-        return Optional.of(type);
-      }
-    }
-    emitNoCommonType(lineToken, argumentSymbols.get(0));
-    return Optional.empty();
-  }
-
-  private void getTypesToTry(final ISymbol symbolType, List<ISymbol> addToTypes) {
-    if (addToTypes.contains(symbolType)) {
-      return;
-    }
-    addToTypes.add(symbolType);
-    if (symbolType instanceof FunctionSymbol functionSymbol && functionSymbol.getSuperFunction().isPresent()) {
-      getTypesToTry(functionSymbol.getSuperFunction().get(), addToTypes);
-    } else if (symbolType instanceof AggregateSymbol aggregateSymbol) {
-      if (aggregateSymbol.getSuperAggregate().isPresent()) {
-        getTypesToTry(aggregateSymbol.getSuperAggregate().get(), addToTypes);
-      }
-      if (aggregateSymbol instanceof AggregateWithTraitsSymbol aggregateWithTraitsSymbol) {
-        aggregateWithTraitsSymbol.getAllTraits().forEach(symbol -> getTypesToTry(symbol, addToTypes));
-      }
-    }
-  }
-
-  private boolean allAssignableTo(final ISymbol typeSymbol, final List<ISymbol> typeList) {
-    return typeList.stream().filter(fun -> fun.isAssignableTo(typeSymbol)).count() == typeList.size();
-  }
-
-  private boolean checkAggregateSymbols(final IToken lineToken,
-                                        final List<ISymbol> argumentSymbols,
-                                        final List<ISymbol> argumentTypes) {
-    int count = 0;
-    for (int i = 0; i < argumentTypes.size(); i++) {
-      if (argumentTypes.get(i) instanceof AggregateSymbol) {
-        count++;
-      } else {
-        emitExpectingAggregateError(lineToken, argumentSymbols.get(i));
-      }
-    }
-    return count == argumentSymbols.size();
-  }
-
-  private boolean checkFunctionSymbols(final IToken lineToken,
-                                       final List<ISymbol> argumentSymbols,
-                                       final List<ISymbol> argumentTypes) {
-    int count = 0;
-    for (int i = 0; i < argumentTypes.size(); i++) {
-      if (argumentTypes.get(i) instanceof FunctionSymbol) {
-        count++;
-      } else {
-        emitExpectingFunctionError(lineToken, argumentSymbols.get(i));
-      }
-    }
-    return count == argumentSymbols.size();
-  }
-
-  private void emitExpectingFunctionError(final IToken lineToken, final ISymbol argument) {
-    var msg = "Expecting a function not '" + argument.getFriendlyName() + "':";
-    errorListener.semanticError(lineToken, msg,
-        ErrorListener.SemanticClassification.TYPE_MUST_BE_FUNCTION);
-  }
-
-  private void emitExpectingAggregateError(final IToken lineToken, final ISymbol argument) {
-    var msg = "Expecting a non-function not function '" + argument.getName() + "':";
-    errorListener.semanticError(lineToken, msg,
-        ErrorListener.SemanticClassification.TYPE_MUST_NOT_BE_FUNCTION);
-  }
-
-  private void emitNoCommonType(final IToken lineToken, final ISymbol argument) {
-    var msg = "With '" + argument.getFriendlyName() + "':";
-    errorListener.semanticError(lineToken, msg,
-        ErrorListener.SemanticClassification.UNABLE_TO_DETERMINE_COMMON_TYPE);
+    var details = new CommonTypeDeterminationDetails(lineToken, argumentSymbols, argumentTypes);
+    return commonTypeOrError.apply(details);
   }
 }

@@ -18,6 +18,7 @@
   Then for some operations like 'flatten', there has to be some way to 'iterate' over the type to get the 'flattened values'.
   Other operations like 'uniq' will require operators on the type - like 'hashCode' for example.
 
+  //TODO StreamFor.
   So, this is pretty complex stuff.
 
 -?>
@@ -26,11 +27,58 @@ defines module just.workspace
   defines function
 
     JustFail()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
       assert notDefined?
 
-    SimpleStream()
+    SimpleStreamCat1()
       stdout <- Stdout()
       cat [1, 2, 3] > stdout
+
+    <?-
+      This will cat each letter in the strings.
+      But only because the String has an iterator method.
+    -?>
+    SimpleStreamCat2()
+      stdout <- Stdout()
+      cat "Steve", " ", "Limb" > stdout
+
+    SimpleStreamFor1()
+      stdout <- Stdout()
+      for i in 1 ... 10 > stdout
+
+    SimpleStreamFor2()
+      stdout <- Stdout()
+      for i in 'a' ... 'z' > stdout
+
+    <?-
+      This will fail because float cannot be iterated over.
+    -?>
+    BrokenStreamCat1()
+      stdout <- Stdout()
+      @Error: FULL_RESOLUTION: MISSING_ITERATE_METHOD
+      cat [1, 2, 3], 3.5 > stdout
+
+    <?-
+      This will fail because none of the type have an iterate method.
+    -?>
+    BrokenStreamCat2()
+      stdout <- Stdout()
+      @Error: FULL_RESOLUTION: MISSING_ITERATE_METHOD
+      cat 1, 2, 3, 3.5, 4 > stdout
+
+    <?-
+      nonSuch does not resolve, so that will cause an error.
+      The 'cat' would just use Integer in this case, but compilation would fail dues to 'nonSuch'
+    -?>
+    BrokenStreamCat3()
+      stdout <- Stdout()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      cat [1, 2, 3], nonSuch > stdout
+
+    BrokenStreamFor1()
+      stdout <- Stdout()
+      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      for i in 'a' ... 10 > stdout
 
 //EOF
 

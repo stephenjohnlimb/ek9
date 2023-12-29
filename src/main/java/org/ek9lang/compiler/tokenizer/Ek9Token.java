@@ -135,4 +135,16 @@ public class Ek9Token implements IToken {
     result = 31 * result + getTokenIndex();
     return result;
   }
+
+  @Override
+  public String toString() {
+    return "Ek9Token{"
+        + "type=" + type
+        + ", textName='" + textName + '\''
+        + ", lineNumber=" + lineNumber
+        + ", sourceName='" + sourceName + '\''
+        + ", charPositionInLine=" + charPositionInLine
+        + ", tokenIndex=" + tokenIndex
+        + '}';
+  }
 }

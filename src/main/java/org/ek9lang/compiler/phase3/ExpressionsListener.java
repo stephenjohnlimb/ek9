@@ -31,6 +31,8 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final ProcessForRange processForRange;
   private final CheckVariableAssignment checkVariableAssignment;
   private final CheckVariableOnlyDeclaration checkVariableOnlyDeclaration;
+  private final ProcessStreamCat processStreamCat;
+  private final ProcessStreamFor processStreamFor;
   private final CheckPipelinePart checkPipelinePart;
   private final ProcessObjectAccessStartOrError processObjectAccessStartOrError;
   private final ProcessObjectAccessExpressionOrError processObjectAccessExpressionOrError;
@@ -49,61 +51,47 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
 
     this.symbolFactory =
         new SymbolFactory(parsedModule);
-
     this.errorListener =
         parsedModule.getSource().getErrorListener();
 
     this.processValidThisOrSuper =
         new ProcessValidThisOrSuper(symbolAndScopeManagement, symbolFactory, errorListener);
-
     this.processValidPrimary =
         new ProcessValidPrimary(symbolAndScopeManagement, errorListener);
-
     this.processValidIdentifierReference =
         new ProcessValidIdentifierReference(symbolAndScopeManagement, errorListener);
-
     this.checkValidStatement =
         new CheckValidStatement(symbolAndScopeManagement, errorListener);
-
     this.checkValidExpression =
         new CheckValidExpression(symbolAndScopeManagement, symbolFactory, errorListener);
-
     this.checkInstructionBlockVariables =
         new CheckInstructionBlockVariables(symbolAndScopeManagement, errorListener);
-
     this.processAssignmentExpression =
         new ProcessAssignmentExpression(symbolAndScopeManagement, errorListener);
-
     this.processAssignmentStatement =
         new ProcessAssignmentStatement(symbolAndScopeManagement, errorListener);
-
     this.checkValidCall =
         new CheckValidCall(symbolAndScopeManagement, symbolFactory, errorListener);
-
     this.processAndTypeList =
         new ProcessAndTypeList(symbolAndScopeManagement, symbolFactory, errorListener);
-
     this.processAndTypeDict =
         new ProcessAndTypeDict(symbolAndScopeManagement, symbolFactory, errorListener);
-
+    this.processStreamCat =
+        new ProcessStreamCat(symbolAndScopeManagement, errorListener);
+    this.processStreamFor =
+        new ProcessStreamFor(symbolAndScopeManagement, errorListener);
     this.checkPipelinePart =
         new CheckPipelinePart(symbolAndScopeManagement, errorListener);
-
     this.processRange =
         new ProcessRange(symbolAndScopeManagement, symbolFactory, errorListener);
-
     this.processForLoop =
         new ProcessForLoop(symbolAndScopeManagement, errorListener);
-
     this.processForRange =
         new ProcessForRange(symbolAndScopeManagement, errorListener);
-
     this.checkVariableAssignment =
         new CheckVariableAssignment(symbolAndScopeManagement, errorListener);
-
     this.checkVariableOnlyDeclaration =
         new CheckVariableOnlyDeclaration(symbolAndScopeManagement, errorListener);
-
     this.processObjectAccessStartOrError =
         new ProcessObjectAccessStartOrError(symbolAndScopeManagement, errorListener);
     this.processObjectAccessExpressionOrError =
@@ -302,9 +290,20 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   }
 
   @Override
+  public void exitStreamCat(EK9Parser.StreamCatContext ctx) {
+    processStreamCat.accept(ctx);
+    super.exitStreamCat(ctx);
+  }
+
+  @Override
+  public void exitStreamFor(EK9Parser.StreamForContext ctx) {
+    processStreamFor.accept(ctx);
+    super.exitStreamFor(ctx);
+  }
+
+  @Override
   public void exitPipelinePart(EK9Parser.PipelinePartContext ctx) {
     checkPipelinePart.accept(ctx);
-
     super.exitPipelinePart(ctx);
   }
 }
