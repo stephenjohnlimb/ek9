@@ -12,7 +12,6 @@ import org.ek9lang.compiler.support.ParameterisedTypeData;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
-import org.ek9lang.core.AssertValue;
 
 /**
  * Creates/Updates an ek9 list of a specific type if the expressions are typed correctly.
@@ -55,8 +54,10 @@ final class ProcessAndTypeList extends TypedSymbolAccess implements Consumer<EK9
     List<ISymbol> argumentSymbols = new ArrayList<>();
     for (var expr : ctx.expression()) {
       var exprSymbol = getRecordedAndTypedSymbol(expr);
-      AssertValue.checkNotNull("Compiler error, No expression symbol - missing expression processing?", exprSymbol);
-      argumentSymbols.add(exprSymbol);
+      //Might be null if not valid, but error would have been issued,
+      if (exprSymbol != null) {
+        argumentSymbols.add(exprSymbol);
+      }
     }
     return argumentSymbols;
   }

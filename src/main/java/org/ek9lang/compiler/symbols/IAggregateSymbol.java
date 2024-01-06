@@ -41,13 +41,19 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
    */
   void addSubAggregateSymbol(IAggregateSymbol sub);
 
-
   /**
    * Get all methods on this and any supers or traits.
    *
    * @return the list
    */
   List<MethodSymbol> getAllMethods();
+
+  /**
+   * Get all operators on this and any supers or traits.
+   *
+   * @return the list
+   */
+  List<MethodSymbol> getAllOperators();
 
   /**
    * Get all methods marked as abstract in this or any supers.

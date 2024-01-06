@@ -267,6 +267,11 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   }
 
   @Override
+  public List<MethodSymbol> getAllOperators() {
+    return getAllMethods().stream().filter(MethodSymbol::isOperator).toList();
+  }
+
+  @Override
   public List<MethodSymbol> getAllNonAbstractMethods() {
     ArrayList<MethodSymbol> rtn = new ArrayList<>();
     getSuperAggregate().ifPresent(aggregateSymbol -> rtn.addAll(aggregateSymbol.getAllNonAbstractMethods()));

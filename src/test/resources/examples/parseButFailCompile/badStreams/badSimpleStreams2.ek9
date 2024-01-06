@@ -1,0 +1,102 @@
+#!ek9
+<?-
+  Some more complete simple examples.
+-?>
+defines module bad.streams2
+
+  defines class
+
+    StringCollector
+      joined <- String()
+
+      operator |
+        -> arg0 as String
+        if arg0?
+          if joined?
+            joined += " " + arg0
+          else
+            joined: String(arg0)
+
+      operator ? as pure
+        <- rtn as Boolean: joined?
+
+    DurationCollector
+      total as Duration: Duration()
+
+      duration()
+        <- rtn as Duration: Duration(total)
+
+      operator |
+        -> arg0 as Duration
+        assert arg0?
+        if ~total?
+          total :=: arg0
+        else
+          total += arg0
+
+      operator ? as pure
+        <- rtn as Boolean: total?
+
+  defines function
+
+    <?-
+      Just used as an example of something that can be
+      resolved but cannot be a termination point for a stream.
+    -?>
+    NotSomethingThatCanBePipedInto()
+      -> arg0 as Duration
+      <- rtn as Boolean: arg0?
+
+    JustFail()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert notDefined?
+
+    <?-
+      Simple use of list of Integers into stdout via pipe '|'
+    -?>
+    SimpleStreamCat1()
+      stdout <- Stdout()
+      //stdout type can accept integers being piped in
+      cat [1, 2, 3] > stdout
+
+    <?-
+      Simple use of list of Durations into a class instance via pipe '|'
+    -?>
+    SimpleStreamCat2()
+      collector <- DurationCollector()
+      //collector type can accept durations being piped in
+      cat [P2D, P1W, PT2H] > collector
+      assert collector?
+
+    <?-
+      Just checking that types with a 'promotion operator #^' can be used without explicit 'map'.
+    -?>
+    SimpleStreamCat3()
+      collector <- StringCollector()
+      //Check if Character can be promoted to String to be piped out.
+      cat ['a', 'b', 'c'] > collector
+      assert collector?
+
+    BrokenStatementTerminator1()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      cat [1, 2, 3] > identifierNotDefined
+
+    BrokenStatementTerminator2()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      cat [1, 2, 3] > callNotDefined()
+
+    BrokenStatementTerminator3()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      cat [1, 2, 3] > some.objectAccessExpression.NotDefined()
+
+    BrokenStatementTerminator4()
+      collector <- DurationCollector()
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      cat [1, 2, 3] > collector
+
+    BrokenStatementTerminator5()
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      cat [P2D, P1W, PT2H] > NotSomethingThatCanBePipedInto
+
+//EOF
+

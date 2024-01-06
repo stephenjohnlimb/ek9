@@ -455,6 +455,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterStreamStatement(EK9Parser.StreamStatementContext ctx) {
     final var streamSymbol = symbolFactory.newStream(ctx);
+    //As it is a statement it returns nothing and hence is void
+    streamSymbol.setType(symbolAndScopeManagement.getEk9Types().ek9Void());
     symbolAndScopeManagement.recordSymbol(streamSymbol, ctx);
     super.enterStreamStatement(ctx);
   }
@@ -467,18 +469,20 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   }
 
   @Override
-  public void enterStreamSource(EK9Parser.StreamSourceContext ctx) {
-    final var exprSymbol = symbolFactory.newExpressionSymbol(new Ek9Token(ctx.start), "stream");
-    symbolAndScopeManagement.recordSymbol(exprSymbol, ctx);
-    super.enterStreamSource(ctx);
-  }
-
-  @Override
   public void enterStreamCat(EK9Parser.StreamCatContext ctx) {
     var currentScope = symbolAndScopeManagement.getTopScope();
     final var streamCatSymbol = symbolFactory.newStreamCat(ctx, currentScope);
     symbolAndScopeManagement.recordSymbol(streamCatSymbol, ctx);
     super.enterStreamCat(ctx);
+  }
+
+  @Override
+  public void exitStreamSource(EK9Parser.StreamSourceContext ctx) {
+    //Either cat of for - there is no need to create and intermediate object here.
+    var contextToRecord = ctx.streamCat() != null ? ctx.streamCat() : ctx.streamFor();
+    var symbolToRecord = symbolAndScopeManagement.getRecordedSymbol(contextToRecord);
+    symbolAndScopeManagement.recordSymbol(symbolToRecord, ctx);
+    super.exitStreamSource(ctx);
   }
 
   @Override
@@ -518,13 +522,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     super.enterStreamExpressionTermination(ctx);
   }
 
-  @Override
-  public void enterPipelinePart(EK9Parser.PipelinePartContext ctx) {
-    final var exprSymbol = symbolFactory.newExpressionSymbol(new Ek9Token(ctx.start), "pipeline");
-    symbolAndScopeManagement.recordSymbol(exprSymbol, ctx);
-
-    super.enterPipelinePart(ctx);
-  }
+  //Pipeline Part is not defined here, just reference the symbol being employed against the context in phase3.
 
   /**
    * Need to create a local scope for the if statement so that it is possible to detect

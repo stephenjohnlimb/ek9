@@ -48,6 +48,7 @@ final class ProcessStreamCat extends TypedSymbolAccess implements Consumer<EK9Pa
 
   private Optional<ISymbol> calculatedCommonTypeOrError(final StreamCallSymbol streamCat,
                                                         final EK9Parser.StreamCatContext ctx) {
+
     var expressions = ctx.expression().stream()
         .map(super::getRecordedAndTypedSymbol)
         .filter(Objects::nonNull)

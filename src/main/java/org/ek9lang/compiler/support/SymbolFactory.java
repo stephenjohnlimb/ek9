@@ -81,6 +81,9 @@ public class SymbolFactory {
   public static final String HTTP_ACCESS = "HTTPACCESS";
   public static final String HTTP_SOURCE = "HTTPSOURCE";
 
+  //Note that uniq and sort might be able to consume anything if they aren't given a function.
+  //But there are limits, there would be to be hashCode, comparators, plus in some cases types being consumed
+  //must be functions (call and async).
   private static final Set<String> streamPartCanConsumeAnything = Set.of("flatten",
       "call", "async", "skipping", "head", "tail");
 

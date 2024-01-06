@@ -2600,14 +2600,14 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg0 as String
               assert arg0?
 
+            operator |
+              -> arg0 as String
+              assert arg0?
+              
             operator ? as pure
               <- rtn as Boolean?
           
           PipedOutput
-          
-            operator |
-              -> arg0 as String
-              assert arg0?
               
             operator |
               -> arg0 as Bits
@@ -2891,6 +2891,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             
             lastErrorMessage() as pure
               <- rtn as String?
+            
+            operator |
+              -> packet as UDPPacket
                
             operator close as pure
 
@@ -3012,7 +3015,13 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               ->
                 properties as NetworkProperties
                 content as String
-
+            
+            <?-
+              Allow to be promoted to a String for output.
+            -?>
+            operator #^ as pure
+              <- rtn as String: $this
+              
             operator ? as pure
               <- rtn as Boolean?
                 

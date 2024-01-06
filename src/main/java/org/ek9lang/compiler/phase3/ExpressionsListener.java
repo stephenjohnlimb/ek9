@@ -33,7 +33,11 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final CheckVariableOnlyDeclaration checkVariableOnlyDeclaration;
   private final ProcessStreamCat processStreamCat;
   private final ProcessStreamFor processStreamFor;
-  private final CheckPipelinePart checkPipelinePart;
+  private final ProcessPipelinePart processPipelinePart;
+  private final ProcessStreamStatementTermination processStreamStatementTermination;
+  private final ProcessStreamStatement processStreamStatement;
+  private final ProcessStreamExpressionTermination processStreamExpressionTermination;
+  private final ProcessStreamExpression processStreamExpression;
   private final ProcessObjectAccessStartOrError processObjectAccessStartOrError;
   private final ProcessObjectAccessExpressionOrError processObjectAccessExpressionOrError;
   private final ProcessGuardExpression processGuardExpression;
@@ -80,8 +84,16 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
         new ProcessStreamCat(symbolAndScopeManagement, errorListener);
     this.processStreamFor =
         new ProcessStreamFor(symbolAndScopeManagement, errorListener);
-    this.checkPipelinePart =
-        new CheckPipelinePart(symbolAndScopeManagement, errorListener);
+    this.processPipelinePart =
+        new ProcessPipelinePart(symbolAndScopeManagement, errorListener);
+    this.processStreamStatementTermination =
+        new ProcessStreamStatementTermination(symbolAndScopeManagement, errorListener);
+    this.processStreamStatement =
+        new ProcessStreamStatement(symbolAndScopeManagement, errorListener);
+    this.processStreamExpressionTermination =
+        new ProcessStreamExpressionTermination(symbolAndScopeManagement, errorListener);
+    this.processStreamExpression =
+        new ProcessStreamExpression(symbolAndScopeManagement, errorListener);
     this.processRange =
         new ProcessRange(symbolAndScopeManagement, symbolFactory, errorListener);
     this.processForLoop =
@@ -303,7 +315,31 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
 
   @Override
   public void exitPipelinePart(EK9Parser.PipelinePartContext ctx) {
-    checkPipelinePart.accept(ctx);
+    processPipelinePart.accept(ctx);
     super.exitPipelinePart(ctx);
+  }
+
+  @Override
+  public void exitStreamStatementTermination(EK9Parser.StreamStatementTerminationContext ctx) {
+    processStreamStatementTermination.accept(ctx);
+    super.exitStreamStatementTermination(ctx);
+  }
+
+  @Override
+  public void exitStreamStatement(EK9Parser.StreamStatementContext ctx) {
+    processStreamStatement.accept(ctx);
+    super.exitStreamStatement(ctx);
+  }
+
+  @Override
+  public void exitStreamExpressionTermination(EK9Parser.StreamExpressionTerminationContext ctx) {
+    processStreamExpressionTermination.accept(ctx);
+    super.exitStreamExpressionTermination(ctx);
+  }
+
+  @Override
+  public void exitStreamExpression(EK9Parser.StreamExpressionContext ctx) {
+    processStreamExpression.accept(ctx);
+    super.exitStreamExpression(ctx);
   }
 }

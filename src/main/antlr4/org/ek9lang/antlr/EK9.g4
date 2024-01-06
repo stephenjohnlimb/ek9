@@ -501,25 +501,14 @@ streamFor
     : forRange
     ;
 
-//Note that sort and unique can just use comparator and hashcode - respectively if present.
+//Note that sort and uniq can just use comparator and hashcode - respectively if present.
 //Also skip, head and tail now default to 1 is nothing is specified.
 //Added extra optional pipelinePart to tee, to enable a transform after tee but before store/use.
+//Simplified grammar, but push more checks in to phase checks. Can provide better error messages this way.
 streamPart
-    : PIPE op=FILTER (WITH | BY)? pipelinePart
-    | PIPE op=SELECT (WITH | BY)? pipelinePart
-    | PIPE op=MAP (WITH | BY)? pipelinePart
-    | PIPE op=SORT ((WITH | BY)? pipelinePart)?
-    | PIPE op=GROUP (WITH | BY)? pipelinePart
-    | PIPE op=JOIN (WITH | BY)? pipelinePart
-    | PIPE op=SPLIT (WITH | BY)? pipelinePart
-    | PIPE op=UNIQ ((WITH | BY)? pipelinePart)?
-    | PIPE op=TEE ((WITH | BY)? pipelinePart THEN)? (WITH | BY | IN)? pipelinePart
-    | PIPE op=FLATTEN
-    | PIPE op=CALL
-    | PIPE op=ASYNC
-    | PIPE op=SKIPPING ((BY | OF | ONLY)? (pipelinePart | integerLit))?
-    | PIPE op=HEAD ((BY | OF | ONLY)? (pipelinePart | integerLit))?
-    | PIPE op=TAIL ((BY | OF | ONLY)? (pipelinePart | integerLit))?
+    : PIPE op=(FILTER | SELECT | MAP | GROUP | JOIN | SPLIT | UNIQ | SORT | FLATTEN | CALL | ASYNC) ((WITH | BY)? pipelinePart)?
+    | PIPE op=TEE ((WITH | BY)? pipelinePart THEN)? IN? pipelinePart
+    | PIPE op=(SKIPPING | HEAD | TAIL) ((BY | ONLY)? (pipelinePart | integerLit))?
     ;
 
 streamStatementTermination
@@ -530,6 +519,8 @@ streamExpressionTermination
     : PIPE op=COLLECT AS typeDef
     ;
 
+//While this is defined as an identifier it will have to be a function delegate when resolved.
+//But is could also be a variable, that is of a type that can consume something.
 pipelinePart
     : identifier
     | objectAccessExpression

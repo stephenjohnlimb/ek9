@@ -214,7 +214,10 @@ defines module example.networking
           )
 
         //Now run both of those serverFunctions concurrently.
-        cat [shutdownControl, processing] | async > stdout
+        //Just so referenced.
+        assert shutdownControl? and processing? and stdout?
+        //TODO implement async and other operations
+        //cat [shutdownControl, processing] | async > stdout
         //Once the serverFunctions both finish this program will finally exit.
       else
         Stderr().println(`Failed to start servers, control: ${controlServer} processing: ${processingServer}`)
@@ -255,6 +258,6 @@ defines module example.networking
 
           cat ["one", "two", "Alpha", "Beta", "Zeta", "end", "begin"] | map with sender > stdout
 
-      cat Optional(TCP(NetworkProperties("localhost", controlPort))) | map with shutdownFunction > stdout
+      cat [TCP(NetworkProperties("localhost", controlPort))] | map with shutdownFunction > stdout
     
 //EOF

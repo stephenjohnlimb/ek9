@@ -9,7 +9,7 @@
   But Stream expressions have streamPart(s) - pipelinePart and finally: streamExpressionTermination
 
   The main phased approach in the definition phase is to build the 'structure' of the pipeline.
-  The next phase (in order) is to workout the types, this can only be completed during phase 3 dues to type inference.
+  The next phase (in order) is to workout the types, this can only be completed during phase 3 due to type inference.
   The tricky bit is ensuring that the types that flow through the pipeline align with outputs to inputs.
   This is made more complex by some pipeline parts being able to accept 'anything' and output the same type.
 
@@ -17,68 +17,62 @@
   But more flexible for things like 'skipping', 'head', 'tail' for example.
   Then for some operations like 'flatten', there has to be some way to 'iterate' over the type to get the 'flattened values'.
   Other operations like 'uniq' will require operators on the type - like 'hashCode' for example.
+  But 'sort' accepts any 'T' and output a 'List of T', flatten accepts some type of '§T' and if it has an iterator method outputs 'T'.
 
-  //TODO StreamFor.
   So, this is pretty complex stuff.
 
 -?>
 defines module just.workspace
 
+  defines class
+
+    StringCollector
+      joined <- String()
+
+      operator |
+        -> arg0 as String
+        if arg0?
+          if joined?
+            joined += " " + arg0
+          else
+            joined: String(arg0)
+
+      operator ? as pure
+        <- rtn as Boolean: joined?
+
   defines function
+
+    IntegerToString()
+      -> value as Integer
+      <- rtn as String: value? <- $value else String()
 
     JustFail()
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       assert notDefined?
 
-    SimpleStreamCat1()
-      stdout <- Stdout()
-      cat [1, 2, 3] > stdout
+  <!-
 
-    <?-
-      This will cat each letter in the strings.
-      But only because the String has an iterator method.
-    -?>
-    SimpleStreamCat2()
-      stdout <- Stdout()
-      cat "Steve", " ", "Limb" > stdout
+   SimpleStreamCatMap4()
+      collector <- StringCollector()
+      //Check if the Optional has an Iterator of type Integer so it can be streamed
+      //Use a function that extends an abstract function.
+      //TODO fix big error in generics processing.
+      cat Optional(1) | map with IntegerToString > collector
+      assert collector?
 
-    SimpleStreamFor1()
-      stdout <- Stdout()
-      for i in 1 ... 10 > stdout
+  //Sort out the normal statements and then do these expressions, or maybe add a separate test file
+  defines function
+    SimpleStreamExpression()
+      //here are some durations to sum up (collect) 2 days, 1 week and 2 hours.
+      collectedDurations <- cat [P2D, P1W, PT2H] | collect as DurationCollector
+      assert collectedDurations.duration()?
 
-    SimpleStreamFor2()
-      stdout <- Stdout()
-      for i in 'a' ... 'z' > stdout
-
-    <?-
-      This will fail because float cannot be iterated over.
-    -?>
-    BrokenStreamCat1()
-      stdout <- Stdout()
-      @Error: FULL_RESOLUTION: MISSING_ITERATE_METHOD
-      cat [1, 2, 3], 3.5 > stdout
-
-    <?-
-      This will fail because none of the type have an iterate method.
-    -?>
-    BrokenStreamCat2()
-      stdout <- Stdout()
-      @Error: FULL_RESOLUTION: MISSING_ITERATE_METHOD
-      cat 1, 2, 3, 3.5, 4 > stdout
-
-    <?-
-      nonSuch does not resolve, so that will cause an error.
-      The 'cat' would just use Integer in this case, but compilation would fail dues to 'nonSuch'
-    -?>
-    BrokenStreamCat3()
-      stdout <- Stdout()
-      @Error: FULL_RESOLUTION: NOT_RESOLVED
-      cat [1, 2, 3], nonSuch > stdout
-
-    BrokenStreamFor1()
-      stdout <- Stdout()
-      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
-      for i in 'a' ... 10 > stdout
+    BrokenExpressionTerminator1()
+      //This is currently not quite right, DurationCollector cannot accept integers
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      collectedDurations <- cat [1, 2, 3] | collect as DurationCollector
+      assert collectedDurations?
+  -!>
 
 //EOF
 

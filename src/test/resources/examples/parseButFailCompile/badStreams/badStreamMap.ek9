@@ -1,0 +1,135 @@
+#!ek9
+<?-
+  Examples of some working and some none working map functions in a Stream.
+-?>
+defines module bad.streams3
+
+  defines class
+
+    StringCollector
+      joined <- String()
+
+      operator |
+        -> arg0 as String
+        if arg0?
+          if joined?
+            joined += " " + arg0
+          else
+            joined: String(arg0)
+
+      operator ? as pure
+        <- rtn as Boolean: joined?
+
+  defines function
+
+    SomeAbstractMapperWhichCannotBeUsedDirectly() as abstract
+      -> value as Integer
+      <- rtn as String?
+
+    IncompatibleFunction1()
+      ->
+        arg0 as Integer
+        arg1 as Integer
+      <-
+        rtn as String: ""
+
+    IncompatibleFunction2()
+      -> arg0 as Integer
+      assert arg0?
+
+    IncompatibleFunction3()
+      -> arg0 as Integer
+      <- rtn as Integer: arg0
+
+    IncompatibleFunction4()
+      -> arg0 as Date
+      <- rtn as String: $arg0
+
+    ValidMapper is SomeAbstractMapperWhichCannotBeUsedDirectly
+      -> value as Integer
+      <- rtn as String: value? <- $value else String()
+
+    IntegerToString()
+      -> value as Integer
+      <- rtn as String: value? <- $value else String()
+
+    JustFail()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert notDefined?
+
+    SimpleStreamCatMap1()
+      collector <- StringCollector()
+      //Check if Integer can be mapped to a String and then output.
+      cat [1, 2, 3] | map with IntegerToString > collector
+      assert collector?
+
+    SimpleStreamCatMap2()
+      collector <- StringCollector()
+      //Use a function that extends an abstract function.
+      cat [1, 2, 3] | map with ValidMapper > collector
+      assert collector?
+
+    SimpleStreamCatMap3()
+      collector <- StringCollector()
+      delegate <- () is Function of (Integer, String) as pure function (r:=? $t)
+
+      //Use a function that parameterizes a generic Function
+      cat [1, 2, 3] | map with delegate > collector
+      assert collector?
+
+    BrokenStreamCatMap1()
+      collector <- StringCollector()
+      //Forget to supply the mapping function and so expect an error
+      @Error: FULL_RESOLUTION: FUNCTION_OR_DELEGATE_REQUIRED
+      cat [1, 2, 3] | map > collector
+
+    BrokenStreamCatMap2()
+      collector <- StringCollector()
+      notAFunction <- 21
+      //Supply something that is not a viable mapping function
+      @Error: FULL_RESOLUTION: FUNCTION_OR_DELEGATE_REQUIRED
+      cat [1, 2, 3] | map with notAFunction > collector
+
+    BrokenStreamCatMap3()
+      collector <- StringCollector()
+      //Supply something that is abstract and so cannot be used in this way
+      @Error: FULL_RESOLUTION: CANNOT_CALL_ABSTRACT_TYPE
+      cat [1, 2, 3] | map with SomeAbstractMapperWhichCannotBeUsedDirectly > collector
+
+    BrokenStreamCatMap4()
+      collector <- StringCollector()
+      @Error: FULL_RESOLUTION: REQUIRE_ONE_ARGUMENT
+      cat [1, 2, 3] | map with IncompatibleFunction1 > collector
+
+    BrokenStreamCatMap5()
+      collector <- StringCollector()
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      cat [1, 2, 3] | map with IncompatibleFunction2 > collector
+
+    BrokenStreamCatMap6()
+      collector <- StringCollector()
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      cat [1, 2, 3] | map with IncompatibleFunction3 > collector
+
+    BrokenStreamCatMap7()
+      collector <- StringCollector()
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      cat [1, 2, 3] | map with IncompatibleFunction4 > collector
+
+    BrokenStreamCatMap8()
+      collector <- StringCollector()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      cat [1, 2, 3] | map with Function > collector
+
+    BrokenStreamCatMap9()
+      collector <- StringCollector()
+      delegate <- () is Function of (Integer, Integer) as pure function (r:=? t*t)
+
+      //Use a function that parameterizes a generic Function, but is the wrong output type
+      //It is still an integer and needs mapping to a String to be used with collector.
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      cat [1, 2, 3] | map with delegate > collector
+      assert collector?
+
+//EOF
+

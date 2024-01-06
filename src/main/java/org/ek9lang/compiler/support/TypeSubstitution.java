@@ -161,6 +161,12 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
   private void replaceTypeParametersWithTypeArguments(final IToken triggeredByToken,
                                                       final PossibleGenericSymbol possibleGenericSymbol,
                                                       final Map<ISymbol, ISymbol> typeMapping, List<ISymbol> symbols) {
+    /*
+    TODO ready for debug and fix of generics.
+    if("Optional of type T of type Integer".equals(possibleGenericSymbol.getFriendlyName())) {
+      System.out.printf("Substituting on %s%n", possibleGenericSymbol.getFriendlyName());
+    }
+     */
     symbols.forEach(symbol -> {
       if (symbol instanceof MethodSymbol methodSymbol) {
         if (methodSymbol.isConstructor()) {
@@ -174,7 +180,19 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
             param -> substituteAsAppropriate(triggeredByToken, typeMapping, param)
         );
         if (methodSymbol.isReturningSymbolPresent()) {
-          substituteAsAppropriate(triggeredByToken, typeMapping, methodSymbol.getReturningSymbol());
+          var returningSymbol = methodSymbol.getReturningSymbol();
+          /*
+          System.out.printf("In  substituting return on method [%s] [%s]%n",
+              methodSymbol.getFriendlyName(),
+              returningSymbol.getFriendlyName());
+          */
+
+          substituteAsAppropriate(triggeredByToken, typeMapping, returningSymbol);
+          /*
+          System.out.printf("Now substituting return on method [%s] [%s]%n",
+              methodSymbol.getFriendlyName(),
+              returningSymbol.getFriendlyName());
+           */
         }
       }
       substituteAsAppropriate(triggeredByToken, typeMapping, symbol);
