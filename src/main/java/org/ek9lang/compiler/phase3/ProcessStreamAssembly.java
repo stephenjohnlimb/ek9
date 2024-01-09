@@ -3,6 +3,7 @@ package org.ek9lang.compiler.phase3;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.CANNOT_CALL_ABSTRACT_TYPE;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.FUNCTION_OR_DELEGATE_REQUIRED;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.INCOMPATIBLE_TYPES;
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.MUST_RETURN_BOOLEAN;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.REQUIRE_ONE_ARGUMENT;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.UNABLE_TO_FIND_PIPE_FOR_TYPE;
 
@@ -18,6 +19,7 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.StreamCallSymbol;
+import org.ek9lang.core.CompilerException;
 
 /**
  * Processes/updates and checks that a stream assembly is actually viable in terms of types.
@@ -44,10 +46,8 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     //ensuring it can be used, also it may get transformed!.
 
     ISymbol streamType = streamAssembly.source().getProducesSymbolType();
-    //System.out.println("Evaluating assembly [" + streamType + "]");
     for (var streamPartCtx : streamAssembly.streamParts()) {
       streamType = processStreamPart(streamPartCtx, streamType);
-      //System.out.println("Now assembly pipeline type is [" + streamType + "]");
     }
 
     processStreamTermination(streamAssembly, streamType);
@@ -77,12 +77,41 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
         return checkViableMapFunctionOrError(streamPartCtx.pipelinePart(0), currentStreamType);
       }
       errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_REQUIRED);
+    } else if (streamPartCtx.FILTER() != null || streamPartCtx.SELECT() != null) {
+      //Sugar for th same operation, basically needs a function that accepts the pipeline type and returns a boolean
+      //In short a predicate.
+      if (streamPartCtx.pipelinePart().size() == 1) {
+        return checkViableSelectFunctionOrError(streamPartCtx.pipelinePart(0), currentStreamType);
+      }
+      errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_REQUIRED);
+    } else {
+      throw new CompilerException("Stream part [" + streamPartCtx.getText() + "] not implemented");
     }
     return symbolAndScopeManagement.getEk9Types().ek9Void();
-
   }
 
   private ISymbol checkViableMapFunctionOrError(EK9Parser.PipelinePartContext partCtx, ISymbol currentStreamType) {
+
+    return checkViableFunctionOrError(partCtx, currentStreamType);
+
+  }
+
+  private ISymbol checkViableSelectFunctionOrError(EK9Parser.PipelinePartContext partCtx, ISymbol currentStreamType) {
+
+    var functionReturnType = checkViableFunctionOrError(partCtx, currentStreamType);
+    if (!symbolAndScopeManagement.getEk9Types().ek9Boolean().isExactSameType(functionReturnType)) {
+      errorListener.semanticError(partCtx.start, "", MUST_RETURN_BOOLEAN);
+    }
+
+    //But now for a select/filter, we need the function to return a boolean and only if that is true dow we allow
+    //The existing object to flow down the pipeline, so this mean the returning type from this select/filter is
+    //still the same type, i.e. the currentStreamType.
+    return currentStreamType;
+
+  }
+
+  private ISymbol checkViableFunctionOrError(EK9Parser.PipelinePartContext partCtx, ISymbol currentStreamType) {
+
     var expectedMappingFunction = getRecordedAndTypedSymbol(partCtx);
 
     if (expectedMappingFunction != null && expectedMappingFunction.getType().isPresent()) {
@@ -156,7 +185,6 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
             + "' and terminal type '" + terminationType.getFriendlyName() + "':";
         errorListener.semanticError(termination.getSourceToken(), msg, UNABLE_TO_FIND_PIPE_FOR_TYPE);
       }
-
     }
   }
 
