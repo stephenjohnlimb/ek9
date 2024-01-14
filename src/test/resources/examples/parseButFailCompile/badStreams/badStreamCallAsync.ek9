@@ -1,0 +1,131 @@
+#!ek9
+<?-
+  Just focus on call and async with checks on functions.
+-?>
+defines module bad.streams5
+
+  defines class
+
+    StringCollector
+      joined <- String()
+
+      operator |
+        -> arg0 as String
+        if arg0?
+          if joined?
+            joined += " " + arg0
+          else
+            joined: String(arg0)
+
+      operator ? as pure
+        <- rtn as Boolean: joined?
+
+  defines function
+
+    doesNotReturnAnything()
+      value <- 1
+      assert value?
+
+    shouldNotRequireArgument()
+      -> arg0 as String
+      <- rtn as String: arg0
+
+    misUnderStoodFunctionUse()
+      -> arg0 as abstractFunction
+      <- rtn as String: arg0()
+
+    abstractFunction() as abstract
+      <- rtn as String?
+
+    getSteve() is abstractFunction
+      <- rtn <- "Steve"
+
+    getLimb() is abstractFunction
+      <- rtn <- "Limb"
+
+    JustFail()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert notDefined?
+
+    <?-
+      Example of a List of functions being streamed through a pipeline and called.
+    -?>
+    SimpleStreamCatCall1()
+      collector <- StringCollector()
+
+      cat [getSteve, getLimb] | call > collector
+
+      assert collector?
+
+    SimpleStreamCatAsync1()
+      collector <- StringCollector()
+
+      cat [getSteve, getLimb] | async > collector
+
+      assert collector?
+
+    <?-
+      Test designed to highlight a misunderstanding of how to use call/async.
+      Call and Async do not take a function operation. The function they call is the one
+      that is streamed through the pipeline.
+    -?>
+    BrokenStreamCatCall1()
+      collector <- StringCollector()
+
+      @Error: FULL_RESOLUTION: FUNCTION_OR_DELEGATE_NOT_REQUIRED
+      cat [getSteve, getLimb] | call misUnderStoodFunctionUse > collector
+
+      assert collector?
+
+    <?-
+      So this checks for the type being streamed through is actually a function.
+      In this error case it is just an Integer so cannot be 'called'.
+    -?>
+    BrokenStreamCatCall2()
+      collector <- StringCollector()
+
+      @Error: FULL_RESOLUTION: TYPE_MUST_BE_FUNCTION
+      cat [1, 2] | call > collector
+
+      assert collector?
+
+    <?-
+      Test designed to highlight a misunderstanding of how to use call/async.
+    -?>
+    BrokenStreamCatSync1()
+      collector <- StringCollector()
+
+      @Error: FULL_RESOLUTION: FUNCTION_OR_DELEGATE_NOT_REQUIRED
+      cat [getSteve, getLimb] | async misUnderStoodFunctionUse > collector
+
+      assert collector?
+
+    <?-
+      A call or Async must be a function that returns a value.
+      This is required so that it can be used in an expression and in general
+      you almost always want to know if the function worked or not.
+    -?>
+    BrokenStreamCatCall3()
+      collector <- StringCollector()
+
+      @Error: FULL_RESOLUTION: FUNCTION_MUST_RETURN_VALUE
+      cat [doesNotReturnAnything] | call > collector
+
+      assert collector?
+
+    <?-
+      A call or Async must be a function that has no arguments needed.
+      This means that if data is actually needed on a function it is probably best to use
+      a dynamic function - where the value is 'captured' at creation.
+    -?>
+    BrokenStreamCatCall4()
+      collector <- StringCollector()
+
+      @Error: FULL_RESOLUTION: REQUIRE_NO_ARGUMENTS
+      cat [shouldNotRequireArgument] | call > collector
+
+      assert collector?
+
+
+//EOF
+

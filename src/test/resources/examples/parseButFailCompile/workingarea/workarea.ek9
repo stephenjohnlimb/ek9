@@ -32,86 +32,21 @@ defines module just.workspace
       joined <- String()
 
       operator |
-        -> arg0 as Integer
+        -> arg0 as String
         if arg0?
           if joined?
-            joined += " " + $arg0
+            joined += " " + arg0
           else
-            joined: String($arg0)
+            joined: String(arg0)
 
       operator ? as pure
         <- rtn as Boolean: joined?
 
   defines function
 
-    GreaterThanCheck()
-      -> value as Integer
-      <- rtn as Boolean: value > 2
-
-    VoidReturnFunction()
-      -> value as Integer
-      assert value?
-
-    WrongReturnTypeFunction()
-      -> value as Integer
-      <- rtn as Integer: value*value
-
-    WrongInputTypeFunction()
-      -> value as Date
-      <- rtn as Boolean: value?
-
     JustFail()
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       assert notDefined?
-
-    SimpleStreamCatFilter1()
-      collector <- StringCollector()
-
-      cat [1, 2, 3, 4] | filter with GreaterThanCheck > collector
-      assert collector?
-
-    BrokenStreamCatFilter1()
-      collector <- StringCollector()
-
-      @Error: FULL_RESOLUTION: NOT_RESOLVED
-      cat [1, 2, 3, 4] | filter with NoSuch > collector
-      assert collector?
-
-    BrokenStreamCatFilter2()
-      collector <- StringCollector()
-
-      @Error: FULL_RESOLUTION: NOT_RESOLVED
-      cat [1, 2, 3, 4] | filter with NoSuchCall() > collector
-      assert collector?
-
-    BrokenStreamCatFilter3()
-      collector <- StringCollector()
-
-      someInteger <- 1
-      @Error: FULL_RESOLUTION: FUNCTION_OR_DELEGATE_REQUIRED
-      cat [1, 2, 3, 4] | filter with someInteger > collector
-      assert collector?
-
-    BrokenStreamCatFilter4()
-      collector <- StringCollector()
-
-      @Error: FULL_RESOLUTION: MUST_RETURN_BOOLEAN
-      cat [1, 2, 3, 4] | filter with VoidReturnFunction > collector
-      assert collector?
-
-    BrokenStreamCatFilter5()
-      collector <- StringCollector()
-
-      @Error: FULL_RESOLUTION: MUST_RETURN_BOOLEAN
-      cat [1, 2, 3, 4] | filter with WrongReturnTypeFunction > collector
-      assert collector?
-
-    BrokenStreamCatFilter6()
-      collector <- StringCollector()
-
-      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
-      cat [1, 2, 3, 4] | filter with WrongInputTypeFunction > collector
-      assert collector?
 
   <!-
 
