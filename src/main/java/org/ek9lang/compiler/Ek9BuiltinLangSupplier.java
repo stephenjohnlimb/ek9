@@ -2176,6 +2176,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             <-
               r as Integer?
       """;
+
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_BUILT_IN_TEMPLATE_CLASSES = """
           List of type T as open

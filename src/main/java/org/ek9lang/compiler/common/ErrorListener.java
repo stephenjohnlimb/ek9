@@ -408,7 +408,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     PARAM_MUST_BE_VARIABLE("parameter must be a variable"),
     FUNCTION_MUST_HAVE_NO_PARAMETERS("function must have no parameters"),
     FUNCTION_MUST_HAVE_SINGLE_PARAMETER("function must have a single parameter"),
-    FUNCTION_MUST_HAVE_TWO_PARAMETERS("function must have a two parameters of same type"),
+    FUNCTION_MUST_HAVE_TWO_PARAMETERS("function must have a two parameters"),
     FUNCTION_PARAMETER_MISMATCH("parameter mismatch"),
     NOT_A_FUNCTION_DELEGATE("is not a function delegate"),
     DELEGATE_AND_METHOD_NAMES_CLASH("use of a delegate and methods of same name"),
@@ -474,7 +474,9 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     IMPLEMENTATION_MUST_BE_PROVIDED("implementation must be provided"),
     PARAMETER_MISMATCH("parameter mismatch"),
     UNABLE_TO_FIND_PIPE_FOR_TYPE("unable to find a '|' pipe operator for type"),
+    UNABLE_TO_FIND_COMPARATOR_FOR_TYPE("unable to find a '<=>' comparator operator for type"),
     INCOMPATIBLE_TYPES("types are not compatible with each other"),
+    INCOMPATIBLE_TYPE_ARGUMENTS("argument types are not compatible with each other"),
     CONSTRUCTOR_USED_ON_ABSTRACT_TYPE("use of a constructor directly on an abstract type is not permitted."),
     CONSTRUCTOR_WITH_FUNCTION_IN_GENERIC(
         "use of a constructor in a generic/template that uses a function is not supported"),

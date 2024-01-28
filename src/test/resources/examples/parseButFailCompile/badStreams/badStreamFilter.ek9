@@ -103,5 +103,16 @@ defines module bad.streams4
       cat [1, 2, 3, 4] | filter with WrongInputTypeFunction > collector
       assert collector?
 
+    <?-
+      Filter/Select always requires a function to work with.
+    -?>
+    BrokenStreamCatFilter7()
+      collector <- StringCollector()
+
+      @Error: FULL_RESOLUTION: FUNCTION_OR_DELEGATE_REQUIRED
+      cat [1, 2, 3, 4] | filter > collector
+      assert collector?
+
+
 //EOF
 

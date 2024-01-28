@@ -1,0 +1,280 @@
+#!ek9
+<?-
+
+  The 'sort' accepts any 'T' and if used without a function expects the 'T' to have a comparator method. If it is used with a function
+  then that function must accept two arguments of 'T' and return an Integer (i.e. be a comparator.)
+
+-?>
+defines module bad.streams6
+
+  <?-
+    The utility functions used for testing in this example.
+  -?>
+  defines function
+
+    ExamplePipeLineFunction()
+      <- rtn <- true
+
+    <?-
+      Compares the two 'R2' type arguments by just using the 'prop2' property.
+    -?>
+    Prop2R2Comparator()
+      ->
+        o1 as R2
+        o2 as R2
+      <-
+        rtn as Integer: o1.prop2 <=> o2.prop2
+
+    Prop1R1Comparator()
+      ->
+        o1 as R1
+        o2 as R1
+      <-
+        rtn as Integer: o1.prop1 <=> o2.prop1
+
+    InvalidProp1ComparatorA()
+      ->
+        o1 as R1
+        o2 as R1
+      assert o1? and o2?
+
+    InvalidProp1ComparatorB()
+      ->
+        o1 as R1
+        o2 as R1
+      <-
+        rtn as Boolean: o1? and o2?
+
+    InvalidProp1ComparatorC()
+      ->
+        o1 as Date
+        o2 as R1
+      <-
+        rtn as Integer: 66
+
+    InvalidProp1ComparatorD()
+      ->
+        o2 as R1
+      <-
+        rtn as Integer: 1
+
+    InvalidProp1ComparatorE()
+      ->
+        o1 as Duration
+        o2 as Duration
+      <-
+        rtn as Integer: 1
+
+  defines record
+
+    <?-
+      Used in testing sort, but does not have a comparator and so expect and error if sort used with this type and no function.
+    -?>
+    R1 as open
+      prop1 as String: String()
+      prop2 as Date: Date()
+
+      default private R1()
+
+      R1()
+        ->
+          p1 as String
+          p2 as Date
+        this.prop1 :=: p1
+        this.prop2 :=: p2
+
+      <?-
+        The promotion is to a String.
+      -?>
+      operator #^ as pure
+        <- rtn as String: $this
+
+      <?-
+        Use the default to string functionality from each of the properties.
+      -?>
+      default operator $
+
+      <?-
+        Use the properties to check 'if set' on each.
+      -?>
+      default operator ?
+
+    <?-
+      This test record can be used with 'sort' and does not require a comparison function in the stream.
+    -?>
+    R2
+      prop1 as String: String()
+      prop2 as Date: Date()
+
+      R2()
+        ->
+          p1 as String
+          p2 as Date
+        this.prop1 :=: p1
+        this.prop2 :=: p2
+
+      operator <=> as pure
+        -> o as R2
+        <- rtn as Integer?
+        prop1Result <- prop1 <=> o.prop1
+        rtn :=? ~prop1Result? or prop1Result == 0 <- prop2 <=> o.prop2 else prop1Result
+
+      <?-
+        The promotion is to a String.
+      -?>
+      operator #^ as pure
+        <- rtn as String: $this
+
+      <?-
+        Use the default to string functionality from each of the properties.
+      -?>
+      default operator $
+
+    R3 extends R1
+      prop3 <- Integer()
+
+      R3()
+        ->
+          p1 as String
+          p2 as Date
+          p3 as Integer
+
+        //There is a default here if explicit super or some type is not used.
+        //If implicit construction is used ie super() we must check that the super constructor is accessible.
+        //This works if we write super() or use an explicit argument call. But not if it omitted all together.
+        //This is detected super() and an error raised, but not if omitted and impilcit.
+        super(p1, p2)
+        prop3 :=: p3
+
+      <?-
+        Use the default to string functionality from each of the properties.
+      -?>
+      default operator $
+
+  defines class
+
+    StringCollector
+      joined <- String()
+
+      operator |
+        -> arg0 as String
+        if arg0?
+          if joined?
+            joined += " " + arg0
+          else
+            joined: String(arg0)
+
+      operator ? as pure
+        <- rtn as Boolean: joined?
+
+  defines function
+
+    SimpleStreamCatSort1()
+      collector <- StringCollector()
+
+      //We would expect this to reorder the values and output - this would use the 'Integer <- String.<=>(o)' method.
+      cat ["last", "first"] | sort > collector
+      assert collector?
+
+    ComparatorStreamCatSort2()
+      collector <- StringCollector()
+
+      //We would expect this to reorder the values and output - this would use the 'Integer <- R2.<=>(o)' method.
+      cat [R2("last", 2010-10-01), R2("last", 2010-10-02), R2("first", 2010-10-01)] | sort > collector
+      assert collector?
+
+    ComparatorFunctionStreamCatSort3()
+      collector <- StringCollector()
+
+      //We would expect this to reorder the values and output - this would use the 'Integer <- Prop2R2Comparator(o1, o2)' function.
+      cat [R2("last", 2010-10-01), R2("last", 2010-10-02), R2("first", 2010-10-01)] | sort with Prop2R2Comparator > collector
+      assert collector?
+
+    ComparatorFunctionStreamCatSort4()
+      collector <- StringCollector()
+
+      //We would expect this to reorder the values and output - this would use the 'Integer <- Prop1R1Comparator(o1, o2)' function.
+      cat [R1("last", 2010-10-01), R1("last", 2010-10-02), R1("first", 2010-10-01)] | sort with Prop1R1Comparator > collector
+      assert collector?
+
+    ComparatorFunctionStreamCatSort5()
+      collector <- StringCollector()
+
+      //We would expect this to reorder the values and output - this would use the 'Integer <- Prop1R1Comparator(o1, o2)' function.
+      cat [R3("last", 2010-10-01, 1), R3("last", 2010-10-02, 100), R3("first", 2010-10-01, -8)] | sort with Prop1R1Comparator > collector
+      assert collector?
+
+    <?-
+      This example does not use a function with the sort pipeline operator, it expects to use the comparator of R1.
+      But R1 does not have a matching comparator.
+    -?>
+    InvalidComparatorStreamCatSort1()
+      collector <- StringCollector()
+
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_COMPARATOR_FOR_TYPE
+      cat [R1("last", 2010-10-01), R1("last", 2010-10-02), R1("first", 2010-10-01)] | sort > collector
+      assert collector?
+
+    <?-
+      This function does not use a valid comparator so expect an error
+    -?>
+    InvalidComparatorFunctionStreamCatSort1()
+      collector <- StringCollector()
+
+      @Error: FULL_RESOLUTION: MUST_RETURN_INTEGER
+      cat [R1("last", 2010-10-01), R1("last", 2010-10-02), R1("first", 2010-10-01)] | sort with InvalidProp1ComparatorA > collector
+      assert collector?
+
+    <?-
+      This function also does not use a valid comparator so expect an error
+    -?>
+    InvalidComparatorFunctionStreamCatSort2()
+      collector <- StringCollector()
+
+      @Error: FULL_RESOLUTION: MUST_RETURN_INTEGER
+      cat [R1("last", 2010-10-01), R1("last", 2010-10-02), R1("first", 2010-10-01)] | sort with InvalidProp1ComparatorB > collector
+      assert collector?
+
+    <?-
+      This function uses an invalid comparator function that has the wrong argument types.
+    -?>
+    InvalidComparatorFunctionStreamCatSort3()
+      collector <- StringCollector()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPE_ARGUMENTS
+      cat [R1("last", 2010-10-01), R1("last", 2010-10-02), R1("first", 2010-10-01)] | sort with InvalidProp1ComparatorC > collector
+      assert collector?
+
+    <?-
+      This function uses an invalid comparator function that has the wrong number of arguments.
+    -?>
+    InvalidComparatorFunctionStreamCatSort4()
+      collector <- StringCollector()
+
+      @Error: FULL_RESOLUTION: FUNCTION_MUST_HAVE_TWO_PARAMETERS
+      cat [R1("last", 2010-10-01), R1("last", 2010-10-02), R1("first", 2010-10-01)] | sort with InvalidProp1ComparatorD > collector
+      assert collector?
+
+    <?-
+      Another check for another invalid sort function, this accepts Duration and not R1.
+      But it does have the right number of argument and return type.
+    -?>
+    InvalidComparatorFunctionStreamCatSort5()
+      collector <- StringCollector()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPE_ARGUMENTS
+      cat [R1("last", 2010-10-01), R1("last", 2010-10-02), R1("first", 2010-10-01)] | sort with InvalidProp1ComparatorE > collector
+      assert collector?
+
+    <?-
+      This time a function is the pipeline type and not some 'aggregate', so this cannot be used to sort.
+    -?>
+    InvalidComparatorFunctionStreamCatSort6()
+      collector <- StringCollector()
+
+      @Error: FULL_RESOLUTION: IS_NOT_AN_AGGREGATE_TYPE
+      cat [ExamplePipeLineFunction] | sort > collector
+      assert collector?
+
+//EOF
+

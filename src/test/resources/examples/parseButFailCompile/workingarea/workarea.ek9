@@ -17,31 +17,20 @@
   But more flexible for things like 'skipping', 'head', 'tail' for example.
   Then for some operations like 'flatten', there has to be some way to 'iterate' over the type to get the 'flattened values'.
   Other operations like 'uniq' will require operators on the type - like 'hashCode' for example.
-  But 'sort' accepts any 'T' and output a 'List of T', flatten accepts some type of '§T' and if it has an iterator method outputs 'T'.
 
-  filter and select next to do.
+  The 'sort' accepts any 'T' and if used without a function expects the 'T' to have a comparator method. If it is used with a function
+  then that function must accept two arguments of 'T' and return an Integer (i.e. be a comparator.)
+
+  But 'group' a little list 'split' accepts any 'T' and outputs a 'List of T', flatten accepts some type of '§T' and if it has an iterator method outputs 'T'.
 
   So, this is pretty complex stuff.
 
 -?>
 defines module just.workspace
 
-  defines class
-
-    StringCollector
-      joined <- String()
-
-      operator |
-        -> arg0 as String
-        if arg0?
-          if joined?
-            joined += " " + arg0
-          else
-            joined: String(arg0)
-
-      operator ? as pure
-        <- rtn as Boolean: joined?
-
+  <?-
+    The utility functions used for testing in this example.
+  -?>
   defines function
 
     JustFail()
