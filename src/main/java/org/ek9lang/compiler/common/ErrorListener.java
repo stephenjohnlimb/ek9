@@ -475,6 +475,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     PARAMETER_MISMATCH("parameter mismatch"),
     UNABLE_TO_FIND_PIPE_FOR_TYPE("unable to find a '|' pipe operator for type"),
     UNABLE_TO_FIND_COMPARATOR_FOR_TYPE("unable to find a '<=>' comparator operator for type"),
+    UNABLE_TO_FIND_HASHCODE_FOR_TYPE("unable to find a '#?' hash code operator for type"),
     INCOMPATIBLE_TYPES("types are not compatible with each other"),
     INCOMPATIBLE_TYPE_ARGUMENTS("argument types are not compatible with each other"),
     CONSTRUCTOR_USED_ON_ABSTRACT_TYPE("use of a constructor directly on an abstract type is not permitted."),

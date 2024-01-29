@@ -1,0 +1,170 @@
+#!ek9
+<?-
+
+  Operations like 'uniq' will require operators on the type - like 'hashCode' for example, unless used with a Function - then that function has to be
+  able to accept a type that is compatible with the pipeline type and return an Integer (the hashcode).
+
+-?>
+defines module bad.streams7
+
+  <?-
+    The utility functions used for testing in this example.
+  -?>
+  defines function
+
+    <?-
+      Does not really do anything other than call the Hash method.
+    -?>
+    HashOf() as pure
+      -> arg0 as String
+      <- rtn as Integer: #? arg0
+
+    HashOfC2() as pure
+      -> arg0 as C2
+      <- rtn as Integer: #? $arg0
+
+    HashOfDuration() as pure
+      -> arg0 as Duration
+      <- rtn as Integer: #? arg0
+
+    InvalidHashFunction1() as pure
+      <- rtn <- 0
+
+    InvalidHashFunction2() as pure
+      -> arg0 as C2
+      assert arg0?
+
+  defines class
+    <?-
+      Calls with a hashcode method so can be checked for uniqueness.
+    -?>
+    C1
+      prop1 as String: String()
+
+      C1()
+        -> arg0 as String
+        prop1 :=: arg0
+
+      operator #? as pure
+        <- rtn as Integer: #? prop1
+
+      operator #^ as pure
+        <- rtn as String: $this
+
+      default operator $
+      default operator ?
+
+    <?-
+      Has no hashcode method, used later in tests.
+    -?>
+    C2
+      prop1 as String: String()
+
+      C2()
+        -> arg0 as String
+        prop1 :=: arg0
+
+      operator #^ as pure
+        <- rtn as String: $this
+
+      default operator $
+      default operator ?
+
+  defines function
+
+    <?-
+      A String has the #? hashcode operator, unique can be used without a function.
+    -?>
+    StreamCatToUniq1()
+      collection <- List() of String
+
+      cat ["A", "B", "A", "Z"] | uniq > collection
+
+      assert collection?
+
+    <?-
+      A C1 has the #? hashcode operator, unique can be used without a function.
+      And as it also has the promote operator it can be used to output directly to a list of Strings.
+    -?>
+    StreamCatToUniq2()
+      collection <- List() of String
+
+      cat [C1("A"), C1("B"), C1("A"), C1("Z")] | uniq > collection
+
+      assert collection?
+
+    StreamForToUniq()
+      collection <- List() of Integer
+
+      //It will be unique - for this range - just want to check syntax
+      for item in 1 ... 5 | uniq > collection
+
+      assert collection?
+
+    StreamCatToUniqWithFunction1()
+      collection <- List() of String
+
+      cat ["A", "B", "A", "Z"] | uniq by HashOf > collection
+
+      assert collection?
+
+    <?-
+      As C2 does not have a #? hashcode operator, we must use a function.
+    -?>
+    StreamCatToUniqWithFunction2()
+      collection <- List() of String
+
+      cat [C2("A"), C2("B"), C2("A"), C2("Z")] | uniq by HashOfC2 > collection
+
+      assert collection?
+
+    <?-
+      Again as C2 does not have a #? hashcode operator, we must use a function.
+      But notice this accepts a String not a C2, but because C2 has #^ promote to string
+      operator - it can be used.
+    -?>
+    StreamCatToUniqWithFunction3()
+      collection <- List() of String
+
+      cat [C2("A"), C2("B"), C2("A"), C2("Z")] | uniq by HashOf > collection
+
+      assert collection?
+
+    <?-
+      Invalid use of uniq, as C2 does not have the #? hashcode operator.
+      So really it would require a function to accept a C2 and return an Integer hashcode.
+    -?>
+    InvalidStreamCatToUniq1()
+      collection <- List() of String
+
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_HASHCODE_FOR_TYPE
+      cat [C2("A"), C2("B"), C2("A"), C2("Z")] | uniq > collection
+
+      assert collection?
+
+    InvalidStreamCatToUniq2()
+      collection <- List() of String
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPE_ARGUMENTS
+      cat [C2("A"), C2("B"), C2("A"), C2("Z")] | uniq by HashOfDuration > collection
+
+      assert collection?
+
+    InvalidStreamCatToUniq3()
+      collection <- List() of String
+
+      @Error: FULL_RESOLUTION: FUNCTION_MUST_HAVE_SINGLE_PARAMETER
+      cat [C2("A"), C2("B"), C2("A"), C2("Z")] | uniq by InvalidHashFunction1 > collection
+
+      assert collection?
+
+    InvalidStreamCatToUniq4()
+      collection <- List() of String
+
+      @Error: FULL_RESOLUTION: MUST_RETURN_INTEGER
+      cat [C2("A"), C2("B"), C2("A"), C2("Z")] | uniq by InvalidHashFunction2 > collection
+
+      assert collection?
+
+//EOF
+

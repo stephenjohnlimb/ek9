@@ -2252,6 +2252,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator |
               -> arg as List of T
 
+            operator |
+              -> arg as T
+              
             operator +=
               -> arg as List of T
 

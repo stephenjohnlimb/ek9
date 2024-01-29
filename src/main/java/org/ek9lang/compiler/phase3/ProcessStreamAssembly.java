@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.phase3;
 
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.CANNOT_CALL_ABSTRACT_TYPE;
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.FUNCTION_MUST_HAVE_SINGLE_PARAMETER;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.FUNCTION_MUST_HAVE_TWO_PARAMETERS;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.FUNCTION_MUST_RETURN_VALUE;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.FUNCTION_OR_DELEGATE_NOT_REQUIRED;
@@ -14,6 +15,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.R
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.REQUIRE_ONE_ARGUMENT;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.TYPE_MUST_BE_FUNCTION;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.UNABLE_TO_FIND_COMPARATOR_FOR_TYPE;
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.UNABLE_TO_FIND_HASHCODE_FOR_TYPE;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.UNABLE_TO_FIND_PIPE_FOR_TYPE;
 
 import java.util.Optional;
@@ -112,8 +114,10 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
       return checkViableCallFunctionOrError(streamPartCtx, currentStreamType);
     } else if (streamPartCtx.SORT() != null) {
       return checkViableSortOrError(streamPartCtx, currentStreamType);
+    } else if (streamPartCtx.UNIQ() != null) {
+      return checkViableUniqOrError(streamPartCtx, currentStreamType);
     } else {
-      throw new CompilerException("Stream part [" + streamPartCtx.getText() + "] not implemented");
+      throw new CompilerException("Stream part [" + streamPartCtx.op.getText() + "] not implemented");
     }
     return symbolAndScopeManagement.getEk9Types().ek9Void();
   }
@@ -132,15 +136,47 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     return currentStreamType;
   }
 
+  private ISymbol checkViableUniqOrError(final EK9Parser.StreamPartContext streamPartCtx,
+                                         final ISymbol currentStreamType) {
+
+    if (streamPartCtx.pipelinePart().isEmpty()) {
+      checkTypeAsSuitableHashCodeOrError(streamPartCtx, currentStreamType);
+    } else if (streamPartCtx.pipelinePart().size() == 1) {
+      checkViableHashCodeFunctionOrError(streamPartCtx.pipelinePart().get(0), currentStreamType);
+    }
+    //The grammar will prevent the 'else' here.
+
+    //No matter what 'uniq' not alter the stream type being used, so return the same type.
+    return currentStreamType;
+  }
+
+
   private void checkTypeAsSuitableComparatorOrError(final EK9Parser.StreamPartContext streamPartCtx,
                                                     final ISymbol currentStreamType) {
 
     //For this mechanism to work the type must be an aggregate and must have the appropriate comparator operator.
     accessAggregateAsTypeOrError(streamPartCtx, currentStreamType)
-        .ifPresent(aggregate -> checkComparatorPresentOrError(streamPartCtx.start, aggregate, currentStreamType));
+        .ifPresent(aggregate -> checkComparatorPresentOrError(streamPartCtx.op, aggregate, currentStreamType));
 
   }
 
+  private void checkTypeAsSuitableHashCodeOrError(final EK9Parser.StreamPartContext streamPartCtx,
+                                                  final ISymbol currentStreamType) {
+
+    //For this mechanism to work the type must be an aggregate and must have the appropriate hashcode operator.
+    accessAggregateAsTypeOrError(streamPartCtx, currentStreamType)
+        .ifPresent(aggregate -> checkHashCodePresentOrError(streamPartCtx.op, aggregate, currentStreamType));
+
+  }
+
+  private void checkViableHashCodeFunctionOrError(final EK9Parser.PipelinePartContext partCtx,
+                                                  final ISymbol currentStreamType) {
+    //For this mechanism to work the identifier reference used as the function must have a type of function
+    //it must also accept specific arguments and return an Integer (i.e. must be a comparator function).
+    accessFunctionSymbolOrError(partCtx)
+        .ifPresent(function -> checkIsHashCodeFunctionOrError(partCtx.start, function, currentStreamType));
+
+  }
 
   private void checkViableSortFunctionOrError(final EK9Parser.PipelinePartContext partCtx,
                                               final ISymbol currentStreamType) {
@@ -247,6 +283,16 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     return symbolAndScopeManagement.getEk9Types().ek9Void();
   }
 
+  private void checkHashCodePresentOrError(final Token errorLocation,
+                                           final IAggregateSymbol aggregateSymbol,
+                                           final ISymbol currentStreamType) {
+
+    //Need to search on the aggregateSymbol for a hashcode '#?' operator.
+    var search = new MethodSymbolSearch("#?");
+    locateMethodOrError(search, errorLocation, aggregateSymbol, currentStreamType, UNABLE_TO_FIND_HASHCODE_FOR_TYPE);
+
+  }
+
   private void checkComparatorPresentOrError(final Token errorLocation,
                                              final IAggregateSymbol aggregateSymbol,
                                              final ISymbol currentStreamType) {
@@ -255,15 +301,23 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     //Accepts a single argument compatible with the currentStreamType
     var search = new MethodSymbolSearch("<=>")
         .addTypeParameter(currentStreamType);
+    locateMethodOrError(search, errorLocation, aggregateSymbol, currentStreamType, UNABLE_TO_FIND_COMPARATOR_FOR_TYPE);
+
+  }
+
+  private void locateMethodOrError(final MethodSymbolSearch search,
+                                   final Token errorLocation,
+                                   final IAggregateSymbol aggregateSymbol,
+                                   final ISymbol currentStreamType,
+                                   final ErrorListener.SemanticClassification errorClassification) {
 
     MethodSymbolSearchResult result = new MethodSymbolSearchResult();
     result = aggregateSymbol.resolveMatchingMethods(search, result);
     if (!result.isSingleBestMatchPresent()) {
       var msg = "wrt pipeline type '" + currentStreamType.getFriendlyName()
           + "':";
-      errorListener.semanticError(errorLocation, msg, UNABLE_TO_FIND_COMPARATOR_FOR_TYPE);
+      errorListener.semanticError(errorLocation, msg, errorClassification);
     }
-
   }
 
   private void checkIsComparatorFunctionOrError(final Token errorLocation,
@@ -277,6 +331,35 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     } else {
       var argumentTypes = symbolTypeExtractor.apply(functionSymbol.getCallParameters());
       //Now check those types are compatible with currentStreamType
+      argumentTypes.forEach(argumentType -> {
+        if (!currentStreamType.isAssignableTo(argumentType)) {
+          var typeErrorMsg = "wrt '" + functionSymbol.getFriendlyName()
+              + "' and pipeline type '" + currentStreamType.getFriendlyName() + "':";
+          errorListener.semanticError(errorLocation, typeErrorMsg, INCOMPATIBLE_TYPE_ARGUMENTS);
+        }
+      });
+    }
+
+    if (functionSymbol.getReturningSymbol().getType().isPresent()) {
+      var returnType = functionSymbol.getReturningSymbol().getType().get();
+      if (!returnType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Integer())) {
+        errorListener.semanticError(errorLocation, errorMsg, MUST_RETURN_INTEGER);
+      }
+    }
+
+  }
+
+  private void checkIsHashCodeFunctionOrError(final Token errorLocation,
+                                              final FunctionSymbol functionSymbol,
+                                              final ISymbol currentStreamType) {
+    //For this to be valid the function must take one argument compatible with currentStreamType
+    //And it must return an Integer.
+    var errorMsg = "'" + functionSymbol.getFriendlyName() + "':";
+    if (functionSymbol.getCallParameters().size() != 1) {
+      errorListener.semanticError(errorLocation, errorMsg, FUNCTION_MUST_HAVE_SINGLE_PARAMETER);
+    } else {
+      var argumentTypes = symbolTypeExtractor.apply(functionSymbol.getCallParameters());
+      //Now check that type is compatible with currentStreamType
       argumentTypes.forEach(argumentType -> {
         if (!currentStreamType.isAssignableTo(argumentType)) {
           var typeErrorMsg = "wrt '" + functionSymbol.getFriendlyName()
