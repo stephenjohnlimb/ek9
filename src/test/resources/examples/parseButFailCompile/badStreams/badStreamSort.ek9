@@ -142,7 +142,7 @@ defines module bad.streams6
         //There is a default here if explicit super or some type is not used.
         //If implicit construction is used ie super() we must check that the super constructor is accessible.
         //This works if we write super() or use an explicit argument call. But not if it omitted all together.
-        //This is detected super() and an error raised, but not if omitted and impilcit.
+        //This is detected super() and an error raised, but not if omitted and implicit.
         super(p1, p2)
         prop3 :=: p3
 

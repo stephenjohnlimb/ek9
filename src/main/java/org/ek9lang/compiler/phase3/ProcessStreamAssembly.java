@@ -13,6 +13,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.M
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.MUST_RETURN_INTEGER;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.REQUIRE_NO_ARGUMENTS;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.REQUIRE_ONE_ARGUMENT;
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.RETURNING_MISSING;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.TYPE_MUST_BE_FUNCTION;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.UNABLE_TO_FIND_COMPARATOR_FOR_TYPE;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.UNABLE_TO_FIND_HASHCODE_FOR_TYPE;
@@ -116,6 +117,8 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
       return checkViableSortOrError(streamPartCtx, currentStreamType);
     } else if (streamPartCtx.UNIQ() != null) {
       return checkViableUniqOrError(streamPartCtx, currentStreamType);
+    } else if (streamPartCtx.JOIN() != null) {
+      return checkViableJoinOrError(streamPartCtx, currentStreamType);
     } else {
       throw new CompilerException("Stream part [" + streamPartCtx.op.getText() + "] not implemented");
     }
@@ -150,6 +153,18 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     return currentStreamType;
   }
 
+  private ISymbol checkViableJoinOrError(final EK9Parser.StreamPartContext streamPartCtx,
+                                         final ISymbol currentStreamType) {
+
+    if (streamPartCtx.pipelinePart().size() == 1) {
+      checkViableJoinFunctionOrError(streamPartCtx.pipelinePart().get(0), currentStreamType);
+    } else {
+      errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_REQUIRED);
+    }
+
+    //No matter what 'join' not alter the stream type being used, so return the same type.
+    return currentStreamType;
+  }
 
   private void checkTypeAsSuitableComparatorOrError(final EK9Parser.StreamPartContext streamPartCtx,
                                                     final ISymbol currentStreamType) {
@@ -175,6 +190,15 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     //it must also accept specific arguments and return an Integer (i.e. must be a comparator function).
     accessFunctionSymbolOrError(partCtx)
         .ifPresent(function -> checkIsHashCodeFunctionOrError(partCtx.start, function, currentStreamType));
+
+  }
+
+  private void checkViableJoinFunctionOrError(final EK9Parser.PipelinePartContext partCtx,
+                                              final ISymbol currentStreamType) {
+    //For this mechanism to work the identifier reference used as the function must have a type of function
+    //it must also accept specific arguments and return an type that is the same as the arguments.
+    accessFunctionSymbolOrError(partCtx)
+        .ifPresent(function -> checkIsJoinFunctionOrError(partCtx.start, function, currentStreamType));
 
   }
 
@@ -373,6 +397,39 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
       var returnType = functionSymbol.getReturningSymbol().getType().get();
       if (!returnType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Integer())) {
         errorListener.semanticError(errorLocation, errorMsg, MUST_RETURN_INTEGER);
+      }
+    }
+
+  }
+
+  private void checkIsJoinFunctionOrError(final Token errorLocation,
+                                          final FunctionSymbol functionSymbol,
+                                          final ISymbol currentStreamType) {
+    //For this to be valid the function must take two arguments compatible with currentStreamType
+    //And it must return a variable that is the same type as the currentStreamType (or compatible with it..
+    var errorMsg = "'" + functionSymbol.getFriendlyName() + "':";
+    if (functionSymbol.getCallParameters().size() != 2) {
+      errorListener.semanticError(errorLocation, errorMsg, FUNCTION_MUST_HAVE_TWO_PARAMETERS);
+    } else {
+      var argumentTypes = symbolTypeExtractor.apply(functionSymbol.getCallParameters());
+      //Now check that type is compatible with currentStreamType
+      argumentTypes.forEach(argumentType -> {
+        if (!currentStreamType.isAssignableTo(argumentType)) {
+          var typeErrorMsg = "wrt '" + functionSymbol.getFriendlyName()
+              + "' and pipeline type '" + currentStreamType.getFriendlyName() + "':";
+          errorListener.semanticError(errorLocation, typeErrorMsg, INCOMPATIBLE_TYPE_ARGUMENTS);
+        }
+      });
+    }
+
+    if (functionSymbol.getReturningSymbol().getType().isPresent()) {
+      var returnType = functionSymbol.getReturningSymbol().getType().get();
+      if (returnType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Void())) {
+        errorListener.semanticError(errorLocation, errorMsg, RETURNING_MISSING);
+      } else if (!returnType.isAssignableTo(currentStreamType)) {
+        var typeErrorMsg = "wrt '" + functionSymbol.getFriendlyName()
+            + "' and pipeline type '" + currentStreamType.getFriendlyName() + "':";
+        errorListener.semanticError(errorLocation, typeErrorMsg, INCOMPATIBLE_TYPES);
       }
     }
 

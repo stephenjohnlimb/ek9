@@ -273,7 +273,7 @@ final class CheckOperator extends RuleSupport
             ? "DYNAMIC CLASS" : parentScope.getFriendlyScopeName();
         var msg = "'" + theType.getFriendlyName() + "' is not '" + parentTypeName + "':";
         errorListener.semanticError(methodSymbol.getSourceToken(), msg,
-            ErrorListener.SemanticClassification.MUST_RETURN_SAME_TYPE);
+            ErrorListener.SemanticClassification.MUST_RETURN_SAME_AS_CONSTRUCT_TYPE);
       }
     });
   }

@@ -58,7 +58,7 @@ defines module bad.classes.operators.examples4
         check <- 1
         assert check?
 
-      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_AS_CONSTRUCT_TYPE
       operator abs as pure
         <- rtn as Float: 2.0
 

@@ -17,7 +17,7 @@ defines module bad.components.operators.examples
         -> arg0 as C2
         <- rtn as Integer: 1
 
-      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_AS_CONSTRUCT_TYPE
       operator ~ as pure
         <- rtn as Float: 1.0
 
@@ -26,7 +26,7 @@ defines module bad.components.operators.examples
         -> arg0 as C2
         <- rtn as C2: this
 
-      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_AS_CONSTRUCT_TYPE
       operator --
         <- rtn as Integer: 1.0
 
@@ -77,7 +77,7 @@ defines module bad.components.operators.examples
         -> arg0 as C2
         <- rtn as C2: arg0
 
-      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_AS_CONSTRUCT_TYPE
       operator ++
         <- rtn as Float: 1.0
 

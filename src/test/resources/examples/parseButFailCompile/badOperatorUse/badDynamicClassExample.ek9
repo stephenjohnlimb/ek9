@@ -120,7 +120,7 @@ defines module bad.dynamicclasses.operators.examples
 
         //The not/negate operator
         //As such it accepts no parameters, but returns the same type as itself
-        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_AS_CONSTRUCT_TYPE
         operator ~ as pure
           <- rtn as Float: 1.0
 
@@ -130,7 +130,7 @@ defines module bad.dynamicclasses.operators.examples
           <- rtn as T1: arg0
 
         //The increment operator, this alters its own state and returns itself
-        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_AS_CONSTRUCT_TYPE
         operator ++
           <- rtn as Float: 1.0
 
@@ -140,7 +140,7 @@ defines module bad.dynamicclasses.operators.examples
           <- rtn as T1: this
 
         //The decrement operator, this alters its own state and returns itself
-        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_AS_CONSTRUCT_TYPE
         operator --
           <- rtn as Integer: 1.0
 
@@ -280,7 +280,7 @@ defines module bad.dynamicclasses.operators.examples
           someVal <- 1
           assert someVal?
 
-        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_TYPE
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_SAME_AS_CONSTRUCT_TYPE
         operator abs as pure
           <- rtn as Float: 2.0
 
