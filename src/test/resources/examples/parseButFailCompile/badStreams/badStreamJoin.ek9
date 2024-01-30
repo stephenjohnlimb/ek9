@@ -1,0 +1,169 @@
+#!ek9
+<?-
+
+  Checks the 'join' operation.
+
+-?>
+defines module bad.streams8
+
+  <?-
+    The utility functions used for testing in this example.
+  -?>
+  defines function
+
+    JustFail()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert notDefined?
+
+    AbstractStringJoiner() as abstract
+      ->
+        arg0 as String
+        arg1 as String
+      <-
+        rtn as String?
+
+    IntegerAdder()
+      ->
+        arg0 as Integer
+        arg1 as Integer
+      <-
+        rtn as Integer: Integer()
+      if arg0? and arg1?
+        rtn :=: arg0 + arg1
+      else if arg0?
+        rtn :=: arg0
+      else if arg1?
+        rtn :=: arg1
+
+    StringJoiner()
+      ->
+        arg0 as String
+        arg1 as String
+      <-
+        rtn as String: String()
+      if arg0? and arg1?
+        rtn: "${arg0},${arg1}"
+      else if arg0?
+        rtn: "${arg0}"
+      else if arg1?
+        rtn: "${arg1}"
+
+    InvalidStringJoiner1()
+      ->
+        arg0 as String
+        arg1 as Duration
+      <-
+        rtn as String: String()
+
+    InvalidStringJoiner2()
+      -> arg0 as String
+      <- rtn as String: String()
+
+    InvalidStringJoiner3()
+      ->
+        arg0 as String
+        arg1 as String
+      assert arg0? and arg1?
+
+    InvalidStringJoiner4()
+      ->
+        arg0 as String
+        arg1 as String
+      <-
+        rtn as Duration: Duration()
+
+    SimpleStreamCatJoin1()
+      result <- String()
+      cat ["A", "B", "C", "D"] | join with StringJoiner > result
+      assert result?
+
+    SimpleStreamCatJoin2()
+      result <- String()
+      joiner <- () is AbstractStringJoiner as function (rtn: "${arg0}, ${arg1}")
+
+      cat ["A", "B", "C", "D"] | join with joiner > result
+      assert result?
+
+    <?-
+      Join always requires a function to do the joining.
+    -?>
+    InvalidStreamCatJoin1()
+      result <- String()
+
+      @Error: FULL_RESOLUTION: FUNCTION_OR_DELEGATE_REQUIRED
+      cat ["A", "B", "C", "D"] | join > result
+      assert result?
+
+    <?-
+      So a function has been supplied, and it could be a joiner, but of Integers (adding in this case)
+    -?>
+    InvalidStreamCatJoin2()
+      result <- String()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPE_ARGUMENTS
+      cat ["A", "B", "C", "D"] | join IntegerAdder > result
+      assert result?
+
+    <?-
+      The types of the arguments are not compatible.
+    -?>
+    InvalidStreamCatJoin3()
+      result <- String()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPE_ARGUMENTS
+      cat ["A", "B", "C", "D"] | join InvalidStringJoiner1 > result
+      assert result?
+
+    <?-
+      Does not have two arguments.
+    -?>
+    InvalidStreamCatJoin4()
+      result <- String()
+
+      @Error: FULL_RESOLUTION: FUNCTION_MUST_HAVE_TWO_PARAMETERS
+      cat ["A", "B", "C", "D"] | join InvalidStringJoiner2 > result
+      assert result?
+
+    <?-
+      Does not have a return value and type.
+    -?>
+    InvalidStreamCatJoin5()
+      result <- String()
+
+      @Error: FULL_RESOLUTION: RETURNING_MISSING
+      cat ["A", "B", "C", "D"] | join InvalidStringJoiner3 > result
+      assert result?
+
+    <?-
+      Does have a return value and type, but the type is incompatible with the current pipeline type.
+    -?>
+    InvalidStreamCatJoin6()
+      result <- String()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      cat ["A", "B", "C", "D"] | join InvalidStringJoiner4 > result
+      assert result?
+
+    <?-
+      Try to use join with something that is not even a function.
+    -?>
+    InvalidStreamCatJoin7()
+      result <- String()
+
+      notAFunctionAsAll <- 9
+      @Error: FULL_RESOLUTION: FUNCTION_OR_DELEGATE_REQUIRED
+      cat ["A", "B", "C", "D"] | join notAFunctionAsAll > result
+      assert result?
+
+    <?-
+      While the function signature is compatible, it abstract and so cannot be used.
+    -?>
+    InvalidStreamCatJoin8()
+      result <- String()
+
+      @Error: FULL_RESOLUTION: CANNOT_CALL_ABSTRACT_TYPE
+      cat ["A", "B", "C", "D"] | join AbstractStringJoiner > result
+      assert result?
+
+//EOF
+
