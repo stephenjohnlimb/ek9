@@ -7,6 +7,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.F
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.FUNCTION_OR_DELEGATE_REQUIRED;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.INCOMPATIBLE_TYPES;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.IS_NOT_AN_AGGREGATE_TYPE;
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.MISSING_ITERATE_METHOD;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.MUST_RETURN_BOOLEAN;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.MUST_RETURN_INTEGER;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.REQUIRE_NO_ARGUMENTS;
@@ -49,6 +50,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
 
   private final ProcessStreamFunctionOrError processStreamFunctionOrError;
   private final CheckStreamFunctionArguments checkStreamFunctionArguments;
+  private final GetIteratorType getIteratorType;
 
   protected ProcessStreamAssembly(SymbolAndScopeManagement symbolAndScopeManagement,
                                   ErrorListener errorListener) {
@@ -56,6 +58,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     super(symbolAndScopeManagement, errorListener);
     this.processStreamFunctionOrError = new ProcessStreamFunctionOrError(symbolAndScopeManagement, errorListener);
     this.checkStreamFunctionArguments = new CheckStreamFunctionArguments(symbolAndScopeManagement, errorListener);
+    this.getIteratorType = new GetIteratorType(symbolAndScopeManagement, errorListener);
 
   }
 
@@ -103,27 +106,36 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
   private ISymbol evaluateStreamType(final EK9Parser.StreamPartContext streamPartCtx,
                                      final ISymbol currentStreamType) {
 
-    if (streamPartCtx.MAP() != null) {
-      if (streamPartCtx.pipelinePart().size() == 1) {
-        return checkViableFunctionOrError(streamPartCtx.pipelinePart(0), currentStreamType);
-      }
-      errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_REQUIRED);
-    } else if (streamPartCtx.FILTER() != null || streamPartCtx.SELECT() != null) {
-      if (streamPartCtx.pipelinePart().size() == 1) {
-        return checkViableSelectFunctionOrError(streamPartCtx.pipelinePart(0), currentStreamType);
-      }
-      errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_REQUIRED);
-    } else if (streamPartCtx.CALL() != null || streamPartCtx.ASYNC() != null) {
-      return checkViableCallFunctionOrError(streamPartCtx, currentStreamType);
-    } else if (streamPartCtx.SORT() != null) {
-      return checkViableSortOrError(streamPartCtx, currentStreamType);
-    } else if (streamPartCtx.UNIQ() != null) {
-      return checkViableUniqOrError(streamPartCtx, currentStreamType);
+    if (streamPartCtx.FILTER() != null || streamPartCtx.SELECT() != null) {
+      return checkViableSelectFunctionOrError(streamPartCtx, currentStreamType);
+    } else if (streamPartCtx.MAP() != null) {
+      return checkViableFunctionOrError(streamPartCtx, currentStreamType);
+    } else if (streamPartCtx.GROUP() != null) {
+      throw new CompilerException("Group stream part not implemented");
     } else if (streamPartCtx.JOIN() != null) {
       return checkViableJoinOrError(streamPartCtx, currentStreamType);
+    } else if (streamPartCtx.SPLIT() != null) {
+      throw new CompilerException("Split stream part not implemented");
+    } else if (streamPartCtx.UNIQ() != null) {
+      return checkViableUniqOrError(streamPartCtx, currentStreamType);
+    } else if (streamPartCtx.SORT() != null) {
+      return checkViableSortOrError(streamPartCtx, currentStreamType);
+    } else if (streamPartCtx.FLATTEN() != null) {
+      return checkViableFlattenOrError(streamPartCtx, currentStreamType);
+    } else if (streamPartCtx.CALL() != null || streamPartCtx.ASYNC() != null) {
+      return checkViableCallFunctionOrError(streamPartCtx, currentStreamType);
     } else {
       throw new CompilerException("Stream part [" + streamPartCtx.op.getText() + "] not implemented");
     }
+  }
+
+
+  private ISymbol checkViableFunctionOrError(final EK9Parser.StreamPartContext streamPartCtx,
+                                             final ISymbol currentStreamType) {
+    if (streamPartCtx.pipelinePart().size() == 1) {
+      return checkViableFunctionOrError(streamPartCtx.pipelinePart(0), currentStreamType);
+    }
+    errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_REQUIRED);
     return symbolAndScopeManagement.getEk9Types().ek9Void();
   }
 
@@ -136,6 +148,15 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     }
     return acceptsTypeOrError(new StreamFunctionCheckData(partCtx.start, possibleFunction.get(), currentStreamType));
 
+  }
+
+  private ISymbol checkViableSelectFunctionOrError(final EK9Parser.StreamPartContext streamPartCtx,
+                                                   final ISymbol currentStreamType) {
+    if (streamPartCtx.pipelinePart().size() == 1) {
+      return checkViableSelectFunctionOrError(streamPartCtx.pipelinePart(0), currentStreamType);
+    }
+    errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_REQUIRED);
+    return symbolAndScopeManagement.getEk9Types().ek9Void();
   }
 
   private ISymbol checkViableSelectFunctionOrError(final EK9Parser.PipelinePartContext partCtx,
@@ -205,6 +226,30 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
 
     //No matter what 'join' not alter the stream type being used, so return the same type.
     return currentStreamType;
+  }
+
+  private ISymbol checkViableFlattenOrError(final EK9Parser.StreamPartContext streamPartCtx,
+                                            final ISymbol currentStreamType) {
+
+    if (streamPartCtx.pipelinePart().isEmpty()) {
+      return accessAggregateAsTypeOrError(streamPartCtx, currentStreamType)
+          .map(aggregate -> new StreamAggregateCheckData(streamPartCtx.op, aggregate, currentStreamType))
+          .map(this::getIteratorTypeOrError)
+          .orElseGet(() -> symbolAndScopeManagement.getEk9Types().ek9Void());
+    }
+    errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_NOT_REQUIRED);
+    return symbolAndScopeManagement.getEk9Types().ek9Void();
+
+  }
+
+  private ISymbol getIteratorTypeOrError(final StreamAggregateCheckData streamAggregateCheckData) {
+    var iteratorType = getIteratorType.apply(streamAggregateCheckData.aggregateSymbol());
+    if (iteratorType.isPresent()) {
+      return iteratorType.get();
+    }
+
+    errorListener.semanticError(streamAggregateCheckData.errorLocation(), "", MISSING_ITERATE_METHOD);
+    return symbolAndScopeManagement.getEk9Types().ek9Void();
   }
 
   private void checkTypeAsSuitableComparatorOrError(final EK9Parser.StreamPartContext streamPartCtx,

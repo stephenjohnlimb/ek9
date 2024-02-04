@@ -1,0 +1,83 @@
+#!ek9
+<?-
+  Just focus on flatten a collection to items contained.
+-?>
+defines module bad.streams9
+
+  <?-
+    The utility functions used for testing in this example.
+  -?>
+  defines function
+
+    JustFail()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert notDefined?
+
+    <?-
+      Just streams each of the List of Strings through
+      then those are 'flattened' to produce just a stream of Strings.
+      Finally those are collected into the collection list.
+    -?>
+    SimpleStreamCatFlatten()
+      collection <- List() of String
+
+      list1 <- ["A", "B", "C"]
+      list2 <- ["X", "Y", "Z"]
+
+      cat [list1, list2] | flatten > collection
+      assert collection?
+
+    <?-
+      This just streams the strings in the list through.
+      But then each String is iterated through to stream out each Character it contains.
+      The result of the Characters is the added to the collection.
+    -?>
+    SimpleStreamCatFlatten2()
+      collection <- List() of Character
+
+      list1 <- ["AB", "CD", "EF"]
+
+      cat list1 | flatten > collection
+      assert collection?
+
+    <?-
+      Check that the flatten operation can not be used with a function.
+    -?>
+    InvalidStreamCatFlatten1()
+      collection <- List() of String
+
+      list1 <- ["A", "B", "C"]
+      list2 <- ["X", "Y", "Z"]
+
+      @Error: FULL_RESOLUTION: FUNCTION_OR_DELEGATE_NOT_REQUIRED
+      cat [list1, list2] | flatten JustFail > collection
+      assert collection?
+
+    <?-
+      Go through the list of Integers and stream them out.
+      But there is nothing to iterator over an Integer.
+    -?>
+    InvalidStreamCatFlatten2()
+      collection <- List() of String
+
+      list1 <- [1, 2, 3]
+
+      @Error: FULL_RESOLUTION: MISSING_ITERATE_METHOD
+      cat list1 | flatten > collection
+      assert collection?
+
+    <?-
+      Any function cannot be flattened, it does not contain anything,
+      therefore - as a function it cannot have an iterator method, or hasNext(), next().
+    -?>
+    InvalidStreamCatFlatten3()
+      collection <- List() of String
+
+      list1 <- [JustFail]
+
+      @Error: FULL_RESOLUTION: IS_NOT_AN_AGGREGATE_TYPE
+      cat list1 | flatten > collection
+      assert collection?
+
+//EOF
+
