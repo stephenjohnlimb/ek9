@@ -18,7 +18,10 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.U
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.UNABLE_TO_FIND_HASHCODE_FOR_TYPE;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.UNABLE_TO_FIND_PIPE_FOR_TYPE;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
@@ -52,6 +55,8 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
   private final CheckStreamFunctionArguments checkStreamFunctionArguments;
   private final GetIteratorType getIteratorType;
 
+  private final Map<Integer, BiFunction<EK9Parser.StreamPartContext, ISymbol, ISymbol>> streamFunctionMap;
+
   protected ProcessStreamAssembly(SymbolAndScopeManagement symbolAndScopeManagement,
                                   ErrorListener errorListener) {
 
@@ -60,6 +65,39 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     this.checkStreamFunctionArguments = new CheckStreamFunctionArguments(symbolAndScopeManagement, errorListener);
     this.getIteratorType = new GetIteratorType(symbolAndScopeManagement, errorListener);
 
+    streamFunctionMap = setupOperationToFunctionMapping();
+  }
+
+  /**
+   * Rather than use a very large switch/if/else block a map is used to process the appropriate Stream operation.
+   */
+  private Map<Integer, BiFunction<EK9Parser.StreamPartContext, ISymbol, ISymbol>> setupOperationToFunctionMapping() {
+
+    final Map<Integer, BiFunction<EK9Parser.StreamPartContext, ISymbol, ISymbol>> primaryMap
+        = Map.of(EK9Parser.FILTER, this::checkViableSelectFunctionOrError,
+        EK9Parser.SELECT, this::checkViableSelectFunctionOrError,
+        EK9Parser.MAP, this::checkViableFunctionOrError,
+        EK9Parser.GROUP, this::invalidStreamOperation,
+        EK9Parser.JOIN, this::checkViableJoinOrError,
+        EK9Parser.SPLIT, this::invalidStreamOperation,
+        EK9Parser.UNIQ, this::checkViableUniqOrError,
+        EK9Parser.SORT, this::checkViableSortOrError
+    );
+
+    final Map<Integer, BiFunction<EK9Parser.StreamPartContext, ISymbol, ISymbol>> secondaryMap
+        = Map.of(EK9Parser.FLATTEN, this::checkViableFlattenOrError,
+        EK9Parser.CALL, this::checkViableCallFunctionOrError,
+        EK9Parser.ASYNC, this::checkViableCallFunctionOrError,
+        EK9Parser.TEE, this::invalidStreamOperation,
+        EK9Parser.SKIPPING, this::invalidStreamOperation,
+        EK9Parser.HEAD, this::invalidStreamOperation,
+        EK9Parser.TAIL, this::invalidStreamOperation);
+
+    Map<Integer, BiFunction<EK9Parser.StreamPartContext, ISymbol, ISymbol>> rtn = new HashMap<>();
+    rtn.putAll(primaryMap);
+    rtn.putAll(secondaryMap);
+
+    return rtn;
   }
 
   @Override
@@ -106,41 +144,28 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
   private ISymbol evaluateStreamType(final EK9Parser.StreamPartContext streamPartCtx,
                                      final ISymbol currentStreamType) {
 
-    if (streamPartCtx.FILTER() != null || streamPartCtx.SELECT() != null) {
-      return checkViableSelectFunctionOrError(streamPartCtx, currentStreamType);
-    } else if (streamPartCtx.MAP() != null) {
-      return checkViableFunctionOrError(streamPartCtx, currentStreamType);
-    } else if (streamPartCtx.GROUP() != null) {
-      throw new CompilerException("Group stream part not implemented");
-    } else if (streamPartCtx.JOIN() != null) {
-      return checkViableJoinOrError(streamPartCtx, currentStreamType);
-    } else if (streamPartCtx.SPLIT() != null) {
-      throw new CompilerException("Split stream part not implemented");
-    } else if (streamPartCtx.UNIQ() != null) {
-      return checkViableUniqOrError(streamPartCtx, currentStreamType);
-    } else if (streamPartCtx.SORT() != null) {
-      return checkViableSortOrError(streamPartCtx, currentStreamType);
-    } else if (streamPartCtx.FLATTEN() != null) {
-      return checkViableFlattenOrError(streamPartCtx, currentStreamType);
-    } else if (streamPartCtx.CALL() != null || streamPartCtx.ASYNC() != null) {
-      return checkViableCallFunctionOrError(streamPartCtx, currentStreamType);
-    } else {
-      throw new CompilerException("Stream part [" + streamPartCtx.op.getText() + "] not implemented");
-    }
+    var operation = streamFunctionMap.getOrDefault(streamPartCtx.op.getType(), this::invalidStreamOperation);
+    return operation.apply(streamPartCtx, currentStreamType);
+
+  }
+
+  private ISymbol invalidStreamOperation(final EK9Parser.StreamPartContext streamPartCtx,
+                                         final ISymbol currentStreamType) {
+    throw new CompilerException("Stream part [" + streamPartCtx.op.getText() + "] not implemented");
   }
 
 
   private ISymbol checkViableFunctionOrError(final EK9Parser.StreamPartContext streamPartCtx,
                                              final ISymbol currentStreamType) {
     if (streamPartCtx.pipelinePart().size() == 1) {
-      return checkViableFunctionOrError(streamPartCtx.pipelinePart(0), currentStreamType);
+      return checkFunctionOrError(streamPartCtx.pipelinePart(0), currentStreamType);
     }
     errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_REQUIRED);
     return symbolAndScopeManagement.getEk9Types().ek9Void();
   }
 
-  private ISymbol checkViableFunctionOrError(final EK9Parser.PipelinePartContext partCtx,
-                                             final ISymbol currentStreamType) {
+  private ISymbol checkFunctionOrError(final EK9Parser.PipelinePartContext partCtx,
+                                       final ISymbol currentStreamType) {
 
     var possibleFunction = processStreamFunctionOrError.apply(partCtx);
     if (possibleFunction.isEmpty()) {
@@ -153,16 +178,16 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
   private ISymbol checkViableSelectFunctionOrError(final EK9Parser.StreamPartContext streamPartCtx,
                                                    final ISymbol currentStreamType) {
     if (streamPartCtx.pipelinePart().size() == 1) {
-      return checkViableSelectFunctionOrError(streamPartCtx.pipelinePart(0), currentStreamType);
+      return checkSelectFunctionOrError(streamPartCtx.pipelinePart(0), currentStreamType);
     }
     errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_REQUIRED);
     return symbolAndScopeManagement.getEk9Types().ek9Void();
   }
 
-  private ISymbol checkViableSelectFunctionOrError(final EK9Parser.PipelinePartContext partCtx,
-                                                   final ISymbol currentStreamType) {
+  private ISymbol checkSelectFunctionOrError(final EK9Parser.PipelinePartContext partCtx,
+                                             final ISymbol currentStreamType) {
 
-    var functionReturnType = checkViableFunctionOrError(partCtx, currentStreamType);
+    var functionReturnType = checkFunctionOrError(partCtx, currentStreamType);
     if (!symbolAndScopeManagement.getEk9Types().ek9Boolean().isExactSameType(functionReturnType)) {
       errorListener.semanticError(partCtx.start, "", MUST_RETURN_BOOLEAN);
     }

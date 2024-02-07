@@ -2,7 +2,8 @@
 <?-
   Starting work on the mammoth task of streams.
   These are the main parts, note the statement does not return anything (i.e. must end in an output to something)
-  But the expression does 'return something', could be a collection, or in a reduction just an instance of type.
+  But the expression form of streams does 'return something', could be a collection, or in a reduction just an instance of type.
+
   Main two constructions: streamStatement, streamExpression:
   Both begin with: streamSource - which can be one of either: streamCat, streamFor:
   Stream statements then have: streamPart(s)/streamStatementTermination - pipelinePart
