@@ -19,7 +19,7 @@ final class ProcessStreamFunctionOrError extends TypedSymbolAccess
   }
 
   @Override
-  public Optional<FunctionSymbol> apply(EK9Parser.PipelinePartContext ctx) {
+  public Optional<FunctionSymbol> apply(final EK9Parser.PipelinePartContext ctx) {
     var expectedMappingFunction = getRecordedAndTypedSymbol(ctx);
 
     if (expectedMappingFunction != null && expectedMappingFunction.getType().isPresent()) {

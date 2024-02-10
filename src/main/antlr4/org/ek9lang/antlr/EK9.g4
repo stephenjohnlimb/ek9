@@ -508,7 +508,7 @@ streamFor
 streamPart
     : PIPE op=(FILTER | SELECT | MAP | GROUP | JOIN | SPLIT | UNIQ | SORT | FLATTEN | CALL | ASYNC) ((WITH | BY)? pipelinePart)?
     | PIPE op=TEE ((WITH | BY)? pipelinePart THEN)? IN? pipelinePart
-    | PIPE op=(SKIPPING | HEAD | TAIL) ((BY | ONLY)? (pipelinePart | integerLit))?
+    | PIPE op=(SKIPPING | HEAD | TAIL) ((WITH | BY | ONLY)? (pipelinePart | literal))?
     ;
 
 streamStatementTermination
@@ -737,7 +737,7 @@ literal
     | durationLit #durationLiteral
     | SUB? millisecondLit #millisecondLiteral
     | SUB? dimensionLit #decorationDimensionLiteral
-    | decorationResolutionLit #decorationResolutionLiteral
+    | resolutionLit #decorationResolutionLiteral
     | colourLit #colourLiteral
     | SUB? moneyLit #moneyLiteral
     | regExLit #regularExpressionLiteral
@@ -803,7 +803,7 @@ versionNumberLit
     : VersionNumberLiteral
     ;
 
-decorationResolutionLit
+resolutionLit
     : DecorationResolutionLiteral
     ;
     

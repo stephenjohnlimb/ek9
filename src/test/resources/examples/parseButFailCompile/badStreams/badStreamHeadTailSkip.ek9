@@ -1,0 +1,265 @@
+#!ek9
+<?-
+
+  Now 'head', 'tail' and 'skip' work without any arguments and default to '1' in that case. Or they can be used with a fixed value such
+  as 2, 6 or 22 - whatever. Now they can also be used with a function that accepts no arguments and returns just an integer.
+  Alternatively the argument could just be a variable of type integer!
+  So this means that you can alter the return value from the function if you wanted to make it a dynamic - rather than a fixed value.
+
+  So, this is pretty complex stuff.
+
+-?>
+defines module bad.streams10
+
+  <?-
+    Just used in the tests later one to detect invalid use when naming functions.
+  -?>
+  defines class
+    C1
+      default C1()
+
+      someSimpleMethod()
+        <- rtn <- 1
+
+      incorrectTypeMethod()
+        <- rtn <- 2024-02-10
+  <?-
+    The utility functions used for testing in this example.
+  -?>
+  defines function
+
+    <?-
+      Used for a dynamic function and also to check for invalid call to an abstract function directly.
+    -?>
+    SuitableFunctionSignature() as pure abstract
+      <- rtn as Integer?
+
+    <?-
+      A valid simple function signature that can be used with head/tail/skip
+    -?>
+    JustOne()
+      <- rtn <- 1
+
+    <?-
+      A invalid function signature used for testing later on.
+    -?>
+    JustDate()
+      <- rtn <- 2014-10-01
+
+    <?-
+      Another invalid function signature, head/tail/skip cannot use functions that accept arguments.
+    -?>
+    AcceptsArgument()
+      -> arg0 as Integer
+      <- rtn as Integer: arg0
+
+    <?-
+      Simple check that no arguments is acceptable (will default to one)
+    -?>
+    StreamCatHead1A()
+      collection <- List() of String
+      cat ["last", "first"] | head > collection
+      assert collection?
+
+    <?-
+      Simple check that no arguments is acceptable (will default to one)
+    -?>
+    StreamCatTail1A()
+      collection <- List() of String
+      cat ["last", "first"] | tail > collection
+      assert collection?
+
+    <?-
+      Simple check that no arguments is acceptable (will default to one)
+    -?>
+    StreamCatSkip1A()
+      collection <- List() of String
+      cat ["last", "first", "third"] | skip > collection
+      assert collection?
+
+    <?-
+      Simple check that integer arguments can be accepted.
+    -?>
+    StreamCatHead1B()
+      collection <- List() of String
+      cat ["last", "first", "third"] | head 2 > collection
+      assert collection?
+
+    <?-
+      Simple check that integer arguments can be accepted.
+    -?>
+    StreamCatTail1B()
+      collection <- List() of String
+      cat ["last", "first", "third"] | tail 2 > collection
+      assert collection?
+
+    <?-
+      Simple check that integer arguments can be accepted.
+    -?>
+    StreamCatSkip1B()
+      collection <- List() of String
+      cat ["last", "first", "third"] | skip 2 > collection
+      assert collection?
+
+    <?-
+      Invalid argument check - must be integer greater than zero
+    -?>
+    InvalidStreamCatHead1()
+      collection <- List() of String
+
+      @Error: FULL_RESOLUTION: MUST_BE_INTEGER_GREATER_THAN_ZERO
+      cat ["last", "first"] | head 0 > collection
+      assert collection?
+
+    <?-
+      Invalid argument check - must be integer greater than zero
+    -?>
+    InvalidStreamCatHeadNegativeValue()
+      collection <- List() of String
+
+      @Error: FULL_RESOLUTION: MUST_BE_INTEGER_GREATER_THAN_ZERO
+      cat ["last", "first"] | head -1 > collection
+      assert collection?
+
+    <?-
+      Invalid argument check - must be integer greater than zero (i.e. not a String)
+    -?>
+    InvalidStreamCatHeadNotAnInteger()
+      collection <- List() of String
+
+      @Error: FULL_RESOLUTION: MUST_BE_INTEGER_GREATER_THAN_ZERO
+      cat ["last", "first"] | head "A" > collection
+      assert collection?
+
+    <?-
+      Now rather than use a fixed value, it is possible to call a function.
+      But not this is 'lazy', only when the Stream is triggered does the Function get called.
+    -?>
+    StreamCatHeadWithFunction()
+      collection <- List() of String
+      cat ["last", "first"] | head JustOne > collection
+      assert collection?
+
+    <?-
+      Now rather than use a fixed value, it is possible to call a function.
+      So in this case the call is directly and called just before the pipeline is started.
+      Hence it is not lazy.
+    -?>
+    StreamCatHeadWithFunctionCall()
+      collection <- List() of String
+      cat ["last", "first"] | head JustOne() > collection
+      assert collection?
+
+    StreamCatHeadWithInvalidFunctionCall()
+      collection <- List() of String
+      @Error: FULL_RESOLUTION: INTEGER_VAR_OR_FUNCTION_OR_DELEGATE_REQUIRED
+      cat ["last", "first"] | head JustDate() > collection
+      assert collection?
+
+    <?-
+      This demonstrate calling an object method, again not lazy.
+    -?>
+    StreamCatHeadWithMethodCall()
+      collection <- List() of String
+      c1 <- C1()
+      cat ["last", "first"] | head c1.someSimpleMethod() > collection
+      assert collection?
+
+    StreamCatHeadWithInvalidMethodCall()
+      collection <- List() of String
+      c1 <- C1()
+      @Error: FULL_RESOLUTION: INTEGER_VAR_OR_FUNCTION_OR_DELEGATE_REQUIRED
+      cat ["last", "first"] | head c1.incorrectTypeMethod() > collection
+      assert collection?
+
+    <?-
+      Now rather than use a fixed value, it is possible to call a function.
+      But this is a 'dynamic function'.
+    -?>
+    StreamCatHeadWithDynamicFunction1()
+      collection <- List() of String
+      func <- () is SuitableFunctionSignature as pure function (rtn:=? 1)
+
+      cat ["last", "first"] | head with func > collection
+      assert collection?
+
+    <?-
+      Now rather than use a fixed value, it is possible to call a function.
+      But this is a 'dynamic function'.
+      Here is an example of the function delegate being passed in as an argument.
+      Then it is used in the Stream pipeline.
+    -?>
+    StreamCatHeadWithDynamicFunction2()
+      -> func as SuitableFunctionSignature
+      collection <- List() of String
+
+      cat ["last", "first"] | head by func > collection
+      assert collection?
+
+    <?-
+      In this example a variable is defined (Integer type), then that is used with 'head'.
+    -?>
+    StreamCatHeadWithVariable()
+      collection <- List() of String
+      limit <- 2
+      cat ["last", "first"] | head with limit > collection
+      assert collection?
+
+    <?-
+      This is an example of a variable of the wrong type being used with 'head'.
+    -?>
+    InvalidStreamCatHeadWithVariable1()
+      collection <- List() of String
+      limit <- 2.2
+      @Error: FULL_RESOLUTION: INTEGER_VAR_OR_FUNCTION_OR_DELEGATE_REQUIRED
+      cat ["last", "first"] | head with limit > collection
+      assert collection?
+
+    <?-
+      This is an example of a variable of the wrong type being used with 'head'.
+    -?>
+    InvalidStreamCatHeadWithVariable2()
+      collection <- List() of String
+      limit <- C1()
+      @Error: FULL_RESOLUTION: INTEGER_VAR_OR_FUNCTION_OR_DELEGATE_REQUIRED
+      cat ["last", "first"] | head with limit > collection
+      assert collection?
+
+    <?-
+      This is an example typing to use a class with 'head'.
+    -?>
+    InvalidStreamCatHeadWithClassName()
+      collection <- List() of String
+      @Error: FULL_RESOLUTION: INTEGER_VAR_OR_FUNCTION_OR_DELEGATE_REQUIRED
+      cat ["last", "first"] | head with C1 > collection
+      assert collection?
+
+    <?-
+      This is an example typing to use a class constructor with 'head'.
+    -?>
+    InvalidStreamCatHeadWithClassConstructor()
+      collection <- List() of String
+      @Error: FULL_RESOLUTION: INTEGER_VAR_OR_FUNCTION_OR_DELEGATE_REQUIRED
+      cat ["last", "first"] | head with C1() > collection
+      assert collection?
+
+    InvalidStreamCatHeadWithFunction1()
+      collection <- List() of String
+      @Error: FULL_RESOLUTION: MUST_RETURN_INTEGER
+      cat ["last", "first"] | head JustDate > collection
+      assert collection?
+
+    InvalidStreamCatHeadWithFunction2()
+      collection <- List() of String
+      @Error: FULL_RESOLUTION: FUNCTION_MUST_HAVE_NO_PARAMETERS
+      cat ["last", "first"] | head AcceptsArgument > collection
+      assert collection?
+
+    InvalidStreamCatHeadWithAbstractFunction()
+      collection <- List() of String
+      @Error: FULL_RESOLUTION: CANNOT_CALL_ABSTRACT_TYPE
+      cat ["last", "first"] | head SuitableFunctionSignature > collection
+      assert collection?
+
+//EOF
+

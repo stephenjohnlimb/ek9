@@ -53,6 +53,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
 
   private final ProcessStreamFunctionOrError processStreamFunctionOrError;
   private final CheckStreamFunctionArguments checkStreamFunctionArguments;
+  private final CheckHeadTailSkipOperation checkHeadTailSkipOperation;
   private final GetIteratorType getIteratorType;
 
   private final Map<Integer, BiFunction<EK9Parser.StreamPartContext, ISymbol, ISymbol>> streamFunctionMap;
@@ -63,6 +64,8 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     super(symbolAndScopeManagement, errorListener);
     this.processStreamFunctionOrError = new ProcessStreamFunctionOrError(symbolAndScopeManagement, errorListener);
     this.checkStreamFunctionArguments = new CheckStreamFunctionArguments(symbolAndScopeManagement, errorListener);
+    this.checkHeadTailSkipOperation = new CheckHeadTailSkipOperation(symbolAndScopeManagement, errorListener);
+
     this.getIteratorType = new GetIteratorType(symbolAndScopeManagement, errorListener);
 
     streamFunctionMap = setupOperationToFunctionMapping();
@@ -89,9 +92,9 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
         EK9Parser.CALL, this::checkViableCallFunctionOrError,
         EK9Parser.ASYNC, this::checkViableCallFunctionOrError,
         EK9Parser.TEE, this::invalidStreamOperation,
-        EK9Parser.SKIPPING, this::invalidStreamOperation,
-        EK9Parser.HEAD, this::invalidStreamOperation,
-        EK9Parser.TAIL, this::invalidStreamOperation);
+        EK9Parser.SKIPPING, this::checkViableIntegerOrError,
+        EK9Parser.HEAD, this::checkViableIntegerOrError,
+        EK9Parser.TAIL, this::checkViableIntegerOrError);
 
     Map<Integer, BiFunction<EK9Parser.StreamPartContext, ISymbol, ISymbol>> rtn = new HashMap<>();
     rtn.putAll(primaryMap);
@@ -154,6 +157,19 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     throw new CompilerException("Stream part [" + streamPartCtx.op.getText() + "] not implemented");
   }
 
+  /**
+   * This check if fore skip, head and tail.
+   * No argument means default to 1, or a positive integer literal, or a function that returns an integer.
+   * Will be a run time check if that value is zero or negative.
+   */
+  private ISymbol checkViableIntegerOrError(final EK9Parser.StreamPartContext streamPartCtx,
+                                            final ISymbol currentStreamType) {
+
+    checkHeadTailSkipOperation.accept(streamPartCtx);
+    //Always the same type.
+    return currentStreamType;
+
+  }
 
   private ISymbol checkViableFunctionOrError(final EK9Parser.StreamPartContext streamPartCtx,
                                              final ISymbol currentStreamType) {
