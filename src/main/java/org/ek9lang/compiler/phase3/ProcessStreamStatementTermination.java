@@ -63,7 +63,6 @@ final class ProcessStreamStatementTermination extends TypedSymbolAccess implemen
   private void updateTerminationSymbol(ISymbol terminationSymbol, final ISymbol pipeLinePartSymbol) {
 
     terminationSymbol.setGenus(pipeLinePartSymbol.getGenus());
-    terminationSymbol.setReferenced(true);
     terminationSymbol.setType(pipeLinePartSymbol.getType());
 
   }

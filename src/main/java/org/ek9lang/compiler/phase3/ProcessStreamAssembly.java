@@ -19,6 +19,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.U
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.UNABLE_TO_FIND_PIPE_FOR_TYPE;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -29,11 +30,15 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.support.ParameterisedLocator;
+import org.ek9lang.compiler.support.ParameterisedTypeData;
+import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.StreamCallSymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.CompilerException;
 
 /**
@@ -55,20 +60,20 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
   private final CheckStreamFunctionArguments checkStreamFunctionArguments;
   private final CheckHeadTailSkipOperation checkHeadTailSkipOperation;
   private final GetIteratorType getIteratorType;
-
+  private final ParameterisedLocator parameterisedLocator;
   private final Map<Integer, BiFunction<EK9Parser.StreamPartContext, ISymbol, ISymbol>> streamFunctionMap;
 
-  protected ProcessStreamAssembly(SymbolAndScopeManagement symbolAndScopeManagement,
-                                  ErrorListener errorListener) {
+  protected ProcessStreamAssembly(final SymbolAndScopeManagement symbolAndScopeManagement,
+                                  final SymbolFactory symbolFactory,
+                                  final ErrorListener errorListener) {
 
     super(symbolAndScopeManagement, errorListener);
     this.processStreamFunctionOrError = new ProcessStreamFunctionOrError(symbolAndScopeManagement, errorListener);
     this.checkStreamFunctionArguments = new CheckStreamFunctionArguments(symbolAndScopeManagement, errorListener);
     this.checkHeadTailSkipOperation = new CheckHeadTailSkipOperation(symbolAndScopeManagement, errorListener);
-
     this.getIteratorType = new GetIteratorType(symbolAndScopeManagement, errorListener);
-
-    streamFunctionMap = setupOperationToFunctionMapping();
+    this.parameterisedLocator = new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
+    this.streamFunctionMap = setupOperationToFunctionMapping();
   }
 
   /**
@@ -80,7 +85,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
         = Map.of(EK9Parser.FILTER, this::checkViableSelectFunctionOrError,
         EK9Parser.SELECT, this::checkViableSelectFunctionOrError,
         EK9Parser.MAP, this::checkViableFunctionOrError,
-        EK9Parser.GROUP, this::invalidStreamOperation,
+        EK9Parser.GROUP, this::checkViableGroupOrError,
         EK9Parser.JOIN, this::checkViableJoinOrError,
         EK9Parser.SPLIT, this::invalidStreamOperation,
         EK9Parser.UNIQ, this::checkViableUniqOrError,
@@ -169,6 +174,20 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     //Always the same type.
     return currentStreamType;
 
+  }
+
+  private ISymbol checkViableGroupOrError(final EK9Parser.StreamPartContext streamPartCtx,
+                                          final ISymbol currentStreamType) {
+    if (streamPartCtx.pipelinePart().size() == 1) {
+      var functionReturnType = checkFunctionOrError(streamPartCtx.pipelinePart(0), currentStreamType);
+      //Now it is essential that the return type has hashcode.
+      checkTypeAsSuitableHashCodeOrError(streamPartCtx, functionReturnType);
+    } else {
+      checkTypeAsSuitableHashCodeOrError(streamPartCtx, currentStreamType);
+    }
+
+    //But this will return a type of 'List of symbolType'. So that needs to be resolved.
+    return resolveParameterisedListType(streamPartCtx.op, currentStreamType);
   }
 
   private ISymbol checkViableFunctionOrError(final EK9Parser.StreamPartContext streamPartCtx,
@@ -303,10 +322,10 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
   }
 
   private void checkTypeAsSuitableHashCodeOrError(final EK9Parser.StreamPartContext streamPartCtx,
-                                                  final ISymbol currentStreamType) {
+                                                  final ISymbol symbolType) {
 
-    accessAggregateAsTypeOrError(streamPartCtx, currentStreamType)
-        .map(aggregate -> new StreamAggregateCheckData(streamPartCtx.op, aggregate, currentStreamType))
+    accessAggregateAsTypeOrError(streamPartCtx, symbolType)
+        .map(aggregate -> new StreamAggregateCheckData(streamPartCtx.op, aggregate, symbolType))
         .ifPresent(this::checkHashCodePresentOrError);
 
   }
@@ -345,11 +364,11 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
 
 
   private Optional<IAggregateSymbol> accessAggregateAsTypeOrError(final EK9Parser.StreamPartContext streamPartCtx,
-                                                                  final ISymbol currentStreamType) {
-    if (currentStreamType instanceof IAggregateSymbol aggregateSymbol) {
+                                                                  final ISymbol symbolType) {
+    if (symbolType instanceof IAggregateSymbol aggregateSymbol) {
       return Optional.of(aggregateSymbol);
     }
-    var msg = "need 'aggregate' type, but '" + currentStreamType.getFriendlyName() + "':";
+    var msg = "need 'aggregate' type, but '" + symbolType.getFriendlyName() + "':";
     errorListener.semanticError(streamPartCtx.op, msg, IS_NOT_AN_AGGREGATE_TYPE);
     return Optional.empty();
 
@@ -384,9 +403,9 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
   private void checkComparatorPresentOrError(final StreamAggregateCheckData streamAggregateCheckData) {
 
     //Need to search on the aggregateSymbol for a comparator '<=>' operator with compatible type arguments.
-    //Accepts a single argument compatible with the currentStreamType
+    //Accepts a single argument compatible with the symbolType
     var search = new MethodSymbolSearch("<=>")
-        .addTypeParameter(streamAggregateCheckData.currentStreamType());
+        .addTypeParameter(streamAggregateCheckData.symbolType());
 
     locateMethodOrError(search, streamAggregateCheckData, UNABLE_TO_FIND_COMPARATOR_FOR_TYPE);
 
@@ -399,14 +418,14 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     MethodSymbolSearchResult result = new MethodSymbolSearchResult();
     result = streamAggregateCheckData.aggregateSymbol().resolveMatchingMethods(search, result);
     if (!result.isSingleBestMatchPresent()) {
-      var msg = "wrt pipeline type '" + streamAggregateCheckData.currentStreamType().getFriendlyName()
+      var msg = "wrt pipeline type '" + streamAggregateCheckData.symbolType().getFriendlyName()
           + "':";
       errorListener.semanticError(streamAggregateCheckData.errorLocation(), msg, errorClassification);
     }
   }
 
   private void checkIsComparatorFunctionOrError(final StreamFunctionCheckData functionData) {
-    //For this to be valid the function must take two arguments compatible with currentStreamType
+    //For this to be valid the function must take two arguments compatible with symbolType
     //And it must return an Integer.
     var errorMsg = "'" + functionData.functionSymbol().getFriendlyName() + "':";
     if (functionData.functionSymbol().getCallParameters().size() != 2) {
@@ -425,7 +444,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
   }
 
   private void checkIsHashCodeFunctionOrError(final StreamFunctionCheckData functionData) {
-    //For this to be valid the function must take one argument compatible with currentStreamType
+    //For this to be valid the function must take one argument compatible with symbolType
     //And it must return an Integer.
     var errorMsg = "'" + functionData.functionSymbol().getFriendlyName() + "':";
     if (functionData.functionSymbol().getCallParameters().size() != 1) {
@@ -444,8 +463,8 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
   }
 
   private void checkIsJoinFunctionOrError(final StreamFunctionCheckData functionData) {
-    //For this to be valid the function must take two arguments compatible with currentStreamType
-    //And it must return a variable that is the same type as the currentStreamType (or compatible with it.)
+    //For this to be valid the function must take two arguments compatible with symbolType
+    //And it must return a variable that is the same type as the symbolType (or compatible with it.)
     var errorMsg = "'" + functionData.functionSymbol().getFriendlyName() + "':";
     if (functionData.functionSymbol().getCallParameters().size() != 2) {
       errorListener.semanticError(functionData.errorLocation(), errorMsg, FUNCTION_MUST_HAVE_TWO_PARAMETERS);
@@ -463,6 +482,18 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
         errorListener.semanticError(functionData.errorLocation(), typeErrorMsg, INCOMPATIBLE_TYPES);
       }
     }
+
+  }
+
+  private ISymbol resolveParameterisedListType(Token opLocation, final ISymbol currentStreamType) {
+    //Access the generic List type - this has been pre-located for quicker use.
+    final var listType = symbolAndScopeManagement.getEk9Types().ek9List();
+
+    //Now get the parameterised type.
+    final var typeData = new ParameterisedTypeData(new Ek9Token(opLocation), listType, List.of(currentStreamType));
+    final var resolvedNewType = parameterisedLocator.resolveOrDefine(typeData);
+
+    return resolvedNewType.orElseGet(() -> symbolAndScopeManagement.getEk9Types().ek9Void());
 
   }
 

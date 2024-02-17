@@ -9,5 +9,5 @@ import org.ek9lang.compiler.symbols.ISymbol;
  */
 record StreamAggregateCheckData(Token errorLocation,
                                        IAggregateSymbol aggregateSymbol,
-                                       ISymbol currentStreamType) {
+                                       ISymbol symbolType) {
 }

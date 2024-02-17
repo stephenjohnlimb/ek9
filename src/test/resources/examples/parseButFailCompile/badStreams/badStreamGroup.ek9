@@ -1,0 +1,224 @@
+#!ek9
+<?-
+
+  Now 'group' a little like 'split' accepts any 'T' and outputs a 'List of T', flatten accepts some type of '§T' and if it has an iterator method outputs 'T'.
+  So group can be used without a function - in that case it just uses the hashcode of the 'T' and groups based on that.
+  If a Function is used it must accept an argument that is compatible with the T and return a type that has a hashCode.
+  So for example if you wanted to group on surname - just return that, or if you wanted to group on Date then return that.
+  If you want to group on multiple fields - create a record with those fields and provide the hashcode operator in the record.
+  Or you could just Stringify the fields you wanted to group on and return that String.
+  Alternatively just calculate the Hashcode from the fields you want to group on.
+
+-?>
+defines module bad.streams11
+
+  defines record
+
+    <?-
+      A record but without a hashCode '#?' operator
+    -?>
+    R1 as open
+      prop1 as String?
+
+      //Just to stop default creation.
+      default private R1()
+
+      R1()
+        -> arg0 as String
+        this.prop1: arg0
+
+      default operator $
+
+    <?-
+      A record now with a hashCode '#?' operator
+    -?>
+    R2
+      prop1 as String?
+
+      //Just to stop default creation.
+      default private R2()
+
+      R2()
+        -> arg0 as String
+        this.prop1: arg0
+
+      default operator #?
+
+      default operator $
+
+    R3 is R1
+      prop2 as Integer?
+
+      //Just to stop default creation.
+      default private R3()
+
+      R3()
+        ->
+          arg0 as String
+          arg1 as Integer
+        super(arg0)
+        this.prop2: arg1
+
+      override operator $ as pure
+        <- rtn as String: `${prop2}`
+
+  <?-
+    The utility functions used for testing in this example.
+  -?>
+  defines function
+
+    JustFail()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert notDefined?
+
+    <?-
+      As R1 does not have the hashcode operator, this function will
+      use the string operator on the R1 record.
+      Then the group operation will be able to get the hashCode from the String.
+    -?>
+    StringFromR1()
+      -> arg0 as R1
+      <- rtn as String: $arg0
+
+    <?-
+      For use in test later, cannot use a function with two arguments.
+    -?>
+    StringFromR1s()
+      ->
+        arg0 as R1
+        arg1 as R1
+      <- rtn as String: `${arg0} ${arg1}`
+
+    <?-
+      Just used to check for invalid incoming type.
+    -?>
+    StringFromR2()
+      -> arg0 as R2
+      <- rtn as String: $arg0
+
+    <?-
+      No-op, just echo back the R1 - so still no hashcode.
+    -?>
+    EchoR1()
+      -> arg0 as R1
+      <- rtn as R1: arg0
+
+    <?-
+      Idea here is to have a list and then just group the common items together in
+      separate lists. This is the simple case where "#?" - hashcode is used to do the grouping.
+    -?>
+    StreamCatGroup1A()
+      collection <- List() of List of String
+      cat ["A", "Z", "Z", "P", "B"] | group > collection
+      //So here we'd expect a List with 4 items in it.
+      //i.e. A list of lists, so: [["A"],  ["Z", "Z"], ["P"], ["B"]}
+      assert collection?
+
+    <?-
+     A bit inconsistent, not sure how to do this and also allow > stdout for example.
+    -?>
+    StreamCatGroup1AUnreferenced()
+      collection <- List() of List of String
+      cat ["A", "Z", "Z", "P", "B"] | group > collection
+
+      //So omit this, but no error!
+      //assert collection?
+
+    <?-
+      This is to demonstrate a misunderstanding of how group works.
+      The items (List of String) must be collected into a List of 'List of String'.
+      i.e. it is a List of Lists (of String)
+    -?>
+    InvalidStreamCatGroup1()
+      collection <- List() of String
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      cat ["A", "Z", "Z", "P", "B"] | group > collection
+
+      assert collection?
+
+    <?-
+      Again designed to show a misunderstanding, this time with a Character.
+      The List being 'cat' is a List of String - yes the String only has one character, but it is a String.
+    -?>
+    InvalidStreamCatGroup2()
+      collection <- List() of List of Character
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      cat ["A", "Z", "Z", "P", "B"] | group > collection
+      assert collection?
+
+    <?-
+      check with a type with no hashCode '#?' operator
+    -?>
+    InvalidStreamCatGroupNoHashCodeOperator()
+      collection <- List() of List of R1
+
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_HASHCODE_FOR_TYPE
+      cat [R1("A"), R1("Z"), R1("Z"), R1("P"), R1("B")] | group > collection
+      assert collection?
+
+    StreamCatGroupWithHashCodeOperator()
+      collection <- List() of List of R2
+
+      cat [R2("A"), R2("Z"), R2("Z"), R2("P"), R2("B")] | group > collection
+      assert collection?
+
+    <?-
+      Try sending a function through the pipeline - these cannot be grouped.
+    -?>
+    InvalidStreamCatGroupUsingFunctionAsPipeLineType()
+      collection <- List() of List of JustFail
+
+      @Error: FULL_RESOLUTION: IS_NOT_AN_AGGREGATE_TYPE
+      cat [JustFail] | group > collection
+      assert collection?
+
+    <?-
+      Use a Function that accepts a type compatible with the currentStreamType and returns a type that has hashCode.
+    -?>
+    StreamCatGroupWithHashCodeFunction1()
+      collection <- List() of List of R1
+
+      cat [R1("A"), R1("Z"), R1("Z"), R1("P"), R1("B")] | group with StringFromR1 > collection
+      assert collection?
+
+    <?-
+      Quick check that StringFromR1 will also accept R3's which extend R1.
+    -?>
+    StreamCatGroupWithHashCodeFunction2()
+      collection <- List() of List of R3
+
+      cat [R3("A", 1), R3("Z", 32), R3("Z", 7), R3("P", 12), R3("B", 45)] | group with StringFromR1 > collection
+      assert collection?
+
+    <?-
+      Use a Function that accepts a type compatible with the currentStreamType and returns a type that has NO hashCode.
+    -?>
+    InvalidStreamCatGroupWithHashCodeFunction1()
+      collection <- List() of List of R1
+
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_HASHCODE_FOR_TYPE
+      cat [R1("A"), R1("Z"), R1("Z"), R1("P"), R1("B")] | group with EchoR1 > collection
+      assert collection?
+
+    <?-
+      Use a function that accepts an R2 (not compatible with and R1), so expect an error.
+    -?>
+    InvalidStreamCatGroupWithHashCodeFunction2()
+      collection <- List() of List of R1
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      cat [R1("A"), R1("Z"), R1("Z"), R1("P"), R1("B")] | group with StringFromR2 > collection
+      assert collection?
+
+    <?-
+      Use a function that accepts two R1 arguments, so expect an error.
+    -?>
+    InvalidStreamCatGroupWithHashCodeFunction3()
+      collection <- List() of List of R1
+
+      @Error: FULL_RESOLUTION: REQUIRE_ONE_ARGUMENT
+      cat [R1("A"), R1("Z"), R1("Z"), R1("P"), R1("B")] | group with StringFromR1s > collection
+      assert collection?
+
+//EOF
+

@@ -21,7 +21,7 @@ final class CheckStreamFunctionArguments extends TypedSymbolAccess implements Co
   @Override
   public void accept(StreamFunctionCheckData functionData) {
     var argumentTypes = symbolTypeExtractor.apply(functionData.functionSymbol().getCallParameters());
-    //Now check those types are compatible with currentStreamType
+    //Now check those types are compatible with symbolType
     argumentTypes.forEach(argumentType -> {
       if (!functionData.currentStreamType().isAssignableTo(argumentType)) {
         var typeErrorMsg = "wrt '" + functionData.functionSymbol().getFriendlyName()
