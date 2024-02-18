@@ -1,0 +1,128 @@
+#!ek9
+<?-
+  Split based on flexible function.
+-?>
+defines module bad.streams12
+
+  <?-
+    The utility functions used for testing in this example.
+  -?>
+  defines function
+
+    JustFail()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert notDefined?
+
+    <?-
+      Used in tests below to check abstract function cannot be used directly.
+    -?>
+    SomeAbstractFunction() as abstract
+      -> arg0 as String
+      <- rtn as Boolean?
+
+    <?-
+      Used in tests below to check incoming parameter compatibility.
+    -?>
+    InvalidFunction1()
+      -> arg0 as Integer
+      <- rtn <- true
+
+    <?-
+      Used in tests below to check return parameter is a Boolean.
+    -?>
+    InvalidFunction2()
+      -> arg0 as String
+      <- rtn as String: arg0
+
+    <?-
+      A higher order function that returns an Assessor (non-pure Predicate).
+      This assessor just returns true when splitSize has been reached, then it resets the count for the
+      next set of calls it receives. Hence it is a stateful function and its state is mutated as it is called.
+    -?>
+    getSplitAssessor()
+      -> batchSizeForSplitting as Integer
+      <- rtn as Assessor of String?
+      //Pass in the variables to be used and held within the dynamic function.
+      //Make new objects for this.
+      currentSetSize <- 0
+      splitSize <- Integer(batchSizeForSplitting)
+      rtn: (currentSetSize, splitSize) is Assessor of String as function
+        currentSetSize++
+        r: currentSetSize == splitSize
+        //Once the currentSize meets the splitSize - reset it.
+        if r
+          currentSetSize: 0
+
+    <?-
+      Valid use a splitting a stream of data coming in based on some criteria.
+      In this case just splits after two. But the function can return true on whatever criteria is
+      suitable. For example order the data coming in and then it could just be split on the first character of the String
+      for example.
+    -?>
+    CatStringsAndSplit()
+      collection <- List() of List of String
+
+      boundary <- getSplitAssessor(2)
+      cat ["A", "B", "A", "Z"] | split by boundary > collection
+
+      assert collection?
+
+    <?-
+      Missing function or delegate, so expect an error.
+    -?>
+    InvalidCatStringsAndSplit1()
+      collection <- List() of List of String
+
+      @Error: FULL_RESOLUTION: FUNCTION_OR_DELEGATE_REQUIRED
+      cat ["A", "B", "A", "Z"] | split > collection
+
+      assert collection?
+
+    <?-
+      Needs a function not just a number. So expect an error.
+    -?>
+    InvalidCatStringsAndSplit2()
+      collection <- List() of List of String
+
+      boundary <- 2
+
+      @Error: FULL_RESOLUTION: FUNCTION_OR_DELEGATE_REQUIRED
+      cat ["A", "B", "A", "Z"] | split by boundary > collection
+
+      assert collection?
+
+    <?-
+      Test that abstract functions cannot be directly employed.
+    -?>
+    InvalidCatStringsAndSplit3()
+      collection <- List() of List of String
+
+      @Error: FULL_RESOLUTION: CANNOT_CALL_ABSTRACT_TYPE
+      cat ["A", "B", "A", "Z"] | split by SomeAbstractFunction > collection
+
+      assert collection?
+
+    <?-
+      Test that the incoming type of the function is not compatible with the pipeline type.
+    -?>
+    InvalidCatStringsAndSplit4()
+      collection <- List() of List of String
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      cat ["A", "B", "A", "Z"] | split by InvalidFunction1 > collection
+
+      assert collection?
+
+    <?-
+      Test to check the the function employed returns a boolean.
+    -?>
+    InvalidCatStringsAndSplit5()
+      collection <- List() of List of String
+
+      @Error: FULL_RESOLUTION: MUST_RETURN_BOOLEAN
+      cat ["A", "B", "A", "Z"] | split by InvalidFunction2 > collection
+
+      assert collection?
+
+//EOF
+

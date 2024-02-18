@@ -23,7 +23,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 90;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 91;
 
   //Obviously with ek9 the indentation is important.
   @SuppressWarnings({"Indentation"})
@@ -2161,7 +2161,14 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           Predicate of type T as pure abstract
             -> t as T
             <- r as Boolean?
-
+          
+          <?-
+            Similar in concept to a Predicate, but not pure. Can mutate data.
+          -?>
+          Assessor of type T as abstract
+            -> t as T
+            <- r as Boolean?
+            
           BiPredicate of type (T, U) as pure abstract
             ->
               t as T

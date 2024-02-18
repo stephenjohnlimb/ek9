@@ -17,7 +17,7 @@ class BadStreamsTest extends PhasesTest {
     super("/examples/parseButFailCompile/badStreams",
         List.of("bad.streams1", "bad.streams2", "bad.streams3", "bad.streams4",
             "bad.streams5", "bad.streams6", "bad.streams7", "bad.streams8",
-            "bad.streams9", "bad.streams10", "bad.streams11"));
+            "bad.streams9", "bad.streams10", "bad.streams11", "bad.streams12"));
   }
 
   @Test

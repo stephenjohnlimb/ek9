@@ -36,6 +36,7 @@
   If you want to group on multiple fields - create a record with those fields and provide the hashcode operator in the record.
   Alternatively just calculate the Hashcode from the fields you want to group on.
 
+  Tee is next for development.
   So, this is pretty complex stuff.
 
 -?>

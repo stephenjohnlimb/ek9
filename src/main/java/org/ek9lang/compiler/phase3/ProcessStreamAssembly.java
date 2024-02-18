@@ -87,7 +87,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
         EK9Parser.MAP, this::checkViableFunctionOrError,
         EK9Parser.GROUP, this::checkViableGroupOrError,
         EK9Parser.JOIN, this::checkViableJoinOrError,
-        EK9Parser.SPLIT, this::invalidStreamOperation,
+        EK9Parser.SPLIT, this::checkViableSplitOrError,
         EK9Parser.UNIQ, this::checkViableUniqOrError,
         EK9Parser.SORT, this::checkViableSortOrError
     );
@@ -190,6 +190,18 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     return resolveParameterisedListType(streamPartCtx.op, currentStreamType);
   }
 
+  private ISymbol checkViableSplitOrError(final EK9Parser.StreamPartContext streamPartCtx,
+                                          final ISymbol currentStreamType) {
+    if (streamPartCtx.pipelinePart().size() == 1) {
+      checkFunctionAndReturnsBooleanOrError(streamPartCtx.pipelinePart(0), currentStreamType);
+    } else {
+      errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_REQUIRED);
+    }
+
+    //But this will return a type of 'List of symbolType'. So that needs to be resolved.
+    return resolveParameterisedListType(streamPartCtx.op, currentStreamType);
+  }
+
   private ISymbol checkViableFunctionOrError(final EK9Parser.StreamPartContext streamPartCtx,
                                              final ISymbol currentStreamType) {
     if (streamPartCtx.pipelinePart().size() == 1) {
@@ -213,14 +225,14 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
   private ISymbol checkViableSelectFunctionOrError(final EK9Parser.StreamPartContext streamPartCtx,
                                                    final ISymbol currentStreamType) {
     if (streamPartCtx.pipelinePart().size() == 1) {
-      return checkSelectFunctionOrError(streamPartCtx.pipelinePart(0), currentStreamType);
+      return checkFunctionAndReturnsBooleanOrError(streamPartCtx.pipelinePart(0), currentStreamType);
     }
     errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_REQUIRED);
     return symbolAndScopeManagement.getEk9Types().ek9Void();
   }
 
-  private ISymbol checkSelectFunctionOrError(final EK9Parser.PipelinePartContext partCtx,
-                                             final ISymbol currentStreamType) {
+  private ISymbol checkFunctionAndReturnsBooleanOrError(final EK9Parser.PipelinePartContext partCtx,
+                                                        final ISymbol currentStreamType) {
 
     var functionReturnType = checkFunctionOrError(partCtx, currentStreamType);
     if (!symbolAndScopeManagement.getEk9Types().ek9Boolean().isExactSameType(functionReturnType)) {
