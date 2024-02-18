@@ -96,7 +96,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
         = Map.of(EK9Parser.FLATTEN, this::checkViableFlattenOrError,
         EK9Parser.CALL, this::checkViableCallFunctionOrError,
         EK9Parser.ASYNC, this::checkViableCallFunctionOrError,
-        EK9Parser.TEE, this::invalidStreamOperation,
+        EK9Parser.TEE, this::checkViableTeeOrError,
         EK9Parser.SKIPPING, this::checkViableIntegerOrError,
         EK9Parser.HEAD, this::checkViableIntegerOrError,
         EK9Parser.TAIL, this::checkViableIntegerOrError);
@@ -202,6 +202,39 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     return resolveParameterisedListType(streamPartCtx.op, currentStreamType);
   }
 
+  private ISymbol checkViableTeeOrError(final EK9Parser.StreamPartContext streamPartCtx,
+                                        final ISymbol currentStreamType) {
+    if (streamPartCtx.pipelinePart().isEmpty()) {
+      errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_REQUIRED);
+    } else if (streamPartCtx.pipelinePart().size() == 1) {
+      var terminalPipeLinePartCtx = streamPartCtx.pipelinePart(0);
+
+      processTeeTermination(streamPartCtx, terminalPipeLinePartCtx, currentStreamType);
+    } else {
+      //Else there will be two parts. The first part is a mapping, the second the terminal.
+      var mapPipeLinePartCtx = streamPartCtx.pipelinePart(0);
+      var terminalPipeLinePartCtx = streamPartCtx.pipelinePart(1);
+      //This will be the type that the terminal part will need to use.
+      var teeStreamType = checkFunctionOrError(mapPipeLinePartCtx, currentStreamType);
+
+      processTeeTermination(streamPartCtx, terminalPipeLinePartCtx, teeStreamType);
+
+    }
+    //Does not alter the current stream type flowing through the pipeline.
+    return currentStreamType;
+  }
+
+  private void processTeeTermination(final EK9Parser.StreamPartContext streamPartCtx,
+                                     final EK9Parser.PipelinePartContext terminalPipeLinePartCtx,
+                                     final ISymbol streamSymbolType) {
+
+    var terminalSymbol = getRecordedAndTypedSymbol(terminalPipeLinePartCtx);
+    var terminalStreamCallSymbol = (StreamCallSymbol) symbolAndScopeManagement.getRecordedSymbol(streamPartCtx);
+    terminalSymbol.getType()
+        .ifPresent(
+            terminalSymbolType -> processTermination(terminalStreamCallSymbol, terminalSymbolType, streamSymbolType));
+  }
+
   private ISymbol checkViableFunctionOrError(final EK9Parser.StreamPartContext streamPartCtx,
                                              final ISymbol currentStreamType) {
     if (streamPartCtx.pipelinePart().size() == 1) {
@@ -218,7 +251,14 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     if (possibleFunction.isEmpty()) {
       return symbolAndScopeManagement.getEk9Types().ek9Void();
     }
-    return acceptsTypeOrError(new StreamFunctionCheckData(partCtx.start, possibleFunction.get(), currentStreamType));
+    var function = possibleFunction.get();
+    function.getReturningSymbol().getType().ifPresent(returnType -> {
+
+      if (returnType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Void())) {
+        errorListener.semanticError(partCtx.start, "", RETURNING_MISSING);
+      }
+    });
+    return acceptsTypeOrError(new StreamFunctionCheckData(partCtx.start, function, currentStreamType));
 
   }
 
@@ -560,6 +600,9 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
             + "' and terminal type '" + terminationType.getFriendlyName() + "':";
         errorListener.semanticError(termination.getSourceToken(), msg, UNABLE_TO_FIND_PIPE_FOR_TYPE);
       }
+    } else {
+      var msg = "termination/tee requires an aggregate type, '" + terminationType.getFriendlyName() + ":";
+      errorListener.semanticError(termination.getSourceToken(), msg, IS_NOT_AN_AGGREGATE_TYPE);
     }
   }
 

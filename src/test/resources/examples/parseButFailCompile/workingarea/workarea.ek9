@@ -37,6 +37,14 @@
   Alternatively just calculate the Hashcode from the fields you want to group on.
 
   Tee is next for development.
+
+  'tee' is a bit tricky because it must have one pipeline part that is like the streamStatementTermination
+  (this must be the second one if two pipeline parts are used).
+
+  So if there are two pipeline parts then the first must be some sort of mapping function and the second a terminal (gathering aggregate)
+  this must have the pipeline operator to be able to receive the transformed pipeline type.
+  But if there is just one (i.e. no intermediate transformation) then that one must be the 'terminal' with the pipeline operation.
+
   So, this is pretty complex stuff.
 
 -?>

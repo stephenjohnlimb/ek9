@@ -1,0 +1,147 @@
+#!ek9
+<?-
+
+  'tee' is a bit tricky because it must have one pipeline part that is like the streamStatementTermination
+  (this must be the second one if two pipeline parts are used).
+
+  So if there are two pipeline parts then the first must be some sort of mapping function and the second a terminal (gathering aggregate)
+  this must have the pipeline operator to be able to receive the transformed pipeline type.
+  But if there is just one (i.e. no intermediate transformation) then that one must be the 'terminal' with the pipeline operation.
+
+-?>
+defines module bad.streams13
+
+  <?-
+    The utility functions used for testing in this example.
+  -?>
+  defines function
+
+    JustFail()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert notDefined?
+
+    <?-
+      Used in tests later on.
+    -?>
+    LengthOfString()
+      -> arg0 as String
+      <- rtn as Integer: length of arg0
+
+    <?-
+      Used to demonstrate invalid function use.
+    -?>
+    InvalidFunctionOfString()
+      -> arg0 as String
+      assert arg0?
+
+    <?-
+      A bit pointless, but shown minimal tee operation.
+      So the same values will stream through and be 'tee'd' off and also collected.
+    -?>
+    CatWithTee()
+      mainCollection <- List() of String
+      teeCollection <- List() of String
+
+      cat ["A", "B", "A", "Z"] | tee in teeCollection > mainCollection
+
+      assert mainCollection?
+      assert teeCollection?
+
+    <?-
+      Now there is a streaming and a bit of mapping after the tee before collecting in the tee collection.
+      The original String parts continue along the main pipeline into the main collection.
+    -?>
+    CatWithTeeFunction1()
+      mainCollection <- List() of String
+      teeCollection <- List() of Integer
+
+      cat ["A", "B", "A", "Z"] | tee with LengthOfString then in teeCollection > mainCollection
+
+      assert mainCollection?
+      assert teeCollection?
+
+    <?-
+      This is the same functionality as above, but uses a dynamic function.
+    -?>
+    CatWithTeeDynamicFunction()
+      mainCollection <- List() of String
+      teeCollection <- List() of Integer
+
+      //Same as above but uses the build in generic 'Function' and the abstract function to extend.
+      //So the 'r' and 't' here are the inferred arguments from the Function. And it can be a one liner.
+      lengthOf <- () is Function of (String, Integer) as pure function (r:=? length of t)
+      cat ["A", "B", "A", "Z"] | tee with lengthOf then in teeCollection > mainCollection
+
+      assert mainCollection?
+      assert teeCollection?
+
+    <?-
+      This demonstrates that the the collection phase either via
+      teeing or main pipeline processing supports the #^ promotion operator. So here the Integers
+      that come of of the LengthOfString, are collected to a List of Float (this works because Integer has a promotion to Float)
+    -?>
+    CatWithTeeFunction2()
+      mainCollection <- List() of String
+      teeCollection <- List() of Float
+
+      cat ["A", "B", "A", "Z"] | tee with LengthOfString then in teeCollection > mainCollection
+
+      assert mainCollection?
+      assert teeCollection?
+
+    <?-
+      The tee collection must be an Integer or something an Integer couple be promoted to.
+      In this case the Integers coming out cannot be promoted to a Date.
+      If you did want to do this, then write a Function that can convert the String to a Date.
+    -?>
+    InvalidCatWithTeeFunctionBadTeeCollectionType()
+      mainCollection <- List() of String
+      teeCollection <- List() of Date
+
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      cat ["A", "B", "A", "Z"] | tee with LengthOfString then in teeCollection > mainCollection
+
+      assert mainCollection?
+      assert teeCollection?
+
+    <?-
+      Demonstrates that the function used must return a value.
+    -?>
+    InvalidCatWithTeeFunctionNoReturn()
+      mainCollection <- List() of String
+      teeCollection <- List() of Integer
+
+      @Error: FULL_RESOLUTION: RETURNING_MISSING
+      cat ["A", "B", "A", "Z"] | tee with InvalidFunctionOfString then in teeCollection > mainCollection
+
+      assert mainCollection?
+      assert teeCollection?
+
+    <?-
+      The parameter used with Tee must be a function not just a value.
+    -?>
+    InvalidCatWithTeeFunction()
+      mainCollection <- List() of String
+      teeCollection <- List() of String
+
+      noneMappingItem <- 2
+      @Error: FULL_RESOLUTION: FUNCTION_OR_DELEGATE_REQUIRED
+      cat ["A", "B", "A", "Z"] | tee with noneMappingItem then in teeCollection > mainCollection
+
+      assert mainCollection?
+      assert teeCollection?
+
+    <?-
+      The parameter used with Tee can just be a terminal collection, or a function AND a terminal collection.
+      But it cannot just be a function that transforms something as there is nothing to collect the transformed stuff in.
+    -?>
+    InvalidCatWithTeeFunctionOnlyMissingTermination()
+      mainCollection <- List() of String
+
+      @Error: FULL_RESOLUTION: IS_NOT_AN_AGGREGATE_TYPE
+      cat ["A", "B", "A", "Z"] | tee LengthOfString > mainCollection
+
+      assert mainCollection?
+
+//EOF
+
