@@ -55,19 +55,20 @@ final class Ek9 {
    */
   private static final Function<CommandLineDetails, CompilationContext> compilationContextCreation =
       commandLine -> {
+        final var muteReportedErrors = false;
         final var compilationReporter = new CompilationReporter(commandLine.isVerbose());
-        final var compilerReporter = new CompilerReporter(commandLine.isVerbose());
+        final var compilerReporter = new CompilerReporter(commandLine.isVerbose(), false);
         final var sourceFileCache = new FileCache(commandLine);
         final var sourceSupplier = new Ek9BuiltinLangSupplier();
         Ek9LanguageBootStrap bootStrap =
             new Ek9LanguageBootStrap(sourceSupplier, compilationReporter::logPhaseCompilation, compilerReporter);
         //For the main compiler we want all phases.
         FullPhaseSupplier allPhases = new FullPhaseSupplier(bootStrap.get(),
-            compilationReporter::logPhaseCompilation, new CompilerReporter(commandLine.isVerbose()));
+            compilationReporter::logPhaseCompilation, new CompilerReporter(commandLine.isVerbose(), false));
 
-        Compiler compiler = new Ek9Compiler(allPhases);
+        Compiler compiler = new Ek9Compiler(allPhases, muteReportedErrors);
 
-        return new CompilationContext(commandLine, compiler, sourceFileCache);
+        return new CompilationContext(commandLine, compiler, sourceFileCache, muteReportedErrors);
       };
 
   private final CompilationContext compilationContext;
@@ -234,7 +235,7 @@ final class Ek9 {
    */
   private static class CompilationReporter extends Reporter {
     protected CompilationReporter(boolean verbose) {
-      super(verbose);
+      super(verbose, false);
     }
 
     public void logPhaseCompilation(final CompilationEvent compilationEvent) {

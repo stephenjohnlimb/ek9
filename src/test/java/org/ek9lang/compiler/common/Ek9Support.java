@@ -14,9 +14,9 @@ public class Ek9Support extends AntlrSupport {
   /**
    * Create an EK9Support object for running the antlr test rig with a specidic file.
    */
-  public Ek9Support(String inputFileName)
+  public Ek9Support(final String inputFileName, final boolean showReadability)
       throws IOException, IllegalArgumentException, SecurityException {
-    super(inputFileName);
+    super(inputFileName, showReadability);
   }
 
   /**
@@ -27,7 +27,7 @@ public class Ek9Support extends AntlrSupport {
     if (args.length != 1) {
       Logger.log("Expect a single argument of the ek9 source file to process");
     } else {
-      var ek9Support = new Ek9Support(args[0]);
+      var ek9Support = new Ek9Support(args[0], true);
       ek9Support.runTestRig();
     }
   }

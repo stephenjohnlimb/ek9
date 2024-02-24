@@ -46,8 +46,8 @@ import org.ek9lang.core.AssertValue;
 final class PackageResolver extends Reporter {
   private final CommandLineDetails commandLine;
 
-  PackageResolver(CommandLineDetails commandLine) {
-    super(commandLine.isVerbose());
+  PackageResolver(CommandLineDetails commandLine, final boolean muteReportedErrors) {
+    super(commandLine.isVerbose(), muteReportedErrors);
     this.commandLine = commandLine;
   }
 
@@ -129,7 +129,7 @@ final class PackageResolver extends Reporter {
 
   private Ek9SourceVisitor loadFileAndVisit(File sourceFile) {
     Ek9SourceVisitor visitor = new Ek9SourceVisitor();
-    if (!new JustParser().readSourceFile(sourceFile, visitor)) {
+    if (!new JustParser(true).readSourceFile(sourceFile, visitor)) {
       report("Unable to Parse source file [" + sourceFile.getAbsolutePath() + "]");
       return null;
     }

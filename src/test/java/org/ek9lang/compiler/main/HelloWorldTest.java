@@ -65,21 +65,24 @@ class HelloWorldTest {
     //Just start with the basics and most on to the next phase one implemented.
     CompilationPhase upToPhase = CompilationPhase.FULL_RESOLUTION;
 
+    //So see verbose processing and any errors alter these flags.
+    final var reporter = new CompilerReporter(false, true);
+
     CompilationPhaseListener listener = compilationEvent -> {
       var source = compilationEvent.source();
       var phase = compilationEvent.phase();
       if (!source.getErrorListener().isErrorFree()) {
         System.out.println("Errors in phase: " + phase);
-        source.getErrorListener().getErrors().forEachRemaining(System.out::println);
+        source.getErrorListener().getErrors().forEachRemaining(reporter::report);
       }
     };
     var sharedCompilableProgram = sharedContext.get();
 
     FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedCompilableProgram,
-        listener, new CompilerReporter(true));
+        listener, reporter);
 
-    var compiler = new Ek9Compiler(allPhases);
-    assertTrue(compiler.compile(helloWorldEk9Workspace.get(), new CompilerFlags(upToPhase, true)));
+    var compiler = new Ek9Compiler(allPhases, reporter.isMuteReportedErrors());
+    assertTrue(compiler.compile(helloWorldEk9Workspace.get(), new CompilerFlags(upToPhase, reporter.isVerbose())));
 
     assertSymbolsPresent(sharedCompilableProgram);
   }

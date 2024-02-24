@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.InputStream;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.core.Logger;
 import org.junit.jupiter.api.Test;
 
 public abstract class LexingBase {
@@ -37,6 +36,8 @@ public abstract class LexingBase {
     var lexer = getEK9Lexer();
 
     String readability = new TokenStreamAssessment().assess(lexer, false);
-    Logger.log("Readability of " + getEK9FileName() + " is " + readability);
+    assertNotNull(readability);
+    //If you really want to know the readability then uncomment.
+    //Logger.log("Readability of " + getEK9FileName() + " is " + readability);
   }
 }

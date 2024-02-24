@@ -44,9 +44,8 @@ abstract class ParsingBase extends LexingBase {
     EK9Parser.CompilationUnitContext context = underTest.compilationUnit();
     long after = System.currentTimeMillis();
 
-    Logger.log("Parsing " + (after - before) + "ms for " + getEK9FileName());
-
     if (!errorListener.isErrorFree()) {
+      Logger.log("Parsing " + (after - before) + "ms for " + getEK9FileName());
       errorListener.getErrors().forEachRemaining(System.out::println);
     }
 

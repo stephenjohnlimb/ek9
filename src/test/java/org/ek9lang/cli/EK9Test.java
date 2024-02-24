@@ -59,7 +59,7 @@ final class EK9Test {
   @Test
   void testIncrementationCompilation() {
     String sourceName = "HelloWorld.ek9";
-    String[] command = new String[] {"-v -c " + sourceName};
+    String[] command = new String[] {"-c " + sourceName};
 
     //We will copy this into a working directory and process it.
     File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
@@ -92,10 +92,10 @@ final class EK9Test {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"-Cdp IR_ANALYSIS", "-Cp IR_ANALYSIS", "-v -ch", "-Cl"})
+  @ValueSource(strings = {"-Cdp IR_ANALYSIS", "-Cp IR_ANALYSIS", "-ch", "-Cl"})
   void testNoneArtifactCompilation(final String flag) {
     String sourceName = "HelloWorld.ek9";
-    String[] command = new String[] {String.format("-v %s %s", flag, sourceName)};
+    String[] command = new String[] {String.format("%s %s", flag, sourceName)};
 
     //We will copy this into a working directory and process it.
     File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
@@ -123,7 +123,7 @@ final class EK9Test {
 
   @Test
   void testUpdateUpgrade() {
-    String[] command = new String[] {"-v -Up"};
+    String[] command = new String[] {"-Up"};
     var commandLineDetails = assertResult(Ek9.SUCCESS_EXIT_CODE, command);
     assertNotNull(commandLineDetails);
   }
@@ -143,7 +143,7 @@ final class EK9Test {
   @Test
   void testRunSingleProgram() {
     String sourceName = "HelloWorld.ek9";
-    String[] command = new String[] {"-v " + sourceName};
+    String[] command = new String[] {sourceName};
 
     File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
     assertNotNull(sourceFile);
@@ -154,7 +154,7 @@ final class EK9Test {
   @Test
   void testRunSingleProgramInDebug() {
     String sourceName = "HelloWorld.ek9";
-    String[] command = new String[] {"-v -d 9999 " + sourceName};
+    String[] command = new String[] {"-d 9999 " + sourceName};
 
     File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
     assertNotNull(sourceFile);
@@ -165,7 +165,7 @@ final class EK9Test {
   @Test
   void testRunUnitTests() {
     String sourceName = "HelloWorlds.ek9";
-    String[] command = new String[] {"-v -t " + sourceName};
+    String[] command = new String[] {"-t " + sourceName};
 
     File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
     assertNotNull(sourceFile);
@@ -177,7 +177,7 @@ final class EK9Test {
   @Test
   void testRunSelectedProgram() {
     String sourceName = "HelloWorlds.ek9";
-    String[] command = new String[] {"-v " + sourceName + " -r HelloMars"};
+    String[] command = new String[] {sourceName + " -r HelloMars"};
 
     File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
     assertNotNull(sourceFile);
@@ -201,7 +201,7 @@ final class EK9Test {
   @Test
   void testValidPackage() {
     String sourceName = "PackageNoDeps.ek9";
-    String[] command = new String[] {"-v -P " + sourceName};
+    String[] command = new String[] {"-P " + sourceName};
 
     File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/",
         sourceName);
@@ -239,7 +239,7 @@ final class EK9Test {
     assertTrue(cwd.exists());
     File newSourceFile = new File(cwd, sourceName);
     fileHandling.saveToOutput(newSourceFile, ek9InitialSource);
-    String[] command = new String[] {"-v -P " + sourceName};
+    String[] command = new String[] {"-P " + sourceName};
     assertResult(Ek9.SUCCESS_EXIT_CODE, command);
     //OK so now simulate changing the dependency
 
@@ -304,7 +304,7 @@ final class EK9Test {
 
   @Test
   void testMinorVersioningOfPackage() {
-    assertPackageVersionChange("1.1.0-0", "-v -IV minor");
+    assertPackageVersionChange("1.1.0-0", "-IV minor");
   }
 
   @Test
@@ -326,21 +326,21 @@ final class EK9Test {
 
   @Test
   void testSetVersioningOfPackage() {
-    assertPackageVersionChange("3.8.6-0", "-v -SV 3.8.6");
+    assertPackageVersionChange("3.8.6-0", "-SV 3.8.6");
     //Now check that it can also be incremented and appropriate resets on patch and build no.
     assertPackageVersionChange("3.9.0-0", "-IV minor");
   }
 
   @Test
   void testSetVersioningOfPackageUsingAsVersion() {
-    assertPackageVersionOfFileChange("SinglePackage.ek9", "3.8.6-0", "-v -SV 3.8.6");
+    assertPackageVersionOfFileChange("SinglePackage.ek9", "3.8.6-0", "-SV 3.8.6");
     //Now check that it can also be incremented and appropriate resets on patch and build no.
     assertPackageVersionOfFileChange("SinglePackage.ek9", "3.9.0-0", "-IV minor");
   }
 
   @Test
   void testSetFeatureVersioningOfPackage() {
-    assertPackageVersionChange("3.8.6-specials-0", "-v -SF 3.8.6-specials");
+    assertPackageVersionChange("3.8.6-specials-0", "-SF 3.8.6-specials");
     //Now check that it can also be incremented and patch/build number is reset to 0.
     assertPackageVersionChange("3.9.0-specials-0", "-IV minor");
   }
@@ -513,7 +513,7 @@ final class EK9Test {
   }
 
   private void installPackage(int expectation, String sourceName) {
-    String[] command = new String[] {"-v -I " + sourceName};
+    String[] command = new String[] {"-I " + sourceName};
 
     File sourceFile =
         sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
@@ -548,7 +548,7 @@ final class EK9Test {
   }
 
   private void deployPackage(int expectedExitCode, String sourceName) {
-    String[] deployCommand = new String[] {"-v -D " + sourceName};
+    String[] deployCommand = new String[] {"-D " + sourceName};
     File sourceFile =
         sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
     assertNotNull(sourceFile);
@@ -593,7 +593,7 @@ final class EK9Test {
     FileCache sourceFileCache = new FileCache(commandLine);
     Compiler compiler = new StubCompiler();
     CompilationContext compilationContext =
-        new CompilationContext(commandLine, compiler, sourceFileCache);
+        new CompilationContext(commandLine, compiler, sourceFileCache, true);
 
     int result = commandLine.processCommandLine(argv);
 

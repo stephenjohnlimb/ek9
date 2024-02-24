@@ -41,7 +41,6 @@ final class FileHandlingTest {
   void testEK9DirectoryNaming() {
     String testHomeDirectory = underTest.getUsersHomeDirectory();
     assertNotNull(testHomeDirectory);
-    Logger.log("Home directory is [" + testHomeDirectory + "]");
     String testHomeEK9Directory = underTest.getUsersHomeEk9Directory();
     assertNotNull(testHomeEK9Directory);
 

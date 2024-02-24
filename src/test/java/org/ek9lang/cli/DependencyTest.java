@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import org.ek9lang.core.Logger;
+import org.ek9lang.compiler.common.CompilerReporter;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -28,6 +28,9 @@ import org.junit.jupiter.api.Test;
  * The compiler will find that out and builds will fail, that module package will be useless.
  */
 final class DependencyTest {
+
+  //If you actually want to see the reports then alter the reporter settings.
+  private final CompilerReporter reporter = new CompilerReporter(false, true);
 
   @Test
   void testEquality() {
@@ -122,7 +125,7 @@ final class DependencyTest {
       Map<String, String> rejections = dep.getDependencyRejections();
       rejections.keySet().forEach(key -> {
         String whenDependencyOf = rejections.get(key);
-        Logger.error("Resolve: Exclusion '" + key + "' <- '" + whenDependencyOf + "'");
+        reporter.report("Resolve: Exclusion '" + key + "' <- '" + whenDependencyOf + "'");
         underTest.reject(key, whenDependencyOf);
       });
     });
@@ -131,18 +134,18 @@ final class DependencyTest {
     found = underTest.findByModuleName("a.b.f");
     assertEquals(2, found.size());
 
-    Logger.log("testExcludeDependencies");
-    Logger.log("Modules");
-    found.forEach(System.out::println);
+    reporter.log("testExcludeDependencies");
+    reporter.log("Modules");
+    found.forEach(reporter::report);
 
     assertTrue(found.get(0).isRejected());
     assertFalse(found.get(1).isRejected());
 
     assertFalse(underTest.optimise(0));
 
-    Logger.log("Accepted after Optimisation");
+    reporter.log("Accepted after Optimisation");
     underTest.reportAcceptedDependencies()
-        .forEach(accept -> Logger.log(accept.showPathToDependency(true)));
+        .forEach(accept -> reporter.log(accept.showPathToDependency(true)));
   }
 
   @Test
@@ -352,7 +355,7 @@ final class DependencyTest {
     var optimised = false;
     do {
       optimised = underTest.optimise(iterations++);
-      System.out.println("Optimised iterations " + iterations);
+      reporter.log("Optimised iterations " + iterations);
     }
     while (optimised);
 
@@ -495,16 +498,16 @@ final class DependencyTest {
     var accepted = underTest.reportAcceptedDependencies();
     assertEquals(11, accepted.size());
 
-    Logger.log("Rejected after Optimisation");
-    rejected.forEach(reject -> Logger.log(reject.showPathToDependency(true)));
+    reporter.log("Rejected after Optimisation");
+    rejected.forEach(reject -> reporter.log(reject.showPathToDependency(true)));
 
-    Logger.log("Accepted after Optimisation");
-    accepted.forEach(accept -> Logger.log(accept.showPathToDependency(false)));
+    reporter.log("Accepted after Optimisation");
+    accepted.forEach(accept -> reporter.log(accept.showPathToDependency(false)));
 
-    Logger.log("Final set of Dependencies");
-    accepted.forEach(accept -> Logger.log(accept.toString()));
-    Logger.log("Final Rejections");
-    rejected.forEach(reject -> Logger.log(reject.toString()));
+    reporter.log("Final set of Dependencies");
+    accepted.forEach(accept -> reporter.log(accept.toString()));
+    reporter.log("Final Rejections");
+    rejected.forEach(reject -> reporter.log(reject.toString()));
 
     assertAccepted(accepted);
 

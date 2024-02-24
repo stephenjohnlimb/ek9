@@ -18,10 +18,10 @@ final class DependencyNodeFactory extends Reporter {
   /**
    * Make a new Dependency Node Factory.
    */
-  DependencyNodeFactory(CommandLineDetails commandLine) {
-    super(commandLine.isVerbose());
+  DependencyNodeFactory(final CommandLineDetails commandLine, final boolean muteReportedErrors) {
+    super(commandLine.isVerbose(), muteReportedErrors);
     this.commandLine = commandLine;
-    packageResolver = new PackageResolver(commandLine);
+    packageResolver = new PackageResolver(commandLine, muteReportedErrors);
   }
 
   @Override

@@ -1,8 +1,8 @@
 package org.ek9lang.compiler.phase0;
 
+import static org.ek9lang.core.AssertValue.fail;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,6 +17,7 @@ import org.ek9lang.compiler.tokenizer.Ek9LexerForInput;
 import org.ek9lang.compiler.tokenizer.LexerPlugin;
 import org.ek9lang.compiler.tokenizer.TokenStreamAssessment;
 import org.ek9lang.core.Logger;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -57,13 +58,19 @@ final class TestAllExamples {
     //Tried using virtual threads, but parallel stream is just as fast.
     //Normal stream is 12 seconds, parallelStream 4.5 seconds, virtual thirds direct is 4.7 seconds.
 
+    //If you wish to see the readablity of each file alter the final consumer to use System.out::println.
     sourceFileList.apply("/examples")
         .parallelStream()
         .map(func)
-        .forEach(System.out::println);
+        .forEach(Assertions::assertNotNull);
 
     var after = System.currentTimeMillis();
-    System.out.println("Time taken for testValidEK9ExampleSource " + (after - before) + " ms");
+
+    //noinspection unused
+    final var duration = (after - before);
+
+    //Uncomment if you need to see how long it takes to process all the examples.
+    //System.out.println("Time taken for testValidEK9ExampleSource " + duration + " ms");
   }
 
   @Test
@@ -72,7 +79,7 @@ final class TestAllExamples {
     sourceFileList.apply("/badExamples")
         .stream()
         .map(func)
-        .forEach(System.out::println);
+        .forEach(Assertions::assertNotNull);
   }
 
   private Function<File, File> getTestFunction(final boolean expectError) {
@@ -90,21 +97,28 @@ final class TestAllExamples {
         long before = System.currentTimeMillis();
         EK9Parser.CompilationUnitContext context = parser.compilationUnit();
         long after = System.currentTimeMillis();
+        final var errorFree = errorListener.isErrorFree();
+
+        if ((!expectError && errorFree) || expectError && !errorFree) {
+          return ek9SourceFile;
+        }
+
+        //Otherwise we have a failure situation
 
         Logger.log("Parsed " + ek9SourceFile.getName() + " in " + (after - before) +
             "ms. Expecting Error [" + expectError + "]");
 
-        if (!expectError) {
-          if (!errorListener.isErrorFree()) {
-            errorListener.getErrors().forEachRemaining(System.out::println);
-          }
-          assertTrue(errorListener.isErrorFree(),
-              "Parsing of " + ek9SourceFile.getName() + " failed");
-          assertNotNull(context);
+        if (!errorFree) {
+          errorListener.getErrors().forEachRemaining(System.out::println);
         } else {
-          assertFalse(errorListener.isErrorFree(),
-              "Parsing of " + ek9SourceFile.getName() + " should have failed");
+          assertNotNull(context);
         }
+
+        assertFalse(expectError, "Parsing of " + ek9SourceFile.getName() + " failed");
+
+        fail("Parsing of " + ek9SourceFile.getName() + " should have failed");
+
+
         return ek9SourceFile;
       } catch (Exception ex) {
         throw new RuntimeException(ex);

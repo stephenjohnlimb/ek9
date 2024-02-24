@@ -199,8 +199,7 @@ public final class SigningKeyPair {
       this.cipher.init(encryptDecryptMode, key);
       return this.cipher.doFinal(data);
     } catch (Exception ex) {
-      Logger.error("Unable apply Cipher " + ex.getMessage());
-      return new byte[0];
+      throw new CompilerException("Unable apply Cipher " + ex.getMessage());
     }
   }
 

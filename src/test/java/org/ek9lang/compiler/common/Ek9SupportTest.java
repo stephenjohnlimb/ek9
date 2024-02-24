@@ -19,7 +19,7 @@ final class Ek9SupportTest {
 
     var fileName = sourceFileSupport.getPath("/examples/basics/",
         "HelloWorld.ek9");
-    Ek9Support underTest = new Ek9Support(fileName);
+    Ek9Support underTest = new Ek9Support(fileName, false);
     assertNotNull(underTest, "UnderTest was not created");
   }
 }

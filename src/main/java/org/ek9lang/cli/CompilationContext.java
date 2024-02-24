@@ -7,5 +7,6 @@ import org.ek9lang.compiler.Compiler;
  */
 record CompilationContext(CommandLineDetails commandLine,
                           Compiler compiler,
-                          FileCache sourceFileCache) {
+                          FileCache sourceFileCache,
+                          boolean muteReportedErrors) {
 }

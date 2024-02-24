@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import org.antlr.v4.gui.TestRig;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -31,12 +30,13 @@ public abstract class AntlrSupport {
 
   private final TestRig testRig;
 
-  protected AntlrSupport(String inputFileName)
+  private final boolean showReadability;
+
+  protected AntlrSupport(final String inputFileName, final boolean showReadability)
       throws IOException, IllegalArgumentException, SecurityException {
+    this.showReadability = showReadability;
     if (!new File(inputFileName).exists()) {
-      Logger.log("AntlrSupport cannot find file [" + inputFileName + "]");
-    } else {
-      Logger.log("AntlrSupport for EK9");
+      Logger.error("AntlrSupport cannot find file [" + inputFileName + "]");
     }
 
     //This is useful to see the tokens that are being presented to the parser
@@ -69,13 +69,12 @@ public abstract class AntlrSupport {
       throws IOException, IllegalArgumentException, SecurityException {
     LexerPlugin lexer1 = new DelegatingLexer(
         (LexerPlugin) getLexer(new FileInputStream(inputFileName), inputFileName));
-    new TokenStreamAssessment().assess(lexer1, true);
+    new TokenStreamAssessment().assess(lexer1, showReadability);
   }
 
   private TestRig makeTestRig(String inputFileName) {
     String grammarName = getGrammarName();
     String[] params = {grammarName, "compilationUnit", "-gui", inputFileName};
-    Logger.log("Running TestRig with " + Arrays.toString(params));
     try {
 
       //Now because the test Rig is written the way it is; and we want to use our

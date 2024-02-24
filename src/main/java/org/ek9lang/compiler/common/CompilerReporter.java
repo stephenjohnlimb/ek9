@@ -6,8 +6,8 @@ package org.ek9lang.compiler.common;
  * be from the compiler itself.
  */
 public class CompilerReporter extends Reporter {
-  public CompilerReporter(boolean verbose) {
-    super(verbose);
+  public CompilerReporter(final boolean verbose, final boolean muteReportedErrors) {
+    super(verbose, muteReportedErrors);
   }
 
   @Override

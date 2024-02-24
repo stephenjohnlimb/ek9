@@ -21,6 +21,8 @@ import org.junit.jupiter.params.provider.MethodSource;
  */
 class Ek9CompilerTest {
 
+  private final CompilerReporter reporter = new CompilerReporter(false, true);
+
   private static final Supplier<SharedThreadContext<CompilableProgram>> sharedContext
       = new CompilableProgramSuitable();
 
@@ -49,7 +51,7 @@ class Ek9CompilerTest {
       var source = compilationEvent.source();
       var phase = compilationEvent.phase();
       if (source.getErrorListener().hasErrors()) {
-        System.out.println("Errors  : " + phase + ", source: " + source.getFileName());
+        reporter.report("Errors  : " + phase + ", source: " + source.getFileName());
         source.getErrorListener().getErrors().forEachRemaining(System.out::println);
       }
     };
@@ -57,10 +59,10 @@ class Ek9CompilerTest {
     var sharedCompilableProgram = sharedContext.get();
 
     FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedCompilableProgram,
-        listener, new CompilerReporter(false));
+        listener, reporter);
 
-    var compiler = new Ek9Compiler(allPhases);
-    var result = compiler.compile(validEk9Workspace.get(), new CompilerFlags(upToPhase, true));
+    var compiler = new Ek9Compiler(allPhases, reporter.isMuteReportedErrors());
+    var result = compiler.compile(validEk9Workspace.get(), new CompilerFlags(upToPhase, reporter.isVerbose()));
     assertTrue(result);
   }
 
@@ -69,9 +71,9 @@ class Ek9CompilerTest {
     CompilationPhaseListener listener = compilationEvent -> {
     };
     FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedContext.get(),
-        listener, new CompilerReporter(false));
+        listener, new CompilerReporter(false, reporter.isMuteReportedErrors()));
 
-    var compiler = new Ek9Compiler(allPhases);
+    var compiler = new Ek9Compiler(allPhases, reporter.isMuteReportedErrors());
     assertFalse(compiler.compile(inValidEk9Workspace.get(), new CompilerFlags()));
   }
 }

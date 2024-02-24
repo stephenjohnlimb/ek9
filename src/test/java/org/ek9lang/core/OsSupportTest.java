@@ -15,6 +15,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import org.ek9lang.compiler.common.CompilerReporter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ResourceLock;
@@ -23,6 +24,10 @@ import org.junit.jupiter.api.parallel.ResourceLock;
 @Execution(SAME_THREAD)
 @ResourceLock(value="file_access", mode=READ_WRITE)
 final class OsSupportTest {
+
+  //If you actually want to see the reports then alter the reporter settings.
+  private final CompilerReporter reporter = new CompilerReporter(false, true);
+
   OsSupport underTest = new OsSupport();
 
   @Test
@@ -153,7 +158,7 @@ final class OsSupportTest {
     //only three because some directories are empty and only three files have suffix ".file"
     assertEquals(3, sourceFiles.size());
 
-    sourceFiles.forEach(dir -> Logger.log("File [" + dir.getPath() + "]"));
+    sourceFiles.forEach(dir -> reporter.log("File [" + dir.getPath() + "]"));
   }
 
   @Test
@@ -166,7 +171,7 @@ final class OsSupportTest {
     Collection<File> subdirectories = underTest.getAllSubdirectories(testPath);
     assertEquals(6, subdirectories.size());
 
-    subdirectories.forEach(dir -> Logger.log("Directory [" + dir.getPath() + "]"));
+    subdirectories.forEach(dir -> reporter.log("Directory [" + dir.getPath() + "]"));
   }
 
   @Test

@@ -83,7 +83,7 @@ class CompilableProgramCloneTest {
             "/examples/bootstrap/minimalTypes.ek9")).getPath()));
 
     final var ek9BootStrap = new Ek9LanguageBootStrap(sourceSupplier, listener.get(),
-        new CompilerReporter(false));
+        new CompilerReporter(false, true));
     assertNotNull(ek9BootStrap);
 
     //Now trigger the parsing and compiling (at least to the level needed) of that source.

@@ -31,7 +31,8 @@ final class Edp extends E {
         log("No Dependencies defined");
       }
       Optional<DependencyNode> rootNode =
-          new DependencyNodeFactory(compilationContext.commandLine()).createFrom(
+          new DependencyNodeFactory(compilationContext.commandLine(),
+              compilationContext.muteReportedErrors()).createFrom(
               compilationContext.commandLine().getSourceVisitor());
       rtn = rootNode.isPresent() && processDependencies(new DependencyManager(rootNode.get()));
     }

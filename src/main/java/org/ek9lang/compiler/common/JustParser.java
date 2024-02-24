@@ -17,9 +17,15 @@ import org.ek9lang.core.Processor;
  * rather than actually compiling.
  */
 public class JustParser {
+
+  private final boolean reportErrors;
   private final OsSupport osSupport = new OsSupport();
 
   private final ParserCreator parserCreator = new ParserCreator();
+
+  public JustParser(final boolean reportErrors) {
+    this.reportErrors = reportErrors;
+  }
 
   /**
    * Read the source file using the visitor supplied.
@@ -30,7 +36,6 @@ public class JustParser {
       Source src = sourceFile::getName;
 
       if (!osSupport.isFileReadable(sourceFile)) {
-        Logger.error("File [" + sourceFile.getName() + "] is not readable");
         return false;
       }
 
@@ -41,7 +46,8 @@ public class JustParser {
 
         CompilationUnitContext context = parser.compilationUnit();
 
-        if (isErrorFree(errorListener)) {
+        final var parseIsErrorFree = isErrorFree(errorListener);
+        if (parseIsErrorFree) {
           visitor.visit(context, errorListener);
           return isErrorFree(errorListener);
         }
@@ -52,10 +58,10 @@ public class JustParser {
   }
 
   private boolean isErrorFree(final ErrorListener errorListener) {
-    if (errorListener.hasErrors()) {
+    final var errorFree = errorListener.isErrorFree();
+    if (!errorFree && reportErrors) {
       errorListener.getErrors().forEachRemaining(Logger::error);
-      return false;
     }
-    return true;
+    return errorFree;
   }
 }

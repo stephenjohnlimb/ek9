@@ -8,9 +8,18 @@ import org.ek9lang.core.Logger;
  */
 public abstract class Reporter {
   private final boolean verbose;
+  private final boolean muteReportedErrors;
 
-  protected Reporter(boolean verbose) {
+  /**
+   * While it may seem strange to want to even be able to mute reported errors,
+   * this class can/it used in developer tests and in some cases we don;t want to see the actual errors.
+   *
+   * @param verbose            if true then compiler phase details and other general logging is output.
+   * @param muteReportedErrors if true then even compiler errors are not reported (typically only useful in tests).
+   */
+  protected Reporter(final boolean verbose, final boolean muteReportedErrors) {
     this.verbose = verbose;
+    this.muteReportedErrors = muteReportedErrors;
   }
 
   /**
@@ -31,6 +40,16 @@ public abstract class Reporter {
    * Report a message to stderr.
    */
   public void report(Object message) {
-    Logger.error(messagePrefix() + message);
+    if (!muteReportedErrors) {
+      Logger.error(messagePrefix() + message);
+    }
+  }
+
+  public boolean isVerbose() {
+    return verbose;
+  }
+
+  public boolean isMuteReportedErrors() {
+    return muteReportedErrors;
   }
 }

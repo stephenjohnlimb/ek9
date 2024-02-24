@@ -54,7 +54,7 @@ public class CompilableProgramSuitable implements Supplier<SharedThreadContext<C
             System.err.println("Directiv: " + phase + ", source: " + source.getFileName());
             source.getErrorListener().getDirectiveErrors().forEachRemaining(System.err::println);
           }
-        }, new CompilerReporter(false));
+        }, new CompilerReporter(false, true));
 
     return bootStrap.get();
   }

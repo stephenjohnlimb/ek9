@@ -601,7 +601,7 @@ final class CommandLineDetails {
   public Ek9SourceVisitor getSourceVisitor() {
     if (visitor == null) {
       visitor = new Ek9SourceVisitor();
-      if (!new JustParser().readSourceFile(mainSourceFile, visitor)) {
+      if (!new JustParser(true).readSourceFile(mainSourceFile, visitor)) {
         throw new ExitException(Ek9.FILE_ISSUE_EXIT_CODE,
             "Unable to Parse source file [" + mainSourceFile.getAbsolutePath() + "]");
       }

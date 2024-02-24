@@ -23,20 +23,21 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class Ek9BootStrapTest {
-  final Ek9BuiltinLangSupplier sourceSupplier = new Ek9BuiltinLangSupplier();
-
+  private final Ek9BuiltinLangSupplier sourceSupplier = new Ek9BuiltinLangSupplier();
+  //If you need to see the errors here for debugging just alter the muteReportedError flag.
+  private final CompilerReporter reporter = new CompilerReporter(false, true);
   private final Supplier<CompilationPhaseListener> listener
       = () -> compilationEvent -> {
     var source = compilationEvent.source();
     if (source.getErrorListener().hasErrors()) {
-      source.getErrorListener().getErrors().forEachRemaining(System.err::println);
+      source.getErrorListener().getErrors().forEachRemaining(reporter::report);
     }
   };
 
   @Test
   void testBasicBootStrap() {
 
-    final var underTest = new Ek9LanguageBootStrap(sourceSupplier, listener.get(), new CompilerReporter(false));
+    final var underTest = new Ek9LanguageBootStrap(sourceSupplier, listener.get(), reporter);
 
     final var sharedContext = underTest.get();
 
@@ -65,7 +66,7 @@ class Ek9BootStrapTest {
     var afterDeserialize = System.currentTimeMillis();
     reloadedProgram.accept(this::assertEk9);
 
-    System.out.printf("Serialize CompilableProgram took %d ms, Deserialize took %d ms\n", (afterSerialize-start), (afterDeserialize-afterSerialize));
+    reporter.log(String.format("Serialize CompilableProgram took %d ms, Deserialize took %d ms\n", (afterSerialize-start), (afterDeserialize-afterSerialize)));
   }
 
   private void assertEk9(final CompilableProgram program) {
@@ -108,7 +109,7 @@ class Ek9BootStrapTest {
         () -> List.of(new CompilableSource(Objects.requireNonNull(getClass().getResource(
             "/examples/parseButFailCompile/builtin/badBuiltin.ek9")).getPath()));
 
-    final var underTest = new Ek9LanguageBootStrap(sourceSupplier, listener.get(), new CompilerReporter(false));
+    final var underTest = new Ek9LanguageBootStrap(sourceSupplier, listener.get(), new CompilerReporter(false, true));
 
     assertThrows(CompilerException.class, underTest::get);
   }

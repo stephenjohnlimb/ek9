@@ -17,7 +17,6 @@ import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.support.TypeCreator;
-import org.ek9lang.core.Logger;
 import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
@@ -272,9 +271,6 @@ final class ScopesTest extends AbstractSymbolTestBase {
     var pTypeSymbol = creator.apply(z, List.of(resolvedString.get()));
     var clonedPTypeSymbol = checkScopedSymbol(pTypeSymbol);
     assertNotNull(clonedPTypeSymbol);
-    Logger.log(pTypeSymbol.getFriendlyName());
-    Logger.log(clonedPTypeSymbol.getFriendlyName());
-
     assertEquals("Zee of type Tee of type String", pTypeSymbol.getFriendlyName());
   }
 

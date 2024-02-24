@@ -30,14 +30,30 @@ public abstract class PhasesTest {
 
   private final List<String> expectedModules;
 
+  //If you want to see timings set verbose true, and to see the actual errors set muteReportedErrors to false.
+  //This is to that builds can be silent. But when developing you'll probably need to see the actual errors.
+  private final CompilerReporter reporter;
+
   public PhasesTest(final String fromResourcesDirectory) {
     this(fromResourcesDirectory, List.of());
   }
 
+  public PhasesTest(final String fromResourcesDirectory, final boolean verbose, final boolean muteReportedErrors) {
+    this(fromResourcesDirectory, List.of(), verbose, muteReportedErrors);
+
+
+  }
+
   public PhasesTest(final String fromResourcesDirectory, final List<String> expectedModules) {
+    this(fromResourcesDirectory, expectedModules, false, true);
+  }
+
+  public PhasesTest(final String fromResourcesDirectory, final List<String> expectedModules,
+                    final boolean verbose, final boolean muteReportedErrors) {
     var workspaceLoader = new WorkSpaceFromResourceDirectoryFiles();
     this.expectedModules = expectedModules;
     ek9Workspace = workspaceLoader.apply(fromResourcesDirectory);
+    this.reporter = new CompilerReporter(verbose, muteReportedErrors);
   }
 
   /**
@@ -111,35 +127,34 @@ public abstract class PhasesTest {
       var source = compilationEvent.source();
       var phase = compilationEvent.phase();
       if (source.getErrorListener().hasErrors()) {
-        System.out.println("Errors  : " + phase + ", source: " + source.getFileName());
+        reporter.report("Errors  : " + phase + ", source: " + source.getFileName());
         source.getErrorListener().getErrors().forEachRemaining(error -> {
           counter.getAndIncrement();
-          System.out.println(error);
+          reporter.report(error);
         });
         if (phase != upToPhase) {
-          System.out.println("Had errors before reaching phase: " + upToPhase);
+          reporter.report("Had errors before reaching phase: " + upToPhase);
           Assertions.fail("Test result is not valid");
         }
       }
 
       if (source.getErrorListener().hasDirectiveErrors()) {
-        System.out.println("Directiv: " + phase + ", source: " + source.getFileName());
+        reporter.report("Directiv: " + phase + ", source: " + source.getFileName());
         source.getErrorListener().getDirectiveErrors().forEachRemaining(error -> {
           counter.getAndIncrement();
-          System.out.println(error);
+          reporter.report(error);
         });
       }
       checkCompilationPhase(phase, source, sharedCompilableProgram);
     };
 
     FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedCompilableProgram,
-        listener, new CompilerReporter(false));
+        listener, reporter);
 
-    var compiler = new Ek9Compiler(allPhases);
+    var compiler = new Ek9Compiler(allPhases, reporter.isMuteReportedErrors());
     sharedCompilableProgram.accept(this::assertPreConditions);
 
-    //If you want to see the timing of each of the phases then set verbose to true.
-    var compilationResult = compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, true));
+    var compilationResult = compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, reporter.isVerbose()));
 
     sharedCompilableProgram.accept(program -> checkFinalResults(compilationResult, counter.get(), program));
   }

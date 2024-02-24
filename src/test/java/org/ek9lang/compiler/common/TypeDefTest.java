@@ -28,7 +28,7 @@ class TypeDefTest {
   public TypeDefTest() {
     //OK boot up the ek9 main module scope loaded for testing resolutions.
     final var ek9 = new Ek9LanguageBootStrap(new Ek9BuiltinLangSupplier(), compilationEvent -> {
-    }, new CompilerReporter(false));
+    }, new CompilerReporter(false, true));
 
     final var sharedContext = ek9.get();
 

@@ -20,13 +20,17 @@ public class Ek9Compiler implements Compiler {
 
   private final Supplier<List<BiFunction<Workspace, CompilerFlags, CompilationPhaseResult>>> compilationPhaseSupplier;
 
+  private final boolean muteReportedErrors;
+
   /**
    * Create a new compiler. Configure it with your event listener and flags.
    */
   public Ek9Compiler(
-      Supplier<List<BiFunction<Workspace, CompilerFlags, CompilationPhaseResult>>> compilationPhaseSupplier) {
+      final Supplier<List<BiFunction<Workspace, CompilerFlags, CompilationPhaseResult>>> compilationPhaseSupplier,
+      final boolean muteReportedErrors) {
     AssertValue.checkNotNull("CompilationPhaseSupplier Listener must be provided", compilationPhaseSupplier);
     this.compilationPhaseSupplier = compilationPhaseSupplier;
+    this.muteReportedErrors = muteReportedErrors;
   }
 
   /**
@@ -38,7 +42,7 @@ public class Ek9Compiler implements Compiler {
   public boolean compile(Workspace workspace, CompilerFlags flags) {
     AssertValue.checkNotNull("Workspace must be provided", workspace);
     AssertValue.checkNotNull("Compiler Flags must be provided", flags);
-    var reporter = new CompilerReporter(flags.isVerbose());
+    var reporter = new CompilerReporter(flags.isVerbose(), muteReportedErrors);
     NumberFormat format = NumberFormat.getInstance();
     format.setGroupingUsed(true);
 

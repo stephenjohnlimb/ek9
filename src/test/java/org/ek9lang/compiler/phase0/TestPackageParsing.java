@@ -54,7 +54,7 @@ final class TestPackageParsing {
    */
   private final Function<File, Ek9SourceVisitor> validFileParser = file -> {
     Ek9SourceVisitor visitor = new Ek9SourceVisitor();
-    JustParser underTest = new JustParser();
+    JustParser underTest = new JustParser(true);
     boolean result = underTest.readSourceFile(file, visitor);
     assertTrue(result);
     return visitor;
@@ -73,7 +73,7 @@ final class TestPackageParsing {
    */
   private final Consumer<File> checkBadPackage = file -> {
     Ek9SourceVisitor visitor = new Ek9SourceVisitor();
-    JustParser underTest = new JustParser();
+    JustParser underTest = new JustParser(false);
     boolean result = underTest.readSourceFile(file, visitor);
     assertFalse(result);
   };
@@ -137,7 +137,7 @@ final class TestPackageParsing {
 
   @Test
   void testUnableToOpenFile() {
-    JustParser underTest = new JustParser();
+    JustParser underTest = new JustParser(false);
 
     File file = new File("nonSuch.ek9");
     Ek9SourceVisitor visitor = new Ek9SourceVisitor();
