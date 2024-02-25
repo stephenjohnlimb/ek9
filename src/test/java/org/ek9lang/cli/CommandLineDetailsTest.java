@@ -14,8 +14,11 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.ek9lang.core.FileHandling;
+import org.ek9lang.core.Logger;
 import org.ek9lang.core.OsSupport;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ResourceLock;
@@ -32,7 +35,7 @@ import org.junit.jupiter.params.provider.ValueSource;
  */
 //Specific tests that manipulate files and specifics in ek9 must not run in parallel.
 @Execution(SAME_THREAD)
-@ResourceLock(value="file_access", mode=READ_WRITE)
+@ResourceLock(value = "file_access", mode = READ_WRITE)
 final class CommandLineDetailsTest {
   private final LanguageMetaData languageMetaData = new LanguageMetaData("0.0.1-0");
   private final OsSupport osSupport = new OsSupport(true);
@@ -80,6 +83,16 @@ final class CommandLineDetailsTest {
 
   private final Consumer<CommandLineDetails> assertCheckCompile =
       commandLineDetails -> assertTrue(commandLineDetails.isCheckCompileOnly());
+
+  @BeforeAll
+  static void disableLogger() {
+    Logger.setMuteStderrOutput(true);
+  }
+
+  @AfterAll
+  static void enableLogger() {
+    Logger.setMuteStderrOutput(false);
+  }
 
   @AfterEach
   void tidyUp() {

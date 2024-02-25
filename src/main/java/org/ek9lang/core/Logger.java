@@ -11,19 +11,35 @@ public class Logger {
 
   private static boolean debugEnabled = false;
 
+  private static boolean muteStderrOutput = false;
+
   private Logger() {
 
   }
 
+  /**
+   * enable of disable debug output.
+   *
+   * @param enabled by default Logger disabled debug output.
+   */
   public static void enableDebug(boolean enabled) {
-    debugEnabled = enabled;
+    Logger.debugEnabled = enabled;
+  }
+
+  /**
+   * Mute stderr output, but default the Logger uses stderr to report errors.
+   *
+   * @param muteStderrOutput by default Logger does not mute stderr, (for tests it is handy to switch off).
+   */
+  public static void setMuteStderrOutput(boolean muteStderrOutput) {
+    Logger.muteStderrOutput = muteStderrOutput;
   }
 
   /**
    * Conditionally output debug information to stderr.
    */
   public static void debug(Object content) {
-    if (debugEnabled) {
+    if (debugEnabled && !muteStderrOutput) {
       System.err.println("DEBUG: " + content);
     }
   }
@@ -32,23 +48,29 @@ public class Logger {
    * Logs output to stdout.
    */
   public static void log(String content) {
-    System.out.println(content);
+    if (!muteStderrOutput) {
+      System.out.println(content);
+    }
   }
 
   /**
    * Conditionally output debug information to stderr, using printf format.
    */
   public static void debugf(String format, Object... args) {
-    if (debugEnabled) {
+    if (debugEnabled && !muteStderrOutput) {
       System.err.printf(format, args);
     }
   }
 
   public static void error(Object content) {
-    System.err.println(content);
+    if (!muteStderrOutput) {
+      System.err.println(content);
+    }
   }
 
   public static void error(Throwable throwable) {
-    System.err.println(throwable);
+    if (!muteStderrOutput) {
+      throwable.printStackTrace(System.err);
+    }
   }
 }

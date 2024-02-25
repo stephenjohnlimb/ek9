@@ -13,9 +13,12 @@ import java.io.File;
 import java.net.URL;
 import org.ek9lang.compiler.Compiler;
 import org.ek9lang.core.FileHandling;
+import org.ek9lang.core.Logger;
 import org.ek9lang.core.OsSupport;
 import org.ek9lang.core.SigningKeyPair;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ResourceLock;
@@ -37,6 +40,16 @@ final class EK9Test {
   private final FileHandling fileHandling = new FileHandling(osSupport);
   private final SourceFileSupport sourceFileSupport =
       new SourceFileSupport(fileHandling, osSupport);
+
+  @BeforeAll
+  static void disableLogger() {
+    Logger.setMuteStderrOutput(true);
+  }
+
+  @AfterAll
+  static void enableLogger() {
+    Logger.setMuteStderrOutput(false);
+  }
 
   @AfterEach
   void tidyUp() {

@@ -21,7 +21,7 @@ final class ServerTest {
 
     var osSupport = new OsSupport(true);
     var languageServer = Server.runEk9LanguageServer(osSupport, System.in,
-        System.out, true, true);
+        System.out, true, false);
 
     assertFalse(languageServer.isDone());
     assertFalse(languageServer.isCancelled());
