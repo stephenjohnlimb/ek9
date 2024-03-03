@@ -62,12 +62,22 @@ public class Logger {
     }
   }
 
+  /**
+   * Log an error unless muting is enabled.
+   *
+   * @param content The content to log to stderr.
+   */
   public static void error(Object content) {
     if (!muteStderrOutput) {
       System.err.println(content);
     }
   }
 
+  /**
+   * Log a throwable stack trace unless muting is enabled.
+   *
+   * @param throwable The throwable and its stack to log to stderr.
+   */
   public static void error(Throwable throwable) {
     if (!muteStderrOutput) {
       throwable.printStackTrace(System.err);

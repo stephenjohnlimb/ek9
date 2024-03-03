@@ -480,12 +480,12 @@ guardExpression
 
 streamStatement
     : streamSource streamPart* streamStatementTermination
-    | streamSource NL+ INDENT NL* (streamPart NL+)+ streamStatementTermination NL+ DEDENT
+    | streamSource NL+ INDENT NL* (directive? streamPart NL+)+ directive? streamStatementTermination NL+ DEDENT
     ;
 
 streamExpression
     : streamSource streamPart* streamExpressionTermination
-    | streamSource NL+ INDENT NL* (streamPart NL+)+ streamExpressionTermination NL+ DEDENT
+    | streamSource NL+ INDENT NL* (directive? streamPart NL+)+ directive? streamExpressionTermination NL+ DEDENT
     ;
 
 streamSource

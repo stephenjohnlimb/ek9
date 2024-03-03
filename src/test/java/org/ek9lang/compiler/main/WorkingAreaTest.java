@@ -25,7 +25,6 @@ class WorkingAreaTest extends PhasesTest {
   @Override
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
-    //Uncomment when ready to work on next set of tests.
     assertFalse(compilationResult);
   }
 }

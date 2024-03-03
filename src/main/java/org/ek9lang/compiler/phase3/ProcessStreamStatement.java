@@ -24,6 +24,10 @@ final class ProcessStreamStatement extends TypedSymbolAccess implements Consumer
   @Override
   public void accept(final EK9Parser.StreamStatementContext ctx) {
 
+    var streamStatementSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    //Always returns a void because it is a statement - not an expression - that has separate syntax.
+    streamStatementSymbol.setType(symbolAndScopeManagement.getEk9Types().ek9Void());
+
     //We expect these to be defined and typed.
     var source = (StreamCallSymbol) getRecordedAndTypedSymbol(ctx.streamSource());
     var termination = (StreamCallSymbol) getRecordedAndTypedSymbol(ctx.streamStatementTermination());

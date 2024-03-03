@@ -1,0 +1,469 @@
+#!ek9
+<?-
+
+  Focuses on Stream expressions - the bulk of this is the same as Stream statements.
+  So this checks various combinations but in an expression context.
+
+  Does not re-test all the possible errors of the intermediate pipeline parts.
+  But focussed on expression structure.
+
+-?>
+defines module bad.streams14
+
+  <?-
+    The utility functions used for testing in this example.
+  -?>
+  defines function
+
+    JustFail()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert notDefined?
+
+    <?-
+      A valid simple function signature that can be used with head/tail/skip
+      In this case a 'couple' is three - but this function could return dynamic amounts.
+    -?>
+    JustACouple()
+      <- rtn <- 3
+
+    <?-
+      Used in tests later to check parameter compatibility.
+    -?>
+    AcceptDateReturnHashCode()
+      -> arg0 as Date
+      <- rtn as Integer: #? arg0
+
+    <?-
+      Used as an example of an invalid function for head/tail/skip
+    -?>
+    NotValidForHeadTailSkip()
+      <- rtn <- 2024-03-02
+
+    GreaterThanCheck()
+      -> value as Integer
+      <- rtn as Boolean: value > 2
+
+    ToString()
+      -> arg0 as Integer
+      <- rtn as String: $arg0
+
+    <?-
+      A higher order function that returns an Assessor (non-pure Predicate). Copy from stream statements example.
+      This assessor just returns true when splitSize has been reached, then it resets the count for the
+      next set of calls it receives. Hence it is a stateful function and its state is mutated as it is called.
+    -?>
+    getSplitAssessor()
+      -> batchSizeForSplitting as Integer
+      <- rtn as Assessor of String?
+      //Pass in the variables to be used and held within the dynamic function.
+      //Make new objects for this.
+      currentSetSize <- 0
+      splitSize <- Integer(batchSizeForSplitting)
+      rtn: (currentSetSize, splitSize) is Assessor of String as function
+        currentSetSize++
+        r: currentSetSize == splitSize
+        //Once the currentSize meets the splitSize - reset it.
+        if r
+          currentSetSize: 0
+
+    <?-
+      Clone from Stream Statement examples.
+    -?>
+    StringJoiner()
+      ->
+        arg0 as String
+        arg1 as String
+      <-
+        rtn as String: String()
+      if arg0? and arg1?
+        rtn: "${arg0},${arg1}"
+      else if arg0?
+        rtn: "${arg0}"
+      else if arg1?
+        rtn: "${arg1}"
+
+    getSteve()
+      <- rtn <- "Steve"
+
+    getLimb()
+      <- rtn <- "Limb"
+
+    <?-
+      A bit pointless taking a list and just collecting it to a list.
+      But this is the first basic check to ensure that a stream expression can be parsed and processed.
+    -?>
+    StreamCatExpression()
+      collection <- cat ["A", "B", "A", "Z"] | collect as List of String
+      assert collection?
+
+    <?-
+      Incorporate a filter and then collect.
+    -?>
+    StreamCatExpressionFilter1()
+      collection <- cat [1, 2, 3, 4] | filter with GreaterThanCheck | collect as List of Integer
+      assert collection?
+
+    <?-
+      Example of misunderstanding the fact that the type type here is a List of Integer.
+      So this needs flattening first.
+    -?>
+    StreamInvalidUnFlattenedLists()
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      collection <- cat [[1, 2], [3, 4]] | filter with GreaterThanCheck | collect as List of Integer
+      assert collection?
+
+    <?-
+      Example of now using flatten to get each Integer out of the lists.
+      So this was the intention of the above - but now flattens the List of Integers.
+    -?>
+    StreamFlattenLists()
+
+      //As above this is List of List of Integer - but in shorthand form.
+      collection <- cat [[1, 2], [3, 4]] | flatten | filter with GreaterThanCheck | collect as List of Integer
+      assert collection?
+
+    <?-
+      Takes the lists orders it, then groups the values based on each item having a 'hash code'.
+      Then once the stream is completed the separate groups (List of Integer) are output in the order
+      they were created - into a List (of List of Integer)
+      So you'd expect: [[1], [2], [3, 3], [4, 4], [5, 5], [7], [9]]
+    -?>
+    StreamGroupLists()
+      collection <- cat [4, 3, 2, 9, 3, 4, 1, 5, 5, 7]
+        | sort
+        | group
+        | collect as List of List of Integer
+      assert collection?
+
+    <?-
+      Same example as Stream Statement - but this time the collection is created as part of the expression.
+      In general this is a better pattern than piping into an existing collection.
+    -?>
+    CatStringsAndSplit()
+
+      boundary <- getSplitAssessor(2)
+      collection <- cat ["A", "B", "A", "Z"] | split by boundary | collect as List of List of String
+
+      assert collection?
+
+    <?-
+      An example of an incorrect use of the split function.
+    -?>
+    CatStringsAndInvalidSplitFunction()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      collection <- cat ["A", "B", "A", "Z"] | split by GreaterThanCheck | collect as List of List of String
+
+      assert collection?
+
+    <?-
+      This uses the fact that getSteve and getLimb are in effect both 'Supplier of type String' and so that
+      is inferred, then those functions can just be called (because they accept no arguments and return a value).
+      The result of the 'call' of 'getSteve' and 'getLimb' is then piped out and collected into the List of String
+      Again is is now in the form of an expression.
+    -?>
+    StreamCatExpressionCall()
+
+      collection <- cat [getSteve, getLimb] | call | collect as List of String
+      assert collection?
+
+    <?-
+      As above, but called asynchronously and concurrently - so the order of output
+      is not guaranteed, if you want specific order of the output then sort it.
+      But this is never really worth it for functions that just execute, but only if there is i/o
+      would you want to use async - i.e. getting things from REST calls, files, messages, etc.
+    -?>
+    StreamCatExpressionAsync()
+
+      collection <- cat [getSteve, getLimb] | async | collect as List of String
+      assert collection?
+
+    <?-
+      THis makes no sense - you cannot call '1' nor '8' they are not functions.
+    -?>
+    StreamCatExpressionInvalidCall()
+
+      @Error: FULL_RESOLUTION: TYPE_MUST_BE_FUNCTION
+      collection <- cat [1, 8] | call | collect as List of Integer
+      assert collection?
+
+    <?-
+      Just joins all the values streaming through.
+      This time in expression form, the same example is shown as a statement in other files.
+      But this is the preferred pattern - as an expression.
+    -?>
+    StreamCatExpressionJoin()
+      result <- cat ["A", "B", "C", "D"] | join with StringJoiner | collect as String
+      assert result?
+
+    StreamCatExpressionMultipleJoin()
+      result <- cat ["A", "B", "C", "D"], ["X", "Y", "Z"] | join with StringJoiner | collect as String
+      assert result?
+
+    <?-
+      Same as above but with column based layout.
+      This is essential for very long stream pipelines.
+    -?>
+    StreamCatExpressionFilter2()
+
+      collection <- cat [1, 2, 3, 4]
+        | filter with GreaterThanCheck
+        | collect as List of Integer
+
+      assert collection?
+
+    <?-
+      Example of filtering and sorting in a stream expression.
+      Result will be a List of Integer of [3, 3, 4, 4]
+    -?>
+    StreamCatExpressionFilterAndSort()
+
+      collection <- cat [4, 3, 2, 3, 4, 1]
+        | filter with GreaterThanCheck
+        | sort
+        | collect as List of Integer
+
+      assert collection?
+
+    <?-
+      Example of filtering and sorting in a stream expression.
+      Result will be a List of Integer of [3, 4]
+    -?>
+    StreamCatExpressionFilterUniqAndSort()
+
+      collection <- cat [4, 3, 2, 3, 4, 1]
+        | filter with GreaterThanCheck
+        | uniq
+        | sort
+        | collect as List of Integer
+
+      assert collection?
+
+    <?-
+      Example of filtering and sorting then limiting output in a stream expression.
+      Result will be a List of Integer of [3]
+    -?>
+    StreamCatExpressionFilterUniqSortHead()
+
+      collection <- cat [4, 3, 2, 3, 4, 1]
+        | filter with GreaterThanCheck
+        | uniq
+        | sort
+        | head
+        | collect as List of Integer
+
+      assert collection?
+
+    <?-
+      Example of filtering and sorting then limiting output in a stream expression.
+      Result will be a List of Integer of [4]
+    -?>
+    StreamCatExpressionFilterUniqSortTail()
+
+      collection <- cat [4, 3, 2, 3, 4, 1]
+        | filter with GreaterThanCheck
+        | uniq
+        | sort
+        | tail
+        | collect as List of Integer
+
+      assert collection?
+
+    <?-
+      Example of filtering and sorting then limiting output in a stream expression.
+      Result will be a List of Integer of [5, 7, 9]
+      This is because greater than only lets integers > 2 through
+      skip then jumps 3 and 4, hence 5, 7 and 9
+    -?>
+    StreamCatExpressionFilterUniqSortSkip()
+
+      collection <- cat [4, 3, 2, 9, 3, 4, 1, 5, 5, 7]
+        | filter with GreaterThanCheck
+        | uniq
+        | sort
+        | skip 2
+        | collect as List of Integer
+
+      assert collection?
+
+    <?-
+      Example of using a function with head.
+    -?>
+    StreamCatExpressionHeadWithFunction()
+      collection <- cat [4, 3, 2, 9, 3, 4, 1, 5, 5, 7]
+        | filter with GreaterThanCheck
+        | uniq
+        | sort
+        | head by JustACouple
+        | collect as List of Integer
+
+      assert collection?
+
+    <?-
+      Example of a function that cannot be used with head
+    -?>
+    StreamCatExpressionHeadWithInvalidFunction()
+      collection <- cat [4, 3, 2, 9, 3, 4, 1, 5, 5, 7]
+        | filter with GreaterThanCheck
+        | uniq
+        | sort
+        @Error: FULL_RESOLUTION: MUST_RETURN_INTEGER
+        | head by NotValidForHeadTailSkip
+        | collect as List of Integer
+
+      assert collection?
+
+    <?-
+      Try to collect as a Date when the stream type is an Integer.
+      Should result in an error.
+    -?>
+    StreamCatExpressionHeadWithFunctionInvalidCollection()
+      collection <- cat [4, 3, 2, 9, 3, 4, 1, 5, 5, 7]
+        | filter with GreaterThanCheck
+        | uniq
+        | sort
+        | head by JustACouple
+        @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+        | collect as List of Date
+
+      assert collection?
+
+    <?-
+      Example of using a function with tail.
+    -?>
+    StreamCatExpressionTailWithFunction()
+      collection <- cat [4, 3, 2, 9, 3, 4, 1, 5, 5, 7]
+        | filter with GreaterThanCheck
+        | uniq
+        | sort
+        | tail by JustACouple
+        | collect as List of Integer
+
+      assert collection?
+
+    <?-
+      Example of using a function with tail and map.
+    -?>
+    StreamCatExpressionTailWithFunctionAndMap()
+      collection <- cat [4, 3, 2, 9, 3, 4, 1, 5, 5, 7]
+        | filter with GreaterThanCheck
+        | uniq
+        | sort
+        | tail by JustACouple
+        | map ToString
+        | collect as List of String
+
+      assert collection?
+
+    <?-
+      Example of using a function with tail and map.
+    -?>
+    StreamCatExpressionTailWithFunctionAndMapInvalidCollection()
+      collection <- cat [4, 3, 2, 9, 3, 4, 1, 5, 5, 7]
+        | filter with GreaterThanCheck
+        | uniq
+        | sort
+        | tail by JustACouple
+        | map ToString
+        @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+        | collect as List of Duration
+
+      assert collection?
+
+    <?-
+      Example of using a function with tail.
+    -?>
+    StreamCatExpressionTailWithFunctionInvalidUniq()
+      collection <- cat [4, 3, 2, 9, 3, 4, 1, 5, 5, 7]
+        | filter with GreaterThanCheck
+        @Error: FULL_RESOLUTION: FUNCTION_MUST_HAVE_SINGLE_PARAMETER
+        | uniq JustACouple
+        | sort
+        | tail by JustACouple
+        | collect as List of Integer
+
+      assert collection?
+
+    StreamCatExpressionTailWithDateFunctionInvalidUniq()
+      collection <- cat [4, 3, 2, 9, 3, 4, 1, 5, 5, 7]
+        | filter with GreaterThanCheck
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPE_ARGUMENTS
+        | uniq AcceptDateReturnHashCode
+        | sort
+        | tail by JustACouple
+        | collect as List of Integer
+
+      assert collection?
+
+    <?-
+      Example of using a function with skip.
+    -?>
+    StreamCatExpressionSkipWithFunction()
+      collection <- cat [4, 3, 2, 9, 3, 4, 1, 5, 5, 7]
+        | filter with GreaterThanCheck
+        | uniq
+        | sort
+        | skip by JustACouple
+        | collect as List of Integer
+
+      assert collection?
+
+    <?-
+      Use of the 'for' stream mechanism, but in an expression to a collection.
+    -?>
+    StreamForExpression1()
+      oneToTen <- for i in 1 ... 10 | collect as List of Integer
+      assert oneToTen?
+
+    <?-
+      Use of the 'for' stream mechanism, but in an expression to a collection.
+    -?>
+    StreamForExpression2()
+      aToz <- for i in 'a' ... 'z' | collect as List of Character
+      assert aToz?
+
+    <?-
+      Use of the 'for' stream mechanism, but in an expression to a collection.
+      This time uses the built in promotion of Integer to Float.
+    -?>
+    StreamForExpression3()
+      oneToTen <- for i in 1 ... 10 | collect as List of Float
+      assert oneToTen?
+
+    <?-
+      Example of using an incorrect collection type for the stream expression.
+    -?>
+    StreamCatExpressionInvalidCollectionType()
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      collection <- cat ["A", "B", "A", "Z"] | collect as List of Date
+      assert collection?
+
+    <?-
+      This time uses the 'for' mechanism in a stream expression into a collection.
+    -?>
+    StreamForExpressionInvalidCollectionType()
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      oneToTen <- for i in 1 ... 10 | collect as List of Date
+      assert oneToTen?
+
+    <?-
+      Include an unresolved variable in the middle of a of stream expression.
+    -?>
+    BrokenStreamCat3()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      invalidList <- cat [1, 2, 3], nonSuch | collect as List of Integer
+      assert invalidList?
+
+    <?-
+      Use an invalid 'for' with a mix of Character and Integer.
+    -?>
+    BrokenStreamFor1()
+      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      invalidList <- for i in 'a' ... 10 | collect as List of Character
+
+      //So also expect this to trigger a failure.
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert invalidList?
+
+//EOF
+

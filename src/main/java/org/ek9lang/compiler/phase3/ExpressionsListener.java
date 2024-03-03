@@ -93,7 +93,7 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
     this.processStreamExpressionTermination =
         new ProcessStreamExpressionTermination(symbolAndScopeManagement, errorListener);
     this.processStreamExpression =
-        new ProcessStreamExpression(symbolAndScopeManagement, errorListener);
+        new ProcessStreamExpression(symbolAndScopeManagement, symbolFactory, errorListener);
     this.processRange =
         new ProcessRange(symbolAndScopeManagement, symbolFactory, errorListener);
     this.processForLoop =
