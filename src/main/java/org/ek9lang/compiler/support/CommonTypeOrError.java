@@ -36,7 +36,7 @@ public class CommonTypeOrError implements Function<CommonTypeDeterminationDetail
   }
 
   private boolean canCommonTypeBeDetermined(final CommonTypeDeterminationDetails details) {
-    if(details.argumentTypes().isEmpty()) {
+    if (details.argumentTypes().isEmpty()) {
       return false;
     }
     return (details.argumentTypes().get(0) instanceof FunctionSymbol
