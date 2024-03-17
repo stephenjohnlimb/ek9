@@ -2,11 +2,13 @@ package org.ek9lang.compiler.phase2;
 
 import java.util.List;
 import java.util.function.BiConsumer;
+import org.ek9lang.compiler.common.AggregateHasPureConstruction;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.VariableSymbol;
@@ -15,6 +17,8 @@ import org.ek9lang.compiler.tokenizer.IToken;
 /**
  * For Constrained Types, focus on checking it is possible to constrain the type and if so then
  * clones the appropriate methods/operators over and alters the types as appropriate.
+ * Note that it must also ensure that any constructors on the Constraining type if pure are also marked pure.
+ * Once one constructor is pure all constructors must be pure.
  */
 class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<AggregateSymbol, ISymbol> {
   final AggregateFactory aggregateFactory;
@@ -35,6 +39,8 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
   final List<String> methodNamesWithNonAlterableReturnTypes =
       List.of("length", "abs", "#?");
 
+  final AggregateHasPureConstruction aggregateHasPureConstruction = new AggregateHasPureConstruction();
+
   CheckAndPopulateConstrainedType(final SymbolAndScopeManagement symbolAndScopeManagement,
                                   final AggregateFactory aggregateFactory,
                                   final ErrorListener errorListener) {
@@ -44,6 +50,7 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
 
   @Override
   public void accept(AggregateSymbol newType, final ISymbol constrainedType) {
+
     if (constrainedType == null) {
       //Already will have detected and emitted type not resolved.
       return;
@@ -63,11 +70,21 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
       return;
     }
 
+    if (!(constrainedType instanceof IAggregateSymbol constrainingAggregate)) {
+      //Already will have detected and emitted type not resolved.
+      return;
+    }
+
     //Now we can safely cast and clone over the methods
-    cloneMethodsAndOperators(newType, (AggregateSymbol) constrainedType);
+    cloneMethodsAndOperators(newType, constrainingAggregate);
+
+    //Also need to ensure that constructors take the purity of the constraining type.
+    if (aggregateHasPureConstruction.test(constrainingAggregate)) {
+      newType.getConstructors().forEach(method -> method.setMarkedPure(true));
+    }
   }
 
-  private void cloneMethodsAndOperators(AggregateSymbol newType, final AggregateSymbol constrainedType) {
+  private void cloneMethodsAndOperators(AggregateSymbol newType, final IAggregateSymbol constrainedType) {
 
     aggregateFactory.addConstructor(newType, new VariableSymbol("arg", constrainedType));
     var candidates =
@@ -91,7 +108,7 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
   }
 
   private void processNoArgOperator(final MethodSymbol method, AggregateSymbol newType,
-                                    final AggregateSymbol constrainedType) {
+                                    final IAggregateSymbol constrainedType) {
     var clonedMethod = method.clone(newType);
     if (!methodNamesWithNonAlterableReturnTypes.contains(clonedMethod.getName())) {
       adjustReturnType(clonedMethod, newType, constrainedType);
@@ -100,7 +117,7 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
   }
 
   private void processArgOperator(final MethodSymbol method, AggregateSymbol newType,
-                                  final AggregateSymbol constrainedType) {
+                                  final IAggregateSymbol constrainedType) {
 
     var clonedMethod = method.clone(newType);
 
@@ -123,7 +140,7 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
 
   private boolean adjustArgumentType(MethodSymbol clonedMethod,
                                      final AggregateSymbol newType,
-                                     final AggregateSymbol constrainedType) {
+                                     final IAggregateSymbol constrainedType) {
     var rtn = false;
     for (var argument : clonedMethod.getCallParameters()) {
       if (argument.getType().isPresent() && argument.getType().get().isExactSameType(constrainedType)) {
@@ -136,7 +153,7 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
 
   private void adjustReturnType(MethodSymbol clonedMethod,
                                 final AggregateSymbol newType,
-                                final AggregateSymbol constrainedType) {
+                                final IAggregateSymbol constrainedType) {
     if (clonedMethod.isReturningSymbolPresent() && clonedMethod.getReturningSymbol().getType().isPresent()) {
       var currentType = clonedMethod.getReturningSymbol().getType().get();
       if (currentType.isExactSameType(constrainedType)) {

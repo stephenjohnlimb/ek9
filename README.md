@@ -13,6 +13,12 @@ Much as been done already in terms of research/development and the definition of
 Lots of [worked examples](https://www.ek9lang.org/index.html#examples) have been created to get the feel of what the
 language will be like once the first reference implementation of the compiler is complete.
 
+### Thanks to JetBrains for making the full version of IDEA available
+Jetbrains have supported the development of EK9 for several years now, see
+[JetBrains opensource support](https://www.jetbrains.com/community/opensource/#support) for more details.
+This is much appreciated as IntelliJ IDEA is without doubt one of the best development tools there is, it has made the development
+of EK9 much easier.
+
 ### Java and binaries
 The base version of Java for this project is now Java 21. I'm now using the lightweight threading mechanism in
 Java 21 to make the compiler as multithreaded as possible (I mean how hard can it be!).

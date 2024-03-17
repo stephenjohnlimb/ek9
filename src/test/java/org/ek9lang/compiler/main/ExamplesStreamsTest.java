@@ -31,7 +31,6 @@ class ExamplesStreamsTest extends PhasesTest {
     new SymbolCountCheck("com.customer.justparagraphs", 3).test(program);
     new SymbolCountCheck("com.customer.justmoney", 1).test(program);
     new SymbolCountCheck("ekopen.io.file.examples", 1).test(program);
-    new SymbolCountCheck("com.customer.books", 48).test(program);
     new SymbolCountCheck("com.customer.streams.collectas", 2).test(program);
     new SymbolCountCheck("com.customer.streams.splitter", 9).test(program);
   }

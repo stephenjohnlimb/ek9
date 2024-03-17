@@ -41,7 +41,12 @@ public abstract class PhasesTest {
   public PhasesTest(final String fromResourcesDirectory, final boolean verbose, final boolean muteReportedErrors) {
     this(fromResourcesDirectory, List.of(), verbose, muteReportedErrors);
 
+  }
 
+  public PhasesTest(final String fromResourcesDirectory,
+                    final List<String> expectedModules,
+                    final boolean muteReportedErrors) {
+    this(fromResourcesDirectory, expectedModules, false, muteReportedErrors);
   }
 
   public PhasesTest(final String fromResourcesDirectory, final List<String> expectedModules) {

@@ -23,7 +23,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 91;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 93;
 
   //Obviously with ek9 the indentation is important.
   @SuppressWarnings({"Indentation"})
@@ -2494,6 +2494,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             iterator() as pure
               <- rtn as DictEntry of (K, V)?
 
+            keys() as pure
+              <- rtn as Iterator of K?
+
+            values() as pure
+              <- rtn as Iterator of V?
+                            
             operator == as pure
               -> arg as Dict of (K, V)
               <- rtn as Boolean?

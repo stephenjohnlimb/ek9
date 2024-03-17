@@ -34,7 +34,7 @@
     V: 0.0.1
   </h2>
   <p>
-    &#169; 2020-2023 S.J.limb
+    &#169; 2020-2024 S.J.limb
   </p>
 
   <ul>
@@ -203,7 +203,7 @@ defines module introduction
 
      XMLProcessor with trait of Processor
       override process()
-        <- response as ProcessingResponse: StructuredResponse("<tag>Simple Message</tag>", "text/xml")
+        <- response as ProcessingResponse: StructuredResponse("&lt;tag&gt;Simple Message&lt;/tag&gt;", "text/xml")
       override lowCost() as pure
         <- rtn as Boolean: false
 

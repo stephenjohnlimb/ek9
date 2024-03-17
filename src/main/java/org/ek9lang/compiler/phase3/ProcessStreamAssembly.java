@@ -385,8 +385,6 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
   private void checkViableHashCodeFunctionOrError(final EK9Parser.PipelinePartContext partCtx,
                                                   final ISymbol currentStreamType) {
 
-    //For this mechanism to work the identifier reference used as the function must have a type of function
-    //it must also accept specific arguments and return an Integer (i.e. must be a comparator function).
     processStreamFunctionOrError.apply(partCtx)
         .map(function -> new StreamFunctionCheckData(partCtx.start, function, currentStreamType))
         .ifPresent(this::checkIsHashCodeFunctionOrError);
@@ -496,8 +494,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
   }
 
   private void checkIsHashCodeFunctionOrError(final StreamFunctionCheckData functionData) {
-    //For this to be valid the function must take one argument compatible with symbolType
-    //And it must return an Integer.
+
     var errorMsg = "'" + functionData.functionSymbol().getFriendlyName() + "':";
     if (functionData.functionSymbol().getCallParameters().size() != 1) {
       errorListener.semanticError(functionData.errorLocation(), errorMsg, FUNCTION_MUST_HAVE_SINGLE_PARAMETER);
@@ -507,11 +504,19 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
 
     if (functionData.functionSymbol().getReturningSymbol().getType().isPresent()) {
       var returnType = functionData.functionSymbol().getReturningSymbol().getType().get();
-      if (!returnType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Integer())) {
-        errorListener.semanticError(functionData.errorLocation(), errorMsg, MUST_RETURN_INTEGER);
+      if (returnType instanceof IAggregateSymbol returnTypeAsAggregate) {
+        var search = new MethodSymbolSearch("#?");
+        //Really just want to check this return type has hashcode operator.
+        var result = returnTypeAsAggregate.resolveMatchingMethods(search, new MethodSymbolSearchResult());
+        if (!result.isSingleBestMatchPresent()) {
+          errorListener.semanticError(functionData.errorLocation(), errorMsg, UNABLE_TO_FIND_HASHCODE_FOR_TYPE);
+        }
+      } else {
+        var msg = "need 'aggregate' type, but '" + returnType.getFriendlyName() + "':";
+        errorListener.semanticError(functionData.errorLocation(), msg, IS_NOT_AN_AGGREGATE_TYPE);
       }
-    }
 
+    }
   }
 
   private void checkIsJoinFunctionOrError(final StreamFunctionCheckData functionData) {

@@ -63,7 +63,7 @@ final class ProcessStreamCat extends TypedSymbolAccess implements Consumer<EK9Pa
 
     var listOfIterableTypes = getIterableTypesOrError(expressions, expressionTypes);
 
-    if (expressions.size() == listOfIterableTypes.size()) {
+    if (!expressions.isEmpty() && expressions.size() == listOfIterableTypes.size()) {
       var details = new CommonTypeDeterminationDetails(streamCat.getSourceToken(), expressions, listOfIterableTypes);
       return commonTypeOrError.apply(details);
     }

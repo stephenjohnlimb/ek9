@@ -130,6 +130,8 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
 
   @Override
   public void setMarkedPure(boolean markedPure) {
+    //Note sure I really want pure in this and also the actual scope.
+    super.setMarkedPure(markedPure);
     actualScope.setMarkedPure(markedPure);
   }
 

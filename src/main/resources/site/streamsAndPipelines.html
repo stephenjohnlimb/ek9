@@ -38,7 +38,7 @@
     V: 0.0.1
   </h2>
   <p>
-    &#169; 2020-2023 S.J.limb
+    &#169; 2020-2024 S.J.limb
   </p>
 
   <ul>
@@ -211,10 +211,10 @@ defines module introduction
   defines type
 
     AuthorId as Integer constrain
-      > 0
+      &gt; 0
 
     Age as Integer constrain
-      > 0
+      &gt; 0
 
     Name as String constrain as
       matches /^[a-zA-Z -]+$/
@@ -222,6 +222,9 @@ defines module introduction
     BookTitle as String constrain as
       matches /^[a-zA-Z0-9 -+]+$/
 
+    &lt;?-
+      Simple enumeration for controlling filtering
+    -?&gt;
     BookFilterSelection
       SkipTwo
       JustFirst
@@ -229,6 +232,9 @@ defines module introduction
 
   defines class
 
+    &lt;?-
+      Models the author of books.
+    -?&gt;
     Author
       id as AuthorId?
       age as Age?
@@ -242,16 +248,19 @@ defines module introduction
           firstname as Name
           surname as Name
         assert id? and age? and firstname? and surname?
-        this.id: AuthorId(id)
-        this.age: Age(age)
-        this.firstname: Name(firstname)
-        this.surname: Name(surname)
+        this.id:=? AuthorId(id)
+        this.age:=? Age(age)
+        this.firstname:=? Name(firstname)
+        this.surname:=? Name(surname)
 
       Author() as pure
         -> author as Author
         this(author.id(), author.age(), author.firstname(), author.surname())
 
-      default private Author()
+      &lt;?-
+        Stop creation of empty Author.
+      -?&gt;
+      default private Author() as pure
 
       id() as pure
         <- rtn as AuthorId: id
@@ -292,9 +301,9 @@ defines module introduction
           author as Author
           published as Date
         assert title? and author? and published?
-        this.title: BookTitle(title)
-        this.author: Author(author)
-        this.published: Date(published)
+        this.title:=? BookTitle(title)
+        this.author:=? Author(author)
+        this.published:=? Date(published)
 
       author() as pure
         <- rtn as Author: author
@@ -315,35 +324,55 @@ defines module introduction
         -> book as Book
         <- rtn as Integer: published() <=> book.published()
 
+    &lt;?-
+      Model the concept of a library, just an in-memory map for now
+    -?&gt;
     Library
-      //These are made up books and Age is when the author wrote the book
-      //There are no books on EK9 yet!
-      books as List of Book: [
-        Book(BookTitle("Java"), Author(AuthorId(1), Age(50), Name("John"), Name("Doe")), 1998-01-01),
-        Book(BookTitle("C++"), Author(AuthorId(1), Age(42), Name("John"), Name("Doe")), 1990-01-07),
-        Book(BookTitle("Scala"), Author(AuthorId(1), Age(67), Name("John"), Name("Doe")), 2015-03-02),
-        Book(BookTitle("Python"), Author(AuthorId(1), Age(62), Name("John"), Name("Doe")), 2010-12-02),
-        Book(BookTitle("HTML"), Author(AuthorId(2),Age(58), Name("Mark"), Name("Pickford")), 2008-07-02),
-        Book(BookTitle("CSS"), Author(AuthorId(4), Age(51), Name("Mark"), Name("Keely")), 2008-04-02),
-        Book(BookTitle("ADA"), Author(AuthorId(5), Age(44), Name("Ada"), Name("Lovelace")), 1988-01-02),
-        Book(BookTitle("Dart"), Author(AuthorId(6), Age(47), Name("Peter"), Name("Dove")), 2020-01-02),
-        Book(BookTitle("C#"), Author(AuthorId(7), Age(60), Name("William"), Name("Fence")), 2012-10-02),
-        Book(BookTitle("Javascript"), Author(AuthorId(3), Age(52), Name("James"), Name("Pickford")), 2008-03-02),
-        Book(BookTitle("C"), Author(AuthorId(1), Age(42), Name("John"), Name("Doe")), 1990-01-07),
-        Book(BookTitle("C++"), Author(AuthorId(7), Age(38), Name("William"), Name("Fence")), 1990-04-02),
-        Book(BookTitle("C"), Author(AuthorId(7), Age(38), Name("William"), Name("Fence")), 1990-04-14),
-        Book(BookTitle("Haskell"), Author(AuthorId(7), Age(30), Name("William"), Name("Fence")), 1982-04-14),
-        Book(BookTitle("Lisp"), Author(AuthorId(7), Age(25), Name("William"), Name("Fence")), 1977-09-24)
-        ]
+      books as List of Book?
 
-      books() as pure
-        <- rtn as List of Book: books
- ...</pre>
+      Library() as pure
+        -> withBooks as List of Book
+        books :=? withBooks
+
+      Library() as pure
+        this([
+          Book(BookTitle("Java"), Author(AuthorId(1), Age(50), Name("John"), Name("Doe")), 1998-01-01),
+          Book(BookTitle("C++"), Author(AuthorId(1), Age(42), Name("John"), Name("Doe")), 1990-01-07),
+          Book(BookTitle("Scala"), Author(AuthorId(1), Age(67), Name("John"), Name("Doe")), 2015-03-02),
+          Book(BookTitle("Python"), Author(AuthorId(1), Age(62), Name("John"), Name("Doe")), 2010-12-02),
+          Book(BookTitle("HTML"), Author(AuthorId(2),Age(58), Name("Mark"), Name("Pickford")), 2008-07-02),
+          Book(BookTitle("CSS"), Author(AuthorId(4), Age(51), Name("Mark"), Name("Keely")), 2008-04-02),
+          Book(BookTitle("ADA"), Author(AuthorId(5), Age(44), Name("Ada"), Name("Lovelace")), 1988-01-02),
+          Book(BookTitle("Dart"), Author(AuthorId(6), Age(47), Name("Peter"), Name("Dove")), 2020-01-02),
+          Book(BookTitle("C#"), Author(AuthorId(7), Age(60), Name("William"), Name("Fence")), 2012-10-02),
+          Book(BookTitle("Javascript"), Author(AuthorId(3), Age(52), Name("James"), Name("Pickford")), 2008-03-02),
+          Book(BookTitle("C"), Author(AuthorId(1), Age(42), Name("John"), Name("Doe")), 1990-01-07),
+          Book(BookTitle("C++"), Author(AuthorId(7), Age(38), Name("William"), Name("Fence")), 1990-04-02),
+          Book(BookTitle("C"), Author(AuthorId(7), Age(38), Name("William"), Name("Fence")), 1990-04-14),
+          Book(BookTitle("Haskell"), Author(AuthorId(7), Age(30), Name("William"), Name("Fence")), 1982-04-14),
+          Book(BookTitle("Lisp"), Author(AuthorId(7), Age(25), Name("William"), Name("Fence")), 1977-09-24)
+          ])
+
+      &lt;?-
+        While you would never really 'iterate' through all the books in a library - this
+        just enables the demonstration of streaming.
+        Clearly you would normally have multiple maps/indexes etc to locate books via a search
+        mechanism.
+      -?&gt;
+      iterator() as pure
+        <- rtn as Iterator of Book: books.iterator()
+
+      operator + as pure
+        -> book as Book
+        <- rtn as Library: Library(books + book)
+
+    </pre>
     <br/>
     <h4>The Model</h4>
     <p>
-      The model is quite simple, a few <i>types</i>, a couple of <i>classes</i> for Books, Authors
-      and the Library. As this is a stream pipeline example and more <u>functional</u> the <b>pure</b>
+      The model is quite simple, a few <i>types</i> (note use of simple strong typing), a couple of <i>classes</i> for Books, Authors
+      and the Library.<br>
+      As this is a stream pipeline example and more <u>functional</u> the <b>pure</b>
       key word has been used to highlight immutability (actually it's more than a highlight - the compiler
       enforces it). Strictly speaking <b>clones/copies</b> of properties should have been taken
       when returning values with accessor methods.
@@ -357,11 +386,16 @@ defines module introduction
     <pre>...
   defines program
 
+    &lt;?-
+      Just send all the books in the library out to stdout.
+      Because Library has an iterator method 'cat' will use it to get each book.
+    -?&gt;
     JustCatBooks()
       stdout <- Stdout()
       library <- Library()
 
-      cat library.books() > stdout
+      cat library > stdout
+
 //EOF</pre>
     <br/>
     <p>
@@ -417,11 +451,16 @@ Title: Lisp, Author: William Fence Age: 25 Published: 1977-09-24</pre>
 
   defines program
 
+    &lt;?-
+      Now sort the books before outputting.
+      This uses a specific comparator.
+    -?&gt;
     SortBooksByAuthor()
       stdout <- Stdout()
       library <- Library()
 
-      cat library.books() | sort by comparingAuthor > stdout
+      cat library | sort by comparingAuthor > stdout
+
 //EOF</pre>
     <br/>
     <p>
@@ -450,8 +489,7 @@ Title: Lisp, Author: William Fence Age: 25 Published: 1977-09-24</pre>
     <h4 id="example3">Program 3</h4>
     <p>
       John Doe has two books published on the same date (1990-01-07), this next example now
-      groups books by the same author if they were published on the same date. Note
-      it does not yet order the books by an author <b>and</b> by published date (that is yet to come).
+      groups books by the same author if they were published on the same date.
     </p>
     <pre>...
   defines function
@@ -462,10 +500,19 @@ Title: Lisp, Author: William Fence Age: 25 Published: 1977-09-24</pre>
 
   defines program
 
+    &lt;?-
+      Example of grouping books by their published date and outputting firstly
+      by that published date. But the authors will in effect by the ordering within that group.
+      So as the stream is sorted by author they are passed through to grouping as a new 'published'
+      date is encountered a new group is created and that book by the author is added.
+      The 'group' intermediate operation finally outputs all the groups in the order they were created.
+      This output is in the form of List of Book, hence the need to flatten the output.
+    -?&gt;
     GroupBooksByPublishedDate()
       stdout <- Stdout()
-      books <- Library().books()
-      cat books | sort by comparingAuthor | group by dateBookPublished > stdout
+      library <- Library()
+      cat library | sort by comparingAuthor | group by dateBookPublished | flatten > stdout
+
 //EOF</pre>
     <br/>
     <p>
@@ -499,19 +546,6 @@ Title: Lisp, Author: William Fence Age: 25 Published: 1977-09-24</pre>
     <pre>...
   defines function
 
-    differentAuthor() as pure abstract
-      -> book as Book
-      <- rtn as Boolean?
-      
-    getAuthorChange() as pure
-      <- authorChanged as differentAuthor?
-      //Create a variable that is unset to be captured in the delegate function below
-      byId <- AuthorId()
-      authorChanged: (byId) is differentAuthor()
-        // Hold state of the the author id and update
-        rtn: byId? and byId != book.author().id()        
-        byId: book.author().id()
-
     compareDatePublished() as pure
       ->
         book1 as Book
@@ -524,44 +558,40 @@ Title: Lisp, Author: William Fence Age: 25 Published: 1977-09-24</pre>
       <- rtn as List of Book: cat books | sort by compareDatePublished | collect as List of Book
 
   defines program
+
+    &lt;?-
+      This example outputs the books in author order, but also for each of those authors sorts their
+      books by published date.
+    -?&gt;
     ProcessByAuthor()
       stdout <- Stdout()
-      books <- Library().books()
-      authorId <- getAuthorChange()
+      library <- Library()
 
-      cat books
+      //This is the nearest ek9 gets to a lambda - it's a bit 'wordy'.
+      //In effect we are creating a function delegate that is a 'Function' that accepts a 'Book' and
+      //returns an 'AuthorId' type. It is pure in nature - it does not mutate the book in anyway.
+      //The arguments of the 'Function' inferred from its definition and so can just be used in the parenthesis.
+
+      authorId <- () is Function of (Book, AuthorId) as pure function (r:=? t.author().id())
+
+      cat library
         | sort by comparingAuthor
-        | split by authorId
+        | group by authorId
         | map by orderOnPublishedDate
         | flatten
         > stdout
+
 //EOF</pre>
     <br/>
     <p>
       Now this is a little more interesting!<br/>Again the list is ordered by Author ID first. But then the
-      stream is <b>split</b> into Lists of Books by each specific author.
-    </p>
-    <p>
-      The <i>function delegate</i> <b>authorId</b> is provided by the higher order <i>function</i>
-      <b>getAuthorChange</b>. This higher order <i>function</i> creates a 'stateful' <i>dynamic function</i>
-      that can track the Author ID as each Book streams through the function (hence it is important that the
-      books are in Author order). It is <b>not pure</b> as it holds state that is altered. If you're struggling
-      with this code take a look back at <a href="dynamicFunctions.html">Dynamic Functions</a>.
-    </p>
-    <p>
-      For some programmers this approach may seem strange, using loops and a state variable might be more obvious.
-      All the function does is return a boolean true/false if the Author ID has changed, that it. The Stream
-      pipeline deals with creating and sending lists as the output of the <b>split</b> command.
-    </p>
-    <p>
-      So in someways <b>split</b> acts like <b>map</b> and turns a stream of 'Books' (in this case) into a stream
-      of 'List of Book', but based on the Author ID changing.
+      stream is <b>group</b>(ed) into Lists of Books by each specific author.
     </p>
     <p>
       The next command in the pipeline is <b>map</b>, this uses a function <b>orderOnPublishedDate</b>. Note here
       that the Object being streamed through the pipeline has now become a 'List of Book', <b>not</b> just 'Book'.
       So <i>function</i> <b>orderOnPublishedDate</b> accepts a 'List of Book', it too now uses a Stream pipeline
-      to order that list. It returns a totally new list (but ordered), here you can see <b>collect as</b> being
+      to order that list. It returns a totally new (but ordered) list, here you can see <b>collect as</b> being
       used - which is a stream pipeline terminal command.
     </p>
     <p>
@@ -583,13 +613,11 @@ Title: Lisp, Author: William Fence Age: 25 Published: 1977-09-24</pre>
       <li><b>sort</b> never alters the type; so whatever the sort function uses for parameters <b>is</b> the
         pipeline <b>type</b>.
       </li>
-      <li><b>split</b> always produces a 'List' of the current pipeline type.</li>
-      <li><b>map</b> is
-        the key command, this is where types can be transformed. Look at the input <b>type</b> and the output
+      <li><b>split/group</b> always produce a 'List' of the current pipeline type.</li>
+      <li><b>map</b> is the key command, this is where types can be transformed. Look at the input <b>type</b> and the output
         <b>type</b> on the function being used.
       </li>
-      <li><b>flatten</b> just take something like a 'List of Book' and outputs 'Book'
-        as the pipeline type (i.e. each Book in that List).
+      <li><b>flatten</b> just take something like a 'List of Book' and outputs 'Book' as the pipeline type (i.e. each Book in that List).
       </li>
     </ul>
     <h5>Summary</h5>
@@ -634,20 +662,23 @@ Title: C#, Author: William Fence Age: 60 Published: 2012-10-02</pre>
       <- rtn as Boolean: length books >= 3
 
   defines program
-
+    &lt;?-
+      This example shows two things, firstly it inlines the dynamic function (not keen on this but it can be done).
+      Then it selects/filters the lists that do not have sufficient books (in this case three or more).
+      Only then does it order those books on their published date.
+    -?&gt;
     ProcessByAuthorWithThreeOrMoreBooks()
       stdout <- Stdout()
-      books <- Library().books()
+      library <- Library()
 
-      authorId <- getAuthorChange()
-
-      cat books
+      cat library
         | sort by comparingAuthor
-        | split by authorId
+        | group by () is Function of (Book, AuthorId) as pure function (r:=? t.author().id())
         | select with sufficientBooks
         | map by orderOnPublishedDate
         | flatten
         > stdout
+
 //EOF</pre>
     <br/>
     <p>
@@ -682,42 +713,32 @@ Title: C#, Author: William Fence Age: 60 Published: 2012-10-02</pre>
       Again this example builds on the last, but just omits the first two books by authors that have three or more books published.
     </p>
     <pre>...
-  defines function
-  
-    bookNumberFilter() as pure abstract
-      -> books as List of Book
-      <- rtn as List of Book?
-       
+
   defines program
 
+    &lt;?-
+      Similar to the other examples, but this one just skips the first two books by
+      each author (if they have 3 or more books).
+      Note, there is a sort of common pattern to these, if an intermediate operation needs
+      a function, you can either define a basic function or just create a dynamic function.
+    -?&gt;
     ProcessByAuthorWithThreeOrMoreBooksIgnoreFirstTwo()
       stdout <- Stdout()
-      books <- Library().books()
+      library <- Library()
 
-      excludingFirstTwoBooks <- () is bookNumberFilter as pure function
-        rtn: cat books | skip 2 | collect as List of Book
+      authorId <- () is Function of (Book, AuthorId) as pure function (r:=? t.author().id())
+      excludingFirstTwoBooks <- () is Function of(List of Book, List of Book) as pure function
+        r:=? cat t | skip 2 | collect as List of Book
 
-      //This is the preferred EK9 way of processing
-      cat books
-        | sort by compareAuthor
-        | split by authorId
+      cat library
+        | sort by comparingAuthor
+        | group by authorId
         | select with sufficientBooks
         | map by orderOnPublishedDate
         | map by excludingFirstTwoBooks
         | flatten
         > stdout
 
-      //This shows an 'inline dynamic function'
-      //I find this hard to read, and it has less possible reuse
-      //plus it's now less clear what the 'skip' is for and why it is used.
-      cat books
-        | sort by comparingAuthor
-        | split by getAuthorChange()
-        | select with sufficientBooks
-        | map by orderOnPublishedDate
-        | map by () is bookNumberFilter as pure (rtn: cat books | skip 2 | collect as List of Book)
-        | flatten
-        > stdout
 //EOF</pre>
     <br/>
     <p>
@@ -733,73 +754,13 @@ Title: C#, Author: William Fence Age: 60 Published: 2012-10-02</pre>
     <br/>
     <p>
       The following two examples follow in the same theme, by showing just the first and just the last book by the
-      author with three or more books. By introducing the <i>abstract function</i> <b>bookNumberFilter</b> the
-      <i>dynamic function</i> <b>excludingFirstTwoBooks</b> can be introduced.
+      author with three or more books. By introducing the
+      <i>dynamic function</i> <b>excludingFirstTwoBooks</b> books can be skipped and ignored by specific authors.
     </p>
     <p>
       The <i>dynamic function</i> <b>excludingFirstTwoBooks</b> could have been written as a standard <i>function</i>.
       Alternatively the <i>dynamic function</i> could have been returned through the use of a <i>higher function</i>.
     </p>
-    <h4 id="example7">Program 7</h4>
-    <pre>...
-  defines program
-
-    ProcessByAuthorWithThreeOrMoreBooksJustFirst()
-      stdout <- Stdout()
-      books <- Library().books()
-
-      //Note rather than say head 1 - it is possible to just use 'head' by itself.
-      authorId <- getAuthorChange()
-      firstBook <- () is bookNumberFilter as pure function
-        rtn: cat books | head | collect as List of Book
-
-      cat books
-        | sort by comparingAuthor
-        | split by authorId
-        | select with sufficientBooks
-        | map by orderOnPublishedDate
-        | map with firstBook
-        | flatten
-        > stdout
-//EOF</pre>
-    <br/>
-    <p>
-      The output of the program is as follows
-    </p>
-    <pre>
-Title: C++, Author: John Doe Age: 42 Published: 1990-01-07
-Title: Lisp, Author: William Fence Age: 25 Published: 1977-09-24</pre>
-    <br/>
-    <h4 id="example8">Program 8</h4>
-    <pre>...
-  defines program
-
-    ProcessByAuthorWithThreeOrMoreBooksJustLast()
-      stdout <- Stdout()
-      books <- Library().books()
-
-      //As with 'head' if you only want the last one - just use 'tail' without any number.
-      authorId <- getAuthorChange()
-      lastBook <- () is bookNumberFilter as pure function
-        rtn:  cat books | tail | collect as List of Book
-
-      cat books
-        | sort by comparingAuthor
-        | split by authorId
-        | select with sufficientBooks
-        | map by orderOnPublishedDate
-        | map with lastBook
-        | flatten
-        > stdout
-//EOF</pre>
-    <br/>
-    <p>
-      The output of the program is as follows
-    </p>
-    <pre>
-Title: Scala, Author: John Doe Age: 67 Published: 2015-03-02
-Title: C#, Author: William Fence Age: 60 Published: 2012-10-02</pre>
-    <br/>
     <h4>Reuse</h4>
     <p>
       If you have a range of requirements that need different views/summaries or filters on a set of data;
@@ -818,77 +779,64 @@ Title: C#, Author: William Fence Age: 60 Published: 2012-10-02</pre>
       is a known one rather than being some form of <b>while</b>, <b>do-while</b> or <b>iterator</b> loop.
       A short example of this is shown <a href="#procedural_approach">later</a>.
     </p>
-    <h4 id="example9">Program 9</h4>
+    <h4 id="example7">Program 7</h4>
     <p>
       Below is an example of using an enumeration and a higher order function; this returns a function based on the
       enumeration value.
     </p>
     <pre>...
-  defines type
-
-    BookFilterSelection
-      SkipTwo
-      JustFirst
-      JustLast
-        
   defines function
 
+    bookFilter() as pure abstract
+      -> books as List of Book
+      <- filtered as List of Book?
+
+    &lt;?-
+      Example of a higher order function and dynamic functions.
+      There are other ways to solve the mapping of an enumerations requirement to a function.
+      This uses a switch/given expression in a pure context
+    -?&gt;
     suitableBookFilter() as pure
       -> selection as BookFilterSelection
-      <- bookFilter as bookNumberFilter: given selection
-        <- theFilter as bookNumberFilter: () is bookNumberFilter pure (rtn: books) //i.e. nothing filtered
+      <- rtn as bookFilter: given selection
+        <- theFilter as bookFilter?
         when BookFilterSelection.SkipTwo
-          theFilter: () is bookNumberFilter pure (rtn: cat books | skip 2 | collect as List of Book)
+          rtn:=? () is bookFilter as pure function (filtered:=? cat books | skip 2 | collect as List of Book)
         when BookFilterSelection.JustFirst
-          theFilter: () is bookNumberFilter pure (rtn: cat books | head 1 | collect as List of Book)
+          rtn:=? () is bookFilter as pure function (filtered:=? cat books | head 1 | collect as List of Book)
         when BookFilterSelection.JustLast
-          theFilter: () is bookNumberFilter pure (rtn: cat books | tail 1 | collect as List of Book)
+          rtn:=? () is bookFilter as pure function (filtered:=? cat books | tail 1 | collect as List of Book)
+        default
+          rtn:=? () is bookFilter as pure function (filtered:=? t)
 
   defines program
-  
-    ProcessByAuthorUsingHigherOrderFunction()
+
+    &lt;?-
+      Example of using a higher order function to create the book filter.
+    -?&gt;
+      ProcessByAuthorUsingHigherOrderFunction()
       stdout <- Stdout()
       library <- Library()
+      authorId <- () is Function of (Book, AuthorId) as pure function (r:=? t.author().id())
 
       stdout.println("Omit first two books where author has three or more books")
-      excludingFirstTwoBooks <- suitableBookFilter(BookFilterSelection.SkipTwo)
-      cat library.books()
+      cat library
         | sort by comparingAuthor
-        | split by getAuthorChange()
+        | group by authorId
         | select with sufficientBooks
         | map by orderOnPublishedDate
-        | map with excludingFirstTwoBooks
+        | map with suitableBookFilter(BookFilterSelection.SkipTwo)
         | flatten
         > stdout
 
-      stdout.println("First book where author has three or more books")
-      cat library.books()
-        | sort by comparingAuthor
-        | split by getAuthorChange()
-        | select with sufficientBooks
-        | map by orderOnPublishedDate
-        | map with suitableBookFilter(BookFilterSelection.JustFirst)
-        | flatten
-        > stdout
-
-      stdout.println("Last book where author has three or more books")
-      lastBook <- suitableBookFilter(BookFilterSelection.JustLast)
-      cat library.books()
-        | sort by comparingAuthor
-        | split by getAuthorChange()
-        | select with sufficientBooks
-        | map by orderOnPublishedDate
-        | map with lastBook
-        | flatten
-        > stdout
-//EOF</pre>
+      //EOF</pre>
     <br/>
     <p>
       The example above just shows how an enumeration can be used with a higher order function to 'switch' on the
       enumeration to return an appropriate <i>dynamic function</i>. From this example it's quite easy to see how
       the above pipeline code can be refactored again, so that it too can be wrapped into a function.
     </p>
-    <h4 id="example10">Program 10</h4>
+    <h4 id="example8">Program 8</h4>
     <p>
       This program is a simple refactoring of the one above, to highlight functional composition and how useful
       <b>strong typing</b> of functions and <b>higher order functions</b> can be.
@@ -898,35 +846,40 @@ Title: C#, Author: William Fence Age: 60 Published: 2012-10-02</pre>
 
     filterBooksToOutput()
       ->
-        books as List of Book
+        library as Library
         filterSelection as BookFilterSelection
         output as StringOutput
 
-      authorId <- getAuthorChange()
-      theBookFilter <- suitableBookFilter(filterSelection)
-      cat books
+      authorId <- () is Function of (Book, AuthorId) as pure function (r:=? t.author().id())
+
+      cat library
         | sort by comparingAuthor
-        | split by authorId
+        | group by authorId
         | select with sufficientBooks
         | map by orderOnPublishedDate
-        | map with theBookFilter
+        | map with suitableBookFilter(filterSelection)
         | flatten
         > output
 
   defines program
 
+    &lt;?-
+      Next logical step is to extract the above and put it into a function called 'filterBooksToOutput'
+      Then it can just be called with appropriate parameters.
+    -?&gt;
     ProcessByAuthorUsingParameterisedFunction()
       stdout <- Stdout()
-      books <- Library().books()
+      library <- Library()
 
       stdout.println("Omit first two books where author has three or more books")
-      filterBooksToOutput(books, BookFilterSelection.SkipTwo, stdout)
-      
+      filterBooksToOutput(library, BookFilterSelection.SkipTwo, stdout)
+
       stdout.println("First book where author has three or more books")
-      filterBooksToOutput(books, BookFilterSelection.JustFirst, stdout)
-           
-      stdout.println("Last book where author has three or more books")      
-      filterBooksToOutput(books, BookFilterSelection.JustLast, stdout)
+      filterBooksToOutput(library, BookFilterSelection.JustFirst, stdout)
+
+      stdout.println("Last book where author has three or more books")
+      filterBooksToOutput(library, BookFilterSelection.JustLast, stdout)
+
 //EOF</pre>
     <br/>
     <p>
@@ -960,7 +913,7 @@ Last book where author has three or more books
 Title: Scala, Author: John Doe Age: 67 Published: 2015-03-02
 Title: C#, Author: William Fence Age: 60 Published: 2012-10-02</pre>
     <br/>
-    <h4 id="example11">Program 11</h4>
+    <h4 id="example9">Program 9</h4>
     <p>
       This example is slightly different and demonstrates how parts of the processing pipeline can
       be <u>tee'd</u> off and saved to be used later. It also demonstrates how streamed items can be
@@ -978,17 +931,17 @@ Title: C#, Author: William Fence Age: 60 Published: 2012-10-02</pre>
     UniquePublishingDatesFromAuthorWithThreeOrMoreBooks()
       stdout <- Stdout()
       library <- Library()
+      authorId <- () is Function of (Book, AuthorId) as pure function (r:=? t.author().id())
 
-      authorId <- getAuthorChange()
       authorsBooks as List of Book: List()
 
       booksByEachAuthor as List of List of Book: List()
 
       stdout.println("Unique signing events on day of publication by authors with three or more books.")
 
-      cat library.books()
+      cat library
         | sort by comparingAuthor
-        | split by authorId
+        | group by authorId
         | tee in booksByEachAuthor
         | filter by sufficientBooks
         | map by orderOnPublishedDate
@@ -1003,6 +956,7 @@ Title: C#, Author: William Fence Age: 60 Published: 2012-10-02</pre>
       cat authorsBooks > stdout
 
       stdout.println("There are " + $ length booksByEachAuthor + " authors in total with any number of books")
+
 //EOF</pre>
     <br/>
     <p>
@@ -1040,7 +994,7 @@ There are 7 authors in total with any number of books</pre>
       Limiting the output by the use of the <b>uniq</b> command on a specific field (in this case the
       <i>function</i> <b>dateBookPublished</b> uses the date the book was published as the uniqueness key).
     </p>
-    <h4 id="example12">Program 12 (<b>The Final Example</b>)</h4>
+    <h4 id="example10">Program 10 (<b>The Final Example</b>)</h4>
     <p>
       This example is totally different, it only uses book authors where their age is 50 or over
       (at the time of writing the book). It then ensures that the author is only included once, finally
@@ -1059,11 +1013,7 @@ There are 7 authors in total with any number of books</pre>
 
     authorName() as pure
       -> author as Author
-      <- rtn as Name: `${author.firstname()} ${author.surname()}`
-
-    theAuthorId() as pure
-      -> author as Author
-      <- rtn as AuthorId: author.id()
+      <- rtn as String: `${author.firstname()} ${author.surname()}`
 
     comparingAuthorName() as pure
       ->
@@ -1078,15 +1028,16 @@ There are 7 authors in total with any number of books</pre>
 
     LibraryExample()
       stdout <- Stdout()
-      books <- Library().books()
+      library <- Library()
 
-      cat books
+      cat library
         | map with bookAuthor
         | select by acceptableAuthorAge
-        | uniq by theAuthorId
+        | uniq
         | sort by comparingAuthorName
         | map with authorName
         > stdout
+
 //EOF</pre>
     <br/>
     <p>
@@ -1137,14 +1088,15 @@ Mark Pickford</pre>
 
       uniqueAuthors as Dict of (AuthorId, Author): Dict()
 
-      for book in library.books()
+      for book in library
         author <- book.author()
         if author.age() >= 50
           if uniqueAuthors not contains author.id()
             uniqueAuthors += DictEntry(author.id(), author)
 
       for author in uniqueAuthors.values()
-        stdout.println(author.firstname() + " " + author.surname())
+        stdout.println(`${author.firstname()} ${author.surname()}`)
+
 //EOF</pre>
     <br/>
     <p>

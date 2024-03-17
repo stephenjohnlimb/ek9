@@ -165,10 +165,12 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
       aggregateFactory.addConstructor(aggregateSymbol, new VariableSymbol("arg", aggregateSymbol));
       if (ctx.typeDef() == null) {
         //For an enumeration we allow creation via String.
-        aggregateFactory.addConstructor(aggregateSymbol, new VariableSymbol("arg", ek9Types.ek9String()));
+        var constructor =
+            aggregateFactory.addConstructor(aggregateSymbol, new VariableSymbol("arg", ek9Types.ek9String()));
+        constructor.setMarkedPure(true);
       } else {
-        var theContainedType = symbolAndScopeManagement.getRecordedSymbol(ctx.typeDef());
-        checkAndPopulateConstrainedType.accept(aggregateSymbol, theContainedType);
+        var theConstrainedType = symbolAndScopeManagement.getRecordedSymbol(ctx.typeDef());
+        checkAndPopulateConstrainedType.accept(aggregateSymbol, theConstrainedType);
         //else we should already get an error for this missing type.
       }
     }

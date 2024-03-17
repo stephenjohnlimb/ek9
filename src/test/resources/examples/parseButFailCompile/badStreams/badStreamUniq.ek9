@@ -161,7 +161,7 @@ defines module bad.streams7
     InvalidStreamCatToUniq4()
       collection <- List() of String
 
-      @Error: FULL_RESOLUTION: MUST_RETURN_INTEGER
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_HASHCODE_FOR_TYPE
       cat [C2("A"), C2("B"), C2("A"), C2("Z")] | uniq by InvalidHashFunction2 > collection
 
       assert collection?

@@ -35,7 +35,7 @@ public class ProcessCaseExpression extends TypedSymbolAccess implements Consumer
     if (ctx.call() != null) {
       symbol = getRecordedAndTypedSymbol(ctx.call());
     } else if (ctx.objectAccessExpression() != null) {
-      symbol = getRecordedAndTypedSymbol(ctx.call());
+      symbol = getRecordedAndTypedSymbol(ctx.objectAccessExpression());
     } else if (ctx.expression() != null) {
       symbol = getRecordedAndTypedSymbol(ctx.expression());
     } else if (ctx.primary() != null) {
