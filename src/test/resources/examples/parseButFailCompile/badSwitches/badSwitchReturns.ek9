@@ -1,14 +1,18 @@
 #!ek9
+<?-
+  Some examples of working an errored based switch statements.
+  This also includes switch expressions.
+-?>
 defines module bad.switches.use
 
   defines program
 
-    ValidProg()
+    ValidProgram1()
 
       val <- "ToCheck"
 
       //If you include a default then String? is OK
-      result1 <- switch val
+      result <- switch val
         <- resultText as String?
         case "ToCheck"
           resultText: "Jackpot"
@@ -19,8 +23,34 @@ defines module bad.switches.use
         default
           resultText: "Nothing"
 
-      //Also if you initialise resultText then you can omit the default
-      result2 <- switch val
+      assert result?
+
+    ValidProgram2()
+
+      result <- String()
+      val <- "ToCheck"
+
+      //If you include a default then String? is OK
+      result: switch val
+        <- resultText as String?
+        case "ToCheck"
+          resultText: "Jackpot"
+        case "This"
+          resultText: "Was this"
+        case "This"
+          resultText: "Was that"
+        default
+          resultText: "Nothing"
+
+      assert result?
+
+    ValidProgram3()
+
+      val <- "ToCheck"
+
+      //Even though the return is initialised, I
+      @Error: FULL_RESOLUTION: DEFAULT_REQUIRED_IN_SWITCH_EXPRESSION
+      result <- switch val
         <- resultText as String: "Nothing"
         case "ToCheck"
           resultText: "Jackpot"
@@ -29,12 +59,15 @@ defines module bad.switches.use
         case "This"
           resultText: "Was that"
 
-    Prog1()
+      assert result?
+
+    InvalidProgram1()
       val <- "ToCheck"
 
       //So there is no point in this return from a switch
+      //Because there is no variable receiving the returned value.
       switch val
-        @Error: SYMBOL_DEFINITION: RETURNING_REDUNDANT
+        @Error: FULL_RESOLUTION: RETURNING_REDUNDANT
         <- resultText as String?
         case "ToCheck"
           resultText: "Jackpot"
@@ -45,9 +78,12 @@ defines module bad.switches.use
         default
           resultText: "Nothing"
 
+    InvalidProgram2()
+      val <- "ToCheck"
+
       //Here there is no return value but one is expected
       //This is likely to be how someone new to ek9 will get it wrong.
-      @Error: SYMBOL_DEFINITION: RETURNING_REQUIRED
+      @Error: FULL_RESOLUTION: RETURNING_REQUIRED
       someResult <- switch val
         case "ToCheck"
           someResult: "Jackpot"
@@ -58,15 +94,19 @@ defines module bad.switches.use
         default
           someResult: "Nothing"
 
+      //ensure referenced, but it will be a void type as switch error, causes someResult to be 'void'.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert someResult?
+
     <?-
-      Designed to show how a missing 'default' is detected in a normal switch statememt
+      Designed to show how a missing 'default' is detected in a normal switch statement
     -?>
-    Prog2()
+    InvalidProgram3()
       val <- "ToCheck"
 
       result as String?
 
-      @Error: SYMBOL_DEFINITION: DEFAULT_REQUIRED_IN_SWITCH_STATEMENT
+      @Error: FULL_RESOLUTION: DEFAULT_REQUIRED_IN_SWITCH_STATEMENT
       switch val
         case "This"
           result: "Nice"
@@ -78,11 +118,13 @@ defines module bad.switches.use
           result: "Jackpot"
         //missing default - so expect an error
 
-    Prog3()
+      assert result?
+
+    InvalidProgram4()
       val <- "ToCheck"
 
       //No initialiser for the switch return and also no default
-      @Error: SYMBOL_DEFINITION: DEFAULT_REQUIRED_IN_SWITCH_EXPRESSION
+      @Error: FULL_RESOLUTION: DEFAULT_REQUIRED_IN_SWITCH_EXPRESSION
       someResult <- switch val
         <- resultText as String?
         case "ToCheck"
@@ -92,14 +134,5 @@ defines module bad.switches.use
         case "This"
           resultText: "Was that"
 
-    Prog4()
-      result <- "Unknown"
-      @Error: SYMBOL_DEFINITION: POINTLESS_EXPRESSION
-      switch true
-        case true
-          result: "True"
-        case false
-          result: "False"
-        default
-          result: "Unknown"
+      assert someResult?
 //EOF

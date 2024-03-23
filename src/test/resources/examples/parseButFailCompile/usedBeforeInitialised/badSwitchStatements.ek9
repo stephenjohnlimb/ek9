@@ -21,6 +21,18 @@
 -?>
 defines module badswitch.initialisations
 
+  defines type
+
+    <?-
+      This is the enumeration that is used in the tests.
+      As it is finite in the number of values it can hold, it can be switched on.
+    -?>
+    LimitedEnum
+      A,
+      B,
+      C,
+      D
+
   defines function
 
     <?-
@@ -259,6 +271,8 @@ defines module badswitch.initialisations
           rtn6: 99
         case < 30
           rtn6: 101
+        default
+          rtn6: Integer() //as var is unset this will return unset
 
       assert returningValue?
 
@@ -274,6 +288,8 @@ defines module badswitch.initialisations
           rtn7: 99
         case < 30
           rtn7: 101
+        default
+          rtn7: Integer() //as conditionalValue is unset this will return unset
 
       assert returningValue?
 
@@ -344,5 +360,46 @@ defines module badswitch.initialisations
       assert var?
 
       assert returningValue?
+
+    EnumerationExpressionSwitchNotInitialisingReturn1()
+      -> val as LimitedEnum
+
+      result <- switch val
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- rtn as String?
+        case LimitedEnum.A
+          rtn: "Just A"
+        case LimitedEnum.B
+          rtn: "Just B"
+        case LimitedEnum.C
+          rtn: "Just C"
+        case LimitedEnum.D
+          rtn: "Just D"
+        default
+          check <- 22
+          assert check?
+
+      assert result?
+
+    EnumerationExpressionSwitchNotInitialisingReturn2()
+      -> val as LimitedEnum
+
+      result <- switch val
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- rtn as String?
+        case LimitedEnum.A
+          rtn: "Just A"
+        case LimitedEnum.B
+          rtn: "Just B"
+        case LimitedEnum.C
+          rtn: "Just C"
+        case LimitedEnum.D
+          check <- 22
+          assert check?
+        default
+          rtn: "Just not set"
+
+      assert result?
+
 //EOF
 

@@ -375,8 +375,10 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     OVERRIDE_CONSTRUCTOR("'override' is not required on a constructor"),
     TRAITS_DO_NOT_HAVE_CONSTRUCTORS("traits do not support constructor methods"),
     INVALID_DEFAULT_CONSTRUCTOR("'default' constructor with parameters is not supported"),
-    DEFAULT_REQUIRED_IN_SWITCH_STATEMENT("'default' is required in this switch statement"),
-    DEFAULT_REQUIRED_IN_SWITCH_EXPRESSION("'default' is required in this switch expression as return is uninitialised"),
+    DUPLICATE_ENUMERATED_VALUES_PRESENT_IN_SWITCH("duplicated enumerated value in switch 'case'"),
+    NOT_ALL_ENUMERATED_VALUES_PRESENT_IN_SWITCH("'cases' should cover all enumerated values in 'switch'"),
+    DEFAULT_REQUIRED_IN_SWITCH_STATEMENT("'default' is required in this 'switch' statement"),
+    DEFAULT_REQUIRED_IN_SWITCH_EXPRESSION("'default' is required in this 'switch' expression"),
     METHOD_MODIFIER_PROTECTED_IN_SERVICE(
         "non web service methods cannot be marked with the 'protected' access modifier"),
     METHOD_MODIFIER_PROTECTED_IN_COMPONENT(

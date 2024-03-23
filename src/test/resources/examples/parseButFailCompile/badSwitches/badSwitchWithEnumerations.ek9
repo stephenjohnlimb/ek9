@@ -1,0 +1,317 @@
+#!ek9
+<?-
+  Check a range of valid and invalid switch case uses with just an enumeration.
+  The idea behind the EK9 switch is quite flexible.
+  It allows simple value checks in each 'case' and with enumerations check all values are present
+  when doing a simple value check (and no default).
+  But when used with expressions like < > <= >= it then requires a 'default', this is because the check
+  cannot then be simple an exhaustive.
+-?>
+defines module bad.switches.enums
+
+  defines type
+    <?-
+      This is the enumeration that is used in the tests.
+      As it is finite in the number of values it can hold, it can be switched on.
+    -?>
+    LimitedEnum
+      A,
+      B,
+      C,
+      D
+
+  defines program
+
+    <?-
+      Try referencing an enumerated value that does not exist.
+      But also now require a default
+    -?>
+    CheckForInvalidEnumeratedValue1()
+      val <- LimitedEnum.A
+      @Error: FULL_RESOLUTION: DEFAULT_REQUIRED_IN_SWITCH_EXPRESSION
+      basicResult <- switch val
+        <- rtn as String: "OK"
+        @Error: FULL_RESOLUTION: NOT_RESOLVED
+        case LimitedEnum.Q
+          rtn: "Just A"
+
+      assert basicResult?
+
+    <?-
+      Check for type compatibility, enumerations can be checked against Strings.
+      Also because Character can be promoted to String - that too will match.
+    -?>
+    CheckForInvalidEnumeratedValue2()
+      val <- LimitedEnum.A
+
+      @Error: FULL_RESOLUTION: DEFAULT_REQUIRED_IN_SWITCH_EXPRESSION
+      basicResult <- switch val
+        <- rtn as String: "OK"
+        @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+        case 2024-03-23
+          rtn: "Just A"
+
+      assert basicResult?
+
+    <?-
+      The logic is that if a switch is done over an enumerated type,
+      the developer should explicitly cater for every enumerated value.
+      Otherwise they should probably employ an if/else or map type solution.
+      This has the advantage of checking for errors when additional enumerated values
+      are added to the enumeration.
+    -?>
+    CheckForIncompleteEnumerationCasesAsExpression()
+      val <- LimitedEnum.A
+
+      @Error: FULL_RESOLUTION: NOT_ALL_ENUMERATED_VALUES_PRESENT_IN_SWITCH
+      basicResult <- switch val
+        <- rtn as String: "OK"
+        case LimitedEnum.A
+          rtn: "Just A"
+
+      assert basicResult?
+
+    CheckForIncompleteEnumerationCasesAsStatement()
+
+      result as String?
+      val <- LimitedEnum.A
+
+      //TODO add in an expected error here on the switch, because not all cases are present.
+      //When using an enumeration like this with just explicit values, make them exhaustive and no default.
+      @Error: FULL_RESOLUTION: NOT_ALL_ENUMERATED_VALUES_PRESENT_IN_SWITCH
+      switch val
+        case LimitedEnum.A
+          result: "Just A"
+        default
+          result: "Could be any value"
+      assert result?
+
+    CheckForCompleteEnumerationCasesAsStatement1()
+
+      result as String?
+      val <- LimitedEnum.A
+
+      switch val
+        case LimitedEnum.A
+          result: "Just A"
+        case LimitedEnum.B
+          result: "Just B"
+        case LimitedEnum.C
+          result: "Just C"
+        case LimitedEnum.D
+          result: "Just D"
+        default
+          result: "Could be any value"
+      assert result?
+
+    CheckForCompleteEnumerationCasesAsStatement2()
+
+      result as String?
+      val <- LimitedEnum.A
+
+      switch val
+        case LimitedEnum.A, LimitedEnum.B
+          result: "Just A or B"
+        case LimitedEnum.C, LimitedEnum.D
+          result: "Just C or D"
+        default
+          result: "Could be any value"
+      assert result?
+
+    <?-
+      Not that by matching on Character and String, we must now add in default.
+      The exhaustive enum check is not applied.
+    -?>
+    CheckForUseOfCharacterAndStringsWithEnumeration()
+
+      result as String?
+      val <- LimitedEnum.A
+
+      switch val
+        case LimitedEnum.A
+          result: "Just A"
+        case 'B'
+          result: "Just B (by Character match)"
+        case LimitedEnum.C
+          result: "Just C"
+        case "D"
+          result: "Just D (by String match)"
+        default
+          result: "Could be any value"
+      assert result?
+
+    CheckForDuplicatedCaseValues1()
+
+      result as String?
+      val <- LimitedEnum.A
+
+      @Error: FULL_RESOLUTION: DEFAULT_REQUIRED_IN_SWITCH_STATEMENT
+      switch val
+        case LimitedEnum.A
+          result: "Just A"
+        case LimitedEnum.B
+          result: "Just B"
+        case LimitedEnum.C
+          result: "Just C"
+        case LimitedEnum.D
+          result: "Just D"
+        @Error: FULL_RESOLUTION: DUPLICATE_ENUMERATED_VALUES_PRESENT_IN_SWITCH
+        case LimitedEnum.C
+          result: "Just C"
+
+      assert result?
+
+    CheckForDuplicatedCaseValues2()
+
+      result as String?
+      val <- LimitedEnum.A
+
+      @Error: FULL_RESOLUTION: DEFAULT_REQUIRED_IN_SWITCH_STATEMENT
+      switch val
+        case LimitedEnum.A, LimitedEnum.B
+          result: "Just A or B"
+        case LimitedEnum.C, LimitedEnum.D
+          result: "Just C or D"
+        @Error: FULL_RESOLUTION: DUPLICATE_ENUMERATED_VALUES_PRESENT_IN_SWITCH
+        case LimitedEnum.C
+          result: "Just C"
+
+      assert result?
+
+    <?-
+      Because the '< LimitedEnum.C' has been used, then a default is now required.
+    -?>
+    InvalidEnumerationWithExpressionSwitch1()
+
+      result as String?
+      val <- LimitedEnum.A
+
+      @Error: FULL_RESOLUTION: DEFAULT_REQUIRED_IN_SWITCH_STATEMENT
+      switch val
+        case < LimitedEnum.C
+          result: "Just A or B"
+        case LimitedEnum.C, LimitedEnum.D
+          result: "Just C or D"
+      assert result?
+
+    <?-
+      Not that by matching on Character and String, we must now add in default.
+      The exhaustive enum check is not applied.
+      So if the default is missing then an error is emitted.
+    -?>
+    InvalidUseOfCharacterAndStringsWithEnumeration()
+
+      result as String?
+      val <- LimitedEnum.A
+
+      @Error: FULL_RESOLUTION: DEFAULT_REQUIRED_IN_SWITCH_STATEMENT
+      switch val
+        case LimitedEnum.A
+          result: "Just A"
+        case 'B'
+          result: "Just B (by Character match)"
+        case LimitedEnum.C
+          result: "Just C"
+        case "D"
+          result: "Just D (by String match)"
+      assert result?
+
+    InvalidEnumerationWithExpressionUnsetReturn()
+      val <- LimitedEnum.A
+
+      @Error: FULL_RESOLUTION: DEFAULT_REQUIRED_IN_SWITCH_EXPRESSION
+      basicResult <- switch val
+        <- rtn as String?
+        case < LimitedEnum.C
+          rtn: "Just A or B"
+
+      assert basicResult?
+
+    ValidEnumerationWithExpressionSwitch1()
+
+      result as String?
+      val <- LimitedEnum.A
+
+      //Even if using an Enumeration when some type of expression like < or >= is used
+      //a default must then be added, because it's not just a simple switch on a finite set of enumerated values.
+      switch val
+        case < LimitedEnum.C
+          result: "Just A or B"
+        case LimitedEnum.C, LimitedEnum.D
+          result: "Just C or D"
+        default
+          result: "Could be any value"
+      assert result?
+
+    MissingDefaultInSwitchStatement1()
+
+      result as String?
+      val <- LimitedEnum.A
+
+      //You may think why is a default needed, when all enum values are catered for.
+      //But don't forget val might not actually be set, so that is also a situation to deal with
+      @Error: FULL_RESOLUTION: DEFAULT_REQUIRED_IN_SWITCH_STATEMENT
+      switch val
+        case LimitedEnum.A
+          result: "Just A"
+        case LimitedEnum.B
+          result: "Just B"
+        case LimitedEnum.C
+          result: "Just C"
+        case LimitedEnum.D
+          result: "Just D"
+
+      assert result?
+
+    MissingDefaultInSwitchStatement2()
+      result as String?
+
+      val <- LimitedEnum()
+
+      //Perhaps 'val' is not set and so a 'default' is required for this situation.
+      @Error: FULL_RESOLUTION: DEFAULT_REQUIRED_IN_SWITCH_STATEMENT
+      switch val
+        case LimitedEnum.A, LimitedEnum.B
+          result: "Just A or B"
+        case LimitedEnum.C, LimitedEnum.D
+          result: "Just C or D"
+      assert result?
+
+    ValidSimpleEnumerationExpressionSwitch()
+
+      val <- LimitedEnum.A
+
+      result <- switch val
+        <- rtn as String?
+        case LimitedEnum.A
+          rtn: "Just A"
+        case LimitedEnum.B
+          rtn: "Just B"
+        case LimitedEnum.C
+          rtn: "Just C"
+        case LimitedEnum.D
+          rtn: "Just D"
+        default
+          rtn: "Val is not set"
+
+      assert result?
+
+    <?-
+      Now because this is a switch expression and the the return value has been initialised
+      there is no need for a 'default' and also because the enumeration has been used with
+      '< LimitedEnum.C', we don;t to exhaustive checks.
+      So the switch reverts to normal 'switch/case' type semantics.
+    -?>
+    ValidEnumerationWithExpressionSwitch2()
+      val <- LimitedEnum.A
+
+      basicResult <- switch val
+        <- rtn as String: "OK"
+        case < LimitedEnum.C
+          rtn: "Just A or B"
+        default
+          rtn: "Val is not set"
+
+      assert basicResult?
+
+//EOF

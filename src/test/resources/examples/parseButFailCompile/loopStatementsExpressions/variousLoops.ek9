@@ -126,10 +126,10 @@ defines module just.various.loops
 
     <?-
       Turns the switch statement into an expression.
-      But this has been tidied up further, removed redundant 'default'.
+      But this has been tidied up further.
     -?>
     SwitchExpression2()
-      value <- 211
+      -> value as Integer
 
       result <- switch value
         <- rtn <- "Ideal"
@@ -137,6 +137,8 @@ defines module just.various.loops
           rtn: "Low"
         case > 220
           rtn: "High"
+        default
+          rtn: "Unknown" //value could have been unset
 
       assert result?
 

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Designed to demonstrate correct loop statements and loop expressions.
- * With one deliberate failure to jsut check all the other examples compile correctly.
+ * With one deliberate failure to just check all the other examples compile correctly.
  */
 class VariousLoopsTest extends PhasesTest {
 

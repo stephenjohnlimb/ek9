@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.phase1;
+package org.ek9lang.compiler.phase3;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -9,19 +9,19 @@ import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests bad switch usage.
+ * Just tests bad switch usage with enumerations.
  */
-class BadSwitchTest extends PhasesTest {
+class BadSwitchesTest extends PhasesTest {
 
 
-  public BadSwitchTest() {
-    super("/examples/parseButFailCompile/badSwitchUse",
-        List.of("bad.switches.use"));
+  public BadSwitchesTest() {
+    super("/examples/parseButFailCompile/badSwitches",
+        List.of("bad.switches.enums", "bad.switches.use"));
   }
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.SYMBOL_DEFINITION);
+    testToPhase(CompilationPhase.FULL_RESOLUTION);
   }
 
   @Override

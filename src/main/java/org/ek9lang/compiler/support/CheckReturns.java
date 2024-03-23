@@ -11,7 +11,7 @@ public abstract class CheckReturns {
 
   protected final ErrorListener errorListener;
 
-  CheckReturns(final ErrorListener errorListener) {
+  protected CheckReturns(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 

@@ -46,6 +46,7 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final ProcessWhileStatementExpression processWhileStatementExpression;
   private final ProcessWhileControlVariable processWhileControlVariable;
   private final ProcessSwitchStatementExpression processSwitchStatementExpression;
+  private final CheckSwitch checkSwitch;
   private final ProcessTryStatementExpression processTryStatementExpression;
   private final ProcessCaseExpression processCaseExpression;
   private final CheckThrowStatementOrError checkThrowStatementOrError;
@@ -120,6 +121,8 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
         new ProcessWhileControlVariable(symbolAndScopeManagement, errorListener);
     this.processSwitchStatementExpression =
         new ProcessSwitchStatementExpression(symbolAndScopeManagement, errorListener);
+    this.checkSwitch =
+        new CheckSwitch(errorListener);
     this.processCaseExpression =
         new ProcessCaseExpression(symbolAndScopeManagement, errorListener);
     this.processTryStatementExpression =
@@ -248,7 +251,15 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   }
 
   @Override
+  public void enterSwitchStatementExpression(EK9Parser.SwitchStatementExpressionContext ctx) {
+    //Need to do the basics checks and issue errors on switches before assessing types later in the exit.
+    checkSwitch.accept(ctx);
+    super.enterSwitchStatementExpression(ctx);
+  }
+
+  @Override
   public void exitSwitchStatementExpression(EK9Parser.SwitchStatementExpressionContext ctx) {
+    //Now a more detailed analysis can take place.
     processSwitchStatementExpression.accept(ctx);
     super.exitSwitchStatementExpression(ctx);
   }
