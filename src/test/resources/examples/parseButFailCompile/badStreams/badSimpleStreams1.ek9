@@ -6,6 +6,12 @@
 -?>
 defines module bad.streams1
 
+  defines class
+    SomeBrokenClassWithMissingMethod
+      prop1 <- "Steve"
+
+      default operator $
+
   defines function
 
     JustFail()
@@ -56,6 +62,21 @@ defines module bad.streams1
       stdout <- Stdout()
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       cat [1, 2, 3], nonSuch > stdout
+
+    BrokenStreamCat4()
+      stdout <- Stdout()
+      @Error: FULL_RESOLUTION: MISSING_ITERATE_METHOD
+      bad1 <- SomeBrokenClassWithMissingMethod()
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      cat bad1 > stdout
+
+    BrokenStreamCat5()
+      stdout <- Stdout()
+      bad1 <- SomeBrokenClassWithMissingMethod()
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      cat bad1.noSuchMethod() > stdout
 
     BrokenStreamFor1()
       stdout <- Stdout()
