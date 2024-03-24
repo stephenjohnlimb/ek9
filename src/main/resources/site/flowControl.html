@@ -84,28 +84,29 @@
     </header>
     <p>
       EK9 has a range of syntax that enables a developer to control the flow of processing.
-      These are broadly what you would expect in a programming language and is similar to most other programming languages.
+      These are broadly what you would expect in a general programming language and are similar to most other programming languages.
       <br/>
       But there are a couple of additions in EK9 that mean you may not need to use these imperative (traditional) flow control
-      statements quite as much.
+      statements quite as much. There are also a number of enhancements that make flow control much easier in EK9.
     </p>
     <h2>The Controls</h2>
     <p>
       In general it has been found that adopting a more <i>functional</i> approach to flow control leads to
-      a decrease in developer cognitive load, reduction in code volume, simplicity, flexibility, more reuse and fewer defects.
+      a decrease in developer cognitive load, simplicity, flexibility, reduction in code volume, more code
+      reuse and fewer defects.<br/>
       Linked with the new EK9 operators; traditional flow control is needed much less (but in some cases it is
       still required).
     </p>
     <p>
-      The traditional flow control mechanisms available are categorised as follows:
+      The traditional flow control mechanisms available are broadly categorised as follows:
     </p>
     <h5>Branching</h5>
     <ul>
       <li><a href="#if_elseif_else">If, Else If ,Else</a> - conditional processing based on a boolean expression
       </li>
-      <li><a href="#switch">Switch</a> - also a sort of conditional processing but based on variable value</li>
+      <li><a href="#switch">Switch</a> - conditional processing but based on variable value</li>
       <li><a href="#try_catch">Try</a> - see <a href="exceptions.html">Exceptions</a> - as the flow control is out
-        of the current scope block (but should be 'exceptional')
+        of the current scope block (but should be 'exceptional').
       </li>
     </ul>
     <h5>Looping (imperative/procedural)</h5>
@@ -131,28 +132,28 @@
     </p>
     <h4 id="if_elseif_else">If, Else If ,Else</h4>
     <p>
-      A traditional control statement - but review <a href="operators.html#ternary">ternary operators</a> and
-      <a href="operators.html#assignment_coalescing">assignment coalescing</a> first;
-      as you may find that syntax much more appealing and terse in certain situations. See
+      A traditional control statement - but also review <a href="operators.html#ternary">ternary operators</a> and
+      <a href="operators.html#assignment_coalescing">assignment coalescing</a>.
+      You may find that syntax much more appealing and terse in certain situations. See
       <a href="operators.html#contrast_if_else_ternary">contrast of if/else and ternary operators</a>
       for common situations and especially for dealing with variables that may be <b>unset</b>.
     </p>
     <p>
-      But when you really do need an <i>if</i> statement; EK9 has a number of additional features that give you
+      But when you really do need an <i>if</i> statement EK9 has a number of additional features that give you
       more control and flexibility. These are shown below.
     </p>
     <pre>#!ek9
 defines module introduction
   defines function
 
-    currentTemperature()
+    currentTemperature() as pure
       -> country as String
       <- temp as Integer: Integer()
 
       if country == "GB"
-        temp: 20
+        temp :=? 20
       else if country == "DE"
-        temp = 41
+        temp :=? 41
 
   defines program
 
@@ -281,14 +282,158 @@ defines module introduction
       addition of assignments and guarded assignments really adds quite a lot of functionality to
       conditional flow control. This is augmented further in the switch statement that follows.
     </p>
+    <p>
+      The guarded assignment is very useful for dealing with methods or functions that may return 'unset' values as
+      they keep the additional checks much simpler.
+    </p>
     <h4 id="switch">Switch</h4>
     <p>
-      The switch in EK9 is similar in someways to the 'if/else' type flow; but the ordering of cases is important.
-      It also supports multiple and varied matches and can also be used to <b>return</b> as value
-      like an expression. Like the <b>if</b> statement it can also use alternative keywords.
+      The <i>switch</i> in EK9 is similar in someways to the <i>if/else</i> type flow; but the ordering of cases is important.
+      It also supports multiple and varied matches and can be used to <b>return</b> a value
+      like an expression. Like the <b>if</b> statement it can also use alternative keywords.<br/>
+      When the <i>switch</i> is used with specific enumeration values it works more like a traditional <i>switch</i>, indeed it then
+      mandates that all enumeration values are handled by a specific <i>case</i> (and <i>default</i>).
     </p>
     <p>
-      There are a few different examples below of the switch statement.
+      Most importantly the <i>switch statement</i> can also be a <i>switch expression</i> - this means that the switch can actually
+      return a value. Importantly there must always be a <i>default</i> case with the <i>switch</i>.
+    </p>
+    <p>
+      There are a few different examples below of the <i>switch</i>.
+    </p>
+    <h5 id="switch_simple_enumeration">Switch on Enumerated Values</h5>
+    <p>
+      This is the most similar use of a <i>switch statement</i>  when compared to other programming languages, but even then
+      it can have some very strict semantics.<br/>
+      When used with an 'enumeration', where the <i>case</i> statements refer directly to
+      an enumerated value - <b>all</b> enumerated values must be defined in a <i>case</i>.<br>
+      A <i>default</i> must also be provided for situations where the value being 'switched over' is 'un-set'.
+    </p>
+    <p>
+      The <i>switch</i> is shown below in 'expression' form, but can also be used as a 'statement'.
+    </p>
+    <pre>#!ek9
+defines module introduction
+  defines type
+
+    &lt;?-
+      This is the enumeration that is used in the example below.
+      It is finite in the number of values it can hold.
+    -?&gt;
+    LimitedEnum
+      A,
+      B,
+      C,
+      D
+
+  defines function
+
+    SimpleExhaustiveEnumerationExpressionSwitch()
+      -> val as LimitedEnum
+
+      result <- switch val
+        <- rtn as String?
+        case LimitedEnum.A
+          rtn: "Just A"
+        case LimitedEnum.B
+          rtn: "Just B"
+        case LimitedEnum.C
+          rtn: "Just C"
+        case LimitedEnum.D
+          rtn: "Just D"
+        default
+          rtn: "Val is not set"
+
+      assert result?
+
+//EOF</pre>
+    <p>
+      The example above, shows the definition of a simple 'Enumerated type', then when provided with a variable
+      'val' which is of the 'Enumerated type' <b>LimitedEnum</b>; a <i>switch expression</i>  is used to compare that value with each of
+      the values in the 'Enumerated type'. Note the use of the returning values from the <i>switch expression</i>.
+    </p>
+    <p>
+      When used this way <i>switch</i> requires all enumerated values to appear in a <i>case</i> and a <i>default</i> statement.
+      In this way the <i>switch</i> is <u>exhaustive</u> in its semantic checking. The EK9 compiler will issue errors if not all enumerated values are
+      present or if the <i>default</i> statement is missing.
+    </p>
+    <p>
+      You might consider this too 'strict', but it has a significant advantage in highlighting common errors that present themselves when
+      additional values are added to the 'Enumerated type'. In this situation existing code will fail to compile when an additional
+      enumerated value is added to the 'Enumerated type'. This is a positive situation because it now forces the developer to assess the processing.
+    </p>
+    <p>
+      If you do not want to deal with each enumerated value explicitly, there is a simple and elegant solution to this.
+      This is shown if the following example.
+    </p>
+    <pre>
+...
+  defines function
+
+    SimpleNonExhaustiveEnumerationExpressionSwitch()
+      -> val as LimitedEnum
+
+      result <- switch val
+        <- rtn as String?
+        case == LimitedEnum.A
+          rtn: "Just A"
+        default
+          rtn: "Val is anything but A"
+
+      assert result?
+
+//EOF</pre>
+    <p>
+      By simply making one of the <i>case</i> statements operate as an 'expression' in this case using the <b>==</b> (equality) operator,
+      the exhaustive nature of the <i>switch</i> statement is <b>turned off</b>. Now if additional enumerated values are added to the
+      'Enumerated type' they automatically get dealt with in the <i>default</i> block.
+    </p>
+    <p>
+      This provides a less strict <i>switch</i>, similar to many other programming languages.
+    </p>
+    <h5 id="switch_like_if_expression">Switch form similar to an if expression</h5>
+    <p>
+      The following example, shows how a <i>switch expression</i> can be employed in a similar manner to an 'if expression'.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+    SimpleSwitchExampleWithTernaryAsAnAlternative()
+      -> conditionVariable as Boolean
+
+      //This is the reason that an ifExpression is not needed.
+      resultValue <- given conditionVariable
+        <- result String?
+        when true
+          result: "Steve"
+        default
+          result: "Not Steve"
+
+      assert resultValue?
+
+      //But above could just have been a ternary
+      resultValue2 <- conditionVariable <- "Steve" else "Not Steve"
+      assert resultValue2?
+
+//EOF</pre>
+    <p>
+      The above example, highlights why EK9 does not have an 'if expression', the <i>switch</i> is so flexible and
+      can be used as an expression (as shown) that it provides all the functionality needed.<br/>
+      However, for simple expressions like this a 'ternary statement' (also shown) could have been used.
+    </p>
+    <p>
+      When the blocks in the 'when true' or <i>default</i> statements are multiline the 'ternary' would not have been
+      usable and the <i>switch expression</i> with larger blocks would have been more appropriate.
+    </p>
+    <h5 id="switch_statement">Switch in statement form</h5>
+    <p>
+      The following example, shows a simple <i>switch statement</i>, but with expressions as part of the <i>case</i> statement.<br/>
+      The alternative syntax of <i>given/when</i> rather than <i>switch</i>/<i>case</i> is also shown.
+    </p>
+    <p>
+      This example also highlights the use of the 'pure' syntax and the necessary change in semantics to ensure variables
+      are only assigned to when unset (this is the <b>:=?</b> syntax).
     </p>
     <pre>#!ek9
 defines module introduction
@@ -300,132 +445,47 @@ defines module introduction
       <- temp as Integer: Integer()
 
       if country == "GB"
-        temp: 20
+        temp :=? 20
       else if country == "DE"
-        temp = 41
+        temp :=? 41
 
-  defines program
-
-    simpleSwitch()
-      stdout <- Stdout()
+    ASimpleSwitchStatement() as pure
+      -> conditionVariable as Integer
       multiplier <- 5
-      //This is what we will use to 'switch on'
-      conditionVariable <- 21
+
       //This is what we will vary based on the condition variable
-      resultText <- String()
+      resultText1 <- String()
 
       switch conditionVariable
         case < 12
-          resultText: "Moderate"
+          resultText1 :=? "Moderate"
         case > 10*multiplier
-          resultText: "Very High"
+          resultText1 :=? "Very High"
         case 25, 26, 27
-          resultText: "Slightly High"
+          resultText1 :=? "Slightly High"
         case currentTemperature("GB"), 21, 22, 23, 24
-          resultText: "Perfect"
+          resultText1 :=? "Perfect"
         default
-          resultText: "Not Suitable"
+          resultText1 :=? "Not Suitable"
 
-      stdout.println(resultText)
+      assert resultText1?
 
+      resultText2 <- String()
       //The same switch could have been written using given and when
       given conditionVariable
         when < 12
-          resultText: "Moderate"
+          resultText2 :=? "Moderate"
         when > 10*multiplier
-          resultText: "Very High"
+          resultText2 :=? "Very High"
         when 25, 26, 27
-          resultText: "Slightly High"
+          resultText2 :=? "Slightly High"
         when currentTemperature("GB"), 21, 22, 23, 24
-          resultText: "Perfect"
+          resultText2 :=? "Perfect"
         default
-          resultText: "Not Suitable"
+          resultText2 :=? "Not Suitable"
 
-      stdout.println(resultText)
+      assert resultText2?
 
-    //An example of 'returning' a value from a switch statement - so use switch as an expression.
-    returningSwitch()
-      stdout <- Stdout()
-      //This is what we will use to 'switch on'
-      conditionVariable <- "Name"
-      //This is what we will vary based on the condition variable
-
-      resultText <- switch conditionVariable
-        <- result String: String()
-        case 'D'
-          result: "Inappropriate"
-        case matches /[nN]ame/
-          result: "Perfect"
-        case > "Gandalf"
-          result: "Moderate"
-        case < "Charlie"
-          result: "Very High"
-        default
-          result: "Suitable"
-
-      stdout.println(resultText)
-
-    //Again return a value from a switch but this time employ a guarded assignment as well
-    switchWithGuard()
-      stdout <- Stdout()
-      temperature <- Integer()
-      resultText <- switch temperature ?= currentTemperature("GB") with temperature
-        <- result String: String()
-        case 'D'
-          result: "Inappropriate"
-        case matches /[nN]ame/
-          result: `Perfect at ${temperature}`
-        case > "Gandalf"
-          result: "Moderate"
-        case < "Charlie"
-          result: "Very High"
-        default
-          result: "Suitable"
-
-      stdout.println(resultText)
-
-    //Rather than use a guard, this is a pure assignment.
-    switchWithAssignment()
-      stdout <- Stdout()
-      temperature <- Integer()
-      resultText <- switch temperature := currentTemperature("GB") with temperature
-        <- result String: String()
-        case 'D'
-          result: "Inappropriate"
-        case matches /[nN]ame/
-          result: `Perfect at ${temperature}`
-        case > "Gandalf"
-          result: "Moderate"
-        case < "Charlie"
-          result: "Very High"
-        default
-          result: "No idea"
-
-      stdout.println(resultText)
-
-    //Finally rather than declare temperature outside of the switch, it is now declared and
-    //assigned within the switch scope
-    switchWithDeclaration()
-      stdout <- Stdout()
-      resultText <- switch temperature <- currentTemperature("GB") with temperature
-        <- result String: String()
-        case 'D'
-          result: "Inappropriate"
-        case matches /[nN]ame/
-          result: `Perfect at ${temperature}`
-        case > "Gandalf"
-          result: "Moderate"
-        case < "Charlie"
-          result: "Very High"
-        default
-          result: "Suitable"
-
-      stdout.println(resultText)
-
-      //So this means the 'temperature' defined above is now out of scope and so
-      //can be redeclared and used here
-      temperature <- "Some other value and type"
-      assert temperature?
 //EOF</pre>
     <br/>
     <p>
@@ -438,10 +498,42 @@ defines module introduction
       The switch in EK9 has been given great power and versatility - take care with it. Elect to do
       the simplest matching where ever possible.
     </p>
+    <h5 id="switch_expression">Switch in expression form</h5>
     <p>
-      In the <b>returningSwitch</b> example above you can see how the switch is used in an expression
+      This example shows a function in 'pure' form again. This time the <i>switch</i> has a return value and is
+      used as an expression. The use of <i>switch</i> in expression form fits well with the 'pure' nature of only
+      assigning a value to a variable once.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+
+    ASwitchAsExpression() as pure
+      -> conditionVariable as String
+
+      //This is more like a chained if/else with expressions in the <i>case</i>
+      resultText <- switch conditionVariable
+        <- result String?
+        case 'D'
+          result :=? "Inappropriate"
+        case matches /[nN]ame/
+          result :=? "Perfect"
+        case > "Gandalf"
+          result :=? "Moderate"
+        case < "Charlie"
+          result :=? "Very High"
+        default
+          result :=? "Suitable"
+
+      assert resultText?
+
+//EOF</pre>
+
+    <p>
+      In the <b>ASwitchAsExpression</b> example above you can see how the <i>switch</i> is used in an expression
       that both declares a new variable <b>resultText</b> and initialises it from the <b>return</b>
-      value from the <b>switch</b>.
+      value from the <i>switch</i>.
     </p>
     <p>
       As shown above, it is possible to match <i>String</i> values with both lexical comparison and
@@ -450,10 +542,99 @@ defines module introduction
       EK9 introduces range matching and while this is more powerful it requires much <u>more focus</u> to get
       right.
     </p>
+    <h5 id="switch_with_conditions">Switch with a guard/assignment/declaration condition</h5>
+    <p>
+      The concept of a guard expression is much like a containing 'if statement'.
+      In this example if the returning value from 'currentTemperature' was 'un-set' then the variable
+      'temperature' would remain 'un-set'. If that was the case then the whole switch expression would not be
+      evaluated at all. This would mean that 'resultText' would also be 'un-set'.
+    </p>
+    <p>
+      The assignment and declaration form always process the <i>switch</i> statement, it's just the declaration is completed
+      inside the <i>switch</i> scope.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+
+    currentTemperature() as pure
+      -> country as String
+      <- temp as Integer: Integer()
+
+      if country == "GB"
+        temp :=? 20
+      else if country == "DE"
+        temp :=? 41
+
+    ASwitchWithGuard()
+      temperature <- Integer()
+      multiplier <- 5
+      resultText <- switch temperature ?= currentTemperature("GB") with temperature
+        <- result String: String()
+        case < 12
+          result: "Moderate"
+        case > 10*multiplier
+          result: "Very High"
+        case 25, 26, 27
+          result: "Slightly High"
+        case 21, 22, 23, 24
+          result: "Perfect"
+        default
+          result: "Suitable"
+
+      assert resultText?
+
+    ASwitchWithAssignment()
+      -> multiplier as Integer
+
+      temperature <- Integer()
+      resultText <- switch temperature := currentTemperature("GB") with temperature
+        <- result String: String()
+        case < 12
+          result: "Moderate"
+        case > 10*multiplier
+          result: "Very High"
+        case 25, 26, 27
+          result: "Slightly High"
+        case 21, 22, 23, 24
+          result: "Perfect"
+        default
+          result: "Suitable"
+
+      assert resultText?
+
+    ASwitchWithDeclaration()
+      -> multiplier as Integer
+
+      resultText <- switch temperature <- currentTemperature("GB") with temperature
+        <- result String: String()
+        case < 12
+          result: "Moderate"
+        case > 10*multiplier
+          result: "Very High"
+        case 25, 26, 27
+          result: "Slightly High"
+        case 21, 22, 23, 24
+          result: "Perfect"
+        default
+          result: "Suitable"
+
+      assert resultText?
+
+      //So this means the 'temperature' defined above is now out of scope and so
+      //can be declared a-fresh and used here
+      temperature <- "Some other value"
+      assert temperature?
+
+//EOF</pre>
     <p>
       One final point, the switches in EK9 <b>must</b> have a <b>default</b> and there is no
       <u>fall through</u> (and hence no <b>break</b> keyword like in C/C++/C#/Java). The
-      <u>fall through</u> capability is delivered by allowing multiple values per 'case'.
+      <u>fall through</u> capability is delivered by allowing multiple values per <i>case</i>.
+    </p>
+    <p>
+      A lot of capability and flexibility has been added into the <i>switch</i>.
       The EK9 <i>switch</i> is much more like an <i>if/else</i> chain than a <i>switch</i> from C, C++ or Java.
     </p>
     <h4 id="try_catch">Try Catch and Exceptions</h4>
@@ -805,7 +986,7 @@ defines module introduction
       as part of the dictionary. This means it is possible to lookup a <i>function</i> in a dictionary and then call that <i>function</i>.
     </p>
     <p>
-      It is this latter concept, that if you really do have unique values to 'switch' on, then use a
+      It is this latter concept, that if you really do have unique values to <i>switch</i> on, then use a
       <a href="collectionTypes.html#dict">Dictionary/Map</a> - you will probably find it is faster and easier to understand.
       The use of <b>switch</b> is designed to make chained <b>if/else</b> blocks easier to understand.
     </p>
