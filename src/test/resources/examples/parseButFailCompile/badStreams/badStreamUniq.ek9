@@ -34,6 +34,14 @@ defines module bad.streams7
       -> arg0 as C2
       assert arg0?
 
+    InvalidHashFunction3() as pure
+      -> arg0 as C2
+      <- rtn as GetC2AsString: GetC2AsString
+
+    GetC2AsString()
+      -> arg0 as C2
+      <- rtn as String: $ arg0
+
   defines class
     <?-
       Calls with a hashcode method so can be checked for uniqueness.
@@ -130,6 +138,15 @@ defines module bad.streams7
 
       assert collection?
 
+    StreamCatToUniqWithFunction4()
+      collection <- List() of String
+
+      //Just a copy of the above really, but this 'GetC2AsString' returns a string version of C2
+      //So that does have a hashcode operation on it. so all is good.
+      cat [C2("A"), C2("B"), C2("A"), C2("Z")] | uniq by GetC2AsString > collection
+
+      assert collection?
+
     <?-
       Invalid use of uniq, as C2 does not have the #? hashcode operator.
       So really it would require a function to accept a C2 and return an Integer hashcode.
@@ -165,6 +182,17 @@ defines module bad.streams7
       cat [C2("A"), C2("B"), C2("A"), C2("Z")] | uniq by InvalidHashFunction2 > collection
 
       assert collection?
+
+    InvalidStreamCatToUniq5()
+      collection <- List() of String
+
+      //While InvalidHashFunction3 does accept a C2 it returns a function
+      //So this cannot be used to workout the hashcode.
+      @Error: FULL_RESOLUTION: IS_NOT_AN_AGGREGATE_TYPE
+      cat [C2("A"), C2("B"), C2("A"), C2("Z")] | uniq by InvalidHashFunction3 > collection
+
+      assert collection?
+
 
 //EOF
 
