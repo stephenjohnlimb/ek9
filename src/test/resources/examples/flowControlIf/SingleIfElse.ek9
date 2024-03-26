@@ -15,4 +15,7 @@ defines module com.ifelse
       else
         trigger: Boolean()
 
+      //Just ensure referenced and is set.
+      assert trigger?
+
 //EOF

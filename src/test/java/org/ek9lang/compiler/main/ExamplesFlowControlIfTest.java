@@ -9,10 +9,10 @@ import org.ek9lang.compiler.common.PhasesTest;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 import org.junit.jupiter.api.Test;
 
-class ExamplesSwitchFlowControlTest extends PhasesTest {
+class ExamplesFlowControlIfTest extends PhasesTest {
 
-  public ExamplesSwitchFlowControlTest() {
-    super("/examples/switchFlowControl", false, false);
+  public ExamplesFlowControlIfTest() {
+    super("/examples/flowControlIf", false, false);
   }
 
   @Test
@@ -25,6 +25,7 @@ class ExamplesSwitchFlowControlTest extends PhasesTest {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
 
-    new SymbolCountCheck("com.customer.just.switches", 11).test(program);
+    new SymbolCountCheck("com.customer.just.ifs", 6).test(program);
+    new SymbolCountCheck("com.ifelse", 1).test(program);
   }
 }

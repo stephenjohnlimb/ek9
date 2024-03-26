@@ -9,27 +9,22 @@ import org.ek9lang.compiler.common.PhasesTest;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 import org.junit.jupiter.api.Test;
 
-class ExamplesFlowControlTest extends PhasesTest {
+class ExamplesFlowControlSwitchTest extends PhasesTest {
 
-  public ExamplesFlowControlTest() {
-    super("/examples/flowControl");
+  public ExamplesFlowControlSwitchTest() {
+    super("/examples/flowControlSwitch", false, false);
   }
 
   @Test
   void testPhasedDevelopment() {
-    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
+    testToPhase(CompilationPhase.IR_ANALYSIS);
   }
 
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
-    new SymbolCountCheck("com.customer.just.loops", 14).test(program);
 
-    new SymbolCountCheck("com.customer.loop", 14).test(program);
-
-    //Includes a dynamic class
-    new SymbolCountCheck("com.customer.exceptions", 11).test(program);
-
+    new SymbolCountCheck("com.customer.just.switches", 11).test(program);
   }
 }

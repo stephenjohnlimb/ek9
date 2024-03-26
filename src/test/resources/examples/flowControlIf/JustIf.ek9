@@ -2,19 +2,19 @@
 defines module com.customer.just.ifs
 
   defines function
-    currentTemperature()
+
+    currentTemperature() as pure
       -> country as String
       <- temp as Integer: Integer()
       
       if country == "GB"
-        temp: 20
+        temp :=? 20
       else if country == "DE"
-        temp = 41
-        
-  defines program
+        temp :=? 41
+
     simpleIf()
       stdout <- Stdout()
-      
+
       suitableValue <- String()
       valueToTest <- 9
       
@@ -53,8 +53,8 @@ defines module com.customer.just.ifs
       stdout <- Stdout()
 
       //Note that this value is 'unset' in the sense it has no meaningful value
-      selectedTemperature <- Integer()       
-       
+      selectedTemperature <- Integer()
+
       //See if we can find some hot temperature somewhere so in the US we have no idea! because value is unset
       when selectedTemperature := currentTemperature("US") with selectedTemperature > 50
         stdout.println(`Temp of ${selectedTemperature} a little warm in the US`)
@@ -110,11 +110,11 @@ defines module com.customer.just.ifs
       value <- 20
 
       //just checking I can use expressions in the range operator here.
-      isWithing <- value in 19 ... 21-1
-      stdout.println(`Checking if ${value} is within a range of 19 ... 21 - 1`)
+      isWithin <- value in 19 ... 21-1
+      stdout.println(`Checking if ${value} is within a range of 19 ... 21 - 1: result is ${isWithin}`)
 
       isNotWithin <- value not in 16-2 ... 21-1
 
-      stdout.println(`Checking if ${value} is NOT within a range of 16-2 ... 21 - 1`)
+      stdout.println(`Checking if ${value} is NOT within a range of 16-2 ... 21 - 1: result is ${isNotWithin}`)
 
 //EOF
