@@ -130,7 +130,7 @@
     <p>
       Examples of the different types of flow control are show below in the next sections.
     </p>
-    <h4 id="if_elseif_else">If, Else If ,Else</h4>
+    <h4 id="if_elseif_else">If statements</h4>
     <p>
       A traditional control statement - but also review <a href="operators.html#ternary">ternary operators</a> and
       <a href="operators.html#assignment_coalescing">assignment coalescing</a>.
@@ -140,12 +140,91 @@
     </p>
     <p>
       But when you really do need an <i>if</i> statement EK9 has a number of additional features that give you
-      more control and flexibility. These are shown below.
+      more control and flexibility.
+    </p>
+    <h5 id="simple_if_elseif_else">Simple If statements</h5>
+    <p>
+      This is the 'if/else' in its simplest form.
     </p>
     <pre>#!ek9
 defines module introduction
+
   defines function
 
+    testIfElseInteger()
+      -> first as Integer
+
+      trigger <- false
+
+      if first > 21
+        trigger: true
+      else if first < 10
+        trigger: false
+      else
+        trigger: Boolean()
+
+      //Just ensure referenced
+      assert trigger?
+
+    testIfElseIntegerAsPure() as pure
+      -> first as Integer
+
+      trigger <- Boolean()
+
+      if first > 21
+        trigger :=? true
+      else if first < 10
+        trigger :=? false
+
+      //Just ensure referenced
+      assert trigger?
+//EOF</pre>
+    <p>
+      The above example <i>testIfElseInteger</i> should be fairly straightforward to understand, basically depending on the value of
+      <i>first</i>, the value of <i>trigger</i> is altered.
+    </p>
+    <p>
+      The second example <i>testIfElseIntegerAsPure</i> above, highlights how the <b>pure</b> keyword can be used.
+      This has a more strict use/reuse of variables and assignment.
+    </p>
+    <h5 id="sort_of_if_with_range">Range </h5>
+    <p>
+      This is a sort of <i>if statement</i> but with a very specific and defined use.
+      It incorporates the EK9 concept of <i>range</i>s of values.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+
+    kotlinLikeRangeCheck()
+      ->
+        value as Integer
+        lowerBound as Integer
+        upperBound as Integer
+
+      stdout <- Stdout()
+
+      isWithin <- value in lowerBound ... upperBound
+      stdout.println(`Checking if ${value} is within a range of ${lowerBound} ... ${upperBound}: result is ${isWithin}`)
+
+      isNotWithin <- value not in 16-2 ... upperBound-1
+
+      stdout.println(`Checking if ${value} is NOT within a range of 16-2 ... ${upperBound - 1}: result is ${isNotWithin}`)
+
+//EOF</pre>
+    <p>
+      The example above shows how checks can be made on a variable to check they are (or are not) within a specific
+      range of values. Note that the start and end values can be calculated values and also in the form of expressions.
+    </p>
+    <h5 id="boolean_logic_with_if">If statement with boolean logic</h5>
+    <p>
+      Simple example og using combinational boolean logic as part of the <i>if</i> statement.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
     currentTemperature() as pure
       -> country as String
       <- temp as Integer: Integer()
@@ -155,9 +234,6 @@ defines module introduction
       else if country == "DE"
         temp :=? 41
 
-  defines program
-
-    //An example of a normal if statement.
     simpleIf()
       stdout <- Stdout()
 
@@ -170,17 +246,15 @@ defines module introduction
       secondValue <- 21
       specialCondition <- true
 
-      //Shows combination of and and or.
       if valueToTest < 10 and secondValue > 19 or specialCondition
         stdout.println("Test OK")
 
-      //Alternate layout if the expression is too long for a single line
       if valueToTest < 10 and
       secondValue > 19 or
       specialCondition
         stdout.println("Test OK")
 
-      //Rather than use the keyword 'if' you can use 'when' - it has the same meaning
+      //Rather than use the keyword 'if' you can use 'when'
       when valueToTest < 10
         stdout.println(`Value ${valueToTest} is less than 10`)
 
@@ -194,7 +268,29 @@ defines module introduction
 
       stdout.println(suitableValue)
 
-    //An example of using an assignment before the control part of the if statement.
+//EOF</pre>
+    <p>
+      This example (above) shows alternative syntax and layout and combination logic expressions.
+    </p>
+    <h5 id="if_with_assignment_guard_declaration">If statement with assignment/guard and declaration</h5>
+    <p>
+      In the same sort of way the <i>switch</i> supports guard, assignment and declarations as part of its structure,
+      the <i>if</i> statement has the same features.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+
+    currentTemperature() as pure
+      -> country as String
+      <- temp as Integer: Integer()
+
+      if country == "GB"
+        temp :=? 20
+      else if country == "DE"
+        temp :=? 41
+
     assignmentInIf()
       stdout <- Stdout()
 
@@ -213,8 +309,6 @@ defines module introduction
       else
         stdout.println("Not sure where it might be warm")
 
-
-    //An example of using a guarded assignment before the control part of the if statement.
     guardedAssignmentInIf()
       stdout <- Stdout()
 
@@ -233,13 +327,8 @@ defines module introduction
       else
         stdout.println("Not sure where it might be warm")
 
-    //An example of declaration before the control.
-    //The new variable is only visible in the current if/else blocks.
-
     declarationInIf()
       stdout <- Stdout()
-      //While this may initially look a little strange
-      //It is just a way of declaring a variable for the whole if/else scope block.
       when selectedTemperature <- currentTemperature("US") with selectedTemperature > 50
         stdout.println("Temp of " + $selectedTemperature + " a little warm in the US")
       else when selectedTemperature ?= currentTemperature("US") with selectedTemperature < 50
@@ -252,8 +341,10 @@ defines module introduction
         stdout.println("Not sure where it might be warm")
 
 //EOF</pre>
+    <br/>
+    <h5>If statement summary</h5>
     <p>
-      The main points in the example above are:
+      The main points in the examples above are:
     </p>
     <ul>
       <li>The use of <b>when</b> rather than <b>if</b> in some cases - developer choice</li>
@@ -283,7 +374,7 @@ defines module introduction
       conditional flow control. This is augmented further in the switch statement that follows.
     </p>
     <p>
-      The guarded assignment is very useful for dealing with methods or functions that may return 'unset' values as
+      The guarded assignment is very useful for dealing with methods or functions that may return 'un-set' values as
       they keep the additional checks much simpler.
     </p>
     <h4 id="switch">Switch</h4>

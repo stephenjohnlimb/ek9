@@ -4,8 +4,8 @@ defines module com.ifelse
   defines function
   
     testIfElseInteger()
-    
-      first <- 20      
+      -> first as Integer
+
       trigger <- false
             
       if first > 21
@@ -15,7 +15,20 @@ defines module com.ifelse
       else
         trigger: Boolean()
 
-      //Just ensure referenced and is set.
+      //Just ensure referenced
+      assert trigger?
+
+    testIfElseIntegerAsPure() as pure
+      -> first as Integer
+
+      trigger <- Boolean()
+
+      if first > 21
+        trigger :=? true
+      else if first < 10
+        trigger :=? false
+
+      //Just ensure referenced
       assert trigger?
 
 //EOF

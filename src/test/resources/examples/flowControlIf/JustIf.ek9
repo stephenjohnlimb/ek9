@@ -105,16 +105,18 @@ defines module com.customer.just.ifs
         stdout.println("Not sure where it might be warm")
 
     kotlinLikeRangeCheck()
+      ->
+        value as Integer
+        lowerBound as Integer
+        upperBound as Integer
+
       stdout <- Stdout()
 
-      value <- 20
+      isWithin <- value in lowerBound ... upperBound
+      stdout.println(`Checking if ${value} is within a range of ${lowerBound} ... ${upperBound}: result is ${isWithin}`)
 
-      //just checking I can use expressions in the range operator here.
-      isWithin <- value in 19 ... 21-1
-      stdout.println(`Checking if ${value} is within a range of 19 ... 21 - 1: result is ${isWithin}`)
+      isNotWithin <- value not in 16-2 ... upperBound-1
 
-      isNotWithin <- value not in 16-2 ... 21-1
-
-      stdout.println(`Checking if ${value} is NOT within a range of 16-2 ... 21 - 1: result is ${isNotWithin}`)
+      stdout.println(`Checking if ${value} is NOT within a range of 16-2 ... ${upperBound - 1}: result is ${isNotWithin}`)
 
 //EOF

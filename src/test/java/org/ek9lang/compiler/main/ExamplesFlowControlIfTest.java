@@ -26,6 +26,6 @@ class ExamplesFlowControlIfTest extends PhasesTest {
     assertEquals(0, numberOfErrors);
 
     new SymbolCountCheck("com.customer.just.ifs", 6).test(program);
-    new SymbolCountCheck("com.ifelse", 1).test(program);
+    new SymbolCountCheck("com.ifelse", 2).test(program);
   }
 }
