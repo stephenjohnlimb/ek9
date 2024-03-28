@@ -98,6 +98,9 @@
       still required).
     </p>
     <p>
+      The examples shown below start with simple version of each flow-control syntax and then show the additional features in EK9.
+    </p>
+    <p>
       The traditional flow control mechanisms available are broadly categorised as follows:
     </p>
     <h5>Branching</h5>
@@ -136,7 +139,7 @@
       <a href="operators.html#assignment_coalescing">assignment coalescing</a>.
       You may find that syntax much more appealing and terse in certain situations. See
       <a href="operators.html#contrast_if_else_ternary">contrast of if/else and ternary operators</a>
-      for common situations and especially for dealing with variables that may be <b>unset</b>.
+      for common situations and especially for dealing with variables that may be <b>un-set</b>.
     </p>
     <p>
       But when you really do need an <i>if</i> statement EK9 has a number of additional features that give you
@@ -179,18 +182,21 @@ defines module introduction
       //Just ensure referenced
       assert trigger?
 //EOF</pre>
+    <br/>
     <p>
       The above example <i>testIfElseInteger</i> should be fairly straightforward to understand, basically depending on the value of
       <i>first</i>, the value of <i>trigger</i> is altered.
     </p>
     <p>
       The second example <i>testIfElseIntegerAsPure</i> above, highlights how the <b>pure</b> keyword can be used.
-      This has a more strict use/reuse of variables and assignment.
+      This has a more strict use/reuse of variables and assignment. Note the use of <b>:=?</b> this is the assignment
+      (but only when the 'left-hand-side' is <b>un-set</b>).
     </p>
     <h5 id="sort_of_if_with_range">Range </h5>
     <p>
       This is a sort of <i>if statement</i> but with a very specific and defined use.
-      It incorporates the EK9 concept of <i>range</i>s of values.
+      It incorporates the EK9 concept of <i>range</i>s of values. It is very useful and terse for simple situations where a
+      developer need to check if a value is or is not within a specific range.
     </p>
     <pre>#!ek9
 defines module introduction
@@ -206,25 +212,30 @@ defines module introduction
       stdout <- Stdout()
 
       isWithin <- value in lowerBound ... upperBound
-      stdout.println(`Checking if ${value} is within a range of ${lowerBound} ... ${upperBound}: result is ${isWithin}`)
+      stdout.println(`${value} is within a range of ${lowerBound} ... ${upperBound}: ${isWithin}`)
 
       isNotWithin <- value not in 16-2 ... upperBound-1
 
-      stdout.println(`Checking if ${value} is NOT within a range of 16-2 ... ${upperBound - 1}: result is ${isNotWithin}`)
+      stdout.println(`${value} is NOT within a range of 16-2 ... ${upperBound - 1}: ${isNotWithin}`)
 
 //EOF</pre>
+    <br/>
     <p>
       The example above shows how checks can be made on a variable to check they are (or are not) within a specific
       range of values. Note that the start and end values can be calculated values and also in the form of expressions.
+      <br/>
+      In someways it is similar to a <i>ternary</i> expression or a very simple <i>if expression</i> (EK9 uses switch for this type of
+      flow control - where the conditions of more complex).
     </p>
     <h5 id="boolean_logic_with_if">If statement with boolean logic</h5>
     <p>
-      Simple example og using combinational boolean logic as part of the <i>if</i> statement.
+      Simple example of using combination boolean logic as part of the <i>if</i> statement.
     </p>
     <pre>#!ek9
 defines module introduction
 
   defines function
+
     currentTemperature() as pure
       -> country as String
       <- temp as Integer: Integer()
@@ -249,6 +260,7 @@ defines module introduction
       if valueToTest < 10 and secondValue > 19 or specialCondition
         stdout.println("Test OK")
 
+      //The same logic as above - but in a different layout.
       if valueToTest < 10 and
       secondValue > 19 or
       specialCondition
@@ -267,14 +279,14 @@ defines module introduction
         suitableValue: "Just Right"
 
       stdout.println(suitableValue)
-
 //EOF</pre>
+    <br/>
     <p>
       This example (above) shows alternative syntax and layout and combination logic expressions.
     </p>
     <h5 id="if_with_assignment_guard_declaration">If statement with assignment/guard and declaration</h5>
     <p>
-      In the same sort of way the <i>switch</i> supports guard, assignment and declarations as part of its structure,
+      In the same sort of way the <i>switch</i> (see later) supports guard, assignment and declarations as part of its structure,
       the <i>if</i> statement has the same features.
     </p>
     <pre>#!ek9
@@ -339,12 +351,11 @@ defines module introduction
         stdout.println("Temp of " + $selectedTemperature + " a little warm in the DE")
       else
         stdout.println("Not sure where it might be warm")
-
 //EOF</pre>
     <br/>
     <h5>If statement summary</h5>
     <p>
-      The main points in the examples above are:
+      The main points in the examples of 'if statements' above are:
     </p>
     <ul>
       <li>The use of <b>when</b> rather than <b>if</b> in some cases - developer choice</li>
@@ -374,31 +385,37 @@ defines module introduction
       conditional flow control. This is augmented further in the switch statement that follows.
     </p>
     <p>
-      The guarded assignment is very useful for dealing with methods or functions that may return 'un-set' values as
+      The guarded assignment is very useful for dealing with methods or functions that may return <b>un-set</b> values as
       they keep the additional checks much simpler.
+    </p>
+    <p>
+      The next section covers the <i>switch</i> statement/expression - which is designed to take over when there are many
+      conditions to consider.
     </p>
     <h4 id="switch">Switch</h4>
     <p>
-      The <i>switch</i> in EK9 is similar in someways to the <i>if/else</i> type flow; but the ordering of cases is important.
+      The <i>switch</i> in EK9 is similar in someways to the <i>if/else</i> type flow; the ordering of cases is important.
       It also supports multiple and varied matches and can be used to <b>return</b> a value
-      like an expression. Like the <b>if</b> statement it can also use alternative keywords.<br/>
-      When the <i>switch</i> is used with specific enumeration values it works more like a traditional <i>switch</i>, indeed it then
-      mandates that all enumeration values are handled by a specific <i>case</i> (and <i>default</i>).
+      like an expression. Just like the <b>if</b> statement it can also use alternative keywords.
+    </p>
+    <p>
+      When the <i>switch</i> is used an enumeration it works more like a traditional <i>switch</i> as seen in other programming languages.
+      Indeed, it then mandates that all enumeration values are handled by a specific <i>case</i> (and <i>default</i> condition must also be provided).
     </p>
     <p>
       Most importantly the <i>switch statement</i> can also be a <i>switch expression</i> - this means that the switch can actually
       return a value. Importantly there must always be a <i>default</i> case with the <i>switch</i>.
     </p>
     <p>
-      There are a few different examples below of the <i>switch</i>.
+      The examples below show some different uses of the <i>switch</i> statement/expression.
     </p>
     <h5 id="switch_simple_enumeration">Switch on Enumerated Values</h5>
     <p>
       This is the most similar use of a <i>switch statement</i>  when compared to other programming languages, but even then
-      it can have some very strict semantics.<br/>
+      it has some very strict semantics.<br/>
       When used with an 'enumeration', where the <i>case</i> statements refer directly to
       an enumerated value - <b>all</b> enumerated values must be defined in a <i>case</i>.<br>
-      A <i>default</i> must also be provided for situations where the value being 'switched over' is 'un-set'.
+      A <i>default</i> must also be provided for situations where the value being 'switched over' is <b>un-set</b>.
     </p>
     <p>
       The <i>switch</i> is shown below in 'expression' form, but can also be used as a 'statement'.
@@ -436,8 +453,8 @@ defines module introduction
           rtn: "Val is not set"
 
       assert result?
-
 //EOF</pre>
+    <br/>
     <p>
       The example above, shows the definition of a simple 'Enumerated type', then when provided with a variable
       'val' which is of the 'Enumerated type' <b>LimitedEnum</b>; a <i>switch expression</i>  is used to compare that value with each of
@@ -455,7 +472,7 @@ defines module introduction
     </p>
     <p>
       If you do not want to deal with each enumerated value explicitly, there is a simple and elegant solution to this.
-      This is shown if the following example.
+      This is shown in the following example.
     </p>
     <pre>
 ...
@@ -472,8 +489,8 @@ defines module introduction
           rtn: "Val is anything but A"
 
       assert result?
-
 //EOF</pre>
+    <br/>
     <p>
       By simply making one of the <i>case</i> statements operate as an 'expression' in this case using the <b>==</b> (equality) operator,
       the exhaustive nature of the <i>switch</i> statement is <b>turned off</b>. Now if additional enumerated values are added to the
@@ -506,10 +523,10 @@ defines module introduction
       //But above could just have been a ternary
       resultValue2 <- conditionVariable <- "Steve" else "Not Steve"
       assert resultValue2?
-
 //EOF</pre>
+    <br/>
     <p>
-      The above example, highlights why EK9 does not have an 'if expression', the <i>switch</i> is so flexible and
+      The above example highlights why EK9 does not have an 'if expression', the <i>switch</i> is so flexible and
       can be used as an expression (as shown) that it provides all the functionality needed.<br/>
       However, for simple expressions like this a 'ternary statement' (also shown) could have been used.
     </p>
@@ -519,7 +536,7 @@ defines module introduction
     </p>
     <h5 id="switch_statement">Switch in statement form</h5>
     <p>
-      The following example, shows a simple <i>switch statement</i>, but with expressions as part of the <i>case</i> statement.<br/>
+      The following example, shows a simple <i>switch statement</i>, but with expressions as part of the <i>case</i> statements.<br/>
       The alternative syntax of <i>given/when</i> rather than <i>switch</i>/<i>case</i> is also shown.
     </p>
     <p>
@@ -586,6 +603,10 @@ defines module introduction
       that when using functions in the match there are no <u>side effects</u> from those functions.
     </p>
     <p>
+      Unlike other programming languages there is no <b>break</b> or <b>yield</b> use. There is no
+      <i>case</i> 'fall-through'; this catered for by allowing multiple expression conditions per <i>case</i>.
+    </p>
+    <p>
       The switch in EK9 has been given great power and versatility - take care with it. Elect to do
       the simplest matching where ever possible.
     </p>
@@ -593,7 +614,7 @@ defines module introduction
     <p>
       This example shows a function in 'pure' form again. This time the <i>switch</i> has a return value and is
       used as an expression. The use of <i>switch</i> in expression form fits well with the 'pure' nature of only
-      assigning a value to a variable once.
+      assigning a value to a variable once. It also shows some of the other <i>case</i> expression conditions.
     </p>
     <pre>#!ek9
 defines module introduction
@@ -618,9 +639,8 @@ defines module introduction
           result :=? "Suitable"
 
       assert resultText?
-
 //EOF</pre>
-
+    <br/>
     <p>
       In the <b>ASwitchAsExpression</b> example above you can see how the <i>switch</i> is used in an expression
       that both declares a new variable <b>resultText</b> and initialises it from the <b>return</b>
@@ -719,6 +739,7 @@ defines module introduction
       assert temperature?
 
 //EOF</pre>
+    <br/>
     <p>
       One final point, the switches in EK9 <b>must</b> have a <b>default</b> and there is no
       <u>fall through</u> (and hence no <b>break</b> keyword like in C/C++/C#/Java). The
