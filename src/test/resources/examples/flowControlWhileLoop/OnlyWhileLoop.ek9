@@ -1,0 +1,76 @@
+#!ek9
+defines module com.customer.just.loops
+
+  defines function
+
+    collectionsWhileLoop()
+      stdout <- Stdout()
+
+      moreItems <- ['A', 'B', 'C']
+
+      stdout.println("Characters while")
+      itemIter <- moreItems.iterator()
+      while itemIter.hasNext()
+        item <- itemIter.next()
+        stdout.println(item)
+
+      //Now a while with a guard, so reuse the iter from above but reset
+      while itemIter ?= moreItems.iterator() then itemIter.hasNext()
+        item <- itemIter.next()
+        stdout.println(item)
+
+      //Same again but with an assignment
+      while itemIter := moreItems.iterator() then itemIter.hasNext()
+        item <- itemIter.next()
+        stdout.println(item)
+
+      //This time declare a new iterator, but within the while loop
+      while itemIterX <- moreItems.iterator() then itemIterX.hasNext()
+        item <- itemIterX.next()
+        stdout.println(item)
+
+    collectionsDoWhileLoop()
+      stdout <- Stdout()
+
+      moreItems <- ['A', 'B', 'C']
+      itemIter <- moreItems.iterator()
+      if itemIter.hasNext()
+        do
+          item <- itemIter.next()
+          stdout.println(item)  
+        while itemIter.hasNext()
+
+      //The above is a bit clumsy, so lets try this instead
+      //This has the same effect, assuming the iterator came back as unset
+      do itemIter ?= moreItems.iterator() then
+        item <- itemIter.next()
+        stdout.println(item)
+      while itemIter.hasNext()
+
+    <?-
+      Here is the while loop as an expression that can return a value.
+    -?>
+    whileLoopAsExpression()
+      result <- while complete <- false with not complete
+        <- rtn <- 0
+        rtn++
+        complete: rtn == 10
+      assert result?
+
+    <?-
+      Here is the do/while loop as an expression that can return a value.
+    -?>
+    doLoopAsExpression()
+      result <- do complete <- false
+        <- rtn <- 0
+        rtn++
+        complete: rtn == 10
+      while not complete
+
+      assert result?
+
+      //Just to show that 'complete' is bound into the do/while scope
+      complete <- "Almost"
+      assert complete?
+
+//EOF

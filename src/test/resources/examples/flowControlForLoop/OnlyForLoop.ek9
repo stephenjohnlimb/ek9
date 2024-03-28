@@ -1,7 +1,28 @@
 #!ek9
 defines module com.customer.loop
 
+  defines class
+
+    OtherHolder
+      moreNames()
+        <- rtn as NameHolder: NameHolder()
+
+      startValue()
+        <- rtn as Integer: 4
+
+      endValue()
+        <- rtn as Integer: 12
+
+    NameHolder
+      someNames()
+        <- rtn as List of String: ["Alpha", "Beta", "Charlie"]
+
   defines function
+
+    workHours() as pure
+      -> time as Time
+      <- workTime as Boolean: time < 12:00 or time > 14:00
+
     nameProvider as abstract
       <- rtn as List of String?
 
@@ -13,24 +34,7 @@ defines module com.customer.loop
       
     EndValue()
       <- rtn as Integer: 9
-        
-  defines class
 
-    OtherHolder
-      moreNames()
-        <- rtn as NameHolder: NameHolder()
-        
-      startValue()
-        <- rtn as Integer: 4
-        
-      endValue()
-        <- rtn as Integer: 12
-      
-    NameHolder
-      someNames()
-        <- rtn as List of String: ["Alpha", "Beta", "Charlie"]
-
-  defines program
     TestRangeLoopByLiteral()
       stdout <- Stdout()
       
@@ -120,5 +124,60 @@ defines module com.customer.loop
       
       for item in "Steve"
         stdout.println(item)      
+
+    IntegerForLoop()
+      stdout <- Stdout()
+      for i in 1 ... 10
+        stdout.println(`Value [${i}]`)
+
+      for i in 1 ... 9 by 2
+        stdout.println(`Value [${i}]`)
+
+    FloatForLoop()
+      stdout <- Stdout()
+
+      //So you could do a calculation to get this value
+      incrementer <- 6.3
+      for i in 8.2 ... 30.0 by incrementer
+        stdout.println(`Value [${i}]`)
+
+      //descending
+      for i in 90.0 ... 70.0 by -5.0
+        stdout.println(`Value [${i}]`)
+
+    TimeForLoop()
+      stdout <- Stdout()
+
+      //From 9-5:30 every half hour
+      start <- Time().startOfDay() + PT9H
+      end <- Time().endOfDay() - PT6H30M
+      thirtyMinutes <- PT30M
+
+      //Be aware that time loops around.
+      for i in start ... end by thirtyMinutes
+        stdout.println(`Value [${i}]`)
+
+    CollectionsForLoop()
+      stdout <- Stdout()
+
+      stdout.println("Strings")
+      for item in ["Alpha", "Beta", "Charlie"]
+        stdout.println(item)
+
+      stdout.println("Characters1")
+      //The alternative is when you already have an iterator
+      moreItems <- ['A', 'B', 'C']
+      for item in moreItems.iterator()
+        stdout.println(item)
+
+    TimePipeLine()
+      stdout <- Stdout()
+
+      //From 9-5:30 every half hour
+      start <- Time().startOfDay() + PT9H
+      end <- Time().endOfDay() - PT6H30M
+      thirtyMinutes <- PT30M
+
+      for i in start ... end by thirtyMinutes | filter by workHours > stdout
 
 //EOF

@@ -795,29 +795,62 @@ defines module introduction
     </ul>
     <pre>#!ek9
 defines module introduction
-  defines program
-    integerForLoop()
+
+  defines function
+
+    ForLoopExample1
       stdout <- Stdout()
+
       for i in 1 ... 10
         stdout.println(`Value [${i}]`)
 
-      for i in 1 ... 9 by 2
+    ForLoopExample2
+      stdout <- Stdout()
+
+      for i in 0 ... 10 by 2
         stdout.println(`Value [${i}]`)
+
+    ForLoopExample3
+      stdout <- Stdout()
+
+      j <- 2
+      for i in 0 ... 10 by j
+        stdout.println(`Value [${i}]`)
+
+    ForLoopExample4
+      stdout <- Stdout()
+
+      j <- -2
+      for i in 10 ... 0 by j
+        stdout.println(`Value [${i}]`)
+
+    ForLoopAsExpression()
+      result <- for i in 1 ... 10
+        <- rtn <- 0
+        rtn += i
+      assert result?
 
 //EOF</pre>
     <br/>
     <p>
       Please note the spaces around <b>'...'</b>; these are required.
     </p>
+    <p>
+      Importantly it is also possible to use a <i>for</i> loop in the form of an expression that returns a value. This is
+      shown above in function 'ForLoopAsExpression'.
+    </p>
     <h5>For Loop with other types</h5>
     <p>
       In the above example an Integer was used, these examples below show the <b>for</b> loop has much
-      more flexibility however.
+      more flexibility. Indeed, it can be used with any types (even those created by EK9 developers) as long
+      as the appropriate comparison/addition/subtraction operators are provided.
     </p>
     <pre>#!ek9
 defines module introduction
-  defines program
-    floatForLoop()
+
+  defines function
+
+    FloatForLoop()
       stdout <- Stdout()
 
       //So you could do a calculation to get this value
@@ -829,10 +862,10 @@ defines module introduction
       for i in 90.0 ... 70.0 by -5.0
         stdout.println(`Value [${i}]`)
 
-    timeForLoop()
+    TimeForLoop()
       stdout <- Stdout()
 
-      //From 9-5 every half hour
+      //From 9-5:30 every half hour
       start <- Time().startOfDay() + PT9H
       end <- Time().endOfDay() - PT6H30M
       thirtyMinutes <- PT30M
@@ -851,11 +884,8 @@ defines module introduction
       <li>The loop variable type is inferred and is immutable (developers cannot alter its value directly)</li>
       <li>Variables can be used for the start and end of the range and also the incrementer</li>
       <li>By providing your own <b>constructs</b> with the right operators enables them to be used in 'for' loops</li>
+      <li>It can be used as an expression, returning a value</li>
     </ul>
-    <p>
-      This means that it is possible to create collection types and loop of items within those collections. For example
-      a 'document' with 'chapters' and 'chapters' with 'paragraphs'.
-    </p>
     <h5>For Loop with collections</h5>
     <p>
       Unlike some other Object-Oriented languages; EK9 does not attach <b>for loop</b> syntax to <i>Collection</i>
@@ -870,43 +900,20 @@ defines module introduction
 
   defines function
 
-    messagePrefix()
-      <- rtn <- "SomePrefix-"
-
-  defines program
-    collectionsForLoop()
+    CollectionsForLoop()
       stdout <- Stdout()
 
       stdout.println("Strings")
-      //Note item has its type inferred
       for item in ["Alpha", "Beta", "Charlie"]
         stdout.println(item)
 
-      //Now examples with guard, assignment and declaration
-      prefix <- String()
-      //Guarded assignment
-      for prefix ?= messagePrefix() then item in ["Alpha", "Beta", "Charlie"]
-        stdout.println(`${prefix}${item}`)
-
-      //Just an assignment
-      for prefix: messagePrefix() then item in ["Alpha", "Beta", "Charlie"]
-        stdout.println(`${prefix}${item}`)
-
-      //New declaration (newPrefix only available in the for loop scope)
-      for newPrefix <- messagePrefix() then item in ["Alpha", "Beta", "Charlie"]
-        stdout.println(`${newPrefix}${item}`)
-
-      stdout.println("Characters1")
+      stdout.println("Characters")
       //The alternative is when you already have an iterator
       moreItems <- ['A', 'B', 'C']
       for item in moreItems.iterator()
         stdout.println(item)
 //EOF</pre>
     <br/>
-    <p>
-      As with the <b>if</b> and <b>switch</b> statements it is possible to use various types of guard/assignment/declaration
-      when initialising the <b>for loop</b>.
-    </p>
     <p>
       The loop variable's type is inferred from the Collection or Iterator.
       The <b>for</b> loop on Collections can be used with any <i>type</i> that has an <i>iterator()</i>
@@ -922,6 +929,48 @@ defines module introduction
       from a
       <b>List of Characters</b>.
     </p>
+    <h5>For Loop assignments, guards and declarations</h5>
+    <p>
+      In the same way the 'assignments', 'guards' and 'declarations' can be used with <i>if</i> and
+      <i>switch</i> statements/expressions, they can also be used with <i>for</i> loops. This is shown below.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+
+    messagePrefix()
+      <- rtn <- "SomePrefix-"
+
+    forLoopWithGuard()
+      stdout <- Stdout()
+
+      prefix as String?
+      for prefix ?= messagePrefix() then i in 1 ... 10
+        stdout.println(`${prefix}${i}`)
+
+    forLoopWithAssignment()
+      stdout <- Stdout()
+
+      prefix as String?
+      for prefix: messagePrefix() then i in 1 ... 10
+        stdout.println(`${prefix}${i}`)
+
+    forLoopWithDeclaration()
+      stdout <- Stdout()
+
+      for prefix <- messagePrefix() then i in 1 ... 10
+        stdout.println(`${prefix}${i}`)
+
+      //Just to highlight that 'prefix' in the for loop - was scoped in the for loop only.
+      prefix <- 21
+      assert prefix?
+//EOF</pre>
+    <br/>
+    <p>
+      The capability to add variable initialisation as part of the <i>for</i> loop makes is consistent with
+      most of the other EK9 flow control syntax.
+    </p>
 
     <h4 id="for_stream">Streaming 'For'</h4>
     <p>
@@ -932,27 +981,25 @@ defines module introduction
     <pre>#!ek9
 defines module introduction
 
-  defines function
-    workHours()
+    workHours() as pure
       -> time as Time
       <- workTime as Boolean: time < 12:00 or time > 14:00
 
   defines program
 
-    timePipeLine()
+    TimePipeLine()
       stdout <- Stdout()
 
-      //From 9-5 every half hour
+      //From 9-5:30 every half hour
       start <- Time().startOfDay() + PT9H
       end <- Time().endOfDay() - PT6H30M
       thirtyMinutes <- PT30M
 
       for i in start ... end by thirtyMinutes | filter by workHours > stdout
-
 //EOF</pre>
     <br/>
     <p>
-      So in the example above, the <b>for</b> loop is used to generate a sequence of times and these are then
+      In the example above, the <b>for</b> loop is used to generate a sequence of times and these are then
       'piped' into a processing pipeline and processed by the <i>function</i> 'workHours'. The pipeline
       then looks at the result of the filter and only outputs the time to the next stage of processing if 'true'.
       Hence, 'stdout' only gets the times that are before 12:00 and after 14:00.
@@ -1030,59 +1077,124 @@ defines module introduction
       later and also streamed to <b>stdout</b>.
       There is much more detail on pipeline processing in section <a href="streamsAndPipelines.html">Streams/Pipelines</a>.
     </p>
-    <h3>Simple loops</h3>
+    <h3>While and Do/While loops</h3>
     <p>
-      The final two loop flow control mechanisms are very simple and traditional in approach. They both work on
-      the
-      value of a conditional boolean check.
+      The final two loop flow control mechanisms are traditional in approach. They both work on
+      the value of a conditional boolean check. But they too, accommodate 'assignment', 'guard' and 'declarations'.<br/>
+      They too can also be used as expressions and can return values.
     </p>
-    <h4 id="while_loop">Traditional While Loop</h4>
+    <h4 id="while_loop">While loop examples</h4>
     <p>
-      A short example of a while loop, iterating over a collection of Characters.
+      An example of a while loop, iterating over a collection of Characters, this includes a demonstration of
+      the use of 'guard', 'assignment' and 'declaration syntax as well.
+    </p>
+    <p>
+      The final function 'whileLoopAsExpression' shows the while loop being used as an expression and in conjunction
+      with a variable 'declaration'.
     </p>
     <pre>#!ek9
 defines module introduction
 
-  defines program
+  defines function
+
     collectionsWhileLoop()
       stdout <- Stdout()
-      
+
       moreItems <- ['A', 'B', 'C']
-      itemIter1 <- moreItems.iterator()
-      
-      while itemIter1.hasNext()
-        item <- itemIter1.next()
-        stdout.println(item)      
+
+      stdout.println("Characters while")
+      itemIter <- moreItems.iterator()
+      while itemIter.hasNext()
+        item <- itemIter.next()
+        stdout.println(item)
+
+      //Now a while with a guard, so reuse the iter from above but reset
+      while itemIter ?= moreItems.iterator() then itemIter.hasNext()
+        item <- itemIter.next()
+        stdout.println(item)
+
+      //Same again but with an assignment
+      while itemIter := moreItems.iterator() then itemIter.hasNext()
+        item <- itemIter.next()
+        stdout.println(item)
+
+      //This time declare a new iterator, but within the while loop
+      while itemIterX <- moreItems.iterator() then itemIterX.hasNext()
+        item <- itemIterX.next()
+        stdout.println(item)
+
+    whileLoopAsExpression()
+      result <- while complete <- false with not complete
+        <- rtn <- 0
+        rtn++
+        complete: rtn == 10
+      assert result?
+
 //EOF</pre>
     <br/>
-    <h4 id="do_while_loop">Traditional Do While Loop</h4>
+    <h4 id="do_while_loop">Do/While loop example</h4>
     <p>
       This processing is similar to the above except the conditional logic is at the end of the processing block.
     </p>
     <pre>#!ek9
 defines module introduction
 
-  defines program
+  defines function
+
     collectionsDoWhileLoop()
       stdout <- Stdout()
-      
+
       moreItems <- ['A', 'B', 'C']
-      itemIter1 <- moreItems.iterator()
-      
-      //Alternative syntax rather than calling hasNext()
-      if itemIter1?
-        do          
-          stdout.println(itemIter1.next())  
-        while itemIter1?             
+      itemIter <- moreItems.iterator()
+      if itemIter.hasNext()
+        do
+          item <- itemIter.next()
+          stdout.println(item)
+        while itemIter.hasNext()
+
+      //The above is a bit clumsy, so lets try this instead
+      //This has the same effect, when the iterator is unset
+      do itemIter ?= moreItems.iterator() then
+        item <- itemIter.next()
+        stdout.println(item)
+      while itemIter.hasNext()
+
+    doLoopAsExpression()
+      result <- do complete <- false
+        <- rtn <- 0
+        rtn++
+        complete: rtn == 10
+      while not complete
+
+      assert result?
+
+      //Just to show that 'complete' is bound into the do/while scope
+      complete <- "Almost"
+      assert complete?
 //EOF</pre>
+    <br/>
+    <p>
+      As can be seen from the examples above the 'guard' expression part when used with a <i>do/while</i>
+      statement/expression makes the processing block slightly simpler. The <i>do/while</i> expression is also
+      a common sort of programming 'pattern' and again the 'declaration' in the <i>do/while</i> makes this much more
+      self contained.
+    </p>
     <h3>Summary</h3>
     <p>
       EK9 has a wide range of flow control features, but it has deliberately excluded some of the more traditional
-      syntax.
-      This is by design, as it is viewed that some of these elements lead to complexity
-      and defects (a bit like <b>GOTO</b>).
-      There are alternative ways to solve the same problems; EK9 encourages a more functional approach.
+      syntax (like <b>break</b> for example).
+      This is by design, as it is viewed that some of these elements lead to complexity and defects (a bit like <b>GOTO</b>).
     </p>
+    <p>
+      However, EK9 has added new syntax to traditional <b>flow control</b> syntax, this mainly being the introduction of:
+    </p>
+
+    <ul>
+      <li>Guard statements</li>
+      <li>Assignment statements</li>
+      <li>Declaration statements</li>
+      <li>Switch, For, While and Do/While in expression form</li>
+    </ul>
     <p>
       The use of <a href="operators.html#ternary">ternary operators</a> and
       <a href="operators.html#assignment_coalescing">assignment coalescing</a> should be adopted in place of very simple
@@ -1100,7 +1212,7 @@ defines module introduction
     <p>
       It is this latter concept, that if you really do have unique values to <i>switch</i> on, then use a
       <a href="collectionTypes.html#dict">Dictionary/Map</a> - you will probably find it is faster and easier to understand.
-      The use of <b>switch</b> is designed to make chained <b>if/else</b> blocks easier to understand.
+      The use of <b>switch</b> is designed to make larger chained <b>if/else</b> blocks easier to understand.
     </p>
     <h4>Next Steps</h4>
     <p>

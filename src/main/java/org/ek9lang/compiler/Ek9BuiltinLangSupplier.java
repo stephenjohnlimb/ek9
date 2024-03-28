@@ -769,6 +769,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Time() as pure
               -> arg0 as String
 
+            startOfDay() as pure
+              <- rtn as Time?
+
+            endOfDay() as pure
+              <- rtn as Time?
+              
             operator < as pure
               -> arg as Time
               <- rtn as Boolean?

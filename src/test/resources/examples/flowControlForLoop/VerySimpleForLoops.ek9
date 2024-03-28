@@ -1,7 +1,7 @@
 #!ek9
 defines module just.forloops.check
 
-  defines program
+  defines function
 
     ForLoopExample1
       stdout <- Stdout()
@@ -28,5 +28,11 @@ defines module just.forloops.check
       j <- -2
       for i in 10 ... 0 by j
         stdout.println(`Value [${i}]`)
+
+    ForLoopAsExpression()
+      result <- for i in 1 ... 10
+        <- rtn <- 0
+        rtn += i
+      assert result?
 
 //EOF

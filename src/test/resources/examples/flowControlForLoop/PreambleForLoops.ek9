@@ -1,0 +1,33 @@
+#!ek9
+defines module com.customer.preamble.loop
+
+  defines function
+
+    messagePrefix()
+      <- rtn <- "SomePrefix-"
+
+    forLoopWithGuard()
+      stdout <- Stdout()
+
+      prefix as String?
+      for prefix ?= messagePrefix() then i in 1 ... 10
+        stdout.println(`${prefix}${i}`)
+
+    forLoopWithAssignment()
+      stdout <- Stdout()
+
+      prefix as String?
+      for prefix: messagePrefix() then i in 1 ... 10
+        stdout.println(`${prefix}${i}`)
+
+    forLoopWithDeclaration()
+      stdout <- Stdout()
+
+      for prefix <- messagePrefix() then i in 1 ... 10
+        stdout.println(`${prefix}${i}`)
+
+      //Just to highlight that 'prefix' in the for loop - was scoped in the for loop only.
+      prefix <- 21
+      assert prefix?
+
+//EOF

@@ -9,21 +9,24 @@ import org.ek9lang.compiler.common.PhasesTest;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 import org.junit.jupiter.api.Test;
 
-class ExamplesJustForLoopTest extends PhasesTest {
+class ExamplesFlowControlExceptionsTest extends PhasesTest {
 
-  public ExamplesJustForLoopTest() {
-    super("/examples/justForLoop");
+  public ExamplesFlowControlExceptionsTest() {
+    super("/examples/flowControlExceptions", false, false);
   }
 
   @Test
   void testPhasedDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
-    new SymbolCountCheck("just.forloops.check", 4).test(program);
+
+    //Includes a dynamic class
+    new SymbolCountCheck("com.customer.exceptions", 11).test(program);
+
   }
 }
