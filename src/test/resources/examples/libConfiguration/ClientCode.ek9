@@ -1,0 +1,237 @@
+#!ek9
+<?-
+  These functions and demonstration code would form the application.
+  Where as the 'ConfigurationDetails', 'bespokeConfiguration' and 'SomeConfigurableService'
+  would be part of a library.
+  It explores different ways of setting property values in 'pure' context.
+  It also highlights how argument 'default' values should be avoided.
+
+  The logic is:
+  If there are only one or two arguments on a method, then overload the method name.
+  If there are 'many' arguments on a method, that is 'bad practice' and a 'record' aggregate should be created.
+  Once a 'record' or aggregate has been created it needs to have those properties (that were the method arguments) populated
+  So this code demonstrated various ways that the properties on the aggregate can be populated.
+
+  You might consider this 'convoluted' rather than just adding lots of method arguments and enabling 'default' values,
+  but when looking at practical use (over a period of time) in code bases from Python, C++ and Scala it is quite obvious
+  that this approach causes lots of defects and confusion.
+
+  Perhaps this 'more Haskell' and 'clean code' approach will reduce those issues (it may create new ones - only time will tell).
+-?>
+defines module client.code.example
+
+  references
+    simple.library.example::ConfigurationDetails
+    simple.library.example::applyConfiguration
+    simple.library.example::applyConfigurations
+    simple.library.example::conditionallyApplyConfiguration
+    simple.library.example::defaultConfiguration
+    simple.library.example::SomeConfigurableService
+
+  defines function
+
+    <?-
+      Note that the EK9 compiler will identify this as an 'Acceptor of ConfigurationDetails'
+    -?>
+    withSpecificName()
+      -> details as ConfigurationDetails
+      details.name: "specific"
+
+    <?-
+      Note that the EK9 compiler will identify this as an 'Acceptor of ConfigurationDetails'
+    -?>
+    enableMapping()
+      -> details as ConfigurationDetails
+      details.useMapping: true
+
+    <?-
+      Note this will be identified as a Consumer of ConfigurationDetails and is hence 'pure'.
+      Example of a pure 'builder' pattern, but via a function.
+      This works on the principle that the details passed in do not have
+      all meaningful values set in its properties.
+      Hence, even though this is a 'pure' function if can mutate any 'un-set' values.
+    -?>
+    withSpecificValues() as pure
+      -> details as ConfigurationDetails
+      details.name :=? "Specific Value"
+      details.useMapping :=? false
+      details.frequencyOfChecks :=? 21
+
+    <?-
+      Just a demonstration of using the service with a stock configuration.
+    -?>
+    testAPlainConfiguration() as pure
+
+      //make a new service with a standard configuration
+      someServer <- SomeConfigurableService()
+
+      //Now make the call to do the main function
+      someServer.underTakeServiceOperations()
+
+      //Get how it is configured in string form
+      asConfigured <- someServer.configurationDetails()
+      assert asConfigured?
+
+    <?-
+      This is how a pure function could be employed.
+    -?>
+    testABespokePureConfiguration1() as pure
+
+      //make a new service with a specific configuration, use a library function to
+      //apply this configuration and supply a now configured object.
+      someServer <- SomeConfigurableService(conditionallyApplyConfiguration(withSpecificValues))
+
+      //Now make the call to do the main function
+      someServer.underTakeServiceOperations()
+
+      //Get how it is configured in string form
+      asConfigured <- someServer.configurationDetails()
+      assert asConfigured?
+
+    <?-
+      This is how a pure constructor delegated initialisation can work.
+      Note that the constructor of ConfigurationDetails now allows this pure function
+      to mutate its public properties (it is a record and so they are accessible).
+    -?>
+    testABespokePureConfiguration2() as pure
+
+      //make a new service with a specific configuration, this time at construction.
+      someServer <- SomeConfigurableService(ConfigurationDetails(withSpecificValues))
+
+      //Now make the call to do the main function
+      someServer.underTakeServiceOperations()
+
+      //Get how it is configured in string form
+      asConfigured <- someServer.configurationDetails()
+      assert asConfigured?
+
+    <?-
+      Same example as above, but uses a dynamic function, rather than a specific named function.
+    -?>
+    testABespokePureConfiguration3() as pure
+
+      configuration <- () is Consumer of ConfigurationDetails as pure function
+        t.name :=? "Specific Value"
+        t.useMapping :=? false
+        t.frequencyOfChecks :=? 21
+
+      //make a new service with a specific configuration, this time at construction.
+      someServer <- SomeConfigurableService(ConfigurationDetails(configuration))
+
+      //Now make the call to do the main function
+      someServer.underTakeServiceOperations()
+
+      //Get how it is configured in string form
+      asConfigured <- someServer.configurationDetails()
+      assert asConfigured?
+
+    <?-
+      Another alternative to creating the configuration.
+      Each of these alternatives has pros-and-cons - depending on the wider use/reuse.
+      For example the function approach works well for capturing the configurations.
+      It also works well in terms of applying a number of functions in order, first one
+      that sets a value in the configuration is the one that remains in place
+      (as that property has now been set).
+    -?>
+    testABespokePureConfiguration4() as pure
+
+      configuration <- ConfigurationDetails()
+      configuration.name :=? "Specific Value"
+      configuration.useMapping :=? false
+      configuration.frequencyOfChecks :=? 21
+
+      //make a new service with a specific configuration.
+      someServer <- SomeConfigurableService(configuration)
+
+      //Now make the call to do the main function
+      someServer.underTakeServiceOperations()
+
+      //Get how it is configured in string form
+      asConfigured <- someServer.configurationDetails()
+      assert asConfigured?
+
+    <?-
+      Example of how to override configuration details.
+      Firstly create
+    -?>
+    testACopyAndInitialisePureConfiguration() as pure
+
+      specifics <- () is Consumer of ConfigurationDetails as pure function
+        t.name :=? "Retained Value"
+        t.useMapping :=? false
+
+      configuration <- ConfigurationDetails()
+      configuration.name :=? "Ignored Value"
+      configuration.frequencyOfChecks :=? 16
+
+      //make a new service with a specific configuration combination.
+      //this is more like a Haskell style approach, i.e. provide the basis of what you want the
+      //bulk of the properties to be 'the configuration' in this case.  Then provide adjustments
+      //you want to make 'the specifics' in this case. Now make a new object out of the two.
+      someServer <- SomeConfigurableService(ConfigurationDetails(specifics, configuration))
+
+      //Now make the call to do the main function
+      someServer.underTakeServiceOperations()
+
+      //Get how it is configured in string form
+      asConfigured <- someServer.configurationDetails()
+
+      //So the result would be:
+      //name = "Retained Value", useMapping = false, frequencyOfChecks = 16
+      assert asConfigured?
+
+    <?-
+      Note the configuration is mutated with a specific name.
+    -?>
+    testABespokeConfiguration1()
+
+      configuration <- applyConfiguration(withSpecificName)
+
+      //make a new service with a specific configuration
+      someServer <- SomeConfigurableService(configuration)
+
+      //Now make the call to do the main function
+      someServer.underTakeServiceOperations()
+
+      //Get how it is configured in string form
+      asConfigured <- someServer.configurationDetails()
+      assert asConfigured?
+
+    <?-
+      Much less clunky, because the EK9 compiler can workout that the two functions
+      have a common 'super' i.e. 'Acceptor of ConfigurationDetails' and so infers the correct List type.
+    -?>
+    testABespokeConfiguration2()
+      configuration <- applyConfigurations([withSpecificName, enableMapping])
+
+      //make a new service with a more specific configuration
+      someServer <- SomeConfigurableService(configuration)
+
+      //Now make the call to do the main function
+      someServer.underTakeServiceOperations()
+
+      //Get how it is configured in string form
+      asConfigured <- someServer.configurationDetails()
+      assert asConfigured?
+
+    <?-
+      As above but with an additional function and alternative layout.
+    -?>
+    testAFlexibleBespokeConfiguration()
+
+      //Make a new service with a full specific configuration.
+      //Also remove the variable 'configuration' and just use function directly.
+      someServer <- SomeConfigurableService(
+        applyConfigurations(
+          [ withSpecificName, enableMapping, defaultConfiguration ]
+          )
+        )
+
+      //Now make the call to do the main function
+      someServer.underTakeServiceOperations()
+
+      //Get how it is configured in string form
+      asConfigured <- someServer.configurationDetails()
+      assert asConfigured?
+
+//EOF

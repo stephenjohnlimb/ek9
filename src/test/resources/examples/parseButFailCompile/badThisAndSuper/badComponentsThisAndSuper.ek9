@@ -32,22 +32,22 @@ defines module bad.components.thisandsuper
     App1
       val <- "Name"
       //Now allowed for self reference, so that this application could pass itself to something
-      thisApp <- this
+      thisApp as App1: this
 
       //But is this is not OK.
       @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_SUPER
-      selfAsSuper <- super
+      selfAsSuper as App1: super
 
   defines program
     Prog1()
       @Error: FULL_RESOLUTION: NOT_REFERENCED
       val <- "Name"
       //Now allowed for self reference
-      thisProg <- this
+      thisProg as Prog1: this
 
       assert thisProg?
 
       //Not allowed.
       @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_SUPER
-      selfAsSuper <- super
+      selfAsSuper as Prog1: super
 //EOF

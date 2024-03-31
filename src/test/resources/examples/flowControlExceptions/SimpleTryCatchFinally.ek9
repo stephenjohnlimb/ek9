@@ -23,11 +23,11 @@ defines module com.customer.exceptions
         super(primaryReason, exitCode)
         this.supportingInformation :=: supportingInformation
 
-      supportingInformation()
+      supportingInformation() as pure
         <- rtn as String: supportingInformation
 
       override operator $ as pure
-        <- rtn as String: `${information()} ${supportingInformation()} exit code ${exitCode()}`
+        <- rtn as String: `${reason()} ${supportingInformation()} exit code ${exitCode()}`
 
     OtherException extends Exception
       retryAfter <- DateTime()
@@ -39,11 +39,11 @@ defines module com.customer.exceptions
         super(reason)
         this.retryAfter :=: retryAfter
 
-      retryAfter()
+      retryAfter() as pure
         <- rtn as DateTime: retryAfter
 
       override operator $ as pure
-        <- rtn as String: information() + " retry after " + $retryAfter()
+        <- rtn as String: reason() + " retry after " + $retryAfter()
 
     ExceptionExample
       clock as Clock?
@@ -85,10 +85,14 @@ defines module com.customer.exceptions
             throw Exception($aCat, 1)
           case BigCat.Tiger
             throw AnException("Too dangerous", $aCat, 2)
+          case BigCat.WildCat
+            rtn: `Success with a little next gen Wild Cat`
           case BigCat.Leopard
             throw OtherException($aCat, clock.dateTime() + PT2H)
+          case BigCat.Lynx
+            rtn: `Success with a little Lynx`
           default
-            rtn: `Success with ${aCat}`
+            rtn: `Success with and unknown ${aCat}`
 
       deferProcessing()
         <- rtn as Boolean: deferProcessingUntilAfter? <- deferProcessingUntilAfter > clock.dateTime() else false
@@ -207,7 +211,7 @@ defines module com.customer.exceptions
       //Rather than use SystemClock - simulate one so that date time can be altered.
       simulatedClock <- () with trait of Clock as class
         currentDateTime as DateTime: 1971-02-01T12:00:00Z
-        override dateTime()
+        override dateTime() as pure
           <- rtn as DateTime: currentDateTime
 
         setCurrentDateTime()

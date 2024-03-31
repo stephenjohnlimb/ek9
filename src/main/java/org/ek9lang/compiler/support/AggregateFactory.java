@@ -488,4 +488,5 @@ public class AggregateFactory {
     }
     return scope.resolve(new TypeSymbolSearch(EK9_JSON));
   }
+
 }

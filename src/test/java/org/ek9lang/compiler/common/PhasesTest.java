@@ -131,9 +131,10 @@ public abstract class PhasesTest {
     CompilationPhaseListener listener = compilationEvent -> {
       var source = compilationEvent.source();
       var phase = compilationEvent.phase();
-      if (source.getErrorListener().hasErrors()) {
+      var errorListener = source.getErrorListener();
+      if (errorListener.hasErrors()) {
         reporter.report("Errors  : " + phase + ", source: " + source.getFileName());
-        source.getErrorListener().getErrors().forEachRemaining(error -> {
+        errorListener.getErrors().forEachRemaining(error -> {
           counter.getAndIncrement();
           reporter.report(error);
         });

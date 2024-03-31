@@ -15,12 +15,13 @@ import org.junit.jupiter.api.Test;
 class ExamplesConstructsTypesTest extends PhasesTest {
 
   public ExamplesConstructsTypesTest() {
-    super("/examples/constructs/types");
+    super("/examples/constructs/types", false, false);
   }
 
   @Test
   void testPhaseDevelopment() {
     //TODO need streams and cat and also switch.
+    //TODO move to IR_ANALYSIS
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 

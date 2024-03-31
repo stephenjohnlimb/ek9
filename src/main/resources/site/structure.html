@@ -9,11 +9,15 @@
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
   <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+      window.dataLayer = window.dataLayer || [];
 
-  gtag('config', 'G-6GS00TXGVP');
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
 
   </script>
 </head>
@@ -68,6 +72,7 @@
     <li><a class="reference internal" href="components.html">Components and Applications</a></li>
     <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
     <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="commonDesignPatterns.html">Design Patterns</a></li>
     <li><a class="reference internal" href="packaging.html">Packaging</a></li>
     <li><a class="reference internal" href="commandline.html">Command Line</a></li>
   </ul>
@@ -471,15 +476,15 @@ defines module introduction
     <h5 id="record">Record</h5>
     <p>This is the first <b>construct</b> that is an EK9 <a target="_blank" title="Aggregate" href="https://en.wikipedia.org/wiki/Aggregate">aggregate</a>;
       and it is the simplest.
-      <a target="_blank" title="Tuples" href="https://en.wikipedia.org/wiki/Tuple">Tuples</a> are also  available in EK9, but are called
+      <a target="_blank" title="Tuples" href="https://en.wikipedia.org/wiki/Tuple">Tuples</a> are also available in EK9, but are called
       <i>dynamic classes</i>.
-      <div class="highlight ek9-code">
-        <ul class="code-lines">
-          <li>
-            <span class="k">defines</span> <span class="k">record</span>
-          </li>
-        </ul>
-      </div>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="k">defines</span> <span class="k">record</span>
+        </li>
+      </ul>
+    </div>
     <p>
       The <i>record</i> <b>construct</b> is used to define structured data (an aggregate) much like a <i>C
       struct</i>. All field information held in the record is
@@ -1233,7 +1238,7 @@ defines module introduction
     <h5 id="generics">Generics/Templated types</h5>
     <p>
       Generics or <a target="_blank" title="Parametric polymorphism"
-        href="https://en.wikibooks.org/wiki/Introduction_to_Programming_Languages/Parametric_Polymorphism">Parametric
+                     href="https://en.wikibooks.org/wiki/Introduction_to_Programming_Languages/Parametric_Polymorphism">Parametric
       polymorphism</a> as it is more formally known, can be applied to both <i>functions</i> and <i>classes</i> in EK9;
       examples of which are shown below.
     </p>

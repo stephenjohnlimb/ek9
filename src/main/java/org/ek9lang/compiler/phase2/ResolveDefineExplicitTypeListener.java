@@ -29,6 +29,7 @@ import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
+import org.ek9lang.core.CompilerException;
 
 /**
  * <p>
@@ -558,10 +559,34 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
       if (theType != null) {
         variableSymbol.setType(theType);
       }
+    } else if (variableSymbol.getType().isEmpty()){
+      //This means it is a var <- Something() and has not been typed yet.
+      //So if we can do a quick check early on before full expressions and find the type - we have to error.
+      checkIfInferredAggregateProperty(ctx);
     }
     //While there is a check in phase one, this causes an ordering issue. So we run this in this phase.
     nameCollisionChecker.test(mostSpecificScope.get(), variableSymbol);
     super.exitVariableDeclaration(ctx);
+  }
+
+  private void checkIfInferredAggregateProperty(final EK9Parser.VariableDeclarationContext ctx) {
+    var variable = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    if(variable != null && variable.isPropertyField()) {
+      if(ctx.assignmentExpression() != null
+          && ctx.assignmentExpression().expression() != null
+      && ctx.assignmentExpression().expression().call() != null
+      && ctx.assignmentExpression().expression().call().identifierReference() != null) {
+        var identifierReference = symbolAndScopeManagement.getRecordedSymbol(ctx.assignmentExpression().expression().call().identifierReference());
+        //TODO refactor all this to a function and also check that what has been found is a type of some sort.
+        if(identifierReference != null) {
+          variable.setType(identifierReference);
+        } else {
+          throw new CompilerException("TODO issue unresolved");
+        }
+      } else {
+        throw new CompilerException("TODO issue an error inferred must be simple for " + variable.getFriendlyName());
+      }
+    }
   }
 
   @Override

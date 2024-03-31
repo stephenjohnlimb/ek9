@@ -49,6 +49,8 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   private final ResolveByTraitVariables resolveByTraitVariables;
   private final CheckNoTraitByVariables checkNoTraitByVariablesOrError;
 
+  private final ProcessEnumeratedType processEnumeratedType;
+
   /**
    * Create a new instance to define or resolve inferred types.
    */
@@ -56,26 +58,38 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     super(parsedModule);
     this.dynamicCaptureAndDefinition =
         new DynamicCaptureAndDefinition(symbolAndScopeManagement, errorListener, symbolFactory);
-
-    this.checkPropertyNames = new CheckPropertyNames(symbolAndScopeManagement, errorListener, DUPLICATE_PROPERTY_FIELD);
-    this.checkDefaultOperators = new CheckDefaultOperators(symbolAndScopeManagement, errorListener);
-    this.checkMethodOverrides = new CheckMethodOverrides(symbolAndScopeManagement,
-        errorListener, ErrorListener.SemanticClassification.NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT);
-    this.checkDynamicClassMethodOverrides = new CheckMethodOverrides(symbolAndScopeManagement,
-        errorListener, ErrorListener.SemanticClassification.DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS);
-    this.checkNoConflictingMethods = new CheckConflictingMethods(symbolAndScopeManagement, errorListener);
-    this.checkFunctionOverrides = new CheckFunctionOverrides(symbolAndScopeManagement, errorListener);
-    this.checkForDynamicFunctionBody = new CheckForDynamicFunctionBody(symbolAndScopeManagement, errorListener);
-    this.autoMatchSuperFunctionSignature = new AutoMatchSuperFunctionSignature(symbolAndScopeManagement, errorListener);
-    this.checkAllTextBodiesPresent = new CheckAllTextBodiesPresent(symbolAndScopeManagement, errorListener);
-    this.checkServiceRegistration = new CheckServiceRegistration(symbolAndScopeManagement, errorListener);
-    this.processTypeConstraint = new ProcessTypeConstraint(symbolAndScopeManagement, symbolFactory, errorListener);
+    this.checkPropertyNames =
+        new CheckPropertyNames(symbolAndScopeManagement, errorListener, DUPLICATE_PROPERTY_FIELD);
+    this.checkDefaultOperators =
+        new CheckDefaultOperators(symbolAndScopeManagement, errorListener);
+    this.checkMethodOverrides =
+        new CheckMethodOverrides(symbolAndScopeManagement,
+            errorListener, ErrorListener.SemanticClassification.NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT);
+    this.checkDynamicClassMethodOverrides =
+        new CheckMethodOverrides(symbolAndScopeManagement,
+            errorListener, ErrorListener.SemanticClassification.DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS);
+    this.checkNoConflictingMethods =
+        new CheckConflictingMethods(symbolAndScopeManagement, errorListener);
+    this.checkFunctionOverrides =
+        new CheckFunctionOverrides(symbolAndScopeManagement, errorListener);
+    this.checkForDynamicFunctionBody =
+        new CheckForDynamicFunctionBody(symbolAndScopeManagement, errorListener);
+    this.autoMatchSuperFunctionSignature =
+        new AutoMatchSuperFunctionSignature(symbolAndScopeManagement, errorListener);
+    this.checkAllTextBodiesPresent =
+        new CheckAllTextBodiesPresent(symbolAndScopeManagement, errorListener);
+    this.checkServiceRegistration =
+        new CheckServiceRegistration(symbolAndScopeManagement, errorListener);
+    this.processTypeConstraint =
+        new ProcessTypeConstraint(symbolAndScopeManagement, symbolFactory, errorListener);
     this.augmentAggregateWithTraitMethods =
         new AugmentAggregateWithTraitMethods(symbolAndScopeManagement, errorListener);
     this.resolveByTraitVariables =
         new ResolveByTraitVariables(symbolAndScopeManagement, errorListener);
     this.checkNoTraitByVariablesOrError =
         new CheckNoTraitByVariables(symbolAndScopeManagement, errorListener);
+    this.processEnumeratedType =
+        new ProcessEnumeratedType(symbolAndScopeManagement, symbolFactory, errorListener);
   }
 
   @Override
@@ -108,6 +122,29 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
 
     super.exitDynamicVariableCapture(ctx);
   }
+
+  @Override
+  public void enterTypeDeclaration(EK9Parser.TypeDeclarationContext ctx) {
+    var theType = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    if (theType != null && theType.getGenus().equals(ISymbol.SymbolGenus.CLASS_ENUMERATION)) {
+      //We must add the iterator method to this.
+      processEnumeratedType.accept(ctx);
+    }
+    super.enterTypeDeclaration(ctx);
+  }
+
+  /*
+  private ISymbol makeIteratorType(final AggregateSymbol enumerationSymbol) {
+    final var iteratorType = resolveIterator(enumerationSymbol);
+    if(iteratorType.isEmpty()) {
+      throw new CompilerException("Must be able to resolve ek9 iterator type");
+    }
+    final var typeData =
+        new ParameterisedTypeData(enumerationSymbol.getSourceToken(), iteratorType.get(), List.of(enumerationSymbol));
+    final var resolvedNewType = parameterisedLocator.resolveOrDefine(typeData);
+    return resolvedNewType;
+  }
+  */
 
   @Override
   public void exitRecordDeclaration(EK9Parser.RecordDeclarationContext ctx) {

@@ -23,7 +23,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 93;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 97;
 
   //Obviously with ek9 the indentation is important.
   @SuppressWarnings({"Indentation"})
@@ -39,7 +39,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
         
           description <- "Builtin EK9 language constructs."
         
-          tags <- [
+          tags as List of String: [
             "types"
             ]
         
@@ -2113,10 +2113,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
                 reason as String
                 exitCode as Integer
             
-            reason()
+            reason() as pure
               <- rtn as String?
             
-            exitCode()
+            exitCode() as pure
               <- rtn as Integer?
 
             operator ? as pure
@@ -2748,6 +2748,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           TextFile
             TextFile() as pure
 
+            TextFile() as pure
+              -> fileName as String
+            
+            input() as pure
+              <- rtn as StringInput?
+                
             operator ? as pure
               <- rtn as Boolean?
 
@@ -2851,6 +2857,15 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
       """;
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_NETWORK_FUNCTIONS = """
+          
+          <?-
+            Applies each of the configurations to a new NetworkProperties record and returns that
+            mutated NetworkProperties record.
+          -?>
+          ConfigureNetworkProperties()
+            -> configurations as List of Acceptor of NetworkProperties
+            <- networkProperties as NetworkProperties?
+
           TCPHandler as abstract
             ->
               input as StringInput
@@ -2947,6 +2962,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
       """;
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_NETWORK_RECORDS = """
+          
+          <?-
+            Used for various network communications.
+            See 'ConfigureNetworkProperties' on how to create a bespoke or specific
+            network property configuration - rather than using a specific constructor.
+          -?>
           NetworkProperties
             host as String: String()
             port as Integer: Integer()
@@ -3081,7 +3102,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
         
           description <- "Builtin EK9 mathematics constructs."
         
-          tags <- [
+          tags as List of String: [
             "constants",
             "algorithms"
             ]

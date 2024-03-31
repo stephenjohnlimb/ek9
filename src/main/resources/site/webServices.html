@@ -72,6 +72,7 @@
     <li><a class="reference internal" href="components.html">Components and Applications</a></li>
     <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
     <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="commonDesignPatterns.html">Design Patterns</a></li>
     <li><a class="reference internal" href="packaging.html">Packaging</a></li>
     <li><a class="reference internal" href="commandline.html">Command Line</a></li>
   </ul>
@@ -84,6 +85,7 @@
     </header>
     <p>
       This is the <u>final section</u> on <b>constructs</b>, the sections after this are related to
+      <a href="commonDesignPatterns.html">Common Design Patterns</a>,
       <a href="packaging.html">packaging</a> and the <a href="commandline.html">compiler command line arguments</a>.
       Web Services are deployed in conjunction with; and by <i>Applications</i> and <i>Programs</i> as shown in
       the <a href="introduction.html#web_services">introduction</a> and <a href="structure.html#service">structure</a>
@@ -144,7 +146,7 @@
       <a target="_blank" title="EK9 Compiler Javadoc" href="https://repo.ek9lang.org/apidocs/index.html">Javadoc</a>.
       <br/>
       What this means is that deployment is full and complete (in terms of built artifacts) via a CI/CD pipeline. In this
-      case  <a target="_blank" title="Github actions" href="https://github.com/stephenjohnlimb/ek9/actions">GitHub</a>
+      case <a target="_blank" title="Github actions" href="https://github.com/stephenjohnlimb/ek9/actions">GitHub</a>
       actions are used.
     </p>
     <p>
@@ -302,7 +304,8 @@ defines module introduction
       <li>if the headers are present then the EK9 HTTP server may respond with a 'not modified'</li>
       <li>if this is the case then the call to <b>content()</b> is <u>never made</u></li>
       <li>only if needed will it make the most expensive call <b>content()</b> as it will trigger
-        your business processing (which could access many Objects, Databases or other services)</li>
+        your business processing (which could access many Objects, Databases or other services)
+      </li>
     </ul>
     <p>
       In other words it does a lazy evaluation, trying to avoid the expensive call or getting the content if at all possible.
@@ -1152,7 +1155,8 @@ defines module introduction
     </p>
     <p>
       See this
-      <a target="_blank" title="Leadership" href="https://medium.com/@tiagao/what-nasa-and-richard-feynman-knew-about-product-leadership-57cfae62de1c">article</a>
+      <a target="_blank" title="Leadership"
+         href="https://medium.com/@tiagao/what-nasa-and-richard-feynman-knew-about-product-leadership-57cfae62de1c">article</a>
       about the schisms inside organisations.
     </p>
     <p>
@@ -1239,8 +1243,8 @@ defines module introduction
 
     <h4>Next Steps</h4>
     <p>
-      The details on <i>packaging</i> and <i>deploying/publishing</i> your code to an
-      <u>artefact server</u> are covered in the next section on <a href="packaging.html">packaging</a>.
+      Some of the common patterns of use are covered in the next section on
+      <a href="commonDesignPatterns.html">Common Design Patterns</a>.
     </p>
     <p>
       But if you are looking for more details on the command line parameters see the

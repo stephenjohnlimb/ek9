@@ -1,0 +1,480 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>EK9 programming language common design patterns</title>
+  <meta name="description" content="EK9 programming language design patterns."/>
+  <link rel="stylesheet" media="all" href="style.css"/>
+  <link rel="icon" type="image/png" href="ek9favicon.png"/>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-6GS00TXGVP');
+
+  </script>
+</head>
+<body>
+<nav role="navigation">
+  <header role="banner">
+    <h1 id="logo">
+      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+        EK9lang.org
+      </a>
+    </h1>
+    <p>
+      <a href="tradeMarkPolicy.html">&reg;</a>
+    </p>
+  </header>
+
+  <h2>
+    V: 0.0.1
+  </h2>
+  <p>
+    &#169; 2020-2024 S.J.limb
+  </p>
+
+  <ul>
+    <li><a class="reference internal" href="index.html">About EK9</a></li>
+    <li><a class="reference internal" href="introduction.html">Introduction</a></li>
+    <li><a class="reference internal" href="structure.html">Structure</a></li>
+    <li><a class="reference internal" href="basics.html">Basics</a></li>
+    <li><a class="reference internal" href="operators.html">Operators</a></li>
+    <li><a class="reference internal" href="builtInTypes.html">Built in Types</a></li>
+    <li><a class="reference internal" href="collectionTypes.html">Collection Types</a></li>
+    <li><a class="reference internal" href="standardTypes.html">Standard Types</a></li>
+    <li><a class="reference internal" href="networkTypes.html">Network Types</a></li>
+    <li><a class="reference internal" href="programs.html">Programs</a></li>
+    <li><a class="reference internal" href="constants.html">Constants</a></li>
+    <li><a class="reference internal" href="flowControl.html">Flow Control</a></li>
+    <li><a class="reference internal" href="exceptions.html">Exceptions/Error Handling</a></li>
+    <li><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+    <li><a class="reference internal" href="records.html">Records</a></li>
+    <li><a class="reference internal" href="functions.html">Functions</a></li>
+    <li><a class="reference internal" href="classes.html">Classes</a></li>
+    <li><a class="reference internal" href="methods.html">Methods</a></li>
+    <li><a class="reference internal" href="traits.html">Traits</a></li>
+    <li><a class="reference internal" href="composition.html">Extension by Composition</a></li>
+    <li><a class="reference internal" href="inheritance.html">Inheritance</a></li>
+    <li><a class="reference internal" href="dynamicFunctions.html">Dynamic Functions</a></li>
+    <li><a class="reference internal" href="dynamicClasses.html">Dynamic Classes</a></li>
+    <li><a class="reference internal" href="streamsAndPipelines.html">Streams/Pipelines</a></li>
+    <li><a class="reference internal" href="advancedClassMethods.html">Advanced Class Methods</a></li>
+    <li><a class="reference internal" href="generics.html">Generics/Templates</a></li>
+    <li><a class="reference internal" href="textProperties.html">Text/Properties</a></li>
+    <li><a class="reference internal" href="components.html">Components and Applications</a></li>
+    <li><a class="reference internal" href="dependencyInjection.html">Dependency Injection</a></li>
+    <li><a class="reference internal" href="webServices.html">Web Services</a></li>
+    <li><a class="reference internal" href="commonDesignPatterns.html">Design Patterns</a></li>
+    <li><a class="reference internal" href="commonDesignPatterns.html">Design Patterns</a></li>
+    <li><a class="reference internal" href="packaging.html">Packaging</a></li>
+    <li><a class="reference internal" href="commandline.html">Command Line</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article class="page">
+    <header>
+      <h1>EK9 Design Patterns</h1>
+    </header>
+    <p>
+      Many 'Design Patterns' have already been incorporated into EK9 and discussed in those sections.
+      There are however, a number of common patterns that tend to be used in most programming languages.
+      Some of those languages have specific features that accommodate these patterns. In some cases however,
+      these features have been found to cause defects or make code very hard to understand.
+    </p>
+    <p>
+      Here are some common scenarios and some patterns that can be adopted in EK9 (and indeed in other languages).
+    </p>
+    <h2>Object Initialisation</h2>
+    <p>
+      Many Object-Oriented programming languages take the approach that an 'Object' should always be initialised
+      and <b>must</b> be configured to be in a 'stable' and 'fully initialised' state before being used.
+    </p>
+    <p>
+      While this approach is general a very good idea, it can lead to <b>constructors</b> with many arguments, or
+      in some cases multiple <b>constructors</b> with varying numbers of arguments to support flexible construction.
+    </p>
+
+    <p>
+      This latter point has triggered some programming languages to introduce the concept of 'default argument values',
+      these tend to have to following form. (Shown below in EK9 syntax - though this is <b>not supported</b> - see alternative later)
+    </p>
+    <h3>Argument Passing</h3>
+    <p>
+      Here is an example of how default arguments would be defined in EK9 if they were supported - which they are <b>not</b>.
+    </p>
+    <pre>
+      ...
+        SomeMethodOrConstructor()
+          ->
+            name as String: "Steve"
+            developer as Boolean: true
+            dogOwner as Boolean: false
+      ...
+    </pre>
+    <br/>
+    <p>
+      The code below demonstrates how this method/function/constructor above would be used in languages that
+      do support 'default' argument values.
+    </p>
+
+    <pre>
+      ...
+
+      result1 <- SomeMethodOrConstructor()
+      result2 <- SomeMethodOrConstructor("Stephen")
+      result3 <- SomeMethodOrConstructor(false)
+      result4 <- SomeMethodOrConstructor("Bill", false)
+      result5 <- SomeMethodOrConstructor("Ted", false, true)
+
+      //Some languages allow named variables, so as to resolve the multiple boolean issue.
+      //Other languages would accept the first boolean as matching the first argument and default the second
+      //But with named arguments the argument becomes more obvious
+      result6 <- SomeMethodOrConstructor(name: "Stephen")
+      result7 <- SomeMethodOrConstructor(dogOwner: false)
+      result8 <- SomeMethodOrConstructor("Bill", developer: false)
+      result9 <- SomeMethodOrConstructor("Ted", false, dogOwner: true)
+
+      ...
+    </pre>
+    <br/>
+    <p>
+      While this approach (used by several languages) does have some appeal, it can lead to all sorts or
+      ambiguities and complexities. For example, what if the name named argument is referenced more than once,
+      what if some arguments are named and others not named. How does this work with 'varargs'.
+    </p>
+    <p>
+      Indeed, some developers in languages like Java have employed what they call a 'Builder Pattern', this is not actually
+      the same 'Builder Pattern' from the <i>Gang of Four Design Pattern</i> book. <br/>
+      This takes the approach of duplicating all the properties (so they can be mutated) and then finally creating the
+      final object from this mutated state.
+    </p>
+    <p>
+      There some more 'reasonable' approaches used in the 'GoLang' community and the EK9 solution takes an approach similar to that and
+      also the mechanisms that are common in 'Haskell' code bases.
+    </p>
+    <h3>EK9 Approach</h3>
+    <p>
+      The common design pattern for EK9 (and is applicable in a 'pure' context), is as follows:
+    </p>
+    <ul>
+      <li>If there are a few arguments (say 1-4), then use method overloading</li>
+      <li>If there are many arguments, then create a <i>record</i> to group the arguments as an aggregate</li>
+    </ul>
+    <p>
+      This then leads to the issue how how to create the <i>record</i> for multiple arguments, this is especially
+      true when creating 'library' classes and types.
+    </p>
+    <p>
+      The general approach is to enable some form of 'delegated' construction of the <i>record</i>, this has the following
+      flow.
+    </p>
+    <ul>
+      <li>Use a single default constructor that leaves properties all initialised but 'un-set'</li>
+      <li>Now use one or more 'pure' functions to initialise the properties that have not been 'set'</li>
+      <li>Finally, use a 'defaulting function' to set any properties that have not yet been 'set'</li>
+    </ul>
+    <p>
+      The other alternative is to use an existing initialised object and copy over the values and then modify the resulting
+      objects. An example of this is show later.
+    </p>
+    <h4 id="design_pattern_library">EK9 library code example</h4>
+    <p>
+      This example introduces the concept of a 'library' class that performs some sort of service, but can be configured in a
+      specific way to operate in slightly different ways,
+    </p>
+    <pre>#!ek9
+defines module simple.library.example
+
+  defines record
+
+    ConfigurationDetails
+      name <- String()
+      useMapping <- Boolean()
+      frequencyOfChecks <- Integer()
+
+      default ConfigurationDetails() as pure
+
+      ConfigurationDetails() as pure
+        -> initializer as Consumer of ConfigurationDetails
+        initializer(this)
+
+      ConfigurationDetails() as pure
+        -> copyFrom as ConfigurationDetails
+        this :=: copyFrom
+
+      ConfigurationDetails() as pure
+        ->
+          initializer as Consumer of ConfigurationDetails
+          copyFrom as ConfigurationDetails
+
+        initializer(this)
+        this :=: copyFrom
+
+      operator :=:
+        -> copyFrom as ConfigurationDetails
+
+        name :=? String(copyFrom.name)
+        useMapping :=? Boolean(copyFrom.useMapping)
+        frequencyOfChecks :=? Integer(copyFrom.frequencyOfChecks)
+
+      default operator ?
+      default operator $
+
+  defines class
+
+    SomeConfigurableService
+
+      configuration as ConfigurationDetails: ConfigurationDetails()
+
+      SomeConfigurableService() as pure
+        configuration :=? ConfigurationDetails()
+
+      SomeConfigurableService() as pure
+        -> useConfiguration as ConfigurationDetails
+        configuration :=? ConfigurationDetails(useConfiguration)
+
+      underTakeServiceOperations() as pure
+        stdout <- Stdout()
+        if configuration.name?
+          stdout.println(`Processing Service operation for ${configuration.name}`)
+        if configuration.useMapping
+          stdout.println(`Will use mapping`)
+        if configuration.frequencyOfChecks?
+          stdout.println(`Processing Service frequency ${configuration.frequencyOfChecks}`)
+
+      configurationDetails() as pure
+        <- rtn as String: $configuration
+
+//EOF</pre>
+    <br/>
+    <p>
+      The above is fairly straight forward, the properties that would normally have been directly
+      located in the 'SomeConfigurableService' <i>class</i> have been pulled out to a separate 'ConfigurationDetails'
+      <i>record</i>. This the first major design pattern adjustment, isolating the aggregate data.
+    </p>
+    <p>
+      The second major change in approach is to allow the 'ConfigurationDetails' to be constructed in a way that the
+      properties are allocated memory but that the values in that memory are <b>un-set</b>. EK9 has language features that work
+      well with this approach.
+    </p>
+    <p>
+      The next major change is to create a number of constructors (all 'pure') that enable the internal state of the
+      object (a <i>record</i> in this case) to be mutated (as long as they have not been <b>set</b> yet).<br/>
+      This is how EK9 implements
+      the concept of 'pure', while it could be argued this is not a totally 'pure' approach; the <b>constructor</b> has to be
+      able to initialise its properties (or decide to delegate that initialisation).
+      Hence, there are four different forms of <b>constructor</b>.
+    </p>
+    <ul>
+      <li>A pure default constructor</li>
+      <li>A Delegating constructor</li>
+      <li>A 'Copy' constructor</li>
+      <li>A Haskell like 'Copy' and Delegating constructor</li>
+    </ul>
+    <p>
+      You may not need all of these <b>constructors</b>, but as a library provider giving your developers some flexibility is a good idea.
+    </p>
+    <p>
+      The 'Delegation' mechanism to a 'Consumer of ConfigurationDetails' is the main mechanism used to avoid the profusion of overloaded
+      constructors (here there are only three properties, but imagine a DTO with 20 properties).
+    </p>
+    <p>
+      To make the 'library' more useful, the following functions have also be provided. These function take either a List or a single
+      'Acceptor'/'Consumer' of 'ConfigurationDetails'. Acceptors can be used in a 'non-pure' context and Consumers in a
+      'pure' context.
+    </p>
+    <p>
+      In effect this 'Delegating' approach to <b>constructors</b> is the mechanism that removes the need for many overloaded
+      <b>constructors</b>.
+    </p>
+    <pre>
+...
+  defines function
+
+    defaultConfiguration()
+      -> details as ConfigurationDetails
+      details.name :=? "default"
+      details.useMapping :=? false
+      details.frequencyOfChecks :=? 6
+
+    applyConfigurations()
+      -> changes as List of Acceptor of ConfigurationDetails
+      <- configuration as ConfigurationDetails: ConfigurationDetails()
+      for change in changes
+        change(configuration)
+
+    applyConfiguration()
+      -> change as Acceptor of ConfigurationDetails
+      <- configuration as ConfigurationDetails: ConfigurationDetails()
+      change(configuration)
+
+    conditionallyApplyConfigurations() as pure
+      -> changes as List of Consumer of ConfigurationDetails
+      <- configuration as ConfigurationDetails: ConfigurationDetails()
+      for change in changes
+        change(configuration)
+
+    conditionallyApplyConfiguration() as pure
+      -> change as Consumer of ConfigurationDetails
+      <- configuration as ConfigurationDetails: ConfigurationDetails()
+      change(configuration)
+...
+    </pre>
+    <br/>
+    <p>
+      Importantly it is these functions (or functions like them) that can be used to 'build' a 'ConfigurationDetails' <i>record</i>.<br/>
+      The 'defaultConfiguration' function is designed to be a fallback function to provide reasonable defaults in the event that any bespoke
+      configurations did not populate specific properties.
+    </p>
+    <h4 id="design_pattern_library_client">EK9 client code example</h4>
+    <p>
+      Now the concept and definition of the 'library' has been established, let's look at how a 'client' might use that 'library'.
+    </p>
+    <pre>#!ek9
+defines module client.code.example
+
+  references
+    simple.library.example::ConfigurationDetails
+    simple.library.example::applyConfiguration
+    simple.library.example::applyConfigurations
+    simple.library.example::conditionallyApplyConfiguration
+    simple.library.example::defaultConfiguration
+    simple.library.example::SomeConfigurableService
+
+  defines function
+
+    testAPlainConfiguration() as pure
+
+      someServer <- SomeConfigurableService()
+      someServer.underTakeServiceOperations()
+
+      asConfigured <- someServer.configurationDetails()
+      assert asConfigured?
+
+    withSpecificValues() as pure
+      -> details as ConfigurationDetails
+      details.name :=? "Specific Value"
+      details.useMapping :=? false
+      details.frequencyOfChecks :=? 21
+
+    testABespokePureConfiguration1() as pure
+
+      someServer <- SomeConfigurableService(conditionallyApplyConfiguration(withSpecificValues))
+      someServer.underTakeServiceOperations()
+
+      asConfigured <- someServer.configurationDetails()
+      assert asConfigured?
+
+//EOF</pre>
+    <br/>
+    <p>
+      As can be seen from the example client code above, the first function 'testAPlainConfiguration' just creates
+      'SomeConfigurableService' using a 'ConfigurationDetails' where none of the properties have been set.<br/>
+      The second function 'testABespokePureConfiguration1' employs the 'conditionallyApplyConfiguration' library function
+      together with 'withSpecificValues' to create a specific configuration. In effect the client code developer has their
+      'withSpecificValues' called back to modify the 'ConfigurationDetails' data by the library.
+    </p>
+    <p>
+      It is this latter point that removes the need for large and complex 'builder' classes and a profusion of overloaded
+      <b>constructor</b> methods in 'ConfigurationDetails'.
+    </p>
+    <p>
+      The further example below highlights the flexibility in this approach, for these few properties this is probably not
+      necessary, but with many properties and required final default values this approach works very well and flexibly (via composition).
+    </p>
+    <pre>
+...
+  defines function
+
+    withSpecificName()
+      -> details as ConfigurationDetails
+      details.name: "specific"
+
+    enableMapping()
+      -> details as ConfigurationDetails
+      details.useMapping: true
+
+    testAFlexibleBespokeConfiguration()
+
+      someServer <- SomeConfigurableService(
+        applyConfigurations(
+          [ withSpecificName, enableMapping, defaultConfiguration ]
+          )
+        )
+
+      someServer.underTakeServiceOperations()
+
+      asConfigured <- someServer.configurationDetails()
+      assert asConfigured?
+
+    testACopyAndInitialisePureConfiguration() as pure
+
+      specifics <- () is Consumer of ConfigurationDetails as pure function
+        t.name :=? "Retained Value"
+        t.useMapping :=? false
+
+      configuration <- ConfigurationDetails()
+      configuration.name :=? "Ignored Value"
+      configuration.frequencyOfChecks :=? 16
+
+      someServer <- SomeConfigurableService(ConfigurationDetails(specifics, configuration))
+
+      someServer.underTakeServiceOperations()
+
+      asConfigured <- someServer.configurationDetails()
+
+      //asConfigured would be 'name = "Retained Value", useMapping = false, frequencyOfChecks = 16'
+      assert asConfigured?
+
+//EOF</pre>
+    <br/>
+    <p>
+      This final example above, shows how multiple configurations and a final 'default set' can be applied.
+      The important aspect of this is that the 'library' provided the mechanism to allow the 'client code' to
+      alter and mutate 'ConfigurationDetails' in a very modular way.
+    </p>
+    <p>
+      The function 'testACopyAndInitialisePureConfiguration' uses a more Haskell style approach of passing in
+      a basic object to copy from, but also a function that provides the values to override. In this case it also
+      demonstrates a 'dynamic function'.
+    </p>
+    <p>
+      Using the approach above it is possible/desirable to create a set of specific configurations and compose those
+      configurations in various ways. Clearly for a handful of properties this is not really worth it. But when a a <i>record</i>
+      has many properties - this approach enables a very flexible way to create objects even in an 'immutable'/'pure' context.
+    </p>
+    <h4>Summary</h4>
+    <p>
+      Given EK9 has introduced the 'pure' keyword and limits 'mutation', it has been important to provide a flexible way to
+      create 'immutable' objects in an 'immutable' context, but in a safe manner. Clearly the act of constructing new objects by
+      its very nature calls for some degree of 'mutation' of property values.
+    </p>
+    <p>
+      Through the use of the 'Consumer' type and the <b>:=?</b> (assignment if un-set) operator, EK9 has a controlled and modular mechanism
+      to be able to construct objects in a <b>safe</b> and extensible/scalable manner.
+    </p>
+    <p>
+      For these reasons and also the shortcomings identified in other languages where argument default values have been employed; EK9
+      does not include default argument values.
+    </p>
+    <h4>Next Steps</h4>
+    <p>
+      The details on <i>packaging</i> and <i>deploying/publishing</i> your code to an
+      <u>artefact server</u> are covered in the next section on <a href="packaging.html">packaging</a>.
+    </p>
+    <p>
+      But if you are looking for more details on the command line parameters see the
+      <a href="commandline.html">command line</a> section.
+    </p>
+  </article>
+</main>
+</body>
+</html>

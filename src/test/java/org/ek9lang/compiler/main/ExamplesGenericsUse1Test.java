@@ -102,7 +102,7 @@ class ExamplesGenericsUse1Test extends PhasesTest {
     var functionChecker = new GenericsSymbolCheck(program, EK9_LANG, true, ISymbol.SymbolCategory.FUNCTION);
     functionChecker.accept(new SymbolSearchConfiguration("Supplier", mapFunction.apply(List.of("Integer"))));
 
-    var numberOfAdditionalSymbols = 10;
+    var numberOfAdditionalSymbols = 11;
     new SymbolCountCheck(EK9_LANG, NUMBER_OF_EK9_SYMBOLS + numberOfAdditionalSymbols).test(program);
   }
 

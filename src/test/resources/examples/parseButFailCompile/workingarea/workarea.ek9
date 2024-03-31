@@ -50,6 +50,27 @@
 -?>
 defines module just.workspace
 
+  defines record
+
+    <?-
+      The data that can be used to configure a service to work in a specific way.
+      Note that properties are initialised with memory but no meaningful value.
+      Meaning that by default this record is 'un-set' when the '?' operator is called.
+    -?>
+    ConfigurationDetails
+      name <- String()
+      useMapping <- Boolean()
+      frequencyOfChecks <- Integer()
+
+      <!-
+      tags <- [
+        "constants",
+        "algorithms"
+        ]
+      -!>
+
+      default ConfigurationDetails() as pure
+
   <?-
     The utility functions used for testing in this example.
   -?>
@@ -58,6 +79,27 @@ defines module just.workspace
     JustFail()
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       assert notDefined?
+
+    ExampleBuilderFunction() as pure
+      <- rtn as ConfigurationDetails: ConfigurationDetails()
+      rtn.name :=? "A name"
+
+  <!-
+  defines type
+    CardSuit
+      Hearts
+      Diamonds
+      Clubs
+      Spades
+
+
+    IterateOverEnumeration()
+      stdout <- Stdout()
+      cat CardSuit > stdout
+
+      for val in CardSuit
+        stdout.println(`Value is ${val}`)
+  -!>
 
   <!-
 

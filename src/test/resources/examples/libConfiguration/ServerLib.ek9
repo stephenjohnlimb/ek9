@@ -1,0 +1,173 @@
+#!ek9
+<?-
+  An example of a server component and some configuration data that can be used to
+  alter how it functions in specific ways.
+
+  This idea here is to use functions that are a 'Acceptor of ConfigurationDetails'
+  to mutate the configuration in various ways.
+
+  See the 'ClientCode.ek9' for how this is to be used.
+-?>
+defines module simple.library.example
+
+  defines record
+
+    <?-
+      The data that can be used to configure a service to work in a specific way.
+      Note that properties are initialised with memory but no meaningful value.
+      Meaning that by default this record is 'un-set' when the '?' operator is called.
+    -?>
+    ConfigurationDetails
+      name <- String()
+      useMapping <- Boolean()
+      frequencyOfChecks <- Integer()
+
+      <?-
+        Enable default construction and leave everything un-set.
+      -?>
+      default ConfigurationDetails() as pure
+
+      <?-
+        Rather than build in lots of complex 'default' arguments that conditionally
+        set the properties in this record, the construction can delegate the initialisation
+        of the properties to a 'Consumer'. As long as the properties in this record are
+        created in an un-set form, this initializer can mutate them (even through it is 'pure').
+        In effect this constructor is delegating the initialization.
+      -?>
+      ConfigurationDetails() as pure
+        -> initializer as Consumer of ConfigurationDetails
+        initializer(this)
+
+      <?-
+        Make a copy of all the properties.
+        Note during 'construction' - the pure constructor can and must be able to mutate
+        properties.
+      -?>
+      ConfigurationDetails() as pure
+        -> copyFrom as ConfigurationDetails
+        this :=: copyFrom
+
+      <?-
+        Here is a combination of the two constructors.
+        This creates a new ConfigurationDetails, uses the initializer to do the specific config.
+        Then it copies over all the values from the 'copyFrom' where 'this' properties are not set.
+      -?>
+      ConfigurationDetails() as pure
+        ->
+          initializer as Consumer of ConfigurationDetails
+          copyFrom as ConfigurationDetails
+
+        initializer(this)
+        this :=: copyFrom
+
+      <?-
+        Makes a copy of all the properties from 'copyFrom', but only where values are 'un-set'.
+      -?>
+      operator :=:
+        -> copyFrom as ConfigurationDetails
+
+        name :=? String(copyFrom.name)
+        useMapping :=? Boolean(copyFrom.useMapping)
+        frequencyOfChecks :=? Integer(copyFrom.frequencyOfChecks)
+
+      default operator ?
+      default operator $
+
+  defines function
+
+    defaultConfiguration()
+      -> details as ConfigurationDetails
+      details.name :=? "default"
+      details.useMapping :=? false
+      details.frequencyOfChecks :=? 6
+
+    <?-
+      Takes a list of configuration changes and applies them to a stock configuration.
+      i.e. It uses the Acceptor of ConfigurationDetails to 'mutate' the configuration.
+      Note 'Acceptor' is a non-pure sort of 'Consumer' built into the EK9 language.
+      The EK9 compiler 'infers' specific types on functions that meet specific 'signatures'.
+    -?>
+    applyConfigurations()
+      -> changes as List of Acceptor of ConfigurationDetails
+      <- configuration as ConfigurationDetails: ConfigurationDetails()
+      for change in changes
+        change(configuration)
+
+    <?-
+      Takes a list of configuration changes and applies them to a stock configuration.
+      i.e. It uses the Consumer of ConfigurationDetails to 'mutate' the configuration,
+      BUT it can only do this if the values are un-set.
+      The EK9 compiler 'infers' specific types on functions that meet specific 'signatures'.
+      So while it looks and feels like mutation in a pure context, it is very limited in the
+      fact it can only mutate 'un-set' properties.
+    -?>
+    conditionallyApplyConfigurations() as pure
+      -> changes as List of Consumer of ConfigurationDetails
+      <- configuration as ConfigurationDetails: ConfigurationDetails()
+      for change in changes
+        change(configuration)
+
+    <?-
+      Applies just a single configuration to a newly created ConfigurationDetails object.
+    -?>
+    applyConfiguration()
+      -> change as Acceptor of ConfigurationDetails
+      <- configuration as ConfigurationDetails: ConfigurationDetails()
+      change(configuration)
+
+    <?-
+      Applies just a single configuration to a newly created ConfigurationDetails object,
+      but only if the properties in the configuration have not yet been set.
+    -?>
+    conditionallyApplyConfiguration() as pure
+      -> change as Consumer of ConfigurationDetails
+      <- configuration as ConfigurationDetails: ConfigurationDetails()
+      change(configuration)
+
+  defines class
+
+    <?-
+      Example of a service that can have various aspects configured.
+      Note that the actual configuration is managed as a separate aggregate (record).
+      Also, to keep this pure, it has to be 'given' the configuration to use.
+      This again is a separation of concerns, this class just uses the provided configuration.
+    -?>
+    SomeConfigurableService
+
+      //Will be set via the constructors - as long as it is un-set
+      configuration as ConfigurationDetails: ConfigurationDetails()
+
+      <?-
+        Just use the stock configuration out of the box.
+      -?>
+      SomeConfigurableService() as pure
+        configuration :=? ConfigurationDetails()
+
+      <?-
+        Employ the configuration as provided.
+        But this uses a copy constructor to take a snapshot of the values passed in.
+        This is so that if the calling code mutates the details - this service is not affected.
+      -?>
+      SomeConfigurableService() as pure
+        -> useConfiguration as ConfigurationDetails
+        configuration :=? ConfigurationDetails(useConfiguration)
+
+      <?-
+        Would not have methods and actions that employ the configuration.
+      -?>
+      underTakeServiceOperations() as pure
+        stdout <- Stdout()
+        if configuration.name?
+          stdout.println(`Processing Service operation for ${configuration.name}`)
+        if configuration.useMapping
+          stdout.println(`Will use mapping`)
+        if configuration.frequencyOfChecks?
+          stdout.println(`Processing Service frequency ${configuration.frequencyOfChecks}`)
+
+      <?-
+        Just provide a String value representation of the configuration for display.
+      -?>
+      configurationDetails() as pure
+        <- rtn as String: $configuration
+
+//EOF

@@ -1,12 +1,6 @@
 #!ek9
 defines module example.networking
 
-  defines type
-    List of serverFunction
-    List of String
-    Dict of (String, String)
-    Optional of TCP
-
   <?-
     Now have new construct called package. This is a single construct per module scope.
     It has a predefined set of variables with specific types it can support.
@@ -31,7 +25,7 @@ defines module example.networking
     license <- "MIT"
 
     //So users can search and find packages of specific types.
-    tags <- [
+    tags as List of String: [
       "networking",
       "communications",
       "client",
@@ -41,13 +35,13 @@ defines module example.networking
     //These are the dependencies once deployed.
     //We use the free for all ek9open for open source (wild west of dependencies).
     //ek9open is first come first served, real domains like com.googlecode will need clearing for ownership!
-    deps <- {
+    deps as Dict of (String, String): {
       "ekopen.network.support.utils": "1.6.1-9",
       "ekopen.net.handy.tools": "3.2.1-0"
       }
 
     //These are development/test dependencies.
-    devDeps <- {
+    devDeps as Dict of (String, String): {
       "ekopen.org.supertools.util": "4.6.1-6",
       "ekopen.org.net.tools.misc": "3.2.3-21"
       }
@@ -56,7 +50,7 @@ defines module example.networking
     //ek9open.some.bad.dependency.pack from the dependencies in ek9open.org.supertools.util
     //Maybe it brings a version that is broken or too new, but will work with an older version
     //Some other dependencies like ek9open.org.net.tools.misc brought in!
-    excludeDeps <- {
+    excludeDeps as Dict of (String, String): {
       "ekopen.some.bad.dependency.pack": "ekopen.org.supertools.util"
       }
 
@@ -74,7 +68,7 @@ defines module example.networking
     //You can still add other includes if you wish.
     applyStandardIncludes <- false
 
-    includeFiles <- [
+    includeFiles as List of String: [
       "**.{txt,cal}"
       ]
 
@@ -84,7 +78,7 @@ defines module example.networking
     applyStandardExcludes <- true
 
     //Now these are the globs we then exclude, in additional to the standard ones above.
-    excludeFiles <- [
+    excludeFiles as List of String: [
       "sample/images/{perch.png,nonSuch.jpeg}"
       ]
 

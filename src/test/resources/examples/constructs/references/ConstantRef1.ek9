@@ -20,7 +20,7 @@ defines module net.customer.geometry
     description <- "Example of different constants in different modules."
 
     //We only want this file and these three to be compiled up.
-    includeFiles <- [
+    includeFiles as List of String: [
       "ConstantRef2.ek9",
       "ConstantRef3.ek9",
       "ConstantRef4.ek9"

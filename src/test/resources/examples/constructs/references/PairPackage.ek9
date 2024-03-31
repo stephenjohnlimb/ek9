@@ -9,7 +9,7 @@ defines module ekopen.std.incs
     description <- "Example of standard includes"
     license <- "MIT"
 
-    tags <- [
+    tags as List of String: [
       "general",
       "tools"
       ]

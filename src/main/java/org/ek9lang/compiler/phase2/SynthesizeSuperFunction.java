@@ -14,13 +14,13 @@ import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.CompilerException;
 
 /**
- * Looks that the function and if it has no super function, attempts to work out what would be the
+ * Looks at the function and if it has no super function, attempts to work out what would be the
  * best super function generic type it could implement. Also ensures that purity is retained.
  * So for some abstract generic functions like UnaryOperator of T for example the function must be pure.
  * i.e. is it really a Supplier of T and Consumer of T, etc.
  * <br/>
  * The reason for this, is that it enables just functions to be defined but then accept them via their
- * generic function signature. Less coding for the EK9 developer. But all function style templates are 'pure'.
+ * generic function signature. Less coding for the EK9 developer.
  */
 final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
   private final SymbolAndScopeManagement symbolAndScopeManagement;
@@ -44,7 +44,7 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
         trySuppliersAndConsumers(function);
         tryPredicatesAndFunctions(function);
       } else {
-        tryProducersAnAccessors(function);
+        tryProducersAndAccessors(function);
       }
     }
 
@@ -90,7 +90,7 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
 
   }
 
-  private void tryProducersAnAccessors(FunctionSymbol function) {
+  private void tryProducersAndAccessors(FunctionSymbol function) {
 
     //Check if candidate could be a producer
     if (function.getCallParameters().isEmpty() && isUsableReturnTypePresent(function)) {

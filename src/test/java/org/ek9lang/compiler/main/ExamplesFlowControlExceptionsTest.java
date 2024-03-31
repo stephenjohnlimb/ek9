@@ -17,6 +17,7 @@ class ExamplesFlowControlExceptionsTest extends PhasesTest {
 
   @Test
   void testPhasedDevelopment() {
+    //TODO move to IR_ANALYSIS
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 

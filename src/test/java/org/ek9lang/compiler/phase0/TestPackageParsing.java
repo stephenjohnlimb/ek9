@@ -118,7 +118,7 @@ final class TestPackageParsing {
     assertTrue(details.includeFiles().contains("**.{txt,cal}"));
     assertTrue(details.excludeFiles().contains("sample/images/{perch.png,nonSuch.jpeg}"));
 
-    assertEquals(25, details.versionNumberOnLine());
+    assertEquals(19, details.versionNumberOnLine());
     assertTrue(details.packagePresent());
     assertEquals(4, details.programs().size());
     assertEquals("MIT", details.license());
