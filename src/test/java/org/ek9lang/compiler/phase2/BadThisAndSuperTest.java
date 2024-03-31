@@ -16,7 +16,7 @@ class BadThisAndSuperTest extends PhasesTest {
   public BadThisAndSuperTest() {
     super("/examples/parseButFailCompile/badThisAndSuper",
         List.of("bad.functions.thisandsuper", "bad.classes.thisandsuper", "bad.components.thisandsuper"),
-        false, false);
+        false, true);
   }
 
   @Test

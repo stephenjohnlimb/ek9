@@ -57,6 +57,8 @@ public class OperatorFactory {
     aggregateFactory.addPurePublicSimpleOperator(enumerationSymbol, "?", booleanType);
     //Now a _string $ operator
     aggregateFactory.addPurePublicSimpleOperator(enumerationSymbol, "$", stringType);
+    //Promote to String operator
+    aggregateFactory.addPurePublicSimpleOperator(enumerationSymbol, "#^", stringType);
 
     //To JSON operator
     aggregateFactory.addPurePublicSimpleOperator(enumerationSymbol, "$$", jsonType);

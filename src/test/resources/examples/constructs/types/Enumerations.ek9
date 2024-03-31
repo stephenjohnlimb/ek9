@@ -138,6 +138,7 @@ defines module com.customer.enumerations
       //If you wanted a list of suits
       @Resolved: SYMBOL_DEFINITION: TYPE: "List of (CardSuit)"
       suits <- cat CardSuit | collect as List of CardSuit
+      assert suits?
 
       stdout.println("Procedural Deck creation")
       for suit in CardSuit

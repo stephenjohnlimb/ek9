@@ -56,6 +56,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
    */
   ResolveDefineInferredTypeListener(ParsedModule parsedModule) {
     super(parsedModule);
+
     this.dynamicCaptureAndDefinition =
         new DynamicCaptureAndDefinition(symbolAndScopeManagement, errorListener, symbolFactory);
     this.checkPropertyNames =
@@ -132,19 +133,6 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     }
     super.enterTypeDeclaration(ctx);
   }
-
-  /*
-  private ISymbol makeIteratorType(final AggregateSymbol enumerationSymbol) {
-    final var iteratorType = resolveIterator(enumerationSymbol);
-    if(iteratorType.isEmpty()) {
-      throw new CompilerException("Must be able to resolve ek9 iterator type");
-    }
-    final var typeData =
-        new ParameterisedTypeData(enumerationSymbol.getSourceToken(), iteratorType.get(), List.of(enumerationSymbol));
-    final var resolvedNewType = parameterisedLocator.resolveOrDefine(typeData);
-    return resolvedNewType;
-  }
-  */
 
   @Override
   public void exitRecordDeclaration(EK9Parser.RecordDeclarationContext ctx) {

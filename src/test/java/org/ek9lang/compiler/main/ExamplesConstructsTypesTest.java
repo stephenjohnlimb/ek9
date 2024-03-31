@@ -20,9 +20,7 @@ class ExamplesConstructsTypesTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
-    //TODO need streams and cat and also switch.
-    //TODO move to IR_ANALYSIS
-    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
+    testToPhase(CompilationPhase.IR_ANALYSIS);
   }
 
   @Override

@@ -161,6 +161,10 @@ public class SymbolFactory {
         new CheckAndPopulateOperator(aggregateFactory, parsedModule.getSource().getErrorListener());
   }
 
+  public AggregateFactory getAggregateFactory() {
+    return aggregateFactory;
+  }
+
   /**
    * Create a new directive to be used inside the compiler.
    */

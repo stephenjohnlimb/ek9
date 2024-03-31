@@ -5,9 +5,11 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.support.ParameterisedLocator;
 import org.ek9lang.compiler.support.ParameterisedTypeData;
 import org.ek9lang.compiler.support.SymbolFactory;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
@@ -15,11 +17,13 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  */
 final class ProcessEnumeratedType extends TypedSymbolAccess implements Consumer<EK9Parser.TypeDeclarationContext> {
   private final ParameterisedLocator parameterisedLocator;
+  private final AggregateFactory aggregateFactory;
 
   ProcessEnumeratedType(final SymbolAndScopeManagement symbolAndScopeManagement, final SymbolFactory symbolFactory,
                         final ErrorListener errorListener) {
     super(symbolAndScopeManagement, errorListener);
     this.parameterisedLocator = new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
+    this.aggregateFactory = symbolFactory.getAggregateFactory();
   }
 
   @Override
@@ -27,14 +31,13 @@ final class ProcessEnumeratedType extends TypedSymbolAccess implements Consumer<
     var startToken = new Ek9Token(ctx.start);
 
     final var enumeratedTypeSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    if (enumeratedTypeSymbol instanceof AggregateSymbol enumeration) {
+      final var iteratorType = symbolAndScopeManagement.getEk9Types().ek9Iterator();
 
-    final var iteratorType = symbolAndScopeManagement.getEk9Types().ek9Iterator();
-
-    final var typeData = new ParameterisedTypeData(startToken, iteratorType, List.of(enumeratedTypeSymbol));
-    final var resolvedNewType = parameterisedLocator.resolveOrDefine(typeData);
-
-    //TODO make iterator() method that return this type and add it to the enumeratedTypeSymbol
-    System.out.println("Found [" + resolvedNewType + "]");
+      final var typeData = new ParameterisedTypeData(startToken, iteratorType, List.of(enumeratedTypeSymbol));
+      final var resolvedNewType = parameterisedLocator.resolveOrDefine(typeData);
+      aggregateFactory.addPublicMethod(enumeration, "iterator", List.of(), resolvedNewType);
+    }
   }
 
 }
