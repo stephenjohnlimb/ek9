@@ -32,6 +32,13 @@ final class CheckForOperator extends TypedSymbolAccess implements Function<Check
   public Optional<ISymbol> apply(final CheckOperatorData checkOperatorData) {
     var symbol = checkOperatorData.symbol();
 
+    if(symbolIsActuallyAnEnumerationType(symbol)) {
+      errorListener.semanticError(checkOperatorData.operatorUseToken(), "wrt '" + symbol.getName() + "':",
+          ErrorListener.SemanticClassification.OPERATOR_CANNOT_BE_USED_ON_ENUMERATION);
+
+      return Optional.empty();
+    }
+
     Optional<ISymbol> rtn = Optional.empty();
 
     //Get the underlying type or emit error and return false.
@@ -53,6 +60,16 @@ final class CheckForOperator extends TypedSymbolAccess implements Function<Check
       }
     }
     return rtn;
+  }
+
+  /**
+   * Now within EK9 we do need to reference the actual type of enumeration to be able to
+   * iterate over its values. But we also need to stop silly use of operators on the actual
+   * enumeration itself. So this is like needing 'iterator' to be a static method (like Java).
+   * But other methods to be on the instance. That concept does not exist in EK9.
+   */
+  private boolean symbolIsActuallyAnEnumerationType(final ISymbol symbol) {
+    return symbol.getGenus().equals(ISymbol.SymbolGenus.CLASS_ENUMERATION);
   }
 
   private void emitOperatorNotDefined(final IAggregateSymbol aggregate, final CheckOperatorData checkOperatorData) {

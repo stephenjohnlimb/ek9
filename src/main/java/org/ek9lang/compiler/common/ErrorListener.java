@@ -523,6 +523,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     OVERRIDE_OPERATOR_EQUALS("operator == should be overridden for consistency"),
     OVERRIDE_OPERATOR_HASHCODE("operator #? should be overridden for consistency"),
     OPERATOR_NOT_DEFINED("operator not defined"),
+    OPERATOR_CANNOT_BE_USED_ON_ENUMERATION("operator cannot be used on an Enumeration in this way"),
     BAD_NOT_EQUAL_OPERATOR("use <> for the not equal operator"),
     BAD_NOT_OPERATOR("use ~ for the not operator"),
     OPERATOR_DOES_NOT_SUPPORT_PARAMETERS("operator does not support parameters"),

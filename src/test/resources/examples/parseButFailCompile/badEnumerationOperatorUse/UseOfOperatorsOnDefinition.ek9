@@ -1,0 +1,53 @@
+#!ek9
+<?-
+  Examples of bad use of operators on the Enumeration itself rather than variables that of of the
+  enumerated type.
+-?>
+defines module bad.enumeration.use
+
+  defines type
+    CardSuit
+      Hearts
+      Diamonds
+      Clubs
+      Spades
+
+  defines function
+
+    <?-
+      This use is fine and logical
+    -?>
+    ValidUseOfEnumeration()
+      stdout <- Stdout()
+
+      cat CardSuit > stdout
+      cat CardSuit.iterator() > stdout
+      for val in CardSuit
+        stdout.println(`Value is ${val}`)
+
+      assert CardSuit.Hearts < CardSuit.Clubs
+      hearts <- CardSuit.Hearts
+
+      assert hearts < CardSuit.Spades
+
+    InvalidUseOfStringConversion()
+
+      @Error: FULL_RESOLUTION: OPERATOR_CANNOT_BE_USED_ON_ENUMERATION
+      suitAsString <- $CardSuit
+
+      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      assert suitAsString?
+
+    InvalidUseOfJSONConversion()
+
+      @Error: FULL_RESOLUTION: OPERATOR_CANNOT_BE_USED_ON_ENUMERATION
+      asJSON <- $$CardSuit
+
+    InvalidUseOfComparisonOperators()
+
+      @Error: FULL_RESOLUTION: OPERATOR_CANNOT_BE_USED_ON_ENUMERATION
+      result <- CardSuit > CardSuit.Hearts
+
+
+//EOF
+

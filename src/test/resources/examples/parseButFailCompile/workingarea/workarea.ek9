@@ -84,23 +84,6 @@ defines module just.workspace
       <- rtn as ConfigurationDetails: ConfigurationDetails()
       rtn.name :=? "A name"
 
-  defines type
-    CardSuit
-      Hearts
-      Diamonds
-      Clubs
-      Spades
-
-  defines function
-
-    IterateOverEnumeration()
-      stdout <- Stdout()
-
-      cat CardSuit > stdout
-
-      for val in CardSuit
-        stdout.println(`Value is ${val}`)
-
   <!-
 
     SimpleStreamCatMap4()

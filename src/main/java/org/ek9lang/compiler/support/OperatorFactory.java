@@ -39,7 +39,7 @@ public class OperatorFactory {
     aggregateFactory.addComparatorOperator(enumerationSymbol, "<=", booleanType);
     aggregateFactory.addComparatorOperator(enumerationSymbol, ">=", booleanType);
 
-    //For enumerations we provide implementations for comparisons against strings as well.
+    //For an enumeration we provide implementations for comparisons against strings as well.
     //We can convert to the enumeration and then just compare.
     stringType.ifPresent(string -> {
       var argType = (IAggregateSymbol) string;
@@ -51,7 +51,6 @@ public class OperatorFactory {
       aggregateFactory.addComparatorOperator(enumerationSymbol, argType, "<=", booleanType);
       aggregateFactory.addComparatorOperator(enumerationSymbol, argType, ">=", booleanType);
     });
-
 
     //isSet
     aggregateFactory.addPurePublicSimpleOperator(enumerationSymbol, "?", booleanType);
