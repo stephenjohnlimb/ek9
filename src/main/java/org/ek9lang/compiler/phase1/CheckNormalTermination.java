@@ -23,5 +23,6 @@ final class CheckNormalTermination implements BiConsumer<IToken, IScope> {
       errorListener.semanticError(token, "",
           ErrorListener.SemanticClassification.RETURN_UNREACHABLE);
     }
+
   }
 }

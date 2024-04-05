@@ -23,17 +23,22 @@ final class CheckMethodNotOperatorName extends RuleSupport
 
   CheckMethodNotOperatorName(final SymbolAndScopeManagement symbolAndScopeManagement,
                              final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
-  public void accept(MethodSymbol methodSymbol, EK9Parser.MethodDeclarationContext methodDeclarationContext) {
+  public void accept(final MethodSymbol methodSymbol,
+                     final EK9Parser.MethodDeclarationContext methodDeclarationContext) {
+
     if (namedOperators.contains(methodSymbol.getName())) {
       //Then even if the method does have a different set of arguments we cannot allow it.
       //Just too confusing to have operators and methods with the same name.
-      var msg = "method named '" + methodSymbol.getName() + "' conflicts with operator semantics:";
+      final var msg = "method named '" + methodSymbol.getName() + "' conflicts with operator semantics:";
       errorListener.semanticError(methodSymbol.getSourceToken(), msg,
           ErrorListener.SemanticClassification.OPERATOR_NAME_USED_AS_METHOD);
     }
+
   }
 }

@@ -53,8 +53,9 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
    * Next phase after symbol definition, now check for explicit references.
    * Because the reference phase is singled threaded access to compilableProgram is given directly.
    */
-  ReferencesPhase1Listener(CompilableProgram compilableProgram,
-                           ParsedModule parsedModule) {
+  ReferencesPhase1Listener(final CompilableProgram compilableProgram,
+                           final ParsedModule parsedModule) {
+    
     AssertValue.checkNotNull("CompilableProgramAccess cannot be null", compilableProgram);
     AssertValue.checkNotNull("ParsedModule cannot be null", parsedModule);
 
@@ -116,160 +117,205 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
    * But the definition phase will/should have at least defined them to some extent.
    */
   @Override
-  public void enterReferencesBlock(EK9Parser.ReferencesBlockContext ctx) {
+  public void enterReferencesBlock(final EK9Parser.ReferencesBlockContext ctx) {
+
     ctx.identifierReference().forEach(this::processIdentifierReference);
+
     super.enterReferencesBlock(ctx);
   }
 
   @Override
-  public void enterConstantDeclaration(EK9Parser.ConstantDeclarationContext ctx) {
+  public void enterConstantDeclaration(final EK9Parser.ConstantDeclarationContext ctx) {
+
     processSymbolAndReferenceClash(ctx, constantAndReferenceConflict);
+
     super.enterConstantDeclaration(ctx);
   }
 
   @Override
-  public void enterFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
+  public void enterFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
+
     processSymbolAndReferenceClash(ctx, functionAndReferenceConflict);
+
     super.enterFunctionDeclaration(ctx);
   }
 
   @Override
-  public void enterRecordDeclaration(EK9Parser.RecordDeclarationContext ctx) {
+  public void enterRecordDeclaration(final EK9Parser.RecordDeclarationContext ctx) {
+
     processSymbolAndReferenceClash(ctx, recordAndReferenceConflict);
+
     super.enterRecordDeclaration(ctx);
   }
 
   @Override
-  public void enterTraitDeclaration(EK9Parser.TraitDeclarationContext ctx) {
+  public void enterTraitDeclaration(final EK9Parser.TraitDeclarationContext ctx) {
+
     processSymbolAndReferenceClash(ctx, traitAndReferenceConflict);
+
     super.enterTraitDeclaration(ctx);
   }
 
   @Override
-  public void enterClassDeclaration(EK9Parser.ClassDeclarationContext ctx) {
+  public void enterClassDeclaration(final EK9Parser.ClassDeclarationContext ctx) {
+
     processSymbolAndReferenceClash(ctx, classAndReferenceConflict);
+
     super.enterClassDeclaration(ctx);
   }
 
   @Override
-  public void enterComponentDeclaration(EK9Parser.ComponentDeclarationContext ctx) {
+  public void enterComponentDeclaration(final EK9Parser.ComponentDeclarationContext ctx) {
+
     processSymbolAndReferenceClash(ctx, componentAndReferenceConflict);
+
     super.enterComponentDeclaration(ctx);
   }
 
   @Override
-  public void enterTextDeclaration(EK9Parser.TextDeclarationContext ctx) {
+  public void enterTextDeclaration(final EK9Parser.TextDeclarationContext ctx) {
+
     processSymbolAndReferenceClash(ctx, textAndReferenceConflict);
+
     super.enterTextDeclaration(ctx);
   }
 
   @Override
-  public void enterTextBodyDeclaration(EK9Parser.TextBodyDeclarationContext ctx) {
+  public void enterTextBodyDeclaration(final EK9Parser.TextBodyDeclarationContext ctx) {
+
     processSymbolAndReferenceClash(ctx, textBodyAndReferenceConflict);
+
     super.enterTextBodyDeclaration(ctx);
   }
 
   @Override
-  public void enterServiceDeclaration(EK9Parser.ServiceDeclarationContext ctx) {
+  public void enterServiceDeclaration(final EK9Parser.ServiceDeclarationContext ctx) {
+
     processSymbolAndReferenceClash(ctx, serviceAndReferenceConflict);
+
     super.enterServiceDeclaration(ctx);
   }
 
   @Override
-  public void enterServiceOperationDeclaration(EK9Parser.ServiceOperationDeclarationContext ctx) {
+  public void enterServiceOperationDeclaration(final EK9Parser.ServiceOperationDeclarationContext ctx) {
+
     processSymbolAndReferenceClash(ctx, serviceOperationAndReferenceConflict);
+
     super.enterServiceOperationDeclaration(ctx);
   }
 
   @Override
-  public void enterApplicationDeclaration(EK9Parser.ApplicationDeclarationContext ctx) {
+  public void enterApplicationDeclaration(final EK9Parser.ApplicationDeclarationContext ctx) {
+
     processSymbolAndReferenceClash(ctx, applicationAndReferenceConflict);
+
     super.enterApplicationDeclaration(ctx);
   }
 
   @Override
-  public void enterDynamicClassDeclaration(EK9Parser.DynamicClassDeclarationContext ctx) {
+  public void enterDynamicClassDeclaration(final EK9Parser.DynamicClassDeclarationContext ctx) {
+
     processSymbolAndReferenceClash(ctx, dynamicClassAndReferenceConflict);
+
     super.enterDynamicClassDeclaration(ctx);
   }
 
   @Override
-  public void enterParameterisedDetail(EK9Parser.ParameterisedDetailContext ctx) {
+  public void enterParameterisedDetail(final EK9Parser.ParameterisedDetailContext ctx) {
+
     processSymbolAndReferenceClash(ctx.Identifier().getText(), new Ek9Token(ctx.start),
         parameterisedDetailAndReferenceConflict);
+
     super.enterParameterisedDetail(ctx);
   }
 
   @Override
-  public void enterTypeDeclaration(EK9Parser.TypeDeclarationContext ctx) {
+  public void enterTypeDeclaration(final EK9Parser.TypeDeclarationContext ctx) {
+
     final var symbol = parsedModule.getRecordedSymbol(ctx);
     if (symbol != null) {
       //For types, it is possible for forward declare template type instances and no symbol is recorded.
       processSymbolAndReferenceClash(ctx, typeAndReferenceConflict);
     }
+
     super.enterTypeDeclaration(ctx);
   }
 
   @Override
-  public void enterMethodDeclaration(EK9Parser.MethodDeclarationContext ctx) {
+  public void enterMethodDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
+
     if (ctx.getParent() instanceof EK9Parser.AggregatePartsContext) {
       processSymbolAndReferenceClash(ctx, methodAndReferenceConflict);
     } else if (ctx.getParent() instanceof EK9Parser.ServiceDeclarationContext) {
       processSymbolAndReferenceClash(ctx, serviceMethodAndReferenceConflict);
     }
+
     super.enterMethodDeclaration(ctx);
   }
 
   @Override
-  public void enterForLoop(EK9Parser.ForLoopContext ctx) {
+  public void enterForLoop(final EK9Parser.ForLoopContext ctx) {
+
     processSymbolAndReferenceClash(ctx, forVariableAndReferenceConflict);
+
     super.enterForLoop(ctx);
   }
 
   @Override
-  public void enterForRange(EK9Parser.ForRangeContext ctx) {
+  public void enterForRange(final EK9Parser.ForRangeContext ctx) {
+
     processSymbolAndReferenceClash(ctx, forVariableAndReferenceConflict);
+
     super.enterForRange(ctx);
   }
 
   @Override
-  public void enterVariableOnlyDeclaration(EK9Parser.VariableOnlyDeclarationContext ctx) {
+  public void enterVariableOnlyDeclaration(final EK9Parser.VariableOnlyDeclarationContext ctx) {
+
     processSymbolAndReferenceClash(ctx, variableAndReferenceConflict);
+
     super.enterVariableOnlyDeclaration(ctx);
   }
 
   @Override
-  public void enterVariableDeclaration(EK9Parser.VariableDeclarationContext ctx) {
+  public void enterVariableDeclaration(final EK9Parser.VariableDeclarationContext ctx) {
+
     processSymbolAndReferenceClash(ctx, variableAndReferenceConflict);
+
     super.enterVariableDeclaration(ctx);
   }
 
   private void processSymbolAndReferenceClash(final ParseTree node, final Consumer<ConflictingTokens> errorConsumer) {
+
     final var symbol = parsedModule.getRecordedSymbol(node);
     processSymbolAndReferenceClash(symbol.getName(), symbol.getSourceToken(), errorConsumer);
+
   }
 
   private void processSymbolAndReferenceClash(final String unqualifiedName, final IToken token,
                                               final Consumer<ConflictingTokens> errorConsumer) {
+
     var search = new AnySymbolSearch(ISymbol.getUnqualifiedName(unqualifiedName));
 
     final var existingReference = compilableProgram.resolveReferenceFromModule(parsedModule.getModuleName(),
         search);
     existingReference.ifPresent(reference -> {
       //There is a conflict
-      var originalLocation = compilableProgram.getOriginalReferenceLocation(parsedModule.getModuleName(), search);
+      final var originalLocation = compilableProgram.getOriginalReferenceLocation(parsedModule.getModuleName(), search);
       originalLocation.ifPresent(location -> errorConsumer.accept(
           new ConflictingTokens(token, location, reference)));
     });
   }
 
   private void processIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
-    String identifierReference = ctx.getText();
+
+    final var identifierReference = ctx.getText();
 
     checkForInvalidUseOfReference.accept(ctx);
     if (identifierReference.contains("::")) {
       checkIdentifierReference(ctx, identifierReference);
     }
+
   }
 
   /**
@@ -307,7 +353,7 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
         //Record against the correct context.
         symbolAndScopeManagement.recordSymbol(resolved.get(), ctx);
       } else {
-        var originalLocation = compilableProgram.getOriginalReferenceLocation(parsedModule.getModuleName(), search);
+        final var originalLocation = compilableProgram.getOriginalReferenceLocation(parsedModule.getModuleName(), search);
         originalLocation.ifPresent(location -> duplicateSymbolByReference.accept(
             new ConflictingTokens(identifierToken, location, existingReference.get())));
       }

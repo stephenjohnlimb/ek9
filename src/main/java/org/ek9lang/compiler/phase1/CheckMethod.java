@@ -36,6 +36,7 @@ final class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol, 
    */
   CheckMethod(final SymbolAndScopeManagement symbolAndScopeManagement,
               final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     commonMethodChecks = new CommonMethodChecks(symbolAndScopeManagement, errorListener);
     checkNonTraitMethod = new CheckNonTraitMethod(errorListener);
@@ -87,24 +88,31 @@ final class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol, 
     checkIfContextSupportsAbstractMethod.accept(method, ctx);
 
     checkMethodNotOperatorName.accept(method, ctx);
+
   }
 
   private void checkAsConstructor(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
+
     var startToken = new Ek9Token(ctx.start);
     checkNormalTermination.accept(startToken, method);
     checkGenericConstructor.accept(startToken, method);
     checkNoMethodReturn.accept(method, ctx);
+
   }
 
-  private void checkAsProgram(MethodSymbol method, EK9Parser.MethodDeclarationContext ctx) {
+  private void checkAsProgram(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
+
     var startToken = new Ek9Token(ctx.start);
     checkProgramReturns.accept(startToken, method);
     checkProgramArguments.accept(startToken, method);
     checkNonExtendableMethod.accept(method, ctx);
+
   }
 
-  private void checkAsServiceMethod(MethodSymbol method, EK9Parser.MethodDeclarationContext ctx) {
+  private void checkAsServiceMethod(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
+
     checkForImplementation.accept(ctx);
     checkNonExtendableMethod.accept(method, ctx);
   }
+
 }

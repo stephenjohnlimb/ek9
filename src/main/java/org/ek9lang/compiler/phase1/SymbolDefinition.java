@@ -19,7 +19,7 @@ import org.ek9lang.core.SharedThreadContext;
  * Goes through the now successfully parse source files and uses
  * a listener to do the first real pass at building the IR - simple Symbol definitions.
  * This means identifying types and other symbols.
- * WILL WAIT FOR Java 21 with full virtual Threads.
+ * Uses Java 21 with full virtual Threads.
  * Note that most of the real processing is done in the
  * {@link org.ek9lang.compiler.phase1.DefinitionListener}.
  */
@@ -32,23 +32,32 @@ public final class SymbolDefinition extends CompilerPhase {
   /**
    * Create a new phase 1 symbol definition instance.
    */
-  public SymbolDefinition(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                          Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public SymbolDefinition(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                          final Consumer<CompilationEvent> listener,
+                          final CompilerReporter reporter) {
+
     super(thisPhase, compilableProgramAccess, listener, reporter);
+
   }
 
-  public SymbolDefinition(boolean multiThread, SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                          Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public SymbolDefinition(final boolean multiThread,
+                          final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                          final Consumer<CompilationEvent> listener,
+                          final CompilerReporter reporter) {
+
     this(compilableProgramAccess, listener, reporter);
     this.useMultiThreading = multiThread;
+
   }
 
   @Override
-  public boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
+  public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
+
     return underTakeSymbolDefinition(workspace);
+
   }
 
-  private boolean underTakeSymbolDefinition(Workspace workspace) {
+  private boolean underTakeSymbolDefinition(final Workspace workspace) {
     //May consider moving to Executor model
 
     if (useMultiThreading) {
@@ -60,29 +69,34 @@ public final class SymbolDefinition extends CompilerPhase {
     return !sourceHaveErrors.test(workspace.getSources());
   }
 
-  private void defineSymbolsMultiThreaded(Workspace workspace) {
+  private void defineSymbolsMultiThreaded(final Workspace workspace) {
+
     workspace.getSources()
         .parallelStream()
         .forEach(this::defineSymbols);
+
   }
 
-  private void defineSymbolsSingleThreaded(Workspace workspace) {
+  private void defineSymbolsSingleThreaded(final Workspace workspace) {
+
     workspace.getSources().forEach(this::defineSymbols);
+
   }
 
   /**
    * THIS IS WHERE THE DEFINITION PHASE 1 LISTENER IS CREATED AND USED.
    * This must create 'new' stuff; except for compilableProgramAccess.
    */
-  private void defineSymbols(CompilableSource source) {
+  private void defineSymbols(final CompilableSource source) {
+
     final ParsedModule parsedModule = new ParsedModule(source, compilableProgramAccess);
     parsedModule.acceptCompilationUnitContext(source.getCompilationUnitContext());
     //Need to add this early - even though there may be compiler errors
     //Otherwise several files in same module will not detect duplicate symbols.
     compilableProgramAccess.accept(compilableProgram -> compilableProgram.add(parsedModule));
 
-    DefinitionListener phaseListener = new DefinitionListener(parsedModule);
-    ParseTreeWalker walker = new ParseTreeWalker();
+    final var phaseListener = new DefinitionListener(parsedModule);
+    final var walker = new ParseTreeWalker();
     walker.walk(phaseListener, source.getCompilationUnitContext());
     listener.accept(new CompilationEvent(thisPhase, parsedModule, source));
 

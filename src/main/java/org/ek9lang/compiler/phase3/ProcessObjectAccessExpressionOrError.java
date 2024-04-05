@@ -42,7 +42,7 @@ final class ProcessObjectAccessExpressionOrError extends TypedSymbolAccess
   @Override
   public void accept(final EK9Parser.ObjectAccessExpressionContext ctx) {
 
-    var objectAccessStartSymbol = getRecordedAndTypedSymbol(ctx.objectAccessStart());
+    final var objectAccessStartSymbol = getRecordedAndTypedSymbol(ctx.objectAccessStart());
     if (objectAccessStartSymbol != null) {
       //If it is null then there will have already been an error
 
@@ -80,7 +80,7 @@ final class ProcessObjectAccessExpressionOrError extends TypedSymbolAccess
     if (varOrTypeSymbol.getGenus().equals(ISymbol.SymbolGenus.CLASS_ENUMERATION)
         && varOrTypeSymbol.getCategory().equals(ISymbol.SymbolCategory.TYPE)
         && !locatedSymbol.getCategory().equals(ISymbol.SymbolCategory.VARIABLE)) {
-      var msg = "'" + varOrTypeSymbol.getName() + "' and '" + locatedSymbol.getName() + ":";
+      final var msg = "'" + varOrTypeSymbol.getName() + "' and '" + locatedSymbol.getName() + ":";
       errorListener.semanticError(errorLocation, msg,
           ErrorListener.SemanticClassification.OPERATOR_CANNOT_BE_USED_ON_ENUMERATION);
     }
@@ -101,7 +101,7 @@ final class ProcessObjectAccessExpressionOrError extends TypedSymbolAccess
   }
 
   private void processIdentifierUse(final EK9Parser.ObjectAccessContext ctx, final IAggregateSymbol aggregate) {
-    var resolved = processFieldOrError.apply(ctx.objectAccessType().identifier(), aggregate);
+    final var resolved = processFieldOrError.apply(ctx.objectAccessType().identifier(), aggregate);
     if (resolved != null) {
       //For completeness record against the identifier as well
       recordATypedSymbol(resolved, ctx.objectAccessType().identifier());
@@ -111,9 +111,9 @@ final class ProcessObjectAccessExpressionOrError extends TypedSymbolAccess
   }
 
   private void processOperationCallUse(final EK9Parser.ObjectAccessContext ctx, final IAggregateSymbol aggregate) {
-    var resolved = processOperationCallOrError.apply(ctx.objectAccessType().operationCall(), aggregate);
+    final var resolved = processOperationCallOrError.apply(ctx.objectAccessType().operationCall(), aggregate);
     if (resolved != null) {
-      var existingCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx.objectAccessType().operationCall());
+      final var existingCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx.objectAccessType().operationCall());
       if (existingCallSymbol instanceof CallSymbol callSymbol) {
         callSymbol.setResolvedSymbolToCall(resolved);
         //Now also record the same call against the ctx.

@@ -9,7 +9,6 @@ import org.ek9lang.compiler.common.ErrorListener;
  * Typically used with programs. cannot be abstract and so must always provide some form of implementation.
  */
 final class CheckForImplementation implements Consumer<EK9Parser.MethodDeclarationContext> {
-
   private final CheckForBody checkForBody = new CheckForBody();
   private final ErrorListener errorListener;
 
@@ -19,11 +18,13 @@ final class CheckForImplementation implements Consumer<EK9Parser.MethodDeclarati
 
   @Override
   public void accept(EK9Parser.MethodDeclarationContext ctx) {
+
     final var hasBody = checkForBody.test(ctx.operationDetails());
     final var isVirtual = ctx.ABSTRACT() == null && !hasBody;
 
     if (ctx.operationDetails() == null || isVirtual) {
       errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.IMPLEMENTATION_MUST_BE_PROVIDED);
     }
+
   }
 }

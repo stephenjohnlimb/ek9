@@ -21,15 +21,20 @@ final class CheckNonExtendableMethod implements BiConsumer<MethodSymbol, EK9Pars
   }
 
   @Override
-  public void accept(MethodSymbol methodSymbol, EK9Parser.MethodDeclarationContext methodDeclarationContext) {
+  public void accept(final MethodSymbol methodSymbol,
+                     final EK9Parser.MethodDeclarationContext methodDeclarationContext) {
+
     final var message = "'" + methodDeclarationContext.identifier().getText() + "':";
+
     if (methodSymbol.isOverride()) {
       errorListener.semanticError(methodDeclarationContext.OVERRIDE().getSymbol(), message,
           ErrorListener.SemanticClassification.OVERRIDE_INAPPROPRIATE);
     }
+
     if (methodSymbol.isMarkedAbstract()) {
       errorListener.semanticError(methodDeclarationContext.ABSTRACT().getSymbol(), message,
           ErrorListener.SemanticClassification.CANNOT_BE_ABSTRACT);
     }
+
   }
 }

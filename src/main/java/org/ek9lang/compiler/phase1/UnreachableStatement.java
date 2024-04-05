@@ -19,6 +19,7 @@ final class UnreachableStatement implements BiConsumer<IToken, IToken> {
 
   @Override
   public void accept(final IToken unreachablePoint, final IToken reasonExceptionPoint) {
+
     final var message = String.format("Unreachable, because of '%s' on line %d:",
         reasonExceptionPoint.getText(),
         reasonExceptionPoint.getLine());

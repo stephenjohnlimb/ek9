@@ -27,10 +27,12 @@ final class CheckDynamicVariableCapture implements Consumer<EK9Parser.DynamicVar
     if (ctx.paramExpression().expressionParam() != null) {
       checkParamExpression(ctx.paramExpression());
     }
+
   }
 
   private void checkParamExpression(final EK9Parser.ParamExpressionContext ctx) {
-    var checkValues = new HashMap<String, Token>();
+
+    final var checkValues = new HashMap<String, Token>();
 
     for (var param : ctx.expressionParam()) {
       if (!raiseErrorIfParameterNeedsNaming(param)) {
@@ -38,13 +40,14 @@ final class CheckDynamicVariableCapture implements Consumer<EK9Parser.DynamicVar
         String identifierName = param.identifier() != null
             ? param.identifier().getText()
             : param.expression().primary().identifierReference().getText();
-        var existing = checkValues.get(identifierName);
+
+        final var existing = checkValues.get(identifierName);
         if (existing == null) {
           checkValues.put(identifierName, param.start);
         } else {
           //We've already got a variable/field/property that has than name
           //Then the dynamic function/class would end up with multiple fields of the same name.
-          var msg = "and '" + existing.getText() + "' on line " + existing.getLine();
+          final var msg = "and '" + existing.getText() + "' on line " + existing.getLine();
           errorListener.semanticError(param.expression().start, msg,
               ErrorListener.SemanticClassification.DUPLICATE_VARIABLE_IN_CAPTURE);
         }
@@ -53,6 +56,7 @@ final class CheckDynamicVariableCapture implements Consumer<EK9Parser.DynamicVar
   }
 
   private boolean raiseErrorIfParameterNeedsNaming(final EK9Parser.ExpressionParamContext param) {
+
     if ((param.expression().primary() == null
         || param.expression().primary().identifierReference() == null)
         && param.identifier() == null) {
@@ -61,6 +65,8 @@ final class CheckDynamicVariableCapture implements Consumer<EK9Parser.DynamicVar
           ErrorListener.SemanticClassification.CAPTURED_VARIABLE_MUST_BE_NAMED);
       return true;
     }
+
     return false;
+
   }
 }

@@ -30,14 +30,14 @@ public final class ModuleDuplicateSymbolChecks extends CompilerPhase {
   /**
    * Create a new duplicate checker for modules contained in the compilable program.
    */
-  public ModuleDuplicateSymbolChecks(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                     Consumer<CompilationEvent> listener,
-                                     CompilerReporter reporter) {
+  public ModuleDuplicateSymbolChecks(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                                     final Consumer<CompilationEvent> listener,
+                                     final CompilerReporter reporter) {
     super(thisPhase, compilableProgramAccess, listener, reporter);
   }
 
   @Override
-  public boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
+  public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
     //This will check and add any errors to the appropriate module source error listener.
     checkForDuplicateSymbols();
     return !sourceHaveErrors.test(workspace.getSources());
@@ -47,13 +47,14 @@ public final class ModuleDuplicateSymbolChecks extends CompilerPhase {
    * THIS IS WHERE THE duplicates are checked for.
    */
   private void checkForDuplicateSymbols() {
+
     compilableProgramAccess.accept(program -> {
 
       for (var moduleName : program.getParsedModuleNames()) {
-        var parsedModules = program.getParsedModules(moduleName);
-        HashSet<ISymbol> dupChecks = new HashSet<>();
+        final var parsedModules = program.getParsedModules(moduleName);
+        final HashSet<ISymbol> dupChecks = new HashSet<>();
         for (var parsedModule : parsedModules) {
-          var scope = parsedModule.getModuleScope();
+          final var scope = parsedModule.getModuleScope();
           for (var symbol : scope.getSymbolsForThisScope()) {
             if (!dupChecks.add(symbol)) {
               throw new CompilerException("Duplicate Symbol: '" + symbol.getFriendlyName() + "' "

@@ -52,14 +52,17 @@ public final class Parsing
 
     return new CompilationPhaseResult(thisPhase, result,
         compilerFlags.getCompileToPhase() == thisPhase);
+
   }
 
   private CompilationPhaseResult parseSources(Workspace workspace, CompilerFlags compilerFlags) {
+
     reporter.log(thisPhase);
     final var result = underTakeParsingOperation(workspace, CompilableSource::completeParsing);
 
     return new CompilationPhaseResult(thisPhase, result,
         compilerFlags.getCompileToPhase() == thisPhase);
+
   }
 
   private boolean underTakeParsingOperation(Workspace workspace,
@@ -72,5 +75,6 @@ public final class Parsing
 
     affectedSources.forEach(source -> listener.accept(new CompilationEvent(thisPhase, null, source)));
     return !sourceHaveErrors.test(affectedSources);
+
   }
 }

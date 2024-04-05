@@ -20,14 +20,16 @@ final class CheckThisAndSuperAssignmentStatement implements Consumer<EK9Parser.A
   }
 
   @Override
-  public void accept(EK9Parser.AssignmentStatementContext ctx) {
+  public void accept(final EK9Parser.AssignmentStatementContext ctx) {
+
     if (ctx.primaryReference() != null) {
       //no assignment allowed and 'super' use is not appropriate only 'this'
-      var accessType = ctx.primaryReference().getText();
+      final var accessType = ctx.primaryReference().getText();
       if (operationIsAssignment.test(new Ek9Token(ctx.op))) {
         errorListener.semanticError(ctx.primaryReference().start, "'" + accessType + "'",
             ErrorListener.SemanticClassification.USE_OF_THIS_OR_SUPER_INAPPROPRIATE);
       }
     }
+
   }
 }

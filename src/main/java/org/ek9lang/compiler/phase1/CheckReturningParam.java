@@ -19,6 +19,8 @@ final class CheckReturningParam implements BiConsumer<EK9Parser.ReturningParamCo
 
   @Override
   public void accept(final EK9Parser.ReturningParamContext ctx, final VariableSymbol variableSymbol) {
+
+    //TODO consider using same approach as phase 2.
     if (ctx.variableDeclaration() != null && ctx.variableDeclaration().LEFT_ARROW() != null
         && variableSymbol.getType().isEmpty()) {
 

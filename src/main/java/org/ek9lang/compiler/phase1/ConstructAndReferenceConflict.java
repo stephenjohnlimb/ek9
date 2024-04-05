@@ -17,9 +17,11 @@ final class ConstructAndReferenceConflict implements Consumer<ConflictingTokens>
   ConstructAndReferenceConflict(final String constructType,
                                 final ErrorListener errorListener,
                                 final ErrorListener.SemanticClassification classification) {
+
     this.constructType = constructType;
     this.errorListener = errorListener;
     this.classification = classification;
+
   }
 
   @Override
@@ -36,5 +38,6 @@ final class ConstructAndReferenceConflict implements Consumer<ConflictingTokens>
         errorListener.getShortNameOfSourceFile(conflict.symbol().getSourceToken())
     );
     errorListener.semanticError(conflict.tokenInError(), message, classification);
+
   }
 }

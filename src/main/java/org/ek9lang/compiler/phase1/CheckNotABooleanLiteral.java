@@ -16,11 +16,13 @@ final class CheckNotABooleanLiteral implements Consumer<EK9Parser.ExpressionCont
   }
 
   @Override
-  public void accept(EK9Parser.ExpressionContext ctx) {
+  public void accept(final EK9Parser.ExpressionContext ctx) {
+
     if (ctx != null
         && ctx.primary() != null
         && ctx.primary().literal() instanceof EK9Parser.BooleanLiteralContext) {
       errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.POINTLESS_EXPRESSION);
     }
+
   }
 }

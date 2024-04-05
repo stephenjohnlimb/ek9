@@ -18,18 +18,20 @@ final class CheckNoMethodReturn extends RuleSupport
     implements BiConsumer<MethodSymbol, EK9Parser.MethodDeclarationContext> {
   CheckNoMethodReturn(final SymbolAndScopeManagement symbolAndScopeManagement,
                       final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final MethodSymbol methodSymbol, final EK9Parser.MethodDeclarationContext ctx) {
+
     if (ctx.operationDetails() != null
         && ctx.operationDetails().returningParam() != null
         && !methodSymbol.isMarkedAbstract()) {
       //Then there is a return and that's what this rule deals with - issuing error in this case.
       errorListener.semanticError(ctx.start, "'" + methodSymbol.getFriendlyName() + "':",
           ErrorListener.SemanticClassification.RETURN_VALUE_NOT_SUPPORTED);
-
     }
 
   }

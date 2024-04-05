@@ -20,9 +20,11 @@ final class CheckNotDispatcherMethod implements BiConsumer<MethodSymbol, EK9Pars
   public void accept(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
 
     final var message = "for method '" + method.getName() + "':";
+
     if (method.isMarkedAsDispatcher()) {
       errorListener.semanticError(method.getSourceToken(), message,
           ErrorListener.SemanticClassification.DISPATCH_ONLY_SUPPORTED_IN_CLASSES);
     }
+
   }
 }

@@ -26,14 +26,15 @@ public final class ReferenceChecks extends CompilerPhase {
   /**
    * Create a new reference checker for modules contained in the compilable program.
    */
-  public ReferenceChecks(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                         Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public ReferenceChecks(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                         final Consumer<CompilationEvent> listener,
+                         final CompilerReporter reporter) {
 
     super(thisPhase, compilableProgramAccess, listener, reporter);
   }
 
   @Override
-  public boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
+  public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
 
     workspace
         .getSources()
@@ -48,15 +49,16 @@ public final class ReferenceChecks extends CompilerPhase {
    * Note that this code is designed to be singled threaded and so get a lock for the duration
    * of processing each source. It could be widened for the whole listener/apply method.
    */
-  private void resolveReferencedSymbols(CompilableSource source) {
+  private void resolveReferencedSymbols(final CompilableSource source) {
+
     compilableProgramAccess.accept(program -> {
-      var parsedModule = program.getParsedModuleForCompilableSource(source);
+      final var parsedModule = program.getParsedModuleForCompilableSource(source);
       AssertValue.checkNotNull("ParsedModule must be present for source", parsedModule);
 
       parsedModule.acceptCompilationUnitContext(source.getCompilationUnitContext());
 
-      ReferencesPhase1Listener phaseListener = new ReferencesPhase1Listener(program, parsedModule);
-      ParseTreeWalker walker = new ParseTreeWalker();
+      final var phaseListener = new ReferencesPhase1Listener(program, parsedModule);
+      final var walker = new ParseTreeWalker();
       walker.walk(phaseListener, source.getCompilationUnitContext());
       listener.accept(new CompilationEvent(thisPhase, parsedModule, source));
     });

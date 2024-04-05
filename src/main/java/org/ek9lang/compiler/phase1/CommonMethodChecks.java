@@ -23,14 +23,17 @@ final class CommonMethodChecks extends RuleSupport
 
   CommonMethodChecks(final SymbolAndScopeManagement symbolAndScopeManagement,
                      final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     checkInappropriateBody = new CheckInappropriateBody(symbolAndScopeManagement, errorListener);
     checkOverrideAndAbstract = new CheckOverrideAndAbstract(symbolAndScopeManagement, errorListener);
+
   }
 
 
   @Override
   public void accept(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
+
     final var message = "for method '" + ctx.identifier().getText() + "':";
     checkInappropriateBody.accept(method, ctx.operationDetails());
     checkOverrideAndAbstract.accept(method);
@@ -44,6 +47,7 @@ final class CommonMethodChecks extends RuleSupport
   private void checkAccessModifier(final MethodSymbol method,
                                    final EK9Parser.MethodDeclarationContext ctx,
                                    final String errorMessage) {
+
     if (ctx.accessModifier() != null) {
 
       if (!"private".equals(method.getAccessModifier())) {
@@ -60,6 +64,7 @@ final class CommonMethodChecks extends RuleSupport
         errorListener.semanticError(ctx.accessModifier().start, errorMessage,
             ErrorListener.SemanticClassification.METHOD_ACCESS_MODIFIER_DEFAULT);
       }
+
     }
 
     if ("private".equals(method.getAccessModifier()) && method.isOverride()) {
@@ -67,10 +72,12 @@ final class CommonMethodChecks extends RuleSupport
       errorListener.semanticError(ctx.OVERRIDE().getSymbol(), errorMessage,
           ErrorListener.SemanticClassification.METHOD_ACCESS_MODIFIER_PRIVATE_OVERRIDE);
     }
+
   }
 
   private void checkConstructor(final MethodSymbol method,
                                 final String errorMessage) {
+
     if (method.isConstructor()) {
       if (method.isMarkedAbstract()) {
         //Makes no sense
@@ -84,15 +91,19 @@ final class CommonMethodChecks extends RuleSupport
             ErrorListener.SemanticClassification.OVERRIDE_CONSTRUCTOR);
       }
     }
+
   }
 
   private void checkDefaulted(final MethodSymbol method,
                               final EK9Parser.MethodDeclarationContext ctx,
                               final String errorMessage) {
-    var isDefaulted = "TRUE".equals(method.getSquirrelledData(DEFAULTED));
+
+    final var isDefaulted = "TRUE".equals(method.getSquirrelledData(DEFAULTED));
+
     if (isDefaulted && method.isConstructor() && !method.getCallParameters().isEmpty()) {
       errorListener.semanticError(ctx.DEFAULT().getSymbol(), errorMessage,
           ErrorListener.SemanticClassification.INVALID_DEFAULT_CONSTRUCTOR);
     }
   }
+
 }

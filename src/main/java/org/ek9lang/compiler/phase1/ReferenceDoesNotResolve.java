@@ -15,7 +15,7 @@ final class ReferenceDoesNotResolve implements BiConsumer<IToken, String> {
   }
 
   @Override
-  public void accept(IToken token, String fullyQualifiedIdentifier) {
+  public void accept(final IToken token, final String fullyQualifiedIdentifier) {
     errorListener.semanticError(token, "'" + fullyQualifiedIdentifier + "'",
         ErrorListener.SemanticClassification.REFERENCE_DOES_NOT_RESOLVED);
   }

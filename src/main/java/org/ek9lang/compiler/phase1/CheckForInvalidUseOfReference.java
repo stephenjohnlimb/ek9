@@ -16,9 +16,11 @@ final class CheckForInvalidUseOfReference implements Consumer<EK9Parser.Identifi
 
   @Override
   public void accept(final EK9Parser.IdentifierReferenceContext ctx) {
+
     if (!ctx.getText().contains("::")) {
       errorListener.semanticError(ctx.start, "must have '::' qualifier,",
           ErrorListener.SemanticClassification.INVALID_SYMBOL_BY_REFERENCE);
     }
+
   }
 }

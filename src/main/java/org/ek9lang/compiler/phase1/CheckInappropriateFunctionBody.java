@@ -21,15 +21,18 @@ final class CheckInappropriateFunctionBody extends RuleSupport implements
 
   CheckInappropriateFunctionBody(final SymbolAndScopeManagement symbolAndScopeManagement,
                                  final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final FunctionSymbol functionSymbol,
                      final EK9Parser.OperationDetailsContext ctx) {
+
     final var hasBody = checkForBody.test(ctx);
-    var isAbstract = functionSymbol.isMarkedAbstract();
-    var isExternallyImplemented = externallyImplemented.test(functionSymbol);
+    final var isAbstract = functionSymbol.isMarkedAbstract();
+    final var isExternallyImplemented = externallyImplemented.test(functionSymbol);
 
     if (hasBody && isAbstract) {
       errorListener.semanticError(functionSymbol.getSourceToken(), "",
@@ -38,5 +41,6 @@ final class CheckInappropriateFunctionBody extends RuleSupport implements
       errorListener.semanticError(functionSymbol.getSourceToken(), "",
           ErrorListener.SemanticClassification.NOT_ABSTRACT_AND_NO_BODY_PROVIDED);
     }
+
   }
 }

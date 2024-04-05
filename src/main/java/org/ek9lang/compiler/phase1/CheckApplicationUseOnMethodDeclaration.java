@@ -20,9 +20,11 @@ final class CheckApplicationUseOnMethodDeclaration extends RuleSupport
 
   @Override
   public void accept(EK9Parser.MethodDeclarationContext ctx) {
+
     if (ctx.APPLICATION() != null && !(ctx.parent instanceof EK9Parser.ProgramBlockContext)) {
       errorListener.semanticError(ctx.start, "",
           ErrorListener.SemanticClassification.APPLICATION_SELECTION_INVALID);
     }
+
   }
 }

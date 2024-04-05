@@ -19,8 +19,9 @@ final class CheckGenericConstructor implements BiConsumer<IToken, MethodSymbol> 
   }
 
   @Override
-  public void accept(IToken token, MethodSymbol methodSymbol) {
-    var numParametersInConstructor = methodSymbol.getSymbolsForThisScope().size();
+  public void accept(final IToken token, final MethodSymbol methodSymbol) {
+
+    final var numParametersInConstructor = methodSymbol.getSymbolsForThisScope().size();
 
     //We must check the parameters in the constructor tie up with the parameter numbers for creation
     //We tie these two together unlike java so that we can implement inference - so a bit of a cost here.
@@ -30,12 +31,13 @@ final class CheckGenericConstructor implements BiConsumer<IToken, MethodSymbol> 
         && methodSymbol.getParentScope() instanceof IAggregateSymbol aggregateSymbol
         && aggregateSymbol.getCategory().equals(ISymbol.SymbolCategory.TEMPLATE_TYPE)) {
 
-      var numParameterizingTypes = aggregateSymbol.getTypeParameterOrArguments().size();
+      final var numParameterizingTypes = aggregateSymbol.getTypeParameterOrArguments().size();
 
       if (numParametersInConstructor != numParameterizingTypes) {
         errorListener.semanticError(token, "",
             ErrorListener.SemanticClassification.GENERIC_TYPE_CONSTRUCTOR_INAPPROPRIATE);
       }
+
     }
   }
 }

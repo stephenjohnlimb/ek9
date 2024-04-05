@@ -20,13 +20,15 @@ final class CheckProgramReturns implements BiConsumer<IToken, MethodSymbol> {
   public void accept(final IToken token, final MethodSymbol methodSymbol) {
 
     if (methodSymbol.isReturningSymbolPresent()) {
-      var returningSymbol = methodSymbol.getReturningSymbol();
-      var returningSymbolsType = returningSymbol.getType();
+      final var returningSymbol = methodSymbol.getReturningSymbol();
+      final var returningSymbolsType = returningSymbol.getType();
+
       if (returningSymbolsType.isEmpty() || !AggregateFactory.EK9_INTEGER.equals(
           returningSymbolsType.get().getFullyQualifiedName())) {
         errorListener.semanticError(returningSymbol.getSourceToken(), "",
             ErrorListener.SemanticClassification.PROGRAM_CAN_ONLY_RETURN_INTEGER);
       }
     }
+
   }
 }

@@ -21,25 +21,30 @@ final class CheckProgramArguments implements BiConsumer<IToken, MethodSymbol> {
   @Override
   public void accept(final IToken token, final MethodSymbol methodSymbol) {
 
-    int numParameters = methodSymbol.getCallParameters().size();
+    final int numParameters = methodSymbol.getCallParameters().size();
 
     for (var methodParameter : methodSymbol.getCallParameters()) {
-      var parameterType = methodParameter.getType();
+      final var parameterType = methodParameter.getType();
+
       if (parameterType.isPresent()) {
-        var theType = parameterType.get();
+        final var theType = parameterType.get();
+
         if (theType.isParameterisedType() && numParameters > 1) {
           errorListener.semanticError(methodParameter.getSourceToken(), "'" + theType.getFriendlyName() + "'",
               ErrorListener.SemanticClassification.PROGRAM_ARGUMENTS_INAPPROPRIATE);
         }
+
         if (!typePredicate.test(theType)) {
           errorListener.semanticError(methodParameter.getSourceToken(),
               "'" + theType.getFriendlyName() + "' is inappropriate,",
               ErrorListener.SemanticClassification.PROGRAM_ARGUMENT_TYPE_INVALID);
         }
+
       } else {
         errorListener.semanticError(methodParameter.getSourceToken(), "",
             ErrorListener.SemanticClassification.PROGRAM_ARGUMENT_TYPE_INVALID);
       }
     }
   }
+
 }

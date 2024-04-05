@@ -54,13 +54,15 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
 
   @Override
   public void accept(final EK9Parser.ExpressionContext ctx) {
-    var symbol = processExpression(ctx);
+
+    final var symbol = processExpression(ctx);
     if (symbol != null) {
       symbolAndScopeManagement.recordSymbol(symbol, ctx);
       if (symbol.getType().isEmpty()) {
         emitTypeNotResolvedError(new Ek9Token(ctx.start), symbol);
       }
     }
+
   }
 
   /**
@@ -100,7 +102,9 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
       AssertValue.fail(
           "Expecting finite set of operations for expression [" + ctx.getText() + "] line: " + ctx.start.getLine());
     }
+
     return null;
+
   }
 
   private ISymbol processPrimary(final EK9Parser.ExpressionContext ctx) {
@@ -110,14 +114,17 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
       errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.INAPPROPRIATE_USE_OF_SUPER);
     }
 
-    var symbol = symbolFromContextOrError.apply(ctx.primary());
+    final var symbol = symbolFromContextOrError.apply(ctx.primary());
     if (symbol != null) {
       checkSuitableCategoryAndGenusOrError(ctx, symbol);
     }
+
     return symbol;
+
   }
 
   private void checkSuitableCategoryAndGenusOrError(final EK9Parser.ExpressionContext ctx, final ISymbol symbol) {
+
     if (symbol.getCategory().equals(ISymbol.SymbolCategory.VARIABLE)
         || symbol.getCategory().equals(ISymbol.SymbolCategory.FUNCTION)
         || symbol.getCategory().equals(ISymbol.SymbolCategory.TEMPLATE_FUNCTION)) {
@@ -127,19 +134,25 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     if (symbol.getGenus().equals(ISymbol.SymbolGenus.CLASS_ENUMERATION)) {
       return;
     }
+
     emitTypeNotAppropriateError(new Ek9Token(ctx.start), symbol);
+
   }
 
   private ISymbol processObjectAccessExpression(EK9Parser.ExpressionContext ctx) {
-    var startToken = new Ek9Token(ctx.start);
-    var maybeResolved = symbolFromContextOrError.apply(ctx.objectAccessExpression());
+
+    final var startToken = new Ek9Token(ctx.start);
+    final var maybeResolved = symbolFromContextOrError.apply(ctx.objectAccessExpression());
+
     if (maybeResolved != null && maybeResolved.getType().isPresent()) {
       return symbolFactory.newExpressionSymbol(startToken, ctx.getText()).setType(maybeResolved.getType());
     }
     return null;
+
   }
 
   private ISymbol processOperation(final EK9Parser.ExpressionContext ctx) {
+
     //Special case for isSet because it can be used against a function delegate as well.
     if (ctx.QUESTION() != null) {
       return checkAndProcessIsSet(ctx);
@@ -147,16 +160,18 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
 
       //Could be one expression (unary) or have two expressions.
       //This case only looks for operators on some form of aggregate.
-      var opToken = new Ek9Token(ctx.op);
-      var search = methodSymbolSearchForExpression.apply(ctx);
-      var symbol = symbolFromContextOrError.apply(ctx.expression(0));
+      final var opToken = new Ek9Token(ctx.op);
+      final var search = methodSymbolSearchForExpression.apply(ctx);
+      final var symbol = symbolFromContextOrError.apply(ctx.expression(0));
       if (symbol != null && symbol.getType().isPresent()) {
         return processExpressionFromOperatorData(ctx, new CheckOperatorData(symbol, opToken, search));
       }
     } else {
       throw new CompilerException("Operation must have at least one expression.");
     }
+
     return null;
+
   }
 
   /**
@@ -171,15 +186,17 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
    * </pre>
    */
   private ISymbol processTernary(final EK9Parser.ExpressionContext ctx) {
-    var start = new Ek9Token(ctx.start);
+
+    final var start = new Ek9Token(ctx.start);
 
     //First lets gather the 'expressions' because if they are not there then there's little we can do here.
-    var control = symbolFromContextOrError.apply(ctx.control);
-    var leftAndRight = toList.apply(accessLeftAndRight.apply(ctx));
+    final var control = symbolFromContextOrError.apply(ctx.control);
+    final var leftAndRight = toList.apply(accessLeftAndRight.apply(ctx));
+
     if (control != null && !leftAndRight.isEmpty()) {
       //So do the checks, this will result in errors being emitted if the values are not acceptable.
       checkControlIsBooleanOrError.accept(ctx.control);
-      var commonType = commonTypeSuperOrTrait.apply(new Ek9Token(ctx.LEFT_ARROW().getSymbol()), leftAndRight);
+      final var commonType = commonTypeSuperOrTrait.apply(new Ek9Token(ctx.LEFT_ARROW().getSymbol()), leftAndRight);
       if (commonType.isPresent()) {
         //We can make an expression that models this and the correct return type.
         return symbolFactory.newExpressionSymbol(start, ctx.getText(), commonType);
@@ -187,6 +204,7 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     }
 
     return null;
+
   }
 
   /**
@@ -198,8 +216,10 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
    * isSet code for both '??' and '?:'.
    */
   private ISymbol processCoalescing(final EK9Parser.ExpressionContext ctx) {
-    var opToken = new Ek9Token(ctx.coalescing);
+
+    final var opToken = new Ek9Token(ctx.coalescing);
     return expressionForOperation(opToken, checkIsSet, ctx);
+
   }
 
   /**
@@ -218,20 +238,26 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
    * In effect this is like an assignment, combined if/else, null check and equality check all in one.
    */
   private ISymbol processCoalescingEquality(EK9Parser.ExpressionContext ctx) {
-    var opToken = new Ek9Token(ctx.coalescing_equality);
+
+    final var opToken = new Ek9Token(ctx.coalescing_equality);
     return expressionForOperation(opToken, checkForComparator, ctx);
+
   }
 
   private ISymbol expressionForOperation(final IToken opToken, final BiPredicate<IToken, ISymbol> predicate,
                                          final EK9Parser.ExpressionContext ctx) {
-    var leftAndRight = toList.apply(accessLeftAndRight.apply(ctx));
+
+    final var leftAndRight = toList.apply(accessLeftAndRight.apply(ctx));
+
     if (!leftAndRight.isEmpty()) {
-      var commonType = commonTypeSuperOrTrait.apply(opToken, leftAndRight);
+      final var commonType = commonTypeSuperOrTrait.apply(opToken, leftAndRight);
       if (commonType.isPresent() && predicate.test(opToken, commonType.get())) {
         return symbolFactory.newExpressionSymbol(opToken, ctx.getText(), commonType);
       }
     }
+
     return null;
+
   }
 
   /**
@@ -243,91 +269,119 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
    * </pre>
    */
   private ISymbol processInCollectionOrRange(final EK9Parser.ExpressionContext ctx) {
+
     if (ctx.range() != null) {
       return checkWithinRange(ctx);
     }
+
     return checkContains(ctx);
+
   }
 
   private ISymbol checkWithinRange(EK9Parser.ExpressionContext ctx) {
-    var opToken = new Ek9Token(ctx.IN().getSymbol());
-    var expr = symbolFromContextOrError.apply(ctx.expression(0));
-    var range = symbolFromContextOrError.apply(ctx.range());
+
+    final var opToken = new Ek9Token(ctx.IN().getSymbol());
+    final var expr = symbolFromContextOrError.apply(ctx.expression(0));
+    final var range = symbolFromContextOrError.apply(ctx.range());
+
     if (expr != null && range != null && expr.getType().isPresent() && range.getType().isPresent()) {
       //This just comes down to the range type having a comparator that accepts the expr type
-      var search = new MethodSymbolSearch("<=>").addTypeParameter(expr.getType())
+      final var search = new MethodSymbolSearch("<=>").addTypeParameter(expr.getType())
           .setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Integer());
-      var data = new CheckOperatorData(range, opToken, search);
-      var locatedReturningType = checkForOperator.apply(data);
+      final var data = new CheckOperatorData(range, opToken, search);
+      final var locatedReturningType = checkForOperator.apply(data);
       if (locatedReturningType.isPresent()) {
-        var rtnType = Optional.of(symbolAndScopeManagement.getEk9Types().ek9Boolean());
-        var returnExpr = symbolFactory.newExpressionSymbol(data.operatorUseToken(), data.symbol().getName(), rtnType);
+        final var rtnType = Optional.of(symbolAndScopeManagement.getEk9Types().ek9Boolean());
+        final var returnExpr = symbolFactory.newExpressionSymbol(data.operatorUseToken(), data.symbol().getName(), rtnType);
         return processNegationIfRequired(ctx, returnExpr);
       }
     }
+
     return null;
+
   }
 
   private ISymbol checkContains(EK9Parser.ExpressionContext ctx) {
-    var opToken = new Ek9Token(ctx.IN().getSymbol());
-    var leftAndRight = accessLeftAndRight.apply(ctx);
+
+    final var opToken = new Ek9Token(ctx.IN().getSymbol());
+    final var leftAndRight = accessLeftAndRight.apply(ctx);
+
     if (leftAndRight.isPresent()) {
       //This just comes down to right having the 'contains' that accepts the left type
-      var search = new MethodSymbolSearch("contains").addTypeParameter(leftAndRight.get().left().getType())
+      final var search = new MethodSymbolSearch("contains").addTypeParameter(leftAndRight.get().left().getType())
           .setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Boolean());
       return processExpressionFromOperatorData(ctx, new CheckOperatorData(leftAndRight.get().right(), opToken, search));
     }
+
     return null;
+
   }
 
   private ISymbol processExpressionFromOperatorData(final EK9Parser.ExpressionContext ctx,
                                                     final CheckOperatorData data) {
-    var locatedReturningType = checkForOperator.apply(data);
+
+    final var locatedReturningType = checkForOperator.apply(data);
+
     if (locatedReturningType.isPresent()) {
       var expr =
           symbolFactory.newExpressionSymbol(data.operatorUseToken(), data.symbol().getName(), locatedReturningType);
       return processNegationIfRequired(ctx, expr);
     }
+
     return null;
+
   }
 
   private ISymbol processNegationIfRequired(final EK9Parser.ExpressionContext ctx, final ISymbol expr) {
+
     //Mow there could be a negation inside the expression (to make the syntax nicer)
     if (ctx.neg != null) {
       return checkAndProcessNotOperation(new Ek9Token(ctx.neg), expr);
     }
+
     return expr;
+
   }
 
   private ISymbol checkAndProcessNotOperation(final IToken notOpToken, final ISymbol exprSymbol) {
-    var search = new MethodSymbolSearch("~").setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Boolean());
-    var located = checkForOperator.apply(new CheckOperatorData(exprSymbol, notOpToken, search));
+
+    final var search = new MethodSymbolSearch("~").setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Boolean());
+    final var located = checkForOperator.apply(new CheckOperatorData(exprSymbol, notOpToken, search));
+
     if (located.isPresent()) {
       return symbolFactory.newExpressionSymbol(notOpToken, exprSymbol.getName(), located);
     }
+
     return null;
+
   }
 
   private ISymbol checkAndProcessIsSet(final EK9Parser.ExpressionContext ctx) {
-    var expressionInQuestion = symbolFromContextOrError.apply(ctx.expression(0));
-    var opToken = new Ek9Token(ctx.op);
+
+    final var expressionInQuestion = symbolFromContextOrError.apply(ctx.expression(0));
+    final var opToken = new Ek9Token(ctx.op);
+
     if (checkIsSet.test(opToken, expressionInQuestion)) {
       return symbolFactory.newExpressionSymbol(opToken, expressionInQuestion.getName())
           .setType(symbolAndScopeManagement.getEk9Types().ek9Boolean());
     }
 
     return null;
+
   }
 
   private void emitTypeNotResolvedError(final IToken lineToken, final ISymbol argument) {
-    var msg = "'" + argument.getName() + "' :";
+
+    final var msg = "'" + argument.getName() + "' :";
     errorListener.semanticError(lineToken, msg, ErrorListener.SemanticClassification.TYPE_NOT_RESOLVED);
+
   }
 
   private void emitTypeNotAppropriateError(final IToken lineToken, final ISymbol argument) {
-    var msg = "'" + argument.getFriendlyName() + "' as '" + argument.getCategory() + "':";
-    errorListener.semanticError(lineToken, msg, ErrorListener.SemanticClassification.INAPPROPRIATE_USE);
-  }
 
+    final var msg = "'" + argument.getFriendlyName() + "' as '" + argument.getCategory() + "':";
+    errorListener.semanticError(lineToken, msg, ErrorListener.SemanticClassification.INAPPROPRIATE_USE);
+
+  }
 
 }

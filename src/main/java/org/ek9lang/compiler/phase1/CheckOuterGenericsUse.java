@@ -21,28 +21,33 @@ final class CheckOuterGenericsUse extends RuleSupport implements Consumer<IToken
   CheckOuterGenericsUse(final SymbolAndScopeManagement symbolAndScopeManagement,
                         final ErrorListener errorListener,
                         final ErrorListener.SemanticClassification errorClassification) {
+
     super(symbolAndScopeManagement, errorListener);
     this.errorClassification = errorClassification;
+
   }
 
   @Override
-  public void accept(IToken token) {
+  public void accept(final IToken token) {
+
     var currentScope = symbolAndScopeManagement.getTopScope();
 
     //Might not be in any sort of dynamic scope at all - but check
-    var possibleDynamicScope = currentScope.findNearestDynamicBlockScopeInEnclosingScopes();
+    final var possibleDynamicScope = currentScope.findNearestDynamicBlockScopeInEnclosingScopes();
     possibleDynamicScope.ifPresentOrElse(dynamicScope -> {
-      var possibleGenericScope = dynamicScope.getOuterMostTypeOrFunction();
+      final var possibleGenericScope = dynamicScope.getOuterMostTypeOrFunction();
       possibleGenericScope.ifPresent(scope -> errorIfGenericInNature(token, scope));
     }, () -> {
-      var possibleGenericScope = currentScope.findNearestNonBlockScopeInEnclosingScopes();
+      final var possibleGenericScope = currentScope.findNearestNonBlockScopeInEnclosingScopes();
       possibleGenericScope.ifPresent(scope -> errorIfGenericInNature(token, scope));
     });
   }
 
   private void errorIfGenericInNature(final IToken token, final IScopedSymbol scope) {
+
     if (scope.isGenericInNature()) {
       errorListener.semanticError(token, "", errorClassification);
     }
+
   }
 }

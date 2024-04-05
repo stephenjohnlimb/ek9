@@ -16,6 +16,7 @@ final class CheckForInvalidParameterisedTypeUse implements Consumer<EK9Parser.Pa
 
   @Override
   public void accept(final EK9Parser.ParameterisedTypeContext ctx) {
+
     if (ctx.paramExpression() != null && !(ctx.getParent() instanceof EK9Parser.CallContext)) {
       errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.PARENTHESIS_NOT_REQUIRED);
     } else if (ctx.paramExpression() == null && ctx.getParent() instanceof EK9Parser.CallContext) {
@@ -24,5 +25,6 @@ final class CheckForInvalidParameterisedTypeUse implements Consumer<EK9Parser.Pa
         && !ctx.paramExpression().expressionParam().isEmpty()) {
       errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.VALUES_AND_TYPE_INCOMPATIBLE);
     }
+
   }
 }

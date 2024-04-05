@@ -11,11 +11,11 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  */
 final class CheckDynamicClassDeclaration implements Consumer<EK9Parser.DynamicClassDeclarationContext> {
 
-
   private final CheckOuterGenericsUse checkOuterGenericsUse;
 
   CheckDynamicClassDeclaration(final SymbolAndScopeManagement symbolAndScopeManagement,
                                final ErrorListener errorListener) {
+
     checkOuterGenericsUse = new CheckOuterGenericsUse(symbolAndScopeManagement, errorListener,
         ErrorListener.SemanticClassification.GENERIC_WITH_NAMED_DYNAMIC_CLASS);
   }
@@ -26,5 +26,6 @@ final class CheckDynamicClassDeclaration implements Consumer<EK9Parser.DynamicCl
     if (ctx.Identifier() != null) {
       checkOuterGenericsUse.accept(new Ek9Token(ctx.start));
     }
+
   }
 }

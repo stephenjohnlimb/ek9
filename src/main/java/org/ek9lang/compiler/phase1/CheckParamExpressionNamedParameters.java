@@ -20,8 +20,9 @@ final class CheckParamExpressionNamedParameters implements Consumer<EK9Parser.Pa
    */
   @Override
   public void accept(final EK9Parser.ParamExpressionContext ctx) {
-    var numParams = ctx.expressionParam().size();
-    var numNamedParams = ctx.expressionParam().stream().filter(param -> param.identifier() != null).count();
+
+    final var numParams = ctx.expressionParam().size();
+    final var numNamedParams = ctx.expressionParam().stream().filter(param -> param.identifier() != null).count();
 
     if (numNamedParams != 0 && numNamedParams != numParams) {
       //So there are some named and other not named.

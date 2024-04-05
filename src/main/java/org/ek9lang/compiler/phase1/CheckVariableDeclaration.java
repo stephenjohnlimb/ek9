@@ -28,8 +28,10 @@ final class CheckVariableDeclaration implements Consumer<EK9Parser.VariableDecla
 
   @Override
   public void accept(final EK9Parser.VariableDeclarationContext ctx) {
+
     if (ctx.typeDef() == null) {
       checkOuterGenericsUse.accept(new Ek9Token(ctx.start));
     }
+
   }
 }
