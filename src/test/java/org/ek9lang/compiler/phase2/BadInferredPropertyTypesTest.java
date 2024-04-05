@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.phase3;
+package org.ek9lang.compiler.phase2;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -9,18 +9,20 @@ import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests for missing operators.
+ * Just tests bad property type inference.
+ * Properties on aggregates in EK9 can have their type inferred but only in a simple way.
  */
-class MIssingOperatorsTest extends PhasesTest {
+class BadInferredPropertyTypesTest extends PhasesTest {
 
-  public MIssingOperatorsTest() {
-    super("/examples/parseButFailCompile/missingOperators",
-        List.of("bad.defaulted.recordoperators", "bad.defaulted.classoperators", "bad.overridden.classoperators"));
+  public BadInferredPropertyTypesTest() {
+    super("/examples/parseButFailCompile/badInferredProperties",
+        List.of("bad.inferred.properties"),
+        false, true);
   }
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
   }
 
   @Override

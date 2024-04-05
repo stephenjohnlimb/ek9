@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.phase3;
 
 import java.util.function.Consumer;
+import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
@@ -57,6 +58,9 @@ final class ProcessObjectAccessExpressionOrError extends TypedSymbolAccess
         resolveObjectAccess(accessContext, searchOnThisSymbol);
 
         searchOnThisSymbol = getRecordedAndTypedSymbol(accessContext);
+        if (searchOnThisSymbol != null) {
+          checkNotOperatorOnEnumerationTypeOrError(accessContext.start, objectAccessStartSymbol, searchOnThisSymbol);
+        }
         hasMoreInAccessChain = accessContext.objectAccess() != null && searchOnThisSymbol != null;
         if (hasMoreInAccessChain) {
           accessContext = accessContext.objectAccess();
@@ -69,6 +73,19 @@ final class ProcessObjectAccessExpressionOrError extends TypedSymbolAccess
       }
     }
   }
+
+  private void checkNotOperatorOnEnumerationTypeOrError(final Token errorLocation,
+                                                        final ISymbol varOrTypeSymbol,
+                                                        final ISymbol locatedSymbol) {
+    if (varOrTypeSymbol.getGenus().equals(ISymbol.SymbolGenus.CLASS_ENUMERATION)
+        && varOrTypeSymbol.getCategory().equals(ISymbol.SymbolCategory.TYPE)
+        && !locatedSymbol.getCategory().equals(ISymbol.SymbolCategory.VARIABLE)) {
+      var msg = "'" + varOrTypeSymbol.getName() + "' and '" + locatedSymbol.getName() + ":";
+      errorListener.semanticError(errorLocation, msg,
+          ErrorListener.SemanticClassification.OPERATOR_CANNOT_BE_USED_ON_ENUMERATION);
+    }
+  }
+
 
   private void resolveObjectAccess(final EK9Parser.ObjectAccessContext ctx, final ISymbol inThisSymbol) {
 

@@ -863,6 +863,15 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Duration() as pure
               -> arg0 as String
 
+            hours() as pure
+              <- rtn as Integer?
+
+            minutes() as pure
+              <- rtn as Integer?
+
+            seconds() as pure
+              <- rtn as Integer?
+                            
             operator < as pure
               -> arg as Duration
               <- rtn as Boolean?
@@ -969,6 +978,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             Millisecond() as pure
               -> arg0 as String
+
+            Millisecond() as pure
+              -> arg0 as Integer
 
             operator < as pure
               -> arg as Millisecond
@@ -1339,8 +1351,16 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Integer
               <- rtn as Money?
 
+            operator * as pure
+              -> arg as Float
+              <- rtn as Money?
+
             operator / as pure
               -> arg as Integer
+              <- rtn as Money?
+
+            operator / as pure
+              -> arg as Float
               <- rtn as Money?
 
             operator / as pure
@@ -2594,6 +2614,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_BUILT_IN_TRAITS = """
           Clock
+            millisecond() as pure
+              <- rtn as Millisecond?
+              
             dateTime() as pure
               <- rtn as DateTime :=? DateTime()
 
@@ -2722,6 +2745,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           SystemClock with trait of Clock
             SystemClock() as pure
             
+            override millisecond() as pure
+              <- rtn as Millisecond?
+                          
             override operator ? as pure
               <- rtn as Boolean?
 
@@ -3075,18 +3101,37 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           Aspect as open
             Aspect() as pure
 
+            beforeAdvice()
+              -> joinPoint as JoinPoint
+              <- rtn as PreparedMetaData?
+            
+            afterAdvice()
+              -> preparedMetaData as PreparedMetaData
+
             operator ? as pure
               <- rtn as Boolean?
-
+            
           JoinPoint as open
             JoinPoint() as pure
 
+            componentName() as pure
+              <- rtn as String?
+
+            methodName() as pure
+              <- rtn as String?
+              
             operator ? as pure
               <- rtn as Boolean?
 
           PreparedMetaData as open
             PreparedMetaData() as pure
+            
+            PreparedMetaData() as pure
+              -> joinPoint as JoinPoint
 
+            joinPoint() as pure
+              <- rtn as JoinPoint?
+              
             operator ? as pure
               <- rtn as Boolean?
 

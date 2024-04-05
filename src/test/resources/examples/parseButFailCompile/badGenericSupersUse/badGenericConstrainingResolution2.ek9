@@ -32,11 +32,11 @@ defines module bad.generic.constraining.resolution2
   defines class
 
     C1NoComparator
-      value <- String()
+      val <- String()
       default C1NoComparator()
 
       value()
-        <- rtn as String: String(value)
+        <- rtn as String: String(val)
 
       //Miss out the comparator operator
       default operator ?

@@ -35,7 +35,7 @@ defines module net.customer
       record Rec2: Rec2()
       special Rec2: Rec2()
       
-      val1 as Float := 10
+      val1 as Float: Float()
       val as Float := -10
       someBool as Boolean := not true
       
@@ -53,20 +53,20 @@ defines module net.customer
       orThis Boolean: ~(true and not false)
       
       //A couple of constructors with or without ()
-      Class1()
-        val := -10.00
+      Class1() as pure
+        val :=? -10.00
         someBool := not false
         
-      Class1
+      Class1 as pure
         ->
           arg1 as Integer
-        val := arg1
+        val :=? arg1
         
-      Class1
+      Class1 as pure
         ->
           arg1 as Integer
           arg2 as Integer
-        val := arg1 + arg2
+        val :=? arg1 + arg2
         
       Class1
         ->
@@ -103,9 +103,11 @@ defines module net.customer
         //make a new Class2 and then we'll call some methods on it.
         //Now does not look like we've type checked this against constructors.
         clazz2 <- Class2(60)
-            
+        assert clazz2?
+
         rtn := "Hi " + rtn + " " + param1 + " " + param2
-        
+        assert rtn?
+
       someMethod1() as
         ->
           param1 as String
@@ -120,7 +122,9 @@ defines module net.customer
         
         //So if valA is null then return valB else use valC or use "Limb" if that is null
         valD <- valA ?? valB ?? valC ?? "Limb"
-        
+
+        assert valD?
+
         //Now we also have nice ternary operators
         int1 as Integer := 8
         int2 <- 6
@@ -144,7 +148,7 @@ defines module net.customer
         someInt6 <- int1? and int2? <- int1 <? int2 : 8
         
         //Do we need the elvis operator of ?:
-        
+        assert someInt1? and someInt2? and someInt3? and someInt4? and someInt5? and someInt6?
         rtn := "OK"
     
       getRecord()
@@ -159,7 +163,8 @@ defines module net.customer
         -> param1 as Integer
         
         clazzN as Class2 := Class2()
-      
+        assert clazzN?
+
       method2()
         <- rtn as String := "Default Value"
         
@@ -369,7 +374,9 @@ defines module net.customer
         accurateTime as Time := 12:00:01
     
         isoDateTime as DateTime := 2000-02-21T01:30:00-05:00
-        
+
+      default operator ?
+
     //end of class
   defines program
   

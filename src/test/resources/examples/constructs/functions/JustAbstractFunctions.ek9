@@ -54,19 +54,19 @@ defines module com.customer.just.functions
       fixedValue <- 9.8
 
       addFunction <- () is mathOperation as pure function
-        result: x+y
+        result:=? x+y
 
       subtractFunction <- () extends mathOperation as pure
-        result: x-y
+        result:=? x-y
         
       divideFunction <- () is mathOperation pure
-        result: x/y
+        result:=? x/y
 
       multiplyFunction <- () is mathOperation pure
-        result: x*y
+        result:=? x*y
       
       specialFunction <- (fixedValue) is mathOperation pure
-        result: (x+fixedValue) * y^fixedValue
+        result:=? (x+fixedValue) * y^fixedValue
           
       ops <- [addFunction, subtractFunction, divideFunction, multiplyFunction, specialFunction]
 
@@ -80,11 +80,11 @@ defines module com.customer.just.functions
 
       //Nearest EK9 gets to a lambda - wrap in parenthesis on single line.
       ops <- [
-        () is mathOperation as pure (result: x+y),
-        () is mathOperation as pure (result: x-y),
-        () is mathOperation as pure (result: x/y),          
-        () is mathOperation as pure (result: x*y),
-        (fixedValue) is mathOperation pure (result: (x+fixedValue) * y^fixedValue)
+        () is mathOperation as pure (result:=? x+y),
+        () is mathOperation as pure (result:=? x-y),
+        () is mathOperation as pure (result:=? x/y),
+        () is mathOperation as pure (result:=? x*y),
+        (fixedValue) is mathOperation pure (result:=? (x+fixedValue) * y^fixedValue)
         ]
 
       for op in ops
@@ -96,11 +96,11 @@ defines module com.customer.just.functions
       fixedValue <- 9.8
                      
       for op in [
-        () is mathOperation as pure (result: x+y),
-        () is mathOperation as pure (result: x-y),
-        () is mathOperation as pure (result: x/y),          
-        () is mathOperation as pure (result: x*y),
-        (fixedValue) is mathOperation pure (result: (x+fixedValue) * y^fixedValue)
+        () is mathOperation as pure (result:=? x+y),
+        () is mathOperation as pure (result:=? x-y),
+        () is mathOperation as pure (result:=? x/y),
+        () is mathOperation as pure (result:=? x*y),
+        (fixedValue) is mathOperation pure (result:=? (x+fixedValue) * y^fixedValue)
         ]
         stdout.println(`Result: ${op(21, 7)}`)                 
 //EOF

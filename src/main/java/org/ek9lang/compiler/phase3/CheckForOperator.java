@@ -32,7 +32,7 @@ final class CheckForOperator extends TypedSymbolAccess implements Function<Check
   public Optional<ISymbol> apply(final CheckOperatorData checkOperatorData) {
     var symbol = checkOperatorData.symbol();
 
-    if(symbolIsActuallyAnEnumerationType(symbol)) {
+    if (symbolIsActuallyAnEnumerationType(symbol)) {
       errorListener.semanticError(checkOperatorData.operatorUseToken(), "wrt '" + symbol.getName() + "':",
           ErrorListener.SemanticClassification.OPERATOR_CANNOT_BE_USED_ON_ENUMERATION);
 

@@ -21,23 +21,23 @@ defines module bad.abstractuse.examples1
 
   defines class
     C1 as abstract
-      value <- true
+      val <- true
 
       C1()
-        this.value: false
+        this.val: false
 
       value()
-        <- rtn as Boolean: Boolean(value)
+        <- rtn as Boolean: Boolean(val)
 
   defines component
     Comp1 as abstract
-      value <- true
+      val <- true
 
       Comp1()
-        this.value: false
+        this.val: false
 
       value()
-        <- rtn as Boolean: Boolean(value)
+        <- rtn as Boolean: Boolean(val)
 
   defines function
 

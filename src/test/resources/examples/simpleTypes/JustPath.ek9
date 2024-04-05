@@ -45,6 +45,9 @@ defines module com.customer.just
       me <- CustomerDetail(firstName: "Steve", lastName: "Limb")
       jsonOfMe <- $$me
 
+      assert path1? and path2? and simplePath? and firstArrayElement? and propertyFromFirstElement?
+      assert stringRepresentation? and jsonOfMe?
+
   defines record
 
     Record1

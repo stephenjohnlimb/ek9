@@ -34,7 +34,7 @@ defines module com.customer.just
         v1: 12,
         v2: 64,
         v3: 90
-        ) is mathOperation as (result: v1 + v2 + v3 * value)
+        ) is mathOperation as pure (result:=? v1 + v2 + v3 * value)
 
       additionalCalculation <- inlineFunction(value)
       // 12 + 64 + 90*9

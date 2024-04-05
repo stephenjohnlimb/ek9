@@ -105,7 +105,7 @@ defines module com.customer.components
 
       LoggingAspect() as pure
         -> level as String
-        loggingLevel: level
+        loggingLevel :=? level
 
       override beforeAdvice()
         -> joinPoint as JoinPoint
@@ -122,7 +122,7 @@ defines module com.customer.components
         logger.log(loggingLevel, `After ${joinPoint.componentName()} ${joinPoint.methodName()}`)
 
     TimerData extends PreparedMetaData
-      before as Millisecond?
+      beforeOperation as Millisecond?
 
       default private TimerData()
 
@@ -131,10 +131,10 @@ defines module com.customer.components
           millis as Millisecond
           joinPoint as JoinPoint
         super(joinPoint)
-        before: millis
+        beforeOperation: millis
 
       before()
-        <- rtn as Millisecond: before
+        <- rtn as Millisecond: beforeOperation
 
     TimerAspect extends Aspect
       clock as Clock?

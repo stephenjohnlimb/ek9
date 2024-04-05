@@ -19,7 +19,7 @@ defines module com.customer.just.tuples
   defines function
     printer2()
       -> data as ATuple
-      Stdout().println(`${ data } but I can access ${data.name()} directly if I wish`)
+      Stdout().println(`${ data } but I can access ${data.personsName()} directly if I wish`)
 
     //Note how we can just use 'ATuple' in a normal way by creating an instance of it.
     getATuple()
@@ -70,7 +70,7 @@ defines module com.customer.just.tuples
             this.language = language
 
           //Add in methods, hiding internal structure of object or meeting a trait type interface.
-          name()
+          personsName()
             <- rtn as String: name
 
           operator $ as pure
@@ -93,6 +93,6 @@ defines module com.customer.just.tuples
     printer1()
       -> data as ATuple
       stdout <- Stdout()
-      stdout.println(`[ ${data} ] but I can access [ ${data.name()} ] directly if I wish`)
+      stdout.println(`[ ${data} ] but I can access [ ${data.personsName()} ] directly if I wish`)
 
 //EOF

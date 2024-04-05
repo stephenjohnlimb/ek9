@@ -29,7 +29,6 @@ import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
-import org.ek9lang.core.CompilerException;
 
 /**
  * <p>
@@ -58,6 +57,11 @@ import org.ek9lang.core.CompilerException;
  * But this second pass in the first phase will need to raise errors if it cannot resolve or define uses
  * of types/polymorphic parameterization - when it is declared and explicit (not inferred).
  * Phase 1 Definition first pass will have defined this or failed, and we won't even get this running.
+ * </p>
+ * <p>
+ * In addition this phase also attempts to check/resolve any aggregate properties, in some cases these can be inferred
+ * sorts of declarations and it is possible to work them out. But this is only for simple inferences.
+ * See exitVariableDeclaration and how this uses a consumer to check this and either resolve types or raise errors.
  * </p>
  */
 public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
@@ -88,6 +92,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final AccessGenericInGeneric accessGenericInGeneric;
   private final AggregateFactory aggregateFactory;
   private final Ek9Types ek9Types;
+  private final ProcessVariableDeclaration processVariableDeclaration;
 
 
   /**
@@ -155,6 +160,8 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
         new MostSpecificScope(symbolAndScopeManagement);
     this.nameCollisionChecker =
         new NameCollisionChecker(errorListener, false);
+    this.processVariableDeclaration =
+        new ProcessVariableDeclaration(symbolAndScopeManagement, symbolFactory, errorListener);
   }
 
   @Override
@@ -559,35 +566,16 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
       if (theType != null) {
         variableSymbol.setType(theType);
       }
-    } else if (variableSymbol.getType().isEmpty()) {
-      //This means it is a var <- Something() and has not been typed yet.
-      //So if we can do a quick check early on before full expressions and find the type - we have to error.
-      checkIfInferredAggregateProperty(ctx);
+    } else if (variableSymbol.getType().isEmpty()
+        && variableSymbol.isPropertyField()
+        && ctx.assignmentExpression() != null) {
+      //This means it is a var <- Something() as a property of an aggregate has not been typed yet.
+      //So for properties we must resolve this in this phase or error.
+      processVariableDeclaration.accept(ctx);
     }
     //While there is a check in phase one, this causes an ordering issue. So we run this in this phase.
     nameCollisionChecker.test(mostSpecificScope.get(), variableSymbol);
     super.exitVariableDeclaration(ctx);
-  }
-
-  private void checkIfInferredAggregateProperty(final EK9Parser.VariableDeclarationContext ctx) {
-    var variable = symbolAndScopeManagement.getRecordedSymbol(ctx);
-    if (variable != null && variable.isPropertyField()) {
-      if (ctx.assignmentExpression() != null
-          && ctx.assignmentExpression().expression() != null
-          && ctx.assignmentExpression().expression().call() != null
-          && ctx.assignmentExpression().expression().call().identifierReference() != null) {
-        var identifierReference = symbolAndScopeManagement.getRecordedSymbol(
-            ctx.assignmentExpression().expression().call().identifierReference());
-        //TODO refactor all this to a function and also check that what has been found is a type of some sort.
-        if (identifierReference != null) {
-          variable.setType(identifierReference);
-        } else {
-          throw new CompilerException("TODO issue unresolved");
-        }
-      } else {
-        throw new CompilerException("TODO issue an error inferred must be simple for " + variable.getFriendlyName());
-      }
-    }
   }
 
   @Override

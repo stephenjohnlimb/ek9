@@ -33,22 +33,22 @@ defines module simple.generics.use.four
     //Symbol 2
     @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "GenericMapThing"
     GenericMapThing of type (K, V)
-      key as K?
-      value as V?
+      k as K?
+      v as V?
 
       default GenericMapThing()
 
       GenericMapThing()
         ->
-          k as K
-          v as V
-        this.key = k
-        this.value = v
+          key as K
+          value as V
+        this.k = key
+        this.v = value
 
       key()
-        <- rtn as K: key
+        <- rtn as K: k
       value()
-        <- rtn as V: value
+        <- rtn as V: v
 
       default operator ?
 
@@ -109,9 +109,9 @@ defines module simple.generics.use.four
     //Symbol 11
     @Resolved: SYMBOL_DEFINITION: TYPE: "BespokeClass"
     BespokeClass
-      name <- "Steve"
+      n <- "Steve"
 
       name()
-        <- rtn as String: name
+        <- rtn as String: n
 
 //EOF

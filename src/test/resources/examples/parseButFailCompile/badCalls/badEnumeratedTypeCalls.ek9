@@ -69,4 +69,15 @@ defines module bad.enumeratedtypecall.examples1
 
       @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
       assert emptySuit4?
+
+    TestInvalidCardSuitOperationOnEnumerationType()
+      spades <- CardSuit.Spades
+      @Error: FULL_RESOLUTION: OPERATOR_CANNOT_BE_USED_ON_ENUMERATION
+      assert CardSuit <> spades
+
+    TestInvalidCardSuitCallOnEnumerationType()
+      spades <- CardSuit.Spades
+      @Error: FULL_RESOLUTION: OPERATOR_CANNOT_BE_USED_ON_ENUMERATION
+      result <- CardSuit.<>(spades)
+      assert result?
 //EOF

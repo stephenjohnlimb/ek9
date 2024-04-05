@@ -214,6 +214,9 @@ defines module com.customer.exceptions
         override dateTime() as pure
           <- rtn as DateTime: currentDateTime
 
+        override millisecond() as pure
+          <- rtn as Millisecond: Millisecond(0)
+
         setCurrentDateTime()
           -> newDateTime as DateTime
           this.currentDateTime = newDateTime

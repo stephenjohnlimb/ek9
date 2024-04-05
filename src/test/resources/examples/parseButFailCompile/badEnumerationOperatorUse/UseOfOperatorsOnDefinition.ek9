@@ -21,7 +21,7 @@ defines module bad.enumeration.use
       stdout <- Stdout()
 
       cat CardSuit > stdout
-      cat CardSuit.iterator() > stdout
+
       for val in CardSuit
         stdout.println(`Value is ${val}`)
 

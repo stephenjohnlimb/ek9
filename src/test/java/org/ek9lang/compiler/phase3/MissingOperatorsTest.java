@@ -2,18 +2,20 @@ package org.ek9lang.compiler.phase3;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests improper use of Enumerations.
+ * Just tests for missing operators.
  */
-class BadEnumerationsTest extends PhasesTest {
+class MissingOperatorsTest extends PhasesTest {
 
-  public BadEnumerationsTest() {
-    super("/examples/parseButFailCompile/badEnumerationOperatorUse");
+  public MissingOperatorsTest() {
+    super("/examples/parseButFailCompile/missingOperators",
+        List.of("bad.defaulted.recordoperators", "bad.defaulted.classoperators", "bad.overridden.classoperators"));
   }
 
   @Test
@@ -22,8 +24,7 @@ class BadEnumerationsTest extends PhasesTest {
   }
 
   @Override
-  protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
-                                    final CompilableProgram program) {
+  protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
   }
 }

@@ -115,7 +115,7 @@ defines module bad.coalescing.assignments
 
       //In this case the variable will be assigned because it might be unset.
       //This could be good as a fallback for no injection - i.e. a default. Safer than a null pointer?
-      someVar :=? Comp2
+      someVar :=? Comp2()
 
       assert someVar?
 

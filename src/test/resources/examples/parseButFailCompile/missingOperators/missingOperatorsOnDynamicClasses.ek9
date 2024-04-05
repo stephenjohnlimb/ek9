@@ -52,7 +52,7 @@ defines module bad.overridden.classoperators
       //This is what is needed
       name <- "Steve"
       dynamic2 <- (name) with trait of T1 as class
-        name()
+        personName()
           <- rtn as String: name
         default operator $
 
@@ -68,7 +68,7 @@ defines module bad.overridden.classoperators
       assert failedCheckName?
 
       //This is how it must be done, via tha accessor method.
-      checkName <- dynamic2.name()
+      checkName <- dynamic2.personName()
       assert checkName?
 
     CheckDynamic3Class()

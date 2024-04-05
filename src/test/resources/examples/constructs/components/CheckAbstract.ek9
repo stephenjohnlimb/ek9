@@ -19,10 +19,11 @@ defines module net.customer
       val Integer: 4
       
       override aMethod()
-        var <- 0
+        var1 <- 0
         var2 <- 9
         var3 <- 21
-        
+
+        assert var1? and var2? and var3?
         //would do processing in here
         
       //so here is a null safe way of using var or defaulting a value

@@ -30,11 +30,12 @@ defines module com.customer.just.employees2
         <- rtn as Boolean: street? and city? and state? and zipcode?
 
       operator $ as pure
-        <- rtn as String: ""
-        rtn += street
+        <- rtn as String?
+        cityLocation <- `${city} ${state} ${zipcode}`
         if street2?
-          rtn += "\n" + street2
-        rtn += "\n" + city + " " + state+ " " + zipcode
+          rtn :=? `${street}\n${street2}\n${cityLocation}`
+        else
+          rtn :=? `${street}\n${cityLocation}`
 
   defines trait
 

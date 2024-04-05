@@ -76,7 +76,7 @@ defines module coalescing.elvis
 
     TestNullCoalescing2()
       -> weight1 as C2
-      weight2 as C3: C3
+      weight2 as C3: C3()
 
       coalesced <- weight1 ?? weight2
 
@@ -104,7 +104,7 @@ defines module coalescing.elvis
 
     TestElvis2()
       -> weight1 as C2
-      weight2 as C3: C3
+      weight2 as C3: C3()
 
       coalesced <- weight1 ?: weight2
 
@@ -159,7 +159,7 @@ defines module coalescing.elvis
 
     TestBadNullCoalescing4()
       -> weight1 as C2
-      weight2 as C3: C3
+      weight2 as C3: C3()
 
       //Example of null coalescing, this will detect the common type
       //So the coalescing bit works just checking the resulting types

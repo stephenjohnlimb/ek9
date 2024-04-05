@@ -144,7 +144,7 @@ defines module just.various.loops
 
     TryCatchFinallyStatement()
 
-      message <- String
+      message <- String()
       try
         message: "Normal Processing Block"
       catch

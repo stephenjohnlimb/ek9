@@ -54,6 +54,17 @@ defines module bad.classcalls.examples1
       assert not c1A.==(c1B)
       assert c1A.<>("Joker")
 
+    TestInvalidCallOnClassNotObjectOfClass()
+      //Do not allow calls directly on the class definition
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      C1.someMethod("Makes no sense")
+
+    TestInvalidOperatorOnClassNotObjectOfClass()
+      c1A <- C1("Steve")
+      //Do not allow calls directly on the class definition
+      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE
+      assert C1 <> c1A
+
     TestInvalidC1ViaPrivateConstructor()
       @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
       invalid1 <- C1()

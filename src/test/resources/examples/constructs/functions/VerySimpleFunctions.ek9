@@ -10,14 +10,13 @@ defines module net.customer
     abstractFunction() as abstract
       <- rtn as String?
         
-    //See how we can use 'rtn' from the declaration in the abstract function
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "functionA"
     functionA() extends abstractFunction  
-      rtn: "Infer Please"
+      <- rtn as String: "Only Infer in Dynamic Functions"
 
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "functionB"
     functionB() extends abstractFunction  
-      rtn: "Infer as well"
+      <- rtn as String: "Only Infer in Dynamic Functions"
       
     //But we can also define fully if we wish
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "function1"
@@ -34,7 +33,8 @@ defines module net.customer
       
       //Lets see if we can make a call to a function and get the result
       valA <- function1()
-      
+      assert valA?
+
       //Now lets use function1 as a type and a variable
       //In Microsoft terms this is a 'delegate'
       //But note we can hold this via its base function type abstractFunction

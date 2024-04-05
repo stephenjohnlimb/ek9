@@ -563,7 +563,7 @@ assertStatement
     ;
 
 list
-    : LBRACK expression (COMMA expression)* RBRACK
+    : LBRACK  directive? expression (COMMA directive? expression)* RBRACK
     ;
 
 dict
@@ -571,7 +571,7 @@ dict
     ;
 
 initValuePair
-    : expression COLON expression
+    : directive? expression COLON expression
     ;
 
 primary

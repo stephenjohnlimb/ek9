@@ -1,0 +1,117 @@
+#!ek9
+<?-
+  Test both valid simple type inference on properties and also expects errors where the
+  inference is too complex (i.e. attempt to move from just a declaration to an expression form).
+-?>
+defines module bad.inferred.properties
+
+  defines function
+
+    <?-
+      Just a function to be used at a text fixture later.
+    -?>
+    SomeFunction() as pure
+      var <- 1
+      assert var?
+
+
+  defines class
+
+    <?-
+      Used later as a text fixture to show that EK9 developer created constructs can also be used for properties.
+    -?>
+    C1
+      default C1() as pure
+
+      C1() as pure
+        -> arg0 as String
+        assert arg0?
+
+  defines record
+
+    <?-
+      Just to show how a property can be declared in an explicit form.
+    -?>
+    ValidExplicitPropertyDefinition
+
+      nonInferred1 as Integer: 1
+      nonInferred2 as String: "Steve"
+      nonInferred3 as List of String: List()
+      nonInferred4 as Dict of (String, Date): Dict()
+      nonInferred5 as C1: C1()
+
+    <?-
+      Also can be declared via simple build-in EK9 type literals.
+    -?>
+    ValidPropertyTypeInferenceFromLiteral
+      lit1 <- 1
+      lit2 <- "Steve"
+      lit3 <- 2024-04-05
+      lit4 <- [ "list", "of", "strings"]
+      lit5 <- ['a', 'b', 'c']
+      lit6 <- { 'a' : 2024-04-05, 'b' : 2025-01-01}
+
+    ValidPropertyTypeInferenceFromSimpleConstructor
+      con1 <- String()
+      con2 <- Boolean()
+      con3 <- Integer()
+      con4 <- Date()
+      con5 <- C1()
+
+    ConfigurationDetails
+
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_MUST_BE_SIMPLE
+      tooComplexExpression <- List() of String
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_MUST_BE_SIMPLE
+      invalid <- SomeFunction()
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_RESOLVED
+      notKnown <- C11()
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_MUST_BE_SIMPLE
+      againTooComplexAnExpression <- { 'a' : C1(), 'b' : C1("Steve")}
+
+      invalidList1 <- [
+        "first",
+        "second",
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_MUST_BE_SIMPLE
+        NotEvenType
+        ]
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_MUST_BE_SIMPLE
+      invalidList2 <- [
+        "first",
+        2
+        ]
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_MUST_BE_SIMPLE
+      invalidDeps1 <- {
+        "ekopen.org.supertools.util": 1,
+        "ekopen.org.supertools.util": "2"
+        }
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_MUST_BE_SIMPLE
+      invalidDeps2 <- {
+        "ekopen.org.supertools.util": 1,
+        2: "2"
+        }
+
+      invalidDeps3 <- {
+        "ekopen.org.supertools.util": 1,
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_MUST_BE_SIMPLE
+        2: NonSuch
+        }
+
+      validTags <- [
+        "constants",
+        "algorithms"
+        ]
+
+      validDeps <- {
+        "ekopen.org.supertools.util": "4.6.1-6"
+        }
+
+//EOF
+

@@ -103,14 +103,31 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     return null;
   }
 
-  private ISymbol processPrimary(EK9Parser.ExpressionContext ctx) {
+  private ISymbol processPrimary(final EK9Parser.ExpressionContext ctx) {
 
     //Note it can be used in calls (but again within constraints), but this is use of 'super' like this.
     if (ctx.primary().primaryReference() != null && ctx.primary().primaryReference().SUPER() != null) {
       errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.INAPPROPRIATE_USE_OF_SUPER);
     }
 
-    return symbolFromContextOrError.apply(ctx.primary());
+    var symbol = symbolFromContextOrError.apply(ctx.primary());
+    if (symbol != null) {
+      checkSuitableCategoryAndGenusOrError(ctx, symbol);
+    }
+    return symbol;
+  }
+
+  private void checkSuitableCategoryAndGenusOrError(final EK9Parser.ExpressionContext ctx, final ISymbol symbol) {
+    if (symbol.getCategory().equals(ISymbol.SymbolCategory.VARIABLE)
+        || symbol.getCategory().equals(ISymbol.SymbolCategory.FUNCTION)
+        || symbol.getCategory().equals(ISymbol.SymbolCategory.TEMPLATE_FUNCTION)) {
+      return;
+    }
+    //Also allow enumerations to be referenced directly.
+    if (symbol.getGenus().equals(ISymbol.SymbolGenus.CLASS_ENUMERATION)) {
+      return;
+    }
+    emitTypeNotAppropriateError(new Ek9Token(ctx.start), symbol);
   }
 
   private ISymbol processObjectAccessExpression(EK9Parser.ExpressionContext ctx) {
@@ -306,4 +323,11 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     var msg = "'" + argument.getName() + "' :";
     errorListener.semanticError(lineToken, msg, ErrorListener.SemanticClassification.TYPE_NOT_RESOLVED);
   }
+
+  private void emitTypeNotAppropriateError(final IToken lineToken, final ISymbol argument) {
+    var msg = "'" + argument.getFriendlyName() + "' as '" + argument.getCategory() + "':";
+    errorListener.semanticError(lineToken, msg, ErrorListener.SemanticClassification.INAPPROPRIATE_USE);
+  }
+
+
 }
