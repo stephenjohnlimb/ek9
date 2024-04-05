@@ -42,8 +42,9 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
 
   @Override
   public void accept(EK9Parser.VariableDeclarationContext ctx) {
-    var variable = symbolAndScopeManagement.getRecordedSymbol(ctx);
+
     if (ctx.assignmentExpression().expression() != null) {
+      final var variable = symbolAndScopeManagement.getRecordedSymbol(ctx);
       checkIfInferredAggregateProperty(ctx, ctx.assignmentExpression().expression(), variable);
     }
 
@@ -68,7 +69,7 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
                                             final EK9Parser.IdentifierReferenceContext identifierReferenceCtx,
                                             final ISymbol property) {
 
-    var identifierReference = symbolAndScopeManagement.getRecordedSymbol(identifierReferenceCtx);
+    final var identifierReference = symbolAndScopeManagement.getRecordedSymbol(identifierReferenceCtx);
 
     if (identifierReference != null) {
       identifierReference.getType().ifPresent(type -> {
@@ -91,7 +92,7 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
   private void processAsList(final EK9Parser.ListContext listCtx,
                              final ISymbol property) {
     if (allLiteralsInListOrError(listCtx, property)) {
-      var typeOfList = getListType(listCtx.start, listCtx.expression(), property);
+      final var typeOfList = getListType(listCtx.start, listCtx.expression(), property);
       if (typeOfList != null) {
         final var listType = symbolAndScopeManagement.getEk9Types().ek9List();
         final var typeData = new ParameterisedTypeData(new Ek9Token(listCtx.start), listType, List.of(typeOfList));
@@ -120,7 +121,7 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
                                    final EK9Parser.DictContext dictCtx,
                                    final ISymbol property) {
     if (allLiteralsInDictOrError(dictCtx, property)) {
-      var keyValueTypes = extractDictExpressionsAsLists(ctx.start, dictCtx, property);
+      final var keyValueTypes = extractDictExpressionsAsLists(ctx.start, dictCtx, property);
       if (keyValueTypes.isEmpty()) {
         return;
       }
@@ -128,27 +129,28 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
       final var typeData = new ParameterisedTypeData(new Ek9Token(dictCtx.start), dictType, keyValueTypes);
       final var resolvedNewType = parameterisedLocator.resolveOrDefine(typeData);
       if (resolvedNewType.isEmpty()) {
+        //Something seriously wrong here.
         throw new CompilerException("Unable to create parameterised type");
       }
       property.setType(resolvedNewType);
-
     }
+
   }
 
   private List<ISymbol> extractDictExpressionsAsLists(final Token errorLocation,
                                                       final EK9Parser.DictContext dict,
                                                       final ISymbol property) {
 
-    List<EK9Parser.ExpressionContext> keyExprList = new ArrayList<>();
-    List<EK9Parser.ExpressionContext> valueExprList = new ArrayList<>();
+    final List<EK9Parser.ExpressionContext> keyExprList = new ArrayList<>();
+    final List<EK9Parser.ExpressionContext> valueExprList = new ArrayList<>();
 
     for (var valuePair : dict.initValuePair()) {
       keyExprList.add(valuePair.expression(0));
       valueExprList.add(valuePair.expression(1));
     }
 
-    var keySymbolType = getListType(errorLocation, keyExprList, property);
-    var valueSymbolType = getListType(errorLocation, valueExprList, property);
+    final var keySymbolType = getListType(errorLocation, keyExprList, property);
+    final var valueSymbolType = getListType(errorLocation, valueExprList, property);
 
     if (keySymbolType == null || valueSymbolType == null) {
       return List.of();
@@ -160,7 +162,7 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
   private ISymbol getListType(final Token errorLocation,
                               final List<EK9Parser.ExpressionContext> expressions,
                               final ISymbol property) {
-    var distinctTypes = expressions
+    final var distinctTypes = expressions
         .stream()
         .map(expr -> expr.primary().literal())
         .map(symbolAndScopeManagement::getRecordedSymbol)
@@ -203,7 +205,7 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
   private void emitMustBeSimpleError(final Token errorLocation,
                                      final String additionalErrorInformation,
                                      final ISymbol property) {
-    var msg = "wrt '" + property.getName() + "' "
+    final var msg = "wrt '" + property.getName() + "' "
         + additionalErrorInformation + ":";
 
     errorListener.semanticError(errorLocation, msg,
