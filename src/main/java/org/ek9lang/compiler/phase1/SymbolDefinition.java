@@ -30,7 +30,7 @@ public final class SymbolDefinition extends CompilerPhase {
   private boolean useMultiThreading = true;
 
   /**
-   * Create a new phase 1 symbol definition instance.
+   * Create a new phase 1 symbol definition instance, defaults to multithreading enabled.
    */
   public SymbolDefinition(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
                           final Consumer<CompilationEvent> listener,
@@ -40,6 +40,9 @@ public final class SymbolDefinition extends CompilerPhase {
 
   }
 
+  /**
+   * Create symbol definition instance with optional multi-threading.
+   */
   public SymbolDefinition(final boolean multiThread,
                           final SharedThreadContext<CompilableProgram> compilableProgramAccess,
                           final Consumer<CompilationEvent> listener,

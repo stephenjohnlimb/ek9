@@ -134,7 +134,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterModuleDeclaration(final EK9Parser.ModuleDeclarationContext ctx) {
-    
+
     final var moduleName = ctx.dottedName().getText();
     //This is an assertion - because it is not an error in the developers work - but in this compiler.
     AssertValue.checkNotEmpty("Module Name must be defined", moduleName);
@@ -142,7 +142,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     //Take note at module level if implementation is external - we'd expect no bodies.
     getParsedModule().setExternallyImplemented(ctx.EXTERN() != null);
-    
+
   }
 
   @Override
@@ -159,10 +159,10 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
   @Override
   public void enterPackageBlock(final EK9Parser.PackageBlockContext ctx) {
-    
+
     final var pack = symbolFactory.newPackage(ctx);
     checkAndDefineModuleScopedSymbol(pack, ctx);
-    
+
     super.enterPackageBlock(ctx);
   }
 
@@ -846,7 +846,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     super.exitReturningParam(ctx);
     final var currentScope = symbolAndScopeManagement.getTopScope();
 
-    final ParseTree child = ctx.variableDeclaration() != null ? ctx.variableDeclaration() : ctx.variableOnlyDeclaration();
+    final ParseTree child =
+        ctx.variableDeclaration() != null ? ctx.variableDeclaration() : ctx.variableOnlyDeclaration();
     final var symbol = symbolAndScopeManagement.getRecordedSymbol(child);
 
     if (symbol instanceof VariableSymbol variableSymbol) {

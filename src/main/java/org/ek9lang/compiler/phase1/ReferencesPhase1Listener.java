@@ -55,7 +55,7 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
    */
   ReferencesPhase1Listener(final CompilableProgram compilableProgram,
                            final ParsedModule parsedModule) {
-    
+
     AssertValue.checkNotNull("CompilableProgramAccess cannot be null", compilableProgram);
     AssertValue.checkNotNull("ParsedModule cannot be null", parsedModule);
 
@@ -353,7 +353,8 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
         //Record against the correct context.
         symbolAndScopeManagement.recordSymbol(resolved.get(), ctx);
       } else {
-        final var originalLocation = compilableProgram.getOriginalReferenceLocation(parsedModule.getModuleName(), search);
+        final var originalLocation =
+            compilableProgram.getOriginalReferenceLocation(parsedModule.getModuleName(), search);
         originalLocation.ifPresent(location -> duplicateSymbolByReference.accept(
             new ConflictingTokens(identifierToken, location, existingReference.get())));
       }

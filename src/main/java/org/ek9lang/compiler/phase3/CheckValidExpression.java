@@ -292,7 +292,8 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
       final var locatedReturningType = checkForOperator.apply(data);
       if (locatedReturningType.isPresent()) {
         final var rtnType = Optional.of(symbolAndScopeManagement.getEk9Types().ek9Boolean());
-        final var returnExpr = symbolFactory.newExpressionSymbol(data.operatorUseToken(), data.symbol().getName(), rtnType);
+        final var returnExpr =
+            symbolFactory.newExpressionSymbol(data.operatorUseToken(), data.symbol().getName(), rtnType);
         return processNegationIfRequired(ctx, returnExpr);
       }
     }
@@ -345,7 +346,8 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
 
   private ISymbol checkAndProcessNotOperation(final IToken notOpToken, final ISymbol exprSymbol) {
 
-    final var search = new MethodSymbolSearch("~").setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Boolean());
+    final var search =
+        new MethodSymbolSearch("~").setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Boolean());
     final var located = checkForOperator.apply(new CheckOperatorData(exprSymbol, notOpToken, search));
 
     if (located.isPresent()) {
