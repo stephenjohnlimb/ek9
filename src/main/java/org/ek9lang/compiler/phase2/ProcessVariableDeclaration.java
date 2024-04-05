@@ -26,7 +26,7 @@ import org.ek9lang.core.CompilerException;
  * and aggregate properties to function correctly).
  * Note that it is possible to 'force' the EK9 developer to declare properties in the more long hand way as shown below.
  * <pre>
- *   shorthand <- 1
+ *   shorthand &lt;- 1
  *   longhand as Integer: 1
  * </pre>
  */
