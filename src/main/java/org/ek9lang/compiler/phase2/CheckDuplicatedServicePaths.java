@@ -21,16 +21,19 @@ final class CheckDuplicatedServicePaths extends RuleSupport implements Consumer<
 
   CheckDuplicatedServicePaths(final SymbolAndScopeManagement symbolAndScopeManagement,
                               final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final IAggregateSymbol service) {
+
     final Map<String, Map<String, ServiceOperationSymbol>> verbToPathToOperation = new HashMap<>();
 
     getServiceOperations(service).forEach(operation -> {
-      var verb = operation.getSquirrelledData(HTTP_VERB);
-      var path = removedParameterNames(operation.getSquirrelledData(URI_PROTO));
+      final var verb = operation.getSquirrelledData(HTTP_VERB);
+      final var path = removedParameterNames(operation.getSquirrelledData(URI_PROTO));
 
       var verbMap = verbToPathToOperation.get(verb);
       if (verbMap == null) {
@@ -46,13 +49,14 @@ final class CheckDuplicatedServicePaths extends RuleSupport implements Consumer<
         }
       }
     });
+
   }
 
   private void emitDuplicatePathError(final ServiceOperationSymbol existingPathToService,
                                       final ServiceOperationSymbol operation) {
 
-    var verb = existingPathToService.getSquirrelledData(HTTP_VERB);
-    var msg = "HTTP verb: '"
+    final var verb = existingPathToService.getSquirrelledData(HTTP_VERB);
+    final var msg = "HTTP verb: '"
         + verb
         + "' '"
         + existingPathToService.getSquirrelledData(URI_PROTO)
@@ -65,9 +69,11 @@ final class CheckDuplicatedServicePaths extends RuleSupport implements Consumer<
         ErrorListener.SemanticClassification.SERVICE_HTTP_PATH_DUPLICATED);
     errorListener.semanticError(operation.getSourceToken(), msg,
         ErrorListener.SemanticClassification.SERVICE_HTTP_PATH_DUPLICATED);
+
   }
 
   private Stream<ServiceOperationSymbol> getServiceOperations(final IAggregateSymbol service) {
+
     return service.getAllNonAbstractMethods()
         .stream()
         .filter(ServiceOperationSymbol.class::isInstance)
@@ -75,6 +81,8 @@ final class CheckDuplicatedServicePaths extends RuleSupport implements Consumer<
   }
 
   private String removedParameterNames(final String utiProtoPath) {
+
     return utiProtoPath.replaceAll("\\{.*?}", "{}");
+
   }
 }

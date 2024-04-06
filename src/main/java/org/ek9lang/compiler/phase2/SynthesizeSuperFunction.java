@@ -30,13 +30,15 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
   SynthesizeSuperFunction(final SymbolAndScopeManagement symbolAndScopeManagement,
                           final SymbolFactory symbolFactory,
                           final ErrorListener errorListener) {
+
     this.symbolAndScopeManagement = symbolAndScopeManagement;
     this.parameterisedLocator =
         new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
+
   }
 
   @Override
-  public void accept(FunctionSymbol function) {
+  public void accept(final FunctionSymbol function) {
 
     //Should get called if already has a super.
     if (function.getSuperFunction().isEmpty() && checkParametersHaveTypes(function)) {
@@ -60,22 +62,23 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
     if (function.isReturningSymbolPresent() && function.getReturningSymbol().getType().isEmpty()) {
       return false;
     }
-    return function.getCallParameters().stream().noneMatch(arg -> arg.getType().isEmpty());
 
+    return function.getCallParameters().stream().noneMatch(arg -> arg.getType().isEmpty());
   }
 
-  private void trySuppliersAndConsumers(FunctionSymbol function) {
+  private void trySuppliersAndConsumers(final FunctionSymbol function) {
 
     //Check if candidate could be a supplier
     if (function.getCallParameters().isEmpty() && isUsableReturnTypePresent(function)) {
       function.getReturningSymbol().getType().ifPresent(
           t -> processParameterisedType(function, "org.ek9.lang::Supplier", List.of(t))
       );
+
       return;
     }
 
     //The argument types will be needed by both of these super options.
-    var types = symbolTypeExtractor.apply(function.getCallParameters());
+    final var types = symbolTypeExtractor.apply(function.getCallParameters());
 
     //Now look to see if this could be a Consumer
     if (function.getCallParameters().size() == 1 && !isUsableReturnTypePresent(function)) {
@@ -90,18 +93,19 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
 
   }
 
-  private void tryProducersAndAccessors(FunctionSymbol function) {
+  private void tryProducersAndAccessors(final FunctionSymbol function) {
 
     //Check if candidate could be a producer
     if (function.getCallParameters().isEmpty() && isUsableReturnTypePresent(function)) {
       function.getReturningSymbol().getType().ifPresent(
           t -> processParameterisedType(function, "org.ek9.lang::Producer", List.of(t))
       );
+
       return;
     }
 
     //The argument types will be needed by both of these super options.
-    var types = symbolTypeExtractor.apply(function.getCallParameters());
+    final var types = symbolTypeExtractor.apply(function.getCallParameters());
 
     //Now look to see if this could be aa Accessor
     if (function.getCallParameters().size() == 1 && !isUsableReturnTypePresent(function)) {
@@ -116,18 +120,19 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
 
   }
 
-  private void tryPredicatesAndFunctions(FunctionSymbol function) {
+  private void tryPredicatesAndFunctions(final FunctionSymbol function) {
 
     //Cannot be any of the possible stock generic types.
     if (!isUsableReturnTypePresent(function)) {
       return;
     }
 
-    var types = symbolTypeExtractor.apply(function.getCallParameters());
-    var returnType = getReturnType(function);
+    final var types = symbolTypeExtractor.apply(function.getCallParameters());
+    final var returnType = getReturnType(function);
 
     if (types.size() == 1) {
-      var paramAndReturnTypeSame = types.get(0).isExactSameType(returnType);
+      final var paramAndReturnTypeSame = types.get(0).isExactSameType(returnType);
+
       if (isReturnTypeBoolean(function)) {
         //Then it is a predicate
         processParameterisedType(function, "org.ek9.lang::Predicate", types);
@@ -136,28 +141,32 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
         processParameterisedType(function, "org.ek9.lang::UnaryOperator", types);
       } else {
         //It is a Function
-        var functionTypes = List.of(types.get(0), returnType);
+        final var functionTypes = List.of(types.get(0), returnType);
         processParameterisedType(function, "org.ek9.lang::Function", functionTypes);
       }
+
     } else if (types.size() == 2) {
-      var paramTypesSame = types.get(0).isExactSameType(types.get(1));
+      final var paramTypesSame = types.get(0).isExactSameType(types.get(1));
+
       if (isReturnTypeInteger(function) && paramTypesSame) {
         //Then it is a comparator - if the type of both arguments are the same
-        var comparatorType = List.of(types.get(0));
+        final var comparatorType = List.of(types.get(0));
         processParameterisedType(function, "org.ek9.lang::Comparator", comparatorType);
       } else if (isReturnTypeBoolean(function)) {
         //Then it is a bi-predicate
         processParameterisedType(function, "org.ek9.lang::BiPredicate", types);
       } else {
         //It is a bi function.
-        var functionTypes = List.of(types.get(0), types.get(1), returnType);
+        final var functionTypes = List.of(types.get(0), types.get(1), returnType);
         processParameterisedType(function, "org.ek9.lang::BiFunction", functionTypes);
       }
+
     }
 
   }
 
   private ISymbol getReturnType(final FunctionSymbol function) {
+
     return function.getReturningSymbol().getType().orElse(null);
   }
 
@@ -185,16 +194,21 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
                                         final String genericTypeName,
                                         final List<ISymbol> typeArguments) {
 
-    var genericType = function.resolve(new TemplateFunctionSymbolSearch(genericTypeName));
+    final var genericType = function.resolve(new TemplateFunctionSymbolSearch(genericTypeName));
     if (genericType.isEmpty()) {
       throw new CompilerException("Must be possible to resolve build in generic type [" + genericTypeName);
     }
-    var data = new ParameterisedTypeData(function.getSourceToken(), genericType.get(), typeArguments);
-    var resolvedParameterizedType = parameterisedLocator.apply(data);
+
+    final var data = new ParameterisedTypeData(function.getSourceToken(), genericType.get(), typeArguments);
+    final var resolvedParameterizedType = parameterisedLocator.apply(data);
+
     if (resolvedParameterizedType.isEmpty()) {
       throw new CompilerException("Must be possible to parameterized type [" + genericTypeName);
     }
-    var superFunction = (FunctionSymbol) resolvedParameterizedType.get();
+
+    final var superFunction = (FunctionSymbol) resolvedParameterizedType.get();
     function.setSuperFunction(superFunction);
+
   }
+
 }

@@ -44,26 +44,28 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
   CheckAndPopulateConstrainedType(final SymbolAndScopeManagement symbolAndScopeManagement,
                                   final AggregateFactory aggregateFactory,
                                   final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.aggregateFactory = aggregateFactory;
+
   }
 
   @Override
-  public void accept(AggregateSymbol newType, final ISymbol constrainedType) {
+  public void accept(final AggregateSymbol newType, final ISymbol constrainedType) {
 
     if (constrainedType == null) {
       //Already will have detected and emitted type not resolved.
       return;
     }
 
-    var isBoolean = constrainedType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Boolean());
-    var isJson = constrainedType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Json());
-    var isType = constrainedType.getCategory().equals(ISymbol.SymbolCategory.TYPE);
-    var isAcceptableGenus = constrainedType.getGenus().equals(ISymbol.SymbolGenus.CLASS)
+    final var isBoolean = constrainedType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Boolean());
+    final var isJson = constrainedType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Json());
+    final var isType = constrainedType.getCategory().equals(ISymbol.SymbolCategory.TYPE);
+    final var isAcceptableGenus = constrainedType.getGenus().equals(ISymbol.SymbolGenus.CLASS)
         || constrainedType.getGenus().equals(ISymbol.SymbolGenus.CLASS_CONSTRAINED)
         || constrainedType.getGenus().equals(ISymbol.SymbolGenus.CLASS_ENUMERATION)
         || constrainedType.getGenus().equals(ISymbol.SymbolGenus.RECORD);
-    var isAbstract = constrainedType.isMarkedAbstract();
+    final var isAbstract = constrainedType.isMarkedAbstract();
 
     if (!isType || !isAcceptableGenus || isAbstract || isBoolean || isJson) {
       emitCannotConstrainTypeError(newType.getSourceToken(), constrainedType);
@@ -82,12 +84,14 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
     if (aggregateHasPureConstruction.test(constrainingAggregate)) {
       newType.getConstructors().forEach(method -> method.setMarkedPure(true));
     }
+
   }
 
-  private void cloneMethodsAndOperators(AggregateSymbol newType, final IAggregateSymbol constrainedType) {
+  private void cloneMethodsAndOperators(final AggregateSymbol newType, final IAggregateSymbol constrainedType) {
+
 
     aggregateFactory.addConstructor(newType, new VariableSymbol("arg", constrainedType));
-    var candidates =
+    final var candidates =
         constrainedType.getAllNonAbstractMethods().stream().filter(MethodSymbol::isNotConstructor).toList();
     for (var method : candidates) {
       if (method.isOperator()) {
@@ -104,22 +108,27 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
         var clonedMethod = method.clone(newType);
         newType.define(clonedMethod);
       }
+
     }
   }
 
-  private void processNoArgOperator(final MethodSymbol method, AggregateSymbol newType,
+  private void processNoArgOperator(final MethodSymbol method,
+                                    final AggregateSymbol newType,
                                     final IAggregateSymbol constrainedType) {
-    var clonedMethod = method.clone(newType);
+
+    final var clonedMethod = method.clone(newType);
     if (!methodNamesWithNonAlterableReturnTypes.contains(clonedMethod.getName())) {
       adjustReturnType(clonedMethod, newType, constrainedType);
     }
     newType.define(clonedMethod);
+
   }
 
-  private void processArgOperator(final MethodSymbol method, AggregateSymbol newType,
+  private void processArgOperator(final MethodSymbol method,
+                                  final AggregateSymbol newType,
                                   final IAggregateSymbol constrainedType) {
 
-    var clonedMethod = method.clone(newType);
+    final var clonedMethod = method.clone(newType);
 
     //Now we always alter any types in the input if they match the constrained type
     if (methodNamesWithAlterableReturnTypes.contains(clonedMethod.getName())) {
@@ -127,7 +136,7 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
     }
 
     if (methodNamesWithAlterableArgumentTypes.contains(clonedMethod.getName())) {
-      var typeAdjusted = adjustArgumentType(clonedMethod, newType, constrainedType);
+      final var typeAdjusted = adjustArgumentType(clonedMethod, newType, constrainedType);
       //For some specific methods we duplicate the method but with the old type
       //This is useful for constrained types.
       if (typeAdjusted && methodNamesToAlsoRetrainOldSignature.contains(method.getName())) {
@@ -136,11 +145,13 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
     }
 
     newType.define(clonedMethod);
+
   }
 
-  private boolean adjustArgumentType(MethodSymbol clonedMethod,
+  private boolean adjustArgumentType(final MethodSymbol clonedMethod,
                                      final AggregateSymbol newType,
                                      final IAggregateSymbol constrainedType) {
+
     var rtn = false;
     for (var argument : clonedMethod.getCallParameters()) {
       if (argument.getType().isPresent() && argument.getType().get().isExactSameType(constrainedType)) {
@@ -151,23 +162,28 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
     return rtn;
   }
 
-  private void adjustReturnType(MethodSymbol clonedMethod,
+  private void adjustReturnType(final MethodSymbol clonedMethod,
                                 final AggregateSymbol newType,
                                 final IAggregateSymbol constrainedType) {
+
     if (clonedMethod.isReturningSymbolPresent() && clonedMethod.getReturningSymbol().getType().isPresent()) {
-      var currentType = clonedMethod.getReturningSymbol().getType().get();
+      final var currentType = clonedMethod.getReturningSymbol().getType().get();
       if (currentType.isExactSameType(constrainedType)) {
-        var returningSymbol = (VariableSymbol) clonedMethod.getReturningSymbol();
+        final var returningSymbol = (VariableSymbol) clonedMethod.getReturningSymbol();
         returningSymbol.setType(newType);
         clonedMethod.setReturningSymbol(returningSymbol);
       }
     }
+
   }
 
   private void emitCannotConstrainTypeError(final IToken lineToken, final ISymbol argument) {
+
     argument.getType().ifPresent(argType -> {
-      var msg = "'" + argument.getFriendlyName() + "' is a '" + argType.getCategory() + "/" + argType.getGenus() + "':";
+      final var msg =
+          "'" + argument.getFriendlyName() + "' is a '" + argType.getCategory() + "/" + argType.getGenus() + "':";
       errorListener.semanticError(lineToken, msg, ErrorListener.SemanticClassification.TYPE_CANNOT_BE_CONSTRAINED);
     });
+
   }
 }

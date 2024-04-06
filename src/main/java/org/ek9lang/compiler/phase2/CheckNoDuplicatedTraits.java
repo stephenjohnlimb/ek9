@@ -21,7 +21,8 @@ final class CheckNoDuplicatedTraits implements Consumer<AggregateWithTraitsSymbo
 
   @Override
   public void accept(final AggregateWithTraitsSymbol aggregate) {
-    var traitNames = new HashSet<String>();
+
+    final var traitNames = new HashSet<String>();
 
     aggregate.getTraits().forEach(trait -> {
       if (traitNames.contains(trait.getFullyQualifiedName())) {
@@ -29,11 +30,14 @@ final class CheckNoDuplicatedTraits implements Consumer<AggregateWithTraitsSymbo
       }
       traitNames.add(trait.getFullyQualifiedName());
     });
+
   }
 
   private void emitDuplicateTraitName(final IAggregateSymbol usedBy, final IAggregateSymbol trait) {
+
     errorListener.semanticError(usedBy.getSourceToken(),
         "'" + trait.getFriendlyName() + "'",
         DUPLICATE_TRAIT_REFERENCE);
+
   }
 }

@@ -30,7 +30,9 @@ final class CheckSuitableGenus extends RuleSupport implements Function<ParserRul
                      final ISymbol.SymbolGenus genus,
                      final boolean allowTemplates,
                      final boolean issueErrorIfNotResolved) {
+
     this(symbolAndScopeManagement, errorListener, List.of(genus), allowTemplates, issueErrorIfNotResolved);
+
   }
 
   /**
@@ -42,19 +44,24 @@ final class CheckSuitableGenus extends RuleSupport implements Function<ParserRul
                             final List<ISymbol.SymbolGenus> genus,
                             final boolean allowTemplates,
                             final boolean issueErrorIfNotResolved) {
+
     super(symbolAndScopeManagement, errorListener);
     this.supportedGenus.addAll(genus);
     this.issueErrorIfNotResolved = issueErrorIfNotResolved;
     this.allowTemplates = allowTemplates;
+
   }
 
   @Override
   public Optional<ISymbol> apply(final ParserRuleContext ctx) {
+
     var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
     return checkIfValidSymbol(ctx, symbol) ? Optional.of(symbol) : Optional.empty();
+
   }
 
   private boolean checkIfValidSymbol(final ParserRuleContext ctx, final ISymbol symbol) {
+
     if (!checkResolved(ctx, symbol)) {
       return false;
     }
@@ -67,29 +74,34 @@ final class CheckSuitableGenus extends RuleSupport implements Function<ParserRul
   }
 
   private boolean checkCategoryOK(final ParserRuleContext ctx, final ISymbol symbol) {
+
     if (!allowTemplates && (symbol.isTemplateType() || symbol.isTemplateFunction())) {
-      var msg = "is a '"
+      final var msg = "is a '"
           + symbol.getCategory().getDescription()
           + "', which is not supported";
       errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.INCOMPATIBLE_CATEGORY);
       return false;
     }
+
     return true;
   }
 
   private boolean checkResolved(final ParserRuleContext ctx, final ISymbol symbol) {
+
     if (symbol == null) {
       if (issueErrorIfNotResolved) {
         errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.TYPE_NOT_RESOLVED);
       }
       return false;
     }
+
     return true;
   }
 
   private boolean checkGenusOK(final ParserRuleContext ctx, final ISymbol symbol) {
+
     if (!supportedGenus.contains(symbol.getGenus())) {
-      var msg = "resolved as a '"
+      final var msg = "resolved as a '"
           + symbol.getGenus().getDescription()
           + "' which is a '"
           + symbol.getCategory().getDescription()
@@ -99,6 +111,7 @@ final class CheckSuitableGenus extends RuleSupport implements Function<ParserRul
       errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.INCOMPATIBLE_GENUS);
       return false;
     }
+
     return true;
   }
 }

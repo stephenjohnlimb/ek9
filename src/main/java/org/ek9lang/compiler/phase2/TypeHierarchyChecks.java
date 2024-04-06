@@ -25,6 +25,7 @@ import org.ek9lang.core.SharedThreadContext;
  * For aggregates this is just 'getSuperAggregateSymbol' for functions 'getSuperFunctionSymbol'.
  * But for traits - you need to get all its traits.
  * But note that it is important to flip between an aggregate hierarchy and a trait one.
+ * TODO consider checking property loops, not when type typed but when loops in constructor calls.
  */
 public final class TypeHierarchyChecks extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.TYPE_HIERARCHY_CHECKS;
@@ -33,25 +34,30 @@ public final class TypeHierarchyChecks extends CompilerPhase {
   /**
    * Create a new instance for checking of type hierarchies.
    */
-  public TypeHierarchyChecks(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                             Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public TypeHierarchyChecks(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                             final Consumer<CompilationEvent> listener,
+                             final CompilerReporter reporter) {
+
     super(thisPhase, compilableProgramAccess, listener, reporter);
+
   }
 
   @Override
-  public boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
+  public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
+
     checkHierarchies();
 
     return !sourceHaveErrors.test(workspace.getSources());
   }
 
   private void checkHierarchies() {
+
     compilableProgramAccess.accept(program -> {
       //Memoization, only check if not already checked (else On2 or worse).
-      HashMap<String, ISymbol> processedSymbols = new HashMap<>();
+      final HashMap<String, ISymbol> processedSymbols = new HashMap<>();
 
       for (var moduleName : program.getParsedModuleNames()) {
-        var parsedModules = program.getParsedModules(moduleName);
+        final var parsedModules = program.getParsedModules(moduleName);
 
         for (var parsedModule : parsedModules) {
           checkParsedModule(parsedModule, processedSymbols);
@@ -59,42 +65,51 @@ public final class TypeHierarchyChecks extends CompilerPhase {
         }
       }
     });
+
   }
 
-  private void checkParsedModule(final ParsedModule parsedModule, HashMap<String, ISymbol> processedSymbols) {
-    var errorListener = parsedModule.getSource().getErrorListener();
-    var checkNoDuplicatedTraits = new CheckNoDuplicatedTraits(errorListener);
-    var scope = parsedModule.getModuleScope();
+  private void checkParsedModule(final ParsedModule parsedModule,
+                                 final HashMap<String, ISymbol> processedSymbols) {
+
+    final var errorListener = parsedModule.getSource().getErrorListener();
+    final var checkNoDuplicatedTraits = new CheckNoDuplicatedTraits(errorListener);
+    final var scope = parsedModule.getModuleScope();
 
     for (var symbol : scope.getSymbolsForThisScope()) {
       checkForLoops(errorListener, processedSymbols, symbol);
       checkForDuplicateTraits(checkNoDuplicatedTraits, symbol);
     }
+
   }
 
-  private void checkForLoops(ErrorListener errorListener,
-                             HashMap<String, ISymbol> processedSymbols,
+  private void checkForLoops(final ErrorListener errorListener,
+                             final HashMap<String, ISymbol> processedSymbols,
                              final ISymbol symbol) {
-    var classTraitHierarchy = symbol.getGenus().equals(ISymbol.SymbolGenus.CLASS_TRAIT);
+
+    final var classTraitHierarchy = symbol.getGenus().equals(ISymbol.SymbolGenus.CLASS_TRAIT);
     checkForCircularLoops(errorListener, processedSymbols, new HashSet<>(), symbol, classTraitHierarchy);
+
   }
 
   private void checkForDuplicateTraits(final CheckNoDuplicatedTraits checker, final ISymbol symbol) {
+
     if (symbol instanceof AggregateWithTraitsSymbol aggregate) {
       checker.accept(aggregate);
     }
+
   }
 
-  private void checkForCircularLoops(ErrorListener errorListener,
-                                     HashMap<String, ISymbol> processedSymbols,
-                                     HashSet<String> symbolsEncountered,
+  private void checkForCircularLoops(final ErrorListener errorListener,
+                                     final HashMap<String, ISymbol> processedSymbols,
+                                     final HashSet<String> symbolsEncountered,
                                      final ISymbol maybeHasASuper,
                                      final boolean classTraitHierarchy) {
 
-    var fullyQualifiedName = maybeHasASuper.getFullyQualifiedName();
+    final var fullyQualifiedName = maybeHasASuper.getFullyQualifiedName();
+
     if (symbolsEncountered.contains(fullyQualifiedName)) {
       //Well looks like within this hierarchy we've already encountered this symbol.
-      var msg = "with genus '" + maybeHasASuper.getGenus().getDescription() + "' is invalid:";
+      final var msg = "with genus '" + maybeHasASuper.getGenus().getDescription() + "' is invalid:";
       errorListener.semanticError(maybeHasASuper.getSourceToken(), msg,
           ErrorListener.SemanticClassification.CIRCULAR_HIERARCHY_DETECTED);
     }
@@ -133,4 +148,5 @@ public final class TypeHierarchyChecks extends CompilerPhase {
     }
     //else it cannot have a super. So that's it.
   }
+
 }

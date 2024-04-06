@@ -24,18 +24,20 @@ final class CheckPathParameter extends RuleSupport implements BiPredicate<Servic
 
   @Override
   public boolean test(final ServiceOperationSymbol operation, final ISymbol param) {
+
     //When it is a path variable, must check that the path contains the variable.
     if (param.getSquirrelledData(HTTP_ACCESS).equals(HTTP_PATH)) {
-      var sourceName = param.getSquirrelledData(HTTP_SOURCE);
-      var path = operation.getSquirrelledData(URI_PROTO);
-      var pathVar = String.format("{%s}", sourceName);
+      final var sourceName = param.getSquirrelledData(HTTP_SOURCE);
+      final var path = operation.getSquirrelledData(URI_PROTO);
+      final var pathVar = String.format("{%s}", sourceName);
       if (!path.contains(pathVar)) {
-        var msg = "'" + pathVar + "' is not in '" + path + ':';
+        final var msg = "'" + pathVar + "' is not in '" + path + ':';
         errorListener.semanticError(param.getSourceToken(), msg,
             ErrorListener.SemanticClassification.SERVICE_HTTP_PATH_PARAM_INVALID);
       }
       return true;
     }
+
     return false;
   }
 }

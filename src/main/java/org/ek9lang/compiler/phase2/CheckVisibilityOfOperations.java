@@ -31,52 +31,64 @@ final class CheckVisibilityOfOperations extends RuleSupport implements Consumer<
   /**
    * Create a new operations checker an aggregates.
    */
-  CheckVisibilityOfOperations(
-      SymbolAndScopeManagement symbolAndScopeManagement,
-      ErrorListener errorListener) {
+  CheckVisibilityOfOperations(final SymbolAndScopeManagement symbolAndScopeManagement,
+                              final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final IAggregateSymbol aggregate) {
+
     checkMethodVisibility(aggregate, aggregate.getAllNonAbstractMethods());
     checkMethodVisibility(aggregate, aggregate.getAllAbstractMethods());
+
   }
 
   private void checkMethodVisibility(final IAggregateSymbol aggregate,
                                      final List<MethodSymbol> methods) {
 
-    var genusCheck = genusChecks.get(aggregate.getGenus());
+    final var genusCheck = genusChecks.get(aggregate.getGenus());
     if (genusCheck != null) {
       methods.forEach(genusCheck);
     }
+
   }
 
   private void checkComponentMethodVisibility(final MethodSymbol method) {
+
     if (method.isProtected()) {
       errorListener.semanticError(method.getSourceToken(), "",
           ErrorListener.SemanticClassification.METHOD_MODIFIER_PROTECTED_IN_COMPONENT);
     }
+
   }
 
   private void checkRecordMethodVisibility(final MethodSymbol method) {
+
     if (!method.isConstructor() && !method.isOperator()) {
       errorListener.semanticError(method.getSourceToken(), "'" + method.getFriendlyName() + "'",
           ErrorListener.SemanticClassification.RECORDS_ONLY_SUPPORT_CONSTRUCTOR_AND_OPERATOR_METHODS);
     }
+
   }
 
   private void checkTraitMethodVisibility(final MethodSymbol method) {
+
     if (!method.isPublic()) {
       errorListener.semanticError(method.getSourceToken(), "",
           ErrorListener.SemanticClassification.METHOD_MODIFIER_NOT_REQUIRED_IN_TRAIT);
     }
+
   }
 
   private void checkServiceMethodVisibility(final MethodSymbol method) {
+
     if (method.isProtected()) {
       errorListener.semanticError(method.getSourceToken(), "",
           ErrorListener.SemanticClassification.METHOD_MODIFIER_PROTECTED_IN_SERVICE);
     }
+
   }
 }

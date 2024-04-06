@@ -51,18 +51,24 @@ public final class NonInferredTypeDefinition extends CompilerPhase {
    * Create a new phase 1 second pass template type symbol resolution definition instance.
    */
   public NonInferredTypeDefinition(final boolean multiThread,
-                                   SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                   Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+                                   final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                                   final Consumer<CompilationEvent> listener,
+                                   final CompilerReporter reporter) {
+
     super(thisPhase, compilableProgramAccess, listener, reporter);
     this.useMultiThreading = multiThread;
+
   }
 
   @Override
-  public boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
+  public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
+
     return underTakeTypeSymbolResolutionAndDefinition(workspace);
+
   }
 
-  private boolean underTakeTypeSymbolResolutionAndDefinition(Workspace workspace) {
+  private boolean underTakeTypeSymbolResolutionAndDefinition(final Workspace workspace) {
+
     if (useMultiThreading) {
       defineSymbolsMultiThreaded(workspace);
     } else {
@@ -72,34 +78,39 @@ public final class NonInferredTypeDefinition extends CompilerPhase {
     return !sourceHaveErrors.test(workspace.getSources());
   }
 
-  private void defineSymbolsMultiThreaded(Workspace workspace) {
+  private void defineSymbolsMultiThreaded(final Workspace workspace) {
+
     workspace.getSources()
         .parallelStream()
         .forEach(this::resolveOrDefineTypeSymbols);
+
   }
 
-  private void defineSymbolsSingleThreaded(Workspace workspace) {
+  private void defineSymbolsSingleThreaded(final Workspace workspace) {
+
     workspace.getSources().forEach(this::resolveOrDefineTypeSymbols);
+
   }
 
   /**
    * THIS IS WHERE THE EXPLICIT TEMPLATE TYPE USE PHASE 1 LISTENER IS CREATED AND USED.
    */
-  private void resolveOrDefineTypeSymbols(CompilableSource source) {
+  private void resolveOrDefineTypeSymbols(final CompilableSource source) {
+
     //First get the parsed module for this source file.
     //This has to be done via a mutable holder through a reentrant lock to the program
-    var holder = new AtomicReference<ParsedModule>();
+    final var holder = new AtomicReference<ParsedModule>();
     //Only hold the lock for the minimal time.
     compilableProgramAccess.accept(
         program -> holder.set(program.getParsedModuleForCompilableSource(source)));
 
-    var parsedModule = holder.get();
+    final var parsedModule = holder.get();
     if (parsedModule != null) {
-      ResolveDefineExplicitTypeListener phaseListener =
-          new ResolveDefineExplicitTypeListener(parsedModule);
-      ParseTreeWalker walker = new ParseTreeWalker();
+      final var phaseListener = new ResolveDefineExplicitTypeListener(parsedModule);
+      final var walker = new ParseTreeWalker();
       walker.walk(phaseListener, source.getCompilationUnitContext());
       listener.accept(new CompilationEvent(thisPhase, parsedModule, source));
     }
+
   }
 }

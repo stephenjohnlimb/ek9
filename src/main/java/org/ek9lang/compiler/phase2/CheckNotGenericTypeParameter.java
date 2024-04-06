@@ -19,7 +19,8 @@ final class CheckNotGenericTypeParameter implements Consumer<ISymbol> {
   }
 
   @Override
-  public void accept(ISymbol variable) {
+  public void accept(final ISymbol variable) {
+
     if (variable != null && variable.getType().isPresent()) {
       variable.getType().ifPresent(type -> {
         if (type.isConceptualTypeParameter()) {
@@ -27,5 +28,6 @@ final class CheckNotGenericTypeParameter implements Consumer<ISymbol> {
         }
       });
     }
+
   }
 }

@@ -16,11 +16,15 @@ final class SyntheticConstructorCreator implements Consumer<IAggregateSymbol> {
   private final AggregateFactory aggregateFactory;
 
   SyntheticConstructorCreator(final AggregateFactory aggregateFactory) {
+
     this.aggregateFactory = aggregateFactory;
+
   }
 
   @Override
-  public void accept(IAggregateSymbol aggregate) {
+  public void accept(final IAggregateSymbol aggregate) {
+
     aggregateFactory.addSyntheticConstructorIfRequired(aggregate, List.of());
+
   }
 }

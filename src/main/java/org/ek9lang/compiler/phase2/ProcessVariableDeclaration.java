@@ -36,12 +36,14 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
   ProcessVariableDeclaration(final SymbolAndScopeManagement symbolAndScopeManagement,
                              final SymbolFactory symbolFactory,
                              final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.parameterisedLocator = new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
+
   }
 
   @Override
-  public void accept(EK9Parser.VariableDeclarationContext ctx) {
+  public void accept(final EK9Parser.VariableDeclarationContext ctx) {
 
     if (ctx.assignmentExpression().expression() != null) {
       final var variable = symbolAndScopeManagement.getRecordedSymbol(ctx);
@@ -53,6 +55,7 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
   private void checkIfInferredAggregateProperty(final EK9Parser.VariableDeclarationContext ctx,
                                                 final EK9Parser.ExpressionContext exprCtx,
                                                 final ISymbol property) {
+
     if (exprCtx.call() != null && exprCtx.call().identifierReference() != null) {
       processAsIdentifierReference(ctx, exprCtx.call().identifierReference(), property);
     } else if (exprCtx.list() != null) {
@@ -81,6 +84,7 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
     } else {
       errorListener.semanticError(identifierReferenceCtx.start, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
     }
+
   }
 
   /**
@@ -91,6 +95,7 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
    */
   private void processAsList(final EK9Parser.ListContext listCtx,
                              final ISymbol property) {
+
     if (allLiteralsInListOrError(listCtx, property)) {
       final var typeOfList = getListType(listCtx.start, listCtx.expression(), property);
       if (typeOfList != null) {
@@ -103,6 +108,7 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
         property.setType(resolvedNewType);
       }
     }
+
   }
 
   private boolean allLiteralsInListOrError(final EK9Parser.ListContext list,
@@ -113,13 +119,14 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
         return false;
       }
     }
-    return true;
 
+    return true;
   }
 
   private void processAsDictionary(final EK9Parser.VariableDeclarationContext ctx,
                                    final EK9Parser.DictContext dictCtx,
                                    final ISymbol property) {
+
     if (allLiteralsInDictOrError(dictCtx, property)) {
       final var keyValueTypes = extractDictExpressionsAsLists(ctx.start, dictCtx, property);
       if (keyValueTypes.isEmpty()) {
@@ -199,16 +206,19 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
       emitMustBeSimpleError(exprCtx.start, "expecting literals", property);
       return true;
     }
+
     return false;
   }
 
   private void emitMustBeSimpleError(final Token errorLocation,
                                      final String additionalErrorInformation,
                                      final ISymbol property) {
+
     final var msg = "wrt '" + property.getName() + "' "
         + additionalErrorInformation + ":";
 
     errorListener.semanticError(errorLocation, msg,
         ErrorListener.SemanticClassification.TYPE_MUST_BE_SIMPLE);
+
   }
 }

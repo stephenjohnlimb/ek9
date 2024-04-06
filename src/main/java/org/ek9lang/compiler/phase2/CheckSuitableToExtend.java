@@ -28,7 +28,9 @@ final class CheckSuitableToExtend extends RuleSupport implements Function<Parser
                         final ErrorListener errorListener,
                         final ISymbol.SymbolGenus genus,
                         final boolean issueErrorIfNotResolved) {
+
     this(symbolAndScopeManagement, errorListener, List.of(genus), issueErrorIfNotResolved);
+
   }
 
   /**
@@ -39,21 +41,26 @@ final class CheckSuitableToExtend extends RuleSupport implements Function<Parser
                                final ErrorListener errorListener,
                                final List<ISymbol.SymbolGenus> genus,
                                final boolean issueErrorIfNotResolved) {
+
     super(symbolAndScopeManagement, errorListener);
     this.checkSuitableGenus =
         new CheckSuitableGenus(symbolAndScopeManagement, errorListener, genus, true, issueErrorIfNotResolved);
+
   }
 
   @Override
   public Optional<ISymbol> apply(final ParserRuleContext ctx) {
-    var rtn = checkSuitableGenus.apply(ctx);
+
+    final var rtn = checkSuitableGenus.apply(ctx);
     if (rtn.isPresent() && checkIfValidSuper(ctx, rtn.get())) {
       return rtn;
     }
+
     return Optional.empty();
   }
 
   private boolean checkIfValidSuper(final ParserRuleContext ctx, final ISymbol proposedSuper) {
+
     if (proposedSuper instanceof PossibleGenericSymbol possibleGenericSymbol) {
       if (!isOpenForExtension(ctx, possibleGenericSymbol)) {
         return false;
@@ -68,37 +75,43 @@ final class CheckSuitableToExtend extends RuleSupport implements Function<Parser
   }
 
   private boolean isOpenForExtension(final ParserRuleContext ctx, final PossibleGenericSymbol possibleGenericSymbol) {
+
     if (!possibleGenericSymbol.isOpenForExtension()) {
       errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.NOT_OPEN_TO_EXTENSION);
       return false;
     }
+
     return true;
   }
 
   private boolean isParameterisedGenericWithinAGeneric(final ParserRuleContext ctx) {
-    var scope = symbolAndScopeManagement.getTopScope();
+
+    final var scope = symbolAndScopeManagement.getTopScope();
     //So this is being used by a dynamic class of function
     //And it being used within a generic type in some way,
     //we let the generic nature pass.
     if (scope.getScopeType().equals(IScope.ScopeType.DYNAMIC_BLOCK)
         && scope instanceof PossibleGenericSymbol dynamic
         && dynamic.getOuterMostTypeOrFunction().isPresent()) {
-      var outerType = dynamic.getOuterMostTypeOrFunction().get();
+      final var outerType = dynamic.getOuterMostTypeOrFunction().get();
       return (outerType.isTemplateType() || outerType.isTemplateFunction())
           && ctx instanceof EK9Parser.ParameterisedTypeContext;
     }
+
     return false;
   }
 
   private boolean isNotGenericInNature(final ParserRuleContext ctx, final PossibleGenericSymbol possibleGenericSymbol) {
+
     if (possibleGenericSymbol.isGenericInNature()) {
-      var msg = "is a '"
+      final var msg = "is a '"
           + possibleGenericSymbol.getCategory().getDescription()
           + "' that has not been parameterised:";
       errorListener.semanticError(ctx.start, msg,
           ErrorListener.SemanticClassification.INCOMPATIBLE_CATEGORY);
       return false;
     }
+
     return true;
   }
 }

@@ -42,6 +42,7 @@ final class CheckOperator extends RuleSupport
    */
   CheckOperator(final SymbolAndScopeManagement symbolAndScopeManagement,
                 final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.operatorChecks = populateOperatorChecks();
 
@@ -51,13 +52,14 @@ final class CheckOperator extends RuleSupport
     checkTraitMethod = new CheckTraitMethod(errorListener);
     checkInappropriateBody = new CheckInappropriateBody(symbolAndScopeManagement, errorListener);
     checkOverrideAndAbstract = new CheckOverrideAndAbstract(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final MethodSymbol methodSymbol, final EK9Parser.OperatorDeclarationContext ctx) {
 
     //Operator can be defaulted and so compiler will create implementation
-    var defaulted = "TRUE".equals(methodSymbol.getSquirrelledData(DEFAULTED));
+    final var defaulted = "TRUE".equals(methodSymbol.getSquirrelledData(DEFAULTED));
 
     if (!defaulted) {
       operatorChecks.getOrDefault(ctx.operator().getText(), method -> {
@@ -75,11 +77,12 @@ final class CheckOperator extends RuleSupport
     checkIfContextSupportsAbstractMethod.accept(methodSymbol, ctx);
     checkInappropriateBody.accept(methodSymbol, ctx.operationDetails());
     checkOverrideAndAbstract.accept(methodSymbol);
+
   }
 
   private Map<String, Consumer<MethodSymbol>> populateOperatorChecks() {
 
-    Map<String, Consumer<MethodSymbol>> rtn = new HashMap<>();
+    final Map<String, Consumer<MethodSymbol>> rtn = new HashMap<>();
     final Map<String, Consumer<MethodSymbol>> logicalOperatorChecks = Map.of(
         "<", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
         "<=", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
@@ -152,156 +155,202 @@ final class CheckOperator extends RuleSupport
         "++", addNonPureCheck(this::testAcceptNoArgumentsReturnConstructType),
         "--", addNonPureCheck(this::testAcceptNoArgumentsReturnConstructType)
     );
+
     rtn.putAll(mutatorChecks);
+
     return rtn;
   }
 
   private void testMinusOperator(final MethodSymbol methodSymbol) {
+
     if (methodSymbol.getCallParameters().isEmpty()) {
       testAcceptNoArgumentsReturnConstructType(methodSymbol);
     } else {
       testAcceptOneArgumentsReturnAnyType(methodSymbol);
     }
+
   }
 
   private Consumer<MethodSymbol> addPureCheck(final Consumer<MethodSymbol> check) {
+
     return check.andThen(this::testPure);
   }
 
   private Consumer<MethodSymbol> addNonPureCheck(final Consumer<MethodSymbol> check) {
+
     return check.andThen(this::testNotPure);
   }
 
   private void testAcceptNoArgumentsReturnAnyTypeOtherThanSelf(final MethodSymbol methodSymbol) {
+
     testNoArguments(methodSymbol);
-    var returnType = testAnyReturnType(methodSymbol);
+    final var returnType = testAnyReturnType(methodSymbol);
 
     returnType.ifPresent(theType -> {
       if (methodSymbol.getParentScope() instanceof AggregateSymbol parentAggregate) {
-        var errorToken = methodSymbol.getReturningSymbol().getSourceToken();
+        final var errorToken = methodSymbol.getReturningSymbol().getSourceToken();
         testNotSameType(errorToken, parentAggregate, theType);
       }
     });
+
   }
 
   private void testAcceptNoArgumentsReturnAnyType(final MethodSymbol methodSymbol) {
+
     testNoArguments(methodSymbol);
     testAnyReturnType(methodSymbol);
+
   }
 
   private void testAcceptNoArgumentsReturnBoolean(final MethodSymbol methodSymbol) {
+
     testNoArguments(methodSymbol);
     testReturnIsBoolean(methodSymbol);
+
   }
 
   private void testAcceptNoArgumentsReturnInteger(final MethodSymbol methodSymbol) {
+
     testNoArguments(methodSymbol);
     testReturnIsInteger(methodSymbol);
+
   }
 
   private void testAcceptNoArgumentsReturnString(final MethodSymbol methodSymbol) {
+
     testNoArguments(methodSymbol);
     testReturnType(methodSymbol, "String", ErrorListener.SemanticClassification.MUST_RETURN_STRING);
+
   }
 
   private void testAcceptNoArgumentsReturnJson(final MethodSymbol methodSymbol) {
+
     testNoArguments(methodSymbol);
     testReturnType(methodSymbol, "JSON", ErrorListener.SemanticClassification.MUST_RETURN_JSON);
+
   }
 
   private void testAcceptOneArgumentsReturnInteger(final MethodSymbol methodSymbol) {
+
     testSingleArgument(methodSymbol);
     testReturnIsInteger(methodSymbol);
+
   }
 
   private void testAcceptOneArgumentsReturnBoolean(final MethodSymbol methodSymbol) {
+
     testSingleArgument(methodSymbol);
     testReturnIsBoolean(methodSymbol);
+
   }
 
   private void testReturnIsBoolean(final MethodSymbol methodSymbol) {
+
     testReturnType(methodSymbol, "Boolean", ErrorListener.SemanticClassification.MUST_RETURN_BOOLEAN);
+
   }
 
   private void testReturnIsInteger(MethodSymbol methodSymbol) {
+
     testReturnType(methodSymbol, "Integer", ErrorListener.SemanticClassification.MUST_RETURN_INTEGER);
+
   }
 
   private void testAcceptOneArgumentsReturnAnyType(final MethodSymbol methodSymbol) {
+
     testSingleArgument(methodSymbol);
     testAnyReturnType(methodSymbol);
+
   }
 
   private void testAcceptOneArgumentsNoReturn(final MethodSymbol methodSymbol) {
+
     testSingleArgument(methodSymbol);
     testNoReturn(methodSymbol);
+
   }
 
   private void testAcceptNoArgumentsNoReturn(final MethodSymbol methodSymbol) {
+
     testNoArguments(methodSymbol);
     testNoReturn(methodSymbol);
+
   }
 
   private void testNotSameType(final IToken token, final ISymbol s1, final ISymbol s2) {
+
     if (s1.isExactSameType(s2)) {
       errorListener.semanticError(token, OPERATOR_SEMANTICS,
           ErrorListener.SemanticClassification.MUST_NOT_RETURN_SAME_TYPE);
     }
+
   }
 
   private void testPure(final MethodSymbol methodSymbol) {
+
     if (!methodSymbol.isMarkedPure()) {
       errorListener.semanticError(methodSymbol.getSourceToken(), OPERATOR_SEMANTICS,
           ErrorListener.SemanticClassification.OPERATOR_MUST_BE_PURE);
     }
+
   }
 
   private void testNotPure(final MethodSymbol methodSymbol) {
+
     if (methodSymbol.isMarkedPure()) {
       errorListener.semanticError(methodSymbol.getSourceToken(), OPERATOR_SEMANTICS,
           ErrorListener.SemanticClassification.OPERATOR_CANNOT_BE_PURE);
     }
+
   }
 
   private void testAcceptNoArgumentsReturnConstructType(final MethodSymbol methodSymbol) {
+
     testNoArguments(methodSymbol);
-    var parentScope = methodSymbol.getParentScope();
-    var returnType = testAnyReturnType(methodSymbol);
+    final var parentScope = methodSymbol.getParentScope();
+    final var returnType = testAnyReturnType(methodSymbol);
+
     returnType.ifPresent(theType -> {
       if (!theType.isExactSameType((ISymbol) parentScope)) {
-        var parentTypeName = parentScope.getFriendlyScopeName().startsWith("_Class")
+        final var parentTypeName = parentScope.getFriendlyScopeName().startsWith("_Class")
             ? "DYNAMIC CLASS" : parentScope.getFriendlyScopeName();
-        var msg = "'" + theType.getFriendlyName() + "' is not '" + parentTypeName + "':";
+        final var msg = "'" + theType.getFriendlyName() + "' is not '" + parentTypeName + "':";
         errorListener.semanticError(methodSymbol.getSourceToken(), msg,
             ErrorListener.SemanticClassification.MUST_RETURN_SAME_AS_CONSTRUCT_TYPE);
       }
     });
+
   }
 
   private Optional<ISymbol> testAnyReturnType(final MethodSymbol methodSymbol) {
+
     if (!methodSymbol.isReturningSymbolPresent()) {
       errorListener.semanticError(methodSymbol.getSourceToken(), OPERATOR_SEMANTICS,
           ErrorListener.SemanticClassification.RETURNING_MISSING);
       return Optional.empty();
     }
     return methodSymbol.getType();
+
   }
 
   private void testNoReturn(final MethodSymbol methodSymbol) {
+
     if (methodSymbol.isReturningSymbolPresent() && methodSymbol.getReturningSymbol().getType().isPresent()) {
-      var theType = methodSymbol.getReturningSymbol().getType().get();
+      final var theType = methodSymbol.getReturningSymbol().getType().get();
       errorListener.semanticError(methodSymbol.getSourceToken(), "'" + theType.getFriendlyName() + "'",
           ErrorListener.SemanticClassification.RETURN_VALUE_NOT_SUPPORTED);
     }
+
   }
 
   private void testReturnType(final MethodSymbol methodSymbol,
                               final String expectedType,
                               final ErrorListener.SemanticClassification errorIfInvalid) {
+
     var validReturnType = false;
     if (methodSymbol.isReturningSymbolPresent()) {
-      var theType = methodSymbol.resolve(new TypeSymbolSearch(expectedType));
-      var returningType = methodSymbol.getReturningSymbol().getType();
+      final var theType = methodSymbol.resolve(new TypeSymbolSearch(expectedType));
+      final var returningType = methodSymbol.getReturningSymbol().getType();
       if (returningType.isPresent() && theType.isPresent()) {
         validReturnType = returningType.get().isExactSameType(theType.get());
       }
@@ -310,16 +359,20 @@ final class CheckOperator extends RuleSupport
     if (!validReturnType) {
       errorListener.semanticError(methodSymbol.getSourceToken(), OPERATOR_SEMANTICS, errorIfInvalid);
     }
+
   }
 
   private void testNoArguments(final MethodSymbol methodSymbol) {
+
     if (!methodSymbol.getSymbolsForThisScope().isEmpty()) {
       errorListener.semanticError(methodSymbol.getSourceToken(), OPERATOR_SEMANTICS,
           ErrorListener.SemanticClassification.TOO_MANY_ARGUMENTS);
     }
+
   }
 
   private void testSingleArgument(final MethodSymbol methodSymbol) {
+
     if (methodSymbol.getSymbolsForThisScope().isEmpty()) {
       errorListener.semanticError(methodSymbol.getSourceToken(), OPERATOR_SEMANTICS,
           ErrorListener.SemanticClassification.TOO_FEW_ARGUMENTS);
@@ -327,15 +380,20 @@ final class CheckOperator extends RuleSupport
       errorListener.semanticError(methodSymbol.getSourceToken(), OPERATOR_SEMANTICS,
           ErrorListener.SemanticClassification.TOO_MANY_ARGUMENTS);
     }
+
   }
 
   private void emitBadNotEqualsOperator(final MethodSymbol methodSymbol) {
+
     errorListener.semanticError(methodSymbol.getSourceToken(), "alternative:",
         ErrorListener.SemanticClassification.BAD_NOT_EQUAL_OPERATOR);
+
   }
 
   private void emitBadNotOperator(final MethodSymbol methodSymbol) {
+
     errorListener.semanticError(methodSymbol.getSourceToken(), "alternative:",
         ErrorListener.SemanticClassification.BAD_NOT_OPERATOR);
+
   }
 }

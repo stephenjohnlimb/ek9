@@ -33,7 +33,8 @@ final class SetupGenericT implements Consumer<EK9Parser.ParameterisedDetailConte
 
   @Override
   public void accept(final EK9Parser.ParameterisedDetailContext ctx) {
-    var t = symbolAndScopeManagement.getRecordedSymbol(ctx);
+
+    final var t = symbolAndScopeManagement.getRecordedSymbol(ctx);
     if (t instanceof AggregateSymbol aggregateT) {
 
       //So it is not constrained an is just a 'T'
@@ -44,15 +45,17 @@ final class SetupGenericT implements Consumer<EK9Parser.ParameterisedDetailConte
             .ifPresent(constrainingType -> aggregateFactory.updateToConstrainBy(aggregateT, constrainingType));
       }
     }
+
   }
 
   private Optional<IAggregateSymbol> getConstrainingTypeOrError(final EK9Parser.TypeDefContext ctx) {
-    var theConstrainingType = symbolAndScopeManagement.getRecordedSymbol(ctx);
+
+    final var theConstrainingType = symbolAndScopeManagement.getRecordedSymbol(ctx);
 
     if (theConstrainingType == null) {
       errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
     } else if (!supportsBeingConstrainingType.test(theConstrainingType)) {
-      var msg = "'"
+      final var msg = "'"
           + theConstrainingType.getFriendlyName()
           + "' of '" + theConstrainingType.getCategory()
           + "/" + theConstrainingType.getGenus()
