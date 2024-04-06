@@ -26,14 +26,17 @@ public class BackEndSupplier extends PhaseSupplier {
   /**
    * Create a new supplier of back-end compiler phases.
    */
-  public BackEndSupplier(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                         CompilationPhaseListener listener,
-                         CompilerReporter reporter) {
+  public BackEndSupplier(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                         final CompilationPhaseListener listener,
+                         final CompilerReporter reporter) {
+
     super(compilableProgramAccess, listener, reporter);
+
   }
 
   @Override
   public List<BiFunction<Workspace, CompilerFlags, CompilationPhaseResult>> get() {
+
     return List.of(
         new CodeGenerationPreparation(compilableProgramAccess, listener, reporter),
         new CodeGenerationAggregates(compilableProgramAccess, listener, reporter),

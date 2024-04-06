@@ -10,6 +10,7 @@ import org.ek9lang.compiler.common.CompilationEvent;
 public class DirectiveListenerSupplier implements Supplier<Consumer<CompilationEvent>> {
   @Override
   public Consumer<CompilationEvent> get() {
+
     return new ErrorDirectiveListener()
         .andThen(new ResolvedDirectiveListener())
         .andThen(new NotResolvedDirectiveListener())

@@ -13,17 +13,21 @@ import org.ek9lang.compiler.CompilationPhase;
 public class DirectivesCompilationPhase implements Function<EK9Parser.DirectiveContext, CompilationPhase> {
 
   @Override
-  public CompilationPhase apply(EK9Parser.DirectiveContext ctx) {
+  public CompilationPhase apply(final EK9Parser.DirectiveContext ctx) {
+
     try {
       return CompilationPhase.valueOf(ctx.directivePart(0).getText());
     } catch (IllegalArgumentException ex) {
       throw new IllegalArgumentException("Expecting one of: " + applicableCompilationPhases());
     }
+
   }
 
   private List<String> applicableCompilationPhases() {
-    Predicate<CompilationPhase> acceptableValues = compilationPhase
+
+    final Predicate<CompilationPhase> acceptableValues = compilationPhase
         -> CompilationPhase.PARSING != compilationPhase && CompilationPhase.PREPARE_PARSE != compilationPhase;
+
     return Arrays.stream(CompilationPhase.values()).filter(acceptableValues).map(Enum::toString).toList();
   }
 }

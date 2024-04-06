@@ -7,12 +7,18 @@ package org.ek9lang.compiler.directives;
 public class NotResolvedDirective extends ResolutionDirective {
 
 
+  /**
+   * Directive for ensuring a symbol is not resolved.
+   */
   public NotResolvedDirective(final DirectiveSpec spec) {
+
     super(spec);
+
   }
 
   @Override
   public DirectiveType type() {
+
     return DirectiveType.NotResolved;
   }
 }

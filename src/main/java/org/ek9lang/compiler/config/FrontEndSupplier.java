@@ -27,23 +27,24 @@ import org.ek9lang.core.SharedThreadContext;
  * Could be used in lsp, or we could just create another supplier and the appropriate list of phases.
  */
 public class FrontEndSupplier extends PhaseSupplier {
-
-
   private final boolean multiThread;
 
   /**
    * Create a new supplier of front end only compiler phases.
    */
-  public FrontEndSupplier(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                          CompilationPhaseListener listener,
-                          CompilerReporter reporter, boolean multiThread) {
+  public FrontEndSupplier(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                          final CompilationPhaseListener listener,
+                          final CompilerReporter reporter,
+                          final boolean multiThread) {
 
     super(compilableProgramAccess, listener, reporter);
     this.multiThread = multiThread;
+
   }
 
   @Override
   public List<BiFunction<Workspace, CompilerFlags, CompilationPhaseResult>> get() {
+
     return List.of(
         new Parsing(listener, reporter),
         new SymbolDefinition(multiThread, compilableProgramAccess, listener, reporter),

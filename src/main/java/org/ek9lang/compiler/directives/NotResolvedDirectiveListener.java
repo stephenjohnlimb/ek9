@@ -11,9 +11,10 @@ import org.ek9lang.compiler.symbols.ISymbol;
 public class NotResolvedDirectiveListener extends ResolutionDirectiveListener {
   @Override
   public void accept(final CompilationEvent compilationEvent) {
+
     if (compilationEvent.parsedModule() != null) {
       //Only interested in resolved directives for this phase.
-      var directives = compilationEvent
+      final var directives = compilationEvent
           .parsedModule()
           .getDirectives(DirectiveType.NotResolved, compilationEvent.phase());
 
@@ -21,18 +22,25 @@ public class NotResolvedDirectiveListener extends ResolutionDirectiveListener {
         processDirectives(compilationEvent, directives);
       }
     }
+
   }
 
   @Override
-  protected void symbolMatch(final CompilationEvent compilationEvent, ResolutionDirective directive, ISymbol symbol) {
+  protected void symbolMatch(final CompilationEvent compilationEvent,
+                             final ResolutionDirective directive,
+                             final ISymbol symbol) {
 
-    var msg = "Directive '" + directive + "' but found '" + symbol.getFriendlyName() + "':";
+    final var msg = "Directive '" + directive + "' but found '" + symbol.getFriendlyName() + "':";
     compilationEvent.source().getErrorListener().directiveError(directive.getDirectiveToken(), msg,
         ErrorListener.SemanticClassification.DIRECTIVE_SYMBOL_FOUND_UNEXPECTED_SYMBOL);
+
   }
 
   @Override
-  protected void noSymbolMatch(final CompilationEvent compilationEvent, ResolutionDirective directive) {
+  protected void noSymbolMatch(final CompilationEvent compilationEvent,
+                               final ResolutionDirective directive) {
+
     //This is a 'no-op' this listener is expecting not to find no symbol!
+
   }
 }

@@ -10,12 +10,18 @@ package org.ek9lang.compiler.directives;
  */
 public class ImplementsDirective extends ResolutionDirective {
 
+  /**
+   * New directive checker for implements.
+   */
   public ImplementsDirective(final DirectiveSpec spec) {
+
     super(spec);
+
   }
 
   @Override
   public DirectiveType type() {
+
     return DirectiveType.Implements;
   }
 }

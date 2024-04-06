@@ -6,12 +6,18 @@ package org.ek9lang.compiler.directives;
  */
 public class GenusDirective extends ResolutionDirective {
 
+  /**
+   * New directive for genus checking.
+   */
   public GenusDirective(final DirectiveSpec spec) {
+
     super(spec);
+
   }
 
   @Override
   public DirectiveType type() {
+
     return DirectiveType.Genus;
   }
 }

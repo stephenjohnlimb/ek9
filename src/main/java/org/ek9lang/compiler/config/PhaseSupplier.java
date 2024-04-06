@@ -28,9 +28,10 @@ public abstract class PhaseSupplier
   /**
    * Create a new supplier of a full set of compiler phases.
    */
-  protected PhaseSupplier(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                          CompilationPhaseListener listener,
-                          CompilerReporter reporter) {
+  protected PhaseSupplier(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                          final CompilationPhaseListener listener,
+                          final CompilerReporter reporter) {
+
     AssertValue.checkNotNull("CompilableProgramAccess Listener must be provided", compilableProgramAccess);
     AssertValue.checkNotNull("Compilation Listener must be provided", listener);
     AssertValue.checkNotNull("Compilation Reporter must be provided", reporter);
@@ -39,4 +40,5 @@ public abstract class PhaseSupplier
     this.compilableProgramAccess = compilableProgramAccess;
     this.reporter = reporter;
   }
+
 }

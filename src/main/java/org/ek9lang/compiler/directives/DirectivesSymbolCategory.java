@@ -13,7 +13,8 @@ import org.ek9lang.compiler.symbols.ISymbol;
 public class DirectivesSymbolCategory implements Function<EK9Parser.DirectiveContext, ISymbol.SymbolCategory> {
 
   @Override
-  public ISymbol.SymbolCategory apply(EK9Parser.DirectiveContext ctx) {
+  public ISymbol.SymbolCategory apply(final EK9Parser.DirectiveContext ctx) {
+
     try {
       return ISymbol.SymbolCategory.valueOf(ctx.directivePart(1).getText());
     } catch (IllegalArgumentException ex) {
@@ -22,8 +23,10 @@ public class DirectivesSymbolCategory implements Function<EK9Parser.DirectiveCon
   }
 
   private List<String> applicableSymbolCategories() {
-    Predicate<ISymbol.SymbolCategory> acceptableValues = symbolCategory
+
+    final Predicate<ISymbol.SymbolCategory> acceptableValues = symbolCategory
         -> ISymbol.SymbolCategory.METHOD != symbolCategory && ISymbol.SymbolCategory.CONTROL != symbolCategory;
+
     return Arrays.stream(ISymbol.SymbolCategory.values()).filter(acceptableValues).map(Enum::toString).toList();
   }
 }

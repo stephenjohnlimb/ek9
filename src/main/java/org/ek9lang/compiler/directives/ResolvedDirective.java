@@ -6,12 +6,18 @@ package org.ek9lang.compiler.directives;
  */
 public class ResolvedDirective extends ResolutionDirective {
 
+  /**
+   * Constructor of a directive for resolution.
+   */
   public ResolvedDirective(final DirectiveSpec spec) {
+
     super(spec);
+
   }
 
   @Override
   public DirectiveType type() {
+
     return DirectiveType.Resolved;
   }
 }

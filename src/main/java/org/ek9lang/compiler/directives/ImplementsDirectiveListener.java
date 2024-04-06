@@ -15,33 +15,37 @@ public class ImplementsDirectiveListener extends ResolvedDirectiveListener {
 
   @Override
   public void accept(final CompilationEvent compilationEvent) {
+
     if (compilationEvent.parsedModule() != null) {
       //Only interested in extends directives for this phase.
-      var directives =
+      final var directives =
           compilationEvent.parsedModule().getDirectives(DirectiveType.Implements, compilationEvent.phase());
+
       if (!directives.isEmpty()) {
         processDirectives(compilationEvent, directives);
       }
     }
+
   }
 
   @Override
-  protected void symbolMatch(final CompilationEvent compilationEvent, ResolutionDirective resolutionDirective,
-                             ISymbol symbol) {
+  protected void symbolMatch(final CompilationEvent compilationEvent,
+                             final ResolutionDirective resolutionDirective,
+                             final ISymbol symbol) {
 
     //Check the types and the like.
     super.symbolMatch(compilationEvent, resolutionDirective, symbol);
 
-    var errorListener = compilationEvent.source().getErrorListener();
-    var scope = compilationEvent.parsedModule().getModuleScope();
-    TypeDefResolver resolver = new TypeDefResolver(scope);
-
-    var messagePrefix = "Directive '" + resolutionDirective + "', specifically: '";
+    final var errorListener = compilationEvent.source().getErrorListener();
+    final var scope = compilationEvent.parsedModule().getModuleScope();
+    final var resolver = new TypeDefResolver(scope);
+    final var messagePrefix = "Directive '" + resolutionDirective + "', specifically: '";
 
     try {
-      var resolved = resolver.typeDefToSymbol(resolutionDirective.getAdditionalName());
-      resolved.ifPresentOrElse(additionalSymbol -> {
 
+      final var resolved = resolver.typeDefToSymbol(resolutionDirective.getAdditionalName());
+
+      resolved.ifPresentOrElse(additionalSymbol -> {
         if (symbol == additionalSymbol) {
           //Cannot extend self!
           errorListener.directiveError(resolutionDirective.getDirectiveToken(),
@@ -57,24 +61,26 @@ public class ImplementsDirectiveListener extends ResolvedDirectiveListener {
       }, () -> errorListener.directiveError(resolutionDirective.getDirectiveToken(),
           messagePrefix + "'" + resolutionDirective.getAdditionalName() + "'",
           ErrorListener.SemanticClassification.DIRECTIVE_SYMBOL_NOT_RESOLVED));
+
     } catch (IllegalArgumentException exception) {
       //In the case of directives (as a debugging tool) we may get an exception if the developer
       //incorrectly uses @Resolve @NoResolve with generic types
       errorListener.directiveError(resolutionDirective.getDirectiveToken(), exception.getMessage(),
           ErrorListener.SemanticClassification.GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT);
     }
+
   }
 
   private boolean checkHierarchy(final ISymbol theMainSymbol, final ISymbol theSuperSymbol) {
-    boolean implementsInSomeWay = true;
 
     if (theMainSymbol instanceof IAggregateSymbol asAggregate
         && theSuperSymbol instanceof IAggregateSymbol checkSuper) {
-      implementsInSomeWay = asAggregate.isImplementingInSomeWay(checkSuper);
+      return asAggregate.isImplementingInSomeWay(checkSuper);
     } else if (theMainSymbol instanceof FunctionSymbol asFunction
         && theSuperSymbol instanceof FunctionSymbol checkSuper) {
-      implementsInSomeWay = asFunction.isImplementingInSomeWay(checkSuper);
+      return asFunction.isImplementingInSomeWay(checkSuper);
     }
-    return implementsInSomeWay;
+
+    return false;
   }
 }

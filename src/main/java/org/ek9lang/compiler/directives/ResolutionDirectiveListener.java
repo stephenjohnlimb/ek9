@@ -12,24 +12,29 @@ import org.ek9lang.compiler.symbols.ISymbol;
  */
 public abstract class ResolutionDirectiveListener implements CompilationPhaseListener {
 
-  protected abstract void symbolMatch(final CompilationEvent compilationEvent, final ResolutionDirective directive,
+  protected abstract void symbolMatch(final CompilationEvent compilationEvent,
+                                      final ResolutionDirective directive,
                                       final ISymbol symbol);
 
-  protected abstract void noSymbolMatch(final CompilationEvent compilationEvent, final ResolutionDirective directive);
+  protected abstract void noSymbolMatch(final CompilationEvent compilationEvent,
+                                        final ResolutionDirective directive);
 
   /**
    * Process each of the directives and check for resolution or otherwise and call the
    * symbolMatch or noSymbolMatch methods.
    */
-  protected void processDirectives(final CompilationEvent compilationEvent, List<Directive> directives) {
-    var errorListener = compilationEvent.source().getErrorListener();
-    var scope = compilationEvent.parsedModule().getModuleScope();
-    TypeDefResolver resolver = new TypeDefResolver(scope);
+  protected void processDirectives(final CompilationEvent compilationEvent,
+                                   final List<Directive> directives) {
+
+    final var errorListener = compilationEvent.source().getErrorListener();
+    final var scope = compilationEvent.parsedModule().getModuleScope();
+    final var resolver = new TypeDefResolver(scope);
 
     for (var directive : directives) {
-      var resolutionDirective = (ResolutionDirective) directive;
+      final var resolutionDirective = (ResolutionDirective) directive;
+
       try {
-        var resolved = resolutionDirective.isForVariable()
+        final var resolved = resolutionDirective.isForVariable()
             ? scope.resolve(resolutionDirective.getSymbolSearch())
             : resolver.typeDefToSymbol(resolutionDirective.getSymbolName());
 
@@ -42,6 +47,7 @@ public abstract class ResolutionDirectiveListener implements CompilationPhaseLis
         errorListener.directiveError(resolutionDirective.getDirectiveToken(), exception.getMessage(),
             ErrorListener.SemanticClassification.GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT);
       }
+
     }
   }
 }

@@ -20,14 +20,15 @@ import org.ek9lang.core.SharedThreadContext;
  */
 public class MiddleEndSupplier extends PhaseSupplier {
 
-
   /**
    * Create a new supplier of a middle-end set of compiler phases.
    */
-  public MiddleEndSupplier(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                           CompilationPhaseListener listener,
-                           CompilerReporter reporter) {
+  public MiddleEndSupplier(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                           final CompilationPhaseListener listener,
+                           final CompilerReporter reporter) {
+
     super(compilableProgramAccess, listener, reporter);
+
   }
 
   @Override

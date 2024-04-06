@@ -18,39 +18,46 @@ public class ErrorDirectiveListener implements CompilationPhaseListener {
   private final LocationExtractorFromToken locationExtractorFromToken = new LocationExtractorFromToken();
 
   @Override
-  public void accept(CompilationEvent compilationEvent) {
+  public void accept(final CompilationEvent compilationEvent) {
+
     //Will be null until fully parsed.
     if (compilationEvent.parsedModule() != null) {
       //Only interested in error directives for this phase.
-      var directives = compilationEvent.parsedModule().getDirectives(DirectiveType.Error, compilationEvent.phase());
+      final var directives =
+          compilationEvent.parsedModule().getDirectives(DirectiveType.Error, compilationEvent.phase());
       if (!directives.isEmpty()) {
-        var errorListener = compilationEvent.source().getErrorListener();
+        final var errorListener = compilationEvent.source().getErrorListener();
         processDirectives(directives, errorListener);
       }
     }
+
   }
 
   /**
    * Tally up any error directives against the recorded errors.
    */
-  private void processDirectives(List<Directive> directives, final ErrorListener errorListener) {
+  private void processDirectives(final List<Directive> directives,
+                                 final ErrorListener errorListener) {
+
     //Get both in map form based line numbers.
-    var directiveLineNumberLookup = toMap(directives);
-    var errorLineNumberLookup = toMap(errorListener.getErrors());
+    final var directiveLineNumberLookup = toMap(directives);
+    final var errorLineNumberLookup = toMap(errorListener.getErrors());
 
     if (directiveLineNumberLookup.size() != errorLineNumberLookup.size()) {
-      var msg = directiveLineNumberLookup.size() + " directives vs " + errorLineNumberLookup.size() + " errors,";
+      final var msg = directiveLineNumberLookup.size() + " directives vs " + errorLineNumberLookup.size() + " errors,";
       errorListener.directiveError(new Ek9Token("Directives vs Errors"), msg,
           ErrorListener.SemanticClassification.DIRECTIVE_ERROR_MISMATCH);
     }
 
-    var directiveLineNumbers = directiveLineNumberLookup.keySet().stream().sorted().toList();
+    final var directiveLineNumbers = directiveLineNumberLookup.keySet().stream().sorted().toList();
     for (var directiveLineNumber : directiveLineNumbers) {
-      var directive = (ErrorDirective) directiveLineNumberLookup.get(directiveLineNumber);
-      var location = locationExtractorFromToken.apply(directive.getDirectiveToken());
-      var error = errorLineNumberLookup.get(directiveLineNumber);
+
+      final var directive = (ErrorDirective) directiveLineNumberLookup.get(directiveLineNumber);
+      final var location = locationExtractorFromToken.apply(directive.getDirectiveToken());
+      final var error = errorLineNumberLookup.get(directiveLineNumber);
+
       if (error == null) {
-        var msg = "'" + directive.getClassification() + "' : " + location;
+        final var msg = "'" + directive.getClassification() + "' : " + location;
         errorListener.directiveError(directive.getDirectiveToken(), msg,
             ErrorListener.SemanticClassification.ERROR_MISSING);
       } else {
@@ -59,33 +66,37 @@ public class ErrorDirectiveListener implements CompilationPhaseListener {
 
         //Check the type of error against the one expected in the directive
         if (!directive.isForClassification(error.getSemanticClassification())) {
-          var msg = "'" + error.getSemanticClassification() + "' versus '" + directive + "': " + location;
+          final var msg = "'" + error.getSemanticClassification() + "' versus '" + directive + "': " + location;
           errorListener.directiveError(directive.getDirectiveToken(), msg,
               ErrorListener.SemanticClassification.DIRECTIVE_WRONG_CLASSIFICATION);
         }
       }
+
     }
 
     //Now if there are any left in errors - they can't be in the directives because we've just looked.
     var errorLineNumbers = errorLineNumberLookup.keySet().stream().sorted().toList();
 
     for (var errorLineNumber : errorLineNumbers) {
-      var error = errorLineNumberLookup.get(errorLineNumber);
-      var msg = "as line: " + error.getLineNumber() + " has error: '" + error.getSemanticClassification() + "'";
+      final var error = errorLineNumberLookup.get(errorLineNumber);
+      final var msg = "as line: " + error.getLineNumber() + " has error: '" + error.getSemanticClassification() + "'";
       errorListener.directiveError(new Ek9Token("Expecting @Error directive"), msg,
           ErrorListener.SemanticClassification.DIRECTIVE_MISSING);
     }
+
   }
 
   /**
    * Just to make the lookups quicker.
    */
   private Map<Integer, ErrorListener.ErrorDetails> toMap(final Iterator<ErrorListener.ErrorDetails> iterator) {
-    var map = new HashMap<Integer, ErrorListener.ErrorDetails>();
+
+    final var map = new HashMap<Integer, ErrorListener.ErrorDetails>();
     while (iterator.hasNext()) {
-      var error = iterator.next();
+      final var error = iterator.next();
       map.put(error.getLineNumber(), error);
     }
+
     return map;
   }
 
@@ -93,8 +104,10 @@ public class ErrorDirectiveListener implements CompilationPhaseListener {
    * Just to make the lookups quicker.
    */
   private Map<Integer, Directive> toMap(final List<Directive> directives) {
-    var map = new HashMap<Integer, Directive>();
+
+    final var map = new HashMap<Integer, Directive>();
     directives.forEach(directive -> map.put(directive.getAppliesToLineNumber(), directive));
+
     return map;
   }
 }
