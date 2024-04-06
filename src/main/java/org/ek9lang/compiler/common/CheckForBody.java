@@ -9,22 +9,18 @@ import org.ek9lang.antlr.EK9Parser;
  * Other checks will ensure that the return value (if present is set).
  */
 public class CheckForBody implements Predicate<EK9Parser.OperationDetailsContext> {
+
   @Override
   public boolean test(final EK9Parser.OperationDetailsContext ctx) {
+
     if (ctx == null) {
       return false;
     }
 
-    var returningVariableCtxPresent = false;
-    var returningCtxPresent = false;
-    var instructionBlockCtxPresent = false;
-
-    instructionBlockCtxPresent = ctx.instructionBlock() != null;
-    returningCtxPresent = ctx.returningParam() != null;
-    if (returningCtxPresent) {
-      returningVariableCtxPresent = ctx.returningParam().variableDeclaration() != null;
+    if (ctx.instructionBlock() != null) {
+      return true;
     }
 
-    return returningVariableCtxPresent || instructionBlockCtxPresent;
+    return ctx.returningParam() != null && ctx.returningParam().variableDeclaration() != null;
   }
 }

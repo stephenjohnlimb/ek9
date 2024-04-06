@@ -48,12 +48,18 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
   private HashMap<String, ErrorDetails> uniqueErrors = new HashMap<>();
   private List<ErrorDetails> warnings = new ArrayList<>();
 
-  public ErrorListener(String generalIdentifierOfSource) {
+  /**
+   * Create new error listener.
+   */
+  public ErrorListener(final String generalIdentifierOfSource) {
+
     this.generalIdentifierOfSource = generalIdentifierOfSource;
     reset();
+
   }
 
   public String getGeneralIdentifierOfSource() {
+
     return generalIdentifierOfSource;
   }
 
@@ -61,41 +67,51 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
    * Remove all errors and warnings.
    */
   public void reset() {
+
     directiveErrors = new ArrayList<>();
     errors = new ArrayList<>();
     uniqueErrors = new HashMap<>();
     warnings = new ArrayList<>();
+
   }
 
   /**
    * Get the filename (but not full path) of the source file.
    */
   public String getShortNameOfSourceFile(final IToken token) {
+
     AssertValue.checkNotNull("Token cannot be null", token);
+
     return osSupport.getFileNameWithoutPath(token.getSourceName());
   }
 
   public boolean isExceptionOnAmbiguity() {
+
     return exceptionOnAmbiguity;
   }
 
-  public void setExceptionOnAmbiguity(boolean exceptionOnAmbiguity) {
+  public void setExceptionOnAmbiguity(final boolean exceptionOnAmbiguity) {
+
     this.exceptionOnAmbiguity = exceptionOnAmbiguity;
   }
 
   public boolean isExceptionOnContextSensitive() {
+
     return exceptionOnContextSensitive;
   }
 
-  public void setExceptionOnContextSensitive(boolean exceptionOnContextSensitive) {
+  public void setExceptionOnContextSensitive(final boolean exceptionOnContextSensitive) {
+
     this.exceptionOnContextSensitive = exceptionOnContextSensitive;
   }
 
   public boolean isExceptionOnFullContext() {
+
     return exceptionOnFullContext;
   }
 
-  public void setExceptionOnFullContext(boolean exceptionOnFullContext) {
+  public void setExceptionOnFullContext(final boolean exceptionOnFullContext) {
+
     this.exceptionOnFullContext = exceptionOnFullContext;
   }
 
@@ -103,56 +119,98 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
    * Get all Errors. See other methods (yet to come to get specific types of errors/warnings).
    */
   public Iterator<ErrorDetails> getErrors() {
+
     return errors.iterator();
   }
 
   public Iterator<ErrorDetails> getDirectiveErrors() {
+
     return directiveErrors.iterator();
   }
 
   public boolean hasDirectiveErrors() {
+
     return !directiveErrors.isEmpty();
   }
 
   public boolean hasErrors() {
+
     return !isErrorFree();
   }
 
   public boolean isErrorFree() {
+
     return errors.isEmpty();
   }
 
   public Iterator<ErrorDetails> getWarnings() {
+
     return warnings.iterator();
   }
 
   public boolean hasWarnings() {
+
     return !isWarningFree();
   }
 
+  /**
+   * true if has no warnings.
+   */
   public boolean isWarningFree() {
+
     return warnings.isEmpty();
   }
 
-  public void raiseReturningRedundant(IToken token, String msg) {
+  /**
+   * Create new semantic error.
+   */
+  public void raiseReturningRedundant(final IToken token, final String msg) {
+
     semanticError(token, msg, SemanticClassification.RETURNING_REDUNDANT);
+
   }
 
-  public void raiseReturningRequired(IToken token, String msg) {
+  /**
+   * Create new semantic error.
+   */
+  public void raiseReturningRequired(final IToken token, final String msg) {
+
     semanticError(token, msg, SemanticClassification.RETURNING_REQUIRED);
+
   }
 
-  public void semanticError(IToken offendingToken, String msg, SemanticClassification classification,
-                            MatchResults results) {
+  /**
+   * Create new semantic error.
+   */
+  public void semanticError(final IToken offendingToken,
+                            final String msg,
+                            final SemanticClassification classification,
+                            final MatchResults results) {
+
     addErrorDetails(createSemanticError(offendingToken, msg, classification).setFuzzySearchResults(results));
+
   }
 
-  public void semanticError(IToken offendingToken, String msg, SemanticClassification classification) {
+  /**
+   * Create new semantic error.
+   */
+  public void semanticError(final IToken offendingToken,
+                            final String msg,
+                            final SemanticClassification classification) {
+
     addErrorDetails(createSemanticError(offendingToken, msg, classification));
+
   }
 
-  public void semanticError(Token offendingToken, String msg, SemanticClassification classification) {
+  /**
+   * Create new semantic error.
+   */
+  public void semanticError(final Token offendingToken,
+                            final String msg,
+                            final SemanticClassification classification) {
+
     addErrorDetails(createSemanticError(new Ek9Token(offendingToken), msg, classification));
+
   }
 
   /**
@@ -160,44 +218,54 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
    * against an actual compiler error - we can raise this specific type of error to indicate something
    * that the EK9 developer was checking for (via a directive) is in error.
    */
-  public void directiveError(final IToken offendingToken, final String msg,
+  public void directiveError(final IToken offendingToken,
+                             final String msg,
                              final SemanticClassification classification) {
-    String shortFileName = osSupport.getFileNameWithoutPath(offendingToken.getSourceName());
-    int tokenLength = offendingToken.getText().length();
 
-    var error = new ErrorDetails(ErrorClassification.DIRECTIVE_ERROR, offendingToken.getText(), shortFileName,
+    final var shortFileName = osSupport.getFileNameWithoutPath(offendingToken.getSourceName());
+    final var tokenLength = offendingToken.getText().length();
+    final var error = new ErrorDetails(ErrorClassification.DIRECTIVE_ERROR, offendingToken.getText(), shortFileName,
         offendingToken.getLine(), offendingToken.getCharPositionInLine(), tokenLength, msg);
 
     error.setSemanticClassification(classification);
     directiveErrors.add(error);
+
   }
 
   /**
    * Issue a semantic warning.
    */
-  public void semanticWarning(IToken offendingToken, String msg, SemanticClassification classification) {
+  public void semanticWarning(final IToken offendingToken,
+                              final String msg,
+                              final SemanticClassification classification) {
+
     ErrorDetails warning;
     if (offendingToken == null) {
       warning = new ErrorDetails(ErrorClassification.SEMANTIC_WARNING, "Unknown Text", null, 0, 0, 1, msg);
     } else {
-      int tokenLength = offendingToken.getText().length();
+      final var tokenLength = offendingToken.getText().length();
       warning = new ErrorDetails(ErrorClassification.SEMANTIC_WARNING, offendingToken.getText(), null,
           offendingToken.getLine(), offendingToken.getCharPositionInLine(), tokenLength, msg);
     }
     warning.setSemanticClassification(classification);
+
     if (!warnings.contains(warning)) {
       warnings.add(warning);
     }
+
   }
 
-  private ErrorDetails createSemanticError(IToken offendingToken, String msg, SemanticClassification classification) {
+  private ErrorDetails createSemanticError(final IToken offendingToken,
+                                           final String msg,
+                                           final SemanticClassification classification) {
+
     ErrorDetails error;
 
     if (offendingToken == null) {
       error = new ErrorDetails(ErrorClassification.SEMANTIC_ERROR, "Unknown Location", "unknown", 0, 0, 1, msg);
     } else {
-      String shortFileName = osSupport.getFileNameWithoutPath(offendingToken.getSourceName());
-      int tokenLength = offendingToken.getText().length();
+      final var shortFileName = osSupport.getFileNameWithoutPath(offendingToken.getSourceName());
+      final var tokenLength = offendingToken.getText().length();
       error = new ErrorDetails(ErrorClassification.SEMANTIC_ERROR, offendingToken.getText(), shortFileName,
           offendingToken.getLine(), offendingToken.getCharPositionInLine(), tokenLength, msg);
     }
@@ -207,8 +275,13 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
   }
 
   @Override
-  public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine,
-                          String msg, RecognitionException e) {
+  public void syntaxError(final Recognizer<?, ?> recognizer,
+                          final Object offendingSymbol,
+                          final int line,
+                          final int charPositionInLine,
+                          final String msg,
+                          final RecognitionException e) {
+
     ErrorDetails error;
     String reason = "Input not expected";
     if (msg != null) {
@@ -223,17 +296,20 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     }
 
     if (offendingSymbol instanceof IToken offender) {
-      int tokenLength = offender.getText().length();
+      final var tokenLength = offender.getText().length();
       error = new ErrorDetails(ErrorClassification.SYNTAX_ERROR, offender.getText(), null, line, charPositionInLine,
           tokenLength, reason);
     } else {
       error = new ErrorDetails(ErrorClassification.SYNTAX_ERROR, "Unknown", null, line, charPositionInLine, 1, reason);
     }
     addErrorDetails(error);
+
   }
 
-  private void addErrorDetails(ErrorDetails details) {
-    String key = details.toLinePositionReference();
+  private void addErrorDetails(final ErrorDetails details) {
+
+    final var key = details.toLinePositionReference();
+
     if (!uniqueErrors.containsKey(key)) {
       uniqueErrors.put(key, details);
       errors.add(details);
@@ -241,7 +317,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
       //OK so we might have a match but this set of details might have fuzzy search results
       //But if we already have some fuzzy results then stick with those.
       if (details.isHoldingFuzzySearchResults()) {
-        ErrorDetails oldDetails = uniqueErrors.get(key);
+        final var oldDetails = uniqueErrors.get(key);
         if (!oldDetails.isHoldingFuzzySearchResults()) {
           errors.remove(oldDetails);
           uniqueErrors.put(key, details);
@@ -249,6 +325,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
         }
       }
     }
+
   }
 
   /**
@@ -598,31 +675,47 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     private final ErrorClassification classification;
     private transient MatchResults fuzzySearchResults;
 
-    private ErrorDetails(ErrorClassification classification, String likelyOffendingSymbol, String shortFileName,
-                         int lineNumber, int characterNumber, int tokenLength, String typeOfError) {
+    private ErrorDetails(final ErrorClassification classification,
+                         final String likelyOffendingSymbol,
+                         final String shortFileName,
+                         final int lineNumber,
+                         final int characterNumber,
+                         final int tokenLength,
+                         final String typeOfError) {
+
       super(likelyOffendingSymbol, shortFileName, lineNumber, characterNumber, tokenLength, typeOfError);
       this.classification = classification;
+
     }
 
     public ErrorClassification getClassification() {
+
       return classification;
     }
 
     public String getClassificationDescription() {
+
       return classification.description;
     }
 
-    public ErrorDetails setFuzzySearchResults(MatchResults fuzzySearchResults) {
+    /**
+     * Adds any fuzzy match results, these could be the matches the developer was looking for.
+     */
+    public ErrorDetails setFuzzySearchResults(final MatchResults fuzzySearchResults) {
+
       this.fuzzySearchResults = fuzzySearchResults;
+
       return this;
     }
 
     public boolean isHoldingFuzzySearchResults() {
+
       return fuzzySearchResults != null;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
+
       if (this == o) {
         return true;
       }
@@ -636,11 +729,13 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
       if (getClassification() != that.getClassification()) {
         return false;
       }
+
       return Objects.equals(fuzzySearchResults, that.fuzzySearchResults);
     }
 
     @Override
     public int hashCode() {
+
       int result = super.hashCode();
       result = 31 * result + getClassification().hashCode();
       result = 31 * result + (fuzzySearchResults != null ? fuzzySearchResults.hashCode() : 0);
@@ -649,13 +744,14 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
 
     @Override
     public String toString() {
-      StringBuilder buffer = new StringBuilder(super.toString());
+      final var buffer = new StringBuilder(super.toString());
 
       if (fuzzySearchResults != null && fuzzySearchResults.size() > 0) {
         buffer.append(System.lineSeparator());
         buffer.append("Matches found: ");
         buffer.append(fuzzySearchResults.toString());
       }
+
       return buffer.toString();
     }
   }
@@ -686,8 +782,13 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
 
     //Required for deserialization.
 
-    private Details(String likelyOffendingSymbol, String shortFileName, int lineNumber, int characterNumber,
-                    int tokenLength, String typeOfError) {
+    private Details(final String likelyOffendingSymbol,
+                    final String shortFileName,
+                    final int lineNumber,
+                    final int characterNumber,
+                    final int tokenLength,
+                    final String typeOfError) {
+
       this.likelyOffendingSymbol = likelyOffendingSymbol;
       this.typeOfError = typeOfError;
       this.possibleShortFileName = shortFileName;
@@ -701,33 +802,40 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
       } else {
         symbolErrorText = likelyOffendingSymbol + "'";
       }
+
     }
 
     public SemanticClassification getSemanticClassification() {
+
       return semanticClassification;
     }
 
     public void setSemanticClassification(SemanticClassification semanticClassification) {
+
       this.semanticClassification = semanticClassification;
     }
 
     @Override
     public String getTypeOfError() {
+
       return typeOfError;
     }
 
     @Override
     public int getLineNumber() {
+
       return lineNumber;
     }
 
     @Override
     public int getPosition() {
+
       return position;
     }
 
     @Override
     public int getTokenLength() {
+
       return tokenLength;
     }
 
@@ -738,14 +846,17 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
 
     @Override
     public int hashCode() {
+
       return toString().hashCode();
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
+
       if (obj instanceof Details) {
         return this.toString().equals(obj.toString());
       }
+
       return false;
     }
 
@@ -756,17 +867,20 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
      */
     @Override
     public String toLinePositionReference() {
-      StringBuilder buffer = new StringBuilder();
+
+      final var buffer = new StringBuilder();
       if (possibleShortFileName != null) {
         buffer.append(possibleShortFileName);
       }
       buffer.append(":").append(lineNumber);
+
       return buffer.toString();
     }
 
     @Override
     public String toString() {
-      StringBuilder buffer = new StringBuilder();
+
+      final var buffer = new StringBuilder();
 
       buffer.append(getClassificationDescription());
 
@@ -783,6 +897,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
       if (semanticClassification != null) {
         buffer.append(semanticClassification.description);
       }
+
       return buffer.toString();
     }
   }

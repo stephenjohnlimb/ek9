@@ -18,8 +18,10 @@ public abstract class Reporter {
    * @param muteReportedErrors if true then even compiler errors are not reported (typically only useful in tests).
    */
   protected Reporter(final boolean verbose, final boolean muteReportedErrors) {
+
     this.verbose = verbose;
     this.muteReportedErrors = muteReportedErrors;
+
   }
 
   /**
@@ -30,26 +32,32 @@ public abstract class Reporter {
   /**
    * Log a message to stderr if verbose enabled.
    */
-  public void log(Object message) {
+  public void log(final Object message) {
+
     if (verbose) {
       Logger.error(messagePrefix() + message);
     }
+
   }
 
   /**
    * Report a message to stderr.
    */
-  public void report(Object message) {
+  public void report(final Object message) {
+
     if (!muteReportedErrors) {
       Logger.error(messagePrefix() + message);
     }
+
   }
 
   public boolean isVerbose() {
+
     return verbose;
   }
 
   public boolean isMuteReportedErrors() {
+
     return muteReportedErrors;
   }
 }

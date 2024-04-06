@@ -10,13 +10,16 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  * Check trait specifics on methods/operators, Allowing missing body but marking as abstract.
  */
 public class CheckTraitMethod implements BiConsumer<MethodSymbol, EK9Parser.OperationDetailsContext> {
-
   private final CheckForBody checkForBody = new CheckForBody();
-
   private final ErrorListener errorListener;
 
+  /**
+   * Create new checker.
+   */
   public CheckTraitMethod(final ErrorListener errorListener) {
+
     this.errorListener = errorListener;
+
   }
 
   @Override

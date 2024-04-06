@@ -15,21 +15,28 @@ public class CheckInappropriateBody extends RuleSupport implements
 
   private final CheckForBody checkForBody = new CheckForBody();
 
-  public CheckInappropriateBody(
-      SymbolAndScopeManagement symbolAndScopeManagement,
-      ErrorListener errorListener) {
+  /**
+   * Create new checker.
+   */
+  public CheckInappropriateBody(final SymbolAndScopeManagement symbolAndScopeManagement,
+                                final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final MethodSymbol methodSymbol,
                      final EK9Parser.OperationDetailsContext ctx) {
+
     final var hasBody = checkForBody.test(ctx);
-    var defaulted = "TRUE".equals(methodSymbol.getSquirrelledData(DEFAULTED));
-    var isAbstract = methodSymbol.isMarkedAbstract();
+    final var defaulted = "TRUE".equals(methodSymbol.getSquirrelledData(DEFAULTED));
+    final var isAbstract = methodSymbol.isMarkedAbstract();
+
     if (hasBody && (defaulted || isAbstract)) {
       errorListener.semanticError(methodSymbol.getSourceToken(), "",
           ErrorListener.SemanticClassification.ABSTRACT_BUT_BODY_PROVIDED);
     }
+
   }
 }

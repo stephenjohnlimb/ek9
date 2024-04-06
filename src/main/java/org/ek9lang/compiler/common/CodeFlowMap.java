@@ -28,18 +28,15 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * It may even be extendable to assess if conditionals are always true/false and for assessing cyclo metric complexity.
  */
 class CodeFlowMap implements CodeFlowAnalyzer {
-
   private final Map<IScope, Map<ISymbol, SymbolAccess>> accessMap = new HashMap<>();
-
   private final Predicate<ISymbol> isVariableToBeChecked;
-
   private final Predicate<SymbolAccess> meetsCriteria;
-
   private final Consumer<SymbolAccess> markAsMeetingCriteria;
 
   protected CodeFlowMap(final Predicate<ISymbol> isVariableToBeChecked,
                         final Predicate<SymbolAccess> meetsCriteria,
                         final Consumer<SymbolAccess> markAsMeetingCriteria) {
+
     this.isVariableToBeChecked = isVariableToBeChecked;
     this.meetsCriteria = meetsCriteria;
     this.markAsMeetingCriteria = markAsMeetingCriteria;
@@ -50,9 +47,10 @@ class CodeFlowMap implements CodeFlowAnalyzer {
    * Just provide a list of variables that have not been marked as meeting acceptable criteria in the scope.
    */
   @Override
-  public List<ISymbol> getSymbolsNotMeetingAcceptableCriteria(IScope inScope) {
+  public List<ISymbol> getSymbolsNotMeetingAcceptableCriteria(final IScope inScope) {
 
-    var access = accessMap.getOrDefault(inScope, new HashMap<>());
+    final var access = accessMap.getOrDefault(inScope, new HashMap<>());
+
     return access.keySet().stream()
         .filter(variable -> !meetsCriteria.test(access.get(variable)))
         .toList();
@@ -63,11 +61,13 @@ class CodeFlowMap implements CodeFlowAnalyzer {
    */
   @Override
   public boolean doesSymbolMeetAcceptableCriteria(final ISymbol identifierSymbol, final IScope inScope) {
+
     if (isVariableToBeChecked.test(identifierSymbol)) {
       ensureEnclosingScopeHasVariable(identifierSymbol, inScope);
-      var symbolAccess = getSymbolAccessForVariable(identifierSymbol, inScope);
+      final var symbolAccess = getSymbolAccessForVariable(identifierSymbol, inScope);
       return meetsCriteria.test(symbolAccess);
     }
+
     //IF it not even to be tested then it is ok
     return true;
   }
@@ -93,7 +93,7 @@ class CodeFlowMap implements CodeFlowAnalyzer {
 
     if (isVariableToBeChecked.test(identifierSymbol)) {
       ensureEnclosingScopeHasVariable(identifierSymbol, inScope);
-      var access = getOrCreateSymbolAccess(identifierSymbol, inScope);
+      final var access = getOrCreateSymbolAccess(identifierSymbol, inScope);
       markAsMeetingCriteria.accept(access.get(identifierSymbol));
     }
 
@@ -101,17 +101,22 @@ class CodeFlowMap implements CodeFlowAnalyzer {
 
   private void ensureEnclosingScopeHasVariable(final ISymbol identifierSymbol,
                                                final IScope fromScope) {
-    var enclosingScope = fromScope.getEnclosingScope();
+
+    final var enclosingScope = fromScope.getEnclosingScope();
+
     if (enclosingScope == null) {
       return;
     }
+
     if (accessMap.containsKey(enclosingScope) && accessMap.get(enclosingScope).containsKey(identifierSymbol)) {
       return;
     }
+
     //Need to ensure that the variable is actually available in this scope before adding to the map.
     if (enclosingScope.resolve(new SymbolSearch(identifierSymbol.getName())).isEmpty()) {
       return;
     }
+
     getSymbolAccessForVariable(identifierSymbol, enclosingScope);
   }
 
@@ -130,13 +135,14 @@ class CodeFlowMap implements CodeFlowAnalyzer {
       return accessMap.get(fromScope).get(identifierSymbol);
     }
 
-    var enclosingScope = fromScope.getEnclosingScope();
+    final var enclosingScope = fromScope.getEnclosingScope();
+
     if (enclosingScope == null) {
       return new SymbolAccess(new HashSet<>());
     }
 
     //Recursive call to get same but from enclosing scope.
-    var toReturn = getSymbolAccessForVariable(identifierSymbol, enclosingScope);
+    final var toReturn = getSymbolAccessForVariable(identifierSymbol, enclosingScope);
 
     //Now as this was not present for the 'fromScope' we need to add it in and populate with the values from toReturn
     //In this way we always ensure that whatever the scope path (even when variables were not accessed in intermediate
@@ -144,10 +150,10 @@ class CodeFlowMap implements CodeFlowAnalyzer {
 
     //So we have to make the entry if not present for scope or variable and then copy of the values from the
     //enclosing scope - this scope may then mutate them or add to them - but we don't want to affect the enclosing scope
-    var map = getOrCreateSymbolAccess(identifierSymbol, fromScope);
+    final var map = getOrCreateSymbolAccess(identifierSymbol, fromScope);
     map.get(identifierSymbol).metaData().addAll(toReturn.metaData());
-    return toReturn;
 
+    return toReturn;
   }
 
   /**
@@ -156,14 +162,13 @@ class CodeFlowMap implements CodeFlowAnalyzer {
   private Map<ISymbol, SymbolAccess> getOrCreateSymbolAccess(final ISymbol identifierSymbol,
                                                              final IScope inScope) {
 
-    var access = accessMap.getOrDefault(inScope, new HashMap<>());
-    var identifierEntry = access.getOrDefault(identifierSymbol, new SymbolAccess(new HashSet<>()));
+    final var access = accessMap.getOrDefault(inScope, new HashMap<>());
+    final var identifierEntry = access.getOrDefault(identifierSymbol, new SymbolAccess(new HashSet<>()));
 
     //Put either way even if present.
     access.put(identifierSymbol, identifierEntry);
-
     accessMap.put(inScope, access);
-    return access;
 
+    return access;
   }
 }

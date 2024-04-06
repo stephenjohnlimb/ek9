@@ -1,10 +1,6 @@
 package org.ek9lang.compiler.common;
 
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.ek9lang.compiler.common.AggregateHasPureConstruction;
-import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -26,7 +22,7 @@ public class TypedSymbolAccess extends RuleSupport {
    * Constructor to provided typed access.
    */
   protected TypedSymbolAccess(final SymbolAndScopeManagement symbolAndScopeManagement,
-                    final ErrorListener errorListener) {
+                              final ErrorListener errorListener) {
 
     super(symbolAndScopeManagement, errorListener);
 
@@ -41,9 +37,10 @@ public class TypedSymbolAccess extends RuleSupport {
   protected boolean isProcessingScopePure() {
 
     final var scope = symbolAndScopeManagement.traverseBackUpStackToMethodOrFunction();
+
     if (scope.isEmpty()) {
       //Now this could be inside an aggregate where properties are declared.
-      var possibleAggregate = symbolAndScopeManagement.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
+      final var possibleAggregate = symbolAndScopeManagement.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
 
       //So get the enclosing scope, check and cast to IAggregate and check if it has pure construction
       //If so then we deem this scope to also be pure.

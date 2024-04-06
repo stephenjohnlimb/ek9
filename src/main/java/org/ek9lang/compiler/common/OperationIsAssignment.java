@@ -9,7 +9,8 @@ import org.ek9lang.compiler.tokenizer.IToken;
  */
 public class OperationIsAssignment implements Predicate<IToken> {
   @Override
-  public boolean test(IToken op) {
+  public boolean test(final IToken op) {
+
     return op.getType() == EK9Parser.ASSIGN
         || op.getType() == EK9Parser.ASSIGN2
         || op.getType() == EK9Parser.COLON

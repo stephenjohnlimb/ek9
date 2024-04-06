@@ -22,21 +22,23 @@ import org.ek9lang.core.AssertValue;
  * to the scope itself - not any other bit of code.
  */
 public class ScopeStack {
-
   private final Deque<IScope> actualStack = new ArrayDeque<>();
 
-  public ScopeStack(IScope base) {
+  public ScopeStack(final IScope base) {
+
     push(base);
   }
 
   public IScope getVeryBaseScope() {
+
     return actualStack.getFirst();
   }
 
   /**
    * Push a scope on to this stack.
    */
-  public IScope push(IScope scope) {
+  public IScope push(final IScope scope) {
+
     AssertValue.checkNotNull("Scope Cannot be null", scope);
     actualStack.push(scope);
 
@@ -47,6 +49,7 @@ public class ScopeStack {
    * Take a look at the top of the stack.
    */
   public IScope peek() {
+
     return actualStack.peekFirst();
   }
 
@@ -54,6 +57,7 @@ public class ScopeStack {
    * Pop a scope of the stack (exception is empty.
    */
   public IScope pop() {
+
     AssertValue.checkTrue("ScopeStack cannot be empty for pop", !actualStack.isEmpty());
     return actualStack.pop();
   }
@@ -62,6 +66,7 @@ public class ScopeStack {
    * True if stack has no contents.
    */
   public boolean isEmpty() {
+
     return actualStack.isEmpty();
   }
 
@@ -71,11 +76,13 @@ public class ScopeStack {
    * scope they are in. They get pulled out to module level (by design).
    */
   public Optional<IScope> traverseBackUpStack(final IScope.ScopeType scopeType) {
+
     for (IScope scopeForConsideration : actualStack) {
       if (scopeForConsideration.getScopeType().equals(scopeType)) {
         return Optional.of(scopeForConsideration);
       }
     }
+
     return Optional.empty();
   }
 
@@ -83,6 +90,7 @@ public class ScopeStack {
    * Locates the outer function or method (if possible, not always possible Applications for example).
    */
   public Optional<IScopedSymbol> traverseBackUpStackToMethodOrFunction() {
+
     for (IScope scopeForConsideration : actualStack) {
       if (scopeForConsideration instanceof MethodSymbol methodSymbol) {
         return Optional.of(methodSymbol);
@@ -102,11 +110,13 @@ public class ScopeStack {
    * @return The Optional method located.
    */
   public Optional<MethodSymbol> traverseBackUpStackToEnclosingMethod() {
+
     for (IScope scopeForConsideration : actualStack) {
       if (scopeForConsideration instanceof MethodSymbol methodSymbol) {
         return Optional.of(methodSymbol);
       }
     }
+
     return Optional.empty();
   }
 }

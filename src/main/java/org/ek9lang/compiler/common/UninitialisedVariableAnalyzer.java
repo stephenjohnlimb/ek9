@@ -8,8 +8,10 @@ public class UninitialisedVariableAnalyzer extends CodeFlowMap {
   private static final String INITIALISED = "INITIALISED";
 
   protected UninitialisedVariableAnalyzer() {
+
     super(new UninitialisedVariableToBeChecked(),
         access -> access.metaData().contains(INITIALISED),
         access -> access.metaData().add(INITIALISED));
+
   }
 }

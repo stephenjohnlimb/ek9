@@ -6,12 +6,19 @@ package org.ek9lang.compiler.common;
  * be from the compiler itself.
  */
 public class CompilerReporter extends Reporter {
+
+  /**
+   * Create new reporter.
+   */
   public CompilerReporter(final boolean verbose, final boolean muteReportedErrors) {
+
     super(verbose, muteReportedErrors);
+
   }
 
   @Override
   protected String messagePrefix() {
+
     return "EK9Comp : ";
   }
 }

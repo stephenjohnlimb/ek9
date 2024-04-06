@@ -52,7 +52,8 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
   /**
    * This is the key to lexing and parsing the source file mainly just for package information.
    */
-  public void visit(EK9Parser.CompilationUnitContext context, ErrorListener errorListener) {
+  public void visit(final EK9Parser.CompilationUnitContext context, final ErrorListener errorListener) {
+
     //The setup
     initialiseTransientProperties();
     setErrorListener(errorListener);
@@ -78,9 +79,11 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
         excludeFiles,
         programs,
         getDependencyFingerPrint()));
+
   }
 
   private void initialiseTransientProperties() {
+
     packagePresent = false;
     foundVersion = false;
     foundDescription = false;
@@ -103,32 +106,39 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
 
     //Reset the results.
     packageDetails = Optional.empty();
+
   }
 
   public Optional<PackageDetails> getPackageDetails() {
+
     return packageDetails;
   }
 
   @Override
-  public Void visitModuleDeclaration(ModuleDeclarationContext ctx) {
+  public Void visitModuleDeclaration(final ModuleDeclarationContext ctx) {
+
     moduleName = ctx.dottedName().getText();
+
     return super.visitModuleDeclaration(ctx);
   }
 
   @Override
-  public Void visitProgramBlock(ProgramBlockContext ctx) {
+  public Void visitProgramBlock(final ProgramBlockContext ctx) {
+
     ctx.methodDeclaration().forEach(
         methodDeclaration -> programs.add(methodDeclaration.identifier().getText().trim()));
+
     return super.visitProgramBlock(ctx);
   }
 
   @Override
-  public Void visitPackageBlock(EK9Parser.PackageBlockContext ctx) {
+  public Void visitPackageBlock(final EK9Parser.PackageBlockContext ctx) {
+
     packagePresent = true;
     foundVersion = false;
     foundDescription = false;
 
-    var assignments = getAssignmentProcessors();
+    final var assignments = getAssignmentProcessors();
     //need to manually traverse down, so we only get version in this context
     ctx.variableDeclaration().forEach(
         vd -> assignments.getOrDefault(vd.identifier().getText(), this::processUnknownProperty)
@@ -139,6 +149,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
           "Package: property 'description' is mandatory if a package is declared.",
           SemanticClassification.NOT_RESOLVED);
     }
+
     return super.visitPackageBlock(ctx);
   }
 
@@ -151,17 +162,22 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
    * @return The fingerprint of the dependencies.
    */
   private String getDependencyFingerPrint() {
-    String all = deps.toString() + devDeps.toString() + excludeDeps.toString();
+
+    final var all = deps.toString() + devDeps.toString() + excludeDeps.toString();
+
     return Digest.digest(all).toString();
   }
 
-  private void setErrorListener(ErrorListener errorListener) {
+  private void setErrorListener(final ErrorListener errorListener) {
+
     this.errorListener = errorListener;
   }
 
   private Map<String, Consumer<EK9Parser.AssignmentExpressionContext>> getAssignmentProcessors() {
+
     //Need to do this in two phases because there is no method signature in Map.of for all values.
-    HashMap<String, Consumer<EK9Parser.AssignmentExpressionContext>> rtn = new HashMap<>();
+    final HashMap<String, Consumer<EK9Parser.AssignmentExpressionContext>> rtn = new HashMap<>();
+
     rtn.putAll(Map.of(
         "publicAccess", this::processPublicAccess,
         "version", this::processVersion,
@@ -173,6 +189,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
         "excludeDeps", this::processExcludeDeps,
         "applyStandardIncludes", this::processApplyStandardIncludes
     ));
+
     rtn.putAll(Map.of(
         "includeFiles", this::processIncludeFiles,
         "applyStandardExcludes", this::processApplyStandardExcludes,
@@ -182,14 +199,17 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
     return rtn;
   }
 
-  private void processUnknownProperty(EK9Parser.AssignmentExpressionContext ive) {
-    String identifier = getTextFromRuleContext(ive.parent);
+  private void processUnknownProperty(final EK9Parser.AssignmentExpressionContext ive) {
+
+    final var identifier = getTextFromRuleContext(ive.parent);
     errorListener.semanticError(ive.expression().start,
         "Package: unusable '" + identifier + "' property.",
         SemanticClassification.PARAMETER_MISMATCH);
+
   }
 
-  private void processPublicAccess(EK9Parser.AssignmentExpressionContext ive) {
+  private void processPublicAccess(final EK9Parser.AssignmentExpressionContext ive) {
+
     if (ive.expression() != null && ive.expression().primary() != null) {
       publicAccess = Boolean.parseBoolean(getTextFromRuleContext(ive.expression()));
     } else {
@@ -199,13 +219,14 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
     }
   }
 
-  private void processVersion(EK9Parser.AssignmentExpressionContext ive) {
+  private void processVersion(final EK9Parser.AssignmentExpressionContext ive) {
+
     if (foundVersion) {
       errorListener.semanticError(ive.expression().start,
           "In '" + moduleName + "' package: 'version'.", SemanticClassification.DUPLICATE_VARIABLE);
     }
     if (ive.expression() != null && ive.expression().primary() != null) {
-      this.version = getTextFromRuleContext(ive.expression());
+      version = getTextFromRuleContext(ive.expression());
       versionNumberOnLine = ive.expression().getStart().getLine();
       foundVersion = true;
     } else {
@@ -213,9 +234,11 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
           "In '" + moduleName + "' package: 'version' property must be a VersionNumber type.",
           SemanticClassification.PARAMETER_MISMATCH);
     }
+
   }
 
-  private void processDescription(EK9Parser.AssignmentExpressionContext ive) {
+  private void processDescription(final EK9Parser.AssignmentExpressionContext ive) {
+
     if (ive.expression() != null && ive.expression().primary() != null) {
       description = getTextFromRuleContext(ive.expression()).replace("\"", "");
       foundDescription = true;
@@ -224,9 +247,11 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
           "In '" + moduleName + "' package: 'description' property must be a String type.",
           SemanticClassification.PARAMETER_MISMATCH);
     }
+
   }
 
-  private void processLicense(EK9Parser.AssignmentExpressionContext ive) {
+  private void processLicense(final EK9Parser.AssignmentExpressionContext ive) {
+
     if (ive.expression() != null && ive.expression().primary() != null) {
       license = getTextFromRuleContext(ive.expression()).replace("\"", "");
     } else {
@@ -234,9 +259,11 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
           "In '" + moduleName + "' package: 'license' property must be a String type.",
           SemanticClassification.PARAMETER_MISMATCH);
     }
+
   }
 
-  private void processExcludeFiles(EK9Parser.AssignmentExpressionContext ive) {
+  private void processExcludeFiles(final EK9Parser.AssignmentExpressionContext ive) {
+
     //We cannot assume this because user might have not used correct type
     if (ive.expression() != null && ive.expression().list() != null) {
       excludeFiles = extractListFromArray(ive.expression().list());
@@ -245,9 +272,11 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
           "In " + moduleName + " package: 'excludeFiles' property must be List of String.",
           SemanticClassification.PARAMETER_MISMATCH);
     }
+
   }
 
-  private void processApplyStandardExcludes(EK9Parser.AssignmentExpressionContext ive) {
+  private void processApplyStandardExcludes(final EK9Parser.AssignmentExpressionContext ive) {
+
     if (ive.expression() != null && ive.expression().primary() != null) {
       applyStandardExcludes = Boolean.parseBoolean(getTextFromRuleContext(ive.expression()));
     } else {
@@ -255,9 +284,11 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
           "In " + moduleName + " package: 'applyStandardExcludes' property must be a Boolean.",
           SemanticClassification.PARAMETER_MISMATCH);
     }
+
   }
 
-  private void processIncludeFiles(EK9Parser.AssignmentExpressionContext ive) {
+  private void processIncludeFiles(final EK9Parser.AssignmentExpressionContext ive) {
+
     //We cannot assume this because user might have not used correct type
     if (ive.expression() != null && ive.expression().list() != null) {
       includeFiles = extractListFromArray(ive.expression().list());
@@ -266,9 +297,11 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
           "In " + moduleName + " package: 'includeFiles' property must be List of String.",
           SemanticClassification.PARAMETER_MISMATCH);
     }
+
   }
 
-  private void processApplyStandardIncludes(EK9Parser.AssignmentExpressionContext ive) {
+  private void processApplyStandardIncludes(final EK9Parser.AssignmentExpressionContext ive) {
+
     if (ive.expression() != null && ive.expression().primary() != null) {
       applyStandardIncludes = Boolean.parseBoolean(getTextFromRuleContext(ive.expression()));
     } else {
@@ -276,9 +309,11 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
           "In " + moduleName + " package: 'applyStandardIncludes' property must be a Boolean.",
           SemanticClassification.PARAMETER_MISMATCH);
     }
+
   }
 
-  private void processExcludeDeps(EK9Parser.AssignmentExpressionContext ive) {
+  private void processExcludeDeps(final EK9Parser.AssignmentExpressionContext ive) {
+
     //We cannot assume this because user might have not used correct type
     if (ive.expression() != null && ive.expression().dict() != null) {
       excludeDeps = extractMapFromDict(ive.expression().dict());
@@ -287,9 +322,11 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
           "In " + moduleName + " package: 'excludeDeps' property must be Dict of (String, String).",
           SemanticClassification.PARAMETER_MISMATCH);
     }
+
   }
 
-  private void processDevDeps(EK9Parser.AssignmentExpressionContext ive) {
+  private void processDevDeps(final EK9Parser.AssignmentExpressionContext ive) {
+
     //We cannot assume this because user might have not used correct type
     if (ive.expression() != null && ive.expression().dict() != null) {
       devDeps = extractMapFromDict(ive.expression().dict());
@@ -298,9 +335,11 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
           "In " + moduleName + " package: 'devDeps' property must be Dict of (String, String).",
           SemanticClassification.PARAMETER_MISMATCH);
     }
+
   }
 
-  private void processDeps(EK9Parser.AssignmentExpressionContext ive) {
+  private void processDeps(final EK9Parser.AssignmentExpressionContext ive) {
+
     //We cannot assume this because user might have not used correct type
     if (ive.expression() != null && ive.expression().dict() != null) {
       deps = extractMapFromDict(ive.expression().dict());
@@ -309,9 +348,11 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
           "In '" + moduleName + "' package: 'deps' property must be Dict of (String, String).",
           SemanticClassification.PARAMETER_MISMATCH);
     }
+
   }
 
-  private void processTags(EK9Parser.AssignmentExpressionContext ive) {
+  private void processTags(final EK9Parser.AssignmentExpressionContext ive) {
+
     //We cannot assume this because user might have not used correct type
     if (ive.expression() != null && ive.expression().list() != null) {
       tags = extractListFromArray(ive.expression().list());
@@ -320,9 +361,11 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
           "In '" + moduleName + "' package: 'tags' property must be a List of String type.",
           SemanticClassification.PARAMETER_MISMATCH);
     }
+
   }
 
-  private List<String> extractListFromArray(EK9Parser.ListContext ctx) {
+  private List<String> extractListFromArray(final EK9Parser.ListContext ctx) {
+
     return ctx
         .expression()
         .stream()
@@ -331,7 +374,8 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
         .toList();
   }
 
-  private Map<String, String> extractMapFromDict(EK9Parser.DictContext ctx) {
+  private Map<String, String> extractMapFromDict(final EK9Parser.DictContext ctx) {
+
     //A bit of a contortion to use a stream here with Collectors.toMap
     return ctx
         .initValuePair()
@@ -344,11 +388,13 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
         ));
   }
 
-  private String getUnQuotedTextFromRuleContext(RuleContext ctx) {
+  private String getUnQuotedTextFromRuleContext(final RuleContext ctx) {
+
     return ctx.getText().trim().replace("\"", "");
   }
 
-  private String getTextFromRuleContext(RuleContext ctx) {
+  private String getTextFromRuleContext(final RuleContext ctx) {
+
     return ctx.getText().trim();
   }
 }

@@ -18,11 +18,15 @@ import org.ek9lang.compiler.symbols.ISymbol;
  */
 public class TypeDefResolver extends EK9BaseVisitor<SymbolSearchConfiguration> {
   private final GeneralTypeResolver generalTypeResolver;
-
   private final PartialEk9StringToTypeDef partialEk9StringToTypeDef = new PartialEk9StringToTypeDef();
 
+  /**
+   * Create new resolver.
+   */
   public TypeDefResolver(final IScope scopeForResolution) {
+
     this.generalTypeResolver = new GeneralTypeResolver(scopeForResolution);
+
   }
 
   /**
@@ -30,12 +34,13 @@ public class TypeDefResolver extends EK9BaseVisitor<SymbolSearchConfiguration> {
    */
   public Optional<ISymbol> typeDefToSymbol(final String typeDefinition) {
 
-    Optional<ISymbol> rtn = Optional.empty();
-    var context = partialEk9StringToTypeDef.apply(typeDefinition);
+    final var context = partialEk9StringToTypeDef.apply(typeDefinition);
+
     if (context != null && (context.identifierReference() != null || context.parameterisedType() != null)) {
-      rtn = generalTypeResolver.apply(visit(context));
+      return generalTypeResolver.apply(visit(context));
     }
-    return rtn;
+
+    return Optional.empty();
   }
 
   /**
@@ -43,44 +48,53 @@ public class TypeDefResolver extends EK9BaseVisitor<SymbolSearchConfiguration> {
    * that is based on the structure in the ek9 parse tree from typeDef.
    */
   @Override
-  public SymbolSearchConfiguration visitTypeDef(EK9Parser.TypeDefContext ctx) {
+  public SymbolSearchConfiguration visitTypeDef(final EK9Parser.TypeDefContext ctx) {
+
     return byTypeDef(ctx);
   }
 
-  private SymbolSearchConfiguration byTypeDef(EK9Parser.TypeDefContext ctx) {
+  private SymbolSearchConfiguration byTypeDef(final EK9Parser.TypeDefContext ctx) {
+
     if (ctx.identifierReference() != null) {
       return byIdentifierReference(ctx.identifierReference());
     } else {
       return byParameterizedType(ctx.parameterisedType());
     }
+
   }
 
-  private SymbolSearchConfiguration byIdentifierReference(EK9Parser.IdentifierReferenceContext ctx) {
-    var identifierReferenceName = ctx.getText();
+  private SymbolSearchConfiguration byIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
+
+    final var identifierReferenceName = ctx.getText();
+
     return new SymbolSearchConfiguration(identifierReferenceName);
   }
 
-  private SymbolSearchConfiguration byParameterizedType(EK9Parser.ParameterisedTypeContext ctx) {
-    var genericTypeName = ctx.identifierReference().getText();
+  private SymbolSearchConfiguration byParameterizedType(final EK9Parser.ParameterisedTypeContext ctx) {
+
+    final var genericTypeName = ctx.identifierReference().getText();
+
     return byParameterizingDetails(genericTypeName, ctx);
   }
 
   private SymbolSearchConfiguration byParameterizingDetails(final String genericTypeName,
                                                             final EK9Parser.ParameterisedTypeContext ctx) {
+
     //So trigger the recursive call back to the top most method.
     //This is just a single parameterizing parameter.
     if (ctx.typeDef() != null) {
-      var parameterizingName = byTypeDef(ctx.typeDef());
+      final var parameterizingName = byTypeDef(ctx.typeDef());
       return new SymbolSearchConfiguration(genericTypeName, List.of(parameterizingName));
     } else {
       //This is for multiple parameterizing parameters.
       //Multiple type defs - so we need to try and get them all and hold in a list.
-      var genericParameterizingNames = new ArrayList<SymbolSearchConfiguration>();
+      final var genericParameterizingNames = new ArrayList<SymbolSearchConfiguration>();
       for (var typeDefCtx : ctx.parameterisedArgs().typeDef()) {
         //Multiple recursive calls back around the loop.
-        var parameterizingName = byTypeDef(typeDefCtx);
+        final var parameterizingName = byTypeDef(typeDefCtx);
         genericParameterizingNames.add(parameterizingName);
       }
+
       return new SymbolSearchConfiguration(genericTypeName, genericParameterizingNames);
     }
   }

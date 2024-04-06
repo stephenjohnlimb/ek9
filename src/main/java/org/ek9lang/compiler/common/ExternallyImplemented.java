@@ -11,7 +11,8 @@ import org.ek9lang.compiler.symbols.ISymbol;
  */
 public class ExternallyImplemented implements Predicate<ISymbol> {
   @Override
-  public boolean test(ISymbol symbol) {
+  public boolean test(final ISymbol symbol) {
+
     return "TRUE".equals(symbol.getSquirrelledData(EXTERN));
   }
 }

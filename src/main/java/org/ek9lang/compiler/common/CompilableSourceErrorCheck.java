@@ -15,6 +15,7 @@ public class CompilableSourceErrorCheck implements Predicate<Collection<Compilab
   }
 
   private boolean hasErrors(final Collection<CompilableSource> compilableSources) {
+
     return compilableSources.stream()
         .anyMatch(source -> source.getErrorListener().hasErrors() || source.getErrorListener().hasDirectiveErrors());
   }

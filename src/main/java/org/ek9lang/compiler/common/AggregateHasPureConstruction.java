@@ -8,8 +8,10 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  * Test to see if an aggregate mandated pure in its construction.
  */
 public class AggregateHasPureConstruction implements Predicate<IAggregateSymbol> {
+
   @Override
-  public boolean test(IAggregateSymbol aggregateSymbol) {
+  public boolean test(final IAggregateSymbol aggregateSymbol) {
+
     return aggregateSymbol.getAllNonAbstractMethodsInThisScopeOnly()
         .stream()
         .filter(MethodSymbol::isConstructor)

@@ -13,7 +13,8 @@ import org.ek9lang.compiler.symbols.VariableSymbol;
  */
 public final class UninitialisedVariableToBeChecked implements Predicate<ISymbol> {
   @Override
-  public boolean test(ISymbol symbol) {
+  public boolean test(final ISymbol symbol) {
+
     return ("TRUE".equals(symbol.getSquirrelledData(UNINITIALISED_AT_DECLARATION))
         && !"TRUE".equals(symbol.getSquirrelledData(EXTERN))
         && symbol instanceof VariableSymbol && !symbol.isPropertyField());
