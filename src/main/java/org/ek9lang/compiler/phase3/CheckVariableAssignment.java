@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
@@ -31,10 +32,12 @@ final class CheckVariableAssignment extends TypedSymbolAccess
    */
   CheckVariableAssignment(final SymbolAndScopeManagement symbolAndScopeManagement,
                           final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.checkTypesCompatible = new CheckTypesCompatible(symbolAndScopeManagement, errorListener);
     this.checkAssignment = new CheckAssignment(symbolAndScopeManagement, errorListener, true);
     this.checkPossibleDelegate = new CheckPossibleDelegate(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
@@ -43,11 +46,11 @@ final class CheckVariableAssignment extends TypedSymbolAccess
     //Note that we use the untyped check to access the symbols
     //This is because for assignments we can use explicit or inferred type (see grammar).
 
-    var varSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var varSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Expecting a variable symbol to be present Line: "
         + ctx.start.getLine(), varSymbol);
 
-    var exprSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx.assignmentExpression());
+    final var exprSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx.assignmentExpression());
     //Eventually we should always get an expression here (though it may not be 'typed')
 
     //Now it should have been typed if it has a typeDef - if not then that's an error in previous phases.
@@ -55,13 +58,13 @@ final class CheckVariableAssignment extends TypedSymbolAccess
     if (ctx.typeDef() != null) {
       processTypeDefUse(ctx, varSymbol, exprSymbol);
       checkTypeCompatibility(ctx, varSymbol, exprSymbol);
-
       checkAssignment.accept(new Ek9Token(ctx.op), varSymbol);
     } else {
       processInferredType(ctx, varSymbol, exprSymbol);
     }
 
     checkPossibleDelegate.accept(varSymbol);
+
   }
 
   /**
@@ -72,7 +75,7 @@ final class CheckVariableAssignment extends TypedSymbolAccess
                                  final ISymbol exprSymbol) {
 
     if (varSymbol.getType().isEmpty()) {
-      var theType = symbolAndScopeManagement.getRecordedSymbol(ctx.typeDef());
+      final var theType = symbolAndScopeManagement.getRecordedSymbol(ctx.typeDef());
       if (theType != null) {
         varSymbol.setType(theType);
       }
@@ -85,9 +88,10 @@ final class CheckVariableAssignment extends TypedSymbolAccess
     if (exprSymbol != null && exprSymbol.getType().isPresent() && varSymbol.getType().isPresent()) {
       checkAndUpdateIfLhsIsParameterised(varSymbol.getType().get(), exprSymbol, exprSymbol.getType().get());
     }
+
   }
 
-  private void checkAndUpdateIfLhsIsParameterised(ISymbol lhsType, ISymbol rhs, ISymbol rhsType) {
+  private void checkAndUpdateIfLhsIsParameterised(final ISymbol lhsType, final ISymbol rhs, final ISymbol rhsType) {
 
     //We must now consider this situation: "someVar List of Integer := List()"
     //In this situation we want to alter the type on the rhs to be 'List of Integer' not just 'List of T'.
@@ -108,9 +112,11 @@ final class CheckVariableAssignment extends TypedSymbolAccess
    */
   private boolean areTheSameType(final ISymbol lhs,
                                  final ISymbol rhs) {
+
     if (lhs != null && rhs != null && lhs.getType().isPresent() && rhs.getType().isPresent()) {
       return lhs.getType().get().isExactSameType(rhs.getType().get());
     }
+
     return false;
   }
 
@@ -121,17 +127,22 @@ final class CheckVariableAssignment extends TypedSymbolAccess
   private void checkTypeCompatibility(final EK9Parser.VariableDeclarationContext ctx,
                                       final ISymbol varSymbol,
                                       final ISymbol exprSymbol) {
-    var data = new TypeCompatibilityData(new Ek9Token(ctx.start), varSymbol, exprSymbol);
+
+    final var data = new TypeCompatibilityData(new Ek9Token(ctx.start), varSymbol, exprSymbol);
     checkTypesCompatible.accept(data);
+
   }
 
   private void processInferredType(final EK9Parser.VariableDeclarationContext ctx,
-                                   final ISymbol varSymbol, final ISymbol exprSymbol) {
+                                   final ISymbol varSymbol,
+                                   final ISymbol exprSymbol) {
+
     if (varSymbol.getType().isEmpty() && exprSymbol != null && exprSymbol.getType().isPresent()) {
       varSymbol.setType(exprSymbol.getType());
       if (exprSymbol.getType().get().isGenericInNature()) {
         errorListener.semanticError(ctx.start, "", GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED);
       }
     }
+
   }
 }

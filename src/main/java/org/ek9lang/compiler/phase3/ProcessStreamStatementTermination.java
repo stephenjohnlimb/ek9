@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.TypeCanReceivePipedData;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.StreamCallSymbol;
@@ -23,13 +24,15 @@ final class ProcessStreamStatementTermination extends TypedSymbolAccess implemen
 
   ProcessStreamStatementTermination(final SymbolAndScopeManagement symbolAndScopeManagement,
                                     final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.StreamStatementTerminationContext ctx) {
 
-    var pipelinePartSymbol = getRecordedAndTypedSymbol(ctx.pipelinePart());
+    final var pipelinePartSymbol = getRecordedAndTypedSymbol(ctx.pipelinePart());
     if (pipelinePartSymbol != null) {
       processPipeLinePart(ctx, pipelinePartSymbol);
     }
@@ -38,10 +41,11 @@ final class ProcessStreamStatementTermination extends TypedSymbolAccess implemen
   private void processPipeLinePart(final EK9Parser.StreamStatementTerminationContext ctx,
                                    final ISymbol pipeLinePartSymbol) {
 
-    var terminationSymbol = (StreamCallSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var terminationSymbol = (StreamCallSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
 
     pipeLinePartSymbol.getType().ifPresent(pipeLinePartType -> {
-      var sourceToken = new Ek9Token(ctx.pipelinePart().start);
+      final var sourceToken = new Ek9Token(ctx.pipelinePart().start);
+
       if (checkTypeCouldBePipedInto(sourceToken, pipeLinePartType)) {
         updateTerminationSymbol(terminationSymbol, pipeLinePartSymbol);
       }
@@ -51,19 +55,20 @@ final class ProcessStreamStatementTermination extends TypedSymbolAccess implemen
 
   private boolean checkTypeCouldBePipedInto(final IToken sourceToken, final ISymbol pipeLinePartType) {
 
-    var rtn = typeCanReceivePipedData.test(pipeLinePartType);
+    final var rtn = typeCanReceivePipedData.test(pipeLinePartType);
     if (!rtn) {
-      var msg = "wrt '" + pipeLinePartType.getFriendlyName() + "':";
+      final var msg = "wrt '" + pipeLinePartType.getFriendlyName() + "':";
       errorListener.semanticError(sourceToken, msg, UNABLE_TO_FIND_PIPE_FOR_TYPE);
     }
     return rtn;
 
   }
 
-  private void updateTerminationSymbol(ISymbol terminationSymbol, final ISymbol pipeLinePartSymbol) {
+  private void updateTerminationSymbol(final ISymbol terminationSymbol, final ISymbol pipeLinePartSymbol) {
 
     terminationSymbol.setGenus(pipeLinePartSymbol.getGenus());
     terminationSymbol.setType(pipeLinePartSymbol.getType());
 
   }
+
 }

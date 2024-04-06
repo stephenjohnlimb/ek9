@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 
 /**
  * Just checks that an expression used in a control for if/while etc is a Boolean type.
@@ -15,13 +16,16 @@ final class CheckControlIsBooleanOrError extends TypedSymbolAccess
     implements Consumer<EK9Parser.ExpressionContext> {
   CheckControlIsBooleanOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                                final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
-  public void accept(EK9Parser.ExpressionContext ctx) {
+  public void accept(final EK9Parser.ExpressionContext ctx) {
 
-    var controlExpression = getRecordedAndTypedSymbol(ctx);
+    final var controlExpression = getRecordedAndTypedSymbol(ctx);
+
     if (controlExpression != null) {
       //If was null/untyped then - error will have already been emitted.
       controlExpression.getType().ifPresent(controlType -> {

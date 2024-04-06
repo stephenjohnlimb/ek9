@@ -3,6 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
@@ -22,8 +23,10 @@ final class CheckPropertyNames extends TypedSymbolAccess implements Consumer<Agg
   CheckPropertyNames(final SymbolAndScopeManagement symbolAndScopeManagement,
                      final ErrorListener errorListener,
                      final ErrorListener.SemanticClassification errorClassification) {
+
     super(symbolAndScopeManagement, errorListener);
     this.errorClassification = errorClassification;
+
   }
 
   @Override
@@ -43,16 +46,17 @@ final class CheckPropertyNames extends TypedSymbolAccess implements Consumer<Agg
   private void emitDuplicatePropertyByName(final AggregateSymbol aggregateSymbol,
                                            final ISymbol property,
                                            final ISymbol duplicateProperty) {
-    var location = locationExtractorFromSymbol.apply(duplicateProperty);
 
-    var msg = "Relating to '"
+    final var location = locationExtractorFromSymbol.apply(duplicateProperty);
+
+    final var msg = "Relating to '"
         + aggregateSymbol.getFriendlyName()
         + "' and '"
         + duplicateProperty.getFriendlyName()
         + "' "
         + location
         + ":";
-
     errorListener.semanticError(property.getSourceToken(), msg, errorClassification);
+
   }
 }

@@ -5,6 +5,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.search.PossibleMatchingMethods;
@@ -28,46 +29,78 @@ final class ResolveMethodOrError extends TypedSymbolAccess
    */
   ResolveMethodOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                        final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.mostSpecificScope = new MostSpecificScope(symbolAndScopeManagement);
     this.checkAccessToSymbol = new CheckAccessToSymbol(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
-  public MethodSymbol apply(final IToken token, final MethodSearchInScope searchOnAggregate) {
+  public MethodSymbol apply(final IToken errorLocation, final MethodSearchInScope searchOnAggregate) {
 
-    var accessFromScope = mostSpecificScope.get();
-
-    var msgStart = "In relation to type '" + searchOnAggregate.scopeToSearch().getFriendlyScopeName() + "', and ";
-    var results = searchOnAggregate.scopeToSearch()
+    final var accessFromScope = mostSpecificScope.get();
+    final var results = searchOnAggregate.scopeToSearch()
         .resolveMatchingMethods(searchOnAggregate.search(), new MethodSymbolSearchResult());
+
     if (results.isSingleBestMatchPresent() && results.getSingleBestMatchSymbol().isPresent()) {
-      var resolved = results.getSingleBestMatchSymbol().get();
-      checkAccessToSymbol.accept(new CheckSymbolAccessData(token, accessFromScope, searchOnAggregate.scopeToSearch(),
-          searchOnAggregate.search().getName(), resolved));
+      final var resolved = results.getSingleBestMatchSymbol().get();
+
+      checkAccessToSymbol.accept(
+          new CheckSymbolAccessData(errorLocation, accessFromScope, searchOnAggregate.scopeToSearch(),
+              searchOnAggregate.search().getName(), resolved));
+
       return resolved;
-    } else if (results.isAmbiguous()) {
-      var msg = msgStart + "'"
-          + searchOnAggregate.search().toString()
-          + "' resolved: "
-          + results.getAmbiguousMethodParameters();
-      errorListener.semanticError(token, msg, ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
-    } else if (results.isEmpty()) {
-      var msg = msgStart + "'" + searchOnAggregate.search().toString();
-      var nearMatches = possibleMatchingMethods.apply(searchOnAggregate);
-      if (nearMatches.isEmpty()) {
-        msg += "':";
-      } else {
-        msg += "', parameter mismatch. Possible method(s) ";
-        msg += methodsToPresentation(nearMatches);
-        msg += ":";
-      }
-      errorListener.semanticError(token, msg, ErrorListener.SemanticClassification.METHOD_NOT_RESOLVED);
+
     }
+
+    final var msgStart = "In relation to type '" + searchOnAggregate.scopeToSearch().getFriendlyScopeName() + "', and ";
+
+    if (results.isAmbiguous()) {
+      emitAmbiguousMatch(errorLocation, searchOnAggregate, msgStart, results);
+    } else if (results.isEmpty()) {
+      emitMethodNotResolved(errorLocation, searchOnAggregate, msgStart);
+    }
+
     return null;
   }
 
+
+  private void emitAmbiguousMatch(final IToken errorLocation,
+                                  final MethodSearchInScope searchOnAggregate,
+                                  final String msgStart,
+                                  final MethodSymbolSearchResult results) {
+
+    final var msg = msgStart + "'"
+        + searchOnAggregate.search().toString()
+        + "' resolved: "
+        + results.getAmbiguousMethodParameters();
+
+    errorListener.semanticError(errorLocation, msg, ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
+
+  }
+
+
+  private void emitMethodNotResolved(final IToken errorLocation,
+                                     final MethodSearchInScope searchOnAggregate,
+                                     final String msgStart) {
+
+    var msg = msgStart + "'" + searchOnAggregate.search().toString();
+    final var nearMatches = possibleMatchingMethods.apply(searchOnAggregate);
+    if (nearMatches.isEmpty()) {
+      msg += "':";
+    } else {
+      msg += "', parameter mismatch. Possible method(s) ";
+      msg += methodsToPresentation(nearMatches);
+      msg += ":";
+    }
+    errorListener.semanticError(errorLocation, msg, ErrorListener.SemanticClassification.METHOD_NOT_RESOLVED);
+
+  }
+
   private String methodsToPresentation(List<MethodSymbol> methods) {
+
     return methods.stream().map(ISymbol::getFriendlyName).collect(Collectors.joining(","));
+
   }
 }

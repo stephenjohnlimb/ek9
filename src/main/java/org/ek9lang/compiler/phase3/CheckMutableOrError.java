@@ -12,18 +12,22 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * This is just to do with it being a constant of an enumeration value for example.
  * These things can never be altered.
  */
-class CheckMutableOrError implements BiConsumer<IToken, ISymbol> {
+final class CheckMutableOrError implements BiConsumer<IToken, ISymbol> {
 
   private final ErrorListener errorListener;
 
   CheckMutableOrError(final ErrorListener errorListener) {
+
     this.errorListener = errorListener;
+
   }
 
   @Override
-  public void accept(IToken locationForError, ISymbol symbol) {
+  public void accept(final IToken locationForError, final ISymbol symbol) {
+
     if (!symbol.isMutable()) {
       errorListener.semanticError(locationForError, "'" + symbol.getFriendlyName() + "':", NOT_MUTABLE);
     }
+
   }
 }

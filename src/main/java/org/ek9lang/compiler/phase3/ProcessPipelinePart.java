@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
@@ -18,17 +19,22 @@ final class ProcessPipelinePart extends TypedSymbolAccess implements Consumer<EK
    */
   ProcessPipelinePart(final SymbolAndScopeManagement symbolAndScopeManagement,
                       final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.resolveFunctionOrDelegateByNameOrError =
         new ResolveFunctionOrDelegateByNameOrError(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.PipelinePartContext ctx) {
-    var resolvedSymbol = pipeLinePartSymbol(ctx);
+
+    final var resolvedSymbol = pipeLinePartSymbol(ctx);
+
     if (resolvedSymbol != null) {
       recordATypedSymbol(resolvedSymbol, ctx);
     }
+
   }
 
   private ISymbol pipeLinePartSymbol(final EK9Parser.PipelinePartContext ctx) {
@@ -38,9 +44,11 @@ final class ProcessPipelinePart extends TypedSymbolAccess implements Consumer<EK
       resolveFunctionOrDelegateByNameOrError.accept(ctx.identifier());
       return getRecordedAndTypedSymbol(ctx.identifier());
     }
+
     if (ctx.objectAccessExpression() != null) {
       return getRecordedAndTypedSymbol(ctx.objectAccessExpression());
     }
+
     return getRecordedAndTypedSymbol(ctx.call());
   }
 }

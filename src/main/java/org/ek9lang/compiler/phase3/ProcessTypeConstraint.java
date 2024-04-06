@@ -2,9 +2,11 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.support.SymbolFactory;
@@ -24,19 +26,36 @@ final class ProcessTypeConstraint extends TypedSymbolAccess
   ProcessTypeConstraint(final SymbolAndScopeManagement symbolAndScopeManagement,
                         final SymbolFactory symbolFactory,
                         final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.symbolFactory = symbolFactory;
+
   }
 
   @Override
   public void accept(final AggregateSymbol aggregateSymbol,
                      final EK9Parser.ConstrainDeclarationContext ctx) {
 
-    var possibleExpression = processConstrainType(aggregateSymbol, ctx.constrainType());
+    final var possibleExpression = processConstrainType(aggregateSymbol, ctx.constrainType());
     possibleExpression.ifPresent(expression -> recordATypedSymbol(expression, ctx));
+
   }
 
   //Note this can be called recursively.
+
+  private Optional<ISymbol> getConstrainType(final AggregateSymbol aggregateSymbol,
+                                             final EK9Parser.ConstrainTypeContext ctx) {
+
+    if (ctx.literal() != null) {
+      return processLiteralConstrainType(aggregateSymbol, ctx);
+    }
+
+    if (ctx.constrainType().size() == 1) {
+      return processConstrainType(aggregateSymbol, ctx.constrainType(0));
+    }
+
+    return processConstrainType(aggregateSymbol, ctx.constrainType(0), new Ek9Token(ctx.op), ctx.constrainType(1));
+  }
 
   /**
    * We are processing this.
@@ -50,74 +69,102 @@ final class ProcessTypeConstraint extends TypedSymbolAccess
    */
   private Optional<ISymbol> processConstrainType(final AggregateSymbol aggregateSymbol,
                                                  final EK9Parser.ConstrainTypeContext ctx) {
+
     //At this point we do not expect any expression to have been recorded against this node.
-    Optional<ISymbol> rtn;
-    if (ctx.literal() == null) {
-      if (ctx.constrainType().size() == 1) {
-        rtn = processConstrainType(aggregateSymbol, ctx.constrainType(0));
-      } else {
-        rtn = processConstrainType(aggregateSymbol, ctx.constrainType(0), new Ek9Token(ctx.op), ctx.constrainType(1));
-      }
-      //Then it is either an 'and,or' or a grouped version
-    } else {
-      rtn = processLiteralConstrainType(aggregateSymbol, ctx);
-    }
+    final Optional<ISymbol> rtn = getConstrainType(aggregateSymbol, ctx);
     rtn.ifPresent(expression -> recordATypedSymbol(expression, ctx));
+
     return rtn;
   }
+
 
   private Optional<ISymbol> processConstrainType(final AggregateSymbol aggregateSymbol,
                                                  final EK9Parser.ConstrainTypeContext ctx1,
                                                  final IToken operationToken,
                                                  final EK9Parser.ConstrainTypeContext ctx2) {
-    var first = processConstrainType(aggregateSymbol, ctx1);
-    var second = processConstrainType(aggregateSymbol, ctx2);
+
+    final var first = processConstrainType(aggregateSymbol, ctx1);
+    final var second = processConstrainType(aggregateSymbol, ctx2);
+
     if (first.isPresent() && second.isPresent()) {
-      var name = ctx1.getText() + operationToken.getText() + ctx2.getText();
-      var expression = symbolFactory.newExpressionSymbol(operationToken, name, first.get().getType());
+      final var name = ctx1.getText() + operationToken.getText() + ctx2.getText();
+      final var expression = symbolFactory.newExpressionSymbol(operationToken, name, first.get().getType());
+
       return Optional.of(expression);
     }
+
     return Optional.empty();
   }
 
   private Optional<ISymbol> processLiteralConstrainType(final AggregateSymbol aggregateSymbol,
                                                         final EK9Parser.ConstrainTypeContext ctx) {
-    //If operator is not specified we assume ==
-    var operator = "==";
 
-    //But if it is specified we use it but have to accommodate != and <> meaning not equals.
-    if (ctx.op != null) {
-      operator = ctx.op.getText();
-      if ("!=".equals(operator)) {
-        operator = "<>";
-      }
-    }
-    var literalSymbol = getRecordedAndTypedSymbol(ctx.literal());
+    final var operator = getOrAssumeOperator(ctx.op);
+    final var literalSymbol = getRecordedAndTypedSymbol(ctx.literal());
+
     if (literalSymbol != null) {
-      var search = new MethodSymbolSearch(operator).addTypeParameter(literalSymbol.getType());
+      final var search = new MethodSymbolSearch(operator).addTypeParameter(literalSymbol.getType());
       return resolveOrError(aggregateSymbol, search, literalSymbol.getSourceToken());
     }
+
     return Optional.empty();
+  }
+
+  /**
+   * If not provided then we assume '==', but it the EK9 developer has used '!=' then we must adapt to
+   * '&lt;&gt;' otherwise use the operator the developer supplied.
+   */
+  private String getOrAssumeOperator(final Token token) {
+
+    if (token == null) {
+      return "==";
+    }
+    if ("!=".equals(token.getText())) {
+      return "<>";
+    }
+
+    return token.getText();
   }
 
   private Optional<ISymbol> resolveOrError(final AggregateSymbol aggregateSymbol,
                                            final MethodSymbolSearch search,
-                                           final IToken token) {
+                                           final IToken errorLocation) {
 
-    var msgStart = "Looking on '" + aggregateSymbol.getFriendlyName() + "' for operator ";
-    var results = aggregateSymbol.resolveMatchingMethodsInThisScopeOnly(search, new MethodSymbolSearchResult());
-    if (results.isAmbiguous()) {
-      var msg = msgStart + "'"
-          + search.toString()
-          + "' resolved: "
-          + results.getAmbiguousMethodParameters();
-      errorListener.semanticError(token, msg, ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
-    } else if (results.isEmpty()) {
-      var msg = msgStart + "'" + search.toString() + "':";
-      errorListener.semanticError(token, msg, ErrorListener.SemanticClassification.METHOD_NOT_RESOLVED);
-    } else if (results.getSingleBestMatchSymbol().isPresent()) {
+    final var results = aggregateSymbol.resolveMatchingMethodsInThisScopeOnly(search, new MethodSymbolSearchResult());
+
+    if (results.getSingleBestMatchSymbol().isPresent()) {
       return Optional.of(symbolFactory.newExpressionSymbol(results.getSingleBestMatchSymbol().get()));
     }
+
+    final var msgStart = "Looking on '" + aggregateSymbol.getFriendlyName() + "' for operator ";
+    if (results.isAmbiguous()) {
+      emitAmbiguousResolutionError(errorLocation, msgStart, search, results);
+    } else if (results.isEmpty()) {
+      emitMethodNotResolvedError(errorLocation, msgStart, search);
+    }
+
     return Optional.empty();
+  }
+
+  private void emitAmbiguousResolutionError(final IToken errorLocation,
+                                            final String msgStart,
+                                            final MethodSymbolSearch search,
+                                            final MethodSymbolSearchResult results) {
+
+    final var msg = msgStart + "'"
+        + search.toString()
+        + "' resolved: "
+        + results.getAmbiguousMethodParameters();
+    errorListener.semanticError(errorLocation, msg, ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
+
+  }
+
+  private void emitMethodNotResolvedError(final IToken errorLocation,
+                                          final String msgStart,
+                                          final MethodSymbolSearch search) {
+
+    var msg = msgStart + "'" + search.toString() + "':";
+    errorListener.semanticError(errorLocation, msg, ErrorListener.SemanticClassification.METHOD_NOT_RESOLVED);
+
   }
 }

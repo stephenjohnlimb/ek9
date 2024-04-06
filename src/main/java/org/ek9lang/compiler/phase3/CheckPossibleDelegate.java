@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MatchResult;
 import org.ek9lang.compiler.search.MatchResults;
 import org.ek9lang.compiler.support.MostSpecificScope;
@@ -28,40 +29,48 @@ final class CheckPossibleDelegate extends TypedSymbolAccess implements Consumer<
    */
   CheckPossibleDelegate(final SymbolAndScopeManagement symbolAndScopeManagement,
                         final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.mostSpecificScope = new MostSpecificScope(symbolAndScopeManagement);
+
   }
 
   @Override
   public void accept(final ISymbol symbol) {
+
     if (symbol != null
         && symbol.getType().isPresent()
         && symbol.getType().get() instanceof FunctionSymbol) {
       //Then lets check if its type is some sort of function, that makes it a delegate.
       //Then we must check if the name of the field matches any methods available in this aggregate.
-      var possibleNameClash = symbol.getName();
-      var scopeToCheckIn = mostSpecificScope.get();
-      var matchingSymbols = scopeToCheckIn.getAllSymbolsMatchingName(possibleNameClash);
+      final var possibleNameClash = symbol.getName();
+      final var scopeToCheckIn = mostSpecificScope.get();
+      final var matchingSymbols = scopeToCheckIn.getAllSymbolsMatchingName(possibleNameClash);
+
       if (hasClashingSymbolNames(matchingSymbols, symbol)) {
-        var msg = "";
-        var matches = toMatchResults(symbol, matchingSymbols);
-        errorListener.semanticError(symbol.getSourceToken(), msg,
+        final var matches = toMatchResults(symbol, matchingSymbols);
+        errorListener.semanticError(symbol.getSourceToken(), "",
             ErrorListener.SemanticClassification.DELEGATE_AND_METHOD_NAMES_CLASH, matches);
       }
     }
+
   }
 
   private boolean hasClashingSymbolNames(final List<ISymbol> symbols, final ISymbol toExclude) {
+
     //We do allow an incoming parameter to be the same name as a method. At the moment!
     if (!toExclude.isIncomingParameter()) {
       return symbols.stream().anyMatch(symbol -> !symbol.equals(toExclude));
     }
+
     return symbols.size() > 1;
   }
 
   private MatchResults toMatchResults(final ISymbol symbol, final List<ISymbol> otherMatches) {
+
     MatchResults rtn = new MatchResults(5);
     otherMatches.forEach(matchSymbol -> rtn.add(new MatchResult(symbol.equals(matchSymbol) ? 0 : 1, matchSymbol)));
+
     return rtn;
   }
 }

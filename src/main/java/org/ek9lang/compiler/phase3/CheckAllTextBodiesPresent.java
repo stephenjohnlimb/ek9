@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
@@ -19,7 +20,9 @@ final class CheckAllTextBodiesPresent extends TypedSymbolAccess implements Consu
    */
   CheckAllTextBodiesPresent(final SymbolAndScopeManagement symbolAndScopeManagement,
                             final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
@@ -32,7 +35,7 @@ final class CheckAllTextBodiesPresent extends TypedSymbolAccess implements Consu
               new MethodSymbolSearchResult()).isEmpty();
 
       //We can only report on a single error on the aggregate, so so at the first one that is missing.
-      var firstMissingMethod = supperTextAggregate.getAllNonAbstractMethodsInThisScopeOnly()
+      final var firstMissingMethod = supperTextAggregate.getAllNonAbstractMethodsInThisScopeOnly()
           .stream()
           .filter(MethodSymbol::isNotConstructor)
           .filter(isMethodMissing)
@@ -40,12 +43,15 @@ final class CheckAllTextBodiesPresent extends TypedSymbolAccess implements Consu
 
       firstMissingMethod.ifPresent(missingMethod -> emitMissingTextMethodError(aggregateSymbol, missingMethod));
     });
+
   }
 
   private void emitMissingTextMethodError(final AggregateSymbol aggregateSymbol,
                                           final MethodSymbol missingMethod) {
-    var msg = "'" + missingMethod.getFriendlyName() + "':";
+
+    final var msg = "'" + missingMethod.getFriendlyName() + "':";
     errorListener.semanticError(aggregateSymbol.getSourceToken(), msg,
         ErrorListener.SemanticClassification.TEXT_METHOD_MISSING);
+
   }
 }

@@ -1,9 +1,11 @@
 package org.ek9lang.compiler.phase3;
 
 import java.util.function.Consumer;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
@@ -11,10 +13,12 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * This will be important for full switch type checks. Given the operator type in each of the case parts the
  * operator must exit on the type being switched against.
  */
-public class ProcessCaseExpression extends TypedSymbolAccess implements Consumer<EK9Parser.CaseExpressionContext> {
-  protected ProcessCaseExpression(SymbolAndScopeManagement symbolAndScopeManagement,
+final class ProcessCaseExpression extends TypedSymbolAccess implements Consumer<EK9Parser.CaseExpressionContext> {
+  ProcessCaseExpression(SymbolAndScopeManagement symbolAndScopeManagement,
                                   ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   /**
@@ -31,19 +35,23 @@ public class ProcessCaseExpression extends TypedSymbolAccess implements Consumer
    */
   @Override
   public void accept(final EK9Parser.CaseExpressionContext ctx) {
-    ISymbol symbol = null;
+
     if (ctx.call() != null) {
-      symbol = getRecordedAndTypedSymbol(ctx.call());
+      recordAgainstContext(getRecordedAndTypedSymbol(ctx.call()), ctx);
     } else if (ctx.objectAccessExpression() != null) {
-      symbol = getRecordedAndTypedSymbol(ctx.objectAccessExpression());
+      recordAgainstContext(getRecordedAndTypedSymbol(ctx.objectAccessExpression()), ctx);
     } else if (ctx.expression() != null) {
-      symbol = getRecordedAndTypedSymbol(ctx.expression());
+      recordAgainstContext(getRecordedAndTypedSymbol(ctx.expression()), ctx);
     } else if (ctx.primary() != null) {
-      symbol = getRecordedAndTypedSymbol(ctx.primary());
+      recordAgainstContext(getRecordedAndTypedSymbol(ctx.primary()), ctx);
     }
-    //If the symbol is not present or typed an error will have been emitted.
+  }
+
+  private void recordAgainstContext(final ISymbol symbol, final ParseTree ctx) {
+
     if (symbol != null) {
       recordATypedSymbol(symbol, ctx);
     }
+
   }
 }

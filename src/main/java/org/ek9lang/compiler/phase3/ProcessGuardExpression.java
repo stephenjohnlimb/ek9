@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 
@@ -22,6 +23,7 @@ final class ProcessGuardExpression extends TypedSymbolAccess
    */
   ProcessGuardExpression(final SymbolAndScopeManagement symbolAndScopeManagement,
                          final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.symbolFromContextOrError
         = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
@@ -29,29 +31,34 @@ final class ProcessGuardExpression extends TypedSymbolAccess
         = new ProcessIdentifierOrError(symbolAndScopeManagement, errorListener);
     this.processIdentifierAssignment
         = new ProcessIdentifierAssignment(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.GuardExpressionContext ctx) {
 
-    var expressionSymbol = symbolFromContextOrError.apply(ctx.expression());
+    final var expressionSymbol = symbolFromContextOrError.apply(ctx.expression());
     if (expressionSymbol == null) {
       //So not resolved and an error will have been emitted.
       return;
     }
+
     if (ctx.identifier() != null) {
-      var data = new TypeCompatibilityData(new Ek9Token(ctx.op),
+      final var data = new TypeCompatibilityData(new Ek9Token(ctx.op),
           processIdentifierOrError.apply(ctx.identifier()), expressionSymbol);
       processByIdentifier(data);
     } else {
       AssertValue.fail("Expecting finite set of operations on assignment " + ctx.start.getLine());
     }
+
   }
 
   private void processByIdentifier(final TypeCompatibilityData typeData) {
+
     if (typeData.lhs() != null) {
-      var data = new AssignmentData(false, typeData);
+      final var data = new AssignmentData(false, typeData);
       processIdentifierAssignment.accept(data);
     }
+
   }
 }

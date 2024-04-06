@@ -10,13 +10,15 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 /**
  * Accesses the aggregate and gets just the 'default' operators defined on that aggregate (not any hierarchy).
  */
-public class RetrieveDefaultedOperators implements Function<IAggregateSymbol, List<MethodSymbol>> {
+final class RetrieveDefaultedOperators implements Function<IAggregateSymbol, List<MethodSymbol>> {
   @Override
-  public List<MethodSymbol> apply(IAggregateSymbol aggregate) {
+  public List<MethodSymbol> apply(final IAggregateSymbol aggregate) {
+
     return aggregate.getAllNonAbstractMethodsInThisScopeOnly()
         .stream()
         .filter(MethodSymbol::isOperator)
         .filter(method -> "TRUE".equals(method.getSquirrelledData(DEFAULTED)))
         .toList();
+
   }
 }

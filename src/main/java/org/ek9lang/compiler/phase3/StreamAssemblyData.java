@@ -11,7 +11,7 @@ import org.ek9lang.compiler.symbols.StreamCallSymbol;
  * @param streamParts These are the optional stream parts.
  * @param termination This is the termination part and has a type, that may or may not accept piped in typed objects.
  */
-public record StreamAssembly(StreamCallSymbol source,
-                             List<EK9Parser.StreamPartContext> streamParts,
-                             StreamCallSymbol termination) {
+public record StreamAssemblyData(StreamCallSymbol source,
+                                 List<EK9Parser.StreamPartContext> streamParts,
+                                 StreamCallSymbol termination) {
 }

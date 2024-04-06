@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.phase3;
 
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.THIS_AND_SUPER_MUST_BE_FIRST_IN_CONSTRUCTOR;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.MethodAndAggregateData;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.support.SymbolTypeExtractor;
@@ -28,27 +30,32 @@ final class ProcessThisSuperCallOrError extends TypedSymbolAccess
   private final ResolveMethodOrError resolveMethodOrError;
   private final SymbolsFromParamExpression symbolsFromParamExpression;
 
-  ProcessThisSuperCallOrError(SymbolAndScopeManagement symbolAndScopeManagement,
-                              ErrorListener errorListener) {
+  ProcessThisSuperCallOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+                              final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
 
     this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
     this.symbolsFromParamExpression = new SymbolsFromParamExpression(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public MethodSymbol apply(final EK9Parser.CallContext ctx) {
-    var methodAndAggregate = symbolAndScopeManagement.traverseBackUpStackToEnclosingMethod();
+
+    final var methodAndAggregate = symbolAndScopeManagement.traverseBackUpStackToEnclosingMethod();
+
     if (methodAndAggregate.isPresent()) {
       checkThisOrSuperStatementPosition(ctx, methodAndAggregate.get());
       return resolveMethodSymbol(ctx, methodAndAggregate.get());
     } else {
       if (ctx.primaryReference().THIS() != null) {
-        errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.INAPPROPRIATE_USE_OF_THIS);
+        emitInappropriateUseOfThisError(ctx);
       } else {
-        errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.INAPPROPRIATE_USE_OF_SUPER);
+        emitInappropriateUseOfSuperError(ctx);
       }
     }
+
     return null;
   }
 
@@ -59,20 +66,24 @@ final class ProcessThisSuperCallOrError extends TypedSymbolAccess
    */
   private void checkThisOrSuperStatementPosition(final EK9Parser.CallContext ctx,
                                                  final MethodAndAggregateData methodAndAggregateData) {
+
     if (methodAndAggregateData.methodSymbol().isConstructor()) {
       //I don't really like using the grammar structure like this it s bit fragile.
-      var maybeBlockStatement = ctx.getParent().getParent();
+      final var maybeBlockStatement = ctx.getParent().getParent();
+
       if (maybeBlockStatement instanceof EK9Parser.BlockStatementContext callBlockStatement) {
-        //Then it is at least a statement
-        var maybeOperationsDetails = ctx.getParent().getParent().getParent().getParent();
+        //Then it is at least a statement, nasty - I don't like context stuff like this.
+        final var maybeOperationsDetails = ctx.getParent().getParent().getParent().getParent();
+
         if (maybeOperationsDetails instanceof EK9Parser.OperationDetailsContext details) {
-          var firstBlockStatementContext = details.instructionBlock().blockStatement().get(0);
+          final var firstBlockStatementContext = details.instructionBlock().blockStatement().get(0);
 
           if (firstBlockStatementContext != callBlockStatement) {
-            errorListener.semanticError(ctx.start, "", THIS_AND_SUPER_MUST_BE_FIRST_IN_CONSTRUCTOR);
+            emitThisSuperMustBeFirstStatementError(ctx);
           }
+
         } else {
-          errorListener.semanticError(ctx.start, "", THIS_AND_SUPER_MUST_BE_FIRST_IN_CONSTRUCTOR);
+          emitThisSuperMustBeFirstStatementError(ctx);
         }
       }
     }
@@ -82,31 +93,35 @@ final class ProcessThisSuperCallOrError extends TypedSymbolAccess
                                            final MethodAndAggregateData methodAndAggregateData) {
 
     if (methodAndAggregateData.methodSymbol().isConstructor()) {
-      var aggregate = methodAndAggregateData.aggregateSymbol();
-      var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
+      final var aggregate = methodAndAggregateData.aggregateSymbol();
+      final var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
+
       if (ctx.primaryReference().THIS() != null) {
         return resolveAndRecordIfPossible(ctx, aggregate, callParams);
       } else {
-        var superAggregate = aggregate.getSuperAggregate();
+        final var superAggregate = aggregate.getSuperAggregate();
+
         if (superAggregate.isPresent()) {
           return resolveAndRecordIfPossible(ctx, superAggregate.get(), callParams);
         }
       }
     } else {
-      errorListener.semanticError(ctx.start, "",
-          ErrorListener.SemanticClassification.THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR);
+      emitThisSuperCallsOnlyInConstructorError(ctx);
     }
+
     return null;
   }
 
   private MethodSymbol resolveAndRecordIfPossible(final EK9Parser.CallContext ctx,
                                                   final IAggregateSymbol aggregate,
                                                   final List<ISymbol> callParams) {
-    var returnMethod = checkForMethodOnAggregate(ctx.start, aggregate, aggregate.getName(), callParams);
+
+    final var returnMethod = checkForMethodOnAggregate(ctx.start, aggregate, aggregate.getName(), callParams);
     if (returnMethod != null) {
       //Just for completeness record against the context, this is the earliest this could have been done.
       recordATypedSymbol(returnMethod, ctx.primaryReference());
     }
+
     return returnMethod;
   }
 
@@ -115,13 +130,39 @@ final class ProcessThisSuperCallOrError extends TypedSymbolAccess
                                                  final String methodName,
                                                  final List<ISymbol> parameters) {
 
-    var paramTypes = symbolTypeExtractor.apply(parameters);
+    final var paramTypes = symbolTypeExtractor.apply(parameters);
+
     //Maybe earlier types were not defined by the ek9 developer so let's not look at it would be misleading.
     //So if they are not present then there would have been other errors. There is no way can resolve the method.
     if (parameters.size() == paramTypes.size()) {
-      var search = new MethodSymbolSearch(methodName).setTypeParameters(paramTypes);
+      final var search = new MethodSymbolSearch(methodName).setTypeParameters(paramTypes);
       return resolveMethodOrError.apply(new Ek9Token(token), new MethodSearchInScope(aggregate, search));
     }
+
     return null;
+  }
+
+  private void emitThisSuperMustBeFirstStatementError(final EK9Parser.CallContext ctx) {
+
+    errorListener.semanticError(ctx.start, "", THIS_AND_SUPER_MUST_BE_FIRST_IN_CONSTRUCTOR);
+
+  }
+
+  private void emitThisSuperCallsOnlyInConstructorError(final EK9Parser.CallContext ctx) {
+
+    errorListener.semanticError(ctx.start, "", THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR);
+
+  }
+
+  private void emitInappropriateUseOfThisError(final EK9Parser.CallContext ctx) {
+
+    errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.INAPPROPRIATE_USE_OF_THIS);
+
+  }
+
+  private void emitInappropriateUseOfSuperError(final EK9Parser.CallContext ctx) {
+
+    errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.INAPPROPRIATE_USE_OF_SUPER);
+
   }
 }

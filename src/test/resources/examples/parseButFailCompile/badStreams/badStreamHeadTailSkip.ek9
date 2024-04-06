@@ -230,7 +230,7 @@ defines module bad.streams10
     -?>
     InvalidStreamCatHeadWithClassName()
       collection <- List() of String
-      @Error: FULL_RESOLUTION: INTEGER_VAR_OR_FUNCTION_OR_DELEGATE_REQUIRED
+      @Error: FULL_RESOLUTION: FUNCTION_OR_DELEGATE_REQUIRED
       cat ["last", "first"] | head with C1 > collection
       assert collection?
 

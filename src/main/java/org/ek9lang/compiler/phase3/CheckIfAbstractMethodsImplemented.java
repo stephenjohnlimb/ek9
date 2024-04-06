@@ -14,19 +14,20 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  */
 final class CheckIfAbstractMethodsImplemented implements BiConsumer<IAggregateSymbol, Consumer<MethodSymbol>> {
 
-
   CheckIfAbstractMethodsImplemented() {
 
   }
 
   @Override
   public void accept(final IAggregateSymbol aggregateSymbol, final Consumer<MethodSymbol> actionToTake) {
+
     final List<MethodSymbol> abstractMethodsToCheck = aggregateSymbol.getAllAbstractMethods();
 
     abstractMethodsToCheck.forEach(methodSymbol -> {
       MethodSymbolSearch search = new MethodSymbolSearch(methodSymbol);
-      var result = aggregateSymbol.resolveMatchingMethods(search, new MethodSymbolSearchResult());
+      final var result = aggregateSymbol.resolveMatchingMethods(search, new MethodSymbolSearchResult());
       result.getSingleBestMatchSymbol().ifPresent(actionToTake);
     });
+
   }
 }

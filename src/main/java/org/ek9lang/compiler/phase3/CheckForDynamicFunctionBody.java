@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 
@@ -20,15 +21,17 @@ final class CheckForDynamicFunctionBody extends TypedSymbolAccess
    */
   CheckForDynamicFunctionBody(final SymbolAndScopeManagement symbolAndScopeManagement,
                               final ErrorListener errorListener) {
-    super(symbolAndScopeManagement, errorListener);
 
+    super(symbolAndScopeManagement, errorListener);
     this.checkPureModifier = new CheckPureModifier(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
-    var symbol = (FunctionSymbol) getRecordedAndTypedSymbol(ctx);
-    var noBodyProvided = ctx.dynamicFunctionBody() == null;
+
+    final var symbol = (FunctionSymbol) getRecordedAndTypedSymbol(ctx);
+    final var noBodyProvided = ctx.dynamicFunctionBody() == null;
 
     symbol.getSuperFunction().ifPresent(superFunction -> {
       if (superFunction.isMarkedAbstract() && noBodyProvided) {
@@ -40,5 +43,6 @@ final class CheckForDynamicFunctionBody extends TypedSymbolAccess
       }
       checkPureModifier.accept(new PureCheckData("", superFunction, symbol));
     });
+
   }
 }

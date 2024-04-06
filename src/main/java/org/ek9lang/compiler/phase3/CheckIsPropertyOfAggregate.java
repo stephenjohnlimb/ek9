@@ -7,7 +7,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
 /**
  * Given an aggregate and a symbol, this predicate checks if the symbol is a property/field of that aggregate.
  */
-public class CheckIsPropertyOfAggregate implements BiPredicate<IAggregateSymbol, ISymbol> {
+final class CheckIsPropertyOfAggregate implements BiPredicate<IAggregateSymbol, ISymbol> {
   @Override
   public boolean test(final IAggregateSymbol aggregate, final ISymbol possibleProperty) {
 

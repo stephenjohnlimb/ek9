@@ -14,11 +14,14 @@ class CheckForComparator extends OperatorCheck implements BiPredicate<IToken, IS
 
   CheckForComparator(final SymbolAndScopeManagement symbolAndScopeManagement,
                      final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   protected MethodSymbolSearch getMethodSymbolSearch(final ISymbol symbolType) {
+
     return new MethodSymbolSearch("<=>")
         .addTypeParameter(symbolType)
         .setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Integer());

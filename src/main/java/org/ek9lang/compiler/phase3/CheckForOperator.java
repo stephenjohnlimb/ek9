@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
@@ -24,13 +25,15 @@ final class CheckForOperator extends TypedSymbolAccess implements Function<Check
 
   CheckForOperator(final SymbolAndScopeManagement symbolAndScopeManagement,
                    final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
 
   }
 
   @Override
   public Optional<ISymbol> apply(final CheckOperatorData checkOperatorData) {
-    var symbol = checkOperatorData.symbol();
+
+    final var symbol = checkOperatorData.symbol();
 
     if (symbolIsActuallyAnEnumerationType(symbol)) {
       errorListener.semanticError(checkOperatorData.operatorUseToken(), "wrt '" + symbol.getName() + "':",
@@ -39,27 +42,31 @@ final class CheckForOperator extends TypedSymbolAccess implements Function<Check
       return Optional.empty();
     }
 
-    Optional<ISymbol> rtn = Optional.empty();
-
     //Get the underlying type or emit error and return false.
     //If the search is null it means that other errors would have been issued and no method lookup was possible.
-    var symbolType = symbolTypeOrEmpty.apply(symbol);
+    final var symbolType = symbolTypeOrEmpty.apply(symbol);
+
     if (symbolType.isPresent() && checkOperatorData.search() != null
         && symbolType.get() instanceof IAggregateSymbol aggregate) {
-      var search = checkOperatorData.search();
-      var results = aggregate.resolveMatchingMethods(search, new MethodSymbolSearchResult());
-      var bestMatch = results.getSingleBestMatchSymbol();
+
+      final var search = checkOperatorData.search();
+      final var results = aggregate.resolveMatchingMethods(search, new MethodSymbolSearchResult());
+      final var bestMatch = results.getSingleBestMatchSymbol();
+
       if (bestMatch.isPresent()) {
-        var operator = bestMatch.get();
+
+        final var operator = bestMatch.get();
         noteOperatorAccessedIfConceptualType(aggregate, operator);
         //Now it depends where this operator is called and if it is pure or not.
         checkPureAccess(checkOperatorData.operatorUseToken(), operator);
-        rtn = operator.getReturningSymbol().getType();
+        return operator.getReturningSymbol().getType();
+
       } else {
         emitOperatorNotDefined(aggregate, checkOperatorData);
       }
     }
-    return rtn;
+
+    return Optional.empty();
   }
 
   /**

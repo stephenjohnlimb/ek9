@@ -13,6 +13,7 @@ import org.ek9lang.compiler.support.SymbolFactory;
  * Now some of this may feel upside down, processing on 'exit' and from the 'bottom up'.
  */
 abstract class ExpressionsListener extends ScopeStackConsistencyListener {
+  
   protected final SymbolFactory symbolFactory;
   protected final ErrorListener errorListener;
   private final ProcessValidThisOrSuper processValidThisOrSuper;
@@ -52,13 +53,13 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final CheckThrowStatementOrError checkThrowStatementOrError;
 
   protected ExpressionsListener(ParsedModule parsedModule) {
+    
     super(parsedModule);
 
     this.symbolFactory =
         new SymbolFactory(parsedModule);
     this.errorListener =
         parsedModule.getSource().getErrorListener();
-
     this.processValidThisOrSuper =
         new ProcessValidThisOrSuper(symbolAndScopeManagement, symbolFactory, errorListener);
     this.processValidPrimary =
@@ -132,14 +133,14 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   }
 
   @Override
-  public void exitIdentifierReference(EK9Parser.IdentifierReferenceContext ctx) {
+  public void exitIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
     processValidIdentifierReference.apply(ctx);
     super.exitIdentifierReference(ctx);
   }
 
   @Override
-  public void exitTraitReference(EK9Parser.TraitReferenceContext ctx) {
-    var traitReference = symbolAndScopeManagement.getRecordedSymbol(ctx.identifierReference());
+  public void exitTraitReference(final EK9Parser.TraitReferenceContext ctx) {
+    final var traitReference = symbolAndScopeManagement.getRecordedSymbol(ctx.identifierReference());
     if (traitReference != null) {
       symbolAndScopeManagement.recordSymbol(traitReference, ctx);
     }
@@ -147,209 +148,209 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   }
 
   @Override
-  public void exitPrimaryReference(EK9Parser.PrimaryReferenceContext ctx) {
+  public void exitPrimaryReference(final EK9Parser.PrimaryReferenceContext ctx) {
     //Here we are modelling 'this' or 'super', idea is to set type or issue errors.
     processValidThisOrSuper.accept(ctx);
     super.exitPrimaryReference(ctx);
   }
 
   @Override
-  public void exitPrimary(EK9Parser.PrimaryContext ctx) {
+  public void exitPrimary(final EK9Parser.PrimaryContext ctx) {
     processValidPrimary.accept(ctx);
     super.exitPrimary(ctx);
   }
 
   @Override
-  public void exitCall(EK9Parser.CallContext ctx) {
+  public void exitCall(final EK9Parser.CallContext ctx) {
     checkValidCall.accept(ctx);
     super.exitCall(ctx);
   }
 
   @Override
-  public void exitList(EK9Parser.ListContext ctx) {
+  public void exitList(final EK9Parser.ListContext ctx) {
     processAndTypeList.accept(ctx);
     super.exitList(ctx);
   }
 
   @Override
-  public void exitDict(EK9Parser.DictContext ctx) {
+  public void exitDict(final EK9Parser.DictContext ctx) {
     processAndTypeDict.accept(ctx);
     super.exitDict(ctx);
   }
 
   @Override
-  public void exitRange(EK9Parser.RangeContext ctx) {
+  public void exitRange(final EK9Parser.RangeContext ctx) {
     processRange.accept(ctx);
     super.exitRange(ctx);
   }
 
   @Override
-  public void exitForLoop(EK9Parser.ForLoopContext ctx) {
+  public void exitForLoop(final EK9Parser.ForLoopContext ctx) {
     processForLoop.accept(ctx);
     super.exitForLoop(ctx);
   }
 
   @Override
-  public void exitForRange(EK9Parser.ForRangeContext ctx) {
+  public void exitForRange(final EK9Parser.ForRangeContext ctx) {
     processForRange.accept(ctx);
     super.exitForRange(ctx);
   }
 
   @Override
-  public void exitStatement(EK9Parser.StatementContext ctx) {
+  public void exitStatement(final EK9Parser.StatementContext ctx) {
     checkValidStatement.accept(ctx);
     super.exitStatement(ctx);
   }
 
   @Override
-  public void exitExpression(EK9Parser.ExpressionContext ctx) {
+  public void exitExpression(final EK9Parser.ExpressionContext ctx) {
     checkValidExpression.accept(ctx);
     super.exitExpression(ctx);
   }
 
   @Override
-  public void exitAssignmentExpression(EK9Parser.AssignmentExpressionContext ctx) {
+  public void exitAssignmentExpression(final EK9Parser.AssignmentExpressionContext ctx) {
     processAssignmentExpression.accept(ctx);
     super.exitAssignmentExpression(ctx);
   }
 
   @Override
-  public void exitAssignmentStatement(EK9Parser.AssignmentStatementContext ctx) {
+  public void exitAssignmentStatement(final EK9Parser.AssignmentStatementContext ctx) {
     processAssignmentStatement.accept(ctx);
     super.exitAssignmentStatement(ctx);
   }
 
   @Override
-  public void exitIfStatement(EK9Parser.IfStatementContext ctx) {
+  public void exitIfStatement(final EK9Parser.IfStatementContext ctx) {
     processIfStatement.accept(ctx);
     super.exitIfStatement(ctx);
   }
 
   @Override
-  public void exitGuardExpression(EK9Parser.GuardExpressionContext ctx) {
+  public void exitGuardExpression(final EK9Parser.GuardExpressionContext ctx) {
     processGuardExpression.accept(ctx);
     super.exitGuardExpression(ctx);
   }
 
   @Override
-  public void exitForStatementExpression(EK9Parser.ForStatementExpressionContext ctx) {
+  public void exitForStatementExpression(final EK9Parser.ForStatementExpressionContext ctx) {
     processForStatementExpression.accept(ctx);
     super.exitForStatementExpression(ctx);
   }
 
   @Override
-  public void enterWhileStatementExpression(EK9Parser.WhileStatementExpressionContext ctx) {
+  public void enterWhileStatementExpression(final EK9Parser.WhileStatementExpressionContext ctx) {
     //Now here it is important to check the while 'control' variable.
     processWhileControlVariable.accept(ctx);
     super.enterWhileStatementExpression(ctx);
   }
 
   @Override
-  public void exitWhileStatementExpression(EK9Parser.WhileStatementExpressionContext ctx) {
+  public void exitWhileStatementExpression(final EK9Parser.WhileStatementExpressionContext ctx) {
     processWhileStatementExpression.accept(ctx);
     super.exitWhileStatementExpression(ctx);
   }
 
   @Override
-  public void enterSwitchStatementExpression(EK9Parser.SwitchStatementExpressionContext ctx) {
+  public void enterSwitchStatementExpression(final EK9Parser.SwitchStatementExpressionContext ctx) {
     //Need to do the basics checks and issue errors on switches before assessing types later in the exit.
     checkSwitch.accept(ctx);
     super.enterSwitchStatementExpression(ctx);
   }
 
   @Override
-  public void exitSwitchStatementExpression(EK9Parser.SwitchStatementExpressionContext ctx) {
+  public void exitSwitchStatementExpression(final EK9Parser.SwitchStatementExpressionContext ctx) {
     //Now a more detailed analysis can take place.
     processSwitchStatementExpression.accept(ctx);
     super.exitSwitchStatementExpression(ctx);
   }
 
   @Override
-  public void exitThrowStatement(EK9Parser.ThrowStatementContext ctx) {
+  public void exitThrowStatement(final EK9Parser.ThrowStatementContext ctx) {
     checkThrowStatementOrError.accept(ctx);
     super.exitThrowStatement(ctx);
   }
 
   @Override
-  public void exitCaseExpression(EK9Parser.CaseExpressionContext ctx) {
+  public void exitCaseExpression(final EK9Parser.CaseExpressionContext ctx) {
     processCaseExpression.accept(ctx);
     super.exitCaseExpression(ctx);
   }
 
   @Override
-  public void exitTryStatementExpression(EK9Parser.TryStatementExpressionContext ctx) {
+  public void exitTryStatementExpression(final EK9Parser.TryStatementExpressionContext ctx) {
     processTryStatementExpression.accept(ctx);
     super.exitTryStatementExpression(ctx);
   }
 
   @Override
-  public void exitInstructionBlock(EK9Parser.InstructionBlockContext ctx) {
+  public void exitInstructionBlock(final EK9Parser.InstructionBlockContext ctx) {
     checkInstructionBlockVariables.accept(ctx);
     super.exitInstructionBlock(ctx);
   }
 
   @Override
-  public void exitObjectAccessStart(EK9Parser.ObjectAccessStartContext ctx) {
+  public void exitObjectAccessStart(final EK9Parser.ObjectAccessStartContext ctx) {
     processObjectAccessStartOrError.accept(ctx);
     super.exitObjectAccessStart(ctx);
   }
 
   @Override
-  public void exitObjectAccessExpression(EK9Parser.ObjectAccessExpressionContext ctx) {
+  public void exitObjectAccessExpression(final EK9Parser.ObjectAccessExpressionContext ctx) {
     processObjectAccessExpressionOrError.accept(ctx);
     super.exitObjectAccessExpression(ctx);
   }
 
   @Override
-  public void exitVariableDeclaration(EK9Parser.VariableDeclarationContext ctx) {
+  public void exitVariableDeclaration(final EK9Parser.VariableDeclarationContext ctx) {
     checkVariableAssignment.accept(ctx);
     super.exitVariableDeclaration(ctx);
   }
 
   @Override
-  public void exitVariableOnlyDeclaration(EK9Parser.VariableOnlyDeclarationContext ctx) {
+  public void exitVariableOnlyDeclaration(final EK9Parser.VariableOnlyDeclarationContext ctx) {
     checkVariableOnlyDeclaration.accept(ctx);
     super.exitVariableOnlyDeclaration(ctx);
   }
 
   @Override
-  public void exitStreamCat(EK9Parser.StreamCatContext ctx) {
+  public void exitStreamCat(final EK9Parser.StreamCatContext ctx) {
     processStreamCat.accept(ctx);
     super.exitStreamCat(ctx);
   }
 
   @Override
-  public void exitStreamFor(EK9Parser.StreamForContext ctx) {
+  public void exitStreamFor(final EK9Parser.StreamForContext ctx) {
     processStreamFor.accept(ctx);
     super.exitStreamFor(ctx);
   }
 
   @Override
-  public void exitPipelinePart(EK9Parser.PipelinePartContext ctx) {
+  public void exitPipelinePart(final EK9Parser.PipelinePartContext ctx) {
     processPipelinePart.accept(ctx);
     super.exitPipelinePart(ctx);
   }
 
   @Override
-  public void exitStreamStatementTermination(EK9Parser.StreamStatementTerminationContext ctx) {
+  public void exitStreamStatementTermination(final EK9Parser.StreamStatementTerminationContext ctx) {
     processStreamStatementTermination.accept(ctx);
     super.exitStreamStatementTermination(ctx);
   }
 
   @Override
-  public void exitStreamStatement(EK9Parser.StreamStatementContext ctx) {
+  public void exitStreamStatement(final EK9Parser.StreamStatementContext ctx) {
     processStreamStatement.accept(ctx);
     super.exitStreamStatement(ctx);
   }
 
   @Override
-  public void exitStreamExpressionTermination(EK9Parser.StreamExpressionTerminationContext ctx) {
+  public void exitStreamExpressionTermination(final EK9Parser.StreamExpressionTerminationContext ctx) {
     processStreamExpressionTermination.accept(ctx);
     super.exitStreamExpressionTermination(ctx);
   }
 
   @Override
-  public void exitStreamExpression(EK9Parser.StreamExpressionContext ctx) {
+  public void exitStreamExpression(final EK9Parser.StreamExpressionContext ctx) {
     processStreamExpression.accept(ctx);
     super.exitStreamExpression(ctx);
   }

@@ -3,6 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 
@@ -21,22 +22,25 @@ final class CheckFunctionOverrides extends TypedSymbolAccess implements Consumer
    */
   CheckFunctionOverrides(final SymbolAndScopeManagement symbolAndScopeManagement,
                          final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.checkTypeCovariance = new CheckTypeCovariance(symbolAndScopeManagement, errorListener);
     this.checkParameterTypesExactMatch = new CheckParameterTypesExactMatch(symbolAndScopeManagement, errorListener);
     this.checkFunctionAbstractness = new CheckFunctionAbstractness(symbolAndScopeManagement, errorListener);
     this.checkPureModifier = new CheckPureModifier(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final FunctionSymbol functionSymbol) {
+
     //Only if there is a super function, do we execute this.
     functionSymbol.getSuperFunction().ifPresent(superFunction -> {
-      var errorMessage = getErrorMessageFor(functionSymbol, superFunction);
 
-      var paramData = new ParametersCheckData(functionSymbol.getSourceToken(), errorMessage,
+      final var errorMessage = getErrorMessageFor(functionSymbol, superFunction);
+      final var paramData = new ParametersCheckData(functionSymbol.getSourceToken(), errorMessage,
           functionSymbol.getCallParameters(), superFunction.getCallParameters());
-      var returnData = new CovarianceCheckData(functionSymbol.getSourceToken(), errorMessage,
+      final var returnData = new CovarianceCheckData(functionSymbol.getSourceToken(), errorMessage,
           functionSymbol.getReturningSymbol(), superFunction.getReturningSymbol());
 
       checkParameterTypesExactMatch.accept(paramData);
@@ -44,11 +48,13 @@ final class CheckFunctionOverrides extends TypedSymbolAccess implements Consumer
       checkFunctionAbstractness.accept(functionSymbol);
       checkPureModifier.accept(new PureCheckData(errorMessage, superFunction, functionSymbol));
     });
+
   }
 
   private String getErrorMessageFor(final FunctionSymbol functionSymbol,
                                     final FunctionSymbol matchedFunctionSymbol) {
-    String message = String.format("'%s' %s:",
+
+    final var message = String.format("'%s' %s:",
         matchedFunctionSymbol.getFriendlyName(), locationExtractorFromSymbol.apply(matchedFunctionSymbol));
 
     return "'" + functionSymbol.getFriendlyName() + "' and " + message;

@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
@@ -27,11 +28,15 @@ final class AugmentAggregateWithTraitMethods extends TypedSymbolAccess
 
   AugmentAggregateWithTraitMethods(final SymbolAndScopeManagement symbolAndScopeManagement,
                                    final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
-  public void accept(final EK9Parser.TraitsListContext traitsListContext, AggregateWithTraitsSymbol aggregate) {
+  public void accept(final EK9Parser.TraitsListContext traitsListContext,
+                     final AggregateWithTraitsSymbol aggregate) {
+
     if (traitsListContext == null || aggregate == null) {
       return;
     }
@@ -40,11 +45,13 @@ final class AugmentAggregateWithTraitMethods extends TypedSymbolAccess
     traitsListContext.traitReference().stream()
         .filter(traitCtx -> traitCtx.identifier() != null)
         .forEach(traitCtx -> augmentAsAppropriate(traitCtx, aggregate));
+
   }
 
   private void augmentAsAppropriate(final EK9Parser.TraitReferenceContext traitCtx,
-                                    AggregateWithTraitsSymbol aggregate) {
-    var symbol = getRecordedAndTypedSymbol(traitCtx.identifierReference());
+                                    final AggregateWithTraitsSymbol aggregate) {
+
+    final var symbol = getRecordedAndTypedSymbol(traitCtx.identifierReference());
     if (symbol instanceof AggregateWithTraitsSymbol trait) {
       Consumer<MethodSymbol> actionToTake = match -> {
         if (match.isMarkedAbstract()) {
@@ -54,15 +61,16 @@ final class AugmentAggregateWithTraitMethods extends TypedSymbolAccess
       //You may think this pointless, but a class may have some traits without 'by'
       checkIfAbstractMethodsImplemented.accept(trait, actionToTake);
     }
+
   }
 
   private void cloneMethodToAggregate(final EK9Parser.TraitReferenceContext traitCtx,
                                       final MethodSymbol method,
-                                      AggregateWithTraitsSymbol aggregate) {
+                                      final AggregateWithTraitsSymbol aggregate) {
 
-    var token = new Ek9Token(traitCtx.start);
+    final var token = new Ek9Token(traitCtx.start);
+    final var newMethod = method.clone(aggregate);
 
-    var newMethod = method.clone(aggregate);
     //Here we are ensuring that the class using this can call it
     newMethod.setOverride(true);
     newMethod.setMarkedAbstract(false);
@@ -76,5 +84,6 @@ final class AugmentAggregateWithTraitMethods extends TypedSymbolAccess
       newMethod.getReturningSymbol().setInitialisedBy(token);
     }
     aggregate.define(newMethod);
+
   }
 }

@@ -5,6 +5,7 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 
 /**
  * Just gets the left and right hand side of values in an expression.
@@ -15,20 +16,25 @@ final class AccessLeftAndRight extends TypedSymbolAccess
     implements Function<EK9Parser.ExpressionContext, Optional<ExprLeftAndRightData>> {
   private final SymbolFromContextOrError symbolFromContextOrError;
 
-  AccessLeftAndRight(SymbolAndScopeManagement symbolAndScopeManagement,
-                     ErrorListener errorListener) {
+  AccessLeftAndRight(final SymbolAndScopeManagement symbolAndScopeManagement,
+                     final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public Optional<ExprLeftAndRightData> apply(final EK9Parser.ExpressionContext ctx) {
-    var left = symbolFromContextOrError.apply(ctx.left);
-    var right = symbolFromContextOrError.apply(ctx.right);
+
+    final var left = symbolFromContextOrError.apply(ctx.left);
+    final var right = symbolFromContextOrError.apply(ctx.right);
+
     //Above will have checked type, but lets issue not resolved if null as well.
     if (left != null && right != null) {
       return Optional.of(new ExprLeftAndRightData(left, right));
     }
+
     return Optional.empty();
   }
 }

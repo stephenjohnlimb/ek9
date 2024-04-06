@@ -5,6 +5,7 @@ import java.util.function.BiFunction;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.SymbolSearch;
@@ -37,6 +38,7 @@ final class ProcessOperationCallOrError extends TypedSymbolAccess
    */
   ProcessOperationCallOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                               final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
 
     this.symbolsFromParamExpression =
@@ -51,15 +53,18 @@ final class ProcessOperationCallOrError extends TypedSymbolAccess
         new CheckAccessToSymbol(symbolAndScopeManagement, errorListener);
     this.checkPureContext =
         new CheckPureContext(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public ScopedSymbol apply(final EK9Parser.OperationCallContext ctx, final IAggregateSymbol aggregate) {
-    var startToken = new Ek9Token(ctx.start);
-    var symbol = doProcess(startToken, ctx, aggregate);
+
+    final var startToken = new Ek9Token(ctx.start);
+    final var symbol = doProcess(startToken, ctx, aggregate);
     if (symbol != null) {
       checkPureContext.accept(startToken, symbol);
     }
+
     return symbol;
   }
 
@@ -69,33 +74,41 @@ final class ProcessOperationCallOrError extends TypedSymbolAccess
 
 
     //Get the params and extract the types
-    var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
-    var methodOrDelegateName = ctx.operator() != null ? ctx.operator().getText() : ctx.identifier().getText();
+    final var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
+    final var methodOrDelegateName = ctx.operator() != null ? ctx.operator().getText() : ctx.identifier().getText();
 
     //For records the properties are publicly available, but when they are function delegates they 'look' like methods.
     //But the same is true when accessing delegates via 'this' when part of the class itself
-    var resolved = attemptDelegateResolution(startToken, aggregate, methodOrDelegateName);
+    final var resolved = attemptDelegateResolution(startToken, aggregate, methodOrDelegateName);
+
     if (resolved != null) {
       //Now check if the parameters align. But also need to wrap this into a Call object
       //Also should it be recorded against the context.
       return checkValidFunctionDelegateOrError.apply(new DelegateFunctionCheckData(startToken, resolved, callParams));
     }
     return resolveAsMethod(ctx, aggregate, methodOrDelegateName, callParams);
+
   }
 
-  private ISymbol attemptDelegateResolution(final IToken startToken, final IAggregateSymbol aggregate,
+  private ISymbol attemptDelegateResolution(final IToken startToken,
+                                            final IAggregateSymbol aggregate,
                                             final String delegateName) {
-    var accessFromScope = mostSpecificScope.get();
-    var resolutionAttempt = aggregate.resolveMember(new SymbolSearch(delegateName));
+
+    final var accessFromScope = mostSpecificScope.get();
+    final var resolutionAttempt = aggregate.resolveMember(new SymbolSearch(delegateName));
+
     //So only if resolved and is actually a delegate, do we check access and return it.
     if (resolutionAttempt.isPresent()
         && resolutionAttempt.get().getType().isPresent()
         && resolutionAttempt.get().getType().get() instanceof FunctionSymbol) {
-      var resolved = resolutionAttempt.get();
+
+      final var resolved = resolutionAttempt.get();
       checkAccessToSymbol.accept(
           new CheckSymbolAccessData(startToken, accessFromScope, aggregate, delegateName, resolved));
+
       return resolved;
     }
+
     return null;
   }
 
@@ -103,13 +116,18 @@ final class ProcessOperationCallOrError extends TypedSymbolAccess
                                        final IScope scopeToResolveIn,
                                        final String methodName,
                                        final List<ISymbol> callParams) {
-    var resolvedMethod = checkForMethodOnAggregate(new Ek9Token(ctx.start), scopeToResolveIn, methodName, callParams);
+
+    final var resolvedMethod =
+        checkForMethodOnAggregate(new Ek9Token(ctx.start), scopeToResolveIn, methodName, callParams);
     if (resolvedMethod == null) {
-      var msg = "'" + methodName + "':";
+
+      final var msg = "'" + methodName + "':";
       errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.METHOD_NOT_RESOLVED);
       return null;
     }
+
     resolvedMethod.setReferenced(true);
+
     return resolvedMethod;
   }
 
@@ -118,12 +136,13 @@ final class ProcessOperationCallOrError extends TypedSymbolAccess
                                                  final String methodName,
                                                  final List<ISymbol> parameters) {
 
-    var paramTypes = symbolTypeExtractor.apply(parameters);
-    //maybe earlier types were not defined by the ek9 developer so let's not look at it would be misleading.
+    final var paramTypes = symbolTypeExtractor.apply(parameters);
+    //maybe earlier types were not defined by the ek9 developer so let's not look, at it would be misleading.
     if (parameters.size() == paramTypes.size()) {
-      var search = new MethodSymbolSearch(methodName).setTypeParameters(paramTypes);
+      final var search = new MethodSymbolSearch(methodName).setTypeParameters(paramTypes);
       return resolveMethodOrError.apply(token, new MethodSearchInScope(scopeToSearch, search));
     }
+
     return null;
   }
 }

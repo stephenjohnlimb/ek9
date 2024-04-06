@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
@@ -21,13 +22,15 @@ final class CheckInstructionBlockVariables extends TypedSymbolAccess
    */
   CheckInstructionBlockVariables(final SymbolAndScopeManagement symbolAndScopeManagement,
                                  final ErrorListener errorListener) {
-    super(symbolAndScopeManagement, errorListener);
 
+    super(symbolAndScopeManagement, errorListener);
     this.symbolCheck = new CheckReferenced(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.InstructionBlockContext ctx) {
+
     ctx.blockStatement().forEach(blockStatement -> {
       if (blockStatement.variableOnlyDeclaration() != null) {
         symbolCheck.accept(getRecordedAndTypedSymbol(blockStatement.variableOnlyDeclaration()));

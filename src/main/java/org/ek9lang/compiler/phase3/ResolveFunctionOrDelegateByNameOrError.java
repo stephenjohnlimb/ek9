@@ -1,10 +1,13 @@
 package org.ek9lang.compiler.phase3;
 
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.FUNCTION_OR_DELEGATE_REQUIRED;
+
 import java.util.Optional;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
 
@@ -22,37 +25,60 @@ final class ResolveFunctionOrDelegateByNameOrError extends TypedSymbolAccess
    */
   ResolveFunctionOrDelegateByNameOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                                          final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.IdentifierContext ctx) {
-    var toResolve = ctx.getText();
 
-    var resolved = testForFunctionDelegate(toResolve);
+    final var toResolve = ctx.getText();
+
+    var resolved = getFunction(ctx, toResolve);
     if (resolved.isEmpty()) {
-      resolved = testForFunctionByName(toResolve);
-      if (resolved.isEmpty()) {
-        var msg = "'" + toResolve + "':";
-        errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.NOT_RESOLVED);
-        return;
-      }
+      var msg = "'" + toResolve + "':";
+      errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.NOT_RESOLVED);
+      return;
     }
 
-    var symbol = resolved.get();
+    final var symbol = resolved.get();
     symbol.setReferenced(true);
     recordATypedSymbol(symbol, ctx);
   }
 
-  private Optional<ISymbol> testForFunctionDelegate(final String name) {
+  private Optional<ISymbol> getFunction(final EK9Parser.IdentifierContext ctx, final String functionNameToResolve) {
+
+    final var resolved = resolveFunctionDelegate(functionNameToResolve);
+    if (resolved.isPresent()) {
+      return resolved;
+    }
+
+    return resolveFunctionByName(ctx, functionNameToResolve);
+  }
+
+
+  private Optional<ISymbol> resolveFunctionDelegate(final String name) {
+
     return symbolAndScopeManagement.getTopScope().resolve(new SymbolSearch(name));
   }
 
-  private Optional<ISymbol> testForFunctionByName(final String name) {
-    var possibleMatches = symbolAndScopeManagement.getModuleScope().getAllSymbolsMatchingName(name);
+  private Optional<ISymbol> resolveFunctionByName(final EK9Parser.IdentifierContext ctx, final String name) {
+
+    //While it may seem strange - we resolve like this so that it is possible to give more meaningful error messages.
+    //EK9 stops the same name being used at module scope for multiple 'types'/'constant' so there should only be one
+    //But it might be the wrong type - that is checked later in its context.
+    final var possibleMatches = symbolAndScopeManagement.getModuleScope().getAllSymbolsMatchingName(name);
     if (!possibleMatches.isEmpty()) {
-      return Optional.of(possibleMatches.get(0));
+      final var resolved = possibleMatches.get(0);
+      if (!resolved.isFunction() && !resolved.isTemplateFunction()) {
+        final var msg = "'" + name + "':";
+        errorListener.semanticError(ctx.start, msg, FUNCTION_OR_DELEGATE_REQUIRED);
+      }
+      return Optional.of(resolved);
     }
+
     return Optional.empty();
   }
+
 }

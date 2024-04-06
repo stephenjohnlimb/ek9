@@ -10,18 +10,16 @@ import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
  * This is because the 'type' can be an aggregate or it can be a function.
  */
 final class SymbolTypeOrEmpty implements Function<ISymbol, Optional<PossibleGenericSymbol>> {
-  SymbolTypeOrEmpty() {
-  }
 
   @Override
   public Optional<PossibleGenericSymbol> apply(final ISymbol symbol) {
-    if (symbol == null) {
-      return Optional.empty();
-    }
 
-    if (symbol.getType().isPresent() && symbol.getType().get() instanceof PossibleGenericSymbol typeSymbol) {
+    if (symbol != null
+        && symbol.getType().isPresent()
+        && symbol.getType().get() instanceof PossibleGenericSymbol typeSymbol) {
       return Optional.of(typeSymbol);
     }
+    
     return Optional.empty();
   }
 }

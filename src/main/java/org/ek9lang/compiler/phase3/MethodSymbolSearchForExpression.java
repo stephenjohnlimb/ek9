@@ -4,6 +4,7 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 
 /**
@@ -17,23 +18,28 @@ final class MethodSymbolSearchForExpression extends TypedSymbolAccess
   MethodSymbolSearchForExpression(
       final SymbolAndScopeManagement symbolAndScopeManagement,
       final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
-  public MethodSymbolSearch apply(EK9Parser.ExpressionContext ctx) {
+  public MethodSymbolSearch apply(final EK9Parser.ExpressionContext ctx) {
+
     //Some operators can have two different 'names' but can only be defined in a single form.
-    var searchMethodName = operatorText.apply(ctx);
-    var search = new MethodSymbolSearch(searchMethodName);
+    final var searchMethodName = operatorText.apply(ctx);
+    final var search = new MethodSymbolSearch(searchMethodName);
+
     if (ctx.expression().size() == 2) {
-      var param = symbolFromContextOrError.apply(ctx.expression(1));
+      final var param = symbolFromContextOrError.apply(ctx.expression(1));
       if (param != null && param.getType().isPresent()) {
         search.addTypeParameter(param.getType());
       } else {
         return null;
       }
     }
+
     return search;
   }
 }

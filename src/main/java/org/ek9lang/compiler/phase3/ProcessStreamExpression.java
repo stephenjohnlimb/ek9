@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.StreamCallSymbol;
 
@@ -19,26 +20,28 @@ final class ProcessStreamExpression extends TypedSymbolAccess implements Consume
   ProcessStreamExpression(final SymbolAndScopeManagement symbolAndScopeManagement,
                           final SymbolFactory symbolFactory,
                           final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.processStreamAssembly = new ProcessStreamAssembly(symbolAndScopeManagement, symbolFactory, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.StreamExpressionContext ctx) {
-    var streamExpressionSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
 
-    //We expect these to be defined and typed.
-    var source = (StreamCallSymbol) getRecordedAndTypedSymbol(ctx.streamSource());
-    var termination = (StreamCallSymbol) getRecordedAndTypedSymbol(ctx.streamExpressionTermination());
-    var streamParts = ctx.streamPart();
+    final var streamExpressionSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var source = (StreamCallSymbol) getRecordedAndTypedSymbol(ctx.streamSource());
+    final var termination = (StreamCallSymbol) getRecordedAndTypedSymbol(ctx.streamExpressionTermination());
+    final var streamParts = ctx.streamPart();
 
     //Otherwise there will have been errors emitted.
-    if (source != null && source.getType().isPresent()
-        && source.getProducesSymbolType() != null
+    if (source != null && source.getType().isPresent() && source.getProducesSymbolType() != null
         && termination != null && termination.getType().isPresent()) {
-      processStreamAssembly.accept(new StreamAssembly(source, streamParts, termination));
+
+      processStreamAssembly.accept(new StreamAssemblyData(source, streamParts, termination));
       //As this is an expression - it will return whatever the final type is for the 'collect'.
       streamExpressionSymbol.setType(termination.getType());
     }
   }
+
 }

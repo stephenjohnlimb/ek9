@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
@@ -23,66 +24,81 @@ final class ProcessForRange extends TypedSymbolAccess implements Consumer<EK9Par
    */
   ProcessForRange(final SymbolAndScopeManagement symbolAndScopeManagement,
                   final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.processIdentifierOrError = new ProcessIdentifierOrError(symbolAndScopeManagement, errorListener);
     this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.ForRangeContext ctx) {
 
     //First get the range expression as this will tell us the type for the loop variable
-    var rangeExpr = getRecordedAndTypedSymbol(ctx.range());
-
+    final var rangeExpr = getRecordedAndTypedSymbol(ctx.range());
     //Note the different call here, we accept that the loop variable will not yet have been 'typed'
     //So now we can set that type on the loop variable.
-    var loopVar = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var loopVar = symbolAndScopeManagement.getRecordedSymbol(ctx);
 
-    //Now use the type if it has been set
+    if (loopVar != null && rangeExpr != null) {
+      checkLoopWithRangeExpression(ctx, loopVar, rangeExpr);
+
+    }
+  }
+
+  private void checkLoopWithRangeExpression(final EK9Parser.ForRangeContext ctx,
+                                            final ISymbol loopVar,
+                                            final ISymbol rangeExpr) {
+
     loopVar.setType(rangeExpr.getType());
-
     checkForLoopVarComparator(loopVar);
 
     //Now just check the type of the 'by' part.
     if (ctx.BY() != null) {
       if (ctx.literal() != null) {
-        var literal = getRecordedAndTypedSymbol(ctx.literal());
+        final var literal = getRecordedAndTypedSymbol(ctx.literal());
         checkPlusEqualsOperator(loopVar, literal);
       } else {
-        var resolved = processIdentifierOrError.apply(ctx.identifier(1));
-        if (resolved != null) {
-          checkPlusEqualsOperator(loopVar, resolved);
-        }
+        final var resolved = processIdentifierOrError.apply(ctx.identifier(1));
+        checkPlusEqualsOperator(loopVar, resolved);
       }
     } else {
       checkOperator(loopVar, "++");
       checkOperator(loopVar, "--");
     }
+
   }
 
   private void checkForLoopVarComparator(final ISymbol loopVar) {
+
     loopVar.getType().ifPresent(loopVarType -> {
       //So the comparator should have one parameter of the same type.
-      var search = new MethodSymbolSearch("<=>").setTypeParameters(List.of(loopVarType));
+      final var search = new MethodSymbolSearch("<=>").setTypeParameters(List.of(loopVarType));
       resolveMethodOrError.apply(loopVar.getSourceToken(),
           new MethodSearchInScope((IAggregateSymbol) loopVarType, search));
     });
+
   }
 
   private void checkPlusEqualsOperator(final ISymbol loopVar, final ISymbol incrementBy) {
-    loopVar.getType().ifPresent(loopVarType -> incrementBy.getType().ifPresent(incrementByType -> {
-      //So the "+=" should have one parameter of the increment by type.
-      var search = new MethodSymbolSearch("+=").setTypeParameters(List.of(incrementByType));
-      resolveMethodOrError.apply(loopVar.getSourceToken(),
-          new MethodSearchInScope((IAggregateSymbol) loopVarType, search));
-    }));
+    if (incrementBy != null) {
+      loopVar.getType().ifPresent(loopVarType -> incrementBy.getType().ifPresent(incrementByType -> {
+        //So the "+=" should have one parameter of the increment by type.
+        var search = new MethodSymbolSearch("+=").setTypeParameters(List.of(incrementByType));
+        resolveMethodOrError.apply(loopVar.getSourceToken(),
+            new MethodSearchInScope((IAggregateSymbol) loopVarType, search));
+      }));
+    }
+
   }
 
   private void checkOperator(final ISymbol loopVar, final String operator) {
+
     loopVar.getType().ifPresent(loopVarType -> {
       var search = new MethodSymbolSearch(operator);
       resolveMethodOrError.apply(loopVar.getSourceToken(),
           new MethodSearchInScope((IAggregateSymbol) loopVarType, search));
     });
+
   }
 }

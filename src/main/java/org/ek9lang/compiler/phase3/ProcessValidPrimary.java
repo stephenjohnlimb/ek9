@@ -5,6 +5,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
 
@@ -19,41 +20,49 @@ final class ProcessValidPrimary extends TypedSymbolAccess implements Consumer<EK
    */
   ProcessValidPrimary(final SymbolAndScopeManagement symbolAndScopeManagement,
                       final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.PrimaryContext ctx) {
-    var symbol = determineSymbolToRecord(ctx);
+
+    final var symbol = determineSymbolToRecord(ctx);
     if (symbol != null) {
       recordATypedSymbol(symbol, ctx);
     }
+
   }
 
   /**
    * Gets the appropriate symbol to register against this context.
    */
   private ISymbol determineSymbolToRecord(final EK9Parser.PrimaryContext ctx) {
-    ISymbol symbol = null;
+
     if (ctx.literal() != null) {
-      symbol = getSymbolFromContext(ctx.literal());
+      return getSymbolFromContext(ctx.literal());
     } else if (ctx.identifierReference() != null) {
-      symbol = getSymbolFromContext(ctx.identifierReference());
+      return getSymbolFromContext(ctx.identifierReference());
     } else if (ctx.primaryReference() != null) {
-      symbol = getSymbolFromContext(ctx.primaryReference());
+      return getSymbolFromContext(ctx.primaryReference());
     } else if (ctx.expression() != null) {
-      symbol = getSymbolFromContext(ctx.expression());
+      return getSymbolFromContext(ctx.expression());
     } else {
       AssertValue.fail("Expecting finite set of operations");
     }
-    return symbol;
+
+    return null;
   }
 
   private ISymbol getSymbolFromContext(final ParserRuleContext ctx) {
-    var resolved = getRecordedAndTypedSymbol(ctx);
+
+    final var resolved = getRecordedAndTypedSymbol(ctx);
+
     if (resolved == null) {
       errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
     }
+
     return resolved;
   }
 }

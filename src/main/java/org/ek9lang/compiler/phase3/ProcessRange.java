@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.CommonTypeSuperOrTrait;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
@@ -25,25 +26,30 @@ final class ProcessRange extends TypedSymbolAccess implements Consumer<EK9Parser
   ProcessRange(final SymbolAndScopeManagement symbolAndScopeManagement,
                final SymbolFactory symbolFactory,
                final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.symbolFactory = symbolFactory;
     this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
     this.commonTypeSuperOrTrait = new CommonTypeSuperOrTrait(errorListener);
+
   }
 
   @Override
-  public void accept(EK9Parser.RangeContext ctx) {
-    var startToken = new Ek9Token(ctx.start);
-    var rangeExpr = symbolFactory.newExpressionSymbol(startToken, ctx.getText());
+  public void accept(final EK9Parser.RangeContext ctx) {
 
-    var fromExpr = symbolFromContextOrError.apply(ctx.expression(0));
-    var toExpr = symbolFromContextOrError.apply(ctx.expression(1));
+    final var startToken = new Ek9Token(ctx.start);
+    final var rangeExpr = symbolFactory.newExpressionSymbol(startToken, ctx.getText());
+    final var fromExpr = symbolFromContextOrError.apply(ctx.expression(0));
+    final var toExpr = symbolFromContextOrError.apply(ctx.expression(1));
 
     if (fromExpr != null && toExpr != null) {
-      var commonType = commonTypeSuperOrTrait.apply(startToken, List.of(fromExpr, toExpr));
+      final var commonType = commonTypeSuperOrTrait.apply(startToken, List.of(fromExpr, toExpr));
       rangeExpr.setType(commonType);
-    } //Otherwise there would have been unresolved errors earlier.
+    }
+
+    //Otherwise there would have been unresolved errors earlier.
     //record and if not typed there will be an error emitted.
     recordATypedSymbol(rangeExpr, ctx);
+
   }
 }

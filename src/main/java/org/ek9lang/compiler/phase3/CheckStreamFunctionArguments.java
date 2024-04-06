@@ -5,6 +5,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.I
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.SymbolTypeExtractor;
 
 /**
@@ -15,19 +16,24 @@ final class CheckStreamFunctionArguments extends TypedSymbolAccess implements Co
 
   CheckStreamFunctionArguments(final SymbolAndScopeManagement symbolAndScopeManagement,
                                final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
-  public void accept(StreamFunctionCheckData functionData) {
-    var argumentTypes = symbolTypeExtractor.apply(functionData.functionSymbol().getCallParameters());
+  public void accept(final StreamFunctionCheckData functionData) {
+
+    final var argumentTypes = symbolTypeExtractor.apply(functionData.functionSymbol().getCallParameters());
+
     //Now check those types are compatible with symbolType
     argumentTypes.forEach(argumentType -> {
       if (!functionData.currentStreamType().isAssignableTo(argumentType)) {
-        var typeErrorMsg = "wrt '" + functionData.functionSymbol().getFriendlyName()
+        final var typeErrorMsg = "wrt '" + functionData.functionSymbol().getFriendlyName()
             + "' and pipeline type '" + functionData.currentStreamType().getFriendlyName() + "':";
         errorListener.semanticError(functionData.errorLocation(), typeErrorMsg, INCOMPATIBLE_TYPE_ARGUMENTS);
       }
     });
+
   }
 }

@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.phase3;
 
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.TYPE_MUST_BE_FUNCTION;
 import static org.ek9lang.compiler.support.SymbolFactory.ACCESSED;
 
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.PossibleMatchingMethods;
@@ -47,8 +49,8 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
   ResolveIdentifierReferenceCallOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                                         final SymbolFactory symbolFactory,
                                         final ErrorListener errorListener) {
-    super(symbolAndScopeManagement, errorListener);
 
+    super(symbolAndScopeManagement, errorListener);
     this.mostSpecificScope =
         new MostSpecificScope(symbolAndScopeManagement);
     this.resolveMethodOrError =
@@ -67,10 +69,11 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
 
   @Override
   public ScopedSymbol apply(final EK9Parser.CallContext ctx) {
-    var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
-    //This might not be resolved yet for methods for example.
-    var callIdentifier = symbolAndScopeManagement.getRecordedSymbol(ctx.identifierReference());
-    var startToken = new Ek9Token(ctx.start);
+
+    final var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
+    final var callIdentifier = symbolAndScopeManagement.getRecordedSymbol(ctx.identifierReference());
+    final var startToken = new Ek9Token(ctx.start);
+
     return switch (callIdentifier) {
       case AggregateSymbol aggregate -> checkAggregate(startToken, aggregate, callIdentifier, callParams);
       case FunctionSymbol function -> checkFunction(startToken, function, callIdentifier, callParams);
@@ -79,31 +82,26 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
               callParams);
       case VariableSymbol variable ->
           checkForDelegateOrSearchForMethod(startToken, ctx.identifierReference(), variable, callParams);
-      case ConstantSymbol constantSymbol -> {
-        errorListener.semanticError(ctx.start, "'" + constantSymbol + "' is a constant:",
-            ErrorListener.SemanticClassification.TYPE_MUST_BE_FUNCTION);
-        yield null;
-      }
-      case null -> {
-        errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
-        yield null;
-      }
+      case ConstantSymbol constantSymbol -> emitGotAConstantNotAFunctionError(ctx, constantSymbol);
+      case null -> emitFunctionNotResolved(ctx);
       default -> {
         AssertValue.fail(
             "Compiler error: Not expecting " + ctx.getText() + " as [" + callIdentifier.getFriendlyName() + "]");
         yield null;
       }
     };
+
   }
 
   private ScopedSymbol checkForDelegateOrSearchForMethod(final Ek9Token startToken,
                                                          final EK9Parser.IdentifierReferenceContext ctx,
                                                          final VariableSymbol variable,
                                                          final List<ISymbol> callParams) {
+
     //Do a quick check (no errors) to see if there is a method that may match
-    var scope = mostSpecificScope.get();
-    var searchDetails = new MethodSearchInScope(scope, new MethodSymbolSearch(variable.getName()));
-    var possibleMethods = possibleMatchingMethods.apply(searchDetails);
+    final var scope = mostSpecificScope.get();
+    final var searchDetails = new MethodSearchInScope(scope, new MethodSymbolSearch(variable.getName()));
+    final var possibleMethods = possibleMatchingMethods.apply(searchDetails);
 
     //If the nearest identifier during normal resolution is a variable we may check if it is a suitable delegate
     if (possibleMethods.isEmpty()
@@ -112,12 +110,14 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
     }
 
     //Or just try and resolve a method with that name.
-    var resolvedMethod =
+    final var resolvedMethod =
         checkForMethodOnAggregate(startToken, (IAggregateSymbol) scope, variable.getName(), callParams);
+
     if (resolvedMethod != null) {
       //We now update the recorded system for this identifier reference.
       recordATypedSymbol(resolvedMethod, ctx);
     }
+
     return resolvedMethod;
   }
 
@@ -140,6 +140,7 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
         return checkGenericConstructionOrInvocation(token, callIdentifier, callArguments);
       }
     }
+
     //It's just a simple call to a constructor, but what if it's an abstract type.
     return checkForMethodOnAggregate(token, aggregate, callIdentifier.getName(), callArguments);
   }
@@ -160,32 +161,36 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
         return checkGenericConstructionOrInvocation(token, callIdentifier, callArguments);
       }
     }
+
     return checkFunctionParameters(token, function, callArguments);
   }
 
   private ScopedSymbol checkGenericConstructionOrInvocation(final IToken token,
                                                             final ISymbol genericSymbol,
                                                             final List<ISymbol> parameters) {
-    var genericTypeArguments = symbolTypeExtractor.apply(parameters);
+    final var genericTypeArguments = symbolTypeExtractor.apply(parameters);
     //maybe earlier types were not defined by the ek9 developer so let's not look at it would be misleading.
     if (parameters.size() == genericTypeArguments.size()) {
-      var theParameterisedType =
+      final var theParameterisedType =
           parameterisedLocator.apply(new ParameterisedTypeData(token, genericSymbol, genericTypeArguments));
       if (theParameterisedType.isPresent()) {
         return (ScopedSymbol) theParameterisedType.get();
       }
     }
+
     return null;
   }
 
   private ScopedSymbol checkFunctionParameters(final IToken token,
                                                final FunctionSymbol function,
                                                final List<ISymbol> parameters) {
-    var paramTypes = symbolTypeExtractor.apply(parameters);
+
+    final var paramTypes = symbolTypeExtractor.apply(parameters);
     //maybe earlier types were not defined by the ek9 developer so let's not look at it would be misleading.
     if (parameters.size() == paramTypes.size()) {
       return resolveFunctionOrError.apply(new FunctionCheckData(token, function, paramTypes));
     }
+
     return null;
   }
 
@@ -194,17 +199,36 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
                                                  final String methodName,
                                                  final List<ISymbol> parameters) {
 
-    var paramTypes = symbolTypeExtractor.apply(parameters);
+    final var paramTypes = symbolTypeExtractor.apply(parameters);
+
     //Maybe earlier types were not defined by the ek9 developer so let's not look at it would be misleading.
     //So if they are not present then there would have been other errors. There is no way can resolve the method.
+
     if (parameters.size() == paramTypes.size()) {
-      var search = new MethodSymbolSearch(methodName).setTypeParameters(paramTypes);
-      var resolved = resolveMethodOrError.apply(token, new MethodSearchInScope(aggregate, search));
+      final var search = new MethodSymbolSearch(methodName).setTypeParameters(paramTypes);
+      final var resolved = resolveMethodOrError.apply(token, new MethodSearchInScope(aggregate, search));
+
       if (resolved != null && aggregate.isConceptualTypeParameter()) {
         resolved.putSquirrelledData(ACCESSED, "TRUE");
       }
+
       return resolved;
     }
+
     return null;
   }
+
+  private ScopedSymbol emitGotAConstantNotAFunctionError(final EK9Parser.CallContext ctx,
+                                                         final ConstantSymbol constantSymbol) {
+
+    errorListener.semanticError(ctx.start, "'" + constantSymbol + "' is a constant:", TYPE_MUST_BE_FUNCTION);
+    return null;
+  }
+
+  private ScopedSymbol emitFunctionNotResolved(final EK9Parser.CallContext ctx) {
+
+    errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
+    return null;
+  }
+
 }

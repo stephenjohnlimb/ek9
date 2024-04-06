@@ -8,6 +8,7 @@ import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.support.ToCommaSeparated;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
@@ -26,15 +27,17 @@ final class ProcessSwitchStatementExpression extends TypedSymbolAccess
 
   ProcessSwitchStatementExpression(SymbolAndScopeManagement symbolAndScopeManagement,
                                    ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.setTypeFromReturningParam = new SetTypeFromReturningParam(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.SwitchStatementExpressionContext ctx) {
 
     //Now the return type (if viable)
-    var switchExpression = (SwitchSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var switchExpression = (SwitchSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     setTypeFromReturningParam.accept(switchExpression, ctx.returningParam());
 
     //Then check the cases all make sense.
@@ -48,7 +51,8 @@ final class ProcessSwitchStatementExpression extends TypedSymbolAccess
    */
   private void processSwitchCases(final EK9Parser.SwitchStatementExpressionContext ctx) {
 
-    var controlSymbol = getRecordedAndTypedSymbol(ctx.preFlowAndControl().control);
+    final var controlSymbol = getRecordedAndTypedSymbol(ctx.preFlowAndControl().control);
+
     if (controlSymbol != null && controlSymbol.getType().isPresent()) {
       checkForOperators(ctx, controlSymbol);
       checkIfSwitchOnDefinedEnumeration(ctx, controlSymbol);
@@ -63,7 +67,6 @@ final class ProcessSwitchStatementExpression extends TypedSymbolAccess
         .forEach(caseStatement -> caseStatement.caseExpression()
             .forEach(caseExpression -> checkOperatorExistsOrError(caseExpression, controlSymbol)));
   }
-
 
   /**
    * Now if all part of the cases are just ObjectAccessExpressions and the start is the
@@ -105,8 +108,8 @@ final class ProcessSwitchStatementExpression extends TypedSymbolAccess
   private void checkEnumerationCaseUse(final EK9Parser.SwitchStatementExpressionContext ctx,
                                        final IAggregateSymbol controlSymbolType) {
 
-    var enumValues = controlSymbolType.getProperties();
-    HashMap<ISymbol, Token> enumValuesEncountered = new HashMap<>();
+    final var enumValues = controlSymbolType.getProperties();
+    final HashMap<ISymbol, Token> enumValuesEncountered = new HashMap<>();
 
     for (var caseStatement : ctx.caseStatement()) {
       for (var caseExpression : caseStatement.caseExpression()) {
@@ -115,18 +118,19 @@ final class ProcessSwitchStatementExpression extends TypedSymbolAccess
           return;
         }
 
-        var caseObjectStart = symbolAndScopeManagement.getRecordedSymbol(caseExpression.objectAccessExpression());
+        final var caseObjectStart = symbolAndScopeManagement.getRecordedSymbol(caseExpression.objectAccessExpression());
         if (enumValuesEncountered.containsKey(caseObjectStart)) {
-          emitDuplicateCase(caseStatement.CASE().getSymbol(), caseObjectStart,
+          emitDuplicateCaseError(caseStatement.CASE().getSymbol(), caseObjectStart,
               enumValuesEncountered.get(caseObjectStart));
         }
+
         enumValuesEncountered.put(caseObjectStart, caseExpression.start);
       }
 
     }
 
     if (!enumValuesEncountered.keySet().containsAll(enumValues)) {
-      var listOfEnumValues = new ToCommaSeparated(true).apply(enumValues);
+      final var listOfEnumValues = new ToCommaSeparated(true).apply(enumValues);
 
       errorListener.semanticError(ctx.start, "should cover values: " + listOfEnumValues + " :",
           ErrorListener.SemanticClassification.NOT_ALL_ENUMERATED_VALUES_PRESENT_IN_SWITCH);
@@ -137,28 +141,34 @@ final class ProcessSwitchStatementExpression extends TypedSymbolAccess
 
   private boolean isCompatibleObjectAccessExpression(final EK9Parser.CaseExpressionContext caseExpression,
                                                      final IAggregateSymbol controlSymbolType) {
+
     if (caseExpression.objectAccessExpression() == null) {
       return false;
     }
-    var caseObjectStart = symbolAndScopeManagement.getRecordedSymbol(caseExpression.objectAccessExpression());
+
+    final var caseObjectStart = symbolAndScopeManagement.getRecordedSymbol(caseExpression.objectAccessExpression());
+
     if (caseObjectStart == null || caseObjectStart.getType().isEmpty()) {
       return false;
     }
+
     return caseObjectStart.getType().get().isExactSameType(controlSymbolType);
   }
 
   private void checkOperatorExistsOrError(final EK9Parser.CaseExpressionContext ctx, final ISymbol controlSymbol) {
+
     //Assume an equality check - unless an operator has been employed.
-    var caseVariable = getRecordedAndTypedSymbol(ctx);
+    final var caseVariable = getRecordedAndTypedSymbol(ctx);
+
     //If it is null or untyped then we'd get errors by the call above.
     if (caseVariable != null && caseVariable.getType().isPresent()) {
       final var operator = ctx.op != null ? new Ek9Token(ctx.op.getText()) : new Ek9Token("==");
 
       controlSymbol.getType().ifPresent(controlType -> {
         if (controlType instanceof IAggregateSymbol aggregate) {
-          var search = new MethodSymbolSearch(operator.getText()).addTypeParameter(caseVariable.getType());
+          final var search = new MethodSymbolSearch(operator.getText()).addTypeParameter(caseVariable.getType());
           if (aggregate.resolve(search).isEmpty()) {
-            emitError(ctx, controlSymbol, search);
+            emitMethodNotResolvedError(ctx, controlSymbol, search);
           }
         }
       });
@@ -166,19 +176,20 @@ final class ProcessSwitchStatementExpression extends TypedSymbolAccess
 
   }
 
-  private void emitDuplicateCase(final Token errorLocation, final ISymbol caseObjectStart, final Token duplicateToken) {
+  private void emitDuplicateCaseError(final Token errorLocation, final ISymbol caseObjectStart,
+                                      final Token duplicateToken) {
 
-    var lineNoOfDuplicate = duplicateToken.getLine();
-    var msg = "wrt: '" + caseObjectStart.getFriendlyName() + "' already encountered on line " + lineNoOfDuplicate
+    final var lineNoOfDuplicate = duplicateToken.getLine();
+    final var msg = "wrt: '" + caseObjectStart.getFriendlyName() + "' already encountered on line " + lineNoOfDuplicate
         + " :";
     errorListener.semanticError(errorLocation, msg,
         ErrorListener.SemanticClassification.DUPLICATE_ENUMERATED_VALUES_PRESENT_IN_SWITCH);
 
   }
 
-  private void emitError(final EK9Parser.CaseExpressionContext ctx,
-                         final ISymbol controlSymbol,
-                         final MethodSymbolSearch search) {
+  private void emitMethodNotResolvedError(final EK9Parser.CaseExpressionContext ctx,
+                                          final ISymbol controlSymbol,
+                                          final MethodSymbolSearch search) {
 
     errorListener.semanticError(ctx.start, "wrt '" + controlSymbol.getFriendlyName() + "' and '" + search + "':",
         METHOD_NOT_RESOLVED);

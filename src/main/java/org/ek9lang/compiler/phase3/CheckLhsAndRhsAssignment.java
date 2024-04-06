@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.OperationIsAssignment;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.support.RefersToSameSymbol;
@@ -24,6 +25,7 @@ final class CheckLhsAndRhsAssignment extends TypedSymbolAccess implements Consum
 
   CheckLhsAndRhsAssignment(final SymbolAndScopeManagement symbolAndScopeManagement,
                            final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.checkTypesCompatible
         = new CheckTypesCompatible(symbolAndScopeManagement, errorListener);
@@ -33,48 +35,65 @@ final class CheckLhsAndRhsAssignment extends TypedSymbolAccess implements Consum
         = new CheckAssignment(symbolAndScopeManagement, errorListener, false);
     this.checkMutableOrError
         = new CheckMutableOrError(errorListener);
+
   }
 
   @Override
-  public void accept(AssignmentData data) {
+  public void accept(final AssignmentData data) {
 
     if (data.typeData().lhs().getType().isPresent() && data.typeData().rhs().getType().isPresent()) {
       checkMutableOrError.accept(data.typeData().location(), data.typeData().lhs());
       checkTypesCompatible(data);
       checkNotSelfAssignment(data);
     }
+
   }
 
   private void checkTypesCompatible(final AssignmentData data) {
-    if (operationIsAssignment.test(data.typeData().location())) {
-      checkAssignment.accept(data.typeData().location(), data.typeData().lhs());
-      checkTypesCompatible.accept(
-          new TypeCompatibilityData(data.typeData().location(), data.typeData().lhs(), data.typeData().rhs()));
-    } else {
-      data.typeData().lhs().getType().ifPresent(lhsType -> {
-        if (lhsType instanceof IAggregateSymbol aggregate) {
-          //Need to resolve the operation.
-          var search =
-              new MethodSymbolSearch(data.typeData().location().getText()).addTypeParameter(
-                  data.typeData().rhs().getType());
-          MethodSearchInScope searchOnAggregate = new MethodSearchInScope(aggregate, search);
-          var resolved = resolveMethodOrError.apply(data.typeData().location(), searchOnAggregate);
-          if (resolved != null) {
-            //Only if the operator is there, do we check.
-            checkMutationOperation(data);
-          }
-        } else if (data.isAssigningToThis()) {
-          errorListener.semanticError(data.typeData().location(), "",
-              ErrorListener.SemanticClassification.INAPPROPRIATE_USE_OF_THIS);
 
-        } else {
-          //Now we do allow use of this and super for other types like functions and applications
-          //this is so they can reference themselves and pass their type on. So this is not a defect and needs to work.
-          AssertValue.fail("Compiler error: expecting an aggregate ["
-              + data.typeData().lhs().getFriendlyName() + "] line no " + data.typeData().location().getLine());
-        }
-      });
+    if (operationIsAssignment.test(data.typeData().location())) {
+      checkSimpleAssignment(data);
+    } else {
+      checkOtherMutations(data);
     }
+  }
+
+  private void checkSimpleAssignment(final AssignmentData data) {
+
+    checkAssignment.accept(data.typeData().location(), data.typeData().lhs());
+    checkTypesCompatible.accept(
+        new TypeCompatibilityData(data.typeData().location(), data.typeData().lhs(), data.typeData().rhs()));
+
+  }
+
+  private void checkOtherMutations(final AssignmentData data) {
+
+    data.typeData().lhs().getType().ifPresent(lhsType -> {
+
+      if (lhsType instanceof IAggregateSymbol aggregate) {
+        //Need to resolve the operation.
+        final var search =
+            new MethodSymbolSearch(data.typeData().location().getText()).addTypeParameter(
+                data.typeData().rhs().getType());
+        final var searchOnAggregate = new MethodSearchInScope(aggregate, search);
+        final var resolved = resolveMethodOrError.apply(data.typeData().location(), searchOnAggregate);
+
+        if (resolved != null) {
+          //Only if the operator is there, do we check.
+          checkMutationOperation(data);
+        }
+
+      } else if (data.isAssigningToThis()) {
+        errorListener.semanticError(data.typeData().location(), "",
+            ErrorListener.SemanticClassification.INAPPROPRIATE_USE_OF_THIS);
+
+      } else {
+        //Now we do allow use of this and super for other types like functions and applications
+        //this is so they can reference themselves and pass their type on. So this is not a defect and needs to work.
+        AssertValue.fail("Compiler error: expecting an aggregate ["
+            + data.typeData().lhs().getFriendlyName() + "] line no " + data.typeData().location().getLine());
+      }
+    });
   }
 
   /**
@@ -82,8 +101,9 @@ final class CheckLhsAndRhsAssignment extends TypedSymbolAccess implements Consum
    * If it is in a pure context, need to take into account whether it is in a constructor.
    */
   private void checkMutationOperation(final AssignmentData data) {
+
     if (isProcessingScopePure()) {
-      var maybeMethod = symbolAndScopeManagement.traverseBackUpStackToEnclosingMethod();
+      final var maybeMethod = symbolAndScopeManagement.traverseBackUpStackToEnclosingMethod();
 
       if (maybeMethod.isEmpty()) {
         //So this is not within a method in an aggregate, so no mutation of anything.
@@ -107,11 +127,13 @@ final class CheckLhsAndRhsAssignment extends TypedSymbolAccess implements Consum
   }
 
   private void checkNotSelfAssignment(final AssignmentData data) {
+
     if (refersToSameSymbol.test(data.typeData().lhs(), data.typeData().rhs())) {
-      var msg = "'" + data.typeData().lhs().getFriendlyName()
+      final var msg = "'" + data.typeData().lhs().getFriendlyName()
           + "' and '" + data.typeData().rhs().getSourceToken().getText() + "' :";
       errorListener.semanticError(data.typeData().location(), msg,
           ErrorListener.SemanticClassification.SELF_ASSIGNMENT);
     }
+
   }
 }

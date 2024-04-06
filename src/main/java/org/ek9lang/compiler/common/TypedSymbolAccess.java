@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.phase3;
+package org.ek9lang.compiler.common;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.compiler.common.AggregateHasPureConstruction;
@@ -22,9 +22,14 @@ import org.ek9lang.compiler.symbols.ISymbol;
 public class TypedSymbolAccess extends RuleSupport {
   private final AggregateHasPureConstruction aggregateHasPureConstruction = new AggregateHasPureConstruction();
 
+  /**
+   * Constructor to provided typed access.
+   */
   protected TypedSymbolAccess(final SymbolAndScopeManagement symbolAndScopeManagement,
-                              final ErrorListener errorListener) {
+                    final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   /**
@@ -34,7 +39,8 @@ public class TypedSymbolAccess extends RuleSupport {
    * @return true if pure, false if mutable.
    */
   protected boolean isProcessingScopePure() {
-    var scope = symbolAndScopeManagement.traverseBackUpStackToMethodOrFunction();
+
+    final var scope = symbolAndScopeManagement.traverseBackUpStackToMethodOrFunction();
     if (scope.isEmpty()) {
       //Now this could be inside an aggregate where properties are declared.
       var possibleAggregate = symbolAndScopeManagement.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
@@ -46,6 +52,7 @@ public class TypedSymbolAccess extends RuleSupport {
           .map(IAggregateSymbol.class::cast)
           .filter(aggregateHasPureConstruction).isPresent();
     }
+
     return scope.map(IScope::isMarkedPure).orElse(false);
   }
 
@@ -53,10 +60,12 @@ public class TypedSymbolAccess extends RuleSupport {
    * Records a symbol against a node and also emits an error if its type has not been set.
    */
   public void recordATypedSymbol(final ISymbol symbol, final ParseTree node) {
+
     symbolAndScopeManagement.recordSymbol(symbol, node);
     if (symbol.getType().isEmpty()) {
       emitTypeNotResolvedError(symbol);
     }
+
   }
 
   /**
@@ -65,16 +74,20 @@ public class TypedSymbolAccess extends RuleSupport {
    * If there is no type then an error is emitted.
    */
   public ISymbol getRecordedAndTypedSymbol(final ParseTree node) {
-    var symbol = symbolAndScopeManagement.getRecordedSymbol(node);
+
+    final var symbol = symbolAndScopeManagement.getRecordedSymbol(node);
     if (symbol != null && symbol.getType().isEmpty()) {
       emitTypeNotResolvedError(symbol);
     }
+
     //either way return the symbol
     return symbol;
   }
 
   private void emitTypeNotResolvedError(final ISymbol symbol) {
-    var msg = "'" + symbol.getName() + "':";
+
+    final var msg = "'" + symbol.getName() + "':";
     errorListener.semanticError(symbol.getSourceToken(), msg, ErrorListener.SemanticClassification.TYPE_NOT_RESOLVED);
+
   }
 }

@@ -19,11 +19,14 @@ final class SymbolsFromParamExpression implements Function<EK9Parser.ParamExpres
 
   SymbolsFromParamExpression(final SymbolAndScopeManagement symbolAndScopeManagement,
                              final ErrorListener errorListener) {
+
     this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public List<ISymbol> apply(final EK9Parser.ParamExpressionContext ctx) {
+
     return ctx.expressionParam()
         .stream()
         .map(EK9Parser.ExpressionParamContext::expression)

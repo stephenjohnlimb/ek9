@@ -7,6 +7,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.R
 import java.util.function.BiConsumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
 
@@ -18,24 +19,29 @@ final class CheckAssignment extends TypedSymbolAccess implements BiConsumer<ITok
   private final boolean isDeclaration;
   private final CheckIsSet checkIsSet;
 
-  CheckAssignment(SymbolAndScopeManagement symbolAndScopeManagement,
-                  ErrorListener errorListener, boolean isDeclaration) {
+  CheckAssignment(final SymbolAndScopeManagement symbolAndScopeManagement,
+                  final ErrorListener errorListener,
+                  final boolean isDeclaration) {
+
     super(symbolAndScopeManagement, errorListener);
     this.isDeclaration = isDeclaration;
-    this.checkIsSet
-        = new CheckIsSet(symbolAndScopeManagement, errorListener);
+    this.checkIsSet = new CheckIsSet(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final IToken op, final ISymbol leftHandSideSymbol) {
+
     if (leftHandSideSymbol == null) {
       //may not have resolved properly - so other errors would be emitted.
       return;
     }
+
     //This is the apply the null/isSet coalescing operator. To apply that it is necessary that operator '?' isSet exists
     if (":=?".equals(op.getText())) {
       checkIsSet.test(op, leftHandSideSymbol);
     } else {
+
       if (leftHandSideSymbol.isInjectionExpected()) {
         //So if one of the other assignments we don't just allow reassignment if the lhs is marked for injection.
         //We do allow that when used with :=? so that a variable can be set if it has not been injected.
@@ -43,16 +49,19 @@ final class CheckAssignment extends TypedSymbolAccess implements BiConsumer<ITok
         //With the :=? that reassignment only happens if the variable has not been assigned(injected) already.
         errorListener.semanticError(op, "", REASSIGNMENT_OF_INJECTED_COMPONENT);
       }
+
       if (leftHandSideSymbol.isIncomingParameter()) {
         errorListener.semanticError(op, "'" + leftHandSideSymbol.getFriendlyName() + "':",
             NO_INCOMING_ARGUMENT_REASSIGNMENT);
       }
+
       //If it is a declaration then it is not a reassignment - but an initial assignment.
       if (!isDeclaration && isPureReassignmentDisallowed(op, leftHandSideSymbol)) {
         errorListener.semanticError(op, "'" + leftHandSideSymbol.getFriendlyName() + "':",
             NO_PURE_REASSIGNMENT);
       }
     }
+
   }
 
   /**
@@ -61,11 +70,13 @@ final class CheckAssignment extends TypedSymbolAccess implements BiConsumer<ITok
    * to leave it as uninitialised and then only use the :=? once to set it.
    */
   private boolean isPureReassignmentDisallowed(final IToken op, final ISymbol leftHandSideSymbol) {
+
     if (leftHandSideSymbol.isReturningParameter() && leftHandSideSymbol.isInitialised()
         && leftHandSideSymbol.getSourceToken().getLine() == op.getLine()) {
       //Not disallowed irrespective of pure scope, as it is the first direct initialisation.
       return false;
     }
+
     return isProcessingScopePure();
   }
 }

@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.StreamCallSymbol;
@@ -23,13 +24,16 @@ final class CheckHeadTailSkipOperation extends TypedSymbolAccess implements Cons
 
   CheckHeadTailSkipOperation(final SymbolAndScopeManagement symbolAndScopeManagement,
                              final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
 
   }
 
   @Override
   public void accept(final EK9Parser.StreamPartContext ctx) {
+
     final var streamCallPart = (StreamCallSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+
     if (ctx.pipelinePart().size() == 1) {
       checkVariableOrFunctionUse(ctx.pipelinePart().get(0));
     } else if (ctx.literal() != null) {
@@ -38,22 +42,29 @@ final class CheckHeadTailSkipOperation extends TypedSymbolAccess implements Cons
       //Just record that this is a fixed value and use 1 my default.
       streamCallPart.putSquirrelledData("FIXED", Integer.toString(1));
     }
+
   }
 
   private void checkValidIntegerValueUse(final EK9Parser.StreamPartContext ctx, final StreamCallSymbol streamCallPart) {
 
-    var possibleIntegerSymbol = getRecordedAndTypedSymbol(ctx.literal());
+    final var possibleIntegerSymbol = getRecordedAndTypedSymbol(ctx.literal());
 
     possibleIntegerSymbol.getType().ifPresent(type -> {
+
       if (isTypeNotAnInteger(type)) {
+
         final var msg =
             "for '" + ctx.op.getText() + "' and value/type '" + possibleIntegerSymbol.getFriendlyName() + "':";
         errorListener.semanticError(possibleIntegerSymbol.getSourceToken(), msg, MUST_BE_INTEGER_GREATER_THAN_ZERO);
+
       } else {
-        var asInteger = Integer.parseInt(possibleIntegerSymbol.getName());
+
+        final var asInteger = Integer.parseInt(possibleIntegerSymbol.getName());
         if (asInteger < 1) {
+
           final var msg = "for '" + ctx.op.getText() + "' and value '" + possibleIntegerSymbol.getName() + "':";
           errorListener.semanticError(possibleIntegerSymbol.getSourceToken(), msg, MUST_BE_INTEGER_GREATER_THAN_ZERO);
+
         } else {
           //OK so again record this is a fixed value and record the value.
           streamCallPart.putSquirrelledData("FIXED", possibleIntegerSymbol.getName());
@@ -65,10 +76,12 @@ final class CheckHeadTailSkipOperation extends TypedSymbolAccess implements Cons
 
   private void checkVariableOrFunctionUse(final EK9Parser.PipelinePartContext ctx) {
 
-    var operationOperand = getRecordedAndTypedSymbol(ctx);
+    final var operationOperand = getRecordedAndTypedSymbol(ctx);
+
     if (operationOperand != null) {
 
       operationOperand.getType().ifPresent(type -> {
+
         if (type instanceof FunctionSymbol functionSymbol) {
           if (!operationOperand.getGenus().equals(ISymbol.SymbolGenus.VALUE)
               && type.isMarkedAbstract()) {
@@ -81,19 +94,21 @@ final class CheckHeadTailSkipOperation extends TypedSymbolAccess implements Cons
           final var msg = "wrt '" + operationOperand.getFriendlyName() + "':";
           errorListener.semanticError(ctx.start, msg, INTEGER_VAR_OR_FUNCTION_OR_DELEGATE_REQUIRED);
         }
+
       });
     }
   }
 
   private void checkIsSuitableFunctionOrError(final StreamFunctionCheckData functionData) {
 
-    var errorMsg = "'" + functionData.functionSymbol().getFriendlyName() + "':";
+    final var errorMsg = "'" + functionData.functionSymbol().getFriendlyName() + "':";
+
     if (!functionData.functionSymbol().getCallParameters().isEmpty()) {
       errorListener.semanticError(functionData.errorLocation(), errorMsg, FUNCTION_MUST_HAVE_NO_PARAMETERS);
     }
 
     if (functionData.functionSymbol().getReturningSymbol().getType().isPresent()) {
-      var returnType = functionData.functionSymbol().getReturningSymbol().getType().get();
+      final var returnType = functionData.functionSymbol().getReturningSymbol().getType().get();
       if (isTypeNotAnInteger(returnType)) {
         errorListener.semanticError(functionData.errorLocation(), errorMsg, MUST_RETURN_INTEGER);
       }
@@ -102,6 +117,7 @@ final class CheckHeadTailSkipOperation extends TypedSymbolAccess implements Cons
   }
 
   private boolean isTypeNotAnInteger(final ISymbol type) {
+
     return !type.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Integer());
   }
 }

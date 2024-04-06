@@ -10,15 +10,17 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  * Ensures that a switch is used correctly in or out of an expression.
  * This now includes checking for 'default' and it's correct use with statement and expression switches.
  */
-class CheckSwitch extends CheckReturns implements Consumer<EK9Parser.SwitchStatementExpressionContext> {
+final class CheckSwitch extends CheckReturns implements Consumer<EK9Parser.SwitchStatementExpressionContext> {
 
   CheckSwitch(final ErrorListener errorListener) {
     super(errorListener);
   }
 
   @Override
-  public void accept(EK9Parser.SwitchStatementExpressionContext ctx) {
+  public void accept(final EK9Parser.SwitchStatementExpressionContext ctx) {
+
     boolean isStatement = ctx.parent instanceof EK9Parser.StatementContext;
     check(isStatement, new Ek9Token(ctx.start), ctx.returningParam());
+
   }
 }

@@ -8,6 +8,7 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.support.CommonTypeSuperOrTrait;
 import org.ek9lang.compiler.support.SymbolFactory;
@@ -40,6 +41,7 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
    */
   CheckValidExpression(final SymbolAndScopeManagement symbolAndScopeManagement, final SymbolFactory symbolFactory,
                        final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.symbolFactory = symbolFactory;
     this.checkIsSet = new CheckIsSet(symbolAndScopeManagement, errorListener);
@@ -50,6 +52,7 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     this.commonTypeSuperOrTrait = new CommonTypeSuperOrTrait(errorListener);
     this.accessLeftAndRight = new AccessLeftAndRight(symbolAndScopeManagement, errorListener);
     this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
@@ -130,6 +133,7 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
         || symbol.getCategory().equals(ISymbol.SymbolCategory.TEMPLATE_FUNCTION)) {
       return;
     }
+
     //Also allow enumerations to be referenced directly.
     if (symbol.getGenus().equals(ISymbol.SymbolGenus.CLASS_ENUMERATION)) {
       return;
@@ -139,7 +143,7 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
 
   }
 
-  private ISymbol processObjectAccessExpression(EK9Parser.ExpressionContext ctx) {
+  private ISymbol processObjectAccessExpression(final EK9Parser.ExpressionContext ctx) {
 
     final var startToken = new Ek9Token(ctx.start);
     final var maybeResolved = symbolFromContextOrError.apply(ctx.objectAccessExpression());
@@ -147,8 +151,8 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     if (maybeResolved != null && maybeResolved.getType().isPresent()) {
       return symbolFactory.newExpressionSymbol(startToken, ctx.getText()).setType(maybeResolved.getType());
     }
-    return null;
 
+    return null;
   }
 
   private ISymbol processOperation(final EK9Parser.ExpressionContext ctx) {
@@ -171,7 +175,6 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     }
 
     return null;
-
   }
 
   /**
@@ -188,7 +191,6 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
   private ISymbol processTernary(final EK9Parser.ExpressionContext ctx) {
 
     final var start = new Ek9Token(ctx.start);
-
     //First lets gather the 'expressions' because if they are not there then there's little we can do here.
     final var control = symbolFromContextOrError.apply(ctx.control);
     final var leftAndRight = toList.apply(accessLeftAndRight.apply(ctx));
@@ -204,7 +206,6 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     }
 
     return null;
-
   }
 
   /**
@@ -218,8 +219,8 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
   private ISymbol processCoalescing(final EK9Parser.ExpressionContext ctx) {
 
     final var opToken = new Ek9Token(ctx.coalescing);
-    return expressionForOperation(opToken, checkIsSet, ctx);
 
+    return expressionForOperation(opToken, checkIsSet, ctx);
   }
 
   /**
@@ -237,11 +238,11 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
    * <br/>
    * In effect this is like an assignment, combined if/else, null check and equality check all in one.
    */
-  private ISymbol processCoalescingEquality(EK9Parser.ExpressionContext ctx) {
+  private ISymbol processCoalescingEquality(final EK9Parser.ExpressionContext ctx) {
 
     final var opToken = new Ek9Token(ctx.coalescing_equality);
-    return expressionForOperation(opToken, checkForComparator, ctx);
 
+    return expressionForOperation(opToken, checkForComparator, ctx);
   }
 
   private ISymbol expressionForOperation(final IToken opToken, final BiPredicate<IToken, ISymbol> predicate,
@@ -257,7 +258,6 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     }
 
     return null;
-
   }
 
   /**
@@ -275,10 +275,9 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     }
 
     return checkContains(ctx);
-
   }
 
-  private ISymbol checkWithinRange(EK9Parser.ExpressionContext ctx) {
+  private ISymbol checkWithinRange(final EK9Parser.ExpressionContext ctx) {
 
     final var opToken = new Ek9Token(ctx.IN().getSymbol());
     final var expr = symbolFromContextOrError.apply(ctx.expression(0));
@@ -299,10 +298,9 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     }
 
     return null;
-
   }
 
-  private ISymbol checkContains(EK9Parser.ExpressionContext ctx) {
+  private ISymbol checkContains(final EK9Parser.ExpressionContext ctx) {
 
     final var opToken = new Ek9Token(ctx.IN().getSymbol());
     final var leftAndRight = accessLeftAndRight.apply(ctx);
@@ -315,7 +313,6 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     }
 
     return null;
-
   }
 
   private ISymbol processExpressionFromOperatorData(final EK9Parser.ExpressionContext ctx,
@@ -330,7 +327,6 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     }
 
     return null;
-
   }
 
   private ISymbol processNegationIfRequired(final EK9Parser.ExpressionContext ctx, final ISymbol expr) {
@@ -341,7 +337,6 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     }
 
     return expr;
-
   }
 
   private ISymbol checkAndProcessNotOperation(final IToken notOpToken, final ISymbol exprSymbol) {
@@ -355,7 +350,6 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     }
 
     return null;
-
   }
 
   private ISymbol checkAndProcessIsSet(final EK9Parser.ExpressionContext ctx) {
@@ -369,7 +363,6 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     }
 
     return null;
-
   }
 
   private void emitTypeNotResolvedError(final IToken lineToken, final ISymbol argument) {

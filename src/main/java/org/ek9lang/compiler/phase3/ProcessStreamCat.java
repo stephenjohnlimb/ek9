@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.CommonTypeDeterminationDetails;
 import org.ek9lang.compiler.support.CommonTypeOrError;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
@@ -29,42 +30,47 @@ final class ProcessStreamCat extends TypedSymbolAccess implements Consumer<EK9Pa
 
   ProcessStreamCat(final SymbolAndScopeManagement symbolAndScopeManagement,
                    final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.getIteratorType = new GetIteratorType(symbolAndScopeManagement, errorListener);
     this.commonTypeOrError = new CommonTypeOrError(errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.StreamCatContext ctx) {
-    var streamCat = (StreamCallSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+
+    final var streamCat = (StreamCallSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     if (streamCat != null) {
-      var commonTypeToProduce = calculatedCommonTypeOrError(streamCat, ctx);
+      final var commonTypeToProduce = calculatedCommonTypeOrError(streamCat, ctx);
       commonTypeToProduce.ifPresent(type -> {
         streamCat.setProducesSymbolType(type);
         streamCat.setType(type);
       });
     }
+
   }
 
   private Optional<ISymbol> calculatedCommonTypeOrError(final StreamCallSymbol streamCat,
                                                         final EK9Parser.StreamCatContext ctx) {
 
-    var expressions = ctx.expression().stream()
+    final var expressions = ctx.expression().stream()
         .map(super::getRecordedAndTypedSymbol)
         .filter(Objects::nonNull)
         .toList();
 
-    var expressionTypes = expressions.stream()
+    final var expressionTypes = expressions.stream()
         .map(ISymbol::getType)
         .filter(Optional::isPresent)
         .flatMap(Optional::stream)
         .map(IAggregateSymbol.class::cast)
         .toList();
 
-    var listOfIterableTypes = getIterableTypesOrError(expressions, expressionTypes);
+    final var listOfIterableTypes = getIterableTypesOrError(expressions, expressionTypes);
 
     if (!expressions.isEmpty() && expressions.size() == listOfIterableTypes.size()) {
-      var details = new CommonTypeDeterminationDetails(streamCat.getSourceToken(), expressions, listOfIterableTypes);
+      final var details =
+          new CommonTypeDeterminationDetails(streamCat.getSourceToken(), expressions, listOfIterableTypes);
       return commonTypeOrError.apply(details);
     }
 
@@ -73,23 +79,28 @@ final class ProcessStreamCat extends TypedSymbolAccess implements Consumer<EK9Pa
 
   private List<ISymbol> getIterableTypesOrError(final List<ISymbol> expressions,
                                                 final List<IAggregateSymbol> expressionTypes) {
-    List<ISymbol> rtn = new ArrayList<>();
+
+    final List<ISymbol> rtn = new ArrayList<>();
+
     if (expressions.size() == expressionTypes.size()) {
       for (int i = 0; i < expressions.size(); i++) {
-        var possibleType = getIterableTypeOrError(expressions.get(i), expressionTypes.get(i));
+        final var possibleType = getIterableTypeOrError(expressions.get(i), expressionTypes.get(i));
         possibleType.ifPresent(rtn::add);
       }
     }
+
     return rtn;
   }
 
   private Optional<ISymbol> getIterableTypeOrError(final ISymbol expression, final IAggregateSymbol expressionType) {
-    var resolvedType = getIteratorType.apply(expressionType);
+
+    final var resolvedType = getIteratorType.apply(expressionType);
     if (resolvedType.isEmpty()) {
       errorListener.semanticError(expression.getSourceToken(),
           "iteration over '" + expressionType.getFriendlyName() + "' type is not possible:",
           MISSING_ITERATE_METHOD);
     }
+
     return resolvedType;
   }
 }

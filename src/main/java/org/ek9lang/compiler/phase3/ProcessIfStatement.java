@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 
 /**
  * Checks the IfStatement is valid or emits errors.
@@ -11,10 +12,12 @@ import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 final class ProcessIfStatement extends TypedSymbolAccess implements Consumer<EK9Parser.IfStatementContext> {
   private final CheckControlIsBooleanOrError checkControlIsBooleanOrError;
 
-  ProcessIfStatement(SymbolAndScopeManagement symbolAndScopeManagement,
-                     ErrorListener errorListener) {
+  ProcessIfStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
+                     final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.checkControlIsBooleanOrError = new CheckControlIsBooleanOrError(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
@@ -23,6 +26,7 @@ final class ProcessIfStatement extends TypedSymbolAccess implements Consumer<EK9
     ctx.ifControlBlock().stream()
         .map(controlBlock -> controlBlock.preFlowAndControl().control)
         .forEach(checkControlIsBooleanOrError);
+
   }
 
 }

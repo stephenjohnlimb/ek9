@@ -12,6 +12,7 @@ final class OperatorText implements Function<EK9Parser.ExpressionContext, String
   public String apply(final EK9Parser.ExpressionContext ctx) {
 
     String searchMethodName = null;
+
     if (ctx != null && ctx.op != null) {
       searchMethodName = ctx.op.getText();
       if (searchMethodName.equals("not")) {
@@ -20,6 +21,7 @@ final class OperatorText implements Function<EK9Parser.ExpressionContext, String
         return "<>";
       }
     }
+
     return searchMethodName;
   }
 }

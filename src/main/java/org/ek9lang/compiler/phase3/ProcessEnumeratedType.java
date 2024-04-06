@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.support.ParameterisedLocator;
 import org.ek9lang.compiler.support.ParameterisedTypeData;
@@ -19,18 +20,22 @@ final class ProcessEnumeratedType extends TypedSymbolAccess implements Consumer<
   private final ParameterisedLocator parameterisedLocator;
   private final AggregateFactory aggregateFactory;
 
-  ProcessEnumeratedType(final SymbolAndScopeManagement symbolAndScopeManagement, final SymbolFactory symbolFactory,
+  ProcessEnumeratedType(final SymbolAndScopeManagement symbolAndScopeManagement,
+                        final SymbolFactory symbolFactory,
                         final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.parameterisedLocator = new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
     this.aggregateFactory = symbolFactory.getAggregateFactory();
+
   }
 
   @Override
   public void accept(final EK9Parser.TypeDeclarationContext ctx) {
-    var startToken = new Ek9Token(ctx.start);
 
+    final var startToken = new Ek9Token(ctx.start);
     final var enumeratedTypeSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+
     if (enumeratedTypeSymbol instanceof AggregateSymbol enumeration) {
       final var iteratorType = symbolAndScopeManagement.getEk9Types().ek9Iterator();
 
@@ -38,6 +43,7 @@ final class ProcessEnumeratedType extends TypedSymbolAccess implements Consumer<
       final var resolvedNewType = parameterisedLocator.resolveOrDefine(typeData);
       aggregateFactory.addPublicMethod(enumeration, "iterator", List.of(), resolvedNewType);
     }
+
   }
 
 }

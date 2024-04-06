@@ -4,6 +4,7 @@ import java.util.function.Function;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
@@ -16,15 +17,19 @@ final class SymbolFromContextOrError extends TypedSymbolAccess implements Functi
 
   SymbolFromContextOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                            final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
-  public ISymbol apply(ParserRuleContext ctx) {
+  public ISymbol apply(final ParserRuleContext ctx) {
+
     var resolved = getRecordedAndTypedSymbol(ctx);
     if (resolved == null) {
       errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
     }
+
     return resolved;
   }
 }

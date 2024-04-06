@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -22,23 +23,28 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * If this is not possible then Optional.empty() is returned.</p>
  */
 final class GetIteratorType extends TypedSymbolAccess implements Function<IAggregateSymbol, Optional<ISymbol>> {
-  GetIteratorType(SymbolAndScopeManagement symbolAndScopeManagement,
-                  ErrorListener errorListener) {
+  GetIteratorType(final SymbolAndScopeManagement symbolAndScopeManagement,
+                  final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public Optional<ISymbol> apply(final IAggregateSymbol aggregate) {
 
-    var resolved = attemptToResolveIterator(aggregate);
+    final var resolved = attemptToResolveIterator(aggregate);
+
     return resolved.isPresent() ? resolved : attemptToResolveHasNextAndNext(aggregate);
   }
 
   private Optional<ISymbol> attemptToResolveIterator(final IAggregateSymbol aggregate) {
-    var resolved = getMethodReturnType(aggregate, "iterator");
+
+    final var resolved = getMethodReturnType(aggregate, "iterator");
     if (resolved.isPresent() && resolved.get() instanceof IAggregateSymbol expectedIterator) {
       return attemptToResolveHasNextAndNext(expectedIterator);
     }
+
     return Optional.empty();
   }
 
@@ -53,15 +59,16 @@ final class GetIteratorType extends TypedSymbolAccess implements Function<IAggre
         && aggregate.getGenericType().isPresent()
         && aggregate.getTypeParameterOrArguments().size() == 1) {
 
-      var maybeIteratorType = aggregate.getGenericType().get();
+      final var maybeIteratorType = aggregate.getGenericType().get();
       if (maybeIteratorType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Iterator())) {
         //The can only be one and this will have been checked earlier
         return Optional.of(aggregate.getTypeParameterOrArguments().get(0));
       }
+
     } else {
       //Not a parameterised type with Iterator, but it might have hasNext() and next().
-      var resolvedHasNext = getMethodReturnType(aggregate, "hasNext");
-      var resolvedNext = getMethodReturnType(aggregate, "next");
+      final var resolvedHasNext = getMethodReturnType(aggregate, "hasNext");
+      final var resolvedNext = getMethodReturnType(aggregate, "next");
 
       if (resolvedHasNext.isPresent()
           && resolvedNext.isPresent()
@@ -71,15 +78,14 @@ final class GetIteratorType extends TypedSymbolAccess implements Function<IAggre
       }
 
     }
+
     return Optional.empty();
   }
 
   private Optional<ISymbol> getMethodReturnType(final IAggregateSymbol aggregate, final String methodName) {
-    var resolved = aggregate.resolve(new MethodSymbolSearch(methodName));
-    if (resolved.isEmpty()) {
-      //No iterator method at all.
-      return Optional.empty();
-    }
-    return resolved.get().getType();
+
+    final var resolved = aggregate.resolve(new MethodSymbolSearch(methodName));
+
+    return resolved.isEmpty() ? Optional.empty() : resolved.get().getType();
   }
 }

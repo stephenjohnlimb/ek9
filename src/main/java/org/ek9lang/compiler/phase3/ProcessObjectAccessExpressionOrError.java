@@ -5,6 +5,7 @@ import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -33,10 +34,12 @@ final class ProcessObjectAccessExpressionOrError extends TypedSymbolAccess
 
   ProcessObjectAccessExpressionOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                                        final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
 
     this.processFieldOrError = new ProcessFieldOrError(symbolAndScopeManagement, errorListener);
     this.processOperationCallOrError = new ProcessOperationCallOrError(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
@@ -72,18 +75,22 @@ final class ProcessObjectAccessExpressionOrError extends TypedSymbolAccess
         recordATypedSymbol(searchOnThisSymbol, ctx);
       }
     }
+
   }
 
   private void checkNotOperatorOnEnumerationTypeOrError(final Token errorLocation,
                                                         final ISymbol varOrTypeSymbol,
                                                         final ISymbol locatedSymbol) {
+
     if (varOrTypeSymbol.getGenus().equals(ISymbol.SymbolGenus.CLASS_ENUMERATION)
         && varOrTypeSymbol.getCategory().equals(ISymbol.SymbolCategory.TYPE)
         && !locatedSymbol.getCategory().equals(ISymbol.SymbolCategory.VARIABLE)) {
+
       final var msg = "'" + varOrTypeSymbol.getName() + "' and '" + locatedSymbol.getName() + ":";
       errorListener.semanticError(errorLocation, msg,
           ErrorListener.SemanticClassification.OPERATOR_CANNOT_BE_USED_ON_ENUMERATION);
     }
+
   }
 
 
@@ -98,22 +105,29 @@ final class ProcessObjectAccessExpressionOrError extends TypedSymbolAccess
         }
       }
     });
+
   }
 
   private void processIdentifierUse(final EK9Parser.ObjectAccessContext ctx, final IAggregateSymbol aggregate) {
+
     final var resolved = processFieldOrError.apply(ctx.objectAccessType().identifier(), aggregate);
+
     if (resolved != null) {
       //For completeness record against the identifier as well
       recordATypedSymbol(resolved, ctx.objectAccessType().identifier());
       //Now also record the same call against the ctx.
       recordATypedSymbol(resolved, ctx);
     }
+
   }
 
   private void processOperationCallUse(final EK9Parser.ObjectAccessContext ctx, final IAggregateSymbol aggregate) {
+
     final var resolved = processOperationCallOrError.apply(ctx.objectAccessType().operationCall(), aggregate);
+
     if (resolved != null) {
       final var existingCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx.objectAccessType().operationCall());
+
       if (existingCallSymbol instanceof CallSymbol callSymbol) {
         callSymbol.setResolvedSymbolToCall(resolved);
         //Now also record the same call against the ctx.
@@ -122,5 +136,6 @@ final class ProcessObjectAccessExpressionOrError extends TypedSymbolAccess
         throw new CompilerException("Expecting a callSymbol 'receptacle' to be present");
       }
     }
+
   }
 }

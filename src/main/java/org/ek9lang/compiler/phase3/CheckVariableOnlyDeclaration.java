@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
@@ -20,38 +21,47 @@ final class CheckVariableOnlyDeclaration extends TypedSymbolAccess
 
   CheckVariableOnlyDeclaration(SymbolAndScopeManagement symbolAndScopeManagement,
                                ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.checkPossibleDelegate = new CheckPossibleDelegate(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.VariableOnlyDeclarationContext ctx) {
+
     //This will issue errors is symbol not resolved or not typed.
-    var symbol = getRecordedAndTypedSymbol(ctx);
+    final var symbol = getRecordedAndTypedSymbol(ctx);
     if (symbol != null && symbol.getType().isPresent()) {
       checkVariable(ctx, symbol, symbol.getType().get());
       checkPossibleDelegate.accept(symbol);
     }
+
   }
 
   private void checkVariable(final EK9Parser.VariableOnlyDeclarationContext ctx,
                              final ISymbol symbol,
                              final ISymbol symbolType) {
+
     if (ctx.BANG() != null) {
       checkInjection(symbol, symbolType);
     }
+
   }
 
   private void checkInjection(final ISymbol symbol, final ISymbol symbolType) {
+
     if (!symbolType.getGenus().equals(ISymbol.SymbolGenus.COMPONENT)) {
       errorListener.semanticError(symbol.getSourceToken(), "is not a component but a '"
           + symbolType.getGenus() + "':", COMPONENT_INJECTION_NOT_POSSIBLE);
       return;
     }
+
     if (!symbolType.isMarkedAbstract()) {
       errorListener.semanticError(symbol.getSourceToken(), "", COMPONENT_INJECTION_OF_NON_ABSTRACT);
       return;
     }
+
     if (symbol.isIncomingParameter()) {
       errorListener.semanticError(symbol.getSourceToken(), "is an incoming parameter:",
           COMPONENT_INJECTION_NOT_POSSIBLE);

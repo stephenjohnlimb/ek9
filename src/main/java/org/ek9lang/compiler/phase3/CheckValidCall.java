@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.AccessGenericInGeneric;
 import org.ek9lang.compiler.support.CheckParameterizationComplete;
 import org.ek9lang.compiler.support.SymbolFactory;
@@ -40,6 +41,7 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
   CheckValidCall(final SymbolAndScopeManagement symbolAndScopeManagement,
                  final SymbolFactory symbolFactory,
                  final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.processThisSuperCallOrError =
         new ProcessThisSuperCallOrError(symbolAndScopeManagement, errorListener);
@@ -55,13 +57,17 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
         new AccessGenericInGeneric(symbolAndScopeManagement);
     this.checkPureContext =
         new CheckPureContext(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.CallContext ctx) {
+
     //Note that we make an untyped check to get the call - because until we resolve
     //the thing we're going to call we won't know that type this existingCallSymbol is.
-    var existingCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+
+    final var existingCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+
     if (existingCallSymbol instanceof CallSymbol callSymbol) {
       resolveToBeCalled(callSymbol, ctx);
     } else {
@@ -80,6 +86,7 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
    * This is especially true around generics within generics.
    */
   private void resolveToBeCalled(CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
+
     if (ctx.identifierReference() != null) {
       resolveByIdentifierReference(callSymbol, ctx);
     } else if (ctx.parameterisedType() != null) {
@@ -93,25 +100,29 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
     } else {
       AssertValue.fail("Expecting finite set of operations on call " + ctx.start.getLine());
     }
+
   }
 
   /**
    * This can be quite a few different 'types' of identifierReference.
    * So the processing in here is quite detailed with quite a few combinations and paths.
    */
-  private void resolveByIdentifierReference(CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
-    var symbol = resolveIdentifierReferenceCallOrError.apply(ctx);
+  private void resolveByIdentifierReference(final CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
+
+    final var symbol = resolveIdentifierReferenceCallOrError.apply(ctx);
     //Now this is where the developer has written 'l as List of String : List()'
     //Or fun as SomeFunction of Integer: SomeFunction().
     if (symbol != null) {
       //We must also cater for generics within generics.
       //Just checking isGenericInNature is not enough when used within a generic type.
-      var genericInGenericData = accessGenericInGeneric.apply(symbol);
+      final var genericInGenericData = accessGenericInGeneric.apply(symbol);
+
       if (genericInGenericData.isPresent()) {
         callSymbol.setFormOfDeclarationCall(!checkParameterizationComplete.test(genericInGenericData.get()));
       } else {
         callSymbol.setFormOfDeclarationCall(symbol.isGenericInNature());
       }
+
       callSymbol.setResolvedSymbolToCall(symbol);
       checkPureContext.accept(callSymbol.getSourceToken(), callSymbol);
     }
@@ -128,22 +139,27 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
    *   //Rather than just 'List of String' // note the omission of '()'
    * </pre>
    */
-  private void resolveByParameterisedType(CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
+  private void resolveByParameterisedType(final CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
 
-    var symbol = (ScopedSymbol) symbolFromContextOrError.apply(ctx.parameterisedType());
+    final var symbol = (ScopedSymbol) symbolFromContextOrError.apply(ctx.parameterisedType());
+
     if (symbol != null) {
       callSymbol.setFormOfDeclarationCall(true);
       callSymbol.setResolvedSymbolToCall(symbol);
       checkPureContext.accept(callSymbol.getSourceToken(), callSymbol);
     }
+
   }
 
   /**
    * Resolve the dynamic function from the context.
    */
-  private void resolveByDynamicFunctionDeclaration(CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
-    var symbol = (ScopedSymbol) symbolFromContextOrError.apply(ctx.dynamicFunctionDeclaration());
+  private void resolveByDynamicFunctionDeclaration(final CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
+
+    final var symbol = (ScopedSymbol) symbolFromContextOrError.apply(ctx.dynamicFunctionDeclaration());
+
     if (symbol != null) {
+
       callSymbol.setFormOfDeclarationCall(true);
       callSymbol.setResolvedSymbolToCall(symbol);
       //Now this is a declaration (creation) of a dynamic function - it is not the calling of the dynamic function.
@@ -153,6 +169,7 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
       //Always consider this pure - as it is just creating a new function - but not actually calling it.
       callSymbol.setMarkedPure(true);
       checkPureContext.accept(callSymbol.getSourceToken(), callSymbol);
+
     }
   }
 
@@ -160,15 +177,18 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
    * This can only be 'this' or 'super'.
    * So we're looking for a Constructor on the type or a constructor on the super type.
    */
-  private void resolveByPrimaryReference(CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
+  private void resolveByPrimaryReference(final CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
+
     //We force void here, because the constructor will return the type it is constructing
     //But when used via a 'call' like 'this()' or 'super()' we want to ensure it can only be used without assignment.
-    var symbol = processThisSuperCallOrError.apply(ctx);
+    final var symbol = processThisSuperCallOrError.apply(ctx);
+
     if (symbol != null) {
       callSymbol.setResolvedSymbolToCall(symbol);
       callSymbol.setType(symbolAndScopeManagement.getEk9Types().ek9Void());
       checkPureContext.accept(callSymbol.getSourceToken(), callSymbol);
     }
+
   }
 
   /**
@@ -177,12 +197,15 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
    * Caters for 'straightToResult1 <- HigherFunctionOne()("Steve")'
    * i.e. where you call a higher function/method, and it returns a function, and you call that.
    */
-  private void resolveByCall(CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
-    var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
-    var callIdentifier = symbolFromContextOrError.apply(ctx.call());
+  private void resolveByCall(final CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
+
+    final var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
+    final var callIdentifier = symbolFromContextOrError.apply(ctx.call());
+
     if (callIdentifier != null) {
-      var symbol = checkValidFunctionDelegateOrError.apply(
+      final var symbol = checkValidFunctionDelegateOrError.apply(
           new DelegateFunctionCheckData(new Ek9Token(ctx.call().start), callIdentifier, callParams));
+
       if (symbol != null) {
         callSymbol.setResolvedSymbolToCall(symbol);
         checkPureContext.accept(callSymbol.getSourceToken(), callSymbol);
@@ -190,5 +213,6 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
     } else {
       AssertValue.fail("Expecting call to be at least present" + ctx.start.getLine());
     }
+
   }
 }

@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
 
@@ -20,12 +21,15 @@ final class ProcessAssignmentExpression extends TypedSymbolAccess
    */
   ProcessAssignmentExpression(final SymbolAndScopeManagement symbolAndScopeManagement,
                               final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.AssignmentExpressionContext ctx) {
-    var symbol = doProcess(ctx);
+
+    final var symbol = doProcess(ctx);
     if (symbol != null) {
       recordATypedSymbol(symbol, ctx);
       symbol.getType().ifPresent(type -> {
@@ -38,26 +42,27 @@ final class ProcessAssignmentExpression extends TypedSymbolAccess
   }
 
   private ISymbol doProcess(final EK9Parser.AssignmentExpressionContext ctx) {
-    ISymbol symbol = null;
+
     if (ctx.expression() != null) {
-      symbol = getRecordedAndTypedSymbol(ctx.expression());
+      return getRecordedAndTypedSymbol(ctx.expression());
     } else if (ctx.guardExpression() != null) {
-      symbol = getRecordedAndTypedSymbol(ctx.guardExpression());
+      return getRecordedAndTypedSymbol(ctx.guardExpression());
     } else if (ctx.dynamicClassDeclaration() != null) {
-      symbol = getRecordedAndTypedSymbol(ctx.dynamicClassDeclaration());
+      return getRecordedAndTypedSymbol(ctx.dynamicClassDeclaration());
     } else if (ctx.switchStatementExpression() != null) {
-      symbol = getRecordedAndTypedSymbol(ctx.switchStatementExpression());
+      return getRecordedAndTypedSymbol(ctx.switchStatementExpression());
     } else if (ctx.tryStatementExpression() != null) {
-      symbol = getRecordedAndTypedSymbol(ctx.tryStatementExpression());
+      return getRecordedAndTypedSymbol(ctx.tryStatementExpression());
     } else if (ctx.whileStatementExpression() != null) {
-      symbol = getRecordedAndTypedSymbol(ctx.whileStatementExpression());
+      return getRecordedAndTypedSymbol(ctx.whileStatementExpression());
     } else if (ctx.forStatementExpression() != null) {
-      symbol = getRecordedAndTypedSymbol(ctx.forStatementExpression());
+      return getRecordedAndTypedSymbol(ctx.forStatementExpression());
     } else if (ctx.streamExpression() != null) {
-      symbol = getRecordedAndTypedSymbol(ctx.streamExpression());
+      return getRecordedAndTypedSymbol(ctx.streamExpression());
     } else {
       AssertValue.fail("Expecting finite set of operations for assignment expression");
     }
-    return symbol;
+
+    return null;
   }
 }

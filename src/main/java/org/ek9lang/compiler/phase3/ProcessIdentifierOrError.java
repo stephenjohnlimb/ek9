@@ -4,6 +4,7 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
 
@@ -21,22 +22,27 @@ final class ProcessIdentifierOrError extends TypedSymbolAccess
    */
   ProcessIdentifierOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                            final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public ISymbol apply(final EK9Parser.IdentifierContext ctx) {
 
-    var toResolve = ctx.getText();
-    var resolved = symbolAndScopeManagement.getTopScope().resolve(new SymbolSearch(toResolve));
-    if (resolved.isEmpty()) {
-      var msg = "'" + toResolve + "':";
-      errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.NOT_RESOLVED);
-      return null;
+    final var toResolve = ctx.getText();
+    final var resolved = symbolAndScopeManagement.getTopScope().resolve(new SymbolSearch(toResolve));
+
+    if (resolved.isPresent()) {
+      final var identifierSymbol = resolved.get();
+      identifierSymbol.setReferenced(true);
+      recordATypedSymbol(identifierSymbol, ctx);
+      return identifierSymbol;
     }
-    var identifierSymbol = resolved.get();
-    identifierSymbol.setReferenced(true);
-    recordATypedSymbol(identifierSymbol, ctx);
-    return identifierSymbol;
+
+    final var msg = "'" + toResolve + "':";
+    errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.NOT_RESOLVED);
+    return null;
+
   }
 }

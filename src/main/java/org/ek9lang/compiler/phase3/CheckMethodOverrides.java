@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
@@ -28,38 +29,44 @@ final class CheckMethodOverrides extends TypedSymbolAccess implements Consumer<A
   CheckMethodOverrides(final SymbolAndScopeManagement symbolAndScopeManagement,
                        final ErrorListener errorListener,
                        final ErrorListener.SemanticClassification errorWhenShouldBeMarkedAbstract) {
+
     super(symbolAndScopeManagement, errorListener);
     this.checkTypeCovariance = new CheckTypeCovariance(symbolAndScopeManagement, errorListener);
     this.errorWhenShouldBeMarkedAbstract = errorWhenShouldBeMarkedAbstract;
     this.checkPureModifier = new CheckPureModifier(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final AggregateSymbol aggregateSymbol) {
 
-    List<MethodSymbol> nonAbstractMethodsToCheck = aggregateSymbol.getAllNonAbstractMethodsInThisScopeOnly();
+    final var nonAbstractMethodsToCheck = aggregateSymbol.getAllNonAbstractMethodsInThisScopeOnly();
+    final var abstractMethodsToCheck = aggregateSymbol.getAllAbstractMethodsInThisScopeOnly();
+
     nonAbstractMethodsToCheck.forEach(methodSymbol -> checkMethodInSuperAndTraits(methodSymbol,
         aggregateSymbol));
 
     checkPureAndConstructorsIsConsistent(nonAbstractMethodsToCheck);
 
-    List<MethodSymbol> abstractMethodsToCheck = aggregateSymbol.getAllAbstractMethodsInThisScopeOnly();
     abstractMethodsToCheck.forEach(methodSymbol -> checkMethodInSuperAndTraits(methodSymbol, aggregateSymbol));
 
     if (!aggregateSymbol.isMarkedAbstract()) {
       checkAbstractness(aggregateSymbol);
     }
+
   }
 
   /**
    * If there is one constructor marked as pure then all must be pared as pure.
    */
-  private void checkPureAndConstructorsIsConsistent(List<MethodSymbol> methodsToCheck) {
-    var numberOfConstructors = methodsToCheck
+  private void checkPureAndConstructorsIsConsistent(final List<MethodSymbol> methodsToCheck) {
+
+    final var numberOfConstructors = methodsToCheck
         .stream()
         .filter(MethodSymbol::isConstructor)
         .count();
-    var numberNotMarkedPure = methodsToCheck
+
+    final var numberNotMarkedPure = methodsToCheck
         .stream()
         .filter(MethodSymbol::isConstructor)
         .filter(MethodSymbol::isNotMarkedPure)
@@ -86,8 +93,8 @@ final class CheckMethodOverrides extends TypedSymbolAccess implements Consumer<A
 
     Consumer<MethodSymbol> actionToTake = match -> {
       if (match.isMarkedAbstract()) {
-        var location = locationExtractorFromSymbol.apply(match);
-        var errorMessage = "'" + match.getFriendlyName() + "' " + location + " not overridden:";
+        final var location = locationExtractorFromSymbol.apply(match);
+        final var errorMessage = "'" + match.getFriendlyName() + "' " + location + " not overridden:";
         errorListener.semanticError(aggregateSymbol.getSourceToken(), errorMessage, errorWhenShouldBeMarkedAbstract);
       }
     };
@@ -126,11 +133,13 @@ final class CheckMethodOverrides extends TypedSymbolAccess implements Consumer<A
    */
   private boolean checkMethod(final MethodSymbol methodSymbol,
                               final IAggregateSymbol superAggregateSymbol) {
-    MethodSymbolSearch search = new MethodSymbolSearch(methodSymbol);
 
-    var result = superAggregateSymbol.resolveMatchingMethods(search, new MethodSymbolSearchResult());
+    final var search = new MethodSymbolSearch(methodSymbol);
+    final var result = superAggregateSymbol.resolveMatchingMethods(search, new MethodSymbolSearchResult());
+
     result.getSingleBestMatchSymbol().ifPresent(match -> {
-      var errorMessage = getErrorMessageFor(methodSymbol, match);
+
+      final var errorMessage = getErrorMessageFor(methodSymbol, match);
       checkMethodAccessModifierCompatibility(methodSymbol, match);
       //If the super is private then it is not being overridden and so covariance and override does not need checking.
       if (!match.isPrivate()) {
@@ -142,6 +151,7 @@ final class CheckMethodOverrides extends TypedSymbolAccess implements Consumer<A
             ErrorListener.SemanticClassification.DOES_NOT_OVERRIDE);
       }
     });
+
     return result.getSingleBestMatchSymbol().isPresent();
   }
 
@@ -149,13 +159,16 @@ final class CheckMethodOverrides extends TypedSymbolAccess implements Consumer<A
                                                       final MethodSymbol matchedMethodSymbol) {
     if (!matchedMethodSymbol.isPrivate()
         && !methodSymbol.getAccessModifier().equals(matchedMethodSymbol.getAccessModifier())) {
-      var msg = getErrorMessageFor(methodSymbol, matchedMethodSymbol);
+
+      final var msg = getErrorMessageFor(methodSymbol, matchedMethodSymbol);
       errorListener.semanticError(methodSymbol.getSourceToken(), msg,
           ErrorListener.SemanticClassification.METHOD_ACCESS_MODIFIERS_DIFFER);
+
     }
   }
 
   private void checkIfOverrideRequired(final MethodSymbol methodSymbol) {
+
     if (!methodSymbol.isSynthetic() && !methodSymbol.isOverride()) {
       errorListener.semanticError(methodSymbol.getSourceToken(), "'override' required on '" + methodSymbol + "'",
           ErrorListener.SemanticClassification.METHOD_OVERRIDES);
@@ -163,20 +176,24 @@ final class CheckMethodOverrides extends TypedSymbolAccess implements Consumer<A
       //So if the ek9 compiler synthetically generated the method it too must mark it with override.
       methodSymbol.setOverride(true);
     }
+
   }
 
   private void checkCovarianceOnMethodReturnTypes(final MethodSymbol methodSymbol,
                                                   final MethodSymbol matchedMethodSymbol) {
-    var errorMessage = getErrorMessageFor(methodSymbol, matchedMethodSymbol);
 
-    CovarianceCheckData data = new CovarianceCheckData(methodSymbol.getSourceToken(), errorMessage,
+    final var errorMessage = getErrorMessageFor(methodSymbol, matchedMethodSymbol);
+    final var data = new CovarianceCheckData(methodSymbol.getSourceToken(), errorMessage,
         methodSymbol.getReturningSymbol(), matchedMethodSymbol.getReturningSymbol());
+
     checkTypeCovariance.accept(data);
+
   }
 
   private String getErrorMessageFor(final MethodSymbol methodSymbol,
                                     final MethodSymbol matchedMethodSymbol) {
-    String message = String.format("'%s' %s:",
+
+    final var message = String.format("'%s' %s:",
         matchedMethodSymbol.getFriendlyName(), locationExtractorFromSymbol.apply(matchedMethodSymbol));
 
     return "'" + methodSymbol.getFriendlyName() + "' and " + message;

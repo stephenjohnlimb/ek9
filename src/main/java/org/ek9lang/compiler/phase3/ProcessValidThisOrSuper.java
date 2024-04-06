@@ -8,6 +8,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.support.ToCommaSeparated;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
@@ -22,7 +23,6 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  * passing themselves as parameters to other functions in some way.
  */
 final class ProcessValidThisOrSuper extends TypedSymbolAccess implements Consumer<EK9Parser.PrimaryReferenceContext> {
-
   private final SymbolFactory symbolFactory;
   private final List<ISymbol.SymbolGenus> supportedThisAndSuperGenus = List.of(
       ISymbol.SymbolGenus.CLASS,
@@ -40,8 +40,10 @@ final class ProcessValidThisOrSuper extends TypedSymbolAccess implements Consume
   ProcessValidThisOrSuper(final SymbolAndScopeManagement symbolAndScopeManagement,
                           final SymbolFactory symbolFactory,
                           final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.symbolFactory = symbolFactory;
+
   }
 
   @Override
@@ -64,22 +66,26 @@ final class ProcessValidThisOrSuper extends TypedSymbolAccess implements Consume
   }
 
   private void createAndRecordThisOrSuper(final ParserRuleContext ctx, final ISymbol theType) {
+
     if (theType != null) {
       //Then it is valid to be created and recorded.
-      var symbol = symbolFactory.newGeneralSymbol(new Ek9Token(ctx.start), ctx.getText());
+      final var symbol = symbolFactory.newGeneralSymbol(new Ek9Token(ctx.start), ctx.getText());
       symbol.setInitialisedBy(theType.getInitialisedBy());
       symbol.setReferenced(true);
       symbol.setType(theType);
       recordATypedSymbol(symbol, ctx);
     }
+
   }
 
   private ISymbol checkThisUsage(final ParserRuleContext ctx, final ISymbol basicType) {
+
     if (!supportedThisAndSuperGenus.contains(basicType.getGenus())
         && !supportedThisOnlyGenus.contains(basicType.getGenus())) {
       emitGenusErrorForSymbol(ctx, basicType);
       return null;
     }
+
     return basicType;
   }
 
@@ -92,7 +98,7 @@ final class ProcessValidThisOrSuper extends TypedSymbolAccess implements Consume
 
     //So the rest of this block is just about trying to emit the most appropriate error message.
     if (basicType instanceof FunctionSymbol asFunction && asFunction.getSuperFunction().isPresent()) {
-      var superType = asFunction.getSuperFunction().get();
+      final var superType = asFunction.getSuperFunction().get();
       emitGenusErrorForSymbol(ctx, superType);
     } else if (supportedThisOnlyGenus.contains(basicType.getGenus())) {
       if (basicType.getGenus().equals(ISymbol.SymbolGenus.CLASS_TRAIT)) {
@@ -105,38 +111,53 @@ final class ProcessValidThisOrSuper extends TypedSymbolAccess implements Consume
     } else {
       emitHasNoSuper(ctx, basicType);
     }
+
     return null;
   }
 
   private void emitHasNoTraitSuper(final ParserRuleContext ctx, final ISymbol basicType) {
-    AggregateWithTraitsSymbol theTrait = (AggregateWithTraitsSymbol) basicType;
-    var toCommaSeparated = new ToCommaSeparated(false);
-    List<ISymbol> asTypes = new ArrayList<>(theTrait.getTraits());
-    var msg = "";
-    if (asTypes.isEmpty()) {
-      msg = getSymbolErrorWithName(basicType) + " it does not have any traits itself:";
-    } else {
-      String listOfTraitsAsString = toCommaSeparated.apply(asTypes);
-      msg = getSymbolErrorWithName(basicType)
-          + " use a trait name to address the appropriate trait '"
-          + listOfTraitsAsString
-          + "':";
-    }
+
+    final AggregateWithTraitsSymbol theTrait = (AggregateWithTraitsSymbol) basicType;
+    final var msg = getNoTraitSuperError(theTrait);
+
     errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.INAPPROPRIATE_USE_OF_SUPER);
+
+  }
+
+  private String getNoTraitSuperError(final AggregateWithTraitsSymbol theTrait) {
+
+    final List<ISymbol> asTypes = new ArrayList<>(theTrait.getTraits());
+
+    if (asTypes.isEmpty()) {
+      return getSymbolErrorWithName(theTrait) + " it does not have any traits itself:";
+    }
+
+    final var toCommaSeparated = new ToCommaSeparated(false);
+    final var listOfTraitsAsString = toCommaSeparated.apply(asTypes);
+
+    return getSymbolErrorWithName(theTrait)
+        + " use a trait name to address the appropriate trait '"
+        + listOfTraitsAsString
+        + "':";
   }
 
   private void emitHasNoSuper(final ParserRuleContext ctx, final ISymbol basicType) {
-    var msg = getSymbolErrorWithName(basicType) + ":";
+
+    final var msg = getSymbolErrorWithName(basicType) + ":";
     errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.AGGREGATE_HAS_NO_SUPER);
+
   }
 
   private void emitInappropriateUseOFSuper(final ParserRuleContext ctx, final ISymbol basicType) {
-    var msg = getSymbolErrorWithName(basicType) + ":";
+
+    final var msg = getSymbolErrorWithName(basicType) + ":";
     errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.INAPPROPRIATE_USE_OF_SUPER);
+
   }
 
   private void emitGenusErrorForSymbol(final ParserRuleContext ctx, final ISymbol symbol) {
-    var msg = getSymbolErrorDetails(symbol)
+
+    final var msg = getSymbolErrorDetails(symbol)
         + "' which is a '"
         + symbol.getCategory().getDescription()
         + "' rather than a '"
@@ -144,9 +165,11 @@ final class ProcessValidThisOrSuper extends TypedSymbolAccess implements Consume
         .collect(Collectors.joining(", "))
         + "':";
     errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.INCOMPATIBLE_GENUS);
+
   }
 
   private String getSymbolErrorWithName(final ISymbol symbol) {
+
     return getSymbolErrorDetails(symbol)
         + " '"
         + symbol.getFriendlyName()
@@ -154,6 +177,7 @@ final class ProcessValidThisOrSuper extends TypedSymbolAccess implements Consume
   }
 
   private String getSymbolErrorDetails(final ISymbol symbol) {
+
     return "resolved as a '" + symbol.getGenus().getDescription() + "'";
   }
 }

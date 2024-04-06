@@ -28,6 +28,7 @@ import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.support.ParameterisedLocator;
@@ -54,7 +55,7 @@ import org.ek9lang.core.CompilerException;
  * {@link org.ek9lang.compiler.support.SymbolFactory#newStreamPart(EK9Parser.StreamPartContext, IScope)}
  * This populates the StreamCallSymbol.
  */
-public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer<StreamAssembly> {
+public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer<StreamAssemblyData> {
 
   private final ProcessStreamFunctionOrError processStreamFunctionOrError;
   private final CheckStreamFunctionArguments checkStreamFunctionArguments;
@@ -74,6 +75,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     this.getIteratorType = new GetIteratorType(symbolAndScopeManagement, errorListener);
     this.parameterisedLocator = new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
     this.streamFunctionMap = setupOperationToFunctionMapping();
+
   }
 
   /**
@@ -101,7 +103,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
         EK9Parser.HEAD, this::checkViableIntegerOrError,
         EK9Parser.TAIL, this::checkViableIntegerOrError);
 
-    Map<Integer, BiFunction<EK9Parser.StreamPartContext, ISymbol, ISymbol>> rtn = new HashMap<>();
+    final Map<Integer, BiFunction<EK9Parser.StreamPartContext, ISymbol, ISymbol>> rtn = new HashMap<>();
     rtn.putAll(primaryMap);
     rtn.putAll(secondaryMap);
 
@@ -109,7 +111,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
   }
 
   @Override
-  public void accept(final StreamAssembly streamAssembly) {
+  public void accept(final StreamAssemblyData streamAssembly) {
 
     //OK so need to keep track of the 'type' flowing through the pipeline
     //ensuring it can be used, also it may get transformed!.
@@ -127,11 +129,12 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
   private ISymbol processStreamPart(final EK9Parser.StreamPartContext streamPartCtx, final ISymbol currentStreamType) {
 
     //Now depending on the pipeline part (map, filter, etc.) the resulting type might change.
-    var newStreamType = evaluateStreamType(streamPartCtx, currentStreamType);
+    final var newStreamType = evaluateStreamType(streamPartCtx, currentStreamType);
 
     //Now update the call with what it should expect and what it will produce.
     //If there are type mismatches - then errors will be issued and Void type will be employed.
-    var streamCallPart = (StreamCallSymbol) symbolAndScopeManagement.getRecordedSymbol(streamPartCtx);
+    final var streamCallPart = (StreamCallSymbol) symbolAndScopeManagement.getRecordedSymbol(streamPartCtx);
+
     streamCallPart.setConsumesSymbolType(currentStreamType);
     streamCallPart.setProducesSymbolType(newStreamType);
     streamCallPart.setType(newStreamType);
@@ -152,13 +155,14 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
   private ISymbol evaluateStreamType(final EK9Parser.StreamPartContext streamPartCtx,
                                      final ISymbol currentStreamType) {
 
-    var operation = streamFunctionMap.getOrDefault(streamPartCtx.op.getType(), this::invalidStreamOperation);
-    return operation.apply(streamPartCtx, currentStreamType);
+    final var operation = streamFunctionMap.getOrDefault(streamPartCtx.op.getType(), this::invalidStreamOperation);
 
+    return operation.apply(streamPartCtx, currentStreamType);
   }
 
   private ISymbol invalidStreamOperation(final EK9Parser.StreamPartContext streamPartCtx,
                                          final ISymbol currentStreamType) {
+
     throw new CompilerException("Stream part [" + streamPartCtx.op.getText() + "] not implemented");
   }
 
@@ -178,8 +182,9 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
 
   private ISymbol checkViableGroupOrError(final EK9Parser.StreamPartContext streamPartCtx,
                                           final ISymbol currentStreamType) {
+
     if (streamPartCtx.pipelinePart().size() == 1) {
-      var functionReturnType = checkFunctionOrError(streamPartCtx.pipelinePart(0), currentStreamType);
+      final var functionReturnType = checkFunctionOrError(streamPartCtx.pipelinePart(0), currentStreamType);
       //Now it is essential that the return type has hashcode.
       checkTypeAsSuitableHashCodeOrError(streamPartCtx, functionReturnType);
     } else {
@@ -192,6 +197,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
 
   private ISymbol checkViableSplitOrError(final EK9Parser.StreamPartContext streamPartCtx,
                                           final ISymbol currentStreamType) {
+
     if (streamPartCtx.pipelinePart().size() == 1) {
       checkFunctionAndReturnsBooleanOrError(streamPartCtx.pipelinePart(0), currentStreamType);
     } else {
@@ -204,22 +210,24 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
 
   private ISymbol checkViableTeeOrError(final EK9Parser.StreamPartContext streamPartCtx,
                                         final ISymbol currentStreamType) {
+
     if (streamPartCtx.pipelinePart().isEmpty()) {
       errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_REQUIRED);
     } else if (streamPartCtx.pipelinePart().size() == 1) {
-      var terminalPipeLinePartCtx = streamPartCtx.pipelinePart(0);
+      final var terminalPipeLinePartCtx = streamPartCtx.pipelinePart(0);
 
       processTeeTermination(streamPartCtx, terminalPipeLinePartCtx, currentStreamType);
     } else {
       //Else there will be two parts. The first part is a mapping, the second the terminal.
-      var mapPipeLinePartCtx = streamPartCtx.pipelinePart(0);
-      var terminalPipeLinePartCtx = streamPartCtx.pipelinePart(1);
+      final var mapPipeLinePartCtx = streamPartCtx.pipelinePart(0);
+      final var terminalPipeLinePartCtx = streamPartCtx.pipelinePart(1);
       //This will be the type that the terminal part will need to use.
-      var teeStreamType = checkFunctionOrError(mapPipeLinePartCtx, currentStreamType);
+      final var teeStreamType = checkFunctionOrError(mapPipeLinePartCtx, currentStreamType);
 
       processTeeTermination(streamPartCtx, terminalPipeLinePartCtx, teeStreamType);
 
     }
+
     //Does not alter the current stream type flowing through the pipeline.
     return currentStreamType;
   }
@@ -228,60 +236,68 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
                                      final EK9Parser.PipelinePartContext terminalPipeLinePartCtx,
                                      final ISymbol streamSymbolType) {
 
-    var terminalSymbol = getRecordedAndTypedSymbol(terminalPipeLinePartCtx);
-    var terminalStreamCallSymbol = (StreamCallSymbol) symbolAndScopeManagement.getRecordedSymbol(streamPartCtx);
-    terminalSymbol.getType()
-        .ifPresent(
-            terminalSymbolType -> processTermination(terminalStreamCallSymbol, terminalSymbolType, streamSymbolType));
+    final var terminalSymbol = getRecordedAndTypedSymbol(terminalPipeLinePartCtx);
+    final var terminalStreamCallSymbol = (StreamCallSymbol) symbolAndScopeManagement.getRecordedSymbol(streamPartCtx);
+
+    terminalSymbol.getType().ifPresent(
+        terminalSymbolType -> processTermination(terminalStreamCallSymbol, terminalSymbolType, streamSymbolType));
   }
 
   private ISymbol checkViableFunctionOrError(final EK9Parser.StreamPartContext streamPartCtx,
                                              final ISymbol currentStreamType) {
+
     if (streamPartCtx.pipelinePart().size() == 1) {
       return checkFunctionOrError(streamPartCtx.pipelinePart(0), currentStreamType);
     }
+
     errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_REQUIRED);
+
     return symbolAndScopeManagement.getEk9Types().ek9Void();
   }
 
   private ISymbol checkFunctionOrError(final EK9Parser.PipelinePartContext partCtx,
                                        final ISymbol currentStreamType) {
 
-    var possibleFunction = processStreamFunctionOrError.apply(partCtx);
+    final var possibleFunction = processStreamFunctionOrError.apply(partCtx);
+
     if (possibleFunction.isEmpty()) {
       return symbolAndScopeManagement.getEk9Types().ek9Void();
     }
-    var function = possibleFunction.get();
+
+    final var function = possibleFunction.get();
     function.getReturningSymbol().getType().ifPresent(returnType -> {
 
       if (returnType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Void())) {
         errorListener.semanticError(partCtx.start, "", RETURNING_MISSING);
       }
     });
-    return acceptsTypeOrError(new StreamFunctionCheckData(partCtx.start, function, currentStreamType));
 
+    return acceptsTypeOrError(new StreamFunctionCheckData(partCtx.start, function, currentStreamType));
   }
 
   private ISymbol checkViableSelectFunctionOrError(final EK9Parser.StreamPartContext streamPartCtx,
                                                    final ISymbol currentStreamType) {
+
     if (streamPartCtx.pipelinePart().size() == 1) {
       return checkFunctionAndReturnsBooleanOrError(streamPartCtx.pipelinePart(0), currentStreamType);
     }
+
     errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_REQUIRED);
+
     return symbolAndScopeManagement.getEk9Types().ek9Void();
   }
 
   private ISymbol checkFunctionAndReturnsBooleanOrError(final EK9Parser.PipelinePartContext partCtx,
                                                         final ISymbol currentStreamType) {
 
-    var functionReturnType = checkFunctionOrError(partCtx, currentStreamType);
+    final var functionReturnType = checkFunctionOrError(partCtx, currentStreamType);
+
     if (!symbolAndScopeManagement.getEk9Types().ek9Boolean().isExactSameType(functionReturnType)) {
       errorListener.semanticError(partCtx.start, "", MUST_RETURN_BOOLEAN);
     }
 
     //Does not alter the current stream type flowing through the pipeline.
     return currentStreamType;
-
   }
 
   private ISymbol checkViableCallFunctionOrError(final EK9Parser.StreamPartContext streamPartCtx,
@@ -291,7 +307,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
       if (currentStreamType instanceof FunctionSymbol functionSymbol) {
         return acceptsNoArgumentsDoesNotReturnVoid(streamPartCtx.op, functionSymbol);
       } else {
-        var msg = "expecting a function not type '" + currentStreamType.getFriendlyName() + "':";
+        final var msg = "expecting a function not type '" + currentStreamType.getFriendlyName() + "':";
         errorListener.semanticError(streamPartCtx.op, msg, TYPE_MUST_BE_FUNCTION);
       }
     } else {
@@ -349,18 +365,21 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
           .map(this::getIteratorTypeOrError)
           .orElseGet(() -> symbolAndScopeManagement.getEk9Types().ek9Void());
     }
-    errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_NOT_REQUIRED);
-    return symbolAndScopeManagement.getEk9Types().ek9Void();
 
+    errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_NOT_REQUIRED);
+
+    return symbolAndScopeManagement.getEk9Types().ek9Void();
   }
 
   private ISymbol getIteratorTypeOrError(final StreamAggregateCheckData streamAggregateCheckData) {
-    var iteratorType = getIteratorType.apply(streamAggregateCheckData.aggregateSymbol());
+
+    final var iteratorType = getIteratorType.apply(streamAggregateCheckData.aggregateSymbol());
     if (iteratorType.isPresent()) {
       return iteratorType.get();
     }
 
     errorListener.semanticError(streamAggregateCheckData.errorLocation(), "", MISSING_ITERATE_METHOD);
+
     return symbolAndScopeManagement.getEk9Types().ek9Void();
   }
 
@@ -412,16 +431,17 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
         .ifPresent(this::checkIsComparatorFunctionOrError);
   }
 
-
   private Optional<IAggregateSymbol> accessAggregateAsTypeOrError(final EK9Parser.StreamPartContext streamPartCtx,
                                                                   final ISymbol symbolType) {
+
     if (symbolType instanceof IAggregateSymbol aggregateSymbol) {
       return Optional.of(aggregateSymbol);
     }
-    var msg = "need 'aggregate' type, but '" + symbolType.getFriendlyName() + "':";
-    errorListener.semanticError(streamPartCtx.op, msg, IS_NOT_AN_AGGREGATE_TYPE);
-    return Optional.empty();
 
+    final var msg = "need 'aggregate' type, but '" + symbolType.getFriendlyName() + "':";
+    errorListener.semanticError(streamPartCtx.op, msg, IS_NOT_AN_AGGREGATE_TYPE);
+
+    return Optional.empty();
   }
 
 
@@ -432,10 +452,11 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     if (!functionSymbol.getCallParameters().isEmpty()) {
       errorListener.semanticError(errorLocation, errorMsg, REQUIRE_NO_ARGUMENTS);
     } else if (functionSymbol.getReturningSymbol().getType().isPresent()) {
-      var returnType = functionSymbol.getReturningSymbol().getType().get();
+      final var returnType = functionSymbol.getReturningSymbol().getType().get();
       if (returnType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Void())) {
         errorListener.semanticError(errorLocation, errorMsg, FUNCTION_MUST_RETURN_VALUE);
       }
+
       return returnType;
     }
 
@@ -445,7 +466,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
   private void checkHashCodePresentOrError(final StreamAggregateCheckData streamAggregateCheckData) {
 
     //Need to search on the aggregateSymbol for a hashcode '#?' operator.
-    var search = new MethodSymbolSearch("#?");
+    final var search = new MethodSymbolSearch("#?");
     locateMethodOrError(search, streamAggregateCheckData, UNABLE_TO_FIND_HASHCODE_FOR_TYPE);
 
   }
@@ -454,7 +475,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
 
     //Need to search on the aggregateSymbol for a comparator '<=>' operator with compatible type arguments.
     //Accepts a single argument compatible with the symbolType
-    var search = new MethodSymbolSearch("<=>")
+    final var search = new MethodSymbolSearch("<=>")
         .addTypeParameter(streamAggregateCheckData.symbolType());
 
     locateMethodOrError(search, streamAggregateCheckData, UNABLE_TO_FIND_COMPARATOR_FOR_TYPE);
@@ -465,19 +486,22 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
                                    final StreamAggregateCheckData streamAggregateCheckData,
                                    final ErrorListener.SemanticClassification errorClassification) {
 
-    MethodSymbolSearchResult result = new MethodSymbolSearchResult();
-    result = streamAggregateCheckData.aggregateSymbol().resolveMatchingMethods(search, result);
+    final var result =
+        streamAggregateCheckData.aggregateSymbol().resolveMatchingMethods(search, new MethodSymbolSearchResult());
+
     if (!result.isSingleBestMatchPresent()) {
-      var msg = "wrt pipeline type '" + streamAggregateCheckData.symbolType().getFriendlyName()
+      final var msg = "wrt pipeline type '" + streamAggregateCheckData.symbolType().getFriendlyName()
           + "':";
       errorListener.semanticError(streamAggregateCheckData.errorLocation(), msg, errorClassification);
     }
+
   }
 
   private void checkIsComparatorFunctionOrError(final StreamFunctionCheckData functionData) {
+
     //For this to be valid the function must take two arguments compatible with symbolType
     //And it must return an Integer.
-    var errorMsg = "'" + functionData.functionSymbol().getFriendlyName() + "':";
+    final var errorMsg = "'" + functionData.functionSymbol().getFriendlyName() + "':";
     if (functionData.functionSymbol().getCallParameters().size() != 2) {
       errorListener.semanticError(functionData.errorLocation(), errorMsg, FUNCTION_MUST_HAVE_TWO_PARAMETERS);
     } else {
@@ -495,7 +519,8 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
 
   private void checkIsHashCodeFunctionOrError(final StreamFunctionCheckData functionData) {
 
-    var errorMsg = "'" + functionData.functionSymbol().getFriendlyName() + "':";
+    final var errorMsg = "'" + functionData.functionSymbol().getFriendlyName() + "':";
+
     if (functionData.functionSymbol().getCallParameters().size() != 1) {
       errorListener.semanticError(functionData.errorLocation(), errorMsg, FUNCTION_MUST_HAVE_SINGLE_PARAMETER);
     } else {
@@ -503,26 +528,31 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     }
 
     if (functionData.functionSymbol().getReturningSymbol().getType().isPresent()) {
-      var returnType = functionData.functionSymbol().getReturningSymbol().getType().get();
+      final var returnType = functionData.functionSymbol().getReturningSymbol().getType().get();
+
       if (returnType instanceof IAggregateSymbol returnTypeAsAggregate) {
         var search = new MethodSymbolSearch("#?");
         //Really just want to check this return type has hashcode operator.
-        var result = returnTypeAsAggregate.resolveMatchingMethods(search, new MethodSymbolSearchResult());
+        final var result = returnTypeAsAggregate.resolveMatchingMethods(search, new MethodSymbolSearchResult());
+
         if (!result.isSingleBestMatchPresent()) {
           errorListener.semanticError(functionData.errorLocation(), errorMsg, UNABLE_TO_FIND_HASHCODE_FOR_TYPE);
         }
+
       } else {
-        var msg = "need 'aggregate' type, but '" + returnType.getFriendlyName() + "':";
+        final var msg = "need 'aggregate' type, but '" + returnType.getFriendlyName() + "':";
         errorListener.semanticError(functionData.errorLocation(), msg, IS_NOT_AN_AGGREGATE_TYPE);
       }
 
     }
+
   }
 
   private void checkIsJoinFunctionOrError(final StreamFunctionCheckData functionData) {
+
     //For this to be valid the function must take two arguments compatible with symbolType
     //And it must return a variable that is the same type as the symbolType (or compatible with it.)
-    var errorMsg = "'" + functionData.functionSymbol().getFriendlyName() + "':";
+    final var errorMsg = "'" + functionData.functionSymbol().getFriendlyName() + "':";
     if (functionData.functionSymbol().getCallParameters().size() != 2) {
       errorListener.semanticError(functionData.errorLocation(), errorMsg, FUNCTION_MUST_HAVE_TWO_PARAMETERS);
     } else {
@@ -530,7 +560,8 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     }
 
     if (functionData.functionSymbol().getReturningSymbol().getType().isPresent()) {
-      var returnType = functionData.functionSymbol().getReturningSymbol().getType().get();
+      final var returnType = functionData.functionSymbol().getReturningSymbol().getType().get();
+
       if (returnType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Void())) {
         errorListener.semanticError(functionData.errorLocation(), errorMsg, RETURNING_MISSING);
       } else if (!returnType.isAssignableTo(functionData.currentStreamType())) {
@@ -538,11 +569,13 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
             + "' and pipeline type '" + functionData.currentStreamType().getFriendlyName() + "':";
         errorListener.semanticError(functionData.errorLocation(), typeErrorMsg, INCOMPATIBLE_TYPES);
       }
+
     }
 
   }
 
-  private ISymbol resolveParameterisedListType(Token opLocation, final ISymbol currentStreamType) {
+  private ISymbol resolveParameterisedListType(final Token opLocation, final ISymbol currentStreamType) {
+
     //Access the generic List type - this has been pre-located for quicker use.
     final var listType = symbolAndScopeManagement.getEk9Types().ek9List();
 
@@ -551,47 +584,45 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     final var resolvedNewType = parameterisedLocator.resolveOrDefine(typeData);
 
     return resolvedNewType.orElseGet(() -> symbolAndScopeManagement.getEk9Types().ek9Void());
-
   }
 
   private ISymbol acceptsTypeOrError(final StreamFunctionCheckData functionData) {
 
     if (functionData.functionSymbol().getCallParameters().size() == 1) {
       //OK so now check if the type that we have here could be received.
-      var paramType = functionData.functionSymbol().getCallParameters().get(0).getType();
+      final var paramType = functionData.functionSymbol().getCallParameters().get(0).getType();
+
       if (functionData.currentStreamType().isAssignableTo(paramType)) {
         if (functionData.functionSymbol().getReturningSymbol().getType().isPresent()) {
           return functionData.functionSymbol().getReturningSymbol().getType().get();
         }
       } else {
-        var msg = "'" + functionData.functionSymbol().getFriendlyName() + "' incompatible with argument of '"
+        final var msg = "'" + functionData.functionSymbol().getFriendlyName() + "' incompatible with argument of '"
             + functionData.currentStreamType().getFriendlyName() + "':";
         errorListener.semanticError(functionData.errorLocation(), msg, INCOMPATIBLE_TYPES);
       }
     } else {
-      var msg = "'" + functionData.functionSymbol().getFriendlyName() + "':";
+      final var msg = "'" + functionData.functionSymbol().getFriendlyName() + "':";
       errorListener.semanticError(functionData.errorLocation(), msg, REQUIRE_ONE_ARGUMENT);
     }
 
     return symbolAndScopeManagement.getEk9Types().ek9Void();
-
   }
 
-  private void processStreamTermination(final StreamAssembly streamAssembly, final ISymbol streamType) {
+  private void processStreamTermination(final StreamAssemblyData streamAssembly, final ISymbol streamType) {
 
     streamAssembly.termination().getType().ifPresent(
         terminationType -> processTermination(streamAssembly.termination(), terminationType, streamType));
 
   }
 
-  private void processTermination(StreamCallSymbol termination,
+  private void processTermination(final StreamCallSymbol termination,
                                   final ISymbol terminationType,
                                   final ISymbol streamType) {
 
     if (terminationType instanceof IAggregateSymbol terminationTypeAggregate) {
-      var search = new MethodSymbolSearch("|").addTypeParameter(streamType);
-      MethodSymbolSearchResult result = new MethodSymbolSearchResult();
-      result = terminationTypeAggregate.resolveMatchingMethods(search, result);
+      final var search = new MethodSymbolSearch("|").addTypeParameter(streamType);
+      final var result = terminationTypeAggregate.resolveMatchingMethods(search, new MethodSymbolSearchResult());
 
       if (result.isSingleBestMatchPresent()) {
         result.getSingleBestMatchSymbol().ifPresent(bestTypeMatch -> {
@@ -600,13 +631,15 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
           termination.setConsumesSymbolType(streamType);
           termination.setConsumesSymbolPromotionRequired(!bestTypeMatch.isExactSameType(streamType));
         });
+
       } else {
-        var msg = "wrt pipeline type '" + streamType.getFriendlyName()
+        final var msg = "wrt pipeline type '" + streamType.getFriendlyName()
             + "' and terminal type '" + terminationType.getFriendlyName() + "':";
         errorListener.semanticError(termination.getSourceToken(), msg, UNABLE_TO_FIND_PIPE_FOR_TYPE);
       }
+
     } else {
-      var msg = "termination/tee requires an aggregate type, '" + terminationType.getFriendlyName() + ":";
+      final var msg = "termination/tee requires an aggregate type, '" + terminationType.getFriendlyName() + ":";
       errorListener.semanticError(termination.getSourceToken(), msg, IS_NOT_AN_AGGREGATE_TYPE);
     }
   }

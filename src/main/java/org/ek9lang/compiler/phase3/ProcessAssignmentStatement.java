@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
@@ -26,6 +27,7 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
    */
   ProcessAssignmentStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
                              final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.symbolFromContextOrError
         = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
@@ -35,6 +37,7 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
         = new CheckLhsAndRhsAssignment(symbolAndScopeManagement, errorListener);
     this.processIdentifierAssignment
         = new ProcessIdentifierAssignment(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
@@ -44,11 +47,12 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
     //With operators: ASSIGN|ASSIGN2|COLON|ASSIGN_UNSET|ADD_ASSIGN|SUB_ASSIGN|DIV_ASSIGN|MUL_ASSIGN|MERGE|REPLACE|COPY
     //Right hand side is: assignmentExpression
 
-    var expressionSymbol = symbolFromContextOrError.apply(ctx.assignmentExpression());
+    final var expressionSymbol = symbolFromContextOrError.apply(ctx.assignmentExpression());
     if (expressionSymbol == null) {
       //So not resolved and an error will have been emitted.
       return;
     }
+
     if (ctx.primaryReference() != null) {
       processByPrimaryReference(ctx, expressionSymbol);
     } else if (ctx.identifier() != null) {
@@ -58,14 +62,17 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
     } else {
       AssertValue.fail("Expecting finite set of operations on assignment " + ctx.start.getLine());
     }
+
   }
 
   private void processByPrimaryReference(final EK9Parser.AssignmentStatementContext ctx,
                                          final ISymbol expressionSymbol) {
-    var primaryReferenceExpressionSymbol = symbolFromContextOrError.apply(ctx.primaryReference());
+
+    final var primaryReferenceExpressionSymbol = symbolFromContextOrError.apply(ctx.primaryReference());
     if (primaryReferenceExpressionSymbol != null) {
-      var isAssigningToThis = ctx.primaryReference().THIS() != null;
-      var data = new AssignmentData(isAssigningToThis,
+
+      final var isAssigningToThis = ctx.primaryReference().THIS() != null;
+      final var data = new AssignmentData(isAssigningToThis,
           new TypeCompatibilityData(new Ek9Token(ctx.op), primaryReferenceExpressionSymbol, expressionSymbol));
 
       checkLeftAndRight.accept(data);
@@ -73,23 +80,27 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
   }
 
   private void processByIdentifier(final EK9Parser.AssignmentStatementContext ctx, final ISymbol expressionSymbol) {
-    var identifier = processIdentifierOrError.apply(ctx.identifier());
+
+    final var identifier = processIdentifierOrError.apply(ctx.identifier());
     if (identifier != null) {
-      var op = new Ek9Token(ctx.op);
-      var typeData = new TypeCompatibilityData(op, identifier, expressionSymbol);
-      var data = new AssignmentData(false, typeData);
+      final var op = new Ek9Token(ctx.op);
+      final var typeData = new TypeCompatibilityData(op, identifier, expressionSymbol);
+      final var data = new AssignmentData(false, typeData);
       processIdentifierAssignment.accept(data);
     }
   }
 
   private void processByObjectAccessExpression(final EK9Parser.AssignmentStatementContext ctx,
                                                final ISymbol expressionSymbol) {
-    var objectAccessExpressionSymbol = symbolFromContextOrError.apply(ctx.objectAccessExpression());
+
+    final var objectAccessExpressionSymbol = symbolFromContextOrError.apply(ctx.objectAccessExpression());
     if (objectAccessExpressionSymbol != null) {
-      var data = new AssignmentData(false,
+      final var data = new AssignmentData(false,
           new TypeCompatibilityData(new Ek9Token(ctx.op), objectAccessExpressionSymbol, expressionSymbol));
+
       checkLeftAndRight.accept(data);
     }
+
   }
 
 }
