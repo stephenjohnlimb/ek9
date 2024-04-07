@@ -20,14 +20,17 @@ public final class CheckForDuplicateOperationsOnGeneric implements BiConsumer<IT
    * Create a new operations checker for parameterised aggregates.
    */
   public CheckForDuplicateOperationsOnGeneric(final ErrorListener errorListener) {
-    this.checkForDuplicateOperations =
-        new CheckForDuplicateOperations(errorListener);
+
+    this.checkForDuplicateOperations = new CheckForDuplicateOperations(errorListener);
+
   }
 
   @Override
   public void accept(final IToken errorLocationToken, final IAggregateSymbol aggregate) {
+
     if (aggregate != null && aggregate.isParameterisedType()) {
       checkForDuplicateOperations.accept(errorLocationToken, aggregate);
     }
+
   }
 }

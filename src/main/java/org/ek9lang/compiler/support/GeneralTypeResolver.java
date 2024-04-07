@@ -15,48 +15,53 @@ import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
  * There's a bit of recursion in here, so take care.
  */
 public class GeneralTypeResolver implements Function<SymbolSearchConfiguration, Optional<ISymbol>> {
-
   private final IScope scopeForResolution;
   private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
 
   public GeneralTypeResolver(final IScope scopeForResolution) {
+
     this.scopeForResolution = scopeForResolution;
+
   }
 
   @Override
   public Optional<ISymbol> apply(final SymbolSearchConfiguration toResolve) {
 
-    var mainSymbol = scopeForResolution.resolve(new AnyTypeSymbolSearch(toResolve.mainSymbolName()));
+    final var mainSymbol = scopeForResolution.resolve(new AnyTypeSymbolSearch(toResolve.mainSymbolName()));
 
     //For non-parametric stuff that's it.
     if (!toResolve.isParametric()) {
       return mainSymbol;
     }
 
-    List<ISymbol> parameterizingTypeSymbols = getParameterizingSymbols(toResolve.parameterizingArguments());
+    final var parameterizingTypeSymbols = getParameterizingSymbols(toResolve.parameterizingArguments());
 
     //Check it has been found and actually is generic in nature.
-    if (mainSymbol.isPresent()
-        && mainSymbol.get().isGenericInNature()
+    if (mainSymbol.isPresent() && mainSymbol.get().isGenericInNature()
         && parameterizingTypeSymbols.size() == toResolve.parameterizingArguments().size()) {
-      var genericType = mainSymbol.get();
+
+      final var genericType = mainSymbol.get();
 
       if (genericType instanceof PossibleGenericSymbol genericSymbol) {
-        var theType = creator.apply(genericSymbol, parameterizingTypeSymbols);
+        final var theType = creator.apply(genericSymbol, parameterizingTypeSymbols);
         return scopeForResolution.resolve(new SymbolSearch(theType));
       }
+
     }
 
     return Optional.empty();
   }
 
   private List<ISymbol> getParameterizingSymbols(final List<SymbolSearchConfiguration> parameterizingTypes) {
-    List<ISymbol> parameterizingTypeSymbols = new ArrayList<>();
+
+    final List<ISymbol> parameterizingTypeSymbols = new ArrayList<>();
+
     for (var paramType : parameterizingTypes) {
       //Recursive call to this as SymbolSearchForTest can be nested
-      var parameterizingType = this.apply(paramType);
+      final var parameterizingType = this.apply(paramType);
       parameterizingType.ifPresent(parameterizingTypeSymbols::add);
     }
+
     return parameterizingTypeSymbols;
   }
 }

@@ -9,14 +9,16 @@ import java.util.function.Predicate;
  */
 public class CheckParameterizationComplete implements Predicate<GenericInGenericData> {
   @Override
-  public boolean test(GenericInGenericData data) {
+  public boolean test(final GenericInGenericData data) {
 
-    var parentParameterizationArguments = data.parent().getTypeParameterOrArguments();
+    final var parentParameterizationArguments = data.parent().getTypeParameterOrArguments();
+
     for (var arg : data.dependent().getTypeParameterOrArguments()) {
       if (arg.isConceptualTypeParameter() && !parentParameterizationArguments.contains(arg)) {
         return false;
       }
     }
+
     return true;
   }
 }

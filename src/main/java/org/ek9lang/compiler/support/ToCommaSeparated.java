@@ -11,6 +11,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
  */
 public class ToCommaSeparated implements Function<List<ISymbol>, String> {
   private final boolean includeParenthesis;
+
   /**
    * Used when creating friendly name, because it can be recursive.
    * Imaging a function that returns itself or accepts a function of itself as a parameter.
@@ -19,20 +20,25 @@ public class ToCommaSeparated implements Function<List<ISymbol>, String> {
   private final ISymbol fromType;
 
   public ToCommaSeparated(final boolean includeParenthesis) {
+
     this(null, includeParenthesis);
+
   }
 
   public ToCommaSeparated(final ISymbol fromType, final boolean includeParenthesis) {
+
     this.fromType = fromType;
     this.includeParenthesis = includeParenthesis;
+
   }
 
   @Override
-  public String apply(List<ISymbol> params) {
-    List<String> names = new ArrayList<>();
+  public String apply(final List<ISymbol> params) {
+
+    final List<String> names = new ArrayList<>();
 
     for (var param : params) {
-      var paramType = param.getType();
+      final var paramType = param.getType();
       if (paramType.isEmpty() || (fromType != null && paramType.get().isExactSameType(fromType))) {
         names.add(param.getName());
       } else {
@@ -40,10 +46,11 @@ public class ToCommaSeparated implements Function<List<ISymbol>, String> {
       }
     }
 
-    var commaSeparated = String.join(", ", names);
+    final var commaSeparated = String.join(", ", names);
     if (!includeParenthesis) {
       return commaSeparated;
     }
+
     return "(" + commaSeparated + ")";
   }
 }

@@ -15,15 +15,20 @@ public class SymbolChecker {
 
   private final NameCollisionChecker nameCollisionChecker;
 
-  public SymbolChecker(ErrorListener errorListener) {
+  public SymbolChecker(final ErrorListener errorListener) {
+
     this.nameCollisionChecker = new NameCollisionChecker(errorListener, true);
+
   }
 
   /**
    * Check for exising symbol in the scope.
    * if returns true then errors will have been added to the error listener.
    */
-  public boolean errorsIfSymbolAlreadyDefined(IScope inScope, ISymbol symbol, boolean limitVarSearchToBlockScope) {
+  public boolean errorsIfSymbolAlreadyDefined(final IScope inScope,
+                                              final ISymbol symbol,
+                                              final boolean limitVarSearchToBlockScope) {
+
     AssertValue.checkNotNull("Scope cannot be null", inScope);
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
 
@@ -32,6 +37,7 @@ public class SymbolChecker {
           new SymbolSearch(symbol.getName()).setLimitToBlocks(limitVarSearchToBlockScope),
           ErrorListener.SemanticClassification.DUPLICATE_VARIABLE);
     }
+
     return true;
   }
 }

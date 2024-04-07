@@ -1,7 +1,6 @@
 package org.ek9lang.compiler.support;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.BiPredicate;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.search.SymbolSearch;
@@ -20,10 +19,11 @@ public class NameCollisionChecker implements BiPredicate<IScope, ISymbol> {
   private final LocationExtractorFromSymbol locationExtractorFromSymbol = new LocationExtractorFromSymbol();
 
   public NameCollisionChecker(final ErrorListener errorListener, final boolean useQualifiedName) {
+
     this.errorListener = errorListener;
     this.useQualifiedName = useQualifiedName;
-  }
 
+  }
 
   /**
    * Check for exising symbol in the scope.
@@ -31,10 +31,11 @@ public class NameCollisionChecker implements BiPredicate<IScope, ISymbol> {
    */
   @Override
   public boolean test(final IScope inScope, final ISymbol symbol) {
+
     AssertValue.checkNotNull("Scope cannot be null", inScope);
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
 
-    var searches = Map
+    final var searches = Map
         .of(ISymbol.SymbolCategory.FUNCTION, ErrorListener.SemanticClassification.DUPLICATE_NAME,
             ISymbol.SymbolCategory.TYPE, ErrorListener.SemanticClassification.DUPLICATE_TYPE,
             ISymbol.SymbolCategory.TEMPLATE_FUNCTION, ErrorListener.SemanticClassification.DUPLICATE_NAME,
@@ -43,12 +44,13 @@ public class NameCollisionChecker implements BiPredicate<IScope, ISymbol> {
 
     //Not that we also stop same name as the types above.
     for (var entry : searches.entrySet()) {
-      var name = useQualifiedName ? symbol.getFullyQualifiedName() : symbol.getName();
-      var search = new SymbolSearch(name).setSearchType(entry.getKey());
+      final var name = useQualifiedName ? symbol.getFullyQualifiedName() : symbol.getName();
+      final var search = new SymbolSearch(name).setSearchType(entry.getKey());
       if (errorsIfResolved(inScope, symbol, search, entry.getValue())) {
         return true;
       }
     }
+
     return false;
   }
 
@@ -59,16 +61,18 @@ public class NameCollisionChecker implements BiPredicate<IScope, ISymbol> {
                                   final ErrorListener.SemanticClassification classificationError) {
 
     //Now it is possible the symbol will just resolve to itself. Which is obviously Ok as it is not a duplicate.
-    Optional<ISymbol> symbolCheck = inScope.resolve(search);
+    final var symbolCheck = inScope.resolve(search);
+
     if (symbolCheck.isPresent()) {
       ISymbol dup = symbolCheck.get();
       if (dup != symbol) {
-        String message = String.format("'%s' as %s %s:",
+        final var message = String.format("'%s' as %s %s:",
             dup.getFriendlyName(), dup.getGenus(), locationExtractorFromSymbol.apply(dup));
         errorListener.semanticError(symbol.getSourceToken(), message, classificationError);
         return true;
       }
     }
+
     return false;
   }
 }

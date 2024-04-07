@@ -11,7 +11,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
  */
 public class SymbolTypeExtractor implements UnaryOperator<List<ISymbol>> {
   @Override
-  public List<ISymbol> apply(List<ISymbol> argumentSymbols) {
+  public List<ISymbol> apply(final List<ISymbol> argumentSymbols) {
 
     return argumentSymbols.stream()
         .map(ISymbol::getType)

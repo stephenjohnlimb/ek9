@@ -12,10 +12,13 @@ public abstract class CheckReturns {
   protected final ErrorListener errorListener;
 
   protected CheckReturns(final ErrorListener errorListener) {
+
     this.errorListener = errorListener;
+
   }
 
-  protected void check(final boolean isStatement, final IToken parentToken,
+  protected void check(final boolean isStatement,
+                       final IToken parentToken,
                        final EK9Parser.ReturningParamContext returningParamCtx) {
 
     if (isStatement && returningParamCtx != null) {
@@ -27,5 +30,6 @@ public abstract class CheckReturns {
       errorListener.semanticError(parentToken, "",
           ErrorListener.SemanticClassification.RETURNING_REQUIRED);
     }
+
   }
 }

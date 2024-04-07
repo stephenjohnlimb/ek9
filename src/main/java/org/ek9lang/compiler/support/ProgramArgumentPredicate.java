@@ -26,6 +26,7 @@ import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 /**
  * Check if this type being supplied to the test can be used as a program argument.
  * This is subset of the types EK9 supports.
+ * Only a finite set of values of EK9 types can easily be identified and converted to actual typed values.
  */
 public class ProgramArgumentPredicate implements Predicate<ISymbol> {
 
@@ -37,23 +38,27 @@ public class ProgramArgumentPredicate implements Predicate<ISymbol> {
   );
 
   @Override
-  public boolean test(ISymbol typeSymbol) {
+  public boolean test(final ISymbol typeSymbol) {
 
     if (typeSymbol != null) {
-      if (typeSymbol.isParameterisedType()
-          && typeSymbol instanceof PossibleGenericSymbol parameterisedSymbol
+      if (typeSymbol.isParameterisedType() && typeSymbol instanceof PossibleGenericSymbol parameterisedSymbol
           && parameterisedSymbol.getGenericType().isPresent()) {
-        var theGenericTypeName = parameterisedSymbol.getGenericType().get().getFullyQualifiedName();
+
+        final var theGenericTypeName = parameterisedSymbol.getGenericType().get().getFullyQualifiedName();
 
         //Looks like could be OK, but if a generic List type then need to check that it is
         //only used with an EK9 String.
         if (EK9_LIST.equals(theGenericTypeName) && parameterisedSymbol.getTypeParameterOrArguments().size() == 1) {
-          var parameterisedWith = parameterisedSymbol.getTypeParameterOrArguments().get(0).getFullyQualifiedName();
+          final var parameterisedWith =
+              parameterisedSymbol.getTypeParameterOrArguments().get(0).getFullyQualifiedName();
           return EK9_STRING.equals(parameterisedWith);
         }
+
       }
+
       return validTypes.contains(typeSymbol.getFullyQualifiedName());
     }
+
     return false;
   }
 }

@@ -35,11 +35,14 @@ class CheckAndPopulateOperator
 
     this.aggregateFactory = aggregateFactory;
     this.errorListener = errorListener;
+
   }
 
   @Override
   public MethodSymbol apply(final EK9Parser.OperatorDeclarationContext ctx, final IAggregateSymbol aggregate) {
-    var startToken = new Ek9Token(ctx.operator().start);
+
+    final var startToken = new Ek9Token(ctx.operator().start);
+
     return (ctx.DEFAULT() != null)
         ? createDefaultOperator(ctx, startToken, aggregate)
         : createNormalOperator(ctx, startToken, aggregate);
@@ -62,16 +65,17 @@ class CheckAndPopulateOperator
     }
 
     //Now this can come back empty - meaning it is not an operator that can be defaulted.
-    var defaultOperator = aggregateFactory.getDefaultOperator(aggregate, ctx.operator().getText());
+    final var defaultOperator = aggregateFactory.getDefaultOperator(aggregate, ctx.operator().getText());
     if (defaultOperator.isEmpty()) {
       emitOperatorDoesNotSupportDefault(startToken, aggregate);
       return null;
     }
 
     //Looks like all is going to be OK.
-    var operator = defaultOperator.get();
+    final var operator = defaultOperator.get();
     operator.setSourceToken(startToken);
     operator.setInitialisedBy(startToken);
+
     return operator;
 
   }
@@ -81,21 +85,19 @@ class CheckAndPopulateOperator
                                             final IToken startToken,
                                             final IAggregateSymbol aggregate) {
 
-    MethodSymbol operator = new MethodSymbol(ctx.operator().getText(), aggregate);
-    operator.setSourceToken(startToken);
-    operator.setInitialisedBy(startToken);
-
     //For operators with arguments, i.e. <, >, <>, etc. the developer really wants to test based on the
     //actual type being provided not some super. So we use the same dispatcher mechanism in classes that the ek9
     //developer can express. But here we do it behind the scenes.
-    var hasArguments = ctx.operationDetails() != null && ctx.operationDetails().argumentParam() != null;
+    final var hasArguments = ctx.operationDetails() != null && ctx.operationDetails().argumentParam() != null;
+    final var operator = new MethodSymbol(ctx.operator().getText(), aggregate);
+
+    operator.setSourceToken(startToken);
+    operator.setInitialisedBy(startToken);
     operator.setMarkedAsDispatcher(hasArguments);
     operator.setOverride(ctx.OVERRIDE() != null);
     operator.setMarkedPure(ctx.PURE() != null);
     operator.setMarkedAbstract(ctx.ABSTRACT() != null);
-
     operator.setOperator(true);
-
     //Set as Void, unless we have a returning section - processed later.
     operator.setType(aggregateFactory.resolveVoid(aggregate));
 
@@ -106,17 +108,20 @@ class CheckAndPopulateOperator
                                         final IAggregateSymbol aggregate) {
 
     errorListener.semanticError(startToken, messageFor.apply(aggregate), DEFAULT_AND_TRAIT);
+
   }
 
   private void emitOperatorDoesNotSupportDefault(final IToken startToken,
                                                  final IAggregateSymbol aggregate) {
 
     errorListener.semanticError(startToken, messageFor.apply(aggregate), OPERATOR_DEFAULT_NOT_SUPPORTED);
+
   }
 
   private void emitDefaultOperatorWithSignature(final IToken startToken,
                                                 final IAggregateSymbol aggregate) {
 
     errorListener.semanticError(startToken, messageFor.apply(aggregate), DEFAULT_WITH_OPERATOR_SIGNATURE);
+
   }
 }

@@ -16,13 +16,17 @@ public final class ParameterisedLocator extends ResolverOrDefiner
    * Create a new Function that can define or resolve a specific generic type with a single type parameter.
    */
   public ParameterisedLocator(final SymbolAndScopeManagement symbolAndScopeManagement,
-                              final SymbolFactory symbolFactory, final ErrorListener errorListener,
+                              final SymbolFactory symbolFactory,
+                              final ErrorListener errorListener,
                               final boolean errorIfNotDefinedOrResolved) {
+
     super(symbolAndScopeManagement, symbolFactory, errorListener, errorIfNotDefinedOrResolved);
+
   }
 
   @Override
   public Optional<ISymbol> apply(final ParameterisedTypeData details) {
+
     return super.resolveOrDefine(details);
   }
 }

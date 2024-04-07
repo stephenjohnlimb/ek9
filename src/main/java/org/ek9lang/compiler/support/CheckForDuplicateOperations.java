@@ -23,38 +23,48 @@ public final class CheckForDuplicateOperations implements BiConsumer<IToken, IAg
    * Create a new operations checker an aggregates.
    */
   public CheckForDuplicateOperations(final ErrorListener errorListener) {
+
     this.errorListener = errorListener;
+
   }
 
   @Override
   public void accept(final IToken errorLocationToken, final IAggregateSymbol aggregate) {
+
     checkForDuplicatedOverloadableMethods(errorLocationToken, aggregate, aggregate.getAllNonAbstractMethods());
     checkForDuplicatedOverloadableMethods(errorLocationToken, aggregate, aggregate.getAllAbstractMethods());
+
   }
 
-  private void checkForDuplicatedOverloadableMethods(final IToken errorLocationToken, final IAggregateSymbol aggregate,
+  private void checkForDuplicatedOverloadableMethods(final IToken errorLocationToken,
+                                                     final IAggregateSymbol aggregate,
                                                      final List<MethodSymbol> methods) {
+
     methods.forEach(method -> {
       //Parameterised types have an empty argument constructor
       //and another constructor with just the parameterizing types.
       if ((aggregate.isParameterisedType() && !method.isConstructor()) || !aggregate.isParameterisedType()) {
-        MethodSymbolSearchResult results = new MethodSymbolSearchResult();
-        var search = new MethodSymbolSearch(method);
-        var matching = aggregate.resolveMatchingMethods(search, results);
+
+        final var search = new MethodSymbolSearch(method);
+        final var matching = aggregate.resolveMatchingMethods(search, new MethodSymbolSearchResult());
+
         if (!matching.isEmpty() && !matching.isSingleBestMatchPresent()) {
           emitErrors(errorLocationToken, aggregate, method);
         }
         //But if it was empty that just indicates that some type parameters could not be resolved.
       }
     });
+
   }
 
   private void emitErrors(final IToken errorLocationToken,
                           final IAggregateSymbol aggregate,
                           final MethodSymbol method) {
-    var operation = method.isOperator() ? "operator" : "method";
 
-    var msg = "Originating from line: "
+    final var errorType = ErrorListener.SemanticClassification.METHOD_DUPLICATED;
+    final var operation = method.isOperator() ? "operator" : "method";
+    final var initializedByToken = aggregate.getInitialisedBy();
+    final var msg = "Originating from line: "
         + errorLocationToken.getLine() + " and relating to '"
         + aggregate.getFriendlyName()
         + "', "
@@ -62,19 +72,18 @@ public final class CheckForDuplicateOperations implements BiConsumer<IToken, IAg
         + method.getFriendlyName()
         + "':";
 
-    final var errorType = ErrorListener.SemanticClassification.METHOD_DUPLICATED;
-
     //When defining any parameterised types that have duplicate methods it is not actually the
     //Generic type that is totally the cause (maybe those could be written with less chance of having duplicate
     //methods - but that is an EK9 developer choice). It is the point where the parameterization takes place that
     //actually trigger the method signature duplication. So the developer need to know:
     //First what is the trigger point for the duplication, then which methods are duplicated and which class those
     //are in.
-    var initializedByToken = aggregate.getInitialisedBy();
+
     if (initializedByToken != null) {
       errorListener.semanticError(initializedByToken, "Parameterization caused method signatures to be duplicated:",
           errorType);
     }
+
     errorListener.semanticError(errorLocationToken, "Is a source of method duplication:", errorType);
     errorListener.semanticError(method.getSourceToken(), msg, errorType);
 

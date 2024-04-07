@@ -26,13 +26,15 @@ public class SymbolMatcher implements Serializable {
    * We use a weighting algorithm to try and find the best match where there are methods of
    * the same name.
    */
-  public void addMatchesToResult(MethodSymbolSearchResult result, SymbolSearch criteria,
-                                 List<MethodSymbol> methodSymbols) {
+  public void addMatchesToResult(final MethodSymbolSearchResult result,
+                                 final SymbolSearch criteria,
+                                 final List<MethodSymbol> methodSymbols) {
+
     AssertValue.checkNotNull("Search cannot be null", criteria);
     AssertValue.checkNotNull("MethodSymbols cannot be null", methodSymbols);
 
     methodSymbols.forEach(methodSymbol -> {
-      double weight = getWeightOfMethodMatch(criteria, methodSymbol);
+      final var weight = getWeightOfMethodMatch(criteria, methodSymbol);
 
       if (weight >= 0.0) {
         result.add(new WeightedMethodSymbolMatch(methodSymbol, weight));
@@ -50,7 +52,7 @@ public class SymbolMatcher implements Serializable {
    * @param methodSymbol The method symbol to check against
    * @return The weight of the match.
    */
-  private double getWeightOfMethodMatch(SymbolSearch criteria, MethodSymbol methodSymbol) {
+  private double getWeightOfMethodMatch(final SymbolSearch criteria, final MethodSymbol methodSymbol) {
     double rtn = -1.0;
 
     if (criteria.getName().equals(methodSymbol.getName())) {
@@ -63,7 +65,7 @@ public class SymbolMatcher implements Serializable {
 
       //Now need to check on method parameter symbols and match those against the parameters
       //on the method.
-      double paramCost =
+      final var paramCost =
           getWeightOfParameterMatch(criteria.getTypeParameters(), methodSymbol.getSymbolsForThisScope());
       if (paramCost < 0.0) {
         return rtn;
@@ -79,10 +81,11 @@ public class SymbolMatcher implements Serializable {
    * But if the symbols do not have types then it's an immediate failure to match.
    */
   public double getWeightOfParameterMatch(final List<ISymbol> fromSymbols, final List<ISymbol> toSymbols) {
+
     double rtn = -1.0;
 
-    int numParams1LookedFor = fromSymbols.size();
-    int numParams2lookedFor = toSymbols.size();
+    final var numParams1LookedFor = fromSymbols.size();
+    final var numParams2lookedFor = toSymbols.size();
 
     //So this cannot be a match
     if (numParams1LookedFor != numParams2lookedFor) {
@@ -96,23 +99,25 @@ public class SymbolMatcher implements Serializable {
 
     double paramCost = 0.0;
     for (int i = 0; i < numParams1LookedFor; i++) {
-      ISymbol from = fromSymbols.get(i);
-      var fromType = from.getType().orElseThrow();
+      final var fromSymbol = fromSymbols.get(i);
+      final var fromType = fromSymbol.getType().orElseThrow();
 
-      ISymbol to = toSymbols.get(i);
-      var toType = to.getType().orElseThrow();
+      ISymbol toSymbol = toSymbols.get(i);
+      var toType = toSymbol.getType().orElseThrow();
 
-      double thisCost = getCostOfSymbolMatch(fromType, toType);
+      final var thisCost = getCostOfSymbolMatch(fromType, toType);
       if (thisCost < 0.0) {
         return rtn; //No match
       }
       paramCost += thisCost;
     }
     rtn = paramCost;
+
     return rtn;
   }
 
   private boolean anyUnTyped(final List<ISymbol> symbols) {
+
     return symbols.stream().map(symbol -> symbol.getType().isEmpty()).findFirst().orElse(false);
   }
 
@@ -120,18 +125,17 @@ public class SymbolMatcher implements Serializable {
    * Calculates te weight of matching two symbols, which may or may not be present.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public double getWeightOfMatch(Optional<ISymbol> fromSymbol, Optional<ISymbol> toSymbol) {
-    double rtn = -1.0;
+  public double getWeightOfMatch(final Optional<ISymbol> fromSymbol, final Optional<ISymbol> toSymbol) {
 
     //So neither is set that's Ok
     if (fromSymbol.isEmpty() && toSymbol.isEmpty()) {
       return 0.0;
     }
     if (fromSymbol.isPresent() && toSymbol.isEmpty()) {
-      return rtn;
+      return -1.0;
     }
     if (fromSymbol.isEmpty()) {
-      return rtn;
+      return -1.0;
     }
 
     //Ok so both set lets see what the cost is
@@ -139,15 +143,16 @@ public class SymbolMatcher implements Serializable {
     ISymbol from = fromSymbol.get();
     ISymbol to = toSymbol.get();
 
-    double costOfMatch = getCostOfSymbolMatch(from, to);
+    final var costOfMatch = getCostOfSymbolMatch(from, to);
     if (costOfMatch < 0.0) {
-      return rtn; //not a match
+      return -1.0; //not a match
     }
 
     return costOfMatch;
   }
 
-  private double getCostOfSymbolMatch(ISymbol from, ISymbol to) {
+  private double getCostOfSymbolMatch(final ISymbol from, final ISymbol to) {
+
     return from.getAssignableWeightTo(to);
   }
 }

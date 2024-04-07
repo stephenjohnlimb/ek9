@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
@@ -19,15 +18,17 @@ public class OperatorFactory {
   private final AggregateFactory aggregateFactory;
 
   public OperatorFactory(final AggregateFactory aggregateFactory) {
+
     this.aggregateFactory = aggregateFactory;
+
   }
 
-  void addEnumerationMethods(AggregateSymbol enumerationSymbol) {
-    final Optional<ISymbol> booleanType = aggregateFactory.resolveBoolean(enumerationSymbol);
-    final Optional<ISymbol> integerType = aggregateFactory.resolveInteger(enumerationSymbol);
-    final Optional<ISymbol> stringType = aggregateFactory.resolveString(enumerationSymbol);
-    final Optional<ISymbol> jsonType = aggregateFactory.resolveJson(enumerationSymbol);
+  void addEnumerationMethods(final AggregateSymbol enumerationSymbol) {
 
+    final var booleanType = aggregateFactory.resolveBoolean(enumerationSymbol);
+    final var integerType = aggregateFactory.resolveInteger(enumerationSymbol);
+    final var stringType = aggregateFactory.resolveString(enumerationSymbol);
+    final var jsonType = aggregateFactory.resolveJson(enumerationSymbol);
 
     //Some reasonable operations
 
@@ -67,6 +68,7 @@ public class OperatorFactory {
     //First and last
     aggregateFactory.addPurePublicReturnSameTypeMethod(enumerationSymbol, "#<");
     aggregateFactory.addPurePublicReturnSameTypeMethod(enumerationSymbol, "#>");
+
   }
 
   List<MethodSymbol> getAllPossibleDefaultOperators(final IAggregateSymbol aggregate) {
@@ -84,14 +86,15 @@ public class OperatorFactory {
         getDefaultOperator(aggregate, "$$"),
         getDefaultOperator(aggregate, "#?")
     ));
+
   }
 
   MethodSymbol getDefaultOperator(final IAggregateSymbol aggregate, final String operator) {
-    final Optional<ISymbol> integerType = aggregateFactory.resolveInteger(aggregate);
-    final Optional<ISymbol> stringType = aggregateFactory.resolveString(aggregate);
-    final Optional<ISymbol> booleanType = aggregateFactory.resolveBoolean(aggregate);
-    final Optional<ISymbol> jsonType = aggregateFactory.resolveJson(aggregate);
 
+    final var integerType = aggregateFactory.resolveInteger(aggregate);
+    final var stringType = aggregateFactory.resolveString(aggregate);
+    final var booleanType = aggregateFactory.resolveBoolean(aggregate);
+    final var jsonType = aggregateFactory.resolveJson(aggregate);
     final var rtn = switch (operator) {
       case "<", "<=", ">", ">=", "==", "<>":
         yield aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, operator, booleanType);
@@ -108,23 +111,24 @@ public class OperatorFactory {
       default:
         yield null;
     };
+
     if (rtn != null) {
       //It has been default and is a synthetic method (i.e. not one defined explicitly by the developer)
       rtn.putSquirrelledData(DEFAULTED, "TRUE");
       rtn.setSynthetic(true);
     }
+
     return rtn;
   }
 
   List<MethodSymbol> getAllPossibleSyntheticOperators(final IAggregateSymbol aggregate) {
-    final Optional<ISymbol> integerType = aggregateFactory.resolveInteger(aggregate);
-    final Optional<ISymbol> booleanType = aggregateFactory.resolveBoolean(aggregate);
 
-    var theDefaultOperators = getAllPossibleDefaultOperators(aggregate);
+    final var integerType = aggregateFactory.resolveInteger(aggregate);
+    final var booleanType = aggregateFactory.resolveBoolean(aggregate);
 
-    var additionalOperators = new ArrayList<>(Arrays.asList(
+    final var theDefaultOperators = getAllPossibleDefaultOperators(aggregate);
+    final var additionalOperators = new ArrayList<>(Arrays.asList(
         aggregateFactory.createToJsonSimpleOperator(aggregate),
-
         //Cannot default the promote operator
         aggregateFactory.createPurePublicReturnSameTypeMethod(aggregate, "#<"),
         aggregateFactory.createPurePublicReturnSameTypeMethod(aggregate, "#>"),
@@ -134,7 +138,6 @@ public class OperatorFactory {
         aggregateFactory.createPurePublicReturnSameTypeMethod(aggregate, "-"),
         aggregateFactory.createPurePublicSimpleOperator(aggregate, "empty", booleanType),
         aggregateFactory.createPurePublicSimpleOperator(aggregate, "length", integerType),
-
         aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, ">>", Optional.of(aggregate)),
         aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<<", Optional.of(aggregate)),
         aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "and", Optional.of(aggregate)),
@@ -146,8 +149,6 @@ public class OperatorFactory {
         aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "matches", booleanType),
         aggregateFactory.createPurePublicSimpleOperator(aggregate, "open", Optional.empty()),
         aggregateFactory.createPurePublicSimpleOperator(aggregate, "close", Optional.empty()),
-
-        //Other operators
 
         //So for operators these will deal in the same type.
         aggregateFactory.createOperator(aggregate, "+", true),
@@ -170,9 +171,10 @@ public class OperatorFactory {
         //fuzzy compare
         aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<~>", integerType)));
 
-    List<MethodSymbol> rtn = new ArrayList<>(theDefaultOperators.size() + additionalOperators.size());
+    final List<MethodSymbol> rtn = new ArrayList<>(theDefaultOperators.size() + additionalOperators.size());
     rtn.addAll(theDefaultOperators);
     rtn.addAll(additionalOperators);
+
     return rtn;
   }
 }

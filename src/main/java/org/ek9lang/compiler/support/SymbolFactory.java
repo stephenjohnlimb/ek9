@@ -15,7 +15,6 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.directives.Directive;
@@ -147,8 +146,10 @@ public class SymbolFactory {
   /**
    * Create a new symbol factory for use with the parsedModule.
    */
-  public SymbolFactory(ParsedModule parsedModule) {
+  public SymbolFactory(final ParsedModule parsedModule) {
+
     AssertValue.checkNotNull("Parsed Module cannot be null", parsedModule);
+
     this.parsedModule = parsedModule;
     this.aggregateFactory = new AggregateFactory(parsedModule.getEk9Types());
     this.checkTryReturns = new CheckTryReturns(parsedModule.getSource().getErrorListener());
@@ -159,19 +160,22 @@ public class SymbolFactory {
     this.checkAppropriateWebVariable = new CheckAppropriateWebVariable(parsedModule.getSource().getErrorListener());
     this.checkAndPopulateOperator =
         new CheckAndPopulateOperator(aggregateFactory, parsedModule.getSource().getErrorListener());
+
   }
 
   public AggregateFactory getAggregateFactory() {
+
     return aggregateFactory;
   }
 
   /**
    * Create a new directive to be used inside the compiler.
    */
-  public Directive newDirective(EK9Parser.DirectiveContext ctx) {
-    var nameOfDirective = ctx.identifier().getText();
+  public Directive newDirective(final EK9Parser.DirectiveContext ctx) {
+
+    final var nameOfDirective = ctx.identifier().getText();
     try {
-      var typeOfDirective = DirectiveType.valueOf(nameOfDirective);
+      final var typeOfDirective = DirectiveType.valueOf(nameOfDirective);
       return switch (typeOfDirective) {
         case Error -> newErrorDirective(ctx);
         case Resolved -> newResolutionDirective(ctx, true);
@@ -186,71 +190,81 @@ public class SymbolFactory {
       errorListener.semanticError(ctx.start, ex.getMessage()
           + ",", ErrorListener.SemanticClassification.UNKNOWN_DIRECTIVE);
     }
+
     return null;
   }
 
-  private Directive newErrorDirective(EK9Parser.DirectiveContext ctx) {
+  private Directive newErrorDirective(final EK9Parser.DirectiveContext ctx) {
 
     if (ctx.directivePart().size() != 2) {
       throw new IllegalArgumentException("Expecting, compilerPhase: errorClassification");
     }
 
-    var applyToLine = directivesNextLineNumber.apply(ctx);
-    CompilationPhase compilerPhase = directivesCompilationPhase.apply(ctx);
-    ErrorListener.SemanticClassification errorClassification;
-
     try {
-      errorClassification = ErrorListener.SemanticClassification.valueOf(ctx.directivePart(1).getText());
+      final var applyToLine = directivesNextLineNumber.apply(ctx);
+      final var compilerPhase = directivesCompilationPhase.apply(ctx);
+      final var errorClassification = ErrorListener.SemanticClassification.valueOf(ctx.directivePart(1).getText());
+
+      return new ErrorDirective(new Ek9Token(ctx.start), compilerPhase, errorClassification, applyToLine);
     } catch (IllegalArgumentException ex) {
       throw new IllegalArgumentException("Expecting one of: " + Arrays.toString(
           ErrorListener.SemanticClassification.values()));
     }
 
-    return new ErrorDirective(new Ek9Token(ctx.start), compilerPhase, errorClassification, applyToLine);
   }
 
-  private Directive newImplementsDirective(EK9Parser.DirectiveContext ctx) {
-    var spec = directiveSpecExtractor.apply(ctx);
+  private Directive newImplementsDirective(final EK9Parser.DirectiveContext ctx) {
+
+    final var spec = directiveSpecExtractor.apply(ctx);
+
     return new ImplementsDirective(spec);
   }
 
-  private Directive newResolutionDirective(final EK9Parser.DirectiveContext ctx, boolean resolve) {
+  private Directive newResolutionDirective(final EK9Parser.DirectiveContext ctx, final boolean resolve) {
 
-    var spec = directiveSpecExtractor.apply(ctx);
+    final var spec = directiveSpecExtractor.apply(ctx);
 
     if (resolve) {
       return new ResolvedDirective(spec);
     }
+
     return new NotResolvedDirective(spec);
   }
 
   private Directive newGenusDirective(final EK9Parser.DirectiveContext ctx) {
-    var spec = directiveSpecExtractor.apply(ctx);
+
+    final var spec = directiveSpecExtractor.apply(ctx);
+
     return new GenusDirective(spec);
   }
 
   /**
    * Create a new EK9 package aggregate.
    */
-  public AggregateSymbol newPackage(EK9Parser.PackageBlockContext ctx) {
+  public AggregateSymbol newPackage(final EK9Parser.PackageBlockContext ctx) {
+
     checkContextNotNull.accept(ctx);
-    AggregateSymbol pack = new AggregateSymbol("Package", parsedModule.getModuleScope());
+    final var pack = new AggregateSymbol("Package", parsedModule.getModuleScope());
+
     configureAggregate(pack, new Ek9Token(ctx.start));
     //Also add in a default constructor.
     pack.setGenus(ISymbol.SymbolGenus.META_DATA);
-    this.aggregateFactory.addConstructor(pack);
+    aggregateFactory.addConstructor(pack);
+
     return pack;
   }
 
   /**
    * Create a new aggregate that represents an EK9 program.
    */
-  public AggregateSymbol newProgram(EK9Parser.MethodDeclarationContext ctx) {
+  public AggregateSymbol newProgram(final EK9Parser.MethodDeclarationContext ctx) {
+
     checkContextNotNull.accept(ctx);
     AssertValue.checkNotNull("Failed to locate program name", ctx.identifier());
 
-    String programName = ctx.identifier().getText();
-    AggregateSymbol program = new AggregateSymbol(programName, parsedModule.getModuleScope());
+    final var programName = ctx.identifier().getText();
+    final var program = new AggregateSymbol(programName, parsedModule.getModuleScope());
+
     configureAggregate(program, new Ek9Token(ctx.identifier().start));
 
     //It is not necessary to wire in an application configuration to be used.
@@ -261,6 +275,7 @@ public class SymbolFactory {
     }
 
     program.setGenus(ISymbol.SymbolGenus.PROGRAM);
+
     return program;
   }
 
@@ -268,51 +283,61 @@ public class SymbolFactory {
    * Create a new aggregate that represents an EK9 class.
    * A bit tricky when it comes to parameterised (generic/template classes).
    */
-  public AggregateWithTraitsSymbol newClass(EK9Parser.ClassDeclarationContext ctx) {
-    final var moduleScope = parsedModule.getModuleScope();
+  public AggregateWithTraitsSymbol newClass(final EK9Parser.ClassDeclarationContext ctx) {
+
     checkContextNotNull.accept(ctx);
     AssertValue.checkNotNull("Failed to locate class name", ctx.Identifier());
-    String className = ctx.Identifier().getText();
+
+    final var moduleScope = parsedModule.getModuleScope();
+    final var className = ctx.Identifier().getText();
     final var newClass = newAggregateWithTraitsSymbol(className, new Ek9Token(ctx.start));
+
     newClass.setOpenForExtension(ctx.ABSTRACT() != null || ctx.OPEN() != null);
     newClass.setGenus(ISymbol.SymbolGenus.CLASS);
     newClass.setMarkedAbstract(ctx.ABSTRACT() != null);
 
-    var parameterisedSymbols = createAndRegisterParameterisedSymbols(ctx.parameterisedParams(), moduleScope);
+    final var parameterisedSymbols = createAndRegisterParameterisedSymbols(ctx.parameterisedParams(), moduleScope);
+
     if (!parameterisedSymbols.isEmpty()) {
       //Now need to register against the class we are creating
       parameterisedSymbols.forEach(newClass::addTypeParameterOrArgument);
-
     }
+
     return newClass;
   }
 
   /**
    * Create a new aggregate that represents an EK9 component.
    */
-  public AggregateWithTraitsSymbol newComponent(EK9Parser.ComponentDeclarationContext ctx) {
+  public AggregateWithTraitsSymbol newComponent(final EK9Parser.ComponentDeclarationContext ctx) {
+
     checkContextNotNull.accept(ctx);
     AssertValue.checkNotNull("Failed to locate component name", ctx.Identifier());
-    String componentName = ctx.Identifier().getText();
-    var component = newAggregateWithTraitsSymbol(componentName, new Ek9Token(ctx.start));
+
+    final var componentName = ctx.Identifier().getText();
+    final var component = newAggregateWithTraitsSymbol(componentName, new Ek9Token(ctx.start));
+
     component.setOpenForExtension(ctx.ABSTRACT() != null || ctx.OPEN() != null);
     component.setGenus(ISymbol.SymbolGenus.COMPONENT);
     component.setMarkedAbstract(ctx.ABSTRACT() != null);
+
     return component;
   }
 
   /**
    * Create a new aggregate that represents an EK9 trait.
    */
-  public AggregateWithTraitsSymbol newTrait(EK9Parser.TraitDeclarationContext ctx) {
+  public AggregateWithTraitsSymbol newTrait(final EK9Parser.TraitDeclarationContext ctx) {
+
     checkContextNotNull.accept(ctx);
     AssertValue.checkNotNull("Failed to locate trait name", ctx.Identifier());
 
-    String traitName = ctx.Identifier().getText();
-    AggregateWithTraitsSymbol trait = newAggregateWithTraitsSymbol(traitName, new Ek9Token(ctx.start));
-    configureAggregate(trait, new Ek9Token(ctx.start));
+    final var traitName = ctx.Identifier().getText();
+    final var trait = newAggregateWithTraitsSymbol(traitName, new Ek9Token(ctx.start));
 
+    configureAggregate(trait, new Ek9Token(ctx.start));
     trait.setGenus(ISymbol.SymbolGenus.CLASS_TRAIT);
+
     //All traits are designed to be open to extending and use/override.
     //Even though trait can have abstract and open - this is just for syntax consistency
     //So a developer can write it in the same way as a class or component - but they are all open and abstract.
@@ -325,35 +350,41 @@ public class SymbolFactory {
   /**
    * Create a new aggregate that represents an EK9 record.
    */
-  public AggregateSymbol newRecord(EK9Parser.RecordDeclarationContext ctx) {
+  public AggregateSymbol newRecord(final EK9Parser.RecordDeclarationContext ctx) {
+
     checkContextNotNull.accept(ctx);
     AssertValue.checkNotNull("Failed to locate record name", ctx.Identifier());
-    String recordName = ctx.Identifier().getText();
-    AggregateSymbol newRecord = new AggregateSymbol(recordName, parsedModule.getModuleScope());
+
+    final var recordName = ctx.Identifier().getText();
+    final var newRecord = new AggregateSymbol(recordName, parsedModule.getModuleScope());
+
     configureAggregate(newRecord, new Ek9Token(ctx.start));
     newRecord.setOpenForExtension(ctx.ABSTRACT() != null || ctx.OPEN() != null);
     newRecord.setGenus(ISymbol.SymbolGenus.RECORD);
     newRecord.setMarkedAbstract(ctx.ABSTRACT() != null);
+
     return newRecord;
   }
 
   /**
    * Create a new function symbol that represents an EK9 function.
    */
-  public FunctionSymbol newFunction(EK9Parser.FunctionDeclarationContext ctx) {
+  public FunctionSymbol newFunction(final EK9Parser.FunctionDeclarationContext ctx) {
+
     checkContextNotNull.accept(ctx);
-    final var moduleScope = parsedModule.getModuleScope();
     AssertValue.checkNotNull("Failed to locate function name", ctx.Identifier());
 
-    String functionName = ctx.Identifier().getText();
-    FunctionSymbol newFunction = new FunctionSymbol(functionName, moduleScope);
+    final var moduleScope = parsedModule.getModuleScope();
+    final var functionName = ctx.Identifier().getText();
+    final var newFunction = new FunctionSymbol(functionName, moduleScope);
+
     newFunction.setModuleScope(parsedModule.getModuleScope());
     newFunction.setOpenForExtension(ctx.ABSTRACT() != null || ctx.OPEN() != null);
     newFunction.setMarkedAbstract(ctx.ABSTRACT() != null);
-
     //More like a library - so we mark as referenced.
     newFunction.setReferenced(true);
-    var start = new Ek9Token(ctx.start);
+
+    final var start = new Ek9Token(ctx.start);
     newFunction.setInitialisedBy(start);
     configureSymbol(newFunction, start);
 
@@ -371,7 +402,7 @@ public class SymbolFactory {
       newFunction.setGenus(ISymbol.SymbolGenus.FUNCTION_TRAIT);
     }
 
-    var parameterisedSymbols = createAndRegisterParameterisedSymbols(ctx.parameterisedParams(), moduleScope);
+    final var parameterisedSymbols = createAndRegisterParameterisedSymbols(ctx.parameterisedParams(), moduleScope);
     if (!parameterisedSymbols.isEmpty()) {
       //Now need to register against the class we are creating
       parameterisedSymbols.forEach(newFunction::addTypeParameterOrArgument);
@@ -387,7 +418,8 @@ public class SymbolFactory {
    * Then we can check if all those methods on the common base are also defined in each and every concrete language
    * text aggregate.
    */
-  public AggregateSymbol newText(EK9Parser.TextDeclarationContext ctx, String forLanguage) {
+  public AggregateSymbol newText(final EK9Parser.TextDeclarationContext ctx, final String forLanguage) {
+
     //an error will have been created for the developer as language does not conform.
     if (forLanguage != null) {
       var baseName = ctx.Identifier().getText();
@@ -395,38 +427,43 @@ public class SymbolFactory {
 
       if (base.isEmpty()) {
 
-        var textBase = new AggregateSymbol(baseName, parsedModule.getModuleScope());
+        final var textBase = new AggregateSymbol(baseName, parsedModule.getModuleScope());
         configureAggregate(textBase, new Ek9Token(ctx.start));
         textBase.setGenus(ISymbol.SymbolGenus.TEXT);
+
         parsedModule.getModuleScope().define(textBase);
-        var constructor = aggregateFactory
+
+        final var constructor = aggregateFactory
             .addConstructor(textBase, aggregateFactory.resolveString(parsedModule.getModuleScope()));
         //Text can never mutate anything as construction.
         constructor.setMarkedPure(true);
         base = Optional.of(textBase);
       }
 
-      String textName = baseName + "_" + forLanguage;
-      AggregateSymbol text = new AggregateSymbol(textName, parsedModule.getModuleScope());
+      final var textName = baseName + "_" + forLanguage;
+      final var text = new AggregateSymbol(textName, parsedModule.getModuleScope());
+
       configureAggregate(text, new Ek9Token(ctx.start));
       text.setGenus(ISymbol.SymbolGenus.TEXT);
       //Now ensure it is set up as the 'super'.
       text.setSuperAggregate((IAggregateSymbol) base.get());
-
       //Store both the language this is for and the base name, this will be useful later
       text.putSquirrelledData("LANG", forLanguage);
       text.putSquirrelledData("BASE_NAME", baseName);
       return text;
     }
-    //return a place holder so error handling can continue
+
+    //return a placeholder so error handling can continue
     return new AggregateSymbol(ctx.Identifier().getText(), parsedModule.getModuleScope());
   }
 
   /**
    * Create a new aggregate that represents an EK9 text body - this is represented by a method.
    */
-  public MethodSymbol newTextBody(EK9Parser.TextBodyDeclarationContext ctx, IScope scope) {
-    String methodName = ctx.Identifier().getText();
+  public MethodSymbol newTextBody(final EK9Parser.TextBodyDeclarationContext ctx, final IScope scope) {
+
+    final var methodName = ctx.Identifier().getText();
+
     return makeTextBodyMethod(methodName, new Ek9Token(ctx.start), scope);
   }
 
@@ -434,29 +471,33 @@ public class SymbolFactory {
    * Ensures that any method in a specific text block is always added to the base text for that component.
    */
   public void ensureTextBodyIsInSuper(final MethodSymbol textMethodSymbol) {
-    var scope = textMethodSymbol.getParentScope();
+
+    final var scope = textMethodSymbol.getParentScope();
+
     if (scope instanceof IAggregateSymbol textDeclaration
         && textDeclaration.getSuperAggregate().isPresent()) {
 
-      var textBase = textDeclaration.getSuperAggregate().get();
-      var results = textBase.resolveMatchingMethodsInThisScopeOnly(new MethodSymbolSearch(textMethodSymbol),
+      final var textBase = textDeclaration.getSuperAggregate().get();
+      final var results = textBase.resolveMatchingMethodsInThisScopeOnly(new MethodSymbolSearch(textMethodSymbol),
           new MethodSymbolSearchResult());
 
       if (results.isEmpty()) {
-        var textBaseMethod = textMethodSymbol.clone(textBase);
+        final var textBaseMethod = textMethodSymbol.clone(textBase);
         textBaseMethod.setOverride(false);
         textBase.define(textMethodSymbol);
       }
     } else {
       throw new CompilerException("Only expecting text body to be using within a textDeclaration scope with a super");
     }
+
   }
 
   private MethodSymbol makeTextBodyMethod(final String methodName,
                                           final IToken token,
                                           final IScope scope) {
 
-    MethodSymbol method = new MethodSymbol(methodName, scope);
+    final var method = new MethodSymbol(methodName, scope);
+
     configureSymbol(method, token);
     method.setOverride(true);
     method.setMarkedAbstract(false);
@@ -472,13 +513,14 @@ public class SymbolFactory {
   /**
    * Create a new aggregate that represents an EK9 service.
    */
-  public AggregateSymbol newService(EK9Parser.ServiceDeclarationContext ctx) {
-    String serviceName = ctx.Identifier().getText();
-    AggregateSymbol service = new AggregateSymbol(serviceName, parsedModule.getModuleScope());
+  public AggregateSymbol newService(final EK9Parser.ServiceDeclarationContext ctx) {
+
+    final var serviceName = ctx.Identifier().getText();
+    final var service = new AggregateSymbol(serviceName, parsedModule.getModuleScope());
+    final var uri = ctx.Uriproto().getText();
+
     configureAggregate(service, new Ek9Token(ctx.start));
     service.setGenus(ISymbol.SymbolGenus.SERVICE);
-
-    var uri = ctx.Uriproto().getText();
     service.putSquirrelledData("HTTPURI", uri);
     checkForInvalidServiceDefinition.accept(service);
 
@@ -488,35 +530,23 @@ public class SymbolFactory {
   /**
    * Create a new aggregate that represents an EK9 service operation - a specialised method.
    */
-  public ServiceOperationSymbol newServiceOperation(EK9Parser.ServiceOperationDeclarationContext ctx, IScope scope) {
-    boolean operator = false;
-    String methodName = null;
-    if (ctx.operator() != null) {
-      methodName = ctx.operator().getText();
-      operator = true;
-    } else if (ctx.identifier() != null) {
-      methodName = ctx.identifier().getText();
-    }
+  public ServiceOperationSymbol newServiceOperation(final EK9Parser.ServiceOperationDeclarationContext ctx,
+                                                    final IScope scope) {
 
-    ServiceOperationSymbol serviceOperation = new ServiceOperationSymbol(methodName, scope);
+    final var operator = ctx.operator() != null;
+    final var methodName = operator ? ctx.operator().getText() : ctx.identifier().getText();
+    final var httpVerb = ctx.httpVerb() != null ? ctx.httpVerb().getText() : "GET";
+    final var serviceOperation = new ServiceOperationSymbol(methodName, scope);
+
     configureSymbol(serviceOperation, new Ek9Token(ctx.start));
-
     serviceOperation.setOverride(false);
     serviceOperation.setMarkedAbstract(false);
     serviceOperation.setMarkedPure(false);
     serviceOperation.setOperator(operator);
-
     serviceOperation.putSquirrelledData(URI_PROTO, ctx.Uriproto().getText());
-    //Make some initial assumptions, these can then be overridden
-    serviceOperation.putSquirrelledData(HTTP_VERB, "GET");
+    serviceOperation.putSquirrelledData(HTTP_VERB, httpVerb);
 
-    if (ctx.httpVerb() != null) {
-      //A specific verb has been declared for use by the developer
-      var httpVerb = ctx.httpVerb().getText();
-      serviceOperation.putSquirrelledData(HTTP_VERB, httpVerb);
-    }
-
-    if (ctx.operator() != null) {
+    if (operator) {
       //Check operator used is valid.
       checkForInvalidServiceOperator.accept(serviceOperation);
       serviceOperation.putSquirrelledData(HTTP_VERB,
@@ -529,11 +559,12 @@ public class SymbolFactory {
   /**
    * Create a new aggregate that represents an EK9 application.
    */
-  public AggregateSymbol newApplication(EK9Parser.ApplicationDeclarationContext ctx) {
-    String applicationName = ctx.Identifier().getText();
-    AggregateSymbol application = new AggregateSymbol(applicationName, parsedModule.getModuleScope());
-    configureAggregate(application, new Ek9Token(ctx.start));
+  public AggregateSymbol newApplication(final EK9Parser.ApplicationDeclarationContext ctx) {
 
+    final var applicationName = ctx.Identifier().getText();
+    final var application = new AggregateSymbol(applicationName, parsedModule.getModuleScope());
+
+    configureAggregate(application, new Ek9Token(ctx.start));
     application.setGenus(ISymbol.SymbolGenus.GENERAL_APPLICATION);
 
     return application;
@@ -543,17 +574,18 @@ public class SymbolFactory {
    * Create a new aggregate that represents an EK9 dynamic class.
    */
   public AggregateWithTraitsSymbol newDynamicClass(final IScopedSymbol enclosingMainTypeOrFunction,
-                                                   EK9Parser.DynamicClassDeclarationContext ctx) {
+                                                   final EK9Parser.DynamicClassDeclarationContext ctx) {
+
     //Name is optional - if not present then generate a dynamic value.
-    String dynamicClassName = ctx.Identifier() != null
+    final var dynamicClassName = ctx.Identifier() != null
         ? ctx.Identifier().getText()
         : "_Class_" + UniqueIdGenerator.getNewUniqueId();
 
-    //Perhaps keep a reference to the scope where this dynamic class was defined.
-    AggregateWithTraitsSymbol rtn = newAggregateWithTraitsSymbol(dynamicClassName, new Ek9Token(ctx.start));
+    final var rtn = newAggregateWithTraitsSymbol(dynamicClassName, new Ek9Token(ctx.start));
     rtn.setOuterMostTypeOrFunction(enclosingMainTypeOrFunction);
     rtn.setScopeType(IScope.ScopeType.DYNAMIC_BLOCK);
     rtn.setReferenced(true);
+
     return rtn;
   }
 
@@ -561,10 +593,12 @@ public class SymbolFactory {
    * Create a new aggregate that represents an EK9 dynamic function.
    */
   public FunctionSymbol newDynamicFunction(final IScopedSymbol enclosingMainTypeOrFunction,
-                                           EK9Parser.DynamicFunctionDeclarationContext ctx) {
+                                           final EK9Parser.DynamicFunctionDeclarationContext ctx) {
+
     //As above need to consider how S, T etc would be resolved in later phases.
-    var functionName = "_Function_" + UniqueIdGenerator.getNewUniqueId();
-    var newFunction = new FunctionSymbol(functionName, parsedModule.getModuleScope());
+    final var functionName = "_Function_" + UniqueIdGenerator.getNewUniqueId();
+    final var newFunction = new FunctionSymbol(functionName, parsedModule.getModuleScope());
+
     newFunction.setOuterMostTypeOrFunction(enclosingMainTypeOrFunction);
     configureSymbol(newFunction, new Ek9Token(ctx.start));
     newFunction.setModuleScope(parsedModule.getModuleScope());
@@ -578,13 +612,15 @@ public class SymbolFactory {
 
   public PossibleGenericSymbol newParameterisedSymbol(final PossibleGenericSymbol genericType,
                                                       final List<ISymbol> typeArguments) {
+
     return parameterizedSymbolCreator.apply(genericType, typeArguments);
   }
 
   /**
    * Create a new local scope just for variables to be defined/captured in for dynamic classes/functions.
    */
-  public CaptureScope newDynamicVariableCapture(ICanCaptureVariables scope, final IScope enclosingBlockScope) {
+  public CaptureScope newDynamicVariableCapture(final ICanCaptureVariables scope, final IScope enclosingBlockScope) {
+
     //Now we have to jump back the scope stack to find the main enclosing block.
     //The capture scope will then use this conditionally to resolve items to capture on enter.
     final var captureScope = new CaptureScope(enclosingBlockScope);
@@ -600,11 +636,11 @@ public class SymbolFactory {
    */
   public MethodSymbol newOperator(final EK9Parser.OperatorDeclarationContext ctx, final IAggregateSymbol aggregate) {
 
-    var operator = checkAndPopulateOperator.apply(ctx, aggregate);
+    final var operator = checkAndPopulateOperator.apply(ctx, aggregate);
     //Might be null if not a valid use of operator.
     if (operator != null) {
-      var startToken = new Ek9Token(ctx.operator().start);
-      var methodInitializer = getDefaultOperatorSymbolInitializer(getDefaultOperatorInitialiser(startToken));
+      final var startToken = new Ek9Token(ctx.operator().start);
+      final var methodInitializer = getDefaultOperatorSymbolInitializer(getDefaultOperatorInitializer(startToken));
       methodInitializer.accept(operator);
     }
 
@@ -617,22 +653,25 @@ public class SymbolFactory {
    * But as it is used in very early phase of compilation not all types will be known.
    * So here this method just uses the raw name of the method.
    */
-  public boolean addMissingDefaultOperators(EK9Parser.DefaultOperatorContext ctx, IAggregateSymbol aggregate) {
-    var startToken = new Ek9Token(ctx.DEFAULT().getSymbol());
+  public boolean addMissingDefaultOperators(final EK9Parser.DefaultOperatorContext ctx,
+                                            final IAggregateSymbol aggregate) {
+
+    final var startToken = new Ek9Token(ctx.DEFAULT().getSymbol());
 
     if (aggregate.getGenus().equals(ISymbol.SymbolGenus.CLASS_TRAIT)) {
-      var msg = "wrt to type: '" + aggregate.getFriendlyName() + "':";
-      var errorListener = parsedModule.getSource().getErrorListener();
+      final var msg = "wrt to type: '" + aggregate.getFriendlyName() + "':";
+      final var errorListener = parsedModule.getSource().getErrorListener();
       errorListener.semanticError(startToken, msg, DEFAULT_AND_TRAIT);
+
       return false;
     }
 
-    var existingMethodNames = aggregate.getAllNonAbstractMethods()
+    final var existingMethodNames = aggregate.getAllNonAbstractMethods()
         .stream()
         .map(ISymbol::getName)
         .toList();
 
-    var methodInitializer = getDefaultOperatorSymbolInitializer(getDefaultOperatorInitialiser(startToken));
+    final var methodInitializer = getDefaultOperatorSymbolInitializer(getDefaultOperatorInitializer(startToken));
 
     for (MethodSymbol operator : aggregateFactory.getAllPossibleDefaultOperators(aggregate)) {
       if (!existingMethodNames.contains(operator.getName())) {
@@ -641,32 +680,36 @@ public class SymbolFactory {
         aggregate.define(operator);
       }
     }
+
     return true;
   }
 
   /**
    * Create a new method that represents an EK9 class/component method.
    */
-  public MethodSymbol newMethod(EK9Parser.MethodDeclarationContext ctx, IScopedSymbol scopedSymbol) {
+  public MethodSymbol newMethod(final EK9Parser.MethodDeclarationContext ctx, final IScopedSymbol scopedSymbol) {
+
     //So now we should have an aggregate we are adding this method into.
-    String methodName = ctx.identifier().getText();
+    final var methodName = ctx.identifier().getText();
+
     return newMethod(ctx, methodName, scopedSymbol);
   }
 
   /**
    * Create a new method with a specific name.
    */
-  public MethodSymbol newMethod(final EK9Parser.MethodDeclarationContext ctx, final String methodName,
+  public MethodSymbol newMethod(final EK9Parser.MethodDeclarationContext ctx,
+                                final String methodName,
                                 final IScopedSymbol scopedSymbol) {
 
-    MethodSymbol method = new MethodSymbol(methodName, scopedSymbol);
+    final var method = new MethodSymbol(methodName, scopedSymbol);
 
     configureSymbol(method, new Ek9Token(ctx.identifier().start));
-
     method.setOverride(ctx.OVERRIDE() != null);
     method.setMarkedAbstract(ctx.ABSTRACT() != null);
     method.setMarkedPure(ctx.PURE() != null);
     method.setMarkedAsDispatcher(ctx.DISPATCHER() != null);
+
     if (ctx.DEFAULT() != null) {
       method.putSquirrelledData(DEFAULTED, "TRUE");
     }
@@ -694,34 +737,38 @@ public class SymbolFactory {
   /**
    * Create a new aggregate that represents an EK9 type, constrained or enumeration.
    */
-  public AggregateSymbol newType(EK9Parser.TypeDeclarationContext ctx) {
-    String newTypeName = ctx.Identifier().getText();
-    AggregateSymbol clazz = new AggregateSymbol(newTypeName, parsedModule.getModuleScope());
-    configureAggregate(clazz, new Ek9Token(ctx.start));
+  public AggregateSymbol newType(final EK9Parser.TypeDeclarationContext ctx) {
+
+    final var newTypeName = ctx.Identifier().getText();
+    final var aggregateSymbol = new AggregateSymbol(newTypeName, parsedModule.getModuleScope());
+
+    configureAggregate(aggregateSymbol, new Ek9Token(ctx.start));
 
     if (ctx.typeDef() != null) {
-      clazz.setGenus(ISymbol.SymbolGenus.CLASS_CONSTRAINED);
+      aggregateSymbol.setGenus(ISymbol.SymbolGenus.CLASS_CONSTRAINED);
     } else if (ctx.enumerationDeclaration() != null) {
-      clazz.setGenus(ISymbol.SymbolGenus.CLASS_ENUMERATION);
-      aggregateFactory.addEnumerationMethods(clazz);
+      aggregateSymbol.setGenus(ISymbol.SymbolGenus.CLASS_ENUMERATION);
+      aggregateFactory.addEnumerationMethods(aggregateSymbol);
     }
-    return clazz;
+
+    return aggregateSymbol;
   }
 
   /**
    * Populates the enumeration with each of the values supplied in the identifiers.
    * This does check for duplicates and will raise errors if there are any.
    */
-  public void populateEnumeration(AggregateSymbol enumerationSymbol, List<TerminalNode> identifiers) {
+  public void populateEnumeration(final AggregateSymbol enumerationSymbol, final List<TerminalNode> identifiers) {
+
     //Quick way to ensure uniqueness, could have used enumerationSymbol to check.
     //But I want to search irrespective of case and '_' and error on stuff that is similar.
-    var checkValues = new HashMap<String, Token>();
+    final var checkValues = new HashMap<String, Token>();
 
     identifiers.forEach(identifier -> {
       //For checking duplicates we uppercase and remove '_', developer may use mixed case in enumerations.
       //But same/similar word in different cases is highly likely to cause issues or be an error (opinion).
-      var enumValue = identifier.getText().toUpperCase().replace("_", "");
-      var existing = checkValues.get(enumValue);
+      final var enumValue = identifier.getText().toUpperCase().replace("_", "");
+      final var existing = checkValues.get(enumValue);
 
       if (existing == null) {
         checkValues.put(enumValue, identifier.getSymbol());
@@ -731,13 +778,17 @@ public class SymbolFactory {
             .accept(new Ek9Token(identifier.getSymbol()), existing);
       }
     });
+
   }
 
-  private void addEnumeratedValue(TerminalNode ctx, AggregateSymbol inEnumeration) {
-    ConstantSymbol symbol = new ConstantSymbol(ctx.getText());
-    var startToken = new Ek9Token(ctx.getSymbol());
+  private void addEnumeratedValue(final TerminalNode ctx, final AggregateSymbol inEnumeration) {
+
+    final var symbol = new ConstantSymbol(ctx.getText());
+    final var startToken = new Ek9Token(ctx.getSymbol());
+
     configureSymbol(symbol, startToken);
     symbol.setNotMutable();
+
     //The nature of an enumeration is to define possible values
     //These do not have to be referenced to be valuable. So mark referenced.
     symbol.setNullAllowed(false);
@@ -745,43 +796,53 @@ public class SymbolFactory {
     symbol.setReferenced(true);
     symbol.setType(inEnumeration);
     inEnumeration.define(symbol);
+
   }
 
   /**
    * Create a new symbol that represents an EK9 concept of a stream pipeline.
    */
-  public StreamPipeLineSymbol newStream(ParserRuleContext ctx) {
-    StreamPipeLineSymbol pipeLine = new StreamPipeLineSymbol("stream");
+  public StreamPipeLineSymbol newStream(final ParserRuleContext ctx) {
+
+    final var pipeLine = new StreamPipeLineSymbol("stream");
+
     configureSymbol(pipeLine, new Ek9Token(ctx.start));
     pipeLine.setReferenced(true);
     pipeLine.setNotMutable();
+
     return pipeLine;
   }
 
   /**
    * Create a new symbol that represents an EK9 'cat' part of a stream pipeline.
    */
-  public StreamCallSymbol newStreamCat(EK9Parser.StreamCatContext ctx, IScope scope) {
-    StreamCallSymbol call = new StreamCallSymbol("cat", scope);
+  public StreamCallSymbol newStreamCat(final EK9Parser.StreamCatContext ctx, final IScope scope) {
+
+    final var call = new StreamCallSymbol("cat", scope);
     configureStreamCallSymbol(call, new Ek9Token(ctx.start));
+
     return call;
   }
 
   /**
    * Create a new symbol that represents an EK9 'for' part of a stream pipeline.
    */
-  public StreamCallSymbol newStreamFor(EK9Parser.StreamForContext ctx, IScope scope) {
-    StreamCallSymbol call = new StreamCallSymbol("for", scope);
+  public StreamCallSymbol newStreamFor(final EK9Parser.StreamForContext ctx, final IScope scope) {
+
+    final var call = new StreamCallSymbol("for", scope);
     configureStreamCallSymbol(call, new Ek9Token(ctx.start));
+
     return call;
   }
 
   /**
    * Create a new symbol that represents an EK9 stream function part of a stream pipeline.
    */
-  public StreamCallSymbol newStreamPart(EK9Parser.StreamPartContext ctx, IScope scope) {
+  public StreamCallSymbol newStreamPart(final EK9Parser.StreamPartContext ctx, final IScope scope) {
+
     final var operation = ctx.op.getText();
-    StreamCallSymbol call = new StreamCallSymbol(operation, scope);
+    final var call = new StreamCallSymbol(operation, scope);
+
     configureStreamCallSymbol(call, new Ek9Token(ctx.start));
 
     //It is necessary to correctly configure the stream part for later processing.
@@ -799,26 +860,33 @@ public class SymbolFactory {
   /**
    * Create a new symbol that represents an EK9 terminal part of a stream pipeline.
    */
-  public StreamCallSymbol newStreamTermination(final ParserRuleContext ctx, final String operation,
+  public StreamCallSymbol newStreamTermination(final ParserRuleContext ctx,
+                                               final String operation,
                                                final IScope scope) {
-    StreamCallSymbol call = new StreamCallSymbol(operation, scope);
+
+    final var call = new StreamCallSymbol(operation, scope);
     configureStreamCallSymbol(call, new Ek9Token(ctx.start));
     call.setSinkInNature(true);
+
     return call;
   }
 
   private void configureStreamCallSymbol(final StreamCallSymbol call, final IToken token) {
+
     configureSymbol(call, token);
     call.setReferenced(true);
     call.setNotMutable();
+
   }
 
   /**
    * Just for general symbols, like references.
    */
-  public Symbol newGeneralSymbol(final IToken token, String name) {
-    Symbol symbol = new Symbol(name);
+  public Symbol newGeneralSymbol(final IToken token, final String name) {
+
+    final var symbol = new Symbol(name);
     configureSymbol(symbol, token);
+
     return symbol;
   }
 
@@ -837,164 +905,191 @@ public class SymbolFactory {
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public ExpressionSymbol newExpressionSymbol(final IToken token, final String name, final Optional<ISymbol> ofType) {
-    ExpressionSymbol symbol = new ExpressionSymbol(name);
-    configureSymbol(symbol, token);
-    symbol.setType(ofType);
-    return symbol;
+
+    final var expressionSymbol = new ExpressionSymbol(name);
+    configureSymbol(expressionSymbol, token);
+    expressionSymbol.setType(ofType);
+
+    return expressionSymbol;
   }
 
   /**
    * Create a new expression around a symbol.
    */
   public ExpressionSymbol newExpressionSymbol(final ISymbol fromSymbol) {
+
     return new ExpressionSymbol(fromSymbol);
   }
 
   /**
    * Symbol to model some type of call to a function, dynamic function, constructor, this, super etc.
    */
-  public CallSymbol newCall(EK9Parser.CallContext ctx, IScope scope) {
-    var symbol = new CallSymbol(ctx.getText(), scope);
-    var startToken = new Ek9Token(ctx.start);
-    configureSymbol(symbol, startToken);
+  public CallSymbol newCall(final EK9Parser.CallContext ctx, final IScope scope) {
 
-    symbol.setInitialisedBy(startToken);
+    final var callSymbol = new CallSymbol(ctx.getText(), scope);
+    final var startToken = new Ek9Token(ctx.start);
 
-    return symbol;
+    configureSymbol(callSymbol, startToken);
+    callSymbol.setInitialisedBy(startToken);
+
+    return callSymbol;
   }
 
   /**
    * Create a new EK9 List (a generic type).
    */
-  public CallSymbol newList(EK9Parser.ListContext ctx, IScope scope) {
-    var symbol = new CallSymbol("List", scope);
-    var startToken = new Ek9Token(ctx.start);
-    configureSymbol(symbol, startToken);
+  public CallSymbol newList(final EK9Parser.ListContext ctx, final IScope scope) {
 
-    symbol.setInitialisedBy(startToken);
+    final var callSymbol = new CallSymbol("List", scope);
+    final var startToken = new Ek9Token(ctx.start);
 
-    return symbol;
+    configureSymbol(callSymbol, startToken);
+    callSymbol.setInitialisedBy(startToken);
+
+    return callSymbol;
   }
 
   /**
    * Create a new EK9 Dictionary - like a Map.
    */
-  public CallSymbol newDict(EK9Parser.DictContext ctx, IScope scope) {
-    var symbol = new CallSymbol("Dict", scope);
-    var startToken = new Ek9Token(ctx.start);
-    configureSymbol(symbol, startToken);
+  public CallSymbol newDict(final EK9Parser.DictContext ctx, final IScope scope) {
 
-    symbol.setInitialisedBy(startToken);
+    final var callSymbol = new CallSymbol("Dict", scope);
+    final var startToken = new Ek9Token(ctx.start);
 
-    return symbol;
+    configureSymbol(callSymbol, startToken);
+    callSymbol.setInitialisedBy(startToken);
+
+    return callSymbol;
   }
 
   /**
    * Create a new entry for the Dictionary, basically a tuple.
    */
-  public CallSymbol newDictEntry(EK9Parser.InitValuePairContext ctx, IScope scope) {
-    var symbol = new CallSymbol("DictEntry", scope);
-    var startToken = new Ek9Token(ctx.start);
-    configureSymbol(symbol, startToken);
+  public CallSymbol newDictEntry(final EK9Parser.InitValuePairContext ctx, final IScope scope) {
 
-    symbol.setInitialisedBy(startToken);
+    final var callSymbol = new CallSymbol("DictEntry", scope);
+    final var startToken = new Ek9Token(ctx.start);
 
-    return symbol;
+    configureSymbol(callSymbol, startToken);
+    callSymbol.setInitialisedBy(startToken);
+
+    return callSymbol;
   }
-
 
   /**
    * New call but modelled as an operator if marked as such.
    */
-  public CallSymbol newOperationCall(EK9Parser.OperationCallContext ctx, IScope scope) {
+  public CallSymbol newOperationCall(final EK9Parser.OperationCallContext ctx, final IScope scope) {
 
-    var callName = ctx.operator() != null ? ctx.operator().getText() : ctx.identifier().getText();
-    var symbol = new CallSymbol(callName, scope);
-    var startToken = new Ek9Token(ctx.start);
-    configureSymbol(symbol, startToken);
-    symbol.setOperator(ctx.operator() != null);
-    symbol.setInitialisedBy(startToken);
+    final var callName = ctx.operator() != null ? ctx.operator().getText() : ctx.identifier().getText();
+    final var callSymbol = new CallSymbol(callName, scope);
+    final var startToken = new Ek9Token(ctx.start);
 
-    return symbol;
+    configureSymbol(callSymbol, startToken);
+    callSymbol.setOperator(ctx.operator() != null);
+    callSymbol.setInitialisedBy(startToken);
+
+    return callSymbol;
   }
 
   /**
    * Create a new symbol that represents an EK9 'switch' block.
    */
-  public SwitchSymbol newSwitch(EK9Parser.SwitchStatementExpressionContext ctx, IScope scope) {
-    SwitchSymbol switchSymbol = new SwitchSymbol(scope);
-    var startToken = new Ek9Token(ctx.start);
+  public SwitchSymbol newSwitch(final EK9Parser.SwitchStatementExpressionContext ctx, final IScope scope) {
+
+    final var switchSymbol = new SwitchSymbol(scope);
+    final var startToken = new Ek9Token(ctx.start);
+
     configureSymbol(switchSymbol, startToken);
+
     return switchSymbol;
   }
 
   /**
    * Create a new symbol that represents an EK9 'try' block.
    */
-  public TrySymbol newTry(EK9Parser.TryStatementExpressionContext ctx, IScope scope) {
-    TrySymbol trySymbol = new TrySymbol(scope);
-    var startToken = new Ek9Token(ctx.start);
+  public TrySymbol newTry(final EK9Parser.TryStatementExpressionContext ctx, final IScope scope) {
+
+    final var trySymbol = new TrySymbol(scope);
+    final var startToken = new Ek9Token(ctx.start);
+
     configureSymbol(trySymbol, startToken);
     checkTryReturns.accept(ctx);
+
     return trySymbol;
   }
 
   /**
    * Create a new symbol that represents an EK9 'for' loop.
    */
-  public ForSymbol newForLoop(ParserRuleContext ctx, IScope scope) {
-    var forLoop = new ForSymbol(scope);
-    var startToken = new Ek9Token(ctx.start);
-    configureSymbol(forLoop, startToken);
-    return forLoop;
+  public ForSymbol newForLoop(final ParserRuleContext ctx, final IScope scope) {
+
+    final var forSymbol = new ForSymbol(scope);
+    final var startToken = new Ek9Token(ctx.start);
+
+    configureSymbol(forSymbol, startToken);
+
+    return forSymbol;
   }
 
   /**
    * Create a new while or do/while scoped symbol.
    */
-  public WhileSymbol newWhileLoop(EK9Parser.WhileStatementExpressionContext ctx, IScope scope) {
-    var whileLoop = new WhileSymbol(scope, ctx.DO() != null);
-    var startToken = new Ek9Token(ctx.start);
-    configureSymbol(whileLoop, startToken);
-    return whileLoop;
+  public WhileSymbol newWhileLoop(final EK9Parser.WhileStatementExpressionContext ctx, final IScope scope) {
+
+    final var whileSymbol = new WhileSymbol(scope, ctx.DO() != null);
+    final var startToken = new Ek9Token(ctx.start);
+
+    configureSymbol(whileSymbol, startToken);
+
+    return whileSymbol;
   }
 
   /**
    * Create a new aggregate that represents an EK9 loop variable.
    */
-  public VariableSymbol newLoopVariable(EK9Parser.ForLoopContext ctx) {
+  public VariableSymbol newLoopVariable(final EK9Parser.ForLoopContext ctx) {
+
     checkContextNotNull.accept(ctx);
+
     return newLoopVariable(ctx.identifier());
   }
 
   /**
    * Create a new aggregate that represents an EK9 loop variable for a range.
    */
-  public VariableSymbol newLoopVariable(EK9Parser.ForRangeContext ctx) {
+  public VariableSymbol newLoopVariable(final EK9Parser.ForRangeContext ctx) {
+
     checkContextNotNull.accept(ctx);
-    //The second identifier (which may not be present) is the loop step either literal or another identifer.
+
+    //The second identifier (which may not be present) is the loop step either literal or another identifier.
     return newLoopVariable(ctx.identifier(0));
   }
 
-  private VariableSymbol newLoopVariable(EK9Parser.IdentifierContext identifier) {
+  private VariableSymbol newLoopVariable(final EK9Parser.IdentifierContext identifier) {
+
     checkContextNotNull.accept(identifier);
-    var variable = newVariable(identifier, false, false);
+
+    final var variable = newVariable(identifier, false, false);
     //Make note is a loop variable and EK9 will initialise it, developer cannot mutate it.
     variable.setLoopVariable(true);
     variable.setInitialisedBy(new Ek9Token(identifier.start));
     variable.setNotMutable();
+
     return variable;
   }
-
 
   /**
    * Create a new constant that represents the fixed text part of an interpolated String.
    */
   public ConstantSymbol newInterpolatedStringPart(final EK9Parser.StringPartContext ctx, final IScope scope) {
+
     //if interpolated string had a " in now needs to be escaped because we will wrapping ""
     //But also if we had and escaped $ i.e. \$ we can turn that back into a dollar now.
-    String literalText = ctx.getChild(0).getText().replace("\"", "\\\"").replace("\\$", "$").replace("\\`", "`");
-    ConstantSymbol literal = newLiteral(new Ek9Token(ctx.start), "\"" + literalText + "\"");
+    final var literalText = ctx.getChild(0).getText().replace("\"", "\\\"").replace("\\$", "$").replace("\\`", "`");
+    final var literal = newLiteral(new Ek9Token(ctx.start), "\"" + literalText + "\"");
+
     literal.setType(aggregateFactory.resolveString(scope));
 
     return literal;
@@ -1004,7 +1099,9 @@ public class SymbolFactory {
    * Create a new expression that represents the expression part of and interpolated String.
    */
   public ExpressionSymbol newInterpolatedExpressionPart(final EK9Parser.StringPartContext ctx) {
-    ExpressionSymbol expressionSymbol = new ExpressionSymbol(ctx.getText());
+
+    final var expressionSymbol = new ExpressionSymbol(ctx.getText());
+
     configureSymbol(expressionSymbol, new Ek9Token(ctx.start));
 
     return expressionSymbol;
@@ -1013,24 +1110,28 @@ public class SymbolFactory {
   /**
    * Create a new constant as declared in the constants section.
    */
-  public ConstantSymbol newConstant(EK9Parser.ConstantDeclarationContext ctx) {
-    var start = new Ek9Token(ctx.start);
-    ConstantSymbol constant = new ConstantSymbol(ctx.Identifier().getText(), false);
+  public ConstantSymbol newConstant(final EK9Parser.ConstantDeclarationContext ctx) {
+
+    final var start = new Ek9Token(ctx.start);
+    final var constant = new ConstantSymbol(ctx.Identifier().getText(), false);
+
     configureSymbol(constant, start);
     constant.setInitialisedBy(start);
     constant.setNotMutable();
+
     return constant;
   }
 
   /**
    * Just a declaration of a variable by itself - i.e. without an assignment.
    */
-  public VariableSymbol newVariable(EK9Parser.VariableOnlyDeclarationContext ctx) {
+  public VariableSymbol newVariable(final EK9Parser.VariableOnlyDeclarationContext ctx) {
+
     checkContextNotNull.accept(ctx);
     //Now this is also used in web services and additional ctx.webVariableCorrelation()
     //Makes sense but only for services.
     checkAppropriateWebVariable.accept(ctx);
-    var variable = newVariable(ctx.identifier(), ctx.QUESTION() != null, ctx.BANG() != null);
+    final var variable = newVariable(ctx.identifier(), ctx.QUESTION() != null, ctx.BANG() != null);
 
     if (ctx.webVariableCorrelation() != null) {
       //We need to squirrel away the information, so it can be both checked and used elsewhere
@@ -1044,6 +1145,7 @@ public class SymbolFactory {
         //These things are checked elsewhere - here we are just gathering info.
       }
     }
+
     return variable;
   }
 
@@ -1052,17 +1154,23 @@ public class SymbolFactory {
    * Typically, a variable like name &larr; "Steve", so 'name' is the variable.
    */
   public VariableSymbol newVariable(final EK9Parser.VariableDeclarationContext ctx) {
+
     checkContextNotNull.accept(ctx);
+
     return newVariable(ctx.identifier(), ctx.QUESTION() != null, false);
   }
 
   /**
-   * Crrate new variable typically when looking to create simulated variable.
+   * Create new variable typically when looking to create simulated variable.
    */
-  public VariableSymbol newVariable(final String name, final IToken token,
-                                    final boolean nullAllowed, final boolean injectionExpected) {
+  public VariableSymbol newVariable(final String name,
+                                    final IToken token,
+                                    final boolean nullAllowed,
+                                    final boolean injectionExpected) {
+
     AssertValue.checkNotNull("Failed to locate variable name", name);
-    VariableSymbol variable = new VariableSymbol(name);
+    final var variable = new VariableSymbol(name);
+
     configureSymbol(variable, token);
     variable.setNullAllowed(nullAllowed);
     variable.setInjectionExpected(injectionExpected);
@@ -1071,19 +1179,24 @@ public class SymbolFactory {
   }
 
   public VariableSymbol newVariable(final EK9Parser.IdentifierContext identifier,
-                                    final boolean nullAllowed, final boolean injectionExpected) {
+                                    final boolean nullAllowed,
+                                    final boolean injectionExpected) {
+
     AssertValue.checkNotNull("Failed to locate variable name", identifier);
+
     return newVariable(identifier.getText(), new Ek9Token(identifier.start), nullAllowed, injectionExpected);
   }
 
   /**
    * Create a new aggregate that represents an EK9 literal value.
    */
-  public ConstantSymbol newLiteral(IToken start, String name) {
+  public ConstantSymbol newLiteral(final IToken start, final String name) {
+
     AssertValue.checkNotNull("Start token cannot be null", start);
     AssertValue.checkNotNull("Name cannot be null", name);
 
-    ConstantSymbol literal = new ConstantSymbol(name, true);
+    final var literal = new ConstantSymbol(name, true);
+
     configureSymbol(literal, start);
     literal.setInitialisedBy(start);
     //You cannot set this to any other value.
@@ -1092,23 +1205,29 @@ public class SymbolFactory {
     return literal;
   }
 
-  private AggregateWithTraitsSymbol newAggregateWithTraitsSymbol(String className, IToken start) {
-    var scope = parsedModule.getModuleScope();
-    AggregateWithTraitsSymbol clazz = new AggregateWithTraitsSymbol(className, scope);
+  private AggregateWithTraitsSymbol newAggregateWithTraitsSymbol(final String className, final IToken start) {
+
+    final var scope = parsedModule.getModuleScope();
+    final var clazz = new AggregateWithTraitsSymbol(className, scope);
+
     configureAggregate(clazz, start);
     clazz.setGenus(ISymbol.SymbolGenus.CLASS);
+
     return clazz;
   }
 
-  private void configureAggregate(AggregateSymbol aggregate, IToken start) {
+  private void configureAggregate(final AggregateSymbol aggregate, final IToken start) {
+
     aggregate.setModuleScope(parsedModule.getModuleScope());
     //By their nature they are initialised and do not have to be referenced to be part of a system.
     aggregate.setInitialisedBy(start);
     aggregate.setReferenced(true);
     configureSymbol(aggregate, start);
+
   }
 
   private Consumer<MethodSymbol> getDefaultOperatorSymbolInitializer(final Consumer<ISymbol> initialise) {
+
     return operator -> {
       initialise.accept(operator);
       operator.getCallParameters().forEach(initialise);
@@ -1118,7 +1237,8 @@ public class SymbolFactory {
     };
   }
 
-  private Consumer<ISymbol> getDefaultOperatorInitialiser(final IToken startToken) {
+  private Consumer<ISymbol> getDefaultOperatorInitializer(final IToken startToken) {
+
     return symbol -> {
       symbol.setSourceToken(startToken);
       symbol.setInitialisedBy(startToken);
@@ -1126,35 +1246,41 @@ public class SymbolFactory {
     };
   }
 
-  private void configureSymbol(ISymbol symbol, IToken start) {
+  private void configureSymbol(final ISymbol symbol, final IToken start) {
+
     symbol.setParsedModule(Optional.of(parsedModule));
     symbol.setSourceToken(start);
     if (parsedModule.isExternallyImplemented()) {
       symbol.putSquirrelledData(EXTERN, "TRUE");
     }
+
   }
 
   private List<AggregateSymbol> createAndRegisterParameterisedSymbols(final EK9Parser.ParameterisedParamsContext ctx,
                                                                       final IScope scope) {
-    List<AggregateSymbol> rtn = new ArrayList<>();
+    final List<AggregateSymbol> rtn = new ArrayList<>();
+
     if (ctx != null) {
       for (int i = 0; i < ctx.parameterisedDetail().size(); i++) {
-        EK9Parser.ParameterisedDetailContext detail = ctx.parameterisedDetail(i);
+        final var detail = ctx.parameterisedDetail(i);
+        final var startToken = new Ek9Token(detail.Identifier().getSymbol());
+
         //Then this is a generic type class we simulate and add the S, T, U whatever into the class scope it is
         //a simulated type we have no real idea what it could be, but it is a template parameter to be replace at
         //cookie cutting time.
         //getText(i) gives us the parameter name we just us 'T' here to denote a generic param
 
-        var startToken = new Ek9Token(detail.Identifier().getSymbol());
-        AggregateSymbol t = aggregateFactory.createGenericT(detail.Identifier().getText(), scope);
+        final var t = aggregateFactory.createGenericT(detail.Identifier().getText(), scope);
         t.setSourceToken(startToken);
         t.setReferenced(true);
+
         //Now going forward we also have constraints of those type S extends String etc.
         //So after phase 1 - but before phase 5 (resolve) we will need to revisit this to ensure we have
         //applied any super class to these 'T's
         rtn.add(t);
         parsedModule.recordSymbol(detail, t);
       }
+
       //Now we have simulated S, T, P etc - what about adding additional constructors - we have the default
       //This would mean that we could do new T() and new T(an S) or new S(a T) etc. so just a single param
       //type constructor.

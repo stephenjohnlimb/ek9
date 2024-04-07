@@ -54,19 +54,22 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
    */
   public TypeSubstitution(final Function<PossibleGenericSymbol, ResolvedOrDefineResult> resolveOrDefine,
                           final ErrorListener errorListener) {
+
     AssertValue.checkNotNull("resolveOrDefine cannot be null", resolveOrDefine);
     this.checkForDuplicateOperationsOnGeneric = new CheckForDuplicateOperationsOnGeneric(errorListener);
     this.resolveOrDefine = resolveOrDefine;
+
   }
 
   @Override
   public PossibleGenericSymbol apply(final PossibleGenericSymbol parameterisedSymbol) {
+
     //mainly just preconditions
     AssertValue.checkNotNull("parameterisedSymbol cannot be null", parameterisedSymbol);
     AssertValue.checkFalse("parameterisedSymbol does not have any type arguments",
         parameterisedSymbol.getTypeParameterOrArguments().isEmpty());
 
-    var theGenericType = parameterisedSymbol.getGenericType();
+    final var theGenericType = parameterisedSymbol.getGenericType();
 
     AssertValue.checkTrue("parameterisedSymbol does not have a generic type",
         theGenericType.isPresent());
@@ -90,13 +93,13 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
                                         final PossibleGenericSymbol genericSymbol) {
 
     //This is the bit that either creates a new parameterised type or returns once previously created.
-    var result = resolveOrDefine.apply(parameterisedSymbol);
+    final var result = resolveOrDefine.apply(parameterisedSymbol);
+    final var resultingType = result.symbol();
 
-    var resultingType = result.symbol();
     AssertValue.checkTrue("Result must be present", resultingType.isPresent());
-    PossibleGenericSymbol rtnType = resultingType.get();
+    final var rtnType = resultingType.get();
+    final var alreadySubstituted = "TRUE".equals(rtnType.getSquirrelledData(SUBSTITUTED));
 
-    boolean alreadySubstituted = "TRUE".equals(rtnType.getSquirrelledData(SUBSTITUTED));
     //Now mark it early as substituted - because this is recursive and will come back into this function!
     if (!alreadySubstituted) {
       rtnType.putSquirrelledData(SUBSTITUTED, "TRUE");
@@ -109,27 +112,30 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
     //I never see this message - maybe I need some more tests to explore this.
     if (genericSymbol.isParameterisedType() && !"TRUE".equals(genericSymbol.getSquirrelledData(SUBSTITUTED))) {
       throw new CompilerException("Now you have a test that shows that even the generic type needs to be substituted");
-
     }
 
     //Now get the mapping of 'T' or whatever to actual parameters.
-    var typeMapping = conceptualLookupMapping.apply(rtnType.getTypeParameterOrArguments(),
+    final var typeMapping = conceptualLookupMapping.apply(rtnType.getTypeParameterOrArguments(),
         genericSymbol.getAnyConceptualTypeParameters());
 
     //Need to pass in the initial trigger for the generation of this parameterized type, as that will be the
     //same trigger for any dependent types.
-    var triggeredByToken = rtnType.getInitialisedBy();
+    final var triggeredByToken = rtnType.getInitialisedBy();
+
     processAnyReferences(triggeredByToken, genericSymbol, typeMapping);
 
     //Otherwise do the business of changing the types.
-    var symbolsToClone = genericSymbol.getSymbolsForThisScope();
-    var clonedSymbols = cloneWithEnclosingScope(symbolsToClone, rtnType);
+    final var symbolsToClone = genericSymbol.getSymbolsForThisScope();
+    final var clonedSymbols = cloneWithEnclosingScope(symbolsToClone, rtnType);
+
     replaceTypeParametersWithTypeArguments(triggeredByToken, rtnType, typeMapping, clonedSymbols);
 
     if (genericSymbol instanceof FunctionSymbol genericFunctionSymbol
         && parameterisedSymbol instanceof FunctionSymbol functionSymbol
         && genericFunctionSymbol.isReturningSymbolPresent()) {
-      var clonedSymbol = genericFunctionSymbol.getReturningSymbol().clone(genericFunctionSymbol);
+
+      final var clonedSymbol = genericFunctionSymbol.getReturningSymbol().clone(genericFunctionSymbol);
+
       substituteAsAppropriate(triggeredByToken, typeMapping, clonedSymbol);
       functionSymbol.setReturningSymbol(clonedSymbol);
     }
@@ -139,14 +145,17 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
     }
 
     return rtnType;
-
   }
 
-  private void processAnyReferences(final IToken triggeredByToken, final PossibleGenericSymbol genericSymbol,
+  private void processAnyReferences(final IToken triggeredByToken,
+                                    final PossibleGenericSymbol genericSymbol,
                                     final Map<ISymbol, ISymbol> typeMapping) {
+
     if (!genericSymbol.getGenericSymbolReferences().isEmpty()) {
       for (var genericSymbolReference : genericSymbol.getGenericSymbolReferences()) {
-        var newType = getReplacementType(triggeredByToken, typeMapping, genericSymbolReference);
+
+        final var newType = getReplacementType(triggeredByToken, typeMapping, genericSymbolReference);
+
         AssertValue.checkNotNull("Expecting new type to be created", newType);
       }
     }
@@ -167,6 +176,7 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
       System.out.printf("Substituting on %s%n", possibleGenericSymbol.getFriendlyName());
     }
      */
+
     symbols.forEach(symbol -> {
       if (symbol instanceof MethodSymbol methodSymbol) {
         if (methodSymbol.isConstructor()) {
@@ -201,19 +211,24 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
 
   private void substituteAsAppropriate(final IToken triggeredByToken,
                                        final Map<ISymbol, ISymbol> typeMapping,
-                                       ISymbol value) {
-    var paramType = value.getType();
+                                       final ISymbol value) {
+
+    final var paramType = value.getType();
+
     paramType.ifPresent(type -> value.setType(getReplacementTypeAsAppropriate(triggeredByToken, typeMapping, type)));
+
   }
 
   private ISymbol getReplacementTypeAsAppropriate(final IToken triggeredByToken,
                                                   final Map<ISymbol, ISymbol> typeMapping, ISymbol forType) {
+
     //Have to be aware some types might be generic, others are just simple.
     if (forType instanceof PossibleGenericSymbol couldBeGeneric && couldBeGeneric.isGenericInNature()) {
       return getReplacementType(triggeredByToken, typeMapping, couldBeGeneric);
     } else if (typeMapping.containsKey(forType)) {
       return typeMapping.get(forType);
     }
+
     return forType;
   }
 
@@ -225,31 +240,38 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
     //So if we are now to replace the 'P' with something we need to go all the way down!
     //because this could be a 'D1 of type (X, Y, Z) of type (P, Date, G2 of (P, P))
 
-    var theGenericType = forType.getGenericType();
+    final var theGenericType = forType.getGenericType();
     AssertValue.checkTrue("Must have a generic type for [" + forType.getFriendlyName() + "]",
         theGenericType.isPresent());
 
-    var genericType = theGenericType.get();
+    final var genericType = theGenericType.get();
+    final var newTypeArguments = new ArrayList<ISymbol>();
 
-    var newTypeArguments = new ArrayList<ISymbol>();
     for (var typeArgument : forType.getTypeParameterOrArguments()) {
-      var replacementType = getReplacementTypeAsAppropriate(triggeredByToken, typeMapping, typeArgument);
+      final var replacementType = getReplacementTypeAsAppropriate(triggeredByToken, typeMapping, typeArgument);
+
       newTypeArguments.add(replacementType);
     }
+
     //OK, so now we may have a new set of type arguments so as we are in 'generic world' we need to resolve or define.
     //So first create the outline - this is just an outline. If the type already exists then it will be returned
     //Otherwise this outline will be used - the fleshed out later.
 
-    var possibleNewParameterisedType = creator.apply(genericType, newTypeArguments);
+    final var possibleNewParameterisedType = creator.apply(genericType, newTypeArguments);
+
     possibleNewParameterisedType.setInitialisedBy(triggeredByToken);
+
     return this.apply(possibleNewParameterisedType);
   }
 
-  private List<ISymbol> cloneWithEnclosingScope(final List<ISymbol> symbols, IScope enclosingScope) {
+  private List<ISymbol> cloneWithEnclosingScope(final List<ISymbol> symbols, final IScope enclosingScope) {
+
     return symbols.stream().map(symbol -> {
-      var clonedSymbol = symbol.clone(enclosingScope);
+      final var clonedSymbol = symbol.clone(enclosingScope);
+
       enclosingScope.define(clonedSymbol);
       return clonedSymbol;
     }).toList();
+
   }
 }

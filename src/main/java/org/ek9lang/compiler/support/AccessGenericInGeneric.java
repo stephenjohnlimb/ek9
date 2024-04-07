@@ -16,7 +16,9 @@ public class AccessGenericInGeneric implements Function<ISymbol, Optional<Generi
   private final SymbolAndScopeManagement symbolAndScopeManagement;
 
   public AccessGenericInGeneric(final SymbolAndScopeManagement symbolAndScopeManagement) {
+
     this.symbolAndScopeManagement = symbolAndScopeManagement;
+
   }
 
   @Override
@@ -34,6 +36,7 @@ public class AccessGenericInGeneric implements Function<ISymbol, Optional<Generi
       }
 
     }
+
     return Optional.empty();
   }
 }

@@ -9,22 +9,29 @@ import org.ek9lang.compiler.symbols.IScope;
  * to check if access to fields or methods should be allowed, or even resolve methods without 'this' prefix.
  */
 public final class MostSpecificScope implements Supplier<IScope> {
-
   private final SymbolAndScopeManagement symbolAndScopeManagement;
 
   public MostSpecificScope(final SymbolAndScopeManagement symbolAndScopeManagement) {
+
     this.symbolAndScopeManagement = symbolAndScopeManagement;
+
   }
 
   @Override
   public IScope get() {
-    var fromScope = symbolAndScopeManagement.getTopScope().findNearestDynamicBlockScopeInEnclosingScopes();
-    if (fromScope.isEmpty()) {
-      fromScope = symbolAndScopeManagement.getTopScope().findNearestNonBlockScopeInEnclosingScopes();
-      if (fromScope.isEmpty()) {
-        return symbolAndScopeManagement.getTopScope();
-      }
+
+    final var possibleDynamicBlockScope =
+        symbolAndScopeManagement.getTopScope().findNearestDynamicBlockScopeInEnclosingScopes();
+    if (possibleDynamicBlockScope.isPresent()) {
+      return possibleDynamicBlockScope.get();
     }
-    return fromScope.get();
+
+    final var possibleNonBlockScope =
+        symbolAndScopeManagement.getTopScope().findNearestNonBlockScopeInEnclosingScopes();
+    if (possibleNonBlockScope.isPresent()) {
+      return possibleNonBlockScope.get();
+    }
+
+    return symbolAndScopeManagement.getTopScope();
   }
 }

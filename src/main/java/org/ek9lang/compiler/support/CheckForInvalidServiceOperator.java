@@ -14,15 +14,20 @@ public class CheckForInvalidServiceOperator implements Consumer<ServiceOperation
   private final ErrorListener errorListener;
 
   CheckForInvalidServiceOperator(final ErrorListener errorListener) {
+
     this.errorListener = errorListener;
+
   }
 
   @Override
   public void accept(final ServiceOperationSymbol serviceSymbol) {
-    var operator = serviceSymbol.getName();
+
+    final var operator = serviceSymbol.getName();
+
     if (!supportedOperators.contains(operator)) {
       errorListener.semanticError(serviceSymbol.getSourceToken(), "using '" + operator + "' as",
           ErrorListener.SemanticClassification.SERVICE_OPERATOR_NOT_SUPPORTED);
     }
+
   }
 }

@@ -11,8 +11,10 @@ public class LocationExtractorFromSymbol implements Function<ISymbol, String> {
   private final LocationExtractorFromToken locationExtractorFromToken = new LocationExtractorFromToken();
 
   @Override
-  public String apply(ISymbol symbol) {
-    var token = symbol.isParameterisedType() ? symbol.getInitialisedBy() : symbol.getSourceToken();
+  public String apply(final ISymbol symbol) {
+
+    final var token = symbol.isParameterisedType() ? symbol.getInitialisedBy() : symbol.getSourceToken();
+
     return locationExtractorFromToken.apply(token);
 
   }

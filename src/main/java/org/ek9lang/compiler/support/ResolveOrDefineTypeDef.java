@@ -22,9 +22,12 @@ public class ResolveOrDefineTypeDef extends ResolveOrDefineTypes
    * A bit of a complex constructor - for a function.
    */
   public ResolveOrDefineTypeDef(final SymbolAndScopeManagement symbolAndScopeManagement,
-                                final SymbolFactory symbolFactory, final ErrorListener errorListener,
+                                final SymbolFactory symbolFactory,
+                                final ErrorListener errorListener,
                                 final boolean errorIfNotDefinedOrResolved) {
+
     super(symbolAndScopeManagement, symbolFactory, errorListener, errorIfNotDefinedOrResolved);
+
   }
 
   @Override
@@ -33,6 +36,7 @@ public class ResolveOrDefineTypeDef extends ResolveOrDefineTypes
     if (ctx == null) {
       return Optional.empty();
     }
+
     return resolveTypeByTypeDef(new Ek9Token(ctx.start), ctx);
   }
 }

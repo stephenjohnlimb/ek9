@@ -17,8 +17,9 @@ import org.ek9lang.core.Digest;
  */
 public class InternalNameFor implements BiFunction<PossibleGenericSymbol, List<ISymbol>, String> {
   @Override
-  public String apply(PossibleGenericSymbol possibleGenericSymbol, List<ISymbol> typeArguments) {
-    var toDigest = possibleGenericSymbol.getFullyQualifiedName() + typeArguments
+  public String apply(final PossibleGenericSymbol possibleGenericSymbol, final List<ISymbol> typeArguments) {
+
+    final var toDigest = possibleGenericSymbol.getFullyQualifiedName() + typeArguments
         .stream()
         .map(ISymbol::getFullyQualifiedName)
         .collect(Collectors.joining("_"));

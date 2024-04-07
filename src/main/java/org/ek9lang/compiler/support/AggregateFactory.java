@@ -82,46 +82,55 @@ public class AggregateFactory {
   }
 
   public AggregateFactory(final Ek9Types ek9Types) {
+
     this();
     this.ek9Types = ek9Types;
+
   }
 
   /**
    * Add a synthetic constructor, if a constructor is not present.
    */
-  public void addSyntheticConstructorIfRequired(IAggregateSymbol aggregateSymbol) {
+  public void addSyntheticConstructorIfRequired(final IAggregateSymbol aggregateSymbol) {
+
     //Default constructor
     addSyntheticConstructorIfRequired(aggregateSymbol, new ArrayList<>());
 
     //Constructor with all properties on the aggregate.
     List<ISymbol> propertiesOfAggregate = aggregateSymbol.getProperties();
     addSyntheticConstructorIfRequired(aggregateSymbol, propertiesOfAggregate);
+
   }
 
   /**
    * Add a synthetic constructor, if a constructor is not present.
    */
-  public void addSyntheticConstructorIfRequired(IAggregateSymbol aggregateSymbol,
+  public void addSyntheticConstructorIfRequired(final IAggregateSymbol aggregateSymbol,
                                                 final List<ISymbol> constructorArguments) {
+
     addConstructorIfRequired(aggregateSymbol, constructorArguments, true);
+
   }
 
   /**
    * Add a new constructor if not present, marked as synthetic.
    */
-  public void addConstructorIfRequired(IAggregateSymbol aggregateSymbol,
+  public void addConstructorIfRequired(final IAggregateSymbol aggregateSymbol,
                                        final List<ISymbol> constructorArguments,
                                        final boolean synthetic) {
-    MethodSymbolSearch symbolSearch = new MethodSymbolSearch(aggregateSymbol.getName());
+
+    final var symbolSearch = new MethodSymbolSearch(aggregateSymbol.getName());
     symbolSearch.setTypeParameters(constructorArguments);
-    var results = new MethodSymbolSearchResult();
-    var resolvedMethods = aggregateSymbol.resolveMatchingMethodsInThisScopeOnly(symbolSearch, results);
+
+    final var results = new MethodSymbolSearchResult();
+    final var resolvedMethods = aggregateSymbol.resolveMatchingMethodsInThisScopeOnly(symbolSearch, results);
+
     if (!resolvedMethods.isSingleBestMatchPresent() && !resolvedMethods.isAmbiguous()) {
       //If there are other constructors defined, and we provide a built-in one then we need to ensure we make it
       //pure if any of the others are pure.
-      var needsPure = aggregateHasPureConstruction.test(aggregateSymbol);
+      final var needsPure = aggregateHasPureConstruction.test(aggregateSymbol);
+      final var newConstructor = new MethodSymbol(aggregateSymbol.getName(), aggregateSymbol);
 
-      MethodSymbol newConstructor = new MethodSymbol(aggregateSymbol.getName(), aggregateSymbol);
       newConstructor.setMarkedPure(needsPure);
       newConstructor.setConstructor(true);
       newConstructor.setInitialisedBy(aggregateSymbol.getSourceToken());
@@ -131,6 +140,7 @@ public class AggregateFactory {
       newConstructor.setCallParameters(constructorArguments);
       aggregateSymbol.define(newConstructor);
     }
+
   }
 
   /**
@@ -146,18 +156,20 @@ public class AggregateFactory {
    * @param from The aggregate to get the methods from
    * @param to   The aggregate to add the methods to.
    */
-  public void addNonAbstractMethods(final IAggregateSymbol from, IAggregateSymbol to) {
+  public void addNonAbstractMethods(final IAggregateSymbol from, final IAggregateSymbol to) {
+
     for (MethodSymbol method : from.getAllNonAbstractMethods()) {
       method.getType().ifPresentOrElse(methodType -> {
         if (method.isConstructor() && methodType.isExactSameType(from)) {
-          MethodSymbol newMethod = new MethodSymbol(to.getName(), Optional.of(to), to).setConstructor(true);
-          List<ISymbol> params = method.getCallParameters();
+          final var newMethod = new MethodSymbol(to.getName(), Optional.of(to), to).setConstructor(true);
+          final var params = method.getCallParameters();
+
           newMethod.setCallParameters(params);
           to.define(newMethod);
         } else {
           if (methodType.isExactSameType(from) && !method.isMarkedNoClone()) {
             //So we have a method that returns the same type - we need to modify this and add it in.
-            MethodSymbol newMethod = cloneMethodWithNewType(method, to);
+            final var newMethod = cloneMethodWithNewType(method, to);
             to.define(newMethod);
           }
         }
@@ -169,6 +181,7 @@ public class AggregateFactory {
   }
 
   public MethodSymbol cloneMethodWithNewType(final MethodSymbol method, final IAggregateSymbol to) {
+
     return method.clone(to, to);
   }
 
@@ -177,11 +190,13 @@ public class AggregateFactory {
    *
    * @param t The aggregate type to add the constructor to.
    */
-  public MethodSymbol addConstructor(IAggregateSymbol t) {
-    MethodSymbol constructor = new MethodSymbol(t.getName(), t);
+  public MethodSymbol addConstructor(final IAggregateSymbol t) {
+
+    final var constructor = new MethodSymbol(t.getName(), t);
     constructor.setConstructor(true);
     constructor.setType(t);
     t.define(constructor);
+
     return constructor;
   }
 
@@ -192,19 +207,23 @@ public class AggregateFactory {
    * @param s The argument - arg with a symbol type to be passed in as a construction parameter.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public MethodSymbol addConstructor(AggregateSymbol t, final Optional<ISymbol> s) {
+  public MethodSymbol addConstructor(final AggregateSymbol t, final Optional<ISymbol> s) {
+
     if (s.isPresent()) {
       return addConstructor(t, s.get());
     }
+
     return addConstructor(t);
   }
 
   /**
    * Add a constructor to the type aggregate with a particular parameter.
    */
-  public MethodSymbol addConstructor(AggregateSymbol t, final ISymbol s) {
-    MethodSymbol constructor = addConstructor(t);
+  public MethodSymbol addConstructor(final AggregateSymbol t, final ISymbol s) {
+
+    final var constructor = addConstructor(t);
     constructor.define(s);
+
     return constructor;
   }
 
@@ -221,8 +240,10 @@ public class AggregateFactory {
    * @param scope - The scope it should go in.
    */
   public AggregateSymbol createGenericT(final String name, final IScope scope) {
-    AggregateSymbol t = new AggregateSymbol(name, scope);
+
+    final var t = new AggregateSymbol(name, scope);
     t.setConceptualTypeParameter(true);
+
     //Do not add any methods yet - wait until later phases.
     return t;
   }
@@ -230,7 +251,7 @@ public class AggregateFactory {
   /**
    * This is the idea where a 'T' is constrained to only be a type or a subtype of that type.
    */
-  public void updateToConstrainBy(IAggregateSymbol t, final IAggregateSymbol constrainingType) {
+  public void updateToConstrainBy(final IAggregateSymbol t, final IAggregateSymbol constrainingType) {
 
     //So firstly lets make the T a subtype of the constraining type
     t.setSuperAggregate(constrainingType);
@@ -246,6 +267,7 @@ public class AggregateFactory {
           clonedConstructor.setType(t);
           t.define(clonedConstructor);
         });
+
   }
 
   /**
@@ -253,6 +275,7 @@ public class AggregateFactory {
    * Does not add them to the aggregate, but does create them with the aggregate as the enclosing scope.
    */
   public List<MethodSymbol> getAllPossibleDefaultOperators(final IAggregateSymbol aggregate) {
+
     return operatorFactory.getAllPossibleDefaultOperators(aggregate);
   }
 
@@ -261,6 +284,7 @@ public class AggregateFactory {
    * be returned. Otherwise, the return Optional will be empty (normally indicating an error).
    */
   public Optional<MethodSymbol> getDefaultOperator(final IAggregateSymbol aggregate, final String operator) {
+
     return Optional.ofNullable(operatorFactory.getDefaultOperator(aggregate, operator));
   }
 
@@ -272,13 +296,16 @@ public class AggregateFactory {
    * Only when the generic type is parameterized with types are the operators on those types checked for existence.
    * If not present then errors of emitted.
    */
-  public void addAllSyntheticOperators(IAggregateSymbol t) {
-    var constructorMethod = addConstructor(t);
+  public void addAllSyntheticOperators(final IAggregateSymbol t) {
+
+    final var constructorMethod = addConstructor(t);
+
     constructorMethod.setSourceToken(t.getSourceToken());
     getAllPossibleSyntheticOperators(t).forEach(method -> {
       method.setSourceToken(t.getSourceToken());
       t.define(method);
     });
+
   }
 
   /**
@@ -286,6 +313,7 @@ public class AggregateFactory {
    * This is typically used when creating synthetic 'T' aggregates for generics/templates.
    */
   private List<MethodSymbol> getAllPossibleSyntheticOperators(final IAggregateSymbol aggregate) {
+
     return operatorFactory.getAllPossibleSyntheticOperators(aggregate);
   }
 
@@ -294,15 +322,18 @@ public class AggregateFactory {
    * The methodParameters can be empty if there are none.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public MethodSymbol addPublicMethod(AggregateSymbol clazz,
+  public MethodSymbol addPublicMethod(final AggregateSymbol aggregate,
                                       final String methodName,
                                       final List<ISymbol> methodParameters,
                                       final Optional<ISymbol> returnType) {
-    MethodSymbol method = new MethodSymbol(methodName, clazz);
-    method.setParsedModule(clazz.getParsedModule());
+
+    final var method = new MethodSymbol(methodName, aggregate);
+
+    method.setParsedModule(aggregate.getParsedModule());
     methodParameters.forEach(method::define);
-    clazz.define(method);
+    aggregate.define(method);
     method.setReturningSymbol(new VariableSymbol("rtn", returnType));
+
     return method;
   }
 
@@ -310,29 +341,38 @@ public class AggregateFactory {
    * Adds all the appropriate methods for a type that is an 'Enumeration'.
    * This allows a developer to use built-in methods on the 'Enumeration' type.
    */
-  public void addEnumerationMethods(AggregateSymbol enumerationSymbol) {
+  public void addEnumerationMethods(final AggregateSymbol enumerationSymbol) {
+
     operatorFactory.addEnumerationMethods(enumerationSymbol);
   }
 
-  public void addPurePublicReturnSameTypeMethod(IAggregateSymbol clazz, final String methodName) {
-    var method = createPurePublicReturnSameTypeMethod(clazz, methodName);
-    clazz.define(method);
+  public void addPurePublicReturnSameTypeMethod(final IAggregateSymbol aggregate, final String methodName) {
+
+    final var method = createPurePublicReturnSameTypeMethod(aggregate, methodName);
+
+    aggregate.define(method);
+
   }
 
-  public MethodSymbol createPurePublicReturnSameTypeMethod(IAggregateSymbol clazz, final String methodName) {
-    return createPurePublicSimpleOperator(clazz, methodName, Optional.of(clazz));
+  public MethodSymbol createPurePublicReturnSameTypeMethod(final IAggregateSymbol aggregateSymbol,
+                                                           final String methodName) {
+
+    return createPurePublicSimpleOperator(aggregateSymbol, methodName, Optional.of(aggregateSymbol));
   }
 
   /**
    * Adds a form of a comparison operator.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public MethodSymbol addComparatorOperator(IAggregateSymbol clazz,
+  public MethodSymbol addComparatorOperator(IAggregateSymbol aggregateSymbol,
                                             final IAggregateSymbol arg0,
                                             final String comparatorType,
                                             final Optional<ISymbol> returnType) {
-    MethodSymbol operator = createPureAcceptArgumentOperatorAndReturnType(clazz, arg0, comparatorType, returnType);
-    clazz.define(operator);
+
+    final var operator = createPureArgumentOperatorAndReturnType(aggregateSymbol, arg0, comparatorType, returnType);
+
+    aggregateSymbol.define(operator);
+
     return operator;
   }
 
@@ -340,10 +380,14 @@ public class AggregateFactory {
    * Adds a form of a comparison operator.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public MethodSymbol addComparatorOperator(IAggregateSymbol clazz, final String comparatorType,
+  public MethodSymbol addComparatorOperator(IAggregateSymbol aggregateSymbol,
+                                            final String comparatorType,
                                             final Optional<ISymbol> returnType) {
-    MethodSymbol operator = createPureAcceptSameTypeOperatorAndReturnType(clazz, comparatorType, returnType);
-    clazz.define(operator);
+
+    final var operator = createPureAcceptSameTypeOperatorAndReturnType(aggregateSymbol, comparatorType, returnType);
+
+    aggregateSymbol.define(operator);
+
     return operator;
   }
 
@@ -351,13 +395,16 @@ public class AggregateFactory {
    * Creates a pure method with an argument the same as the main type.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public MethodSymbol createPureAcceptSameTypeOperatorAndReturnType(IAggregateSymbol clazz,
+  public MethodSymbol createPureAcceptSameTypeOperatorAndReturnType(IAggregateSymbol aggregateSymbol,
                                                                     final String comparatorType,
                                                                     final Optional<ISymbol> returnType) {
-    MethodSymbol operator = createPurePublicSimpleOperator(clazz, comparatorType, returnType);
+
+    final var operator = createPurePublicSimpleOperator(aggregateSymbol, comparatorType, returnType);
+
     //Always enable as a dispatcher, so that most specific type can be used.
     operator.setMarkedAsDispatcher(true);
-    operator.define(new VariableSymbol(PARAM, clazz));
+    operator.define(new VariableSymbol(PARAM, aggregateSymbol));
+
     return operator;
   }
 
@@ -366,14 +413,17 @@ public class AggregateFactory {
    * Creates a pure method with an argument of a different type as the main type.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public MethodSymbol createPureAcceptArgumentOperatorAndReturnType(IAggregateSymbol clazz,
-                                                                    final IAggregateSymbol arg0,
-                                                                    final String comparatorType,
-                                                                    final Optional<ISymbol> returnType) {
-    MethodSymbol operator = createPurePublicSimpleOperator(clazz, comparatorType, returnType);
+  public MethodSymbol createPureArgumentOperatorAndReturnType(IAggregateSymbol aggregateSymbol,
+                                                              final IAggregateSymbol arg0,
+                                                              final String comparatorType,
+                                                              final Optional<ISymbol> returnType) {
+
+    final var operator = createPurePublicSimpleOperator(aggregateSymbol, comparatorType, returnType);
+
     //Always enable as a dispatcher, so that most specific type can be used.
     operator.setMarkedAsDispatcher(true);
     operator.define(new VariableSymbol(PARAM, arg0));
+
     return operator;
   }
 
@@ -382,60 +432,68 @@ public class AggregateFactory {
    * parameters, but just returns a value.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public MethodSymbol addPurePublicSimpleOperator(IAggregateSymbol clazz,
+  public MethodSymbol addPurePublicSimpleOperator(IAggregateSymbol aggregateSymbol,
                                                   final String methodName,
                                                   final Optional<ISymbol> returnType) {
-    var method = createPurePublicSimpleOperator(clazz, methodName, returnType);
-    clazz.define(method);
+
+    final var method = createPurePublicSimpleOperator(aggregateSymbol, methodName, returnType);
+
+    aggregateSymbol.define(method);
+
     return method;
   }
 
   /**
    * Create operator for json.
    */
-  public MethodSymbol createToJsonSimpleOperator(final IAggregateSymbol aggregate) {
-    final Optional<ISymbol> jsonType = resolveJson(aggregate);
-    return createPurePublicSimpleOperator(aggregate, "$$", jsonType);
+  public MethodSymbol createToJsonSimpleOperator(final IAggregateSymbol aggregateSymbol) {
+
+    final var jsonType = resolveJson(aggregateSymbol);
+
+    return createPurePublicSimpleOperator(aggregateSymbol, "$$", jsonType);
   }
 
   /**
    * Just creates a public operator with the name specified.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public MethodSymbol createPurePublicSimpleOperator(final IAggregateSymbol clazz,
+  public MethodSymbol createPurePublicSimpleOperator(final IAggregateSymbol aggregateSymbol,
                                                      final String methodName,
                                                      final Optional<ISymbol> returnType) {
 
-    MethodSymbol method = new MethodSymbol(methodName, clazz);
+    final var method = new MethodSymbol(methodName, aggregateSymbol);
+
     if (returnType.isPresent()) {
       method.setReturningSymbol(new VariableSymbol("rtn", returnType));
     } else {
-      method.setType(resolveVoid(clazz));
+      method.setType(resolveVoid(aggregateSymbol));
     }
-    method.setParsedModule(clazz.getParsedModule());
+    method.setParsedModule(aggregateSymbol.getParsedModule());
     method.setAccessModifier("public");
     method.setMarkedPure(true);
     method.setOperator(true);
+
     return method;
   }
 
   /**
    * Create an operator of the name supplied.
    */
-  public MethodSymbol createOperator(final IAggregateSymbol clazz,
+  public MethodSymbol createOperator(final IAggregateSymbol aggregateSymbol,
                                      final String operatorType,
                                      final boolean isPure) {
-    VariableSymbol paramT = new VariableSymbol(PARAM, clazz);
 
-    MethodSymbol operator = new MethodSymbol(operatorType, clazz);
-    operator.setParsedModule(clazz.getParsedModule());
+    final var paramT = new VariableSymbol(PARAM, aggregateSymbol);
+    final var operator = new MethodSymbol(operatorType, aggregateSymbol);
+
+    operator.setParsedModule(aggregateSymbol.getParsedModule());
     operator.setAccessModifier("public");
     operator.setMarkedPure(isPure);
     operator.setOperator(true);
-
     operator.define(paramT);
     //returns the same type as itself
-    operator.setReturningSymbol(new VariableSymbol("rtn", clazz));
+    operator.setReturningSymbol(new VariableSymbol("rtn", aggregateSymbol));
+
     return operator;
   }
 
@@ -443,9 +501,11 @@ public class AggregateFactory {
    * Resolve Void from cached ek9 types of full scope hierarchy resolution.
    */
   public Optional<ISymbol> resolveVoid(final IScope scope) {
+
     if (ek9Types != null) {
       return Optional.of(ek9Types.ek9Void());
     }
+
     return scope.resolve(new TypeSymbolSearch(EK9_VOID));
   }
 
@@ -453,9 +513,11 @@ public class AggregateFactory {
    * Resolve Boolean from cached ek9 types of full scope hierarchy resolution.
    */
   public Optional<ISymbol> resolveBoolean(final IScope scope) {
+
     if (ek9Types != null) {
       return Optional.of(ek9Types.ek9Boolean());
     }
+
     return scope.resolve(new TypeSymbolSearch(EK9_BOOLEAN));
   }
 
@@ -463,9 +525,11 @@ public class AggregateFactory {
    * Resolve Integer from cached ek9 types of full scope hierarchy resolution.
    */
   public Optional<ISymbol> resolveInteger(final IScope scope) {
+
     if (ek9Types != null) {
       return Optional.of(ek9Types.ek9Integer());
     }
+
     return scope.resolve(new TypeSymbolSearch(EK9_INTEGER));
   }
 
@@ -473,9 +537,11 @@ public class AggregateFactory {
    * Resolve String from cached ek9 types of full scope hierarchy resolution.
    */
   public Optional<ISymbol> resolveString(final IScope scope) {
+
     if (ek9Types != null) {
       return Optional.of(ek9Types.ek9String());
     }
+
     return scope.resolve(new TypeSymbolSearch(EK9_STRING));
   }
 
@@ -483,9 +549,11 @@ public class AggregateFactory {
    * Resolve JSON from cached ek9 types of full scope hierarchy resolution.
    */
   public Optional<ISymbol> resolveJson(final IScope scope) {
+
     if (ek9Types != null) {
       return Optional.of(ek9Types.ek9Json());
     }
+
     return scope.resolve(new TypeSymbolSearch(EK9_JSON));
   }
 

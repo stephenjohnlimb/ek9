@@ -19,18 +19,21 @@ public class ResolveOrDefineExplicitParameterizedType extends ResolveOrDefineTyp
    * A bit of a complex function constructor - for a function.
    */
   public ResolveOrDefineExplicitParameterizedType(final SymbolAndScopeManagement symbolAndScopeManagement,
-                                                  final SymbolFactory symbolFactory, final ErrorListener errorListener,
+                                                  final SymbolFactory symbolFactory,
+                                                  final ErrorListener errorListener,
                                                   final boolean errorIfNotDefinedOrResolved) {
+
     super(symbolAndScopeManagement, symbolFactory, errorListener, errorIfNotDefinedOrResolved);
+
   }
 
   @Override
-  public Optional<ISymbol> apply(EK9Parser.ParameterisedTypeContext ctx) {
-    Optional<ISymbol> rtn = Optional.empty();
+  public Optional<ISymbol> apply(final EK9Parser.ParameterisedTypeContext ctx) {
 
-    if (ctx != null) {
-      rtn = resolveTypeByParameterizedType(new Ek9Token(ctx.start), ctx);
+    if (ctx == null) {
+      return Optional.empty();
     }
-    return rtn;
+
+    return resolveTypeByParameterizedType(new Ek9Token(ctx.start), ctx);
   }
 }

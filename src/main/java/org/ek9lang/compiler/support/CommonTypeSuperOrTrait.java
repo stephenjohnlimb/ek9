@@ -23,26 +23,30 @@ import org.ek9lang.compiler.tokenizer.IToken;
  */
 public class CommonTypeSuperOrTrait implements BiFunction<IToken, List<ISymbol>, Optional<ISymbol>> {
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
-
   private final CommonTypeOrError commonTypeOrError;
 
   public CommonTypeSuperOrTrait(final ErrorListener errorListener) {
+
     this.commonTypeOrError = new CommonTypeOrError(errorListener);
+
   }
 
   @Override
   public Optional<ISymbol> apply(final IToken lineToken, final List<ISymbol> argumentSymbols) {
+
     if (argumentSymbols.isEmpty()) {
       return Optional.empty();
     }
 
-    var argumentTypes = symbolTypeExtractor.apply(argumentSymbols);
+    final var argumentTypes = symbolTypeExtractor.apply(argumentSymbols);
+
     if (argumentTypes.size() != argumentSymbols.size()) {
       //No error issued as other code should have detected this.
       return Optional.empty();
     }
 
-    var details = new CommonTypeDeterminationDetails(lineToken, argumentSymbols, argumentTypes);
+    final var details = new CommonTypeDeterminationDetails(lineToken, argumentSymbols, argumentTypes);
+
     return commonTypeOrError.apply(details);
   }
 }

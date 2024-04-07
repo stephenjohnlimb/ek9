@@ -13,16 +13,15 @@ public class ReturnTypeExtractor implements Function<ISymbol, Optional<ISymbol>>
 
   private final boolean formOfDeclaration;
 
-  public ReturnTypeExtractor() {
-    this(false);
-  }
-
   public ReturnTypeExtractor(final boolean formOfDeclaration) {
+
     this.formOfDeclaration = formOfDeclaration;
+
   }
 
   @Override
-  public Optional<ISymbol> apply(ISymbol symbol) {
+  public Optional<ISymbol> apply(final ISymbol symbol) {
+
     if (symbol == null) {
       return Optional.empty();
     }
@@ -44,6 +43,7 @@ public class ReturnTypeExtractor implements Function<ISymbol, Optional<ISymbol>>
         return delegateFunction.getReturningSymbol().getType();
       }
     }
+
     return symbol.getType();
   }
 }

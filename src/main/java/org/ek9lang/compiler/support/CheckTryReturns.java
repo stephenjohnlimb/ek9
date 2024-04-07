@@ -11,11 +11,15 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
 public class CheckTryReturns extends CheckReturns implements Consumer<EK9Parser.TryStatementExpressionContext> {
 
   CheckTryReturns(final ErrorListener errorListener) {
+
     super(errorListener);
+
   }
 
   @Override
-  public void accept(EK9Parser.TryStatementExpressionContext ctx) {
+  public void accept(final EK9Parser.TryStatementExpressionContext ctx) {
+
     check(ctx.parent instanceof EK9Parser.StatementContext, new Ek9Token(ctx.start), ctx.returningParam());
+
   }
 }

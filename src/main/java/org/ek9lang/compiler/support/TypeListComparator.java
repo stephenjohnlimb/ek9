@@ -9,18 +9,22 @@ import org.ek9lang.compiler.symbols.ISymbol;
  */
 public class TypeListComparator implements BiPredicate<List<ISymbol>, List<ISymbol>> {
   @Override
-  public boolean test(List<ISymbol> listOne, List<ISymbol> listTwo) {
+  public boolean test(final List<ISymbol> listOne, final List<ISymbol> listTwo) {
+
     if (listOne.isEmpty() && listTwo.isEmpty()) {
       return true;
     }
+
     if (listOne.size() != listTwo.size()) {
       return false;
     }
+
     for (int i = 0; i < listOne.size(); i++) {
       if (!listOne.get(i).isExactSameType(listTwo.get(i))) {
         return false;
       }
     }
+    
     return true;
   }
 }

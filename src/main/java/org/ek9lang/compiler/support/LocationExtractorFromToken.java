@@ -10,9 +10,10 @@ import org.ek9lang.compiler.tokenizer.IToken;
  */
 public class LocationExtractorFromToken implements Function<IToken, String> {
   @Override
-  public String apply(IToken token) {
+  public String apply(final IToken token) {
 
-    var fileName = new File(token.getSourceName()).getName();
+    final var fileName = new File(token.getSourceName()).getName();
+
     return String.format("on line %s in '%s'", token.getLine(), fileName);
   }
 }

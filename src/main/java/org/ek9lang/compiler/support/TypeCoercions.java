@@ -17,13 +17,15 @@ public class TypeCoercions {
   private static final TypeCoercions instance = new TypeCoercions();
 
   public static TypeCoercions get() {
+
     return instance;
   }
 
   /**
    * Can the 'from' token type be coerced to the 'to' type.
    */
-  public boolean isCoercible(Optional<ISymbol> from, Optional<ISymbol> to) {
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+  public boolean isCoercible(final Optional<ISymbol> from, final Optional<ISymbol> to) {
     AssertValue.checkNotNull("Coercion from cannot be null", from);
     AssertValue.checkNotNull("Coercion to cannot be null", to);
 
@@ -37,18 +39,21 @@ public class TypeCoercions {
   /**
    * Can the 'from' token type be coerced to the 'to' type.
    */
-  public boolean isCoercible(ISymbol from, ISymbol to) {
+  public boolean isCoercible(final ISymbol from, final ISymbol to) {
+
     AssertValue.checkNotNull("Coercion from cannot be null", from);
     AssertValue.checkNotNull("Coercion to cannot be null", to);
 
     if (from instanceof IAggregateSymbol fromAggregate) {
-      Optional<ISymbol> promoteMethod =
-          fromAggregate.resolve(new MethodSymbolSearch("#^")); //that is the promotion symbol
+      //that is the promotion symbol
+      final var promoteMethod = fromAggregate.resolve(new MethodSymbolSearch("#^"));
+
       return promoteMethod
           .flatMap(ISymbol::getType)
           .map(type -> type.isAssignableTo(to))
           .orElse(false);
     }
+
     return false;
   }
 }

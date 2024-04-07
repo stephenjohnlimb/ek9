@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.support;
 
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.SERVICE_HTTP_ACCESS_NOT_SUPPORTED;
+
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
@@ -13,11 +15,14 @@ public class CheckAppropriateWebVariable implements Consumer<EK9Parser.VariableO
   private final ErrorListener errorListener;
 
   CheckAppropriateWebVariable(final ErrorListener errorListener) {
+
     this.errorListener = errorListener;
+
   }
 
   @Override
-  public void accept(EK9Parser.VariableOnlyDeclarationContext ctx) {
+  public void accept(final EK9Parser.VariableOnlyDeclarationContext ctx) {
+
     //only check if a web variable correlation has been specified
     if (ctx.webVariableCorrelation() == null) {
       return;
@@ -29,7 +34,7 @@ public class CheckAppropriateWebVariable implements Consumer<EK9Parser.VariableO
       return;
     }
 
-    errorListener.semanticError(ctx.webVariableCorrelation().start, "Web Service",
-        ErrorListener.SemanticClassification.SERVICE_HTTP_ACCESS_NOT_SUPPORTED);
+    errorListener.semanticError(ctx.webVariableCorrelation().start, "Web Service", SERVICE_HTTP_ACCESS_NOT_SUPPORTED);
+
   }
 }

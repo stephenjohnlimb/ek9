@@ -25,6 +25,7 @@ public class ParameterizedSymbolCreator
   @Override
   public PossibleGenericSymbol apply(final PossibleGenericSymbol possibleGenericSymbol,
                                      final List<ISymbol> typeArguments) {
+
     AssertValue.checkNotNull("possibleGenericSymbol cannot be null", possibleGenericSymbol);
     AssertValue.checkNotNull("typeArguments cannot be null", typeArguments);
     AssertValue.checkNotEmpty("typeArguments cannot be empty", typeArguments);
@@ -57,9 +58,10 @@ public class ParameterizedSymbolCreator
 
   private AggregateSymbol createAggregate(final PossibleGenericSymbol possibleGenericSymbol,
                                           final List<ISymbol> typeArguments) {
+
     //Get the decorated name.
-    var name = internalNameFor.apply(possibleGenericSymbol, typeArguments);
-    var rtn = new AggregateSymbol(name, possibleGenericSymbol.getModuleScope());
+    final var name = internalNameFor.apply(possibleGenericSymbol, typeArguments);
+    final var rtn = new AggregateSymbol(name, possibleGenericSymbol.getModuleScope());
 
     rtn.setGenericType(possibleGenericSymbol);
     typeArguments.forEach(rtn::addTypeParameterOrArgument);
@@ -69,12 +71,14 @@ public class ParameterizedSymbolCreator
 
   private FunctionSymbol createFunction(final PossibleGenericSymbol possibleGenericSymbol,
                                         final List<ISymbol> typeArguments) {
-    var name = internalNameFor.apply(possibleGenericSymbol, typeArguments);
-    var rtn = new FunctionSymbol(name, possibleGenericSymbol.getModuleScope());
+
+    final var name = internalNameFor.apply(possibleGenericSymbol, typeArguments);
+    final var rtn = new FunctionSymbol(name, possibleGenericSymbol.getModuleScope());
 
     rtn.setGenericType(possibleGenericSymbol);
     typeArguments.forEach(rtn::addTypeParameterOrArgument);
 
     return rtn;
   }
+
 }
