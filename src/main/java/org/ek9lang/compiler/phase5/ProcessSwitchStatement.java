@@ -19,13 +19,16 @@ final class ProcessSwitchStatement extends PossibleExpressionConstruct
 
   ProcessSwitchStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
                          final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.SwitchStatementExpressionContext ctx) {
-    var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
-    var possibleGuardVariable = getGuardExpressionVariable(ctx.preFlowAndControl());
+
+    final var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
+    final var possibleGuardVariable = getGuardExpressionVariable(ctx.preFlowAndControl());
 
     possibleGuardVariable.ifPresent(guardVariable ->
         analyzers.forEach(analyzer -> processPossibleGuardInitialisation(analyzer, guardVariable, ctx)));
@@ -36,10 +39,9 @@ final class ProcessSwitchStatement extends PossibleExpressionConstruct
 
   private void checkCasesDefaultAndReturn(final EK9Parser.SwitchStatementExpressionContext ctx,
                                           final boolean noGuardExpression) {
-    var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
-    //And these are all the if else-if else blocks that have to be checked.
-    List<IScope> allBlocks = getAllBlocks(ctx);
-    //This is the outer scope where it may be possible to mark a variable as meeting criteria
+
+    final var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
+    final var allBlocks = getAllBlocks(ctx);
     final var outerScope = symbolAndScopeManagement.getTopScope();
     final var switchScope = symbolAndScopeManagement.getRecordedScope(ctx);
 
@@ -58,21 +60,21 @@ final class ProcessSwitchStatement extends PossibleExpressionConstruct
    */
   private List<IScope> getAllBlocks(final EK9Parser.SwitchStatementExpressionContext ctx) {
 
-    List<IScope> allBlocks = new ArrayList<>();
+    final List<IScope> allBlocks = new ArrayList<>();
 
     //Which it can be if there is a returning variable as part of the switch. This is the optional 'default'.
     if (ctx.block() != null) {
       allBlocks.add(symbolAndScopeManagement.getRecordedScope(ctx.block().instructionBlock()));
     }
 
-    var allCaseInstructionBlocks =
+    final var allCaseInstructionBlocks =
         ctx.caseStatement().stream()
             .map(ifControl -> ifControl.block().instructionBlock())
             .map(symbolAndScopeManagement::getRecordedScope)
             .toList();
     allBlocks.addAll(allCaseInstructionBlocks);
-    return allBlocks;
 
+    return allBlocks;
   }
 
 }

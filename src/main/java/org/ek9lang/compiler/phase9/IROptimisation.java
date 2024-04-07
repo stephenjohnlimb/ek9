@@ -18,13 +18,17 @@ import org.ek9lang.core.SharedThreadContext;
 public class IROptimisation extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.IR_OPTIMISATION;
 
-  public IROptimisation(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                        Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public IROptimisation(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                        final Consumer<CompilationEvent> listener,
+                        final CompilerReporter reporter) {
+
     super(thisPhase, compilableProgramAccess, listener, reporter);
+
   }
 
   @Override
-  public boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
+  public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
+
     return true;
   }
 }

@@ -15,7 +15,8 @@ public class MatchResult {
   /**
    * Create a new match result of a cost to match for a symbol.
    */
-  public MatchResult(int costOfMatch, ISymbol symbol) {
+  public MatchResult(final int costOfMatch, final ISymbol symbol) {
+
     //So we have the highest value for sorting
     //i.e. if a full match then cost is zero and bestWeight is MAX_VALUE
     //but if no match as all costOfMatch is very high and so best weight is lower.
@@ -24,14 +25,17 @@ public class MatchResult {
   }
 
   public static Comparator<MatchResult> getComparator() {
+
     return Comparator.comparingInt(MatchResult::getBestWeight);
   }
 
   public ISymbol getSymbol() {
+
     return symbol;
   }
 
   public int getBestWeight() {
+
     return bestWeight;
   }
 

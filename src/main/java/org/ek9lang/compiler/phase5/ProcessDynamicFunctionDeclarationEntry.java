@@ -14,15 +14,19 @@ final class ProcessDynamicFunctionDeclarationEntry extends TypedSymbolAccess
     implements Consumer<EK9Parser.DynamicFunctionDeclarationContext> {
   ProcessDynamicFunctionDeclarationEntry(final SymbolAndScopeManagement symbolAndScopeManagement,
                                          final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
-  public void accept(EK9Parser.DynamicFunctionDeclarationContext ctx) {
-    var functionSymbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+  public void accept(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
+
+    final var functionSymbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
     if (functionSymbol.isReturningSymbolPresent()) {
-      var variable = functionSymbol.getReturningSymbol();
+      final var variable = functionSymbol.getReturningSymbol();
       symbolAndScopeManagement.recordSymbolDeclaration(variable, functionSymbol);
     }
+
   }
 }

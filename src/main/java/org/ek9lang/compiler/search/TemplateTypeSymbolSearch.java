@@ -9,8 +9,10 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * So you would need to look that up as a TYPE.
  */
 public final class TemplateTypeSymbolSearch extends SymbolSearch {
-  public TemplateTypeSymbolSearch(String name) {
+  public TemplateTypeSymbolSearch(final String name) {
+
     super(name);
     setSearchType(ISymbol.SymbolCategory.TEMPLATE_TYPE);
+
   }
 }

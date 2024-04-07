@@ -25,7 +25,9 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
 
   ProcessAssignmentStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
                              final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   /**
@@ -36,7 +38,7 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
   public void accept(final EK9Parser.AssignmentStatementContext ctx) {
 
     if (ctx.identifier() != null) {
-      var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx.identifier());
+      final var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx.identifier());
       checkGeneralAssignment(ctx, symbol);
     }
 
@@ -66,7 +68,7 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
    */
   private void checkDeepAssignment(final EK9Parser.AssignmentStatementContext ctx, final ISymbol symbol) {
 
-    var initialised = symbolAndScopeManagement.isVariableInitialised(symbol);
+    final var initialised = symbolAndScopeManagement.isVariableInitialised(symbol);
     if (!initialised) {
       errorListener.semanticError(ctx.start, "'" + symbol.getFriendlyName() + "':", USED_BEFORE_INITIALISED);
     }

@@ -20,12 +20,15 @@ import org.ek9lang.compiler.symbols.ISymbol;
 final class ProcessIfStatement extends TypedSymbolAccess implements Consumer<EK9Parser.IfStatementContext> {
   ProcessIfStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
                      final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.IfStatementContext ctx) {
-    var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
+
+    final var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
 
     if (isGuardExpressionPresent(ctx)) {
       processGuardInitialisation(analyzers, ctx);
@@ -56,11 +59,11 @@ final class ProcessIfStatement extends TypedSymbolAccess implements Consumer<EK9
   private void processGuardInitialisation(final CodeFlowAnalyzer analyzer,
                                           final EK9Parser.IfStatementContext ctx) {
 
-    var variable = symbolAndScopeManagement.getRecordedSymbol(
+    final var variable = symbolAndScopeManagement.getRecordedSymbol(
         ctx.ifControlBlock().get(0).preFlowAndControl().preFlowStatement().guardExpression().identifier());
-    var scope = symbolAndScopeManagement.getRecordedScope(ctx);
+    final var scope = symbolAndScopeManagement.getRecordedScope(ctx);
+    final var initialised = analyzer.doesSymbolMeetAcceptableCriteria(variable, scope);
 
-    boolean initialised = analyzer.doesSymbolMeetAcceptableCriteria(variable, scope);
     if (initialised) {
       final var outerScope = symbolAndScopeManagement.getTopScope();
       analyzer.markSymbolAsMeetingAcceptableCriteria(variable, outerScope);
@@ -69,6 +72,7 @@ final class ProcessIfStatement extends TypedSymbolAccess implements Consumer<EK9
   }
 
   private void processBlocks(final List<CodeFlowAnalyzer> analyzers, final EK9Parser.IfStatementContext ctx) {
+
     if (ctx.elseOnlyBlock() == null) {
       //Then only an 'if' or a set of 'ifs' may/may not have set any of the variable criteria.
       //So we cannot modify the outer scope variables, so we're done
@@ -76,7 +80,7 @@ final class ProcessIfStatement extends TypedSymbolAccess implements Consumer<EK9
     }
 
     //And these are all the if else-if else blocks that have to be checked.
-    List<IScope> allIfElseBlocks = getAllBlocks(ctx);
+    final List<IScope> allIfElseBlocks = getAllBlocks(ctx);
     //This is the outer scope where it may be possible to mark a variable as meeting criteria
     final var outerScope = symbolAndScopeManagement.getTopScope();
 
@@ -86,14 +90,17 @@ final class ProcessIfStatement extends TypedSymbolAccess implements Consumer<EK9
   }
 
   private void pullUpAcceptableCriteriaToHigherScope(final CodeFlowAnalyzer analyzer,
-                                                     List<IScope> allIfElseBlocks,
+                                                     final List<IScope> allIfElseBlocks,
                                                      final IScope outerScope) {
-    var unInitialisedVariables = analyzer.getSymbolsNotMeetingAcceptableCriteria(outerScope);
+
+    final var unInitialisedVariables = analyzer.getSymbolsNotMeetingAcceptableCriteria(outerScope);
+
     for (var variable : unInitialisedVariables) {
       if (isVariableInitialisedInEveryScope(analyzer, variable, allIfElseBlocks)) {
         analyzer.markSymbolAsMeetingAcceptableCriteria(variable, outerScope);
       }
     }
+
   }
 
   private boolean isVariableInitialisedInEveryScope(final CodeFlowAnalyzer analyzer,
@@ -110,15 +117,16 @@ final class ProcessIfStatement extends TypedSymbolAccess implements Consumer<EK9
    */
   private List<IScope> getAllBlocks(final EK9Parser.IfStatementContext ctx) {
 
-    List<IScope> allBlocks = new ArrayList<>();
+    final List<IScope> allBlocks = new ArrayList<>();
     allBlocks.add(symbolAndScopeManagement.getRecordedScope(ctx.elseOnlyBlock().block().instructionBlock()));
 
-    var allIfInstructionBlocks =
+    final var allIfInstructionBlocks =
         ctx.ifControlBlock().stream()
             .map(ifControl -> ifControl.block().instructionBlock())
             .map(symbolAndScopeManagement::getRecordedScope)
             .toList();
     allBlocks.addAll(allIfInstructionBlocks);
+
     return allBlocks;
   }
 

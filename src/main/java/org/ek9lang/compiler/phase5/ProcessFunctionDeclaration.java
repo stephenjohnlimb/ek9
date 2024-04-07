@@ -17,17 +17,20 @@ final class ProcessFunctionDeclaration extends TypedSymbolAccess
 
   ProcessFunctionDeclaration(final SymbolAndScopeManagement symbolAndScopeManagement,
                              final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.processReturningVariable = new ProcessReturningVariable(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.FunctionDeclarationContext ctx) {
-    var function = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+
+    final var function = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
 
     if (!function.isMarkedAbstract() && ctx.operationDetails() != null
         && ctx.operationDetails().returningParam() != null) {
-      var scope = symbolAndScopeManagement.getRecordedScope(ctx);
+      final var scope = symbolAndScopeManagement.getRecordedScope(ctx);
       processReturningVariable.accept(scope, ctx.operationDetails());
     }
 

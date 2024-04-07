@@ -13,14 +13,16 @@ final class ProcessWhileStatement extends PossibleExpressionConstruct
     implements Consumer<EK9Parser.WhileStatementExpressionContext> {
   ProcessWhileStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
                         final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.WhileStatementExpressionContext ctx) {
-    var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
 
-    var possibleGuardVariable = getGuardExpressionVariable(ctx.preFlowStatement());
+    final var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
+    final var possibleGuardVariable = getGuardExpressionVariable(ctx.preFlowStatement());
 
     possibleGuardVariable.ifPresent(guardVariable ->
         analyzers.forEach(analyzer -> processPossibleGuardInitialisation(analyzer, guardVariable, ctx)));
@@ -31,12 +33,13 @@ final class ProcessWhileStatement extends PossibleExpressionConstruct
 
   private void checkLoopBodyAndReturn(final EK9Parser.WhileStatementExpressionContext ctx,
                                       final boolean noGuardExpression) {
-    var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
-    var isDoWhile = ctx.DO() != null;
+
+    final var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
+    final var isDoWhile = ctx.DO() != null;
     final var outerScope = symbolAndScopeManagement.getTopScope();
     final var whileScope = symbolAndScopeManagement.getRecordedScope(ctx);
+    final var loopBodyScope = List.of(symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock()));
 
-    var loopBodyScope = List.of(symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock()));
     analyzers.forEach(analyzer -> pullUpAcceptableCriteriaToHigherScope(analyzer, loopBodyScope, whileScope));
 
     //For a do everything that has been initialised can be pulled up, but not if there is a guard condition
@@ -46,6 +49,7 @@ final class ProcessWhileStatement extends PossibleExpressionConstruct
     }
 
     checkReturningVariableOrError(ctx.returningParam(), whileScope, noGuardExpression);
+
   }
 
 }

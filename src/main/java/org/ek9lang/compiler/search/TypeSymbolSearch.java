@@ -8,12 +8,16 @@ import org.ek9lang.compiler.symbols.ISymbol;
  */
 public final class TypeSymbolSearch extends SymbolSearch {
 
-  public TypeSymbolSearch(String name) {
+  public TypeSymbolSearch(final String name) {
+
     super(name);
     setSearchType(ISymbol.SymbolCategory.TYPE);
+
   }
 
   public TypeSymbolSearch(TypeSymbolSearch from) {
-    super(from);
+
+    this(from.getName());
+
   }
 }

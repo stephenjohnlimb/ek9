@@ -19,27 +19,30 @@ final class ProcessTryStatement extends PossibleExpressionConstruct
 
   ProcessTryStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
                       final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.TryStatementExpressionContext ctx) {
-    var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
-    var possibleGuardVariable = getGuardExpressionVariable(ctx.preFlowStatement());
+
+    final var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
+    final var possibleGuardVariable = getGuardExpressionVariable(ctx.preFlowStatement());
 
     possibleGuardVariable.ifPresent(guardVariable ->
         analyzers.forEach(analyzer -> processPossibleGuardInitialisation(analyzer, guardVariable, ctx)));
 
     checkTryCatchFinallyAndReturn(ctx, possibleGuardVariable.isEmpty());
+
   }
 
   private void checkTryCatchFinallyAndReturn(final EK9Parser.TryStatementExpressionContext ctx,
                                              final boolean noGuardExpression) {
-    var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
 
-    List<IScope> tryCatchBlocks = getTryAndCatchBlocks(ctx);
-    List<IScope> finallyBlock = getFinallyBlock(ctx);
-
+    final var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
+    final var tryCatchBlocks = getTryAndCatchBlocks(ctx);
+    final var finallyBlock = getFinallyBlock(ctx);
     final var outerScope = symbolAndScopeManagement.getTopScope();
     final var tryScope = symbolAndScopeManagement.getRecordedScope(ctx);
 
@@ -63,13 +66,13 @@ final class ProcessTryStatement extends PossibleExpressionConstruct
           symbolAndScopeManagement.getRecordedScope(ctx.finallyStatementExpression().block().instructionBlock())
       );
     }
-    return List.of();
 
+    return List.of();
   }
 
   private List<IScope> getTryAndCatchBlocks(final EK9Parser.TryStatementExpressionContext ctx) {
 
-    List<IScope> tryAndCatchBlocks = new ArrayList<>();
+    final List<IScope> tryAndCatchBlocks = new ArrayList<>();
     //There is always a try instruction block to process
     tryAndCatchBlocks.add(symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock()));
     if (ctx.catchStatementExpression() != null) {
@@ -77,7 +80,7 @@ final class ProcessTryStatement extends PossibleExpressionConstruct
           symbolAndScopeManagement.getRecordedScope(ctx.catchStatementExpression().instructionBlock())
       );
     }
-    return tryAndCatchBlocks;
 
+    return tryAndCatchBlocks;
   }
 }

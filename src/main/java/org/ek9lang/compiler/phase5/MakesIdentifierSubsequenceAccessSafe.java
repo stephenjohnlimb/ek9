@@ -24,10 +24,13 @@ final class MakesIdentifierSubsequenceAccessSafe implements Predicate<EK9Parser.
         && ctx.getParent().getParent().getParent() instanceof EK9Parser.ExpressionContext
         && ctx.getParent().getParent().getParent().getParent()
         instanceof EK9Parser.ExpressionContext possibleIsSetExpression) {
+
       return possibleIsSetExpression.QUESTION() != null;
     } else if (ctx.getParent() instanceof EK9Parser.AssignmentStatementContext assignmentStatement) {
+
       return operationIsAssignment.test(new Ek9Token(assignmentStatement.op));
     }
+
     return (ctx.getParent() instanceof EK9Parser.GuardExpressionContext);
   }
 

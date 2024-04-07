@@ -9,12 +9,16 @@ import org.ek9lang.compiler.symbols.ISymbol;
  */
 public final class FunctionSymbolSearch extends SymbolSearch {
 
-  public FunctionSymbolSearch(String name) {
+  public FunctionSymbolSearch(final String name) {
+
     super(name);
     setSearchType(ISymbol.SymbolCategory.FUNCTION);
+
   }
 
   public FunctionSymbolSearch(FunctionSymbolSearch from) {
-    super(from);
+
+    this(from.getName());
+
   }
 }

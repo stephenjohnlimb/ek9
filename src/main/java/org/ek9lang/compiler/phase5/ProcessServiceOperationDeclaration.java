@@ -16,15 +16,17 @@ final class ProcessServiceOperationDeclaration extends TypedSymbolAccess
 
   ProcessServiceOperationDeclaration(final SymbolAndScopeManagement symbolAndScopeManagement,
                                      final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.processReturningVariable = new ProcessReturningVariable(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.ServiceOperationDeclarationContext ctx) {
 
     if (ctx.operationDetails() != null && ctx.operationDetails().returningParam() != null) {
-      var scope = symbolAndScopeManagement.getRecordedScope(ctx);
+      final var scope = symbolAndScopeManagement.getRecordedScope(ctx);
       processReturningVariable.accept(scope, ctx.operationDetails());
     }
 

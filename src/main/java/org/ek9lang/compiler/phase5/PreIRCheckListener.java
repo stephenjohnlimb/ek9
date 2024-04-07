@@ -27,9 +27,11 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
   private final ProcessDynamicFunctionDeclarationExit processDynamicFunctionDeclarationExit;
   private final ProcessIdentifierAsProperty processIdentifierAsProperty;
 
-  PreIRCheckListener(ParsedModule parsedModule) {
+  PreIRCheckListener(final ParsedModule parsedModule) {
+    
     super(parsedModule);
     final var errorListener = parsedModule.getSource().getErrorListener();
+    
     this.processVariableOnlyDeclaration =
         new ProcessVariableOnlyDeclaration(symbolAndScopeManagement, errorListener);
     this.processAssignmentStatement =
@@ -62,67 +64,88 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
         new ProcessDynamicFunctionDeclarationExit(symbolAndScopeManagement, errorListener);
     this.processIdentifierAsProperty =
         new ProcessIdentifierAsProperty(symbolAndScopeManagement, errorListener);
+    
   }
 
   @Override
-  public void enterVariableOnlyDeclaration(EK9Parser.VariableOnlyDeclarationContext ctx) {
+  public void enterVariableOnlyDeclaration(final EK9Parser.VariableOnlyDeclarationContext ctx) {
+
     processVariableOnlyDeclaration.accept(ctx);
+
     super.enterVariableOnlyDeclaration(ctx);
   }
 
   @Override
-  public void enterAssignmentStatement(EK9Parser.AssignmentStatementContext ctx) {
+  public void enterAssignmentStatement(final EK9Parser.AssignmentStatementContext ctx) {
+
     processAssignmentStatement.accept(ctx);
+
     super.enterAssignmentStatement(ctx);
   }
 
   @Override
-  public void enterGuardExpression(EK9Parser.GuardExpressionContext ctx) {
+  public void enterGuardExpression(final EK9Parser.GuardExpressionContext ctx) {
+
     processGuardExpression.accept(ctx);
+
     super.enterGuardExpression(ctx);
   }
 
   @Override
-  public void enterIdentifier(EK9Parser.IdentifierContext ctx) {
+  public void enterIdentifier(final EK9Parser.IdentifierContext ctx) {
+
     //If may or may not be an aggregate property but this consumer will determine that.
     processIdentifierAsProperty.accept(ctx);
+
     super.enterIdentifier(ctx);
   }
 
   @Override
-  public void exitIdentifierReference(EK9Parser.IdentifierReferenceContext ctx) {
+  public void exitIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
+
     processIdentifierReference.accept(ctx);
+
     super.exitIdentifierReference(ctx);
   }
 
   @Override
-  public void exitIfStatement(EK9Parser.IfStatementContext ctx) {
+  public void exitIfStatement(final EK9Parser.IfStatementContext ctx) {
+
     //Note that exit to pop stack first.
     super.exitIfStatement(ctx);
+
     processIfStatement.accept(ctx);
   }
 
   @Override
-  public void exitSwitchStatementExpression(EK9Parser.SwitchStatementExpressionContext ctx) {
+  public void exitSwitchStatementExpression(final EK9Parser.SwitchStatementExpressionContext ctx) {
+
     super.exitSwitchStatementExpression(ctx);
+
     processSwitchStatement.accept(ctx);
   }
 
   @Override
-  public void exitTryStatementExpression(EK9Parser.TryStatementExpressionContext ctx) {
+  public void exitTryStatementExpression(final EK9Parser.TryStatementExpressionContext ctx) {
+
     super.exitTryStatementExpression(ctx);
+
     processTryStatement.accept(ctx);
   }
 
   @Override
-  public void exitForStatementExpression(EK9Parser.ForStatementExpressionContext ctx) {
+  public void exitForStatementExpression(final EK9Parser.ForStatementExpressionContext ctx) {
+
     super.exitForStatementExpression(ctx);
+
     processForStatement.accept(ctx);
   }
 
   @Override
-  public void exitWhileStatementExpression(EK9Parser.WhileStatementExpressionContext ctx) {
+  public void exitWhileStatementExpression(final EK9Parser.WhileStatementExpressionContext ctx) {
+
     super.exitWhileStatementExpression(ctx);
+
     processWhileStatement.accept(ctx);
   }
 
@@ -134,38 +157,51 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
    * Downside of having dynamic function infer arguments and returns, but worth it for the terseness.
    */
   @Override
-  public void enterDynamicFunctionDeclaration(EK9Parser.DynamicFunctionDeclarationContext ctx) {
+  public void enterDynamicFunctionDeclaration(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
+
     processDynamicFunctionDeclarationEntry.accept(ctx);
+
     super.enterDynamicFunctionDeclaration(ctx);
   }
 
   @Override
-  public void exitDynamicFunctionDeclaration(EK9Parser.DynamicFunctionDeclarationContext ctx) {
+  public void exitDynamicFunctionDeclaration(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
+
     processDynamicFunctionDeclarationExit.accept(ctx);
+
     super.exitDynamicFunctionDeclaration(ctx);
   }
 
   @Override
-  public void exitFunctionDeclaration(EK9Parser.FunctionDeclarationContext ctx) {
+  public void exitFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
+
     processFunctionDeclaration.accept(ctx);
+
     super.exitFunctionDeclaration(ctx);
   }
 
   @Override
-  public void exitMethodDeclaration(EK9Parser.MethodDeclarationContext ctx) {
+  public void exitMethodDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
+
     processMethodDeclaration.accept(ctx);
+
     super.exitMethodDeclaration(ctx);
   }
 
   @Override
-  public void exitOperatorDeclaration(EK9Parser.OperatorDeclarationContext ctx) {
+  public void exitOperatorDeclaration(final EK9Parser.OperatorDeclarationContext ctx) {
+
     processOperatorDeclaration.accept(ctx);
+
     super.exitOperatorDeclaration(ctx);
   }
 
   @Override
-  public void exitServiceOperationDeclaration(EK9Parser.ServiceOperationDeclarationContext ctx) {
+  public void exitServiceOperationDeclaration(final EK9Parser.ServiceOperationDeclarationContext ctx) {
+
     processServiceOperationDeclaration.accept(ctx);
+
     super.exitServiceOperationDeclaration(ctx);
   }
+
 }

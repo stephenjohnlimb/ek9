@@ -24,13 +24,16 @@ public class PluginResolution extends CompilerPhase {
   /**
    * Create new instance to resolve plugins for extern packages.
    */
-  public PluginResolution(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                          Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public PluginResolution(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                          final Consumer<CompilationEvent> listener,
+                          final CompilerReporter reporter) {
+
     super(thisPhase, compilableProgramAccess, listener, reporter);
+
   }
 
   @Override
-  public boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
+  public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
 
     return true;
   }

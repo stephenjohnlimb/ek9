@@ -25,24 +25,29 @@ public class PreIntermediateRepresentationChecks extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.PRE_IR_CHECKS;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
 
-  public PreIntermediateRepresentationChecks(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                             Consumer<CompilationEvent> listener,
-                                             CompilerReporter reporter) {
+  public PreIntermediateRepresentationChecks(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                                             final Consumer<CompilationEvent> listener,
+                                             final CompilerReporter reporter) {
+
     super(thisPhase, compilableProgramAccess, listener, reporter);
+
   }
 
   @Override
-  protected boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
+  protected boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
+
     workspace.getSources()
         .parallelStream()
         .forEach(this::resolveOrDefineTypeSymbols);
+
     return !sourceHaveErrors.test(workspace.getSources());
   }
 
-  private void resolveOrDefineTypeSymbols(CompilableSource source) {
+  private void resolveOrDefineTypeSymbols(final CompilableSource source) {
+
     //First get the parsed module for this source file.
     //This has to be done via a mutable holder through a reentrant lock to the program
-    var holder = new AtomicReference<ParsedModule>();
+    final var holder = new AtomicReference<ParsedModule>();
     compilableProgramAccess.accept(
         program -> holder.set(program.getParsedModuleForCompilableSource(source))
     );
@@ -50,10 +55,10 @@ public class PreIntermediateRepresentationChecks extends CompilerPhase {
     if (holder.get() == null) {
       throw new CompilerException("Compiler error, the parsed module must be present for " + source.getFileName());
     } else {
-      var parsedModule = holder.get();
-      PreIRCheckListener phaseListener =
-          new PreIRCheckListener(parsedModule);
-      ParseTreeWalker walker = new ParseTreeWalker();
+      final var parsedModule = holder.get();
+      final var phaseListener = new PreIRCheckListener(parsedModule);
+      final var walker = new ParseTreeWalker();
+
       walker.walk(phaseListener, source.getCompilationUnitContext());
       listener.accept(new CompilationEvent(thisPhase, parsedModule, source));
     }

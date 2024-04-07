@@ -66,67 +66,83 @@ public class SymbolSearch {
    * Clone from Symbol search into a new instance.
    */
   @SuppressWarnings("CopyConstructorMissesField")
-  public SymbolSearch(SymbolSearch from) {
+  public SymbolSearch(final SymbolSearch from) {
+
     AssertValue.checkNotNull("from cannot be null for search Symbol", from);
     this.name = from.name;
     from.cloneIntoSearchSymbol(this);
+
   }
 
   /**
    * Use a symbol to populate the search.
    */
   public SymbolSearch(final ISymbol exampleSymbolToMatch) {
+
     AssertValue.checkNotNull("exampleSymbolToMatch cannot be null for search Symbol", exampleSymbolToMatch);
     this.name = exampleSymbolToMatch.getFullyQualifiedName();
     this.searchType = exampleSymbolToMatch.getCategory();
     this.exampleSymbolToMatch = exampleSymbolToMatch;
+
   }
 
   /**
    * Create a new search from an existing search with a new search name.
    */
-  public SymbolSearch(String newName, SymbolSearch from) {
+  public SymbolSearch(final String newName, final SymbolSearch from) {
+
     AssertValue.checkNotNull("from cannot be null for search Symbol", from);
     AssertValue.checkNotNull("newName cannot be null for search Symbol", newName);
     this.name = newName;
     from.cloneIntoSearchSymbol(this);
+
   }
 
-  public SymbolSearch(String name) {
+  public SymbolSearch(final String name) {
+
     AssertValue.checkNotEmpty("name cannot be null for search Symbol", name);
     this.name = name;
+
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  protected SymbolSearch(String name, Optional<ISymbol> ofTypeOrReturn) {
+  protected SymbolSearch(final String name, final Optional<ISymbol> ofTypeOrReturn) {
+
     this(name);
     AssertValue.checkNotEmpty("Type Or Return Type cannot be empty", ofTypeOrReturn);
     this.ofTypeOrReturn = ofTypeOrReturn;
+
   }
 
-  protected SymbolSearch(String name, ISymbol ofTypeOrReturn) {
+  protected SymbolSearch(final String name, final ISymbol ofTypeOrReturn) {
+
     this(name);
     AssertValue.checkNotNull("ofTypeOrReturn cannot be null for search Symbol", ofTypeOrReturn);
     this.ofTypeOrReturn = Optional.of(ofTypeOrReturn);
+
   }
 
-  protected void cloneIntoSearchSymbol(SymbolSearch symbolSearch) {
+  protected void cloneIntoSearchSymbol(final SymbolSearch symbolSearch) {
+
     symbolSearch.setOfTypeOrReturn(ofTypeOrReturn)
         .setTypeParameters(typeParameters)
         .setLimitToBlocks(limitToBlocks)
         .setSearchType(searchType)
         .setExampleSymbolToMatch(exampleSymbolToMatch)
         .setVetoSearchTypes(vetoSearchTypes);
+
   }
 
   /**
    * Uses the search type and any vetos to see if the category passed in is a match on the search.
    */
   public boolean isCategoryAcceptable(final ISymbol.SymbolCategory category) {
+
     //If a single allowed search type must match
     if (searchType != null) {
       return searchType == category;
     }
+
     //Else could be one of the valid searches.
     return getValidSearchTypes().contains(category);
   }
@@ -135,9 +151,11 @@ public class SymbolSearch {
    * Is this sort of type search, TYPE, FUNCTION or TEMPLATE versions of those.
    */
   public boolean isAnyValidTypeSearch() {
+
     if (searchType == null) {
       return justTypes.equals(getValidSearchTypes());
     }
+
     return justTypes.contains(searchType);
   }
 
@@ -145,39 +163,50 @@ public class SymbolSearch {
    * Provide a list of valid search types if multiple supported.
    */
   public List<ISymbol.SymbolCategory> getValidSearchTypes() {
+
     if (searchType != null) {
       return List.of(searchType);
     }
+
     return Arrays.stream(ISymbol.SymbolCategory.values())
         .filter(category -> !vetoSearchTypes.contains(category))
         .toList();
   }
 
   @SuppressWarnings("UnusedReturnValue")
-  public SymbolSearch setVetoSearchTypes(List<ISymbol.SymbolCategory> vetoSearchTypes) {
+  public SymbolSearch setVetoSearchTypes(final List<ISymbol.SymbolCategory> vetoSearchTypes) {
+
     this.vetoSearchTypes = vetoSearchTypes;
+
     return this;
   }
 
   public boolean isLimitToBlocks() {
+
     return limitToBlocks;
   }
 
-  public SymbolSearch setLimitToBlocks(boolean limitToBlocks) {
+  public SymbolSearch setLimitToBlocks(final boolean limitToBlocks) {
+
     this.limitToBlocks = limitToBlocks;
+
     return this;
   }
 
-  public SymbolSearch setExampleSymbolToMatch(ISymbol exampleSymbolToMatch) {
+  public SymbolSearch setExampleSymbolToMatch(final ISymbol exampleSymbolToMatch) {
+
     this.exampleSymbolToMatch = exampleSymbolToMatch;
+
     return this;
   }
 
   public Optional<ISymbol> getOfTypeOrReturn() {
+
     return ofTypeOrReturn;
   }
 
-  public SymbolSearch setOfTypeOrReturn(ISymbol ofTypeOrReturn) {
+  public SymbolSearch setOfTypeOrReturn(final ISymbol ofTypeOrReturn) {
+
     return setOfTypeOrReturn(Optional.ofNullable(ofTypeOrReturn));
   }
 
@@ -185,9 +214,11 @@ public class SymbolSearch {
    * What type of symbol is being searched for or its return type.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public SymbolSearch setOfTypeOrReturn(Optional<ISymbol> ofTypeOrReturn) {
+  public SymbolSearch setOfTypeOrReturn(final Optional<ISymbol> ofTypeOrReturn) {
+
     AssertValue.checkNotNull("ofTypeOrReturn cannot be null for search Symbol", ofTypeOrReturn);
     this.ofTypeOrReturn = ofTypeOrReturn;
+
     return this;
   }
 
@@ -195,15 +226,18 @@ public class SymbolSearch {
    * Get the parameters being used in this search.
    */
   public List<ISymbol> getTypeParameters() {
+
     return typeParameters;
   }
 
   /**
    * Set any parameters that might be needed as part of this search.
    */
-  public SymbolSearch setTypeParameters(List<ISymbol> typeParameters) {
+  public SymbolSearch setTypeParameters(final List<ISymbol> typeParameters) {
+
     AssertValue.checkNotNull("parameters cannot be null for search Symbol", typeParameters);
     typeParameters.forEach(this::addTypeParameter);
+
     return this;
   }
 
@@ -212,9 +246,11 @@ public class SymbolSearch {
    * This is the 'type' symbol - i.e. Integer or whatever.
    * It is not a variable that 'has' a type.
    */
-  public SymbolSearch addTypeParameter(ISymbol parameter) {
+  public SymbolSearch addTypeParameter(final ISymbol parameter) {
+
     AssertValue.checkNotNull("parameter cannot be null for search Symbol", parameter);
     this.typeParameters.add(parameter);
+
     return this;
   }
 
@@ -222,19 +258,24 @@ public class SymbolSearch {
    * Add a type parameter to the search.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public SymbolSearch addTypeParameter(Optional<ISymbol> parameter) {
+  public SymbolSearch addTypeParameter(final Optional<ISymbol> parameter) {
+
     AssertValue.checkNotNull("parameter cannot be null for search Symbol", parameter);
     AssertValue.checkTrue("parameter cannot be empty for search Symbol", parameter.isPresent());
     this.typeParameters.add(parameter.get());
+
     return this;
   }
 
   public ISymbol.SymbolCategory getSearchType() {
+
     return searchType;
   }
 
-  public SymbolSearch setSearchType(ISymbol.SymbolCategory searchType) {
+  public SymbolSearch setSearchType(final ISymbol.SymbolCategory searchType) {
+
     this.searchType = searchType;
+
     return this;
   }
 
@@ -248,7 +289,7 @@ public class SymbolSearch {
     }
 
     final var newSymbolModuleName = ISymbol.getModuleNameIfPresent(name);
-    final String newSymbolName = ISymbol.getUnqualifiedName(name);
+    final var newSymbolName = ISymbol.getUnqualifiedName(name);
 
     //Make a new symbol (synthetic) and ensure it has the correct module name.
     //Also ensure it has a valid unqualified name in that scope.
@@ -269,13 +310,15 @@ public class SymbolSearch {
   }
 
   public String getName() {
+
     return name;
   }
 
   @Override
   public String toString() {
-    var toCommaSeparated = new ToCommaSeparated(true);
-    StringBuilder buffer = new StringBuilder();
+
+    final var toCommaSeparated = new ToCommaSeparated(true);
+    final var buffer = new StringBuilder();
 
     getOfTypeOrReturn().ifPresent(returnType -> buffer.append(returnType.getName()).append(" <- "));
     buffer.append(getName());

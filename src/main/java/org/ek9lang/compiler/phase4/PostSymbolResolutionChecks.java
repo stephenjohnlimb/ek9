@@ -33,24 +33,27 @@ public class PostSymbolResolutionChecks extends CompilerPhase {
   /**
    * Create new instance to check everything is logical and cohesive.
    */
-  public PostSymbolResolutionChecks(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                                    Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public PostSymbolResolutionChecks(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                                    final Consumer<CompilationEvent> listener,
+                                    final CompilerReporter reporter) {
+
     super(thisPhase, compilableProgramAccess, listener, reporter);
+
   }
 
   @Override
-  public boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
+  public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
 
     checkParameterisedTypes();
-    return !sourceHaveErrors.test(workspace.getSources());
 
+    return !sourceHaveErrors.test(workspace.getSources());
   }
 
   private void checkParameterisedTypes() {
 
     compilableProgramAccess.accept(program -> {
       for (var moduleName : program.getParsedModuleNames()) {
-        var parsedModules = program.getParsedModules(moduleName);
+        final var parsedModules = program.getParsedModules(moduleName);
 
         for (var parsedModule : parsedModules) {
           checkParameterisedTypesInModule(parsedModule);
@@ -62,10 +65,11 @@ public class PostSymbolResolutionChecks extends CompilerPhase {
   }
 
   private void checkParameterisedTypesInModule(final ParsedModule parsedModule) {
+
     final var errorListener = parsedModule.getSource().getErrorListener();
     final ParameterisedTypeChecker parameterisedTypeChecker = new ParameterisedTypeChecker(errorListener);
-
     final var scope = parsedModule.getModuleScope();
+
     scope.getSymbolsForThisScope().stream()
         .filter(ISymbol::isParameterisedType)
         .map(PossibleGenericSymbol.class::cast)

@@ -17,19 +17,22 @@ public class MatchResults {
   private final int maxResults;
   private final PriorityQueue<MatchResult> actualQueue;
 
-  public MatchResults(int maxResults) {
+  public MatchResults(final int maxResults) {
+
     this.maxResults = maxResults;
-    actualQueue = new PriorityQueue<>(maxResults, MatchResult.getComparator());
+    this.actualQueue = new PriorityQueue<>(maxResults, MatchResult.getComparator());
   }
 
   /**
    * Add a new match result to the set of match results. Subject to the max allowed.
    */
-  public MatchResults add(MatchResult result) {
+  public MatchResults add(final MatchResult result) {
+
     actualQueue.add(result);
     if (actualQueue.size() > maxResults) {
       actualQueue.remove();
     }
+
     return this;
   }
 
@@ -39,12 +42,15 @@ public class MatchResults {
    * @return The list of match results in priority order.
    */
   public List<MatchResult> list() {
-    List<MatchResult> rtn = new ArrayList<>(size());
-    var copyQueue = new PriorityQueue<>(actualQueue);
+
+    final List<MatchResult> rtn = new ArrayList<>(size());
+    final var copyQueue = new PriorityQueue<>(actualQueue);
+
     while (!copyQueue.isEmpty()) {
       rtn.add(copyQueue.poll());
     }
     Collections.reverse(rtn);
+
     return rtn;
   }
 
@@ -54,15 +60,18 @@ public class MatchResults {
    * @return The iterator.
    */
   public Iterator<MatchResult> iterator() {
+
     return list().iterator();
   }
 
   public int size() {
+
     return actualQueue.size();
   }
 
   @Override
   public String toString() {
+
     return list().stream().map(result -> "'" + result + "'").collect(Collectors.joining(", "));
   }
 }

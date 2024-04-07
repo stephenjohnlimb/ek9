@@ -16,13 +16,15 @@ final class ProcessGuardExpression extends TypedSymbolAccess implements Consumer
 
   ProcessGuardExpression(final SymbolAndScopeManagement symbolAndScopeManagement,
                          final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.GuardExpressionContext ctx) {
 
-    var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx.identifier());
+    final var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx.identifier());
     if (uninitialisedVariableToBeChecked.test(symbol)) {
       symbolAndScopeManagement.recordSymbolAssignment(symbol);
     }

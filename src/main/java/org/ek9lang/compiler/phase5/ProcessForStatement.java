@@ -19,8 +19,8 @@ final class ProcessForStatement extends PossibleExpressionConstruct
   @Override
   public void accept(final EK9Parser.ForStatementExpressionContext ctx) {
 
-    var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
-    var possibleGuardVariable = getGuardExpressionVariable(getPreFlowStatement(ctx));
+    final var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
+    final var possibleGuardVariable = getGuardExpressionVariable(getPreFlowStatement(ctx));
 
     possibleGuardVariable.ifPresent(guardVariable ->
         analyzers.forEach(analyzer -> processPossibleGuardInitialisation(analyzer, guardVariable, ctx)));
@@ -31,12 +31,12 @@ final class ProcessForStatement extends PossibleExpressionConstruct
 
   private void checkLoopBodyAndReturn(final EK9Parser.ForStatementExpressionContext ctx,
                                       final boolean noGuardExpression) {
-    var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
 
+    final var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
     final var forScope = symbolAndScopeManagement.getRecordedScope(ctx);
-
     //Note that none of the body alters the outer loop, only the possible guard expression does that.
-    var loopBodyScope = List.of(symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock()));
+    final var loopBodyScope = List.of(symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock()));
+
     analyzers.forEach(analyzer -> pullUpAcceptableCriteriaToHigherScope(analyzer, loopBodyScope, forScope));
 
     checkReturningVariableOrError(ctx.returningParam(), forScope, noGuardExpression);
@@ -44,14 +44,17 @@ final class ProcessForStatement extends PossibleExpressionConstruct
   }
 
   private EK9Parser.PreFlowStatementContext getPreFlowStatement(final EK9Parser.ForStatementExpressionContext ctx) {
+
     if (ctx.forLoop() != null
         && ctx.forLoop().preFlowStatement() != null) {
       return ctx.forLoop().preFlowStatement();
     }
+
     if (ctx.forRange() != null
         && ctx.forRange().preFlowStatement() != null) {
       return ctx.forRange().preFlowStatement();
     }
+
     return null;
   }
 }

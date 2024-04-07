@@ -14,19 +14,22 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  */
 public final class MethodSymbolSearch extends SymbolSearch {
 
-  public MethodSymbolSearch(SymbolSearch from) {
+  public MethodSymbolSearch(final SymbolSearch from) {
+
     this(from.getName(), from);
   }
 
   /**
    * Create a method search from an existing search, but with a new name.
    */
-  public MethodSymbolSearch(String newName, SymbolSearch from) {
+  public MethodSymbolSearch(final String newName, final SymbolSearch from) {
+
     this(newName);
     setTypeParameters(from.getTypeParameters());
     if (from.getOfTypeOrReturn().isPresent()) {
       this.setOfTypeOrReturn(from.getOfTypeOrReturn());
     }
+
   }
 
   /**
@@ -35,12 +38,10 @@ public final class MethodSymbolSearch extends SymbolSearch {
    * This is very useful for finding overridden methods where the returning type is different
    * but compatible.
    */
-  public MethodSymbolSearch(MethodSymbol methodSymbol) {
-    this(methodSymbol.getName());
-    var theTypes = new SymbolTypeExtractor().apply(methodSymbol.getSymbolsForThisScope());
-    this.setTypeParameters(theTypes);
+  public MethodSymbolSearch(final MethodSymbol methodSymbol) {
 
-    //don't set the return type leave that open, so we can handle covariance.
+    this(methodSymbol.getName(), methodSymbol);
+
   }
 
   /**
@@ -49,57 +50,74 @@ public final class MethodSymbolSearch extends SymbolSearch {
    * This is very useful for finding overridden methods where the returning type is different
    * but compatible.
    */
-  public MethodSymbolSearch(String newName, MethodSymbol methodSymbol) {
+  public MethodSymbolSearch(final String newName, final MethodSymbol methodSymbol) {
+
     this(newName);
-    var theTypes = new SymbolTypeExtractor().apply(methodSymbol.getSymbolsForThisScope());
+    final var theTypes = new SymbolTypeExtractor().apply(methodSymbol.getSymbolsForThisScope());
     this.setTypeParameters(theTypes);
 
     //don't set the return type leave that open, so we can handle covariance.
   }
 
-  public MethodSymbolSearch(String name) {
+  public MethodSymbolSearch(final String name) {
+
     super(name);
     setSearchType(ISymbol.SymbolCategory.METHOD);
+
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public MethodSymbolSearch(String name, Optional<ISymbol> ofTypeOrReturn) {
+  public MethodSymbolSearch(final String name, final Optional<ISymbol> ofTypeOrReturn) {
+
     super(name, ofTypeOrReturn);
     setSearchType(ISymbol.SymbolCategory.METHOD);
+
   }
 
-  public MethodSymbolSearch(String name, ISymbol ofTypeOrReturn) {
+  public MethodSymbolSearch(final String name, final ISymbol ofTypeOrReturn) {
+
     super(name, ofTypeOrReturn);
     setSearchType(ISymbol.SymbolCategory.METHOD);
+
   }
 
   @Override
-  public MethodSymbolSearch setTypeParameters(List<ISymbol> typeParameters) {
+  public MethodSymbolSearch setTypeParameters(final List<ISymbol> typeParameters) {
+
     super.setTypeParameters(typeParameters);
+
     return this;
   }
 
   @Override
-  public MethodSymbolSearch addTypeParameter(Optional<ISymbol> parameter) {
+  public MethodSymbolSearch addTypeParameter(final Optional<ISymbol> parameter) {
+
     super.addTypeParameter(parameter);
+
     return this;
   }
 
   @Override
-  public MethodSymbolSearch addTypeParameter(ISymbol parameter) {
+  public MethodSymbolSearch addTypeParameter(final ISymbol parameter) {
+
     super.addTypeParameter(parameter);
+
     return this;
   }
 
   @Override
-  public MethodSymbolSearch setOfTypeOrReturn(Optional<ISymbol> ofTypeOrReturn) {
+  public MethodSymbolSearch setOfTypeOrReturn(final Optional<ISymbol> ofTypeOrReturn) {
+
     super.setOfTypeOrReturn(ofTypeOrReturn);
+
     return this;
   }
 
   @Override
-  public MethodSymbolSearch setOfTypeOrReturn(ISymbol ofTypeOrReturn) {
+  public MethodSymbolSearch setOfTypeOrReturn(final ISymbol ofTypeOrReturn) {
+
     super.setOfTypeOrReturn(ofTypeOrReturn);
+
     return this;
   }
 }

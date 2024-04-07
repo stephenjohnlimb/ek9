@@ -17,17 +17,20 @@ final class ProcessMethodDeclaration extends TypedSymbolAccess
 
   ProcessMethodDeclaration(final SymbolAndScopeManagement symbolAndScopeManagement,
                            final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
     this.processReturningVariable = new ProcessReturningVariable(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.MethodDeclarationContext ctx) {
-    var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+
+    final var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
     //Note that the method declaration is also used for programs which are aggregates.
     if (symbol instanceof MethodSymbol method && !method.isMarkedAbstract() && ctx.operationDetails() != null
         && ctx.operationDetails().returningParam() != null) {
-      var scope = symbolAndScopeManagement.getRecordedScope(ctx);
+      final var scope = symbolAndScopeManagement.getRecordedScope(ctx);
       processReturningVariable.accept(scope, ctx.operationDetails());
     }
 

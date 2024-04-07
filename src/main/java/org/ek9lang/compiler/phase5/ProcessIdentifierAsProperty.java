@@ -20,29 +20,35 @@ public class ProcessIdentifierAsProperty extends TypedSymbolAccess implements Co
   private final MakesIdentifierSubsequenceAccessSafe makesIdentifierSubsequenceAccessSafe
       = new MakesIdentifierSubsequenceAccessSafe();
 
-  protected ProcessIdentifierAsProperty(
-      SymbolAndScopeManagement symbolAndScopeManagement,
-      ErrorListener errorListener) {
+  protected ProcessIdentifierAsProperty(final SymbolAndScopeManagement symbolAndScopeManagement,
+                                        final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.IdentifierContext ctx) {
-    var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+
+    final var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
     if (symbol != null && symbol.isPropertyField()) {
       processSymbol(ctx, symbol);
     }
+
   }
 
   private void processSymbol(final EK9Parser.IdentifierContext ctx, final ISymbol symbol) {
-    var scope = symbolAndScopeManagement.getTopScope();
-    var accessSafe = makesIdentifierSubsequenceAccessSafe.test(ctx);
+
+    final var scope = symbolAndScopeManagement.getTopScope();
+    final var accessSafe = makesIdentifierSubsequenceAccessSafe.test(ctx);
+
     if (accessSafe) {
       //See if this sort of access would be safe and if so mark it as such
       symbolAndScopeManagement.markSymbolAccessSafe(symbol, scope);
     } else if (!symbolAndScopeManagement.isSymbolAccessSafe(symbol, scope)) {
       emitError(ctx, symbol);
     }
+    
   }
 
   private void emitError(final EK9Parser.IdentifierContext ctx, final ISymbol symbol) {

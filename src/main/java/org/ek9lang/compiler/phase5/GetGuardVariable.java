@@ -13,18 +13,22 @@ import org.ek9lang.compiler.symbols.ISymbol;
  */
 final class GetGuardVariable extends TypedSymbolAccess
     implements Function<EK9Parser.PreFlowStatementContext, Optional<ISymbol>> {
-  GetGuardVariable(SymbolAndScopeManagement symbolAndScopeManagement,
-                   ErrorListener errorListener) {
+
+  GetGuardVariable(final SymbolAndScopeManagement symbolAndScopeManagement,
+                   final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
-  public Optional<ISymbol> apply(EK9Parser.PreFlowStatementContext ctx) {
-    if (ctx != null
-        && ctx.guardExpression() != null) {
+  public Optional<ISymbol> apply(final EK9Parser.PreFlowStatementContext ctx) {
+
+    if (ctx != null && ctx.guardExpression() != null) {
       return Optional.ofNullable(
           symbolAndScopeManagement.getRecordedSymbol(ctx.guardExpression().identifier()));
     }
+
     return Optional.empty();
   }
 }

@@ -14,27 +14,31 @@ final class ProcessReturningVariable extends TypedSymbolAccess
     implements BiConsumer<IScope, EK9Parser.OperationDetailsContext> {
   ProcessReturningVariable(final SymbolAndScopeManagement symbolAndScopeManagement,
                            final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final IScope mainScope, final EK9Parser.OperationDetailsContext ctx) {
 
-    var returningVariables = symbolAndScopeManagement.getUninitialisedVariables(mainScope).stream()
+    final var returningVariables = symbolAndScopeManagement.getUninitialisedVariables(mainScope).stream()
         .filter(ISymbol::isReturningParameter).toList();
+
     returningVariables.forEach(variable -> {
       if (ctx.instructionBlock() != null) {
         updateReturningSymbol(ctx, variable, mainScope);
       }
       checkInitialisedOrError(ctx.returningParam(), variable, mainScope);
     });
+
   }
 
   private void updateReturningSymbol(final EK9Parser.OperationDetailsContext ctx,
                                      final ISymbol variable,
                                      final IScope scope) {
 
-    var instructionsScope = symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock());
+    final var instructionsScope = symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock());
     //So now we're at the end of the instruction processing lets see if the return variable was set by the end.
     //Remember only exceptions can cause early return and then the return value is not used.
     if (symbolAndScopeManagement.isVariableInitialised(variable, instructionsScope)) {

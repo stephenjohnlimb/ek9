@@ -10,12 +10,16 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * So you would need to look that up as a FUNCTION.
  */
 public final class TemplateFunctionSymbolSearch extends SymbolSearch {
-  public TemplateFunctionSymbolSearch(String name) {
+  public TemplateFunctionSymbolSearch(final String name) {
+
     super(name);
     setSearchType(ISymbol.SymbolCategory.TEMPLATE_FUNCTION);
+
   }
 
-  public TemplateFunctionSymbolSearch(TemplateFunctionSymbolSearch from) {
-    super(from);
+  public TemplateFunctionSymbolSearch(final TemplateFunctionSymbolSearch from) {
+
+    this(from.getName());
+
   }
 }

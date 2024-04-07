@@ -24,14 +24,17 @@ import org.ek9lang.core.SharedThreadContext;
 public class IRGeneration extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.SIMPLE_IR_GENERATION;
 
-  public IRGeneration(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                      Consumer<CompilationEvent> listener,
-                      CompilerReporter reporter) {
+  public IRGeneration(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                      final Consumer<CompilationEvent> listener,
+                      final CompilerReporter reporter) {
+
     super(thisPhase, compilableProgramAccess, listener, reporter);
+
   }
 
   @Override
-  public boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
+  public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
+
     return true;
   }
 }

@@ -12,12 +12,14 @@ public final class AnyTypeSymbolSearch extends SymbolSearch {
   /**
    * Constructor for any 'type' search.
    */
-  public AnyTypeSymbolSearch(String name) {
+  public AnyTypeSymbolSearch(final String name) {
+
     super(name);
     setSearchType(null);
     setVetoSearchTypes(List.of(
         ISymbol.SymbolCategory.METHOD,
         ISymbol.SymbolCategory.VARIABLE,
         ISymbol.SymbolCategory.CONTROL));
+
   }
 }

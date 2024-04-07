@@ -25,6 +25,7 @@ abstract class PossibleExpressionConstruct extends TypedSymbolAccess {
 
     super(symbolAndScopeManagement, errorListener);
     this.getGuardVariable = new GetGuardVariable(symbolAndScopeManagement, errorListener);
+
   }
 
   protected boolean isVariableInitialisedInScopes(final CodeFlowAnalyzer analyzer,
@@ -39,9 +40,11 @@ abstract class PossibleExpressionConstruct extends TypedSymbolAccess {
   }
 
   protected Optional<ISymbol> getGuardExpressionVariable(final EK9Parser.PreFlowStatementContext ctx) {
+
     if (ctx != null) {
       return getGuardVariable.apply(ctx);
     }
+
     return Optional.empty();
   }
 
@@ -50,6 +53,7 @@ abstract class PossibleExpressionConstruct extends TypedSymbolAccess {
     if (ctx != null) {
       return getGuardExpressionVariable(ctx.preFlowStatement());
     }
+
     return Optional.empty();
 
   }
@@ -61,9 +65,9 @@ abstract class PossibleExpressionConstruct extends TypedSymbolAccess {
                                                     final ISymbol guardVariable,
                                                     final ParserRuleContext ctx) {
 
-    var scope = symbolAndScopeManagement.getRecordedScope(ctx);
+    final var scope = symbolAndScopeManagement.getRecordedScope(ctx);
+    final var initialised = analyzer.doesSymbolMeetAcceptableCriteria(guardVariable, scope);
 
-    boolean initialised = analyzer.doesSymbolMeetAcceptableCriteria(guardVariable, scope);
     if (initialised) {
       final var outerScope = symbolAndScopeManagement.getTopScope();
       analyzer.markSymbolAsMeetingAcceptableCriteria(guardVariable, outerScope);
@@ -72,10 +76,10 @@ abstract class PossibleExpressionConstruct extends TypedSymbolAccess {
   }
 
   protected void pullUpAcceptableCriteriaToHigherScope(final CodeFlowAnalyzer analyzer,
-                                                       List<IScope> allAppropriateBlocks,
+                                                       final List<IScope> allAppropriateBlocks,
                                                        final IScope outerScope) {
 
-    var unInitialisedVariables = analyzer.getSymbolsNotMeetingAcceptableCriteria(outerScope);
+    final var unInitialisedVariables = analyzer.getSymbolsNotMeetingAcceptableCriteria(outerScope);
     for (var variable : unInitialisedVariables) {
       if (isVariableInitialisedInScopes(analyzer, variable, allAppropriateBlocks)) {
         analyzer.markSymbolAsMeetingAcceptableCriteria(variable, outerScope);
@@ -85,25 +89,29 @@ abstract class PossibleExpressionConstruct extends TypedSymbolAccess {
   }
 
   protected void checkReturningVariableOrError(final EK9Parser.ReturningParamContext ctx,
-                                               final IScope switchScope, boolean noGuardExpression) {
+                                               final IScope switchScope,
+                                               final boolean noGuardExpression) {
 
-    Consumer<ISymbol> errorIssuer = variable -> errorListener.semanticError(ctx.LEFT_ARROW().getSymbol(),
+    final Consumer<ISymbol> errorIssuer = variable -> errorListener.semanticError(ctx.LEFT_ARROW().getSymbol(),
         "'" + variable.getName() + "':", RETURN_NOT_ALWAYS_INITIALISED);
 
     if (ctx != null) {
       //Note that the returning variable is registered against the switch scope.
-      var returningVariable = symbolAndScopeManagement.getRecordedSymbol(ctx);
+      final var returningVariable = symbolAndScopeManagement.getRecordedSymbol(ctx);
       if (!symbolAndScopeManagement.isVariableInitialised(returningVariable, switchScope)) {
         errorIssuer.accept(returningVariable);
       }
+
       if (noGuardExpression) {
         return;
       }
+
       //But if there is a guard and the return variable has not been initialised then we issue error
       //As the guard may cause the whole expression not to run and only the return value will be used as is.
       if (ctx.variableOnlyDeclaration() != null && ctx.variableOnlyDeclaration().QUESTION() != null) {
         errorIssuer.accept(returningVariable);
       }
+
     }
 
   }

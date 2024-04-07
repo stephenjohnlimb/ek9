@@ -35,13 +35,13 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
 
     possibleGenericSymbol.getGenericType().ifPresent(genericType -> {
 
-      var parameterizingArguments = possibleGenericSymbol.getTypeParameterOrArguments();
-      var genericTypeParameters = genericType.getTypeParameterOrArguments();
+      final var parameterizingArguments = possibleGenericSymbol.getTypeParameterOrArguments();
+      final var genericTypeParameters = genericType.getTypeParameterOrArguments();
 
       //Now tie up the generic T and its corresponding argument type.
       for (int i = 0; i < genericTypeParameters.size(); i++) {
-        var typeParameterT = genericTypeParameters.get(i);
-        var typeArgumentForT = parameterizingArguments.get(i);
+        final var typeParameterT = genericTypeParameters.get(i);
+        final var typeArgumentForT = parameterizingArguments.get(i);
         if (typeParameterT instanceof IAggregateSymbol aggregateT) {
           checkParameterAndArgument(new TypeTuple(possibleGenericSymbol, genericType, typeArgumentForT), aggregateT);
         }
@@ -82,7 +82,7 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
     if (typeTuple.typeArgumentForT instanceof IAggregateSymbol aggregateArgType) {
 
       final var methodSearch = createSearch(method, aggregateT, typeTuple.typeArgumentForT);
-      var resolved = aggregateArgType.resolveInThisScopeOnly(methodSearch);
+      final var resolved = aggregateArgType.resolveInThisScopeOnly(methodSearch);
       checkMethodResolutionOrError(typeTuple, methodSearch, resolved, method);
 
     } else {
@@ -92,8 +92,8 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
 
   private void checkFunctionUseOrError(final TypeTuple typeTuple, final MethodSymbol method) {
 
-    var location = locationExtractorFromSymbol.apply(method);
-    var msg = "'" + method.getFriendlyName() + "' " + location + ":";
+    final var location = locationExtractorFromSymbol.apply(method);
+    final var msg = "'" + method.getFriendlyName() + "' " + location + ":";
     if (method.isConstructor()) {
       errorListener.semanticError(typeTuple.possibleGenericSymbol.getInitialisedBy(), msg,
           CONSTRUCTOR_WITH_FUNCTION_IN_GENERIC);
@@ -115,8 +115,8 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
               && resolvedMethodSymbol.isConstructor()
               && typeTuple.typeArgumentForT.isMarkedAbstract()) {
 
-            var location = locationExtractorFromSymbol.apply(resolvedSymbol);
-            var msg = "'" + resolvedSymbol.getFriendlyName() + "' "
+            final var location = locationExtractorFromSymbol.apply(resolvedSymbol);
+            final var msg = "'" + resolvedSymbol.getFriendlyName() + "' "
                 + location + " cannot be used with '"
                 + typeTuple.typeArgumentForT.getFriendlyName() + "':";
 
@@ -125,8 +125,8 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
           }
         },
         () -> {
-          var classification = method.isConstructor() ? NOT_RESOLVED : OPERATOR_NOT_DEFINED;
-          var msg = "'" + method.getFriendlyName() + "' " + "is used in '"
+          final var classification = method.isConstructor() ? NOT_RESOLVED : OPERATOR_NOT_DEFINED;
+          final var msg = "'" + method.getFriendlyName() + "' " + "is used in '"
               + typeTuple.genericType.getFriendlyName() + "', "
               + "but '" + methodSearch + "' is not defined in '" + typeTuple.typeArgumentForT + "':";
 
@@ -150,7 +150,7 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
     }
 
     if (!typeTuple.typeArgumentForT.isAssignableTo(constrainedTType)) {
-      var msg = "wrt '" + typeTuple.genericType.getFriendlyName()
+      final var msg = "wrt '" + typeTuple.genericType.getFriendlyName()
           + "', '" + constrainedTType.getFriendlyName()
           + "' and '" + typeTuple.typeArgumentForT.getFriendlyName() + "':";
 
@@ -162,25 +162,28 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
   }
 
   private void minimalMatchingConstructorsOrError(final TypeTuple typeTuple, final ISymbol constrainedTType) {
+
     //Only check if an aggregate, not applicable to functions.
     if (constrainedTType instanceof IAggregateSymbol constrainingAggregate
         && typeTuple.typeArgumentForT instanceof IAggregateSymbol typeArgumentAggregate) {
-      var searches = constrainingAggregate.getAllNonAbstractMethodsInThisScopeOnly().stream()
+
+      final var searches = constrainingAggregate.getAllNonAbstractMethodsInThisScopeOnly().stream()
           .filter(MethodSymbol::isConstructor)
           .map(method -> new MethodSymbolSearch(typeTuple.typeArgumentForT.getName(), method))
           .toList();
 
       //Now have a list of searches, need to ensure they exist on the typeTuple.typeArgumentForT
       searches.forEach(search -> {
-        var resolved = typeArgumentAggregate.resolveInThisScopeOnly(search);
+        final var resolved = typeArgumentAggregate.resolveInThisScopeOnly(search);
         if (resolved.isEmpty()) {
-          var msg = "wrt constraining type '" + constrainedTType.getFriendlyName()
+          final var msg = "wrt constraining type '" + constrainedTType.getFriendlyName()
               + "' and parameterizing type '" + typeTuple.typeArgumentForT.getFriendlyName() + "',"
               + " constructor '" + search + "' is required:";
           errorListener.semanticError(typeTuple.possibleGenericSymbol.getInitialisedBy(), msg,
               CONSTRAINED_TYPE_CONSTRUCTOR_MISSING);
         }
       });
+
     }
   }
 
@@ -191,8 +194,8 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
                                           final IAggregateSymbol aggregateT,
                                           final ISymbol typeArgumentForT) {
 
-    var methodName = method.isConstructor() ? typeArgumentForT.getName() : method.getName();
-    var methodSearch = new MethodSymbolSearch(methodName);
+    final var methodName = method.isConstructor() ? typeArgumentForT.getName() : method.getName();
+    final var methodSearch = new MethodSymbolSearch(methodName);
 
     method.getCallParameters()
         .forEach(param -> param.getType().ifPresent(paramType -> {

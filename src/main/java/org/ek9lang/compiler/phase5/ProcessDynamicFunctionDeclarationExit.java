@@ -20,27 +20,32 @@ final class ProcessDynamicFunctionDeclarationExit extends TypedSymbolAccess
     implements Consumer<EK9Parser.DynamicFunctionDeclarationContext> {
   ProcessDynamicFunctionDeclarationExit(final SymbolAndScopeManagement symbolAndScopeManagement,
                                         final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
-    var functionSymbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
 
-    var returningVariables = symbolAndScopeManagement.getUninitialisedVariables(functionSymbol).stream()
+    final var functionSymbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var returningVariables = symbolAndScopeManagement.getUninitialisedVariables(functionSymbol).stream()
         .filter(ISymbol::isReturningParameter).toList();
+
     returningVariables.forEach(variable -> {
       if (ctx.dynamicFunctionBody() != null && ctx.dynamicFunctionBody().singleStatementBlock() != null) {
-        var instructionsScope =
+        final var instructionsScope =
             symbolAndScopeManagement.getRecordedScope(ctx.dynamicFunctionBody().singleStatementBlock());
         updateReturningSymbol(variable, functionSymbol, instructionsScope);
       } else if (ctx.dynamicFunctionBody() != null && ctx.dynamicFunctionBody().block().instructionBlock() != null) {
-        var instructionsScope =
+        final var instructionsScope =
             symbolAndScopeManagement.getRecordedScope(ctx.dynamicFunctionBody().block().instructionBlock());
         updateReturningSymbol(variable, functionSymbol, instructionsScope);
       }
+
       checkInitialisedOrError(ctx, variable, functionSymbol);
     });
+
   }
 
   private void updateReturningSymbol(final ISymbol variable,
@@ -63,5 +68,6 @@ final class ProcessDynamicFunctionDeclarationExit extends TypedSymbolAccess
     if (!symbolAndScopeManagement.isVariableInitialised(variable, scope)) {
       errorListener.semanticError(ctx.start, "'" + variable.getName() + "':", RETURN_NOT_ALWAYS_INITIALISED);
     }
+
   }
 }

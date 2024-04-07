@@ -17,18 +17,22 @@ final class ProcessVariableOnlyDeclaration extends TypedSymbolAccess
     implements Consumer<EK9Parser.VariableOnlyDeclarationContext> {
   ProcessVariableOnlyDeclaration(final SymbolAndScopeManagement symbolAndScopeManagement,
                                  final ErrorListener errorListener) {
+
     super(symbolAndScopeManagement, errorListener);
+
   }
 
   @Override
   public void accept(final EK9Parser.VariableOnlyDeclarationContext ctx) {
+
     if (ctx.QUESTION() != null) {
-      var variable = (VariableSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+      final var variable = (VariableSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
       //Then we know it was not initialised at declaration, so record it,
       //this will be recorded against the current scope
       symbolAndScopeManagement.recordSymbolDeclaration(variable);
       propertyInitialisedOrError(variable);
     }
+
   }
 
   /**
@@ -36,8 +40,10 @@ final class ProcessVariableOnlyDeclaration extends TypedSymbolAccess
    * If not then that's an error.
    */
   private void propertyInitialisedOrError(final ISymbol variable) {
+
     if (variable.isPropertyField() && !variable.isInitialised()) {
       errorListener.semanticError(variable.getSourceToken(), "'" + variable.getFriendlyName() + ":", NEVER_INITIALISED);
     }
+
   }
 }

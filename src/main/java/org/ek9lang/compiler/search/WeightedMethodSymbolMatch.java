@@ -9,16 +9,20 @@ public class WeightedMethodSymbolMatch {
   private final double weight;
   private final MethodSymbol methodSymbol;
 
-  public WeightedMethodSymbolMatch(MethodSymbol methodSymbol, double matchWeight) {
+  public WeightedMethodSymbolMatch(final MethodSymbol methodSymbol, final double matchWeight) {
+
     this.weight = matchWeight;
     this.methodSymbol = methodSymbol;
+
   }
 
   public double getWeight() {
+
     return weight;
   }
 
   public MethodSymbol getMethodSymbol() {
+
     return methodSymbol;
   }
 

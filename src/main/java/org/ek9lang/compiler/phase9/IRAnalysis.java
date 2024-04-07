@@ -23,13 +23,17 @@ import org.ek9lang.core.SharedThreadContext;
 public class IRAnalysis extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.IR_ANALYSIS;
 
-  public IRAnalysis(SharedThreadContext<CompilableProgram> compilableProgramAccess, Consumer<CompilationEvent> listener,
-                    CompilerReporter reporter) {
+  public IRAnalysis(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                    final Consumer<CompilationEvent> listener,
+                    final CompilerReporter reporter) {
+
     super(thisPhase, compilableProgramAccess, listener, reporter);
+
   }
 
   @Override
-  public boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
+  public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
+
     return true;
   }
 }

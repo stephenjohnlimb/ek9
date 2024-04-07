@@ -24,13 +24,17 @@ import org.ek9lang.core.SharedThreadContext;
 public class TemplateGeneration extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.TEMPLATE_IR_GENERATION;
 
-  public TemplateGeneration(SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                            Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  public TemplateGeneration(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                            final Consumer<CompilationEvent> listener,
+                            final CompilerReporter reporter) {
+
     super(thisPhase, compilableProgramAccess, listener, reporter);
+
   }
 
   @Override
-  public boolean doApply(Workspace workspace, CompilerFlags compilerFlags) {
+  public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
+
     return true;
   }
 

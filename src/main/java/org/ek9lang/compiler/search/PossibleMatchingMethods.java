@@ -11,8 +11,10 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 public class PossibleMatchingMethods implements Function<MethodSearchInScope, List<MethodSymbol>> {
   @Override
   public List<MethodSymbol> apply(final MethodSearchInScope searchOnAggregate) {
-    var toSearch = searchOnAggregate.scopeToSearch();
-    var nearMatches = toSearch.getAllSymbolsMatchingName(searchOnAggregate.search().getName());
+
+    final var toSearch = searchOnAggregate.scopeToSearch();
+    final var nearMatches = toSearch.getAllSymbolsMatchingName(searchOnAggregate.search().getName());
+
     return nearMatches
         .stream()
         .filter(ISymbol::isMethod)
