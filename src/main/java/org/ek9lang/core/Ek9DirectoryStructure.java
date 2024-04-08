@@ -23,48 +23,54 @@ public final class Ek9DirectoryStructure {
 
   private final FileHandling fileHandling;
 
-  public Ek9DirectoryStructure(FileHandling fileHandling) {
-    this.fileHandling = fileHandling;
-  }
+  public Ek9DirectoryStructure(final FileHandling fileHandling) {
 
+    this.fileHandling = fileHandling;
+
+  }
 
   /**
    * Access the final built artefact that can be executed.
    */
-  public File getTargetExecutableArtefact(String ek9FullPathToFileName, String targetArchitecture) {
+  public File getTargetExecutableArtefact(final String ek9FullPathToFileName, final String targetArchitecture) {
+
     assertEk9FullPathToFileNameValid(ek9FullPathToFileName);
     assertTargetArchitectureSupported(targetArchitecture);
 
-    File sourceFile = new File(ek9FullPathToFileName);
-    String ek9FileNameDirectory = sourceFile.getParent();
-    String ek9JustFileName = sourceFile.getName();
+    final var sourceFile = new File(ek9FullPathToFileName);
+    final var ek9FileNameDirectory = sourceFile.getParent();
+    final var ek9JustFileName = sourceFile.getName();
+    final var projectEk9Directory = fileHandling.getDotEk9Directory(ek9FileNameDirectory);
 
-    String projectEk9Directory = fileHandling.getDotEk9Directory(ek9FileNameDirectory);
     return new File(projectEk9Directory, ek9JustFileName.replace(DOT_EK9, DOT_JAR));
   }
 
   /**
    * Get final set of properties for the main artefact.
    */
-  public File getTargetPropertiesArtefact(String ek9FullPathToFileName) {
-    assertEk9FullPathToFileNameValid(ek9FullPathToFileName);
-    File sourceFile = new File(ek9FullPathToFileName);
-    String ek9FileNameDirectory = sourceFile.getParent();
+  public File getTargetPropertiesArtefact(final String ek9FullPathToFileName) {
 
-    String fileName = sourceFile.getName().replace(DOT_EK9, DOT_PROPERTIES);
-    String projectEk9Directory = fileHandling.getDotEk9Directory(ek9FileNameDirectory);
+    assertEk9FullPathToFileNameValid(ek9FullPathToFileName);
+
+    final var sourceFile = new File(ek9FullPathToFileName);
+    final var ek9FileNameDirectory = sourceFile.getParent();
+    final var fileName = sourceFile.getName().replace(DOT_EK9, DOT_PROPERTIES);
+    final var projectEk9Directory = fileHandling.getDotEk9Directory(ek9FileNameDirectory);
+
     return new File(projectEk9Directory, fileName);
   }
 
   /**
    * Check the structure of an Ek9 build directory.
    */
-  public void validateEk9Directory(String directoryName, String targetArchitecture) {
+  public void validateEk9Directory(final String directoryName, final String targetArchitecture) {
+
     AssertValue.checkNotEmpty("DirectoryName is empty", directoryName);
     assertTargetArchitectureSupported(targetArchitecture);
 
     fileHandling.makeDirectoryIfNotExists(new File(directoryName));
     makeEk9DevDirectoryStructure(directoryName, targetArchitecture);
+
   }
 
   /**
@@ -72,7 +78,8 @@ public final class Ek9DirectoryStructure {
    *
    * @param fromEk9BaseDirectory typically $HOME/.ek9/ or /path/to/project/.ek9/
    */
-  public void makeEk9DevDirectoryStructure(String fromEk9BaseDirectory, String targetArchitecture) {
+  public void makeEk9DevDirectoryStructure(final String fromEk9BaseDirectory, final String targetArchitecture) {
+
     assertFromEk9BaseDirectoryValid(fromEk9BaseDirectory);
     assertTargetArchitectureSupported(targetArchitecture);
 
@@ -93,17 +100,17 @@ public final class Ek9DirectoryStructure {
     addDirectory(fromEk9BaseDirectory, LIB);
 
     //Where we put anything we generate - intermediate formats java/classes etc/
-    String generated = addDirectory(fromEk9BaseDirectory, GENERATED);
-
+    final var generated = addDirectory(fromEk9BaseDirectory, GENERATED);
     addDirectory(generated, LIB);
 
-    String main = addDirectory(generated, MAIN);
+    final var main = addDirectory(generated, MAIN);
     addDirectory(main, targetArchitecture);
     addDirectory(main, CLASSES);
 
-    String dev = addDirectory(generated, DEV);
+    final var dev = addDirectory(generated, DEV);
     addDirectory(dev, targetArchitecture);
     addDirectory(dev, CLASSES);
+
   }
 
   /**
@@ -112,31 +119,33 @@ public final class Ek9DirectoryStructure {
    * @param ek9FullPathToFileName i.e. main.ek9
    * @param targetArchitecture    i.e. "java"
    */
-  public void cleanEk9DirectoryStructureFor(String ek9FullPathToFileName,
-                                            String targetArchitecture) {
+  public void cleanEk9DirectoryStructureFor(final String ek9FullPathToFileName,
+                                            final String targetArchitecture) {
+
     AssertValue.checkNotEmpty("EK9FullPathToFileName is empty", ek9FullPathToFileName);
     assertTargetArchitectureSupported(targetArchitecture);
 
-    File sourceFile = new File(ek9FullPathToFileName);
-    String ek9FileNameDirectory = sourceFile.getParent();
-
-    String dotEk9Dir = fileHandling.getDotEk9Directory(ek9FileNameDirectory);
+    final var sourceFile = new File(ek9FullPathToFileName);
+    final var ek9FileNameDirectory = sourceFile.getParent();
+    final var dotEk9Dir = fileHandling.getDotEk9Directory(ek9FileNameDirectory);
 
     fileHandling.deleteContentsAndBelow(new File(dotEk9Dir, GENERATED), false);
     fileHandling.deleteContentsAndBelow(new File(dotEk9Dir, LIB), false);
 
-    File target = getTargetExecutableArtefact(ek9FullPathToFileName, targetArchitecture);
+    final var target = getTargetExecutableArtefact(ek9FullPathToFileName, targetArchitecture);
     fileHandling.deleteFileIfExists(target);
 
-    File props = getTargetPropertiesArtefact(ek9FullPathToFileName);
+    final var props = getTargetPropertiesArtefact(ek9FullPathToFileName);
     fileHandling.deleteFileIfExists(props);
+
   }
 
   /**
    * Get the generated output directory.
    */
-  public File getMainGeneratedOutputDirectory(String fromEk9BaseDirectory,
-                                              String targetArchitecture) {
+  public File getMainGeneratedOutputDirectory(final String fromEk9BaseDirectory,
+                                              final String targetArchitecture) {
+
     assertFromEk9BaseDirectoryValid(fromEk9BaseDirectory);
     assertTargetArchitectureSupported(targetArchitecture);
 
@@ -147,7 +156,8 @@ public final class Ek9DirectoryStructure {
   /**
    * Get the final output directory - where the artefacts will be.
    */
-  public File getMainFinalOutputDirectory(String fromEk9BaseDirectory, String targetArchitecture) {
+  public File getMainFinalOutputDirectory(final String fromEk9BaseDirectory, final String targetArchitecture) {
+
     assertFromEk9BaseDirectoryValid(fromEk9BaseDirectory);
     assertTargetArchitectureSupported(targetArchitecture);
 
@@ -158,8 +168,9 @@ public final class Ek9DirectoryStructure {
   /**
    * Main generated code output directory when in development.
    */
-  public File getDevGeneratedOutputDirectory(String fromEk9BaseDirectory,
-                                             String targetArchitecture) {
+  public File getDevGeneratedOutputDirectory(final String fromEk9BaseDirectory,
+                                             final String targetArchitecture) {
+
     assertFromEk9BaseDirectoryValid(fromEk9BaseDirectory);
     assertTargetArchitectureSupported(targetArchitecture);
 
@@ -170,7 +181,8 @@ public final class Ek9DirectoryStructure {
   /**
    * Main final output directory when in development.
    */
-  public File getDevFinalOutputDirectory(String fromEk9BaseDirectory, String targetArchitecture) {
+  public File getDevFinalOutputDirectory(final String fromEk9BaseDirectory, final String targetArchitecture) {
+
     assertFromEk9BaseDirectoryValid(fromEk9BaseDirectory);
     assertTargetArchitectureSupported(targetArchitecture);
 
@@ -180,20 +192,24 @@ public final class Ek9DirectoryStructure {
   /**
    * Ensure all stale packaged content is removed.
    */
-  public void deleteStalePackages(String ek9FileNameDirectory, String moduleName) {
+  public void deleteStalePackages(final String ek9FileNameDirectory, final String moduleName) {
+
     AssertValue.checkNotEmpty("EK9FileNameDirectory is empty", ek9FileNameDirectory);
     AssertValue.checkNotEmpty("ModuleName is empty", moduleName);
 
-    String zipFileName = moduleName + "-.*\\.zip";
+    final var zipFileName = moduleName + "-.*\\.zip";
     fileHandling.deleteMatchingFiles(
         new File(fileHandling.getDotEk9Directory(ek9FileNameDirectory)), zipFileName);
+
   }
 
   /**
    * Does a key pair for signing content exist.
    */
   public boolean isUsersSigningKeyPairPresent() {
-    String dir = fileHandling.getUsersHomeEk9Directory();
+
+    final var dir = fileHandling.getUsersHomeEk9Directory();
+
     return (new File(dir, PRIVATE_PEM).exists() && new File(dir, PUBLIC_PEM).exists());
   }
 
@@ -201,50 +217,60 @@ public final class Ek9DirectoryStructure {
    * Get the key signing pair for this user.
    */
   public SigningKeyPair getUsersSigningKeyPair() {
-    String dir = fileHandling.getUsersHomeEk9Directory();
-    File privateKeyFile = new File(dir, PRIVATE_PEM);
-    File publicKeyFile = new File(dir, PUBLIC_PEM);
+
+    final var dir = fileHandling.getUsersHomeEk9Directory();
+    final var privateKeyFile = new File(dir, PRIVATE_PEM);
+    final var publicKeyFile = new File(dir, PUBLIC_PEM);
+
     return SigningKeyPair.of(privateKeyFile, publicKeyFile);
   }
 
   /**
    * Save the signing key pair to the users home directory.
    */
-  public boolean saveToHomeEk9Directory(SigningKeyPair keyPair) {
+  public boolean saveToHomeEk9Directory(final SigningKeyPair keyPair) {
+
     AssertValue.checkNotNull("Keypair is null", keyPair);
-    String dir = fileHandling.getUsersHomeEk9Directory();
+    final var dir = fileHandling.getUsersHomeEk9Directory();
 
     return fileHandling.saveToOutput(new File(dir, PRIVATE_PEM), keyPair.getPrivateKeyInBase64())
         && fileHandling.saveToOutput(new File(dir, PUBLIC_PEM), keyPair.getPublicKeyInBase64());
   }
 
-  private String addDirectory(String baseDir, String newDir) {
+  private String addDirectory(final String baseDir, final String newDir) {
+
     AssertValue.checkNotEmpty("BaseDir is empty", baseDir);
     AssertValue.checkNotEmpty("NewDir is empty", newDir);
 
-    File directory = new File(baseDir, newDir);
+    final var directory = new File(baseDir, newDir);
     fileHandling.makeDirectoryIfNotExists(directory);
+
     return directory.getAbsolutePath();
   }
 
-  private void assertTargetArchitectureSupported(String targetArchitecture) {
+  private void assertTargetArchitectureSupported(final String targetArchitecture) {
 
-    Processor<Void> processor = () -> {
+    final Processor<Void> processor = () -> {
       AssertValue.checkNotEmpty("TargetArchitecture is empty", targetArchitecture);
       if (!targetArchitecture.equals(JAVA)) {
         throw new CompilerException("Unsupported target architecture " + targetArchitecture);
       }
       return null;
     };
+
     new ExceptionConverter<Void>().apply(processor);
   }
 
-  private void assertEk9FullPathToFileNameValid(String path) {
+  private void assertEk9FullPathToFileNameValid(final String path) {
+
     AssertValue.checkNotEmpty("EK9FullPathToFileName is empty", path);
+
   }
 
-  private void assertFromEk9BaseDirectoryValid(String path) {
+  private void assertFromEk9BaseDirectoryValid(final String path) {
+
     AssertValue.checkNotEmpty("FromEK9BaseDirectory is empty", path);
+
   }
 
 }

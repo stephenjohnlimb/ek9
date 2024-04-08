@@ -5,11 +5,15 @@ package org.ek9lang.core;
  */
 public class CompilerException extends RuntimeException {
 
-  public CompilerException(String reason) {
+  public CompilerException(final String reason) {
+
     super(reason);
+
   }
 
-  public CompilerException(String reason, Throwable cause) {
+  public CompilerException(final String reason, final Throwable cause) {
+
     super(reason, cause);
+
   }
 }

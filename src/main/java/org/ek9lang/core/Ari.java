@@ -8,15 +8,17 @@ public class Ari {
   /**
    * Get readability score, based on values.
    */
-  public String getScore(int numberOfLetters, int numberOfWords, int numberOfIndents,
-                         int numberOfNewLines) {
+  public String getScore(final int numberOfLetters,
+                         final int numberOfWords,
+                         final int numberOfIndents,
+                         final int numberOfNewLines) {
+
     //Slight modification to the ARI routine here, because source code is not really prose or
     //normal sentences. We have to alter or try and workout what we mean by a sentence
     //and also slightly alter the word count.
-    int numberOfSentences = numberOfIndents + numberOfNewLines / 2;
-    double wordAdjustment = numberOfWords * 1.25;
-    double score = 4.71 * (numberOfLetters / wordAdjustment)
-        + 0.50 * (wordAdjustment / numberOfSentences) - 20.25;
+    final var numberOfSentences = numberOfIndents + numberOfNewLines / 2;
+    final var wordAdjustment = numberOfWords * 1.25;
+    final var score = 4.71 * (numberOfLetters / wordAdjustment) + 0.50 * (wordAdjustment / numberOfSentences) - 20.25;
 
     if (score < 2) {
       return "5-6 Kindergarten";

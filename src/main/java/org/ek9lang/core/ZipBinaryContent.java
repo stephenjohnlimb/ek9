@@ -16,26 +16,31 @@ public record ZipBinaryContent(String entryName, byte[] content) {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
+
     if (this == o) {
       return true;
     }
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ZipBinaryContent that = (ZipBinaryContent) o;
+
+    final var that = (ZipBinaryContent) o;
     return Objects.equals(entryName, that.entryName) && Arrays.equals(content, that.content);
   }
 
   @Override
   public int hashCode() {
+
     int result = Objects.hash(entryName);
     result = 31 * result + Arrays.hashCode(content);
+
     return result;
   }
 
   @Override
   public String toString() {
+
     return String.format("ZipBinaryContent{entryName='%s',content=%s}",
         entryName, Arrays.toString(content));
   }

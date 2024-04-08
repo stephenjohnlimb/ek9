@@ -22,8 +22,10 @@ public class Logger {
    *
    * @param enabled by default Logger disabled debug output.
    */
-  public static void enableDebug(boolean enabled) {
+  public static void enableDebug(final boolean enabled) {
+
     Logger.debugEnabled = enabled;
+
   }
 
   /**
@@ -31,35 +33,42 @@ public class Logger {
    *
    * @param muteStderrOutput by default Logger does not mute stderr, (for tests it is handy to switch off).
    */
-  public static void setMuteStderrOutput(boolean muteStderrOutput) {
+  public static void setMuteStderrOutput(final boolean muteStderrOutput) {
+
     Logger.muteStderrOutput = muteStderrOutput;
   }
 
   /**
    * Conditionally output debug information to stderr.
    */
-  public static void debug(Object content) {
+  public static void debug(final Object content) {
+
     if (debugEnabled && !muteStderrOutput) {
       System.err.println("DEBUG: " + content);
     }
+
   }
 
   /**
    * Logs output to stdout.
    */
-  public static void log(String content) {
+  public static void log(final String content) {
+
     if (!muteStderrOutput) {
       System.out.println(content);
     }
+
   }
 
   /**
    * Conditionally output debug information to stderr, using printf format.
    */
-  public static void debugf(String format, Object... args) {
+  public static void debugf(final String format, final Object... args) {
+
     if (debugEnabled && !muteStderrOutput) {
       System.err.printf(format, args);
     }
+
   }
 
   /**
@@ -67,10 +76,12 @@ public class Logger {
    *
    * @param content The content to log to stderr.
    */
-  public static void error(Object content) {
+  public static void error(final Object content) {
+
     if (!muteStderrOutput) {
       System.err.println(content);
     }
+
   }
 
   /**
@@ -78,9 +89,11 @@ public class Logger {
    *
    * @param throwable The throwable and its stack to log to stderr.
    */
-  public static void error(Throwable throwable) {
+  public static void error(final Throwable throwable) {
+
     if (!muteStderrOutput) {
       throwable.printStackTrace(System.err);
     }
+
   }
 }

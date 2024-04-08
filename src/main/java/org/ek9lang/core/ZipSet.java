@@ -18,36 +18,46 @@ public final class ZipSet {
 
   }
 
-  public ZipSet(Path relativePath, Collection<File> files) {
+  public ZipSet(final Path relativePath, final Collection<File> files) {
+
     this.relativePath = relativePath;
     this.files = files;
+
   }
 
-  public ZipSet(Collection<ZipBinaryContent> entries) {
+  public ZipSet(final Collection<ZipBinaryContent> entries) {
+
     this.entries = entries;
+
   }
 
   public boolean isEmpty() {
+
     return !isFileBased() && !isEntryBased();
   }
 
   public boolean isFileBased() {
+
     return files != null;
   }
 
   public boolean isEntryBased() {
+
     return entries != null;
   }
 
   public Path getRelativePath() {
+
     return relativePath;
   }
 
   public Collection<File> getFiles() {
+
     return files;
   }
 
   public Collection<ZipBinaryContent> getEntries() {
+
     return entries;
   }
 }

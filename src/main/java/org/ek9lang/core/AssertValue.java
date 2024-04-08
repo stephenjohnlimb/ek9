@@ -17,8 +17,11 @@ public class AssertValue {
   /**
    * A check on range of value.
    */
-  public static void checkRange(String messageIfOutside, Integer valueToCheck, Integer min,
-                                Integer max) {
+  public static void checkRange(final String messageIfOutside,
+                                final Integer valueToCheck,
+                                final Integer min,
+                                final Integer max) {
+
     if (valueToCheck == null) {
       throw new IllegalArgumentException(messageIfOutside);
     }
@@ -28,86 +31,103 @@ public class AssertValue {
     if (max != null && valueToCheck > max) {
       throw new IllegalArgumentException(messageIfOutside);
     }
+
   }
 
   /**
    * Not null of exception error.
    */
-  public static void checkNotNull(String messageIfNull, Object valueToCheck) {
+  public static void checkNotNull(final String messageIfNull, final Object valueToCheck) {
+
     if (valueToCheck == null) {
       throw new IllegalArgumentException(messageIfNull);
     }
+
   }
 
   /**
    * Check filename valid and file can be read.
    */
-  public static void checkCanReadFile(String messageIfNoRead, String fileName) {
+  public static void checkCanReadFile(final String messageIfNoRead, final String fileName) {
+
     checkNotEmpty("Filename cannot be empty or null", fileName);
     if (!osSupport.isFileReadable(fileName)) {
       throw new IllegalArgumentException(messageIfNoRead + "[" + fileName + "]");
     }
+
   }
 
   /**
    * Check file not null valid and file can be read.
    */
-  public static void checkCanReadFile(String messageIfNoRead, File file) {
+  public static void checkCanReadFile(final String messageIfNoRead, final File file) {
+
     checkNotNull("File cannot be be null", file);
     if (!osSupport.isFileReadable(file)) {
       throw new IllegalArgumentException(messageIfNoRead + "[" + file.getPath() + "]");
     }
+
   }
 
   /**
    * Check directory name valid and directory can be read.
    */
-  public static void checkDirectoryReadable(String messageIfNoRead, String directoryName) {
+  public static void checkDirectoryReadable(final String messageIfNoRead, final String directoryName) {
+
     checkNotEmpty("Filename cannot be empty or null", directoryName);
     if (!osSupport.isDirectoryReadable(directoryName)) {
       throw new IllegalArgumentException(messageIfNoRead + "[" + directoryName + "]");
     }
+
   }
 
   /**
    * Check directory name valid and directory can be read.
    */
-  public static void checkDirectoryReadable(String messageIfNoRead, File dir) {
+  public static void checkDirectoryReadable(final String messageIfNoRead, final File dir) {
+
     AssertValue.checkNotNull(messageIfNoRead, dir);
     if (!osSupport.isDirectoryReadable(dir)) {
       throw new IllegalArgumentException(messageIfNoRead + "[" + dir.getPath() + "]");
     }
+
   }
 
   /**
    * Check directory name valid and directory can be written to.
    */
-  public static void checkDirectoryWritable(String messageIfNoWrite, String directoryName) {
+  public static void checkDirectoryWritable(final String messageIfNoWrite, final String directoryName) {
+
     AssertValue.checkNotNull(messageIfNoWrite, directoryName);
     if (!osSupport.isDirectoryWritable(directoryName)) {
       throw new IllegalArgumentException(messageIfNoWrite + "[" + directoryName + "]");
     }
+
   }
 
   /**
    * Check directory name valid and directory can be written to.
    */
-  public static void checkDirectoryWritable(String messageIfNoWrite, File dir) {
+  public static void checkDirectoryWritable(final String messageIfNoWrite, final File dir) {
+
     AssertValue.checkNotNull(messageIfNoWrite, dir);
     if (!osSupport.isDirectoryWritable(dir)) {
       throw new IllegalArgumentException(messageIfNoWrite + "[" + dir.getPath() + "]");
     }
+
   }
 
   /**
    * Check item not null and not empty.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public static void checkNotEmpty(String messageIfEmpty, Optional<?> item) {
+  public static void checkNotEmpty(final String messageIfEmpty, final Optional<?> item) {
+
     checkNotNull(messageIfEmpty, item);
     if (item.isEmpty()) {
       throw new IllegalArgumentException(messageIfEmpty);
     }
+
   }
 
   /**
@@ -116,10 +136,12 @@ public class AssertValue {
    *
    * @param valueToCheck The value to check.
    */
-  public static void checkNotEmpty(String messageIfEmpty, String valueToCheck) {
-    if (valueToCheck == null || "".equals(valueToCheck)) {
+  public static void checkNotEmpty(final String messageIfEmpty, final String valueToCheck) {
+
+    if (valueToCheck == null || valueToCheck.isEmpty()) {
       throw new IllegalArgumentException(messageIfEmpty);
     }
+
   }
 
   /**
@@ -128,13 +150,16 @@ public class AssertValue {
    *
    * @param valuesToCheck The values to check.
    */
-  public static void checkNotEmpty(String messageIfEmpty, String[] valuesToCheck) {
+  public static void checkNotEmpty(final String messageIfEmpty, final String[] valuesToCheck) {
+
     if (valuesToCheck == null || valuesToCheck.length == 0) {
       throw new IllegalArgumentException(messageIfEmpty);
     }
+
     for (String value : valuesToCheck) {
       AssertValue.checkNotEmpty(messageIfEmpty, value);
     }
+
   }
 
   /**
@@ -143,30 +168,37 @@ public class AssertValue {
    *
    * @param items The values to check.
    */
-  public static void checkNotEmpty(String messageIfEmpty, Collection<?> items) {
+  public static void checkNotEmpty(final String messageIfEmpty, final Collection<?> items) {
+
     checkNotNull(messageIfEmpty, items);
     if (items.isEmpty()) {
       throw new IllegalArgumentException(messageIfEmpty);
     }
+
     items.forEach(item -> checkNotNull(messageIfEmpty, item));
+
   }
 
   /**
    * Assets that a value is true or illegal argument exception.
    */
-  public static void checkTrue(String messageIfFalse, boolean value) {
+  public static void checkTrue(final String messageIfFalse, final boolean value) {
+
     if (!value) {
       throw new IllegalArgumentException(messageIfFalse);
     }
+
   }
 
   /**
    * Asserts that the value is false, illegal argument exception if not.
    */
-  public static void checkFalse(String messageIfTrue, boolean value) {
+  public static void checkFalse(final String messageIfTrue, final boolean value) {
+
     if (value) {
       throw new IllegalArgumentException(messageIfTrue);
     }
+
   }
 
   /**
@@ -174,7 +206,8 @@ public class AssertValue {
    *
    * @param withMessage The message to issue.
    */
-  public static void fail(String withMessage) {
+  public static void fail(final String withMessage) {
+    
     throw new IllegalArgumentException(withMessage);
   }
 }

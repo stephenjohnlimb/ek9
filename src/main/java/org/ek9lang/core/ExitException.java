@@ -8,12 +8,15 @@ package org.ek9lang.core;
 public class ExitException extends RuntimeException {
   private final int exitCode;
 
-  public ExitException(int exitCode, String message) {
+  public ExitException(final int exitCode, final String message) {
+
     super(message);
     this.exitCode = exitCode;
+
   }
 
   public int getExitCode() {
+
     return exitCode;
   }
 }

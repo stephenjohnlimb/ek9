@@ -20,42 +20,56 @@ public final class Glob {
   public Glob() {
   }
 
-  public Glob(String include) {
+  public Glob(final String include) {
+
     addInclude(include);
+
   }
 
-  public Glob(String include, String exclude) {
+  public Glob(final String include, final String exclude) {
+
     addInclude(include);
     addExclude(exclude);
+
   }
 
-  public Glob(List<String> toInclude, List<String> toExclude) {
+  public Glob(final List<String> toInclude, final List<String> toExclude) {
+
     toInclude.forEach(this::addInclude);
     toExclude.forEach(this::addExclude);
+
   }
 
-  public void addInclude(String globPattern) {
+  public void addInclude(final String globPattern) {
+
     PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + globPattern);
     includes.add(matcher);
+
   }
 
-  public void addExclude(String globPattern) {
+  public void addExclude(final String globPattern) {
+
     excludes.add(FileSystems.getDefault().getPathMatcher("glob:" + globPattern));
+
   }
 
-  public boolean isAcceptable(String path) {
+  public boolean isAcceptable(final String path) {
+
     return isAcceptable(Paths.get(path));
   }
 
-  public boolean isAcceptable(Path path) {
+  public boolean isAcceptable(final Path path) {
+
     return included(path) && !excluded(path);
   }
 
-  private boolean included(Path path) {
+  private boolean included(final Path path) {
+
     return includes.stream().anyMatch(matcher -> matcher.matches(path));
   }
 
-  private boolean excluded(Path path) {
+  private boolean excluded(final Path path) {
+    
     return excludes.stream().anyMatch(matcher -> matcher.matches(path));
   }
 }

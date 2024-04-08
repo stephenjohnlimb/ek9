@@ -28,16 +28,19 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
   private SemanticVersion() {
   }
 
-  public SemanticVersion(String value) {
+  public SemanticVersion(final String value) {
+
     parseWithBuildNumber(value);
+
   }
 
   /**
    * Parse a version string to produce a Semantic Version object.
    * If un-parsable then an invalid semantic version will result.
    */
-  public static SemanticVersion of(String value) {
-    SemanticVersion rtn = new SemanticVersion();
+  public static SemanticVersion of(final String value) {
+
+    final var rtn = new SemanticVersion();
 
     if (!rtn.parseWithBuildNumber(value)) {
       return new SemanticVersion();
@@ -50,8 +53,9 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
    * Parse a version string that also have a build number to produce a Semantic Version object.
    * If un-parsable then an invalid semantic version will result.
    */
-  public static SemanticVersion withNoBuildNumber(String value) {
-    SemanticVersion rtn = new SemanticVersion();
+  public static SemanticVersion withNoBuildNumber(final String value) {
+
+    final var rtn = new SemanticVersion();
 
     if (!rtn.parseWithoutBuildNumber(value)) {
       return new SemanticVersion();
@@ -61,6 +65,7 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
   }
 
   public int major() {
+
     return major;
   }
 
@@ -69,13 +74,16 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
    * But resets minor, patch and build to zero.
    */
   public void incrementMajor() {
+
     major++;
     minor = 0;
     patch = 0;
     buildNumber = 0;
+
   }
 
   public int minor() {
+
     return minor;
   }
 
@@ -84,12 +92,15 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
    * But resets patch and build to zero.
    */
   public void incrementMinor() {
+
     minor++;
     patch = 0;
     buildNumber = 0;
+
   }
 
   public int patch() {
+
     return patch;
   }
 
@@ -98,15 +109,19 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
    * But resets build to zero.
    */
   public void incrementPatch() {
+
     patch++;
     buildNumber = 0;
+
   }
 
   public String feature() {
+
     return feature;
   }
 
   public int buildNumber() {
+
     return buildNumber;
   }
 
@@ -114,12 +129,14 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
    * Just add one to the build number part of the version.
    */
   public void incrementBuildNumber() {
+
     buildNumber++;
   }
 
-  private boolean parseWithBuildNumber(String value) {
-    Pattern p = Pattern.compile(MAIN_REGEX + BUILD_NO_REGEX + "$");
-    Matcher m = p.matcher(value);
+  private boolean parseWithBuildNumber(final String value) {
+
+    final var p = Pattern.compile(MAIN_REGEX + BUILD_NO_REGEX + "$");
+    final var m = p.matcher(value);
 
     if (extractDoesNotMatch(m)) {
       return false;
@@ -127,22 +144,27 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
 
     this.buildNumber = java.lang.Integer.parseInt(m.group("buildNumber"));
     this.valid = true;
+
     return true;
   }
 
-  private boolean parseWithoutBuildNumber(String value) {
-    Pattern p = Pattern.compile(MAIN_REGEX + "$");
-    Matcher m = p.matcher(value);
+  private boolean parseWithoutBuildNumber(final String value) {
+
+    final var p = Pattern.compile(MAIN_REGEX + "$");
+    final var m = p.matcher(value);
+
     if (extractDoesNotMatch(m)) {
       return false;
     }
 
     this.buildNumber = 0;
     this.valid = true;
+
     return true;
   }
 
   private boolean extractDoesNotMatch(final Matcher m) {
+
     if (!m.find()) {
       return true;
     }
@@ -152,32 +174,40 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
     this.patch = java.lang.Integer.parseInt(m.group("patch"));
     //might not be present
     this.feature = m.group("feature");
+
     return false;
   }
 
   @Override
-  public int compareTo(SemanticVersion ver) {
+  public int compareTo(final SemanticVersion ver) {
+
     if (this.major == ver.major) {
       return compareMinor(ver);
     }
+
     return java.lang.Integer.compare(this.major, ver.major);
   }
 
-  private int compareMinor(SemanticVersion ver) {
+  private int compareMinor(final SemanticVersion ver) {
+
     if (this.minor == ver.minor) {
       return comparePatch(ver);
     }
+
     return java.lang.Integer.compare(this.minor, ver.minor);
   }
 
-  private int comparePatch(SemanticVersion ver) {
+  private int comparePatch(final SemanticVersion ver) {
+
     if (this.patch == ver.patch) {
       return compareFeatureAndBuildNumber(ver);
     }
+
     return java.lang.Integer.compare(this.patch, ver.patch);
   }
 
-  private int compareFeatureAndBuildNumber(SemanticVersion ver) {
+  private int compareFeatureAndBuildNumber(final SemanticVersion ver) {
+
     if (feature != null && ver.feature != null) {
       return compareFeature(ver);
     } else if (feature != null) {
@@ -186,34 +216,40 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
     } else if (ver.feature != null) {
       return 1;
     }
+
     return compareBuildNumber(ver);
   }
 
-  private int compareFeature(SemanticVersion ver) {
-    int featureCompare = feature.compareTo(ver.feature);
+  private int compareFeature(final SemanticVersion ver) {
+
+    final var featureCompare = feature.compareTo(ver.feature);
     if (featureCompare == 0) {
       return compareBuildNumber(ver);
     }
+
     return featureCompare;
   }
 
-  private int compareBuildNumber(SemanticVersion ver) {
+  private int compareBuildNumber(final SemanticVersion ver) {
+
     return java.lang.Integer.compare(this.buildNumber, ver.buildNumber);
   }
 
   public boolean isValid() {
+
     return valid;
   }
 
   @Override
   public String toString() {
-    //Format
-    StringBuilder buffer = new StringBuilder();
+    
+    final var buffer = new StringBuilder();
     buffer.append(major).append(".").append(minor).append(".").append(patch);
     if (feature != null) {
       buffer.append("-").append(feature);
     }
     buffer.append("-").append(buildNumber);
+
     return buffer.toString();
   }
 

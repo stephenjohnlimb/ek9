@@ -26,9 +26,11 @@ public class SharedThreadContext<T extends Serializable> implements Consumer<Con
   /**
    * Wraps the object being protected - hides it, so it can only be accessed via your consumer.
    */
-  public SharedThreadContext(T toBeProtected) {
+  public SharedThreadContext(final T toBeProtected) {
+
     AssertValue.checkNotNull("Data to be protected cannot be null", toBeProtected);
     this.protectedData = toBeProtected;
+
   }
 
   /**
@@ -37,12 +39,14 @@ public class SharedThreadContext<T extends Serializable> implements Consumer<Con
    * method will be called with your protected data as the parameter.
    */
   @Override
-  public void accept(Consumer<T> consumer) {
+  public void accept(final Consumer<T> consumer) {
+
     try {
       lock.lock();
       consumer.accept(protectedData);
     } finally {
       lock.unlock();
     }
+    
   }
 }

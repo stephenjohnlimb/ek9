@@ -15,7 +15,8 @@ public class UniqueIdGenerator {
    * Provide the next unique ID.
    */
   public static String getNewUniqueId() {
-    UUID newId = UUID.randomUUID();
+
+    final var newId = UUID.randomUUID();
 
     return newId.toString().replace("-", "_");
   }

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -14,7 +13,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -23,45 +21,53 @@ import java.util.zip.ZipInputStream;
 public final class Packager {
   private final FileHandling fileHandling;
 
-  public Packager(FileHandling fileHandling) {
+  public Packager(final FileHandling fileHandling) {
+
     this.fileHandling = fileHandling;
+
   }
 
   /**
    * Create a compressed archive to file with zip sets.
    */
-  public boolean createJar(String fileName, List<ZipSet> sets) {
+  public boolean createJar(final String fileName, final List<ZipSet> sets) {
+
     //Let exception break everything here - these are precondition.
     AssertValue.checkNotEmpty("Filename empty", fileName);
     AssertValue.checkNotNull("Zip Set cannot be null", sets);
+
     fileHandling.deleteFileIfExists(new File(fileName));
 
-    Processor<Boolean> processor = () -> {
-      try (FileSystem zip = FileSystems.newFileSystem(getZipUri(fileName), getZipEnv())) {
+    final Processor<Boolean> processor = () -> {
+      try (final var zip = FileSystems.newFileSystem(getZipUri(fileName), getZipEnv())) {
         sets.forEach(set -> addZipSet(zip, set));
         return true;
       }
     };
+
     return new ExceptionConverter<Boolean>().apply(processor);
   }
 
   /**
    * Unpacks a zip/jar file to a specific directory.
    */
-  public boolean unZipFileTo(File zipFile, File unpackedDir) {
-    //Preconditions
+  public boolean unZipFileTo(final File zipFile, final File unpackedDir) {
+
     AssertValue.checkCanReadFile("Zip File not readable", zipFile);
     fileHandling.makeDirectoryIfNotExists(unpackedDir);
 
-    Processor<Boolean> processor = () -> {
-      try (FileInputStream fis = new FileInputStream(zipFile);
-           ZipInputStream zis = new ZipInputStream(fis)) {
+    final Processor<Boolean> processor = () -> {
+      try (final var fis = new FileInputStream(zipFile);
+           final var zis = new ZipInputStream(fis)) {
+
         //buffer for read and write data to file
-        byte[] buffer = new byte[1024];
-        ZipEntry ze = zis.getNextEntry();
+        final var buffer = new byte[1024];
+        var ze = zis.getNextEntry();
+
         while (ze != null) {
-          String fileName = ze.getName();
-          File newFile = new File(unpackedDir, fileName);
+          final var fileName = ze.getName();
+          final var newFile = new File(unpackedDir, fileName);
+
           //create directories for subdirectories in zip
           fileHandling.makeDirectoryIfNotExists(new File(newFile.getParent()));
           if (ze.isDirectory()) {
@@ -83,50 +89,58 @@ public final class Packager {
       }
       return true;
     };
+
     return new ExceptionConverter<Boolean>().apply(processor);
   }
 
   /**
    * Create a zip with the zip set and copy over the properties file.
    */
-  public boolean createZip(String fileName, ZipSet set, File sourcePropertiesFile) {
-    //Preconditions
+  public boolean createZip(final String fileName, final ZipSet set, final File sourcePropertiesFile) {
+
     AssertValue.checkNotEmpty("FileName is empty", fileName);
     AssertValue.checkNotNull("Zip Set is null", set);
     AssertValue.checkCanReadFile("Properties file not readable", sourcePropertiesFile);
 
-    Processor<Boolean> processor = () -> {
-      try (FileSystem zip = FileSystems.newFileSystem(getZipUri(fileName), getZipEnv())) {
+    final Processor<Boolean> processor = () -> {
+      try (final var zip = FileSystems.newFileSystem(getZipUri(fileName), getZipEnv())) {
         addZipSet(zip, set);
 
         //Now to include the properties file so when the zip is unpacked we can find the name
         //of the source tha was used to trigger the packaging.
-        Path externalTxtFile = Path.of(sourcePropertiesFile.getAbsolutePath());
-        Path pathInZipFile = zip.getPath(".package.properties");
+        final var externalTxtFile = Path.of(sourcePropertiesFile.getAbsolutePath());
+        final var pathInZipFile = zip.getPath(".package.properties");
+
         Files.copy(externalTxtFile, pathInZipFile, StandardCopyOption.REPLACE_EXISTING);
       }
       return true;
     };
+
     return new ExceptionConverter<Boolean>().apply(processor);
   }
 
-  private URI getZipUri(String fileName) {
+  private URI getZipUri(final String fileName) {
+
     AssertValue.checkNotEmpty("FileName is empty", fileName);
-    String toFile = new File(fileName).toURI().toString();
+    final var toFile = new File(fileName).toURI().toString();
+
     return URI.create("jar:" + toFile);
   }
 
   private Map<String, String> getZipEnv() {
-    Map<String, String> env = new HashMap<>();
+
+    final Map<String, String> env = new HashMap<>();
     env.put("create", "true");
+
     return env;
   }
 
   private void addZipSet(final FileSystem zip, final ZipSet set) {
+
     AssertValue.checkNotNull("Zip is null", zip);
     AssertValue.checkNotNull("Zip Set is null", set);
 
-    Processor<Boolean> processor = () -> {
+    final Processor<Boolean> processor = () -> {
       if (!set.isEmpty()) {
         if (set.isFileBased()) {
           addFileBasedSet(zip, set);
@@ -134,18 +148,22 @@ public final class Packager {
           addEntryBasedSet(zip, set);
         }
       }
+
       //it is empty - which OK, just nothing to add.
       return true;
     };
     new ExceptionConverter<Boolean>().apply(processor);
+
   }
 
   private void addEntryBasedSet(final FileSystem zip, final ZipSet set) throws IOException {
-    for (ZipBinaryContent content : set.getEntries()) {
-      Path pathInZipFile = zip.getPath(content.getEntryName());
+
+    for (final var content : set.getEntries()) {
+
+      final var pathInZipFile = zip.getPath(content.getEntryName());
       ensureParentPathExists(pathInZipFile);
 
-      try (OutputStream out = Files.newOutputStream(pathInZipFile)) {
+      try (final var out = Files.newOutputStream(pathInZipFile)) {
         out.write(content.getContent());
       }
     }
@@ -153,20 +171,23 @@ public final class Packager {
 
   private void addFileBasedSet(final FileSystem zip, final ZipSet set) throws IOException {
 
-    for (File file : set.getFiles()) {
-      Path externalTxtFile = Path.of(file.getAbsolutePath());
-      Path relative = set.getRelativePath().toAbsolutePath().relativize(externalTxtFile);
+    for (final var file : set.getFiles()) {
 
-      Path pathInZipFile = zip.getPath(relative.toString());
+      final var externalTxtFile = Path.of(file.getAbsolutePath());
+      final var relative = set.getRelativePath().toAbsolutePath().relativize(externalTxtFile);
+      final var pathInZipFile = zip.getPath(relative.toString());
+
       ensureParentPathExists(pathInZipFile);
       // Copy a file into the zip file
       Files.copy(externalTxtFile, pathInZipFile, StandardCopyOption.REPLACE_EXISTING);
     }
   }
 
-  private void ensureParentPathExists(Path path) throws IOException {
+  private void ensureParentPathExists(final Path path) throws IOException {
+
     if (path.getParent() != null) {
       Files.createDirectories(path.getParent());
     }
+
   }
 }
