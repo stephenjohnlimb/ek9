@@ -2,7 +2,6 @@ package org.ek9lang.compiler.tokenizer;
 
 import java.io.InputStream;
 import java.util.function.Function;
-import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.core.ExceptionConverter;
@@ -14,15 +13,14 @@ import org.ek9lang.core.Processor;
  */
 public class Ek9LexerForInput implements Function<InputStream, Ek9Lexer> {
   @Override
-  public Ek9Lexer apply(InputStream inputStream) {
+  public Ek9Lexer apply(final InputStream inputStream) {
 
-    Processor<Ek9Lexer> processor = () -> {
-      CharStream charStream = null;
+    final Processor<Ek9Lexer> processor = () -> {
       //It is possible to set the input later with the lexer, the antlr tooling uses this.
       if (inputStream != null) {
-        charStream = CharStreams.fromStream(inputStream);
+        return new Ek9Lexer(CharStreams.fromStream(inputStream), EK9Parser.INDENT, EK9Parser.DEDENT);
       }
-      return new Ek9Lexer(charStream, EK9Parser.INDENT, EK9Parser.DEDENT);
+      return new Ek9Lexer(null, EK9Parser.INDENT, EK9Parser.DEDENT);
     };
 
     return new ExceptionConverter<Ek9Lexer>().apply(processor);

@@ -70,41 +70,47 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
   /**
    * Create compilable source for a specific filename.
    */
-  public CompilableSource(String filename) {
+  public CompilableSource(final String filename) {
+
     AssertValue.checkNotEmpty("Filename cannot be empty or null", filename);
     this.filename = filename;
     resetDetails();
+
   }
 
   /**
    * Create a compilable source with a name, but provide the inputStream.
    * This is useful for internal supplied sources.
    */
-  public CompilableSource(String filename, InputStream inputStream) {
+  public CompilableSource(final String filename, final InputStream inputStream) {
+
     AssertValue.checkNotEmpty("Filename cannot be empty or null", filename);
     AssertValue.checkNotNull("InputStream cannot be empty or null", inputStream);
     this.filename = filename;
     this.inputStream = inputStream;
     resetDetails();
+
   }
 
   /**
    * Informed when a token have been consumed out of the Lexer.
    */
   @Override
-  public void tokenConsumed(Token token) {
-    ArrayList<IToken> line = tokens.computeIfAbsent(token.getLine(), k -> new ArrayList<>());
-    //create and add in to the map
-    //Now add the token - but an Ek9Token.
+  public void tokenConsumed(final Token token) {
+
+    final var line = tokens.computeIfAbsent(token.getLine(), k -> new ArrayList<>());
     line.add(new Ek9Token(token));
+
   }
 
   /**
    * Get the nearest source token on a particular line and character position.
    */
-  public TokenResult nearestToken(int line, int characterPosition) {
+  public TokenResult nearestToken(final int line, final int characterPosition) {
+
+    final var lineOfTokens = tokens.get(line);
+
     TokenResult rtn = new TokenResult();
-    ArrayList<IToken> lineOfTokens = tokens.get(line);
     if (lineOfTokens != null) {
       //Now the position won't be exact, so we need to find the lower bound.
       for (int i = 0; i < lineOfTokens.size(); i++) {
@@ -116,6 +122,7 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
         }
       }
     }
+
     return rtn;
   }
 
@@ -124,42 +131,52 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
    * This is only valid if a prepareToParse and parse has been run.
    */
   public EK9Parser.CompilationUnitContext getCompilationUnitContext() {
+
     if (hasNotBeenSuccessfullyParsed()) {
       throw new CompilerException(
           "Need to call prepareToParse before accessing compilation unit for [" + filename + "]");
     }
+
     return compilationUnitContext;
   }
 
   public boolean hasNotBeenSuccessfullyParsed() {
+
     return this.compilationUnitContext == null;
   }
 
   @Override
   public boolean isDev() {
+
     return dev;
   }
 
-  public CompilableSource setDev(boolean dev) {
+  public CompilableSource setDev(final boolean dev) {
+
     this.dev = dev;
+
     return this;
   }
 
   @Override
   public boolean isLib() {
+
     return lib;
   }
 
   public String getPackageModuleName() {
+
     return packageModuleName;
   }
 
   /**
    * Set this compilable source as a library.
    */
-  public void setLib(String packageModuleName, boolean lib) {
+  public void setLib(final String packageModuleName, final boolean lib) {
+
     this.packageModuleName = packageModuleName;
     this.lib = lib;
+
   }
 
   /**
@@ -168,6 +185,7 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
    * @return true if modified, false if modified time and checksum are the same.
    */
   public boolean isModified() {
+
     return lastModified != calculateLastModified() || !checkSum.equals(calculateCheckSum());
   }
 
@@ -175,66 +193,80 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
    * Just updates the last modified and the check sum to current values.
    */
   public void resetDetails() {
+
     updateFileDetails();
     resetTokens();
     initialiseErrorListener();
+
   }
 
   private void resetTokens() {
+
     tokens = new HashMap<>();
+
   }
 
   private void updateFileDetails() {
+
     lastModified = calculateLastModified();
     checkSum = calculateCheckSum();
+
   }
 
   private long calculateLastModified() {
+
     //Do not try and check if modified as it is internal to the package.
     if (inputStream != null) {
       return 0;
     }
+
     AssertValue.checkCanReadFile("Unable to read file", filename);
-    File file = new File(filename);
+    final var file = new File(filename);
+
     return file.lastModified();
   }
 
   private Digest.CheckSum calculateCheckSum() {
+
     if (inputStream != null) {
       return Digest.digest("filename");
     }
     AssertValue.checkCanReadFile("Unable to read file", filename);
+
     return Digest.digest(new File(filename));
   }
 
   @Override
   public int hashCode() {
+
     return filename.hashCode();
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
+
     if (obj == this) {
       return true;
     }
 
-    var rtn = false;
     if (obj instanceof CompilableSource cs) {
-      rtn = cs.filename.equals(filename);
+      return cs.filename.equals(filename);
     }
 
-    return rtn;
+    return false;
   }
 
   /**
    * Used in debugging built-in sources.
    */
   public String getSourceAsStringForDebugging() {
-    Processor<String> processor = () -> {
+
+    final Processor<String> processor = () -> {
       try (InputStream input = getInputStream()) {
         return new String(input.readAllBytes());
       }
     };
+
     return new ExceptionConverter<String>().apply(processor);
   }
 
@@ -242,11 +274,13 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
    * Sets up the compilable source to be parsed.
    */
   public CompilableSource prepareToParse() {
-    Processor<CompilableSource> processor = () -> {
+
+    final Processor<CompilableSource> processor = () -> {
       try (InputStream input = getInputStream()) {
         return prepareToParse(input);
       }
     };
+
     return new ExceptionConverter<CompilableSource>().apply(processor);
   }
 
@@ -254,17 +288,20 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
    * Prepare to parse but with a provided input stream of what to parse.
    */
   public CompilableSource prepareToParse(final InputStream inputStream) {
-    //So make a new error listener to get all the errors
-    Source src = this::getGeneralIdentifier;
+
+    AssertValue.checkNotNull("InputStream cannot be null", inputStream);
     initialiseErrorListener();
-    var spec = new ParserSpec(src, inputStream, errorListener, this);
+
+    final var spec = new ParserSpec(this::getGeneralIdentifier, inputStream, errorListener, this);
     parser = new ParserCreator().apply(spec);
 
     return this;
   }
 
   public CompilableSource completeParsing() {
+
     this.parse();
+
     return this;
   }
 
@@ -272,54 +309,67 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
    * Actually parse the source code.
    */
   public EK9Parser.CompilationUnitContext parse() {
+
     if (parser != null) {
       resetTokens();
       compilationUnitContext = parser.compilationUnit();
       return compilationUnitContext;
     }
+
     throw new CompilerException("Need to call prepareToParse before accessing compilation unit");
   }
 
   private void initialiseErrorListener() {
+
     setErrorListener(new ErrorListener(getGeneralIdentifier()));
+
   }
 
   private void setErrorListener(ErrorListener listener) {
+
     this.errorListener = listener;
+
   }
 
   /**
    * Access the error listener, only check after parsing.
    */
   public ErrorListener getErrorListener() {
+
     return this.errorListener;
   }
 
 
   private InputStream getInputStream() throws FileNotFoundException {
+
     //In the case where an input stream was provided.
     if (inputStream != null) {
       return inputStream;
     }
+
     return new FileInputStream(filename);
   }
 
   @Override
   public String toString() {
+
     return getFileName();
   }
 
   @Override
   public String getFileName() {
+
     return filename;
   }
 
   public String getGeneralIdentifier() {
+
     return getEncodedFileName(toString());
   }
 
-  private String getEncodedFileName(String fileName) {
-    String uri = Path.of(fileName).toUri().toString();
+  private String getEncodedFileName(final String fileName) {
+
+    final var uri = Path.of(fileName).toUri().toString();
     return uri.replace("c:", "c%3A").replace("C:", "c%3A");
   }
 }

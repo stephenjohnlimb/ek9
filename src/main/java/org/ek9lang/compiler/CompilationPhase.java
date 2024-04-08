@@ -36,11 +36,14 @@ public enum CompilationPhase {
 
   private final String description;
 
-  CompilationPhase(String description) {
+  CompilationPhase(final String description) {
+
     this.description = description;
+
   }
 
   public String getDescription() {
+    
     return description;
   }
 }

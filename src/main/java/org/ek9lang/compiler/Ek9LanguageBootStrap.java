@@ -22,11 +22,14 @@ public class Ek9LanguageBootStrap implements Supplier<SharedThreadContext<Compil
   /**
    * Create a language bootstrap with a set of ek9 language files.
    */
-  public Ek9LanguageBootStrap(Supplier<List<CompilableSource>> sourceSupplier, CompilationPhaseListener listener,
-                              CompilerReporter reporter) {
+  public Ek9LanguageBootStrap(final Supplier<List<CompilableSource>> sourceSupplier,
+                              final CompilationPhaseListener listener,
+                              final CompilerReporter reporter) {
+
     this.sourceSupplier = sourceSupplier;
     this.listener = listener;
     this.reporter = reporter;
+
   }
 
   /**
@@ -34,30 +37,35 @@ public class Ek9LanguageBootStrap implements Supplier<SharedThreadContext<Compil
    * the ek9 built in symbols, in the appropriate modules.
    */
   public SharedThreadContext<CompilableProgram> get() {
+
     final var sharedCompilableProgram = new SharedThreadContext<>(new CompilableProgram());
     addBuiltInEk9LanguageModules(sharedCompilableProgram);
+
     return sharedCompilableProgram;
   }
 
   //This needs more of the compiler phases!
-  private void addBuiltInEk9LanguageModules(SharedThreadContext<CompilableProgram> sharedContext) {
+  private void addBuiltInEk9LanguageModules(final SharedThreadContext<CompilableProgram> sharedContext) {
 
-    Ek9Compiler compiler = new Ek9Compiler(new FrontEndSupplier(sharedContext, listener, reporter, false),
-        reporter.isMuteReportedErrors());
+    final var supplier = new FrontEndSupplier(sharedContext, listener, reporter, false);
+    final var compiler = new Ek9Compiler(supplier, reporter.isMuteReportedErrors());
     final var sources = sourceSupplier.get();
+    final var workspace = new Workspace();
 
-    Workspace workspace = new Workspace();
     sources.forEach(workspace::addSource);
-    var compilationSuccess = compiler.compile(workspace, new CompilerFlags(false));
 
+    final var compilationSuccess = compiler.compile(workspace, new CompilerFlags(false));
     if (!compilationSuccess) {
       displaySources();
       throw new CompilerException("Unable to bootstrap EK9 language, error in " + sources);
     }
+
   }
 
   @SuppressWarnings("java:S106")
   private void displaySources() {
+
     sourceSupplier.get().stream().map(CompilableSource::getSourceAsStringForDebugging).forEach(reporter::report);
+
   }
 }

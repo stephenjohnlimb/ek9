@@ -13,13 +13,16 @@ import org.ek9lang.core.SharedThreadContext;
  */
 public class Serializer implements Function<SharedThreadContext<CompilableProgram>, byte[]> {
   @Override
-  public byte[] apply(SharedThreadContext<CompilableProgram> program) {
-    ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-    try (ObjectOutputStream output = new ObjectOutputStream(byteStream)) {
+  public byte[] apply(final SharedThreadContext<CompilableProgram> program) {
+
+    final var byteStream = new ByteArrayOutputStream();
+
+    try (final var output = new ObjectOutputStream(byteStream)) {
       output.writeObject(program);
     } catch (IOException e) {
       throw new CompilerException(e.toString());
     }
+
     return byteStream.toByteArray();
   }
 }

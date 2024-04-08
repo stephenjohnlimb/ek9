@@ -28,9 +28,11 @@ public class Ek9Compiler implements Compiler {
   public Ek9Compiler(
       final Supplier<List<BiFunction<Workspace, CompilerFlags, CompilationPhaseResult>>> compilationPhaseSupplier,
       final boolean muteReportedErrors) {
+
     AssertValue.checkNotNull("CompilationPhaseSupplier Listener must be provided", compilationPhaseSupplier);
     this.compilationPhaseSupplier = compilationPhaseSupplier;
     this.muteReportedErrors = muteReportedErrors;
+
   }
 
   /**
@@ -39,51 +41,66 @@ public class Ek9Compiler implements Compiler {
    * It basically just runs through each of the phases configured.
    */
   @Override
-  public boolean compile(Workspace workspace, CompilerFlags flags) {
+  public boolean compile(final Workspace workspace, final CompilerFlags flags) {
+
     AssertValue.checkNotNull("Workspace must be provided", workspace);
     AssertValue.checkNotNull("Compiler Flags must be provided", flags);
-    var reporter = new CompilerReporter(flags.isVerbose(), muteReportedErrors);
-    NumberFormat format = NumberFormat.getInstance();
-    format.setGroupingUsed(true);
+
+    final var reporter = new CompilerReporter(flags.isVerbose(), muteReportedErrors);
 
     //Get all the phases and process in turn, if phase fails then stop (false)
     //If the phase was the final one required, then also stop (but true).
     var rtn = true;
-    long start = System.nanoTime();
+    final long start = System.nanoTime();
     for (var phase : compilationPhaseSupplier.get()) {
-      long before = System.nanoTime();
 
+      final long before = System.nanoTime();
       //This is where the actual work of the phase is done.
-      var phaseResult = phase.apply(workspace, flags);
-
-      long after = System.nanoTime();
-      reporter.log(String.format("%s duration %s ms; success %b",
-          phaseResult.phase(), format.format((after - before) / 1000000.0), phaseResult.phaseSuccess()));
+      final var phaseResult = phase.apply(workspace, flags);
+      final long after = System.nanoTime();
       if (!phaseResult.phaseSuccess()) {
         rtn = false;
       }
+
+      final var phaseString = phaseResult.phase().toString();
+      reporter.log(getTimeReport("%s duration %s ms; success %b", phaseString, before, after, rtn));
 
       if (!phaseResult.phaseSuccess() || phaseResult.phaseMatch()) {
         break;
       }
     }
-    long end = System.nanoTime();
-    reporter.log(String.format("Total duration (excluding bootstrap) %s ms; success %b",
-        format.format((end - start) / 1000000.0), rtn));
+
+    final long end = System.nanoTime();
+    reporter.log(getTimeReport("Total duration (excluding bootstrap) %s ms; success %b", "Total", start, end, rtn));
     reporter.log(getStatistics());
+
     return rtn;
   }
 
-  private String getStatistics() {
-    var runtime = Runtime.getRuntime();
+  private String getTimeReport(final String message,
+                               final String phase,
+                               final long start,
+                               final long end,
+                               final boolean success) {
 
-    NumberFormat format = NumberFormat.getInstance();
-    var total = runtime.totalMemory();
-    var freeMemory = runtime.freeMemory();
-    var used = format.format((total - freeMemory) / (1024 * 1024));
-    var totalMemory = format.format(total / (1024 * 1024));
-    var numCpus = runtime.availableProcessors();
+    final var format = NumberFormat.getInstance();
+    format.setGroupingUsed(true);
+
+    return String.format(message, phase, format.format((end - start) / 1000000.0), success);
+  }
+
+  private String getStatistics() {
+
+    final var runtime = Runtime.getRuntime();
+    final var format = NumberFormat.getInstance();
+    final var total = runtime.totalMemory();
+    final var freeMemory = runtime.freeMemory();
+
+    final var used = format.format((total - freeMemory) / (1024 * 1024));
+    final var totalMemory = format.format(total / (1024 * 1024));
+    final var numCpus = runtime.availableProcessors();
 
     return String.format("Memory used %s MB of %s MB with %d CPUs", used, totalMemory, numCpus);
   }
+
 }

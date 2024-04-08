@@ -21,17 +21,21 @@ public class TokenResult {
   /**
    * Create a valid token result with the token its position and the other surrounding tokens.
    */
-  public TokenResult(IToken token, List<IToken> tokensInLine, int positionInLine) {
+  public TokenResult(final IToken token, final List<IToken> tokensInLine, final int positionInLine) {
+
     this.token = token;
     this.tokenPositionInLine = positionInLine;
     this.tokensInLine = tokensInLine;
+
   }
 
   public IToken getToken() {
+
     return token;
   }
 
   public boolean isPresent() {
+
     return token != null;
   }
 
@@ -41,11 +45,13 @@ public class TokenResult {
    * @return true if all previous tokens are indents or this is first token.
    */
   public boolean previousTokensIndentsOrFirst() {
+
     boolean rtn = true;
     for (int i = 0; i < tokenPositionInLine; i++) {
       boolean isIndent = tokensInLine.get(i).getType() == EK9Parser.INDENT;
       rtn &= isIndent;
     }
+
     return rtn;
   }
 
@@ -53,11 +59,12 @@ public class TokenResult {
    * Checks if the previous token was some sort of assignment.
    */
   public boolean previousTokenIsAssignment() {
+
     if (tokenPositionInLine == 0) {
       return false;
     }
 
-    var previousToken = tokensInLine.get(tokenPositionInLine - 1).getType();
+    final var previousToken = tokensInLine.get(tokenPositionInLine - 1).getType();
 
     return switch (previousToken) {
       case EK9Parser.ADD_ASSIGN,
@@ -76,9 +83,11 @@ public class TokenResult {
    * Check if previous token was a pipe token.
    */
   public boolean previousTokenIsPipe() {
+
     if (tokenPositionInLine > 0) {
       return tokensInLine.get(tokenPositionInLine - 1).getType() == EK9Parser.PIPE;
     }
+
     return false;
   }
 
@@ -86,9 +95,11 @@ public class TokenResult {
    * Check if previous token was a 'defines' token.
    */
   public boolean previousTokenIsDefines() {
+
     if (tokenPositionInLine > 0) {
       return tokensInLine.get(tokenPositionInLine - 1).getType() == EK9Parser.DEFINES;
     }
+
     return false;
   }
 
@@ -96,9 +107,11 @@ public class TokenResult {
    * Check if previous token was an overrides token.
    */
   public boolean previousTokenIsOverride() {
+
     if (tokenPositionInLine > 0) {
       return tokensInLine.get(tokenPositionInLine - 1).getType() == EK9Parser.OVERRIDE;
     }
+
     return false;
   }
 }

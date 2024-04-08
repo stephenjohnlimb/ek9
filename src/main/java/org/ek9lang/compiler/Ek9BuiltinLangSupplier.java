@@ -26,11 +26,13 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   public static final int NUMBER_OF_EK9_SYMBOLS = 97;
 
   //Obviously with ek9 the indentation is important.
+
   @SuppressWarnings({"Indentation"})
   private static final String ORG_EK_9_LANG_PREAMBLE = """
       #!ek9
       defines extern module org.ek9.lang
       """;
+
   @SuppressWarnings({"Indentation"})
   private static final String DEFINES_LANGUAGE_PACKAGE = """
         defines package
@@ -45,26 +47,32 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
         
           license <- "MIT"
       """;
+
   @SuppressWarnings({"Indentation"})
   private static final String DEFINES_CLASS = """
         defines class
       """;
+
   @SuppressWarnings({"Indentation"})
   private static final String DEFINES_TRAIT = """
         defines trait
       """;
+
   @SuppressWarnings({"Indentation"})
   private static final String DEFINES_FUNCTION = """
         defines function
       """;
+
   @SuppressWarnings({"Indentation"})
   private static final String DEFINES_RECORD = """
         defines record
       """;
+
   @SuppressWarnings({"Indentation"})
   private static final String DEFINES_CONSTANT = """
         defines constant
       """;
+
   /**
    * Ready to start fleshing out String.
    */
@@ -180,6 +188,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Boolean?
 
       """;
+
   /**
    * As each type is fleshed out pull it out of the list and create a new full signature.
    */
@@ -2146,6 +2155,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as String?
                           
       """;
+
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_BUILT_IN_TEMPLATE_FUNCTIONS = """
           Supplier of type T as pure abstract
@@ -2611,6 +2621,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Boolean: hasNext()
 
       """;
+
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_BUILT_IN_TRAITS = """
           Clock
@@ -2730,6 +2741,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
              
       """;
+
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_STANDARD_FUNCTIONS = """
           SignalHandler() as abstract
@@ -2740,6 +2752,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           MutexKey() of type T as abstract
             -> value as T
       """;
+
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_STANDARD_CLASSES = """
           SystemClock with trait of Clock
@@ -2881,6 +2894,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Boolean?
               
       """;
+
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_NETWORK_FUNCTIONS = """
           
@@ -2897,6 +2911,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               input as StringInput
               output as StringOutput
       """;
+
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_NETWORK_TRAITS = """
           HTTPRequest as open
@@ -2923,6 +2938,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Boolean :=? Boolean()
 
       """;
+
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_NETWORK_CLASSES = """
           UDP
@@ -2986,6 +3002,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Boolean?
               
       """;
+
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_NETWORK_RECORDS = """
           
@@ -3096,6 +3113,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as String?
                             
       """;
+
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_ASPECT_CLASSES = """
           Aspect as open
@@ -3136,6 +3154,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Boolean?
 
       """;
+
   @SuppressWarnings({"Indentation"})
   private static final String ORG_EK9_MATH_PREMABLE = """
       #!ek9
@@ -3154,6 +3173,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
         
           license <- "MIT"
       """;
+
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_MATH_CONSTANTS = """
           PI <- 3.141592653589793238
@@ -3169,6 +3189,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   }
 
   private InputStream getOrgEk9LangDeclarations() {
+
     //Note define the package at the end - because we need to define basic types first.
     //Normally the package would come first by convention.
     var sources = List.of(ORG_EK_9_LANG_PREAMBLE,
@@ -3197,11 +3218,14 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
         DEFINE_ASPECT_CLASSES,
         DEFINES_LANGUAGE_PACKAGE
     );
+
     return new ByteArrayInputStream(String.join("", sources).getBytes());
   }
 
   private InputStream getOrgEk9MathDeclarations() {
+
     var sources = List.of(ORG_EK9_MATH_PREMABLE, DEFINES_CONSTANT, DEFINE_MATH_CONSTANTS);
+    
     return new ByteArrayInputStream(String.join("", sources).getBytes());
   }
 }

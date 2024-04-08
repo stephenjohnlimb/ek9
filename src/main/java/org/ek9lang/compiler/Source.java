@@ -9,10 +9,12 @@ public interface Source {
   String getFileName();
 
   default boolean isDev() {
+
     return false;
   }
 
   default boolean isLib() {
+
     return false;
   }
 }

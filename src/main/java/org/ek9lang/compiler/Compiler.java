@@ -23,5 +23,5 @@ public interface Compiler {
    *
    * @return true if compilation succeeded
    */
-  boolean compile(Workspace workspace, CompilerFlags flags);
+  boolean compile(final Workspace workspace, final CompilerFlags flags);
 }

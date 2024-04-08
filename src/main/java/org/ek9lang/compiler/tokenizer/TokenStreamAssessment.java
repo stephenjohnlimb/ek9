@@ -16,29 +16,32 @@ import org.ek9lang.core.Logger;
  */
 public class TokenStreamAssessment {
   private String getSymbolicContent(final String symbolicName, final String literalContent) {
+
     return symbolicName == null ? literalContent : symbolicName;
   }
 
   /**
    * Assess the reading complexity of the tokens from the lexer.
    */
-  public String assess(LexerPlugin lexer, boolean printTokens) {
+  public String assess(final LexerPlugin lexer, final boolean printTokens) {
+
     if (printTokens) {
       Logger.debug("\n[TOKENS]");
     }
+
     return doAssessment(lexer, printTokens);
   }
 
-  private String doAssessment(LexerPlugin lexer, boolean printTokens) {
-    CommonTokenStream tokens = new CommonTokenStream(lexer);
+  private String doAssessment(final LexerPlugin lexer, final boolean printTokens) {
+
+    final var tokens = new CommonTokenStream(lexer);
     tokens.fill();
 
-    var counters = new Counters();
+    final var counters = new Counters();
 
     for (Token t : tokens.getTokens()) {
       String literalContent = tidyLiteralContent(t.getText());
-      final String symbolicContent =
-          getSymbolicContent(lexer.getSymbolicName(t.getType()), literalContent);
+      final var symbolicContent = getSymbolicContent(lexer.getSymbolicName(t.getType()), literalContent);
       if (printTokens) {
         Logger.debugf("  %-20s '%s'%n", symbolicContent, literalContent);
       }
@@ -49,8 +52,10 @@ public class TokenStreamAssessment {
     return assessReadability(printTokens, counters);
   }
 
-  private void doAssessTokenContent(String symbolicContent, String literalContent,
-                                    Counters counters) {
+  private void doAssessTokenContent(final String symbolicContent,
+                                    final String literalContent,
+                                    final Counters counters) {
+
     if (!assessFormOfNewLine(symbolicContent, counters)) {
       if (!Pattern.matches("\\p{Punct}", literalContent) && !literalContent.equals("<-")
           && !literalContent.equals("->") && !literalContent.equals(":=")) {
@@ -65,39 +70,46 @@ public class TokenStreamAssessment {
     }
   }
 
-  private boolean assessQuotedContent(String literalContent, Counters counters) {
-    var consideredQuotedContent = literalContent.startsWith("\"");
+  private boolean assessQuotedContent(final String literalContent, final Counters counters) {
+
+    final var consideredQuotedContent = literalContent.startsWith("\"");
     if (consideredQuotedContent) {
-      String[] words = literalContent.split("\\s+");
+      final var words = literalContent.split("\\s+");
       counters.numWords += words.length;
       counters.numLetters += Arrays.stream(words).map(String::length).reduce(0, Integer::sum);
     }
+
     return consideredQuotedContent;
   }
 
   private String assessReadability(boolean printTokens, Counters counters) {
+
     //We have to approximate sentences in source code
-    String readability =
-        new Ari().getScore(counters.numLetters, counters.numWords,
-            counters.numIndents, counters.numNewLines);
+    final var readability = new Ari().getScore(counters.numLetters, counters.numWords,
+        counters.numIndents, counters.numNewLines);
+
     if (printTokens) {
       Logger.log("Readability [" + readability + "]");
     }
+
     return readability;
   }
 
-  private boolean assessConsideredAWholeWord(String literalContent, Counters counters) {
-    var formOfWholeWord = literalContent.length() != 1 && !literalContent.equals("<-")
+  private void assessConsideredAWholeWord(final String literalContent, final Counters counters) {
+
+    final var formOfWholeWord = literalContent.length() != 1 && !literalContent.equals("<-")
         && !literalContent.equals("->") && !literalContent.equals(":=");
+
     if (formOfWholeWord) {
       counters.numWords++;
     }
-    return formOfWholeWord;
+
   }
 
-  private boolean assessFormOfNewLine(String symbolicContent, Counters counters) {
+  private boolean assessFormOfNewLine(final String symbolicContent, final Counters counters) {
     var formOfNewLine = symbolicContent.equals("NL") || symbolicContent.equals("newline")
         || symbolicContent.equals("indent") || symbolicContent.equals("dedent");
+
     if (formOfNewLine) {
       if (symbolicContent.equals("NL")) {
         counters.numNewLines++;
@@ -106,10 +118,12 @@ public class TokenStreamAssessment {
         counters.numIndents++;
       }
     }
+
     return formOfNewLine;
   }
 
-  private String tidyLiteralContent(String content) {
+  private String tidyLiteralContent(final String content) {
+
     return content.replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t");
   }
 

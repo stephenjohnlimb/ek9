@@ -12,9 +12,9 @@ public interface LexerPlugin extends TokenSource {
 
   int getDedentToken();
 
-  String getSymbolicName(int tokenType);
+  String getSymbolicName(final int tokenType);
 
   void removeErrorListeners();
 
-  void addErrorListener(ANTLRErrorListener listener);
+  void addErrorListener(final ANTLRErrorListener listener);
 }

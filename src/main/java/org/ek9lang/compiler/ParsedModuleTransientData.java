@@ -51,14 +51,17 @@ public class ParsedModuleTransientData {
    * This means that the test and the deliberated defective code as co-located.
    */
   public void recordDirective(final Directive directive) {
+
     AssertValue.checkNotNull("Directive cannot be null", directive);
     directives.add(directive);
+
   }
 
   /**
    * Provide access to any directives recorded of a specific type and compilation phase.
    */
   public List<Directive> getDirectives(final DirectiveType type, final CompilationPhase phase) {
+
     return directives.stream().filter(directive -> directive.type() == type)
         .filter(directive -> directive.isForPhase(phase)).toList();
   }
@@ -67,44 +70,52 @@ public class ParsedModuleTransientData {
    * Provide access to any directives recorded.
    */
   public List<Directive> getDirectives(final DirectiveType type) {
+
     return directives.stream().filter(directive -> directive.type() == type).toList();
   }
 
   /**
    * Record a particular node context during listen/visit of a context with a particular scope.
    */
-  public void recordScope(ParseTree node, IScope withScope) {
+  public void recordScope(final ParseTree node, final IScope withScope) {
+
     AssertValue.checkNotNull("WithScope cannot be null", withScope);
     scopes.put(node, withScope);
+
   }
 
   /**
    * Locate and return a recorded scope against part of the parse tree,
    * this may return null if nothing has been recorded.
    */
-  public IScope getRecordedScope(ParseTree node) {
+  public IScope getRecordedScope(final ParseTree node) {
+
     return scopes.get(node);
   }
 
   /**
    * Record a particular node context with a particular symbol.
    */
-  public void recordSymbol(ParseTree node, ISymbol symbol, Module module) {
+  public void recordSymbol(final ParseTree node, final ISymbol symbol, final Module module) {
+
     AssertValue.checkNotNull("Node cannot be null", node);
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
+    AssertValue.checkNotNull("Module cannot be null", module);
 
     //Let the symbol know where it is defined.
     //But it can only be defined in one place - in case of references we record in other locations
     //We only want its actual module recorded the first time it is encountered.
     symbol.setParsedModule(Optional.of(module));
     symbols.put(node, symbol);
+
   }
 
   /**
    * Locate and return a recorded symbol against part of the parse tree,
    * this may return null if nothing has been recorded.
    */
-  public ISymbol getRecordedSymbol(ParseTree node) {
+  public ISymbol getRecordedSymbol(final ParseTree node) {
+
     return symbols.get(node);
   }
 

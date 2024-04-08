@@ -93,44 +93,56 @@ public class ParsedModule implements Module, Serializable {
   /**
    * We may hold Nodes in here - but not sure yet.
    */
-  public ParsedModule(CompilableSource source, SharedThreadContext<CompilableProgram> compilableProgram) {
+  public ParsedModule(final CompilableSource source,
+                      final SharedThreadContext<CompilableProgram> compilableProgram) {
+
     AssertValue.checkNotNull("CompilableSource cannot be null", source);
     AssertValue.checkNotNull("CompilableProgram cannot be null", compilableProgram);
     this.source = source;
     this.compilableProgram = compilableProgram;
+
   }
 
   public ModuleScope getModuleScope() {
+
     return moduleScope;
   }
 
-  public void setModuleScope(ModuleScope moduleScope) {
+  public void setModuleScope(final ModuleScope moduleScope) {
+
     AssertValue.checkNotNull("ModuleScope cannot be null", moduleScope);
     this.moduleScope = moduleScope;
+
   }
 
   /**
    * If cached ek9 types have been provided, they can be accessed here.
    */
   public Ek9Types getEk9Types() {
+
     if (ek9Types == null) {
-      AtomicReference<Ek9Types> ref = new AtomicReference<>();
+      final AtomicReference<Ek9Types> ref = new AtomicReference<>();
       compilableProgram.accept(program -> ref.set(program.getEk9Types()));
       ek9Types = ref.get();
     }
+
     return ek9Types;
   }
 
   public boolean isExternallyImplemented() {
+
     return externallyImplemented;
   }
 
-  public void setExternallyImplemented(boolean externallyImplemented) {
+  public void setExternallyImplemented(final boolean externallyImplemented) {
+
     this.externallyImplemented = externallyImplemented;
+
   }
 
   @Override
   public boolean isEk9Core() {
+
     //Any module that start with this is deemed core.
     return this.moduleName.startsWith("org.ek9");
   }
@@ -140,11 +152,13 @@ public class ParsedModule implements Module, Serializable {
    * can be provided to this Parsed module. It will then have the second part of its initialisation complete.
    * It will create a module scope and that can be used to add and define symbols.
    */
-  public ModuleScope acceptCompilationUnitContext(EK9Parser.CompilationUnitContext compilationUnitContext) {
+  public ModuleScope acceptCompilationUnitContext(final EK9Parser.CompilationUnitContext compilationUnitContext) {
+
     AssertValue.checkNotNull("CompilationUnitContext cannot be null", compilationUnitContext);
-    var theModuleName = compilationUnitContext.moduleDeclaration().dottedName().getText();
+    final var theModuleName = compilationUnitContext.moduleDeclaration().dottedName().getText();
     AssertValue.checkNotEmpty("ModuleName must have a value", theModuleName);
     setModuleName(theModuleName);
+
     //Only set if a module scope is not yet present.
     //Typically, on the definition phase will set this.
     if (getModuleScope() == null) {
@@ -154,15 +168,19 @@ public class ParsedModule implements Module, Serializable {
     return getModuleScope();
   }
 
-  public boolean isForThisCompilableSource(CompilableSource compilableSource) {
+  public boolean isForThisCompilableSource(final CompilableSource compilableSource) {
+
     AssertValue.checkNotNull("CompilableSource cannot be null", compilableSource);
+
     return source.equals(compilableSource);
   }
 
   private ParsedModuleTransientData getParsedModuleTransientData() {
+
     if (this.transientData == null) {
       transientData = new ParsedModuleTransientData();
     }
+
     return transientData;
   }
 
@@ -175,16 +193,20 @@ public class ParsedModule implements Module, Serializable {
    * This means that the test and the deliberated defective code as co-located.
    */
   public void recordDirective(final Directive directive) {
+
     AssertValue.checkNotNull("Directive cannot be null", directive);
     getParsedModuleTransientData().recordDirective(directive);
+
   }
 
   /**
    * Provide access to any directives recorded of a specific type and compilation phase.
    */
   public List<Directive> getDirectives(final DirectiveType type, final CompilationPhase phase) {
+
     AssertValue.checkNotNull("DirectiveType cannot be null", type);
     AssertValue.checkNotNull("Phase cannot be null", phase);
+
     return getParsedModuleTransientData().getDirectives(type, phase);
   }
 
@@ -192,82 +214,98 @@ public class ParsedModule implements Module, Serializable {
    * Provide access to any directives recorded.
    */
   public List<Directive> getDirectives(final DirectiveType type) {
+
     AssertValue.checkNotNull("DirectiveType cannot be null", type);
+
     return getParsedModuleTransientData().getDirectives(type);
   }
 
   /**
    * Record a particular node context during listen/visit of a context with a particular scope.
    */
-  public void recordScope(ParseTree node, IScope withScope) {
+  public void recordScope(final ParseTree node, final IScope withScope) {
+
     AssertValue.checkNotNull(PARSE_TREE_ERROR_TEXT, node);
     AssertValue.checkNotNull("WithScope cannot be null", withScope);
     getParsedModuleTransientData().recordScope(node, withScope);
+
   }
 
   /**
    * Locate and return a recorded scope against part of the parse tree,
    * this may return null if nothing has been recorded.
    */
-  public IScope getRecordedScope(ParseTree node) {
+  public IScope getRecordedScope(final ParseTree node) {
+
     AssertValue.checkNotNull(PARSE_TREE_ERROR_TEXT, node);
+
     return getParsedModuleTransientData().getRecordedScope(node);
   }
 
   /**
    * Record a particular node context with a particular symbol.
    */
-  public void recordSymbol(ParseTree node, ISymbol symbol) {
+  public void recordSymbol(final ParseTree node, final ISymbol symbol) {
+
     AssertValue.checkNotNull(PARSE_TREE_ERROR_TEXT, node);
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
-
     getParsedModuleTransientData().recordSymbol(node, symbol, this);
+
   }
 
   /**
    * Locate and return a recorded symbol against part of the parse tree,
    * this may return null if nothing has been recorded.
    */
-  public ISymbol getRecordedSymbol(ParseTree node) {
+  public ISymbol getRecordedSymbol(final ParseTree node) {
+
     AssertValue.checkNotNull(PARSE_TREE_ERROR_TEXT, node);
+
     return getParsedModuleTransientData().getRecordedSymbol(node);
   }
 
   @Override
-  public boolean equals(Object obj) {
-    var rtn = false;
+  public boolean equals(final Object obj) {
+
     if (obj instanceof ParsedModule module) {
-      rtn = this.source.equals(module.source);
+      return this.source.equals(module.source);
     }
-    return rtn;
+    return false;
   }
 
   @Override
   public int hashCode() {
+
     return source.hashCode();
   }
 
   @Override
   public String toString() {
+
     return getModuleName();
   }
 
   public String getModuleName() {
+
     return moduleName;
   }
 
-  public void setModuleName(String moduleName) {
+  public void setModuleName(final String moduleName) {
+
     AssertValue.checkNotNull("ModuleName cannot be null", moduleName);
     this.moduleName = moduleName;
+
   }
 
   @Override
   public CompilableSource getSource() {
+
     return this.source;
   }
 
   @Override
   public String getScopeName() {
+
     return getModuleName();
   }
 }

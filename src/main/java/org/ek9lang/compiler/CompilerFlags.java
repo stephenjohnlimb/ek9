@@ -46,77 +46,99 @@ public class CompilerFlags {
   private CompilationPhase compileToPhase;
 
   public CompilerFlags() {
+
     this(CompilationPhase.APPLICATION_PACKAGING);
+
   }
 
-  public CompilerFlags(CompilationPhase compileToPhase) {
+  public CompilerFlags(final CompilationPhase compileToPhase) {
+
     this.compileToPhase = compileToPhase;
+
   }
 
-  public CompilerFlags(CompilationPhase compileToPhase, boolean verbose) {
+  public CompilerFlags(final CompilationPhase compileToPhase, final boolean verbose) {
+
     this.compileToPhase = compileToPhase;
     this.verbose = verbose;
+
   }
 
-  public CompilerFlags(boolean verbose) {
+  public CompilerFlags(final boolean verbose) {
+
     this.verbose = verbose;
+
   }
 
   public boolean isSuggestionRequired() {
+
     return suggestionRequired;
   }
 
-  public void setSuggestionRequired(boolean suggestionRequired) {
+  public void setSuggestionRequired(final boolean suggestionRequired) {
+
     this.suggestionRequired = suggestionRequired;
+
   }
 
   public int getNumberOfSuggestions() {
+
     return numberOfSuggestions;
   }
 
   /**
    * Configure the number of suggestions for interactive help on errors.
    */
-  public void setNumberOfSuggestions(int numberOfSuggestions) {
+  public void setNumberOfSuggestions(final int numberOfSuggestions) {
+
     if (numberOfSuggestions < 1) {
       setSuggestionRequired(false);
       this.numberOfSuggestions = 0;
     } else {
       this.numberOfSuggestions = numberOfSuggestions;
     }
+
   }
 
   public CompilationPhase getCompileToPhase() {
+
     return compileToPhase;
   }
 
   /**
    * Only compile to a specific phase of the overall compilation process.
    */
-  public void setCompileToPhase(CompilationPhase compileToPhase) {
+  public void setCompileToPhase(final CompilationPhase compileToPhase) {
+
     this.compileToPhase = compileToPhase;
     if (compileToPhase != CompilationPhase.APPLICATION_PACKAGING) {
       this.checkCompilationOnly = true;
     }
+
   }
 
   public boolean isDebuggingInstrumentation() {
+
     return debuggingInstrumentation;
   }
 
-  public void setDebuggingInstrumentation(boolean debuggingInstrumentation) {
+  public void setDebuggingInstrumentation(final boolean debuggingInstrumentation) {
+
     this.debuggingInstrumentation = debuggingInstrumentation;
   }
 
   public boolean isDevBuild() {
+
     return devBuild;
   }
 
-  public void setDevBuild(boolean devBuild) {
+  public void setDevBuild(final boolean devBuild) {
+
     this.devBuild = devBuild;
   }
 
   public boolean isCheckCompilationOnly() {
+
     return checkCompilationOnly;
   }
 
@@ -124,18 +146,22 @@ public class CompilerFlags {
    * Only run a check compilation.
    * This means run upto IR Analysis phase only.
    */
-  public void setCheckCompilationOnly(boolean checkCompilationOnly) {
+  public void setCheckCompilationOnly(final boolean checkCompilationOnly) {
+
     this.checkCompilationOnly = checkCompilationOnly;
     if (checkCompilationOnly) {
       compileToPhase = CompilationPhase.IR_ANALYSIS;
     }
+
   }
 
   public boolean isVerbose() {
+
     return verbose;
   }
 
-  public void setVerbose(boolean verbose) {
+  public void setVerbose(final boolean verbose) {
+
     this.verbose = verbose;
   }
 }

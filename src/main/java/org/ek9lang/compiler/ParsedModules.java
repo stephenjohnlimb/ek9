@@ -28,15 +28,18 @@ public class ParsedModules implements Serializable {
    */
   private final List<ParsedModule> parsedModulesInModule = new ArrayList<>();
 
-  public ParsedModules(String moduleName) {
+  public ParsedModules(final String moduleName) {
+
     AssertValue.checkNotNull("ModuleName cannot be null", moduleName);
     this.moduleName = moduleName;
+
   }
 
   /**
    * Add a parsed module to the set all under the same moduleName.
    */
-  public void add(ParsedModule parsedModule) {
+  public void add(final ParsedModule parsedModule) {
+
     AssertValue.checkNotNull("ParsedModule cannot be null", parsedModule);
 
     if (!parsedModulesInModule.contains(parsedModule)) {
@@ -44,19 +47,23 @@ public class ParsedModules implements Serializable {
     } else {
       throw new CompilerException("Parsed module already in list for " + moduleName);
     }
+
   }
 
   /**
    * Remove an existing parsed module for the set of modules recorded against a specific module name.
    */
-  public void remove(ParsedModule parsedModule) {
+  public void remove(final ParsedModule parsedModule) {
+
     parsedModulesInModule.remove(parsedModule);
+
   }
 
   /**
    * Provides an unmodifiable list of parsed modules.
    */
   public List<ParsedModule> getParsedModules() {
+
     return Collections.unmodifiableList(parsedModulesInModule);
   }
 }

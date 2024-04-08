@@ -20,28 +20,36 @@ public class Ek9Token implements IToken {
    * Create a new token with default name of 'Synthetic'.
    */
   public Ek9Token() {
+
     this("Synthetic", 0);
+
   }
 
   /**
    * Create a new token with a specific name.
    */
-  public Ek9Token(String textName) {
+  public Ek9Token(final String textName) {
+
     this(textName, 0);
+
   }
 
   /**
    * Create a new token with name and specific line number.
    */
   public Ek9Token(final String textName, final int lineNumber) {
+
     this(textName, lineNumber, "SyntheticTokenSource");
+
   }
 
   /**
    * Create a new token with name, specific line number and named source file.
    */
   public Ek9Token(final String textName, final int lineNumber, final String sourceName) {
+
     this(0, textName, lineNumber, sourceName, 0, 0);
+
   }
 
   /**
@@ -49,6 +57,7 @@ public class Ek9Token implements IToken {
    */
   public Ek9Token(final int type, final String textName, final int lineNumber, final String sourceName,
                   final int charPositionInLine, final int tokenIndex) {
+
     this.type = type;
     this.textName = textName;
     this.lineNumber = lineNumber;
@@ -62,6 +71,7 @@ public class Ek9Token implements IToken {
    * Pull out all relevant details of an ANTLR Token into a minimal EK9Token.
    */
   public Ek9Token(final Token token) {
+
     this(token.getType(), token.getText(), token.getLine(),
         token.getTokenSource().getSourceName(),
         token.getCharPositionInLine(), token.getTokenIndex());
@@ -69,43 +79,49 @@ public class Ek9Token implements IToken {
 
   @Override
   public int getType() {
+
     return type;
   }
 
   @Override
   public String getText() {
+
     return textName;
   }
 
   @Override
   public String getSourceName() {
+
     return sourceName;
   }
 
   @Override
   public int getLine() {
+
     return lineNumber;
   }
 
   @Override
   public int getCharPositionInLine() {
+
     return charPositionInLine;
   }
 
   @Override
   public int getTokenIndex() {
+
     return tokenIndex;
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
+
     if (this == o) {
       return true;
     }
     if (!(o instanceof Ek9Token ek9Token)) {
       return false;
     }
-
     if (getType() != ek9Token.getType()) {
       return false;
     }
@@ -121,23 +137,27 @@ public class Ek9Token implements IToken {
     if (!Objects.equals(textName, ek9Token.textName)) {
       return false;
     }
+
     return getSourceName() != null ? getSourceName().equals(ek9Token.getSourceName()) :
         ek9Token.getSourceName() == null;
   }
 
   @Override
   public int hashCode() {
+
     int result = getType();
     result = 31 * result + (textName != null ? textName.hashCode() : 0);
     result = 31 * result + lineNumber;
     result = 31 * result + (getSourceName() != null ? getSourceName().hashCode() : 0);
     result = 31 * result + getCharPositionInLine();
     result = 31 * result + getTokenIndex();
+
     return result;
   }
 
   @Override
   public String toString() {
+
     return "Ek9Token{"
         + "type=" + type
         + ", textName='" + textName + '\''

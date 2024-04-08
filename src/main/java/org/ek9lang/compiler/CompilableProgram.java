@@ -60,28 +60,37 @@ public class CompilableProgram implements Serializable {
   /**
    * For a specific source the ParsedModule is returned.
    */
-  public ParsedModule getParsedModuleForCompilableSource(CompilableSource source) {
+  public ParsedModule getParsedModuleForCompilableSource(final CompilableSource source) {
+
     AssertValue.checkNotNull("Compilable source cannot be null", source);
+
     return this.sourceToParsedModule.get(source);
   }
 
   public Ek9Types getEk9Types() {
+
     return ek9Types;
   }
 
   public CompilationData getCompilationData() {
+
     return compilationData;
   }
 
-  public void setCompilationData(CompilationData compilationData) {
+  public void setCompilationData(final CompilationData compilationData) {
+
     this.compilationData = compilationData;
+
   }
 
-  public void setEk9Types(Ek9Types ek9Types) {
+  public void setEk9Types(final Ek9Types ek9Types) {
+
     this.ek9Types = ek9Types;
+
   }
 
   private Function<String, List<ModuleScope>> getModuleScopesFunction() {
+
     if (getModuleScopes == null) {
       getModuleScopes = moduleName -> Stream.ofNullable(theParsedModules.get(moduleName))
           .map(ParsedModules::getParsedModules)
@@ -89,6 +98,7 @@ public class CompilableProgram implements Serializable {
           .map(ParsedModule::getModuleScope)
           .toList();
     }
+
     return getModuleScopes;
   }
 
@@ -98,22 +108,20 @@ public class CompilableProgram implements Serializable {
    *
    * @param parsedModule The new parsed module to add in.
    */
-  public void add(ParsedModule parsedModule) {
+  public void add(final ParsedModule parsedModule) {
+
     AssertValue.checkNotNull("ParsedModule cannot be null", parsedModule);
     AssertValue.checkNotNull("ParsedModule getModuleName cannot be null", parsedModule.getModuleName());
 
-    ParsedModules list = theParsedModules.get(parsedModule.getModuleName());
-
-    //check and then need to add a new one
-    if (list == null) {
-      list = new ParsedModules(parsedModule.getModuleName());
-      theParsedModules.put(parsedModule.getModuleName(), list);
-    }
-
-    //Will be checked for duplication.
-    list.add(parsedModule);
-
+    final var parsedModules = getOrCreateParsedModules(parsedModule.getModuleName());
+    parsedModules.add(parsedModule);
     sourceToParsedModule.put(parsedModule.getSource(), parsedModule);
+
+  }
+
+  private ParsedModules getOrCreateParsedModules(final String parsedModuleName) {
+
+    return theParsedModules.computeIfAbsent(parsedModuleName, ParsedModules::new);
   }
 
   /**
@@ -122,13 +130,14 @@ public class CompilableProgram implements Serializable {
    *
    * @param parsedModule The existing parsed module to be removed.
    */
-  public void remove(ParsedModule parsedModule) {
+  public void remove(final ParsedModule parsedModule) {
+
     AssertValue.checkNotNull("ParsedModule cannot be null", parsedModule);
-    ParsedModules list = theParsedModules.get(parsedModule.getModuleName());
-    if (list != null) {
-      list.remove(parsedModule);
-      sourceToParsedModule.remove(parsedModule.getSource());
-    }
+
+    final var parsedModules = getOrCreateParsedModules(parsedModule.getModuleName());
+    parsedModules.remove(parsedModule);
+    sourceToParsedModule.remove(parsedModule.getSource());
+
   }
 
   /**
@@ -136,9 +145,10 @@ public class CompilableProgram implements Serializable {
    * Returns an empty list of the module name cannot be located.
    */
   public List<ParsedModule> getParsedModules(String moduleName) {
-    var modules = theParsedModules.get(moduleName);
 
-    return modules != null ? modules.getParsedModules() : List.of();
+    final var parsedModules = getOrCreateParsedModules(moduleName);
+
+    return parsedModules.getParsedModules();
   }
 
   /**
@@ -146,6 +156,7 @@ public class CompilableProgram implements Serializable {
    * This can be very long.
    */
   public List<String> getParsedModuleNames() {
+
     return theParsedModules.keySet().stream().toList();
   }
 
@@ -153,7 +164,9 @@ public class CompilableProgram implements Serializable {
    * Resolve some symbol via a fully qualified search.
    */
   public Optional<ISymbol> resolveByFullyQualifiedSearch(final SymbolSearch search) {
-    var moduleName = ISymbol.getModuleNameIfPresent(search.getName());
+
+    final var moduleName = ISymbol.getModuleNameIfPresent(search.getName());
+
     return resolveFromModule(moduleName, search);
   }
 
@@ -165,17 +178,19 @@ public class CompilableProgram implements Serializable {
    * org.ek9.lang module.
    */
   public ResolvedOrDefineResult resolveOrDefine(final PossibleGenericSymbol possibleGenericSymbol) {
-    var moduleName = ISymbol.getModuleNameIfPresent(possibleGenericSymbol.getFullyQualifiedName());
-    var search = new SymbolSearch(possibleGenericSymbol);
 
-    var resolved = resolveFromModule(moduleName, search);
+    final var moduleName = ISymbol.getModuleNameIfPresent(possibleGenericSymbol.getFullyQualifiedName());
+    final var search = new SymbolSearch(possibleGenericSymbol);
+    final var resolved = resolveFromModule(moduleName, search);
+
     if (resolved.isEmpty()) {
       //need to define it and return it.
-      var module = getModuleScopesFunction().apply(moduleName).get(0);
+      final var module = getModuleScopesFunction().apply(moduleName).get(0);
       module.define(possibleGenericSymbol);
 
       return new ResolvedOrDefineResult(Optional.of(possibleGenericSymbol), true);
     }
+
     return new ResolvedOrDefineResult(Optional.of((PossibleGenericSymbol) resolved.get()), false);
   }
 
@@ -189,7 +204,8 @@ public class CompilableProgram implements Serializable {
    */
   public Optional<ISymbol> resolveFromModule(final String moduleName, final SymbolSearch search) {
 
-    var moduleScopes = getModuleScopesFunction().apply(moduleName);
+    final var moduleScopes = getModuleScopesFunction().apply(moduleName);
+
     return moduleScopes
         .stream()
         .map(moduleScope -> moduleScope.resolveInThisScopeOnly(search))
@@ -203,6 +219,7 @@ public class CompilableProgram implements Serializable {
    * Locates the token when the first reference was established.
    */
   public Optional<IToken> getOriginalReferenceLocation(final String moduleName, final SymbolSearch search) {
+
     return getModuleScopesFunction().apply(moduleName)
         .stream()
         .map(moduleScope -> moduleScope.getOriginalReferenceLocation(search))
@@ -230,22 +247,29 @@ public class CompilableProgram implements Serializable {
    * org.ek9.lang etc.
    */
   public Optional<ISymbol> resolveFromImplicitScopes(final SymbolSearch search) {
+
     //If the search name being presented is not fully qualified - which it probably won't be
     //We need to modify the search.
-    var name = search.getName();
+    final var name = search.getName();
+
     if (!ISymbol.isQualifiedName(name)) {
-      SymbolSearch newSearch =
-          new SymbolSearch(ISymbol.makeFullyQualifiedName(AggregateFactory.EK9_LANG, name), search);
-      var resolved = resolveFromModule(AggregateFactory.EK9_LANG, newSearch);
-      if (resolved.isEmpty()) {
-        newSearch = new SymbolSearch(ISymbol.makeFullyQualifiedName(AggregateFactory.EK9_MATH, name), search);
-        resolved = resolveFromModule(AggregateFactory.EK9_MATH, newSearch);
+      final var resolved = resolveFromBuiltInModule(AggregateFactory.EK9_LANG, search);
+      if (resolved.isPresent()) {
+        return resolved;
       }
-      return resolved;
+      return resolveFromBuiltInModule(AggregateFactory.EK9_MATH, search);
     } else {
       return Stream.of(AggregateFactory.EK9_LANG, AggregateFactory.EK9_MATH)
           .map(moduleName -> this.resolveFromModule(moduleName, search))
           .filter(Optional::isPresent).flatMap(Optional::stream).findFirst();
     }
+  }
+
+  private Optional<ISymbol> resolveFromBuiltInModule(final String moduleName, final SymbolSearch search) {
+
+    final var name = search.getName();
+    SymbolSearch newSearch = new SymbolSearch(ISymbol.makeFullyQualifiedName(moduleName, name), search);
+
+    return resolveFromModule(moduleName, newSearch);
   }
 }

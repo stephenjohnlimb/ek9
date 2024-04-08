@@ -17,27 +17,33 @@ public abstract class CompilerPhase implements BiFunction<Workspace, CompilerFla
   protected final CompilerReporter reporter;
   protected final SharedThreadContext<CompilableProgram> compilableProgramAccess;
 
-  protected CompilerPhase(CompilationPhase phase, SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                          Consumer<CompilationEvent> listener, CompilerReporter reporter) {
+  protected CompilerPhase(final CompilationPhase phase,
+                          final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                          final Consumer<CompilationEvent> listener,
+                          final CompilerReporter reporter) {
+
     this.thisPhase = phase;
     this.listener = listener;
     this.reporter = reporter;
     this.compilableProgramAccess = compilableProgramAccess;
+
   }
 
   /**
    * Do the compilation phase.
    */
-  protected abstract boolean doApply(Workspace workspace, CompilerFlags compilerFlags);
+  protected abstract boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags);
 
   @Override
-  public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
+  public CompilationPhaseResult apply(final Workspace workspace, final CompilerFlags compilerFlags) {
+
     enterPhase(compilableProgramAccess, reporter, new CompilationData(thisPhase, compilerFlags));
     final var result = doApply(workspace, compilerFlags);
+
     return new CompilationPhaseResult(thisPhase, result, compilerFlags.getCompileToPhase() == thisPhase);
   }
 
-  private void enterPhase(SharedThreadContext<CompilableProgram> compilableProgramAccess,
+  private void enterPhase(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
                           final CompilerReporter reporter,
                           final CompilationData compilationData) {
 
@@ -45,5 +51,6 @@ public abstract class CompilerPhase implements BiFunction<Workspace, CompilerFla
     compilableProgramAccess.accept(program -> program.setCompilationData(compilationData));
     //Make a report that this phase has started.
     reporter.log(compilationData.phase());
+
   }
 }
