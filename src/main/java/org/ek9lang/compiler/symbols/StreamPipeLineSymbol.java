@@ -13,17 +13,22 @@ public class StreamPipeLineSymbol extends Symbol {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public StreamPipeLineSymbol(String name) {
+  public StreamPipeLineSymbol(final String name) {
+
     super(name);
+
   }
 
   @Override
-  public StreamPipeLineSymbol clone(IScope withParentAsAppropriate) {
+  public StreamPipeLineSymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoStreamPipeLineSymbol(new StreamPipeLineSymbol(getName()));
   }
 
-  protected StreamPipeLineSymbol cloneIntoStreamPipeLineSymbol(StreamPipeLineSymbol newCopy) {
+  protected StreamPipeLineSymbol cloneIntoStreamPipeLineSymbol(final StreamPipeLineSymbol newCopy) {
+
     super.cloneIntoSymbol(newCopy);
+
     return newCopy;
   }
 

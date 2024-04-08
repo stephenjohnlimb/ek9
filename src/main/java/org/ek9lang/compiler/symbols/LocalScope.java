@@ -24,32 +24,39 @@ public class LocalScope extends SymbolTable {
    * Create a new named local scope with an outer enclosing scope.
    * Scope type default to BLOCK.
    */
-  public LocalScope(String scopeName, IScope enclosingScope) {
+  public LocalScope(final String scopeName, final IScope enclosingScope) {
+
     super(scopeName);
     AssertValue.checkNotNull("EnclosingScope cannot be null", enclosingScope);
     this.enclosingScope = enclosingScope;
+
   }
 
   /**
    * Create a new named local scope with an outer enclosing scope.
    * But will set the scope type to the type passed in.
    */
-  public LocalScope(IScope.ScopeType scopeType, String scopeName, IScope enclosingScope) {
+  public LocalScope(final IScope.ScopeType scopeType, final String scopeName, final IScope enclosingScope) {
+
     super(scopeName);
     AssertValue.checkNotNull("EnclosingScope cannot be null", enclosingScope);
     this.enclosingScope = enclosingScope;
     this.scopeType = scopeType;
+
   }
 
-  public LocalScope(IScope enclosingScope) {
+  public LocalScope(final IScope enclosingScope) {
+
     this("localScope", enclosingScope);
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
+
     if (this == o) {
       return true;
     }
+
     return (o instanceof LocalScope that)
         && super.equals(o)
         && getScopeType() == that.getScopeType();
@@ -57,13 +64,16 @@ public class LocalScope extends SymbolTable {
 
   @Override
   public int hashCode() {
+
     int result = super.hashCode();
     result = 31 * result + getScopeType().hashCode();
+
     return result;
   }
 
   @Override
-  public LocalScope clone(IScope withParentAsAppropriate) {
+  public LocalScope clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoLocalScope(
         new LocalScope(this.scopeType, this.getScopeName(), withParentAsAppropriate));
   }
@@ -71,23 +81,28 @@ public class LocalScope extends SymbolTable {
   /**
    * Clones the content of this into the new copy.
    */
-  public LocalScope cloneIntoLocalScope(LocalScope newCopy) {
+  public LocalScope cloneIntoLocalScope(final LocalScope newCopy) {
+
     super.cloneIntoSymbolTable(newCopy, this.enclosingScope);
     //properties set at construction.
+
     return newCopy;
   }
 
   @Override
   public IScope.ScopeType getScopeType() {
+
     return scopeType;
   }
 
   public void setScopeType(final IScope.ScopeType scopeType) {
+
     this.scopeType = scopeType;
   }
 
   @Override
   public IScope getEnclosingScope() {
+
     return enclosingScope;
   }
 
@@ -103,7 +118,8 @@ public class LocalScope extends SymbolTable {
    * @return true if a match false otherwise
    */
   @Override
-  public boolean isScopeAMatchForEnclosingScope(IScope toCheck) {
+  public boolean isScopeAMatchForEnclosingScope(final IScope toCheck) {
+
     return enclosingScope == toCheck;
   }
 
@@ -118,6 +134,7 @@ public class LocalScope extends SymbolTable {
    */
   @Override
   public Optional<ScopedSymbol> findNearestNonBlockScopeInEnclosingScopes() {
+
     if (enclosingScope.getScopeType().equals(ScopeType.NON_BLOCK)) {
       return Optional.of((ScopedSymbol) enclosingScope);
     }
@@ -127,6 +144,7 @@ public class LocalScope extends SymbolTable {
 
   @Override
   public Optional<ScopedSymbol> findNearestDynamicBlockScopeInEnclosingScopes() {
+
     if (enclosingScope.getScopeType().equals(ScopeType.DYNAMIC_BLOCK)) {
       return Optional.of((ScopedSymbol) enclosingScope);
     }
@@ -135,7 +153,8 @@ public class LocalScope extends SymbolTable {
   }
 
   @Override
-  protected Optional<ISymbol> resolveWithEnclosingScope(SymbolSearch search) {
+  protected Optional<ISymbol> resolveWithEnclosingScope(final SymbolSearch search) {
+
     if (search.isLimitToBlocks() && !enclosingScope.getScopeType().equals(IScope.ScopeType.BLOCK)) {
       return Optional.empty();
     }
@@ -144,8 +163,8 @@ public class LocalScope extends SymbolTable {
   }
 
   @Override
-  protected MethodSymbolSearchResult resolveForAllMatchingMethodsInEnclosingScope(
-      MethodSymbolSearch search, MethodSymbolSearchResult result) {
+  protected MethodSymbolSearchResult resolveMatchingMethodsInEnclosingScope(final MethodSymbolSearch search,
+                                                                            final MethodSymbolSearchResult result) {
     return enclosingScope.resolveMatchingMethods(search, result);
   }
 }

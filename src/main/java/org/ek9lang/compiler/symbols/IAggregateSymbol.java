@@ -39,7 +39,7 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
    *
    * @param sub The sub-class to point back to.
    */
-  void addSubAggregateSymbol(IAggregateSymbol sub);
+  void addSubAggregateSymbol(final IAggregateSymbol sub);
 
   /**
    * Get all methods on this and any supers or traits.
@@ -112,33 +112,36 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
    * Idea is to be able to gather all these up and ensure only one single good result i.e.
    * matching methods does exist and one single method matches best. Else ambiguity or no match.
    */
-  MethodSymbolSearchResult resolveMatchingMethods(MethodSymbolSearch search, MethodSymbolSearchResult result);
+  MethodSymbolSearchResult resolveMatchingMethods(final MethodSymbolSearch search,
+                                                  final MethodSymbolSearchResult result);
 
   /**
    * Just try and resolve a member in this or super scopes.
    */
-  Optional<ISymbol> resolveMember(SymbolSearch search);
+  Optional<ISymbol> resolveMember(final SymbolSearch search);
 
   Optional<IAggregateSymbol> getSuperAggregate();
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  void setSuperAggregate(Optional<IAggregateSymbol> superAggregate);
+  void setSuperAggregate(final Optional<IAggregateSymbol> superAggregate);
 
-  void setSuperAggregate(IAggregateSymbol superAggregateSymbol);
+  void setSuperAggregate(final IAggregateSymbol superAggregateSymbol);
 
-  boolean isInAggregateHierarchy(IAggregateSymbol theAggregateToCheck);
+  boolean isInAggregateHierarchy(final IAggregateSymbol theAggregateToCheck);
 
   default List<IAggregateSymbol> getTraits() {
     return new ArrayList<>();
   }
 
   default List<AggregateWithTraitsSymbol> getAllExtensionConstrainedTraits() {
+
     return new ArrayList<>();
   }
 
   List<AggregateWithTraitsSymbol> getAllTraits();
 
   default boolean isExtensionConstrained() {
+
     return false;
   }
 
@@ -147,9 +150,9 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
    * But also super classes or super traits.
    * So can either be implementing directly, super, super - super or traits and supe traits.
    */
-  boolean isImplementingInSomeWay(IAggregateSymbol aggregate);
+  boolean isImplementingInSomeWay(final IAggregateSymbol aggregate);
 
   String getAggregateDescription();
 
-  IScopedSymbol clone(IScope withParentAsAppropriate);
+  IScopedSymbol clone(final IScope withParentAsAppropriate);
 }

@@ -23,79 +23,96 @@ public class CallSymbol extends MethodSymbol {
    */
   private boolean formOfDeclarationCall = false;
 
-  public CallSymbol(String name, IScope enclosingScope) {
+  public CallSymbol(final String name, final IScope enclosingScope) {
+
     super(name, enclosingScope);
+
   }
 
   public boolean isFormOfDeclarationCall() {
+
     return formOfDeclarationCall;
   }
 
-  public void setFormOfDeclarationCall(boolean formOfDeclarationCall) {
+  public void setFormOfDeclarationCall(final boolean formOfDeclarationCall) {
+
     this.formOfDeclarationCall = formOfDeclarationCall;
+
   }
 
   @Override
-  public CallSymbol clone(IScope withParentAsAppropriate) {
+  public CallSymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoCallSymbol(new CallSymbol(getName(), withParentAsAppropriate));
   }
 
-  protected CallSymbol cloneIntoCallSymbol(CallSymbol newCopy) {
+  protected CallSymbol cloneIntoCallSymbol(final CallSymbol newCopy) {
+
     super.cloneIntoMethodSymbol(newCopy);
     newCopy.resolvedSymbolToCall = resolvedSymbolToCall;
     newCopy.setFormOfDeclarationCall(this.isFormOfDeclarationCall());
+
     return newCopy;
   }
 
   public ScopedSymbol getResolvedSymbolToCall() {
+
     return resolvedSymbolToCall;
   }
 
   /**
    * Set the actual method/function that should be called.
    */
-  public void setResolvedSymbolToCall(ScopedSymbol symbol) {
+  public void setResolvedSymbolToCall(final ScopedSymbol symbol) {
+    final var returnTypeExtractor = new ReturnTypeExtractor(isFormOfDeclarationCall());
+
     this.resolvedSymbolToCall = symbol;
-    var returnTypeExtractor = new ReturnTypeExtractor(isFormOfDeclarationCall());
     this.setType(returnTypeExtractor.apply(symbol));
     this.setMarkedPure(symbol.isMarkedPure());
     //make a note if this method ia actually an operator.
     if (symbol instanceof MethodSymbol method) {
       this.setOperator(method.isOperator());
     }
+
   }
 
   @Override
   public String getFriendlyScopeName() {
+
     return getFriendlyName();
   }
 
   @Override
   public String getFriendlyName() {
+
     if (resolvedSymbolToCall == null) {
       return getName();
     }
+
     return getName() + " => " + resolvedSymbolToCall.getFriendlyName();
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }
-    var result = false;
+
     if ((o instanceof CallSymbol that) && super.equals(o)) {
-      result = getResolvedSymbolToCall() != null ? getResolvedSymbolToCall().equals(that.getResolvedSymbolToCall()) :
+      return getResolvedSymbolToCall() != null ? getResolvedSymbolToCall().equals(that.getResolvedSymbolToCall()) :
           that.getResolvedSymbolToCall() == null;
     }
-    return result;
+
+    return false;
   }
 
   @Override
   public int hashCode() {
+
     int result = super.hashCode();
     result = 31 * result + (getSourceToken() != null ? getSourceToken().hashCode() : 0);
     result = 31 * result + (getResolvedSymbolToCall() != null ? getResolvedSymbolToCall().hashCode() : 0);
+    
     return result;
   }
 }

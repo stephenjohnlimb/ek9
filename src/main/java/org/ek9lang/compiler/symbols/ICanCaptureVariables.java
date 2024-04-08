@@ -20,10 +20,10 @@ public interface ICanCaptureVariables {
    *
    * @param capturedVariables The variables to capture.
    */
-  void setCapturedVariables(CaptureScope capturedVariables);
+  void setCapturedVariables(final CaptureScope capturedVariables);
 
   /**
    * Try and resolve a symbol but exclude looking in captured variables.
    */
-  Optional<ISymbol> resolveExcludingCapturedVariables(SymbolSearch search);
+  Optional<ISymbol> resolveExcludingCapturedVariables(final SymbolSearch search);
 }

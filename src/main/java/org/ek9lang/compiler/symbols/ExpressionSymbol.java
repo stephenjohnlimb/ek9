@@ -32,9 +32,9 @@ public class ExpressionSymbol extends Symbol {
   /**
    * Create a new expression based around an existing symbol.
    */
-  public ExpressionSymbol(ISymbol symbol) {
-    super(symbol.getName());
+  public ExpressionSymbol(final ISymbol symbol) {
 
+    super(symbol.getName());
     super.setGenus(symbol.getGenus());
     //Also it will be the same type and category.
     setType(symbol.getType());
@@ -46,22 +46,25 @@ public class ExpressionSymbol extends Symbol {
 
   }
 
-  public ExpressionSymbol(String name) {
+  public ExpressionSymbol(final String name) {
+
     super(name);
     super.setGenus(SymbolGenus.VALUE);
+
   }
 
   @Override
-  public ExpressionSymbol clone(IScope withParentAsAppropriate) {
+  public ExpressionSymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoExpressionSymbol(new ExpressionSymbol(this.getName()));
+
   }
 
-  protected ExpressionSymbol cloneIntoExpressionSymbol(ExpressionSymbol newCopy) {
-    super.cloneIntoSymbol(newCopy);
+  protected ExpressionSymbol cloneIntoExpressionSymbol(final ExpressionSymbol newCopy) {
 
+    super.cloneIntoSymbol(newCopy);
     newCopy.setPromotionRequired(isPromotionRequired());
     newCopy.setUseStringOperator(isUseStringOperator());
-
     newCopy.setSourceToken(getSourceToken());
     newCopy.setDeclaredAsConstant(isDeclaredAsConstant());
 
@@ -70,7 +73,8 @@ public class ExpressionSymbol extends Symbol {
 
   @Override
   public String getFriendlyName() {
-    StringBuilder buffer = new StringBuilder();
+
+    final var buffer = new StringBuilder();
 
     getType().ifPresentOrElse(theType -> buffer.append(theType.getFriendlyName()),
         () -> buffer.append("Unknown"));
@@ -82,59 +86,75 @@ public class ExpressionSymbol extends Symbol {
 
   @Override
   public boolean isDeclaredAsConstant() {
+
     return declaredAsConstant;
   }
 
-  public void setDeclaredAsConstant(boolean declaredAsConstant) {
+  public void setDeclaredAsConstant(final boolean declaredAsConstant) {
+
     this.declaredAsConstant = declaredAsConstant;
+
   }
 
   @Override
   public boolean isMutable() {
+
     return false;
   }
 
   @Override
   public boolean isConstant() {
+
     return true;
   }
 
   @Override
   public void setNotMutable() {
+
     throw new CompilerException(
         "Compiler error: Base ExpressionSymbol does not support mutability");
   }
 
   public boolean isPromotionRequired() {
+
     return promotionRequired;
   }
 
-  public void setPromotionRequired(boolean promotionRequired) {
+  public void setPromotionRequired(final boolean promotionRequired) {
+
     this.promotionRequired = promotionRequired;
+
   }
 
   public boolean isUseStringOperator() {
+
     return useStringOperator;
   }
 
-  public void setUseStringOperator(boolean useStringOperator) {
+  public void setUseStringOperator(final boolean useStringOperator) {
+
     this.useStringOperator = useStringOperator;
+
   }
 
   @Override
-  public void setSourceToken(IToken sourceToken) {
+  public void setSourceToken(final IToken sourceToken) {
+
     //This is also where this expression is initialised.
     //If the items making the expression have not been initialised that has to be checked
     //when the expression gets created.
     super.setSourceToken(sourceToken);
     setInitialisedBy(sourceToken);
+
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
+
     if (this == o) {
       return true;
     }
+
     return (o instanceof ExpressionSymbol that)
         && super.equals(o)
         && isPromotionRequired() == that.isPromotionRequired()
@@ -144,11 +164,13 @@ public class ExpressionSymbol extends Symbol {
 
   @Override
   public int hashCode() {
+
     int result = super.hashCode();
     result = 31 * result + (getSourceToken() != null ? getSourceToken().hashCode() : 0);
     result = 31 * result + (isPromotionRequired() ? 1 : 0);
     result = 31 * result + (isUseStringOperator() ? 1 : 0);
     result = 31 * result + (isDeclaredAsConstant() ? 1 : 0);
+
     return result;
   }
 }

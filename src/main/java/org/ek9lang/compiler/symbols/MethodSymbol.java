@@ -87,32 +87,35 @@ public class MethodSymbol extends ScopedSymbol {
   /**
    * Create  new method symbol of a specific name with an enclosing scope (i.e. a class).
    */
-  public MethodSymbol(String name, IScope enclosingScope) {
-    super(name, enclosingScope);
-    super.setCategory(SymbolCategory.METHOD);
-    super.setGenus(SymbolGenus.VALUE);
+  public MethodSymbol(final String name, final IScope enclosingScope) {
+
+    this(name, Optional.empty(), enclosingScope);
+
   }
 
   /**
    * Typically used for cloning constructors.
    */
-  public MethodSymbol(String name, ISymbol type, IScope enclosingScope) {
-    super(name, Optional.of(type), enclosingScope);
-    super.setCategory(SymbolCategory.METHOD);
-    super.setGenus(SymbolGenus.VALUE);
+  public MethodSymbol(final String name, final ISymbol type, final IScope enclosingScope) {
+
+    this(name, Optional.of(type), enclosingScope);
+
   }
 
   /**
    * Create  new method symbol of a specific name with an enclosing scope (i.e. a class).
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public MethodSymbol(String name, Optional<ISymbol> type, IScope enclosingScope) {
+  public MethodSymbol(final String name, final Optional<ISymbol> type, final IScope enclosingScope) {
+
     super(name, type, enclosingScope);
     super.setCategory(SymbolCategory.METHOD);
     super.setGenus(SymbolGenus.VALUE);
+
   }
 
   private SymbolMatcher getSymbolMatcher() {
+
     return matcher;
   }
 
@@ -120,29 +123,35 @@ public class MethodSymbol extends ScopedSymbol {
    * For actual methods this will be the aggregate they are part of.
    */
   public IScope getParentScope() {
+
     return this.getEnclosingScope();
   }
 
-  public MethodSymbol clone(ISymbol withType, IScope withParentAsAppropriate) {
+  public MethodSymbol clone(final ISymbol withType, final IScope withParentAsAppropriate) {
+
     return cloneIntoMethodSymbol(
         new MethodSymbol(this.getName(), withType, withParentAsAppropriate));
   }
 
   @Override
-  public MethodSymbol clone(IScope withParentAsAppropriate) {
+  public MethodSymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoMethodSymbol(
         new MethodSymbol(this.getName(), this.getType(), withParentAsAppropriate));
   }
 
-  protected MethodSymbol cloneIntoMethodSymbol(MethodSymbol newCopy) {
+  protected MethodSymbol cloneIntoMethodSymbol(final MethodSymbol newCopy) {
+
     super.cloneIntoScopeSymbol(newCopy);
+
     return copyMethodProperties(newCopy);
   }
 
   /**
    * Just copies the properties over.
    */
-  public MethodSymbol copyMethodProperties(MethodSymbol newCopy) {
+  public MethodSymbol copyMethodProperties(final MethodSymbol newCopy) {
+
     if (isReturningSymbolPresent()) {
       newCopy.returningSymbol = this.returningSymbol.clone(newCopy);
     }
@@ -161,74 +170,90 @@ public class MethodSymbol extends ScopedSymbol {
   }
 
   @Override
-  public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search) {
+  public Optional<ISymbol> resolveInThisScopeOnly(final SymbolSearch search) {
+
     //This will now also check the returning symbol (if present)
     if (this.isReturningSymbolPresent() && returningSymbol.getName().equals(search.getName())) {
       return Optional.of(returningSymbol);
     }
+
     return super.resolveInThisScopeOnly(search);
   }
 
   @Override
-  public Optional<ISymbol> resolve(SymbolSearch search) {
-    var rtn = resolveInThisScopeOnly(search);
+  public Optional<ISymbol> resolve(final SymbolSearch search) {
+
+    final var rtn = resolveInThisScopeOnly(search);
     if (rtn.isEmpty()) {
-      rtn = super.resolve(search);
+      return super.resolve(search);
     }
+
     return rtn;
   }
 
   public boolean isSynthetic() {
+
     return synthetic;
   }
 
-  public void setSynthetic(boolean synthetic) {
+  public void setSynthetic(final boolean synthetic) {
+
     this.synthetic = synthetic;
   }
 
   public boolean isOverride() {
+
     return override;
   }
 
-  public void setOverride(boolean override) {
+  public void setOverride(final boolean override) {
+
     this.override = override;
   }
 
   public String getAccessModifier() {
+
     return accessModifier;
   }
 
-  public void setAccessModifier(String accessModifier) {
+  public void setAccessModifier(final String accessModifier) {
+
     this.accessModifier = accessModifier;
   }
 
   @Override
   public boolean isPrivate() {
+
     return accessModifier.equals("private");
   }
 
   @Override
   public boolean isProtected() {
+
     return accessModifier.equals("protected");
   }
 
   @Override
   public boolean isPublic() {
+
     return accessModifier.equals("public");
   }
 
   public boolean isUsedAsProxyForDelegate() {
+
     return usedAsProxyForDelegate != null;
   }
 
   public String getUsedAsProxyForDelegate() {
+
     return this.usedAsProxyForDelegate;
   }
 
   /**
    * Set this method to be marked so at it delegates any calls to a delegate.
    */
-  public void setUsedAsProxyForDelegate(String delegateName) {
+  public void setUsedAsProxyForDelegate(final String delegateName) {
+
     this.usedAsProxyForDelegate = delegateName;
     //now this also means a couple of other things
     this.setOverride(true);
@@ -236,66 +261,83 @@ public class MethodSymbol extends ScopedSymbol {
   }
 
   public boolean isEk9ReturnsThis() {
+
     return ek9ReturnsThis;
   }
 
-  public void setEk9ReturnsThis(boolean ek9ReturnsThis) {
+  public void setEk9ReturnsThis(final boolean ek9ReturnsThis) {
+
     this.ek9ReturnsThis = ek9ReturnsThis;
   }
 
   public boolean isMarkedNoClone() {
+
     return markedNoClone;
   }
 
-  public void setMarkedNoClone(boolean markedNoClone) {
+  public void setMarkedNoClone(final boolean markedNoClone) {
+
     this.markedNoClone = markedNoClone;
   }
 
   public boolean isMarkedAsDispatcher() {
+
     return markedAsDispatcher;
   }
 
-  public void setMarkedAsDispatcher(boolean markedAsDispatcher) {
+  public void setMarkedAsDispatcher(final boolean markedAsDispatcher) {
+
     this.markedAsDispatcher = markedAsDispatcher;
   }
 
   @Override
   public boolean isMarkedAbstract() {
+
     return markedAbstract;
   }
 
-  public void setMarkedAbstract(boolean markedAbstract) {
+  public void setMarkedAbstract(final boolean markedAbstract) {
+
     this.markedAbstract = markedAbstract;
   }
 
   public boolean isNotMarkedAbstract() {
+
     return !markedAbstract;
   }
 
   @Override
   public boolean isConstant() {
+
     return true;
   }
 
   public boolean isConstructor() {
+
     return constructor;
   }
 
   public boolean isNotConstructor() {
+
     return !isConstructor();
   }
 
-  public MethodSymbol setConstructor(boolean constructor) {
+  public MethodSymbol setConstructor(final boolean constructor) {
+
     this.constructor = constructor;
+
     return this;
   }
 
   public boolean isOperator() {
+
     return operator;
   }
 
-  public MethodSymbol setOperator(boolean operator) {
+  public MethodSymbol setOperator(final boolean operator) {
+
     this.operator = operator;
+
     return this;
   }
 
@@ -307,6 +349,7 @@ public class MethodSymbol extends ScopedSymbol {
    * return on the method.
    */
   public boolean isReturningSymbolPresent() {
+
     return returningSymbol != null;
   }
 
@@ -315,21 +358,26 @@ public class MethodSymbol extends ScopedSymbol {
    * Note in EK9 this is not just a type but actually a variable symbol (that has a type).
    */
   public ISymbol getReturningSymbol() {
+
     return returningSymbol;
   }
 
   /**
    * Sets the returning symbol (variable not just type).
    */
-  public void setReturningSymbol(VariableSymbol returningSymbol) {
+  public void setReturningSymbol(final VariableSymbol returningSymbol) {
+
     returningSymbol.setReturningParameter(true);
     justSetReturningSymbol(returningSymbol);
     setNullAllowed(returningSymbol.isNullAllowed());
     setType(returningSymbol.getType());
+
   }
 
-  protected void justSetReturningSymbol(ISymbol returningSymbol) {
+  protected void justSetReturningSymbol(final ISymbol returningSymbol) {
+
     this.returningSymbol = returningSymbol;
+
   }
 
   /**
@@ -338,11 +386,14 @@ public class MethodSymbol extends ScopedSymbol {
    * and special treatment for the return type - this can be coerced back or be a super type.
    * This also takes into account polymorphism and promotions.
    */
-  public boolean isSignatureMatchTo(MethodSymbol toMethod) {
+  public boolean isSignatureMatchTo(final MethodSymbol toMethod) {
+
     double weight = getWeightOfParameterMatches(toMethod.getSymbolsForThisScope(), getSymbolsForThisScope());
+
     if (weight < 0.0) {
       return false;
     }
+
     weight += getSymbolMatcher().getWeightOfMatch(this.getType(), toMethod.getType());
 
     return weight >= 0.0;
@@ -353,7 +404,8 @@ public class MethodSymbol extends ScopedSymbol {
    * So this is 'exact' in addition it does not check the return type at all, nor the method name.
    * It just focuses on the number order and type of the parameters matching.
    */
-  public boolean isExactSignatureMatchTo(MethodSymbol toMethod) {
+  public boolean isExactSignatureMatchTo(final MethodSymbol toMethod) {
+
     double weight = getWeightOfParameterMatches(toMethod.getSymbolsForThisScope(), getSymbolsForThisScope());
     return Math.abs(weight) < 1e-6;
   }
@@ -363,11 +415,13 @@ public class MethodSymbol extends ScopedSymbol {
    * the parameters declared for this method.
    * But this takes into account polymorphism and promotions.
    */
-  public boolean isParameterSignatureMatchTo(List<ISymbol> params) {
+  public boolean isParameterSignatureMatchTo(final List<ISymbol> params) {
+
     return getWeightOfParameterMatches(params, getSymbolsForThisScope()) >= 0.0;
   }
 
   private double getWeightOfParameterMatches(final List<ISymbol> fromSymbols, final List<ISymbol> toSymbols) {
+
     return getSymbolMatcher().getWeightOfParameterMatch(fromSymbols, toSymbols);
   }
 
@@ -375,6 +429,7 @@ public class MethodSymbol extends ScopedSymbol {
    * Added convenience method to make the parameters a bit more obvious.
    */
   public List<ISymbol> getCallParameters() {
+
     return super.getSymbolsForThisScope();
   }
 
@@ -384,7 +439,8 @@ public class MethodSymbol extends ScopedSymbol {
    *
    * @param params The parameters to pass to the method.
    */
-  public void setCallParameters(List<ISymbol> params) {
+  public void setCallParameters(final List<ISymbol> params) {
+
     for (ISymbol param : params) {
       define(param);
     }
@@ -392,31 +448,32 @@ public class MethodSymbol extends ScopedSymbol {
 
   @Override
   public String getFriendlyName() {
+
     return doGetFriendlyName(super.getName(), this.getType());
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  protected String doGetFriendlyName(String withName, Optional<ISymbol> theType) {
-    StringBuilder buffer = new StringBuilder();
+  protected String doGetFriendlyName(final String withName, final Optional<ISymbol> theType) {
+
+    final var toCommaSeparated = new ToCommaSeparated(true);
+    final var buffer = new StringBuilder();
+
     if (this.isOverride()) {
       buffer.append("override ");
     }
-
     buffer.append(accessModifier).append(" ");
-
     buffer.append(getSymbolTypeAsString(theType));
-
-    final var toCommaSeparated = new ToCommaSeparated(true);
     buffer.append(" <- ").append(withName);
     buffer.append(toCommaSeparated.apply(getSymbolsForThisScope()));
     if (this.markedAbstract) {
       buffer.append(" as abstract");
     }
+
     return buffer.toString();
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }
@@ -436,6 +493,7 @@ public class MethodSymbol extends ScopedSymbol {
 
   @Override
   public int hashCode() {
+
     //Altered to use hashcode of friendly name, because otherwise if the method had parameters
     //That we the same type as the aggregate the method was on, then we'd get an endless loop of calling hash code.
     int result = getFriendlyName().hashCode();
@@ -449,11 +507,13 @@ public class MethodSymbol extends ScopedSymbol {
     result = 31 * result + (isSynthetic() ? 1 : 0);
     result = 31 * result + (isEk9ReturnsThis() ? 1 : 0);
     result = 31 * result + getAccessModifier().hashCode();
+
     return result;
   }
 
   @Override
   public String toString() {
+
     return getFriendlyName();
   }
 }

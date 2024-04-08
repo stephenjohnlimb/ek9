@@ -19,17 +19,22 @@ public class SwitchSymbol extends ControlSymbol {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public SwitchSymbol(IScope enclosingScope) {
+  public SwitchSymbol(final IScope enclosingScope) {
+
     super("Switch", enclosingScope);
+
   }
 
   @Override
-  public SwitchSymbol clone(IScope withParentAsAppropriate) {
+  public SwitchSymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoSwitchSymbol(new SwitchSymbol(withParentAsAppropriate));
   }
 
-  protected SwitchSymbol cloneIntoSwitchSymbol(SwitchSymbol newCopy) {
+  protected SwitchSymbol cloneIntoSwitchSymbol(final SwitchSymbol newCopy) {
+
     super.cloneIntoControlSymbol(newCopy);
+
     return newCopy;
   }
 

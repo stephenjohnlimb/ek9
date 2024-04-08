@@ -17,32 +17,43 @@ public class ConstantSymbol extends Symbol {
    */
   private boolean literal;
 
-  public ConstantSymbol(String name, boolean fromLiteral) {
+  public ConstantSymbol(final String name, final boolean fromLiteral) {
+
     this(name, Optional.empty(), fromLiteral);
+
   }
 
-  public ConstantSymbol(String name) {
+  public ConstantSymbol(final String name) {
+
     this(name, Optional.empty(), false);
+
   }
 
-  public ConstantSymbol(String name, ISymbol type, boolean fromLiteral) {
+  public ConstantSymbol(final String name, final ISymbol type, final boolean fromLiteral) {
+
     this(name, Optional.ofNullable(type), fromLiteral);
+
   }
 
-  public ConstantSymbol(String name, ISymbol type) {
+  public ConstantSymbol(final String name, final ISymbol type) {
+
     this(name, Optional.ofNullable(type), false);
+
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public ConstantSymbol(String name, Optional<ISymbol> type) {
+  public ConstantSymbol(final String name, final Optional<ISymbol> type) {
+
     this(name, type, false);
+
   }
 
   /**
    * Construction of a Constant.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public ConstantSymbol(String name, Optional<ISymbol> type, boolean fromLiteral) {
+  public ConstantSymbol(final String name, final Optional<ISymbol> type, final boolean fromLiteral) {
+
     super(name, type);
     super.setGenus(SymbolGenus.VALUE);
     this.literal = fromLiteral;
@@ -52,27 +63,33 @@ public class ConstantSymbol extends Symbol {
 
   @Override
   public boolean isFromLiteral() {
+
     return literal;
   }
 
   @Override
   public boolean isConstant() {
+
     return true;
   }
 
   @Override
-  public ConstantSymbol clone(IScope withParentAsAppropriate) {
+  public ConstantSymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoConstant(new ConstantSymbol(this.getName(), this.getType()));
   }
 
-  protected ConstantSymbol cloneIntoConstant(ConstantSymbol newCopy) {
+  protected ConstantSymbol cloneIntoConstant(final ConstantSymbol newCopy) {
+
     cloneIntoSymbol(newCopy);
     newCopy.literal = this.literal;
+
     return newCopy;
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
+
     if (this == o) {
       return true;
     }
@@ -88,14 +105,17 @@ public class ConstantSymbol extends Symbol {
 
   @Override
   public int hashCode() {
+
     int result = super.hashCode();
     result = 31 * result + (getSourceToken() != null ? getSourceToken().hashCode() : 0);
     result = 31 * result + (literal ? 1 : 0);
+
     return result;
   }
 
   @Override
   public String toString() {
+
     return "const " + getFriendlyName();
   }
 }

@@ -28,31 +28,37 @@ public class ParamExpressionSymbol extends Symbol {
   }
 
   @Override
-  public ParamExpressionSymbol clone(IScope withParentAsAppropriate) {
+  public ParamExpressionSymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoStreamPipeLineSymbol(new ParamExpressionSymbol(getName()));
   }
 
-  protected ParamExpressionSymbol cloneIntoStreamPipeLineSymbol(ParamExpressionSymbol newCopy) {
+  protected ParamExpressionSymbol cloneIntoStreamPipeLineSymbol(final ParamExpressionSymbol newCopy) {
+
     super.cloneIntoSymbol(newCopy);
     getParameters().forEach(newCopy::addParameter);
+
     return newCopy;
   }
 
   public List<ISymbol> getParameters() {
+
     return Collections.unmodifiableList(params);
   }
 
   @Override
   public String getFriendlyName() {
-    var toCommaSeparated = new ToCommaSeparated(true);
-    return toCommaSeparated.apply(params);
+
+    return new ToCommaSeparated(true).apply(params);
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
+
     if (this == o) {
       return true;
     }
+
     return (o instanceof ParamExpressionSymbol that)
         && super.equals(o)
         && params.equals(that.params);
@@ -60,8 +66,11 @@ public class ParamExpressionSymbol extends Symbol {
 
   @Override
   public int hashCode() {
+
     int result = super.hashCode();
     result = 31 * result + params.hashCode();
+
     return result;
   }
+
 }

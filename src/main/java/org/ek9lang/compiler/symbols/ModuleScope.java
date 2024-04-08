@@ -51,26 +51,32 @@ public class ModuleScope extends SymbolTable {
   /**
    * Create a new ModuleScope with a specific name and reference to the compilable program it is part of.
    */
-  public ModuleScope(String scopeName, SharedThreadContext<CompilableProgram> program) {
+  public ModuleScope(final String scopeName, final SharedThreadContext<CompilableProgram> program) {
+
     super(scopeName);
     AssertValue.checkNotNull("CompilableProgram cannot be null", program);
     this.compilableProgram = program;
+
   }
 
   /**
    * Create a clone of this ModuleScope.
    */
-  public ModuleScope clone(SharedThreadContext<CompilableProgram> newContext) {
+  public ModuleScope clone(final SharedThreadContext<CompilableProgram> newContext) {
+
     ModuleScope cloned = new ModuleScope(this.getScopeName(), newContext);
     cloneIntoSymbolTable(this, this);
+
     return cloned;
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
+
     if (this == o) {
       return true;
     }
+
     return (o instanceof ModuleScope that)
         && super.equals(o)
         && referencesScope.equals(that.referencesScope);
@@ -78,8 +84,10 @@ public class ModuleScope extends SymbolTable {
 
   @Override
   public int hashCode() {
+
     int result = super.hashCode();
     result = 31 * result + referencesScope.hashCode();
+
     return result;
   }
 
@@ -88,20 +96,24 @@ public class ModuleScope extends SymbolTable {
    * in this module.
    */
   public void defineReference(final IToken token, final ISymbol symbol) {
+
     AssertValue.checkNotNull("Token cannot be null", token);
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
 
-    var shortName = ISymbol.getUnqualifiedName(symbol.getName());
+    final var shortName = ISymbol.getUnqualifiedName(symbol.getName());
     AssertValue.checkFalse("Duplicate reference bing added", referencesScope.containsKey(shortName));
     referencesScope.put(shortName, symbol);
     originalReferenceResolution.put(shortName, token);
+
   }
 
   /**
    * Returns the original location a reference was made (if present).
    */
-  public Optional<IToken> getOriginalReferenceLocation(SymbolSearch search) {
-    var shortName = ISymbol.getUnqualifiedName(search.getName());
+  public Optional<IToken> getOriginalReferenceLocation(final SymbolSearch search) {
+
+    final var shortName = ISymbol.getUnqualifiedName(search.getName());
+
     return Optional.ofNullable(originalReferenceResolution.get(shortName));
   }
 
@@ -115,18 +127,22 @@ public class ModuleScope extends SymbolTable {
    */
   public Optional<ISymbol> resolveOrDefine(final PossibleGenericSymbol parameterisedSymbol,
                                            final ErrorListener errorListener) {
-    var holder = new AtomicReference<Optional<ISymbol>>(Optional.empty());
+
+    final var holder = new AtomicReference<Optional<ISymbol>>(Optional.empty());
     compilableProgram.accept(program -> {
-      var shouldCompleteSubstitution = program.getCompilationData().phase() == CompilationPhase.FULL_RESOLUTION;
+      final var shouldCompleteSubstitution = program.getCompilationData().phase() == CompilationPhase.FULL_RESOLUTION;
+
       if (!shouldCompleteSubstitution) {
-        var returnSymbol = program.resolveOrDefine(parameterisedSymbol);
+        final var returnSymbol = program.resolveOrDefine(parameterisedSymbol);
         returnSymbol.symbol().ifPresent(symbol -> holder.set(Optional.of(symbol)));
       } else {
-        var typeSubstitution = new TypeSubstitution(program::resolveOrDefine, errorListener);
-        var populatedTypeWithMethods = typeSubstitution.apply(parameterisedSymbol);
+        final var typeSubstitution = new TypeSubstitution(program::resolveOrDefine, errorListener);
+        final var populatedTypeWithMethods = typeSubstitution.apply(parameterisedSymbol);
         holder.set(Optional.of(populatedTypeWithMethods));
       }
+
     });
+
     return holder.get();
   }
 
@@ -137,7 +153,8 @@ public class ModuleScope extends SymbolTable {
    * on the compilable program.
    */
   public boolean defineOrError(final ISymbol symbol, final SymbolChecker symbolChecker) {
-    AtomicBoolean rtn = new AtomicBoolean(true);
+
+    final var rtn = new AtomicBoolean(true);
 
     //Must own the lock to be able to check for and define symbol
     compilableProgram.accept(program -> {
@@ -153,7 +170,9 @@ public class ModuleScope extends SymbolTable {
 
   @Override
   public Optional<ISymbol> resolve(final SymbolSearch search) {
-    var rtn = resolveInThisModuleOnly(search);
+
+    final var rtn = resolveInThisModuleOnly(search);
+
     return rtn.isPresent() ? rtn : resolveWithEnclosingScope(search);
   }
 
@@ -162,7 +181,8 @@ public class ModuleScope extends SymbolTable {
    * in all the scopes for this module.
    */
   public Optional<ISymbol> resolveInThisModuleOnly(final SymbolSearch search) {
-    var rtn = new AtomicReference<Optional<ISymbol>>();
+
+    final var rtn = new AtomicReference<Optional<ISymbol>>();
 
     compilableProgram.accept(program -> {
       //Try and resolve in this scope name from one of that scopes modules.
@@ -172,6 +192,7 @@ public class ModuleScope extends SymbolTable {
         rtn.set(program.resolveReferenceFromModule(getScopeName(), search));
       }
     });
+
     return rtn.get();
   }
 
@@ -181,53 +202,54 @@ public class ModuleScope extends SymbolTable {
    */
   @Override
   public Optional<ISymbol> resolveInThisScopeOnly(final SymbolSearch search) {
+
     AssertValue.checkNotNull("Search cannot be null", search);
 
     if (searchIsNotInThisScope(search)) {
       return Optional.empty();
     }
 
-    String searchName = ISymbol.getUnqualifiedName(search.getName());
+    final var searchName = ISymbol.getUnqualifiedName(search.getName());
+    final var localScopeSearch = new SymbolSearch(ISymbol.makeFullyQualifiedName(getScopeName(), searchName), search);
+    final var resolvedSymbol = super.resolveInThisScopeOnly(localScopeSearch);
 
-    var localScopeSearch = new SymbolSearch(ISymbol.makeFullyQualifiedName(getScopeName(), searchName), search);
-
-    Optional<ISymbol> resolvedSymbol = super.resolveInThisScopeOnly(localScopeSearch);
-
-    if (resolvedSymbol.isEmpty()) {
-      resolvedSymbol = resolveReferenceInThisScopeOnly(search);
+    if (resolvedSymbol.isPresent()) {
+      return resolvedSymbol;
     }
 
-    return resolvedSymbol;
+    return resolveReferenceInThisScopeOnly(search);
   }
 
   /**
    * Does a check if there is a references of that symbol already held in this module scope.
    * But remember there can be multiple of these per named module.
    */
-  public Optional<ISymbol> resolveReferenceInThisScopeOnly(SymbolSearch search) {
+  public Optional<ISymbol> resolveReferenceInThisScopeOnly(final SymbolSearch search) {
 
     //Check by short name (i.e. unqualified)
-    var unqualifiedName = ISymbol.getUnqualifiedName(search.getName());
-    var resolvedSymbol = Optional.ofNullable(referencesScope.get(unqualifiedName));
+    final var unqualifiedName = ISymbol.getUnqualifiedName(search.getName());
+    final var resolvedSymbol = Optional.ofNullable(referencesScope.get(unqualifiedName));
 
     //If not the right category then not a match.
     //But a null in the search category means we are happy with just the name match.
     if (resolvedSymbol.isPresent() && !search.isCategoryAcceptable(resolvedSymbol.get().getCategory())) {
-      resolvedSymbol = Optional.empty();
+      return Optional.empty();
     }
+
     return resolvedSymbol;
   }
 
   @Override
-  protected Optional<ISymbol> resolveWithEnclosingScope(SymbolSearch search) {
+  protected Optional<ISymbol> resolveWithEnclosingScope(final SymbolSearch search) {
+
     // Need to get result into a variable we can use outside of lambda
     // but, we need the lambda to ensure access is thread safe.
-    var rtn = new AtomicReference<Optional<ISymbol>>(Optional.empty());
+    final var rtn = new AtomicReference<Optional<ISymbol>>(Optional.empty());
 
     compilableProgram.accept(program -> {
       //If it is fully qualified let program scope workout module and resolve it.
       //But if it is this module we will have already search for it.
-      var searchModule = ISymbol.getModuleNameIfPresent(search.getName());
+      final var searchModule = ISymbol.getModuleNameIfPresent(search.getName());
       if (ISymbol.isQualifiedName(search.getName()) && !getScopeName().equals(searchModule)) {
         rtn.set(program.resolveByFullyQualifiedSearch(search));
       } else {
@@ -239,6 +261,7 @@ public class ModuleScope extends SymbolTable {
         }
       }
     });
+
     return rtn.get();
   }
 }

@@ -12,24 +12,31 @@ public class WhileSymbol extends ScopedSymbol {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private WhileSymbol(IScope enclosingScope) {
+  private WhileSymbol(final IScope enclosingScope) {
+
     //The name will be set later
     super("?", enclosingScope);
     super.setCategory(SymbolCategory.CONTROL);
+
   }
 
-  public WhileSymbol(IScope enclosingScope, boolean doWhile) {
+  public WhileSymbol(final IScope enclosingScope, final boolean doWhile) {
+
     super(doWhile ? "Do/While" : "While", enclosingScope);
     super.setCategory(SymbolCategory.CONTROL);
+
   }
 
   @Override
-  public WhileSymbol clone(IScope withParentAsAppropriate) {
+  public WhileSymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoWhileSymbol(new WhileSymbol(withParentAsAppropriate));
   }
 
-  protected WhileSymbol cloneIntoWhileSymbol(WhileSymbol newCopy) {
+  protected WhileSymbol cloneIntoWhileSymbol(final WhileSymbol newCopy) {
+
     super.cloneIntoScopeSymbol(newCopy);
+
     return newCopy;
   }
 

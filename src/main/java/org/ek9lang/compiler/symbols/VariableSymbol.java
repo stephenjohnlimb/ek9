@@ -28,30 +28,40 @@ public class VariableSymbol extends Symbol {
   private boolean isAggregatePropertyField = false;
 
   @SuppressWarnings("CopyConstructorMissesField")
-  public VariableSymbol(VariableSymbol toCopy) {
+  public VariableSymbol(final VariableSymbol toCopy) {
+
     this(toCopy.getName(), toCopy.getType());
     this.setInitialisedBy(toCopy.getInitialisedBy());
+
   }
 
-  public VariableSymbol(String name) {
+  public VariableSymbol(final String name) {
+
     this(name, Optional.empty());
+
   }
 
-  public VariableSymbol(String name, ISymbol type) {
+  public VariableSymbol(final String name, final ISymbol type) {
+
     this(name, Optional.ofNullable(type));
+
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public VariableSymbol(String name, Optional<ISymbol> type) {
+  public VariableSymbol(final String name, final Optional<ISymbol> type) {
+
     super(name, type);
     super.setGenus(SymbolGenus.VALUE);
+
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
+
     if (this == o) {
       return true;
     }
+
     return (o instanceof VariableSymbol that)
         && super.equals(o)
         && isLoopVariable() == that.isLoopVariable()
@@ -63,92 +73,113 @@ public class VariableSymbol extends Symbol {
 
   @Override
   public int hashCode() {
+
     int result = super.hashCode();
     result = 31 * result + (isLoopVariable() ? 1 : 0);
     result = 31 * result + (isIncomingParameter() ? 1 : 0);
     result = 31 * result + (isReturningParameter() ? 1 : 0);
     result = 31 * result + (isPrivate() ? 1 : 0);
     result = 31 * result + (isPropertyField() ? 1 : 0);
+
     return result;
   }
 
   @Override
-  public VariableSymbol clone(IScope withParentAsAppropriate) {
+  public VariableSymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoVariable(new VariableSymbol(this.getName(), this.getType()));
   }
 
-  protected VariableSymbol cloneIntoVariable(VariableSymbol newCopy) {
+  protected VariableSymbol cloneIntoVariable(final VariableSymbol newCopy) {
+
     cloneIntoSymbol(newCopy);
     newCopy.loopVariable = this.loopVariable;
     newCopy.incomingParameter = this.incomingParameter;
     newCopy.returningParameter = this.returningParameter;
     newCopy.setPrivate(this.isPrivate);
     newCopy.setAggregatePropertyField(this.isAggregatePropertyField);
+
     return newCopy;
   }
 
   @Override
   public boolean isPropertyField() {
+
     return isAggregatePropertyField;
   }
 
-  public void setAggregatePropertyField(boolean isAggregatePropertyField) {
+  public void setAggregatePropertyField(final boolean isAggregatePropertyField) {
+
     this.isAggregatePropertyField = isAggregatePropertyField;
+
   }
 
   @Override
   public boolean isPrivate() {
+
     return isPrivate;
   }
 
-  public void setPrivate(boolean isPrivate) {
+  public void setPrivate(final boolean isPrivate) {
+
     this.isPrivate = isPrivate;
   }
 
   @Override
   public boolean isPublic() {
+
     return !isPrivate;
   }
 
   @Override
   public boolean isLoopVariable() {
+
     return loopVariable;
   }
 
-  public void setLoopVariable(boolean asLoopVar) {
+  public void setLoopVariable(final boolean asLoopVar) {
+
     loopVariable = asLoopVar;
   }
 
   @Override
   public boolean isIncomingParameter() {
+
     return incomingParameter;
   }
 
-  public void setIncomingParameter(boolean incomingParameter) {
+  public void setIncomingParameter(final boolean incomingParameter) {
+
     this.incomingParameter = incomingParameter;
   }
 
   @Override
   public boolean isReturningParameter() {
+
     return returningParameter;
   }
 
-  public void setReturningParameter(boolean returningParameter) {
+  public void setReturningParameter(final boolean returningParameter) {
+
     this.returningParameter = returningParameter;
+
   }
 
   @Override
   public boolean isMutable() {
+
     return true;
   }
 
   @Override
   public String getFriendlyName() {
-    StringBuilder rtn = new StringBuilder();
+
+    final var rtn = new StringBuilder();
     if (this.isPrivate) {
       rtn.append("private ");
     }
     rtn.append(super.getFriendlyName());
+
     return rtn.toString();
   }
 }

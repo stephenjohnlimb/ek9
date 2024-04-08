@@ -30,33 +30,39 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
    */
   private final List<IAggregateSymbol> allowOnly = new ArrayList<>();
 
-  public AggregateWithTraitsSymbol(String name, IScope enclosingScope) {
+  public AggregateWithTraitsSymbol(final String name, final IScope enclosingScope) {
+
     super(name, enclosingScope);
+
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public AggregateWithTraitsSymbol(String name, Optional<ISymbol> type, IScope enclosingScope) {
+  public AggregateWithTraitsSymbol(final String name, final Optional<ISymbol> type, final IScope enclosingScope) {
+
     super(name, type, enclosingScope);
+
   }
 
 
-  protected AggregateWithTraitsSymbol cloneIntoAggregateWithTraitsSymbol(
-      AggregateWithTraitsSymbol newCopy) {
+  protected AggregateWithTraitsSymbol cloneIntoAggregateWithTraitsSymbol(final AggregateWithTraitsSymbol newCopy) {
+
     super.cloneIntoAggregateSymbol(newCopy);
     newCopy.traits.addAll(traits);
     newCopy.allowOnly.addAll(allowOnly);
+
     return newCopy;
   }
 
   /**
    * mark this aggregate as having additional 'trait'.
    */
-  public void addTrait(AggregateWithTraitsSymbol traitSymbol) {
+  public void addTrait(final AggregateWithTraitsSymbol traitSymbol) {
+
     AssertValue.checkNotNull("Trait cannot be null", traitSymbol);
     traits.add(traitSymbol);
-
     //Do we want this to be known as a sub aggregate?
     traitSymbol.addSubAggregateSymbol(this);
+
   }
 
   /**
@@ -67,19 +73,23 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
    * @param trait The trait to check.
    * @return true if it does false otherwise.
    */
-  public boolean hasImmediateTrait(IAggregateSymbol trait) {
+  public boolean hasImmediateTrait(final IAggregateSymbol trait) {
+
     return traits.stream().anyMatch(ownTrait -> ownTrait.isExactSameType(trait));
   }
 
   /**
    * For use with constraining types to be limited to a declared set.
    */
-  public void addAllowedExtender(IAggregateSymbol extenderSymbol) {
+  public void addAllowedExtender(final IAggregateSymbol extenderSymbol) {
+
     AssertValue.checkNotNull("AllowedExtender cannot be null", extenderSymbol);
     allowOnly.add(extenderSymbol);
+
   }
 
   public List<IAggregateSymbol> getAllowedExtenders() {
+
     return new ArrayList<>(allowOnly);
   }
 
@@ -89,7 +99,8 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
    * @param extenderSymbol The class (normally the one we are testing)
    * @return true if extending is allowed.
    */
-  public boolean isAllowingExtensionBy(IAggregateSymbol extenderSymbol) {
+  public boolean isAllowingExtensionBy(final IAggregateSymbol extenderSymbol) {
+
     if (!isExtensionConstrained()) {
       return true;
     }
@@ -97,7 +108,8 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
     return allowOnly.contains(extenderSymbol);
   }
 
-  private Optional<ISymbol> resolveInTraits(SymbolSearch search) {
+  private Optional<ISymbol> resolveInTraits(final SymbolSearch search) {
+
     Optional<ISymbol> rtn = super.resolveMember(search);
     for (AggregateWithTraitsSymbol trait : traits) {
       rtn = trait.resolveMember(search);
@@ -105,29 +117,35 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
         return rtn;
       }
     }
+
     return rtn;
   }
 
   @Override
   public List<ISymbol> getAllSymbolsMatchingName(final String symbolName) {
-    List<List<ISymbol>> toBeFlattened = new ArrayList<>();
+
+    final List<List<ISymbol>> toBeFlattened = new ArrayList<>();
     toBeFlattened.add(super.getAllSymbolsMatchingName(symbolName));
+
     for (AggregateWithTraitsSymbol trait : traits) {
       toBeFlattened.add(trait.getAllSymbolsMatchingName(symbolName));
     }
+
     return toBeFlattened.stream()
         .flatMap(Collection::stream)
         .toList();
   }
 
   @Override
-  public AggregateWithTraitsSymbol clone(IScope withParentAsAppropriate) {
+  public AggregateWithTraitsSymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoAggregateWithTraitsSymbol(
         new AggregateWithTraitsSymbol(this.getName(), this.getType(), withParentAsAppropriate));
   }
 
   @Override
-  public double getUnCoercedAssignableWeightTo(ISymbol s) {
+  public double getUnCoercedAssignableWeightTo(final ISymbol s) {
+
     //easy if same type and parameterization
     double canAssign = super.getUnCoercedAssignableWeightTo(s);
     if (canAssign >= 0.0) {
@@ -146,7 +164,8 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
   }
 
   @Override
-  public double getAssignableWeightTo(ISymbol s) {
+  public double getAssignableWeightTo(final ISymbol s) {
+
     //easy if same type and parameterization
     double canAssign = super.getAssignableWeightTo(s);
     if (canAssign >= 0.0) {
@@ -165,7 +184,8 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
   }
 
   @Override
-  public boolean isImplementingInSomeWay(IAggregateSymbol traitSymbol) {
+  public boolean isImplementingInSomeWay(final IAggregateSymbol traitSymbol) {
+
     if (this == traitSymbol) {
       return true;
     }
@@ -186,6 +206,7 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
    */
   @Override
   public List<IAggregateSymbol> getTraits() {
+
     return new ArrayList<>(traits);
   }
 
@@ -197,6 +218,7 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
    */
   @Override
   public List<AggregateWithTraitsSymbol> getAllExtensionConstrainedTraits() {
+
     return getAllTraits().stream().filter(AggregateWithTraitsSymbol::isExtensionConstrained)
         .toList();
   }
@@ -208,7 +230,8 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
    */
   @Override
   public List<AggregateWithTraitsSymbol> getAllTraits() {
-    List<AggregateWithTraitsSymbol> rtn = new ArrayList<>();
+
+    final List<AggregateWithTraitsSymbol> rtn = new ArrayList<>();
     //Add our traits in and those the trait extends - this will then go all the way up the
     //extending list
     traits.forEach(trait -> {
@@ -218,13 +241,16 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
       }
     });
     addTraitsIfNotPresent(rtn, super.getAllTraits());
+
     return rtn;
   }
 
   @Override
   public List<MethodSymbol> getAllMethods() {
-    List<MethodSymbol> rtn = super.getAllMethods();
+
+    final List<MethodSymbol> rtn = super.getAllMethods();
     traits.forEach(trait -> rtn.addAll(trait.getAllMethods()));
+
     return rtn;
   }
 
@@ -238,27 +264,33 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
 
     List<MethodSymbol> rtn = super.getAllAbstractMethods();
     traits.forEach(trait -> rtn.addAll(trait.getAllAbstractMethods()));
+
     return rtn;
   }
 
   @Override
   public boolean isExtensionConstrained() {
+
     return !allowOnly.isEmpty();
   }
 
   @Override
   public List<MethodSymbol> getAllNonAbstractMethods() {
-    List<MethodSymbol> rtn = super.getAllNonAbstractMethods();
+
+    final List<MethodSymbol> rtn = super.getAllNonAbstractMethods();
     for (IAggregateSymbol trait : traits) {
       rtn.addAll(trait.getAllNonAbstractMethods());
     }
+
     return rtn;
   }
 
   @Override
-  public MethodSymbolSearchResult resolveMatchingMethods(MethodSymbolSearch search,
-                                                         MethodSymbolSearchResult result) {
-    MethodSymbolSearchResult buildResult = new MethodSymbolSearchResult(result);
+  public MethodSymbolSearchResult resolveMatchingMethods(final MethodSymbolSearch search,
+                                                         final MethodSymbolSearchResult result) {
+
+    var buildResult = new MethodSymbolSearchResult(result);
+
     //Do traits first then do own and our supers - so with the traits we consider them 'peers'
     //and so need to merge the result.
     //So this would give us potentially two methods with same signature in our results -
@@ -280,12 +312,14 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
   }
 
   @Override
-  public Optional<ISymbol> resolveMember(SymbolSearch search) {
+  public Optional<ISymbol> resolveMember(final SymbolSearch search) {
+
     //First check if in immediate class or super class
     Optional<ISymbol> rtn = super.resolveMember(search);
     if (rtn.isEmpty()) {
       rtn = resolveInTraits(search);
     }
+
     return rtn;
   }
 
@@ -294,20 +328,23 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
    * Look in our traits first then go to the normal AggregateSymbol resolution.
    */
   @Override
-  public Optional<ISymbol> resolveWithParentScope(SymbolSearch search) {
-    Optional<ISymbol> rtn = resolveInTraits(search);
+  public Optional<ISymbol> resolveWithParentScope(final SymbolSearch search) {
 
-    if (rtn.isEmpty()) {
-      rtn = super.resolveWithParentScope(search);
+    Optional<ISymbol> rtn = resolveInTraits(search);
+    if (rtn.isPresent()) {
+      return rtn;
     }
-    return rtn;
+
+    return super.resolveWithParentScope(search);
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
+
     if (this == o) {
       return true;
     }
+
     return (o instanceof AggregateWithTraitsSymbol that)
         && super.equals(o)
         && getTraits().equals(that.getTraits())
@@ -316,9 +353,11 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
 
   @Override
   public int hashCode() {
+
     int result = super.hashCode();
     result = 31 * result + getTraits().hashCode();
     result = 31 * result + allowOnly.hashCode();
+
     return result;
   }
 }

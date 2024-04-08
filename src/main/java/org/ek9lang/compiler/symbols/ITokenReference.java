@@ -8,6 +8,6 @@ import org.ek9lang.compiler.tokenizer.IToken;
 public interface ITokenReference {
   IToken getSourceToken();
 
-  void setSourceToken(IToken sourceToken);
+  void setSourceToken(final IToken sourceToken);
 
 }

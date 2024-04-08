@@ -33,27 +33,34 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
 
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public CaptureScopedSymbol(String name, Optional<ISymbol> type, IScope enclosingScope) {
+  public CaptureScopedSymbol(final String name, final Optional<ISymbol> type, final IScope enclosingScope) {
+
     super(name, type, enclosingScope);
+
   }
 
-  public CaptureScopedSymbol(String name, IScope enclosingScope) {
+  public CaptureScopedSymbol(final String name, final IScope enclosingScope) {
+
     super(name, enclosingScope);
+
   }
 
   @Override
-  public ScopedSymbol clone(IScope withParentAsAppropriate) {
+  public ScopedSymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoCaptureScopedSymbol(new CaptureScopedSymbol(this.getName(), withParentAsAppropriate));
+
   }
 
-  protected CaptureScopedSymbol cloneIntoCaptureScopedSymbol(CaptureScopedSymbol newCopy) {
+  protected CaptureScopedSymbol cloneIntoCaptureScopedSymbol(final CaptureScopedSymbol newCopy) {
+
     super.cloneIntoScopeSymbol(newCopy);
     newCopy.moduleScope = moduleScope;
     newCopy.markedAbstract = markedAbstract;
 
     if (getCapturedVariables().isPresent()) {
-      var captured = getCapturedVariables().get();
-      var cloned = captured.clone(newCopy.getEnclosingScope());
+      final var captured = getCapturedVariables().get();
+      final var cloned = captured.clone(newCopy.getEnclosingScope());
       newCopy.setCapturedVariables(cloned);
     }
 
@@ -61,23 +68,30 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
   }
 
   public IScope getModuleScope() {
+
     return moduleScope;
   }
 
-  public void setModuleScope(IScope moduleScope) {
+  public void setModuleScope(final IScope moduleScope) {
+
     this.moduleScope = moduleScope;
+
   }
 
   @Override
   public boolean isMarkedAbstract() {
+
     return markedAbstract;
   }
 
-  public void setMarkedAbstract(boolean markedAbstract) {
+  public void setMarkedAbstract(final boolean markedAbstract) {
+
     this.markedAbstract = markedAbstract;
+
   }
 
   public Optional<CaptureScope> getCapturedVariables() {
+
     return Optional.ofNullable(capturedVariables);
   }
 
@@ -85,12 +99,14 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
    * It is possible to capture variables in the current scope and pull them into the
    * function, so they can be used.
    */
-  public void setCapturedVariables(CaptureScope capturedVariables) {
+  public void setCapturedVariables(final CaptureScope capturedVariables) {
+
     setCapturedVariables(Optional.ofNullable(capturedVariables));
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public void setCapturedVariables(Optional<CaptureScope> capturedVariables) {
+  public void setCapturedVariables(final Optional<CaptureScope> capturedVariables) {
+
     capturedVariables.ifPresentOrElse(vars -> this.capturedVariables = vars, () -> this.capturedVariables = null);
 
   }
@@ -99,16 +115,20 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
    * The variables that have been captured can be given public access if needed.
    */
   public void setCapturedVariablesVisibility(final boolean isPublic) {
+
     getCapturedVariables().ifPresent(
         localScope -> localScope.getSymbolsForThisScope().forEach(symbol -> {
           if (symbol instanceof VariableSymbol s) {
             s.setPrivate(!isPublic);
           }
         }));
+
   }
 
   protected String getPrivateVariablesForDisplay() {
-    var toCommaSeparated = new ToCommaSeparated(this, true);
+
+    final var toCommaSeparated = new ToCommaSeparated(this, true);
+
     return getCapturedVariables()
         .map(IScope::getSymbolsForThisScope)
         .map(toCommaSeparated)
@@ -116,24 +136,29 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
   }
 
   @Override
-  public Optional<ISymbol> resolveExcludingCapturedVariables(SymbolSearch search) {
+  public Optional<ISymbol> resolveExcludingCapturedVariables(final SymbolSearch search) {
+
     return super.resolveInThisScopeOnly(search);
   }
 
   @Override
-  public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search) {
-    Optional<ISymbol> rtn = super.resolveInThisScopeOnly(search);
+  public Optional<ISymbol> resolveInThisScopeOnly(final SymbolSearch search) {
+
+    final var rtn = super.resolveInThisScopeOnly(search);
     if (rtn.isEmpty() && getCapturedVariables().isPresent()) {
-      rtn = getCapturedVariables().get().resolveInThisScopeOnly(search);
+      return getCapturedVariables().get().resolveInThisScopeOnly(search);
     }
+
     return rtn;
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
+
     if (this == o) {
       return true;
     }
+
     return (o instanceof CaptureScopedSymbol that)
         && super.equals(o)
         && isMarkedAbstract() == that.isMarkedAbstract()
@@ -142,10 +167,12 @@ public class CaptureScopedSymbol extends ScopedSymbol implements ICanCaptureVari
 
   @Override
   public int hashCode() {
+
     int result = super.hashCode();
     result = 31 * result + (getSourceToken() != null ? getSourceToken().hashCode() : 0);
     result = 31 * result + (isMarkedAbstract() ? 1 : 0);
     result = 31 * result + getCapturedVariables().hashCode();
+
     return result;
   }
 }

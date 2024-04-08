@@ -12,22 +12,29 @@ public class ServiceOperationSymbol extends MethodSymbol {
   private static final long serialVersionUID = 1L;
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public ServiceOperationSymbol(String name, Optional<ISymbol> type, IScope enclosingScope) {
+  public ServiceOperationSymbol(final String name, final Optional<ISymbol> type, final IScope enclosingScope) {
+
     super(name, type, enclosingScope);
+
   }
 
-  public ServiceOperationSymbol(String name, IScope enclosingScope) {
+  public ServiceOperationSymbol(final String name, final IScope enclosingScope) {
+
     super(name, enclosingScope);
+
   }
 
   @Override
-  public ServiceOperationSymbol clone(IScope withParentAsAppropriate) {
+  public ServiceOperationSymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoServiceOperationSymbol(
         new ServiceOperationSymbol(getName(), getType(), withParentAsAppropriate));
   }
 
-  protected ServiceOperationSymbol cloneIntoServiceOperationSymbol(ServiceOperationSymbol newCopy) {
+  protected ServiceOperationSymbol cloneIntoServiceOperationSymbol(final ServiceOperationSymbol newCopy) {
+
     super.cloneIntoMethodSymbol(newCopy);
+
     return newCopy;
   }
 }

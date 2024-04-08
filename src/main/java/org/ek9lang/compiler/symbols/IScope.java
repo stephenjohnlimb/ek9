@@ -13,7 +13,7 @@ import org.ek9lang.compiler.tokenizer.IToken;
  */
 public interface IScope extends Serializable {
 
-  IScope clone(IScope withParentAsAppropriate);
+  IScope clone(final IScope withParentAsAppropriate);
 
   ScopeType getScopeType();
 
@@ -45,7 +45,7 @@ public interface IScope extends Serializable {
   /**
    * Define a Symbol in this scope.
    */
-  void define(ISymbol symbol);
+  void define(final ISymbol symbol);
 
   /**
    * Provide a list of all the parameters held in this scope and only this scope.
@@ -61,32 +61,32 @@ public interface IScope extends Serializable {
   /**
    * Find the nearest symbol of that name up the scope tree.
    */
-  Optional<ISymbol> resolve(SymbolSearch search);
+  Optional<ISymbol> resolve(final SymbolSearch search);
 
   /**
    * Looks in scope and parent scopes.
    */
-  MethodSymbolSearchResult resolveMatchingMethods(MethodSymbolSearch search,
-                                                  MethodSymbolSearchResult result);
+  MethodSymbolSearchResult resolveMatchingMethods(final MethodSymbolSearch search,
+                                                  final MethodSymbolSearchResult result);
 
   /**
    * Look in own scope just for methods and return all those that could match.
    * ideally there would be one in the case of ambiguities there will be more.
    */
-  MethodSymbolSearchResult resolveMatchingMethodsInThisScopeOnly(MethodSymbolSearch search,
-                                                                 MethodSymbolSearchResult result);
+  MethodSymbolSearchResult resolveMatchingMethodsInThisScopeOnly(final MethodSymbolSearch search,
+                                                                 final MethodSymbolSearchResult result);
 
   /**
    * Just resolve on this or supers/traits - but not anything outside of the class hierarchy.
    */
-  Optional<ISymbol> resolveMember(SymbolSearch search);
+  Optional<ISymbol> resolveMember(final SymbolSearch search);
 
   /**
    * Just look in own scope.
    */
-  Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search);
+  Optional<ISymbol> resolveInThisScopeOnly(final SymbolSearch search);
 
-  boolean isScopeAMatchForEnclosingScope(IScope toCheck);
+  boolean isScopeAMatchForEnclosingScope(final IScope toCheck);
 
   Optional<ScopedSymbol> findNearestNonBlockScopeInEnclosingScopes();
 
@@ -100,7 +100,7 @@ public interface IScope extends Serializable {
 
   IToken getEncounteredExceptionToken();
 
-  void setEncounteredExceptionToken(IToken encounteredExceptionToken);
+  void setEncounteredExceptionToken(final IToken encounteredExceptionToken);
 
   /**
    * The main type of scope in use a block is just like a set of instruction inside an if block

@@ -15,17 +15,22 @@ public class TrySymbol extends ControlSymbol {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public TrySymbol(IScope enclosingScope) {
+  public TrySymbol(final IScope enclosingScope) {
+
     super("Try", enclosingScope);
+
   }
 
   @Override
-  public TrySymbol clone(IScope withParentAsAppropriate) {
+  public TrySymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoTrySymbol(new TrySymbol(withParentAsAppropriate));
   }
 
-  protected TrySymbol cloneIntoTrySymbol(TrySymbol newCopy) {
+  protected TrySymbol cloneIntoTrySymbol(final TrySymbol newCopy) {
+
     super.cloneIntoControlSymbol(newCopy);
+
     return newCopy;
   }
 

@@ -70,16 +70,20 @@ public class StreamCallSymbol extends MethodSymbol {
   //Not always set for a terminal node it does not produce anything.
   private ISymbol producesSymbolType = null;
 
-  public StreamCallSymbol(String name, IScope enclosingScope) {
+  public StreamCallSymbol(final String name, final IScope enclosingScope) {
+
     super(name, enclosingScope);
+
   }
 
   @Override
-  public StreamCallSymbol clone(IScope withParentAsAppropriate) {
+  public StreamCallSymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoStreamCallSymbol(new StreamCallSymbol(getName(), withParentAsAppropriate));
   }
 
-  protected StreamCallSymbol cloneIntoStreamCallSymbol(StreamCallSymbol newCopy) {
+  protected StreamCallSymbol cloneIntoStreamCallSymbol(final StreamCallSymbol newCopy) {
+
     super.cloneIntoMethodSymbol(newCopy);
     newCopy.consumesSymbolPromotionRequired = consumesSymbolPromotionRequired;
     newCopy.consumesSymbolType = consumesSymbolType;
@@ -94,78 +98,97 @@ public class StreamCallSymbol extends MethodSymbol {
   }
 
   public boolean isConsumesSymbolPromotionRequired() {
+
     return consumesSymbolPromotionRequired;
   }
 
-  public void setConsumesSymbolPromotionRequired(boolean consumesSymbolPromotionRequired) {
+  public void setConsumesSymbolPromotionRequired(final boolean consumesSymbolPromotionRequired) {
+
     this.consumesSymbolPromotionRequired = consumesSymbolPromotionRequired;
   }
 
   public boolean isSinkInNature() {
+
     return sinkInNature;
   }
 
-  public void setSinkInNature(boolean sinkInNature) {
+  public void setSinkInNature(final boolean sinkInNature) {
+
     this.sinkInNature = sinkInNature;
+
   }
 
   public boolean isCapableOfConsumingAnything() {
+
     return capableOfConsumingAnything;
   }
 
-  public void setCapableOfConsumingAnything(boolean capableOfConsumingAnything) {
+  public void setCapableOfConsumingAnything(final boolean capableOfConsumingAnything) {
+
     this.capableOfConsumingAnything = capableOfConsumingAnything;
   }
 
-  public void setProducerSymbolTypeSameAsConsumerSymbolType(
-      boolean producerSymbolTypeSameAsConsumerSymbolType) {
+  public void setProducerSymbolTypeSameAsConsumerSymbolType(final boolean producerSymbolTypeSameAsConsumerSymbolType) {
+
     this.producerSymbolTypeSameAsConsumerSymbolType = producerSymbolTypeSameAsConsumerSymbolType;
+
   }
 
   public boolean isDerivesProducesTypeFromConsumesType() {
+
     return derivesProducesTypeFromConsumesType;
   }
 
-  public void setDerivesProducesTypeFromConsumesType(boolean derivesProducesTypeFromConsumesType) {
+  public void setDerivesProducesTypeFromConsumesType(final boolean derivesProducesTypeFromConsumesType) {
+
     this.derivesProducesTypeFromConsumesType = derivesProducesTypeFromConsumesType;
+
   }
 
   public boolean isProducesTypeMustBeAFunction() {
+
     return producesTypeMustBeAFunction;
   }
 
-  public void setProducesTypeMustBeAFunction(boolean producesTypeMustBeAFunction) {
+  public void setProducesTypeMustBeAFunction(final boolean producesTypeMustBeAFunction) {
+
     this.producesTypeMustBeAFunction = producesTypeMustBeAFunction;
+
   }
 
   public ISymbol getConsumesSymbolType() {
+
     return consumesSymbolType;
   }
 
   /**
    * This sets the type of symbol that stream can consume.
    */
-  public void setConsumesSymbolType(ISymbol consumesSymbolType) {
-    this.consumesSymbolType = consumesSymbolType;
+  public void setConsumesSymbolType(final ISymbol consumesSymbolType) {
 
+    this.consumesSymbolType = consumesSymbolType;
     if (producerSymbolTypeSameAsConsumerSymbolType) {
       setProducesSymbolType(consumesSymbolType);
     }
+
   }
 
   public ISymbol getProducesSymbolType() {
+
     return producesSymbolType;
   }
 
   /**
    * This sets the type of symbol that stream can produce.
    */
-  public void setProducesSymbolType(ISymbol producesSymbolType) {
+  public void setProducesSymbolType(final ISymbol producesSymbolType) {
+
     this.producesSymbolType = producesSymbolType;
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
+
     if (this == o) {
       return true;
     }
@@ -182,6 +205,7 @@ public class StreamCallSymbol extends MethodSymbol {
           that.getConsumesSymbolType() != null) {
         return false;
       }
+
       return getProducesSymbolType() != null ? getProducesSymbolType().equals(that.getProducesSymbolType()) :
           that.getProducesSymbolType() == null;
     }
@@ -190,6 +214,7 @@ public class StreamCallSymbol extends MethodSymbol {
 
   @Override
   public int hashCode() {
+
     int result = super.hashCode();
     result = 31 * result + (isConsumesSymbolPromotionRequired() ? 1 : 0);
     result = 31 * result + (getConsumesSymbolType() != null ? getConsumesSymbolType().hashCode() : 0);
@@ -199,6 +224,7 @@ public class StreamCallSymbol extends MethodSymbol {
     result = 31 * result + (isProducesTypeMustBeAFunction() ? 1 : 0);
     result = 31 * result + (producerSymbolTypeSameAsConsumerSymbolType ? 1 : 0);
     result = 31 * result + (isSinkInNature() ? 1 : 0);
+
     return result;
   }
 }

@@ -7,6 +7,7 @@ import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.tokenizer.IToken;
+import org.ek9lang.core.AssertValue;
 
 /**
  * Represents a symbol that also has a scope. Typically, this means it can have variables,
@@ -38,30 +39,39 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
    */
   private IScopedSymbol outerMostTypeOrFunction;
 
-  public ScopedSymbol(String name, IScope enclosingScope) {
+  public ScopedSymbol(final String name, final IScope enclosingScope) {
+
     super(name);
     actualScope = new LocalScope(ScopeType.BLOCK, name, enclosingScope);
+
   }
 
-  public ScopedSymbol(IScope.ScopeType scopeType, String scopeName, IScope enclosingScope) {
+  public ScopedSymbol(final IScope.ScopeType scopeType, final String scopeName, final IScope enclosingScope) {
+
     super(scopeName);
     actualScope = new LocalScope(scopeType, scopeName, enclosingScope);
+
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public ScopedSymbol(String name, Optional<ISymbol> type, IScope enclosingScope) {
+  public ScopedSymbol(final String name, final Optional<ISymbol> type, final IScope enclosingScope) {
+
     super(name, type);
     actualScope = new LocalScope(ScopeType.BLOCK, name, enclosingScope);
+
   }
 
   @Override
-  public ScopedSymbol clone(IScope withParentAsAppropriate) {
+  public ScopedSymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoScopeSymbol(new ScopedSymbol(this.getName(), withParentAsAppropriate));
   }
 
-  protected ScopedSymbol cloneIntoScopeSymbol(ScopedSymbol newCopy) {
+  protected ScopedSymbol cloneIntoScopeSymbol(final ScopedSymbol newCopy) {
+
     cloneIntoSymbol(newCopy);
     actualScope.cloneIntoLocalScope(newCopy.actualScope);
+
     return copyScopedSymbolProperties(newCopy);
   }
 
@@ -69,7 +79,8 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   /**
    * Just copies the properties over.
    */
-  public ScopedSymbol copyScopedSymbolProperties(ScopedSymbol newCopy) {
+  public ScopedSymbol copyScopedSymbolProperties(final ScopedSymbol newCopy) {
+
     newCopy.encounteredExceptionToken = this.encounteredExceptionToken;
     getOuterMostTypeOrFunction().ifPresent(newCopy::setOuterMostTypeOrFunction);
 
@@ -77,36 +88,42 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   }
 
   public Optional<IScopedSymbol> getOuterMostTypeOrFunction() {
+
     return Optional.ofNullable(outerMostTypeOrFunction);
   }
 
-  public void setOuterMostTypeOrFunction(IScopedSymbol outerMostTypeOrFunction) {
+  public void setOuterMostTypeOrFunction(final IScopedSymbol outerMostTypeOrFunction) {
+
     this.outerMostTypeOrFunction = outerMostTypeOrFunction;
   }
 
   public LocalScope getActualScope() {
+
     return actualScope;
   }
 
   @Override
   public IScope.ScopeType getScopeType() {
+
     return actualScope.getScopeType();
   }
 
   public void setScopeType(final IScope.ScopeType scopeType) {
+
     actualScope.setScopeType(scopeType);
   }
 
   /**
    * Resolve with super type/function or via enclosing scope.
    */
-  public Optional<ISymbol> resolveWithParentScope(SymbolSearch search) {
+  public Optional<ISymbol> resolveWithParentScope(final SymbolSearch search) {
+
     Optional<ISymbol> rtn = Optional.empty();
 
     //So we keep going back up the class hierarchy until no more supers then.
     //When we get to the final aggregate we use the scopedSymbol local and back up to
     //global symbol table.
-    var theSuper = getAnySuperTypeOrFunction();
+    final var theSuper = getAnySuperTypeOrFunction();
     if (theSuper.isPresent()) {
       rtn = theSuper.get().resolve(search);
     }
@@ -121,106 +138,130 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
 
   @Override
   public boolean isMarkedPure() {
+
     return actualScope.isMarkedPure();
   }
 
   public boolean isNotMarkedPure() {
+
     return !isMarkedPure();
   }
 
   @Override
-  public void setMarkedPure(boolean markedPure) {
+  public void setMarkedPure(final boolean markedPure) {
+
     //Note sure I really want pure in this and also the actual scope.
     super.setMarkedPure(markedPure);
     actualScope.setMarkedPure(markedPure);
+
   }
 
   @Override
   public boolean isTerminatedNormally() {
+
     return getEncounteredExceptionToken() == null;
   }
 
   @Override
   public IToken getEncounteredExceptionToken() {
+
     return encounteredExceptionToken;
   }
 
   @Override
-  public void setEncounteredExceptionToken(IToken encounteredExceptionToken) {
+  public void setEncounteredExceptionToken(final IToken encounteredExceptionToken) {
+
     this.encounteredExceptionToken = encounteredExceptionToken;
   }
 
   @Override
   public String getScopeName() {
+
     return actualScope.getScopeName();
   }
 
   @Override
   public String getFriendlyScopeName() {
+
     return this.getFriendlyName();
   }
 
   @Override
-  public void define(ISymbol symbol) {
+  public void define(final ISymbol symbol) {
+
+    AssertValue.checkNotNull("Symbol must not be null", symbol);
     actualScope.define(symbol);
+
   }
-  
+
   @Override
   public IScope getEnclosingScope() {
+
     return actualScope.getEnclosingScope();
   }
 
   protected Optional<IScope> getAnySuperTypeOrFunction() {
+
     return Optional.empty();
   }
 
   @Override
   public List<ISymbol> getSymbolsForThisScope() {
+
     return actualScope.getSymbolsForThisScope();
   }
 
   @Override
   public List<ISymbol> getAllSymbolsMatchingName(final String symbolName) {
+
     return actualScope.getAllSymbolsMatchingName(symbolName);
   }
 
   @Override
-  public MethodSymbolSearchResult resolveMatchingMethods(MethodSymbolSearch search,
-                                                         MethodSymbolSearchResult result) {
+  public MethodSymbolSearchResult resolveMatchingMethods(final MethodSymbolSearch search,
+                                                         final MethodSymbolSearchResult result) {
+
     return actualScope.resolveMatchingMethods(search, result);
   }
 
   @Override
-  public MethodSymbolSearchResult resolveMatchingMethodsInThisScopeOnly(
-      MethodSymbolSearch search, MethodSymbolSearchResult result) {
+  public MethodSymbolSearchResult resolveMatchingMethodsInThisScopeOnly(final MethodSymbolSearch search,
+                                                                        final MethodSymbolSearchResult result) {
+
     return actualScope.resolveMatchingMethodsInThisScopeOnly(search, result);
   }
 
   @Override
-  public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search) {
+  public Optional<ISymbol> resolveInThisScopeOnly(final SymbolSearch search) {
+
     return actualScope.resolveInThisScopeOnly(search);
   }
 
   @Override
-  public Optional<ISymbol> resolve(SymbolSearch search) {
+  public Optional<ISymbol> resolve(final SymbolSearch search) {
+
     return actualScope.resolve(search);
   }
 
   @Override
-  public Optional<ISymbol> resolveMember(SymbolSearch search) {
+  public Optional<ISymbol> resolveMember(final SymbolSearch search) {
+
     return actualScope.resolveMember(search);
   }
 
   @Override
   public Optional<ScopedSymbol> findNearestNonBlockScopeInEnclosingScopes() {
+
     if (getScopeType().equals(ScopeType.NON_BLOCK)) {
       return Optional.of(this);
     }
+
     return actualScope.findNearestNonBlockScopeInEnclosingScopes();
   }
 
   @Override
   public Optional<ScopedSymbol> findNearestDynamicBlockScopeInEnclosingScopes() {
+
     if (getScopeType().equals(ScopeType.DYNAMIC_BLOCK)) {
       return Optional.of(this);
     }
@@ -229,12 +270,14 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   }
 
   @Override
-  public boolean isScopeAMatchForEnclosingScope(IScope toCheck) {
+  public boolean isScopeAMatchForEnclosingScope(final IScope toCheck) {
+
     return actualScope.isScopeAMatchForEnclosingScope(toCheck);
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
+
     if (this == o) {
       return true;
     }
@@ -244,6 +287,7 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
     if (!actualScope.equals(((ScopedSymbol) o).actualScope)) {
       return false;
     }
+
     return super.equals(o);
   }
 
@@ -253,6 +297,7 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
     var result = this.actualScope.hashCode();
     result = 31 * result + (getSourceToken() != null ? getSourceToken().hashCode() : 0);
     result = 31 * result + super.hashCode();
+
     return result;
   }
 }

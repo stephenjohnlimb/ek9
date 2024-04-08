@@ -32,9 +32,9 @@ public interface ICanBeGeneric extends ISymbol {
    * You can see where this is taking us! Gigantic cascades of parameterized types. This means the EK9 developer
    * can get loads of 'types for free' i.e. without needing to be explicit.
    */
-  void addGenericSymbolReference(PossibleGenericSymbol genericSymbolReference);
+  void addGenericSymbolReference(final PossibleGenericSymbol genericSymbolReference);
 
-  void addTypeParameterOrArgument(ISymbol typeParameterOrArgument);
+  void addTypeParameterOrArgument(final ISymbol typeParameterOrArgument);
 
   List<ISymbol> getAnyConceptualTypeParameters();
 

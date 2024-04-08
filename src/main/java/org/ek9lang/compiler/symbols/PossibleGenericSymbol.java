@@ -43,6 +43,7 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
    * as the 'type arguments'.
    */
   private final List<ISymbol> typeParameterOrArguments = new ArrayList<>();
+
   /**
    * If this AggregateSymbol/FunctionSymbol is a generic type then within its code area
    * either properties, methods or return types it may use another generic type with the same
@@ -81,21 +82,25 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
    */
   private boolean openForExtension = false;
 
-  public PossibleGenericSymbol(String name, IScope enclosingScope) {
+  public PossibleGenericSymbol(final String name, final IScope enclosingScope) {
+
     super(name, enclosingScope);
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public PossibleGenericSymbol(String name, Optional<ISymbol> type, IScope enclosingScope) {
+  public PossibleGenericSymbol(final String name, final Optional<ISymbol> type, final IScope enclosingScope) {
+
     super(name, type, enclosingScope);
   }
 
   @Override
-  public ScopedSymbol clone(IScope withParentAsAppropriate) {
+  public ScopedSymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoPossibleGenericSymbol(new PossibleGenericSymbol(this.getName(), withParentAsAppropriate));
   }
 
-  protected PossibleGenericSymbol cloneIntoPossibleGenericSymbol(PossibleGenericSymbol newCopy) {
+  protected PossibleGenericSymbol cloneIntoPossibleGenericSymbol(final PossibleGenericSymbol newCopy) {
+
     super.cloneIntoCaptureScopedSymbol(newCopy);
     newCopy.parameterisedTypeReferences.addAll(getGenericSymbolReferences());
     newCopy.typeParameterOrArguments.addAll(typeParameterOrArguments);
@@ -108,11 +113,13 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
 
   @Override
   public boolean isParameterisedType() {
+
     return getGenericType().isPresent();
   }
 
   @Override
   public Optional<PossibleGenericSymbol> getGenericType() {
+
     return Optional.ofNullable(genericType);
   }
 
@@ -120,7 +127,8 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
    * Used parameterizing a generic type with type arguments.
    */
   @SuppressWarnings({"unused", "OptionalUsedAsFieldOrParameterType"})
-  public void setGenericType(Optional<PossibleGenericSymbol> genericType) {
+  public void setGenericType(final Optional<PossibleGenericSymbol> genericType) {
+
     genericType.ifPresentOrElse(theGenericType -> {
       this.genericType = theGenericType;
       //Use the same scope, module and source token for this as the generic type.
@@ -128,22 +136,28 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
       setParsedModule(theGenericType.getParsedModule());
       setSourceToken(theGenericType.getSourceToken());
     }, () -> this.genericType = null);
+
   }
 
-  public void setGenericType(PossibleGenericSymbol genericType) {
+  public void setGenericType(final PossibleGenericSymbol genericType) {
+
     setGenericType(Optional.ofNullable(genericType));
+
   }
 
   @Override
   public boolean isGenericInNature() {
+
     return typeParameterOrArguments.stream().anyMatch(ISymbol::isConceptualTypeParameter);
   }
 
   public boolean isOpenForExtension() {
+
     return this.openForExtension;
   }
 
-  public void setOpenForExtension(boolean open) {
+  public void setOpenForExtension(final boolean open) {
+
     this.openForExtension = open;
   }
 
@@ -152,18 +166,22 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
    */
   @Override
   public boolean isConceptualTypeParameter() {
+
     return conceptualTypeParameter;
   }
 
   /**
    * Set this type symbol to be conceptual in nature.
    */
-  public void setConceptualTypeParameter(boolean conceptualTypeParameter) {
+  public void setConceptualTypeParameter(final boolean conceptualTypeParameter) {
+
     this.conceptualTypeParameter = conceptualTypeParameter;
+
   }
 
   @Override
   public List<PossibleGenericSymbol> getGenericSymbolReferences() {
+
     return Collections.unmodifiableList(parameterisedTypeReferences);
   }
 
@@ -172,47 +190,56 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
    * I'm still in two minds about adding these references.
    * Leave as is at the moment, and then see what I think later on.
    */
-  public void addGenericSymbolReference(PossibleGenericSymbol genericSymbolReference) {
+  public void addGenericSymbolReference(final PossibleGenericSymbol genericSymbolReference) {
+
     //only need to add once but source might have many references to the type.
     if (!parameterisedTypeReferences.contains(genericSymbolReference)) {
       parameterisedTypeReferences.add(genericSymbolReference);
     }
+
   }
 
   /**
    * Add a parameter type to this scope.
    */
   @Override
-  public void addTypeParameterOrArgument(ISymbol typeParameterOrArgument) {
+  public void addTypeParameterOrArgument(final ISymbol typeParameterOrArgument) {
+
     AssertValue.checkNotNull("TypeParameterOrArgument cannot be null", typeParameterOrArgument);
     typeParameterOrArguments.add(typeParameterOrArgument);
     if (isGenericInNature()) {
       //because this is now generic in nature, it will itself become a conceptual type
-      this.setConceptualTypeParameter(true);
-      if (this.getCategory() == SymbolCategory.FUNCTION) {
-        this.setCategory(SymbolCategory.TEMPLATE_FUNCTION);
-      } else if (this.getCategory() == SymbolCategory.TYPE) {
-        this.setCategory(SymbolCategory.TEMPLATE_TYPE);
+      setConceptualTypeParameter(true);
+      if (getCategory() == SymbolCategory.FUNCTION) {
+        setCategory(SymbolCategory.TEMPLATE_FUNCTION);
+      } else if (getCategory() == SymbolCategory.TYPE) {
+        setCategory(SymbolCategory.TEMPLATE_TYPE);
       }
     }
+
   }
 
   @Override
   public String getFriendlyName() {
+
     if (getGenericType().isPresent()) {
       return getGenericType().get().getFriendlyName();
     }
+
     return super.getFriendlyName();
   }
 
   protected String getAnyGenericParamsAsFriendlyNames() {
-    StringBuilder buffer = new StringBuilder();
+
+    final var buffer = new StringBuilder();
+
     if (!getTypeParameterOrArguments().isEmpty()) {
       buffer.append(" of type ");
-      var params = getTypeParameterOrArguments();
-      var toCommaSeparated = new ToCommaSeparated(this, params.size() > 1);
+      final var params = getTypeParameterOrArguments();
+      final var toCommaSeparated = new ToCommaSeparated(this, params.size() > 1);
       buffer.append(toCommaSeparated.apply(params));
     }
+
     return buffer.toString();
   }
 
@@ -221,10 +248,12 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
    * return a list of all those that are generic 'T' in nature and not actually concrete types.
    */
   public List<ISymbol> getAnyConceptualTypeParameters() {
+
     return typeParameterOrArguments.stream().filter(ISymbol::isConceptualTypeParameter).toList();
   }
 
   public List<ISymbol> getTypeParameterOrArguments() {
+
     return Collections.unmodifiableList(typeParameterOrArguments);
   }
 
@@ -234,33 +263,36 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
    * The conceptual or concrete types.
    */
   public Optional<ISymbol> resolveFromParameterTypes(final SymbolSearch search) {
-    Optional<ISymbol> rtn = Optional.empty();
+
     if (isGenericInNature() && (search.isAnyValidTypeSearch())) {
       for (ISymbol parameterType : getTypeParameterOrArguments()) {
         if (parameterType.isAssignableTo(search.getAsSymbol())) {
-          rtn = Optional.of(parameterType);
+          return Optional.of(parameterType);
         }
       }
     }
-    return rtn;
+
+    return Optional.empty();
   }
 
   @Override
-  public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search) {
-    Optional<ISymbol> rtn = resolveFromParameterTypes(search);
+  public Optional<ISymbol> resolveInThisScopeOnly(final SymbolSearch search) {
 
-    if (rtn.isEmpty()) {
-      rtn = super.resolveInThisScopeOnly(search);
+    Optional<ISymbol> resolvedSymbol = resolveFromParameterTypes(search);
+
+    if (resolvedSymbol.isPresent()) {
+      return resolvedSymbol;
     }
 
-    return rtn;
+    return super.resolveInThisScopeOnly(search);
   }
 
   /**
    * So this is where we alter the mechanism of normal symbol resolution.
    */
   @Override
-  public Optional<ISymbol> resolve(SymbolSearch search) {
+  public Optional<ISymbol> resolve(final SymbolSearch search) {
+
     Optional<ISymbol> rtn = resolveInThisScopeOnly(search);
 
     //This is the scenario where we have a dynamic class or function being used within
@@ -274,11 +306,13 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
     if (rtn.isEmpty()) {
       rtn = resolveWithParentScope(search);
     }
+
     return rtn;
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
+
     if (this == o) {
       return true;
     }
@@ -290,10 +324,12 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
 
   @Override
   public int hashCode() {
+
     int result = super.hashCode();
     result = 31 * result + getGenericType().hashCode();
     result = 31 * result + getTypeParameterOrArguments().hashCode();
     result = 31 * result + (isConceptualTypeParameter() ? 1 : 0);
+
     return result;
   }
 }

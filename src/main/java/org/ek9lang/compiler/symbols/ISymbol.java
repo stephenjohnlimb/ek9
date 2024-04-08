@@ -16,59 +16,66 @@ public interface ISymbol extends ITokenReference, Serializable {
    * Symbol names can be fully qualified (i.e. with the module name) or just a name.
    * This method returns the module name if present or "" if not.
    */
-  static String getModuleNameIfPresent(String symbolName) {
+  static String getModuleNameIfPresent(final String symbolName) {
+
     if (isQualifiedName(symbolName)) {
-      String[] parts = symbolName.split("::");
+      final var parts = symbolName.split("::");
       return parts[0];
     }
+
     return "";
   }
 
   /**
    * Just returns the actual symbol name in unqualified form (i.e. no module name).
    */
-  static String getUnqualifiedName(String symbolName) {
+  static String getUnqualifiedName(final String symbolName) {
+
     if (isQualifiedName(symbolName)) {
-      String[] parts = symbolName.split("::");
+      final var parts = symbolName.split("::");
       return parts[1];
     }
+
     return symbolName;
   }
 
-  static boolean isQualifiedName(String symbolName) {
+  static boolean isQualifiedName(final String symbolName) {
+
     return symbolName.contains("::");
   }
 
   /**
    * Convert a scope name (module name) and a symbol name into a fully qualified symbol name.
    */
-  static String makeFullyQualifiedName(String scopeName, String symbolName) {
+  static String makeFullyQualifiedName(final String scopeName, final String symbolName) {
+
     //In come cases (mainly testing) we may have an empty scope name.
     if (isQualifiedName(symbolName) || scopeName.isEmpty()) {
       return symbolName;
     }
+
     return scopeName + "::" + symbolName;
   }
 
   //Used for declarations of variables/params where they can be null.
   boolean isNullAllowed();
 
-  void setNullAllowed(boolean nullAllowed);
+  void setNullAllowed(final boolean nullAllowed);
 
   boolean isInjectionExpected();
 
-  void setInjectionExpected(boolean injectionExpected);
+  void setInjectionExpected(final boolean injectionExpected);
 
   //Has the symbol been referenced
   boolean isReferenced();
 
   //mark the symbol as referenced.
-  void setReferenced(boolean referenced);
+  void setReferenced(final boolean referenced);
 
   //Bits of information we might need to put away for later processing
-  void putSquirrelledData(String key, String value);
+  void putSquirrelledData(final String key, final String value);
 
-  String getSquirrelledData(String key);
+  String getSquirrelledData(final String key);
 
   Optional<Module> getParsedModule();
 
@@ -78,7 +85,7 @@ public interface ISymbol extends ITokenReference, Serializable {
    * @param parsedModule The parsedModule the symbol was defined in.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  void setParsedModule(Optional<Module> parsedModule);
+  void setParsedModule(final Optional<Module> parsedModule);
 
   boolean isDevSource();
 
@@ -88,7 +95,7 @@ public interface ISymbol extends ITokenReference, Serializable {
    * Clone the symbol and re-parent if this symbol like a method should have a parent.
    * Other symbols like VariableSymbols are un-parented
    */
-  ISymbol clone(IScope withParentAsAppropriate);
+  ISymbol clone(final IScope withParentAsAppropriate);
 
   /**
    * So just to add to the confusion.
@@ -105,13 +112,19 @@ public interface ISymbol extends ITokenReference, Serializable {
    *
    * @return true if a parameterised type (note parameterised not just of a generic nature).
    */
-  boolean isParameterisedType();
+  default boolean isParameterisedType() {
+
+    return false;
+  }
 
   /**
    * Is this symbol a type that is generic in nature i.e. can it be parameterised with types.
    * Aggregate Symbols can be defined to accept one or more parameters ie S and T.
    */
-  boolean isGenericInNature();
+  default boolean isGenericInNature() {
+
+    return false;
+  }
 
   /**
    * Some symbols are simulated as generic type parameters like T and S and U for example
@@ -119,7 +132,10 @@ public interface ISymbol extends ITokenReference, Serializable {
    * In general this is useful when working with Generic classes and needing types like S and T
    * But they can never really be generated.
    */
-  boolean isConceptualTypeParameter();
+  default boolean isConceptualTypeParameter() {
+
+    return false;
+  }
 
   /**
    * This symbol itself can be marked as pure - i.e. an operator with no side effects.
@@ -142,46 +158,66 @@ public interface ISymbol extends ITokenReference, Serializable {
 
   IToken getInitialisedBy();
 
-  void setInitialisedBy(IToken initialisedBy);
+  void setInitialisedBy(final IToken initialisedBy);
 
   default boolean isInitialised() {
+
     return getInitialisedBy() != null;
   }
 
   default boolean isPrivate() {
+
     return false;
   }
 
   default boolean isProtected() {
+
     return false;
   }
 
   default boolean isPublic() {
+
     return true;
   }
 
-  boolean isLoopVariable();
+  default boolean isLoopVariable() {
 
-  boolean isIncomingParameter();
+    return false;
+  }
 
-  boolean isReturningParameter();
+  default boolean isIncomingParameter() {
+
+    return false;
+  }
+
+  default boolean isReturningParameter() {
+
+    return false;
+  }
 
   //Special type of variable one that is a property on an aggregate/or capture.
-  boolean isPropertyField();
+  default boolean isPropertyField() {
+
+    return false;
+  }
 
   default boolean isTemplateType() {
+
     return getCategory().equals(SymbolCategory.TEMPLATE_TYPE);
   }
 
   default boolean isTemplateFunction() {
+
     return getCategory().equals(SymbolCategory.TEMPLATE_FUNCTION);
   }
 
   default boolean isType() {
+
     return getCategory().equals(SymbolCategory.TYPE);
   }
 
   default boolean isVariable() {
+
     return getCategory().equals(SymbolCategory.VARIABLE);
   }
 
@@ -189,6 +225,7 @@ public interface ISymbol extends ITokenReference, Serializable {
    * Is the symbol a core primitive type.
    */
   default boolean isPrimitiveType() {
+
     return isType() && isEk9Core() && !isParameterisedType();
   }
 
@@ -196,6 +233,7 @@ public interface ISymbol extends ITokenReference, Serializable {
    * Is the symbol an application of some sort.
    */
   default boolean isApplication() {
+
     return switch (getGenus()) {
       case GENERAL_APPLICATION, SERVICE_APPLICATION -> true;
       default -> false;
@@ -206,9 +244,10 @@ public interface ISymbol extends ITokenReference, Serializable {
    * Only use on symbols, to see if they are directly defined as a constant.
    */
   default boolean isDeclaredAsConstant() {
-    var thisType = this.getType();
+
+    final var thisType = this.getType();
     if (this instanceof ConstantSymbol && thisType.isPresent()) {
-      var thisGenus = thisType.get().getGenus();
+      final var thisGenus = thisType.get().getGenus();
       //We allow enumerations because there is no :=: operator to modify them
       //We also allow function delegates, but they are also constants.
       if ((thisGenus == ISymbol.SymbolGenus.CLASS_ENUMERATION)
@@ -217,31 +256,38 @@ public interface ISymbol extends ITokenReference, Serializable {
         return true;
       }
     }
+
     //We consider loop variables as constants - EK9 deals with changing the value
     return this.isLoopVariable() || this.isFromLiteral();
   }
 
   default boolean isMethod() {
+
     return getCategory().equals(SymbolCategory.METHOD);
   }
 
   default boolean isFunction() {
+
     return getCategory().equals(SymbolCategory.FUNCTION);
   }
 
   default boolean isControl() {
+
     return getCategory().equals(SymbolCategory.CONTROL);
   }
 
   default boolean isConstant() {
+
     return false;
   }
 
   default boolean isFromLiteral() {
+
     return false;
   }
 
   default boolean isMarkedAbstract() {
+
     return false;
   }
 
@@ -251,6 +297,7 @@ public interface ISymbol extends ITokenReference, Serializable {
    * @return true if this can be injected, false if not.
    */
   default boolean isInjectable() {
+
     return false;
   }
 
@@ -261,13 +308,14 @@ public interface ISymbol extends ITokenReference, Serializable {
    * @return true if this is injectable or any of its supers area
    */
   default boolean isExtensionOfInjectable() {
+
     return false;
   }
 
   /**
    * If is the symbol is an exact match.
    */
-  boolean isExactSameType(ISymbol symbolType);
+  boolean isExactSameType(final ISymbol symbolType);
 
   /**
    * Is this a core thing from EK9.
@@ -284,23 +332,23 @@ public interface ISymbol extends ITokenReference, Serializable {
    * or whether the code generated will just work because of class inheritance/interface
    * implementation.
    */
-  boolean isPromotionSupported(ISymbol s);
+  boolean isPromotionSupported(final ISymbol s);
 
-  boolean isAssignableTo(ISymbol s);
-
-  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  boolean isAssignableTo(Optional<ISymbol> s);
+  boolean isAssignableTo(final ISymbol s);
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  double getAssignableWeightTo(Optional<ISymbol> s);
+  boolean isAssignableTo(final Optional<ISymbol> s);
 
-  double getAssignableWeightTo(ISymbol s);
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+  double getAssignableWeightTo(final Optional<ISymbol> s);
 
-  double getUnCoercedAssignableWeightTo(ISymbol s);
+  double getAssignableWeightTo(final ISymbol s);
+
+  double getUnCoercedAssignableWeightTo(final ISymbol s);
 
   SymbolGenus getGenus();
 
-  void setGenus(SymbolGenus genus);
+  void setGenus(final SymbolGenus genus);
 
   SymbolCategory getCategory();
 
@@ -329,16 +377,17 @@ public interface ISymbol extends ITokenReference, Serializable {
    */
   String getName();
 
-  void setName(String name);
+  void setName(final String name);
 
   Optional<ISymbol> getType();
 
-  default ISymbol setType(ISymbol type) {
+  default ISymbol setType(final ISymbol type) {
+
     return setType(Optional.ofNullable(type));
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  ISymbol setType(Optional<ISymbol> type);
+  ISymbol setType(final Optional<ISymbol> type);
 
   /**
    * Typically, used on aggregates because we might use a AggregateSymbol
@@ -369,11 +418,12 @@ public interface ISymbol extends ITokenReference, Serializable {
 
     private final String description;
 
-    SymbolGenus(String description) {
+    SymbolGenus(final String description) {
       this.description = description;
     }
 
     public String getDescription() {
+
       return description;
     }
 
@@ -399,11 +449,12 @@ public interface ISymbol extends ITokenReference, Serializable {
 
     private final String description;
 
-    SymbolCategory(String description) {
+    SymbolCategory(final String description) {
       this.description = description;
     }
 
     public String getDescription() {
+      
       return description;
     }
   }

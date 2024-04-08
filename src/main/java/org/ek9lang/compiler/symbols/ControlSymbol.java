@@ -19,20 +19,25 @@ public class ControlSymbol extends ScopedSymbol {
   /**
    * Create a new Control Symbol.
    */
-  public ControlSymbol(String name, IScope enclosingScope) {
+  public ControlSymbol(final String name, final IScope enclosingScope) {
+
     super(name, enclosingScope);
     super.setCategory(SymbolCategory.CONTROL);
     //So it is a sort of function in a way.
     super.setGenus(SymbolGenus.FUNCTION);
+
   }
 
   @Override
-  public ControlSymbol clone(IScope withParentAsAppropriate) {
+  public ControlSymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoControlSymbol(new ControlSymbol(this.getName(), withParentAsAppropriate));
   }
 
-  protected ControlSymbol cloneIntoControlSymbol(ControlSymbol newCopy) {
+  protected ControlSymbol cloneIntoControlSymbol(final ControlSymbol newCopy) {
+
     super.cloneIntoScopeSymbol(newCopy);
+
     return newCopy;
   }
 

@@ -5,5 +5,5 @@ package org.ek9lang.compiler.symbols;
  */
 public interface IScopedSymbol extends IScope, ISymbol {
 
-  IScopedSymbol clone(IScope withParentAsAppropriate);
+  IScopedSymbol clone(final IScope withParentAsAppropriate);
 }

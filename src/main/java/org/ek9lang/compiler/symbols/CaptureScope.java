@@ -22,13 +22,16 @@ public class CaptureScope extends LocalScope {
 
   private boolean openToEnclosingScope = false;
 
-  public CaptureScope(IScope enclosingScope) {
+  public CaptureScope(final IScope enclosingScope) {
+
     super("Capture", enclosingScope);
     super.setScopeType(ScopeType.CAPTURE_BLOCK);
+
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
+
     if (this == o) {
       return true;
     }
@@ -39,52 +42,65 @@ public class CaptureScope extends LocalScope {
 
   @Override
   public int hashCode() {
+
     int result = super.hashCode();
     result = 31 * result + getScopeType().hashCode();
+
     return result;
   }
 
   @Override
-  public CaptureScope clone(IScope withParentAsAppropriate) {
+  public CaptureScope clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoCaptureScope(new CaptureScope(withParentAsAppropriate));
   }
 
   /**
    * Clones the content of this into the new copy.
    */
-  public CaptureScope cloneIntoCaptureScope(CaptureScope newCopy) {
+  public CaptureScope cloneIntoCaptureScope(final CaptureScope newCopy) {
+
     super.cloneIntoLocalScope(newCopy);
     //properties set at construction.
+
     return newCopy;
   }
 
   @Override
-  public void define(ISymbol symbol) {
+  public void define(final ISymbol symbol) {
+
     if (symbol instanceof VariableSymbol variableSymbol) {
       variableSymbol.setAggregatePropertyField(true);
       variableSymbol.setPrivate(true);
     }
     super.define(symbol);
+
   }
 
-  public void setOpenToEnclosingScope(boolean openToEnclosingScope) {
+  public void setOpenToEnclosingScope(final boolean openToEnclosingScope) {
+
     this.openToEnclosingScope = openToEnclosingScope;
+
   }
 
   @Override
-  protected Optional<ISymbol> resolveWithEnclosingScope(SymbolSearch search) {
+  protected Optional<ISymbol> resolveWithEnclosingScope(final SymbolSearch search) {
+
     if (openToEnclosingScope) {
       return super.resolveWithEnclosingScope(search);
     }
+
     return Optional.empty();
   }
 
   @Override
-  protected MethodSymbolSearchResult resolveForAllMatchingMethodsInEnclosingScope(MethodSymbolSearch search,
-                                                                                  MethodSymbolSearchResult result) {
+  protected MethodSymbolSearchResult resolveMatchingMethodsInEnclosingScope(final MethodSymbolSearch search,
+                                                                            final MethodSymbolSearchResult result) {
+
     if (openToEnclosingScope) {
-      return super.resolveForAllMatchingMethodsInEnclosingScope(search, result);
+      return super.resolveMatchingMethodsInEnclosingScope(search, result);
     }
+
     return result;
   }
 }

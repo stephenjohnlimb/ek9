@@ -4,7 +4,6 @@ import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.ek9lang.compiler.Module;
 import org.ek9lang.compiler.support.TypeCoercions;
@@ -113,29 +112,36 @@ public class Symbol implements ISymbol {
    */
   private Module parsedModule;
 
-  public Symbol(String name) {
+  public Symbol(final String name) {
+
     this.setName(name);
+
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public Symbol(String name, Optional<ISymbol> type) {
+  public Symbol(final String name, final Optional<ISymbol> type) {
+
     this(name);
     this.setType(type);
+
   }
 
   @Override
-  public Symbol clone(IScope withParentAsAppropriate) {
+  public Symbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoSymbol(new Symbol(this.getName(), this.getType()));
   }
 
-  protected Symbol cloneIntoSymbol(Symbol newCopy) {
+  protected Symbol cloneIntoSymbol(final Symbol newCopy) {
+
     return copySymbolProperties(newCopy);
   }
 
   /**
    * Just copies the properties over.
    */
-  public Symbol copySymbolProperties(Symbol newCopy) {
+  public Symbol copySymbolProperties(final Symbol newCopy) {
+
     newCopy.setInitialisedBy(this.getInitialisedBy());
     newCopy.setCategory(this.getCategory());
     newCopy.setGenus(this.getGenus());
@@ -154,23 +160,30 @@ public class Symbol implements ISymbol {
     if (!(this instanceof AggregateSymbol)) {
       getType().ifPresent(newCopy::setType);
     }
+
     return newCopy;
   }
 
   public boolean isMarkedPure() {
+
     return markedPure;
   }
 
-  public void setMarkedPure(boolean markedPure) {
+  public void setMarkedPure(final boolean markedPure) {
+
     this.markedPure = markedPure;
+
   }
 
   public boolean isReferenced() {
+
     return referenced;
   }
 
-  public void setReferenced(boolean referenced) {
+  public void setReferenced(final boolean referenced) {
+
     this.referenced = referenced;
+
   }
 
   /**
@@ -178,69 +191,65 @@ public class Symbol implements ISymbol {
    * compilation. This mechanism on a symbol enables arbitrary data to be recorded against
    * a symbol. This can then be retrieved in later stages of compilation.
    */
-  public void putSquirrelledData(String key, String value) {
+  public void putSquirrelledData(final String key, final String value) {
+
     if (value.startsWith("\"") && value.endsWith("\"")) {
       //We only store the value that is in the Quotes not the quotes themselves
-      Pattern p = Pattern.compile("\"(.*)\""); //just the contents in the quotes
-      Matcher m = p.matcher(value);
+      final var p = Pattern.compile("\"(.*)\""); //just the contents in the quotes
+      final var m = p.matcher(value);
       if (m.find()) {
-        value = m.group(1);
+        squirrelledAway.put(key, m.group(1));
+        return;
       }
     }
+
     squirrelledAway.put(key, value);
+
   }
 
-  public String getSquirrelledData(String key) {
+  public String getSquirrelledData(final String key) {
+
     return squirrelledAway.get(key);
   }
 
   @Override
   public boolean isMutable() {
+
     return !notMutable;
   }
 
   @Override
   public void setNotMutable() {
+
     notMutable = true;
-  }
 
-  @Override
-  public boolean isLoopVariable() {
-    return false;
-  }
-
-  @Override
-  public boolean isIncomingParameter() {
-    return false;
-  }
-
-  @Override
-  public boolean isReturningParameter() {
-    return false;
-  }
-
-  @Override
-  public boolean isPropertyField() {
-    return false;
   }
 
   public boolean isNullAllowed() {
+
     return nullAllowed;
   }
 
-  public void setNullAllowed(boolean nullAllowed) {
+  public void setNullAllowed(final boolean nullAllowed) {
+
     this.nullAllowed = nullAllowed;
+
   }
 
   public boolean isInjectionExpected() {
+
     return injectionExpected;
+
   }
 
-  public void setInjectionExpected(boolean injectionExpected) {
+  public void setInjectionExpected(final boolean injectionExpected) {
+
     this.injectionExpected = injectionExpected;
+
   }
 
   public boolean isEk9Core() {
+
     return ek9Core;
   }
 
@@ -249,67 +258,86 @@ public class Symbol implements ISymbol {
    * This means it is designed and built right into the language
    * or is part of the standard EK9 library.
    */
-  public void setEk9Core(boolean ek9Core) {
+  public void setEk9Core(final boolean ek9Core) {
+
     this.ek9Core = ek9Core;
+
   }
 
   public boolean isDevSource() {
+
     //Consider squirreling dev at construction.
     return getParsedModule().map(m -> m.getSource().isDev()).orElse(false);
   }
 
   public boolean isLibSource() {
+
     //Consider squirreling scopeName at construction.
     return getParsedModule().map(m -> m.getSource().isLib()).orElse(false);
   }
 
   public boolean getProduceFullyQualifiedName() {
+
     return produceFullyQualifiedName;
   }
 
-  public void setProduceFullyQualifiedName(boolean produceFullyQualifiedName) {
+  public void setProduceFullyQualifiedName(final boolean produceFullyQualifiedName) {
+
     this.produceFullyQualifiedName = produceFullyQualifiedName;
+
   }
 
-
   public IToken getSourceToken() {
+
     return sourceToken;
   }
 
-  public void setSourceToken(IToken sourceToken) {
+  public void setSourceToken(final IToken sourceToken) {
+
     this.sourceToken = sourceToken;
   }
 
   @Override
   public IToken getInitialisedBy() {
+
     return initialisedBy;
   }
 
   @Override
-  public void setInitialisedBy(IToken initialisedBy) {
+  public void setInitialisedBy(final IToken initialisedBy) {
+
     this.initialisedBy = initialisedBy;
+
   }
 
   public Optional<Module> getParsedModule() {
+
     return Optional.ofNullable(parsedModule);
   }
 
-  public void setParsedModule(Optional<Module> module) {
+  public void setParsedModule(final Optional<Module> module) {
+
     module.ifPresent(this::doSetModule);
+
   }
 
-  private void doSetModule(Module module) {
+  private void doSetModule(final Module module) {
+
     if (parsedModule == null) {
       parsedModule = module;
     }
+
     if (parsedModule != null) {
       this.setEk9Core(parsedModule.isEk9Core());
     }
+
   }
 
   @Override
   public String getFullyQualifiedName() {
-    String rtn = getName();
+
+    final var rtn = getName();
+
     //Consider squirreling scopeName at construction.
     return getParsedModule().map(m -> ISymbol.makeFullyQualifiedName(m.getScopeName(), rtn)).orElse(rtn);
   }
@@ -317,87 +345,105 @@ public class Symbol implements ISymbol {
   /**
    * Checks if the type match exactly.
    */
-  public boolean isExactSameType(ISymbol symbolType) {
+  public boolean isExactSameType(final ISymbol symbolType) {
+
     //If this is a T or U or whatever then just use the name as is.
     if (this.isConceptualTypeParameter()) {
       return getName().equals(symbolType.getName());
     }
-    var thisFullyQualified = getFullyQualifiedName();
-    var thatFullyQualified = symbolType.getFullyQualifiedName();
+
+    final var thisFullyQualified = getFullyQualifiedName();
+    final var thatFullyQualified = symbolType.getFullyQualifiedName();
+
     return sameCategory(this, symbolType) && thisFullyQualified.equals(thatFullyQualified);
   }
 
-  private boolean sameCategory(ISymbol c1, ISymbol c2) {
+  private boolean sameCategory(final ISymbol c1, final ISymbol c2) {
+
     return c1.getCategory().equals(c2.getCategory());
   }
 
   @Override
-  public boolean isAssignableTo(ISymbol s) {
+  public boolean isAssignableTo(final ISymbol s) {
+
     return getAssignableWeightTo(s) >= 0.0;
   }
 
   @Override
-  public boolean isAssignableTo(Optional<ISymbol> s) {
+  public boolean isAssignableTo(final Optional<ISymbol> s) {
+
     return getAssignableWeightTo(s) >= 0.0;
   }
 
   @Override
-  public double getAssignableWeightTo(Optional<ISymbol> s) {
+  public double getAssignableWeightTo(final Optional<ISymbol> s) {
+
     return s.map(this::getAssignableWeightTo).orElse(NOT_ASSIGNABLE);
   }
 
   @Override
-  public double getAssignableWeightTo(ISymbol s) {
-    double canAssign = getUnCoercedAssignableWeightTo(s);
+  public double getAssignableWeightTo(final ISymbol s) {
+
+    final var canAssign = getUnCoercedAssignableWeightTo(s);
     //Well if not the same symbol can we coerce/promote?
     if (canAssign < 0.0 && TypeCoercions.get().isCoercible(this, s)) {
-      canAssign = 0.5;
+      return 0.5;
     }
+
     return canAssign;
   }
 
   @Override
-  public boolean isPromotionSupported(ISymbol s) {
+  public boolean isPromotionSupported(final ISymbol s) {
+
     //Check if any need to promote might be same type
-    var rtn = false;
     if (!isExactSameType(s)) {
-      rtn = TypeCoercions.get().isCoercible(this, s);
+      return TypeCoercions.get().isCoercible(this, s);
     }
-    return rtn;
+
+    return false;
   }
 
   @Override
-  public double getUnCoercedAssignableWeightTo(ISymbol s) {
-    double canAssign = NOT_ASSIGNABLE;
-    AssertValue.checkNotNull("Symbol cannot be null", s);
+  public double getUnCoercedAssignableWeightTo(final ISymbol s) {
 
+    AssertValue.checkNotNull("Symbol cannot be null", s);
     if (isExactSameType(s)) {
-      canAssign = 0.0;
+      return 0.0;
     }
-    return canAssign;
+
+    return NOT_ASSIGNABLE;
   }
 
   public SymbolCategory getCategory() {
+
     return category;
   }
 
-  protected void setCategory(SymbolCategory category) {
+  protected void setCategory(final SymbolCategory category) {
+
     this.category = category;
+
   }
 
   public SymbolGenus getGenus() {
+
     return genus;
   }
 
-  public void setGenus(SymbolGenus genus) {
+  public void setGenus(final SymbolGenus genus) {
+
     this.genus = genus;
+
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
+
     if (this == o) {
       return true;
     }
+
     return (o instanceof Symbol symbol)
         && notMutable == symbol.notMutable
         && squirrelledAway.equals(symbol.squirrelledAway)
@@ -408,6 +454,7 @@ public class Symbol implements ISymbol {
 
   @Override
   public int hashCode() {
+
     int result = squirrelledAway.hashCode();
     result = 31 * result + getCategory().hashCode();
     result = 31 * result + getGenus().hashCode();
@@ -415,21 +462,26 @@ public class Symbol implements ISymbol {
     result = 31 * result + (notMutable ? 1 : 0);
     result = 31 * result + (getSourceToken() != null ? getSourceToken().hashCode() : 0);
     result = 31 * result + (isMarkedPure() ? 1 : 0);
+
     return result;
   }
 
   @Override
   public String getFriendlyName() {
-    String theType = getSymbolTypeAsString(this.getType());
+
+    final var theType = getSymbolTypeAsString(this.getType());
     if (!theType.isEmpty()) {
       return getName() + " as " + theType;
     }
+
     return getName();
   }
 
-  protected String getSymbolTypeAsString(
-      @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<ISymbol> type) {
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+  protected String getSymbolTypeAsString(final Optional<ISymbol> type) {
+
     final var self = this;
+
     //The problem of using theType.getFriendlyName is that aggregate has method -> back to same aggregate
     //So not a direct type is the same type - but aggregate -> method -> uses aggregate -> method  ... stack overflow
     return type.map(theType -> self != theType ? theType.getFriendlyName() : "").orElse("Unknown");
@@ -437,44 +489,36 @@ public class Symbol implements ISymbol {
 
   @Override
   public String toString() {
+
     return getFriendlyName();
   }
 
   public String getName() {
+
     return name;
   }
 
   @Override
-  public void setName(String name) {
+  public void setName(final String name) {
+
     AssertValue.checkNotNull("Name cannot be null", name);
     this.name = name;
+
   }
 
   @Override
   public Optional<ISymbol> getType() {
+
     return Optional.ofNullable(type);
   }
 
   @Override
-  public ISymbol setType(Optional<ISymbol> type) {
+  public ISymbol setType(final Optional<ISymbol> type) {
+
     AssertValue.checkNotNull("SymbolType cannot be null", type);
     type.ifPresentOrElse(newType -> this.type = newType, () -> this.type = null);
+
     return this;
-  }
-
-  @Override
-  public boolean isParameterisedType() {
-    return false;
-  }
-
-  @Override
-  public boolean isGenericInNature() {
-    return false;
-  }
-
-  @Override
-  public boolean isConceptualTypeParameter() {
-    return false;
   }
 
 }

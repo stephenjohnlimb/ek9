@@ -37,12 +37,14 @@ public class FunctionSymbol extends PossibleGenericSymbol {
   /**
    * Create a new Function Symbol with a specific unique name (in the enclosing scope).
    */
-  public FunctionSymbol(String name, IScope enclosingScope) {
+  public FunctionSymbol(final String name, final IScope enclosingScope) {
+
     super(name, enclosingScope);
     super.setCategory(SymbolCategory.FUNCTION);
     super.setGenus(ISymbol.SymbolGenus.FUNCTION);
     super.setScopeType(ScopeType.NON_BLOCK);
     super.setProduceFullyQualifiedName(true);
+
   }
 
   /**
@@ -50,17 +52,23 @@ public class FunctionSymbol extends PossibleGenericSymbol {
    * So the name would be 'List' and the parameterTypes would be a single aggregate of
    * a conceptual T.
    */
-  public FunctionSymbol(String name, IScope enclosingScope, List<AggregateSymbol> typeParameterOrArguments) {
+  public FunctionSymbol(final String name,
+                        final IScope enclosingScope,
+                        final List<AggregateSymbol> typeParameterOrArguments) {
+
     this(name, enclosingScope);
     typeParameterOrArguments.forEach(this::addTypeParameterOrArgument);
+
   }
 
   @Override
-  public FunctionSymbol clone(IScope withParentAsAppropriate) {
+  public FunctionSymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoFunctionSymbol(new FunctionSymbol(this.getName(), withParentAsAppropriate));
   }
 
-  protected FunctionSymbol cloneIntoFunctionSymbol(FunctionSymbol newCopy) {
+  protected FunctionSymbol cloneIntoFunctionSymbol(final FunctionSymbol newCopy) {
+
     super.cloneIntoPossibleGenericSymbol(newCopy);
     if (isReturningSymbolPresent()) {
       newCopy.returningSymbol = this.returningSymbol.clone(newCopy);
@@ -78,6 +86,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
    * Added convenience method to make the parameters a bit more obvious.
    */
   public List<ISymbol> getCallParameters() {
+
     return super.getSymbolsForThisScope();
   }
 
@@ -94,6 +103,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
 
   @Override
   protected Optional<IScope> getAnySuperTypeOrFunction() {
+
     return Optional.ofNullable(superFunction);
   }
 
@@ -101,29 +111,34 @@ public class FunctionSymbol extends PossibleGenericSymbol {
    * Check if the parameter types and return types match.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public boolean isSignatureMatchTo(Optional<ISymbol> theirReturnType, final List<ISymbol> theirParams) {
-    List<ISymbol> ourParams = this.getSymbolsForThisScope();
-    double weight = matcher.getWeightOfParameterMatch(theirParams, ourParams);
-    if (weight < 0.0) {
+  public boolean isSignatureMatchTo(final Optional<ISymbol> theirReturnType,
+                                    final List<ISymbol> theirParams) {
+
+    final List<ISymbol> ourParams = this.getSymbolsForThisScope();
+    if (matcher.getWeightOfParameterMatch(theirParams, ourParams) < 0.0) {
       return false;
     }
-    weight = matcher.getWeightOfMatch(this.getType(), theirReturnType);
 
-    return weight >= 0.0;
+    return matcher.getWeightOfMatch(this.getType(), theirReturnType) >= 0.0;
   }
 
   public Optional<FunctionSymbol> getSuperFunction() {
+
     return Optional.ofNullable(superFunction);
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public void setSuperFunction(Optional<FunctionSymbol> superFunctionSymbol) {
+  public void setSuperFunction(final Optional<FunctionSymbol> superFunctionSymbol) {
+
     superFunctionSymbol.ifPresentOrElse(theSuperFunction -> this.superFunction = theSuperFunction,
         () -> this.superFunction = null);
+
   }
 
-  public void setSuperFunction(FunctionSymbol superFunctionSymbol) {
+  public void setSuperFunction(final FunctionSymbol superFunctionSymbol) {
+
     this.superFunction = superFunctionSymbol;
+
   }
 
   /**
@@ -134,6 +149,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
    * return on the function.
    */
   public boolean isReturningSymbolPresent() {
+
     return returningSymbol != null;
   }
 
@@ -142,26 +158,33 @@ public class FunctionSymbol extends PossibleGenericSymbol {
    * Note in EK9 this is not just a type but actually a variable symbol (that has a type).
    */
   public VariableSymbol getReturningSymbol() {
+
     return returningSymbol;
   }
 
-  public void setReturningSymbol(VariableSymbol returningSymbol) {
+  public void setReturningSymbol(final VariableSymbol returningSymbol) {
+
     returningSymbol.setReturningParameter(true);
     justSetReturningSymbol(returningSymbol);
+
   }
 
-  protected void justSetReturningSymbol(VariableSymbol returningSymbol) {
+  protected void justSetReturningSymbol(final VariableSymbol returningSymbol) {
+
     this.returningSymbol = returningSymbol;
+
   }
 
   @Override
-  public double getAssignableWeightTo(ISymbol s) {
+  public double getAssignableWeightTo(final ISymbol s) {
+
     return getUnCoercedAssignableWeightTo(s);
   }
 
   @Override
-  public double getUnCoercedAssignableWeightTo(ISymbol s) {
-    double canAssign = super.getUnCoercedAssignableWeightTo(s);
+  public double getUnCoercedAssignableWeightTo(final ISymbol s) {
+
+    final var canAssign = super.getUnCoercedAssignableWeightTo(s);
     if (canAssign >= 0.0) {
       return canAssign;
     }
@@ -173,27 +196,30 @@ public class FunctionSymbol extends PossibleGenericSymbol {
 
   @Override
   public String getFriendlyScopeName() {
+
     return getFriendlyName();
   }
 
   @Override
   public String getFriendlyName() {
-    Optional<ISymbol> returningSymbolType =
+
+    final var mainName = getGenericType().isPresent() ? getGenericType().get().getName() : getName();
+    final var prefix = mainName.isEmpty() ? "dynamic function" : mainName;
+    final Optional<ISymbol> returningSymbolType =
         getReturningSymbol() != null ? getReturningSymbol().getType() : Optional.empty();
-    var mainName = getGenericType().isPresent() ? getGenericType().get().getName() : getName();
-    var prefix = mainName.isEmpty() ? "dynamic function" : mainName;
+
     return doGetFriendlyName(prefix + getPrivateVariablesForDisplay(), returningSymbolType)
-            + getAnyGenericParamsAsFriendlyNames();
+        + getAnyGenericParamsAsFriendlyNames();
   }
 
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  protected String doGetFriendlyName(String withName, Optional<ISymbol> theType) {
-    var toCommaSeparated = new ToCommaSeparated(this, true);
-    StringBuilder buffer = new StringBuilder();
+  protected String doGetFriendlyName(final String withName, final Optional<ISymbol> theType) {
+
+    final var toCommaSeparated = new ToCommaSeparated(this, true);
+    final var buffer = new StringBuilder();
 
     buffer.append(getSymbolTypeAsString(theType));
-
     buffer.append(" <- ").append(withName);
     buffer.append(toCommaSeparated.apply(getSymbolsForThisScope()));
     if (isMarkedAbstract()) {
@@ -205,33 +231,39 @@ public class FunctionSymbol extends PossibleGenericSymbol {
 
   @Override
   public Optional<ISymbol> getType() {
+
     //Treat this as a type. To get result of call need to use:
     return Optional.of(this);
   }
 
   @Override
   public ISymbol setType(ISymbol type) {
+
     return this;
   }
 
   @Override
   public ISymbol setType(Optional<ISymbol> type) {
+
     return this;
   }
 
   @Override
-  public Optional<ISymbol> resolveInThisScopeOnly(SymbolSearch search) {
+  public Optional<ISymbol> resolveInThisScopeOnly(final SymbolSearch search) {
+
     //This will now also check the returning symbol (if present)
     if (this.isReturningSymbolPresent()
         && returningSymbol.getName().equals(search.getName())
         && search.isCategoryAcceptable(returningSymbol.getCategory())) {
       return Optional.of(returningSymbol);
     }
+
     return super.resolveInThisScopeOnly(search);
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
+
     if (this == o) {
       return true;
     }
@@ -239,7 +271,7 @@ public class FunctionSymbol extends PossibleGenericSymbol {
       return false;
     }
 
-    boolean result = getReturningSymbol() != null ? getReturningSymbol().equals(that.getReturningSymbol()) :
+    final var result = getReturningSymbol() != null ? getReturningSymbol().equals(that.getReturningSymbol()) :
         that.getReturningSymbol() == null;
 
     return result
@@ -250,11 +282,13 @@ public class FunctionSymbol extends PossibleGenericSymbol {
 
   @Override
   public int hashCode() {
+
     int result = super.hashCode();
     result = 31 * result + (getSourceToken() != null ? getSourceToken().hashCode() : 0);
     result = 31 * result + (getReturningSymbol() != null ? getReturningSymbol().hashCode() : 0);
     result = 31 * result + (isMarkedPure() ? 1 : 0);
     result = 31 * result + getSuperFunction().hashCode();
+
     return result;
   }
 }

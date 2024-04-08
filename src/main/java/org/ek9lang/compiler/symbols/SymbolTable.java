@@ -250,7 +250,7 @@ public class SymbolTable implements IScope {
 
     //Do our enclosing scope first then this scope.
     buildResult = buildResult.mergePeerToNewResult(
-        resolveForAllMatchingMethodsInEnclosingScope(search, new MethodSymbolSearchResult()));
+        resolveMatchingMethodsInEnclosingScope(search, new MethodSymbolSearchResult()));
 
     //So override results with anything from this scope
     buildResult = buildResult.overrideToNewResult(
@@ -283,7 +283,7 @@ public class SymbolTable implements IScope {
   /**
    * There are no supers so this will not add any methods.
    */
-  protected MethodSymbolSearchResult resolveForAllMatchingMethodsInEnclosingScope(
+  protected MethodSymbolSearchResult resolveMatchingMethodsInEnclosingScope(
       final MethodSymbolSearch search, MethodSymbolSearchResult result) {
 
     //nothing needed here.

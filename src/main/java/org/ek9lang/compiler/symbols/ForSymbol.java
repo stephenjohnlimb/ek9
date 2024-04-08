@@ -11,18 +11,23 @@ public class ForSymbol extends ScopedSymbol {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public ForSymbol(IScope enclosingScope) {
+  public ForSymbol(final IScope enclosingScope) {
+
     super("For", enclosingScope);
     super.setCategory(SymbolCategory.CONTROL);
+
   }
 
   @Override
-  public ForSymbol clone(IScope withParentAsAppropriate) {
+  public ForSymbol clone(final IScope withParentAsAppropriate) {
+
     return cloneIntoForSymbol(new ForSymbol(withParentAsAppropriate));
   }
 
-  protected ForSymbol cloneIntoForSymbol(ForSymbol newCopy) {
+  protected ForSymbol cloneIntoForSymbol(final ForSymbol newCopy) {
+
     super.cloneIntoScopeSymbol(newCopy);
+
     return newCopy;
   }
 
