@@ -19,8 +19,9 @@ final class ErrorsToDiagnostics {
   /**
    * Used as part of the language server to obtain an empty set of diagnostic information.
    */
-  PublishDiagnosticsParams getEmptyDiagnostics(String generalIdentifierOfSource) {
-    PublishDiagnosticsParams rtn = new PublishDiagnosticsParams();
+  PublishDiagnosticsParams getEmptyDiagnostics(final String generalIdentifierOfSource) {
+
+    final var rtn = new PublishDiagnosticsParams();
     rtn.setUri(generalIdentifierOfSource);
     rtn.setDiagnostics(new ArrayList<>(0));
 
@@ -30,10 +31,11 @@ final class ErrorsToDiagnostics {
   /**
    * Used as part of the language server to convert errors in to diagnostic information.
    */
-  PublishDiagnosticsParams getErrorDiagnostics(ErrorListener errorListener) {
-    PublishDiagnosticsParams rtn = new PublishDiagnosticsParams();
+  PublishDiagnosticsParams getErrorDiagnostics(final ErrorListener errorListener) {
+
+    final List<Diagnostic> diagnostics = new ArrayList<>(0);
+    final var rtn = new PublishDiagnosticsParams();
     rtn.setUri(errorListener.getGeneralIdentifierOfSource());
-    List<Diagnostic> diagnostics = new ArrayList<>(0);
 
     if (errorListener.hasWarnings()) {
       diagnostics.addAll(
@@ -46,22 +48,22 @@ final class ErrorsToDiagnostics {
 
     rtn.setDiagnostics(diagnostics);
 
-    Logger.debug(
-        "Our URI [" + errorListener.getGeneralIdentifierOfSource() + "] "
-            + diagnostics.size() + " diagnostics");
+    Logger.debug("Our URI [" + errorListener.getGeneralIdentifierOfSource() + "] "
+        + diagnostics.size() + " diagnostics");
+
     return rtn;
   }
 
-  private List<Diagnostic> extractDiagnostics(Iterator<ErrorListener.ErrorDetails> iter,
-                                              DiagnosticSeverity severity) {
-    List<Diagnostic> diagnostics = new ArrayList<>(0);
+  private List<Diagnostic> extractDiagnostics(final Iterator<ErrorListener.ErrorDetails> iter,
+                                              final DiagnosticSeverity severity) {
+    final List<Diagnostic> diagnostics = new ArrayList<>(0);
 
     //We only output the first syntax error per file because the others will be a cascade.
-    boolean haveFirstSyntaxError = false;
+    var haveFirstSyntaxError = false;
 
     while (iter.hasNext()) {
-      ErrorListener.ErrorDetails details = iter.next();
-      boolean syntaxError =
+      final var details = iter.next();
+      final var syntaxError =
           details.getClassification().equals(ErrorListener.ErrorClassification.SYNTAX_ERROR);
       if (!syntaxError || !haveFirstSyntaxError) {
         diagnostics.add(extractDiagnostic(severity, details));
@@ -72,23 +74,23 @@ final class ErrorsToDiagnostics {
     return diagnostics;
   }
 
-  private Diagnostic extractDiagnostic(DiagnosticSeverity severity,
-                                       ErrorListener.ErrorDetails details) {
-    Diagnostic d = new Diagnostic();
-
+  private Diagnostic extractDiagnostic(final DiagnosticSeverity severity,
+                                       final ErrorListener.ErrorDetails details) {
+    final var d = new Diagnostic();
     d.setSeverity(severity);
     d.setMessage(details.getTypeOfError());
 
     //This should line up with the source in the LSP - as it is zero based.
     //Quite a few space/indent errors will report on the previous line.
-    int lineNo = details.getLineNumber() - 1;
-    int charPos = details.getPosition();
+    final var lineNo = details.getLineNumber() - 1;
+    final var charPos = details.getPosition();
+    final var r = new Range();
 
-    Range r = new Range();
     //might see if we can improve this with length of token.
     r.setStart(new Position(lineNo, charPos));
     r.setEnd(new Position(lineNo, charPos + details.getTokenLength()));
     d.setRange(r);
+
     return d;
   }
 }

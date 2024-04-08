@@ -33,17 +33,22 @@ final class Ek9WorkspaceService extends Ek9Service implements WorkspaceService {
           FileChangeType.Created, reParseSource,
           FileChangeType.Deleted, cleanUpSourceAfterDelete);
 
-  Ek9WorkspaceService(Ek9LanguageServer languageServer) {
+  Ek9WorkspaceService(final Ek9LanguageServer languageServer) {
+
     super(languageServer);
+
   }
 
   @Override
-  public void didChangeConfiguration(DidChangeConfigurationParams params) {
+  public void didChangeConfiguration(final DidChangeConfigurationParams params) {
+
     Logger.debug("didChangeConfiguration [" + params + "]");
+
   }
 
   @Override
-  public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
+  public void didChangeWatchedFiles(final DidChangeWatchedFilesParams params) {
+
     Logger.debug("didChangeWatchedFiles [" + params + "]");
 
     params
@@ -52,9 +57,11 @@ final class Ek9WorkspaceService extends Ek9Service implements WorkspaceService {
         .parallel()
         .filter(fileEvent -> changeHandlers.containsKey(fileEvent.getType()))
         .forEach(fileEvent -> changeHandlers.get(fileEvent.getType()).accept(fileEvent));
+
   }
 
   Workspace getEk9WorkSpace() {
+
     return ek9WorkSpace;
   }
 }

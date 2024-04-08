@@ -16,18 +16,25 @@ final class Ek9CompilerConfig extends CompilerFlags {
   private boolean provideLanguageHoverHelp = true;
 
   Ek9CompilerConfig() {
+
     this(CompilationPhase.APPLICATION_PACKAGING);
+
   }
 
-  Ek9CompilerConfig(CompilationPhase compileToPhase) {
+  Ek9CompilerConfig(final CompilationPhase compileToPhase) {
+
     super(compileToPhase);
+
   }
 
   boolean isProvideLanguageHoverHelp() {
+
     return provideLanguageHoverHelp;
   }
 
-  void setProvideLanguageHoverHelp(boolean provideLanguageHoverHelp) {
+  void setProvideLanguageHoverHelp(final boolean provideLanguageHoverHelp) {
+
     this.provideLanguageHoverHelp = provideLanguageHoverHelp;
+
   }
 }
