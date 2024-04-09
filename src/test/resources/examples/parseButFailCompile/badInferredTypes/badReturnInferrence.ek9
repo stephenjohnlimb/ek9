@@ -1,0 +1,48 @@
+#!ek9
+<?-
+  Test both valid simple type inference on return values errors where the
+  inference is too complex (i.e. attempt to move from just a declaration to an expression form).
+-?>
+defines module bad.inferred.returns
+
+  defines record
+    R1
+      prop1 <- 12
+      prop2 <- String()
+
+      default R1() as pure
+
+      R1() as pure
+        -> value as String
+        prop2 :=? value
+
+  defines function
+
+    validSimpleLiteralReturn()
+      <- rtn <- 12
+
+    validSimpleReturn()
+      <- rtn <- Integer()
+
+    validSimpleR1Return()
+      <- rtn <- R1()
+
+    validR1ConstructorReturn()
+      <- rtn <- R1("Steve")
+
+    //Which was nice
+    validListOfStringReturn()
+      <- rtn <- ["Steve", "Stephen", "Steven"]
+
+    validDictOfIntegerStringReturn()
+      <- rtn <- {1: "Steve", 2: "Stephen", 3: "Steven"}
+
+    <?-
+      This however is a complex expression.
+    -?>
+    invalidExpressionUse1()
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_MUST_BE_SIMPLE
+      <- aBitComplex <- List() of String
+
+
+//EOF

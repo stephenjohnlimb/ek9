@@ -63,10 +63,6 @@ defines module bad.program.return
       assert v?
 
   defines function
-    //Failure 4 - only allow basic build in types with return type inference.
-    invalidReturn()
-      @Error: SYMBOL_DEFINITION: ONLY_SIMPLE_RETURNING_TYPES_SUPPORTED
-      <- rtn <- ATestRecord()
 
     validIntegerReturn()
       <- rtn <- 1

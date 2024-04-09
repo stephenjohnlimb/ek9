@@ -53,7 +53,7 @@ defines module com.customer.just.switches
     -?>
     currentTemperature() as pure
       -> country as String
-      <- temp as Integer: Integer()
+      <- temp <- Integer()
 
       if country == "GB"
         temp :=? 20
@@ -137,7 +137,7 @@ defines module com.customer.just.switches
 
       //This is more like a chained if/else with expressions in the 'case'
       resultText <- switch conditionVariable
-        <- result String?
+        <- result <- String()
         case 'D'
           result :=? "Inappropriate"
         case matches /[nN]ame/
@@ -161,7 +161,7 @@ defines module com.customer.just.switches
       temperature <- Integer()
       multiplier <- 5
       resultText <- switch temperature ?= currentTemperature("GB") with temperature
-        <- result String: String()
+        <- result <- String()
         case < 12
           result: "Moderate"
         case > 10*multiplier
@@ -186,7 +186,7 @@ defines module com.customer.just.switches
 
       temperature <- Integer()
       resultText <- switch temperature := currentTemperature("GB") with temperature
-        <- result String: String()
+        <- result <- String()
         case < 12
           result: "Moderate"
         case > 10*multiplier
@@ -209,7 +209,7 @@ defines module com.customer.just.switches
       -> multiplier as Integer
 
       resultText <- switch temperature <- currentTemperature("GB") with temperature
-        <- result String: String()
+        <- result <- String()
         case < 12
           result: "Moderate"
         case > 10*multiplier

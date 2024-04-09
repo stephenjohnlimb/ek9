@@ -631,10 +631,9 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
         variableSymbol.setType(theType);
       }
     } else if (variableSymbol.getType().isEmpty()
-        && variableSymbol.isPropertyField()
+        && (variableSymbol.isPropertyField() || variableSymbol.isReturningParameter())
         && ctx.assignmentExpression() != null) {
-      //This means it is a var <- Something() as a property of an aggregate has not been typed yet.
-      //So for properties we must resolve this in this phase or error.
+
       processVariableDeclaration.accept(ctx);
     }
 

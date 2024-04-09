@@ -9,15 +9,16 @@ import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests bad property type inference.
+ * Just tests bad property/return type inference.
  * Properties on aggregates in EK9 can have their type inferred but only in a simple way.
+ * Return values can also have simple inferences.
  */
-class BadInferredPropertyTypesTest extends PhasesTest {
+class BadInferredTypesTest extends PhasesTest {
 
-  public BadInferredPropertyTypesTest() {
-    super("/examples/parseButFailCompile/badInferredProperties",
-        List.of("bad.inferred.properties"),
-        false, true);
+  public BadInferredTypesTest() {
+    super("/examples/parseButFailCompile/badInferredTypes",
+        List.of("bad.inferred.properties", "bad.inferred.returns"),
+        false, false);
   }
 
   @Test

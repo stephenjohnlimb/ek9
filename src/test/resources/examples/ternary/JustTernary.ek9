@@ -59,7 +59,6 @@ defines module com.customer.just.ternary
       
       stdout.println("Bird1 as unset String")
 
-
       bird1: String()
       birdA := bird1? <- bird1 : bird2
       stdout.println("birdA [" + birdA + "]")

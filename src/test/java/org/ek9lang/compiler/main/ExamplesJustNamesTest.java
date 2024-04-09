@@ -17,13 +17,13 @@ class ExamplesJustNamesTest extends PhasesTest {
 
   @Test
   void testPhasedDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.IR_ANALYSIS);
   }
 
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
-    new SymbolCountCheck("just.names.check", 2).test(program);
+    new SymbolCountCheck("just.names.check", 3).test(program);
   }
 }

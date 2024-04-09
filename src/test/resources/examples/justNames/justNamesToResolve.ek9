@@ -1,17 +1,35 @@
 #!ek9
+<?-
+  Now uses simple return type inference.
+  This only works with very simple declarations, but is still pretty useful.
+-?>
 defines module just.names.check
+
+  defines function
+    driver()
+      otherHolder <- OtherHolder()
+
+      nameHolder <- otherHolder.moreNames()
+
+      someNames <- nameHolder.someNames()
+
+      assert someNames?
+
+      //Or in chained form
+      assert otherHolder.moreNames().someNames()?
 
   defines class
 
     OtherHolder
+
       moreNames()
-        <- rtn as NameHolder: NameHolder()
+        <- rtn <- NameHolder()
 
       startValue()
-        <- rtn as Integer: 4
+        <- rtn <- 4
 
       endValue()
-        <- rtn as Integer: 12
+        <- rtn <- 12
 
     NameHolder
 
@@ -19,6 +37,6 @@ defines module just.names.check
       default NameHolder()
 
       someNames()
-        <- rtn as List of String: ["Alpha", "Beta", "Charlie"]
+        <- rtn <- ["Alpha", "Beta", "Charlie"]
 
 //EOF

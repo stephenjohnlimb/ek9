@@ -47,38 +47,38 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
 
     if (ctx.assignmentExpression().expression() != null) {
       final var variable = symbolAndScopeManagement.getRecordedSymbol(ctx);
-      checkIfInferredAggregateProperty(ctx, ctx.assignmentExpression().expression(), variable);
+      checkIfInferredType(ctx, ctx.assignmentExpression().expression(), variable);
     }
 
   }
 
-  private void checkIfInferredAggregateProperty(final EK9Parser.VariableDeclarationContext ctx,
-                                                final EK9Parser.ExpressionContext exprCtx,
-                                                final ISymbol property) {
+  private void checkIfInferredType(final EK9Parser.VariableDeclarationContext ctx,
+                                   final EK9Parser.ExpressionContext exprCtx,
+                                   final ISymbol variable) {
 
     if (exprCtx.call() != null && exprCtx.call().identifierReference() != null) {
-      processAsIdentifierReference(ctx, exprCtx.call().identifierReference(), property);
+      processAsIdentifierReference(ctx, exprCtx.call().identifierReference(), variable);
     } else if (exprCtx.list() != null) {
-      processAsList(exprCtx.list(), property);
+      processAsList(exprCtx.list(), variable);
     } else if (exprCtx.dict() != null) {
-      processAsDictionary(ctx, exprCtx.dict(), property);
+      processAsDictionary(ctx, exprCtx.dict(), variable);
     } else {
-      emitMustBeSimpleError(ctx.start, "not expecting complex expression", property);
+      emitMustBeSimpleError(ctx.start, "not expecting complex expression", variable);
     }
 
   }
 
   private void processAsIdentifierReference(final EK9Parser.VariableDeclarationContext ctx,
                                             final EK9Parser.IdentifierReferenceContext identifierReferenceCtx,
-                                            final ISymbol property) {
+                                            final ISymbol variable) {
 
     final var identifierReference = symbolAndScopeManagement.getRecordedSymbol(identifierReferenceCtx);
 
     if (identifierReference != null) {
       identifierReference.getType().ifPresent(type -> {
-        property.setType(type);
+        variable.setType(type);
         if (!type.isType()) {
-          emitMustBeSimpleError(ctx.start, "expecting a valid type", property);
+          emitMustBeSimpleError(ctx.start, "expecting a valid type", variable);
         }
       });
     } else {
@@ -88,16 +88,16 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
   }
 
   /**
-   * Here we do a minimal cut down version of processing the List when declared on an aggregate property.
-   * For full expressions there is a complete processing in phase 3. But when used on an aggregate as a property
+   * Here we do a minimal cut down version of processing the List when declared on an aggregate variable.
+   * For full expressions there is a complete processing in phase 3. But when used on an aggregate as a variable
    * they really have to be simple 'literals' and all same type, there is no trying to find a common super or anything
    * like implemented in phase 3. This is supposed to be simple and declarative on the aggregate.
    */
   private void processAsList(final EK9Parser.ListContext listCtx,
-                             final ISymbol property) {
+                             final ISymbol variable) {
 
-    if (allLiteralsInListOrError(listCtx, property)) {
-      final var typeOfList = getListType(listCtx.start, listCtx.expression(), property);
+    if (allLiteralsInListOrError(listCtx, variable)) {
+      final var typeOfList = getListType(listCtx.start, listCtx.expression(), variable);
       if (typeOfList != null) {
         final var listType = symbolAndScopeManagement.getEk9Types().ek9List();
         final var typeData = new ParameterisedTypeData(new Ek9Token(listCtx.start), listType, List.of(typeOfList));
@@ -105,7 +105,7 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
         if (resolvedNewType.isEmpty()) {
           throw new CompilerException("Unable to create parameterised type");
         }
-        property.setType(resolvedNewType);
+        variable.setType(resolvedNewType);
       }
     }
 

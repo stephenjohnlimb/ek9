@@ -5,7 +5,7 @@ defines module com.customer.just.ifs
 
     currentTemperature() as pure
       -> country as String
-      <- temp as Integer: Integer()
+      <- temp <- Integer()
       
       if country == "GB"
         temp :=? 20

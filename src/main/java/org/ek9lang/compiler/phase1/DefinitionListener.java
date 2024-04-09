@@ -84,7 +84,6 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   private final CheckNormalTermination checkNormalTermination;
   private final CheckNotABooleanLiteral checkNotABooleanLiteral;
   private final CheckApplicationUseOnMethodDeclaration checkApplicationUseOnMethodDeclaration;
-  private final CheckReturningParam checkReturningParam;
   private final CheckForInvalidParameterisedTypeUse checkForInvalidParameterisedTypeUse;
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
   private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
@@ -117,7 +116,6 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     checkApplicationUseOnMethodDeclaration =
         new CheckApplicationUseOnMethodDeclaration(symbolAndScopeManagement, errorListener);
-    checkReturningParam = new CheckReturningParam(errorListener);
 
     checkForInvalidParameterisedTypeUse = new CheckForInvalidParameterisedTypeUse(errorListener);
 
@@ -851,7 +849,6 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     final var symbol = symbolAndScopeManagement.getRecordedSymbol(child);
 
     if (symbol instanceof VariableSymbol variableSymbol) {
-      checkReturningParam.accept(ctx, variableSymbol);
       //Now also record the same symbol against this context for later use.
       symbolAndScopeManagement.recordSymbol(symbol, ctx);
       variableSymbol.setReturningParameter(true);
