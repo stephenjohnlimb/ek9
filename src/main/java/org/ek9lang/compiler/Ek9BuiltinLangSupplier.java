@@ -23,7 +23,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 97;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 103;
 
   //Obviously with ek9 the indentation is important.
 
@@ -2316,6 +2316,18 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             iterator() as pure
               <- rtn as Iterator of T?
 
+            <?-
+              When the Optional has a value the acceptor will be called.
+            -?>
+            whenPresent()
+              -> acceptor as Acceptor of T
+
+            <?-
+              When the Optional has a value the consumer will be called.
+            -?>
+            whenPresent() as pure
+              -> consumer as Consumer of T
+              
             operator == as pure
               -> arg as Optional of T
               <- rtn as Boolean?
@@ -2363,6 +2375,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as T
 
           Result of type (O, E)
+          
             //default constructor without an ok value or an error
             Result() as pure
 
@@ -2372,29 +2385,61 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
                 error as E
 
             <?-
-              Get the OK value, if not present Exception, so check.
-            -?>
-            ok()
-              <- rtn as O?
-            
-            <?-
               Check if the result is Ok or not.
             -?>
-            isOk()
+            isOk() as pure
               <- rtn as Boolean?
-              
+
             <?-
-              Get the Error value, if not present Exception, so check.
+              Get the OK value, if not present Exception, so check.
+              This is the same as get().
             -?>
-            error()
-              <- rtn as E?
-              
+            ok() as pure
+              <- rtn as O?
+
+            <?-
+              Get the OK value, if not present Exception, so check.
+              This is the same as ok().
+            -?>
+            get() as pure
+              <- rtn as O?
+
+            <?-
+              If the result has a valid ok value the acceptor will be called.
+            -?>
+            whenOK()
+              -> acceptor as Acceptor of O
+
+            <?-
+              If the result has a valid ok value the consumer will be called.
+            -?>
+            whenOK() as pure
+              -> consumer as Consumer of O
+
             <?-
               Check if the result is Error or not.
             -?>
-            isError()
+            isError() as pure
               <- rtn as Boolean?
-            
+
+            <?-
+              Get the Error value, if not present Exception, so check.
+            -?>
+            error() as pure
+              <- rtn as E?
+
+            <?-
+              If the result is in error then the acceptor will be called.
+            -?>
+            whenError()
+              -> acceptor as Acceptor of E
+
+            <?-
+              If the result is in error then the consumer will be called.
+            -?>
+            whenError() as pure
+              -> consumer as Consumer of E
+              
             operator == as pure
               -> arg as Result of (O, E)
               <- rtn as Boolean?
@@ -2404,8 +2449,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Boolean?
 
             <?-
-              Check if this Result has no value AND no error.
-              i.e. it is totally empty.
+              Check if this Result has no value.
             -?>
             operator ? as pure
               <- rtn as Boolean?
