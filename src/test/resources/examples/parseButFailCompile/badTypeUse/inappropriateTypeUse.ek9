@@ -1,0 +1,52 @@
+#!ek9
+<?-
+  Examples of bad use of types.
+-?>
+defines module bad.type.use
+
+  defines function
+
+    JustFail()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert notDefined?
+
+  defines class
+    C1
+      default C1()
+
+  defines type
+    CardSuit
+      Hearts
+      Diamonds
+      Clubs
+      Spades
+
+  defines function
+
+    checkValidReturnFunction()
+      <- rtn as checkValidReturnEnumA: checkValidReturnEnumA
+
+    checkValidReturnEnumA()
+      <- rtn as CardSuit: CardSuit
+
+    checkValidReturnEnumB()
+      <- rtn as CardSuit: CardSuit()
+
+    checkValidReturnC1()
+      <- rtn as C1: C1()
+
+    checkInvalidReturnC1A()
+      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE
+      <- rtn as C1: C1
+
+    checkInvalidReturnList()
+      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE
+      <- rtn as List of String: List
+
+    checkInvalidReturnFunction()
+      @Error: FULL_RESOLUTION: BAD_ABSTRACT_FUNCTION_USE
+      <- rtn as Function of (Integer, String): Function
+
+
+//EOF
+

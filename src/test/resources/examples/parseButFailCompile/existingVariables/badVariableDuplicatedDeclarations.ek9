@@ -7,7 +7,15 @@ But also uses to clashing method/function/constant names.
 defines module bad.variable.duplications
 
   defines constant
+
     someThingToClashWith <- 21
+    AnotherClash <- 66
+
+  defines function
+
+    @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE
+    AnotherClash()
+      <- rtn <- 0
 
   defines class
 

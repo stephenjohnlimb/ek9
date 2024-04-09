@@ -50,7 +50,6 @@
 -?>
 defines module just.workspace
 
-
   <?-
     The utility functions used for testing in this example.
   -?>
@@ -59,36 +58,6 @@ defines module just.workspace
     JustFail()
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       assert notDefined?
-
-
-  defines class
-    C1
-      default C1()
-
-  defines type
-    CardSuit
-      Hearts
-      Diamonds
-      Clubs
-      Spades
-
-  defines function
-
-    checkReturnEnumA()
-      <- rtn as CardSuit: CardSuit
-
-    checkReturnEnumB()
-      <- rtn as CardSuit: CardSuit()
-
-    checkReturnC1A()
-      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE
-      <- rtn as C1: C1
-
-    checkReturnC1B()
-      <- rtn as C1: C1()
-
-    returnFunction()
-      <- rtn as checkReturnEnumA: checkReturnEnumA
 
   <!-
 
