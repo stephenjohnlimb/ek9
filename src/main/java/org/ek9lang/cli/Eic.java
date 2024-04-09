@@ -4,45 +4,59 @@ package org.ek9lang.cli;
  * Just does an incremental build if possible.
  */
 final class Eic extends Ec {
-  Eic(CompilationContext compilationContext) {
+  Eic(final CompilationContext compilationContext) {
+
     super(compilationContext);
+
   }
 
   @Override
   protected String messagePrefix() {
+
     return "Compile : ";
   }
 
   @Override
   protected boolean doRun() {
-    boolean rtn = compilationContext.sourceFileCache().isTargetExecutableArtefactPresent();
-    //Check if it even exists - if not then that is a full build that is needed.
-    if (!rtn) {
-      log("Missing target - Compile!");
-      Efc execution = new Efc(compilationContext);
-      //may have been forced in, and so we must pass on.
-      execution.setCompilerFlags(getCompilerFlags());
-      rtn = execution.run();
-    } else {
-      //Yes we can do an incremental build.
+
+    boolean artefactPresent = compilationContext.sourceFileCache().isTargetExecutableArtefactPresent();
+
+    if (artefactPresent) {
       if (compilationContext.sourceFileCache().isTargetExecutableArtefactCurrent()) {
         log("Target already in date");
+        return true;
       } else {
-        prepareCompilation();
-
-        //We still get all the compilable project files.
-        //The compiler will only generate new artefacts if they are out of date.
-        rtn = compile(compilationContext.sourceFileCache().getAllCompilableProjectFiles());
-
-        int changesToPackage =
-            compilationContext.sourceFileCache().getIncrementalFilesPartOfBuild().size();
-        log(changesToPackage + " changed file(s)");
-
-        if (rtn) {
-          rtn = repackageTargetArtefact();
-        }
+        return triggerIncrementalCompilation();
       }
     }
-    return rtn;
+
+    return triggerFullCompilation();
+  }
+
+  private boolean triggerIncrementalCompilation() {
+
+    prepareCompilation();
+    //We still get all the compilable project files.
+    //The compiler will only generate new artefacts if they are out of date.
+    final var compilationSuccessful = compile(compilationContext.sourceFileCache().getAllCompilableProjectFiles());
+
+    final var changesToPackage = compilationContext.sourceFileCache().getIncrementalFilesPartOfBuild().size();
+    log(changesToPackage + " changed file(s)");
+
+    if (compilationSuccessful) {
+      return repackageTargetArtefact();
+    }
+
+    return false;
+  }
+
+  private boolean triggerFullCompilation() {
+
+    log("Missing target - Compile!");
+    final var execution = new Efc(compilationContext);
+    //may have been forced in, and so we must pass on.
+    execution.setCompilerFlags(getCompilerFlags());
+
+    return execution.run();
   }
 }

@@ -16,62 +16,72 @@ import org.ek9lang.core.Processor;
  * Base for the versioning commands.
  */
 abstract class Eve extends E {
-  Eve(CompilationContext compilationContext) {
+  Eve(final CompilationContext compilationContext) {
+
     super(compilationContext);
+
   }
 
   @Override
   boolean preConditionCheck() {
+
     if (compilationContext.commandLine().noPackageIsPresent()) {
       report("File " + compilationContext.commandLine().getSourceFileName()
           + " does not define a package");
       return false;
     }
+
     return super.preConditionCheck();
   }
 
   /**
    * Just sets the new version into the source file.
    */
-  boolean setVersionNewNumber(Version newVersion) {
+  boolean setVersionNewNumber(final Version newVersion) {
 
-    Processor<Boolean> processor = () -> {
-      List<String> output = loadAndUpdateVersionFromSourceFile(newVersion);
-      var rtn = !output.isEmpty();
+    final Processor<Boolean> processor = () -> {
+      final var output = loadAndUpdateVersionFromSourceFile(newVersion);
+      final var rtn = !output.isEmpty();
       if (rtn) {
         saveUpdatedSourceFile(output);
       }
       return rtn;
     };
+
     return new ExceptionConverter<Boolean>().apply(processor);
   }
 
-  private void saveUpdatedSourceFile(List<String> output) {
+  private void saveUpdatedSourceFile(final List<String> output) {
     //Now write it back out
 
-    Processor<Boolean> processor = () -> {
-      try (PrintWriter writer = new PrintWriter(
+    final Processor<Boolean> processor = () -> {
+      try (final var writer = new PrintWriter(
           compilationContext.commandLine().getFullPathToSourceFileName(),
           StandardCharsets.UTF_8)) {
         output.forEach(writer::println);
+
         return true;
       }
     };
+
     new ExceptionConverter<Boolean>().apply(processor);
   }
 
-  private List<String> loadAndUpdateVersionFromSourceFile(Version newVersion) {
+  private List<String> loadAndUpdateVersionFromSourceFile(final Version newVersion) {
+
     //Now for processing of existing to get the line number.
-    Integer versionLineNumber = compilationContext.commandLine().processEk9FileProperties(true);
+    final var versionLineNumber = compilationContext.commandLine().processEk9FileProperties(true);
+
     return updateVersionOnLineNumber(newVersion, versionLineNumber);
   }
 
   private List<String> updateVersionOnLineNumber(final Version newVersion,
                                                  final Integer versionLineNumber) {
-    List<String> output = new ArrayList<>();
 
-    Processor<Boolean> processor = () -> {
-      try (BufferedReader br = new BufferedReader(
+    final List<String> output = new ArrayList<>();
+
+    final Processor<Boolean> processor = () -> {
+      try (final var br = new BufferedReader(
           new FileReader(compilationContext.commandLine().getFullPathToSourceFileName()))) {
         int lineCount = 0;
         String line;
@@ -83,22 +93,26 @@ abstract class Eve extends E {
           output.add(line);
         }
       }
+
       return true;
     };
     new ExceptionConverter<Boolean>().apply(processor);
+
     return output;
   }
 
-  private String updateVersionOnLine(final Version newVersion, String line) {
-    Matcher m = Pattern.compile("^(?<ver>[ a-z]+)(.*)$").matcher(line);
+  private String updateVersionOnLine(final Version newVersion, final String line) {
+
+    final var m = Pattern.compile("^(?<ver>[ a-z]+)(.*)$").matcher(line);
     if (m.find()) {
-      String prefix = m.group("ver");
+      final var prefix = m.group("ver");
       if (prefix.contains(" as ")) {
-        line = prefix + " Version := " + newVersion;
+        return prefix + " Version := " + newVersion;
       } else {
-        line = prefix + "<- " + newVersion;
+        return prefix + "<- " + newVersion;
       }
     }
+
     return line;
   }
 
@@ -122,7 +136,8 @@ abstract class Eve extends E {
     /**
      * True if version segment is not major, minor, patch or build.
      */
-    static boolean isInvalidVersionAddressPart(String versionParam) {
+    static boolean isInvalidVersionAddressPart(final String versionParam) {
+
       return (!versionParam.equals("major")
           && !versionParam.equals("minor")
           && !versionParam.equals("patch")
@@ -132,44 +147,55 @@ abstract class Eve extends E {
     /**
      * Parse the incoming - but expect no build number.
      */
-    static Version withNoBuildNumber(String value) {
-      Matcher m = matcher("^" + MAJOR_MINOR_PATCH_REGEX + FEATURE_REGEX + "?$", value);
+    static Version withNoBuildNumber(final String value) {
+
+      final var m = matcher("^" + MAJOR_MINOR_PATCH_REGEX + FEATURE_REGEX + "?$", value);
+
       return parse(false, true, m, value);
     }
 
-    static Version withNoFeatureNoBuildNumber(String value) {
-      Matcher m = matcher("^" + MAJOR_MINOR_PATCH_REGEX + "$", value);
+    static Version withNoFeatureNoBuildNumber(final String value) {
+
+      final var m = matcher("^" + MAJOR_MINOR_PATCH_REGEX + "$", value);
+
       return parse(false, false, m, value);
     }
 
-    static Version withFeatureNoBuildNumber(String value) {
-      Matcher m = matcher("^" + MAJOR_MINOR_PATCH_REGEX + FEATURE_REGEX + "$", value);
+    static Version withFeatureNoBuildNumber(final String value) {
+
+      final var m = matcher("^" + MAJOR_MINOR_PATCH_REGEX + FEATURE_REGEX + "$", value);
+
       return parse(false, true, m, value);
     }
 
     /**
      * Parse the incoming - but expect a build number.
      */
-    static Version withBuildNumber(String value) {
-      Matcher m =
-          matcher("^" + MAJOR_MINOR_PATCH_REGEX + FEATURE_REGEX + "?" + BUILD_NO_REGEX + "$",
-              value);
+    static Version withBuildNumber(final String value) {
+
+      final var m = matcher("^" + MAJOR_MINOR_PATCH_REGEX + FEATURE_REGEX + "?" + BUILD_NO_REGEX + "$",
+          value);
+
       return parse(true, true, m, value);
     }
 
     /**
      * Does the parsing of a version number either with or without a build number.
      */
-    private static Version parse(boolean withBuildNumber, boolean withFeature, Matcher m,
-                                 String value) {
-      Version rtn = new Version();
+    private static Version parse(final boolean withBuildNumber,
+                                 final boolean withFeature,
+                                 final Matcher m,
+                                 final String value) {
+      final var rtn = new Version();
 
       if (!m.find()) {
         throw new CompilerException("Unable to use " + value + " as a VersionNumber");
       }
+
       rtn.major = Integer.parseInt(m.group("major"));
       rtn.minor = Integer.parseInt(m.group("minor"));
       rtn.patch = Integer.parseInt(m.group("patch"));
+
       //might not be present
       if (withFeature) {
         rtn.feature = m.group("feature");
@@ -177,14 +203,17 @@ abstract class Eve extends E {
       if (withBuildNumber) {
         rtn.buildNumber = Integer.parseInt(m.group("buildNumber"));
       }
+
       return rtn;
     }
 
-    private static Matcher matcher(String pattern, String value) {
+    private static Matcher matcher(final String pattern, final String value) {
+
       return Pattern.compile(pattern).matcher(value);
     }
 
     Integer major() {
+
       return major;
     }
 
@@ -192,13 +221,16 @@ abstract class Eve extends E {
      * Increments the major part of the version number.
      */
     public void incrementMajor() {
+
       major++;
       minor = 0;
       patch = 0;
       buildNumber = 0;
+
     }
 
     Integer minor() {
+
       return minor;
     }
 
@@ -207,12 +239,15 @@ abstract class Eve extends E {
      */
 
     void incrementMinor() {
+
       minor++;
       patch = 0;
       buildNumber = 0;
+
     }
 
     Integer patch() {
+
       return patch;
     }
 
@@ -221,15 +256,19 @@ abstract class Eve extends E {
      */
 
     void incrementPatch() {
+
       patch++;
       buildNumber = 0;
+
     }
 
     String feature() {
+
       return feature;
     }
 
     Integer buildNumber() {
+
       return buildNumber;
     }
 
@@ -237,18 +276,22 @@ abstract class Eve extends E {
      * Increments the build part of the version number.
      */
     void incrementBuildNumber() {
+
       buildNumber++;
+
     }
 
     @Override
     public String toString() {
+
       //Format
-      StringBuilder buffer = new StringBuilder();
+      final var buffer = new StringBuilder();
       buffer.append(major()).append(".").append(minor()).append(".").append(patch());
       if (feature != null) {
         buffer.append("-").append(feature());
       }
       buffer.append("-").append(buildNumber());
+
       return buffer.toString();
     }
   }

@@ -44,15 +44,19 @@ import org.ek9lang.core.AssertValue;
  * Anyway that's the general idea.
  */
 final class PackageResolver extends Reporter {
+
   private final CommandLineDetails commandLine;
 
-  PackageResolver(CommandLineDetails commandLine, final boolean muteReportedErrors) {
+  PackageResolver(final CommandLineDetails commandLine, final boolean muteReportedErrors) {
+
     super(commandLine.isVerbose(), muteReportedErrors);
     this.commandLine = commandLine;
+
   }
 
   @Override
   protected String messagePrefix() {
+
     return "Resolve : ";
   }
 
@@ -61,15 +65,14 @@ final class PackageResolver extends Reporter {
    * already been resolved and unpacked, it will be returned.
    * But if it needs to be downloaded then it will be pulled down, unpacked and returned.
    */
-  Optional<Ek9SourceVisitor> resolve(String dependencyVector) {
-    String zipFileName =
-        commandLine.getFileHandling().makePackagedModuleZipFileName(dependencyVector);
-    File homeEk9Lib = commandLine.getFileHandling().getUsersHomeEk9LibDirectory();
-    //Let's check if it is unpacked already, if not we can unpack it.
-    File unpackedDir = new File(homeEk9Lib, dependencyVector);
+  Optional<Ek9SourceVisitor> resolve(final String dependencyVector) {
 
-    File zipFile = new File(homeEk9Lib, zipFileName);
     log("Checking '" + dependencyVector + "'");
+
+    final var zipFileName = commandLine.getFileHandling().makePackagedModuleZipFileName(dependencyVector);
+    final var homeEk9Lib = commandLine.getFileHandling().getUsersHomeEk9LibDirectory();
+    final var unpackedDir = new File(homeEk9Lib, dependencyVector);
+    final var zipFile = new File(homeEk9Lib, zipFileName);
 
     //See if it is already unpackaged and available
     if (commandLine.getOsSupport().isDirectoryReadable(unpackedDir)) {
@@ -77,8 +80,7 @@ final class PackageResolver extends Reporter {
       return Optional.ofNullable(processPackageProperties(unpackedDir));
     }
 
-    if (!commandLine.getOsSupport().isFileReadable(zipFile)
-        && !downloadDependency(dependencyVector)) {
+    if (!commandLine.getOsSupport().isFileReadable(zipFile) && !downloadDependency(dependencyVector)) {
       report("'" + dependencyVector + "' cannot be resolved!");
       return Optional.empty();
     }
@@ -94,8 +96,10 @@ final class PackageResolver extends Reporter {
     return Optional.empty();
   }
 
-  boolean downloadDependency(String dependencyVector) {
+  boolean downloadDependency(final String dependencyVector) {
+
     AssertValue.checkNotNull("DependencyVector cannot be null", dependencyVector);
+
     //TODO the download part
     return false;
   }
@@ -108,12 +112,14 @@ final class PackageResolver extends Reporter {
    * @param unpackedDir The directory where the zip is unpacked to.
    * @return A Visitor with all the details of the package from the source file.
    */
-  private Ek9SourceVisitor processPackageProperties(File unpackedDir) {
-    File propertiesFile = new File(unpackedDir, ".package.properties");
+  private Ek9SourceVisitor processPackageProperties(final File unpackedDir) {
+
+    final var propertiesFile = new File(unpackedDir, ".package.properties");
     log("Loading '" + propertiesFile + "'");
 
-    File src = new File(unpackedDir,
-        new Ek9ProjectProperties(propertiesFile).loadProperties().getProperty("sourceFile"));
+    final var properties = new Ek9ProjectProperties(propertiesFile).loadProperties().getProperty("sourceFile");
+    final var src = new File(unpackedDir, properties);
+
     log("SourceFile '" + src + "'");
     if (commandLine.getOsSupport().isFileReadable(src)) {
       return loadFileAndVisit(src);
@@ -123,16 +129,19 @@ final class PackageResolver extends Reporter {
     return null;
   }
 
-  private boolean unZip(File zipFile, File unpackedDir) {
+  private boolean unZip(final File zipFile, final File unpackedDir) {
+
     return commandLine.getFileHandling().unZipFileTo(zipFile, unpackedDir);
   }
 
-  private Ek9SourceVisitor loadFileAndVisit(File sourceFile) {
-    Ek9SourceVisitor visitor = new Ek9SourceVisitor();
+  private Ek9SourceVisitor loadFileAndVisit(final File sourceFile) {
+
+    final var visitor = new Ek9SourceVisitor();
     if (!new JustParser(true).readSourceFile(sourceFile, visitor)) {
       report("Unable to Parse source file [" + sourceFile.getAbsolutePath() + "]");
       return null;
     }
+
     return visitor;
   }
 }

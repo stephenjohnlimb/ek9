@@ -46,8 +46,10 @@ import java.util.function.Predicate;
 final class DependencyManager {
   private final DependencyNode root;
 
-  DependencyManager(DependencyNode root) {
+  DependencyManager(final DependencyNode root) {
+
     this.root = root;
+
   }
 
   /**
@@ -55,6 +57,7 @@ final class DependencyManager {
    * (that is not marked as rejected).
    */
   void rationalise() {
+
     listAllModuleNames().forEach(module -> {
       //Now there could be one or more here
       boolean selected = false;
@@ -73,6 +76,7 @@ final class DependencyManager {
         }
       }
     });
+
   }
 
   /**
@@ -86,10 +90,10 @@ final class DependencyManager {
    *
    * @return true is optimisation took place, false if there was nothing to optimise.
    */
-  boolean optimise(int numberOfOptimiseCalls) {
+  boolean optimise(final int numberOfOptimiseCalls) {
+
     boolean didOptimise = false;
     if (numberOfOptimiseCalls < 100) {
-
       for (String module : listAllModuleNames()) {
         List<DependencyNode> dependencies = findByModuleName(module);
 
@@ -115,6 +119,7 @@ final class DependencyManager {
         }
       }
     }
+
     return didOptimise;
   }
 
@@ -128,6 +133,7 @@ final class DependencyManager {
    * @return The list of offending nodes.
    */
   List<DependencyNode> reportStrictSemanticVersionBreaches() {
+
     List<DependencyNode> rtn = new ArrayList<>();
     listAllModuleNames().forEach(module -> {
       DependencyNode selected = null;
@@ -140,6 +146,7 @@ final class DependencyManager {
         }
       }
     });
+
     return rtn;
   }
 
@@ -149,6 +156,7 @@ final class DependencyManager {
    * @return The list.
    */
   List<DependencyNode> reportRejectedDependencies() {
+
     return reportFilteredDependencies(DependencyNode::isRejected);
   }
 
@@ -158,6 +166,7 @@ final class DependencyManager {
    * @return The list.
    */
   List<DependencyNode> reportAcceptedDependencies() {
+
     return reportFilteredDependencies(dep -> !dep.isRejected());
   }
 
@@ -165,12 +174,14 @@ final class DependencyManager {
    * Reject a moduleName dependency if is has been pulled in when is it a dependency of
    * another module.
    */
-  void reject(String moduleName, String whenDependencyOf) {
+  void reject(final String moduleName, final String whenDependencyOf) {
+
     findByModuleName(moduleName)
         .stream()
         .filter(node -> node.isDependencyOf(whenDependencyOf))
         .forEach(node -> node.setRejected(DependencyNode.RejectionReason.MANUAL,
             true, true));
+
   }
 
   /**
@@ -180,6 +191,7 @@ final class DependencyManager {
    * @return The list of unique module names.
    */
   List<String> listAllModuleNames() {
+
     return new HashSet<>(reportAllDependencies()).stream().sorted().toList();
   }
 
@@ -191,10 +203,11 @@ final class DependencyManager {
    * @param moduleName The module name to search for.
    * @return The list of modules that match (i.e. same module name but maybe multiple versions).
    */
-  List<DependencyNode> findByModuleName(String moduleName) {
-    List<DependencyNode> rtn = doFindByModuleName(root, moduleName);
-    rtn.sort(
-        (DependencyNode o1, DependencyNode o2) -> o1.getVersion().compareTo(o2.getVersion()) * -1);
+  List<DependencyNode> findByModuleName(final String moduleName) {
+
+    final var rtn = doFindByModuleName(root, moduleName);
+    rtn.sort((DependencyNode o1, DependencyNode o2) -> o1.getVersion().compareTo(o2.getVersion()) * -1);
+
     return rtn;
   }
 
@@ -205,6 +218,7 @@ final class DependencyManager {
    * @return The list of all the dependencies.
    */
   List<String> reportAllDependencies() {
+
     return root != null ? root.reportAllDependencies() : List.of();
   }
 
@@ -214,15 +228,18 @@ final class DependencyManager {
    *
    * @return One or more circular paths in the graph/tree.
    */
-  List<String> reportCircularDependencies(boolean includeVersion) {
+  List<String> reportCircularDependencies(final boolean includeVersion) {
+
     return doReportCircularDependencies(this.root, includeVersion);
   }
 
   List<String> reportCircularDependencies() {
+
     return doReportCircularDependencies(this.root, false);
   }
 
-  private List<DependencyNode> reportFilteredDependencies(Predicate<DependencyNode> byPredicate) {
+  private List<DependencyNode> reportFilteredDependencies(final Predicate<DependencyNode> byPredicate) {
+
     return listAllModuleNames()
         .stream()
         .map(this::findByModuleName)
@@ -231,24 +248,26 @@ final class DependencyManager {
         .toList();
   }
 
-  private List<DependencyNode> doFindByModuleName(DependencyNode from, String moduleName) {
-    List<DependencyNode> rtn = new ArrayList<>();
+  private List<DependencyNode> doFindByModuleName(final DependencyNode from, final String moduleName) {
+
+    final List<DependencyNode> rtn = new ArrayList<>();
     if (from != null) {
       if (from.getModuleName().equals(moduleName)) {
         rtn.add(from);
       }
-      from.getDependencies()
-          .forEach(dependency -> rtn.addAll(doFindByModuleName(dependency, moduleName)));
+      from.getDependencies().forEach(dependency -> rtn.addAll(doFindByModuleName(dependency, moduleName)));
     }
 
     return rtn;
   }
 
-  private List<String> doReportCircularDependencies(DependencyNode from, boolean includeVersion) {
-    List<String> rtn = new ArrayList<>();
+  private List<String> doReportCircularDependencies(final DependencyNode from, final boolean includeVersion) {
+
+    final List<String> rtn = new ArrayList<>();
+
     if (from != null) {
       from.getDependencies().forEach(dependency -> {
-        var backPath = dependency.reportCircularDependencies(includeVersion);
+        final var backPath = dependency.reportCircularDependencies(includeVersion);
         backPath.ifPresent(rtn::add);
         rtn.addAll(doReportCircularDependencies(dependency, includeVersion));
       });

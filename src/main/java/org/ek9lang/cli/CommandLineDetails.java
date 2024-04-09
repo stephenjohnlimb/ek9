@@ -61,15 +61,18 @@ final class CommandLineDetails {
   /**
    * Create a new command line details object.
    */
-  CommandLineDetails(LanguageMetaData languageMetaData, FileHandling fileHandling,
-                     OsSupport osSupport) {
+  CommandLineDetails(final LanguageMetaData languageMetaData,
+                     final FileHandling fileHandling,
+                     final OsSupport osSupport) {
 
     this.languageMetaData = languageMetaData;
     this.fileHandling = fileHandling;
     this.osSupport = osSupport;
+
   }
 
   static void addDefaultSetting() {
+
     DEFAULTS.put("EK9_TARGET", "java");
   }
 
@@ -77,6 +80,7 @@ final class CommandLineDetails {
    * Just provides the commandline help text.
    */
   static String getCommandLineHelp() {
+
     return """
         where possible options include:
         \t-V The version of the compiler/runtime
@@ -118,14 +122,17 @@ final class CommandLineDetails {
   }
 
   OsSupport getOsSupport() {
+
     return osSupport;
   }
 
   FileHandling getFileHandling() {
+
     return fileHandling;
   }
 
   LanguageMetaData getLanguageMetaData() {
+
     return languageMetaData;
   }
 
@@ -133,13 +140,14 @@ final class CommandLineDetails {
    * Process the command line as supplied from main.
    * Expects a single entry in the array.
    */
-  int processCommandLine(String[] argv) {
+  int processCommandLine(final String[] argv) {
+
     if (argv == null || argv.length == 0) {
       showHelp();
       return Ek9.BAD_COMMANDLINE_EXIT_CODE;
     }
+    final var fullCommandLine = String.join(" ", argv);
 
-    var fullCommandLine = String.join(" ", argv);
     return processCommandLine(fullCommandLine);
   }
 
@@ -149,7 +157,8 @@ final class CommandLineDetails {
    * @param commandLine The command line the user or remote system used.
    * @return error code, 0 no error - see EK9.java for the use of other error codes.
    */
-  int processCommandLine(String commandLine) {
+  int processCommandLine(final String commandLine) {
+
     try {
       if (commandLine == null || commandLine.isEmpty()) {
         showHelp();
@@ -158,7 +167,7 @@ final class CommandLineDetails {
 
       processDefaultArchitecture();
 
-      int returnCode = extractCommandLineDetails(commandLine);
+      final var returnCode = extractCommandLineDetails(commandLine);
 
       if (!targetArchitecture.equals("java")) {
         Logger.error("Only Java is currently supported as a target [" + commandLine + "]");
@@ -168,72 +177,84 @@ final class CommandLineDetails {
       if (returnCode == Ek9.RUN_COMMAND_EXIT_CODE) {
         return assessCommandLine(commandLine);
       }
-
       return returnCode;
     } catch (ExitException exitException) {
       Logger.error(exitException);
       return exitException.getExitCode();
     }
+
   }
 
-  private boolean processIfIndexIsEk9FileName(String[] strArray, int index) {
-    var rtn = strArray[index].endsWith("ek9") && !strArray[index].contains("=");
+  private boolean processIfIndexIsEk9FileName(final String[] strArray, final int index) {
+
+    final var rtn = strArray[index].endsWith("ek9") && !strArray[index].contains("=");
 
     if (rtn) {
+      final var ek9SourceFileName = strArray[index];
+
       foundEk9File = true;
-      String ek9SourceFileName = strArray[index];
       mainSourceFile = new File(ek9SourceFileName);
       //We need to look in the current directory instead
       if (!mainSourceFile.exists()) {
         mainSourceFile = new File(osSupport.getCurrentWorkingDirectory(), ek9SourceFileName);
       }
     }
+
     return rtn;
   }
 
-  private boolean processIfSimpleOption(String[] strArray, int index) {
+  private boolean processIfSimpleOption(final String[] strArray, final int index) {
+
     return processIfEnvironmentVariable(strArray, index)
         || processIfTargetArchitecture(strArray, index)
         || processIfProgramToRun(strArray, index);
   }
 
-  private boolean processIfEnvironmentVariable(String[] strArray, int index) {
-    var rtn = strArray[index].equals("-e") && index < strArray.length - 1;
+  private boolean processIfEnvironmentVariable(final String[] strArray, final int index) {
+
+    final var rtn = strArray[index].equals("-e") && index < strArray.length - 1;
 
     if (rtn) {
       ek9AppDefines.add(strArray[index + 1].replace("'", "\""));
     }
+
     return rtn;
   }
 
-  private boolean processIfTargetArchitecture(String[] strArray, int index) {
-    var rtn = strArray[index].equals("-T") && index < strArray.length - 1;
+  private boolean processIfTargetArchitecture(final String[] strArray, final int index) {
+
+    final var rtn = strArray[index].equals("-T") && index < strArray.length - 1;
 
     if (rtn) {
       targetArchitecture = strArray[index + 1].toLowerCase();
     }
+
     return rtn;
   }
 
-  private boolean processIfProgramToRun(String[] strArray, int index) {
-    var rtn = strArray[index].equals("-r") && index < strArray.length - 1;
+  private boolean processIfProgramToRun(final String[] strArray, final int index) {
+
+    final var rtn = strArray[index].equals("-r") && index < strArray.length - 1;
 
     if (rtn) {
       ek9ProgramToRun = strArray[index + 1];
     }
+
     return rtn;
   }
 
-  private boolean isPhasedCompilation(String[] strArray, int index) {
+  private boolean isPhasedCompilation(final String[] strArray, final int index) {
+
     return strArray[index].equals("-Cp") || strArray[index].equals("-Cdp");
   }
 
-  private boolean processPhasedCompilationOption(String[] strArray, int index,
-                                                 List<String> activeParameters) {
+  private boolean processPhasedCompilationOption(final String[] strArray,
+                                                 final int index,
+                                                 final List<String> activeParameters) {
 
-    String compileCommand = strArray[index];
+    final var compileCommand = strArray[index];
     if (index < strArray.length - 1) {
-      String compilationPhaseOptionProvided = strArray[index + 1];
+      final var compilationPhaseOptionProvided = strArray[index + 1];
       //Let's check that the option provided is one of the enumeration values.
       try {
         CompilationPhase.valueOf(compilationPhaseOptionProvided);
@@ -248,20 +269,24 @@ final class CommandLineDetails {
         Logger.error(String.format("Phased Compilation: expecting one of %s", optionsToChooseFrom));
       }
     }
+
     return false;
   }
 
-  private boolean isVersioningOption(String[] strArray, int index) {
+  private boolean isVersioningOption(final String[] strArray, final int index) {
+
     return strArray[index].equals("-IV")
         || strArray[index].equals("-SV")
         || strArray[index].equals("-SF");
   }
 
-  private boolean processVersioningOption(String[] strArray, int index,
-                                          List<String> activeParameters) {
-    String versioningOption = strArray[index];
+  private boolean processVersioningOption(final String[] strArray,
+                                          final int index,
+                                          final List<String> activeParameters) {
+
+    final var versioningOption = strArray[index];
     if (index < strArray.length - 1) {
-      String versionParam = strArray[index + 1];
+      final var versionParam = strArray[index + 1];
       if (versioningOption.equals("-IV")) {
         if (Eve.Version.isInvalidVersionAddressPart(versionParam)) {
           Logger.error(
@@ -280,15 +305,18 @@ final class CommandLineDetails {
       Logger.error("Missing versioning parameter");
       return false;
     }
+
     return true;
   }
 
-  private boolean isDebugOption(String[] strArray, int index) {
+  private boolean isDebugOption(final String[] strArray, final int index) {
+
     return strArray[index].equals("-d") && index < strArray.length - 1;
   }
 
-  private boolean processDebugOption(String[] strArray, int index,
-                                     List<String> activeParameters) {
+  private boolean processDebugOption(final String[] strArray,
+                                     final int index,
+                                     final List<String> activeParameters) {
 
     if (isParameterUnacceptable(strArray[index])) {
       Logger.error("Incompatible command line options");
@@ -296,7 +324,7 @@ final class CommandLineDetails {
     }
     activeParameters.add(strArray[index]);
     //So next is port to debug on
-    String port = strArray[index + 1];
+    final var port = strArray[index + 1];
 
     if (!Pattern.compile("^(\\d+)$").matcher(port).find()) {
       Logger.error("Debug Mode: expecting integer port number");
@@ -304,10 +332,12 @@ final class CommandLineDetails {
     }
     activeParameters.add(port);
     this.debugPort = Integer.parseInt(port);
+
     return true;
   }
 
-  private boolean isInvalidEk9Parameter(boolean processingEk9Parameters, String parameter) {
+  private boolean isInvalidEk9Parameter(final boolean processingEk9Parameters, final String parameter) {
+
     return processingEk9Parameters && isParameterUnacceptable(parameter);
   }
 
@@ -318,13 +348,15 @@ final class CommandLineDetails {
    * A bit nasty in terms of processing the options.
    */
   @SuppressWarnings("java:S3776")
-  private int extractCommandLineDetails(String commandLine) {
+  private int extractCommandLineDetails(final String commandLine) {
+
+    //Need to break this up remove extra spaces unless in quotes.
+    final var strArray = commandLine.split(" +(?=([^']*+'[^']*+')*+[^']*+$)");
+
     boolean processingEk9Parameters = true;
     List<String> activeParameters = ek9AppParameters;
-    //Need to break this up remove extra spaces unless in quotes.
-    String[] strArray = commandLine.split(" +(?=([^']*+'[^']*+')*+[^']*+$)");
-
     int index = 0;
+
     while (index < strArray.length) {
       if (processIfIndexIsEk9FileName(strArray, index)) {
         processingEk9Parameters = false;
@@ -354,23 +386,28 @@ final class CommandLineDetails {
       }
       index++;
     }
+
     //Looks like we're potentially good here, next needs assessment.
     return Ek9.RUN_COMMAND_EXIT_CODE;
   }
 
   private Optional<Integer> checkHelpOrVersion() {
+
     Optional<Integer> rtn = Optional.empty();
     if (isHelp()) {
       rtn = Optional.of(showHelp());
     } else if (isVersionOfEk9Option()) {
       rtn = Optional.of(showVersionOfEk9());
     }
+
     return rtn;
   }
 
   private Optional<Integer> checkInappropriateProgram() {
+
     final String errorSuffix =
         mainSourceFile.getName() + " does not require or use program parameters.";
+
     Optional<Integer> rtn = Optional.empty();
     if (ek9ProgramToRun != null) {
       if (isJustBuildTypeOption()) {
@@ -382,15 +419,16 @@ final class CommandLineDetails {
         rtn = Optional.of(Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE);
       }
     }
+
     return rtn;
   }
 
   /**
    * Assess the values extracted from the command line to see if they are valid and viable.
    */
-  private int assessCommandLine(String commandLine) {
+  private int assessCommandLine(final String commandLine) {
 
-    var helpOrVersion = checkHelpOrVersion();
+    final var helpOrVersion = checkHelpOrVersion();
     if (helpOrVersion.isPresent()) {
       return helpOrVersion.get();
     }
@@ -410,7 +448,7 @@ final class CommandLineDetails {
 
       processEk9FileProperties(false);
 
-      var inappropriateProgramUse = checkInappropriateProgram();
+      final var inappropriateProgramUse = checkInappropriateProgram();
       if (inappropriateProgramUse.isPresent()) {
         return inappropriateProgramUse.get();
       }
@@ -419,32 +457,40 @@ final class CommandLineDetails {
         return assessRunOptions();
       }
     }
+
     //i.e. a command does need to run.
     return Ek9.RUN_COMMAND_EXIT_CODE;
   }
 
   private int showHelp() {
+
     Logger.error("ek9 <options>");
     Logger.error(CommandLineDetails.getCommandLineHelp());
     //i.e. no further commands need to run
+
     return Ek9.SUCCESS_EXIT_CODE;
   }
 
   private int showVersionOfEk9() {
+
     Logger.error("EK9 Version " + getLanguageMetaData().version());
     //i.e. no further commands need to run
+
     return Ek9.SUCCESS_EXIT_CODE;
   }
 
   private void appendRunOptionIfNecessary() {
+
     //Add in run mode if no options supplied as default.
     if (!isJustBuildTypeOption() && !isReleaseVectorOption() && !isDeveloperManagementOption()
         && !isRunDebugMode() && !isRunEk9AsLanguageServer() && !isUnitTestExecution()) {
       ek9AppParameters.add("-r");
     }
+
   }
 
   private int assessRunOptions() {
+
     //Check run options
     if (programs.isEmpty()) {
       //There's nothing that can be run
@@ -486,33 +532,36 @@ final class CommandLineDetails {
    * But even this can be overridden on the command line with -T
    */
   private void processDefaultArchitecture() {
-    String proposedTargetArchitecture = DEFAULTS.get("EK9_TARGET");
+
+    final var proposedTargetArchitecture = DEFAULTS.get("EK9_TARGET");
     if (proposedTargetArchitecture != null && !proposedTargetArchitecture.isEmpty()) {
       this.targetArchitecture = proposedTargetArchitecture;
     }
+
   }
 
   /**
    * Processes the properties and forces regeneration if required.
    */
-  public Integer processEk9FileProperties(boolean forceRegeneration) {
+  public Integer processEk9FileProperties(final boolean forceRegeneration) {
+
     if (forceRegeneration) {
       this.visitor = null;
     }
 
-    String projectEk9Directory = fileHandling.getDotEk9Directory(this.getSourceFileDirectory());
+    final var projectEk9Directory = fileHandling.getDotEk9Directory(this.getSourceFileDirectory());
     fileHandling.validateEk9Directory(projectEk9Directory, this.targetArchitecture);
     fileHandling.validateHomeEk9Directory(this.targetArchitecture);
 
     return establishSourceProperties(mainSourceFile, forceRegeneration);
   }
 
-  private Integer establishSourceProperties(File sourceFile, boolean forceRegeneration) {
-    Ek9ProjectProperties versionProperties = new Ek9ProjectProperties(getSourcePropertiesFile());
+  private Integer establishSourceProperties(final File sourceFile, final boolean forceRegeneration) {
+
+    final var versionProperties = new Ek9ProjectProperties(getSourcePropertiesFile());
     updateFromVersionProperties(versionProperties);
 
     Integer rtn = null;
-
     if (!versionProperties.isNewerThan(sourceFile) || forceRegeneration) {
       if (isVerbose()) {
         Logger.error("Props   : Regenerating " + versionProperties.getFileName());
@@ -523,12 +572,14 @@ final class CommandLineDetails {
         Logger.error("Props   : Reusing " + versionProperties.getFileName());
       }
     }
+
     return rtn;
   }
 
-  private void updateFromVersionProperties(Ek9ProjectProperties versionProperties) {
+  private void updateFromVersionProperties(final Ek9ProjectProperties versionProperties) {
+
     if (versionProperties.exists()) {
-      Properties properties = versionProperties.loadProperties();
+      final var properties = versionProperties.loadProperties();
       //There will always be a moduleName/finger-print - but the rest may not be present.
       moduleName = properties.getProperty("moduleName");
       depsFingerPrint = properties.getProperty("depsFingerPrint");
@@ -536,49 +587,56 @@ final class CommandLineDetails {
       updatePackage(properties);
       updateVersion(properties);
     }
+
   }
 
-  private void updatePrograms(Properties properties) {
-    String thePrograms = properties.getProperty("programs");
+  private void updatePrograms(final Properties properties) {
+
+    final var thePrograms = properties.getProperty("programs");
     if (thePrograms != null) {
       this.programs = Arrays.asList(thePrograms.split(","));
     }
+
   }
 
-  private void updatePackage(Properties properties) {
-    String hasPackage = properties.getProperty("package");
+  private void updatePackage(final Properties properties) {
+
+    final var hasPackage = properties.getProperty("package");
     if (hasPackage != null) {
       packagePresent = hasPackage.equals("true");
     }
+
   }
 
-  private void updateVersion(Properties properties) {
-    String ver = properties.getProperty("version");
+  private void updateVersion(final Properties properties) {
+
+    final var ver = properties.getProperty("version");
     if (ver != null) {
       version = ver;
     }
+
   }
 
-  private Integer reprocessProperties(File sourceFile, Ek9ProjectProperties versionProperties) {
+  private Integer reprocessProperties(final File sourceFile, final Ek9ProjectProperties versionProperties) {
     Integer rtn = null;
     visitor = getSourceVisitor();
-    var optionalDetails = visitor.getPackageDetails();
+    final var optionalDetails = visitor.getPackageDetails();
 
     if (optionalDetails.isPresent()) {
-      var packageDetails = optionalDetails.get();
+      final var packageDetails = optionalDetails.get();
       moduleName = packageDetails.moduleName();
       programs = packageDetails.programs();
       packagePresent = packageDetails.packagePresent();
       version = packageDetails.version();
 
-      String oldFingerPrint = depsFingerPrint;
+      final var oldFingerPrint = depsFingerPrint;
       depsFingerPrint = packageDetails.dependencyFingerPrint();
 
       if (oldFingerPrint != null && !oldFingerPrint.equals(depsFingerPrint)) {
         dependenciesAltered = true;
       }
 
-      Properties properties = new Properties();
+      final var properties = new Properties();
       properties.setProperty("sourceFile", sourceFile.getName());
       properties.setProperty("moduleName", moduleName);
       properties.setProperty("programs", versionProperties.prepareListForStorage(programs));
@@ -599,6 +657,7 @@ final class CommandLineDetails {
    * Access the visitor of the source code being parsed.
    */
   public Ek9SourceVisitor getSourceVisitor() {
+
     if (visitor == null) {
       visitor = new Ek9SourceVisitor();
       if (!new JustParser(true).readSourceFile(mainSourceFile, visitor)) {
@@ -611,51 +670,62 @@ final class CommandLineDetails {
   }
 
   public File getSourcePropertiesFile() {
+
     return fileHandling.getTargetPropertiesArtefact(mainSourceFile.getPath());
   }
 
   public int numberOfProgramsInSourceFile() {
+
     return programs.size();
   }
 
   public String getModuleName() {
+
     return moduleName;
   }
 
   public boolean noPackageIsPresent() {
+
     return !packagePresent;
   }
 
   public String getVersion() {
+
     return version;
   }
 
   public boolean applyStandardIncludes() {
+
     return getSourceVisitor().getPackageDetails().map(PackageDetails::applyStandardIncludes)
         .orElse(false);
   }
 
   public boolean applyStandardExcludes() {
+
     return getSourceVisitor().getPackageDetails().map(PackageDetails::applyStandardExcludes)
         .orElse(false);
   }
 
   public List<String> getIncludeFiles() {
+
     return getSourceVisitor().getPackageDetails().map(PackageDetails::includeFiles)
         .orElse(Collections.emptyList());
   }
 
   //Will pick up from visitor when processing any package directives
   public List<String> getExcludeFiles() {
+
     return getSourceVisitor().getPackageDetails().map(PackageDetails::excludeFiles)
         .orElse(Collections.emptyList());
   }
 
-  private boolean isParameterUnacceptable(String param) {
+  private boolean isParameterUnacceptable(final String param) {
+
     if (isModifierParam(param)) {
       return false;
     }
-    var builder = new StringBuilder("Option '").append(param);
+
+    final var builder = new StringBuilder("Option '").append(param);
 
     if (!isMainParam(param)) {
       Logger.error(builder.append("' not understood"));
@@ -682,56 +752,67 @@ final class CommandLineDetails {
       Logger.error(builder.append("' not compatible with existing unit test option"));
       return true;
     }
+
     return false;
   }
 
-  private boolean isMainParam(String param) {
+  private boolean isMainParam(final String param) {
+
     return Set.of("-c", "-ch", "-cg", "-cd", "-cdh", "-Cp", "-Cdp", "-C", "-Ch", "-Cg", "-Cd",
-            "-Cdh", "-Cl", "-Dp", "-t", "-d", "-P", "-I", "-Gk", "-D", "-IV", "-SV", "-SF", "-PV",
-            "-Up")
-        .contains(param);
+        "-Cdh", "-Cl", "-Dp", "-t", "-d", "-P", "-I", "-Gk", "-D", "-IV", "-SV", "-SF", "-PV",
+        "-Up").contains(param);
   }
 
   public boolean isDependenciesAltered() {
+
     return dependenciesAltered;
   }
 
   private boolean isModifierParam(String param) {
+
     return Set.of("-V", "-h", "-v", "-dv", "-ls", "-lsh").contains(param);
   }
 
   public boolean isDebuggingInstrumentation() {
+
     return isOptionPresentInAppParameters(
         Set.of("-cg", "-cd", "-cdh", "-Cg", "-Cd", "-Cdh", "-Cdp"));
   }
 
   public boolean isDevBuild() {
+
     return isOptionPresentInAppParameters(Set.of("-cd", "-cdh", "-Cd", "-Cdh", "-Cdp"));
   }
 
   public boolean isJustBuildTypeOption() {
+
     return isCleanAll() || isResolveDependencies() || isIncrementalCompile() || isFullCompile()
         || isPackaging() || isInstall() || isDeployment();
   }
 
   public boolean isReleaseVectorOption() {
+
     return isPrintReleaseVector() || isIncrementReleaseVector() || isSetReleaseVector()
         || isSetFeatureVector();
   }
 
   public List<String> getEk9AppDefines() {
+
     return ek9AppDefines;
   }
 
   public List<String> getEk9ProgramParameters() {
+
     return ek9ProgramParameters;
   }
 
   public String getTargetArchitecture() {
+
     return targetArchitecture;
   }
 
   public String getProgramToRun() {
+
     //Might not have been set if there is just one program that is implicit.
     return ek9ProgramToRun;
   }
@@ -740,6 +821,7 @@ final class CommandLineDetails {
    * This is just the file name and not the full path to the source file.
    */
   public String getSourceFileName() {
+
     return mainSourceFile.getName();
   }
 
@@ -747,61 +829,74 @@ final class CommandLineDetails {
    * Provides the full qualified path to the source file.
    */
   public String getFullPathToSourceFileName() {
+
     return mainSourceFile.getPath();
   }
 
   public String getSourceFileDirectory() {
+
     return mainSourceFile.getParent();
   }
 
   public boolean isVerbose() {
+
     return isOptionPresentInAppParameters(Set.of("-v"));
   }
 
   public boolean isDebugVerbose() {
+
     return isOptionPresentInAppParameters(Set.of("-dv"));
   }
 
   public boolean isDeveloperManagementOption() {
+
     return isGenerateSigningKeys() || isUpdateUpgrade();
   }
 
   public boolean isGenerateSigningKeys() {
+
     return isOptionPresentInAppParameters(Set.of("-Gk"));
   }
 
   public boolean isUpdateUpgrade() {
+
     return isOptionPresentInAppParameters(Set.of("-Up"));
   }
 
   public boolean isCleanAll() {
+
     return isOptionPresentInAppParameters(Set.of("-Cl"));
   }
 
   public boolean isResolveDependencies() {
+
     return isOptionPresentInAppParameters(Set.of("-Dp"));
   }
 
   public boolean isIncrementalCompile() {
+
     return isOptionPresentInAppParameters(Set.of("-c", "-ch", "-cg", "-cd", "-cdh"));
   }
 
   public boolean isFullCompile() {
+
     return isOptionPresentInAppParameters(Set.of("-Cp", "-Cdp", "-C", "-Ch", "-Cg", "-Cd", "-Cdh"));
   }
 
   public boolean isCheckCompileOnly() {
+
     return isOptionPresentInAppParameters(Set.of("-Cp", "-Cdp", "-ch", "-cdh", "-Ch", "-Cdh"));
   }
 
   public boolean isPhasedCompileOnly() {
+
     return isOptionPresentInAppParameters(Set.of("-Cp", "-Cdp"));
   }
 
   /**
    * Access a parameter option from the command line.
    */
-  public String getOptionParameter(String option) {
+  public String getOptionParameter(final String option) {
 
     String rtn = null;
     int optionIndex = ek9AppParameters.indexOf(option);
@@ -809,70 +904,87 @@ final class CommandLineDetails {
     if (optionIndex < ek9AppParameters.size()) {
       rtn = ek9AppParameters.get(optionIndex);
     }
+
     return rtn;
   }
 
   public boolean isInstall() {
+
     return isOptionPresentInAppParameters(Set.of("-I"));
   }
 
   public boolean isPackaging() {
+
     return isOptionPresentInAppParameters(Set.of("-P"));
   }
 
   public boolean isDeployment() {
+
     return isOptionPresentInAppParameters(Set.of("-D"));
   }
 
   public boolean isPrintReleaseVector() {
+
     return isOptionPresentInAppParameters(Set.of("-PV"));
   }
 
   public boolean isIncrementReleaseVector() {
+
     return isOptionPresentInAppParameters(Set.of("-IV"));
   }
 
   public boolean isSetReleaseVector() {
+
     return isOptionPresentInAppParameters(Set.of("-SV"));
   }
 
   public boolean isSetFeatureVector() {
+
     return isOptionPresentInAppParameters(Set.of("-SF"));
   }
 
   public boolean isHelp() {
+
     return isOptionPresentInAppParameters(Set.of("-h"));
   }
 
   public boolean isVersionOfEk9Option() {
+
     return isOptionPresentInAppParameters(Set.of("-V"));
   }
 
   public boolean isRunEk9AsLanguageServer() {
+
     return isOptionPresentInAppParameters(Set.of("-ls")) || isEk9LanguageServerHelpEnabled();
   }
 
   public boolean isEk9LanguageServerHelpEnabled() {
+
     return isOptionPresentInAppParameters(Set.of("-lsh"));
   }
 
   public boolean isRunOption() {
+
     return isRunDebugMode() || isRunNormalMode();
   }
 
   public boolean isUnitTestExecution() {
+
     return isOptionPresentInAppParameters(Set.of("-t"));
   }
 
   public boolean isRunDebugMode() {
+
     return isOptionPresentInAppParameters(Set.of("-d"));
   }
 
   public boolean isRunNormalMode() {
+
     return isOptionPresentInAppParameters(Set.of("-r"));
   }
 
-  private boolean isOptionPresentInAppParameters(Set<String> options) {
+  private boolean isOptionPresentInAppParameters(final Set<String> options) {
+
     return options.stream().anyMatch(ek9AppParameters::contains);
   }
 }

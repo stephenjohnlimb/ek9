@@ -19,33 +19,37 @@ final class DependencyNodeFactory extends Reporter {
    * Make a new Dependency Node Factory.
    */
   DependencyNodeFactory(final CommandLineDetails commandLine, final boolean muteReportedErrors) {
+
     super(commandLine.isVerbose(), muteReportedErrors);
     this.commandLine = commandLine;
     packageResolver = new PackageResolver(commandLine, muteReportedErrors);
+
   }
 
   @Override
   protected String messagePrefix() {
+
     return "Resolve : ";
   }
 
-  Optional<DependencyNode> createFrom(Ek9SourceVisitor visitor) {
+  Optional<DependencyNode> createFrom(final Ek9SourceVisitor visitor) {
+
     return createFrom(null, visitor);
   }
 
-  private Optional<DependencyNode> createFrom(DependencyNode parent, Ek9SourceVisitor visitor) {
-    var details = visitor.getPackageDetails();
+  private Optional<DependencyNode> createFrom(final DependencyNode parent, final Ek9SourceVisitor visitor) {
+
+    final var details = visitor.getPackageDetails();
     if (details.isPresent()) {
-      var packageDetails = details.get();
-      DependencyNode workingNode =
-          new DependencyNode(packageDetails.moduleName(), packageDetails.version());
+      final var packageDetails = details.get();
+      final var workingNode = new DependencyNode(packageDetails.moduleName(), packageDetails.version());
 
       log("Processing '" + workingNode + "'");
 
       if (parent != null) {
         parent.addDependency(workingNode);
         log("Added " + workingNode + " as dependency of " + parent);
-        var circulars = parent.reportCircularDependencies(true);
+        final var circulars = parent.reportCircularDependencies(true);
         if (circulars.isPresent()) {
           report("Circular dependency! '" + circulars.get() + "'");
           return Optional.empty();
@@ -66,15 +70,17 @@ final class DependencyNodeFactory extends Reporter {
         }
       }
     }
+
     return Optional.empty();
   }
 
-  private boolean processDependencies(DependencyNode workingNode, Map<String, String> deps) {
-    for (var entry : deps.entrySet()) {
-      String dependencyVector =
-          commandLine.getFileHandling().makeDependencyVector(entry.getKey(), entry.getValue());
+  private boolean processDependencies(final DependencyNode workingNode, final Map<String, String> deps) {
+
+    for (final var entry : deps.entrySet()) {
+      final var dependencyVector = commandLine.getFileHandling().makeDependencyVector(entry.getKey(), entry.getValue());
       log("Dependency '" + dependencyVector + "'");
-      Optional<Ek9SourceVisitor> depVisitor = packageResolver.resolve(dependencyVector);
+
+      final var depVisitor = packageResolver.resolve(dependencyVector);
       if (depVisitor.isEmpty()) {
         return false;
       }
@@ -84,6 +90,7 @@ final class DependencyNodeFactory extends Reporter {
         return false;
       }
     }
+
     return true;
   }
 }

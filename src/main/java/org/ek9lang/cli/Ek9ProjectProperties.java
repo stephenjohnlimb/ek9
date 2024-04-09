@@ -3,7 +3,6 @@ package org.ek9lang.cli;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Properties;
 import org.ek9lang.core.ExceptionConverter;
@@ -20,23 +19,29 @@ import org.ek9lang.core.Processor;
 final class Ek9ProjectProperties {
   private final File file;
 
-  Ek9ProjectProperties(File propertiesFile) {
+  Ek9ProjectProperties(final File propertiesFile) {
+
     this.file = propertiesFile;
+
   }
 
   boolean exists() {
+
     return file.exists();
   }
 
   String getFileName() {
+
     return file.getName();
   }
 
-  String prepareListForStorage(List<String> list) {
+  String prepareListForStorage(final List<String> list) {
+
     return String.join(",", list);
   }
 
-  boolean isNewerThan(File sourceFile) {
+  boolean isNewerThan(final File sourceFile) {
+
     return file.exists() && file.lastModified() > sourceFile.lastModified();
   }
 
@@ -44,14 +49,15 @@ final class Ek9ProjectProperties {
    * Load up all the properties and return them.
    */
   Properties loadProperties() {
-    Properties properties = new Properties();
+    final var properties = new Properties();
 
-    Processor<Boolean> processor = () -> {
-      try (FileReader reader = new FileReader(file)) {
+    final Processor<Boolean> processor = () -> {
+      try (final var reader = new FileReader(file)) {
         properties.load(reader);
         return true;
       }
     };
+
     new ExceptionConverter<Boolean>().apply(processor);
     return properties;
   }
@@ -59,13 +65,15 @@ final class Ek9ProjectProperties {
   /**
    * Save the properties to the configured file.
    */
-  void storeProperties(Properties properties) {
-    Processor<Boolean> processor = () -> {
-      try (OutputStream output = new FileOutputStream(file)) {
+  void storeProperties(final Properties properties) {
+
+    final Processor<Boolean> processor = () -> {
+      try (final var output = new FileOutputStream(file)) {
         properties.store(output, "Package Properties");
         return true;
       }
     };
+
     new ExceptionConverter<Boolean>().apply(processor);
   }
 }

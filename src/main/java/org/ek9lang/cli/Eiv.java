@@ -17,20 +17,24 @@ final class Eiv extends Eve {
       "build", Version::incrementBuildNumber
   );
 
-  Eiv(CompilationContext compilationContext) {
+  Eiv(final CompilationContext compilationContext) {
+
     super(compilationContext);
+
   }
 
   @Override
   protected String messagePrefix() {
+
     return "Version+: ";
   }
 
   @Override
   protected boolean doRun() {
+
     //Need to get from command line.
-    String partToIncrement = compilationContext.commandLine().getOptionParameter("-IV");
-    Version versionNumber = Version.withBuildNumber(compilationContext.commandLine().getVersion());
+    final var partToIncrement = compilationContext.commandLine().getOptionParameter("-IV");
+    final var versionNumber = Version.withBuildNumber(compilationContext.commandLine().getVersion());
     log("Processing increment " + versionNumber);
     //i.e. Find the key or produce a no-op, this is in place of a switch.
     operation.getOrDefault(partToIncrement, v -> {

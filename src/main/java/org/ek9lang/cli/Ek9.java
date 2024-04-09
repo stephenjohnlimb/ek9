@@ -2,7 +2,6 @@ package org.ek9lang.cli;
 
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
-import org.ek9lang.compiler.Compiler;
 import org.ek9lang.compiler.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.Ek9Compiler;
 import org.ek9lang.compiler.Ek9LanguageBootStrap;
@@ -60,13 +59,11 @@ final class Ek9 {
         final var compilerReporter = new CompilerReporter(commandLine.isVerbose(), false);
         final var sourceFileCache = new FileCache(commandLine);
         final var sourceSupplier = new Ek9BuiltinLangSupplier();
-        Ek9LanguageBootStrap bootStrap =
+        final var bootStrap =
             new Ek9LanguageBootStrap(sourceSupplier, compilationReporter::logPhaseCompilation, compilerReporter);
-        //For the main compiler we want all phases.
-        FullPhaseSupplier allPhases = new FullPhaseSupplier(bootStrap.get(),
+        final var allPhases = new FullPhaseSupplier(bootStrap.get(),
             compilationReporter::logPhaseCompilation, new CompilerReporter(commandLine.isVerbose(), false));
-
-        Compiler compiler = new Ek9Compiler(allPhases, muteReportedErrors);
+        final var compiler = new Ek9Compiler(allPhases, muteReportedErrors);
 
         return new CompilationContext(commandLine, compiler, sourceFileCache, muteReportedErrors);
       };
@@ -74,27 +71,27 @@ final class Ek9 {
   private final CompilationContext compilationContext;
   private final CompilationReporter reporter;
 
-  Ek9(CompilationContext compilationContext) {
+  Ek9(final CompilationContext compilationContext) {
+
     this.compilationContext = compilationContext;
     this.reporter = new CompilationReporter(compilationContext.commandLine().isVerbose());
+
   }
 
   /**
    * Run the main Ek9 compiler.
    */
-  public static void main(String[] argv) throws InterruptedException {
-    OsSupport osSupport = new OsSupport();
-    FileHandling fileHandling = new FileHandling(osSupport);
-    CommandLineDetails commandLine =
-        new CommandLineDetails(languageMetaData, fileHandling, osSupport);
+  public static void main(final String[] argv) throws InterruptedException {
+
+    final var osSupport = new OsSupport();
+    final var fileHandling = new FileHandling(osSupport);
+    final var commandLine = new CommandLineDetails(languageMetaData, fileHandling, osSupport);
 
     try {
-      int result = commandLine.processCommandLine(argv);
-
+      final var result = commandLine.processCommandLine(argv);
       if (result >= Ek9.SUCCESS_EXIT_CODE) {
         System.exit(result);
       }
-
       System.exit(new Ek9(compilationContextCreation.apply(commandLine)).run());
     } catch (RuntimeException rex) {
       Logger.error(rex);
@@ -107,6 +104,7 @@ final class Ek9 {
    * This can be either the language server or just the command line compiler.
    */
   int run() throws InterruptedException {
+
     //This will cause the application to block and remain running as a language server.
     if (compilationContext.commandLine().isRunEk9AsLanguageServer()) {
       return runAsLanguageServer();
@@ -124,13 +122,12 @@ final class Ek9 {
    */
   @SuppressWarnings("java:S106")
   private int runAsLanguageServer() throws InterruptedException {
+
     reporter.report("EK9 running as LSP languageHelp=" + compilationContext.commandLine()
         .isEk9LanguageServerHelpEnabled());
-    var enableDebugOutput = compilationContext.commandLine().isDebugVerbose();
-    var startListening =
-        Server.runEk9LanguageServer(compilationContext.commandLine().getOsSupport(), System.in,
-            System.out,
-            compilationContext.commandLine().isEk9LanguageServerHelpEnabled(), enableDebugOutput);
+    final var enableDebugOutput = compilationContext.commandLine().isDebugVerbose();
+    final var startListening = Server.runEk9LanguageServer(compilationContext.commandLine().getOsSupport(), System.in,
+        System.out, compilationContext.commandLine().isEk9LanguageServerHelpEnabled(), enableDebugOutput);
 
     try {
       startListening.get();
@@ -176,71 +173,79 @@ final class Ek9 {
       reporter.report("Command not executed");
       rtn = BAD_COMMANDLINE_EXIT_CODE;
     }
+
     return rtn;
   }
 
-  private void deleteFinalArtifactIfDependenciesAltered(CompilationContext compilationContext) {
+  private void deleteFinalArtifactIfDependenciesAltered(final CompilationContext compilationContext) {
+
     if (compilationContext.commandLine().isDependenciesAltered()) {
       reporter.log("Dependencies altered.");
       compilationContext.sourceFileCache().deleteTargetExecutableArtefact();
     }
+
   }
 
-  private E getExecutionForDeveloperManagementOption(CompilationContext compilationContext) {
-    E execution = null;
+  private E getExecutionForDeveloperManagementOption(final CompilationContext compilationContext) {
+
     if (compilationContext.commandLine().isGenerateSigningKeys()) {
-      execution = new Egk(compilationContext);
+      return new Egk(compilationContext);
     } else if (compilationContext.commandLine().isUpdateUpgrade()) {
-      execution = new Up(compilationContext);
+      return new Up(compilationContext);
     }
-    return execution;
+
+    return null;
   }
 
   private E getExecutionForBuildTypeOption(CompilationContext compilationContext) {
-    E execution = null;
+
     if (compilationContext.commandLine().isCleanAll()) {
-      execution = new Ecl(compilationContext);
+      return new Ecl(compilationContext);
     } else if (compilationContext.commandLine().isResolveDependencies()) {
-      execution = new Edp(compilationContext);
+      return new Edp(compilationContext);
     } else if (compilationContext.commandLine().isIncrementalCompile()) {
-      execution = new Eic(compilationContext);
+      return new Eic(compilationContext);
     } else if (compilationContext.commandLine().isFullCompile()) {
-      execution = new Efc(compilationContext);
+      return new Efc(compilationContext);
     } else if (compilationContext.commandLine().isPackaging()) {
-      execution = new Ep(compilationContext);
+      return new Ep(compilationContext);
     } else if (compilationContext.commandLine().isInstall()) {
-      execution = new Ei(compilationContext);
+      return new Ei(compilationContext);
     } else if (compilationContext.commandLine().isDeployment()) {
-      execution = new Ed(compilationContext);
+      return new Ed(compilationContext);
     }
-    return execution;
+
+    return null;
   }
 
   private E getExecutionForReleaseVectorOption(CompilationContext compilationContext) {
-    E execution = null;
+
     if (compilationContext.commandLine().isIncrementReleaseVector()) {
-      execution = new Eiv(compilationContext);
+      return new Eiv(compilationContext);
     } else if (compilationContext.commandLine().isSetReleaseVector()) {
-      execution = new Esv(compilationContext);
+      return new Esv(compilationContext);
     } else if (compilationContext.commandLine().isSetFeatureVector()) {
-      execution = new Esf(compilationContext);
+      return new Esf(compilationContext);
     } else if (compilationContext.commandLine().isPrintReleaseVector()) {
-      execution = new Epv(compilationContext);
+      return new Epv(compilationContext);
     }
-    return execution;
+
+    return null;
   }
 
   /**
    * Just used for reporting and logging errors and warnings.
    */
   private static class CompilationReporter extends Reporter {
-    protected CompilationReporter(boolean verbose) {
+    protected CompilationReporter(final boolean verbose) {
+
       super(verbose, false);
+
     }
 
     public void logPhaseCompilation(final CompilationEvent compilationEvent) {
 
-      var errorListener = compilationEvent.source().getErrorListener();
+      final var errorListener = compilationEvent.source().getErrorListener();
       log(String.format("%s: %s processed", compilationEvent.phase(), compilationEvent.source().getFileName()));
 
       if (errorListener.hasWarnings()) {
@@ -252,10 +257,12 @@ final class Ek9 {
         report(String.format("%s: Errors in %s", compilationEvent.phase(), compilationEvent.source().getFileName()));
         errorListener.getErrors().forEachRemaining(this::report);
       }
+
     }
 
     @Override
     protected String messagePrefix() {
+
       return "EK9     : ";
     }
   }

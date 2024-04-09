@@ -18,6 +18,7 @@ import org.ek9lang.core.Glob;
  * lists depending on what command is to be used.
  */
 final class FileCache {
+
   private final CommandLineDetails commandLine;
 
   /**
@@ -30,22 +31,27 @@ final class FileCache {
    * Create a new FileCache referencing a specific commandLine.
    */
   FileCache(final CommandLineDetails commandLine) {
+
     this.commandLine = commandLine;
     this.devBuild = commandLine.isDevBuild();
+
   }
 
   /**
    * Configure to be a development based build, this includes files from the 'dev/'
    * directory then.
    */
-  void setDevBuild(boolean devBuild) {
+  void setDevBuild(final boolean devBuild) {
+
     this.devBuild = devBuild;
+
   }
 
   /**
    * true if the target artefact exists - but it maybe out of date.
    */
   boolean isTargetExecutableArtefactPresent() {
+
     return getTargetExecutableArtefact().exists();
   }
 
@@ -54,6 +60,7 @@ final class FileCache {
    * files that would make up this artefact. i.e. compilable ek9 files or other resources.
    */
   boolean isTargetExecutableArtefactCurrent() {
+
     return isTargetExecutableArtefactPresent() && getIncrementalCompilableProjectFiles().isEmpty();
   }
 
@@ -63,12 +70,13 @@ final class FileCache {
    * @return The File reference to the target executable artefact (jar file for java).
    */
   File getTargetExecutableArtefact() {
+
     return commandLine.getFileHandling()
-        .getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(),
-            commandLine.getTargetArchitecture());
+        .getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(), commandLine.getTargetArchitecture());
   }
 
   void deleteTargetExecutableArtefact() {
+
     commandLine.getFileHandling().deleteFileIfExists(getTargetExecutableArtefact());
   }
 
@@ -78,6 +86,7 @@ final class FileCache {
    * Note uses GLOB format.
    */
   List<String> getStandardIncludes() {
+
     return Arrays.asList("**.ek9",
         "**.properties",
         "**.png",
@@ -93,6 +102,7 @@ final class FileCache {
    * Note uses GLOB format.
    */
   List<String> getStandardExcludes() {
+
     List<String> directoriesToIgnore = Arrays.asList(".ek9/",
         "**.ek9/**",
         ".git",
@@ -105,6 +115,7 @@ final class FileCache {
         "**.project",
         "**.classpath"
     );
+
     return Stream.of(directoriesToIgnore, filesToIgnore).flatMap(List::stream).toList();
   }
 
@@ -114,11 +125,13 @@ final class FileCache {
    * trigger a new build.
    */
   List<File> getIncrementalFilesPartOfBuild() {
-    File targetArtefact = getTargetExecutableArtefact();
+
+    final var targetArtefact = getTargetExecutableArtefact();
     if (targetArtefact.exists()) {
       return filterListBy(getAllFilesPartOfBuild(),
           file -> file.lastModified() >= targetArtefact.lastModified());
     }
+
     return getAllFilesPartOfBuild();
   }
 
@@ -128,11 +141,13 @@ final class FileCache {
    * trigger a new build.
    */
   List<File> getIncrementalCompilableProjectFiles() {
-    File targetArtefact = getTargetExecutableArtefact();
+
+    final var targetArtefact = getTargetExecutableArtefact();
     if (targetArtefact.exists()) {
       return filterListBy(getAllCompilableProjectFiles(),
           file -> file.lastModified() >= targetArtefact.lastModified());
     }
+
     return getAllCompilableProjectFiles();
   }
 
@@ -142,6 +157,7 @@ final class FileCache {
    * Honours the idea of including or excluding 'dev/' files.
    */
   List<File> getAllCompilableProjectFiles() {
+
     return filterListBy(getAllFilesPartOfBuild(), file -> file.getPath().endsWith(".ek9"));
   }
 
@@ -151,6 +167,7 @@ final class FileCache {
    * Honours the idea of including or excluding 'dev/' files.
    */
   List<File> getAllNonCompilableProjectFiles() {
+
     //Now need to filter for files not ending with just only ek9 files
     return filterListBy(getAllFilesPartOfBuild(), file -> !file.getPath().endsWith(".ek9"));
   }
@@ -161,12 +178,14 @@ final class FileCache {
    * This also applies any includes and exclude directives from any 'package' construct.
    */
   List<File> getAllFilesPartOfBuild() {
+
     if (devBuild) {
       return getPackageFiles();
     }
 
     //Need to exclude files starting with "dev/"
-    File fromDirectory = new File(commandLine.getSourceFileDirectory());
+    final var fromDirectory = new File(commandLine.getSourceFileDirectory());
+
     return filterListBy(getPackageFiles(),
         file -> !fromDirectory.toPath().relativize(file.toPath()).startsWith("dev/"));
   }
@@ -176,13 +195,14 @@ final class FileCache {
    * to determine which files should be packaged for use.
    */
   List<File> getPackageFiles() {
+
     if (cachedFileList != null) {
       return cachedFileList;
     }
 
     //Force reprocessing, so we parse actual source to get includes and excludes.
-    List<String> includes = new ArrayList<>(commandLine.getIncludeFiles());
-    List<String> excludes = new ArrayList<>(commandLine.getExcludeFiles());
+    final List<String> includes = new ArrayList<>(commandLine.getIncludeFiles());
+    final List<String> excludes = new ArrayList<>(commandLine.getExcludeFiles());
 
     //Standard options is for medium projects with a large range of files.
     //Typically, all ek9 files will be included.
@@ -208,7 +228,8 @@ final class FileCache {
    * Gets the list of files from the directory where the source file is located recursively.
    * But applies any includes and exclude 'Glob' specifications.
    */
-  private List<File> getMatchingFiles(List<String> includeFiles, List<String> excludeFiles) {
+  private List<File> getMatchingFiles(final List<String> includeFiles, final List<String> excludeFiles) {
+
     if (cachedFileList == null) {
       cachedFileList = commandLine.getOsSupport()
           .getFilesRecursivelyFrom(new File(commandLine.getSourceFileDirectory()),
@@ -217,6 +238,7 @@ final class FileCache {
           .sorted(Comparator.comparingLong(File::lastModified).reversed())
           .toList();
     }
+
     return cachedFileList;
   }
 
@@ -224,7 +246,8 @@ final class FileCache {
    * Just applies the predicate filter to the list.
    * the returns a new list - which may be empty.
    */
-  private List<File> filterListBy(List<File> list, Predicate<File> predicate) {
+  private List<File> filterListBy(final List<File> list, final Predicate<File> predicate) {
+
     return list
         .stream()
         .filter(predicate)

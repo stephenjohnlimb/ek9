@@ -15,12 +15,15 @@ final class Ed extends E {
 
   private static final String REPO_URL = "repo.ek9lang.org";
 
-  Ed(CompilationContext compilationContext) {
+  Ed(final CompilationContext compilationContext) {
+
     super(compilationContext);
+
   }
 
   @Override
   protected String messagePrefix() {
+
     return "Deploy  : ";
   }
 
@@ -68,42 +71,31 @@ final class Ed extends E {
             -----END PUBLIC KEY-----
             """;
 
-    final Predicate<String> zipFileExists = zipFileName -> new File(
-        getFileHandling().getDotEk9Directory(
-            compilationContext.commandLine().getSourceFileDirectory()),
-        zipFileName).exists();
+    final var parent = getFileHandling().getDotEk9Directory(compilationContext.commandLine().getSourceFileDirectory());
 
-    final Function<String, File> toSha256File = zipFileName -> new File(
-        getFileHandling().getDotEk9Directory(
-            compilationContext.commandLine().getSourceFileDirectory()),
-        zipFileName + ".sha256");
-
-    final Predicate<String> sha256FileExists =
-        zipFileName -> toSha256File.apply(zipFileName).exists();
-
-    final Function<File, String> toPlainHashText =
-        sha256File -> Digest.digest(sha256File).toString();
+    final Predicate<String> zipFileExists = zipFileName -> new File(parent, zipFileName).exists();
+    final Function<String, File> toSha256File = zipFileName -> new File(parent, zipFileName + ".sha256");
+    final Predicate<String> sha256FileExists = zipFileName -> toSha256File.apply(zipFileName).exists();
+    final Function<File, String> toPlainHashText = sha256File -> Digest.digest(sha256File).toString();
 
     final UnaryOperator<String> byUserSigning =
-        plainHashText -> getFileHandling().getUsersSigningKeyPair()
-            .encryptWithPrivateKey(plainHashText);
+        plainHashText -> getFileHandling().getUsersSigningKeyPair().encryptWithPrivateKey(plainHashText);
 
     final UnaryOperator<String> byServerPublicKey =
         innerCipherText -> SigningKeyPair.ofPublic(getServerPublicKey.apply(REPO_URL))
             .encryptWithPublicKey(innerCipherText);
 
-    final Function<String, Boolean> saveEncryptedContents = finalCipherText -> {
-      File sha256EncFile =
-          new File(getFileHandling().getDotEk9Directory(
-              compilationContext.commandLine().getSourceFileDirectory()),
-              fileName + ".sha256.enc");
-      var rtn = getFileHandling().saveToOutput(sha256EncFile, finalCipherText);
+    final Function<String, Boolean> saveEncryptedContents =
+        finalCipherText -> {
+          final var sha256EncFile = new File(parent, fileName + ".sha256.enc");
+          final var rtn = getFileHandling().saveToOutput(sha256EncFile, finalCipherText);
 
-      if (rtn) {
-        log("Deployment package signed [" + sha256EncFile.getPath() + "]");
-      }
-      return rtn;
-    };
+          if (rtn) {
+            log("Deployment package signed [" + sha256EncFile.getPath() + "]");
+          }
+
+          return rtn;
+        };
 
     //Now the actual processing.
     return Optional.of(fileName).stream()

@@ -1,10 +1,8 @@
 package org.ek9lang.cli;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.Workspace;
@@ -21,37 +19,51 @@ abstract class Ec extends E {
 
   private CompilerFlags compilerFlags = new CompilerFlags(CompilationPhase.APPLICATION_PACKAGING);
 
-  Ec(CompilationContext compilationContext) {
+  Ec(final CompilationContext compilationContext) {
+
     super(compilationContext);
     compilerFlags.setVerbose(compilationContext.commandLine().isVerbose());
+
   }
 
-  void setDebuggingInstrumentation(boolean debuggingInstrumentation) {
+  void setDebuggingInstrumentation(final boolean debuggingInstrumentation) {
+
     compilerFlags.setDebuggingInstrumentation(debuggingInstrumentation);
+
   }
 
-  void setDevBuild(boolean devBuild) {
+  void setDevBuild(final boolean devBuild) {
+
     compilerFlags.setDevBuild(devBuild);
     compilationContext.sourceFileCache().setDevBuild(devBuild);
+
   }
 
-  void setCheckCompilationOnly(boolean checkCompilationOnly) {
+  void setCheckCompilationOnly(final boolean checkCompilationOnly) {
+
     compilerFlags.setCheckCompilationOnly(checkCompilationOnly);
+
   }
 
-  void setPhaseToCompileTo(CompilationPhase phaseToCompileTo) {
+  void setPhaseToCompileTo(final CompilationPhase phaseToCompileTo) {
+
     compilerFlags.setCompileToPhase(phaseToCompileTo);
+
   }
 
   CompilerFlags getCompilerFlags() {
+
     return compilerFlags;
   }
 
-  void setCompilerFlags(CompilerFlags compilerFlags) {
+  void setCompilerFlags(final CompilerFlags compilerFlags) {
+
     this.compilerFlags = compilerFlags;
+
   }
 
   protected void prepareCompilation() {
+
     log("Preparing");
     // Set if not already set
     if (!compilerFlags.isDebuggingInstrumentation()) {
@@ -66,20 +78,19 @@ abstract class Ec extends E {
     }
 
     if (compilationContext.commandLine().isPhasedCompileOnly()) {
-      final CompilationPhase requiredPhase = compilationContext.commandLine().isDevBuild()
+      final var requiredPhase = compilationContext.commandLine().isDevBuild()
           ? CompilationPhase.valueOf(compilationContext.commandLine().getOptionParameter("-Cdp")) :
           CompilationPhase.valueOf(compilationContext.commandLine().getOptionParameter("-Cp"));
       setPhaseToCompileTo(requiredPhase);
     }
 
     if (compilerFlags.isDebuggingInstrumentation()) {
-
       log("Instrumenting");
     }
     if (compilerFlags.isDevBuild()) {
-
       log("Development");
     }
+
   }
 
   /**
@@ -89,14 +100,11 @@ abstract class Ec extends E {
    * Then it uses the compiler from the compilationContext and flags
    * to trigger the compile process.
    */
-  protected boolean compile(List<File> compilableProjectFiles) {
+  protected boolean compile(final List<File> compilableProjectFiles) {
+
     log(compilableProjectFiles.size() + " source file(s)");
 
-    //Do the actual compilation!
-    Workspace workspace = new Workspace();
-
-    //Show the list of files to be compiled (if in verbose mode).
-    //Add to the workspace the compiler will use
+    final var workspace = new Workspace();
     compilableProjectFiles.forEach(file -> {
       log(file.getAbsolutePath());
       workspace.addSource(file);
@@ -106,15 +114,15 @@ abstract class Ec extends E {
      * HERE FOR COMPILER ENTRY.
      * HERE for triggering the compilation of the workspace
      */
-    var compilationResult = compilationContext.compiler().compile(workspace, compilerFlags);
+    final var compilationResult = compilationContext.compiler().compile(workspace, compilerFlags);
 
     if (compilationResult) {
-      var generatedOutputDirectory = getMainGeneratedOutputDirectory();
+      final var generatedOutputDirectory = getMainGeneratedOutputDirectory();
       AssertValue.checkNotNull("Main generated out file null", generatedOutputDirectory);
       //This will be some sort of intermediate form (i.e. java we then need to actually compile).
 
       if (compilerFlags.isDevBuild()) {
-        var devGeneratedOutputDirectory = getDevGeneratedOutputDirectory();
+        final var devGeneratedOutputDirectory = getDevGeneratedOutputDirectory();
         AssertValue.checkNotNull("Dev generated out file null", devGeneratedOutputDirectory);
         //This will be some sort of intermediate form (i.e. java we then need to actually compile).
       }
@@ -130,14 +138,13 @@ abstract class Ec extends E {
       return true;
     }
 
-    boolean rtn = Objects.equals(compilationContext.commandLine().targetArchitecture,
-        Ek9DirectoryStructure.JAVA);
+    final var isJavaBuild = Ek9DirectoryStructure.JAVA.equals(compilationContext.commandLine().targetArchitecture);
 
     //We can only build a jar for java at present.
-    if (rtn) {
+    if (isJavaBuild) {
       log("Creating target");
 
-      List<ZipSet> zipSets = new ArrayList<>();
+      final List<ZipSet> zipSets = new ArrayList<>();
       addProjectResources(zipSets);
       addClassesFrom(getMainFinalOutputDirectory(), zipSets);
       //Do go through the deps and locate the jar file for each dependency and pull that in.
@@ -149,32 +156,38 @@ abstract class Ec extends E {
 
       //The parts of the EK9 runtime that we need to package in the jar.
       zipSets.add(getCoreComponents());
+      final var targetFileName = compilationContext.sourceFileCache().getTargetExecutableArtefact().getAbsolutePath();
 
-      String targetFileName =
-          compilationContext.sourceFileCache().getTargetExecutableArtefact().getAbsolutePath();
-      rtn = getFileHandling().createJar(targetFileName, zipSets);
+      return getFileHandling().createJar(targetFileName, zipSets);
     }
 
-    return rtn;
+    return false;
   }
 
   /**
    * This will be the stock set of runtime code that we need to bundle.
    */
   private ZipSet getCoreComponents() {
+
     return new ZipSet();
   }
 
-  private void addClassesFrom(File classesDir, List<ZipSet> zipSetList) {
+  private void addClassesFrom(final File classesDir, final List<ZipSet> zipSetList) {
+
     log("Including classes from " + classesDir.getAbsolutePath());
-    List<File> listOfFiles = getOsSupport().getFilesRecursivelyFrom(classesDir);
+
+    final var listOfFiles = getOsSupport().getFilesRecursivelyFrom(classesDir);
     zipSetList.add(new ZipSet(classesDir.toPath(), listOfFiles));
+
   }
 
-  private void addProjectResources(List<ZipSet> zipSetList) {
-    File projectDirectory = new File(compilationContext.commandLine().getSourceFileDirectory());
-    Path fromPath = projectDirectory.toPath();
-    List<File> listOfFiles = compilationContext.sourceFileCache().getAllNonCompilableProjectFiles();
+  private void addProjectResources(final List<ZipSet> zipSetList) {
+
+    final var projectDirectory = new File(compilationContext.commandLine().getSourceFileDirectory());
+    final var fromPath = projectDirectory.toPath();
+    final var listOfFiles = compilationContext.sourceFileCache().getAllNonCompilableProjectFiles();
+
     zipSetList.add(new ZipSet(fromPath, listOfFiles));
+
   }
 }
