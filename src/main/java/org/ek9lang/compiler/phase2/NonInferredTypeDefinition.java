@@ -93,7 +93,7 @@ public final class NonInferredTypeDefinition extends CompilerPhase {
   }
 
   /**
-   * THIS IS WHERE THE EXPLICIT TEMPLATE TYPE USE PHASE 1 LISTENER IS CREATED AND USED.
+   * THIS IS WHERE THE EXPLICIT TEMPLATE TYPE USE PHASE 2 LISTENER IS CREATED AND USED.
    */
   private void resolveOrDefineTypeSymbols(final CompilableSource source) {
 
