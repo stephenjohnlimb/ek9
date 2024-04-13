@@ -19,11 +19,10 @@ import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
- * Ensures that 'identifierReference' is now resolved and hangs together and 'typed' or a not resolved error.
+ * Ensures that 'identifierReference' is now resolved and hangs together and 'typed' or emit "not resolved" error.
  * Note that while the identifierReference may get resolved also see ResolveIdentifierReferenceCallOrError.
  * This is because the context of the identifierReference may mean that it is important to 're-resolve' it.
  * Indeed, for overloaded methods it probably will end up resolving to a different method.
- * The same applies to it resolving to a function or even a function delegate.
  * {@link org.ek9lang.compiler.phase3.CheckValidCall}
  * {@link org.ek9lang.compiler.phase3.ResolveIdentifierReferenceCallOrError}
  */
@@ -64,8 +63,6 @@ final class ProcessValidIdentifierReference extends TypedSymbolAccess
 
   private ISymbol resolveIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
 
-    //TODO I think there is a bug in here because some resolutions seem incorrect - investigate.
-
     //Order of resolution attempts.
     //See if already resolved, else try and resolve in current scope (this will escalate out to cover types)
     //If still not located then try and find at least one method with that name.
@@ -88,7 +85,18 @@ final class ProcessValidIdentifierReference extends TypedSymbolAccess
   private ISymbol tryToResolveViaCurrentScope(final EK9Parser.IdentifierReferenceContext ctx) {
 
     final var currentScope = symbolAndScopeManagement.getTopScope();
-    final var resolved = currentScope.resolve(new AnySymbolSearch(ctx.getText()));
+
+    //Might only be a variable/delegate property reference
+    //OK if in a call context it would only be appropriate to search for functions calls
+
+    Optional<ISymbol> resolved;
+
+    if (ctx.getParent() instanceof EK9Parser.CallContext) {
+      //Even though this is a call it could be a delegate which is variable.
+      resolved = currentScope.resolve(new AnySymbolSearch(ctx.getText()));
+    } else {
+      resolved = currentScope.resolve(new SymbolSearch(ctx.getText()));
+    }
 
     resolved.ifPresent(identifierReference -> recordATypedSymbol(identifierReference, ctx));
     return resolved.orElse(null);

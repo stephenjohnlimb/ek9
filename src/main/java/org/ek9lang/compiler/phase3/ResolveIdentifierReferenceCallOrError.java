@@ -74,6 +74,7 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
     final var callIdentifier = symbolAndScopeManagement.getRecordedSymbol(ctx.identifierReference());
     final var startToken = new Ek9Token(ctx.start);
 
+
     return switch (callIdentifier) {
       case AggregateSymbol aggregate -> checkAggregate(startToken, aggregate, callIdentifier, callParams);
       case FunctionSymbol function -> checkFunction(startToken, function, callIdentifier, callParams);
@@ -90,7 +91,6 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
         yield null;
       }
     };
-
   }
 
   private ScopedSymbol checkForDelegateOrSearchForMethod(final Ek9Token startToken,

@@ -15,12 +15,12 @@ import org.junit.jupiter.api.Test;
 class ExamplesConstructsConstantsTest extends PhasesTest {
 
   public ExamplesConstructsConstantsTest() {
-    super("/examples/constructs/constants");
+    super("/examples/constructs/constants", false, false);
   }
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.IR_ANALYSIS);
   }
 
   @Override

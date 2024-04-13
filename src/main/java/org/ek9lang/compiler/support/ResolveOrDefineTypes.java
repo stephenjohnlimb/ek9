@@ -129,9 +129,9 @@ public abstract class ResolveOrDefineTypes extends ResolverOrDefiner {
 
   protected Optional<ISymbol> resolveTypeByIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
 
-    final var ofType = ctx.getText();
+    final var forSymbolName = ctx.getText();
     final var scope = symbolAndScopeManagement.getTopScope();
-    final var resolved = scope.resolve(new AnyTypeSymbolSearch(ofType));
+    final var resolved = scope.resolve(new AnyTypeSymbolSearch(forSymbolName));
 
     if (resolved.isEmpty() && errorIfNotDefinedOrResolved) {
       errorListener.semanticError(ctx.start, "", TYPE_NOT_RESOLVED);

@@ -14,13 +14,13 @@ import org.junit.jupiter.api.Test;
 class ExamplesConstructsRecordsTest extends PhasesTest {
 
   public ExamplesConstructsRecordsTest() {
-    super("/examples/constructs/records");
+    super("/examples/constructs/records", false, false);
   }
 
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.IR_ANALYSIS);
   }
 
   @Override

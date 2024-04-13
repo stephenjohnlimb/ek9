@@ -15,13 +15,13 @@ import org.junit.jupiter.api.Test;
 class ExamplesConstructsReferencesTest extends PhasesTest {
 
   public ExamplesConstructsReferencesTest() {
-    super("/examples/constructs/references");
+    super("/examples/constructs/references", false, false);
   }
 
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.IR_ANALYSIS);
   }
 
   @Override

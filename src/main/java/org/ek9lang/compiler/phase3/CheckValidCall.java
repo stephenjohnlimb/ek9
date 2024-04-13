@@ -110,6 +110,7 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
   private void resolveByIdentifierReference(final CallSymbol callSymbol, final EK9Parser.CallContext ctx) {
 
     final var symbol = resolveIdentifierReferenceCallOrError.apply(ctx);
+
     //Now this is where the developer has written 'l as List of String : List()'
     //Or fun as SomeFunction of Integer: SomeFunction().
     if (symbol != null) {

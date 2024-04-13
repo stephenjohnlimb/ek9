@@ -16,13 +16,14 @@ import org.junit.jupiter.api.Test;
 class ExamplesConstructsClassesTest extends PhasesTest {
 
   public ExamplesConstructsClassesTest() {
-    super("/examples/constructs/classes");
+    super("/examples/constructs/classes", false, false);
   }
 
 
   @Test
   void testPhaseDevelopment() {
     //TODO examples need revisiting for pure and add in reference uses.
+    //TODO update example code for basic errors like referening.
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 
