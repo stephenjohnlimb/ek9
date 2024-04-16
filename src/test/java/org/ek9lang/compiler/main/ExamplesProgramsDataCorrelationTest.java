@@ -11,11 +11,12 @@ import org.junit.jupiter.api.Test;
 class ExamplesProgramsDataCorrelationTest extends PhasesTest {
 
   public ExamplesProgramsDataCorrelationTest() {
-    super("/examples/fullPrograms/dataCorrelation");
+    super("/examples/fullPrograms/dataCorrelation", false, false);
   }
 
   @Test
   void testPhasedDevelopment() {
+    //TODO fixup generics and move to PRE_IR_CHECKS
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 

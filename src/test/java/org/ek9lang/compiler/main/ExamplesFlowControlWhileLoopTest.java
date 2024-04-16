@@ -17,7 +17,7 @@ class ExamplesFlowControlWhileLoopTest extends PhasesTest {
 
   @Test
   void testPhasedDevelopment() {
-    testToPhase(CompilationPhase.IR_ANALYSIS);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

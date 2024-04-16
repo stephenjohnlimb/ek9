@@ -15,11 +15,12 @@ import org.junit.jupiter.api.Test;
 class ExamplesStreamsTest extends PhasesTest {
 
   public ExamplesStreamsTest() {
-    super("/examples/streams");
+    super("/examples/streams", false, false);
   }
 
   @Test
   void testPhaseDevelopment() {
+    //TODO fix up example code and move to PRE_IR_CHECKS
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 

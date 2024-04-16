@@ -20,7 +20,7 @@ class ExamplesConstructsRecordsTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.IR_ANALYSIS);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

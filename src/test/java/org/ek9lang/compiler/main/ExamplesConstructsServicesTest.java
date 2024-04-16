@@ -15,12 +15,13 @@ import org.junit.jupiter.api.Test;
 class ExamplesConstructsServicesTest extends PhasesTest {
 
   public ExamplesConstructsServicesTest() {
-    super("/examples/constructs/services");
+    super("/examples/constructs/services", false, false);
   }
 
 
   @Test
   void testPhaseDevelopment() {
+    //TODO fix up lots of errors and move to FULL_RESOLUTION
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 

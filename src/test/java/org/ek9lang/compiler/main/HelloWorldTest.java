@@ -63,7 +63,7 @@ class HelloWorldTest {
   @Test
   void testHelloWorldPhasedDevelopment() {
     //Just start with the basics and most on to the next phase one implemented.
-    CompilationPhase upToPhase = CompilationPhase.FULL_RESOLUTION;
+    CompilationPhase upToPhase = CompilationPhase.PRE_IR_CHECKS;
 
     //So see verbose processing and any errors alter these flags.
     final var reporter = new CompilerReporter(false, true);

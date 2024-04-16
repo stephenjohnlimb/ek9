@@ -15,12 +15,12 @@ import org.junit.jupiter.api.Test;
 class ExamplesConstructsGenericsTest extends PhasesTest {
 
   public ExamplesConstructsGenericsTest() {
-    super("/examples/constructs/generics");
+    super("/examples/constructs/generics", false, false);
   }
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

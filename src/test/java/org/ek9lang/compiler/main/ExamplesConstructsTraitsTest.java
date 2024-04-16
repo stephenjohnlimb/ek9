@@ -14,12 +14,15 @@ import org.junit.jupiter.api.Test;
 class ExamplesConstructsTraitsTest extends PhasesTest {
 
   public ExamplesConstructsTraitsTest() {
-    super("/examples/constructs/traits");
+    super("/examples/constructs/traits", false, false);
   }
 
 
   @Test
   void testPhaseDevelopment() {
+    //TODO correct errors:
+    //TODO 'CostAssessment' on line 21 position 27: 'CostAssessment': not resolved - resolve a super trait
+    //TODO 'SimpleProcessor' on line 63 position 4: 'public Boolean <- lowCost()' on 'Processor' and 'Processor': conflicting methods to be resolved
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 

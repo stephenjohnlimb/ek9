@@ -22,6 +22,7 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  * aggregate that is using the super/traits and then pick the implementation they want or define a
  * totally new one.
  * Returns true if there are no conflicting methods.
+ * TODO not quite sure this is working correctly. See JustTraits.ek9 - ExamplesConstructsTraitsTest.
  */
 final class CheckConflictingMethods extends TypedSymbolAccess implements Predicate<AggregateSymbol> {
   CheckConflictingMethods(final SymbolAndScopeManagement symbolAndScopeManagement,

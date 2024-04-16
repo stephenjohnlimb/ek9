@@ -20,6 +20,9 @@ defines module com.customer.traits
       override lowCost() as pure
         <- rtn as Boolean: CostAssessment.lowCost()  
 
+      operator ? as pure
+        <- rtn <- true
+
     ProcessingResponse allow only StringResponse, StructuredResponse
       result()
         <- rtn as String?
@@ -59,6 +62,8 @@ defines module com.customer.traits
            
     SimpleProcessor with trait of Processor
 
+      default SimpleProcessor() as pure
+
       override process()
         <- response as ProcessingResponse: StringResponse("Simple Message")
     
@@ -67,7 +72,7 @@ defines module com.customer.traits
       
       DelegatingProcessor() as pure
         -> processorToUse as Processor
-        proc: processorToUse
+        proc :=? processorToUse
         
       DelegatingProcessor() as pure
         this(SimpleProcessor())

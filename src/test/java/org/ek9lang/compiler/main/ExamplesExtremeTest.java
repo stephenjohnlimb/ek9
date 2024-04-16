@@ -11,12 +11,12 @@ import org.junit.jupiter.api.Test;
 class ExamplesExtremeTest extends PhasesTest {
 
   public ExamplesExtremeTest() {
-    super("/examples/extreme");
+    super("/examples/extreme", false, false);
   }
 
   @Test
   void testPhasedDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

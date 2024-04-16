@@ -12,15 +12,15 @@ import org.junit.jupiter.api.Test;
 class ExamplesJustDynamicFunctionWithCaptureTest extends PhasesTest {
 
   public ExamplesJustDynamicFunctionWithCaptureTest() {
-    super("/examples/justDynamicFunctionWithCapture");
+    super("/examples/justDynamicFunctionWithCapture", false, false);
   }
 
   @Test
   void testPhasedDevelopment() {
-    //Issues with capture at the moment - for FULL_RESOLUTION
-    //Needs some though on how to resolve and define with correct name when doing the capture
+    //TODO Issues with capture at the moment - for FULL_RESOLUTION
+    //TODO investigate, needs some though on how to resolve and define with correct name when doing the capture
     //As dynamic functions and capture are taken out of the hierarchical scope stack.
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

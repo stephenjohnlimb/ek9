@@ -14,12 +14,12 @@ import org.junit.jupiter.api.Test;
 class ExamplesDynamicTest extends PhasesTest {
 
   public ExamplesDynamicTest() {
-    super("/examples/dynamic");
+    super("/examples/dynamic", false, false);
   }
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

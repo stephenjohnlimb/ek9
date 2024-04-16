@@ -17,8 +17,9 @@ class ExamplesStreamBooksTest extends PhasesTest {
 
   @Test
   void testPhasedDevelopment() {
-    //TODO move to full IR_ANALYSIS - once variable resolution is sorted out.
-    testToPhase(CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
+    //TODO fix up example code and move to PRE_IR_CHECKS
+    //TODO variable are not marked as initialised.
+    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 
   @Override

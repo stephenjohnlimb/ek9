@@ -16,7 +16,7 @@ class ExamplesLinkingTest extends PhasesTest {
 
   @Test
   void testPhasedDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

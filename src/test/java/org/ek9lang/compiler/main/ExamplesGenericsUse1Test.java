@@ -28,7 +28,7 @@ class ExamplesGenericsUse1Test extends PhasesTest {
   private final SymbolSearchMapFunction mapFunction = new SymbolSearchMapFunction();
 
   public ExamplesGenericsUse1Test() {
-    super("/examples/genericsUse1");
+    super("/examples/genericsUse1", false, false);
   }
 
   @Test

@@ -128,10 +128,12 @@ defines module com.customer.books
       Models the author of books.
     -?>
     Author
-      id as AuthorId?
-      age as Age?
-      firstname as Name?
-      surname as Name?
+      id <- AuthorId()
+      age <- Age()
+      firstname <- Name()
+      surname <- Name()
+
+      default Author() as pure
 
       Author() as pure
         ->
@@ -148,11 +150,6 @@ defines module com.customer.books
       Author() as pure
         -> author as Author
         this(author.id(), author.age(), author.firstname(), author.surname())
-
-      <?-
-        Stop creation of empty Author.
-      -?>
-      default private Author() as pure
 
       id() as pure
         <- rtn as AuthorId: id
@@ -183,9 +180,9 @@ defines module com.customer.books
         surname :=: author.surname()
 
     Book
-      title as BookTitle?
-      author as Author?
-      published as Date?
+      title <- BookTitle()
+      author <- Author()
+      published <- Date()
 
       Book() as pure
         ->
@@ -220,7 +217,8 @@ defines module com.customer.books
       Model the concept of a library, just an in-memory map for now
     -?>
     Library
-      books as List of Book?
+      //TODO looks like resolving to 'List of T' but should be finding the constructor and checking if pure.
+      books as List of Book: List()
 
       Library() as pure
         -> withBooks as List of Book

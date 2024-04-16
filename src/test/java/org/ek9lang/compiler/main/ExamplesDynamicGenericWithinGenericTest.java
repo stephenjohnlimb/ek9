@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesDynamicGenericWithinGenericTest extends PhasesTest {
 
   public ExamplesDynamicGenericWithinGenericTest() {
-    super("/examples/dynamicGenericWithinGeneric");
+    super("/examples/dynamicGenericWithinGeneric", false, false);
   }
 
   @Test

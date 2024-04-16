@@ -14,13 +14,13 @@ import org.junit.jupiter.api.Test;
 class ExamplesConstructsTextTest extends PhasesTest {
 
   public ExamplesConstructsTextTest() {
-    super("/examples/constructs/text");
+    super("/examples/constructs/text", false, false);
   }
 
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override
