@@ -21,8 +21,7 @@ class ExamplesConstructsFunctionsTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
-    //TODO fix 'get' on line 35 position 31: In relation to type 'List of type T of type Integer', and 'get(Integer)': method/function not resolved
-    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

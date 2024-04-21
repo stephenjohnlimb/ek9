@@ -4,8 +4,9 @@ import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
-import org.ek9lang.compiler.search.AnySymbolSearch;
+import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
  * Check that a symbol can be accessed issues error if not possible.
@@ -39,22 +40,24 @@ final class CheckAccessToSymbol extends TypedSymbolAccess implements Consumer<Ch
   private void checkPrivateAccess(final String errorMsgBase, final CheckSymbolAccessData checkSymbolAccessData) {
 
     if (checkSymbolAccessData.fromScope() == checkSymbolAccessData.inScope()) {
-      //The next question is, is the identifier resolved actually in this type or private in another type.
-      final var resolved = checkSymbolAccessData.inScope()
-          .resolveInThisScopeOnly(new AnySymbolSearch(checkSymbolAccessData.symbolName()));
 
-      if (resolved.isEmpty()) {
-        //Error while trying to access in the same type as resolving on, the data is private in another type.
-        errorListener.semanticError(checkSymbolAccessData.token(), errorMsgBase,
-            ErrorListener.SemanticClassification.NOT_ACCESSIBLE);
+      //For methods we can just check the parent scopes match
+      if (checkSymbolAccessData.symbol() instanceof MethodSymbol methodSymbol
+          && methodSymbol.getParentScope().equals(checkSymbolAccessData.fromScope())) {
+        return;
       }
 
+      //But for Properties we must look up again.
+      final var toResolveIn = checkSymbolAccessData.inScope();
+      final var search = new SymbolSearch(checkSymbolAccessData.symbolName());
+
+      final var resolved = toResolveIn.resolveInThisScopeOnly(search);
+      if (resolved.isEmpty()) {
+        emitNoAccessFromThisContext(errorMsgBase, checkSymbolAccessData);
+      }
     } else {
       //Error access to private data is only allowed in that same type
-      final var msg =
-          "access from '" + checkSymbolAccessData.fromScope().getFriendlyScopeName() + "' to " + errorMsgBase;
-      errorListener.semanticError(checkSymbolAccessData.token(), msg,
-          ErrorListener.SemanticClassification.NOT_ACCESSIBLE);
+      emitNoAccessFromThisContext(errorMsgBase, checkSymbolAccessData);
     }
   }
 
@@ -65,17 +68,17 @@ final class CheckAccessToSymbol extends TypedSymbolAccess implements Consumer<Ch
       if (checkSymbolAccessData.inScope() instanceof IAggregateSymbol resolvedInAggregate
           && !calledFromAggregate.isInAggregateHierarchy(resolvedInAggregate)) {
         //This will be OK as long as the fromScope and the inScope are in the same hierarchy.
-        emitNoAccessToProtectedMethod(errorMsgBase, checkSymbolAccessData);
+        emitNoAccessFromThisContext(errorMsgBase, checkSymbolAccessData);
       }
     } else {
       //Not even from with any sort of aggregate (so a function).
-      emitNoAccessToProtectedMethod(errorMsgBase, checkSymbolAccessData);
+      emitNoAccessFromThisContext(errorMsgBase, checkSymbolAccessData);
     }
 
   }
 
-  private void emitNoAccessToProtectedMethod(final String errorMsgBase,
-                                             final CheckSymbolAccessData checkSymbolAccessData) {
+  private void emitNoAccessFromThisContext(final String errorMsgBase,
+                                           final CheckSymbolAccessData checkSymbolAccessData) {
 
     final var msg = "access from '" + checkSymbolAccessData.fromScope().getFriendlyScopeName() + "' to " + errorMsgBase;
     errorListener.semanticError(checkSymbolAccessData.token(), msg,

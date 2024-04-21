@@ -32,10 +32,8 @@ defines module test.functions
       while low <= high and ~index? 
         
         mid <- (low + high) / 2
-        optionalValue <- array.get(mid)
-        assert optionalValue?
-        checkValue <- optionalValue.get()
-        
+        checkValue <- array.get(mid)
+
         if checkValue < value
           low: mid + 1
         else if checkValue > value

@@ -46,7 +46,6 @@ class ExamplesGenericsUse1Test extends PhasesTest {
 
     //While we do have @ directives, this is a good test just to ensure that precondition of missing types is correct.
     var checker = new GenericsSymbolCheck(program, EK9_LANG, false);
-    checker.accept(new SymbolSearchConfiguration("Optional", mapFunction.apply(List.of("String"))));
     checker.accept(new SymbolSearchConfiguration("Supplier", mapFunction.apply(List.of("Integer"))));
   }
 
@@ -102,7 +101,7 @@ class ExamplesGenericsUse1Test extends PhasesTest {
     var functionChecker = new GenericsSymbolCheck(program, EK9_LANG, true, ISymbol.SymbolCategory.FUNCTION);
     functionChecker.accept(new SymbolSearchConfiguration("Supplier", mapFunction.apply(List.of("Integer"))));
 
-    var numberOfAdditionalSymbols = 13;
+    var numberOfAdditionalSymbols = 10;
     new SymbolCountCheck(EK9_LANG, NUMBER_OF_EK9_SYMBOLS + numberOfAdditionalSymbols).test(program);
   }
 

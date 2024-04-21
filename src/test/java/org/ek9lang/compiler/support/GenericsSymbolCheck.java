@@ -34,7 +34,7 @@ public class GenericsSymbolCheck implements Consumer<SymbolSearchConfiguration> 
   public void accept(final SymbolSearchConfiguration toResolve) {
 
     var resolved = resolver.apply(toResolve);
-    assertEquals(expectPresent, resolved.isPresent(), "Unable to resolve: " + toResolve);
+    assertEquals(expectPresent, resolved.isPresent(), "WRT: " + toResolve + " expect resolve: " + expectPresent );
     if (expectPresent && resolved.isPresent()) {
       assertEquals(categoryIfPresent, resolved.get().getCategory());
     }

@@ -60,10 +60,12 @@ defines module net.customer.assertions
         someValue as String := initialValue
         
         someValue += method1("A", method2("FF"), 2)
-        
+        assert someValue?
+
       method4()
         val <- method1("A", "B", 9)
-          
+        assert val?
+
     //Here's that second class
     AnotherOne
       anotherFloat <- 90.99
@@ -71,7 +73,9 @@ defines module net.customer.assertions
       AnotherOne()
         -> defaultValue as Float
         anotherFloat := defaultValue
-        
+
+      default operator ?
+
     MyItem as abstract
       var Integer: 99
       
@@ -89,4 +93,6 @@ defines module net.customer.assertions
         checkClass as AnotherOne := AnotherOne(90)
         
         checkClass := AnotherOne()
+        assert checkClass?
+
 //EOF

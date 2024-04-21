@@ -15,13 +15,13 @@ import org.junit.jupiter.api.Test;
 class ExamplesConstructsCompositionTest extends PhasesTest {
 
   public ExamplesConstructsCompositionTest() {
-    super("/examples/constructs/composition");
+    super("/examples/constructs/composition", false, false);
   }
 
   @Test
   void testPhaseDevelopment() {
-    //TODO needs a review and some more methods adding to EK9 lib code.
-    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
+    //TODO look at property initialisations to move or PRE_IR_CHECKS
+    testToPhase(CompilationPhase.FULL_RESOLUTION);
   }
 
   @Override

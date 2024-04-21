@@ -24,13 +24,9 @@ defines module com.customer.resolution
       DOB Date: Date()
       
       override operator $ as pure
-        <- is String := super.firstName        
-        is += " "
-        is += super.lastName
-        is += " ("
-        is += this.nickName
-        is += ") "
-        is += $DOB        
+        <- is String?
+        is :=? `${super.firstName} ${super.lastName} (${this.nickName}) ${DOB}`
+
 
   defines trait
     
@@ -76,6 +72,8 @@ defines module com.customer.resolution
         -> v as String
         val := v
 
+      default operator ?
+
     Address with trait of T2 as open
       houseNumber Integer: 20
       street String: "A Street"
@@ -85,7 +83,6 @@ defines module com.customer.resolution
       Address()
         //Check J
         this(20, "A Street", "Town", "P05 C0D")
-        v1 <- "Steve"
         
       Address()
         -> houseNo Integer
@@ -138,6 +135,7 @@ defines module com.customer.resolution
       checkA()
         a1 <- Simple()
         a2 <- Simple("A")
+        assert a1? and a2?
 
       <?-
         Just a call to a function
@@ -145,6 +143,7 @@ defines module com.customer.resolution
       checkB()
         b1 <- functionB1()
         b2 <- functionB2("US")
+        assert b1? and b2?
 
       <?-
         Just a call to a method - in this class
@@ -152,7 +151,7 @@ defines module com.customer.resolution
       checkC()
         c1 <- method()
         c2 <- method("FR")
-      
+        assert c1? and c2?
       <?-
         Just a call to a method - in this class but via 'this'
       -?> 
@@ -160,7 +159,8 @@ defines module com.customer.resolution
         c <- "TODO"
         c1 <- this.method()
         c2 <- this.method("FR")
-       
+        assert c? and c1? and c2?
+
       <?-
         Just a access a field but also access a constant short hand but also fully qualified.
       -?>         
@@ -168,6 +168,7 @@ defines module com.customer.resolution
         d1 <- houseNumber
         d2 <- defaultCountry
         d3 <- com.customer.resolution::defaultCountry
+        assert d1? and d2? and d3?
       
       <?-
         Just a access a field but via 'this'.
@@ -175,7 +176,8 @@ defines module com.customer.resolution
       checkDthis()
         d <- "TODO"
         d1 <- this.houseNumber
-        
+        assert d? and d1?
+
       checkF1super()
         f <- "TODO"
         //These will parse but
@@ -185,7 +187,8 @@ defines module com.customer.resolution
         //f2 <- T2.u("FR")
         f3 <- u()
         f4 <- u("FR")
-        
+        assert f? and f3? and f4?
+
       checkG1super()
         g <- "TODO"
         //These will parse but
@@ -197,7 +200,8 @@ defines module com.customer.resolution
         //g4 <- T2.t("FR")
         g5 <- t()
         g6 <- t("FR")
-        
+        assert g? and g5? and g6?
+
       getRecord()
         <- record R2 := R2()
       
@@ -216,20 +220,22 @@ defines module com.customer.resolution
         -> newPostCode String
         postCode := newPostCode
       
-      private getPostCode()
+      private getPostCode() as pure
         <- rtn String := postCode
           
-      protected getCity()
+      protected getCity() as pure
         <- rtn String := city
       
-      getStreet()
+      getStreet() as pure
         <- rtn String := street
             
-      getAddress()
+      getAddress() as pure
         <- rtn String := $houseNumber + " " + street + " " + getCity() + " " + getPostCode()
       
       operator $ as pure
         <- rtn String := getAddress()
+
+      default operator ?
 
     UKAddress is Address
       country String: "UK"
@@ -249,8 +255,8 @@ defines module com.customer.resolution
       
       //should be able to super.getCity() as protected but not super.getPostCode() and not super.city
       //"Nice " + super.getCity() + " " + super.getPostCode() + " " + super.city
-      override protected getCity()
-        <- rtn String := "Nice " + super.getCity()
+      override protected getCity() as pure
+        <- rtn String := `Nice ${super.getCity()}`
         
       getCountry()
         <- rtn String := country
@@ -262,6 +268,7 @@ defines module com.customer.resolution
         //Check we can resolve in super
         e1 <- method()
         e2 <- method("FR")
+        assert e1? and e2?
 
       <?-
         Just a call to a method - in super class - but this time explicit via 'super'
@@ -271,6 +278,7 @@ defines module com.customer.resolution
         //Check we can resolve in super but explicit
         e1 <- super.method()
         e2 <- super.method("FR")
+        assert ev? and e1? and e2?
       
       <?-
         Just a call to a method - in a trait that is in the hierarchy - but note immediate super class could have overridden - we should not know.
@@ -279,6 +287,7 @@ defines module com.customer.resolution
         //Check we can resolve in trait
         f1 <- u()
         f2 <- u("FR")
+        assert f1? and f2?
       
       <?-
         Check we 'cannot' resolve in trait - we don't allow known access - you only know immediate class super
@@ -291,11 +300,13 @@ defines module com.customer.resolution
         //TODO
         //f1 <- T2.u()
         //f2 <- T2.u("FR")
+        assert f?
       
       checkG()
         //Check we can resolve in trait
         g1 <- t()
         g2 <- t("FR")
+        assert g1? and g2?
       
       <?-
         Check we 'cannot' resolve in trait - we don't allow known access - you only know immediate class super
@@ -311,6 +322,7 @@ defines module com.customer.resolution
         //Now can we resolve via T2 because it extends has trait of T1
         //g3 <- T2.t()
         //g4 <- T2.t("FR")
+        assert g?
 
       <?-
         Now on to chained methods - ensure we can resolve method and method with parameter and also another method call
@@ -320,9 +332,10 @@ defines module com.customer.resolution
         h1 <- getRecord().DOB
         h2 <- getRecord("H").firstName
         h3 <- getRecord(getCountry()).DOB
+        assert h? and h1? and h2? and h3?
 
       <?-
-        Chained methods usng 'this' but also with method calls in params
+        Chained methods using 'this' but also with method calls in params
       -?>
       checkHthis()
         h <- "TODO"
@@ -330,6 +343,7 @@ defines module com.customer.resolution
         h2 <- this.getRecord("H").firstName
         h3 <- this.getRecord(getCountry()).firstName
         h4 <- this.getRecord(this.getCountry()).firstName
+        assert h? and h1? and h2? and h3? and h4?
         
       <?-
         Chained methods usng 'super' but also with method calls in params
@@ -340,6 +354,7 @@ defines module com.customer.resolution
         h2 <- super.getRecord("H").firstName
         h3 <- super.getRecord(getCountry()).firstName
         h4 <- super.getRecord(this.getCountry()).firstName
+        assert h? and h1? and h2? and h3? and h4?
 
       <?-
         Now on to chained methods - but deeper chain.
@@ -350,6 +365,7 @@ defines module com.customer.resolution
         i2 <- getRecord("I").address.getStreet()
         i3 <- getRecord(getCountry()).address.getStreet()
         i4 <- getRecord(this.getCountry()).address.getStreet()
+        assert i? and i1? and i2? and i3? and i4?
 
       <?-
         Now on to chained methods - but deeper chain, but using 'this'.
@@ -360,6 +376,7 @@ defines module com.customer.resolution
         i2 <- this.getRecord("I").address.getStreet()
         i3 <- this.getRecord(getCountry()).address.getStreet()
         i4 <- this.getRecord(this.getCountry()).address.getStreet()
+        assert i? and i1? and i2? and i3? and i4?
 
       <?-
         Now on to chained methods - but deeper chain, but using 'super'.
@@ -370,7 +387,8 @@ defines module com.customer.resolution
         i2 <- super.getRecord("I").address.getStreet()
         i3 <- super.getRecord(getCountry()).address.getStreet()
         i4 <- super.getRecord(this.getCountry()).address.getStreet()
-        
+        assert i? and i1? and i2? and i3? and i4?
+
         //So check we can set a variable
         super.getRecord("H").address := Address()
         
@@ -387,7 +405,8 @@ defines module com.customer.resolution
         theCity <- getCity()
         //and public
         theStreet <- getStreet()
-      
+        assert theCity? and theStreet?
+
       checkJthis()
         //Check no access to super private fields
         //ACCESS
@@ -398,6 +417,7 @@ defines module com.customer.resolution
         theCity <- this.getCity()
         //and public
         theStreet <- this.getStreet()
+        assert theCity? and theStreet?
 
       checkJsuper()
         //Check no access to super private fields
@@ -409,34 +429,44 @@ defines module com.customer.resolution
         theCity <- super.getCity()
         //and public
         theStreet <- super.getStreet()
-      
+        assert theCity? and theStreet?
+
+      default operator ?
+
     Accessor
       checkMethod()
         
         myHouse <- UKAddress()
-        
+        assert myHouse?
+
         anotherHouse <- UKAddress("EN24 3PR")
-        
+        assert anotherHouse?
+
         //Check M allowed as public
         //TODO
         country <- anotherHouse.getCountry()
+        assert country?
 
         //Check M allowed as public
         //TODO
         t1 <- anotherHouse.t()
+        assert t1?
 
         //Check M allowed as public
         //TODO
         t2 <- anotherHouse.t("VAL1")
+        assert t2?
 
         //Check M allowed as public
         //TODO
         u1 <- anotherHouse.u()
+        assert u1?
 
         //Check M allowed as public
         //TODO
         u2 <- anotherHouse.u("VAL2")
-        
+        assert u2?
+
         //Check M not allowed as private and protected
         //TODO
         //city1 <- anotherHouse.city
@@ -449,11 +479,13 @@ defines module com.customer.resolution
         //Check N allowed as public and to record
         //TODO
         first1 <- anotherHouse.getRecord().firstName
+        assert first1?
 
         //Check N allowed as public and to record
         //TODO
         first2 <- anotherHouse.getRecord("UK").firstName
-        
+        assert first2?
+
         //Check O allowed as public and to record but as setter
         //TODO
         anotherHouse.getRecord("UK").firstName := "Steve"
@@ -461,9 +493,10 @@ defines module com.customer.resolution
         //Check P allowed as public and to record but with expression inside.
         //TODO
         first3 <- anotherHouse.getRecord(anotherHouse.getCountry()).firstName
-        
+        assert first3?
+
         //Check P allowed as public and to record but with expression inside and transform result.
         //TODO
         dobString <- $anotherHouse.getRecord(anotherHouse.getCountry()).DOB
-   
+        assert dobString?
 //EOF

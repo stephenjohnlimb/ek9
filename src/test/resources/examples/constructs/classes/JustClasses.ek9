@@ -21,25 +21,25 @@ defines module com.customer.just
   defines class
 
     Coordinate
-      x Float: 0.0
-      y Float: 0.0
+      x <- Float()
+      y <- Float()
 
       //Sort of lombok like, no implementation needed.
-      default Coordinate()
+      default Coordinate() as pure
       
       //Constructor  
-      Coordinate()
+      Coordinate() as pure
         ->
           initialX as Float
           initialY as Float
           
-        x :=: initialX
-        y :=: initialY
+        x :=? initialX
+        y :=? initialY
       
-      x()
+      x() as pure
         <- rtn as Float: x
       
-      y()
+      y() as pure
         <- rtn as Float: y
           
       operator + as pure
@@ -150,5 +150,6 @@ defines module com.customer.just
         ]
         | map with drawShape
         | collect as Bits
-      
+
+      assert shapeInfo?
 //EOF

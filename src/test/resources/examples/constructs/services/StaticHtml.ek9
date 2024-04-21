@@ -27,18 +27,19 @@ defines module com.customer.html
           etag as String: String()
 
           override etag()
-            <- rtn as String: String()
+            <- rtn <- String()
+            //Do this (:=?) so the etag is cached and not recalculated each time.
             etag :=? HMAC().SHA256(content())
-            rtn :=: etag
+            rtn :=? etag
 
-          override cacheControl()
+          override cacheControl() as pure
             <- rtn as String: "public,max-age=3600,must-revalidate"
-          override contentType()
+          override contentType() as pure
             <- rtn as String: "text/html"
-          override contentLanguage()
+          override contentLanguage() as pure
             <- rtn as String: "en"
           override content()
             <- rtn as String: webSite.index()
-          override status()
+          override status() as pure
             <- rtn as Integer: 200
 //EOF

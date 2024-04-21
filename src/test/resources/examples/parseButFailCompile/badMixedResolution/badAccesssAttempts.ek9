@@ -1,0 +1,57 @@
+#!ek9
+<?-
+  Set up some classes and try to access private methods and properties
+-?>
+defines module bad.access.attempts
+
+  defines function
+    <?-
+      Ensure that at least one error is triggered.
+    -?>
+    JustFail()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert notDefined?
+
+    TestFunction1()
+      c1 <- C1()
+
+      @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
+      invalidAccess1 <- c1.method1()
+
+  defines class
+
+    C1 as open
+      prop1 <- "66"
+      default C1()
+
+      private method1()
+        <- rtn <- `This is private ${prop1}`
+
+    C2 extends C1
+      prop2 <- "67"
+
+      default C2()
+
+      //While not very nice, because the method1 is private it is isolated from method1 in C1
+      //Doing this sort of thing makes refactoring method1 in C1 to be protected or public cause compiler errors here.
+      //So not a good practice but it can be done.
+      private method1()
+        <- rtn <- `This is private ${prop2}`
+
+      private invalidMethod1()
+        <- rtn as String?
+        @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
+        rtn: super.method1()
+
+      private invalidMethod2()
+        <- rtn as String?
+        @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
+        rtn: super.prop1
+
+      private invalidMethod3()
+        <- rtn as String?
+        @Error: FULL_RESOLUTION: NOT_ACCESSIBLE
+        rtn: prop1
+
+
+//EOF

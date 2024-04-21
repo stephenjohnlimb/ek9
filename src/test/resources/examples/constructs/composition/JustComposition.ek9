@@ -38,6 +38,7 @@ defines module com.customer.just.employees
           city as String
           state as String
           zipcode as String
+
         this.street :=: street
         this.street2 :=: street2
         this.city :=: city
@@ -49,10 +50,13 @@ defines module com.customer.just.employees
 
       operator $ as pure
         <- rtn as String: String()
-        rtn: String(street)
+        mainLocation <- `${city} ${state} ${zipcode}`
+
         if street2?
-          rtn += "\n" + street2
-        rtn += "\n" + city + " " + state+ " " + zipcode
+          rtn :=? `${street}\n${street2}\n${mainLocation}`
+        else
+          rtn :=? `${street}\n${mainLocation}`
+
 
   defines class
 
@@ -109,10 +113,7 @@ defines module com.customer.just.employees
 
       getEmployeeAddress()
         -> employeeId as Integer
-        <- rtn as Address: Address()
-        address <- employeeAddresses.get(employeeId)
-        assert address?
-        rtn: address.get()
+        <- rtn as Address: employeeAddresses.get(employeeId)
 
     ProductivitySystem
       roles as Dict of (String, IRole): {
@@ -124,10 +125,7 @@ defines module com.customer.just.employees
 
       getRole()
         -> roleId as String
-        <- rtn as IRole?
-        theRole <- roles.get(roleId)
-        assert theRole?
-        rtn: theRole.get()
+        <- rtn as IRole: roles.get(roleId)
 
       track()
         ->
@@ -176,10 +174,7 @@ defines module com.customer.just.employees
 
       getPolicy()
         -> employeeId as Integer
-        <- rtn as PayrollPolicy?
-        policy <- employeePolicies.get(employeeId)
-        assert policy?
-        rtn: policy.get()
+        <- rtn as PayrollPolicy: employeePolicies.get(employeeId)
 
       calculatePayroll()
         -> employees as List of Employee
@@ -202,6 +197,8 @@ defines module com.customer.just.employees
 
       hoursWorked()
         <- hours as Integer: hoursWorked
+
+      default operator ?
 
     HourlyPolicy extends PayrollPolicy
       hourRate as Money: Money()

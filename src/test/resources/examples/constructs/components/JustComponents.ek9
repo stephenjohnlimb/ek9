@@ -26,6 +26,21 @@ defines module com.customer.just.employees2
       state <- String()
       zipcode <- String()
 
+      default Address() as pure
+
+      Address() as pure
+        ->
+          street as String
+          street2 as String
+          city as String
+          state as String
+          zipcode as String
+        this.street :=? street
+        this.street2 :=? street2
+        this.city :=? city
+        this.state :=? state
+        this.zipcode :=? zipcode
+
       operator ? as pure
         <- rtn as Boolean: street? and city? and state? and zipcode?
 
@@ -53,19 +68,19 @@ defines module com.customer.just.employees2
       trackWork()
         -> hours as Integer
 
-      calculatePayroll()
+      calculatePayroll() as pure
         <- amount as Money?
       
       operator ? as pure
         <- rtn as Boolean?
         
     RoleDB
-      findRole()
+      findRole() as pure
         -> roleName as RoleName
         <- rtn as Role?
     
     AddressDB
-      findEmployeeAddress()
+      findEmployeeAddress() as pure
         -> employeeId as EmployeeId
         <- rtn as Address?
       
@@ -75,7 +90,7 @@ defines module com.customer.just.employees2
           address as Address        
           
     PayrollPolicyDB
-      findPayrollPolicy()
+      findPayrollPolicy() as pure
         -> employeeId as EmployeeId
         <- rtn as PayrollPolicy?
       
@@ -111,7 +126,7 @@ defines module com.customer.just.employees2
         -> hours as Integer
         hoursWorked += hours
 
-      hoursWorked()
+      hoursWorked() as pure
         <- hours as Integer: hoursWorked
 
       override operator ? as pure
@@ -120,98 +135,108 @@ defines module com.customer.just.employees2
     HourlyPolicy extends PayrollPolicy
       hourRate <- Money()
 
-      HourlyPolicy()
+      HourlyPolicy() as pure
         -> hourRate as Money
-        this.hourRate = hourRate
+        this.hourRate :=? hourRate
 
-      override calculatePayroll()
+      override calculatePayroll() as pure
         <- amount as Money: hourRate * hoursWorked()
 
     SalaryPolicy extends PayrollPolicy as open
       weeklySalary <- Money()
 
-      SalaryPolicy()
+      SalaryPolicy() as pure
         -> weeklySalary as Money
-        this.weeklySalary = weeklySalary
+        this.weeklySalary :=? weeklySalary
 
-      override calculatePayroll()
+      override calculatePayroll() as pure
         <- amount as Money: weeklySalary
 
     CommissionPolicy extends SalaryPolicy
       commissionPerSale <- Money()
 
-      CommissionPolicy()
+      CommissionPolicy() as pure
         ->
           weeklySalary as Money
           commissionPerSale as Money
         super(weeklySalary)
-        this.commissionPerSale = commissionPerSale
+        this.commissionPerSale :=? commissionPerSale
 
-      override calculatePayroll()
+      override calculatePayroll() as pure
         <- amount as Money: super.calculatePayroll() + commission()
 
-      private commission()
+      private commission() as pure
         <- amount as Money: commissionPerSale/5.0 * hoursWorked()
 
     ManagerRole with trait of Role
+      default ManagerRole() as pure
       override performDuties()
         -> hours as Integer
         <- activity as String: "screams and yells for " + $hours + " hours."
 
     SecretaryRole with trait of Role
+      default SecretaryRole() as pure
       override performDuties()
         -> hours as Integer
         <- activity as String: "does paperwork for " + $hours + " hours."
 
     SalesRole with trait of Role
+      default SalesRole() as pure
       override performDuties()
         -> hours as Integer
         <- activity as String: "expends " + $hours + " hours on the phone."
 
     FactoryRole with trait of Role
+      default FactoryRole() as pure
       override performDuties()
         -> hours as Integer
         <- activity as String: "manufactures gadgets for " + $hours + " hours."
+
+    GeneralRole with trait of Role
+      default GeneralRole() as pure
+      override performDuties()
+        -> hours as Integer
+        <- activity as String: "general activities for " + $hours + " hours."
 
     Person
       name <- Name()
       address <- Address()
 
-      Person()
+      Person() as pure
         ->
           name as Name
           address as Address
-        this.name: name
-        this.address: address
+        this.name :=? name
+        this.address :=? address
 
-      name()
+      name() as pure
         <- rtn as Name: name
 
-      address()
+      address() as pure
         <- rtn as Address: address
 
       operator ? as pure
         <- rtn as Boolean: name? and address?
 
       operator $ as pure
-        <- rtn as String: name
+        <- rtn as String: `${name}`
 
     Employee
       id <- EmployeeId()
       person <- Person()
 
-      Employee()
+      Employee() as pure
         ->
           id as EmployeeId
           person as Person
         assert id? and person?
-        this.id: id
-        this.person: person
+        this.id :=? id
+        this.person :=? person
 
-      id()
+      id() as pure
         <- rtn as EmployeeId: id
         
-      person()
+      person() as pure
         <- rtn as Person: person
 
       operator ? as pure
@@ -248,7 +273,7 @@ defines module com.customer.just.employees2
         dutiesPerformed: performDuties(amountWorked.hours())
         payroll.trackWork(amountWorked.hours())
 
-      employeeAddress()
+      employeeAddress() as pure
         <- rtn as Address: employee.person().address()
         
       employee()
@@ -268,12 +293,9 @@ defines module com.customer.just.employees2
         RoleName.factory: FactoryRole()
         }
 
-      override findRole()
+      override findRole() as pure
         -> roleName as RoleName
-        <- rtn as Role?
-        theRole <- roles.get(roleName)
-        assert theRole?
-        rtn: theRole.get()
+        <- rtn as Role: roles contains roleName <- roles.get(roleName) else GeneralRole()
 
     InMemoryAddressDB with trait of AddressDB
       employeeAddresses as Dict of (EmployeeId, Address): {
@@ -284,12 +306,9 @@ defines module com.customer.just.employees2
         EmployeeId(5): Address("99 Mountain Rd.", String(), "Concord", "NH", "03301")
         }
         
-      override findEmployeeAddress()
+      override findEmployeeAddress() as pure
         -> employeeId as EmployeeId
-        <- rtn as Address: Address()
-        address <- employeeAddresses.get(employeeId)
-        assert address?
-        rtn: address.get()
+        <- rtn as Address: employeeAddresses contains employeeId <- employeeAddresses.get(employeeId) else Address()
       
       override addEmployeeAddress()
         ->
@@ -306,20 +325,25 @@ defines module com.customer.just.employees2
         EmployeeId(5): HourlyPolicy(9#USD)
         }
         
-      override findPayrollPolicy()
+      override findPayrollPolicy() as pure
         -> employeeId as EmployeeId
-        <- rtn as PayrollPolicy?
-        policy <- employeePayrollPolicies.get(employeeId)
-        assert policy?
-        rtn: policy.get()
+        <- rtn as PayrollPolicy: employeePayrollPolicies contains employeeId <- employeePayrollPolicies.get(employeeId) else HourlyPolicy(9#USD)
       
       override addPayrollPolicy()
         ->
           employeeId as EmployeeId
           payrollPolicy as PayrollPolicy
         employeePayrollPolicies += DictEntry(employeeId, payrollPolicy)
-                                   
-    InMemoryEmployeeDB with trait of EmployeeDB, RoleDB by roleDB, AddressDB by addressDB, PayrollPolicyDB by payrollPolicyDB
+
+    DummySuper as open
+      default DummySuper()
+
+      aTestMethod()
+        ->
+          arg0 as String
+        assert arg0?
+
+    InMemoryEmployeeDB extends DummySuper with trait of EmployeeDB, RoleDB by roleDB, AddressDB by addressDB, PayrollPolicyDB by payrollPolicyDB
       roleDB as RoleDB?
       addressDB as AddressDB?
       payrollPolicyDB as PayrollPolicyDB?
@@ -346,6 +370,7 @@ defines module com.customer.just.employees2
         createEmployment(EmployeeId(3), Name("Kevin Bacon"), RoleName.sales)
         createEmployment(EmployeeId(4), Name("Jane Doe"), RoleName.factory)
         createEmployment(EmployeeId(5), Name("Robin Williams"), RoleName.secretary)
+        aTestMethod("Steve")
         
       override employed()
         <- staff as List of Employment: List()
@@ -356,10 +381,10 @@ defines module com.customer.just.employees2
         ->
           employeeId as EmployeeId
           newRole as RoleName
-        employment <- this.employedStaff.get(employeeId)        
-        role <- findRole(newRole)        
-        assert employment? and role?
-        employment.get().changeRole(role)
+        if employedStaff contains employeeId
+          employment <- this.employedStaff.get(employeeId)
+          role <- findRole(newRole)
+          employment.changeRole(role)
 
       override addEmployee()
         ->
@@ -426,7 +451,7 @@ defines module com.customer.just.employees2
         -> output as StringOutput
         this.output: output
 
-      calculatePayroll()
+      calculatePayroll() as pure
         -> employed as List of Employment
         println("Calculating Payroll")
         println("===================")

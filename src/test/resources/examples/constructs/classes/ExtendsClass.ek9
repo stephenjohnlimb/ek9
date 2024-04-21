@@ -17,6 +17,7 @@ defines module net.customer
        
       method2 as
         someThing <- "Steve"
+        assert someThing?
         
     //concrete implementation so 'could' be used in IOC - see Application for the point where it is plugged in
     ComponentB1 is ComponentA1
@@ -24,9 +25,11 @@ defines module net.customer
        
       override method1 as
         someThing <- "Stephen"
-      
+        assert someThing?
+
       override method2 as
         someThing <- "Billy"
+        assert someThing?
 
     //An alternative implementation
     //plus we can be a bit more terse if needs be
@@ -35,10 +38,12 @@ defines module net.customer
        
       override method1
         someThing <- "The"
-      
+        assert someThing?
+
       override method2
         someThing <- "Fish"
-  
+        assert someThing?
+
     //Another IOC candidate to be used.
     Pluggable2 abstract
       method2 abstract
@@ -51,19 +56,22 @@ defines module net.customer
        
       override method2 as
         someThing <- "Limb"
-  
+        assert someThing?
+
   defines function 
     specialOne
       -> p1 as String
-      <- pluggable as Pluggable1!
+      pluggable as Pluggable1!
       
       //by default ioc injects stock pluggable
       //but if p1 is not "Steve" get whatever is plugged in as ComponentA1 (also extends Pluggable1)
       if p1 <> "Steve"
-        //This is how we get hold of an injectable item        
+        //This is how we get hold of an injectable item, if we don't want the pluggable
         p as ComponentA1!
-        //And this is how we return it.
-        pluggable := p
+        p.method1()
+      else
+        //Now call the plugged in component
+        pluggable.method1()
 
   //Look at this little beauty - a trait that defines a limit on classes that can implement it
   //Try adding a Coordinate to the list - you get an error because Coordinate does not implement ShapeLimit!
@@ -206,7 +214,7 @@ defines module net.customer
     
     SpecialIntersector extends BaseIntersector as abstract
       //Lets add to the base by adding another method with additional types of shapes
-      intersect()
+      override intersect()
         ->
           s1 as Ellipse
           s2 as Triangle
@@ -225,7 +233,7 @@ defines module net.customer
           intersection as Intersection: Intersection()
           
       //We need to add this is to avoid ambiguous method matches.
-      intersect()
+      override intersect()
         ->
           s1 as Circle
           s2 as Triangle
@@ -240,23 +248,28 @@ defines module net.customer
       render() as dispatcher
         -> s1 as Shape
         var <- 90
-        
+        assert var?
+
       render()
         -> s1 as Ellipse
         var <- 91
-        
+        assert var?
+
       render()
         -> s1 as Circle
         var <- 92
-        
+        assert var?
+
       render()
         -> s1 as Triangle
         var <- 93
-          
+        assert var?
+
       render()
         -> s1 as Rectangle
         var <- 94
-      
+        assert var?
+
     ClassA
       methodA
         val <- "Steve"
@@ -265,20 +278,25 @@ defines module net.customer
         
         ref1 as Class1 := Class2()
         ref2 as Trait2 := Class2()
-        
+
+        assert val? and refA? and ref1? and ref2?
+
         //So it would be nice if this could just be injected via IOC - do we want that for variables like this
         myPluggable as Pluggable1!
-        
+        //Now just call the method on the component
+        myPluggable.method1()
+
         //I say this because we might want to return the pluggable from elsewhere esp in the cases where IOC might have
         //multiple Pluggable1s i.e Pluggable1/ComponentA1 with ComponentB1 and ComponentC1
         
-        //Even better we stopped this from compiling or issued warning - that way we enforce injection of components
+        //Even better we stopped this from compiling - that way we enforce injection of components
         //Now we do, uncomment and see.
         //a1Pluggable as ComponentA1
         
-        //You'll get a warning with this
+
         c1NotPluggable as ComponentC1 := ComponentC1()
-        
+        c1NotPluggable.method1()
+
         //But a compiler error with this - you are expecting injection of a concrete type
         //c1NotAllowed as ComponentC1
         
@@ -289,14 +307,21 @@ defines module net.customer
       method1()        
         <- rtn as String: "Steve"
 
+      default operator ?
+
     //Another class but extending the first class which is a Base and adding in a trait
     //see later we can define these anywhere
     Class2 extends Class1 with trait of Trait2
-      
+
+      override method1()
+        <- rtn as String: super.method1()
+
       method2() as
         <- rtn as String := "todo"     
         item <- "Steve"
         rtn := item
+
+      default operator ?
 
   //Lets have a couple of traits in here then
   
@@ -311,6 +336,9 @@ defines module net.customer
       //A second trait with same method name
       method1()
         <- rtn as String := "OK again"        
+
+      operator ? as pure
+        <- rtn <- true
 
     //We can say Trait3 with trait of Trait1, Trait2 or just
     Trait3 with trait of Trait1, Trait2

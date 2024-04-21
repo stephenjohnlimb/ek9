@@ -49,25 +49,11 @@ defines module com.classandfield.resolution
       DOB <- Date()
       
       override operator $ as pure
-        <- is String: "["
-        //So now I also allow super addressing by the type name
-        //But only the super - not super super business.
-        //So also check does not resolve
-        //val <- R0.firstName
-        
-        //just checking if I can call an operator like a method.
-        result <- DOB.$()
-        
-        is := firstName
-        //Same here just checking operator can be used like method.
-        is.+=(" ")
-        is += R1.lastName
-        is += " ("
-        is += this.nickName
-        is += ") "
-        is += $DOB
-        is += "]"
-  
+        <- is String?
+        //TODO sort out R1. access
+        //is :=? `${firstName} ${R1.lastName} (${this.nickName}) ${DOB}`
+        is :=? `${this.nickName} ${DOB}`
+
   defines trait
     
     T1
@@ -147,7 +133,9 @@ defines module com.classandfield.resolution
       Simple()
         -> v as String
         val: v
-      
+
+      default operator ?
+
     <?-
       Again just a simple model to check access on an address type class
       It's open to be extended if necessary
@@ -161,7 +149,6 @@ defines module com.classandfield.resolution
       Address()
         //Check J
         this(20, "A Street", "A Town", "PO5 C0D")
-        v1 <- "Steve"
         
       Address()
         -> houseNo Integer
@@ -218,6 +205,7 @@ defines module com.classandfield.resolution
       checkA()
         a1 <- Simple()
         a2 <- Simple("A")
+        assert a1? and a2?
 
       <?-
         Just a call to a function
@@ -225,6 +213,7 @@ defines module com.classandfield.resolution
       checkB()
         b1 <- functionB1()
         b2 <- functionB2("US")
+        assert b1? and b2?
 
       <?-
         Just a call to a method - in this class
@@ -232,7 +221,8 @@ defines module com.classandfield.resolution
       checkC()
         c1 <- method()
         c2 <- method("FR")
-      
+        assert c1? and c2?
+
       <?-
         Just a call to a method - in this class but via 'this'
       -?> 
@@ -240,7 +230,8 @@ defines module com.classandfield.resolution
         c <- "TODO"
         c1 <- this.method()
         c2 <- this.method("FR")
-       
+        assert c? and c1? and c2?
+
       <?-
         Just a access a field but also access a constant short hand but also fully qualified.
       -?>         
@@ -248,14 +239,16 @@ defines module com.classandfield.resolution
         d1 <- houseNumber
         d2 <- defaultCountry
         d3 <- com.customer.resolution::defaultCountry
-      
+        assert d1? and d2? and d3?
+
       <?-
         Just a access a field but via 'this'.
       -?>
       checkDthis()
         d <- "TODO"
         d1 <- this.houseNumber
-        
+        assert d? and d1?
+
       checkF1super()
         f <- "TODO"
         //These will parse but
@@ -265,11 +258,13 @@ defines module com.classandfield.resolution
         //f2 <- T2.u("FR")
         f3 <- u()
         f4 <- u("FR")
-        //You cant do this because T1 is not imediate
+        //You cant do this because T1 is not immediate
         //f5 <- T1.t()
         //But you can do this because T2 is immediate
-        f5 <- T2.t()
-        f6 <- T2.u()
+        //TODO sort out T2 access
+        //f5 <- T2.t()
+        //f6 <- T2.u()
+        assert f? and f3? and f4?
         
       checkG1super()
         g <- "TODO"
@@ -282,7 +277,8 @@ defines module com.classandfield.resolution
         //g4 <- T2.t("FR")
         g5 <- t()
         g6 <- t("FR")
-        
+        assert g? and g5? and g6?
+
       getRecord()
         <- record R2 := R2()
       
@@ -301,21 +297,23 @@ defines module com.classandfield.resolution
         -> newPostCode String
         postCode := newPostCode
       
-      private getPostCode()
+      private getPostCode() as pure
         <- rtn String := postCode
           
-      protected getCity()
+      protected getCity() as pure
         <- rtn String := city
       
-      getStreet()
+      getStreet() as pure
         <- rtn String := street
             
-      getAddress()
-        <- rtn String: $houseNumber + " " + street + " " + getCity() + " " + getPostCode()
+      getAddress() as pure
+        <- rtn String: `${houseNumber} ${street} ${getCity()}  ${getPostCode()}`
       
       operator $ as pure
         <- rtn String: getAddress()
-  
+
+      default operator ?
+
     UKAddress is Address
       country String: "UK"
       
@@ -335,10 +333,10 @@ defines module com.classandfield.resolution
         country := theCountry
       
       //should be able to super.getCity() as protected but not super.getPostCode() and not super.city
-      override protected getCity()
+      override protected getCity() as pure
         <- rtn String := "SOMETHING" //SJL chain "Nice " + super.getCity() + " " + super.getPostCode() + " " + super.city
         
-      getCountry()
+      getCountry() as pure
         <- rtn String := country
       
       <?-
@@ -348,6 +346,7 @@ defines module com.classandfield.resolution
         //Check we can resolve in super
         e1 <- method()
         e2 <- method("FR")
+        assert e1? and e2?
 
       <?-
         Just a call to a method - in super class - but this time explicit via 'super'
@@ -358,8 +357,11 @@ defines module com.classandfield.resolution
         e1 <- super.method()
         e2 <- super.method("FR")
         //And now by type name more like C++
-        e3 <- Address.method("FR")
-      
+        //TODO enable method resolution on types like traits and enumerations.
+        //TODO but this is only accessible this way within a sub-type
+        //e3 <- Address.method("FR")
+        assert ev? and e1? and e2?
+
       <?-
         Just a call to a method - in a trait that is in the heirarchy - but note immediate super class could have overridden - we should not know.
       -?>
@@ -367,6 +369,7 @@ defines module com.classandfield.resolution
         //Check we can resolve in trait
         f1 <- u()
         f2 <- u("FR")
+        assert f1? and f2?
       
       <?-
         Check we 'cannot' resolve in trait - we don't allow known access - you only know immediate class super
@@ -376,13 +379,16 @@ defines module com.classandfield.resolution
         f <- "TODO"
         //These will parse but
         //These will not be allowed semantically
+        //TODO pull these and other like them in to a separate 'bad' resolution example.
         //f1 <- T2.u()
         //f2 <- T2.u("FR")
+        assert f?
       
       checkG()
         //Check we can resolve in trait
         g1 <- t()
         g2 <- t("FR")
+        assert g1? and g2?
       
       <?-
         Check we 'cannot' resolve in trait - we don't allow known access - you only know immediate class super
@@ -392,11 +398,13 @@ defines module com.classandfield.resolution
         g <- "TODO"
         //These will parse but
         //These will not be allowed semantically
+        //TODO pull into separate test.
         //g1 <- T1.t()
         //g2 <- T1.t("FR")        
         //g3 <- T2.t()
         //g4 <- T2.t("FR")
-      
+        assert g?
+
       <?-
         Now on to chained methods - ensure we can resolve method and method with parameter and also another method call
       -?>
@@ -405,7 +413,8 @@ defines module com.classandfield.resolution
         h1 <- getRecord().DOB
         h2 <- getRecord("H").firstName
         h3 <- getRecord(getCountry()).DOB
-      
+        assert h? and h1? and h2? and h3?
+
       <?-
         Chained methods usng 'this' but also with method calls in params
       -?>
@@ -415,6 +424,7 @@ defines module com.classandfield.resolution
         h2 <- this.getRecord("H").firstName
         h3 <- this.getRecord(getCountry()).firstName
         h4 <- this.getRecord(this.getCountry()).firstName
+        assert h? and h1? and h2? and h3? and h4?
         
       <?-
         Chained methods using 'super' but also with method calls in params
@@ -425,6 +435,7 @@ defines module com.classandfield.resolution
         h2 <- super.getRecord("H").firstName
         h3 <- super.getRecord(getCountry()).firstName
         h4 <- super.getRecord(this.getCountry()).firstName
+        assert h? and h1? and h2? and h3? and h4?
         
       <?-
         Now on to chained methods - but deeper chain.
@@ -435,7 +446,8 @@ defines module com.classandfield.resolution
         i2 <- getRecord("I").address.getStreet()
         i3 <- getRecord(getCountry()).address.getStreet()
         i4 <- getRecord(this.getCountry()).address.getStreet()
-      
+        assert i? and i1? and i2? and i3? and i4?
+
       <?-
         Now on to chained methods - but deeper chain, but using 'this'.
       -?>
@@ -445,7 +457,8 @@ defines module com.classandfield.resolution
         i2 <- this.getRecord("I").address.getStreet()
         i3 <- this.getRecord(getCountry()).address.getStreet()
         i4 <- this.getRecord(this.getCountry()).address.getStreet()
-      
+        assert i? and i1? and i2? and i3? and i4?
+
       <?-
         Now on to chained methods - but deeper chain, but using 'super'.
       -?>
@@ -455,6 +468,7 @@ defines module com.classandfield.resolution
         i2 <- super.getRecord("I").address.getStreet()
         i3 <- super.getRecord(getCountry()).address.getStreet()
         i4 <- super.getRecord(this.getCountry()).address.getStreet()
+        assert i? and i1? and i2? and i3? and i4?
         
         //So check we can set a variable
         super.getRecord("H").address := Address()
@@ -465,7 +479,7 @@ defines module com.classandfield.resolution
       <?-
         Check access for protected and private methods
       -?>  
-      override getAddress()
+      override getAddress() as pure
         <- rtn String := super.getAddress() + " " + getCountry()
       
       checkThisAccess()
@@ -483,50 +497,62 @@ defines module com.classandfield.resolution
         
         //Should be accessible as public
         var5 <- this.getAddress()        
-        
+        assert var? and var1? and sup1? and var2? and var3? and var5?
+
+      default operator ?
+
     Accessor
       checkMethod()
         
         myHouse <- UKAddress()
-        
+        assert myHouse?
+
         anotherHouse <- UKAddress("EN24 3PR")
-        
+        assert anotherHouse?
+
         //Check M allowed as public
         //TODO
         country <- anotherHouse.getCountry()
+        assert country?
 
         //Check M allowed as public
         //TODO
         t1 <- anotherHouse.t()
+        assert t1?
 
         //Check M allowed as public
         //TODO
         t2 <- anotherHouse.t("VAL1")
+        assert t2?
 
         //Check M allowed as public
         //TODO
         u1 <- anotherHouse.u()
+        assert u1?
 
         //Check M allowed as public
         //TODO
         u2 <- anotherHouse.u("VAL2")
-        
+        assert u2?
+
         //Check M not allowed as protected
-        //TODO
+        //TODO move to separate test
         //city <- anotherHouse.getCity()
         
         //Check M not allowed as private
-        //TODO
+        //TODO move to separate test
         //postcode <- anotherHouse.getPostCode()
         
         //Check N allowed as public and to record
         //TODO
         first1 <- anotherHouse.getRecord().firstName
+        assert first1?
 
         //Check N allowed as public and to record
         //TODO
         first2 <- anotherHouse.getRecord("UK").firstName
-        
+        assert first2?
+
         //Check O allowed as public and to record but as setter
         //TODO
         anotherHouse.getRecord("UK").firstName := "Steve"
@@ -534,11 +560,13 @@ defines module com.classandfield.resolution
         //Check P allowed as public and to record but with expression inside.
         //TODO
         first3 <- anotherHouse.getRecord(anotherHouse.getCountry()).firstName
-        
+        assert first3?
+
         //Check P allowed as public and to record but with expression inside and transform result.
         //TODO
         dobString <- $ anotherHouse.getRecord(anotherHouse.getCountry()).DOB
-                    
+        assert dobString?
+
   defines program
   
     <?-
@@ -557,15 +585,19 @@ defines module com.classandfield.resolution
       //Now lets see if we can access the methods via the objects
       //SJL chain
       addr <- myHouse.getAddress()
-      
+      assert addr?
+
       //Check no access
       //myHouse.houseNumber
       
       //myHouse.setPostCode("PO5 C0D")
       
       addr2 String := myHouse.getAddress()
-      
+      assert addr2?
+
       //Just check not accessible from here
+      //TODO move to separate 'bad' resolution test
+
       //f5 <- T2.u()
       //Not accessible
       //city <- myHouse.getCity()

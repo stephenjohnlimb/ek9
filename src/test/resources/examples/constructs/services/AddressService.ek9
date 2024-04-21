@@ -9,12 +9,28 @@ defines module com.customer.services
   defines record
     @Resolved: SYMBOL_DEFINITION: TYPE: "Address"
     Address
-      id as AddressId: AddressId()
-      street as String: String()
-      street2 as String: String()
-      city as String: String()
-      state as String: String()
-      zipcode as String: String()
+      id <- AddressId()
+      street <- String()
+      street2 <- String()
+      city <- String()
+      state <- String()
+      zipcode <- String()
+
+      Address()
+        ->
+          id as AddressId
+          street as String
+          street2 as String
+          city as String
+          state as String
+          zipcode as String
+
+        this.id :=: id
+        this.street :=: street
+        this.street2 :=: street2
+        this.city :=: city
+        this.state :=: state
+        this.zipcode :=: zipcode
 
       Address()
         -> from as Address
@@ -114,7 +130,7 @@ defines module com.customer.services
     addressDictionaryFromJSON()
       -> json as String
       <- rtn as Dict of (String, String): Dict()
-      stdout <- Stdout()
+
       //Just pull out the address bits from within {}'s using a regex
       extractAddressPartsEx <- /\{\s+"address":\s+\{\s+([^}]*?)\s+\}\s+\}/
       //Now break into lines based on commas
@@ -163,7 +179,7 @@ defines module com.customer.services
 
 
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "optionalJSON"
-    optionalJSON()
+    optionalJSON() as pure
       ->
         name as String
         value as String
@@ -370,21 +386,21 @@ defines module com.customer.services
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "plainNonCacheableHTTPResponse"
     plainNonCacheableHTTPResponse()
       <- rtn as HTTPResponse: () with trait of HTTPResponse
-        override cacheControl()
+        override cacheControl() as pure
           <- rtn as String: "no-store,max-age=0"
-        override contentType()
+        override contentType() as pure
           <- rtn as String: "text/plain"
-        override contentLanguage()
+        override contentLanguage() as pure
           <- rtn as String: "en"
 
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "cacheableHTTPResponse"
     cacheableHTTPResponse()
       <- rtn as HTTPResponse: () with trait of HTTPResponse
-        override cacheControl()
+        override cacheControl() as pure
           <- rtn as String: "public,max-age=5,must-revalidate"
-        override contentType()
+        override contentType() as pure
           <- rtn as String: "application/json"
-        override contentLanguage()
+        override contentLanguage() as pure
           <- rtn as String: "en"
 
   defines class
@@ -397,8 +413,8 @@ defines module com.customer.services
       addressId as AddressId?
       provideContentLocation as Boolean?
 
-      status as Integer: 200
-      etagOfAddress as String: String()
+      status <- Integer()
+      etagOfAddress <- String()
       
       private ByETagHTTPResponse()
         assert false
@@ -424,16 +440,15 @@ defines module com.customer.services
         <- rtn as String: String()
         //Only call if un-set.
         etagOfAddress :=? repository.addresses().hashOfAddress(addressId)            
-        rtn :=: etagOfAddress
-        if ~etagOfAddress?
-          status: 404
+        rtn :=? etagOfAddress
+        status :=? ~etagOfAddress? <- 404 else 200
 
-      override status()
+      status()
         -> newStatus as Integer
         status :=: newStatus
-      override status()
+      override status() as pure
         <- rtn as Integer: status
-      override contentLocation()
+      override contentLocation() as pure
         <- rtn as String: status < 400 and provideContentLocation <- `/addresses/${addressId}` else String()
                      
   <?-
@@ -513,7 +528,7 @@ defines module com.customer.services
               //Only if the etag was found can we delete it!
               if delegate.status() <> 404
                 repository.addresses() -= repository.addresses().byId(addressId)
-                status(204)
+                delegate.status(204)
 
       //A PATCH which is a merge
 
@@ -535,12 +550,12 @@ defines module com.customer.services
               if delegate.status() <> 404
                 address <- addressFromJson(incomingContent)
                 if ~address.id?
-                  status(422) //unprocessable entity
+                  delegate.status(422) //unprocessable entity
                 else if address.id <> addressId
-                  status(400) //the id on the url is not the same as the id in the body content
+                  delegate.status(400) //the id on the url is not the same as the id in the body content
                 else
                   repository.addresses() :~: address
-                  status(204)
+                  delegate.status(204)
 
       //A PUT which is a replace for an existing address
       //Now the dynamic variable capture allowed multiple lines and various formatting within the ()
@@ -562,12 +577,12 @@ defines module com.customer.services
               if delegate.status() <> 404
                 address <- addressFromJson(incomingContent)
                 if ~address?
-                  status(422) //unprocessable entity
+                  delegate.status(422) //unprocessable entity
                 else if address.id <> addressId
-                  status(400) //the id on the url is not the same as the value in the body content
+                  delegate.status(400) //the id on the url is not the same as the value in the body content
                 else
                   repository.addresses() :^: address
-                  status(204)
+                  delegate.status(204)
 
       //Note it is now possible to use named parameters in dynamic variable capture
       //So now, we can do a simpler one liner, define the name of the property and use an expression
@@ -589,7 +604,7 @@ defines module com.customer.services
     @Resolved: SYMBOL_DEFINITION: TYPE: "Repository"
     Repository as abstract
      
-      addresses() as abstract
+      addresses() as pure abstract
         <- rtn as AddressAccess?
 
     @Resolved: SYMBOL_DEFINITION: TYPE: "InMemoryRepository"
@@ -603,7 +618,7 @@ defines module com.customer.services
         addresses += Address(AddressId(GUID()), "39 Sole St.", String(), "Concord", "NH", "03301")
         addresses += Address(AddressId(GUID()), "99 Mountain Rd.", String(), "Concord", "NH", "03301")     
                        
-      override addresses()
+      override addresses() as pure
         <- rtn as AddressAccess: addresses       
 
   defines application
@@ -638,8 +653,9 @@ defines module com.customer.services
       addresses <- [address1, address2]
       
       iter <- addresses.iterator()
-      //promote iterator to a list
-      backToList <- #^iter
+      //convert contents in iterator to a list
+      theAddresses <- cat iter | collect as List of Address
+      assert theAddresses?
 
       stdout.println("Address as JSON")
       stdout.println(addressToJSON(address1))

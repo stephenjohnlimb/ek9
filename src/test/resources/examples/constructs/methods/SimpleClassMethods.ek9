@@ -18,14 +18,23 @@ defines module net.customer
       group Boolean: false
       extending Boolean: true
       is String: "Some input stream"
-    
+
+      default Rec1() as pure
+      default operator ?
+
     Rec2 as open
       item String: String()
       rec1 Rec1: Rec1()
-        
+
+      default Rec2() as pure
+      default operator ?
+
     Rec3 is Rec2
       something String: "or nothing"
-      
+
+      default Rec3() as pure
+      default operator ?
+
   //Just a test file some classes with methods and calling of the methods.
   defines class
 
@@ -55,30 +64,30 @@ defines module net.customer
       //A couple of constructors with or without ()
       Class1() as pure
         val :=? -10.00
-        someBool := not false
+        someBool :=? not false
         
-      Class1 as pure
+      Class1() as pure
         ->
           arg1 as Integer
         val :=? arg1
         
-      Class1 as pure
+      Class1() as pure
         ->
           arg1 as Integer
           arg2 as Integer
         val :=? arg1 + arg2
         
-      Class1
+      Class1() as pure
         ->
           arg1 as Class1
           arg2 as Class1
-        val := 23
+        val :=? 23
         
-      Class1
+      Class1() as pure
         ->
           arg1 as Float
           arg2 as Float
-        val := arg1 + arg2
+        val :=? arg1 + arg2
         
       //Some methods
       
@@ -171,14 +180,17 @@ defines module net.customer
         len as Float := length "Steve"
         
         len := length "Limb"        
-        
+        assert len?
+
         notContent <- "Limb" is empty
         
         notContent := "Limb" is not empty
-        
+        assert notContent?
+
         //try out a nice new duration
         duration <- P3Y2M6DT12H15M6S
-        
+        assert duration?
+
         //Nice and easy regex
         steveRegEx as RegEx := /[S|s]te(?:ven?|phen)/
         //Note if I want a / in the match I have to escape it
@@ -189,7 +201,9 @@ defines module net.customer
         matches1 as Boolean := "Steve" matches steveRegEx
         matches2 as Boolean := steveRegEx matches "Steve"
         checkMatch as Boolean := "Some\Thing" matches testRegEx
-        
+
+        assert matches1? and matches2? and checkMatch?
+
         //So this does not make sense needs to resolve to boolean
         if length "Steve" < 8
           rtn := "Here"
@@ -203,7 +217,8 @@ defines module net.customer
         //check calling a local method and calling a method as a parameter
         value <- method1("A", "B", 2.0)
         someValue as String := method1("A", method2(), 2)
-        
+        assert value? and someValue?
+
       //end of methods (ish)
       //We can use some of the the keywords as method and variable names if we need to.      
       //So we might want to record something - not a 'record' but to record an item
@@ -301,14 +316,14 @@ defines module net.customer
     
     //The second class that we are going to create a new one of and then call its method.
     Class2
-      anotherFloat as Float := 90.99
+      anotherFloat <- Float()
     
-      Class2
-        anotherFloat := 90.8
+      Class2() as pure
+        anotherFloat :=? 90.8
         
-      Class2
+      Class2() as pure
         -> arg1 as Float
-        anotherFloat := arg1
+        anotherFloat :=? arg1
       
       getClass1()
         <- rtn as Class1 := Class1()
@@ -327,37 +342,52 @@ defines module net.customer
         //lets see if we can get an automatic promotion here
         if param1 == "Steve"
           calculation := calculation * 21 + 6
-        
+        assert calculation? and val?
+
         //rtn := rtn + " " + calculation    
       //end of method
       
       checkClass1()
         cls1 <- Class1()
-        cls2 <- Class1()
-                        
+
         cls1.method3()
 
-        res <- cls1.sort()
-        
+        res1 <- cls1.sort()
+        assert res1?
+
         res2 <- cls1.group()
+        assert res2?
+
         res3 <- cls1.map()
+        assert res3?
+
         res4 <- cls1.filter()
+        assert res4?
+
         res5 <- cls1.contains('A')
+        assert res5?
+
         res6 <- cls1.where('A')
+        assert res6?
         
         rec2 <- cls1.getRecord()
-        
+        assert rec2?
+
         rec1 <- cls1.getRecord(true).rec1
-        
+        assert rec1?
+
         first <- cls1.getRecord().rec1.first
-        
+        assert first?
+
         lengthOf <- length cls1.getRecord().rec1.first
         
         if lengthOf > 3
           var <- true
-          
+          assert var?
+
         shouldGroup <- cls1.getRecord().rec1.group        
-        
+        assert shouldGroup?
+
         record <- cls1.getRecord().rec1.record
         
         g1 <- getClass1().getRecord().rec1.group
@@ -365,7 +395,9 @@ defines module net.customer
         g2 Boolean := getClass1().getRecord().rec1.group
         
         g2 := getClass1().getRecord().rec1.group
-        
+
+        assert record? and g1? and g2?
+
       dateTimeMethod()
         aSimpleDate as Date := 2001-04-03
         
@@ -374,6 +406,8 @@ defines module net.customer
         accurateTime as Time := 12:00:01
     
         isoDateTime as DateTime := 2000-02-21T01:30:00-05:00
+
+        assert aSimpleDate? and aTime? and accurateTime? and isoDateTime?
 
       default operator ?
 
@@ -390,5 +424,8 @@ defines module net.customer
         
       c2 <- Class2(90)
       
-      c3 <- #^ c1   
+      c3 <- #^ c1
+
+      assert i1? and f1? and c1? and c2? and c3?
+
 //EOF

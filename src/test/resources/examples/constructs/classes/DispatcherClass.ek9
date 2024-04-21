@@ -29,8 +29,8 @@ defines module net.customer.shapes
   defines class
 
     Coordinate
-      x Float?
-      y Float?
+      x <- Float()
+      y <- Float()
 
       //Constructor         
       Coordinate() as pure
@@ -43,8 +43,8 @@ defines module net.customer.shapes
           initialY as Float
         
         assert initialX? and initialY?                   
-        x: Float(initialX)
-        y: Float(initialY)
+        x:=? Float(initialX)
+        y:=? Float(initialY)
     
       x() as pure
         <- rtn as Float: Float(x)
@@ -59,13 +59,13 @@ defines module net.customer.shapes
     //Used for different types of intersection
       
     Intersection as open
-      message as String?
+      message <- String()
       stdout as Stdout: Stdout()
       startPoint Coordinate: Coordinate(0.0, 0.0)
       
       Intersection() as pure
         -> message as String
-        this.message: String(message)
+        this.message:=? String(message)
       
       render()
         stdout.println(message)
@@ -76,7 +76,7 @@ defines module net.customer.shapes
       endPoint Coordinate: Coordinate() 
       centrePoint Coordinate: Coordinate()
       
-      ArcIntersection()
+      ArcIntersection() as pure
         -> message as String
         super(message)
             
@@ -86,7 +86,7 @@ defines module net.customer.shapes
       endPoint Coordinate: Coordinate()
       end2Point Coordinate: Coordinate()
       
-      LinesIntersection
+      LinesIntersection() as pure
         -> message as String
         super(message)      
       
@@ -189,21 +189,21 @@ defines module net.customer.shapes
       //Adding another method with additional types of shapes
       //But still this is an abstract class
       
-      intersect() as pure
+      override intersect() as pure
         ->
           s1 as Ellipse
           s2 as Triangle
         <-
           intersection as Intersection: LinesIntersection("Line Intersection ellipse and rectangle")
           
-      intersect() as pure
+      override intersect() as pure
         ->
           s1 as Circle
           s2 as Triangle
         <-
           intersection as Intersection: LinesIntersection("Line Intersection circle and triangle")
       
-      intersect() as pure
+      override intersect() as pure
         ->
           s1 as Triangle
           s2 as Triangle
@@ -211,21 +211,21 @@ defines module net.customer.shapes
           intersection as Intersection: LinesIntersection("Line Intersection two triangles")
       
       //Methods that just delegate to functions for the calculations.
-      intersect() as pure
+      override intersect() as pure
         ->
           s1 as Square
           s2 as Square
         <-
           intersection as Intersection: intersectSquares(s1, s2)
       
-      intersect() as pure
+      override intersect() as pure
         ->
           s1 as Square
           s2 as Rectangle
         <-
           intersection as Intersection: intersectSquareAndRectangle(s1, s2)
           
-      intersect() as pure
+      override intersect() as pure
         ->
           s1 as Rectangle
           s2 as Square

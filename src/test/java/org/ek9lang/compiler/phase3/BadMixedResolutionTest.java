@@ -15,7 +15,7 @@ class BadMixedResolutionTest extends PhasesTest {
 
   public BadMixedResolutionTest() {
     super("/examples/parseButFailCompile/badMixedResolution",
-        List.of("bad.mixed.resolution"));
+        List.of("bad.mixed.resolution", "bad.access.attempts"));
   }
 
   @Test

@@ -23,7 +23,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 103;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 106;
 
   //Obviously with ek9 the indentation is important.
 
@@ -80,11 +80,15 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   private static final String DEFINE_STRING_CLASS = """
 
           String as open
+          
             String() as pure
             
             String() as pure
               -> arg0 as String
 
+            String() as pure
+              -> arg0 as Optional of String
+              
             trim() as pure
               <- rtn as String?
               
@@ -206,6 +210,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             
             Bits() as pure
               -> arg0 as String
+
+            Bits() as pure
+              -> arg0 as Boolean
 
             iterator() as pure
               <- rtn as Iterator of Boolean?
@@ -2228,6 +2235,13 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             List() as pure
               -> arg0 as T
 
+            <?-
+              Check bounds or use iterator, else if out of bounds and exception will be thrown.
+            -?>
+            get() as pure
+              -> index as Integer
+              <- rtn as T?
+              
             iterator() as pure
               <- rtn as Iterator of T?
               
@@ -2313,6 +2327,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Optional() as pure
               -> arg0 as T
 
+            get() as pure
+              <- rtn as T?
+              
             iterator() as pure
               <- rtn as Iterator of T?
 
@@ -2570,7 +2587,11 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               ->
                 k as K
                 v as V
-
+            
+            get() as pure
+              -> arg0 as K
+              <- rtn as V?
+              
             iterator() as pure
               <- rtn as DictEntry of (K, V)?
 
@@ -2696,6 +2717,14 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           StringOutput
             println() as pure
               -> arg0 as String
+              assert arg0?
+
+            print() as pure
+              -> arg0 as String
+              assert arg0?
+
+            print() as pure
+              -> arg0 as Character
               assert arg0?
 
             operator |
@@ -2834,9 +2863,18 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             TextFile() as pure
               -> fileName as String
             
+            TextFile() as pure
+              -> fileSystemPath as FileSystemPath
+              
             input() as pure
               <- rtn as StringInput?
-                
+            
+            isReadable() as pure
+              <- rtn as Boolean?
+            
+            lastModified() as pure
+              <- rtn as DateTime?
+                    
             operator ? as pure
               <- rtn as Boolean?
 
@@ -2849,6 +2887,13 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           FileSystemPath
             FileSystemPath() as pure
 
+            FileSystemPath() as pure
+              -> pathName as String
+            
+            operator + as pure
+              -> addition as FileSystemPath
+              <- rtn as FileSystemPath?
+                
             operator ? as pure
               <- rtn as Boolean?
 
@@ -2862,12 +2907,23 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           GUID
             GUID() as pure
 
+            operator #^ as pure
+              <- rtn as String?
+              
             operator ? as pure
               <- rtn as Boolean?
 
           HMAC
             HMAC() as pure
 
+            SHA256() as pure
+              -> arg0 as String
+              <- rtn as String?
+
+            SHA256() as pure
+              -> arg0 as GUID
+              <- rtn as String?
+              
             operator ? as pure
               <- rtn as Boolean?
 
@@ -2896,6 +2952,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           EnvVars
             EnvVars() as pure
 
+            get() as pure
+              -> environmentVariableName as String
+              <- environmentVariableValue as String?
+              
             operator ? as pure
               <- rtn as Boolean?
 
@@ -2961,15 +3021,33 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           HTTPRequest as open
 
           HTTPResponse as open
-            contentType()
+          
+            etag()
+              <- rtn as String: String()
+              
+            cacheControl() as pure
+              <- rtn as String: "public,max-age=3600,must-revalidate"
+            
+            contentType() as pure
               <- rtn as String: "text/plain"
+            
+            contentLanguage() as pure
+              <- rtn as String: "en"
+            
+            contentLocation() as pure
+              <- rtn as String: String()
+              
             content()
               <- rtn as String: ""
-            status()
+            
+            lastModified() as pure
+              <- rtn as DateTime: DateTime()
+              
+            status() as pure
               <- rtn as Integer: 404
 
             operator ? as pure
-              <- rtn as Boolean :=? Boolean()
+              <- rtn <- Boolean()
 
           TCPConnection as open
             output() as pure
