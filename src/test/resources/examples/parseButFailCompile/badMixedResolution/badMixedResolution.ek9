@@ -1,0 +1,103 @@
+#!ek9
+<?-
+  Just demonstrations of both good and bad resolutions
+  employing properties, methods, functions and dynamic functions.
+-?>
+defines module bad.mixed.resolution
+
+  <?-
+    The utility functions used for testing in this example.
+  -?>
+  defines function
+
+    <?-
+      Ensure that at least one error is triggered.
+    -?>
+    JustFail()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert notDefined?
+
+    <?-
+      A badly named function to be used later in resolution checks.
+    -?>
+    prop4()
+      <- rtn <- 21
+
+  defines class
+
+    <?-
+      Driver class for testing resolutions.
+    -?>
+    C1
+      //First some properties with different types
+      prop1 <- 1
+      prop2 <- 250ms
+      prop3 <- PT10S
+
+      //Then some methods
+      prop2()
+        <- rtn as Date: 2024-04-11
+
+      methodA()
+
+        //This resolves OK because there is only a property to resolve
+        value1 as Integer: prop1
+        assert value1?
+
+        //Now check that this resolves to the property and NOT the method 'prop2()'
+        value2 as Millisecond: prop2
+        assert value2?
+
+        //Now check this does not resolve to the properties, but DOES resolve to the method 'prop2()'
+        value3 as Date: prop2()
+        assert value3?
+
+        //Check it is possible to resolve a function (even through the naming is poor and misleading).
+        value4 as Integer: prop4()
+        assert value4?
+
+      methodB()
+
+        //Make an alias to the function 'prop4()' then call it on the alias to the function.
+        aliasToProp4 <- prop4
+        assert aliasToProp4?
+
+        value5 as Integer: aliasToProp4()
+        assert value5?
+
+        @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+        invalidResult as Integer: aliasToProp4("no", "params", "allowed")
+
+      methodC()
+        //Now a dynamic function
+        //Bad name because not a property - but lets check it can get resolved.
+        prop5 <- () extends Function of (String, String) as pure function (r :=? t)
+
+        prop5CallResultAsUnit <- prop5("Steve")
+        assert prop5CallResultAsUnit?
+
+        //Check that this can be resolved and used in the same way as the delegate
+        aliasToProp5 <- prop5
+
+        //Check that the arguments are checked.
+        @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+        anotherInvalidResult <- aliasToProp5("Stephen", "Limb")
+
+        //Call it correctly to get the result
+        aliasToProp5CallResultAsUnit <- aliasToProp5("Stephen")
+
+        //Check that the result is the right type by using the wrong type
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+        prop5CallResultAsUnit := 1
+
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+        aliasToProp5CallResultAsUnit := 2024-04-13
+
+        //Now assign to correct types
+        prop5CallResultAsUnit := "Steve Limb"
+        aliasToProp5CallResultAsUnit := "Also Steve Limb"
+
+        assert prop5CallResultAsUnit? and aliasToProp5CallResultAsUnit?
+
+//EOF
+
