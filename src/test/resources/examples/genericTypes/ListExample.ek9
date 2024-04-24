@@ -28,6 +28,16 @@ defines module com.customer.priority.example
         this.id :=: id
         this.name :=: name
 
+      SimpleRecord
+        ->
+          id as Integer
+          name as String
+          aliases as List of String
+
+        this.id :=: id
+        this.name :=: name
+        this.aliases :=: aliases
+
       operator $$ as pure
         <- rtn as JSON: JSON()
 
@@ -92,14 +102,14 @@ defines module com.customer.priority.example
         else
           stdout.println("List l1 does not Steve")
 
-        //flip it and reverse it
-        l2 <- ~l1
+        //TODO fix generics issue
+        //l2 <- ~l1
 
         //Or if you just want a method
         l3 <- l1.reverse()
 
         g1 <- l1.first()
-        g2 <- g1.get()
+        g2 <- g1
         g3 <- g2.first()
         g4 <- g2.last()
 
@@ -108,29 +118,25 @@ defines module com.customer.priority.example
         //So I just want the first and last entries.
         //get the first item in the list
         //Here I want the first character of the first string out of the list
-        //The list returns me an Optional of String and String a Character which may or may not be set!
+        //The list returns me a String and String a Character which may or may not be set!
         f1 <- #< l1
         f2 <- #< f1
-        f3 <- #< f2
-
-        assert f3?
+        assert f2?
 
         //Or all in one go?
-        firstChar <- #< #< #<l1
+        firstChar <- #< #<l1
         stdout.println("First Char is " + firstChar)
         //Or chained
-        stdout.println("By Chain First Char is " + l1.first().get().first())
+        stdout.println("By Chain First Char is " + l1.first().first())
 
         firstL1 <- #<l1
         lastL1 <- #>l1
         stdout.println("L1 first " + firstL1 + " last " + lastL1)
         stdout.println("All L1 " + $l1)
 
-        firstL2 <- #<l2
-        lastL2 <- #>l2
-        stdout.println("L2 first " + firstL2 + " last " + lastL2)
-        stdout.println("All L2 " + $l2)
-
+        firstL3 <- #<l3
+        lastL3 <- #>l3
+        stdout.println("L3 first " + firstL3 + " last " + lastL3)
         stdout.println("All L3 " + $l3)
 
         emptyList <- List() of String

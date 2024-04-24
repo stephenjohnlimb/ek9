@@ -24,7 +24,9 @@ defines module general.generic.checks
 
       @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "AGenericClass of (Integer)"
       testCalculatorCapability()
-        <- rtn as AGenericClass of Integer: AGenericClass
+        <- rtn as AGenericClass of Integer: AGenericClass()
+
+      default operator ?
 
     @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "AGenericClass"
     AGenericClass of type T
@@ -42,21 +44,21 @@ defines module general.generic.checks
 
       //Being explicit about the type here
       validIterator()
-        <- rtn as Iterator of T: Iterator(item)
+        <- rtn as Iterator of T: List(item).iterator()
 
       //Also being explicit about the type
       //But could we handle the construction of the Iterator that follows?
       alsoValidIterator()
         <- rtn as Iterator of T?
-        rtn: Iterator(item)
+        rtn: List(item).iterator()
 
       moreExplicitValidIterator()
         <- rtn as Iterator of T?
-        someVar as Iterator of T: Iterator(item)
+        someVar as Iterator of T: List(item).iterator()
         rtn: someVar
 
       calculator()
-        <- rtn as SomeGenericFunction of (T, T): SomeGenericFunction
+        <- rtn as SomeGenericFunction of (T, T): SomeGenericFunction() of (T, T)
 
     //Just used as a class that is defined after its use in a generic example above
     @Resolved: SYMBOL_DEFINITION: TYPE: "ExampleClass"
@@ -71,7 +73,7 @@ defines module general.generic.checks
     @Resolved: SYMBOL_DEFINITION: TEMPLATE_FUNCTION: "SomeGenericFunction"
     SomeGenericFunction() of type (S, T)
       -> arg0 as S
-      <- rtn as T: arg0 * 10
+      <- rtn as T: T()
 
   defines program
 
@@ -87,4 +89,6 @@ defines module general.generic.checks
       //parsing a generic type/function.
       //Then when we encounter the need for AGenericClass of Integer - we can create those concrete dependents.
       example <- ValidGenericUse()
+      assert example?
+
 //EOF

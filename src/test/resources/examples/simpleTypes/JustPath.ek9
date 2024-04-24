@@ -21,7 +21,7 @@ defines module com.customer.just
       CustomerDetail()
         ->
           firstName as String
-          lastname as String
+          lastName as String
         this.firstName :=: firstName
         this.lastName :=: lastName
 

@@ -22,7 +22,7 @@ class ExamplesConstructsClassesTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
-    //TODO fixe up Trait name resolution in a class i.e. super or Trait.method name.
+    //TODO fix up Trait name resolution in a class i.e. super or Trait.method name.
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 

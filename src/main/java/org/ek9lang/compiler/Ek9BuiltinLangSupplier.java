@@ -23,7 +23,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 106;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 107;
 
   //Obviously with ek9 the indentation is important.
 
@@ -100,6 +100,28 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             iterator() as pure
               <- rtn as Iterator of Character?
+
+            first() as pure
+              <- rtn as Character?
+              
+            last() as pure
+              <- rtn as Character?
+            
+            rightPadded() as pure
+              -> width as Integer
+              <- rtn as String?
+
+            leftPadded() as pure
+              -> width as Integer
+              <- rtn as String?
+            
+            count() as pure
+              -> char as Character
+              <- rtn as Integer?
+
+            split() as pure
+              -> pattern as RegEx
+              <- rtn as List of String?
               
             operator < as pure
               -> arg as String
@@ -214,6 +236,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Bits() as pure
               -> arg0 as Boolean
 
+            Bits() as pure
+              -> arg0 as Colour
+              
             iterator() as pure
               <- rtn as Iterator of Boolean?
 
@@ -399,6 +424,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Character() as pure
               -> arg0 as String
 
+            upperCase() as pure
+              <- rtn as Character?
+
+            lowerCase() as pure
+              <- rtn as Character?
+              
             operator < as pure
               -> arg as Character
               <- rtn as Boolean?
@@ -785,11 +816,37 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Time() as pure
               -> arg0 as String
 
+            Time() as pure
+              -> hour as Integer
+
+            Time() as pure
+              ->
+                hour as Integer
+                minute as Integer
+
+            Time() as pure
+              ->
+                hour as Integer
+                minute as Integer
+                second as Integer
+                
+            now() as pure
+              <- rtn as Time?
+              
             startOfDay() as pure
               <- rtn as Time?
 
             endOfDay() as pure
               <- rtn as Time?
+
+            hour() as pure
+              <- rtn as Integer?
+
+            minute() as pure
+              <- rtn as Integer?
+
+            second() as pure
+              <- rtn as Integer?
               
             operator < as pure
               -> arg as Time
@@ -835,6 +892,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Time?
 
             operator - as pure
+              -> arg as Time
+              <- rtn as Duration?
+
+            operator - as pure
               <- rtn as Time?
               
             operator $$ as pure
@@ -863,6 +924,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator |
               -> arg as Time
+
+            operator |
+              -> arg as Duration
 
             operator +=
               -> arg as Duration
@@ -938,8 +1002,16 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Integer
               <- rtn as Duration?
 
+            operator * as pure
+              -> arg as Float
+              <- rtn as Duration?
+              
             operator / as pure
               -> arg as Integer
+              <- rtn as Duration?
+
+            operator / as pure
+              -> arg as Float
               <- rtn as Duration?
 
             operator $$ as pure
@@ -998,6 +1070,16 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Millisecond() as pure
               -> arg0 as Integer
 
+            Millisecond() as pure
+              -> arg0 as Duration
+              
+            <?-
+              Converts to a duration (must be greater than a second).
+              i.e. it rounds up above milliseconds.
+            -?>
+            duration() as pure
+              <- rtn as Duration?
+              
             operator < as pure
               -> arg as Millisecond
               <- rtn as Boolean?
@@ -1051,6 +1133,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Integer
               <- rtn as Millisecond?
 
+            operator * as pure
+              -> arg as Float
+              <- rtn as Millisecond?
+
             operator / as pure
               -> arg as Integer
               <- rtn as Millisecond?
@@ -1084,6 +1170,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Millisecond
               <- rtn as Integer?
 
+            <?-
+              Inverts the value.
+            -?>
+            operator ~ as pure
+              <- rtn as Millisecond?
+              
             operator :~:
               -> arg as Millisecond
 
@@ -1123,9 +1215,36 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Date() as pure
               -> arg0 as String
 
+            Date() as pure
+              ->
+                year as Integer
+                month as Integer
+                day as Integer
+
             today() as pure
               <- rtn as Date?
+            
+            year() as pure
+              <- rtn as Integer?
+
+            month() as pure
+              <- rtn as Integer?
+
+            day() as pure
+              <- rtn as Integer?
+
+            dayOfYear() as pure
+              <- rtn as Integer?
               
+            dayOfMonth() as pure
+              <- rtn as Integer?
+              
+            <?-
+              1 is Sunday and 7 is Saturday. But see Locale for a spoken language way to do this.
+            -?>
+            dayOfWeek() as pure
+              <- rtn as Integer?              
+                                                          
             operator < as pure
               -> arg as Date
               <- rtn as Boolean?
@@ -1169,6 +1288,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Duration
               <- rtn as Date?
 
+            operator - as pure
+              -> arg as Date
+              <- rtn as Duration?
+              
             operator #^ as pure
               <- rtn as DateTime?
 
@@ -1199,6 +1322,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator |
               -> arg as Date
 
+            <?-
+              Can accept multiple durations and build up from base date.
+            -?>
+            operator |
+              -> arg as Duration
+              
             operator +=
               -> arg as Duration
 
@@ -1220,9 +1349,110 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             DateTime() as pure
               -> arg0 as String
 
+            <?-
+              Will default time to start of day in UTC timezone
+            -?>
+            DateTime() as pure
+              ->
+                year as Integer
+                month as Integer
+                day as Integer
+
+            DateTime() as pure
+              ->
+                year as Integer
+                month as Integer
+                day as Integer
+                offset as Duration
+                
+            DateTime() as pure
+              ->
+                year as Integer
+                month as Integer
+                day as Integer
+                hour as Integer
+
+            DateTime() as pure
+              ->
+                year as Integer
+                month as Integer
+                day as Integer
+                hour as Integer
+                minute as Integer                
+
+            DateTime() as pure
+              ->
+                year as Integer
+                month as Integer
+                day as Integer
+                hour as Integer
+                minute as Integer
+                second as Integer                
+
+            DateTime() as pure
+              ->
+                year as Integer
+                month as Integer
+                day as Integer
+                hour as Integer
+                minute as Integer
+                second as Integer
+                offset as Duration                
+              
             now() as pure
               <- rtn as DateTime?
+
+            <?-
+              The start of the day.
+            -?>
+            today() as pure
+              <- rtn as DateTime: startOfDay()
               
+            startOfDay() as pure
+              <- rtn as DateTime?
+
+            endOfDay() as pure
+              <- rtn as DateTime?
+
+            year() as pure
+              <- rtn as Integer?
+
+            month() as pure
+              <- rtn as Integer?
+
+            day() as pure
+              <- rtn as Integer?
+
+            hour() as pure
+              <- rtn as Integer?
+
+            minute() as pure
+              <- rtn as Integer?
+
+            second() as pure
+              <- rtn as Integer?
+
+            dayOfYear() as pure
+              <- rtn as Integer?
+              
+            dayOfMonth() as pure
+              <- rtn as Integer?
+              
+            <?-
+              1 is Sunday and 7 is Saturday. But see Locale for a spoken language way to do this.
+            -?>
+            dayOfWeek() as pure
+              <- rtn as Integer?              
+            
+            offSetFromUTC() as pure
+              <- rtn as Duration?
+            
+            <?-
+            If UTC this will be "Z", other known specific zones i.e. EST,CST or String of "-03" for un-named zones.
+            -?>
+            zone() as pure
+              <- rtn as String?
+                  
             operator < as pure
               -> arg as DateTime
               <- rtn as Boolean?
@@ -1266,6 +1496,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Duration
               <- rtn as DateTime?
 
+            operator - as pure
+              -> arg as DateTime
+              <- rtn as Duration?
+              
             operator $$ as pure
               <- rtn as JSON?
 
@@ -1293,6 +1527,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator |
               -> arg as DateTime
 
+            operator |
+              -> arg as Duration
+              
             operator +=
               -> arg as Duration
 
@@ -1313,6 +1550,17 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             Money() as pure
               -> arg0 as String
+
+            convert() as pure
+              -> arg0 as Money
+              <- rtn as Money?
+
+            convert() as pure
+              ->
+                multiplier as Float
+                currencyCode as String 
+              <-
+                rtn as Money?
 
             operator < as pure
               -> arg as Money
@@ -1434,8 +1682,14 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator *=
               -> arg as Integer
 
+            operator *=
+              -> arg as Float
+
             operator /=
               -> arg as Integer
+
+            operator /=
+              -> arg as Float
 
             operator ++
               <- rtn as Money?
@@ -1450,8 +1704,138 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg0 as Locale
 
             Locale() as pure
-              -> arg0 as String
+              -> languageCodeCountryCode as String
 
+            Locale() as pure
+              ->
+                languageCode as String
+                countryCode as String
+
+            <?-
+              Given a date, this provides a spoken language version of the day of the week as a String.
+            -?>
+            dayOfWeek() as pure
+              -> arg0 as Date
+              <- rtn as String?
+              
+            format() as pure
+              -> arg0 as Boolean
+              <- rtn as String?
+              
+            format() as pure
+              -> arg0 as Integer
+              <- rtn as String?
+                          
+            format() as pure
+              -> arg0 as Float
+              <- rtn as String?
+
+            format() as pure
+              ->
+                arg0 as Float
+                precision as Integer
+              <-
+                rtn as String?
+
+            format() as pure
+              -> arg0 as Date
+              <- rtn as String?
+
+            format() as pure
+              -> arg0 as Time
+              <- rtn as String?
+
+            format() as pure
+              -> arg0 as DateTime
+              <- rtn as String?
+
+            format() as pure
+              -> arg0 as Money
+              <- rtn as String?
+
+            format() as pure
+              ->
+                arg0 as Money
+                showSymbol as Boolean
+                showFractionalPart as Boolean
+              <-
+                rtn as String?
+              
+            format() as pure
+              -> arg0 as Dimension
+              <- rtn as String?
+
+            format() as pure
+              ->
+                arg0 as Dimension
+                precision as Integer
+              <-
+                rtn as String?
+              
+            shortFormat() as pure
+              -> arg0 as Date
+              <- rtn as String?
+
+            shortFormat() as pure
+              -> arg0 as Time
+              <- rtn as String?
+
+            shortFormat() as pure
+              -> arg0 as DateTime
+              <- rtn as String?
+
+            shortFormat() as pure
+              -> arg0 as Money
+              <- rtn as String?
+
+            mediumFormat() as pure
+              -> arg0 as Date
+              <- rtn as String?
+
+            mediumFormat() as pure
+              -> arg0 as Time
+              <- rtn as String?
+
+            mediumFormat() as pure
+              -> arg0 as DateTime
+              <- rtn as String?
+
+            mediumFormat() as pure
+              -> arg0 as Money
+              <- rtn as String?
+              
+            longFormat() as pure
+              -> arg0 as Date
+              <- rtn as String?
+
+            longFormat() as pure
+              -> arg0 as Time
+              <- rtn as String?
+
+            longFormat() as pure
+              -> arg0 as DateTime
+              <- rtn as String?
+
+            longFormat() as pure
+              -> arg0 as Money
+              <- rtn as String?
+              
+            fullFormat() as pure
+              -> arg0 as Date
+              <- rtn as String?
+
+            fullFormat() as pure
+              -> arg0 as Time
+              <- rtn as String?
+
+            fullFormat() as pure
+              -> arg0 as DateTime
+              <- rtn as String?
+
+            fullFormat() as pure
+              -> arg0 as Money
+              <- rtn as String?
+                            
             operator == as pure
               -> arg as Locale
               <- rtn as Boolean?
@@ -1519,6 +1903,46 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Colour() as pure
               -> arg0 as String
 
+            Colour() as pure
+              -> arg0 as Bits
+              
+            bits() as pure
+              <- rtn as Bits?
+            
+            hue() as pure
+              <- rtn as Integer?
+
+            saturation() as pure
+              <- rtn as Float?
+
+            lightness() as pure
+              <- rtn as Float?
+            
+            withOpaque() as pure
+              -> arg0 as Integer
+              <- rtn as Colour?
+
+            withHue() as pure
+              -> arg0 as Integer
+              <- rtn as Colour?
+
+            withLightness() as pure
+              -> arg0 as Float
+              <- rtn as Colour?
+
+            withSaturation() as pure
+              -> arg0 as Float
+              <- rtn as Colour?
+
+            RGB() as pure
+              <- rtn as String?
+
+            RGBA() as pure
+              <- rtn as String?
+            
+            ARGB() as pure
+              <- rtn as String?
+                                            
             operator < as pure
               -> arg as Colour
               <- rtn as Boolean?
@@ -1613,6 +2037,21 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Dimension() as pure
               -> arg0 as String
 
+            <?-
+              Converts one type of dimension to another (if possible).
+              For example 1.0km would be 0.621371mile
+            -?>
+            convert() as pure
+              -> arg0 as Dimension
+              <- rtn as Dimension?
+
+            convert() as pure
+              ->
+                multiplier as Float
+                typeOfDimension as String 
+              <-
+                rtn as Dimension?
+              
             operator < as pure
               -> arg as Dimension
               <- rtn as Boolean?
@@ -1665,7 +2104,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator - as pure
               -> arg as Dimension
               <- rtn as Dimension?
-
+              
             operator * as pure
               -> arg as Integer
               <- rtn as Dimension?
@@ -1681,6 +2120,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator / as pure
               -> arg as Float
               <- rtn as Dimension?
+
+            operator / as pure
+              -> arg as Dimension
+              <- rtn as Float?
 
             operator ^ as pure
               -> arg as Integer
@@ -1727,9 +2170,15 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator +=
               -> arg as Dimension
 
+            operator +=
+              -> arg as Float
+
+            operator -=
+              -> arg as Float
+
             operator -=
               -> arg as Dimension
-
+              
             operator *=
               -> arg as Integer
 
@@ -1747,7 +2196,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator --
               <- rtn as Dimension?
-
+              
           Resolution as open
             Resolution() as pure
 
@@ -2052,7 +2501,11 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             RegEx() as pure
               -> arg0 as String
-
+            
+            split() as pure
+              -> toSplit as String
+              <- rtn as List of String?
+              
             operator == as pure
               -> arg as RegEx
               <- rtn as Boolean?
@@ -2241,10 +2694,25 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             get() as pure
               -> index as Integer
               <- rtn as T?
-              
+
+            first() as pure              
+              <- rtn as T?
+
+            last() as pure              
+              <- rtn as T?
+            
+            reverse() as pure
+              <- rtn as List of T?
+                              
             iterator() as pure
               <- rtn as Iterator of T?
-              
+
+            <!-
+            TODO sort out generics error: 'List of type T of type T' is not 'List of type T
+            operator ~ as pure
+              <- rtn as List of T?
+            -!>
+                            
             operator == as pure
               -> arg as List of T
               <- rtn as Boolean?
@@ -2511,6 +2979,17 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             PriorityQueue() as pure
               -> arg0 as T
 
+            useComparator() as pure
+              -> comparator as Comparator of T
+              <- rtn as PriorityQueue of T?
+            
+            useSize() as pure
+              -> size as Integer
+              <- rtn as PriorityQueue of T?
+            
+            list() as pure
+              <- rtn as List of T?
+                  
             iterator() as pure
               <- rtn as Iterator of T?
 
@@ -2529,6 +3008,16 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as T
               <- rtn as PriorityQueue of T?
 
+            operator + as pure
+              -> arg as List of T
+              <- rtn as PriorityQueue of T?
+
+            operator +=
+              -> arg as T              
+
+            operator +=
+              -> arg as List of T              
+              
             operator $$ as pure
               <- rtn as JSON?
 
@@ -2566,9 +3055,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator |
               -> arg as T
 
-            operator +=
-              -> arg as T
-
           DictEntry of type (K, V) as open
             DictEntry() as pure
 
@@ -2587,7 +3073,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               ->
                 k as K
                 v as V
-            
+                        
             get() as pure
               -> arg0 as K
               <- rtn as V?
@@ -2682,6 +3168,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             next() as abstract
               <- rtn as T?
               
+            operator empty as pure
+              <- rtn as Boolean: not hasNext()
+                
             operator ? as pure
               <- rtn as Boolean: hasNext()
 
@@ -2692,6 +3181,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           Clock
             millisecond() as pure
               <- rtn as Millisecond?
+            
+            time() as pure
+              <- rtn as Time :=? Time()
+              
+            date() as pure
+              <- rtn as Date :=? Date()
               
             dateTime() as pure
               <- rtn as DateTime :=? DateTime()

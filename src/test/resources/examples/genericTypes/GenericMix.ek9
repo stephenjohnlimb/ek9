@@ -29,16 +29,16 @@ defines module net.customer.generic.mix
     //Generic MyList -with a contrived method to add double of a value
     MyList of type T
 
-      aTest as T := T()
+      aTest as T?
        
       //Constructor
-      MyList
+      MyList() as pure
         -> item as T
-        var as T: item
+        aTest :=? item
         
       get
         -> index as Integer
-        <- rtn as T := T()
+        <- rtn as T := aTest
           
       //Add a T to the list.
       addDoubleValue
@@ -47,7 +47,10 @@ defines module net.customer.generic.mix
         
         //Just check we can define an optional
         ourMyOptional as MyOptional of T := MyOptional(item)
-       
+        assert ourMyOptional?
+
+      default operator ?
+
     MyOptional of type T
       
       someVar as T?
@@ -64,6 +67,7 @@ defines module net.customer.generic.mix
         //Just try out and see if we can 'new' a T!
         //Later compilation rules will check if the T in question is abstract and cause a failure.
         other as T: T()
+        assert other?
         
         //So I want a dynamic function but in terms of a conceptual type T
         //Only when my list is made with real concrete types will we know!
@@ -73,17 +77,20 @@ defines module net.customer.generic.mix
         //aDoublerFunction as doubler of T: () is doubler of T
         //someValue as T: aDoublerFunction(param)
 
-        hardWiredFunction as doubler of Float: () is doubler of Float as function
+        hardWiredFunction as doubler of Float: () is doubler of Float as pure function
 
         otherValue as Float: hardWiredFunction(66.9)
-        
+        assert otherValue?
+
+      default operator ?
+
     TestItem
      
       anotherCall
         <- rtn as String := "OK"
         
         rtn := "Some Value "
-        dynamicIntDoubler <- () is doubler of Integer as function
-        
-        myMyList <- MyList() of Float            
+        dynamicIntDoubler <- () is doubler of Integer as pure function
+        myList <- MyList() of Float
+        assert dynamicIntDoubler? and myList?
 //EOF

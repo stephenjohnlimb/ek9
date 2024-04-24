@@ -26,6 +26,7 @@ defines module net.customer.generic.functions
       <- rtn as S := S()
       assert item?
       iter as Iterator of S: item.iterator()
+      assert iter?
               
     eventHandler of type T as open
       -> event as T
@@ -40,6 +41,7 @@ defines module net.customer.generic.functions
       
       if param?
         val2 as T: retVal ?? param
+        assert val2?
       
       counter as Integer: 0
       
@@ -74,13 +76,14 @@ defines module net.customer.generic.functions
      
       tester()
         ints <- IntArray()
+        assert ints?
         
       anotherCall
         <- rtn as String: "OK"
         
         item <- 4        
         item += 1
-        
+
         rtn: "Some Value "
         
         capturedVar <- "Bill & Ted"
@@ -88,18 +91,23 @@ defines module net.customer.generic.functions
         //reads like a book - make me a dynamicFunction which is a function of doubler of Integer(s)
         //You can use 'is' or 'extends'
         dynamicIntDoubler <- () is doubler of Integer as function
-        
+        assert dynamicIntDoubler?
+
         myHandler1 <- () is eventHandler of Date as function
-        
+        assert myHandler1?
+
         myHandler2 <- () is eventHandler of Date as function
-        
+        assert myHandler2?
+
         //Lets see if we can capture item in our generic function.
         otherHandler1 <- (item) is eventHandler of DateTime as function
           assert event?
           rtn: true                      
           if item < 44
             checkDate <- event
-        
+            assert checkDate?
+        assert otherHandler1?
+
         //You can use extends if you wish - rather than 'is'.
         otherHandler2 <- (capturedVar) extends eventHandler of DateTime as function
           assert event?
@@ -107,8 +115,11 @@ defines module net.customer.generic.functions
           
           if length capturedVar > 10
             checkDate <- event
-        
+            assert checkDate?
+        assert otherHandler2?
+
         //So do an expression and convert to string
         other <- $ (6 + 9 + item)
-                            
+        assert other?
+
 //EOF

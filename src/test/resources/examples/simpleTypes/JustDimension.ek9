@@ -62,7 +62,7 @@ defines module com.customer.just
       stdout.println($eightMiles + " in km is " + $inKM)
       assert inKM == 12.874752km
 
-      assert length inKM == 12.874752
+      assert #< inKM == 12.874752
       returnJourney <- -eightMiles
       assert abs returnJourney == eightMiles
 

@@ -27,16 +27,21 @@ defines module net.customer.more.generic.functions
           rtn: "[" + $item + "]"  
         
         stringVal <- integerToString(1)
-        
+        assert stringVal?
+
         //Now introduced the '(' ')' so that you can group the types correctly.
         //This has to be done else it it is not possible to work out which Generic the ',' belongs to.
         //Are we saying "List of Integer,String" or "List of Integer", "String"
         integerListToString <- () is mapFunction of (List of Integer, String) as function
           rtn: $item
-        
+        assert integerListToString?
+
         l1 as List of Integer := [1, 4, 9]
-         
+        assert l1?
+
         summaryFunction <- () is sumFunction of Integer as function
-        
-        total <- summaryFunction(l1)          
+        assert summaryFunction?
+
+        total <- summaryFunction(l1)
+        assert total?
 //EOF

@@ -71,7 +71,7 @@ defines module com.customer.just
       //Check on finding groups
       extractionCheck <- "This is a sample Text 1234 with numbers in between."
       extractNumbersEx <- /\{(.*?)(\d+)(.*)/
-      matchedGroups <- extractionCheck.group(extractNumbersEx)
+      matchedGroups <- extractionCheck.split(extractNumbersEx)
 
       stdout.println("Groups is [" + $matchedGroups + "]")
       assert $matchedGroups == "This is a sample Text ,1234, with numbers in between."      
@@ -95,7 +95,7 @@ defines module com.customer.just
       assert length lastTwo == 2      
       
       nonExtractionCheck <- "Another sample but with no numbers in it."
-      matchedGroups := nonExtractionCheck.group(extractNumbersEx)
+      matchedGroups := nonExtractionCheck.split(extractNumbersEx)
       assert not matchedGroups?
 
       //If you only need a single skip, head or tail - you can omit the number.

@@ -11,13 +11,14 @@ import org.junit.jupiter.api.Test;
 class ExamplesGenericTypesTest extends PhasesTest {
 
   public ExamplesGenericTypesTest() {
-    super("/examples/genericTypes");
+    super("/examples/genericTypes", false, false);
   }
 
   @Test
   void testPhasedDevelopment() {
     //TODO fix up code there is a stack overflow here hashCode again.
     //TODO Plus there are some other EK9 code mistakes.
+    //TODO break these samples in to separate tests and fix each one in turn. Too much in one test.
     //Also some missing methods in stock EK9 lib
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }

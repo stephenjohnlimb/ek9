@@ -11,14 +11,15 @@ defines module com.customer.sample
       assert shape.description()?
 
   defines class
+
     Text
       value as String?
 
-      default private Text()
+      default private Text() as pure
 
       Text() as pure
         -> content as String
-        value: String(content)
+        value:=? String(content)
 
       value() as pure
         <- rtn as String: String(value)
@@ -26,12 +27,11 @@ defines module com.customer.sample
     Shape as abstract
       shapeInfo as String?
 
-      private Shape()
-        assert false
+      default private Shape() as pure
 
       Shape() as pure
         -> info as String
-        shapeInfo: String(info)
+        shapeInfo:=? String(info)
 
       description() as pure
         <- rtn as String: String(shapeInfo)

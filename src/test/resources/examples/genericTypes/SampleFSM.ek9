@@ -83,7 +83,9 @@ defines module com.utils
         -> listenerToAdd as FSMListener of T
         assert listenerToAdd?
         listener := listenerToAdd
-            
+
+      default operator ?
+
   defines program
   
     <?-
@@ -102,21 +104,24 @@ defines module com.utils
       //based on the generic number of parameters - but worth the trade off IMO
       
       myMachine <- FSM(2)
-      
-      
-      //myMachine.setListener(myListener)
+
+      myMachine.setListener(myListener)
       //Need method resolving to call myMachine.addListener(myListener)
       myMachine.setState(5)
       
       defaultListener <- () is FSMListener of Float as function
+      assert defaultListener?
+
       //Not going at add functionality just use default implementation in this listener
       
       //So we can be more explicit if required
       floatMachine1 as FSM of Float := FSM()
-    
+      assert floatMachine1?
+
       //OR use this mechanism which is also quite nice
       floatMachine2 <- FSM() of Float
-      
+      assert floatMachine2?
+
       //We will pass this in as a captured variable
       //If you wanted to alter the value then you can but not via an := == but += and the like work.
       //The value inside the function.
@@ -131,16 +136,26 @@ defines module com.utils
         //Hey I can even override the functionality like this.
         if fromState == toCheckAgainst or toState == toCheckAgainst
           val <- "Do Something"
-          
+          assert val?
+
+      assert checkListener?
+
       stringMachine <- FSM("Steve")
+      assert stringMachine?
+
       //machine <- FSM(2, myListener)
       
       cardSuitListener <- () is FSMListener of CardSuit as function
         item <- $fromState + " " + $toState
-      
+        assert item?
+
+      assert cardSuitListener?
+
       cardSuitFSM as FSM of CardSuit := FSM()
       
       //or
       cardSuitFSM2 <- FSM() of CardSuit
+
+      assert cardSuitFSM? and cardSuitFSM2?
       
 //EOF

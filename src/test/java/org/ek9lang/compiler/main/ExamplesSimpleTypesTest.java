@@ -14,13 +14,12 @@ import org.junit.jupiter.api.Test;
 class ExamplesSimpleTypesTest extends PhasesTest {
 
   public ExamplesSimpleTypesTest() {
-    super("/examples/simpleTypes");
+    super("/examples/simpleTypes", false, false);
   }
 
   @Test
   void testPhaseDevelopment() {
-    //TODO quite a few errors in the example and some missing lib methods.
-    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

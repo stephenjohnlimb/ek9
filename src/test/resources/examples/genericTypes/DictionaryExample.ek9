@@ -9,12 +9,17 @@ defines module com.customer.dictionary.example
       id as Integer: Integer()
       aliases as Dict of (String, String): Dict()
 
-      <?-
-        make an additional constructor that has no aliases
-      -?>
       SimpleRecord
         -> id as Integer
         this.id :=: id
+
+      SimpleRecord
+        ->
+          id as Integer
+          aliases as Dict of (String, String)
+
+        this.id :=: id
+        this.aliases :=: aliases
 
       operator $$ as pure
         <- rtn as JSON: JSON()

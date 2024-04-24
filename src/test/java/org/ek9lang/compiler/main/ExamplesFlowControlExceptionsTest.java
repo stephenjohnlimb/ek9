@@ -17,8 +17,7 @@ class ExamplesFlowControlExceptionsTest extends PhasesTest {
 
   @Test
   void testPhasedDevelopment() {
-    //TODO move to PRE_IR_CHECKS, fix access to 'handleException'
-    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

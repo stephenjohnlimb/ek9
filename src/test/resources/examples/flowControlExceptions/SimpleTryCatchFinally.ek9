@@ -46,7 +46,7 @@ defines module com.customer.exceptions
         <- rtn as String: reason() + " retry after " + $retryAfter()
 
     ExceptionExample
-      clock as Clock?
+      clock as Clock: SystemClock()
       deferProcessingUntilAfter <- DateTime()
 
       default private ExceptionExample()

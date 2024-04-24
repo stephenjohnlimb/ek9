@@ -165,8 +165,8 @@ public class OperatorFactory {
         aggregateFactory.createOperator(aggregate, "-=", false),
         aggregateFactory.createOperator(aggregate, "*=", false),
         aggregateFactory.createOperator(aggregate, "/=", false),
-        aggregateFactory.createOperator(aggregate, "++", false),
-        aggregateFactory.createOperator(aggregate, "--", false),
+        aggregateFactory.createMutatorOperator(aggregate, "++"),
+        aggregateFactory.createMutatorOperator(aggregate, "--"),
 
         //fuzzy compare
         aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<~>", integerType)));

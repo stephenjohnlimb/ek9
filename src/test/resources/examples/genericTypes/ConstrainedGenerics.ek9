@@ -18,6 +18,7 @@ defines module net.customer.constrained
       MyList()
         -> item as T
         var as T: item
+        assert var?
 
       get()
         -> index as Integer
@@ -33,8 +34,13 @@ defines module net.customer.constrained
           
         if item?
           other as T := T()
+          assert other?
         else
           check as T := T()
+          assert check?
+
+      default operator ?
+
 
     //Lets try to define an MyOptional generic class but limit it to a MyList of EmailAddress
     MyOptional of type O constrain by MyList of EmailAddress
@@ -56,7 +62,9 @@ defines module net.customer.constrained
       //Get the item back again
       get()
         <- rtn as O := someVar
-                     
+
+      default operator ?
+
     //Lets see how we can use those generic types.    
     Class1
 
@@ -65,18 +73,23 @@ defines module net.customer.constrained
         
         //In its basic form
         simple as MyList of String := MyList()
-        
+        assert simple?
+
         //So this will be OK as we're making it concrete with a String
         //Just declare a new instance of a MyList of Strings
         myStringMyList <- MyList() of String        
-       
+        assert myStringMyList?
+
         otherStringMyList <- myStringMyList + "Steve"
-      
+        assert otherStringMyList?
+
         //But look I can have a MyList of EmailAddress because that extends String - even though only very simply as a type
         emailMyList as MyList of EmailAddress := MyList()
-        
+        assert emailMyList?
+
         anotherEmailMyList <- MyList() of EmailAddress
-        
+        assert anotherEmailMyList?
+
         //Now lets check type compatibility - no issues here
         otherStringMyList := simple
         
@@ -86,23 +99,28 @@ defines module net.customer.constrained
         //Now some optionals - generates the same code but look at the simplicity if you are a consumer of these generics
         
         myMyOptional as MyOptional of MyList of EmailAddress := MyOptional()
-        
+        assert myMyOptional?
+
         //Can I say this - well yes I can (not sure I want to).
         anotherMyOptional <- MyOptional() of MyList of EmailAddress
-        
+        assert anotherMyOptional?
+
         //Could I do this - well yes I think you'll find you can
         yetAnotherMyOptional <- MyOptional(emailMyList)
-        
+        assert yetAnotherMyOptional?
+
         //In it's simplest use you can do this - no need to mess about with types or generic <Foo-bar<This<That>>>
         //This feels way more natural and intuitive. You get to say what you want with the stuff you have just created.
         myEmail <- EmailAddress("limbs@widefield-computing.com")
         listOfAddresses <- MyList(myEmail)
         optionalMyListOfAddresses <- MyOptional(listOfAddresses)
-        
+        assert optionalMyListOfAddresses?
+
         //Or combine it into one construction.
         //OMG! snakes on a plane that's good.
         otherMyOptionalMyList <- MyOptional(MyList(EmailAddress("stephenjohnlimb@gmail.com")))
-                
+        assert otherMyOptionalMyList?
+
         //Imagine the Java for this
         //MyOptional<MyList<EmailAddress>>> optionalMyListOfAddresses = MyOptional.of(new MyList<...>> f**k I've lost the will to live already >>>>?>)        
         

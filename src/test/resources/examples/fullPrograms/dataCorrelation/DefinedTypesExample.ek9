@@ -18,12 +18,15 @@ defines module worked.example
 
       optionsHandler <- OptionsHandler()
       options <- optionsHandler.processCommandLine(argv)
+
+      //TODO fix generics issue missing contains operator - but it is defined on 'Dict'
       verboseMode <- options contains "-v"
       debugLevel <- optionsHandler.processDebugLevel(verboseMode, options.get("-d"))
 
       //namedFileContents <- NamedFileProcessor(verboseMode, debugLevel).processNamedFile(options.get("-f"))
       //Inlined the above as a demonstration of procedural code.
 
+      //TODO fix generics on 'get' as method does exist.
       filename <- options.get("-f")
       if not filename?
         throw Exception("Filename of 'named file' is required", 2)
@@ -111,7 +114,7 @@ defines module worked.example
         validator as lineValidator?
 
       validator: (stderr, debugLevel) is lineValidator as pure function
-        rtn: line is not empty and #<line != '#'
+        rtn :=? line is not empty and #<line != '#'
         if debugLevel > 1 and not rtn
           stderr.println(`Discarding [${line}]`)
 
@@ -153,7 +156,7 @@ defines module worked.example
       <-
         rtn as DateTime: DateTime()
 
-      group <- aDateInput.group(/(\d{4})(\d{2})(\d{2})/)
+      group <- aDateInput.split(/(\d{4})(\d{2})(\d{2})/)
       if length group == 3
         dateStr <- cat group | join with dashSeparated | collect as String
         rtn: DateTime(Date(dateStr))
@@ -371,6 +374,7 @@ defines module worked.example
           entryValue <- CustomerRecord(id, String(), String(), emailAddress, String(), dateLastPurchase)
           if debugLevel == 3
             stderr.println(`Named file line [${line}] processed`)
+          //TODO fix up constructor method location in resolution
           rtn: DictEntry(id, entryValue)
 
   defines record
@@ -382,6 +386,21 @@ defines module worked.example
       email as String: String()
       dob as String: String()
       lastPurchase as String: String()
+
+      CustomerRecord()
+        ->
+          id as String
+          firstName as String
+          lastName as String
+          email as String
+          dob as String
+          lastPurchase as String
+        this.id :=: id
+        this.firstName :=: firstName
+        this.lastName :=: lastName
+        this.email :=: email
+        this.dob :=: dob
+        this.lastPurchase :=: lastPurchase
 
       operator ? as pure
         <- rtn as Boolean: id?

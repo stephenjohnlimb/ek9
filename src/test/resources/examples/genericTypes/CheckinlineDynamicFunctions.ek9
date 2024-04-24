@@ -35,7 +35,7 @@ defines module com.customer.dynamic.streams.build
         <- rtn as String: String()
         
         if total?
-          rtn := "[" + $count + ", " + $average + ", " + $total + "]"
+          rtn :=? "[" + $count + ", " + $average + ", " + $total + "]"
         
       operator |
         -> arg as Integer
@@ -54,12 +54,18 @@ defines module com.customer.dynamic.streams.build
       dob Date: Date()
       
       //Sample of a of developer constructor
-      //But other built in one get auto generated.
       Addams()
         -> dateOfBirth as Date
         if dateOfBirth?
           dob :=: dateOfBirth
-                 
+      Addams()
+        ->
+          name as String
+          dateOfBirth as Date
+        if dateOfBirth?
+          dob :=: dateOfBirth
+        this.name :=: name
+
       operator $ as pure
         <- rtn as String: name + " " + $dob
         
@@ -139,6 +145,7 @@ defines module com.customer.dynamic.streams.build
     
     CheckIfListCanBeDeclaredInCall()     
       result <- checkReceiveList(["A", "Simple", "List"])
+      assert result?
         
     ListFunctionIteratorExample()
       stdout <- Stdout()
@@ -162,17 +169,15 @@ defines module com.customer.dynamic.streams.build
       
       aList <- List() of Integer
       bList as List of Integer: List()
-      
       cList <- List(1)
-      
+      assert aList? and bList? and cList?
+
       //You can define like this which is quite nice.
       l1 as List of Integer: [ 57, 55, 26, 24, 21 ]
-      
       stdout.println("List l1 is " + $l1)
       
       //But take a look at this - well it could not be more minimal.      
       l2 <- [ 1, 2, 3, 4, 5, 6, 7, Integer() ]
-      
       stdout.println("List l2 is " + $l2)
 
       //Now if you have a lot of items or their construction is quite complex then you can do this.
@@ -268,7 +273,7 @@ defines module com.customer.dynamic.streams.build
           key <- keyIter.next()
           name <- idNameDictionary.get(key)
           if name?
-            results += "Key " + $key + " with name " + $name.get()
+            results += "Key " + $key + " with name " + $name
         
         //Some keys that won't ever be found
         invalidValues <- [9, 10, 100]
@@ -280,7 +285,7 @@ defines module com.customer.dynamic.streams.build
         
         //Prepare a dynamic function for use in pipeline
         nameMapping <- (idNameDictionary) is idToString as function
-          rtn: idNameDictionary.get(id)
+          rtn: Optional(idNameDictionary.get(id))
         
         stdout.println("Key mapping pipeline")
         //Example of pipeline with dynamic function and variable capture, plus flatten
@@ -294,7 +299,7 @@ defines module com.customer.dynamic.streams.build
 
         //Above could have been inline dynamic function like this
         additionalValues <- cat keys1, keys2
-          | map with (idNameDictionary) is idToString (rtn: idNameDictionary.get(id))
+          | map with (idNameDictionary) is idToString (rtn: Optional(idNameDictionary.get(id)))
           | flatten
           | collect as List of String          
         

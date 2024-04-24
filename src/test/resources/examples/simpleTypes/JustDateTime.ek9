@@ -97,10 +97,7 @@ defines module com.customer.just
       dateTime4a <- DateTime().today()
       assert dateTime4a?
       stdout.println("Now Date4a [" + $dateTime4a + "] is set [" + $dateTime4a? + "]")
-      
-      dateTime4.setToday() //Now set to the current dateTime
-      stdout.println("Date4 [" + $dateTime4 + "] is set [" + $dateTime4? + "]")
-      
+
       //Durations
       d1 <- P1Y1M4D //one year, one month and 4 days
       d2 <- P4W1DT2H59M18S //twenty nine days, two hours, fifty nine minutes and eighteen seconds

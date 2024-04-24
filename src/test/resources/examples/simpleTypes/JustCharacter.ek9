@@ -68,9 +68,11 @@ defines module com.customer.justcharacter
       
       s2 <- c1.#^()
       stdout.println("As a String " + s2)
-      
+
+      //Check promotion.
       s3 as String := #^c1
-      
+      assert s3?
+
       asUpperCase <- c1.upperCase()
       stdout.println("C1 upper case is " + $asUpperCase)
       

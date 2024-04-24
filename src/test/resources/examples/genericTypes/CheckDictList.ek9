@@ -34,7 +34,7 @@ defines module com.customer.streams.build
         <- rtn as String: String()
         
         if total?
-          rtn := `${count}, ${average}, ${total}`
+          rtn :=? `${count}, ${average}, ${total}`
         
       operator |
         -> arg as Integer
@@ -54,12 +54,18 @@ defines module com.customer.streams.build
       dob Date: Date()
       
       //Sample of a of developer constructor
-      //But other built in one get auto generated.
       Addams()
         -> dateOfBirth as Date
         if dateOfBirth?
           dob :=: dateOfBirth
-                 
+
+      Addams()
+        ->
+          name as String
+          dateOfBirth as Date
+        this(dateOfBirth)
+        this.name :=: name
+
       operator $ as pure
         <- rtn as String: name + " " + $dob
         
@@ -143,6 +149,7 @@ defines module com.customer.streams.build
       
       //OR with a list directly in the call
       result2 <- checkReceiveList(["A", "Simple", "List"])
+      assert result? and result2?
         
     ListFunctionIteratorExample()
       stdout <- Stdout()
@@ -171,9 +178,10 @@ defines module com.customer.streams.build
       
       aList <- List() of Integer
       bList as List of Integer: List()
-      
       cList <- List(1)
-      
+
+      assert aList? and bList? and cList?
+
       //You can define like this which is quite nice.
       l1 as List of Integer: [ 57, 55, 26, 24, 21 ]
       
@@ -306,7 +314,7 @@ defines module com.customer.streams.build
           key <- keyIter.next()
           name <- idNameDictionary.get(key)
           if name?
-            results += "Key " + $key + " with name " + $name.get()
+            results += `Key ${key} with name ${name}`
         
         //Some keys that won't ever be found
         invalidValues <- [9, 10, 100]
@@ -318,7 +326,7 @@ defines module com.customer.streams.build
         
         //Prepare a dynamic function for use in pipeline
         nameMapping <- (idNameDictionary) is idToString as function
-          rtn: idNameDictionary.get(id)
+          rtn: Optional(idNameDictionary.get(id))
         
         stdout.println("Key mapping pipeline")
         //Example of pipeline with dynamic function and variable capture, plus flatten
@@ -332,14 +340,14 @@ defines module com.customer.streams.build
         //What about a sort of inline almost lambda, I don't really like it!
         //So lets see if developers find it and like it - like a little 'pearl' to be found.
         moreValidValues <- cat keys1, keys2
-          | map with (idNameDictionary) is idToString as (rtn: idNameDictionary.get(id))
+          | map with (idNameDictionary) is idToString as (rtn: Optional(idNameDictionary.get(id)))
           | flatten
           | collect as List of String
         stdout.println("moreValidValues " + $ moreValidValues)
         
         //A second dynamic function that will be used to get the date of birth
         dateMapping <- (nameDateDictionary) extends nameToDate as function
-          rtn: nameDateDictionary.get(name)
+          rtn: Optional(nameDateDictionary.get(name))
           
         //Now we've used the previous iterator up so need new ones 
         keys1A <- idNameDictionary.keys()
@@ -366,7 +374,7 @@ defines module com.customer.streams.build
 
         //Function to map Integer id to a function that can get Addams record
         functionMapping <- (idFunctionDictionary) extends idToGetAddams as function
-          rtn: idFunctionDictionary.get(id)
+          rtn: Optional(idFunctionDictionary.get(id))
         
         keys1C <- idNameDictionary.keys()
         keys2C <- invalidValues.iterator()

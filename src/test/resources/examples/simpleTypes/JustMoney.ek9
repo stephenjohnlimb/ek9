@@ -153,7 +153,7 @@ defines module com.customer.just
       total1 <- cat amounts | collect as Money
       assert total1 == 159.27#GBP
       
-      total2 <- cat tenPounds, nintyNinePoundsFiftyOnePence, fourtyEightPoundsSeventySixPence | collect as Money
+      total2 <- cat [tenPounds, nintyNinePoundsFiftyOnePence, fourtyEightPoundsSeventySixPence] | collect as Money
       assert total2 == 159.27#GBP
       
       stdout.println("Total [" + $total1 + "] and  [" + $total2 + "]")

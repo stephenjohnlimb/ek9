@@ -127,9 +127,7 @@ defines module com.customer.just
       stdout.println("T4 [" + $t4 + "] is set [" + $t4? + "]")
       stdout.println("T5 [" + $t5 + "] is set [" + $t5? + "]")
       stdout.println("T6 [" + $t6 + "] is set [" + $t6? + "]")
-      
-      t4aa <- SystemClock().time()
-      
+
       t4a <- SystemClock().time()
       assert t4a?
       stdout.println("Now T4a [" + $t4a + "] is set [" + $t4a? + "]")
@@ -143,16 +141,15 @@ defines module com.customer.just
       stdout.println("Now T4c [" + $t4c + "] is set [" + $t4c? + "]")
       
       //Update to now
-      t4.set(SystemClock().time())
+      t4 := SystemClock().time()
       assert t4?
       stdout.println("Now T4 [" + $t4 + "] is set [" + $t4? + "]")
-      
-      
-      t4.setStartOfDay()
+
+      t4 := Time().startOfDay()
       assert t4?
       stdout.println("Start of Day T4 [" + $t4 + "] is set [" + $t4? + "]")
       
-      t4.setEndOfDay()
+      t4 := Time().endOfDay()
       assert t4?
       stdout.println("End of Day T4 [" + $t4 + "] is set [" + $t4? + "]")      
       

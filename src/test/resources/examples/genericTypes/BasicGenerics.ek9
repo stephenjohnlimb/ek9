@@ -31,12 +31,14 @@ defines module net.customer.inferred
     //Generic SomeTestList and lets allow it to be extended - see at end of file.
     SomeTestList of type T as open
 
-      aTest as T: T()
+      aTest as T?
               
       //Constructor
-      SomeTestList()
+      SomeTestList() as pure
         -> item as T
         var as T: item
+        assert var?
+        aTest :=? item
 
       get()
         -> index as Integer
@@ -49,13 +51,8 @@ defines module net.customer.inferred
       operator + as pure
         -> item as T
         <- rtn as SomeTestList of T := SomeTestList()
-        //Need to be able to say := this - but not quite right yet as types aren't the same!
-        //TODO fix up
 
-        if item?
-          other as T := T()
-        else
-          check as T := T()
+      default operator ?
 
     //Lets see how we can use those generic types.    
     Class1
@@ -66,6 +63,7 @@ defines module net.customer.inferred
         aSomeTestList as SomeTestList of String: SomeTestList()
 
         bSomeTestList <- SomeTestList("Steve")
+        assert aSomeTestList? and bSomeTestList?
 
     //end of Class1
 

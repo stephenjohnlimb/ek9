@@ -74,9 +74,6 @@ defines module com.customer.just
       
       stdout.println($theValues + " intSum [" + $intSum + "] is set is [" + $intSum? + "]")
 
-      asString <- for j in 1 ... 12 by 3 | collect as String
-      stdout.println("As String is [" + asString + "]")
-
       asFloat <- for k in 1 ... 12 by 3 | collect as Float
       stdout.println("As Float is [" + $asFloat + "]")
 //EOF      

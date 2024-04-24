@@ -73,14 +73,15 @@ final class ProcessTryStatement extends PossibleExpressionConstruct
   private List<IScope> getTryAndCatchBlocks(final EK9Parser.TryStatementExpressionContext ctx) {
 
     final List<IScope> tryAndCatchBlocks = new ArrayList<>();
-    //There is always a try instruction block to process
-    tryAndCatchBlocks.add(symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock()));
-    if (ctx.catchStatementExpression() != null) {
-      tryAndCatchBlocks.add(
-          symbolAndScopeManagement.getRecordedScope(ctx.catchStatementExpression().instructionBlock())
-      );
+    //There is NOT always a try instruction block to process
+    var tryInstructionCtx = ctx.instructionBlock();
+    if (tryInstructionCtx != null) {
+      tryAndCatchBlocks.add(symbolAndScopeManagement.getRecordedScope(tryInstructionCtx));
+      if (ctx.catchStatementExpression() != null) {
+        var catchInstructionCtx = ctx.catchStatementExpression().instructionBlock();
+        tryAndCatchBlocks.add(symbolAndScopeManagement.getRecordedScope(catchInstructionCtx));
+      }
     }
-
     return tryAndCatchBlocks;
   }
 }

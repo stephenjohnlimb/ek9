@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesSimpleGenericScenariosTest extends PhasesTest {
 
   public ExamplesSimpleGenericScenariosTest() {
-    super("/examples/simpleGenericScenarios");
+    super("/examples/simpleGenericScenarios", false, false);
   }
 
   @Test

@@ -478,6 +478,8 @@ public class AggregateFactory {
 
   /**
    * Create an operator of the name supplied.
+   * The accepts a single argument of the same type as the aggregateSymbol
+   * It also returns a value that is the same as the aggregateSymbol.
    */
   public MethodSymbol createOperator(final IAggregateSymbol aggregateSymbol,
                                      final String operatorType,
@@ -491,6 +493,26 @@ public class AggregateFactory {
     operator.setMarkedPure(isPure);
     operator.setOperator(true);
     operator.define(paramT);
+    //returns the same type as itself
+    operator.setReturningSymbol(new VariableSymbol("rtn", aggregateSymbol));
+
+    return operator;
+  }
+
+  /**
+   * Create an operator of the name supplied.
+   * The accepts a single argument of the same type as the aggregateSymbol
+   * It also returns a value that is the same as the aggregateSymbol.
+   */
+  public MethodSymbol createMutatorOperator(final IAggregateSymbol aggregateSymbol,
+                                     final String operatorType) {
+
+    final var operator = new MethodSymbol(operatorType, aggregateSymbol);
+
+    operator.setParsedModule(aggregateSymbol.getParsedModule());
+    operator.setAccessModifier("public");
+    operator.setMarkedPure(false);
+    operator.setOperator(true);
     //returns the same type as itself
     operator.setReturningSymbol(new VariableSymbol("rtn", aggregateSymbol));
 

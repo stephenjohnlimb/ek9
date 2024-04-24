@@ -16,6 +16,8 @@ class ExamplesProgramsDataCorrelationTest extends PhasesTest {
 
   @Test
   void testPhasedDevelopment() {
+    //TODO most of the errors here are a cascade from not resolving 'contains' or 'get' on the Dict class
+    //TODO it is there but a defect is not populating those methods/operators correctly.
     //TODO fixup generics and move to PRE_IR_CHECKS
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
