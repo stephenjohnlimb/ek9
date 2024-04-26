@@ -41,24 +41,7 @@ defines module com.customer.justcat
           | collect as String    
         
   defines program
-    ANewTest()
-      stdout <- Stdout()
-      
-      cat someFunctionReturningStuff() > stdout
-      
-      cat someFunctionReturningStuff() | filter by something > stdout
-      
-      cat this.someFunctionReturningStuff() | filter by someHigherFunction() > someMethod()
-      
-      cat super.someFunctionReturningStuff() | filter by super.someHigherFunction() > object.thatHasMethod()
-      
-      cat obj1.obj2.someFunctionReturningStuff() | filter by this.someHigherFunction() > some.bucket().WithNetworkingStuff()
-      
-      cat obj1.method1().obj2.someFunctionReturningStuff() | filter by this.someHigherFunction().otherChainedFunction() > stdout
-      
-      //So there's your one line lambda - if you really must.
-      cat someFunctionReturningStuff() | filter by () is someAbstractImpl as pure (rtn: 22) > stdout
-      
+
     CatList()
       stdout <- Stdout()
 

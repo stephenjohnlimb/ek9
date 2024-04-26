@@ -22,6 +22,7 @@ class ExamplesConstructsServicesTest extends PhasesTest {
   @Test
   void testPhaseDevelopment() {
     //TODO fix up lots of errors and move to FULL_RESOLUTION
+    //TODO this last once everything else is up to PRE_IR_CHECKS
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 

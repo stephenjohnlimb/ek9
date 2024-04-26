@@ -32,6 +32,7 @@ class ExamplesGenericsUse1Test extends PhasesTest {
   }
 
   @Test
+  //TODO fix up properties not being initialised in objects issue then move to PRE_IR_CHECKS
   void testPhasedDevelopment() {
     testToPhase(CompilationPhase.FULL_RESOLUTION);
   }

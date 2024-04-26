@@ -36,10 +36,8 @@ defines module com.customer.justparagraphs
       //Add this in to make the page 'catable' so we can get the paragraphs.
       iterator()
         @Resolved: SYMBOL_DEFINITION: TYPE: "Iterator of (Paragraph)"
-        <- rtn as Iterator of Paragraph: Iterator()
+        <- rtn as Iterator of Paragraph?
 
-        //Now this is a 'List of (Paragraph)'' - but we cannot resolve it at this phase
-        //We will only be able to resolve it after we are done type inference phase
         @NotResolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of (Paragraph)"
         paragraphs <- [introduction, mainBody, conclusion]
 

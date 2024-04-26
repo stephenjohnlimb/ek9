@@ -20,6 +20,7 @@ class ExamplesStreamsTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
+    //has issues with Generics specifically Optional type still being T rather than JSON.
     //TODO fix up example code and move to PRE_IR_CHECKS
     testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
@@ -28,7 +29,7 @@ class ExamplesStreamsTest extends PhasesTest {
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
-    new SymbolCountCheck("com.customer.justcat", 7).test(program);
+    new SymbolCountCheck("com.customer.justcat", 5).test(program);
     new SymbolCountCheck("com.customer.justparagraphs", 3).test(program);
     new SymbolCountCheck("com.customer.justmoney", 1).test(program);
     new SymbolCountCheck("ekopen.io.file.examples", 1).test(program);

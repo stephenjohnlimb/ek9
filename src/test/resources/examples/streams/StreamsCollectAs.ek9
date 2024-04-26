@@ -13,7 +13,7 @@ defines module com.customer.streams.collectas
         <- rtn as String: String()
         
         if total?
-          rtn := `[${count}, ${average}, ${total}]`
+          rtn :=? `[${count}, ${average}, ${total}]`
         
       operator |
         -> arg as Integer

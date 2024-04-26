@@ -1,4 +1,7 @@
 #!ek9
+<?-
+  This seems a bit confused, needs cleaning up and the examples more meaningful.
+-?>
 defines module com.customer.jsonexample
 
   defines type
@@ -40,7 +43,7 @@ defines module com.customer.jsonexample
 
       //Colour, use the to JSON operator $$ to convert
       colourJson <- $$ #FFAACC
-      aColour <- cat colourJson | collect as Colour
+      aColour <- cat [colourJson] | collect as Colour
       assert aColour == #FFAACC
 
       //Try with lists, but convert to JSON through the pipeline

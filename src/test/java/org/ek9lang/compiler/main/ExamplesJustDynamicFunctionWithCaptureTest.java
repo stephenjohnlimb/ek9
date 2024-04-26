@@ -17,8 +17,6 @@ class ExamplesJustDynamicFunctionWithCaptureTest extends PhasesTest {
 
   @Test
   void testPhasedDevelopment() {
-    //TODO Issues with capture at the moment - for FULL_RESOLUTION
-    //TODO investigate, needs some though on how to resolve and define with correct name when doing the capture
     //As dynamic functions and capture are taken out of the hierarchical scope stack.
     testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }

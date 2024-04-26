@@ -33,8 +33,7 @@ defines module com.customer.streams.splitter
     @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: FUNCTION: "listToString"
     listToString()
       -> chars as List of Character
-      <- string as String: ""
-      string += chars
+      <- string as String: cat chars | collect as String
 
     @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: FUNCTION: "getOptions"
     getOptions()

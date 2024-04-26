@@ -10,13 +10,13 @@ defines module com.customer.justmoney
       threePoundsSixty <- 3.60#GBP
       ninetyFourPounds <- 94#GBP
       
-      stdout.println("Amounts are " + $tenPounds + ", " + $threePoundsSixty + " and " + $nintyFourPounds)
+      stdout.println("Amounts are " + $tenPounds + ", " + $threePoundsSixty + " and " + $ninetyFourPounds)
       
       //as each item in turn
-      total1 <- cat tenPounds, threePoundsSixty, ninetyFourPounds | collect as Money
+      total1 <- cat [tenPounds, threePoundsSixty, ninetyFourPounds] | collect as Money
       stdout.println("Total1 is [" + $total1 + "]")
       
-      total1A <- cat tenPounds | collect as Money
+      total1A <- cat [tenPounds] | collect as Money
       stdout.println("Total1A is [" + $total1A + "]")
       
       //now as a List of Money
