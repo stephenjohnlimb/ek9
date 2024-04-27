@@ -1,4 +1,4 @@
-package org.ek9lang.compiler;
+package org.ek9lang.compiler.bootstrap;
 
 import static org.ek9lang.compiler.Ek9BuiltinLangSupplier.NUMBER_OF_EK9_SYMBOLS;
 import static org.ek9lang.compiler.support.AggregateFactory.EK9_LANG;
@@ -8,6 +8,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
+import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.CompilableSource;
+import org.ek9lang.compiler.DeSerializer;
+import org.ek9lang.compiler.Ek9BuiltinLangSupplier;
+import org.ek9lang.compiler.Ek9LanguageBootStrap;
+import org.ek9lang.compiler.Serializer;
 import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.symbols.AggregateSymbol;

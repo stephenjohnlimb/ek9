@@ -5,6 +5,21 @@
 -?>
 defines module just.workspace
 
+  defines class
+
+    <?-
+      Nothing strange here pure constructor which makes all property construction pure.
+      Then just make a List of String and have it initialised to an empty list.
+    -?>
+    Checker
+      <!- Defect in generics being looked into
+      propB as List of String: List("Steve")
+      prop1 as List of String: List()
+      -!>
+      propA as String: String()
+
+      default Checker() as pure
+
   <?-
     The utility functions used for testing in this example.
   -?>

@@ -54,7 +54,7 @@ public class Ek9LanguageBootStrap implements Supplier<SharedThreadContext<Compil
 
     sources.forEach(workspace::addSource);
 
-    final var compilationSuccess = compiler.compile(workspace, new CompilerFlags(false));
+    final var compilationSuccess = compiler.compile(workspace, new CompilerFlags(reporter.isVerbose()));
     if (!compilationSuccess) {
       displaySources();
       throw new CompilerException("Unable to bootstrap EK9 language, error in " + sources);

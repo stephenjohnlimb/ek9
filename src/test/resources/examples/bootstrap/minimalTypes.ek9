@@ -2,7 +2,7 @@
 <!-
   Designed for testing of bootstrap loader.
   Check for ability to define something simple and clone the setup as is.
-  So, we'd old expect one type (String of genus CLASS) to be held in this situation.
+  So, we'd always expect one type (String of genus CLASS) to be held in this situation.
 -!>
 defines extern module org.ek9.lang
 

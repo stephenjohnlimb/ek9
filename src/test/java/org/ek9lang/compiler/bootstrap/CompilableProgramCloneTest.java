@@ -1,4 +1,4 @@
-package org.ek9lang.compiler;
+package org.ek9lang.compiler.bootstrap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -10,6 +10,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
+import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.CompilableSource;
+import org.ek9lang.compiler.DeSerializer;
+import org.ek9lang.compiler.Ek9LanguageBootStrap;
+import org.ek9lang.compiler.ParsedModule;
+import org.ek9lang.compiler.Serializer;
 import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.common.ErrorListener;

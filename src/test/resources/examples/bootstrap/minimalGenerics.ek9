@@ -1,0 +1,137 @@
+#!ek9
+<!-
+  Designed for testing of Generics and polymorphic parameterization.
+  But this uses the full compiler - to check out the mechanism rather than
+  the other generic types that work at a much lower level. Those have been hard to work
+  with and have not really had the effect in finding issues that I expected.
+-!>
+defines extern module org.ek9.lang
+
+  defines class
+
+    String as open
+      String() as pure
+
+      String() as pure
+        -> arg0 as String
+
+    Integer as open
+      Integer() as pure
+
+      Integer() as pure
+        -> arg0 as Integer
+
+    Boolean as open
+      Boolean() as pure
+
+      Boolean() as pure
+        -> arg0 as Boolean
+
+    List of type T as open
+      List() as pure
+
+      List() as pure
+        -> arg0 as T
+
+      <?-
+        Check bounds or use iterator, else if out of bounds and exception will be thrown.
+      -?>
+      get() as pure
+        -> index as Integer
+        <- rtn as T?
+
+      first() as pure
+        <- rtn as T?
+
+      last() as pure
+        <- rtn as T?
+
+      reverse() as pure
+        <- rtn as List of T?
+
+      <!-
+      //TODO add Iterator in later
+      iterator() as pure
+        <- rtn as Iterator of T?
+      -!>
+
+      <!-
+      TODO sort out generics error: 'List of type T of type T' is not 'List of type T
+      operator ~ as pure
+        <- rtn as List of T?
+      -!>
+
+      operator == as pure
+        -> arg as List of T
+        <- rtn as Boolean?
+
+      operator <> as pure
+        -> arg as List of T
+        <- rtn as Boolean?
+
+      operator ? as pure
+        <- rtn as Boolean?
+
+      operator + as pure
+        -> arg as List of T
+        <- rtn as List of T?
+
+      operator + as pure
+        -> arg as T
+        <- rtn as List of T?
+
+      operator - as pure
+        -> arg as List of T
+        <- rtn as List of T?
+
+      operator - as pure
+        -> arg as T
+        <- rtn as List of T?
+
+      operator $ as pure
+        <- rtn as String?
+
+      operator #? as pure
+        <- rtn as Integer?
+
+      operator #< as pure
+        <- rtn as T?
+
+      operator #> as pure
+        <- rtn as T?
+
+      operator empty as pure
+        <- rtn as Boolean?
+
+      operator length as pure
+        <- rtn as Integer?
+
+      operator contains as pure
+        -> arg as T
+        <- rtn as Boolean?
+
+      operator :~:
+        -> arg as List of T
+
+      operator :^:
+        -> arg as List of T
+
+      operator :=:
+        -> arg as List of T
+
+      operator |
+        -> arg as T
+
+      operator +=
+        -> arg as List of T
+
+      operator +=
+        -> arg as T
+
+      operator -=
+        -> arg as List of T
+
+      operator -=
+        -> arg as T
+
+//EOF

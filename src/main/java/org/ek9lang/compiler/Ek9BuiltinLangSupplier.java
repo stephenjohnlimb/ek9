@@ -1243,7 +1243,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               1 is Sunday and 7 is Saturday. But see Locale for a spoken language way to do this.
             -?>
             dayOfWeek() as pure
-              <- rtn as Integer?              
+              <- rtn as Integer?
                                                           
             operator < as pure
               -> arg as Date
@@ -1378,16 +1378,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
                 month as Integer
                 day as Integer
                 hour as Integer
-                minute as Integer                
-
-            DateTime() as pure
-              ->
-                year as Integer
-                month as Integer
-                day as Integer
-                hour as Integer
                 minute as Integer
-                second as Integer                
 
             DateTime() as pure
               ->
@@ -1397,7 +1388,16 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
                 hour as Integer
                 minute as Integer
                 second as Integer
-                offset as Duration                
+
+            DateTime() as pure
+              ->
+                year as Integer
+                month as Integer
+                day as Integer
+                hour as Integer
+                minute as Integer
+                second as Integer
+                offset as Duration
               
             now() as pure
               <- rtn as DateTime?
@@ -1442,7 +1442,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               1 is Sunday and 7 is Saturday. But see Locale for a spoken language way to do this.
             -?>
             dayOfWeek() as pure
-              <- rtn as Integer?              
+              <- rtn as Integer?
             
             offSetFromUTC() as pure
               <- rtn as Duration?
@@ -1558,7 +1558,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             convert() as pure
               ->
                 multiplier as Float
-                currencyCode as String 
+                currencyCode as String
               <-
                 rtn as Money?
 
@@ -2048,7 +2048,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             convert() as pure
               ->
                 multiplier as Float
-                typeOfDimension as String 
+                typeOfDimension as String
               <-
                 rtn as Dimension?
               
@@ -2698,10 +2698,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> index as Integer
               <- rtn as T?
 
-            first() as pure              
+            first() as pure
               <- rtn as T?
 
-            last() as pure              
+            last() as pure
               <- rtn as T?
             
             reverse() as pure
@@ -3016,10 +3016,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as PriorityQueue of T?
 
             operator +=
-              -> arg as T              
+              -> arg as T
 
             operator +=
-              -> arg as List of T              
+              -> arg as List of T
               
             operator $$ as pure
               <- rtn as JSON?

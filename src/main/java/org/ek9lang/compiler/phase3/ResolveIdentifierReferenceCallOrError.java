@@ -74,7 +74,6 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
     final var callIdentifier = symbolAndScopeManagement.getRecordedSymbol(ctx.identifierReference());
     final var startToken = new Ek9Token(ctx.start);
 
-
     return switch (callIdentifier) {
       case AggregateSymbol aggregate -> checkAggregate(startToken, aggregate, callIdentifier, callParams);
       case FunctionSymbol function -> checkFunction(startToken, function, callIdentifier, callParams);
@@ -135,14 +134,37 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
       if (callArguments.isEmpty()) {
         //This enables: 'aList as List of Float: List()'
         //But requires that assignment alters the 'call' type and invocation.
+        //For now just return the first
         return aggregate;
       } else {
         return checkGenericConstructionOrInvocation(token, callIdentifier, callArguments);
+        /*
+        //TODO fix generics
+        var parameterizedType =
+        (AggregateSymbol) checkGenericConstructionOrInvocation(token, callIdentifier, callArguments);
+        if (parameterizedType != null) {
+          return checkForMethodOnAggregate(token, parameterizedType, parameterizedType.getName(), callArguments);
+        }
+         */
       }
+
     }
 
     //It's just a simple call to a constructor, but what if it's an abstract type.
     return checkForMethodOnAggregate(token, aggregate, callIdentifier.getName(), callArguments);
+  }
+
+  /**
+   * In some cases we need to provide a method, so that 'pure' access and general use can be checked.
+   * But this is in a situation when we want to allow something like 'aList as List of Float: List()'.
+   * This means we have to temporarily allow the concept of construction of a generic type without the appropriate
+   * parameterizing argument. This then has to be corrected during the assignment statement.
+   * Not ideal but makes the EK9 language use much easier for the EK9 developer. Sort of like reverse inference.
+   * The alternative would be to enforce 'aList <- List() of Float'.
+   */
+  private MethodSymbol locateNoArgumentConstructor(final IToken token,
+                                                   final AggregateSymbol aggregate) {
+    return checkForMethodOnAggregate(token, aggregate, aggregate.getName(), List.of());
   }
 
   private ScopedSymbol checkFunction(final IToken token,
