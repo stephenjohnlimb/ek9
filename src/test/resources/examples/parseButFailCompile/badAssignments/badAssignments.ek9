@@ -49,7 +49,7 @@ defines module bad.assignment.use
       assert value?
 
     okGenericDeclarationAssignment2()
-      value as List of Integer: List()
+      value <- List() of Integer
 
       assert value?
 
@@ -72,7 +72,7 @@ defines module bad.assignment.use
     //Some horrid error conditions.
     badGenericDeclarationAssignment1()
       //makes no sense
-      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      @Error: FULL_RESOLUTION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED
       value as List of Integer: Optional()
 
       assert value?

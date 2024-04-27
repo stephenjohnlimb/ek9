@@ -15,7 +15,7 @@ class BadBasicCoalescingUsesTest extends PhasesTest {
 
   public BadBasicCoalescingUsesTest() {
     super("/examples/parseButFailCompile/basicCoalescing",
-        List.of("coalescing.elvis"));
+        List.of("coalescing.elvis"), false, true);
   }
 
   @Test

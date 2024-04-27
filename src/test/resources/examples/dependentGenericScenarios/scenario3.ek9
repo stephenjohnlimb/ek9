@@ -47,7 +47,7 @@ defines module generics.scenario.three
 
       //Not only will this create the 'GC of Integer'
       //But also the dependent type 'DT of Integer', the compiler should deduce this.
-      g as GC of Integer: GC()
+      g <- GC() of Integer
 
       //This time compiler should infer an Integer.
       echoedValue <- g.operation(4)

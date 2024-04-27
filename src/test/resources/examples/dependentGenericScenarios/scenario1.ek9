@@ -46,7 +46,7 @@ defines module generics.scenario.one
   defines program
 
     IntegerDriver()
-      g as GC of Integer: GC()
+      g <- GC() of Integer
 
       //Compiler should infer 'DT of Integer'
       echoedValue <- g.operation(2)

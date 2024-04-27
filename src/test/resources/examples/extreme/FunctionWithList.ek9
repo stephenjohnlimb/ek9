@@ -109,7 +109,7 @@ defines module com.customer.is.handle.layout
       aVar <- "Steve"
       assert aVar?
 
-      bVar as List of String: List()
+      bVar <- List() of String
       assert bVar?
 
       cVar as List of String: ["A", "List", "Of", "Strings"]

@@ -15,7 +15,7 @@ class BadGenericConstructionsTest extends PhasesTest {
 
   public BadGenericConstructionsTest() {
     super("/examples/parseButFailCompile/inferredConstructionOfGenerics",
-        List.of("bad.generic.constructions"));
+        List.of("bad.generic.constructions"), false, true);
   }
 
   @Test

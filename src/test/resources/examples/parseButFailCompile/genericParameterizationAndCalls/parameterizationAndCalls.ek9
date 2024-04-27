@@ -7,7 +7,7 @@ defines module generic.parameterization
   defines function
 
     TestGenericClassExplicitParameterization()
-      checkClass1 as GenericClass of Integer: GenericClass()
+      checkClass1 <- GenericClass() of Integer
       assert checkClass1?
 
     TestBadGenericClassParameterization()

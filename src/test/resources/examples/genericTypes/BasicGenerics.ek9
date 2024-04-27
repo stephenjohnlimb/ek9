@@ -45,12 +45,12 @@ defines module net.customer.inferred
         <- rtn as T: T()
 
       something()
-        <- rtn as SomeTestList of T := SomeTestList()
+        <- rtn as SomeTestList of T: SomeTestList() of T
 
       //Add a T to the list.
       operator + as pure
         -> item as T
-        <- rtn as SomeTestList of T := SomeTestList()
+        <- rtn as SomeTestList of T := SomeTestList() of T
 
       default operator ?
 
@@ -60,7 +60,7 @@ defines module net.customer.inferred
       //So a simple testing method                
       method1()
         
-        aSomeTestList as SomeTestList of String: SomeTestList()
+        aSomeTestList as SomeTestList of String: SomeTestList() of String
 
         bSomeTestList <- SomeTestList("Steve")
         assert aSomeTestList? and bSomeTestList?

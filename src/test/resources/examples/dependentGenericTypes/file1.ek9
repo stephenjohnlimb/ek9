@@ -50,10 +50,10 @@ defines module dependent.generic.types
       assert true
 
     CreateExplicitParameterizedTypes()
-      check1 as G2 of (Date, String): G2()
+      check1 <- G2() of (Date, String)
       assert check1?
 
-      check2 as G1 of (Integer, Duration): G1()
+      check2 <- G1() of (Integer, Duration)
       assert check2?
 
     CreateInferredParameterizedTypes()

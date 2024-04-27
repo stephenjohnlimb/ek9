@@ -129,7 +129,7 @@ defines module bad.mutations
       assert listOfSuits?
 
     CheckCanReturnChangedWithoutError1()
-      <- rtn as List of CardSuit: List()
+      <- rtn <- List() of CardSuit
       //Just checking it is possible just to mutate a return variable and not have to use it within the function.
       rtn += CardSuit.Clubs
 

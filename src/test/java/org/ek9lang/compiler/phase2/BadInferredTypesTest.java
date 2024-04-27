@@ -18,7 +18,7 @@ class BadInferredTypesTest extends PhasesTest {
   public BadInferredTypesTest() {
     super("/examples/parseButFailCompile/badInferredTypes",
         List.of("bad.inferred.properties", "bad.inferred.returns"),
-        false, false);
+        false, true);
   }
 
   @Test

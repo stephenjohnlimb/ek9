@@ -245,7 +245,7 @@ defines module com.customer.just.employees
       addresses as AddressBook: AddressBook()
 
       employees()
-        <- rtn as List of Employee: List()
+        <- rtn <- List() of Employee
 
         //You can use named variable if you prefer
         rtn += createEmployee(id: 1, name: "Mary Poppins", theRole: "manager")

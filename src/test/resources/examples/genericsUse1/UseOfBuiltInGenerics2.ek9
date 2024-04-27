@@ -16,10 +16,10 @@ defines module simple.generics.use.one
 
     ADictionary()
       @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of (Integer)"
-      <- rtn as List of Integer: List()
+      <- rtn <- List() of Integer
 
       @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "Dict of (Integer, String)"
-      aDictionary as Dict of (Integer, String): Dict()
+      aDictionary <- Dict() of (Integer, String)
 
       @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "DictEntry of (Integer, String)"
       newEntry as DictEntry of (Integer, String): DictEntry(1, "Steve")

@@ -29,6 +29,14 @@ defines module just.workspace
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       assert notDefined?
 
+    TryThis()
+      <- rtn <- List() of String
+
+    TryThat()
+      <- rtn <- [""]
+
+    TryTheOther()
+      <- rtn <- String()
   <!-
 
     SimpleStreamCatMap4()

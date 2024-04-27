@@ -58,7 +58,7 @@ defines module bad.constraining.supers
     UnConstrainedGenericClassDemo1()
 
       @Error: POST_RESOLUTION_CHECKS: OPERATOR_NOT_DEFINED
-      demo as UnConstrainedGenericClass of C0: UnConstrainedGenericClass()
+      demo <- UnConstrainedGenericClass() of C0
 
       result <- demo.check(C0(22))
       assert result
@@ -67,7 +67,7 @@ defines module bad.constraining.supers
       Will be acceptable.
     -?>
     UnConstrainedGenericClassDemo2()
-      demo as UnConstrainedGenericClass of C1: UnConstrainedGenericClass()
+      demo <- UnConstrainedGenericClass() of C1
 
       result <- demo.check(C1(22))
       assert result
@@ -77,7 +77,7 @@ defines module bad.constraining.supers
     -?>
     ConstrainedGenericClassDemo1()
       @Error: POST_RESOLUTION_CHECKS: INCOMPATIBLE_TYPES
-      demo as ConstrainedGenericClass of C0: ConstrainedGenericClass()
+      demo <- ConstrainedGenericClass() of C0
 
       result <- demo.check(C0(22))
       assert result
@@ -86,7 +86,7 @@ defines module bad.constraining.supers
       Will be acceptable.
     -?>
     ConstrainedGenericClassDemo2()
-      demo as ConstrainedGenericClass of C1: ConstrainedGenericClass()
+      demo <- ConstrainedGenericClass() of C1
 
       result <- demo.check(C1(22))
       assert result

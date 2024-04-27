@@ -68,7 +68,7 @@ defines module com.customer.just
       nonResult := 0 / i3
       stdout.println("nonResult [" + $nonResult + "] is set is [" + $nonResult? + "]")
       
-      theValues as List of Integer: List()
+      theValues <- List() of Integer
       
       intSum <- for i in 1 ... 11 by 2 | tee in theValues | collect as Integer
       

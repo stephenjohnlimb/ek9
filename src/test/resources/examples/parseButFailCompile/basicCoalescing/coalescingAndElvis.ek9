@@ -86,7 +86,7 @@ defines module coalescing.elvis
 
     TestGenericNullCoalescing1()
       -> weight1 as GC2 of String
-      weight2 as GC2 of String: GC2()
+      weight2 <- GC2() of String
 
       coalesce <- weight1 ?? weight2
 
@@ -137,7 +137,7 @@ defines module coalescing.elvis
 
     TestBadGenericNullCoalescing1()
       -> weight1 as GC1 of String
-      weight2 as GC1 of String: GC1()
+      weight2 <- GC1() of String
 
       //Will detect the ? operator is missing.
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED

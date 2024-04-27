@@ -15,7 +15,8 @@ class MissingOperatorsTest extends PhasesTest {
 
   public MissingOperatorsTest() {
     super("/examples/parseButFailCompile/missingOperators",
-        List.of("bad.defaulted.recordoperators", "bad.defaulted.classoperators", "bad.overridden.classoperators"));
+        List.of("bad.defaulted.recordoperators", "bad.defaulted.classoperators",
+            "bad.overridden.classoperators"), false, true);
   }
 
   @Test

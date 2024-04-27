@@ -133,7 +133,7 @@ defines module bad.generic.class.constraints
       Just use UnConstrainedGenericClass with an Integer type.
     -?>
     UnConstrainedGenericClassWithIntegerDemo1()
-      demo as UnConstrainedGenericClass of Integer: UnConstrainedGenericClass()
+      demo <- UnConstrainedGenericClass() of Integer
       result <- demo.check(22)
       assert result
 
@@ -148,7 +148,7 @@ defines module bad.generic.class.constraints
       Now use C0 - note that the next phase will detect an error here because of missing '?' operator.
     -?>
     UnConstrainedGenericClassDemo2()
-      demo as UnConstrainedGenericClass of C0: UnConstrainedGenericClass()
+      demo <- UnConstrainedGenericClass() of C0
 
       //Cannot pass an Integer in needs to be a C0
       @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
@@ -162,7 +162,7 @@ defines module bad.generic.class.constraints
     -?>
     UnConstrainedGenericClassDemo3()
       //This will pass in this phase but fail in the next phase.
-      demo as UnConstrainedGenericClass of C0: UnConstrainedGenericClass()
+      demo <- UnConstrainedGenericClass() of C0
 
       //But this now would be OK.
       result <- demo.check(C0(22))
@@ -173,7 +173,7 @@ defines module bad.generic.class.constraints
     -?>
     ConstrainedGenericClassCOADemo4()
       //This too will pass in this phase, but fail in the next
-      demo as ConstrainedGenericClassCOA of C0: ConstrainedGenericClassCOA()
+      demo <- ConstrainedGenericClassCOA() of C0
 
       result <- demo.check(C0(22))
       assert result
@@ -183,7 +183,7 @@ defines module bad.generic.class.constraints
     -?>
     ConstrainedGenericClassCOADemo5()
       //This will be fine
-      demo as ConstrainedGenericClassCOA of C0A: ConstrainedGenericClassCOA()
+      demo <- ConstrainedGenericClassCOA() of C0A
 
       //But this will not because the type is incorrect
       @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
@@ -197,7 +197,7 @@ defines module bad.generic.class.constraints
     -?>
     ConstrainedGenericClassCOADemo6()
       //This will be fine
-      demo as ConstrainedGenericClassCOA of C0A: ConstrainedGenericClassCOA()
+      demo <- ConstrainedGenericClassCOA() of C0A
 
       result <- demo.check(C0A(22))
       assert result
@@ -206,7 +206,7 @@ defines module bad.generic.class.constraints
       More interesting a generic class constrained by C1, but used with a C1 and a C1A class.
     -?>
     ConstrainedGenericClassC1Demo7()
-      demo as ConstrainedGenericClassC1 of C1: ConstrainedGenericClassC1()
+      demo <- ConstrainedGenericClassC1() of C1
 
       //Check can be used with a C1 and a C1A
       result1 <- demo.check(C1(22))
@@ -219,7 +219,7 @@ defines module bad.generic.class.constraints
       Now try with a tighter constraint and check C1 cannot be used with it.
     -?>
     ConstrainedGenericClassC1Demo8()
-      demo as ConstrainedGenericClassC1 of C1A: ConstrainedGenericClassC1()
+      demo <- ConstrainedGenericClassC1() of C1A
 
       @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
       result1 <- demo.check(C1(22))

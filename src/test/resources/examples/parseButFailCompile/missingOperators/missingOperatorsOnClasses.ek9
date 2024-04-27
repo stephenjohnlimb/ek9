@@ -37,7 +37,7 @@ defines module bad.defaulted.classoperators
     //Should not result in duplication or '==', because 'default operator' by itself should 'fill in the blanks'.
     C0
       prop1 <- String()
-      prop2 as List of String: List()
+      prop2 <- List() of String
 
       //So the default implementation would use the '<=>' on the above properties
       //But it can only do that if the types have '<=>'.

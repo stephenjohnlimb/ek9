@@ -61,8 +61,8 @@ defines module bad.inferred.properties
     ConfigurationDetails
 
 
-      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_MUST_BE_SIMPLE
-      tooComplexExpression <- List() of String
+      //Now improved compiler to deal with this.
+      notTooComplexExpression <- List() of String
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_MUST_BE_SIMPLE
       invalid <- SomeFunction()

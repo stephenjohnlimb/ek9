@@ -92,7 +92,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final AccessGenericInGeneric accessGenericInGeneric;
   private final AggregateFactory aggregateFactory;
   private final Ek9Types ek9Types;
-  private final ProcessVariableDeclaration processVariableDeclaration;
+  private final ProcessContextVariableDeclaration processContextVariableDeclaration;
 
 
   /**
@@ -161,8 +161,8 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
         new MostSpecificScope(symbolAndScopeManagement);
     this.nameCollisionChecker =
         new NameCollisionChecker(errorListener, false);
-    this.processVariableDeclaration =
-        new ProcessVariableDeclaration(symbolAndScopeManagement, symbolFactory, errorListener);
+    this.processContextVariableDeclaration =
+        new ProcessContextVariableDeclaration(symbolAndScopeManagement, symbolFactory, errorListener);
 
   }
 
@@ -634,7 +634,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
         && (variableSymbol.isPropertyField() || variableSymbol.isReturningParameter())
         && ctx.assignmentExpression() != null) {
 
-      processVariableDeclaration.accept(ctx);
+      processContextVariableDeclaration.accept(ctx);
     }
 
     //While there is a check in phase one, this causes an ordering issue. So we run this in this phase.

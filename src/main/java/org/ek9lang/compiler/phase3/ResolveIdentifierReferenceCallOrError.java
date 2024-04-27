@@ -132,9 +132,10 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
       //let any assignments of checks with inference check the type compatibility or alter the type as appropriate.
 
       if (callArguments.isEmpty()) {
-        //This enables: 'aList as List of Float: List()'
-        //But requires that assignment alters the 'call' type and invocation.
-        //For now just return the first
+        //Now I want to stop this 'aList as List of Float: List()'
+        //As i have enabled 'aList <- List() of Float' and aList as List of Float: List() of Float
+        //TODO alter error message
+        emitMustBeParameterized(token, "Generic/Template construction", callIdentifier);
         return aggregate;
       } else {
         return checkGenericConstructionOrInvocation(token, callIdentifier, callArguments);
@@ -251,6 +252,18 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
 
     errorListener.semanticError(ctx.start, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
     return null;
+  }
+
+  private void emitMustBeParameterized(final IToken errorLocation,
+                                       final String additionalErrorInformation,
+                                       final ISymbol property) {
+
+    final var msg = "wrt '" + property.getName() + "' "
+        + additionalErrorInformation + ":";
+
+    errorListener.semanticError(errorLocation, msg,
+        ErrorListener.SemanticClassification.GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED);
+
   }
 
 }

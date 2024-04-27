@@ -42,7 +42,7 @@ defines module bad.inferred.returns
     -?>
     invalidExpressionUse1()
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_MUST_BE_SIMPLE
-      <- aBitComplex <- List() of String
+      <- aBitComplex <- List("Steve")
 
 
 //EOF

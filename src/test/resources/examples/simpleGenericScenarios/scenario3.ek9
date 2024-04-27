@@ -30,7 +30,7 @@ defines module generics.scenario.three
   defines program
 
     Driver()
-      g as GC of (Integer, Duration, Date): GC()
+      g <- GC() of (Integer, Duration, Date)
 
       calculatedValue as Date: g.operation(5, P2W, Date().today())
       assert calculatedValue?

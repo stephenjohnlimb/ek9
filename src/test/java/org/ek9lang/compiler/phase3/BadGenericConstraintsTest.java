@@ -17,7 +17,7 @@ class BadGenericConstraintsTest extends PhasesTest {
     super("/examples/parseButFailCompile/badGenericConstraints",
         List.of("bad.generic.class.constraints",
             "bad.generic.class.function.constraints",
-            "functiondelegate.inrecord.withgeneric"));
+            "functiondelegate.inrecord.withgeneric"), false, true);
   }
 
   @Test

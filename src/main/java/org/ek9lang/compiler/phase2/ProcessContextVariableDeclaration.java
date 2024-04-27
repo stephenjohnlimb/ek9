@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
@@ -17,7 +18,7 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.CompilerException;
 
 /**
- * Checks for inferred declarations of variables on 'properties' in aggregates.
+ * Checks for inferred declarations of variables in various contexts.
  * If possible it will attempt to workout what the type is, if it cannot it will emit an error.
  * This is designed to aid in simple property declarations as much as possible, but property initialisation cannot
  * really trigger full expression processing - that is a potential long and circular trail - that must be done in phase
@@ -30,12 +31,13 @@ import org.ek9lang.core.CompilerException;
  *   longhand as Integer: 1
  * </pre>
  */
-final class ProcessVariableDeclaration extends RuleSupport implements Consumer<EK9Parser.VariableDeclarationContext> {
+final class ProcessContextVariableDeclaration extends RuleSupport
+    implements Consumer<EK9Parser.VariableDeclarationContext> {
   private final ParameterisedLocator parameterisedLocator;
 
-  ProcessVariableDeclaration(final SymbolAndScopeManagement symbolAndScopeManagement,
-                             final SymbolFactory symbolFactory,
-                             final ErrorListener errorListener) {
+  ProcessContextVariableDeclaration(final SymbolAndScopeManagement symbolAndScopeManagement,
+                                    final SymbolFactory symbolFactory,
+                                    final ErrorListener errorListener) {
 
     super(symbolAndScopeManagement, errorListener);
     this.parameterisedLocator = new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
@@ -57,7 +59,9 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
                                    final ISymbol variable) {
 
     if (exprCtx.call() != null && exprCtx.call().identifierReference() != null) {
-      processAsIdentifierReference(ctx, exprCtx.call().identifierReference(), variable);
+      processAsIdentifierReference(ctx, exprCtx, variable);
+    } else if (exprCtx.call() != null && exprCtx.call().parameterisedType() != null) {
+      processAsParameterisedType(ctx, exprCtx, variable);
     } else if (exprCtx.list() != null) {
       processAsList(exprCtx.list(), variable);
     } else if (exprCtx.dict() != null) {
@@ -69,20 +73,50 @@ final class ProcessVariableDeclaration extends RuleSupport implements Consumer<E
   }
 
   private void processAsIdentifierReference(final EK9Parser.VariableDeclarationContext ctx,
-                                            final EK9Parser.IdentifierReferenceContext identifierReferenceCtx,
+                                            final EK9Parser.ExpressionContext exprCtx,
                                             final ISymbol variable) {
 
+    final var identifierReferenceCtx = exprCtx.call().identifierReference();
     final var identifierReference = symbolAndScopeManagement.getRecordedSymbol(identifierReferenceCtx);
+    //Here this could be a function call, type construction or an inferred Generic Construction
+    if (identifierReference != null
+        && (identifierReference.isTemplateFunction() || identifierReference.isTemplateType())) {
 
-    if (identifierReference != null) {
-      identifierReference.getType().ifPresent(type -> {
+      //At this point in the phases we have not started to try and resolve expressions, that's the next phase.
+      //Consider a shortcut of this to attempt to resolve a inferred parameterised type early.
+      emitMustBeSimpleError(ctx.start, "not expecting type inferred Generic", variable);
+      return;
+    }
+
+    resolveTypeOrError(identifierReferenceCtx.start, ctx, identifierReferenceCtx, variable);
+
+  }
+
+  private void processAsParameterisedType(final EK9Parser.VariableDeclarationContext ctx,
+                                          final EK9Parser.ExpressionContext exprCtx,
+
+                                          final ISymbol variable) {
+
+    final var parameterisedTypeCtx = exprCtx.call().parameterisedType();
+    resolveTypeOrError(parameterisedTypeCtx.start, ctx, parameterisedTypeCtx, variable);
+
+  }
+
+  private void resolveTypeOrError(final Token errorLocation,
+                                  final EK9Parser.VariableDeclarationContext ctx,
+                                  final ParseTree node,
+                                  final ISymbol variable) {
+
+    final var ref = symbolAndScopeManagement.getRecordedSymbol(node);
+    if (ref != null) {
+      ref.getType().ifPresent(type -> {
         variable.setType(type);
         if (!type.isType()) {
           emitMustBeSimpleError(ctx.start, "expecting a valid type", variable);
         }
       });
     } else {
-      errorListener.semanticError(identifierReferenceCtx.start, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
+      errorListener.semanticError(errorLocation, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
     }
 
   }

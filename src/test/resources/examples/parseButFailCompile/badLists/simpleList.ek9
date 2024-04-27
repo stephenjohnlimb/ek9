@@ -12,7 +12,7 @@ defines module bad.lists.only
     -?>
     WorkingExplicitList()
       @Resolved: FULL_RESOLUTION: TYPE: "List of (Float)"
-      aList as List of Float: List()
+      aList <- List() of Float
 
       assert aList?
 

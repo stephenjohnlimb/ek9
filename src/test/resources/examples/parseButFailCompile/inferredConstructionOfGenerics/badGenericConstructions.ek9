@@ -124,7 +124,7 @@ defines module bad.generic.constructions
   defines function
 
     CheckExplicitParameterizedG1()
-      var as G1 of Integer: G1()
+      var <- G1() of Integer
 
       @Resolved: FULL_RESOLUTION: TYPE: "G1 of (Integer)"
       assert var?
@@ -135,7 +135,7 @@ defines module bad.generic.constructions
       assert var?
 
     CheckExplicitParameterizedG2()
-      var as G2 of (Integer, String): G2()
+      var <- G2() of (Integer, String)
 
       //Just a quirk of how the @directives work, always needs a statement.
       //The above parameterization should trigger the creation of these types

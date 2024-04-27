@@ -37,13 +37,13 @@ defines module generics.scenario.one
   defines program
 
     IntegerDriver()
-      g as GC of Integer: GC()
+      g <- GC() of Integer
 
       echoedValue as Integer: g.operation(21)
       assert echoedValue == 21
 
     StringDriver()
-      g as GC of String: GC()
+      g <- GC() of String
 
       echoedValue as String: g.operation("Steve")
       assert echoedValue == "Steve"

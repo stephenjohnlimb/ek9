@@ -51,7 +51,7 @@ defines module bad.generic.class.function.constraints
       Unlike classes where it is possible to undertaken operations using the 'T'.
     -?>
     UseOfGenericClassWithFunctionDemo1()
-      demo as UnConstrained of SomeFunction: UnConstrained()
+      demo <- UnConstrained() of SomeFunction
 
       result1 <- demo.check(SomeFunction)
       assert result1

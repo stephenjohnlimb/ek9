@@ -348,7 +348,7 @@ defines module com.customer.just.employees2
       addressDB as AddressDB?
       payrollPolicyDB as PayrollPolicyDB?
       
-      employedStaff as Dict of (EmployeeId, Employment): Dict()
+      employedStaff <- Dict() of (EmployeeId, Employment)
       nextEmployeeId as EmployeeId: EmployeeId(6)
 
       private InMemoryEmployeeDB()
@@ -373,7 +373,7 @@ defines module com.customer.just.employees2
         aTestMethod("Steve")
         
       override employed()
-        <- staff as List of Employment: List()
+        <- staff <- List() of Employment
         values <- this.employedStaff.values()
         cat values > staff
 

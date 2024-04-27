@@ -61,13 +61,13 @@ defines module simple.generics.use.four
       //So these will get created in polymorphic parameterised form
       //Symbol 4
       @Resolved: SYMBOL_DEFINITION: TYPE: "GenericThing of (DateTime)"
-      thingOfDateTime as GenericThing of DateTime: GenericThing()
+      thingOfDateTime <- GenericThing() of DateTime
       assert ~thingOfDateTime?
 
 
       //Symbol 5
       @Resolved: SYMBOL_DEFINITION: TYPE: "GenericThing of (Duration)"
-      thingOfDuration as GenericThing of Duration:  GenericThing()
+      thingOfDuration <- GenericThing() of Duration
       assert ~thingOfDuration?
 
       //But for now in early compiler phases focus on this
