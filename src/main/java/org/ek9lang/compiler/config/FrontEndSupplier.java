@@ -27,7 +27,7 @@ import org.ek9lang.core.SharedThreadContext;
  * Could be used in lsp, or we could just create another supplier and the appropriate list of phases.
  */
 public class FrontEndSupplier extends PhaseSupplier {
-  private final boolean multiThread;
+  private final boolean notBootStrapping;
 
   /**
    * Create a new supplier of front end only compiler phases.
@@ -35,10 +35,10 @@ public class FrontEndSupplier extends PhaseSupplier {
   public FrontEndSupplier(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
                           final CompilationPhaseListener listener,
                           final CompilerReporter reporter,
-                          final boolean multiThread) {
+                          final boolean notBootStrapping) {
 
     super(compilableProgramAccess, listener, reporter);
-    this.multiThread = multiThread;
+    this.notBootStrapping = notBootStrapping;
 
   }
 
@@ -47,12 +47,12 @@ public class FrontEndSupplier extends PhaseSupplier {
 
     return List.of(
         new Parsing(listener, reporter),
-        new SymbolDefinition(multiThread, compilableProgramAccess, listener, reporter),
+        new SymbolDefinition(notBootStrapping, compilableProgramAccess, listener, reporter),
         new ModuleDuplicateSymbolChecks(compilableProgramAccess, listener, reporter),
         new ReferenceChecks(compilableProgramAccess, listener, reporter),
-        new NonInferredTypeDefinition(multiThread, compilableProgramAccess, listener, reporter),
+        new NonInferredTypeDefinition(notBootStrapping, compilableProgramAccess, listener, reporter),
         new TypeHierarchyChecks(compilableProgramAccess, listener, reporter),
-        new SymbolResolution(multiThread, compilableProgramAccess, listener, reporter),
+        new SymbolResolution(notBootStrapping, compilableProgramAccess, listener, reporter),
         new PostSymbolResolutionChecks(compilableProgramAccess, listener, reporter),
         new PreIntermediateRepresentationChecks(compilableProgramAccess, listener, reporter),
         new PluginResolution(compilableProgramAccess, listener, reporter));

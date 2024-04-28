@@ -19,6 +19,7 @@ import org.ek9lang.compiler.Serializer;
 import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.ModuleScope;
@@ -86,7 +87,7 @@ class CompilableProgramCloneTest {
   private SharedThreadContext<CompilableProgram> createCompilableProgram() {
     final Supplier<List<CompilableSource>> sourceSupplier =
         () -> List.of(new CompilableSource(Objects.requireNonNull(getClass().getResource(
-            "/examples/bootstrap/minimalTypes.ek9")).getPath()));
+            "/examples/bootstrap/org-ek9-lang.ek9")).getPath()));
 
     final var ek9BootStrap = new Ek9LanguageBootStrap(sourceSupplier, listener.get(),
         new CompilerReporter(false, true));
@@ -100,7 +101,7 @@ class CompilableProgramCloneTest {
   }
 
   private void assertCompilableProgram(CompilableProgram program) {
-    //Now we'd only expect a single module name - that from minimalTypes.ek9 - "org.ek9.lang"
+    //Now we'd only expect a single module name - "org.ek9.lang"
     var moduleNames = program.getParsedModuleNames();
     assertEquals(1, moduleNames.size());
 
@@ -130,10 +131,12 @@ class CompilableProgramCloneTest {
 
   private void assertModuleScope(final ModuleScope moduleScope) {
     assertNotNull(moduleScope);
-    assertEquals(1, moduleScope.getSymbolsForThisScope().size());
-    var justStringSymbol = moduleScope.getSymbolsForThisScope().get(0);
-    assertEquals("String", justStringSymbol.getFriendlyName());
-    assertStringMethods(justStringSymbol);
+    var justStringSymbol = moduleScope.resolve(new TypeSymbolSearch("String"));
+    assertTrue(justStringSymbol.isPresent());
+    justStringSymbol.ifPresent(stringSymbol -> {
+      assertEquals("String", stringSymbol.getFriendlyName());
+      assertStringMethods(stringSymbol);
+    });
   }
 
   private void assertStringMethods(final ISymbol justStringSymbol) {
@@ -159,7 +162,7 @@ class CompilableProgramCloneTest {
 
   private void assertCompilableSource(final CompilableSource compilableSource) {
     assertNotNull(compilableSource);
-    assertTrue(compilableSource.getFileName().endsWith("examples/bootstrap/minimalTypes.ek9"));
+    assertTrue(compilableSource.getFileName().endsWith("examples/bootstrap/org-ek9-lang.ek9"));
     assertNotNull(compilableSource.getGeneralIdentifier());
 
     //We have not said this is a library and so this should be null.
@@ -171,7 +174,7 @@ class CompilableProgramCloneTest {
     assertNotNull(checkTokenResult);
 
     //Check that we find the expected token text at this point.
-    assertEquals("open", checkTokenResult.getToken().getText());
+    assertEquals("function", checkTokenResult.getToken().getText());
     //Now check the error listener
     assertErrorListener(compilableSource.getErrorListener());
 

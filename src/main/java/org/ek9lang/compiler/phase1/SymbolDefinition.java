@@ -12,6 +12,7 @@ import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilerReporter;
+import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.core.SharedThreadContext;
 
 /**
@@ -27,7 +28,7 @@ public final class SymbolDefinition extends CompilerPhase {
 
   private static final CompilationPhase thisPhase = CompilationPhase.SYMBOL_DEFINITION;
   private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
-  private boolean useMultiThreading = true;
+  private boolean notBootStrapping = true;
 
   /**
    * Create a new phase 1 symbol definition instance, defaults to multithreading enabled.
@@ -43,13 +44,13 @@ public final class SymbolDefinition extends CompilerPhase {
   /**
    * Create symbol definition instance with optional multi-threading.
    */
-  public SymbolDefinition(final boolean multiThread,
+  public SymbolDefinition(final boolean notBootStrapping,
                           final SharedThreadContext<CompilableProgram> compilableProgramAccess,
                           final Consumer<CompilationEvent> listener,
                           final CompilerReporter reporter) {
 
     this(compilableProgramAccess, listener, reporter);
-    this.useMultiThreading = multiThread;
+    this.notBootStrapping = notBootStrapping;
 
   }
 
@@ -63,7 +64,7 @@ public final class SymbolDefinition extends CompilerPhase {
   private boolean underTakeSymbolDefinition(final Workspace workspace) {
     //May consider moving to Executor model
 
-    if (useMultiThreading) {
+    if (notBootStrapping) {
       defineSymbolsMultiThreaded(workspace);
     } else {
       defineSymbolsSingleThreaded(workspace);
@@ -103,11 +104,19 @@ public final class SymbolDefinition extends CompilerPhase {
     walker.walk(phaseListener, source.getCompilationUnitContext());
     listener.accept(new CompilationEvent(thisPhase, parsedModule, source));
 
+    //If not boot strapping then do not record types from a module with same name
+    //In fact if the module has this name we must issue an error and not allow EK9 developers to add their code
+    //to this module
+    if (notBootStrapping) {
+      //TODO emit error is module is name "org.ek9.lang" or "org.ek9.math"
+      return;
+    }
+
     /*
      * Now for the built-in types, we resolve and hold the types and supply to the compilable program.
      * These can then be passed into ParsedModules as and when requested and then into other components.
      */
-    if ("org-ek9-lang.ek9".equals(source.getFileName())) {
+    if (AggregateFactory.EK9_LANG.equals(parsedModule.getModuleName())) {
       final var builtInTypeCacheResolver = new BuiltInTypeCacheResolver();
       final var ek9Types = builtInTypeCacheResolver.apply(parsedModule.getModuleScope());
       compilableProgramAccess.accept(compilableProgram -> compilableProgram.setEk9Types(ek9Types));

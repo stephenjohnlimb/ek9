@@ -4,16 +4,31 @@
   But this uses the full compiler - to check out the mechanism rather than
   the other generic types that work at a much lower level. Those have been hard to work
   with and have not really had the effect in finding issues that I expected.
+
+  This has to have quite a few 'stub' types so that the basics in the Java code can use specific known EK9 types.
 -!>
 defines extern module org.ek9.lang
 
+  defines function
+
+    <?-
+      Just to check that it is possible to parameterize a genetic/template type
+    -?>
+    GenericTest
+
+      listOfString <- List() of String
+      assert listOfString?
+
+
   defines class
 
-    String as open
-      String() as pure
+    Void
 
-      String() as pure
-        -> arg0 as String
+    Boolean as open
+      Boolean() as pure
+
+      Boolean() as pure
+        -> arg0 as Boolean
 
     Integer as open
       Integer() as pure
@@ -21,11 +36,121 @@ defines extern module org.ek9.lang
       Integer() as pure
         -> arg0 as Integer
 
-    Boolean as open
-      Boolean() as pure
+    Float as open
+      Float() as pure
 
-      Boolean() as pure
-        -> arg0 as Boolean
+      Float() as pure
+        -> arg0 as Integer
+
+    String as open
+      String() as pure
+
+      String() as pure
+        -> arg0 as String
+
+    Character as open
+
+    Date as open
+
+    DateTime as open
+
+    Time as open
+
+    Duration as open
+
+    JSON as open
+
+    Millisecond as open
+
+    Path as open
+
+    Version as open
+
+    Exception as open
+
+  defines function
+
+    Supplier of type T as pure abstract
+      <- r as T?
+
+    Producer of type T as abstract
+      <- r as T?
+
+    Consumer of type T as pure abstract
+      -> t as T
+
+    BiConsumer of type (T, U) as pure abstract
+      ->
+        t as T
+        u as U
+
+    Acceptor of type T as abstract
+      -> t as T
+
+    BiAcceptor of type (T, U) as abstract
+      ->
+        t as T
+        u as U
+
+    UnaryOperator of type T as pure abstract
+      -> t as T
+      <- r as T?
+
+    Function of type (T, R) as pure abstract
+      -> t as T
+      <- r as R?
+
+    BiFunction of type (T, U, R) as pure abstract
+      ->
+        t as T
+        u as U
+      <- r as R?
+
+    Predicate of type T as pure abstract
+      -> t as T
+      <- r as Boolean?
+
+    <?-
+      Similar in concept to a Predicate, but not pure. Can mutate data.
+    -?>
+    Assessor of type T as abstract
+      -> t as T
+      <- r as Boolean?
+
+    BiPredicate of type (T, U) as pure abstract
+      ->
+        t as T
+        u as U
+      <-
+        r as Boolean?
+
+    Comparator of type T as pure abstract
+      ->
+        t1 as T
+        t2 as T
+      <-
+        r as Integer?
+
+  defines trait
+    HTTPRequest as open
+    HTTPResponse as open
+
+  defines class
+
+    Iterator of type T as abstract
+      Iterator() as pure
+
+    Optional of type T
+      Optional() as pure
+
+    Dict of type (K, V) as open
+      Dict() as pure
+
+    DictEntry of type (K, V) as open
+      DictEntry() as pure
+
+    Result of type (O, E)
+      Result() as pure
 
     List of type T as open
       List() as pure

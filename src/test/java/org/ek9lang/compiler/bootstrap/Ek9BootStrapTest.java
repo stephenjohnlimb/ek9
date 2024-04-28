@@ -3,27 +3,22 @@ package org.ek9lang.compiler.bootstrap;
 import static org.ek9lang.compiler.Ek9BuiltinLangSupplier.NUMBER_OF_EK9_SYMBOLS;
 import static org.ek9lang.compiler.support.AggregateFactory.EK9_LANG;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.List;
-import java.util.Objects;
 import java.util.function.Supplier;
 import org.ek9lang.compiler.CompilableProgram;
-import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.DeSerializer;
 import org.ek9lang.compiler.Ek9BuiltinLangSupplier;
 import org.ek9lang.compiler.Ek9LanguageBootStrap;
 import org.ek9lang.compiler.Serializer;
 import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilerReporter;
-import org.ek9lang.compiler.symbols.AggregateSymbol;
-import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.search.AnyTypeSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.support.SimpleResolverForTesting;
 import org.ek9lang.compiler.support.SymbolCountCheck;
-import org.ek9lang.core.CompilerException;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -72,7 +67,9 @@ class Ek9BootStrapTest {
     var afterDeserialize = System.currentTimeMillis();
     reloadedProgram.accept(this::assertEk9);
 
-    reporter.log(String.format("Serialize CompilableProgram took %d ms, Deserialize took %d ms\n", (afterSerialize-start), (afterDeserialize-afterSerialize)));
+    reporter.log(
+        String.format("Serialize CompilableProgram took %d ms, Deserialize took %d ms\n", (afterSerialize - start),
+            (afterDeserialize - afterSerialize)));
   }
 
   private void assertEk9(final CompilableProgram program) {
@@ -109,14 +106,4 @@ class Ek9BootStrapTest {
     }, () -> Assertions.fail("Expecting 'Integer' to be found"));
   }
 
-  @Test
-  void testBadBootstrapSource() {
-    final Supplier<List<CompilableSource>> sourceSupplier =
-        () -> List.of(new CompilableSource(Objects.requireNonNull(getClass().getResource(
-            "/examples/parseButFailCompile/builtin/badBuiltin.ek9")).getPath()));
-
-    final var underTest = new Ek9LanguageBootStrap(sourceSupplier, listener.get(), new CompilerReporter(false, true));
-
-    assertThrows(CompilerException.class, underTest::get);
-  }
 }

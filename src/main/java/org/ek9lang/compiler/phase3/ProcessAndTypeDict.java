@@ -49,7 +49,7 @@ final class ProcessAndTypeDict extends TypedSymbolAccess implements Consumer<EK9
     //That's the point of this code! See the last part of this method.
     final var dictCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
     //Access the generic Dict type - this has been pre-located for quicker use.
-    final var dictType = symbolAndScopeManagement.getEk9Types().ek9Dict();
+    final var dictType = symbolAndScopeManagement.getEk9Types().ek9Dictionary();
     final var keyArgumentSymbols = getDictArgumentsAsSymbols(ctx, 0);
     final var valueArgumentSymbols = getDictArgumentsAsSymbols(ctx, 1);
     final var commonKeyType = commonTypeSuperOrTrait.apply(startToken, keyArgumentSymbols);

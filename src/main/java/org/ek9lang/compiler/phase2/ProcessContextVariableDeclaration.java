@@ -166,7 +166,7 @@ final class ProcessContextVariableDeclaration extends RuleSupport
       if (keyValueTypes.isEmpty()) {
         return;
       }
-      final var dictType = symbolAndScopeManagement.getEk9Types().ek9Dict();
+      final var dictType = symbolAndScopeManagement.getEk9Types().ek9Dictionary();
       final var typeData = new ParameterisedTypeData(new Ek9Token(dictCtx.start), dictType, keyValueTypes);
       final var resolvedNewType = parameterisedLocator.resolveOrDefine(typeData);
       if (resolvedNewType.isEmpty()) {

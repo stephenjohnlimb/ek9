@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Design just to check that it is possible with just one generic Type and one standard type
  * to be able to create a polymorphic parameterized type.
- * I've struggled with this quite a bit and now I'm starting to see what's wrong (I think).
+ * I've struggled with this quite a bit, and now I'm starting to see what's wrong (I think).
  * So this test is designed to ensure that given a Generic Type all the operations on that type
  * are correctly generated on the new type when it is parameterized and importantly that they can be resolved.
  */
@@ -34,9 +34,11 @@ class MinimalGenericBootStrapTest {
     }
   };
 
+  //Note need to use this name so that ek9 types can be used in compiler.
+  //As not actually loading the basics of EK9 source.
   final Supplier<List<CompilableSource>> sourceSupplier =
       () -> List.of(new CompilableSource(Objects.requireNonNull(getClass().getResource(
-          "/examples/bootstrap/minimalGenerics.ek9")).getPath()));
+          "/examples/bootstrap/org-ek9-lang.ek9")).getPath()));
 
   @Test
   void basicMinimalBootStrap() {
@@ -46,6 +48,7 @@ class MinimalGenericBootStrapTest {
     //Precondition before we even start to try and really test anything.
     sharedContext.accept(this::assertMinimalEk9);
 
+    //Now resolve the polymorphic type
   }
 
   /**
@@ -54,8 +57,7 @@ class MinimalGenericBootStrapTest {
    */
   private void assertMinimalEk9(final CompilableProgram program) {
 
-    var moduleName = EK9_LANG;
-    var scope = program.getParsedModules(moduleName).get(0).getModuleScope();
+    var scope = program.getParsedModules(EK9_LANG).get(0).getModuleScope();
     assertNotNull(scope);
 
     assertTrue(scope.resolve(new TypeSymbolSearch("String")).isPresent());
@@ -65,9 +67,6 @@ class MinimalGenericBootStrapTest {
     //Ensure not just a 'type' but known to be a template (generic) type.
     assertFalse(scope.resolve(new TypeSymbolSearch("List")).isPresent());
     assertTrue(scope.resolve(new TemplateTypeSymbolSearch("List")).isPresent());
-
-    //Ensure that Float for example cannot be found as that is not included in the minimal source
-    assertFalse(scope.resolve(new TypeSymbolSearch("Float")).isPresent());
 
   }
 
